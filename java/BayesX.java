@@ -68,6 +68,8 @@ private JMenuBar jMenuBar;
 			private JCheckBoxMenuItem obj;
 	private JMenu help;
 	private JMenuItem help1;
+	private JMenuItem help2;
+	private JMenuItem help3;
 	private JMenuItem info;
 /*	private JMenuItem help2;
 	private File helpReader;
@@ -363,10 +365,18 @@ public BayesX()
 	help = new JMenu("Help");
 /*	fileChooser1 = new JFileChooser(defaultDirectory);
 	fileChooser1.addChoosableFileFilter(new HelpFilter());*/
-        help1 = new JMenuItem("Show Help");
-        help1.setMnemonic(KeyEvent.VK_S);
+        help1 = new JMenuItem("Reference Manual");
+        help1.setMnemonic(KeyEvent.VK_R);
         help.add(help1);
         help1.addActionListener(this);
+        help2 = new JMenuItem("Tutorials Manual");
+        help2.setMnemonic(KeyEvent.VK_T);
+        help.add(help2);
+        help2.addActionListener(this);
+        help3 = new JMenuItem("Methodology Manual");
+        help3.setMnemonic(KeyEvent.VK_M);
+        help.add(help3);
+        help3.addActionListener(this);
 	info = new JMenuItem("About BayesX");
 	info.setMnemonic(KeyEvent.VK_A);
 	help.add(info);
@@ -1071,14 +1081,44 @@ public void actionPerformed(ActionEvent ae)
 		objectsList1.setFont(new Font("Sansserif",Font.PLAIN,16));
 		objectsList2.setFont(new Font("Sansserif",Font.PLAIN,16));
 		}
-         else if(source.equals("Show Help"))
+         else if(source.equals("Reference Manual"))
                 {
 		Runtime r = Runtime.getRuntime();
 		try
 			{
 			String[] comms = new String[2];
 			comms[0]="ShellExec";
-			comms[1]="doc/manual.pdf";
+			comms[1]="doc/reference_manual.pdf";
+			Process p = r.exec(comms);
+			}
+		catch(IOException ioe)
+			{
+			System.err.println(ioe.getMessage());
+			}
+                }
+         else if(source.equals("Methodology Manual"))
+                {
+		Runtime r = Runtime.getRuntime();
+		try
+			{
+			String[] comms = new String[2];
+			comms[0]="ShellExec";
+			comms[1]="doc/methodology_manual.pdf";
+			Process p = r.exec(comms);
+			}
+		catch(IOException ioe)
+			{
+			System.err.println(ioe.getMessage());
+			}
+                }
+         else if(source.equals("Tutorials Manual"))
+                {
+		Runtime r = Runtime.getRuntime();
+		try
+			{
+			String[] comms = new String[2];
+			comms[0]="ShellExec";
+			comms[1]="doc/tutorials_manual.pdf";
 			Process p = r.exec(comms);
 			}
 		catch(IOException ioe)
