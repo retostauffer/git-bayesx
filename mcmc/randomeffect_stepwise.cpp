@@ -10,7 +10,7 @@ namespace MCMC
 //----------------- class FULLCOND_random --------------------------------------
 //------------------------------------------------------------------------------
 
-void FULLCOND_random::compute_lambdavec(vector<double> & lvec, const unsigned & number)
+void FULLCOND_random::compute_lambdavec(vector<double> & lvec, int & number)
   {
   if (get_df_equidist()==true)
      FULLCOND::compute_lambdavec_equi(lvec,number);

@@ -2664,7 +2664,6 @@ double FULLCOND_pspline_surf_gaussian::compute_df(void)
     return invprec.traceOfProduct(XX_env);
   else
     return invprec.traceOfProduct(XX_env)-1;
-
   }
 
 
@@ -2729,7 +2728,7 @@ void FULLCOND_pspline_surf_gaussian::hierarchie_rw1(vector<double> & untervector
 
 
 void FULLCOND_pspline_surf_gaussian::compute_lambdavec(
-vector<double> & lvec, const unsigned & number)
+vector<double> & lvec, int & number)
   {
   if (get_df_equidist()==true)
      FULLCOND::compute_lambdavec_equi(lvec,number);
@@ -2740,7 +2739,7 @@ vector<double> & lvec, const unsigned & number)
     {
     lvec.push_back(-1);
     }
-  else if (type==RW1)
+  else if (type==RW1 || type==mrflinear)
     {
     hierarchie_rw1(lvec);
     }

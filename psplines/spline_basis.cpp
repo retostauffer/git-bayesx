@@ -251,6 +251,8 @@ spline_basis::spline_basis(MCMCoptions * o,const datamatrix & d1,
 
   data_forfixed = d2;
 
+  beta_average.erase(beta_average.begin(),beta_average.end());
+
   lambdaconst = false;
   outbsplines = false;
   lambda_prec = -1.0;
@@ -402,6 +404,7 @@ spline_basis::spline_basis(const spline_basis & sp)
   begcol = sp.begcol;
   DG = sp.DG;
   DGfirst = sp.DGfirst;
+  beta_average = sp.beta_average;
   }
 
 
@@ -479,6 +482,7 @@ const spline_basis & spline_basis::operator=(const spline_basis & sp)
   begcol = sp.begcol;
   DG = sp.DG;
   DGfirst = sp.DGfirst;
+  beta_average = sp.beta_average;
 
   return *this;
   }
@@ -2618,6 +2622,228 @@ void spline_basis::write_spline(void)
   }
 
 
+// BEGIN: MODEL-AVERAGING ------------------------------------------------------
+
+void spline_basis::save_betas(vector<double> & modell, unsigned & anzahl)
+  {
+  vector<double> beta_neu;
+  unsigned i;
+  unsigned j;
+
+  if(modell[anzahl] != -1 && modell[anzahl] != 0)
+    {
+    double * workbeta = beta.getV();
+    for(i=0;i<beta.rows();i++,workbeta++)
+      beta_neu.push_back(*workbeta);
+    }
+  else if(modell[anzahl] == -1)
+    {
+    unsigned welches = 1;
+    for(j=0;j<anzahl;j++)
+      if(modell[j] == -1)
+        welches++;
+    double fix = fcconst->get_betafix(welches);
+    beta_neu.push_back(fix);
+    }
+  // else
+  // Vektor "beta_neu" bleibt leer!
+
+  beta_average.push_back(beta_neu);
+/*
+ofstream out("c:\\cprog\\test\\results\\betas.txt");
+for(i=0;i<beta_neu.size();i++)
+  out << ST::doubletostring(beta_neu[i],6) << endl;
+out << endl << endl;
+datamatrix X = datamatrix(likep->get_nrobs(),nrpar,0);
+getX(X);
+X.prettyPrint(out);
+*/
+  }
+
+
+void spline_basis::average_posteriormode(vector<double> & crit_weights)
+  {
+  unsigned i;
+  unsigned j;
+  vector<double> beta_spline;
+  for(j=0;j<nrpar;j++)
+    beta_spline.push_back(0);
+  double beta_fix = 0;
+  double alpha_fix = 0;          // nur nötig, wenn so zentriert, daß Integral=0
+/*
+ofstream out("c:\\cprog\\test\\results\\beta_spline.txt");
+for(i=0;i<crit_weights.size();i++)
+  {
+  for(j=0;j<beta_average[i].size();j++)
+    out << ST::doubletostring(beta_average[i][j],8) << "   ";
+  out << endl;
+  }
+out << endl;
+*/
+  for(i=0;i<crit_weights.size();i++)
+    {
+    if(beta_average[i].size()>1)
+      {
+      for(j=0;j<beta_average[i].size();j++)
+        beta_spline[j] += beta_average[i][j] * crit_weights[i];
+      }
+    else if(beta_average[i].size()==1)
+      {
+      beta_fix += beta_average[i][0] * crit_weights[i];  // Gerade so zentrieren, daß Integral=0, d.h. G((x_max-x_min)/2) = 0!
+      alpha_fix += - beta_average[i][0] * crit_weights[i] * (data_forfixed.max(0)+data_forfixed.min(0))/2;
+            // wenn Integral == 0, dann muß Intercept aktualisiert werden mit:
+            // + crit_weights[i] * (-1) * (y-Achsenabschnitt von Gerade mit Integrall=0)
+            // wobei: y-Achsenabschnitt von Gerade mit Integrall=0 = - beta_average[i][0] * (x_max-x_min)/2
+      }
+    }
+  fcconst->set_intercept_for_center(-alpha_fix);
+/*
+out << "Gewichte:" << endl;
+for(i=0;i<crit_weights.size();i++)
+  {
+  out << ST::doubletostring(crit_weights[i],8) << "   ";
+  }
+out << endl;
+out << "beta_quer:" << endl;
+for(i=0;i<beta_spline.size();i++)
+  {
+  out << ST::doubletostring(beta_spline[i],8) << "   ";
+  }
+out << endl << endl;
+*/
+  setbeta(beta_spline.size(),1,0);
+  double * workbeta = beta.getV();
+  for(i=0;i<beta_spline.size();i++,workbeta++)
+    *workbeta = beta_spline[i];
+/*
+beta.prettyPrint(out);
+out << endl << endl;
+betamean.prettyPrint(out);
+out << endl << endl;
+*/
+  datamatrix pmean_spline = datamatrix(likep->get_nrobs(),1,0);
+  if(gridsize < 0)
+    multBS_sort(pmean_spline,beta);
+  else    // Vorsicht: hier passt es wahrscheinlich überhaupt nicht mehr, weil nicht alle x_1,...,x_n verwendet werden!!!
+    multDG(pmean_spline,beta);
+  compute_intercept(beta);
+/*
+out << "nicht-zentrierter SPLINE:" << endl;
+pmean_spline.prettyPrint(out);
+out << endl << endl;
+*/
+  datamatrix inter = datamatrix(likep->get_nrobs(),1,-intercept);
+  pmean_spline.plus(pmean_spline,inter);         // zentrierter durchschnittlicher Spline, Einträge in Reihenfolge x_1,...,x_n
+  fcconst->set_intercept_for_center(intercept);  // beta_0 wurde vorher nicht an zentrierten Spline angepsst, deshalb hier!
+  intercept = 0.0;
+/*
+out << "zentrierter SPLINE:" << endl;
+pmean_spline.prettyPrint(out);
+out << endl << endl;
+*/
+  datamatrix pmean_fix = datamatrix(likep->get_nrobs(),1,0);
+  datamatrix beta_fixx = datamatrix(1,1,beta_fix);
+  datamatrix intercept_fix = datamatrix(likep->get_nrobs(),1,alpha_fix);
+  if(beta_fix != 0)
+    {
+    pmean_fix.mult(data_forfixed,beta_fixx);     // berechnet den Anteil der fixen Effekte
+    pmean_fix.plus(pmean_fix,intercept_fix);     // zentrierter linearer Effekt; Einträge in Reihenfolge x_1,...,x_n
+    }
+  subtr_spline();
+  spline.plus(pmean_spline,pmean_fix);         //zentrierte durchschnittliche Funktion
+/*
+out << "FIX:" << endl;
+pmean_fix.prettyPrint(out);         // ist richtig zentriert!!!
+out << endl << endl;
+out << "SPLINE:" << endl;
+spline.prettyPrint(out);         // ist richtig zentriert!!!
+out << endl << endl;
+out << "DATA:" << endl;
+data_forfixed.prettyPrint(out);
+out << endl << endl;
+*/
+  likep->add_linearpred_m(spline,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor
+
+  // für Ausgabe: Vektor "spline" muß für Ausgabe sortiert werden!
+  double * splinep;
+  double * fchelpbetap = fchelp.get_betameanp();
+
+  if(gridsize < 0)
+    {
+    vector<int>::iterator freqwork = freqoutput.begin();
+    int * workindex = index.getV();
+    splinep = spline.getV() + *workindex;
+    for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+      {
+      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+        {
+        *fchelpbetap = spline(*workindex,0) * transform;
+        fchelpbetap++;
+        }
+      splinep += *workindex;
+      }
+    }
+  else      //???
+    {
+    //multDG(splinehelp,b);
+    for(i=0;i<gridsize;i++,fchelpbetap++,splinep++)
+      *fchelpbetap = *splinep;
+    }
+  }
+
+
+void spline_basis::multBS_sort(datamatrix & res, const datamatrix & beta)      // soll f_dach berechnen in Reihenfolge wie Daten für fixen Effekt
+  {
+
+  double *workres;
+  double *workbeta;
+  double *workBS;
+
+  vector<int>::iterator freqwork = freq.begin();
+  vector<int>::iterator workindex2 = index2.begin();
+
+  if(varcoeff)
+    workBS = B.getV();
+  else
+    workBS = BS.getV();
+
+  unsigned col = degree+1;
+  unsigned j,k;
+  int i,stop;
+
+  workres = res.getV();
+  for(j=0;j<res.rows()*res.cols();j++,workres++)
+    *workres = 0.0;
+
+  i = 0;
+  k = 0;
+  workres = res.getV() + *workindex2;
+  while (k<nrpar)
+    {
+    stop = lastnonzero[k];
+    while (i <= stop)
+      {
+      workbeta = beta.getV() + k;
+      for(j=0;j<col;j++,workBS++,workbeta++)
+        *workres += *workBS * *workbeta;
+      if((freqwork+1)!=freq.end() && *freqwork==*(freqwork+1))
+        {
+        workBS -= col;
+        workbeta -= col;
+        }
+      i++;
+      freqwork++;
+      workindex2++;
+      workres += *workindex2;
+      }
+    k++;
+    }
+
+  }
+
+// END: MODEL-AVERAGING --------------------------------------------------------
+
+
 double spline_basis::compute_df(void)
   {
   if(prec_env.getDim()==0)
@@ -2741,7 +2967,7 @@ void spline_basis::hierarchie_rw1(vector<double> & untervector)
 
 
 void spline_basis::compute_lambdavec(
-vector<double> & lvec, const unsigned & number)
+vector<double> & lvec, int & number)
   {
   if (get_df_equidist()==true)
      FULLCOND::compute_lambdavec_equi(lvec,number);

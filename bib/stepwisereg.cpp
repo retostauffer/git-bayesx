@@ -143,6 +143,8 @@ void stepwisereg::create(void)
   randomeffslope = term_randomslope_stepwise();
   termfactor = term_factor_stepwise();
   termnonlinearf = term_nonlinearf_stepwise();
+  nonpinteractpspline = term_interactpspline_stepwise();                //neu
+  nonpgeospline = term_geospline_stepwise();                            //neu
 
   termtypes.push_back(&offset);
   termtypes.push_back(&fixedeffects);
@@ -154,6 +156,8 @@ void stepwisereg::create(void)
   termtypes.push_back(&randomeffslope);
   termtypes.push_back(&termfactor);
   termtypes.push_back(&termnonlinearf);
+  termtypes.push_back(&nonpinteractpspline);                           //neu
+  termtypes.push_back(&nonpgeospline);                                 //neu
 
   modreg = modelterm(&termtypes);
 
@@ -174,6 +178,8 @@ void stepwisereg::create(void)
   minim.push_back("exact");
   minim.push_back("approx_golden");
   minim.push_back("exact_golden");
+  minim.push_back("apprexact");
+  minim.push_back("adaptiv");
 
   minimum = stroption("minimum",minim,"approx");
 
@@ -209,6 +215,9 @@ void stepwisereg::create(void)
   increment = intoption("increment",1,1,5);
 
   fine_tuning = simpleoption("fine_tuning",false);
+
+  maveraging = simpleoption("model_averaging",false);
+  window = intoption("window",2,1,5);
 
   //----------END: STEPWISE --------------------------------------
 
@@ -283,6 +292,8 @@ void stepwisereg::create(void)
   regressoptions.push_back(&startmodel);
   regressoptions.push_back(&increment);
   regressoptions.push_back(&fine_tuning);
+  regressoptions.push_back(&maveraging);
+  regressoptions.push_back(&window);
 
   // method 0
 
@@ -1480,10 +1491,6 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
 
       fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
 
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-                 "_rw_var.raw","_rw_var.res","_variance");
-
       } // end: if ( nonprw1rw2.checkvector(terms,i) == true )
 
     }
@@ -1675,9 +1682,6 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
         fcpsplinegaussian[fcpsplinegaussian.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcpsplinegaussian[fcpsplinegaussian.size()-1]);
 
-        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-                     "_pspline_var.raw","_pspline_var.res","_variance");
-
         // ---------------------- end: gaussian response, etc. -----------------
         }
       else
@@ -1718,9 +1722,6 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
 
           fciwlspspline[fciwlspspline.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fciwlspspline[fciwlspspline.size()-1]);
-
-          make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-                 "_pspline_var.raw","_pspline_var.res","_variance");
 
         // ----------------- end:  non-gaussian response, etc. -----------------
         }
@@ -1851,9 +1852,6 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
         {
         make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                    "_spatial.raw","_spatial.res","");
-
-        make_paths(collinpred,pathnonpv,pathresv,titlev,terms[i].varnames[0],"",
-                   "_spatial_var.raw","_spatial_var.res","_variance");
         }
       else
         {
@@ -1861,9 +1859,6 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
         make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
                    terms[i].varnames[0],"_spatial.raw","_spatial.res","_spatial");
 
-        make_paths(collinpred,pathnonpv,pathresv,titlev,terms[i].varnames[1],
-                   terms[i].varnames[0],"_spatial_var.raw","_spatial_var.res",
-                   "_spatial_variance");
         }
 
       if ( varcoeff==false)
@@ -2000,10 +1995,6 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
                  terms[i].varnames[0],
                  "_random.raw","_random.res","");
-
-      make_paths(collinpred,pathnonp2,pathres2,title2,terms[i].varnames[1],
-                 terms[i].varnames[0],"_random_var.raw",
-                 "_random_var.res","_variance");
 
       if (check_gaussian())
         {
@@ -2147,9 +2138,6 @@ bool stepwisereg::create_random(const unsigned & collinpred)
 
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                  "_random.raw","_random.res","");
-
-      make_paths(collinpred,pathnonp2,pathres2,title2,terms[i].varnames[0],"",
-                 "_random_var.raw","_random_var.res","_variance");
 
       if (check_gaussian())
         {
@@ -2589,6 +2577,12 @@ void regressrun(stepwisereg & b)
       if (!failure)
         failure = b.create_randomslope(0);
 
+      if (!failure)
+        failure = b.create_interactionspspline(0);
+
+      if (!failure)
+        failure = b.create_geospline(0);
+
     } // end: if (!failure)
 
 
@@ -2609,6 +2603,8 @@ void regressrun(stepwisereg & b)
     ST::string stmodel = b.startmodel.getvalue();
     int increment = b.increment.getvalue();
     bool fine_tuning = b.fine_tuning.getvalue();
+    bool maveraging = b.maveraging.getvalue();
+    int window = b.window.getvalue();
     vector<FULLCOND*> fullcond_z;
 
     b.runobj = STEPWISErun(&b.generaloptions[0],b.distr[0],b.fullcond);
@@ -2616,7 +2612,7 @@ void regressrun(stepwisereg & b)
     ST::string path = b.outfiles[0];
 
     failure = b.runobj.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
-    fine_tuning,b.D,b.modelvarnamesv,name,fullcond_z,path);
+    fine_tuning,maveraging,window,b.D,b.modelvarnamesv,name,fullcond_z,path);
 
     if(!failure)
       {
@@ -2777,10 +2773,6 @@ bool stepwisereg::create_nonpseason(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                  "_rw_season.raw","_rw_season.res","");
 
-      make_paths(collinpred,pathnonpv,pathresv,titlev,terms[i].varnames[0],"",
-                 "_rw_season.raw","_season_var.res","_variance");
-
-
       fcnonpgaussian.push_back(
       FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
                                          distr[distr.size()-1],
@@ -2816,8 +2808,529 @@ bool stepwisereg::create_nonpseason(const unsigned & collinpred)
   }
 
 
+bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
+  {
+  long h;
+  unsigned degree,nrknots;
+  int gridsize,f;
+  double lambda,lambdamin,lambdamax,lambdastart,df_lambdamax,df_lambdamin,numb;
+  bool forced_into,lambdamax_opt,lambdamin_opt,df_equidist;
+  //bool varcoeff;
+  double df_accuracy;
+
+  unsigned i;
+  int j1,j2;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpinteractpspline.checkvector(terms,i) == true )
+      {
+
+      MCMC::fieldtype type;
+      if ((terms[i].options[0] == "pspline2dimrw1")   ||
+          (terms[i].options[0] == "tpspline2dimrw1")
+         )
+        type = MCMC::mrflinear;
+      else if ((terms[i].options[0] == "pspline2dimband")   ||
+          (terms[i].options[0] == "tpspline2dimband")
+         )
+        type = MCMC::mrflinearband;
+      else if (terms[i].options[0] == "psplinekrrw1")
+        type = MCMC::mrfkr1;
+      else if (terms[i].options[0] == "psplinekrrw2")
+        type = MCMC::mrfkr2;
+
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+
+      f = (terms[i].options[1]).strtolong(h);
+      degree = unsigned(h);
+      f = (terms[i].options[2]).strtolong(h);
+      nrknots = unsigned(h);
+      f = (terms[i].options[3]).strtodouble(lambda);
+      f = (terms[i].options[4]).strtolong(h);
+      gridsize = unsigned(h);
+
+      f = (terms[i].options[5]).strtodouble(lambdamin);
+      f = (terms[i].options[6]).strtodouble(lambdamax);
+      f = (terms[i].options[7]).strtodouble(lambdastart);
+
+      if (terms[i].options[8] == "true")
+         forced_into = true;
+      else
+         forced_into = false;
+
+      f = (terms[i].options[9]).strtodouble(df_lambdamax);
+      f = (terms[i].options[10]).strtodouble(df_lambdamin);
+
+      if (terms[i].options[11] == "true")
+         lambdamax_opt = true;
+      else
+         lambdamax_opt = false;
+
+      if (terms[i].options[12] == "true")
+         lambdamin_opt = true;
+      else
+         lambdamin_opt = false;
+
+      f = (terms[i].options[13]).strtodouble(numb);
+
+      if (terms[i].options[14] == "true")
+         df_equidist = true;
+      else
+         df_equidist = false;
+
+      f = (terms[i].options[15]).strtodouble(df_accuracy);
+
+      MCMC::knotpos po;
+      if (knots.getvalue() == "equidistant")
+        po = MCMC::equidistant;
+      else
+        po = MCMC::quantiles;
+
+      if (f==1)
+        return true;
+
+      ST::string help  = terms[i].varnames[0] + "_" + terms[i].varnames[1];
+
+      make_paths(collinpred,pathnonp,pathres,title,help,"",
+                 "_pspline.raw","_pspline.res","_pspline");
 
 
+      if (check_gaussian())
+        {
+
+        FULLCOND_pspline_gaussian * mainp1;
+        FULLCOND_pspline_gaussian * mainp2;
+        unsigned main1=0;
+        unsigned main2=0;
+
+        unsigned j;
+        for (j=0;j<fcpsplinegaussian.size();j++)
+          {
+          if  ( ((fcpsplinegaussian[j].get_datanames()).size() == 1) &&
+               (fcpsplinegaussian[j].get_datanames()[0] == terms[i].varnames[0]) &&
+                fcpsplinegaussian[j].get_col() == collinpred
+              )
+            {
+            mainp1 = &fcpsplinegaussian[j];
+            if(mainp1->get_gridsize() != gridsize)
+              {
+              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp1->get_nrknots() != nrknots)
+              {
+              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp1->get_degree() != degree)
+              {
+              outerror("ERROR: degree for interaction term and main effects must be the same\n");
+              return true;
+              }
+            main1 ++;
+            }
+
+
+          if  ( ((fcpsplinegaussian[j].get_datanames()).size() == 1) &&
+              (fcpsplinegaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
+              fcpsplinegaussian[j].get_col() == collinpred
+              )
+            {
+            mainp2 = &fcpsplinegaussian[j];
+            if(mainp2->get_gridsize() != gridsize)
+              {
+              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp2->get_nrknots() != nrknots)
+              {
+              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp2->get_degree() != degree)
+              {
+              outerror("ERROR: degree for interaction term and main effects must be the same\n");
+              return true;
+              }
+            main2 ++;
+            }
+
+          }
+
+        fcpsplinesurfgaussian.push_back(
+        FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
+                                      fcconst_intercept,
+                                      D.getCol(j1),
+                                      D.getCol(j2),
+                                      title,
+                                      nrknots,degree,po,
+                                      lambda,
+                                      gridsize,
+                                      type,
+                                      pathnonp,
+                                      pathres,
+                                      outfile.getvalue(),
+                                      true,
+                                      collinpred
+                                      ));
+
+        //if (constlambda.getvalue() == true)
+        //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
+
+        if ( (main1==1) && (main2==1) )
+          {
+
+          ST::string pathnonpt;
+          ST::string pathrest;
+          ST::string titlet;
+
+          make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
+                 "_pspline_total.raw","_pspline_total.res","_pspline_total");
+
+          fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].
+          init_maineffects(mainp1,mainp2,pathnonpt,pathrest);
+          mainp1->set_interaction();
+          mainp2->set_interaction();
+          }
+        else if ( (main1==0) && (main2==0) )
+          {
+          }
+        else
+          {
+          // FEHLERMELDUNG
+          }
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_options(
+               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+               numb,df_equidist);
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1]);
+
+        }
+      else
+        {
+        // NONGAUSSIAN CASE
+        IWLS_pspline * mainp1;
+        IWLS_pspline * mainp2;
+        unsigned main1=0;
+        unsigned main2=0;
+
+        unsigned j;
+        for (j=0;j<fciwlspspline.size();j++)
+          {
+          if  ( ((fciwlspspline[j].get_datanames()).size() == 1) &&
+                 (fciwlspspline[j].get_datanames()[0] == terms[i].varnames[0]) &&
+                 fciwlspspline[j].get_col() == collinpred
+              )
+            {
+            mainp1 = &fciwlspspline[j];
+            if(mainp1->get_gridsize() != gridsize)
+              {
+              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp1->get_nrknots() != nrknots)
+              {
+              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp1->get_degree() != degree)
+              {
+              outerror("ERROR: degree for interaction term and main effects must be the same\n");
+              return true;
+              }
+            main1 ++;
+            }
+
+
+          if  ( ((fciwlspspline[j].get_datanames()).size() == 1) &&
+              (fciwlspspline[j].get_datanames()[0] == terms[i].varnames[1]) &&
+              fciwlspspline[j].get_col() == collinpred
+              )
+            {
+            mainp2 = &fciwlspspline[j];
+            if(mainp2->get_gridsize() != gridsize)
+              {
+              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp2->get_nrknots() != nrknots)
+              {
+              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp2->get_degree() != degree)
+              {
+              outerror("ERROR: degree for interaction term and main effects must be the same\n");
+              return true;
+              }
+            main2 ++;
+            }
+
+          }
+
+
+
+        fcpsplinesurfgaussian.push_back( FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],
+                                         distr[distr.size()-1],
+                                         fcconst_intercept,
+                                         D.getCol(j1),
+                                         D.getCol(j2),
+                                         false,
+                                         title,
+                                         nrknots,degree,
+                                         po,
+                                         lambda,
+                                         1,
+                                         false,
+                                         2,
+                                         1.0,0.005,
+                                         gridsize,
+                                         type,
+                                         pathnonp,
+                                         pathres,
+                                         outfile.getvalue(),
+                                         true,
+                                         true,
+                                         collinpred
+                                        )
+                        );
+
+        //if (constlambda.getvalue() == true)
+        //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
+
+        if ( (main1==1) && (main2==1) )
+          {
+
+          ST::string pathnonpt;
+          ST::string pathrest;
+          ST::string titlet;
+
+          make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
+               "_pspline_total.raw","_pspline_total.res","_pspline_total");
+
+          fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].
+          init_maineffects(mainp1,mainp2,pathnonpt,pathrest);
+          mainp1->set_interaction();
+          mainp2->set_interaction();
+          }
+        else if ( (main1==0) && (main2==0) )
+          {
+          }
+        else
+          {
+          // FEHLERMELDUNG
+          }
+
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[0]);
+        na.push_back(terms[i].varnames[1]);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_options(
+             lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+             numb,df_equidist);
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1]);
+        }
+
+      }
+
+    }
+
+
+  return false;
+
+  }
+
+
+bool stepwisereg::create_geospline(const unsigned & collinpred)
+  {
+  long h;
+  unsigned degree,nrknots;
+  int gridsize,f;
+  double lambda,lambdamin,lambdamax,lambdastart,df_lambdamax,df_lambdamin,numb;
+  bool forced_into,lambdamax_opt,lambdamin_opt,df_equidist;
+  //bool varcoeff;
+  double df_accuracy;
+
+  unsigned i;
+  int j;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpgeospline.checkvector(terms,i) == true )
+      {
+
+      MCMC::fieldtype type = MCMC::mrflinear;
+
+      j = terms[i].varnames[0].isinlist(modelvarnamesv);
+
+      f = (terms[i].options[1]).strtolong(h);
+      degree = unsigned(h);
+      f = (terms[i].options[2]).strtolong(h);
+      nrknots = unsigned(h);
+      f = (terms[i].options[3]).strtodouble(lambda);
+      mapobject * mapp;                           // pointer to mapobject
+      int objpos = findstatobject(*statobj,terms[i].options[4],"map");
+      if (objpos >= 0)
+        {
+        statobject * s = statobj->at(objpos);
+        mapp = dynamic_cast<mapobject*>(s);
+        }
+      else
+        {
+        if (objpos == -1)
+          outerror("ERROR: map object " + terms[i].options[4] + " is not existing\n");
+        else
+          outerror("ERROR: " + terms[i].options[4] + " is not a map object\n");
+        return true;
+        }
+      MAP::map m = mapp->getmap();
+      if(!m.centroids_existing())
+        {
+        outerror("ERROR: map object doesn´t contain centroids\n");
+        return true;
+        }
+
+      f = (terms[i].options[5]).strtodouble(lambdamin);
+      f = (terms[i].options[6]).strtodouble(lambdamax);
+      f = (terms[i].options[7]).strtodouble(lambdastart);
+
+      if (terms[i].options[8] == "true")
+         forced_into = true;
+      else
+         forced_into = false;
+
+      f = (terms[i].options[9]).strtodouble(df_lambdamax);
+      f = (terms[i].options[10]).strtodouble(df_lambdamin);
+
+      if (terms[i].options[11] == "true")
+         lambdamax_opt = true;
+      else
+         lambdamax_opt = false;
+
+      if (terms[i].options[12] == "true")
+         lambdamin_opt = true;
+      else
+         lambdamin_opt = false;
+
+      f = (terms[i].options[13]).strtodouble(numb);
+
+      if (terms[i].options[14] == "true")
+         df_equidist = true;
+      else
+         df_equidist = false;
+
+      f = (terms[i].options[15]).strtodouble(df_accuracy);
+
+      gridsize = -1;
+      MCMC::knotpos po;
+      if (knots.getvalue() == "equidistant")
+        po = MCMC::equidistant;
+      else
+        po = MCMC::quantiles;
+
+      if (f==1)
+        return true;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_geospline.raw","_geospline.res","_geospline");
+
+      if (check_gaussian())
+        {
+
+        fcpsplinesurfgaussian.push_back(
+        FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],
+                                      distr[distr.size()-1],fcconst_intercept,
+                                      D.getCol(j),m,terms[i].options[4],
+                                      title,
+                                      nrknots,degree,po,
+                                      lambda,
+                                      gridsize,
+                                      type,
+                                      pathnonp,
+                                      pathres,
+                                      true,
+                                      collinpred
+                                      ));
+
+        //if (constlambda.getvalue() == true)
+        //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[0]);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_options(
+               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+               numb,df_equidist);
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1]);
+
+        }
+      else
+        {
+        // NONGAUSSIAN CASE
+        fcpsplinesurfgaussian.push_back(
+        FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],
+                                    distr[distr.size()-1],fcconst_intercept,
+                                    D.getCol(j),m,terms[i].options[4],
+                                    false,
+                                    title,
+                                    nrknots,degree,po,
+                                    lambda,
+                                    1,
+                                    false,
+                                    2,
+                                    1.0,0.005,
+                                    gridsize,
+                                    type,
+                                    pathnonp,
+                                    pathres,
+                                    true,
+                                    true,
+                                    collinpred
+                                    ));
+
+        //if (constlambda.getvalue() == true)
+        //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[0]);
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_options(
+             lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+             numb,df_equidist);
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
+
+        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1]);
+        }
+
+      }
+
+    }
+
+  return false;
+
+  }
 
 
 void stepwisereg::describe(optionlist & globaloptions)

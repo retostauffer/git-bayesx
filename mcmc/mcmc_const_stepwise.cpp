@@ -28,6 +28,9 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(
 
   compute_matrices();
 
+  beta_average.erase(beta_average.begin(),beta_average.end());
+  intercept_for_center = 0;
+
   if (X1.rows() < nrconst)
     errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
 
@@ -48,6 +51,8 @@ const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   mu1 = m.mu1;
   help = m.help;
   changingweight = m.changingweight;
+  beta_average = m.beta_average;
+  intercept_for_center = m.intercept_for_center;
 
   }
 
@@ -68,6 +73,8 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
   mu1 = m.mu1;
   help = m.help;
   changingweight = m.changingweight;
+  beta_average = m.beta_average;
+  intercept_for_center = m.intercept_for_center;
 
   return *this;
   }
@@ -137,25 +144,42 @@ bool FULLCOND_const_stepwise::posteriormode(void)
 
 void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & names, datamatrix & newx)
   {
-  // double * worklinold=linold.getV();     // linold = data * beta
-  X2 = datamatrix(names.size(),names.size(),0);
-  datamatrix beta_neu = datamatrix(names.size(),1,0);
-  likep->fisher(X2,newx,column);            // recomputes X1 = (newx' W newx)^{-1}
+  X2 = datamatrix(names.size()+1,names.size()+1,0);
+  datamatrix beta_neu = datamatrix(names.size()+1,1,0);
+
+  datamatrix newx2 = datamatrix(newx.rows(),newx.cols()+1,1);
+  double * alt = newx.getV();
+  double * neu = newx2.getV();
+  unsigned i,j;
+  for(i=0;i<newx.rows();i++)
+    {
+    neu++;
+    for(j=0;j<newx.cols();j++,alt++,neu++)
+      *neu = *alt;
+    }
+
+  likep->fisher(X2,newx2,column);            // recomputes X1 = (newx' W newx)^{-1}
   X2.assign((X2.cinverse()));               // continued
   likep->compute_weightiwls_workingresiduals(column); // computes W(y-linpred)
-  beta_neu = X2*newx.transposed()*likep->get_workingresiduals();
+  beta_neu = X2*newx2.transposed()*likep->get_workingresiduals();
 
   likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
-  datamatrix linold_single = datamatrix(newx.rows(),1,0);
-  linold_single.mult(newx,beta_neu);
+  datamatrix linold_single = datamatrix(newx2.rows(),1,0);
+  linold_single.mult(newx2,beta_neu);
   linold = linold + linold_single;            // updates linold
   likep->add_linearpred_m(linold,column);     // updates linpred
   include_effect(names,newx);
 
-  unsigned i;
-  double * workbeta = beta.getV() + beta.rows()-names.size();
+  //unsigned i;
+  double * workbeta = beta.getV();
   double * workbeta_neu = beta_neu.getV();
-  double * workbetameanold = betameanold.getV() + beta.rows()-names.size();
+  double * workbetameanold = betameanold.getV();
+  *workbeta = *workbeta + *workbeta_neu;
+  *workbetameanold = *workbeta;
+
+  workbeta = beta.getV() + beta.rows()-names.size();
+  workbeta_neu = beta_neu.getV() + 1;
+  workbetameanold = betameanold.getV() + beta.rows()-names.size();
   for(i=beta.rows()-names.size();i<beta.rows();i++,workbeta_neu++,workbeta++,workbetameanold++)
     {
     *workbeta=*workbeta_neu;
@@ -445,6 +469,113 @@ void FULLCOND_const_stepwise::set_effect_zero(void)
   likep->add_linearpred_m(linold,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor
   }
 
+// BEGIN: MODEL-AVERAGING ------------------------------------------------------
+
+void FULLCOND_const_stepwise::save_betas(vector<double> & modell, unsigned & anzahl)
+  {
+  vector<double> beta_neu;
+  double * workbeta = beta.getV();
+  unsigned i;
+  beta_neu.push_back(*workbeta);
+  workbeta++;
+  for(i=1;i<anzahl;i++) 
+    {
+    if(modell[i-1]!=0)
+      {
+      beta_neu.push_back(*workbeta);
+      workbeta++;
+      }
+    else
+      beta_neu.push_back(0);
+    }
+  beta_average.push_back(beta_neu);
+/*
+ofstream out("c:\\cprog\\test\\results\\betas.txt");
+for(i=0;i<beta_neu.size();i++)
+  out << ST::doubletostring(beta_neu[i],6) << endl;
+*/
+  }
+
+
+void FULLCOND_const_stepwise::average_posteriormode(vector<double> & crit_weights)
+  {
+  unsigned i;
+  unsigned j;
+  vector<double> beta_sum;
+  for(j=0;j<beta_average[0].size();j++)
+    beta_sum.push_back(0);
+
+//ofstream out("c:\\cprog\\test\\results\\betas.txt");
+/*
+for(i=0;i<crit_weights.size();i++)
+  {
+  for(j=0;j<beta_average[i].size();j++)
+    out << ST::doubletostring(beta_average[i][j],8) << "   ";
+  out << endl;
+  }
+out << endl;
+*/
+  for(i=0;i<crit_weights.size();i++)
+    {
+    for(j=0;j<beta_average[i].size();j++)
+      beta_sum[j] += beta_average[i][j] * crit_weights[i];
+    }
+/*
+out << "Gewichte:" << endl;
+for(i=0;i<crit_weights.size();i++)
+  {
+  out << ST::doubletostring(crit_weights[i],8) << "   ";
+  }
+out << endl;
+out << "beta_quer:" << endl;
+for(i=0;i<beta_sum.size();i++)
+  {
+  out << ST::doubletostring(beta_sum[i],8) << "   ";
+  }
+out << endl;
+*/
+  setbeta(beta_sum.size(),1,0);
+  double * workbeta = beta.getV();
+  double * workbetamean = betamean.getV();
+  *workbeta = beta_sum[0] + intercept_for_center;
+  *workbetamean = *workbeta * transform;
+  workbeta++;
+  workbetamean++;
+  for(i=1;i<beta_sum.size();i++,workbetamean++,workbeta++)
+    {
+    *workbeta = beta_sum[i];
+    *workbetamean = beta_sum[i] * transform;    //(hier fehlt der Term "+addon" aus fullcond.cpp, posteriormode; "addon" wird aber nie !=0)
+    }
+/*
+beta.prettyPrint(out);
+out << endl << endl;
+betamean.prettyPrint(out);
+*/
+  likep->substr_linearpred_m(linold,column);   // zieht den Anteil der fixen Effekte von Gesamtprädiktor ab
+//data.prettyPrint(out);
+  linold.mult(data,beta);                      // berechnet den Anteil der fixen Effekte neu
+/*
+out << endl << endl;
+linold.prettyPrint(out);
+*/
+  likep->add_linearpred_m(linold,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor
+  }
+
+
+double FULLCOND_const_stepwise::get_betafix(unsigned & welches)
+  {
+  double * workbeta = beta.getV() + welches;
+  return *workbeta;
+  }
+
+
+void FULLCOND_const_stepwise::set_intercept_for_center(double & dazu)
+  {
+  intercept_for_center += dazu;
+  }
+
+// END: MODEL-AVERAGING --------------------------------------------------------
+
 
 void FULLCOND_const_stepwise::make_design(datamatrix & d)
   {
@@ -532,7 +663,7 @@ void FULLCOND_const_stepwise::make_design(datamatrix & d)
 // ------------------- STEPWISE-FACTOR -----------------------------------------
 //------------------------------------------------------------------------------
 
-void FULLCOND_const_stepwise::compute_lambdavec(vector<double> & lvec, const unsigned & number)
+void FULLCOND_const_stepwise::compute_lambdavec(vector<double> & lvec, int & number)
   {
 
   assert(fctype == MCMC::factor);
@@ -734,7 +865,7 @@ void FULLCOND_const_gaussian_special::compute_datatransformed(double lambda)
 
 
 void FULLCOND_const_gaussian_special::compute_lambdavec(
-  vector<double> & lvec, const unsigned & number)
+  vector<double> & lvec, int & number)
   {
 
   lvec.push_back(2);       // 1/x+1

@@ -43,6 +43,10 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   datamatrix mu1;
 
+  vector<vector<double> > beta_average;
+  double intercept_for_center;
+  // datamatrix beta_average;
+
   // FUNCTION: compute_matrices
   // TASK: computes X1 = (X'WX)^-0.5
   //       computes X2 = (X'WX)^-1X'W
@@ -101,7 +105,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void outoptions(void);
 
-  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
+  void compute_lambdavec(vector<double> & lvec, int & number);
 
   const datamatrix & get_data_forfixedeffects(void)
     {
@@ -127,6 +131,14 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   void reset_effect(const unsigned & pos);
 
   void set_effect_zero(void);
+
+  void save_betas(vector<double> & modell, unsigned & anzahl);
+
+  void average_posteriormode(vector<double> & crit_weights);
+
+  double get_betafix(unsigned & welches);
+
+  void set_intercept_for_center(double & dazu);
 
   };
 
@@ -193,7 +205,7 @@ class __EXPORT_TYPE FULLCOND_const_gaussian_special : public FULLCOND_const
 
   void reset_effect(const unsigned & pos);
 
-  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
+  void compute_lambdavec(vector<double> & lvec, int & number);
 
   double compute_df(void);
 

@@ -54,8 +54,8 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   vector<vector<vector<double> > > modellematrix;
   bool fertig;
   int steps_aktuell;
+  int window;
   vector<ST::string> posttitle;
-
 
   bool finetuning(vector<double> & modell);
 
@@ -224,7 +224,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 // ------- Funktionen für die Ausgabe im Output-Fenster ------------------------
 // -----------------------------------------------------------------------------
 
-  bool STEPWISErun::make_pause(void);
+  bool make_pause(void);
 
   void maketext(const ST::string & h, const vector<double> & m,
                 const double & a, ST::string & text, const bool & neutext,
@@ -253,6 +253,40 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
   void make_plots(ST::string & path_batch,ST::string & path_splus);
                  // ST::string & path_stata);
+
+
+// -----------------------------------------------------------------------------
+// ------- Funktionen für Golden Section Search --------------------------------
+// -----------------------------------------------------------------------------
+
+  unsigned golden_section(unsigned & z, double & kriterium);
+
+  double startbedingungen(unsigned & z);
+
+  void approx_zurueck(unsigned & z);
+
+  void exact_zurueck(unsigned & z);
+
+  double wert_einzeln(unsigned & z, unsigned & i, double & df);
+
+  double approx_einzeln(unsigned & z, unsigned & i, double & df);
+
+  double exact_einzeln(unsigned & z, unsigned & i, double & df);
+
+  int index_suchen(const unsigned & index, const vector<unsigned> & index_vec);
+
+  int start_b_suchen(vector<unsigned> & index_vec, vector<double> & krit_vec,
+                    double & df, unsigned & b, unsigned & z);
+
+  double compute_findex(vector<unsigned> & index_vec, vector<double> & krit_vec,
+                  unsigned & index, unsigned & z, double & df);
+
+// -----------------------------------------------------------------------------
+// ------------- Model Averaging -----------------------------------------------
+// -----------------------------------------------------------------------------
+
+  void compute_average(void);
+
 
   public:
 
@@ -284,6 +318,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   bool stepwise(const ST::string & procedure, const ST::string & minimum,
          const ST::string & crit, const int & stp, const ST::string & trac,
          const int & number, const ST::string & stam, const int & inc, const bool & finet,
+         const bool & maveraging, int & fenster,
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path);
 

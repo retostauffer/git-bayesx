@@ -393,7 +393,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   void hierarchie_rw1(vector<double> & untervector);  
 
-  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
+  void compute_lambdavec(vector<double> & lvec, int & number);
 
   const datamatrix & get_data_forfixedeffects(void);  
 

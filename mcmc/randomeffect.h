@@ -203,7 +203,7 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
 
   // FOR STEPWISE
 
-  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
+  void compute_lambdavec(vector<double> & lvec, int & number);
 
 // ---------------------- For Stepwise -----------------------------------------
 

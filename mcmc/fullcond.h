@@ -557,7 +557,7 @@ class __EXPORT_TYPE FULLCOND
 
   void set_addon(const double & ao)
     {
-    addon = ao; 
+    addon = ao;
     }
        
 
@@ -796,6 +796,16 @@ class __EXPORT_TYPE FULLCOND
      df_accuracy = df_accu;
      }
 
+  void set_number(double numb)
+     {
+     number = numb;
+     }
+
+  void set_df_lambdamin(double & df_lmin)
+    {
+    lambdamin = df_lmin;
+    }
+
   double get_lambdastart(void)
      {
      return lambdastart;
@@ -911,10 +921,27 @@ class __EXPORT_TYPE FULLCOND
     }
 
 
-  virtual void compute_lambdavec(vector<double> & lvec, const unsigned & nr);
-  void compute_lambdavec_equi(vector<double> & lvec,const unsigned & number);
+  virtual void compute_lambdavec(vector<double> & lvec, int & nr);
+  void compute_lambdavec_equi(vector<double> & lvec, int & number);
 
   double lambda_from_df(double & df_wunsch, double & lambda_vorg);
+
+  virtual void save_betas(vector<double> & modell, unsigned & anzahl)
+    {
+    }
+
+  virtual void average_posteriormode(vector<double> & crit_weights)
+    {
+    }
+
+  virtual void set_intercept_for_center(double & dazu)
+    {
+    }
+
+  virtual double get_betafix(unsigned & welches)
+    {
+    return 0;
+    }
 
   // ---------------------------------------------------------------------------
   // ------------------------------- FOR REML ----------------------------------
@@ -1165,7 +1192,7 @@ class newfullcond : public FULLCOND
                             // of the base class automatically computes
                             // estimated 10, 50, 90 percent quantiles of the
                             // parameters. In addition the acceptance rate will
-                            // be computed and writen to (*optionsp->logout)
+                            // be computed and written to (*optionsp->logout)
                             // as well as the Title/Name of the full conditional
 
     // It is very likely that the following variables from the base class will

@@ -416,5 +416,104 @@ class __EXPORT_TYPE term_factor_stepwise : public basic_termtype
   };
 
 
+//------------------------------------------------------------------------------
+//---------------------- class term_interactpspline  ---------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE term_interactpspline_stepwise : public basic_termtype
+  {
+
+  protected:
+
+  intoption degree;
+  intoption numberknots;
+  doubleoption lambda;
+  intoption gridsize;
+  doubleoption lambdamin;
+  doubleoption lambdamax;
+  doubleoption lambdastart;
+  simpleoption forced_into;
+  doubleoption df_for_lambdamax;
+  doubleoption df_for_lambdamin;
+  simpleoption lambdamax_opt;
+  simpleoption lambdamin_opt;
+  intoption number;
+  simpleoption df_equidist;
+  doubleoption df_accuracy;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_interactpspline_stepwise(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is an interaction term
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_interactpspline_stepwise() {}
+
+  };
+
+
+//------------------------------------------------------------------------------
+//--------------------------- class term_geospline  ----------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE term_geospline_stepwise : public basic_termtype
+  {
+
+  protected:
+
+  intoption degree;
+  intoption numberknots;
+  doubleoption lambda;
+  stroption map;
+  doubleoption lambdamin;
+  doubleoption lambdamax;
+  doubleoption lambdastart;
+  simpleoption forced_into;
+  doubleoption df_for_lambdamax;
+  doubleoption df_for_lambdamin;
+  simpleoption lambdamax_opt;
+  simpleoption lambdamin_opt;
+  intoption number;
+  simpleoption df_equidist;
+  doubleoption df_accuracy;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_geospline_stepwise(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is an interaction term
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_geospline_stepwise() {}
+
+  };
+
+
+
 
 #endif

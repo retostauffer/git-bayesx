@@ -110,6 +110,7 @@ term_autoreg_stepwise::term_autoreg_stepwise(void)
   number = intoption("number",0,0,50);
   df_equidist = simpleoption("df_equidist",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
+  // df_start =  = doubleoption("df_start",-1,-1,100);
   }
 
 void term_autoreg_stepwise::setdefault(void)
@@ -126,6 +127,7 @@ void term_autoreg_stepwise::setdefault(void)
   number.setdefault();
   df_equidist.setdefault();
   df_accuracy.setdefault();
+  // df_start.setdefault();
   }
 
 
@@ -166,6 +168,7 @@ bool term_autoreg_stepwise::check(term & t)
     optlist.push_back(&number);
     optlist.push_back(&df_equidist);
     optlist.push_back(&df_accuracy);
+    // optlist.push_back(&df_start);
 
     unsigned i;
     bool rec = true;
@@ -201,6 +204,7 @@ bool term_autoreg_stepwise::check(term & t)
     optlist.push_back(&number);
     optlist.push_back(&df_equidist);
     optlist.push_back(&df_accuracy);
+    // optlist.push_back(&df_start);
 
 
     t.options.erase(t.options.begin(),t.options.end());
@@ -489,7 +493,7 @@ term_pspline_stepwise::term_pspline_stepwise(void)
   df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,200);
   lambdamax_opt = simpleoption("lambdamax_opt",false);
   lambdamin_opt = simpleoption("lambdamin_opt",false);
-  number = intoption("number",0,0,50);
+  number = intoption("number",0,-1,50);
   df_equidist = simpleoption("df_equidist",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
   }
@@ -1280,6 +1284,409 @@ bool term_factor_stepwise::check(term & t)
     return false;
     }
 
+  }
+
+//------------------------------------------------------------------------------
+//------ class term_interactpspline: implementation of member functions --------
+//------------------------------------------------------------------------------
+
+term_interactpspline_stepwise::term_interactpspline_stepwise(void)
+  {
+  type = "term_interactpspline";
+  degree=intoption("degree",3,0,5);
+  numberknots=intoption("nrknots",15,5,500);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  gridsize = intoption("gridsize",-1,10,35);
+  lambdamin = doubleoption("lambdamin",0.000001,0.000001,100000000);
+  lambdamax = doubleoption("lambdamax",10,0.000001,100000000);
+  lambdastart = doubleoption("lambdastart",-1,-1,100000000);
+  forced_into = simpleoption("forced_into",false);
+  df_for_lambdamax = doubleoption("df_for_lambdamax",2,0,400);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,400);
+  lambdamax_opt = simpleoption("lambdamax_opt",false);
+  lambdamin_opt = simpleoption("lambdamin_opt",false);
+  number = intoption("number",0,0,50);
+  df_equidist = simpleoption("df_equidist",false);
+  df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
+  }
+
+
+void term_interactpspline_stepwise::setdefault(void)
+  {
+  degree.setdefault();
+  numberknots.setdefault();
+  lambda.setdefault();
+  gridsize.setdefault();
+  lambdamin.setdefault();
+  lambdamax.setdefault();
+  lambdastart.setdefault();
+  forced_into.setdefault();
+  df_for_lambdamax.setdefault();
+  df_for_lambdamin.setdefault();
+  lambdamax_opt.setdefault();
+  lambdamin_opt.setdefault();
+  number.setdefault();
+  df_equidist.setdefault();
+  df_accuracy.setdefault();
+  }
+
+bool term_interactpspline_stepwise::check(term & t)
+  {
+
+  optionlist optlist;
+  optlist.push_back(&degree);
+  optlist.push_back(&numberknots);
+  optlist.push_back(&lambda);
+  optlist.push_back(&gridsize);
+  optlist.push_back(&lambdamin);
+  optlist.push_back(&lambdamax);
+  optlist.push_back(&lambdastart);
+  optlist.push_back(&forced_into);
+  optlist.push_back(&df_for_lambdamax);
+  optlist.push_back(&df_for_lambdamin);
+  optlist.push_back(&lambdamax_opt);
+  optlist.push_back(&lambdamin_opt);
+  optlist.push_back(&number);
+  optlist.push_back(&df_equidist);
+  optlist.push_back(&df_accuracy);
+
+  if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
+        && (t.options.size() <= 16) )
+    {
+
+    if (t.options[0] == "pspline2dimrw1")
+      t.type = "pspline2dimrw1";
+    //else if (t.options[0] == "tpspline2dimrw1")
+    //  t.type = "tpspline2dimrw1";
+    //else if (t.options[0] == "pspline2dimband")
+    //  t.type = "pspline2dimband";
+    //else if (t.options[0] == "tpspline2dimband")
+    //  t.type = "tpspline2dimband";
+    //else if (t.options[0] == "psplinekrrw1")
+    //  t.type = "psplinekrrw1";
+    //else if (t.options[0] == "psplinekrrw2")
+    //  t.type = "psplinekrrw2";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    double maxl,minl,startl,df_max,df_min;
+
+    unsigned i;
+
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+   t.options.erase(t.options.begin(),t.options.end());
+   t.options = vector<ST::string>(16);
+   t.options[0] = t.type;
+   t.options[1] = ST::inttostring(degree.getvalue());
+   t.options[2] = ST::inttostring(numberknots.getvalue());
+   t.options[3] = ST::doubletostring(lambda.getvalue());
+   t.options[4] = ST::inttostring(gridsize.getvalue());
+   t.options[5] = ST::doubletostring(lambdamin.getvalue());
+   t.options[6] = ST::doubletostring(lambdamax.getvalue());
+   t.options[7] = ST::doubletostring(lambdastart.getvalue());
+   if (forced_into.getvalue()==false)
+     t.options[8] = "false";
+   else
+     t.options[8] = "true";
+   t.options[9] = ST::doubletostring(df_for_lambdamax.getvalue());
+   t.options[10] = ST::doubletostring(df_for_lambdamin.getvalue());
+   if (lambdamax_opt.getvalue()==false)
+       t.options[11] = "false";
+   else
+       t.options[11] = "true";
+   if (lambdamin_opt.getvalue()==false)
+       t.options[12] = "false";
+   else
+       t.options[12] = "true";
+   t.options[13] = ST::inttostring(number.getvalue());
+   if (df_equidist.getvalue()==false)
+      t.options[14] = "false";
+   else
+      t.options[14] = "true";
+   t.options[15] = ST::doubletostring(df_accuracy.getvalue());
+
+
+   if (lambda.getvalue() < 0)
+     {
+     setdefault();
+     return false;
+     }
+
+    int b = t.options[5].strtodouble(minl);
+    b = t.options[6].strtodouble(maxl);
+    b = t.options[7].strtodouble(startl);
+    b = t.options[9].strtodouble(df_max);
+    b = t.options[10].strtodouble(df_min);
+
+    if (b==1)
+      {
+      setdefault();
+      return false;
+      }
+
+
+    if (minl >= maxl)
+      {
+      setdefault();
+      return false;
+      }
+
+    if (maxl < startl)
+      {
+      setdefault();
+      return false;
+      }
+
+    if ((df_min == 1 && t.options[0] == "pspline2dimrw1") ||            // kann man auf Anzahl der Parameter zugreifen???
+            (df_max == 1 && t.options[0] == "pspline2dimrw1"))
+      {
+      setdefault();
+      return false;
+      }
+
+    if(df_max>=df_min)
+      {
+      setdefault();
+      return false;
+      }
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
+
+bool term_interactpspline_stepwise::checkvector(const vector<term> & terms,
+                                       const unsigned & i)
+  {
+
+  assert(i< terms.size());
+
+  if (terms[i].type == "pspline2dimrw1") //|| (terms[i].type == "psplinekrrw1")
+     //|| (terms[i].type == "psplinekrrw2") || (terms[i].type == "tpspline2dimrw1")
+     //|| (terms[i].type == "pspline2dimband") || (terms[i].type == "tpspline2dimband") )
+    return true;
+
+  return false;
+  }
+
+
+//------------------------------------------------------------------------------
+//---------- class term_geospline: implementation of member functions ----------
+//------------------------------------------------------------------------------
+
+term_geospline_stepwise::term_geospline_stepwise(void)
+  {
+  type = "term_geospline";
+  map=stroption("map");
+  degree=intoption("degree",3,1,5);
+  numberknots=intoption("nrknots",20,5,500);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
+  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
+  lambdastart = doubleoption("lambdastart",10000,-1,10000000);
+  forced_into = simpleoption("forced_into",false);
+  df_for_lambdamax = doubleoption("df_for_lambdamax",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,500);
+  lambdamax_opt = simpleoption("lambdamax_opt",false);
+  lambdamin_opt = simpleoption("lambdamin_opt",false);
+  number = intoption("number",0,0,50);
+  df_equidist = simpleoption("df_equidist",false);
+  df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
+  }
+
+
+void term_geospline_stepwise::setdefault(void)
+  {
+  map.setdefault();
+  degree.setdefault();
+  numberknots.setdefault();
+  lambda.setdefault();
+  lambdamin.setdefault();
+  lambdamax.setdefault();
+  lambdastart.setdefault();
+  forced_into.setdefault();
+  df_for_lambdamax.setdefault();
+  df_for_lambdamin.setdefault();
+  lambdamax_opt.setdefault();
+  lambdamin_opt.setdefault();
+  number.setdefault();
+  df_equidist.setdefault();
+  df_accuracy.setdefault();
+  }
+
+bool term_geospline_stepwise::check(term & t)
+  {
+
+  if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
+        && (t.options.size() <= 16) )
+    {
+
+    if (t.options[0] == "geospline")
+      t.type = "geospline";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    double maxl,minl,startl,df_max,df_min;
+
+    optionlist optlist;
+    optlist.push_back(&degree);
+    optlist.push_back(&numberknots);
+    optlist.push_back(&lambda);
+    optlist.push_back(&map);
+    optlist.push_back(&lambdamin);
+    optlist.push_back(&lambdamax);
+    optlist.push_back(&lambdastart);
+    optlist.push_back(&forced_into);
+    optlist.push_back(&df_for_lambdamax);
+    optlist.push_back(&df_for_lambdamin);
+    optlist.push_back(&lambdamax_opt);
+    optlist.push_back(&lambdamin_opt);
+    optlist.push_back(&number);
+    optlist.push_back(&df_equidist);
+    optlist.push_back(&df_accuracy);
+
+    unsigned i;
+
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(16);
+    t.options[0] = t.type;
+    t.options[1] = ST::inttostring(degree.getvalue());
+    t.options[2] = ST::inttostring(numberknots.getvalue());
+    t.options[3] = ST::doubletostring(lambda.getvalue());
+    t.options[4] = map.getvalue();
+    t.options[5] = ST::doubletostring(lambdamin.getvalue());
+    t.options[6] = ST::doubletostring(lambdamax.getvalue());
+    t.options[7] = ST::doubletostring(lambdastart.getvalue());
+    if (forced_into.getvalue()==false)
+      t.options[8] = "false";
+    else
+      t.options[8] = "true";
+    t.options[9] = ST::doubletostring(df_for_lambdamax.getvalue());
+    t.options[10] = ST::doubletostring(df_for_lambdamin.getvalue());
+    if (lambdamax_opt.getvalue()==false)
+        t.options[11] = "false";
+    else
+        t.options[11] = "true";
+    if (lambdamin_opt.getvalue()==false)
+        t.options[12] = "false";
+    else
+        t.options[12] = "true";
+    t.options[13] = ST::inttostring(number.getvalue());
+    if (df_equidist.getvalue()==false)
+       t.options[14] = "false";
+    else
+       t.options[14] = "true";
+    t.options[15] = ST::doubletostring(df_accuracy.getvalue());
+
+
+    int b = t.options[5].strtodouble(minl);
+    b = t.options[6].strtodouble(maxl);
+    b = t.options[7].strtodouble(startl);
+    b = t.options[9].strtodouble(df_max);
+    b = t.options[10].strtodouble(df_min);
+
+    if (b==1)
+      {
+      setdefault();
+      return false;
+      }
+
+
+    if (minl >= maxl)
+      {
+      setdefault();
+      return false;
+      }
+
+    if (maxl < startl)
+      {
+      setdefault();
+      return false;
+      }
+
+    if(df_max>=df_min)
+      {
+      setdefault();
+      return false;
+      }
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
+
+bool term_geospline_stepwise::checkvector(const vector<term> & terms, const unsigned & i)
+  {
+
+  assert(i< terms.size());
+
+  if (terms[i].type == "geospline")
+    return true;
+
+  return false;
   }
 
 

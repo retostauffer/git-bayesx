@@ -132,6 +132,8 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   simpleoption fine_tuning;
 
+  simpleoption maveraging;
+  intoption window;
 
   intoption maxint;
 
@@ -309,6 +311,12 @@ class __EXPORT_TYPE stepwisereg : public statobject
   vector<FULLCOND_pspline_surf_gaussian> fcpsplinesurfgaussian;
   term_pspline_stepwise nonppspline;
   bool create_pspline(const unsigned & collinpred=0);
+
+  term_interactpspline_stepwise nonpinteractpspline;                //neu
+  term_geospline_stepwise nonpgeospline;                            //neu
+
+  bool create_interactionspspline(const unsigned & collinpred=0);
+  bool create_geospline(const unsigned & collinpred=0);
 
 //------------------------ for nonparametric terms -----------------------------
 

@@ -297,7 +297,7 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
 
   void hierarchie_rw1(vector<double> & untervector);
 
-  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
+  void compute_lambdavec(vector<double> & lvec, int & number);
 
   void update_stepwise(double la)
     {

@@ -102,7 +102,9 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
   datamatrix DG;
   vector<int> DGfirst;
 
+  vector<vector<double> > beta_average;
 
+  
   void make_index(const datamatrix & moddata);
 
   void make_index(const datamatrix & em,const datamatrix & ia);
@@ -287,7 +289,7 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
 
   void hierarchie_rw1(vector<double> & untervector);  
 
-  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
+  void compute_lambdavec(vector<double> & lvec, int & number);
 
   bandmatdouble & get_XX(void)
     {
@@ -333,13 +335,20 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
     lambda=la;
     }
 
+ void multBS_sort(datamatrix & res, const datamatrix & beta);
+
+
   // FUNCTION: get_effect
   // TASK: returns a string of the estimated effect
 
   ST::string  get_effect(void);
 
   const datamatrix & get_data_forfixedeffects(void);
+
+  void save_betas(vector<double> & modell, unsigned & anzahl);
       
+  void average_posteriormode(vector<double> & crit_weights);
+
 
   // REML
 

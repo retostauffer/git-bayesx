@@ -177,7 +177,7 @@ void FULLCOND_nonp_gaussian::hierarchie_rw1(vector<double> & untervector)
 
 
 void FULLCOND_nonp_gaussian::compute_lambdavec(
-vector<double> & lvec, const unsigned & number)
+vector<double> & lvec, int & number)
   {
   if (get_df_equidist()==true)
      FULLCOND::compute_lambdavec_equi(lvec,number);
@@ -209,4 +209,3 @@ vector<double> & lvec, const unsigned & number)
 
  
 } // end: namespace MCMC
- 
