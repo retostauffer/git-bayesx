@@ -1,5 +1,6 @@
 // DATE: 27.06.2000
 
+
 #include "fullcond_adaptiv.h"
 
 namespace MCMC
