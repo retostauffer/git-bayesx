@@ -171,7 +171,8 @@ class __EXPORT_TYPE FULLCOND
   int number;
   bool df_equidist;
   double df_accuracy;
-  
+  bool inthemodel;    //gibt an, ob Fullc-Obj. im aktuellen Modell enthalten ist
+
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
@@ -763,6 +764,14 @@ class __EXPORT_TYPE FULLCOND
   // ---------------------------------------------------------------------------
   // ------------------------ FOR STEPWISE SELECTION ---------------------------
   // ---------------------------------------------------------------------------
+
+  void FULLCOND::set_inthemodel(double modell);
+  bool FULLCOND::get_inthemodel(void);
+
+  //virtual double compute_penalterm(void)
+  //  {
+  //  return 0;
+  //  }
 
     // FUNCTION: compute_df
     // TASK: returns the approximate degrees of freedom of a smoother

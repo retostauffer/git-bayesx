@@ -132,6 +132,8 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
                                         // von DG an das ungleich Null ist
 
   vector< vector<double> > beta_average;// für stepwise
+  vector<FULLCOND*> interactions_pointer;
+
 
   // FUNCTION: make_index
   // TASK: berechnet index, freq und freqoutput
@@ -519,6 +521,9 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
       
   void average_posteriormode(vector<double> & crit_weights);
 
+  void set_pointer_to_interaction(FULLCOND * inter);
+
+  void search_for_interaction(void);
 
   // ------------------------- FOR REML ----------------------------------------
 

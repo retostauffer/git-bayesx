@@ -110,8 +110,8 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
   options_text(number,startfix,startindex,name);
 
   ST::string path_tex = path + "_model_summary.tex";
-  outtex.open(path_tex.strtochar());
-  make_graphics(name,startindex);
+//  outtex.open(path_tex.strtochar());
+//  make_graphics(name,startindex);
 
   bool first = true;
   bool abbruch = false;
@@ -130,7 +130,7 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
      if(abbruch==true)
         return true;
 
-     if(minim=="adaptiv")
+     if(minim=="adaptiv" || minim=="adaptiv_golden")
        {
        posteriormode(posttitle,true);
        kriterium_alt = compute_criterion();
@@ -185,14 +185,14 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
     posteriormode(posttitle,false); // Problem: linearer Prädiktor bei "true" standardisiert! Hier wird zurückgerechnet!
     }
                                     // danach nicht mehr compute_criterion() aufrufen!!!
-  make_tex_end(path,modell_final);
+//  make_tex_end(path,modell_final);
 
   // Files müssen wieder geschlossen werden!!!
-  outtex.close();
+//  outtex.close();
   outcriterium.close();
   outmodels.close();  
 
-  /*
+
   // gibt Lambdas aus, damit man die richtig bestimmten Variablen zählen kann!
   ST::string zaehlername = path + "_lambdas_" + likep_mult[0]->get_responsename() + ".ascii";
   //zaehlername = zaehlername + "_" + ST::inttostring(increment) + ".ascii";
@@ -207,7 +207,7 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
      eintrag = eintrag + ST::doubletostring(modell_final[i]) + "   ";
   out << beschriftung << endl;
   out << eintrag << endl;
-  */
+
   
   return false;
   }
@@ -492,7 +492,7 @@ void STEPWISErun::stepmin_nonp(vector<double> & kriteriumiteration2,
     {
     modell_neu = modell_alt;
     unsigned lambda_ind;
-    if(minim != "approx_golden" || lambdavec[z-1].size()<7)
+    if((minim != "approx_golden" && minim != "adaptiv_golden") || lambdavec[z-1].size()<7)
       {
       vector<double> krit_fkt;
       if(modell_alt[i+names_fixed.size()-2]==0)
@@ -692,7 +692,6 @@ void STEPWISErun::stepmin_leer_fix(vector<double> & kriteriumiteration2,
   vector<ST::string> name_help;
   name_help.push_back(names_fixed[i]);
   fullcond_alle[0]->posteriormode_single(name_help,datamatrix(D.getCol(c)));
-  //fullcond_alle[0]->posteriormode_const();
   kriterium_neu = criterion_min(df);
   fullcond_alle[0]->set_const_old();
   if(minim == "approx_control")
@@ -820,7 +819,6 @@ void STEPWISErun::stepmin_leer_factor(vector<double> & kriteriumiteration2,
   fullcond_alle[0]->safe_const();
   fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
                                  fullcond_alle[z]->get_data_forfixedeffects());
-  //fullcond_alle[0]->posteriormode_const();
   kriterium_neu = criterion_min(df);
   fullcond_alle[0]->set_const_old();
   if(minim == "approx_control")
@@ -878,7 +876,7 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
   for(i=0;i<fullcondp.size();i++)
     df = df + fullcondp[i]->compute_df();
 
-  if(minim == "adaptiv")
+  if(minim == "adaptiv" || minim == "adap_exact")
     {
     fullcond_alle[z]->update_stepwise(modell_alt[z+names_fixed.size()-2]);
     fullcond_alle[z]->posteriormode();
@@ -887,15 +885,6 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
 
   df = df - fullcond_alle[z]->compute_df();
   fullcondp[0]->safe_const();
-  /*
-  fullcond_alle[z]->compute_fehler_alt1(modell_alt[z+names_fixed.size()-2]);  //Versuch
-  unsigned v;                                                                 //Versuch
-  for(v=1;v<fullcondp.size();v++)                                             //Versuch
-    {                                                                         //Versuch
-    if(v!=z)                                                                  //Versuch
-      fullcondp[v]->compute_fehler2(fullcond_alle[z]->get_fehler_alt(),-1);   //Versuch
-    }                                                                         //Versuch
-  */
   for(i=0;i<lambdavec[z-1].size();i++)
     {
     if(lambdavec[z-1][i]!=modell_alt[z+names_fixed.size()-2])
@@ -904,27 +893,13 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
       if(lambdavec[z-1][i]!=-1 && lambdavec[z-1][i]!=0)
         {
         fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
-        /*
-        fullcond_alle[z]->compute_fehler_neu1();    //Versuch
-        for(v=1;v<fullcondp.size();v++)             //Versuch
-           {                                        //Versuch
-           if(v!=z)                                 //Versuch
-             fullcondp[v]->compute_fehler2(fullcond_alle[z]->get_fehler_neu(),1);          //Versuch
-           }                                        //Versuch
-        */
         fullcond_alle[z]->posteriormode();
         kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
         fullcond_alle[0]->set_const_old();
-        /*
-        for(v=1;v<fullcondp.size();v++)      //Versuch
-           {                                 //Versuch
-           if(v!=z)                          //Versuch
-             fullcondp[v]->fehler_zurueck(fullcond_alle[z]->get_fehler_neu(),-1);   //Versuch
-           }                                 //Versuch
-        */
         }
       else if(lambdavec[z-1][i]==-1)
         {
+        fullcond_alle[z]->set_inthemodel(0);
         fullcond_alle[z]->reset_effect(0);
         fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
                                   fullcond_alle[z]->get_data_forfixedeffects());
@@ -934,6 +909,7 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
         }
       else
         {
+        fullcond_alle[z]->set_inthemodel(0);
         fullcond_alle[z]->reset_effect(0);
         fullcond_alle[0]->posteriormode_const();
         kriterium_versuch = criterion_min(df);
@@ -944,13 +920,6 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
     else
       krit_fkt.push_back(kriterium);
     }
-    /*
-    for(v=1;v<fullcondp.size();v++)             //Versuch
-       {                                        //Versuch
-       if(v!=z)                                 //Versuch
-         fullcondp[v]->fehler_zurueck(fullcond_alle[z]->get_fehler_alt(),1);     //Versuch
-       }                                        //Versuch
-    */
   if(trace == "trace_minim" && minim != "approx_control")
      {
      genoptions_mult[0]->out("\n\n");
@@ -964,6 +933,7 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
     {
     vector<double> kriterium_control;
     genoptions_mult[0]->out("\n\n");
+    fullcond_alle[z]->set_inthemodel(1);
     minexact_nonp_nonp(z,kriterium_control,kriterium,df);
     genoptions_mult[0]->out("  " + names_nonp[z-1][0] + " Testvalues: approx    exact \n");
     for(i=0;i<kriterium_control.size();i++)
@@ -972,6 +942,7 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
     }
   else
     {
+    fullcond_alle[z]->set_inthemodel(1);
     fullcond_alle[z]->update_stepwise(modell_alt[z+names_fixed.size()-2]);
     fullcond_alle[z]->posteriormode();
     }
@@ -985,7 +956,7 @@ void STEPWISErun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, doub
   for(i=0;i<fullcondp.size();i++)
     df = df + fullcondp[i]->compute_df();
 
-  if(minim == "adaptiv")
+  if(minim == "adaptiv" || minim == "adap_exact")
     {
     reset_fix(names_nonp[z-1][0]);
     fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
@@ -997,6 +968,7 @@ void STEPWISErun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, doub
   fullcond_alle[0]->safe_const();
   reset_fix(names_nonp[z-1][0]);
   fullcondp.push_back(fullcond_alle[z]);
+  fullcond_alle[z]->set_inthemodel(1);
 
   for(i=0;i<lambdavec[z-1].size();i++)
     {
@@ -1012,6 +984,7 @@ void STEPWISErun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, doub
         }
       else
         {
+        fullcond_alle[z]->set_inthemodel(0);
         fullcond_alle[z]->reset_effect(0);
         fullcond_alle[0]->posteriormode_const();
         kriterium_versuch = criterion_min(df);
@@ -1035,6 +1008,7 @@ void STEPWISErun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, doub
   if(minim == "approx_control")
     {
     vector<double> kriterium_control;
+    fullcond_alle[z]->set_inthemodel(0);
     minexact_nonp_fix(z,kriterium_control,kriterium,df);
     genoptions_mult[0]->out("\n\n");
     genoptions_mult[0]->out("  " + names_nonp[z-1][0] + " Testvalues: approx    exact \n");
@@ -1044,6 +1018,7 @@ void STEPWISErun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, doub
     }
   else
     {
+    fullcond_alle[z]->set_inthemodel(0);
     fullcond_alle[z]->reset_effect(0);
     fullcondp.erase(fullcondp.end()-1,fullcondp.end());
     fullcondp[0]->posteriormode_single(names_nonp[z-1],
@@ -1059,10 +1034,11 @@ void STEPWISErun::stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt ,dou
   double df = 0;
   for(i=0;i<fullcondp.size();i++)
     df = df + fullcondp[i]->compute_df();
-  // if(minim == "adaptiv")  hier nicht nötig (siehe koordmin_leer_fix) 
+  // if(minim == "adaptiv" || minim == "adap_exact")  hier nicht nötig (siehe koordmin_leer_fix) 
 
   fullcond_alle[0]->safe_const();
   fullcondp.push_back(fullcond_alle[z]);
+  fullcond_alle[z]->set_inthemodel(1);
 
   for(i=0;i<lambdavec[z-1].size();i++)
     {
@@ -1078,6 +1054,7 @@ void STEPWISErun::stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt ,dou
         }
       else
         {
+        fullcond_alle[z]->set_inthemodel(0);
         fullcond_alle[z]->reset_effect(0);
         fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
                                    fullcond_alle[z]->get_data_forfixedeffects());
@@ -1103,6 +1080,7 @@ void STEPWISErun::stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt ,dou
   if(minim == "approx_control")
     {
     vector<double> kriterium_control;
+    fullcond_alle[z]->set_inthemodel(0);
     minexact_nonp_leer(z,kriterium_control,kriterium,df);
     genoptions_mult[0]->out("\n\n");
     genoptions_mult[0]->out("  " + names_nonp[z-1][0] + " Testvalues: approx    exact \n");
@@ -1112,6 +1090,7 @@ void STEPWISErun::stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt ,dou
     }
   else
     {
+    fullcond_alle[z]->set_inthemodel(0);
     fullcond_alle[z]->reset_effect(0);
     fullcondp.erase(fullcondp.end()-1,fullcondp.end());
     }
@@ -1137,6 +1116,7 @@ void STEPWISErun::minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
         }
       else if(lambdavec[z-1][i]==-1)
         {
+        fullcond_alle[z]->set_inthemodel(0);
         vector<FULLCOND*> fullcond_start = fullcondp;
         vector<double> modell1 = modell_alt;
         modell1[z+names_fixed.size()-2] = -1;
@@ -1150,6 +1130,7 @@ void STEPWISErun::minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
         }
       else
         {
+        fullcond_alle[z]->set_inthemodel(0);
         vector<FULLCOND*> fullcond_start = fullcondp;
         vector<double> modell1 = modell_alt;
         modell1[z+names_fixed.size()-2] = 0;
@@ -1165,6 +1146,7 @@ void STEPWISErun::minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
     else
       krit_fkt.push_back(kriterium);
     }
+  fullcond_alle[z]->set_inthemodel(1);
   fullcond_alle[z]->update_stepwise(modell_alt[z+names_fixed.size()-2]);
   fullcondp[0]->set_effect_zero();
   posteriormode(posttitle,true);
@@ -1185,6 +1167,7 @@ void STEPWISErun::minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
   {
   unsigned i;
   end[0] = fullcondp.size()-1;
+  fullcond_alle[z]->set_inthemodel(1);
   for(i=0;i<lambdavec[z-1].size();i++)
     {
     if(lambdavec[z-1][i]!=-1)
@@ -1199,6 +1182,7 @@ void STEPWISErun::minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
         }
       else
         {
+        fullcond_alle[z]->set_inthemodel(0);
         vector<FULLCOND*> fullcond_start = fullcondp;
         fullcondp.erase(fullcondp.end()-1,fullcondp.end());
         end[0] = fullcondp.size()-1;
@@ -1214,6 +1198,7 @@ void STEPWISErun::minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
     else
       krit_fkt.push_back(kriterium);
     }
+  fullcond_alle[z]->set_inthemodel(0);
   fullcond_alle[z]->reset_effect(0);
   fullcondp[0]->include_effect(names_nonp[z-1],
                                 fullcond_alle[z]->get_data_forfixedeffects());
@@ -1238,6 +1223,7 @@ void STEPWISErun::minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
   {
   unsigned i;
   end[0] = fullcondp.size()-1;
+  fullcond_alle[z]->set_inthemodel(1);
   for(i=0;i<lambdavec[z-1].size();i++)
     {
     if(lambdavec[z-1][i]!=0)
@@ -1252,6 +1238,7 @@ void STEPWISErun::minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
         }
       else
         {
+        fullcond_alle[z]->set_inthemodel(0);
         vector<FULLCOND*> fullcond_start = fullcondp;
         fullcondp.erase(fullcondp.end()-1,fullcondp.end());
         end[0] = fullcondp.size()-1;
@@ -1270,6 +1257,7 @@ void STEPWISErun::minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
     else
       krit_fkt.push_back(kriterium);
     }
+  fullcond_alle[z]->set_inthemodel(0);
   fullcond_alle[z]->reset_effect(0);
   fullcondp.erase(fullcondp.end()-1,fullcondp.end());
   fullcondp[0]->set_effect_zero();
@@ -1305,6 +1293,19 @@ double STEPWISErun::criterion_min(const double & df)
   //else //if(criterion=="AUC")
   //  kriterium = -1 * likep_mult[0]->compute_auc();
 
+//     Versuch, ob penalisierte statt normaler Log-Likelihood verwendet werden sollte
+/*
+unsigned j;
+double sum = 0;
+for(j=1;j<fullcondp.size();j++)
+  {
+  sum += fullcondp[j]->compute_penalterm();
+  }
+sum /= likep_mult[0]->compute_rss();
+sum *= likep_mult[0]->get_nrobs_wpw();
+kriterium += sum;
+*/
+
   return kriterium;
   }
 
@@ -1320,7 +1321,7 @@ bool STEPWISErun::koordabstieg(void)
   ST::string text_neu;
   bool eins = true;
   double kriterium_aktuell;
-  modell_uralt = modell_neu;
+//  modell_uralt = modell_neu;
   while(kriterium_neu <= kriterium_alt && fertig==false && steps_aktuell<steps)
        {
        steps_aktuell = steps_aktuell + 1;
@@ -1357,14 +1358,22 @@ bool STEPWISErun::koordabstieg(void)
          unsigned z = koord_minfactor(kriteriumiteration2,modeliteration,textiteration,kriterium_aktuell);
          koord_minnonp(kriteriumiteration2,modeliteration,textiteration,z,kriterium_aktuell);
 
-         if(minim == "adaptiv" && likep_mult[0]->get_family() != "Gaussian")
+         if((minim == "adaptiv" || minim == "adap_exact" || minim == "adaptiv_golden")
+                                      && likep_mult[0]->get_family() != "Gaussian")
            likep_mult[0]->compute_iwls();
-         if(minim == "adaptiv" && fmod(double(steps_aktuell),double(3)) == 0)
+         /*if((minim == "adaptiv" || minim == "adap_exact") && fmod(double(steps_aktuell),double(3)) == 0)
            {
            if(modell_uralt == modell_alt)
              fertig = true;
            else
              modell_uralt = modell_alt;
+           } */
+         if((minim == "adaptiv" || minim == "adap_exact" || minim == "adaptiv_golden")
+                                     && steps_aktuell>=3)
+           {
+           unsigned hilfe = modellematrix.size()-3;
+           if(modell_alt == modellematrix[hilfe][modellematrix[hilfe].size()-1])
+             fertig = true;
            }
          }
 
@@ -1408,9 +1417,16 @@ bool STEPWISErun::koordabstieg(void)
           return true;
        }
 
-  if(minim == "apprexact")
+  if(minim == "apprexact" || minim == "adap_exact")
     {
     minim = "exact";
+
+unsigned y;
+genoptions_mult[0]->out("modell_alt   modell_neu \n");
+for(y=0;y<modell_alt.size();y++)
+  genoptions_mult[0]->out(ST::doubletostring(modell_alt[y]) + "   " + ST::doubletostring(modell_neu[y]) + "\n");
+genoptions_mult[0]->out("\n");
+
     if(fertig==false)
       {
       kriterium_neu = kriterium_alt;
@@ -1454,7 +1470,7 @@ void STEPWISErun::koord_fix_leer(vector<double> & kriteriumiteration2,
     df = df + fullcondp[y]->compute_df();
 
   double kriterium_adaptiv = kriterium_aktuell;
-  if(minim == "adaptiv")
+  if(minim == "adaptiv" || minim == "adap_exact")
     {
     reset_fix(names_fixed[i]);          // "posteriormode_single" ändern: ohne include_effect! (dann ist raus- + reinnehmen überflüssig!)
     int c = column_for_fix(names_fixed[i]);
@@ -1487,13 +1503,13 @@ void STEPWISErun::koord_fix_leer(vector<double> & kriteriumiteration2,
      {
      genoptions_mult[0]->out("\n");
      genoptions_mult[0]->out("  " + names_fixed[i] + " Testvalue: approx \n");
-     if(minim=="adaptiv")
+     if(minim=="adaptiv" || minim == "adap_exact")
        genoptions_mult[0]->out("        " + ST::doubletostring(kriterium_aktuell,6) + "\n");
      genoptions_mult[0]->out("        " + ST::doubletostring(kriterium_neu,6) + "\n");
      genoptions_mult[0]->out("\n");
      }
 
- if(kriterium_neu < kriterium_aktuell && minim != "adaptiv")
+ if(kriterium_neu < kriterium_aktuell && minim != "adaptiv" && minim != "adap_exact")
     {
     bool neu = modelcomparison(modell_neu,modellematrix);
     if(neu==false)
@@ -1515,7 +1531,7 @@ void STEPWISErun::koord_fix_leer(vector<double> & kriteriumiteration2,
 
  if(kriterium_aktuell >= kriterium_neu)
    kriterium_aktuell = kriterium_neu;
- else //if(kriterium_neu >= kriterium_aktuell)
+ else //if(kriterium_neu > kriterium_aktuell)
     {
     int c = column_for_fix(names_fixed[i]);
     vector<ST::string> name_help;
@@ -1524,7 +1540,7 @@ void STEPWISErun::koord_fix_leer(vector<double> & kriteriumiteration2,
     modell_neu[i-1] = -1;
     }
 
-  if(minim == "adaptiv")
+  if(minim == "adaptiv" || minim == "adap_exact")
     {
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
       fertig = false;
@@ -1535,6 +1551,7 @@ void STEPWISErun::koord_fix_leer(vector<double> & kriteriumiteration2,
       }
     kriterium_alt = kriterium_aktuell;
     modell_alt[i-1] = modell_neu[i-1];
+    modeliteration.push_back(modell_alt);
     }
   }
 
@@ -1547,7 +1564,7 @@ void STEPWISErun::koord_leer_fix(vector<double> & kriteriumiteration2,
   for(y=0;y<fullcondp.size();y++)
     df = df + fullcondp[y]->compute_df();
   double kriterium_adaptiv = kriterium_aktuell;
-  // if(minim == "adaptiv")   hier nicht nötig, weil Intercept immer erneuert wird!
+  // if(minim == "adaptiv" || minim == "adap_exact")   hier nicht nötig, weil Intercept immer erneuert wird!
 
   df = df + 1;
   modell_neu[i-1] = -1;
@@ -1576,12 +1593,12 @@ void STEPWISErun::koord_leer_fix(vector<double> & kriteriumiteration2,
      genoptions_mult[0]->out("\n");
      genoptions_mult[0]->out("  " + names_fixed[i] + " Testvalue: approx \n");
      genoptions_mult[0]->out("        " + ST::doubletostring(kriterium_neu,6) + "\n");
-     if(minim=="adaptiv")
+     if(minim=="adaptiv" || minim == "adap_exact")
        genoptions_mult[0]->out("        " + ST::doubletostring(kriterium_aktuell,6) + "\n");
      genoptions_mult[0]->out("\n");
      }
 
-  if(kriterium_neu < kriterium_aktuell && minim != "adaptiv")
+  if(kriterium_neu < kriterium_aktuell && minim != "adaptiv" && minim != "adap_exact")
      {
      bool neu = modelcomparison(modell_neu,modellematrix);
      if(neu==false)
@@ -1606,7 +1623,7 @@ void STEPWISErun::koord_leer_fix(vector<double> & kriteriumiteration2,
     modell_neu[i-1] = 0;
     }
 
-  if(minim == "adaptiv")
+  if(minim == "adaptiv" || minim == "adap_exact")
     {
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
       fertig = false;
@@ -1617,6 +1634,7 @@ void STEPWISErun::koord_leer_fix(vector<double> & kriteriumiteration2,
       }
     kriterium_alt = kriterium_aktuell;
     modell_alt[i-1] = modell_neu[i-1];
+    modeliteration.push_back(modell_alt);
     }
   }
 
@@ -1647,7 +1665,7 @@ void STEPWISErun::koord_factor_leer(vector<double> & kriteriumiteration2,
     df = df + fullcondp[i]->compute_df();
 
   double kriterium_adaptiv = kriterium_aktuell;
-  if(minim == "adaptiv")
+  if(minim == "adaptiv" || minim == "adap_exact")
     {
     for(i=0;i<names_nonp[z-1].size();i++)    // "posteriormode_single" ändern: ohne include_effect! (dann ist raus- + reinnehmen überflüssig!)
       reset_fix(names_nonp[z-1][i]);
@@ -1682,13 +1700,13 @@ void STEPWISErun::koord_factor_leer(vector<double> & kriteriumiteration2,
      {
      genoptions_mult[0]->out("\n");
      genoptions_mult[0]->out("  " + names_nonp[z-1][0] + " Testvalue: approx \n");
-     if(minim=="adaptiv")
+     if(minim=="adaptiv" || minim == "adap_exact")
        genoptions_mult[0]->out("        " + ST::doubletostring(kriterium_aktuell,6) + "\n");
      genoptions_mult[0]->out("        " + ST::doubletostring(kriterium_neu,6) + "\n");
      genoptions_mult[0]->out("\n");
      }
 
-  if(kriterium_neu < kriterium_aktuell && minim != "adaptiv")
+  if(kriterium_neu < kriterium_aktuell && minim != "adaptiv" && minim != "adap_exact")
      {
      bool neu = modelcomparison(modell_neu,modellematrix);
      if(neu==false)
@@ -1715,7 +1733,7 @@ void STEPWISErun::koord_factor_leer(vector<double> & kriteriumiteration2,
     modell_neu[z+names_fixed.size()-2] = -1;
     }
 
-  if(minim == "adaptiv")
+  if(minim == "adaptiv" || minim == "adap_exact")
     {
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
       fertig = false;
@@ -1727,6 +1745,7 @@ void STEPWISErun::koord_factor_leer(vector<double> & kriteriumiteration2,
       }
     kriterium_alt = kriterium_aktuell;
     modell_alt[z+names_fixed.size()-2] = modell_neu[z+names_fixed.size()-2];
+    modeliteration.push_back(modell_alt);
     }
   }
 
@@ -1739,7 +1758,7 @@ void STEPWISErun::koord_leer_factor(vector<double> & kriteriumiteration2,
   for(i=0;i<fullcondp.size();i++)
     df = df + fullcondp[i]->compute_df();
   double kriterium_adaptiv = kriterium_aktuell;
-  // if(minim == "adaptiv")          hier überflüssig (siehe oben)!
+  // if(minim == "adaptiv" || minim == "adap_exact")   hier überflüssig (siehe oben)!
 
   df = df + fullcond_alle[z]->get_data_forfixedeffects().cols();
   modell_neu[z+names_fixed.size()-2] = -1;
@@ -1769,12 +1788,12 @@ void STEPWISErun::koord_leer_factor(vector<double> & kriteriumiteration2,
      genoptions_mult[0]->out("  " + names_nonp[z-1][0] + " Testvalue: approx \n");
      genoptions_mult[0]->out("        " + ST::doubletostring(kriterium_neu,6) + "\n");
      genoptions_mult[0]->out("\n");
-     if(minim=="adaptiv")
+     if(minim=="adaptiv" || minim == "adap_exact")
        genoptions_mult[0]->out("        " + ST::doubletostring(kriterium_aktuell,6) + "\n");
      genoptions_mult[0]->out("\n");
      }
 
-  if(kriterium_neu < kriterium_aktuell && minim != "adaptiv")
+  if(kriterium_neu < kriterium_aktuell && minim != "adaptiv" && minim != "adap_exact")
      {
      bool neu = modelcomparison(modell_neu,modellematrix);
      if(neu==false)
@@ -1801,7 +1820,7 @@ void STEPWISErun::koord_leer_factor(vector<double> & kriteriumiteration2,
     modell_neu[z+names_fixed.size()-2] = 0;
     }
 
-  if(minim == "adaptiv")
+  if(minim == "adaptiv" || minim == "adap_exact")
     {
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
       fertig = false;
@@ -1813,6 +1832,7 @@ void STEPWISErun::koord_leer_factor(vector<double> & kriteriumiteration2,
       }
     kriterium_alt = kriterium_aktuell;
     modell_alt[z+names_fixed.size()-2] = modell_neu[z+names_fixed.size()-2];
+    modeliteration.push_back(modell_alt);
     }
   }
 
@@ -1826,7 +1846,7 @@ void STEPWISErun::koord_minnonp(vector<double> & kriteriumiteration2,
     unsigned lambda_ind;
     double kriterium_min;
     double kriterium_test = kriterium_aktuell;
-    if(minim != "approx_golden" || lambdavec[z-1].size()<7)
+    if((minim != "approx_golden" && minim != "adaptiv_golden") || lambdavec[z-1].size()<7)
       {
       vector<double> krit_fkt;
       if(modell_alt[i+names_fixed.size()-2]==0)
@@ -1852,31 +1872,34 @@ void STEPWISErun::koord_minnonp(vector<double> & kriteriumiteration2,
       lambda_ind = golden_section(i,kriterium_aktuell);
 
     modell_neu[names_fixed.size()-2+i] = lambdavec[i-1][lambda_ind];
-    if(minim != "adaptiv")
+    if(minim != "adaptiv" && minim != "adap_exact" && minim != "adaptiv_golden")
       {
       if(modell_neu[names_fixed.size()-2+i] != modell_alt[names_fixed.size()-2+i])
         {
-        if(modelcomparison(modell_neu,modellematrix)==false)
+        bool neu = modelcomparison(modell_neu,modellematrix);
+        fullcond_einzeln(modell_neu,modell_alt,i);
+        if(neu==false)
           {
-          fullcond_einzeln(modell_neu,modell_alt,i);
           fullcondp[0]->set_effect_zero();
           newmodel(kriteriumiteration2,modeliteration,textiteration);
           kriterium_test = kriteriumiteration2[kriteriumiteration2.size()-1];
           }
-        }
-      if(kriterium_aktuell >= kriterium_test)
-        {
-        modell_alt = modell_neu;
-        kriterium_aktuell = kriterium_test;
-        }
-      else //if(kriterium_aktuell < kriterium_test)
-        {
-        fullcond_einzeln(modell_alt,modell_neu,i);
-        modell_neu = modell_alt;
-        posteriormode(posttitle,true);
+        if(kriterium_aktuell > kriterium_test)
+          {
+          modell_alt = modell_neu;
+          kriterium_aktuell = kriterium_test;
+          }
+        else //if(kriterium_aktuell <= kriterium_test)
+          {
+          if( (trace == "trace_minim" || trace == "trace_on") && neu == false)
+            genoptions_mult[0]->out("\n\n  Trial won't become the new model! \n");
+          fullcond_einzeln(modell_alt,modell_neu,i);
+          modell_neu = modell_alt;
+          posteriormode(posttitle,true);
+          }
         }
       }
-    else //if(minim == "adaptiv")
+    else //if(minim == "adaptiv" || minim == "adap_exact")
       {
       if(modell_alt[names_fixed.size()-2+i] != modell_neu[names_fixed.size()-2+i])
         {
@@ -1908,6 +1931,7 @@ void STEPWISErun::koord_minnonp(vector<double> & kriteriumiteration2,
       kriterium_alt = kriterium_aktuell;
       if(fabs((kriterium_test - kriterium_aktuell)/kriterium_test) >= pow10(-6))
         fertig = false;
+      modeliteration.push_back(modell_alt);
       }
     }
   }
@@ -2476,6 +2500,19 @@ double STEPWISErun::compute_criterion(void)
   else //if(criterion=="AUC")
     kriterium = -1 * likep_mult[0]->compute_auc();
 
+// Versuch, ob penalisierte statt normaler Log-Likelihood verwendet werden sollte
+/*
+unsigned j;
+double sum = 0;
+for(j=1;j<fullcondp.size();j++)
+  {
+  sum += fullcondp[j]->compute_penalterm();
+  }
+sum /= likep_mult[0]->compute_rss();
+sum *= likep_mult[0]->get_nrobs_wpw();
+kriterium += sum;
+*/
+
   return kriterium;
   }
 
@@ -2589,6 +2626,7 @@ void STEPWISErun::fullcond_einzeln(const vector<double> & modell1,
 
   for(i=z;i<fullcond_alle.size();i++)
      {
+     fullcond_alle[i]->set_inthemodel(modell1[names_fixed.size()-2+i]);
      if(modell2[names_fixed.size()-2+i]==-1 && index==i)
         reset_fix(names_nonp[i-1][0]);
      if(modell1[names_fixed.size()-2+i]>0)
@@ -2621,6 +2659,7 @@ void STEPWISErun::fullcond_komplett(const vector<double> & m)
   fullcond_neu.push_back(fullcondp[0]);
   for(i=1;i<fullcond_alle.size();i++)
      {
+     fullcond_alle[i]->set_inthemodel(m[names_fixed.size()-2+i]);     // neu!
      if(m[names_fixed.size()-2+i]>0)
         {
         fullcond_alle[i]->update_stepwise(m[names_fixed.size()-2+i]);
@@ -2638,7 +2677,7 @@ void STEPWISErun::fullcond_komplett(const vector<double> & m)
 
   fullcondp = fullcond_neu;
   end[0] = fullcondp.size()-1;
-  if(minim!="adaptiv")         // stürzt sonst bei "binomial" beim letzten "posteriormode" ab, warum???
+  if(minim!="adaptiv")   // stürzt sonst bei "binomial" beim letzten "posteriormode" ab, warum???
     fullcondp[0]->set_effect_zero();
   }
   
@@ -3013,6 +3052,8 @@ void STEPWISErun::make_options(void)
   {
   //double l1 = genoptions_mult[0]->get_level1();
   //double l2 = genoptions_mult[0]->get_level2();
+  char hcharu = '_';
+  ST::string hstringu = "\\_";
 
   //schreibt Stepwise options ins Tex-File
   outtex << "\n\\noindent {\\bf \\large Stepwise Options:}" << endl
@@ -3021,7 +3062,7 @@ void STEPWISErun::make_options(void)
          //<< "Level 1: \\> " << l1 << "\\\\" << endl
          //<< "Level 2: \\> " << l2 << "\\\\" << endl
          << "Maximum number of Iterations: \\= " << steps << " \\\\" << endl
-         << "Performance criterion: \\> " << criterion << " \\\\" << endl
+         << "Performance criterion: \\> " << criterion.insert_string_char(hcharu,hstringu) << " \\\\" << endl
          << "Startmodel: \\> " << startmodel << " \\\\" << endl
          //<< "Used number of Iterations: \\> blabla \\\\" << endl
          << "Increment: \\> " << increment << " \\\\" << endl;
@@ -3460,7 +3501,7 @@ unsigned STEPWISErun::golden_section(unsigned & z, double & kriterium)
   double gold = (3-sqrt(5))/2;
   unsigned i;
 
-  double df = startbedingungen(z);
+  double df = startbedingungen(z,kriterium);
 
   bool falsch = false;
   unsigned index = search_lambdaindex(modell_alt[z+names_fixed.size()-2],
@@ -3550,7 +3591,7 @@ unsigned STEPWISErun::golden_section(unsigned & z, double & kriterium)
         f1 = compute_findex(index_vec,krit_vec,x1,z,df);
         }
 
-     while(abs(x3-x0) > 1)
+     while(abs(int(x3-x0)) > 1)
         {
         if(f2 < f1)  // && x1 != x2)
           {
@@ -3562,7 +3603,15 @@ unsigned STEPWISErun::golden_section(unsigned & z, double & kriterium)
           if(x1 != x2)
             f2 = compute_findex(index_vec,krit_vec,x2,z,df);
           else
-            f2 = f3;
+            {
+            if(x3<x2-1)
+              {
+              x2 = x2 - 1;
+              f2 = compute_findex(index_vec,krit_vec,x2,z,df);
+              }
+            else
+              f2 = f3;
+            }
           }
         else // if (f2 >= f1 && x1 != x2)
           {
@@ -3574,7 +3623,15 @@ unsigned STEPWISErun::golden_section(unsigned & z, double & kriterium)
           if(x1 != x2)
             f1 = compute_findex(index_vec,krit_vec,x1,z,df);
           else
-            f1 = f0;
+            {
+            if(x0>x1+1)
+              {
+              x1 = x1 + 1;
+              f1 = compute_findex(index_vec,krit_vec,x1,z,df);
+              }
+            else
+              f1 = f0;
+            }
           }
         /*
         else if (f2 < f1 && x1 == x2)
@@ -3624,7 +3681,7 @@ unsigned STEPWISErun::golden_section(unsigned & z, double & kriterium)
      }
   }
 
-double STEPWISErun::startbedingungen(unsigned & z)
+double STEPWISErun::startbedingungen(unsigned & z, double & kriterium)
   {
   unsigned i;
   double df = 0;
@@ -3634,17 +3691,31 @@ double STEPWISErun::startbedingungen(unsigned & z)
     fullcond_alle[0]->safe_const();
   if(modell_alt[z+names_fixed.size()-2]!=-1 && modell_alt[z+names_fixed.size()-2]!=0)
     {
+    if(minim == "adaptiv_golden")
+      {
+      fullcond_alle[z]->update_stepwise(modell_alt[z+names_fixed.size()-2]);
+      fullcond_alle[z]->posteriormode();
+      kriterium = criterion_min(df);
+      }
     df = df - fullcond_alle[z]->compute_df();
     fullcond_alle[z]->reset_effect(0);
     }
   else if(modell_alt[z+names_fixed.size()-2] == -1)
     {
+    if(minim == "adaptiv_golden")
+      {
+      reset_fix(names_nonp[z-1][0]);
+      fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
+                                  fullcond_alle[z]->get_data_forfixedeffects());
+      kriterium = criterion_min(df);
+      }
     df = df - 1;
     fullcondp.push_back(fullcond_alle[z]);
     reset_fix(names_nonp[z-1][0]);
     }
   else
     fullcondp.push_back(fullcond_alle[z]);
+
   end[0] = fullcondp.size()-1;
   return df;
   }
@@ -3654,11 +3725,13 @@ void STEPWISErun::approx_zurueck(unsigned & z)
   {
   if(modell_alt[z+names_fixed.size()-2]!=-1 && modell_alt[z+names_fixed.size()-2]!=0)
     {
+    fullcond_alle[z]->set_inthemodel(1);
     fullcond_alle[z]->update_stepwise(modell_alt[z+names_fixed.size()-2]);
     fullcond_alle[z]->posteriormode();
     }
   else if(modell_alt[z+names_fixed.size()-2] == -1)
     {
+    fullcond_alle[z]->set_inthemodel(0);
     fullcond_alle[z]->reset_effect(0);
     fullcondp.erase(fullcondp.end()-1,fullcondp.end());
     fullcondp[0]->posteriormode_single(names_nonp[z-1],
@@ -3666,6 +3739,7 @@ void STEPWISErun::approx_zurueck(unsigned & z)
     }
   else
     {
+    fullcond_alle[z]->set_inthemodel(0);
     fullcond_alle[z]->reset_effect(0);
     fullcondp.erase(fullcondp.end()-1,fullcondp.end());
     }
@@ -3676,9 +3750,13 @@ void STEPWISErun::approx_zurueck(unsigned & z)
 void STEPWISErun::exact_zurueck(unsigned & z)
   {
   if(modell_alt[z+names_fixed.size()-2]!=-1 && modell_alt[z+names_fixed.size()-2]!=0)
+    {
     fullcond_alle[z]->update_stepwise(modell_alt[z+names_fixed.size()-2]);
+    fullcond_alle[z]->set_inthemodel(1);
+    }
   else if(modell_alt[z+names_fixed.size()-2] == -1)
     {
+    fullcond_alle[z]->set_inthemodel(0);
     fullcond_alle[z]->reset_effect(0);
     fullcondp[0]->include_effect(names_nonp[z-1],
                                 fullcond_alle[z]->get_data_forfixedeffects());
@@ -3686,6 +3764,7 @@ void STEPWISErun::exact_zurueck(unsigned & z)
     }
   else
     {
+    fullcond_alle[z]->set_inthemodel(0);
     fullcond_alle[z]->reset_effect(0);
     fullcondp.erase(fullcondp.end()-1,fullcondp.end());
     }
@@ -3699,7 +3778,7 @@ double STEPWISErun::wert_einzeln(unsigned & z, unsigned & i, double & df)
   double kriterium;
   if(minim == "exact_golden")
     kriterium = exact_einzeln(z,i,df);
-  else    //if(minim == "approx_golden")
+  else    //if(minim == "approx_golden" || minim == "adaptiv_golden)
     kriterium = approx_einzeln(z,i,df);
   return kriterium;
   }
@@ -3709,24 +3788,25 @@ double STEPWISErun::approx_einzeln(unsigned & z, unsigned & i, double & df)
   double kriterium_versuch;
   if(lambdavec[z-1][i]!=-1 && lambdavec[z-1][i]!=0)
     {
+    fullcond_alle[z]->set_inthemodel(1);
     fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
     fullcond_alle[z]->posteriormode();
-    //fullcond_alle[0]->posteriormode_const();
     kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
     fullcond_alle[0]->set_const_old();
     fullcond_alle[z]->reset_effect(0);
     }
   else if(lambdavec[z-1][i]==-1)
     {
+    fullcond_alle[z]->set_inthemodel(0);
     fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
                                   fullcond_alle[z]->get_data_forfixedeffects());
-    //fullcond_alle[0]->posteriormode_const();
     kriterium_versuch = criterion_min(df + 1);
     fullcond_alle[0]->set_const_old();
     reset_fix(names_nonp[z-1][0]);
     }
   else
     {
+    fullcond_alle[z]->set_inthemodel(0);
     fullcond_alle[0]->posteriormode_const();
     kriterium_versuch = criterion_min(df);
     fullcond_alle[0]->set_const_old();
@@ -3740,12 +3820,14 @@ double STEPWISErun::exact_einzeln(unsigned & z, unsigned & i, double & df)
   double kriterium_versuch;
   if(lambdavec[z-1][i]!=-1 && lambdavec[z-1][i]!=0)
     {
+    fullcond_alle[z]->set_inthemodel(1);
     fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
     posteriormode(posttitle,true);
     kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
     }
   else if(lambdavec[z-1][i]==-1)
     {
+    fullcond_alle[z]->set_inthemodel(0);
     vector<FULLCOND*> fullcond_start = fullcondp;
     vector<double> modell1 = modell_alt;
     modell1[z+names_fixed.size()-2] = -1;
@@ -3758,6 +3840,7 @@ double STEPWISErun::exact_einzeln(unsigned & z, unsigned & i, double & df)
     }
   else
     {
+    fullcond_alle[z]->set_inthemodel(0);
     vector<FULLCOND*> fullcond_start = fullcondp;
     vector<double> modell1 = modell_alt;
     modell1[z+names_fixed.size()-2] = 0;

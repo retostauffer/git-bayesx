@@ -253,9 +253,13 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
                          const ST::string & pres, const bool & iw, const bool & sb, const unsigned & c=0);
 
 
-   void init_maineffects(spline_basis * mp1,spline_basis * mp2,
+  void init_maineffects(spline_basis * mp1,spline_basis * mp2,
                          const ST::string & pnt,const ST::string & prt);
 
+  void init_maineffect(spline_basis * mp1,const ST::string & pnt,
+                             const ST::string & prt, const unsigned & number);
+
+  void search_maineffects(void);
 
   // COPY CONSTRUCTOR
 

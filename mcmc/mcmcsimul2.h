@@ -48,7 +48,6 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   vector<vector<ST::string> > names_nonp;
   vector<double> modell_neu;
   vector<double> modell_alt;
-  vector<double> modell_uralt;
   double kriterium_alt;
   double kriterium_neu;
   ST::string text_alt;
@@ -262,7 +261,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
   unsigned golden_section(unsigned & z, double & kriterium);
 
-  double startbedingungen(unsigned & z);
+  double startbedingungen(unsigned & z, double & kriterium);
 
   void approx_zurueck(unsigned & z);
 

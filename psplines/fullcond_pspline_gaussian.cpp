@@ -711,6 +711,8 @@ bool FULLCOND_pspline_gaussian::posteriormode(void)
       }
     }
 
+  if(interactions_pointer.size()>0)
+      search_for_interaction();
   if(interaction == false)
     {
 

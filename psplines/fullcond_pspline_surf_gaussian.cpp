@@ -64,6 +64,7 @@ void FULLCOND_pspline_surf_gaussian::init_maineffects(
   interaction = true;
 
   centertotal = false;
+  maineffectsexisting = 11;
 
   fctotalrespath = prt;
 
@@ -80,6 +81,70 @@ void FULLCOND_pspline_surf_gaussian::init_maineffects(
   he1 = datamatrix(xv.size(),1,0);
   he2 = datamatrix(yv.size(),1,0);
 
+  }
+
+
+void FULLCOND_pspline_surf_gaussian::init_maineffect(spline_basis * mp1,
+         const ST::string & pnt,const ST::string & prt, const unsigned & number)
+  {
+  interaction = true;
+
+  centertotal = false;
+  centerboth = number;  // neu: normalerweise = 0, hier 1 oder 2, gibt damit an,
+                        // daﬂ nur ein Haupteffekt vorhanden ist und welcher!
+
+  fctotalrespath = prt;
+
+  datamatrix h(1,1,0);
+  if(gridsize < 0)
+    fctotal = FULLCOND(optionsp,h,title+"total",nrdiffobs,1,pnt);
+  else
+    fctotal = FULLCOND(optionsp,h,title+"total",gridsize,1,pnt);
+  fctotal.setflags(MCMC::norelchange | MCMC::nooutput);
+  fctotal.set_transform(transform);
+
+  if(number == 1)
+    {
+    maineffectsexisting = 1;
+    mainp1 = mp1;
+    beta1 = datamatrix(nrpar1dim,1,0);
+    he1 = datamatrix(xv.size(),1,0);
+    }
+  else
+    {
+    maineffectsexisting = 10;
+    mainp2 = mp1;
+    beta2 = datamatrix(nrpar1dim,1,0);
+    he2 = datamatrix(yv.size(),1,0);
+    }
+  }
+
+
+void FULLCOND_pspline_surf_gaussian::search_maineffects(void)
+  {
+  bool h1 = false;
+  bool h2 = false;
+  if(maineffectsexisting == 1 || maineffectsexisting == 11)
+    h1 = mainp1->get_inthemodel();
+  if(maineffectsexisting == 10 || maineffectsexisting == 11)
+    h2 = mainp2->get_inthemodel();
+  if(h1 == false && h2 == false)
+    centertotal = true;
+  else if(h1 == true && h2 == false)
+    {
+    centertotal = false;
+    centerboth = 1;
+    }
+  else if(h1 == false && h2 == true)
+    {
+    centertotal = false;
+    centerboth = 2;
+    }
+  else
+    {
+    centertotal = false;
+    centerboth = 0;
+    }
   }
 
 
@@ -1844,10 +1909,16 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode_converged(const unsigned & it
 
 bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
   {
+  if(maineffectsexisting != 0)
+    search_maineffects();      //schlecht, weil Fkt. in jeder Iteration eines Backfitting aufgerufen wird!!!
 
   bool converged = false;
-  bool converged1 = false;
-  bool converged2 = false;
+  bool converged1 = true;
+  bool converged2 = true;
+  if(centerboth == 0 || centerboth == 1)
+    converged1 = false;
+  if(centerboth == 0 || centerboth == 2)
+    converged2 = false;
 
   transform = likep->get_trmult(column);
   fchelp.set_transform(transform);
@@ -1891,22 +1962,30 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
 
       if(utype != gaussian)
         {
-        compute_intercept();
+        if(centerboth == 0)
+          compute_intercept();
         compute_main();
         compute_beta();
-        fcconst->posteriormode_intercept(intercept);
-        converged1 = mainp1->changeposterior(beta1);
-        converged2 = mainp2->changeposterior(beta2);
+        if(centerboth == 0)
+          fcconst->posteriormode_intercept(intercept);
+        if(centerboth == 0 || centerboth == 1)
+          converged1 = mainp1->changeposterior(beta1);
+        if(centerboth == 0 || centerboth == 2)
+          converged2 = mainp2->changeposterior(beta2);
         intercept = 0.0;
         }
       else
         {
-        compute_intercept();
+        if(centerboth == 0)
+          compute_intercept();
         compute_main();
         compute_beta();
-        fcconst->posteriormode_intercept(intercept);
-        converged1 = mainp1->changeposterior(he1,intercept);
-        converged2 = mainp2->changeposterior(he2,intercept);
+        if(centerboth == 0)
+          fcconst->posteriormode_intercept(intercept);
+        if(centerboth == 0 || centerboth == 1)
+          converged1 = mainp1->changeposterior(he1,intercept);
+        if(centerboth == 0 ||centerboth == 2)
+          converged2 = mainp2->changeposterior(he2,intercept);
         intercept = 0.0;
         }
 
@@ -1922,9 +2001,16 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
             {
             if(freqwork==freq.begin() || *freqwork!=*(freqwork-1))
               {
-              *fctotalbetap = spline(*workindex,0)
-                            + mainp1->get_spline()(*workindex,0)
-                            + mainp2->get_spline()(*workindex,0);
+              if(centerboth == 0)
+                *fctotalbetap = spline(*workindex,0)
+                              + mainp1->get_spline()(*workindex,0)
+                              + mainp2->get_spline()(*workindex,0);
+              else if(centerboth == 1)
+                *fctotalbetap = spline(*workindex,0)
+                              + mainp1->get_spline()(*workindex,0);
+              else if(centerboth == 2)
+                *fctotalbetap = spline(*workindex,0)
+                              + mainp2->get_spline()(*workindex,0);
               fctotalbetap++;
               }
             }
@@ -1935,9 +2021,18 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
           unsigned k,l;
           for(k=0;k<gridsizex;k++)
             for(l=0;l<gridsizey;l++,fctotalbetap++)
-              *fctotalbetap = splinehelp(k*gridsizey + l,0)
-                            + mainp1->get_splinehelp()(k,0)
-                            + mainp2->get_splinehelp()(l,0);
+              {
+              if(centerboth == 0)
+                *fctotalbetap = splinehelp(k*gridsizey + l,0)
+                              + mainp1->get_splinehelp()(k,0)
+                              + mainp2->get_splinehelp()(l,0);
+              else if(centerboth == 1)
+                *fctotalbetap = splinehelp(k*gridsizey + l,0)
+                              + mainp1->get_splinehelp()(k,0);
+              else if(centerboth == 2)
+                *fctotalbetap = splinehelp(k*gridsizey + l,0)
+                              + mainp2->get_splinehelp()(l,0);
+              }
           }
 
       fctotal.posteriormode();

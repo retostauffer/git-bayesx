@@ -41,6 +41,8 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, DISTRIBUTION * dp,
   mapexisting = false;
 
   centertotal = true;
+  centerboth = 0;
+  maineffectsexisting = 0;
 
   nrknots = nrk;
   degree = degr;
@@ -405,6 +407,8 @@ spline_basis_surf::spline_basis_surf(const spline_basis_surf & sp)
   outfile = sp.outfile;
 
   centertotal = sp.centertotal;
+  centerboth = sp.centerboth;
+  maineffectsexisting = sp.maineffectsexisting;
 
   gridsize = sp.gridsize;
   gridsizex = sp.gridsizex;
@@ -483,6 +487,8 @@ const spline_basis_surf & spline_basis_surf::operator=(const spline_basis_surf &
   outfile = sp.outfile;
 
   centertotal = sp.centertotal;
+  centerboth = sp.centerboth;
+  maineffectsexisting = sp.maineffectsexisting;
 
   gridsize = sp.gridsize;
   gridsizex = sp.gridsizex;
@@ -1143,7 +1149,7 @@ else
     outres << endl;
     }
 
-if(!mapexisting && optionsp->get_samplesize()>0)
+if(!mapexisting)
   {
   if(centertotal==false)
     {
@@ -1212,7 +1218,7 @@ if(!mapexisting && optionsp->get_samplesize()>0)
       outrestotal << endl;
       }
     }
-  else if(centertotal)
+  else if(centertotal && optionsp->get_samplesize()>0)
     {
     ST::string of;
 
@@ -2096,32 +2102,47 @@ void spline_basis_surf::compute_beta(void)
 
 //* ------------- betas zeilen- und spaltenweise zentrieren ---------------------
 
-  for(i=0;i<nrpar1dim;i++)
+// betax1mean, betax2mean
+  if(centerboth == 0 || centerboth == 1)
     {
-    beta1(i,0) = 0;
-    beta2(i,0) = 0;
+    for(i=0;i<nrpar1dim;i++)
+      beta1(i,0) = 0;
+
+    for(i=0;i<nrpar1dim;i++)
+      for(j=0;j<nrpar1dim;j++)
+        beta1(i,0) += beta(i+j*nrpar1dim,0)*betaweight_main(j,0);
     }
 
-// betax1mean, betax2mean
-  for(i=0;i<nrpar1dim;i++)
-    for(j=0;j<nrpar1dim;j++)
-      beta1(i,0) += beta(i+j*nrpar1dim,0)*betaweight_main(j,0);
+  if(centerboth == 0 || centerboth == 2)      
+    {
+    for(i=0;i<nrpar1dim;i++)
+      beta2(i,0) = 0;
 
-  for(i=0;i<nrpar1dim;i++)
-    for(j=0;j<nrpar1dim;j++)
-      beta2(i,0) += beta(j+i*nrpar1dim,0)*betaweight_main(j,0);
+    for(i=0;i<nrpar1dim;i++)
+      for(j=0;j<nrpar1dim;j++)
+        beta2(i,0) += beta(j+i*nrpar1dim,0)*betaweight_main(j,0);
+    }
 
 // betas ändern
-  for(i=0;i<nrpar1dim;i++)
-    for(j=0;j<nrpar1dim;j++)
-      beta(i+j*nrpar1dim,0) -= beta1(i,0);
+  if(centerboth == 0 ||centerboth == 1)
+    {
+    for(i=0;i<nrpar1dim;i++)
+      for(j=0;j<nrpar1dim;j++)
+        beta(i+j*nrpar1dim,0) -= beta1(i,0);
+    }
 
-  for(i=0;i<nrpar1dim;i++)
-    for(j=0;j<nrpar1dim;j++)
-      beta(j+i*nrpar1dim,0) -= beta2(i,0);
-
-  for(i=0;i<nrpar;i++)
-    beta(i,0) += intercept;
+  if(centerboth == 0 ||centerboth == 2)
+    {
+    for(i=0;i<nrpar1dim;i++)
+      for(j=0;j<nrpar1dim;j++)
+        beta(j+i*nrpar1dim,0) -= beta2(i,0);
+    }
+                                             
+  if(centerboth == 0)
+    {
+    for(i=0;i<nrpar;i++)
+      beta(i,0) += intercept;
+    }
 
 // ------------- ENDE: betas zeilen- und spaltenweise zentrieren -------------*/
 
@@ -2137,24 +2158,33 @@ void spline_basis_surf::compute_main(void)
   int *workindex = index.getV();
   vector<int>::iterator freqwork;
 
-// Haupteffekte berechnen
-  he1.mult(betaweightx,beta);
-  he2.mult(betaweighty,beta);
+  if(centerboth == 0 || centerboth == 1)
+    {
+    // Haupteffekt berechnen
+    he1.mult(betaweightx,beta);
+    // 'spline' ändern
+    freqwork = mainp1->get_freqit();
+    workindex = mainp1->get_indexp();
+    for(i=0;i<spline.rows();i++,freqwork++,workindex++)
+      spline(*workindex,0) -= he1(*freqwork,0);
+    }
+  if (centerboth == 0 || centerboth == 2)      
+    {
+    // Haupteffekt berechnen
+    he2.mult(betaweighty,beta);
+    // 'spline' ändern
+    freqwork = mainp2->get_freqit();
+    workindex = mainp2->get_indexp();
+    for(i=0;i<spline.rows();i++,freqwork++,workindex++)
+      spline(*workindex,0) -= he2(*freqwork,0);
+    }
 
-// 'spline' ändern
-  freqwork = mainp1->get_freqit();
-  workindex = mainp1->get_indexp();
-  for(i=0;i<spline.rows();i++,freqwork++,workindex++)
-    spline(*workindex,0) -= he1(*freqwork,0);
-  freqwork = mainp2->get_freqit();
-  workindex = mainp2->get_indexp();
-  for(i=0;i<spline.rows();i++,freqwork++,workindex++)
-    spline(*workindex,0) -= he2(*freqwork,0);
-
-  workspline = spline.getV();
-  for(i=0;i<spline.rows();i++,workspline++)
-    *workspline += intercept;
-
+  if(centerboth == 0)
+    {
+    workspline = spline.getV();
+    for(i=0;i<spline.rows();i++,workspline++)
+      *workspline += intercept;
+    }
   }
 
 

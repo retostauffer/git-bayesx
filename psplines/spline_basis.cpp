@@ -147,6 +147,9 @@ spline_basis::spline_basis(MCMCoptions * o, DISTRIBUTION * dp,
   XX_env = envmatdouble();
   prec_env = envmatdouble();
 
+  beta_average.erase(beta_average.begin(),beta_average.end());
+  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
+
   }
 
   // CONSTRUCTOR für REML
@@ -253,8 +256,6 @@ spline_basis::spline_basis(MCMCoptions * o,const datamatrix & d1,
   fctype = nonparametric;
 
   data_forfixed = d2;
-
-  beta_average.erase(beta_average.begin(),beta_average.end());
 
   lambdaconst = false;
   outbsplines = false;
@@ -409,6 +410,7 @@ spline_basis::spline_basis(const spline_basis & sp)
   DG = sp.DG;
   DGfirst = sp.DGfirst;
   beta_average = sp.beta_average;
+  interactions_pointer = sp.interactions_pointer;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -488,7 +490,8 @@ const spline_basis & spline_basis::operator=(const spline_basis & sp)
   DG = sp.DG;
   DGfirst = sp.DGfirst;
   beta_average = sp.beta_average;
-
+  interactions_pointer = sp.interactions_pointer;
+  
   return *this;
   }
 
@@ -3014,6 +3017,28 @@ void spline_basis::multBS_sort(datamatrix & res, const datamatrix & beta)      /
   }
 
 // END: MODEL-AVERAGING --------------------------------------------------------
+
+// für Interaktionen:
+
+void spline_basis::set_pointer_to_interaction(FULLCOND * inter)
+  {
+  interactions_pointer.push_back(inter);
+  }
+
+void spline_basis::search_for_interaction(void)
+  {
+  unsigned i;
+  bool thereis = false;
+  for(i=0;i<interactions_pointer.size();i++)
+    {
+    if(interactions_pointer[i]->get_inthemodel() == true)
+      thereis = true;
+    }
+  if(thereis == true)
+    interaction = true;
+  else
+    interaction = false;
+  }
 
 
 double spline_basis::compute_df(void)

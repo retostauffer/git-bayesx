@@ -23,6 +23,7 @@ FULLCOND::FULLCOND(MCMCoptions * o,const datamatrix & d,
   {
 
   df_accuracy = 0.05;
+  inthemodel = false;
 
   transformnonlinear = false;
   transformed =  false;
@@ -103,6 +104,7 @@ FULLCOND::FULLCOND(const FULLCOND & m)
   lambdamax = m.lambdamax;
   data_forfixed = m.data_forfixed;
   df_accuracy = m.df_accuracy;
+  inthemodel = m.inthemodel;
 
   //---------------------------- end: for stepwise -----------------------------
 
@@ -204,6 +206,7 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
   lambdamax = m.lambdamax;
   data_forfixed = m.data_forfixed;
   df_accuracy = m.df_accuracy;
+  inthemodel = m.inthemodel;
 
   //------------------------------ end: stepwise -------------------------------
 
@@ -1179,6 +1182,23 @@ void FULLCOND::outresults(void)
 // ---------------------------------------------------------------------------
 // ------------------------FOR STEPWISE---------------------------------------
 // ---------------------------------------------------------------------------
+
+  // FUNCTION: set_inthemodel
+  // TASK: sets the value for the boolean variable "inthemodel", which contains
+  //       the information if the fullcond-object is contained in the current model
+
+void FULLCOND::set_inthemodel(double modell)
+  {
+  if(modell > 0)
+   inthemodel = true;
+  else
+   inthemodel = false;
+  }
+
+bool FULLCOND::get_inthemodel(void)
+  {
+  return inthemodel;
+  }
 
   // FUNCTION: compute_lambdavec
   // TASK: returns the values for the smoothing parameter (logarithmic scale)

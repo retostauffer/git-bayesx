@@ -12,6 +12,7 @@
 #include<fullcond.h>
 #include<typeinfo.h>
 #include<stddef.h>
+#include <stdlib.h>
 
 
 //------------------------------------------------------------------------------
@@ -180,6 +181,8 @@ void stepwisereg::create(void)
   minim.push_back("exact_golden");
   minim.push_back("apprexact");
   minim.push_back("adaptiv");
+  minim.push_back("adap_exact");
+  minim.push_back("adaptiv_golden");
 
   minimum = stroption("minimum",minim,"approx");
 
@@ -2672,9 +2675,12 @@ void regressrun(stepwisereg & b)
 
                    }
            }
+         //ST::string latex = "latex " + path + "_model_summary.tex";
+         //system(latex.strtochar());
          }
 
 #endif
+
      }
 
     }
@@ -2833,7 +2839,7 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
          )
         type = MCMC::mrflinear;
       else if (terms[i].options[0] == "pspline2dimrw2")
-        type = MCMC::mrfquadratic8;        
+        type = MCMC::mrfquadratic8;
       else if ((terms[i].options[0] == "pspline2dimband")   ||
           (terms[i].options[0] == "tpspline2dimband")
          )
@@ -2907,6 +2913,9 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         FULLCOND_pspline_gaussian * mainp2;
         unsigned main1=0;
         unsigned main2=0;
+
+        //FULLCOND_pspline_surf_gaussian * inter;
+        FULLCOND * inter;
 
         unsigned j;
         for (j=0;j<fcpsplinegaussian.size();j++)
@@ -2982,6 +2991,8 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         //if (constlambda.getvalue() == true)
         //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
 
+        inter = &fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1];
+
         if ( (main1==1) && (main2==1) )
           {
           ST::string pathnonpt;
@@ -2992,14 +3003,15 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
                  "_pspline_total.raw","_pspline_total.res","_pspline_total");
 
           fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].
-          init_maineffects(mainp1,mainp2,pathnonpt,pathrest);
+             init_maineffects(mainp1,mainp2,pathnonpt,pathrest);
           mainp1->set_interaction();
+          mainp1->set_pointer_to_interaction(inter);
           mainp2->set_interaction();
+          mainp2->set_pointer_to_interaction(inter);
           }
         else if ( (main1==0) && (main2==0) )
           {
           }
-        /*
         else if ( (main1==1) || (main2==1) )
           {
           ST::string pathnonpt;
@@ -3015,15 +3027,16 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
                         init_maineffect(mainp1,pathnonpt,pathrest,1);  //  -> ändern zu init_maineffect(mainp1,pathnonpt,pathrest),
                                                                 // d.h. neue Fkt. in "fullcond_pspline_surf_gaussian.cpp"
             mainp1->set_interaction();
+            mainp1->set_pointer_to_interaction(inter);
             }
           else
             {
             fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].
                         init_maineffect(mainp2,pathnonpt,pathrest,2);  // siehe oben
             mainp2->set_interaction();
+            mainp2->set_pointer_to_interaction(inter);
             }
           }
-        */
 
         vector<ST::string> na;
         na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
