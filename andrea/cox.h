@@ -32,6 +32,8 @@ class __EXPORT_TYPE DISTRIBUTION_coxmodel : public DISTRIBUTION
   datamatrix mean_int_ti;
 
   datamatrix ti;
+//  datamatrix relrisk;
+//  bool offsetexisting;
 
 
   public:
@@ -76,6 +78,8 @@ class __EXPORT_TYPE DISTRIBUTION_coxmodel : public DISTRIBUTION
 
      int_ti = nd.int_ti;
      mean_int_ti = nd.mean_int_ti;
+//     offsetexisting = nd.offsetexisting;
+//     relrisk = nd.relrisk;
 
      }
 
@@ -95,7 +99,8 @@ class __EXPORT_TYPE DISTRIBUTION_coxmodel : public DISTRIBUTION
 
      int_ti= nd.int_ti;
      mean_int_ti = nd.mean_int_ti;     
-
+//     offsetexisting = nd.offsetexisting;
+//     relrisk = nd.relrisk;
      return *this;
      }
 
@@ -111,11 +116,11 @@ class __EXPORT_TYPE DISTRIBUTION_coxmodel : public DISTRIBUTION
   double loglikelihood(double * response,double * linpred,
                        double * weight,const int & i) const
     {
+//     if(offsetexisting==false)
+       return *weight * (*response * (*linpred) - exp(*linpred)* *(int_ti.getV()+i)); //int_ti = 1/(exp(beta0_ti)) *integral(0 bis ti) exp(beta_0u)du
 
-    return *weight * (*response * (*linpred) - exp(*linpred)* *(int_ti.getV()+i)); //int_ti = 1/(exp(beta0_ti)) *integral(0 bis ti) exp(beta_0u)du
-
-// relative risk:    return *weight * (*response * log(offset + exp(*linpred)) - exp(*linpred)* *(int_ti.getV()+i));
-//  return *weight *(*response * (*linpred)  - exp (*linpred)* *(int_ti.getV()+i));  
+//     else
+//      return *weight * (*response * log(relrisk + exp(*linpred)) - exp(*linpred)* *(int_ti.getV()+i));
     }
 
 
