@@ -269,7 +269,7 @@ void remlreg::create(void)
   families.push_back("seqprobit");
   families.push_back("cox");
   families.push_back("coxinterval");
-  families.push_back("coxinterval2");
+  families.push_back("coxold");
   family = stroption("family",families,"binomial");
 
   maxit = intoption("maxit",400,1,100000);
@@ -598,7 +598,7 @@ bool remlreg::create_data(datamatrix & weight)
       outerror("ERROR: weight not allowed for multicategorical response\n");
       return true;
       }
-    if(family.getvalue()=="cox")
+    if(family.getvalue()=="cox" || family.getvalue()=="coxold")
       {
       outerror("ERROR: weight not allowed for family=cox\n");
       return true;
@@ -680,7 +680,8 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     }
 
   // family=cox
-  if(family.getvalue()=="cox")
+  if(family.getvalue()=="cox" || family.getvalue()=="coxold" ||
+     family.getvalue()=="coxinterval")
     {
     unsigned i;
     for(i=0; i<response.rows(); i++)
@@ -710,7 +711,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
 
   // check whether a baseline effect is specified if family != cox
   if(family.getvalue()!="cox" && family.getvalue()!="coxinterval" &&
-     family.getvalue()!="coxinterval2")
+     family.getvalue()!="coxold")
     {
     unsigned i;
     bool baselineexisting = false;
@@ -727,6 +728,23 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
       return true;
       }
     }
+
+  // check whether leftint or lefttrunc are specified if family != cox
+  if(family.getvalue()!="cox" && family.getvalue()!="coxinterval" &&
+     family.getvalue()!="coxold")
+    {
+    if(leftint.getvalue() != "")
+      {
+      outerror("ERROR: variable leftint can only be used with family=cox\n");
+      return true;
+      }
+    if(lefttrunc.getvalue() != "")
+      {
+      outerror("ERROR: variable lefttrunc can only be used with family=cox\n");
+      return true;
+      }
+    }
+
 
   // family=multinomial / family=cumlogit / family=cumprobit
   if (family.getvalue()=="multinomial")
@@ -841,7 +859,8 @@ bool remlreg::create_offset(datamatrix & o)
         outerror("ERROR: offset not allowed for multicategorical response\n");
         return true;
         }
-      if(family.getvalue()=="cox")
+      if(family.getvalue()=="cox" || family.getvalue()=="coxold" ||
+         family.getvalue()=="coxinterval")
         {
         outerror("ERROR: offset not allowed for family=cox\n");
         return true;
@@ -3123,8 +3142,8 @@ void remlrun(remlreg & b)
       else
         failure = b.RE.estimate(response,offset,weight);
       }
-// Cox-Modell
-    else if (b.family.getvalue()=="cox")
+// Cox-Modell (alte Implementierung: Rechtszensierung + zeitvariierende Effekte
+    else if (b.family.getvalue()=="coxold")
       {
       dispers=false;
       b.RE = remlest(
@@ -3136,7 +3155,7 @@ void remlrun(remlreg & b)
       b.maxchange.getvalue(),b.logout);
       failure = b.RE.estimate_survival(response,offset,weight);
       }
-// Cox-Modell mit Intervallzensierung
+// Cox-Modell mit Intervallzensierung (ohne zeitvariierende Effekte)
     else if (b.family.getvalue()=="coxinterval")
       {
       dispers=false;
@@ -3149,8 +3168,8 @@ void remlrun(remlreg & b)
       b.maxchange.getvalue(),b.logout);
       failure = b.RE.estimate_survival_interval(response,offset,weight);
       }
-// Cox-Modell mit Intervallzensierung & Linkstrunkierung
-    else if (b.family.getvalue()=="coxinterval2")
+// Cox-Modell mit Intervallzensierung & Linkstrunkierung  & zeitvariierenden Effekten
+    else if (b.family.getvalue()=="cox")
       {
       dispers=false;
       b.RE = remlest(

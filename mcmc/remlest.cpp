@@ -2543,16 +2543,6 @@ bool remlest::estimate_survival_interval(datamatrix resp,
       }
     }
 
-/*  bool timevarying;
-  if(nrbaseline>1)
-    {
-    timevarying=true;
-    }
-  else
-    {
-    timevarying=false;
-    }*/
-
 // Matrices and variables for baseline effects
   statmatrix<double> tsteps;
   datamatrix t_X;
@@ -2571,21 +2561,17 @@ bool remlest::estimate_survival_interval(datamatrix resp,
       j++;
       }
     }
+
 // first derivative of the cumulated baseline hazard
   datamatrix Dmat(t_X.rows(),t_X.cols()+t_Z.cols(),0);
+
 // Survivor-function for lower and upper interval limit
   datamatrix Survivor(nrobs,2,0);
+
 // time-varying effects. the first row corresponds to the log-baseline
   datamatrix basef(t_X.rows(),nrbaseline,0);
   statmatrix<double>baseline;
-/*  if(timevarying)
-    {
-    baseline=datamatrix(nrobs,t_X.rows(),0);
-    }
-  else
-    {*/
-    baseline = datamatrix(t_X.rows(),1,0);
-//    }
+  baseline = datamatrix(t_X.rows(),1,0);
   statmatrix<double>cumbaseline(t_X.rows(),1,0);
   statmatrix<double>cumhazard(nrobs,1,0);
   statmatrix<double>eta(nrobs,1,0);
@@ -2593,6 +2579,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
   statmatrix<double>mult_eta(nrobs,1,0);
   statmatrix<double>mult_hazard(nrobs,1,0);
   statmatrix<double>helpmat(nrobs,1,0);
+
 // indicator for interval or left censoring
   vector<bool>interval(nrobs,false);
   for(i=0; i<nrobs; i++)
@@ -2610,17 +2597,8 @@ bool remlest::estimate_survival_interval(datamatrix resp,
     theta(i,0)=1/theta(i,0);
     }
 
-  // Startwert für beta0 ist der ML-Schätzer bei konstanter Rate + Poisson-Verteilung
-/*  help = resp.sum(0);
-  if(help>0)
-    {
-    beta(0,0) = log(help/t_X(t_X.rows()-1,1));*/
-    beta(0,0) = log(5/t_X(t_X.rows()-1,1));
-/*    }
-  else
-    {
-    beta(0,0) = log((nrobs/5)/t_X(t_X.rows()-1,1));
-    }*/
+// Startwert für beta0
+  beta(0,0) = log(5/t_X(t_X.rows()-1,1));
 
   while(test==true)
     {
@@ -2659,55 +2637,21 @@ bool remlest::estimate_survival_interval(datamatrix resp,
 
     // compute baseline
 
-/*    if(timevarying)
+    for(i=0; i<t_X.rows(); i++)
       {
-      baseline = interactvar*basef.transposed();
-      for(i=0; i<baseline.rows(); i++)
-        {
-        for(j=0; j<tend[i];j++)
-          {
-          baseline(i,j)=exp(basef(i,j));
-          }
-        }
+      baseline(i,0) = exp(basef(i,0));
       }
-    else
-      {*/
-      for(i=0; i<t_X.rows(); i++)
-        {
-        baseline(i,0) = exp(basef(i,0));
-        }
-//      }
 
     // compute cumulated baseline
 
     double former=0;
-//    if(!timevarying)
-//      {
-      cumbaseline = datamatrix(cumbaseline.rows(),1,0);
-      for(i=0; i<t_X.rows()-1; i++)
-        {
-        cumbaseline(i,0) = former + 0.5*tsteps(i,0)*(baseline(i,0)+baseline(i+1,0));
-        former = cumbaseline(i,0);
-        }
-      cumbaseline(t_X.rows()-1,0) = former;
-/*      }
-    else
+    cumbaseline = datamatrix(cumbaseline.rows(),1,0);
+    for(i=0; i<t_X.rows()-1; i++)
       {
-      cumbaseline = datamatrix(nrobs,2,0);
-      for(i=0; i<nrobs; i++)
-        {
-        for(k=0; k<tstart[i]; k++)
-          {
-          cumbaseline(i,0) += 0.5*tsteps(k,0)*(baseline(i,k)+baseline(i,k+1));
-          }
-        cumbaseline(i,1) = cumbaseline(i,0);
-        for(k=tstart[i]; k<tend[i]; k++)
-          {
-          cumbaseline(i,0) += 0.5*tsteps(k,0)*(baseline(i,k)+baseline(i,k+1));
-          }
-        }
-      }*/
-
+      cumbaseline(i,0) = former + 0.5*tsteps(i,0)*(baseline(i,0)+baseline(i+1,0));
+      former = cumbaseline(i,0);
+      }
+    cumbaseline(t_X.rows()-1,0) = former;
     datamatrix negcumbaseline = -cumbaseline;
 
     // compute mult_hazard = exp(x'beta) without time-varying covariates x(t)
@@ -2733,43 +2677,21 @@ bool remlest::estimate_survival_interval(datamatrix resp,
 
     // compute cumulated hazard
 
-//    if(!timevarying)
-//      {
-      for(i=0; i<nrobs; i++)
-        {
-        cumhazard(i,0)=cumbaseline(tend[i]-1,0)*mult_hazard(i,0);
-        }
-/*      }
-    else
+    for(i=0; i<nrobs; i++)
       {
-      for(i=0; i<nrobs; i++)
-        {
-        cumhazard(i,0)=cumbaseline(i,0)*mult_hazard(i,0);
-        cumhazard(i,1)=cumbaseline(i,1)*mult_hazard(i,0);
-        }
-      }*/
+      cumhazard(i,0)=cumbaseline(tend[i]-1,0)*mult_hazard(i,0);
+      }
     datamatrix negcumhazard = - cumhazard;
 
     // compute lower and upper surivor function
 
     for(i=0; i<nrobs; i++)
       {
-//      if(!timevarying)
-//        {
-        if(interval[i])
-          {
-          Survivor(i,0) = exp(-cumbaseline(tstart[i],0)*mult_hazard(i,0));//pow(exp(-cumbaseline(tstart[i],0)),mult_hazard(i,0));
-          Survivor(i,1) = exp(-cumbaseline(tend[i]-1,0)*mult_hazard(i,0));//pow(exp(-cumbaseline(tend[i]-1,0)),mult_hazard(i,0));
-          }
-/*        }
-      else
+      if(interval[i])
         {
-        if(interval[i])
-          {
-          Survivor(i,0) = exp(-cumhazard(i,0));
-          Survivor(i,1) = exp(-cumhazard(i,1));
-          }
-        }*/
+        Survivor(i,0) = exp(-cumbaseline(tstart[i],0)*mult_hazard(i,0));//pow(exp(-cumbaseline(tstart[i],0)),mult_hazard(i,0));
+        Survivor(i,1) = exp(-cumbaseline(tend[i]-1,0)*mult_hazard(i,0));//pow(exp(-cumbaseline(tend[i]-1,0)),mult_hazard(i,0));
+        }
       }
 
     // compute derivative matrix D
@@ -2813,98 +2735,37 @@ bool remlest::estimate_survival_interval(datamatrix resp,
       // x_j gehört zu Baseline
       if(isbaselinebeta[j]==1)
         {
-        // keine zeitvariierende Effekte
-//        if(!timevarying)
-//          {
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              H1(j,0) += (
-                          Dmat(tstart[i],dmat_pos[j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,1)
-                         ) * mult_hazard(i,0) / ( Survivor(i,0)-Survivor(i,1) );
-              }
-            else
-              {
-              H1(j,0) += Dmat(tend[i]-1,dmat_pos[j])*mult_hazard(i,0);
-              }
-            }
-/*          }
-        else
+        for(i=0; i<nrobs; i++)
           {
-          // zeitvariierende Effekte
-          for(i=0; i<nrobs; i++)
+          if(interval[i])
             {
-            if(interval[i])
-              {
-              double left=0;
-              for(k=0; k<tstart[i]; k++)
-                {
-                left -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[j])*
-                                 (t_X(k,dm_pos[j])*baseline(i,k)+t_X(k+1,dm_pos[j])*baseline(i,k+1));
-                }
-              double right=left;
-              for(k=tstart[i]; k<tend[i]; k++)
-                {
-                right -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[j])*
-                                 (t_X(k,dm_pos[j])*baseline(i,k)+t_X(k+1,dm_pos[j])*baseline(i,k+1));
-                }
-              H1(j,0) += (left*Survivor(i,0) - right*Survivor(i,1))
-                         * mult_hazard(i,0) / ( Survivor(i,0)-Survivor(i,1) );
-              }
-            else
-              {
-              double right=0;
-              for(k=0; k<tend[i]; k++)
-                {
-                right -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[j])*
-                                 (t_X(k,dm_pos[j])*baseline(i,k)+t_X(k+1,dm_pos[j])*baseline(i,k+1));
-                }
-              H1(j,0) += right*mult_hazard(i,0);
-              }
+            H1(j,0) += (
+                        Dmat(tstart[i],dmat_pos[j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,1)
+                       ) * mult_hazard(i,0) / ( Survivor(i,0)-Survivor(i,1) );
             }
-          }*/
+          else
+            {
+            H1(j,0) += Dmat(tend[i]-1,dmat_pos[j])*mult_hazard(i,0);
+            }
+          }
         }
 
       // x_j gehört nicht zur Baseline
       else
         {
-
-        // keine zeitvariierenden Effekte
-//        if(!timevarying)
-//          {
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              H1(j,0) += (
-                          negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
-                         ) * mult_hazard(i,0) * X(i,j) / (Survivor(i,0)-Survivor(i,1));
-              }
-            else
-              {
-              H1(j,0) += negcumhazard(i,0)*X(i,j);
-              }
-            }
-/*          }
-
-        // zeitvariierende Effekte
-        else
+        for(i=0; i<nrobs; i++)
           {
-          for(i=0; i<nrobs; i++)
+          if(interval[i])
             {
-            if(interval[i])
-              {
-              H1(j,0) += (
-                          negcumhazard(i,0)*Survivor(i,0) - negcumhazard(i,1)*Survivor(i,1)
-                         )* X(i,j) / (Survivor(i,0)-Survivor(i,1));
-              }
-            else
-              {
-              H1(j,0) += negcumhazard(i,0)*X(i,j);
-              }
+            H1(j,0) += (
+                        negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
+                       ) * mult_hazard(i,0) * X(i,j) / (Survivor(i,0)-Survivor(i,1));
             }
-          }*/
+          else
+            {
+            H1(j,0) += negcumhazard(i,0)*X(i,j);
+            }
+          }
         }
       }
 
@@ -2915,100 +2776,37 @@ bool remlest::estimate_survival_interval(datamatrix resp,
       H1(xcols + j,0)=(resp.transposed()*Z.getCol(j))(0,0);
       if(isbaselinebeta[xcols+j]==1)
         {
-
-        // keine zeitvariierenden Effekte
-//        if(!timevarying)
-//          {
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              H1(xcols + j,0) += (
-                                  Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,1)
-                                 ) * mult_hazard(i,0) / (Survivor(i,0)-Survivor(i,1));
-              }
-            else
-              {
-              H1(xcols + j,0) += Dmat(tend[i]-1,dmat_pos[xcols+j])*mult_hazard(i,0);
-              }
-            }
-/*          }
-        else
+        for(i=0; i<nrobs; i++)
           {
-
-          // zeitvariierende Effekte
-          for(i=0; i<nrobs; i++)
+          if(interval[i])
             {
-            if(interval[i])
-              {
-              double left=0;
-              for(k=0; k<tstart[i]; k++)
-                {
-                left -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[xcols+j])*
-                                 (t_Z(k,dm_pos[xcols+j])*baseline(i,k)+t_Z(k+1,dm_pos[xcols+j])*baseline(i,k+1));
-                }
-              double right=left;
-              for(k=tstart[i]; k<tend[i]; k++)
-                {
-                right -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[xcols+j])*
-                                 (t_Z(k,dm_pos[xcols+j])*baseline(i,k)+t_Z(k+1,dm_pos[xcols+j])*baseline(i,k+1));
-                }
-              H1(xcols+j,0) += (left*Survivor(i,0) - right*Survivor(i,1))
-                         * mult_hazard(i,0) / ( Survivor(i,0)-Survivor(i,1) );
-              }
-            else
-              {
-              double right=0;
-              for(k=0; k<tend[i]; k++)
-                {
-                right -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[xcols+j])*
-                                 (t_Z(k,dm_pos[xcols+j])*baseline(i,k)+t_Z(k+1,dm_pos[xcols+j])*baseline(i,k+1));
-                }
-              H1(xcols+j,0) += right*mult_hazard(i,0);
-              }
+            H1(xcols + j,0) += (
+                                Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,1)
+                               ) * mult_hazard(i,0) / (Survivor(i,0)-Survivor(i,1));
             }
-          }*/
+          else
+            {
+            H1(xcols + j,0) += Dmat(tend[i]-1,dmat_pos[xcols+j])*mult_hazard(i,0);
+            }
+          }
         }
 
       // z_j gehört nicht zur Baseline
       else
         {
-
-        // keine zeitvariierenden Effekte
-//        if(!timevarying)
-//          {
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              H1(xcols + j,0) += (
-                                  negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
-                                 ) * mult_hazard(i,0) * Z(i,j) / (Survivor(i,0)-Survivor(i,1));
-              }
-            else
-              {
-              H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
-              }
-            }
-/*          }
-
-        // zeitvariierende Effekte
-        else
+        for(i=0; i<nrobs; i++)
           {
-          for(i=0; i<nrobs; i++)
+          if(interval[i])
             {
-            if(interval[i])
-              {
-              H1(xcols + j,0) += (
-                          negcumhazard(i,0)*Survivor(i,0) - negcumhazard(i,1)*Survivor(i,1)
-                         )* Z(i,j) / (Survivor(i,0)-Survivor(i,1));
-              }
-            else
-              {
-              H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
-              }
+            H1(xcols + j,0) += (
+                                negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
+                               ) * mult_hazard(i,0) * Z(i,j) / (Survivor(i,0)-Survivor(i,1));
             }
-          }*/
+          else
+            {
+            H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
+            }
+          }
         }
       }
 
@@ -3744,16 +3542,6 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
   unsigned i, j, k, l;
   double help, former, helpint, help2, help3, help4;
 
-  outoptions();
-  out("\n");
-
-  for(i=0;i<fullcond.size();i++)
-    fullcond[i]->outoptionsreml();
-
-  out("\n");
-  out("REML ESTIMATION STARTED\n",true);
-  out("\n");
-
   bool stop = check_pause();
   if (stop)
     return true;
@@ -3842,14 +3630,14 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
     }
 
   bool timevarying;
-//  if(nrbaseline>1)
-//    {
-//    timevarying=true;
-//    }
-//  else
-//    {
+  if(nrbaseline>1)
+    {
+    timevarying=true;
+    }
+  else
+    {
     timevarying=false;
-//    }
+    }
 
 // Matrices and variables for baseline effects
   statmatrix<double> tsteps;
@@ -3869,6 +3657,59 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
       j++;
       }
     }
+
+// compute indicator for interval or left censoring, no. of censored observations
+  nrint=nrright=nruncens=nrlefttrunc=0;
+  vector<bool>interval(nrobs,false);
+  for(i=0; i<nrobs; i++)
+    {
+    if(tleft[i]<tright[i])
+      {
+      interval[i] = true;
+      nrint++;
+      }
+    if(ttrunc[i]>0)
+      {
+      nrlefttrunc++;
+      }
+    }
+  nrright = X.rows()-resp.sum(0)-nrint;
+  nruncens = resp.sum(0);
+
+// check for incorrect times
+
+for(i=0; i<nrobs; i++)
+  {
+  if(ttrunc[i] > tright[i])
+    {
+    outerror("ERROR: left-truncation time larger then observed survival time\n");
+    outerror("       for observation "+ST::inttostring(i+1)+"\n");
+    return true;
+    }
+  if(ttrunc[i] > tleft[i])
+    {
+    outerror("ERROR: left-truncation time larger then left interval time\n");
+    outerror("       for observation "+ST::inttostring(i+1)+"\n");
+    return true;
+    }
+  if(tleft[i]>tright[i])
+    {
+    outerror("ERROR: left interval time larger then right interval time");
+    outerror("       for observation "+ST::inttostring(i+1)+"\n");
+    return true;
+    }
+  }
+
+  outoptions();
+  out("\n");
+
+  for(i=0;i<fullcond.size();i++)
+    fullcond[i]->outoptionsreml();
+
+  out("\n");
+  out("REML ESTIMATION STARTED\n",true);
+  out("\n");
+
 // first derivative of the cumulated baseline hazard
   datamatrix Dmat(t_X.rows(),t_X.cols()+t_Z.cols(),0);
 
@@ -3894,16 +3735,6 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
   statmatrix<double>mult_eta(nrobs,1,0);
   statmatrix<double>mult_hazard(nrobs,1,0);
   statmatrix<double>helpmat(nrobs,1,0);
-// indicator for interval or left censoring
-  vector<bool>interval(nrobs,false);
-  for(i=0; i<nrobs; i++)
-    {
-    if(resp(i,0)==-1)
-      {
-      interval[i] = true;
-      resp(i,0)=0;
-      }
-    }
 
   // Transform smoothing paramater starting values to variances
   for(i=0; i<theta.rows(); i++)
@@ -3955,9 +3786,9 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
       baseline = interactvar*basef.transposed();
       for(i=0; i<baseline.rows(); i++)
         {
-        for(j=0; j<tright[i];j++)
+        for(j=0; j<baseline.cols(); j++)
           {
-          baseline(i,j)=exp(basef(i,j));
+          baseline(i,j) = exp(baseline(i,j));
           }
         }
       }
@@ -4059,6 +3890,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
       {
       for(j=0; j<xcols; j++)
         {
+
         H1(j,0)=(resp.transposed()*X.getCol(j))(0,0);
 
         // x_j gehört zu Baseline
@@ -4175,34 +4007,35 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
               help2=0;
               for(l=tleft[i]; l<tright[i]; l++)
                 {
-                helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                help2 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                            (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                helpint += 0.5*tsteps(l,0) * (baseline(i,l)+baseline(i,l+1));
+                help2 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) *
+                            (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
                 }
               helpint = exp(-helpint * mult_hazard(i,0));
               help=0;
-              for(l=ttrunc[i]; l<tright[i]; l++)
+              for(l=ttrunc[i]; l<tleft[i]; l++)
                 {
-                help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                            (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) *
+                            (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
                 }
-              H1(j,0) -= help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
+              H1(j,0) += -help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0) / (1-helpint);
               }
             else
               {
               help=0;
               for(l=ttrunc[i]; l<tright[i]; l++)
                 {
-                help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                            (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) *
+                            (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
                 }
-              H1(j,0) -= help*mult_hazard(i,0);
+              H1(j,0) += -help*mult_hazard(i,0);
               }
             }
           }
         // x_j gehört nicht zu Baseline
         else
           {
+
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
@@ -4211,26 +4044,26 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
               help2=0;
               for(l=tleft[i]; l<tright[i]; l++)
                 {
-                helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                helpint += 0.5*tsteps(l,0) * (baseline(i,l)+baseline(i,l+1));
                 }
               help2 = helpint * X(i,j);
               helpint = exp(-helpint * mult_hazard(i,0));
               help=0;
-              for(l=ttrunc[i]; l<tright[i]; l++)
+              for(l=ttrunc[i]; l<tleft[i]; l++)
                 {
-                help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                help += 0.5*tsteps(l,0) * (baseline(i,l)+baseline(i,l+1));
                 }
               help *= X(i,j);
-              H1(j,0) -= help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
+              H1(j,0) += -help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
               }
             else
               {
               help=0;
               for(l=ttrunc[i]; l<tright[i]; l++)
                 {
-                help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                help += 0.5*tsteps(l,0) * (baseline(i,l)+baseline(i,l+1));
                 }
-              H1(j,0) -= help*X(i,j)*mult_hazard(i,0);
+              H1(j,0) += -help*X(i,j)*mult_hazard(i,0);
               }
             }
           }
@@ -4241,7 +4074,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
       for(j=0; j<zcols; j++)
         {
         H1(xcols+j,0)=(resp.transposed()*Z.getCol(j))(0,0);
-        // x_j gehört zu Baseline
+        // z_j gehört zu Baseline
         if(isbaselinebeta[xcols+j]==1)
           {
           for(i=0; i<nrobs; i++)
@@ -4252,28 +4085,28 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
               help2=0;
               for(l=tleft[i]; l<tright[i]; l++)
                 {
-                helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                help2 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
-                            (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
+                help2 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+j]) *
+                            (t_Z(l,dm_pos[xcols+j])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
                 }
               helpint = exp(-helpint * mult_hazard(i,0));
               help=0;
-              for(l=ttrunc[i]; l<tright[i]; l++)
+              for(l=ttrunc[i]; l<tleft[i]; l++)
                 {
-                help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
-                            (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+j]) *
+                            (t_Z(l,dm_pos[xcols+j])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
                 }
-              H1(xcols+j,0) -= help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
+              H1(xcols+j,0) += -help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
               }
             else
               {
               help=0;
               for(l=ttrunc[i]; l<tright[i]; l++)
                 {
-                help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
-                            (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+j]) *
+                            (t_Z(l,dm_pos[xcols+j])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
                 }
-              H1(xcols+j,0) -= help*mult_hazard(i,0);
+              H1(xcols+j,0) += -help*mult_hazard(i,0);
               }
             }
           }
@@ -4288,26 +4121,26 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
               help2=0;
               for(l=tleft[i]; l<tright[i]; l++)
                 {
-                helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                 }
               help2 = helpint * Z(i,j);
               helpint = exp(-helpint * mult_hazard(i,0));
               help=0;
-              for(l=ttrunc[i]; l<tright[i]; l++)
+              for(l=ttrunc[i]; l<tleft[i]; l++)
                 {
-                help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                help += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                 }
               help *= Z(i,j);
-              H1(j,0) -= help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
+              H1(xcols+j,0) += -help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
               }
             else
               {
               help=0;
               for(l=ttrunc[i]; l<tright[i]; l++)
                 {
-                help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                help += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                 }
-              H1(j,0) -= help*Z(i,j)*mult_hazard(i,0);
+              H1(xcols+j,0) += -help*Z(i,j)*mult_hazard(i,0);
               }
             }
           }
@@ -4810,36 +4643,34 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                  help2 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[k])*
-                              (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(i,l+1));
-                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
-                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[k])*
-                              (t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
+                  help2 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) * interactvar(i,fc_pos[k]) *
+                              (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(i,l) + t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) *
+                              (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[k]) *
+                              (t_X(l,dm_pos[k])*baseline(i,l) + t_X(l+1,dm_pos[k])*baseline(i,l+1));
                   }
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[k])*
-                              (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) * interactvar(i,fc_pos[k]) *
+                              (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(i,l) + t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(i,l+1));
                   }
-                H(j,k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(j,k) += -help*mult_hazard(i,0) -
+                          helpint/(1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 * help4 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[k])*
-                              (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) * interactvar(i,fc_pos[k]) *
+                              (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(i,l) + t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(i,l+1));
                   }
-                H(j,k) += help*mult_hazard(i,0);
+                H(j,k) += -help*mult_hazard(i,0);
                 }
               }
             }
@@ -4853,35 +4684,33 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j])*
+                              (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
                   }
                 help4 = helpint * X(i,k);
                 help2 = help3 * X(i,k);
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) *
+                              (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
                   }
                 help *= X(i,k);
-                H(j,k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(j,k) += -help*mult_hazard(i,0) -
+                          helpint/(1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 *help4 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) *
+                              (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
                   }
-                H(j,k) += help*X(i,k)*mult_hazard(i,0);
+                H(j,k) += -help*X(i,k)*mult_hazard(i,0);
                 }
               }
             }
@@ -4895,35 +4724,33 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[k])*
-                              (t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[k]) *
+                              (t_X(l,dm_pos[k])*baseline(i,l) + t_X(l+1,dm_pos[k])*baseline(i,l+1));
                   }
                 help3 = helpint * X(i,j);
-                help2 = help4*X(i,j);
+                help2 = help4 * X(i,j);
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[k])*
-                              (t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[k]) *
+                              (t_X(l,dm_pos[k])*baseline(i,l) + t_X(l+1,dm_pos[k])*baseline(i,l+1));
                   }
                 help *= X(i,j);
-                H(j,k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(j,k) += -help*mult_hazard(i,0) -
+                          helpint / (1-helpint)* (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 * help4 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[k])*
-                              (t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[k]) *
+                              (t_X(l,dm_pos[k])*baseline(i,l) + t_X(l+1,dm_pos[k])*baseline(i,l+1));
                   }
-                H(j,k) += help*X(i,j)*mult_hazard(i,0);
+                H(j,k) += -help*X(i,j)*mult_hazard(i,0);
                 }
               }
             }
@@ -4937,23 +4764,21 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                   }
                 help4 = helpint * X(i,k);
                 help3 = helpint * X(i,j);
                 help2 = helpint * X(i,j) * X(i,k);
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                   }
-                help *= X(i,j)*X(i,k);
-                H(j,k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                help *= X(i,j) * X(i,k);
+                H(j,k) += -help * mult_hazard(i,0) -
+                          helpint / (1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 * help4 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
@@ -4962,7 +4787,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                   {
                   help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
                   }
-                H(j,k) += help*X(i,j)*X(i,k)*mult_hazard(i,0);
+                H(j,k) += -help*X(i,j)*X(i,k)*mult_hazard(i,0);
                 }
               }
             }
@@ -4974,7 +4799,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
 
       for(j=0; j<xcols; j++)
         {
-        for(k=j; k<zcols; k++)
+        for(k=0; k<zcols; k++)
           {
           if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==1)
             {
@@ -4986,36 +4811,34 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                  help2 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[xcols+k])*
-                              (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
-                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
-                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
+                  help2 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) *
+                              (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[xcols+k])*
-                              (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
-                H(j,xcols+k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(j,xcols+k) += -help*mult_hazard(i,0) -
+                          helpint / (1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 * help4* mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[xcols+k])*
-                              (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
-                H(j,xcols+k) += help*mult_hazard(i,0);
+                H(j,xcols+k) += -help*mult_hazard(i,0);
                 }
               }
             }
@@ -5029,35 +4852,33 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) *
+                              (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
                   }
                 help4 = helpint * Z(i,k);
                 help2 = help3 * Z(i,k);
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) *
+                              (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
                   }
                 help *= Z(i,k);
-                H(j,xcols+k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(j,xcols+k) += -help*mult_hazard(i,0) -
+                          helpint / (1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 * help4 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
-                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[j]) *
+                              (t_X(l,dm_pos[j])*baseline(i,l) + t_X(l+1,dm_pos[j])*baseline(i,l+1));
                   }
-                H(j,xcols+k) += help*Z(i,k)*mult_hazard(i,0);
+                H(j,xcols+k) += -help*Z(i,k)*mult_hazard(i,0);
                 }
               }
             }
@@ -5071,35 +4892,33 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
                 help3 = helpint * X(i,j);
-                help2 = help4*X(i,j);
+                help2 = help4 * X(i,j);
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
                 help *= X(i,j);
-                H(j,xcols+k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(j,xcols+k) += -help*mult_hazard(i,0) -
+                          helpint / (1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 * help4 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
-                H(j,xcols+k) += help*X(i,j)*mult_hazard(i,0);
+                H(j,xcols+k) += -help*X(i,j)*mult_hazard(i,0);
                 }
               }
             }
@@ -5113,32 +4932,30 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                   }
                 help4 = helpint * Z(i,k);
                 help3 = helpint * X(i,j);
                 help2 = helpint * X(i,j) * Z(i,k);
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                   }
                 help *= X(i,j)*Z(i,k);
-                H(j,xcols+k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(j,xcols+k) += -help*mult_hazard(i,0) -
+                          helpint / (1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 * help4 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                   }
-                H(j,xcols+k) += help*X(i,j)*Z(i,k)*mult_hazard(i,0);
+                H(j,xcols+k) += -help*X(i,j)*Z(i,k)*mult_hazard(i,0);
                 }
               }
             }
@@ -5162,36 +4979,34 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                  help2 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
-                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
-                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
-                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
+                  help2 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+j]) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+j]) *
+                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+j]) * interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
-                H(xcols+j,xcols+k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(xcols+j,xcols+k) += -help*mult_hazard(i,0) -
+                          helpint / (1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 * help4 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+j]) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
-                H(xcols+j,xcols+k) += help*mult_hazard(i,0);
+                H(xcols+j,xcols+k) += -help*mult_hazard(i,0);
                 }
               }
             }
@@ -5205,35 +5020,33 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
-                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+j]) *
+                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
                   }
                 help4 = helpint * Z(i,k);
                 help2 = help3 * Z(i,k);
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
-                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+j]) *
+                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
                   }
                 help *= Z(i,k);
-                H(xcols+j,xcols+k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(xcols+j,xcols+k) += -help*mult_hazard(i,0) -
+                          helpint / (1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help4 * help3 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
-                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+j]) *
+                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
                   }
-                H(xcols+j,xcols+k) += help*Z(i,k)*mult_hazard(i,0);
+                H(xcols+j,xcols+k) += -help*Z(i,k)*mult_hazard(i,0);
                 }
               }
             }
@@ -5247,35 +5060,33 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
-                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
                 help3 = helpint * Z(i,j);
-                help2 = help4*Z(i,j);
+                help2 = help4 * Z(i,j);
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
                 help *= Z(i,j);
-                H(xcols+j,xcols+k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(xcols+j,xcols+k) += -help*mult_hazard(i,0) -
+                          helpint / (1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 * help4 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
-                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+k]) *
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l) + (l+1,dm_pos[xcols+k])*baseline(i,l+1));
                   }
-                H(xcols+j,xcols+k) += help*Z(i,j)*mult_hazard(i,0);
+                H(xcols+j,xcols+k) += -help*Z(i,j)*mult_hazard(i,0);
                 }
               }
             }
@@ -5289,32 +5100,30 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
                 help2=help3=help4=0;
                 for(l=tleft[i]; l<tright[i]; l++)
                   {
-                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  helpint += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                   }
                 help4 = helpint * Z(i,k);
                 help3 = helpint * Z(i,j);
                 help2 = helpint * Z(i,j) * Z(i,k);
                 helpint = exp(-helpint * mult_hazard(i,0));
                 help=0;
-                for(l=ttrunc[i]; l<tright[i]; l++)
+                for(l=ttrunc[i]; l<tleft[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                   }
                 help *= Z(i,j)*Z(i,k);
-                H(j,xcols+k) += help -
-                          helpint / (1-helpint)*
-                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
-                          - helpint/(1-helpint) * helpint/(1-helpint) *
-                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                H(xcols+j,xcols+k) += -help*mult_hazard(i,0) -
+                          helpint / (1-helpint) * (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) * help3 * help4 * mult_hazard(i,0) * mult_hazard(i,0);
                 }
               else
                 {
                 help=0;
                 for(l=ttrunc[i]; l<tright[i]; l++)
                   {
-                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help += 0.5*tsteps(l,0) * (baseline(i,l) + baseline(i,l+1));
                   }
-                H(j,xcols+k) += help*Z(i,j)*Z(i,k)*mult_hazard(i,0);
+                H(xcols+j,xcols+k) += -help*Z(i,j)*Z(i,k)*mult_hazard(i,0);
                 }
               }
             }
@@ -5539,10 +5348,14 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
       respname="extreme minimal value distribution (complementary log-log-link)";
       }
 
-    if(respfamily=="cox")
+    if(respfamily=="cox" || respfamily=="coxold" || respfamily=="coxinterval")
       {
-      out("  Family:                 cox\n");
-      out("  Number of observations: "+ST::inttostring(X.rows())+"\n");
+      out("  Family:                                   cox\n");
+      out("  Number of observations:                   "+ST::inttostring(X.rows())+"\n");
+      out("  Number of right-censored observations:    "+ST::inttostring(nrright)+"\n");
+      out("  Number of interval-censored observations: "+ST::inttostring(nrint)+"\n");
+      out("  Number of uncensored observations:        "+ST::inttostring(nruncens)+"\n");
+      out("  Number of left-truncated observations:    "+ST::inttostring(nrlefttrunc)+"\n");
       }
     else
       {
@@ -5837,7 +5650,7 @@ void remlest::make_model(ofstream & outtex, const ST::string & rname)
       familyname="binomial";
       respname="extreme minimal value distribution (complementary log-log-link)";
       }
-    else if(respfamily=="cox")
+    else if(respfamily=="cox" || respfamily=="coxold" || respfamily=="coxinterval")
       {
       familyname="cox";
       }
@@ -5851,12 +5664,26 @@ void remlest::make_model(ofstream & outtex, const ST::string & rname)
 
   //schreibt das Modell und die Priori-annahmen ins Tex-File
   outtex << "\n\\noindent {\\bf \\large Response:}" << endl
-         << "\\begin{tabbing}\n"
-         << "Number of observations: \\= " << obs << "\\\\" << endl
-         << "Response Variable: \\> " << helprname << "\\\\" << endl
+         << "\\begin{tabbing}\n";
+  if(respfamily=="cox" || respfamily=="coxold" || respfamily=="coxinterval")
+    {
+    outtex << "Number of interval-censored observations: \\= \\kill" << endl;
+    outtex << "Number of observations: \\> " << obs << "\\\\" << endl;
+    outtex << "Number of right-censored observations: \\> " << ST::inttostring(nrright) << "\\\\" << endl;
+    outtex << "Number of interval-censored observations: \\> " << ST::inttostring(nrint) << "\\\\" << endl;
+    outtex << "Number of uncensored observations: \\> " << ST::inttostring(nruncens) << "\\\\" << endl;
+    outtex << "Number of left-truncated observations: \\> " << ST::inttostring(nrlefttrunc) << "\\\\" << endl;
+    }
+  else
+    {
+    outtex << "Number of observations: \\= \\kill" << endl;
+    outtex << "Number of observations: \\> " << obs << "\\\\" << endl;
+    }
+    
+  outtex << "Response Variable: \\> " << helprname << "\\\\" << endl
          << "Family: \\> " << familyname << "\\\\" << endl;
 
-  if(respfamily!="cox")
+  if(respfamily!="cox" && respfamily!="coxinterval" && respfamily!="coxold")
     outtex << "Response function: \\> " << respname << "\\\\" << endl;
 
   outtex << "\\end{tabbing}" << endl

@@ -50,6 +50,11 @@ class remlest
   statmatrix<double> beta;                          // regression coefficients
   statmatrix<double> theta;                         // variance parameters
 
+  int nrint;                               // Anzahl intervallzensierter,
+  int nrright;                             // rechtszensierter,
+  int nrlefttrunc;                         // linkstrunkierter,
+  int nruncens;                            // unzensierter Beobachtungen
+
   public:
 
 //------------------------------------------------------------------------------
