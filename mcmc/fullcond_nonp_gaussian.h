@@ -375,7 +375,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
     }
 
 
-  // --------------------------- FOR STEPWISE ----------------------------------
+// --------------------------- FOR STEPWISE ------------------------------------
 
   double compute_df(void);
 
@@ -397,7 +397,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   const datamatrix & get_data_forfixedeffects(void);  
 
-  // ------------------------- END: FOR STEPWISE -------------------------------
+// ------------------------- END: FOR STEPWISE ---------------------------------
 
   // DESTRUCTOR
 

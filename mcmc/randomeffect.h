@@ -205,6 +205,30 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
 
   void compute_lambdavec(vector<double> & lvec,unsigned & number);
 
+// ---------------------- For Stepwise -----------------------------------------
+
+  // FUNCTION: compute_df
+  // TASK: returns the approximate degrees of freedom of a smoother
+
+  double compute_df(void);
+
+  // FUNCTION: update_stepwise
+  // TASK: returns (usually) the current smoothing parameter
+
+  void update_stepwise(double la);
+
+  // FUNCTION: get_effect
+  // TASK: returns a string of the estimated effect
+
+  ST::string  get_effect(void);
+
+  // FUNCTION: reset_effect
+  // TASK: resets the effect, subtracts the current effect from linearpred
+
+  void reset_effect(unsigned & pos);
+
+// ------- END: For Stepwise ---------------------------------------------------  
+
   };     // end: class FULLCOND_random
 
 
@@ -323,29 +347,6 @@ class __EXPORT_TYPE FULLCOND_random_gaussian : public FULLCOND_random
     FULLCOND_random::reset();
     }
 
-
-  // ---------------------- for stepwise selection -----------------------------
-
-  // FUNCTION: compute_df
-  // TASK: returns the approximate degrees of freedom of a smoother
-
-  double compute_df(void);
-
-  // FUNCTION: update_stepwise
-  // TASK: returns (usually) the current smoothing parameter
-
-  void update_stepwise(double la);
-
-  // FUNCTION: get_effect
-  // TASK: returns a string of the estimated effect
-
-  ST::string  get_effect(void);
-
-  // FUNCTION: reset_effect
-  // TASK: resets the effect, subtracts the current effect from linearpred
-
-  void reset_effect(unsigned & pos);
-
   };     // end: class FULLCOND_random_gaussian
 
 
@@ -380,7 +381,6 @@ class __EXPORT_TYPE FULLCOND_random_nongaussian : public FULLCOND_random
   double f;
 
 
-  
   void update_spatialtotal(void);
 
 

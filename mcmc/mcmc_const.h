@@ -32,14 +32,14 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
 
   protected:
 
-  // For stepwise
+  // ---- For stepwise ----------------
 
   vector<double> diff_categories;
   double reference;
   double lambda;
   ST::string coding;
 
-  // End For Stepwise
+  // ---- End For Stepwise ------------
 
   bool negbin;
 
@@ -160,7 +160,7 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
     {
     }
     
-  // FOR STEPWISE
+  // ------------ FOR STEPWISE -------------------------------------------------
 
   void compute_lambdavec(vector<double> & lvec,unsigned & number);
 
@@ -171,12 +171,16 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
     return data;
     }
 
-
   double compute_df(void);
 
   void update_stepwise(double la);
 
   ST::string get_effect(void);
+
+  void include_effect(vector<ST::string> & names, datamatrix & newx);
+  void reset_effect(unsigned & pos);
+
+  // ------------ END: FOR STEPWISE -------------------------------------------------
 
   };
 
@@ -247,19 +251,21 @@ class __EXPORT_TYPE FULLCOND_const_gaussian : public FULLCOND_const
                        const statmatrix<unsigned> & w,
                        const ST::string & na,double & scalex);
 
-  // for stepwise
+// ----- FOR STEPWISE ----------------------------------------------------------
 
   void include_effect(vector<ST::string> & names, datamatrix & newx);
 
 //  void include_effects(vector<ST::string> & names,
 //  datamatrix & newx);
 
-
   void reset_effect(unsigned & pos);
+
+// ----- END: FOR STEPWISE -----------------------------------------------------
 
   };
 
 
+// ----- FOR STEPWISE ----------------------------------------------------------
 
 //------------------------------------------------------------------------------
 //------------------- CLASS: FULLCOND_const_gaussian_special -------------------
@@ -333,6 +339,7 @@ class __EXPORT_TYPE FULLCOND_const_gaussian_special : public FULLCOND_const
 
   };
 
+// ----- END: FOR STEPWISE -----------------------------------------------------
 
 
 //------------------------------------------------------------------------------
@@ -408,6 +415,18 @@ class __EXPORT_TYPE FULLCOND_const_nongaussian : public FULLCOND_const
     {
     FULLCOND_const::outoptions();
     }
+
+// ----- FOR STEPWISE ----------------------------------------------------------
+
+  void include_effect(vector<ST::string> & names, datamatrix & newx);
+
+//  void include_effects(vector<ST::string> & names,
+//  datamatrix & newx);
+
+  void reset_effect(unsigned & pos);
+
+// ----- END: FOR STEPWISE ----------------------------------------------------------
+
 
   ~FULLCOND_const_nongaussian() {}
 
