@@ -482,7 +482,8 @@ void FULLCOND_pspline_gaussian::update_isotonic(void)
   compute_XWtildey(likep->get_weight(),scaleinv);
 
   int count = 0;
-  int maxit = 100;
+//  int maxit = 100;
+  int maxit = 20;
 // interner Gibbs-Sampler mit maxit Iterationen (siehe Geweke, Robert)
   while(count < maxit)
     {
@@ -491,12 +492,8 @@ void FULLCOND_pspline_gaussian::update_isotonic(void)
     for(j=1;j<nrpar;j++)
       help += prec_env(0,j)*beta(j,0);
     m = (muy(0,0) - help)/prec_env(0,0);
-    if(increasing)
-      beta(0,0) = trunc_normal2(-20,beta(1,0),m,sqrt(1.0/prec_env(0,0)));
-    else
-      beta(0,0) = trunc_normal2(beta(1,0),20,m,sqrt(1.0/prec_env(0,0)));
 
-//    beta(0,0) = sample_monotonic(0,m,sqrt(1.0/prec_env(0,0)));
+    beta(0,0) = sample_monotonic(0,m,sqrt(1.0/prec_env(0,0)));
 
     for(i=1;i<nrpar-1;i++)
       {
@@ -507,50 +504,18 @@ void FULLCOND_pspline_gaussian::update_isotonic(void)
       for(j=i+1;j<nrpar;j++)
         help += prec_env(i,j)*beta(j,0);
       m = (muy(i,0) - help)/prec_env(i,i);
-      if(increasing)
-        beta(i,0) = trunc_normal2(beta(i-1,0),beta(i+1,0),m,sqrt(1.0/prec_env(i,i)));
-      else
-        beta(i,0) = trunc_normal2(beta(i+1,0),beta(i-1,0),m,sqrt(1.0/prec_env(i,i)));
 
-//      beta(i,0) = sample_monotonic(i,m,sqrt(1.0/prec_env(i,i)));
+      beta(i,0) = sample_monotonic(i,m,sqrt(1.0/prec_env(i,i)));
       }
 
     help = 0.0;
     for(j=0;j<nrpar-1;j++)
       help += prec_env(nrpar-1,j)*beta(j,0);
     m = (muy(nrpar-1,0) - help)/prec_env(nrpar-1,nrpar-1);
-    if(increasing)
-      beta(nrpar-1,0) = trunc_normal2(beta(nrpar-2,0),20,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
-    else
-      beta(nrpar-1,0) = trunc_normal2(-20,beta(nrpar-2,0),m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
 
-//    beta(nrpar-1,0) = sample_monotonic(nrpar-1,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
+    beta(nrpar-1,0) = sample_monotonic(nrpar-1,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
 
     count++;
-
-/*/
-// Samples von internem Gibbs Sampler rausschreiben
-    ST::string file = "e:\\isotonic\\results\\test\\samples_gauss_"+ST::inttostring(optionsp->get_nriter())+".raw";
-    if(optionsp->get_nriter() >= 1900)
-    {
-    if(count==1)
-      {
-      ofstream out(file.strtochar());
-      out << "intnr" << "  ";
-      for(i=0;i<nrpar;i++)
-        out << "b_" << ST::inttostring(i+1) << "  ";
-      out << endl;
-      }
-    else
-      {
-      ofstream out(file.strtochar(),ios::app);
-      }
-    out << count << "  ";
-    beta.transposed().prettyPrint(out);
-    out.close();
-    }
-//*/
-
     }  // END: while
 
   add_linearpred_multBS();
@@ -636,7 +601,7 @@ bool FULLCOND_pspline_gaussian::posteriormode(void)
   transform = likep->get_trmult(column);
   fchelp.set_transform(transform);
 
-   unsigned i;
+  unsigned i;
 
   if(samplecentered)
     likep->substr_linearpred(spline);
@@ -677,6 +642,10 @@ bool FULLCOND_pspline_gaussian::posteriormode(void)
         }
       ok = ok2;
       }
+    beta.sortcol(0,nrpar-1,0);
+    datamatrix bsort = beta;
+    for(unsigned j=0;j<nrpar;j++)
+      beta(j,0) = bsort(nrpar-1-j,0);
     }
 
   if(increasing)
@@ -704,6 +673,7 @@ bool FULLCOND_pspline_gaussian::posteriormode(void)
         }
       ok = ok2;
       }
+    beta.sortcol(0,nrpar-1,0);
     }
 // ENDE: monoton
   add_linearpred_multBS();

@@ -1467,184 +1467,200 @@ datamatrix spline_basis::bspline(const double & x, const unsigned & d)
 double spline_basis::deriv_f(const double & x)
   {
   double res = 0.0;
+  double h = knot[degree+1]-knot[degree];
   datamatrix X = bspline(x,degree-1);
 
   for(unsigned i=0;i<nrpar;i++)
     res += beta(i,0)*(X(i,0)-X(i+1,0));
 
-  return res;
+  return res/h;
   }
+
 
 double spline_basis::sample_monotonic(const unsigned i, const double m, const double s)
   {
-  double sample,oben,unten,oben2,unten2;
-  bool monotonic = false;
+  bool standard = true;
+//  bool standard = false;
 
-  if(increasing)
+  double sample;
+
+  if(standard)
     {
-    if(i < nrpar-2)
-      oben = beta(i+2,0);
+    if(i==0)
+      {
+      if(increasing)
+        sample = trunc_normal2(-20,beta(1,0),m,s);
+      else
+        sample = trunc_normal2(beta(1,0),20,m,s);
+      }
+    else if(i==nrpar-1)
+      {
+      if(increasing)
+        sample = trunc_normal2(beta(nrpar-2,0),20,m,s);
+      else
+        sample = trunc_normal2(-20,beta(nrpar-2,0),m,s);
+      }
     else
-      oben = 20;
-    if(i >= 2)
-      unten = beta(i-2,0);
-    else
-      unten = -20;
-
-    if(i < nrpar-1)
-      oben2 = beta(i+1,0);
-    else
-      oben2 = 20;
-    if(i >= 1)
-      unten2 = beta(i-1,0);
-    else
-      unten2 = -20;
+      {
+      if(increasing)
+        sample = trunc_normal2(beta(i-1,0),beta(i+1,0),m,s);
+      else
+        sample = trunc_normal2(beta(i+1,0),beta(i-1,0),m,s);
+      }
     }
   else
     {
-    if(i < nrpar-2)
-      unten = beta(i+2,0);
-    else
-      unten = -20;
-    if(i >= 2)
-      oben = beta(i-2,0);
-    else
-      oben = 20;
+    double betaold,oben,unten;
+    bool monotonic = false;
 
-    if(i < nrpar-1)
-      unten2 = beta(i+1,0);
-    else
-      unten2 = -20;
-    if(i >= 1)
-      oben2 = beta(i-1,0);
-    else
-      oben2 = 20;
-
-    if(oben2 > oben)
-      oben2 = oben;
-    if(unten2 < unten)
-      unten2 = unten;
-    }
-
-  double betaold = beta(i,0);
-
-  sample = 0.5*(oben2-unten2);
-
-//  ofstream out("c:\\bayesx\\test.raw");
-//  out << i << endl;
-
-  while(monotonic == false)
-    {
-
-    if(sample > oben2)
-      oben = sample;
-    else if(sample < unten2)
-      unten = sample;
-
-    sample = trunc_normal2(unten,oben,m,s);
-    beta(i,0) = sample;
-
-//    out << unten << "  " << unten2 << "  " << sample << "  " << oben2 << "  " << oben << endl;
-
-//    if(unten2 < sample && sample < oben2)
-       {
-//       monotonic = true;
-       }
-//    else
+    if(increasing)
       {
-      double x;
+      if(i < nrpar-2)
+        oben = beta(i+2,0);
+      else
+        oben = 20;
+      if(i >= 2)
+        unten = beta(i-2,0);
+      else
+        unten = -20;
+      }
+    else
+      {
+      if(i < nrpar-2)
+        unten = beta(i+2,0);
+      else
+        unten = -20;
+      if(i >= 2)
+        oben = beta(i-2,0);
+      else
+        oben = 20;
+      }
+
+    betaold = beta(i,0);
+
+    while(monotonic == false)
+      {
+
+      sample = randnumbers::trunc_normal3(unten,oben,m,s);
+      beta(i,0) = sample;
 
       if(i==0)
         {
-        if(argmax(0) >= 0)
+        if(is_monotonic(0))
           monotonic = true;
         }
       else if(i==1)
         {
-        if(argmax(0) >= 0)
-          {
-          if(argmax(1) >= 0)
-            monotonic = true;
-          }
+        if(is_monotonic(0) && is_monotonic(1))
+          monotonic = true;
         }
       else if(i==2)
         {
-        if(argmax(0) >= 0)
-          {
-          if(argmax(1) >= 0)
-            {
-            if(argmax(2) >= 0)
-              monotonic = true;
-            }
-          }
+        if(is_monotonic(0) && is_monotonic(1) && is_monotonic(2))
+          monotonic = true;
         }
       else if(i==nrpar-1)
         {
-        if(argmax(nrpar-4) >= 0)
+        if(is_monotonic(nrpar-4))
           monotonic = true;
         }
-      else if(i==nrpar-2)
+     else if(i==nrpar-2)
         {
-        if(argmax(nrpar-4) >= 0)
-          {
-          if(argmax(nrpar-5) >= 0)
-            monotonic = true;
-          }
+        if(is_monotonic(nrpar-4) && is_monotonic(nrpar-5))
+          monotonic = true;
         }
       else if(i==nrpar-3)
         {
-        if(argmax(nrpar-4) >= 0)
-          {
-          if(argmax(nrpar-5) >= 0)
-            {
-            if(argmax(nrpar-6) >= 0)
-              monotonic = true;
-            }
-          }
+        if(is_monotonic(nrpar-4) && is_monotonic(nrpar-5) && is_monotonic(nrpar-6))
+          monotonic = true;
         }
       else
         {
-        if(argmax(i-3) >= 0)
-          {
-          if(argmax(i-2) >= 0)
-            {
-            if(argmax(i-1) >= 0)
-              {
-              if(argmax(i) >= 0)
-                monotonic = true;
-              }
-            }
-          }
+        if(is_monotonic(i-3) && is_monotonic(i-2) && is_monotonic(i-1) && is_monotonic(i))
+          monotonic = true;
         }
+
+      if(sample < betaold)
+        unten = sample;
+      else
+        oben = sample;
 
       }
 
-/*    if(monotonic == false)
-      sample = betaold;
-    monotonic = true;
-*/
     }
 
   return sample;
   }
 
 
-double spline_basis::argmax(const unsigned i)
+bool spline_basis::is_monotonic(const unsigned i)
   {
-  double a,c;
+  double a,c,x,deriv;
   double h = knot[degree+1]-knot[degree];
 
-  a = beta(i+3,0) + beta(i+2,0)*(h - 3) + beta(i+1,0)*(1 - h) + beta(i,0);
-  c = -beta(i+3,0)*knot[degree+i] + 3*beta(i+2,0)*knot[degree+i] +
-       beta(i+1,0)*(knot[degree+i+1] - 2*knot[degree+i]) - beta(i,0)*knot[degree+i+1];
+  a = - beta(i,0) + 3*beta(i+1,0) - 3*beta(i+2,0) + beta(i+3,0);
+  c = beta(i,0)*knot[degree+i+1] - beta(i+1,0)*(3*knot[degree+i+1] - h)
+      + beta(i+2,0)*(h + 3*knot[degree+i]) - beta(i+3,0)*knot[degree+i];
 
-  a = -c/a;
+  x = -c/a;
 
-  if(knot[degree+i] < a && a < knot[degree+i+1])
-    return deriv_f(a);
+  if(a!=0 && knot[degree+i] < x && x < knot[degree+i+1])
+    {
+    deriv = deriv_f(x);
+    if(increasing)
+      {
+      if(deriv >= -0.0000000001)
+        return true;
+      else
+        return false;
+      }
+    else
+      {
+      if(deriv <= 0.0000000001)
+        return true;
+      else
+        return false;
+      }
+    }
   else
-    return 1.0;
+    {
+    return true;
+    }
+
   }
+
+
+bool spline_basis::is_monotonic(void)
+  {
+  bool monotonic = true;
+
+  datamatrix help = spline;
+  multBS(help,beta);
+
+  unsigned i=1;
+  if(increasing)
+    {
+    while(i<likep->get_nrobs() && monotonic==true)
+      {
+      if(help(i,0)+0.001 < help(i-1,0))
+        monotonic = false;
+      i++;
+      }
+    }
+  else
+    {
+    while(i<likep->get_nrobs() && monotonic==true)
+      {
+      if(help(i,0) > help(i-1,0)+0.001)
+        monotonic = false;
+      i++;
+      }
+    }
+
+  return monotonic;
+
+  }
+
 
 void spline_basis::multBS(datamatrix & res, const datamatrix & beta)
   {

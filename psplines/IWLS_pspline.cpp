@@ -395,6 +395,10 @@ bool IWLS_pspline::posteriormode(void)
           }
         ok = ok2;
         }
+      beta.sortcol(0,nrpar-1,0);
+      datamatrix bsort = beta;
+      for(unsigned j=0;j<nrpar;j++)
+        beta(j,0) = bsort(nrpar-1-j,0);
       }
 
     if(increasing)
@@ -422,6 +426,7 @@ bool IWLS_pspline::posteriormode(void)
           }
         ok = ok2;
         }
+      beta.sortcol(0,nrpar-1,0);        
       }                                                     // ENDE: monotone Regression
 
     add_linearpred_multBS(beta,true);
@@ -979,7 +984,9 @@ void IWLS_pspline::update_isotonic(void)
     {
 
     nrtrials++;
-
+/*
+  if(optionsp->get_nriter() < optionsp->get_burnin())
+    {
     likep->compute_weight(W,column,true);
     compute_XWXenv(W);
 
@@ -987,7 +994,8 @@ void IWLS_pspline::update_isotonic(void)
 
     likep->tilde_y(mu,spline,column,true,W);
     compute_XWtildey(W,1.0);
-
+    }
+*/
     beta.assign(betaold);
 
     help = 0.0;
@@ -997,71 +1005,7 @@ void IWLS_pspline::update_isotonic(void)
       help += prec_env(i,j)*beta(j,0);
     m = (muy(i,0) - help)/prec_env(i,i);
 
-    if(i==0)
-      {
-      if(increasing)
-        {
-        unten = -20;
-        oben = beta(i+1,0);
-        }
-      else
-        {
-        unten = beta(i+1,0);
-        oben = 20;
-        }
-      }
-    else if(i==(nrpar-1))
-      {
-      if(increasing)
-        {
-        unten = beta(i-1,0);
-        oben = 20;
-        }
-      else
-        {
-        unten = -20;
-        oben = beta(i-1,0);
-        }
-      }
-    else
-      {
-      if(increasing)
-        {
-        unten = beta(i-1,0);
-        oben = beta(i+1,0);
-        }
-      else
-        {
-        unten = beta(i+1,0);
-        oben = beta(i-1,0);
-        }
-      }
-
-    beta(i,0) = trunc_normal2(unten,oben,m,sqrt(1.0/prec_env(i,i)));
-
-/*
-    if(i==0)
-      {
-      if(increasing)
-        beta(i,0) = trunc_normal2(-20,beta(i+1,0),m,sqrt(1.0/prec_env(i,i)));
-      else
-        beta(i,0) = trunc_normal2(beta(i+1,0),20,m,sqrt(1.0/prec_env(i,i)));
-      }
-    else if(i==(nrpar-1))
-      {
-      if(increasing)
-        beta(i,0) = trunc_normal2(beta(i-1,0),20,m,sqrt(1.0/prec_env(i,i)));
-      else
-        beta(i,0) = trunc_normal2(-20,beta(i-1,0),m,sqrt(1.0/prec_env(i,i)));
-      }
-    else
-      {
-      if(increasing)
-        beta(i,0) = trunc_normal2(beta(i-1,0),beta(i+1,0),m,sqrt(1.0/prec_env(i,i)));
-      else
-        beta(i,0) = trunc_normal2(beta(i+1,0),beta(i-1,0),m,sqrt(1.0/prec_env(i,i)));
-      }
-*/
+    beta(i,0) = sample_monotonic(i,m,sqrt(1.0/prec_env(i,i)));
 
     logold = likep->loglikelihood(true) - 0.5*Kenv.compute_quadform(betaold,0)/sigma2;
     qold = 0.5*log(prec_env(i,i)) - 0.5*(beta(i,0)-m)*prec_env(i,i)*(beta(i,0)-m);
@@ -1069,7 +1013,9 @@ void IWLS_pspline::update_isotonic(void)
     double helpold = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) ) - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
 
     add_linearpred_multBS(beta,betaold,true);
-
+/*
+  if(optionsp->get_nriter() < optionsp->get_burnin())
+    {
     likep->compute_weight(W,column,true);
     compute_XWXenv(W);
 
@@ -1077,7 +1023,8 @@ void IWLS_pspline::update_isotonic(void)
 
     likep->tilde_y(mu,spline,column,true,W);
     compute_XWtildey(W,1.0);
-
+    }
+*/
     help = 0.0;
     for(j=0;j<i;j++)
       help += prec_env(i,j)*beta(j,0);
@@ -1091,6 +1038,11 @@ void IWLS_pspline::update_isotonic(void)
     double helpnew = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) ) - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
 
     alpha = lognew + qnew - logold - qold;
+
+    if(helpnew < 1e-100)
+      helpnew = 1e-100;
+    if(helpold < 1e-100)
+      helpold = 1e-100;
 
     alpha += log( helpold/helpnew );
 
@@ -1121,7 +1073,7 @@ void IWLS_pspline::update_isotonic(void)
 
 //------------------------ END: single move ----------------------------------*/
 
-/*---------------------------- Geweke ---------------------------------------//
+/*---------------------------- Geweke ---------------------------------------//     FALSCH!!! wegen Normierungskonstante!!!!
   likep->compute_weight(W,column,true);
   compute_XWXenv(W);
 
@@ -1144,10 +1096,12 @@ void IWLS_pspline::update_isotonic(void)
     for(j=1;j<nrpar;j++)
       help += prec_env(0,j)*(beta(j,0)-betahelp(j,0));
     m = betahelp(0,0) - help/prec_env(0,0);
-    if(increasing)
-      beta(0,0) = trunc_normal2(-20,beta(1,0),m,sqrt(1.0/prec_env(0,0)));
-    else
-      beta(0,0) = trunc_normal2(beta(1,0),20,m,sqrt(1.0/prec_env(0,0)));
+//    if(increasing)
+//      beta(0,0) = trunc_normal2(-20,beta(1,0),m,sqrt(1.0/prec_env(0,0)));
+//    else
+//      beta(0,0) = trunc_normal2(beta(1,0),20,m,sqrt(1.0/prec_env(0,0)));
+
+    beta(0,0) = sample_monotonic(0,m,sqrt(1.0/prec_env(0,0)));
 
     for(i=1;i<nrpar-1;i++)
       {
@@ -1158,47 +1112,24 @@ void IWLS_pspline::update_isotonic(void)
       for(j=i+1;j<nrpar;j++)
         help += prec_env(i,j)*(beta(j,0)-betahelp(j,0));
       m = betahelp(i,0) - help/prec_env(i,i);
-      if(increasing)
-        beta(i,0) = trunc_normal2(beta(i-1,0),beta(i+1,0),m,sqrt(1.0/prec_env(i,i)));
-      else
-        beta(i,0) = trunc_normal2(beta(i+1,0),beta(i-1,0),m,sqrt(1.0/prec_env(i,i)));
+//      if(increasing)
+//        beta(i,0) = trunc_normal2(beta(i-1,0),beta(i+1,0),m,sqrt(1.0/prec_env(i,i)));
+//      else
+//        beta(i,0) = trunc_normal2(beta(i+1,0),beta(i-1,0),m,sqrt(1.0/prec_env(i,i)));
 
+      beta(i,0) = sample_monotonic(i,m,sqrt(1.0/prec_env(i,i)));
       }
 
     help = 0.0;
     for(j=0;j<nrpar-1;j++)
       help += prec_env(nrpar-1,j)*(beta(j,0)-betahelp(j,0));
     m = betahelp(nrpar-1,0) - help/prec_env(nrpar-1,nrpar-1);
-    if(increasing)
-      beta(nrpar-1,0) = trunc_normal2(beta(nrpar-2,0),20,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));    else
-      beta(nrpar-1,0) = trunc_normal2(-20,beta(nrpar-2,0),m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
+//    if(increasing)
+//      beta(nrpar-1,0) = trunc_normal2(beta(nrpar-2,0),20,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));//    else//      beta(nrpar-1,0) = trunc_normal2(-20,beta(nrpar-2,0),m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
+    beta(nrpar-1,0) = sample_monotonic(nrpar-1,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
+
     count++;
 
-//*  Gibbs samples rausschreiben
-    ST::string file = "e:\\isotonic\\results\\test\\samples_gamma_"+ST::inttostring(optionsp->get_nriter())+".raw";
-    if(optionsp->get_nriter() >= 1900 && optionsp->get_nriter() < 2000)
-    {
-    if(count==1)
-      {
-      ofstream out(file.strtochar());
-      out << "intnr" << "  ";
-      for(i=0;i<nrpar;i++)
-        out << "b_" << ST::inttostring(i+1) << "  ";
-      out << endl;
-      out << count << "  ";
-      beta.transposed().prettyPrint(out);
-      out.close();
-      }
-    else
-      {
-      ofstream out(file.strtochar(),ios::app);
-      out << count << "  ";
-      beta.transposed().prettyPrint(out);
-      out.close();
-      }
-    }
-//  ENDE: Gibbs samples rausschreiben */
-/*
     }  // END: while
 
   betahelp.minus(beta,betahelp);

@@ -308,8 +308,8 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
 
   double sample_monotonic(const unsigned i, const double m, const double s);
 
-  double argmax(const unsigned i);
-
+  bool is_monotonic(const unsigned i);
+  bool is_monotonic(void);
 
 
   public:
