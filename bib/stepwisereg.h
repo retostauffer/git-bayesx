@@ -23,7 +23,8 @@
 #include<distribution.h>
 #include<nbinomial.h>
 
-#include<mcmc_const.h>
+//#include<mcmc_const.h>
+#include<mcmc_const_stepwise.h>
 
 #include<fullcond_nonp_gaussian.h>
 #include<variance_nonp.h>
@@ -50,7 +51,8 @@ using MCMC::DISTRIBUTION_gamma;
 using MCMC::DISTRIBUTION_nbinomial;
 using MCMC::FULLCOND;
 using MCMC::FULLCOND_const;
-using MCMC::FULLCOND_const_gaussian;
+using MCMC::FULLCOND_const_stepwise;
+//using MCMC::FULLCOND_const_gaussian;
 using MCMC::FULLCOND_const_gamma;
 using MCMC::FULLCOND_const_nongaussian;
 using MCMC::FULLCOND_const_gaussian_special;
@@ -265,11 +267,9 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
 //-------------------------  for fixed effects ---------------------------------
 
-  vector<FULLCOND_const_gaussian> factorgaussian;
-  vector<FULLCOND_const_nongaussian> factornongaussian;
-  vector<FULLCOND_const_gaussian> normalconst;
+  vector<FULLCOND_const_stepwise> factor;
   vector<FULLCOND_const_gaussian_special> normalconst_special;
-  vector<FULLCOND_const_nongaussian> nongaussianconst;
+  vector<FULLCOND_const_stepwise> normalconst;
   vector<FULLCOND_const_gamma> gammaconst;
   FULLCOND_const * fcconst_intercept;
 
@@ -285,8 +285,6 @@ class __EXPORT_TYPE stepwisereg : public statobject
 // ----------------------- end: for fixed effects ------------------------------
 
 //------------------------ for nonparametric terms -----------------------------
-
-  // vector<FULLCOND_variance_nonp> fcvarnonp;
 
   vector<FULLCOND_nonp_gaussian> fcnonpgaussian;
   term_autoreg_stepwise nonprw1rw2;

@@ -4,6 +4,15 @@
 namespace MCMC
 {
 
+double FULLCOND_const::compute_df(void)
+  {
+  if (lambda==-1)
+    return data.cols();
+  else
+    return 0;
+  }
+
+
 void FULLCOND_const::transfer_interceptsample(void)
   {
 
@@ -35,73 +44,24 @@ bool FULLCOND_const::is_missing(const ST::string & na)
 
 void FULLCOND_const::init_name(const ST::string & na)
     {
-    if (fctype == MCMC::factor)
+    FULLCOND::init_name(na);
+    char charh ='_';
+    ST::string stringh = "\\_";
+    ST::string helpname = na.insert_string_char(charh,stringh);
+    term_symbolic = "\\gamma_{"+helpname+"}"+helpname;
+    int c = column;
+    if(c==0)
       {
-      vector<ST::string> nam;
-      unsigned i;
-      for (i=0;i<diff_categories.size();i++)
-        {
-        if (diff_categories[i] != reference)
-          nam.push_back(na+"_" + ST::doubletostring(diff_categories[i]));
-        }
-      FULLCOND::init_names(nam);
-
-      char charh ='_';
-      ST::string stringh = "\\_";
-
-      ST::string helpname;
-
-      for(i=0;i<nam.size();i++)
-        {
-        helpname = nam[i].insert_string_char(charh,stringh);
-        term_symbolic = term_symbolic + "\\gamma_{"+helpname+"}"+helpname;
-        if (i+1<nam.size())
-          term_symbolic = term_symbolic + " + ";
-        }
-      int c = column;
-      if(c==0)
-         {
-         priorassumptions.push_back("Factor $" + na.insert_string_char(charh,stringh) + "$:");
-         ST::string liste = "";
-         for(i=0;i<nam.size()-1;i++)
-            liste = liste + "$" + nam[i].insert_string_char(charh,stringh) + "$, ";
-         liste = liste +  + "$" + nam[nam.size()-1].insert_string_char(charh,stringh) + "$";
-         priorassumptions.push_back("Resulting variables: " + liste);
-         priorassumptions.push_back("diffuse priors");
-         priorassumptions.push_back("Coding: " + coding);
-         priorassumptions.push_back("\\\\");
-         }
-      if(c>0)
-         {
-         priorassumptions.push_back(
-         "Factor " + na + " (" + ST::inttostring(c+1) + ". response category):");
-         priorassumptions.push_back("diffuse priors");
-         priorassumptions.push_back("\\\\");
-         }
-
+      priorassumptions.push_back("Fixed effects:");
+      priorassumptions.push_back("diffuse priors");
+      priorassumptions.push_back("\\\\");
       }
-    else
+    if(c>0)
       {
-      FULLCOND::init_name(na);
-      char charh ='_';
-      ST::string stringh = "\\_";
-      ST::string helpname = na.insert_string_char(charh,stringh);
-      term_symbolic = "\\gamma_{"+helpname+"}"+helpname;
-      int c = column;
-      if(c==0)
-        {
-        priorassumptions.push_back("Fixed effects:");
-        priorassumptions.push_back("diffuse priors");
-        priorassumptions.push_back("\\\\");
-        }
-      if(c>0)
-        {
-        priorassumptions.push_back("Fixed effects (" + ST::inttostring(c+1) + ". response category):");
-        priorassumptions.push_back("diffuse priors");
-        priorassumptions.push_back("\\\\");
-        }
+      priorassumptions.push_back("Fixed effects (" + ST::inttostring(c+1) + ". response category):");
+      priorassumptions.push_back("diffuse priors");
+      priorassumptions.push_back("\\\\");
       }
-
     }
 
 
@@ -558,9 +518,9 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
 FULLCOND_const::FULLCOND_const(const FULLCOND_const & m) : FULLCOND(FULLCOND(m))
   {
   lambda=m.lambda;
-  reference = m.reference;
-  coding = m.coding;
-  diff_categories = m.diff_categories;
+//  reference = m.reference;
+//  coding = m.coding;
+//  diff_categories = m.diff_categories;
   interceptadd = m.interceptadd;
 //  negbin=m.negbin;
   likep = m.likep;
@@ -581,10 +541,9 @@ const FULLCOND_const & FULLCOND_const::operator=(const FULLCOND_const & m)
 	 return *this;
   FULLCOND::operator=(FULLCOND(m));
   lambda=m.lambda;
-  reference = m.reference;
-  diff_categories = m.diff_categories;
+//  reference = m.reference;
+//  diff_categories = m.diff_categories;
   interceptadd = m.interceptadd;
-//  negbin=m.negbin;
   likep = m.likep;
   nrconst = m.nrconst;
   linold = m.linold;
@@ -596,7 +555,7 @@ const FULLCOND_const & FULLCOND_const::operator=(const FULLCOND_const & m)
   interceptyes = m.interceptyes;
   return *this;
   }
-  
+
 
 void FULLCOND_const::update(void)
   {

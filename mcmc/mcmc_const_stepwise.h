@@ -11,16 +11,184 @@
 
 #define MCMCconststepwise_INCLUDED
 
-#include<mcmc.h>
-#include<fullcond.h>
 #include<mcmc_const.h>
-#include<distribution.h>
-#include<nbinomial.h>
-#include<zip.h>
-
 
 namespace MCMC
 {
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: FULLCOND_const_stepwise -----------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
+  {
+
+  protected:
+
+  vector<double> diff_categories;
+  double reference;
+  ST::string coding;
+  
+
+  bool changingweight;
+
+  datamatrix X1;                   // (X'WX)^-0.5
+
+  datamatrix help;
+
+  datamatrix mu1;
+
+  // FUNCTION: compute_matrices
+  // TASK: computes X1 = (X'WX)^-0.5
+  //       computes X2 = (X'WX)^-1X'W
+
+  void compute_matrices(void);
+
+
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  FULLCOND_const_stepwise(void) : FULLCOND_const()
+    {
+    }
+
+
+  // CONSTRUCTOR_1 linear effects
+
+  FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * dp,const datamatrix & d,
+                          const ST::string & t, const int & constant,
+                          const ST::string & fs,const ST::string & fr,
+                          const unsigned & c=0);
+
+  // CONSTRUCTOR_4 factor variable
+
+  FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * dp,const datamatrix & d,
+                          const ST::string & code, int & ref,
+                          const ST::string & t,const ST::string & fs,
+                          const ST::string & fr,const unsigned & c=0);
+
+  void make_design(datamatrix & d);  //, const ST::string & coding);
+
+
+  // COPY CONSTRUCTOR
+
+  FULLCOND_const_stepwise(const FULLCOND_const_stepwise & m);
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const FULLCOND_const_stepwise & operator=(const FULLCOND_const_stepwise & m);
+
+  void update_intercept(double & m);
+
+  void posteriormode_intercept(double & m);
+
+  bool posteriormode(void);
+
+  bool posteriormode_converged(const unsigned & itnr);
+
+  void init_name(const ST::string & na);
+
+  void init_names(const vector<ST::string> & na);
+
+  void outresults(void);
+
+  void outoptions(void);
+
+  void compute_lambdavec(vector<double> & lvec,unsigned & number);
+
+  const datamatrix & get_data_forfixedeffects(void)
+    {
+    assert(fctype==MCMC::factor);
+
+    return data;
+    }
+
+  void update_stepwise(double la);
+
+  ST::string get_effect(void);
+
+  void include_effect(vector<ST::string> & names, datamatrix & newx);
+
+  void reset_effect(unsigned & pos);
+
+  };
+
+
+// noch nicht abgeleitet!!!!
+//------------------------------------------------------------------------------
+//------------------- CLASS: FULLCOND_const_gaussian_special -------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE FULLCOND_const_gaussian_special : public FULLCOND_const
+  {
+
+  protected:
+
+  datamatrix datatransformed;
+
+  datamatrix mu;
+
+  void compute_datatransformed(double lambda);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  FULLCOND_const_gaussian_special(void) : FULLCOND_const()
+    {
+    }
+
+  //CONSTRUCTOR1
+
+  FULLCOND_const_gaussian_special(MCMCoptions * o,DISTRIBUTION * dp,
+                                  const datamatrix & d,const ST::string & t,
+                                  const ST::string & fs,const ST::string & fr,
+                                  const unsigned & c);
+
+  // COPY CONSTRUCTOR
+
+  FULLCOND_const_gaussian_special(const FULLCOND_const_gaussian_special & m);
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const FULLCOND_const_gaussian_special & operator=(
+  const FULLCOND_const_gaussian_special & m);
+
+
+  bool posteriormode(void);
+
+  bool posteriormode_converged(const unsigned & itnr);
+
+  void outresults(void);
+
+  void outoptions(void)
+    {
+    FULLCOND_const::outoptions();
+    }
+
+  const datamatrix & get_data_forfixedeffects(void)
+    {
+    return data;
+    }
+
+  ST::string  get_effect(void);
+
+  void reset_effect(unsigned & pos);
+
+  void compute_lambdavec(vector<double> & lvec,unsigned & number);
+
+  double compute_df(void);
+
+  void update_stepwise(double la);
+
+  };
+
+
 } // end: namespace MCMC
 
 #endif

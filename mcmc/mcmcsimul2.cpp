@@ -80,7 +80,20 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   if(likep_mult[0]->get_family() != "Gaussian")
     gewichte = true;
   initialise_lambdas(names_nonparametric,names_fixed,lambdavec,number,gewichte);
+
+  unsigned i;
   
+  // Fehlerabfragen
+  unsigned j;
+  for(j=0;j<fullcond_alle.size();j++)
+     {
+     if(fullcond_alle[j]->geterrors().size()>0)
+      {
+      for(i=0;i<fullcond_alle[j]->geterrors().size();i++)
+         genoptions_mult[0]->out(fullcond_alle[j]->geterrors()[i]);
+      return true;
+      }
+    }
   // überprüfen, dass Randomslopes nicht auch als fixe Effekte angegeben werden!
   if( vcm_doppelt(names_fixed,names_nonparametric) == true)
      return true;
@@ -105,7 +118,6 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   outmodels.open(pathmodels.strtochar());
   outmodels << "step   " << criterion << "   model" << endl;
 
-  unsigned i;
   for(i=0;i<startindex.size();i++)
      {
      abbruch = single_stepwise(kriterium_alt,modell_alt,text_alt,
@@ -163,6 +175,7 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   outcriterium.close();
   outmodels.close();
 
+  /*
   // gibt Lambdas aus, damit man die richtig bestimmten Variablen zählen kann!
   ST::string zaehlername = path + "_lambdas_" + likep_mult[0]->get_responsename() + ".ascii";
   //zaehlername = zaehlername + "_" + ST::inttostring(increment) + ".ascii";
@@ -177,6 +190,7 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
      eintrag = eintrag + ST::doubletostring(modell_final[i]) + "   ";
   out << beschriftung << endl;
   out << eintrag << endl;
+  */
   
   return false;
   }
@@ -716,7 +730,7 @@ void STEPWISErun::startwerte(const ST::string & startmodel,
     for(i=1;i<names_fixed.size();i++)
        fixhelp.push_back(0);
 
-    for(i=1;i<fullcondp.size();i++)
+    for(i=1;i<fullcond_alle.size();i++)
        indexhelp.push_back(lambdavec[i-1].size()-1);
 
     startindex.push_back(indexhelp);
@@ -729,7 +743,7 @@ void STEPWISErun::startwerte(const ST::string & startmodel,
 
     for(i=1;i<names_fixed.size();i++)
        fixhelp.push_back(-1);
-    for(i=1;i<fullcondp.size();i++)
+    for(i=1;i<fullcond_alle.size();i++)
        indexhelp.push_back(0);
 
     startindex.push_back(indexhelp);
@@ -742,7 +756,7 @@ void STEPWISErun::startwerte(const ST::string & startmodel,
 
     for(i=1;i<names_fixed.size();i++)
        fixhelp.push_back(-1);                       //fehlt: vom Benutzer angeben lassen!!!
-    for(i=1;i<fullcondp.size();i++)
+    for(i=1;i<fullcond_alle.size();i++)
        {
        double start = fullcondp[i]->get_lambdastart();
        unsigned index = search_lambdastartindex(start,lambdavec[i-1]);

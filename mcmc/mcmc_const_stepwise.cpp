@@ -2,10 +2,219 @@
 #include "mcmc_const.h"
 #include "mcmc_const_stepwise.h"
 
+
 namespace MCMC
 {
 
-ST::string FULLCOND_const::get_effect(void)
+  // CONSTRUCTOR_1 linear effects
+
+FULLCOND_const_stepwise::FULLCOND_const_stepwise(
+                      MCMCoptions * o,DISTRIBUTION * dp,const datamatrix & d,
+                          const ST::string & t, const int & constant,
+                          const ST::string & fs,const ST::string & fr,
+                          const unsigned & c)
+  : FULLCOND_const(o,dp,d,t,constant,fs,fr,c)
+  {
+
+  transform = likep->get_trmult(c);
+
+  changingweight = likep->get_changingweight();
+
+  mu1 = datamatrix(likep->get_nrobs(),1);
+
+  X1 = datamatrix(nrconst,nrconst,0);
+
+  help = datamatrix(nrconst,likep->get_nrobs(),0);
+
+  compute_matrices();
+
+  if (X1.rows() < nrconst)
+    errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
+
+
+  }
+
+  // COPY CONSTRUCTOR
+
+FULLCOND_const_stepwise::FULLCOND_const_stepwise(
+const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
+  {
+
+  diff_categories = m.diff_categories;
+  reference = m.reference;
+  coding=m.coding;
+
+  X1 = m.X1;
+  mu1 = m.mu1;
+  help = m.help;
+  changingweight = m.changingweight;
+
+  }
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
+                             operator=(const FULLCOND_const_stepwise & m)
+  {
+  if (this==&m)
+	 return *this;
+  FULLCOND_const::operator=(FULLCOND_const(m));
+
+  diff_categories = m.diff_categories;
+  reference = m.reference;
+  coding=m.coding;
+
+  X1 = m.X1;
+  mu1 = m.mu1;
+  help = m.help;
+  changingweight = m.changingweight;
+
+  return *this;
+  }
+
+void FULLCOND_const_stepwise::compute_matrices(void)
+  {
+  // computing X1
+
+  unsigned i,j,k;
+  double * workweight;
+  double * workdata_i_j;
+  double * workdata_i_k;
+
+  for (j=0;j<nrconst;j++)
+    for(k=0;k<=j;k++)
+      {
+      X1(j,k) = 0;
+      workweight = likep->get_weightp();
+      workdata_i_j = data.getV()+j;
+      workdata_i_k = data.getV()+k;
+      for (i=0;i<likep->get_nrobs();i++,workweight++,workdata_i_j+=nrconst
+                         ,workdata_i_k+=nrconst)
+        X1(j,k) += *workweight * (*workdata_i_j) * (*workdata_i_k);
+      if (k!=j)
+        X1(k,j) = X1(j,k);
+      }
+
+  X1 = X1.cinverse();
+  if (X1.rows() == nrconst)
+    X1 = X1.root();
+  }
+
+
+void FULLCOND_const_stepwise::update_intercept(double & m)
+  {
+  interceptadd+=m;
+  beta(interceptpos,0) +=m;
+  }
+
+
+void FULLCOND_const_stepwise::posteriormode_intercept(double & m)   // wird bei Posteriormode(title,false)
+  {                                                                 // aufgerufen
+  interceptadd+=m;
+  beta(interceptpos,0) +=m;
+  betameanold(interceptpos,0) +=m;
+  }
+
+
+bool FULLCOND_const_stepwise::posteriormode(void)
+  {
+  unsigned i;
+  double * worklinold=linold.getV();        // linold = data * beta
+  for(i=0;i<linold.rows();i++,worklinold++) // add interceptadd to linold
+    *worklinold += interceptadd;            // interceptadd contains numbers
+                                            // from centering other terms
+  interceptadd=0;
+  likep->fisher(X1,data,column);            // recomputes X1 = (data' W data)^{-1}
+  X1.assign((X1.cinverse()));               // continued
+  likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+  likep->compute_weightiwls_workingresiduals(column); // computes W(y-linpred)
+  beta = X1*data.transposed()*likep->get_workingresiduals();
+  linold.mult(data,beta);                   // updates linold
+  likep->add_linearpred_m(linold,column);   // updates linpred
+  return FULLCOND_const::posteriormode();
+  }
+
+
+bool FULLCOND_const_stepwise::posteriormode_converged(const unsigned & itnr)
+  {
+  return likep->posteriormode_converged_fc(beta,beta_mode,itnr);
+  }
+
+
+void FULLCOND_const_stepwise::init_name(const ST::string & na)
+  {
+
+  if (fctype == MCMC::factor)
+    {
+    vector<ST::string> nam;
+    unsigned i;
+    for (i=0;i<diff_categories.size();i++)
+      {
+      if (diff_categories[i] != reference)
+        nam.push_back(na+"_" + ST::doubletostring(diff_categories[i]));
+      }
+    FULLCOND::init_names(nam);
+
+    char charh ='_';
+    ST::string stringh = "\\_";
+
+    ST::string helpname;
+
+    for(i=0;i<nam.size();i++)
+      {
+      helpname = nam[i].insert_string_char(charh,stringh);
+      term_symbolic = term_symbolic + "\\gamma_{"+helpname+"}"+helpname;
+      if (i+1<nam.size())
+        term_symbolic = term_symbolic + " + ";
+      }
+    int c = column;
+    if(c==0)
+      {
+      priorassumptions.push_back("Factor $" + na.insert_string_char(charh,stringh) + "$:");
+      ST::string liste = "";
+      for(i=0;i<nam.size()-1;i++)
+        liste = liste + "$" + nam[i].insert_string_char(charh,stringh) + "$, ";
+      liste = liste +  + "$" + nam[nam.size()-1].insert_string_char(charh,stringh) + "$";
+      priorassumptions.push_back("Resulting variables: " + liste);
+      priorassumptions.push_back("diffuse priors");
+      priorassumptions.push_back("Coding: " + coding);
+      priorassumptions.push_back("\\\\");
+      }
+    if(c>0)
+      {
+      priorassumptions.push_back(
+      "Factor " + na + " (" + ST::inttostring(c+1) + ". response category):");
+      priorassumptions.push_back("diffuse priors");
+      priorassumptions.push_back("\\\\");
+      }
+
+    }
+  else
+    {
+    FULLCOND_const::init_name(na);
+    }
+  }
+
+
+void FULLCOND_const_stepwise::init_names(const vector<ST::string> & na)
+  {
+  FULLCOND_const::init_names(na);
+  }
+
+
+void FULLCOND_const_stepwise::outresults(void)
+  {
+  FULLCOND_const::outresults();
+  }
+
+void FULLCOND_const_stepwise::outoptions(void)
+  {
+  FULLCOND_const::outoptions();
+
+  }
+
+
+ST::string FULLCOND_const_stepwise::get_effect(void)
   {
   ST::string h="";
   unsigned i;
@@ -23,129 +232,129 @@ ST::string FULLCOND_const::get_effect(void)
   return h;
   }
 
-double FULLCOND_const::compute_df(void)
-  {
-  if (lambda==-1)
-    return data.cols();
-  else
-    return 0;
-  }
 
 
-void FULLCOND_const::update_stepwise(double la)
+void FULLCOND_const_stepwise::update_stepwise(double la)
   {
   lambda=la;
   }
 
 
-void FULLCOND_const::include_effect(vector<ST::string> & names, datamatrix & newx)
+void FULLCOND_const_stepwise::include_effect(vector<ST::string> & names, datamatrix & newx)
   {
-  unsigned i,j;
-
-  nrconst+=names.size();
-  datamatrix dataold = data;
-
-  data = datamatrix(data.rows(),nrconst);
-
-  double * workold = dataold.getV();
-  double * workdata = data.getV();
-  double * worknew = newx.getV();
-
-  for(i=0;i<dataold.rows();i++)
+  if(fctype != factor)
     {
+    unsigned i,j;
 
-    for (j=0;j<dataold.cols();j++,workold++,workdata++)
+    nrconst+=names.size();
+    datamatrix dataold = data;
+
+    data = datamatrix(data.rows(),nrconst);
+
+    double * workold = dataold.getV();
+    double * workdata = data.getV();
+    double * worknew = newx.getV();
+
+    for(i=0;i<dataold.rows();i++)
       {
-      *workdata = *workold;
-      }
 
-    for (j=0;j<newx.cols();j++,workdata++,worknew++)
-      *workdata = *worknew;
-
-    }
-
-  for (j=0;j<names.size();j++)
-    {
-    datanames.push_back(names[j]);
-    }
-
-  datamatrix betao = beta;
-
-  setbeta(nrconst,1,0);
-
-  double * workbeta = beta.getV();
-  double * workbetao = betao.getV();
-  double * workbetameanold = betameanold.getV();
-  for(i=0;i<betao.rows();i++,workbetao++,workbeta++,workbetameanold++)
-    {
-    *workbeta=*workbetao;
-    *workbetameanold = *workbeta;
-    }
-  }
-
-
-void FULLCOND_const::reset_effect(unsigned & pos)
-  {
-
-  unsigned i,j;
-
-  nrconst--;
-  datamatrix dataold = data;
-
-  data = datamatrix(data.rows(),nrconst);
-
-  double * workold = dataold.getV();
-  double * workdata = data.getV();
-
-  for(i=0;i<dataold.rows();i++)
-    {
-    for (j=0;j<dataold.cols();j++,workold++)
-      {
-      if (j!=pos)
+      for (j=0;j<dataold.cols();j++,workold++,workdata++)
         {
         *workdata = *workold;
-        workdata++;
         }
+
+      for (j=0;j<newx.cols();j++,workdata++,worknew++)
+        *workdata = *worknew;
+
       }
-    }
 
-  vector<ST::string> dn = datanames;
+    for (j=0;j<names.size();j++)
+      {
+      datanames.push_back(names[j]);
+      }
 
-  datanames.erase(datanames.begin(),datanames.end());
-//  datanames.reserve(dn.size()-1);
-  for(i=0;i<dn.size();i++)
-    {
-    if (i!=pos)
-      datanames.push_back(dn[i]);
-    }
+    datamatrix betao = beta;
 
+    setbeta(nrconst,1,0);
 
-  datamatrix betao = beta;
-
-  setbeta(nrconst,1,0);
-
-  double * workbeta = beta.getV();
-  double * workbetao = betao.getV();
-  double * workbetameanold = betameanold.getV();
-  for(i=0;i<betao.rows();i++,workbetao++)
-    {
-    if (i!=pos)
+    double * workbeta = beta.getV();
+    double * workbetao = betao.getV();
+    double * workbetameanold = betameanold.getV();
+    for(i=0;i<betao.rows();i++,workbetao++,workbeta++,workbetameanold++)
       {
       *workbeta=*workbetao;
       *workbetameanold = *workbeta;
-      workbeta++;
-      workbetameanold++;
       }
+      
+    X1 = datamatrix(nrconst,nrconst,0);
     }
-
-
-  likep->substr_linearpred_m(linold,column);
-  linold.mult(data,beta);
-  likep->add_linearpred_m(linold,column);
   }
 
 
-void FULLCOND_const::make_design(datamatrix & d)
+void FULLCOND_const_stepwise::reset_effect(unsigned & pos)
+  {
+
+  if(fctype != factor)
+    {
+    unsigned i,j;
+
+    nrconst--;
+    datamatrix dataold = data;
+
+    data = datamatrix(data.rows(),nrconst);
+
+    double * workold = dataold.getV();
+    double * workdata = data.getV();
+
+    for(i=0;i<dataold.rows();i++)
+      {
+      for (j=0;j<dataold.cols();j++,workold++)
+        {
+        if (j!=pos)
+          {
+          *workdata = *workold;
+          workdata++;
+          }
+        }
+      }
+
+    vector<ST::string> dn = datanames;
+
+    datanames.erase(datanames.begin(),datanames.end());
+    for(i=0;i<dn.size();i++)
+      {
+      if (i!=pos)
+        datanames.push_back(dn[i]);
+      }
+
+    datamatrix betao = beta;
+
+    setbeta(nrconst,1,0);
+
+    double * workbeta = beta.getV();
+    double * workbetao = betao.getV();
+    double * workbetameanold = betameanold.getV();
+    for(i=0;i<betao.rows();i++,workbetao++)
+      {
+      if (i!=pos)
+        {
+        *workbeta=*workbetao;
+        *workbetameanold = *workbeta;
+        workbeta++;
+        workbetameanold++;
+        }
+      }
+
+    likep->substr_linearpred_m(linold,column);
+    linold.mult(data,beta);
+    likep->add_linearpred_m(linold,column);
+
+    X1 = datamatrix(nrconst,nrconst,0);
+    }
+  }
+
+
+void FULLCOND_const_stepwise::make_design(datamatrix & d)
   {
   vector<unsigned> zaehlen;
 
@@ -163,12 +372,15 @@ void FULLCOND_const::make_design(datamatrix & d)
      for(j=i;j<index.rows();j++,p++)
         {
         if (d.get(*p,0) == d.get(*q,0))
-                  anz = anz+1;
-               }
-               zaehlen.push_back(anz);
-               diff_categories.push_back(d.get(*q,0));
-               i = i + anz;
-          }
+           anz = anz+1;
+        }
+     zaehlen.push_back(anz);
+     diff_categories.push_back(d.get(*q,0));
+     i = i + anz;
+     }
+
+  if(diff_categories.size()>20)
+     errors.push_back("ERROR: There are too many different categories!\n");
 
   bool gefunden = false;
   for(i=0;i<diff_categories.size();i++)
@@ -178,7 +390,7 @@ void FULLCOND_const::make_design(datamatrix & d)
      }
   if(gefunden==false)
      {
-     optionsp->out("WARNING: The value for the reference category doesn't exist!\n");
+     optionsp->out("WARNING: The value for the reference category does not exist\n");
      optionsp->out("Category " + ST::doubletostring(diff_categories[0]) + " used instead\n");
      reference = diff_categories[0];
      }
@@ -228,7 +440,7 @@ void FULLCOND_const::make_design(datamatrix & d)
 // ------------------- STEPWISE-FACTOR -----------------------------------------
 //------------------------------------------------------------------------------
 
-void FULLCOND_const::compute_lambdavec(vector<double> & lvec,unsigned & number)
+void FULLCOND_const_stepwise::compute_lambdavec(vector<double> & lvec,unsigned & number)
   {
 
   assert(fctype == MCMC::factor);
@@ -240,13 +452,19 @@ void FULLCOND_const::compute_lambdavec(vector<double> & lvec,unsigned & number)
   }
 
 
-FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
+FULLCOND_const_stepwise::FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * dp,
                  const datamatrix & d,const ST::string & code, int
                  & ref,
                  const ST::string & t,
                  const ST::string & fs,const ST::string & fr,
                  const unsigned & c)
+//  : FULLCOND_const(o,dp,d,t,0,fs,fr,c)          //reintun und die Zuweisung unten weglassen! -> ausprobieren!
   {
+
+  optionsp = o;
+  pathresult = fr;
+  pathcurrent = fr;
+  likep = dp;
 
   lambda=-1;
 
@@ -260,8 +478,6 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
 
   interceptadd=0;
 
-  likep = dp;
-
   sumold = 0;
 
   datamatrix w = likep->get_weight();
@@ -272,13 +488,23 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
 
   interceptyes = false;
 
-  pathresult = fr;
-  pathcurrent = fr;
 
   results_type="fixed";
 
-//  negbin=false;
+  /*           braucht man hier nicht!!!
+  transform = likep->get_trmult(c);
 
+  changingweight = likep->get_changingweight();
+
+  X1 = datamatrix(nrconst,nrconst,0);
+
+  help = datamatrix(nrconst,likep->get_nrobs(),0);
+
+  compute_matrices();
+
+  if (X1.rows() < nrconst)
+    errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
+  */
   }
 
 //------------------------------------------------------------------------------
@@ -455,113 +681,6 @@ void FULLCOND_const_gaussian_special::reset_effect(unsigned & pos)
 
   beta(0,0) = 0;
   }
-
-//------------------------------------------------------------------------------
-//------------------ CLASS: FULLCOND_const_gaussian ----------------------------
-//------------------------------------------------------------------------------
-
-FULLCOND_const_gaussian::FULLCOND_const_gaussian(MCMCoptions * o,
-                 DISTRIBUTION * dp,const datamatrix & d,
-                 const ST::string & code, int & ref,
-                 const ST::string & t,const ST::string & fs,
-                 const ST::string & fr,const unsigned & c):
-                 FULLCOND_const(o,dp,d,code,ref,t,fs,fr,c)
-  {
-
-  transform = likep->get_trmult(c);
-
-  changingweight = likep->get_changingweight();
-
-  X1 = datamatrix(nrconst,nrconst,0);
-
-  help = datamatrix(nrconst,likep->get_nrobs(),0);
-
-  X2 = datamatrix(nrconst,likep->get_nrobs());
-
-  compute_matrices();
-
-  if (X1.rows() < nrconst)
-    errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
-
-  }
-
-
-void FULLCOND_const_gaussian::include_effect(vector<ST::string> & names,
-datamatrix & newx)
-  {
-  if(fctype != factor)
-    {
-    FULLCOND_const::include_effect(names,newx);
-
-    X1 = datamatrix(nrconst,nrconst,0);
-    X2 = datamatrix(nrconst,likep->get_nrobs());
-    }
-  }
-
-
-void FULLCOND_const_gaussian::reset_effect(unsigned & pos)
-  {
-  if(fctype != factor)
-    {
-    FULLCOND_const::reset_effect(pos);
-
-    X1 = datamatrix(nrconst,nrconst,0);
-    X2 = datamatrix(nrconst,likep->get_nrobs());
-    }
-  }
-
-//------------------------------------------------------------------------------
-//--- CLASS FULLCOND_const_nongaussian: implementation of member functions -----
-//------------------------------------------------------------------------------
-
-FULLCOND_const_nongaussian::FULLCOND_const_nongaussian(MCMCoptions * o,
-                 DISTRIBUTION * dp,const datamatrix & d,
-                 const ST::string & code, int & ref,
-                 const ST::string & t,const ST::string & fs,
-                 const ST::string & fr,const unsigned & c):
-                 FULLCOND_const(o,dp,d,code,ref,t,fs,fr,c)
-  {
-  step = o->get_step();
-  diff = linnew;
-  weightiwls = datamatrix(likep->get_nrobs(),1,1);
-  tildey = weightiwls;
-  proposal = beta;
-  XWX = datamatrix(nrconst,nrconst);
-  XWXold = XWX;
-  help = beta;
-  muy=datamatrix(nrconst,1);
-
-  compute_XWX(XWXold);
-  datamatrix test = XWXold.cinverse();
-  if (test.rows() < nrconst)
-    errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
-  }
-
-
-void FULLCOND_const_nongaussian::include_effect(vector<ST::string> & names,
-datamatrix & newx)
-  {
-  if(fctype != factor)
-    {
-    FULLCOND_const::include_effect(names,newx);
-    XWX = datamatrix(nrconst,nrconst);
-    }
-  }
-
-  
-void FULLCOND_const_nongaussian::reset_effect(unsigned & pos)
-  {
-  if(fctype != factor)
-    {
-    FULLCOND_const::reset_effect(pos);
-    XWX = datamatrix(nrconst,nrconst);
-    }
-  }
-
-//------------------------------------------------------------------------------
-//--- CLASS FULLCOND_const_nbinomial: implementation of member functions -------
-//------------------------------------------------------------------------------
-
 
 } // end: namespace MCMC
 
