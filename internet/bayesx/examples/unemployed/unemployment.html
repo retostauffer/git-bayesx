@@ -1,0 +1,192 @@
+<html>
+
+<head>
+<meta name="robots" content="noindex">
+<title>Examples - Study on unemployment durations</title>
+  <style type="text/css">
+  <!--
+  td{font-family:sans-serif;}
+  th{font-family:sans-serif;}
+  h1{font-family:sans-serif;}
+  b{font-family:sans-serif;}
+  p{font-family:sans-serif;margin-top:10;margin-left:10;font-weight:normal;font-size:small}
+  dt{font-family:sans-serif;}
+  span{font-family:sans-serif;font-weight:normal}
+  a{text-decoration:none}
+  a:link { color:#0000ff; }
+  a:visited { color:#0000ff; }
+  ul{font-weight:normal; font-size:small}
+  //-->
+  </style>
+</head>
+
+<body bgcolor="#fbf4df">
+
+<!--
+Allgemeiner Teil der Seite
+//-->
+
+
+<table width=100% cellpadding=0 cellspacing=0>
+
+<tr>
+  <td bgcolor="#005e96" valign=top>
+  <table width=175 cellpadding=10 cellspacing=0 border=0>
+  <tr>
+    <td height=60><span style="color:#ffffff; font-family:serif; font-style:italic; font-weight:bold; margin-left:5; font-size:large">BayesX</span></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesx.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5; margin-top:10">Home</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxwhat.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">What is BayesX?</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxnews.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">New features</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxdownload.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Download</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxbugs.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Bugs</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxexamples.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Examples</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxtutorials.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Tutorials</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxmaps.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Maps</span></a></td>
+  </tr>
+  </table>
+  </td>
+
+  <td width=100% valign=top>
+  <table width=100% cellpadding=5 cellspacing=0 border=0>
+  <tr>
+    <th bgcolor="#005e96" height=60><span style="color:#ffffff; font-family:serif; font-size:x-large">Examples - Study on unemployment durations</span></th>
+  </tr>
+
+
+<!--
+Ende: Allgemeiner Teil der Seite
+//-->
+
+  <tr>
+    <td>
+
+We estimated a logit model for the probability that an unemployed gets a new job at duration time <i>t</i> with 
+predictor <br>
+
+<br><br>
+
+<div align="center">p = f<sub>1</sub>(<i>t</i>)+f<sub>2</sub><sup>Trend</sup>(<i>D</i>)+f<sub>3</sub><sup>Season</sup>(<i>D</i>)+f<sub>4</sub>(<i>A</i>)
++f<sub>5</sub><sup>structured</sup>(<i>C</i>)+f<sub>6</sub><sup>unstructured</sup>(<i>C</i>)</div>
+
+<br><br>
+
+where f<sub>1</sub>(<i>t</i>) and f<sub>4</sub>(<i>A</i>) are nonlinear effects of duration time <i>t</i> and age <i>A</i>, 
+f<sub>2</sub><sup>Trend</sup>(<i>D</i>) and f<sub>3</sub><sup>Season</sup>(<i>D</i>) are 
+a nonlinear trend and a time varying seasonal effect of calendar time <i>D</i>, and f<sub>5</sub><sup>structured</sup>(<i>C</i>) and 
+f<sub>6</sub><sup>unstructured</sup>(<i>C</i>) are
+structured and unstructured spatial random effects of the district <i>C</i> in which the unemployed live.
+A separate analysis is carried out for men and women, whereby here results are given only for men. 
+
+<br><br>
+
+The estimation (for males) has been carried out in BayesX using the following program code: <br>
+
+<br>
+
+
+<i>delimiter = ;  <br>
+
+<br>
+
+dataset m; <br>
+m.infile , maxobs=120000 using c:\data\male.raw; <br>
+
+<br>
+
+map ma; <br>
+ma.infile using c:\maps\westgermany.bnd; <br>
+
+<br>
+
+bayesreg b; <br>
+b.outfile = c:\results\male; <br>
+b.regress y = time(rw2,min=1,max=5) + date(rw2,min=2,max=6) + date(season,period=12,min=3,max=8) <br>
++ age(rw2,min=2,max=6) + region(spatial,map=ma) + region(random) , maxint=300 burnin=2000 <br> 
+iterations=52000 step=50 family=binomial using m;  <br>
+
+<br>
+
+delimiter = return; <br>
+</i>
+
+<bf><br><br> 
+
+The second and the third statement in the program code are used to create a <i>dataset object</i> 'm' and to read in the data, which are stored
+in the external ASCII-file 'c:\data\male.raw'. In the following two statements a <i>map object</i> 'ma' is created and
+the map of West Germany is stored therein. The map of Germany is used later for estimating the structured spatial random effect 
+f<sub>5</sub><sup>structured</sup>(<i>C</i>).
+Finally, a so called <i>bayesreg object</i> is created and a Bayesian regression model is estimated using the <i>regress</i> command
+of <i>bayesreg objects</i>.
+
+<br><br>
+
+Estimated effects can be found in the following Figures and maps. They can be created using
+the graphics capabilities of BayesX. 
+
+<br><br><br><br> 
+
+<hr>
+
+<div align="center">
+<img src="mtime2.gif" alt="" width="390" height="260"  hspace="10">
+
+<img src="mage2.gif" alt="" width="390" height="260" > <br> <br>
+
+<hr>
+
+<img src="mdate2.gif" alt="" width="390" height="260" hspace="10">
+<img src="msea2.gif" alt="" width="390" height="260">
+
+<hr>
+
+<img src="mspat2c.gif" alt="" width="300" height="450" hspace="10" > 
+<img src="mrand2c.gif" alt="" width="300" height="450"> 
+
+</div>
+
+<br> <br>
+
+<h2>Reference</h2>
+
+Fahrmeir, L., Lang, S. (2001)<br>
+<a href="../../publications/Fahrmeir_Lang_JRSSC2001.pdf">
+Bayesian Inference for Generalized Additive Mixed Models Based on Markov Random     
+Field Priors. </a><br>
+Applied Statistics (JRSS C), 50, 201-220.
+
+<br> <br>
+
+<P>
+<HR WIDTH="100%">
+
+
+    </td>
+  </tr>
+
+  </table>
+  </td>
+
+</tr>
+
+</table>
+
+</body>
+
+</html>
+

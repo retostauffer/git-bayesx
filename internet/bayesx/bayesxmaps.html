@@ -1,0 +1,215 @@
+<html>
+
+<head>
+<meta name="robots" content="index">
+<title>Maps</title>
+  <style type="text/css">
+  <!--
+  td{font-family:sans-serif;}
+  th{font-family:sans-serif;}
+  h1{font-family:sans-serif;}
+  b{font-family:sans-serif;}
+  p{font-family:sans-serif;margin-top:10;margin-left:10;font-weight:normal;font-size:small}
+  dt{font-family:sans-serif;}
+  span{font-family:sans-serif;font-weight:normal}
+  a{text-decoration:none}
+  a:link { color:#0000ff; }
+  a:visited { color:#0000ff; }
+  ul{font-weight:normal; font-size:small}
+  //-->
+  </style>
+</head>
+
+<body bgcolor="#fbf4df">
+
+<!--
+Allgemeiner Teil der Seite
+//-->
+
+
+<table width=100% cellpadding=0 cellspacing=0>
+
+<tr>
+  <td bgcolor="#005e96" valign=top>
+  <table width=175 cellpadding=10 cellspacing=0 border=0>
+  <tr>
+    <td height=60><span style="color:#ffffff; font-family:serif; font-style:italic; font-weight:bold; margin-left:5; font-size:large">BayesX</span></td>
+  </tr>
+  <tr>
+    <td height=30><a href="bayesx.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5; margin-top:10">Home</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="bayesxwhat.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">What is BayesX?</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="bayesxnews.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">New features</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="bayesxdownload.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Download</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="bayesxbugs.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Bugs</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="bayesxexamples.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Examples</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="bayesxtutorials.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Tutorials</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="bayesxmaps.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Maps</span></a></td>
+  </tr>
+  </table>
+  </td>
+
+  <td width=100% valign=top>
+  <table width=100% cellpadding=5 cellspacing=0 border=0>
+  <tr>
+    <th bgcolor="#005e96" height=60><span style="color:#ffffff; font-family:serif; font-size:x-large">Maps</span></th>
+  </tr>
+
+
+<!--
+Ende: Allgemeiner Teil der Seite
+//-->
+
+  <tr>
+    <td>
+
+<p>In BayesX map objects are used to handle, store and visualize geographical information. In the current version map objects 
+serve as auxiliary objects for regression analyses, where the effect of spatial covariates on a dependent variable
+can be modelled via Markov random field priors, but they also allow the visualization of any geographical information associated with the map that is provided in a dataset object. Map objects can be created from boundary files or graph files, compare section 5 of the manual for a
+description of these file formats. </p>
+
+<p>On this page we provide boundary files as well as graph files for some maps that have already been used with BayesX. 
+We also request users of BayesX to provide us their maps so that we can make them available on this page.</p>
+
+<!--<p style="font-weight:bold">Belgium:</p>
+<ul>
+  <li> <a href="belgium.bnd">Boundary file</a></li>
+  <li> <a href="belgium.gra">Graph file</a></li>
+</ul>-->
+
+<p style="font-weight:bold">Germany:</p>
+
+<p> For the map of Germany we provide several maps, since between 1993 and 1996 the boundaries and number of districts changed in the eastern part of Germany. In 2001 the two districts of Hannover were united. Moreover the island Rügen causes the
+map to be disconnected resulting in problems when estimating structured spatial effects and therefore we provide one version including Rügen and one version without Rügen. The regioncodes are given by the key numbers of the administrative districts.
+
+<ul>
+<li> Western part of Germany
+  <ul>
+    <li> <a href="maps/westerngermany.bnd">Boundary file</a></li>
+    <li> <a href="maps/westerngermany.gra">Graph file</a></li>
+  </ul></li>
+
+<li> Germany before 1993 including Rügen (disconnected map)
+  <ul>
+    <li> <a href="maps/germany1993.bnd">Boundary file</a></li>
+    <li> <a href="maps/germany1993.gra">Graph file</a></li>
+  </ul></li>
+
+<li> Germany before 1993 without Rügen
+  <ul>
+    <li> <a href="maps/germany1993_2.bnd">Boundary file</a></li>
+    <li> <a href="maps/germany1993_2.gra">Graph file</a></li>
+  </ul></li>
+
+<li>Germany between 1996 and 2001 including Rügen (disconnected map)
+  <ul>
+    <li> <a href="maps/germany9301.bnd">Boundary file</a></li>
+    <li> <a href="maps/germany9301.gra">Graph file</a></li>
+  </ul></li>
+
+  <li>Germany between 1996 and 2001 without Rügen
+  <ul>
+    <li> <a href="maps/germany9301_2.bnd">Boundary file</a></li>
+    <li> <a href="maps/germany9301_2.gra">Graph file</a></li>
+  </ul></li>
+
+<li>Germany since 2001 including Rügen (disconnected map)
+  <ul>
+    <li> <a href="maps/germany2001.bnd">Boundary file</a></li>
+    <li> <a href="maps/germany2001.gra">Graph file</a></li>
+  </ul></li>
+
+  <li>Germany since 2001 without Rügen
+  <ul>
+    <li> <a href="maps/germany2001_2.bnd">Boundary file</a></li>
+    <li> <a href="maps/germany2001_2.gra">Graph file</a></li>
+  </ul></li>
+</ul>
+
+<!--<p style="font-weight:bold">India:</p>
+<ul>
+<li> Districts including islands (disconnected map)</li>
+  <ul>
+    <li> <a href="maps/india_dist.bnd">Boundary file</a></li>
+    <li> <a href="maps/india_dist.gra">Graph file</a></li>
+  </ul></li>
+<li> Districts without islands</li>
+  <ul>
+    <li> <a href="maps/india_dist2.bnd">Boundary file</a></li>
+    <li> <a href="maps/india_dist2.gra">Graph file</a></li>
+  </ul></li>
+<li> States including islands (disconnected map)</li>
+  <ul>
+    <li> <a href="maps/india_states.bnd">Boundary file</a></li>
+    <li> <a href="maps/india_states.gra">Graph file</a></li>
+  </ul></li>
+<li> States without islands</li>
+  <ul>
+    <li> <a href="maps/india_states.bnd">Boundary file</a></li>
+    <li> <a href="maps/india_states.gra">Graph file</a></li>
+  </ul></li>
+</ul>-->
+
+<p style="font-weight:bold">Munich:</p>
+<p> The regioncodes are given by the key numbers of the administrative districts.</p>
+<ul>
+<li> Subquarters in lower resolution (105 districts)</li>
+  <ul>
+    <li> <a href="maps/munich_bezt.bnd">Boundary file</a></li>
+    <li> <a href="maps/munich_bezt.gra">Graph file</a></li>
+  </ul></li>
+<li> Subquarters in higher resolution (455 districts)</li>
+  <ul>
+    <li> <a href="maps/munich_bezv.bnd">Boundary file</a></li>
+    <li> <a href="maps/munich_bezv.gra">Graph file</a></li>
+  </ul></li>
+</ul>
+
+<p style="font-weight:bold">Nigeria:</p>
+<p> The regioncodes are defined arbitrarily. A picture of the map containing the regioncodes can be found <a href="maps/nigeria.jpg">here</a>.</p>
+<ul>
+  <li> <a href="maps/nigeria.bnd">Boundary file</a></li>
+  <li> <a href="maps/nigeria.gra">Graph file</a></li>
+</ul>
+
+<p style="font-weight:bold">Tanzania:</p>
+<p> The regioncodes are defined arbitrarily. A picture of the map containing the regioncodes can be found <a href="maps/tanzania.jpg">here</a>.</p>
+<ul>
+  <li> <a href="maps/tanzania.bnd">Boundary file</a></li>
+  <li> <a href="maps/tanzania.gra">Graph file</a></li>
+</ul>
+
+<p style="font-weight:bold">Zambia:</p>
+<p> The regioncodes are defined arbitrarily. A picture of the map containing the regioncodes can be found <a href="maps/zambia.jpg">here</a>.</p>
+<ul>
+  <li> <a href="maps/zambia.bnd">Boundary file</a></li>
+  <li> <a href="maps/zambia.gra">Graph file</a></li>
+</ul>
+
+    </td>
+  </tr>
+
+  </table>
+  </td>
+
+</tr>
+
+</table>
+
+</body>
+
+</html>
+

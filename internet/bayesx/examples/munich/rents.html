@@ -1,0 +1,322 @@
+<html>
+
+<head>
+<meta name="robots" content="noindex">
+<title>Examples - Munich rents for flats</title>
+  <style type="text/css">
+  <!--
+  td{font-family:sans-serif;}
+  th{font-family:sans-serif;}
+  h1{font-family:sans-serif;}
+  b{font-family:sans-serif;}
+  p{font-family:sans-serif;margin-top:10;margin-left:10;font-weight:normal;font-size:small}
+  dt{font-family:sans-serif;}
+  span{font-family:sans-serif;font-weight:normal}
+  a{text-decoration:none}
+  a:link { color:#0000ff; }
+  a:visited { color:#0000ff; }
+  ul{font-weight:normal; font-size:small}
+  //-->
+  </style>
+</head>
+
+<body bgcolor="#fbf4df">
+
+<!--
+Allgemeiner Teil der Seite
+//-->
+
+
+<table width=100% cellpadding=0 cellspacing=0>
+
+<tr>
+  <td bgcolor="#005e96" valign=top>
+  <table width=175 cellpadding=10 cellspacing=0 border=0>
+  <tr>
+    <td height=60><span style="color:#ffffff; font-family:serif; font-style:italic; font-weight:bold; margin-left:5; font-size:large">BayesX</span></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesx.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5; margin-top:10">Home</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxwhat.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">What is BayesX?</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxnews.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">New features</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxdownload.html"><span style="color:#ffffff;font-family:serif; font-size:large; margin-left:5">Download</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxbugs.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Bugs</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxexamples.html"><span style="color:#ffffff;font-family:serif; font-size:large; margin-left:5">Examples</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxtutorials.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Tutorials</span></a></td>
+  </tr>
+  <tr>
+    <td height=30><a href="../../bayesxmaps.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Maps</span></a></td>
+  </tr>
+  </table>
+  </td>
+
+  <td width=100% valign=top>
+  <table width=100% cellpadding=5 cellspacing=0 border=0>
+  <tr>
+    <th bgcolor="#005e96" height=60><span style="color:#ffffff; font-family:serif; font-size:x-large">Examples - Munich rents for flats</span></th>
+  </tr>
+
+
+<!--
+Ende: Allgemeiner Teil der Seite
+//-->
+
+  <tr>
+    <td>
+
+The response variable is
+
+<br><br>
+
+ <table  width="95%" border="1" cellspacing="0" cellpadding="4">
+	<tr>
+		<!-- Row 1 Column 1 -->
+		<td >
+			<i>R</i>
+		</td>
+		<!-- Row 1 Column 2 -->
+		<td >
+                  monthly rent per square meter in German Marks			
+		</td>
+	</tr>
+</table>
+
+
+<br> 
+
+Covariates characterizing the flat were constructed from almost 200 variables
+out of a questionnaire answered by tenants of flats. In the following
+reanalysis, we include 27 covariates. Here is a selection of some typical
+covariates: <br> <br> <br>
+
+ <table  width="95%" border="1" cellspacing="0" cellpadding="4">
+	<tr>
+		<!-- Row 1 Column 1 -->
+		<td >
+			<i>F</i>
+		</td>
+		<!-- Row 1 Column 2 -->
+		<td >
+                  floor space in square meters			
+		</td>
+	</tr>
+	<tr>
+		<!-- Row 2 Column 1 -->
+		<td >
+		  <i>A
+</i>		</td>
+		<!-- Row 2 Column 2 -->
+		<td >
+		   year of construction
+		</td>
+	</tr>
+	<tr>
+		<!-- Row 3 Column 1 -->
+		<td >
+		<i>	H</i>		
+           </td>
+		<!-- Row 3 Column 2 -->
+		<td >
+			0|1 no central heating indicator
+		</td>
+	</tr>
+	<tr>
+		<!-- Row 4 Column 1 -->
+		<td >
+			<i>B</i>
+		</td>
+		<!-- Row 4 Column 2 -->
+		<td >
+			0|1 no bathroom indicator
+		</td>
+	</tr>
+	<tr>
+		<!-- Row 5 Column 1 -->
+		<td >
+			<i>E</i>
+		</td>
+		<!-- Row 5 Column 2 -->
+		<td >
+			0|1 indicator of bathroom equipment above average
+		</td>
+	</tr>
+	<tr>
+		<!-- Row 6 Column 1 -->
+		<td >
+			<i>K</i>
+		</td>
+		<!-- Row 6 Column 2 -->
+		<td >
+		     0|1 indicator of kitchen equipment above average
+		</td>
+	</tr>
+	<tr>
+		<!-- Row 7 Column 1 -->
+		<td >
+		<i>	W</i>
+		</td>
+		<!-- Row 7 Column 2 -->
+		<td >
+			0|1 indicator of no central warm water system
+		</td>
+	</tr>
+	<tr>
+		<!-- Row 8 Column 1 -->
+		<td >
+			<i>S</i>
+		</td>
+		<!-- Row 8 Column 2 -->
+		<td >
+		    0|1 indicator of large balcony to the south or west
+		</td>
+	</tr>
+	<tr>
+		<!-- Row 9 Column 1 -->
+		<td >
+			<i>O</i>
+		</td>
+		<!-- Row 9 Column 2 -->
+		<td >
+			0|1 indicator of simple, old building, constructed before 1949
+		</td>
+	</tr>
+	<tr>
+		<!-- Row 10 Column 1 -->
+		<td >
+			<i>R</i>
+		</td>
+		<!-- Row 10 Column 2 -->
+		<td >
+			0|1 indicator of old building, renovated, in good state
+		</td>
+	</tr>
+	<tr>
+		<!-- Row 11 Column 1 -->
+		<td >
+			<i>N</i>
+		</td>
+		<!-- Row 11 Column 2 -->
+		<td >
+			0|1 indicator of new modern building, built after 1978
+		</td>
+	</tr>
+</table>
+
+<br> <br> <br>
+
+For the official Munich '99 rental guide, location in the city was assessed in
+three categories (average, good, top) by experts. In the present analysis we let the 
+data decide about location and therefore incorporate a structured spatial random effect. Hence we estimate
+a parameter for each subquarter (L) in Munich, where  the parameters are subject 
+to the restriction that neighboring sites are more alike than others. A map of Munich divided into subquarters
+can be found in the Figure below. <br> <br>
+
+<div align="center"><img src="viertel_onord.gif" alt="" width="450" height="300"  hspace="10"></div>
+
+<br> <br>
+
+We estimated an additive model with predictor <br> <br>
+
+<div align="center">p = f<sub>1</sub>(<i>F</i>) + f<sub>2</sub>(<i>A</i>) + f<sub>3</sub>(<i>L</i>) + fixed effects. <br> <br>
+</div>
+
+The model has been estimated with BayesX using the following program code: <br> <br> <br>
+
+<i>delimiter = ; <br>
+
+<br>
+
+dataset rent; <br>
+rent.infile using c:\data\munich99.raw; <br> 
+
+<br>
+
+map munich; <br>
+munich.infile using c:\data\munich.bnd; <br>
+
+<br>
+
+bayesreg b; <br>
+b.regress R = F(rw2) + A(rw2) + L(spatial,map=munich) + H + B + E + K + W + S + O + R + N  , <br> 
+family=gaussian iterations=12000 burnin=2000 step=10 using rent; <br>
+
+<br>
+
+delimiter = return; <br> <br> <br> 
+
+</i>
+
+
+The first and the second statement in the program code are used to create a <i>dataset object</i> 'rent' and to read in the data, which are stored
+in the external ASCII-file 'c:\data\munich99.raw'. In the following two statements a <i>map object</i> 'munich' is created and
+the map of Munich is stored therein. The map of Munich is used later for estimating the structured spatial random effect of covariate location <i>L</i>.
+Finally, a so called <i>bayesreg object</i> is created and a Bayesian regression model is estimated using the <i>regress</i> command
+of <i>bayesreg objects</i>.
+
+<br> <br>
+
+Estimated effects can be found in the following Figures and map. They can be created using the graphics capabilities 
+of BayesX.
+<br> <br>
+
+<hr>
+
+<div align="center">
+<img src="wfl.gif" alt="" width="450" height="300" >  <br> <br> <br>
+<img src="bjahr.gif" alt="" width="450" height="300" > <br>
+
+<img src="muenchenres.gif" alt="" width="600" height="600" >
+
+</div>
+
+<br>
+ 
+
+<h2>References</h2>
+
+More details on the present analysis can be found in the following sources:
+
+<ul>
+      <li>Fahrmeir, L., Biller, C., Gieger, C., Klinger, A., Lang, S. (1999) <br>
+            Teil 2: Statistische Analyse der Nettomieten, Gutachten zur  Erstellung des Mietspiegels für München 1999,
+            Landeshauptstadt München, Sozialreferat - Amt für Wohnungswesen.   
+
+<li>Lang, S., Brezger, A. (2004)<br>
+    <a href="../../publications/Lang_Brezger_JCGS2004.pdf"> 
+    Bayesian P-Splines</a><br>
+    <i> Journal of Computational and Graphical Statistics</i>, 13, 183-212. </li>
+
+              
+</ul>
+
+
+<P>
+<HR WIDTH="100%">
+
+
+
+    </td>
+  </tr>
+
+  </table>
+  </td>
+
+</tr>
+
+</table>
+
+</body>
+
+</html>
