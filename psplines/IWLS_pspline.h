@@ -88,6 +88,14 @@ class __EXPORT_TYPE IWLS_pspline : public spline_basis
                     const ST::string & fp, const ST::string & pres, const bool & deriv,
                     const int & gs, const bool & diag, const unsigned & c);
 
+  // CONSTRUCTOR 3 (für Cox)
+
+  IWLS_pspline(MCMCoptions * o, DISTRIBUTION * dp,FULLCOND_const * fcc,
+                const fieldtype & ft,const ST::string & ti,
+                const unsigned & nrk, const unsigned & degr, const MCMC::knotpos & kp,
+                const int & gs, const ST::string & fp,
+                const ST::string & pres, const bool & deriv, const unsigned & c);
+
   // COPY CONSTRUCTOR
 
   IWLS_pspline(const IWLS_pspline & fc);

@@ -194,6 +194,16 @@ IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fc
   }
 
 
+IWLS_pspline::IWLS_pspline(MCMCoptions * o, DISTRIBUTION * dp,FULLCOND_const * fcc,
+                const fieldtype & ft,const ST::string & ti,
+                const unsigned & nrk, const unsigned & degr, const MCMC::knotpos & kp,
+                const int & gs, const ST::string & fp,
+                const ST::string & pres, const bool & deriv, const unsigned & c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,c)
+  {
+  }
+
+
 IWLS_pspline::IWLS_pspline(const IWLS_pspline & fc)
   :spline_basis(spline_basis(fc))
   {
@@ -204,7 +214,7 @@ IWLS_pspline::IWLS_pspline(const IWLS_pspline & fc)
   b_invgamma = fc.b_invgamma;
 
   kappa = fc.kappa;
-  kappamode = fc.kappamode;  
+  kappamode = fc.kappamode;
   kappaprop = fc.kappaprop;
   kappamean = fc.kappamean;
 
