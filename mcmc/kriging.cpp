@@ -966,6 +966,7 @@ void FULLCOND_kriging::outoptionsreml()
     optionsp->out("  q: " + ST::inttostring(q) + "\n");
     optionsp->out("\n");
     }
+  optionsp->out("  Starting value for lambda: " + ST::doubletostring(startlambda,6) + "\n" );
   }
 
 double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
