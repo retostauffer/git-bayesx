@@ -7,7 +7,7 @@
 #include<remlest_cox.h>
 
 //------------------------------------------------------------------------------
-//---------- Survival data with interval censoring & lef truncation-------------
+//---------- Survival data with interval censoring & left truncation------------
 //------------------------------------------------------------------------------
 
 bool remlest::estimate_survival_interval2(datamatrix resp,
@@ -114,7 +114,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
       }
     }
 
-  bool timevarying;
+/*  bool timevarying;
   if(nrbaseline>1)
     {
     timevarying=true;
@@ -122,7 +122,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
   else
     {
     timevarying=false;
-    }
+    }*/
 
 // Matrices and variables for baseline effects
   statmatrix<double> tsteps;

@@ -1154,11 +1154,16 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
           outsplus << "plotnonp(\"" << pathres_spl << "\", psname = \""
                    << pathps_spl << ".ps\")" << endl;
           // Plot-Befehle f. d. tex-file
+          ST::string effect = xvar;
+          if(varnames.size()>1)
+            {
+            effect = varnames[1] + "*" + effect;
+            }
           outtex << "\n\\begin{figure}[h!]" << endl
                   << "\\centering" << endl
                   << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
                   << "\\caption{Non--linear Effect of '" <<
-                  xvar.insert_string_char(hcharu,hstringu) << "'";
+                  effect.insert_string_char(hcharu,hstringu) << "'";
           outtex << "." << endl << "Shown are the posterior modes together with "
                  << u_str << "\\% and " << o_str
                  << "\\% pointwise credible intervals.}" << endl
@@ -1205,19 +1210,24 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
                     << "\",plotvar = \"pcat" << o_str << "\", regionvar = \""
                     << regionvar << "\", legend = F, pcat = T)" << endl;
             // Plot-Befehle f. d. tex-file
+          ST::string effect = regionvar;
+          if(varnames.size()>1)
+            {
+            effect = varnames[1] + "*" + effect;
+            }
           outtex << "\n\\begin{figure}[h!]" << endl
                  << "\\centering" << endl
                  << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
                  << endl
                  << "\\caption{Non--linear Effect of '" <<
-                 regionvar.insert_string_char(hcharu,hstringu) << "'";
+                 effect.insert_string_char(hcharu,hstringu) << "'";
           outtex << ". Shown are the posterior modes.}" << endl
                  << "\\end{figure}" << endl;
           outtex << "\n\\begin{figure}[htb]" << endl
                  << "\\centering" << endl
                  << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
                  << u_str << ".ps}" << endl
-                 << "\\caption{Non--linear Effect of '" << regionvar << "'";
+                 << "\\caption{Non--linear Effect of '" << effect << "'";
           outtex << ". Posterior probabilities for a nominal level of "
                  << u_str << "\\%." << endl
                  << "Black denotes regions with strictly negative credible intervals,"
@@ -1228,7 +1238,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
                  << "\\centering" << endl
                  << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
                  << o_str << ".ps}" << endl
-                 << "\\caption{Non--linear Effect of '" << regionvar << "'";
+                 << "\\caption{Non--linear Effect of '" << effect << "'";
           outtex << ". Posterior probabilities for a nominal level of "
                  << o_str << "\\%." << endl
                  << "Black denotes regions with strictly negative credible intervals,"
@@ -1264,11 +1274,15 @@ void remlest_ordinal::make_model(ofstream & outtex, const ST::string & rname)
   //Anz. Beob. wird übergeben
   unsigned obs = X.rows();
 
+  char charh = '_';
+  ST::string stringh = "\\_";
+  ST::string helprname = rname.insert_string_char(charh,stringh);
+
   //schreibt das Modell und die Priori-annahmen ins Tex-File
   outtex << "\n\\noindent {\\bf \\large Response:}" << endl
          << "\\begin{tabbing}\n"
          << "Number of observations: \\= " << obs << "\\\\" << endl
-         << "Response Variable: \\> " << rname << "\\\\" << endl
+         << "Response Variable: \\> " << helprname << "\\\\" << endl
          << "Family: \\> " << familyname << "\\\\" << endl
          << "\\end{tabbing}" << endl
          << "\n\\noindent {\\bf \\large Predictor:}\\\\" << endl;

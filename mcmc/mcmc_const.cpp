@@ -155,6 +155,12 @@ double FULLCOND_const::outresultsreml(datamatrix & X,datamatrix & Z,
                                     const unsigned plotpos)
   {
   double meanhelp=0;
+
+  if(nrconst==0)
+    {
+    return meanhelp;
+    }
+
   betamean=datamatrix(nrconst,1,0);
   datamatrix betastd=datamatrix(nrconst,1,0);
   betaqu_l1_lower=datamatrix(nrconst,1,0);
