@@ -12,8 +12,9 @@ import java.io.*;
 import java.beans.*;
 
 
-import gov.sandia.postscript.PSGr1;
-import gov.sandia.postscript.PSGr2;
+//import gov.sandia.postscript.PSGrBase;
+//import gov.sandia.postscript.PSGr1;
+//import gov.sandia.postscript.PSGr2;
 
 //import javax.help.*;
 import java.net.*;

@@ -4,8 +4,10 @@ import java.awt.geom.*;
 import java.util.*;
 import java.io.*;
 
-import gov.sandia.postscript.PSGr1;
-import gov.sandia.postscript.PSGr2;
+
+//import gov.sandia.postscript.PSGrBase;
+//import gov.sandia.postscript.PSGr1;
+//import gov.sandia.postscript.PSGr2;
 
 /**
  *MapPanel.java
@@ -109,7 +111,6 @@ private void showmap(Graphics2D g)
 	minX = d2[0];
 	minY = d2[1];
         
-//        resize((int)width,(int)height);        
         setSize((int)width,(int)height);        
         height = (int)(width*(maxY-minY)/(maxX-minX));
         
@@ -159,7 +160,7 @@ private void drawmap(Graphics g)
         if(!b.title.equals(""))
             offset = offset + 10 + 3*b.fontsize/2;
         
-        helpdrawmap(g,height,width,offset);        
+        helpdrawmap(g,height,width,offset,true);        
         
         }
 
@@ -264,7 +265,7 @@ public void Savedrawmap(PrintWriter out)              // Zum Speichern als PostS
         out.println("%%Pages:1");
         out.println("%%Page:1 1");                 
             
-        helpdrawmap(g,height,width,offset);
+        helpdrawmap(g,height,width,offset,false);
         
         out.println("showpage");    
         out.println("grestore");
@@ -273,11 +274,11 @@ public void Savedrawmap(PrintWriter out)              // Zum Speichern als PostS
        
 	}         
         
-private void helpdrawmap(Graphics g, double height, double width, int offset)
+private void helpdrawmap(Graphics g, double height, double width, int offset, boolean centering)
         {
 
         boolean NA = false;   
-//        int nrNA = 0;
+
         b.nrNA = 0;
         
 	double[] d2 = new double[4];
@@ -289,7 +290,6 @@ private void helpdrawmap(Graphics g, double height, double width, int offset)
         double x;
         double y;
 
-//        resize((int)width,(int)height);        
         setSize((int)width,(int)height);
         height = (int)(width*(maxY-minY)/(maxX-minX));            
             
@@ -347,11 +347,11 @@ private void helpdrawmap(Graphics g, double height, double width, int offset)
                                         }            
 // ENDE: Polygon einlesen                        
                                 if( b.shades > 0 )
-                                {
-                                NA = ComputeColor(g,i);
-                                g.fillPolygon(p.xpoints,p.ypoints,b.getnrlines(i,j)+1);
-                                g.setColor(Color.black);
-                                }
+                                	{
+	                                NA = ComputeColor(g,i);
+        	                        g.fillPolygon(p.xpoints,p.ypoints,b.getnrlines(i,j)+1);
+                	                g.setColor(Color.black);
+                        	        }
                                 g.drawPolygon(p.xpoints,p.ypoints,b.getnrlines(i,j)+1);
                                 
                                 if(NA)
@@ -418,11 +418,11 @@ private void helpdrawmap(Graphics g, double height, double width, int offset)
                                         }            
 // ENDE: Polygon einlesen                        
                                 if(b.shades > 0)
-                                {
-                                NA = ComputeColor(g,i);
-                                g.fillPolygon(p.xpoints,p.ypoints,b.getnrlines(i,j)+1);
-                                g.setColor(Color.black);
-                                }
+                                	{
+	                                NA = ComputeColor(g,i);
+        	                        g.fillPolygon(p.xpoints,p.ypoints,b.getnrlines(i,j)+1);
+                	                g.setColor(Color.black);
+                        	        }
                                 g.drawPolygon(p.xpoints,p.ypoints,b.getnrlines(i,j)+1);
 
                                 if(NA)
@@ -450,9 +450,9 @@ private void helpdrawmap(Graphics g, double height, double width, int offset)
                         }
         
                 if(b.legend)
-                        drawlegend(g,height,width);
+                        drawlegend(g,height,width,centering);
                 if(!b.title.equals(""))
-                        drawtitle(g,height,width);
+                        drawtitle(g,height,width,centering);
 /*
                 if(nrNA > 0 && nrNA < b.getnrregions())
                     {
@@ -550,7 +550,7 @@ private boolean ComputeColor(Graphics g, int i)
                 
         }
       
-private void drawlegend(Graphics g,double height,double width)
+private void drawlegend(Graphics g,double height,double width,boolean centering)
         {
         
         int r;
@@ -652,24 +652,31 @@ private void drawlegend(Graphics g,double height,double width)
         g.drawPolygon(p.xpoints,p.ypoints,5);
         
         String str;
+	int center = 0;
         double max = b.upperlimit;
         double min = b.lowerlimit;
         
         g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));                                    
  
         str = String.valueOf(min);
-        g.drawString(str,(int)Math.round(xoffset)-str.length()*9*b.fontsize/36,(int)Math.round(yoffset+legendheight+1.3*b.fontsize));
+	if(centering)
+		center = str.length()*9*b.fontsize/36;
+        g.drawString(str,(int)Math.round(xoffset)-center,(int)Math.round(yoffset+legendheight+1.3*b.fontsize));
         g.drawLine((int)Math.round(xoffset),(int)Math.round(yoffset+legendheight),(int)Math.round(xoffset),(int)Math.round(yoffset+legendheight+3));
         if(min < 0 && 0 < max)                
             if(b.lowerlimit + (b.upperlimit-b.lowerlimit)/3 < 0 && 0 < b.upperlimit - (b.upperlimit-b.lowerlimit)/3)        
                 {
                 str = String.valueOf(0);
-                g.drawString(str,(int)Math.round(xoffset-min/(max-min)*0.3*width)-str.length()*9*b.fontsize/36,(int)Math.round(yoffset+legendheight+1.3*b.fontsize));
+		if(centering)
+			center = str.length()*9*b.fontsize/36;
+                g.drawString(str,(int)Math.round(xoffset-min/(max-min)*0.3*width)-center,(int)Math.round(yoffset+legendheight+1.3*b.fontsize));
                 g.drawLine((int)Math.round(xoffset-min/(max-min)*0.3*width),(int)Math.round(yoffset+legendheight),
                            (int)Math.round(xoffset-min/(max-min)*0.3*width),(int)Math.round(yoffset+legendheight+3));
                 }
         str = String.valueOf(max);
-        g.drawString(str,(int)Math.round(xoffset+0.3*width)-str.length()*9*b.fontsize/36,(int)Math.round(yoffset+legendheight+1.3*b.fontsize));
+	if(centering)
+		center = str.length()*9*b.fontsize/36;
+        g.drawString(str,(int)Math.round(xoffset+0.3*width)-center,(int)Math.round(yoffset+legendheight+1.3*b.fontsize));
         g.drawLine((int)Math.round(xoffset+0.3*width),(int)Math.round(yoffset+legendheight),(int)Math.round(xoffset+0.3*width),(int)Math.round(yoffset+legendheight+3));        
         
         }
@@ -680,20 +687,6 @@ private void drawNA(Graphics g, Polygon p)
         int x,y;            
         int dist = 5;        
         Rectangle rect = p.getBounds();
-/*
-        x = rect.x;
-        while(x < rect.x+rect.width)
-                {
-                y = rect.y;    
-                while(y < rect.y+rect.height) 
-                       {
-                       if(p.contains(x,y,dist,dist))
-                           g.drawLine(x,y,x+dist,y+dist);
-                       y = y+dist;    
-                       }
-                x = x+dist;
-                }                
-*/        
 
         int start;
         
@@ -729,10 +722,14 @@ private void drawNA(Graphics g, Polygon p)
             
         }
         
-private void drawtitle(Graphics g,double height,double width)
+private void drawtitle(Graphics g,double height,double width,boolean centering)
         {
+	int center = 0;
+	if(centering)
+  		center = (int)(b.title.length()*9*b.fontsize/18);
+
         g.setFont(new Font("TimesRoman", Font.BOLD, 2*b.fontsize));            
-        g.drawString(b.title,(int)(width/2-b.title.length()*9*b.fontsize/18),(int)(0.05*height)+3*b.fontsize/2);
+        g.drawString(b.title,(int)(width/2-center),(int)(0.05*height)+3*b.fontsize/2);
         g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));            
         }
 
@@ -740,7 +737,7 @@ private void drawtitle(Graphics g,double height,double width)
 public void plotnonp(Graphics g)        
         {
         setplotparam((596-b.width)/2,120,b.width,b.height,b.pointsize,b.fontsize);
-        plotframe(g,0);      
+        plotframe(g,0,true);      
         for(int i=1;i<b.getDCols();i++)
             plot(g,i);
         }
@@ -782,7 +779,7 @@ public void Saveplotnonp(PrintWriter out)
 	out.println(b.linewidth);
         out.println(" setlinewidth");                
         
-        plotframe(g,0);
+        plotframe(g,0,false);
         
         for(int i=1;i<b.getDCols();i++)
             plot(g,i);
@@ -792,7 +789,7 @@ public void Saveplotnonp(PrintWriter out)
         
         }
 
-private void plotframe(Graphics g, int col)
+private void plotframe(Graphics g, int col, boolean centering)
         {
 
         boolean date = false;
@@ -876,17 +873,11 @@ private void plotframe(Graphics g, int col)
                 {
                 xstep = b.xstep;
                 nrticks_x = (int)((maxX-xstart)/xstep)+1;   
-                
-//                if(nrticks_x*xstep < (maxX-xstart)*19/18)
-//                    nrticks_x++;
                 }
             if(b.ystep > 0.0)
                 {
                 ystep = b.ystep;
                 nrticks_y = (int)((maxY-ystart)/ystep)+1;                                      
-
-//                if(nrticks_y*ystep < (maxY-ystart)*19/18)
-//                    nrticks_y++;
                 }
             }
         else
@@ -920,12 +911,15 @@ private void plotframe(Graphics g, int col)
 
         g.setColor(Color.black);
         g.drawRect(scale*xoffset, 842-scale*(842-yoffset), scale*width, scale*height);        
-        g.setFont(new Font("Monospaced", Font.BOLD, scale*fontsize));                                                                 
+	if(centering)
+	        g.setFont(new Font("Monospaced", Font.BOLD, scale*fontsize));                                                                 	
+	else
+	        g.setFont(new Font("TimesRoman", Font.BOLD, scale*fontsize));                                                                 
         
 // Beschriftung und Ticks x-Achse
         if(b.function == 3)
                 {
-                if(date)
+		if(date)
                     {
                         
                     int start = (int)(b.getDoubleValue(0,0));                
@@ -952,15 +946,17 @@ private void plotframe(Graphics g, int col)
                             if(stop-start < 12 || (j-1)%2 == 0)     
                                 {
                                 str = String.valueOf(names[j-1]);
-                                str = formatLabel(str);                                                                
-                                center = (str.length()+1)*fontwidth/2;     
+                                str = formatLabel(str,centering);                                                                
+		                if(centering)
+	        		        center = (str.length()+1)*fontwidth/2;     
                                 g.drawString(str,translateX(i)-scale*center,842-scale*(842-(yoffset+height+17*fontheight/20)));                                                                                
                                 }
                             if((j-1)%step == 0)
                                 {
                                 str = String.valueOf(year);
-                                str = formatLabel(str);                                
-                                center = (str.length()+1)*fontwidth/2;     
+                                str = formatLabel(str,centering);                                
+		                if(centering)
+	        		        center = (str.length()+1)*fontwidth/2;     
                                 g.drawString(str,translateX(i)-scale*center,842-scale*(842-(yoffset+height+29*fontheight/20)));                                                                                
                                 }
                             if(j%step == 0)
@@ -983,8 +979,9 @@ private void plotframe(Graphics g, int col)
                             if((j-1)%k == 0)
                                 {
                                 str = String.valueOf(year);
-                                str = formatLabel(str);
-                                center = (str.length()+1)*fontwidth/2;     
+                                str = formatLabel(str,centering);
+		                if(centering)
+	        		        center = (str.length()+1)*fontwidth/2;     
                                 g.drawString(str,translateX(i)-scale*center,842-scale*(842-(yoffset+height+fontheight)));                                                                                
                                 }
                             if((j-1)%step == 0)
@@ -1004,15 +1001,15 @@ private void plotframe(Graphics g, int col)
                             {
                             double value = (double)(Math.round((xstart+i*xstep)*1.0E10))/1.0E10;   
                             str = String.valueOf(value);                            
-                            str = formatLabel(str);
-                            center = (str.length()+1)*fontwidth/2;
+                            str = formatLabel(str,centering);
 			    double pos = xstart+i*xstep;	
 			    if(xstart <= maxX && pos >= minX && pos <= maxX*1.0000000001)
  				    {	
-	                            g.drawString(str,translateX(pos)-scale*center,
-				  	 842-scale*(842-(yoffset+height+fontheight)));
+			            if(centering)
+		             	    	center = (str.length()+1)*fontwidth/2;     
+	                            g.drawString(str,translateX(pos)-scale*center, 842-scale*(842-(yoffset+height+fontheight)));
         	                    g.drawLine(translateX(pos), 842-scale*(842-yoffset-height), 
-				       translateX(pos), 842-scale*(842-yoffset-height-5));                                
+				               translateX(pos), 842-scale*(842-yoffset-height-5));                                
 				    }	
                             }
                     }
@@ -1021,15 +1018,16 @@ private void plotframe(Graphics g, int col)
                 {
                 str = String.valueOf(minX);
                 str = str.substring(0,str.indexOf('.'));                
-                center = str.length()*fontwidth/2; 
+		if(centering)
+	                center = str.length()*fontwidth/2;  			
                 g.drawString(str,translateX(minX)-scale*center,842-scale*(842-(yoffset+height+fontheight)));
                 for(int i=1;i<nrticks_x;i++)                    
                         {
                         str = String.valueOf(i*xstep);
                         str = str.substring(0,str.indexOf('.'));
-                        center = str.length()*fontwidth/2; 
-                        g.drawString(str,translateX(i*xstep)-scale*center,
-					842-scale*(842-(yoffset+height+fontheight)));
+			if(centering)
+		                center = str.length()*fontwidth/2;  			
+                        g.drawString(str,translateX(i*xstep)-scale*center, 842-scale*(842-(yoffset+height+fontheight)));
                         g.drawLine(translateX(i*xstep), 842-scale*(842-yoffset-height),
 				   translateX(i*xstep), 842-scale*(842-yoffset-height-5));    
                         }
@@ -1060,8 +1058,9 @@ private void plotframe(Graphics g, int col)
                         {
                         str = String.valueOf(i*0.2);
                         str = str.substring(0,3);
-                        center = (str.length()+1)*fontwidth+5;
-                        g.drawString(str,scale*(xoffset-center),translateY(i*0.2)+scale*fontsize/3);
+			if(centering)
+	                        center = (str.length()+1)*fontwidth+5 - 3*fontwidth;
+                        g.drawString(str,scale*(xoffset-center-3*fontwidth),translateY(i*0.2)+scale*fontsize/3);
                         }
                 }              
         else            
@@ -1070,11 +1069,12 @@ private void plotframe(Graphics g, int col)
                         {
                         double value = (double)(Math.round((ystart+i*ystep)*1.0E10))/1.0E10;   
                         str = String.valueOf(value);                            
-                        str = formatLabel(str);
-                        center = (str.length()+1)*fontwidth+5;
+                        str = formatLabel(str,centering);
+			if(centering)	
+	                        center = (str.length()+1)*fontwidth+5 - 3*fontwidth;
 			double pos = ystart+i*ystep;
 			if(ystart <= maxY && pos >= minY && pos <= maxY*1.0000000001)
-	                        g.drawString(str,scale*(xoffset-center),translateY(pos)+scale*fontsize/3); 
+	                        g.drawString(str,scale*(xoffset-center-3*fontwidth),translateY(pos)+scale*fontsize/3); 
                         }
                 }               
                 
@@ -1083,56 +1083,74 @@ private void plotframe(Graphics g, int col)
                 {
                 if(!b.title.equals(""))
                         {
-                        g.setFont(new Font("Monospaced", Font.BOLD, (int)(scale*fontsize*1.5)));                                        
+			if(centering)
+	                        g.setFont(new Font("Monospaced", Font.BOLD, (int)(scale*fontsize*1.5)));                                        
+			else
+	                        g.setFont(new Font("TimesRoman", Font.BOLD, (int)(scale*fontsize*1.5)));                                        
                         str = b.title;
                         if(str.length()>32)
                           str = str.substring(0,32);
-                        center = (int)((str.length()*1.5*fontwidth)/2);
+			if(centering)
+	                        center = (int)((str.length()*1.5*fontwidth)/2);
                         g.drawString(str,scale*((int)(xoffset+width/2)-center),842-scale*(842-(yoffset-3*fontheight/2)));
-                        g.setFont(new Font("Monospaced", Font.BOLD, scale*fontsize));                                                                                                           
+			if(centering)
+	                        g.setFont(new Font("Monospaced", Font.BOLD, scale*fontsize));                                                                                                           	
+			else
+	                        g.setFont(new Font("TimesRoman", Font.BOLD, scale*fontsize));                                                                                                           
                         }
                 if(!b.xlab.equals(""))
                         {
                         str = b.xlab;
-                        center = (int)((str.length()*fontwidth)/2);
-                        g.drawString(str,scale*((int)(xoffset+width/2)-center),
-					 842-scale*(842-(yoffset+height+2*fontheight)));
+			if(centering)
+	                        center = (int)((str.length()*fontwidth)/2);
+                        g.drawString(str,scale*((int)(xoffset+width/2)-center),842-scale*(842-(yoffset+height+2*fontheight)));
                         }
                 if(!b.ylab.equals(""))
                         {
                         str = b.ylab;
-                        center = (int)((str.length()*fontwidth)/2);
-                        if(str.length()>14)
-                            g.drawString(str,scale*(xoffset-7*fontwidth),842-scale*(842-(yoffset-3*fontheight/4)));
-                        else
-                            g.drawString(str,scale*(xoffset-center),842-scale*(842-(yoffset-3*fontheight/4)));
+			if(centering)
+				{
+	                        if(str.length()>14)
+					center = 7*fontwidth;
+				else	
+		                        center = (int)((str.length()*fontwidth)/2);
+				}
+                        g.drawString(str,scale*(xoffset-center),842-scale*(842-(yoffset-3*fontheight/4)));
                         }
                 }               
         else if(b.function == 4)
                 {
                 str = "iteration";
-                center = (int)((str.length()*fontwidth)/2);
+		if(centering)
+	                center = (int)((str.length()*fontwidth)/2);
                 g.drawString(str,scale*((int)(xoffset+width/2)-center),842-scale*(842-(yoffset+height+2*fontheight)));
 
                 str = "par "+col;
-                center = (int)((str.length()*fontwidth)/2);
-                if(str.length()>14)
-                    g.drawString(str,scale*(xoffset-5*fontwidth),842-scale*(842-(yoffset-fontheight)));
-                else
-                    g.drawString(str,scale*(xoffset-center),842-scale*(842-(yoffset-fontheight)));
+		if(centering)
+			{
+	                if(str.length()>14)
+				center = 5*fontwidth;
+			else
+		                center = (int)((str.length()*fontwidth)/2);
+			}
+                g.drawString(str,scale*(xoffset-center),842-scale*(842-(yoffset-fontheight)));
                 }
         else if(b.function == 5)
                 {
                 str = "lag";
-                center = (int)((str.length()*fontwidth)/2);
+		if(centering)
+	                center = (int)((str.length()*fontwidth)/2);
                 g.drawString(str,scale*((int)(xoffset+width/2)-center),842-scale*(842-(yoffset+height+2*fontheight)));
 
                 str = b.getVarname(col);
-                center = (int)((str.length()*fontwidth)/2);
-                if(str.length()>10)
-                    g.drawString(str,scale*(xoffset-5*fontwidth),842-scale*(842-(yoffset-fontheight)));                    
-                else
-                    g.drawString(str,scale*(xoffset-center),842-scale*(842-(yoffset-fontheight)));
+		if(centering)
+			{
+	                if(str.length()>10)
+				center = 5*fontwidth;
+			else
+		                center = (int)((str.length()*fontwidth)/2);
+			}	
+                g.drawString(str,scale*(xoffset-center),842-scale*(842-(yoffset-fontheight)));
                 }
                 
         }                
@@ -1168,7 +1186,7 @@ private void plotsample(Graphics g)
                         {
                         xoffset = 100+width+66;
                         }
-                plotframe(g,start);
+                plotframe(g,start,true);
                 plot(g,start);                     
                 start++;
                 count++;
@@ -1224,7 +1242,7 @@ public void Saveplotsample(PrintWriter out)
                                 xoffset = 100+width+66;
                                 }
 
-                        plotframe(g,start);
+                        plotframe(g,start,false);
                         plot(g,start);                             
                         
                         start = start+1;
@@ -1295,7 +1313,7 @@ public void Saveplotautocor(PrintWriter out)
                         yoffset += height+100;
                         }
                         
-                        plotframe(g,start);
+                        plotframe(g,start,false);
                         plot(g,start);     
                         drawLine(g);
                         
@@ -1341,7 +1359,7 @@ private void plotautocor(Graphics g)
                 yoffset += height+100;
                 }
                 
-                plotframe(g,start);                
+                plotframe(g,start,true);                
                 plot(g,start);     
                 drawLine(g);
                 start++;
@@ -1429,7 +1447,61 @@ private void plot(Graphics g,int col)
                                 if(minX<=x&x<=maxX&minY<=y&y<=maxY)
 					g.fillOval(translateX(x),translateY(y),pointsize,pointsize);
 				}
-                        }                
+                        }  
+		else if(b.connect.equals("dotted") || (b.connect.length()>=col&&b.connect.charAt(col-1)=='d'))
+			{
+                        double x;
+                        double y;
+                        double x2;
+                        double y2;
+			double xend1;
+			double xend2;
+
+			int i = 1;
+			int intervals = 25;
+			double dist = (maxX-minX)/intervals;
+
+                        x = b.getDoubleValue(0,0);
+                        y = b.getDoubleValue(0,col);
+
+                        for(int j=0;j<intervals;j++)    
+                                {
+				xend1 = minX + (j+0.7)*dist;
+				xend2 = minX + (j+1.0)*dist;
+
+	                        x2 = b.getDoubleValue(i,0);
+	                        y2 = b.getDoubleValue(i,col);
+
+				while(i<b.getDRows()-1 && x2 <= xend1)
+					{
+					if(minX<=x&x<=maxX&minX<=x2&x2<=maxX&minY<=y&y<=maxY&minY<=y2&y2<=maxY)
+        	                            g.drawLine(translateX(x),translateY(y),translateX(x2),translateY(y2));       
+					x = x2;
+					y = y2;	
+					i++;
+		                        x2 = b.getDoubleValue(i,0);
+		                        y2 = b.getDoubleValue(i,col);
+					}
+
+	                        y2 = y + (xend1-x)*(y2-y)/(x2-x);
+	                        x2 = xend1;
+				if(minX<=x&x<=maxX&minX<=x2&x2<=maxX&minY<=y&y<=maxY&minY<=y2&y2<=maxY)
+		                        g.drawLine(translateX(x),translateY(y),translateX(x2),translateY(y2));       
+
+	                        x2 = b.getDoubleValue(i,0);
+				while(i<b.getDRows()-1 && x2 <= xend2)				
+					{
+					i++;
+		                        x2 = b.getDoubleValue(i,0);
+					}
+				
+
+				y2 = b.getDoubleValue(i,col);
+				y = b.getDoubleValue(i-1,col);
+	                        y = y + (xend2-x)*(y2-y)/(x2-x);
+	                        x = xend2;
+                                }
+			}			              
                 else
                         {
                         double x;
@@ -1467,7 +1539,7 @@ private void drawLine(Graphics g)
                 }
         }
 
-private String formatLabel(String str)
+private String formatLabel(String str, boolean centering)
         {
 
         if(str.indexOf('E')>-1)        
@@ -1518,8 +1590,9 @@ private String formatLabel(String str)
                 // keine Formatierung für ganze Zahlen
                 }
 
-        if(str.charAt(0)!='-')
-            str = ' '+str;          // erstes Zeichen '-' oder ' '
+	if(centering)
+	        if(str.charAt(0)!='-')
+        	    str = ' '+str;          // erstes Zeichen '-' oder ' '
         
         return str;
         }
