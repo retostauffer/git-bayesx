@@ -36,21 +36,22 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
   double cmpriorm,cmpriorv;
   double cvpriorsh,cvpriorsc;
 
-  bool checkorder;
   datamatrix temp; //
 
-
+  FULLCOND cpar_fc;
+//  FULLCOND cind_fc;  
   FULLCOND_const * fcconst;
   DISTRIBUTION * likep;
 
   statmatrix<int> index;
   statmatrix<int> index2;
-  vector<unsigned>  posbeg;
-  vector<unsigned>  posend;
+  vector<unsigned> posbeg;
+  vector<unsigned> posend;
   datamatrix effvalues;
 
   double centerbeta(void);
-  const update_weights(void);
+//  bool checkorder;
+//  const update_weights(void);
 
 
   
