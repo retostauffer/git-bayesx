@@ -1291,6 +1291,10 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
                                        false,collinpred)
                            );
 
+        bool rowwise = false;
+        if(terms[i].options[0] == "tpspline2dimband")
+          rowwise = true;
+
         if ((terms[i].options[0] == "tpspline2dimrw1") ||
             (terms[i].options[0] == "tpspline2dimband")
            )
@@ -1303,7 +1307,7 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
 
           fctvariance2dim.push_back(FULLCOND_tvariance2dim(&generaloptions[generaloptions.size()-1],
           &fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1],v,title,
-          pathnonp,pathres,true));
+          pathnonp,pathres,rowwise));
 
           }
 
@@ -1485,7 +1489,13 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
                                        false,collinpred)
                            );
 
-          if (terms[i].options[0] == "tpspline2dimrw1")
+          bool rowwise = false;
+          if(terms[i].options[0] == "tpspline2dimband")
+            rowwise = true;
+
+          if ((terms[i].options[0] == "tpspline2dimrw1") ||
+              (terms[i].options[0] == "tpspline2dimband")
+             )
             {
 
             make_paths(collinpred,pathnonp,pathres,title,help,"",
@@ -1495,7 +1505,7 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
 
             fctvariance2dim.push_back(FULLCOND_tvariance2dim(&generaloptions[generaloptions.size()-1],
             &fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1],v,title,
-            pathnonp,pathres));
+            pathnonp,pathres,rowwise));
 
             }
 
@@ -2240,6 +2250,8 @@ bool bayesreg::create_varcoeff_geospline(const unsigned & collinpred)
 bool bayesreg::create_baseline(const unsigned & collinpred)
   {
 
+  ST::string proposal;
+
   long h;
   unsigned min,max,degree,nrknots;
   double lambda,a1,b1;
@@ -2294,6 +2306,8 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
       else
         po = MCMC::quantiles;
 
+      proposal = terms[i].options[11];
+
       if (f==1)
         return true;
 
@@ -2313,7 +2327,9 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
       //----- end: creating path for samples and and results, creating title ---
 
 
-      fcbaseline.push_back( pspline_baseline(&generaloptions[generaloptions.size()-1],
+      if(proposal == "cp")
+        {
+        fcbaseline.push_back( pspline_baseline(&generaloptions[generaloptions.size()-1],
                                                 distr[distr.size()-1],
                                                 fcconst_intercept,
                                                 D.getCol(j),
@@ -2333,12 +2349,48 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
                                                )
                              );
 
-      if (constlambda.getvalue() == true)
-        fcbaseline[fcbaseline.size()-1].set_lambdaconst(lambda);
+        if (constlambda.getvalue() == true)
+          fcbaseline[fcbaseline.size()-1].set_lambdaconst(lambda);
 
-      fcbaseline[fcbaseline.size()-1].init_name(terms[i].varnames[0]);
-      fcbaseline[fcbaseline.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcbaseline[fcbaseline.size()-1]);
+        fcbaseline[fcbaseline.size()-1].init_name(terms[i].varnames[0]);
+        fcbaseline[fcbaseline.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcbaseline[fcbaseline.size()-1]);
+        }
+      else if(proposal == "iwls")
+        {
+/*
+        fcbaselineiwls.push_back( pspline_baseline_IWLS(&generaloptions[generaloptions.size()-1],
+                                                distr[distr.size()-1],
+                                                fcconst_intercept,
+                                                false,
+                                                D.getCol(j),
+                                                nrknots,
+                                                degree,
+                                                po,
+                                                lambda,
+                                                type,
+                                                "unrestricted",
+                                                1,
+                                                false,
+                                                2,
+                                                title,
+                                                pathnonp,
+                                                pathres,
+                                                false,
+                                                gridsize,
+                                                collinpred,
+                                                beg
+                                               )
+                             );
+
+        if (constlambda.getvalue() == true)
+          fcbaselineiwls[fcbaselineiwls.size()-1].set_lambdaconst(lambda);
+
+        fcbaselineiwls[fcbaselineiwls.size()-1].init_name(terms[i].varnames[0]);
+        fcbaselineiwls[fcbaselineiwls.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcbaselineiwls[fcbaselineiwls.size()-1]);
+*/
+        }
 
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                  "_logbaseline_var.raw","_logbaseline_var.res","_logbaseline_variance");
@@ -2357,7 +2409,6 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
         fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
         }
-
       }
 
     }
