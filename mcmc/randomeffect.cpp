@@ -217,9 +217,11 @@ void FULLCOND_random::set_lambdaconst(double la)
 FULLCOND_random::FULLCOND_random(MCMCoptions * o,
                   const datamatrix & intvar,const datamatrix & effmod,
                   const ST::string & t,const ST::string & fp,
-                  const ST::string & pr,const double & la, const double & las)
+                  const ST::string & pr,const double & la, const double & las,
+                  const bool & catsp)
                   : FULLCOND(o,t)
   {
+  catspecific = catsp;
 
   fctype = randomslopes;
 
@@ -279,9 +281,10 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * o,
 FULLCOND_random::FULLCOND_random(MCMCoptions * op,const datamatrix & d,
                                  const ST::string & t,const ST::string & fp,
                                  const ST::string & pr,const double & la,
-                                 const double & las)
+                                 const double & las, const bool & catsp)
                             : FULLCOND(op,t)
   {
+  catspecific = catsp;
 
   fctype = randomeffects;
 

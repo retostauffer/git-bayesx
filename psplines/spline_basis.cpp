@@ -158,9 +158,10 @@ spline_basis::spline_basis(MCMCoptions * o,
                       const datamatrix & d, const unsigned & nrk, const unsigned & degr,
                       const knotpos & kp, const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl)
+                      const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
 
   pseudocontourprob = false;
 
@@ -245,9 +246,10 @@ spline_basis::spline_basis(MCMCoptions * o,const datamatrix & d1,
                       const datamatrix & d2, const unsigned & nrk, const unsigned & degr,
                       const knotpos & kp, const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl)
+                      const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
 
   pseudocontourprob = false;
 

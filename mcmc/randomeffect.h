@@ -111,7 +111,7 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
 
   FULLCOND_random(MCMCoptions * op,const datamatrix & d, const ST::string & t,
                   const ST::string & fp,const ST::string & pr,
-                  const double & la, const double & las);
+                  const double & la, const double & las, const bool & catsp);
 
   // CONSTRUCTOR4
   // random slope (FOR REML)
@@ -119,7 +119,8 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
   FULLCOND_random(MCMCoptions * o,
                   const datamatrix & intvar,const datamatrix & effmod,
                   const ST::string & t,const ST::string & fp,
-                  const ST::string & pr,const double & la, const double & las);
+                  const ST::string & pr,const double & la, const double & las,
+                  const bool & catsp);
 
   void init_name(const ST::string & na);
 

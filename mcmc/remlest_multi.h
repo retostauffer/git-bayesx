@@ -38,6 +38,7 @@ class remlest_multinomial
   int maxit;
   double lowerlim;
   double eps;
+  double maxchange;
 
   double refcat;                                   // Referenz-Kategorie
   unsigned nrcat;                                    // Anzahl Kategorien
@@ -86,7 +87,8 @@ class remlest_multinomial
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const datamatrix & categories, ostream * lo=&cout);
+          const double & maxch, const datamatrix & categories,
+          ostream * lo=&cout);
 
 //------------------------------------------------------------------------------
 //----------------------------- REML estimation --------------------------------

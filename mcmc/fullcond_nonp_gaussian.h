@@ -261,7 +261,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                          const unsigned & maxint, const fieldtype & ft,
                          const ST::string & ti, const ST::string & pres,
                          const double & l, const double & sl,
-                         const unsigned & per=12);
+                         const bool & catsp, const unsigned & per=12);
 
   // CONSTRUCTOR 7: REML: RW1, RW2, seasonal (VCM)
 
@@ -270,7 +270,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                         const unsigned & maxint,
                         const fieldtype & ft,const ST::string & ti,
                         const ST::string & pres,const double & l,
-                        const double & sl, const unsigned & per=12);
+                        const double & sl,
+                        const bool & catsp, const unsigned & per=12);
 
   // Constructor 8: REML spatial
 
@@ -278,7 +279,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                          const datamatrix & d,const MAP::map & m,
                          const ST::string & mn,const ST::string & ti,
                          const ST::string & fp, const ST::string & pres,
-                         const double & l, const double & sl);
+                         const double & l, const double & sl,
+                         const bool & catsp);
 
   // Constructor 9: REML spatial (VCM)
 
@@ -286,7 +288,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                          const datamatrix & d2,const MAP::map & m,
                          const ST::string & mn,const ST::string & ti,
                          const ST::string & fp, const ST::string & pres,
-                         const double & l, const double & sl);
+                         const double & l, const double & sl,
+                         const bool & catsp);
 
   void set_IWLS(const unsigned & uw,bool mode=false);
 

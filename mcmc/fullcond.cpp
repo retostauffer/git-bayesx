@@ -189,7 +189,7 @@ FULLCOND::FULLCOND(const FULLCOND & m)
   dimZ = m.dimZ;
   startlambda = m.startlambda;
   isnonparametric = m.isnonparametric;
-
+  catspecific = m.catspecific;
   }
 
 
@@ -294,7 +294,7 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
   dimZ = m.dimZ;
   startlambda = m.startlambda;
   isnonparametric = m.isnonparametric;
-
+  catspecific = m.catspecific;
   return *this;
 
   }

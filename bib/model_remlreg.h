@@ -24,6 +24,7 @@ class __EXPORT_TYPE term_autoreg_remlreg : public basic_termtype
 
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -60,6 +61,7 @@ class __EXPORT_TYPE term_autoreg_varcoef_remlreg : public basic_termtype
 
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -98,6 +100,7 @@ class __EXPORT_TYPE term_season_remlreg : public basic_termtype
   intoption period;
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -135,6 +138,7 @@ class __EXPORT_TYPE term_season_varcoef_remlreg : public basic_termtype
   intoption period;
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -177,6 +181,7 @@ class __EXPORT_TYPE term_pspline_remlreg : public basic_termtype
   simpleoption diagtransform;
   simpleoption derivative;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
 
   void setdefault(void);
@@ -217,6 +222,7 @@ class __EXPORT_TYPE term_varcoeff_pspline_remlreg : public basic_termtype
   intoption numberknots;
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -261,7 +267,8 @@ class __EXPORT_TYPE term_baseline_remlreg : public basic_termtype
   doubleoption lambda;
   doubleoption lambdastart;
   stroption lower;            // lower boundary of the interval for interval
-                              // censored data  
+                              // censored data
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -298,6 +305,7 @@ class __EXPORT_TYPE term_baseline_varcoeff_remlreg : public basic_termtype
 
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -337,6 +345,7 @@ class __EXPORT_TYPE term_interactpspline_remlreg : public basic_termtype
   intoption numberknots;          // number of knots per dimension
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -375,6 +384,7 @@ class __EXPORT_TYPE term_interactpspline_varcoeff_remlreg : public basic_termtyp
   intoption numberknots;
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -416,6 +426,7 @@ class __EXPORT_TYPE term_geospline_remlreg : public basic_termtype
   stroption map;               // name of the map-object containing the
                                // geographical information
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -457,6 +468,7 @@ class __EXPORT_TYPE term_geospline_varcoeff_remlreg : public basic_termtype
   stroption map;
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -496,6 +508,7 @@ class __EXPORT_TYPE term_spatial_remlreg : public basic_termtype
                                     // geographical information
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -533,6 +546,7 @@ class __EXPORT_TYPE term_spatial_varcoef_remlreg : public basic_termtype
   stroption map;
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -570,6 +584,7 @@ class __EXPORT_TYPE term_random_remlreg : public basic_termtype
 
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -606,6 +621,7 @@ class __EXPORT_TYPE term_randomslope_remlreg : public basic_termtype
 
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -644,6 +660,7 @@ class __EXPORT_TYPE term_kriging_1dim_remlreg : public basic_termtype
   doubleoption maxdist;         // Distance involved in the determination of rho
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -690,6 +707,7 @@ class __EXPORT_TYPE term_kriging_remlreg : public basic_termtype
   intoption maxsteps;       // maximum number of steps for space filling
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -735,6 +753,7 @@ class __EXPORT_TYPE term_kriging_varcoeff_remlreg : public basic_termtype
   intoption maxsteps;
   doubleoption lambda;
   doubleoption lambdastart;
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -783,6 +802,7 @@ class __EXPORT_TYPE term_geokriging_remlreg : public basic_termtype
   doubleoption lambdastart;
   stroption map;            // name of the map-object containing the
                             // geographical information
+  simpleoption catspecific;
 
   void setdefault(void);
 
@@ -830,6 +850,7 @@ class __EXPORT_TYPE term_geokriging_varcoeff_remlreg : public basic_termtype
   doubleoption lambda;
   doubleoption lambdastart;
   stroption map;
+  simpleoption catspecific;
 
   void setdefault(void);
 

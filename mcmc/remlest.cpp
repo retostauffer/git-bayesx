@@ -16,7 +16,7 @@
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,bool dispers,
                    const ST::string & family, const ST::string & ofile,
                   const int & maxiter, const double & lowerlimit,
-                  const double & epsi, ostream * lo)
+                  const double & epsi, const double & maxch, ostream * lo)
     {
 
     #if defined(JAVA_OUTPUT_WINDOW)
@@ -30,6 +30,7 @@
     maxit=maxiter;
     lowerlim=lowerlimit;
     eps=epsi;
+    maxchange=maxch;
 
     fullcond = fc;
     unsigned i;
@@ -315,6 +316,10 @@
 
     // test criterion
     test=((crit1>eps) || (crit2>eps)) && (it<(unsigned)maxit);
+    if(it>2)
+      {
+      test = test && (crit1<maxchange && crit2<maxchange);
+      }
 
     // count iteration
     it=it+1;
@@ -367,17 +372,24 @@
   H.addtodiag(Qinv,X.cols(),beta.rows());
   Hinv=H.inverse();
 
-  if(it<(unsigned)maxit)
+  if(crit1>=maxchange || crit2>=maxchange)
     {
     out("\n");
-    out("REML ESTIMATION CONVERGED\n",true);
+    outerror("ERROR: numerical problems due to large relative changes\n");
+    outerror("       REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  else if(it>=(unsigned)maxit)
+    {
+    out("\n");
+    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
+    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
     out("\n");
     }
   else
     {
     out("\n");
-    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
-    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
+    out("REML ESTIMATION CONVERGED\n",true);
     out("\n");
     }
   out("ESTIMATION RESULTS:\n",true);
@@ -589,6 +601,10 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
 
     // test criterion
     test=(crit1>eps) && (it<(unsigned)maxit);
+    if(it>2)
+      {
+      test = test && crit1<maxchange;
+      }
 
     // count iteration
     it=it+1;
@@ -633,17 +649,24 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
   H.weightedsscp(X,workweight);
   H=H.inverse();
 
-  if(it<(unsigned)maxit)
+  if(crit1>=maxchange)
     {
     out("\n");
-    out("REML ESTIMATION CONVERGED\n",true);
+    outerror("ERROR: numerical problems due to large relative changes\n");
+    outerror("       REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  else if(it>=(unsigned)maxit)
+    {
+    out("\n");
+    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
+    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
     out("\n");
     }
   else
     {
     out("\n");
-    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
-    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
+    out("REML ESTIMATION CONVERGED\n",true);
     out("\n");
     }
   out("ESTIMATION RESULTS:\n",true);
@@ -994,6 +1017,10 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
 
     // test criterion
     test=((crit1>eps) || (crit2>eps)) && (it<(unsigned)maxit);
+    if(it>2)
+      {
+      test = test && (crit1<maxchange && crit2<maxchange);
+      }
 
     // count iteration
     it=it+1;
@@ -1049,17 +1076,24 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
   H.addtodiag(Qinv,X.cols(),beta.rows());
   Hinv=H.inverse();
 
-  if(it<(unsigned)maxit)
+  if(crit1>=maxchange || crit2>=maxchange)
     {
     out("\n");
-    out("REML ESTIMATION CONVERGED\n",true);
+    outerror("ERROR: numerical problems due to large relative changes\n");
+    outerror("       REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  else if(it>=(unsigned)maxit)
+    {
+    out("\n");
+    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
+    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
     out("\n");
     }
   else
     {
     out("\n");
-    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
-    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
+    out("REML ESTIMATION CONVERGED\n",true);
     out("\n");
     }
   out("ESTIMATION RESULTS:\n",true);
@@ -1358,6 +1392,10 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
 
     // test criterion
     test=((crit1>eps) || (crit2>eps) && (it<(unsigned)maxit));
+    if(it>2)
+      {
+      test = test && crit1<maxchange;
+      }
 
     // count iteration
     it=it+1;
@@ -1408,17 +1446,24 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
 
   //write results
 
-  if(it<(unsigned)maxit)
+  if(crit1>=maxchange || crit2>=maxchange)
     {
     out("\n");
-    out("REML ESTIMATION CONVERGED\n",true);
+    outerror("ERROR: numerical problems due to large relative changes\n");
+    outerror("       REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  else if(it>=(unsigned)maxit)
+    {
+    out("\n");
+    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
+    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
     out("\n");
     }
   else
     {
     out("\n");
-    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
-    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
+    out("REML ESTIMATION CONVERGED\n",true);
     out("\n");
     }
   out("ESTIMATION RESULTS:\n",true);
@@ -2327,6 +2372,10 @@ bool remlest::estimate_survival(const datamatrix resp,
 
     // test criterion
     test=((crit1>eps) || (crit2>eps)) && (it<(unsigned)maxit);
+    if(it>2)
+      {
+      test = test && (crit1<maxchange && crit2<maxchange);
+      }
 
     out("  iteration "+ST::inttostring(it)+"\n");
     out("  relative changes in the regression coefficients: "+
@@ -2339,17 +2388,24 @@ bool remlest::estimate_survival(const datamatrix resp,
     it=it+1;
     }
 
-  if(it<(unsigned)maxit)
+  if(crit1>=maxchange || crit2>=maxchange)
     {
     out("\n");
-    out("REML ESTIMATION CONVERGED\n",true);
+    outerror("ERROR: numerical problems due to large relative changes\n");
+    outerror("       REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  else if(it>=(unsigned)maxit)
+    {
+    out("\n");
+    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
+    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
     out("\n");
     }
   else
     {
     out("\n");
-    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
-    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
+    out("REML ESTIMATION CONVERGED\n",true);
     out("\n");
     }
   out("ESTIMATION RESULTS:\n",true);
@@ -3618,6 +3674,10 @@ bool remlest::estimate_survival_interval(datamatrix resp,
 
     // test criterion
     test=((crit1>eps) || (crit2>eps)) && (it<(unsigned)maxit);
+    if(it>2)
+      {
+      test = test && (crit1<maxchange && crit2<maxchange);
+      }
 
     out("  iteration "+ST::inttostring(it)+"\n");
     out("  relative changes in the regression coefficients: "+
@@ -3630,17 +3690,24 @@ bool remlest::estimate_survival_interval(datamatrix resp,
     it=it+1;
     }
 
-  if(it<(unsigned)maxit)
+  if(crit1>=maxchange || crit2>=maxchange)
     {
     out("\n");
-    out("REML ESTIMATION CONVERGED\n",true);
+    outerror("ERROR: numerical problems due to large relative changes\n");
+    outerror("       REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  else if(it>=(unsigned)maxit)
+    {
+    out("\n");
+    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
+    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
     out("\n");
     }
   else
     {
     out("\n");
-    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
-    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
+    out("REML ESTIMATION CONVERGED\n",true);
     out("\n");
     }
   out("ESTIMATION RESULTS:\n",true);
@@ -5350,6 +5417,10 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
 
     // test criterion
     test=((crit1>eps) || (crit2>eps)) && (it<(unsigned)maxit);
+    if(it>2)
+      {
+      test = test && (crit1<maxchange && crit2<maxchange);
+      }
 
     out("  iteration "+ST::inttostring(it)+"\n");
     out("  relative changes in the regression coefficients: "+
@@ -5362,17 +5433,24 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
     it=it+1;
     }
 
-  if(it<(unsigned)maxit)
+  if(crit1>=maxchange || crit2>=maxchange)
     {
     out("\n");
-    out("REML ESTIMATION CONVERGED\n",true);
+    outerror("ERROR: numerical problems due to large relative changes\n");
+    outerror("       REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  else if(it>=(unsigned)maxit)
+    {
+    out("\n");
+    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
+    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
     out("\n");
     }
   else
     {
     out("\n");
-    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
-    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
+    out("REML ESTIMATION CONVERGED\n",true);
     out("\n");
     }
   out("ESTIMATION RESULTS:\n",true);

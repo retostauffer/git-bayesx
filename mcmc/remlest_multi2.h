@@ -39,6 +39,7 @@ class remlest_ordinal
   int maxit;
   double lowerlim;
   double eps;
+  double maxchange;
 
   double refcat;                                   // Referenz-Kategorie
   unsigned nrcat;                                    // Anzahl Kategorien
@@ -55,6 +56,12 @@ class remlest_ordinal
 
   vector<unsigned> xcut;                        // partition of X
   vector<unsigned> zcut;                        // partition of Z
+
+  vector<unsigned> xcutbeta;                    // partition of fixed part in beta
+  vector<unsigned> zcutbeta;                    // partition of random part in beta
+
+  vector<bool> catspecific;                     // true if corresponding effect is
+                                                // assumed to be category-specific
 
   statmatrix<double> beta;                          // regression coefficients
   statmatrix<double> theta;                         // variance parameters
@@ -79,7 +86,8 @@ class remlest_ordinal
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const datamatrix & categories, ostream * lo=&cout);
+          const double & maxch, const datamatrix & categories,
+          ostream * lo=&cout);
 
 //------------------------------------------------------------------------------
 //----------------------------- REML estimation --------------------------------
@@ -90,6 +98,13 @@ class remlest_ordinal
   // Task: Perform REML-estimation with nonparametric terms
 
   bool estimate(const datamatrix resp, const datamatrix & offset,
+                const datamatrix & weight);
+
+  // Function: estimate2
+  // Task: Perform REML-estimation with nonparametric terms and
+  //       category-specific effects
+
+  bool estimate2(const datamatrix resp, const datamatrix & offset,
                 const datamatrix & weight);
 
   // Function: estimate_glm

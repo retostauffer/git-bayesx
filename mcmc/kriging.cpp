@@ -10,9 +10,11 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & v1,
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu,const fieldtype & ft, const ST::string & ti,
                const ST::string & fp,const ST::string & pres, const double & l,
-               const double & sl)
+               const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
+
   mapexisting=false;
   plotstyle=noplot;
 
@@ -101,9 +103,11 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o,
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu,const fieldtype & ft, const ST::string & ti,
                const ST::string & fp,const ST::string & pres, const double & l,
-               const double & sl)
+               const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
+
   mapexisting=false;
   plotstyle=noplot;
 
@@ -194,9 +198,11 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & region,
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl)
+               const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
+
   m = mp;
   mapexisting = true;
   mapname = mn;
@@ -299,9 +305,11 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl)
+               const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
+
   m = mp;
   mapexisting = true;
   mapname = mn;
@@ -403,9 +411,11 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
                const double & n, const double & maxd,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl)
+               const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
+
   mapexisting=false;
   plotstyle=plotnonp;
 

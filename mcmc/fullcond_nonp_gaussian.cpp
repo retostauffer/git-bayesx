@@ -11,10 +11,11 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
                         const datamatrix & d,const MAP::map & m,
                         const ST::string & mn,const ST::string & ti,
                         const ST::string & fp, const ST::string & pres,
-                        const double & l, const double & sl)
+                        const double & l, const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
 
   {
+  catspecific = catsp;
 
   pathcurrent = pres;
   pathresult = pres;
@@ -89,10 +90,12 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
                         const MAP::map & m, const ST::string & mn,
                         const ST::string & ti, const ST::string & fp,
                         const ST::string & pres, const double & l,
-                        const double & sl)
+                        const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
 
   {
+  catspecific = catsp;
+
   data_forfixed = d2;
 
   pathcurrent = pres;
@@ -167,9 +170,11 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
                         const datamatrix & d,const unsigned & maxint,
                         const fieldtype & ft,const ST::string & ti,
                         const ST::string & pres,const double & l,
-                        const double & sl, const unsigned & per)
+                        const double & sl, const bool & catsp,
+                        const unsigned & per)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
 
   fctype = nonparametric;
 
@@ -224,9 +229,11 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
                         const unsigned & maxint,
                         const fieldtype & ft,const ST::string & ti,
                         const ST::string & pres,const double & l,
-                        const double & sl, const unsigned & per)
+                        const double & sl,
+                        const bool & catsp, const unsigned & per)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
 
   fctype = nonparametric;
 
@@ -3070,12 +3077,9 @@ void FULLCOND_nonp_gaussian::outresults(void)
           outres << -1 << "   ";
         else
           outres << 0 << "   ";
-
         outres << endl;
         }
-
     }
-
   }
 
 

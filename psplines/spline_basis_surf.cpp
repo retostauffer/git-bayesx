@@ -73,9 +73,10 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
                       const unsigned & nrk, const unsigned & degr,
                       const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl)
+                      const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
 
   mapexisting = false;
   varcoeff = false;
@@ -153,9 +154,10 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
                       const unsigned & nrk, const unsigned & degr,
                       const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres,
-                      const double & l, const double & sl)
+                      const double & l, const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
 
   mapexisting = false;
   varcoeff=true;
@@ -218,9 +220,10 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
                       const unsigned & nrk, const unsigned & degr,
                       const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl)
+                      const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
 
   m = mp;
   mapexisting = true;
@@ -313,9 +316,11 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
                const unsigned & nrk, const unsigned & degr,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl)
+               const double & sl, const bool & catsp)
   : FULLCOND_nonp_basis(o,ti)
   {
+  catspecific = catsp;
+
   m = mp;
   mapexisting = true;
   mapname = mn;

@@ -21,8 +21,8 @@ administrator_basic * adb,
 vector<MCMC::FULLCOND*> & fc,datamatrix & re,
                 const ST::string & family, const ST::string & ofile,
                 const int & maxiter, const double & lowerlimit,
-                const double & epsi, const datamatrix & categories,
-                ostream * lo)
+                const double & epsi, const double & maxch,
+                const datamatrix & categories, ostream * lo)
   {
 
   nrcat2=categories.rows();
@@ -42,9 +42,10 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
   maxit=maxiter;
   lowerlim=lowerlimit;
   eps=epsi;
+  maxchange=maxch;
 
   fullcond = fc;
-  unsigned i, j;
+  unsigned i, j, k;
 
   xcut.push_back(0);
   zcut.push_back(0);
@@ -68,10 +69,75 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
     fullcond[i]->createreml(X,Z,xcut[i],zcut[i-1]);
     }
 
-  totalnrfixed=X.cols()+nrcat2-1;
-  totalnrpar=totalnrfixed+Z.cols();
+  bool catspec=false;
+  for(i=0; i<fullcond.size(); i++)
+    {
+    catspecific.push_back(fullcond[i]->get_catspecific());
+    if(catspecific[i])
+      {
+      catspec=true;
+      }
+    }
 
-  beta=statmatrix<double>(totalnrpar,1,0);
+  if(catspec)
+    {
+    xcutbeta.push_back(0);
+    zcutbeta.push_back(0);
+    xcutbeta.push_back(fullcond[0]->get_dimX()+nrcat2-1);
+    for(i=1; i<fullcond.size(); i++)
+      {
+      if(catspecific[i])
+        {
+        for(j=0; j<nrcat2; j++)
+          {
+          xcutbeta.push_back(xcutbeta[xcutbeta.size()-1]+fullcond[i]->get_dimX());
+          zcutbeta.push_back(zcutbeta[zcutbeta.size()-1]+fullcond[i]->get_dimZ());
+          }
+        }
+      else
+        {
+        xcutbeta.push_back(xcutbeta[xcutbeta.size()-1]+fullcond[i]->get_dimX());
+        zcutbeta.push_back(zcutbeta[zcutbeta.size()-1]+fullcond[i]->get_dimZ());
+        }
+      }
+    totalnrfixed = xcutbeta[xcutbeta.size()-1];
+    totalnrpar = totalnrfixed+zcutbeta[zcutbeta.size()-1];
+
+    beta=statmatrix<double>(totalnrpar,1,0);
+    theta=statmatrix<double>(zcutbeta.size()-1,1,0);
+
+    k=0;
+    for(i=1; i<fullcond.size(); i++)
+      {
+      if(catspecific[i])
+        {
+        for(j=0; j<nrcat2; j++)
+          {
+          theta(k,0) = fullcond[i]->get_startlambda();
+          k++;
+          }
+        }
+      else
+        {
+        theta(k,0) = fullcond[i]->get_startlambda();
+        k++;
+        }
+      }
+    }
+  else
+    {
+    totalnrfixed=X.cols()+nrcat2-1;
+    totalnrpar=totalnrfixed+Z.cols();
+
+    beta=statmatrix<double>(totalnrpar,1,0);
+    theta=statmatrix<double>(zcut.size()-1,1,0);
+
+    for(i=1; i<fullcond.size(); i++)
+      {
+      theta(i-1,0) = fullcond[i]->get_startlambda();
+      }
+    }
+
 // Startwerte für die Schwellenwerte bestimmen
 // Berechne Häufigkeiten
   if(respfamily=="cumlogit" || respfamily=="cumprobit")
@@ -106,18 +172,405 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
         }
       }
     }
-
-  theta=statmatrix<double>(zcut.size()-1,1,0);
-
-  for(i=1; i<fullcond.size(); i++)
-    {
-    theta(i-1,0) = fullcond[i]->get_startlambda();
-    }
   }
 
 //------------------------------------------------------------------------------
 //----------------------------- Estimation -------------------------------------
 //------------------------------------------------------------------------------
+
+bool remlest_ordinal::estimate2(const datamatrix resp, const datamatrix & offset,
+                const datamatrix & weight)
+  {
+  unsigned i, j, k, l;
+
+  outoptions();
+  out("\n");
+
+  for(i=0;i<fullcond.size();i++)
+    fullcond[i]->outoptionsreml();
+
+  //----------------------------------------------------------------------------
+  //--- Konstruiere großes X und großes Z
+  //----------------------------------------------------------------------------
+
+  out("\n");
+  out("REML ESTIMATION STARTED\n",true);
+  out("\n");
+
+  bool stop = check_pause();
+  if (stop)
+    return true;
+
+  double help;
+  datamatrix helpmat(nrcat2,1,0);
+  datamatrix helpmat2(resp.rows(),1,0);
+
+  // Matrix to store old versions of beta and theta
+  statmatrix<double>betaold(beta.rows(),1,0);
+  statmatrix<double>thetaold(theta.rows(),1,0);
+
+  // Score-function and expected Fisher information for theta
+  statmatrix<double>score(theta.rows(),1,0);
+  statmatrix<double>Fisher(theta.rows(),theta.rows(),0);
+
+  // Number of iterations
+  unsigned it=1;
+
+  // Criteria to detemine convergence
+  double crit1=1;                //relative changes in regression parameters
+  double crit2=1;                //relative changes in variance parameters
+  bool test=true;
+
+  vector<double>stopcrit(theta.rows(),10);
+  vector<int>its(theta.rows(),0);
+  vector<int>signs(theta.rows(),1);
+
+  // Linear predictor and indicator response
+  statmatrix<double>respind((nrcat2)*resp.rows(),1,0);
+  statmatrix<double>eta(respind.rows(),1,0);
+  compute_respind(resp,respind);
+
+  // Working observations and weights
+  statmatrix<double>worky(respind.rows(),1,0);
+  statmatrix<double>workweight(respind.rows(),nrcat2,0);
+  statmatrix<double>mu(respind.rows(),1,0);
+
+  // Matrix containing the inverse covariance matrix of the random effects
+  statmatrix<double>Qinv(Z.cols(),1,0);
+
+  // Matrices for Fisher scoring (regression parameters)
+  statmatrix<double>H(beta.rows(),beta.rows(),0);
+  statmatrix<double>H1(beta.rows(),1,0);
+
+  // Matrices for Fisher scoring (variance parameters)
+  statmatrix<double>Hinv(beta.rows(),beta.rows(),0);
+  statmatrix<double>wresid(nrcat2,resp.rows(),0);                  //matrix containing row vectors !!
+
+  // Transform smoothing paramater starting values to variances
+  for(i=0; i<theta.rows(); i++)
+    {
+    theta(i,0)=1/theta(i,0);
+    }
+
+  while(test==true)
+    {
+
+    // store current values in betaold and thetaold and compute Qinv
+    betaold=beta;
+    thetaold=theta;
+
+//------------------------------------------------------------------------------
+// anpassen
+
+    for(i=0, l=0; i<theta.rows(); i++)
+      {
+      for(k=zcut[i]; k<zcut[i+1]; k++, l++)
+        {
+        Qinv(l,0)=1/theta(i,0);
+        }
+      }
+
+//------------------------------------------------------------------------------
+// neue Funktion compute_eta2
+
+    compute_eta2(eta);
+
+    compute_weights(mu,workweight,worky,eta,respind);
+
+    stop = check_pause();
+    if (stop)
+      return true;
+
+//------------------------------------------------------------------------------
+// neue Funktion compute_sscp2
+
+    compute_sscp2(H,H1,workweight,worky);
+    H.addtodiag(Qinv,totalnrfixed,totalnrpar);
+
+    // Fisher-Scoring for beta
+    beta=H.solve(H1);
+
+    // update linear predictor and compute residuals
+    compute_eta2(eta);
+    worky = worky - eta;
+    for(i=0; i<resp.rows(); i++)
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        wresid(j,i)=(workweight.getRow(i*nrcat2+j)*worky.getRowBlock(i*nrcat2,(i+1)*nrcat2))(0,0);
+        }
+      }
+
+    // transform theta
+    for(i=0; i<theta.rows(); i++)
+      {
+      thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
+      }
+
+    Hinv=H.inverse();
+    H.subfromdiag(Qinv,totalnrfixed,totalnrpar);
+
+    stop = check_pause();
+    if (stop)
+      return true;
+
+    // compute score-function and expected fisher information
+
+//------------------------------------------------------------------------------
+// anpassen (zcutbeta)
+
+    for(i=0; i<theta.rows(); i++)
+      {
+      score(i,0)=-0.5*(H.getBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i],totalnrfixed+zcut[i+1],totalnrfixed+zcut[i+1])*thetaold(i,0)*2).trace()+
+                 0.5*((H.getRowBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1]))*Hinv*(H.getColBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1]))*thetaold(i,0)*2).trace();
+      for(k=0; k<theta.rows(); k++)
+        {
+        Fisher(i,k)=0.5*(H.getBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[k],totalnrfixed+zcut[i+1],totalnrfixed+zcut[k+1])*H.getBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[i],totalnrfixed+zcut[k+1],totalnrfixed+zcut[i+1])*thetaold(i,0)*4*thetaold(k,0)).trace()-
+                    (H.getRowBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[k+1])*Hinv*H.getColBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1])*H.getBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[k],totalnrfixed+zcut[i+1],totalnrfixed+zcut[k+1])*thetaold(i,0)*4*thetaold(k,0)).trace()+
+                    0.5*(H.getRowBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1])*Hinv*H.getColBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[k+1])*H.getRowBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[k+1])*Hinv*H.getColBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1])*thetaold(i,0)*4*thetaold(k,0)).trace();
+        Fisher(k,i)=Fisher(i,k);
+        }
+      }
+
+    for(i=0; i<theta.rows(); i++)
+      {
+      for(l=zcut[i]; l<zcut[i+1]; l++)
+        {
+        help=0;
+        for(j=0; j<nrcat2; j++)
+          {
+          help += (wresid.getRow(j)*(Z.getCol(l)))(0,0);
+          }
+        score(i,0) += 0.5*help*help*thetaold(i,0)*2;
+        }
+      }
+
+    // fisher scoring for theta
+    theta = thetaold + Fisher.solve(score);
+
+    // transform theta back to original parameterisation
+
+    for(i=0; i<theta.rows(); i++)
+      {
+      signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
+      theta(i,0) *= theta(i,0);
+      thetaold(i,0) *= thetaold(i,0);
+      }
+
+    // test whether to stop estimation of theta[i]
+
+    //compute norm of eta for the different catetgories
+    helpmat=datamatrix(nrcat2,1,0);
+    for(i=0; i<resp.rows(); i++)
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        helpmat(j,0) += eta(i*nrcat2+j,0)*eta(i*nrcat2+j,0);
+        }
+      }
+    for(j=0; j<nrcat2; j++)
+      {
+      helpmat(j,0) = sqrt(helpmat(j,0));
+      }
+    help=helpmat.max(0);
+
+//------------------------------------------------------------------------------
+// anpassen
+
+    // compute norm of the random parts
+   for(i=0; i<theta.rows(); i++)
+     {
+     helpmat2=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1]);
+     stopcrit[i]=helpmat2.norm(0)/help;
+     if(stopcrit[i]<lowerlim)
+       {
+       theta(i,0)=thetaold(i,0);
+       }
+     else
+       {
+       its[i]=it;
+       }
+     }
+
+    // compute convergence criteria
+    help=betaold.norm(0);
+    if(help==0)
+      {
+      help=0.00001;
+      }
+    betaold.minus(betaold,beta);
+    crit1 = betaold.norm(0)/help;
+
+    help=thetaold.norm(0);
+    if(help==0)
+      {
+      help=0.00001;
+      }
+    thetaold.minus(thetaold,theta);
+    crit2 = thetaold.norm(0)/help;
+
+    stop = check_pause();
+    if (stop)
+      return true;
+
+    out("  iteration "+ST::inttostring(it)+"\n");
+    out("  relative changes in the regression coefficients: "+
+         ST::doubletostring(crit1,6)+"\n");
+    out("  relative changes in the variance parameters:     "+
+         ST::doubletostring(crit2,6)+"\n");
+    out("\n");
+
+    // test criterion
+    test=((crit1>eps) || (crit2>eps)) && (it<(unsigned)maxit);
+    if(it>2)
+      {
+      test = test && (crit1<maxchange && crit2<maxchange);
+      }
+
+    // count iteration
+    it=it+1;
+    }
+
+  if(crit1>=maxchange || crit2>=maxchange)
+    {
+    out("\n");
+    outerror("ERROR: numerical problems due to large relative changes\n");
+    outerror("       REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  else if(it>=(unsigned)maxit)
+    {
+    out("\n");
+    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
+    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  else
+    {
+    out("\n");
+    out("REML ESTIMATION CONVERGED\n",true);
+    out("\n");
+    }
+  out("ESTIMATION RESULTS:\n",true);
+  out("\n");
+
+/*  ofstream outit((outfile+"_it.raw").strtochar());
+  outit << it-1;
+  outit.close();*/
+
+  datamatrix thetareml(theta.rows(),3,0);
+  thetareml.putCol(0,theta);
+  for(i=0; i<theta.rows(); i++)
+    {
+    if(stopcrit[i]<lowerlim)
+      {
+      thetareml(i,1)=1;
+      }
+    thetareml(i,2)=its[i];
+    }
+
+  for(i=nrcat2; i<beta.rows(); i++)
+    {
+    beta(i,0) = -beta(i,0);
+    }
+
+  k=0;
+  for(i=1; i<fullcond.size(); i++)
+    {
+    if(catspecific[i])
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        beta(j,0) -= fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[k],zcut[k-1],k-1,false,xcutbeta[k],totalnrfixed+zcutbeta[k-1],cats(j,0),true,k);
+        k++;
+        }
+      }
+    else
+      {
+      help = fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[k],zcut[k-1],k-1,false,xcut[k]+nrcat2-1,totalnrfixed+zcut[k-1],0,false,k);
+      k++;
+      for(j=0; j<nrcat2; j++)
+        {
+        beta(j,0) -= help;
+        }
+      }
+    }
+  ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,Hinv,nrcat2);
+
+
+  double loglike=0;
+  double aic=0;
+  double bic=0;
+  double gcv=0;
+  double df=(H*Hinv).trace();
+  double refprob;
+
+  for(i=0; i<resp.rows(); i++)
+    {
+    k=0;
+    refprob=0;
+    for(j=0; j<nrcat2; j++)
+      {
+      if(respind(i*nrcat2+j,0)==1)
+        {
+        loglike += log(mu(i*nrcat2+j,0));
+        k=1;
+        }
+      else
+        {
+        refprob += mu(i*nrcat2+j,0);
+        }
+      }
+    if(k==0)
+      {
+      loglike += log(1-refprob);
+      }
+    }
+  loglike *= -2;
+  gcv = loglike/(double)resp.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+  aic = loglike + 2*df;
+  bic = loglike + log(resp.rows())*df;
+
+  out("\n");
+  out("  Model Fit\n",true);
+  out("\n");
+  out("\n");
+  out("  -2*log-likelihood:                 " + ST::doubletostring(loglike,6) + "\n");
+  out("  Degrees of freedom:                " + ST::doubletostring(df,6) + "\n");
+  out("  (conditional) AIC:                 " + ST::doubletostring(aic,6) + "\n");
+  out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
+  out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
+  out("\n");
+
+  out("\n");
+  out("  Additive predictors and expectations\n",true);
+  out("\n");
+  out("\n");
+  out("  Additive predictors and expectations for each observation\n");
+  out("  and category are stored in file\n");
+  out("  "+outfile+"_predict.raw\n");
+  out("\n");
+  out("\n");
+
+  ofstream outpredict((outfile+"_predict.raw").strtochar());
+  for(j=0; j< nrcat2; j++)
+    {
+    outpredict << "eta" << cats(j,0) << " ";
+    outpredict << "mu" << cats(j,0) << " ";
+    }
+  outpredict << endl;
+  for(i=0; i<nrobs; i++)
+    {
+    for(j=0; j<nrcat2; j++)
+      {
+      outpredict << eta(i*nrcat2+j,0) << " " << mu(i*nrcat2+j,0) << " ";
+      }
+    outpredict << endl;
+    }
+  outpredict.close();
+
+  return false;
+  }
 
 bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
                 const datamatrix & weight)
@@ -342,25 +795,35 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
 
     // test criterion
     test=((crit1>eps) || (crit2>eps)) && (it<(unsigned)maxit);
+    if(it>2)
+      {
+      test = test && (crit1<maxchange && crit2<maxchange);
+      }
 
     // count iteration
     it=it+1;
     }
 
-  if(it<(unsigned)maxit)
+  if(crit1>=maxchange || crit2>=maxchange)
     {
     out("\n");
-    out("REML ESTIMATION CONVERGED\n",true);
+    outerror("ERROR: numerical problems due to large relative changes\n");
+    outerror("       REML ESTIMATION DID NOT CONVERGE\n");
     out("\n");
     }
-  else
+  else if(it>=(unsigned)maxit)
     {
     out("\n");
     outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
     outerror("         REML ESTIMATION DID NOT CONVERGE\n");
     out("\n");
     }
-
+  else
+    {
+    out("\n");
+    out("REML ESTIMATION CONVERGED\n",true);
+    out("\n");
+    }
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
@@ -553,23 +1016,34 @@ bool remlest_ordinal::estimate_glm(const datamatrix resp,
 
     // test criterion
     test=(crit1>eps) && (it<(unsigned)maxit);
+    if(it>2)
+      {
+      test = test && crit1<maxchange;
+      }
 
     // count iteration
     it=it+1;
 
     }
 
-  if(it<(unsigned)maxit)
+  if(crit1>=maxchange)
     {
     out("\n");
-    out("REML ESTIMATION CONVERGED\n",true);
+    outerror("ERROR: numerical problems due to large relative changes\n");
+    outerror("       REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  else if(it>=(unsigned)maxit)
+    {
+    out("\n");
+    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
+    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
     out("\n");
     }
   else
     {
     out("\n");
-    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
-    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
+    out("REML ESTIMATION CONVERGED\n",true);
     out("\n");
     }
   out("ESTIMATION RESULTS:\n",true);

@@ -185,6 +185,7 @@ class __EXPORT_TYPE FULLCOND
   unsigned dimZ;
   double startlambda;
   bool isnonparametric;
+  bool catspecific;
 
   //----------------------------------------------------------------------------
   //------------------------ end: Variables for REML ---------------------------
@@ -978,7 +979,12 @@ class __EXPORT_TYPE FULLCOND
   bool get_isnonparametric(void)
     {
     return isnonparametric;
-    }  
+    }
+
+  bool get_catspecific(void)
+    {
+    return catspecific;
+    }
 
   virtual void createreml(datamatrix & X,datamatrix & Z,
                           const unsigned & Xpos, const unsigned & Zpos)

@@ -87,7 +87,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl);
+               const double & sl, const bool & catsp);
 
 
   // Constructor 2: varcoef
@@ -99,7 +99,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl);
+               const double & sl, const bool & catsp);
 
   // Constructor 3: geokriging
 
@@ -109,7 +109,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl);
+               const double & sl, const bool & catsp);
 
   // Constructor 4: geokriging (varcoeff)
 
@@ -120,7 +120,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl);
+               const double & sl, const bool & catsp);
 
   // Constructor 4
 
@@ -128,7 +128,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const double & n, const double & maxd,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl);
+               const double & sl, const bool & catsp);
 
   // DESTRUCTOR
 

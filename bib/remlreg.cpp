@@ -275,6 +275,7 @@ void remlreg::create(void)
   maxit = intoption("maxit",400,1,100000);
   lowerlim = doubleoption("lowerlim",0.001,0,1);
   eps = doubleoption("eps",0.00001,0,1);
+  maxchange = doubleoption("maxchange",1000000,0,100000000);
 
   reference = doubleoption("reference",0,-10000,10000);
 
@@ -294,6 +295,8 @@ void remlreg::create(void)
   regressoptions.push_back(&maxit);
   regressoptions.push_back(&lowerlim);
   regressoptions.push_back(&eps);
+  regressoptions.push_back(&maxchange);
+
   regressoptions.push_back(&reference);
 
   regressoptions.push_back(&noconst);
@@ -960,6 +963,7 @@ bool remlreg::create_nonprw1rw2(const unsigned & collinpred)
 
   double hd;
   double lambda, startlambda;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -980,6 +984,15 @@ bool remlreg::create_nonprw1rw2(const unsigned & collinpred)
       lambda = hd;
       f = (terms[i].options[2]).strtodouble(hd);
       startlambda = hd;
+      if(terms[i].options[3] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
+
 
       if (f==1)
         return true;
@@ -989,7 +1002,7 @@ bool remlreg::create_nonprw1rw2(const unsigned & collinpred)
 
       fcnonpgaussian.push_back(FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j),
                          unsigned(maxint.getvalue()),type,
-                         title,pathres,lambda,startlambda));
+                         title,pathres,lambda,startlambda,catsp));
 
       fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
       fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
@@ -1011,6 +1024,7 @@ bool remlreg::create_nonprw1rw2_varcoef(const unsigned & collinpred)
 
   double hd;
   double lambda, startlambda;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -1032,6 +1046,14 @@ bool remlreg::create_nonprw1rw2_varcoef(const unsigned & collinpred)
       lambda = hd;
       f = (terms[i].options[2]).strtodouble(hd);
       startlambda = hd;
+      if(terms[i].options[3] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1042,7 +1064,7 @@ bool remlreg::create_nonprw1rw2_varcoef(const unsigned & collinpred)
       fcnonpgaussian.push_back(FULLCOND_nonp_gaussian(&generaloptions,
                          D.getCol(j2),D.getCol(j1),
                          unsigned(maxint.getvalue()),type,
-                         title,pathres,lambda,startlambda));
+                         title,pathres,lambda,startlambda,catsp));
 
       vector<ST::string> na;
       na.push_back(terms[i].varnames[1]);
@@ -1068,6 +1090,7 @@ bool remlreg::create_nonpseason(const unsigned & collinpred)
   double hd;
   double lambda, startlambda;
   unsigned per;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -1084,6 +1107,14 @@ bool remlreg::create_nonpseason(const unsigned & collinpred)
       lambda = hd;
       f = (terms[i].options[3]).strtodouble(hd);
       startlambda = hd;
+      if(terms[i].options[4] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1097,7 +1128,7 @@ bool remlreg::create_nonpseason(const unsigned & collinpred)
       FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j),
                                          unsigned(maxint.getvalue()),
                                          MCMC::seasonal,title,pathres,
-                                         lambda,startlambda,per));
+                                         lambda,startlambda,catsp,per));
 
       fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
       fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
@@ -1119,6 +1150,7 @@ bool remlreg::create_nonpseason_varcoef(const unsigned & collinpred)
   double hd;
   double lambda, startlambda;
   unsigned per;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -1136,6 +1168,14 @@ bool remlreg::create_nonpseason_varcoef(const unsigned & collinpred)
       lambda = hd;
       f = (terms[i].options[3]).strtodouble(hd);
       startlambda = hd;
+      if(terms[i].options[4] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1150,7 +1190,7 @@ bool remlreg::create_nonpseason_varcoef(const unsigned & collinpred)
       FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j2),D.getCol(j1),
                                          unsigned(maxint.getvalue()),
                                          MCMC::seasonal,title,pathres,
-                                         lambda,startlambda,per));
+                                         lambda,startlambda,catsp,per));
 
       vector<ST::string> na;
       na.push_back(terms[i].varnames[1]);
@@ -1174,6 +1214,7 @@ bool remlreg::create_spatial(const unsigned & collinpred)
   double hd;
   int f;
   double lambda, startlambda;
+  bool catsp;
   unsigned i;
   int j;
 
@@ -1215,6 +1256,14 @@ bool remlreg::create_spatial(const unsigned & collinpred)
       lambda = hd;
       f = (terms[i].options[3]).strtodouble(hd);
       startlambda = hd;
+      if(terms[i].options[4] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1226,7 +1275,7 @@ bool remlreg::create_spatial(const unsigned & collinpred)
 
       fcnonpgaussian.push_back(
       FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j),m,terms[i].options[1],
-                             title,pathnonp,pathres,lambda,startlambda)
+                             title,pathnonp,pathres,lambda,startlambda,catsp)
                            );
 
       if (fcnonpgaussian[fcnonpgaussian.size()-1].get_errors().size() > 0)
@@ -1256,6 +1305,7 @@ bool remlreg::create_spatial_varcoef(const unsigned & collinpred)
   double hd;
   int f;
   double lambda, startlambda;
+  bool catsp;
   unsigned i;
   int j1, j2;
 
@@ -1292,6 +1342,14 @@ bool remlreg::create_spatial_varcoef(const unsigned & collinpred)
       lambda = hd;
       f = (terms[i].options[3]).strtodouble(hd);
       startlambda = hd;
+      if(terms[i].options[4] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1304,7 +1362,7 @@ bool remlreg::create_spatial_varcoef(const unsigned & collinpred)
       fcnonpgaussian.push_back(
       FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j2),D.getCol(j1),m,
                              terms[i].options[1],title,pathnonp,pathres,lambda,
-                             startlambda)
+                             startlambda,catsp)
                            );
 
       if (fcnonpgaussian[fcnonpgaussian.size()-1].get_errors().size() > 0)
@@ -1338,6 +1396,7 @@ bool remlreg::create_pspline(const unsigned & collinpred)
   long h;
   unsigned degree,nrknots;
   double lambda, startlambda;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -1360,6 +1419,14 @@ bool remlreg::create_pspline(const unsigned & collinpred)
       nrknots = unsigned(h);
       f = (terms[i].options[3]).strtodouble(lambda);
       f = (terms[i].options[7]).strtodouble(startlambda);
+      if(terms[i].options[8] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1383,7 +1450,8 @@ bool remlreg::create_pspline(const unsigned & collinpred)
                                               pathnonp,
                                               pathres,
                                               lambda,
-                                              startlambda
+                                              startlambda,
+                                              catsp
                                              )
                            );
       fcpspline[fcpspline.size()-1].init_name(terms[i].varnames[0]);
@@ -1406,6 +1474,7 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
   long h;
   unsigned degree,nrknots;
   double lambda,startlambda;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -1429,6 +1498,14 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
       nrknots = unsigned(h);
       f = (terms[i].options[3]).strtodouble(lambda);
       f = (terms[i].options[4]).strtodouble(startlambda);
+      if(terms[i].options[5] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1456,7 +1533,8 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
                                               pathnonp,
                                               pathres,
                                               lambda,
-                                              startlambda
+                                              startlambda,
+                                              catsp
                                              )
                            );
       vector<ST::string> na;
@@ -1481,6 +1559,7 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
   long h;
   double lambda,startlambda;
   unsigned nrknots,degree;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -1506,6 +1585,15 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
       nrknots = unsigned(h);
       f = (terms[i].options[3]).strtodouble(lambda);
       f = (terms[i].options[4]).strtodouble(startlambda);
+      if(terms[i].options[5] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
+
 
       if (f==1)
         return true;
@@ -1526,7 +1614,8 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
                                       pathnonp,
                                       pathres,
                                       lambda,
-                                      startlambda
+                                      startlambda,
+                                      catsp
                                       ));
 
       vector<ST::string> na;
@@ -1551,6 +1640,7 @@ bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
   long h;
   double lambda,startlambda;
   unsigned nrknots,degree;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -1573,6 +1663,14 @@ bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
       nrknots = unsigned(h);
       f = (terms[i].options[3]).strtodouble(lambda);
       f = (terms[i].options[4]).strtodouble(startlambda);
+      if(terms[i].options[5] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1594,7 +1692,8 @@ bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
                                       pathnonp,
                                       pathres,
                                       lambda,
-                                      startlambda
+                                      startlambda,
+                                      catsp
                                       ));
 
       vector<ST::string> na;
@@ -1620,6 +1719,7 @@ bool remlreg::create_geospline(const unsigned & collinpred)
   long h;
   double lambda,startlambda;
   unsigned nrknots,degree;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -1644,6 +1744,14 @@ bool remlreg::create_geospline(const unsigned & collinpred)
       nrknots = unsigned(h);
       f = (terms[i].options[3]).strtodouble(lambda);
       f = (terms[i].options[5]).strtodouble(startlambda);
+      if(terms[i].options[6] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1685,7 +1793,8 @@ bool remlreg::create_geospline(const unsigned & collinpred)
                                       pathnonp,
                                       pathres,
                                       lambda,
-                                      startlambda
+                                      startlambda,
+                                      catsp
                                       ));
 
       vector<ST::string> na;
@@ -1709,6 +1818,7 @@ bool remlreg::create_geospline_varcoeff(const unsigned & collinpred)
   long h;
   double lambda,startlambda;
   unsigned nrknots,degree;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -1728,6 +1838,15 @@ bool remlreg::create_geospline_varcoeff(const unsigned & collinpred)
       nrknots = unsigned(h);
       f = (terms[i].options[3]).strtodouble(lambda);
       f = (terms[i].options[5]).strtodouble(startlambda);
+      if(terms[i].options[6] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
+
 
       if (f==1)
         return true;
@@ -1771,7 +1890,8 @@ bool remlreg::create_geospline_varcoeff(const unsigned & collinpred)
                                       pathnonp,
                                       pathres,
                                       lambda,
-                                      startlambda
+                                      startlambda,
+                                      catsp
                                       ));
 
       vector<ST::string> na;
@@ -1796,7 +1916,7 @@ bool remlreg::create_kriging(const unsigned & collinpred)
   long h;
   double nu,maxdist,p,q,lambda,startlambda;
   unsigned nrknots, maxsteps;
-  bool full;
+  bool full, catsp;
   int f;
 
   unsigned i;
@@ -1854,6 +1974,14 @@ bool remlreg::create_kriging(const unsigned & collinpred)
       maxsteps = unsigned(h);
       f = (terms[i].options[9]).strtodouble(lambda);
       f = (terms[i].options[10]).strtodouble(startlambda);
+      if(terms[i].options[11] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1910,7 +2038,8 @@ bool remlreg::create_kriging(const unsigned & collinpred)
               pathnonp,
               pathres,
               lambda,
-              startlambda
+              startlambda,
+              catsp
               ));
 
       vector<ST::string> na;
@@ -1933,6 +2062,7 @@ bool remlreg::create_kriging_1dim(const unsigned & collinpred)
   ST::string pathnonp;
   ST::string pathres;
   double nu,maxdist,lambda,startlambda;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -1975,6 +2105,14 @@ bool remlreg::create_kriging_1dim(const unsigned & collinpred)
         }
       f = (terms[i].options[3]).strtodouble(lambda);
       f = (terms[i].options[4]).strtodouble(startlambda);
+      if(terms[i].options[5] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -1992,7 +2130,8 @@ bool remlreg::create_kriging_1dim(const unsigned & collinpred)
               pathnonp,
               pathres,
               lambda,
-              startlambda
+              startlambda,
+              catsp
               ));
 
       vector<ST::string> na;
@@ -2016,7 +2155,7 @@ bool remlreg::create_kriging_varcoeff(const unsigned & collinpred)
   long h;
   double nu,maxdist,p,q,lambda,startlambda;
   unsigned nrknots, maxsteps;
-  bool full;
+  bool full, catsp;
   int f;
 
   unsigned i;
@@ -2078,6 +2217,14 @@ bool remlreg::create_kriging_varcoeff(const unsigned & collinpred)
 
       f = (terms[i].options[9]).strtodouble(lambda);
       f = (terms[i].options[10]).strtodouble(startlambda);
+      if(terms[i].options[11] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -2134,7 +2281,8 @@ bool remlreg::create_kriging_varcoeff(const unsigned & collinpred)
               pathnonp,
               pathres,
               lambda,
-              startlambda
+              startlambda,
+              catsp
               ));
 
       vector<ST::string> na;
@@ -2160,7 +2308,7 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
   long h;
   double nu,maxdist,p,q,lambda,startlambda;
   unsigned nrknots, maxsteps;
-  bool full;
+  bool full, catsp;
   int f;
 
   unsigned i;
@@ -2217,6 +2365,14 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
       maxsteps = unsigned(h);
       f = (terms[i].options[9]).strtodouble(lambda);
       f = (terms[i].options[10]).strtodouble(startlambda);
+      if(terms[i].options[12] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -2291,7 +2447,8 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
               pathnonp,
               pathres,
               lambda,
-              startlambda
+              startlambda,
+              catsp
               ));
 
       vector<ST::string> na;
@@ -2315,7 +2472,7 @@ bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
   long h;
   double nu,maxdist,p,q,lambda,startlambda;
   unsigned nrknots, maxsteps;
-  bool full;
+  bool full, catsp;
   int f;
 
   unsigned i;
@@ -2373,6 +2530,14 @@ bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
       maxsteps = unsigned(h);
       f = (terms[i].options[9]).strtodouble(lambda);
       f = (terms[i].options[10]).strtodouble(startlambda);
+      if(terms[i].options[12] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -2448,7 +2613,8 @@ bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
               pathnonp,
               pathres,
               lambda,
-              startlambda
+              startlambda,
+              catsp
               ));
 
       vector<ST::string> na;
@@ -2474,6 +2640,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
   long h;
   unsigned degree,nrknots,tgrid,nrquant,nrbetween;
   double lambda, startlambda;
+  bool catsp;
   int f;
   MCMC::knotpos gridpo;
 
@@ -2571,6 +2738,14 @@ bool remlreg::create_baseline(const unsigned & collinpred)
       nrbetween = unsigned(h);
       f = (terms[i].options[7]).strtodouble(lambda);
       f = (terms[i].options[8]).strtodouble(startlambda);
+      if(terms[i].options[10] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -2596,7 +2771,8 @@ bool remlreg::create_baseline(const unsigned & collinpred)
                                               pathres,
                                               lambda,
                                               startlambda,
-                                              gridpo
+                                              gridpo,
+                                              catsp
                                              )
                            );
 
@@ -2619,6 +2795,7 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
   ST::string title;
   double lambda, startlambda;
   unsigned degree,nrknots,tgrid;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -2640,6 +2817,14 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
 
       f = (terms[i].options[1]).strtodouble(lambda);
       f = (terms[i].options[2]).strtodouble(startlambda);
+      if(terms[i].options[3] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -2668,7 +2853,8 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
                                               pathnonp,
                                               pathres,
                                               lambda,
-                                              startlambda
+                                              startlambda,
+                                              catsp
                                              )
                            );
 
@@ -2693,6 +2879,7 @@ bool remlreg::create_random(const unsigned & collinpred)
   ST::string pathres;
   ST::string title;
   double lambda, startlambda;
+  bool catsp;
   int f;
 
   unsigned i;
@@ -2705,6 +2892,14 @@ bool remlreg::create_random(const unsigned & collinpred)
 
       f = (terms[i].options[1]).strtodouble(lambda);
       f = (terms[i].options[2]).strtodouble(startlambda);
+      if(terms[i].options[3] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -2714,7 +2909,7 @@ bool remlreg::create_random(const unsigned & collinpred)
 
       fcrandom.push_back(FULLCOND_random(&generaloptions,
                          D.getCol(j),title,pathnonp,
-                         pathres,lambda,startlambda));
+                         pathres,lambda,startlambda,catsp));
 
       fcrandom[fcrandom.size()-1].init_name(terms[i].varnames[0]);
       fcrandom[fcrandom.size()-1].set_fcnumber(fullcond.size());
@@ -2736,6 +2931,7 @@ bool remlreg::create_randomslope(const unsigned & collinpred)
   unsigned i;
   int j1,j2;
   double lambda, startlambda;
+  bool catsp;
   int f;
   for(i=0;i<terms.size();i++)
     {
@@ -2746,6 +2942,14 @@ bool remlreg::create_randomslope(const unsigned & collinpred)
 
       f = (terms[i].options[1]).strtodouble(lambda);
       f = (terms[i].options[2]).strtodouble(startlambda);
+      if(terms[i].options[3] == "true")
+        {
+        catsp=true;
+        }
+      else
+        {
+        catsp=false;
+        }
 
       if (f==1)
         return true;
@@ -2756,7 +2960,7 @@ bool remlreg::create_randomslope(const unsigned & collinpred)
 
       fcrandom.push_back(FULLCOND_random(&generaloptions,D.getCol(j1),
                           D.getCol(j2),title,pathnonp,pathres,lambda,
-                          startlambda));
+                          startlambda,catsp));
 
       vector<ST::string> varnameshelp;
       varnameshelp.push_back(terms[i].varnames[1]);
@@ -2875,7 +3079,8 @@ void remlrun(remlreg & b)
       b.adminb_p,
       #endif
       b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.cats,b.logout);
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
+      b.maxchange.getvalue(),b.cats,b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE_M.estimate_glm(response,offset,weight);
       else
@@ -2892,7 +3097,8 @@ void remlrun(remlreg & b)
       b.adminb_p,
       #endif
       b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.cats,b.logout);
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
+      b.maxchange.getvalue(),b.cats,b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE_O.estimate_glm(response,offset,weight);
       else
@@ -2910,7 +3116,8 @@ void remlrun(remlreg & b)
       b.adminb_p,
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
+      b.maxchange.getvalue(),b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE.estimate_glm(response,offset,weight);
       else
@@ -2925,7 +3132,8 @@ void remlrun(remlreg & b)
       b.adminb_p,
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
+      b.maxchange.getvalue(),b.logout);
       failure = b.RE.estimate_survival(response,offset,weight);
       }
 // Cox-Modell mit Intervallzensierung
@@ -2937,7 +3145,8 @@ void remlrun(remlreg & b)
       b.adminb_p,
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
+      b.maxchange.getvalue(),b.logout);
       failure = b.RE.estimate_survival_interval(response,offset,weight);
       }
 // Cox-Modell mit Intervallzensierung & Linkstrunkierung
@@ -2949,7 +3158,8 @@ void remlrun(remlreg & b)
       b.adminb_p,
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
+      b.maxchange.getvalue(),b.logout);
       failure = b.RE.estimate_survival_interval2(response,offset,weight);
       }
 // Univariate Modelle mit Dispersionsparameter
@@ -2961,7 +3171,8 @@ void remlrun(remlreg & b)
       b.adminb_p,
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
+      b.maxchange.getvalue(),b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE.estimate_glm_dispers(response,offset,weight);
       else

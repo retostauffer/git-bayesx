@@ -179,6 +179,7 @@ class __EXPORT_TYPE remlreg : public statobject
   intoption maxit;                      // Properties of the estimation
   doubleoption lowerlim;
   doubleoption eps;
+  doubleoption maxchange;
 
   simpleoption noconst;                 // exclude intercept
 

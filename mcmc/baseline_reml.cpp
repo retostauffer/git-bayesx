@@ -16,8 +16,8 @@ baseline_reml::baseline_reml(MCMCoptions * o,
               const unsigned & nrb, const knotpos & kp, const fieldtype & ft,
               const ST::string & ti, const ST::string & fp,
               const ST::string & pres, const double & l, const double & sl,
-              const knotpos & gp)
-  : spline_basis(o,d,nrk,degr,kp,ft,ti,fp,pres,l,sl)
+              const knotpos & gp, const bool & catsp)
+  : spline_basis(o,d,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp)
   {
   unsigned i,j,k;
 
@@ -131,8 +131,8 @@ baseline_reml::baseline_reml(MCMCoptions * o,const datamatrix & d1,
                       const unsigned & degr, const unsigned & tgr,
                       const knotpos & kp, const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl)
-  : spline_basis(o,d1,d2,nrk,degr,kp,ft,ti,fp,pres,l,sl)
+                      const double & sl, const bool & catsp)
+  : spline_basis(o,d1,d2,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp)
   {
   baseline=true;
   interact_var = d2;

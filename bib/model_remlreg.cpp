@@ -11,18 +11,20 @@ term_autoreg_remlreg::term_autoreg_remlreg(void)
   type = "term_autoreg";
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_autoreg_remlreg::setdefault(void)
   {
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_autoreg_remlreg::check(term & t)
   {
   if ( (t.varnames.size() == 1) &&
-       (t.options.size()<=3) && (t.options.size() >= 1) )
+       (t.options.size()<=4) && (t.options.size() >= 1) )
     {
     if (t.options[0] == "rw1")
       t.type = "rw1";
@@ -40,6 +42,7 @@ bool term_autoreg_remlreg::check(term & t)
     optionlist optlist;
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -62,12 +65,22 @@ bool term_autoreg_remlreg::check(term & t)
 
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(3);
+    t.options = vector<ST::string>(4);
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(lambda.getvalue());
     t.options[2] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue()==true)
+      {
+      t.options[3] = "true";
+      }
+    else
+      {
+      t.options[3] = "false";
+      }
+
 
     int b = t.options[2].strtodouble(startl);
     if (b==1)
@@ -104,18 +117,20 @@ term_autoreg_varcoef_remlreg::term_autoreg_varcoef_remlreg(void)
   type = "term_autoreg_varcoef";
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_autoreg_varcoef_remlreg::setdefault(void)
   {
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_autoreg_varcoef_remlreg::check(term & t)
   {
   if ( (t.varnames.size() == 2) &&
-       (t.options.size()<=3) && (t.options.size() >= 1) )
+       (t.options.size()<=4) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "rw1")
@@ -134,6 +149,7 @@ bool term_autoreg_varcoef_remlreg::check(term & t)
     optionlist optlist;
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -156,12 +172,19 @@ bool term_autoreg_varcoef_remlreg::check(term & t)
 
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(3);
+    t.options = vector<ST::string>(4);
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(lambda.getvalue());
     t.options[2] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[3] = "true";
+      }
+    else
+      t.options[3] = "false";
 
     int b = t.options[2].strtodouble(startl);
     if (b==1)
@@ -201,6 +224,7 @@ term_season_remlreg::term_season_remlreg(void)
   period = intoption("period",12,2,72);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_season_remlreg::setdefault(void)
@@ -208,11 +232,12 @@ void term_season_remlreg::setdefault(void)
   period.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_season_remlreg::check(term & t)
   {
-  if ( (t.varnames.size()==1)  && (t.options.size()<=4) &&
+  if ( (t.varnames.size()==1)  && (t.options.size()<=5) &&
        (t.options.size() >= 1) )
     {
 
@@ -232,6 +257,7 @@ bool term_season_remlreg::check(term & t)
     optlist.push_back(&period);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -255,11 +281,19 @@ bool term_season_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(4);
+    t.options = vector<ST::string>(5);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(period.getvalue());
     t.options[2] = ST::doubletostring(lambda.getvalue());
     t.options[3] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[4] = "true";
+      }
+    else
+      {
+      t.options[4] = "false";
+      }
 
     if (t.options[1].strtolong(per) == 1)
       {
@@ -298,6 +332,7 @@ term_season_varcoef_remlreg::term_season_varcoef_remlreg(void)
   period = intoption("period",12,2,72);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_season_varcoef_remlreg::setdefault(void)
@@ -305,11 +340,12 @@ void term_season_varcoef_remlreg::setdefault(void)
   period.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_season_varcoef_remlreg::check(term & t)
   {
-  if ( (t.varnames.size()==2)  && (t.options.size()<=4) &&
+  if ( (t.varnames.size()==2)  && (t.options.size()<=5) &&
        (t.options.size() >= 1) )
     {
 
@@ -329,6 +365,7 @@ bool term_season_varcoef_remlreg::check(term & t)
     optlist.push_back(&period);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -351,11 +388,19 @@ bool term_season_varcoef_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(4);
+    t.options = vector<ST::string>(5);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(period.getvalue());
     t.options[2] = ST::doubletostring(lambda.getvalue());
     t.options[3] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[4] = "true";
+      }
+    else
+      {
+      t.options[4] = "false";
+      }
 
     if (t.options[1].strtolong(per) == 1)
       {
@@ -398,6 +443,7 @@ term_pspline_remlreg::term_pspline_remlreg(void)
   diagtransform = simpleoption("diagtransform",false);
   derivative = simpleoption("derivative",false);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_pspline_remlreg::setdefault(void)
@@ -409,12 +455,13 @@ void term_pspline_remlreg::setdefault(void)
   diagtransform.setdefault();
   derivative.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_pspline_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 8) )
+        && (t.options.size() <= 9) )
     {
     if (t.options[0] == "psplinerw1")
       t.type = "psplinerw1";
@@ -436,6 +483,7 @@ bool term_pspline_remlreg::check(term & t)
     optlist.push_back(&diagtransform);
     optlist.push_back(&derivative);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -458,7 +506,7 @@ bool term_pspline_remlreg::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(8);
+   t.options = vector<ST::string>(9);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(degree.getvalue());
    t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -472,7 +520,7 @@ bool term_pspline_remlreg::check(term & t)
      t.options[6] = "false";
    else
      t.options[6] = "true";
-    t.options[7] = ST::doubletostring(lambdastart.getvalue());
+   t.options[7] = ST::doubletostring(lambdastart.getvalue());
 
    if (lambda.getvalue() < 0)
      {
@@ -486,6 +534,14 @@ bool term_pspline_remlreg::check(term & t)
       {
       setdefault();
       return false;
+      }
+    if(catspecific.getvalue())
+      {
+      t.options[8] = "true";
+      }
+    else
+      {
+      t.options[8] = "false";
       }
 
     setdefault();
@@ -520,6 +576,7 @@ term_varcoeff_pspline_remlreg::term_varcoeff_pspline_remlreg(void)
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",0.1,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_varcoeff_pspline_remlreg::setdefault(void)
@@ -528,12 +585,13 @@ void term_varcoeff_pspline_remlreg::setdefault(void)
   numberknots.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_varcoeff_pspline_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-        && (t.options.size() <= 5) )
+        && (t.options.size() <= 6) )
     {
     if (t.options[0] == "psplinerw1")
       t.type = "varpsplinerw1";
@@ -550,6 +608,7 @@ bool term_varcoeff_pspline_remlreg::check(term & t)
     optlist.push_back(&numberknots);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -572,12 +631,20 @@ bool term_varcoeff_pspline_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(5);
+    t.options = vector<ST::string>(6);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
     t.options[3] = ST::doubletostring(lambda.getvalue());
     t.options[4] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[5] = "true";
+      }
+    else
+      {
+      t.options[5] = "false";
+      }
 
     setdefault();
     return true;
@@ -619,6 +686,7 @@ term_baseline_remlreg::term_baseline_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",1000,0,10000000);
   lower = stroption("lower");
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_baseline_remlreg::setdefault(void)
@@ -631,12 +699,13 @@ void term_baseline_remlreg::setdefault(void)
   numberbetween.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_baseline_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 10) )
+        && (t.options.size() <= 11) )
     {
     if (t.options[0] == "baseline")
       t.type = "baseline";
@@ -658,6 +727,7 @@ bool term_baseline_remlreg::check(term & t)
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
     optlist.push_back(&lower);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -680,7 +750,7 @@ bool term_baseline_remlreg::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(10);
+   t.options = vector<ST::string>(11);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(degree.getvalue());
    t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -691,7 +761,14 @@ bool term_baseline_remlreg::check(term & t)
    t.options[7] = ST::doubletostring(lambda.getvalue());
    t.options[8] = ST::doubletostring(lambdastart.getvalue());
    t.options[9] = lower.getvalue();
-
+   if(catspecific.getvalue())
+     {
+     t.options[10] = "true";
+     }
+   else
+     {
+     t.options[10] = "false";
+     }
 
    if (lambda.getvalue() < 0)
      {
@@ -737,18 +814,20 @@ term_baseline_varcoeff_remlreg::term_baseline_varcoeff_remlreg(void)
   type = "term_baseline_varcoeff";
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",1000,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_baseline_varcoeff_remlreg::setdefault(void)
   {
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_baseline_varcoeff_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 3) )
+        && (t.options.size() <= 4) )
     {
     if (t.options[0] == "baseline")
       t.type = "baseline_varcoeff";
@@ -763,6 +842,7 @@ bool term_baseline_varcoeff_remlreg::check(term & t)
     optionlist optlist;
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -785,10 +865,18 @@ bool term_baseline_varcoeff_remlreg::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(3);
+   t.options = vector<ST::string>(4);
    t.options[0] = t.type;
    t.options[1] = ST::doubletostring(lambda.getvalue());
    t.options[2] = ST::doubletostring(lambdastart.getvalue());
+   if(catspecific.getvalue())
+     {
+     t.options[3] = "true";
+     }
+   else
+     {
+     t.options[3] = "false";
+     }
 
    if (lambda.getvalue() < 0)
      {
@@ -835,8 +923,8 @@ term_interactpspline_remlreg::term_interactpspline_remlreg(void)
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
-
 
 void term_interactpspline_remlreg::setdefault(void)
   {
@@ -844,6 +932,7 @@ void term_interactpspline_remlreg::setdefault(void)
   numberknots.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_interactpspline_remlreg::check(term & t)
@@ -853,9 +942,10 @@ bool term_interactpspline_remlreg::check(term & t)
   optlist.push_back(&numberknots);
   optlist.push_back(&lambda);
   optlist.push_back(&lambdastart);
+  optlist.push_back(&catspecific);
 
   if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 4) )
+        && (t.options.size() <= 6) )
     {
 
     if (t.options[0] == "pspline2dimrw1")
@@ -891,12 +981,20 @@ bool term_interactpspline_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(5);
+    t.options = vector<ST::string>(6);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
     t.options[3] = ST::doubletostring(lambda.getvalue());
     t.options[4] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[5] = "true";
+      }
+    else
+      {
+      t.options[5] = "false";
+      }
 
     setdefault();
     return true;
@@ -931,6 +1029,7 @@ term_interactpspline_varcoeff_remlreg::term_interactpspline_varcoeff_remlreg(voi
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 
@@ -940,6 +1039,7 @@ void term_interactpspline_varcoeff_remlreg::setdefault(void)
   numberknots.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_interactpspline_varcoeff_remlreg::check(term & t)
@@ -949,9 +1049,10 @@ bool term_interactpspline_varcoeff_remlreg::check(term & t)
   optlist.push_back(&numberknots);
   optlist.push_back(&lambda);
   optlist.push_back(&lambdastart);
+  optlist.push_back(&catspecific);
 
   if ( (t.varnames.size()==3)  && (t.options.size() >= 1)
-        && (t.options.size() <= 4) )
+        && (t.options.size() <= 6) )
     {
     if (t.options[0] == "pspline2dimrw1")
       t.type = "varpspline2dimrw1";
@@ -981,12 +1082,20 @@ bool term_interactpspline_varcoeff_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(5);
+    t.options = vector<ST::string>(6);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
     t.options[3] = ST::doubletostring(lambda.getvalue());
     t.options[4] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[5] = "true";
+      }
+    else
+      {
+      t.options[5] = "false";
+      }
 
     setdefault();
     return true;
@@ -1022,6 +1131,7 @@ term_geospline_remlreg::term_geospline_remlreg(void)
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 
@@ -1032,12 +1142,13 @@ void term_geospline_remlreg::setdefault(void)
   numberknots.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_geospline_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 6) )
+        && (t.options.size() <= 7) )
     {
     if (t.options[0] == "geosplinerw1" || t.options[0] == "geospline")
       t.type = "geosplinerw1";
@@ -1057,6 +1168,7 @@ bool term_geospline_remlreg::check(term & t)
     optlist.push_back(&lambda);
     optlist.push_back(&map);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
 
@@ -1079,13 +1191,21 @@ bool term_geospline_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(6);
+    t.options = vector<ST::string>(7);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
     t.options[3] = ST::doubletostring(lambda.getvalue());
     t.options[4] = map.getvalue();
     t.options[5] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[6] = "true";
+      }
+    else
+      {
+      t.options[6] = "false";
+      }
 
     setdefault();
     return true;
@@ -1122,6 +1242,7 @@ term_geospline_varcoeff_remlreg::term_geospline_varcoeff_remlreg(void)
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 
@@ -1132,12 +1253,13 @@ void term_geospline_varcoeff_remlreg::setdefault(void)
   numberknots.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_geospline_varcoeff_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 6) )
+        && (t.options.size() <= 7) )
     {
     if (t.options[0] == "geospline")
       t.type = "vargeospline";
@@ -1153,6 +1275,7 @@ bool term_geospline_varcoeff_remlreg::check(term & t)
     optlist.push_back(&lambda);
     optlist.push_back(&map);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
 
@@ -1175,13 +1298,21 @@ bool term_geospline_varcoeff_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(6);
+    t.options = vector<ST::string>(7);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
     t.options[3] = ST::doubletostring(lambda.getvalue());
     t.options[4] = map.getvalue();
     t.options[5] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options [6] = "true";
+      }
+    else
+      {
+      t.options [6] = "false";
+      }
 
     setdefault();
     return true;
@@ -1214,6 +1345,7 @@ term_spatial_remlreg::term_spatial_remlreg(void)
   map=stroption("map");
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_spatial_remlreg::setdefault(void)
@@ -1221,13 +1353,14 @@ void term_spatial_remlreg::setdefault(void)
   map.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 
 bool term_spatial_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1) &&
-       (t.options.size()<=4) && (t.options.size() >= 1) )
+       (t.options.size()<=5) && (t.options.size() >= 1) )
     {
     if (t.options[0] == "spatial")
       t.type = "spatial";
@@ -1242,6 +1375,7 @@ bool term_spatial_remlreg::check(term & t)
     optlist.push_back(&map);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -1262,11 +1396,19 @@ bool term_spatial_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(4);
+    t.options = vector<ST::string>(5);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::doubletostring(lambda.getvalue());
     t.options[3] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[4] = "true";
+      }
+    else
+      {
+      t.options[4] = "false";
+      }
 
     setdefault();
     return true;
@@ -1299,6 +1441,7 @@ term_spatial_varcoef_remlreg::term_spatial_varcoef_remlreg(void)
   map=stroption("map");
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_spatial_varcoef_remlreg::setdefault(void)
@@ -1306,13 +1449,14 @@ void term_spatial_varcoef_remlreg::setdefault(void)
   map.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 
 bool term_spatial_varcoef_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2) &&
-       (t.options.size()<=4) && (t.options.size() >= 1) )
+       (t.options.size()<=5) && (t.options.size() >= 1) )
     {
     if (t.options[0] == "spatial")
       t.type = "varcoeffspatial";
@@ -1327,6 +1471,7 @@ bool term_spatial_varcoef_remlreg::check(term & t)
     optlist.push_back(&map);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -1347,11 +1492,19 @@ bool term_spatial_varcoef_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(4);
+    t.options = vector<ST::string>(5);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::doubletostring(lambda.getvalue());
     t.options[3] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[4] = "true";
+      }
+    else
+      {
+      t.options[4] = "false";
+      }
 
     setdefault();
     return true;
@@ -1383,6 +1536,7 @@ term_random_remlreg::term_random_remlreg(void)
   type = "term_random";
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 
@@ -1390,11 +1544,12 @@ void term_random_remlreg::setdefault(void)
   {
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_random_remlreg::check(term & t)
   {
-  if ( (t.varnames.size()==1)  && (t.options.size()<=3) )
+  if ( (t.varnames.size()==1)  && (t.options.size()<=4) )
     {
     if (t.options[0] == "random")
       t.type = "random";
@@ -1408,6 +1563,7 @@ bool term_random_remlreg::check(term & t)
     optionlist optlist;
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -1428,10 +1584,18 @@ bool term_random_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(3);
+    t.options = vector<ST::string>(4);
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(lambda.getvalue());
     t.options[2] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[3] = "true";
+      }
+    else
+      {
+      t.options[3] = "false";
+      }
 
     setdefault();
     return true;
@@ -1463,18 +1627,20 @@ term_randomslope_remlreg::term_randomslope_remlreg(void)
   type = "term_randomslope";
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_randomslope_remlreg::setdefault(void)
   {
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 
 bool term_randomslope_remlreg::check(term & t)
   {
-  if ( (t.varnames.size()==2)  && (t.options.size()<=3) )
+  if ( (t.varnames.size()==2)  && (t.options.size()<=4) )
     {
     if (t.options[0] == "random")
       t.type = "randomslope";
@@ -1488,6 +1654,7 @@ bool term_randomslope_remlreg::check(term & t)
     optionlist optlist;
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -1508,10 +1675,18 @@ bool term_randomslope_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(3);
+    t.options = vector<ST::string>(4);
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(lambda.getvalue());
     t.options[2] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[3] = "true";
+      }
+    else
+      {
+      t.options[3] = "false";
+      }
 
     double startl;
 
@@ -1553,6 +1728,7 @@ term_kriging_1dim_remlreg::term_kriging_1dim_remlreg(void)
   maxdist=doubleoption("maxdist",-1,0.00001,10000);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",0.1,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_kriging_1dim_remlreg::setdefault(void)
@@ -1561,12 +1737,13 @@ void term_kriging_1dim_remlreg::setdefault(void)
   maxdist.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_kriging_1dim_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >=1)
-        && (t.options.size() <= 5) )
+        && (t.options.size() <= 6) )
     {
     if (t.options[0] == "kriging")
       t.type = "1dimkriging";
@@ -1581,6 +1758,7 @@ bool term_kriging_1dim_remlreg::check(term & t)
     optlist.push_back(&maxdist);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -1601,12 +1779,20 @@ bool term_kriging_1dim_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(11);
+    t.options = vector<ST::string>(6);
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(nu.getvalue());
     t.options[2] = ST::doubletostring(maxdist.getvalue());
     t.options[3] = ST::doubletostring(lambda.getvalue());
     t.options[4] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue())
+      {
+      t.options[5] = "true";
+      }
+    else
+      {
+      t.options[5] = "false";
+      }
 
     setdefault();
     return true;
@@ -1646,6 +1832,7 @@ term_kriging_remlreg::term_kriging_remlreg(void)
   maxsteps=intoption("maxsteps",100,1,10000);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",0.1,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_kriging_remlreg::setdefault(void)
@@ -1660,12 +1847,13 @@ void term_kriging_remlreg::setdefault(void)
   maxsteps.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_kriging_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-        && (t.options.size() <= 11) )
+        && (t.options.size() <= 12) )
     {
     if (t.options[0] == "kriging")
       t.type = "kriging";
@@ -1686,6 +1874,7 @@ bool term_kriging_remlreg::check(term & t)
     optlist.push_back(&maxsteps);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -1706,7 +1895,7 @@ bool term_kriging_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(11);
+    t.options = vector<ST::string>(12);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(numberknots.getvalue());
     t.options[2] = ST::doubletostring(nu.getvalue());
@@ -1725,6 +1914,14 @@ bool term_kriging_remlreg::check(term & t)
     t.options[8] = ST::inttostring(maxsteps.getvalue());
     t.options[9] = ST::doubletostring(lambda.getvalue());
     t.options[10] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue()==true)
+      {
+      t.options[11] = "true";
+      }
+    else
+      {
+      t.options[11] = "false";
+      }
 
     setdefault();
     return true;
@@ -1764,6 +1961,7 @@ term_kriging_varcoeff_remlreg::term_kriging_varcoeff_remlreg(void)
   maxsteps=intoption("maxsteps",100,1,10000);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",0.1,0,10000000);
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_kriging_varcoeff_remlreg::setdefault(void)
@@ -1778,12 +1976,13 @@ void term_kriging_varcoeff_remlreg::setdefault(void)
   maxsteps.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_kriging_varcoeff_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==3)  && (t.options.size() >=1)
-        && (t.options.size() <= 11) )
+        && (t.options.size() <= 12) )
     {
     if (t.options[0] == "kriging")
       t.type = "varkriging";
@@ -1804,6 +2003,7 @@ bool term_kriging_varcoeff_remlreg::check(term & t)
     optlist.push_back(&maxsteps);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -1824,7 +2024,7 @@ bool term_kriging_varcoeff_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(11);
+    t.options = vector<ST::string>(12);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(numberknots.getvalue());
     t.options[2] = ST::doubletostring(nu.getvalue());
@@ -1843,6 +2043,14 @@ bool term_kriging_varcoeff_remlreg::check(term & t)
     t.options[8] = ST::inttostring(maxsteps.getvalue());
     t.options[9] = ST::doubletostring(lambda.getvalue());
     t.options[10] = ST::doubletostring(lambdastart.getvalue());
+    if(catspecific.getvalue()==true)
+      {
+      t.options[11] = "true";
+      }
+    else
+      {
+      t.options[11] = "false";
+      }
 
     setdefault();
     return true;
@@ -1883,6 +2091,7 @@ term_geokriging_remlreg::term_geokriging_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",0.1,0,10000000);
   map=stroption("map");
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_geokriging_remlreg::setdefault(void)
@@ -1898,12 +2107,13 @@ void term_geokriging_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   map.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_geokriging_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >=1)
-        && (t.options.size() <= 12) )
+        && (t.options.size() <= 13) )
     {
     if (t.options[0] == "geokriging")
       t.type = "geokriging";
@@ -1925,6 +2135,7 @@ bool term_geokriging_remlreg::check(term & t)
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
     optlist.push_back(&map);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -1945,7 +2156,7 @@ bool term_geokriging_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(12);
+    t.options = vector<ST::string>(13);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(numberknots.getvalue());
     t.options[2] = ST::doubletostring(nu.getvalue());
@@ -1965,6 +2176,14 @@ bool term_geokriging_remlreg::check(term & t)
     t.options[9] = ST::doubletostring(lambda.getvalue());
     t.options[10] = ST::doubletostring(lambdastart.getvalue());
     t.options[11] = map.getvalue();
+    if(catspecific.getvalue()==true)
+      {
+      t.options[12] = "true";
+      }
+    else
+      {
+      t.options[12] = "false";
+      }
 
     setdefault();
     return true;
@@ -2005,6 +2224,7 @@ term_geokriging_varcoeff_remlreg::term_geokriging_varcoeff_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",0.1,0,10000000);
   map=stroption("map");
+  catspecific = simpleoption("catspecific",false);
   }
 
 void term_geokriging_varcoeff_remlreg::setdefault(void)
@@ -2020,12 +2240,13 @@ void term_geokriging_varcoeff_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   map.setdefault();
+  catspecific.setdefault();
   }
 
 bool term_geokriging_varcoeff_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-        && (t.options.size() <= 12) )
+        && (t.options.size() <= 13) )
     {
     if (t.options[0] == "geokriging")
       t.type = "vargeokriging";
@@ -2047,6 +2268,7 @@ bool term_geokriging_varcoeff_remlreg::check(term & t)
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
     optlist.push_back(&map);
+    optlist.push_back(&catspecific);
 
     unsigned i;
     bool rec = true;
@@ -2067,7 +2289,7 @@ bool term_geokriging_varcoeff_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(12);
+    t.options = vector<ST::string>(13);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(numberknots.getvalue());
     t.options[2] = ST::doubletostring(nu.getvalue());
@@ -2087,6 +2309,14 @@ bool term_geokriging_varcoeff_remlreg::check(term & t)
     t.options[9] = ST::doubletostring(lambda.getvalue());
     t.options[10] = ST::doubletostring(lambdastart.getvalue());
     t.options[11] = map.getvalue();
+    if(catspecific.getvalue()==true)
+      {
+      t.options[12] = "true";
+      }
+    else
+      {
+      t.options[12] = "false";
+      }
 
     setdefault();
     return true;
