@@ -21,7 +21,6 @@
 namespace MCMC
 {
 
-
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: FULLCOND_const ----------------------------
 //------------------------------------------------------------------------------
@@ -55,6 +54,12 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
 
   void transfer_interceptsample(void);
 
+  // REML
+
+  vector<bool> catspecific_fixed;
+
+  // End: REML
+
   public:
 
   // DEFAULT CONSTRUCTOR
@@ -82,8 +87,8 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   // CONSTRUCTOR_3 (REML)
 
   FULLCOND_const(MCMCoptions * op,const datamatrix & d,const ST::string & t,
-                 const int & constant,const ST::string & fs,
-                 const ST::string & fr);
+                 const int & constant, const ST::string & fs,
+                 const ST::string & fr, const vector<bool> & catsp);
 
 
   // COPY CONSTRUCTOR
@@ -146,6 +151,8 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   void outoptionsreml()
     {
     }
+
+  vector<bool> get_catspecific_fixed();
 
   // end: for reml
 

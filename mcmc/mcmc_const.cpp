@@ -101,9 +101,9 @@ void FULLCOND_const::init_names(const vector<ST::string> & na)
   // CONSTRUCTOR_3 (REML)
 
 FULLCOND_const::FULLCOND_const(MCMCoptions * op,const datamatrix & d,
-                               const ST::string & t,
-                               const int & constant,const ST::string & fs,
-                               const ST::string & fr)
+                               const ST::string & t, const int & constant,
+                               const ST::string & fs, const ST::string & fr,
+                               const vector<bool> & catsp)
                   : FULLCOND(op,t)
   {
 
@@ -122,6 +122,7 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * op,const datamatrix & d,
 
   results_type="fixed";
 
+  catspecific_fixed = catsp;
   }
 
 
@@ -328,6 +329,10 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
   outresultsreml(X,Z,betareml,betacov,datamatrix(1,1,0),0,0,0,false,0,0,0,false,0);
   }
 
+vector<bool> FULLCOND_const::get_catspecific_fixed()
+  {
+  return catspecific_fixed;
+  }
 
 void FULLCOND_const::outresults(void)
   {
@@ -538,6 +543,7 @@ FULLCOND_const::FULLCOND_const(const FULLCOND_const & m) : FULLCOND(FULLCOND(m))
   table_results = m.table_results;
   interceptpos = m.interceptpos;
   interceptyes = m.interceptyes;
+  catspecific_fixed = m.catspecific_fixed;
   }
 
 
@@ -559,6 +565,7 @@ const FULLCOND_const & FULLCOND_const::operator=(const FULLCOND_const & m)
   table_results = m.table_results;
   interceptpos = m.interceptpos;
   interceptyes = m.interceptyes;
+  catspecific_fixed = m.catspecific_fixed;
   return *this;
   }
 

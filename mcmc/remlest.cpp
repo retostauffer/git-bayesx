@@ -3680,6 +3680,11 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
 
 for(i=0; i<nrobs; i++)
   {
+  if(resp(i,0)==1 && tleft[i] < tright[i])
+    {
+    outerror("ERROR: observation "+ST::inttostring(i+1)+" has censoring indicator 1\n");
+    outerror("       and left interval time smaller than right interval time\n");
+    }
   if(ttrunc[i] > tright[i])
     {
     outerror("ERROR: left-truncation time larger then observed survival time\n");

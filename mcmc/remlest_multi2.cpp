@@ -70,6 +70,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
     }
 
   bool catspec=false;
+  catspecific_fixed = (dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]))->get_catspecific_fixed();
   for(i=0; i<fullcond.size(); i++)
     {
     catspecific.push_back(fullcond[i]->get_catspecific());
@@ -78,12 +79,28 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
       catspec=true;
       }
     }
+  for(i=0; i<catspecific_fixed.size(); i++)
+    {
+    if(catspecific_fixed[i])
+      {
+      catspec=true;
+      }
+    }
 
   if(catspec)
     {
+    unsigned nrcatspecific_fixed=0;
+    for(i=0; i<catspecific_fixed.size(); i++)
+      {
+      if(catspecific_fixed[i])
+        {
+        nrcatspecific_fixed++;
+        }
+      }
+
     xcutbeta.push_back(0);
     zcutbeta.push_back(0);
-    xcutbeta.push_back(fullcond[0]->get_dimX()+nrcat2-1);
+    xcutbeta.push_back(fullcond[0]->get_dimX()+nrcatspecific_fixed*(nrcat2-1));
     for(i=1; i<fullcond.size(); i++)
       {
       if(catspecific[i])
@@ -1984,5 +2001,6 @@ void remlest_ordinal::outerror(const ST::string & s)
   {
   out(s,true,true,12,255,0,0);
   }
+
 
 

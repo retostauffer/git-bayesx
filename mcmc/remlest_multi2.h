@@ -62,6 +62,8 @@ class remlest_ordinal
 
   vector<bool> catspecific;                     // true if corresponding effect is
                                                 // assumed to be category-specific
+  vector<bool> catspecific_fixed;               // similar vector for fixed effects
+
 
   statmatrix<double> beta;                          // regression coefficients
   statmatrix<double> theta;                         // variance parameters
