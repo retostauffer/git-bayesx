@@ -271,7 +271,7 @@ void FULLCOND_variance_nonp::update(void)
             if(uniformprior)
               sum += 1.0/pow(tau[i],0.5*rankK) * exp(help/tau[i]);
             else
-              sum += 1.0/pow(tau[i],0.5*rankK) * exp(help/tau[i]) * 1.0/tau[i];
+              sum += 1.0/pow(tau[i],0.5*rankK) * exp(help/tau[i]) / double(1.0 + i/2.0);
             cumtau.push_back(sum);
             i++;
             }
