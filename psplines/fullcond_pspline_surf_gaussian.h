@@ -282,7 +282,7 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
     return K.getupperpointer();
     }
 
-  void reset_effect(unsigned & pos);
+  void reset_effect(const unsigned & pos);
 
 
   // DESTRUCTOR

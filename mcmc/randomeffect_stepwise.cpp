@@ -10,7 +10,7 @@ namespace MCMC
 //----------------- class FULLCOND_random --------------------------------------
 //------------------------------------------------------------------------------
 
-void FULLCOND_random::compute_lambdavec(vector<double> & lvec,unsigned & number)
+void FULLCOND_random::compute_lambdavec(vector<double> & lvec, const unsigned & number)
   {
   if (get_df_equidist()==true)
      FULLCOND::compute_lambdavec_equi(lvec,number);
@@ -108,7 +108,7 @@ ST::string FULLCOND_random::get_effect(void)
   }
 
 
-void FULLCOND_random::reset_effect(unsigned & pos)
+void FULLCOND_random::reset_effect(const unsigned & pos)
   {
 
   update_linpred(false);
@@ -191,7 +191,7 @@ ST::string FULLCOND_random_gaussian::get_effect(void)
   }
 
 
-void FULLCOND_random_gaussian::reset_effect(unsigned & pos)
+void FULLCOND_random_gaussian::reset_effect(const unsigned & pos)
   {
 
   update_linpred(false);
@@ -273,7 +273,7 @@ ST::string FULLCOND_random_nongaussian::get_effect(void)
   }
 
 
-void FULLCOND_random_nongaussian::reset_effect(unsigned & pos)       
+void FULLCOND_random_nongaussian::reset_effect(const unsigned & pos)
   {
 
   update_linpred(false);

@@ -389,11 +389,11 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   ST::string  get_effect(void);
 
-  void reset_effect(unsigned & pos);
+  void reset_effect(const unsigned & pos);
 
   void hierarchie_rw1(vector<double> & untervector);  
 
-  void compute_lambdavec(vector<double> & lvec,unsigned & number);
+  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
 
   const datamatrix & get_data_forfixedeffects(void);  
 

@@ -135,6 +135,35 @@ bool FULLCOND_const_stepwise::posteriormode(void)
   }
 
 
+void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & names, datamatrix & newx)
+  {
+  // double * worklinold=linold.getV();     // linold = data * beta
+  X1 = datamatrix(names.size(),names.size(),0);
+  datamatrix beta_neu = datamatrix(names.size(),1,0);
+  likep->fisher(X1,newx,column);            // recomputes X1 = (newx' W newx)^{-1}
+  X1.assign((X1.cinverse()));               // continued
+  likep->compute_weightiwls_workingresiduals(column); // computes W(y-linpred)
+  beta_neu = X1*newx.transposed()*likep->get_workingresiduals();
+
+  likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+  datamatrix linold_single = datamatrix(newx.rows(),1,0);
+  linold_single.mult(newx,beta_neu);
+  linold = linold + linold_single;            // updates linold
+  likep->add_linearpred_m(linold,column);     // updates linpred
+  include_effect(names,newx);
+
+  unsigned i;
+  double * workbeta = beta.getV() + beta.rows()-names.size();
+  double * workbeta_neu = beta_neu.getV();
+  double * workbetameanold = betameanold.getV() + beta.rows()-names.size();
+  for(i=beta.rows()-names.size();i<beta.rows();i++,workbeta_neu++,workbeta++,workbetameanold++)
+    {
+    *workbeta=*workbeta_neu;
+    *workbetameanold = *workbeta;
+    }
+  }
+
+
 bool FULLCOND_const_stepwise::posteriormode_converged(const unsigned & itnr)
   {
   return likep->posteriormode_converged_fc(beta,beta_mode,itnr);
@@ -240,7 +269,7 @@ void FULLCOND_const_stepwise::update_stepwise(double la)
   }
 
 
-void FULLCOND_const_stepwise::include_effect(vector<ST::string> & names, datamatrix & newx)
+void FULLCOND_const_stepwise::include_effect(const vector<ST::string> & names, const datamatrix & newx)
   {
   if(fctype != factor)
     {
@@ -285,13 +314,13 @@ void FULLCOND_const_stepwise::include_effect(vector<ST::string> & names, datamat
       *workbeta=*workbetao;
       *workbetameanold = *workbeta;
       }
-      
+
     X1 = datamatrix(nrconst,nrconst,0);
     }
   }
 
 
-void FULLCOND_const_stepwise::reset_effect(unsigned & pos)
+void FULLCOND_const_stepwise::reset_effect(const unsigned & pos)
   {
 
   if(fctype != factor)
@@ -458,7 +487,7 @@ void FULLCOND_const_stepwise::make_design(datamatrix & d)
 // ------------------- STEPWISE-FACTOR -----------------------------------------
 //------------------------------------------------------------------------------
 
-void FULLCOND_const_stepwise::compute_lambdavec(vector<double> & lvec,unsigned & number)
+void FULLCOND_const_stepwise::compute_lambdavec(vector<double> & lvec, const unsigned & number)
   {
 
   assert(fctype == MCMC::factor);
@@ -660,7 +689,7 @@ void FULLCOND_const_gaussian_special::compute_datatransformed(double lambda)
 
 
 void FULLCOND_const_gaussian_special::compute_lambdavec(
-  vector<double> & lvec,unsigned & number)
+  vector<double> & lvec, const unsigned & number)
   {
 
   lvec.push_back(2);       // 1/x+1
@@ -687,7 +716,7 @@ ST::string  FULLCOND_const_gaussian_special::get_effect(void)
   }
 
 
-void FULLCOND_const_gaussian_special::reset_effect(unsigned & pos)
+void FULLCOND_const_gaussian_special::reset_effect(const unsigned & pos)
   {
   double * worklinnew=linnew.getV();
   double * workdatatransformed = datatransformed.getV();

@@ -2601,7 +2601,7 @@ void FULLCOND_pspline_surf_gaussian::sample_centered(datamatrix & beta)
   }
 
 
-void FULLCOND_pspline_surf_gaussian::reset_effect(unsigned & pos)
+void FULLCOND_pspline_surf_gaussian::reset_effect(const unsigned & pos)
   {
   likep->substr_linearpred_m(spline,column,true);
   unsigned i;

@@ -2632,7 +2632,7 @@ double spline_basis::compute_df(void)
   }
 
 
-void spline_basis::reset_effect(unsigned & pos)
+void spline_basis::reset_effect(const unsigned & pos)
   {
   subtr_spline();
   unsigned i;
@@ -2708,7 +2708,7 @@ void spline_basis::hierarchie_rw1(vector<double> & untervector)
 
 
 void spline_basis::compute_lambdavec(
-vector<double> & lvec,unsigned & number)
+vector<double> & lvec, const unsigned & number)
   {
   if (get_df_equidist()==true)
      FULLCOND::compute_lambdavec_equi(lvec,number);

@@ -870,7 +870,7 @@ class __EXPORT_TYPE FULLCOND
   // FUNCTION: reset_effect
   // TASK: resets the effect, subtracts the current effect from linearpred
 
-  virtual void reset_effect(unsigned & pos)
+  virtual void reset_effect(const unsigned & pos)
     {
     }
 
@@ -882,10 +882,16 @@ class __EXPORT_TYPE FULLCOND
   // FUNCTION: include_effect
   // TASK: includes an effect at position 'pos' with name 'name'
 
-  virtual void include_effect(vector<ST::string> & name,datamatrix & xnew)
+  virtual void include_effect(const vector<ST::string> & name, const datamatrix & xnew)
     {
     }
 
+  // FUNCTION: posteriormode_single
+  // TASK: estimates only the coefficient of the fix effect 'name'
+
+  virtual void posteriormode_single(const vector<ST::string> & name, datamatrix & xnew)
+    {
+    }
 
   virtual const datamatrix & get_data_forfixedeffects(void)
     {
@@ -893,8 +899,8 @@ class __EXPORT_TYPE FULLCOND
     }
 
 
-  virtual void compute_lambdavec(vector<double> & lvec,unsigned & nr);
-  void compute_lambdavec_equi(vector<double> & lvec,unsigned & number);
+  virtual void compute_lambdavec(vector<double> & lvec, const unsigned & nr);
+  void compute_lambdavec_equi(vector<double> & lvec,const unsigned & number);
 
   double lambda_from_df(double & df_wunsch, double & lambda_vorg);
 

@@ -98,7 +98,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void outoptions(void);
 
-  void compute_lambdavec(vector<double> & lvec,unsigned & number);
+  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
 
   const datamatrix & get_data_forfixedeffects(void)
     {
@@ -111,9 +111,11 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   ST::string get_effect(void);
 
-  void include_effect(vector<ST::string> & names, datamatrix & newx);
+  void include_effect(const vector<ST::string> & names, const datamatrix & newx);
 
-  void reset_effect(unsigned & pos);
+  void posteriormode_single(const vector<ST::string> & names, datamatrix & newx);
+
+  void reset_effect(const unsigned & pos);
 
   void set_effect_zero(void);
 
@@ -180,9 +182,9 @@ class __EXPORT_TYPE FULLCOND_const_gaussian_special : public FULLCOND_const
 
   ST::string  get_effect(void);
 
-  void reset_effect(unsigned & pos);
+  void reset_effect(const unsigned & pos);
 
-  void compute_lambdavec(vector<double> & lvec,unsigned & number);
+  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
 
   double compute_df(void);
 

@@ -203,7 +203,7 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
 
   // FOR STEPWISE
 
-  void compute_lambdavec(vector<double> & lvec,unsigned & number);
+  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
 
 // ---------------------- For Stepwise -----------------------------------------
 
@@ -225,7 +225,7 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
   // FUNCTION: reset_effect
   // TASK: resets the effect, subtracts the current effect from linearpred
 
-  void reset_effect(unsigned & pos);
+  void reset_effect(const unsigned & pos);
 
 // ------- END: For Stepwise ---------------------------------------------------  
 

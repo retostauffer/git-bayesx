@@ -1183,7 +1183,7 @@ void FULLCOND::outresults(void)
   // FUNCTION: compute_lambdavec
   // TASK: returns the values for the smoothing parameter (logarithmic scale)
 
-void FULLCOND::compute_lambdavec(vector<double> & lvec,unsigned & number)
+void FULLCOND::compute_lambdavec(vector<double> & lvec, const unsigned & number)
   {
   if(get_lambdamax_opt()==true)
     lambdamax = lambda_from_df(get_df_lambdamax(),lambdamax);
@@ -1206,7 +1206,7 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec,unsigned & number)
   // FUNCTION: compute_lambdavec
   // TASK: returns the values for the smoothing parameter (the resulting df's are equidistant)
 
-void FULLCOND::compute_lambdavec_equi(vector<double> & lvec,unsigned & number)
+void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, const unsigned & number)
   {
   double diff = (get_df_lambdamin()-get_df_lambdamax())/(number-1);
   lambdamax = lambda_from_df(get_df_lambdamax(),lambdamax);

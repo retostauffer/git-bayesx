@@ -283,11 +283,11 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
     fchelp.update();
     }
 
-  void reset_effect(unsigned & pos);
+  void reset_effect(const unsigned & pos);
 
   void hierarchie_rw1(vector<double> & untervector);  
 
-  void compute_lambdavec(vector<double> & lvec,unsigned & number);  
+  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
 
   bandmatdouble & get_XX(void)
     {
