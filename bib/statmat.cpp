@@ -649,6 +649,36 @@ void statmatrix<T>::sort(int start,int ende,int col)
 
 
 template<class T>
+void statmatrix<T>::sortcol(int start,int ende,int col)
+  {
+  int i = start;
+  int j = ende;
+  T x = get((start+ende)/2,col);
+  T hilfe;
+  do
+	 {
+	 while (get(i,col) < x)
+		i++;
+	 while (x < get(j,col))
+		j--;
+	 if (i <= j)
+		{
+		hilfe = get(i,col);
+		put(i,col,get(j,col));
+		put(j,col,hilfe);
+		i++;
+		j--;
+		}
+	 }
+  while ( i <= j );
+	 if (start < j)
+		sortcol(start,j,col);
+	 if (i < ende)
+		sortcol(i,ende,col);
+  }
+
+
+template<class T>
 void statmatrix<T>::indexinit(void)
   {
   unsigned i;

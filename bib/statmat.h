@@ -192,10 +192,16 @@ class statmatrix : public Matrix<T>
   // ------------------ functions for sorting a column -------------------------
 
   // FUNCTION: sort
+  // TASK: sorts the statmatrix between the 'start' th and the 'ende' th row
+  //       according to its 'col' th column
+
+  void sort (int start ,int ende,int col);
+
+  // FUNCTION: sort
   // TASK: sorts the 'col' th column of the statmatrix between the 'start' th
   //       and the 'ende' th row
 
-  void sort (int start ,int ende,int col);
+  void sortcol (int start ,int ende,int col);
 
   // FUNCTION: indexinit
   // TASK: initializes a column vector with elements (i,0) = i
