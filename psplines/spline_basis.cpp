@@ -2632,6 +2632,38 @@ double spline_basis::compute_df(void)
   }
 
 
+double spline_basis::compute_df_eigen(void)
+  {
+  if(prec_env.getDim()==0)
+    return -1.0;
+
+  unsigned i,j;
+  datamatrix L(nrpar,nrpar,0.0);
+  datamatrix help(nrpar,nrpar,0.0);
+  datamatrix ev(nrpar,1,0.0);
+
+  XX_env.decomp();
+  for(i=0;i<nrpar;i++)
+    for(j=0;j<=i;j++)
+      L(i,j) = XX_env.getL(i,j);
+
+  L = L.inverse();
+  K.mult(L.transposed(),help);
+  help = L*help;
+
+  eigen2(help,ev);
+
+  double df=0.0;
+  for(i=0;i<nrpar;i++)
+    df += 1.0/(1.0+lambda*ev(i,0));
+
+  if(identifiable)
+    return df;
+  else
+    return df-1;
+  }
+
+
 void spline_basis::reset_effect(const unsigned & pos)
   {
   subtr_spline();

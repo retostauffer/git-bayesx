@@ -326,6 +326,8 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
 
   double compute_df(void);
 
+  double compute_df_eigen(void);
+
   void update_stepwise(double la)
     {
     lambda=la;

@@ -1046,7 +1046,7 @@ void FULLCOND_pspline_gaussian::compute_contourprob(void)
       contourprob++;
   contourprob = contourprob/optionsp->get_samplesize();
 
-  optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob,3) + "\n");
+  optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob,2) + "\n");
 
   ST::string path = pathresult.substr(0,pathresult.length()-4)+"_contour.res";
 
@@ -1324,17 +1324,17 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
   contourprob = contourprob/optionsp->get_samplesize();
 
   if(diff==0)
-    optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob,3) + "\n");
+    optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob,2) + "\n");
   else if(diff==1)
-    optionsp->out("  Contour probability for first differences (const)  : " + ST::doubletostring(contourprob,3) + "\n");
+    optionsp->out("  Contour probability for first differences (const)  : " + ST::doubletostring(contourprob,2) + "\n");
   else if(diff==2)
-    optionsp->out("  Contour probability for second differences (linear): " + ST::doubletostring(contourprob,3) + "\n");
+    optionsp->out("  Contour probability for second differences (linear): " + ST::doubletostring(contourprob,2) + "\n");
   else if(diff==3)
-    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences (quadratic) : " + ST::doubletostring(contourprob,3) + "\n");
+    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences (quadratic) : " + ST::doubletostring(contourprob,2) + "\n");
   else if(diff==4)
-    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences (cubic)     : " + ST::doubletostring(contourprob,3) + "\n");
+    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences (cubic)     : " + ST::doubletostring(contourprob,2) + "\n");
   else
-    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences             : " + ST::doubletostring(contourprob,3) + "\n");
+    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences             : " + ST::doubletostring(contourprob,2) + "\n");
 
   ST::string path = pathresult.substr(0,pathresult.length()-4)+"_contour.res";
 
@@ -1368,41 +1368,125 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
   readsample3(beta);
   beta = beta*(A.transposed());
 
-  for(i=0;i<rankA;i++)
-    beta.sortcol(0,optionsp->get_samplesize()-1,i);
+  datamatrix betasort = beta;
 
-  double p = 0;
-  bool inside = true;
-  while(inside && p<optionsp->get_samplesize())
+  for(i=0;i<rankA;i++)
+    betasort.sortcol(0,optionsp->get_samplesize()-1,i);
+/*
+  int k,count,t,tstar;
+  bool stop,inside;
+
+  bool significant = false;
+  double p = 0.01;
+
+  while(!significant && p < 1.0)
     {
 
-    inside = true;
+    double test = (1.0-p)*optionsp->get_samplesize();
+    k = (int)test;
 
+// Intervall ausrechnen
+
+    stop = false;
+    tstar = optionsp->get_samplesize()/2+1;
+    while(!stop && tstar>=0)
+      {
+      count = 0;
+      for(t=0;t<optionsp->get_samplesize();t++)
+        {
+        inside = true;
+        for(j=0;j<rankA;j++)
+          {
+          if( !( betasort(tstar,j) <= beta(t,j) && beta(t,j) <= betasort(optionsp->get_samplesize()-tstar-1,j) ) )
+            inside = false;
+          }
+        if(inside)           // liegt beta^t drin?
+          count++;
+        }
+      if(count<k)
+        tstar--;             // Intervall verkleinern!
+      else
+        stop = true;         // mindestens k samples liegen im Intervall
+      }
+
+// testen, ob beta_0 drin liegt
+
+    inside = true;
     for(j=0;j<rankA;j++)
       {
-      if( !( beta(p,j) <= beta_0(j,0) && beta_0(j,0) <= beta(optionsp->get_samplesize()-p-1,j) ) )
+      if( !( betasort(tstar,j) <= beta_0(j,0) && beta_0(j,0) <= betasort(optionsp->get_samplesize()-tstar-1,j) ) )
         inside = false;
       }
 
-    if(inside)
-      p++;
+    if(inside)      // liegt beta_0 drin?
+      p += 0.01;    // NICHT signifikant: weiter machen!
+    else
+      significant = true;       // signifikant zum Niveau alpha!
 
     }
+*/
+  double p;
+  bool inside;
+  unsigned count,t,tstar;
+  unsigned l,r,ltemp,rtemp;
 
-  p = p/optionsp->get_samplesize();
+// Intervall berechnen in dem beta_0 gerade noch drin liegt
+
+  l = 0;
+  r = 0;
+  for(i=0;i<optionsp->get_samplesize();i++)
+    {
+    while( betasort(optionsp->get_samplesize()-l-1,0) > beta_0(0,0)  && l<optionsp->get_samplesize())
+      l++;
+    while( beta_0(0,0) > betasort(r,0)  && r<optionsp->get_samplesize())
+      r++;
+    }
+  for(j=1;j<rankA;j++)
+    {
+    ltemp = 0;
+    rtemp = 0;
+    for(i=0;i<optionsp->get_samplesize();i++)
+      {
+      while( betasort(optionsp->get_samplesize()-ltemp-1,j) > beta_0(j,0) && ltemp<optionsp->get_samplesize())
+        ltemp++;
+      while( beta_0(j,0) > betasort(rtemp,j)  && rtemp<optionsp->get_samplesize())
+        rtemp++;
+      }
+    l = min(l,ltemp);
+    r = min(r,rtemp);
+    }
+
+  tstar = min(l,r);
+
+// Wieviele liegen drin?
+
+  count = 0;
+  for(t=0;t<optionsp->get_samplesize();t++)
+    {
+    inside = true;
+    for(j=0;j<rankA;j++)
+      {
+      if( !( betasort(tstar,j) <= beta(t,j) && beta(t,j) <= betasort(optionsp->get_samplesize()-tstar-1,j) ) )
+        inside = false;
+      }
+    if(inside)           // liegt beta^t drin?
+      count++;
+    }
+
+  p = 1.0 - (double)count/optionsp->get_samplesize();
 
   if(diff==0)
-    optionsp->out("  Pseudo contour probability                                : " + ST::doubletostring(p,3) + "\n");
+    optionsp->out("  Pseudo contour probability                                : " + ST::doubletostring(p,2) + "\n");
   else if(diff==1)
-    optionsp->out("  Pseudo contour probability for first differences (const)  : " + ST::doubletostring(p,3) + "\n");
+    optionsp->out("  Pseudo contour probability for first differences (const)  : " + ST::doubletostring(p,2) + "\n");
   else if(diff==2)
-    optionsp->out("  Pseudo contour probability for second differences (linear): " + ST::doubletostring(p,3) + "\n");
+    optionsp->out("  Pseudo contour probability for second differences (linear): " + ST::doubletostring(p,2) + "\n");
   else if(diff==3)
-    optionsp->out("  Pseudo contour probability for " + ST::inttostring(diff) + ". differences (quadratic) : " + ST::doubletostring(p,3) + "\n");
+    optionsp->out("  Pseudo contour probability for " + ST::inttostring(diff) + ". differences (quadratic) : " + ST::doubletostring(p,2) + "\n");
   else if(diff==4)
-    optionsp->out("  Pseudo contour probability for " + ST::inttostring(diff) + ". differences (cubic)     : " + ST::doubletostring(p,3) + "\n");
+    optionsp->out("  Pseudo contour probability for " + ST::inttostring(diff) + ". differences (cubic)     : " + ST::doubletostring(p,2) + "\n");
   else
-    optionsp->out("  Pseudo contour probability for " + ST::inttostring(diff) + ". differences             : " + ST::doubletostring(p,3) + "\n");
+    optionsp->out("  Pseudo contour probability for " + ST::inttostring(diff) + ". differences             : " + ST::doubletostring(p,2) + "\n");
 
   ST::string path = pathresult.substr(0,pathresult.length()-4)+"_pseudocontour.res";
 
