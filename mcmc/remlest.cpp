@@ -1751,13 +1751,6 @@ bool remlest::estimate_survival(const datamatrix resp,
 
     if(!timevarying)
       {
-/*      for(i=0; i<nrobs; i++)
-        {
-        for(k=tstart[i]; k<tend[i]-1; k++)
-          {
-          cumbaseline(i,0) += 0.5*tsteps(k,0)*(baseline(k,0)+baseline(k+1,0));
-          }
-        }*/
       double former=0;
       for(i=0, k=0; i<nrobs; i++)
         {
@@ -1775,8 +1768,6 @@ bool remlest::estimate_survival(const datamatrix resp,
         {
         for(k=tstart[i]; k<tend[i]-1; k++)
           {
-//          cumbaseline(i,0) += 0.5*tstep*(exp((interactvar.getRow(i).transposed()*basef.getRow(k))(0,0))
-//                          +exp((interactvar.getRow(i).transposed()*basef.getRow(k+1))(0,0)));
           cumbaseline(i,0) += 0.5*tsteps(k,0)*(baseline(i,k)+baseline(i,k+1));
           }
         }
@@ -1797,13 +1788,6 @@ bool remlest::estimate_survival(const datamatrix resp,
         helpmat = datamatrix(nrobs,1,0);
         if(!timevarying)
           {
-/*          for(i=0; i<nrobs; i++)
-            {
-            for(k=tstart[i]; k<tend[i]-1; k++)
-              {
-              helpmat(i,0) += 0.5*tsteps(k,0)*(t_X(k,dm_pos[j])*baseline(k,0)+t_X(k+1,dm_pos[j])*baseline(k+1,0));
-              }
-            }*/
           double former=0;
           for(i=0, k=0; i<nrobs; i++)
             {
@@ -1821,9 +1805,6 @@ bool remlest::estimate_survival(const datamatrix resp,
             {
             for(k=tstart[i]; k<tend[i]-1; k++)
               {
-//              helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[j])*
-//                               (t_X(k,dm_pos[j])*exp((interactvar.getRow(i).transposed()*basef.getRow(k))(0,0))
-//                               +t_X(k+1,dm_pos[j])*exp((interactvar.getRow(i).transposed()*basef.getRow(k+1))(0,0)));
               helpmat(i,0) += 0.5*tsteps(k,0)*interactvar(i,fc_pos[j])*
                                (t_X(k,dm_pos[j])*baseline(i,k)+t_X(k+1,dm_pos[j])*baseline(i,k+1));
               }
@@ -1848,14 +1829,6 @@ bool remlest::estimate_survival(const datamatrix resp,
         helpmat = datamatrix(nrobs,1,0);
         if(!timevarying)
           {
-/*          for(i=0; i<nrobs; i++)
-            {
-            for(k=tstart[i]; k<tend[i]-1; k++)
-              {
-              helpmat(i,0) += 0.5*tsteps(k,0)*(t_Z(k,dm_pos[xcols+j])*baseline(k,0)
-                               +t_Z(k+1,dm_pos[xcols+j])*baseline(k+1,0));
-              }
-            }*/
           double former=0;
           for(i=0, k=0; i<nrobs; i++)
             {
@@ -1874,9 +1847,6 @@ bool remlest::estimate_survival(const datamatrix resp,
             {
             for(k=tstart[i]; k<tend[i]-1; k++)
               {
-//              helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[xcols+j])*
-//                              (t_Z(k,dm_pos[xcols+j])*exp((interactvar.getRow(i).transposed()*basef.getRow(k))(0,0))
-//                               +t_Z(k+1,dm_pos[xcols+j])*exp((interactvar.getRow(i).transposed()*basef.getRow(k+1))(0,0)));
               helpmat(i,0) += 0.5*tsteps(k,0)*interactvar(i,fc_pos[xcols+j])*
                               (t_Z(k,dm_pos[xcols+j])*baseline(i,k)
                                +t_Z(k+1,dm_pos[xcols+j])*baseline(i,k+1));
@@ -1907,14 +1877,6 @@ bool remlest::estimate_survival(const datamatrix resp,
           helpmat = datamatrix(nrobs,1,0);
           if(!timevarying)
             {
-/*            for(i=0; i<nrobs; i++)
-              {
-              for(l=tstart[i]; l<tend[i]-1; l++)
-                {
-                helpmat(i,0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(l,0)
-                                +t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(l+1,0));
-                }
-              }*/
             double former=0;
             for(i=0, l=0; i<nrobs; i++)
               {
@@ -1933,9 +1895,6 @@ bool remlest::estimate_survival(const datamatrix resp,
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
-//                helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[k])*
-//                                (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l))(0,0))
-//                                 +t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l+1))(0,0)));
                 helpmat(i,0) += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[k])*
                                 (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(i,l)
                                  +t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(i,l+1));
@@ -1953,14 +1912,6 @@ bool remlest::estimate_survival(const datamatrix resp,
           helpmat = datamatrix(nrobs,1,0);
           if(!timevarying)
             {
-/*            for(i=0; i<nrobs; i++)
-              {
-              for(l=tstart[i]; l<tend[i]-1; l++)
-                {
-                helpmat(i,0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[k])*baseline(l,0)
-                                 +t_X(l+1,dm_pos[k])*baseline(l+1,0));
-                }
-              }*/
             double former=0;
             for(i=0, l=0; i<nrobs; i++)
               {
@@ -1979,9 +1930,6 @@ bool remlest::estimate_survival(const datamatrix resp,
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
-//                helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[k])*
-//                                (t_X(l,dm_pos[k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l))(0,0))
-//                                 +t_X(l+1,dm_pos[k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l+1))(0,0)));
                 helpmat(i,0) += 0.5*tsteps(l,0)*interactvar(i,fc_pos[k])*
                                 (t_X(l,dm_pos[k])*baseline(i,l)
                                  +t_X(l+1,dm_pos[k])*baseline(i,l+1));
@@ -1999,14 +1947,6 @@ bool remlest::estimate_survival(const datamatrix resp,
           helpmat = datamatrix(nrobs,1,0);
           if(!timevarying)
             {
-/*            for(i=0; i<nrobs; i++)
-              {
-              for(l=tstart[i]; l<tend[i]-1; l++)
-                {
-                helpmat(i,0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*baseline(l,0)
-                                 +t_X(l+1,dm_pos[j])*baseline(l+1,0));
-                }
-              }*/
             double former=0;
             for(i=0, l=0; i<nrobs; i++)
               {
@@ -2025,9 +1965,6 @@ bool remlest::estimate_survival(const datamatrix resp,
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
-//                helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[j])*
-//                                (t_X(l,dm_pos[j])*exp((interactvar.getRow(i).transposed()*basef.getRow(l))(0,0))
-//                                 +t_X(l+1,dm_pos[j])*exp((interactvar.getRow(i).transposed()*basef.getRow(l+1))(0,0)));
                 helpmat(i,0) += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
                                 (t_X(l,dm_pos[j])*baseline(i,l)
                                  +t_X(l+1,dm_pos[j])*baseline(i,l+1));
@@ -2062,14 +1999,6 @@ bool remlest::estimate_survival(const datamatrix resp,
           helpmat = datamatrix(nrobs,1,0);
           if(!timevarying)
             {
-/*            for(i=0; i<nrobs; i++)
-              {
-              for(l=tstart[i]; l<tend[i]-1; l++)
-                {
-                helpmat(i,0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(l,0)
-                                 +t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
-                }
-              }*/
             double former=0;
             for(i=0, l=0; i<nrobs; i++)
               {
@@ -2088,9 +2017,6 @@ bool remlest::estimate_survival(const datamatrix resp,
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
-//                helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[xcols+j])*interactvar(i,fc_pos[xcols+k])*
-//                                (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l))(0,0))
-//                                 +t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l+1))(0,0)));
                 helpmat(i,0) += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*interactvar(i,fc_pos[xcols+k])*
                                 (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)
                                  +t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
@@ -2108,14 +2034,6 @@ bool remlest::estimate_survival(const datamatrix resp,
           helpmat = datamatrix(nrobs,1,0);
           if(!timevarying)
             {
-/*            for(i=0; i<nrobs; i++)
-              {
-              for(l=tstart[i]; l<tend[i]-1; l++)
-                {
-                helpmat(i,0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+k])*baseline(l,0)
-                                 +t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
-                }
-              }*/
             double former=0;
             for(i=0, l=0; i<nrobs; i++)
               {
@@ -2134,9 +2052,6 @@ bool remlest::estimate_survival(const datamatrix resp,
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
-//                helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[xcols+k])*
-//                                (t_Z(l,dm_pos[xcols+k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l))(0,0))
-//                                 +t_Z(l+1,dm_pos[xcols+k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l+1))(0,0)));
                 helpmat(i,0) += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
                                 (t_Z(l,dm_pos[xcols+k])*baseline(i,l)
                                  +t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
@@ -2154,14 +2069,6 @@ bool remlest::estimate_survival(const datamatrix resp,
           helpmat = datamatrix(nrobs,1,0);
           if(!timevarying)
             {
-/*            for(i=0; i<nrobs; i++)
-              {
-              for(l=tstart[i]; l<tend[i]-1; l++)
-                {
-                helpmat(i,0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+j])*baseline(l,0)
-                                 +t_Z(l+1,dm_pos[xcols+j])*baseline(l+1,0));
-                }
-              }*/
             double former=0;
             for(i=0, l=0; i<nrobs; i++)
               {
@@ -2180,9 +2087,6 @@ bool remlest::estimate_survival(const datamatrix resp,
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
-//                helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[xcols+j])*
-//                                (t_Z(l,dm_pos[xcols+j])*exp((interactvar.getRow(i).transposed()*basef.getRow(l))(0,0))
-//                                 +t_Z(l+1,dm_pos[xcols+j])*exp((interactvar.getRow(i).transposed()*basef.getRow(l+1))(0,0)));
                 helpmat(i,0) += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
                                 (t_Z(l,dm_pos[xcols+j])*baseline(i,l)
                                  +t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
@@ -2217,14 +2121,6 @@ bool remlest::estimate_survival(const datamatrix resp,
           helpmat = datamatrix(nrobs,1,0);
           if(!timevarying)
             {
-/*            for(i=0; i<nrobs; i++)
-              {
-              for(l=tstart[i]; l<tend[i]-1; l++)
-                {
-                helpmat(i,0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(l,0)
-                                 +t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
-                }
-              }*/
             double former=0;
             for(i=0, l=0; i<nrobs; i++)
               {
@@ -2243,9 +2139,6 @@ bool remlest::estimate_survival(const datamatrix resp,
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
-//                helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[xcols+k])*
-//                                (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l))(0,0))
-//                                 +t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l+1))(0,0)));
                 helpmat(i,0) += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[xcols+k])*
                                 (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)
                                  +t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
@@ -2263,14 +2156,6 @@ bool remlest::estimate_survival(const datamatrix resp,
           helpmat = datamatrix(nrobs,1,0);
           if(!timevarying)
             {
-/*            for(i=0; i<nrobs; i++)
-              {
-              for(l=tstart[i]; l<tend[i]-1; l++)
-                {
-                helpmat(i,0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+k])*baseline(l,0)
-                                 +t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
-                }
-              }*/
             double former=0;
             for(i=0, l=0; i<nrobs; i++)
               {
@@ -2289,9 +2174,6 @@ bool remlest::estimate_survival(const datamatrix resp,
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
-//                helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[xcols+k])*
-//                                (t_Z(l,dm_pos[xcols+k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l))(0,0))
-//                                 +t_Z(l+1,dm_pos[xcols+k])*exp((interactvar.getRow(i).transposed()*basef.getRow(l+1))(0,0)));
                 helpmat(i,0) += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
                                 (t_Z(l,dm_pos[xcols+k])*baseline(i,l)
                                  +t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
@@ -2309,14 +2191,6 @@ bool remlest::estimate_survival(const datamatrix resp,
           helpmat = datamatrix(nrobs,1,0);
           if(!timevarying)
             {
-/*            for(i=0; i<nrobs; i++)
-              {
-              for(l=tstart[i]; l<tend[i]-1; l++)
-                {
-                helpmat(i,0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*baseline(l,0)
-                                 +t_X(l+1,dm_pos[j])*baseline(l+1,0));
-                }
-              }*/
             double former=0;
             for(i=0, l=0; i<nrobs; i++)
               {
@@ -2335,9 +2209,6 @@ bool remlest::estimate_survival(const datamatrix resp,
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
-//                helpmat(i,0) += 0.5*tstep*interactvar(i,fc_pos[j])*
-//                                (t_X(l,dm_pos[j])*exp((interactvar.getRow(i).transposed()*basef.getRow(l))(0,0))
-//                                 +t_X(l+1,dm_pos[j])*exp((interactvar.getRow(i).transposed()*basef.getRow(l+1))(0,0)));
                 helpmat(i,0) += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
                                 (t_X(l,dm_pos[j])*baseline(i,l)
                                  +t_X(l+1,dm_pos[j])*baseline(i,l+1));
@@ -2684,6 +2555,15 @@ bool remlest::estimate_survival_interval(datamatrix resp,
     beta(0,0) = log(10/t_X(t_X.rows()-1,1));
     }
 
+/*ofstream out20("c:\\temp\\X.raw");
+X.prettyPrint(out20);
+out20.close();
+
+ofstream out21("c:\\temp\\Z.raw");
+Z.prettyPrint(out21);
+out21.close();*/
+
+
   while(test==true)
     {
 
@@ -2741,7 +2621,7 @@ out5.close();*/
       cumbaseline(i,0) = former + 0.5*tsteps(i,0)*(baseline(i,0)+baseline(i+1,0));
       former = cumbaseline(i,0);
       }
-    cumbaseline(t_X.rows()-1,0) = former + 0.5*(former-cumbaseline(t_X.rows()-3,0));
+    cumbaseline(t_X.rows()-1,0) = former;// + 0.5*(former-cumbaseline(t_X.rows()-3,0));
     datamatrix negcumbaseline = -cumbaseline;
 
 /*ofstream out9("c:\\temp\\cumbaseline.raw");
@@ -2819,11 +2699,10 @@ out1.close();*/
         former=0;
         for(i=0; i<t_X.rows()-1; i++)
           {
-//          Dmat(i,l) = former + 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)+t_X(i+1,dm_pos[j])*baseline(i+1,0));
           Dmat(i,dmat_pos[j]) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)+t_X(i+1,dm_pos[j])*baseline(i+1,0));
           former = Dmat(i,dmat_pos[j]);
           }
-        Dmat(t_X.rows()-1,dmat_pos[j]) = former - 0.5*(former + Dmat(t_X.rows()-3,dmat_pos[j]));
+        Dmat(t_X.rows()-1,dmat_pos[j]) = former;
         }
       }
     for(j=0; j<zcols; j++)
@@ -2833,11 +2712,10 @@ out1.close();*/
         former=0;
         for(i=0; i<t_Z.rows()-1; i++)
           {
-//          Dmat(i,l) = former + 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*baseline(i,0)+t_Z(i+1,dm_pos[xcols+j])*baseline(i+1,0));
           Dmat(i,dmat_pos[xcols+j]) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*baseline(i,0)+t_Z(i+1,dm_pos[xcols+j])*baseline(i+1,0));
           former = Dmat(i,dmat_pos[xcols+j]);
           }
-        Dmat(t_Z.rows()-1,dmat_pos[xcols+j]) = former - 0.5*(former + Dmat(t_Z.rows()-3,dmat_pos[xcols+j]));
+        Dmat(t_Z.rows()-1,dmat_pos[xcols+j]) = former;
         }
       }
 
@@ -2860,14 +2738,12 @@ out6.close();*/
           {
           if(interval[i])
             {
-//            H1(j,0) -= (Dmat(tstart[i],dmat_pos[j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,1))*mult_hazard(i,0)/(Survivor(i,0)-Survivor(i,1));
             H1(j,0) += (
                         Dmat(tstart[i],dmat_pos[j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,1)
                        ) * mult_hazard(i,0) / ( Survivor(i,0)-Survivor(i,1) );
             }
           else
             {
-//            H1(j,0) -= Dmat(tend[i]-1,dmat_pos[j])*mult_hazard(i,0);
             H1(j,0) += Dmat(tend[i]-1,dmat_pos[j])*mult_hazard(i,0);
             }
           }
@@ -2878,14 +2754,12 @@ out6.close();*/
           {
           if(interval[i])
             {
-//            H1(j,0) -= (cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,1))*mult_hazard(i,0)*X(i,j)/(Survivor(i,0)-Survivor(i,1));
             H1(j,0) += (
                         negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                        ) * mult_hazard(i,0) * X(i,j) / (Survivor(i,0)-Survivor(i,1));
             }
           else
             {
-//            H1(j,0) -= cumhazard(i,0)*X(i,j);
             H1(j,0) += negcumhazard(i,0)*X(i,j);
             }
           }
@@ -2895,20 +2769,18 @@ out6.close();*/
     for(j=0; j<zcols; j++)
       {
       H1(xcols + j,0)=(resp.transposed()*Z.getCol(j))(0,0);
-      if(isbaselinebeta[j]==1)
+      if(isbaselinebeta[xcols+j]==1)
         {
         for(i=0; i<nrobs; i++)
           {
           if(interval[i])
             {
-//            H1(xcols + j,0) -= (Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,1))*mult_hazard(i,0)/(Survivor(i,0)-Survivor(i,1));
             H1(xcols + j,0) += (
                                 Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,1)
                                ) * mult_hazard(i,0) / (Survivor(i,0)-Survivor(i,1));
             }
           else
             {
-//            H1(xcols + j,0) -= Dmat(tend[i]-1,dmat_pos[xcols+j])*mult_hazard(i,0);
             H1(xcols + j,0) += Dmat(tend[i]-1,dmat_pos[xcols+j])*mult_hazard(i,0);
             }
           }
@@ -2919,14 +2791,12 @@ out6.close();*/
           {
           if(interval[i])
             {
-//            H1(xcols + j,0) -= (cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,1))*mult_hazard(i,0)*Z(i,j)/(Survivor(i,0)-Survivor(i,1));
             H1(xcols + j,0) += (
                                 negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                                ) * mult_hazard(i,0) * Z(i,j) / (Survivor(i,0)-Survivor(i,1));
             }
           else
             {
-//            H1(xcols + j,0) -= cumhazard(i,0)*Z(i,j);
             H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
             }
           }
@@ -2956,19 +2826,17 @@ out8.close();*/
         // with respect to beta_j and beta_k
         helpmat = datamatrix(t_X.rows(),1,0);
 
-        if(isbaselinebeta[j]==1 || isbaselinebeta[k]==1)
+        if(isbaselinebeta[j]==1 && isbaselinebeta[k]==1)
           {
           former=0;
           for(i=0; i<t_X.rows()-1; i++)
             {
-//            helpmat(i,0) = former + 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*t_X(i,dm_pos[k])*baseline(i,0)
-//                                +t_X(i+1,dm_pos[j])*t_X(i+1,dm_pos[k])*baseline(i+1,0));
             helpmat(i,0) = former - 0.5*tsteps(i,0)*
                                     (t_X(i,dm_pos[j])*t_X(i,dm_pos[k])*baseline(i,0)
                                     + t_X(i+1,dm_pos[j])*t_X(i+1,dm_pos[k])*baseline(i+1,0));
             former=helpmat(i,0);
             }
-          helpmat(t_X.rows()-1,0) = former - 0.5*(former + helpmat(t_X.rows()-3,0));
+          helpmat(t_X.rows()-1,0) = former;
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
@@ -2985,20 +2853,18 @@ out8.close();*/
                         -
                         (
                          (
-//                          Dmat(tstart[i],dmat_pos[j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,0)
                           Dmat(tstart[i],dmat_pos[j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,1)
                          ) *mult_hazard(i,0)
                         *
                          (
-//                         Dmat(tstart[i],dmat_pos[k])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[k])*Survivor(i,0)
                          Dmat(tstart[i],dmat_pos[k])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[k])*Survivor(i,1)
                          ) *mult_hazard(i,0)
+                        )
                         /
-                         (
-                          (Survivor(i,0)-Survivor(i,1))
-                          *
-                          (Survivor(i,0)-Survivor(i,1))
-                         )
+                        (
+                         (Survivor(i,0)-Survivor(i,1))
+                         *
+                         (Survivor(i,0)-Survivor(i,1))
                         );
               }
             else
@@ -3008,27 +2874,20 @@ out8.close();*/
             }
           }
 
-        else if(isbaselinebeta[j]==0 || isbaselinebeta[k]==1)
+        else if(isbaselinebeta[j]==0 && isbaselinebeta[k]==1)
           {
           former=0;
           for(i=0; i<t_X.rows()-1; i++)
             {
-//            helpmat(i,0) = former + 0.5*tsteps(i,0)*(t_X(i,dm_pos[k])*baseline(i,0)
-//                                +t_X(i+1,dm_pos[k])*baseline(i+1,0));
             helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[k])*baseline(i,0)
                                 +t_X(i+1,dm_pos[k])*baseline(i+1,0));
             former = helpmat(i,0);
             }
-          helpmat(t_X.rows()-1,0) = former - 0.5*(former + helpmat(t_X.rows()-3,0));
+          helpmat(t_X.rows()-1,0) = former;
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
               {
-//              H(j,k) += ((helpmat(tstart[i],0) + cumbaseline(tstart[i],0)*Dmat(tstart[i],dmat_pos[k])*mult_hazard(i,0))*Survivor(i,0) -
-//                         (helpmat(tend[i]-1,0) + cumbaseline(tend[i]-1,0)*Dmat(tend[i]-1,dmat_pos[k])*mult_hazard(i,0))*Survivor(i,1))*mult_hazard(i,0)*X(i,j)/(Survivor(i,0)-Survivor(i,1))
-//                        -
-//                        ((cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,0))*mult_hazard(i,0)*
-//                         (Dmat(tstart[i],dmat_pos[k])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[k])*Survivor(i,0))*mult_hazard(i,0)*X(i,j)/((Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))));
               H(j,k) += (
                          (
                           helpmat(tstart[i],0) + negcumbaseline(tstart[i],0)*Dmat(tstart[i],dmat_pos[k])*mult_hazard(i,0)
@@ -3041,20 +2900,18 @@ out8.close();*/
                         -
                         (
                          (
-//                          negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                           negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
-                         ) * mult_hazard(i,0)
+                         ) * mult_hazard(i,0) * X(i,j)
                          *
                          (
-//                          Dmat(tstart[i],dmat_pos[k])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[k])*Survivor(i,0)
                           Dmat(tstart[i],dmat_pos[k])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[k])*Survivor(i,1)
-                         ) * mult_hazard(i,0) * X(i,j)
-                         /
-                         (
-                          (Survivor(i,0)-Survivor(i,1))
-                          *
-                          (Survivor(i,0)-Survivor(i,1))
-                         )
+                         ) * mult_hazard(i,0)
+                        )
+                        /
+                        (
+                         (Survivor(i,0)-Survivor(i,1))
+                         *
+                         (Survivor(i,0)-Survivor(i,1))
                         );
               }
             else
@@ -3064,27 +2921,20 @@ out8.close();*/
             }
           }
 
-        else if(isbaselinebeta[j]==1 || isbaselinebeta[k]==0)
+        else if(isbaselinebeta[j]==1 && isbaselinebeta[k]==0)
           {
           former=0;
           for(i=0; i<t_X.rows()-1; i++)
             {
-//            helpmat(i,0) = former + 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)
-//                                +t_X(i+1,dm_pos[j])*baseline(i+1,0));
             helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)
                                 +t_X(i+1,dm_pos[j])*baseline(i+1,0));
             former = helpmat(i,0);
             }
-          helpmat(t_X.rows()-1,0) = former - 0.5*(former + helpmat(t_X.rows()-3,0));
+          helpmat(t_X.rows()-1,0) = former;
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
               {
-//              H(j,k) += ((helpmat(tstart[i],0) + Dmat(tstart[i],dmat_pos[j])*cumbaseline(tstart[i],0)*mult_hazard(i,0))*Survivor(i,0) -
-//                         (helpmat(tend[i]-1,0) + Dmat(tend[i]-1,dmat_pos[j])*cumbaseline(tend[i]-1,0)*mult_hazard(i,0))*Survivor(i,1))*mult_hazard(i,0)*X(i,k)/(Survivor(i,0)-Survivor(i,1))
-//                        -
-//                        ((Dmat(tstart[i],dmat_pos[j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,0))*mult_hazard(i,0)*
-//                         (Dmat(tstart[i],dmat_pos[k])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[k])*Survivor(i,0))*mult_hazard(i,0)*X(i,k)/((Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))));
               H(j,k) += (
                          (
                           helpmat(tstart[i],0) + Dmat(tstart[i],dmat_pos[j])*negcumbaseline(tstart[i],0)*mult_hazard(i,0)
@@ -3097,18 +2947,16 @@ out8.close();*/
                         -
                         (
                          (
-//                          Dmat(tstart[i],dmat_pos[j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,0)
                           Dmat(tstart[i],dmat_pos[j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,1)
                          ) * mult_hazard(i,0)
                          *
                          (
-//                          negcumbaseline(tstart[i],0)*Survivor(i,0)-negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                           negcumbaseline(tstart[i],0)*Survivor(i,0)-negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                          ) * mult_hazard(i,0) * X(i,k)
-                         /
-                         (
-                          (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
-                         )
+                        )
+                        /
+                        (
+                         (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
                         );
               }
             else
@@ -3124,11 +2972,6 @@ out8.close();*/
             {
             if(interval[i])
               {
-//              H(j,k) += ((cumbaseline(tstart[i],0) + cumbaseline(tstart[i],0)*cumbaseline(tstart[i],0)*mult_hazard(i,0))*Survivor(i,0) -
-//                         (cumbaseline(tend[i]-1,0) + cumbaseline(tend[i]-1,0)*cumbaseline(tend[i]-1,0)*mult_hazard(i,0))*Survivor(i,1))*mult_hazard(i,0)*X(i,j)*X(i,k)/(Survivor(i,0)-Survivor(i,1))
-//                        -
-//                        ((cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,0))*mult_hazard(i,0)*
-//                         (cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,0))*mult_hazard(i,0)*X(i,j)*X(i,k)/((Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))));
               H(j,k) += (
                          (
                           negcumbaseline(tstart[i],0) + negcumbaseline(tstart[i],0)*negcumbaseline(tstart[i],0)*mult_hazard(i,0)
@@ -3141,23 +2984,20 @@ out8.close();*/
                         -
                         (
                          (
-//                          negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                           negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                          )*mult_hazard(i,0)
                          *
                          (
-//                          negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                           negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                          ) * mult_hazard(i,0) * X(i,j) * X(i,k)
-                         /
-                         (
-                          (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
-                         )
+                        )
+                        /
+                        (
+                         (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
                         );
               }
             else
               {
-//              H(j,k) += cumbaseline(tend[i]-1,0)*X(i,j)*X(i,k)*mult_hazard(i,0);
               H(j,k) += negcumbaseline(tend[i]-1,0)*X(i,j)*X(i,k)*mult_hazard(i,0);
               }
             }
@@ -3175,18 +3015,16 @@ out8.close();*/
         // with respect to beta_j and beta_k
         helpmat = datamatrix(t_X.rows(),1,0);
 
-        if(isbaselinebeta[j]==1 || isbaselinebeta[xcols+k]==1)
+        if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==1)
           {
           former=0;
           for(i=0; i<t_X.rows()-1; i++)
             {
-//            helpmat(i,0) = former + 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*t_Z(i,dm_pos[xcols+k])*baseline(i,0)
-//                                +t_X(i+1,dm_pos[j])*t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
             helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*t_Z(i,dm_pos[xcols+k])*baseline(i,0)
                                 +t_X(i+1,dm_pos[j])*t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
             former = helpmat(i,0);
             }
-          helpmat(t_X.rows()-1,0) = former - 0.5*(former + helpmat(t_X.rows()-3,0));
+          helpmat(t_X.rows()-1,0) = former;
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
@@ -3203,19 +3041,17 @@ out8.close();*/
                              -
                              (
                               (
-//                               Dmat(tstart[i],dmat_pos[j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,0)
                                Dmat(tstart[i],dmat_pos[j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,1)
                               ) * mult_hazard(i,0)
                               *
                              (
-//                              Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,0)
                               Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,1)
 
                              ) * mult_hazard(i,0)
-                             /
-                             (
-                              (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
-                             )
+                            )
+                            /
+                            (
+                             (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
                             );
               }
             else
@@ -3225,27 +3061,20 @@ out8.close();*/
             }
           }
 
-        else if(isbaselinebeta[j]==0 || isbaselinebeta[xcols+k]==1)
+        else if(isbaselinebeta[j]==0 && isbaselinebeta[xcols+k]==1)
           {
           former=0;
           for(i=0; i<t_X.rows()-1; i++)
             {
-//            helpmat(i,0) = former + 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+k])*baseline(i,0)
-//                                +t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
             helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+k])*baseline(i,0)
                                 +t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
             former = helpmat(i,0);
             }
-          helpmat(t_X.rows()-1,0) = former - 0.5*(former - helpmat(t_X.rows()-3,0));
+          helpmat(t_X.rows()-1,0) = former;
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
               {
-//              H(j,xcols+k) += ((helpmat(tstart[i],0) + cumbaseline(tstart[i],0)*Dmat(tstart[i],dmat_pos[xcols+k])*mult_hazard(i,0))*Survivor(i,0) -
-//                         (helpmat(tend[i]-1,0) + cumbaseline(tend[i]-1,0)*Dmat(tend[i]-1,dmat_pos[xcols+k])*mult_hazard(i,0))*Survivor(i,1))*mult_hazard(i,0)*X(i,j)/(Survivor(i,0)-Survivor(i,1))
-//                        -
-//                        ((cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,0))*mult_hazard(i,0)*
-//                         (Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,0))*mult_hazard(i,0)*X(i,j)/((Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))));
               H(j,xcols+k) += (
                                (
                                 helpmat(tstart[i],0) + negcumbaseline(tstart[i],0)*Dmat(tstart[i],dmat_pos[xcols+k])*mult_hazard(i,0)
@@ -3258,48 +3087,39 @@ out8.close();*/
                               -
                              (
                               (
-//                               negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                                negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
-                              ) * mult_hazard(i,0)
+                              ) * mult_hazard(i,0) * X(i,j)
                               *
                               (
-//                               Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,0)
                                Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,1)
-                              ) * mult_hazard(i,0) * X(i,j)
-                              /
-                              (
-                               (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
-                              )
+                              ) * mult_hazard(i,0)
+                             )
+                             /
+                             (
+                              (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
                              );
               }
             else
               {
-              H(j,xcols+k) += helpmat(tend[i],0)*X(i,j)*mult_hazard(i,0);
+              H(j,xcols+k) += helpmat(tend[i]-1,0)*X(i,j)*mult_hazard(i,0);
               }
             }
           }
 
-        else if(isbaselinebeta[j]==1 || isbaselinebeta[xcols+k]==0)
+        else if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==0)
           {
           former=0;
           for(i=0; i<t_X.rows()-1; i++)
             {
-//            helpmat(i,0) = former + 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)
-//                                +t_X(i+1,dm_pos[j])*baseline(i+1,0));
             helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)
                                 +t_X(i+1,dm_pos[j])*baseline(i+1,0));
             former=helpmat(i,0);
             }
-          helpmat(t_X.rows()-1,0) = former - 0.5*(former + helpmat(t_X.rows()-3,0));
+          helpmat(t_X.rows()-1,0) = former;
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
               {
-//              H(j,xcols+k) += ((helpmat(tstart[i],0) + Dmat(tstart[i],dmat_pos[j])*cumbaseline(tstart[i],0)*mult_hazard(i,0))*Survivor(i,0) -
-//                         (helpmat(tend[i]-1,0) + Dmat(tend[i]-1,dmat_pos[j])*cumbaseline(tend[i]-1,0)*mult_hazard(i,0))*Survivor(i,1))*mult_hazard(i,0)*Z(i,k)/(Survivor(i,0)-Survivor(i,1))
-//                        -
-//                        ((Dmat(tstart[i],dmat_pos[j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,0))*mult_hazard(i,0)*
-//                         (Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,0))*mult_hazard(i,0)*Z(i,k)/((Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))));
               H(j,xcols+k) += (
                                (
                                 helpmat(tstart[i],0) + Dmat(tstart[i],dmat_pos[j])*negcumbaseline(tstart[i],0)*mult_hazard(i,0)
@@ -3312,18 +3132,16 @@ out8.close();*/
                               -
                               (
                                (
-//                                Dmat(tstart[i],dmat_pos[j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,0)
                                 Dmat(tstart[i],dmat_pos[j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,1)
                                ) * mult_hazard(i,0)
                                *
                               (
-//                               negcumbaseline(tstart[i],0)*Survivor(i,0)-negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                                negcumbaseline(tstart[i],0)*Survivor(i,0)-negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                               ) * mult_hazard(i,0) * Z(i,k)
-                              /
-                              (
-                               (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
-                              )
+                             )
+                             /
+                             (
+                              (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
                              );
               }
             else
@@ -3339,11 +3157,6 @@ out8.close();*/
             {
             if(interval[i])
               {
-//              H(j,xcols+k) += ((cumbaseline(tstart[i],0) + cumbaseline(tstart[i],0)*cumbaseline(tstart[i],0)*mult_hazard(i,0))*Survivor(i,0) -
-//                         (cumbaseline(tend[i]-1,0) + cumbaseline(tend[i]-1,0)*cumbaseline(tend[i]-1,0)*mult_hazard(i,0))*Survivor(i,1))*mult_hazard(i,0)*X(i,j)*Z(i,k)/(Survivor(i,0)-Survivor(i,1))
-//                        -
-//                        ((cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,0))*mult_hazard(i,0)*
-//                         (cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,0))*mult_hazard(i,0)*X(i,j)*Z(i,k)/((Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))));
               H(j,xcols+k) += (
                                (
                                 negcumbaseline(tstart[i],0) + negcumbaseline(tstart[i],0)*negcumbaseline(tstart[i],0)*mult_hazard(i,0)
@@ -3356,23 +3169,20 @@ out8.close();*/
                               -
                               (
                                (
-//                                negcumbaseline(tstart[i],0)*Survivor(i,0)-negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                                 negcumbaseline(tstart[i],0)*Survivor(i,0)-negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                                ) * mult_hazard(i,0)
                                *
                               (
-//                               negcumbaseline(tstart[i],0)*Survivor(i,0)-negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                                negcumbaseline(tstart[i],0)*Survivor(i,0)-negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                               ) * mult_hazard(i,0) * X(i,j) * Z(i,k)
-                              /
-                              (
-                               (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
-                              )
+                             )
+                             /
+                             (
+                              (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
                              );
               }
             else
               {
-//              H(j,xcols+k) += cumbaseline(tend[i]-1,0)*X(i,j)*Z(i,k)*mult_hazard(i,0);
               H(j,xcols+k) += negcumbaseline(tend[i]-1,0)*X(i,j)*Z(i,k)*mult_hazard(i,0);
               }
             }
@@ -3390,18 +3200,16 @@ out8.close();*/
         // with respect to beta_j and beta_k
         helpmat = datamatrix(t_X.rows(),1,0);
 
-        if(isbaselinebeta[xcols+j]==1 || isbaselinebeta[xcols+k]==1)
+        if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==1)
           {
           former=0;
           for(i=0; i<t_X.rows()-1; i++)
             {
-//            helpmat(i,0) = former + 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*t_Z(i,dm_pos[xcols+k])*baseline(i,0)
-//                                +t_Z(i+1,dm_pos[xcols+j])*t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
             helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*t_Z(i,dm_pos[xcols+k])*baseline(i,0)
                                 +t_Z(i+1,dm_pos[xcols+j])*t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
             former = helpmat(i,0);
             }
-          helpmat(t_X.rows()-1,0) = former - 0.5*(former + helpmat(t_X.rows()-3,0));
+          helpmat(t_X.rows()-1,0) = former;
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
@@ -3418,18 +3226,16 @@ out8.close();*/
                                     -
                                     (
                                      (
-//                                      Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,0)
                                       Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,1)
                                      ) * mult_hazard(i,0)
                                      *
                                      (
-//                                      Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,0)
                                       Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,1)
                                      ) * mult_hazard(i,0)
-                                     /
-                                     (
-                                      (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
-                                     )
+                                    )
+                                    /
+                                    (
+                                     (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
                                     );
               }
             else
@@ -3439,27 +3245,20 @@ out8.close();*/
             }
           }
 
-        else if(isbaselinebeta[xcols+j]==0 || isbaselinebeta[xcols+k]==1)
+        else if(isbaselinebeta[xcols+j]==0 && isbaselinebeta[xcols+k]==1)
           {
           former=0;
           for(i=0; i<t_X.rows()-1; i++)
             {
-//            helpmat(i,0) = former + 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+k])*baseline(i,0)
-//                                +t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
             helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+k])*baseline(i,0)
                                 +t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
             former = helpmat(i,0);
             }
-          helpmat(t_X.rows()-1,0) = former - 0.5*(former + helpmat(t_X.rows()-3,0));
+          helpmat(t_X.rows()-1,0) = former;
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
               {
-//              H(xcols+j,xcols+k) += ((helpmat(tstart[i],0) + cumbaseline(tstart[i],0)*Dmat(tstart[i],dmat_pos[xcols+k])*mult_hazard(i,0))*Survivor(i,0) -
-//                         (helpmat(tend[i]-1,0) + cumbaseline(tend[i]-1,0)*Dmat(tend[i]-1,dmat_pos[xcols+k])*mult_hazard(i,0))*Survivor(i,1))*mult_hazard(i,0)*Z(i,j)/(Survivor(i,0)-Survivor(i,1))
-//                        -
-//                        ((cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,0))*mult_hazard(i,0)*
-//                         (Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,0))*mult_hazard(i,0)*Z(i,j)/((Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))));
               H(xcols+j,xcols+k) += (
                                      (
                                       helpmat(tstart[i],0) + negcumbaseline(tstart[i],0)*Dmat(tstart[i],dmat_pos[xcols+k])*mult_hazard(i,0)
@@ -3472,18 +3271,16 @@ out8.close();*/
                                     -
                                     (
                                      (
-//                                      negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                                       negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
-                                     ) * mult_hazard(i,0)
+                                     ) * mult_hazard(i,0) * Z(i,j)
                                      *
                                      (
-//                                      Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,0)
                                       Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,1)
-                                     ) * mult_hazard(i,0) * Z(i,j)
-                                     /
-                                     (
-                                      (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
-                                     )
+                                     ) * mult_hazard(i,0)
+                                    )
+                                    /
+                                    (
+                                     (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
                                     );
               }
             else
@@ -3493,30 +3290,23 @@ out8.close();*/
             }
           }
 
-        else if(isbaselinebeta[xcols+j]==1 || isbaselinebeta[xcols+k]==0)
+        else if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==0)
           {
           former=0;
           for(i=0; i<t_X.rows()-1; i++)
             {
-//            helpmat(i,0) = former + 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*baseline(i,0)
-//                                +t_Z(i+1,dm_pos[xcols+j])*baseline(i+1,0));
             helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*baseline(i,0)
                                 +t_Z(i+1,dm_pos[xcols+j])*baseline(i+1,0));
             former = helpmat(i,0);
             }
-          helpmat(t_X.rows()-1,0) = former - 0.5*(former + helpmat(t_X.rows()-3,0));
+          helpmat(t_X.rows()-1,0) = former;
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
               {
-//              H(xcols+j,xcols+k) += ((helpmat(tstart[i],0) + Dmat(tstart[i],dmat_pos[j])*cumbaseline(tstart[i],0)*mult_hazard(i,0))*Survivor(i,0) -
-//                         (helpmat(tend[i]-1,0) + Dmat(tend[i]-1,dmat_pos[xcols+j])*cumbaseline(tend[i]-1,0)*mult_hazard(i,0))*Survivor(i,1))*mult_hazard(i,0)*Z(i,k)/(Survivor(i,0)-Survivor(i,1))
-//                        -
-//                        ((Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,0))*mult_hazard(i,0)*
-//                         (Dmat(tstart[i],dmat_pos[xcols+k])*Survivor(i,0)-Dmat(tend[i]-1,dmat_pos[xcols+k])*Survivor(i,0))*mult_hazard(i,0)*Z(i,k)/((Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))));
               H(xcols+j,xcols+k) += (
                                      (
-                                      helpmat(tstart[i],0) + Dmat(tstart[i],dmat_pos[j])*negcumbaseline(tstart[i],0)*mult_hazard(i,0)
+                                      helpmat(tstart[i],0) + Dmat(tstart[i],dmat_pos[xcols+j])*negcumbaseline(tstart[i],0)*mult_hazard(i,0)
                                      ) * Survivor(i,0)
                                      -
                                      (
@@ -3526,18 +3316,16 @@ out8.close();*/
                                     -
                                     (
                                      (
-//                                      Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,0)
                                       Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,1)
                                       ) * mult_hazard(i,0)
                                      *
                                      (
-//                                      negcumbaseline(tstart[i],0)*Survivor(i,0)-negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                                       negcumbaseline(tstart[i],0)*Survivor(i,0)-negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                                      ) * mult_hazard(i,0) * Z(i,k)
-                                     /
-                                     (
-                                      (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
-                                     )
+                                    )
+                                    /
+                                    (
+                                     (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
                                     );
               }
             else
@@ -3553,11 +3341,6 @@ out8.close();*/
             {
             if(interval[i])
               {
-//              H(xcols+j,xcols+k) += ((cumbaseline(tstart[i],0) + cumbaseline(tstart[i],0)*cumbaseline(tstart[i],0)*mult_hazard(i,0))*Survivor(i,0) -
-//                         (cumbaseline(tend[i]-1,0) + cumbaseline(tend[i]-1,0)*cumbaseline(tend[i]-1,0)*mult_hazard(i,0))*Survivor(i,1))*mult_hazard(i,0)*Z(i,j)*Z(i,k)/(Survivor(i,0)-Survivor(i,1))
-//                        -
-//                        ((cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,0))*mult_hazard(i,0)*
-//                         (cumbaseline(tstart[i],0)*Survivor(i,0)-cumbaseline(tend[i]-1,0)*Survivor(i,0))*mult_hazard(i,0)*Z(i,j)*Z(i,k)/((Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))));
               H(xcols+j,xcols+k) += (
                                      (
                                       negcumbaseline(tstart[i],0) + negcumbaseline(tstart[i],0)*negcumbaseline(tstart[i],0)*mult_hazard(i,0)
@@ -3570,23 +3353,20 @@ out8.close();*/
                                     -
                                     (
                                      (
-//                                      negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                                       negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                                      ) * mult_hazard(i,0)
                                      *
                                      (
-//                                      negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,0)
                                       negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
                                      ) * mult_hazard(i,0) * Z(i,j) * Z(i,k)
-                                     /
-                                     (
-                                      (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
-                                     )
+                                    )
+                                    /
+                                    (
+                                     (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
                                     );
               }
             else
               {
-//              H(xcols+j,xcols+k) += cumbaseline(tend[i]-1,0)*Z(i,j)*Z(i,k)*mult_hazard(i,0);
               H(xcols+j,xcols+k) += negcumbaseline(tend[i]-1,0)*Z(i,j)*Z(i,k)*mult_hazard(i,0);
               }
             }
@@ -3595,6 +3375,7 @@ out8.close();*/
         }
       }
     H = -H;
+
 
 /*ofstream out7("c:\\temp\\H.raw");
 H.prettyPrint(out7);
@@ -3624,15 +3405,17 @@ out16.close();*/
 
     Hinv=H.inverse();
 
-/*    // transform theta
+    // transform theta
     for(i=0; i<theta.rows(); i++)
       {
       thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
       theta(i,0)=signs[i]*sqrt(theta(i,0));
       }
 
-//  for(int clo=0; clo<it; clo++)
-//    {
+/*ofstream out18("c:\\temp\\beta.raw");
+beta.prettyPrint(out18);
+out18.close();*/
+
     // Score-Funktion für theta
 
    for(j=0; j<theta.rows(); j++)
@@ -3642,9 +3425,9 @@ out16.close();*/
                        (beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]).transposed()*beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]))(0,0)/(theta(j,0)*theta(j,0)*theta(j,0)));
       }
 
-ofstream out15("c:\\temp\\score.raw");
-score.prettyPrint(out15);
-out15.close();
+//ofstream out15("c:\\temp\\score.raw");
+//score.prettyPrint(out15);
+//out15.close();
 
     // Fisher-Info für theta
 
@@ -3657,14 +3440,17 @@ out15.close();
         }
       }
 
-ofstream out17("c:\\temp\\Fisher.raw");
-Fisher.prettyPrint(out17);
-out17.close();
+//ofstream out17("c:\\temp\\Fisher.raw");
+//Fisher.prettyPrint(out17);
+//out17.close();
 
     //Fisher-scoring für theta
 
     theta = thetaold + Fisher.solve(score);
-//  }
+
+/*ofstream out19("c:\\temp\\theta.raw");
+theta.prettyPrint(out19);
+out19.close();*/
 
     // transform theta back to original parameterisation
 
@@ -3693,7 +3479,7 @@ out17.close();
        its[i]=it;
        }
      }
-*/
+
     // compute convergence criteria
     help=betaold.norm(0);
     if(help==0)
@@ -3741,7 +3527,7 @@ out17.close();
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
-datamatrix loglike(1,4,0);
+/*datamatrix loglike(1,4,0);
 loglike(0,0) = loglike(0,1) = (resp.transposed()*eta)(0,0);
 loglike(0,0) -= 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
 loglike(0,1) -= 0.5*log(H.det()) + 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
@@ -3764,7 +3550,7 @@ loglike(0,3) = (H*Hinv).trace();
 
   ofstream outlog((outfile+"_loglike.raw").strtochar());
   loglike.prettyPrint(outlog);
-  outlog.close();
+  outlog.close();*/
 
   datamatrix thetareml(theta.rows(),3,0);
   thetareml.putCol(0,theta);
