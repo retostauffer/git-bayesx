@@ -1537,10 +1537,10 @@ void spline_basis::update_prediction(void)
   if(predictright)
     {
     if(type==RW1)
-      for(j=nrpar-nrparpredictright;j<nrpar;j++)
+      for(j=nrpar-nrparpredictright;j<int(nrpar);j++)
         beta(j,0) += beta(j-1,0);
     else if(type==RW2)
-      for(j=nrpar-nrparpredictright;j<nrpar;j++)
+      for(j=nrpar-nrparpredictright;j<int(nrpar);j++)
         beta(j,0) += 2*beta(j-1,0) - beta(j-2,0);
     }
   if(predictleft)
@@ -2634,7 +2634,6 @@ void spline_basis::save_betas(vector<double> & modell, unsigned & anzahl)
   {
   vector<double> beta_neu;
   unsigned i;
-  unsigned j;
 
   if(anzahl == -1)
     {

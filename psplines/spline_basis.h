@@ -131,7 +131,7 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
   vector<int> DGfirst;                  // Gibt pro Zeile die Position des ersten Elements
                                         // von DG an das ungleich Null ist
 
-  vector<vector<double>> beta_average;  // für stepwise
+  vector< vector<double> > beta_average;// für stepwise
 
   // FUNCTION: make_index
   // TASK: berechnet index, freq und freqoutput
