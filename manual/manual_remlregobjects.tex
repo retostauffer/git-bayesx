@@ -705,9 +705,9 @@ terms and options can be found.
  #full# & Specifies that all distinct locations should be used as
  knots with the kriging term. & -\\
  \hline
- #nu# & The smoothness parameter $\nu$ of the Mat{\`e}rn correlation function. & #nu=1.5# \\
+ #nu# & The smoothness parameter $\nu$ of the Mat\`{e}rn correlation function. & #nu=1.5# \\
  \hline
- #maxdist# & Specifies the value $c$ that is used to determine the scale parameter $\rho$ of the Mat{\`e}rn correlation function. Compare \autoref{interactions}. & default depends on #nu#\\
+ #maxdist# & Specifies the value $c$ that is used to determine the scale parameter $\rho$ of the Mat\`{e}rn correlation function. Compare \autoref{interactions}. & default depends on #nu#\\
  \hline
  #p# & Defines the parameter $p$ used in the coverage criterion of the space filling algorithm. & #p=-20#\\
  \hline
@@ -803,15 +803,16 @@ the different models:
 
 \begin{table}[ht]
 \begin{center}
-\begin{tabular} {|l|l|l|l|}
+\begin{tabular} {|l|l|p{2.7cm}|l|}
  \hline
- value of #family# & response distribution & link & additional options\\
+ value of #family# & response distribution & link & options\\
  \hline
  \hline
  #family=gaussian#            & Gaussian              & identity & \\
  \hline
- #family=binomialprobit#      & binomial              & probit & \\
  #family=binomial#            & binomial              & logit & \\
+ #family=binomialprobit#      & binomial              & probit & \\
+ #family=binomialcomploglog#      & binomial              & complementary log-log & \\
  \hline
  #family=multinomial#         & unordered multinomial & logit & #reference#\\
  \hline
@@ -855,17 +856,21 @@ case the weights should be proportional to the reciprocal of the
 heteroscedastic variances. If a weight variable is not specified,
 {\em BayesX} assumes $weightvar_i = 1$, $i=1,\dots,n$.
 
-{\bf Binomial logit and probit models}
+{\bf Binomial logit, probit and complementary log-log models}
 
 A binomial logit model is specified by adding the option
 
 #family=binomial#
 
-and a probit model by adding
+a probit model by adding
 
 #family=binomialprobit#
 
-to the options list.
+and a complementary log-log model by adding
+
+#family=binomialcomploglog#
+
+to the option list.
 
 A weight variable may be additionally specified, see
 \autoref{remlregregresssyntax} for the syntax. {\em BayesX}
@@ -913,8 +918,6 @@ Note, that in contrast to {\em bayesreg objects} {\em remlreg
 objects} can deal with an arbitrary number of ordered categories.
 However, for more than 5 categories estimation will become rather
 computer intensive and time demanding.
-
-\newpage
 
 {\bf Poisson regression}
 
