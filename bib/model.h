@@ -965,6 +965,7 @@ class __EXPORT_TYPE term_mixture : public basic_termtype
   doubleoption vpriora;
   doubleoption vpriorb;
   simpleoption nosamples;
+  intoption aclag;  
 
   void setdefault(void);
 

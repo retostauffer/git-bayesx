@@ -1041,7 +1041,8 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
   {
 
 //  ST::string pathnonp2;
-  int f,nrcomp;
+  int f;
+  unsigned nrcomp,aclag;
   double wprior,mpriorm,mpriorv,vpriora,vpriorb;
   long h;
   bool nosamples=false;
@@ -1063,6 +1064,8 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
       f = (terms[i].options[6]).strtodouble(vpriorb);
       if (terms[i].options[7] == "true")
         nosamples = true;
+      f = (terms[i].options[8]).strtolong(h);
+      aclag = unsigned(h);
 
       if (f==1)
         return true;
@@ -1122,7 +1125,7 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
                                                         nrcomp,wprior,
                                                         mpriorm,mpriorv,
                                                         vpriora,vpriorb,
-                                                        nosamples,
+                                                        nosamples,aclag,
                                                         collinpred
                                                         )
                           );

@@ -25,10 +25,10 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   protected:
 
-  unsigned nrcomp;                   // Number of mixture components
+  unsigned nrcomp;              // Number of mixture components
   datamatrix compweight;        // Weights of mixture components
   statmatrix<unsigned> csize;   // Sizes of mixture components
-  statmatrix<unsigned> compind; // Indicators for mixture components
+  datamatrix compind;           // Indicators, class probabilities for mixture components
   datamatrix compmean;          // Means of mixture components
   datamatrix compvar;           // Variances of mixture components
 
@@ -37,6 +37,8 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
   double cvpriora,cvpriorb;     // Prior parameters variances of mixture components
 
   bool nosamples;
+  unsigned aclag;               // Lag for autocorrelations of mixture component parameters
+                               // aclag=0 => no autocorrelations written in file
   datamatrix temp;
 
   FULLCOND cpar_fc;  // FULLCOND object for component parameters
@@ -69,10 +71,10 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
                   FULLCOND_const * fcc,
                   const datamatrix & d, const ST::string & t,
                   const ST::string & fp,const ST::string & pr,
-                  const int & nrc, const double & pw,
+                  const unsigned & nrc, const double & pw,
                   const double & pmm,const double & pmv,
                   const double & pva,const double & pvb,
-                  const bool & s,                   
+                  const bool & s, const unsigned & acl,
                   const unsigned & c=0);
 
 
