@@ -483,7 +483,7 @@ void FULLCOND_variance_nonp::outresults(void)
 
     transform = pow(distrp->get_trmult(column),2);
 
-    optionsp->out("  Estimated variance parameter (mode): "
+    optionsp->out("  Variance parameter: "
                   + ST::doubletostring(transform*beta(0,0),6) + "\n");
     optionsp->out("\n");
     }
@@ -616,8 +616,8 @@ void FULLCOND_variance_nonp::outresults_lambda(void)
 
     transform = pow(distrp->get_trmult(column),2);
 
-    optionsp->out("  Estimated variance parameter (mode): "
-                  + ST::doubletostring(transform*Kp->getbeta(0,0),6) + "\n");
+    optionsp->out("  Smoothing parameter: "
+                  + ST::doubletostring(transform*distrp->get_scale(0,0)/beta(0,0),6) + "\n");
     optionsp->out("\n");
     }
 
