@@ -16,9 +16,10 @@
 //-------------------------- class term_autoreg_remlreg ------------------------
 //------------------------------------------------------------------------------
 
+// First or second order random walk
+
 class __EXPORT_TYPE term_autoreg_remlreg : public basic_termtype
   {
-
   protected:
 
   doubleoption lambda;
@@ -51,9 +52,10 @@ class __EXPORT_TYPE term_autoreg_remlreg : public basic_termtype
 //-------------------- class term_autoreg_varcoef_remlreg ----------------------
 //------------------------------------------------------------------------------
 
+// First or second order random walk as effect modifier in a VCM
+
 class __EXPORT_TYPE term_autoreg_varcoef_remlreg : public basic_termtype
   {
-
   protected:
 
   doubleoption lambda;
@@ -72,7 +74,8 @@ class __EXPORT_TYPE term_autoreg_varcoef_remlreg : public basic_termtype
   bool check(term & t);
 
   // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is a first or second order random walk
+  // TASK: returns true if term 'i' is a VCM with first or second order random
+  //       walk as effect modifier
 
   bool checkvector(const vector<term>  & terms,const unsigned & i);
 
@@ -86,9 +89,10 @@ class __EXPORT_TYPE term_autoreg_varcoef_remlreg : public basic_termtype
 //-------------------------- class term_season_remlreg -------------------------
 //------------------------------------------------------------------------------
 
+// Seasonal Effect
+
 class __EXPORT_TYPE term_season_remlreg : public basic_termtype
   {
-
   protected:
 
   intoption period;
@@ -122,9 +126,10 @@ class __EXPORT_TYPE term_season_remlreg : public basic_termtype
 //------------------- class term_season_varcoef_remlreg ------------------------
 //------------------------------------------------------------------------------
 
+// Seasonal effect as effect modifier in a VCM
+
 class __EXPORT_TYPE term_season_varcoef_remlreg : public basic_termtype
   {
-
   protected:
 
   intoption period;
@@ -144,7 +149,8 @@ class __EXPORT_TYPE term_season_varcoef_remlreg : public basic_termtype
   bool check(term & t);
 
   // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is a seasonal component
+  // TASK: returns true if term 'i' is a VCM with a seasonal component as
+  //       effect modifier
 
   bool checkvector(const vector<term> & terms,const unsigned & i);
 
@@ -158,18 +164,20 @@ class __EXPORT_TYPE term_season_varcoef_remlreg : public basic_termtype
 //------------------------- class term_pspline_remlreg -------------------------
 //------------------------------------------------------------------------------
 
+// P-spline with first or second order random walk penalty
+
 class __EXPORT_TYPE term_pspline_remlreg : public basic_termtype
   {
-
   protected:
 
-  intoption degree;
-  intoption numberknots;
+  intoption degree;                // degree of the b-spline basis
+  intoption numberknots;           // number of knots
   doubleoption lambda;
   intoption gridsize;
   simpleoption diagtransform;
   simpleoption derivative;
   doubleoption lambdastart;
+
 
   void setdefault(void);
 
@@ -184,7 +192,7 @@ class __EXPORT_TYPE term_pspline_remlreg : public basic_termtype
   bool check(term & t);
 
   // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is a psline with rw1 oder rw2 Penalty
+  // TASK: returns true if term 'i' is a psline with rw1 oder rw2 penalty
 
   bool checkvector(const vector<term> & terms,const unsigned & i);
 
@@ -195,234 +203,14 @@ class __EXPORT_TYPE term_pspline_remlreg : public basic_termtype
   };
 
 //------------------------------------------------------------------------------
-//-------------------------- class term_spatial_remlreg ------------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE term_spatial_remlreg : public basic_termtype
-  {
-
-  protected:
-
-  stroption map;
-  doubleoption lambda;
-  doubleoption lambdastart;
-
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_spatial_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is a spatial component
-
-  bool checkvector(const vector<term> & terms,const unsigned & i);
-
-  // DESTRUCTOR
-
-  ~term_spatial_remlreg() {}
-
-  };
-
-//------------------------------------------------------------------------------
-//--------------------- class term_spatial_varcoef_remlreg ---------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE term_spatial_varcoef_remlreg : public basic_termtype
-  {
-
-  protected:
-
-  stroption map;
-  doubleoption lambda;
-  doubleoption lambdastart;
-
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_spatial_varcoef_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is a spatial component
-
-  bool checkvector(const vector<term> & terms,const unsigned & i);
-
-  // DESTRUCTOR
-
-  ~term_spatial_varcoef_remlreg() {}
-
-  };
-
-//------------------------------------------------------------------------------
-//----------------------- class term_randomslope_remlreg -----------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE term_randomslope_remlreg : public basic_termtype
-  {
-
-  protected:
-
-  doubleoption lambda;
-  doubleoption lambdastart;
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_randomslope_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is a random effect
-
-  bool checkvector(const vector<term> & terms,const unsigned & i);
-
-  // DESTRUCTOR
-
-  ~term_randomslope_remlreg() {}
-
-  };
-
-//------------------------------------------------------------------------------
-//---------------------- class term_random_remlreg -----------------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE term_random_remlreg : public basic_termtype
-  {
-
-  protected:
-
-  doubleoption lambda;
-  doubleoption lambdastart;
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_random_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is a random effect
-
-  bool checkvector(const vector<term> & terms,const unsigned & i);
-
-  // DESTRUCTOR
-
-  ~term_random_remlreg() {}
-
-  };
-
-//------------------------------------------------------------------------------
-//-------------------- class term_interactpspline_remlreg ----------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE term_interactpspline_remlreg : public basic_termtype
-  {
-
-  protected:
-
-  intoption degree;
-  intoption numberknots;
-  doubleoption lambda;
-  doubleoption lambdastart;
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_interactpspline_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
-
-  bool checkvector(const vector<term> & terms,const unsigned & i);
-
-  // DESTRUCTOR
-
-  ~term_interactpspline_remlreg() {}
-
-  };
-
-
-//------------------------------------------------------------------------------
-//--------------------------- class term_geospline_remlreg ---------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE term_geospline_remlreg : public basic_termtype
-  {
-
-  protected:
-
-  intoption degree;
-  intoption numberknots;
-  doubleoption lambda;
-  stroption map;
-  doubleoption lambdastart;
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_geospline_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
-
-  bool checkvector(const vector<term> & terms,const unsigned & i);
-
-  // DESTRUCTOR
-
-  ~term_geospline_remlreg() {}
-
-  };
-
-//------------------------------------------------------------------------------
 //------------------- class term_varcoeff_pspline_remlreg ----------------------
 //------------------------------------------------------------------------------
 
+// P-spline with first or second order random walk prior as effect modifier in
+// a VCM
 
 class __EXPORT_TYPE term_varcoeff_pspline_remlreg : public basic_termtype
   {
-
-
   protected:
 
   intoption degree;
@@ -443,18 +231,9 @@ class __EXPORT_TYPE term_varcoeff_pspline_remlreg : public basic_termtype
   bool check(term & t);
 
   // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
+  // TASK: returns true if term 'i' is a VCM with a P-spline as effect modifier
 
-  bool checkvector(const vector<term> & terms,const unsigned & i)
-    {
-
-    assert(i< terms.size());
-
-    if ((terms[i].type == "varpsplinerw1") || (terms[i].type == "varpsplinerw2"))
-      return true;
-
-    return false;
-    }
+  bool checkvector(const vector<term> & terms,const unsigned & i);
 
   // DESTRUCTOR
 
@@ -463,178 +242,22 @@ class __EXPORT_TYPE term_varcoeff_pspline_remlreg : public basic_termtype
   };
 
 //------------------------------------------------------------------------------
-//------------------------ class term_kriging_remlreg --------------------------
-//------------------------------------------------------------------------------
-
-
-class __EXPORT_TYPE term_kriging_remlreg : public basic_termtype
-  {
-
-
-  protected:
-
-  intoption numberknots;
-  doubleoption nu;
-  doubleoption maxdist;
-  simpleoption full;
-  stroption knotdata;
-  doubleoption p;
-  doubleoption q;
-  intoption maxsteps;
-  doubleoption lambda;
-  doubleoption lambdastart;
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_kriging_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
-
-  bool checkvector(const vector<term> & terms,const unsigned & i)
-    {
-
-    assert(i< terms.size());
-
-    if (terms[i].type == "kriging")
-      return true;
-
-    return false;
-    }
-
-  // DESTRUCTOR
-
-  ~term_kriging_remlreg() {}
-
-  };
-
-//------------------------------------------------------------------------------
-//----------------------- class term_geokriging_remlreg ------------------------
-//------------------------------------------------------------------------------
-
-
-class __EXPORT_TYPE term_geokriging_remlreg : public basic_termtype
-  {
-
-
-  protected:
-
-  intoption numberknots;
-  doubleoption nu;
-  doubleoption maxdist;
-  simpleoption full;
-  stroption knotdata;
-  doubleoption p;
-  doubleoption q;
-  intoption maxsteps;
-  doubleoption lambda;
-  doubleoption lambdastart;
-  stroption map;
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_geokriging_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
-
-  bool checkvector(const vector<term> & terms,const unsigned & i)
-    {
-
-    assert(i< terms.size());
-
-    if (terms[i].type == "geokriging")
-      return true;
-
-    return false;
-    }
-
-  // DESTRUCTOR
-
-  ~term_geokriging_remlreg() {}
-
-  };
-
-//------------------------------------------------------------------------------
-//--------------------- class term_kriging_1dim_remlreg ------------------------
-//------------------------------------------------------------------------------
-
-
-class __EXPORT_TYPE term_kriging_1dim_remlreg : public basic_termtype
-  {
-
-
-  protected:
-
-  doubleoption nu;
-  doubleoption maxdist;
-  doubleoption lambda;
-  doubleoption lambdastart;
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_kriging_1dim_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
-
-  bool checkvector(const vector<term> & terms,const unsigned & i)
-    {
-
-    assert(i< terms.size());
-
-    if (terms[i].type == "1dimkriging")
-      return true;
-
-    return false;
-    }
-
-  // DESTRUCTOR
-
-  ~term_kriging_1dim_remlreg() {}
-
-  };
-
-//------------------------------------------------------------------------------
 //--------------------- class term_baseline_remlreg ----------------------------
 //------------------------------------------------------------------------------
 
+// p-spline for the baseline in a cox model
+
 class __EXPORT_TYPE term_baseline_remlreg : public basic_termtype
   {
-
-
   protected:
 
-  intoption degree;
-  intoption numberknots;
-  intoption tgrid;
-  stroption gridchoice;
-  intoption numberquantiles;
-  intoption numberbetween;
+  intoption degree;           // degree of the b-spline basis
+  intoption numberknots;      // number of knots for the b-spline
+  intoption tgrid;            // number of equidistant gridpoints
+  stroption gridchoice;       // equidistant or quantile grid for numerical
+                              // integration
+  intoption numberquantiles;  // numberof quantiles
+  intoption numberbetween;    // number of gridpoints between quantiles
   doubleoption lambda;
   doubleoption lambdastart;
 
@@ -651,7 +274,7 @@ class __EXPORT_TYPE term_baseline_remlreg : public basic_termtype
   bool check(term & t);
 
   // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
+  // TASK: returns true if term 'i' is a p-spline for the baseline in a cox model
 
   bool checkvector(const vector<term> & terms,const unsigned & i);
 
@@ -665,9 +288,10 @@ class __EXPORT_TYPE term_baseline_remlreg : public basic_termtype
 //------------------ class term_baseline_varcoef_remlreg -----------------------
 //------------------------------------------------------------------------------
 
+// p-spline for time-varying effects in a cox model
+
 class __EXPORT_TYPE term_baseline_varcoeff_remlreg : public basic_termtype
   {
-
   protected:
 
   doubleoption lambda;
@@ -686,7 +310,8 @@ class __EXPORT_TYPE term_baseline_varcoeff_remlreg : public basic_termtype
   bool check(term & t);
 
   // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
+  // TASK: returns true if term 'i' is a p-spline for time-varying effects in
+  //       a cox model
 
   bool checkvector(const vector<term> & terms,const unsigned & i);
 
@@ -697,12 +322,132 @@ class __EXPORT_TYPE term_baseline_varcoeff_remlreg : public basic_termtype
   };
 
 //------------------------------------------------------------------------------
+//-------------------- class term_interactpspline_remlreg ----------------------
+//------------------------------------------------------------------------------
+
+// P-spline interaction surface
+
+class __EXPORT_TYPE term_interactpspline_remlreg : public basic_termtype
+  {
+  protected:
+
+  intoption degree;               // degree of the b-spline basis
+  intoption numberknots;          // number of knots per dimension
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_interactpspline_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a p-spline interaction surface
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_interactpspline_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//-------------- class term_interactpspline_varcoeff_remlreg -------------------
+//------------------------------------------------------------------------------
+
+// VCM with p-spline interaction surface as effect modifier
+
+class __EXPORT_TYPE term_interactpspline_varcoeff_remlreg : public basic_termtype
+  {
+  protected:
+
+  intoption degree;
+  intoption numberknots;
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_interactpspline_varcoeff_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a VCM with p-spline interaction surface
+  //       as effect modifier
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_interactpspline_varcoeff_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//--------------------------- class term_geospline_remlreg ---------------------
+//------------------------------------------------------------------------------
+
+// p-spline interaction surface basedon centroids of regions
+
+class __EXPORT_TYPE term_geospline_remlreg : public basic_termtype
+  {
+  protected:
+
+  intoption degree;
+  intoption numberknots;
+  doubleoption lambda;
+  stroption map;               // name of the map-object containing the
+                               // geographical information
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_geospline_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a p-spline interaction surface based on
+  //       centroids of regions
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_geospline_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
 //----------------- class term_geopspline_varcoeff_remlreg ---------------------
 //------------------------------------------------------------------------------
 
+// VCM with p-spline interaction surface based on centroids of regions as
+// effect modifier
+
 class __EXPORT_TYPE term_geospline_varcoeff_remlreg : public basic_termtype
   {
-
   protected:
 
   intoption degree;
@@ -724,7 +469,8 @@ class __EXPORT_TYPE term_geospline_varcoeff_remlreg : public basic_termtype
   bool check(term & t);
 
   // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
+  // TASK: returns true if term 'i' is a VCM with p-spline interaction surface
+  //       as effect modifier
 
   bool checkvector(const vector<term> & terms,const unsigned & i);
 
@@ -735,14 +481,340 @@ class __EXPORT_TYPE term_geospline_varcoeff_remlreg : public basic_termtype
   };
 
 //------------------------------------------------------------------------------
+//-------------------------- class term_spatial_remlreg ------------------------
+//------------------------------------------------------------------------------
+
+// Spatial effect with Markov random field prior
+
+class __EXPORT_TYPE term_spatial_remlreg : public basic_termtype
+  {
+  protected:
+
+  stroption map;                    // Name of the map-object containing the
+                                    // geographical information
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_spatial_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a spatial component with MRF prior
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_spatial_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//--------------------- class term_spatial_varcoef_remlreg ---------------------
+//------------------------------------------------------------------------------
+
+// Spatial effect with MRF prior as effect modifier in a VCM
+
+class __EXPORT_TYPE term_spatial_varcoef_remlreg : public basic_termtype
+  {
+  protected:
+
+  stroption map;
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_spatial_varcoef_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a VCM with spatial component as effect
+  //       modifier
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_spatial_varcoef_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//---------------------- class term_random_remlreg -----------------------------
+//------------------------------------------------------------------------------
+
+// iid random effect
+
+class __EXPORT_TYPE term_random_remlreg : public basic_termtype
+  {
+  protected:
+
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_random_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a random intercept
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_random_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//----------------------- class term_randomslope_remlreg -----------------------
+//------------------------------------------------------------------------------
+
+// Random slope
+
+class __EXPORT_TYPE term_randomslope_remlreg : public basic_termtype
+  {
+  protected:
+
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_randomslope_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a random slope
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_randomslope_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//--------------------- class term_kriging_1dim_remlreg ------------------------
+//------------------------------------------------------------------------------
+
+// one-dimensional stationary gaussian random field
+
+class __EXPORT_TYPE term_kriging_1dim_remlreg : public basic_termtype
+  {
+  protected:
+
+  doubleoption nu;              // Parameter of the matern correlation function
+  doubleoption maxdist;         // Distance involved in the determination of rho
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_kriging_1dim_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a one-dimensional stationary gaussian
+  //       random field
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_kriging_1dim_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//------------------------ class term_kriging_remlreg --------------------------
+//------------------------------------------------------------------------------
+
+// two-dimensional stationary gaussian random field
+
+class __EXPORT_TYPE term_kriging_remlreg : public basic_termtype
+  {
+  protected:
+
+  intoption numberknots;    // number of knots to be computed by the space
+                            // filling algorithm
+  doubleoption nu;          // parameter of the matern correlation function
+  doubleoption maxdist;     // distance involved in the determination of rho
+  simpleoption full;        // use all different points as knots
+  stroption knotdata;       // dataset-object providing the knots
+  doubleoption p;           // Options for the space-filling algorithm
+  doubleoption q;
+  intoption maxsteps;       // maximum number of steps for space filling
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_kriging_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a two dimensional stationary gaussian
+  //       random field
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_kriging_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//------------------ class term_kriging_varcoeff_remlreg -----------------------
+//------------------------------------------------------------------------------
+
+// VCM with two-dimensional stationary gaussian random field as effect modifier
+
+class __EXPORT_TYPE term_kriging_varcoeff_remlreg : public basic_termtype
+  {
+  protected:
+
+  intoption numberknots;
+  doubleoption nu;
+  doubleoption maxdist;
+  simpleoption full;
+  stroption knotdata;
+  doubleoption p;
+  doubleoption q;
+  intoption maxsteps;
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_kriging_varcoeff_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a VCM with two-dimensional stationary
+  //       gaussian random field as effect modifier
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_kriging_varcoeff_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//----------------------- class term_geokriging_remlreg ------------------------
+//------------------------------------------------------------------------------
+
+// Two-dimensional stationary gaussian random field based on the centroids of
+// regions
+
+class __EXPORT_TYPE term_geokriging_remlreg : public basic_termtype
+  {
+  protected:
+
+  intoption numberknots;
+  doubleoption nu;
+  doubleoption maxdist;
+  simpleoption full;
+  stroption knotdata;
+  doubleoption p;
+  doubleoption q;
+  intoption maxsteps;
+  doubleoption lambda;
+  doubleoption lambdastart;
+  stroption map;            // name of the map-object containing the
+                            // geographical information
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_geokriging_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a two-dimensional stationary gaussian
+  //       random field based on centroids of regions
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_geokriging_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
 //---------------- class term_geokriging_varcoeff_remlreg ----------------------
 //------------------------------------------------------------------------------
 
+// VCM with two-dimensional stationary gaussian random field based on centroids
+// as effect modifier
 
 class __EXPORT_TYPE term_geokriging_varcoeff_remlreg : public basic_termtype
   {
-
-
   protected:
 
   intoption numberknots;
@@ -770,113 +842,14 @@ class __EXPORT_TYPE term_geokriging_varcoeff_remlreg : public basic_termtype
   bool check(term & t);
 
   // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
-
-  bool checkvector(const vector<term> & terms,const unsigned & i)
-    {
-
-    assert(i< terms.size());
-
-    if (terms[i].type == "vargeokriging")
-      return true;
-
-    return false;
-    }
-
-  // DESTRUCTOR
-
-  ~term_geokriging_varcoeff_remlreg() {}
-
-  };
-
-//------------------------------------------------------------------------------
-//-------------------- class term_interactpspline_remlreg ----------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE term_interactpspline_varcoeff_remlreg : public basic_termtype
-  {
-
-  protected:
-
-  intoption degree;
-  intoption numberknots;
-  doubleoption lambda;
-  doubleoption lambdastart;
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_interactpspline_varcoeff_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
+  // TASK: returns true if term 'i' is a VCM with two-dimensional stationary
+  //       gaussian random field based on centroids as effect modifier
 
   bool checkvector(const vector<term> & terms,const unsigned & i);
 
   // DESTRUCTOR
 
-  ~term_interactpspline_varcoeff_remlreg() {}
-
-  };
-
-//------------------------------------------------------------------------------
-//------------------ class term_kriging_varcoeff_remlreg -----------------------
-//------------------------------------------------------------------------------
-
-
-class __EXPORT_TYPE term_kriging_varcoeff_remlreg : public basic_termtype
-  {
-
-
-  protected:
-
-  intoption numberknots;
-  doubleoption nu;
-  doubleoption maxdist;
-  simpleoption full;
-  stroption knotdata;
-  doubleoption p;
-  doubleoption q;
-  intoption maxsteps;
-  doubleoption lambda;
-  doubleoption lambdastart;
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_kriging_varcoeff_remlreg(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
-
-  bool checkvector(const vector<term> & terms,const unsigned & i)
-    {
-
-    assert(i< terms.size());
-
-    if (terms[i].type == "varkriging")
-      return true;
-
-    return false;
-    }
-
-  // DESTRUCTOR
-
-  ~term_kriging_varcoeff_remlreg() {}
+  ~term_geokriging_varcoeff_remlreg() {}
 
   };
 
