@@ -22,9 +22,9 @@ void IWLS_pspline::create_iwls(void)
 
   compute_Kweights();
 
-  if(predictright || predictleft)
-    {
-    datamatrix help = betaweight;
+  if(predictright || predictleft)                          // betaweight erweitern, damit in die Zentrierungskonstante
+    {                                                      // nur die zu schätzenden Parameter einfliessen, nicht die
+    datamatrix help = betaweight;                          // zu prognostizierenden
     betaweight = datamatrix(nrpar,1,0);
     for(i=0;i<nrparpredictleft;i++)
       betaweight(i,0) = 0.0;
@@ -44,7 +44,7 @@ void IWLS_pspline::create_iwls(void)
   else if (type == RW2)
     prec_env = envmatdouble(0.0,nrpar,degree>2?degree:2);
 
-  if (type == RW1)
+  if (type == RW1)                                         // Penalty Matrix erstellen
     {
     K = Krw1band(weight);
     Kenv = Krw1env(weight);
@@ -57,7 +57,7 @@ void IWLS_pspline::create_iwls(void)
     rankK = nrpar-nrparpredictleft-nrparpredictright-2;
     }
 
-  if(predictleft || predictright)
+  if(predictleft || predictright)                          // K-matrix anpassen für Prädiktion
     change_K();
 
   betaold = datamatrix(nrpar,1,0);
@@ -66,10 +66,9 @@ void IWLS_pspline::create_iwls(void)
   standnormal = datamatrix(nrpar,1,0);
   muy = datamatrix(nrpar,1,0);
 
-//  compute_betaweight();
-
   }
 
+  // CONSTRUCTOR 1
 
 IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
                     const datamatrix & d,const bool & mode,
@@ -130,6 +129,7 @@ IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fc
 
   }
 
+  // CONSTRUCTOR 2 (für variierende Koeffizienten)
 
 IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
                     const datamatrix & effmod,const datamatrix & intact,const bool & mode,
@@ -193,6 +193,7 @@ IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fc
 
   }
 
+  // CONSTRUCTOR 3 (für Cox)
 
 IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
                     const datamatrix & d,const bool & mode,
@@ -243,13 +244,14 @@ IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fc
 
   make_index(d);
   make_index2();
-  make_Bspline(d,true);
-
+  make_Bspline(d,true);                               // Unterschied zu Construktor 1 und 2:
+                                                      // Intervall beginnt bei 0 ( [0,x_max] )
   create_iwls();
   init_fchelp(d);
 
   }
 
+  // COPY CONSTRUCTOR
 
 IWLS_pspline::IWLS_pspline(const IWLS_pspline & fc)
   :spline_basis(spline_basis(fc))
@@ -270,6 +272,7 @@ IWLS_pspline::IWLS_pspline(const IWLS_pspline & fc)
 
   }
 
+  // OVERLOADED ASSIGNMENT OPERATOR
 
 const IWLS_pspline & IWLS_pspline::operator=(const IWLS_pspline & fc)
   {
@@ -286,7 +289,7 @@ const IWLS_pspline & IWLS_pspline::operator=(const IWLS_pspline & fc)
   kappamode = fc.kappamode;
   kappaprop = fc.kappaprop;
   kappamean = fc.kappamean;
-  
+
   diagtransform = fc.diagtransform;
   updateW = fc.updateW;
 
@@ -367,7 +370,7 @@ bool IWLS_pspline::posteriormode(void)
 
     prec_env.solve(muy,beta);
 
-    if(decreasing)
+    if(decreasing)                                          // monotone Regression
       {
       bool ok = false;
       while(!ok)
@@ -419,11 +422,11 @@ bool IWLS_pspline::posteriormode(void)
           }
         ok = ok2;
         }
-      }
+      }                                                     // ENDE: monotone Regression
 
     add_linearpred_multBS(beta,true);
 
-    if(center)
+    if(center)                                              // zentrieren
       {
       compute_intercept();
       for(unsigned i=0;i<nrpar;i++)
@@ -435,8 +438,8 @@ bool IWLS_pspline::posteriormode(void)
       intercept = 0.0;
       }
 
-    if(interaction == false)
-      {
+    if(interaction == false)                                // wird bei interaction==true in der full conditional
+      {                                                     // des Interaktionseffekts gemacht
       write_spline();
       write_derivative();
 
@@ -461,42 +464,40 @@ void IWLS_pspline::update(void)
   if(lambdaconst == true)
     sigma2 = likep->get_scale(column)/lambda;
 
-  if(optionsp->get_nriter()==1)       // posterior mode Schätzung übernehmen
+  if(optionsp->get_nriter()==1)                             // posterior mode Schätzung übernehmen
     betaold.assign(beta);
 
-  if(increasing || decreasing)
+  if(increasing || decreasing)                              // update bei Monotonie-Restriktion
     {
     update_isotonic();
     }
-  else if(diagtransform)
+  else if(diagtransform)                                    // update bei Diagonal-Transformation
     {
     update_diagtransform();
     }
-  else if(utype == iwls)
+  else if(utype == iwls)                                    // update nach IWLS
     {
     update_IWLS();
     }
-  else if(utype == iwlsmode)
+  else if(utype == iwlsmode)                                // update nach IWLS basierend auf posterior mode
     {
     update_IWLS_mode();
     }
-  else if(utype == hyperblock)            // kompletten Block mit Hyperparameter updaten
+  else if(utype == hyperblock)                              // kompletten Block inklusive Hyperparameter updaten
     {
     update_IWLS_hyperblock();
     }
-  else if(utype == hyperblockmode)
+  else if(utype == hyperblockmode)                          // kompletten Block inklusive Hyperparameter updaten (basierend auf posterior mode)
     {
     update_IWLS_hyperblock_mode();
     }
 
 
-  if(predictright || predictleft)
+  if(predictright || predictleft)                           // Prädiktion
     update_prediction();
 
-  if(interaction == false)
-    {
-
-//  spline in fchelp schreiben
+  if(interaction == false)                                  // wird bei interaction==true in der full conditional des Interaktionseffekts gemacht
+    {                                                       // spline in fchelp schreiben, etc.    
     if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
         ((optionsp->get_nriter()-optionsp->get_burnin()-1) % optionsp->get_step() == 0) )
       {
@@ -526,18 +527,17 @@ void IWLS_pspline::update_IWLS_hyperblock_mode(void)
 
   double aprop,bprop;
 
-
+// Akzeptanzwahrscheinlichkeit in der burnin Phase auf 60% tunen
   if(optionsp->get_nriter()%100==0 && optionsp->get_nriter()<optionsp->get_burnin()/2)
     tune_updatetau(alpha_60);
 
   if(optionsp->get_nriter() == optionsp->get_burnin())
     optionsp->out("NOTE: Tuning constant 'f' for term " + title + " set to " + ST::doubletostring(f) + "\n");
 
-  aprop = a_invgamma + 0.5*rankK;
-//  bprop = b_invgamma + 4.0 * 0.5*Kenv.compute_quadformblock(beta_mode,0,nrparpredictleft,nrpar-nrparpredictright-1);
-  bprop = b_invgamma + 0.5*Kenv.compute_quadformblock(beta,0,nrparpredictleft,nrpar-nrparpredictright-1);
+// startwert für kappamode berechnen
 
-//  kappaprop = randnumbers::rand_gamma(aprop,bprop);
+  aprop = a_invgamma + 0.5*rankK;
+  bprop = b_invgamma + 0.5*Kenv.compute_quadformblock(beta,0,nrparpredictleft,nrpar-nrparpredictright-1);
 
   if(optionsp->get_nriter() == optionsp->get_burnin()/2)
     {
@@ -556,15 +556,15 @@ void IWLS_pspline::update_IWLS_hyperblock_mode(void)
     bprop = b_invgamma + kappamean;
     }
 
-  kappamode = (aprop-1)/bprop;
+  kappamode = (aprop-1)/bprop;                               // kappamode setzen
   sigma2 = 1.0/kappamode;
 
-  kappaprop = kappamode*randnumbers::rand_variance(f);
+  kappaprop = kappamode*randnumbers::rand_variance(f);       // neues kappa vorschlagen
 
   double logold = likep->loglikelihood(true);
   logold += - 0.5*Kenv.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1)*kappa;
-  logold += 0.5*rankK*log(kappa);             // Normalisierungs Konstante
-  logold += (a_invgamma-1)*log(kappa) - b_invgamma*kappa;           // gamma prior
+  logold += 0.5*rankK*log(kappa);                            // Normalisierungs Konstante
+  logold += (a_invgamma-1)*log(kappa) - b_invgamma*kappa;    // gamma prior
 
   add_linearpred_multBS(beta_mode,betaold,true);
 //  multBS_index(spline,beta_mode);
@@ -587,7 +587,7 @@ void IWLS_pspline::update_IWLS_hyperblock_mode(void)
     compute_XWtildey(W,1.0);
     }
 
-  prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2); //  fixes sigma2 für beta_mode (m)
+  prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);                //  fixes sigma2 für beta_mode (m)
 
   prec_env.solve(muy,betahelp);
 
@@ -595,7 +595,7 @@ void IWLS_pspline::update_IWLS_hyperblock_mode(void)
   for(i=0;i<nrpar;i++,work++)
     *work = rand_normal();
 
-  prec_env.addto(XX_env,Kenv,1.0,kappaprop);   //  P(kappaprop)
+  prec_env.addto(XX_env,Kenv,1.0,kappaprop);                 //  P(kappaprop)
 
   prec_env.solveU(beta,betahelp);
 
@@ -605,25 +605,21 @@ void IWLS_pspline::update_IWLS_hyperblock_mode(void)
 
   double qold = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
   qold += 0.5*prec_env.getLogDet();
-// Gamma proposal
-//  qold += (aprop-1)*log(kappaprop) - bprop*kappaprop;
-// kappa ~ 1+1/kappa
-  qold += log(1.0/kappamode + 1.0/kappaprop);
+//  qold += (aprop-1)*log(kappaprop) - bprop*kappaprop;        // Gamma proposal
+  qold += log(1.0/kappamode + 1.0/kappaprop);                // kappa ~ 1+1/kappa
 
   double lognew = likep->loglikelihood(true);
   lognew += - 0.5*Kenv.compute_quadformblock(beta,0,nrparpredictleft,nrpar-nrparpredictright-1)*kappaprop;
   lognew += 0.5*rankK*log(kappaprop);
   lognew += (a_invgamma-1)*log(kappaprop) - b_invgamma*kappaprop;
 
-  prec_env.addto(XX_env,Kenv,1.0,kappa);  //  P(kappa)
+  prec_env.addto(XX_env,Kenv,1.0,kappa);                     //  P(kappa)
 
   betahelp.minus(betaold,beta_mode);
   double qnew = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
   qnew += 0.5*prec_env.getLogDet();
-// Gamma proposal
-//  qnew += (aprop-1)*log(kappa) - bprop*kappa;
-// kappa ~ 1+1/kappa
-  qnew += log(1.0/kappamode + 1.0/kappa);
+//  qnew += (aprop-1)*log(kappa) - bprop*kappa;                // Gamma proposal
+  qnew += log(1.0/kappamode + 1.0/kappa);                    // kappa ~ 1+1/kappa
 
   double alpha = lognew + qnew - logold - qold;
   double u = log(uniform());
@@ -640,7 +636,7 @@ void IWLS_pspline::update_IWLS_hyperblock_mode(void)
     {
     acceptance++;
     kappa = kappaprop;
-    sigma2 = 1.0/kappa;   // für variance_nonp
+    sigma2 = 1.0/kappa;                                      // für variance_nonp
     if(center)
       {
       compute_intercept();
@@ -675,7 +671,7 @@ void IWLS_pspline::update_IWLS_hyperblock(void)
   if(optionsp->get_nriter() == optionsp->get_burnin())
     optionsp->out("NOTE: Tuning constant 'f' for term " + title + " set to " + ST::doubletostring(f) + "\n");
 
-  kappaprop = kappa*randnumbers::rand_variance(f);                             // kappa ~ (1+1/z)
+  kappaprop = kappa*randnumbers::rand_variance(f);                  // kappa ~ (1+1/z)
 
   double logold = - 0.5*Kenv.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1)*kappa;
   logold += 0.5*rankK*log(kappa);             // Normalisierungs Konstante
@@ -756,7 +752,7 @@ void IWLS_pspline::update_IWLS_hyperblock(void)
   if(u<=alpha)
     {
     kappa = kappaprop;
-    sigma2 = 1.0/kappa;       // für variance_nonp
+    sigma2 = 1.0/kappa;                                             // für variance_nonp
     acceptance++;
     if(center)
       {

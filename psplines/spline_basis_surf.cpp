@@ -2728,7 +2728,7 @@ void spline_basis_surf::outoptionsreml()
     {
     typestr = "2 dimensional first order random walk";
     }
-  else if(type=mrfquadratic8)
+  else if(type==mrfquadratic8)
     {
     typestr = "2 dimensional second order random walk";
     }

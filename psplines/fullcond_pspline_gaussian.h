@@ -27,14 +27,28 @@ class __EXPORT_TYPE FULLCOND_pspline_gaussian : public spline_basis
 
   protected:
 
-  bool samplecentered;
-  bool diagtransform;
-  bool hierarchical;
+  bool samplecentered;           // Samplen unter der Nebenbedingung, dass die Zentrierungskonstante = 0 ist.
+  bool diagtransform;            // Tranformation, so dass 'prec_env' eine Diagonalmatrix ist
+  bool hierarchical;             // hierarchical centering
 
-  double lineff;
-  double lineffsum;
-  vector<double> lineffsamples;
-  datamatrix gamma;
+  // für hierachical centering
+
+  double lineff;                 // linearer Anteil
+  double lineffsum;              // Summe der samples für den linearen Anteil
+  vector<double> lineffsamples;  // Samples für linearen Anteil
+  datamatrix gamma;              // Hilfsmatrix: lineff*X*gamma ergibt Gerade mit Steigung lineff
+
+
+  // FUNCTION: update_isotonic
+  // TASK: updates beta (monotonic regression)
+
+  void update_isotonic(void);
+
+  // FUNCTION: update_diagtransform
+  // TASK: updates beta (if diagtransform == true)
+
+  void update_diagtransform(void);
+
 
   public:
 
@@ -46,13 +60,22 @@ class __EXPORT_TYPE FULLCOND_pspline_gaussian : public spline_basis
 
   // CONSTRUCTOR 1  (for additive models)
   // o    : pointer to MCMCoptions object
+  // dp   : pointer to DISTRIBUTION object
+  // fcc  : pointer to FULLCOND_const object
   // d    : data
   // nrk  : number of knots
   // degr : degree of splines
   // kp   : position of knots (equidistant or quantiles)
-  // dp   : pointer to distribution object
+  // ft   : field type (RW1, RW2)
+  // monotone: increasing || decreasing || unrestricted
+  // ti   : title of the object
   // fp   : file where sampled parameters are stored
   // pres : file where results are stored
+  // deriv: should the first derivative be computed?
+  // l    : starting value for lambda
+  // gs   : gridsize
+  // diag : should the diagonal transformation be performed?
+  // c    : column of the linear predictor (ususally 0)
 
   FULLCOND_pspline_gaussian(MCMCoptions * o,DISTRIBUTION * dp,
                           FULLCOND_const * fcc, const datamatrix & d,
@@ -84,14 +107,10 @@ class __EXPORT_TYPE FULLCOND_pspline_gaussian : public spline_basis
 
   void update(void);
 
-  void update_isotonic(void);
-
-  void update_diagtransform(void);
-
   void outresults(void);
 
   // FUNCTION: updateK
-  // TASK: updates the penalty matrix K
+  // TASK: updates the penalty matrix K with q (K = D'diag(q)D)
 
   void updateK(const datamatrix & q)
     {
@@ -124,17 +143,24 @@ class __EXPORT_TYPE FULLCOND_pspline_gaussian : public spline_basis
 
   void predict(const datamatrix & newX, datamatrix & linpred);
 
-  // FUNCTION: write_contour  
-  // writes the mean of the full conditional, 1/scale, 1/sigma2 etc. to an ascii file
+  // FUNCTION: write_contour
+  // TASK: writes the mean of the full conditional, 1/scale, 1/sigma2 etc. to a
+  // temporary ASCII file. (Necessary to compute countour probabilities)
 
   void write_contour();
 
   // FUNCTION: compute_contourprob
-  // computes the contour probabilities for differences of order 'diff'
+  // TASK: computes the contour probabilities for beta
 
   void compute_contourprob(void);
 
+  // FUNCTION: compute_contourprob
+  // TASK: computes the contour probabilities for differences of order 'diff'
+
   void compute_contourprob(const int & diff);
+
+  // FUNCTION: compute_pseudocontourprob
+  // TASK: computes the pseudo contour probabilities for differences of order 'diff'
 
   void compute_pseudocontourprob(const int & diff);
 

@@ -30,32 +30,35 @@ class __EXPORT_TYPE IWLS_pspline : public spline_basis
 
   protected:
 
-  updatetype utype;
+  updatetype utype;                         // iwls || iwlsmode || hyperblock || hyperblockmode
+                                            // increasing || decreasing || diagtransform
 
-  double a_invgamma;
-  double b_invgamma;
-  double kappa;
-  double kappaprop;
-  double kappamode;
-  double kappamean;
+// für gemeinsames updaten von beta und sigma2 (hyperblock)
 
-  bool diagtransform;
+  double a_invgamma;                        // Parameter a der IG(a,b) für sigma2
+  double b_invgamma;                        // Parameter b der IG(a,b) für sigma2
+  double kappa;                             // 1/sigma2
+  double kappaprop;                         // vorgeschlagenes kappa
+  double kappamode;                         // kappa für hyperblock
+  double kappamean;                         // Hilfvariable für Startwert von kappamode
 
-  unsigned updateW;
+  bool diagtransform;                       // Tranformation, so dass 'prec_env' eine Diagonalmatrix ist
+
+  unsigned updateW;                         // jede wievielte Iteration soll IWLS-Gewicht W neu berechnet werden?
 
   void create_iwls(void);
 
-  void update_IWLS(void);
+  void update_IWLS(void);                   // update nach IWLS
 
-  void update_IWLS_mode(void);
+  void update_IWLS_mode(void);              // update nach IWLS basierend auf dem posterior mode
 
-  void update_IWLS_hyperblock(void);
+  void update_IWLS_hyperblock(void);        // gemeinsames updaten (IWLS) von beta und kappa
 
-  void update_IWLS_hyperblock_mode(void);
+  void update_IWLS_hyperblock_mode(void);   // gemeinsames updaten (IWLS basierend auf dem posterior mode) von beta und kappa
 
-  void update_isotonic(void);
+  void update_isotonic(void);               // update bei monotoner Regression
 
-  void update_diagtransform(void);
+  void update_diagtransform(void);          // update bei diagtransform == true
 
 
   public:

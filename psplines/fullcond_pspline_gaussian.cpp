@@ -5,6 +5,7 @@
 namespace MCMC
 {
 
+  // CONSTRUCTOR 1  (for additive models)
 
 FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o,
                       DISTRIBUTION * dp, FULLCOND_const * fcc, const datamatrix & d,
@@ -53,13 +54,19 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o,
       betaweight(i,0) = 0.0;
     }
 
+// index2 initialisieren
+
   index2.push_back(index(0,0));
   for(i=1;i<likep->get_nrobs();i++)
     index2.push_back(index(i,0)-index(i-1,0));
 
   init_fchelp(d);
 
+// Varianz für die priori des linearen Anteils bei hierachical centering
+
   double priorvar = 100;
+
+// Penalty Matrix erstellen
 
   if (type == RW1)
     {
@@ -110,6 +117,8 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o,
   muy = datamatrix(nrpar,1,0);
   betahelp = muy;
 
+// gamma initialisieren
+
   if(hierarchical)
     {
     double h = knot[1]-knot[0];
@@ -120,8 +129,6 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o,
     }
 
   identifiable = false;
-
-//  compute_betaweight();
 
   }
 
@@ -179,11 +186,15 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o, DISTRIBUTI
       betaweight(i,0) = 0.0;
     }
 
+// index2 initialisieren
+
   index2.push_back(index(0,0));
   for(i=1;i<likep->get_nrobs();i++)
     index2.push_back(index(i,0)-index(i-1,0));
 
   init_fchelp(effmod);
+
+// Penalty Matrix erstellen
 
   if (type == RW1)
     {
@@ -215,6 +226,8 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o, DISTRIBUTI
   muy = datamatrix(nrpar,1,0);
   betahelp = muy;
 
+// gamma initialisieren
+
   if(hierarchical)
     {
     double h = knot[1]-knot[0];
@@ -226,10 +239,9 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o, DISTRIBUTI
 
   identifiable = true;
 
-//  compute_betaweight();
-
   }
 
+  // COPY CONSTRUCTOR
 
 FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(const FULLCOND_pspline_gaussian & fc)
   : spline_basis(spline_basis(fc))
@@ -243,6 +255,7 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(const FULLCOND_pspline_gaus
   gamma = fc.gamma;
   }
 
+  // OVERLOADED ASSIGNMENT OPERATOR
 
 const FULLCOND_pspline_gaussian & FULLCOND_pspline_gaussian::operator=(
                                             const FULLCOND_pspline_gaussian & fc)
@@ -265,10 +278,10 @@ const FULLCOND_pspline_gaussian & FULLCOND_pspline_gaussian::operator=(
 
 void FULLCOND_pspline_gaussian::update(void)
   {
-
+// XWX initialisieren
   if (optionsp->get_nriter()==1)
     compute_XWXenv(likep->get_weight());
-
+// sigma2 so setzen, dass scale/sigma2 = const
   if(lambdaconst == true)
     sigma2 = likep->get_scale(column)/lambda;
 
@@ -289,25 +302,25 @@ void FULLCOND_pspline_gaussian::update(void)
     {
 
     if(samplecentered)
-      likep->substr_linearpred(spline);
+      likep->substr_linearpred(spline);               // eta = eta - spline
     else
-      subtr_spline();
+      subtr_spline();                                 // eta = eta - spline + intercept
 
     if(changingweight)  // für t-link
       compute_XWXenv(likep->get_weight());
 
-    double scaleinv = 1.0/likep->get_scale(column);
+    double scaleinv = 1.0/likep->get_scale(column);   // scaleinv = 1/scale
 
-    prec_env.addto(XX_env,Kenv,scaleinv,1.0/sigma2);
+    prec_env.addto(XX_env,Kenv,scaleinv,1.0/sigma2);  // prec_env = (scaleinv*XX_env + 1.0/sigma*Kenv)
 
-    double * work = standnormal.getV();
+    double * work = standnormal.getV();               // standnormal ~ N(0,I)
     for(i=0;i<nrpar;i++,work++)
       *work = rand_normal();
 
-    likep->compute_respminuslinpred(mu,column);   // nicht ändern wegen multgaussian
-    compute_XWtildey(likep->get_weight(),scaleinv);
+    likep->compute_respminuslinpred(mu,column);       // nicht ändern wegen multgaussian
+    compute_XWtildey(likep->get_weight(),scaleinv);   // muy = scaleinv * X'W*mu
 
-    if(hierarchical)
+    if(hierarchical)                                  // muy = muy + lineff/sigma2 * K'gamma
       {
       datamatrix muy2 = datamatrix(nrpar,1,0);
       K.mult(gamma,muy2);
@@ -317,12 +330,12 @@ void FULLCOND_pspline_gaussian::update(void)
 
     beta.assign(standnormal);
     prec_env.solve(muy,betahelp);
-    prec_env.solveU(beta,betahelp);
-
+    prec_env.solveU(beta,betahelp);                   // betahelp = P^(-1) * muy
+                                                      // beta ~ N(betahelp,P^(-1))
     if(predictright || predictleft)
       update_prediction();
 
-    if(hierarchical)
+    if(hierarchical)                                  // linearen Anteil updaten
       {
       double N01 = rand_normal();
       double lineffsigma2 = Kenv.compute_quadform(gamma,0)/sigma2;
@@ -350,7 +363,7 @@ void FULLCOND_pspline_gaussian::update(void)
 
     }    // ENDE: update
 
-  if(center)
+  if(center)                                          // zentrieren
     {
     if(samplecentered)
       {
@@ -367,7 +380,7 @@ void FULLCOND_pspline_gaussian::update(void)
       }
     }
 
-  if(contourprob >= 0)
+  if(contourprob >= 0)                                // für contour probabilities
     {
     for(i=0;i<nrpar;i++)
       beta(i,0) -= intercept;
@@ -384,8 +397,8 @@ void FULLCOND_pspline_gaussian::update(void)
 
   if(interaction == false)
     {
-
-//  spline in fchelp schreiben
+// wird bei interaction==true in der full conditional des Interaktionseffekts gemacht
+// spline in fchelp schreiben
     if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
         ((optionsp->get_nriter()-optionsp->get_burnin()-1) % optionsp->get_step() == 0) )
       {
@@ -399,7 +412,7 @@ void FULLCOND_pspline_gaussian::update(void)
         double * splinep;
         double * fchelpbetap = fchelp.getbetapointer();
 
-        if(gridsize < 0)
+        if(gridsize < 0)                              // alle verschiedene Beobachtungen
           {
           if(varcoeff)
             multBS(splinehelp,beta);
@@ -418,7 +431,7 @@ void FULLCOND_pspline_gaussian::update(void)
               }
             }
           }
-        else
+        else                                          // Gitterpunkte
           {
           multDG(splinehelp,beta);
           splinep = splinehelp.getV();
@@ -426,7 +439,7 @@ void FULLCOND_pspline_gaussian::update(void)
             *fchelpbetap = *splinep - intercept;
           }
 
-        write_derivative();
+        write_derivative();                           // 1. Ableitung rausschreiben
         }
       }
 
@@ -455,7 +468,7 @@ void FULLCOND_pspline_gaussian::update_isotonic(void)
   double scaleinv = 1.0/likep->get_scale(column);
   prec_env.addto(XX_env,Kenv,scaleinv,1.0/sigma2);
 
-  likep->compute_respminuslinpred(mu,column);   // nicht ändern wegen multgaussian
+  likep->compute_respminuslinpred(mu,column);         // nicht ändern wegen multgaussian
   compute_XWtildey(likep->get_weight(),scaleinv);
 /*
   help = 0.0;
@@ -495,7 +508,7 @@ void FULLCOND_pspline_gaussian::update_isotonic(void)
 
   int count = 0;
   int maxit = 100;
-
+// interner Gibbs-Sampler mit maxit Iterationen (siehe Geweke, Robert)
   while(count < maxit)
     {
 
@@ -572,6 +585,7 @@ void FULLCOND_pspline_gaussian::update_diagtransform(void)
   if(optionsp->get_nriter() == 1)
     {
 /*
+// L rausschreiben (für S-Plus)
     XX = bandmatdouble(nrpar,degree,0);
     compute_XWX(likep->get_weight());
 
@@ -584,6 +598,7 @@ void FULLCOND_pspline_gaussian::update_diagtransform(void)
     L.prettyPrint(outL);
     outL.close();
 */
+// B, Kenv einlesen (aus S-Plus)
     B = datamatrix(nrpar,nrpar);
     ifstream in("c:\\cprog\\testmcmc\\G.raw");
     B.prettyScan(in);
@@ -611,18 +626,18 @@ out.close();
 
   double scaleinv = 1.0/likep->get_scale(column);
 
-  likep->compute_respminuslinpred(mu,column);   // nicht ändern wegen multgaussian
+  likep->compute_respminuslinpred(mu,column);      // nicht ändern wegen multgaussian
   compute_XWtildey(likep->get_weight(),scaleinv);
-  muy = B.transposed()*muy;
+  muy = B.transposed()*muy;                        // B ist volle Matrix (nrpar x nrpar)
 
-  double prec_ii;
+  double prec_ii;                                  // prec_env ist diagonal!
   for(i=0;i<beta.rows();i++)
     {
     prec_ii = scaleinv + betahelp(0,i)/sigma2;
     beta(i,0) = rand_normal()/sqrt(prec_ii) + muy(i,0)/prec_ii;
     }
 
-  betaprop.mult(B,beta);
+  betaprop.mult(B,beta);                           // beta rücktransformieren
   add_linearpred_multBS(betaprop);
 
   }
@@ -664,7 +679,7 @@ bool FULLCOND_pspline_gaussian::posteriormode(void)
     compute_XWtildey(likep->get_weightiwls(),likep->get_workingresiduals(),1.0,column);
 
     prec_env.solve(muy,beta);
-
+// monotone Regression!
     if(decreasing)
       {
       bool ok = false;
@@ -718,7 +733,7 @@ bool FULLCOND_pspline_gaussian::posteriormode(void)
         ok = ok2;
         }
       }
-
+// ENDE: monoton
     add_linearpred_multBS();
 
     if(center)
@@ -886,7 +901,7 @@ double FULLCOND_pspline_gaussian::compute_quadform(void)
     {
     datamatrix b = beta;
     for(unsigned i=0;i<nrpar;i++)
-    b(i,0) = beta(i,0) - lineff*gamma(i,0);
+      b(i,0) = beta(i,0) - lineff*gamma(i,0);
     return Kenv.compute_quadform(b,0);
     }
   else if(predictright || predictleft)
@@ -1068,8 +1083,8 @@ void FULLCOND_pspline_gaussian::compute_contourprob(void)
 
   ofstream out(path.strtochar());
   out << "difforder   contourprob   mean(log)  mean" << endl;
-  out << ST::inttostring(0) + "   " + ST::doubletostring(contourprob(0,0)) + "   ";
-  out << ST::doubletostring(contourprob(0,1)) + "   " + ST::doubletostring(contourprob(0,2)) << endl;
+  out << (ST::inttostring(0) + "   " + ST::doubletostring(contourprob(0,0)) + "   ");
+  out << (ST::doubletostring(contourprob(0,1)) + "   " + ST::doubletostring(contourprob(0,2))) << endl;
   out.close();
 
   }
@@ -1101,13 +1116,14 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
   double exponent,mPbeta;
   double value;
 
-  unsigned step;
+  unsigned step;                             // jedes wievielte Sample soll verwendet werden?
   if(approx)
 //    step = 1;
     step = optionsp->get_samplesize()/1000;
   else
     step = optionsp->get_samplesize()/1000;
 
+// beta samples einlesen und Differenzen bilden
   datamatrix beta(optionsp->get_samplesize(),nrpar,0);
   readsample3(beta);
   beta = beta.transposed();
@@ -1131,7 +1147,6 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
   if(approx)
     {
     start = datamatrix(lengthstart,optionsp->get_samplesize()+1,0);
-//    xi = datamatrix(optionsp->get_samplesize()+1,1,0.0);
     d0 = datamatrix(optionsp->get_samplesize()+1,1,0.0);
     dn = datamatrix(optionsp->get_samplesize()+1,1,0.0);
     fxi = datamatrix(optionsp->get_samplesize()+1,1,0.0);
@@ -1146,15 +1161,13 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
 
   for(i=0;i<optionsp->get_samplesize();i+=step)
     {
-
+// Grenze für 1/sigma2 damit Cholesky-Zerlegung von prec_env funktioniert
     double lim;
     if( contour(i,nrpar+1) > 100000)
       lim = 100000;
     else
       lim = contour(i,nrpar+1);
     prec_env.addto(XX_env,Kenv,contour(i,nrpar),lim);
-
-//    prec_env.addto(XX_env,Kenv,contour(i,nrpar),contour(i,nrpar+1));
 
     if(diff>0)
       {
@@ -1348,6 +1361,8 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
     remove(RBpath.strtochar());
     }
 
+// p-Werte berechnen
+
   datamatrix contourprob(1,3,0.0);
 
   for(i=0;i<contourprob.cols();i++)
@@ -1357,6 +1372,8 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
         contourprob(0,i)++;
     contourprob(0,i) = contourprob(0,i)/optionsp->get_samplesize();
     }
+
+// Ausgabe
 
   if(diff==0)
     optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob(0,0),2) + "\n");
@@ -1381,8 +1398,8 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
     }
 
   ofstream out(path.strtochar(),ios::app);
-  out << ST::inttostring(diff) + "   " + ST::doubletostring(contourprob(0,0)) + "   ";
-  out << ST::doubletostring(contourprob(0,1)) + "   " + ST::doubletostring(contourprob(0,2)) << endl;
+  out << (ST::inttostring(diff) + "   " + ST::doubletostring(contourprob(0,0)) + "   ");
+  out << (ST::doubletostring(contourprob(0,1)) + "   " + ST::doubletostring(contourprob(0,2))) << endl;
   out.close();
 
   }
@@ -1392,20 +1409,21 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
   {
   unsigned i,j;
 
+// Differenzenmatrix erzeugen
   datamatrix A = diffmat_k(diff,nrpar);
 
   unsigned rankA = A.rows();
-
+// beta_0 setzen
   datamatrix beta_0(rankA,1,0);
   for(i=0;i<rankA;i++)
     beta_0(i,0) = fc_contour.get_data(i,0);
-
+// beta samples einlesen und Differenzen bilden
   datamatrix beta(optionsp->get_samplesize(),nrpar,0);
   readsample3(beta);
   beta = beta*(A.transposed());
 
   datamatrix betasort = beta;
-
+// sortieren
   for(i=0;i<rankA;i++)
     betasort.sortcol(0,optionsp->get_samplesize()-1,i);
 /*
@@ -1496,7 +1514,11 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
       count++;
     }
 
+// p-Wert ausrechnen
+
   p = 1.0 - (double)count/optionsp->get_samplesize();
+
+// Ausgabe
 
   if(diff==0)
     optionsp->out("  Pseudo contour probability                                : " + ST::doubletostring(p,2) + "\n");
@@ -1517,13 +1539,13 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
     {
     ofstream out(path.strtochar());
     out << "difforder   pseudocontourprob" << endl;
-    out << ST::inttostring(diff) + "   " + ST::doubletostring(p) << endl;
+    out << (ST::inttostring(diff) + "   " + ST::doubletostring(p)) << endl;
     out.close();
     }
   else
     {
     ofstream out(path.strtochar(),ios::app);
-    out << ST::inttostring(diff) + "   " + ST::doubletostring(p) << endl;
+    out << (ST::inttostring(diff) + "   " + ST::doubletostring(p)) << endl;
     out.close();
     }
 

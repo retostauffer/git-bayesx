@@ -806,8 +806,6 @@ void FULLCOND_kriging2::update()
   if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
       ((optionsp->get_nriter()-optionsp->get_burnin()-1) % optionsp->get_step() == 0) )
     {
-
-    double * splinep;
     double * fchelpbetap = fchelp.getbetapointer();
 
     vector<int>::iterator freqwork = freqoutput.begin();
@@ -1212,7 +1210,6 @@ void FULLCOND_kriging2::outoptions()
 
 void FULLCOND_kriging2::outresults()
   {
-  double mean=0;
   ST::string l1 = ST::doubletostring(lower1,4);
   ST::string l2 = ST::doubletostring(lower2,4);
   ST::string u1 = ST::doubletostring(upper1,4);
