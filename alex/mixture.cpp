@@ -1,4 +1,3 @@
-
 #include "mixture.h"
 
 namespace MCMC
@@ -58,57 +57,6 @@ void FULLCOND_mixture::init_names(const vector<ST::string> & na)
     }
 
 
-void FULLCOND_mixture::init_spatialtotal(vector<ST::string> & ev,
-                                        const ST::string & pnt,
-                                        const ST::string & prt)
-{
-
-spatialtotal = true;
-pathresult3 = prt;
-pathcurrent3 = prt;
-pathsample_total = pnt;
-
-ftotal =
-FULLCOND(optionsp,datamatrix(1,1),"spatialtotal",effvalues.rows(),1,pnt);
-ftotal.setflags(MCMC::norelchange | MCMC::nooutput);
-
-unsigned i;
-datamatrix evdouble(ev.size(),1);
-statmatrix<int> index_ev(ev.size(),1);
-index_ev.indexinit();
-double v;
-int h;
-double * evdoublep = evdouble.getV();
-vector<ST::string>::iterator it = ev.begin();
-for(i=0;i<evdouble.rows();i++,evdoublep++,++it)
-  {
-  h = (*it).strtodouble(v);
-  *evdoublep = v;
-  }
-
-evdouble.indexsort(index_ev,0,evdouble.rows()-1,0,0);
-
-indextotal = statmatrix<int>(effvalues.rows(),1);
-
-double * effvp = effvalues.getV();
-int * indexp = indextotal.getV();
-int indexalt = 0;
-int * indexp2 = index_ev.getV();
-for(i=0;i<ev.size();i++,indexp2++)
-  {
-
-  if (evdouble(*indexp2,0)== *effvp)
-    {
-    *indexp = *indexp2-indexalt;
-    indexalt = *indexp2;
-    effvp++;
-    indexp++;
-    }
-
-  }
-
-}
-
 
 double FULLCOND_mixture::centerbeta(void)
   {
@@ -122,12 +70,10 @@ double FULLCOND_mixture::centerbeta(void)
 
   sum /= nrpar;
 
-
   double v = sigma2/double(nrpar);
 
   sum = sum+sqrt(v)*rand_normal();
-
-
+ 
   workbeta = beta.getV();
 
   for (i=0;i<nrpar;i++,workbeta++)
@@ -175,28 +121,7 @@ void FULLCOND_mixture::compute_XWX(const datamatrix & weightmat,
 
   }
 
-
-double FULLCOND_mixture::compute_quadform(void)
-  {
-
-  unsigned n;
-  double sum = 0;
-  double * workbeta = beta.getV();
-  register unsigned i;
-
-  if (randomslope && includefixed)
-    n = nrpar-1;
-  else
-    n = nrpar;
-
-  for(i=0;i<n;i++,workbeta++)
-    sum += *workbeta * *workbeta;
-
-  return sum;
-
-  }
-
-
+/*
 unsigned FULLCOND_mixture::get_rankK(void)
   {
   if (randomslope && includefixed)
@@ -204,7 +129,7 @@ unsigned FULLCOND_mixture::get_rankK(void)
   else
     return nrpar;
   }
-
+*/
 
 void FULLCOND_mixture::set_lambdaconst(double la)
   {
@@ -221,13 +146,20 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
                             : FULLCOND(o,datamatrix(1,1),t,1,1,fp)
   {
 
+// Mixture stuff
   nrcomp = nrc;
+  compind = statmatrix<int>(d.rows(),1,1);
+  compmean = datamatrix(nrcomp,1,0);
+  compvar = datamatrix(nrcomp,1,1);
+  compweights = datamatrix(nrcomp,1,1.0/nrcomp);
+// End of Mixture stuff
+
 
   fcconst = fcc;
 
   fctype = randomeffects;
 
-  spatialtotal=false;
+  spatialtotal = false;
   randomslope = false;
   includefixed = false;
 
@@ -303,117 +235,15 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
   }
 
 
-// randomslope
-FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
-                  FULLCOND_const * fcc,
-                  const datamatrix & intvar,const datamatrix & effmod,
-                  const ST::string & t,
-                  const ST::string & fp,const ST::string & pr,
-                  const ST::string & prf,
-                  const double & la,
-                  const bool & inclfixed,const unsigned & c)
-                  : FULLCOND(o,datamatrix(1,1),t,1,1,fp)
-  {
-
-
-  fcconst = fcc;
-
-  fctype = randomslopes;
-
-  spatialtotal=false;
-  randomslope = true;
-  includefixed = inclfixed;
-
-  changingweight = dp->get_changingweight();
-
-  column = c;
-
-  likep = dp;
-  pathresult = pr;
-  pathcurrent = pr;
-  pathresult2 = prf;
-  pathcurrent2 = prf;
-
-
-  lambda = la;
-  lambdaold1 = -1;
-  lambdaold2 = -1;
-  lambdaconst=false;
-
-  index = statmatrix<int>(effmod.rows(),1);
-  index2 = statmatrix<int>(effmod.rows(),1);
-  index.indexinit();
-  effmod.indexsort(index,0,effmod.rows()-1,0,0);
-
-  unsigned j;
-  int * workindex = index.getV();
-  int * workindex2 = index2.getV();
-  *workindex2 = *workindex;
-  int help = *workindex;
-  workindex++;
-  workindex2++;
-
-  for(j=1;j<effmod.rows();j++,workindex++,workindex2++)
-    {
-    *workindex2 = *workindex-help;
-    help = *workindex;
-    }
-
-
-  data = datamatrix(effmod.rows(),1);
-  data2 = datamatrix(effmod.rows(),1);
-  double * datap = data.getV();
-  double * datap2 = data2.getV();
-  workindex = index.getV();
-  for(j=0;j<effmod.rows();j++,datap++,datap2++,workindex++)
-    {
-    *datap = intvar(*workindex,0);
-    *datap2 = (*datap) * (*datap);
-    }
-
-  posbeg = vector<unsigned>();
-  posend = vector<unsigned>();
-
-  posbeg.push_back(0);
-  workindex=index.getV()+1;
-  help = index(0,0);
-  for(j=1;j<effmod.rows();j++,workindex++)
-    {
-    if ( effmod(*workindex,0) != effmod(help,0) )
-      {
-      posbeg.push_back(j);
-      posend.push_back(j-1);
-      }
-
-    help = *workindex;
-    }
-
-  posend.push_back(effmod.rows()-1);
-
-  effvalues = datamatrix(posbeg.size(),1);
-  double * workeffvalues = effvalues.getV();
-  for(j=0;j<posbeg.size();j++,workeffvalues++)
-    *workeffvalues = effmod(index(posbeg[j],0),0);
-
-  XX = datamatrix(posbeg.size());
-  compute_XWX(likep->get_weight(),0);
-
-  if (includefixed)
-    setbeta(posbeg.size()+1,1,0);
-  else
-    setbeta(posbeg.size(),1,0);
-
-  muy = datamatrix(nrpar,1);
-
-  identifiable = true;
-
-  }
-
-
 FULLCOND_mixture::FULLCOND_mixture(const FULLCOND_mixture & fc)
                             : FULLCOND(FULLCOND(fc))
   {
   nrcomp = fc.nrcomp;
+  compind=fc.compind;
+  compmean=fc.compmean;
+  compvar=fc.compvar;
+  compweights=fc.compweights;
+
   muy = fc.muy;
   fcconst = fc.fcconst;
   randomslope = fc.randomslope;
@@ -448,6 +278,11 @@ const FULLCOND_mixture & FULLCOND_mixture::
   FULLCOND::operator=(FULLCOND(fc));
 
   nrcomp = fc.nrcomp;
+  compind=fc.compind;
+  compmean=fc.compmean;
+  compvar=fc.compvar;
+  compweights=fc.compweights;
+
   muy = fc.muy;
   fcconst = fc.fcconst;
   randomslope = fc.randomslope;
@@ -577,7 +412,6 @@ void FULLCOND_mixture::outresults(void)
     {
     optionsp->out("  Results for random effects are stored in file\n");
     optionsp->out("  " + pathcurrent + "\n");
-    }
 
   if (lambdaconst==true)
     {
@@ -585,6 +419,16 @@ void FULLCOND_mixture::outresults(void)
     optionsp->out("  Constant smoothing parameter: " +
     ST::doubletostring(lambda,6) + "\n");
     optionsp->out("\n");
+    }
+
+    optionsp->out("\n");
+
+    for(unsigned i=0;i<nrcomp;i++)
+       {
+       optionsp->out("  Component means: " + ST::doubletostring(compmean(i,0),6) + "\n");
+       optionsp->out("  Component variances: " + ST::doubletostring(compvar(i,0),6) + "\n");
+       optionsp->out("  Component weights: " + ST::doubletostring(compweights(i,0),6) + "\n");
+       }
     }
 
   if (optionsp->get_samplesize() == 0)
@@ -658,170 +502,20 @@ void FULLCOND_mixture::outresults(void)
       outres << endl;
       }
     }
-
-  if (spatialtotal)
-    {
-
-    if (transformnonlinear)
-      {
-      ST::string suffix="";
-      vector<FULLCOND *> fcp(1);
-      fcp[0] = &ftotal;
-      likep->transform_nonlinear(fcp,transformtype);
-      ftotal.set_transform(suffix,transformtype);
-      }
-
-    ftotal.outresults();
-
-    optionsp->out("  Results for the sum of the structured and unstructured \n");
-    optionsp->out("  spatial effects are stored in file \n");
-    optionsp->out("  " + pathcurrent3 + "\n");
-    optionsp->out("\n");
-
-    ofstream outres2(pathcurrent3.strtochar());
-    assert(!outres2.fail());
-
-    outres2 << "intnr" << "   ";
-    outres2 << name << "   ";
-    outres2 << "pmean   ";
-    outres2 << "pqu"  << nl1  << "   ";
-    outres2 << "pqu"  << nl2  << "   ";
-    outres2 << "pmed   ";
-    outres2 << "pqu"  << nu1  << "   ";
-    outres2 << "pqu"  << nu2  << "   ";
-    outres2 << "pcat" << level1 << "   ";
-    outres2 << "pcat" << level2 << "   ";
-    outres2 << endl;
-
-    workmean = ftotal.get_betameanp();
-    workbetaqu_l1_lower_p = ftotal.get_beta_lower1_p();
-    workbetaqu_l2_lower_p = ftotal.get_beta_lower2_p();
-    workbetaqu_l1_upper_p = ftotal.get_beta_upper1_p();
-    workbetaqu_l2_upper_p = ftotal.get_beta_upper2_p();
-    workbetaqu50 = ftotal.get_betaqu50p();
-
-    for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
-        workbetaqu_l2_lower_p++,workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++,
-        workbetaqu50++)
-      {
-      outres2 << (i+1) << "   ";
-      outres2 << effvalues(i,0) << "   ";
-      outres2 << *workmean << "   ";
-      outres2 << *workbetaqu_l1_lower_p << "   ";
-      outres2 << *workbetaqu_l2_lower_p << "   ";
-      outres2 << *workbetaqu50 << "   ";
-      outres2 << *workbetaqu_l2_upper_p << "   ";
-      outres2 << *workbetaqu_l1_upper_p << "   ";
-
-      if (*workbetaqu_l1_lower_p > 0)
-        outres2 << "1   ";
-      else if (*workbetaqu_l1_upper_p < 0)
-        outres2 << "-1   ";
-      else
-        outres2 << "0   ";
-
-      if (*workbetaqu_l2_lower_p > 0)
-        outres2 << "1   ";
-      else if (*workbetaqu_l2_upper_p < 0)
-        outres2 << "-1   ";
-      else
-        outres2 << "0   ";
-
-      outres2 << endl;
-      }
-
-    }
-
   }
 
 
 void FULLCOND_mixture::outoptions(void)
   {
 
-  optionsp->out("  OPTIONS FOR RANDOM EFFECT: " + title + "\n",true);
+  optionsp->out("  OPTIONS FOR RANDOM EFFECT MIXTURE: " + title + "\n",true);
   optionsp->out("\n");
-  if (lambdaconst==true)
-    {
-    optionsp->out("  Constant smoothing parameter: " +
-    ST::doubletostring(lambda,6) + "\n");
-    optionsp->out("\n");
-    }
 
+  optionsp->out("  Type of Mixture: Normal\n",true);
+  optionsp->out("  Number of components: " + ST::inttostring(nrcomp) + "\n",true);
+  optionsp->out("\n");
   }
 
-
-void FULLCOND_mixture::update_linpred_diff(datamatrix & b1,datamatrix & b2)
-  {
-
-  unsigned n=nrpar;
-  if (includefixed)
-    n = nrpar-1;
-
-  int * workindex;
-  double * workb1 = b1.getV();
-  double * workb2 = b2.getV();
-  vector<unsigned>::iterator itbeg = posbeg.begin();
-  vector<unsigned>::iterator itend = posend.begin();
-
-  unsigned i,j;
-
-  if (randomslope)
-    {
-
-    workindex = index.getV();
-    double * workdata=data.getV();
-
-    if (includefixed)
-      {
-
-      n = nrpar-1;
-      double ms1 = b1(nrpar-1,0);
-      double ms2 = b2(nrpar-1,0);
-      double h;
-
-      for (i=0;i<n;i++,workb1++,workb2++,++itbeg,++itend)
-        {
-        if (*itbeg != -1)
-          {
-          h =*workb1+ms1-*workb2-ms2;
-          for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
-            {
-            likep->add_linearpred(h * (*workdata),
-                                  unsigned(*workindex),column);
-            }
-          }
-        }
-
-      }
-    else
-      {
-      for (i=0;i<n;i++,workb1++,workb2++,++itbeg,++itend)
-        {
-        if (*itbeg != -1)
-          {
-          for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
-            {
-            likep->add_linearpred((*workb1-*workb2) * (*workdata),
-                                  unsigned(*workindex),column);
-            }
-
-          }
-
-        }
-
-      }
-
-    }
-  else
-    {
-    for (i=0;i<n;i++,workb1++,workb2++,++itbeg,++itend)
-      {
-      if (*itbeg != -1)
-        likep->add_linearpred(*workb1-*workb2,*itbeg,*itend,index,column);
-      }
-    }
-
-  }
 
 
 
@@ -940,6 +634,8 @@ void FULLCOND_mixture::update_linpred(const bool & add)
   }
 
 
+
+
 bool FULLCOND_mixture::posteriormode(void)
   {
 
@@ -1049,17 +745,9 @@ bool FULLCOND_mixture::posteriormode(void)
 //------------------- class FULLCOND_mixture_gaussian ---------------------------
 //------------------------------------------------------------------------------
 
-void FULLCOND_mixture_gaussian::init_spatialtotal(FULLCOND_nonp_basis * sp,
-                                        const ST::string & pnt,
-                                        const ST::string & prt)
-{
 
-fbasisp = sp;
-vector<ST::string> ev = sp->get_effectvalues();
 
-FULLCOND_mixture::init_spatialtotal(ev,pnt,prt);
 
-}
 
 
 void FULLCOND_mixture_gaussian::update(void)
@@ -1069,6 +757,7 @@ void FULLCOND_mixture_gaussian::update(void)
   double m;
   unsigned i,j;
   unsigned n = nrpar;
+
   if (randomslope && includefixed)
   n = nrpar-1;
 
@@ -1207,6 +896,3 @@ void FULLCOND_mixture_gaussian::update(void)
 
 
 } // end: namespace MCMC
-
-
-

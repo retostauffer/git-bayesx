@@ -27,9 +27,15 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   protected:
 
-  int nrcomp;
+  int nrcomp;  // Number of mixture components
+  statmatrix<int> compind;  // Indicator for mixture components
+  datamatrix compweights;  // Weights of mixture components
+  datamatrix compmean; // Means of normal mixture components
+  datamatrix compvar;  // Variances of normal mixture components
+
 
   datamatrix muy;
+
 
   FULLCOND_const * fcconst;
 
@@ -63,9 +69,6 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   FULLCOND ftotal;
 
-  void init_spatialtotal(vector<ST::string> & ev, const ST::string & pnt,
-                         const ST::string & prt);
-
 
   bool changingweight;
 
@@ -73,7 +76,8 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   void update_linpred(const bool & add);
 
-  void update_linpred_diff(datamatrix & b1,datamatrix & b2);
+
+
 
 
   public:
@@ -92,18 +96,6 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
                   const datamatrix & d, const ST::string & t,
                   const ST::string & fp,const ST::string & pr, const int & nrc,
                   const double & la, const unsigned & c=0);
-
-  // CONSTRUCTOR2
-  // random slope
-
-  FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
-                  FULLCOND_const * fcc,
-                  const datamatrix & intvar,const datamatrix & effmod,
-                  const ST::string & t,
-                  const ST::string & fp,const ST::string & pr,
-                  const ST::string & prf,
-                  const double & la, const bool & inclfix,
-                  const unsigned & c=0);
 
 
   void init_name(const ST::string & na);
@@ -150,14 +142,13 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
     sigma2 = 10;
     }
 
-  double compute_quadform(void);
 
   void update_sigma2(const double & s)
     {
     sigma2 = s;
     }
 
-  unsigned get_rankK(void);
+//  unsigned get_rankK(void);
 
   double getlambda(void)
     {
@@ -210,26 +201,6 @@ class __EXPORT_TYPE FULLCOND_mixture_gaussian : public FULLCOND_mixture
     mu = datamatrix(index.rows(),1);
     }
 
-  // CONSTRUCTOR2
-  // random slope
-
-  FULLCOND_mixture_gaussian(MCMCoptions * o,DISTRIBUTION * dp,
-                           FULLCOND_const * fcc,
-                           const datamatrix & intvar,
-                           const datamatrix & effmod,
-                           const ST::string & t,
-                           const ST::string & fp,const ST::string & pr,
-                           const ST::string & prf,
-                           const double & la,
-                           const bool & inclfixed,
-                           const unsigned & c = 0)
-                           : FULLCOND_mixture(o,dp,fcc,intvar,effmod,t,
-                                             fp,pr,prf,la,inclfixed,c)
-    {
-    mu = datamatrix(index.rows(),1);
-    }
-
-
   // COPY CONSTRUCTOR
 
   FULLCOND_mixture_gaussian(const FULLCOND_mixture_gaussian & fc)
@@ -277,9 +248,6 @@ class __EXPORT_TYPE FULLCOND_mixture_gaussian : public FULLCOND_mixture
     {
     FULLCOND_mixture::outoptions();
     }
-
-  void init_spatialtotal(FULLCOND_nonp_basis * sp,const ST::string & pnt,
-                         const ST::string & prt);
 
   // FUNCTION: reset
   // TASK: resets all parameters for a new simulation
