@@ -1,0 +1,934 @@
+\chapter{dataset objects} \label{chap_data}
+\label{datasetobj} \index{dataset objects} \index{dataset}
+
+{\em Authors: Stefan Lang, Christiane Belitz and Manuela Hummel}   \\
+{\em email: \href{mailto:lang@stat.uni-muenchen.de}{lang@stat.uni-muenchen.de}}\\
+\vspace{0.3cm}
+
+
+{\em Dataset objects} are used to manage and manipulate data. A new {\em dataset object} is created by typing
+
+#> dataset# {\em objectname}
+
+where {\em objectname} is the name of the data set. After the
+creation of a {\em dataset object} you can apply the methods for
+manipulating and managing data sets discussed below.
+
+Note that in the current version of {\em BayesX} {\bf only
+numerical variables are allowed}. Hence, string valued variables,
+for example,  are not yet supported by {\em BayesX}.
+
+\section{Method descriptive}
+\label{descriptive} \index{summary statistics}
+\index{descriptives} \index{dataset!descriptive command}
+
+\subsection*{Description}
+
+Method #descriptive# calculates and displays univariate summary
+statistics. The method computes the number of observations, the
+mean, median, standard deviation, minimum and maximum of
+variables.
+
+\subsection*{Syntax}
+
+#> #{\em objectname}.#descriptive# {\em varlist} [#if# {\em expression}]
+
+Method #descriptive# computes summary statistics for the variables
+in {\em varlist}. An optional #if# statement may be added to
+analyze only a part of the data.
+
+\subsection*{Options}
+
+not allowed
+
+\subsection*{Examples}
+
+The statement
+
+#> d.descriptive x y#
+
+computes summary statistics for the variables #x# and #y#.
+The statement
+
+#> d.descriptive x y if x>0#
+
+restricts the analysis to observations with #x>0#.
+
+
+\section{Method drop}
+\label{drop} \index{dropping variables} \index{dropping
+observations} \index{dataset!drop command}
+
+%\bigskip
+%{\bf \em  Description} \\
+
+\subsection*{Description}
+
+Method #drop# deletes variables or observations from the data set.
+
+%\bigskip
+\subsection*{Syntax}
+
+#> #{\em objectname}.#drop# {\em varlist}
+
+#> #{\em objectname}.#drop if# {\em expression}
+
+The first command may be used to eliminate the variables specified
+in {\em varlist} from the data set. The second statement may be
+used to eliminate certain observations. An observation will be
+removed from the data set if {\em expression} is true, i.e. the
+value of the expression is one.
+
+\subsection*{Options}
+
+not allowed
+
+\subsection*{Examples}
+
+The statement
+
+#> credit.drop account duration#
+
+drops the variables #account# and #duration# from the credit scoring data set. With the statement
+
+#> credit.drop if  marstat = 2#
+
+all observations with #marstat=2#, i.e. all persons living alone,
+will be dropped from the credit scoring data set.
+The following statement
+
+#> credit.drop account duration if marstat = 2#
+
+will raise the error
+
+#ERROR: dropping variables and observations in one step not allowed#
+
+It is not allowed to drop variables and certain observations in
+one single command.
+
+
+\section{Functions and Expressions}
+\label{expression} \index{expressions}
+
+The primary use of expressions is to generate new variables or
+change existing variables, see \autoref{generate} and
+\autoref{replace}, respectively. Expressions may also be used in
+#if# statements to force {\em BayesX} to apply a method only to
+observations where the boolean expression in the #if# statement
+is true. The following are all examples of expressions:
+
+#2+2# \\
+#log(amount)# \\
+#1*(age <= 30)+2*(age > 30 & age <= 40)+3*(age > 40)# \\
+#age=30# \\
+#age+3.4*age^2+2*age^3# \\
+#amount/1000#
+
+
+\subsection{Operators}
+\index{expressions!operators} \index{operators}
+
+
+{\em BayesX} has three different types of operators: arithmetic,
+relational and logical. Each of the types is discussed below.
+
+\subsubsection{Arithmetic operators}
+\index{operators!arithmetic}
+
+The arithmetic operators are #+# (addition), #-# (subtraction),
+#*# (multiplication), #/# (division), #^# (raise to a power) and
+the prefix #-# (negation). Any arithmetic operation on a missing
+value or an impossible arithmetic operation (such as division by zero) yields a missing value.
+
+{\bf Example}
+
+The expression
+
+#(x+y^(3-x))/(x*y)#
+
+denotes the formula
+
+$$
+\frac{x+y^{3-x}}{x\cdot y}
+$$
+
+and evaluates to missing if #x# or #y# is missing or zero.
+
+
+\subsubsection{Relational operators}
+\index{operators!relational}
+
+The relational operators are #># (greater than), #<# (less than),
+#>=# (greater than or equal), #<=# (less than or equal), #=#
+(equal) and #!=# (not equal). Relational expressions are either
+1 (i.e. the expression is true) or 0 (i.e. the expression is false).
+
+
+
+{\bf Examples}
+
+Relational operators may be used to create indicator variables.
+The following statement generates a new variable #amountcat# (out
+of the already existing variable #amount#), whose
+value is 1 if #amount<=10# and 2 if #amount>10#.
+
+#> credit.generate amountcat = 1*(amount<=10)+2*(amount>10)#
+
+Another useful application of relational operators is in #if#
+statements. For example, changing
+an existing variable only when a certain condition holds can be done by the following command:
+
+#> credit.replace amount = NA if amount <= 0#
+
+This sets all observations missing where #amount<=0#.
+
+\subsubsection{Logical operators}
+\index{operators!logical}
+
+The logical operators are #&# (and) and #|# (or).
+
+{\bf Example}
+
+Suppose you want to generate a variable #amountind# whose value is
+1 for married people with
+amount greater than 10 and 0 otherwise. This can be done by typing
+
+#> credit.generate amountind = 1*(marstat=1 & amount > 10)#
+
+
+\subsubsection{Order of evaluation of the operators}
+\index{operators!order of evaluation}
+
+The order of evaluation (from first to last) of operators is
+
+#^# \\
+#/#, #*#\\
+#-#, #+#\\
+#!=#, #>#, #<#, #<=#, #>=#, #=#\\
+#&#, #|#.
+
+Brackets may be used to change the order of evaluation.
+
+
+\subsection{Functions}
+\index{functions}
+
+Functions may appear in expressions. Functions are indicated by
+the function name, an opening and a closing parenthesis. Inside
+the parentheses one or more arguments may be specified. The
+argument(s) of a function may be any expression, including other
+functions. Multiple arguments are separated by commas. All
+functions return missing values when given missing values as
+arguments or when the result is undefined.
+
+
+\bigskip
+{\bf Functions reference}
+
+\autoref{mathfunc} references all mathematical functions;
+\autoref{statfunc} references all statistical functions.
+\index{functions!abs} \index{functions!cos} \index{functions!sin}
+\index{functions!exp} \index{functions!floor}
+\index{functions!lag} \index{functions!logarithm}
+\index{functions!square root} \index{functions!bernoulli
+distributed random numbers} \index{functions!binomial distributed
+random numbers} \index{functions!cumulative distribution function}
+%\index{Functions!gamma distributed random numbers}
+\index{functions!exponential distributed random numbers}
+\index{functions!normally distributed random numbers}
+\index{functions!uniformly distributed random numbers}
+
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+{\bf Function} & {\bf Description} \\
+\hline \hline
+abs(x) & absolute value \\
+cos(x) & cosine of radians \\
+exp(x) & exponential \\
+floor(x) & returns the integer obtained by truncating $x$. \\
+& Thus floor(5.2) evaluates to 5 as floor(5.8). \\
+lag(x) & lag operator \\
+log(x) & natural logarithm \\
+log10(x) & log base 10 of $x$ \\
+sin(x) & sine of radians \\
+sqrt(x) & square root \\
+\hline
+\end{tabular}
+{\em\caption{\label{mathfunc} List of mathematical functions.}}
+\end{center}
+\end{table}
+
+
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{|l|p{11cm}|}
+\hline
+{\bf Function} & {\bf Description} \\
+\hline \hline bernoulli($p$) & returns Bernoulli distributed
+random numbers with probability of success $p$. If $p$ is not
+within the interval $[0;1]$, a
+ missing value will be returned. \\
+\hline binomial($n,p$) & returns $B(n;p)$ distributed random
+numbers. Both, the number of trials $n$ and the probability of
+success $p$ may be expressions. If $n < 1$, a missing value will
+be returned. If $n$ is not integer valued, the number of trials
+will be $[n]$. If $p$ is not within the interval $[0;1]$, a
+missing value will be returned. \\
+\hline
+cumul($x$) & cumulative distribution function \\
+\hline
+cumulnorm($x$) & cumulative distribution function $\Phi$ of the standard normal distribution. \\
+\hline exponential($\lambda$) & returns exponentially distributed
+random numbers with parameter $\lambda$.
+If $\lambda \leq 0$, a missing value will be returned. \\
+\hline gamma($\mu$,$\nu$) & returns gamma distributed random
+numbers with mean $\mu$ and variance $\mu^2/ \nu$.
+If $\mu$ and/or $\nu$ are less than zero, a missing value will be returned.  \\
+\hline normal() & returns standard normally distributed random
+numbers;
+$N(\mu,\sigma^2)$ distributed random numbers may be generated with $\mu + \sigma$*normal(). \\
+\hline uniform() & uniform pseudo random number function; returns
+uniformly distributed
+pseudo-random numbers on the interval $(0,1)$ \\
+\hline
+\end{tabular}
+{\em \caption{\label{statfunc} List of statistical functions}}
+\end{center}
+\end{table}
+
+
+\subsection{Constants}
+\index{expressions!constants} \index{number of observations}
+\index{missing values} \index{$\pi$} \index{current observation}
+
+\autoref{constant} lists all constants that may be used in expressions.
+
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Constant & Description \\
+\hline \hline
+\texttt{\_n} & contains the number of the current observation.  \\
+\texttt{\_N }& contains the total number of observations in the data set. \\
+\texttt{\_pi} & contains the value of $\pi$. \\
+\texttt{NA} & indicates a missing value \\
+.  & indicates a missing value \\
+
+\hline
+\end{tabular}
+{\em \caption{\label{constant} List of constants}}
+\end{center}
+\end{table}
+
+
+{\bf Examples}
+
+The following statement generates a variable #obsnr# whose value
+is 1 for the first observation, 2 for the second and so on.
+
+#> credit.generate obsnr = _n#
+
+The command
+
+#> credit.generate nrobs = _N#
+
+generates a new variable {\em nrobs} whose values are equal to the
+total number of observations, say 1000, for all observations.
+
+\subsection{Explicit subscribing}
+\index{expressions!explicit subscribing} \index{subscribing}
+
+Individual observations on variables can be referenced by
+subscribing the variables. Explicit subscripts are specified by
+the variable name with square brackets that contain an expression.
+The result of the subscript expression is truncated to an integer,
+and the value of the variable for the indicated observation is
+returned. If  the value of the subscript expression is less than 1
+or greater than the number of observations in the data set,
+a missing value is returned.
+
+{\bf Examples}
+
+Explicit subscribing combined with the constant #_n# (see
+\autoref{constant}) can be used to create lagged values
+on a variable. For example the lagged value of a variable #x# in a data set #data# can be created by
+
+#> data.generate xlag = x[_n-1]#
+
+\newpage
+
+Note that #xlag# can also be generated using the #lag# function
+
+#> data.generate xlag = lag(x)#
+
+
+\section{Method generate}
+\label{generate} \index{generating new variables}
+\index{dataset!generate command}
+
+\subsection*{Description}
+
+#generate# is used to create a new variable.
+
+
+\subsection*{Syntax}
+
+#> #{\em objectname}.#generate# {\em newvar} = {\em expression}
+
+Method #generate# creates a new variable with name {\em newvar}.
+See \autoref{varnames} for valid variable names. The values of the
+new variable are specified by {\em expression}. The details of
+valid expressions are covered in \autoref{expression}.
+
+
+\subsection*{Options}
+
+not allowed
+
+
+\subsection*{Examples}
+
+The following command generates a new variable called #amount2#
+whose values are the square of amount in the credit
+scoring data set.
+
+#> credit.generate amount2 = amount^2#
+
+If you try to change the variable currently generated, for example by typing
+
+#> credit.generate amount2 = amount^0.5#
+
+the error message
+
+#ERROR: variable amount2 is already existing #
+
+will occur. This prevents you to change an existing variable
+unintentionally. An existing variable may be changed with method
+#replace#, see \autoref{replace}.
+
+If you want to generate an indicator variable #largeamount# whose
+value is 1 if #amount# exceeds a certain value, say 3.5, and 0
+otherwise, the following will
+produce the desired result:
+
+#> credit.generate largeamount = 1*(amount>3.5)#
+
+
+\section{Method infile}
+\label{infile} \index{reading data from ASCII files}
+\index{dataset!infile command}
+
+
+\subsection*{Description}
+
+Reads in data saved in an ASCII file.
+
+
+\subsection*{Syntax}
+
+#> #{\em objectname}.#infile #[{\em varlist}] [{\em , options}] #using# {\em filename}
+
+Reads in data stored in {\em filename}. The variables are given
+names specified in {\em varlist}. If {\em varlist} is empty, i.e.
+there is no {\em varlist} specified, it is assumed that the first
+row of the datafile contains the variable names separated by
+blanks or tabs. It is not required that the observations in the
+datafile are stored in a special format, except that successive
+observations should be separated by one or more blanks (or tabs).
+The first value read from the file will be the first observation
+of the first variable, the second value will be the first
+observation of the second variable, and so on. An error will occur
+if for some variables no values can be read for the last
+observation.
+
+It is assumed that  a period '.' or 'NA' indicates a missing
+value.
+
+Note that in the current version of {\em BayesX} {\bf only
+numerical variables are allowed}. Thus, the attempt to read in
+string valued variables, for example, will cause an error.
+
+
+\subsection*{Options}
+
+\begin{itemize}
+\item {\bf missing = missingsigns} \\
+By default a dot '.' or 'NA' indicates a missing value. If you
+have a data set where missing values are indicated by different
+signs than '.' or 'NA', you can force {\em BayesX} to recognize
+these signs as missing values by specifying the #missing# option.
+For example #missing = MIS# defines MIS as an indicator for a
+missing value. Note that
+ '.' and 'NA' remain valid indicators for missing values, even if the missing
+option is specified.
+
+\item {\bf maxobs = integer} \\
+If you work with large data sets, you may observe the problem that
+reading in a data set using the #infile# command is very time
+consuming. The reason for this problem is that {\em BayesX} does
+not know the number of observations and thus the memory needed in
+advance. The effect is that new memory must be allocated whenever
+a certain amount of memory is used. To avoid this problem the
+#maxobs# option may be used, leading to a considerable reduction
+of computing time. This option forces {\em BayesX} to allocate in
+advance enough memory  to store at least {\em integer}
+observations before new memory must be reallocated. Suppose for
+example that your data set consists approximately of 100,000
+observations. Then specifying #maxobs = 105000# allocates enough
+memory to read in the data set quickly. Note that #maxobs = 105000#
+does not mean that your data set cannot hold more than
+105,000 observations. This means only that new memory will/must be
+allocated when the number of observations of your data set exceeds
+the 105,000 observations limit.
+\end{itemize}
+
+
+\subsection*{Examples}
+
+Suppose we want to read a data set stored in
+#c:\data\testdata.raw# containing two
+variables #var1# and #var2#.
+The first few rows of the datafile could look like this:
+
+var1 var2 \\
+2 2.3 \\
+3 4.5 \\
+4 6 \\
+...
+
+
+To read in this data set, we first have to create a new {\em dataset
+object}, say #testdata#, and then read the data using
+the #infile# command. The following two commands will produce the desired result.
+
+#> dataset testdata# \\
+#> testdata.infile using c:\data\testdata.raw#
+
+If the first row of the data set file contains no variable names,
+the second command must be modified to:
+
+#> testdata.infile var1 var2 using c:\data\testdata.raw#
+
+Suppose furthermore that the data set you want to read in is a
+pretty large data set with 100,000
+observations. In that case the #maxobs# option is very useful to reduce reading time.  Typing for example
+
+#> testdata.infile var1 var2 , maxobs=101000 using c:\data\testdata.raw#
+
+will produce the desired result.
+
+
+\section{Method outfile}
+\label{outfile} \index{writing data to a file} \index{saving data
+in an ASCII file} \index{dataset!outfile command}
+
+\subsection*{Description}
+
+Method #outfile# writes data to a disk file in ASCII format. The saved
+data can be read back using the #infile# command, see
+\autoref{infile}.
+
+
+
+\subsection*{Syntax}
+
+#> #{\em objectname}.#outfile# [{\em varlist}] [#if# {\em expression}] [{\em , options}] #using# {\em filename}
+
+#outfile# writes the variables specified in {\em varlist} to the
+disk file with name {\em filename}. If {\em varlist} is omitted in
+the outfile statement, {\em all} variables in the data set are
+written to disk. Each row in the data file corresponds to one
+observation. Different variables are separated by blanks.
+Optionally, an #if# statement may be used to write only those
+observations to disk where a certain boolean expression, specified
+in {\em expression}, is true.
+
+
+\subsection*{Options}
+
+
+\begin{itemize}
+\item {\bf header} \\
+Specifying the #header# option forces {\em BayesX} to write the
+variable names in the first row of the created data file.
+\item {\bf replace} \\
+The #replace# option allows {\em BayesX} to overwrite an already
+existing data file. If #replace# is omitted in the option list and
+the file specified in {\em filename} is already existing, an error
+will be raised.
+This prevents you from overwriting an existing file unintentionally.
+\end{itemize}
+
+
+\subsection*{Examples}
+
+The statement
+
+#> credit.outfile using c:\data\cr.dat#
+
+writes the complete credit scoring data set to
+#c:\data\cr.dat#. To generate two different
+ASCII
+data sets for married people and people living alone, you could type
+
+#> credit.outfile if marstat = 1 using c:\data\crmarried.dat# \\
+#> credit.outfile if marstat = 2 using c:\data\cralone.dat#
+
+Suppose you only want to write the two variables #y# and #amount#
+to disk. You could type
+
+#> credit.outfile y amount using c:\data\cr.dat#
+
+This will raise the error message
+
+#ERROR: file c:\data\cr.dat is already existing#
+
+\newpage
+
+because #c:\data\cr.dat# has already been created. You can
+overwrite the file using the #replace# option
+
+#> credit.outfile y amount , replace using c:\data\cr.dat#
+
+
+\section{Method pctile}
+\label{pcitle} \index{percentiles of variables}
+\index{dataset!pctile command}
+
+\subsection*{Description}
+
+Method #pctile# computes and displays the
+1\%,5\%,25\%,50\%,75\%,95\% and 99\%  percentiles of a variable.
+
+\subsection*{Syntax}
+
+#># {\em objectname}.#pctile# {\em varlist} [#if# {\em expression}]
+
+Method #pctile# computes and displays the percentiles of the
+variables specified in {\em varlist}. An optional #if# statement
+may be added to compute the percentiles only for a part of the
+data.
+
+\subsection*{Options}
+
+not allowed
+
+\subsection*{Examples}
+
+The statement
+
+#> d.pctile x y#
+
+computes percentiles for the variables #x# and #y#.
+The statement
+
+#> d.pctile x y if x>0#
+
+restricts the analysis to observations with x$>$0.
+
+
+\section{Method rename}
+\index{renaming variables} \index{dataset!rename command}
+
+
+\label{rename}
+
+
+\subsection*{Description}
+
+#rename# is used to change variable names.
+
+
+\subsection*{Syntax}
+
+#> #{\em objectname}.#rename# {\em varname} {\em newname}
+
+#rename# changes the name of {\em varname} to {\em newname}. {\em
+newname} must be a valid variable name, see \autoref{varnames} on
+how to create valid variable names.
+
+\bigskip
+{\bf Options}
+
+not allowed
+
+
+
+\section{Method replace}
+\label{replace} \index{changing existing variables}
+\index{dataset!replace command}
+
+
+
+\subsection*{Description}
+
+#replace# changes the values of an existing variable.
+
+
+\subsection*{Syntax}
+
+#> #{\em objectname}.#replace# {\em varname} = {\em expression} [#if# {\em boolexp}]
+
+#replace# changes the values of the existing variable {\em
+varname}. If {\em varname} is not existing, an error will be
+raised. The new values of the variable are specified in {\em
+expression}. Expressions are covered in \autoref{expression}. An
+optional #if# statement may be used to change the values of the
+variable only if the boolean expression {\em boolexp} is true.
+
+
+\subsection*{Options}
+
+not allowed
+
+
+\subsection*{Example}
+
+The statement
+
+#> credit.replace amount = NA if amount<0#
+
+changes the values of the variable #amount# in the credit scoring
+data set to missing if #amount<0#.
+
+
+\section{Method set obs}
+\label{setobs}
+
+
+\subsection*{Description}
+
+#set obs# changes the current number of observations in a data
+set.
+
+
+\subsection*{Syntax}
+
+#> #{\em objectname}.#set obs# = {\em intvalue}
+
+#set obs# raises the number of observations in the data set to
+{\em intvalue}, which must be greater or equal to the current
+number of observations. This prevents you from deleting parts of
+the data currently in memory. Observations may be eliminated using
+the #drop# statement, see \autoref{drop}. The values of the
+additionally created observations will be set to the missing
+value.
+
+
+
+\section{Method sort}
+\label{sort} \index{sorting variables} \index{dataset!sort
+command}
+
+
+\subsection*{Description}
+
+Sorts the data set.
+
+
+\subsection*{Syntax}
+
+#> #{\em objectname}.#sort# {\em varlist}  [{\em , options}]
+
+Sorts the data set with respect to the variables specified in {\em
+varlist}. Missing values are interpreted to be larger than any
+other number and are thus placed last.
+
+
+\subsection*{Options}
+
+\begin{itemize}
+\item {\bf descending}  \\
+If this option is specified, the data set will be sorted in
+descending order. The default is ascending order.
+\end{itemize}
+
+
+\section{Method tabulate}
+\label{tabulate} \index{tabulate} \index{table of frequencies}
+\index{one way table of frequencies} \index{dataset!tabulate
+command}
+
+\subsection*{Description}
+
+Method #tabulate# calculates and displays a frequency table for a
+variable.
+
+\subsection*{Syntax}
+
+#># {\em objectname}.#tabulate# {\em varlist} [#if# {\em expression}]
+
+Method #tabulate# computes and displays frequency tables of the
+variables specified in {\em varlist}. An optional #if# statement
+may be added to restrict the analysis to a part of the data.
+
+\subsection*{Options}
+
+not allowed
+
+\subsection*{Examples}
+
+The statement
+
+#> d.tabulate x y#
+
+displays  frequency tables for the variables #x# and #y#.
+The statement
+
+#> d.tabulate x y if x>0#
+
+restricts the analysis to observations with #x>0#.
+
+
+\section{Variable names}
+\label{varnames} \index{variables names}
+
+
+A valid variable name is a sequence of letters (#A#-#Z# and #a#-#z#),
+digits (#0#-#9#), and underscores (#_#). The first character of a
+variable name must  either be a letter or an underscore. {\em
+BayesX} respects upper and lower case letters, that is #myvar#,
+#Myvar# and #MYVAR# are three distinct variable names.
+
+
+\section{Examples}
+
+This section contains two examples on how to work with {\em
+dataset objects}. The first example illustrates some of the
+methods described above, using one of the example data sets stored
+in the #examples# directory, the credit scoring data set. A
+description of this data set can be found in \autoref{creditdata}.
+The second example shows how to simulate complex statistical
+models.
+
+\subsection{The credit scoring data set}
+
+In this section we illustrate how to code categorical variables
+according to one of the coding schemes, dummy or effect coding.
+This will be useful in regression models, where all categorical
+covariates must be coded in dummy or effect coding before they can
+added to the model.
+
+We first create a {\em dataset object} #credit# and read in the data using the #infile# command.
+
+#> dataset credit# \\
+#> credit.infile using c:\bayes\examples\credit.raw#
+
+We can now generate new variables to obtain dummy coded versions
+of the categorical covariates
+#account#, #payment#, #intuse# and #marstat#:
+
+#> credit.generate account1  = 1*(account=1)# \\
+#> credit.generate account2  = 1*(account=2)# \\
+#> credit.generate payment1 = 1*(payment=1)# \\
+#> credit.generate intuse1 = 1*(intuse=1)# \\
+#> credit.generate marstat1 = 1*(marstat=1)#
+
+The reference categories are chosen to be 3 for #account# and 2
+for the other variables. Alternatively, we could code the
+variables according to effect coding. This is achieved with the
+following program code:
+
+#> credit.generate account_eff1  = 1*(account=1)-1*(account=3)# \\
+#> credit.generate account_eff2  = 1*(account=2)-1*(account=3)# \\
+#> credit.generate payment_eff1 = 1*(payment=1)-1*(payment=2)# \\
+#> credit.generate intuse_eff1 = 1*(intuse=1)-1*(intuse=2)# \\
+#> credit.generate marstat_eff1 = 1*(marstat=1)-1*(marstat=2)#
+
+
+\subsection{Simulating complex statistical models}
+\index{dataset!simulation of} \index{simulation of artificial data
+sets}
+
+In this section we illustrate how to simulate complex regression
+models. Suppose first we want to simulate data according to the
+following Gaussian regression model:
+
+\begin{eqnarray}
+y_i & = & 2 + 0.5 x_{i1} + \sin(x_{i2}) + \epsilon_i, \quad i = 1,\dots,1000 \\
+x_{i1} & \sim & U(-3,3) \quad i.i.d.  \\
+x_{i2} & \sim & U(-3,3) \quad i.i.d.  \\
+\epsilon_i & \sim & N(0,0.5^2) \quad i.i.d.
+\end{eqnarray}
+
+We first have to create a new data set #gsim#, say, and specify the desired number of observations:
+
+#> dataset gsim# \\
+#> gsim.set obs = 1000#
+
+In a second step the covariates #x1# and #x2# have to be created. In
+this first example we
+assume that the covariates are uniformly distributed between -3 and 3. To generate them, we must type:
+
+#> gsim.generate x1 = -3+6*uniform()# \\
+#> gsim.generate x2 = -3+6*uniform()#
+
+In a last step we can now create the response variable by typing
+
+#> gsim.generate y = 2 + 0.5*x1+sin(x2)+0.5*normal()#
+
+You could now (if you wish) estimate a Gaussian regression model
+with the generated data set using one of the regression tools of {\em BayesX}, see
+\autoref{bayesreg} or \autoref{remlreg}. Of course, more refined models could be
+simulated. We may for example drop the assumption of a constant
+variance of $0.5^2$ in the error term. Suppose the variance is
+heteroscedastic and growing with order log($i$)
+where $i$ is the observation index. We can simulate such a heteroscedastic model by typing:
+
+#> gsim.replace y = 2 + 0.5*x1+sin(x2)+0.1*log(_n+1)*normal()#
+
+In this model the standard deviation is
+
+$$
+\sigma_i = 0.1*\log(i+1), \quad  i = 1,\dots,1000.
+$$
+
+Suppose now that we want to simulate data from a logistic
+regression model. In a logistic regression model it is assumed
+that (given the  covariates) the response variable $y_i$,
+$i=1,\dots,n$, is binomially distributed with parameters $n_i$ and
+$\pi_i$ where $n_i$ is the number of replications and $\pi_i$ is
+the probability of success. For $\pi_i$ one assumes that it is
+related to a linear predictor $\eta_i$ via the logistic
+distribution function, that is
+
+$$
+\pi_i = \frac{\exp(\eta_i)}{1+\exp{(\eta_i)}}.
+$$
+
+To simulate such a model we have to specify the linear predictor
+$\eta_i$ and the number of replications $n_i$. We specify a
+similar linear predictor as in the example above for Gaussian
+response, namely
+
+$$
+\eta_i = -1+0.5x_{i1}-\sin(x_{i2}).
+$$
+
+
+For simplicity, we set $n_i=1$ for the number of replications. The
+following commands generate a data set 'bin'
+according to the specified model:
+
+
+#> dataset bin #\\
+#> bin.set obs = 1000# \\
+#> bin.generate x1 = -3+6*uniform()# \\
+#> bin.generate x2 = -3+6*uniform()# \\
+#> bin.generate eta = -1+0.5*x1-sin(x2)# \\
+#> bin.generate pi = exp(eta)/(1+exp(eta))# \\
+#> bin.generate y = binomial(1,pi)#
+
+Note that the last three statements can be combined into a single command:
+
+#> bin.generate y = binomial(1,exp(-1+0.5*x1-sin(x2))/(1+exp(-1+0.5*x1-sin(x2)))#
+
+
+The first version however is much easier to read and should
+therefore be preferred.

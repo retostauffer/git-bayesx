@@ -1,0 +1,154 @@
+\chapter{Special Commands}
+
+This chapter describes some commands that are not connected with a
+particular object type. Among others, there are commands for
+exiting {\em BayesX}, opening and closing log files, saving
+program output, dropping objects etc..
+
+\section{Exiting BayesX}
+\index{exiting BayesX}
+
+You can exit {\em BayesX} by simply typing either
+
+#> exit#
+
+or
+
+#> quit#
+
+in the {\em command window}.
+
+\section{Opening and closing log files} \label{logfile}
+\index{log files}
+
+In a log file, program output and commands entered by the user,
+are stored in plain ASCII format. This makes it easy to further
+use the program output, for example results of statistical
+procedures, in your favorite text editor. Another important
+application of log files is
+the documentation of your work. You open a log file by typing:
+
+#> logopen# [{\em, option}] #using# {\em filename}
+
+This opens a log file that will be saved in {\em filename}. After
+opening a log file, all commands entered and all program output
+appearing on the screen will be saved in this file. If the
+log file specified in  {\em filename} is already existing, new
+output is appended at the end of the file. To overwrite an
+existing log file option #replace# must be specified in addition.
+Note that it is not allowed to open more than one log file
+simultaneously.
+
+An open log file can be closed by simply typing:
+
+#> logclose#
+
+Note that exiting {\em BayesX} automatically closes the currently
+open logfile.
+
+\section{Saving the contents of the output window}
+\index{output window!saving the contents} \index{saveoutput}
+
+You can save the contents of the {\em output window} not only with
+the {\em file-$>$save output} or {\em file-$>$save output as}
+menu, but also using the #saveoutput# command. Saving the {\em
+output window} with the #saveoutput# command is  particularly
+useful in batch files, see \autoref{batch}. The syntax for saving
+the
+{\em output window} is
+
+#> saveoutput# [{\em , options}] #using# {\em filename}
+
+where {\em filename} is the file (including path) in which the
+contents of the output will be saved.
+
+
+\subsection*{Options}
+
+\begin{itemize}
+\item {\bf replace} \\
+By default, an error will be raised if one tries to store the
+contents of the {\em output window} in a file that is already
+existing. This preserves you from overwriting a file
+unintentionally. An already existing file can be overwritten by
+explicitly specifying the #replace# option.
+\item {\bf type = rtf $|$ txt } \\
+The {\em output window} can be saved under two different file
+types. By default, the contents of the window will be saved in
+rich-text format. The second possibility is to store the {\em
+output window} in plain ASCII--format. This can be done by
+specifying #type = txt#. To explicitly store the file in rich-text
+format {\em #type = rtf#} must be specified. \\
+DEFAULT: #type = rtf#
+\end{itemize}
+
+\section{Changing the delimiter}
+\label{delimiter} \index{delimiter}
+
+By default, commands entered using the {\em command window} will
+be executed by pressing the return key. This can be inconvenient,
+in particular if your statements are long. In that case it may be
+more favorable to split a statement into several lines, and
+execute the command using a different delimiter than the return
+key. You can change the delimiter using the #delimiter# command. The syntax is
+
+#> delimiter# = {\em newdel}
+
+where {\em newdel} is the new delimiter. There are only two
+different delimiters allowed, namely the
+return key and the ';' (semicolon) key. To specify the ';' key as the delimiter, type
+
+#> delimiter = ;#
+
+and press return. To return to the return key as the delimiter, type
+
+#> delimiter = return;#
+
+Note that the above statement must end with a semicolon, since
+this was previously set to the current delimiter.
+
+
+\section{Using batch files}
+\label{batch} \index{batch files}
+
+You can execute commands stored in a file just as if they were
+entered from the keyboard. This may be useful if you want to
+re-run a certain analysis more than once (possibly with some minor
+changes) or if you want to run time consuming statistical methods
+such as Bayesian regression based on MCMC simulation techniques
+(see \autoref{bayesreg}).
+You can run such batch files by simply typing
+
+#> usefile# {\em filename}
+
+This executes the commands stored in {\em filename} successively.
+{\em BayesX} will not stop the execution if an error occurs in one
+or more commands. Note that it is allowed to invoke
+another batch file within a batch file currently running.
+
+
+{\bf Comments}\index{comments}
+
+Comments in batch files are allowed and are indicated by a  #%#
+sign, that is every line
+starting with a #%# sign is ignored by the program.
+
+{\bf Changing the delimiter}
+
+In particular in batch files, the readability of your program code
+may be improved if some (long) commands are split up into several
+lines. Normally this will cause errors, because {\em BayesX}
+interprets each line in your program as one statement. To overcome
+this problem one simply
+has to change the delimiter using the #delimiter# command, see \autoref{delimiter}.
+
+
+\section{Dropping objects}
+\index{objects!dropping} \index{dropping objects}
+
+You can delete objects by typing
+
+#> drop# {\em objectlist}
+
+This drops the objects specified in {\em objectlist}. The names of
+the objects in {\em objectlist} must be separated by blanks.

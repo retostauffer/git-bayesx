@@ -1,0 +1,113 @@
+\chapter{What is BayesX?}
+
+{\em BayesX} is a software tool for performing complex Bayesian
+inference. The main features of {\em BayesX} are:
+\begin{itemize}
+\item {\bf Bayesian semiparametric regression based on MCMC simulation techniques} \\
+{\em BayesX} provides a powerful regression tool for analyzing
+regression and survival models with {\em structured additive
+predictor} (STAR). STAR models cover a number of well known model
+classes as special cases, e.g. {\em generalized additive models},
+{\em generalized additive mixed models}, {\em geoadditive models},
+{\em dynamic models}, {\em varying coefficient models}, and {\em
+geographically weighted regression}. {\em BayesX} is able to
+estimate nonlinear effects of continuous covariates, trends and
+flexible seasonal patterns of time scales, correlated and/or
+uncorrelated spatial effects (of geographical data) and
+unstructured i.i.d. Gaussian effects of unordered group
+indicators. The regression tool  supports the most common
+distributions for the response variable. Supported distributions
+for univariate responses are Gaussian, binomial, Poisson, negative
+binomial and gamma. For multicategorial responses, both
+multinomial logit or probit models for ordered categories of the
+responses as well as cumulative threshold models for unordered
+categories may be estimated. Recently complex models for
+continuous time survival analysis based on the Cox model have been
+added. At least some basic knowledge about Bayesian inference with
+MCMC techniques is strongly recommended if you are interested in
+using this tool. Details can be found in \autoref{star} and
+\autoref{bayesreg}.
+\item {\bf Inference for STAR models based on methodology for mixed models} \\
+{\em BayesX} provides a second regression tool for estimating STAR
+models. This tool represents STAR models as {\em generalized
+linear mixed models} (GLMM). Inference is then based on estimation
+procedures for GLMM's, particularly {\em restricted maximum
+likelihood} (REML). From a Bayesian perspective this yields
+empirical Bayes or posterior mode estimates. The regression tool
+based on mixed model methodology has almost the same functionality
+as the first tool based on MCMC techniques. In addition, it
+provides the possibility to estimate two dimensional surfaces
+based on stationary Gaussian random fields. Continuous time
+survival analysis is limited to the piecewise exponential model.
+Details can be found in \autoref{star} and \autoref{remlreg}.
+\item {\bf Model selection for Gaussian and non-Gaussian dag's} \\
+This tool estimates Gaussian and non-Gaussian directed acyclical
+graphs (dag) via reversible jump MCMC. Details are given in
+\autoref{dag}
+\item {\bf Handling and manipulation of data sets} \\
+{\em BayesX} provides a growing number of functions for handling
+and manipulating data sets, e.g. for reading ASCII data sets,
+creating new variables, obtaining summary statistics etc. Details
+are given in \autoref{datasetobj}.
+\item {\bf Handling and manipulation of geographical maps} \\
+{\em BayesX} is able to manipulate and draw geographical maps. The
+regions of the map may be colored according to some numerical
+characteristics. For details compare \autoref{map} and
+\autoref{graphobj}.
+\item {\bf Visualizing data} \\
+{\em BayesX} provides functions for drawing scatter plots and
+geographical maps. The number of additional options are provided
+to customize the graphs according to the personal needs of the
+user. Details can be found in \autoref{graphobj}.
+\end{itemize}
+
+\vspace{0.5cm} {\bf Recommendations for further reading}
+
+\vspace{0.2cm} If you are interested in using {\em BayesX} it is
+not necessary to read the complete manual. \autoref{recomm}
+provides a guideline for reading this manual and other sources
+depending on your purpose and background. In any case, you should
+read \autoref{availableversions}-\autoref{generalusage} of
+\autoref{gettingstarted} to make yourself familiar with {\em
+BayesX}.
+
+
+\begin{table}[ht] \footnotesize
+\begin{center}
+\begin{tabular}{ |p{7cm}|p{8.5cm}|}
+\hline
+{\bf Intended use and background} & {\bf Guideline} \\
+\hline\hline Bayesian semiparametric regression based on MCMC
+simulation techniques. No experience with MCMC techniques. & Read
+first an introductory text about MCMC. A nice introduction is
+given e.g. in Green (2001). Read \autoref{star} to make yourself
+familiar with STAR regression models.
+Proceed then with the tutorial like \autoref{zambiaanalysis} of \autoref{bayesreg}. \\
+\hline Bayesian semiparametric regression based on MCMC simulation
+techniques. At least a basic knowledge about MCMC techniques
+exists. & Read \autoref{star} to make yourself familiar
+with STAR regression models. Proceed then with the tutorial like \autoref{zambiaanalysis} of \autoref{bayesreg}. \\
+\hline Semiparametric regression based on mixed model methodology.
+& Read \autoref{star} to make yourself familiar with STAR
+regression models. Proceed then with the tutorial like
+\autoref{remlregzambianalysis} of \autoref{remlreg}. \\
+\hline Model selection for dag's. No experience with reversible
+jump MCMC. & Read first an introductory text about reversible jump
+MCMC. A nice introduction is
+given e.g. in Green (2001). Proceed with \autoref{dag}. \\
+\hline
+Draw and color geographical maps & Read \autoref{map} and \autoref{graphdrawmap} of \autoref{graphobj}. \\
+\hline
+\end{tabular}
+{\em \caption {\label{recomm} Recommendations for further
+reading}}
+\end{center}
+\end{table}
+
+\subsubsection*{References}
+
+\begin{description}
+\item[Green, P.J. (2001):] A Primer in Markov Chain Monte Carlo. In: Barndorff-Nielsen, O.E.,
+Cox, D.R. and Kl{\"u}ppelberg, C. (eds.), {\em Complex Stochastic
+Systems}. Chapman and Hall, London, 1-62.
+\end{description}

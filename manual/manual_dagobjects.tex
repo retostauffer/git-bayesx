@@ -1,0 +1,819 @@
+\chapter{DAG Objects}
+\index{model selection} \index{dag objects} \label{dag}
+
+{\em Author: Eva--Maria Fronk} \\
+{\em email: \href{mailto:fronk@stat.uni-muenchen.de}{fronk@stat.uni-muenchen.de}}\\
+\vspace{0.3cm}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Dag objects are needed to estimate dag models using reversible
+jump MCMC. The considered variables may be Gaussian or binary,
+even the mixed case of a conditional Gaussian distribution is
+possible. A general introduction into graphical models can be
+found in Lauritzen (1996). For a description of the more
+particular Gaussian dags see for instance Geiger and Heckerman
+(1994). We refer to Brooks (1998) or Gilks (1996) for an
+introduction into MCMC simulation techniques. For the more general
+reversible jump MCMC have a look at Green (1995); for reversible
+jump MCMC in context of graphical models at Giudici and Green
+(1999). The following explanations to the statistical background
+of the program can be found in more detail in Fronk and Giudici
+(2000).
+
+
+
+\section{Method "estimate"}
+
+
+
+\subsection{Description}
+
+The method #estimate# estimates the dependency structure of the
+given variable which is represented by a dag. Furthermore, the
+parameters of this model are estimated. This is done within a
+Bayesian framework; we assume prior distributions for the unknown
+parameters and use MCMC techniques for estimation. In the
+following we first focus on the Gaussian case  and describe the
+statistical model which is assumed for the variables. Some
+factorizations which result from the properties of dags are also
+given. To represent the dags we rely on the concept of adjacency
+matrices which is briefly explained and necessary to understand
+the output. We finally give some brief information about the used
+algorithm without going into details. Finally, we address the
+situation of binary and mixed (i.e.~continuous and binary)
+variables, too, which is reduced to the Gaussian case by
+introducing latent variables.
+
+\bigskip
+
+{\bf Model Assumptions } \\[0.2cm]
+\index{dag object!assumptions} A Gaussian dag $d$ can be
+represented as a regression model for each variable $X_i, \, i=0,
+\dots, p-1$, given the parents of $X_i$, denoted by $\X_{pa(i)}$,
+%
+\begin{eqnarray}
+X_i \mid \x_{pa(i)},  \mbeta_{i \mid pa(i)}, \sigma_{i \mid
+pa(i)}^2, d \sim  \N(\beta_{i0} + \sum_{x_l \in pa(x_i)}
+\beta_{il}x_l, \sigma_{i \mid pa(i)}^2). \nonumber
+\end{eqnarray}
+%
+The joint distribution of all variables ${\bf X} = (X_0, \dots,
+X_{p-1})'$ is then given by
+%
+\begin{eqnarray}
+%p(\x \mid  \mmu, \mSigma) =
+p(\x \mid  \mbeta, \msigma^2) = \prod_{i=0}^{p-1} p(x_i \mid
+\x_{pa(i)}, \mbeta_{i \mid pa(i)}, \sigma_{i \mid pa(i)}^2),
+\nonumber
+\end{eqnarray}
+%
+where $\mbeta_{i \mid pa(i)}$ is the $|pa(i)|+1$-dimensional
+vector of the intercept $\beta_{i0}$ and the $|pa(i)|$ regression
+coefficients of $X_i$. Furthermore, $\sigma_{i \mid pa(i)}^2$ is
+the partial variance of $X_i$ given its parents $\x_{pa(i)}$. Let
+$\mbeta = (\mbeta'_{0 \mid pa(1)}, \dots, \mbeta'_{p-1 \mid
+pa(p)})'$ denote the vector of the $\mbeta_{i \mid pa(i)}$'s and
+accordingly $\msigma^2 = (\sigma_{0 \mid pa(1)}^2, \dots,
+\sigma_{p-1 \mid pa(p)}^2)'$ the vector of the conditional
+variances $\sigma_{i \mid pa(i)}^2$.
+
+\bigskip
+
+The vector $\mbeta_{i \mid pa(i)}$ is assumed to be normally
+distributed with mean $\mb_{i \mid pa(i)}$ and covariance matrix $
+\frac{1}{\alpha_i} \sigma_{i \mid pa(i)}^2 \I $, where $\alpha_i$
+is a known scaling factor. For the sake of simplicity, we shall
+assume $\alpha_i=\alpha$. Formally:
+%
+$$\mbeta_{i \mid pa(i)} \mid \sigma_{i \mid pa(i)}^2, d   \sim
+\N_{|pa(i)|+1} \left ( \mb_{i \mid pa(i)}, \,\frac{1}{\alpha}
+\sigma_{i \mid pa(i)}^2 \I  \right ).$$
+%
+This implies that the coefficients of a regression model are
+assumed to be mutually independent. For the partial variance
+$\sigma_{i \mid pa(i)}^2$ we use an inverse gamma prior with
+parameters $\delta_{i \mid pa(i)}$ and $\lambda_{i \mid pa(i)}$:
+%
+$$\sigma_{i \mid pa(i)}^2 \mid  d \sim \mbox{IG} \left ( \delta_{i
+\mid pa(i)}, \,\lambda_{i \mid pa(i)} \right).$$
+%
+Finally, by supposing that there exist $D$ possible dags, which,
+in the absence of subject-matter information, have all the same
+probability, we get a discrete uniform distribution for $d$: $p(d)
+=  1/D.$ Taking advantage of the well-known factorization property
+of the joint distribution
+\begin{eqnarray}
+p(\x \mid \mbeta, \msigma^2, d) &=&  \prod_{i=0}^{p-1} p(x_i \mid
+\x_{pa(i)}, \mbeta_{i \mid pa(i)}, \sigma_{i\mid pa(i)}^2)
+\nonumber
+\end{eqnarray}
+and the "global parameter independences"
+\begin{eqnarray}
+p(\mbeta \mid  \msigma^2, d) &=& \prod_{i=0}^{p-1} p(\mbeta_{i
+\mid pa(i)} \mid \msigma_{i \mid pa(i)}^2),  \nonumber \\ [0.1cm]
+\mbox{and \hspace{1cm}} p( \msigma^2 \mid d) &=& \prod_{i=0}^{p-1}
+p(\sigma_{i \mid pa(i)}^2) \nonumber
+\end{eqnarray}
+(for a detailed description see Geiger and Heckerman, 1999), we
+get the joint distribution:
+%
+\begin{eqnarray}
+\lefteqn{ p(\x, \mbeta, \msigma^2, d)  }  \nonumber \\  [0.3cm]
+&=&   p(\x \mid \mbeta, \msigma^2, d) \,p(\mbeta \mid \msigma^2, d)  \, p( \msigma^2 \mid d)  \, p(d) \nonumber\\
+&=&    \prod_{i=0}^{p-1} p( \x_i \mid \x_{pa(i)}, \mbeta_{i \mid
+pa(i)}, \sigma^2_{i \mid pa(i)})
+    \, \prod_{i=0}^{p-1} p(\mbeta_{i \mid pa(i)} \mid \sigma_{i \mid pa(i)}^2)  \nonumber  \\
+& &  \, \prod_{i=0}^{p-1} p(\sigma_{i \mid pa(i)}^2) \, p(d)
+\nonumber
+\end{eqnarray}
+
+%joint distribution
+%Taking advantage of the well-known factorization property of the
+%joint distribution in (\ref{modularity_1}) and the "global
+%parameter independence" in (\ref{modularity_2}) and
+%(\ref{modularity_3}) (for a detailed description see Geiger and
+%Heckerman, 1999):
+%
+%\begin{eqnarray}
+%p(\x \mid \mbeta, \msigma^2, d)
+%&=&  \prod_{i=1}^p p(x_i \mid \x_{pa(i)}, \mbeta_{i \mid pa(i)}, \sigma_{i\mid pa(i)}^2), \label{modularity_1}  \\ [0.1cm]
+%p(\mbeta \mid  \msigma^2, d)
+%&=& \prod_{i=1}^p p(\mbeta_{i \mid pa(i)} \mid \msigma_{i \mid pa(i)}^2), \label{modularity_2}   \\ [0.1cm]
+%p( \msigma^2 \mid d) &=&  \prod_{i=1}^p p(\sigma_{i \mid pa(i)}^2). \label{modularity_3}
+%\end{eqnarray}
+
+\newpage
+
+{\bf Representation of DAGs } \\[0.2cm]
+\index{dag object!representation} To represent dags we rely on the
+concept of adjacency matrices. For a given graph ${\cal G} =(V,E)$
+with $|V|=p$, the adjacency matrix of ${\cal G}$ is defined as the
+$(p \times p)$-matrix $A$, $[A]_{ij}=a_{ij}$, with
+%
+\begin{eqnarray} a_{ij} = \left \{
+\begin{array} {l}
+            1, \mbox{ if } (v_i,v_j) \in E \hspace*{1cm} \\
+            0, \mbox{ if } (v_i,v_j) \not\in E. \hspace*{1cm}
+            \end{array} \right. \nonumber
+\end{eqnarray}
+%
+In general, all three types of graphs (undirected, directed and
+chain graphs) can be uniquely represented by the corresponding
+adjacency matrix. Note that regarding dags, as we do, the parents
+of the vertex $i$ are indicated by the $i$-th column, while its
+children are given in the $i$-th row. We use the representation
+via adjacency matrices also to check the acyclicity of the graph.
+For an illustration of this concept consider the graph in
+\autoref{adja}.
+%
+%
+\begin{figure}[ht]
+\renewcommand{\baselinestretch}{1.0}
+{\small \hspace*{2cm}
+\parbox {3cm}
+{ \setlength{\unitlength}{1cm}
+\begin{picture}(3, 5)
+\put(0.5,3.5) {\circle*{0.2}}
+\put(0.6,3.8){\makebox(0,0)[l]{$x_1$}} \put(0.5,1.5)
+{\circle*{0.2}} \put(0.6,1.4){\makebox(0,0)[tl] {$x_2$}}
+\put(2.5,1.5){\circle*{0.2}} \put(2.6,1.4){\makebox(0,0)[tl]
+{$x_3$}} \put(2.5,3.5) {\circle*{0.2}}
+\put(2.6,3.8){\makebox(0,0)[l] {$x_4$}}
+\put(0.5,3.3) {\vector(0,-1){1.6}}      %von x_1 nach x_2
+\put(0.7,1.5) {\vector(1,0){1.6}}       %von x_2 nach x_3
+\put(0.7,3.3) {\vector(1,-1){1.6}}      %von x_1 nach x_3
+\put(2.5,1.7)   {\vector(0,1){1.6}}     %von x_3 nach x_4
+\end{picture}
+} \hspace{3cm}
+\parbox {6cm}
+{ $ A = \left( \begin{array} {cccc}
+0&  1&  0&  0   \\
+0&  0&  1&  0   \\
+1&  0&  0&  1   \\
+0&  0&  0&  0
+\end{array}
+\right )$
+ }
+\vspace{-1cm} {\em\caption{\label{adja}A directed acyclic graph
+containing and the corresponding adjacency matrix $A$.}}}
+\end{figure}
+
+\bigskip
+
+{\bf Reversible Jump Algorithm for Continuous Variables} \\[0.2cm]
+%
+\index{model selection! Gaussian variables} We are not only
+interested in estimating the parameters for a given dag $d$ but
+also want to learn about the structure of $d$ itself. So we need
+to construct a Markov chain which has $ \pi(d,\mmu, \mbeta,
+\msigma^2\mid \x)$ as its invariant distribution. Changing the dag
+like adding or deleting a directed edge implies also a changing in
+the dimension of the parameter space. To deal with this situation
+we use a reversible jump algorithm. Reversible jump MCMC was
+proposed and described by Green (1995); it can be regarded as a
+generalization of the usual MCMC and allows to sample
+simultaneously from parameter spaces of different dimensions.
+
+Our algorithm can be briefly summarized by the following moves,
+which produce a Markov chain in the state space that is made up by
+the vector of unknowns $(d,\mbeta,\msigma^2)$:
+%
+\begin{enumerate}
+\item Updating the dag $d$ by adding, switching or deleting a
+directed edge, remaining always in the class of directed acyclic
+graphs. When adding or deleting an edge this move involves a
+change in dimensionality of the parameter space.
+\item Update  $\mbeta_{i\mid pa(i)}$, $i=0, \dots, p-1$.
+\item Update $\sigma^2_{i\mid pa(i)}$, $i=0, \dots, p-1$.
+\end{enumerate}
+%
+For a detailed explanation of the different steps in the
+continuous case, see Fronk and Giudici (2000). For a
+simplification of the oftentimes crucial switch step, see Fronk
+(2002) and also the explanations of the option {\it switch} in
+\autoref{switch_step}.
+
+
+
+\vfill
+\bigskip
+
+\newpage
+
+{\bf Reversible Jump Algorithm for Binary Variables}\\[0.2cm]
+%
+\index{model selection! Binary variables} Now we consider the
+situation of $p$ binary variables of which the joint distribution
+is assumed to be multinomial. The influence to a variable $X_i$
+from its known parents $\x_{pa(i)}$ shall be given by a probit
+model, i.e.~
+\begin{eqnarray} \label{probit}
+p_{i} \,=\,  E(X_{i} \mid \x_{pa(i)})
+      \,=\,  \Phi (  \x_{pa(i)}'\mbeta_{i \mid pa(i)}, \sigma_{i \mid pa(i)}^2),
+\end{eqnarray}
+where $i=1, \dots , p$ and  $\Phi (\mu ,\sigma^2)$ denotes the cdf
+of the normal distribution. This binary situation is reduced to
+the continuous one by sampling a latent variable, a so-called
+utility, $Z_i$ for each binary variable $X_i$. The general idea is
+found in Albert and Chib (1993). Here, we first focus on the
+situation that we are only interested in the main effects. I.e.~we
+do not take any interactions into account although they now of
+course can occur as we do not longer consider the Gaussian case.
+The algorithm, which does not account for interactions, can be
+briefly summarized as:
+%
+\begin{enumerate}
+\item  For $X_i$, $i=0, \dots, p-1$, draw $Z_{i}$ from its full conditional
+        $\N(\x_{pa(i)}' \mbeta_{i \mid pa(i)},1)$, which is truncated at the left by 0 if $x_{i}=1$
+        and at the  right if $x_{i}=0$.
+\item Add, delete, or switch a directed edge like in the Gaussian case, but take the utility $Z_i$ instead of
+$X_i$ as response in $i$th regression model; the covariables
+$\x_{pa(i)}$ of the $i$th model remain unchanged.
+\item Update  $\mbeta_{i\mid pa(i)}$, $i=0, \dots, p-1$.
+\item Update $\sigma^2_{i\mid pa(i)}$, $i=0, \dots, p-1$.
+\end{enumerate}
+
+To be able to take interactions into account, inside the algorithm
+interactions are treated as own variables. Due to the enormous
+complexity we restrict ourselves to two way interactions which
+seem sufficient for most situations in practice. For details, see
+Fronk (2002).
+
+\bigskip
+
+
+{\bf Reversible Jump Algorithm for Mixed Case}\\[0.2cm]
+%
+\index{model selection! Mixed case} For the mixed case, we assume
+the considered continuous and binary variables to follow a
+conditional Gaussian (CG) distribution. For a general introduction
+we refer to Lauritzen (1996). The univariate conditioned
+distribution of $f(x_i \mid \x_{pa(i)})$ are then CG regressions
+(see Lauritzen and Wermuth, 1989) and can be represented by a
+normal regression resp.~a probit model with mixed covariables.
+\begin{enumerate}
+\item For all variables $X_i$, $i=0, \dots, p-1$,
+    \begin{enumerate}
+       \item[] If $X_i$ is discrete,
+            \begin{enumerate}
+            \item[] For all observations $X_{ki}$, $k=1, \dots, n$,  \\
+                    draw utility $Z_{ki}$ from full conditional $Z_{ki} \mid x_{ki}, \x_{k pa(i)} \mbeta_{i \mid pa(i)}$
+            \end{enumerate}
+    \end{enumerate}
+\item Update $d$, i.e.~cancel, add, or switch the directed edge $X_j \rightarrow X_i$;
+      thereby distinguish
+    \begin{itemize}
+    \item Response $X_i$ is continuous:
+    \begin{enumerate}
+     \item Take the algorithm for the Gaussian case, where now the covariables
+            $pa(X_i)$ can be continuous or binary
+     \end{enumerate}
+    \item Response $X_i$ is discrete
+     \begin{enumerate}
+     \item Replace binary response $X_i$ by continuous utility $Z_i$
+     \item Consider the new or vanishing interactions among the parents of
+     $X_i$ and possibly~$X_j$, that can be pairwise discrete or mixed
+     \item Carry out birth, death or switch step
+     \end{enumerate}
+    \end{itemize}
+\item Update $\mbeta_{i\mid pa(i)}$, $i=0, \dots, p-1$.
+\item Update $\sigma^2_{i\mid pa(i)}$, $i=0, \dots, p-1$.
+\end{enumerate}
+%
+For detailed explanations, see again Fronk (2002).
+
+\bigskip
+
+
+
+
+\bigskip
+
+{\bf Remark about Markov-equivalence} \\[0.2cm]
+Our algorithm does not take care about the so-called Markov
+equivalence, which describes the fact that different dags can
+represent the same statistical model. Equivalent dags can be
+summarized to equivalent classes which again can be represented by
+one single graph, the essential graph. Of course model selection
+could be done in a more effective way if only the space of those
+essential graphs would be considered. This will be a task of our
+research in future. For more details concerning Markov-equivalence
+we refer to papers of Andersson et al. (1997a, b) and Chickering
+(1995).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%{\bf  \large Syntax}\\[0.3cm]
+
+\subsection{Syntax}
+%
+\index{dag object!estimate command} \index{dag object!create}
+%
+The creation of objects has been described in general in
+\autoref{createobject}; in the context of dag models the
+corresponding dag object is created by:
+
+\begin{center}
+{\bf \texttt{dag} {\em objectname}},\\
+\end{center}
+
+To perform a model selection as described above call:
+
+\begin{center}
+{\bf {\em objectname}.\texttt{estimate} {\em variables}
+[\texttt{if} {\em expression}], [{\em options}]\texttt{ using}
+{\em dataset} }
+\bigskip
+\end{center}
+
+Then the method #estimate# estimates the dag for the variables
+given in {\it variables} which have to be defined in {\it
+dataset}. The parameters of the via the dag defined regression
+models are also estimated. An if-statement may be specified to
+analyze only a part of the data set, i.e.~only those observations
+where {\it expression} is true. There are several facultative {\it
+options} concerning the (start) parameters of the algorithm or the
+kind of output at the end. They are listed in the next paragraphs.
+
+%{\bf  \large Options}\\[0.3cm]
+\subsection{Options}
+
+{\bf Options for controlling MCMC simulations} \\[0.2cm]
+The following options correspond to those given on
+\hyperref[mcmc_options]{page~\pageref*{mcmc_options}} and are
+therefore only briefly explained.
+\begin{itemize}
+\item {\bf burnin = {\em b} } \\
+Changes the number of burnin iterations from 2000 to {\em b}; it is a positive integer number with $0<b<500001$.\\
+DEFAULT:# burnin = 2000#
+\item {\bf iterations = {\em i} } \\
+Changes the number of MCMC iterations from 52000 to {\em i}; it is a positive integer number with $0< i<10000000$.\\
+DEFAULT: #iterations = 52000#
+\item {\bf step = {\em s}} \\
+Changes the thinning parameter of MCMC iterations from 50 to {\em s}; it is a positive integer number with $0<s<1000$.\\
+DEFAULT: #step = 50#
+\end{itemize}
+
+\vspace{1cm}
+%\newpage
+
+{\bf Options for initial values of algorithm}
+\begin{itemize}
+%\item priori\_sigma
+\item {\bf Changing hyperparameters of partial variances} \\
+As already mentioned we assume $\sigma_{i \mid pa(i)}^2 \sim IG
+(\delta_{i \mid pa(i)},\lambda_{i \mid pa(i)} )$ for $i=0, \dots,
+p-1$. By the following two commands the values of the two
+hyperparameters $\delta_{i \mid pa(i)}$ and $\lambda_{i \mid
+pa(i)}$ can be freely chosen. If this is not done the default
+values correspond to a non-informative gamma distribution.
+\begin{itemize}
+\item {\bf delta =  {\em c} } \\
+    Specifies the first parameter of the inverse gamma distribution of the partial
+    variances, $\delta_{i \mid pa(i)}$, is set equal to $d$. Otherwise it is equal to 1. The value
+    {\em c} has to be of type realvalue with $0< c<20$.\\
+    DEFAULT: #delta =  1#
+\item {\bf lambda =  {\em l} } \\
+    Specifies the second parameter of the inverse gamma distribution of the partial
+    variances, $\lambda_{i \mid pa(i)}$, is set equal to $l$. Otherwise it is equal to 0.005.
+    The value {\em d} has to be of type realvalue with $0< d <20$.\\
+    DEFAULT: #lambda = 0.005#
+\end{itemize}
+\item {\bf Choosing special graph to start from} \\
+Usually the algorithm starts from the independent model, that
+means from a dag without any edges. This can be changed by the
+command
+\begin{center}
+{\bf type = 0/1/2/3/4}\\
+DEFAULT: #type = 0#
+\end{center}
+where the different values have the following meanings:
+\begin{itemize}
+\item  {\bf type=0} \\
+    Algorithm starts from an {\bf independent} model with no edges.
+\item  {\bf type=1} \\
+    Algorithm starts from a {\bf complete} model where all edges are directed
+    from "lower" variables to "higher" ones, i.e.~$x_i \rightarrow x_j, \, \forall i<j$.
+\item  {\bf type=2} \\
+    Algorithm starts from a {\bf complete} model where all edges are directed
+    from "higher" variables to "lower" ones, i.e.~$x_j \rightarrow x_i, \, \forall i<j$.
+\item  {\bf type=3} \\
+    Algorithm starts from a model where there is an edge from each variable to
+    the next "higher" one, like a {\bf chain}, i.e.~$x_i \rightarrow x_j, \, \forall i=j+1$.
+\item  {\bf type=4} \\
+    Algorithm starts from a model where there is an edge from each variable to
+    the next "lower" one, like a {\bf chain}, i.e.~$x_j \rightarrow x_i, \, \forall i=j+1$.
+\end{itemize}
+\end{itemize}
+
+\vspace{1cm}
+
+{\bf Options concerning the way of model selection}
+
+\begin{itemize}
+\item {\bf Kind of switch step} \label{switch_step} \\
+There are three ways how the switch step can be carried out in the
+rj-algorithm. The first one is similar to the performance of a
+birth or death step (i.e.~adding or deleting an edge): A proposal
+is made and then accepted by its corresponding acceptance ratio.
+As it may be very complicate to calculate a good proposal, a
+simplification can be achieved by the consideration if the switch
+step leads to an equivalent dag model. If this holds true, the
+given and the proposed dag should be statistically
+indistinguishable. The proposed dag can therefore be accepted with
+probability 0.5. The kind of switch step can be chosen by the
+command
+\begin{center}
+    {\bf switch = normal/equi/mix}, \\
+    \hspace*{-1.8cm}  DEFAULT: #switch = normal#
+\end{center}
+which differ in the following way:
+\begin{itemize}
+\item {\bf switch=normal}\\
+The switch step is carried out by proposing the new dag and
+accepting it with the corresponding acceptance probability. The
+transformation into equivalent model may occur very seldom and,
+consequently, the acceptance ratio very low.
+\item {\bf switch=equi} \\
+The switch step is only allowed if it results into an equivalent
+model. In this case, it is performed with a probability of 0.5.
+Transformations into a non-equivalent model can only occur by a
+birth or death step.
+\item {\bf switch=mix}\\
+This command causes a mixture of both procedures described above:
+If the proposed switch step leads to an equivalent model it is
+accepted with probability 0.5. If it results into a non-equivalent
+model a proposal is made and accepted by the corresponding
+acceptance ratio.
+\end{itemize}
+\item {\bf Kind of distribution family / interactions }\\
+There are three different types of data sets as they can consists
+of continuous, binary, or mixed variables which results in the
+assumption of a Gaussian, a multinomial, or a conditional Gaussian
+distribution. Dependent on the kind of data set the rj-algorithm
+for the model selection changes as described above.This can be
+indicated by the optional command
+\begin{center}
+    {\bf family = continuous/discrete/mixed}.\\
+\end{center}
+In the case that the model selection for a binary data set shall
+be carried out accounting for interactions the command
+\begin{center}
+    {\bf family = discrete\_ia}\\
+\end{center}
+is needed instead of  \texttt{family = }{\em discrete}. In this
+case, a special option concerning the output is given by the
+command {\em detail\_ia} which is explained below.
+\item {\bf Restriction to the search space}\\
+It is possible to restrict the search space, i.e.~to state an
+(missing) edge as fix or determinate the orientation of an edge.
+This is done by writing the restrictions into a file {\em
+restrict} which is then read by the command
+\begin{center}
+    {\bf fix\_file = {\em path\_of\_restrict}}\\
+\end{center}
+The restriction is then given by a $p \times p$ matrix that lies
+under the path {\em path\_of\_restrict}. The matrix is allowed to
+have three possible entries, namely  0,1, and 2 which have the
+following meaning: An entry of 2 corresponds to no restriction of
+the corresponding edge, it may occur or not. An entry of 1
+indicates that this edge has to exist in each graph of the Markov
+chain, whereas 0 denotes that the corresponding edge must not
+occur.
+\end{itemize}
+
+
+
+
+
+
+
+\vspace{1cm}
+
+{\bf Options concerning the output}
+\begin{itemize}
+\item {\bf Estimated regression coefficients}\\
+As already mentioned, the parameters of each regression model are
+estimated in every iteration. Because of the fact that the
+qualitative structure of the dag is usually of greater interest
+than the quantitative estimations of the regression coefficients,
+in the standard output these estimated parameters are omitted.
+Nevertheless
+\begin{center}
+{\bf print\_dags}
+\end{center}
+gives the mean, the 10\%, 50\% and the 90\% quantile of every
+parameter of all regression models.
+%averaged over {\bf all} dags of the Markov chain.
+As the model space for dags is very huge we abandon the
+possibility to store the estimated values for each dag. To perform
+the necessary calculation {\em BayesX} creates a temporary file
+under the device {\em c:$\setminus\setminus$...}. For this
+purpose, its important to ensure that a device with this name
+exists. Otherwise the user has to provide an alternative path for
+the storage file by the command
+\begin{center}
+{\bf store\_file = {\em alternative\_path}}
+\end{center}
+\item {\bf Estimated coefficients of interactions}
+\end{itemize}
+
+\begin{itemize}
+\item {\bf Criteria for the listed models} \\
+    As model selection for dags is performed in an extremely huge search space one might not want
+    to get a list of all models which have been visited during MCMC estimation regardless of the
+    relative frequency of their appearance. The option
+    \begin{center}
+    {\bf print\_models = all/prob/limit/normal}, \\
+    \hspace*{-1.8cm}  DEFAULT: \texttt{print\_models = normal}
+    \end{center}
+    %where "all", "prob" and  "limit" are strings,
+    allows to focus
+    on special criterions for the models printed in the output.
+\begin{itemize}
+\item {\bf print\_models = all}  \\
+    All models which have been visited by the Markov chain are printed.
+\item {\bf print\_models = prob} \\
+    The most frequent models of the chain are printed except for those which are the less frequent
+    ones and have altogether a probability of alpha=0.05. The value of alpha can be changed as
+    it is explained a few lines below.
+\item {\bf print\_models = limit} \\
+    Here, the first 10 models with the highest frequencies are printed. The number of listed models
+    can be made different from 10 as it is explained a few lines below.
+\item {\bf print\_models = normal} \\
+    The option {\it normal} is a mixture of {\it limit} and {\it prob}, as it chooses the one
+    which produces less models. The default parameters are again alpha=0.05 and number=10.
+\end{itemize}
+The default setting of  \texttt{print\_models} is
+\texttt{print\_models=normal}.
+\item {\bf number=n} \\
+    Changes the number of printed models in the option  \texttt{print\_models = limit} to $n$.
+    The variable number has to be of type realvalue with $0 \leq n \leq 10000$. \\
+    DEFAULT = 10
+\item {\bf alpha = a} \\
+    Sets alpha in the option {\tt print\_models = prob} equal to $a$. That means when using
+    {\tt print\_models = prob} the most frequent models which unify 1-a  of the posterior
+    probability are printed. The variable alpha has to be of type intvalue with $a \in [0,1]$. \\
+    DEFAULT = 0.05
+\item {\bf printit = {\em p}} \\
+    Prints every {\em p}-th iteration in the output window instead of every 100-th. The printing of the
+    iterations can be suppressed by setting $p$ higher than the number of iterations. The variable printit has to be of
+    type intvalue with $0 < p< 10000001$. \\
+    DEFAULT = 100
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%{\bf  \large Estimation Output}\\[0.3cm]
+\subsection{Estimation Output}
+
+The output can be written to a file by opening a logfile before
+using the estimation command. It has to be closed afterwards. The
+use of logfiles is described in detail in \autoref{logfile}. The
+output itself is structured as follows:
+\begin{itemize}
+\item {\bf Listing of different dags:}\\
+The different models are listed by their adjacency matrices. In
+order to save space, the different rows are printed in one line
+with a blank indicating the beginning of a new one. The number of
+edges is given as well as the absolute and relative frequency of
+the model. For example the first line of the exemplifying output
+in \autoref{output}
+%
+\begin{figure}
+\begin{center}
+{\it
+
+Number of different dags visited by the algorithm: 16 \\[0.5cm]
+******** DIFFERENT MODELS sorted by frequencies  ******** \\
+********************** all models ********************** \\[0.2cm]
+
+\begin{tabular}{llllll}
+010 \hspace{0.2cm}& 000 \hspace{0.2cm}& 000 \hspace{0.5cm}&    1  \hspace{0.5cm}& 3894  \hspace{0.5cm}&  0.3890 \\
+000 \hspace{0.2cm}& 100 \hspace{0.2cm}& 000 \hspace{0.5cm}&    1  \hspace{0.5cm}& 3814  \hspace{0.5cm}&  0.3810 \\
+000 \hspace{0.2cm}& 100 \hspace{0.2cm}& 100 \hspace{0.5cm}&    2
+\hspace{0.5cm}& \,\,806   \hspace{0.5cm}&  0.0806
+\end{tabular}
+}
+
+
+$\vdots$ \\[-0.15cm]
+$\vdots$
+
+\end{center}
+{\em\caption{\label{output} Example for model listing in the
+output.}}
+\end{figure}
+%
+gives the information that the most frequent model is represented
+by the adjacency matrix $ A = \left( \begin{array} {cccc}
+0&1&0   \\
+0&0&0   \\
+0&0&0
+\end{array}
+\right )$ and contains 1 edge. It occurred in the thinned out
+Markov chain for 3894 times which corresponds to a relative
+frequency of about 0.389. Notice, that different dags may
+represent the same statistical model as they may be
+Markov-equivalent.
+%
+%
+\item {\bf Listing of essential graphs}\\
+\begin{figure}
+%\begin{center}
+{\it
+
+Number of different equivalent classes visited by the algorithm: 6 \\[0.5cm]
+******* DIFFERENT EQUIVALENCE CLASSES sorted by frequencies  ********\\
+**************************** all models ******************************** \\[0.5cm]
+
+Skeleton: 010 000 000\\
+No immoralities.\\
+Number of edges: 1 \hspace{0.3cm} Abs.freq.: 7708 \hspace{0.3cm} Rel.freq.: 0.771 \\[0.3cm]
+
+Skeleton: 011 000 000 \\
+Immoralities: (0;1,2) \\
+Number of edges: 2 \hspace{0.3cm} Abs.freq.: 806 \hspace{0.3cm} Rel.freq.: 0.0806 \\[0.3cm]
+
+Skeleton: 011 000 000 \\
+No immoralities. \\
+Number of edges: 2 \hspace{0.3cm} Abs.freq.: 523 \hspace{0.3cm} Rel.freq.: 0.0523\\
+
+$\vdots$ \\[-0.15cm]
+$\vdots$
+
+}
+%\end{center}
+{\em\caption{\label{output_ess} Example for listing of equivalence
+classes in the output.}}
+\end{figure}
+Additional to the dags, the essential graphs are printed, too.
+I.e.~those dags, which are equivalent to each other, are
+summarized and represented by their essential graph. The
+representation of the essential graph, which can contain
+undirected as well as directed edges, is as follows. First the
+underlying graph, the skeleton, is given by the adjacency matrix
+as described above. But now, the entries indicate always an
+undirected edge. (E.g.~the undirected graph $a$--$b$ of the two
+variables $a$ and $b$ is given by 01 00.) Then the immoralities of
+the essential graph are listed. Remember that within an essential
+graph an oriented edge can only occur as a part of an immorality
+$b \rightarrow a \leftarrow c$ which is here represented by the
+triple (a;b,c). The example output of Figure \autoref{output_ess}
+shows that the first two dag models of \autoref{output} which are
+equivalent have been summarized to their representing essential
+graph $X_0$--$X_1$ $X_2$. The next most frequent statistical model
+is represented by the essential graph $X_0 \rightarrow X_2
+\leftarrow X_1$ which is given by our representation as the
+skeleton matrix 011 000 000 and the immorality (0;1,2).
+%
+%
+\item {\bf Averaged adjacency matrix:}\\
+The $(i,j)$-th element of the averaged adjacency matrix gives the
+estimated posterior probability of the presence of the edge $i
+\rightarrow j$ in the true dag.
+\item {\bf Mean of skeletons:}\\
+The skeleton of a dag is defined as the same graph without
+regarding the directions of the edges. Equivalent dags have at
+least the same skeleton. So it may be helpful to have also a look
+at the averaged matrix of the skeletons, which is of course
+symmetric.
+\item {\bf Correlation:}\\
+The marginal and the partial correlation matrices of the regarded
+data set is given, too.
+\item {\bf Ratios:}\\
+We give some short information about the acceptance ratios for the
+birth-, death- and switch-steps which denotes the cases where an
+edge is added, dropped or switched. The first two cases imply a
+change in dimension and are therefore sampled by a reversible jump
+step.
+\item {\bf Estimated parameters:}\\
+If the option {\tt print\_dags} is used, the estimated regression
+coefficients $\mbeta_{i \mid -i}$, $i=0, \dots, p-1$, are listed
+at the end. The notation $-i$ denotes all variables except for
+$i$. Besides the mean of the sampled Markov chain for each
+parameter there is also the 10\%, the 50\% and the 90\% quantile
+given. As in equivalent models the direction of edges and, thus,
+also the regression models vary, in most cases the estimated
+regression coefficients do not give a deeper insight into the
+model and have to be interpreted in a very careful way.
+%\item {\bf Estimated interactions:}\\
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{References}
+
+\begin{description}
+
+{\small
+
+\item [Andersson, S.~A., Madigan, D., and Perlman, M.~D.~(1997a).] A
+Characterization of Markov equivalence Classes for Acyclic
+Digraphs. {\it The Annals of Statistics}, {\bf 25}, 505--541.
+%
+\item[Andersson, S.~A., Madigan, D., and Perlman, M.~D.~(1997b).] On the
+Markov equivalence of Chain Graphs, Undirected Graphs, and Acyclic
+Digraphs. { \it Scandinavian Journal of Statistics}, {\bf  24},
+81--102.
+
+\item[Chickering, D.~M.~(1995).] A Transformational Characterization of Equivalent Bayesian Network Structures.
+In P.~Besnard and S.~Hanks (Eds.), {\it Uncertainty in Artificial
+Intelligence, Proceedings of the Eleventh Conference}, San
+Francisco: Morgan Kaufmann, pp. 87 -- 98
+%
+\item[Brooks, S.~P.~(1998).] Markov Chain Monte Carlo Method and its Application. {\it The Statistician},
+{\bf 47}, 69--100.
+%
+\item[Fronk, E.--M. and Giudici, P. (2000).] Markov Chain Monte Carlo model selection for DAG Models.
+       {\it Discussion Paper}, Universit{\"a}t M{\"u}nchen.
+%
+%\item{Gelman, A., Carlin, J.~B., Stern, H.~S., and Rubin,
+%D.~B.~(1995).} {\it Bayesian Data Analysis}, Chapman and Hall,
+%London.
+%
+%
+\item[Geiger, D. and Heckerman, D.~(1994).] Learning Gaussian Networks.
+{\it Proceedings of the Tenth Conference on Uncertainty in
+Artificial Intelligence.} Morgan Kaufmann, 235--243.
+%
+\item[Geiger, D. and Heckerman, D.~(1999).] Parameter priors for
+directed acyclic graphical models and the characterisation of
+several probability distributions. Submitted for publication.
+%
+\item [Gilks, W.~R., Richardson, S., and Spiegelhalter, D.~J. (1996).]
+        {\it Markov Chain Monte Carlo in Practice.},Chapman and Hall, London.
+%
+\item[Giudici, P.~and Green, P.~J.~(1999).] Decomposable Graphical
+Gaussian Model Determination. {\it Biometrika}, {\bf 86},
+785--801.
+%
+%\item{Giudici, P., Green, P.~J., and Tarantola, C.~(1999).} Efficient
+%Model Determination for Discrete Graphical Models. Submitted for
+%publication.
+%
+\item [Green, P.~J.~(1995).]
+Reversible Jump Markov Chain Monte Carlo Computation and Bayesian
+Model Determination. {\it Biometrika}, {\bf  82}, 711--32.
+%
+\item[Lauritzen, S.~L.~(1996).] {\it Graphical Models}, Clarendon Press, Oxford.
+
+%\item{Lang, S.~and Brezger, A.~(2000).} BayesX--Software for
+%Bayesian Inference Based on Markov Chain Monte Carlo Simulation Techniques.
+%Discussion Paper 187,
+%Sonderforschungsbereich 386, Ludwig--Maximilians--Universit\"at, M\"unchen, Germany.
+%
+%\item{Schachter, R.~and Kenley, C.~(1989).} Gaussian Influence Diagrams.
+%{\it Management Science}, {\bf 35}, 527--550.
+}
+
+\end{description}
+
+
+%{\bf  \large Example}\\[0.3cm]
+%\subsection{Example}
+%Blablabla...  ist das notwendig ?????
