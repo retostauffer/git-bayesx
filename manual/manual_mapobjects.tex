@@ -3,7 +3,7 @@
 
 
 {\em Authors: Stefan Lang and Andreas Brezger} \\
-{\em email: \href{mailto:lang@stat.uni-muenchen.de}{lang@stat.uni-muenchen.de} and \href{mailto:andib@stat.uni-muenchen.de}{andib@stat.uni-muenchen.de}}\\
+{\em email: \href{mailto:stefan.lang@stat.uni-muenchen.de}{stefan.lang@stat.uni-muenchen.de} and \href{mailto:andib@stat.uni-muenchen.de}{andib@stat.uni-muenchen.de}}\\
 \vspace{0.3cm}
 
 
@@ -11,26 +11,25 @@
 For the moment {\em map objects} serve more or less as auxiliary
 objects for {\em bayesreg objects} and {\em remlreg objects},
 where the effect of spatial covariates on a dependent variable can
-be modelled via Markov random field priors. The main purpose of
-{\em map objects} in this context is to provide the neighborhood
-structure of the map and to compute weights associated with this
-neighborhood structure. The typical approach is as follows: A {\em
-map object} is created and the boundary information of a
-geographical map is read from an external file and stored in the
-{\em map object}. This can be achieved using the #infile# command,
-see \autoref{mapinfile} below. Based on the boundary information,
-the {\em map object} automatically computes the neighborhood structure
-of the map and the weights associated with the neighborhood
-structure. Since there are several proposals in the spatial
-statistics literature for defining the weights, the user is given
-the choice between a couple of alternative weight definitions.
-After the correct initialization, the {\em map object} can be
-passed to the #regress# function of a {\em bayesreg object} in
-order to estimate regression models with spatial covariates, see
-\autoref{bayesreg}, in particular \autoref{bayesregress}, and the
-subsections about spatial covariates therein.
-
-
+be modelled via spatial priors, especially Markov random field
+priors. The main purpose of {\em map objects} in this context is
+to provide the neighborhood structure of the map and to compute
+weights associated with this neighborhood structure. The typical
+approach is as follows: A {\em map object} is created and the
+boundary information of a geographical map is read from an
+external file and stored in the {\em map object}. This can be
+achieved using the #infile# command, see \autoref{mapinfile}
+below. Based on the boundary information, the {\em map object}
+automatically computes the neighborhood structure of the map and
+the weights associated with the neighborhood structure. Since
+there are several proposals in the spatial statistics literature
+for defining the weights, the user is given the choice between a
+couple of alternative weight definitions. After the correct
+initialization, the {\em map object} can be passed to the
+#regress# function of a {\em bayesreg object} in order to estimate
+regression models with spatial covariates, see \autoref{bayesreg}
+and \autoref{remlreg}, and the subsections about spatial
+covariates therein.
 
 \clearpage
 
@@ -63,16 +62,14 @@ map. The main advantage of {\em graph files} is that the
 neighborhood structure of a particular geographical map is already
 available. With {\em boundary files} the neighborhood structure
 must be computed first; a task which is relatively computer
-intensive.
-
-Usually {\em boundary files} are read  only once to compute the
-neighborhood structure of a geographical map. Having computed the
-neighborhood structure, the map can be stored as a {\em graph
-file} using the #outfile# command, see \autoref{mapoutfile}. In
-subsequent sessions typically the {\em graph file} is used rather
-than the corresponding {\em boundary file} because reading {\em
-graph files} is less computer intensive.
-
+intensive. Therefore an advisable strategy might be to read a {\em
+boundary files} only once to compute the neighborhood structure
+and to store it as a {\em graph file} afterwards using the
+#outfile# command (see \autoref{mapoutfile}), especially for
+geographical maps with a lot of regions. However, using {\em graph
+files} also has a disadvantage: Visualization of geographical
+information is only possible with boundary files since only these
+contain the required information on the boundaries.
 
 \subsection{Syntax}
 
@@ -374,7 +371,8 @@ either in {\em boundary file} or in {\em graph file} format.}
 
 \begin{stanza}{Syntax}
 
-{#> # {\em objectname}.#outfile# [{\em , options}] #using# {\em filename}
+{#># {\em objectname}.#outfile# [{\em , options}] #using# {\em
+filename}
 
 #outfile# writes the map information to the external file
 specified in {\em filename}. The file format can be either a {\em
@@ -418,11 +416,10 @@ object!reorder command}
 the adjacency matrix of the reordered map has the smallest
 envelope when compared to all other possible orderings. A new map
 should always be reordered before using it with {\em bayesreg
-objects} because MCMC block moves for spatial covariates will be
-much faster if the envelope of the posterior precision matrix is
-small, see \autoref{bayesregress}. For reordering of the regions
-of the map the reverse Cuthill Mc-Kee algorithm is used, see
-George and Liu (1981) p. 58 ff.}
+objects} because MCMC updates for spatial covariates will be much
+faster if the envelope of the posterior precision matrix is small.
+For reordering of the regions of the map the reverse Cuthill
+Mc-Kee algorithm is used, see George and Liu (1981) p. 58 ff.}
 \end{stanza}
 
 \begin{stanza}{Syntax}

@@ -26,45 +26,47 @@ particular, functions for visualizing data and estimation results
 are available only in the Java based version. We recommend the
 installation of the Java based version. Both versions of {\em
 BayesX} can be downloaded at
-\href{http://www.stat.uni-muenchen.de/~lang/bayesx/bayesx.html}
-{http://www.stat.uni-muenchen.de/\~{}lang/bayesx/bayesx.html}.
+\href{http://www.stat.uni-muenchen.de/~bayesx}
+{http://www.stat.uni-muenchen.de/\~{}bayesx}.
 
 
 \section{Installing BayesX}
 \index{installation} \index{installation directories} Installing
 {\em BayesX} is very easy. Suppose you have already downloaded one
 of the installation files, #bayesx.zip# for the non-Java based
-version or #bayesxjava.exe# for the Java based version. To
-install the non-Java based version unzip  the file
-#bayesx.zip# using the {\em winzip} program and store the unzipped
-files in a temporary directory. Start the program #setup.exe#,
-for example by double clicking it in the {\em Windows explorer}.
-Now follow the instructions of the setup routine to install {\em
-BayesX}. To install the Java based version simply execute the file
+version or #installBayesX.exe# for the Java based version. To
+install the non-Java based version unzip  the file #bayesx.zip#
+using the program {\em winzip} and store the unzipped files in a
+temporary directory. Start the program #setup.exe#, for example by
+double clicking it in the {\em Windows explorer}. Now follow the
+instructions of the setup routine to install {\em BayesX}. To
+install the Java based version simply execute the file
 #installBayesX.exe# and follow the installation instructions.
 
-After the successful installation of {\em BayesX} your installation
-directory contains five additional subdirectories, namely the
-directories #doc#, #examples#, #output#, #sfunctions# and #temp#.
-The #doc# directory contains the program documentation, that is this
-manual. The #examples# directory contains three data sets,
-#credit.raw#, #rents.raw# and #zambia.raw#. These data sets
-exemplify many of the statistical functions and routines described
-in the following chapters. A detailed description of the three data
-sets is given in \autoref{datadescription}. The #examples# directory
-also contains some tutorial programs that illustrate the usage of
-most of the functions of {\em BayesX}, see the tutorials manual. The
-#output# directory is the default directory for the program output.
-The #output# directory can be redefined by the user. The
-#sfunctions# directory contains some S-plus functions for
-visualizing estimation results obtained with {\em bayesreg objects}
-or {\em remlreg objects}, see \autoref{splus} for a detailed
-description of the S-plus functions. However, by using the Java
-based version of {\em BayesX} the S-plus functions are obsolete
-because this version has its own capabilities for visualizing data
-and results, see \autoref{graphobj} and \autoref{visualization} for
-details. Finally in the #temp# directory some temporary files will
-be stored. Normally you will never use this directory.
+After the successful installation of {\em BayesX} your
+installation directory contains five additional subdirectories,
+namely the directories #doc#, #examples#, #output#, #sfunctions#
+and #temp#. The #doc# directory contains the program
+documentation, that is the three different manuals (see the
+following subsection). The #examples# directory contains three
+data sets, #credit.raw#, #rents.raw# and #zambia.raw#. These data
+sets exemplify many of the statistical functions and routines
+described in the following chapters. A detailed description of the
+three data sets is given in \autoref{datadescription}. The
+#examples# directory also contains some tutorial programs that
+illustrate the usage of most of the functions of {\em BayesX}, see
+the tutorials manual. The #output# directory is the default
+directory for the program output. The #output# directory can be
+redefined by the user. The #sfunctions# directory contains some
+S-plus and R functions for visualizing estimation results obtained
+with {\em bayesreg objects} or {\em remlreg objects}, see
+\autoref{splus} for a detailed description of the S-plus
+functions. However, by using the Java based version of {\em
+BayesX} the S-plus functions are obsolete because this version has
+its own capabilities for visualizing data and results, see
+\autoref{graphobj} and \autoref{visualization} for details.
+Finally in the #temp# directory some temporary files will be
+stored. Usually you will never use this directory.
 
 The created directories and their contents are briefly summarized
 in \autoref{dirtable}.
@@ -88,23 +90,25 @@ directory and their content}}
 \end{table}
 
 After a successful installation, {\em BayesX} can be started using
-the {\em Windows Start} button.
+the {\em Windows Start} button or the icon created on the desktop.
 
 \section{Manuals}
+\index{Manuals}
 
 {\em BayesX} is shipped together with three different manuals. The
-reference manual gives detailed information on the syntax of {\em
-BayesX} commands and the different objects used by {\em BayesX}. The
-methodology manual provides background information on the
-statistical methodology that is implemented in {\em BayesX}. In this
-manual you will also find more references on the methodological
-background. The tutorial manual can be used to make yourself
-familiar with the usage of {\em BayesX}. It contains some
-self-contained tutorials, describing how to perform semiparametric
-regression analyses using {\em BayesX}. In the Java based version of
-{\em BayesX} the manuals are available from the help menu. In both
-versions they can be found in the #doc# directory, which is a
-subdirectory of the installation directory.
+reference manual gives detailed information on the general usage
+of BayesX, the syntax of {\em BayesX} commands and the different
+objects used by {\em BayesX}. The methodology manual provides
+background information on the statistical methodology that is
+implemented in {\em BayesX}. In this manual you will also find
+more references on the methodological background. The tutorial
+manual can be used to make yourself familiar with the usage of
+{\em BayesX}. It contains some self-contained tutorials,
+describing how to perform semiparametric regression analyses using
+{\em BayesX}. In the Java based version of {\em BayesX} the
+manuals are available from the help menu. In both versions they
+can be found in the #doc# directory, which is a subdirectory of
+the installation directory.
 
 \section{Windows in BayesX}
 \index{windows}
@@ -115,8 +119,9 @@ windows are the {\em command window}, the {\em output window}, the
 {\em review window} and the {\em object browser}. The purpose of
 these windows is described in the following four subsections.
 Below the menu bar is a second bar containing three buttons named
-BREAK, PAUSE and SUPPRESS OUTPUT. These buttons are described in
-the last subsection of this section.
+BREAK, PAUSE and SUPPRESS OUTPUT and the priority menu. Their
+functionality is described in \autoref{buttons} and
+\autoref{prioritymenu}.
 
 \subsection{The command window}
 
@@ -185,9 +190,10 @@ another window that contains a graphical representation of the
 map.
 
 \subsection{BREAK, PAUSE and SUPPRESS OUTPUT buttons}
-\index{PAUSE button} \index{BREAK button} \index{SUPPRESS OUTPUT
-button} \index{buttons} \index{buttons!PAUSE}
-\index{buttons!BREAK} \index{buttons!SUPPRESS OUTPUT}
+\label{buttons} \index{PAUSE button} \index{BREAK button}
+\index{SUPPRESS OUTPUT button} \index{buttons}
+\index{buttons!PAUSE} \index{buttons!BREAK}
+\index{buttons!SUPPRESS OUTPUT}
 
 As already mentioned, below the menu bar a second panel can be
 found which contains three buttons, a BREAK button, a PAUSE button
@@ -199,12 +205,24 @@ of the button is replaced by CONTINUE indicating that a second
 click on the button will continue the current process. Pausing a
 current process can be used to increase the execution speed of
 other programs currently running on your computer. Pressing the
-SUPPRESS OUTPUT button suppresses all output in the {\em output window}.
-The button caption changes to SHOW OUTPUT to indicate that an
-additional click on the button will cause the  program to print
-the output again. Suppressing the output usually increases the
-execution speed of {\em BayesX} and saves memory.
+SUPPRESS OUTPUT button suppresses all output in the {\em output
+window}. The button caption changes to SHOW OUTPUT to indicate
+that an additional click on the button will cause the  program to
+print the output again. Suppressing the output usually increases
+the execution speed of {\em BayesX} and saves memory. Note, that
+you can store your output in a log-file even if printing the
+output is suppressed (see \autoref{logfile}).
 
+\subsection{Priority menu}
+\label{prioritymenu} \index{Priority menu}
+
+When running extensive computations, it may be desirable to reduce
+the priority of BayesX, because otherwise all other programs
+currently running on your computer may be executed very slowly.
+The priority menu allows you to change the priority of your
+computations from within BayesX. Usually there should be no need
+to increase the priority although it is possible. To pause the
+current computations use the PAUSE button.
 
 \section{General usage of BayesX}
 \label{generalusage}
@@ -260,15 +278,16 @@ but the same rules apply to object names.
 \subsection{Applying methods of previously defined objects}
 
 After the successful creation of an object you can apply methods
-for that particular object. For instance, {\em dataset objects}
-may be used to read in data stored in an ASCII file using method
-#infile#, to create new variables using method #generate#, to modify
-existing variables using method #replace# and so on. The syntax
-for applying methods of the objects is similar for all methods
+to that particular object. For instance, {\em dataset objects} may
+be used to read in data stored in an ASCII file using method
+#infile#, to create new variables using method #generate#, to
+modify existing variables using method #replace# and so on. The
+syntax for applying methods of the objects is similar for all
+methods
 and independent of the particular object type. The general syntax is: \\
 \index{general syntax} \index{syntax}
 
-#># {\em objectname. methodname} [{\em model}] [#weight# {\em varname}] [#if# {\em boolean expression}]  \\
+#># {\em objectname.methodname} [{\em model}] [#weight# {\em varname}] [#if# {\em boolean expression}]  \\
 \hspace*{4.8cm}  [, {\em options}] [#using# {\em usingtext}]
 
 \autoref{syntaxtable} explains the syntax parts in more detail.
@@ -280,7 +299,7 @@ and independent of the particular object type. The general syntax is: \\
 \hline
 Syntax part & Description \\
 \hline
-{\em objectname} & the name of the object to apply the method \\
+{\em objectname} & the name of the object to apply the method to \\
 {\em methodname} & the name of the method \\
 {\em model} & a model specification (for example a regression model) \\
 {\em #weight# varname} & specifies {\em varname} as a weight variable \\
@@ -303,10 +322,11 @@ the specification of invalid syntax parts is not allowed and will
 cause an error message.
 
 We illustrate the concept with some simple methods of {\em dataset
-objects}. Suppose we have already created a {\em dataset object} with
-name #mydata# and want to create some variables for our data set.
-We first have to tell {\em BayesX} how many observations
-we want to create. This can be done with the #set# command, see also \autoref{setobs}. For example
+objects}. Suppose we have already created a {\em dataset object}
+with name #mydata# and want to create some variables for our data
+set. We first have to tell {\em BayesX} how many observations we
+want to create. This can be done with the #set obs# command, see
+also \autoref{setobs}. For example
 
 #> mydata.set obs = 1000#
 
@@ -328,13 +348,13 @@ contains Gaussian (pseudo)random numbers with mean
 
 #> mydata.generate X = 2+0.5*normal()#
 
-Here, #generate# is the {\em methodname} and #X = 2+0.5*normal()# is
-the {\em model}. In this case the {\em model} consists of the specification of
-the new variable name, followed by the equal sign '=' and a
-mathematical expression for the new variable. As is the case with
-the #set# command other syntax parts are not meaningful and
-therefore not allowed. Suppose now we want to replace the negative
-values of #X# with the constant 0. This can
+Here, #generate# is the {\em methodname} and #X = 2+0.5*normal()#
+is the {\em model}. In this case the {\em model} consists of the
+specification of the new variable name, followed by the equal sign
+'#=#' and a mathematical expression for the new variable. As is
+the case with the #set obs# command other syntax parts are not
+meaningful and therefore not allowed. Suppose now we want to
+replace the negative values of #X# with the constant 0. This can
 be done using the #replace# command by typing:
 
 #> mydata.replace X = 0 if X < 0#
@@ -402,7 +422,8 @@ $L$ & location of the building in subquarters \\
 
 \begin{description}
 
-\item[Lang, S. and Brezger, A. (2002):] \href{http://www.stat.uni-muenchen.de/~lang/publications.html}
+\item[Lang, S. and Brezger, A. (2004):]
+\href{http://www.stat.uni-muenchen.de/~lang/publications.html}
 {Bayesian P-splines.} {\it Journal of Computational and Graphical
 Statistics}, 13, 183-212.
 
@@ -445,8 +466,8 @@ $account$ & running account, trichotomous with categories "no
 running account" \\& ($=1$),
     "good running account"
 ($=2$),  "medium running account" \\&("less than 200 DM") ($=3$)  \\
-$duration$ & duration of credit in months, metrical \\
-$amount$ & amount of credit in 1000 DM, metrical \\
+$duration$ & duration of credit in months, continuous \\
+$amount$ & amount of credit in 1000 DM, continuous \\
 $payment$ & payment of previous credits, dichotomous with categories "good" ($=1$), \\ & "bad" ($=2$)  \\
 $intuse$ & intended use, dichotomous with categories "private" ($=1$) or \\ & "professional" ($=2$)  \\
 $marstat$ & marital status, with categories "married" ($=1$) and "living alone" ($=2$). \\

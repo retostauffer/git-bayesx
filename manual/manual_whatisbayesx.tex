@@ -14,20 +14,21 @@ classes as special cases, e.g. {\em generalized additive models},
 geographically weighted regression}. {\em BayesX} is able to
 estimate nonlinear effects of continuous covariates, trends and
 flexible seasonal patterns of time scales, correlated and/or
-uncorrelated spatial effects (of geographical data) and unstructured
-i.i.d. Gaussian effects of unordered group indicators. The
-regression tool  supports the most common distributions for the
-response variable. Supported distributions for univariate responses
-are Gaussian, binomial, Poisson, negative binomial, gamma, zero
-inflated Poisson and zero inflated negative binomial. For
-multicategorial responses, both multinomial logit or probit models
-for ordered categories of the responses as well as cumulative
-threshold models for unordered categories may be estimated. Recently
-complex models for continuous time survival analysis based on the
-Cox model have been added. At least some basic knowledge about
-Bayesian inference with MCMC techniques is strongly recommended if
-you are interested in using this tool. Details can be found in
-\autoref{bayesreg} and the methodology manual.
+uncorrelated spatial effects (of geographical data) and
+unstructured i.i.d. Gaussian effects of unordered group
+indicators. The regression tool  supports the most common
+distributions for the response variable. Supported distributions
+for univariate responses are Gaussian, binomial, Poisson, negative
+binomial, gamma, zero inflated Poisson and zero inflated negative
+binomial. For multicategorial responses, both multinomial logit or
+probit models for unordered categories of the responses as well as
+cumulative threshold models for ordered categories may be
+estimated. Recently complex models for continuous time survival
+analysis based on the Cox model have been added. At least some
+basic knowledge about Bayesian inference with MCMC techniques is
+strongly recommended if you are interested in using this tool.
+Details can be found in \autoref{bayesreg} and the methodology
+manual.
 \end{stanza}
 
 \begin{stanza}{Inference for STAR models based on methodology for mixed models}
@@ -35,12 +36,22 @@ you are interested in using this tool. Details can be found in
 {\em BayesX} provides a second regression tool for estimating STAR
 models with comparable functionality as the first tool based on
 MCMC. This tool represents STAR models as {\em variance components
-mixed models}. Inference is then based on estimation procedures for
-mixed models, particularly {\em restricted maximum likelihood}
+mixed models}. Inference is then based on estimation procedures
+for mixed models, particularly {\em restricted maximum likelihood}
 (REML). From a Bayesian perspective this yields empirical Bayes or
-posterior mode estimates. Details can be found in \autoref{remlreg}
-and the methodology manual.
+posterior mode estimates. Supported distributions for univariate
+responses are Gaussian, binomial, Poisson and gamma. For
+categorial responses, multinomial logit models for unordered
+categories of the responses as well as cumulative and sequential
+models for ordered categories can be estimated. Recently complex
+models for continuous time survival analysis based on the Cox
+model, allowing for arbitrary combinations of left- interval- and
+right-censoring as well as left-truncation have been added.
+Details can be found in \autoref{remlreg} and the methodology
+manual.
 \end{stanza}
+
+\newpage
 
 \begin{stanza}{Model selection for Gaussian and non-Gaussian dag's}
 This tool estimates Gaussian and non-Gaussian directed acyclical
@@ -66,10 +77,10 @@ characteristics. For details compare \autoref{map} and
 
 \begin{stanza}{Visualizing data}
 
-{\em BayesX} provides functions for drawing scatter plots and
-geographical maps. A number of additional options are provided to
-customize the graphs according to the personal needs of the user.
-Details can be found in \autoref{graphobj}.
+{\em BayesX} provides functions for drawing scatter and line plots
+and geographical maps. A number of additional options are provided
+to customize the graphs according to the personal needs of the
+user. Details can be found in \autoref{graphobj}.
 \end{stanza}
 
 \begin{stanza}{Recommendations for further reading}

@@ -38,8 +38,8 @@ regions according to some numerical characteristics.}
 
 \begin{stanza}{Syntax}
 
-{#> #{\em objectname}.#drawmap#  [{\em plotvar regionvar}]
-[#if# {\em expression}] , {\em #map#=mapname} [{\em options}] #using# {\em dataset}
+ #> #{\em objectname}.#drawmap#  [{\em plotvar regionvar}] [#if# {\em expression}], {\em #map#=mapname} [{\em options}]
+ [#using# {\em dataset}]
 
 Method #drawmap# draws the map stored in the {\em map object} {\em
 mapname} and prints the graph either on the screen or stores it as
@@ -51,7 +51,7 @@ object} {\em dataset}. An #if# statement may be specified to use
 only a part of the data in {\em dataset}. Several options are
 available, e.g. for changing from grey scale to color scale or
 storing the map as a postscript file. See the options list below
-for more details.}
+for more details.
 \end{stanza}
 
 \begin{stanza}{Options}
@@ -68,7 +68,9 @@ alphabetical order):}
 
 The #color# option allows to choose between a grey scale for the
 colors and a colored scale. If #color# is specified a colored
-scale is used instead of a grey scale. \item {\bf drawnames}
+scale is used instead of a grey scale.
+
+\item #drawnames#
 
 In some situations it may be useful to print the names of the
 regions into the graph (although the result may be confusing in
@@ -99,6 +101,15 @@ lower limit instead.
 containing the boundary information of the map to be drawn. This
 option must always be specified.
 
+\item #nrcolors = #{\em integer}
+
+To color the regions according to their numerical characteristics,
+the data are divided into a (typically large) number of ordered
+categories. Afterwards a color is associated with each category.
+The #nrcolors# option can be used to specify the number of
+categories (and with it the number of different colors). The
+maximum number of colors is 256, which is also the default value.
+
 \item #outfile = #{\em filename}
 
 If option #outfile# is specified the graph will be stored as a
@@ -117,15 +128,6 @@ The #replace# option is only useful in combination with option
 program to overwrite an already existing file (specified in
 #outfile#), otherwise an error will be raised.
 
-\item #nrcolors = #{\em integer}
-
-To color the regions according to their numerical characteristics,
-the data are divided into a (typically large) number of ordered
-categories. Afterwards a color is associated with each category.
-The #nrcolors# option can be used to specify the number of
-categories (and with it the number of different colors). The
-maximum number of colors is 256, which is also the default value.
-
 \item #swapcolors#
 
 In some situations it may be favorable to swap the order of the
@@ -138,8 +140,8 @@ shades (green shades).
 \item #title = #{\em characterstring}
 
 Adds a title to the graph. If the title contains more than one
-word, {\em stringvalue} must be enclosed by quotation marks (e.g.
-#title="my first map"#).
+word, {\em characterstring} must be enclosed by quotation marks
+(e.g. #title="my first map"#).
 
 \item #upperlimit = #{\em realvalue}
 
@@ -184,23 +186,18 @@ We proceed by creating a {\em graph object} #g# and by drawing the map of Munich
 \begin{center}
 \includegraphics[scale=0.5]{grafiken/munichdrawmap.ps}
 {\em\caption{ \label{munichdrawmap} Map of Munich}}
-\vspace*{1cm}
-\includegraphics[scale=0.5]{grafiken/munichmeansdrawmap.ps}
-{\em\caption{ \label{munichmeans} Distribution of the average
-rents per square meter in Munich.}}
 \end{center}
 \end{figure}
-
-\clearpage
 
 The map of Munich appears on the screen in a separate window, see
 \autoref{munichdrawmap}. Before closing the window you are asked
 whether you want to save the map or not. If you agree the map will
 be stored as a postscript file in the folder you specify. Of
-course, the map can be directly stored in postscript format
-using the #outfile# option. In that case the map is not shown on the screen. Typing
+course, the map can be directly stored in postscript format using
+the #outfile# option. In that case the map is not shown on the
+screen. Typing
 
-#> g.drawmap , map=m outfile= c:\temp\munich.ps#
+#> g.drawmap , map=m outfile=c:\temp\munich.ps#
 
 stores the map of Munich in the file
 #c:\temp\munich.ps# and the graph is not
@@ -221,6 +218,13 @@ object} #m# with the data set #d#. Option #color# is specified to
 obtain a colored graph.}
 \end{stanza}
 
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[scale=0.5]{grafiken/munichmeansdrawmap.ps}
+{\em\caption{ \label{munichmeans} Distribution of the average
+rents per square meter in Munich.}}
+\end{center}
+\end{figure}
 
 
 \clearpage
@@ -285,9 +289,9 @@ straight lines, but does not connect the points corresponding to
 additionally specified variables $yvar3$, etc.~are connected by
 straight lines.
 
-An equivalent way of specifying the different variants is available
-via the symbols 'l', 'd', '\_', '-' and 'p', which correspond to the
-numbers 1-5, i.e.~
+An equivalent way of specifying the different variants is
+available via the symbols '#l#', '#d#', '#_#', '#-#' and '#p#',
+which correspond to the numbers 1-5, i.e.~
 
 #connect=12345# is equivalent to #connect=ld_-p#
 
@@ -490,7 +494,7 @@ Typing
 #> d.sort F# \\
 #> g.plot R F using d#
 
-yields the first option to improve the appearance of the scatterplot, typing
+yields the first option. Typing
 
 #> g.plot R F , connect=p using d#
 
@@ -507,7 +511,7 @@ The result is shown in \autoref{plotrf4}.
 Finally, we add the outfile option to save the graph in postscript format:
 
  #> g.plot R F , title="scatterplot between F and R" ylab="rent" #\\
- #  xlab="floor space in square meters" connect=p#
+ #  xlab="floor space in square meters" connect=p#\\
  #  outfile=c:\temp\plotrf.ps using d #
 
 \begin{figure}[ht]
