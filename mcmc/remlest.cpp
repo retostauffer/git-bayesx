@@ -3646,31 +3646,6 @@ bool remlest::estimate_survival_interval(datamatrix resp,
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
-/*datamatrix loglike(1,4,0);
-loglike(0,0) = loglike(0,1) = (resp.transposed()*eta)(0,0);
-loglike(0,0) -= 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
-loglike(0,1) -= 0.5*log(H.det()) + 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
-loglike(0,2) -= 0.5*log(H.det()) + 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
-for(i=0; i<nrobs; i++)
-  {
-  if(interval[i])
-    {
-    loglike(0,0) += log(Survivor(i,0)-Survivor(i,1));
-    loglike(0,1) += log(Survivor(i,0)-Survivor(i,1));
-    }
-  else
-    {
-    loglike(0,0) -= cumhazard(i,0);
-    loglike(0,1) -= cumhazard(i,0);
-    }
-  }
-H.addtodiag(-Qinv,xcols,beta.rows());
-loglike(0,3) = (H*Hinv).trace();
-
-  ofstream outlog((outfile+"_loglike.raw").strtochar());
-  loglike.prettyPrint(outlog);
-  outlog.close();*/
-
   datamatrix thetareml(theta.rows(),3,0);
   thetareml.putCol(0,theta);
   for(i=0; i<theta.rows(); i++)
@@ -3700,7 +3675,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
   {
 
   unsigned i, j, k, l;
-  double help, former, helpint;
+  double help, former, helpint, help2, help3, help4;
 
   outoptions();
   out("\n");
@@ -3799,14 +3774,14 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
       }
     }
 
-//  bool timevarying;
+  bool timevarying;
 //  if(nrbaseline>1)
 //    {
 //    timevarying=true;
 //    }
 //  else
 //    {
-//    timevarying=false;
+    timevarying=false;
 //    }
 
 // Matrices and variables for baseline effects
@@ -3832,7 +3807,16 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
 
 // time-varying effects. the first row corresponds to the log-baseline
   datamatrix basef(t_X.rows(),nrbaseline,0);
-  statmatrix<double>baseline = datamatrix(t_X.rows(),1,0);
+
+  statmatrix<double> baseline;
+  if(timevarying)
+    {
+    baseline=datamatrix(nrobs,t_X.rows(),0);
+    }
+  else
+    {
+    baseline = datamatrix(t_X.rows(),1,0);
+    }
 
   statmatrix<double>cumbaseline(t_X.rows(),1,0);
   statmatrix<double>negcumbaseline(t_X.rows(),1,0);
@@ -3899,22 +3883,39 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
 
     // compute baseline
 
-    for(i=0; i<t_X.rows(); i++)
+    if(timevarying)
       {
-      baseline(i,0) = exp(basef(i,0));
+      baseline = interactvar*basef.transposed();
+      for(i=0; i<baseline.rows(); i++)
+        {
+        for(j=0; j<tright[i];j++)
+          {
+          baseline(i,j)=exp(basef(i,j));
+          }
+        }
+      }
+    else
+      {
+      for(i=0; i<t_X.rows(); i++)
+        {
+        baseline(i,0) = exp(basef(i,0));
+        }
       }
 
     // compute cumulated baseline
 
-    former=0;
-    cumbaseline = datamatrix(cumbaseline.rows(),1,0);
-    for(i=0; i<t_X.rows()-1; i++)
+    if(!timevarying)
       {
-      cumbaseline(i,0) = former + 0.5*tsteps(i,0)*(baseline(i,0)+baseline(i+1,0));
-      former = cumbaseline(i,0);
+      former=0;
+      cumbaseline = datamatrix(cumbaseline.rows(),1,0);
+      for(i=0; i<t_X.rows()-1; i++)
+        {
+        cumbaseline(i,0) = former + 0.5*tsteps(i,0)*(baseline(i,0)+baseline(i+1,0));
+        former = cumbaseline(i,0);
+        }
+      cumbaseline(t_X.rows()-1,0) = former;
+      negcumbaseline = -cumbaseline;
       }
-    cumbaseline(t_X.rows()-1,0) = former;
-    negcumbaseline = -cumbaseline;
 
     // compute mult_hazard = exp(x'beta) without time-varying covariates x(t)
 
@@ -3939,150 +3940,308 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
 
     // compute cumulated hazard
 
-    for(i=0; i<nrobs; i++)
+    if(!timevarying)
       {
-      cumhazard(i,0)=cumbaseline(tright[i]-1,0)*mult_hazard(i,0);
+      for(i=0; i<nrobs; i++)
+        {
+        cumhazard(i,0)=cumbaseline(tright[i]-1,0)*mult_hazard(i,0);
+        }
+      negcumhazard = - cumhazard;
       }
-    negcumhazard = - cumhazard;
 
     // compute derivative matrix D
 
-    Dmat = datamatrix(Dmat.rows(),Dmat.cols(),0);
-    for(j=0; j<xcols; j++)
+    if(!timevarying)
       {
-      if(isbaselinebeta[j]==1)
+      Dmat = datamatrix(Dmat.rows(),Dmat.cols(),0);
+      for(j=0; j<xcols; j++)
         {
-        former=0;
-        for(i=0; i<t_X.rows()-1; i++)
+        if(isbaselinebeta[j]==1)
           {
-          Dmat(i,dmat_pos[j]) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)+t_X(i+1,dm_pos[j])*baseline(i+1,0));
-          former = Dmat(i,dmat_pos[j]);
+          former=0;
+          for(i=0; i<t_X.rows()-1; i++)
+            {
+            Dmat(i,dmat_pos[j]) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)+t_X(i+1,dm_pos[j])*baseline(i+1,0));
+            former = Dmat(i,dmat_pos[j]);
+            }
+          Dmat(t_X.rows()-1,dmat_pos[j]) = former;
           }
-        Dmat(t_X.rows()-1,dmat_pos[j]) = former;
         }
-      }
-    for(j=0; j<zcols; j++)
-      {
-      if(isbaselinebeta[xcols+j]==1)
+      for(j=0; j<zcols; j++)
         {
-        former=0;
-        for(i=0; i<t_Z.rows()-1; i++)
+        if(isbaselinebeta[xcols+j]==1)
           {
-          Dmat(i,dmat_pos[xcols+j]) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*baseline(i,0)+t_Z(i+1,dm_pos[xcols+j])*baseline(i+1,0));
-          former = Dmat(i,dmat_pos[xcols+j]);
+          former=0;
+          for(i=0; i<t_Z.rows()-1; i++)
+            {
+            Dmat(i,dmat_pos[xcols+j]) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*baseline(i,0)+t_Z(i+1,dm_pos[xcols+j])*baseline(i+1,0));
+            former = Dmat(i,dmat_pos[xcols+j]);
+            }
+          Dmat(t_Z.rows()-1,dmat_pos[xcols+j]) = former;
           }
-        Dmat(t_Z.rows()-1,dmat_pos[xcols+j]) = former;
-        }
-      }
-
-    // to be deleted
-    datamatrix Survivor(nrobs,2,0);
-    for(i=0; i<nrobs; i++)
-      {
-      if(interval[i])
-        {
-        Survivor(i,0) = exp(-cumbaseline(tleft[i],0)*mult_hazard(i,0));
-        Survivor(i,1) = exp(-cumbaseline(tright[i]-1,0)*mult_hazard(i,0));
         }
       }
 
     // Score-Funktion für beta
 
-    // X
+    if(!timevarying)
 
-    for(j=0; j<xcols; j++)
+      // no time-varying effects
+
+      // X
       {
-      H1(j,0)=(resp.transposed()*X.getCol(j))(0,0);
-
-      // x_j gehört zu Baseline
-      if(isbaselinebeta[j]==1)
+      for(j=0; j<xcols; j++)
         {
-        for(i=0; i<nrobs; i++)
+        H1(j,0)=(resp.transposed()*X.getCol(j))(0,0);
+
+        // x_j gehört zu Baseline
+        if(isbaselinebeta[j]==1)
           {
-          if(interval[i])
+          for(i=0; i<nrobs; i++)
             {
-            helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-            H1(j,0) += Dmat(tleft[i],dmat_pos[j])*mult_hazard(i,0) -
-                       helpint*(Dmat(tright[i]-1,dmat_pos[j]) - Dmat(tleft[i],dmat_pos[j]))*mult_hazard(i,0)/(1-helpint);
+            if(interval[i])
+              {
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H1(j,0) += Dmat(tleft[i],dmat_pos[j])*mult_hazard(i,0) -
+                         helpint*(Dmat(tright[i]-1,dmat_pos[j]) - Dmat(tleft[i],dmat_pos[j]))*mult_hazard(i,0)/(1-helpint);
+              }
+            else
+              {
+              H1(j,0) += Dmat(tright[i]-1,dmat_pos[j])*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H1(j,0) -= Dmat(ttrunc[i]-1,dmat_pos[j])*mult_hazard(i,0);
+              }
             }
-          else
+          }
+        // x_j gehört nicht zur Baseline
+        else
+          {
+          for(i=0; i<nrobs; i++)
             {
-            H1(j,0) += Dmat(tright[i]-1,dmat_pos[j])*mult_hazard(i,0);
-            }
-          if(ttrunc[i] > 0)
-            {
-            H1(j,0) -= Dmat(ttrunc[i],dmat_pos[j])*mult_hazard(i,0);
+            if(interval[i])
+              {
+              helpint = (cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0);
+              H1(j,0) += negcumbaseline(tleft[i],0)*X(i,j)*mult_hazard(i,0) +
+                         exp(-helpint)*X(i,j)*helpint/(1-exp(-helpint));
+              }
+            else
+              {
+              H1(j,0) += negcumhazard(i,0)*X(i,j);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H1(j,0) -= negcumbaseline(ttrunc[i]-1,0)*X(i,j)*mult_hazard(i,0);
+              }
             }
           }
         }
-      // x_j gehört nicht zur Baseline
-      else
+
+      // Z
+
+      for(j=0; j<zcols; j++)
         {
-        for(i=0; i<nrobs; i++)
+        H1(xcols+j,0)=(resp.transposed()*Z.getCol(j))(0,0);
+
+        // z_j gehört zu Baseline
+        if(isbaselinebeta[xcols+j]==1)
           {
-          if(interval[i])
+          for(i=0; i<nrobs; i++)
             {
-            helpint = (cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0);
-            H1(j,0) += negcumbaseline(tleft[i],0)*X(i,j)*mult_hazard(i,0) +
-                       exp(-helpint)*X(i,j)*helpint/(1-exp(-helpint));
+            if(interval[i])
+              {
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H1(xcols+j,0) += Dmat(tleft[i],dmat_pos[xcols+j])*mult_hazard(i,0) -
+                         helpint*(Dmat(tright[i]-1,dmat_pos[xcols+j]) - Dmat(tleft[i],dmat_pos[xcols+j]))*mult_hazard(i,0)/(1-helpint);
+              }
+            else
+              {
+              H1(xcols + j,0) += Dmat(tright[i]-1,dmat_pos[xcols+j])*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H1(xcols+j,0) -= Dmat(ttrunc[i]-1,dmat_pos[xcols+j])*mult_hazard(i,0);
+              }
             }
-          else
+          }
+        // z_j gehört nicht zur Baseline
+        else
+          {
+          for(i=0; i<nrobs; i++)
             {
-            H1(j,0) += negcumhazard(i,0)*X(i,j);
-            }
-          if(ttrunc[i] > 0)
-            {
-            H1(j,0) -= cumbaseline(ttrunc[i],0)*X(i,j)*mult_hazard(i,0);
+            if(interval[i])
+              {
+              helpint = (cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0);
+              H1(xcols+j,0) += negcumbaseline(tleft[i],0)*Z(i,j)*mult_hazard(i,0) +
+                         exp(-helpint)*Z(i,j)*helpint/(1-exp(-helpint));
+              }
+            else
+              {
+              H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H1(xcols+j,0) -= negcumbaseline(ttrunc[i]-1,0)*Z(i,j)*mult_hazard(i,0);
+              }
             }
           }
         }
       }
+    else
 
-    // Z
+      // time-varying effects
 
-    for(j=0; j<zcols; j++)
+      // X
       {
-      H1(xcols+j,0)=(resp.transposed()*Z.getCol(j))(0,0);
-
-      // z_j gehört zu Baseline
-      if(isbaselinebeta[xcols+j]==1)
+      for(j=0; j<xcols; j++)
         {
-        for(i=0; i<nrobs; i++)
+        H1(j,0)=(resp.transposed()*X.getCol(j))(0,0);
+        // x_j gehört zu Baseline
+        if(isbaselinebeta[j]==1)
           {
-          if(interval[i])
+          for(i=0; i<nrobs; i++)
             {
-            helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-            H1(xcols+j,0) += Dmat(tleft[i],dmat_pos[xcols+j])*mult_hazard(i,0) -
-                       helpint*(Dmat(tright[i]-1,dmat_pos[xcols+j]) - Dmat(tleft[i],dmat_pos[xcols+j]))*mult_hazard(i,0)/(1-helpint);
+            if(interval[i])
+              {
+              helpint=0;
+              help2=0;
+              for(l=tleft[i]; l<tright[i]; l++)
+                {
+                helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                help2 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                            (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                }
+              helpint = exp(-helpint * mult_hazard(i,0));
+              help=0;
+              for(l=ttrunc[i]; l<tright[i]; l++)
+                {
+                help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                            (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                }
+              H1(j,0) -= help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
+              }
+            else
+              {
+              help=0;
+              for(l=ttrunc[i]; l<tright[i]; l++)
+                {
+                help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                            (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                }
+              H1(j,0) -= help*mult_hazard(i,0);
+              }
             }
-          else
+          }
+        // x_j gehört nicht zu Baseline
+        else
+          {
+          for(i=0; i<nrobs; i++)
             {
-            H1(xcols + j,0) += Dmat(tright[i]-1,dmat_pos[xcols+j])*mult_hazard(i,0);
-            }
-          if(ttrunc[i] > 0)
-            {
-            H1(xcols+j,0) -= Dmat(ttrunc[i],dmat_pos[xcols+j])*mult_hazard(i,0);
+            if(interval[i])
+              {
+              helpint=0;
+              help2=0;
+              for(l=tleft[i]; l<tright[i]; l++)
+                {
+                helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                }
+              help2 = helpint * X(i,j);
+              helpint = exp(-helpint * mult_hazard(i,0));
+              help=0;
+              for(l=ttrunc[i]; l<tright[i]; l++)
+                {
+                help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                }
+              help *= X(i,j);
+              H1(j,0) -= help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
+              }
+            else
+              {
+              help=0;
+              for(l=ttrunc[i]; l<tright[i]; l++)
+                {
+                help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                }
+              H1(j,0) -= help*X(i,j)*mult_hazard(i,0);
+              }
             }
           }
         }
-      // z_j gehört nicht zur Baseline
-      else
+
+      // Z
+
+      for(j=0; j<zcols; j++)
         {
-        for(i=0; i<nrobs; i++)
+        H1(xcols+j,0)=(resp.transposed()*Z.getCol(j))(0,0);
+        // x_j gehört zu Baseline
+        if(isbaselinebeta[xcols+j]==1)
           {
-          if(interval[i])
+          for(i=0; i<nrobs; i++)
             {
-            helpint = (cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0);
-            H1(xcols+j,0) += negcumbaseline(tleft[i],0)*Z(i,j)*mult_hazard(i,0) +
-                       exp(-helpint)*Z(i,j)*helpint/(1-exp(-helpint));
+            if(interval[i])
+              {
+              helpint=0;
+              help2=0;
+              for(l=tleft[i]; l<tright[i]; l++)
+                {
+                helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                help2 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
+                            (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                }
+              helpint = exp(-helpint * mult_hazard(i,0));
+              help=0;
+              for(l=ttrunc[i]; l<tright[i]; l++)
+                {
+                help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
+                            (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                }
+              H1(xcols+j,0) -= help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
+              }
+            else
+              {
+              help=0;
+              for(l=ttrunc[i]; l<tright[i]; l++)
+                {
+                help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
+                            (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                }
+              H1(xcols+j,0) -= help*mult_hazard(i,0);
+              }
             }
-          else
+          }
+        // z_j gehört nicht zu Baseline
+        else
+          {
+          for(i=0; i<nrobs; i++)
             {
-            H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
-            }
-          if(ttrunc[i] > 0)
-            {
-            H1(xcols+j,0) -= cumbaseline(ttrunc[i],0)*Z(i,j)*mult_hazard(i,0);
+            if(interval[i])
+              {
+              helpint=0;
+              help2=0;
+              for(l=tleft[i]; l<tright[i]; l++)
+                {
+                helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                }
+              help2 = helpint * Z(i,j);
+              helpint = exp(-helpint * mult_hazard(i,0));
+              help=0;
+              for(l=ttrunc[i]; l<tright[i]; l++)
+                {
+                help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                }
+              help *= Z(i,j);
+              H1(j,0) -= help*mult_hazard(i,0) + helpint * help2 * mult_hazard(i,0)/(1-helpint);
+              }
+            else
+              {
+              help=0;
+              for(l=ttrunc[i]; l<tright[i]; l++)
+                {
+                help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                }
+              H1(j,0) -= help*Z(i,j)*mult_hazard(i,0);
+              }
             }
           }
         }
@@ -4098,463 +4257,1005 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
     //clear H-matrix
     H = datamatrix(H.rows(),H.cols(),0);
 
-    // X & X
-    for(j=0; j<xcols; j++)
+    // no time-varying effects
+
+    if(!timevarying)
       {
-      for(k=j; k<xcols; k++)
+
+      // X & X
+
+      for(j=0; j<xcols; j++)
         {
-        // helpmat contains the second derivatives of the cumulated baseline
-        // with respect to beta_j and beta_k
-        helpmat = datamatrix(t_X.rows(),1,0);
-
-        if(isbaselinebeta[j]==1 && isbaselinebeta[k]==1)
+        for(k=j; k<xcols; k++)
           {
-          former=0;
-          for(i=0; i<t_X.rows()-1; i++)
-            {
-            helpmat(i,0) = former - 0.5*tsteps(i,0)*
-                                    (t_X(i,dm_pos[j])*t_X(i,dm_pos[k])*baseline(i,0)
-                                    + t_X(i+1,dm_pos[j])*t_X(i+1,dm_pos[k])*baseline(i+1,0));
-            former=helpmat(i,0);
-            }
-          helpmat(t_X.rows()-1,0) = former;
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(j,k) += helpmat(tleft[i],0)*mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) *
-                                ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0)
-                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) )
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0) *
-                                 ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0);
-              }
-            else
-              {
-              H(j,k) += helpmat(tright[i]-1,0)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(j,k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
-              }
-            }
-          }
+          // helpmat contains the second derivatives of the cumulated baseline
+          // with respect to beta_j and beta_k
+          helpmat = datamatrix(t_X.rows(),1,0);
 
-        else if(isbaselinebeta[j]==0 && isbaselinebeta[k]==1)
-          {
-          former=0;
-          for(i=0; i<t_X.rows()-1; i++)
+          if(isbaselinebeta[j]==1 && isbaselinebeta[k]==1)
             {
-            helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[k])*baseline(i,0)
-                                +t_X(i+1,dm_pos[k])*baseline(i+1,0));
-            former = helpmat(i,0);
+            former=0;
+            for(i=0; i<t_X.rows()-1; i++)
+              {
+              helpmat(i,0) = former - 0.5*tsteps(i,0)*
+                                      (t_X(i,dm_pos[j])*t_X(i,dm_pos[k])*baseline(i,0)
+                                      + t_X(i+1,dm_pos[j])*t_X(i+1,dm_pos[k])*baseline(i+1,0));
+              former=helpmat(i,0);
+              }
+            helpmat(t_X.rows()-1,0) = former;
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+               {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(j,k) += helpmat(tleft[i],0)*mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) *
+                                  ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0)
+                                   + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) )
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0) *
+                                   ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0);
+                }
+              else
+                {
+                H(j,k) += helpmat(tright[i]-1,0)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(j,k) -= helpmat(ttrunc[i]-1,0)*mult_hazard(i,0);
+                }
+              }
             }
-          helpmat(t_X.rows()-1,0) = former;
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(j,k) += helpmat(tleft[i],0) * X(i,j) * mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) *
-                                ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0)
-                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * X(i,j)
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j) *
-                                 ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0);
-              }
-            else
-              {
-              H(j,k) += helpmat(tright[i]-1,0)*X(i,j)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(j,k) -= helpmat(ttrunc[i],0)*X(i,j)*mult_hazard(i,0);
-              }
-            }
-          }
 
-        else if(isbaselinebeta[j]==1 && isbaselinebeta[k]==0)
-          {
-          former=0;
-          for(i=0; i<t_X.rows()-1; i++)
+          else if(isbaselinebeta[j]==0 && isbaselinebeta[k]==1)
             {
-            helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)
-                                +t_X(i+1,dm_pos[j])*baseline(i+1,0));
-            former = helpmat(i,0);
+            former=0;
+            for(i=0; i<t_X.rows()-1; i++)
+              {
+              helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[k])*baseline(i,0)
+                                  +t_X(i+1,dm_pos[k])*baseline(i+1,0));
+              former = helpmat(i,0);
+              }
+            helpmat(t_X.rows()-1,0) = former;
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(j,k) += helpmat(tleft[i],0) * X(i,j) * mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) *
+                                  ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0)
+                                   + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * X(i,j)
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j) *
+                                   ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0);
+                }
+              else
+                {
+                H(j,k) += helpmat(tright[i]-1,0)*X(i,j)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(j,k) -= helpmat(ttrunc[i]-1,0)*X(i,j)*mult_hazard(i,0);
+                }
+              }
             }
-          helpmat(t_X.rows()-1,0) = former;
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(j,k) += helpmat(tleft[i],0) * X(i,k) * mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,k) *
-                                ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0)
-                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * X(i,k)
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,k) *
-                                 ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0);
-              }
-            else
-              {
-              H(j,k) += helpmat(tright[i]-1,0)*X(i,k)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(j,k) -= helpmat(ttrunc[i],0)*X(i,k)*mult_hazard(i,0);
-              }
-            }
-          }
 
-        else
-          {
-          for(i=0; i<nrobs; i++)
+          else if(isbaselinebeta[j]==1 && isbaselinebeta[k]==0)
             {
-            if(interval[i])
+            former=0;
+            for(i=0; i<t_X.rows()-1; i++)
               {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(j,k) += negcumbaseline(tleft[i],0) * X(i,k) * X(i,j) * mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,k) *
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) * mult_hazard(i,0)
-                                 + ( negcumbaseline(tright[i]-1,0) - negcumbaseline(tleft[i],0) ) * X(i,k) * X(i,j)
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,k) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j);
+              helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)
+                                  +t_X(i+1,dm_pos[j])*baseline(i+1,0));
+              former = helpmat(i,0);
               }
-            else
+            helpmat(t_X.rows()-1,0) = former;
+            for(i=0; i<nrobs; i++)
               {
-              H(j,k) += negcumbaseline(tright[i]-1,0)*X(i,j)*X(i,k)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(j,k) -= helpmat(ttrunc[i],0)*X(i,j)*X(i,k)*mult_hazard(i,0);
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(j,k) += helpmat(tleft[i],0) * X(i,k) * mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,k) *
+                                  ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0)
+                                   + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * X(i,k)
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,k) *
+                                   ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0);
+                }
+              else
+                {
+                H(j,k) += helpmat(tright[i]-1,0)*X(i,k)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(j,k) -= helpmat(ttrunc[i]-1,0)*X(i,k)*mult_hazard(i,0);
+                }
               }
             }
+
+          else
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(j,k) += negcumbaseline(tleft[i],0) * X(i,k) * X(i,j) * mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,k) *
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) * mult_hazard(i,0)
+                                  + ( negcumbaseline(tright[i]-1,0) - negcumbaseline(tleft[i],0) ) * X(i,k) * X(i,j)
+                                  ) * mult_hazard(i,0)
+                                   -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,k) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j);
+                }
+              else
+                {
+                H(j,k) += negcumbaseline(tright[i]-1,0)*X(i,j)*X(i,k)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(j,k) -= negcumbaseline(ttrunc[i]-1,0)*X(i,j)*X(i,k)*mult_hazard(i,0);
+                }
+              }
+            }
+          H(k,j)=H(j,k);
           }
-        H(k,j)=H(j,k);
         }
+
+      // X & Z
+      for(j=0; j<xcols; j++)
+        {
+        for(k=0; k<zcols; k++)
+          {
+          // helpmat contains the second derivatives of the cumulated baseline
+          // with respect to beta_j and beta_k
+          helpmat = datamatrix(t_X.rows(),1,0);
+
+          if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==1)
+            {
+            former=0;
+            for(i=0; i<t_X.rows()-1; i++)
+              {
+              helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*t_Z(i,dm_pos[xcols+k])*baseline(i,0)
+                                  +t_X(i+1,dm_pos[j])*t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
+              former = helpmat(i,0);
+              }
+            helpmat(t_X.rows()-1,0) = former;
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(j,xcols+k) += helpmat(tleft[i],0)*mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) *
+                                  ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
+                                   + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) )
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0) *
+                                  ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
+                 }
+              else
+                {
+                H(j,xcols+k) += helpmat(tright[i]-1,0)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(j,xcols+k) -= helpmat(ttrunc[i]-1,0)*mult_hazard(i,0);
+                }
+              }
+            }
+
+          else if(isbaselinebeta[j]==0 && isbaselinebeta[xcols+k]==1)
+            {
+            former=0;
+            for(i=0; i<t_X.rows()-1; i++)
+              {
+              helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+k])*baseline(i,0)
+                                  +t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
+              former = helpmat(i,0);
+              }
+            helpmat(t_X.rows()-1,0) = former;
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(j,xcols+k) += helpmat(tleft[i],0) * X(i,j) * mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) *
+                                  ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
+                                   + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * X(i,j)
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j) *
+                                   ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
+                }
+              else
+                {
+                H(j,xcols+k) += helpmat(tright[i]-1,0)*X(i,j)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(j,xcols+k) -= helpmat(ttrunc[i]-1,0)*X(i,j)*mult_hazard(i,0);
+                }
+              }
+            }
+
+          else if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==0)
+            {
+            former=0;
+            for(i=0; i<t_X.rows()-1; i++)
+              {
+              helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)
+                                  +t_X(i+1,dm_pos[j])*baseline(i+1,0));
+              former=helpmat(i,0);
+              }
+            helpmat(t_X.rows()-1,0) = former;
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(j,xcols+k) += helpmat(tleft[i],0) * Z(i,k) * mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
+                                  ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0)
+                                   + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * Z(i,k)
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
+                                   ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0);
+                }
+              else
+                {
+                H(j,xcols+k) += helpmat(tright[i]-1,0)*Z(i,k)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(j,xcols+k) -= helpmat(ttrunc[i]-1,0)*Z(i,k)*mult_hazard(i,0);
+                }
+              }
+            }
+
+          else
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(j,xcols+k) += negcumbaseline(tleft[i],0) * Z(i,k) * X(i,j) * mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) * mult_hazard(i,0)
+                                  + ( negcumbaseline(tright[i]-1,0) - negcumbaseline(tleft[i],0) ) * Z(i,k) * X(i,j)
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j);
+                }
+              else
+                {
+                H(j,xcols+k) += negcumbaseline(tright[i]-1,0)*X(i,j)*Z(i,k)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(j,xcols+k) -= negcumbaseline(ttrunc[i]-1,0)*X(i,j)*Z(i,k)*mult_hazard(i,0);
+                }
+              }
+            }
+          H(xcols+k,j)=H(j,xcols+k);
+          }
+        }
+
+      // Z & Z
+      for(j=0; j<zcols; j++)
+       {
+        for(k=j; k<zcols; k++)
+          {
+          // helpmat contains the second derivatives of the cumulated baseline
+          // with respect to beta_j and beta_k
+          helpmat = datamatrix(t_X.rows(),1,0);
+
+          if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==1)
+            {
+            former=0;
+            for(i=0; i<t_X.rows()-1; i++)
+              {
+              helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*t_Z(i,dm_pos[xcols+k])*baseline(i,0)
+                                  +t_Z(i+1,dm_pos[xcols+j])*t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
+              former = helpmat(i,0);
+              }
+            helpmat(t_X.rows()-1,0) = former;
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(xcols+j,xcols+k) += helpmat(tleft[i],0)*mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) *
+                                  ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
+                                   + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) )
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) * mult_hazard(i,0) *
+                                   ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
+                }
+              else
+                {
+                H(xcols+j,xcols+k) += helpmat(tright[i]-1,0)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(xcols+j,xcols+k) -= helpmat(ttrunc[i]-1,0)*mult_hazard(i,0);
+                }
+              }
+            }
+
+          else if(isbaselinebeta[xcols+j]==0 && isbaselinebeta[xcols+k]==1)
+            {
+            former=0;
+            for(i=0; i<t_X.rows()-1; i++)
+              {
+              helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+k])*baseline(i,0)
+                                  +t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
+              former = helpmat(i,0);
+              }
+            helpmat(t_X.rows()-1,0) = former;
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(xcols+j,xcols+k) += helpmat(tleft[i],0) * Z(i,j) * mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,j) *
+                                  ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
+                                   + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * Z(i,j)
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,j) *
+                                   ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
+                }
+              else
+                {
+                H(xcols+j,xcols+k) += helpmat(tright[i]-1,0)*Z(i,j)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(xcols+j,xcols+k) -= helpmat(ttrunc[i]-1,0)*Z(i,j)*mult_hazard(i,0);
+                }
+              }
+            }
+
+          else if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==0)
+            {
+            former=0;
+            for(i=0; i<t_X.rows()-1; i++)
+              {
+              helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*baseline(i,0)
+                                  +t_Z(i+1,dm_pos[xcols+j])*baseline(i+1,0));
+              former = helpmat(i,0);
+              }
+            helpmat(t_X.rows()-1,0) = former;
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(xcols+j,xcols+k) += helpmat(tleft[i],0) * Z(i,k) * mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
+                                  ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) * mult_hazard(i,0)
+                                   + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * Z(i,k)
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
+                                   ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) * mult_hazard(i,0);
+                }
+              else
+                {
+                H(xcols+j,xcols+k) += helpmat(tright[i]-1,0)*Z(i,k)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(xcols+j,xcols+k) -= helpmat(ttrunc[i]-1,0)*Z(i,k)*mult_hazard(i,0);
+                }
+              }
+            }
+
+          else
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+                H(xcols+j,xcols+k) += negcumbaseline(tleft[i],0) * Z(i,k) * Z(i,j) * mult_hazard(i,0) -
+                          helpint / (1-helpint)*(
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
+                                  ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,j) * mult_hazard(i,0)
+                                   + ( negcumbaseline(tright[i]-1,0) - negcumbaseline(tleft[i],0) ) * Z(i,k) * Z(i,j)
+                                  ) * mult_hazard(i,0)
+                                  -
+                                  helpint/(1-helpint) * helpint/(1-helpint) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
+                                   ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,j);
+                }
+              else
+                {
+                H(xcols+j,xcols+k) += negcumbaseline(tright[i]-1,0)*Z(i,j)*Z(i,k)*mult_hazard(i,0);
+                }
+              if(ttrunc[i] > 0)
+                {
+                H(xcols+j,xcols+k) -= negcumbaseline(ttrunc[i]-1,0)*Z(i,j)*Z(i,k)*mult_hazard(i,0);
+                }
+              }
+            }
+          H(xcols+k,xcols+j)=H(xcols+j,xcols+k);
+          }
+        }
+      H = -H;
       }
 
-    // X & Z
-    for(j=0; j<xcols; j++)
+    // time-varying effects
+
+    else
       {
-      for(k=0; k<zcols; k++)
+
+      // X & X
+
+      for(j=0; j<xcols; j++)
         {
-        // helpmat contains the second derivatives of the cumulated baseline
-        // with respect to beta_j and beta_k
-        helpmat = datamatrix(t_X.rows(),1,0);
-
-        if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==1)
+        for(k=j; k<xcols; k++)
           {
-          former=0;
-          for(i=0; i<t_X.rows()-1; i++)
+          if(isbaselinebeta[j]==1 && isbaselinebeta[k]==1)
             {
-            helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*t_Z(i,dm_pos[xcols+k])*baseline(i,0)
-                                +t_X(i+1,dm_pos[j])*t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
-            former = helpmat(i,0);
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help2 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[k])*
+                              (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[k])*
+                              (t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  }
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[k])*
+                              (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  }
+                H(j,k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[k])*
+                              (t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  }
+                H(j,k) += help*mult_hazard(i,0);
+                }
+              }
             }
-          helpmat(t_X.rows()-1,0) = former;
-          for(i=0; i<nrobs; i++)
+          else if(isbaselinebeta[j]==1 && isbaselinebeta[k]==0)
             {
-            if(interval[i])
+            for(i=0; i<nrobs; i++)
               {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(j,xcols+k) += helpmat(tleft[i],0)*mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) *
-                                ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
-                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) )
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0) *
-                                 ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
-              }
-            else
-              {
-              H(j,xcols+k) += helpmat(tright[i]-1,0)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  }
+                help4 = helpint * X(i,k);
+                help2 = help3 * X(i,k);
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  }
+                help *= X(i,k);
+                H(j,k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  }
+                H(j,k) += help*X(i,k)*mult_hazard(i,0);
+                }
               }
             }
+          else if(isbaselinebeta[j]==0 && isbaselinebeta[k]==1)
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[k])*
+                              (t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  }
+                help3 = helpint * X(i,j);
+                help2 = help4*X(i,j);
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[k])*
+                              (t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  }
+                help *= X(i,j);
+                H(j,k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[k])*
+                              (t_X(l,dm_pos[k])*baseline(i,l)+t_X(l+1,dm_pos[k])*baseline(i,l+1));
+                  }
+                H(j,k) += help*X(i,j)*mult_hazard(i,0);
+                }
+              }
+            }
+          else if(isbaselinebeta[j]==0 && isbaselinebeta[k]==0)
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  }
+                help4 = helpint * X(i,k);
+                help3 = helpint * X(i,j);
+                help2 = helpint * X(i,j) * X(i,k);
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  }
+                help *= X(i,j)*X(i,k);
+                H(j,k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  }
+                H(j,k) += help*X(i,j)*X(i,k)*mult_hazard(i,0);
+                }
+              }
+            }
+          H(k,j) = H(j,k);
           }
-
-        else if(isbaselinebeta[j]==0 && isbaselinebeta[xcols+k]==1)
-          {
-          former=0;
-          for(i=0; i<t_X.rows()-1; i++)
-            {
-            helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+k])*baseline(i,0)
-                                +t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
-            former = helpmat(i,0);
-            }
-          helpmat(t_X.rows()-1,0) = former;
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(j,xcols+k) += helpmat(tleft[i],0) * X(i,j) * mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) *
-                                ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
-                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * X(i,j)
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j) *
-                                 ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
-              }
-            else
-              {
-              H(j,xcols+k) += helpmat(tright[i]-1,0)*X(i,j)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
-              }
-            }
-          }
-
-        else if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==0)
-          {
-          former=0;
-          for(i=0; i<t_X.rows()-1; i++)
-            {
-            helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_X(i,dm_pos[j])*baseline(i,0)
-                                +t_X(i+1,dm_pos[j])*baseline(i+1,0));
-            former=helpmat(i,0);
-            }
-          helpmat(t_X.rows()-1,0) = former;
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(j,xcols+k) += helpmat(tleft[i],0) * Z(i,k) * mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
-                                ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0)
-                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * Z(i,k)
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
-                                 ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0);
-              }
-            else
-              {
-              H(j,xcols+k) += helpmat(tright[i]-1,0)*Z(i,k)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
-              }
-            }
-          }
-
-        else
-          {
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(j,xcols+k) += negcumbaseline(tleft[i],0) * Z(i,k) * X(i,j) * mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) * mult_hazard(i,0)
-                                 + ( negcumbaseline(tright[i]-1,0) - negcumbaseline(tleft[i],0) ) * Z(i,k) * X(i,j)
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j);
-              }
-            else
-              {
-              H(j,xcols+k) += negcumbaseline(tright[i]-1,0)*X(i,j)*Z(i,k)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
-              }
-            }
-          }
-        H(xcols+k,j)=H(j,xcols+k);
         }
-      }
 
-    // Z & Z
-    for(j=0; j<zcols; j++)
-      {
-      for(k=j; k<zcols; k++)
+      // X & Z
+
+      for(j=0; j<xcols; j++)
         {
-        // helpmat contains the second derivatives of the cumulated baseline
-        // with respect to beta_j and beta_k
-        helpmat = datamatrix(t_X.rows(),1,0);
-
-        if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==1)
+        for(k=j; k<zcols; k++)
           {
-          former=0;
-          for(i=0; i<t_X.rows()-1; i++)
+          if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==1)
             {
-            helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*t_Z(i,dm_pos[xcols+k])*baseline(i,0)
-                                +t_Z(i+1,dm_pos[xcols+j])*t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
-            former = helpmat(i,0);
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help2 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[xcols+k])*
+                              (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[xcols+k])*
+                              (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                H(j,xcols+k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*interactvar(i,fc_pos[xcols+k])*
+                              (t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                H(j,xcols+k) += help*mult_hazard(i,0);
+                }
+              }
             }
-          helpmat(t_X.rows()-1,0) = former;
-          for(i=0; i<nrobs; i++)
+          else if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==0)
             {
-            if(interval[i])
+            for(i=0; i<nrobs; i++)
               {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(xcols+j,xcols+k) += helpmat(tleft[i],0)*mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) *
-                                ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
-                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) )
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) * mult_hazard(i,0) *
-                                 ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
-              }
-            else
-              {
-              H(xcols+j,xcols+k) += helpmat(tright[i]-1,0)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(xcols+j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  }
+                help4 = helpint * Z(i,k);
+                help2 = help3 * Z(i,k);
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  }
+                help *= Z(i,k);
+                H(j,xcols+k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[j])*
+                              (t_X(l,dm_pos[j])*baseline(i,l)+t_X(l+1,dm_pos[j])*baseline(i,l+1));
+                  }
+                H(j,xcols+k) += help*Z(i,k)*mult_hazard(i,0);
+                }
               }
             }
+          else if(isbaselinebeta[j]==0 && isbaselinebeta[xcols+k]==1)
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                help3 = helpint * X(i,j);
+                help2 = help4*X(i,j);
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                help *= X(i,j);
+                H(j,xcols+k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                H(j,xcols+k) += help*X(i,j)*mult_hazard(i,0);
+                }
+              }
+            }
+          else if(isbaselinebeta[j]==0 && isbaselinebeta[xcols+k]==0)
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  }
+                help4 = helpint * Z(i,k);
+                help3 = helpint * X(i,j);
+                help2 = helpint * X(i,j) * Z(i,k);
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  }
+                help *= X(i,j)*Z(i,k);
+                H(j,xcols+k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  }
+                H(j,xcols+k) += help*X(i,j)*Z(i,k)*mult_hazard(i,0);
+                }
+              }
+            }
+          H(xcols+k,j) = H(j,xcols+k);
           }
-
-        else if(isbaselinebeta[xcols+j]==0 && isbaselinebeta[xcols+k]==1)
-          {
-          former=0;
-          for(i=0; i<t_X.rows()-1; i++)
-            {
-            helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+k])*baseline(i,0)
-                                +t_Z(i+1,dm_pos[xcols+k])*baseline(i+1,0));
-            former = helpmat(i,0);
-            }
-          helpmat(t_X.rows()-1,0) = former;
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(xcols+j,xcols+k) += helpmat(tleft[i],0) * Z(i,j) * mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,j) *
-                                ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
-                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * Z(i,j)
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,j) *
-                                 ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
-              }
-            else
-              {
-              H(xcols+j,xcols+k) += helpmat(tright[i]-1,0)*Z(i,j)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(xcols+j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
-              }
-            }
-          }
-
-        else if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==0)
-          {
-          former=0;
-          for(i=0; i<t_X.rows()-1; i++)
-            {
-            helpmat(i,0) = former - 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*baseline(i,0)
-                                +t_Z(i+1,dm_pos[xcols+j])*baseline(i+1,0));
-            former = helpmat(i,0);
-            }
-          helpmat(t_X.rows()-1,0) = former;
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(xcols+j,xcols+k) += helpmat(tleft[i],0) * Z(i,k) * mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
-                                ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) * mult_hazard(i,0)
-                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * Z(i,k)
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
-                                 ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) * mult_hazard(i,0);
-              }
-            else
-              {
-              H(xcols+j,xcols+k) += helpmat(tright[i]-1,0)*Z(i,k)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(xcols+j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
-              }
-            }
-          }
-
-        else
-          {
-          for(i=0; i<nrobs; i++)
-            {
-            if(interval[i])
-              {
-              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
-              H(xcols+j,xcols+k) += negcumbaseline(tleft[i],0) * Z(i,k) * Z(i,j) * mult_hazard(i,0) -
-                        helpint / (1-helpint)*(
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
-                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,j) * mult_hazard(i,0)
-                                 + ( negcumbaseline(tright[i]-1,0) - negcumbaseline(tleft[i],0) ) * Z(i,k) * Z(i,j)
-                                ) * mult_hazard(i,0)
-                                -
-                                helpint/(1-helpint) * helpint/(1-helpint) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
-                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,j);
-              }
-            else
-              {
-              H(xcols+j,xcols+k) += negcumbaseline(tright[i]-1,0)*Z(i,j)*Z(i,k)*mult_hazard(i,0);
-              }
-            if(ttrunc[i] > 0)
-              {
-              H(xcols+j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
-              }
-            }
-          }
-        H(xcols+k,xcols+j)=H(xcols+j,xcols+k);
         }
+
+      // Z & Z
+
+      for(j=0; j<zcols; j++)
+        {
+        for(k=j; k<zcols; k++)
+          {
+          if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==1)
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help2 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
+                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                H(xcols+j,xcols+k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                H(xcols+j,xcols+k) += help*mult_hazard(i,0);
+                }
+              }
+            }
+          else if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==0)
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help3 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
+                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                  }
+                help4 = helpint * Z(i,k);
+                help2 = help3 * Z(i,k);
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
+                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                  }
+                help *= Z(i,k);
+                H(xcols+j,xcols+k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+j])*
+                              (t_Z(l,dm_pos[xcols+j])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+j])*baseline(i,l+1));
+                  }
+                H(xcols+j,xcols+k) += help*Z(i,k)*mult_hazard(i,0);
+                }
+              }
+            }
+          else if(isbaselinebeta[xcols+j]==0 && isbaselinebeta[xcols+k]==1)
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  help4 += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                help3 = helpint * Z(i,j);
+                help2 = help4*Z(i,j);
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                help *= Z(i,j);
+                H(xcols+j,xcols+k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*interactvar(i,fc_pos[xcols+k])*
+                              (t_Z(l,dm_pos[xcols+k])*baseline(i,l)+t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                  }
+                H(xcols+j,xcols+k) += help*Z(i,j)*mult_hazard(i,0);
+                }
+              }
+            }
+          else if(isbaselinebeta[xcols+j]==0 && isbaselinebeta[xcols+k]==0)
+            {
+            for(i=0; i<nrobs; i++)
+              {
+              if(interval[i])
+                {
+                helpint=0;
+                help2=help3=help4=0;
+                for(l=tleft[i]; l<tright[i]; l++)
+                  {
+                  helpint += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  }
+                help4 = helpint * Z(i,k);
+                help3 = helpint * Z(i,j);
+                help2 = helpint * Z(i,j) * Z(i,k);
+                helpint = exp(-helpint * mult_hazard(i,0));
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  }
+                help *= Z(i,j)*Z(i,k);
+                H(j,xcols+k) += help -
+                          helpint / (1-helpint)*
+                          (help3 * help4 * mult_hazard(i,0) + help2) * mult_hazard(i,0)
+                          - helpint/(1-helpint) * helpint/(1-helpint) *
+                          help3 * mult_hazard(i,0) * mult_hazard(i,0);
+                }
+              else
+                {
+                help=0;
+                for(l=ttrunc[i]; l<tright[i]; l++)
+                  {
+                  help += 0.5*tsteps(l,0)*(baseline(i,l)+baseline(i,l+1));
+                  }
+                H(j,xcols+k) += help*Z(i,j)*Z(i,k)*mult_hazard(i,0);
+                }
+              }
+            }
+          H(xcols+k,xcols+j) = H(xcols+j,xcols+k);
+          }
+        }
+      H = -H;
       }
-    H = -H;
 
     H.addtodiag(Qinv,xcols,beta.rows());
 
@@ -5309,6 +6010,8 @@ void remlest::outerror(const ST::string & s)
 //------------------------------------------------------------------------------
 //------------------------------- Miscellanea ----------------------------------
 //------------------------------------------------------------------------------
+
+
 
 
 
