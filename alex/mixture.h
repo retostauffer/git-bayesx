@@ -25,21 +25,22 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   protected:
 
-  int nrcomp;  // Number of mixture components
-  datamatrix compweight;  // Weights of mixture components
-  datamatrix cwprior;  // Prior parameter weights of mixture components
-  statmatrix<unsigned> csize;  // Sizes of mixture components
-  statmatrix<unsigned> compind;  // Indicator for mixture components
+  int nrcomp;                   // Number of mixture components
+  datamatrix compweight;        // Weights of mixture components
+  statmatrix<unsigned> csize;   // Sizes of mixture components
+  statmatrix<unsigned> compind; // Indicators for mixture components
+  datamatrix compmean;          // Means of mixture components
+  datamatrix compvar;           // Variances of mixture components
 
-  datamatrix compmean;
-  datamatrix compvar;
-  double cmpriorm,cmpriorv;
-  double cvpriorsh,cvpriorsc;
+  datamatrix cwprior;           // Prior parameter weights of mixture components
+  double cmpriorm,cmpriorv;     // Prior parameters means of mixture components
+  double cvpriora,cvpriorb;     // Prior parameters variances of mixture components
 
-  datamatrix temp; //
+  bool nosamples;
+  datamatrix temp;
 
-  FULLCOND cpar_fc;
-//  FULLCOND cind_fc;  
+  FULLCOND cpar_fc;  // FULLCOND object for component parameters
+  FULLCOND cind_fc;  // FULLCOND object for component indicators
   FULLCOND_const * fcconst;
   DISTRIBUTION * likep;
 
@@ -50,11 +51,9 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
   datamatrix effvalues;
 
   double centerbeta(void);
-//  bool checkorder;
-//  const update_weights(void);
+  bool checkorder;
+  const update_weights(void);
 
-
-  
   public:
 
   // DEFAULT CONSTRUCTOR:
@@ -64,12 +63,16 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
     }
 
   // CONSTRUCTOR1
-  // random intercept
+  // mixture for random intercept
 
   FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
                   FULLCOND_const * fcc,
                   const datamatrix & d, const ST::string & t,
-                  const ST::string & fp,const ST::string & pr, const int & nrc,
+                  const ST::string & fp,const ST::string & pr,
+                  const int & nrc, const double & pw,
+                  const double & pmm,const double & pmv,
+                  const double & pva,const double & pvb,
+                  const bool & s,                   
                   const unsigned & c=0);
 
 

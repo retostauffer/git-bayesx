@@ -58,45 +58,32 @@ void FULLCOND_mixture::init_names(const vector<ST::string> & na)
 
 
 
-double FULLCOND_mixture::centerbeta(void)
-  {
-  unsigned i;
-  double sum=0;
-  sum = beta.sum(0);
-  sum/=beta.rows();
-  for (i=0;i<beta.rows();i++)
-    beta(i,0) -= sum;
-  return sum;
- }
-
-
-
 FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
                               FULLCOND_const * fcc,
                               const datamatrix & d, const ST::string & t,
-                              const ST::string & fp,const ST::string & pr,const int & nrc,
+                              const ST::string & fp,const ST::string & pr,
+                              const int & nrc,const double & pw,
+                              const double & pmm,const double & pmv,
+                              const double & pva,const double & pvb,
+                              const bool & s,
                               const unsigned & c)
                             : FULLCOND(o,datamatrix(1,1),t,1,1,fp)
   {
-
-// Mixture stuff
   nrcomp = nrc;
   compweight = datamatrix(nrcomp,1,1.0/nrcomp);
-  cwprior = datamatrix(nrcomp,1,1.0);
-  csize = statmatrix<unsigned>(nrcomp,1,1);
   compmean = datamatrix(nrcomp,1,0);
   compvar = datamatrix(nrcomp,1,1);
-  cmpriorm = 0;
-  cmpriorv = 100;
-  cvpriorsh = 2;
-  cvpriorsc = 0.5;
-  temp = datamatrix(nrcomp,1,0);
-//  checkorder = false;
-// End of Mixture stuff
 
-  ST::string path = samplepath.substr(0,samplepath.length()-4)+"_compparsample.raw";
-  cpar_fc = FULLCOND(o,datamatrix(1,1),t+"_cpar_fc",nrcomp,3,path);
-  cpar_fc.setflags(MCMC::norelchange | MCMC::nooutput);
+  cwprior = datamatrix(nrcomp,1,pw);
+  cmpriorm = pmm;
+  cmpriorv = pmv;
+  cvpriora = pva;
+  cvpriorb = pvb;
+  nosamples = s;
+
+  csize = statmatrix<unsigned>(nrcomp,1,1);
+  temp = datamatrix(nrcomp,1,0);
+  checkorder = false;
 
   fcconst = fcc;
   fctype = randomeffects;
@@ -149,15 +136,21 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
   for(j=0;j<posbeg.size();j++,workeffvalues++)
     *workeffvalues = d(index(posbeg[j],0),0);
 
-  setbeta(posbeg.size(),2,0);
+  setbeta(posbeg.size(),1,0);
 
   compind = statmatrix<unsigned>(beta.rows(),1,1);
+
+  ST::string path = samplepath.substr(0,samplepath.length()-4)+"_compparsample.raw";
+  cpar_fc = FULLCOND(o,datamatrix(1,1),t+"_cpar_fc",nrcomp,3,path);
+  cpar_fc.setflags(MCMC::norelchange | MCMC::nooutput);
+
+  ST::string path2 = samplepath.substr(0,samplepath.length()-4)+"_compindsample.raw";
+  cind_fc = FULLCOND(o,datamatrix(1,1),t+"_cind_fc",beta.rows(),1,path2);
+  cind_fc.setflags(MCMC::norelchange | MCMC::nooutput);
 
   transform = likep->get_trmult(column);
 
   identifiable = false;
-//  identifiable =true;
-
   }
 
 
@@ -173,13 +166,15 @@ FULLCOND_mixture::FULLCOND_mixture(const FULLCOND_mixture & fc)
   compvar=fc.compvar;
   cmpriorm=fc.cmpriorm;
   cmpriorv=fc.cmpriorv;
-  cvpriorsh=fc.cvpriorsh;
-  cvpriorsc=fc.cvpriorsc;
+  cvpriora=fc.cvpriora;
+  cvpriorb=fc.cvpriorb;
+  nosamples=fc.nosamples;
   temp=fc.temp;
-//  checkorder = fc.checkorder;
+  checkorder = fc.checkorder;
 
   fcconst = fc.fcconst;
   cpar_fc = fc.cpar_fc;
+  cind_fc = fc.cind_fc;
 
   likep = fc.likep;
   index = fc.index;
@@ -205,13 +200,15 @@ const FULLCOND_mixture & FULLCOND_mixture::
   compvar=fc.compvar;
   cmpriorm=fc.cmpriorm;
   cmpriorv=fc.cmpriorv;
-  cvpriorsh=fc.cvpriorsh;
-  cvpriorsc=fc.cvpriorsc;
+  cvpriora=fc.cvpriora;
+  cvpriorb=fc.cvpriorb;
+  nosamples=fc.nosamples;
   temp=fc.temp;
-//  checkorder = fc.checkorder;
+  checkorder = fc.checkorder;
 
   fcconst = fc.fcconst;
   cpar_fc = fc.cpar_fc;
+  cind_fc = fc.cind_fc;
 
   likep = fc.likep;
   index = fc.index;
@@ -224,7 +221,18 @@ const FULLCOND_mixture & FULLCOND_mixture::
   }
 
 
-/*
+double FULLCOND_mixture::centerbeta(void)
+  {
+  unsigned i;
+  double sum=0;
+  sum = beta.sum(0);
+  sum/=beta.rows();
+  for (i=0;i<beta.rows();i++)
+    beta(i,0) -= sum;
+  return sum;
+ }
+
+
 const FULLCOND_mixture::update_weights(void)
   {
   double cwtempsum;
@@ -239,10 +247,10 @@ const FULLCOND_mixture::update_weights(void)
   checkorder=true;
   for(unsigned k=0;k<nrcomp-1;k++)
     {
-     if(compweight(k,0)<compweight(k+1,0)) checkorder= false;
+    if(compweight(k,0)>compweight(k+1,0)) checkorder=false;
     }
   }
-*/
+
 
 
 
@@ -278,13 +286,11 @@ void FULLCOND_mixture::update(void)
         compind(i,0) = k+1;
       cprobsum+=cprob(k,0);
       }
-  beta(i,1)=compind(i,0)/transform;
   }
 
 
 // Update component sizes
   statmatrix<unsigned> cstemp(nrcomp,1,0);
-
   for(k=0;k<nrcomp;k++)
   {
     for(i=0;i<beta.rows();i++)
@@ -357,14 +363,18 @@ void FULLCOND_mixture::update(void)
       resum+=(beta(i,0)-compmean(k,0))*(beta(i,0)-compmean(k,0));
   }
 
-  shtemp = cvpriorsh+0.5*csize(k,0);
-  sctemp = cvpriorsc+0.5*resum;
+  shtemp = cvpriora+0.5*csize(k,0);
+  sctemp = cvpriorb+0.5*resum;
   compvar(k,0)=rand_invgamma(shtemp,sctemp);
   }
 
 
 
 // Update component weights
+checkorder=false;
+while(checkorder==false)
+  update_weights();
+/*
   double cwtempsum;
   for(unsigned k=0;k<nrcomp;k++)
     {
@@ -373,10 +383,11 @@ void FULLCOND_mixture::update(void)
   cwtempsum=temp.sum(0);
   temp=(1.0/cwtempsum)*temp;
   compweight.assign(temp);
-
+*/
 
   double m = centerbeta();
   fcconst->update_intercept(m);
+
 
   double * cp_p = cpar_fc.getbetapointer();
   for(k=0;k<nrcomp;k++)
@@ -390,6 +401,14 @@ void FULLCOND_mixture::update(void)
   }
   cpar_fc.update();
 
+
+  double * ci_p = cind_fc.getbetapointer();
+  for(i=0;i<beta.rows();i++)
+  {
+  *ci_p = compind(i,0);
+  ci_p++;
+  }
+  cind_fc.update();
 
   acceptance++;
 
@@ -439,20 +458,10 @@ void FULLCOND_mixture::outresults(void)
   nu2 = nu2.replaceallsigns('.','p');
 
   ST::string pathre = pathcurrent.substr(0,pathcurrent.length()-4)+"_re.res";
-//  ST::string pathcompind = pathcurrent.substr(0,pathcurrent.length()-4)+"_compind.res";
-
-    optionsp->out("  Results for estimated random effects are stored in file\n");
-    optionsp->out("  " + pathre + "\n");
-    optionsp->out("\n");
-//    optionsp->out("  Results for random effects mixture component indicators are stored in file\n");
-//    optionsp->out("  " + pathcompind + "\n");
-//    optionsp->out("\n");
-    optionsp->out("\n");
-
-
+  ST::string pathcpar = pathcurrent.substr(0,pathcurrent.length()-4)+"_comppar.res";
   ST::string name = datanames[0];
 
-  // Ausgabe Schätzungen mixture random effects
+  // Ausgabe Schätzungen random effects
   ofstream outres(pathre.strtochar());
   assert(!outres.fail());
 
@@ -468,124 +477,163 @@ void FULLCOND_mixture::outresults(void)
   outres << "pcat" << level2 << "   ";
   outres << endl;
 
-     for(i=0;i<beta.rows();i++)
-       {
-       outres << (i+1) << "   ";
-       outres << effvalues(i,0) << "   ";
-       outres << betamean(i,0) << "   ";
-       outres << betaqu_l1_lower(i,0) << "   ";
-       outres << betaqu_l2_lower(i,0) << "   ";
-       outres << betaqu50(i,0) << "   ";
-       outres << betaqu_l2_upper(i,0) << "   ";
-       outres << betaqu_l1_upper(i,0) << "   ";
-       if (betaqu_l1_lower(i,0) > 0)
-       outres << "1   ";
-       else if (betaqu_l1_upper(i,0) < 0)
-       outres << "-1   ";
-       else
-       outres << "0   ";
-       if (betaqu_l2_lower(i,0) > 0)
-       outres << "1   ";
-       else if (betaqu_l2_upper(i,0) < 0)
-         outres << "-1   ";
-       else
-         outres << "0   ";
-      outres << endl;
-      }
+  for(i=0;i<beta.rows();i++)
+    {
+    outres << (i+1) << "   ";
+    outres << effvalues(i,0) << "   ";
+    outres << betamean(i,0) << "   ";
+    outres << betaqu_l1_lower(i,0) << "   ";
+    outres << betaqu_l2_lower(i,0) << "   ";
+    outres << betaqu50(i,0) << "   ";
+    outres << betaqu_l2_upper(i,0) << "   ";
+    outres << betaqu_l1_upper(i,0) << "   ";
+    if (betaqu_l1_lower(i,0) > 0)
+      outres << "1   ";
+    else if (betaqu_l1_upper(i,0) < 0)
+      outres << "-1   ";
+    else
+      outres << "0   ";
+    if (betaqu_l2_lower(i,0) > 0)
+      outres << "1   ";
+    else if (betaqu_l2_upper(i,0) < 0)
+      outres << "-1   ";
+    else
+      outres << "0   ";
+    outres << endl;
+    }
 
-  // Ausgabe mixture component indicators
-/*  ofstream outres2(pathcompind.strtochar());
-  outres2 << "intnr" << "   ";
-  outres2 << name << "   ";
-  outres2 << "pmean   ";
+// Ausgabe Schätzungen mixture component parameters
+  cpar_fc.outresults();
+  ofstream outres2(pathcpar.strtochar());
+  outres2 << "paramnr   ";
+  outres2 << "varname   ";
+  outres2 << "pmean    ";
+  outres2 << "pstddev    ";
+  outres2 << "pqu"  << nl1  << "   ";
+  outres2 << "pqu"  << nl2  << "   ";
   outres2 << "pmed   ";
+  outres2 << "pqu"  << nu1  << "   ";
+  outres2 << "pqu"  << nu2  << "   ";
   outres2 << endl;
 
-     for(i=0;i<beta.rows();i++)
-      {
-      outres2 << (i+1) << "   ";
-      outres2 << effvalues(i,0) << "   ";
-      outres2 << betamean(i,0) << "   ";
-      outres2 << betaqu50(i,0) << "   ";
-      outres2 << endl;
-      }
-
-  ofstream outres2(pathcompind.strtochar());
-     for(i=0;i<compind.rows();i++)
-      {
-      outres2 << (i+1) << "   ";
-      outres2 << compind(i,0);
-      outres2 << endl;
-      }
-
-  ST::string pathcompvar = pathcurrent.substr(0,pathcurrent.length()-4)+"_compvar.res";
-  ofstream outres3(pathcompvar.strtochar());
-   for(unsigned i=0;i<compvar.rows();i++)
+  for(k=0;k<nrcomp;k++)
     {
-    outres3 << (i+1) << "   ";
-    outres3 << compvar(i,0);
-    outres3 << endl;
+    outres2 << (k+1) << "   ";
+    outres2 << "weight" << (k+1) << "   ";
+    outres2 << cpar_fc.get_betamean(k,0) << "   ";
+    if(nrcomp==1)
+      outres2 << 0 << "   ";
+    else
+      outres2 << sqrt(cpar_fc.get_betavar(k,0)) << "   ";
+    outres2 << cpar_fc.get_beta_lower1(k,0) << "   ";
+    outres2 << cpar_fc.get_beta_lower2(k,0) << "   ";
+    outres2 << cpar_fc.get_betaqu50(k,0) << "   ";
+    outres2 << cpar_fc.get_beta_upper2(k,0) << "   ";
+    outres2 << cpar_fc.get_beta_upper1(k,0) << "   ";
+    outres2 << endl;
     }
-*/
-    cpar_fc.outresults();
+  for(k=0;k<nrcomp;k++)
+    {
+    outres2 << (k+nrcomp+1) << "   ";
+    outres2 << "mean" << (k+1) << "   ";
+    outres2 << cpar_fc.get_betamean(k,1) << "   ";
+    outres2 << sqrt(cpar_fc.get_betavar(k,1)) << "   ";
+    outres2 << cpar_fc.get_beta_lower1(k,1) << "   ";
+    outres2 << cpar_fc.get_beta_lower2(k,1) << "   ";
+    outres2 << cpar_fc.get_betaqu50(k,1) << "   ";
+    outres2 << cpar_fc.get_beta_upper2(k,1) << "   ";
+    outres2 << cpar_fc.get_beta_upper1(k,1) << "   ";
+    outres2 << endl;
+    }
+  for(k=0;k<nrcomp;k++)
+    {
+    outres2 << (k+2*nrcomp+1) << "   ";    
+    outres2 << "var" << (k+1) << "   ";
+    outres2 << cpar_fc.get_betamean(k,2) << "   ";
+    outres2 << sqrt(cpar_fc.get_betavar(k,2)) << "   ";
+    outres2 << cpar_fc.get_beta_lower1(k,2) << "   ";
+    outres2 << cpar_fc.get_beta_lower2(k,2) << "   ";
+    outres2 << cpar_fc.get_betaqu50(k,2) << "   ";
+    outres2 << cpar_fc.get_beta_upper2(k,2) << "   ";
+    outres2 << cpar_fc.get_beta_upper1(k,2) << "   ";
+    outres2 << endl;
+    }
 
-    ST::string help =  ST::doubletostring(lower1,4) + "% quant.";
-    ST::string levell = help + ST::string(' ',15-help.length());
-    help = ST::doubletostring(upper2,4) + "% quant.";
-    ST::string levelu = help + ST::string(' ',15-help.length());
 
-    optionsp->out("   Results for component weights:\n");
-    optionsp->out("   Component   Post. Mean     Std. Dev.      " +
+  ST::string help =  ST::doubletostring(lower1,4) + "% quant.";
+  ST::string levell = help + ST::string(' ',15-help.length());
+  help = ST::doubletostring(upper2,4) + "% quant.";
+  ST::string levelu = help + ST::string(' ',15-help.length());
+
+  optionsp->out("  Results for component weights:\n");
+  optionsp->out("   Component   Post. Mean     Std. Dev.      " +
                   levell + "Post. Median   " + levelu + "\n");
-    for(k=0;k<nrcomp;k++)
-       {
-       if(nrcomp==1)
+  for(k=0;k<nrcomp;k++)
+     {
+     if(nrcomp==1)
        {
        optionsp->out("     " + ST::outresults(7,ST::inttostring(k+1),cpar_fc.get_betamean(k,0),
                       0,cpar_fc.get_beta_lower1(k,0),
                       cpar_fc.get_betaqu50(k,0),cpar_fc.get_beta_upper1(k,0)) + "\n");
        }
-       else
+     else
        {
        optionsp->out("     " + ST::outresults(7,ST::inttostring(k+1),cpar_fc.get_betamean(k,0),
                       sqrt(cpar_fc.get_betavar(k,0)),cpar_fc.get_beta_lower1(k,0),
                       cpar_fc.get_betaqu50(k,0),cpar_fc.get_beta_upper1(k,0)) + "\n");
        }
-       }
-    optionsp->out("\n");
+     }
+  optionsp->out("\n");
 
-    optionsp->out("   Results for component means:\n");
-    optionsp->out("   Component   Post. Mean     Std. Dev.      " +
+  optionsp->out("  Results for component means:\n");
+  optionsp->out("   Component   Post. Mean     Std. Dev.      " +
                   levell + "Post. Median   " + levelu + "\n");
-    for(k=0;k<nrcomp;k++)
-       {
-       optionsp->out("     " + ST::outresults(7,ST::inttostring(k+1),cpar_fc.get_betamean(k,1),
+  for(k=0;k<nrcomp;k++)
+     {
+     optionsp->out("     " + ST::outresults(7,ST::inttostring(k+1),cpar_fc.get_betamean(k,1),
                       sqrt(cpar_fc.get_betavar(k,1)),cpar_fc.get_beta_lower1(k,1),
                       cpar_fc.get_betaqu50(k,1),cpar_fc.get_beta_upper1(k,1)) + "\n");
-       }
-    optionsp->out("\n");
+     }
+  optionsp->out("\n");
 
-    optionsp->out("   Results for component variances:\n");
-    optionsp->out("   Component   Post. Mean     Std. Dev.      " +
+  optionsp->out("  Results for component variances:\n");
+  optionsp->out("   Component   Post. Mean     Std. Dev.      " +
                   levell + "Post. Median   " + levelu + "\n");
-    for(k=0;k<nrcomp;k++)
-       {
-       optionsp->out("     " + ST::outresults(7,ST::inttostring(k+1),cpar_fc.get_betamean(k,2),
+  for(k=0;k<nrcomp;k++)
+     {
+     optionsp->out("     " + ST::outresults(7,ST::inttostring(k+1),cpar_fc.get_betamean(k,2),
                       sqrt(cpar_fc.get_betavar(k,2)),cpar_fc.get_beta_lower1(k,2),
                       cpar_fc.get_betaqu50(k,2),cpar_fc.get_beta_upper1(k,2)) + "\n");
-       }
-    optionsp->out("\n\n");
+     }
+  optionsp->out("\n\n");
+
+  optionsp->out("  Results for estimated mixture component parameters are also stored in file\n");
+  optionsp->out("  " + pathcpar + "\n");
+  optionsp->out("\n");
 
 
-    ST::string file = pathcurrent.substr(0,pathcurrent.length()-4) + "_cpar_sample.raw";
+  if (nosamples==false)
+    {
+    ST::string file = pathcurrent.substr(0,pathcurrent.length()-4) + "_comppar_sample.raw";
     cpar_fc.get_samples(file);
-
     optionsp->out("  Sampling paths for mixture component parameters are stored in file\n");
     optionsp->out("  " + file + "\n");
     optionsp->out("\n");
+
+    cind_fc.outresults();
+    ST::string file2 = pathcurrent.substr(0,pathcurrent.length()-4) + "_compind_sample.raw";
+    cind_fc.get_samples(file2);
+    optionsp->out("  Sampling paths for mixture component indicators are stored in file\n");
+    optionsp->out("  " + file2 + "\n");
+    optionsp->out("\n");
+    }
+
+  optionsp->out("  Results for estimated random effects are stored in file\n");
+  optionsp->out("  " + pathre + "\n");
+  optionsp->out("\n");
  }
 
- 
+
 
 void FULLCOND_mixture::outoptions(void)
   {
@@ -595,16 +643,13 @@ void FULLCOND_mixture::outoptions(void)
 
   optionsp->out("  Number of components: " + ST::inttostring(nrcomp) + "\n",true);
   optionsp->out("  Type of Mixture: Normal\n",true);
+  optionsp->out("  Prior parameter for component weights: " + ST::doubletostring(cwprior(0,0)) + "\n",true);
   optionsp->out("  Prior parameters for component means:\n",true);
   optionsp->out("    Hyperprior for means: " + ST::doubletostring(cmpriorm,4) + "\n",true);
   optionsp->out("    Hyperprior for variances: " + ST::doubletostring(cmpriorv,4) + "\n",true);
   optionsp->out("  Prior parameters for component variances:\n",true);
-  optionsp->out("    Hyperprior for a: " + ST::doubletostring(cvpriorsh,4) + "\n",true);
-  optionsp->out("    Hyperprior for b: " + ST::doubletostring(cvpriorsc,4) + "\n",true);
-
-//  optionsp->out("  Prior variance of component means: " + ST::inttostring(cmpriorv) + "\n",true);
-//  optionsp->out("  Prior shape of component variances: " + ST::inttostring(cvpriorsh) + "\n",true);
-//  optionsp->out("  Prior scale of component variances: " + ST::inttostring(cvpriorsc) + "\n",true);
+  optionsp->out("    Hyperprior for a: " + ST::doubletostring(cvpriora,4) + "\n",true);
+  optionsp->out("    Hyperprior for b: " + ST::doubletostring(cvpriorb,4) + "\n",true);
   optionsp->out("\n");
   }
 
