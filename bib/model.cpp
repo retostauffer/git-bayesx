@@ -1672,6 +1672,10 @@ bool term_geospline::check(term & t)
 
     if (t.options[0] == "geospline")
       t.type = "geospline";
+    else if (t.options[0] == "geosplinerw1")
+      t.type = "geospline";
+    else if (t.options[0] == "geosplinerw2")
+      t.type = "geosplinerw2";
     else
       {
       setdefault();
@@ -1778,7 +1782,7 @@ bool term_geospline::checkvector(const vector<term> & terms, const unsigned & i)
 
   assert(i< terms.size());
 
-  if (terms[i].type == "geospline")
+  if (terms[i].type == "geospline" || terms[i].type == "geosplinerw1" || terms[i].type == "geosplinerw2")
     return true;
 
   return false;

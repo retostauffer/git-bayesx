@@ -3176,7 +3176,11 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
     if ( nonpgeospline.checkvector(terms,i) == true )
       {
 
-      MCMC::fieldtype type = MCMC::mrflinear;
+      MCMC::fieldtype type;
+      if ((terms[i].options[0] == "geospline") || (terms[i].options[0] == "geosplinerw1"))
+        type = MCMC::mrflinear;
+      else if (terms[i].options[0] == "geosplinerw2")
+        type = MCMC::mrfquadratic8;
 
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
 
