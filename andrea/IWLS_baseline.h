@@ -61,6 +61,7 @@ class __EXPORT_TYPE IWLS_baseline : public IWLS_pspline
   datamatrix deltaexact;
   datamatrix An;
   datamatrix DeltaN;
+  datamatrix cov_cp;
   bool vc_dummy1;
 
   void update_IWLS(void);
