@@ -11,18 +11,20 @@ and
 
 {\em Remlreg objects} are used to fit generalized linear models
 with a {\em structured additive predictor (STAR)}, see Fahrmeir,
-Kneib and Lang (2003). Inference is based on mixed model
+Kneib and Lang (2004). Inference is based on mixed model
 representations of the regression models and may be seen as
 empirical Bayes / posterior mode estimation. The methodological
 background is provided in considerable detail in \autoref{star}.
 More details on models for univariate responses can be found in
-Fahrmeir, Kneib and Lang (2003), Fahrmeir and Kneib (2004) deals
-with models for multicategorical responses. Good introductions
-into generalized linear models are the monographs of Fahrmeir and
-Tutz (2001) and McCullagh and Nelder (1989). Introductions to
-semi- and nonparametric models are given in Green and Silverman
-(1994), Hastie and Tibshirani (1990), Hastie and Tibshirani (1993)
-and Hastie, Tibshirani and Friedman (2001).
+Fahrmeir, Kneib and Lang (2004), Kneib and Fahrmeir (2004a) deals
+with models for multicategorical responses. A description of
+models for continuous time survival analysis based on the Cox
+model can be found in Kneib and Fahrmeir (2004b) Good
+introductions into generalized linear models are the monographs of
+Fahrmeir and Tutz (2001) and McCullagh and Nelder (1989).
+Introductions to semi- and nonparametric models are given in Green
+and Silverman (1994), Hastie and Tibshirani (1990), Hastie and
+Tibshirani (1993) and Hastie, Tibshirani and Friedman (2001).
 
 First steps with {\em remlreg objects} can be done with the
 tutorial like example in \autoref{remlregexamples}.
@@ -121,10 +123,17 @@ neighborhood structure is stored in the {\em map object}
 #region(geospline,map=m)# & Spatial effect of #region#. Estimates
 a two dimensional P-spline
 based on the centroids of the regions. The centroids are stored in the {\em map object} #m#. \\
-\hline random intercept &  #grvar(random)# & I.i.d.~(random)
-Gaussian effect of the group indicator #grvar#,
-e.g.~#grvar# may be an individuum indicator when analyzing longitudinal data.  \\
+ \hline
+ Stationary Gaussian random field & #region(geokriging)# & Spatial effect of #region#. Estimates
+a stationary Gaussian random field
+based on the centroids of the regions. The centroids are stored in the {\em map object} #m#. \\
 \hline
+ random intercept &  #grvar(random)# & I.i.d.~(random) Gaussian effect of the group indicator #grvar#,
+ e.g.~#grvar# may be an individuum indicator when analyzing longitudinal data.  \\
+\hline
+ baseline in Cox models & #time(baseline)# & Nonlinear shape
+of the baseline effect $\lambda_0(time)$ of a Cox model. $\log(\lambda_0(time))$ is modelled by a P-spline with second order penalty. \\
+ \hline
 \end{tabular}
 {\em \caption {\label{remlregterms} Overview over different model
 terms for remlreg objects.}}
@@ -152,15 +161,19 @@ to the unit- or cluster index variable #grvar#. \\
 geographically.
 Covariate #region# indicates the region an observation pertains to. \\
 \hline Two dimensional \newline surface &  #X1*X2(pspline2dimrw1)#
-\newline #X1*X2(kriging)# & Two dimensional surface for the continuous
+ & Two dimensional surface for the continuous
 covariates #X1# and #X2#. \\
-\hline
+ \hline
+ Stationary Gaussian random field &  #X1*X2(kriging)# & Stationary Gaussian random field for coordinates #X1# and #X2#. \\
+ \hline
+ Time-varying effect in Cox Models & #X1*time(baseline)# &
+ Nonlinear, time-varying effect of #X1#.\\
+ \hline
 \end{tabular}
 \caption {\label{remlreginteractions} \em Possible interaction
 terms for remlreg objects.}
 \end{center}
 \end{table}
-
 
 {\bf Offset}
 \medskip
@@ -269,6 +282,36 @@ effect. In the example above the period is 12, corresponding to
 monthly data.
 \end{itemize}
 
+{\bf Nonlinear baseline effect in Cox models}
+\medskip
+
+{\em P-spline with second order random walk penalty}
+
+\begin{itemize}
+\item[] {\em Description}: Defines a P-spline with second order
+random walk penalty for the parameters of the spline for the
+log-baseline effect $\log(\lambda_0$(#time#)). \item[] {\em
+Predictor}: $\eta = \log(\lambda_0(time)) + \cdots$ \item[] {\em
+Syntax}:
+
+#time(baseline#[, {\em options}]#) # \item[] {\em Example}:
+
+Suppose continuous-time survival data (#time#, #delta#) together
+with additional covariates (#W1#,#X1#) are given, where #time#
+denotes the vector of observed duration times, #delta# is the
+vector of corresponding indicators of non-censoring, #W1# is a
+discrete covariate and #X1# a continuous one. The following Cox
+model with hazard rate $\lambda$ and log-baseline effect
+$\log(\lambda_0$(#time#))
+\begin{eqnarray*}
+ \lambda(time) & = & \lambda_0(time)\exp (\gamma_0 + \gamma_1 W1 + f(X1))\\
+ & = & \exp\left(\log(\lambda_0(time)) + \gamma_0 + \gamma_1 W1 + f(X1)\right)
+\end{eqnarray*}
+is estimated by the model statement
+
+#delta = time(baseline) + W1 + X1(psplinerw2)#
+
+\end{itemize}
 
 {\bf Spatial Covariates}
 \medskip
@@ -303,6 +346,8 @@ defines a Markov random field prior for #region# where the
 geographical information is stored in the {\em map object} #germany#. An
 error will be raised if #germany# is not existing.
 \end{itemize}
+
+\newpage
 
 {\em 2 dimensional P-spline with first order random walk penalty}
 
@@ -369,6 +414,7 @@ is not clear how well these models can be estimated using {\em
 remlreg objects}.
 \end{itemize}
 
+\newpage
 
 {\bf Varying coefficients with metrical covariates as effect
 modifier} \medskip
@@ -442,6 +488,39 @@ additional seasonal effects for each category of #X1# by
 
 \end{itemize}
 
+{\bf Time-varying effects in Cox models}
+\medskip
+
+{\em P-spline with second order random walk penalty}
+
+\begin{itemize}
+\item[] {\em Description}: Defines a varying coefficients term
+where the effect of #X1# varies over the range of the effect
+modifier #time#, i.e. variable #X1# has time-varying effect. The
+smoothness prior for $f($#time#$)$ is a P-spline with second order
+random walk penalty.
+
+ \item[] {\em Predictor}: $\eta = \log(\lambda_0(time)) +
+f(time)X1 \cdots$ \item[] {\em Syntax}:
+
+ #X1*time(baseline#[, {\em options}]#) #
+ \item[] {\em Example}:
+
+Suppose continuous-time survival data (#time#, #delta#) together
+with an additional covariate #X1# are given, where #time# denotes
+the vector of observed duration times, #delta# is the vector of
+corresponding indicators of non-censoring. The following Cox model
+with hazard rate $\lambda$
+\begin{eqnarray*}
+ \lambda(time) & = & \lambda_0(time)\exp(\gamma_0 + f(time)X1)\\
+ & = & \exp\left(\log(\lambda_0(time)) + \gamma_0 + f(time)X1\right)
+\end{eqnarray*}
+is estimated by the model statement
+
+#delta = time(baseline) + X1*time(baseline)#
+
+\end{itemize}
+
 
 {\bf Varying coefficients with spatial covariates as effect
 modifiers} \medskip
@@ -471,26 +550,6 @@ defines a varying coefficient term with the spatial covariate
 (\ref{adjacency}), or the more general prior (\ref{intrinsic})
 depending on the weight definition in the {\em map object} #germany#.
 \end{itemize}
-
-
-%{\em 2 dimensional P-spline with first order random walk penalty}
-%\begin{itemize}
-%\item[] {\em Description}:
-
-%Defines a varying coefficients term where the effect of #X1# varies
-%smoothly over the range of the spatial covariate #X2#. A 2
-%dimensional P-spline based on the tensor product of 1 dimensional
-%P-splines with a 2 dimensional first order random walk penalty for
-%the parameters of the spline is estimated for $f$. The centroids
-%are computed using the geographical information stored in the map
-%object specified through the option #map#.
-%\item[] {\em Predictor}: $\eta= \cdots + f(centroids)X1 + \cdots$
-%\item[] {\em Syntax}:
-
-%X1*X2(geospline,map=characterstring[, options])
-%\item[] {\em Example}:
-%\end{itemize}
-
 
 {\bf Varying coefficients with unordered group indicators as
 effect modifiers (random slopes)}
@@ -617,24 +676,6 @@ ignored if #knotdata# is specified.
 
 \end{itemize}
 
-%{\bf Time-varying effects in Cox models}
-%\medskip
-
-%{\em P-spline with second order random walk penalty for
-%$log(baseline)$}
-
-%\begin{itemize}
-%\item[] {\em Syntax}:
-
-%X1*time(baseline[, options])
-%\item[] {\em Predictor}: $\eta =  \cdots + f_1(time)X1 + \cdots$
-%\item[] {\em Description}: Defines a P-spline with a second order random walk penalty for the
-%parameters of $log(baseline)$.
-%\item[] {\em Example}:
-%\end{itemize}
-
-
-
 \subsubsection{Description of additional options for terms of {\em remlreg objects}}
 \label{remlreglocaloptions}
 
@@ -672,7 +713,15 @@ terms and options can be found.
  \hline
  #q# & Defines the parameter $q$ used in the coverage criterion of the space filling algorithm. & #q=20#\\
  \hline
- #maxsteps# & Specifies the maximum number of steps to be performed by the space filling algorithm. & #maxsteps=100#\\
+ #maxsteps# & Specifies the maximum number of steps to be performed by the space filling algorithm. & #maxsteps=300#\\
+ \hline
+ #gridchoice# & How to choose grid points for numerical integration in Cox models. May be either '#quantiles#' or '#equidistant#'. & #gridchoice=quantiles# \\
+ \hline
+ #tgrid# & Number of equidistant time points to be used for numerical integration in Cox models. Only meaningful if #gridchoice=equidistant#. & #tgrid=100#\\
+ \hline
+ #nrquantiles# & Number of quantiles that are used to define the grid points for numerical integration in Cox models. First a grid of #nrquantiles# quantiles is computed, then the grid for integration is defined by #nrbetween# equidistant points between each quantile. Only meaningful if #gridchoice=quantiles#. & #nrquantiles=50#\\
+ \hline
+ #nrbetween# & Number of points between quantiles that are used to define the grid points for numerical integration in Cox models. First a grid of #nrquantiles# quantiles is computed, then the grid for integration is defined by #nrbetween# equidistant points between each quantile. Only meaningful if #gridchoice=quantiles#.& #nrbetween=5#\\
  \hline
  #map# & {\em Map object} for spatial effects. & no default\\
  \hline
@@ -684,44 +733,54 @@ remlreg object} terms}}
 \end{table}
 
 \begin{sidewaystable} \footnotesize
-\begin{tabular}{|l||c|c|c|c|c|c|c|c|}
+\begin{tabular}{|l||c|c|c|c|c|c|c|c|c|c|}
 
 \hline
-            & rw1/rw2       & season    & psplinerw1/psplinerw2    & spatial & random & geospline & pspline2dimrw1 & kriging \\
+            & rw1/rw2       & season    & psplinerw1/psplinerw2    & spatial & random & geospline & pspline2dimrw1 & kriging  & geokriging & baseline\\
  \hline\hline
- #lambdastart#$^*$  & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue & realvalue \\
+ #lambdastart#$^*$  & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue & realvalue  & realvalue & realvalue\\
  \hline
- #degree#       & $\times$   & $\times$   &  integer   & $\times$ & $\times$ &  integer &  integer &  $\times$\\
+ #degree#       & $\times$   & $\times$   &  integer   & $\times$ & $\times$ &  integer &  integer &  $\times$ & $\times$ & integer\\
  \hline
- #nrknots#      & $\times$   & $\times$   &  integer   & $\times$ & $\times$ &  integer &  integer &  integer\\
+ #nrknots#      & $\times$   & $\times$   &  integer   & $\times$ & $\times$ &  integer &  integer &  integer & $\times$ & integer\\
  \hline
- #knotdata#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ & {\em dataset object}\\
+ #knotdata#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ & {\em dataset object}& {\em dataset object} & $\times$\\
  \hline
- #full#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  $\triangle$\\
+ #full#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  $\triangle$ & $\triangle$ & $\times$\\
  \hline
- #nu#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  $\bullet$\\
+ #nu#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  $\bullet$ &  $\bullet$ & $\times$\\
  \hline
- #maxdist#$^*$     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  realvalue\\
+ #maxdist#$^*$     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  realvalue &  realvalue &  $\times$\\
  \hline
- #p#$^{**}$     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  realvalue\\
+ #p#$^{**}$     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  realvalue &  realvalue &  $\times$\\
  \hline
- #q#$^*$     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  realvalue\\
+ #q#$^*$     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  realvalue &  realvalue &  $\times$\\
  \hline
- #maxsteps#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  integer\\
+ #maxsteps#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  integer  &  integer & $\times$\\
  \hline
- #period#      & $\times$   & integer     & $\times$  & $\times$      & $\times$  & $\times$ & $\times$ & $\times$ \\
+ #gridchoice#   & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$ & $\circ$\\
  \hline
- #map#      & $\times$   & $\times$     & $\times$  & {\em map object}  & $\times$  & {\em map object} & $\times$ & $\times$ \\
+ #tgrid#   & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$ & integer\\
+ \hline
+ #nrquantiles#   & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$ & integer\\
+ \hline
+ #nrbetween#   & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$ & integer\\
+ \hline
+ #period#      & $\times$   & integer     & $\times$  & $\times$      & $\times$  & $\times$ & $\times$ & $\times$  & $\times$ & $\times$\\
+ \hline
+ #map#      & $\times$   & $\times$     & $\times$  & {\em map object}  & $\times$  & {\em map object} & $\times$ & $\times$ & {\em map object} & $\times$ \\
  \hline \hline
- $^*$ & \multicolumn{8}{l|}{positive values only}\\
+ $^*$ & \multicolumn{10}{l|}{positive values only}\\
  \hline
- $^{**}$ & \multicolumn{8}{l|}{negative values only}\\
+ $^{**}$ & \multicolumn{10}{l|}{negative values only}\\
  \hline
- $\times$    & \multicolumn{8}{l|}{not available} \\
+ $\times$    & \multicolumn{10}{l|}{not available} \\
  \hline
- $\bullet$  & \multicolumn{8}{l|}{admissible values are #0.5,1.5,2.5,3.5#} \\
+ $\bullet$  & \multicolumn{10}{l|}{admissible values are #0.5,1.5,2.5,3.5#} \\
  \hline
- $\triangle$   & \multicolumn{8}{l|}{available as boolean option (specified without supplying a value)} \\
+ $\triangle$   & \multicolumn{10}{l|}{available as boolean option (specified without supplying a value)} \\
+ \hline
+ $\circ$  & \multicolumn{10}{l|}{admissible values are '#quantiles#' and '#equidistant#'} \\
  \hline
 \end{tabular}
 {\em\centering \caption{\label{remlregtermsoptions} Terms and
@@ -762,6 +821,8 @@ the different models:
  #family=poisson#             & Poisson               & log-link & \\
  \hline
  #family=gamma#               & gamma                 & log-link & \\
+ \hline
+ #family=cox#                 & continuous-time survival data & & \\
  \hline
 \end{tabular}
 {\em \caption {\label{remlregfamilyopt} Summary of supported
@@ -853,6 +914,8 @@ objects} can deal with an arbitrary number of ordered categories.
 However, for more than 5 categories estimation will become rather
 computer intensive and time demanding.
 
+\newpage
+
 {\bf Poisson regression}
 
 A Poisson regression is specified by adding
@@ -905,6 +968,87 @@ may be specified to estimate weighted regression models. In this
 case the weights should be proportional to the reciprocal of the
 heteroscedastic variances, see \autoref{remlregregresssyntax} for
 the syntax.
+
+\textbf{Continuous time survival analysis}
+
+\textit{BayesX} offers two alternatives of estimating continuous
+time Cox models with semiparametric predictor $\eta$, which are
+described in \autoref{continuoustime}. The first alternative is to
+assume that all time-dependent values are piecewise constant,
+which leads to the so called \textit{piecewise exponential model}
+(p.e.m.), and the second one is to estimate the log-baseline
+effect $\log(\lambda_0(t))=f_0(t)$ by a P-spline with second order
+random walk penalty.
+
+\textbf{Piecewise exponential model (p.e.m.)}
+
+In \autoref{continuoustime} we demonstrated how continuous time
+survival data has to be manipulated such that a Poisson model may
+be used for estimation. Suppose now we have the modified data set
+\vspace{0.5cm}\\
+\begin{tabular}{c|c|c|c|c|c|c}
+#y# & #indnr# & #a# & $\delta$ &  $\Delta$ &   #x1# &
+#x#2\\\hline\hline
+0 &  1 &   0.1 &   1  &  log(0.1) & 0  & 3\\
+0  & 1   & 0.2  &  1  &  log(0.1) & 0 &  3\\
+1  & 1   & 0.3  &  1  &  log(0.05)& 0  & 3\\\hline
+0 &  2 &   0.1 &   0 &   log(0.1) & 1 &  5\\
+0  & 2  &  0.2 &   0  &  log(0.02)& 1 &  5\\\hline
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$& $\vdots$\\
+\end{tabular}
+\vspace{0.5cm}\\
+with indicator #y#, interval limit #a#, indicator of non-censoring
+$\delta$ and offset $\Delta$ defined as in
+\autoref{continuoustime}. Let #x1# be a covariate with linear
+effect and #x2# a continuous one with a nonlinear effect. Then the
+correct syntax for estimating a p.e.m.~with a {\em remlreg object}
+named #r# is e.g.~as follows:
+
+ #> r.regress y = a(rw1) + Delta(offset) + x1 + x2(psplinerw2), family=poisson# $\ldots$
+
+or
+
+ #> r.regress y = a(rw2) + Delta(offset) + x1 + x2(psplinerw2), family=poisson# $\ldots$
+
+Note that a time-varying effect of a covariate #X# may be
+estimated in the p.e.m.~by adding the term
+
+#X*a(rw1) or X*a(rw2)#
+
+to the model statement.
+
+\textbf{Specifying a P-spline prior for the log-baseline}
+
+For the estimation of a Cox model with a P-spline prior with
+second order random walk penalty
+
+#family=cox#
+
+has to be specified in the options list. The number of knots and
+degree of the P-spline prior for $f_0(t)$ may be specified in the
+baseline term. The indicator of non-censoring $\delta_i$ has to be
+specified as the dependent variable in the model statement. Data
+augmentation and the specification of an offset term are not
+required here.
+
+In the example above with survival data
+
+\vspace{0.5cm}
+
+\begin{tabular}{c|c|c|c}
+  #t# &   $\delta$ &  #x1# &  #x2#\\\hline\hline
+0.25  &  1  &    0  &  3\\\hline 0.12  &  0  &    1  &  5\\\hline
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+\end{tabular}
+\vspace{0.5cm}\\
+a Cox model with a quadratic P-spline prior with 15 knots for the
+log-baseline would be estimated as follows:
+
+ #> r.regress delta = t(baseline,degree=2,nrknots=15)+ x1 + x2(psplinerw2),#\\
+ #  family=cox# \ldots
+
+Note, that we assume that a {\em remlreg object} #r# has been
+created before executing the command.
 
 \subsection{Options}
 \label{remlregregressoptions}
@@ -2908,7 +3052,6 @@ spatial effects.\label{zambia_reml_spat4}}}
 structured additive regression for space-time data: A Bayesian
 perspective. {\it Statistica Sinica}, 14, 715-745.
 
-
 \item[Fahrmeir, L. and Tutz, G. (2001):] {\em Multivariate
 Statistical Modelling based on Generalized Linear Models.} New
 York: Springer--Verlag.
@@ -2925,10 +3068,15 @@ Hall, London.
 \item[Hastie, T., Tisbshirani, R. and Friedman, J. (2001):] {\em The Elements of Statistical Learning: Data Mining,
 Inference and Prediction.} New York: Sprigner--Verlag.
 
-\item[Kneib, T. and Fahrmeir, L. (2004):] Structured additive
+\item[Kneib, T. and Fahrmeir, L. (2004a):] Structured additive
 regression for multicategorical space-time data: A mixed model
 approach. SFB 386 discussion Paper 377, University of Munich.
 Available from
+\href{http://www.stat.uni-muenchen.de/~kneib/papers.html}{www.stat.uni-muenchen.de/$\sim$kneib/papers.html}
+
+\item[Kneib, T. and Fahrmeir, L. (2004b):] A mixed model approach
+for structured hazard regression. SFB 386 discussion Paper 400,
+University of Munich. Available from
 \href{http://www.stat.uni-muenchen.de/~kneib/papers.html}{www.stat.uni-muenchen.de/$\sim$kneib/papers.html}
 
 \item[Brezger, A. (2000):]

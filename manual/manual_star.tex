@@ -10,7 +10,7 @@ based on mixed model representations of regression models and
 inference is based on restricted maximum likelihood (REML). Both
 regression tools are able to estimate complex semiparametric
 regression and survival models with {\em structured additive
-predictor} STAR (Fahrmeir, Kneib and Lang, 2003). STAR models
+predictor}, STAR, Fahrmeir, Kneib and Lang, 2004). STAR models
 cover a number of well known model classes as special cases,
 including {\em generalized additive models} (Hastie and
 Tibshirani, 1990), {\em generalized additive mixed models} (Lin
@@ -1249,8 +1249,7 @@ is sketched in \autoref{discretetime} while
 analysis. \textit{BayesX} offers two possibilities of estimating
 continuous time hazard rate models, the piecewise exponential
 model and nonparametric as well as spatial extensions of the well
-known Cox model. Note that the latter one can only be estimated
-with {\em bayesreg objects}.
+known Cox model.
 
 
 \subsection{Discrete time duration data}
@@ -1458,8 +1457,7 @@ methodology for Poisson regression, and the inclusion of
 time-varying effects does not imply any difficulties. The second
 alternative is to estimate the log-baseline effect by a P-spline
 of arbitrary degree. This approach is less restrictive and does
-not demand data augmentation, but time-varying effects are not yet
-implemented.
+not demand data augmentation.
 
 Let $u_t^{*}=\{u_s,0 \le s \le t\}$ denote the history of possibly
 time-varying covariates up to time $t$. Then the continuous hazard
@@ -1591,9 +1589,8 @@ more general way of estimating the nonlinear shape of the baseline
 effect is to assume a P-spline prior of arbitrary degree instead.
 Unlike the p.e.m.~such a model can not be estimated within the
 context of GAMs, but specific methods for extended Cox models are
-also implemented in {\it BayesX}. Note however that these methods
-are only available for a full Bayesian estimation so far. The
-individual likelihood for continuous survival data is given by
+also implemented in {\it BayesX}. The individual likelihood for
+continuous survival data is given by
 \begin{eqnarray}\nonumber
 L_i &=&\lambda_i(t_i)^{\delta_i}\cdot
 \exp\left(-\int_{0}^{t_i}\lambda_i(u)du\right).
@@ -1607,11 +1604,7 @@ If the degree of the P-spline prior for $f_0(t)$ is greater than
 one the integral can not be calculated analytically anymore. For
 linear P-splines the integral can still be solved but the
 computational effort is quite high. Therefore {\it BayesX} makes
-use of the trapezoidal rule for a numerical approximation. Note
-that time-varying effects are not yet implemented, but the
-predictor $\eta_{it}$ may contain all other kinds of different
-types of covariates described above.
-
+use of the trapezoidal rule for a numerical approximation.
 
 \section{References}
 \label{bayesregref}
@@ -1642,16 +1635,14 @@ York.
 Nonparametric Bayesian hazard rate models based on penalized
 splines. SFB 386 Discussion paper 361, University of Munich.
 
-\item[Fahrmeir, L., Kneib, T. and Lang, S., (2003):]
-Penalized structured additive regression for space-time data: a
-Bayesian perspective. SFB 386 Discussion paper 305, University of
-Munich. {\em Statistica Sinica}, 14, 715-745.
+\item[Fahrmeir, L., Kneib, T. and Lang, S., (2004):] Penalized
+structured additive regression for space-time data: a Bayesian
+perspective. {\em Statistica Sinica}, 14, 715-745.
 
-
-\item[Fahrmeir, L. and Lang, S. (2001a):]
-Bayesian Inference for Generalized Additive Mixed Models Based on
-Markov Random Field Priors. {\em Journal of the Royal Statistical
-Society C}, 50, 201-220.
+\item[Fahrmeir, L. and Lang, S. (2001a):] Bayesian Inference for
+Generalized Additive Mixed Models Based on Markov Random Field
+Priors. {\em Journal of the Royal Statistical Society C}, 50,
+201-220.
 
 \item[Fahrmeir, L. and Lang, S. (2001b):] Bayesian Semiparametric Regression Analysis of Multicategorical
 Time-Space Data. {\em Annals of the  Institute of Statistical
@@ -1717,21 +1708,25 @@ Ylvisaker, D., (1990):] Minimax and maximin designs. {\it Journal of Statistical
 \item[Kammann, E. E. and Wand, M. P., (2003):] Geoadditive Models. {\it Journal of the Royal
 Statistical Society C}, 52, 1-18.
 
-\item[Kneib, T. and Fahrmeir, L., (2004):] Structured additive regression for multicategorical space-time data: A mixed model approach.
-SFB 386 Discussion paper 377, University of Munich.
+\item[Kneib, T. and Fahrmeir, L., (2004a):] Structured additive
+regression for multicategorical space-time data: A mixed model
+approach. SFB 386 Discussion paper 377, University of Munich.
 
-\item[Knorr-Held, L. (1999):]
-Conditional Prior Proposals in Dynamic Models. {\em Scandinavian
-Journal of Statistics}, 26, 129-144.
+\item[Kneib, T. and Fahrmeir, L., (2004b):] A mixed model approach
+to structured hazard regression. SFB 386 Discussion paper 400,
+University of Munich.
+
+\item[Knorr-Held, L. (1999):] Conditional Prior Proposals in
+Dynamic Models. {\em Scandinavian Journal of Statistics}, 26,
+129-144.
 
 \item[Kragler, P. (2000):] \href{http://www.scor.fr/us/2_laureat.asp?pays=2}
 {Statistische Analyse von Schadensf\"allen privater
 Krankenversicherungen.} Master thesis, University of Munich.
 
 
-\item[Lang, S. and Brezger, A. (2003):]
-{Bayesian P-splines.} Journal of Computational and Graphical
-Statistics, 13, 183-212.
+\item[Lang, S. and Brezger, A. (2003):] Bayesian P-splines. {\it
+Journal of Computational and Graphical Statistics}, 13, 183-212.
 
 \item[Lin, X. and Zhang, D., (1999):]
 Inference in generalized additive mixed models by using smoothing
