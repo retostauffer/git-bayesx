@@ -1428,35 +1428,22 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
   double p;
   bool inside;
   unsigned count,t,tstar;
-  unsigned l,r,ltemp,rtemp;
 
 // Intervall berechnen in dem beta_0 gerade noch drin liegt
 
-  l = 0;
-  r = 0;
-  for(i=0;i<optionsp->get_samplesize();i++)
-    {
-    while( l<optionsp->get_samplesize() && betasort(optionsp->get_samplesize()-l-1,0) > beta_0(0,0) )
-      l++;
-    while( r<optionsp->get_samplesize() && beta_0(0,0) > betasort(r,0) )
-      r++;
-    }
+  tstar = 0;
+  while( tstar<optionsp->get_samplesize()-1 &&
+         ( betasort(tstar,0) <= beta_0(0,0) && beta_0(0,0) <= betasort(optionsp->get_samplesize()-tstar-1,0) )
+       )
+    tstar++;
+
   for(j=1;j<rankA;j++)
     {
-    ltemp = 0;
-    rtemp = 0;
-    for(i=0;i<optionsp->get_samplesize();i++)
-      {
-      while( ltemp<optionsp->get_samplesize() && betasort(optionsp->get_samplesize()-ltemp-1,j) > beta_0(j,0) )
-        ltemp++;
-      while( rtemp<optionsp->get_samplesize() && beta_0(j,0) > betasort(rtemp,j) )
-        rtemp++;
-      }
-    l = min(l,ltemp);
-    r = min(r,rtemp);
+    while( 0<tstar &&
+           !( betasort(tstar,j) <= beta_0(j,0) && beta_0(j,0) <= betasort(optionsp->get_samplesize()-tstar-1,j) )
+         )
+      tstar--;
     }
-
-  tstar = min(l,r);
 
 // Wieviele liegen drin?
 
