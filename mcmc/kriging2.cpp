@@ -201,7 +201,7 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
 
   setbeta(nrpar,1,0);
 
-  prec_env = envmatdouble(0.0,xknots.size(),xknots.size());
+  prec_env = envmatdouble(0.0,xknots.size(),xknots.size()-1);
   mu = datamatrix(likep->get_nrobs(),1,0);
   muy = datamatrix(nrpar,1,0);
   betahelp = muy;
