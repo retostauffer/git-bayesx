@@ -2197,6 +2197,8 @@ void spline_basis_surf::init_names(const vector<ST::string> & na)
     priorassumptions.push_back("P-spline with Kronecker product interaction penalty");
   else if(type==MCMC::mrflinear)
     priorassumptions.push_back("P-spline with 2 dimensional first order random walk penalty");
+  else if(type==MCMC::mrfquadratic8)
+    priorassumptions.push_back("P-spline with 2 dimensional second order random walk penalty");
   else if(type==MCMC::mrfkr1)
     priorassumptions.push_back("P-spline with Kronecker product interaction (RW1*RW1) penalty");
   else if(type==MCMC::mrfkr2)
@@ -2333,9 +2335,9 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       *workX = *workintact;
       }
     }
-// X berechnen (mrfquadratic12)
+// X berechnen (mrfquadratic8)
 
-  if(type==mrfquadratic12)
+  if(type==mrfquadratic8)
     {
     datamatrix knoten1(nrpar1dim,1,0);
     datamatrix knoten2(nrpar1dim,1,0);
@@ -2498,7 +2500,7 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
           }
         }
       }
-    else if(type==mrfquadratic12)
+    else if(type==mrfquadratic8)
       {
       for(i=0,j=0;i<spline.rows();i++,indexit++,freqwork++,k+=*indexit)
         {
@@ -2722,7 +2724,14 @@ void spline_basis_surf::outoptionsreml()
   optionsp->out("\n");
 
   ST::string typestr;
-  typestr = "2 dimensional first order random walk";
+  if(type==mrflinear)
+    {
+    typestr = "2 dimensional first order random walk";
+    }
+  else if(type=mrfquadratic8)
+    {
+    typestr = "2 dimensional second order random walk";
+    }
 
   optionsp->out("  Prior: " + typestr + "\n");
   optionsp->out("  Number of knots: " + ST::inttostring(nrknots) + "\n" );

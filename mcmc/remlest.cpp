@@ -2520,14 +2520,14 @@ bool remlest::estimate_survival_interval(datamatrix resp,
 // time-varying effects. the first row corresponds to the log-baseline
   datamatrix basef(t_X.rows(),nrbaseline,0);
   statmatrix<double>baseline;
-  if(timevarying)
+/*  if(timevarying)
     {
     baseline=datamatrix(nrobs,t_X.rows(),0);
     }
   else
-    {
+    {*/
     baseline = datamatrix(t_X.rows(),1,0);
-    }
+//    }
   statmatrix<double>cumbaseline(t_X.rows(),1,0);
   statmatrix<double>cumhazard(nrobs,1,0);
   statmatrix<double>eta(nrobs,1,0);
@@ -2557,6 +2557,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
   if(help>0)
     {
     beta(0,0) = log(help/t_X(t_X.rows()-1,1));
+    beta(0,0) = log(10/t_X(t_X.rows()-1,1));
     }
   else
     {
@@ -2600,7 +2601,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
 
     // compute baseline
 
-    if(timevarying)
+/*    if(timevarying)
       {
       baseline = interactvar*basef.transposed();
       for(i=0; i<baseline.rows(); i++)
@@ -2612,18 +2613,18 @@ bool remlest::estimate_survival_interval(datamatrix resp,
         }
       }
     else
-      {
+      {*/
       for(i=0; i<t_X.rows(); i++)
         {
         baseline(i,0) = exp(basef(i,0));
         }
-      }
+//      }
 
     // compute cumulated baseline
 
     double former=0;
-    if(!timevarying)
-      {
+//    if(!timevarying)
+//      {
       cumbaseline = datamatrix(cumbaseline.rows(),1,0);
       for(i=0; i<t_X.rows()-1; i++)
         {
@@ -2631,7 +2632,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
         former = cumbaseline(i,0);
         }
       cumbaseline(t_X.rows()-1,0) = former;
-      }
+/*      }
     else
       {
       cumbaseline = datamatrix(nrobs,2,0);
@@ -2647,7 +2648,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
           cumbaseline(i,0) += 0.5*tsteps(k,0)*(baseline(i,k)+baseline(i,k+1));
           }
         }
-      }
+      }*/
 
     datamatrix negcumbaseline = -cumbaseline;
 
@@ -2674,13 +2675,13 @@ bool remlest::estimate_survival_interval(datamatrix resp,
 
     // compute cumulated hazard
 
-    if(!timevarying)
-      {
+//    if(!timevarying)
+//      {
       for(i=0; i<nrobs; i++)
         {
         cumhazard(i,0)=cumbaseline(tend[i]-1,0)*mult_hazard(i,0);
         }
-      }
+/*      }
     else
       {
       for(i=0; i<nrobs; i++)
@@ -2688,21 +2689,21 @@ bool remlest::estimate_survival_interval(datamatrix resp,
         cumhazard(i,0)=cumbaseline(i,0)*mult_hazard(i,0);
         cumhazard(i,1)=cumbaseline(i,1)*mult_hazard(i,0);
         }
-      }
+      }*/
     datamatrix negcumhazard = - cumhazard;
 
     // compute lower and upper surivor function
 
     for(i=0; i<nrobs; i++)
       {
-      if(!timevarying)
-        {
+//      if(!timevarying)
+//        {
         if(interval[i])
           {
           Survivor(i,0) = pow(exp(-cumbaseline(tstart[i],0)),mult_hazard(i,0));
           Survivor(i,1) = pow(exp(-cumbaseline(tend[i]-1,0)),mult_hazard(i,0));
           }
-        }
+/*        }
       else
         {
         if(interval[i])
@@ -2710,7 +2711,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
           Survivor(i,0) = exp(-cumhazard(i,0));
           Survivor(i,1) = exp(-cumhazard(i,1));
           }
-        }
+        }*/
       }
 
     // compute derivative matrix D
@@ -2754,10 +2755,9 @@ bool remlest::estimate_survival_interval(datamatrix resp,
       // x_j gehört zu Baseline
       if(isbaselinebeta[j]==1)
         {
-
         // keine zeitvariierende Effekte
-        if(!timevarying)
-          {
+//        if(!timevarying)
+//          {
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
@@ -2771,10 +2771,9 @@ bool remlest::estimate_survival_interval(datamatrix resp,
               H1(j,0) += Dmat(tend[i]-1,dmat_pos[j])*mult_hazard(i,0);
               }
             }
-          }
+/*          }
         else
           {
-
           // zeitvariierende Effekte
           for(i=0; i<nrobs; i++)
             {
@@ -2806,7 +2805,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
               H1(j,0) += right*mult_hazard(i,0);
               }
             }
-          }
+          }*/
         }
 
       // x_j gehört nicht zur Baseline
@@ -2814,8 +2813,8 @@ bool remlest::estimate_survival_interval(datamatrix resp,
         {
 
         // keine zeitvariierenden Effekte
-        if(!timevarying)
-          {
+//        if(!timevarying)
+//          {
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
@@ -2829,7 +2828,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
               H1(j,0) += negcumhazard(i,0)*X(i,j);
               }
             }
-          }
+/*          }
 
         // zeitvariierende Effekte
         else
@@ -2847,7 +2846,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
               H1(j,0) += negcumhazard(i,0)*X(i,j);
               }
             }
-          }
+          }*/
         }
       }
 
@@ -2858,8 +2857,10 @@ bool remlest::estimate_survival_interval(datamatrix resp,
       H1(xcols + j,0)=(resp.transposed()*Z.getCol(j))(0,0);
       if(isbaselinebeta[xcols+j]==1)
         {
-        if(!timevarying)
-          {
+
+        // keine zeitvariierenden Effekte
+//        if(!timevarying)
+//          {
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
@@ -2873,7 +2874,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
               H1(xcols + j,0) += Dmat(tend[i]-1,dmat_pos[xcols+j])*mult_hazard(i,0);
               }
             }
-          }
+/*          }
         else
           {
 
@@ -2908,12 +2909,16 @@ bool remlest::estimate_survival_interval(datamatrix resp,
               H1(xcols+j,0) += right*mult_hazard(i,0);
               }
             }
-          }
+          }*/
         }
+
+      // z_j gehört nicht zur Baseline
       else
         {
-        if(!timevarying)
-          {
+
+        // keine zeitvariierenden Effekte
+//        if(!timevarying)
+//          {
           for(i=0; i<nrobs; i++)
             {
             if(interval[i])
@@ -2927,7 +2932,9 @@ bool remlest::estimate_survival_interval(datamatrix resp,
               H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
               }
             }
-          }
+/*          }
+
+        // zeitvariierende Effekte
         else
           {
           for(i=0; i<nrobs; i++)
@@ -2943,7 +2950,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
               H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
               }
             }
-          }
+          }*/
         }
       }
 

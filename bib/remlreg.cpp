@@ -265,6 +265,8 @@ void remlreg::create(void)
   families.push_back("multinomial");
   families.push_back("cumlogit");
   families.push_back("cumprobit");
+  families.push_back("seqlogit");
+  families.push_back("seqprobit");
   families.push_back("cox");
   families.push_back("coxinterval");
   family = stroption("family",families,"binomial");
@@ -549,7 +551,9 @@ bool remlreg::create_data(datamatrix & weight)
     // check for correct distributions
     if(family.getvalue()=="multinomial" ||
        family.getvalue()=="cumlogit" ||
-       family.getvalue()=="cumprobit")
+       family.getvalue()=="cumprobit" ||
+       family.getvalue()=="seqlogit" ||
+       family.getvalue()=="seqprobit")
       {
       outerror("ERROR: weight not allowed for multicategorical response\n");
       return true;
@@ -697,7 +701,8 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     }
 
   if (family.getvalue()=="multinomial" || family.getvalue()=="cumlogit" ||
-      family.getvalue()=="cumprobit")
+      family.getvalue()=="cumprobit" || family.getvalue()=="seqlogit" ||
+      family.getvalue()=="seqprobit")
     {
     // extract categories
     datamatrix resphelp=response;
@@ -791,7 +796,9 @@ bool remlreg::create_offset(datamatrix & o)
       // check for right distributions
       if(family.getvalue()=="multinomial" ||
          family.getvalue()=="cumlogit" ||
-         family.getvalue()=="cumprobit")
+         family.getvalue()=="cumprobit" ||
+         family.getvalue()=="seqlogit" ||
+         family.getvalue()=="seqprobit")
         {
         outerror("ERROR: offset not allowed for multicategorical response\n");
         return true;
@@ -1448,7 +1455,7 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
       if (terms[i].options[0] == "pspline2dimrw1")
         type = MCMC::mrflinear;
       else if (terms[i].options[0] == "pspline2dimrw2")
-        type = MCMC::mrfquadratic12;
+        type = MCMC::mrfquadratic8;
 
       j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
       j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
@@ -1585,7 +1592,7 @@ bool remlreg::create_geospline(const unsigned & collinpred)
       if (terms[i].options[0] == "geosplinerw1")
         type = MCMC::mrflinear;
       else if (terms[i].options[0] == "geosplinerw2")
-        type = MCMC::mrfquadratic12;
+        type = MCMC::mrfquadratic8;
 
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
 
@@ -2812,7 +2819,9 @@ void remlrun(remlreg & b)
       }
 // Ordinale Modelle
     else if (b.family.getvalue()=="cumlogit" ||
-        b.family.getvalue()=="cumprobit")
+        b.family.getvalue()=="cumprobit" ||
+        b.family.getvalue()=="seqlogit" ||
+        b.family.getvalue()=="seqprobit")
       {
       b.RE_O = remlest_ordinal(
       #if defined(JAVA_OUTPUT_WINDOW)
@@ -2968,7 +2977,8 @@ void remlrun(remlreg & b)
       b.RE_M.make_graphics(header,path,path2,path3,
                          b.modreg.getModelVarnamesAsVector()[0].to_bstr());
       }
-    else if(b.family.getvalue()=="cumlogit" || b.family.getvalue()=="cumprobit")
+    else if(b.family.getvalue()=="cumlogit" || b.family.getvalue()=="cumprobit" ||
+            b.family.getvalue()=="seqlogit" || b.family.getvalue()=="seqprobit")
       {
       b.RE_O.make_graphics(header,path,path2,path3,
                          b.modreg.getModelVarnamesAsVector()[0].to_bstr());

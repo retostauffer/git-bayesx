@@ -74,33 +74,36 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
   beta=statmatrix<double>(totalnrpar,1,0);
 // Startwerte für die Schwellenwerte bestimmen
 // Berechne Häufigkeiten
-  datamatrix freq(nrcat2,1,0);
-  for(i=0; i<nrobs; i++)
+  if(respfamily=="cumlogit" || respfamily=="cumprobit")
     {
+    datamatrix freq(nrcat2,1,0);
+    for(i=0; i<nrobs; i++)
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        if(re(i,0)==cats(j,0))
+          {
+          freq(j,0) += 1;
+          }
+       }
+      }
+// Kumulieren
+    for(j=1; j<nrcat2; j++)
+      {
+      freq(j,0) += freq(j-1,0);
+      }
+// Kumulierte relative Häufigkeiten bestimmen und Schwellenwerte berechnen
     for(j=0; j<nrcat2; j++)
       {
-      if(re(i,0)==cats(j,0))
+      freq(j,0) /= nrobs;
+      if(family=="cumlogit")
         {
-        freq(j,0) += 1;
+        beta(j,0) = log(freq(j,0)/(1-freq(j,0)));
         }
-      }
-    }
-// Kumulieren
-  for(j=1; j<nrcat2; j++)
-    {
-    freq(j,0) += freq(j-1,0);
-    }
-// Kumulierte relative Häufigkeiten bestimmen und Schwellenwerte berechnen
-  for(j=0; j<nrcat2; j++)
-    {
-    freq(j,0) /= nrobs;
-    if(family=="cumlogit")
-      {
-      beta(j,0) = log(freq(j,0)/(1-freq(j,0)));
-      }
-    else
-      {
-      beta(j,0) = randnumbers::invPhi2(freq(j,0));
+     else
+        {
+        beta(j,0) = randnumbers::invPhi2(freq(j,0));
+        }
       }
     }
 
@@ -376,17 +379,30 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
     thetareml(i,2)=its[i];
     }
 
-  for(i=nrcat2; i<beta.rows(); i++)
+  if(respfamily=="cumlogit" || respfamily=="cumprobit")
     {
-    beta(i,0) = -beta(i,0);
+    for(i=nrcat2; i<beta.rows(); i++)
+      {
+      beta(i,0) = -beta(i,0);
+      }
     }
 
   for(i=1; i<fullcond.size(); i++)
     {
     help = fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,false,xcut[i]+nrcat2-1,totalnrfixed+zcut[i-1],0,false,i);
-    for(j=0; j<nrcat2; j++)
+    if(respfamily=="cumlogit" || respfamily=="cumprobit")
       {
-      beta(j,0) -= help;
+      for(j=0; j<nrcat2; j++)
+        {
+        beta(j,0) -= help;
+        }
+      }
+    else
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        beta(j,0) += help;
+        }
       }
     }
   ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,Hinv,nrcat2);
@@ -573,9 +589,12 @@ bool remlest_ordinal::estimate_glm(const datamatrix resp,
   out("\n");
 
   H=H.inverse();
-  for(i=nrcat2; i<beta.rows(); i++)
+  if(respfamily=="cumlogit" || respfamily=="cumprobit")
     {
-    beta(i,0) = -beta(i,0);
+    for(i=nrcat2; i<beta.rows(); i++)
+      {
+      beta(i,0) = -beta(i,0);
+      }
     }
 
   ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,H,nrcat2);
@@ -721,8 +740,10 @@ void remlest_ordinal::compute_eta2(datamatrix & eta)
 void remlest_ordinal::compute_weights(datamatrix & mu, datamatrix & weights,
                   datamatrix & worky, datamatrix & eta, datamatrix & respind)
   {
-  unsigned i,k,j;
+  unsigned i,k,j,l;
   double expo;
+  datamatrix expos = datamatrix(nrcat2,1,0);
+
 // Compute mu
   if(respfamily=="cumlogit")
     {
@@ -741,7 +762,7 @@ void remlest_ordinal::compute_weights(datamatrix & mu, datamatrix & weights,
         }
       }
     }
-  else
+  else if(respfamily=="cumprobit")
     {
     for(i=0; i<nrobs; i++)
       {
@@ -756,6 +777,40 @@ void remlest_ordinal::compute_weights(datamatrix & mu, datamatrix & weights,
         }
       }
     }
+  else if(respfamily=="seqlogit")
+    {
+    for(i=0; i<nrobs; i++)
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        expos(j,0)=exp(eta(i*nrcat2+j,0));
+        }
+      mu(i*nrcat2,0)=expos(0,0)/(1+expos(0,0));
+      for(j=1; j<nrcat2; j++)
+        {
+        mu(i*nrcat2+j,0)=expos(j,0)/(1+expos(j,0));
+        for(k=0; k<j; k++)
+          {
+          mu(i*nrcat2+j,0) *= 1/(1+expos(k,0));
+          }
+        }
+      }
+    }
+  else if(respfamily=="seqprobit")
+    {
+    for(i=0; i<nrobs; i++)
+      {
+      mu(i*nrcat2,0)=randnumbers::Phi2(eta(i*nrcat2,0));
+      for(j=1; j<nrcat2; j++)
+        {
+        mu(i*nrcat2+j,0)=randnumbers::Phi2(eta(i*nrcat2+j,0));
+        for(k=0; k<j; k++)
+          {
+          mu(i*nrcat2+j,0) *= 1-randnumbers::Phi2(eta(i*nrcat2+k,0));
+          }
+        }
+      }
+    }
 
 // Compute weights
   datamatrix D(nrcat2,nrcat2,0);
@@ -765,24 +820,90 @@ void remlest_ordinal::compute_weights(datamatrix & mu, datamatrix & weights,
     for(j=0; j<nrcat2; j++)
       {
       S(j,j) = mu(i*nrcat2+j,0)*(1-mu(i*nrcat2+j,0));
-      if(respfamily=="cumlogit")
-        {
-        expo = exp(eta(i*nrcat2+j,0));
-        D(j,j) = expo/((1+expo)*(1+expo));
-        }
-      else
-        {
-        D(j,j) = randnumbers::phi(eta(i*nrcat2+j,0));
-        }
       for(k=j+1; k<nrcat2; k++)
         {
         S(j,k) = -mu(i*nrcat2+j,0)*mu(i*nrcat2+k,0);
         S(k,j) = S(j,k);
         }
       }
-    for(j=0; j<nrcat2-1; j++)
+    if(respfamily=="cumlogit")
       {
-      D(j,j+1) = -D(j,j);
+      for(j=0; j<nrcat2; j++)
+        {
+        expo = exp(eta(i*nrcat2+j,0));
+        D(j,j) = expo/((1+expo)*(1+expo));
+        }
+      for(j=0; j<nrcat2-1; j++)
+        {
+        D(j,j+1) = -D(j,j);
+        }
+      }
+    else if(respfamily=="cumprobit")
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        D(j,j) = randnumbers::phi(eta(i*nrcat2+j,0));
+        }
+      for(j=0; j<nrcat2-1; j++)
+        {
+        D(j,j+1) = -D(j,j);
+        }
+      }
+    else if(respfamily=="seqlogit")
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        expos(j,0)=exp(eta(i*nrcat2+j,0));
+        }
+      for(j=0; j<nrcat2; j++)
+        {
+        D(j,j)=expos(j,0)/((1+expos(j,0))*(1+expos(j,0)));
+        for(k=0; k<j; k++)
+          {
+          D(j,j) *= 1/(1+expos(k,0));
+          }
+        }
+      for(j=0; j<nrcat2; j++)
+        {
+        for(k=j+1; k<nrcat2; k++)
+          {
+          D(j,k) = -expos(k,0)/(1+expos(k,0)) * expos(j,0)/((1+expos(j,0))*(1+expos(j,0)));
+          for(l=0; l<j && l<k; l++)
+            {
+            D(j,k) *= 1/(1+expos(l,0));
+            }
+          for(l=j+1; l<k; l++)
+            {
+            D(j,k) *= 1/(1+expos(l,0));
+            }
+          }
+        }
+      }
+    else if(respfamily=="seqprobit")
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        D(j,j) = randnumbers::phi(eta(i*nrcat2+j,0));
+        for(k=0; k<j; k++)
+          {
+          D(j,j) *= 1-randnumbers::Phi2(eta(i*nrcat2+k,0));
+          }
+        }
+      for(j=0; j<nrcat2; j++)
+        {
+        for(k=j+1; k<nrcat2; k++)
+          {
+          D(j,k) = -randnumbers::Phi2(eta(i*nrcat2+k,0))*randnumbers::phi(eta(i*nrcat2+j,0));
+          for(l=0; l<j && l<k; l++)
+            {
+            D(j,k) *= 1-randnumbers::Phi2(eta(i*nrcat2+l,0));
+            }
+          for(l=j+1; l<k; l++)
+            {
+            D(j,k) *= 1-randnumbers::Phi2(eta(i*nrcat2+l,0));
+            }
+          }
+        }
       }
 
     weights.putBlock(D*S.inverse()*(D.transposed()),i*nrcat2,0,(i+1)*nrcat2,nrcat2);
@@ -897,6 +1018,14 @@ void remlest_ordinal::compute_sscp2(datamatrix & H, datamatrix & H1,
     else if(respfamily=="cumprobit")
       {
       familyname="cumulative probit (ordered categories)";
+      }
+    else if(respfamily=="seqlogit")
+      {
+      familyname="sequential logit";
+      }
+    else if(respfamily=="seqprobit")
+      {
+      familyname="sequential probit";
       }
     out("  Family:                 "+familyname+"\n");
     out("  Number of observations: "+ST::inttostring(X.rows())+"\n");
@@ -1138,6 +1267,14 @@ void remlest_ordinal::make_model(ofstream & outtex, const ST::string & rname)
     else if(respfamily=="cumprobit")
       {
       familyname="cumulative probit (ordered categories)";
+      }
+    else if(respfamily=="seqlogit")
+      {
+      familyname="sequential logit";
+      }
+    else if(respfamily=="seqprobit")
+      {
+      familyname="sequential probit";
       }
 
   //Anz. Beob. wird übergeben
