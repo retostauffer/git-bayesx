@@ -603,6 +603,7 @@ void FULLCOND_variance_nonp::outresults_lambda(void)
     optionsp->out("\n");
     }
 
+/*
   double lambda;
   for(int i=1;i<=3;i++)
     {
@@ -612,8 +613,8 @@ void FULLCOND_variance_nonp::outresults_lambda(void)
     Kp->update_stepwise(lambda);
     optionsp->out("  (" + ST::doubletostring(Kp->compute_df(),6) + ")\n");
     }
-
   optionsp->out("\n");
+*/  
 
   ST::string file = pathresults.substr(0,pathresults.length()-7) + "lambda_sample.raw";
   fc_lambda.get_samples(file);

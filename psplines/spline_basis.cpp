@@ -143,6 +143,9 @@ spline_basis::spline_basis(MCMCoptions * o, DISTRIBUTION * dp,
 
   pseudocontourprob = false;
 
+  XX_env = envmatdouble();
+  prec_env = envmatdouble();
+
   }
 
 
@@ -2616,6 +2619,8 @@ void spline_basis::write_spline(void)
 
 double spline_basis::compute_df(void)
   {
+  if(prec_env.getDim()==0)
+    return -1.0;  
   if(lambda != lambda_prec || likep->iwlsweights_constant() == false)
     prec_env.addto(XX_env,Kenv,1.0,lambda);
   invprec = envmatdouble(0,nrpar,prec_env.getBandwidth());

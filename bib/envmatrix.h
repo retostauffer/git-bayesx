@@ -60,7 +60,7 @@ class envmatrix
 
   // DEFAULT CONSTRUCTOR
 
-  envmatrix(void) {}
+  envmatrix(void) { dim = 0; }
 
 
   // CONSTRUCTOR1
