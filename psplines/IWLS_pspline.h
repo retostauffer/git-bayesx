@@ -90,11 +90,14 @@ class __EXPORT_TYPE IWLS_pspline : public spline_basis
 
   // CONSTRUCTOR 3 (für Cox)
 
-  IWLS_pspline(MCMCoptions * o, DISTRIBUTION * dp,FULLCOND_const * fcc,
-                const fieldtype & ft,const ST::string & ti,
-                const unsigned & nrk, const unsigned & degr, const MCMC::knotpos & kp,
-                const int & gs, const ST::string & fp,
-                const ST::string & pres, const bool & deriv, const unsigned & c);
+  IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
+                    const datamatrix & d,const bool & mode,
+                    const unsigned & nrk,const unsigned & degr,const knotpos & kp,
+                    const double & l, const fieldtype & ft, const ST::string & monotone,
+                    const unsigned & upW, const bool & updatetau, const double & fstart,
+                    const ST::string & ti,
+                    const ST::string & fp, const ST::string & pres, const bool & deriv,
+                    const int & gs, const bool & diag, const unsigned & c);
 
   // COPY CONSTRUCTOR
 

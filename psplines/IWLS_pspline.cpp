@@ -194,13 +194,60 @@ IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fc
   }
 
 
-IWLS_pspline::IWLS_pspline(MCMCoptions * o, DISTRIBUTION * dp,FULLCOND_const * fcc,
-                const fieldtype & ft,const ST::string & ti,
-                const unsigned & nrk, const unsigned & degr, const MCMC::knotpos & kp,
-                const int & gs, const ST::string & fp,
-                const ST::string & pres, const bool & deriv, const unsigned & c)
+IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
+                    const datamatrix & d,const bool & mode,
+                    const unsigned & nrk,const unsigned & degr,const knotpos & kp,
+                    const double & l,const fieldtype & ft,const ST::string & monotone,
+                    const unsigned & upW, const bool & updatetau, const double & fstart,
+                    const ST::string & ti,
+                    const ST::string & fp, const ST::string & pres, const bool & deriv,
+                    const int & gs, const bool & diag, const unsigned & c)
   : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,c)
   {
+
+  varcoeff = false;
+  identifiable = false;
+
+  diagtransform = diag;
+
+  if(monotone == "increasing")
+    increasing = true;
+  else if(monotone == "decreasing")
+    decreasing = true;
+
+  if(mode)
+    {
+    if(updatetau)
+      utype = hyperblockmode;
+    else
+      utype = iwlsmode;
+    }
+  else
+    {
+    if(updatetau)
+      utype = hyperblock;
+    else
+      utype = iwls;
+    }
+
+  updateW = upW;
+
+  f = fstart;
+
+  lambda = l;
+  sigma2 = 1.0/l;
+  kappa = l;
+  kappamode = l;
+
+  compute_betaweight();
+
+  make_index(d);
+  make_index2();
+  make_Bspline(d,true);
+
+  create_iwls();
+  init_fchelp(d);
+
   }
 
 
