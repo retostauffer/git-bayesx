@@ -109,13 +109,74 @@ statmatrix<double> K2dim_pspline_rw2(const unsigned & nknots, const unsigned & o
   statmatrix<double> Px = kronecker(I,DDx);      // penalty matrix of x-direction
   statmatrix<double> Py = kronecker(DDy,I);      // penalty matrix of y-direction
   res = Px + Py;
+  return res;
+  }
 
-//  ofstream out1("h:\\da\\tests\\penalty.txt");
-//  res.prettyPrint(out1);
-//  out1.close();
+statmatrix<double> K2dim_pspline_biharmonic(const unsigned & nknots)
+  {
+  unsigned i,j;
+  statmatrix<double> res(nknots*nknots,nknots*nknots,0);
+
+// Corners
+  res(0,1) = 1;
+  res(0,nknots) = 1;
+
+  res(nknots-1,nknots-2) = 1;
+  res(nknots-1,2*nknots-1) = 1;
+
+  res(nknots*(nknots-1),nknots*(nknots-2)) = 1;
+  res(nknots*(nknots-1),nknots*(nknots-1)+1) = 1;
+
+  res(nknots*nknots-1,nknots*(nknots-1)-1) = 1;
+  res(nknots*nknots-1,nknots*nknots-2) = 1;
+
+// edges
+
+  for(i=1; i<nknots-1; i++)
+    {
+    res(i,i-1) = 1;
+    res(i,i+1) = 1;
+    res(i,nknots+i) = 1;
+
+    res(nknots*(nknots-1)+i,nknots*(nknots-1)+i-1) = 1;
+    res(nknots*(nknots-1)+i,nknots*(nknots-1)+i+1) = 1;
+    res(nknots*(nknots-1)+i,nknots*(nknots-2)+i) = 1;
+
+    res(i*nknots,(i-1)*nknots) = 1;
+    res(i*nknots,i*nknots+1) = 1;
+    res(i*nknots,(i+1)*nknots) = 1;
+
+    res((i+1)*nknots-1,i*nknots-1) = 1;
+    res((i+1)*nknots-1,(i+1)*nknots-2) = 1;
+    res((i+1)*nknots-1,(i+2)*nknots-1) = 1;
+    }
+
+// interior
+
+  for(i=1; i<nknots-1; i++)
+    {
+    for(j=1; j<nknots-1; j++)
+      {
+      res(i*nknots+j ,i*nknots+j-1) = 1;
+      res(i*nknots+j ,i*nknots+j+1) = 1;
+      res(i*nknots+j ,(i-1)*nknots+j) = 1;
+      res(i*nknots+j ,(i+1)*nknots+j) = 1;
+      }
+    }
+
+// diagonal
+
+  for(i=0; i<nknots*nknots; i++)
+    {
+    res(i,i) = -res.sum(i);
+    }
+
+  res = res.transposed()*res;
 
   return res;
   }
+
+
 }
 
 

@@ -111,11 +111,11 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
   samplepath=fp;
 
   likep = NULL;
-  if(type == mrflinear)
+  if(type == mrflinear || type==mrfquadratic12)
     {
     dimX = 0;
     }
-  else
+  else if(type == mrfquadratic8)
     {
     dimX = 3;
     }
@@ -266,11 +266,11 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
   samplepath=fp;
 
   likep = NULL;
-  if(type == mrflinear)
+  if(type == mrflinear || type == mrfquadratic12)
     {
     dimX = 0;
     }
-  else
+  else if(type == mrfquadratic8)
     {
     dimX = 3;
     }
@@ -2270,9 +2270,16 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
   double * workZ;
 
   datamatrix Kstat;
-  if(type == mrflinear)
+  if(type == mrflinear || type == mrfquadratic12)
     {
-    Kstat=STATMAT_PENALTY::K2dim_pspline(nrpar1dim);
+    if(type == mrflinear)
+      {
+      Kstat=STATMAT_PENALTY::K2dim_pspline(nrpar1dim);
+      }
+    else if(type == mrfquadratic12)
+      {
+      Kstat=STATMAT_PENALTY::K2dim_pspline_biharmonic(nrpar1dim);
+      }
     datamatrix vals(Kstat.rows(),1,0);
 
     bool eigentest=eigen2(Kstat,vals);
@@ -2291,7 +2298,7 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       Kstat = multdiagback(Kstat,vals).getColBlock(0,Kstat.cols()-1);
       }
     }
-  else
+  else if(type == mrfquadratic8)
     {
     Kstat=STATMAT_PENALTY::K2dim_pspline_rw2(nrpar1dim,2,2);
     datamatrix vals(Kstat.rows(),1,0);
@@ -2732,12 +2739,12 @@ void spline_basis_surf::outoptionsreml()
     }
   else if(type==mrfquadratic8)
     {
-    optionsp->out("  Prior: 2 dimensional first order random walk\n");
+    optionsp->out("  Prior: 2 dimensional second order random walk\n");
     optionsp->out("         (Kronecker sum of two second order random walks)\n");
     }
   else if(type==mrfquadratic12)
     {
-    optionsp->out("  Prior: 2 dimensional first order random walk\n");
+    optionsp->out("  Prior: 2 dimensional second order random walk\n");
     optionsp->out("         (Approximation to the biharmonic differential operator)\n");
     }
 
