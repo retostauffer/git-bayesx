@@ -286,10 +286,17 @@ void FULLCOND_variance_nonp::update(void)
           beta(1,0) = (start + i/2.0)/transform;
           }
         else if(uniformprior)
-          beta(0,0) = rand_invgamma(-0.5+0.5*rankK,0.5*Kp->compute_quadform());
+          {
+          double help = 1000000;
+          while (help > 200000)
+            help = rand_invgamma(-0.5+0.5*rankK,0.5*Kp->compute_quadform());
+          beta(0,0) = help;
+          }
         else
+          {
           beta(0,0) = rand_invgamma(a_invgamma+0.5*rankK,
                                     b_invgamma+0.5*Kp->compute_quadform());
+          }
 
 /*
         beta(0,0) = Kp->get_sigma2();
@@ -639,7 +646,7 @@ void FULLCOND_variance_nonp::outoptions(void)
     }
   else if(uniformprior)
     {
-    optionsp->out("  Uniform prior on sigma\n");
+    optionsp->out("  Uniform prior on tau\n");
     }
   else
     {

@@ -4102,8 +4102,15 @@ void DISTRIBUTION_gaussian::outoptions(void)
   {
   DISTRIBUTION::outoptions();
   optionsp->out("  Response function: identity\n");
-  optionsp->out("  Hyperparameter a: " + ST::doubletostring(a_invgamma,6) + "\n");
-  optionsp->out("  Hyperparameter b: " + ST::doubletostring(b_invgamma,6) + "\n");
+  if(uniformprior)
+    {
+    optionsp->out("  Uniform prior on sigma\n");
+    }
+  else
+    {
+    optionsp->out("  Hyperparameter a: " + ST::doubletostring(a_invgamma,6) + "\n");
+    optionsp->out("  Hyperparameter b: " + ST::doubletostring(b_invgamma,6) + "\n");
+    }
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -4152,7 +4159,7 @@ void DISTRIBUTION_gaussian::update(void)
 
     if(uniformprior==true)
       {
-      double help;
+      double help = 1000000;
       while (help > 200000)
         help = rand_invgamma(-0.5+0.5*nrobsmweightzero,0.5*sum);
       scale(0,0) = help;
