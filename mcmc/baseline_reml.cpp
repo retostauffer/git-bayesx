@@ -11,7 +11,8 @@ namespace MCMC
 
 baseline_reml::baseline_reml(MCMCoptions * o,
               const datamatrix & d, const unsigned & nrk, const unsigned & degr,
-              const unsigned & tgr, const knotpos & kp, const fieldtype & ft,
+              const unsigned & tgr, const unsigned & nrq, const unsigned & nrb,
+              const knotpos & kp, const fieldtype & ft,
               const ST::string & ti, const ST::string & fp,
               const ST::string & pres, const double & l, const double & sl,
               const knotpos & gp)
@@ -35,8 +36,8 @@ baseline_reml::baseline_reml(MCMCoptions * o,
     }
   else
     {
-    unsigned nrquant = tgrid/5;
-    unsigned nrbetween = tgrid/nrquant;
+    nrquant = nrq;
+    nrbetween = nrb;
     datamatrix tquantiles = datamatrix(nrquant+1,1,0);
     for(i=1; i<nrquant; i++)
       {
@@ -120,6 +121,8 @@ baseline_reml::baseline_reml(const baseline_reml & fc)
   tgrid=fc.tgrid;
   tsteps=fc.tsteps;
   gridpos=fc.gridpos;
+  nrquant=fc.nrquant;
+  nrbetween=fc.nrbetween;
   }
 
 const baseline_reml & baseline_reml::operator=(const baseline_reml & fc)
@@ -138,6 +141,8 @@ const baseline_reml & baseline_reml::operator=(const baseline_reml & fc)
   tgrid=fc.tgrid;
   tsteps=fc.tsteps;
   gridpos=fc.gridpos;
+  nrquant=fc.nrquant;
+  nrbetween=fc.nrbetween;
 
   return *this;
   }
@@ -283,21 +288,62 @@ void baseline_reml::initialize_baseline(unsigned j, datamatrix & tx, datamatrix 
 void baseline_reml::outoptionsreml()
   {
   if(!varcoeff)
-    {
     optionsp->out("OPTIONS FOR BASELINE TERM:: " + title + " (log(baseline))\n",true);
-    }
   else
-    {
     optionsp->out("OPTIONS FOR PSPLINE TERM:: " + title + "\n",true);
-    }
   optionsp->out("\n");
 
   optionsp->out("  Prior: second order random walk\n");
-  optionsp->out("  Number of knots: " + ST::inttostring(nrknots) + "\n" );
-  optionsp->out("  Degree of Splines: " + ST::inttostring(degree) + "\n" );
-  optionsp->out("  Starting value for lambda: " + ST::doubletostring(startlambda,6) + "\n" );
-  optionsp->out("  Number of grid points for numerical integration: " + ST::inttostring(tgrid) +"\n");
-  optionsp->out("\n");
+  if(!varcoeff)
+    {
+    optionsp->out("  Number of knots: " + ST::inttostring(nrknots) + "\n" );
+    optionsp->out("  Degree of Splines: " + ST::inttostring(degree) + "\n" );
+    optionsp->out("  Starting value for lambda: " + ST::doubletostring(startlambda,6) + "\n" );
+    if(gridpos==MCMC::equidistant)
+      {
+      optionsp->out("  Grid choice for numerical integration: equidistant");
+      optionsp->out("  Number of grid points: " + ST::inttostring(tgrid) +"\n");
+      }
+    else
+      {
+      optionsp->out("  Grid choice for numerical integration: quantiles");
+      optionsp->out("  Number of quantiles: " + ST::inttostring(nrquant) +"\n");
+      optionsp->out("  Number of points between quantiles: " + ST::inttostring(nrbetween) +"\n");
+      }
+    optionsp->out("\n");
+    }
+  }
+
+void baseline_reml::init_name(const ST::string & na)
+  {
+
+  FULLCOND::init_name(na);
+
+  ST::string underscore = "\\_";
+  ST::string helpname = na.insert_string_char('_',underscore);
+  term_symbolic = "f_{" + helpname + "}(" + helpname + ")";
+  priorassumptions.push_back("$" + term_symbolic + "$:");
+  priorassumptions.push_back("P-spline with second order random walk penalty");
+
+  ST::string knotstr;
+  if (knpos == equidistant)
+    knotstr = "equidistant";
+  else if (knpos == quantiles)
+    knotstr = "quantiles";
+  priorassumptions.push_back("Number of knots: " + ST::inttostring(nrknots));
+  priorassumptions.push_back("Knot choice: " + knotstr);
+  priorassumptions.push_back("Degree of Splines: " + ST::inttostring(degree));
+  if(gridpos==MCMC::equidistant)
+    {
+    priorassumptions.push_back("Grid choice for numerical integration: equidistant");
+    priorassumptions.push_back("Number of grid points: " + ST::inttostring(tgrid) +"\n");
+    }
+  else
+    {
+    priorassumptions.push_back("Grid choice for numerical integration: quantiles");
+    priorassumptions.push_back("Number of quantiles: " + ST::inttostring(nrquant) +"\n");
+    priorassumptions.push_back("Number of points between quantiles: " + ST::inttostring(nrbetween) +"\n");
+    }
   }
 
 } // end: namespace MCMC

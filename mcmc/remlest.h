@@ -4,6 +4,7 @@
 
 #include <statmat.h>
 #include <fullcond.h>
+#include <distribution.h>
 
 #if defined(JAVA_OUTPUT_WINDOW)
 #include<adminparse_basic.h>
@@ -150,6 +151,9 @@ class remlest
 
   void outerror(const ST::string & s);
 
+//------------------------------------------------------------------------------
+//------------------------------- Miscellanea ----------------------------------
+//------------------------------------------------------------------------------
 
   };
 

@@ -463,7 +463,7 @@ class __EXPORT_TYPE term_varcoeff_pspline_remlreg : public basic_termtype
   };
 
 //------------------------------------------------------------------------------
-//----------------------- class term _kriging_remlreg --------------------------
+//------------------------ class term_kriging_remlreg --------------------------
 //------------------------------------------------------------------------------
 
 
@@ -585,6 +585,8 @@ class __EXPORT_TYPE term_baseline_remlreg : public basic_termtype
   intoption numberknots;
   intoption tgrid;
   stroption gridchoice;
+  intoption numberquantiles;
+  intoption numberbetween;
   doubleoption lambda;
   doubleoption lambdastart;
 
@@ -620,9 +622,6 @@ class __EXPORT_TYPE term_baseline_varcoeff_remlreg : public basic_termtype
 
   protected:
 
-  intoption degree;
-  intoption numberknots;
-  intoption tgrid;
   doubleoption lambda;
   doubleoption lambdastart;
 
@@ -646,6 +645,190 @@ class __EXPORT_TYPE term_baseline_varcoeff_remlreg : public basic_termtype
   // DESTRUCTOR
 
   ~term_baseline_varcoeff_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//----------------- class term_geopspline_varcoeff_remlreg ---------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE term_geospline_varcoeff_remlreg : public basic_termtype
+  {
+
+  protected:
+
+  intoption degree;
+  intoption numberknots;
+  stroption map;
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_geospline_varcoeff_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is an interaction term
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_geospline_varcoeff_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//---------------- class term_geokriging_varcoeff_remlreg ----------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE term_geokriging_varcoeff_remlreg : public basic_termtype
+  {
+
+
+  protected:
+
+  intoption numberknots;
+  doubleoption nu;
+  doubleoption maxdist;
+  simpleoption full;
+  stroption knotdata;
+  doubleoption p;
+  doubleoption q;
+  intoption maxsteps;
+  doubleoption lambda;
+  doubleoption lambdastart;
+  stroption map;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_geokriging_varcoeff_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is an interaction term
+
+  bool checkvector(const vector<term> & terms,const unsigned & i)
+    {
+
+    assert(i< terms.size());
+
+    if (terms[i].type == "vargeokriging")
+      return true;
+
+    return false;
+    }
+
+  // DESTRUCTOR
+
+  ~term_geokriging_varcoeff_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//-------------------- class term_interactpspline_remlreg ----------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE term_interactpspline_varcoeff_remlreg : public basic_termtype
+  {
+
+  protected:
+
+  intoption degree;
+  intoption numberknots;
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_interactpspline_varcoeff_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is an interaction term
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_interactpspline_varcoeff_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
+//------------------ class term_kriging_varcoeff_remlreg -----------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE term_kriging_varcoeff_remlreg : public basic_termtype
+  {
+
+
+  protected:
+
+  intoption numberknots;
+  doubleoption nu;
+  doubleoption maxdist;
+  simpleoption full;
+  stroption knotdata;
+  doubleoption p;
+  doubleoption q;
+  intoption maxsteps;
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_kriging_varcoeff_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is an interaction term
+
+  bool checkvector(const vector<term> & terms,const unsigned & i)
+    {
+
+    assert(i< terms.size());
+
+    if (terms[i].type == "varkriging")
+      return true;
+
+    return false;
+    }
+
+  // DESTRUCTOR
+
+  ~term_kriging_varcoeff_remlreg() {}
 
   };
 

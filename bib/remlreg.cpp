@@ -114,10 +114,13 @@ void remlreg::create(void)
   randomeffslope = term_randomslope_remlreg();
   nonpvarcoeffpspline = term_varcoeff_pspline_remlreg();
   nonpinteractpspline = term_interactpspline_remlreg();
+  nonpvarcoeffinteractpspline = term_interactpspline_varcoeff_remlreg();
   nonpgeospline = term_geospline_remlreg();
-  nonpvarcoeffgeospline = term_varcoeff_geospline();
+  nonpvarcoeffgeospline = term_geospline_varcoeff_remlreg();
   nonpspatial_kriging = term_kriging_remlreg();
+  nonpspatial_kriging_varcoeff = term_kriging_varcoeff_remlreg();
   nonpspatial_geokriging = term_geokriging_remlreg();
+  nonpspatial_geokriging_varcoeff = term_geokriging_varcoeff_remlreg();
   nonp_baseline = term_baseline_remlreg();
   nonp_baseline_varcoeff = term_baseline_varcoeff_remlreg();
 
@@ -134,11 +137,14 @@ void remlreg::create(void)
   termtypes.push_back(&randomeffslope);
   termtypes.push_back(&nonpvarcoeffpspline);
   termtypes.push_back(&nonpinteractpspline);
+  termtypes.push_back(&nonpvarcoeffinteractpspline);
   termtypes.push_back(&nonpspatialxy);
   termtypes.push_back(&nonpgeospline);
   termtypes.push_back(&nonpvarcoeffgeospline);
   termtypes.push_back(&nonpspatial_kriging);
+  termtypes.push_back(&nonpspatial_kriging_varcoeff);
   termtypes.push_back(&nonpspatial_geokriging);
+  termtypes.push_back(&nonpspatial_geokriging_varcoeff);
   termtypes.push_back(&nonp_baseline);
   termtypes.push_back(&nonp_baseline_varcoeff);
 
@@ -1229,6 +1235,82 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
 
   }
 
+bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
+  {
+
+  ST::string pathnonp;
+  ST::string pathres;
+
+  long h;
+  double lambda,startlambda;
+  unsigned nrknots,degree;
+  int f;
+
+  unsigned i;
+  int j1,j2,j3;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpvarcoeffinteractpspline.checkvector(terms,i) == true )
+      {
+
+      MCMC::fieldtype type;
+      if (terms[i].options[0] == "varpspline2dimrw1")
+        type = MCMC::mrflinear;
+
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv);  //interaction variable
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+      j3 = terms[i].varnames[2].isinlist(modelvarnamesv);
+
+      f = (terms[i].options[1]).strtolong(h);
+      degree = unsigned(h);
+
+      f = (terms[i].options[2]).strtolong(h);
+      nrknots = unsigned(h);
+
+      f = (terms[i].options[3]).strtodouble(lambda);
+
+      f = (terms[i].options[4]).strtodouble(startlambda);
+
+      if (f==1)
+        return true;
+
+      ST::string title;
+
+      ST::string help  = terms[i].varnames[1] + "_" + terms[i].varnames[2];
+
+      make_paths(collinpred,pathnonp,pathres,title,help,terms[i].varnames[0],
+                 "_pspline.raw","_pspline.res","_pspline");
+
+      fcpsplinesurf.push_back(
+      spline_basis_surf(&generaloptions,
+                                      D.getCol(j1),
+                                      D.getCol(j2),
+                                      D.getCol(j3),
+                                      nrknots,degree,type,
+                                      title,
+                                      pathnonp,
+                                      pathres,
+                                      lambda,
+                                      startlambda
+                                      ));
+
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[2]);
+      na.push_back(terms[i].varnames[1]);
+      na.push_back(terms[i].varnames[0]);
+
+      fcpsplinesurf[fcpsplinesurf.size()-1].init_names(na);
+      fcpsplinesurf[fcpsplinesurf.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcpsplinesurf[fcpsplinesurf.size()-1]);
+
+      }
+    }
+
+  return false;
+
+  }
+
+
 bool remlreg::create_kriging(const unsigned & collinpred)
   {
 
@@ -1360,6 +1442,153 @@ bool remlreg::create_kriging(const unsigned & collinpred)
               ));
 
       vector<ST::string> na;
+      na.push_back(terms[i].varnames[1]);
+      na.push_back(terms[i].varnames[0]);
+
+      fckriging[fckriging.size()-1].init_names(na);
+      fckriging[fckriging.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fckriging[fckriging.size()-1]);
+
+      }
+    }
+
+  return false;
+  }
+
+bool remlreg::create_kriging_varcoeff(const unsigned & collinpred)
+  {
+
+  ST::string pathnonp;
+  ST::string pathres;
+
+  long h;
+  double nu,maxdist,p,q,lambda,startlambda;
+  unsigned nrknots, maxsteps;
+  bool full;
+  int f;
+
+  unsigned i;
+  int j1,j2,j3;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpspatial_kriging_varcoeff.checkvector(terms,i) == true )
+      {
+
+      MCMC::fieldtype type;
+      if (terms[i].options[0] == "varkriging")
+        type = MCMC::kriging;
+
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); //interaction variable
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+      j3 = terms[i].varnames[2].isinlist(modelvarnamesv);
+
+      f = (terms[i].options[1]).strtolong(h);
+      nrknots = unsigned(h);
+
+      f = (terms[i].options[2]).strtodouble(nu);
+      if(nu!=0.5 && nu!=1.5&& nu!=2.5 && nu!=3.5)
+        {
+        outerror("ERROR: Invalid value for nu\n");
+        return true;
+        }
+      f = (terms[i].options[3]).strtodouble(maxdist);
+      if(maxdist<=0) // wähle maxdist so, dass Korrelation für Punkte mitmaximalem Abstand = 0.0001
+        {
+        if(nu==0.5)
+          {
+          maxdist=9.21034037;//4.605170186;
+          }
+        else if(nu==1.5)
+          {
+          maxdist=11.75637122;//6.638352068;
+          }
+        else if(nu==2.5)
+          {
+          maxdist=13.53592464;//8.022007057;
+          }
+        else if(nu==3.5)
+          {
+          maxdist=15.01510426;//9.158140446;
+          }
+        }
+
+      if(terms[i].options[4] == "true")
+        {
+        full=true;
+        }
+      else
+        {
+        full=false;
+        }
+
+      f = (terms[i].options[6]).strtodouble(p);
+      f = (terms[i].options[7]).strtodouble(q);
+      f = (terms[i].options[8]).strtolong(h);
+      maxsteps = unsigned(h);
+
+      f = (terms[i].options[9]).strtodouble(lambda);
+      f = (terms[i].options[10]).strtodouble(startlambda);
+
+      if (f==1)
+        return true;
+
+      datamatrix knotdata;
+      if(terms[i].options[5]!="" && !full)
+        {
+        dataobject * datap;                           // pointer to datsetobject
+        int objpos = findstatobject(*statobj,terms[i].options[5],"dataset");
+        if (objpos >= 0)
+          {
+          statobject * s = statobj->at(objpos);
+          datap = dynamic_cast<dataobject*>(s);
+          if (datap->obs()==0 || datap->getVarnames().size()==0)
+            {
+            outerror("ERROR: dataset object " + terms[i].options[5] + " does not contain any data\n");
+            return true;
+            }
+          else if (datap->getVarnames().size()>2)
+            {
+            outerror("ERROR: dataset object " + terms[i].options[5] + " contains more than two variables\n");
+            return true;
+            }
+          }
+        else
+          {
+          outerror("ERROR: dataset object " + terms[i].options[5] + " is not existing\n");
+          return true;
+          }
+        list<ST::string> knotnames = datap->getVarnames();
+        ST::string expr = "";
+        datap->makematrix(knotnames,knotdata,expr);
+        }
+      else
+        {
+        knotdata = datamatrix(1,1,0);
+        }
+
+      ST::string title;
+
+      ST::string help  = terms[i].varnames[1] + "_" + terms[i].varnames[2];
+
+      make_paths(collinpred,pathnonp,pathres,title,help,terms[i].varnames[0],
+                 "_kriging.raw","_kriging.res","_kriging");
+
+      fckriging.push_back(
+      FULLCOND_kriging(&generaloptions,
+              D.getCol(j1),
+              D.getCol(j2),
+              D.getCol(j3),
+              knotdata,
+              nrknots,nu,maxdist,p,q,maxsteps,full,type,
+              title,
+              pathnonp,
+              pathres,
+              lambda,
+              startlambda
+              ));
+
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[2]);
       na.push_back(terms[i].varnames[1]);
       na.push_back(terms[i].varnames[0]);
 
@@ -1532,6 +1761,168 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
   return false;
   }
 
+bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
+  {
+
+  ST::string pathnonp;
+  ST::string pathres;
+
+  long h;
+  double nu,maxdist,p,q,lambda,startlambda;
+  unsigned nrknots, maxsteps;
+  bool full;
+  int f;
+
+  unsigned i;
+  int j1,j2;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpspatial_geokriging_varcoeff.checkvector(terms,i) == true )
+      {
+
+      MCMC::fieldtype type;
+      if (terms[i].options[0] == "vargeokriging")
+        type = MCMC::kriging;
+
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
+
+      f = (terms[i].options[1]).strtolong(h);
+      nrknots = unsigned(h);
+
+      f = (terms[i].options[2]).strtodouble(nu);
+      if(nu!=0.5 && nu!=1.5&& nu!=2.5 && nu!=3.5)
+        {
+        outerror("ERROR: Invalid value for nu\n");
+        return true;
+        }
+      f = (terms[i].options[3]).strtodouble(maxdist);
+      if(maxdist<=0) // wähle maxdist so, dass Korrelation für Punkte mitmaximalem Abstand = 0.0001
+        {
+        if(nu==0.5)
+          {
+          maxdist=9.21034037;//4.605170186;
+          }
+        else if(nu==1.5)
+          {
+          maxdist=11.75637122;//6.638352068;
+          }
+        else if(nu==2.5)
+          {
+          maxdist=13.53592464;//8.022007057;
+          }
+        else if(nu==3.5)
+          {
+          maxdist=15.01510426;//9.158140446;
+          }
+        }
+
+      if(terms[i].options[4] == "true")
+        {
+        full=true;
+        }
+      else
+        {
+        full=false;
+        }
+
+      f = (terms[i].options[6]).strtodouble(p);
+      f = (terms[i].options[7]).strtodouble(q);
+      f = (terms[i].options[8]).strtolong(h);
+      maxsteps = unsigned(h);
+
+      f = (terms[i].options[9]).strtodouble(lambda);
+      f = (terms[i].options[10]).strtodouble(startlambda);
+
+      if (f==1)
+        return true;
+
+      mapobject * mapp;                           // pointer to mapobject
+      int objpos = findstatobject(*statobj,terms[i].options[11],"map");
+      if (objpos >= 0)
+        {
+        statobject * s = statobj->at(objpos);
+        mapp = dynamic_cast<mapobject*>(s);
+        }
+      else
+        {
+        if (objpos == -1)
+          outerror("ERROR: map object " + terms[i].options[11] + " is not existing\n");
+        else
+          outerror("ERROR: " + terms[i].options[11] + " is not a map object\n");
+        return true;
+        }
+      MAP::map m = mapp->getmap();
+      if(!m.centroids_existing())
+        {
+        outerror("ERROR: map object doesn´t contain centroids\n");
+        return true;
+        }
+
+      datamatrix knotdata;
+      if(terms[i].options[5]!="" && !full)
+        {
+        dataobject * datap;                           // pointer to datasetobject
+        int objpos = findstatobject(*statobj,terms[i].options[5],"dataset");
+        if (objpos >= 0)
+          {
+          statobject * s = statobj->at(objpos);
+          datap = dynamic_cast<dataobject*>(s);
+          if (datap->obs()==0 || datap->getVarnames().size()==0)
+            {
+            outerror("ERROR: dataset object " + terms[i].options[5] + " does not contain any data\n");
+            return true;
+            }
+          else if (datap->getVarnames().size()>2)
+            {
+            outerror("ERROR: dataset object " + terms[i].options[5] + " contains more than two variables\n");
+            return true;
+            }
+          }
+        else
+          {
+          outerror("ERROR: dataset object " + terms[i].options[5] + " is not existing\n");
+          return true;
+          }
+        list<ST::string> knotnames = datap->getVarnames();
+        ST::string expr = "";
+        datap->makematrix(knotnames,knotdata,expr);
+        }
+      else
+        {
+        knotdata = datamatrix(1,1,0);
+        }
+
+      ST::string title;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                 terms[i].varnames[0],
+                 "_geokriging.raw","_geokriging.res","_geokriging");
+
+      fckriging.push_back(
+      FULLCOND_kriging(&generaloptions,
+              D.getCol(j1),D.getCol(j2),m,terms[i].options[11],
+              knotdata,
+              nrknots,nu,maxdist,p,q,maxsteps,full,type,
+              title,
+              pathnonp,
+              pathres,
+              lambda,
+              startlambda
+              ));
+
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[1]);
+      na.push_back(terms[i].varnames[0]);
+      fckriging[fckriging.size()-1].init_names(na);
+
+      fckriging[fckriging.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fckriging[fckriging.size()-1]);
+      }
+    }
+  return false;
+  }
+
 bool remlreg::create_baseline(const unsigned & collinpred)
   {
   ST::string pathnonp;
@@ -1539,7 +1930,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
   ST::string title;
 
   long h;
-  unsigned degree,nrknots,tgrid;
+  unsigned degree,nrknots,tgrid,nrquant,nrbetween;
   double lambda, startlambda;
   int f;
 
@@ -1583,8 +1974,14 @@ bool remlreg::create_baseline(const unsigned & collinpred)
         gridpo = MCMC::quantiles;
         }
 
-      f = (terms[i].options[5]).strtodouble(lambda);
-      f = (terms[i].options[6]).strtodouble(startlambda);
+      f = (terms[i].options[5]).strtolong(h);
+      nrquant = unsigned(h);
+
+      f = (terms[i].options[6]).strtolong(h);
+      nrbetween = unsigned(h);
+
+      f = (terms[i].options[7]).strtodouble(lambda);
+      f = (terms[i].options[8]).strtodouble(startlambda);
 
       if (f==1)
         return true;
@@ -1606,6 +2003,8 @@ bool remlreg::create_baseline(const unsigned & collinpred)
                                               nrknots,
                                               degree,
                                               tgrid,
+                                              nrquant,
+                                              nrbetween,
                                               po,
                                               type,
                                               title,
@@ -1634,10 +2033,9 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
   ST::string title;
 
   long h;
-  unsigned degree,nrknots,tgrid;
   double lambda, startlambda;
+  unsigned degree,nrknots,tgrid;
   int f;
-
 
   unsigned i;
   int j1,j2;
@@ -1645,7 +2043,6 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
     {
     if ( nonp_baseline_varcoeff.checkvector(terms,i) == true )
       {
-
       if(fcbaseline.size()<1)
         {
         outerror("ERROR: Time-varying effects without baseline effect!\n");
@@ -1657,36 +2054,15 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
       j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
       j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
 
-      f = (terms[i].options[1]).strtolong(h);
-      degree = unsigned(h);
-
-      f = (terms[i].options[2]).strtolong(h);
-      nrknots = unsigned(h);
-
-      f = (terms[i].options[3]).strtolong(h);
-      tgrid = unsigned(h);
-
-      f = (terms[i].options[4]).strtodouble(lambda);
-      f = (terms[i].options[5]).strtodouble(startlambda);
+      f = (terms[i].options[1]).strtodouble(lambda);
+      f = (terms[i].options[2]).strtodouble(startlambda);
 
       if (f==1)
         return true;
 
-      if(fcbaseline[0].get_tgrid()!=tgrid)
-        {
-        outerror("ERROR: Option tgrid must have the same value for all baseline effects!\n");
-        return true;
-        }
-      if(fcbaseline[0].get_degree()!=degree)
-        {
-        outerror("ERROR: Option degree must have the same value for all baseline effects!\n");
-        return true;
-        }
-      if(fcbaseline[0].get_nrknots()!=nrknots)
-        {
-        outerror("ERROR: Option nrknots must have the same value for all baseline effects!\n");
-        return true;
-        }
+      tgrid = fcbaseline[0].get_tgrid();
+      degree = fcbaseline[0].get_degree();
+      nrknots = fcbaseline[0].get_nrknots();
 
       MCMC::knotpos po = MCMC::equidistant;
 
@@ -1768,7 +2144,7 @@ bool remlreg::create_geospline(const unsigned & collinpred)
 
       if (f==1)
         return true;
-      
+
       mapobject * mapp;                           // pointer to mapobject
 
       int objpos = findstatobject(*statobj,terms[i].options[4],"map");
@@ -1828,18 +2204,14 @@ bool remlreg::create_geospline(const unsigned & collinpred)
   }
 
 
-bool remlreg::create_varcoeff_geospline(const unsigned & collinpred)
+bool remlreg::create_geospline_varcoeff(const unsigned & collinpred)
   {
-  /*
   ST::string pathnonp;
   ST::string pathres;
 
   long h;
-  double lambda;
-  double a1,b1;
-  bool reduced,singleblock;
-  unsigned min,max,nrknots,degree;
-  int gridsize;
+  double lambda,startlambda;
+  unsigned nrknots,degree;
   int f;
 
   unsigned i;
@@ -1851,31 +2223,25 @@ bool remlreg::create_varcoeff_geospline(const unsigned & collinpred)
 
       MCMC::fieldtype type = MCMC::mrflinear;
 
-      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interaction var
-      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
 
       f = (terms[i].options[1]).strtolong(h);
-      min = unsigned(h);
-
-      f = (terms[i].options[2]).strtolong(h);
-      max = unsigned(h);
-
-      f = (terms[i].options[3]).strtolong(h);
       degree = unsigned(h);
 
-      f = (terms[i].options[4]).strtolong(h);
+      f = (terms[i].options[2]).strtolong(h);
       nrknots = unsigned(h);
 
-      f = (terms[i].options[5]).strtodouble(lambda);
+      f = (terms[i].options[3]).strtodouble(lambda);
 
-      if (terms[i].options[6] == "false")
-        reduced = false;
-      else
-        reduced = true;
+      f = (terms[i].options[5]).strtodouble(startlambda);
+
+      if (f==1)
+        return true;
 
       mapobject * mapp;                           // pointer to mapobject
 
-      int objpos = findstatobject(*statobj,terms[i].options[7],"map");
+      int objpos = findstatobject(*statobj,terms[i].options[4],"map");
 
       if (objpos >= 0)
         {
@@ -1885,9 +2251,9 @@ bool remlreg::create_varcoeff_geospline(const unsigned & collinpred)
       else
         {
         if (objpos == -1)
-          outerror("ERROR: map object " + terms[i].options[7] + " is not existing\n");
+          outerror("ERROR: map object " + terms[i].options[4] + " is not existing\n");
         else
-          outerror("ERROR: " + terms[i].options[7] + " is not a map object\n");
+          outerror("ERROR: " + terms[i].options[4] + " is not a map object\n");
         return true;
         }
 
@@ -1899,306 +2265,37 @@ bool remlreg::create_varcoeff_geospline(const unsigned & collinpred)
         return true;
         }
 
-      if (terms[i].options[8] == "false")
-        singleblock = false;
-      else
-        singleblock = true;
-
-      f = (terms[i].options[9]).strtodouble(a1);
-      f = (terms[i].options[10]).strtodouble(b1);
-
-      bool iwls;
-      if (terms[i].options[11] == "false")
-        iwls = false;
-      else
-        iwls = true;
-
-      gridsize = -1;
-
-      MCMC::knotpos po;
-
-      if (knots.getvalue() == "equidistant")
-        po = MCMC::equidistant;
-      else
-        po = MCMC::quantiles;
-
       ST::string title;
 
-      if (collinpred==0)
-        {
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                 terms[i].varnames[0],
+                 "_geospline.raw","_geospline.res","_geospline");
 
-        pathnonp = defaultpath + "\\temp\\" + name + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" +
-                    terms[i].varnames[1] + "_geospline.raw";
-
-        pathres = outfile.getvalue() + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" +
-                    terms[i].varnames[1] + "_geospline.res";
-
-        title = terms[i].varnames[0] + "_f_" + terms[i].varnames[1] + add_name;
-        }
-      else
-        {
-
-        pathnonp = defaultpath + "\\temp\\" + name + add_name + "_" +
-                   terms[i].varnames[0] + "_f_" + ST::inttostring(collinpred+1) + "_" +
-                   terms[i].varnames[1] + "_geospline.raw";
-
-        pathres = outfile.getvalue()+ add_name + "_" +
-                  terms[i].varnames[0] + "_f_" + ST::inttostring(collinpred+1) + "_" +
-                  terms[i].varnames[1] + "_geospline.res";
-
-        title = terms[i].varnames[0] + "_f_" + ST::inttostring(collinpred+1) + "_" +
-                terms[i].varnames[1] + add_name;
-        }
-
-      if (
-          (family.getvalue() == "gaussian") ||
-           (family.getvalue() == "cumprobit") ||
-           (family.getvalue() == "binomialprobit") ||
-           (family.getvalue() == "bernoullilogit") ||
-           (family.getvalue() == "binomialtlink") ||
-           (family.getvalue() == "multinomialprobit")
-         )
-        {
-
-        fcpsplinesurfgaussian.push_back(
-        FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
-                                      D.getCol(j1),D.getCol(j2),m,terms[i].options[7],
-                                      title,
-                                      nrknots,degree,po,
-                                      lambda,
-                                      gridsize,
+      fcpsplinesurf.push_back(
+      spline_basis_surf(&generaloptions,
+                                      D.getCol(j1),D.getCol(j2),
+                                      m,terms[i].options[4],
+                                      nrknots,degree,
                                       type,
+                                      title,
                                       pathnonp,
                                       pathres,
-                                      singleblock,
-                                      collinpred
+                                      lambda,
+                                      startlambda
                                       ));
 
 
-        vector<ST::string> na;
-        na.push_back(terms[i].varnames[1]);
-        na.push_back(terms[i].varnames[0]);
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[1]);
+      na.push_back(terms[i].varnames[0]);
+      fcpsplinesurf[fcpsplinesurf.size()-1].init_names(na);
 
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
-
-        if (collinpred==0)
-          {
-
-          pathnonp = defaultpath + "\\temp\\" + name + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" +
-                    terms[i].varnames[1] + "_geospline_var.raw";
-
-          pathres = outfile.getvalue() + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" +
-                    terms[i].varnames[1] + "_geospline_var.res";
-
-          title = terms[i].varnames[0] + "_f_" + terms[i].varnames[1] + "_variance" + add_name;
-          }
-        else
-          {
-
-          pathnonp = defaultpath + "\\temp\\" + name + add_name + "_" +
-                     terms[i].varnames[0] + "_f_" + ST::inttostring(collinpred+1) + "_" +
-                     terms[i].varnames[1] + "_geospline_var.raw";
-
-          pathres = outfile.getvalue() + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" + ST::inttostring(collinpred+1) + "_" +
-                    terms[i].varnames[1] + "_geospline_var.res";
-
-          title = terms[i].varnames[0] + "_f_" + ST::inttostring(collinpred+1) + "_" +
-                  terms[i].varnames[1] + "_variance" + add_name;
-          }
-
-        fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
-                      &fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1],
-                                       distr[distr.size()-1],
-                                       a1,
-                                       b1,
-                                       title,pathnonp,pathres,
-                                       false,collinpred)
-                           );
-
-
-        if (constlambda.getvalue() == true)
-          fcvarnonp[fcvarnonp.size()-1].set_constlambda();
-
-
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1]);
-        fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
-        }
-      else
-        {
-        // NONGAUSSIAN CASE
-        if(iwls)
-          {
-          // IWLS
-
-          f = (terms[i].options[12]).strtolong(h);
-          unsigned updateW;
-          updateW = unsigned(h);
-          bool updatetau;
-          if(terms[i].options[13] == "false")
-            updatetau = false;
-          else
-            updatetau = true;
-          double fstart;
-            f = (terms[i].options[14]).strtodouble(fstart);
-
-          fcpsplinesurfgaussian.push_back(
-          FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
-                                      D.getCol(j1),D.getCol(j2),m,terms[i].options[7],
-                                      title,
-                                      nrknots,degree,po,
-                                      lambda,
-                                      updateW,
-                                      updatetau,
-                                      fstart,
-                                      a1,b1,
-                                      gridsize,
-                                      type,
-                                      pathnonp,
-                                      pathres,
-                                      true,
-                                      singleblock,
-                                      collinpred
-                                      ));
-
-          vector<ST::string> na;
-          na.push_back(terms[i].varnames[1]);
-          na.push_back(terms[i].varnames[0]);
-          fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
-          fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_fcnumber(fullcond.size());
-          fullcond.push_back(&fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1]);
-
-          if ( collinpred == 0 )
-            {
-            pathnonp = defaultpath + "\\temp\\" + name + add_name + "_" +
-                       terms[i].varnames[0] + "_f_" +
-                       terms[i].varnames[1] + "_geospline_var.raw";
-
-            pathres = outfile.getvalue() + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" +
-                    terms[i].varnames[1] + "_geospline_var.res";
-
-            title = terms[i].varnames[0] + "_f_" + terms[i].varnames[1] + "_variance" + add_name;
-            }
-          else
-            {
-
-            pathnonp = defaultpath + "\\temp\\" + name + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" +ST::inttostring(collinpred+1) + "_" +
-                    terms[i].varnames[1] + "_geospline_var.raw";
-
-            pathres = outfile.getvalue() + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" + ST::inttostring(collinpred+1) + "_" +
-                    terms[i].varnames[1] + "_geospline_var.res";
-
-            title = terms[i].varnames[0] + "_f_" + ST::inttostring(collinpred+1) + "_" +
-                    terms[i].varnames[1] + "_variance" + add_name;
-            }
-
-          fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
-                        &fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1],
-                                       distr[distr.size()-1],
-                                       a1,
-                                       b1,
-                                       title,pathnonp,pathres,
-                                       false,collinpred)
-                           );
-
-
-          if (constlambda.getvalue() == true)
-            fcvarnonp[fcvarnonp.size()-1].set_constlambda();
-
-          fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
-          if(updatetau)
-            fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
-          fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
-          }
-        else
-          {
-          // CONDITIONAL PRIOR
-          fcpsplinesurf.push_back(
-          FULLCOND_pspline_surf(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
-                                      D.getCol(j1),D.getCol(j2),m,terms[i].options[7],
-                                      title,
-                                      nrknots,degree,po,
-                                      min,max,
-                                      lambda,
-                                      gridsize,
-                                      type,
-                                      pathnonp,
-                                      pathres,
-                                      collinpred
-                                      ));
-
-
-          vector<ST::string> na;
-          na.push_back(terms[i].varnames[1]);
-          na.push_back(terms[i].varnames[0]);
-          fcpsplinesurf[fcpsplinesurf.size()-1].init_names(na);
-          fcpsplinesurf[fcpsplinesurf.size()-1].set_fcnumber(fullcond.size());
-          fullcond.push_back(&fcpsplinesurf[fcpsplinesurf.size()-1]);
-
-          if ( collinpred == 0 )
-            {
-            pathnonp = defaultpath + "\\temp\\" + name + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" +
-                    terms[i].varnames[1] + "_geospline_var.raw";
-
-            pathres = outfile.getvalue() + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" +
-                    terms[i].varnames[1] + "_geospline_var.res";
-
-            title = terms[i].varnames[0] + "_f_" + terms[i].varnames[1] + "_variance" + add_name;
-            }
-          else
-            {
-
-            pathnonp = defaultpath + "\\temp\\" + name + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" + ST::inttostring(collinpred+1) + "_" +
-                    terms[i].varnames[1] + "_geospline_var.raw";
-
-            pathres = outfile.getvalue() + add_name + "_" +
-                    terms[i].varnames[0] + "_f_" +ST::inttostring(collinpred+1) + "_" +
-                    terms[i].varnames[1] + "_geospline_var.res";
-
-            title = terms[i].varnames[0] + "_f_" + ST::inttostring(collinpred+1) + "_" +
-                    terms[i].varnames[1] + "_variance" + add_name;
-            }
-
-          fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
-                        &fcpsplinesurf[fcpsplinesurf.size()-1],
-                                       distr[distr.size()-1],
-                                       a1,
-                                       b1,
-                                       title,pathnonp,pathres,
-                                       false,collinpred)
-                           );
-
-
-          if (constlambda.getvalue() == true)
-            fcvarnonp[fcvarnonp.size()-1].set_constlambda();
-
-
-          fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
-          fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
-          }
-
-        }
+      fcpsplinesurf[fcpsplinesurf.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcpsplinesurf[fcpsplinesurf.size()-1]);
 
       }
 
     }
-
-  */
 
   return false;
   }
@@ -2705,6 +2802,10 @@ void remlrun(remlreg & b)
 // Compute different model terms
   if (!failure)
     failure = b.create_const(0);
+  if( !failure)
+    failure = b.create_baseline(0);
+  if( !failure)
+    failure = b.create_baseline_varcoeff(0);
   if (!failure)
     failure = b.create_nonprw1rw2(0);
   if (!failure)
@@ -2722,6 +2823,8 @@ void remlrun(remlreg & b)
   if (!failure)
     failure = b.create_geospline(0);
   if (!failure)
+    failure = b.create_geospline_varcoeff(0);
+  if (!failure)
     failure = b.create_varcoeffpspline(0);
   if (!failure)
     failure = b.create_random(0);
@@ -2730,13 +2833,15 @@ void remlrun(remlreg & b)
   if (!failure)
     failure = b.create_interactionspspline(0);
   if (!failure)
+    failure = b.create_varcoeffinteractionspspline(0);
+  if (!failure)
     failure = b.create_kriging(0);
   if (!failure)
+    failure = b.create_kriging_varcoeff(0);
+  if (!failure)
     failure = b.create_geokriging(0);
-  if( !failure)
-    failure = b.create_baseline(0);
-  if( !failure)
-    failure = b.create_baseline_varcoeff(0);
+  if (!failure)
+    failure = b.create_geokriging_varcoeff(0);
 
   if (!failure)
     {

@@ -30,6 +30,8 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
   datamatrix tsteps;
 
   knotpos gridpos;
+  unsigned nrquant;
+  unsigned nrbetween;
 
   vector<unsigned>tstart;
   vector<unsigned>tend;
@@ -52,7 +54,8 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
   // CONSTRUCTOR 1
 
   baseline_reml(MCMCoptions * o, const datamatrix & d, const unsigned & nrk,
-               const unsigned & degr, const unsigned & tgr, const knotpos & kp,
+               const unsigned & degr, const unsigned & tgr,
+               const unsigned & nrq, const unsigned & nrb, const knotpos & kp,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
                const double & sl, const knotpos & gp);
@@ -89,6 +92,8 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
                statmatrix<double> & steps);
 
   void outoptionsreml();
+
+  void init_name(const ST::string & na);
 
   unsigned & get_tgrid(void)
     {

@@ -16,6 +16,8 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & v1,
   mapexisting=false;
   plotstyle=noplot;
 
+  varcoeff=false;
+
   pathresults = pres;
   pathresult = pres;
   pathcurrent = pres;
@@ -91,6 +93,99 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & v1,
   rho=sqrt(rho)/maxdist;
   }
 
+FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o,
+               const datamatrix & intact, const datamatrix & v1,
+               const datamatrix & v2, const datamatrix & knotdata,
+               const unsigned & nrk, const double & n, const double & maxd,
+               const double & pval, const double & qval, const unsigned & maxst,
+               const bool & fu,const fieldtype & ft, const ST::string & ti,
+               const ST::string & fp,const ST::string & pres, const double & l,
+               const double & sl)
+  : FULLCOND_nonp_basis(o,ti)
+  {
+  mapexisting=false;
+  plotstyle=noplot;
+
+  varcoeff=true;
+
+  pathresults = pres;
+  pathresult = pres;
+  pathcurrent = pres;
+  samplepath=fp;
+
+  nu=n;
+  maxdist=maxd;
+
+  p=pval;
+  q=qval;
+  maxsteps=maxst;
+
+  type = ft;
+
+  lambda = l;
+  startlambda = sl;
+
+  xorig=v1;
+  yorig=v2;
+
+  make_index(v1,v2);
+  make_xy_values(v1,v2);
+
+  full=fu;
+  if(full)
+    {
+    nrknots=nrdiffobs;
+    }
+  else
+    {
+    nrknots = nrk;
+    }
+
+
+  xknots.clear();
+  yknots.clear();
+  if(knotdata.cols()>1)
+    {
+    spacefill=false;
+    unsigned i;
+    nrknots=knotdata.rows();
+    for(i=0; i<nrknots; i++)
+      {
+      xknots.push_back(knotdata(i,0));
+      yknots.push_back(knotdata(i,1));
+      }
+    }
+  else
+    {
+    spacefill=true;
+    compute_knots(xvalues,yvalues);
+    }
+
+  nrpar = nrknots;
+  dimX = 0;
+  dimZ = nrknots;
+
+  Z_VCM = datamatrix(intact.rows(),dimZ,0.0);
+  data_forfixed = intact;
+
+  // berechne rho
+  unsigned i,j;
+  rho=0;
+  double norm2;
+  for(i=0; i<xvalues.size(); i++)
+    {
+    for(j=0; j<xvalues.size(); j++)
+      {
+      norm2=(xvalues[i]-xvalues[j])*(xvalues[i]-xvalues[j])+(yvalues[i]-yvalues[j])*(yvalues[i]-yvalues[j]);
+      if(norm2>rho)
+        {
+        rho=norm2;
+        }
+      }
+    }
+  rho=sqrt(rho)/maxdist;
+  }
+
 FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & region,
                const MAP::map & mp, const ST::string & mn, const datamatrix & knotdata,
                const unsigned & nrk, const double & n, const double & maxd,
@@ -104,6 +199,8 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & region,
   mapexisting = true;
   mapname = mn;
   plotstyle = drawmap;
+
+  varcoeff=false;
 
   datamatrix v1 = datamatrix(region.rows(),1,0.0);
   datamatrix v2 = datamatrix(region.rows(),1,0.0);
@@ -190,6 +287,113 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & region,
   rho=sqrt(rho)/maxdist;
   }
 
+  // Constructor 3: geokriging (varcoeff)
+
+FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
+               const datamatrix & region, const MAP::map & mp,
+               const ST::string & mn, const datamatrix & knotdata,
+               const unsigned & nrk, const double & n, const double & maxd,
+               const double & pval, const double & qval, const unsigned & maxst,
+               const bool & fu, const fieldtype & ft, const ST::string & ti,
+               const ST::string & fp, const ST::string & pres, const double & l,
+               const double & sl)
+  : FULLCOND_nonp_basis(o,ti)
+  {
+  m = mp;
+  mapexisting = true;
+  mapname = mn;
+  plotstyle = drawmap;
+
+  varcoeff=true;
+  data_forfixed = intact;
+
+  datamatrix v1 = datamatrix(region.rows(),1,0.0);
+  datamatrix v2 = datamatrix(region.rows(),1,0.0);
+
+  ST::string regname;
+  for(unsigned i=0;i<region.rows();i++)
+    {
+    regname = ST::doubletostring(region(i,0));
+    regionnames.push_back(regname);
+    v1(i,0) = m.get_region(m.getnr(regname)).get_xcenter();
+    v2(i,0) = m.get_region(m.getnr(regname)).get_ycenter();
+    }
+  pathresults = pres;
+  pathresult = pres;
+  pathcurrent = pres;
+  samplepath=fp;
+
+  nu=n;
+  maxdist=maxd;
+
+  p=pval;
+  q=qval;
+  maxsteps=maxst;
+
+  type = ft;
+
+  lambda = l;
+  startlambda = sl;
+
+  xorig=v1;
+  yorig=v2;
+
+  make_index(v1,v2);
+  make_xy_values(v1,v2);
+
+  full=fu;
+  if(full)
+    {
+    nrknots=nrdiffobs;
+    }
+  else
+    {
+    nrknots = nrk;
+    }
+
+  xknots.clear();
+  yknots.clear();
+  if(knotdata.cols()>1)
+    {
+    spacefill=false;
+    unsigned i;
+    nrknots=knotdata.rows();
+    for(i=0; i<nrknots; i++)
+      {
+      xknots.push_back(knotdata(i,0));
+      yknots.push_back(knotdata(i,1));
+      }
+    }
+  else
+    {
+    spacefill=true;
+    compute_knots(xvalues,yvalues);
+    }
+
+  nrpar = nrknots;
+  dimX = 0;
+  dimZ = nrknots;
+  Z_VCM = datamatrix(region.rows(),dimZ,0.0);
+
+  // berechne rho
+  unsigned i,j;
+  rho=0;
+  double norm2;
+  for(i=0; i<xvalues.size(); i++)
+    {
+    for(j=0; j<xvalues.size(); j++)
+      {
+      norm2=(xvalues[i]-xvalues[j])*(xvalues[i]-xvalues[j])+(yvalues[i]-yvalues[j])*(yvalues[i]-yvalues[j]);
+      if(norm2>rho)
+        {
+        rho=norm2;
+        }
+      }
+    }
+  rho=sqrt(rho)/maxdist;
+  }
+
+
 FULLCOND_kriging::FULLCOND_kriging(const FULLCOND_kriging & kr)
   : FULLCOND_nonp_basis(FULLCOND_nonp_basis(kr))
   {
@@ -215,6 +419,8 @@ FULLCOND_kriging::FULLCOND_kriging(const FULLCOND_kriging & kr)
   mapexisting = kr.mapexisting;
   mapname = kr.mapname;
   regionnames = kr.regionnames;
+  Z_VCM = kr.Z_VCM;
+  data_forfixed = kr.data_forfixed;
   }
 
 const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr)
@@ -245,6 +451,8 @@ const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr
   mapexisting = kr.mapexisting;
   mapname = kr.mapname;
   regionnames = kr.regionnames;
+  Z_VCM = kr.Z_VCM;
+  data_forfixed = kr.data_forfixed;
   return *this;
   }
 
@@ -323,7 +531,15 @@ void FULLCOND_kriging::createreml(datamatrix & X,datamatrix & Z,
     }
   cov.multdiagback(vals);*/
 
-  Z.putColBlock(Zpos,Zpos+nrknots,Z.getColBlock(Zpos,Zpos+nrknots)*cov);
+  if(!varcoeff)
+    {
+    Z.putColBlock(Zpos,Zpos+nrknots,Z.getColBlock(Zpos,Zpos+nrknots)*cov);
+    }
+  else
+    {
+    Z_VCM = Z.getColBlock(Zpos,Zpos+nrknots)*cov;
+    Z.putColBlock(Zpos,Zpos+nrknots,multdiagfront(Z_VCM,data_forfixed));
+    }
 
   }
 
@@ -675,30 +891,64 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
 
   vector<ST::string> regionnameshelp=regionnames;
 
-  for(i=0,j=0;i<Z.rows();i++,indexit++,freqwork++,k+=*indexit)
+  if(!varcoeff)
     {
-    if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+    for(i=0,j=0;i<Z.rows();i++,indexit++,freqwork++,k+=*indexit)
       {
-      betamean(j,0) = (Z.getBlock(k,Zpos,k+1,Zpos+nrpar)*betareml.getBlock(betaZpos,0,betaZpos+nrpar,1))(0,0);
-      betastd(j,0) = sqrt((Z.getBlock(k,Zpos,k+1,Zpos+nrpar)*
-               betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar,betaZpos+nrpar)*
-               Z.getBlock(k,Zpos,k+1,Zpos+nrpar).transposed())(0,0));
-      if(mapexisting)
+      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
         {
-        regionnameshelp[j]=regionnames[k];
+        betamean(j,0) = (Z.getBlock(k,Zpos,k+1,Zpos+nrpar)*betareml.getBlock(betaZpos,0,betaZpos+nrpar,1))(0,0);
+        betastd(j,0) = sqrt((Z.getBlock(k,Zpos,k+1,Zpos+nrpar)*
+                 betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar,betaZpos+nrpar)*
+                 Z.getBlock(k,Zpos,k+1,Zpos+nrpar).transposed())(0,0));
+        if(mapexisting)
+         {
+          regionnameshelp[j]=regionnames[k];
+          }
+        j++;
         }
-      j++;
+      }
+    }
+  else
+    {
+    for(i=0,j=0;i<Z.rows();i++,indexit++,freqwork++,k+=*indexit)
+      {
+      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+        {
+        betamean(j,0) = (Z_VCM.getRow(k)*betareml.getBlock(betaZpos,0,betaZpos+nrpar,1))(0,0);
+        betastd(j,0) = sqrt((Z_VCM.getRow(k)*
+                 betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar,betaZpos+nrpar)*
+                 Z_VCM.getRow(k).transposed())(0,0));
+        if(mapexisting)
+         {
+          regionnameshelp[j]=regionnames[k];
+          }
+        j++;
+        }
       }
     }
 
-  mean = betamean.mean(0);
-  for(j=0; j<nr; j++)
+  if(!varcoeff)
     {
-    betamean(j,0)=betamean(j,0)-mean;
-    betaqu_l1_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower1/100)*betastd(j,0);
-    betaqu_l1_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper2/100)*betastd(j,0);
-    betaqu_l2_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower2/100)*betastd(j,0);
-    betaqu_l2_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper1/100)*betastd(j,0);
+    mean = betamean.mean(0);
+    for(j=0; j<nr; j++)
+      {
+      betamean(j,0)=betamean(j,0)-mean;
+      betaqu_l1_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower1/100)*betastd(j,0);
+      betaqu_l1_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper2/100)*betastd(j,0);
+      betaqu_l2_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower2/100)*betastd(j,0);
+      betaqu_l2_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper1/100)*betastd(j,0);
+      }
+    }
+  else
+    {
+    for(j=0; j<nr; j++)
+      {
+      betaqu_l1_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower1/100)*betastd(j,0);
+      betaqu_l1_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper2/100)*betastd(j,0);
+      betaqu_l2_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower2/100)*betastd(j,0);
+      betaqu_l2_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper1/100)*betastd(j,0);
+      }
     }
 
   FULLCOND::outresults();
@@ -881,17 +1131,38 @@ void FULLCOND_kriging::init_names(const vector<ST::string> & na)
   {
   FULLCOND::init_names(na);
   ST::string underscore = "\\_";
-  if(mapexisting)
+  if(!varcoeff)
     {
-    ST::string helpname0 = na[0].insert_string_char('_',underscore);
-    term_symbolic = "f_{" + helpname0 + "}(" + helpname0 + ")";
+    if(mapexisting)
+      {
+      ST::string helpname0 = na[0].insert_string_char('_',underscore);
+      term_symbolic = "f_{" + helpname0 + "}(" + helpname0 + ")";
+      }
+    else
+      {
+      ST::string helpname0 = na[0].insert_string_char('_',underscore);
+      ST::string helpname1 = na[1].insert_string_char('_',underscore);
+      term_symbolic = "f_{" +  helpname0 + "," + helpname1 + "}(" + helpname0 + "," + helpname1 + ")";
+      }
     }
   else
     {
-    ST::string helpname0 = na[0].insert_string_char('_',underscore);
-    ST::string helpname1 = na[1].insert_string_char('_',underscore);
-    term_symbolic = "f_{" +  helpname0 + "," + helpname1 + "}(" + helpname0 + "," + helpname1 + ")";
+    if(mapexisting)
+      {
+      ST::string helpname0 = na[0].insert_string_char('_',underscore);
+      ST::string helpname1 = na[1].insert_string_char('_',underscore);
+      term_symbolic = "f_{" + helpname0 + "}(" + helpname0 + ")" + " \\cdot " + helpname1;
+      }
+    else
+      {
+      ST::string helpname0 = na[0].insert_string_char('_',underscore);
+      ST::string helpname1 = na[1].insert_string_char('_',underscore);
+      ST::string helpname2 = na[2].insert_string_char('_',underscore);
+      term_symbolic = "f_{" +  helpname0 + "," + helpname1 + "}(" + helpname0 + "," + helpname1 + ")" + " \\cdot " + helpname2;
+      }
     }
+
+
   priorassumptions.push_back("$" + term_symbolic + "$");
   priorassumptions.push_back("Stationary Gaussian Random Field");
 

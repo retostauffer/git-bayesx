@@ -54,6 +54,9 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
   vector<int>freqoutput;
   unsigned nrdiffobs;
 
+  datamatrix X_VCM;                  // für REML VCM
+  datamatrix Z_VCM;                  // für REML VCM
+
   void make_index(const datamatrix & var1,const datamatrix & var2);
   void make_xy_values(const datamatrix & var1,const datamatrix & var2);
   void compute_knots(const vector<double> & xvals,const vector<double> & yvals);
@@ -74,7 +77,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
 
   const FULLCOND_kriging & operator=(const FULLCOND_kriging & kr);
 
-  // Constructor1
+  // Constructor 1
 
   FULLCOND_kriging(MCMCoptions * o, const datamatrix & v1,
                const datamatrix & v2, const datamatrix & knotdata,
@@ -84,7 +87,19 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const ST::string & fp, const ST::string & pres, const double & l,
                const double & sl);
 
-  // Constructor2: geokriging
+
+  // Constructor 2
+
+  FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
+               const datamatrix & v1,
+               const datamatrix & v2, const datamatrix & knotdata,
+               const unsigned & nrk, const double & n, const double & maxd,
+               const double & pval, const double & qval, const unsigned & maxst,
+               const bool & fu, const fieldtype & ft, const ST::string & ti,
+               const ST::string & fp, const ST::string & pres, const double & l,
+               const double & sl);
+
+  // Constructor 3: geokriging
 
   FULLCOND_kriging(MCMCoptions * o, const datamatrix & region,
                const MAP::map & mp, const ST::string & mn, const datamatrix & knotdata,
@@ -93,6 +108,18 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
                const double & sl);
+
+  // Constructor 4: geokriging (varcoeff)
+
+  FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
+               const datamatrix & region, const MAP::map & mp,
+               const ST::string & mn, const datamatrix & knotdata,
+               const unsigned & nrk, const double & n, const double & maxd,
+               const double & pval, const double & qval, const unsigned & maxst,
+               const bool & fu, const fieldtype & ft, const ST::string & ti,
+               const ST::string & fp, const ST::string & pres, const double & l,
+               const double & sl);
+
   // DESTRUCTOR
 
   ~FULLCOND_kriging(){}

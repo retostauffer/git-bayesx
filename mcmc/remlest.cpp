@@ -3,7 +3,6 @@
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include "StatResults.h"
 #include "statwinframe.h"
-
 #endif
 
 //------------------------------------------------------------------------------
@@ -383,6 +382,51 @@
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcut[0],0,0,false,0);
 
+  H.addtodiag(-Qinv,X.cols(),beta.rows());
+  double loglike=0;
+  double aic=0;
+  double bic=0;
+  double gcv=0;
+  double df=(H*Hinv).trace();
+  if(respfamily=="poisson")
+    {
+    for(i=0; i<eta.rows(); i++)
+      {
+      loglike += weight(i,0)*(resp(i,0)*eta(i,0)-mu(i,0));
+      if(resp(i,0)>0)
+        {
+        gcv += weight(i,0)*(resp(i,0)*log(resp(i,0))-resp(i,0));
+        }
+      }
+    }
+  else
+    {
+    for(i=0; i<eta.rows(); i++)
+      {
+      loglike += weight(i,0)*(resp(i,0)*log(mu(i,0))+(1-resp(i,0))*log(1-mu(i,0)));
+      if(resp(i,0)>0 && resp(i,0)<1)
+        {
+        gcv += weight(i,0)*(resp(i,0)*log(resp(i,0))+(1-resp(i,0))*log(1-resp(i,0)));
+        }
+      }
+    }
+  loglike *= -2;
+  gcv = loglike+2*gcv;
+  gcv /= (double)eta.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+  aic = loglike + 2*df;
+  bic = loglike + log(eta.rows())*df;
+
+  out("\n");
+  out("  Model Fit\n",true);
+  out("\n");
+  out("\n");
+  out("  -2*log-likelihood:                 " + ST::doubletostring(loglike,6) + "\n");
+  out("  Degrees of freedom:                " + ST::doubletostring(df,6) + "\n");
+  out("  (conditional) AIC:                 " + ST::doubletostring(aic,6) + "\n");
+  out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
+  out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
+  out("\n");
+
   out("\n");
   out("  Additive predictor and expectations\n",true);
   out("\n");
@@ -576,6 +620,50 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
     beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,H,datamatrix(1,1,0),xcut[i],zcut[i-1],i-1,false,xcut[i],X.cols()+zcut[i-1],0,false,i);
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,datamatrix(1,1,0),xcut[0],0,0,false,xcut[0],0,0,false,0);
+
+  double loglike=0;
+  double aic=0;
+  double bic=0;
+  double gcv=0;
+  double df=X.cols();
+  if(respfamily=="poisson")
+    {
+    for(i=0; i<eta.rows(); i++)
+      {
+      loglike += weight(i,0)*(resp(i,0)*eta(i,0)-mu(i,0));
+      if(resp(i,0)>0)
+        {
+        gcv += weight(i,0)*(resp(i,0)*log(resp(i,0))-resp(i,0));
+        }
+      }
+    }
+  else
+    {
+    for(i=0; i<eta.rows(); i++)
+      {
+      loglike += weight(i,0)*(resp(i,0)*log(mu(i,0))+(1-resp(i,0))*log(1-mu(i,0)));
+      if(resp(i,0)>0 && resp(i,0)<1)
+        {
+        gcv += weight(i,0)*(resp(i,0)*log(resp(i,0))+(1-resp(i,0))*log(1-resp(i,0)));
+        }
+      }
+    }
+  loglike *= -2;
+  gcv = loglike+2*gcv;
+  gcv /= (double)eta.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+  aic = loglike + 2*df;
+  bic = loglike + log((double)eta.rows())*df;
+
+  out("\n");
+  out("  Model Fit\n",true);
+  out("\n");
+  out("\n");
+  out("  -2*log-likelihood:                 " + ST::doubletostring(loglike,6) + "\n");
+  out("  Degrees of freedom:                " + ST::doubletostring(df,6) + "\n");
+  out("  (conditional) AIC:                 " + ST::doubletostring(aic,6) + "\n");
+  out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
+  out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
+  out("\n");
 
   out("\n");
   out("  Linear predictor and expectations\n",true);
@@ -971,6 +1059,60 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,true,xcut[0],0,0,false,0);
 
+  if(respfamily=="gaussian")// || respfamily=="gamma")
+    {
+    H.addtodiag(-Qinv,X.cols(),beta.rows());
+    double loglike=0;
+    double aic=0;
+    double bic=0;
+    double gcv=0;
+    double s;
+    double df=(H*Hinv).trace();
+    if(respfamily=="gaussian")
+      {
+      for(i=0; i<eta.rows(); i++)
+        {
+        s = theta(theta.rows()-1,0)/weight(i,0);
+        gcv += weight(i,0)*(resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0));
+        loglike += log(s) + (resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0))/s;
+        }
+      }
+/*    else if(respfamily=="gamma")
+      {
+      MCMC::DISTRIBUTION_gamma dg = MCMC::DISTRIBUTION_gamma();
+      for(i=0; i<eta.rows(); i++)
+        {
+        s = weight(i,0)/theta(theta.rows()-1,0);
+        loglike += (s-1)*log(resp(i,0)) - s*resp(i,0)/mu(i,0) - s*log(s/mu(i,0)) - dg.lgammafunc(s);
+        gcv += s*(resp(i,0)/mu(i,0) - 1 - log(resp(i,0)/mu(i,0)));
+        }
+      loglike *= -2;
+      gcv *= 2;
+      }*/
+    gcv /= (double)eta.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+    aic = loglike + 2*df;
+    bic = loglike + log(eta.rows())*df;
+
+    out("\n");
+    out("  Model Fit\n",true);
+    out("\n");
+    out("\n");
+    out("  -2*log-likelihood:                 " + ST::doubletostring(loglike,6) + "\n");
+    out("  Degrees of freedom:                " + ST::doubletostring(df,6) + "\n");
+    out("  (conditional) AIC:                 " + ST::doubletostring(aic,6) + "\n");
+    out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
+    if(respfamily=="gaussian")
+      {
+      out("  GCV:                               " + ST::doubletostring(gcv,6) + "\n");
+      }
+/*    else
+      {
+      out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
+      }*/
+    out("\n");
+    }
+
+
   out("\n");
   out("  Additive predictor and expectations\n",true);
   out("\n");
@@ -1264,6 +1406,58 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
     beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,H,theta,xcut[i],zcut[i-1],i-1,true,xcut[i],X.cols()+zcut[i-1],0,false,i);
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,theta,xcut[0],0,0,true,xcut[0],0,0,false,0);
+
+  if(respfamily=="gaussian")// || respfamily=="gamma")
+    {
+    double loglike=0;
+    double aic=0;
+    double bic=0;
+    double gcv=0;
+    double s;
+    double df=X.cols();
+    if(respfamily=="gaussian")
+      {
+      for(i=0; i<eta.rows(); i++)
+        {
+        s = theta(theta.rows()-1,0)/weight(i,0);
+        gcv += weight(i,0)*(resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0));
+        loglike += log(s) + (resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0))/s;
+        }
+      }
+/*    else if(respfamily=="gamma")
+      {
+      MCMC::DISTRIBUTION_gamma dg = MCMC::DISTRIBUTION_gamma();
+      for(i=0; i<eta.rows(); i++)
+        {
+        s = weight(i,0)/theta(theta.rows()-1,0);
+        loglike += (s-1)*log(resp(i,0)) - s*resp(i,0)/mu(i,0) - s*log(s/mu(i,0)) - dg.lgammafunc(s);
+        gcv += s*(resp(i,0)/mu(i,0) - 1 - log(resp(i,0)/mu(i,0)));
+        }
+      loglike *= -2;
+      gcv *= 2;
+      }*/
+    gcv /= (double)eta.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+    aic = loglike + 2*df;
+    bic = loglike + log(eta.rows())*df;
+
+    out("\n");
+    out("  Model Fit\n",true);
+    out("\n");
+    out("\n");
+    out("  -2*log-likelihood:                 " + ST::doubletostring(loglike,6) + "\n");
+    out("  Degrees of freedom:                " + ST::doubletostring(df,6) + "\n");
+    out("  (conditional) AIC:                 " + ST::doubletostring(aic,6) + "\n");
+    out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
+    if(respfamily=="gaussian")
+      {
+      out("  GCV:                               " + ST::doubletostring(gcv,6) + "\n");
+      }
+/*    else
+      {
+      out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
+      }*/
+    out("\n");
+    }
 
   out("\n");
   out("  Linear predictor and expectations\n",true);
@@ -2745,5 +2939,9 @@ void remlest::outerror(const ST::string & s)
   {
   out(s,true,true,12,255,0,0);
   }
+
+//------------------------------------------------------------------------------
+//------------------------------- Miscellanea ----------------------------------
+//------------------------------------------------------------------------------
 
 

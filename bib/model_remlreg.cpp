@@ -1457,11 +1457,13 @@ term_baseline_remlreg::term_baseline_remlreg(void)
   type = "term_baseline";
   degree=intoption("degree",3,0,5);
   numberknots=intoption("nrknots",20,5,500);
-  tgrid = intoption("tgrid",300,5,1000);
+  tgrid = intoption("tgrid",300,5,2000);
   vector<ST::string> gridchoices;
   gridchoices.push_back("equidistant");
   gridchoices.push_back("quantiles");
   gridchoice = stroption("gridchoice",gridchoices,"equidistant");
+  numberquantiles = intoption("nrquantiles",60,5,1000);
+  numberbetween = intoption("nrbetween",5,1,100);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",1000,0,10000000);
   }
@@ -1479,7 +1481,7 @@ void term_baseline_remlreg::setdefault(void)
 bool term_baseline_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 7) )
+        && (t.options.size() <= 9) )
     {
 
     if (t.options[0] == "baseline")
@@ -1497,6 +1499,8 @@ bool term_baseline_remlreg::check(term & t)
     optlist.push_back(&numberknots);
     optlist.push_back(&tgrid);
     optlist.push_back(&gridchoice);
+    optlist.push_back(&numberquantiles);
+    optlist.push_back(&numberbetween);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
 
@@ -1522,14 +1526,16 @@ bool term_baseline_remlreg::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(7);
+   t.options = vector<ST::string>(9);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(degree.getvalue());
    t.options[2] = ST::inttostring(numberknots.getvalue());
    t.options[3] = ST::inttostring(tgrid.getvalue());
    t.options[4] = gridchoice.getvalue();
-   t.options[5] = ST::doubletostring(lambda.getvalue());
-   t.options[6] = ST::doubletostring(lambdastart.getvalue());
+   t.options[5] = ST::inttostring(numberquantiles.getvalue());
+   t.options[6] = ST::inttostring(numberbetween.getvalue());
+   t.options[7] = ST::doubletostring(lambda.getvalue());
+   t.options[8] = ST::doubletostring(lambdastart.getvalue());
 
 
    if (lambda.getvalue() < 0)
@@ -1538,7 +1544,7 @@ bool term_baseline_remlreg::check(term & t)
      return false;
      }
 
-    int b = t.options[6].strtodouble(startl);
+    int b = t.options[8].strtodouble(startl);
 
     if (b==1)
       {
@@ -1575,18 +1581,12 @@ bool term_baseline_remlreg::checkvector(const vector<term> & terms,const unsigne
 term_baseline_varcoeff_remlreg::term_baseline_varcoeff_remlreg(void)
   {
   type = "term_baseline_varcoeff";
-  degree=intoption("degree",3,0,5);
-  numberknots=intoption("nrknots",20,5,500);
-  tgrid = intoption("tgrid",300,5,2000);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",1000,0,10000000);
   }
 
 void term_baseline_varcoeff_remlreg::setdefault(void)
   {
-  degree.setdefault();
-  numberknots.setdefault();
-  tgrid.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
   }
@@ -1594,7 +1594,7 @@ void term_baseline_varcoeff_remlreg::setdefault(void)
 bool term_baseline_varcoeff_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 6) )
+        && (t.options.size() <= 3) )
     {
 
     if (t.options[0] == "baseline")
@@ -1608,9 +1608,6 @@ bool term_baseline_varcoeff_remlreg::check(term & t)
     double startl;
 
     optionlist optlist;
-    optlist.push_back(&degree);
-    optlist.push_back(&numberknots);
-    optlist.push_back(&tgrid);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
 
@@ -1636,13 +1633,10 @@ bool term_baseline_varcoeff_remlreg::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(6);
+   t.options = vector<ST::string>(3);
    t.options[0] = t.type;
-   t.options[1] = ST::inttostring(degree.getvalue());
-   t.options[2] = ST::inttostring(numberknots.getvalue());
-   t.options[3] = ST::inttostring(tgrid.getvalue());
-   t.options[4] = ST::doubletostring(lambda.getvalue());
-   t.options[5] = ST::doubletostring(lambdastart.getvalue());
+   t.options[1] = ST::doubletostring(lambda.getvalue());
+   t.options[2] = ST::doubletostring(lambdastart.getvalue());
 
 
    if (lambda.getvalue() < 0)
@@ -1651,7 +1645,7 @@ bool term_baseline_varcoeff_remlreg::check(term & t)
      return false;
      }
 
-    int b = t.options[5].strtodouble(startl);
+    int b = t.options[2].strtodouble(startl);
 
     if (b==1)
       {
@@ -1681,4 +1675,441 @@ bool term_baseline_varcoeff_remlreg::checkvector(const vector<term> & terms,cons
   return false;
   }
 
+//------------------------------------------------------------------------------
+//-- class term_geospline_varcoeff_remlreg: implementation of member functions -
+//------------------------------------------------------------------------------
+
+term_geospline_varcoeff_remlreg::term_geospline_varcoeff_remlreg(void)
+  {
+  type = "term_geospline_varcoeff";
+  map=stroption("map");
+  degree=intoption("degree",3,1,5);
+  numberknots=intoption("nrknots",20,5,500);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  lambdastart = doubleoption("lambdastart",10,0,10000000);
+  }
+
+
+void term_geospline_varcoeff_remlreg::setdefault(void)
+  {
+  map.setdefault();
+  degree.setdefault();
+  numberknots.setdefault();
+  lambda.setdefault();
+  lambdastart.setdefault();
+  }
+
+bool term_geospline_varcoeff_remlreg::check(term & t)
+  {
+
+  if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
+        && (t.options.size() <= 6) )
+    {
+
+    if (t.options[0] == "geospline")
+      t.type = "vargeospline";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    optionlist optlist;
+    optlist.push_back(&degree);
+    optlist.push_back(&numberknots);
+    optlist.push_back(&lambda);
+    optlist.push_back(&map);
+    optlist.push_back(&lambdastart);
+
+    unsigned i;
+
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(6);
+    t.options[0] = t.type;
+    t.options[1] = ST::inttostring(degree.getvalue());
+    t.options[2] = ST::inttostring(numberknots.getvalue());
+    t.options[3] = ST::doubletostring(lambda.getvalue());
+    t.options[4] = map.getvalue();
+    t.options[5] = ST::doubletostring(lambdastart.getvalue());
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
+bool term_geospline_varcoeff_remlreg::checkvector(const vector<term> & terms, const unsigned & i)
+  {
+  assert(i< terms.size());
+
+  if (terms[i].type == "vargeospline")
+    return true;
+
+  return false;
+  }
+
+//------------------------------------------------------------------------------
+//- class term_geokriging_varcoeff_remlreg: implementation of member functions -
+//------------------------------------------------------------------------------
+
+
+term_geokriging_varcoeff_remlreg::term_geokriging_varcoeff_remlreg(void)
+  {
+  type = "term_geokriging_varcoeff";
+  numberknots=intoption("nrknots",50,5,500);
+  nu=doubleoption("nu",1.5,0.5,3.5);
+  maxdist=doubleoption("maxdist",-1,0.00001,10000);
+  full=simpleoption("full",false);
+  knotdata=stroption("knotdata");
+  p=doubleoption("p",-20,-1000,-0.0001);
+  q=doubleoption("q",20,0.0001,1000);
+  maxsteps=intoption("maxsteps",100,1,10000);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  lambdastart = doubleoption("lambdastart",0.1,0,10000000);
+  map=stroption("map");
+  }
+
+
+void term_geokriging_varcoeff_remlreg::setdefault(void)
+  {
+  numberknots.setdefault();
+  nu.setdefault();
+  maxdist.setdefault();
+  full.setdefault();
+  knotdata.setdefault();
+  p.setdefault();
+  q.setdefault();
+  maxsteps.setdefault();
+  lambda.setdefault();
+  lambdastart.setdefault();
+  map.setdefault();
+  }
+
+
+bool term_geokriging_varcoeff_remlreg::check(term & t)
+  {
+
+  if ( (t.varnames.size()==2)  && (t.options.size() >=1)
+        && (t.options.size() <= 12) )
+    {
+
+    if (t.options[0] == "geokriging")
+      t.type = "vargeokriging";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    optionlist optlist;
+    optlist.push_back(&numberknots);
+    optlist.push_back(&nu);
+    optlist.push_back(&maxdist);
+    optlist.push_back(&full);
+    optlist.push_back(&knotdata);
+    optlist.push_back(&p);
+    optlist.push_back(&q);
+    optlist.push_back(&maxsteps);
+    optlist.push_back(&lambda);
+    optlist.push_back(&lambdastart);
+    optlist.push_back(&map);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(12);
+    t.options[0] = t.type;
+    t.options[1] = ST::inttostring(numberknots.getvalue());
+    t.options[2] = ST::doubletostring(nu.getvalue());
+    t.options[3] = ST::doubletostring(maxdist.getvalue());
+    if(full.getvalue()==true)
+      {
+      t.options[4] = "true";
+      }
+    else
+      {
+      t.options[4] = "false";
+      }
+    t.options[5] = knotdata.getvalue();
+    t.options[6] = ST::doubletostring(p.getvalue());
+    t.options[7] = ST::doubletostring(q.getvalue());
+    t.options[8] = ST::inttostring(maxsteps.getvalue());
+    t.options[9] = ST::doubletostring(lambda.getvalue());
+    t.options[10] = ST::doubletostring(lambdastart.getvalue());
+    t.options[11] = map.getvalue();
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
+//-----------------------------------------------------------------------------------
+//- class term_interactpspline_varcoeff_remlreg: implementation of member functions -
+//-----------------------------------------------------------------------------------
+
+term_interactpspline_varcoeff_remlreg::term_interactpspline_varcoeff_remlreg(void)
+  {
+  type = "term_interactpspline_varcoeff";
+  degree=intoption("degree",3,1,5);
+  numberknots=intoption("nrknots",20,5,500);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  lambdastart = doubleoption("lambdastart",10,0,10000000);
+  }
+
+
+void term_interactpspline_varcoeff_remlreg::setdefault(void)
+  {
+  degree.setdefault();
+  numberknots.setdefault();
+  lambda.setdefault();
+  lambdastart.setdefault();
+  }
+
+bool term_interactpspline_varcoeff_remlreg::check(term & t)
+  {
+
+  optionlist optlist;
+  optlist.push_back(&degree);
+  optlist.push_back(&numberknots);
+  optlist.push_back(&lambda);
+  optlist.push_back(&lambdastart);
+
+  if ( (t.varnames.size()==3)  && (t.options.size() >= 1)
+        && (t.options.size() <= 4) )
+    {
+
+    if (t.options[0] == "pspline2dimrw1")
+      t.type = "varpspline2dimrw1";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    unsigned i;
+
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(5);
+    t.options[0] = t.type;
+    t.options[1] = ST::inttostring(degree.getvalue());
+    t.options[2] = ST::inttostring(numberknots.getvalue());
+    t.options[3] = ST::doubletostring(lambda.getvalue());
+    t.options[4] = ST::doubletostring(lambdastart.getvalue());
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+  }
+
+
+bool term_interactpspline_varcoeff_remlreg::checkvector(const vector<term> & terms,
+                                       const unsigned & i)
+  {
+
+  assert(i< terms.size());
+
+  if (terms[i].type == "varpspline2dimrw1")
+    return true;
+
+  return false;
+  }
+
+//------------------------------------------------------------------------------
+//-- class term_kriging_varcoeff_remlreg: implementation of member functions ---
+//------------------------------------------------------------------------------
+
+
+term_kriging_varcoeff_remlreg::term_kriging_varcoeff_remlreg(void)
+  {
+  type = "term_kriging_varcoeff";
+  numberknots=intoption("nrknots",50,5,500);
+  nu=doubleoption("nu",1.5,0.5,3.5);
+  maxdist=doubleoption("maxdist",-1,0.00001,10000);
+  full=simpleoption("full",false);
+  knotdata=stroption("knotdata");
+  p=doubleoption("p",-20,-1000,-0.0001);
+  q=doubleoption("q",20,0.0001,1000);
+  maxsteps=intoption("maxsteps",100,1,10000);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  lambdastart = doubleoption("lambdastart",0.1,0,10000000);
+  }
+
+
+void term_kriging_varcoeff_remlreg::setdefault(void)
+  {
+  numberknots.setdefault();
+  nu.setdefault();
+  maxdist.setdefault();
+  full.setdefault();
+  knotdata.setdefault();
+  p.setdefault();
+  q.setdefault();
+  maxsteps.setdefault();
+  lambda.setdefault();
+  lambdastart.setdefault();
+  }
+
+
+bool term_kriging_varcoeff_remlreg::check(term & t)
+  {
+
+  if ( (t.varnames.size()==3)  && (t.options.size() >=1)
+        && (t.options.size() <= 11) )
+    {
+
+    if (t.options[0] == "kriging")
+      t.type = "varkriging";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    optionlist optlist;
+    optlist.push_back(&numberknots);
+    optlist.push_back(&nu);
+    optlist.push_back(&maxdist);
+    optlist.push_back(&full);
+    optlist.push_back(&knotdata);
+    optlist.push_back(&p);
+    optlist.push_back(&q);
+    optlist.push_back(&maxsteps);
+    optlist.push_back(&lambda);
+    optlist.push_back(&lambdastart);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(11);
+    t.options[0] = t.type;
+    t.options[1] = ST::inttostring(numberknots.getvalue());
+    t.options[2] = ST::doubletostring(nu.getvalue());
+    t.options[3] = ST::doubletostring(maxdist.getvalue());
+    if(full.getvalue()==true)
+      {
+      t.options[4] = "true";
+      }
+    else
+      {
+      t.options[4] = "false";
+      }
+    t.options[5] = knotdata.getvalue();
+    t.options[6] = ST::doubletostring(p.getvalue());
+    t.options[7] = ST::doubletostring(q.getvalue());
+    t.options[8] = ST::inttostring(maxsteps.getvalue());
+    t.options[9] = ST::doubletostring(lambda.getvalue());
+    t.options[10] = ST::doubletostring(lambdastart.getvalue());
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
 

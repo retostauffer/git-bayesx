@@ -243,8 +243,12 @@ class __EXPORT_TYPE remlreg : public statobject
   vector<FULLCOND_kriging> fckriging;
   term_kriging_remlreg nonpspatial_kriging;
   bool create_kriging(const unsigned & collinpred=0);
+  term_kriging_varcoeff_remlreg nonpspatial_kriging_varcoeff;
+  bool create_kriging_varcoeff(const unsigned & collinpred=0);
   term_geokriging_remlreg nonpspatial_geokriging;
   bool create_geokriging(const unsigned & collinpred=0);
+  term_geokriging_varcoeff_remlreg nonpspatial_geokriging_varcoeff;
+  bool create_geokriging_varcoeff(const unsigned & collinpred=0);
 
   vector<baseline_reml> fcbaseline;
   term_baseline_remlreg nonp_baseline;
@@ -258,13 +262,15 @@ class __EXPORT_TYPE remlreg : public statobject
   term_varcoeff_pspline_remlreg nonpvarcoeffpspline;
   term_pspline_remlreg nonppspline;
   term_interactpspline_remlreg nonpinteractpspline;
+  term_interactpspline_varcoeff_remlreg nonpvarcoeffinteractpspline;
   term_geospline_remlreg nonpgeospline;
-  term_varcoeff_geospline nonpvarcoeffgeospline;
+  term_geospline_varcoeff_remlreg nonpvarcoeffgeospline;
   bool create_pspline(const unsigned & collinpred=0);
   bool create_varcoeffpspline(const unsigned & collinpred=0);
   bool create_interactionspspline(const unsigned & collinpred=0);
+  bool create_varcoeffinteractionspspline(const unsigned & collinpred=0);
   bool create_geospline(const unsigned & collinpred=0);
-  bool create_varcoeff_geospline(const unsigned & collinpred=0);
+  bool create_geospline_varcoeff(const unsigned & collinpred=0);
 
 //------------------------ for nonparametric terms -----------------------------
 
