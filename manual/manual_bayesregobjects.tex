@@ -101,7 +101,7 @@ the mean and $s_r = \nu/weightvar_r$ is the scale parameter.
 
 If estimation is based on latent utility representations, the
 specification of weights is not allowed. Also for negative
-binomial, zero inflated Poisson and zero inflated negative 
+binomial, zero inflated Poisson and zero inflated negative
 binomial models is weighted regression not implemented.
 
 \subsubsection{Syntax of possible model terms}
@@ -1125,10 +1125,10 @@ A weight variable can not be additionally specified.
 
 Zero inflated count data distributions are used when the
 number of zero counts in the data exceeds the number of
-zero counts expected by the distribution. They are based on 
-two processes. The first process is an underlying count data 
-process, that can not be observed directly, but after a 
-transformation through a so called selection process. This 
+zero counts expected by the distribution. They are based on
+two processes. The first process is an underlying count data
+process, that can not be observed directly, but after a
+transformation through a so called selection process. This
 one is defined through a 0/1 variable. If we have a 0 in the
 selection process, the observed count will be zero, independently
 of the generated value by the underlying count data process.
@@ -1136,7 +1136,7 @@ Otherwise, if we have a 1, then we will observe directly the
 generated value by the underlying count data process.
 The implemented zero inflated distributions in {\em BayesX}
 do not work with both processes directly. They are marginalized
-versions of a given count data distribution with respect to 
+versions of a given count data distribution with respect to
 a $0/1 ~sim Bern(1-\theta)$ selection process. For the count
 data process we have two possibilities, that can be controlled
 throuth the option #zipdistopt#. If we chose a Poisson distribution,
@@ -1491,7 +1491,7 @@ $\log(\frac{2 \pi \sigma^2}{c}) + \frac{c}{\sigma^2} (y-\mu)^2$ \\
 Binomial & $p(y | \mu)  \propto \mu^y(1-\mu)^{c-y}$ & $-2 y \log(\mu) - 2 (c-y) \log(1-\mu)$ \\
 \hline
 Poisson & $p(y | \mu) \propto \exp((y \log(\mu) - \mu)c)$  & $-2c(y \log(\mu) - \mu)$ \\
-\hline 
+\hline
 Negative Binomial & $p(y|\mu,\delta) \propto
 \frac{\Gamma(y+\delta)}{\Gamma(\delta)}
 \left(\frac{\delta}{\delta+\mu}\right)^\delta
@@ -1499,17 +1499,17 @@ Negative Binomial & $p(y|\mu,\delta) \propto
 $-2\{\log(\Gamma(y+\delta))-\log(\Gamma(\delta))+\delta\log(\delta)$\\
 &&$+y\log(\mu)-(\delta+y)\log(\delta+\mu)\}$\\
 \hline
-Zero inflated  & $p(0|\mu, \theta) = \theta + (1-\theta)\exp(-\mu)$ 
+Zero inflated  & $p(0|\mu, \theta) = \theta + (1-\theta)\exp(-\mu)$
 & $-2\log(\theta + (1-\theta)\exp(-\mu))$\\
-Poisson & $p(y|\mu, \theta) \propto (1-\theta)\exp(-\mu)\mu^y$ 
+Poisson & $p(y|\mu, \theta) \propto (1-\theta)\exp(-\mu)\mu^y$
 & $-2\log(1-\theta)-2(y \log(\mu) - \mu)$\\
 \hline
-Zero inflated  & $p(0|\mu, \delta, \theta) = \theta + 
+Zero inflated  & $p(0|\mu, \delta, \theta) = \theta +
 (1-\theta)\!\!\left(\frac{\delta}{\delta+\mu}\right)^\delta$&
 $-2\log\left( \theta + (1-\theta)\left(\frac{\delta}{\delta+\mu}\right)^\delta \right)$\\
 Negative Binomial& $p(y|\mu, \delta, \theta) \propto (1-\theta)\frac{\Gamma(y+\delta)}{\Gamma(\delta)}$
 & $-2\{\log(1-\theta)$\\
-&$\qquad\qquad\qquad\left(\frac{\delta}{\delta+\mu}\right)^\delta \left(\frac{\mu}{\delta+\mu}\right)^y$ 
+&$\qquad\qquad\qquad\left(\frac{\delta}{\delta+\mu}\right)^\delta \left(\frac{\mu}{\delta+\mu}\right)^y$
 &$+ \log(\Gamma(y+\delta))-\log(\Gamma(\delta))+\delta\log(\delta)$\\
 & & $+ y\log(\mu)-(\delta+y)\log(\delta+\mu)\}$\\
 \hline
@@ -4760,9 +4760,8 @@ Skaker Verlag, Aachen.
 {\em Bayesianische P-splines.} Master thesis, University of Munich.
 
 \item[Brezger, A. and Lang, S. (2003):]
-Generalized additive regression based on Bayesian P-splines. SFB
-386 Discussion paper 321, Department of Statistics, University of
-Munich. Conditionally accepted for {\em Computational Statistics and Data Analysis.}
+Generalized additive regression based on Bayesian P-splines. {\em
+Computational Statistics and Data Analysis} (to appear).
 
 \item[Clayton, D. (1996):] Generalized linear mixed models. In: Gilks, W., Richardson S. and
 Spiegelhalter D. (eds), {\em Markov Chain Monte Carlo in
@@ -4810,7 +4809,7 @@ Sparse Positive Definite Systems.} Series in computational
 mathematics, Prentice-Hall.
 
 \item[Green, P.J. (2001):] A Primer in Markov Chain Monte Carlo. In: Barndorff-Nielsen, O.E.,
-Cox, D.R. and Kl{\"u}ppelberg, C. (eds.), {\em Complex Stochastic
+Cox, D.R. and Kl\"{u}ppelberg, C. (eds.), {\em Complex Stochastic
 Systems}. Chapmann and Hall, London, 1-62.
 
 \item[Green, P.J. and Silverman, B. (1994):] {\em Nonparametric Regression and Generalized Linear Models.} Chapman
