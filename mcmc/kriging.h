@@ -30,6 +30,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
   bool spacefill;
 
   bool onedim;
+  vector<unsigned> incidence;         // contains for each observation the position in the knots-vector
 
   MAP::map m;                         // Variablen für geokriging
   bool mapexisting;

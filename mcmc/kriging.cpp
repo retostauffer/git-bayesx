@@ -397,7 +397,7 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
   rho=sqrt(rho)/maxdist;
   }
 
-  // Constructor 4
+  // Constructor 4: 1-dimensional kriging
 
   FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & v,
                const double & n, const double & maxd,
@@ -429,22 +429,35 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
 
   make_index(v);
 
-  xknots = xvalues;;
+  xknots = xvalues;
 
-  nrknots=nrdiffobs;
+  // compute incidence vector (contains for each observation the position in the knots-vector)
+
+  unsigned i,j;
+  incidence = vector<unsigned>(v.rows(),0);
+  for(i=0; i<v.rows(); i++)
+    {
+    j=0;
+    while(xknots[j]!=v(i,0))
+      {
+      j++;
+      }
+    incidence[i]=j;
+    }
+
+  nrknots = nrdiffobs;
   nrpar = nrknots;
   dimX = 0;
   dimZ = nrknots;
 
   // berechne rho
-  unsigned i,j;
   rho=0;
   double absv;
   for(i=0; i<xvalues.size(); i++)
     {
     for(j=0; j<xvalues.size(); j++)
       {
-      absv=abs(xvalues[i]-xvalues[j]);
+      absv=fabs(xvalues[i]-xvalues[j]);
       if(absv>rho)
         {
         rho=absv;
@@ -483,6 +496,7 @@ FULLCOND_kriging::FULLCOND_kriging(const FULLCOND_kriging & kr)
   Z_VCM = kr.Z_VCM;
   data_forfixed = kr.data_forfixed;
   onedim = kr.onedim;
+  incidence = kr.incidence;
   }
 
 const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr)
@@ -516,6 +530,7 @@ const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr
   Z_VCM = kr.Z_VCM;
   data_forfixed = kr.data_forfixed;
   onedim = kr.onedim;
+  incidence = kr.incidence;
   return *this;
   }
 
@@ -524,90 +539,68 @@ void FULLCOND_kriging::createreml(datamatrix & X,datamatrix & Z,
                   const unsigned & Xpos,const unsigned & Zpos)
   {
   unsigned i,j;
-
-  // Korrelationen zwischen Daten und Knoten berechnen
   double r;
-  for(i=0; i<Z.rows(); i++)
+
+  if(!onedim)
     {
-    for(j=0; j<nrknots; j++)
+    // Korrelationen zwischen Daten und Knoten berechnen
+    for(i=0; i<Z.rows(); i++)
       {
-      if(onedim)
-        {
-        r=fabs(xorig(i,0)-xknots[j])/rho;
-        }
-      else
+      for(j=0; j<nrknots; j++)
         {
         r=sqrt((xorig(i,0)-xknots[j])*(xorig(i,0)-xknots[j]) +
-               (yorig(i,0)-yknots[j])*(yorig(i,0)-yknots[j]))/rho;
-        }
-      if(nu==0.5)
-        {
-        Z(i,Zpos+j)=exp(-r);
-        }
-      else if(nu==1.5)
-        {
-        Z(i,Zpos+j)=exp(-r)*(1+r);
-        }
-      else if(nu==2.5)
-        {
-        Z(i,Zpos+j)=exp(-r)*(1+r+r*r/3);
-        }
-      else if(nu==3.5)
-        {
-        Z(i,Zpos+j)=exp(-r)*(1+r+2*r*r/5+r*r*r/15);
+                 (yorig(i,0)-yknots[j])*(yorig(i,0)-yknots[j]))/rho;
+        if(nu==0.5)
+          {
+          Z(i,Zpos+j)=exp(-r);
+          }
+        else if(nu==1.5)
+          {
+          Z(i,Zpos+j)=exp(-r)*(1+r);
+          }
+        else if(nu==2.5)
+          {
+          Z(i,Zpos+j)=exp(-r)*(1+r+r*r/3);
+          }
+        else if(nu==3.5)
+          {
+          Z(i,Zpos+j)=exp(-r)*(1+r+2*r*r/5+r*r*r/15);
+          }
         }
       }
-    }
 
-  // Korrelationen zwischen Knoten berechnen
-  datamatrix cov(xknots.size(),xknots.size(),0);
-  for(i=0; i<cov.rows(); i++)
-    {
-    for(j=0; j<cov.cols(); j++)
+    // Korrelationen zwischen Knoten berechnen
+    datamatrix cov(xknots.size(),xknots.size(),0);
+    for(i=0; i<cov.rows(); i++)
       {
-      if(onedim)
-        {
-        r=fabs(xknots[i]-xknots[j])/rho;
-        }
-      else
+      for(j=0; j<cov.cols(); j++)
         {
         r=sqrt((xknots[i]-xknots[j])*(xknots[i]-xknots[j]) + (yknots[i]-yknots[j])*(yknots[i]-yknots[j]))/rho;
-        }
-      if(nu==0.5)
-        {
-        cov(i,j)=exp(-r);
-        }
-      else if(nu==1.5)
-        {
-        cov(i,j)=exp(-r)*(1+r);
-        }
-      else if(nu==2.5)
-        {
-        cov(i,j)=exp(-r)*(1+r+r*r/3);
-        }
-      else if(nu==3.5)
-        {
-        cov(i,j)=exp(-r)*(1+r+2*r*r/5+r*r*r/15);
+        if(nu==0.5)
+          {
+          cov(i,j)=exp(-r);
+          }
+        else if(nu==1.5)
+          {
+          cov(i,j)=exp(-r)*(1+r);
+          }
+        else if(nu==2.5)
+          {
+          cov(i,j)=exp(-r)*(1+r+r*r/3);
+          }
+        else if(nu==3.5)
+          {
+          cov(i,j)=exp(-r)*(1+r+2*r*r/5+r*r*r/15);
+          }
         }
       }
-    }
 
-  // Z modifizieren
+    // Z modifizieren
 
-  // Cholesky-Wurzel der Inversen Kovarianzmatrix
+    // Cholesky-Wurzel der Inversen Kovarianzmatrix
 
-  ofstream out("c:\\temp\\cov.raw");
-  cov.prettyPrint(out);
-  out.close();
-
-  cov=cov.inverse();
-
-  ofstream out1("c:\\temp\\cov1.raw");
-  cov.prettyPrint(out1);
-  out1.close();
-
-  cov=cov.root();
-
+    cov=cov.inverse();
+    cov=cov.root();
 
 /*  // Eigenwertwurzel
   datamatrix vals(cov.rows(),1,0);
@@ -619,16 +612,52 @@ void FULLCOND_kriging::createreml(datamatrix & X,datamatrix & Z,
     }
   cov.multdiagback(vals);*/
 
-  if(!varcoeff)
-    {
-    Z.putColBlock(Zpos,Zpos+nrknots,Z.getColBlock(Zpos,Zpos+nrknots)*cov);
+    if(!varcoeff)
+      {
+      Z.putColBlock(Zpos,Zpos+nrknots,Z.getColBlock(Zpos,Zpos+nrknots)*cov);
+      }
+    else
+      {
+      Z_VCM = Z.getColBlock(Zpos,Zpos+nrknots)*cov;
+      Z.putColBlock(Zpos,Zpos+nrknots,multdiagfront(Z_VCM,data_forfixed));
+      }
     }
   else
     {
-    Z_VCM = Z.getColBlock(Zpos,Zpos+nrknots)*cov;
-    Z.putColBlock(Zpos,Zpos+nrknots,multdiagfront(Z_VCM,data_forfixed));
+    // Korrelationen zwischen Knoten berechnen
+    datamatrix cov(xknots.size(),xknots.size(),0);
+    for(i=0; i<cov.rows(); i++)
+      {
+      for(j=0; j<cov.cols(); j++)
+        {
+        r=fabs(xknots[i]-xknots[j])/rho;
+        if(nu==0.5)
+          {
+          cov(i,j)=exp(-r);
+          }
+        else if(nu==1.5)
+          {
+          cov(i,j)=exp(-r)*(1+r);
+          }
+        else if(nu==2.5)
+          {
+          cov(i,j)=exp(-r)*(1+r+r*r/3);
+          }
+        else if(nu==3.5)
+          {
+          cov(i,j)=exp(-r)*(1+r+2*r*r/5+r*r*r/15);
+          }
+        }
+      }
+    cov=cov.root();
+    for(i=0;i<Z.rows();i++)
+      {
+      for(j=0; j<xknots.size(); j++)
+        {
+        Z(i,Zpos+j)=cov(incidence[i],j);
+        }
+      }
     }
-
   }
 
 void FULLCOND_kriging::make_index(const datamatrix & var1,const datamatrix & var2)
