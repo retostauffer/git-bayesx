@@ -2355,15 +2355,25 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
         fcbaseline[fcbaseline.size()-1].init_name(terms[i].varnames[0]);
         fcbaseline[fcbaseline.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcbaseline[fcbaseline.size()-1]);
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                   "_logbaseline_var.raw","_logbaseline_var.res","_logbaseline_variance");
+
+        fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+                                &fcbaseline[fcbaseline.size()-1],
+                                distr[distr.size()-1],a1,b1,
+                                title,pathnonp,pathres,ub,collinpred)
+                                );
+
         }
       else if(proposal == "iwls")
         {
-/*
-        fcbaselineiwls.push_back( pspline_baseline_IWLS(&generaloptions[generaloptions.size()-1],
+
+        fcbaselineiwls.push_back( IWLS_baseline(&generaloptions[generaloptions.size()-1],
                                                 distr[distr.size()-1],
                                                 fcconst_intercept,
-                                                false,
                                                 D.getCol(j),
+                                                false,
                                                 nrknots,
                                                 degree,
                                                 po,
@@ -2373,11 +2383,14 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
                                                 1,
                                                 false,
                                                 2,
+                                                a1,
+                                                b1,
                                                 title,
                                                 pathnonp,
                                                 pathres,
                                                 false,
                                                 gridsize,
+                                                false,
                                                 collinpred,
                                                 beg
                                                )
@@ -2389,17 +2402,16 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
         fcbaselineiwls[fcbaselineiwls.size()-1].init_name(terms[i].varnames[0]);
         fcbaselineiwls[fcbaselineiwls.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcbaselineiwls[fcbaselineiwls.size()-1]);
-*/
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                   "_logbaseline_var.raw","_logbaseline_var.res","_logbaseline_variance");
+
+        fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+                                &fcbaselineiwls[fcbaselineiwls.size()-1],
+                                distr[distr.size()-1],a1,b1,
+                                title,pathnonp,pathres,ub,collinpred)
+                                );
         }
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-                 "_logbaseline_var.raw","_logbaseline_var.res","_logbaseline_variance");
-
-      fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
-                              &fcbaseline[fcbaseline.size()-1],
-                              distr[distr.size()-1],a1,b1,
-                              title,pathnonp,pathres,ub,collinpred)
-                              );
 
       if (constlambda.getvalue() == false)
         {

@@ -657,6 +657,11 @@ void pspline_baseline::outoptions(void)
 void pspline_baseline::update(void)
   {
 
+//  ofstream oflinpred("d:\\temp\\linpred.txt");
+//  for(unsigned i=0;i<4007;i++)
+//    oflinpred<<likep->get_linearpred(i,0)<<endl;
+//  oflinpred.close();
+
   if(optionsp->get_nriter()==1)
     {
     beta(0,0) = 0.01;
@@ -1151,6 +1156,12 @@ else
   double dist_knots=int_knots(1,0)-int_knots(0,0);
   unsigned i,j,k;
   k=1;
+
+//  ofstream testof("d:\\temp\\beta.txt");
+//  for(i=0;i<22;i++)
+//    testof<<b(i,0)<<endl;
+//  testof.close();
+
   double erg,spline_u,spline_o;
   erg = 0.0;
   double * int_ti_p=likep->get_integral_ti();

@@ -540,6 +540,9 @@ void outresultsrun(bayesreg & b)
       for(i=0;i<b.fcbaseline.size();i++)
         b.fcbaseline[i].set_transform(suffix,trtype);
 
+      for(i=0;i<b.fcbaselineiwls.size();i++)
+        b.fcbaselineiwls[i].set_transform(suffix,trtype);
+
       for(i=0;i<b.fcpspline.size();i++)
         b.fcpspline[i].set_transform(suffix,trtype);
 
@@ -1492,6 +1495,13 @@ void regressrun(bayesreg & b)
       basep.push_back(&b.fcbaseline[i]);
     for(i=0;i<b.fcbaseline.size();i++)
       b.fcbaseline[i].set_baselinep(basep);
+    }
+
+  if(b.fcbaselineiwls.size()>1 ||
+     (b.fcbaselineiwls.size()>0 && b.fcbaseline.size()>0))
+    {
+    failure = true;
+    b.out("ERROR: geht nicht!\n");
     }
 
   if (!failure                          &&

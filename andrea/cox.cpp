@@ -34,6 +34,7 @@ DISTRIBUTION_coxmodel::DISTRIBUTION_coxmodel(MCMCoptions * o,
      family = "cox";
      scale(0,0) = 1;
      scaleexisting = false;
+     offsetexisting = false;
 
      }
 
@@ -41,14 +42,15 @@ DISTRIBUTION_coxmodel::DISTRIBUTION_coxmodel(const datamatrix & offset,
                    MCMCoptions * o, const datamatrix & r, const datamatrix & t,
                    const datamatrix & dbeg,
                         const datamatrix & w)
-  : DISTRIBUTION(offset,o,r,w)                        
+  : DISTRIBUTION(datamatrix(offset.rows(),1,0),o,r,w)                        
 {
      unsigned i;
 
      nrcat = 1; // ändern bei competing risk
 
      ti = t;
-
+     relrisk = offset;
+     
      int_ti=datamatrix(2*t.rows(),1,0.0);
      for(i=0;i<t.rows();i++)
      {
@@ -59,15 +61,40 @@ DISTRIBUTION_coxmodel::DISTRIBUTION_coxmodel(const datamatrix & offset,
      family = "cox";
      scale(0,0) = 1;
      scaleexisting = false;
+     offsetexisting = true;
 
 }
+
+
+double DISTRIBUTION_coxmodel::loglikelihood(double * response,double * linpred,
+                       double * weight,const int & i) const
+    {
+     if(offsetexisting==false)
+       return *weight * (*response * (*linpred) - exp(*linpred)* *(int_ti.getV()+i)); //int_ti = 1/(exp(beta0_ti)) *integral(0 bis ti) exp(beta_0u)du
+
+     else
+      {
+//      double test = relrisk(i,0);
+      return *weight * (*response * log(relrisk(i,0) + exp(*linpred)) - exp(*linpred)* *(int_ti.getV()+i));
+      }
+    }
+
+
 
 
 
 double DISTRIBUTION_coxmodel::compute_weight(double * linpred, double * weight,const int & i,
                                              const unsigned & col) const
   {
-  return  *weight * exp(*linpred)* *(int_ti.getV()+i);
+  double weighthelp = exp(*linpred)* *(int_ti.getV()+i);
+  if(offsetexisting == false)
+    return  *weight * weighthelp;
+  else
+    {
+    double help = *weight * (weighthelp - relrisk(i,0)*  *(response.getV()+i) *exp(*linpred)/((relrisk(i,0)+exp(*linpred)) * (relrisk(i,0)+exp(*linpred))));
+    if (help<0.0) help = 0.000001;
+    return help;
+    }
   }
 
 
@@ -82,14 +109,33 @@ void  DISTRIBUTION_coxmodel::tilde_y(datamatrix & tildey,datamatrix & m,const un
   double * workweight = w.getV();
   double * ywork = tildey.getV();
 
-  for (i=0;i<nrobs;i++,workspline++,ywork++,workresponse++,workweight++)
+  if(offsetexisting == false)
     {
-    if(*workweight == 0.0)
-      *ywork = 0.0;  
-    else
-      *ywork = *workspline + *workresponse/(*workweight)-1.0;
+    for (i=0;i<nrobs;i++,workspline++,ywork++,workresponse++,workweight++)
+      {
+      if(*workweight == 0.0)
+        *ywork = 0.0;
+      else
+        *ywork = *workspline + *workresponse/(*workweight)-1.0;
+      }
     }
-
+  else
+    {
+    double * relrisk_work = relrisk.getV();
+    double * linpred = linearpred.getV();
+    double * int_ti_work = int_ti.getV();
+    for (i=0;i<nrobs;i++,workspline++,ywork++,workresponse++,workweight++,relrisk_work++,linpred++,int_ti_work++)
+      {
+      if(*workweight == 0.0)
+        *ywork = 0.0;
+      else
+        {
+        double deltastar = *workresponse* exp(*linpred)/(*relrisk_work+ exp(*linpred));
+        double weighthelp = exp(*linpred)* *int_ti_work;
+        *ywork = *workspline + (deltastar - weighthelp)/(*workweight);
+        }
+      }
+    }
  }
 
 
@@ -103,12 +149,26 @@ void DISTRIBUTION_coxmodel::compute_iwls(void)
   double * ywork = tildey.getV();
   double * int_ti_work = int_ti.getV();
 
-  for (i=0;i<nrobs;i++,linpred++,ywork++,workresponse++,workweightiwls++,int_ti_work++)
+  if(offsetexisting == false)
     {
-    *workweightiwls = exp(*linpred)* *int_ti_work;
-    *ywork = *linpred + *workresponse/(*workweightiwls)-1.0;
+    for (i=0;i<nrobs;i++,linpred++,ywork++,workresponse++,workweightiwls++,int_ti_work++)
+      {
+      *workweightiwls = exp(*linpred)* *int_ti_work;
+      *ywork = *linpred + *workresponse/(*workweightiwls)-1.0;
+      }
     }
-
+  else
+    {
+    double * relrisk_work = relrisk.getV();
+    for (i=0;i<nrobs;i++,linpred++,ywork++,workresponse++,workweightiwls++,int_ti_work++,relrisk_work++)
+      {
+      double weighthelp = exp(*linpred)* *int_ti_work;
+      double deltastar = *workresponse*exp(*linpred)/(*relrisk_work + exp(*linpred));
+      *workweightiwls = weighthelp - (*relrisk_work* *workresponse*exp(*linpred))/((*relrisk_work+exp(*linpred))*(*relrisk_work+exp(*linpred)));
+      if (*workweightiwls<0.0) *workweightiwls = 0.000001;
+      *ywork = *linpred + (deltastar - weighthelp)/(*workweightiwls);
+      }
+    }
   }
 
 
@@ -117,8 +177,19 @@ void DISTRIBUTION_coxmodel::compute_IWLS_weight_tildey(double * response,double 
                               double * weightiwls,double * tildey,
                               const unsigned & col)
   {
-  *weightiwls = exp(*linpred)* *(int_ti.getV() + i);
-  *tildey = *response/(*weightiwls)-1.0;
+  double weighthelp = exp(*linpred)* *(int_ti.getV() + i);
+  if(offsetexisting==false)
+    {
+    *weightiwls = weighthelp;
+    *tildey = *response/(*weightiwls)-1.0;
+    }
+  else
+    {
+    *weightiwls = weighthelp - relrisk(i,0)* *response *exp(*linpred)/((relrisk(i,0)+exp(*linpred))*(relrisk(i,0)+exp(*linpred)));
+    if(*weightiwls<0.0) *weightiwls=0.000001;
+    double deltastern = *response * exp(*linpred)/(relrisk(i,0)+exp(*linpred));
+    *tildey = (deltastern - weighthelp)/(*weightiwls);
+    }
   }
 
 
@@ -126,12 +197,26 @@ double DISTRIBUTION_coxmodel::compute_IWLS(double * response,double * linpred,do
                               double * weightiwls, double * tildey,
                               bool weightyes,const unsigned & col)
   {
-  if (weightyes)
-    *weightiwls = exp(*linpred)* *(int_ti.getV() + i);
+  double weighthelp = exp(*linpred)* *(int_ti.getV() + i);
 
-  *tildey = *response/(*weightiwls)-1.0;
-
-  return *weight * (*response * (*linpred) - *weightiwls);
+  if(offsetexisting == false)
+    {
+    if(weightyes)
+      *weightiwls = weighthelp;
+    *tildey = *response/(*weightiwls)-1.0;
+    return *weight * (*response * (*linpred) - *weightiwls);
+    }
+  else
+    {
+    if(weightyes)
+      {
+      *weightiwls = weighthelp- relrisk(i,0)* *response*exp(*linpred)/((relrisk(i,0)+exp(*linpred))*(relrisk(i,0)+exp(*linpred)));
+      if (*weightiwls<0.0) *weightiwls = 0.000001;
+      }
+    double deltastern = *response * exp(*linpred)/(relrisk(i,0)+exp(*linpred));
+    *tildey = (deltastern - weighthelp)/(*weightiwls);
+    return *weight * (*response * log(relrisk(i,0) + exp(*linpred)) - weighthelp);
+    }
   }
 
 
@@ -170,12 +255,17 @@ void DISTRIBUTION_coxmodel::compute_deviance(const double * response, const doub
                            const double * mu, double * deviance, double * deviancesat,
                            const datamatrix & scale, const int & i) const
     {
-
     double help = *mu * *(int_ti.getV()+i);
 
-    *deviance = -2.0 * *weight *( *response * log(*mu) - help );
-    *deviancesat = -2.0* *weight * (*response - help + *response * log(help));
-
+    if(offsetexisting == false)
+      {
+      *deviance = -2.0 * *weight *( *response * log(*mu) - help );
+      *deviancesat = -2.0* *weight * (*response - help + *response * log(help));
+      }
+    else
+      {
+      *deviance = -2.0 * *weight *( *response * log(relrisk(i,0)+ *mu) - help); 
+      }
     }
 
 
