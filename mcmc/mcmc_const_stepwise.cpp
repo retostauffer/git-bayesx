@@ -29,6 +29,8 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(
   compute_matrices();
 
   beta_average.erase(beta_average.begin(),beta_average.end());
+  betas_aktuell.erase(betas_aktuell.begin(),betas_aktuell.end());
+
   intercept_for_center = 0;
 
   if (X1.rows() < nrconst)
@@ -43,6 +45,7 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(
 const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   {
 
+  fcconst = m.fcconst;
   diff_categories = m.diff_categories;
   reference = m.reference;
   coding=m.coding;
@@ -52,6 +55,7 @@ const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   help = m.help;
   changingweight = m.changingweight;
   beta_average = m.beta_average;
+  betas_aktuell = m.betas_aktuell;
   intercept_for_center = m.intercept_for_center;
 
   }
@@ -65,6 +69,7 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
 	 return *this;
   FULLCOND_const::operator=(FULLCOND_const(m));
 
+  fcconst = m.fcconst;
   diff_categories = m.diff_categories;
   reference = m.reference;
   coding=m.coding;
@@ -74,6 +79,7 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
   help = m.help;
   changingweight = m.changingweight;
   beta_average = m.beta_average;
+  betas_aktuell = m.betas_aktuell;
   intercept_for_center = m.intercept_for_center;
 
   return *this;
@@ -468,97 +474,92 @@ void FULLCOND_const_stepwise::set_effect_zero(void)
   linold.mult(data,beta);                      // berechnet den Anteil der fixen Effekte neu
   likep->add_linearpred_m(linold,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor
   }
+  
 
 // BEGIN: MODEL-AVERAGING ------------------------------------------------------
 
 void FULLCOND_const_stepwise::save_betas(vector<double> & modell, unsigned & anzahl)
   {
-  vector<double> beta_neu;
+  betas_aktuell.erase(betas_aktuell.begin(),betas_aktuell.end());
   double * workbeta = beta.getV();
   unsigned i;
-  beta_neu.push_back(*workbeta);
-  workbeta++;
-  for(i=1;i<anzahl;i++) 
+  if(fctype != MCMC::factor)
     {
-    if(modell[i-1]!=0)
+    betas_aktuell.push_back(*workbeta);
+    workbeta++;
+    for(i=1;i<anzahl;i++)
       {
-      beta_neu.push_back(*workbeta);
+      if(modell[i-1]!=0)
+        {
+        betas_aktuell.push_back(*workbeta);
+        workbeta++;
+        }
+      else
+        betas_aktuell.push_back(0);
+      }
+    }
+  else     
+    {
+    if(anzahl >= 1)
+      {
+      workbeta = fcconst->getbeta().getV() + anzahl;
+      betas_aktuell.push_back(*workbeta);
       workbeta++;
+      for(i=1;i<data.cols();i++,workbeta++)
+        betas_aktuell.push_back(*workbeta);
       }
     else
-      beta_neu.push_back(0);
+      {
+      for(i=0;i<data.cols();i++)
+        betas_aktuell.push_back(0);
+      }
+    fcconst->beta_to_fix(betas_aktuell);
     }
-  beta_average.push_back(beta_neu);
-/*
-ofstream out("c:\\cprog\\test\\results\\betas.txt");
-for(i=0;i<beta_neu.size();i++)
-  out << ST::doubletostring(beta_neu[i],6) << endl;
-*/
+  }
+
+void FULLCOND_const_stepwise::save_betas2(void)
+  {
+  beta_average.push_back(betas_aktuell);
+  }
+
+void FULLCOND_const_stepwise::beta_to_fix(const vector<double> & betas)
+  {
+  unsigned i;
+  for(i=0;i<betas.size();i++)
+    betas_aktuell.push_back(betas[i]);
   }
 
 
 void FULLCOND_const_stepwise::average_posteriormode(vector<double> & crit_weights)
   {
-  unsigned i;
-  unsigned j;
-  vector<double> beta_sum;
-  for(j=0;j<beta_average[0].size();j++)
-    beta_sum.push_back(0);
-
-//ofstream out("c:\\cprog\\test\\results\\betas.txt");
-/*
-for(i=0;i<crit_weights.size();i++)
-  {
-  for(j=0;j<beta_average[i].size();j++)
-    out << ST::doubletostring(beta_average[i][j],8) << "   ";
-  out << endl;
-  }
-out << endl;
-*/
-  for(i=0;i<crit_weights.size();i++)
+  if(fctype != MCMC::factor)
     {
-    for(j=0;j<beta_average[i].size();j++)
-      beta_sum[j] += beta_average[i][j] * crit_weights[i];
+    unsigned i;
+    unsigned j;
+    vector<double> beta_sum;
+    for(j=0;j<beta_average[0].size();j++)
+      beta_sum.push_back(0);
+    for(i=0;i<crit_weights.size();i++)
+      {
+      for(j=0;j<beta_average[i].size();j++)
+        beta_sum[j] += beta_average[i][j] * crit_weights[i];
+      }
+    setbeta(beta_sum.size(),1,0);
+    double * workbeta = beta.getV();
+    double * workbetamean = betamean.getV();
+    *workbeta = beta_sum[0] + intercept_for_center;
+    *workbetamean = *workbeta * transform;
+    workbeta++;
+    workbetamean++;
+    for(i=1;i<beta_sum.size();i++,workbetamean++,workbeta++)
+      {
+      *workbeta = beta_sum[i];
+      *workbetamean = beta_sum[i] * transform;    //(hier fehlt der Term "+addon" aus fullcond.cpp, posteriormode; "addon" wird aber nie !=0)
+      }
+    likep->substr_linearpred_m(linold,column);   // zieht den Anteil der fixen Effekte von Gesamtprädiktor ab
+    linold.mult(data,beta);                      // berechnet den Anteil der fixen Effekte neu
+    likep->add_linearpred_m(linold,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor
     }
-/*
-out << "Gewichte:" << endl;
-for(i=0;i<crit_weights.size();i++)
-  {
-  out << ST::doubletostring(crit_weights[i],8) << "   ";
-  }
-out << endl;
-out << "beta_quer:" << endl;
-for(i=0;i<beta_sum.size();i++)
-  {
-  out << ST::doubletostring(beta_sum[i],8) << "   ";
-  }
-out << endl;
-*/
-  setbeta(beta_sum.size(),1,0);
-  double * workbeta = beta.getV();
-  double * workbetamean = betamean.getV();
-  *workbeta = beta_sum[0] + intercept_for_center;
-  *workbetamean = *workbeta * transform;
-  workbeta++;
-  workbetamean++;
-  for(i=1;i<beta_sum.size();i++,workbetamean++,workbeta++)
-    {
-    *workbeta = beta_sum[i];
-    *workbetamean = beta_sum[i] * transform;    //(hier fehlt der Term "+addon" aus fullcond.cpp, posteriormode; "addon" wird aber nie !=0)
-    }
-/*
-beta.prettyPrint(out);
-out << endl << endl;
-betamean.prettyPrint(out);
-*/
-  likep->substr_linearpred_m(linold,column);   // zieht den Anteil der fixen Effekte von Gesamtprädiktor ab
-//data.prettyPrint(out);
-  linold.mult(data,beta);                      // berechnet den Anteil der fixen Effekte neu
-/*
-out << endl << endl;
-linold.prettyPrint(out);
-*/
-  likep->add_linearpred_m(linold,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor
   }
 
 
@@ -676,13 +677,15 @@ void FULLCOND_const_stepwise::compute_lambdavec(vector<double> & lvec, int & num
 
 
 FULLCOND_const_stepwise::FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * dp,
-                 const datamatrix & d,const ST::string & code, int
-                 & ref,
+                 FULLCOND_const * fcc,
+                 const datamatrix & d,const ST::string & code, int & ref,
                  const ST::string & t,
                  const ST::string & fs,const ST::string & fr,
                  const unsigned & c)
 //  : FULLCOND_const(o,dp,d,t,0,fs,fr,c)          //reintun und die Zuweisung unten weglassen! -> ausprobieren!
   {
+
+  fcconst = fcc;
 
   optionsp = o;
   pathresult = fr;
@@ -713,6 +716,8 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * 
 
 
   results_type="fixed";
+
+  beta_average.erase(beta_average.begin(),beta_average.end());
 
   /*           braucht man hier nicht!!!
   transform = likep->get_trmult(c);

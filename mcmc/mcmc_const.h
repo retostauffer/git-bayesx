@@ -121,6 +121,10 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
     negbin=true;
     }
 
+  virtual void beta_to_fix(const vector<double> & betas)
+    {
+    }
+
   // ------------------------------- for REML ----------------------------------
 
   void createreml(datamatrix & X,datamatrix & Z,const unsigned & Xpos,

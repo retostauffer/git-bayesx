@@ -110,8 +110,8 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
   options_text(number,startfix,startindex,name);
 
   ST::string path_tex = path + "_model_summary.tex";
-  //outtex.open(path_tex.strtochar());
-  //make_graphics(name,startindex);
+  outtex.open(path_tex.strtochar());
+  make_graphics(name,startindex);
 
   bool first = true;
   bool abbruch = false;
@@ -185,10 +185,10 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
     posteriormode(posttitle,false); // Problem: linearer Prädiktor bei "true" standardisiert! Hier wird zurückgerechnet!
     }
                                     // danach nicht mehr compute_criterion() aufrufen!!!
-  //make_tex_end(path,modell_final);
+  make_tex_end(path,modell_final);
 
   // Files müssen wieder geschlossen werden!!!
-  //outtex.close();
+  outtex.close();
   outcriterium.close();
   outmodels.close();  
 
@@ -1131,6 +1131,7 @@ void STEPWISErun::minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
       if(lambdavec[z-1][i]!=-1 && lambdavec[z-1][i]!=0)
         {
         fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
+        fullcondp[0]->set_effect_zero();
         posteriormode(posttitle,true);
         kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
         }
@@ -1140,6 +1141,7 @@ void STEPWISErun::minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
         vector<double> modell1 = modell_alt;
         modell1[z+names_fixed.size()-2] = -1;
         fullcond_einzeln(modell1,modell_alt,z);  // hier muß der Fullcond-Vekor angepaßt werden!!!
+        fullcondp[0]->set_effect_zero();
         posteriormode(posttitle,true);
         kriterium_versuch = criterion_min(df + 1);
         fullcondp = fullcond_start;
@@ -1152,6 +1154,7 @@ void STEPWISErun::minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
         vector<double> modell1 = modell_alt;
         modell1[z+names_fixed.size()-2] = 0;
         fullcond_einzeln(modell1,modell_alt,z);  // hier muß der Fullcond-Vekor angepaßt werden!!!
+        fullcondp[0]->set_effect_zero();
         posteriormode(posttitle,true);
         kriterium_versuch = criterion_min(df);
         fullcondp = fullcond_start;
@@ -1163,6 +1166,7 @@ void STEPWISErun::minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
       krit_fkt.push_back(kriterium);
     }
   fullcond_alle[z]->update_stepwise(modell_alt[z+names_fixed.size()-2]);
+  fullcondp[0]->set_effect_zero();
   posteriormode(posttitle,true);
 
   if(trace == "trace_minim" && minim != "approx_control")
@@ -1189,6 +1193,7 @@ void STEPWISErun::minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
       if(lambdavec[z-1][i]!=0)
         {
         fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
+        fullcondp[0]->set_effect_zero();
         posteriormode(posttitle,true);
         kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
         }
@@ -1198,6 +1203,7 @@ void STEPWISErun::minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
         fullcondp.erase(fullcondp.end()-1,fullcondp.end());
         end[0] = fullcondp.size()-1;
         fullcond_alle[z]->reset_effect(0);
+        fullcondp[0]->set_effect_zero();
         posteriormode(posttitle,true);
         kriterium_versuch = criterion_min(df);
         fullcondp = fullcond_start;
@@ -1213,6 +1219,7 @@ void STEPWISErun::minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
                                 fullcond_alle[z]->get_data_forfixedeffects());
   fullcondp.erase(fullcondp.end()-1,fullcondp.end());
   end[0] = fullcondp.size()-1;
+  fullcondp[0]->set_effect_zero();
   posteriormode(posttitle,true);
 
   if(trace == "trace_minim" && minim != "approx_control")
@@ -1239,6 +1246,7 @@ void STEPWISErun::minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
       if(lambdavec[z-1][i]!=-1)
         {
         fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
+        fullcondp[0]->set_effect_zero();
         posteriormode(posttitle,true);
         kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
         }
@@ -1250,6 +1258,7 @@ void STEPWISErun::minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
         fullcond_alle[z]->reset_effect(0);
         fullcondp[0]->include_effect(names_nonp[z-1],
                                 fullcond_alle[z]->get_data_forfixedeffects());
+        fullcondp[0]->set_effect_zero();
         posteriormode(posttitle,true);
         kriterium_versuch = criterion_min(df + 1);
         fullcondp = fullcond_start;
@@ -1263,6 +1272,7 @@ void STEPWISErun::minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
     }
   fullcond_alle[z]->reset_effect(0);
   fullcondp.erase(fullcondp.end()-1,fullcondp.end());
+  fullcondp[0]->set_effect_zero();
   end[0] = fullcondp.size()-1;
   posteriormode(posttitle,true);
 
@@ -1310,6 +1320,7 @@ bool STEPWISErun::koordabstieg(void)
   ST::string text_neu;
   bool eins = true;
   double kriterium_aktuell;
+  modell_uralt = modell_neu;
   while(kriterium_neu <= kriterium_alt && fertig==false && steps_aktuell<steps)
        {
        steps_aktuell = steps_aktuell + 1;
@@ -1348,6 +1359,13 @@ bool STEPWISErun::koordabstieg(void)
 
          if(minim == "adaptiv" && likep_mult[0]->get_family() != "Gaussian")
            likep_mult[0]->compute_iwls();
+         if(minim == "adaptiv" && fmod(double(steps_aktuell),double(3)) == 0)
+           {
+           if(modell_uralt == modell_alt)
+             fertig = true;
+           else
+             modell_uralt = modell_alt;
+           }
          }
 
        kriterium_neu = kriterium_aktuell;
@@ -3855,9 +3873,7 @@ void STEPWISErun::compute_average(void)
   maketext(header,modell_alt,kriterium,text,true,trace,false);
 
   kriterien_alle.push_back(kriterium);
-  fullcond_alle[0]->save_betas(modell_alt,names_fixed.size());
-  for(j=1;j<fullcond_alle.size();j++)
-   fullcond_alle[j]->save_betas(modell_alt,j+names_fixed.size()-2);
+  save_alle_betas(modell_alt);
 
   for(i=1;i<names_fixed.size();i++)
     {
@@ -3877,9 +3893,7 @@ void STEPWISErun::compute_average(void)
     fullcondp[0]->set_effect_zero();
     newmodel(kriterien_alle,modelle,ausgabe);
 
-    fullcond_alle[0]->save_betas(modell_neu,names_fixed.size());
-    for(j=1;j<fullcond_alle.size();j++)
-      fullcond_alle[j]->save_betas(modell_neu,j+names_fixed.size()-2);           
+    save_alle_betas(modell_neu);
     }
 
   unsigned z = 1;
@@ -3901,10 +3915,7 @@ void STEPWISErun::compute_average(void)
      fullcondp[0]->set_effect_zero();
      newmodel(kriterien_alle,modelle,ausgabe);
 
-     fullcond_alle[0]->save_betas(modell_neu,names_fixed.size());
-     for(j=1;j<fullcond_alle.size();j++)
-       fullcond_alle[j]->save_betas(modell_neu,j+names_fixed.size()-2);          
-
+     save_alle_betas(modell_neu);
      z = z + 1;
      }
 
@@ -3928,9 +3939,7 @@ void STEPWISErun::compute_average(void)
           fullcondp[0]->set_effect_zero();
           newmodel(kriterien_alle,modelle,ausgabe);
 
-          fullcond_alle[0]->save_betas(modell_neu,names_fixed.size());
-          for(j=1;j<fullcond_alle.size();j++)
-             fullcond_alle[j]->save_betas(modell_neu,j+names_fixed.size()-2);         
+          save_alle_betas(modell_neu);
           }
 
        lambda_exist = false;
@@ -3945,58 +3954,79 @@ void STEPWISErun::compute_average(void)
           fullcondp[0]->set_effect_zero();
           newmodel(kriterien_alle,modelle,ausgabe);
 
-          fullcond_alle[0]->save_betas(modell_neu,names_fixed.size());
-          for(j=1;j<fullcond_alle.size();j++)
-             fullcond_alle[j]->save_betas(modell_neu,j+names_fixed.size()-2);             
+          save_alle_betas(modell_neu);
           }
        }
     }
 
-  /*             es scheint egal zu sein, ob man das Minimum richtig bestimmt, trotzdem gleiche Gewichte, warum???
-  datamatrix kriterien = datamatrix(kriterien_alle.size(),1,0);
-  double * workkrit = kriterien.getV();
-  for(i=0;i<kriterien_alle.size();i++,workkrit++)
-    {
-    *workkrit = kriterien_alle[i];
-    }
-  double kritmin = kriterien.min(0);
-  double scheisse;
-  if(kritmin!=kriterien_alle[0])
-    scheisse = kriterien_alle[0];
-  */
   int l;         // Gewichte berechnen!
   double kriterium_summe = 0;
   for(l=kriterien_alle.size()-1;l>=0;l--)
      {
-     kriterien_alle[l] = exp(-0.5*(kriterien_alle[l]-kriterien_alle[0]));
-     //kriterien_alle[l] = exp(-0.5*(kriterien_alle[l]-kritmin));
+     kriterien_alle[l] = exp(-0.5*(kriterien_alle[l]-kriterien_alle[0]));   // es ist egal, ob kriterien_alle[0] wirklich das Minimum ist!!!
      kriterium_summe += kriterien_alle[l];
      }
   for(i=0;i<kriterien_alle.size();i++)
      kriterien_alle[i] /= kriterium_summe;
 /*
 vector<double> versuch;
-versuch.push_back(0.5);
+versuch.push_back(0.15);
+versuch.push_back(0.15);
+versuch.push_back(0.15);
+versuch.push_back(0.15);
+versuch.push_back(0.1);
 versuch.push_back(0.3);
-versuch.push_back(0.2);
 */
-  for(i=0;i<names_fixed.size()-1;i++)    // sorgt dafür, dass alle fixe Effekte und fullcond-Vektor stimmen,
+  for(i=0;i<names_fixed.size()-1;i++)    // sorgt dafür, dass alle fixen Effekte und fullcond-Vektor stimmen,
     modell_neu[i] = -1;
   for(j=i;j<modell_neu.size();j++)       // d.h. alle fullcondp = fullcond_alle und bei den fixen Effekten nur noch aus fullcondp[0]!
-    modell_neu[j] = 1;
+    {
+    if(fullcond_alle[j-names_fixed.size()+2]->get_fctype()==factor)
+      modell_neu[j] = -1;
+    else
+      modell_neu[j] = 1;
+    }
   fix_komplett(modell_neu);
   fullcond_komplett(modell_neu);
-  for(i=1;i<fullcond_alle.size();i++)
-    fullcond_alle[i]->average_posteriormode(kriterien_alle);
+  for(i=1;i<fullcondp.size();i++)
+    fullcondp[i]->average_posteriormode(kriterien_alle);
+    //fullcond_alle[i]->average_posteriormode(versuch);
   fullcond_alle[0]->average_posteriormode(kriterien_alle);
-      //fullcond_alle[i]->average_posteriormode(versuch);
-    
+  //fullcond_alle[0]->average_posteriormode(versuch);
+
   likep_mult[0]->posteriormode();       // berechnet "sigma2"
   genoptions_mult[0]->out("\n\n");
   likep_mult[0]->outresults();          // Ausgabe von "predictmean.raw", mit nicht standardidiertem Prädiktor
-  for(i=0;i<fullcond_alle.size();i++)
-    fullcond_alle[i]->outresults();     // Ausgabe der .res-Dateien
+  for(i=0;i<fullcondp.size();i++)
+    fullcondp[i]->outresults();     // Ausgabe der .res-Dateien
   }
+
+
+void STEPWISErun::save_alle_betas(const vector<double> & modell)
+  {
+  fullcond_alle[0]->save_betas(modell,names_fixed.size());
+  unsigned anzahl = 1;
+  unsigned j;
+  for(j=0;j<names_fixed.size()-1;j++)
+    {
+    if(modell[j] == -1)
+      anzahl++;
+    }
+  for(j=1;j<fullcond_alle.size();j++)
+    {
+    if(modell[j+names_fixed.size()-2] == -1)
+      {
+      fullcond_alle[j]->save_betas(modell,anzahl);
+      anzahl += fullcond_alle[j]->get_data_forfixedeffects().cols();
+      }
+    else if(modell[j+names_fixed.size()-2] == 0)
+      fullcond_alle[j]->save_betas(modell,0);
+    else
+      fullcond_alle[j]->save_betas(modell,-1);   // ACHTUNG: hier steht -1 für nichtlinear!!!
+    }
+  fullcond_alle[0]->save_betas2();
+  }
+
 
 
 }

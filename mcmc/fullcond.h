@@ -930,6 +930,10 @@ class __EXPORT_TYPE FULLCOND
     {
     }
 
+  virtual void save_betas2(void)
+    {
+    }
+
   virtual void average_posteriormode(vector<double> & crit_weights)
     {
     }

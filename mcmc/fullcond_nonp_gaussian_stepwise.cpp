@@ -215,20 +215,15 @@ void FULLCOND_nonp_gaussian::save_betas(vector<double> & modell, unsigned & anza
   vector<double> beta_neu;
   unsigned i;
   unsigned j;
-
-  if(modell[anzahl] != -1 && modell[anzahl] != 0)
+  if(anzahl == -1)
     {
     double * workbeta = beta.getV();
     for(i=0;i<beta.rows();i++,workbeta++)
       beta_neu.push_back(*workbeta);
     }
-  else if(modell[anzahl] == -1)
+  else if(anzahl >= 1)
     {
-    unsigned welches = 1;
-    for(j=0;j<anzahl;j++)
-      if(modell[j] == -1)
-        welches++;
-    double fix = fcconst->get_betafix(welches);
+    double fix = fcconst->get_betafix(anzahl);
     beta_neu.push_back(fix);
     }
   // else

@@ -1119,7 +1119,9 @@ bool stepwisereg::create_factor(const unsigned & collinpred)
 
       factor.push_back(
       FULLCOND_const_stepwise(&generaloptions[generaloptions.size()-1],
-                                distr[distr.size()-1],D.getCol(j),
+                                distr[distr.size()-1],
+                                fcconst_intercept,
+                                D.getCol(j),
                                 terms[i].options[1],
                                 reference,title,pathconst,pathconstres,
                                 collinpred));
@@ -2982,7 +2984,6 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
 
         if ( (main1==1) && (main2==1) )
           {
-
           ST::string pathnonpt;
           ST::string pathrest;
           ST::string titlet;
@@ -2998,10 +2999,31 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         else if ( (main1==0) && (main2==0) )
           {
           }
-        else
+        /*
+        else if ( (main1==1) || (main2==1) )
           {
-          // FEHLERMELDUNG
+          ST::string pathnonpt;
+          ST::string pathrest;
+          ST::string titlet;
+
+          make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
+                 "_pspline_total.raw","_pspline_total.res","_pspline_total");
+
+          if(main1==1)
+            {
+            fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].
+                        init_maineffect(mainp1,pathnonpt,pathrest,1);  //  -> ändern zu init_maineffect(mainp1,pathnonpt,pathrest),
+                                                                // d.h. neue Fkt. in "fullcond_pspline_surf_gaussian.cpp"
+            mainp1->set_interaction();
+            }
+          else
+            {
+            fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].
+                        init_maineffect(mainp2,pathnonpt,pathrest,2);  // siehe oben
+            mainp2->set_interaction();
+            }
           }
+        */
 
         vector<ST::string> na;
         na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);

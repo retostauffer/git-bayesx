@@ -27,6 +27,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   protected:
 
+  FULLCOND_const * fcconst;
+
   vector<double> diff_categories;
   double reference;
   ST::string coding;
@@ -44,6 +46,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   datamatrix mu1;
 
   vector<vector<double> > beta_average;
+  vector<double> betas_aktuell;
+
   double intercept_for_center;
   // datamatrix beta_average;
 
@@ -73,7 +77,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   // CONSTRUCTOR_4 factor variable
 
-  FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * dp,const datamatrix & d,
+  FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * dp,
+                          FULLCOND_const * fcc, const datamatrix & d,
                           const ST::string & code, int & ref,
                           const ST::string & t,const ST::string & fs,
                           const ST::string & fr,const unsigned & c=0);
@@ -134,11 +139,15 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void save_betas(vector<double> & modell, unsigned & anzahl);
 
+  void save_betas2(void);
+
   void average_posteriormode(vector<double> & crit_weights);
 
   double get_betafix(unsigned & welches);
 
   void set_intercept_for_center(double & dazu);
+
+  void beta_to_fix(const vector<double> & betas);
 
   };
 
