@@ -509,7 +509,7 @@ public BayesX()
 	Out("BayesX - Software for Bayesian inference\n\n",true,false,(short)11,0,0,0);
 	Out("Version 1.20 (23.08.2004)\n\n");
 
-	Out("Note: When running time consuming computations it is useful to reduce the priority of BayesX in the Windows Task-Manager!\n\n");
+//	Out("Note: When running time consuming computations it is useful to reduce the priority of BayesX in the Windows Task-Manager!\n\n");
 	hasBeenSaved = false;
 	isSaved = true;
 
