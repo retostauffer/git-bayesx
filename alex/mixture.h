@@ -28,10 +28,11 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
   protected:
 
   int nrcomp;  // Number of mixture components
-  statmatrix<int> compind;  // Indicator for mixture components
   datamatrix compweight;  // Weights of mixture components
-  datamatrix compmean; // Means of normal mixture components
-  datamatrix compvar;  // Variances of normal mixture components
+
+//  statmatrix<int> compind;  // Indicator for mixture components
+//  datamatrix compmean; // Means of normal mixture components
+//  datamatrix compvar;  // Variances of normal mixture components
 
 
   datamatrix muy;
@@ -75,6 +76,15 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
   double centerbeta(void);
 
   void update_linpred(const bool & add);
+
+  void update_compweight(void);
+  {
+     unsigned i;
+     for(i=0;i<compweight.rows();i++)
+     {
+     compweight(i,0) = compweight(i,0)+rand_normal();
+     }
+  }
 
 
 
@@ -160,6 +170,30 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   void set_lambdaconst(double la);
 
+  };     // end: class FULLCOND_mixture
+
+
+//------------------------------------------------------------------------------
+//--------------------- class: FULLCOND_mixture_gaussian ------------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE FULLCOND_mixture_gaussian : public FULLCOND_mixture
+  {
+
+  protected:
+
+//  int nrcomp;  // Number of mixture components
+//  datamatrix compweight;  // Weights of mixture components
+  statmatrix<int> compind;  // Indicator for mixture components
+  datamatrix compmean; // Means of normal mixture components
+  datamatrix compvar;  // Variances of normal mixture components
+
+  datamatrix mu;
+
+  FULLCOND_nonp_basis * fbasisp;
+
+/*
 //  Update functions for mixture component parameters
 
   void update_compmean(datamatrix betaakt, statmatrix<int> compindakt,datamatrix compvarakt, datamatrix priormean, datamatrix priorvar)
@@ -179,32 +213,8 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
      compvar(i,0) = compvar(i,0)+rand_normal();
      }
   }
+*/
 
-  void update_compweight(statmatrix<int> compindakt, datamatrix prior)
-  {
-     unsigned i;
-     for(i=0;i<compweight.rows();i++)
-     {
-     compweight(i,0) = compweight(i,0)+rand_normal();
-     }
-  }
-
-  };     // end: class FULLCOND_mixture
-
-
-//------------------------------------------------------------------------------
-//--------------------- class: FULLCOND_mixture_gaussian ------------------------
-//------------------------------------------------------------------------------
-
-
-class __EXPORT_TYPE FULLCOND_mixture_gaussian : public FULLCOND_mixture
-  {
-
-  protected:
-
-  datamatrix mu;
-
-  FULLCOND_nonp_basis * fbasisp;
 
   public:
 
@@ -226,6 +236,10 @@ class __EXPORT_TYPE FULLCOND_mixture_gaussian : public FULLCOND_mixture
                            : FULLCOND_mixture(o,dp,fcc,d,t,fp,pr,nrc,la,c)
     {
     mu = datamatrix(index.rows(),1);
+
+    compind = statmatrix<int>(d.rows(),1,1);
+    compmean = datamatrix(nrcomp,1,0);
+    compvar = datamatrix(nrcomp,1,1);
     }
 
   // COPY CONSTRUCTOR
@@ -236,6 +250,10 @@ class __EXPORT_TYPE FULLCOND_mixture_gaussian : public FULLCOND_mixture
     mu = fc.mu;
     muy = fc.muy;
     fbasisp = fc.fbasisp;
+
+    compind=fc.compind;
+    compmean=fc.compmean;
+    compvar=fc.compvar;
     }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -249,6 +267,10 @@ class __EXPORT_TYPE FULLCOND_mixture_gaussian : public FULLCOND_mixture
     mu = fc.mu;
     muy = fc.muy;
     fbasisp = fc.fbasisp;
+
+    compind=fc.compind;
+    compmean=fc.compmean;
+    compvar=fc.compvar;
     return *this;
     }
 

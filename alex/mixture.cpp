@@ -122,6 +122,7 @@ void FULLCOND_mixture::compute_XWX(const datamatrix & weightmat,
   }
 
 
+
 void FULLCOND_mixture::set_lambdaconst(double la)
   {
   lambda=la;
@@ -139,10 +140,10 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
 
 // Mixture stuff
   nrcomp = nrc;
-  compind = statmatrix<int>(d.rows(),1,1);
-  compmean = datamatrix(nrcomp,1,0);
-  compvar = datamatrix(nrcomp,1,1);
   compweight = datamatrix(nrcomp,1,1.0/nrcomp);
+//  compind = statmatrix<int>(d.rows(),1,1);
+//  compmean = datamatrix(nrcomp,1,0);
+//  compvar = datamatrix(nrcomp,1,1);
 // End of Mixture stuff
 
 
@@ -230,10 +231,10 @@ FULLCOND_mixture::FULLCOND_mixture(const FULLCOND_mixture & fc)
                             : FULLCOND(FULLCOND(fc))
   {
   nrcomp = fc.nrcomp;
-  compind=fc.compind;
-  compmean=fc.compmean;
-  compvar=fc.compvar;
   compweight=fc.compweight;
+//  compind=fc.compind;
+//  compmean=fc.compmean;
+//  compvar=fc.compvar;
 
   muy = fc.muy;
   fcconst = fc.fcconst;
@@ -269,10 +270,11 @@ const FULLCOND_mixture & FULLCOND_mixture::
   FULLCOND::operator=(FULLCOND(fc));
 
   nrcomp = fc.nrcomp;
-  compind=fc.compind;
-  compmean=fc.compmean;
-  compvar=fc.compvar;
   compweight=fc.compweight;
+//  compind=fc.compind;
+//  compmean=fc.compmean;
+//  compvar=fc.compvar;
+
 
   muy = fc.muy;
   fcconst = fc.fcconst;
@@ -300,9 +302,24 @@ const FULLCOND_mixture & FULLCOND_mixture::
   return *this;
   }
 
+void update_compweight(void)
+  {
+     unsigned nrcomp2=nrcomp;
+     for(unsigned i=0;i<nrcomp2;i++)
+     {
+     compweight(i,0) = compweight(i,0)+rand_normal();
+     }
+  }
 
 void FULLCOND_mixture::update(void)
   {
+
+//  for(int i=0;i<compweight.rows();i++)
+//  {
+//  compweight(i,0) = compweight(i,0)+rand_normal();
+//  }
+
+  update_compweight();
 
   transform = likep->get_trmult(column);
 
@@ -350,10 +367,10 @@ void FULLCOND_mixture::outresults(void)
 
     optionsp->out("\n");
 
-    for(unsigned i=0;i<nrcomp;i++)
+    for(int i=0;i<nrcomp;i++)
        {
-       optionsp->out("  Component means: " + ST::doubletostring(compmean(i,0),6) + "\n");
-       optionsp->out("  Component variances: " + ST::doubletostring(compvar(i,0),6) + "\n");
+//       optionsp->out("  Component means: " + ST::doubletostring(compmean(i,0),6) + "\n");
+//       optionsp->out("  Component variances: " + ST::doubletostring(compvar(i,0),6) + "\n");
        optionsp->out("  Component weights: " + ST::doubletostring(compweight(i,0),6) + "\n");
        }
   optionsp->out("\n");
@@ -665,9 +682,6 @@ bool FULLCOND_mixture::posteriormode(void)
 
 
 
-
-
-
 void FULLCOND_mixture_gaussian::update(void)
   {
 
@@ -676,8 +690,13 @@ void FULLCOND_mixture_gaussian::update(void)
   unsigned i,j;
   unsigned n = nrpar;
 
-  if (randomslope && includefixed)
-  n = nrpar-1;
+//     for(i=0;i<compweight.rows();i++)
+//     {
+//     compweight(i,0) = compweight(i,0)+rand_normal();
+//     }
+
+//  if (randomslope && includefixed)
+//  n = nrpar-1;
 
 
   if (optionsp->get_nriter()==1 || changingweight)
@@ -790,9 +809,13 @@ void FULLCOND_mixture_gaussian::update(void)
 
   transform = likep->get_trmult(column);
 
-  FULLCOND_mixture::update_compmean(beta, compind, compvar, datamatrix(nrcomp,1,0), datamatrix(nrcomp,1,100));
-  FULLCOND_mixture::update_compvar(beta, compind, compmean, datamatrix(nrcomp,1,nrcomp+1),datamatrix(nrcomp,1,nrcomp));
-  FULLCOND_mixture::update_compweight(compind, datamatrix(1,1,1));
+//  update_compmean(beta, compind, compvar, datamatrix(nrcomp,1,0), datamatrix(nrcomp,1,100));
+//  update_compvar(beta, compind, compmean, datamatrix(nrcomp,1,nrcomp+1),datamatrix(nrcomp,1,nrcomp));
+
+
+
+//  update_compweight(compweight, compind, datamatrix(1,1,1));
+//  update_compweight(compweight);
 
   FULLCOND_mixture::update();
 
@@ -816,5 +839,10 @@ void FULLCOND_mixture_gaussian::update(void)
 
   }
 
+
+//void FULLCOND_random_nongaussian::outresults(void)
+//  {
+//  FULLCOND_random::outresults();
+//  }
 
 } // end: namespace MCMC
