@@ -701,8 +701,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     }
 
   // family=cox
-  if(family.getvalue()=="cox" || family.getvalue()=="coxold" ||
-     family.getvalue()=="coxinterval")
+  if(family.getvalue()=="cox" || family.getvalue()=="coxold")
     {
     unsigned i;
     for(i=0; i<response.rows(); i++)
