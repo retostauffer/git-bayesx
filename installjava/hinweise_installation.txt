@@ -11,45 +11,54 @@ HANDBUCH
 
 3. Handbuch in pdf umwandeln.
 
+4. Handbuch in c:\bayesx\installjava\doc kopieren
+
 
 JAVAVERSION
 
-4. In BayesX.java die Versionsnummern ändern (3 mal).
+5. In BayesX.java die Versionsnummern ändern (3 mal).
 
-5. Projekt BayesX_project.bpg im C++ Builder öffnen. Alle dlls compilieren.
+6. Projekt BayesX_project.bpg im C++ Builder öffnen. Alle dlls compilieren.
 
-6. In der Dos Konsole:
+7. In der Dos Konsole:
     
    cd c:\bayesx\java
    c:\programme\jdk\bin\javac BayesX.java
 
-7. java BayesX - Default windowing herstellen
+8. java BayesX - Default windowing herstellen
 
-8. Checken, ob in  c:\bayesx\java\temp und c:\bayesx\java\temp
+9. Checken, ob in  c:\bayesx\java\temp und c:\bayesx\java\output
    keine Dateien sind. Gegebenenfalls entfernen. 
 
-9. Installationsroutine java herstellen. Funktioniert nur wenn Schreibrechte für 
+10. Installationsroutine java herstellen. Funktioniert nur wenn Schreibrechte für 
    bayesxjava.iap_xml vorhanden sind!!!
+
+11. Installationsroutine in c:\bayesx\installjava\bayesxjava\bayesxjava_Build_Output\
+                            Web_installers\InstData\Windows\VM
+
+    nach c:\bayesx\internet\bayesx\install kopieren
 
 
 C++ Version
 
-10. Projekt BayesX.bpr compilieren
+12. Projekt BayesX.bpr compilieren
 
-11. Installationsroutine erstellen
+13. Installationsroutine erstellen 
 
-12. exe Datei unter bayesxexe.zip zippen, setup Dateien unter bayesx.exe zippen
+14. exe Datei unter bayesxexe.zip zippen, setup Dateien unter bayesx.exe zippen
+
+15. gezippte Dateien nach c:\bayesx\internet\bayesx\install kopieren
 
 
 INTERNETSEITEN
 
 
-10. Literatur in Internetseiten checken (bayesxwhat.html).
+16. Literatur in Internetseiten checken (bayesxwhat.html).
 
-11. Versionsnummern ändern  (in bayesx.html, bayesxdownload.html (2 mal),) 
+17. Versionsnummern ändern  (in bayesx.html, bayesxdownload.html (2 mal),) 
 
-12. New features hinzufügen (in bayesxnews.html)
+18. New features hinzufügen (in bayesxnews.html)
 
-13. Bug Seite ändern (bayesxbugs.html)
+19. Bug Seite ändern (bayesxbugs.html)
 
      
