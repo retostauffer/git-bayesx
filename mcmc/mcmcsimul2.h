@@ -36,53 +36,100 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   ofstream outcriterium;
   ofstream outtex;
 
-  void modelcomparison(bool & s, const vector<double> & m,
-                   const vector<vector<vector<double> > > & mmatrix);
+  bool finetuning(vector<double> & modell, vector<vector<double> > & lambdavec,
+                 vector<ST::string> & names_fixed,
+                 const datamatrix & D, const vector<ST::string> & modelv);
+
+// -----------------------------------------------------------------------------
+// ------- Funktionen für die Erstellung des Startmodels -----------------------
+// -----------------------------------------------------------------------------
+
+  bool STEPWISErun::vcm_doppelt(const vector<ST::string> & names_fixed,
+      const vector<vector<ST::string> > & names_nonp);
+
+  void initialise_lambdas(vector<vector<ST::string> > & names_nonp,
+                 vector<ST::string> & names_fixed, vector<vector<double> > & lambdavec,
+                 const int & number, const bool & gewichte);
+
+  unsigned search_lambdaindex(const double & m, const vector<double> lam,
+                                            bool & b) const;
+
+  unsigned search_lambdastartindex(const double & start,
+                           const vector<double> & lambdas) const;
+
+  void startwerte(const ST::string & startmodel,
+       const vector<vector<double> > & lambdavec, const vector<ST::string> & names_fixed,
+       vector<vector<unsigned> > & startindex, vector<vector<double> > & startfix);
+
+// -----------------------------------------------------------------------------
+// ------- Funktionen für die Berechnung neuer Modelle -------------------------
+// -----------------------------------------------------------------------------
+
+  void newmodel(bool & fertig, const vector<double> & modell,
+    vector<double> & krit, vector<vector<double> > & mi,
+    vector<ST::string> & textit);
+
+  void newmodel_fix(bool & fertig, const double & mo, vector<double> & krit,
+      vector<vector<double> > & mi, const vector<double> & modell,
+      vector<ST::string> & textit, const ST::string & name, const datamatrix & D,
+      const vector<ST::string> & modelv);
+
+  void newmodel_factor(bool & fertig, const double & mo,  const unsigned & index,
+      vector<double> & krit, vector<vector<double> > & mi, const vector<double> & modell,
+      vector<ST::string> & textit, const vector<ST::string> & name,
+      const datamatrix & D, const vector<ST::string> & modelv);
+
+  void newmodel_nonp(bool & f, const unsigned & index, const vector<double> & modell,
+     const vector<double> & modell_alt, vector<double> & krit, vector<vector<double> > & mi,
+     vector<ST::string> & textit, const vector<ST::string> & names_fixed,
+     const vector<vector<ST::string> > & names_nonp,
+     const datamatrix & D, const vector<ST::string> & modelv);
+
+  bool modelcomparison(const vector<double> & m,
+       const vector<vector<vector<double> > > & mmatrix);
+
+// -----------------------------------------------------------------------------
+// ------- Funktionen für die Erstellung des fullcondp-Vektors -----------------
+// -----------------------------------------------------------------------------
+
+  void fullcond_einzeln(const vector<double> & modell_neu,
+         const vector<double> & modell_alt, const unsigned & index,
+         const unsigned & nf_size, const vector<vector<ST::string> > & names_nonp,
+         const datamatrix & D, const vector<ST::string> & modelv);
+
+  void fullcond_komplett(const vector<double> & m, const unsigned & nf_size,
+                     const vector<vector<ST::string> > & names_nonp,
+                     const datamatrix & D, const vector<ST::string> & modelv);
+
+  void fix_komplett(const vector<double> & modell,
+            const vector<ST::string> & names_fixed,
+            const vector<vector<ST::string> > & names_nonp, const datamatrix & D,
+            const vector<ST::string> & modelv);
+
+  void reset_fix(const ST::string & name);
+
+  void include_fix(const ST::string & name, const datamatrix & D,
+         const vector<ST::string> & modelv);
+
+// -----------------------------------------------------------------------------
+// ------- Funktionen für die Ausgabe im Output-Fenster ------------------------
+// -----------------------------------------------------------------------------
+
+  bool STEPWISErun::make_pause(void);
 
   void maketext(const ST::string & h, const vector<double> & m,
                 const double & a, ST::string & text, const bool & neutext,
                 const ST::string & tr,const bool & datei);
 
-  void lambdas_update(const vector<double> & m);
-
-  void newmodel_rechnen(bool & f, const vector<double> & m,
-     vector<double> & a, vector<vector<double> > & mi,
-     const vector<vector<vector<double> > > & mmatrix, const vector<FULLCOND*> & alle,
-     const vector<unsigned> & beg, const vector<unsigned> & ende, vector<ST::string> & textit,
-     const vector<ST::string> & names_fixed, const vector<vector<ST::string> > & names_nonp,
-     const datamatrix & D, const vector<ST::string> & modelv);
-
-  unsigned search_lambdaindex(const double & m, const vector<double> lam,
-                                            bool & b) const;
-  unsigned search_lambdastartindex(const double & start, const vector<double> & lambdas) const;
-
-  void startwerte(const ST::string & startmodel, const vector<vector<double> > & lambdavec,
-                     const vector<ST::string> & names_fixed, vector<vector<unsigned> > & startindex,
-                     vector<vector<double> > & startfix);
-
-  void fullcond_entfernen(vector<FULLCOND*> & fullc, const vector<double> & m,
-                     const vector<unsigned> & beg, const vector<unsigned> & ende,
-                     const vector<ST::string> & names_fixed, const vector<vector<ST::string> > & names_nonp,
-                     const datamatrix & D, const vector<ST::string> & modelv);
-
-  void fixed_entfernen(FULLCOND* & fullc, const vector<double> & modell,
-                     const vector<ST::string> & names_fixed,
-                     const vector<vector<ST::string> > & names_nonp, const datamatrix & D,
-                     const vector<ST::string> & modelv);
-
   void options_text(const int & number, const vector<vector<double> > & lambdavec,
-                  const vector<ST::string> & names_fixed,
-                  const vector<vector<ST::string> > & names_nonp, const vector<vector<double> > & startfix,
-                  const vector<vector<unsigned> > & startindex, const ST::string & name);
+      const vector<ST::string> & names_fixed,
+      const vector<vector<ST::string> > & names_nonp,
+      const vector<vector<double> > & startfix,
+      const vector<vector<unsigned> > & startindex, const ST::string & name);
 
-  bool finetuning(vector<double> & modell, vector<vector<double> > & lambdavec,
-                 vector<ST::string> & names_fixed,
-                 const vector<unsigned> & beg, const vector<unsigned> & end,
-                 const datamatrix & D, const vector<ST::string> & modelv);
-
-  void initialise_lambdas(vector<vector<ST::string> > & names_nonp,
-                 vector<ST::string> & names_fixed, vector<vector<double> > & lambdavec,
-                 vector<unsigned> & anfang, vector<unsigned> & ende, const int & number);
+// -----------------------------------------------------------------------------
+// ------- Funktionen für die Ausgabe im Tex-File ------------------------------
+// -----------------------------------------------------------------------------
 
   void make_graphics(const ST::string & name, vector<vector<double> > & lambdavec,
                  vector<vector<unsigned> > & startindex);
@@ -129,10 +176,9 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
 
   bool single_stepwise(double & kriterium_alt, vector<double> & modell_alt, ST::string & text_alt,
-                       const vector<unsigned> & anfang, const vector<unsigned> & ende,
                        const vector<vector<double> > & lambdavec, const vector<unsigned> & start,
-                       const vector<double> & startfix, const vector<FULLCOND*> & fullcond_fest,
-                       const vector<ST::string> & names_fixed, const vector<vector<ST::string> > & names_nonp,
+                       const vector<double> & startfix, const vector<ST::string> & names_fixed,
+                       const vector<vector<ST::string> > & names_nonp,
                        const datamatrix & D, const vector<ST::string> & modelv, const bool & tex);
 
   bool stepwise(const ST::string & crit, const int & stp, const ST::string & trac,
