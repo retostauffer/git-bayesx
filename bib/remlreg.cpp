@@ -1447,6 +1447,8 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
       MCMC::fieldtype type;
       if (terms[i].options[0] == "pspline2dimrw1")
         type = MCMC::mrflinear;
+      else if (terms[i].options[0] == "pspline2dimrw2")
+        type = MCMC::mrfquadratic12;
 
       j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
       j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
@@ -1579,7 +1581,11 @@ bool remlreg::create_geospline(const unsigned & collinpred)
     {
     if ( nonpgeospline.checkvector(terms,i) == true )
       {
-      MCMC::fieldtype type = MCMC::mrflinear;
+      MCMC::fieldtype type;
+      if (terms[i].options[0] == "geosplinerw1")
+        type = MCMC::mrflinear;
+      else if (terms[i].options[0] == "geosplinerw2")
+        type = MCMC::mrfquadratic12;
 
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
 

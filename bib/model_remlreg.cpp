@@ -860,6 +860,8 @@ bool term_interactpspline_remlreg::check(term & t)
 
     if (t.options[0] == "pspline2dimrw1")
       t.type = "pspline2dimrw1";
+    else if (t.options[0] == "pspline2dimrw2")
+      t.type = "pspline2dimrw2";
     else
       {
       setdefault();
@@ -909,7 +911,7 @@ bool term_interactpspline_remlreg::checkvector(const vector<term> & terms,
   {
   assert(i< terms.size());
 
-  if (terms[i].type == "pspline2dimrw1")
+  if (terms[i].type == "pspline2dimrw1" || terms[i].type == "pspline2dimrw2")
     return true;
 
   return false;
@@ -1034,8 +1036,10 @@ bool term_geospline_remlreg::check(term & t)
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
         && (t.options.size() <= 6) )
     {
-    if (t.options[0] == "geospline")
-      t.type = "geospline";
+    if (t.options[0] == "geosplinerw1" || t.options[0] == "geospline")
+      t.type = "geosplinerw1";
+    else if (t.options[0] == "geosplinerw2")
+      t.type = "geosplinerw2";
     else
       {
       setdefault();
@@ -1094,7 +1098,7 @@ bool term_geospline_remlreg::checkvector(const vector<term> & terms,
   {
   assert(i< terms.size());
 
-  if (terms[i].type == "geospline")
+  if (terms[i].type == "geosplinerw1" || terms[i].type == "geosplinerw2")
     return true;
 
   return false;
