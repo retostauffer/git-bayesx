@@ -445,7 +445,7 @@ void sortrun(dataobject & o)
 void descriptiverun(dataobject & o)
   {
 
-  datamatrix X;
+  // datamatrix X;
 
   unsigned i;
 
@@ -469,7 +469,7 @@ void descriptiverun(dataobject & o)
   if (failure == false)
     {
 
-    o.makematrix(vnames,X,ifexpression);
+    // o.makematrix(vnames,X,ifexpression);
 
     o.out("\n");
     ST::string varst = "Variable";
@@ -485,10 +485,14 @@ void descriptiverun(dataobject & o)
     for(i=0;i<vnames.size();i++)
       {
 //      o.m.makeModelMatrix_j(o.d,X,i);
+      datamatrix Xi;
+      o.makematrix(vnames[i],Xi,ifexpression);      // für jede Variable eigene Matrix erzeugen?
 
-      unsigned int obs = X.rows();
-      double mean = X.mean(i);
-      double var = X.var(i) * obs / (obs-1);
+      unsigned int obs = Xi.rows();
+      double mean = Xi.mean(0);
+      double var = 0;
+      if(obs > 1)
+        var = Xi.var(0) * obs / (obs-1);
 
       ST::string str_std;
       if (var>0)
@@ -501,9 +505,9 @@ void descriptiverun(dataobject & o)
         int std = 0;
         str_std = ST::inttostring(std);
         }
-      double min = X.min(i);
-      double max = X.max(i);
-      double med = X.quantile(50,i);
+      double min = Xi.min(0);
+      double max = Xi.max(0);
+      double med = Xi.quantile(50,0);
 
       int l_vn = vnames[i].length();
       if (l_vn > 9)
@@ -526,10 +530,11 @@ void descriptiverun(dataobject & o)
 
   }
 
+
 void tabulaterun(dataobject & o)
   {
 
-  datamatrix X;
+  // datamatrix X;
 
   unsigned i;
 
@@ -553,17 +558,20 @@ void tabulaterun(dataobject & o)
   if (failure==false)
     {
 
-    o.makematrix(vnames,X,ifexpression);
+    // o.makematrix(vnames,X,ifexpression);
 
-    statmatrix<int> index(X.rows(),1);
+    // statmatrix<int> index(X.rows(),1);
 
     for(i=0;i<vnames.size();i++)
         {
 //        o.m.makeModelMatrix_j(o.d,X,i);
+        datamatrix Xi;
+        o.makematrix(vnames[i],Xi,ifexpression);
+        statmatrix<int> index(Xi.rows(),1);
 
         index.indexinit();
 
-        X.indexsort(index,0,X.rows()-1,i,0);
+        Xi.indexsort(index,0,Xi.rows()-1,0,0);
 
         o.out("\n");
         o.out("Variable: " + vnames[i] + "\n",true, false, 14);
@@ -582,7 +590,7 @@ void tabulaterun(dataobject & o)
             int* q = index.getV() + k;
             for(unsigned j=k;j<index.rows();j++,p++)
                  {
-                 if (X.get(*p,i) == X.get(*q,i))
+                 if (Xi.get(*p,0) == Xi.get(*q,0))
                     anz = anz+1;
                  }
 
@@ -611,13 +619,13 @@ void tabulaterun(dataobject & o)
                  int* q = index.getV() + k;
                  for(unsigned j=k;j<index.rows();j++,p++)
                     {
-                    if (X.get(*p,i) == X.get(*q,i))
+                    if (Xi.get(*p,0) == Xi.get(*q,0))
                        anz = anz+1;
                     }
 
                  double wert;
-                 wert = X.get(*q,i);
-                 double freq = anz / X.rows();
+                 wert = Xi.get(*q,0);
+                 double freq = anz / Xi.rows();
                  cum = cum + freq;
 
                  ST::string str_wert = ST::doubletostring(wert,8);
