@@ -229,28 +229,37 @@ The following options are available for method #plot# (listed in
 alphabetical order):
 
 \begin{itemize}
-\item {\bf connect=p$|$l[specifications for further variables]}
+\item {\bf connect=1$|$2$|$3$|$4$|$5[specifications for further
+variables]}
 
 Option #connect# specifies how points in the scatterplot are
-connected. There are currently two different specifications:
+connected. There are currently 5 different specifications:
 
 \begin{tabular}{ll}
-#p# & do not connect, i.e.~plot points only \\
-#l# & (letter l) draw straight lines between the points (default) \\
+#1# & draw straight lines between the points (default) \\
+#2#, #3#, #4# & draw dashed lines (numbers 2-4 indicate different variants)\\
+#5# & do not connect, i.e.~plot points only \\
 \end{tabular}
 
 If you draw more than one scatterplot in the same graph (i.e. more
 than one {\em yvar} is specified) you can connect points for every
-{\em yvar} differently by simply specifying the corresponding
-symbol (#p,l#) for every {\em yvar}. Typing for example
+{\em yvar} differently by simply specifying the corresponding number
+(#1,2,3,4,5#) for every {\em yvar}. Typing for example
 
-{\em #connect = lp#}
+{\em #connect=15#}
 
 connects the points corresponding to {\em yvar1} and {\em xvar} by
 straight lines, but does not connect the points corresponding to
 {\em yvar2} (if specified) and {\em xvar}. Points corresponding to
 additionally specified variables $yvar3$, etc.~are connected by
 straight lines.
+
+An equivalent way of specifying the different variants is available
+via the symbols 'l', 'd', '\_', '-' and 'p', which correspond to the
+numbers 1-5, i.e.~
+
+{\em #connect=12345#} is equivalent to {\em #connect=ld_-p#}
+
 \item {\bf fontsize = integer}
 
 Specifies the font size (in pixels) for labelling axes etc. Note
@@ -318,7 +327,15 @@ program to overwrite an already existing file (specified in
 
 Adds a title to the graph. If the title contains more than one
 word, {\em characterstring} must be enclosed by quotation marks (e.g.
-#title="my first title"#). \item {\bf width = integer}
+#title="my first title"#).
+
+\item {\bf titlesize = realvalue}
+
+Specifies the factor by which the size of the title is scaled
+relative to the size of the labels of the axes (compare option
+#fontsize#). The default is \texttt{titlesize=1.5}.
+
+\item {\bf width = integer}
 
 Specifies the width (in pixels) of the graph. The default is
 #width=356#. \item {\bf xlab = characterstring}
