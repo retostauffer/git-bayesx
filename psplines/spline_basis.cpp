@@ -816,9 +816,10 @@ void spline_basis::make_Bspline(const datamatrix & md, const bool & minnull)
     knot.push_back(min);
     for(i=1;i<nrknots-1;i++)
       {
-      double q = md.quantile((i*100)/double(nrknots-1),0);
-      if(q != knot[i-1])
-        knot.push_back(q);
+      double q1 = md.quantile((i*100)/double(nrknots-1),0);
+      double q2 = md.quantile(((i-1)*100)/double(nrknots-1),0);
+      if(q1 != q2)
+        knot.push_back(q1);
       }
     knot.push_back(max);
 
