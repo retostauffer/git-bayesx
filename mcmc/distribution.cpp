@@ -4151,10 +4151,17 @@ void DISTRIBUTION_gaussian::update(void)
       }
 
     if(uniformprior==true)
-      scale(0,0) = rand_invgamma(-0.5+0.5*nrobsmweightzero,0.5*sum);
+      {
+      double help;
+      while (help > 200000)
+        help = rand_invgamma(-0.5+0.5*nrobsmweightzero,0.5*sum);
+      scale(0,0) = help;
+      }
     else
+      {
       scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero,
                    b_invgamma+0.5*sum);
+      }
     }
 
 

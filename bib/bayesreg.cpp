@@ -214,6 +214,7 @@ void bayesreg::create(void)
   noposteriormode = simpleoption("noposteriormode",false);
 
   pseudocontourprob = simpleoption("pseudocontourprob",false);
+  uniformprior = simpleoption("uniformprior",false);
   approx = simpleoption("approx",false);
   lengthstart = intoption("lengthstart",200,0,1000);
 
@@ -300,6 +301,7 @@ void bayesreg::create(void)
   regressoptions.push_back(&modeonly);
   regressoptions.push_back(&noposteriormode);
   regressoptions.push_back(&pseudocontourprob);
+  regressoptions.push_back(&uniformprior);
   regressoptions.push_back(&approx);
   regressoptions.push_back(&lengthstart);
   regressoptions.push_back(&iterations);
@@ -1073,6 +1075,11 @@ bool bayesreg::create_distribution(void)
                                              bresp.getvalue(),&generaloptions[generaloptions.size()-1],
                                              D.getCol(0),path2,path3,
                                              w));
+
+    if (uniformprior.getvalue()==true)
+      {
+      distr_gaussian[distr_gaussian.size()-1].set_uniformprior();
+      }
 
     if (constscale.getvalue()==true)
       {
