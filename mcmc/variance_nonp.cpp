@@ -484,7 +484,8 @@ void FULLCOND_variance_nonp::outresults(void)
     }
 
   if(!fullcondnonp && !randomeffect)
-    outresults_lambda();
+    if(Kp->get_fctype() != MCMC::spatial)
+      outresults_lambda();
 
   }
 

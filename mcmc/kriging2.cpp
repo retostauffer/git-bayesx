@@ -13,6 +13,9 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
                const double & sl, const unsigned & c)
   : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,c)
   {
+
+  fctype = MCMC::spatial;
+
   mapexisting=false;
   plotstyle=noplot;
 
@@ -107,6 +110,8 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
                const double & sl, const unsigned & c)
   : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,c)
   {
+
+  fctype = MCMC::spatial;
 
   utype = gaussian;
 
@@ -227,7 +232,7 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
 
   identifiable = true;
 
-  betaold = datamatrix(nrpar,1,0);  
+  betaold = datamatrix(nrpar,1,0);
 
   }
 
@@ -243,6 +248,8 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
                const bool & updatetau, const double & fstart, const unsigned & c)
   : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,c)
   {
+
+  fctype = MCMC::spatial;
 
   updateW = upW;
   f = fstart;
