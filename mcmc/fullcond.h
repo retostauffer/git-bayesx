@@ -172,6 +172,7 @@ class __EXPORT_TYPE FULLCOND
   bool df_equidist;
   double df_accuracy;
   bool inthemodel;    //gibt an, ob Fullc-Obj. im aktuellen Modell enthalten ist
+  int grenzfall;      // gibt den FG für lambda -> unendlich an!
 
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
@@ -766,8 +767,13 @@ class __EXPORT_TYPE FULLCOND
   // ------------------------ FOR STEPWISE SELECTION ---------------------------
   // ---------------------------------------------------------------------------
 
-  void FULLCOND::set_inthemodel(double modell);
-  bool FULLCOND::get_inthemodel(void);
+  void set_inthemodel(double modell);
+  bool get_inthemodel(void);
+
+  const int & get_grenzfall(void)
+    {
+    return grenzfall;
+    }
 
   //virtual double compute_penalterm(void)
   //  {

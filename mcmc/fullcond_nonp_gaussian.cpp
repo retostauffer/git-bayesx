@@ -1154,6 +1154,13 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
   beta_average.erase(beta_average.begin(),beta_average.end());
 
+  if (type == RW1)
+    grenzfall = 0;
+  else if (type == RW2)
+    grenzfall = 1;
+  else if (type == seasonal)
+    grenzfall = period - 2;
+
   }
 
 
@@ -1256,6 +1263,13 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,DISTRIBUTION * dp
 
   beta_average.erase(beta_average.begin(),beta_average.end());
 
+  if (type == RW1)
+    grenzfall = 1;
+  else if (type == RW2)
+    grenzfall = 2;
+  else if (type == seasonal)
+    grenzfall = period - 1;
+
   }
 
 
@@ -1341,6 +1355,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
     } // end: if (error==false)
 
   beta_average.erase(beta_average.begin(),beta_average.end());
+
+  grenzfall = 0;
 
   }
 
@@ -1431,6 +1447,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
     } // end: if (error == false)
 
   beta_average.erase(beta_average.begin(),beta_average.end());
+
+  grenzfall = 1;
 
   }
 

@@ -24,6 +24,7 @@ FULLCOND::FULLCOND(MCMCoptions * o,const datamatrix & d,
 
   df_accuracy = 0.05;
   inthemodel = false;
+  grenzfall = 0;
 
   transformnonlinear = false;
   transformed =  false;
@@ -105,6 +106,7 @@ FULLCOND::FULLCOND(const FULLCOND & m)
   data_forfixed = m.data_forfixed;
   df_accuracy = m.df_accuracy;
   inthemodel = m.inthemodel;
+  grenzfall = m.grenzfall;
 
   //---------------------------- end: for stepwise -----------------------------
 
@@ -207,6 +209,7 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
   data_forfixed = m.data_forfixed;
   df_accuracy = m.df_accuracy;
   inthemodel = m.inthemodel;
+  grenzfall = m.grenzfall;
 
   //------------------------------ end: stepwise -------------------------------
 

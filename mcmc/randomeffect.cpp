@@ -653,6 +653,8 @@ FULLCOND_random::FULLCOND_random (MCMCoptions * o,DISTRIBUTION * dp,
 
   beta_average.erase(beta_average.begin(),beta_average.end());
 
+  grenzfall = 0;
+
 //  identifiable =true;
 
   }
@@ -763,6 +765,8 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * o,DISTRIBUTION * dp,
   identifiable = true;
 
   beta_average.erase(beta_average.begin(),beta_average.end());
+
+  grenzfall = 1;
 
   }
 

@@ -349,6 +349,11 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
 
   create(v1,v2);
 
+  if(type == mrflinear)
+    grenzfall = 0;
+  else if(type == mrfquadratic8)
+    grenzfall = 1;
+
   }
 
   // CONSTRUCTOR 2: IWLS
@@ -467,6 +472,11 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
 
   create(v1,v2);
 
+  if(type == mrflinear)
+    grenzfall = 0;
+  else if(type == mrfquadratic8)          
+    grenzfall = 1;
+
   }
 
   // CONSTRUCTOR 4: IWLS geosplines
@@ -553,6 +563,11 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
   outfile = of;
 
   create(v1,v2,intact);
+
+  if(type == mrflinear)
+    grenzfall = 1;
+  else if(type == mrfquadratic8)
+    grenzfall = 2;
 
   }
 
@@ -644,6 +659,11 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
     }
 
   create(v1,v2,intact);
+
+  if(type == mrflinear)
+    grenzfall = 1;
+  else if(type == mrfquadratic8)
+    grenzfall = 2;
 
   }
 
