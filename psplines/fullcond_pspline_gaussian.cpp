@@ -1436,9 +1436,9 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
   r = 0;
   for(i=0;i<optionsp->get_samplesize();i++)
     {
-    while( betasort(optionsp->get_samplesize()-l-1,0) > beta_0(0,0)  && l<optionsp->get_samplesize())
+    while( l<optionsp->get_samplesize() && betasort(optionsp->get_samplesize()-l-1,0) > beta_0(0,0) )
       l++;
-    while( beta_0(0,0) > betasort(r,0)  && r<optionsp->get_samplesize())
+    while( r<optionsp->get_samplesize() && beta_0(0,0) > betasort(r,0) )
       r++;
     }
   for(j=1;j<rankA;j++)
@@ -1447,9 +1447,9 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
     rtemp = 0;
     for(i=0;i<optionsp->get_samplesize();i++)
       {
-      while( betasort(optionsp->get_samplesize()-ltemp-1,j) > beta_0(j,0) && ltemp<optionsp->get_samplesize())
+      while( ltemp<optionsp->get_samplesize() && betasort(optionsp->get_samplesize()-ltemp-1,j) > beta_0(j,0) )
         ltemp++;
-      while( beta_0(j,0) > betasort(rtemp,j)  && rtemp<optionsp->get_samplesize())
+      while( rtemp<optionsp->get_samplesize() && beta_0(j,0) > betasort(rtemp,j) )
         rtemp++;
       }
     l = min(l,ltemp);
