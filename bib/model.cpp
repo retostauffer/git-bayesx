@@ -2577,6 +2577,11 @@ term_baseline::term_baseline(void)
   uniformb = simpleoption("uniformb",false);
   gridsize = intoption("gridsize",-1,10,500);
   uniformprior = simpleoption("uniformprior",false);
+  vector<ST::string> adm_prop;
+  adm_prop.push_back("cp");
+  adm_prop.push_back("iwls");
+  adm_prop.push_back("iwlsmode");
+  proposal = stroption("proposal",adm_prop,"cp");
   }
 
 void term_baseline::setdefault(void)
@@ -2591,13 +2596,14 @@ void term_baseline::setdefault(void)
   uniformb.setdefault();
   gridsize.setdefault();
   uniformprior.setdefault();
+  proposal.setdefault();
   }
 
 bool term_baseline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 11) )
+        && (t.options.size() <= 12) )
     {
 
     if (t.options[0] == "baseline")
@@ -2621,6 +2627,7 @@ bool term_baseline::check(term & t)
     optlist.push_back(&uniformb);
     optlist.push_back(&gridsize);
     optlist.push_back(&uniformprior);
+    optlist.push_back(&proposal);
 
     unsigned i;
     bool rec = true;
@@ -2645,7 +2652,7 @@ bool term_baseline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(13);
+   t.options = vector<ST::string>(14);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -2663,6 +2670,7 @@ bool term_baseline::check(term & t)
      t.options[10] = "false";
    else
      t.options[10] = "true";
+   t.options[11] = proposal.getvalue();
 
    if (t.options[1].strtolong(minim) == 1)
      {

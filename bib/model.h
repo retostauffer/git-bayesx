@@ -1266,6 +1266,7 @@ class __EXPORT_TYPE term_baseline : public basic_termtype
   simpleoption uniformb;
   intoption gridsize;
   simpleoption uniformprior;
+  stroption proposal;
 
 
   void setdefault(void);
