@@ -3027,51 +3027,52 @@ void FULLCOND_nonp_gaussian::outresults(void)
     outres << "pqu"  << u2  << "   ";
     outres << "pcat" << level1 << "   ";
     outres << "pcat" << level2 << "   ";
+
     outres << endl;
 
-    double * workmean = betamean.getV();
-    double * workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
-    double * workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
-    double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
-    double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
-    double * workbetaqu50 = betaqu50.getV();
-    double * workxyvalues = xyvalues.getV();
+      double * workmean = betamean.getV();
+      double * workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
+      double * workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
+      double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
+      double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
+      double * workbetaqu50 = betaqu50.getV();
+      double * workxyvalues = xyvalues.getV();
 
-    vector<ST::string>::iterator effit = effectvalues.begin();
+      vector<ST::string>::iterator effit = effectvalues.begin();
 
-    for(i=0;i<nrpar;i++,++effit,workmean++,workbetaqu_l1_lower_p++,
-                           workbetaqu_l2_lower_p++,workbetaqu50++,
-                           workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++,
-                           workxyvalues++)
-      {
-      outres << (i+1) << "   ";
-      outres << *workxyvalues << "   ";
-      workxyvalues++;
-      outres << *workxyvalues << "   ";
-      outres << *effit << "   ";
-      outres << *workmean << "   ";
-      outres << *workbetaqu_l1_lower_p << "   ";
-      outres << *workbetaqu_l2_lower_p << "   ";
-      outres << *workbetaqu50 << "   ";
-      outres << *workbetaqu_l2_upper_p << "   ";
-      outres << *workbetaqu_l1_upper_p << "   ";
+      for(i=0;i<nrpar;i++,++effit,workmean++,workbetaqu_l1_lower_p++,
+                             workbetaqu_l2_lower_p++,workbetaqu50++,
+                             workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++,
+                             workxyvalues++)
+        {
+        outres << (i+1) << "   ";
+        outres << *workxyvalues << "   ";
+        workxyvalues++;
+        outres << *workxyvalues << "   ";
+        outres << *effit << "   ";
+        outres << *workmean << "   ";
+        outres << *workbetaqu_l1_lower_p << "   ";
+        outres << *workbetaqu_l2_lower_p << "   ";
+        outres << *workbetaqu50 << "   ";
+        outres << *workbetaqu_l2_upper_p << "   ";
+        outres << *workbetaqu_l1_upper_p << "   ";
 
-      if (*workbetaqu_l1_lower_p > 0)
-        outres << 1 << "   ";
-      else if (*workbetaqu_l1_upper_p < 0)
-        outres << -1 << "   ";
-      else
-        outres << 0 << "   ";
+        if (*workbetaqu_l1_lower_p > 0)
+          outres << 1 << "   ";
+        else if (*workbetaqu_l1_upper_p < 0)
+          outres << -1 << "   ";
+        else
+          outres << 0 << "   ";
 
-      if (*workbetaqu_l2_lower_p > 0)
-        outres << 1 << "   ";
-      else if (*workbetaqu_l2_upper_p < 0)
-        outres << -1 << "   ";
-      else
-        outres << 0 << "   ";
+        if (*workbetaqu_l2_lower_p > 0)
+          outres << 1 << "   ";
+        else if (*workbetaqu_l2_upper_p < 0)
+          outres << -1 << "   ";
+        else
+          outres << 0 << "   ";
 
-      outres << endl;
-      }
+        outres << endl;
+        }
 
     }
 
