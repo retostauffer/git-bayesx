@@ -864,7 +864,7 @@ class __EXPORT_TYPE map
   const int getnr(const ST::string & name) const
     {
     int i = 0;
-    while(i<regions.size() && !(regions[i].get_name()==name))
+    while(i<int(regions.size()) && !(regions[i].get_name()==name))
       i++;
     return i;
     }

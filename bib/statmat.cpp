@@ -892,7 +892,7 @@ T statmatrix<T>::sumcomplete(void) const
   }
 
 template<class T>
-T statmatrix<T>::norm(unsigned col)
+T statmatrix<T>::norm(unsigned col) const
   {
   T norm=0;
   norm = sqrt(sum2(col));
@@ -1405,11 +1405,11 @@ statmatrix<double> diffmat_k(const int k, const int d)
   assert(k<d);
   int i,j,m;
   statmatrix<double>res(d-k,d,0);
-  for(i=0;i<res.rows();i++)
+  for(i=0;i<int(res.rows());i++)
     res(i,i+k) = 1.0;
   for(i=1;i<=k;i++)
     {
-    for(j=0;j<res.rows();j++)
+    for(j=0;j<int(res.rows());j++)
       for(m=k-i;m<k;m++)
         res(j,j+m) = res(j,j+m)-res(j,j+m+1);
     }

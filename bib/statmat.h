@@ -281,7 +281,7 @@ class statmatrix : public Matrix<T>
   // FUNCTION: norm
   // TASK: computes the euclidean norm of column col
 
-  T norm(unsigned col);
+  T norm(unsigned col) const;
 
   // FUNCTION: norm
   // TASK: returns a column vector of the norms of the columns of the calling
