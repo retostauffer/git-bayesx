@@ -69,12 +69,12 @@ class __EXPORT_TYPE bsplinemat
   // CONSTRUCTOR
 
   bsplinemat(const datamatrix & data, const unsigned & nrk, const unsigned & degr,
-                const MCMC::knotpos & kp, const bool & minnull = false);
+                const MCMC::knotpos & kp, const bool & minnull = false, const deque<double> & k = deque<double>());
 
   // CONSTRUCTOR 2 (for derivatives)
 
   bsplinemat(const bool & deriv, const datamatrix & data, const unsigned & nrk, const unsigned & degr,
-                const MCMC::knotpos & kp, const bool & minnull = false);
+                const MCMC::knotpos & kp, const bool & minnull = false, const deque<double> & k = deque<double>());
 
 
   // COPY CONSTRUCTOR

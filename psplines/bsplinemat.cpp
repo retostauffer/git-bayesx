@@ -12,24 +12,26 @@ namespace MCMC
 //---------------------------------------------------------------------------
 
 bsplinemat::bsplinemat(const datamatrix & data, const unsigned & nrk, const unsigned & degr,
-                const MCMC::knotpos & kp, const bool & minnull)
+                const MCMC::knotpos & kp, const bool & minnull, const deque<double> & k)
   {
   nrknots = nrk;
   degree = degr;
   knpos = kp;
   nrpar = nrknots-1+degree;
+  knot = k;
 
   make_index(data);
   make_Bspline(false,data,minnull);
   }
 
 bsplinemat::bsplinemat(const bool & deriv, const datamatrix & data, const unsigned & nrk, const unsigned & degr,
-                const MCMC::knotpos & kp, const bool & minnull)
+                const MCMC::knotpos & kp, const bool & minnull, const deque<double> & k)
   {
   nrknots = nrk;
   degree = degr;
   knpos = kp;
   nrpar = nrknots-1+degree;
+  knot = k;
 
   make_index(data);
   make_Bspline(deriv,data,minnull);
@@ -138,40 +140,42 @@ void bsplinemat::make_Bspline(const bool & deriv, const datamatrix & md, const b
   datamatrix help = datamatrix(nrpar,1,0.0);
   Bcolmean = datamatrix(nrpar,1,0.0);
 
-  double min;
-  if(minnull)
-    min = 0.0;
-  else
-    min = md(index(0,0),0);
+  double min = md(index(0,0),0);
   double max = md(index(md.rows()-1,0),0);
   double dist = max-min;
 
   min -= 0.01*dist;
   max += 0.01*dist;
 
-  if(knpos == equidistant)
+  if(minnull)
+    min = 0.0;
+
+  if(knot.size()==0)
     {
-    dist = (max - min)/(nrknots-1);
-    knot.push_back(min - degree*dist);
-    for(i=1;i<nrknots+2*degree;i++)
-      knot.push_back(knot[i-1] + dist);
-    }
-  else if(knpos == quantiles)
-    {
-    double distfirst, distlast;
-
-    knot.push_back(min);
-    for(i=1;i<nrknots-1;i++)
-      knot.push_back(md.quantile((i*100)/double(nrknots-1),0));
-    knot.push_back(max);
-
-    distfirst = knot[1] - knot[0];
-    distlast = knot[nrknots-1] - knot[nrknots-2];
-
-    for(i=0;i<degree;i++)
+    if(knpos == equidistant)
       {
-      knot.push_front(min - (i+1)*distfirst);
-      knot.push_back(max + (i+1)*distlast);
+      dist = (max - min)/(nrknots-1);
+      knot.push_back(min - degree*dist);
+      for(i=1;i<nrknots+2*degree;i++)
+        knot.push_back(knot[i-1] + dist);
+      }
+    else if(knpos == quantiles)
+      {
+      double distfirst, distlast;
+
+      knot.push_back(min);
+      for(i=1;i<nrknots-1;i++)
+        knot.push_back(md.quantile((i*100)/double(nrknots-1),0));
+      knot.push_back(max);
+
+      distfirst = knot[1] - knot[0];
+      distlast = knot[nrknots-1] - knot[nrknots-2];
+
+      for(i=0;i<degree;i++)
+        {
+        knot.push_front(min - (i+1)*distfirst);
+        knot.push_back(max + (i+1)*distlast);
+        }
       }
     }
 
