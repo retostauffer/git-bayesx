@@ -33,6 +33,13 @@
 
 namespace MAP
 {
+#if defined(JAVA_OUTPUT_WINDOW)
+ #if defined(MICROSOFT_VISUAL)
+ const double NA = DBL_MAX;
+ #else
+ const double NA = MAXDOUBLE;
+ #endif
+#endif
 
 enum order {names, xvalues, yvalues};
 enum metric {adjacent, centroid, combnd};
