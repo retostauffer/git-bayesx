@@ -1845,6 +1845,7 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
   bool varianceest;
 
   bool constscale;
+  bool uniformprior;
 
   // FUNCTION: standardise
   // TASK: standardises the response and the offset
@@ -1865,6 +1866,7 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
      b_invgamma = 0.005;
      varianceest = false;
      constscale = false;
+     uniformprior = false;
      }
 
    // CONSTRUCTOR1
@@ -1900,6 +1902,7 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
      b_invgamma = nd.b_invgamma;
      varianceest = nd.varianceest;
      constscale = nd.constscale;
+     uniformprior = nd.uniformprior;
      }
 
    // OVERLOADED ASSIGNMENT OPERATOR
@@ -1982,6 +1985,8 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
                     unsigned & it,ST::string & trtype);
 
   void set_constscale(double s);
+
+  void set_uniformprior(void);
 
   void update_missings(void);
 

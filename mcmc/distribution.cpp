@@ -4062,6 +4062,11 @@ void DISTRIBUTION_gaussian::set_constscale(double s)
   constscale=true;
   }
 
+void DISTRIBUTION_gaussian::set_uniformprior(void)
+  {
+  uniformprior=true;
+  }
+
 void DISTRIBUTION_gaussian::set_variance(DISTRIBUTION_vargaussian * dg)
   {
   dgamma = dg;
@@ -4145,8 +4150,11 @@ void DISTRIBUTION_gaussian::update(void)
       sum += *workweight*help*help;
       }
 
-    scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero,
-                 b_invgamma+0.5*sum);
+    if(uniformprior==true)
+      scale(0,0) = rand_invgamma(-0.5+0.5*nrobsmweightzero,0.5*sum);
+    else
+      scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero,
+                   b_invgamma+0.5*sum);
     }
 
 
@@ -4469,6 +4477,7 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const double & a,
   assert (b > 0);
 
   constscale=false;
+  uniformprior=false;
 
   a_invgamma = a;
   b_invgamma = b;
@@ -4498,6 +4507,7 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const datamatrix & offset,
   assert (b > 0);
 
   constscale=false;
+  uniformprior=false;
 
   a_invgamma = a;
   b_invgamma = b;
@@ -4524,6 +4534,7 @@ const DISTRIBUTION_gaussian & DISTRIBUTION_gaussian::operator=(
   b_invgamma = nd.b_invgamma;
   varianceest = nd.varianceest;
   constscale = nd.constscale;
+  uniformprior = nd.uniformprior;
   return *this;
   }
 
