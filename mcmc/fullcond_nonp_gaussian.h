@@ -80,6 +80,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   bool lattice;
   ST::string pathmap;
 
+  vector<vector<double> > beta_average;          // For Stepwise: Model-Averaging
+
   // FUNCTION: init_data_varcoeff
   // TASK: initializes data and data2 (data^2) for varying coefficient model
 
@@ -395,7 +397,16 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   void compute_lambdavec(vector<double> & lvec, int & number);
 
-  const datamatrix & get_data_forfixedeffects(void);  
+  const datamatrix & get_data_forfixedeffects(void);
+
+  void save_betas(vector<double> & modell, unsigned & anzahl);
+      
+  void average_posteriormode(vector<double> & crit_weights);
+
+  void effect_sort(datamatrix & effect, const double & m, const unsigned & beg,
+                   const unsigned & end,const statmatrix<int> & index);
+
+  void effect_sort(datamatrix & effect, const double & m, unsigned & row);
 
 // ------------------------- END: FOR STEPWISE ---------------------------------
 

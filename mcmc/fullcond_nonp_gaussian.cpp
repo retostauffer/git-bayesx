@@ -1145,6 +1145,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
     } // end: errors.size() == 0
 
+  beta_average.erase(beta_average.begin(),beta_average.end());
 
   }
 
@@ -1246,6 +1247,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,DISTRIBUTION * dp
 
     }
 
+  beta_average.erase(beta_average.begin(),beta_average.end());
+
   }
 
 
@@ -1329,6 +1332,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
       }
 
     } // end: if (error==false)
+
+  beta_average.erase(beta_average.begin(),beta_average.end());
 
   }
 
@@ -1417,6 +1422,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
       }
 
     } // end: if (error == false)
+
+  beta_average.erase(beta_average.begin(),beta_average.end());
 
   }
 
@@ -1604,6 +1611,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(const FULLCOND_nonp_gaussian & fc
   remlspatialdesign=fc.remlspatialdesign;
   X_VCM=fc.X_VCM;
   Z_VCM=fc.Z_VCM;
+  beta_average = fc.beta_average;
   }
 
 
@@ -1644,6 +1652,7 @@ const FULLCOND_nonp_gaussian & FULLCOND_nonp_gaussian::operator=(
   remlspatialdesign=fc.remlspatialdesign;
   X_VCM=fc.X_VCM;
   Z_VCM=fc.Z_VCM;
+  beta_average = fc.beta_average;
   return *this;
   }
 

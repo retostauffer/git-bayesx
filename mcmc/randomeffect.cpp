@@ -648,6 +648,8 @@ FULLCOND_random::FULLCOND_random (MCMCoptions * o,DISTRIBUTION * dp,
 
   muy = datamatrix(nrpar,1);
 
+  beta_average.erase(beta_average.begin(),beta_average.end());
+
 //  identifiable =true;
 
   }
@@ -757,6 +759,8 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * o,DISTRIBUTION * dp,
 
   identifiable = true;
 
+  beta_average.erase(beta_average.begin(),beta_average.end());
+
   }
 
 
@@ -785,6 +789,7 @@ FULLCOND_random::FULLCOND_random(const FULLCOND_random & fc)
   df_lambdaold2 = fc.df_lambdaold2;
   lambdaconst=fc.lambdaconst;
   data2 = fc.data2;
+  beta_average = fc.beta_average;
   }
 
 
@@ -818,6 +823,7 @@ const FULLCOND_random & FULLCOND_random::
   df_lambdaold2 = fc.df_lambdaold2;
   lambdaconst=fc.lambdaconst;
   data2 = fc.data2;
+  beta_average = fc.beta_average;
 
   return *this;
   }

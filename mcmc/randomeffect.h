@@ -58,6 +58,8 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
   statmatrix<int> indextotal;
   ST::string pathsample_total;
 
+  vector<vector<double> > beta_average;          // For Stepwise: Model-Averaging
+
 
   FULLCOND ftotal;
 
@@ -226,6 +228,16 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
   // TASK: resets the effect, subtracts the current effect from linearpred
 
   void reset_effect(const unsigned & pos);
+
+  void save_betas(vector<double> & modell, unsigned & anzahl);
+
+  void average_posteriormode(vector<double> & crit_weights);
+
+  void effect_sort(datamatrix & effect, const double & m,
+       const unsigned & beg, const unsigned & end,const statmatrix<int> & index);
+
+  void effect_sort(datamatrix & effect, const double & m, unsigned & row);
+
 
 // ------- END: For Stepwise ---------------------------------------------------  
 

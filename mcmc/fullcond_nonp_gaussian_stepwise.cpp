@@ -207,5 +207,145 @@ vector<double> & lvec, int & number)
      lvec.push_back(0);
   }
 
+
+// BEGIN: MODEL-AVERAGING ------------------------------------------------------
+
+void FULLCOND_nonp_gaussian::save_betas(vector<double> & modell, unsigned & anzahl)
+  {
+  vector<double> beta_neu;
+  unsigned i;
+  unsigned j;
+
+  if(modell[anzahl] != -1 && modell[anzahl] != 0)
+    {
+    double * workbeta = beta.getV();
+    for(i=0;i<beta.rows();i++,workbeta++)
+      beta_neu.push_back(*workbeta);
+    }
+  else if(modell[anzahl] == -1)
+    {
+    unsigned welches = 1;
+    for(j=0;j<anzahl;j++)
+      if(modell[j] == -1)
+        welches++;
+    double fix = fcconst->get_betafix(welches);
+    beta_neu.push_back(fix);
+    }
+  // else
+  // Vektor "beta_neu" bleibt leer!
+
+  beta_average.push_back(beta_neu);
+  }
+
+
+void FULLCOND_nonp_gaussian::average_posteriormode(vector<double> & crit_weights)
+  {
+  unsigned i;
+  unsigned j;
+  vector<double> beta_spline;
+  for(j=0;j<nrpar;j++)
+    beta_spline.push_back(0);
+  double beta_fix = 0;
+
+  for(i=0;i<crit_weights.size();i++)
+    {
+    if(beta_average[i].size()>1)
+      {
+      for(j=0;j<beta_average[i].size();j++)
+        beta_spline[j] += beta_average[i][j] * crit_weights[i];
+      }
+    else if(beta_average[i].size()==1)
+      beta_fix += beta_average[i][0] * crit_weights[i];
+    }
+
+  update_linpred(false);
+  setbeta(beta_spline.size(),1,0);
+  double * workbeta = beta.getV();
+  for(i=0;i<beta_spline.size();i++,workbeta++)
+    *workbeta = beta_spline[i];
+    
+  datamatrix pmean_spline = datamatrix(likep->get_nrobs(),1,0);
+  workbeta = beta.getV();
+  vector<int>::iterator itbeg = posbeg.begin();
+  vector<int>::iterator itend = posend.begin();
+  if(varcoeff)
+    {
+    int * workindex = index.getV();
+    double * workdata = data.getV();
+    for(i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
+      {
+      if(*itbeg != -1)
+        {
+        for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
+          effect_sort(pmean_spline,*workbeta*(*workdata),unsigned(*workindex));
+        }
+      }
+    }
+  else
+    {
+    for(i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
+      {
+      if(*itbeg != -1)
+        effect_sort(pmean_spline,*workbeta,*itbeg,*itend,index);
+      }
+    }
+  datamatrix pmean_fix = datamatrix(likep->get_nrobs(),1,0);
+  datamatrix beta_fixx = datamatrix(1,1,beta_fix);
+  if(beta_fix != 0)
+    pmean_fix.mult(data_forfixed,beta_fixx);     // berechnet den Anteil der fixen Effekte
+  pmean_spline.plus(pmean_spline,pmean_fix);     
+
+  // für Ausgabe: Vektor "pmean_spline" muß für Ausgabe sortiert werden!
+  workbeta = beta.getV();
+  double * workeff = pmean_spline.getV();
+  itbeg = posbeg.begin();
+  itend = posend.begin();
+  int * workindex = index.getV(); 
+  for(i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
+    {
+    if(*itbeg != -1)
+      {
+      if(!varcoeff)
+        *workbeta = pmean_spline(*workindex,0);
+      else
+        *workbeta = pmean_spline(*workindex,0) / data_forfixed(*workindex,0);
+      for(j=*itbeg;j<=*itend;j++)
+        workindex++;
+      }
+    }
+
+  if(!varcoeff)      // Zentrieren
+    {
+    double intercept = centerbeta();
+    fcconst->set_intercept_for_center(intercept);
+    datamatrix inter = datamatrix(likep->get_nrobs(),1,-intercept);
+    pmean_spline.plus(pmean_spline,inter);         // zentrierte durchschnittliche Fkt, Einträge in Reihenfolge x_1,...,x_n
+    }
+
+  likep->add_linearpred_m(pmean_spline,column);     // addiert durchschnittl. Fkt. zum Gesamtprädiktor
+
+  workbeta = beta.getV();
+  workeff = betamean.getV();
+  for(i=0;i<nrpar;i++,workbeta++,workeff++)
+    *workeff = *workbeta * transform;
+  }
+
+
+void FULLCOND_nonp_gaussian::effect_sort(datamatrix & effect, const double & m,
+            const unsigned & beg, const unsigned & end,const statmatrix<int> & index)
+  {
+  unsigned register i;
+  int * workindex = index.getV() + beg;
+  for (i=beg;i<=end;i++,workindex++)
+    effect(*workindex,0)+=m;
+  }
+
+void FULLCOND_nonp_gaussian::effect_sort(datamatrix & effect, const double & m, unsigned & row)
+  {
+  double * workl = effect.getV() + row;
+  *workl += m;
+  }
+
+
  
 } // end: namespace MCMC
