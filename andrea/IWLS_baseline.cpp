@@ -392,9 +392,6 @@ bool IWLS_baseline::posteriormode(void)
 
 void IWLS_baseline::update(void)
   {
-//--------?????--------------
-  double test = transform;
-//---------???-------------
   if(lambdaconst == true)
     sigma2 = likep->get_scale(column)/lambda;
 
