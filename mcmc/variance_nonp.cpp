@@ -42,8 +42,6 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     ST::string path = samplepath.substr(0,samplepath.length()-4)+"_lambda.raw";
     fc_lambda = FULLCOND(o,datamatrix(1,1),Kp->get_title()+"_lambda",1,1,path);
     fc_lambda.setflags(MCMC::norelchange | MCMC::nooutput);
-    fc_lambda.set_transform(transform);
-      
     }
 
 
@@ -269,7 +267,7 @@ void FULLCOND_variance_nonp::update(void)
           for(i=0;i<lambda.size();i++)
             {
             help = scale/lambda[i];
-            tau.push_back(help/transform);
+            tau.push_back(help);
             }
 
           i = 0;
@@ -360,7 +358,6 @@ void FULLCOND_variance_nonp::update(void)
     {
     double * lambdap = fc_lambda.getbetapointer();
     *lambdap = distrp->get_scale(column)/beta(0,0);
-    fc_lambda.set_transform(transform);
     fc_lambda.update();
     }
 
