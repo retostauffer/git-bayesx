@@ -37,12 +37,6 @@ namespace MAP
 enum order {names, xvalues, yvalues};
 enum metric {adjacent, centroid, combnd};
 
-#if defined(MICROSOFT_VISUAL)
-const double NA = DBL_MAX;
-#else
-const double NA = MAXDOUBLE;
-#endif
-
 //------------------------------------------------------------------------------
 //------------------------------- struct: line ---------------------------------
 //------------------------------------------------------------------------------
