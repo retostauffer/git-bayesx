@@ -17,7 +17,14 @@ Erstellen einer neuen BayesX Installation:
 
 7. java BayesX - Default windowing herstellen
 
+8. Checken, ob in  c:\bayesx\java\temp und c:\bayesx\java\temp
+   keine Dateien sind. Gegebenenfalls entfernen. 
+
 8. Installationsroutine java herstellen.
+
+
+
+
 
 9. Literatur im Internet checken.
 
