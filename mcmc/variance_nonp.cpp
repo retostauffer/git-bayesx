@@ -290,6 +290,12 @@ void FULLCOND_variance_nonp::update(void)
         else
           beta(0,0) = rand_invgamma(a_invgamma+0.5*rankK,
                                     b_invgamma+0.5*Kp->compute_quadform());
+
+        double * lambdap = fc_lambda.getbetapointer();
+        *lambdap = distrp->get_scale(column)/beta(0,0);
+        fc_lambda.set_transform(transform);
+        fc_lambda.update();
+
 /*
         beta(0,0) = Kp->get_sigma2();
 
@@ -338,11 +344,6 @@ void FULLCOND_variance_nonp::update(void)
     }
 
   FULLCOND::update();
-
-  double * lambdap = fc_lambda.getbetapointer();
-  *lambdap = distrp->get_scale(column)/beta(0,0);
-  fc_lambda.set_transform(transform);
-  fc_lambda.update();
 
   }
 
