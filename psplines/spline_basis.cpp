@@ -764,9 +764,7 @@ void spline_basis::make_Bspline(const datamatrix & md, const bool & minnull)
     }
 
   double min;
-  if(minnull)
-    min = 0.0;
-  else if(predictleft)
+  if(predictleft)
     min = md(index(mindomain,0),0);
   else
     min = md(index(0,0),0);
@@ -780,6 +778,9 @@ void spline_basis::make_Bspline(const datamatrix & md, const bool & minnull)
   min -= 0.01*dist;
   max += 0.01*dist;
 
+  if(minnull)
+    min = 0.0;
+    
   if(knpos == equidistant)
     {
     dist = (max - min)/(nrknots-1);
