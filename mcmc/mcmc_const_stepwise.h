@@ -30,11 +30,14 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   vector<double> diff_categories;
   double reference;
   ST::string coding;
+
+  double const_alt; 
   
 
   bool changingweight;
 
   datamatrix X1;                   // (X'WX)^-0.5
+  datamatrix X2;
 
   datamatrix help;
 
@@ -114,6 +117,12 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   void include_effect(const vector<ST::string> & names, const datamatrix & newx);
 
   void posteriormode_single(const vector<ST::string> & names, datamatrix & newx);
+
+  void safe_const(void);
+
+  void set_const_old(void);
+
+  void posteriormode_const(void);
 
   void reset_effect(const unsigned & pos);
 

@@ -893,6 +893,18 @@ class __EXPORT_TYPE FULLCOND
     {
     }
 
+  virtual void safe_const(void)
+    {
+    }
+
+  virtual void set_const_old(void)
+    {
+    }
+
+  virtual void posteriormode_const(void)
+    {
+    }
+
   virtual const datamatrix & get_data_forfixedeffects(void)
     {
     return data_forfixed;

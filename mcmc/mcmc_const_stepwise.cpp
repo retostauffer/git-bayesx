@@ -138,12 +138,12 @@ bool FULLCOND_const_stepwise::posteriormode(void)
 void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & names, datamatrix & newx)
   {
   // double * worklinold=linold.getV();     // linold = data * beta
-  X1 = datamatrix(names.size(),names.size(),0);
+  X2 = datamatrix(names.size(),names.size(),0);
   datamatrix beta_neu = datamatrix(names.size(),1,0);
-  likep->fisher(X1,newx,column);            // recomputes X1 = (newx' W newx)^{-1}
-  X1.assign((X1.cinverse()));               // continued
+  likep->fisher(X2,newx,column);            // recomputes X1 = (newx' W newx)^{-1}
+  X2.assign((X2.cinverse()));               // continued
   likep->compute_weightiwls_workingresiduals(column); // computes W(y-linpred)
-  beta_neu = X1*newx.transposed()*likep->get_workingresiduals();
+  beta_neu = X2*newx.transposed()*likep->get_workingresiduals();
 
   likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
   datamatrix linold_single = datamatrix(newx.rows(),1,0);
@@ -161,6 +161,51 @@ void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & na
     *workbeta=*workbeta_neu;
     *workbetameanold = *workbeta;
     }
+  }
+
+
+void FULLCOND_const_stepwise::safe_const(void)
+  {
+  double * workbeta = beta.getV();
+  const_alt = *workbeta;
+  }
+
+
+void FULLCOND_const_stepwise::set_const_old(void)
+  {
+  double * workbeta = beta.getV();
+  likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+  datamatrix linold_const = datamatrix(linold.rows(),1,*workbeta);
+  linold = linold - linold_const;            // updates linold (subtracts the constant)
+  *workbeta = const_alt;
+  linold_const = datamatrix(linold.rows(),1,*workbeta);
+  linold = linold + linold_const;
+  likep->add_linearpred_m(linold,column);     // updates linpred
+  }
+
+
+void FULLCOND_const_stepwise::posteriormode_const(void)
+  {
+  double * workbeta = beta.getV();
+  likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+  datamatrix linold_const = datamatrix(linold.rows(),1,*workbeta);
+  *workbeta = 0;
+  linold = linold - linold_const;            // updates linold (subtracts the constant)
+  likep->add_linearpred_m(linold,column);     // updates linpred
+
+  X2 = datamatrix(1,1,1);
+  datamatrix beta_const = datamatrix(1,1,0);
+  datamatrix newx = datamatrix(linold.rows(),1,1);
+  likep->fisher(X2,newx,column);
+  X2.assign((X2.cinverse()));
+  likep->compute_weightiwls_workingresiduals(column);
+  beta_const = X2*newx.transposed()*likep->get_workingresiduals();
+  double * workconst = beta_const.getV();
+  *workbeta = *workconst;
+  likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+  linold_const = datamatrix(linold.rows(),1,*workbeta);
+  linold = linold + linold_const;            // updates linold (subtracts the constant)
+  likep->add_linearpred_m(linold,column);     // updates linpred
   }
 
 
