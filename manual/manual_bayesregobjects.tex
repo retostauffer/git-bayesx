@@ -1099,29 +1099,28 @@ to the options list.
 
 A weight variable can not be additionally specified.
 
-Zero inflated count data distributions are used when the
-number of zero counts in the data exceeds the number of
-zero counts expected by the distribution. They are based on
-two processes. The first process is an underlying count data
-process, that can not be observed directly, but after a
-transformation through a so called selection process. This
-one is defined through a 0/1 variable. If we have a 0 in the
-selection process, the observed count will be zero, independently
-of the generated value by the underlying count data process.
-Otherwise, if we have a 1, then we will observe directly the
-generated value by the underlying count data process.
-The implemented zero inflated distributions in {\em BayesX}
-do not work with both processes directly. They are marginalized
-versions of a given count data distribution with respect to
-a $0/1 ~sim Bern(1-\theta)$ selection process. For the count
-data process we have two possibilities, that can be controlled
-throuth the option #zipdistopt#. If we chose a Poisson distribution,
-we get a zero inflated Poisson distribution (#zipdistopt = zip#)
-denoted by $y_i | \eta_i,\theta \sim ZIP(\eta_i,\theta)$.
-We may combine both approaches zero inflation and overdispersion.
-To do this, we may chose a negative binomial distribution leading
-to a zero inflated negative binomial (#zipdistopt = zinb#) and
-denoted by $y_i | \eta_i,\delta, \theta \sim ZINB(\eta_i,\delta,\theta)$.
+Zero inflated count data distributions are used when the number of
+zero counts in the data exceeds the number of zero counts expected
+by the distribution. They are based on two processes. The first
+process is an underlying count data process, that can not be
+observed directly, but after a transformation through a so called
+selection process. This one is defined through a 0/1 variable. If we
+have a 0 in the selection process, the observed count will be zero,
+independently of the generated value by the underlying count data
+process. Otherwise, if we have a 1, then we will observe directly
+the generated value by the underlying count data process. The
+implemented zero inflated distributions in {\em BayesX} do not work
+with both processes directly. They are marginalized versions of a
+given count data distribution with respect to a $0/1 \sim
+Bern(1-\theta)$ selection process. For the count data process we
+have two possibilities, that can be controlled through the option
+#zipdistopt#. If we chose a Poisson distribution, we get a zero
+inflated Poisson distribution (#zipdistopt = zip#) denoted by $y_i |
+\eta_i,\theta \sim ZIP(\eta_i,\theta)$. We may combine both
+approaches zero inflation and overdispersion. To do this, we may
+chose a negative binomial distribution leading to a zero inflated
+negative binomial (#zipdistopt = zinb#) and denoted by $y_i |
+\eta_i,\delta, \theta \sim ZINB(\eta_i,\delta,\theta)$.
 
 
 \subsubsection{Continuous time survival analysis}
