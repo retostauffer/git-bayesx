@@ -65,6 +65,7 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, DISTRIBUTION * dp,
 
   }
 
+// REML
 
 spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, const datamatrix & v2,
                       const unsigned & nrk, const unsigned & degr,
@@ -75,6 +76,7 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
   {
 
   mapexisting = false;
+  varcoeff = false;
 
 //------------------------------------------------------------------------------
 
@@ -94,8 +96,6 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
   gridsizex = -1;
   gridsizey = -1;
   gridsize = -1;
-
-  varcoeff = false;
 
   transformnonlinear = false;
   transformed =  false;
@@ -133,6 +133,72 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
 
   }
 
+// REML (varcoeff)
+
+spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
+                      const datamatrix & v1, const datamatrix & v2,
+                      const unsigned & nrk, const unsigned & degr,
+                      const fieldtype & ft, const ST::string & ti,
+                      const ST::string & fp, const ST::string & pres,
+                      const double & l, const double & sl)
+  : FULLCOND_nonp_basis(o,ti)
+  {
+
+  mapexisting = false;
+  varcoeff=true;
+
+  plotstyle=noplot;
+
+  lambdaconst = false;
+
+  pathresults = pres;
+  pathresult = pres;
+  pathcurrent = pres;
+
+  nrknots = nrk;
+  degree = degr;
+  knpos = MCMC::equidistant;
+
+  gridsizex = -1;
+  gridsizey = -1;
+  gridsize = -1;
+
+  transformnonlinear = false;
+  transformed =  false;
+
+  type = ft;
+
+  nrpar1dim = nrknots-1+degree;
+  nrpar = nrpar1dim*nrpar1dim;
+
+  samplepath=fp;
+
+  likep = NULL;
+  dimX = 1;
+  dimZ = nrpar-1;
+
+  X_VCM = datamatrix(intact.rows(),dimX,1.0);
+  Z_VCM = datamatrix(intact.rows(),dimZ,0.0);
+
+  data_forfixed = intact;
+
+  spline = datamatrix(v1.rows(),1,0);
+
+  lambda = l;
+  startlambda = sl;
+
+  make_index(v1,v2);
+  compute_knots(v1,v2);
+  make_B(v1,v2);
+
+  index2.push_back(index(0,0));
+  for(unsigned i=1;i<v1.rows();i++)
+    index2.push_back(index(i,0)-index(i-1,0));
+
+  make_xy_v(v1,v2);
+  }
+
+// REML geospline
 
 spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
                       const MAP::map & mp, const ST::string & mn,
@@ -215,7 +281,84 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
 
   }
 
+// REML geospline varcoeff
 
+spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
+               const datamatrix & region, const MAP::map & mp,
+               const ST::string & mn,
+               const unsigned & nrk, const unsigned & degr,
+               const fieldtype & ft, const ST::string & ti,
+               const ST::string & fp, const ST::string & pres, const double & l,
+               const double & sl)
+  : FULLCOND_nonp_basis(o,ti)
+  {
+  m = mp;
+  mapexisting = true;
+  mapname = mn;
+  plotstyle = drawmap;
+
+  datamatrix v1 = datamatrix(region.rows(),1,0.0);
+  datamatrix v2 = datamatrix(region.rows(),1,0.0);
+  data_forfixed = intact;
+
+  ST::string regname;
+  for(unsigned i=0;i<region.rows();i++)
+    {
+    regname = ST::doubletostring(region(i,0));
+    regionnames.push_back(regname);
+    v1(i,0) = m.get_region(m.getnr(regname)).get_xcenter();
+    v2(i,0) = m.get_region(m.getnr(regname)).get_ycenter();
+    }
+
+  lambdaconst = false;
+
+  pathresults = pres;
+  pathresult = pres;
+  pathcurrent = pres;
+
+  nrknots = nrk;
+  degree = degr;
+  knpos = MCMC::equidistant;
+
+  gridsizex = -1;
+  gridsizey = -1;
+  gridsize = -1;
+
+  varcoeff = true;
+
+  transformnonlinear = false;
+  transformed =  false;
+
+  type = ft;
+
+  nrpar1dim = nrknots-1+degree;
+  nrpar = nrpar1dim*nrpar1dim;
+
+  samplepath=fp;
+
+  likep = NULL;
+  dimX = 1;
+  dimZ = nrpar-1;
+  X_VCM = datamatrix(region.rows(),dimX,1.0);
+  Z_VCM = datamatrix(region.rows(),dimZ,0.0);
+
+  spline = datamatrix(v1.rows(),1,0);
+
+  lambda = l;
+  startlambda = sl;
+
+  make_index(v1,v2);
+  compute_knots(v1,v2);
+  make_B(v1,v2);
+
+  index2.push_back(index(0,0));
+  for(unsigned i=1;i<v1.rows();i++)
+    index2.push_back(index(i,0)-index(i-1,0));
+
+  make_xy_v(v1,v2);
+  }
+
+  
 spline_basis_surf::spline_basis_surf(const spline_basis_surf & sp)
   : FULLCOND_nonp_basis(FULLCOND_nonp_basis(sp))
   {
@@ -1999,16 +2142,36 @@ void spline_basis_surf::init_names(const vector<ST::string> & na)
 
   ST::string underscore = "\\_";
 
-  if(mapexisting)
+  if(!varcoeff)
     {
-    ST::string helpname0 = na[0].insert_string_char('_',underscore);
-    term_symbolic = "f_{" + helpname0 + "}(" + helpname0 + ")";
+    if(mapexisting)
+      {
+      ST::string helpname0 = na[0].insert_string_char('_',underscore);
+      term_symbolic = "f_{" + helpname0 + "}(" + helpname0 + ")";
+      }
+    else
+      {
+      ST::string helpname0 = na[0].insert_string_char('_',underscore);
+      ST::string helpname1 = na[1].insert_string_char('_',underscore);
+      term_symbolic = "f_{" +  helpname0 + "," + helpname1 + "}(" + helpname0 + "," + helpname1 + ")";
+      }
     }
   else
     {
-    ST::string helpname0 = na[0].insert_string_char('_',underscore);
-    ST::string helpname1 = na[1].insert_string_char('_',underscore);
-    term_symbolic = "f_{" +  helpname0 + "," + helpname1 + "}(" + helpname0 + "," + helpname1 + ")";
+    if(mapexisting)
+      {
+      ST::string helpname0 = na[0].insert_string_char('_',underscore);
+      ST::string helpname1 = na[1].insert_string_char('_',underscore);
+      term_symbolic = "f_{" + helpname0 + "}(" + helpname0 + ")" + " \\cdot " + helpname1;
+      }
+    else
+      {
+      ST::string helpname0 = na[0].insert_string_char('_',underscore);
+      ST::string helpname1 = na[1].insert_string_char('_',underscore);
+      ST::string helpname2 = na[2].insert_string_char('_',underscore);
+      term_symbolic = "f_{" +  helpname0 + "," + helpname1 + "}(" + helpname0 + "," + helpname1 + ")" + " \\cdot " + helpname2;
+      }
+
     }
   if (column > 0)
     priorassumptions.push_back("$" + term_symbolic + "$" +
@@ -2079,8 +2242,6 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
   double * workdata;
   double * workZ;
 
-// Z berechnen
-
   datamatrix Kstat=STATMAT_PENALTY::K2dim_pspline(nrpar1dim);
   datamatrix vals(Kstat.rows(),1,0);
 
@@ -2118,6 +2279,21 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
 //END: Susanne
 */
 
+// X berechnen (varcoeff)
+  if(varcoeff)
+    {
+    double * workX;
+    unsigned Xcols = X.cols();
+    workX = X.getV()+Xpos;
+    double * workintact = data_forfixed.getV();
+    for (i=0;i<spline.rows();i++,workintact++,workX+=Xcols)
+      {
+      *workX = *workintact;
+      }
+    }
+
+// Z berechnen
+
   unsigned Zcols = Z.cols();
   for(j=0;j<dimZ;j++)
     {
@@ -2125,9 +2301,23 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
 
     workdata = spline.getV();
     workZ = Z.getV()+Zpos+j;
-    for (i=0;i<spline.rows();i++,workdata++,workZ+=Zcols)
+
+    if(varcoeff)
       {
-      *workZ = *workdata;
+      double * workintact = data_forfixed.getV();
+      double * workZ_VCM = Z_VCM.getV()+j;
+      for (i=0;i<spline.rows();i++,workdata++,workintact++,workZ+=Zcols,workZ_VCM+=dimZ)
+        {
+        *workZ = *workdata**workintact;
+        *workZ_VCM = *workdata;
+        }
+      }
+    else
+      {
+      for (i=0;i<spline.rows();i++,workdata++,workZ+=Zcols)
+        {
+        *workZ = *workdata;
+        }
       }
     }
   }
@@ -2170,31 +2360,68 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
   unsigned k = *indexit;
   vector<int>::iterator freqwork = freqoutput.begin();
 
-  for(i=0,j=0;i<spline.rows();i++,indexit++,freqwork++,k+=*indexit)
+  if(varcoeff)
     {
-    if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+    for(i=0,j=0;i<spline.rows();i++,indexit++,freqwork++,k+=*indexit)
       {
-/*      betamean(j,0) = (Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)*betareml.getBlock(X.cols()+Zpos,0,X.cols()+Zpos+nrpar-1,1))(0,0);
-      betastd(j,0) = sqrt((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)*
-               betacov.getBlock(X.cols()+Zpos,X.cols()+Zpos,X.cols()+Zpos+nrpar-1,X.cols()+Zpos+nrpar-1)*
-               Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1).transposed())(0,0));*/
-      betamean(j,0) = (Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
-      betastd(j,0) = sqrt((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)*
-               betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar-1,betaZpos+nrpar-1)*
-               Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1).transposed())(0,0));
-      j++;
+      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+        {
+        betamean(j,0) = betareml(betaXpos,0)*X_VCM(k,0) + (Z_VCM.getRow(k)*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1))(0,0);
+        betastd(j,0) = sqrt(
+                            (
+                             X_VCM(k,0)*betacov(betaXpos,betaXpos)
+                             +
+                             (Z_VCM.getRow(k)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
+                            )*X_VCM(k,0)
+                            +
+                            (
+                             (
+                              X_VCM(k,0)*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+                              +
+                              Z_VCM.getRow(k)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                             )*(Z_VCM.getRow(k).transposed())
+                            )(0,0)
+                           );
+        j++;
+        }
+      }
+    }
+  else
+    {
+    for(i=0,j=0;i<spline.rows();i++,indexit++,freqwork++,k+=*indexit)
+      {
+      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+        {
+        betamean(j,0) = (Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
+        betastd(j,0) = sqrt((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)*
+                 betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar-1,betaZpos+nrpar-1)*
+                 Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1).transposed())(0,0));
+        j++;
+        }
       }
     }
 
-  mean = betamean.mean(0);
-//  betareml(0,0)=betareml(0,0)+mean;
-  for(j=0; j<nr; j++)
+  if(!varcoeff)
     {
-    betamean(j,0)=betamean(j,0)-mean;
-    betaqu_l1_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower1/100)*betastd(j,0);
-    betaqu_l1_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper2/100)*betastd(j,0);
-    betaqu_l2_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower2/100)*betastd(j,0);
-    betaqu_l2_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper1/100)*betastd(j,0);
+    mean = betamean.mean(0);
+    for(j=0; j<nr; j++)
+      {
+      betamean(j,0)=betamean(j,0)-mean;
+      betaqu_l1_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower1/100)*betastd(j,0);
+      betaqu_l1_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper2/100)*betastd(j,0);
+      betaqu_l2_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower2/100)*betastd(j,0);
+      betaqu_l2_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper1/100)*betastd(j,0);
+      }
+    }
+  else
+    {
+    for(j=0; j<nr; j++)
+      {
+      betaqu_l1_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower1/100)*betastd(j,0);
+      betaqu_l1_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper2/100)*betastd(j,0);
+      betaqu_l2_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower2/100)*betastd(j,0);
+      betaqu_l2_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper1/100)*betastd(j,0);
+      }
     }
 
 

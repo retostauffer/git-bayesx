@@ -197,6 +197,15 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
                const ST::string & fp, const ST::string & pres, const double & l,
                const double & sl);
 
+  // CONSTRUCTOR for REML (varcoeff)
+
+ spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
+               const datamatrix & v1, const datamatrix & v2,
+               const unsigned & nrk, const unsigned & degr,
+               const fieldtype & ft, const ST::string & ti,
+               const ST::string & fp, const ST::string & pres, const double & l,
+               const double & sl);
+
   // CONSTRUCTOR for REML (geospline)
 
   spline_basis_surf(MCMCoptions * o, const datamatrix & region, const MAP::map & mp,
@@ -206,6 +215,15 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
                const ST::string & fp, const ST::string & pres, const double & l,
                const double & sl);
 
+  // CONSTRUCTOR for REML (geospline_varcoeff)
+
+  spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
+               const datamatrix & region, const MAP::map & mp,
+               const ST::string & mn,
+               const unsigned & nrk, const unsigned & degr,
+               const fieldtype & ft, const ST::string & ti,
+               const ST::string & fp, const ST::string & pres, const double & l,
+               const double & sl);
 
   // COPY CONSTRUCTOR
 
