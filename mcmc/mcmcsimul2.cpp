@@ -512,7 +512,6 @@ void STEPWISErun::minexact_nonp(vector<double> & kriteriumiteration2,
         df = df + fullcondp[j]->compute_df();
       df = df - 1;
       reset_fix(names_nonp[i-1][0]);
-      // fullcond_alle[0]->posteriormode();
       fullcondp.push_back(fullcond_alle[i]);
       minexact_nonp_fix(i,krit_fkt,kriterium_alt,df);
       }
@@ -541,7 +540,6 @@ void STEPWISErun::minexact_nonp(vector<double> & kriteriumiteration2,
       if(modelcomparison(modell_neu,modellematrix)==false)
         {
         newmodel_nonp(i,kriteriumiteration2,modeliteration,textiteration);
-
         // Stellt linearen Prädiktor wieder her.
         fullcondp[0]->set_effect_zero();
         posteriormode(posttitle,true);
@@ -576,9 +574,12 @@ void STEPWISErun::stepmin_fix_leer(vector<double> & kriteriumiteration2,
   for(y=0;y<fullcondp.size();y++)
     df = df + fullcondp[y]->compute_df();
   df = df - 1;
+
+  fullcond_alle[0]->safe_const();
   reset_fix(names_fixed[i]);
-  // fullcond_alle[0]->posteriormode();    //***   bei "reset_fix" wird der lin. Prädiktor schon upgedatet! 
+  fullcond_alle[0]->posteriormode_const();
   kriterium_neu = criterion_min(df);
+  fullcond_alle[0]->set_const_old();
   if(minim == "approx_control")
     {
     posteriormode(posttitle,true);
@@ -636,13 +637,15 @@ void STEPWISErun::stepmin_leer_fix(vector<double> & kriteriumiteration2,
   for(y=0;y<fullcondp.size();y++)
     df = df + fullcondp[y]->compute_df();
   df = df + 1;
-  // include_fix(names_fixed[i]);            //***
-  // fullcond_alle[0]->posteriormode();      //***
-  int c = column_for_fix(names_fixed[i]);    //***
-  vector<ST::string> name_help;              //***
-  name_help.push_back(names_fixed[i]);       //***
-  fullcond_alle[0]->posteriormode_single(name_help,datamatrix(D.getCol(c)));    //***
+
+  fullcond_alle[0]->safe_const();
+  int c = column_for_fix(names_fixed[i]);
+  vector<ST::string> name_help;
+  name_help.push_back(names_fixed[i]);
+  fullcond_alle[0]->posteriormode_single(name_help,datamatrix(D.getCol(c)));
+  fullcond_alle[0]->posteriormode_const();
   kriterium_neu = criterion_min(df);
+  fullcond_alle[0]->set_const_old();
   if(minim == "approx_control")
     {
     posteriormode(posttitle,true);
@@ -706,10 +709,13 @@ void STEPWISErun::stepmin_factor_leer(vector<double> & kriteriumiteration2,
   for(i=0;i<fullcondp.size();i++)
     df = df + fullcondp[i]->compute_df();
   df = df - fullcond_alle[z]->get_data_forfixedeffects().cols();
+
+  fullcond_alle[0]->safe_const();
   for(i=0;i<names_nonp[z-1].size();i++)
     reset_fix(names_nonp[z-1][i]);
-  // fullcond_alle[0]->posteriormode();          //***
+  fullcond_alle[0]->posteriormode_const();
   kriterium_neu = criterion_min(df);
+  fullcond_alle[0]->set_const_old();
   if(minim == "approx_control")
     {
     posteriormode(posttitle,true);
@@ -761,11 +767,13 @@ void STEPWISErun::stepmin_leer_factor(vector<double> & kriteriumiteration2,
   for(i=0;i<fullcondp.size();i++)
     df = df + fullcondp[i]->compute_df();
   df = df + fullcond_alle[z]->get_data_forfixedeffects().cols();
-  // fullcondp[0]->include_effect(names_nonp[z-1],fullcond_alle[z]->get_data_forfixedeffects());    //***
-  // fullcond_alle[0]->posteriormode();                                                             //***
-  fullcond_alle[0]->posteriormode_single(names_nonp[z-1],                                           //***
-                                 fullcond_alle[z]->get_data_forfixedeffects());                     //***
+
+  fullcond_alle[0]->safe_const();
+  fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
+                                 fullcond_alle[z]->get_data_forfixedeffects());
+  fullcond_alle[0]->posteriormode_const();
   kriterium_neu = criterion_min(df);
+  fullcond_alle[0]->set_const_old();
   if(minim == "approx_control")
     {
     posteriormode(posttitle,true);
@@ -778,8 +786,8 @@ void STEPWISErun::stepmin_leer_factor(vector<double> & kriteriumiteration2,
       reset_fix(names_nonp[z-1][i]);
     fullcondp[0]->set_effect_zero();
     posteriormode(posttitle,true);
-    fullcond_alle[0]->posteriormode_single(names_nonp[z-1],                                           //***
-                                 fullcond_alle[z]->get_data_forfixedeffects());                     //***
+    fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
+                                 fullcond_alle[z]->get_data_forfixedeffects());
     }
   if(trace == "trace_minim" && minim != "approx_control")
      {
@@ -822,6 +830,8 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
     df = df + fullcondp[i]->compute_df();
   df = df - fullcond_alle[z]->compute_df();
 
+  fullcondp[0]->safe_const();
+
   for(i=0;i<lambdavec[z-1].size();i++)
     {
     if(lambdavec[z-1][i]!=modell_alt[z+names_fixed.size()-2])
@@ -831,26 +841,26 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
         {
         fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
         fullcond_alle[z]->posteriormode();
+        fullcond_alle[0]->posteriormode_const();
         kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
+        fullcond_alle[0]->set_const_old();
         }
       else if(lambdavec[z-1][i]==-1)
         {
         fullcond_alle[z]->reset_effect(0);
-        // fullcondp[0]->include_effect(names_nonp[z-1],                                //***
-        //                          fullcond_alle[z]->get_data_forfixedeffects());      //***
-        // fullcond_alle[0]->posteriormode();                                           //***
-        fullcond_alle[0]->posteriormode_single(names_nonp[z-1],                         //***
-                                  fullcond_alle[z]->get_data_forfixedeffects());        //***
+        fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
+                                  fullcond_alle[z]->get_data_forfixedeffects());
+        fullcond_alle[0]->posteriormode_const();
         kriterium_versuch = criterion_min(df + 1);
+        fullcond_alle[0]->set_const_old();
         reset_fix(names_nonp[z-1][0]);
-        // fullcond_alle[0]->posteriormode();                                           //***
-                                       // hier erhält man Schätzer für fixe Effekte ohne Var. "z"!
         }
       else
         {
         fullcond_alle[z]->reset_effect(0);
-        // fullcond_alle[0]->posteriormode();     //***    // weglassen???
+        fullcond_alle[0]->posteriormode_const();
         kriterium_versuch = criterion_min(df);
+        fullcond_alle[0]->set_const_old();           
         }
       krit_fkt.push_back(kriterium_versuch);
       }
@@ -893,9 +903,9 @@ void STEPWISErun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, doub
     df = df + fullcondp[i]->compute_df();
   df = df - 1;
 
+  fullcond_alle[0]->safe_const();
   reset_fix(names_nonp[z-1][0]);
   fullcondp.push_back(fullcond_alle[z]);
-  //end[0] = fullcondp.size()-1;
 
   for(i=0;i<lambdavec[z-1].size();i++)
     {
@@ -906,13 +916,16 @@ void STEPWISErun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, doub
         {
         fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
         fullcond_alle[z]->posteriormode();
+        fullcond_alle[0]->posteriormode_const();
         kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
+        fullcond_alle[0]->set_const_old();
         }
       else
         {
         fullcond_alle[z]->reset_effect(0);
-        // fullcond_alle[0]->posteriormode();         //***        
+        fullcond_alle[0]->posteriormode_const();
         kriterium_versuch = criterion_min(df);
+        fullcond_alle[0]->set_const_old();
         }
       krit_fkt.push_back(kriterium_versuch);
       }
@@ -943,7 +956,6 @@ void STEPWISErun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, doub
     {
     fullcond_alle[z]->reset_effect(0);
     fullcondp.erase(fullcondp.end()-1,fullcondp.end());
-    //end[0] = fullcondp.size()-1;
     fullcondp[0]->posteriormode_single(names_nonp[z-1],
                                 fullcond_alle[z]->get_data_forfixedeffects());
     }
@@ -958,6 +970,7 @@ void STEPWISErun::stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt ,dou
   for(i=0;i<fullcondp.size();i++)
     df = df + fullcondp[i]->compute_df();
 
+  fullcond_alle[0]->safe_const();
   fullcondp.push_back(fullcond_alle[z]);
 
   for(i=0;i<lambdavec[z-1].size();i++)
@@ -969,15 +982,19 @@ void STEPWISErun::stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt ,dou
         {
         fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
         fullcond_alle[z]->posteriormode();
+        fullcond_alle[0]->posteriormode_const();
         kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
+        fullcond_alle[0]->set_const_old();
         }
       else
         {
         fullcond_alle[z]->reset_effect(0);
         fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
-                                   fullcond_alle[z]->get_data_forfixedeffects());        
+                                   fullcond_alle[z]->get_data_forfixedeffects());
+        fullcond_alle[0]->posteriormode_const();
         kriterium_versuch = criterion_min(df + 1);
         reset_fix(names_nonp[z-1][0]);
+        fullcond_alle[0]->set_const_old();          
         }
       krit_fkt.push_back(kriterium_versuch);
       }
