@@ -806,11 +806,23 @@ void spline_basis::make_Bspline(const datamatrix & md, const bool & minnull)
   else if(knpos == quantiles)
     {
     double distfirst, distlast;
-
+/*
     knot.push_back(min);
     for(i=1;i<nrknots-1;i++)
       knot.push_back(md.quantile((i*100)/double(nrknots-1),0));
     knot.push_back(max);
+*/
+
+    knot.push_back(min);
+    for(i=1;i<nrknots-1;i++)
+      {
+      double q = md.quantile((i*100)/double(nrknots-1),0);
+      if(q != knot[i-1])
+        knot.push_back(q);
+      }
+    knot.push_back(max);
+
+    nrknots = knot.size();
 
     distfirst = knot[1] - knot[0];
     distlast = knot[nrknots-1] - knot[nrknots-2];
