@@ -94,13 +94,11 @@ For multicategorical responses, both multinomial logit or probit models for orde
 the responses as well as cumulative threshold models for unordered categories may be estimated.
 Recently complex models for continuous time survival analysis based on the Cox model have been added.</span></li>
 <li> Inference for STAR models based on methodology for mixed models.<br>
-<span style="font-weight:normal">BayesX provides a second regression tool for estimating STAR models.
-This tool represents STAR models as generalized linear mixed models (GLMM).
-Inference is then based on estimation procedures for GLMM's, particularly restricted maximum
+<span style="font-weight:normal">BayesX provides a second regression tool for estimating STAR models with comparable functionality as the first tool based on MCMC.
+This tool represents STAR models as variance components mixed models.
+Inference is then based on estimation procedures for such mixed models, particularly restricted maximum
 likelihood (REML). From a Bayesian perspective this yields empirical Bayes or posterior mode estimates.<br>
-The regression tool based on mixed model methodology has almost the same functionality as
-the first tool based on MCMC techniques.
-Continuous time survival analysis is limited to the piecewise exponential model.</span></li>
+</span></li>
 <li> Model selection for Gaussian and non-Gaussian dags.<br>
 <span style="font-weight:normal">This tool estimates Gaussian and non-Gaussian directed acyclical graphs (dag) via reversible jump MCMC.</span>
 </li>
@@ -166,6 +164,10 @@ More details on the theoretical background of BayesX are given in the following 
     <a href="publications/paper377.ps">
     Structured additive regression for multicategorical space-time data: A mixed model approach.</a> <br>
     SFB 386 discussion paper 377, University of Munich.</li>
+<li>Kneib, T., Fahrmeir, L. (2004): <br>
+    <a href="publications/paper400.ps">
+    A mixed model approach for structured hazard regression.</a> <br>
+    SFB 386 discussion paper 400, University of Munich.</li>
 </ul>
 
 
