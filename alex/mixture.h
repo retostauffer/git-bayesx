@@ -53,10 +53,8 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   double centerbeta(void);
 
-  void update_linpred(const bool & add);
 
-
-
+  
   public:
 
   // DEFAULT CONSTRUCTOR:

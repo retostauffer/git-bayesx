@@ -232,6 +232,7 @@ void FULLCOND_mixture::update(void)
   {
   unsigned i,k;
 
+
 // Update component indicators
   for(i=0;i<compind.rows();i++)
   {
@@ -276,63 +277,47 @@ void FULLCOND_mixture::update(void)
   csize.assign(cstemp);
 
 
+
 // Update random effects
-
-  update_linpred(false);
-
-  vector<unsigned>::iterator itbeg = posbeg.begin();
-  vector<unsigned>::iterator itend = posend.begin();
-
-  double * workbeta = beta.getV();
-  int * workindex2 = index2.getV();
-  double * workmuy = muy.getV();
-  double * mup = mu.getV();
-
-  likep->set_weightp();
-
-  for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
-      {
-      *workmuy = 0;
-      for(unsigned j=*itbeg;j<=*itend;j++,workindex2++)
-        {
-        mup += *workindex2;
-        *workmuy+= likep->get_weight(*workindex2)* *mup;
-        }
-      }
-
-
-  // update of random effects
   datamatrix retemp(beta.rows(),1,0);
   double scaletemp=likep->get_scale(column); // scale parameter sigma_i^2
+  double remtemp,revtemp,indobs,sumworkres,sumworky,sumworklp;
+  unsigned comp,j;
+
   for(i=0;i<beta.rows();i++)
   {
-  double remtemp,revtemp;
-  double indobs=10; // number of observations for individual i=X_i'X_i
 
-  double sumworkres=100; // sum of X_i'(y_i-eta_i)
+  likep->add_linearpred(-1.0*beta(i,0),posbeg[i],posend[i],index,0,true);
 
-  unsigned comp=compind(i,0);
+  indobs=posend[i]-posbeg[i]+1; // number of observations for individual i=X_i'X_i
+  sumworkres=0;
+  for(j=posbeg[i];j<=posend[i];j++)
+    {
+    sumworkres += likep->get_response(j,0)-likep->get_linearpred(j,0);  // sum of X_i'(y_i-eta_i)
+    }
+
+  comp=compind(i,0);
   revtemp = 1.0/( indobs*(1.0/scaletemp)+(1.0/compvar(comp-1,0)) );
   remtemp = revtemp*( sumworkres*(1.0/scaletemp)+(1.0/compvar(comp-1,0))*compmean(comp-1,0) );
   retemp(i,0)=remtemp+revtemp*rand_normal();
-  }
+
+  likep->add_linearpred(retemp(i,0),posbeg[i],posend[i],index,0,true);
+   }
   beta.assign(retemp);
 
-  update_linpred(true);
-
-/*  if (center)
+  if (center)
     {
     double m = centerbeta();
     fcconst->update_intercept(m);
     }
-*/
+
   acceptance++;
   transform = likep->get_trmult(column);
 
 
 
-
-/*  datamatrix test(beta.rows(),1,0);
+/*
+  datamatrix test(beta.rows(),1,0);
   test = likep->get_response();
 
   // Sampling
@@ -340,11 +325,11 @@ void FULLCOND_mixture::update(void)
   ofstream outrest2(pathtemp2.strtochar(),ios::app);
   for(i=0;i<beta.rows();i++)
     {
-    outrest2 << test(i,0) << endl ;
+    ST::string pt2 = pathcurrent.substr(0,pathcurrent.length()-4)+"_lp_after.res";
+    ofstream ot2(pt2.strtochar(),ios::app);
+    ot2 << likep->get_linearpred(i,0) << endl;
     }
-  outrest2 ;
 */
-
 
 
 
@@ -366,7 +351,6 @@ void FULLCOND_mixture::update(void)
     remean=0.0;
   else
     remean=resum/csize(k,0);
-
 
   vtemp = 1.0 / ( csize(k,0)*(1.0/compvar(k,0))+(1.0/cmpriorv) ) ;
   mtemp = vtemp*( csize(k,0)*(1.0/compvar(k,0))*remean+(1.0/cmpriorv)*cmpriorm );
@@ -589,37 +573,6 @@ void FULLCOND_mixture::outoptions(void)
 //  optionsp->out("  Prior shape of component variances: " + ST::inttostring(cvpriorsh) + "\n",true);
 //  optionsp->out("  Prior scale of component variances: " + ST::inttostring(cvpriorsc) + "\n",true);
   optionsp->out("\n");
-  }
-
-
-
-
-void FULLCOND_mixture::update_linpred(const bool & add)
-  {
-  unsigned i,j;
-
-  unsigned n = nrpar;
-
-  vector<unsigned>::iterator itbeg = posbeg.begin();
-  vector<unsigned>::iterator itend = posend.begin();
-  double * workbeta = beta.getV();
-
-  int * workindex2;
-
-  if (add==false)
-    {
-//      likep->set_linpredp_current(column);
-      for (i=0;i<nrpar;i++,++itbeg,++itend,workbeta++)
-        if (*itbeg != -1)
-          likep->add_linearpred2(-(*workbeta),*itbeg,*itend,index,index2,column);
-    } // end: if (add == false)
-  else
-    {
-//      likep->set_linpredp_current(column);
-      for (i=0;i<nrpar;i++,++itbeg,++itend,workbeta++)
-        if (*itbeg != -1)
-          likep->add_linearpred2(*workbeta,*itbeg,*itend,index,index2,column);
-    }
   }
 
 
