@@ -24,24 +24,25 @@ baseline_reml::baseline_reml(MCMCoptions * o,
   varcoeff=false;
 
   gridpos = gp;
-  tgrid = tgr;
   double tmax=d.max(0);
-  tvalues = datamatrix(tgrid+1,1);
 
   if(gridpos == MCMC::equidistant)
     {
+    tgrid = tgr;
+    tvalues = datamatrix(tgrid+1,1);
     tstep = tmax / tgrid;
     for(i=0;i<tvalues.rows();i++)
       tvalues(i,0) = i*tstep;
     }
   else
     {
+    tgrid = nrq*nrb;
+    tvalues = datamatrix(tgrid+1,1);
     nrquant = nrq;
     nrbetween = nrb;
     datamatrix tquantiles = datamatrix(nrquant+1,1,0);
     for(i=1; i<nrquant; i++)
       {
-      double test = ((double)i/nrquant)*100;
       tquantiles(i,0) = d.quantile(((double)i/nrquant)*100,0);
       }
     tquantiles(nrquant,0) = tmax;

@@ -2428,6 +2428,8 @@ bool remlest::estimate_survival(const datamatrix resp,
          ST::doubletostring(crit2,6)+"\n");
     out("\n");
 
+    out("\n\n"+ST::doubletostring(theta(0,0),6)+"\n\n");
+
     // count iteration
     it=it+1;
     }
@@ -2448,9 +2450,9 @@ bool remlest::estimate_survival(const datamatrix resp,
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
-  ofstream outit((outfile+"_it.raw").strtochar());
-  outit << it-1;
-  outit.close();
+//  ofstream outit((outfile+"_it.raw").strtochar());
+//  outit << it-1;
+//  outit.close();
 
   datamatrix thetareml(theta.rows(),3,0);
   thetareml.putCol(0,theta);

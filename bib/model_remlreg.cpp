@@ -609,11 +609,11 @@ term_baseline_remlreg::term_baseline_remlreg(void)
   type = "term_baseline";
   degree=intoption("degree",3,0,5);
   numberknots=intoption("nrknots",20,5,500);
-  tgrid = intoption("tgrid",300,5,2000);
+  tgrid = intoption("tgrid",300,5,10000);
   vector<ST::string> gridchoices;
   gridchoices.push_back("equidistant");
   gridchoices.push_back("quantiles");
-  gridchoice = stroption("gridchoice",gridchoices,"equidistant");
+  gridchoice = stroption("gridchoice",gridchoices,"quantiles");
   numberquantiles = intoption("nrquantiles",60,5,1000);
   numberbetween = intoption("nrbetween",5,1,100);
   lambda = doubleoption("lambda",0.1,0,10000000);
@@ -626,6 +626,8 @@ void term_baseline_remlreg::setdefault(void)
   numberknots.setdefault();
   tgrid.setdefault();
   gridchoice.setdefault();
+  numberquantiles.setdefault();
+  numberbetween.setdefault();
   lambda.setdefault();
   lambdastart.setdefault();
   }
