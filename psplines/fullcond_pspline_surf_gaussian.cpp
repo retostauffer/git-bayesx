@@ -93,6 +93,18 @@ void FULLCOND_pspline_surf_gaussian::create(const datamatrix & v1, const datamat
 
   unsigned i,j,bands;
 
+// stepwise
+
+  data_forfixed = v1;
+  for(i=0;i<v2.rows();i++)
+    {
+    data_forfixed(i,0) *= v2(i,0);
+    }
+  fctype = nonparametric;
+  lambda_prec = -1;
+
+// END: stepwise
+
   make_index(v1,v2);
 
   if(type == mrflinear)
@@ -609,6 +621,8 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(const FULLCOND_ps
   : spline_basis_surf(spline_basis_surf(fc))
   {
 
+  lambda_prec = fc.lambda_prec;
+
   f2 = fc.f2;
   kappaburnin = fc.kappaburnin;
 
@@ -663,6 +677,8 @@ const FULLCOND_pspline_surf_gaussian & FULLCOND_pspline_surf_gaussian::operator=
   if (this == &fc)
     return *this;
   spline_basis_surf::operator=(spline_basis_surf(fc));
+
+  lambda_prec = fc.lambda_prec;
 
   f2 = fc.f2;
   kappaburnin = fc.kappaburnin;
@@ -2601,6 +2617,8 @@ void FULLCOND_pspline_surf_gaussian::sample_centered(datamatrix & beta)
   }
 
 
+ // stepwise
+
 void FULLCOND_pspline_surf_gaussian::reset_effect(const unsigned & pos)
   {
   likep->substr_linearpred_m(spline,column,true);
@@ -2615,6 +2633,137 @@ void FULLCOND_pspline_surf_gaussian::reset_effect(const unsigned & pos)
   intercept = 0.0;
   }
 
+
+double FULLCOND_pspline_surf_gaussian::compute_df(void)
+  {
+  if(utype == gaussian)
+    {
+    if(prec.getdim()==0)
+      return -1.0;
+    if(lambda != lambda_prec || likep->iwlsweights_constant() == false)
+      prec.addto(XX,K,1.0,lambda);
+    prec_env = envmatdouble(prec);
+    XX_env = envmatdouble(XX);
+    }
+  else
+    {
+    if(prec_env.getDim()==0)
+      return -1.0;
+    if(lambda != lambda_prec || likep->iwlsweights_constant() == false)
+      prec_env.addto(XX_env,Kenv,1.0,lambda);
+    }
+
+  invprec = envmatdouble(0,nrpar,prec_env.getBandwidth());
+  prec_env.inverse_envelope(invprec);
+  if(identifiable)
+    return invprec.traceOfProduct(XX_env);
+  else
+    return invprec.traceOfProduct(XX_env)-1;
+
+  }
+
+
+void FULLCOND_pspline_surf_gaussian::hierarchie_rw1(vector<double> & untervector)
+  {
+
+  unsigned number = untervector.size()-1;
+
+  update_stepwise(untervector[0]);
+  double df_max = compute_df();
+
+  update_stepwise(untervector[number]);
+  double df_min = compute_df();
+
+  if(df_max > 1 && df_min < 1)
+     {
+     bool geordnet = false;
+     unsigned stelle_oben = number;
+     unsigned stelle_unten = 0;
+     while(geordnet==false)
+        {
+        unsigned stelle = stelle_oben + stelle_unten;
+        update_stepwise(untervector[stelle/2]);
+        double df_mitteunten = compute_df();
+        update_stepwise(untervector[stelle/2 + 1]);
+        double df_mitteoben = compute_df();
+
+        if(df_mitteunten > 1 && df_mitteoben > 1)
+          stelle_unten = stelle/2;
+        else if(df_mitteunten < 1 && df_mitteoben < 1)
+          stelle_oben = stelle/2 + 1;
+        else
+          {
+          geordnet = true;
+          vector<double> hilf;
+          unsigned i;
+          stelle_unten = stelle/2;
+          stelle_oben = stelle/2 + 1;
+          for(i=0;i<=stelle_unten;i++)
+             hilf.push_back(untervector[i]);
+          hilf.push_back(-1);
+          for(i=stelle_oben;i<untervector.size();i++)
+            hilf.push_back(untervector[i]);
+          untervector = hilf;
+          }
+        }
+     }
+  else if(df_min >= 1)
+     {
+     untervector.push_back(-1);
+     }
+  else
+     {
+     vector<double> hilf;
+     hilf.push_back(-1);
+     unsigned i;
+     for(i=0;i<untervector.size();i++)
+        hilf.push_back(untervector[i]);
+     untervector = hilf;
+     }
+  }
+
+
+void spline_basis::compute_lambdavec(
+vector<double> & lvec, const unsigned & number)
+  {
+  if (get_df_equidist()==true)
+     FULLCOND::compute_lambdavec_equi(lvec,number);
+  else
+     FULLCOND::compute_lambdavec(lvec,number);
+
+  if (varcoeff || type==RW2)
+    {
+    lvec.push_back(-1);
+    }
+  else if (type==RW1)
+    {
+    hierarchie_rw1(lvec);
+    }
+  get_forced();
+  if(forced_into==false)
+     lvec.push_back(0);
+  }
+
+
+const datamatrix & FULLCOND_pspline_surf_gaussian::get_data_forfixedeffects(void)
+  {
+  return data_forfixed;
+  }
+
+
+ST::string FULLCOND_pspline_surf_gaussian::get_effect(void)
+  {
+  ST::string h;
+
+  if(varcoeff)
+    h = datanames[1] + "*" + datanames[0] + "(geospline";
+  else
+    h = datanames[0] + "(pspline2dimrw1";
+
+  h = h + ",df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
+
+  return h;
+  }
 
 
 } // end: namespace MCMC

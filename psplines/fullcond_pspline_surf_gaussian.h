@@ -34,6 +34,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
 
   protected:
 
+  double lambda_prec;
+
   double f2;
   datamatrix kappaburnin;
 
@@ -282,7 +284,27 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
     return K.getupperpointer();
     }
 
+  // stepwise
+
   void reset_effect(const unsigned & pos);
+
+  double compute_df(void);
+
+  void hierarchie_rw1(vector<double> & untervector);
+
+  void compute_lambdavec(vector<double> & lvec, const unsigned & number);
+
+  void update_stepwise(double la)
+    {
+    lambda=la;
+    }
+
+  // FUNCTION: get_effect
+  // TASK: returns a string of the estimated effect
+
+  ST::string  get_effect(void);
+
+  const datamatrix & get_data_forfixedeffects(void);
 
 
   // DESTRUCTOR
