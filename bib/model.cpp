@@ -2439,6 +2439,7 @@ term_random::term_random(void)
   proposal = stroption("proposal",adm_prop,"iwls");
   updatetau = simpleoption("updatetau",false);
   uniformprior = simpleoption("uniformprior",false);
+  nrcomp = intoption("nrcomp",0,0,50);
   }
 
 
@@ -2450,13 +2451,14 @@ void term_random::setdefault(void)
   proposal.setdefault();
   updatetau.setdefault();
   uniformprior.setdefault();
+  nrcomp.setdefault();
   }
 
 
 bool term_random::check(term & t)
   {
 
-  if ( (t.varnames.size()==1)  && (t.options.size()<=7) )
+  if ( (t.varnames.size()==1)  && (t.options.size()<=8) )
     {
 
     if (t.options[0] == "random")
@@ -2477,6 +2479,7 @@ bool term_random::check(term & t)
     optlist.push_back(&proposal);
     optlist.push_back(&updatetau);
     optlist.push_back(&uniformprior);
+    optlist.push_back(&nrcomp);
 
     unsigned i;
     bool rec = true;
@@ -2501,7 +2504,7 @@ bool term_random::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(7);
+    t.options = vector<ST::string>(8);
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(lambda.getvalue());
     t.options[2] = ST::doubletostring(a.getvalue());
@@ -2515,6 +2518,7 @@ bool term_random::check(term & t)
       t.options[6] = "false";
     else
       t.options[6] = "true";
+    t.options[7] = ST::inttostring(nrcomp.getvalue());  
 
 
     setdefault();

@@ -800,7 +800,8 @@ bool bayesreg::create_random(const unsigned & collinpred)
   ST::string pathres2;
   ST::string title2;
   double a1,b1,lambda;
-  int f;
+  int f,nrcomp;
+  long h;
   bool iwlsmode=false;
 
   unsigned i;
@@ -821,14 +822,28 @@ bool bayesreg::create_random(const unsigned & collinpred)
       if (terms[i].options[4]=="iwlsmode")
         iwlsmode=true;
 
+      f = (terms[i].options[7]).strtolong(h);
+      nrcomp = unsigned(h);
+
       if (f==1)
         return true;
 
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-                 "_random.raw","_random.res","_random");
+      if(nrcomp==0)
+        {
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                   "_random.raw","_random.res","_random");
 
-      make_paths(collinpred,pathnonp2,pathres2,title2,terms[i].varnames[0],"",
-                 "_random_var.raw","_random_var.res","_random_variance");
+        make_paths(collinpred,pathnonp2,pathres2,title2,terms[i].varnames[0],"",
+                   "_random_var.raw","_random_var.res","_random_variance");
+        }
+      else
+        {
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                   "_mixture.raw","_mixture.res","_mixture");
+
+//        make_paths(collinpred,pathnonp2,pathres2,title2,terms[i].varnames[0],"",
+//                   "_mixture_var.raw","_mixture_var.res","_mixture_variance");
+        }
 
       if (check_gaussian())
         {
@@ -850,8 +865,13 @@ bool bayesreg::create_random(const unsigned & collinpred)
             }
           }
 
-        fcrandomgaussian.push_back(
-        FULLCOND_random_gaussian(&generaloptions[generaloptions.size()-1],
+        if(nrcomp > 0)
+          structured = 0;
+
+        if(nrcomp == 0)
+          {
+          fcrandomgaussian.push_back(
+          FULLCOND_random_gaussian(&generaloptions[generaloptions.size()-1],
                                                         distr[distr.size()-1],
                                                         fcconst_intercept,
                                                         D.getCol(j),
@@ -860,6 +880,21 @@ bool bayesreg::create_random(const unsigned & collinpred)
                                                         lambda,collinpred
                                                         )
                           );
+           }
+         else
+           {
+           fcmixturegaussian.push_back(
+           FULLCOND_mixture_gaussian(&generaloptions[generaloptions.size()-1],
+                                                        distr[distr.size()-1],
+                                                        fcconst_intercept,
+                                                        D.getCol(j),
+                                                        title,
+                                                        pathnonp,pathres,
+                                                        nrcomp,
+                                                        lambda,collinpred
+                                                        )
+                          );
+           }
 
         if (structured==1)
           {
@@ -884,14 +919,29 @@ bool bayesreg::create_random(const unsigned & collinpred)
           return true;
           }
 
-        fcrandomgaussian[fcrandomgaussian.size()-1].init_name(terms[i].varnames[0]);
-        fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
-
-        if (constlambda.getvalue() == true)
+        if(nrcomp == 0)
           {
+          fcrandomgaussian[fcrandomgaussian.size()-1].init_name(terms[i].varnames[0]);
+          fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
+          }
+        else
+          {
+          fcmixturegaussian[fcmixturegaussian.size()-1].init_name(terms[i].varnames[0]);
+          fcmixturegaussian[fcmixturegaussian.size()-1].set_fcnumber(fullcond.size());
+          }
 
-          fcrandomgaussian[fcrandomgaussian.size()-1].set_lambdaconst(lambda);
-          fullcond.push_back(&fcrandomgaussian[fcrandomgaussian.size()-1]);
+        if (constlambda.getvalue() == true || nrcomp > 0)
+          {
+          if(nrcomp == 0)
+            {
+            fcrandomgaussian[fcrandomgaussian.size()-1].set_lambdaconst(lambda);
+            fullcond.push_back(&fcrandomgaussian[fcrandomgaussian.size()-1]);
+            }
+          else
+            {
+            fcmixturegaussian[fcmixturegaussian.size()-1].set_lambdaconst(lambda);
+            fullcond.push_back(&fcmixturegaussian[fcmixturegaussian.size()-1]);
+            }
           }
         else
           {

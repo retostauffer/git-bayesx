@@ -907,7 +907,7 @@ class __EXPORT_TYPE term_random : public basic_termtype
   stroption proposal;
   simpleoption updatetau;
   simpleoption uniformprior;
-
+  intoption nrcomp;
 
   void setdefault(void);
 

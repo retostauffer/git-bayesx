@@ -632,6 +632,9 @@ void bayesreg::initpointers(void)
   for(i=0;i<fcrandomgaussian.size();i++)
     fullcond.push_back(&fcrandomgaussian[i]);
 
+  for(i=0;i<fcmixturegaussian.size();i++)
+    fullcond.push_back(&fcmixturegaussian[i]);
+
   for(i=0;i<fcvarnonp.size();i++)
     fullcond.push_back(&fcvarnonp[i]);
 
@@ -720,6 +723,9 @@ void bayesreg::clear(void)
 
   fcrandomgaussian.erase(fcrandomgaussian.begin(),fcrandomgaussian.end());
   fcrandomgaussian.reserve(20);
+
+  fcmixturegaussian.erase(fcmixturegaussian.begin(),fcmixturegaussian.end());
+  fcmixturegaussian.reserve(20);
 
   fctvariance.erase(fctvariance.begin(),fctvariance.end());
   fctvariance.reserve(20);
