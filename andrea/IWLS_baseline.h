@@ -14,7 +14,7 @@
 #include <deque>
 #include <sparsemat.h>
 #include<mcmc_nonpbasis.h>
-#include<spline_basis.h>
+#include<IWLS_pspline.h>
 #include<fullcond_nonp_gaussian.h>
 
 namespace MCMC
@@ -25,64 +25,54 @@ namespace MCMC
 //---------------------------- class: IWLS_baseline -------------------------
 //------------------------------------------------------------------------------
 
-class __EXPORT_TYPE IWLS_baseline : public spline_basis
+class __EXPORT_TYPE IWLS_baseline : public IWLS_pspline
   {
 
   protected:
 
-     bool begin0;
-   datamatrix int_knots;
-   datamatrix int_D;
-   MCMC::bsplinemat testmat;
-   vector<MCMC::bsplinemat> gaussmat;
-   vector<IWLS_baseline*> baselinep;
-   datamatrix zi;
-   unsigned gauss_n;
-   datamatrix coeff;
-   datamatrix z_vc;
-   datamatrix zi_ges;
-   datamatrix beg_i;
-   statmatrix<int> zi_index;
-   statmatrix<int> ges_index;
-   datamatrix spline_ges;
-   datamatrix spline_zi;
-   datamatrix gaussspline;
-   datamatrix int_ti_help;
-   bool vc_dummy1;
-
-  updatetype utype;
-
-  double a_invgamma;
-  double b_invgamma;
-  double kappa;
-  double kappaprop;
-  double kappamode;
-  double kappamean;
-
-  bool diagtransform;
-
-  unsigned updateW;
-
-  void create_iwls(void);
+  bool begin0;
+  datamatrix int_knots;
+  datamatrix int_D;
+  MCMC::bsplinemat testmat;
+  vector<MCMC::bsplinemat> gaussmat;
+  vector<IWLS_baseline*> baselinep;
+  datamatrix zi;
+  unsigned gauss_n;
+  datamatrix coeff;
+  datamatrix z_vc;
+  datamatrix zi_ges;
+  datamatrix beg_i;
+  datamatrix A;
+  datamatrix distance;
+  datamatrix interval;
+  datamatrix AWA;
+  datamatrix Wbase;
+  statmatrix<int> zi_index;
+  statmatrix<int> ges_index;
+  datamatrix spline_ges;
+  datamatrix spline_zi;
+  datamatrix gaussspline;
+  datamatrix int_ti_help;
+  datamatrix response_help;
+  datamatrix Xdelta;
+  datamatrix Adelta;
+  datamatrix Eins;
+  datamatrix score;
+  datamatrix deltaexact;
+  datamatrix An;
+  datamatrix DeltaN;
+  bool vc_dummy1;
 
   void update_IWLS(void);
 
   void update_IWLS_mode(void);
-
-  void update_IWLS_hyperblock(void);
-
-  void update_IWLS_hyperblock_mode(void);
-
-  void update_isotonic(void);
-
-  void update_diagtransform(void);
 
 
   public:
 
   // DEFAULT CONSTRUCTOR
 
-  IWLS_baseline(void) : spline_basis()
+  IWLS_baseline(void) : IWLS_pspline()
     {
     }
 
@@ -118,10 +108,6 @@ class __EXPORT_TYPE IWLS_baseline : public spline_basis
 
   void update(void);
 
-  void outresults(void);
-
-  void outoptions(void);
-
   bool posteriormode(void);
 
   bool posteriormode_converged(const unsigned & itnr);
@@ -151,6 +137,84 @@ class __EXPORT_TYPE IWLS_baseline : public spline_basis
     {
     fcconst = fcc;
     }
+
+//-------- für baseline --------------------------------------------------------
+
+  void compute_int_ti(const datamatrix & b);
+  void compute_int_ti_linear(const double & b);
+  void compute_int_ti(unsigned beg);
+  void compute_int_ti_vc_di0(const vector<double *>,const vector<double *>);
+  void compute_int_ti_vc_di(const int,const vector<double *>,const vector<double *>);
+  void compute_int_gauss(void);
+  void compute_int_gauss_DIC(void);
+  void update_baseline(void);
+  void compute_int_ti_mean(void);
+
+  void set_baselinep(vector<IWLS_baseline*> bp)
+    {
+    baselinep=bp;
+    }
+
+  double * get_int_D(void)
+    {
+    return int_D.getV();
+    }
+
+  double * get_z_vc(void)
+    {
+    return z_vc.getV();
+    }
+
+  datamatrix get_z_vc_np(void)
+    {
+    return z_vc;
+    }
+
+  double * get_spline_zi(void)
+    {
+    multBS(spline_zi,beta);
+    return spline_zi.getV();
+    }
+
+  double * get_spline_ges(void)
+    {
+    testmat.mult_index(spline_ges,beta);
+    return spline_ges.getV();
+    }
+
+  double * get_spline_ges_mean(void)
+    {
+    testmat.mult_index(spline_ges,betamean);
+    return spline_ges.getV();
+    }
+
+  double * get_gaussspline(void);
+
+
+  double * get_gaussspline_mean(void);
+
+
+  double * get_betamean(void)
+    {
+    return betamean.getV();
+    }
+
+  double * get_beta(void)
+    {
+    return beta.getV();
+    }
+
+  double * get_spline_zi_mean(void)
+    {
+    multBS(spline_zi,betamean);
+    return spline_zi.getV();
+    }
+
+  void compute_AWA(void);
+  void compute_Wbase(void);
+  void compute_score(void);
+
+//---------- ENDE: für baseline ------------------------------------------------
 
   // DESTRUCTOR
 
