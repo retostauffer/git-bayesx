@@ -2839,6 +2839,13 @@ protected native void setPause(boolean pause);
 native void setProcessrunning(boolean proc);
 private native void setSuppressoutput(boolean supp);
 
+// random number generation
+
+private double juniform()
+	{
+	System.out.println(BinomialGen.nextInt(rStream, 10, 0.8));
+	return BinomialGen.nextInt(rStream, 10, 0.8);
+	}
 
 //Funktion, die bei der Übergabe eines Befehls aufgerufen wird
 
