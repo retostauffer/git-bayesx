@@ -1,0 +1,1240 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[dvips]{graphicx}
+\usepackage{rawfonts}
+\usepackage{german}
+\sloppy
+\parindent0em
+\parskip0.2em
+\topmargin-1.5cm \textheight24cm \textwidth15cm
+\oddsidemargin0.5cm
+%\pagestyle{empty}
+
+\renewcommand{\baselinestretch}{2}
+
+
+
+\def \re {{\bf R}}
+\def \beq {\begin{equation}}
+\def \eeq {\end{equation}}
+\def \bdis {\begin{displaymath}}
+\def \edis {\end{displaymath}}
+\def \ds {\displaystyle}
+
+\newcommand{\reell}{{I\hspace{-0.18cm} R}}
+
+
+\begin{document}
+
+
+
+{\bf \Huge TESTDATENS"ATZE}
+
+\tableofcontents
+
+\section{Hinweise zum Testen}
+
+Folgendes ist beim Testen zu beachten:
+
+\begin{itemize}
+\item {\bf Ergebnisse Korrekt} \\
+"Uberpr"ufen, ob die Ergebnisse grunds"atzlich ok sind. Soweit
+m"oglich sollte man die Ergebnisse mit anderen Programmen
+vergleichen (z.B. fixe Effekte mit Stata, S-Plus; Random effects mit
+S-Plus, SAS; Nichtparametrische Effekte mit S-Plus, SAS oder auch mit dem S-Plus Programm
+von Thomas Kneib.)
+\item {\bf Posterior Mode} \\
+"Uberpr"ufen, ob der Posteriori Modus korrekt berechnet wird (mit anderen Programmen vergleichen!!!).
+Bei nichtparametrischen Termen (z.B. P-splines) kann man den Gl"attungsparameter (lambda) angeben.
+Der Posterori Modus kann im Moment nur im Gaussfall berechnet werden.
+\item {\bf Hyperp. a} \\
+In vielen F"allen kann man Hyperparameter f"ur die Priori der Varianz angeben (z.B. random walks, P-splines).
+"Uberpr"uft werden soll, ob die im Handbuch angegebene Syntax zur Festlegung des Hyperparameters $a$
+vom Programm akzeptiert wird und ob "Anderungen in BayesX beachtet werden.
+\item {\bf Hyperp. b} \\
+In vielen F"allen kann man Hyperparameter f"ur die Priori der Varianz angeben (z.B. random walks, P-splines).
+"Uberpr"uft werden soll, ob die im Handbuch angegebene Syntax zur Festlegung des Hyperparameters $b$
+vom Programm akzeptiert wird und ob "Anderungen in BayesX beachtet werden.
+\item {\bf min} \\
+Es soll "uberpr"uft werden, ob die im Handbuch beschriebene Syntax zur Festlegung der minimalen Blockgr"ossen
+von BayesX beachtet werden.
+\item {\bf max} \\
+Es soll "uberpr"uft werden, ob die im Handbuch beschriebene Syntax zur Festlegung der maximalen Blockgr"ossen
+von BayesX beachtet werden.
+\item {\bf nrknots} \\
+Es soll "uberpr"uft werden, ob die im Handbuch beschriebene Syntax zur Festlegung der Anzahl der inneren Knoten
+(bei P-splines) von BayesX beachtet werden.
+\item {\bf degree} \\
+Es soll "uberpr"uft werden, ob die im Handbuch beschriebene Syntax zur Festlegung des Splinegrades
+(bei P-splines) von BayesX beachtet werden.
+\item {\bf gridsize} \\
+Es soll "uberpr"uft werden, ob die im Handbuch beschriebene Syntax von BayesX beachtet wird und ob alles wie im Handbuch
+beschrieben funktioniert.
+\item {\bf 2 Effekte} \\
+Hier soll bei nichtparametrischen Ausdr"ucken "uberpr"uft werden, ob die Angabe von Parametern (z.B. Hyperparameter a)
+immer noch funktioniert. Gelegentlich ist es vorgekommen, dass z.B. bei 2 P-splines im Modell die Parametereinstellungen
+vom ersten Effekt im zweiten Effekt "ubernommen werden.
+(Beispiel: ... + x1(psplinerw2,a=2) + x2(psplinerw2), hier wurde des "ofteren f"ur x2 auch a=2 angenommen, obwohl
+ja der Default a=1 ist.)
+\item {\bf Filenamen} \\
+Hier soll "uberpr"uft werden, ob die Ergebnisfiles die richtigen Filenamen haben (siehe Kapitel \ref{filenamen}).
+Ausserdem soll "uberpr"uft werden, ob die Files die in Kapitel 7.1.4 des Handbuchs beschriebene Struktur besitzen.
+\item {\bf Grafiken (Java)}  \\
+Hier soll "uberpr"uft werden, ob nichtparametrische Effekte bzw. Landkarten korrekt gezeichnet werden (d.h.
+so wie Handbuch beschrieben). Auch soll "uberpr"uft werden, ob alle beschriebenen Optionen existieren und
+funktionieren. Siehe dazu Kapitel 7.4.1 im Handbuch.
+\item {\bf Grafiken (S-plus)} \\
+Hier soll "uberpr"uft werden, ob nichtparametrische Effekte bzw. Landkarten korrekt gezeichnet werden (d.h.
+so wie Handbuch beschrieben). Auch soll "uberpr"uft werden, ob alle beschriebenen Optionen existieren und
+funktionieren. Siehe dazu Kapitel 7.4.2 im Handbuch.
+\item {\bf Postestimation C.} \\
+Hier soll "uberpr"uft werden, ob die Postestimation commands alle funktionieren (Berechnen und Plotten
+der Autokorrelationen, Berechnen und Plotten der Samples). Es geht um die Befehle plotsample (bei graph objekten)
+und plotautocor, getsample und getautocor bei bayesreg Objekten. Das muss man f"ur jeden Effekt ausprobieren,
+nicht nur f"ur fixe Effekte. Auch sollen die erzeugten Files die im Handbuch angegebene Struktur besitzen.
+\end{itemize}
+
+Dar"uberhinaus sollten alle im Handbuch beschriebenen Optionen (Kapitel 7.1.3) "uberpr"uft werden.
+
+Grunds"atzlich sollte man auch Fehleingaben versuchen und "uberpr"ufen ob die im Programm richtig abgefangen
+werden.
+
+Es soll auch zumindest mit fixen Effekten ausprobiert werden, ob die Sch"atzung mit Offset funktioniert.
+(Kann man z.B. mit Stata "uberpr"ufen)
+
+Fehlermeldungen bitte an:
+
+Andi Brezger bei P-splines, Smoothingsplines etc. sowie bei Grafikfehlern (sowohl Java als auch S-Plus)
+
+Thomas Kneib bei Problemen mit der Javaoberfläche.
+
+Stefan Lang beim Rest.
+
+Fehlermeldungen bitte immer auch an Stefan Lang, wegen Fehlerliste im Internet.
+
+{\bf Verbesserungsvorschl"age sind willkommen!!!}
+
+\section{Gaussian response}
+
+\subsection{Eine nichtlineare Funktion}
+
+{\bf Datensatz}
+
+gaussian\_nonp\_1fkt.raw
+
+{\bf Modell}
+
+$y  \sim N(\sin(x),0.3^2)$
+
+{\bf Batch-file}
+
+gaussian\_nonp\_1fkt.prg
+
+\subsection{Zwei nichtlineare Funktionen}
+
+{\bf Datensatz}
+
+gaussian\_nonp\_2fkt.raw
+
+{\bf Modell}
+
+$y  \sim N(\sin(x1)+0.8x2,0.3^2)$
+
+{\bf Batch-file}
+
+gaussian\_nonp\_2fkt.prg
+
+
+\subsection{Variierende Koeffizienten, eine nichtlineare Funktion}
+
+{\bf Datensatz}
+
+gaussian\_varcoeff\_1fkt.raw
+
+{\bf Modell}
+
+$y  \sim N(\sin(x1)x2,0.3^2)$
+
+{\bf Batch-file}
+
+gaussian\_varcoeff\_1fkt.prg
+
+
+\subsection{Random Effects}
+
+{\bf Datens"atze}
+
+500 Beobachtungen: \\
+gaussian\_randomeffects.raw \\
+gaussian\_randomeffects.dta
+
+2500 Beobachtungen: \\
+gaussian\_randomeffects2.raw \\
+gaussian\_randomeffects2.dta \\
+
+Daten wurden erzeugt mit den Stata do-files sim\_randomeffects.do und sim\_randomeffects2.do.
+
+
+{\bf Modell}
+
+$y1  \sim N(0.7+b0_{ind},0.3^2)$ \\
+$y2  \sim N(0.4+b0_{ind}+b1_{ind}x1+b2_{ind}x2,0.3^2)$ \\
+$y3  \sim N(-0.4+0.4x1-0.4x2+b0_{ind}+b1_{ind}x1+b2_{ind}x2,0.3^2)$
+
+$b0_{ind} \sim N(0,0.7^2)$, i.i.d. \\
+$b1_{ind} \sim N(0,0.5^2)$, i.i.d. \\
+$b2_{ind} \sim N(0,0.5^2)$, i.i.d. \\
+
+ind = Gruppenindikator (von 1 bis 25) \\
+
+500 Beobachtungen oder 2500 Beobachtungen \\
+
+Wahre Werte gespeichert unter
+
+true\_randomeffects.raw \\
+true\_randomeffects.dta
+
+SAS-Ergebnisse gespeichert unter
+
+gaussian\_randomeffectsy1\_sas.raw \\
+gaussian\_randomeffectsy1\_var\_sas.raw \\
+gaussian\_randomeffectsy1\_fixed\_sas.raw \\
+
+bzw.
+
+gaussian\_randomeffectsy2\_sas.raw \\
+gaussian\_randomeffectsy2\_var\_sas.raw \\
+gaussian\_randomeffectsy2\_fixed\_sas.raw \\
+
+
+bzw.
+
+gaussian\_randomeffectsy3\_sas.raw \\
+gaussian\_randomeffectsy3\_var\_sas.raw \\
+gaussian\_randomeffectsy3\_fixed\_sas.raw \\
+
+
+{\bf Batch-file}
+
+gaussian\_randomeffectsy1.prg \\
+gaussian\_randomeffectsy2.prg \\
+gaussian\_randomeffectsy3.prg \\
+
+
+\subsection{Lattice Daten}
+
+{\bf Datensatz}
+
+gaussian\_lattice\_1fkt.raw
+
+{\bf Modell}
+
+$y  \sim N(0.4(xcenter+ycenter),0.3^2)$
+
+$xcenter$ standardisierte Version von $xc \in \{1,\dots,10\}$
+
+$ycenter$ standardisierte Version von $yc \in \{1,\dots,10\}$
+
+Die wahre Funktion $f(xc,yc) = 0.4(xcenter+ycenter)$ ist in Abbildung
+\ref{gaussianlatticetruef} zu finden.
+
+
+{\bf Batch-file}
+
+gaussian\_lattice\_1fkt.prg
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.32] {gaussian_lattice_1fkt_truefunction.ps}
+
+\caption{\label{gaussianlatticetruef} {\em Gaussian response: Wahre r"aumliche Funktion bei lattice Daten.}}
+\end{figure}
+
+\subsection{Eine r"aumliche Funktion}
+
+{\bf Datensatz}
+
+gaussian\_spatial\_1fkt.raw
+
+{\bf Modell}
+
+$y1  \sim N(0.4(xcenter+ycenter),0.3^2)$
+
+wobei $xcenter$ und $ycenter$ die (zentrierten) Zentroide der Regionen sind.
+Die wahre Funktion ist in Abbildung \ref{cum3truef} zu finden.
+Die Zentroide findet man in der Datei kreisecentroid.raw, das bnd-file unter
+kreisesim.bnd. Das bandweitenoptimal sortierte graph-file ist unter dem Namen kreisesimgraphsort.bnd
+gespeichert.
+
+{\bf batch-file}
+
+gaussian\_spatial\_1fkt.prg
+
+
+\section{Binomialverteilter Response mit Logit-Link}
+
+\subsection{Eine nichtlineare Funktion}
+
+{\bf Datensatz}
+
+binomial\_logit\_nonp\_1fkt.raw
+
+{\bf Modell}
+
+$y  \sim B(1,\pi)$
+
+$\pi = \frac{\exp(\eta)}{1+\exp(\eta)}$
+
+$\eta = sin(x)$
+
+{\bf Batch-file}
+
+binomial\_logit\_nonp\_1fkt.prg
+
+
+\subsection{Random Effects}
+
+{\bf Datens"atze}
+
+500 Beobachtungen \\
+binomial\_logit\_randomeffects.raw \\
+binomial\_logit\_randomeffects.dta \\
+
+2500 Beobachtungen  \\
+binomial\_logit\_randomeffects2.raw \\
+binomial\_logit\_randomeffects2.dta \\
+
+Daten wurden mit Stata do-files sim\_randomeffects.do und sim\_randomeffects2.do
+erzeugt. \\
+
+
+{\bf Modell}
+
+$y1  \sim B(1,\pi)$ \\
+$\pi1 = \frac{\exp(\eta1)}{1+\exp(\eta1)}$ \\
+$\eta1 = 0.7+b0_{ind}$
+
+$y2  \sim B(1,\pi)$ \\
+$\pi2 = \frac{\exp(\eta2)}{1+\exp(\eta2)}$ \\
+$\eta2 = 0.4+b0_{ind}+b1_{ind}x1+b2_{ind}x2$
+
+$y3  \sim B(1,\pi)$ \\
+$\pi3 = \frac{\exp(\eta3)}{1+\exp(\eta3)}$ \\
+$\eta3 = -0.4+0.4x1-0.4x2+b0_{ind}+b1_{ind}x1+b2_{ind}x2$ \\
+
+$b0_{ind} \sim N(0,0.7^2)$, i.i.d. \\
+$b1_{ind} \sim N(0,0.5^2)$, i.i.d. \\
+$b2_{ind} \sim N(0,0.5^2)$, i.i.d. \\
+
+ind = Gruppenindikator (von 1 bis 25) \\
+
+Wahre Werte gespeichert unter
+
+true\_randomeffects.raw \\
+true\_randomeffects.dta
+
+SAS-Ergebnisse gespeichert unter
+
+binomial\_logit\_randomeffectsy1\_sas.raw \\
+binomial\_logit\_randomeffectsy1\_var\_sas.raw \\
+binomial\_logit\_randomeffectsy1\_fixed\_sas.raw \\
+
+bzw.
+
+binomial\_logit\_randomeffectsy2\_sas.raw \\
+binomial\_logit\_randomeffectsy2\_var\_sas.raw \\
+binomial\_logit\_randomeffectsy2\_fixed\_sas.raw \\
+
+bzw.
+
+binomial\_logit\_randomeffectsy3\_sas.raw \\
+binomial\_logit\_randomeffectsy3\_var\_sas.raw \\
+binomial\_logit\_randomeffectsy3\_fixed\_sas.raw \\
+
+
+{\bf Batch-file}
+
+binomial\_\_logit\_randomeffects1.prg \\
+binomial\_logit\_randomeffects2.prg \\
+binomial\_logit\_randomeffects3.prg
+
+
+\section{Binomialverteilter Response mit Probit Link}
+
+\subsection{Fixe Effekte}
+
+{\bf Datensatz}
+
+binomial\_probit\_fixed.raw \\
+binomial\_probit\_fixed.dta (Stata-Format)
+
+{\bf Modell}
+
+$y  \sim B(1,\pi)$
+
+$\pi = \Phi(\eta)$
+
+$\eta = -0.5+0.7x1-0.6x2$
+
+500 Beobachtungen
+
+{\bf Batch-file}
+
+binomial\_probit\_fixed.prg
+
+{\bf Ergebnisse mit Stata}
+
+
+\begin{table}[h]
+\begin{tabular} {|l|l|l|l|}
+\hline
+ & Coef. & Std. Err.  & 95\% Conf. Interval \\
+\hline
+x1 &   .7827467 &  .0684006    & .648684 -- .9168093 \\
+x2 &  -.6572396 &  .0630554    & -.7808259 --  -.5336533 \\
+constant &  -.6590516 &  .0896717 &  -.8348049 --  -.4832984 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Eine nichtlineare Funktion}
+
+{\bf Datensatz}
+
+binomial\_probit\_nonp\_1fkt.raw \\
+binomial\_probit\_nonp\_1fkt.dta
+
+{\bf Modell}
+
+$y  \sim B(1,\pi)$
+
+$\pi = \Phi(\eta)$
+
+$\eta = sin(x)$
+
+500 Beobachtungen
+
+{\bf Batch-file}
+
+binomial\_probit\_nonp\_1fkt.prg
+
+\subsection{Zwei nichtlineare Funktionen}
+
+{\bf Datensatz}
+
+binomial\_probit\_nonp\_2fkt.raw \\
+binomial\_probit\_nonp\_2fkt.dta
+
+{\bf Modell}
+
+$y  \sim B(1,\pi)$
+
+$\pi = \Phi(\eta)$
+
+$\eta = sin(x1)+0.7x2$
+
+500 Beobachtungen
+
+{\bf Batch-file}
+
+binomial\_probit\_nonp\_2fkt.prg
+
+\subsection{Random Effects}
+
+{\bf Datensatz}
+
+binomial\_probit\_randomeffects.raw \\
+binomial\_probit\_randomeffects.dta \\
+
+
+{\bf Modell}
+
+$y1  \sim B(1,\pi)$ \\
+$\pi1 = \Phi(\eta1)$ \\
+$\eta1 = -0.7+b0_{ind}$
+
+$y2  \sim B(1,\pi)$ \\
+$\pi2 = \Phi(\eta1)$ \\
+$\eta2 = -0.7+b0_{ind}+b1_{ind}x1+b2_{ind}x2$
+
+$b0_{ind} \sim N(0,0.7^2)$, i.i.d. \\
+$b1_{ind} \sim N(0,0.5^2)$, i.i.d. \\
+$b2_{ind} \sim N(0,0.5^2)$, i.i.d.
+
+ind = Gruppenindikator (von 1 bis 25)
+
+500 Beobachtungen
+
+Wahre Werte gespeichert unter
+
+true\_randomeffects.raw \\
+true\_randomeffects.dta
+
+{\bf Batch-file}
+
+binomial\_probit\_randomeffects1.prg \\
+binomial\_probit\_randomeffects2.prg
+
+
+\section{Kumulative Schwellenwertmodelle mit Probit-Link}
+
+\subsection{Fixe Effekte}
+
+{\bf Datensatz}
+
+cum3\_probit\_fixed.raw
+
+cum3\_probit\_fixed.dta (Stata Format)
+
+{\bf Modell}
+
+3 Kategorien ($y=3$ Referenz)
+
+$\theta_1 = -0.6$
+
+$\theta_2 = 0.6$
+
+$\eta = 0.6x1-0.5x2$
+
+
+{\bf Batch-file}
+
+cum3\_probit\_fixed.prg
+
+
+\subsection{Eine nichtlineare Funktion}
+
+{\bf Datensatz}
+
+cum3\_probit\_nonp\_1fkt.raw
+
+{\bf Modell}
+
+3 Kategorien ($y=3$ Referenz)
+
+$\theta_1 = -0.6$
+
+$\theta_2 = 0.6$
+
+$\eta = \sin(x1)$
+
+
+{\bf Batch-file}
+
+cum3\_probit\_nonp\_1fkt.prg
+
+\subsection{Eine r"aumliche Funktion}
+
+{\bf Datensatz}
+
+cum3\_probit\_spatial\_1fkt.raw
+
+{\bf Modell}
+
+3 Kategorien ($y=3$ Referenz)
+
+$\theta_1 = -0.6$
+
+$\theta_2 = 0.6$
+
+$\eta = 0.4xy$ wobei $x$ und $y$ die (zentrierten) Zentroide der Regionen sind.
+Die wahre Funktion ist in Abbildung \ref{cum3truef} zu finden.
+
+Die Zentroide findet man in der Datei kreisecentroid.raw. Das bnd-file heisst
+kreisesim.bnd. Das bandweitenoptimal sortierte graph-file heisst kreisesimgraphsort.bnd.
+
+{\bf batch-file}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.32] {cum3_probit_spatial_1fkt_trufunction.ps}
+
+\caption{\label{cum3truef} {\em Kumulatives Probitmodell: Wahre r"aumliche Funktion.}}
+\end{figure}
+
+\section{Multinomiale Logitmodelle}
+
+\subsection{Fixe Effekte}
+
+{\bf Datensatz}
+
+multinom\_fixed.raw \\
+multinom\_fixed.dta \\
+sim\_multinom\_fixed.do (Stata do file zur Simulation der Daten)
+
+
+{\bf Modell}
+
+$y = 1,2,3$, 3 Referenzkategorie
+
+$y  \sim MN(1,(\pi_1,\pi_2,\pi_3))$
+
+$\pi_1 = \frac{\exp(\eta_1)}{1+\exp(\eta_1)+\exp(\eta_2)}$
+
+$\pi_2 = \frac{\exp(\eta_2)}{1+\exp(\eta_1)+\exp(\eta_2)}$
+
+$\pi_3 = 1-\pi_1-\pi_2$
+
+
+$\eta_1 = 0.4+0.6 x1-0.7 x2$
+
+$\eta_2 = 0.6-0.7x1+0.5 x2$
+
+x1 und x2 gleichverteilt auf $(0,1)$.
+
+500 Beobachtungen
+
+{\bf Batch-file}
+
+multinom\_fixed.prg
+
+
+
+{\bf Ergebnisse mit Stata}
+
+\begin{verbatim}
+------------------------------------------------------------------------------
+           y |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+1            |
+          x1 |    .820069   .1645014     4.99   0.000     .4976521    1.142486
+          x2 |  -1.065848   .1670865    -6.38   0.000    -1.393332   -.7383646
+       _cons |   .2214211   .1446839     1.53   0.126    -.0621542    .5049963
+-------------+----------------------------------------------------------------
+2            |
+          x1 |  -.7420497   .1479948    -5.01   0.000    -1.032114   -.4519852
+          x2 |   .3721598   .1486553     2.50   0.012     .0808009    .6635188
+       _cons |   .4646242   .1353302     3.43   0.001     .1993818    .7298665
+------------------------------------------------------------------------------
+(Outcome y==3 is the comparison group)
+\end{verbatim}
+
+
+\subsection{Eine nichtlineare Funktion}
+
+{\bf Datensatz}
+
+multinom\_logit\_1fkt.raw \\
+multinom\_logit\_1fkt.dta \\
+multinom\_logit\_1fkt.do (Stata do file zur Simulation der Daten)
+
+
+{\bf Modell}
+
+$y = 1,2,3$, 3 Referenzkategorie
+
+$y  \sim MN(1,(\pi_1,\pi_2,\pi_3))$
+
+$\pi_1 = \frac{\exp(\eta_1)}{1+\exp(\eta_1)+\exp(\eta_2)}$
+
+$\pi_2 = \frac{\exp(\eta_2)}{1+\exp(\eta_1)+\exp(\eta_2)}$
+
+$\pi_3 = 1-\pi_1-\pi_2$
+
+$\eta_1 = 1.3 \sin(x)$
+
+$\eta_2 = -1.3 \sin(x)$
+
+x gleichverteilt zwischen $(-3,3)$.
+
+1000 Beobachtungen
+
+{\bf Batch-file}
+
+multinom\_logit\_1fkt.prg
+
+
+
+
+
+
+\section{Poissonverteilter Response}
+
+\subsection{Fixe Effekte}
+
+{\bf Datensatz}
+
+poisson\_fixed.raw
+
+{\bf Modell}
+
+$y  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 0.8x1-0.3x2$
+
+500 Beobachtungen
+
+{\bf Batch-file}
+
+poisson\_fixed.prg
+\newpage
+
+{\bf Ergebnisse mit Stata}
+
+
+\begin{table}[h]
+\begin{tabular} {|l|l|l|l|}
+\hline
+ & Coef. & Std. Err.  & 95\% Conf. Interval \\
+\hline
+x1 &   .8288586 &  .0246793    & .7804881 -- .8772291 \\
+x2 &  -.309638 &  .017039    & -.3430338 --  -.2762423 \\
+constant &  -.0584579 &  .0569696 &  -.1701164 --  .0532005 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Eine nichtlineare Funktion}
+
+{\bf Datensatz}
+
+poisson\_nonp\_1fkt.raw
+
+{\bf Modell}
+
+$y  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = sin(x)$
+
+500 Beobachtungen
+
+{\bf Batch-file}
+
+poisson\_nonp\_1fkt.prg
+
+\subsection{Zwei nichtlineare Funktionen}
+
+{\bf Datensatz}
+
+poisson\_nonp\_2fkt.raw
+
+{\bf Modell}
+
+$y  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 0.45sin(x1)+0.55sin(x2)$
+
+500 Beobachtungen
+
+{\bf Batch-file}
+
+poisson\_nonp\_2fkt.prg
+
+\subsection{Variierende Koeffizienten, eine nichtlineare Funktion}
+
+{\bf Datensatz}
+
+poisson\_varcoeff\_1fkt.raw
+
+{\bf Modell}
+
+$y  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = x2*sin(x1)$
+
+{\bf Batch-file}
+
+poisson\_varcoeff\_1fkt.prg
+
+\subsection{Variierende Koeffizienten, zwei nichtlineare Funktion}
+
+{\bf Datensatz}
+
+poisson\_varcoeff\_2fkt.raw
+
+{\bf Modell}
+
+$y  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = dummy_1*0.5*sin(x)+dummy_2*0.5*cos(x)$
+
+{\bf Batch-file}
+
+poisson\_varcoeff\_2fkt.prg
+
+
+\subsection{Lattice Daten}
+
+{\bf Datensatz}
+
+poisson\_lattice\_1fkt.raw
+
+{\bf Modell}
+
+$y  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 0.4(xcenter+ycenter)$
+
+$xcenter$ standardisierte Version von $xc \in \{1,\dots,10\}$
+
+$ycenter$ standardisierte Version von $yc \in \{1,\dots,10\}$
+
+{\bf Batch-file}
+
+poisson\_lattice\_1fkt.prg
+
+\subsection{Eine r"aumliche Funktion}
+
+{\bf Datensatz}
+
+poisson\_spatial\_1fkt.raw
+
+{\bf Modell}
+
+$y  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 0.4(xcenter+ycenter)$
+
+wobei $xcenter$ und $ycenter$ die (zentrierten) Zentroide der
+Regionen sind. Die wahre Funktion ist in Abbildung \ref{cum3truef}
+zu finden. Die Zentroide findet man in der Datei
+kreisecentroid.raw, das bnd-file unter kreisesim.bnd. Das
+bandweitenoptimal sortierte graph-file ist unter dem Namen
+kreisesimgraphsort.bnd gespeichert.
+
+{\bf batch-file}
+
+poisson\_spatial\_1fkt.prg
+
+\subsection{Random Effects}
+
+{\bf Datens\"atze}
+
+2500 Beobachtungen:\\
+poisson\_randomeffects.raw\\
+
+
+10000 Beobachtungen:\\
+poisson\_randomeffects10000.raw\\
+
+
+
+{\bf Modell}
+
+$y1  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 0.7+b0_{ind}$
+
+
+$b0_{ind} \sim N(0,0.7^2)$, i.i.d. \\
+
+ind = Gruppenindikator (von 1 bis 25) \\
+
+2500 bzw. 10000 Beobachtungen \\
+
+
+{\bf Batch-file}
+
+poisson\_randomeffects.prg
+
+\subsection{Random Slope}
+
+{\bf Datensatz}
+
+poisson\_randomslope.raw
+
+
+{\bf Modell}
+
+$y2  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 0.4+b0_{ind}+b1_{ind}x_1+b2_{ind}x_2$
+
+
+$b0_{ind} \sim N(0,0.7^2)$, i.i.d. \\
+$b1_{ind} \sim N(0,0.5^2)$, i.i.d. \\
+$b2_{ind} \sim N(0,0.5^2)$, i.i.d. \\
+
+
+ind = Gruppenindikator (von 1 bis 25) \\
+
+2500 Beobachtungen \\
+
+
+{\bf Batch-file}
+
+poisson\_randomslope.prg
+
+\subsection{Saisonaler Effekt}
+
+{\bf Datensatz}
+
+poisson\_season\_1000\_1fkt.raw
+
+
+{\bf Modell}
+
+$y, y_{vcm}  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$ bzw. $\lambda=exp(\eta_{vcm})$
+
+\[
+\eta=\left\{
+ \begin{tabular}{cc}
+0.7 & $season_1$\\0.5&$season_2$\\-1.5&$season_3$\\0.3&$season_4$\\
+ \end{tabular}
+ \right.
+\]
+
+\[
+\eta_{vcm}=\left\{
+ \begin{tabular}{cc}
+x$\cdot$ 0.7 & $season_1$\\x $\cdot$0.5&$season_2$\\x$\cdot$(-1.5)&$season_3$\\x$\cdot$0.3&$season_4$\\
+ \end{tabular}
+ \right.
+\]
+
+$x\in \{0,0.1,\ldots,0.9 \}$
+
+$t=1,\ldots,100$
+
+je 10 Beobachtungen pro Zeitpunkt
+
+$\Rightarrow$ 1000 Beobachtungen
+
+
+
+{\bf Batch-file}
+
+poisson\_seanson\_1fkt.prg
+
+
+\subsection{Offset}
+
+{\bf Datensatz}
+
+poisson\_offset.raw
+
+{\bf Modell}
+
+$y  \sim Po(\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 0.5x1-0.5x2+\delta$
+
+$\delta=log(\Delta)$, $\Delta \in \{1,2\}$
+
+500 Beobachtungen
+
+{\bf Batch-file}
+
+poisson\_offset.prg
+
+{\bf Ergebnisse mit Stata}
+
+
+\begin{table}[h]
+\begin{tabular} {|l|l|l|l|}
+\hline
+ & Coef. & Std. Err.  & 95\% Conf. Interval \\
+\hline
+x1 &   .483348  &   .0176726    &  .4487104  -- .5179856 \\
+x2 &  -.5109228  &  .0186664     &  -.5475083  --   -.4743373 \\
+constant &  -.0287701 &   .0435811  &  -.1141875 --  .0566474\\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+\section{Negative Binomial}
+
+\subsection{Fixe Effekte}
+
+\subsubsection{Negative Binomial, Poisson--Gamma}
+
+{\bf Datensatz}
+
+nbinomial\_poga\_fixed.raw
+
+{\bf Modell}
+
+$y  \sim Po(\nu * \lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 2 + 0.5*x1-1*x2$
+
+$x1 \sim Ber(0.3), x2 \sim Ber(0.5)$
+
+$\nu \sim Gamma(\delta, \delta)$
+
+$\delta = 1$
+
+1000 Beobachtungen
+
+{\bf Batch-file}
+
+nbinomial\_poga\_fixed.prg
+
+\subsubsection{Poisson--Inverse Gauss}
+
+{\bf Datensatz}
+
+nbinomial\_poig\_fixed.raw
+
+{\bf Modell}
+
+$y  \sim Po(\nu * \lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 2 + 0.5*x1-1*x2$
+
+$x1 \sim Ber(0.3), x2 \sim Ber(0.5)$
+
+$\nu \sim InvGauss(1, \delta)$
+
+$\delta = 1$
+
+1000 Beobachtungen
+
+{\bf Batch-file}
+
+nbinomial\_poig\_fixed.prg
+
+
+\subsubsection{Poisson--LogNormal}
+
+{\bf Datensatz}
+
+nbinomial\_poln\_fixed.raw
+
+{\bf Modell}
+
+$y  \sim Po(\nu * \lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 2 + 0.5*x1-1*x2$
+
+$x1 \sim Ber(0.3), x2 \sim Ber(0.5)$
+
+$\nu \sim exp\{N(-0.5*\tilde\delta, \sqrt{\tilde\delta})\} \sim logN(1, \sqrt\delta)$
+
+$\tilde\delta=log(1+1/\delta)$
+
+$\delta = 1$
+
+1000 Beobachtungen
+
+{\bf Batch-file}
+
+nbinomial\_poln\_fixed.prg
+
+
+\subsection{Eine nichtlineare Funktion}
+
+\subsubsection{Negative Binomial, Poisson--Gamma}
+
+{\bf Datensatz}
+
+nbinomial\_poga\_spline.raw
+
+{\bf Modell}
+
+$y  \sim Po(\nu * \lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 2 + sin(x)$
+
+$x \in [-3, 3]$
+
+$\nu \sim Gamma(\delta, \delta)$
+
+$\delta = 1$
+
+1000 Beobachtungen
+
+{\bf Batch-file}
+
+nbinomial\_poga\_spline.prg
+
+\subsubsection{Poisson--Inverse Gauss}
+
+{\bf Datensatz}
+
+nbinomial\_poig\_spline.raw
+
+{\bf Modell}
+
+$y  \sim Po(\nu * \lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 2 + sin(x)$
+
+$x \in [-3, 3]$
+
+$\nu \sim InvGauss(1, \delta)$
+
+$\delta = 1$
+
+1000 Beobachtungen
+
+{\bf Batch-file}
+
+nbinomial\_poig\_spline.prg
+
+
+\subsubsection{Poisson--LogNormal}
+
+{\bf Datensatz}
+
+nbinomial\_poln\_spline.raw
+
+{\bf Modell}
+
+$y  \sim Po(\nu * \lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 2 + sin(x)$
+
+$x \in [-3, 3]$
+
+$\nu \sim exp\{N(-0.5*\tilde\delta, \sqrt{\tilde\delta})\} \sim logN(1, \sqrt\delta)$
+
+$\tilde\delta=log(1+1/\delta)$
+
+$\delta = 1$
+
+1000 Beobachtungen
+
+{\bf Batch-file}
+
+nbinomial\_poln\_spline.prg
+
+\subsection{Random Effects}
+
+\subsubsection{Negative Binomial, Poisson--Gamma}
+
+{\bf Datensatz}
+
+nbinomial\_poga\_random.raw
+
+{\bf Modell}
+
+$y1  \sim Po(\nu*\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 2 + b0_{ind}$
+
+$b0_{ind} \sim N(0,0.707)$, i.i.d.
+
+ind = Gruppenindikator (von 1 bis 25)
+
+$\nu \sim Gamma(\delta, \delta)$
+
+$\delta = 1$
+
+1000 Beobachtungen
+
+{\bf Batch-file}
+
+nbinomial\_poga\_random.prg
+
+
+\subsubsection{Poisson--Inverse Gauss}
+
+{\bf Datensatz}
+
+nbinomial\_poig\_random.raw
+
+{\bf Modell}
+
+$y1  \sim Po(\nu*\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 2 + b0_{ind}$
+
+$b0_{ind} \sim N(0,0.707)$, i.i.d.
+
+ind = Gruppenindikator (von 1 bis 25)
+
+$\nu \sim InvGauss(1, \delta)$
+
+$\delta = 1$
+
+1000 Beobachtungen
+
+{\bf Batch-file}
+
+nbinomial\_poig\_random.prg
+
+
+\subsubsection{Poisson--LogNormal}
+
+{\bf Datensatz}
+
+nbinomial\_poln\_random.raw
+
+{\bf Modell}
+
+$y1  \sim Po(\nu*\lambda)$
+
+$\lambda = exp(\eta)$
+
+$\eta = 2 + b0_{ind}$
+
+$b0_{ind} \sim N(0,0.707)$, i.i.d.
+
+ind = Gruppenindikator (von 1 bis 25)
+
+$\nu \sim exp\{N(-0.5*\tilde\delta, \sqrt{\tilde\delta})\} \sim logN(1, \sqrt\delta)$
+
+$\tilde\delta=log(1+1/\delta)$
+
+$\delta = 1$
+
+1000 Beobachtungen
+
+{\bf Batch-file}
+
+nbinomial\_poln\_random.prg
+
+
+\section{Korrekte Filenamen und Titel}
+\label{filenamen}
+
+{\bf Pfad Resultate}
+
+{\em grundname}\_f\_{\em Variablenname}\_{\em Priorityp}.res
+
+{\em grundname}\_f\_{\em Kategorie}\_{\em Variablenname}\_{\em Priorityp}.res
+
+{\bf Titel}
+
+f\_{\em Variablenname}
+
+f\_Kategorie\_{\em Variablenname}
+
+f\_{\em Variablenname}\_variance
+
+f\_Kategorie\_{\em Variablenname}\_variance
+
+{\em Interaktionsvariable}\_f\_{\em Effektmodifier}
+
+
+\end{document}
