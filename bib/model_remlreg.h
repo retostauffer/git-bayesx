@@ -572,6 +572,54 @@ class __EXPORT_TYPE term_geokriging_remlreg : public basic_termtype
   };
 
 //------------------------------------------------------------------------------
+//--------------------- class term_kriging_1dim_remlreg ------------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE term_kriging_1dim_remlreg : public basic_termtype
+  {
+
+
+  protected:
+
+  doubleoption nu;
+  doubleoption maxdist;
+  doubleoption lambda;
+  doubleoption lambdastart;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_kriging_1dim_remlreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is an interaction term
+
+  bool checkvector(const vector<term> & terms,const unsigned & i)
+    {
+
+    assert(i< terms.size());
+
+    if (terms[i].type == "1dimkriging")
+      return true;
+
+    return false;
+    }
+
+  // DESTRUCTOR
+
+  ~term_kriging_1dim_remlreg() {}
+
+  };
+
+//------------------------------------------------------------------------------
 //--------------------- class term_baseline_remlreg ----------------------------
 //------------------------------------------------------------------------------
 

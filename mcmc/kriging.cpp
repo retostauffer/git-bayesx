@@ -17,6 +17,7 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & v1,
   plotstyle=noplot;
 
   varcoeff=false;
+  onedim=false;
 
   pathresults = pres;
   pathresult = pres;
@@ -107,6 +108,7 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o,
   plotstyle=noplot;
 
   varcoeff=true;
+  onedim=false;
 
   pathresults = pres;
   pathresult = pres;
@@ -201,6 +203,7 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & region,
   plotstyle = drawmap;
 
   varcoeff=false;
+  onedim=false;
 
   datamatrix v1 = datamatrix(region.rows(),1,0.0);
   datamatrix v2 = datamatrix(region.rows(),1,0.0);
@@ -306,6 +309,7 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
 
   varcoeff=true;
   data_forfixed = intact;
+  onedim=false;
 
   datamatrix v1 = datamatrix(region.rows(),1,0.0);
   datamatrix v2 = datamatrix(region.rows(),1,0.0);
@@ -393,6 +397,63 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
   rho=sqrt(rho)/maxdist;
   }
 
+  // Constructor 4
+
+  FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & v,
+               const double & n, const double & maxd,
+               const fieldtype & ft, const ST::string & ti,
+               const ST::string & fp, const ST::string & pres, const double & l,
+               const double & sl)
+  : FULLCOND_nonp_basis(o,ti)
+  {
+  mapexisting=false;
+  plotstyle=plotnonp;
+
+  varcoeff=false;
+  onedim=true;
+
+  pathresults = pres;
+  pathresult = pres;
+  pathcurrent = pres;
+  samplepath=fp;
+
+  nu=n;
+  maxdist=maxd;
+
+  type = ft;
+
+  lambda = l;
+  startlambda = sl;
+
+  xorig=v;
+
+  make_index(v);
+
+  xknots = xvalues;;
+
+  nrknots=nrdiffobs;
+  nrpar = nrknots;
+  dimX = 0;
+  dimZ = nrknots;
+
+  // berechne rho
+  unsigned i,j;
+  rho=0;
+  double absv;
+  for(i=0; i<xvalues.size(); i++)
+    {
+    for(j=0; j<xvalues.size(); j++)
+      {
+      absv=abs(xvalues[i]-xvalues[j]);
+      if(absv>rho)
+        {
+        rho=absv;
+        }
+      }
+    }
+  rho=rho/maxdist;
+  }
+
 
 FULLCOND_kriging::FULLCOND_kriging(const FULLCOND_kriging & kr)
   : FULLCOND_nonp_basis(FULLCOND_nonp_basis(kr))
@@ -421,6 +482,7 @@ FULLCOND_kriging::FULLCOND_kriging(const FULLCOND_kriging & kr)
   regionnames = kr.regionnames;
   Z_VCM = kr.Z_VCM;
   data_forfixed = kr.data_forfixed;
+  onedim = kr.onedim;
   }
 
 const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr)
@@ -453,6 +515,7 @@ const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr
   regionnames = kr.regionnames;
   Z_VCM = kr.Z_VCM;
   data_forfixed = kr.data_forfixed;
+  onedim = kr.onedim;
   return *this;
   }
 
@@ -468,8 +531,15 @@ void FULLCOND_kriging::createreml(datamatrix & X,datamatrix & Z,
     {
     for(j=0; j<nrknots; j++)
       {
-      r=sqrt((xorig(i,0)-xknots[j])*(xorig(i,0)-xknots[j]) +
-             (yorig(i,0)-yknots[j])*(yorig(i,0)-yknots[j]))/rho;
+      if(onedim)
+        {
+        r=fabs(xorig(i,0)-xknots[j])/rho;
+        }
+      else
+        {
+        r=sqrt((xorig(i,0)-xknots[j])*(xorig(i,0)-xknots[j]) +
+               (yorig(i,0)-yknots[j])*(yorig(i,0)-yknots[j]))/rho;
+        }
       if(nu==0.5)
         {
         Z(i,Zpos+j)=exp(-r);
@@ -495,7 +565,14 @@ void FULLCOND_kriging::createreml(datamatrix & X,datamatrix & Z,
     {
     for(j=0; j<cov.cols(); j++)
       {
-      r=sqrt((xknots[i]-xknots[j])*(xknots[i]-xknots[j]) + (yknots[i]-yknots[j])*(yknots[i]-yknots[j]))/rho;
+      if(onedim)
+        {
+        r=fabs(xknots[i]-xknots[j])/rho;
+        }
+      else
+        {
+        r=sqrt((xknots[i]-xknots[j])*(xknots[i]-xknots[j]) + (yknots[i]-yknots[j])*(yknots[i]-yknots[j]))/rho;
+        }
       if(nu==0.5)
         {
         cov(i,j)=exp(-r);
@@ -518,8 +595,19 @@ void FULLCOND_kriging::createreml(datamatrix & X,datamatrix & Z,
   // Z modifizieren
 
   // Cholesky-Wurzel der Inversen Kovarianzmatrix
+
+  ofstream out("c:\\temp\\cov.raw");
+  cov.prettyPrint(out);
+  out.close();
+
   cov=cov.inverse();
+
+  ofstream out1("c:\\temp\\cov1.raw");
+  cov.prettyPrint(out1);
+  out1.close();
+
   cov=cov.root();
+
 
 /*  // Eigenwertwurzel
   datamatrix vals(cov.rows(),1,0);
@@ -998,24 +1086,27 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
   outvarres << endl;
   outvarres.close();
 
-  optionsp->out("\n");
-  optionsp->out("  Knots are stored in file\n");
-  optionsp->out("  " + pathcurrent.substr(0,pathcurrent.length()-4)+"_knots.raw" + "\n");
+  if(!onedim)
+    {
+    optionsp->out("\n");
+    optionsp->out("  Knots are stored in file\n");
+    optionsp->out("  " + pathcurrent.substr(0,pathcurrent.length()-4)+"_knots.raw" + "\n");
 
-  ofstream outknots((pathcurrent.substr(0,pathcurrent.length()-4)+"_knots.raw").strtochar());
-  if(mapexisting)
-    {
-    outknots << "x" << "  " << "y" << endl;
+    ofstream outknots((pathcurrent.substr(0,pathcurrent.length()-4)+"_knots.raw").strtochar());
+    if(mapexisting)
+      {
+      outknots << "x" << "  " << "y" << endl;
+      }
+    else
+      {
+      outknots << datanames[1] << "  " << datanames[0] << endl;
+      }
+    for(i=0; i<nrknots; i++)
+      {
+      outknots << xknots[i] << "   " << yknots[i] << endl;
+      }
+    outknots.close();
     }
-  else
-    {
-    outknots << datanames[1] << "  " << datanames[0] << endl;
-    }
-  for(i=0; i<nrknots; i++)
-    {
-    outknots << xknots[i] << "   " << yknots[i] << endl;
-    }
-  outknots.close();
 
   ST::string outest=pathcurrent;
   if(ismultinomial)
@@ -1049,6 +1140,25 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
 #endif
     optionsp->out("\n");
     }
+  else if(onedim)
+    {
+    #if defined(BORLAND_OUTPUT_WINDOW)
+    optionsp->out("  Results may be visualized using the S-Plus function 'plotnonp'\n");
+    ST::string doublebackslash = "\\\\";
+    ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
+    optionsp->out("  Type for example:\n");
+    optionsp->out("  plotnonp(\"" + spluspath + "\")");
+    optionsp->out("\n");
+    #elif defined(JAVA_OUTPUT_WINDOW)
+    optionsp->out("  Postscript file is stored in file\n");
+    ST::string psfile = outest.substr(0,outest.length()-4) + ".ps";
+    optionsp->out("  " + psfile + "\n");
+    optionsp->out("\n");
+    optionsp->out("  Results may be visualized using method 'plotnonp'\n");
+    optionsp->out("  Type for example: objectname.plotnonp " + ST::inttostring(plotpos) + "\n");
+    #endif
+    optionsp->out("\n");
+    }
   else
     {
     optionsp->out("  Results may be visualized using the S-Plus function 'plotsurf'\n");
@@ -1066,6 +1176,10 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
     {
     outres << datanames[0] << "   ";
     outres << "x   " << "y   ";
+    }
+  else if(onedim)
+    {
+    outres << datanames[0] << "   ";
     }
   else
     {
@@ -1100,7 +1214,8 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
     if(mapexisting)
       outres << regionnameshelp[i] << "   ";
     outres << *workxvalues << "   ";
-    outres << *workyvalues << "   ";
+    if(!onedim)
+      outres << *workyvalues << "   ";
     outres << *workmean << "   ";
     outres << *workbetaqu_l1_lower_p << "   ";
     outres << *workbetaqu_l2_lower_p << "   ";
@@ -1133,7 +1248,7 @@ void FULLCOND_kriging::init_names(const vector<ST::string> & na)
   ST::string underscore = "\\_";
   if(!varcoeff)
     {
-    if(mapexisting)
+    if(mapexisting || onedim)
       {
       ST::string helpname0 = na[0].insert_string_char('_',underscore);
       term_symbolic = "f_{" + helpname0 + "}(" + helpname0 + ")";
@@ -1190,6 +1305,46 @@ ST::string FULLCOND_kriging::getinfo(void)
   else
     return title;
   }
+
+void FULLCOND_kriging::make_index(const datamatrix & moddata)
+  {
+
+  index = statmatrix<int>(moddata.rows(),1);
+  index.indexinit();
+  moddata.indexsort(index,0,moddata.rows()-1,0,0);
+  unsigned i,j;
+
+  int *workindex = index.getV();
+  freq.reserve(moddata.rows());
+
+  workindex++;
+  freq.push_back(0);
+  i = 0;
+  for(j=1;j<moddata.rows();j++,workindex++)
+    {
+    if ( moddata(*workindex,0) != moddata(*(workindex-1),0))
+      {
+      i++;
+      }
+    freq.push_back(i);
+    }
+
+  freqoutput = freq;
+  nrdiffobs = i+1;
+
+  index2.push_back(index(0,0));
+  for(unsigned i=1;i<moddata.rows();i++)
+    index2.push_back(index(i,0)-index(i-1,0));
+
+  vector<int>::iterator freqwork = freqoutput.begin();
+  workindex = index.getV();
+
+  xvalues = vector<double>(nrdiffobs,0);
+  for(j=0;j<moddata.rows();j++,freqwork++,workindex++)
+    if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+      xvalues[*freqwork] = moddata(*workindex,0);
+  }
+
 
 } // end: namespace MCMC
 

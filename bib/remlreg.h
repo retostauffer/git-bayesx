@@ -243,6 +243,8 @@ class __EXPORT_TYPE remlreg : public statobject
   vector<FULLCOND_kriging> fckriging;
   term_kriging_remlreg nonpspatial_kriging;
   bool create_kriging(const unsigned & collinpred=0);
+  term_kriging_1dim_remlreg nonp_kriging;
+  bool create_kriging_1dim(const unsigned & collinpred=0);
   term_kriging_varcoeff_remlreg nonpspatial_kriging_varcoeff;
   bool create_kriging_varcoeff(const unsigned & collinpred=0);
   term_geokriging_remlreg nonpspatial_geokriging;

@@ -20,7 +20,6 @@ namespace MCMC
 
 class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
   {
-
   protected:
 
   unsigned nrknots;
@@ -29,6 +28,8 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
   double maxdist;
   bool full;
   bool spacefill;
+
+  bool onedim;
 
   MAP::map m;                         // Variablen für geokriging
   bool mapexisting;
@@ -88,7 +89,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const double & sl);
 
 
-  // Constructor 2
+  // Constructor 2: varcoef
 
   FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
                const datamatrix & v1,
@@ -120,6 +121,14 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const ST::string & fp, const ST::string & pres, const double & l,
                const double & sl);
 
+  // Constructor 4
+
+  FULLCOND_kriging(MCMCoptions * o, const datamatrix & v,
+               const double & n, const double & maxd,
+               const fieldtype & ft, const ST::string & ti,
+               const ST::string & fp, const ST::string & pres, const double & l,
+               const double & sl);
+
   // DESTRUCTOR
 
   ~FULLCOND_kriging(){}
@@ -147,6 +156,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
 
   ST::string getinfo(void);
 
+  void make_index(const datamatrix & moddata);
   };
 
 

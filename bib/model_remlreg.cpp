@@ -1449,6 +1449,93 @@ bool term_geokriging_remlreg::check(term & t)
   }
 
 //------------------------------------------------------------------------------
+//---- class term_kriging_1dim_remlreg: implementation of member functions -----
+//------------------------------------------------------------------------------
+
+
+term_kriging_1dim_remlreg::term_kriging_1dim_remlreg(void)
+  {
+  type = "term_kriging";
+  nu=doubleoption("nu",1.5,0.5,3.5);
+  maxdist=doubleoption("maxdist",-1,0.00001,10000);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  lambdastart = doubleoption("lambdastart",0.1,0,10000000);
+  }
+
+
+void term_kriging_1dim_remlreg::setdefault(void)
+  {
+  nu.setdefault();
+  maxdist.setdefault();
+  lambda.setdefault();
+  lambdastart.setdefault();
+  }
+
+
+bool term_kriging_1dim_remlreg::check(term & t)
+  {
+
+  if ( (t.varnames.size()==1)  && (t.options.size() >=1)
+        && (t.options.size() <= 5) )
+    {
+
+    if (t.options[0] == "kriging")
+      t.type = "1dimkriging";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    optionlist optlist;
+    optlist.push_back(&nu);
+    optlist.push_back(&maxdist);
+    optlist.push_back(&lambda);
+    optlist.push_back(&lambdastart);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(11);
+    t.options[0] = t.type;
+    t.options[1] = ST::doubletostring(nu.getvalue());
+    t.options[2] = ST::doubletostring(maxdist.getvalue());
+    t.options[3] = ST::doubletostring(lambda.getvalue());
+    t.options[4] = ST::doubletostring(lambdastart.getvalue());
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
+//------------------------------------------------------------------------------
 //------- class term_baseline_remlreg: implementation of member functions ------
 //------------------------------------------------------------------------------
 

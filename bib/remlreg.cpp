@@ -118,6 +118,7 @@ void remlreg::create(void)
   nonpgeospline = term_geospline_remlreg();
   nonpvarcoeffgeospline = term_geospline_varcoeff_remlreg();
   nonpspatial_kriging = term_kriging_remlreg();
+  nonp_kriging = term_kriging_1dim_remlreg();
   nonpspatial_kriging_varcoeff = term_kriging_varcoeff_remlreg();
   nonpspatial_geokriging = term_geokriging_remlreg();
   nonpspatial_geokriging_varcoeff = term_geokriging_varcoeff_remlreg();
@@ -142,6 +143,7 @@ void remlreg::create(void)
   termtypes.push_back(&nonpgeospline);
   termtypes.push_back(&nonpvarcoeffgeospline);
   termtypes.push_back(&nonpspatial_kriging);
+  termtypes.push_back(&nonp_kriging);
   termtypes.push_back(&nonpspatial_kriging_varcoeff);
   termtypes.push_back(&nonpspatial_geokriging);
   termtypes.push_back(&nonpspatial_geokriging_varcoeff);
@@ -1455,6 +1457,87 @@ bool remlreg::create_kriging(const unsigned & collinpred)
   return false;
   }
 
+bool remlreg::create_kriging_1dim(const unsigned & collinpred)
+  {
+
+  ST::string pathnonp;
+  ST::string pathres;
+
+  double nu,maxdist,lambda,startlambda;
+  int f;
+
+  unsigned i;
+  int j;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonp_kriging.checkvector(terms,i) == true )
+      {
+      MCMC::fieldtype type;
+      if (terms[i].options[0] == "1dimkriging")
+        type = MCMC::kriging;
+
+      j = terms[i].varnames[0].isinlist(modelvarnamesv);
+
+      f = (terms[i].options[1]).strtodouble(nu);
+      if(nu!=0.5 && nu!=1.5&& nu!=2.5 && nu!=3.5)
+        {
+        outerror("ERROR: Invalid value for nu\n");
+        return true;
+        }
+      f = (terms[i].options[2]).strtodouble(maxdist);
+      if(maxdist<=0) // wähle maxdist so, dass Korrelation für Punkte mitmaximalem Abstand = 0.0001
+        {
+        if(nu==0.5)
+          {
+          maxdist=9.21034037;//4.605170186;
+          }
+        else if(nu==1.5)
+          {
+          maxdist=11.75637122;//6.638352068;
+          }
+        else if(nu==2.5)
+          {
+          maxdist=13.53592464;//8.022007057;
+          }
+        else if(nu==3.5)
+          {
+          maxdist=15.01510426;//9.158140446;
+          }
+        }
+
+      f = (terms[i].options[3]).strtodouble(lambda);
+      f = (terms[i].options[4]).strtodouble(startlambda);
+
+      if (f==1)
+        return true;
+
+      ST::string title;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_kriging.raw","_kriging.res","_kriging");
+
+      fckriging.push_back(
+      FULLCOND_kriging(&generaloptions,
+              D.getCol(j),
+              nu,maxdist,type,
+              title,
+              pathnonp,
+              pathres,
+              lambda,
+              startlambda
+              ));
+
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[0]);
+
+      fckriging[fckriging.size()-1].init_names(na);
+      fckriging[fckriging.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fckriging[fckriging.size()-1]);
+      }
+    }
+  return false;
+  }
+
 bool remlreg::create_kriging_varcoeff(const unsigned & collinpred)
   {
 
@@ -2032,7 +2115,6 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
   ST::string pathres;
   ST::string title;
 
-  long h;
   double lambda, startlambda;
   unsigned degree,nrknots,tgrid;
   int f;
@@ -2836,6 +2918,8 @@ void remlrun(remlreg & b)
     failure = b.create_varcoeffinteractionspspline(0);
   if (!failure)
     failure = b.create_kriging(0);
+  if (!failure)
+    failure = b.create_kriging_1dim(0);
   if (!failure)
     failure = b.create_kriging_varcoeff(0);
   if (!failure)
