@@ -1396,6 +1396,22 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
   else
     optionsp->out("  Pseudo contour probability for " + ST::inttostring(diff) + ". differences             : " + ST::doubletostring(p,3) + "\n");
 
+  ST::string path = pathresult.substr(0,pathresult.length()-4)+"_pseudocontour.res";
+
+  if(diff==0)
+    {
+    ofstream out(path.strtochar());
+    out << "difforder   pseudocontourprob" << endl;
+    out << ST::inttostring(diff) + "   " + ST::doubletostring(p) << endl;
+    out.close();
+    }
+  else
+    {
+    ofstream out(path.strtochar(),ios::app);
+    out << ST::inttostring(diff) + "   " + ST::doubletostring(p) << endl;
+    out.close();
+    }
+
   }
 
 
