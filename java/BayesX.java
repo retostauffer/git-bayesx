@@ -160,8 +160,8 @@ protected double xmax;
 protected double xmin;
 protected double ymax;
 protected double ymin;
-protected double xstep = 0.0;
-protected double ystep = 0.0;
+protected double xstep;
+protected double ystep;
 protected double xstart;
 protected double ystart;
 protected int year;
@@ -1942,7 +1942,7 @@ public void Javaplotnonp(String joutfile, String jtitle, String jxlab, String jy
 		        }
                 }        
         
-        resetplotoptions();
+//        resetplotoptions();
         
         }
 
@@ -2148,12 +2148,14 @@ public void Javaplotautocor(String joutfile, String jconnect, boolean jmeanautoc
 		        }
                 }        
         }
-        
+
+/*        
 private void resetplotoptions()
         {
         xstep = 0.0;
         ystep = 0.0;
         }   
+*/
 
 // für maps        
 native void getline(double[] d, int i, int j, int k);
