@@ -866,8 +866,8 @@ term_randomslope_stepwise::term_randomslope_stepwise(void)
   lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
   lambdastart = doubleoption("lambdastart",-1,-1,10000000);
   forced_into = simpleoption("forced_into",false);
-  df_for_lambdamax = doubleoption("df_for_lambdamax",2,1.01,200);         
-  df_for_lambdamin = doubleoption("df_for_lambdamin",10,1.01,200);
+  df_for_lambdamax = doubleoption("df_for_lambdamax",2,1.01,500);
+  df_for_lambdamin = doubleoption("df_for_lambdamin",10,1.01,500);
   lambdamax_opt = simpleoption("lambdamax_opt",false);
   lambdamin_opt = simpleoption("lambdamin_opt",false);
   number = intoption("number",0,0,50);

@@ -240,6 +240,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   vector<DISTRIBUTION_gaussian> distr_gaussian;
   DISTRIBUTION_binomial distr_binomial;
+  DISTRIBUTION_binomial_latent distr_binomlat;
   DISTRIBUTION_poisson distr_poisson;
   DISTRIBUTION_gamma distr_gamma;
   DISTRIBUTION_nbinomial distr_nbinomial;
@@ -264,7 +265,8 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
 //-------------------------  for fixed effects ---------------------------------
 
-  vector<FULLCOND_const> factorconst; 
+  vector<FULLCOND_const_gaussian> factorgaussian;
+  vector<FULLCOND_const_nongaussian> factornongaussian;
   vector<FULLCOND_const_gaussian> normalconst;
   vector<FULLCOND_const_gaussian_special> normalconst_special;
   vector<FULLCOND_const_nongaussian> nongaussianconst;
@@ -284,7 +286,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
 //------------------------ for nonparametric terms -----------------------------
 
-  vector<FULLCOND_variance_nonp> fcvarnonp;
+  // vector<FULLCOND_variance_nonp> fcvarnonp;
 
   vector<FULLCOND_nonp_gaussian> fcnonpgaussian;
   term_autoreg_stepwise nonprw1rw2;

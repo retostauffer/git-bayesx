@@ -208,6 +208,7 @@ void stepwisereg::create(void)
   families.reserve(10);
   families.push_back("gaussian");
   families.push_back("binomial");
+  families.push_back("binomialprobit");
   families.push_back("poisson");
   families.push_back("gamma");
   families.push_back("nbinomial");
@@ -378,9 +379,11 @@ void stepwisereg::initpointers(void)
   for(i=0;i<distrstring.size();i++)
     {
     if (distrstring[i] == "gaussian")
-    distr.push_back(&distr_gaussian[distrposition[i]]);
+      distr.push_back(&distr_gaussian[distrposition[i]]);
     else if (distrstring[i] == "binomial")
       distr.push_back(&distr_binomial);
+    else if (distrstring[i] == "binomlat")
+      distr.push_back(&distr_binomlat);
     else if (distrstring[i] == "poisson")
       distr.push_back(&distr_poisson);
     else if (distrstring[i] == "gamma")
@@ -402,8 +405,11 @@ void stepwisereg::initpointers(void)
   for(i=0;i<nongaussianconst.size();i++)
     fullcond.push_back(&nongaussianconst[i]);
 
-  for(i=0;i<factorconst.size();i++)
-    fullcond.push_back(&factorconst[i]);
+  for(i=0;i<factorgaussian.size();i++)
+    fullcond.push_back(&factorgaussian[i]);
+
+  for(i=0;i<factornongaussian.size();i++)
+    fullcond.push_back(&factornongaussian[i]);
 
   for(i=0;i<normalconst_special.size();i++)
     fullcond.push_back(&normalconst_special[i]);
@@ -428,10 +434,10 @@ void stepwisereg::initpointers(void)
 
   for(i=0;i<fcrandomgaussian.size();i++)
     fullcond.push_back(&fcrandomgaussian[i]);
-
+  /*
   for(i=0;i<fcvarnonp.size();i++)
     fullcond.push_back(&fcvarnonp[i]);
-
+  */
   }
 
 
@@ -466,18 +472,21 @@ void stepwisereg::clear(void)
   normalconst_special.end());
   normalconst_special.reserve(20);
 
-  factorconst.erase(factorconst.begin(),factorconst.end());
-  factorconst.reserve(20);
+  factorgaussian.erase(factorgaussian.begin(),factorgaussian.end());
+  factorgaussian.reserve(20);
+
+  factornongaussian.erase(factornongaussian.begin(),factornongaussian.end());
+  factornongaussian.reserve(20);
 
   gammaconst.erase(gammaconst.begin(),gammaconst.end());
   gammaconst.reserve(10);
 
   nongaussianconst.erase(nongaussianconst.begin(),nongaussianconst.end());
   nongaussianconst.reserve(10);
-
+  /*
   fcvarnonp.erase(fcvarnonp.begin(),fcvarnonp.end());
   fcvarnonp.reserve(40);
-
+  */
   fcnonpgaussian.erase(fcnonpgaussian.begin(),fcnonpgaussian.end());
   fcnonpgaussian.reserve(40);
 
@@ -791,6 +800,65 @@ bool stepwisereg::create_distribution(void)
     nrcategories = 1;
     }
 //--------------------- END: binomial response, logit link ---------------------
+
+//---------------------- binomial response, probit link ------------------------
+  else if ( (family.getvalue() == "binomialprobit") ||
+             (family.getvalue() == "binomialtlink") )
+    {
+
+
+    if (offs.rows() == 1)
+      {
+      //if (family.getvalue() == "binomialtlink")
+      //  distr_binomlat = DISTRIBUTION_binomial_latent(&generaloptions[generaloptions.size()-1],
+      //                      D.getCol(0),w,true,nutlink.getvalue());
+      //else
+        distr_binomlat = DISTRIBUTION_binomial_latent(&generaloptions[generaloptions.size()-1],
+                            D.getCol(0),w,false);
+      }
+    else
+      {
+      //if (family.getvalue() == "binomialtlink")
+      //  distr_binomlat = DISTRIBUTION_binomial_latent(offs,&generaloptions[generaloptions.size()-1],
+      //                      D.getCol(0),w,true,nutlink.getvalue());
+      //else
+        distr_binomlat = DISTRIBUTION_binomial_latent(offs,&generaloptions[generaloptions.size()-1],
+                            D.getCol(0),w,false);
+
+      }
+
+    if (distr_binomlat.geterrors().size() > 0)
+      {
+      outerror(distr_binomlat.geterrors());
+      return true;
+      }
+
+    distr_binomlat.init_names(rname,wn);
+
+    if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+      distr_binomlat.set_predict(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_binomlat.set_predictfull(pathfullsample,pathfull,n);
+      }
+
+    distr.push_back(&distr_binomlat);
+    distrstring.push_back("binomlat");
+    distrposition.push_back(0);
+    nrcategories = 1;
+    }
+//--------------------- end: binomial response, probit link --------------------
+
 //------------------------------ gamma response --------------------------------
   else if (family.getvalue() == "gamma")
     {
@@ -1024,28 +1092,40 @@ bool stepwisereg::create_factor(const unsigned & collinpred)
       if ( check_gaussian())
         {
 
-        factorconst.push_back(
-        FULLCOND_const(&generaloptions[generaloptions.size()-1],
+        factorgaussian.push_back(
+        FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
                                 distr[distr.size()-1],D.getCol(j),
                                 terms[i].options[1],
                                 reference,title,pathconst,pathconstres,
                                 collinpred));
 
-        factorconst[factorconst.size()-1].init_name(terms[i].varnames[0]);
+        factorgaussian[factorgaussian.size()-1].init_name(terms[i].varnames[0]);
 
-        factorconst[factorconst.size()-1].set_stepwise_options(
+        factorgaussian[factorgaussian.size()-1].set_stepwise_options(
         lambdastart,0,-1,forced_into,0,0,false,false,0,false);
 
-        factorconst[factorconst.size()-1].set_fcnumber(fullcond.size());
+        factorgaussian[factorgaussian.size()-1].set_fcnumber(fullcond.size());
 
-        fullcond.push_back(&factorconst[factorconst.size()-1]);
+        fullcond.push_back(&factorgaussian[factorgaussian.size()-1]);
 
         }
       else
         {
+        factornongaussian.push_back(
+        FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
+                                distr[distr.size()-1],D.getCol(j),
+                                terms[i].options[1],
+                                reference,title,pathconst,pathconstres,
+                                collinpred));
 
-        // NONGAUSSISAN fehlt
+        factornongaussian[factornongaussian.size()-1].init_name(terms[i].varnames[0]);
 
+        factornongaussian[factornongaussian.size()-1].set_stepwise_options(
+        lambdastart,0,-1,forced_into,0,0,false,false,0,false);
+
+        factornongaussian[factornongaussian.size()-1].set_fcnumber(fullcond.size());
+
+        fullcond.push_back(&factornongaussian[factornongaussian.size()-1]);
         }
 
       }
@@ -1431,6 +1511,7 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                  "_rw_var.raw","_rw_var.res","_variance");
 
+      /*
       fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
                                          &fcnonpgaussian[fcnonpgaussian.size()-1],
                                          distr[distr.size()-1],
@@ -1442,6 +1523,7 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
 
       fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+      */
 
       } // end: if ( nonprw1rw2.checkvector(terms,i) == true )
 
@@ -1637,6 +1719,7 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
         make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                      "_pspline_var.raw","_pspline_var.res","_variance");
 
+        /*
         fcvarnonp.push_back(FULLCOND_variance_nonp(
                               &generaloptions[generaloptions.size()-1],
                               &fcpsplinegaussian[fcpsplinegaussian.size()-1],
@@ -1649,7 +1732,7 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
 
 
         fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
+        */
 
         // ---------------------- end: gaussian response, etc. -----------------
         }
@@ -1695,6 +1778,7 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
           make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                  "_pspline_var.raw","_pspline_var.res","_variance");
 
+          /*
           fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
                                 &fciwlspspline[fciwlspspline.size()-1],
                                 distr[distr.size()-1],1.0,0.005,title,
@@ -1705,6 +1789,7 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
 
 
           fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+          */
 
         // ----------------- end:  non-gaussian response, etc. -----------------
         }
@@ -1899,16 +1984,20 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
       if (check_nongaussian())
         fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(1);
 
-
+      /*
       fcvarnonp.push_back(FULLCOND_variance_nonp(
       &generaloptions[generaloptions.size()-1],
       &fcnonpgaussian[fcnonpgaussian.size()-1],distr[distr.size()-1],1,0.005,
       titlev,pathnonpv,pathresv,false,collinpred));
+      */
 
       fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
+
+      /*
       fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+      */
 
       }   // end: if ( nonpspatial.checkvector(terms,i) == true )
 
@@ -2029,6 +2118,7 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
         fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcrandomgaussian[fcrandomgaussian.size()-1]);
 
+        /*
         fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
                             &fcrandomgaussian[fcrandomgaussian.size()-1],
                             distr[distr.size()-1],1,0.005,title2,pathnonp2,pathres2,
@@ -2037,7 +2127,7 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
 
         fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
+        */
 
         }
 
@@ -2058,7 +2148,11 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
                                                         )
                           );
 
-        fcrandom[fcrandom.size()-1].init_name(terms[i].varnames[1]);
+        //fcrandom[fcrandom.size()-1].init_name(terms[i].varnames[1]);
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[0]);
+        fcrandom[fcrandom.size()-1].init_names(na);
 
         fcrandom[fcrandom.size()-1].set_stepwise_options(
         lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
@@ -2068,6 +2162,7 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
         fcrandom[fcrandom.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcrandom[fcrandom.size()-1]);
 
+        /*
         fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
                             &fcrandom[fcrandom.size()-1],
                             distr[distr.size()-1],1,0.005,
@@ -2076,7 +2171,7 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
 
         fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
+        */
         }
 
       }
@@ -2225,6 +2320,7 @@ bool stepwisereg::create_random(const unsigned & collinpred)
         fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcrandomgaussian[fcrandomgaussian.size()-1]);
 
+        /*
         fcvarnonp.push_back(
         FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
                             &fcrandomgaussian[fcrandomgaussian.size()-1],
@@ -2234,6 +2330,7 @@ bool stepwisereg::create_random(const unsigned & collinpred)
 
         fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+        */
 
         } // end: gaussian, probit, etc. ...
 
@@ -2273,7 +2370,7 @@ bool stepwisereg::create_random(const unsigned & collinpred)
         fcrandom[fcrandom.size()-1].set_stepwise_options(
         lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
         numb,df_equidist);
-        fcrandom[fcrandomgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
+        fcrandom[fcrandom.size()-1].set_stepwise_accuracy(df_accuracy);
 
        if (structured==1)
           {
@@ -2302,6 +2399,7 @@ bool stepwisereg::create_random(const unsigned & collinpred)
         fcrandom[fcrandom.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcrandom[fcrandom.size()-1]);
 
+        /*
         fcvarnonp.push_back(
         FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
                             &fcrandom[fcrandom.size()-1],
@@ -2311,7 +2409,7 @@ bool stepwisereg::create_random(const unsigned & collinpred)
 
         fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
+        */
         }
 
       }
@@ -2837,19 +2935,20 @@ bool stepwisereg::create_nonpseason(const unsigned & collinpred)
       if (check_nongaussian())
         fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(1);
 
-
+      /*
       fcvarnonp.push_back(
       FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
       &fcnonpgaussian[fcnonpgaussian.size()-1],distr[distr.size()-1],
                                        1.0,0.005,titlev,pathnonpv,pathresv,
                                        false,collinpred));
-
+      */
 
       fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
+      /*
       fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
+      */
       }
 
     }
