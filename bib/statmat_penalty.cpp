@@ -93,20 +93,28 @@ statmatrix<double> K2dim_pspline(const unsigned & nknots)
 }
 
 /*
-statmatrix<double> K2dim_pspline_rw2(const unsigned & nknots)
+statmatrix<double> K2dim_pspline_rw2(const unsigned & nknots,const unsigned & ox, const unsigned & oy)
   {
   statmatrix<double> res(nknots*nknots,nknots*nknots,0);
 //  unsigned i,j;
 
-  statmatrix<double> D = matrix.diffmat(2,nknots);  ? // difference matrix of 2nd order
+  statmatrix<double>  Dx = diffmat(ox,nknots);       // difference matrix of order ox
+  statmatrix<double> DDx = Dx.transposed() * Dx;     // D'D
 
-  statmatrix<double> DD = matrix.mult(t(D),D) ?       // D'D
-  
-  statmatrix<double> P1 = matrix.kronecker(I,t(D)*D); ?   // penalty matrix of x-direction
-  statmatrix<double> P2 = matrix.kronecker(t(D)*D,I); ?   // penalty matrix of y-direction
-  res = P1 + P2;
+  statmatrix<double>  Dy = diffmat(oy,nknots);       // difference matrix of order oy
+  statmatrix<double> DDy = Dy.transposed() * Dy;
+
+  statmatrix<double> I = statmatrix<double>::diag(nknots,1);  // identity matrix
+
+  statmatrix<double> Px = kronecker(I,DDx);      // penalty matrix of x-direction
+  statmatrix<double> Py = kronecker(DDy,I);      // penalty matrix of y-direction
+  res = Px + Py;
+
+  ofstream out1("h:\\da\\tests\\penalty.txt");
+  res.prettyPrint(out1);
+  out1.close();
 
   return res;
   }
-*/
-  
+}
+
