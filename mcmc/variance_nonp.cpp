@@ -280,7 +280,7 @@ void FULLCOND_variance_nonp::update(void)
             if(uniformprior)
               sum += 1.0/pow(tau[i],0.5*rankK) * exp(help/tau[i]);
             else
-              sum += 1.0/pow(tau[i],0.5*rankK) * exp(help/tau[i]) / double(1.0 + i/2.0);
+              sum += 1.0/pow(tau[i],0.5*rankK) * exp(help/tau[i]) / double(start + 0.5 + i/2.0);
             cumtau.push_back(sum);
             i++;
             }
@@ -292,7 +292,7 @@ void FULLCOND_variance_nonp::update(void)
             i++;
 
           beta(0,0) = tau[i];
-          beta(1,0) = (start + i/2.0)/transform;
+          beta(1,0) = (start + 0.5 + i/2.0)/transform;            // --> df
           }
         else if(uniformprior)
           {
