@@ -437,35 +437,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(j,k) += (
-                         (
-                          helpmat(tleft[i],0) + Dmat(tleft[i],dmat_pos[j])*Dmat(tleft[i],dmat_pos[k])*mult_hazard(i,0)
-                         )*Survivor(i,0)
-                        -
-                         (
-                          helpmat(tright[i]-1,0) + Dmat(tright[i]-1,dmat_pos[j])*Dmat(tright[i]-1,dmat_pos[k])*mult_hazard(i,0)
-                         )*Survivor(i,1)
-                        ) * mult_hazard(i,0) / (Survivor(i,0)-Survivor(i,1))
-                        -
-                        (
-                         (
-                          Dmat(tleft[i],dmat_pos[j])*Survivor(i,0)-Dmat(tright[i]-1,dmat_pos[j])*Survivor(i,1)
-                         ) *mult_hazard(i,0)
-                        *
-                         (
-                         Dmat(tleft[i],dmat_pos[k])*Survivor(i,0)-Dmat(tright[i]-1,dmat_pos[k])*Survivor(i,1)
-                         ) *mult_hazard(i,0)
-                        )
-                        /
-                        (
-                         (Survivor(i,0)-Survivor(i,1))
-                         *
-                         (Survivor(i,0)-Survivor(i,1))
-                        );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(j,k) += helpmat(tleft[i],0)*mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) *
+                                ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0)
+                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) )
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0) *
+                                 ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0);
               }
             else
               {
               H(j,k) += helpmat(tright[i]-1,0)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(j,k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
               }
             }
           }
@@ -484,35 +474,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(j,k) += (
-                         (
-                          helpmat(tleft[i],0) + negcumbaseline(tleft[i],0)*Dmat(tleft[i],dmat_pos[k])*mult_hazard(i,0)
-                         ) * Survivor(i,0)
-                         -
-                         (
-                          helpmat(tright[i]-1,0) + negcumbaseline(tright[i]-1,0)*Dmat(tright[i]-1,dmat_pos[k])*mult_hazard(i,0)
-                         ) * Survivor(i,1)
-                        ) *mult_hazard(i,0) * X(i,j) / (Survivor(i,0)-Survivor(i,1))
-                        -
-                        (
-                         (
-                          negcumbaseline(tleft[i],0)*Survivor(i,0) - negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                         ) * mult_hazard(i,0) * X(i,j)
-                         *
-                         (
-                          Dmat(tleft[i],dmat_pos[k])*Survivor(i,0) - Dmat(tright[i]-1,dmat_pos[k])*Survivor(i,1)
-                         ) * mult_hazard(i,0)
-                        )
-                        /
-                        (
-                         (Survivor(i,0)-Survivor(i,1))
-                         *
-                         (Survivor(i,0)-Survivor(i,1))
-                        );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(j,k) += helpmat(tleft[i],0) * X(i,j) * mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) *
+                                ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0)
+                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * X(i,j)
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j) *
+                                 ( Dmat(tright[i]-1,dmat_pos[k])-Dmat(tleft[i],dmat_pos[k]) ) * mult_hazard(i,0);
               }
             else
               {
               H(j,k) += helpmat(tright[i]-1,0)*X(i,j)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(j,k) -= helpmat(ttrunc[i],0)*X(i,j)*mult_hazard(i,0);
               }
             }
           }
@@ -531,33 +511,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(j,k) += (
-                         (
-                          helpmat(tleft[i],0) + Dmat(tleft[i],dmat_pos[j])*negcumbaseline(tleft[i],0)*mult_hazard(i,0)
-                         ) * Survivor(i,0)
-                         -
-                         (
-                          helpmat(tright[i]-1,0) + Dmat(tright[i]-1,dmat_pos[j])*negcumbaseline(tright[i]-1,0)*mult_hazard(i,0)
-                         ) * Survivor(i,1)
-                        ) * mult_hazard(i,0) * X(i,k) / (Survivor(i,0)-Survivor(i,1))
-                        -
-                        (
-                         (
-                          Dmat(tleft[i],dmat_pos[j])*Survivor(i,0)-Dmat(tright[i]-1,dmat_pos[j])*Survivor(i,1)
-                         ) * mult_hazard(i,0)
-                         *
-                         (
-                          negcumbaseline(tleft[i],0)*Survivor(i,0)-negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                         ) * mult_hazard(i,0) * X(i,k)
-                        )
-                        /
-                        (
-                         (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
-                        );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(j,k) += helpmat(tleft[i],0) * X(i,k) * mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,k) *
+                                ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0)
+                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * X(i,k)
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,k) *
+                                 ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0);
               }
             else
               {
               H(j,k) += helpmat(tright[i]-1,0)*X(i,k)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(j,k) -= helpmat(ttrunc[i],0)*X(i,k)*mult_hazard(i,0);
               }
             }
           }
@@ -568,33 +540,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(j,k) += (
-                         (
-                          negcumbaseline(tleft[i],0) + negcumbaseline(tleft[i],0)*negcumbaseline(tleft[i],0)*mult_hazard(i,0)
-                         ) * Survivor(i,0)
-                         -
-                         (
-                          negcumbaseline(tright[i]-1,0) + negcumbaseline(tright[i]-1,0)*negcumbaseline(tright[i]-1,0)*mult_hazard(i,0)
-                         ) * Survivor(i,1)
-                        ) * mult_hazard(i,0) * X(i,j) * X(i,k) / (Survivor(i,0)-Survivor(i,1))
-                        -
-                        (
-                         (
-                          negcumbaseline(tleft[i],0)*Survivor(i,0) - negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                         )*mult_hazard(i,0)
-                         *
-                         (
-                          negcumbaseline(tleft[i],0)*Survivor(i,0) - negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                         ) * mult_hazard(i,0) * X(i,j) * X(i,k)
-                        )
-                        /
-                        (
-                         (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
-                        );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(j,k) += negcumbaseline(tleft[i],0) * X(i,k) * X(i,j) * mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,k) *
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) * mult_hazard(i,0)
+                                 + ( negcumbaseline(tright[i]-1,0) - negcumbaseline(tleft[i],0) ) * X(i,k) * X(i,j)
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,k) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j);
               }
             else
               {
               H(j,k) += negcumbaseline(tright[i]-1,0)*X(i,j)*X(i,k)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(j,k) -= helpmat(ttrunc[i],0)*X(i,j)*X(i,k)*mult_hazard(i,0);
               }
             }
           }
@@ -625,34 +589,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(j,xcols+k) += (
-                               (
-                                helpmat(tleft[i],0) + Dmat(tleft[i],dmat_pos[j])*Dmat(tleft[i],dmat_pos[xcols+k])*mult_hazard(i,0)
-                               ) * Survivor(i,0)
-                               -
-                              (
-                               helpmat(tright[i]-1,0) + Dmat(tright[i]-1,dmat_pos[j])*Dmat(tright[i]-1,dmat_pos[xcols+k])*mult_hazard(i,0)
-                              ) * Survivor(i,1)
-                             ) * mult_hazard(i,0) / (Survivor(i,0)-Survivor(i,1))
-                             -
-                             (
-                              (
-                               Dmat(tleft[i],dmat_pos[j])*Survivor(i,0) - Dmat(tright[i]-1,dmat_pos[j])*Survivor(i,1)
-                              ) * mult_hazard(i,0)
-                              *
-                             (
-                              Dmat(tleft[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tright[i]-1,dmat_pos[xcols+k])*Survivor(i,1)
-
-                             ) * mult_hazard(i,0)
-                            )
-                            /
-                            (
-                             (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
-                            );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(j,xcols+k) += helpmat(tleft[i],0)*mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) *
+                                ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
+                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) )
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0) *
+                                 ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
               }
             else
               {
               H(j,xcols+k) += helpmat(tright[i]-1,0)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
               }
             }
           }
@@ -671,33 +626,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(j,xcols+k) += (
-                               (
-                                helpmat(tleft[i],0) + negcumbaseline(tleft[i],0)*Dmat(tleft[i],dmat_pos[xcols+k])*mult_hazard(i,0)
-                               ) * Survivor(i,0)
-                               -
-                               (
-                                helpmat(tright[i]-1,0) + negcumbaseline(tright[i]-1,0)*Dmat(tright[i]-1,dmat_pos[xcols+k])*mult_hazard(i,0)
-                               ) * Survivor(i,1)
-                              ) * mult_hazard(i,0) * X(i,j) / (Survivor(i,0)-Survivor(i,1))
-                              -
-                             (
-                              (
-                               negcumbaseline(tleft[i],0)*Survivor(i,0) - negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                              ) * mult_hazard(i,0) * X(i,j)
-                              *
-                              (
-                               Dmat(tleft[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tright[i]-1,dmat_pos[xcols+k])*Survivor(i,1)
-                              ) * mult_hazard(i,0)
-                             )
-                             /
-                             (
-                              (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
-                             );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(j,xcols+k) += helpmat(tleft[i],0) * X(i,j) * mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) *
+                                ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
+                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * X(i,j)
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j) *
+                                 ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
               }
             else
               {
               H(j,xcols+k) += helpmat(tright[i]-1,0)*X(i,j)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
               }
             }
           }
@@ -716,33 +663,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(j,xcols+k) += (
-                               (
-                                helpmat(tleft[i],0) + Dmat(tleft[i],dmat_pos[j])*negcumbaseline(tleft[i],0)*mult_hazard(i,0)
-                               ) * Survivor(i,0)
-                               -
-                               (
-                                helpmat(tright[i]-1,0) + Dmat(tright[i]-1,dmat_pos[j])*negcumbaseline(tright[i]-1,0)*mult_hazard(i,0)
-                               ) * Survivor(i,1)
-                              ) * mult_hazard(i,0) * Z(i,k) / (Survivor(i,0)-Survivor(i,1))
-                              -
-                              (
-                               (
-                                Dmat(tleft[i],dmat_pos[j])*Survivor(i,0)-Dmat(tright[i]-1,dmat_pos[j])*Survivor(i,1)
-                               ) * mult_hazard(i,0)
-                               *
-                              (
-                               negcumbaseline(tleft[i],0)*Survivor(i,0)-negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                              ) * mult_hazard(i,0) * Z(i,k)
-                             )
-                             /
-                             (
-                              (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
-                             );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(j,xcols+k) += helpmat(tleft[i],0) * Z(i,k) * mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
+                                ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0)
+                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * Z(i,k)
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
+                                 ( Dmat(tright[i]-1,dmat_pos[j])-Dmat(tleft[i],dmat_pos[j]) ) * mult_hazard(i,0);
               }
             else
               {
               H(j,xcols+k) += helpmat(tright[i]-1,0)*Z(i,k)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
               }
             }
           }
@@ -753,33 +692,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(j,xcols+k) += (
-                               (
-                                negcumbaseline(tleft[i],0) + negcumbaseline(tleft[i],0)*negcumbaseline(tleft[i],0)*mult_hazard(i,0)
-                               ) * Survivor(i,0)
-                               -
-                               (
-                                negcumbaseline(tright[i]-1,0) + negcumbaseline(tright[i]-1,0)*negcumbaseline(tright[i]-1,0)*mult_hazard(i,0)
-                               ) * Survivor(i,1)
-                              ) * mult_hazard(i,0) * X(i,j) * Z(i,k) / (Survivor(i,0)-Survivor(i,1))
-                              -
-                              (
-                               (
-                                negcumbaseline(tleft[i],0)*Survivor(i,0)-negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                               ) * mult_hazard(i,0)
-                               *
-                              (
-                               negcumbaseline(tleft[i],0)*Survivor(i,0)-negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                              ) * mult_hazard(i,0) * X(i,j) * Z(i,k)
-                             )
-                             /
-                             (
-                              (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
-                             );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(j,xcols+k) += negcumbaseline(tleft[i],0) * Z(i,k) * X(i,j) * mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * X(i,j) * mult_hazard(i,0)
+                                 + ( negcumbaseline(tright[i]-1,0) - negcumbaseline(tleft[i],0) ) * Z(i,k) * X(i,j)
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * X(i,j);
               }
             else
               {
               H(j,xcols+k) += negcumbaseline(tright[i]-1,0)*X(i,j)*Z(i,k)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
               }
             }
           }
@@ -810,33 +741,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(xcols+j,xcols+k) += (
-                                     (
-                                      helpmat(tleft[i],0) + Dmat(tleft[i],dmat_pos[xcols+j])*Dmat(tleft[i],dmat_pos[xcols+k])*mult_hazard(i,0)
-                                     ) * Survivor(i,0)
-                                     -
-                                     (
-                                      helpmat(tright[i]-1,0) + Dmat(tright[i]-1,dmat_pos[xcols+j])*Dmat(tright[i]-1,dmat_pos[xcols+k])*mult_hazard(i,0)
-                                     ) * Survivor(i,1)
-                                    ) * mult_hazard(i,0) / (Survivor(i,0)-Survivor(i,1))
-                                    -
-                                    (
-                                     (
-                                      Dmat(tleft[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tright[i]-1,dmat_pos[xcols+j])*Survivor(i,1)
-                                     ) * mult_hazard(i,0)
-                                     *
-                                     (
-                                      Dmat(tleft[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tright[i]-1,dmat_pos[xcols+k])*Survivor(i,1)
-                                     ) * mult_hazard(i,0)
-                                    )
-                                    /
-                                    (
-                                     (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
-                                    );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(xcols+j,xcols+k) += helpmat(tleft[i],0)*mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) *
+                                ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
+                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) )
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) * mult_hazard(i,0) *
+                                 ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
               }
             else
               {
               H(xcols+j,xcols+k) += helpmat(tright[i]-1,0)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(xcols+j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
               }
             }
           }
@@ -855,33 +778,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(xcols+j,xcols+k) += (
-                                     (
-                                      helpmat(tleft[i],0) + negcumbaseline(tleft[i],0)*Dmat(tleft[i],dmat_pos[xcols+k])*mult_hazard(i,0)
-                                     ) * Survivor(i,0)
-                                     -
-                                     (
-                                      helpmat(tright[i]-1,0) + negcumbaseline(tright[i]-1,0)*Dmat(tright[i]-1,dmat_pos[xcols+k])*mult_hazard(i,0)
-                                     ) * Survivor(i,1)
-                                    ) * mult_hazard(i,0) * Z(i,j) / (Survivor(i,0)-Survivor(i,1))
-                                    -
-                                    (
-                                     (
-                                      negcumbaseline(tleft[i],0)*Survivor(i,0) - negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                                     ) * mult_hazard(i,0) * Z(i,j)
-                                     *
-                                     (
-                                      Dmat(tleft[i],dmat_pos[xcols+k])*Survivor(i,0) - Dmat(tright[i]-1,dmat_pos[xcols+k])*Survivor(i,1)
-                                     ) * mult_hazard(i,0)
-                                    )
-                                    /
-                                    (
-                                     (Survivor(i,0)-Survivor(i,1)) * (Survivor(i,0)-Survivor(i,1))
-                                    );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(xcols+j,xcols+k) += helpmat(tleft[i],0) * Z(i,j) * mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,j) *
+                                ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0)
+                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * Z(i,j)
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,j) *
+                                 ( Dmat(tright[i]-1,dmat_pos[xcols+k])-Dmat(tleft[i],dmat_pos[xcols+k]) ) * mult_hazard(i,0);
               }
             else
               {
               H(xcols+j,xcols+k) += helpmat(tright[i]-1,0)*Z(i,j)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(xcols+j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
               }
             }
           }
@@ -900,33 +815,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(xcols+j,xcols+k) += (
-                                     (
-                                      helpmat(tleft[i],0) + Dmat(tleft[i],dmat_pos[xcols+j])*negcumbaseline(tleft[i],0)*mult_hazard(i,0)
-                                     ) * Survivor(i,0)
-                                     -
-                                     (
-                                      helpmat(tright[i]-1,0) + Dmat(tright[i]-1,dmat_pos[xcols+j])*negcumbaseline(tright[i]-1,0)*mult_hazard(i,0)
-                                     ) * Survivor(i,1)
-                                    ) * mult_hazard(i,0) * Z(i,k) / (Survivor(i,0)-Survivor(i,1))
-                                    -
-                                    (
-                                     (
-                                      Dmat(tleft[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tright[i]-1,dmat_pos[xcols+j])*Survivor(i,1)
-                                      ) * mult_hazard(i,0)
-                                     *
-                                     (
-                                      negcumbaseline(tleft[i],0)*Survivor(i,0)-negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                                     ) * mult_hazard(i,0) * Z(i,k)
-                                    )
-                                    /
-                                    (
-                                     (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
-                                    );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(xcols+j,xcols+k) += helpmat(tleft[i],0) * Z(i,k) * mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
+                                ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) * mult_hazard(i,0)
+                                 + ( helpmat(tright[i]-1,0) - helpmat(tleft[i],0) ) * Z(i,k)
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
+                                 ( Dmat(tright[i]-1,dmat_pos[xcols+j])-Dmat(tleft[i],dmat_pos[xcols+j]) ) * mult_hazard(i,0);
               }
             else
               {
               H(xcols+j,xcols+k) += helpmat(tright[i]-1,0)*Z(i,k)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(xcols+j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
               }
             }
           }
@@ -937,33 +844,25 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
             {
             if(interval[i])
               {
-              H(xcols+j,xcols+k) += (
-                                     (
-                                      negcumbaseline(tleft[i],0) + negcumbaseline(tleft[i],0)*negcumbaseline(tleft[i],0)*mult_hazard(i,0)
-                                     ) * Survivor(i,0)
-                                     -
-                                     (
-                                      negcumbaseline(tright[i]-1,0) + negcumbaseline(tright[i]-1,0)*negcumbaseline(tright[i]-1,0)*mult_hazard(i,0)
-                                     ) * Survivor(i,1)
-                                    ) * mult_hazard(i,0) * Z(i,j) * Z(i,k) / (Survivor(i,0)-Survivor(i,1))
-                                    -
-                                    (
-                                     (
-                                      negcumbaseline(tleft[i],0)*Survivor(i,0) - negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                                     ) * mult_hazard(i,0)
-                                     *
-                                     (
-                                      negcumbaseline(tleft[i],0)*Survivor(i,0) - negcumbaseline(tright[i]-1,0)*Survivor(i,1)
-                                     ) * mult_hazard(i,0) * Z(i,j) * Z(i,k)
-                                    )
-                                    /
-                                    (
-                                     (Survivor(i,0)-Survivor(i,1))*(Survivor(i,0)-Survivor(i,1))
-                                    );
+              helpint = exp(-(cumbaseline(tright[i]-1,0) - cumbaseline(tleft[i],0)) * mult_hazard(i,0));
+              H(xcols+j,xcols+k) += negcumbaseline(tleft[i],0) * Z(i,k) * Z(i,j) * mult_hazard(i,0) -
+                        helpint / (1-helpint)*(
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,k) *
+                                ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * Z(i,j) * mult_hazard(i,0)
+                                 + ( negcumbaseline(tright[i]-1,0) - negcumbaseline(tleft[i],0) ) * Z(i,k) * Z(i,j)
+                                ) * mult_hazard(i,0)
+                                -
+                                helpint/(1-helpint) * helpint/(1-helpint) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,k) *
+                                 ( negcumbaseline(tright[i]-1,0)-negcumbaseline(tleft[i],0) ) * mult_hazard(i,0) * Z(i,j);
               }
             else
               {
               H(xcols+j,xcols+k) += negcumbaseline(tright[i]-1,0)*Z(i,j)*Z(i,k)*mult_hazard(i,0);
+              }
+            if(ttrunc[i] > 0)
+              {
+              H(xcols+j,xcols+k) -= helpmat(ttrunc[i],0)*mult_hazard(i,0);
               }
             }
           }
