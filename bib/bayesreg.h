@@ -92,7 +92,7 @@ using MCMC::FULLCOND_pspline_surf;
 using MCMC::FULLCOND_pspline_surf_gaussian;
 using MCMC::FULLCOND_random_nongaussian;
 using MCMC::FULLCOND_random_gaussian;
-using MCMC::FULLCOND_mixture_gaussian;
+using MCMC::FULLCOND_mixture;
 using MCMC::FULLCOND_kriging2;
 using MCMC::pspline_baseline;
 using MCMC::MCMCsimulate;
@@ -485,7 +485,7 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   vector<FULLCOND_random_nongaussian> fcrandom;
   vector<FULLCOND_random_gaussian> fcrandomgaussian;
-  vector<FULLCOND_mixture_gaussian> fcmixturegaussian;
+  vector<FULLCOND_mixture> fcmixture;
 
   bool create_random(const unsigned & collinpred=0);
   bool create_randomslope(const unsigned & collinpred=0);

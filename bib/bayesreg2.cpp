@@ -883,15 +883,14 @@ bool bayesreg::create_random(const unsigned & collinpred)
            }
          else
            {
-           fcmixturegaussian.push_back(
-           FULLCOND_mixture_gaussian(&generaloptions[generaloptions.size()-1],
+           fcmixture.push_back(
+           FULLCOND_mixture(&generaloptions[generaloptions.size()-1],
                                                         distr[distr.size()-1],
                                                         fcconst_intercept,
                                                         D.getCol(j),
                                                         title,
                                                         pathnonp,pathres,
-                                                        nrcomp,
-                                                        lambda,collinpred
+                                                        nrcomp,collinpred
                                                         )
                           );
            }
@@ -926,8 +925,8 @@ bool bayesreg::create_random(const unsigned & collinpred)
           }
         else
           {
-          fcmixturegaussian[fcmixturegaussian.size()-1].init_name(terms[i].varnames[0]);
-          fcmixturegaussian[fcmixturegaussian.size()-1].set_fcnumber(fullcond.size());
+          fcmixture[fcmixture.size()-1].init_name(terms[i].varnames[0]);
+          fcmixture[fcmixture.size()-1].set_fcnumber(fullcond.size());
           }
 
         if (constlambda.getvalue() == true || nrcomp > 0)
@@ -939,8 +938,7 @@ bool bayesreg::create_random(const unsigned & collinpred)
             }
           else
             {
-            fcmixturegaussian[fcmixturegaussian.size()-1].set_lambdaconst(lambda);
-            fullcond.push_back(&fcmixturegaussian[fcmixturegaussian.size()-1]);
+            fullcond.push_back(&fcmixture[fcmixture.size()-1]);
             }
           }
         else
