@@ -942,10 +942,8 @@ bool FULLCOND_const_nongaussian::posteriormode(void)
 
   beta = XWX*data.transposed()*likep->get_workingresiduals();
 
-  linnew.mult(data,beta);
-
-  likep->add_linearpred_m(linnew,column);
-  linold.assign(linnew);
+  linold.mult(data,beta);                   // updates linold
+  likep->add_linearpred_m(linold,column);   // updates linpred
 
   return FULLCOND_const::posteriormode();
 
