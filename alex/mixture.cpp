@@ -57,7 +57,7 @@ void FULLCOND_mixture::init_names(const vector<ST::string> & na)
     }
 
 
-
+/*
 double FULLCOND_mixture::centerbeta(void)
   {
   unsigned i;
@@ -73,7 +73,7 @@ double FULLCOND_mixture::centerbeta(void)
   double v = sigma2/double(nrpar);
 
   sum = sum+sqrt(v)*rand_normal();
- 
+
   workbeta = beta.getV();
 
   for (i=0;i<nrpar;i++,workbeta++)
@@ -82,7 +82,7 @@ double FULLCOND_mixture::centerbeta(void)
   return sum;
 
   }
-
+*/
 
 void FULLCOND_mixture::compute_XWX(const datamatrix & weightmat,
                                   const unsigned & col)
@@ -146,9 +146,9 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
     compmean = datamatrix(nrcomp,1,0);
     compvar = datamatrix(nrcomp,1,1);
     cmpriorm = 0;
-    cmpriorv = 10;
-    cvpriorsh = 2;
-    cvpriorsc = 0.5;
+    cmpriorv = 20;
+    cvpriorsh = 10;
+    cvpriorsc = 10;
 // End of Mixture stuff
 
 
@@ -333,14 +333,11 @@ void FULLCOND_mixture::update(void)
   datamatrix cptemp(nrcomp,1,1.0/nrcomp);
 
   // calculate psi_{ik}
-  //  double cptempsum=1.0;
   for(k=0;k<nrcomp;k++)
     {
     double cmean=compmean(k,0);
     double cvar=compvar(k,0);
     cptemp(k,0)=compweight(k,0) * (1.0/(sqrt(cvar))) * exp(-0.5*(beta(i,0)-cmean)*(1.0/cvar)*(beta(i,0)-cmean));
-  //    cptemp(k,0)=compweight(k,0) * exp(-0.5*(beta(i,0)-cmean)*(beta(i,0)-cmean));
-  //    cptempsum+=cptemp(k,0);
     }
   double cptempsum=cptemp.sum(0);
   cptemp=(1.0/cptempsum)*cptemp;
@@ -357,19 +354,6 @@ void FULLCOND_mixture::update(void)
         compind(i,0) = k+1;
       cprobsum+=cprob(k,0);
       }
-/*
-  // Sampling
-  //  if(i==0)
-  //  {
-  ST::string pathtemp = pathcurrent.substr(0,pathcurrent.length()-4)+"_comptemp.res";
-  ofstream outrest(pathtemp.strtochar(),ios::app);
-  for(unsigned k=0;k<nrcomp;k++)
-    {
-    outrest << cprob(k,0) << "  " ;
-    }
-  outrest  << cptempsum << endl;
-  //  }
-*/
   }
 
 
@@ -387,11 +371,9 @@ csize.assign(cstemp);
 
 
 // Update random effects
-  if (optionsp->get_nriter()==1 || changingweight)
-    compute_XWX(likep->get_weight(),0);
+
   update_linpred(false);
 
-  likep->compute_respminuslinpred(mu,column);
   vector<unsigned>::iterator itbeg = posbeg.begin();
   vector<unsigned>::iterator itend = posend.begin();
 
@@ -399,7 +381,9 @@ csize.assign(cstemp);
   int * workindex2 = index2.getV();
   double * workmuy = muy.getV();
   double * mup = mu.getV();
+
   likep->set_weightp();
+
   for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
       {
       *workmuy = 0;
@@ -418,7 +402,9 @@ csize.assign(cstemp);
   {
   double remtemp,revtemp;
   double indobs=20; // number of observations for individual i=X_i'X_i
-  double sumworkres=100; // sum of X_i'y_i
+
+  double sumworkres=100; // sum of X_i'(y_i-eta_i)
+
   unsigned comp=compind(i,0);
   revtemp = 1.0/( indobs*(1.0/scaletemp)+(1.0/compvar(comp-1,0)) );
   remtemp = revtemp*( sumworkres*(1.0/scaletemp)+(1.0/compvar(comp-1,0))*compmean(comp-1,0) );
@@ -426,13 +412,28 @@ csize.assign(cstemp);
   }
   beta.assign(retemp);
 
+/*  datamatrix test(beta.rows(),1,0);
+  test = likep->get_response();
+
+  // Sampling
+  ST::string pathtemp2 = pathcurrent.substr(0,pathcurrent.length()-4)+"_comptemp2.res";
+  ofstream outrest2(pathtemp2.strtochar(),ios::app);
+  for(i=0;i<beta.rows();i++)
+    {
+    outrest2 << test(i,0) << endl ;
+    }
+  outrest2 ;
+*/
+
+
 
   update_linpred(true);
-  if (center)
+/*  if (center)
     {
     double m = centerbeta();
     fcconst->update_intercept(m);
     }
+*/
   acceptance++;
   transform = likep->get_trmult(column);
 
@@ -443,13 +444,36 @@ csize.assign(cstemp);
 
   for(k=0;k<nrcomp;k++)
   {
-  double mtemp,vtemp;
+  double mtemp,vtemp,remean,resum;
+
+  resum=0.0;
+  for(i=0;i<nrpar;i++)
+  {
+    if(compind(i,0)==k+1)
+      resum+=beta(i,0);
+  }
+  if(csize(k,0)==0)
+    remean=0.0;
+  else
+    remean=resum/csize(k,0);
+
+
   vtemp = 1.0 / ( csize(k,0)*(1.0/compvar(k,0))+(1.0/cmpriorv) ) ;
-  mtemp = vtemp*( csize(k,0)*(1.0/compvar(k,0))+(1.0/cmpriorv)*cmpriorm );
+  mtemp = vtemp*( csize(k,0)*(1.0/compvar(k,0))*remean+(1.0/cmpriorv)*cmpriorm );
 
   cmeantemp(k,0)=mtemp+vtemp*rand_normal();
   }
   compmean.assign(cmeantemp);
+
+/*  // Sampling
+  ST::string pathtemp = pathcurrent.substr(0,pathcurrent.length()-4)+"_comptemp.res";
+  ofstream outrest(pathtemp.strtochar(),ios::app);
+  for(unsigned k=0;k<nrcomp;k++)
+    {
+    outrest << compmean(k,0) << "  " ;
+    }
+  outrest << endl;
+*/
 
 
 // Update component variances
@@ -626,7 +650,7 @@ void FULLCOND_mixture::outresults(void)
       outres2 << betaqu50(i,0) << "   ";
       outres2 << endl;
       }
-*/
+
   ofstream outres2(pathcompind.strtochar());
      for(i=0;i<compind.rows();i++)
       {
@@ -643,7 +667,7 @@ void FULLCOND_mixture::outresults(void)
     outres3 << compvar(i,0);
     outres3 << endl;
     }
-
+*/
   }
 
 
