@@ -365,8 +365,8 @@ void baseline_reml::outoptionsreml()
       optionsp->out("  Number of quantiles: " + ST::inttostring(nrquant) +"\n");
       optionsp->out("  Number of points between quantiles: " + ST::inttostring(nrbetween) +"\n");
       }
-    optionsp->out("\n");
     }
+  optionsp->out("\n");
   }
 
 void baseline_reml::init_name(const ST::string & na)
