@@ -125,13 +125,9 @@ double FULLCOND_adaptiv::compute_hprop(unsigned & i)
   }
 */
 
-double FULLCOND_adaptiv::compute_denquot(unsigned & i,double & hp)
+double FULLCOND_adaptiv::compute_denquot(unsigned i,double hp)
   {
-
-  double hdiff;
-  double qt;
-  double qtp;
-
+  double hdiff,qt,qtp;
 
   hdiff = h(i-start,0) - hp;
 
@@ -139,7 +135,6 @@ double FULLCOND_adaptiv::compute_denquot(unsigned & i,double & hp)
   qtp = exp(hp)*sigma2beta;
 
   return 0.5*hdiff + 0.5*Gp->compute_ui(i)*(1/qt-1/qtp);
-
   }
 
 
@@ -172,7 +167,6 @@ void FULLCOND_adaptiv::outoptions(void)
                    ST::inttostring(maxblocksize) + "\n");
   optionsp->out("  Variance: " + ST::doubletostring(sigma2,6)
                    + "\n");
-
   }
 
 
@@ -180,9 +174,7 @@ void FULLCOND_adaptiv::outoptions(void)
 void FULLCOND_adaptiv::update(void)
   {
   unsigned j,k;
-  double denquot;
-  double u;
-  double help;
+  double denquot,u;
 
   unsigned blocksize = int(Pm.get_minsize() +
 	  uniform()*(Pm.get_maxsize()-Pm.get_minsize()+1));
@@ -228,6 +220,7 @@ void FULLCOND_adaptiv::update(void)
       en+=blocksize;
 
     }
+
 
 
   if (unifb==true)

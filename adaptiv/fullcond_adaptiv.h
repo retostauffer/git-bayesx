@@ -56,7 +56,7 @@ class __EXPORT_TYPE FULLCOND_adaptiv : public FULLCOND
    // FUNCTION: compute_denquot
    // TASK: computes ln{P(beta_t|beta_[s<t],h*_t)/P(beta_t|beta_[s<t],h_t)}
 
-  double compute_denquot(unsigned & i,double & hp);
+  double compute_denquot(unsigned i,double hp);
 
 //  double compute_hprop(unsigned & i);
 
