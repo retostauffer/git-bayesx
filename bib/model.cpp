@@ -2444,7 +2444,6 @@ term_random::term_random(void)
   proposal = stroption("proposal",adm_prop,"iwls");
   updatetau = simpleoption("updatetau",false);
   uniformprior = simpleoption("uniformprior",false);
-//  nrcomp = intoption("nrcomp",0,0,50);
   }
 
 
@@ -2456,7 +2455,6 @@ void term_random::setdefault(void)
   proposal.setdefault();
   updatetau.setdefault();
   uniformprior.setdefault();
-//  nrcomp.setdefault();
   }
 
 
@@ -2484,7 +2482,6 @@ bool term_random::check(term & t)
     optlist.push_back(&proposal);
     optlist.push_back(&updatetau);
     optlist.push_back(&uniformprior);
-//    optlist.push_back(&nrcomp);
 
     unsigned i;
     bool rec = true;
@@ -2523,7 +2520,6 @@ bool term_random::check(term & t)
       t.options[6] = "false";
     else
       t.options[6] = "true";
-//    t.options[7] = ST::inttostring(nrcomp.getvalue());  
 
 
     setdefault();
@@ -2547,7 +2543,6 @@ term_mixture::term_mixture(void)
   {
   type = "term_mixture";
 //  lambda = doubleoption("lambda",100000,0,10000000);
-//  a = doubleoption("a",0.001,0,500);
 //  b = doubleoption("b",0.001,0,500);
 //  vector<ST::string> adm_prop;
 //  adm_prop.push_back("iwls");
@@ -2555,26 +2550,36 @@ term_mixture::term_mixture(void)
 //  proposal = stroption("proposal",adm_prop,"iwls");
 //  updatetau = simpleoption("updatetau",false);
 //  uniformprior = simpleoption("uniformprior",false);
-  nrcomp = intoption("nrcomp",0,0,50); //name,vorbelegung,minerlaubt,maxerlaubt
+  nrcomp = intoption("nrcomp",1,1,50); //name,vorbelegung,minerlaubt,maxerlaubt
+  wprior = doubleoption("wprior",1,0,100);
+  mpriorm = doubleoption("mpriorm",0,-100,100);
+  mpriorv = doubleoption("mpriorv",100,0,1000);
+  vpriora = doubleoption("vpriora",2,0,100);
+  vpriorb = doubleoption("vpriorb",0.5,0,100);
+  nosamples = simpleoption("nosamples",false);
   }
 
 
 void term_mixture::setdefault(void)
   {
 //  lambda.setdefault();
-//  a.setdefault();
 //  b.setdefault();
 //  proposal.setdefault();
 //  updatetau.setdefault();
-//  uniformprior.setdefault();
   nrcomp.setdefault();
+  wprior.setdefault();
+  mpriorm.setdefault();
+  mpriorv.setdefault();
+  vpriora.setdefault();
+  vpriorb.setdefault();
+  nosamples.setdefault();
   }
 
 
 bool term_mixture::check(term & t)
   {
 
-  if ( (t.varnames.size()==1)  && (t.options.size()<=2) ) // 2, da 2 optionen ("mixture",nrcomp)
+  if ( (t.varnames.size()==1)  && (t.options.size()<=8) ) // 8, da 8 optionen ("mixture",nrcomp,...)
     {
 
     if (t.options[0] == "mixture")
@@ -2589,13 +2594,14 @@ bool term_mixture::check(term & t)
 
     vector<ST::string> opt;
     optionlist optlist;
-//    optlist.push_back(&lambda);
-//    optlist.push_back(&a);
-//    optlist.push_back(&b);
 //    optlist.push_back(&proposal);
-//    optlist.push_back(&updatetau);
-//    optlist.push_back(&uniformprior);
     optlist.push_back(&nrcomp);
+    optlist.push_back(&wprior);
+    optlist.push_back(&mpriorm);
+    optlist.push_back(&mpriorv);
+    optlist.push_back(&vpriora);
+    optlist.push_back(&vpriorb);
+    optlist.push_back(&nosamples);
 
     unsigned i;
     bool rec = true;
@@ -2620,22 +2626,19 @@ bool term_mixture::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(2); // 2, s.o.
+    t.options = vector<ST::string>(8); // 8, s.o.
     t.options[0] = t.type;
-/*    t.options[1] = ST::doubletostring(lambda.getvalue());
-    t.options[2] = ST::doubletostring(a.getvalue());
-    t.options[3] = ST::doubletostring(b.getvalue());
-    t.options[4] = proposal.getvalue();
-    if (updatetau.getvalue() == false)
-      t.options[5] = "false";
-    else
-      t.options[5] = "true";
-    if (uniformprior.getvalue() == false)
-      t.options[6] = "false";
-    else
-      t.options[6] = "true";
-*/
+//    t.options[4] = proposal.getvalue();
     t.options[1] = ST::inttostring(nrcomp.getvalue());
+    t.options[2] = ST::doubletostring(wprior.getvalue());
+    t.options[3] = ST::doubletostring(mpriorm.getvalue());
+    t.options[4] = ST::doubletostring(mpriorv.getvalue());
+    t.options[5] = ST::doubletostring(vpriora.getvalue());
+    t.options[6] = ST::doubletostring(vpriorb.getvalue());
+    if (nosamples.getvalue() == false)
+      t.options[7] = "false";
+    else
+      t.options[7] = "true";
 
 
     setdefault();

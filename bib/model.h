@@ -907,7 +907,6 @@ class __EXPORT_TYPE term_random : public basic_termtype
   stroption proposal;
   simpleoption updatetau;
   simpleoption uniformprior;
-//  intoption nrcomp;
 
   void setdefault(void);
 
@@ -955,12 +954,17 @@ class __EXPORT_TYPE term_mixture : public basic_termtype
   protected:
 
 //  doubleoption lambda;
-//  doubleoption a;
 //  doubleoption b;
 //  stroption proposal;
 //  simpleoption updatetau;
 //  simpleoption uniformprior;
   intoption nrcomp;
+  doubleoption wprior;
+  doubleoption mpriorm;
+  doubleoption mpriorv;
+  doubleoption vpriora;
+  doubleoption vpriorb;
+  simpleoption nosamples;
 
   void setdefault(void);
 

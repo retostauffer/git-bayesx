@@ -1041,12 +1041,10 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
   {
 
 //  ST::string pathnonp2;
-//  ST::string pathres2;
-//  ST::string title2;
-//  double a1,b1,lambda;
   int f,nrcomp;
+  double wprior,mpriorm,mpriorv,vpriora,vpriorb;
   long h;
-//  bool iwlsmode=false;
+  bool nosamples=false;
 
   unsigned i;
   int j;
@@ -1056,15 +1054,15 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
       {
 
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
-
-//      f = (terms[i].options[1]).strtodouble(lambda);
-//      f = (terms[i].options[2]).strtodouble(a1);
-//      f = (terms[i].options[3]).strtodouble(b1);
-//      if (terms[i].options[4]=="iwlsmode")
-//        iwlsmode=true;
-
       f = (terms[i].options[1]).strtolong(h);
       nrcomp = unsigned(h);
+      f = (terms[i].options[2]).strtodouble(wprior);
+      f = (terms[i].options[3]).strtodouble(mpriorm);
+      f = (terms[i].options[4]).strtodouble(mpriorv);
+      f = (terms[i].options[5]).strtodouble(vpriora);
+      f = (terms[i].options[6]).strtodouble(vpriorb);
+      if (terms[i].options[7] == "true")
+        nosamples = true;
 
       if (f==1)
         return true;
@@ -1121,7 +1119,11 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
                                                         D.getCol(j),
                                                         title,
                                                         pathnonp,pathres,
-                                                        nrcomp,collinpred
+                                                        nrcomp,wprior,
+                                                        mpriorm,mpriorv,
+                                                        vpriora,vpriorb,
+                                                        nosamples,
+                                                        collinpred
                                                         )
                           );
 //           }
