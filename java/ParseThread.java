@@ -157,6 +157,7 @@ public ParseThread(BayesX b)
 		};
 	Thread t = new Thread(doConstruct);
 	threadVar = new ThreadVar(t);
+	setPriority(Thread.NORM_PRIORITY);
 	}
 
 public void start()
