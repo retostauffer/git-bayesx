@@ -33,8 +33,8 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
   unsigned nrquant;
   unsigned nrbetween;
 
-  vector<unsigned>tstart;
-  vector<unsigned>tend;
+//  vector<unsigned>tstart;
+//  vector<unsigned>tend;
 
   // interval censoring and left truncation
   vector<unsigned>tright;
@@ -58,7 +58,8 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
 
   // CONSTRUCTOR 1
 
-  baseline_reml(MCMCoptions * o, const datamatrix & d, const datamatrix & lo,
+  baseline_reml(MCMCoptions * o, const datamatrix & d,
+               const datamatrix & leftint, const datamatrix & lefttrunc,
                const unsigned & nrk, const unsigned & degr, const unsigned & tgr,
                const unsigned & nrq, const unsigned & nrb, const knotpos & kp,
                const fieldtype & ft, const ST::string & ti,
@@ -77,13 +78,13 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
 
   // CONSTRUCTOR 3 (interval censoring & left truncation)
 
-  baseline_reml(MCMCoptions * o, const datamatrix & right,
+/*  baseline_reml(MCMCoptions * o, const datamatrix & right,
                const datamatrix & left, const datamatrix & trunc,
                const unsigned & nrk, const unsigned & degr, const unsigned & tgr,
                const unsigned & nrq, const unsigned & nrb, const knotpos & kp,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl, const knotpos & gp);
+               const double & sl, const knotpos & gp);*/
 
   // COPY CONSTRUCTOR
 
@@ -103,7 +104,8 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
   void multDG(datamatrix & res, const datamatrix & b);
 
   void initialize_baseline(unsigned j, datamatrix & tx, datamatrix & tz,
-               vector<unsigned> & ts, vector<unsigned> & te, datamatrix & iv,
+               vector<unsigned> & ts, vector<unsigned> & te,
+               vector<unsigned> & tt, datamatrix & iv,
                statmatrix<double> & steps, statmatrix<int> & ind);
 
   void outoptionsreml();

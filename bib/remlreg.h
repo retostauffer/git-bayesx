@@ -173,6 +173,11 @@ class __EXPORT_TYPE remlreg : public statobject
   doubleoption lowerlim;
   doubleoption eps;
 
+  simpleoption noconst;                 // exclude intercept
+
+  stroption leftint;                    // Cox Model: left interval boundary
+  stroption lefttrunc;                  //            left truncation time
+
   optionlist regressoptions;
 
   // end: OPTIONS for method regress

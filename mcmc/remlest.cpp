@@ -1638,6 +1638,7 @@ bool remlest::estimate_survival(const datamatrix resp,
   datamatrix t_Z;
   vector<unsigned> tstart;
   vector<unsigned> tend;
+  vector<unsigned> ttrunc;
   datamatrix interactvar(nrobs,nrbaseline,0);
   statmatrix<int> index;
   j=0;
@@ -1645,7 +1646,7 @@ bool remlest::estimate_survival(const datamatrix resp,
     {
     if(isbaseline[i]==1)
       {
-      fullcond[i]->initialize_baseline(j,t_X,t_Z,tstart,tend,interactvar,tsteps,index);
+      fullcond[i]->initialize_baseline(j,t_X,t_Z,tstart,tend,ttrunc,interactvar,tsteps,index);
       j++;
       }
     }
@@ -2502,6 +2503,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
   datamatrix t_Z;
   vector<unsigned> tstart;
   vector<unsigned> tend;
+  vector<unsigned> ttrunc;
   datamatrix interactvar(nrobs,nrbaseline,0);
   statmatrix<int> index;
   j=0;
@@ -2509,7 +2511,7 @@ bool remlest::estimate_survival_interval(datamatrix resp,
     {
     if(isbaseline[i]==1)
       {
-      fullcond[i]->initialize_baseline(j,t_X,t_Z,tstart,tend,interactvar,tsteps,index);
+      fullcond[i]->initialize_baseline(j,t_X,t_Z,tstart,tend,ttrunc,interactvar,tsteps,index);
       j++;
       }
     }
@@ -3797,15 +3799,15 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
       }
     }
 
-/*  bool timevarying;
-  if(nrbaseline>1)
-    {
-    timevarying=true;
-    }
-  else
-    {
-    timevarying=false;
-    }*/
+//  bool timevarying;
+//  if(nrbaseline>1)
+//    {
+//    timevarying=true;
+//    }
+//  else
+//    {
+//    timevarying=false;
+//    }
 
 // Matrices and variables for baseline effects
   statmatrix<double> tsteps;
@@ -3813,7 +3815,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
   datamatrix t_Z;
   vector<unsigned> tleft;
   vector<unsigned> tright;
-  vector<unsigned> ttrunc(nrobs,0);
+  vector<unsigned> ttrunc;
   datamatrix interactvar(nrobs,nrbaseline,0);
   statmatrix<int> index;
   j=0;
@@ -3821,7 +3823,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
     {
     if(isbaseline[i]==1)
       {
-      fullcond[i]->initialize_baseline(j,t_X,t_Z,tleft,tright,interactvar,tsteps,index);
+      fullcond[i]->initialize_baseline(j,t_X,t_Z,tleft,tright,ttrunc,interactvar,tsteps,index);
       j++;
       }
     }
@@ -5307,5 +5309,6 @@ void remlest::outerror(const ST::string & s)
 //------------------------------------------------------------------------------
 //------------------------------- Miscellanea ----------------------------------
 //------------------------------------------------------------------------------
+
 
 

@@ -275,7 +275,13 @@ void remlreg::create(void)
   maxit = intoption("maxit",400,1,100000);
   lowerlim = doubleoption("lowerlim",0.001,0,1);
   eps = doubleoption("eps",0.00001,0,1);
+
   reference = doubleoption("reference",0,-10000,10000);
+
+  noconst = simpleoption("noconst",false);
+
+  leftint = stroption("leftint");
+  lefttrunc = stroption("lefttrunc");
 
   regressoptions.reserve(100);
 
@@ -289,6 +295,11 @@ void remlreg::create(void)
   regressoptions.push_back(&lowerlim);
   regressoptions.push_back(&eps);
   regressoptions.push_back(&reference);
+
+  regressoptions.push_back(&noconst);
+
+  regressoptions.push_back(&leftint);
+  regressoptions.push_back(&lefttrunc);
 
 //------------------------------------------------------------------------------
 //-------------------------- methods[0]: remlrun -------------------------------
@@ -517,6 +528,15 @@ bool remlreg::create_data(datamatrix & weight)
 
   ifexpression = methods[0].getexpression();
 
+  // Für Cox model: variable 'leftint' an 2. Stelle setzen
+  vector<ST::string>::iterator modelit = modelvarnamesv.begin()+1;
+  if(leftint.getvalue() != "")
+    modelvarnamesv.insert(modelit,1,leftint.getvalue());
+  // Für Cox model: variable 'lefttrunc' an 3. Stelle setzen
+  modelit++;
+  if(lefttrunc.getvalue() != "")
+    modelvarnamesv.insert(modelit,2,lefttrunc.getvalue());
+
   // testing, wether all variables specified are already existing
   vector<ST::string> notex;
   if ((datap->allexisting(modelvarnamesv,notex)) == false)
@@ -655,12 +675,10 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
 
     // check whether there is a baseline effect
     bool baselineexisting = false;
-    unsigned j;
     for(i=0;i<terms.size();i++)
       {
       if(nonp_baseline.checkvector(terms,i) == true )
         {
-        j = terms[i].varnames[0].isinlist(modelvarnamesv);
         baselineexisting = true;
         }
       }
@@ -675,13 +693,12 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
   if(family.getvalue()!="cox" && family.getvalue()!="coxinterval" &&
      family.getvalue()!="coxinterval2")
     {
-    unsigned i,j;
+    unsigned i;
     bool baselineexisting = false;
     for(i=0;i<terms.size();i++)
       {
       if(nonp_baseline.checkvector(terms,i) == true )
         {
-        j = terms[i].varnames[0].isinlist(modelvarnamesv);
         baselineexisting = true;
         }
       }
@@ -844,7 +861,10 @@ bool remlreg::create_const(const unsigned & collinpred)
   vector<ST::string> varnames;
   vector<ST::string> varnamesh =  fixedeffects.get_constvariables(terms);
 
-  varnames.push_back("const");
+  if(noconst.getvalue()==false)
+    {
+    varnames.push_back("const");
+    }
 
   for(i=0;i<varnamesh.size();i++)
     varnames.push_back(varnamesh[i]);
@@ -1458,6 +1478,8 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
         type = MCMC::mrflinear;
       else if (terms[i].options[0] == "pspline2dimrw2")
         type = MCMC::mrfquadratic8;
+      else if( terms[i].options[0] =="pspline2dimbiharmonic")
+        type = MCMC::mrfquadratic12;
 
       j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
       j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
@@ -1595,6 +1617,8 @@ bool remlreg::create_geospline(const unsigned & collinpred)
         type = MCMC::mrflinear;
       else if (terms[i].options[0] == "geosplinerw2")
         type = MCMC::mrfquadratic8;
+      else if (terms[i].options[0] == "geosplinebiharmonic")
+        type = MCMC::mrfquadratic12;
 
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
 
@@ -2456,7 +2480,28 @@ bool remlreg::create_baseline(const unsigned & collinpred)
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
 
       // read lower interval boundary
-      datamatrix lower;
+      datamatrix lowerint;
+      if(leftint.getvalue()!="")
+        {
+        lowerint = D.getCol(1);
+        }
+      else
+        {
+        lowerint = datamatrix(1,1,0);
+        }
+
+      // read left truncation time
+      datamatrix lowertrunc;
+      if(lefttrunc.getvalue()!="")
+        {
+        lowertrunc = D.getCol(2);
+        }
+      else
+        {
+        lowertrunc = datamatrix(1,1,0);
+        }
+
+/*      datamatrix lower;
       if(terms[i].options[9]!="")
         {
         dataobject * datap;                           // pointer to datsetobject
@@ -2488,7 +2533,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
       else
         {
         lower = datamatrix(1,1,0);
-        }
+        }*/
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
@@ -2521,7 +2566,8 @@ bool remlreg::create_baseline(const unsigned & collinpred)
 
       fcbaseline.push_back( baseline_reml(&generaloptions,
                                               D.getCol(j),
-                                              lower,
+                                              lowerint,
+                                              lowertrunc,
                                               nrknots,
                                               degree,
                                               tgrid,
@@ -2918,6 +2964,11 @@ void remlrun(remlreg & b)
         {
         vector<ST::string> varnames = b.fullcond[j]->get_datanames();
         ST::string xvar = varnames[0];
+        ST::string effect = xvar;
+        if(varnames.size()>1)
+          {
+          effect = varnames[1] + "*" + effect;
+          }
         if(b.family.getvalue()=="multinomial")
           {
           for(unsigned i=0; i<b.cats.rows(); i++)
@@ -2928,7 +2979,7 @@ void remlrun(remlreg & b)
             if(plst == MCMC::plotnonp)
               {
               b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(i*b.fullcond.size()+j)
-              + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
+              + ", title = \"Effect of " + effect +"\" xlab = " + xvar
               + " ylab = \" \" outfile = " + pathps + ".ps replace");
               }
             else if(plst==MCMC::drawmap)
@@ -2955,7 +3006,7 @@ void remlrun(remlreg & b)
           if(plst == MCMC::plotnonp)
             {
             b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
-            + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
+            + ", title = \"Effect of " + effect +"\" xlab = " + xvar
             + " ylab = \" \" outfile = " + pathps + ".ps replace");
             }
           else if(plst==MCMC::drawmap)

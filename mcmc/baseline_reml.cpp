@@ -10,7 +10,8 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
 baseline_reml::baseline_reml(MCMCoptions * o,
-              const datamatrix & d, const datamatrix & lo, const unsigned & nrk,
+              const datamatrix & d, const datamatrix & leftint,
+              const datamatrix & lefttrunc, const unsigned & nrk,
               const unsigned & degr, const unsigned & tgr, const unsigned & nrq,
               const unsigned & nrb, const knotpos & kp, const fieldtype & ft,
               const ST::string & ti, const ST::string & fp,
@@ -82,17 +83,33 @@ baseline_reml::baseline_reml(MCMCoptions * o,
     DGfirst[i] = j-(degree+1);
     }
 
-  tstart = vector<unsigned>(d.rows(),0);
-  tend = vector<unsigned>(d.rows(),1);
+  tleft = vector<unsigned>(d.rows(),0);
+  tright = vector<unsigned>(d.rows(),1);
+  ttrunc = vector<unsigned>(d.rows(),0);
 
-  if(lo.rows()>1)
+  // indices for truncation times
+
+  if(lefttrunc.rows()>1)
+    {
+    for(i=0; i<lefttrunc.rows(); i++)
+      {
+      j=1;
+      while(tvalues(j,0) < lefttrunc(i,0))
+        {
+        ttrunc[i]++;
+        j++;
+        }
+      }
+    }
+
+  if(leftint.rows()>1)
     {
     for(i=0; i<d.rows(); i++)
       {
       j=0;
-      while(j<tvalues.rows()-1 && tvalues(j,0)<lo(i,0))
+      while(j<tvalues.rows()-1 && tvalues(j,0)<leftint(i,0))
         {
-        tstart[i]++;
+        tleft[i]++;
         j++;
         }
       }
@@ -103,7 +120,7 @@ baseline_reml::baseline_reml(MCMCoptions * o,
     j=0;
     while(j<tvalues.rows()-1 && tvalues(j,0)<d(i,0))
       {
-      tend[i]++;
+      tright[i]++;
       j++;
       }
     }
@@ -121,7 +138,7 @@ baseline_reml::baseline_reml(MCMCoptions * o,const datamatrix & d1,
   interact_var = d2;
   }
 
-baseline_reml::baseline_reml(MCMCoptions * o,
+/*baseline_reml::baseline_reml(MCMCoptions * o,
               const datamatrix & right, const datamatrix & left,
               const datamatrix & trunc,  const unsigned & nrk,
               const unsigned & degr, const unsigned & tgr, const unsigned & nrq,
@@ -243,7 +260,7 @@ baseline_reml::baseline_reml(MCMCoptions * o,
       j++;
       }
     }
-  }
+  }*/
 
 
 baseline_reml::baseline_reml(const baseline_reml & fc)
@@ -251,8 +268,9 @@ baseline_reml::baseline_reml(const baseline_reml & fc)
   {
   tstep=fc.tstep;
   tvalues=fc.tvalues;
-  tstart=fc.tstart;
-  tend=fc.tend;
+  tleft=fc.tleft;
+  tright=fc.tright;
+  ttrunc=fc.ttrunc;
   t_X=fc.t_X;
   t_Z=fc.t_Z;
   interact_var=fc.interact_var;
@@ -271,8 +289,9 @@ const baseline_reml & baseline_reml::operator=(const baseline_reml & fc)
 
   tstep=fc.tstep;
   tvalues=fc.tvalues;
-  tstart=fc.tstart;
-  tend=fc.tend;
+  tleft=fc.tleft;
+  tright=fc.tright;
+  ttrunc=fc.ttrunc;
   t_X=fc.t_X;
   t_Z=fc.t_Z;
   interact_var=fc.interact_var;
@@ -408,16 +427,18 @@ void baseline_reml::multDG(datamatrix & res, const datamatrix & b)
 
   }
 
-void baseline_reml::initialize_baseline(unsigned j, datamatrix & tx, datamatrix & tz,
-               vector<unsigned> & ts, vector<unsigned> & te, datamatrix & iv,
+void baseline_reml::initialize_baseline(unsigned j, datamatrix & tx,
+               datamatrix & tz, vector<unsigned> & ts, vector<unsigned> & te,
+               vector<unsigned> & tt,  datamatrix & iv,
                statmatrix<double> & steps, statmatrix<int> & ind)
   {
   if(!varcoeff)
     {
     tx = t_X;
     tz = t_Z;
-    ts = tstart;
-    te = tend;
+    ts = tleft;
+    te = tright;
+    tt = ttrunc;
     steps = tsteps;
     ind = index;
     }

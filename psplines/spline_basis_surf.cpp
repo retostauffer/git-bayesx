@@ -2196,9 +2196,20 @@ void spline_basis_surf::init_names(const vector<ST::string> & na)
   if(type==MCMC::mrfkronecker)
     priorassumptions.push_back("P-spline with Kronecker product interaction penalty");
   else if(type==MCMC::mrflinear)
+    {
     priorassumptions.push_back("P-spline with 2 dimensional first order random walk penalty");
+    priorassumptions.push_back("(Kronecker sum of two first order random walks)");
+    }
   else if(type==MCMC::mrfquadratic8)
+    {
     priorassumptions.push_back("P-spline with 2 dimensional second order random walk penalty");
+    priorassumptions.push_back("(Kronecker sum of two second order random walks)");
+    }
+  else if(type==MCMC::mrfquadratic12)
+    {
+    priorassumptions.push_back("P-spline with 2 dimensional second order random walk penalty");
+    priorassumptions.push_back("(Approximation to the biharmonic differential operator)");
+    }
   else if(type==MCMC::mrfkr1)
     priorassumptions.push_back("P-spline with Kronecker product interaction (RW1*RW1) penalty");
   else if(type==MCMC::mrfkr2)
@@ -2356,16 +2367,6 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       knoten3(i,0) = knoten1(i,0)*knoten2(i,0);
       }
 
-ofstream out1("c:\\temp\\knoten1.raw");
-knoten1.prettyPrint(out1);
-out1.close();
-ofstream out2("c:\\temp\\knoten2.raw");
-knoten2.prettyPrint(out2);
-out2.close();
-ofstream out3("c:\\temp\\knoten3.raw");
-knoten3.prettyPrint(out3);
-out3.close();
-
     double mean=0;
 
     multBS_index(spline,knoten1);
@@ -2486,7 +2487,7 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
     }
   else
     {
-    if(type==mrflinear)
+    if(type==mrflinear || type==mrfquadratic12)
       {
       for(i=0,j=0;i<spline.rows();i++,indexit++,freqwork++,k+=*indexit)
         {
@@ -2726,14 +2727,20 @@ void spline_basis_surf::outoptionsreml()
   ST::string typestr;
   if(type==mrflinear)
     {
-    typestr = "2 dimensional first order random walk";
+    optionsp->out("  Prior: 2 dimensional first order random walk\n");
+    optionsp->out("         (Kronecker sum of two first order random walks)\n");
     }
   else if(type==mrfquadratic8)
     {
-    typestr = "2 dimensional second order random walk";
+    optionsp->out("  Prior: 2 dimensional first order random walk\n");
+    optionsp->out("         (Kronecker sum of two second order random walks)\n");
+    }
+  else if(type==mrfquadratic12)
+    {
+    optionsp->out("  Prior: 2 dimensional first order random walk\n");
+    optionsp->out("         (Approximation to the biharmonic differential operator)\n");
     }
 
-  optionsp->out("  Prior: " + typestr + "\n");
   optionsp->out("  Number of knots: " + ST::inttostring(nrknots) + "\n" );
   optionsp->out("  Degree of Splines: " + ST::inttostring(degree) + "\n" );
   optionsp->out("  Starting value for lambda: " + ST::doubletostring(startlambda,6) + "\n" );

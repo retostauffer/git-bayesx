@@ -13,7 +13,6 @@
 bool remlest::estimate_survival_interval2(datamatrix resp,
                 const datamatrix & offset, const datamatrix & weight)
   {
-
   unsigned i, j, k, l;
   double help, former, helpint;
 
@@ -114,15 +113,15 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
       }
     }
 
-/*  bool timevarying;
-  if(nrbaseline>1)
-    {
-    timevarying=true;
-    }
-  else
-    {
-    timevarying=false;
-    }*/
+//  bool timevarying;
+//  if(nrbaseline>1)
+//    {
+//    timevarying=true;
+//    }
+//  else
+//    {
+//    timevarying=false;
+//    }
 
 // Matrices and variables for baseline effects
   statmatrix<double> tsteps;
@@ -138,7 +137,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
     {
     if(isbaseline[i]==1)
       {
-      fullcond[i]->initialize_baseline(j,t_X,t_Z,tleft,tright,interactvar,tsteps,index);
+      fullcond[i]->initialize_baseline(j,t_X,t_Z,tleft,tright,ttrunc,interactvar,tsteps,index);
       j++;
       }
     }
@@ -566,7 +565,7 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
         }
       }
 
-    // X & Z
+   // X & Z
     for(j=0; j<xcols; j++)
       {
       for(k=0; k<zcols; k++)
