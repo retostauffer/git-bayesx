@@ -959,22 +959,19 @@ void FULLCOND_kriging::outoptionsreml()
   optionsp->out("OPTIONS FOR KRIGING TERM:: " + title + "\n",true);
   optionsp->out("\n");
   optionsp->out("  Correlation function: Matern\n");
-  optionsp->out("  Parameter nu: " + ST::doubletostring(nu,2) + "\n");
-  optionsp->out("  Parameter rho: " + ST::doubletostring(rho,4) + "\n");
-  optionsp->out("\n");
+  optionsp->out("    Parameter nu: " + ST::doubletostring(nu,2) + "\n");
+  optionsp->out("    Parameter rho: " + ST::doubletostring(rho,4) + "\n");
   if(!full)
     {
     optionsp->out("  Number of knots: " + ST::inttostring(nrknots) + "\n");
-    optionsp->out("  Corresponds to " + ST::doubletostring(100*(double)nrknots/(double)nrdiffobs,3) + "% of the " + ST::inttostring(nrdiffobs) + " different observation points\n");
-    optionsp->out("\n");
+    optionsp->out("    Corresponds to " + ST::doubletostring(100*(double)nrknots/(double)nrdiffobs,3) + "% of the " + ST::inttostring(nrdiffobs) + " different observation points\n");
     }
   if(nrknots<nrdiffobs && spacefill)
     {
     optionsp->out("  Options for the space-filling algorithm:\n");
-    optionsp->out("  Maximum number of iteration steps: " + ST::inttostring(maxsteps) + "\n");
-    optionsp->out("  p: " + ST::inttostring(p) + "\n");
-    optionsp->out("  q: " + ST::inttostring(q) + "\n");
-    optionsp->out("\n");
+    optionsp->out("    Maximum number of iteration steps: " + ST::inttostring(maxsteps) + "\n");
+    optionsp->out("    p: " + ST::inttostring(p) + "\n");
+    optionsp->out("    q: " + ST::inttostring(q) + "\n");
     }
   optionsp->out("  Starting value for lambda: " + ST::doubletostring(startlambda,6) + "\n" );
   }
