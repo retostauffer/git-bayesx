@@ -1577,7 +1577,7 @@ term_baseline_varcoeff_remlreg::term_baseline_varcoeff_remlreg(void)
   type = "term_baseline_varcoeff";
   degree=intoption("degree",3,0,5);
   numberknots=intoption("nrknots",20,5,500);
-  tgrid = intoption("tgrid",300,5,1000);
+  tgrid = intoption("tgrid",300,5,2000);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",1000,0,10000000);
   }
