@@ -172,6 +172,8 @@ void stepwisereg::create(void)
   minim.push_back("approx");
   minim.push_back("approx_control");
   minim.push_back("exact");
+  minim.push_back("approx_golden");
+  minim.push_back("exact_golden");
 
   minimum = stroption("minimum",minim,"approx");
 
