@@ -141,9 +141,8 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
 // Mixture stuff
   nrcomp = nrc;
   compweight = datamatrix(nrcomp,1,1.0/nrcomp);
-//  compind = statmatrix<int>(d.rows(),1,1);
-//  compmean = datamatrix(nrcomp,1,0);
-//  compvar = datamatrix(nrcomp,1,1);
+  cwprior = datamatrix(nrcomp,1,1.0);
+  csize = statmatrix<int>(nrcomp,1,1);
 // End of Mixture stuff
 
 
@@ -220,6 +219,7 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
 
   identifiable = false;
 
+  compind = statmatrix<int>(nrpar,1,1);
   muy = datamatrix(nrpar,1);
 
 //  identifiable =true;
@@ -232,9 +232,9 @@ FULLCOND_mixture::FULLCOND_mixture(const FULLCOND_mixture & fc)
   {
   nrcomp = fc.nrcomp;
   compweight=fc.compweight;
-//  compind=fc.compind;
-//  compmean=fc.compmean;
-//  compvar=fc.compvar;
+  cwprior=fc.cwprior;
+  csize=fc.csize;
+  compind=fc.compind;
 
   muy = fc.muy;
   fcconst = fc.fcconst;
@@ -271,10 +271,7 @@ const FULLCOND_mixture & FULLCOND_mixture::
 
   nrcomp = fc.nrcomp;
   compweight=fc.compweight;
-//  compind=fc.compind;
-//  compmean=fc.compmean;
-//  compvar=fc.compvar;
-
+  compind=fc.compind;
 
   muy = fc.muy;
   fcconst = fc.fcconst;
@@ -302,24 +299,51 @@ const FULLCOND_mixture & FULLCOND_mixture::
   return *this;
   }
 
-void update_compweight(void)
-  {
-     unsigned nrcomp2=nrcomp;
-     for(unsigned i=0;i<nrcomp2;i++)
-     {
-     compweight(i,0) = compweight(i,0)+rand_normal();
-     }
-  }
+
 
 void FULLCOND_mixture::update(void)
   {
+  unsigned i,k;
 
-//  for(int i=0;i<compweight.rows();i++)
-//  {
-//  compweight(i,0) = compweight(i,0)+rand_normal();
-//  }
+// Update component indicators
+  for(i=0;i<compind.rows();i++)
+  {
+  datamatrix cprob(nrcomp,1,1.0/nrcomp); // probabilities psi_{ik}
+  datamatrix cptemp(nrcomp,1,0);
 
-  update_compweight();
+  // calculate psi_{ik}  
+  double cptempsum=0;
+  for(k=0;k<nrcomp;k++)
+    {
+    cptemp(k,0)=compweight(k,0) * (1.0/(sqrt(1.0))) * exp(-0.5);
+    cptempsum+=cptemp(k,0);
+    }
+  cptemp=(1.0/cptempsum)*cptemp;
+  cprob.assign(cptemp);
+
+  // sample component indicator
+  double u;
+  u=uniform();
+  double cprobsum=0;
+  for(k=0;k<nrcomp;k++)
+      {
+      if ( (cprobsum<u) && (u<=cprobsum+cprob(k,0))) compind(i,0) = k+1;
+      cprobsum+=cprob(k,0);
+      }
+  }
+
+
+// Update component weights
+  datamatrix cwtemp(nrcomp,1,0);
+  double cwtempsum=0;
+  for(k=0;k<nrcomp;k++)
+  {
+  cwtemp(k,0)=rand_gamma(cwprior(k,0)+csize(k,0),1.0);
+  cwtempsum+=cwtemp(k,0);
+  }
+  cwtemp=(1.0/cwtempsum)*cwtemp;
+  compweight.assign(cwtemp);
+
 
   transform = likep->get_trmult(column);
 
@@ -367,11 +391,11 @@ void FULLCOND_mixture::outresults(void)
 
     optionsp->out("\n");
 
-    for(int i=0;i<nrcomp;i++)
+    for(int k=0;k<nrcomp;k++)
        {
 //       optionsp->out("  Component means: " + ST::doubletostring(compmean(i,0),6) + "\n");
 //       optionsp->out("  Component variances: " + ST::doubletostring(compvar(i,0),6) + "\n");
-       optionsp->out("  Component weights: " + ST::doubletostring(compweight(i,0),6) + "\n");
+       optionsp->out("  Component weights: " + ST::doubletostring(compweight(k,0),6) + "\n");
        }
   optionsp->out("\n");
 
@@ -421,7 +445,7 @@ void FULLCOND_mixture::outresults(void)
       }
 
   // Ausgabe mixture component indicators
-  ofstream outres2(pathcompind.strtochar());
+/*  ofstream outres2(pathcompind.strtochar());
   outres2 << "intnr" << "   ";
   outres2 << name << "   ";
   outres2 << "pmean   ";
@@ -434,6 +458,14 @@ void FULLCOND_mixture::outresults(void)
       outres2 << effvalues(i,0) << "   ";
       outres2 << betamean(i,0) << "   ";
       outres2 << betaqu50(i,0) << "   ";
+      outres2 << endl;
+      }
+*/
+  ofstream outres2(pathcompind.strtochar());
+     for(i=0;i<compind.rows();i++)
+      {
+      outres2 << (i+1) << "   ";
+      outres2 << compind(i,0);
       outres2 << endl;
       }
 

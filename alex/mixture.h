@@ -29,11 +29,9 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   int nrcomp;  // Number of mixture components
   datamatrix compweight;  // Weights of mixture components
-
-//  statmatrix<int> compind;  // Indicator for mixture components
-//  datamatrix compmean; // Means of normal mixture components
-//  datamatrix compvar;  // Variances of normal mixture components
-
+  datamatrix cwprior;  // Prior parameter weights of mixture components
+  statmatrix<int> csize;  // Sizes of mixture components
+  statmatrix<int> compind;  // Indicator for mixture components
 
   datamatrix muy;
 
@@ -76,17 +74,6 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
   double centerbeta(void);
 
   void update_linpred(const bool & add);
-
-  void update_compweight(void);
-  {
-     unsigned i;
-     for(i=0;i<compweight.rows();i++)
-     {
-     compweight(i,0) = compweight(i,0)+rand_normal();
-     }
-  }
-
-
 
 
 
