@@ -11,6 +11,9 @@ import java.util.*;
 import java.io.*;
 import java.beans.*;
 
+import umontreal.iro.lecuyer.rng.*;
+import umontreal.iro.lecuyer.randvar.*;
+import umontreal.iro.lecuyer.probdist.*;
 
 //import gov.sandia.postscript.PSGrBase;
 //import gov.sandia.postscript.PSGr1;
@@ -173,6 +176,10 @@ protected double titlescale;
 
 // Optionen für Javaplotautocor
 protected boolean meanautocor;
+
+// Random Number Generation
+
+RandMrg rStream;
 
 //Konstruktor zur Erzeugung eines BayesX-Fensters
 public BayesX()
@@ -783,10 +790,7 @@ public BayesX()
 	jDesktopPanel.add(objects);
 	objects.setBounds(registryArray[14],registryArray[15],registryArray[16],registryArray[17]);
 
-
-
 //Einstellungen des Hauptfensters
-
 
 	addWindowListener(this);
 	setSize(registryArray[0],registryArray[1]);
@@ -794,6 +798,35 @@ public BayesX()
 	setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 	setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
 	
+// Random Number Generation
+
+	Random seed = new Random();
+	long[] seedArray = new long[6];
+	for(int i=0; i<3; i++)
+		{
+		long help=(Long.valueOf("4294967087")).longValue();
+		while(help>=(Long.valueOf("4294967087")).longValue() || help<=0)
+			{
+			help = seed.nextLong()/(Long.valueOf("10000000000")).longValue();
+			}
+		seedArray[i] = help;
+		}
+	for(int i=3; i<6; i++)		{
+		long help=(Long.valueOf("4294944443")).longValue();
+		while(help>=(Long.valueOf("4294944443")).longValue() || help<=0)
+			{
+			help = seed.nextLong()/(Long.valueOf("10000000000")).longValue();
+			}
+		seedArray[i] = help;
+		}
+
+	rStream = new RandMrg();
+	rStream.setSeed(seedArray);
+/*	System.out.println("Random numbers:");
+	for(int i=0; i<5; i++)
+		{
+		System.out.println(BinomialGen.nextInt(rStream, 10, 0.8));
+		}*/
 	}
 
 
