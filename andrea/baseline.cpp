@@ -254,6 +254,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
     }
 //-------------------------------------------------------------------------------------------
   spline_ges = datamatrix(2*likep->get_nrobs(),1,0);
+  spline_ges2 = datamatrix(2*likep->get_nrobs(),1,0);
   gaussspline = datamatrix(zi.rows()+1,gauss_n,0);
   int_ti_help = datamatrix(2*likep->get_nrobs(),1,0);
   spline_zi = datamatrix(likep->get_nrobs(),1,0);
@@ -495,6 +496,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
 //------------------------------------------------------------------------------
 
   spline_ges = datamatrix(2*likep->get_nrobs(),1,0);
+  spline_ges2 = datamatrix(2*likep->get_nrobs(),1,0);
   int_ti_help = datamatrix(2*likep->get_nrobs(),1,0);
   gaussspline = datamatrix(zi.rows()+1,gauss_n,0);
   spline_zi = datamatrix(likep->get_nrobs(),1,0);
@@ -519,6 +521,7 @@ pspline_baseline::pspline_baseline(const pspline_baseline & fc)
   zi_ges = fc.zi_ges;
   z_vc = fc.z_vc;
   spline_ges = fc.spline_ges;
+  spline_ges2 = fc.spline_ges2;
   spline_zi = fc.spline_zi;
   gaussspline=fc.gaussspline;
   ges_index = fc.ges_index;
@@ -547,6 +550,7 @@ const pspline_baseline & pspline_baseline::operator=(const pspline_baseline & fc
   z_vc = fc.z_vc;
   vc_dummy1 = fc.vc_dummy1;
   spline_ges = fc.spline_ges;
+  spline_ges2 = fc.spline_ges2;
   spline_zi = fc.spline_zi;
   gaussspline = fc.gaussspline;
   ges_index = fc.ges_index;
@@ -918,6 +922,7 @@ void pspline_baseline::update(void)
         for(i=0;i<2.0*likep->get_nrobs();i++)
           {
           spline_ges(i,0) -= intercept;
+          spline_ges2(i,0) -= intercept;
           }
  /*      for(i=0;i<likep->get_nrobs();i++)
        {
@@ -940,6 +945,7 @@ void pspline_baseline::update(void)
         for(i=0;i<2.0*likep->get_nrobs();i++)
           {
           spline_ges(i,0) -= intercept;
+          spline_ges2(i,0) -= intercept;
 /*        if(i<likep->get_nrobs())
             {
             spline1(i,0) -= intercept;
@@ -1029,6 +1035,7 @@ void pspline_baseline::compute_int_ti_mean(void)
     if(begin0==false)
       {
       testmat.mult(spline_ges,betamean);
+      testmat.mult_index(spline_ges2,betamean);
       compute_int_ti(betamean);
       }
     else
@@ -1065,6 +1072,8 @@ if(begin0==false)
   double * int_D_help;
   double * betap;
   double dist_knots = int_knots(1,0)-int_knots(0,0);
+  double knottest0=int_knots(0,0);
+  double knottest1=int_knots(1,0);
   unsigned i,j,k;
   k=1;
   double erg,spline_u,spline_o;
@@ -1103,7 +1112,7 @@ if(begin0==false)
   *int_ti_p =erg*0.5/(exp(spline_ges(0,0)));
 
   int_ti_help_p=int_ti_help.getV()+ges_index(0,0);
-  *int_ti_help_p =erg*0.5;
+     *int_ti_help_p =erg*0.5;
 
 //------------------------------------------------------------
 
@@ -1156,7 +1165,8 @@ if(begin0==false)
       int_ti_help_p2=int_ti_help.getV()+i;
 
 //      double help = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges(ges_index(i-likep->get_nrobs(),0),0));
-      *int_ti_p = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges(ges_index(i-likep->get_nrobs(),0),0));
+//      *int_ti_p = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges(ges_index(i-likep->get_nrobs(),0),0));
+      *int_ti_p = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges2(i-likep->get_nrobs(),0));
       assert(*int_ti_p>=0.0);
       }
     }
@@ -1863,6 +1873,7 @@ else    //kein zeitl. var. Effekt
   if(begin0==false)     //Linkstrunkierung
     {
     testmat.mult(spline_ges,beta);
+    testmat.mult_index(spline_ges2,beta);
     compute_int_ti(beta);
     }
   else    //keine Linkstrunkierung

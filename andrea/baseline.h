@@ -43,6 +43,7 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
    statmatrix<int> zi_index;
    statmatrix<int> ges_index;
    datamatrix spline_ges;
+   datamatrix spline_ges2;
    datamatrix spline_zi;
    datamatrix gaussspline;
    datamatrix int_ti_help;
@@ -132,6 +133,12 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
     {
     testmat.mult_index(spline_ges,beta);
     return spline_ges.getV();
+    }
+
+  double * get_spline_ges2(void)
+    {
+    testmat.mult_index(spline_ges2,beta);
+    return spline_ges2.getV();
     }
 
   double * get_spline_ges_mean(void)
