@@ -114,6 +114,7 @@ envmatrix<T>::envmatrix(const vector<T> & v, const vector<T> & d,
   {
   assert(d.size()+1==xe.size());
   assert(v.size()==xe[d.size()]);
+  assert(bw<d.size());
   xenv=xe;
   diag=d;
   dim=diag.size();
@@ -187,6 +188,7 @@ envmatrix<T>::envmatrix(const symbandmatrix<T> & X)
 template<class T>
 envmatrix<T>::envmatrix(const T &v, const unsigned &d, const unsigned bw)
   {
+  assert(bw<d);
   dim=d;
   bandwidth=bw;
   diag=vector<T>(dim,v);

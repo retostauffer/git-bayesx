@@ -2625,7 +2625,7 @@ double spline_basis::compute_df(void)
     prec_env.addto(XX_env,Kenv,1.0,lambda);
   invprec = envmatdouble(0,nrpar,prec_env.getBandwidth());
   prec_env.inverse_envelope(invprec);
-  if(varcoeff)
+  if(identifiable)
     return invprec.traceOfProduct(XX_env);
   else
     return invprec.traceOfProduct(XX_env)-1;

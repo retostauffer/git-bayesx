@@ -14,8 +14,6 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
   : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,c)
   {
 
-  fctype = MCMC::spatial;
-
   mapexisting=false;
   plotstyle=noplot;
 
@@ -110,8 +108,6 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
                const double & sl, const unsigned & c)
   : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,c)
   {
-
-  fctype = MCMC::spatial;
 
   utype = gaussian;
 
@@ -249,8 +245,6 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
   : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,c)
   {
 
-  fctype = MCMC::spatial;
-
   updateW = upW;
   f = fstart;
 
@@ -360,7 +354,7 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
 
   setbeta(nrpar,1,0.0);
 
-  prec_env = envmatdouble(0.0,xknots.size(),xknots.size());
+  prec_env = envmatdouble(0.0,xknots.size(),xknots.size()-1);
   mu = datamatrix(likep->get_nrobs(),1,0);
   muy = datamatrix(nrpar,1,0);
   betahelp = muy;
@@ -425,7 +419,7 @@ const FULLCOND_kriging2 & FULLCOND_kriging2::operator=(const FULLCOND_kriging2 &
   FULLCOND_nonp_basis::operator=(FULLCOND_nonp_basis(kr));
 
   X=kr.X;
-  updateW=kr.updateW;  
+  updateW=kr.updateW;
   utype=kr.utype;
   nu=kr.nu;
   full=kr.full;

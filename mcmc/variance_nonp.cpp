@@ -247,12 +247,20 @@ void FULLCOND_variance_nonp::update(void)
 
           if(optionsp->get_nriter() == 1)
             {
-            for(i=start;i<df;i++)
+            double init;
+            lambda.push_back(Kp->lambda_from_df(start,100.0));
+            init = lambda[lambda.size()-1]/2;
+            for(i=start+1;i<=df;i++)
               {
-              lambda.push_back(Kp->lambda_from_df(i,exp(5.0/(i+0.5))));
-              lambda.push_back(Kp->lambda_from_df(i+0.5,exp(5.0/(i+0.5))));
+              if(init < 0.0000001)
+                break;
+              lambda.push_back(Kp->lambda_from_df(i-0.5,init));
+              init = lambda[lambda.size()-1]/2;
+              if(init < 0.0000001)
+                break;
+              lambda.push_back(Kp->lambda_from_df(i,init));
+              init = lambda[lambda.size()-1]/2;
               }
-            lambda.push_back(Kp->lambda_from_df(df,exp(5.0/df)));
             }
 
           scale = distrp->get_scale(column,column);
@@ -484,8 +492,7 @@ void FULLCOND_variance_nonp::outresults(void)
     }
 
   if(!fullcondnonp && !randomeffect)
-    if(Kp->get_fctype() != MCMC::spatial)
-      outresults_lambda();
+    outresults_lambda();
 
   }
 
