@@ -1185,10 +1185,11 @@ void FULLCOND::outresults(void)
 
 void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
   {
-  double lambda_df;
+  double lambda_df, df_wunsch;
   if(get_lambdamax_opt()==true)
     {
-    lambda_df = lambda_from_df(get_df_lambdamax(),lambdamax);
+    df_wunsch = get_df_lambdamax();
+    lambda_df = lambda_from_df(df_wunsch,lambdamax);
     if(lambda_df != -9)
       lambdamax = lambda_df;
     else
@@ -1201,7 +1202,8 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
     }
   if(get_lambdamin_opt()==true)
     {
-    lambda_df = lambda_from_df(get_df_lambdamin(),lambdamin);
+    df_wunsch = get_df_lambdamin();
+    lambda_df = lambda_from_df(df_wunsch,lambdamin);
     if(lambda_df != -9)
       lambdamin = lambda_df;
     else
@@ -1218,7 +1220,7 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
     lvec.push_back(lambdamax);
   else if(number>1)
     {
-    unsigned j;
+    int j;
     for(j=0;j<number;j++)
       lvec.push_back(pow(10,l+double(j)*((u-l)/(double(number)-1))));
     }
@@ -1230,9 +1232,10 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
 
 void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
   {
-  double lambda_df;
+  double lambda_df, df_wunsch;
   double diff = (get_df_lambdamin()-get_df_lambdamax())/(number-1);
-  lambda_df = lambda_from_df(get_df_lambdamax(),lambdamax);
+  df_wunsch = get_df_lambdamax();
+  lambda_df = lambda_from_df(df_wunsch,lambdamax);
   if(lambda_df != -9)
     lambdamax = lambda_df;
   else
@@ -1247,7 +1250,7 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
     double df_lambdamin = get_df_lambdamin();
     lambda_df = lambda_from_df(df_lambdamin,lambdamin);
     int i = 1;
-    while(lambda_df == - 9 & number>=1)
+    while(lambda_df == - 9 && number>=1)
       {
       df_lambdamin -= diff;
       lambda_df = lambda_from_df(df_lambdamin,lambdamin);
@@ -1260,8 +1263,11 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
     if(number>1)
       lvec.push_back(lambdamin);
     for(i=number-2;i>=1;i--)
-       lvec.push_back(lambda_from_df(get_df_lambdamax() + i*diff,
-                                       lambdamin + i*(lambdamax-lambdamin)/(number-1)));
+       {
+       df_wunsch = get_df_lambdamax() + i*diff;
+       lambda_df = lambdamin + i*(lambdamax-lambdamin)/(number-1);
+       lvec.push_back(lambda_from_df(df_wunsch,lambda_df));
+       }
      }
   lvec.push_back(lambdamax);
   }
