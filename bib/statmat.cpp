@@ -948,7 +948,11 @@ T statmatrix<T>::quantile(const T & percent,const unsigned & col) const
   index.indexinit();
   indexsort(index,0,rows()-1,col,0);
 
-  if (k == kganz)                             // Falls k ganzzahlig ist
+  if(kganz == 0)                             // T==0 => Minimum
+     return get(index(0,0),col);
+  else if(kganz == rows())                   // T==100 => Maximum
+     return get(index(rows()-1,0),col);
+  else if (k == kganz)                             // Falls k ganzzahlig ist
 	 return (get(index(kganz-1,0),col) + get(index(kganz,0),col))/2.0;
   else                                       // Falls k nicht ganzzahlig ist
 	 return get(index(kganz,0),col);
