@@ -29,7 +29,7 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   int nrcomp;  // Number of mixture components
   statmatrix<int> compind;  // Indicator for mixture components
-  datamatrix compweights;  // Weights of mixture components
+  datamatrix compweight;  // Weights of mixture components
   datamatrix compmean; // Means of normal mixture components
   datamatrix compvar;  // Variances of normal mixture components
 
@@ -148,8 +148,6 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
     sigma2 = s;
     }
 
-//  unsigned get_rankK(void);
-
   double getlambda(void)
     {
     return lambda;
@@ -161,6 +159,35 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
     }
 
   void set_lambdaconst(double la);
+
+//  Update functions for mixture component parameters
+
+  void update_compmean(datamatrix betaakt, statmatrix<int> compindakt,datamatrix compvarakt, datamatrix priormean, datamatrix priorvar)
+  {
+     unsigned i;
+     for(i=0;i<compmean.rows();i++)
+     {
+     compmean(i,0) = compmean(i,0)+rand_normal();
+     }
+  }
+
+  void update_compvar(datamatrix betaakt, statmatrix<int> compindakt, datamatrix compmeanakt, datamatrix priorshape,datamatrix priorscale)
+  {
+     unsigned i;
+     for(i=0;i<compvar.rows();i++)
+     {
+     compvar(i,0) = compvar(i,0)+rand_normal();
+     }
+  }
+
+  void update_compweight(statmatrix<int> compindakt, datamatrix prior)
+  {
+     unsigned i;
+     for(i=0;i<compweight.rows();i++)
+     {
+     compweight(i,0) = compweight(i,0)+rand_normal();
+     }
+  }
 
   };     // end: class FULLCOND_mixture
 

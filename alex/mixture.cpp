@@ -121,15 +121,6 @@ void FULLCOND_mixture::compute_XWX(const datamatrix & weightmat,
 
   }
 
-/*
-unsigned FULLCOND_mixture::get_rankK(void)
-  {
-  if (randomslope && includefixed)
-    return nrpar-1;
-  else
-    return nrpar;
-  }
-*/
 
 void FULLCOND_mixture::set_lambdaconst(double la)
   {
@@ -151,7 +142,7 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
   compind = statmatrix<int>(d.rows(),1,1);
   compmean = datamatrix(nrcomp,1,0);
   compvar = datamatrix(nrcomp,1,1);
-  compweights = datamatrix(nrcomp,1,1.0/nrcomp);
+  compweight = datamatrix(nrcomp,1,1.0/nrcomp);
 // End of Mixture stuff
 
 
@@ -242,7 +233,7 @@ FULLCOND_mixture::FULLCOND_mixture(const FULLCOND_mixture & fc)
   compind=fc.compind;
   compmean=fc.compmean;
   compvar=fc.compvar;
-  compweights=fc.compweights;
+  compweight=fc.compweight;
 
   muy = fc.muy;
   fcconst = fc.fcconst;
@@ -281,7 +272,7 @@ const FULLCOND_mixture & FULLCOND_mixture::
   compind=fc.compind;
   compmean=fc.compmean;
   compvar=fc.compvar;
-  compweights=fc.compweights;
+  compweight=fc.compweight;
 
   muy = fc.muy;
   fcconst = fc.fcconst;
@@ -340,80 +331,16 @@ void FULLCOND_mixture::outresults(void)
   nu1 = nu1.replaceallsigns('.','p');
   nu2 = nu2.replaceallsigns('.','p');
 
-  if (randomslope && includefixed)
-    {
-    optionsp->out("  Fixed effect:\n");
-    optionsp->out("\n");
+  ST::string pathre = pathcurrent.substr(0,pathcurrent.length()-4)+"_re.res";
+  ST::string pathcompind = pathcurrent.substr(0,pathcurrent.length()-4)+"_compind.res";
 
-    ST::string help =  ST::doubletostring(lower1,4) + "% quant.";
-    ST::string levell = help + ST::string(' ',15-help.length());
-    help = ST::doubletostring(upper2,4) + "% quant.";
-    ST::string levelu = help + ST::string(' ',15-help.length());
-    help = ST::string(' ',+2);
-
-    optionsp->out(help +
-                    "mean           " +
-                    "Std. Dev.      " +
-                    levell +
-                    "median         " +
-                    levelu + "\n");
-
-    optionsp->out(ST::outresults(0,"",betamean(nrpar-1,0),
-                  sqrt(betavar(nrpar-1,0)),betaqu_l1_lower(nrpar-1,0),
-                  betaqu50(nrpar-1,0),betaqu_l1_upper(nrpar-1,0)));
-
-    optionsp->out("\n");
-
-    optionsp->out("  Results for the fixed effect are also stored in file \n");
-    optionsp->out("  " + pathcurrent2 + "\n");
-
-    optionsp->out("\n");
-
-    ofstream outfixed(pathcurrent2.strtochar());
-
-    outfixed << "pmean   ";
-    outfixed << "pqu"  << nl1  << "   ";
-    outfixed << "pqu"  << nl2  << "   ";
-    outfixed << "pmed   ";
-    outfixed << "pqu"  << nu1  << "   ";
-    outfixed << "pqu"  << nu2  << "   ";
-    outfixed << "pcat" << level1 << "   ";
-    outfixed << "pcat" << level2 << "   ";
-    outfixed << endl;
-
-    outfixed << betamean(nrpar-1,0) << "   ";
-    outfixed << betaqu_l1_lower(nrpar-1,0) << "   ";
-    outfixed << betaqu_l2_lower(nrpar-1,0) << "   ";
-    outfixed << betaqu50(nrpar-1,0) << "   ";
-    outfixed << betaqu_l2_upper(nrpar-1,0) << "   ";
-    outfixed << betaqu_l1_upper(nrpar-1,0) << "   ";
-    if (betaqu_l1_lower(nrpar-1,0) > 0)
-      outfixed << "1   ";
-    else if (betaqu_l1_upper(nrpar-1,0) < 0)
-      outfixed << "-1   ";
-    else
-      outfixed << "0   ";
-    if (betaqu_l2_lower(nrpar-1,0) > 0)
-      outfixed << "1   ";
-    else if (betaqu_l2_upper(nrpar-1,0) < 0)
-      outfixed << "-1   ";
-    else
-      outfixed << "0   ";
-
-    outfixed << endl;
-    }
-
-  if (randomslope)
-    {
-    optionsp->out("  Results for random slopes are stored in file\n");
-    optionsp->out("  " + pathcurrent + "\n");
-    }
-  else
-    {
     optionsp->out("  Results for random effects are stored in file\n");
-    optionsp->out("  " + pathcurrent + "\n");
+    optionsp->out("  " + pathre + "\n");
+    optionsp->out("\n");
+    optionsp->out("  Results for random effects mixture component indicators are stored in file\n");
+    optionsp->out("  " + pathcompind + "\n");
 
-  if (lambdaconst==true)
+    if (lambdaconst==true)
     {
     optionsp->out("\n");
     optionsp->out("  Constant smoothing parameter: " +
@@ -427,26 +354,17 @@ void FULLCOND_mixture::outresults(void)
        {
        optionsp->out("  Component means: " + ST::doubletostring(compmean(i,0),6) + "\n");
        optionsp->out("  Component variances: " + ST::doubletostring(compvar(i,0),6) + "\n");
-       optionsp->out("  Component weights: " + ST::doubletostring(compweights(i,0),6) + "\n");
+       optionsp->out("  Component weights: " + ST::doubletostring(compweight(i,0),6) + "\n");
        }
-    }
-
-  if (optionsp->get_samplesize() == 0)
-    {
-    optionsp->out("\n");
-    double df = compute_df();
-    optionsp->out("  Approximate degrees of freedom: "
-                    + ST::doubletostring(df,6) + "\n");
-    }
-
   optionsp->out("\n");
 
+
   unsigned i;
-
-  ofstream outres(pathcurrent.strtochar());
-  assert(!outres.fail());
-
   ST::string name = datanames[0];
+
+  // Ausgabe mixture random effects
+  ofstream outres(pathre.strtochar());
+  assert(!outres.fail());
 
   outres << "intnr" << "   ";
   outres << name << "   ";
@@ -460,48 +378,48 @@ void FULLCOND_mixture::outresults(void)
   outres << "pcat" << level2 << "   ";
   outres << endl;
 
-  double * workmean = betamean.getV();
-  double * workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
-  double * workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
-  double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
-  double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
-  double * workbetaqu50 = betaqu50.getV();
-
-  for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
-      workbetaqu_l2_lower_p++,workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++,
-      workbetaqu50++)
-    {
-    if (randomslope && includefixed && i == nrpar-1)
-      {
-      }
-    else
-      {
-      outres << (i+1) << "   ";
-      outres << effvalues(i,0) << "   ";
-      outres << *workmean << "   ";
-      outres << *workbetaqu_l1_lower_p << "   ";
-      outres << *workbetaqu_l2_lower_p << "   ";
-      outres << *workbetaqu50 << "   ";
-      outres << *workbetaqu_l2_upper_p << "   ";
-      outres << *workbetaqu_l1_upper_p << "   ";
-
-      if (*workbetaqu_l1_lower_p > 0)
-        outres << "1   ";
-      else if (*workbetaqu_l1_upper_p < 0)
-        outres << "-1   ";
-      else
-        outres << "0   ";
-
-      if (*workbetaqu_l2_lower_p > 0)
-        outres << "1   ";
-      else if (*workbetaqu_l2_upper_p < 0)
-        outres << "-1   ";
-      else
-        outres << "0   ";
-
+     for(i=0;i<beta.rows();i++)
+       {
+       outres << (i+1) << "   ";
+       outres << effvalues(i,0) << "   ";
+       outres << betamean(i,0) << "   ";
+       outres << betaqu_l1_lower(i,0) << "   ";
+       outres << betaqu_l2_lower(i,0) << "   ";
+       outres << betaqu50(i,0) << "   ";
+       outres << betaqu_l2_upper(i,0) << "   ";
+       outres << betaqu_l1_upper(i,0) << "   ";
+       if (betaqu_l1_lower(i,0) > 0)
+       outres << "1   ";
+       else if (betaqu_l1_upper(i,0) < 0)
+       outres << "-1   ";
+       else
+       outres << "0   ";
+       if (betaqu_l2_lower(i,0) > 0)
+       outres << "1   ";
+       else if (betaqu_l2_upper(i,0) < 0)
+         outres << "-1   ";
+       else
+         outres << "0   ";
       outres << endl;
       }
-    }
+
+  // Ausgabe mixture component indicators
+  ofstream outres2(pathcompind.strtochar());
+  outres2 << "intnr" << "   ";
+  outres2 << name << "   ";
+  outres2 << "pmean   ";
+  outres2 << "pmed   ";
+  outres2 << endl;
+
+     for(i=0;i<beta.rows();i++)
+      {
+      outres2 << (i+1) << "   ";
+      outres2 << effvalues(i,0) << "   ";
+      outres2 << betamean(i,0) << "   ";
+      outres2 << betaqu50(i,0) << "   ";
+      outres2 << endl;
+      }
+
   }
 
 
@@ -872,8 +790,12 @@ void FULLCOND_mixture_gaussian::update(void)
 
   transform = likep->get_trmult(column);
 
+  FULLCOND_mixture::update_compmean(beta, compind, compvar, datamatrix(nrcomp,1,0), datamatrix(nrcomp,1,100));
+  FULLCOND_mixture::update_compvar(beta, compind, compmean, datamatrix(nrcomp,1,nrcomp+1),datamatrix(nrcomp,1,nrcomp));
+  FULLCOND_mixture::update_compweight(compind, datamatrix(1,1,1));
 
   FULLCOND_mixture::update();
+
 
   if (spatialtotal)
     {
