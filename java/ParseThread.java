@@ -112,6 +112,19 @@ public void setPriority(int p)
 		}
 	}
 
+public int getPriority()
+	{
+	Thread t = threadVar.get();
+	if (t!= null)
+		{
+		return t.getPriority();
+		}
+	else
+		{
+		return 0;
+		}
+	}
+
 /*public void suspend()
 	{
 	Thread t = threadVar.get();
@@ -157,7 +170,7 @@ public ParseThread(BayesX b)
 		};
 	Thread t = new Thread(doConstruct);
 	threadVar = new ThreadVar(t);
-	setPriority(Thread.NORM_PRIORITY);
+//	setPriority(Thread.NORM_PRIORITY);
 	}
 
 public void start()
