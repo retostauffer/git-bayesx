@@ -300,7 +300,6 @@ void FULLCOND_const_stepwise::reset_effect(unsigned & pos)
 
     nrconst--;
     datamatrix dataold = data;
-
     data = datamatrix(data.rows(),nrconst);
 
     double * workold = dataold.getV();
@@ -351,6 +350,25 @@ void FULLCOND_const_stepwise::reset_effect(unsigned & pos)
 
     X1 = datamatrix(nrconst,nrconst,0);
     }
+  }
+
+
+void FULLCOND_const_stepwise::set_effect_zero(void)
+  {
+  double * workbeta = beta.getV();
+  double * workbetameanold = betameanold.getV();
+  unsigned i;
+  for(i=0;i<beta.rows();i++,workbeta++,workbetameanold++)
+    {
+    //if(i==pos)
+    //  {
+      *workbeta = 0;
+      *workbetameanold = 0;
+    //  }
+    }
+  likep->substr_linearpred_m(linold,column);   // zieht den Anteil der fixen Effekte von Gesamtprädiktor ab
+  linold.mult(data,beta);                      // berechnet den Anteil der fixen Effekte neu
+  likep->add_linearpred_m(linold,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor
   }
 
 

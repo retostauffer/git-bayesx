@@ -874,6 +874,10 @@ class __EXPORT_TYPE FULLCOND
     {
     }
 
+  virtual void set_effect_zero(void)
+    {
+    }
+
 
   // FUNCTION: include_effect
   // TASK: includes an effect at position 'pos' with name 'name'

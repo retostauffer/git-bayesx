@@ -115,6 +115,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void reset_effect(unsigned & pos);
 
+  void set_effect_zero(void);
+
   };
 
 

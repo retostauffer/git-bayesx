@@ -490,6 +490,22 @@ class __EXPORT_TYPE DISTRIBUTION
     return 0;
     }
 
+  // FUNCTION: compute_msep
+  // TASK: computes the MSE from observations with weight=0 for gaussian data
+
+  virtual double compute_msep(void)
+    {
+    return 0;
+    }
+
+  // FUNCTION: compute_auc
+  // TASK: computes the AUC for binomial data (logit link)
+
+  virtual double compute_auc(void)
+    {
+    return 0;
+    }
+
   // FUNCTION: compute_gcv
   // TASK: computes the GCV score
 
@@ -1972,6 +1988,8 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
 
   double compute_rss(void);
 
+  double compute_msep(void);
+
   double compute_gcv(double & df);
 
   double compute_aic(double & df);
@@ -2072,6 +2090,8 @@ class __EXPORT_TYPE DISTRIBUTION_binomial : public DISTRIBUTION
                            const double * mu,double * deviance,
                            double * deviancesat,
                            const datamatrix & scale,const int & i) const;
+
+  double compute_auc(void);
 
   void outoptions(void);
 

@@ -165,6 +165,8 @@ void stepwisereg::create(void)
   cr.push_back("AIC_imp");
   cr.push_back("GCV");
   cr.push_back("BIC");
+  cr.push_back("MSEP");
+  cr.push_back("AUC");
 
   criterion = stroption("criterion",cr,"GCV");
 
@@ -640,6 +642,20 @@ bool stepwisereg::create_distribution(void)
     modelvarnamesv.push_back(wn);
     weightpos = modelvarnamesv.size()-1;
     }
+
+  //testing if weightvariable is specified when MSEP or AUC is used as criterion
+  ST::string cr = criterion.getvalue();
+  if(wn.length() == 0 && (cr == "MSEP" || cr == "AUC"))
+     {
+     outerror("ERROR: You must specify a weight variable if you want to use " + cr + " as information criterion!\n");
+     return true;
+     }
+  if(cr == "AUC" && family.getvalue() != "binomial")
+     {
+     outerror("ERROR: You can use AUC only with binomial distributed response!\n");
+     return true;
+     }
+
 
   ifexpression = methods[0].getexpression();
 

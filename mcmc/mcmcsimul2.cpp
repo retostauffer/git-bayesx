@@ -166,6 +166,8 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   for(i=0;i<fullcond_z.size();i++)
      fullcond_z[i]->set_fcnumber(i);
 
+  //likep_mult[0]->set_linpred_null();
+
   posteriormode(title,false);  // Problem: linearer Prädiktor bei "true" standardisiert! Hier wird zurückgerechnet!
                                // danach nicht mehr compute_criterion() aufrufen!!!
   make_tex_end(path,modell_final,names_fixed);
@@ -175,7 +177,7 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   outcriterium.close();
   outmodels.close();
 
-  /*
+  
   // gibt Lambdas aus, damit man die richtig bestimmten Variablen zählen kann!
   ST::string zaehlername = path + "_lambdas_" + likep_mult[0]->get_responsename() + ".ascii";
   //zaehlername = zaehlername + "_" + ST::inttostring(increment) + ".ascii";
@@ -190,7 +192,7 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
      eintrag = eintrag + ST::doubletostring(modell_final[i]) + "   ";
   out << beschriftung << endl;
   out << eintrag << endl;
-  */
+
   
   return false;
   }
@@ -776,43 +778,29 @@ void STEPWISErun::startwerte(const ST::string & startmodel,
 double STEPWISErun::compute_criterion(void)
   {
   double df = 0;
-  unsigned i;
-  for(i=0;i<fullcondp.size();i++)
+  if(criterion != "MSE" && criterion != "AUC")
     {
-    double help = fullcondp[i]->compute_df();
-    df = df + fullcondp[i]->compute_df();
+    unsigned i;
+    for(i=0;i<fullcondp.size();i++)
+      {
+      double help = fullcondp[i]->compute_df();
+      df = df + fullcondp[i]->compute_df();
+      }
     }
   double kriterium;
-  //double nrobs = likep_mult[0]->get_nrobs();
-  double nrobs = likep_mult[0]->get_nrobs_wpw();   //nur Beobachtungen mit Gewichten > 0 werden berücksichtigt!
-
-  double deviance = 0;
-  double deviancesat = 0;
-  if(criterion!="GCV" || likep_mult[0]->get_family()!="Gaussian")
-    {
-    likep_mult[0]->compute_deviance(deviance,deviancesat);
-    if(likep_mult[0]->get_family()=="Gaussian")
-      deviance = deviance - nrobs*(1+log(2*M_PI));
-    }
 
   if(criterion=="GCV")
-    {
-    if(likep_mult[0]->get_family()=="Gaussian")
-      kriterium = likep_mult[0]->compute_rss();
-    else
-      kriterium = deviancesat;
-    kriterium = kriterium / (nrobs*(1-df/nrobs)*(1-df/nrobs));
-    }
-    // kriterium = likep_mult[0]->compute_gcv(df);
+    kriterium = likep_mult[0]->compute_gcv(df);
   else if(criterion=="AIC")
-    kriterium = deviance + 2*df;
-    // kriterium = likep_mult[0]->compute_aic(df);
+    kriterium = likep_mult[0]->compute_aic(df);
   else if(criterion=="BIC")
-    kriterium = deviance + log(nrobs)*df;
-    // kriterium = likep_mult[0]->compute_bic(df);
-  else  //if(criterion=="AIC_imp")
-    kriterium = deviance + 2*df + 2*df*(df+1)/(nrobs-df-1);
-    // kriterium = likep_mult[0]->compute_improvedaic(df);
+    kriterium = likep_mult[0]->compute_bic(df);
+  else if(criterion=="AIC_imp")
+    kriterium = likep_mult[0]->compute_improvedaic(df);
+  else if(criterion=="MSEP")
+    kriterium = likep_mult[0]->compute_msep();
+  else //if(criterion=="AUC")
+    kriterium = -1 * likep_mult[0]->compute_auc();
 
   return kriterium;
   }
@@ -826,6 +814,9 @@ void STEPWISErun::newmodel(bool & fertig, const vector<double> & modell,
   mi.push_back(modell);
   vector<ST::string> title;
   title.push_back("");
+
+  //likep_mult[0]->set_linpred_null();
+
   posteriormode(title,true);      //keine Ausgabe
   double kriterium = compute_criterion();
   ST::string header = "  Trial: ";
@@ -845,11 +836,13 @@ void STEPWISErun::newmodel_fix(bool & fertig, const double & mo,
     reset_fix(name);
   else
     include_fix(name,D,modelv);
+  fullcondp[0]->set_effect_zero();
   newmodel(fertig,modell,krit,mi,textit);
   if(mo==0)
     include_fix(name,D,modelv);
   else
     reset_fix(name);
+  //fullcondp[0]->set_effect_zero();
   }
 
 
@@ -866,6 +859,7 @@ void STEPWISErun::newmodel_factor(bool & fertig, const double & mo, const unsign
     }
   else
     fullcondp[0]->include_effect(name,fullcond_alle[index]->get_data_forfixedeffects());
+  fullcondp[0]->set_effect_zero();
   newmodel(fertig,modell,krit,mi,textit);
   if(mo==0)
     fullcondp[0]->include_effect(name,fullcond_alle[index]->get_data_forfixedeffects());
@@ -874,6 +868,7 @@ void STEPWISErun::newmodel_factor(bool & fertig, const double & mo, const unsign
     for(i=0;i<name.size();i++)
       reset_fix(name[i]);
     }
+  //fullcondp[0]->set_effect_zero();
   }
 
 
@@ -885,8 +880,10 @@ void STEPWISErun::newmodel_nonp(bool & fertig, const unsigned & index,
     const vector<ST::string> & modelv)
   {
   fullcond_einzeln(modell,modell_alt,index,names_fixed.size(),names_nonp,D,modelv);
+  fullcondp[0]->set_effect_zero();
   newmodel(fertig,modell,krit,mi,textit);
   fullcond_einzeln(modell_alt,modell,index,names_fixed.size(),names_nonp,D,modelv);
+  //fullcondp[0]->set_effect_zero();
   }
 
 
@@ -983,6 +980,7 @@ void STEPWISErun::fullcond_komplett(const vector<double> & m,
 
   fullcondp = fullcond_neu;
   end[0] = fullcondp.size()-1;
+  fullcondp[0]->set_effect_zero();
   }
   
 
@@ -1236,7 +1234,7 @@ void STEPWISErun::options_text(const int & number,
      if(fullcondp[i]->get_df_equidist()==true)
          genoptions_mult[0]->out("  Number of different smoothing parameters with equidistant degrees of freedom: "
             + ST::doubletostring(fullcondp[i]->get_number()) + "\n");
-     else
+     else if(fullcondp[i]->get_fctype()!=MCMC::factor)
          genoptions_mult[0]->out("  Number of different smoothing parameters on a logarithmic scale: "
             + ST::doubletostring(fullcondp[i]->get_number()) + "\n");
      unsigned j;

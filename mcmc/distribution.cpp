@@ -17,7 +17,7 @@ void DISTRIBUTION::compute_deviance(double & deviance,double & deviancesat)
 
   for(i=0;i<nrobs;i++,workresp++,worklin++,workweight++)
     {
-    if (workweight != 0)
+    if (*workweight != 0)
       {
       compute_mu(worklin,&mu);
       compute_deviance(workresp,workweight,&mu,&dev,&devsat,scale,0);
@@ -26,6 +26,37 @@ void DISTRIBUTION::compute_deviance(double & deviance,double & deviancesat)
       }
     }
   }
+
+/*
+double DISTRIBUTION::compute_msep(void)
+  {
+  unsigned i;
+
+  double * worklin = (*linpred_current).getV();
+  double * workresp = response.getV();
+  double * workweight = weight.getV();
+  double mu;
+
+  double sum = 0;
+  double help;
+  double nr = 0;
+
+  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
+    {
+    if (*workweight == 0)
+      {
+      compute_mu(worklin,&mu);
+      help = *workresp - mu;
+      //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
+                                          // Gewichten != 0, die andere 0/1 Variable
+      sum += help*help;
+      nr += 1;
+      }
+    }
+
+  return  sum/nr;
+  }
+*/
 
 double DISTRIBUTION::compute_gcv(double & df)
   {
@@ -77,7 +108,7 @@ unsigned DISTRIBUTION::get_nrobs_wpw(void)
 
   for (i=0;i<nrobs;i++,workweight++)
     {
-    if (workweight ==0)
+    if (*workweight == 0)
       s++;
     }
 
@@ -4199,7 +4230,7 @@ double DISTRIBUTION_gaussian::compute_rss(void)
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
-    if (workweight !=0)
+    if (*workweight !=0)
       {
       help = *workresp - *worklin;
       sum += *workweight*help*help;
@@ -4208,6 +4239,35 @@ double DISTRIBUTION_gaussian::compute_rss(void)
   sum = trmult(0,0)*trmult(0,0)*sum;
 
   return  sum;
+  }
+
+
+double DISTRIBUTION_gaussian::compute_msep(void)
+  {
+  unsigned i;
+
+  double * worklin = (*linpred_current).getV();
+  double * workresp = response.getV();
+  double * workweight = weight.getV();
+
+  double sum = 0;
+  double help;
+  double nr = 0;
+
+  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
+    {
+    if (*workweight == 0)
+      {
+      help = *workresp - *worklin;
+      //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
+                                          // Gewichten != 0, die andere 0/1 Variable
+      sum += help*help;
+      nr += 1;
+      }
+    }
+  sum = trmult(0,0)*trmult(0,0)*sum;
+
+  return  sum/nr;
   }
 
 
@@ -4226,7 +4286,7 @@ double DISTRIBUTION_gaussian::compute_gcv(double & df)
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
-    if (workweight !=0)
+    if (*workweight !=0)
       {
       help = *workresp - *worklin;
       sum += *workweight*help*help;
@@ -4266,7 +4326,7 @@ double DISTRIBUTION_gaussian::compute_aic(double & df)
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
-    if (workweight !=0)
+    if (*workweight !=0)
       {
       help = *workresp - *worklin;
       sum += *workweight*help*help;
@@ -4302,7 +4362,7 @@ double DISTRIBUTION_gaussian::compute_improvedaic(double & df)
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
-    if (workweight !=0)
+    if (*workweight !=0)
       {
       help = *workresp - *worklin;
       sum += *workweight*help*help;
@@ -4339,7 +4399,7 @@ double DISTRIBUTION_gaussian::compute_bic(double & df)
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
-    if (workweight !=0)
+    if (*workweight !=0)
       {
       help = *workresp - *worklin;
       sum += *workweight*help*help;
@@ -4840,6 +4900,105 @@ void DISTRIBUTION_binomial::compute_deviance(const double * response,
     *deviancesat = 0;
     }
 
+  }
+
+
+double DISTRIBUTION_binomial::compute_auc(void)
+  {
+  // Es fehlt:
+  // - Bindungen, d.h. Durchschnittsränge (dabei beachten: Index beginnt bei 0, nicht bei 1!)
+  // - gruppierte Beobachtungen (mehrere Beob. mit gleichen Kov-Werten) -> wie dann?
+
+  datamatrix linpred_null_hilf = datamatrix(nrobs,1,0);       // Erzeugen einer Matrix die Einträge für Beob.
+                                                              // mit weight=0 enthält und darunter Nuller
+  datamatrix linpred_default_hilf = datamatrix(nrobs,1,0);    // Erzeugen einer Matrix die Einträge für
+                                                              // Default-Beobachtungen enthält und darunter Nuller
+  datamatrix response_null_hilf = datamatrix(nrobs,1,0);      // Erzeugen einer Matrix die Einträge für Beob.
+                                                              // mit weight=0 enthält und darunter Nuller
+  double * worklin = linearpred.getV();
+  double * lin_null = linpred_null_hilf.getV();
+  double * lin_def = linpred_default_hilf.getV();
+  double * workweight = weight.getV();
+  double * workresp = response.getV();
+  double * resp_null = response_null_hilf.getV();
+  unsigned nrnull = 0;
+  unsigned nrdef = 0;
+  unsigned i;
+  for(i=0;i<response.rows();i++,workresp++,worklin++,workweight++)
+    {
+    if(*workweight == 0)
+      {
+      *lin_null = *worklin;
+      lin_null++;
+      *resp_null = *workresp;
+      resp_null++;
+      nrnull += 1;
+      if(*workresp==1)
+        {
+        *lin_def = *worklin;
+        lin_def++;
+        nrdef += 1;
+        }
+      }
+    }
+
+  datamatrix linpred_null = datamatrix(nrnull,1,0);  // Kürzen des "Null"-Prädiktors, d.h. Weglassen der Nullen
+  datamatrix response_null = datamatrix(nrnull,1,0); // Kürzen des "Null"-Response, d.h. Weglassen der Nullen
+  double * lin_hilf = linpred_null_hilf.getV();
+  lin_null = linpred_null.getV();
+  double * resp_hilf = response_null_hilf.getV();
+  resp_null = response_null.getV();
+  for(i=0;i<nrnull;i++,lin_null++,lin_hilf++,resp_null++,resp_hilf++)
+     {
+     *lin_null = *lin_hilf;
+     *resp_null = *resp_hilf;
+     }
+
+  datamatrix linpred_default = datamatrix(nrdef,1,0); // Kürzen des Default-Prädiktors, d.h. Weglassen der Nullen
+  lin_hilf = linpred_default_hilf.getV();
+  lin_def = linpred_default.getV();
+  for(i=0;i<nrdef;i++,lin_def++,lin_hilf++)
+     *lin_def = *lin_hilf;
+
+  statmatrix<int> index_gesamt(linpred_null.rows(),1);      // Sortieren des linearen Prädiktors
+  index_gesamt.indexinit();
+  linpred_null.indexsort(index_gesamt,0,linpred_null.rows()-1,0,0);
+  /*
+  statmatrix<int> index_default(linpred_default.rows(),1);   // Sortieren der Default-Matrix
+  index_default.indexinit();
+  linpred_default.indexsort(index_default,0,linpred_default.rows()-1,0,0);
+  */
+
+  int* gesamt = index_gesamt.getV();  // Zeiger auf Index. Index enthält die Nr., die die Beob. vor dem Sortieren hat!!
+  //int* defaul = index_default.getV();
+  unsigned rang_default = 1;
+  double auc = 0;
+
+  for(i=0;i<nrnull;i++,gesamt++)
+    {
+    if(response_null.get(*gesamt,0) == 1)
+      {
+      auc += i+1 - rang_default;
+      rang_default += 1;
+      //auc += *gesamt - *defaul;     // damit macht man Sortierung wieder rückgängig!!
+      //defaul++;
+      }
+    }
+
+  /*
+  ofstream out("c:\\cprog\\test\\results\\linearpred.raw");
+  linearpred.prettyPrint(out);
+  ofstream gew("c:\\cprog\\test\\results\\weight.raw");
+  weight.prettyPrint(gew);
+  ofstream resp("c:\\cprog\\test\\results\\response.raw");
+  response.prettyPrint(resp);
+  ofstream out3("c:\\cprog\\test\\results\\linpred_null.raw");
+  linpred_null.prettyPrint(out3);
+  ofstream out2("c:\\cprog\\test\\results\\linpred_default.raw");
+  linpred_default.prettyPrint(out2);
+  */
+
+  return auc/(nrdef*(nrnull-nrdef));
   }
 
 
