@@ -2641,7 +2641,12 @@ double FULLCOND_pspline_surf_gaussian::compute_df(void)
     if(prec.getdim()==0)
       return -1.0;
     if(lambda != lambda_prec || likep->iwlsweights_constant() == false)
-      prec.addto(XX,K,1.0,lambda);
+      {
+      if(XX.bandsize()<=K.bandsize())
+        prec.addto2(XX,K,1.0,lambda);
+      else
+        prec.addto2(K,XX,lambda,1.0);
+      }
     prec_env = envmatdouble(prec);
     XX_env = envmatdouble(XX);
     }
@@ -2723,7 +2728,7 @@ void FULLCOND_pspline_surf_gaussian::hierarchie_rw1(vector<double> & untervector
   }
 
 
-void spline_basis::compute_lambdavec(
+void FULLCOND_pspline_surf_gaussian::compute_lambdavec(
 vector<double> & lvec, const unsigned & number)
   {
   if (get_df_equidist()==true)

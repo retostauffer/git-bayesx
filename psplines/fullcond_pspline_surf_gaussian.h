@@ -284,6 +284,11 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
     return K.getupperpointer();
     }
 
+  void setK(unsigned i, unsigned j, double t)
+    {
+    K.set(i,j,t);
+    }
+
   // stepwise
 
   void reset_effect(const unsigned & pos);
