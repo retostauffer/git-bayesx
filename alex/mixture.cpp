@@ -142,7 +142,13 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
   nrcomp = nrc;
   compweight = datamatrix(nrcomp,1,1.0/nrcomp);
   cwprior = datamatrix(nrcomp,1,1.0);
-  csize = statmatrix<int>(nrcomp,1,1);
+  csize = statmatrix<unsigned>(nrcomp,1,1);
+    compmean = datamatrix(nrcomp,1,0);
+    compvar = datamatrix(nrcomp,1,1);
+    cmpriorm = 0;
+    cmpriorv = 10;
+    cvpriorsh = 2;
+    cvpriorsc = 0.5;
 // End of Mixture stuff
 
 
@@ -219,8 +225,9 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
 
   identifiable = false;
 
-  compind = statmatrix<int>(nrpar,1,1);
+  compind = statmatrix<unsigned>(nrpar,1,1);
   muy = datamatrix(nrpar,1);
+  mu = datamatrix(index.rows(),1);
 
 //  identifiable =true;
 
@@ -235,8 +242,15 @@ FULLCOND_mixture::FULLCOND_mixture(const FULLCOND_mixture & fc)
   cwprior=fc.cwprior;
   csize=fc.csize;
   compind=fc.compind;
+    compmean=fc.compmean;
+    compvar=fc.compvar;
+    cmpriorm=fc.cmpriorm;
+    cmpriorv=fc.cmpriorv;
+    cvpriorsh=fc.cvpriorsh;
+    cvpriorsc=fc.cvpriorsc;
 
   muy = fc.muy;
+    mu = fc.mu;
   fcconst = fc.fcconst;
   randomslope = fc.randomslope;
   includefixed = fc.includefixed;
@@ -272,8 +286,15 @@ const FULLCOND_mixture & FULLCOND_mixture::
   nrcomp = fc.nrcomp;
   compweight=fc.compweight;
   compind=fc.compind;
+    compmean=fc.compmean;
+    compvar=fc.compvar;
+    cmpriorm=fc.cmpriorm;
+    cmpriorv=fc.cmpriorv;
+    cvpriorsh=fc.cvpriorsh;
+    cvpriorsc=fc.cvpriorsc;
 
   muy = fc.muy;
+      mu = fc.mu;
   fcconst = fc.fcconst;
   randomslope = fc.randomslope;
   includefixed = fc.includefixed;
@@ -311,11 +332,16 @@ void FULLCOND_mixture::update(void)
   datamatrix cprob(nrcomp,1,1.0/nrcomp); // probabilities psi_{ik}
   datamatrix cptemp(nrcomp,1,0);
 
-  // calculate psi_{ik}  
+  // calculate psi_{ik}
   double cptempsum=0;
+  //  FULLCOND_mixture_gaussian  fccvar;
+  //  datamatrix cvartemp(nrcomp,1,fccvar.getcompvar());
+  //  double cvar=fccvar.getcompvar(0);
   for(k=0;k<nrcomp;k++)
     {
-    cptemp(k,0)=compweight(k,0) * (1.0/(sqrt(1.0))) * exp(-0.5);
+    double cmean=compmean(k,0);
+    double cvar=compvar(k,0);
+    cptemp(k,0)=compweight(k,0) * (1.0/(sqrt(cvar))) * exp(-0.5*(beta(i,0)-cmean)*cvar*(beta(i,0)-cmean));
     cptempsum+=cptemp(k,0);
     }
   cptemp=(1.0/cptempsum)*cptemp;
@@ -333,6 +359,87 @@ void FULLCOND_mixture::update(void)
   }
 
 
+
+// Update random effects
+  if (optionsp->get_nriter()==1 || changingweight)
+    compute_XWX(likep->get_weight(),0);
+  update_linpred(false);
+  likep->compute_respminuslinpred(mu,column);
+  vector<unsigned>::iterator itbeg = posbeg.begin();
+  vector<unsigned>::iterator itend = posend.begin();
+  double * workbeta = beta.getV();
+  int * workindex2 = index2.getV();
+  double * workmuy = muy.getV();
+  double * mup = mu.getV();
+  likep->set_weightp();
+  for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
+      {
+      *workmuy = 0;
+      for(unsigned j=*itbeg;j<=*itend;j++,workindex2++)
+        {
+        mup += *workindex2;
+        *workmuy+= likep->get_weight(*workindex2)* *mup;
+        }
+      }
+
+
+  // update of random effects
+  datamatrix retemp(beta.rows(),1,0);
+  double scaletemp=0.09; // scale parameter sigma_i^2
+  for(i=0;i<beta.rows();i++)
+  {
+  double mtemp,vtemp;
+  double indobs=20; // number of observations for individual i=X_i'X_i
+  double sumworkres=100; // sum of X_i'y_i
+  unsigned comp=compind(i,0);
+  vtemp=1.0;
+  mtemp=0.0;
+//  vtemp = 1.0/( indobs*(1.0/scaletemp)+(1.0/compvar(comp-1,0)) );
+//  mtemp = vtemp*( sumworkres*(1.0/scaletemp)+(1.0/compvar(comp-1,0))*compmean(comp-1,0) );
+  retemp(i,0)=mtemp+vtemp*rand_normal();
+  }
+  beta.assign(retemp);
+
+
+  update_linpred(true);
+  if (center)
+    {
+    double m = centerbeta();
+    fcconst->update_intercept(m);
+    }
+  acceptance++;
+  transform = likep->get_trmult(column);
+
+
+
+// Update component means
+  datamatrix cmeantemp(nrcomp,1,0);
+
+  for(k=0;k<nrcomp;k++)
+  {
+  double mtemp,vtemp;
+  vtemp = 1.0 / ( csize(k,0)*(1.0/compvar(k,0))+(1.0/cmpriorv) ) ;
+  mtemp = vtemp*( csize(k,0)*(1.0/compvar(k,0))+(1.0/cmpriorv)*cmpriorm );
+
+  cmeantemp(k,0)=mtemp+vtemp*rand_normal();
+  }
+  compmean.assign(cmeantemp);
+
+
+// Update component variances
+  datamatrix cvartemp(nrcomp,1,0);
+
+  for(k=0;k<nrcomp;k++)
+  {
+  double shtemp,sctemp,resum;
+  resum=beta.sum2();
+  shtemp = cvpriorsh+csize(k,0);
+  sctemp = cvpriorsc+(resum-compmean(k,0))*(resum-compmean(k,0));
+  cvartemp(k,0)=rand_gamma(shtemp,sctemp);
+  }
+  compvar.assign(cvartemp);
+
+
 // Update component weights
   datamatrix cwtemp(nrcomp,1,0);
   double cwtempsum=0;
@@ -343,6 +450,7 @@ void FULLCOND_mixture::update(void)
   }
   cwtemp=(1.0/cwtempsum)*cwtemp;
   compweight.assign(cwtemp);
+
 
 
   transform = likep->get_trmult(column);
@@ -381,6 +489,7 @@ void FULLCOND_mixture::outresults(void)
     optionsp->out("  Results for random effects mixture component indicators are stored in file\n");
     optionsp->out("  " + pathcompind + "\n");
 
+/*
     if (lambdaconst==true)
     {
     optionsp->out("\n");
@@ -388,17 +497,43 @@ void FULLCOND_mixture::outresults(void)
     ST::doubletostring(lambda,6) + "\n");
     optionsp->out("\n");
     }
+*/
+    optionsp->out("\n");
 
     optionsp->out("\n");
 
+//  Variable  mean           Std. Dev.      2.5% quant.    median         97.5% quant.
+//  const     0.728983       0.0271208      0.67481        0.729393       0.782481
+
+    optionsp->out("Results for means:\n");
     for(int k=0;k<nrcomp;k++)
        {
-//       optionsp->out("  Component means: " + ST::doubletostring(compmean(i,0),6) + "\n");
-//       optionsp->out("  Component variances: " + ST::doubletostring(compvar(i,0),6) + "\n");
-       optionsp->out("  Component weights: " + ST::doubletostring(compweight(k,0),6) + "\n");
+       optionsp->out("  Component " + ST::inttostring(k+1) + "  "
+                     + ST::doubletostring(compmean(k,0),6) + "   ("
+                     + ST::doubletostring(compmean(k,0),4) + ")"
+                     );
        }
-  optionsp->out("\n");
+    optionsp->out("\n");
 
+    optionsp->out("Results for variances:\n");
+    for(int k=0;k<nrcomp;k++)
+       {
+       optionsp->out("  Component " + ST::inttostring(k+1) + "  "
+                     + ST::doubletostring(compvar(k,0),6) + "   ("
+                     + ST::doubletostring(compvar(k,0),4) + ")"
+                     );
+       }
+    optionsp->out("\n");
+
+    optionsp->out("Results for weights:\n");
+    for(int k=0;k<nrcomp;k++)
+       {
+       optionsp->out("  Component " + ST::inttostring(k+1) + "  "
+                     + ST::doubletostring(compweight(k,0),6) + "   ("
+                     + ST::doubletostring(compweight(k,0),4) + ")"
+                     );
+       }
+    optionsp->out("\n");
 
   unsigned i;
   ST::string name = datanames[0];
@@ -469,6 +604,15 @@ void FULLCOND_mixture::outresults(void)
       outres2 << endl;
       }
 
+  ST::string pathcompvar = pathcurrent.substr(0,pathcurrent.length()-4)+"_compvar.res";
+  ofstream outres3(pathcompvar.strtochar());
+   for(unsigned i=0;i<compvar.rows();i++)
+    {
+    outres3 << (i+1) << "   ";
+    outres3 << compvar(i,0);
+    outres3 << endl;
+    }
+
   }
 
 
@@ -480,6 +624,18 @@ void FULLCOND_mixture::outoptions(void)
 
   optionsp->out("  Type of Mixture: Normal\n",true);
   optionsp->out("  Number of components: " + ST::inttostring(nrcomp) + "\n",true);
+
+  optionsp->out("  Hyperparameter for component means:\n",true);
+  optionsp->out("    Prior Means: " + ST::doubletostring(cmpriorm,2) + "\n",true);
+  optionsp->out("    Prior Variances: " + ST::doubletostring(cmpriorv,2) + "\n",true);
+
+  optionsp->out("  Hyperparameter for component variances:\n",true);
+  optionsp->out("    Prior shape: " + ST::doubletostring(cvpriorsh,2) + "\n",true);
+  optionsp->out("    Prior scale: " + ST::doubletostring(cvpriorsc,2) + "\n",true);
+
+//  optionsp->out("  Prior variance of component means: " + ST::inttostring(cmpriorv) + "\n",true);
+//  optionsp->out("  Prior shape of component variances: " + ST::inttostring(cvpriorsh) + "\n",true);
+//  optionsp->out("  Prior scale of component variances: " + ST::inttostring(cvpriorsc) + "\n",true);
   optionsp->out("\n");
   }
 
@@ -500,104 +656,18 @@ void FULLCOND_mixture::update_linpred(const bool & add)
 
   if (add==false)
     {
-    if (!randomslope)
-      {
 //      likep->set_linpredp_current(column);
       for (i=0;i<nrpar;i++,++itbeg,++itend,workbeta++)
         if (*itbeg != -1)
           likep->add_linearpred2(-(*workbeta),*itbeg,*itend,index,index2,column);
-      }
-    else
-      {
-      workindex2 = index2.getV();
-      double * datap = data.getV();
-      if (includefixed)
-        {
-        n = nrpar-1;
-        double ms = beta(nrpar-1,0);
-        double h;
-        likep->set_linpredp_current(column);
-        for (i=0;i<n;i++,++itbeg,++itend,workbeta++)
-          {
-          if (*itbeg != -1)
-            {
-            h = *workbeta+ms;
-            for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-              likep->add_linearpred2(-h*(*datap),*workindex2);
-            }
-          }
-        }
-      else
-        {
-        n = nrpar;
-        likep->set_linpredp_current(column);
-        for (i=0;i<n;i++,++itbeg,++itend,workbeta++)
-          {
-          if (*itbeg != -1)
-            {
-            for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-              {
-              likep->add_linearpred2(-*workbeta*(*datap),*workindex2);
-              }
-            }
-
-          }
-        }
-
-      }
-
-
     } // end: if (add == false)
   else
     {
-
-    if (!randomslope)
-      {
 //      likep->set_linpredp_current(column);
       for (i=0;i<nrpar;i++,++itbeg,++itend,workbeta++)
         if (*itbeg != -1)
           likep->add_linearpred2(*workbeta,*itbeg,*itend,index,index2,column);
-      }
-    else
-      {
-      workindex2 = index2.getV();
-      double * datap = data.getV();
-      if (includefixed)
-        {
-        n = nrpar-1;
-        double ms = beta(nrpar-1,0);
-        double h;
-        likep->set_linpredp_current(column);
-        for (i=0;i<n;i++,++itbeg,++itend,workbeta++)
-          {
-          if (*itbeg != -1)
-            {
-            h = *workbeta+ms;
-            for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-              likep->add_linearpred2(h*(*datap),*workindex2);
-            }
-          }
-        }
-      else
-        {
-        n = nrpar;
-        likep->set_linpredp_current(column);
-        for (i=0;i<n;i++,++itbeg,++itend,workbeta++)
-          {
-          if (*itbeg != -1)
-            {
-            for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-              {
-              likep->add_linearpred2(*workbeta*(*datap),*workindex2);
-              }
-            }
-          }
-        }
-
-      }
-
     }
-
   }
 
 
@@ -605,7 +675,6 @@ void FULLCOND_mixture::update_linpred(const bool & add)
 
 bool FULLCOND_mixture::posteriormode(void)
   {
-
 
   unsigned n = nrpar;
   if (includefixed)
@@ -626,9 +695,7 @@ bool FULLCOND_mixture::posteriormode(void)
   double * workmuy = muy.getV();
   likep->set_workingresp();
 
-  if (!randomslope)
-    {
-    for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
+  for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
       {
       *workmuy = 0;
       for(j=*itbeg;j<=*itend;j++,workindex2++)
@@ -636,38 +703,6 @@ bool FULLCOND_mixture::posteriormode(void)
         *workmuy+= likep->get_workingres(*workindex2);
         }
       }
-    }
-  else
-    {
-    double * datap = data.getV();
-    if (includefixed)
-      {
-      double ms = beta(nrpar-1,0);
-      likep->set_linpredp_current(column);
-      for (i=0;i<n;i++,workmuy++,++itbeg,++itend)
-        {
-        *workmuy = 0;
-        for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-          *workmuy += likep->get_workingres(*workindex2)* (*datap);
-
-        *workmuy+= lambda* ms;
-        }
-      }
-    else
-      {
-      for(i=0;i<n;i++,workmuy++,++itbeg,++itend)
-        {
-        *workmuy = 0;
-        for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-          {
-          *workmuy+= likep->get_workingres(*workindex2)* (*datap);
-          }
-
-        }
-      }
-
-    }
-
 
   itbeg = posbeg.begin();
   itend = posend.begin();
@@ -678,25 +713,6 @@ bool FULLCOND_mixture::posteriormode(void)
   for(i=0;i<n;i++,workmuy++,++itbeg,++itend,workbeta++,workXX++)
     {
     *workbeta = (*workmuy)/(*workXX+lambda);
-    }
-
-
-  if (randomslope && includefixed)
-    {
-    double * workbeta = beta.getV();
-    double sum=0;
-    for (i=0;i<n;i++,workbeta++)
-      {
-      sum += *workbeta;
-      }
-
-    beta(nrpar-1,0) = sum/double(n);
-
-    workbeta = beta.getV();
-    double ms = beta(nrpar-1,0);
-    for (i=0;i<n;i++,workbeta++)
-      *workbeta -= ms;
-
     }
 
   update_linpred(true);
@@ -722,18 +738,9 @@ void FULLCOND_mixture_gaussian::update(void)
   unsigned i,j;
   unsigned n = nrpar;
 
-//     for(i=0;i<compweight.rows();i++)
-//     {
-//     compweight(i,0) = compweight(i,0)+rand_normal();
-//     }
-
-//  if (randomslope && includefixed)
-//  n = nrpar-1;
-
-
+/*
   if (optionsp->get_nriter()==1 || changingweight)
     compute_XWX(likep->get_weight(),0);
-
 
   if (lambdaconst == false)
     lambda = likep->get_scale(column)/sigma2;
@@ -742,13 +749,10 @@ void FULLCOND_mixture_gaussian::update(void)
 
   double sqrtscale = sqrt(likep->get_scale(column));
 
-
   update_linpred(false);
-
 
   // nicht verändern wegen SUR-Modellen
   likep->compute_respminuslinpred(mu,column);
-
 
   vector<unsigned>::iterator itbeg = posbeg.begin();
   vector<unsigned>::iterator itend = posend.begin();
@@ -759,9 +763,7 @@ void FULLCOND_mixture_gaussian::update(void)
   double * mup = mu.getV();
   likep->set_weightp();
 
-  if (!randomslope)
-    {
-    for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
+  for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
       {
       *workmuy = 0;
       for(j=*itbeg;j<=*itend;j++,workindex2++)
@@ -769,63 +771,17 @@ void FULLCOND_mixture_gaussian::update(void)
         mup += *workindex2;
         *workmuy+= likep->get_weight(*workindex2)* *mup;
         }
-
       }
-    }
-  else
-    {
-    double * datap = data.getV();
-    for(i=0;i<n;i++,workmuy++,++itbeg,++itend)
-      {
-      *workmuy = 0;
-      for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-        {
-        mup += *workindex2;
-        *workmuy+= likep->get_weight(*workindex2)* (*mup) * (*datap);
-        }
-
-      if (includefixed)
-        *workmuy += beta(n,0)*lambda;
-
-      }
-    }
-
 
   workbeta = beta.getV();
   workmuy = muy.getV();
   double * workXX = XX.getV();
   for (i=0;i<n;i++,workbeta++,workmuy++,workXX++)
     {
-
     var = 1.0/(*workXX  + lambda);
-
     m = var * *workmuy;
-
     *workbeta = m + sqrtscale*sqrt(var)*rand_normal();
-
     }
-
-
-  if (randomslope && includefixed)
-    {
-
-    workbeta = beta.getV();
-    double s=0;
-    for (i=0;i<nrpar-1;i++,workbeta++)
-      s += *workbeta;
-    s /= double(nrpar-1);
-
-    double v = sigma2/double(nrpar-1);
-
-    beta(nrpar-1,0) = s+sqrt(v)*rand_normal();
-
-    workbeta = beta.getV();
-    double ms = beta(nrpar-1,0);
-    for (i=0;i<nrpar-1;i++,workbeta++)
-      *workbeta -= ms;
-
-    }
-
 
   update_linpred(true);
 
@@ -836,45 +792,20 @@ void FULLCOND_mixture_gaussian::update(void)
     fcconst->update_intercept(m);
     }
 
-
   acceptance++;
 
   transform = likep->get_trmult(column);
-
+*/
+  FULLCOND_mixture::update();
 //  update_compmean(beta, compind, compvar, datamatrix(nrcomp,1,0), datamatrix(nrcomp,1,100));
 //  update_compvar(beta, compind, compmean, datamatrix(nrcomp,1,nrcomp+1),datamatrix(nrcomp,1,nrcomp));
-
-
-
 //  update_compweight(compweight, compind, datamatrix(1,1,1));
 //  update_compweight(compweight);
-
-  FULLCOND_mixture::update();
-
-
-  if (spatialtotal)
-    {
-    double * ftotal_bp = ftotal.getbetapointer();
-    workbeta=beta.getV();
-    double * workbetaspat = fbasisp->getbetapointer();
-    int * indexp = indextotal.getV();
-    for (i=0;i<nrpar;i++,workbeta++,ftotal_bp++,indexp++)
-      {
-      workbetaspat+= *indexp;
-      *ftotal_bp = *workbeta + *workbetaspat;
-      }
-
-    ftotal.set_transform(likep->get_trmult(column));
-
-    ftotal.update();
-    }
-
   }
 
 
-//void FULLCOND_random_nongaussian::outresults(void)
-//  {
-//  FULLCOND_random::outresults();
-//  }
-
 } // end: namespace MCMC
+
+
+
+
