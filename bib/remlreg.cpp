@@ -25,10 +25,8 @@ void remlreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
                           ST::string endingraw,ST::string endingres,
                           ST::string endingtitle)
   {
-
   if (collinpred == 0)
     {
-
     if (varname2=="")
       {
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_f_" +
@@ -48,7 +46,6 @@ void remlreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
 
       title = varname2 + "_f_"+ varname1 + endingtitle +  add_name;
       }
-
     }
   else
     {
@@ -64,7 +61,6 @@ void remlreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
 
       title = "f_"+ ST::inttostring(collinpred+1) + "_" +
                varname1 + endingtitle + add_name;
-
       }
     else
       {
@@ -82,87 +78,180 @@ void remlreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
     }
   }
 
+void remlreg::initpointers(void)
+  {
+  unsigned i;
+
+  for(i=0;i<fcpsplinesurf.size();i++)
+    fullcond.push_back(&fcpsplinesurf[i]);
+  for(i=0;i<fcconst.size();i++)
+    fullcond.push_back(&fcconst[i]);
+  for(i=0;i<fcnonpgaussian.size();i++)
+    fullcond.push_back(&fcnonpgaussian[i]);
+  for(i=0;i<fcpspline.size();i++)
+    fullcond.push_back(&fcpspline[i]);
+  for(i=0;i<fcrandom.size();i++)
+    fullcond.push_back(&fcrandom[i]);
+  for(i=0; i<fckriging.size();i++)
+    fullcond.push_back(&fckriging[i]);
+  for(i=0; i<fcbaseline.size(); i++)
+    fullcond.push_back(&fcbaseline[i]);
+  for(i=0; i<fcbaseline_varcoeff.size(); i++)
+    fullcond.push_back(&fcbaseline_varcoeff[i]);
+  }
+
+void remlreg::clear(void)
+  {
+  fullcond.erase(fullcond.begin(),fullcond.end());
+  fullcond.reserve(50);
+  fcconst.erase(fcconst.begin(),fcconst.end());
+  fcconst.reserve(20);
+  fcnonpgaussian.erase(fcnonpgaussian.begin(),fcnonpgaussian.end());
+  fcnonpgaussian.reserve(20);
+  fcpspline.erase(fcpspline.begin(),fcpspline.end());
+  fcpspline.reserve(20);
+  fcpsplinesurf.erase(fcpsplinesurf.begin(),fcpsplinesurf.end());
+  fcpsplinesurf.reserve(20);
+  fcrandom.erase(fcrandom.begin(),fcrandom.end());
+  fcrandom.reserve(20);
+  fckriging.erase(fckriging.begin(),fckriging.end());
+  fckriging.reserve(20);
+  fcbaseline.erase(fcbaseline.begin(),fcbaseline.end());
+  fcbaseline.reserve(20);
+  fcbaseline_varcoeff.erase(fcbaseline_varcoeff.begin(),fcbaseline_varcoeff.end());
+  fcbaseline_varcoeff.reserve(20);
+  }
 
 void remlreg::create(void)
   {
+  // SYNTAX OF COMMANDS:
+  // name [model] [weight varname] [by varname] [if expression]
+  //      [, options] [using usingtext]
 
   add_name="";
-
   ST::string h = defaultpath+"\\output\\"+name;
 
   outfile = fileoption("outfile",h,false);
 
   globaloptions.push_back(&outfile);
 
-  // SYNTAX OF COMMANDS:
-  // name [model] [weight varname] [by varname] [if expression]
-  //      [, options] [using usingtext]
+//------------------------------------------------------------------------------
+// ----------------------------- method regress --------------------------------
+//------------------------------------------------------------------------------
 
-  // --------------------------- method regress --------------------------------
+//------------------------------------------------------------------------------
+//--------------------------- for the offset -----------------------------------
+//------------------------------------------------------------------------------
 
   offset = term_offset();
-  fixedeffects = basic_termtype();
-  nonprw1rw2 = term_autoreg_remlreg();
-  nonprw1rw2_varcoef = term_autoreg_varcoef_remlreg();
-  nonpseason = term_season_remlreg();
-  nonpseason_varcoef = term_season_varcoef_remlreg();
-  nonppspline = term_pspline_remlreg();
-  nonpspatial = term_spatial_remlreg();
-  nonpspatial_varcoef = term_spatial_varcoef_remlreg();
-  nonpspatialxy = term_spatialxy();
-  randomeff = term_random_remlreg();
-  randomeffslope = term_randomslope_remlreg();
-  nonpvarcoeffpspline = term_varcoeff_pspline_remlreg();
-  nonpinteractpspline = term_interactpspline_remlreg();
-  nonpvarcoeffinteractpspline = term_interactpspline_varcoeff_remlreg();
-  nonpgeospline = term_geospline_remlreg();
-  nonpvarcoeffgeospline = term_geospline_varcoeff_remlreg();
-  nonpspatial_kriging = term_kriging_remlreg();
-  nonp_kriging = term_kriging_1dim_remlreg();
-  nonpspatial_kriging_varcoeff = term_kriging_varcoeff_remlreg();
-  nonpspatial_geokriging = term_geokriging_remlreg();
-  nonpspatial_geokriging_varcoeff = term_geokriging_varcoeff_remlreg();
-  nonp_baseline = term_baseline_remlreg();
-  nonp_baseline_varcoeff = term_baseline_varcoeff_remlreg();
-
   termtypes.push_back(&offset);
+
+//------------------------------------------------------------------------------
+//-------------------------  for fixed effects ---------------------------------
+//------------------------------------------------------------------------------
+
+  fixedeffects = basic_termtype();
   termtypes.push_back(&fixedeffects);
+
+//------------------------------------------------------------------------------
+//------------------------ for nonparametric terms -----------------------------
+//------------------------------------------------------------------------------
+
+  nonprw1rw2 = term_autoreg_remlreg();
   termtypes.push_back(&nonprw1rw2);
-  termtypes.push_back(&nonpseason);
+
+  nonprw1rw2_varcoef = term_autoreg_varcoef_remlreg();
   termtypes.push_back(&nonprw1rw2_varcoef);
+
+  nonpseason = term_season_remlreg();
+  termtypes.push_back(&nonpseason);
+
+  nonpseason_varcoef = term_season_varcoef_remlreg();
   termtypes.push_back(&nonpseason_varcoef);
-  termtypes.push_back(&nonppspline);
+
+  nonpspatial = term_spatial_remlreg();
   termtypes.push_back(&nonpspatial);
+
+  nonpspatial_varcoef = term_spatial_varcoef_remlreg();
   termtypes.push_back(&nonpspatial_varcoef);
-  termtypes.push_back(&randomeff);
-  termtypes.push_back(&randomeffslope);
+
+//------------------------------------------------------------------------------
+//-------------------------- for p-spline terms --------------------------------
+//------------------------------------------------------------------------------
+
+  nonppspline = term_pspline_remlreg();
+  termtypes.push_back(&nonppspline);
+
+  nonpvarcoeffpspline = term_varcoeff_pspline_remlreg();
   termtypes.push_back(&nonpvarcoeffpspline);
+
+  nonpinteractpspline = term_interactpspline_remlreg();
   termtypes.push_back(&nonpinteractpspline);
+
+  nonpvarcoeffinteractpspline = term_interactpspline_varcoeff_remlreg();
   termtypes.push_back(&nonpvarcoeffinteractpspline);
-  termtypes.push_back(&nonpspatialxy);
+
+  nonpgeospline = term_geospline_remlreg();
   termtypes.push_back(&nonpgeospline);
+
+  nonpvarcoeffgeospline = term_geospline_varcoeff_remlreg();
   termtypes.push_back(&nonpvarcoeffgeospline);
+
+//------------------------------------------------------------------------------
+//-------------------------- for kriging terms ---------------------------------
+//------------------------------------------------------------------------------
+
+  nonpspatial_kriging = term_kriging_remlreg();
   termtypes.push_back(&nonpspatial_kriging);
+
+  nonp_kriging = term_kriging_1dim_remlreg();
   termtypes.push_back(&nonp_kriging);
+
+  nonpspatial_kriging_varcoeff = term_kriging_varcoeff_remlreg();
   termtypes.push_back(&nonpspatial_kriging_varcoeff);
+
+  nonpspatial_geokriging = term_geokriging_remlreg();
   termtypes.push_back(&nonpspatial_geokriging);
+
+  nonpspatial_geokriging_varcoeff = term_geokriging_varcoeff_remlreg();
   termtypes.push_back(&nonpspatial_geokriging_varcoeff);
+
+//------------------------------------------------------------------------------
+//-------------------------- for baseline terms --------------------------------
+//------------------------------------------------------------------------------
+
+  nonp_baseline = term_baseline_remlreg();
   termtypes.push_back(&nonp_baseline);
+
+  nonp_baseline_varcoeff = term_baseline_varcoeff_remlreg();
   termtypes.push_back(&nonp_baseline_varcoeff);
+
+//------------------------------------------------------------------------------
+//------------------------ for random effect terms -----------------------------
+//------------------------------------------------------------------------------
+
+  randomeff = term_random_remlreg();
+  termtypes.push_back(&randomeff);
+
+  randomeffslope = term_randomslope_remlreg();
+  termtypes.push_back(&randomeffslope);
+
+//------------------------------------------------------------------------------
+//--------------------------- General options ----------------------------------
+//------------------------------------------------------------------------------
 
   modreg = modelterm(&termtypes);
 
   udata = use();
 
-
   knotsdef.push_back("equidistant");
   knotsdef.push_back("quantiles");
   knots = stroption("knots",knotsdef,"equidistant");
 
-
   level1 = doubleoption("level1",95,40,99);
   level2 = doubleoption("level2",80,40,99);
   maxint = intoption("maxint",150,0,20000);
+
   families.reserve(15);
   families.push_back("gaussian");
   families.push_back("binomial");
@@ -172,13 +261,12 @@ void remlreg::create(void)
   families.push_back("poissondispers");
   families.push_back("binomialdispers");
   families.push_back("binomialprobitdispers");
-
   families.push_back("multinomial");
-//  families.push_back("multinomialprobit");
   families.push_back("cumlogit");
   families.push_back("cumprobit");
   families.push_back("cox");
   family = stroption("family",families,"binomial");
+
   maxit = intoption("maxit",400,1,100000);
   lowerlim = doubleoption("lowerlim",0.001,0,1);
   eps = doubleoption("eps",0.00001,0,1);
@@ -196,15 +284,19 @@ void remlreg::create(void)
   regressoptions.push_back(&lowerlim);
   regressoptions.push_back(&eps);
   regressoptions.push_back(&reference);
-  // methods 0
+
+//------------------------------------------------------------------------------
+//-------------------------- methods[0]: remlrun -------------------------------
+//------------------------------------------------------------------------------
 
   methods.push_back(command("regress",&modreg,&regressoptions,&udata,required,
 			 optional,optional,optional,optional,required));
 
   functions[0] = remlrun;
 
-
-  // --------------------------- method plotnonp -------------------------------
+//------------------------------------------------------------------------------
+// ----------------------------- method plotnonp -------------------------------
+//------------------------------------------------------------------------------
 
   uplotnonp = use();
   mplotnonp = modelStandard();
@@ -249,19 +341,17 @@ void remlreg::create(void)
   plotnonpoptions.push_back(&outfile2);
   plotnonpoptions.push_back(&replace2);
 
+  // methods[1]:
 
-  // SYNTAX OF COMMANDS:
-  // name [model] [weight varname] [by varname] [if expression]
-  //      [, options] [using usingtext]
-
-  // methods 1
   methods.push_back(command("plotnonp",&mplotnonp,&plotnonpoptions,&uplotnonp,
                    required,notallowed,notallowed,notallowed,optional,
                    notallowed));
 
   functions[1] = plotnonprun;
 
-  // -------------------------- method drawmaprun ------------------------------
+//------------------------------------------------------------------------------
+// ---------------------------- method drawmaprun ------------------------------
+//------------------------------------------------------------------------------
 
   udrawmap = use();
 
@@ -293,11 +383,7 @@ void remlreg::create(void)
   drawmapoptions.push_back(&pcat);
   drawmapoptions.push_back(&drawnames);
 
-  // SYNTAX OF COMMANDS:
-  // name [model] [weight varname] [by varname] [if expression]
-  //      [, options] [using usingtext]
-
-  // methods 2
+  // methods[2]:
   methods.push_back(command("drawmap",&mdrawmap,&drawmapoptions,&udrawmap,
                    required,notallowed,notallowed,notallowed,optional,
                    notallowed));
@@ -306,70 +392,12 @@ void remlreg::create(void)
 
   }
 
+//------------------------------------------------------------------------------
+// ------------------------------- Constructor ---------------------------------
+//------------------------------------------------------------------------------
 
-void remlreg::initpointers(void)
-  {
-
-  unsigned i;
-
-
-  for(i=0;i<fcpsplinesurf.size();i++)
-    fullcond.push_back(&fcpsplinesurf[i]);
-
-  for(i=0;i<fcconst.size();i++)
-    fullcond.push_back(&fcconst[i]);
-
- for(i=0;i<fcnonpgaussian.size();i++)
-    fullcond.push_back(&fcnonpgaussian[i]);
-
-  for(i=0;i<fcpspline.size();i++)
-    fullcond.push_back(&fcpspline[i]);
-
-  for(i=0;i<fcrandom.size();i++)
-    fullcond.push_back(&fcrandom[i]);
-
-  for(i=0; i<fckriging.size();i++)
-    fullcond.push_back(&fckriging[i]);
-
-  for(i=0; i<fcbaseline.size(); i++)
-    fullcond.push_back(&fcbaseline[i]);
-
-  for(i=0; i<fcbaseline_varcoeff.size(); i++)
-    fullcond.push_back(&fcbaseline_varcoeff[i]);
-  }
-
-
-void remlreg::clear(void)
-  {
-
-  fullcond.erase(fullcond.begin(),fullcond.end());
-  fullcond.reserve(50);
-
-  fcconst.erase(fcconst.begin(),fcconst.end());
-  fcconst.reserve(20);
-
-  fcnonpgaussian.erase(fcnonpgaussian.begin(),fcnonpgaussian.end());
-  fcnonpgaussian.reserve(20);
-
-  fcpspline.erase(fcpspline.begin(),fcpspline.end());
-  fcpspline.reserve(20);
-
-  fcpsplinesurf.erase(fcpsplinesurf.begin(),fcpsplinesurf.end());
-  fcpsplinesurf.reserve(20);
-
-  fcrandom.erase(fcrandom.begin(),fcrandom.end());
-  fcrandom.reserve(20);
-
-  fckriging.erase(fckriging.begin(),fckriging.end());
-  fckriging.reserve(20);
-
-  fcbaseline.erase(fcbaseline.begin(),fcbaseline.end());
-  fcbaseline.reserve(20);
-
-  fcbaseline_varcoeff.erase(fcbaseline_varcoeff.begin(),fcbaseline_varcoeff.end());
-  fcbaseline_varcoeff.reserve(20);
-  }
-
+  // CONSTRUCTOR 1:
+  // ADDITIONAL INFORMATION: name = n
 
 remlreg::remlreg(
   #if defined(JAVA_OUTPUT_WINDOW)
@@ -389,6 +417,7 @@ remlreg::remlreg(
   describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
   }
 
+  // COPY CONSTRUCTOR
 
 remlreg::remlreg(const remlreg & b) : statobject(statobject(b))
   {
@@ -402,6 +431,7 @@ remlreg::remlreg(const remlreg & b) : statobject(statobject(b))
   initpointers();
   }
 
+  // OVERLOADED ASSIGNMENT OPERATOR
 
 const remlreg & remlreg::operator=(const remlreg & b)
   {
@@ -419,56 +449,32 @@ const remlreg & remlreg::operator=(const remlreg & b)
   return *this;
   }
 
-
 int remlreg::parse(const ST::string & c)
   {
-
   int u = statobject::parse(c);
   int pos = statobject::parsecom(c,methods,globaloptions);
 
   if (pos >= 0)
 	 (*functions[pos])(*this);
-
   }
 
-
-bool remlreg::create_offset(datamatrix & o)
+void remlreg::describe(optionlist & globaloptions)
   {
-  unsigned i;
-  for(i=0;i<terms.size();i++)
-    {
-    if ( offset.checkvector(terms,i) == true)
-      {
-      unsigned j = terms[i].varnames[0].isinlist(modelvarnamesv);
-      if (o.rows() < D.rows())
-        o = datamatrix(D.rows(),1,0);
-
-      register unsigned k;
-      double * worko = o.getV();
-      double * workD = D.getV()+j;
-      unsigned size = D.cols();
-      for(k=0;k<D.rows();k++,worko++,workD+=size)
-        *worko += *workD;
-      }
-    else
-      {
-      o = datamatrix(D.rows(),1,0);
-      }
-    }
-  return false;
+  statobject::describe(globaloptions);
   }
 
+// -----------------------------------------------------------------------------
+// ---------------------------- Create data ------------------------------------
+// -----------------------------------------------------------------------------
 
 bool remlreg::create_data(datamatrix & weight)
   {
   unsigned i;
   bool failure=false;
 
-
-  //--------------------- reading dataset information --------------------------
+  // find the dataset object
 
   dataobject * datap;               // pointer to dataset
-
   int objpos = findstatobject(*statobj,udata.getusingtext(),"dataset");
   statobject * s;
   if (objpos >= 0)
@@ -485,10 +491,7 @@ bool remlreg::create_data(datamatrix & weight)
     return true;
     }
 
-  //------------------ end: reading dataset information ------------------------
-
-
-  //---------------- reading data, creating designmatrices ---------------------
+  // create data matrix and waits
 
   ST::string rname;
   ST::string wn;
@@ -519,37 +522,65 @@ bool remlreg::create_data(datamatrix & weight)
         outerror("ERROR: variable " + notex[i] + " is not existing\n");
         failure = true;
         }
-
     if (failure)
       return true;
-
-    } // end: if ((datap->allexisting(modelvarnamesv,notex)) == false)
-
+    }
 
   datap->makematrix(modelvarnamesv,D,ifexpression);
+
+  // Check for error messages
 
   errormessages = datap->geterrormessages();
 
   if (!errormessages.empty())
     return true;
 
+  // extract weights
+
   if (wpos==-1)
     {
+    // No weights specified
     weight = datamatrix(D.rows(),1,1);
     }
   else
     {
-    weight = D.getCol(wpos);
-    }
+    // check for correct distributions
+    if(family.getvalue()=="multinomial" ||
+       family.getvalue()=="cumlogit" ||
+       family.getvalue()=="cumprobit")
+      {
+      outerror("ERROR: weight not allowed for multicategorical response\n");
+      return true;
+      }
+    if(family.getvalue()=="cox")
+      {
+      outerror("ERROR: weight not allowed for family=cox\n");
+      return true;
+      }
 
+    weight = D.getCol(wpos);
+
+    // check for negative weights
+    if(weight.min(0)<0)
+      {
+      outerror("ERROR: negative weights encountered\n");
+      return true;
+      }
+    }
   return false;
   }
 
+// -----------------------------------------------------------------------------
+// -------------------------- Create Response ----------------------------------
+// -----------------------------------------------------------------------------
+
 bool remlreg::create_response(datamatrix & response, datamatrix & weight)
   {
+
+  // extract response variable
   response = D.getCol(0);
 
-// Transform response for binomial families
+  // family=binomial
   if(family.getvalue()=="binomial" ||
      family.getvalue()=="binomialprobit" ||
      family.getvalue()=="binomialdispers" ||
@@ -558,11 +589,101 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     unsigned i;
     for(i=0; i<response.rows(); i++)
       {
+      if (response(i,0) != int(response(i,0)))
+        {
+        outerror("ERROR: response cannot be binomial\; values must be integer numbers\n");
+        return true;
+        }
+
+      if (response(i,0) < 0)
+        {
+        outerror("ERROR: response cannot be binomial\; some values are negative\n");
+        return true;
+        }
+
+      if (response(i,0) > weight(i,0))
+        {
+        outerror("ERROR: response cannot be binomial\;\n");
+        outerror("       number of successes larger than number of trials for some values\n");
+        return true;
+        }
+      // Transform response for binomial families  (to match usual GLM definition)
       response(i,0) = response(i,0)/weight(i,0);
       }
     }
 
-// Read categories for multicategorial response
+  // family=gamma
+  if(family.getvalue()=="gamma")
+    {
+    if(response.min(0)<0)
+      {
+      outerror("ERROR: response cannot be gamma distributed\; some values are negative\n");
+      return true;
+      }
+    }
+
+  // family=poisson
+  if(family.getvalue()=="poisson")
+    {
+    if(response.min(0)<0)
+      {
+      outerror("ERROR: response cannot be poisson distributed\; some values are negative\n");
+      return true;
+      }
+    }
+
+  // family=cox
+  if(family.getvalue()=="cox")
+    {
+    unsigned i;
+    for(i=0; i<response.rows(); i++)
+      {
+      if (response(i,0)!=0 && response(i,0)!=1)
+        {
+        outerror("ERROR: response must be either zero or one\n");
+        return true;
+        }
+      }
+
+    // check whether there is a baseline effect
+    bool baselineexisting = false;
+    unsigned j;
+    for(i=0;i<terms.size();i++)
+      {
+      if(nonp_baseline.checkvector(terms,i) == true )
+        {
+        j = terms[i].varnames[0].isinlist(modelvarnamesv);
+        baselineexisting = true;
+        }
+      }
+    if(baselineexisting == false)
+      {
+      outerror("ERROR: no baseline specified\n");
+      return true;
+      }
+    }
+
+  // check whether a baseline effect is specified if family != cox
+  if(family.getvalue()!="cox")
+    {
+    unsigned i,j;
+    bool baselineexisting = false;
+    for(i=0;i<terms.size();i++)
+      {
+      if(nonp_baseline.checkvector(terms,i) == true )
+        {
+        j = terms[i].varnames[0].isinlist(modelvarnamesv);
+        baselineexisting = true;
+        }
+      }
+    if(baselineexisting == true)
+      {
+      outerror("ERROR: term baseline can only be used with family=cox\n");
+      return true;
+      }
+    }
+
+  // family=multinomial / family=cumlogit / family=cumprobit
   if (family.getvalue()=="multinomial")
     {
     ismultinomial=true;
@@ -571,9 +692,11 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     {
     ismultinomial=false;
     }
+
   if (family.getvalue()=="multinomial" || family.getvalue()=="cumlogit" ||
       family.getvalue()=="cumprobit")
     {
+    // extract categories
     datamatrix resphelp=response;
     resphelp.sort(0,resphelp.rows()-1,0);
     vector<double> categories;
@@ -587,9 +710,23 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
         categories.push_back(resphelp(i,0));
         }
       }
+
+    // check for proper categories
+    if (categories.size() == 1)
+      {
+      outerror("ERROR: response variable does not vary\n");
+      return true;
+      }
+    if (categories.size() > 12)
+      {
+      outerror("ERROR: too many values for the response variable\n");
+      return true;
+      }
+
+    // Define / extract the reference category
     if(family.getvalue()=="multinomial")
       {
-      refpos=0;//categories.size()-1;
+      refpos=0; //categories.size()-1;
       if(reference.changed())
         {
         bool existing = false;
@@ -637,9 +774,58 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
   return false;
   }
 
+// -----------------------------------------------------------------------------
+// --------------------------- Create_offset -----------------------------------
+// -----------------------------------------------------------------------------
+
+bool remlreg::create_offset(datamatrix & o)
+  {
+  unsigned i;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( offset.checkvector(terms,i) == true)
+      {
+      // check for right distributions
+      if(family.getvalue()=="multinomial" ||
+         family.getvalue()=="cumlogit" ||
+         family.getvalue()=="cumprobit")
+        {
+        outerror("ERROR: offset not allowed for multicategorical response\n");
+        return true;
+        }
+      if(family.getvalue()=="cox")
+        {
+        outerror("ERROR: offset not allowed for family=cox\n");
+        return true;
+        }
+
+      // Extract offset if specified
+      unsigned j = terms[i].varnames[0].isinlist(modelvarnamesv);
+      if (o.rows() < D.rows())
+        o = datamatrix(D.rows(),1,0);
+
+      register unsigned k;
+      double * worko = o.getV();
+      double * workD = D.getV()+j;
+      unsigned size = D.cols();
+      for(k=0;k<D.rows();k++,worko++,workD+=size)
+        *worko += *workD;
+      }
+    else
+      {
+      // Default offset (=0)
+      o = datamatrix(D.rows(),1,0);
+      }
+    }
+  return false;
+  }
+
+// -----------------------------------------------------------------------------
+// --------------------------- Create_const -----------------------------------
+// -----------------------------------------------------------------------------
+
 bool remlreg::create_const(const unsigned & collinpred)
   {
-
   unsigned i;
   int j;
 
@@ -653,11 +839,9 @@ bool remlreg::create_const(const unsigned & collinpred)
 
   unsigned nr = varnames.size();
 
-
   ST::string title;
   ST::string pathconst;
   ST::string pathconstres;
-
 
   if (collinpred == 0)
     {
@@ -667,7 +851,6 @@ bool remlreg::create_const(const unsigned & collinpred)
 
     pathconstres = outfile.getvalue() + add_name +
                      "_FixedEffects"  + ".res";
-
     }
   else
     {
@@ -679,7 +862,6 @@ bool remlreg::create_const(const unsigned & collinpred)
 
     pathconstres = outfile.getvalue() + add_name + "_FixedEffects" + "_" +
                    ST::inttostring(collinpred+1) + ".res";
-
     }
 
   if (pathconst.isvalidfile() == 1)
@@ -691,13 +873,10 @@ bool remlreg::create_const(const unsigned & collinpred)
 
   datamatrix X(D.rows(),nr,1);
 
-
   for(i=0;i<varnames.size();i++)
     {
-
     if (varnames[i] != "const")
       {
-
       j = varnames[i].isinlist(modelvarnamesv);
 
       if (j != -1)
@@ -708,33 +887,242 @@ bool remlreg::create_const(const unsigned & collinpred)
         for (l=0;l<X.rows();l++,workX+=X.cols(),workD+=D.cols())
           *workX = *workD;
         }
-
       }
-
     }
-
 
   fcconst.push_back(FULLCOND_const(&generaloptions,X,title,0,
                                    pathconst,pathconstres));
 
-
   fcconst[fcconst.size()-1].init_names(varnames);
-
   fcconst[fcconst.size()-1].set_fcnumber(fullcond.size());
-
   fullcond.push_back(&fcconst[fcconst.size()-1]);
 
-
   return false;
-
   }
 
-bool remlreg::create_spatial(const unsigned & collinpred)
-  {
+// -----------------------------------------------------------------------------
+// ------------------------- create_nonprw1rw2 ---------------------------------
+// -----------------------------------------------------------------------------
 
+bool remlreg::create_nonprw1rw2(const unsigned & collinpred)
+  {
+  ST::string pathnonp;
+  ST::string pathres;
+  ST::string title;
+
+  double hd;
+  double lambda, startlambda;
+  int f;
+
+  unsigned i;
+  int j;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonprw1rw2.checkvector(terms,i) == true )
+      {
+      MCMC::fieldtype type;
+      if (terms[i].options[0] == "rw1")
+        type = MCMC::RW1;
+      else
+        type = MCMC::RW2;
+
+      j = terms[i].varnames[0].isinlist(modelvarnamesv);
+
+      f = (terms[i].options[1]).strtodouble(hd);
+      lambda = hd;
+      f = (terms[i].options[2]).strtodouble(hd);
+      startlambda = hd;
+
+      if (f==1)
+        return true;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_rw.raw","_rw.res","_rw");
+
+      fcnonpgaussian.push_back(FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j),
+                         unsigned(maxint.getvalue()),type,
+                         title,pathres,lambda,startlambda));
+
+      fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
+      fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
+      }
+    }
+  return false;
+  }
+
+// -----------------------------------------------------------------------------
+// --------------------- create_nonprw1rw2_varcoef -----------------------------
+// -----------------------------------------------------------------------------
+
+bool remlreg::create_nonprw1rw2_varcoef(const unsigned & collinpred)
+  {
+  ST::string pathnonp;
+  ST::string pathres;
+  ST::string title;
+
+  double hd;
+  double lambda, startlambda;
+  int f;
+
+  unsigned i;
+  int j1,j2;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonprw1rw2_varcoef.checkvector(terms,i) == true )
+      {
+      MCMC::fieldtype type;
+      if (terms[i].options[0] == "varcoeffrw1")
+        type = MCMC::RW1;
+      else
+        type = MCMC::RW2;
+
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
+
+      f = (terms[i].options[1]).strtodouble(hd);
+      lambda = hd;
+      f = (terms[i].options[2]).strtodouble(hd);
+      startlambda = hd;
+
+      if (f==1)
+        return true;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                 terms[i].varnames[0],"_rw.raw","_rw.res","_rw");
+
+      fcnonpgaussian.push_back(FULLCOND_nonp_gaussian(&generaloptions,
+                         D.getCol(j2),D.getCol(j1),
+                         unsigned(maxint.getvalue()),type,
+                         title,pathres,lambda,startlambda));
+
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[1]);
+      na.push_back(terms[i].varnames[0]);
+      fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
+      fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
+      }
+    }
+  return false;
+  }
+
+// -----------------------------------------------------------------------------
+// ------------------------- create_nonpseason ---------------------------------
+// -----------------------------------------------------------------------------
+
+bool remlreg::create_nonpseason(const unsigned & collinpred)
+  {
   ST::string pathnonp;
   ST::string pathres;
 
+  long h;
+  double hd;
+  double lambda, startlambda;
+  unsigned per;
+  int f;
+
+  unsigned i;
+  int j;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpseason.checkvector(terms,i) == true )
+      {
+      j = terms[i].varnames[0].isinlist(modelvarnamesv);
+
+      f = (terms[i].options[1]).strtolong(h);
+      per = unsigned(h);
+      f = (terms[i].options[2]).strtodouble(hd);
+      lambda = hd;
+      f = (terms[i].options[3]).strtodouble(hd);
+      startlambda = hd;
+
+      if (f==1)
+        return true;
+
+      ST::string title;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_season.raw","_season.res","_season");
+
+      fcnonpgaussian.push_back(
+      FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j),
+                                         unsigned(maxint.getvalue()),
+                                         MCMC::seasonal,title,pathres,
+                                         lambda,startlambda,per));
+
+      fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
+      fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
+      }
+    }
+  return false;
+  }
+
+// -----------------------------------------------------------------------------
+// ----------------------- create_nonpseason_varcoef ---------------------------
+// -----------------------------------------------------------------------------
+
+bool remlreg::create_nonpseason_varcoef(const unsigned & collinpred)
+  {
+  ST::string pathnonp;
+  ST::string pathres;
+  long h;
+  double hd;
+  double lambda, startlambda;
+  unsigned per;
+  int f;
+
+  unsigned i;
+  int j1, j2;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpseason_varcoef.checkvector(terms,i) == true )
+      {
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
+
+      f = (terms[i].options[1]).strtolong(h);
+      per = unsigned(h);
+      f = (terms[i].options[2]).strtodouble(hd);
+      lambda = hd;
+      f = (terms[i].options[3]).strtodouble(hd);
+      startlambda = hd;
+
+      if (f==1)
+        return true;
+
+      ST::string title;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                 terms[i].varnames[0],"_season.raw","_season.res",
+                 "_season");
+
+      fcnonpgaussian.push_back(
+      FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j2),D.getCol(j1),
+                                         unsigned(maxint.getvalue()),
+                                         MCMC::seasonal,title,pathres,
+                                         lambda,startlambda,per));
+
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[1]);
+      na.push_back(terms[i].varnames[0]);
+      fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
+      fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
+      }
+    }
+  return false;
+  }
+
+// -----------------------------------------------------------------------------
+// --------------------------- create_spatial ---------------------------------
+// -----------------------------------------------------------------------------
+
+bool remlreg::create_spatial(const unsigned & collinpred)
+  {
+  ST::string pathnonp;
+  ST::string pathres;
   double hd;
   int f;
   double lambda, startlambda;
@@ -745,13 +1133,10 @@ bool remlreg::create_spatial(const unsigned & collinpred)
     {
     if ( nonpspatial.checkvector(terms,i) == true )
       {
-
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
 
       mapobject * mapp;                           // pointer to mapobject
-
       int objpos = findstatobject(*statobj,terms[i].options[1],"map");
-
       if (objpos >= 0)
         {
         statobject * s = statobj->at(objpos);
@@ -770,12 +1155,16 @@ bool remlreg::create_spatial(const unsigned & collinpred)
           outerror("ERROR: " + terms[i].options[1] + " is not a map object\n");
         return true;
         }
-
       MAP::map m = mapp->getmap();
+
+      if (m.isconnected()==false)
+        {
+        outerror("ERROR: map is disconnected, spatial effect cannot be estimated\n");
+        return true;
+        }
 
       f = (terms[i].options[2]).strtodouble(hd);
       lambda = hd;
-
       f = (terms[i].options[3]).strtodouble(hd);
       startlambda = hd;
 
@@ -801,24 +1190,21 @@ bool remlreg::create_spatial(const unsigned & collinpred)
         }
 
       fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
-
       fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
-
-      }   // end: if ( nonpspatial.checkvector(terms,i) == true )
-
-    } //  end:  for(i=0;i<terms.size();i++)
-
+      }
+    }
   return false;
-
   }
+
+// -----------------------------------------------------------------------------
+// ------------------------- create_spatial_varcoef ----------------------------
+// -----------------------------------------------------------------------------
 
 bool remlreg::create_spatial_varcoef(const unsigned & collinpred)
   {
-
   ST::string pathnonp;
   ST::string pathres;
-
   double hd;
   int f;
   double lambda, startlambda;
@@ -829,14 +1215,11 @@ bool remlreg::create_spatial_varcoef(const unsigned & collinpred)
     {
     if ( nonpspatial_varcoef.checkvector(terms,i) == true )
       {
-
       j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
       j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
 
       mapobject * mapp;                           // pointer to mapobject
-
       int objpos = findstatobject(*statobj,terms[i].options[1],"map");
-
       if (objpos >= 0)
         {
         statobject * s = statobj->at(objpos);
@@ -855,12 +1238,10 @@ bool remlreg::create_spatial_varcoef(const unsigned & collinpred)
           outerror("ERROR: " + terms[i].options[1] + " is not a map object\n");
         return true;
         }
-
       MAP::map m = mapp->getmap();
 
       f = (terms[i].options[2]).strtodouble(hd);
       lambda = hd;
-
       f = (terms[i].options[3]).strtodouble(hd);
       startlambda = hd;
 
@@ -889,242 +1270,25 @@ bool remlreg::create_spatial_varcoef(const unsigned & collinpred)
       vector<ST::string> na;
       na.push_back(terms[i].varnames[1]);
       na.push_back(terms[i].varnames[0]);
-
       fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
-
       fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
-
-      }   // end: if ( nonpspatial.checkvector(terms,i) == true )
-
-    } //  end:  for(i=0;i<terms.size();i++)
-
-  return false;
-
-  }
-
-bool remlreg::create_spatialxy(const unsigned & collinpred)
-  {
-
-  /*
-
-  ST::string pathnonp;
-  ST::string pathres;
-  ST::string pathmap;
-  ST::string mapname;
-
-  long h;
-  unsigned min,max;
-  double a1,b1;
-  double lambda;
-  double maxdist;
-  int f;
-
-  unsigned i;
-  int j1,j2;
-  for(i=0;i<terms.size();i++)
-    {
-    if ( nonpspatialxy.checkvector(terms,i) == true )
-      {
-
-      j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
-      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
-
-
-      f = (terms[i].options[1]).strtolong(h);
-      min = unsigned(h);
-
-      f = (terms[i].options[2]).strtolong(h);
-      max = unsigned(h);
-
-      f = (terms[i].options[3]).strtodouble(lambda);
-
-      f = (terms[i].options[4]).strtodouble(a1);
-
-      f = (terms[i].options[5]).strtodouble(b1);
-
-      f = (terms[i].options[6]).strtodouble(maxdist);
-
-      ST::string title;
-
-      pathmap = outfile.getvalue()+ add_name + "_" + terms[i].varnames[0] + "_" +
-                terms[i].varnames[1] + "_dist" + ST::doubletostring(maxdist)
-                + ".bnd";
-
-      mapname = terms[i].varnames[0] + "_" + terms[i].varnames[1] + "_dist"
-                + ST::doubletostring(maxdist) + add_name;
-
-      if (collinpred == 0)
-        {
-        pathnonp = defaultpath + "\\temp\\" + name + add_name + "_f_" +
-                   terms[i].varnames[0] + "_" + terms[i].varnames[1] +
-                   "_spatial.raw";
-
-        pathres = outfile.getvalue() + add_name + "_f_" + terms[i].varnames[0] + "_" +
-                  terms[i].varnames[1] + "_spatial.res";
-
-        title = "f_" + terms[i].varnames[0] + "_" + terms[i].varnames[1] + add_name;
-
-        }
-      else
-        {
-        pathnonp = defaultpath + "\\temp\\" + name + add_name + terms[i].varnames[0] +
-                   terms[i].varnames[1] + "_spatial_" +
-                   ST::inttostring(collinpred+1) + ".raw";
-
-        pathres = outfile.getvalue() + add_name + terms[i].varnames[0] +
-                  terms[i].varnames[1] + "_spatial_" +
-                  ST::inttostring(collinpred+1) + ".res";
-
-        title = "f_" + ST::inttostring(collinpred+1) +  "_" +
-                terms[i].varnames[0] + "_" + terms[i].varnames[1]+add_name;
-
-        }
-
-
-      if (
-          (family.getvalue() == "gaussian") ||
-          (family.getvalue() == "cumprobit") ||
-          (family.getvalue() == "binomialprobit")  ||
-          (family.getvalue() == "bernoullilogit") ||
-          (family.getvalue() == "binomialtlink") ||
-          (family.getvalue() == "multinomialprobit")
-         )
-
-        {
-
-        fcnonpgaussian.push_back( FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
-                                        distr[distr.size()-1],
-                                        D.getCol(j1),D.getCol(j2),
-                                        lambda,maxdist,mapname,title,
-                                        pathnonp, pathres,pathmap,collinpred
-                                        )
-                           );
-
-        fcnonpgaussian[fcnonpgaussian.size()-1].init_name("regionnr");
-
-        if (collinpred==0)
-          {
-          pathnonp = defaultpath + "\\temp\\" + name + add_name + "_f_" +
-                       terms[i].varnames[0] + "_" + terms[i].varnames[1] +
-                       "_spatial_var.raw";
-
-          pathres =  outfile.getvalue() + add_name + "_f_" +
-                       terms[i].varnames[0] + "_" + terms[i].varnames[1] +
-                       "_spatial_var.res";
-
-          title = "f_" + terms[i].varnames[0] + "_" + terms[i].varnames[1] +
-                  "_variance"+add_name;
-          }
-        else
-          {
-          pathnonp = defaultpath + "\\temp\\" + name + add_name + "_f_" +
-                     ST::inttostring(collinpred+1) + "_" +
-                     terms[i].varnames[0] + "_" + terms[i].varnames[1] +
-                     "_spatial_var.raw";
-
-          pathres =  outfile.getvalue() + add_name + "_f_" +
-                     ST::inttostring(collinpred+1) + "_" +
-                     terms[i].varnames[0] + "_" + terms[i].varnames[1] +
-                     "_spatial_var.res";
-
-          title = "f_" + ST::inttostring(collinpred+1) + "_" +
-                  terms[i].varnames[0] + "_" + terms[i].varnames[1] +
-                  "_variance"+add_name;
-          }
-
-        fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
-                                       &fcnonpgaussian[fcnonpgaussian.size()-1],
-                                       distr[distr.size()-1],a1,b1,title,
-                                       pathnonp,pathres,false,collinpred)
-                           );
-
-        if (constlambda.getvalue() == true)
-          fcvarnonp[fcvarnonp.size()-1].set_constlambda();
-
-
-
-        fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
-        fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
-        }
-      else
-        {
-
-
-        }
-
-
-      }   // end: if ( nonpspatial.checkvector(terms,i) == true )
-
-    } //  end:  for(i=0;i<terms.size();i++)
-
-  */
-
-  return false;
-
-  }
-
-
-bool remlreg::create_randomslope(const unsigned & collinpred)
-  {
-
-  ST::string pathnonp;
-  ST::string pathres;
-  ST::string title;
-
-  unsigned i;
-  int j1,j2;
-  double lambda, startlambda;
-  int f;
-  for(i=0;i<terms.size();i++)
-    {
-    if ( randomeffslope.checkvector(terms,i) == true )
-      {
-
-      j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
-      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
-
-
-      f = (terms[i].options[1]).strtodouble(lambda);
-      f = (terms[i].options[2]).strtodouble(startlambda);
-
-      if (f==1)
-        return true;
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
-                 terms[i].varnames[0],
-                 "_random.raw","_random.res","_random");
-
-      fcrandom.push_back(FULLCOND_random(&generaloptions,D.getCol(j1),
-                          D.getCol(j2),title,pathnonp,pathres,lambda,
-                          startlambda));
-
-      vector<ST::string> varnameshelp;
-      varnameshelp.push_back(terms[i].varnames[1]);
-      varnameshelp.push_back(terms[i].varnames[0]);
-      fcrandom[fcrandom.size()-1].init_names(varnameshelp);
-
-      fcrandom[fcrandom.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcrandom[fcrandom.size()-1]);
-
       }
-
     }
-
   return false;
-
   }
 
+// -----------------------------------------------------------------------------
+// -------------------------- create_pspline -----------------------------------
+// -----------------------------------------------------------------------------
 
-bool remlreg::create_random(const unsigned & collinpred)
+bool remlreg::create_pspline(const unsigned & collinpred)
   {
-
   ST::string pathnonp;
   ST::string pathres;
   ST::string title;
+  long h;
+  unsigned degree,nrknots;
   double lambda, startlambda;
   int f;
 
@@ -1132,45 +1296,140 @@ bool remlreg::create_random(const unsigned & collinpred)
   int j;
   for(i=0;i<terms.size();i++)
     {
-    if ( randomeff.checkvector(terms,i) == true )
+    if ( nonppspline.checkvector(terms,i) == true )
       {
+      MCMC::fieldtype type;
+      if (terms[i].options[0] == "psplinerw1")
+        type = MCMC::RW1;
+      else
+        type = MCMC::RW2;
 
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
 
-      f = (terms[i].options[1]).strtodouble(lambda);
-      f = (terms[i].options[2]).strtodouble(startlambda);
+      f = (terms[i].options[1]).strtolong(h);
+      degree = unsigned(h);
+      f = (terms[i].options[2]).strtolong(h);
+      nrknots = unsigned(h);
+      f = (terms[i].options[3]).strtodouble(lambda);
+      f = (terms[i].options[7]).strtodouble(startlambda);
 
       if (f==1)
         return true;
 
+      MCMC::knotpos po;
+      if (knots.getvalue() == "equidistant")
+        po = MCMC::equidistant;
+      else
+        po = MCMC::quantiles;
+
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-                 "_random.raw","_random.res","_random");
+                 "_pspline.raw","_pspline.res","_pspline");
 
-      fcrandom.push_back(FULLCOND_random(&generaloptions,
-                         D.getCol(j),title,pathnonp,
-                         pathres,lambda,startlambda));
-
-
-      fcrandom[fcrandom.size()-1].init_name(terms[i].varnames[0]);
-
-      fcrandom[fcrandom.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcrandom[fcrandom.size()-1]);
-
+      fcpspline.push_back( spline_basis(&generaloptions,
+                                              D.getCol(j),
+                                              nrknots,
+                                              degree,
+                                              po,
+                                              type,
+                                              title,
+                                              pathnonp,
+                                              pathres,
+                                              lambda,
+                                              startlambda
+                                             )
+                           );
+      fcpspline[fcpspline.size()-1].init_name(terms[i].varnames[0]);
+      fcpspline[fcpspline.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcpspline[fcpspline.size()-1]);
       }
-
     }
-
   return false;
-
   }
 
+// -----------------------------------------------------------------------------
+// ------------------------- create_varcoeffpspline ----------------------------
+// -----------------------------------------------------------------------------
+
+bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
+  {
+  ST::string pathnonp;
+  ST::string pathres;
+  ST::string monotone;
+  long h;
+  unsigned degree,nrknots;
+  double lambda,startlambda;
+  int f;
+
+  unsigned i;
+  int j1,j2;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpvarcoeffpspline.checkvector(terms,i) == true )
+      {
+      MCMC::fieldtype type;
+      if (terms[i].options[0] == "varpsplinerw1")
+        type = MCMC::RW1;
+      else
+        type = MCMC::RW2;
+
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
+
+      f = (terms[i].options[1]).strtolong(h);
+      degree = unsigned(h);
+      f = (terms[i].options[2]).strtolong(h);
+      nrknots = unsigned(h);
+      f = (terms[i].options[3]).strtodouble(lambda);
+      f = (terms[i].options[4]).strtodouble(startlambda);
+
+      if (f==1)
+        return true;
+
+      MCMC::knotpos po;
+      if (knots.getvalue() == "equidistant")
+        po = MCMC::equidistant;
+      else
+        po = MCMC::quantiles;
+
+      ST::string title;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                 terms[i].varnames[0],
+                 "_pspline.raw","_pspline.res","_pspline");
+
+      fcpspline.push_back( spline_basis(&generaloptions,
+                                              D.getCol(j2),
+                                              D.getCol(j1),
+                                              nrknots,
+                                              degree,
+                                              po,
+                                              type,
+                                              title,
+                                              pathnonp,
+                                              pathres,
+                                              lambda,
+                                              startlambda
+                                             )
+                           );
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[1]);
+      na.push_back(terms[i].varnames[0]);
+      fcpspline[fcpspline.size()-1].init_names(na);
+      fcpspline[fcpspline.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcpspline[fcpspline.size()-1]);
+      }
+    }
+  return false;
+  }
+
+// -----------------------------------------------------------------------------
+// ------------------- create_interactionpspline -------------------------------
+// -----------------------------------------------------------------------------
 
 bool remlreg::create_interactionspspline(const unsigned & collinpred)
   {
-
   ST::string pathnonp;
   ST::string pathres;
-
   long h;
   double lambda,startlambda;
   unsigned nrknots,degree;
@@ -1182,7 +1441,6 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
     {
     if ( nonpinteractpspline.checkvector(terms,i) == true )
       {
-
       MCMC::fieldtype type;
       if (terms[i].options[0] == "pspline2dimrw1")
         type = MCMC::mrflinear;
@@ -1192,12 +1450,9 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
-
       f = (terms[i].options[2]).strtolong(h);
       nrknots = unsigned(h);
-
       f = (terms[i].options[3]).strtodouble(lambda);
-
       f = (terms[i].options[4]).strtodouble(startlambda);
 
       if (f==1)
@@ -1225,24 +1480,22 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
       vector<ST::string> na;
       na.push_back(terms[i].varnames[1]);
       na.push_back(terms[i].varnames[0]);
-
       fcpsplinesurf[fcpsplinesurf.size()-1].init_names(na);
       fcpsplinesurf[fcpsplinesurf.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcpsplinesurf[fcpsplinesurf.size()-1]);
-
       }
     }
-
   return false;
-
   }
+
+// -----------------------------------------------------------------------------
+// ---------------------- create_varcoeffinteractionpspline --------------------
+// -----------------------------------------------------------------------------
 
 bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
   {
-
   ST::string pathnonp;
   ST::string pathres;
-
   long h;
   double lambda,startlambda;
   unsigned nrknots,degree;
@@ -1254,7 +1507,6 @@ bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
     {
     if ( nonpvarcoeffinteractpspline.checkvector(terms,i) == true )
       {
-
       MCMC::fieldtype type;
       if (terms[i].options[0] == "varpspline2dimrw1")
         type = MCMC::mrflinear;
@@ -1265,12 +1517,9 @@ bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
-
       f = (terms[i].options[2]).strtolong(h);
       nrknots = unsigned(h);
-
       f = (terms[i].options[3]).strtodouble(lambda);
-
       f = (terms[i].options[4]).strtodouble(startlambda);
 
       if (f==1)
@@ -1300,25 +1549,192 @@ bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
       na.push_back(terms[i].varnames[2]);
       na.push_back(terms[i].varnames[1]);
       na.push_back(terms[i].varnames[0]);
-
       fcpsplinesurf[fcpsplinesurf.size()-1].init_names(na);
       fcpsplinesurf[fcpsplinesurf.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcpsplinesurf[fcpsplinesurf.size()-1]);
-
       }
     }
-
   return false;
-
   }
 
+// -----------------------------------------------------------------------------
+// ------------------------- create_geospline ----------------------------------
+// -----------------------------------------------------------------------------
+
+bool remlreg::create_geospline(const unsigned & collinpred)
+  {
+  ST::string pathnonp;
+  ST::string pathres;
+  long h;
+  double lambda,startlambda;
+  unsigned nrknots,degree;
+  int f;
+
+  unsigned i;
+  int j;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpgeospline.checkvector(terms,i) == true )
+      {
+      MCMC::fieldtype type = MCMC::mrflinear;
+
+      j = terms[i].varnames[0].isinlist(modelvarnamesv);
+
+      f = (terms[i].options[1]).strtolong(h);
+      degree = unsigned(h);
+      f = (terms[i].options[2]).strtolong(h);
+      nrknots = unsigned(h);
+      f = (terms[i].options[3]).strtodouble(lambda);
+      f = (terms[i].options[5]).strtodouble(startlambda);
+
+      if (f==1)
+        return true;
+
+      mapobject * mapp;                           // pointer to mapobject
+      int objpos = findstatobject(*statobj,terms[i].options[4],"map");
+      if (objpos >= 0)
+        {
+        statobject * s = statobj->at(objpos);
+        mapp = dynamic_cast<mapobject*>(s);
+        }
+      else
+        {
+        if (objpos == -1)
+          outerror("ERROR: map object " + terms[i].options[4] + " is not existing\n");
+        else
+          outerror("ERROR: " + terms[i].options[4] + " is not a map object\n");
+        return true;
+        }
+      MAP::map m = mapp->getmap();
+
+      if(!m.centroids_existing())
+        {
+        outerror("ERROR: map object doesn´t contain centroids\n");
+        return true;
+        }
+
+      ST::string title;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_geospline.raw","_geospline.res","_geospline");
+
+      fcpsplinesurf.push_back(
+      spline_basis_surf(&generaloptions,
+                                      D.getCol(j),m,terms[i].options[4],
+                                      nrknots,degree,
+                                      type,
+                                      title,
+                                      pathnonp,
+                                      pathres,
+                                      lambda,
+                                      startlambda
+                                      ));
+
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[0]);
+      fcpsplinesurf[fcpsplinesurf.size()-1].init_names(na);
+      fcpsplinesurf[fcpsplinesurf.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcpsplinesurf[fcpsplinesurf.size()-1]);
+      }
+    }
+  return false;
+  }
+
+// -----------------------------------------------------------------------------
+// ------------------------- create_geospline_varcoef --------------------------
+// -----------------------------------------------------------------------------
+
+bool remlreg::create_geospline_varcoeff(const unsigned & collinpred)
+  {
+  ST::string pathnonp;
+  ST::string pathres;
+  long h;
+  double lambda,startlambda;
+  unsigned nrknots,degree;
+  int f;
+
+  unsigned i;
+  int j1,j2;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpvarcoeffgeospline.checkvector(terms,i) == true )
+      {
+      MCMC::fieldtype type = MCMC::mrflinear;
+
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
+
+      f = (terms[i].options[1]).strtolong(h);
+      degree = unsigned(h);
+      f = (terms[i].options[2]).strtolong(h);
+      nrknots = unsigned(h);
+      f = (terms[i].options[3]).strtodouble(lambda);
+      f = (terms[i].options[5]).strtodouble(startlambda);
+
+      if (f==1)
+        return true;
+
+      mapobject * mapp;                           // pointer to mapobject
+      int objpos = findstatobject(*statobj,terms[i].options[4],"map");
+      if (objpos >= 0)
+        {
+        statobject * s = statobj->at(objpos);
+        mapp = dynamic_cast<mapobject*>(s);
+        }
+      else
+        {
+        if (objpos == -1)
+          outerror("ERROR: map object " + terms[i].options[4] + " is not existing\n");
+        else
+          outerror("ERROR: " + terms[i].options[4] + " is not a map object\n");
+        return true;
+        }
+      MAP::map m = mapp->getmap();
+
+      if(!m.centroids_existing())
+        {
+        outerror("ERROR: map object doesn´t contain centroids\n");
+        return true;
+        }
+
+      ST::string title;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                 terms[i].varnames[0],
+                 "_geospline.raw","_geospline.res","_geospline");
+
+      fcpsplinesurf.push_back(
+      spline_basis_surf(&generaloptions,
+                                      D.getCol(j1),D.getCol(j2),
+                                      m,terms[i].options[4],
+                                      nrknots,degree,
+                                      type,
+                                      title,
+                                      pathnonp,
+                                      pathres,
+                                      lambda,
+                                      startlambda
+                                      ));
+
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[1]);
+      na.push_back(terms[i].varnames[0]);
+      fcpsplinesurf[fcpsplinesurf.size()-1].init_names(na);
+      fcpsplinesurf[fcpsplinesurf.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcpsplinesurf[fcpsplinesurf.size()-1]);
+      }
+    }
+  return false;
+  }
+
+// -----------------------------------------------------------------------------
+// ----------------------- create_kriging --------------------------------------
+// -----------------------------------------------------------------------------
 
 bool remlreg::create_kriging(const unsigned & collinpred)
   {
-
   ST::string pathnonp;
   ST::string pathres;
-
   long h;
   double nu,maxdist,p,q,lambda,startlambda;
   unsigned nrknots, maxsteps;
@@ -1331,7 +1747,6 @@ bool remlreg::create_kriging(const unsigned & collinpred)
     {
     if ( nonpspatial_kriging.checkvector(terms,i) == true )
       {
-
       MCMC::fieldtype type;
       if (terms[i].options[0] == "kriging")
         type = MCMC::kriging;
@@ -1341,7 +1756,6 @@ bool remlreg::create_kriging(const unsigned & collinpred)
 
       f = (terms[i].options[1]).strtolong(h);
       nrknots = unsigned(h);
-
       f = (terms[i].options[2]).strtodouble(nu);
       if(nu!=0.5 && nu!=1.5&& nu!=2.5 && nu!=3.5)
         {
@@ -1349,26 +1763,25 @@ bool remlreg::create_kriging(const unsigned & collinpred)
         return true;
         }
       f = (terms[i].options[3]).strtodouble(maxdist);
-      if(maxdist<=0) // wähle maxdist so, dass Korrelation für Punkte mitmaximalem Abstand = 0.0001
+      if(maxdist<=0) // wähle maxdist so, dass Korrelation für Punkte mit maximalem Abstand = 0.0001
         {
         if(nu==0.5)
           {
-          maxdist=9.21034037;//4.605170186;
+          maxdist=9.21034037;
           }
         else if(nu==1.5)
           {
-          maxdist=11.75637122;//6.638352068;
+          maxdist=11.75637122;
           }
         else if(nu==2.5)
           {
-          maxdist=13.53592464;//8.022007057;
+          maxdist=13.53592464;
           }
         else if(nu==3.5)
           {
-          maxdist=15.01510426;//9.158140446;
+          maxdist=15.01510426;
           }
         }
-
       if(terms[i].options[4] == "true")
         {
         full=true;
@@ -1377,18 +1790,17 @@ bool remlreg::create_kriging(const unsigned & collinpred)
         {
         full=false;
         }
-
       f = (terms[i].options[6]).strtodouble(p);
       f = (terms[i].options[7]).strtodouble(q);
       f = (terms[i].options[8]).strtolong(h);
       maxsteps = unsigned(h);
-
       f = (terms[i].options[9]).strtodouble(lambda);
       f = (terms[i].options[10]).strtodouble(startlambda);
 
       if (f==1)
         return true;
 
+      // read knots from a specified dataset object
       datamatrix knotdata;
       if(terms[i].options[5]!="" && !full)
         {
@@ -1446,23 +1858,22 @@ bool remlreg::create_kriging(const unsigned & collinpred)
       vector<ST::string> na;
       na.push_back(terms[i].varnames[1]);
       na.push_back(terms[i].varnames[0]);
-
       fckriging[fckriging.size()-1].init_names(na);
       fckriging[fckriging.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fckriging[fckriging.size()-1]);
-
       }
     }
-
   return false;
   }
 
+// -----------------------------------------------------------------------------
+// ----------------------- create_kriging_1dim ---------------------------------
+// -----------------------------------------------------------------------------
+
 bool remlreg::create_kriging_1dim(const unsigned & collinpred)
   {
-
   ST::string pathnonp;
   ST::string pathres;
-
   double nu,maxdist,lambda,startlambda;
   int f;
 
@@ -1489,22 +1900,21 @@ bool remlreg::create_kriging_1dim(const unsigned & collinpred)
         {
         if(nu==0.5)
           {
-          maxdist=9.21034037;//4.605170186;
+          maxdist=9.21034037;
           }
         else if(nu==1.5)
           {
-          maxdist=11.75637122;//6.638352068;
+          maxdist=11.75637122;
           }
         else if(nu==2.5)
           {
-          maxdist=13.53592464;//8.022007057;
+          maxdist=13.53592464;
           }
         else if(nu==3.5)
           {
-          maxdist=15.01510426;//9.158140446;
+          maxdist=15.01510426;
           }
         }
-
       f = (terms[i].options[3]).strtodouble(lambda);
       f = (terms[i].options[4]).strtodouble(startlambda);
 
@@ -1529,7 +1939,6 @@ bool remlreg::create_kriging_1dim(const unsigned & collinpred)
 
       vector<ST::string> na;
       na.push_back(terms[i].varnames[0]);
-
       fckriging[fckriging.size()-1].init_names(na);
       fckriging[fckriging.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fckriging[fckriging.size()-1]);
@@ -1538,12 +1947,14 @@ bool remlreg::create_kriging_1dim(const unsigned & collinpred)
   return false;
   }
 
+// -----------------------------------------------------------------------------
+// ----------------------- create_kriging_varcoeff -----------------------------
+// -----------------------------------------------------------------------------
+
 bool remlreg::create_kriging_varcoeff(const unsigned & collinpred)
   {
-
   ST::string pathnonp;
   ST::string pathres;
-
   long h;
   double nu,maxdist,p,q,lambda,startlambda;
   unsigned nrknots, maxsteps;
@@ -1556,7 +1967,6 @@ bool remlreg::create_kriging_varcoeff(const unsigned & collinpred)
     {
     if ( nonpspatial_kriging_varcoeff.checkvector(terms,i) == true )
       {
-
       MCMC::fieldtype type;
       if (terms[i].options[0] == "varkriging")
         type = MCMC::kriging;
@@ -1579,22 +1989,21 @@ bool remlreg::create_kriging_varcoeff(const unsigned & collinpred)
         {
         if(nu==0.5)
           {
-          maxdist=9.21034037;//4.605170186;
+          maxdist=9.21034037;
           }
         else if(nu==1.5)
           {
-          maxdist=11.75637122;//6.638352068;
+          maxdist=11.75637122;
           }
         else if(nu==2.5)
           {
-          maxdist=13.53592464;//8.022007057;
+          maxdist=13.53592464;
           }
         else if(nu==3.5)
           {
-          maxdist=15.01510426;//9.158140446;
+          maxdist=15.01510426;
           }
         }
-
       if(terms[i].options[4] == "true")
         {
         full=true;
@@ -1674,23 +2083,22 @@ bool remlreg::create_kriging_varcoeff(const unsigned & collinpred)
       na.push_back(terms[i].varnames[2]);
       na.push_back(terms[i].varnames[1]);
       na.push_back(terms[i].varnames[0]);
-
       fckriging[fckriging.size()-1].init_names(na);
       fckriging[fckriging.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fckriging[fckriging.size()-1]);
-
       }
     }
-
   return false;
   }
 
+// -----------------------------------------------------------------------------
+// ----------------------- create_geokriging -----------------------------------
+// -----------------------------------------------------------------------------
+
 bool remlreg::create_geokriging(const unsigned & collinpred)
   {
-
   ST::string pathnonp;
   ST::string pathres;
-
   long h;
   double nu,maxdist,p,q,lambda,startlambda;
   unsigned nrknots, maxsteps;
@@ -1703,7 +2111,6 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
     {
     if ( nonpspatial_geokriging.checkvector(terms,i) == true )
       {
-
       MCMC::fieldtype type;
       if (terms[i].options[0] == "geokriging")
         type = MCMC::kriging;
@@ -1712,7 +2119,6 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
 
       f = (terms[i].options[1]).strtolong(h);
       nrknots = unsigned(h);
-
       f = (terms[i].options[2]).strtodouble(nu);
       if(nu!=0.5 && nu!=1.5&& nu!=2.5 && nu!=3.5)
         {
@@ -1724,22 +2130,21 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
         {
         if(nu==0.5)
           {
-          maxdist=9.21034037;//4.605170186;
+          maxdist=9.21034037;
           }
         else if(nu==1.5)
           {
-          maxdist=11.75637122;//6.638352068;
+          maxdist=11.75637122;
           }
         else if(nu==2.5)
           {
-          maxdist=13.53592464;//8.022007057;
+          maxdist=13.53592464;
           }
         else if(nu==3.5)
           {
-          maxdist=15.01510426;//9.158140446;
+          maxdist=15.01510426;
           }
         }
-
       if(terms[i].options[4] == "true")
         {
         full=true;
@@ -1748,12 +2153,10 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
         {
         full=false;
         }
-
       f = (terms[i].options[6]).strtodouble(p);
       f = (terms[i].options[7]).strtodouble(q);
       f = (terms[i].options[8]).strtolong(h);
       maxsteps = unsigned(h);
-
       f = (terms[i].options[9]).strtodouble(lambda);
       f = (terms[i].options[10]).strtodouble(startlambda);
 
@@ -1835,7 +2238,6 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
 
       vector<ST::string> na;
       na.push_back(terms[i].varnames[0]);
-
       fckriging[fckriging.size()-1].init_names(na);
       fckriging[fckriging.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fckriging[fckriging.size()-1]);
@@ -1844,12 +2246,14 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
   return false;
   }
 
+// -----------------------------------------------------------------------------
+// ----------------------- create_geokriging_varcoeff --------------------------
+// -----------------------------------------------------------------------------
+
 bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
   {
-
   ST::string pathnonp;
   ST::string pathres;
-
   long h;
   double nu,maxdist,p,q,lambda,startlambda;
   unsigned nrknots, maxsteps;
@@ -1862,7 +2266,6 @@ bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
     {
     if ( nonpspatial_geokriging_varcoeff.checkvector(terms,i) == true )
       {
-
       MCMC::fieldtype type;
       if (terms[i].options[0] == "vargeokriging")
         type = MCMC::kriging;
@@ -1872,7 +2275,6 @@ bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
 
       f = (terms[i].options[1]).strtolong(h);
       nrknots = unsigned(h);
-
       f = (terms[i].options[2]).strtodouble(nu);
       if(nu!=0.5 && nu!=1.5&& nu!=2.5 && nu!=3.5)
         {
@@ -1884,22 +2286,21 @@ bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
         {
         if(nu==0.5)
           {
-          maxdist=9.21034037;//4.605170186;
+          maxdist=9.21034037;
           }
         else if(nu==1.5)
           {
-          maxdist=11.75637122;//6.638352068;
+          maxdist=11.75637122;
           }
         else if(nu==2.5)
           {
-          maxdist=13.53592464;//8.022007057;
+          maxdist=13.53592464;
           }
         else if(nu==3.5)
           {
-          maxdist=15.01510426;//9.158140446;
+          maxdist=15.01510426;
           }
         }
-
       if(terms[i].options[4] == "true")
         {
         full=true;
@@ -1908,12 +2309,10 @@ bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
         {
         full=false;
         }
-
       f = (terms[i].options[6]).strtodouble(p);
       f = (terms[i].options[7]).strtodouble(q);
       f = (terms[i].options[8]).strtolong(h);
       maxsteps = unsigned(h);
-
       f = (terms[i].options[9]).strtodouble(lambda);
       f = (terms[i].options[10]).strtodouble(startlambda);
 
@@ -1998,7 +2397,6 @@ bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
       na.push_back(terms[i].varnames[1]);
       na.push_back(terms[i].varnames[0]);
       fckriging[fckriging.size()-1].init_names(na);
-
       fckriging[fckriging.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fckriging[fckriging.size()-1]);
       }
@@ -2006,17 +2404,19 @@ bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
   return false;
   }
 
+// -----------------------------------------------------------------------------
+// ----------------------- create_baseline -------------------------------------
+// -----------------------------------------------------------------------------
+
 bool remlreg::create_baseline(const unsigned & collinpred)
   {
   ST::string pathnonp;
   ST::string pathres;
   ST::string title;
-
   long h;
   unsigned degree,nrknots,tgrid,nrquant,nrbetween;
   double lambda, startlambda;
   int f;
-
   MCMC::knotpos gridpo;
 
   unsigned i;
@@ -2025,14 +2425,12 @@ bool remlreg::create_baseline(const unsigned & collinpred)
     {
     if ( nonp_baseline.checkvector(terms,i) == true )
       {
-
       if(fcbaseline.size()>0)
         {
         outerror("ERROR: More than one baseline term specified!\n");
         return true;
         }
 
-      // --------------- reading options, term information ---------------------
       MCMC::fieldtype type;
       if (terms[i].options[0] == "baseline")
         type = MCMC::RW2;
@@ -2041,13 +2439,10 @@ bool remlreg::create_baseline(const unsigned & collinpred)
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
-
       f = (terms[i].options[2]).strtolong(h);
       nrknots = unsigned(h);
-
       f = (terms[i].options[3]).strtolong(h);
       tgrid = unsigned(h);
-
       if(terms[i].options[4] == "equidistant")
         {
         gridpo = MCMC::equidistant;
@@ -2056,13 +2451,10 @@ bool remlreg::create_baseline(const unsigned & collinpred)
         {
         gridpo = MCMC::quantiles;
         }
-
       f = (terms[i].options[5]).strtolong(h);
       nrquant = unsigned(h);
-
       f = (terms[i].options[6]).strtolong(h);
       nrbetween = unsigned(h);
-
       f = (terms[i].options[7]).strtodouble(lambda);
       f = (terms[i].options[8]).strtodouble(startlambda);
 
@@ -2071,15 +2463,8 @@ bool remlreg::create_baseline(const unsigned & collinpred)
 
       MCMC::knotpos po = MCMC::equidistant;
 
-      // -------------end: reading options, term information -------------------
-
-
-      //--------- creating path for samples and and results, creating title ----
-
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                  "_logbaseline.raw","_logbaseline.res","_logbaseline");
-
-      //----- end: creating path for samples and and results, creating title ---
 
       fcbaseline.push_back( baseline_reml(&generaloptions,
                                               D.getCol(j),
@@ -2100,21 +2485,22 @@ bool remlreg::create_baseline(const unsigned & collinpred)
                            );
 
       fcbaseline[fcbaseline.size()-1].init_name(terms[i].varnames[0]);
-
       fcbaseline[fcbaseline.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcbaseline[fcbaseline.size()-1]);
       }
     }
-
   return false;
   }
+
+// -----------------------------------------------------------------------------
+// ----------------------- create_baseline_varcoeff-----------------------------
+// -----------------------------------------------------------------------------
 
 bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
   {
   ST::string pathnonp;
   ST::string pathres;
   ST::string title;
-
   double lambda, startlambda;
   unsigned degree,nrknots,tgrid;
   int f;
@@ -2150,19 +2536,9 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
 
       ST::string title;
 
-      // -------------end: reading options, term information -------------------
-
-
-      //--------- creating path for samples and and results, creating title ----
-
-
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
                  terms[i].varnames[0],
                  "_logbaseline.raw","_logbaseline.res","_logbaseline");
-
-
-      //----- end: creating path for samples and and results, creating title ---
-
 
       fcbaseline_varcoeff.push_back( baseline_reml(&generaloptions,
                                               D.getCol(j2),
@@ -2184,7 +2560,6 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
       na.push_back(terms[i].varnames[1]);
       na.push_back(terms[i].varnames[0]);
       fcbaseline_varcoeff[fcbaseline_varcoeff.size()-1].init_names(na);
-
       fcbaseline_varcoeff[fcbaseline_varcoeff.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcbaseline_varcoeff[fcbaseline_varcoeff.size()-1]);
       }
@@ -2192,205 +2567,15 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
   return false;
   }
 
-bool remlreg::create_geospline(const unsigned & collinpred)
+// -----------------------------------------------------------------------------
+// ------------------------ create_random --------------------------------------
+// -----------------------------------------------------------------------------
+
+bool remlreg::create_random(const unsigned & collinpred)
   {
-
-  ST::string pathnonp;
-  ST::string pathres;
-
-  long h;
-  double lambda,startlambda;
-  unsigned nrknots,degree;
-  int f;
-
-  unsigned i;
-  int j;
-  for(i=0;i<terms.size();i++)
-    {
-    if ( nonpgeospline.checkvector(terms,i) == true )
-      {
-
-      MCMC::fieldtype type = MCMC::mrflinear;
-
-      j = terms[i].varnames[0].isinlist(modelvarnamesv);
-
-      f = (terms[i].options[1]).strtolong(h);
-      degree = unsigned(h);
-
-      f = (terms[i].options[2]).strtolong(h);
-      nrknots = unsigned(h);
-
-      f = (terms[i].options[3]).strtodouble(lambda);
-
-      f = (terms[i].options[5]).strtodouble(startlambda);
-
-      if (f==1)
-        return true;
-
-      mapobject * mapp;                           // pointer to mapobject
-
-      int objpos = findstatobject(*statobj,terms[i].options[4],"map");
-
-      if (objpos >= 0)
-        {
-        statobject * s = statobj->at(objpos);
-        mapp = dynamic_cast<mapobject*>(s);
-        }
-      else
-        {
-        if (objpos == -1)
-          outerror("ERROR: map object " + terms[i].options[4] + " is not existing\n");
-        else
-          outerror("ERROR: " + terms[i].options[4] + " is not a map object\n");
-        return true;
-        }
-
-      MAP::map m = mapp->getmap();
-
-      if(!m.centroids_existing())
-        {
-        outerror("ERROR: map object doesn´t contain centroids\n");
-        return true;
-        }
-
-      ST::string title;
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-                 "_geospline.raw","_geospline.res","_geospline");
-
-      fcpsplinesurf.push_back(
-      spline_basis_surf(&generaloptions,
-                                      D.getCol(j),m,terms[i].options[4],
-                                      nrknots,degree,
-                                      type,
-                                      title,
-                                      pathnonp,
-                                      pathres,
-                                      lambda,
-                                      startlambda
-                                      ));
-
-
-      vector<ST::string> na;
-      na.push_back(terms[i].varnames[0]);
-      fcpsplinesurf[fcpsplinesurf.size()-1].init_names(na);
-
-      fcpsplinesurf[fcpsplinesurf.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcpsplinesurf[fcpsplinesurf.size()-1]);
-
-      }
-
-    }
-
-  return false;
-  }
-
-
-bool remlreg::create_geospline_varcoeff(const unsigned & collinpred)
-  {
-  ST::string pathnonp;
-  ST::string pathres;
-
-  long h;
-  double lambda,startlambda;
-  unsigned nrknots,degree;
-  int f;
-
-  unsigned i;
-  int j1,j2;
-  for(i=0;i<terms.size();i++)
-    {
-    if ( nonpvarcoeffgeospline.checkvector(terms,i) == true )
-      {
-
-      MCMC::fieldtype type = MCMC::mrflinear;
-
-      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
-      j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
-
-      f = (terms[i].options[1]).strtolong(h);
-      degree = unsigned(h);
-
-      f = (terms[i].options[2]).strtolong(h);
-      nrknots = unsigned(h);
-
-      f = (terms[i].options[3]).strtodouble(lambda);
-
-      f = (terms[i].options[5]).strtodouble(startlambda);
-
-      if (f==1)
-        return true;
-
-      mapobject * mapp;                           // pointer to mapobject
-
-      int objpos = findstatobject(*statobj,terms[i].options[4],"map");
-
-      if (objpos >= 0)
-        {
-        statobject * s = statobj->at(objpos);
-        mapp = dynamic_cast<mapobject*>(s);
-        }
-      else
-        {
-        if (objpos == -1)
-          outerror("ERROR: map object " + terms[i].options[4] + " is not existing\n");
-        else
-          outerror("ERROR: " + terms[i].options[4] + " is not a map object\n");
-        return true;
-        }
-
-      MAP::map m = mapp->getmap();
-
-      if(!m.centroids_existing())
-        {
-        outerror("ERROR: map object doesn´t contain centroids\n");
-        return true;
-        }
-
-      ST::string title;
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
-                 terms[i].varnames[0],
-                 "_geospline.raw","_geospline.res","_geospline");
-
-      fcpsplinesurf.push_back(
-      spline_basis_surf(&generaloptions,
-                                      D.getCol(j1),D.getCol(j2),
-                                      m,terms[i].options[4],
-                                      nrknots,degree,
-                                      type,
-                                      title,
-                                      pathnonp,
-                                      pathres,
-                                      lambda,
-                                      startlambda
-                                      ));
-
-
-      vector<ST::string> na;
-      na.push_back(terms[i].varnames[1]);
-      na.push_back(terms[i].varnames[0]);
-      fcpsplinesurf[fcpsplinesurf.size()-1].init_names(na);
-
-      fcpsplinesurf[fcpsplinesurf.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcpsplinesurf[fcpsplinesurf.size()-1]);
-
-      }
-
-    }
-
-  return false;
-  }
-
-bool remlreg::create_pspline(const unsigned & collinpred)
-  {
-
   ST::string pathnonp;
   ST::string pathres;
   ST::string title;
-
-  long h;
-  unsigned degree,nrknots;
   double lambda, startlambda;
   int f;
 
@@ -2398,184 +2583,367 @@ bool remlreg::create_pspline(const unsigned & collinpred)
   int j;
   for(i=0;i<terms.size();i++)
     {
-    if ( nonppspline.checkvector(terms,i) == true )
+    if ( randomeff.checkvector(terms,i) == true )
       {
-
-      // --------------- reading options, term information ---------------------
-      MCMC::fieldtype type;
-      if ( (terms[i].options[0] == "psplinerw1") ||
-           (terms[i].options[0] == "tpsplinerw1") ||
-           (terms[i].options[0] == "psplinerw1vrw1") ||
-           (terms[i].options[0] == "psplinerw1vrw2") )
-        type = MCMC::RW1;
-      else
-        type = MCMC::RW2;
-
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
 
-      f = (terms[i].options[1]).strtolong(h);
-      degree = unsigned(h);
-
-      f = (terms[i].options[2]).strtolong(h);
-      nrknots = unsigned(h);
-
-      f = (terms[i].options[3]).strtodouble(lambda);
-      f = (terms[i].options[7]).strtodouble(startlambda);
+      f = (terms[i].options[1]).strtodouble(lambda);
+      f = (terms[i].options[2]).strtodouble(startlambda);
 
       if (f==1)
         return true;
 
-      MCMC::knotpos po;
-
-      if (knots.getvalue() == "equidistant")
-        po = MCMC::equidistant;
-      else
-        po = MCMC::quantiles;
-
-      // -------------end: reading options, term information -------------------
-
-
-      //--------- creating path for samples and and results, creating title ----
-
-
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-                 "_pspline.raw","_pspline.res","_pspline");
+                 "_random.raw","_random.res","_random");
 
+      fcrandom.push_back(FULLCOND_random(&generaloptions,
+                         D.getCol(j),title,pathnonp,
+                         pathres,lambda,startlambda));
 
-      //----- end: creating path for samples and and results, creating title ---
-
-      fcpspline.push_back( spline_basis(&generaloptions,
-                                              D.getCol(j),
-                                              nrknots,
-                                              degree,
-                                              po,
-                                              type,
-                                              title,
-                                              pathnonp,
-                                              pathres,
-                                              lambda,
-                                              startlambda
-                                             )
-                           );
-
-      fcpspline[fcpspline.size()-1].init_name(terms[i].varnames[0]);
-
-      fcpspline[fcpspline.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcpspline[fcpspline.size()-1]);
-
+      fcrandom[fcrandom.size()-1].init_name(terms[i].varnames[0]);
+      fcrandom[fcrandom.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcrandom[fcrandom.size()-1]);
       }
-
     }
-
   return false;
-
   }
 
+// -----------------------------------------------------------------------------
+// ----------------------- create_randomslope ----------------------------------
+// -----------------------------------------------------------------------------
 
-bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
+bool remlreg::create_randomslope(const unsigned & collinpred)
   {
   ST::string pathnonp;
   ST::string pathres;
-  ST::string monotone;
-
-  long h;
-  unsigned degree,nrknots;
-  double lambda,startlambda;
-  int f;
-
+  ST::string title;
   unsigned i;
   int j1,j2;
+  double lambda, startlambda;
+  int f;
   for(i=0;i<terms.size();i++)
     {
-    if ( nonpvarcoeffpspline.checkvector(terms,i) == true )
+    if ( randomeffslope.checkvector(terms,i) == true )
       {
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
 
-      MCMC::fieldtype type;
-      if (terms[i].options[0] == "varpsplinerw1")
-        type = MCMC::RW1;
-      else
-        type = MCMC::RW2;
-
-      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
-      j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
-
-      f = (terms[i].options[1]).strtolong(h);
-      degree = unsigned(h);
-
-      f = (terms[i].options[2]).strtolong(h);
-      nrknots = unsigned(h);
-
-      f = (terms[i].options[3]).strtodouble(lambda);
-
-      f = (terms[i].options[4]).strtodouble(startlambda);
+      f = (terms[i].options[1]).strtodouble(lambda);
+      f = (terms[i].options[2]).strtodouble(startlambda);
 
       if (f==1)
         return true;
 
-      MCMC::knotpos po;
-
-      if (knots.getvalue() == "equidistant")
-        po = MCMC::equidistant;
-      else
-        po = MCMC::quantiles;
-
-
-      ST::string title;
-
-      // -------------end: reading options, term information -------------------
-
-
-      //--------- creating path for samples and and results, creating title ----
-
-
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
                  terms[i].varnames[0],
-                 "_pspline.raw","_pspline.res","_pspline");
+                 "_random.raw","_random.res","_random");
 
+      fcrandom.push_back(FULLCOND_random(&generaloptions,D.getCol(j1),
+                          D.getCol(j2),title,pathnonp,pathres,lambda,
+                          startlambda));
 
-      //----- end: creating path for samples and and results, creating title ---
-
-
-      fcpspline.push_back( spline_basis(&generaloptions,
-                                              D.getCol(j2),
-                                              D.getCol(j1),
-                                              nrknots,
-                                              degree,
-                                              po,
-                                              type,
-                                              title,
-                                              pathnonp,
-                                              pathres,
-                                              lambda,
-                                              startlambda
-                                             )
-                           );
-
-      vector<ST::string> na;
-      na.push_back(terms[i].varnames[1]);
-      na.push_back(terms[i].varnames[0]);
-      fcpspline[fcpspline.size()-1].init_names(na);
-
-      fcpspline[fcpspline.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcpspline[fcpspline.size()-1]);
-
+      vector<ST::string> varnameshelp;
+      varnameshelp.push_back(terms[i].varnames[1]);
+      varnameshelp.push_back(terms[i].varnames[0]);
+      fcrandom[fcrandom.size()-1].init_names(varnameshelp);
+      fcrandom[fcrandom.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcrandom[fcrandom.size()-1]);
       }
-
     }
-
   return false;
   }
 
+// -----------------------------------------------------------------------------
+// ----------------------------- remlrun ---------------------------------------
+// -----------------------------------------------------------------------------
+
+void remlrun(remlreg & b)
+  {
+  b.resultsyesno = false;
+  b.terms = b.modreg.getterms();
+
+  b.describetext.erase(b.describetext.begin(),b.describetext.end());
+  b.describetext.push_back("LAST ESTIMATED MODEL: \n");
+  b.describetext.push_back("\n");
+  b.describetext.push_back(b.modreg.getModelText());
+  b.describetext.push_back("\n");
+
+  b.clear();
+
+  #if defined(BORLAND_OUTPUT_WINDOW)
+    bool failure = false;
+  #elif defined(JAVA_OUTPUT_WINDOW)
+    bool failure = b.adminb_p->breakcommand();
+  #endif
+
+  b.generaloptions = MCMCoptions(
+  #if defined(JAVA_OUTPUT_WINDOW)
+  b.adminb_p,
+  #endif
+  12000,2000,100,b.logout,b.level1.getvalue(),
+                               b.level2.getvalue());
+
+  ST::string header;
+  bool dispers;
+
+// Read design matrix, compute weights, etc.
+  datamatrix weight;
+  if (!failure)
+    failure = b.create_data(weight);
+
+// Define and check response
+  datamatrix response;
+  if(!failure)
+    failure = b.create_response(response,weight);
+
+// Compute offset
+  datamatrix offset;
+  if(!failure)
+    failure = b.create_offset(offset);
+
+// Compute different model terms
+  if (!failure)
+    failure = b.create_const(0);
+  if( !failure)
+    failure = b.create_baseline(0);
+  if( !failure)
+    failure = b.create_baseline_varcoeff(0);
+  if (!failure)
+    failure = b.create_nonprw1rw2(0);
+  if (!failure)
+    failure = b.create_nonprw1rw2_varcoef(0);
+  if (!failure)
+    failure = b.create_pspline(0);
+  if (!failure)
+    failure = b.create_nonpseason(0);
+  if (!failure)
+    failure = b.create_nonpseason_varcoef(0);
+  if (!failure)
+    failure = b.create_spatial(0);
+  if (!failure)
+    failure = b.create_spatial_varcoef(0);
+  if (!failure)
+    failure = b.create_geospline(0);
+  if (!failure)
+    failure = b.create_geospline_varcoeff(0);
+  if (!failure)
+    failure = b.create_varcoeffpspline(0);
+  if (!failure)
+    failure = b.create_random(0);
+  if (!failure)
+    failure = b.create_randomslope(0);
+  if (!failure)
+    failure = b.create_interactionspspline(0);
+  if (!failure)
+    failure = b.create_varcoeffinteractionspspline(0);
+  if (!failure)
+    failure = b.create_kriging(0);
+  if (!failure)
+    failure = b.create_kriging_1dim(0);
+  if (!failure)
+    failure = b.create_kriging_varcoeff(0);
+  if (!failure)
+    failure = b.create_geokriging(0);
+  if (!failure)
+    failure = b.create_geokriging_varcoeff(0);
+
+  if (!failure)
+    {
+    header= "remlreg object " + b.name.to_bstr() + ": reml procedure" ;
+
+// Nominale Modelle
+    if (b.family.getvalue()=="multinomial")
+      {
+      b.RE_M = remlest_multinomial(
+      #if defined(JAVA_OUTPUT_WINDOW)
+      b.adminb_p,
+      #endif
+      b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.cats,b.logout);
+      if (b.fullcond.size() == 1)    // fixed effects only
+        failure = b.RE_M.estimate_glm(response,offset,weight);
+      else
+        failure = b.RE_M.estimate(response,offset,weight);
+      }
+// Ordinale Modelle
+    else if (b.family.getvalue()=="cumlogit" ||
+        b.family.getvalue()=="cumprobit")
+      {
+      b.RE_O = remlest_ordinal(
+      #if defined(JAVA_OUTPUT_WINDOW)
+      b.adminb_p,
+      #endif
+      b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.cats,b.logout);
+      if (b.fullcond.size() == 1)    // fixed effects only
+        failure = b.RE_O.estimate_glm(response,offset,weight);
+      else
+        failure = b.RE_O.estimate(response,offset,weight);
+      }
+// Univariate Modelle ohne Dispersionsparameter
+    else if (b.family.getvalue()=="binomial" ||
+        b.family.getvalue()=="binomialprobit" ||
+        b.family.getvalue()=="poisson")
+      {
+      dispers=false;
+      b.RE = remlest(
+      #if defined(JAVA_OUTPUT_WINDOW)
+      b.adminb_p,
+      #endif
+      b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
+      if (b.fullcond.size() == 1)    // fixed effects only
+        failure = b.RE.estimate_glm(response,offset,weight);
+      else
+        failure = b.RE.estimate(response,offset,weight);
+      }
+// Cox-Modell
+    else if (b.family.getvalue()=="cox")
+      {
+      dispers=false;
+      b.RE = remlest(
+      #if defined(JAVA_OUTPUT_WINDOW)
+      b.adminb_p,
+      #endif
+      b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
+      failure = b.RE.estimate_survival(response,offset,weight);
+      }
+// Univariate Modelle mit Dispersionsparameter
+    else
+      {
+      dispers=true;
+      b.RE = remlest(
+      #if defined(JAVA_OUTPUT_WINDOW)
+      b.adminb_p,
+      #endif
+      b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
+      if (b.fullcond.size() == 1)    // fixed effects only
+        failure = b.RE.estimate_glm_dispers(response,offset,weight);
+      else
+        failure = b.RE.estimate_dispers(response,offset,weight);
+      }
+    }
+
+// Compute graphics
+#if defined(JAVA_OUTPUT_WINDOW)
+  if(!failure)
+    {
+    for(unsigned j=0;j<b.fullcond.size();j++)
+      {
+      MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
+      if(plst != MCMC::noplot)
+        {
+        vector<ST::string> varnames = b.fullcond[j]->get_datanames();
+        ST::string xvar = varnames[0];
+        if(b.family.getvalue()=="multinomial")
+          {
+          for(unsigned i=0; i<b.cats.rows(); i++)
+            {
+            ST::string pathresult = b.fullcond[j]->get_pathresult();
+            pathresult = pathresult.insert_after_string(ST::doubletostring(b.cats(i,0),6)+"_","_f_");
+            ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+            if(plst == MCMC::plotnonp)
+              {
+              b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(i*b.fullcond.size()+j)
+              + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
+              + " ylab = \" \" outfile = " + pathps + ".ps replace");
+              }
+            else if(plst==MCMC::drawmap)
+              {
+              double u = b.fullcond[j]->get_level1();
+              double o = b.fullcond[j]->get_level2();
+              ST::string u_str = ST::doubletostring(u,0);
+              ST::string o_str = ST::doubletostring(o,0);
+              b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(i*b.fullcond.size()+j)
+              + ", color outfile = " + pathps + "_pmode.ps replace");
+              b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(i*b.fullcond.size()+j)
+              + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+              + "_pcat" + u_str + ".ps replace");
+              b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(i*b.fullcond.size()+j)
+              + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+              + "_pcat" + o_str + ".ps replace");
+              }
+            }
+          }
+        else
+          {
+          ST::string pathresult = b.fullcond[j]->get_pathresult();
+          ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+          if(plst == MCMC::plotnonp)
+            {
+            b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
+            + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
+            + " ylab = \" \" outfile = " + pathps + ".ps replace");
+            }
+          else if(plst==MCMC::drawmap)
+            {
+            double u = b.fullcond[j]->get_level1();
+            double o = b.fullcond[j]->get_level2();
+            ST::string u_str = ST::doubletostring(u,0);
+            ST::string o_str = ST::doubletostring(o,0);
+            b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+            + ", color outfile = " + pathps + "_pmode.ps replace");
+            b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+            + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+            + "_pcat" + u_str + ".ps replace");
+            b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+            + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+            + "_pcat" + o_str + ".ps replace");
+            }
+          }
+        }
+      }
+    }
+#endif
+
+// Produce batch-file for graphics and model summary in tex
+  if(!failure)
+    {
+    ST::string path = b.outfile.getvalue() + "_graphics.prg";
+    ST::string path2 = b.outfile.getvalue() + "_model_summary.tex";
+    ST::string path3 = b.outfile.getvalue() +  "_splus.txt";
+
+    if(b.family.getvalue()=="multinomial")
+      {
+      b.RE_M.make_graphics(header,path,path2,path3,
+                         b.modreg.getModelVarnamesAsVector()[0].to_bstr());
+      }
+    else if(b.family.getvalue()=="cumlogit" || b.family.getvalue()=="cumprobit")
+      {
+      b.RE_O.make_graphics(header,path,path2,path3,
+                         b.modreg.getModelVarnamesAsVector()[0].to_bstr());
+      }
+    else
+      {
+      b.RE.make_graphics(header,path,path2,path3,
+                         b.modreg.getModelVarnamesAsVector()[0].to_bstr(),
+                         dispers);
+      }
+    }
+
+  if (!failure)
+    {
+    b.resultsyesno = true;
+    }
+  else
+    {
+    b.describetext.erase(b.describetext.begin(),b.describetext.end());
+    b.describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
+    b.resultsyesno = false;
+    }
+  }
+
+// -----------------------------------------------------------------------------
+// ----------------------------- drawmaprun ------------------------------------
+// -----------------------------------------------------------------------------
 
 void drawmaprun(remlreg & b)
   {
-
 #if defined(BORLAND_OUTPUT_WINDOW)
-
   b.outerror("ERROR: method drawmap is not available in this version\n");
-
 #elif defined(JAVA_OUTPUT_WINDOW)
-
   bool error = false;
 
   vector<ST::string> varnames = b.mdrawmap.getModelVarnamesAsVector();
@@ -2675,21 +3043,18 @@ void drawmaprun(remlreg & b)
 
     b.newcommands.push_back("drop " + graphname + " " + datasetname);
     }
-
 #endif
-
   }
 
+// -----------------------------------------------------------------------------
+// -------------------------- plotnonprun --------------------------------------
+// -----------------------------------------------------------------------------
 
 void plotnonprun(remlreg & b)
   {
-
 #if defined(BORLAND_OUTPUT_WINDOW)
-
   b.outerror("ERROR: method plotnonp is not available in this version\n");
-
 #elif defined(JAVA_OUTPUT_WINDOW)
-
   bool error = false;
 
   vector<ST::string> varnames = b.mplotnonp.getModelVarnamesAsVector();
@@ -2828,536 +3193,11 @@ void plotnonprun(remlreg & b)
 
     b.newcommands.push_back("drop " + graphname + " " + datasetname);
     }
-
 #endif
-
   b.plotnonpoptions.setdefault();
-
   }
-
-void remlrun(remlreg & b)
-  {
-
-  b.resultsyesno = false;
-
-  b.terms = b.modreg.getterms();
-
-  b.describetext.erase(b.describetext.begin(),b.describetext.end());
-  b.describetext.push_back("LAST ESTIMATED MODEL: \n");
-  b.describetext.push_back("\n");
-  b.describetext.push_back(b.modreg.getModelText());
-  b.describetext.push_back("\n");
-
-  b.clear();
-
-  #if defined(BORLAND_OUTPUT_WINDOW)
-    bool failure = false;
-  #elif defined(JAVA_OUTPUT_WINDOW)
-    bool failure = b.adminb_p->breakcommand();
-  #endif
-
-  b.generaloptions = MCMCoptions(
-  #if defined(JAVA_OUTPUT_WINDOW)
-  b.adminb_p,
-  #endif
-  12000,2000,100,b.logout,b.level1.getvalue(),
-                               b.level2.getvalue());
-
-  ST::string header;
-  bool dispers;
-
-// Read design matrix, compute weights, etc.
-  datamatrix weight;
-  if (!failure)
-    failure = b.create_data(weight);
-
-// Define and check response
-  datamatrix response;
-  if(!failure)
-    failure = b.create_response(response,weight);
-
-// Compute offset
-  datamatrix offset;
-  if(!failure)
-    failure = b.create_offset(offset);
-
-// Compute different model terms
-  if (!failure)
-    failure = b.create_const(0);
-  if( !failure)
-    failure = b.create_baseline(0);
-  if( !failure)
-    failure = b.create_baseline_varcoeff(0);
-  if (!failure)
-    failure = b.create_nonprw1rw2(0);
-  if (!failure)
-    failure = b.create_nonprw1rw2_varcoef(0);
-  if (!failure)
-    failure = b.create_pspline(0);
-  if (!failure)
-    failure = b.create_nonpseason(0);
-  if (!failure)
-    failure = b.create_nonpseason_varcoef(0);
-  if (!failure)
-    failure = b.create_spatial(0);
-  if (!failure)
-    failure = b.create_spatial_varcoef(0);
-  if (!failure)
-    failure = b.create_geospline(0);
-  if (!failure)
-    failure = b.create_geospline_varcoeff(0);
-  if (!failure)
-    failure = b.create_varcoeffpspline(0);
-  if (!failure)
-    failure = b.create_random(0);
-  if (!failure)
-    failure = b.create_randomslope(0);
-  if (!failure)
-    failure = b.create_interactionspspline(0);
-  if (!failure)
-    failure = b.create_varcoeffinteractionspspline(0);
-  if (!failure)
-    failure = b.create_kriging(0);
-  if (!failure)
-    failure = b.create_kriging_1dim(0);
-  if (!failure)
-    failure = b.create_kriging_varcoeff(0);
-  if (!failure)
-    failure = b.create_geokriging(0);
-  if (!failure)
-    failure = b.create_geokriging_varcoeff(0);
-
-  if (!failure)
-    {
-    header= "remlreg object " + b.name.to_bstr() + ": reml procedure" ;
-
-// Multinomiale Modelle
-    if (b.family.getvalue()=="multinomial")
-      {
-      b.RE_M = remlest_multinomial(
-      #if defined(JAVA_OUTPUT_WINDOW)
-      b.adminb_p,
-      #endif
-      b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.cats,b.logout);
-      if (b.fullcond.size() == 1)    // fixed effects only
-        failure = b.RE_M.estimate_glm(response,offset,weight);
-      else
-        failure = b.RE_M.estimate(response,offset,weight);
-      }
-// Ordinale Modelle
-    else if (b.family.getvalue()=="cumlogit" ||
-        b.family.getvalue()=="cumprobit")
-      {
-      b.RE_O = remlest_ordinal(
-      #if defined(JAVA_OUTPUT_WINDOW)
-      b.adminb_p,
-      #endif
-      b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.cats,b.logout);
-      if (b.fullcond.size() == 1)    // fixed effects only
-        failure = b.RE_O.estimate_glm(response,offset,weight);
-      else
-        failure = b.RE_O.estimate(response,offset,weight);
-      }
-// Univariate Modelle ohne Dispersionsparameter
-    else if (b.family.getvalue()=="binomial" ||
-        b.family.getvalue()=="binomialprobit" ||
-        b.family.getvalue()=="poisson")
-      {
-      dispers=false;
-      b.RE = remlest(
-      #if defined(JAVA_OUTPUT_WINDOW)
-      b.adminb_p,
-      #endif
-      b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
-      if (b.fullcond.size() == 1)    // fixed effects only
-        failure = b.RE.estimate_glm(response,offset,weight);
-      else
-        failure = b.RE.estimate(response,offset,weight);
-      }
-    else if (b.family.getvalue()=="cox")
-      {
-      dispers=false;
-      b.RE = remlest(
-      #if defined(JAVA_OUTPUT_WINDOW)
-      b.adminb_p,
-      #endif
-      b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
-      failure = b.RE.estimate_survival(response,offset,weight);
-      }
-// Univariate Modelle mit Dispersionsparameter
-    else
-      {
-      dispers=true;
-      b.RE = remlest(
-      #if defined(JAVA_OUTPUT_WINDOW)
-      b.adminb_p,
-      #endif
-      b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
-      if (b.fullcond.size() == 1)    // fixed effects only
-        failure = b.RE.estimate_glm_dispers(response,offset,weight);
-      else
-        failure = b.RE.estimate_dispers(response,offset,weight);
-      }
-
-    } // end: if (!failure)
-
-// Compute graphics
-#if defined(JAVA_OUTPUT_WINDOW)
-  if(!failure)
-    {
-    for(unsigned j=0;j<b.fullcond.size();j++)
-      {
-      MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
-      if(plst != MCMC::noplot)
-        {
-        vector<ST::string> varnames = b.fullcond[j]->get_datanames();
-        ST::string xvar = varnames[0];
-        if(b.family.getvalue()=="multinomial")
-          {
-          for(unsigned i=0; i<b.cats.rows(); i++)
-            {
-            ST::string pathresult = b.fullcond[j]->get_pathresult();
-            pathresult = pathresult.insert_after_string(ST::doubletostring(b.cats(i,0),6)+"_","_f_");
-            ST::string pathps = pathresult.substr(0, pathresult.length()-4);
-            if(plst == MCMC::plotnonp)
-              {
-              b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(i*b.fullcond.size()+j)
-              + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
-              + " ylab = \" \" outfile = " + pathps + ".ps replace");
-              }
-            else if(plst==MCMC::drawmap)
-              {
-              double u = b.fullcond[j]->get_level1();
-              double o = b.fullcond[j]->get_level2();
-              ST::string u_str = ST::doubletostring(u,0);
-              ST::string o_str = ST::doubletostring(o,0);
-              b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(i*b.fullcond.size()+j)
-              + ", color outfile = " + pathps + "_pmode.ps replace");
-              b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(i*b.fullcond.size()+j)
-              + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
-              + "_pcat" + u_str + ".ps replace");
-              b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(i*b.fullcond.size()+j)
-              + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
-              + "_pcat" + o_str + ".ps replace");
-              }
-            }
-          }
-        else
-          {
-          ST::string pathresult = b.fullcond[j]->get_pathresult();
-          ST::string pathps = pathresult.substr(0, pathresult.length()-4);
-          if(plst == MCMC::plotnonp)
-            {
-            b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
-            + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
-            + " ylab = \" \" outfile = " + pathps + ".ps replace");
-            }
-          else if(plst==MCMC::drawmap)
-            {
-            double u = b.fullcond[j]->get_level1();
-            double o = b.fullcond[j]->get_level2();
-            ST::string u_str = ST::doubletostring(u,0);
-            ST::string o_str = ST::doubletostring(o,0);
-            b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-            + ", color outfile = " + pathps + "_pmode.ps replace");
-            b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-            + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
-            + "_pcat" + u_str + ".ps replace");
-            b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-            + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
-            + "_pcat" + o_str + ".ps replace");
-            }
-          }
-        }
-      }
-    }
-#endif
-
-// Produce batch-file for graphics and model summary in tex
-  if(!failure)
-    {
-    ST::string path = b.outfile.getvalue() + "_graphics.prg";
-    ST::string path2 = b.outfile.getvalue() + "_model_summary.tex";
-    ST::string path3 = b.outfile.getvalue() +  "_splus.txt";
-
-    if(b.family.getvalue()=="multinomial")
-      {
-      b.RE_M.make_graphics(header,path,path2,path3,
-                         b.modreg.getModelVarnamesAsVector()[0].to_bstr());
-      }
-    else if(b.family.getvalue()=="cumlogit" || b.family.getvalue()=="cumprobit")
-      {
-      b.RE_O.make_graphics(header,path,path2,path3,
-                         b.modreg.getModelVarnamesAsVector()[0].to_bstr());
-      }
-    else
-      {
-      b.RE.make_graphics(header,path,path2,path3,
-                         b.modreg.getModelVarnamesAsVector()[0].to_bstr(),
-                         dispers);
-      }
-    }
-
-  if (!failure)
-    {
-    b.resultsyesno = true;
-    }
-  else
-    {
-    b.describetext.erase(b.describetext.begin(),b.describetext.end());
-    b.describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
-    b.resultsyesno = false;
-    }
-  }
-
-bool remlreg::create_nonprw1rw2(const unsigned & collinpred)
-  {
-
-  ST::string pathnonp;
-  ST::string pathres;
-  ST::string title;
-
-  double hd;
-  double lambda, startlambda;
-  int f;
-
-  unsigned i;
-  int j;
-  for(i=0;i<terms.size();i++)
-    {
-    if ( nonprw1rw2.checkvector(terms,i) == true )
-      {
-
-      // -------------- reading options, term information ----------------------
-      MCMC::fieldtype type;
-      if (terms[i].options[0] == "rw1")
-        type = MCMC::RW1;
-      else
-        type = MCMC::RW2;
-
-      j = terms[i].varnames[0].isinlist(modelvarnamesv);
-
-      f = (terms[i].options[1]).strtodouble(hd);
-      lambda = hd;
-      f = (terms[i].options[2]).strtodouble(hd);
-      startlambda = hd;
-
-      if (f==1)
-        return true;
-
-      // -------------- reading options, term information ----------------------
-
-      // -------- creating paths for samples and results, titles ---------------
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-                 "_rw.raw","_rw.res","_rw");
-
-      // -------- end: creating paths for samples and results, titles ----------
-
-      fcnonpgaussian.push_back(FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j),
-                         unsigned(maxint.getvalue()),type,
-                         title,pathres,lambda,startlambda));
-
-      fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
-      fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
-
-      } // end: if ( nonprw1rw2.checkvector(terms,i) == true )
-
-    }
-
-  return false;
-  }
-
-bool remlreg::create_nonprw1rw2_varcoef(const unsigned & collinpred)
-  {
-
-  ST::string pathnonp;
-  ST::string pathres;
-  ST::string title;
-
-  double hd;
-  double lambda, startlambda;
-  int f;
-
-  unsigned i;
-  int j1,j2;
-  for(i=0;i<terms.size();i++)
-    {
-    if ( nonprw1rw2_varcoef.checkvector(terms,i) == true )
-      {
-
-      // -------------- reading options, term information ----------------------
-      MCMC::fieldtype type;
-      if (terms[i].options[0] == "varcoeffrw1")
-        type = MCMC::RW1;
-      else
-        type = MCMC::RW2;
-
-      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
-      j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
-
-      f = (terms[i].options[1]).strtodouble(hd);
-      lambda = hd;
-      f = (terms[i].options[2]).strtodouble(hd);
-      startlambda = hd;
-
-      if (f==1)
-        return true;
-
-      // -------------- reading options, term information ----------------------
-
-      // -------- creating paths for samples and results, titles ---------------
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
-                 terms[i].varnames[0],"_rw.raw","_rw.res","_rw");
-
-      // -------- end: creating paths for samples and results, titles ----------
-
-      fcnonpgaussian.push_back(FULLCOND_nonp_gaussian(&generaloptions,
-                         D.getCol(j2),D.getCol(j1),
-                         unsigned(maxint.getvalue()),type,
-                         title,pathres,lambda,startlambda));
-
-      vector<ST::string> na;
-      na.push_back(terms[i].varnames[1]);
-      na.push_back(terms[i].varnames[0]);
-      fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
-      fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
-      } // end: if ( nonprw1rw2.checkvector(terms,i) == true )
-    }
-  return false;
-  }
-
-bool remlreg::create_nonpseason(const unsigned & collinpred)
-  {
-
-  ST::string pathnonp;
-  ST::string pathres;
-
-  long h;
-  double hd;
-  double lambda, startlambda;
-  unsigned per;
-  int f;
-
-  unsigned i;
-  int j;
-  for(i=0;i<terms.size();i++)
-    {
-    if ( nonpseason.checkvector(terms,i) == true )
-      {
-
-      j = terms[i].varnames[0].isinlist(modelvarnamesv);
-
-      f = (terms[i].options[1]).strtolong(h);
-      per = unsigned(h);
-
-      f = (terms[i].options[2]).strtodouble(hd);
-      lambda = hd;
-      f = (terms[i].options[3]).strtodouble(hd);
-      startlambda = hd;
-
-      if (f==1)
-        return true;
-
-      ST::string title;
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-                 "_season.raw","_season.res","_season");
-
-      fcnonpgaussian.push_back(
-      FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j),
-                                         unsigned(maxint.getvalue()),
-                                         MCMC::seasonal,title,pathres,
-                                         lambda,startlambda,per));
-
-      fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
-
-      fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
-
-      fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
-
-      }
-
-    }
-
-  return false;
-  }
-
-bool remlreg::create_nonpseason_varcoef(const unsigned & collinpred)
-  {
-
-  ST::string pathnonp;
-  ST::string pathres;
-
-  long h;
-  double hd;
-  double lambda, startlambda;
-  unsigned per;
-  int f;
-
-  unsigned i;
-  int j1, j2;
-  for(i=0;i<terms.size();i++)
-    {
-    if ( nonpseason_varcoef.checkvector(terms,i) == true )
-      {
-
-      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
-      j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
-
-      f = (terms[i].options[1]).strtolong(h);
-      per = unsigned(h);
-
-      f = (terms[i].options[2]).strtodouble(hd);
-      lambda = hd;
-      f = (terms[i].options[3]).strtodouble(hd);
-      startlambda = hd;
-
-      if (f==1)
-        return true;
-
-      ST::string title;
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
-                 terms[i].varnames[0],"_season.raw","_season.res",
-                 "_season");
-
-      fcnonpgaussian.push_back(
-      FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j2),D.getCol(j1),
-                                         unsigned(maxint.getvalue()),
-                                         MCMC::seasonal,title,pathres,
-                                         lambda,startlambda,per));
-
-      vector<ST::string> na;
-      na.push_back(terms[i].varnames[1]);
-      na.push_back(terms[i].varnames[0]);
-      fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
-      fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
-
-      }
-
-    }
-
-  return false;
-  }
-
-  void remlreg::describe(optionlist & globaloptions)
-  {
-  statobject::describe(globaloptions);
-  }
-
 
 #if defined(BORLAND_OUTPUT_WINDOW)
-//------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
 

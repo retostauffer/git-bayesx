@@ -201,6 +201,17 @@
     if (stop)
       return true;
 
+    // check for rank-deficient design matrices
+    if(it==1)
+      {
+      datamatrix test = H.cinverse();
+      if(test.rows()<1)
+        {
+        outerror("ERROR: Design matrix is rank deficient\n");
+        return true;
+        }
+      }
+
     H1.weightedsscp_resp2(X,Z,worky,workweight);
 
     // Fisher-Scoring for beta
@@ -539,6 +550,17 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
     if (stop)
       return true;
 
+    // check for rank-deficient design matrices
+    if(it==1)
+      {
+      datamatrix test = H.cinverse();
+      if(test.rows()<1)
+        {
+        outerror("ERROR: Design matrix is rank deficient\n");
+        return true;
+        }
+      }
+
     // Fisher-Scoring for beta
     beta=H.solve(H1);
 
@@ -842,6 +864,17 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
     stop = check_pause();
     if (stop)
       return true;
+
+    // check for rank-deficient design matrices
+    if(it==1)
+      {
+      datamatrix test = H.cinverse();
+      if(test.rows()<1)
+        {
+        outerror("ERROR: Design matrix is rank deficient\n");
+        return true;
+        }
+      }
 
     H1.weightedsscp_resp2(X,Z,worky,workweight);
 
@@ -1273,6 +1306,17 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
     stop = check_pause();
     if (stop)
       return true;
+
+    // check for rank-deficient design matrices
+    if(it==1)
+      {
+      datamatrix test = H.cinverse();
+      if(test.rows()<1)
+        {
+        outerror("ERROR: Design matrix is rank deficient\n");
+        return true;
+        }
+      }
 
     // Fisher-Scoring for beta
     beta=H.solve(H1);

@@ -202,6 +202,17 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
     compute_sscp_resp2(H1,workweight,worky);
     H.addtodiag(Qinv,totalnrfixed,totalnrpar);
 
+    // check for rank-deficient design matrices
+    if(it==1)
+      {
+      datamatrix test = H.cinverse();
+      if(test.rows()<1)
+        {
+        outerror("ERROR: Design matrix is rank deficient\n");
+        return true;
+        }
+      }
+
     // Fisher-Scoring for beta
     beta=H.solve(H1);
 
@@ -513,6 +524,17 @@ bool remlest_multinomial::estimate_glm(const datamatrix resp,
     stop = check_pause();
     if (stop)
       return true;
+
+    // check for rank-deficient design matrices
+    if(it==1)
+      {
+      datamatrix test = H.cinverse();
+      if(test.rows()<1)
+        {
+        outerror("ERROR: Design matrix is rank deficient\n");
+        return true;
+        }
+      }
 
     // Fisher-Scoring for beta
     beta=H.solve(H1);
