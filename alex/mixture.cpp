@@ -330,37 +330,60 @@ void FULLCOND_mixture::update(void)
   for(i=0;i<compind.rows();i++)
   {
   datamatrix cprob(nrcomp,1,1.0/nrcomp); // probabilities psi_{ik}
-  datamatrix cptemp(nrcomp,1,1);
+  datamatrix cptemp(nrcomp,1,1.0/nrcomp);
 
   // calculate psi_{ik}
-//  double cptempsum=1.0;
+  //  double cptempsum=1.0;
   for(k=0;k<nrcomp;k++)
     {
     double cmean=compmean(k,0);
     double cvar=compvar(k,0);
     cptemp(k,0)=compweight(k,0) * (1.0/(sqrt(cvar))) * exp(-0.5*(beta(i,0)-cmean)*(1.0/cvar)*(beta(i,0)-cmean));
-//    cptempsum+=cptemp(k,0);
+  //    cptemp(k,0)=compweight(k,0) * exp(-0.5*(beta(i,0)-cmean)*(beta(i,0)-cmean));
+  //    cptempsum+=cptemp(k,0);
     }
   double cptempsum=cptemp.sum(0);
-/*  for(k=0;k<nrcomp;k++)
-    {
-    cprob(k,0)=cptemp(k,0)*(1.0/cptempsum);
-    }*/
-
-//  cptemp=(1.0/cptempsum)*cptemp;
-//  cprob.assign(cptemp);
+  cptemp=(1.0/cptempsum)*cptemp;
+  cprob.assign(cptemp);
 
   // sample component indicator
   double u;
   u=uniform();
+
   double cprobsum=0.0;
   for(k=0;k<nrcomp;k++)
       {
-      if ( (cprobsum<u) && (u<=cprobsum+cprob(k,0))) compind(i,0) = k+1;
+      if ( (cprobsum<u) && (u<=cprobsum+cprob(k,0)))
+        compind(i,0) = k+1;
       cprobsum+=cprob(k,0);
       }
+/*
+  // Sampling
+  //  if(i==0)
+  //  {
+  ST::string pathtemp = pathcurrent.substr(0,pathcurrent.length()-4)+"_comptemp.res";
+  ofstream outrest(pathtemp.strtochar(),ios::app);
+  for(unsigned k=0;k<nrcomp;k++)
+    {
+    outrest << cprob(k,0) << "  " ;
+    }
+  outrest  << cptempsum << endl;
+  //  }
+*/
   }
 
+
+// Update component sizes
+statmatrix<unsigned> cstemp(nrcomp,1,0);
+
+for(k=0;k<nrcomp;k++)
+{
+  for(i=0;i<nrpar;i++)
+    {
+    if(compind(i,0)==k+1) cstemp(k,0)+=1;
+    }
+}
+csize.assign(cstemp);
 
 
 // Update random effects
@@ -435,9 +458,15 @@ void FULLCOND_mixture::update(void)
   for(k=0;k<nrcomp;k++)
   {
   double shtemp,sctemp,resum;
-  resum=beta.sum2(0);
+  resum=0.0;
+  for(i=0;i<nrpar;i++)
+  {
+    if(compind(i,0)==k+1)
+      resum+=(beta(i,0)-compmean(k,0))*(beta(i,0)-compmean(k,0));
+  }
+
   shtemp = cvpriorsh+csize(k,0);
-  sctemp = cvpriorsc+(resum-compmean(k,0))*(resum-compmean(k,0));
+  sctemp = cvpriorsc+resum;
   cvartemp(k,0)=rand_gamma(shtemp,sctemp);
   }
   compvar.assign(cvartemp);
