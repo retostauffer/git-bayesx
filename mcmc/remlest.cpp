@@ -2727,12 +2727,12 @@ bool remlest::estimate_survival_interval(datamatrix resp,
       }
 
     // compute cumulated baseline
-ofstream out4("c:\\temp\\tsteps.raw");
+/*ofstream out4("c:\\temp\\tsteps.raw");
 tsteps.prettyPrint(out4);
 out4.close();
 ofstream out5("c:\\temp\\baseline.raw");
 baseline.prettyPrint(out5);
-out5.close();
+out5.close();*/
 
     cumbaseline = datamatrix(cumbaseline.rows(),1,0);
     double former=0;
@@ -2744,9 +2744,9 @@ out5.close();
     cumbaseline(t_X.rows()-1,0) = former + 0.5*(former-cumbaseline(t_X.rows()-3,0));
     datamatrix negcumbaseline = -cumbaseline;
 
-ofstream out9("c:\\temp\\cumbaseline.raw");
+/*ofstream out9("c:\\temp\\cumbaseline.raw");
 cumbaseline.prettyPrint(out9);
-out9.close();
+out9.close();*/
 
     // compute mult_hazard = exp(x'beta) without time-varying covariates x(t)
 
@@ -2769,7 +2769,7 @@ out9.close();
       mult_hazard(i,0)=exp(mult_eta(i,0));
       }
 
-ofstream out3("c:\\temp\\mult_hazard.raw");
+/*ofstream out3("c:\\temp\\mult_hazard.raw");
 mult_hazard.prettyPrint(out3);
 out3.close();
 ofstream out10("c:\\temp\\eta.raw");
@@ -2780,7 +2780,7 @@ mult_eta.prettyPrint(out11);
 out11.close();
 ofstream out12("c:\\temp\\baseline_eta.raw");
 baseline_eta.prettyPrint(out12);
-out12.close();
+out12.close();*/
 
     // compute cumulated hazard
 
@@ -2790,9 +2790,9 @@ out12.close();
       }
     datamatrix negcumhazard = - cumhazard;
 
-ofstream out13("c:\\temp\\cumhazard.raw");
+/*ofstream out13("c:\\temp\\cumhazard.raw");
 cumhazard.prettyPrint(out13);
-out13.close();
+out13.close();*/
 
     // compute lower and upper surivor function
 
@@ -2805,9 +2805,9 @@ out13.close();
         }
       }
 
-ofstream out1("c:\\temp\\Survivor.raw");
+/*ofstream out1("c:\\temp\\Survivor.raw");
 Survivor.prettyPrint(out1);
-out1.close();
+out1.close();*/
 
     // compute derivative matrix D
 
@@ -2843,13 +2843,13 @@ out1.close();
 
     // Score-Funktion für beta
 
-ofstream out2("c:\\temp\\Dmat.raw");
+/*ofstream out2("c:\\temp\\Dmat.raw");
 Dmat.prettyPrint(out2);
 out2.close();
 
 ofstream out6("c:\\temp\\beta.raw");
 beta.prettyPrint(out6);
-out6.close();
+out6.close();*/
 
     for(j=0; j<xcols; j++)
       {
@@ -2933,9 +2933,14 @@ out6.close();
         }
       }
 
-ofstream out8("c:\\temp\\H1.raw");
+    for(j=0; j<zcols;j++)
+      {
+      H1(xcols+j,0) -= Qinv(j,0)*beta(xcols+j,0);
+      }
+
+/*ofstream out8("c:\\temp\\H1.raw");
 H1.prettyPrint(out8);
-out8.close();
+out8.close();*/
 
     // Fisher-Information for beta
 
@@ -3591,15 +3596,19 @@ out8.close();
       }
     H = -H;
 
-ofstream out7("c:\\temp\\H.raw");
+/*ofstream out7("c:\\temp\\H.raw");
 H.prettyPrint(out7);
-out7.close();
+out7.close();*/
 
     H.addtodiag(Qinv,xcols,beta.rows());
 
-ofstream out14("c:\\temp\\H.raw");
+/*ofstream out14("c:\\temp\\H.raw");
 H.prettyPrint(out14);
 out14.close();
+
+ofstream out16("c:\\temp\\Qinv.raw");
+Qinv.prettyPrint(out16);
+out16.close();*/
 
     // Fisher-scoring für beta
     beta = betaold + H.solve(H1);
@@ -3615,7 +3624,7 @@ out14.close();
 
     Hinv=H.inverse();
 
-    // transform theta
+/*    // transform theta
     for(i=0; i<theta.rows(); i++)
       {
       thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
@@ -3648,9 +3657,9 @@ out15.close();
         }
       }
 
-ofstream out16("c:\\temp\\Fisher.raw");
-Fisher.prettyPrint(out16);
-out16.close();
+ofstream out17("c:\\temp\\Fisher.raw");
+Fisher.prettyPrint(out17);
+out17.close();
 
     //Fisher-scoring für theta
 
@@ -3684,7 +3693,7 @@ out16.close();
        its[i]=it;
        }
      }
-
+*/
     // compute convergence criteria
     help=betaold.norm(0);
     if(help==0)
@@ -3732,25 +3741,26 @@ out16.close();
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
-datamatrix loglike(1,3,0);
-
-loglike(0,0) = loglike(1,0) = (resp.transposed()*eta)(0,0);
+datamatrix loglike(1,4,0);
+loglike(0,0) = loglike(0,1) = (resp.transposed()*eta)(0,0);
 loglike(0,0) -= 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
-loglike(1,0) -= 0.5*log(H.det()) + 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
-loglike(2,0) -= 0.5*log(H.det()) + 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
+loglike(0,1) -= 0.5*log(H.det()) + 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
+loglike(0,2) -= 0.5*log(H.det()) + 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
 for(i=0; i<nrobs; i++)
   {
   if(interval[i])
     {
     loglike(0,0) += log(Survivor(i,0)-Survivor(i,1));
-    loglike(1,0) += log(Survivor(i,0)-Survivor(i,1));
+    loglike(0,1) += log(Survivor(i,0)-Survivor(i,1));
     }
   else
     {
     loglike(0,0) -= cumhazard(i,0);
-    loglike(1,0) -= cumhazard(i,0);
+    loglike(0,1) -= cumhazard(i,0);
     }
   }
+H.addtodiag(-Qinv,xcols,beta.rows());
+loglike(0,3) = (H*Hinv).trace();
 
   ofstream outlog((outfile+"_loglike.raw").strtochar());
   loglike.prettyPrint(outlog);
