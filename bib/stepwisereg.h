@@ -46,6 +46,7 @@ using MCMC::MCMCoptions;
 using MCMC::DISTRIBUTION;
 using MCMC::DISTRIBUTION_gaussian;
 using MCMC::DISTRIBUTION_binomial;
+using MCMC::DISTRIBUTION_binomial_latent;
 using MCMC::DISTRIBUTION_poisson;
 using MCMC::DISTRIBUTION_gamma;
 using MCMC::DISTRIBUTION_nbinomial;
