@@ -97,21 +97,18 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
     cmpriorv = 20;
     cvpriorsh = 10;
     cvpriorsc = 10;
+  temp = datamatrix(nrcomp,1,0);
 // End of Mixture stuff
 
 
   fcconst = fcc;
   fctype = randomeffects;
 
-
   column = c;
 
   likep = dp;
   pathresult = pr;
   pathcurrent = pr;
-
-//  lambda = la;
-//  lambdaconst=false;
 
   index = statmatrix<int>(d.rows(),1);
   index2 = statmatrix<int>(d.rows(),1);
@@ -145,9 +142,7 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
       posbeg.push_back(j);
       posend.push_back(j-1);
       }
-
     help = *workindex;
-
     }
 
   posend.push_back(d.rows()-1);
@@ -159,12 +154,11 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
 
   setbeta(posbeg.size(),1,0);
 
-  identifiable = false;
-
   compind = statmatrix<unsigned>(nrpar,1,1);
   muy = datamatrix(nrpar,1);
   mu = datamatrix(index.rows(),1);
 
+  identifiable = false;
 //  identifiable =true;
 
   }
@@ -184,6 +178,7 @@ FULLCOND_mixture::FULLCOND_mixture(const FULLCOND_mixture & fc)
     cmpriorv=fc.cmpriorv;
     cvpriorsh=fc.cvpriorsh;
     cvpriorsc=fc.cvpriorsc;
+  temp=fc.temp;
 
   muy = fc.muy;
   mu = fc.mu;
@@ -195,8 +190,6 @@ FULLCOND_mixture::FULLCOND_mixture(const FULLCOND_mixture & fc)
   posbeg = fc.posbeg;
   posend = fc.posend;
   effvalues = fc.effvalues;
-//  lambda = fc.lambda;
-//  lambdaconst=fc.lambdaconst;
   }
 
 
@@ -217,7 +210,8 @@ const FULLCOND_mixture & FULLCOND_mixture::
     cmpriorv=fc.cmpriorv;
     cvpriorsh=fc.cvpriorsh;
     cvpriorsc=fc.cvpriorsc;
-
+  temp=fc.temp;
+  
   muy = fc.muy;
   mu = fc.mu;
   fcconst = fc.fcconst;
@@ -228,8 +222,6 @@ const FULLCOND_mixture & FULLCOND_mixture::
   posbeg = fc.posbeg;
   posend = fc.posend;
   effvalues = fc.effvalues;
-//  lambda = fc.lambda;
-//  lambdaconst=fc.lambdaconst;
 
   return *this;
   }
@@ -272,16 +264,16 @@ void FULLCOND_mixture::update(void)
 
 
 // Update component sizes
-statmatrix<unsigned> cstemp(nrcomp,1,0);
+  statmatrix<unsigned> cstemp(nrcomp,1,0);
 
-for(k=0;k<nrcomp;k++)
-{
-  for(i=0;i<nrpar;i++)
-    {
-    if(compind(i,0)==k+1) cstemp(k,0)+=1;
-    }
-}
-csize.assign(cstemp);
+  for(k=0;k<nrcomp;k++)
+  {
+    for(i=0;i<nrpar;i++)
+      {
+      if(compind(i,0)==k+1) cstemp(k,0)+=1;
+      }
+  }
+  csize.assign(cstemp);
 
 
 // Update random effects
@@ -326,6 +318,20 @@ csize.assign(cstemp);
   }
   beta.assign(retemp);
 
+  update_linpred(true);
+
+/*  if (center)
+    {
+    double m = centerbeta();
+    fcconst->update_intercept(m);
+    }
+*/
+  acceptance++;
+  transform = likep->get_trmult(column);
+
+
+
+
 /*  datamatrix test(beta.rows(),1,0);
   test = likep->get_response();
 
@@ -339,16 +345,7 @@ csize.assign(cstemp);
   outrest2 ;
 */
 
-  update_linpred(true);
 
-/*  if (center)
-    {
-    double m = centerbeta();
-    fcconst->update_intercept(m);
-    }
-*/
-  acceptance++;
-  transform = likep->get_trmult(column);
 
 
 
@@ -378,6 +375,7 @@ csize.assign(cstemp);
   }
   compmean.assign(cmeantemp);
 
+/*
   // Sampling
   ST::string pathtemp = pathcurrent.substr(0,pathcurrent.length()-4)+"_comptemp.res";
   ofstream outrest(pathtemp.strtochar(),ios::app);
@@ -386,7 +384,7 @@ csize.assign(cstemp);
     outrest << compmean(k,0) << "  " ;
     }
   outrest << endl;
-
+*/
 
 
 // Update component variances
@@ -410,21 +408,17 @@ csize.assign(cstemp);
 
 
 // Update component weights
-  datamatrix cwtemp(nrcomp,1,0);
+//  datamatrix cwtemp(nrcomp,1,0);
   double cwtempsum;
   for(k=0;k<nrcomp;k++)
   {
-  cwtemp(k,0)=rand_gamma(cwprior(k,0)+csize(k,0),1.0);
+  temp(k,0)=rand_gamma(cwprior(k,0)+csize(k,0),1.0);
   }
-  cwtempsum=cwtemp.sum(0);
-  cwtemp=(1.0/cwtempsum)*cwtemp;
-  compweight.assign(cwtemp);
-
-
-//  transform = likep->get_trmult(column);
+  cwtempsum=temp.sum(0);
+  temp=(1.0/cwtempsum)*temp;
+  compweight.assign(temp);
 
   FULLCOND::update();
-
   }
 
 

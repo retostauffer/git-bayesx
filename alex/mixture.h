@@ -36,6 +36,8 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
   double cmpriorm,cmpriorv;
   double cvpriorsh,cvpriorsc;
 
+  datamatrix temp; //
+
 
   datamatrix muy;
   datamatrix mu;
