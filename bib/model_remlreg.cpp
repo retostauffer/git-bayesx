@@ -2,6 +2,50 @@
 #include "model_remlreg.h"
 
 //------------------------------------------------------------------------------
+//----- class term_fixed_catspecific: implementation of member functions -------
+//------------------------------------------------------------------------------
+
+term_fixed_catspecific::term_fixed_catspecific(void)
+  {
+  type = "term_fixed_cat";
+  }
+
+bool term_fixed_catspecific::check(term & t)
+  {
+  if ( (t.varnames.size() == 1) && t.options.size()==1)
+    {
+    if (t.options[0] == "catspecific")
+      t.type = "catspecific";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(1);
+    t.options[0] = t.type;
+
+    setdefault();
+    return true;
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+  }
+
+bool term_fixed_catspecific::checkvector(const vector<term> & terms,
+                                       const unsigned & i)
+  {
+  assert(i< terms.size());
+  if (terms[i].type == "catspecific")
+    return true;
+  return false;
+  }
+
+//------------------------------------------------------------------------------
 //----- class term_autoreg_remlreg: implementation of member functions ---------
 //------------------------------------------------------------------------------
 

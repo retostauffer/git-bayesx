@@ -13,6 +13,40 @@
 #include<model.h>
 
 //------------------------------------------------------------------------------
+//------------------------- class term_fixed_catspecific -----------------------
+//------------------------------------------------------------------------------
+
+// Category-specific fixed effects in cumulative or sequential models
+
+class __EXPORT_TYPE term_fixed_catspecific : public basic_termtype
+  {
+  protected:
+
+  void setdefault(void)
+    {
+    }
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_fixed_catspecific(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a category-specific fixed effect
+
+  bool checkvector(const vector<term>  & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_fixed_catspecific() {}
+  };
+
+//------------------------------------------------------------------------------
 //-------------------------- class term_autoreg_remlreg ------------------------
 //------------------------------------------------------------------------------
 

@@ -153,6 +153,9 @@ void remlreg::create(void)
   fixedeffects = basic_termtype();
   termtypes.push_back(&fixedeffects);
 
+  fixed_catsp = term_fixed_catspecific();
+  termtypes.push_back(&fixed_catsp);
+
 //------------------------------------------------------------------------------
 //------------------------ for nonparametric terms -----------------------------
 //------------------------------------------------------------------------------
@@ -463,6 +466,8 @@ remlreg::remlreg(const remlreg & b) : statobject(statobject(b))
   terms = b.terms;
   fcpspline = b.fcpspline;
   resultsyesno = b.resultsyesno;
+  leftintpos = b.leftintpos;
+  lefttruncpos = b.lefttruncpos;
   initpointers();
   }
 
@@ -526,7 +531,7 @@ bool remlreg::create_data(datamatrix & weight)
     return true;
     }
 
-  // create data matrix and waits
+  // create data matrix and weights
 
   ST::string rname;
   ST::string wn;
@@ -548,13 +553,29 @@ bool remlreg::create_data(datamatrix & weight)
   ifexpression = methods[0].getexpression();
 
   // Für Cox model: variable 'leftint' an 2. Stelle setzen
+  leftintpos=-1;
+  if(leftint.getvalue() != "")
+    {
+    modelvarnamesv.push_back(leftint.getvalue());
+    leftintpos = modelvarnamesv.size()-1;
+    }
+
+  // Für Cox model: variable 'lefttrunc' an 3. Stelle setzen
+  lefttruncpos=-1;
+  if(lefttrunc.getvalue() != "")
+    {
+    modelvarnamesv.push_back(lefttrunc.getvalue());
+    lefttruncpos = modelvarnamesv.size()-1;
+    }
+
+  /*  // Für Cox model: variable 'leftint' an 2. Stelle setzen
   vector<ST::string>::iterator modelit = modelvarnamesv.begin()+1;
   if(leftint.getvalue() != "")
     modelvarnamesv.insert(modelit,1,leftint.getvalue());
   // Für Cox model: variable 'lefttrunc' an 3. Stelle setzen
   modelit++;
   if(lefttrunc.getvalue() != "")
-    modelvarnamesv.insert(modelit,2,lefttrunc.getvalue());
+    modelvarnamesv.insert(modelit,2,lefttrunc.getvalue());*/
 
   // testing, wether all variables specified are already existing
   vector<ST::string> notex;
@@ -904,10 +925,36 @@ bool remlreg::create_const(const unsigned & collinpred)
     varnames.push_back("const");
     }
 
+  for(i=0;i<terms.size();i++)
+    {
+    if(fixed_catsp.checkvector(terms,i) == true)
+      {
+      if(family.getvalue()!="cumlogit" && family.getvalue()!="cumprobit" &&
+         family.getvalue()!="seqlogit" && family.getvalue()!="seqprobit")
+        {
+        outerror("ERROR: category specific effects not allowed for family=" + family.getvalue() + "\n");
+        return true;
+        }
+      varnames.push_back(terms[i].varnames[0]);
+      }
+    }
+
   for(i=0;i<varnamesh.size();i++)
     varnames.push_back(varnamesh[i]);
 
   unsigned nr = varnames.size();
+
+  vector<bool>catsp(nr,false);
+  catsp[0] = true;
+  j=1;
+  for(i=0;i<terms.size();i++)
+    {
+    if(fixed_catsp.checkvector(terms,i) == true)
+      {
+      catsp[j]=true;
+      j++;
+      }
+    }
 
   ST::string title;
   ST::string pathconst;
@@ -961,7 +1008,7 @@ bool remlreg::create_const(const unsigned & collinpred)
     }
 
   fcconst.push_back(FULLCOND_const(&generaloptions,X,title,0,
-                                   pathconst,pathconstres));
+                                   pathconst,pathconstres,catsp));
 
   fcconst[fcconst.size()-1].init_names(varnames);
   fcconst[fcconst.size()-1].set_fcnumber(fullcond.size());
@@ -2685,7 +2732,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
       datamatrix lowerint;
       if(leftint.getvalue()!="")
         {
-        lowerint = D.getCol(1);
+        lowerint = D.getCol(leftintpos);
         }
       else
         {
@@ -2696,7 +2743,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
       datamatrix lowertrunc;
       if(lefttrunc.getvalue()!="")
         {
-        lowertrunc = D.getCol(2);
+        lowertrunc = D.getCol(lefttruncpos);
         }
       else
         {

@@ -185,6 +185,8 @@ class __EXPORT_TYPE remlreg : public statobject
 
   stroption leftint;                    // Cox Model: left interval boundary
   stroption lefttrunc;                  //            left truncation time
+  int leftintpos;                       // Positionen der Variablen in der
+  int lefttruncpos;                     // Datenmatrix
 
   optionlist regressoptions;
 
@@ -218,6 +220,7 @@ class __EXPORT_TYPE remlreg : public statobject
   vector<FULLCOND_const> fcconst;
 
   basic_termtype fixedeffects;
+  term_fixed_catspecific fixed_catsp;
 
   bool create_const(const unsigned & colllinpred=0);
 
