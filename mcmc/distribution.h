@@ -483,7 +483,7 @@ class __EXPORT_TYPE DISTRIBUTION
 
 
   // FUNCTION: compute_rss
-  // TASK: computes the residual su of squares for gaussian data
+  // TASK: computes the residual sum of squares for gaussian data
 
   virtual double compute_rss(void)
     {
@@ -493,28 +493,22 @@ class __EXPORT_TYPE DISTRIBUTION
   // FUNCTION: compute_gcv
   // TASK: computes the GCV score
 
-  virtual double compute_gcv(double & df)
-    {
-    return 0;
-    }
+  virtual double compute_gcv(double & df);
 
   // FUNCTION: compute_aic
   // TASK: computes the AIC
 
-  virtual double compute_aic(double & df)
-    {
-    return 0;
-    }
+  virtual double compute_aic(double & df);
 
-  virtual double compute_improvedaic(double & df)
-    {
-    return 0;
-    }
+  // FUNCTION: compute_improvedaic
+  // TASK: computes the improved AIC
 
-  virtual double compute_bic(double & df)
-    {
-    return 0;
-    }
+  virtual double compute_improvedaic(double & df);
+
+  // FUNCTION: compute_bic
+  // TASK: computes the BIC
+
+  virtual double compute_bic(double & df);
 
   //----------------------------------------------------------------------------
   //--------------- functions for maximizing the loglikelihood -----------------

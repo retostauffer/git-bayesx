@@ -27,6 +27,48 @@ void DISTRIBUTION::compute_deviance(double & deviance,double & deviancesat)
     }
   }
 
+double DISTRIBUTION::compute_gcv(double & df)
+  {
+  double dev=0;
+  double devsat=0;
+  compute_deviance(dev,devsat);
+
+  double help2 = 1-df/get_nrobs_wpw();
+  double gcv = devsat / (get_nrobs_wpw()*help2*help2);
+  return gcv;
+  }
+
+double DISTRIBUTION::compute_aic(double & df)
+  {
+  double dev=0;
+  double devsat=0;
+  compute_deviance(dev,devsat);
+
+  double aic = dev + 2*df;
+  return aic;
+  }
+
+double DISTRIBUTION::compute_improvedaic(double & df)
+  {
+  double dev=0;
+  double devsat=0;
+  compute_deviance(dev,devsat);
+
+  double impaic = dev + 2*df + 2*df*(df+1)/(get_nrobs_wpw()-df-1);
+  return impaic;
+  }
+
+double DISTRIBUTION::compute_bic(double & df)
+  {
+  double dev=0;
+  double devsat=0;
+  compute_deviance(dev,devsat);
+
+  double bic = dev + log(get_nrobs_wpw())*df;
+  return bic;
+  }
+
+
 unsigned DISTRIBUTION::get_nrobs_wpw(void)
   {
   unsigned i;
@@ -4144,23 +4186,6 @@ double DISTRIBUTION_gaussian::loglikelihood(double * res,
 
 // ------------------- For Stepwise --------------------------------------------
 
-/*
-unsigned DISTRIBUTION_gaussian::get_nrobs_wpw(void) const
-  {
-  unsigned i;
-  double * workweight = weight.getV();
-  double s = 0;
-
-  for (i=0;i<nrobs;i++,workweight++)
-    {
-    if (workweight ==0)
-      s++;
-    }
-
-  return nrobs-s;
-  }
-*/
-
 double DISTRIBUTION_gaussian::compute_rss(void)
     {
   unsigned i;
@@ -4171,7 +4196,6 @@ double DISTRIBUTION_gaussian::compute_rss(void)
 
   double sum = 0;
   double help;
-  double s = 0;
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
@@ -4189,6 +4213,7 @@ double DISTRIBUTION_gaussian::compute_rss(void)
 
 double DISTRIBUTION_gaussian::compute_gcv(double & df)
   {
+  /*
   unsigned i;
 
   double * worklin = (*linpred_current).getV();
@@ -4215,16 +4240,20 @@ double DISTRIBUTION_gaussian::compute_gcv(double & df)
 
   sum/=(nrobs-s);
   sum = trmult(0,0)*trmult(0,0)*sum;
-
-  double help2 = 1-df/(nrobs-s);
+  double help2 = 1-df/(get_nrobs_wpw());
 
   return  sum/(help2*help2);
+  */
 
+  double help2 = 1-df/get_nrobs_wpw();
+  double gcv = compute_rss() / (get_nrobs_wpw()*help2*help2);
+  return gcv;
   }
 
 
 double DISTRIBUTION_gaussian::compute_aic(double & df)
   {
+  /*
   unsigned i;
 
   double * worklin = (*linpred_current).getV();
@@ -4252,11 +4281,15 @@ double DISTRIBUTION_gaussian::compute_aic(double & df)
   sum = log(trmult(0,0)*trmult(0,0)*sum) * (nrobs-s);
 
   return  sum + 2*df;
+  */
 
+  double aic = log(compute_rss() / get_nrobs_wpw()) * get_nrobs_wpw() + 2*df;
+  return aic;
   }
 
 double DISTRIBUTION_gaussian::compute_improvedaic(double & df)
   {
+  /*
   unsigned i;
 
   double * worklin = (*linpred_current).getV();
@@ -4284,11 +4317,16 @@ double DISTRIBUTION_gaussian::compute_improvedaic(double & df)
   sum = log(trmult(0,0)*trmult(0,0)*sum) * (nrobs-s);
 
   return  sum + 2*df + 2*df*(df+1)/((nrobs-s)-df-1);
+  */
 
+  double impaic = log(compute_rss() / get_nrobs_wpw()) * get_nrobs_wpw()
+                  + 2*df + 2*df*(df+1)/(get_nrobs_wpw()-df-1);
+  return impaic;
   }
 
 double DISTRIBUTION_gaussian::compute_bic(double & df)
   {
+  /*
   unsigned i;
 
   double * worklin = (*linpred_current).getV();
@@ -4316,7 +4354,11 @@ double DISTRIBUTION_gaussian::compute_bic(double & df)
   sum = log(trmult(0,0)*trmult(0,0)*sum) * (nrobs-s);
 
   return  sum + log(nrobs-s)*df;
+  */
 
+  double bic = log(compute_rss() / get_nrobs_wpw()) * get_nrobs_wpw()
+               + log(get_nrobs_wpw())*df;
+  return bic;
   }
 
 
