@@ -24,7 +24,7 @@ of the program can be found in more detail in Fronk and Giudici
 
 
 
-\section{Method "estimate"}
+\section{Method estimate}
 
 
 
@@ -46,12 +46,12 @@ situation of binary and mixed (i.e.~continuous and binary)
 variables, too, which is reduced to the Gaussian case by
 introducing latent variables.
 
-\bigskip
+\subsubsection*{Model Assumptions }
+\index{dag object!assumptions}
 
-{\bf Model Assumptions } \\[0.2cm]
-\index{dag object!assumptions} A Gaussian dag $d$ can be
-represented as a regression model for each variable $X_i, \, i=0,
-\dots, p-1$, given the parents of $X_i$, denoted by $\X_{pa(i)}$,
+A Gaussian dag $d$ can be represented as a regression model for
+each variable $X_i, \, i=0, \dots, p-1$, given the parents of
+$X_i$, denoted by $\X_{pa(i)}$,
 %
 \begin{eqnarray}
 X_i \mid \x_{pa(i)},  \mbeta_{i \mid pa(i)}, \sigma_{i \mid
@@ -146,11 +146,13 @@ pa(i)}, \sigma^2_{i \mid pa(i)})
 
 \newpage
 
-{\bf Representation of DAGs } \\[0.2cm]
-\index{dag object!representation} To represent dags we rely on the
-concept of adjacency matrices. For a given graph ${\cal G} =(V,E)$
-with $|V|=p$, the adjacency matrix of ${\cal G}$ is defined as the
-$(p \times p)$-matrix $A$, $[A]_{ij}=a_{ij}$, with
+\subsubsection*{Representation of DAGs }
+\index{dag object!representation}
+
+To represent dags we rely on the concept of adjacency matrices.
+For a given graph ${\cal G} =(V,E)$ with $|V|=p$, the adjacency
+matrix of ${\cal G}$ is defined as the $(p \times p)$-matrix $A$,
+$[A]_{ij}=a_{ij}$, with
 %
 \begin{eqnarray} a_{ij} = \left \{
 \begin{array} {l}
@@ -200,21 +202,20 @@ For an illustration of this concept consider the graph in
 containing and the corresponding adjacency matrix $A$.}}}
 \end{figure}
 
-\bigskip
+\subsubsection*{Reversible Jump Algorithm for Continuous Variables}
+\index{model selection! Gaussian variables}
 
-{\bf Reversible Jump Algorithm for Continuous Variables} \\[0.2cm]
-%
-\index{model selection! Gaussian variables} We are not only
-interested in estimating the parameters for a given dag $d$ but
-also want to learn about the structure of $d$ itself. So we need
-to construct a Markov chain which has $ \pi(d,\mmu, \mbeta,
-\msigma^2\mid \x)$ as its invariant distribution. Changing the dag
-like adding or deleting a directed edge implies also a changing in
-the dimension of the parameter space. To deal with this situation
-we use a reversible jump algorithm. Reversible jump MCMC was
-proposed and described by Green (1995); it can be regarded as a
-generalization of the usual MCMC and allows to sample
-simultaneously from parameter spaces of different dimensions.
+We are not only interested in estimating the parameters for a
+given dag $d$ but also want to learn about the structure of $d$
+itself. So we need to construct a Markov chain which has $
+\pi(d,\mmu, \mbeta, \msigma^2\mid \x)$ as its invariant
+distribution. Changing the dag like adding or deleting a directed
+edge implies also a changing in the dimension of the parameter
+space. To deal with this situation we use a reversible jump
+algorithm. Reversible jump MCMC was proposed and described by
+Green (1995); it can be regarded as a generalization of the usual
+MCMC and allows to sample simultaneously from parameter spaces of
+different dimensions.
 
 Our algorithm can be briefly summarized by the following moves,
 which produce a Markov chain in the state space that is made up by
@@ -235,20 +236,15 @@ simplification of the oftentimes crucial switch step, see Fronk
 (2002) and also the explanations of the option {\it switch} in
 \autoref{switch_step}.
 
-
-
-\vfill
-\bigskip
-
 \newpage
 
-{\bf Reversible Jump Algorithm for Binary Variables}\\[0.2cm]
-%
-\index{model selection! Binary variables} Now we consider the
-situation of $p$ binary variables of which the joint distribution
-is assumed to be multinomial. The influence to a variable $X_i$
-from its known parents $\x_{pa(i)}$ shall be given by a probit
-model, i.e.~
+\subsubsection*{Reversible Jump Algorithm for Binary Variables}
+\index{model selection! Binary variables}
+
+Now we consider the situation of $p$ binary variables of which the
+joint distribution is assumed to be multinomial. The influence to
+a variable $X_i$ from its known parents $\x_{pa(i)}$ shall be
+given by a probit model, i.e.~
 \begin{eqnarray} \label{probit}
 p_{i} \,=\,  E(X_{i} \mid \x_{pa(i)})
       \,=\,  \Phi (  \x_{pa(i)}'\mbeta_{i \mid pa(i)}, \sigma_{i \mid pa(i)}^2),
@@ -281,18 +277,16 @@ complexity we restrict ourselves to two way interactions which
 seem sufficient for most situations in practice. For details, see
 Fronk (2002).
 
-\bigskip
+\subsubsection*{Reversible Jump Algorithm for Mixed Case}
+\index{model selection! Mixed case}
 
-
-{\bf Reversible Jump Algorithm for Mixed Case}\\[0.2cm]
-%
-\index{model selection! Mixed case} For the mixed case, we assume
-the considered continuous and binary variables to follow a
-conditional Gaussian (CG) distribution. For a general introduction
-we refer to Lauritzen (1996). The univariate conditioned
-distribution of $f(x_i \mid \x_{pa(i)})$ are then CG regressions
-(see Lauritzen and Wermuth, 1989) and can be represented by a
-normal regression resp.~a probit model with mixed covariables.
+For the mixed case, we assume the considered continuous and binary
+variables to follow a conditional Gaussian (CG) distribution. For
+a general introduction we refer to Lauritzen (1996). The
+univariate conditioned distribution of $f(x_i \mid \x_{pa(i)})$
+are then CG regressions (see Lauritzen and Wermuth, 1989) and can
+be represented by a normal regression resp.~a probit model with
+mixed covariables.
 \begin{enumerate}
 \item For all variables $X_i$, $i=0, \dots, p-1$,
     \begin{enumerate}
@@ -324,14 +318,8 @@ normal regression resp.~a probit model with mixed covariables.
 %
 For detailed explanations, see again Fronk (2002).
 
-\bigskip
+\subsubsection*{Remark about Markov-equivalence}
 
-
-
-
-\bigskip
-
-{\bf Remark about Markov-equivalence} \\[0.2cm]
 Our algorithm does not take care about the so-called Markov
 equivalence, which describes the fact that different dags can
 represent the same statistical model. Equivalent dags can be
@@ -358,15 +346,14 @@ The creation of objects has been described in general in
 corresponding dag object is created by:
 
 \begin{center}
-{\bf \texttt{dag} {\em objectname}},\\
+{\texttt{dag} {\em objectname}},\\
 \end{center}
 
 To perform a model selection as described above call:
 
 \begin{center}
-{\bf {\em objectname}.\texttt{estimate} {\em variables}
-[\texttt{if} {\em expression}], [{\em options}]\texttt{ using}
-{\em dataset} }
+{{\em objectname}.\texttt{estimate} {\em variables} [\texttt{if}
+{\em expression}], [{\em options}]\texttt{ using} {\em dataset} }
 \bigskip
 \end{center}
 
@@ -382,29 +369,27 @@ kind of output at the end. They are listed in the next paragraphs.
 %{\bf  \large Options}\\[0.3cm]
 \subsection{Options}
 
-{\bf Options for controlling MCMC simulations} \\[0.2cm]
+\subsubsection*{Options for controlling MCMC simulations}
+
 The following options correspond to those given on
 \hyperref[mcmc_options]{page~\pageref*{mcmc_options}} and are
 therefore only briefly explained.
 \begin{itemize}
-\item {\bf burnin = {\em b} } \\
+\item #burnin = #{\em b} \\
 Changes the number of burnin iterations from 2000 to {\em b}; it is a positive integer number with $0<b<500001$.\\
 DEFAULT:# burnin = 2000#
-\item {\bf iterations = {\em i} } \\
+\item #iterations = #{\em i} \\
 Changes the number of MCMC iterations from 52000 to {\em i}; it is a positive integer number with $0< i<10000000$.\\
 DEFAULT: #iterations = 52000#
-\item {\bf step = {\em s}} \\
+\item #step = #{\em s} \\
 Changes the thinning parameter of MCMC iterations from 50 to {\em s}; it is a positive integer number with $0<s<1000$.\\
 DEFAULT: #step = 50#
 \end{itemize}
 
-\vspace{1cm}
-%\newpage
-
-{\bf Options for initial values of algorithm}
+\subsubsection*{Options for initial values of algorithm}
 \begin{itemize}
 %\item priori\_sigma
-\item {\bf Changing hyperparameters of partial variances} \\
+\item {\bf\sffamily Changing hyperparameters of partial variances} \\
 As already mentioned we assume $\sigma_{i \mid pa(i)}^2 \sim IG
 (\delta_{i \mid pa(i)},\lambda_{i \mid pa(i)} )$ for $i=0, \dots,
 p-1$. By the following two commands the values of the two
@@ -412,50 +397,48 @@ hyperparameters $\delta_{i \mid pa(i)}$ and $\lambda_{i \mid
 pa(i)}$ can be freely chosen. If this is not done the default
 values correspond to a non-informative gamma distribution.
 \begin{itemize}
-\item {\bf delta =  {\em c} } \\
+\item #delta = #{\em c} \\
     Specifies the first parameter of the inverse gamma distribution of the partial
     variances, $\delta_{i \mid pa(i)}$, is set equal to $d$. Otherwise it is equal to 1. The value
     {\em c} has to be of type realvalue with $0< c<20$.\\
     DEFAULT: #delta =  1#
-\item {\bf lambda =  {\em l} } \\
+\item #lambda = #{\em l}\\
     Specifies the second parameter of the inverse gamma distribution of the partial
     variances, $\lambda_{i \mid pa(i)}$, is set equal to $l$. Otherwise it is equal to 0.005.
     The value {\em d} has to be of type realvalue with $0< d <20$.\\
     DEFAULT: #lambda = 0.005#
 \end{itemize}
-\item {\bf Choosing special graph to start from} \\
+\item {\bf\sffamily Choosing special graph to start from} \\
 Usually the algorithm starts from the independent model, that
 means from a dag without any edges. This can be changed by the
 command
 \begin{center}
-{\bf type = 0/1/2/3/4}\\
+#type = #0/1/2/3/4\\
 DEFAULT: #type = 0#
 \end{center}
 where the different values have the following meanings:
 \begin{itemize}
-\item  {\bf type=0} \\
+\item #type=0# \\
     Algorithm starts from an {\bf independent} model with no edges.
-\item  {\bf type=1} \\
+\item #type=1# \\
     Algorithm starts from a {\bf complete} model where all edges are directed
     from "lower" variables to "higher" ones, i.e.~$x_i \rightarrow x_j, \, \forall i<j$.
-\item  {\bf type=2} \\
+\item #type=2# \\
     Algorithm starts from a {\bf complete} model where all edges are directed
     from "higher" variables to "lower" ones, i.e.~$x_j \rightarrow x_i, \, \forall i<j$.
-\item  {\bf type=3} \\
+\item #type=3# \\
     Algorithm starts from a model where there is an edge from each variable to
     the next "higher" one, like a {\bf chain}, i.e.~$x_i \rightarrow x_j, \, \forall i=j+1$.
-\item  {\bf type=4} \\
+\item #type=4# \\
     Algorithm starts from a model where there is an edge from each variable to
     the next "lower" one, like a {\bf chain}, i.e.~$x_j \rightarrow x_i, \, \forall i=j+1$.
 \end{itemize}
 \end{itemize}
 
-\vspace{1cm}
-
-{\bf Options concerning the way of model selection}
+\subsubsection*{Options concerning the way of model selection}
 
 \begin{itemize}
-\item {\bf Kind of switch step} \label{switch_step} \\
+\item {\bf\sffamily Kind of switch step} \label{switch_step} \\
 There are three ways how the switch step can be carried out in the
 rj-algorithm. The first one is similar to the performance of a
 birth or death step (i.e.~adding or deleting an edge): A proposal
@@ -468,29 +451,29 @@ indistinguishable. The proposed dag can therefore be accepted with
 probability 0.5. The kind of switch step can be chosen by the
 command
 \begin{center}
-    {\bf switch = normal/equi/mix}, \\
+    #switch = normal#/#equi#/#mix#, \\
     \hspace*{-1.8cm}  DEFAULT: #switch = normal#
 \end{center}
 which differ in the following way:
 \begin{itemize}
-\item {\bf switch=normal}\\
+\item #switch=normal#\\
 The switch step is carried out by proposing the new dag and
 accepting it with the corresponding acceptance probability. The
 transformation into equivalent model may occur very seldom and,
 consequently, the acceptance ratio very low.
-\item {\bf switch=equi} \\
+\item #switch=equi# \\
 The switch step is only allowed if it results into an equivalent
 model. In this case, it is performed with a probability of 0.5.
 Transformations into a non-equivalent model can only occur by a
 birth or death step.
-\item {\bf switch=mix}\\
+\item #switch=mix#\\
 This command causes a mixture of both procedures described above:
 If the proposed switch step leads to an equivalent model it is
 accepted with probability 0.5. If it results into a non-equivalent
 model a proposal is made and accepted by the corresponding
 acceptance ratio.
 \end{itemize}
-\item {\bf Kind of distribution family / interactions }\\
+\item {\bf\sffamily Kind of distribution family / interactions }\\
 There are three different types of data sets as they can consists
 of continuous, binary, or mixed variables which results in the
 assumption of a Gaussian, a multinomial, or a conditional Gaussian
@@ -498,23 +481,23 @@ distribution. Dependent on the kind of data set the rj-algorithm
 for the model selection changes as described above.This can be
 indicated by the optional command
 \begin{center}
-    {\bf family = continuous/discrete/mixed}.\\
+    #family = continuous#/#discrete#/#mixed#.\\
 \end{center}
 In the case that the model selection for a binary data set shall
 be carried out accounting for interactions the command
 \begin{center}
-    {\bf family = discrete\_ia}\\
+    #family = discrete_ia#\\
 \end{center}
-is needed instead of  \texttt{family = }{\em discrete}. In this
-case, a special option concerning the output is given by the
-command {\em detail\_ia} which is explained below.
-\item {\bf Restriction to the search space}\\
+is needed instead of  #family = discrete#. In this case, a special
+option concerning the output is given by the command #detail_ia#
+which is explained below.
+\item {\bf\sffamily Restriction to the search space}\\
 It is possible to restrict the search space, i.e.~to state an
 (missing) edge as fix or determinate the orientation of an edge.
 This is done by writing the restrictions into a file {\em
 restrict} which is then read by the command
 \begin{center}
-    {\bf fix\_file = {\em path\_of\_restrict}}\\
+    #fix_file = #{\em path\_of\_restrict}\\
 \end{center}
 The restriction is then given by a $p \times p$ matrix that lies
 under the path {\em path\_of\_restrict}. The matrix is allowed to
@@ -526,17 +509,9 @@ chain, whereas 0 denotes that the corresponding edge must not
 occur.
 \end{itemize}
 
-
-
-
-
-
-
-\vspace{1cm}
-
-{\bf Options concerning the output}
+\subsubsection*{Options concerning the output}
 \begin{itemize}
-\item {\bf Estimated regression coefficients}\\
+\item {\bf\sffamily Estimated regression coefficients}\\
 As already mentioned, the parameters of each regression model are
 estimated in every iteration. Because of the fact that the
 qualitative structure of the dag is usually of greater interest
@@ -544,7 +519,7 @@ than the quantitative estimations of the regression coefficients,
 in the standard output these estimated parameters are omitted.
 Nevertheless
 \begin{center}
-{\bf print\_dags}
+#print_dags#
 \end{center}
 gives the mean, the 10\%, 50\% and the 90\% quantile of every
 parameter of all regression models.
@@ -557,49 +532,48 @@ purpose, its important to ensure that a device with this name
 exists. Otherwise the user has to provide an alternative path for
 the storage file by the command
 \begin{center}
-{\bf store\_file = {\em alternative\_path}}
+#store_file = #{\em alternative\_path}
 \end{center}
-\item {\bf Estimated coefficients of interactions}
+\item {\bf\sffamily Estimated coefficients of interactions}
 \end{itemize}
 
 \begin{itemize}
-\item {\bf Criteria for the listed models} \\
+\item {\bf\sffamily Criteria for the listed models} \\
     As model selection for dags is performed in an extremely huge search space one might not want
     to get a list of all models which have been visited during MCMC estimation regardless of the
     relative frequency of their appearance. The option
     \begin{center}
-    {\bf print\_models = all/prob/limit/normal}, \\
-    \hspace*{-1.8cm}  DEFAULT: \texttt{print\_models = normal}
+    #print_models = all#/#prob#/#limit#/#normal#, \\
+    \hspace*{-1.8cm}  DEFAULT: #print_models = normal#
     \end{center}
     %where "all", "prob" and  "limit" are strings,
     allows to focus
     on special criterions for the models printed in the output.
 \begin{itemize}
-\item {\bf print\_models = all}  \\
+\item #print_models = all#  \\
     All models which have been visited by the Markov chain are printed.
-\item {\bf print\_models = prob} \\
+\item #print_models = prob# \\
     The most frequent models of the chain are printed except for those which are the less frequent
     ones and have altogether a probability of alpha=0.05. The value of alpha can be changed as
     it is explained a few lines below.
-\item {\bf print\_models = limit} \\
+\item #print_models = limit# \\
     Here, the first 10 models with the highest frequencies are printed. The number of listed models
     can be made different from 10 as it is explained a few lines below.
-\item {\bf print\_models = normal} \\
-    The option {\it normal} is a mixture of {\it limit} and {\it prob}, as it chooses the one
+\item #print_models = normal# \\
+    The option #normal# is a mixture of #limit# and #prob#, as it chooses the one
     which produces less models. The default parameters are again alpha=0.05 and number=10.
 \end{itemize}
-The default setting of  \texttt{print\_models} is
-\texttt{print\_models=normal}.
-\item {\bf number=n} \\
-    Changes the number of printed models in the option  \texttt{print\_models = limit} to $n$.
+The default setting of  #print_models# is #print_models=normal#.
+\item #number = #{\em n} \\
+    Changes the number of printed models in the option  #print_models = limit# to $n$.
     The variable number has to be of type realvalue with $0 \leq n \leq 10000$. \\
     DEFAULT = 10
-\item {\bf alpha = a} \\
+\item #alpha = #{\em a} \\
     Sets alpha in the option {\tt print\_models = prob} equal to $a$. That means when using
     {\tt print\_models = prob} the most frequent models which unify 1-a  of the posterior
     probability are printed. The variable alpha has to be of type intvalue with $a \in [0,1]$. \\
     DEFAULT = 0.05
-\item {\bf printit = {\em p}} \\
+\item #printit = #{\em p} \\
     Prints every {\em p}-th iteration in the output window instead of every 100-th. The printing of the
     iterations can be suppressed by setting $p$ higher than the number of iterations. The variable printit has to be of
     type intvalue with $0 < p< 10000001$. \\
@@ -617,7 +591,7 @@ using the estimation command. It has to be closed afterwards. The
 use of logfiles is described in detail in \autoref{logfile}. The
 output itself is structured as follows:
 \begin{itemize}
-\item {\bf Listing of different dags:}\\
+\item {\bf\sffamily Listing of different dags:}\\
 The different models are listed by their adjacency matrices. In
 order to save space, the different rows are printed in one line
 with a blank indicating the beginning of a new one. The number of
@@ -663,7 +637,7 @@ represent the same statistical model as they may be
 Markov-equivalent.
 %
 %
-\item {\bf Listing of essential graphs}\\
+\item {\bf\sffamily Listing of essential graphs}\\
 \begin{figure}
 %\begin{center}
 {\it
@@ -713,26 +687,26 @@ is represented by the essential graph $X_0 \rightarrow X_2
 skeleton matrix 011 000 000 and the immorality (0;1,2).
 %
 %
-\item {\bf Averaged adjacency matrix:}\\
+\item {\bf\sffamily Averaged adjacency matrix:}\\
 The $(i,j)$-th element of the averaged adjacency matrix gives the
 estimated posterior probability of the presence of the edge $i
 \rightarrow j$ in the true dag.
-\item {\bf Mean of skeletons:}\\
+\item {\bf\sffamily Mean of skeletons:}\\
 The skeleton of a dag is defined as the same graph without
 regarding the directions of the edges. Equivalent dags have at
 least the same skeleton. So it may be helpful to have also a look
 at the averaged matrix of the skeletons, which is of course
 symmetric.
-\item {\bf Correlation:}\\
+\item {\bf\sffamily Correlation:}\\
 The marginal and the partial correlation matrices of the regarded
 data set is given, too.
-\item {\bf Ratios:}\\
+\item {\bf\sffamily Ratios:}\\
 We give some short information about the acceptance ratios for the
 birth-, death- and switch-steps which denotes the cases where an
 edge is added, dropped or switched. The first two cases imply a
 change in dimension and are therefore sampled by a reversible jump
 step.
-\item {\bf Estimated parameters:}\\
+\item {\bf\sffamily Estimated parameters:}\\
 If the option {\tt print\_dags} is used, the estimated regression
 coefficients $\mbeta_{i \mid -i}$, $i=0, \dots, p-1$, are listed
 at the end. The notation $-i$ denotes all variables except for

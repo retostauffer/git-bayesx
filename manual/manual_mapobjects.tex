@@ -30,6 +30,12 @@ order to estimate regression models with spatial covariates, see
 \autoref{bayesreg}, in particular \autoref{bayesregress}, and the
 subsections about spatial covariates therein.
 
+
+
+\clearpage
+
+
+
 \section{Method infile}
 \label{mapinfile} \index{map object!infile command} \index{map
 object!boundary files} \index{boundary files} \index{graph files}
@@ -310,16 +316,18 @@ An example of the beginning of a {\em graph file} with weights is given below:
 \vspace{0.5cm}
 
 Here the edges of the first node '9162' have weights 0.4, 1.2 and
-0.7.
+0.7.\bigskip
 
-\subsection*{Options}
+
+
+\subheader{Options}
 
 \begin{itemize}
-\item {\bf graph} \\
+\item #graph# \\
 If #graph# is specified as an additional option, {\em BayesX}
 expects a {\em graph file} to be read in rather than a {\em
 boundary file}.
-\item {\bf weightdef=adjacency $|$ centroid  $|$ combnd } \\
+\item #weightdef=adjacency# $|$ #centroid#  $|$ #combnd# \\
 \label{weightsmap} Option #weightdef# allows to specify how the
 weights associated with each pair of neighbors are computed.
 Currently there are three weight specifications available,
@@ -349,38 +357,44 @@ is therefore impossible.
 
 
 
+\clearpage
+
+
+
 \section{Method outfile}
 \label{mapoutfile} \index{map object!outfile command}
 
-\subsection*{Description}
+\begin{stanza}{Description}
 
-Method #outfile# performs the reverse of the #infile# command.
+{Method #outfile# performs the reverse of the #infile# command.
 Using method #outfile#, the map information currently in memory is
 written to an external file. The map information can be written
-either in {\em boundary file} or in {\em graph file} format.
+either in {\em boundary file} or in {\em graph file} format.}
+\end{stanza}
 
-\subsection*{Syntax}
+\begin{stanza}{Syntax}
 
-#> # {\em objectname}.#outfile# [{\em , options}] #using# {\em filename}
+{#> # {\em objectname}.#outfile# [{\em , options}] #using# {\em filename}
 
 #outfile# writes the map information to the external file
 specified in {\em filename}. The file format can be either a {\em
 boundary file} or a {\em graph file}. If #graph# is specified as
 an additional option, the file format will be a {\em graph file},
-otherwise a {\em boundary file}.
+otherwise a {\em boundary file}.}
+\end{stanza}
 
-\subsection*{Options}
+\subheader{Options}
 
 \begin{itemize}
-\item {\bf graph} \\
+\item #graph# \\
 Forces the program to store the map information in {\em graph
 file} format rather than {\em boundary file} format.
-\item {\bf includeweights} \\
+\item #includeweights# \\
 Option #includeweights# is meaningful only if the storing format
 is a {\em graph file}, i.e. option #graph# is additionally
 specified. In that case the weights associated with the edges
 (neighbors) of the nodes (regions) are additionally stored.
-\item {\bf replace} \\
+\item #replace# \\
 The #replace# option allows {\em BayesX} to overwrite an already
 existing file. If #replace# is omitted in the optionlist and the
 file specified in {\em filename} already exists, an error will be
@@ -389,13 +403,18 @@ unintentionally.
 \end{itemize}
 
 
+
+\clearpage
+
+
+
 \section{Method reorder}
 \label{mapreorder} \index{reorder regions of a map} \index{map
 object!reorder command}
 
-\subsection*{Description}
+\begin{stanza}{Description}
 
-Method #reorder# reorders the regions of a map in the sense that
+{Method #reorder# reorders the regions of a map in the sense that
 the adjacency matrix of the reordered map has the smallest
 envelope when compared to all other possible orderings. A new map
 should always be reordered before using it with {\em bayesreg
@@ -403,25 +422,29 @@ objects} because MCMC block moves for spatial covariates will be
 much faster if the envelope of the posterior precision matrix is
 small, see \autoref{bayesregress}. For reordering of the regions
 of the map the reverse Cuthill Mc-Kee algorithm is used, see
-George and Liu (1981) p. 58 ff.
+George and Liu (1981) p. 58 ff.}
+\end{stanza}
 
-\subsection*{Syntax}
+\begin{stanza}{Syntax}
 
-#># {\em objectname}.#reorder#
+{#># {\em objectname}.#reorder#
 
 #reorder# reorders the regions of a map in order to obtain
-smallest envelope of the corresponding adjacency matrix.
+smallest envelope of the corresponding adjacency matrix.}
+\end{stanza}
 
-\subsection*{Options}
+\begin{stanza}{Options}
 
-Not allowed.
+{Not allowed.}
+\end{stanza}
 
-\subsection*{Reference}
+\begin{stanza}{Reference}
 
-\begin{description}
+{\begin{description}
 
 \item[George, A., Liu, J. W. (1981).] {\em Computer Solution of Large
 Sparse Positive Definite Systems.} Series in computational
 mathematics, Prentice--Hall.
 
-\end{description}
+\end{description}}
+\end{stanza}

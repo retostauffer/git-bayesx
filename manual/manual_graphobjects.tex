@@ -20,18 +20,25 @@ A {\em graph object} is created by typing
 
 in the {\em command window}.
 
+
+
+\clearpage
+
+
+
 \section{Method drawmap}
 \label{graphdrawmap} \index{graph object!drawmap command}
 \index{drawing geographical maps}
 
-\subsection*{Description}
+\begin{stanza}{Description}
 
-Method #drawmap# is used to draw geographical maps and color the
-regions according to some numerical characteristics.
+{Method #drawmap# is used to draw geographical maps and color the
+regions according to some numerical characteristics.}
+\end{stanza}
 
-\subsection*{Syntax}
+\begin{stanza}{Syntax}
 
-#> #{\em objectname}.#drawmap#  [{\em plotvar regionvar}]
+{#> #{\em objectname}.#drawmap#  [{\em plotvar regionvar}]
 [#if# {\em expression}] , {\em #map#=mapname} [{\em options}] #using# {\em dataset}
 
 Method #drawmap# draws the map stored in the {\em map object} {\em
@@ -44,18 +51,20 @@ object} {\em dataset}. An #if# statement may be specified to use
 only a part of the data in {\em dataset}. Several options are
 available, e.g. for changing from grey scale to color scale or
 storing the map as a postscript file. See the options list below
-for more details.
+for more details.}
+\end{stanza}
 
-\subsection*{Options}
+\begin{stanza}{Options}
 
-The most important option, which must always be specified,  is the
+{The most important option, which must always be specified,  is the
 #map# option. Here the name of the {\em map object} containing the
 boundary information of the map to be drawn is specified. The
 following options are available for method #drawmap# (in
-alphabetical order):
+alphabetical order):}
+\end{stanza}
 
 \begin{itemize}
-\item {\bf color}
+\item #color#
 
 The #color# option allows to choose between a grey scale for the
 colors and a colored scale. If #color# is specified a colored
@@ -66,26 +75,31 @@ regions into the graph (although the result may be confusing in
 most cases). This can be done by specifying the additional option
 #drawnames#. By default the names of the regions are omitted in
 the map.
-\item {\bf fontsize = integer}
+
+\item #fontsize = #{\em integer}
 
 Specifies the font size (in pixels) for labelling the legend and
 writing the names of the regions (if specified). Note, that the
 title is scaled accordingly. The default is #fontsize=12#.
-\item {\bf nolegend}
+
+\item #nolegend#
 
 By default a legend is drawn into the graph. By specifying the
-option #nolegend# the legend will be omitted. \item {\bf
-lowerlimit = realvalue}
+option #nolegend# the legend will be omitted.
+
+\item #lowerlimit = #{\em realvalue}
 
 Lower limit of the range to be drawn. If #lowerlimit# is omitted,
 the minimum numerical value in {\em plotvar} will be used as the
 lower limit instead.
-\item {\bf map = mapname}
+
+\item #map = #{\em mapname}
 
 {\em mapname} specifies the name of the {\em map object}
 containing the boundary information of the map to be drawn. This
 option must always be specified.
-\item {\bf outfile = filename}
+
+\item #outfile = #{\em filename}
 
 If option #outfile# is specified the graph will be stored as a
 postscript file rather than being printed on the screen. The path
@@ -94,13 +108,16 @@ default, an error will be raised if the specified file  is already
 existing or the specified folder is not existing. To overwrite  an
 already existing file, option #replace# must be additionally
 specified. This prevents you from unintentionally overwriting your
-files. \item {\bf replace}
+files.
+
+\item #replace#
 
 The #replace# option is only useful in combination with option
 #outfile#. Specifying #replace# as an additional option allows the
 program to overwrite an already existing file (specified in
-#outfile#), otherwise an error will be raised. \item {\bf nrcolors
-= integer}
+#outfile#), otherwise an error will be raised.
+
+\item #nrcolors = #{\em integer}
 
 To color the regions according to their numerical characteristics,
 the data are divided into a (typically large) number of ordered
@@ -108,23 +125,29 @@ categories. Afterwards a color is associated with each category.
 The #nrcolors# option can be used to specify the number of
 categories (and with it the number of different colors). The
 maximum number of colors is 256, which is also the default value.
-\item {\bf swapcolors}
+
+\item #swapcolors#
 
 In some situations it may be favorable to swap the order of the
 colors, i.e. black (red) shades corresponding to large values and
 white (green) shades corresponding to small values. This is
 achieved by specifying #swapcolors#. By default, small values are
 colored in black shades (red shades) and large values in white
-shades (green shades). \item {\bf title = characterstring}
+shades (green shades).
+
+\item #title = #{\em characterstring}
 
 Adds a title to the graph. If the title contains more than one
 word, {\em stringvalue} must be enclosed by quotation marks (e.g.
-#title="my first map"#). \item {\bf upperlimit = realvalue}
+#title="my first map"#).
+
+\item #upperlimit = #{\em realvalue}
 
 Upper limit of the range to be drawn. If #upperlimit# is omitted,
 the maximum numerical value in {\em plotvar} will be used as the
 upper limit instead.
-\item {\bf pcat}
+
+\item #pcat#
 
 If you want to visualize posterior probabilities it is convenient
 to specify #pcat#. This forces #drawmap# to expect a column that
@@ -133,9 +156,9 @@ the same result by setting #nrcolors=3#, #lowerlimit=-1# and
 #upperlimit=1#.
 \end{itemize}
 
-\subsection*{Example}
+\begin{stanza}{Example}
 
-This example shows how to draw the map of Munich and how to color
+{This example shows how to draw the map of Munich and how to color
 the subquarters in Munich according to some numerical
 characteristics. You find the boundary file of Munich
 (#munich.bnd#) as well as the data set #rent94means.raw#
@@ -161,16 +184,14 @@ We proceed by creating a {\em graph object} #g# and by drawing the map of Munich
 \begin{center}
 \includegraphics[scale=0.5]{grafiken/munichdrawmap.ps}
 {\em\caption{ \label{munichdrawmap} Map of Munich}}
-\end{center}
-\end{figure}
-
-\begin{figure}[htb]
-\begin{center}
+\vspace*{1cm}
 \includegraphics[scale=0.5]{grafiken/munichmeansdrawmap.ps}
 {\em\caption{ \label{munichmeans} Distribution of the average
 rents per square meter in Munich.}}
 \end{center}
 \end{figure}
+
+\clearpage
 
 The map of Munich appears on the screen in a separate window, see
 \autoref{munichdrawmap}. Before closing the window you are asked
@@ -197,21 +218,29 @@ shaded with diagonal lines mark subquarters for which  no data are
 available. The specification of the second variable #L# is
 required to match the names of the subquarters stored in the {\em map
 object} #m# with the data set #d#. Option #color# is specified to
-obtain a colored graph.
+obtain a colored graph.}
+\end{stanza}
+
+
+
+\clearpage
+
+
 
 \section{Method plot}
 \label{graphplot} \index{graph object!plot command}
 \index{scatterplot} \index{drawing scatterplots}
 
-\subsection*{Description}
+\begin{stanza}{Description}
 
-Method #plot# is used to draw scatterplots between two or more
+{Method #plot# is used to draw scatterplots between two or more
 variables. Several options for labelling axes, connecting points,
-saving the graph etc. are available.
+saving the graph etc. are available.}
+\end{stanza}
 
-\subsection*{Syntax}
+\begin{stanza}{Syntax}
 
-#> #{\em objectname}.#plot#  {\em xvar yvar1} [{\em yvar2 yvar3}
+{#> #{\em objectname}.#plot#  {\em xvar yvar1} [{\em yvar2 yvar3}
 \dots]
 [#if# {\em expression}] [, {\em options}] #using# {\em dataset}
 
@@ -221,16 +250,18 @@ data set specified in {\em dataset}. An #if# statement may be used
 to apply the method only to a part of the data. In addition,
 several options may be specified for labelling axes, connecting
 points, saving the graph in postscript format etc., see the
-options list below.
+options list below.}
+\end{stanza}
 
-\subsection*{Options}
+\begin{stanza}{Options}
 
-The following options are available for method #plot# (listed in
-alphabetical order):
+{The following options are available for method #plot# (listed in
+alphabetical order):}
+\end{stanza}
 
 \begin{itemize}
-\item {\bf connect=1$|$2$|$3$|$4$|$5[specifications for further
-variables]}
+\item #connect = 1#$|$#2#$|$#3#$|$#4#$|$#5#[{\em specifications
+for further variables}]
 
 Option #connect# specifies how points in the scatterplot are
 connected. There are currently 5 different specifications:
@@ -246,7 +277,7 @@ than one {\em yvar} is specified) you can connect points for every
 {\em yvar} differently by simply specifying the corresponding number
 (#1,2,3,4,5#) for every {\em yvar}. Typing for example
 
-{\em #connect=15#}
+#connect=15#
 
 connects the points corresponding to {\em yvar1} and {\em xvar} by
 straight lines, but does not connect the points corresponding to
@@ -258,18 +289,21 @@ An equivalent way of specifying the different variants is available
 via the symbols 'l', 'd', '\_', '-' and 'p', which correspond to the
 numbers 1-5, i.e.~
 
-{\em #connect=12345#} is equivalent to {\em #connect=ld_-p#}
+#connect=12345# is equivalent to #connect=ld_-p#
 
-\item {\bf fontsize = integer}
+\item #fontsize = #{\em integer}
 
 Specifies the font size (in pixels) for labelling axes etc. Note
 that the title is scaled accordingly. The default is
 #fontsize=12#.
-\item {\bf height = integer}
+
+\item #height = #{\em integer}
 
 Specifies the height (in pixels) of the graph. The default is
 #height=210#.
-\item {\bf linecolor = B$|$b$|$c$|$G$|$g$|$o$|$m$|$r$|$y[specifications for further variables]}
+
+ \item #linecolor = B#$|$#b#$|$#c#$|$#G#$|$#g#$|$#o#$|$#m#$|$#r#$|$#y# [{\em specifications
+for further variables}]
 
 Option #linecolor# specifies the color to be used for drawing
 lines (or points, see option #connect#) in the scatterplot.
@@ -292,17 +326,19 @@ than one {\em yvar} is specified) you can use different colors for
 each {\em yvar} by simply specifying the corresponding symbol
 (#B,b,c,G,g,o,m,r,y#) for each {\em yvar}. Typing for example
 
-{\em #linecolor = Bgr#}
+#linecolor = Bgr#
 
 colors the lines (points) corresponding to {\em yvar1} and {\em
 xvar} in black, whereas the points corresponding to {\em yvar2}
 and {\em yvar3} (if specified) and {\em xvar} are colored in green
 and red, respectively.
-\item {\bf linewidth = integer}
+
+\item #linewidth = #{\em integer}
 
 Specifies how thick lines should be drawn. The default is
 #linewidth=5#.
-\item {\bf outfile = filename}
+
+\item #outfile = #{\em filename}
 
 If option #outfile# is specified the graph will be stored as a
 postscript file rather than being printed on the screen. The path
@@ -311,85 +347,101 @@ an error will be raised if the specified file is already existing
 or the specified folder is not existing. To overwrite  an already
 existing file, option #replace# must be additionally specified.
 This prevents you from unintentionally overwriting your files.
-\item {\bf pointsize = integer}
+
+\item #pointsize = #{\em integer}
 
 Specifies the size of the points (in pixels) if drawing points
 rather than lines is specified. The default is #pointsize=20#.
 
-\item {\bf replace}
+\item #replace#
 
 The #replace# option is useful only in combination with option
 #outfile#. Specifying #replace# as an additional option allows the
 program to overwrite an already existing file (specified in
 #outfile#), otherwise an error will be raised.
 
-\item {\bf title = characterstring}
+\item #title = #{\em characterstring}
 
 Adds a title to the graph. If the title contains more than one
 word, {\em characterstring} must be enclosed by quotation marks (e.g.
 #title="my first title"#).
 
-\item {\bf titlesize = realvalue}
+\item #titlesize = #{\em realvalue}
 
 Specifies the factor by which the size of the title is scaled
 relative to the size of the labels of the axes (compare option
 #fontsize#). The default is \texttt{titlesize=1.5}.
 
-\item {\bf width = integer}
+\item #width = #{\em integer}
 
 Specifies the width (in pixels) of the graph. The default is
-#width=356#. \item {\bf xlab = characterstring}
+#width=356#.
+
+\item #xlab = #{\em characterstring}
 
 Labels the x-axis. If the label contains more than one word, {\em
 characterstring} must be enclosed by quotation marks (e.g.
-#xlab="x axis"#). \item {\bf xlimbottom = realvalue}
+#xlab="x axis"#).
+
+\item #xlimbottom = #{\em realvalue}
 
 Specifies the minimum value at the x-axis to be drawn. The default
 is the minimum value in the data set. If #xlimbottom# is above the
 minimum value in the data set, only a part of the  graph will be
 visible.
-\item {\bf xlimtop = realvalue}
+
+\item #xlimtop = #{\em realvalue}
 
 Specifies the maximum value at the x-axis to be drawn. The default
 is the maximum value in the data set. If #xlimtop# is below the
 maximum value in the data set, only a part of the  graph will be
 visible.
-\item {\bf xstart = realvalue}
+
+\item #xstart = #{\em realvalue}
 
 Specifies the value where the first 'tick' on the x-axis should be
 drawn. The default is the minimum value on the x-axis.
-\item {\bf xstep = realvalue}
+
+\item #xstep = #{\em realvalue}
 
 If #xstep# is specified,  ticks are drawn at the x-axis with
 stepwidth {\em realvalue} starting at the minimum value on the
 x-axis (or at the value specified in option #xstart#). By default,
-five equally spaced ticks are drawn at the x-axis. \item {\bf ylab
-= characterstring}
+five equally spaced ticks are drawn at the x-axis.
+
+\item #ylab = #{\em characterstring}
 
 Labels the y-axis. If the label contains more than one word, {\em
 characterstring} must be enclosed by quotation marks (e.g.
-\texttt{ylab="y axis"}). \item {\bf ylimbottom = realvalue}
+\texttt{ylab="y axis"}).
+
+\item #ylimbottom = #{\em realvalue}
 
 Specifies the minimum value at the y-axis to be drawn. The default
 is the minimum value in the data set. If #ylimbottom# is above the
 minimum value in the data set, only a part of the  graph will be
-visible. \item {\bf ylimtop = realvalue}
+visible.
+
+\item #ylimtop = #{\em realvalue}
 
 Specifies the maximum value at the y-axis to be drawn. The default
 is the maximum value in the data set. If #ylimtop# is below the
 maximum value in the data set, only a part of the  graph will be
 visible.
-\item {\bf ystart = realvalue}
+
+\item #ystart = #{\em realvalue}
 
 Specifies the value where the first 'tick' on the y-axis should be
 drawn. The default is the minimum value on the y-axis.
-\item {\bf ystep = realvalue}
+
+\item #ystep = #{\em realvalue}
 
 If #ystep# is specified,  ticks are drawn at the y-axis with
 stepwidth {\em realvalue} starting at the minimum value on the
 y-axis (or at the value specified in option #ystart#). By default,
 five equally spaced ticks are drawn at the y-axis.
-\end{itemize}
+
+\item Further options
 
 In the following we describe options that may be useful if the
 variable at the x-axis represents dates. An example is a variable
@@ -400,17 +452,18 @@ original coding (form 1 to 19). To achieve this we provide the
 options #month#, #year# and #xstep#. Options #year# and #month#
 are used to specify the year and the month (1 for January, 2 for
 February, \dots) corresponding to the minimum covariate value. In
-the example mentioned above #year=1983# and #month=1# will produce the
-correct result. In addition, option #xstep# may be specified to
-define the periodicity in which your data are collected. For
+the example mentioned above #year=1983# and #month=1# will produce
+the correct result. In addition, option #xstep# may be specified
+to define the periodicity in which your data are collected. For
 example #xstep=12# (the default) corresponds to monthly data,
 while #xstep = 4#, #xstep = 2# and #xstep = 1# correspond to
 quarterly, half yearly and yearly data.
+\end{itemize}
 
 
-\subsection*{Example}
+\begin{stanza}{Example}
 
-We use the Munich rent data set #rent94.raw# to demonstrate the
+{We use the Munich rent data set #rent94.raw# to demonstrate the
 usage of method #plot#. You find the data set #rent94.raw# in the
 subfolder #examples# of your {\em BayesX} installation directory.
 In the following we assume that {\em BayesX} is installed in the
@@ -453,8 +506,9 @@ by typing
 The result is shown in \autoref{plotrf4}.
 Finally, we add the outfile option to save the graph in postscript format:
 
-#> g.plot R F , title="scatterplot between F and R" ylab="rent" #\\
-#  xlab="floor space in square meters" connect=p outfile=c:\temp\plotrf.ps using d #
+ #> g.plot R F , title="scatterplot between F and R" ylab="rent" #\\
+ #  xlab="floor space in square meters" connect=p#
+ #  outfile=c:\temp\plotrf.ps using d #
 
 \begin{figure}[ht]
 \begin{center}
@@ -487,22 +541,31 @@ rent per square meters (third try).}}
 rent per square meters (final try).}}
 \end{center}
 \end{figure}
+}
+\end{stanza}
 \clearpage
+
+
+
+\clearpage
+
+
 
 \section{Method plotautocor}
 \label{graphplotautocor} \index{graph object!plotautocor command}
 \index{plotting autocorrelations}
 
-\subsection*{Description}
+\begin{stanza}{Description}
 
-Method #plotautocor# visualizes the autocorrelation functions
+{Method #plotautocor# visualizes the autocorrelation functions
 obtained with method #autocor# of {\em bayesreg objects}, see also
-\autoref{bayesautocorr}.
+\autoref{bayesautocorr}.}
+\end{stanza}
 
 
-\subsection*{Syntax}
+\begin{stanza}{Syntax}
 
-#> #{\em objectname}.#plotautocor# [,{\em options}] #using# {\em dataset}
+{#> #{\em objectname}.#plotautocor# [,{\em options}] #using# {\em dataset}
 
 Plots the autocorrelation functions stored in {\em dataset}. The
 data set must have the special structure described in
@@ -510,25 +573,28 @@ data set must have the special structure described in
 only if Bayesian regression models have been estimated in advance
 using {\em bayesreg objects} and autocorrelation functions of
 sampled parameters have been computed using method #autocor# of
-{\em bayesreg objects}.
+{\em bayesreg objects}.}
+\end{stanza}
 
-\subsection*{Options}
+\subheader{Options}
 
 \begin{itemize}
-\item {\bf mean}
+\item #mean#
 
 If option #mean# is specified, for each lag number and model term
 only minimum, mean and maximum autocorrelations are plotted. This
 can lead to a considerable reduction in computing time and storing
 size.
 
-\item {\bf outfile = filename}
+\item #outfile = #{\em filename}
 
 If option #outfile# is specified the graph will be stored as a
 postscript file and not printed on the screen. The path and the
 filename must be specified in {\em filename}. An error will be
 raised if the specified file is already existing and the #replace#
-option is not specified. \item {\bf replace}
+option is not specified.
+
+\item #replace#
 
 The #replace# option is only useful in combination with option
 #outfile#. Specifying #replace# as an additional option allows the
@@ -536,38 +602,48 @@ program to overwrite an already existing file (specified in
 #outfile#), otherwise an error will be raised.
 \end{itemize}
 
+
+
+\clearpage
+
+
+
 \section{Method plotsample}
 \label{graphplotsample} \index{graph object!plotsample command}
 \index{plotting sampled parameters} \index{sampling paths}
 
-\subsection*{Description}
+\begin{stanza}{Description}
 
-Method #plotsample# visualizes the sampling paths of sampled
+{Method #plotsample# visualizes the sampling paths of sampled
 parameters obtained with method #getsample# of {\em bayesreg
 objects}, see also \autoref{bayesgetsample}. The application of
 method #plotsample# is meaningful only if Bayesian regression
 models have been estimated in advance using {\em bayesreg objects}
 and sampled parameters have been computed and stored using method
-#getsample# of {\em bayesreg objects}.
+#getsample# of {\em bayesreg objects}.}
+\end{stanza}
 
-\subsection*{Syntax}
+\begin{stanza}{Syntax}
 
-#> #{\em objectname}.#plotsample# [,{\em options}] #using# {\em dataset}
+{#> #{\em objectname}.#plotsample# [,{\em options}] #using# {\em dataset}
 
 Plots sampled parameters stored in {\em dataset}. The data set
 must have the special structure described in
-\autoref{bayesgetsample}.
+\autoref{bayesgetsample}.}
+\end{stanza}
 
-\subsection*{Options}
+\subheader{Options}
 
 \begin{itemize}
-\item {\bf outfile = filename}
+\item #outfile = #{\em filename}
 
 If option #outfile# is specified the graph will be stored as a
 postscript file and not printed on the screen. The path and the
 filename must be specified in {\em filename}. An error will be
 raised if the specified file is already existing and the #replace#
-option is not specified (see below). \item {\bf replace}
+option is not specified (see below).
+
+\item #replace#
 
 The #replace# option is only useful in combination with option
 #outfile#. Specifying #replace# as an additional option allows the

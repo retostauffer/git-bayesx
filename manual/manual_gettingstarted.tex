@@ -43,31 +43,28 @@ Now follow the instructions of the setup routine to install {\em
 BayesX}. To install the Java based version simply execute the file
 #installBayesX.exe# and follow the installation instructions.
 
-After the successful installation of {\em BayesX} your
-installation directory contains five additional subdirectories,
-namely the directories #doc#, #examples#, #output#,
-#sfunctions# and #temp#. The #doc# directory contains
-the program documentation, that is this manual. The #examples#
-directory contains three data sets, #credit.raw#, #rents.raw#
-and #zambia.raw#. These data sets exemplify many of the
-statistical functions and routines described in the following
-chapters. A detailed description of the three data sets is given
-in \autoref{datadescription}. The #examples# directory also contains
-some tutorial programs that illustrate the usage of most of the
-functions of {\em BayesX}, see \autoref{bayesregexamples} and
-\autoref{remlregexamples} . The #output# directory is the
-default directory for the program output. The #output# directory can
-be redefined by the user. The #sfunctions# directory contains
-some S-plus functions for visualizing estimation results obtained
-with {\em bayesreg objects} or {\em remlreg objects}, see
-\autoref{splus} and \autoref{remlregsplus} for detailed
-descriptions of the S-plus functions. However, by using the Java
+After the successful installation of {\em BayesX} your installation
+directory contains five additional subdirectories, namely the
+directories #doc#, #examples#, #output#, #sfunctions# and #temp#.
+The #doc# directory contains the program documentation, that is this
+manual. The #examples# directory contains three data sets,
+#credit.raw#, #rents.raw# and #zambia.raw#. These data sets
+exemplify many of the statistical functions and routines described
+in the following chapters. A detailed description of the three data
+sets is given in \autoref{datadescription}. The #examples# directory
+also contains some tutorial programs that illustrate the usage of
+most of the functions of {\em BayesX}, see the tutorials manual. The
+#output# directory is the default directory for the program output.
+The #output# directory can be redefined by the user. The
+#sfunctions# directory contains some S-plus functions for
+visualizing estimation results obtained with {\em bayesreg objects}
+or {\em remlreg objects}, see \autoref{splus} for a detailed
+description of the S-plus functions. However, by using the Java
 based version of {\em BayesX} the S-plus functions are obsolete
 because this version has its own capabilities for visualizing data
-and results, see \autoref{graphobj} for details.
- Finally in the #temp#
-directory some temporary files will be stored. Normally you will
-never use this directory.
+and results, see \autoref{graphobj} and \autoref{visualization} for
+details. Finally in the #temp# directory some temporary files will
+be stored. Normally you will never use this directory.
 
 The created directories and their contents are briefly summarized
 in \autoref{dirtable}.
@@ -78,7 +75,7 @@ in \autoref{dirtable}.
 \hline
 Directory & Contents \\
 \hline
-#doc# & contains the program description \\
+#doc# & contains the manuals \\
 #examples# & contains data set examples and tutorial programs \\
 #output# & default directory for estimation output \\
 #sfunctions# & contains some S-plus functions for visualizing output \\
@@ -92,6 +89,22 @@ directory and their content}}
 
 After a successful installation, {\em BayesX} can be started using
 the {\em Windows Start} button.
+
+\section{Manuals}
+
+{\em BayesX} is shipped together with three different manuals. The
+reference manual gives detailed information on the syntax of {\em
+BayesX} commands and the different objects used by {\em BayesX}. The
+methodology manual provides background information on the
+statistical methodology that is implemented in {\em BayesX}. In this
+manual you will also find more references on the methodological
+background. The tutorial manual can be used to make yourself
+familiar with the usage of {\em BayesX}. It contains some
+self-contained tutorials, describing how to perform semiparametric
+regression analyses using {\em BayesX}. In the Java based version of
+{\em BayesX} the manuals are available from the help menu. In both
+versions they can be found in the #doc# directory, which is a
+subdirectory of the installation directory.
 
 \section{Windows in BayesX}
 \index{windows}
@@ -476,8 +489,8 @@ child`s mother, the age of the child and the district the child
 lives in. \autoref{zambiavar} gives more information on the
 covariates in the data set.
 
-This data set is used in the tutorial like examples in
-\autoref{zambiaanalysis} and \autoref{remlregzambianalysis}.
+This data set is used in chapter \ref*{zambiaanalysis} and
+\ref*{remlregzambiaanalysis} of the tutorial manual.
 
 \begin{table}[|h|t|]
 \begin{center}

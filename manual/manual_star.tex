@@ -1,23 +1,224 @@
-\chapter{Bayesian structured additive regression}
-\label{star}
+\documentclass[11pt,a4paper,twoside]{bayesxarticle}
 
-In this chapter we provide the methodological background for the
-two regression tools presented in \autoref{bayesreg} and
-\autoref{remlreg}. The first regression tool ({\em bayesreg
-objects}) relies on Markov chain Monte Carlo simulation
-techniques. The second regression tool ({\em remlreg objects}) is
-based on mixed model representations of regression models and
-inference is based on restricted maximum likelihood (REML). Both
-regression tools are able to estimate complex semiparametric
-regression and survival models with {\em structured additive
-predictor}, STAR, Fahrmeir, Kneib and Lang, 2004). STAR models
-cover a number of well known model classes as special cases,
-including {\em generalized additive models} (Hastie and
-Tibshirani, 1990), {\em generalized additive mixed models} (Lin
-and Zhang, 1999), {\em geoadditive models} (Kammann and Wand,
-2003), {\em varying coefficient models} (Hastie and Tibshirani,
-1993), and {\em geographically weighted regression} (Fotheringham,
-Brunsdon, and Charlton, 2002).
+\usepackage{amsfonts}
+\usepackage[dvips]{graphicx}
+\usepackage[dvips]{epsfig}
+\usepackage{fancyhdr}
+
+%\usepackage{showkeys}
+%\usepackage{showidx}
+
+\usepackage{rotating}
+\usepackage{shortvrb}
+\usepackage{multicol}
+\usepackage{xr}
+
+\usepackage[ps2pdf]{thumbpdf}
+\usepackage[ps2pdf]{hyperref}
+\hypersetup{
+%    pdffitwindow=true,
+    pdfstartview=FitB,
+    pdftitle={BayesX Reference Manual},
+    pdfauthor={Andreas Brezger, Thomas Kneib and Stefan Lang with contributions
+    by Christiane Belitz, Eva-Maria Fronk, Andrea Hennerfeind,
+    Petra Kragler, Manuela Hummel and Leyre Osuna Echavarr\'{\i}a},
+    colorlinks=true,
+    linkcolor=blue,
+    pdfpagemode=UseOutlines,
+    bookmarksopen=true,
+    bookmarksnumbered=true,
+    pdfstartpage={1},
+    hyperindex=true
+    }
+
+\sloppy
+\parindent0em
+\parskip0.3em
+\topmargin -0.3cm \textheight24cm \textwidth16.5cm \headheight0.5cm
+\oddsidemargin-0.4cm \evensidemargin-0.4cm
+
+ \fancyhead[RO,LE]{\thepage}
+ \fancyhead[C]{}
+ \fancyhead[LO]{\nouppercase\rightmark}
+ \fancyhead[RE]{\nouppercase\leftmark}
+ \fancyfoot[RO,LE]{}
+ \fancyfoot[C]{\small\today} %Am ende raus!!!
+ \fancyfoot[LO,RE]{}
+ \fancyfoot[C]{}
+
+ \renewcommand{\headrulewidth}{.4pt}
+ \renewcommand{\footrulewidth}{0pt} %Am Ende 0 !!!
+
+\pagestyle{fancy}
+
+
+\renewcommand{\descriptionlabel}[1]{\hspace\labelsep\sc #1}
+
+\def \re {{\bf R}}
+\def \beq {\begin{equation}}
+\def \eeq {\end{equation}}
+\def \bdis {\begin{displaymath}}
+\def \edis {\end{displaymath}}
+\def \ds {\displaystyle}
+
+\def \mbeta {\mbox{\boldmath $\beta$}}
+\def \mtheta {\mbox{\boldmath $\theta$}}
+\def \hatmbeta {\mbox{\boldmath $\hat\beta$}}
+\def \eps {\epsilon}
+\def \meps {\mbox{\boldmath $\epsilon$}}
+\def \mmu {\mbox{\boldmath $\mu$}}
+\def \mnu {\mbox{\boldmath $\nu$}}
+\def \mSigma {\mbox{\boldmath $\Sigma$}}
+\def \mGamma {\mbox{\boldmath $\Gamma$}}
+\def \msigma {\mbox{\boldmath $\sigma$}}
+\def \mPhi {\mbox{\boldmath $\Phi$}}
+
+\newcommand{\N}{\mbox{N}}
+\newcommand{\Var}{\mbox{Var}}
+\newcommand{\E}{\mbox{E}}
+
+\newcommand{\X}{\mbox{\boldmath $X$}}
+\newcommand{\x}{\mbox{\boldmath $x$}}
+\newcommand{\Z}{\mbox{\boldmath $Z$}}
+\newcommand{\z}{\mbox{\boldmath $z$}}
+\newcommand{\mb}{\mbox{\boldmath $b$}}
+\newcommand{\Fx}{\mbox{\scriptsize \boldmath $x$}}
+\newcommand{\I}{\mbox{\boldmath $I$}}
+\newcommand{\Y}{\mbox{\boldmath $Y$}}
+\newcommand{\y}{\mbox{\boldmath $y$}}
+\newcommand{\mS}{\mbox{\boldmath $S$}}
+\newcommand{\T}{\mbox{\boldmath $T$}}
+\newcommand{\K}{\mbox{\boldmath $K$}}
+\newcommand{\kt}{\mbox{\boldmath $t$}}
+\newcommand{\U}{\mbox{\boldmath $U$}}
+\newcommand{\fu}{\mbox{\boldmath $u$}}
+\newcommand{\ba}{\mbox{\boldmath $\alpha$}}
+\newcommand{\bb}{\mbox{\boldmath $\beta$}}
+
+\newcommand{\subheader}[1]{\textsf{\textbf{{\large #1}}}}
+
+\newenvironment{stanza}[2]{\subheader{#1} \begin{itemize} \item[]#2}{\end{itemize}}
+
+ \externaldocument{manual}
+ \externaldocument{manual_tutorials}
+
+\makeindex
+
+\begin{document}
+\MakeShortVerb{\#}
+
+\thispagestyle{empty}
+
+\begin{center}
+{\bf \em \huge Bayes{\Huge X}}
+
+\vspace{0.5cm}
+
+{\em \large Software for Bayesian Inference}
+
+\vspace{0.5cm}
+
+{\em Version 1.30}
+
+\vspace{0.5cm}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=1.2]{grafiken/bayesicon.eps}
+\end{center}
+\end{figure}
+
+\vfill
+
+{\bf\sffamily \huge Methodological Background}
+
+\vfill
+
+\end{center}
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{lll}
+{\em developed at} & \hspace{1.5cm} & {\em developed by} \\
+University of Munich & \hspace{1.5cm} & Andreas Brezger \\
+Department of Statistics & \hspace{1.5cm} & Thomas Kneib \\
+Ludwigstr. 33 & \hspace{1.5cm} & Stefan Lang \\
+80539 Munich & \hspace{1.5cm} & \\
+  & & \\
+{\em with contributions by}  &  \hspace{1.5cm} &  {\em supported by} \\
+Christiane Belitz&  \hspace{1.5cm} & Ludwig Fahrmeir (mentally) \\
+Eva--Maria Fronk  & \hspace{1.5cm} & Leo Held (mentally) \\
+Andrea Hennerfeind & \hspace{1.5cm} & German Science Foundation  \\
+Manuela Hummel & \\
+Alexander Jerak & \\
+Petra Kragler & \\
+Leyre Osuna Echavarr\'{\i}a& \\
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\newpage
+
+\subsection*{Acknowledgements}
+
+The development of {\em BayesX} has been supported by grants from
+the German National Science Foundation (DFG),
+Sonderforschungsbereich 386.
+
+Special thanks go to (in alphabetical order of first names):
+
+{\em Dieter Gollnow} for computing and providing the map of Munich (a really hard job); \\
+{\em Leo Held} for advertising the program; \\
+{\em Ludwig Fahrmeir} for his patience with finishing the program
+and for carefully
+reading and correcting the  manual; \\
+{\em Ngianga-Bakwin Kandala} for being the first user of the program (a really hard job); \\
+{\em Samson Babatunde Adebayo} for carefully reading and correcting the manual; \\
+{\em Ursula Becker} for carefully reading and correcting the manual;
+
+\subsection*{Licensing agreement} The authors of this software grant
+to any individual or non-commercial organization the right to use
+and to make an unlimited number of copies of this software. Usage by
+commercial entities requires a license from the authors. You may not
+decompile, disassemble, reverse engineer, or modify the software.
+This includes, but is not limited to modifying/changing any icons,
+menus, or displays associated with the software. This software
+cannot be sold without written authorization from the authors. This
+restriction is not intended to apply for connect time charges, or
+flat rate connection/download fees for electronic bulletin board
+services. The authors of this program accept no responsibility for
+damages resulting from the use of this software and make no warranty
+on representation, either express or implied, including but not
+limited to, any implied warranty of merchantability or fitness for a
+particular purpose. This software is provided as is, and you, its
+user, assume all risks when using it.
+
+\vspace{0.5cm}
+
+{\em BayesX} is available at {
+\href{http://www.stat.uni-muenchen.de/~lang/bayesx}{http://www.stat.uni-muenchen.de/\~{}lang/bayesx}}
+
+\newpage
+
+\section{Introduction}
+
+In this manual we provide the methodological background for the two
+regression tools implemented in BayesX. The first regression tool
+({\em bayesreg objects}) relies on Markov chain Monte Carlo
+simulation techniques. The second regression tool ({\em remlreg
+objects}) is based on mixed model representations of regression
+models and inference is based on restricted maximum likelihood
+(REML). Both regression tools are able to estimate complex
+semiparametric regression and survival models with {\em structured
+additive predictor}, STAR, Fahrmeir, Kneib and Lang, 2004). STAR
+models cover a number of well known model classes as special cases,
+including {\em generalized additive models} (Hastie and Tibshirani,
+1990), {\em generalized additive mixed models} (Lin and Zhang,
+1999), {\em geoadditive models} (Kammann and Wand, 2003), {\em
+varying coefficient models} (Hastie and Tibshirani, 1993), and {\em
+geographically weighted regression} (Fotheringham, Brunsdon, and
+Charlton, 2002).
 
 
 \section{Observation model}
@@ -99,13 +300,12 @@ $h=1,\dots,q$. Similarly, GAMM's for cluster data can be written
 in the general form (\ref{gampred}).
 \item {\em Geoadditive Models} \\
 In many situations additional geographic information for the
-observations in the data set is available. As an example compare
-one of our demonstrating examples in \autoref{zambiaanalysis} and
-\autoref{remlregzambianalysis} on the determinants of childhood
-undernutrition in Zambia. Here, the district where the mother of a
-child lives is given and may be used as an indicator for regional
-differences in the health status of children. A reasonable
-predictor for such data is given by
+observations in the data set is available. As an example compare our
+demonstrating examples on the determinants of childhood
+undernutrition in Zambia in the tutorial manual. Here, the district
+where the mother of a child lives is given and may be used as an
+indicator for regional differences in the health status of children.
+A reasonable predictor for such data is given by
 \begin{equation}
 \eta_{r} = f_1(x_{r1})+\dots+f_k(x_{rk}) + f_{spat}(s_{r}) + u_r'
 \gamma
@@ -384,15 +584,14 @@ is given by
 s'},\tau_j^2 \sim N \left( \sum_{s' \in \partial_s}
 \frac{w_{ss'}}{w_{s+}} \beta_{js'}, \frac{\tau_j^2}{w_{s+}} \right),
 \end{equation}
-where $w_{ss'}$ are known weights and $+$ denotes summation over
-the missing subscript. Such a prior is called a Gaussian intrinsic
+where $w_{ss'}$ are known weights and $+$ denotes summation over the
+missing subscript. Such a prior is called a Gaussian intrinsic
 autoregression, see Besag, York and Mollie (1991) and Besag and
 Kooperberg (1995). Other weights than $w_{ss'} = 1$ as in
 (\ref{adjacency}) are based on the common boundary length of
-neighboring sites, or on the distance of the centroids of two
-sites. All these spatial priors are supported by {\em BayesX}, see
-\hyperref[weightsmap]{page~\pageref*{weightsmap}} for more
-details.
+neighboring sites, or on the distance of the centroids of two sites.
+All these spatial priors are supported by {\em BayesX}, see chapter
+\ref*{map} of the reference manual for more details.
 
 The $n \times S$ design matrix $X$ is a 0/1 incidence matrix. Its
 value in the $i$-th row and the $s$-th column is 1 if the $i$-th
@@ -607,7 +806,7 @@ edges. The prior can be easily brought into the general form
 
 You may skip this section if you are not interested in using the
 regression tool based on mixed model methodology ({\em remlreg
-objects} in \autoref{remlreg}).
+objects}.
 
 In this section, we show how STAR models can be represented as
 generalized linear mixed models (GLMM) after appropriate
@@ -721,11 +920,12 @@ intercept must be deleted to guarantee identifiability.
 \label{inference}
 
 {\em BayesX} provides two alternative approaches for Bayesian
-inference. {\em bayesreg objects} (\autoref{bayesreg}) estimate
-STAR models using MCMC simulation techniques described in
-\autoref{fullbayes}. {\em remlreg objects} (\autoref{remlreg}) use
-mixed model representations of STAR models for empirical Bayesian
-inference, see \autoref{glmmmeth}.
+inference. {\em bayesreg objects} (chapter \ref*{bayesreg} of the
+reference manual) estimate STAR models using MCMC simulation
+techniques described in \autoref{fullbayes}. {\em remlreg objects}
+(chapter \ref*{remlreg} of the reference manual) use mixed model
+representations of STAR models for empirical Bayesian inference, see
+\autoref{glmmmeth}.
 
 
 
@@ -733,8 +933,8 @@ inference, see \autoref{glmmmeth}.
 \label{fullbayes}
 
 This section may be skipped if you are not interested in using the
-regression tool for full Bayesian inference based on MCMC
-techniques ({\em bayesreg objects} in \autoref{bayesreg}).
+regression tool for full Bayesian inference based on MCMC techniques
+({\em bayesreg objects}).
 
 For full Bayesian inference, the unknown variance parameters
 $\tau_j^2$ are also considered as random and estimated
@@ -782,21 +982,21 @@ distribution is numerically intractable. A common technique to
 overcome  these problems are Markov Chain Monte Carlo (MCMC)
 simulation methods that have become very popular recently. MCMC
 methods allow the drawing of random numbers from the numerically
-intractable posterior distribution and in this way the estimation
-of characteristics of the posterior like means, standard
-deviations or quantiles via their empirical analogues. The main
-idea is very simple. Instead of drawing directly from the
-posterior (which is impossible in most cases anyway) a Markov
-chain is created, whose iterations of the transition kernel
-converge to the posterior. In this way a sample of dependent
-random numbers of the posterior is obtained. As a rule, the first
-part of the sample is discarded to take into account the time the
-algorithm needs for convergence to the posterior. This part is
-known as burn-in period. In {\em BayesX} the user has some control
-over the MCMC simulations to fit a certain model by specifying
-certain options. Among others, there are options for specifying
-the number of burn-in iterations and the total number of
-iterations, see \autoref{bayesreg} for more details.
+intractable posterior distribution and in this way the estimation of
+characteristics of the posterior like means, standard deviations or
+quantiles via their empirical analogues. The main idea is very
+simple. Instead of drawing directly from the posterior (which is
+impossible in most cases anyway) a Markov chain is created, whose
+iterations of the transition kernel converge to the posterior. In
+this way a sample of dependent random numbers of the posterior is
+obtained. As a rule, the first part of the sample is discarded to
+take into account the time the algorithm needs for convergence to
+the posterior. This part is known as burn-in period. In {\em BayesX}
+the user has some control over the MCMC simulations to fit a certain
+model by specifying certain options. Among others, there are options
+for specifying the number of burn-in iterations and the total number
+of iterations, see chapter \ref*{bayesreg} of the reference manual
+for more details.
 
 {\em BayesX} provides a number of different sampling schemes,
 which depend mainly on the distribution of the response. The first
@@ -1153,7 +1353,7 @@ conditionals with parameters given in (\ref{hypab}).
 
 This section may be skipped if you are not interested in using the
 regression tool based on mixed model methodology ({\em remlreg
-objects} in \autoref{remlreg}).
+objects}).
 
 
 For empirical Bayes inference variances $\tau^2_j$ are considered
@@ -1234,10 +1434,9 @@ the criterion
 \begin{equation}\label{remlstopcrit}
  c(\tau_j^2)=\frac{||\tilde{X}_j\hat{\beta}_j^{pen}||}{||\hat{\eta}||}
 \end{equation}
-is smaller than the user-specified value #lowerlim# (see
-\autoref{remlest_options}). This usually corresponds to small
-values of the variances $\tau_j^2$ but defines "small" in a data
-driven way.
+is smaller than the user-specified value #lowerlim# (see section
+8.1.2). This usually corresponds to small values of the variances
+$\tau_j^2$ but defines "small" in a data driven way.
 
 \section{Survival analysis and competing risks models}
 \label{survivalAnalysis}
@@ -1756,3 +1955,9 @@ Bayesian measures of model complexity and fit. {\em Journal of the
 Royal Statistical Society B}, 65, 583-639.
 
 \end{description}
+
+\addcontentsline{toc}{section}{Index} \pdfbookmark[1]{Index}{index}
+\input{manual_star.ind}
+\hypertarget{index}{}
+
+\end{document}

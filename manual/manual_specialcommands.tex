@@ -66,13 +66,13 @@ contents of the output will be saved.
 \subsection*{Options}
 
 \begin{itemize}
-\item {\bf replace} \\
+\item {\tt replace} \\
 By default, an error will be raised if one tries to store the
 contents of the {\em output window} in a file that is already
 existing. This preserves you from overwriting a file
 unintentionally. An already existing file can be overwritten by
 explicitly specifying the #replace# option.
-\item {\bf type = rtf $|$ txt } \\
+\item {\tt type = rtf $|$ txt } \\
 The {\em output window} can be saved under two different file
 types. By default, the contents of the window will be saved in
 rich-text format. The second possibility is to store the {\em
@@ -127,13 +127,13 @@ or more commands. Note that it is allowed to invoke
 another batch file within a batch file currently running.
 
 
-{\bf Comments}\index{comments}
+\subsubsection*{Comments}\index{comments}
 
 Comments in batch files are allowed and are indicated by a  #%#
 sign, that is every line
 starting with a #%# sign is ignored by the program.
 
-{\bf Changing the delimiter}
+\subsubsection*{Changing the delimiter}
 
 In particular in batch files, the readability of your program code
 may be improved if some (long) commands are split up into several

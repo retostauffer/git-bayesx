@@ -1,30 +1,24 @@
-\documentclass[11pt,a4paper]{report}
+\documentclass[11pt,a4paper,twoside]{bayesxreport}
 
 \usepackage{amsfonts}
 \usepackage[dvips]{graphicx}
 \usepackage[dvips]{epsfig}
-%\usepackage{latexsym}
 \usepackage{fancyhdr}
-%\usepackage[dcu]{harvard}
-%\usepackage{afterpage}
 
 %\usepackage{showkeys}
 %\usepackage{showidx}
 
-%\usepackage{array}
-%\pagestyle{headings}
-%\usepackage{longtable}
-
 \usepackage{rotating}
 \usepackage{shortvrb}
 \usepackage{multicol}
+\usepackage{xr}
 
 \usepackage[ps2pdf]{thumbpdf}
 \usepackage[ps2pdf]{hyperref}
 \hypersetup{
 %    pdffitwindow=true,
     pdfstartview=FitB,
-    pdftitle={BayesX-Manual},
+    pdftitle={BayesX Reference Manual},
     pdfauthor={Andreas Brezger, Thomas Kneib and Stefan Lang with contributions
     by Christiane Belitz, Eva-Maria Fronk, Andrea Hennerfeind,
     Petra Kragler, Manuela Hummel and Leyre Osuna Echavarr\'{\i}a},
@@ -47,29 +41,21 @@
 \oddsidemargin-0.4cm
 \evensidemargin-0.4cm
 
+ \fancyhead[RO,LE]{\thepage}
+ \fancyhead[C]{}
+ \fancyhead[LO]{\nouppercase\rightmark}
+ \fancyhead[RE]{\nouppercase\leftmark}
+ \fancyfoot[RO,LE]{}
+ \fancyfoot[C]{\small\today} %Am ende raus!!!
+ \fancyfoot[LO,RE]{}
+ \fancyfoot[C]{}
 
-%\renewcommand{\baselinestretch}{1.2}
+ \renewcommand{\headrulewidth}{.4pt}
+ \renewcommand{\footrulewidth}{0pt} %Am Ende 0 !!!
 
-\fancyhead[RO,LE]{\thepage}
-\fancyhead[C]{}
-\fancyhead[LO]{\slshape\rightmark}
-\fancyhead[RE]{\slshape\leftmark}
-\fancyfoot[RO,LE]{}
-\fancyfoot[C]{\small\today} %Am ende raus!!!
-\fancyfoot[LO,RE]{}
-\fancyfoot[C]{}
-\renewcommand{\headrulewidth}{.4pt}
-\renewcommand{\footrulewidth}{0pt} %Am Ende 0 !!!
 \pagestyle{fancy}
-%%Sectionmark umdefinieren:
-%% nicht mehr alles GROSS geschrieben
 
-%\renewcommand{\chaptermark}[1]{%
-%  \markright{\thechapter\space\ #1}{}%
-%}
-%\renewcommand{\sectionmark}[1]{%
-%  \markright{\thesection\space\ #1}%
-%}
+
 \renewcommand{\descriptionlabel}[1]{\hspace\labelsep\sc #1}
 
 \def \re {{\bf R}}
@@ -112,7 +98,15 @@
 \newcommand{\fu}{\mbox{\boldmath $u$}}
 \newcommand{\ba}{\mbox{\boldmath $\alpha$}}
 \newcommand{\bb}{\mbox{\boldmath $\beta$}}
+
 \renewcommand{\chaptername}{Chapter}
+
+\newcommand{\subheader}[1]{\textsf{\textbf{{\large #1}}}}
+
+\newenvironment{stanza}[2]{\subheader{#1} \begin{itemize} \item[]#2}{\end{itemize}}
+
+ \externaldocument{manual_star}
+ \externaldocument{manual_tutorials}
 
 \makeindex
 
@@ -135,11 +129,11 @@
 
 \input{manual_graphobjects.tex}
 
-\input{manual_star.tex}
-
 \input{manual_bayesregobjects.tex}
 
 \input{manual_remlregobjects.tex}
+
+\input{manual_visualization.tex}
 
 \input{manual_dagobjects.tex}
 
@@ -147,9 +141,5 @@
 \addcontentsline{toc}{chapter}{Index} \pdfbookmark[1]{Index}{index}
 \input{manual.ind}
 \hypertarget{index}{}
-%\addtocontents{toc}{{\bf Index}}
-
-
-%\addcontentsline{toc}{section}{Index}
 
 \end{document}
