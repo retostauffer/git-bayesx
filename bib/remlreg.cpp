@@ -256,6 +256,7 @@ void remlreg::create(void)
   families.push_back("gaussian");
   families.push_back("binomial");
   families.push_back("binomialprobit");
+  families.push_back("binomialcomploglog");
   families.push_back("poisson");
   families.push_back("gamma");
   families.push_back("poissondispers");
@@ -583,6 +584,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
   // family=binomial
   if(family.getvalue()=="binomial" ||
      family.getvalue()=="binomialprobit" ||
+     family.getvalue()=="binomialcomploglog" ||
      family.getvalue()=="binomialdispers" ||
      family.getvalue()=="binomialprobitdispers")
     {
@@ -2783,6 +2785,7 @@ void remlrun(remlreg & b)
 // Univariate Modelle ohne Dispersionsparameter
     else if (b.family.getvalue()=="binomial" ||
         b.family.getvalue()=="binomialprobit" ||
+        b.family.getvalue()=="binomialcomploglog" ||
         b.family.getvalue()=="poisson")
       {
       dispers=false;
