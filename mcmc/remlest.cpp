@@ -3732,9 +3732,29 @@ out16.close();
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
-//  ofstream outit((outfile+"_it.raw").strtochar());
-//  outit << it-1;
-//  outit.close();
+datamatrix loglike(1,3,0);
+
+loglike(0,0) = loglike(1,0) = (resp.transposed()*eta)(0,0);
+loglike(0,0) -= 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
+loglike(1,0) -= 0.5*log(H.det()) + 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
+loglike(2,0) -= 0.5*log(H.det()) + 0.5*(beta.getRowBlock(xcols,xcols+zcols).transposed()*beta.getRowBlock(xcols,xcols+zcols))(0,0)*theta(0,0) + 0.5*zcols*log(theta(0,0));
+for(i=0; i<nrobs; i++)
+  {
+  if(interval[i])
+    {
+    loglike(0,0) += log(Survivor(i,0)-Survivor(i,1));
+    loglike(1,0) += log(Survivor(i,0)-Survivor(i,1));
+    }
+  else
+    {
+    loglike(0,0) -= cumhazard(i,0);
+    loglike(1,0) -= cumhazard(i,0);
+    }
+  }
+
+  ofstream outlog((outfile+"_loglike.raw").strtochar());
+  loglike.prettyPrint(outlog);
+  outlog.close();
 
   datamatrix thetareml(theta.rows(),3,0);
   thetareml.putCol(0,theta);
