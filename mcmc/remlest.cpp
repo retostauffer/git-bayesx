@@ -1586,17 +1586,17 @@ bool remlest::estimate_survival(const datamatrix resp,
       }
     }
 
-  bool check;
+  bool timevarying;
   if(nrbaseline>1)
     {
-    check=false;
+    timevarying=true;
     }
   else
     {
-    check=true;
+    timevarying=false;
     }
 
-  // Matrices and variables for baseline effects
+// Matrices and variables for baseline effects
 //  double tstep;
   statmatrix<double> tsteps;
   datamatrix t_X;
@@ -1604,19 +1604,20 @@ bool remlest::estimate_survival(const datamatrix resp,
   vector<unsigned> tstart;
   vector<unsigned> tend;
   datamatrix interactvar(nrobs,nrbaseline,0);
+  statmatrix<int> index;
   j=0;
   for(i=0; i<fullcond.size(); i++)
     {
     if(isbaseline[i]==1)
       {
-      fullcond[i]->initialize_baseline(j,t_X,t_Z,tstart,tend,interactvar,tsteps);
+      fullcond[i]->initialize_baseline(j,t_X,t_Z,tstart,tend,interactvar,tsteps,index);
       j++;
       }
     }
   datamatrix basef(t_X.rows(),nrbaseline,0);
   statmatrix<double>baseline;
   // Baseline-HR, linear predictor
-  if(check)
+  if(!timevarying)
     {
     baseline = statmatrix<double>(t_X.rows(),1,0);
     }
@@ -1676,8 +1677,7 @@ bool remlest::estimate_survival(const datamatrix resp,
         }
       }
 
-    // CHECK
-    if(check)
+    if(!timevarying)
       {
       for(i=0; i< t_X.rows();i++)
         {
@@ -1714,15 +1714,24 @@ bool remlest::estimate_survival(const datamatrix resp,
     mult_eta=eta-baseline_eta;
     cumbaseline=datamatrix(nrobs,1,0);
 
-    //CHECK
-    if(check)
+    if(!timevarying)
       {
-      for(i=0; i<nrobs; i++)
+/*      for(i=0; i<nrobs; i++)
         {
         for(k=tstart[i]; k<tend[i]-1; k++)
           {
           cumbaseline(i,0) += 0.5*tsteps(k,0)*(baseline(k,0)+baseline(k+1,0));
           }
+        }*/
+      double former=0;
+      for(i=0, k=0; i<nrobs; i++)
+        {
+        cumbaseline(index(i,0),0) = former;
+        for( ; k<tend[index(i,0)]-1; k++)
+          {
+          cumbaseline(index(i,0),0) += 0.5*tsteps(k,0)*(baseline(k,0)+baseline(k+1,0));
+          }
+        former = cumbaseline(index(i,0),0);
         }
       }
     else
@@ -1751,15 +1760,24 @@ bool remlest::estimate_survival(const datamatrix resp,
       if(isbaselinebeta[j]==1)
         {
         helpmat = datamatrix(nrobs,1,0);
-        //CHECK
-        if(check)
+        if(!timevarying)
           {
-          for(i=0; i<nrobs; i++)
+/*          for(i=0; i<nrobs; i++)
             {
             for(k=tstart[i]; k<tend[i]-1; k++)
               {
               helpmat(i,0) += 0.5*tsteps(k,0)*(t_X(k,dm_pos[j])*baseline(k,0)+t_X(k+1,dm_pos[j])*baseline(k+1,0));
               }
+            }*/
+          double former=0;
+          for(i=0, k=0; i<nrobs; i++)
+            {
+            helpmat(index(i,0),0) = former;
+            for( ; k<tend[index(i,0)]-1; k++)
+              {
+              helpmat(index(i,0),0) += 0.5*tsteps(k,0)*(t_X(k,dm_pos[j])*baseline(k,0)+t_X(k+1,dm_pos[j])*baseline(k+1,0));
+              }
+            former = helpmat(index(i,0),0);
             }
           }
         else
@@ -1793,16 +1811,26 @@ bool remlest::estimate_survival(const datamatrix resp,
       if(isbaselinebeta[xcols+j]==1)
         {
         helpmat = datamatrix(nrobs,1,0);
-        //CHECK
-        if(check)
+        if(!timevarying)
           {
-          for(i=0; i<nrobs; i++)
+/*          for(i=0; i<nrobs; i++)
             {
             for(k=tstart[i]; k<tend[i]-1; k++)
               {
               helpmat(i,0) += 0.5*tsteps(k,0)*(t_Z(k,dm_pos[xcols+j])*baseline(k,0)
                                +t_Z(k+1,dm_pos[xcols+j])*baseline(k+1,0));
               }
+            }*/
+          double former=0;
+          for(i=0, k=0; i<nrobs; i++)
+            {
+            helpmat(index(i,0),0) = former;
+            for( ; k<tend[index(i,0)]-1; k++)
+              {
+              helpmat(index(i,0),0) += 0.5*tsteps(k,0)*(t_Z(k,dm_pos[xcols+j])*baseline(k,0)
+                               +t_Z(k+1,dm_pos[xcols+j])*baseline(k+1,0));
+              }
+            former = helpmat(index(i,0),0);
             }
           }
         else
@@ -1842,16 +1870,26 @@ bool remlest::estimate_survival(const datamatrix resp,
         if(isbaselinebeta[j]==1 && isbaselinebeta[k]==1)
           {
           helpmat = datamatrix(nrobs,1,0);
-          //CHECK
-          if(check)
+          if(!timevarying)
             {
-            for(i=0; i<nrobs; i++)
+/*            for(i=0; i<nrobs; i++)
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
                 helpmat(i,0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(l,0)
                                 +t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(l+1,0));
                 }
+              }*/
+            double former=0;
+            for(i=0, l=0; i<nrobs; i++)
+              {
+              helpmat(index(i,0),0) = former;
+              for( ; l<tend[index(i,0)]-1; l++)
+                {
+                helpmat(index(i,0),0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*t_X(l,dm_pos[k])*baseline(l,0)
+                                +t_X(l+1,dm_pos[j])*t_X(l+1,dm_pos[k])*baseline(l+1,0));
+                }
+              former = helpmat(index(i,0),0);
               }
             }
           else
@@ -1878,16 +1916,26 @@ bool remlest::estimate_survival(const datamatrix resp,
         else if(isbaselinebeta[j]==0 && isbaselinebeta[k]==1)
           {
           helpmat = datamatrix(nrobs,1,0);
-          //CHECK
-          if(check)
+          if(!timevarying)
             {
-            for(i=0; i<nrobs; i++)
+/*            for(i=0; i<nrobs; i++)
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
                 helpmat(i,0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[k])*baseline(l,0)
                                  +t_X(l+1,dm_pos[k])*baseline(l+1,0));
                 }
+              }*/
+            double former=0;
+            for(i=0, l=0; i<nrobs; i++)
+              {
+              helpmat(index(i,0),0) = former;
+              for( ; l<tend[index(i,0)]-1; l++)
+                {
+                helpmat(index(i,0),0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[k])*baseline(l,0)
+                                 +t_X(l+1,dm_pos[k])*baseline(l+1,0));
+                }
+              former = helpmat(index(i,0),0);
               }
             }
           else
@@ -1914,16 +1962,26 @@ bool remlest::estimate_survival(const datamatrix resp,
         else if(isbaselinebeta[j]==1 && isbaselinebeta[k]==0)
           {
           helpmat = datamatrix(nrobs,1,0);
-          //CHECK
-          if(check)
+          if(!timevarying)
             {
-            for(i=0; i<nrobs; i++)
+/*            for(i=0; i<nrobs; i++)
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
                 helpmat(i,0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*baseline(l,0)
                                  +t_X(l+1,dm_pos[j])*baseline(l+1,0));
                 }
+              }*/
+            double former=0;
+            for(i=0, l=0; i<nrobs; i++)
+              {
+              helpmat(index(i,0),0) = former;
+              for( ; l<tend[index(i,0)]-1; l++)
+                {
+                helpmat(index(i,0),0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*baseline(l,0)
+                                 +t_X(l+1,dm_pos[j])*baseline(l+1,0));
+                }
+              former = helpmat(index(i,0),0);
               }
             }
           else
@@ -1967,16 +2025,26 @@ bool remlest::estimate_survival(const datamatrix resp,
         if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==1)
           {
           helpmat = datamatrix(nrobs,1,0);
-          //CHECK
-          if(check)
+          if(!timevarying)
             {
-            for(i=0; i<nrobs; i++)
+/*            for(i=0; i<nrobs; i++)
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
                 helpmat(i,0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(l,0)
                                  +t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
                 }
+              }*/
+            double former=0;
+            for(i=0, l=0; i<nrobs; i++)
+              {
+              helpmat(index(i,0),0) = former;
+              for( ; l<tend[index(i,0)]-1; l++)
+                {
+                helpmat(index(i,0),0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+j])*t_Z(l,dm_pos[xcols+k])*baseline(l,0)
+                                 +t_Z(l+1,dm_pos[xcols+j])*t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
+                }
+              former = helpmat(index(i,0),0);
               }
             }
           else
@@ -2003,16 +2071,26 @@ bool remlest::estimate_survival(const datamatrix resp,
         else if(isbaselinebeta[xcols+j]==0 && isbaselinebeta[xcols+k]==1)
           {
           helpmat = datamatrix(nrobs,1,0);
-          //CHECK
-          if(check)
+          if(!timevarying)
             {
-            for(i=0; i<nrobs; i++)
+/*            for(i=0; i<nrobs; i++)
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
                 helpmat(i,0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+k])*baseline(l,0)
                                  +t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
                 }
+              }*/
+            double former=0;
+            for(i=0, l=0; i<nrobs; i++)
+              {
+              helpmat(index(i,0),0) = former;
+              for( ; l<tend[index(i,0)]-1; l++)
+                {
+                helpmat(index(i,0),0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+k])*baseline(l,0)
+                                 +t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
+                }
+              former = helpmat(index(i,0),0);
               }
             }
           else
@@ -2039,16 +2117,26 @@ bool remlest::estimate_survival(const datamatrix resp,
         else if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==0)
           {
           helpmat = datamatrix(nrobs,1,0);
-          //CHECK
-          if(check)
+          if(!timevarying)
             {
-            for(i=0; i<nrobs; i++)
+/*            for(i=0; i<nrobs; i++)
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
                 helpmat(i,0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+j])*baseline(l,0)
                                  +t_Z(l+1,dm_pos[xcols+j])*baseline(l+1,0));
                 }
+              }*/
+            double former=0;
+            for(i=0, l=0; i<nrobs; i++)
+              {
+              helpmat(index(i,0),0) = former;
+              for( ; l<tend[index(i,0)]-1; l++)
+                {
+                helpmat(index(i,0),0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+j])*baseline(l,0)
+                                 +t_Z(l+1,dm_pos[xcols+j])*baseline(l+1,0));
+                }
+              former = helpmat(index(i,0),0);
               }
             }
           else
@@ -2092,16 +2180,26 @@ bool remlest::estimate_survival(const datamatrix resp,
         if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==1)
           {
           helpmat = datamatrix(nrobs,1,0);
-          //CHECK
-          if(check)
+          if(!timevarying)
             {
-            for(i=0; i<nrobs; i++)
+/*            for(i=0; i<nrobs; i++)
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
                 helpmat(i,0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(l,0)
                                  +t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
                 }
+              }*/
+            double former=0;
+            for(i=0, l=0; i<nrobs; i++)
+              {
+              helpmat(index(i,0),0) = former;
+              for( ; l<tend[index(i,0)]-1; l++)
+                {
+                helpmat(index(i,0),0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*t_Z(l,dm_pos[xcols+k])*baseline(l,0)
+                                 +t_X(l+1,dm_pos[j])*t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
+                }
+              former = helpmat(index(i,0),0);
               }
             }
           else
@@ -2128,16 +2226,26 @@ bool remlest::estimate_survival(const datamatrix resp,
         else if(isbaselinebeta[j]==0 && isbaselinebeta[xcols+k]==1)
           {
           helpmat = datamatrix(nrobs,1,0);
-          //CHECK
-          if(check)
+          if(!timevarying)
             {
-            for(i=0; i<nrobs; i++)
+/*            for(i=0; i<nrobs; i++)
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
                 helpmat(i,0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+k])*baseline(l,0)
                                  +t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
                 }
+              }*/
+            double former=0;
+            for(i=0, l=0; i<nrobs; i++)
+              {
+              helpmat(index(i,0),0) = former;
+              for( ; l<tend[index(i,0)]-1; l++)
+                {
+                helpmat(index(i,0),0) += 0.5*tsteps(l,0)*(t_Z(l,dm_pos[xcols+k])*baseline(l,0)
+                                 +t_Z(l+1,dm_pos[xcols+k])*baseline(l+1,0));
+                }
+              former = helpmat(index(i,0),0);
               }
             }
           else
@@ -2164,16 +2272,26 @@ bool remlest::estimate_survival(const datamatrix resp,
         else if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==0)
           {
           helpmat = datamatrix(nrobs,1,0);
-          //CHECK
-          if(check)
+          if(!timevarying)
             {
-            for(i=0; i<nrobs; i++)
+/*            for(i=0; i<nrobs; i++)
               {
               for(l=tstart[i]; l<tend[i]-1; l++)
                 {
                 helpmat(i,0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*baseline(l,0)
                                  +t_X(l+1,dm_pos[j])*baseline(l+1,0));
                 }
+              }*/
+            double former=0;
+            for(i=0, l=0; i<nrobs; i++)
+              {
+              helpmat(index(i,0),0) = former;
+              for( ; l<tend[index(i,0)]-1; l++)
+                {
+                helpmat(index(i,0),0) += 0.5*tsteps(l,0)*(t_X(l,dm_pos[j])*baseline(l,0)
+                                 +t_X(l+1,dm_pos[j])*baseline(l+1,0));
+                }
+              former = helpmat(index(i,0),0);
               }
             }
           else

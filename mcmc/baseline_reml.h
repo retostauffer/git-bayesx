@@ -89,7 +89,7 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
 
   void initialize_baseline(unsigned j, datamatrix & tx, datamatrix & tz,
                vector<unsigned> & ts, vector<unsigned> & te, datamatrix & iv,
-               statmatrix<double> & steps);
+               statmatrix<double> & steps, statmatrix<int> & ind);
 
   void outoptionsreml();
 

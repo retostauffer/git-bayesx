@@ -925,7 +925,7 @@ class __EXPORT_TYPE FULLCOND
 
   virtual void initialize_baseline(unsigned j, datamatrix & tx, datamatrix & tz,
                vector<unsigned> & ts, vector<unsigned> & te, datamatrix & iv,
-               statmatrix<double> & steps)
+               statmatrix<double> & steps, statmatrix<int> & index)
     {
     }
 

@@ -272,7 +272,7 @@ void baseline_reml::multDG(datamatrix & res, const datamatrix & b)
 
 void baseline_reml::initialize_baseline(unsigned j, datamatrix & tx, datamatrix & tz,
                vector<unsigned> & ts, vector<unsigned> & te, datamatrix & iv,
-               statmatrix<double> & steps)
+               statmatrix<double> & steps, statmatrix<int> & ind)
   {
   if(!varcoeff)
     {
@@ -281,8 +281,10 @@ void baseline_reml::initialize_baseline(unsigned j, datamatrix & tx, datamatrix 
     ts = tstart;
     te = tend;
     steps = tsteps;
+    ind = index;
     }
   iv.putCol(j,interact_var);
+
   }
 
 void baseline_reml::outoptionsreml()
