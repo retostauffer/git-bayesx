@@ -53,8 +53,8 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
 
   // CONSTRUCTOR 1
 
-  baseline_reml(MCMCoptions * o, const datamatrix & d, const unsigned & nrk,
-               const unsigned & degr, const unsigned & tgr,
+  baseline_reml(MCMCoptions * o, const datamatrix & d, const datamatrix & lo,
+               const unsigned & nrk, const unsigned & degr, const unsigned & tgr,
                const unsigned & nrq, const unsigned & nrb, const knotpos & kp,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,

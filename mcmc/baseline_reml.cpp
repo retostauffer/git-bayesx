@@ -10,9 +10,9 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
 baseline_reml::baseline_reml(MCMCoptions * o,
-              const datamatrix & d, const unsigned & nrk, const unsigned & degr,
-              const unsigned & tgr, const unsigned & nrq, const unsigned & nrb,
-              const knotpos & kp, const fieldtype & ft,
+              const datamatrix & d, const datamatrix & lo, const unsigned & nrk,
+              const unsigned & degr, const unsigned & tgr, const unsigned & nrq,
+              const unsigned & nrb, const knotpos & kp, const fieldtype & ft,
               const ST::string & ti, const ST::string & fp,
               const ST::string & pres, const double & l, const double & sl,
               const knotpos & gp)
@@ -84,6 +84,19 @@ baseline_reml::baseline_reml(MCMCoptions * o,
 
   tstart = vector<unsigned>(d.rows(),0);
   tend = vector<unsigned>(d.rows(),1);
+
+  if(lo.rows()>1)
+    {
+    for(i=0; i<d.rows(); i++)
+      {
+      j=0;
+      while(j<tvalues.rows()-1 && tvalues(j,0)<lo(i,0))
+        {
+        tstart[i]++;
+        j++;
+        }
+      }
+    }
 
   for(i=0; i<d.rows(); i++)
     {

@@ -260,6 +260,8 @@ class __EXPORT_TYPE term_baseline_remlreg : public basic_termtype
   intoption numberbetween;    // number of gridpoints between quantiles
   doubleoption lambda;
   doubleoption lambdastart;
+  stroption lower;            // lower boundary of the interval for interval
+                              // censored data  
 
   void setdefault(void);
 

@@ -618,6 +618,7 @@ term_baseline_remlreg::term_baseline_remlreg(void)
   numberbetween = intoption("nrbetween",5,1,100);
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",1000,0,10000000);
+  lower = stroption("lower");
   }
 
 void term_baseline_remlreg::setdefault(void)
@@ -635,7 +636,7 @@ void term_baseline_remlreg::setdefault(void)
 bool term_baseline_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 9) )
+        && (t.options.size() <= 10) )
     {
     if (t.options[0] == "baseline")
       t.type = "baseline";
@@ -656,6 +657,7 @@ bool term_baseline_remlreg::check(term & t)
     optlist.push_back(&numberbetween);
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&lower);
 
     unsigned i;
     bool rec = true;
@@ -678,7 +680,7 @@ bool term_baseline_remlreg::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(9);
+   t.options = vector<ST::string>(10);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(degree.getvalue());
    t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -688,6 +690,7 @@ bool term_baseline_remlreg::check(term & t)
    t.options[6] = ST::inttostring(numberbetween.getvalue());
    t.options[7] = ST::doubletostring(lambda.getvalue());
    t.options[8] = ST::doubletostring(lambdastart.getvalue());
+   t.options[9] = lower.getvalue();
 
 
    if (lambda.getvalue() < 0)

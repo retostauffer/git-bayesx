@@ -266,6 +266,7 @@ void remlreg::create(void)
   families.push_back("cumlogit");
   families.push_back("cumprobit");
   families.push_back("cox");
+  families.push_back("coxinterval");
   family = stroption("family",families,"binomial");
 
   maxit = intoption("maxit",400,1,100000);
@@ -666,7 +667,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     }
 
   // check whether a baseline effect is specified if family != cox
-  if(family.getvalue()!="cox")
+  if(family.getvalue()!="cox" && family.getvalue()!="coxinterval")
     {
     unsigned i,j;
     bool baselineexisting = false;
@@ -2439,6 +2440,41 @@ bool remlreg::create_baseline(const unsigned & collinpred)
 
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
 
+      // read lower interval boundary
+      datamatrix lower;
+      if(terms[i].options[9]!="")
+        {
+        dataobject * datap;                           // pointer to datsetobject
+        int objpos = findstatobject(*statobj,terms[i].options[9],"dataset");
+        if (objpos >= 0)
+          {
+          statobject * s = statobj->at(objpos);
+          datap = dynamic_cast<dataobject*>(s);
+          if (datap->obs()==0 || datap->getVarnames().size()==0)
+            {
+            outerror("ERROR: dataset object " + terms[i].options[9] + " does not contain any data\n");
+            return true;
+            }
+          else if (datap->getVarnames().size()>1)
+            {
+            outerror("ERROR: dataset object " + terms[i].options[9] + " contains more than one variables\n");
+            return true;
+            }
+          }
+        else
+          {
+          outerror("ERROR: dataset object " + terms[i].options[9] + " is not existing\n");
+          return true;
+          }
+        list<ST::string> lowname = datap->getVarnames();
+        ST::string expr = "";
+        datap->makematrix(lowname,lower,expr);
+        }
+      else
+        {
+        lower = datamatrix(1,1,0);
+        }
+
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
       f = (terms[i].options[2]).strtolong(h);
@@ -2470,6 +2506,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
 
       fcbaseline.push_back( baseline_reml(&generaloptions,
                                               D.getCol(j),
+                                              lower,
                                               nrknots,
                                               degree,
                                               tgrid,
@@ -2811,6 +2848,18 @@ void remlrun(remlreg & b)
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
       failure = b.RE.estimate_survival(response,offset,weight);
+      }
+// Cox-Modell mit Intervallzensierung
+    else if (b.family.getvalue()=="coxinterval")
+      {
+      dispers=false;
+      b.RE = remlest(
+      #if defined(JAVA_OUTPUT_WINDOW)
+      b.adminb_p,
+      #endif
+      b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
+      failure = b.RE.estimate_survival_interval(response,offset,weight);
       }
 // Univariate Modelle mit Dispersionsparameter
     else
