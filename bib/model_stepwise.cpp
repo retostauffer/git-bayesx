@@ -1040,8 +1040,8 @@ term_random_stepwise::term_random_stepwise(void)
   lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
   lambdastart = doubleoption("lambdastart",10000,0,10000000);
   forced_into = simpleoption("forced_into",false);
-  df_for_lambdamax = doubleoption("df_for_lambdamax",1,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
-  df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,200);
+  df_for_lambdamax = doubleoption("df_for_lambdamax",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,500);
   lambdamax_opt = simpleoption("lambdamax_opt",false);
   lambdamin_opt = simpleoption("lambdamin_opt",false);
   number = intoption("number",0,0,50);
@@ -1294,7 +1294,7 @@ term_interactpspline_stepwise::term_interactpspline_stepwise(void)
   {
   type = "term_interactpspline";
   degree=intoption("degree",3,0,5);
-  numberknots=intoption("nrknots",15,5,500);
+  numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   gridsize = intoption("gridsize",-1,10,35);
   lambdamin = doubleoption("lambdamin",0.000001,0.000001,100000000);
@@ -1305,9 +1305,9 @@ term_interactpspline_stepwise::term_interactpspline_stepwise(void)
   df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,400);
   lambdamax_opt = simpleoption("lambdamax_opt",false);
   lambdamin_opt = simpleoption("lambdamin_opt",false);
-  number = intoption("number",0,0,50);
+  number = intoption("number",0,-1,50);
   df_equidist = simpleoption("df_equidist",false);
-  df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
+  df_accuracy = doubleoption("df_accuracy",0.05,0.01,1);
   }
 
 
@@ -1356,6 +1356,8 @@ bool term_interactpspline_stepwise::check(term & t)
 
     if (t.options[0] == "pspline2dimrw1")
       t.type = "pspline2dimrw1";
+    else if (t.options[0] == "pspline2dimrw2")
+      t.type = "pspline2dimrw2";
     //else if (t.options[0] == "tpspline2dimrw1")
     //  t.type = "tpspline2dimrw1";
     //else if (t.options[0] == "pspline2dimband")
@@ -1492,8 +1494,9 @@ bool term_interactpspline_stepwise::checkvector(const vector<term> & terms,
 
   assert(i< terms.size());
 
-  if (terms[i].type == "pspline2dimrw1") //|| (terms[i].type == "psplinekrrw1")
-     //|| (terms[i].type == "psplinekrrw2") || (terms[i].type == "tpspline2dimrw1")
+  if ((terms[i].type == "pspline2dimrw1") || (terms[i].type == "pspline2dimrw2"))
+     //|| (terms[i].type == "psplinekrrw1") || (terms[i].type == "psplinekrrw2")
+     //|| (terms[i].type == "tpspline2dimrw1")
      //|| (terms[i].type == "pspline2dimband") || (terms[i].type == "tpspline2dimband") )
     return true;
 
@@ -1554,6 +1557,10 @@ bool term_geospline_stepwise::check(term & t)
 
     if (t.options[0] == "geospline")
       t.type = "geospline";
+    else if (t.options[0] == "geosplinerw1")
+      t.type = "geospline";
+    else if (t.options[0] == "geosplinerw2")
+      t.type = "geosplinerw2";
     else
       {
       setdefault();

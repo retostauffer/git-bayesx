@@ -42,6 +42,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   ofstream outmodels;
   ofstream outcriterium;
   ofstream outtex;
+  ST::string smoothing;                      // für Unterscheidung globaler / lokaler Glättungsparameter
 
   vector<vector<double> > lambdavec;
   vector<ST::string> names_fixed;
@@ -58,6 +59,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   vector<ST::string> posttitle;
 
   bool finetuning(vector<double> & modell);
+  bool fine_local(vector<double> & modell);  // für Wahl lokaler Glättungsparameter
 
 // -----------------------------------------------------------------------------
 // -------------- Funktionen, für Stepwise / Stepmin ---------------------------
@@ -267,7 +269,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
   void exact_zurueck(unsigned & z);
 
-  double wert_einzeln(unsigned & z, unsigned & i, double & df);
+  double wert_einzeln(unsigned & z, unsigned i, double & df);
 
   double approx_einzeln(unsigned & z, unsigned & i, double & df);
 

@@ -173,6 +173,7 @@ class __EXPORT_TYPE FULLCOND
   double df_accuracy;
   bool inthemodel;    //gibt an, ob Fullc-Obj. im aktuellen Modell enthalten ist
   int grenzfall;      // gibt den FG für lambda -> unendlich an!
+  ST::string smoothing;
 
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
@@ -774,6 +775,16 @@ class __EXPORT_TYPE FULLCOND
     {
     return grenzfall;
     }
+
+  void set_smoothing(ST::string & wert)
+    {
+    smoothing = wert;
+    }
+
+  /*virtual const unsigned get_rankK(void)
+     {
+     return 1;
+     } */
 
   //virtual double compute_penalterm(void)
   //  {

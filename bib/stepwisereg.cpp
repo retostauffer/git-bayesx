@@ -501,7 +501,7 @@ void stepwisereg::clear(void)
   normalconst_special.reserve(20);
 
   factor.erase(factor.begin(),factor.end());
-  factor.reserve(20);
+  factor.reserve(60);
 
   gammaconst.erase(gammaconst.begin(),gammaconst.end());
   gammaconst.reserve(10);
@@ -2675,11 +2675,22 @@ void regressrun(stepwisereg & b)
 
                    }
            }
-         //ST::string latex = "latex " + path + "_model_summary.tex";
-         //system(latex.strtochar());
+
+         // ofstream outbat(...);   siehe unten!
+
          }
 
 #endif
+
+/*ForceDirectories(path.strtochar());
+ST::string helpbat = path + "\\latexcommands.bat";
+ofstream outbat(helpbat.strtochar());
+outbat << "cd " << path << endl;
+outbat << "cd.." << endl;
+outbat << "latex " << path << "_model_summary.tex" << endl;
+outbat << "dvips " << path << "_model_summary.dvi" << endl;
+system(helpbat.strtochar());
+rmdir(path.strtochar());*/
 
      }
 
