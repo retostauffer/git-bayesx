@@ -2516,6 +2516,352 @@ bool remlest::estimate_survival(const datamatrix resp,
   return false;
   }
 
+//------------------------------------------------------------------------------
+//----------------- Survival data with interval censoring ----------------------
+//------------------------------------------------------------------------------
+
+bool remlest::estimate_survival_interval(const datamatrix resp,
+                const datamatrix & offset, const datamatrix & weight)
+  {
+
+  unsigned i, j, k, l;
+  double help;
+
+  outoptions();
+  out("\n");
+
+  for(i=0;i<fullcond.size();i++)
+    fullcond[i]->outoptionsreml();
+
+  out("\n");
+  out("REML ESTIMATION STARTED\n",true);
+  out("\n");
+
+  bool stop = check_pause();
+  if (stop)
+    return true;
+
+  // Matrix to store old versions of beta and theta
+  statmatrix<double>betaold(beta.rows(),1,0);
+  statmatrix<double>thetaold(theta.rows(),1,0);
+
+  // Score-function and expected Fisher information for theta
+  statmatrix<double>score(theta.rows(),1,0);
+  statmatrix<double>Fisher(theta.rows(),theta.rows(),0);
+
+  // Matrices for Fisher scoring (regression parameters)
+  statmatrix<double>H(beta.rows(),beta.rows(),0);
+  statmatrix<double>Hinv(beta.rows(),beta.rows(),0);
+  statmatrix<double>H1(beta.rows(),1,0);
+
+  // Number of iterations, nr of observations
+  unsigned it=1;
+  unsigned nrobs = Z.rows();
+  unsigned xcols = X.cols();
+  unsigned zcols = Z.cols();
+
+  // Criteria to detemine convergence
+  double crit1=1;                //relative changes in regression parameters
+  double crit2=1;                //relative changes in variance parameters
+  bool test=true;
+
+  vector<double>stopcrit(theta.rows(),10);
+  vector<int>its(theta.rows(),0);
+  vector<int>signs(theta.rows(),1);
+
+  // Matrix containing the inverse covariance matrix of the random effects
+  statmatrix<double>Qinv(zcols,1,0);
+
+  // Inzidenzmatrix, die für jeden Wert in fullcond bzw. beta angibt, ob er zur Baseline-HR beiträgt
+  vector<int>isbaseline(fullcond.size(),0);
+  int nrbaseline=0;
+  for(i=0; i<fullcond.size(); i++)
+    {
+    if(fullcond[i]->is_baseline()==true)
+      {
+      isbaseline[i]=1;
+      nrbaseline++;
+      }
+    }
+
+  vector<int>isbaselinebeta(beta.rows(),0);
+  vector<int>fc_pos(beta.rows(),0);
+  vector<int>dm_pos(beta.rows(),0);
+  l=0;
+  for(i=0; i<fullcond.size(); i++)
+    {
+    if(isbaseline[i]==1)
+      {
+      k=0;
+      for(j=zcut[i-1]; j<zcut[i]; j++, k++)
+        {
+        isbaselinebeta[xcols+j]=1;
+        fc_pos[xcols+j]=l;
+        dm_pos[xcols+j]=k;
+        }
+      k=0;
+      for(j=xcut[i]; j<xcut[i+1]; j++, k++)
+        {
+        isbaselinebeta[j]=1;
+        fc_pos[j]=l;
+        dm_pos[j]=k;
+        if(xcut[i+1]==xcut[i]+1)
+          {
+          dm_pos[j]=1;
+          }
+        }
+      l++;
+      }
+    }
+
+  bool timevarying;
+  if(nrbaseline>1)
+    {
+    timevarying=true;
+    }
+  else
+    {
+    timevarying=false;
+    }
+
+// Matrices and variables for baseline effects
+  statmatrix<double> tsteps;
+  datamatrix t_X;
+  datamatrix t_Z;
+  vector<unsigned> tstart;
+  vector<unsigned> tend;
+  datamatrix interactvar(nrobs,nrbaseline,0);
+  statmatrix<int> index;
+  j=0;
+  for(i=0; i<fullcond.size(); i++)
+    {
+    if(isbaseline[i]==1)
+      {
+      fullcond[i]->initialize_baseline(j,t_X,t_Z,tstart,tend,interactvar,tsteps,index);
+      j++;
+      }
+    }
+  datamatrix basef(t_X.rows(),nrbaseline,0);
+  statmatrix<double>baseline;
+  // Baseline-HR, linear predictor
+  if(!timevarying)
+    {
+    baseline = statmatrix<double>(t_X.rows(),1,0);
+    }
+  else
+    {
+    baseline = statmatrix<double>(nrobs,t_X.rows(),0);
+    }
+  statmatrix<double>cumbaseline(nrobs,1,0);
+  statmatrix<double>cumhazard(nrobs,1,0);
+  statmatrix<double>eta(nrobs,1,0);
+  statmatrix<double>baseline_eta(nrobs,1,0);
+  statmatrix<double>mult_eta(nrobs,1,0);
+  statmatrix<double>mult_hazard(nrobs,1,0);
+  statmatrix<double>helpmat(nrobs,1,0);
+
+  // Transform smoothing paramater starting values to variances
+  for(i=0; i<theta.rows(); i++)
+    {
+    theta(i,0)=1/theta(i,0);
+    }
+
+  // Startwert für beta0 ist der ML-Schätzer bei konstanter Rate + Poisson-Verteilung
+  beta(0,0) = log(resp.sum(0)/t_X(t_X.rows()-1,1));
+
+  while(test==true)
+    {
+
+    // store current values in betaold and thetaold
+    betaold=beta;
+    thetaold=theta;
+
+    // compute Qinv
+    for(i=0, j=0; i<theta.rows(); i++)
+      {
+      for(k=zcut[i]; k<zcut[i+1]; k++, j++)
+        {
+        Qinv(j,0)=1/theta(i,0);
+        }
+      }
+
+     ///////////////////////////////
+     // Missing pieces            //
+     ///////////////////////////////
+
+    // Score-Funktion für beta
+
+    for(j=0; j<X.cols(); j++)
+      {
+      if(isbaselinebeta[j]==1)
+        {
+        helpmat = datamatrix(nrobs,1,0);
+        double former=0;
+        for(i=0, k=0; i<nrobs; i++)
+          {
+          helpmat(index(i,0),0) = former;
+          for( ; k<tend[index(i,0)]-1; k++)
+            {
+            helpmat(index(i,0),0) += 0.5*tsteps(k,0)*(t_X(k,dm_pos[j])*baseline(k,0)+t_X(k+1,dm_pos[j])*baseline(k+1,0));
+            }
+          former = helpmat(index(i,0),0);
+          }
+        for(i=0; i<nrobs; i++)
+          {
+          helpmat(i,0) *= mult_hazard(i,0);
+          }
+        H1(j,0)=(resp.transposed()*X.getCol(j))(0,0)-helpmat.sum(0);
+        }
+      else
+        {
+        H1(j,0)=(resp.transposed()*X.getCol(j))(0,0)-(cumhazard.transposed()*X.getCol(j))(0,0);
+        }
+      }
+
+    H.addtodiag(Qinv,xcols,beta.rows());
+
+    // Fisher-scoring für beta
+    beta = betaold + H.solve(H1);
+
+    stop = check_pause();
+    if (stop)
+      return true;
+
+  //////////////////////////////////////////////
+  // Marginale Likelihood optimieren          //
+  //////////////////////////////////////////////
+
+    Hinv=H.inverse();
+
+    // transform theta
+    for(i=0; i<theta.rows(); i++)
+      {
+      thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
+      theta(i,0)=signs[i]*sqrt(theta(i,0));
+      }
+
+    // Score-Funktion für theta
+
+   for(j=0; j<theta.rows(); j++)
+      {
+      score(j,0)=-1*((zcut[j+1]-zcut[j])/theta(j,0)-
+                       (Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[j],X.cols()+zcut[j+1],X.cols()+zcut[j+1])).trace()/(theta(j,0)*theta(j,0)*theta(j,0))-
+                       (beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]).transposed()*beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]))(0,0)/(theta(j,0)*theta(j,0)*theta(j,0)));
+      }
+
+    // Fisher-Info für theta
+
+    for(j=0; j<theta.rows(); j++)
+      {
+      for(k=j; k< theta.rows(); k++)
+        {
+        Fisher(j,k) = 2*((Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[k],X.cols()+zcut[j+1],X.cols()+zcut[k+1])*Hinv.getBlock(X.cols()+zcut[k],X.cols()+zcut[j],X.cols()+zcut[k+1],X.cols()+zcut[j+1])).trace())/(theta(j,0)*theta(j,0)*theta(j,0)*theta(k,0)*theta(k,0)*theta(k,0));
+        Fisher(k,j) = Fisher(j,k);
+        }
+      }
+
+    //Fisher-scoring für theta
+
+    theta = thetaold + Fisher.solve(score);
+
+    // transform theta back to original parameterisation
+
+    for(i=0; i<theta.rows(); i++)
+      {
+      signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
+      theta(i,0) *= theta(i,0);
+      thetaold(i,0) *= thetaold(i,0);
+      }
+
+    // update linear predictor
+    eta=X*beta.getRowBlock(0,xcols)+Z*beta.getRowBlock(xcols,beta.rows());
+
+    // test whether to stop estimation of theta[i]
+   help=eta.norm(0);
+   for(i=0; i<theta.rows(); i++)
+     {
+     helpmat=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
+     stopcrit[i]=helpmat.norm(0)/help;
+     if(stopcrit[i]<lowerlim)
+       {
+       theta(i,0)=thetaold(i,0);
+       }
+     else
+       {
+       its[i]=it;
+       }
+     }
+
+    // compute convergence criteria
+    help=betaold.norm(0);
+    if(help==0)
+      {
+      help=0.00001;
+      }
+    betaold.minus(betaold,beta);
+    crit1 = betaold.norm(0)/help;
+
+    help=thetaold.norm(0);
+    if(help==0)
+      {
+      help=0.00001;
+      }
+    thetaold.minus(thetaold,theta);
+    crit2 = thetaold.norm(0)/help;
+
+    // test criterion
+    test=((crit1>eps) || (crit2>eps)) && (it<(unsigned)maxit);
+
+    out("  iteration "+ST::inttostring(it)+"\n");
+    out("  relative changes in the regression coefficients: "+
+         ST::doubletostring(crit1,6)+"\n");
+    out("  relative changes in the variance parameters:     "+
+         ST::doubletostring(crit2,6)+"\n");
+    out("\n");
+
+    // count iteration
+    it=it+1;
+    }
+
+  if(it<(unsigned)maxit)
+    {
+    out("\n");
+    out("REML ESTIMATION CONVERGED\n",true);
+    out("\n");
+    }
+  else
+    {
+    out("\n");
+    outerror("WARNING: Number of iterations reached " + ST::inttostring(maxit) + "\n");
+    outerror("         REML ESTIMATION DID NOT CONVERGE\n");
+    out("\n");
+    }
+  out("ESTIMATION RESULTS:\n",true);
+  out("\n");
+
+//  ofstream outit((outfile+"_it.raw").strtochar());
+//  outit << it-1;
+//  outit.close();
+
+  datamatrix thetareml(theta.rows(),3,0);
+  thetareml.putCol(0,theta);
+  for(i=0; i<theta.rows(); i++)
+    {
+    if(stopcrit[i]<lowerlim)
+      {
+      thetareml(i,1)=1;
+      }
+    thetareml(i,2)=its[i];
+    }
+
+  for(i=1;i<fullcond.size();i++)
+    {
+    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,false,xcut[i],X.cols()+zcut[i-1],0,false,i);
+    }
+  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcut[0],0,0,false,0);
+
+  return false;
+  }
 
 //------------------------------------------------------------------------------
 //----------------------------- Object description -----------------------------

@@ -60,7 +60,7 @@ class remlest
 
   remlest(void) {}
 
-  // Initialize from fullcond-objects
+  // CONSTRUCTOR 1: Initialize from fullcond-objects
 
   remlest(
   #if defined(JAVA_OUTPUT_WINDOW)
@@ -109,6 +109,13 @@ class remlest
 
   bool estimate_survival(const datamatrix resp, const datamatrix & offset,
                 const datamatrix & weight);
+
+  // Function: estimate_survival_interval
+  // Task: compute estimates for survival data in the presence of interval
+  //       censoring
+
+  bool estimate_survival_interval(const datamatrix resp,
+                const datamatrix & offset, const datamatrix & weight);
 
 //------------------------------------------------------------------------------
 //----------------------------- Object description -----------------------------
