@@ -281,6 +281,11 @@ class __EXPORT_TYPE DISTRIBUTION
 
   unsigned get_nrpar(void);
 
+  // FUNCTION: get_nrobs_wpw
+  // TASK: returns the number of observation with positive weights
+
+  unsigned get_nrobs_wpw(void);
+
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
@@ -475,6 +480,15 @@ class __EXPORT_TYPE DISTRIBUTION
     }
 
   void compute_deviance(double & deviance,double & deviancesat);
+
+
+  // FUNCTION: compute_rss
+  // TASK: computes the residual su of squares for gaussian data
+
+  virtual double compute_rss(void)
+    {
+    return 0;
+    }
 
   // FUNCTION: compute_gcv
   // TASK: computes the GCV score
@@ -1958,6 +1972,9 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
   void set_constscale(double s);
 
   void update_missings(void);
+
+
+  double compute_rss(void);
 
   double compute_gcv(double & df);
 

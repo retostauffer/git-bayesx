@@ -1684,6 +1684,11 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
 
           fciwlspspline[fciwlspspline.size()-1].init_name(terms[i].varnames[0]);
 
+          fciwlspspline[fciwlspspline.size()-1].set_stepwise_options(
+               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+               numb,df_equidist);
+          fciwlspspline[fciwlspspline.size()-1].set_stepwise_accuracy(df_accuracy);
+
           fciwlspspline[fciwlspspline.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fciwlspspline[fciwlspspline.size()-1]);
 
@@ -2055,6 +2060,11 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
 
         fcrandom[fcrandom.size()-1].init_name(terms[i].varnames[1]);
 
+        fcrandom[fcrandom.size()-1].set_stepwise_options(
+        lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+        numb,df_equidist);
+        fcrandom[fcrandom.size()-1].set_stepwise_accuracy(df_accuracy);
+
         fcrandom[fcrandom.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcrandom[fcrandom.size()-1]);
 
@@ -2260,10 +2270,10 @@ bool stepwisereg::create_random(const unsigned & collinpred)
                                                         )
                           );
 
-        fcrandomgaussian[fcrandomgaussian.size()-1].set_stepwise_options(
+        fcrandom[fcrandom.size()-1].set_stepwise_options(
         lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
         numb,df_equidist);
-        fcrandomgaussian[fcrandomgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
+        fcrandom[fcrandomgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
 
        if (structured==1)
           {

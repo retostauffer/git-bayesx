@@ -42,31 +42,8 @@ const STEPWISErun & st)
   }
 
 
-//void STEPWISErun::fgvector_besetzen(vector<double> & fg,
-//         const vector<double> & modell, const vector<ST::string> & names_fixed)
-//  {
-//  fg[0] = fullcondp[0]->compute_df();                          //**
-//  unsigned y = 1;                                              //**
-//  for(i=names_fixed.size()-1;i<modell.size();i++)              //**
-//    {
-//    if(modell[i]<=0)
-//       fg[i] = 0;                                              //**
-//    if(modell[i]>0)                                            //**
-//       {                                                       //**
-//       fg[i] = fullcondp[y]->compute_df();                     //**
-//       y = y + 2;                                              //**
-//       }                                                       //**
-//    }                                                          //**
-//    }
-
-double STEPWISErun::compute_criterion(void)              //const ST::string & criterion
-//                                       ,const vector<double> & fg)
+double STEPWISErun::compute_criterion(void)
   {
-//  double df = 0;                                           //**
-//  for(i=0;i<fg.size();i++)                                 //**
-//     df = df + fg[i];                                      //**
-//  genoptions_mult[0]->out(ST::doubletostring(df));         //**
-
   double df = 0;
   unsigned i;
   for(i=0;i<fullcondp.size();i++)
@@ -74,14 +51,36 @@ double STEPWISErun::compute_criterion(void)              //const ST::string & cr
     df = df + fullcondp[i]->compute_df();
     }
   double kriterium;
-  if(criterion=="AIC")
-    kriterium = likep_mult[0]->compute_aic(df);
-  else if(criterion=="AIC_imp")
-    kriterium = likep_mult[0]->compute_improvedaic(df);
+  double nrobs = likep_mult[0]->get_nrobs();
+  //double nrobs = likep_mult[0]->get_nrobs_wpw();
+
+  // Versuch: mit Devianz
+  double deviance = 0;
+  double deviancesat = 0;
+  likep_mult[0]->compute_deviance(deviance,deviancesat);
+
+  if(likep_mult[0]->get_family()=="Gaussian")
+    deviance = deviance - nrobs*(1+log(2*M_PI));
+
+  if (criterion=="GCV")
+    {
+    if(likep_mult[0]->get_family()=="Gaussian")
+      kriterium = likep_mult[0]->compute_rss();
+    else
+      kriterium = deviancesat;
+    kriterium = kriterium / (nrobs*(1-df/nrobs)*(1-df/nrobs));
+    }
+    // kriterium = likep_mult[0]->compute_gcv(df);
+  else if(criterion=="AIC")
+    kriterium = deviance + 2*df;
+    // kriterium = likep_mult[0]->compute_aic(df);
   else if(criterion=="BIC")
-    kriterium = likep_mult[0]->compute_bic(df);
-  else
-    kriterium = likep_mult[0]->compute_gcv(df);
+    kriterium = deviance + log(nrobs)*df;
+    // kriterium = likep_mult[0]->compute_bic(df);
+  else  //if(criterion=="AIC_imp")
+    kriterium = deviance + 2*df + 2*df*(df+1)/(nrobs-df-1);
+    // kriterium = likep_mult[0]->compute_improvedaic(df);
+
   return kriterium;
   }
 
@@ -120,6 +119,15 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
 
   unsigned i;
   unsigned j;
+
+  /*         Kontrolle
+  for(i=0;i<lambdavec.size();i++)
+     {
+     for(j=0;j<lambdavec[i].size();j++)
+        genoptions_mult[0]->out(ST::doubletostring(lambdavec[i][j]) + "\n");
+     }
+  */
+
   unsigned k;
   unsigned zaehler = 0;
   bool fehler_randomslope = false;                        // überprüfen, dass Randomslopes
@@ -152,6 +160,27 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   vector<vector<unsigned> > startindex;
   vector<vector<double> > startfix;
   startwerte(startmodel,lambdavec,names_fixed,startindex,startfix);
+
+  if(likep_mult[0]->get_family() != "Gaussian")
+    {
+    vector<ST::string> title;
+    title.push_back("");
+    vector<double> modell_init;
+    /*
+    fixed_entfernen(fullcondp[0],modell_init,names_fixed,names_nonp,D,modelv);
+    fullcond_entfernen(fullcondp,modell_init,anfang,ende,names_fixed,
+          names_nonp,D,modelv);
+    */
+    for(i=1;i<names_fixed.size();i++)       // nur Kontrolle!
+       modell_init.push_back(-1);
+    for(i=0;i<lambdavec.size();i++)
+      modell_init.push_back(lambdavec[i][floor(3*lambdavec[i].size()/4)]);
+
+   for(i=0;i<modell_init.size();i++)
+       genoptions_mult[0]->out(ST::doubletostring(modell_init[i]) + "\n");
+    lambdas_update(modell_init);
+    posteriormode(title,true);
+    }
 
   options_text(number,lambdavec,names_fixed,names_nonparametric,startfix,startindex,name);
 
@@ -201,6 +230,7 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   title.push_back("");
   ST::string header = "  Final Model:";
   fullcondp = fullcond_alle;
+
   fixed_entfernen(fullcondp[0],modell_final,names_fixed,names_nonparametric,
                   D,modelv);
   fullcond_entfernen(fullcondp,modell_final,anfang,ende,names_fixed,
@@ -227,6 +257,11 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   posteriormode(title,false);  // Problem: linearer Prädiktor bei "true" standardisiert! Hier wird zurückgerechnet!
                                // danach nicht mehr compute_criterion() aufrufen!!!
   make_tex_end(path,modell_final,names_fixed);
+
+  //            Files müssen wieder geschlossen werden!!!
+  outtex.close();
+  outcriterium.close();
+  outmodels.close();
 
   // gibt Lambdas aus, damit man die richtig bestimmten Variablen zählen kann!
   /*
@@ -805,6 +840,7 @@ void STEPWISErun::fullcond_entfernen(vector<FULLCOND*> & fullc,
          fullcond_neu.push_back(fullc[ende[j-names_fixed.size()+1]]);
          }
        else if(m[j]==0)
+       
          {
          fullc[i]->reset_effect(0);
          }
@@ -840,6 +876,7 @@ void STEPWISErun::fixed_entfernen(FULLCOND* & fullc,
             if(fullc->get_datanames()[j]==names_fixed[z+1])
               {
               raus = true;
+
               fullc->reset_effect(j);
               }
             j = j + 1;
@@ -1245,67 +1282,6 @@ void STEPWISErun::initialise_lambdas(vector<vector<ST::string> > & names_nonp,
        names_fixed = fullcondp[i]->get_datanames();
      }
   }
-
-/*
-double STEPWISErun::lambda_from_df(double & df_wunsch, double & lambda_vorg, const FULLCOND* & fullcond)
-  {
-  fullcond->update_stepwise(lambda_vorg);
-  double df_vorg = fullcond->compute_df();
-  double lambda_unten, lambda_oben, df_mitte;
-  if( (df_wunsch-df_vorg) < 0.1 && (df_wunsch-df_vorg) > -0.1 )
-     {
-     return lambda_vorg;
-     }
-  else if((df_wunsch-df_vorg) >= 0.1)
-     {
-     double lambda_vers = lambda_vorg;
-     double df_vers = df_vorg;
-     while(df_vers < df_wunsch)
-        {
-        lambda_vers = lambda_vers*0.75;
-        fullcond->update_stepwise(lambda_vers);
-        df_vers = fullcond->compute_df();
-        if( (df_wunsch-df_vers) < 0.1 && (df_wunsch-df_vers) > -0.1 )
-           {
-           return lambda_vers;
-           }
-        }
-     lambda_unten = lambda_vorg;
-     lambda_oben = lambda_vers;
-     df_mitte = df_vers;
-     }
-  else
-     {
-     double lambda_vers = lambda_vorg;
-     double df_vers = df_vorg;
-     while(df_vers > df_wunsch)
-        {
-        lambda_vers = lambda_vers*2;
-        fullcond->update_stepwise(lambda_vers);
-        df_vers = fullcond->compute_df();
-        if( (df_wunsch-df_vers) < 0.1 && (df_wunsch-df_vers) > -0.1)
-          {
-          return lambda_vers;
-          }
-        }
-     lambda_unten = lambda_vers;
-     lambda_oben = lambda_vorg;
-     df_mitte = df_vers;
-     }
-  double lambda_mitte;
-  while( (df_mitte-df_wunsch) >= 0.1 || (df_mitte-df_wunsch) <= -0.1 )
-     {
-     lambda_mitte = lambda_oben + (lambda_unten - lambda_oben) / 2;
-     fullcond->update_stepwise(lambda_mitte);
-     df_mitte = fullcond->compute_df();
-     if(df_mitte < df_wunsch)
-       lambda_unten = lambda_mitte;
-     else
-       lambda_oben = lambda_mitte;
-     }
-  return lambda_mitte;
-  }
-*/
 
 //------------------------------------------------------------------------------
 //-------TEX-File---------------------------------------------------------------

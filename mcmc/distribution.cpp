@@ -25,9 +25,21 @@ void DISTRIBUTION::compute_deviance(double & deviance,double & deviancesat)
       deviancesat+=devsat;
       }
     }
+  }
 
+unsigned DISTRIBUTION::get_nrobs_wpw(void)
+  {
+  unsigned i;
+  double * workweight = weight.getV();
+  double s = 0;
 
+  for (i=0;i<nrobs;i++,workweight++)
+    {
+    if (workweight ==0)
+      s++;
+    }
 
+  return nrobs-s;
   }
 
 unsigned DISTRIBUTION::get_nrpar(void)
@@ -4130,6 +4142,50 @@ double DISTRIBUTION_gaussian::loglikelihood(double * res,
   return  - *w * ( help * help )/(2* scale(0,0));
   }
 
+// ------------------- For Stepwise --------------------------------------------
+
+/*
+unsigned DISTRIBUTION_gaussian::get_nrobs_wpw(void) const
+  {
+  unsigned i;
+  double * workweight = weight.getV();
+  double s = 0;
+
+  for (i=0;i<nrobs;i++,workweight++)
+    {
+    if (workweight ==0)
+      s++;
+    }
+
+  return nrobs-s;
+  }
+*/
+
+double DISTRIBUTION_gaussian::compute_rss(void)
+    {
+  unsigned i;
+
+  double * worklin = (*linpred_current).getV();
+  double * workresp = response.getV();
+  double * workweight = weight.getV();
+
+  double sum = 0;
+  double help;
+  double s = 0;
+
+  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
+    {
+    if (workweight !=0)
+      {
+      help = *workresp - *worklin;
+      sum += *workweight*help*help;
+      }
+    }
+  sum = trmult(0,0)*trmult(0,0)*sum;
+
+  return  sum;
+  }
+
 
 double DISTRIBUTION_gaussian::compute_gcv(double & df)
   {
@@ -6713,4 +6769,5 @@ void DISTRIBUTION_cumulative_latent3::outresults(void)
   }
 
 } // end: namespace MCMC
+
 
