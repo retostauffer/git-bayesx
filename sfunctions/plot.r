@@ -97,19 +97,17 @@ function(file, psname, type = "l", mean.autocor = F, ...)
 	 	old.par <- par()
 	if(mean.autocor == F) {
 		data <- read.table(file, header = T)
-		not.to.print <- c(grep("*min", dimnames(data)[[2]]), grep(
-			"*max", dimnames(data)[[2]]), grep("*mean", dimnames(
-			data)[[2]]))
-		not.to.print <- sort(not.to.print)
 		print <- seq(1, ncol(data), 1)
-		print <- print[ - not.to.print]
+		print1 <- is.na(match(substring(names(data),nchar(names(data))-3),c("_min","_max")))
+		print2 <- is.na(match(substring(names(data),nchar(names(data))-4),c("_mean")))
+		print <- print[print1&print2]
 		i <- 2
 		count <- 0
 		while(i <= length(print)) {
 			if(count %% 6 == 0 || (print[i] - print[i - 1]) > 1) {
 				count <- 0
 				if(exists("is.R") && is.function(is.R) && is.R(
-				  ) && missing(psname))
+				  ) && missing(psname) && i>2)
 				  windows()
 				par(mfrow = c(3, 2))
 				par(omi = c(1.5, 1, 0, 1.5)/2.54)
@@ -133,17 +131,17 @@ function(file, psname, type = "l", mean.autocor = F, ...)
 	}
 	else {
 		data <- read.table(file, header = T)
-		print <- c(grep("*min", dimnames(data)[[2]]), grep("*max", 
-			dimnames(data)[[2]]), grep("*mean", dimnames(data)[[2]]
-			))
-		print <- sort(print)
+		print <- seq(1, ncol(data), 1)
+		print1 <- is.na(match(substring(names(data),nchar(names(data))-3),c("_min","_max")))
+		print2 <- is.na(match(substring(names(data),nchar(names(data))-4),c("_mean")))
+		print <- print[!(print1&print2)]
 		i <- 1
 		count <- 0
 		while(i <= length(print)) {
 			if(count %% 3 == 0) {
 				count <- 0
 				if(exists("is.R") && is.function(is.R) && is.R(
-				  ) && missing(psname))
+				  ) && missing(psname) && i>1)
 				  windows()
 				par(omi = c(2, 2, 0.5, 2.5)/2.54)
 				par(mfrow = c(3, 1))
