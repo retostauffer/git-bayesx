@@ -822,11 +822,6 @@ public BayesX()
 
 	rStream = new RandMrg();
 	rStream.setSeed(seedArray);
-/*	System.out.println("Random numbers:");
-	for(int i=0; i<5; i++)
-		{
-		System.out.println(BinomialGen.nextInt(rStream, 10, 0.8));
-		}*/
 	}
 
 
@@ -2843,8 +2838,32 @@ private native void setSuppressoutput(boolean supp);
 
 private double juniform()
 	{
-	System.out.println(BinomialGen.nextInt(rStream, 10, 0.8));
-	return BinomialGen.nextInt(rStream, 10, 0.8);
+	return UniformGen.nextDouble(rStream, 0, 1);
+	}
+
+private double jnormal()
+	{
+	return NormalGen.nextDouble(rStream, 0, 1);
+	}
+
+private double jexponential(double rate)
+	{
+	return ExponentialGen.nextDouble(rStream, rate);
+	}
+
+private double jbernoulli(double pi)
+	{
+	return BinomialGen.nextInt(rStream, 1, pi);
+	}
+
+private double jbinomial(int size, double pi)
+	{
+	return BinomialGen.nextInt(rStream, size, pi);
+	}
+
+private double jgamma(double a, double b)
+	{
+	return GammaGen.nextDouble(rStream, a, b);
 	}
 
 //Funktion, die bei der Übergabe eines Befehls aufgerufen wird
