@@ -15,6 +15,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     fctype = MCMC::variance;
     constlambda=false;
     uniformprior=false;
+    discrete=false;
     update_sigma2 = true;
     randomeffect=false;
     fullcondnonp = false;
@@ -36,8 +37,6 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
       setbeta(1,1,distrp->get_scale(column,column)/Kp->getlambda());
 
     scale = 1.0;
-    uniformprior = false;
-    discrete = false;
     df = 0;
 
     ST::string path = samplepath.substr(0,samplepath.length()-4)+"_lambda.raw";
@@ -59,6 +58,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     fctype = MCMC::variance;
     constlambda=false;
     uniformprior=false;
+    discrete=false;
     update_sigma2 = true;
     randomeffect=false;
     fullcondnonp = true;
@@ -92,6 +92,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     fctype = MCMC::variance;
     constlambda=false;
     uniformprior=false;
+    discrete=false;
     update_sigma2 = true;
     randomeffect = true;
     fullcondnonp = false;
@@ -642,7 +643,7 @@ void FULLCOND_variance_nonp::outoptions(void)
     if(uniformprior)
       optionsp->out("  Discrete uniform prior on approximate degrees of freedom\n");
     else
-      optionsp->out("  Discrete prior on approximate degrees of freedom (proportional to 1.0/df)\n");
+      optionsp->out("  Discrete geometric prior on approximate degrees of freedom\n");
     }
   else if(uniformprior)
     {
