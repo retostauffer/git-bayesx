@@ -379,6 +379,50 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
     beta(j*partialnrfixed,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcutbeta[j*fullcond.size()],0,cats(j,0),true,0);
     }
 
+  double loglike=0;
+  double aic=0;
+  double bic=0;
+  double gcv=0;
+  double df=(H*Hinv).trace();
+  double refprob;
+
+  for(i=0; i<resp.rows(); i++)
+    {
+    k=0;
+    refprob=0;
+    for(j=0; j<nrcat2; j++)
+      {
+      if(respind(i*nrcat2+j,0)==1)
+        {
+        loglike += log(mu(i*nrcat2+j,0));
+        k=1;
+        }
+      else
+        {
+        refprob += mu(i*nrcat2+j,0);
+        }
+      }
+    if(k==0)
+      {
+      loglike += log(1-refprob);
+      }
+    }
+  loglike *= -2;
+  gcv = loglike/(double)resp.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+  aic = loglike + 2*df;
+  bic = loglike + log(resp.rows())*df;
+
+  out("\n");
+  out("  Model Fit\n",true);
+  out("\n");
+  out("\n");
+  out("  -2*log-likelihood:                 " + ST::doubletostring(loglike,6) + "\n");
+  out("  Degrees of freedom:                " + ST::doubletostring(df,6) + "\n");
+  out("  (conditional) AIC:                 " + ST::doubletostring(aic,6) + "\n");
+  out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
+  out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
+  out("\n");
+
   out("\n");
   out("  Additive predictors and expectations\n",true);
   out("\n");
@@ -528,6 +572,52 @@ bool remlest_multinomial::estimate_glm(const datamatrix resp,
       }
     beta(j*partialnrfixed,0) += fullcond[0]->outresultsreml(X,Z,beta,H,datamatrix(1,1,0),xcut[0],0,0,false,xcutbeta[j*fullcond.size()],0,cats(j,0),true,0);
     }
+
+  double loglike=0;
+  double aic=0;
+  double bic=0;
+  double gcv=0;
+  double df=beta.rows();
+  double refprob;
+  unsigned k;
+
+  for(i=0; i<resp.rows(); i++)
+    {
+    k=0;
+    refprob=0;
+    for(j=0; j<nrcat2; j++)
+      {
+      if(respind(i*nrcat2+j,0)==1)
+        {
+        loglike += log(mu(i*nrcat2+j,0));
+        k=1;
+        }
+      else
+        {
+        refprob += mu(i*nrcat2+j,0);
+        }
+      }
+    if(k==0)
+      {
+      loglike += log(1-refprob);
+      }
+    }
+  loglike *= -2;
+  gcv = loglike/(double)resp.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+  aic = loglike + 2*df;
+  bic = loglike + log(resp.rows())*df;
+
+  out("\n");
+  out("  Model Fit\n",true);
+  out("\n");
+  out("\n");
+  out("  -2*log-likelihood:                 " + ST::doubletostring(loglike,6) + "\n");
+  out("  Degrees of freedom:                " + ST::doubletostring(df,6) + "\n");
+  out("  (conditional) AIC:                 " + ST::doubletostring(aic,6) + "\n");
+  out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
+  out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
+  out("\n");
+
 
   out("\n");
   out("  Linear predictors and expectations\n",true);
