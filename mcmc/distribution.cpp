@@ -4881,12 +4881,12 @@ void DISTRIBUTION_binomial_latent::compute_deviance(const double * response,
   {
   if (*weight !=  0)
     {
-    if (*response<0)
+    if (*response<=0)
       {
       *deviance = -2*log(1-*mu);
       *deviancesat = *deviance;
       }
-    else if (*response >= 0)
+    else if (*response > 0)
       {
       *deviance = -2*log(*mu);
       *deviancesat = *deviance;
