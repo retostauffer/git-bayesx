@@ -1128,7 +1128,15 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
 
   for(i=0;i<optionsp->get_samplesize();i+=step)
     {
-    prec_env.addto(XX_env,Kenv,contour(i,nrpar),contour(i,nrpar+1));
+
+    double lim;
+    if( contour(i,nrpar+1) > 100000)
+      lim = 100000;
+    else
+      lim = contour(i,nrpar+1);
+    prec_env.addto(XX_env,Kenv,contour(i,nrpar),lim);
+
+//    prec_env.addto(XX_env,Kenv,contour(i,nrpar),contour(i,nrpar+1));
 
     if(diff>0)
       {
@@ -1142,7 +1150,7 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
         }
       tildeP = A*tildeP;                              //  AP^-1A^T
       tildeP = tildeP.inverse();                      // (AP^-1A^T)^-1
-      tildeP_env = envmatdouble(tildeP,0.00001);
+      tildeP_env = envmatdouble(tildeP,0.000001);
       }
     else
       {
