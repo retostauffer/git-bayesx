@@ -6,6 +6,7 @@ namespace MCMC
 
 
 
+
 // Default constructor
 
 DISTRIBUTION_nbinomial::DISTRIBUTION_nbinomial(void)
@@ -178,11 +179,14 @@ double DISTRIBUTION_nbinomial::loglikelihood(double * response,
                        double * linpred,double * weight,const int & i) const
 {
 
+    // For the negative binomial model
     if (ver==nb)
     {
         return - (*response + scale(0,0))*log(exp(*linpred) + scale(0,0)) +
                     *response*(*linpred);
     }
+
+    // For the POGA and POIG models: corresponds to a Poisson likelihood.
     else
     {
         return *weight * (*response * *linpred - exp(*linpred));
@@ -214,6 +218,12 @@ void DISTRIBUTION_nbinomial::compute_deviance(const double * response,
                            const datamatrix & scale, const int & i) const
 {
 
+    // Returns only the deviance of a Negative binomial model.
+    // Formula: logarithm of the density of a negative binomial distribution
+    // NB(mu, d) = G(y+d)/(G(y+1)G(d)) (d/(d+mu))^d (mu/(d+mu))^y
+    // DEV = logG(y+d)-logG(y+1)-logG(d) + d*(log(d)-log(mu+d)) + y*(log(mu)-log(mu+d))
+    // DEV_SAT = NB(mu, d) - NB(y, d)  
+
     if(*response==0)
     {
         *deviance= -2*scale(0,0)*log(scale(0,0)/(scale(0,0)+*mu));
@@ -238,15 +248,23 @@ void DISTRIBUTION_nbinomial::compute_deviance(const double * response,
 double DISTRIBUTION_nbinomial::compute_weight(double * linpred,double *weight,
                         const int & i,const unsigned & col) const
 {
-    if(optionsp->get_nriter()<1) // Für Posteriormode!!!!!
+
+// Für Posteriormode!!!!!
+    if(optionsp->get_nriter()<1)
     {
         return *weight * exp(*linpred)*scale(0,0)/(exp(*linpred) +
                         scale(0,0));
     }
-    else  // Für MCMC!!!!!!
+
+// Für MCMC iterations!!!!!!    
+    else
     {
+        // Negative binomial  
+
         if(ver==nb) return *weight * exp(*linpred)*scale(0,0)/(exp(*linpred) +
                         scale(0,0));
+        // POGA or POIG models
+
         else return *weight * exp(*linpred);
     }
 }
@@ -269,11 +287,13 @@ double DISTRIBUTION_nbinomial::compute_IWLS(double * response,double * linpred,
 
   double el = exp(*linpred);
 
+  // Negative Binomial model:
+
   if (ver==nb)
     {
 
     if (weightyes)
-      *weightiwls = *weight * el*scale(0,0)/(el + scale(0,0));
+      *weightiwls = *weight * el* scale(0,0)/(el + scale(0,0));
 
     *tildey = (*response - el)/el;
 
@@ -281,6 +301,9 @@ double DISTRIBUTION_nbinomial::compute_IWLS(double * response,double * linpred,
                 *response*(*linpred);
 
     }
+
+    // POGA and POIG models:
+
   else
     {
 
@@ -564,6 +587,9 @@ void DISTRIBUTION_nbinomial::outresults(void)
 void DISTRIBUTION_nbinomial::update(void)
 {
 
+    // For hierarchical models, initialize the multiplicative random effects in
+    // the first iteration with exp(intercept).
+
     if(optionsp->get_nriter()==1)
     {
          unsigned i;
@@ -579,8 +605,11 @@ void DISTRIBUTION_nbinomial::update(void)
          }
     }
 
+    // Update of the multiplicative random effects in the POGA and POIG models
+    // If hierarchical=True, then update of the hierarchical intercept.
 
-    if(ver!=nb)       //PoGa oder PoIg
+
+    if(ver!=nb)
     {
         update_nu();
         nusave.update();
@@ -592,12 +621,19 @@ void DISTRIBUTION_nbinomial::update(void)
         }
     }
 
-// Update scale (delta)
+    // Update of the scale parameter for all the models. Differentiations
+    // for the models are included in the function.
 
     update_scale();
 
+    // Update of the hyperparameter b of the prior for the scale parameter.
+    // It is the same function for all the models.
+
     b_pri(0,0) = update_b_pri();
     b_pri_save.update();
+
+    // Calculate the acceptance rates with the help of the vector acceptance
+    // when the running is ended.
 
     if(optionsp->get_nriter()==optionsp->get_iterations())
     {
@@ -692,7 +728,8 @@ double DISTRIBUTION_nbinomial::update_nu(void)
     double expint = exp(*intwork);   // only for hierarchical
 
 
-    //  Für die KFZ-Daten!!!
+    //  When oversize=True, then only few samplings for the multiplicative
+    // random effects are stored.
 
     double * nusavekfzp = nusavekfz.getbetapointer();
     unsigned helpsum = (nrobs-nrobs%10)/10;
@@ -704,14 +741,14 @@ double DISTRIBUTION_nbinomial::update_nu(void)
 
 
 
-//Update nu
+    //Update nu
 
-// For the Poisson-Gamma Model
+    // For the Poisson-Gamma Model: Gibbsampling!! Formula (5.15) from diss
 
     if(ver==poga)
     {
-// nuaux = old nu!
 
+    // nuaux = old nu!
 
         for (i=0;i<nrobs;i++,nuwork++, respwork++,linwork++, nusavep++)
         {
@@ -743,7 +780,8 @@ double DISTRIBUTION_nbinomial::update_nu(void)
             *sum2 += log(*nuwork);
         }
     }
-// For the Poisson-Inverse Gaussian Model
+    // For the Poisson-Inverse Gaussian Model: M-H-Algorithm.
+    // Formulae: (5.16), (5.31) and (5.32) from diss.  
 
     else
     {
@@ -758,7 +796,7 @@ double DISTRIBUTION_nbinomial::update_nu(void)
         pwork += 1;
         double lognuaux_nu;
         double diffnu_nuaux;
-        double nupost; //maximum der posterior für nu
+        double nupost; //maximum of the posterior for nu
 
         for(i=0; i<nrobs; i++, nuwork++,respwork++, linwork++,
                     acceptwork++, pwork++, nusavep++)
@@ -768,6 +806,7 @@ double DISTRIBUTION_nbinomial::update_nu(void)
 
             mu = exp(*linwork)/(*nuwork);
 
+            // (5.31)
 
             if(hierarchical) nupost = ((*respwork-1.5)+sqrt((*respwork-1.5)*(*respwork-1.5) +
                     2.0*(*scalework)* mu*expint+ *scalework*(*scalework)))/
@@ -776,6 +815,8 @@ double DISTRIBUTION_nbinomial::update_nu(void)
             else nupost = ((*respwork-1.5)+sqrt((*respwork-1.5)*(*respwork-1.5) +
                     2.0*(*scalework)* mu+ *scalework*(*scalework)))/
                     (2.0*mu+*scalework);
+
+            // (5.32)                    
 
             if(nupost > *pwork)
             {
@@ -799,6 +840,7 @@ double DISTRIBUTION_nbinomial::update_nu(void)
                             (diffnu_nuaux/expint + expint/(*nuwork)-expint/nuaux);
             else priori_ratio = -3/2*lognuaux_nu + *scalework * 0.5 *
                             (diffnu_nuaux + 1/(*nuwork)-1/nuaux);
+            // (5.16)
 
             log_likelihood_ratio  =  exp(*linwork)-
                             exp(*linwork +lognuaux_nu) +
@@ -828,6 +870,9 @@ double DISTRIBUTION_nbinomial::update_nu(void)
             *sum += *nuwork;
             *sum2 += 1/(*nuwork);
 
+            // Tuning function for the acceptance rates of the M-H algorithm
+            // It will be called only in the burnin phase and each 100 iterations.
+
             if(optionsp->get_nriter() % 100 == 0 &&
             optionsp->get_nriter() <= optionsp->get_burnin())
             {
@@ -850,6 +895,9 @@ double DISTRIBUTION_nbinomial::update_hierint(void) const
 
     *hierintsavep = *intwork;
 
+    // Tuning function for the acceptance rates of the M-H algorithm
+    // It will be called only in the burnin phase and each 100 iterations.    
+
     if(optionsp->get_nriter() % 100 == 0 &&
             optionsp->get_nriter() <= optionsp->get_burnin())
     {
@@ -863,6 +911,8 @@ double DISTRIBUTION_nbinomial::update_scale(void) const
 {
     double *scalework = scale.getV();
 
+    // The update for the negative binomial and POGA models is a M-H step!
+
     if(ver!=poig)
     {
         double scaleaux=*scalework;
@@ -874,16 +924,22 @@ double DISTRIBUTION_nbinomial::update_scale(void) const
 
         // Proposal value for scale depending on the proposal distribution
         // And proposal_ratio also depending on the proposal distribution
+        // See below.
 
         proposal_ratio = proposal_scale();
 
-        // ab jetzt *scalework hat den neuen Wert und scaleaux den alten...
+        // After this, *scalework stores the new value and scaleaux the old one
+
+        // For Negative binomial model:
 
         if(ver==nb)  log_likelihood_ratio = log_nbin(*scalework, scaleaux);
-        else    // ver==poga
+
+        // For POGA model:
+
+        else
         {
-         if(hierarchical) log_likelihood_ratio = log_gamma_likelihood_hier(scaleaux, *scalework);
-         else log_likelihood_ratio = log_gamma_likelihood(scaleaux, *scalework);
+             if(hierarchical) log_likelihood_ratio = log_gamma_likelihood_hier(scaleaux, *scalework);
+             else log_likelihood_ratio = log_gamma_likelihood(scaleaux, *scalework);
         }
 
         priori_ratio = (a_pri-1)*(log(*scalework)-log(scaleaux))+
@@ -894,12 +950,19 @@ double DISTRIBUTION_nbinomial::update_scale(void) const
         if(h<=alpha) *acceptwork=*acceptwork+1;
         else *scalework = scaleaux;
 
+        // Tuning function for the acceptance rates of the M-H algorithm
+        // It will be called only in the burnin phase and each 100 iterations.        
+
         if(optionsp->get_nriter() % 100 == 0 &&
             optionsp->get_nriter() <= optionsp->get_burnin())
         {
             pwork_tunin(0);
         }
-    }
+        }
+
+    // The update for the POIG model is a Gibbs-step!
+    // Formula (5.21) from diss
+
     else    // if ver==poig
     {
         double *sum = sum_nu.getV();
@@ -933,6 +996,10 @@ double DISTRIBUTION_nbinomial::update_b_pri(void) const
     double * scalework = scale.getV();
     double * bwork = b_pri.getV();
     double * bp = b_pri_save.getbetapointer();
+
+    // Update by Gibbs-step!
+    // Formula (5.22) from diss
+
     *bwork = randnumbers::rand_gamma(alpha + a_pri, *scalework + beta);
     *bp = *bwork;
 
@@ -949,6 +1016,10 @@ double DISTRIBUTION_nbinomial::proposal_scale(void) const
     double proposal_ratio;
     double *pwork = pvar.getV();
 
+
+        // For a uniform proposal: pwork stores the width of the uniform proposal.
+        // The central point is given by the old value of scale.
+        // Formula (5.38) from diss.        
 
        if(pscale == unif)       // if uniform
         {
@@ -968,6 +1039,11 @@ double DISTRIBUTION_nbinomial::proposal_scale(void) const
             }
         proposal_ratio= log(proposal_ratio);
         }
+
+        // For a gamma proposal: pwork stores the variance of the gamma proposal.
+        // The mean is given by the old value of scale.
+        // Formula (5.39) from diss.
+
         else     // if gamma
         {
             double a, b, a_neu;//, b_neu;
@@ -1020,12 +1096,14 @@ double DISTRIBUTION_nbinomial::pwork_tunin(unsigned i) const
 }
 
 
-// Logarithmierte Dichte einer Gamma(a, b)
+// Logarithm of the densitiy Gamma(a, b)
 
 double DISTRIBUTION_nbinomial::log_gamma(double & x,double & a,double & b) const
 {
     return a*log(b)-lgamma(a)+(a-1)*log(x)-b*x;
 }
+
+
 
 double DISTRIBUTION_nbinomial::log_gamma_likelihood(double &s,
                                                     double &s_neu) const
@@ -1054,7 +1132,7 @@ double DISTRIBUTION_nbinomial::log_gamma_likelihood_hier(double &s,
 
 
 
-// Logarithmus des Quotientes: G_(a,b)(x_prop)/G_(a, b)(x)
+// Logarithm of the Quotient: G_(a,b)(x_prop)/G_(a, b)(x)
 
 double DISTRIBUTION_nbinomial::log_gamma_quot(double & x, double & x_prop,
                                               const double & a,
@@ -1090,7 +1168,7 @@ double DISTRIBUTION_nbinomial::lgamma(const double & xx) const
 
 
   
-//Loglikelihood-Differenz einer NB: log(NB(lambda, s_neu)/NB(lambda, s))
+
 
 double DISTRIBUTION_nbinomial::log_nbin(const double & s_neu,
                                         const double & s) const
@@ -1123,7 +1201,7 @@ double DISTRIBUTION_nbinomial::log_nbin(const double & s_neu,
     }
 }
 
-// log[Gamma(g_prop+y)/Gamma(g_prop)]-log[Gamma(g+y)/Gamma(g)] mit y integer!
+
 
 double DISTRIBUTION_nbinomial::log_gamma_function_quot(const double & g,
                                 const double & g_prop, const unsigned & y) const

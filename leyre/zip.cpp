@@ -199,6 +199,7 @@ double DISTRIBUTION_zip::loglikelihood(double * response,
                        double * linpred,double * weight,const int & i) const
 {
 
+    // For the ZINB model.
 
   if(ver==zinb)
   {
@@ -208,8 +209,9 @@ double DISTRIBUTION_zip::loglikelihood(double * response,
       return - (*response + scale(0,0))*log(exp(*linpred) + scale(0,0)) + *response*(*linpred);
 
   }
+  // if ZIP, ZIPGA or ZIPIG
 
-  else // if zip, zipga, zipig
+  else
   {
     if(*response==0)
       return log(theta(0,0) + (1-theta(0,0)) * exp(-exp(*linpred)));
@@ -242,14 +244,29 @@ void DISTRIBUTION_zip::compute_deviance(const double * response,
                            const datamatrix & scale, const int & i) const
 {
 
+    // For ZINB models!
+    // Diferenciate between zero and nonzero observation.
+
     if(ver==zinb)
     {
         double h = scale(0,0)/(scale(0,0)+*mu);
+
+        // Zero response!
+        // scale = s, theta = z
+        // DEV = -2*log(P_ZINB(y = 0|...)) =
+        //     = -2*log(z + (1-z)*(s/(s+mu))^s)
+
         if(*response==0)
         {
             *deviance= -2*log(theta(0,0) + (1-theta(0,0))*pow(h, scale(0,0)));
             *deviancesat = *deviance;
         }
+        // Nonzero response!
+        // scale = s, theta = z
+        // DEV = -2*log(P_ZINB(y|...)) =
+        //     = -2*(log(1-z)+logG(s+y)-logG(y+1)-logG(s)+s*log(s)-s*log(s+mu)
+        //        +y*log(mu)-y*log(s+mu))
+        
         else
         {
             *deviance= -2*(log(1-theta(0,0))+lgamma(scale(0,0)+*response)-
@@ -260,15 +277,31 @@ void DISTRIBUTION_zip::compute_deviance(const double * response,
                 (scale(0,0)+*response)));
         }
     }
+
+    // For ZIP, ZIPGA and ZIPIG models!!
+    // Diferenciate between zero and nonzero observation.
+
     else // zip, zipga, zipig
     {
         if(*response==0)
         {
+
+        // Zero response!
+        // theta = z
+        // DEV = -2*log(P_ZIP(y = 0|...)) =
+        //     = -2*log(z + (1-z)*exp(mu))
+        
             *deviance = -2*log(theta(0,0)+(1-theta(0,0))*exp(-*mu));
             *deviancesat = *deviance;
         }
         else
         {
+
+        // Nonzero response!
+        // theta = z
+        // DEV = -2*log(P_ZIP(y|...)) =
+        //     = -2*(log(1-z) - mu + y*log(mu) - log(y!))
+
             *deviance = -2*(log(1-theta(0,0))-*mu+*response*log(*mu)-lgamma(*response+1));
             *deviancesat = -2*(*response-*mu+*response*log(*mu/ *response));
         }
@@ -763,12 +796,21 @@ void DISTRIBUTION_zip::outresults(void)
 void DISTRIBUTION_zip::update(void)
 {
 
+    // For hierarchical models, initialize the multiplicative random effects in
+    // the first iteration with exp(intercept). And for all the models initialize
+    // the zero inflation parameter theta with the value of proportion of zero
+    // values in the data. Is a good approximation only for Distributions with
+    // a rather large mean... 
+
     if(optionsp->get_nriter()==1)
     {
      unsigned i;
      double *nuwork = nu.getV();
 	 double *respwork = response.getV();
 	 double *mwork = m.getV();
+
+     // Initialize Hierarchical intercept
+
 	 if(hierarchical)
 	 {
 	   double *intwork = hierint.getV();
@@ -779,6 +821,8 @@ void DISTRIBUTION_zip::update(void)
        }
 	 }
 
+     // Initialize theta
+
      for(i=0; i<nrobs; i++, respwork++)
      {
 	   if(*respwork == 0) *mwork += 1;
@@ -787,10 +831,18 @@ void DISTRIBUTION_zip::update(void)
      *mwork = nrobs - *mwork;
     }
 
+    // Calling update functions!
 
+
+    // First only models with overdispersion 
 
     if(ver!=zip)
     {
+
+        // Models with multiplicative random effects
+        // Update of the multiplicative random effects
+        // If hierarchical = true, then update of hierarchical intercept.
+
         if(ver!=zinb)       //PoGa oder PoIg
         {
             update_nu();
@@ -803,15 +855,27 @@ void DISTRIBUTION_zip::update(void)
             }
         }
 
-// Update scale (delta)
+        // Update scale for all the models with overdispersion. Differentiations
+        // for the models are included in the function.
+
 
         update_scale();
+        
+        // Update of the hyperparameter b of the prior for the scale parameter.
+        // It is the same function for all the models.
+
         b_pri(0,0) = update_b_pri();
         b_pri_save.update();
     }
+
+    //  Update theta for all the models!
+
     update_theta();
 
     theta_save.update();
+
+    // Calculate the acceptance rates with the help of the vector acceptance
+    // when the running is ended.
 
     if(optionsp->get_nriter()==optionsp->get_iterations())
     {
@@ -914,7 +978,8 @@ double DISTRIBUTION_zip::update_nu(void)
     double expint = exp(*intwork);   // only for hierarchical
 
 
-    //  Für die KFZ-Daten!!!
+    //  When oversize=True, then only few samplings for the multiplicative
+    // random effects are stored.
 
     double * nusavekfzp = nusavekfz.getbetapointer();
     unsigned helpsum = (nrobs-nrobs%10)/10;
@@ -925,7 +990,11 @@ double DISTRIBUTION_zip::update_nu(void)
 
 
 
-//Update nu
+    //Update nu: M-H algorithm for all the models!! the only difference in the
+    // update step is given by the priori ratio of the corresponding model
+    // selection. We differentiate in the implementation between response = 0
+    // and response != 0.
+
 
 
 	for (i=0;i<nrobs;i++,nuwork++, respwork++,linwork++, nusavep++, acceptwork++)
@@ -933,20 +1002,34 @@ double DISTRIBUTION_zip::update_nu(void)
 
 		mu = exp(*linwork)/(*nuwork);
 		nuaux = *nuwork;
-		log_proposal_ratio = proposal_nu(i); // nuaux=old value, nuwork=new value            	   
+		log_proposal_ratio = proposal_nu(i); // nuaux=old value, nuwork=new value
+
+        // Zero response!!
+
 		if(*respwork==0)
 		{
-			log_likelihood_ratio = log((*thetawork+(1-*thetawork)*exp(-*nuwork*mu))/(*thetawork+(1-*thetawork)*exp(-exp(*linwork))));	
-		}	            	    
+			log_likelihood_ratio = log((*thetawork+(1-*thetawork)*exp(-*nuwork*mu))/(*thetawork+(1-*thetawork)*exp(-exp(*linwork))));
+		}
+
+        // Nonzero response!!
+
 		else // response != 0
 		{
 		    	log_likelihood_ratio = mu * (nuaux - *nuwork) + *respwork* (log(*nuwork) - log(nuaux)); 	
 		}
+
+        // ZIPGA model = priori of the nu is a Gamma(scale, scale)
+        // and a Gamma(scale, scale/mu) for the hierarchical version.
+
 		if(ver==zipga)
 		{
-			if(hierarchical) log_priori_ratio = (*scalework-1)*log(*nuwork/nuaux)+*scalework*(nuaux-*nuwork)/expint;	
-			else log_priori_ratio = (*scalework-1)*log(*nuwork/nuaux)+*scalework*(nuaux-*nuwork);	
+			if(hierarchical) log_priori_ratio = (*scalework-1)*log(*nuwork/nuaux)+*scalework*(nuaux-*nuwork)/expint;
+			else log_priori_ratio = (*scalework-1)*log(*nuwork/nuaux)+*scalework*(nuaux-*nuwork);
 		}
+
+        // ZIPIG model = priori of the nu is a IGauss(1, scale)
+        // and a IGauss(mu, mu*scale) for the hierarchical version.
+
 		else // poig
 		{
 		    	if(hierarchical) log_priori_ratio = -1.5*log(*nuwork/nuaux)+*scalework*0.5*((nuaux-*nuwork)/expint+expint*(1/nuaux-1/(*nuwork)));
@@ -982,12 +1065,15 @@ double DISTRIBUTION_zip::update_nu(void)
 	                    j++;
 	                }
 	        }
+
+            // Tuning function for the acceptance rates of the M-H algorithm
+            // It will be called only in the burnin phase and each 100 iterations.            
 			
-                if(optionsp->get_nriter() % 100 == 0 &&
+            if(optionsp->get_nriter() % 100 == 0 &&
 	            optionsp->get_nriter() <= optionsp->get_burnin())
-	        {
-	            pwork_tunin(i+1);
-       	        }			
+            {
+                pwork_tunin(i+1);
+            }
 	}       	        
 
     return 0;
@@ -1002,6 +1088,9 @@ double DISTRIBUTION_zip::update_hierint(void) const
 
     *hierintsavep = *intwork;
 
+    // Tuning function for the acceptance rates of the M-H algorithm
+    // It will be called only in the burnin phase and each 100 iterations.    
+
     if(optionsp->get_nriter() % 100 == 0 &&
             optionsp->get_nriter() <= optionsp->get_burnin())
     {
@@ -1014,6 +1103,8 @@ double DISTRIBUTION_zip::update_hierint(void) const
 double DISTRIBUTION_zip::update_scale(void) const
 {
     double *scalework = scale.getV();
+
+    // The update for the ZINB and ZIPGA models is a M-H step!
 
     if(ver!=zipig)
     {
@@ -1029,9 +1120,14 @@ double DISTRIBUTION_zip::update_scale(void) const
 
         proposal_ratio = proposal_scale();
 
-        // ab jetzt *scalework hat den neuen Wert und scaleaux den alten...
+        // After this, *scalework stores the new value and scaleaux the old one
+
+        // For a ZINB model:
 
         if(ver==zinb)  log_likelihood_ratio = log_nbin(*scalework, scaleaux);
+
+        // For a ZIPGA model:
+
         else    // ver==poga
         {
          if(hierarchical) log_likelihood_ratio = log_gamma_likelihood_hier(scaleaux, *scalework);
@@ -1046,12 +1142,19 @@ double DISTRIBUTION_zip::update_scale(void) const
         if(h<=alpha) *acceptwork=*acceptwork+1;
         else *scalework = scaleaux;
 
+        // Tuning function for the acceptance rates of the M-H algorithm
+        // It will be called only in the burnin phase and each 100 iterations.
+
         if(optionsp->get_nriter() % 100 == 0 &&
             optionsp->get_nriter() <= optionsp->get_burnin())
         {
             pwork_tunin(0);
         }
     }
+
+    // The update for the POIG model is a Gibbs-step!
+    // Formula (5.21) from diss
+
     else    // if ver==poig
     {
         double *sum = sum_nu.getV();
@@ -1082,15 +1185,23 @@ double DISTRIBUTION_zip::update_theta(void) const
 
   double *thetawork = theta.getV();
   double * thetasavep = theta_save.getbetapointer();  
-  double thetaaux = *thetawork;        // Für den alten Wert
+  double thetaaux = *thetawork;        // For the old value
   double log_likelihood_ratio;
   double log_priori_ratio;
   double log_proposal_ratio;
   double *acceptwork=accept.getV();
   acceptwork += nrobs + 2;
 
-  log_proposal_ratio = proposal_theta();   // Jetzt hat *thetawork den neuen Wert!
+  // Proposal value for theta and proposal_ratio. See below.
+
+  log_proposal_ratio = proposal_theta();
+
+  // After this function, *thetawork stores the proposed value for theta!
+
   log_priori_ratio = 0.0;
+
+  // Differentiate for the likelihood: ZINB and rest.
+
   if(ver==zinb)  log_likelihood_ratio=likelihood_zinb(thetaaux);
   else log_likelihood_ratio=likelihood_zirest(thetaaux);
 
@@ -1103,19 +1214,16 @@ double DISTRIBUTION_zip::update_theta(void) const
 
   *thetasavep = *thetawork;
 
+  // Tuning function for the acceptance rates of the M-H algorithm
+  // It will be called only in the burnin phase and each 100 iterations.
+
   if(optionsp->get_nriter() % 100 == 0 &&
             optionsp->get_nriter() <= optionsp->get_burnin())
   {
     pwork_tunin(nrobs+2);
   }
 
-    /*    if(optionsp->get_nriter() % 100 == 0 &&
-            optionsp->get_nriter() <= optionsp->get_burnin())
-    {
-        pwork_tunin(nrobs + 2);
-    }
-    
-*/    
+
  return 0;
 
 }
@@ -1128,6 +1236,10 @@ double DISTRIBUTION_zip::update_b_pri(void) const
     double * scalework = scale.getV();
     double * bwork = b_pri.getV();
     double * bp = b_pri_save.getbetapointer();
+
+    // Update by Gibbs-step!
+    // Formula (5.22) from diss
+
     *bwork = randnumbers::rand_gamma(alpha + a_pri, *scalework + beta);
     *bp = *bwork;
 
@@ -1144,6 +1256,10 @@ double DISTRIBUTION_zip::proposal_scale(void) const
     double proposal_ratio;
     double *pwork = pvar.getV();
 
+
+        // For a uniform proposal: pwork stores the width of the uniform proposal.
+        // The central point is given by the old value of scale.
+        // Formula (5.38) from diss.        
 
        if(pscale == unifzip)       // if uniform
         {
@@ -1163,6 +1279,11 @@ double DISTRIBUTION_zip::proposal_scale(void) const
             }
         proposal_ratio= log(proposal_ratio);
         }
+
+        // For a gamma proposal: pwork stores the variance of the gamma proposal.
+        // The mean is given by the old value of scale.
+        // Formula (5.39) from diss.
+        
         else     // if gamma
         {
             double a, b, a_neu;//, b_neu;
@@ -1199,6 +1320,9 @@ double DISTRIBUTION_zip::proposal_nu(unsigned i) const
     double *pwork = pvar.getV();
     pwork += (1+i);
 
+    // For a uniform proposal: pwork stores the width of the uniform proposal.
+    // The central point is given by the old value of nu_i.
+    // Formula (5.38) from diss.            
 
     if(*nuwork > *pwork)
     {
@@ -1228,6 +1352,10 @@ double DISTRIBUTION_zip::proposal_theta(void) const
     double b = min(thetaaux+*pwork, 1.0);
     double a_prop;
     double b_prop;
+
+    // For a uniform proposal: pwork stores the width of the uniform proposal.
+    // The central point is given by the old value of theta.
+    // Formula (5.43) from diss.            
 
     *thetawork = a +(b-a)*randnumbers::uniform();
     a_prop = max(0, *thetawork-*pwork);
@@ -1315,7 +1443,8 @@ double DISTRIBUTION_zip::lgamma(const double & xx) const
 
 
   
-//Loglikelihood-Differenz einer NB: log(NB(lambda, s_neu)/NB(lambda, s))
+//Loglikelihood-Differenz einer ZINB:
+//log(ZINB(lambda, s_neu, theta)/ZINB(lambda, s, theta))
 
 double DISTRIBUTION_zip::log_nbin(const double & s_neu,
                                         const double & s) const
@@ -1347,14 +1476,20 @@ void DISTRIBUTION_zip::add_nu(double m) const
     }
 }
 
+//Loglikelihood-Differenz einer ZINB:
+//log(ZINB(lambda, s, t)/ZINB(lambda, s, t_neu))
+
+
 double DISTRIBUTION_zip::likelihood_zinb(const double & t) const
 {
-    // t: Übergabe von alten Wert!
+
+    // t: stores the old value!
+
     unsigned i;
     double *respwork = response.getV();
     double *scalework = scale.getV();
     double *linwork = (*linpred_current).getV();
-    double *thetawork = theta.getV(); // hat den neuen Wert!
+    double *thetawork = theta.getV(); // stores the new value!!
     double *mwork = m.getV();
     double sum = 0.0;
     double s;
@@ -1374,15 +1509,18 @@ double DISTRIBUTION_zip::likelihood_zinb(const double & t) const
     return sum;
 }
 
+  //Loglikelihood-Differenz einer ZIP:
+  //log(ZIP(lambda, t)/ZIP(lambda, t_neu))
 
 double DISTRIBUTION_zip::likelihood_zirest(const double & t) const
 {
 
-    // t: Übergabe von alten Wert!
+    // t: stores the old value!
+    
     unsigned i;
     double *respwork = response.getV();
     double *linwork = (*linpred_current).getV();
-    double *thetawork = theta.getV();     // neuer Wert!
+    double *thetawork = theta.getV();    // stores the new value!!
     double *mwork = m.getV();
     double sum = 0.0;
     double h1;

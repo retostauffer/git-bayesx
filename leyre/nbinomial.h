@@ -21,31 +21,48 @@
 namespace MCMC
 {
 
+////////////////////////////////////////////////////////////////////////////////
+// Distribution family for count data with overdispersion.
+// Implemented are three models:
+//
+//      * NB:   negative binomial model
+//              y ~ NB(mu, s)
+//              p(y) = G(y+s)/(G(s)*G(y+1))(s/(s+mu))^s (mu/(s+mu))^y
+//              family = nbinomial
+//              distopt = nb
+//
+//      * POGA: Poisson-Gamma model
+//              y ~ PO(nu*mu)
+//              nu ~ G(s, s)
+//              family = nbinomial
+//              distopt = poga
+//
+//      * POIG: Poisson-Inverse Gauss model
+//              y ~ PO(nu*mu)
+//              nu ~ IGauss(1, s)
+//              family = nbinomial
+//              distopt = poig
+//
+//  Hierarchical versions of the POGA and POIG model are also implemented.
+//  Just add "hierarchical" to the input line of the programm.
+//
+//  You have two options for the proposal of s and both work very similar.
+//  propopt = unif or propopt = gamma
+//
+//  Summary: NB and POGA works well, POIG does not work properly (why?).
+//  Only NB is described in the BayesX manual.
+//
+//  Literature:
+//
+//      * Cameron and Trivedi (1998), "Regression analysis for count data"
+//        Cambridge University Press, New York.
+//
+//      * Osuna, Leyre (2004), "Semiparametric Bayesian count data models"
+//        Dissertation an der LMU, München.
+//  
+////////////////////////////////////////////////////////////////////////////////
 
-// full conditional classes using conditional prior proposals work properly
-// provided that the following virtual functions are implemented:
 
-//  double loglikelihood(const double * response,const double * linpred,
-//                       const double * weight,unsigned & i) const
-
-
-// full conditional class for fixed effects (non Gaussian case) work properly
-// provided that the following virtual functions are implemented:
-
-//  double compute_weight(double * linpred,double * weight,
-//                        const unsigned & col=0) const
-
-//  double compute_gmu(double * linpred) const
-
-
-// predicted linearpred, deviance, mu etc. will be computed correctly if the
-// following functions are implemented:
-
-//  void compute_mu(const double * linpred,double * mu) const
-
-//  void compute_devresidual(const double * response,const double * weight,
-//                           const double * mu,
-//                           double * residual,const datamatrix & scale, const int & i) const
 
 enum vertopt {nb,poga,poig};
 enum propscale {unif,gam};
@@ -59,24 +76,81 @@ class __EXPORT_TYPE DISTRIBUTION_nbinomial : public DISTRIBUTION
    // include here additional private variables needed for the new
    // distribution
 
-   bool oversize;
-   datamatrix accept;
-   datamatrix nu;
-   FULLCOND nusave;
-   FULLCOND nusavekfz;   
-   datamatrix hierint;
-   FULLCOND hierintsave;
-   datamatrix pvar;
-   double a_pri;
-   datamatrix b_pri;
-   FULLCOND b_pri_save;
-   double prop_var;
-   vertopt ver;
-   propscale pscale;
-   datamatrix sum_nu;
-   datamatrix sum2_nu;
+   bool oversize;           // Boolean variable. If True, then number of
+                            // observations is larger than 500.
+                            // Concerns only the number of multiplicative
+                            // effects, for which samplings will be saved.
 
-   bool hierarchical;
+   datamatrix accept;       // Vector of accepted update-steps. It has length
+                            // nrobs+2. The first entry is reserved for the
+                            // scale parameter in the POGA model and the
+                            // following nrobs-entries are reserved for the
+                            // multiplicative random effects of the POIG model.
+                            // The last entry is reserved for the hierarchical
+                            // intercept.
+
+   datamatrix nu;           // Vector of lenght nrobs to store the multiplicative
+                            // random effects of the POGA and POIG models.
+
+   FULLCOND nusave;         // Fullconditional object to store the samples of the
+                            // random effects of the POGA and POIG models.
+                            // Only when oversize=False!!!
+
+   FULLCOND nusavekfz;      // Fullconditional object to store the samples of the
+                            // random effects of the POGA and POIG models.
+                            // Only when oversize=True!!!
+
+   datamatrix hierint;      // To store the intercept in a Hierarchcial model.
+                            // See Section 2.3 from diss for the Theory.
+
+   FULLCOND hierintsave;    // Fullconditional object to store the samples of the
+                            // intercept in a Hierarchcial model.
+
+   datamatrix pvar;         // Vector of proposal windows/variances. It has legnth
+                            // nrobs+2. The first entry is reserved for the scale
+                            // parameter in the POGA model and the following
+                            // nrobs-entries are reserved for the multiplicative
+                            // random effects of the POIG model. The last entry
+                            // is reserved for the hierarchical intercept.
+
+
+   double a_pri;            // Stores the hyperparameter a for the Gamma Priori
+                            // of the scale parameter. It is no sampled in the model.
+
+   datamatrix b_pri;        // To store the hyperparameter b for the Gamma Priori
+                            // of the scale parameter. It will be sampled in the
+                            // model.
+
+   FULLCOND b_pri_save;     // Fullconditional object to store the samples of the
+                            // hyperparameter b for the Gamma Priori of the scale 
+                            // parameter.
+                            
+   double prop_var;         // Option. Start value for the proposal
+                            // window/variance of the scale parameter. Not
+                            // used... 
+
+   vertopt ver;             // Option. It stores the distributional assumption
+                            // for the response variable. Possible values:
+                            //          nb = negative binomial
+                            //          poga = poisson-gamma
+                            //          poig = poisson-inverse gauss
+                              
+   propscale pscale;        // Option. It stores the proposal assumption for
+                            // the scale parameter. Possible values:
+                            //          gam = gamma proposal
+                            //          unif = uniform proposal
+
+   bool hierarchical;       // Option. Boolean variable. Possible values:
+                            //          True = hierarchical model
+                            //          False = "normal" model
+
+
+   datamatrix sum_nu;       // Helpvariable for the calculations.
+
+   datamatrix sum2_nu;      // Helpvariable for the calculations.
+
+
+
 
    public:
 
@@ -130,7 +204,11 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
    ~DISTRIBUTION_nbinomial() {}
 
    // FUNCTION: loglikelihood
-   // TASK: computes the loglikelihood for a single observation
+   // TASK: computes the loglikelihood for a !!single observation!! depending
+   // on the model we have chosen and omiting all the terms that do not depend
+   // on the predictor. From diss:
+   // negative binomial = Formula (2.4)
+   // POGA and POIG = Formula (2.11)
 
   double loglikelihood(double * response,double * linpred,
                        double * weight,const int & i) const;
@@ -138,11 +216,13 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
   // FUNCTION: compute_mu
   // TASK: computes mu for a new linear predictor 'linpred' and stores
   //       the result in 'mu'
+  // The link function is allways the loglink!
 
   void compute_mu(const double * linpred,double * mu) const;
 
   // FUNCTION: compute_deviance
-  // TASK: computes the individual deviance
+  // TASK: computes the individual deviance for the Negative Binomial
+  // model, independently of the chosen model!
 
   void compute_deviance(const double * response,const double * weight,
                            const double * mu, double * deviance,
@@ -153,6 +233,13 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
    // FUNCTION: compute_weight
    // TASK: computes the weights for iteratively weighted least squares
    //       w_i = weight_i/scale*[b''(theta_i) g'^2(mu_i)]^{-1}
+   // It differentiate between posteriormode and MCMC iterations.
+   // Posteriormode calculations are bases only on the NB model.
+   // Therefore only NB-weights are used.
+   // MCMC iterations used the corresponding weights to the chosen models.
+   // See for the derivation of the used values: diss!!!
+   // NB model: Formula (B.5)
+   // POGA and POIG models: Formula (B.7)
 
   double compute_weight(double * linpred,double * weight,
                         const int & i,const unsigned & col=0) const;
@@ -164,9 +251,21 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
 
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
+  // FUNCTION: compute_IWLS
+  // There are three blocks in this function.
+  // First block: calculate IWLS weights. The same Formulae as in the
+  // compute_weight function.
+  // Second block: calculate tildey = term/weight. The "terms" are
+  // the first derivatives of the loglikelihood without the x_ij.
+  // See diss, Appendix B!!!
+  // Third block: it returns the loglikelihood of the models.
+
   double compute_IWLS(double * response,double * linpred,double * weight,
                       const int & i,double * weightiwls,double * tildey,
                       bool weightyes, const unsigned & col=0);
+
+  // FUNCTION: compute_IWLS_weight_tildey
+  // the two first blocks of the function compute_IWLS!!                      
 
   void compute_IWLS_weight_tildey(double * response,double * linpred,
                               double * weight,const int & i,double * weightiwls,
@@ -181,40 +280,77 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
   void outresults(void);
 
   // FUNCTION: update
-  // TASK: updates the scale parameter  and the intercept
+  // TASK: calls the update functions for the scale parameter and its hyperparameter
+  // b, and for the multiplicative random effects and hierarchical intercept,
+  // when present in the model.
 
   void update(void);
 
   // FUNCTION: posteriormode
-  // TASK: computes the posterior mode for the scale parameter and the
-  //       intercept
+  // TASK: computes the posterior mode for the scale parameter but
+  // only when oversize = True!!! otherwise there were numerical problems
+  // with the calculations.
+  // For oversize=True: Cameron & Trivedi (1998)
 
   bool posteriormode(void);
 
   bool posteriormode_converged(const unsigned & itnr);
 
+  // Updates the multiplicative random effects, depending on the model chosen.
+
   double update_nu(void);
+
+  // Updates the hierarchical intercept, when hierarchical=True. Aktually
+  // it only stores the current value in the current place. The true atuallisation
+  // happens in the file "mcmc_const.cpp", in the function
+  // "FULLCOND_const_nbinomial::update_hierint(void)".
 
   double update_hierint(void) const;
 
+  // Updates the scale parameter, depending on the model chosen.
+
   double update_scale(void) const;
+
+  // Updates the hyperparameter b of the prior for the scale parameter.
+  // The update step is independent of the model chosen!  
 
   double update_b_pri(void) const;
 
+  // This function samples a new value for the scale parameter, depending on the
+  // proposal, that we have chosen, and calculates the proposal_ratio for this
+  // new value. 
+
   double proposal_scale(void) const;
+
+  // Tuning function for the acceptance rates of the M-H algorithms.
+  // It will be called only in the burnin phase and each 100 iterations.
+  // It tries to achive acdeptance rates between 0.3 and 0.6.
 
   double pwork_tunin(unsigned i) const;
 
-    //Logarithm of the density f(x)~G(a, b)
+  // Logarithm of the density f(x)~G(a, b). Not used...
 
   double log_gamma(double & x, double & a, double & b) const;
 
+  // Vector of multiplicative random effects: nu
+  // nu ~ product from 1 to nrobs of G(s, s) (s=scale)
+  // Function calculates log(g(nu|s_neu))-log(g(nu|s))
+
   double log_gamma_likelihood(double &s, double &s_neu) const;
+
+  // Vector of multiplicative random effects: nu
+  // nu ~ product from 1 to nrobs of G(s, s/hierint) (s=scale)
+  // Function calculates log(g(nu|s_neu, hierint))-log(g(nu|s, hierint))
 
   double log_gamma_likelihood_hier(double &s, double &s_neu) const;
 
+  // Logarithm of the Quotient: G_(a,b)(x_prop)/G_(a, b)(x)
+  // Nor used...
+
   double log_gamma_quot(double & x, double & x_prop, const double & a,
                         const double & b) const;
+
+  // not implemented and not used...
 
   double log_gamma_prop(double & x, double & x_prop) const;
 
@@ -222,11 +358,18 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
 
   double lgamma(const double & xx) const;
 
+  //Loglikelihood-difference of a NB distribution with:
+  // log(NB(lambda, s_neu))-log(NB(lambda, s))
 
   double log_nbin(const double & s_neu, const double & s) const;
 
+  // log[Gamma(g_prop+y)/Gamma(g_prop)]-log[Gamma(g+y)/Gamma(g)] with y integer!
+
   double log_gamma_function_quot(const double & g, const double & g_prop,
                                  const unsigned & y) const;
+
+  // The following functions are needed for the hierarchical versions of the models,
+  // in order to "conect" this subclass with the file "mcmc_const.cpp".
 
   const double & get_sum_nu(void) const
     {
@@ -251,7 +394,7 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
 
   const double & get_pvar(void) const
     {
-    return pvar(nrobs+1, 0); //oder nrobs+2???????
+    return pvar(nrobs+1, 0); 
     }
 
   void initialize_hierint(double & inter)
@@ -272,7 +415,7 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
 
     }
 
-  void add_nu(double m) const;    
+  void add_nu(double m) const;
 
 
   };   // end: DISTRIBUTION_nbinomial
