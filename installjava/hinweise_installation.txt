@@ -32,16 +32,24 @@ JAVAVERSION
    bayesxjava.iap_xml vorhanden sind!!!
 
 
+C++ Version
+
+10. Projekt BayesX.bpr compilieren
+
+11. Installationsroutine erstellen
+
+12. exe Datei unter bayesxexe.zip zippen, setup Dateien unter bayesx.exe zippen
+
 
 INTERNETSEITEN
 
 
-9. Literatur in Internetseiten checken (bayesxwhat.html).
+10. Literatur in Internetseiten checken (bayesxwhat.html).
 
-10. Versionsnummern ändern  (in bayesx.html, bayesxdownload.html (2 mal),) 
+11. Versionsnummern ändern  (in bayesx.html, bayesxdownload.html (2 mal),) 
 
-11. New features hinzufügen (in bayesxnews.html)
+12. New features hinzufügen (in bayesxnews.html)
 
-12. Bug Seite ändern (bayesxbugs.html)
+13. Bug Seite ändern (bayesxbugs.html)
 
      
