@@ -112,8 +112,10 @@ class __EXPORT_TYPE DISTRIBUTION_coxmodel : public DISTRIBUTION
                        double * weight,const int & i) const
     {
 
-    return *weight * (*response * (*linpred) - exp(*linpred)* *(int_ti.getV()+i)); //int_ti = 1/(exp(beta_0ti)) *integral(0 bis ti) exp(beta_0u)du
+    return *weight * (*response * (*linpred) - exp(*linpred)* *(int_ti.getV()+i)); //int_ti = 1/(exp(beta0_ti)) *integral(0 bis ti) exp(beta_0u)du
 
+// relative risk:    return *weight * (*response * log(offset + exp(*linpred)) - exp(*linpred)* *(int_ti.getV()+i));
+//  return *weight *(*response * (*linpred)  - exp (*linpred)* *(int_ti.getV()+i));  
     }
 
 

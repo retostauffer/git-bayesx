@@ -32,24 +32,23 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
    datamatrix int_knots;
    datamatrix int_D;
    MCMC::bsplinemat testmat;
+   vector<MCMC::bsplinemat> gaussmat;
    vector<pspline_baseline*> baselinep;
-
    datamatrix zi;
+   unsigned gauss_n;
+   datamatrix coeff;
    datamatrix z_vc;
    datamatrix zi_ges;
    datamatrix beg_i;
    statmatrix<int> zi_index;
    statmatrix<int> ges_index;
-   statmatrix<int> beg_index;
    datamatrix spline_ges;
-   datamatrix spline_beg;
    datamatrix spline_zi;
+   datamatrix gaussspline;
    datamatrix int_ti_help;
    bool vc_dummy1;
 
-
   public:
-
 
 
   // DEFAULT CONSTRUCTOR
@@ -92,76 +91,76 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
   void update(void);
 
 
-
-
   void outoptions(void);
-
 //  void outresults(void);
-
   void compute_int_ti(const datamatrix & b);
-  void compute_int_ti(void);
-//  void compute_int_ti(unsigned beg , const datamatrix & b);
-  void compute_int_ti_vc(const datamatrix & b);
-//  void compute_int_ti_vc_d0(const datamatrix & b);
-//  void compute_int_ti_vc_d1(const datamatrix & b);
   void compute_int_ti_linear(const double & b);
-
   void compute_int_ti(unsigned beg);
-  void compute_int_ti_vc(const vector<double *>,const vector<double *>);
-  void compute_int_ti_vc(unsigned beg,const vector<double *>,const vector<double *>);
-  void compute_int_ti_vc_d0(const vector<double *>,const vector<double *>);
-  void compute_int_ti_vc_d1(const vector<double *>,const vector<double *>);
-
+  void compute_int_ti_vc_di0(const vector<double *>,const vector<double *>);
+  void compute_int_ti_vc_di(const int,const vector<double *>,const vector<double *>);
+  void compute_int_gauss(void);
+  void compute_int_gauss_DIC(void);
+  void update_baseline(void);
   void compute_int_ti_mean(void);
-
   void set_baselinep(vector<pspline_baseline*> bp)
-  {
-  baselinep=bp;
-  }
+    {
+    baselinep=bp;
+    }
 
-   double * get_int_D(void)
-     {
-     return int_D.getV();
-     }
+  double * get_int_D(void)
+    {
+    return int_D.getV();
+    }
 
-   double * get_z_vc(void)
-     {
-     return z_vc.getV();
-     }
+  double * get_z_vc(void)
+    {
+    return z_vc.getV();
+    }
 
-   double * get_spline_zi(void)
-     {
-     multBS(spline_zi,beta);
-     return spline_zi.getV();
-     }
+  datamatrix get_z_vc_np(void)
+    {
+    return z_vc;
+    }
 
-    double * get_spline_beg(void)
-     {
-     return spline_beg.getV();
-     }
+  double * get_spline_zi(void)
+    {
+    multBS(spline_zi,beta);
+    return spline_zi.getV();
+    }
 
-     double * get_spline_ges(void)
-     {
-     testmat.mult_index(spline_ges,beta);
-     return spline_ges.getV();
-     }
+  double * get_spline_ges(void)
+    {
+    testmat.mult_index(spline_ges,beta);
+    return spline_ges.getV();
+    }
 
-     double * get_spline_ges_mean(void)
-     {
-     testmat.mult_index(spline_ges,betamean);
-     return spline_ges.getV();
-     }
+  double * get_spline_ges_mean(void)
+    {
+    testmat.mult_index(spline_ges,betamean);
+    return spline_ges.getV();
+    }
 
-     double * get_betamean(void)
-     {
-     return betamean.getV();
-     }
+  double * get_gaussspline(void);
 
-     double * get_spline_zi_mean(void)
-     {
-     multBS(spline_zi,betamean);
-     return spline_zi.getV();
-     }
+
+  double * get_gaussspline_mean(void);
+
+
+  double * get_betamean(void)
+    {
+    return betamean.getV();
+    }
+
+  double * get_beta(void)
+    {
+    return beta.getV();
+    }
+
+  double * get_spline_zi_mean(void)
+    {
+    multBS(spline_zi,betamean);
+    return spline_zi.getV();
+    }
 
   void set_fcconst(FULLCOND_const * fcc)
     {

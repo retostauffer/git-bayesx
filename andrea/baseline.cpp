@@ -14,8 +14,9 @@ namespace MCMC
 
 
 
-
-
+//------------------------------------------------------------------------------
+//----------------Constructor für zeitlich variierende Effekte------------------
+//------------------------------------------------------------------------------
 pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
                     const datamatrix & time, const datamatrix & z,
                     const unsigned & nrk,const unsigned & degr,const knotpos & kp,
@@ -25,53 +26,109 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
                     const int & gs,const unsigned & c,const datamatrix & anfang)
  : FULLCOND_pspline(o,dp,fcc,ft,ti,nrk,degr,kp,fp,pres,false,gs,c)
 
-{
+  {
 
-
-  vc_dummy1=false;
+  unsigned i;
+  gauss_n=9;
+  vc_dummy1 = false;
   baselinep = vector<pspline_baseline*>(0);
 
   lambda = l;
   sigma2 = 1.0/l;
 
-  zi=time;
-  z_vc=z;
+  zi = time;
+  z_vc = z;
 
-
+//------------Linkstrunkierung oder zeitlich variierende Kovariablen?-----------
   if(anfang.rows()==1)
     {
-     begin0 = true;
-     beg_i = datamatrix(time.rows(),1,0);
+    begin0 = true;
+    beg_i = datamatrix(zi.rows(),1,0);
     }
   else
     {
-     begin0 = false;
-     beg_i = anfang;
+    begin0 = false;
+    beg_i = anfang;
     }
 
+//--bei linkstrunkierten Daten oder zeitlich var. Kovariablen Beginn der Beob.zeit berücksichtigen,
+//--d.h. statt zi -> zi_ges=(z_i,beg_i)
+//--statt index -> ges_index
+//--und statt "multBS" -> testmat verwenden------------------------------------------------------------
 
+  zi_ges = datamatrix(2*zi.rows(),1,0);
 
+  vector<datamatrix> gaussy(gauss_n);
+  for(i=0;i<gauss_n;i++)
+    {
+    gaussy[i] = datamatrix(zi.rows()+1,1,0);
+    }
 
-//--------------bei linkstrunkierten Daten oder zeitlich var. Kovariablen Beginn der Beob.zeit berücksichtigen---------------------
-   if(begin0==false)
-  {
-
-  zi_ges=datamatrix(2*zi.rows(),1,0);
-
-  for(unsigned i=0;i<zi.rows();i++)
-  {
-  zi_ges(i,0)=zi(i,0);
-  zi_ges(zi.rows()+i,0)=beg_i(i,0);
-  }
+  for(i=0;i<zi.rows();i++)
+    {
+    zi_ges(i,0)=zi(i,0);
+    zi_ges(zi.rows()+i,0)=beg_i(i,0);
+    }
 
   ges_index = statmatrix<int>(zi_ges.rows(),1);
   ges_index.indexinit();
   zi_ges.indexsort(ges_index,0,zi_ges.rows()-1,0,0);
 
   testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true);
-  beg_i=anfang;
-  }
-//------------------------------------*/
+
+  coeff = datamatrix(gauss_n,1,0);
+  coeff(0,0) = 0.330239355001260;
+  coeff(1,0) = 0.312347077040003;
+  coeff(2,0) = 0.312347077040003;
+  coeff(3,0) = 0.260610696402935;
+  coeff(4,0) = 0.260610696402935;
+  coeff(5,0) = 0.180648160694857;
+  coeff(6,0) = 0.180648160694857;
+  coeff(7,0) = 0.081274388361574;
+  coeff(8,0) = 0.081274388361574;
+
+  double help1,help2;
+  for(i=0;i<zi.rows();i++)
+    {
+    help1 = (zi(i,0)-beg_i(i,0))*0.5;
+    help2 = (zi(i,0)+beg_i(i,0))*0.5;
+//    if(gauss_n==3)
+//      {
+//      gaussy[0](i,0)= help2;
+//      gaussy[1](i,0)= help2 + 0.774596669241483*help1;
+//      gaussy[2](i,0)= help2 - 0.774596669241483*help1;
+//      }
+//    if(gauss_n==5)
+//      {
+//      gaussy[0](i,0) = help2;
+//      gaussy[1](i,0) = help2 + 0.538469310105683*help1;
+//      gaussy[2](i,0) = help2 - 0.538469310105683*help1;
+//      gaussy[3](i,0) = help2 + 0.906179845938664*help1;
+//      gaussy[4](i,0) = help2 - 0.906179845938664*help1;
+//      }
+    gaussy[0](i,0) = help2;
+    gaussy[1](i,0) = help2 + 0.324253423403809*help1;
+    gaussy[2](i,0) = help2 - 0.324253423403809*help1;
+    gaussy[3](i,0) = help2 + 0.613371432700590*help1;
+    gaussy[4](i,0) = help2 - 0.613371432700590*help1;
+    gaussy[5](i,0) = help2 + 0.836031107326636*help1;
+    gaussy[6](i,0) = help2 - 0.836031107326636*help1;
+    gaussy[7](i,0) = help2 + 0.968160239507626*help1;
+    gaussy[8](i,0) = help2 - 0.968160239507626*help1;
+    }
+
+  double maxzi=0.0;
+  for(i=0;i<zi.rows();i++)
+    if (zi(i,0)>maxzi) maxzi=zi(i,0);
+
+  gaussmat = vector<MCMC::bsplinemat>(gauss_n);
+  for(i=0;i<gauss_n;i++)
+    {
+    gaussy[i](zi.rows(),0)=maxzi;
+    gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true);
+    }
+
+//------------------------------------------------------------------------------------------------------*/
 
   oldacceptance = 0;
   oldnrtrials = 0;
@@ -81,17 +138,14 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   mintoobig = false;
   maxtoobig = false;
 
-  unsigned i;
-
-
   varcoeff = true;
   setbeta(nrknots-1+degree,1,0);
+  betaold = datamatrix(nrpar,1,0);
 
   make_index(time,z);
+  make_index2();
   make_Bspline(time,true);
   make_BS(z);
-
-  betaold = datamatrix(nrpar,1,0);
 
 // xvalues und fchelp initialisieren
   ST::string pnt = fp.substr(0,fp.length()-4)+"_fchelp.raw";
@@ -173,53 +227,36 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
 
   compute_betaweight();
 
-//--------------------
 
- double knot_min = 0.0;
- double knot_max = zi.max(0);
-
-
-    int_knots=datamatrix (50,1,0);
-
-    int j;
-    for(j=0;j<int_knots.rows();j++)
-      {int_knots(j,0) = knot_min + j*(knot_max-knot_min)/double(int_knots.rows()-1); }
-
-
-
-   int_D = datamatrix(int_knots.rows(),nrpar,0.0);
-
-    datamatrix bsp;
-
-
-
-    for(int i=0;i<int_knots.rows();i++)
+//------------------Designmatrix int_D für P-Spline an Knoten-------------------
+  double knot_min = 0.0;
+  double knot_max = zi.max(0);
+  int_knots=datamatrix (50,1,0);
+  unsigned j;
+  for(j=0;j<int_knots.rows();j++)
+    int_knots(j,0) = knot_min + j*(knot_max-knot_min)/double(int_knots.rows()-1);
+  int_D = datamatrix(int_knots.rows(),nrpar,0.0);
+  datamatrix bsp;
+  for(i=0;i<int_knots.rows();i++)
+    {
+    bsp = bspline(int_knots(i,0));
+    for(j=0;j<nrpar;j++)
       {
-      bsp = bspline(int_knots(i,0));
-
-      for(int j=0;j<nrpar;j++)
-        {
-        int_D(i,j) = bsp(j,0);
-        }
-
+      int_D(i,j) = bsp(j,0);
       }
-
-
-
- spline_ges = datamatrix(2*likep->get_nrobs(),1,0);
- int_ti_help = datamatrix(2*likep->get_nrobs(),1,0);
-
- spline_zi = datamatrix(likep->get_nrobs(),1,0);
-// int_ti_help = datamatrix(likep->get_nrobs(),1,0);
-
-
+    }
+//-------------------------------------------------------------------------------------------
+  spline_ges = datamatrix(2*likep->get_nrobs(),1,0);
+  gaussspline = datamatrix(zi.rows()+1,gauss_n,0);
+  int_ti_help = datamatrix(2*likep->get_nrobs(),1,0);
+  spline_zi = datamatrix(likep->get_nrobs(),1,0);
 //-----------------------
-
-
   }
 
 
-
+//------------------------------------------------------------------------------
+//-----------------------Baseline-----------------------------------------------
+//------------------------------------------------------------------------------
 pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
                     const datamatrix & d,
                     const unsigned & nrk,const unsigned & degr,const knotpos & kp,
@@ -229,19 +266,22 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
                     const int & gs, const unsigned & c,const datamatrix & anfang)
   : FULLCOND_pspline(o,dp,fcc,ft,ti,nrk,degr,kp,fp,pres,false,gs,c)
   {
-  vc_dummy1=false;
+  unsigned i,j;
+  gauss_n = 9;
+  vc_dummy1 = false;
   baseline = true;
   baselinep = vector<pspline_baseline*>(0);
 
   lambda = l;
   sigma2 = 1.0/l;
 
-  zi=d;
+  zi = d;
 
+//-----------------linkstrunkiert oder zeitl. variierende Kovariablen?--------
   if(anfang.rows()==1)
     {
     begin0 = true;
-    beg_i = datamatrix(d.rows(),1,0);
+    beg_i = datamatrix(zi.rows(),1,0);
     }
   else
     {
@@ -249,27 +289,77 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
     beg_i = anfang;
     }
 
+  zi_ges = datamatrix(2*zi.rows(),1,0);
 
-
-
-  if(begin0==false)
-   {
-   zi_ges=datamatrix(2*zi.rows(),1,0);
-
-   for(unsigned i=0;i<zi.rows();i++)
+  vector<datamatrix> gaussy(gauss_n);
+  for(i=0;i<gauss_n;i++)
     {
-    zi_ges(i,0)=zi(i,0);
-    zi_ges(zi.rows()+i,0)=beg_i(i,0);
+    gaussy[i] = datamatrix(zi.rows()+1,1,0);
     }
 
-   ges_index = statmatrix<int>(zi_ges.rows(),1);
-   ges_index.indexinit();
-   zi_ges.indexsort(ges_index,0,zi_ges.rows()-1,0,0);
+  for(i=0;i<zi.rows();i++)
+    {
+    zi_ges(i,0) = zi(i,0);
+    zi_ges(zi.rows()+i,0) = beg_i(i,0);
+    }
+  ges_index = statmatrix<int>(zi_ges.rows(),1);
+  ges_index.indexinit();
+  zi_ges.indexsort(ges_index,0,zi_ges.rows()-1,0,0);
 
-   testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true);
-   beg_i=anfang;
-   }
+  testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true);
 
+  coeff = datamatrix(gauss_n,1,0);
+  coeff(0,0) = 0.330239355001260;
+  coeff(1,0) = 0.312347077040003;
+  coeff(2,0) = 0.312347077040003;
+  coeff(3,0) = 0.260610696402935;
+  coeff(4,0) = 0.260610696402935;
+  coeff(5,0) = 0.180648160694857;
+  coeff(6,0) = 0.180648160694857;
+  coeff(7,0) = 0.081274388361574;
+  coeff(8,0) = 0.081274388361574;
+
+  double help1,help2;
+  for(i=0;i<zi.rows();i++)
+    {
+    help1 = (zi(i,0)-beg_i(i,0))*0.5;
+    help2 = (zi(i,0)+beg_i(i,0))*0.5;
+//    if(gauss_n==3)
+//      {
+//      gaussy[0](i,0)= help2;
+//      gaussy[1](i,0)= help2 + 0.774596669241483*help1;
+//      gaussy[2](i,0)= help2 - 0.774596669241483*help1;
+//      }
+//    if(gauss_n==5)
+//      {
+//      gaussy[0](i,0) = help2;
+//      gaussy[1](i,0) = help2 + 0.538469310105683*help1;
+//      gaussy[2](i,0) = help2 - 0.538469310105683*help1;
+//      gaussy[3](i,0) = help2 + 0.906179845938664*help1;
+//      gaussy[4](i,0) = help2 - 0.906179845938664*help1;
+//      }
+    gaussy[0](i,0) = help2;
+    gaussy[1](i,0) = help2 + 0.324253423403809*help1;
+    gaussy[2](i,0) = help2 - 0.324253423403809*help1;
+    gaussy[3](i,0) = help2 + 0.613371432700590*help1;
+    gaussy[4](i,0) = help2 - 0.613371432700590*help1;
+    gaussy[5](i,0) = help2 + 0.836031107326636*help1;
+    gaussy[6](i,0) = help2 - 0.836031107326636*help1;
+    gaussy[7](i,0) = help2 + 0.968160239507626*help1;
+    gaussy[8](i,0) = help2 - 0.968160239507626*help1;
+    }
+
+  double maxzi=0.0;
+  for(i=0;i<zi.rows();i++)
+    if (zi(i,0)>maxzi) maxzi=zi(i,0);
+
+  gaussmat = vector<MCMC::bsplinemat>(gauss_n);
+  for(i=0;i<gauss_n;i++)
+    {
+    gaussy[i](zi.rows(),0)=maxzi;
+    gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true);
+    }
+//-----------------------------------------------------------------------------
 
 
 
@@ -281,14 +371,12 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   mintoobig = false;
   maxtoobig = false;
 
-  unsigned i;
-
   varcoeff = false;
   setbeta(nrknots-1+degree,1,0);
-
   betaold = datamatrix(nrpar,1,0);
 
   make_index(d);
+  make_index2();
   make_Bspline(d,true);
 
 
@@ -372,48 +460,31 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
 
   compute_betaweight();
 
-//--------------------
+//------------------Designmatrix int_D für P-Spline an Knoten-------------------
 
- double knot_min = 0.0;
- double knot_max = zi.max(0);
+  double knot_min = 0.0;
+  double knot_max = zi.max(0);
+  int_knots=datamatrix (50,1,0);
+  for(j=0;j<int_knots.rows();j++)
+    int_knots(j,0) = knot_min + j*(knot_max-knot_min)/double(int_knots.rows()-1);
 
-
-    int_knots=datamatrix (50,1,0);
-
-    int j;
-    for(j=0;j<int_knots.rows();j++)
-      {int_knots(j,0) = knot_min + j*(knot_max-knot_min)/double(int_knots.rows()-1); }
-
-
-
-   int_D = datamatrix(int_knots.rows(),nrpar,0.0);
-
-    datamatrix bsp;
-
-
-
-    for(int i=0;i<int_knots.rows();i++)
+  int_D = datamatrix(int_knots.rows(),nrpar,0.0);
+  datamatrix bsp;
+  for(i=0;i<int_knots.rows();i++)
+    {
+    bsp = bspline(int_knots(i,0));
+    for(j=0;j<nrpar;j++)
       {
-      bsp = bspline(int_knots(i,0));
-
-      for(int j=0;j<nrpar;j++)
-        {
-        int_D(i,j) = bsp(j,0);
-        }
-
+      int_D(i,j) = bsp(j,0);
       }
+    }
+//------------------------------------------------------------------------------
 
-
-
- spline_ges = datamatrix(2*likep->get_nrobs(),1,0);
- int_ti_help = datamatrix(2*likep->get_nrobs(),1,0);
-
- spline_zi = datamatrix(likep->get_nrobs(),1,0);
-// int_ti_help = datamatrix(likep->get_nrobs(),1,0);
-
+  spline_ges = datamatrix(2*likep->get_nrobs(),1,0);
+  int_ti_help = datamatrix(2*likep->get_nrobs(),1,0);
+  gaussspline = datamatrix(zi.rows()+1,gauss_n,0);
+  spline_zi = datamatrix(likep->get_nrobs(),1,0);
 //------------------------------------------------------------------------
-
-
   }
 
 
@@ -425,18 +496,20 @@ pspline_baseline::pspline_baseline(const pspline_baseline & fc)
   int_knots = fc.int_knots;
   int_D = fc.int_D;
   testmat = fc.testmat;
-  zi=fc.zi;
-  vc_dummy1=fc.vc_dummy1;
-  beg_i=fc.beg_i;
-  zi_ges=fc.zi_ges;
-  z_vc=fc.z_vc;
-  spline_ges=fc.spline_ges;
-  spline_beg=fc.spline_beg;
-  spline_zi=fc.spline_zi;
-  ges_index=fc.ges_index;
-  beg_index=fc.beg_index;
-  int_ti_help=fc.int_ti_help;
-  baselinep=fc.baselinep;
+  gaussmat = fc.gaussmat;
+  coeff = fc.coeff;
+  gauss_n = fc.gauss_n;
+  zi = fc.zi;
+  vc_dummy1 = fc.vc_dummy1;
+  beg_i = fc.beg_i;
+  zi_ges = fc.zi_ges;
+  z_vc = fc.z_vc;
+  spline_ges = fc.spline_ges;
+  spline_zi = fc.spline_zi;
+  gaussspline=fc.gaussspline;
+  ges_index = fc.ges_index;
+  int_ti_help = fc.int_ti_help;
+  baselinep = fc.baselinep;
 
   }
 
@@ -451,18 +524,20 @@ const pspline_baseline & pspline_baseline::operator=(const pspline_baseline & fc
   int_knots = fc.int_knots;
   int_D = fc.int_D;
   testmat = fc.testmat;
+  gaussmat = fc.gaussmat;
+  coeff = fc.coeff;
+  gauss_n = fc.gauss_n;
   zi=fc.zi;
-  beg_i=fc.beg_i;
-  zi_ges=fc.zi_ges;
-  z_vc=fc.z_vc;
-  vc_dummy1=fc.vc_dummy1;
-  spline_ges=fc.spline_ges;
-  spline_beg=fc.spline_beg;
-  spline_zi=fc.spline_zi;
-  ges_index=fc.ges_index;
-  beg_index=fc.beg_index;
-  int_ti_help=fc.int_ti_help;
-  baselinep=fc.baselinep;
+  beg_i = fc.beg_i;
+  zi_ges = fc.zi_ges;
+  z_vc = fc.z_vc;
+  vc_dummy1 = fc.vc_dummy1;
+  spline_ges = fc.spline_ges;
+  spline_zi = fc.spline_zi;
+  gaussspline = fc.gaussspline;
+  ges_index = fc.ges_index;
+  int_ti_help = fc.int_ti_help;
+  baselinep = fc.baselinep;
 
   return *this;
   }
@@ -579,10 +654,14 @@ void pspline_baseline::outoptions(void)
 
 
 
-
-
 void pspline_baseline::update(void)
   {
+
+  if(optionsp->get_nriter()==1)
+    {
+    beta(0,0) = 0.01;
+    add_linearpred_multBS(beta);
+    }
 
 /*/ ---------------- linearer baseline Effekt --------------------------------//
   unsigned i;
@@ -680,19 +759,37 @@ void pspline_baseline::update(void)
 // ---------------- ENDE: linearer baseline Effekt ---------------------------*/
 
 
-//----------------------------------------------------------------------------//
+//-handelt es sich bei der Kov. mit zeitl. var. Effekt um eine dummykodierte
+//-und liegt keine Linkstrunkierung bzw. zeitl. var. Kov. vor?-//
 
-  if(baselinep.size()==2 && begin0==true)
-   {
+  if(optionsp->get_nriter()==1 && baselinep.size()>1 && begin0==true)
+    {
     int i=0;
-    double * z_vc_help=baselinep[1]->get_z_vc();
-    while((*z_vc_help==0.0||*z_vc_help==1.0)&&i<zi.rows())
-     {
+
+    statmatrix<double*> z_vc_help;
+    z_vc_help = statmatrix<double*>(baselinep.size()-1,1);
+
+    double sum_z_vc = 0.0;
+
+    for(int i_vc=0;i_vc<baselinep.size()-1;i_vc++)
+      z_vc_help(i_vc,0) = baselinep[i_vc+1]->get_z_vc();
+
+    while( i<zi.rows() && (sum_z_vc==0.0||sum_z_vc==1.0))
+      {
+      sum_z_vc = 0.0;
+      for(int i_vc=0;i_vc<baselinep.size()-1;i_vc++)
+        {
+        if(*z_vc_help(i_vc,0)==0.0||*z_vc_help(i_vc,0)==1.0)
+          sum_z_vc = sum_z_vc + *z_vc_help(i_vc,0);
+        else sum_z_vc = 2.0;
+          z_vc_help(i_vc,0)++;
+        }
       i++;
-      z_vc_help++;
-     }
+      }
     if(i==zi.rows()) vc_dummy1=true;
-   }
+    }
+//------------------------------------------------------------------------------
+
 
   unsigned blocksize;
 
@@ -722,7 +819,6 @@ void pspline_baseline::update(void)
 
   for(j=0;j<matquant[blocksize-min];j++)
     {
-
     nrtrials++;
 
     compute_fc(beta,blocksize,an,en,sqrt(sigma2));
@@ -732,8 +828,6 @@ void pspline_baseline::update(void)
 
     beg = firstnonzero[an-1];
 
-
-//    logold += likep->loglikelihood( );
     logold += likep->loglikelihood(beg,likep->get_nrobs()-1,index);
 
     likep->assign(false);
@@ -747,54 +841,10 @@ void pspline_baseline::update(void)
       *workbetaold = *workbeta;
       *workbeta = fc_random[en-an](k-an+1,0);
       }
+//----------------------------------------------------------
+    update_baseline();
+//----------------------------------------------------------
 
-    //---------Integral berechnen--------
-
-    if(baselinep.size()>0)
-      {
-      if(vc_dummy1==true)
-      {
-        vector <double *> splinevec;
-        vector <double *> betavec;
-        for(i=0;i<(baselinep.size());i++)
-          splinevec.push_back(baselinep[i]->get_spline_zi());
-        for(i=0;i<(baselinep.size());i++)
-          betavec.push_back(baselinep[i]->getbetapointer());
-//        multBS(spline,beta);
-//        multBS(spline_zi,beta);
-        compute_int_ti_vc_d0(splinevec,betavec);
-        compute_int_ti_vc_d1(splinevec,betavec);
-      }
-      else
-      {
-//       testmat.mult_index(spline_ges,beta);
-//        compute_int_ti_vc(beg);
-       vector<double *> splinevec;
-       vector<double *> betavec;
-       for(i=0;i<(baselinep.size());i++)
-          splinevec.push_back(baselinep[i]->get_spline_ges());
-       for(i=0;i<(baselinep.size());i++)
-          betavec.push_back(baselinep[i]->getbetapointer());
-
-       compute_int_ti_vc(beg,splinevec,betavec);
-      }
-      }
-    else
-      {
-      if(begin0==false)
-       {
-        testmat.mult(spline_ges,beta);
-        compute_int_ti(beta);
-       }
-      else
-       {
-        multBS(spline,beta);
-        compute_int_ti(beta);
-       }
-      }
-    //------------------------------------
-
-//    logprop += likep->loglikelihood(false);
     logprop += likep->loglikelihood(beg,likep->get_nrobs()-1,index,false);
 
     u = log(uniform());
@@ -803,7 +853,6 @@ void pspline_baseline::update(void)
       {
 	  acceptance++;
       likep->swap_linearpred();
-
       }
     else
       {
@@ -812,52 +861,9 @@ void pspline_baseline::update(void)
       for(k=an-1;k<en;k++,workbeta++,workbetaold++)
         *workbeta = *workbetaold;
 
-     //---------Integral berechnen--------
-
-    if(baselinep.size()>0)
-      {
-      if(vc_dummy1==true)
-      {
-        vector <double *> splinevec;
-        vector <double *> betavec;
-        for(i=0;i<(baselinep.size());i++)
-          splinevec.push_back(baselinep[i]->get_spline_zi());
-        for(i=0;i<(baselinep.size());i++)
-          betavec.push_back(baselinep[i]->getbetapointer());
-//        multBS(spline,beta);
-//        multBS(spline_zi,beta);
-        compute_int_ti_vc_d0(splinevec,betavec);
-        compute_int_ti_vc_d1(splinevec,betavec);
-      }
-      else
-      {
-//        testmat.mult_index(spline_ges,beta);
-//        compute_int_ti_vc(beg);
-       vector<double *> splinevec;
-       vector<double *> betavec;
-       for(i=0;i<(baselinep.size());i++)
-          splinevec.push_back(baselinep[i]->get_spline_ges());
-       for(i=0;i<(baselinep.size());i++)
-          betavec.push_back(baselinep[i]->getbetapointer());
-
-       compute_int_ti_vc(beg,splinevec,betavec);
-      }
-      }
-    else
-      {
-      if(begin0==false)
-       {
-        testmat.mult(spline_ges,beta);
-        compute_int_ti(beta);
-       }
-      else
-       {
-        multBS(spline,beta);
-        compute_int_ti(beta);
-       }
-      }
-
-    //------------------------------------/
+//---------Integral berechnen für vorgeschlagenes beta--------
+      update_baseline();
+//------------------------------------/
 
       }
 
@@ -878,37 +884,64 @@ void pspline_baseline::update(void)
 
 //-------------------Spline zentrieren------------------------
 
-    if(baselinep.size()>0)
+    if(baselinep.size()>1)
       {
       if(vc_dummy1==true)
-       {
-       for(i=0;i<likep->get_nrobs();i++)
         {
-        spline(i,0) -= intercept;
-        spline_zi(i,0) -= intercept;
+        for(i=0;i<likep->get_nrobs();i++)
+          {
+          spline(i,0) -= intercept;
+          spline_zi(i,0) -= intercept;
+          }
         }
-       }
-      else
+//      else
+//        {
+        for(i=0;i<2.0*likep->get_nrobs();i++)
+          {
+          spline_ges(i,0) -= intercept;
+          }
+ /*      for(i=0;i<likep->get_nrobs();i++)
        {
-       for(i=0;i<2.0*likep->get_nrobs();i++)
-       spline_ges(i,0) -= intercept;
-       }
+       spline1(i,0) -= intercept;
+       spline2(i,0) -= intercept;
+       spline3(i,0) -= intercept;
+       spline4(i,0) -= intercept;
+       spline5(i,0) -= intercept;
+       spline6(i,0) -= intercept;
+       spline7(i,0) -= intercept;
+       spline8(i,0) -= intercept;
+       spline9(i,0) -= intercept;
+       }*/
+//        }
       }
     else
       {
       if(begin0==false)
-       {
-       for(i=0;i<2.0*likep->get_nrobs();i++)
-       spline_ges(i,0) -= intercept;
-
-       }
+        {
+        for(i=0;i<2.0*likep->get_nrobs();i++)
+          {
+          spline_ges(i,0) -= intercept;
+/*        if(i<likep->get_nrobs())
+            {
+            spline1(i,0) -= intercept;
+            spline2(i,0) -= intercept;
+            spline3(i,0) -= intercept;
+            spline4(i,0) -= intercept;
+            spline5(i,0) -= intercept;
+            spline6(i,0) -= intercept;
+            spline7(i,0) -= intercept;
+            spline8(i,0) -= intercept;
+            spline9(i,0) -= intercept;
+            } */
+          }
+        }
       else
-       {
-       for(i=0;i<likep->get_nrobs();i++)
-       spline(i,0) -= intercept;
-       }
+        {
+        for(i=0;i<likep->get_nrobs();i++)
+          spline(i,0) -= intercept;
+        }
       }
-    //-------------------------------------*/
+    //-------------------------------------/
 
 //    likep->add_linearpred_m(-intercept,column);
     fcconst->update_intercept(intercept);
@@ -947,1332 +980,898 @@ void pspline_baseline::update(void)
 
   } // end function update
 
-
+//--------Für's DIC-------------------------------------------------------------
 void pspline_baseline::compute_int_ti_mean(void)
   {
-      if(baselinep.size()>0)
-      {
-      if(vc_dummy1==true)
-      {
-        vector <double *> splinevec;
-        vector <double *> betavec;
-        for(int i=0;i<(baselinep.size());i++)
-          splinevec.push_back(baselinep[i]->get_spline_zi_mean());
-        for(int i=0;i<(baselinep.size());i++)
-          betavec.push_back(baselinep[i]->get_betamean());
-//        multBS(spline,beta);
-//        multBS(spline_zi,beta);
-        compute_int_ti_vc_d0(splinevec,betavec);
-        compute_int_ti_vc_d1(splinevec,betavec);
-      }
-      else
-      {
-//        testmat.mult_index(spline_ges,beta);
-//        compute_int_ti_vc(beg);
-       vector<double *> splinevec;
-       vector<double *> betavec;
-       for(int i=0;i<(baselinep.size());i++)
-          splinevec.push_back(baselinep[i]->get_spline_ges_mean());
-       for(int i=0;i<(baselinep.size());i++)
-          betavec.push_back(baselinep[i]->get_betamean());
-
-       compute_int_ti_vc(splinevec,betavec);
-      }
-      }
-  else
-  {
-  if(begin0==false)
+  unsigned i;
+  if(baselinep.size()>1)
     {
+    if(vc_dummy1==true)
+      {
+      vector <double *> splinevec;
+      vector <double *> betavec;
+      for(i=0;i<(baselinep.size());i++)
+        splinevec.push_back(baselinep[i]->get_spline_zi_mean());
+      for(i=0;i<(baselinep.size());i++)
+        betavec.push_back(baselinep[i]->get_betamean());
+      compute_int_ti_vc_di0(splinevec,betavec);
+      for(i=1;i<baselinep.size();i++)
+        {
+        compute_int_ti_vc_di(i,splinevec,betavec);
+        }
+      }
+    else
+      {
+      compute_int_gauss_DIC();
+      }
+    }
+  else
+    {
+    if(begin0==false)
+      {
       testmat.mult(spline_ges,betamean);
       compute_int_ti(betamean);
-    }
-
-  else
-    {
-    multBS(spline,betamean);
-    compute_int_ti(betamean);
+      }
+    else
+      {
+      multBS(spline,betamean);
+      compute_int_ti(betamean);
 //    compute_int_ti_linear(betamean(0,0));  //für linearen baseline
-     }
-  }
+      }
+    }
   }
 
 
 void pspline_baseline::compute_int_ti_linear(const double & b)
-{
-double * int_ti_p=likep->get_integral_ti();
-for(unsigned i=0;i<zi.rows();i++,int_ti_p++)
-{
-if(b==0)
-*int_ti_p = zi(i,0)/(exp(b*zi(i,0)));
-else
-*int_ti_p =(1/b*(exp(b*zi(i,0))-1.0))/(exp(b*zi(i,0)));
-}
-
-}
-
+  {
+  double * int_ti_p=likep->get_integral_ti();
+  for(unsigned i=0;i<zi.rows();i++,int_ti_p++)
+    {
+    if(b==0)
+      *int_ti_p = zi(i,0)/(exp(b*zi(i,0)));
+    else
+      *int_ti_p =(1/b*(exp(b*zi(i,0))-1.0))/(exp(b*zi(i,0)));
+    }
+  }
 
 
-
-
-
-
-
-
-
-  void pspline_baseline::compute_int_ti(const datamatrix & b)
+//--------berechnet int_0^{t_i}/exp(logbaseline(t_i))---------------------------
+//--------mit Hilfe von geordneten t_i und Knoten-------------------------------
+void pspline_baseline::compute_int_ti(const datamatrix & b)
 {
 
 //------------------------left truncation----------------------------
- if(begin0==false)
+if(begin0==false)
+  {
+  double * int_D_help;
+  double * betap;
+  double dist_knots = int_knots(1,0)-int_knots(0,0);
+  unsigned i,j,k;
+  k=1;
+  double erg,spline_u,spline_o;
+  erg = 0.0;
+  double * int_ti_p = likep->get_integral_ti();
+  double * int_ti_help_p = int_ti_help.getV();
+  double * int_ti_help_p2 = int_ti_help.getV();
+
+  spline_o=0.0;
+  spline_u=0.0;
+  int_D_help = int_D.getV();
+  betap=b.getV();
+
+  for(j=0;j<nrpar;j++,int_D_help++,betap++)
+    spline_o += *betap* *int_D_help;
+  spline_u=spline_o;
+
+//--------------------------------erster Integralwert---------------------------
+
+  while(k<int_knots.rows() && int_knots(k,0)<=zi_ges(ges_index(0,0),0) )
     {
-
-    double * int_D_help;
-    double * betap;
-    double dist_knots=int_knots(1,0)-int_knots(0,0);
-    unsigned i,j,k;
-    k=1;
-    double erg,spline_u,spline_o;
-    erg = 0.0;
-    double * int_ti_p=likep->get_integral_ti();
-    double * int_ti_help_p=int_ti_help.getV();
-    double * int_ti_help_p2=int_ti_help.getV();
-
-
-
-
+    spline_u=spline_o;
     spline_o=0.0;
-    spline_u=0.0;
-    int_D_help =int_D.getV();
-    betap=b.getV();
-
+    betap = b.getV();
     for(j=0;j<nrpar;j++,int_D_help++,betap++)
       spline_o += *betap* *int_D_help;
-    spline_u=spline_o;
+    erg=erg+(exp(spline_u)+exp(spline_o));
 
-  //------------------erster Integralwert------------------------
+    k=k+1;
+    }
 
-    while(k<int_knots.rows() && int_knots(k,0)<=zi_ges(ges_index(0,0),0) )
+  erg=erg*dist_knots;
+  erg=erg+(exp(spline_ges(0,0))+exp(spline_o))*(zi_ges(ges_index(0,0),0)-int_knots(k-1,0));
+
+  int_ti_p=likep->get_integral_ti()+ges_index(0,0);
+  *int_ti_p =erg*0.5/(exp(spline_ges(0,0)));
+
+  int_ti_help_p=int_ti_help.getV()+ges_index(0,0);
+  *int_ti_help_p =erg*0.5;
+
+//------------------------------------------------------------
+
+  for(i=1;i<zi_ges.rows();i++)
+    {
+    if(k==int_knots.rows())
+      k=int_knots.rows()-1;
+    if(k<int_knots.rows() && zi_ges(ges_index(i,0),0)<=int_knots(k,0))
+      erg=erg+(zi_ges(ges_index(i,0),0)-zi_ges(ges_index(i-1,0),0))*(exp(spline_ges(i-1,0))+exp(spline_ges(i,0)));
+    else
       {
-
       spline_u=spline_o;
       spline_o=0.0;
       betap = b.getV();
-
       for(j=0;j<nrpar;j++,int_D_help++,betap++)
         spline_o += *betap* *int_D_help;
+      erg=erg+(int_knots(k,0)-zi_ges(ges_index(i-1,0),0))*(exp(spline_ges(i-1,0))+exp(spline_o)) ;
 
-      erg=erg+(exp(spline_u)+exp(spline_o));
+      k++;
 
-      k=k+1;
-      }
-
-
-    erg=erg*dist_knots;
-
-    erg=erg+(exp(spline_ges(0,0))+exp(spline_o))*(zi_ges(ges_index(0,0),0)-int_knots(k-1,0));
-
-    int_ti_p=likep->get_integral_ti()+ges_index(0,0);
-    *int_ti_p =erg*0.5/(exp(spline_ges(0,0)));
-
-    int_ti_help_p=int_ti_help.getV()+ges_index(0,0);
-    *int_ti_help_p =erg*0.5;
-
-  //------------------------------------------------------------
-
-
-    for(i=1;i<zi_ges.rows();i++)
-      {
-
-      if(k==int_knots.rows())
-         k=int_knots.rows()-1;
-
-      if(k<int_knots.rows() && zi_ges(ges_index(i,0),0)<=int_knots(k,0))
-         erg=erg+(zi_ges(ges_index(i,0),0)-zi_ges(ges_index(i-1,0),0))*(exp(spline_ges(i-1,0))+exp(spline_ges(i,0))) ;
-
-      else
-         {
-         spline_u=spline_o;
-         spline_o=0.0;
-         betap = b.getV();
-         for(j=0;j<nrpar;j++,int_D_help++,betap++)
-            spline_o += *betap* *int_D_help;
-
-         erg=erg+(int_knots(k,0)-zi_ges(ges_index(i-1,0),0))*(exp(spline_ges(i-1,0))+exp(spline_o)) ;
-
-         k++;
-
-
-         while(k<int_knots.rows() && int_knots(k,0)<=zi_ges(ges_index(i,0),0) )
-            {
-            spline_u=spline_o;
-            spline_o=0.0;
-
-            betap = b.getV();
-            for(j=0;j<nrpar;j++,int_D_help++,betap++)
-                spline_o += *betap* *int_D_help;
-
-            erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
-            k++;
-            }
-
-         erg=erg+(exp(spline_ges(i,0))+exp(spline_o))*(zi_ges(ges_index(i,0),0)-int_knots(k-1,0));
-         }
-
-      int_ti_p=likep->get_integral_ti()+ges_index(i,0);
-      *int_ti_p =erg*0.5/(exp(spline_ges(i,0)));
-
-      int_ti_help_p=int_ti_help.getV()+ges_index(i,0);
-      *int_ti_help_p =erg*0.5;
-
-
-      }
-
-//-------------------------------------------------------------
-
-    i=0;
-    for(i=likep->get_nrobs();i<2*likep->get_nrobs();i++)
-       {
-       if(zi_ges(i,0)!=0)
-         {
-         int_ti_p=likep->get_integral_ti()+i-likep->get_nrobs();
-         int_ti_help_p=int_ti_help.getV()+i-likep->get_nrobs();
-         int_ti_help_p2=int_ti_help.getV()+i;
-
-         *int_ti_p=(*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges(ges_index(i-likep->get_nrobs(),0),0));
-         assert(*int_ti_p>=0.0);
-
-         }
-       }
-    }//left_trunc
-
-
-//--------------------Beginn=0 ---------------------
- else
-   {
-
-   double * int_D_help;
-   double * betap;
-   double dist_knots=int_knots(1,0)-int_knots(0,0);
-   unsigned i,j,k;
-   k=1;
-   double erg,spline_u,spline_o;
-   erg = 0.0;
-   double * int_ti_p=likep->get_integral_ti();
-   double * int_ti_help_p=int_ti_help.getV();
-//   double * int_ti_help_p2=int_ti_help.getV();
-
-   spline_o=0.0;
-   spline_u=0.0;
-
-   int_D_help =int_D.getV();
-   betap=b.getV();
-
-   for(j=0;j<nrpar;j++,int_D_help++,betap++)
-      spline_o += *betap* *int_D_help;
-   spline_u=spline_o;
-
-  //------------------erster Integralwert------------------------
-
-   while(k<int_knots.rows() && int_knots(k,0)<=zi(index(0,0),0) )
-     {
-
-     spline_u=spline_o;
-     spline_o=0.0;
-
-     betap = b.getV();
-     for(j=0;j<nrpar;j++,int_D_help++,betap++)
-         spline_o += *betap* *int_D_help;
-
-     erg=erg+(exp(spline_u)+exp(spline_o));
-     k=k+1;
-     }
-
-
-   erg=erg*dist_knots;
-
-   erg=erg+(exp(spline(0,0))+exp(spline_o))*(zi(index(0,0),0)-int_knots(k-1,0));
-
-   int_ti_p=likep->get_integral_ti()+index(0,0);
-   *int_ti_p =erg*0.5/(exp(spline(0,0)));
-
-   int_ti_help_p=int_ti_help.getV()+index(0,0);
-   *int_ti_help_p =erg*0.5;
-
-  //------------------------------------------------------------
-
-
-   for(i=1;i<zi.rows();i++)
-      {
-      if(k==int_knots.rows())
-         k=int_knots.rows()-1;
-
-      if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
-         erg=erg+(zi(index(i,0),0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline(i,0))) ;
-
-      else
+      while(k<int_knots.rows() && int_knots(k,0)<=zi_ges(ges_index(i,0),0) )
         {
         spline_u=spline_o;
         spline_o=0.0;
         betap = b.getV();
         for(j=0;j<nrpar;j++,int_D_help++,betap++)
-            spline_o += *betap* *int_D_help;
-//if(k<int_knots.rows())
-        erg=erg+(int_knots(k,0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline_o)) ;
-//if(k<int_knots.rows()-1)
+          spline_o += *betap* *int_D_help;
+        erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
+
         k++;
-//cout<<k<<" "<<endl;
-
-
-        while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
-          {
-
-          spline_u=spline_o;
-          spline_o=0.0;
-
-          betap = b.getV();
-          for(j=0;j<nrpar;j++,int_D_help++,betap++)
-              spline_o += *betap* *int_D_help;
-
-          erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
-
-          k++;
-
-          }
-
-        erg=erg+(exp(spline(i,0))+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
         }
-
-      int_ti_p=likep->get_integral_ti()+index(i,0);
-      *int_ti_p =erg*0.5/(exp(spline(i,0)));
-
-      int_ti_help_p=int_ti_help.getV()+index(i,0);
-      *int_ti_help_p =erg*0.5;
+      erg=erg+(exp(spline_ges(i,0))+exp(spline_o))*(zi_ges(ges_index(i,0),0)-int_knots(k-1,0));
       }
-  }//else, i.e. not begin0==false
 
-} //compute_ti
-
-
-
-void pspline_baseline::compute_int_ti_vc(vector<double *>splinevector, vector<double *>betavector)
-{
-
-//------------------------left truncation----------------------------
-
-
-
- double * betap;
- double dist_knots=int_knots(1,0)-int_knots(0,0);
- unsigned i,j,k,obs;
- double erg,spline_u,spline_o,spline_bi,spline_ti;
-
- double * int_ti_p=likep->get_integral_ti();
- statmatrix<double*> int_D_help;
- int_D_help = statmatrix<double*>(baselinep.size(),1);
- statmatrix<double*> z_vc_help;
- z_vc_help = statmatrix<double*>(baselinep.size()-1,1);
- statmatrix<double*> spline_ges_help;
- spline_ges_help = statmatrix<double*>(baselinep.size(),1);
-
-
-
- for(i=0;i<(baselinep.size()-1);i++)
-  {
-  z_vc_help(i,0) = baselinep[i+1]->get_z_vc();
-  }
-
- for(i=0;i<(baselinep.size());i++)
-  {
-//  spline_ges_help(i,0) = baselinep[i]->get_spline_ges();
-   spline_ges_help(i,0) = splinevector[i];
-
-  }
-
- double help;
-
-
-//--------------------------------------------------------------------------
-
- for(obs=0;obs<zi.rows();obs++,int_ti_p++)
-  {
-
-
-  k=0;
-  erg=0.0;
-  spline_u=0.0;
-  spline_o=0.0;
-  spline_bi=0.0;
-  spline_ti=0.0;
-
- //-------------------Splines und Kov. der nächsten Beob. -- Anfang der Designmatrix--------
-  for(i=0;i<baselinep.size();i++)
-     {
-     int_D_help(i,0) = baselinep[i]->get_int_D();
-
-     if(obs>0)  spline_ges_help(i,0)++;
-
-     if(obs>0 && i>0) z_vc_help(i-1,0)++;
-     }
-
-//-------------Spline bei ti und bi berechnen-----------------------
-  for(i=0;i<baselinep.size();i++)
-     {
-     help= * (spline_ges_help(i,0)+zi.rows());
-     if(i>0)  help = help* *z_vc_help(i-1,0);
-     spline_bi +=  help;
-     }
-
-  for(i=0;i<baselinep.size();i++)
-     {
-     help= * (spline_ges_help(i,0));
-     if(i>0)  help = help* *z_vc_help(i-1,0);
-     spline_ti +=  help;
-     }
-
-//-----------ersten Knoten finden, der größer ist als bi-----------------------------
-
-  while(k<int_knots.rows() && int_knots(k,0)<=beg_i(obs,0))
-     {
-     k++;
-     for(i=0;i<baselinep.size();i++)
-        {
-        for(j=0;j<baselinep[i]->get_nrpar();j++)
-           {
-           int_D_help(i,0)++;
-           }
-        }
-     }
-
-//---------------falls kein Knoten zwischen bi und ti liegt----------------
-  if(zi(obs,0)<=int_knots(k,0))
-     {
-
-     *int_ti_p=(exp(spline_bi)+exp(spline_ti))*(zi(obs,0)-beg_i(obs,0))*0.5/(exp(spline_ti));
-     }
-//----------------------Knoten zwischen bi und ti-------------------------
-  else
-     {
- //--------------Spline am ersten Knoten, der größer als bi ist (und kleiner als ti) berechenen und erstes Integralstück berechnen---------
-     for(i=0;i<baselinep.size();i++)
-        {
-//        betap = baselinep[i]->getbetapointer();
-        betap = betavector[i];
-        help = 0.0;
-        for(j=0;j<baselinep[i]->get_nrpar();j++,int_D_help(i,0)++,betap++)
-              help += *betap* *int_D_help(i,0);
-        if(i>0)  help = help* *z_vc_help(i-1,0);
-          spline_o +=  help;
-        }
-     erg += (exp(spline_bi)+exp(spline_o))*(int_knots(k,0)-beg_i(obs,0));
-     k++;
-
-//------------------Integralstücke zwischen folgenden Knoten, die kleiner sind als ti-------------
-     while(k<int_knots.rows() && int_knots(k,0)<=zi(obs,0))
-        {
-        spline_u=spline_o;
-        spline_o=0.0;
-        for(i=0;i<baselinep.size();i++)
-           {
- //          betap = baselinep[i]->getbetapointer();
-           betap = betavector[i];
-           help = 0.0;
-           for(j=0;j<baselinep[i]->get_nrpar();j++,int_D_help(i,0)++,betap++)
-                   help += *betap* *int_D_help(i,0);
-           if(i>0)  help = help* *z_vc_help(i-1,0);
-             spline_o +=  help;
-           }
-
-        erg += (exp(spline_o)+exp(spline_u))*dist_knots;
-        k++;
-
-        }
-
-//----------------letztes Integralstück zwischen ti und dem Knoten davor--------------
-       erg += (exp(spline_ti)+exp(spline_o))*(zi(obs,0)-int_knots(k-1,0));
-       *int_ti_p=erg*0.5/exp(spline_ti);
-
-     }//else
-  }//for obs
-}
-
-//-----------------------Version mit beg----------------
-void pspline_baseline::compute_int_ti_vc(unsigned beg,const vector<double *>splinevector,const vector<double *>betavector)
-{
-double * betap;
- double dist_knots=int_knots(1,0)-int_knots(0,0);
- unsigned i,j,k,obs;
- double erg,spline_u,spline_o,spline_bi,spline_ti;
-
- double * int_ti_p=likep->get_integral_ti();
- statmatrix<double*> int_D_help;
- int_D_help = statmatrix<double*>(baselinep.size(),1);
- statmatrix<double*> z_vc_help;
- z_vc_help = statmatrix<double*>(baselinep.size()-1,1);
- statmatrix<double*> spline_ges_help;
- spline_ges_help = statmatrix<double*>(baselinep.size(),1);
-
- double beg_help = zi(index(beg,0),0);
-
-
- for(i=0;i<(baselinep.size()-1);i++)
-  {
-  z_vc_help(i,0) = baselinep[i+1]->get_z_vc();
-  }
-
- for(i=0;i<(baselinep.size());i++)
-  {
- // spline_ges_help(i,0) = baselinep[i]->get_spline_ges();
-  spline_ges_help(i,0) = splinevector[i];
-  }
-
- double help;
-
-
-//--------------------------------------------------------------------------
-
- for(obs=0;obs<zi.rows();obs++,int_ti_p++)
-  {
-
-
-  k=0;
-  erg=0.0;
-  spline_u=0.0;
-  spline_o=0.0;
-  spline_bi=0.0;
-  spline_ti=0.0;
-
- //-------------------Splines und Kov. der nächsten Beob. -- Anfang der Designmatrix--------
-  for(i=0;i<baselinep.size();i++)
-     {
-     int_D_help(i,0) = baselinep[i]->get_int_D();
-
-     if(obs>0)  spline_ges_help(i,0)++;
-
-     if(obs>0 && i>0) z_vc_help(i-1,0)++;
-     }
-
-//--------------------muss int_ti neu berechnet werden?-----------------------------------------------------
-  if(zi(obs,0)>=beg_help)
-  {
-//-------------Spline bei ti und bi berechnen-----------------------
-  for(i=0;i<baselinep.size();i++)
-     {
-     help= * (spline_ges_help(i,0)+zi.rows());
-     if(i>0)  help = help* *z_vc_help(i-1,0);
-     spline_bi +=  help;
-     }
-
-  for(i=0;i<baselinep.size();i++)
-     {
-     help= * (spline_ges_help(i,0));
-     if(i>0)  help = help* *z_vc_help(i-1,0);
-     spline_ti +=  help;
-     }
-
-//-----------ersten Knoten finden, der größer ist als bi-----------------------------
-
-  while(k<int_knots.rows() && int_knots(k,0)<=beg_i(obs,0))
-     {
-     k++;
-     for(i=0;i<baselinep.size();i++)
-        {
-        for(j=0;j<baselinep[i]->get_nrpar();j++)
-           {
-           int_D_help(i,0)++;
-           }
-        }
-     }
-
-//---------------falls kein Knoten zwischen bi und ti liegt----------------
-  if(zi(obs,0)<=int_knots(k,0))
-     {
-
-     *int_ti_p=(exp(spline_bi)+exp(spline_ti))*(zi(obs,0)-beg_i(obs,0))*0.5/(exp(spline_ti));
-     }
-//----------------------Knoten zwischen bi und ti-------------------------
-  else
-     {
- //--------------Spline am ersten Knoten, der größer als bi ist (und kleiner als ti) berechenen und erstes Integralstück berechnen---------
-     for(i=0;i<baselinep.size();i++)
-        {
- //       betap = baselinep[i]->getbetapointer();
-        betap = betavector[i];
-        help = 0.0;
-        for(j=0;j<baselinep[i]->get_nrpar();j++,int_D_help(i,0)++,betap++)
-              help += *betap* *int_D_help(i,0);
-        if(i>0)  help = help* *z_vc_help(i-1,0);
-          spline_o +=  help;
-        }
-     erg += (exp(spline_bi)+exp(spline_o))*(int_knots(k,0)-beg_i(obs,0));
-     k++;
-
-//------------------Integralstücke zwischen folgenden Knoten, die kleiner sind als ti-------------
-     while(k<int_knots.rows() && int_knots(k,0)<=zi(obs,0))
-        {
-        spline_u=spline_o;
-        spline_o=0.0;
-        for(i=0;i<baselinep.size();i++)
-           {
-//           betap = baselinep[i]->getbetapointer();
-           betap = betavector[i];
-           help = 0.0;
-           for(j=0;j<baselinep[i]->get_nrpar();j++,int_D_help(i,0)++,betap++)
-                   help += *betap* *int_D_help(i,0);
-           if(i>0)  help = help* *z_vc_help(i-1,0);
-             spline_o +=  help;
-           }
-
-        erg += (exp(spline_o)+exp(spline_u))*dist_knots;
-        k++;
-
-        }
-
-//----------------letztes Integralstück zwischen ti und dem Knoten davor--------------
-       erg += (exp(spline_ti)+exp(spline_o))*(zi(obs,0)-int_knots(k-1,0));
-       *int_ti_p=erg*0.5/exp(spline_ti);
-
-     }//else
-  }//for obs
-  }//if
-}
-
-
-
-void pspline_baseline::compute_int_ti_vc_d0(const vector<double *> splinevector,const vector<double *> betavector)
-{
-
- double * int_D_help;
- double * betap;
- double dist_knots=int_knots(1,0)-int_knots(0,0);
- unsigned i,j,k,i_help;
- i=0;
- i_help=0;
- double erg,spline_u,spline_o,spline_ti_help,spline_ti;
- double * int_ti_p=likep->get_integral_ti();
- double * int_ti_help_p=int_ti_help.getV();
- double * z_vc_help;
- double * spline_help;
- z_vc_help = baselinep[1]->get_z_vc();
- k=1;
- erg=0.0;
- spline_o=0.0;
- spline_u=0.0;
-// spline_help=baselinep[0]->get_spline_zi();
- spline_help = splinevector[0];
-
- int_D_help =baselinep[0]->get_int_D();
-// betap=baselinep[0]->getbetapointer();
- betap = betavector[0];
-
- for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help++,betap++)
-    spline_o += *betap* *int_D_help;
- spline_u=spline_o;
-  //------i0 berechnen---------
- while(*(z_vc_help+index(i,0))!=0.0)
-   {
-   i++;
-   spline_help++;
-   }
-
- i_help=i;
-
-  //------------------erster Integralwert------------------------
-
- while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
-   {
-   spline_u=spline_o;
-   spline_o=0.0;
-
-//   betap = baselinep[0]->getbetapointer();
-   betap = betavector[0];
-   for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help++,betap++)
-      spline_o += *betap* *int_D_help;
-
-   erg=erg+(exp(spline_u)+exp(spline_o));
-   k=k+1;
-   }
-
-
- erg=erg*dist_knots;
- spline_ti=*spline_help;
- spline_ti_help=spline_ti;
- erg=erg+(exp(spline_ti)+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
-
- int_ti_p=likep->get_integral_ti()+index(i,0);
- *int_ti_p =erg*0.5/(exp(spline_ti));
-
- int_ti_help_p=int_ti_help.getV()+index(i,0);
- *int_ti_help_p =erg*0.5;
-
-  //------------------------------------------------------------
-
- i++;
- spline_help++;
- while(i<zi.rows())
-   {
-   if(*(z_vc_help+index(i,0))!=0)
-     {
-     i++;
-     spline_help++;
-     }
-   else
-     {
-     if(k== int_knots.rows())
-         k=int_knots.rows()-1;
-     spline_ti=*spline_help;
-     if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
-         erg=erg+(zi(index(i,0),0)-zi(index(i_help,0),0))*(exp(spline_ti_help)+exp(spline_ti)) ;
-     else
-        {
-        spline_u=spline_o;
-        spline_o=0.0;
-//        betap = baselinep[0]->getbetapointer();
-        betap = betavector[0];
-        for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help++,betap++)
-              spline_o += *betap* *int_D_help;
-        erg=erg+(int_knots(k,0)-zi(index(i_help,0),0))*(exp(spline_ti_help)+exp(spline_o)) ;
-        k++;
-
-        while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
-           {
-           spline_u=spline_o;
-           spline_o=0.0;
-
-//           betap = baselinep[0]->getbetapointer();
-           betap = betavector[0];
-           for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help++,betap++)
-                  spline_o += *betap* *int_D_help;
-           erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
-           k++;
-           }
-
-        erg=erg+(exp(spline_ti)+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
-        }
-
-     int_ti_p=likep->get_integral_ti()+index(i,0);
-     *int_ti_p =erg*0.5/(exp(spline_ti));
-
-     int_ti_help_p=int_ti_help.getV()+index(i,0);
-     *int_ti_help_p =erg*0.5;
-
-     i_help=i;
-     i++;
-     spline_help++;
-     spline_ti_help=spline_ti;
-     }//--------------- else: d.h. z_vc(index(i,0),0)==0 -----------------------
- } //while
-}
-
-
-
-void pspline_baseline::compute_int_ti_vc_d1(const vector<double *> splinevector,const vector<double *> betavector)
-{
-
- double * betap;
- double dist_knots=int_knots(1,0)-int_knots(0,0);
- unsigned i,j,k,i_help;
- i=0;
- i_help=0;
- double erg,spline_u,spline_o,spline_ti_help,spline_ti;
- double * int_ti_p=likep->get_integral_ti();
- double * int_ti_help_p=int_ti_help.getV();
- double * z_vc_help;
-
-
- spline_ti=0.0;
- spline_ti_help=0.0;
-
- statmatrix<double*> int_D_help_1;
- int_D_help_1=statmatrix<double*>(baselinep.size(),1);
-
- statmatrix<double*> spline_zi_help;
- spline_zi_help=statmatrix<double*>(baselinep.size(),1);
-
-
-
- double help;
- int i_vc;
- k=1;
- erg=0.0;
- spline_o=0.0;
- spline_u=0.0;
- z_vc_help = baselinep[1]->get_z_vc();
-
- for(i_vc=0;i_vc<(baselinep.size());i_vc++)
-   {
- //  spline_zi_help(i_vc,0)=baselinep[i_vc]->get_spline_zi();
-   spline_zi_help(i_vc,0) = splinevector[i_vc];
-   int_D_help_1(i_vc,0)= baselinep[i_vc]->get_int_D();
-   }
-
- for(i_vc=0;i_vc<baselinep.size();i_vc++)
-   {
-//   betap = baselinep[i_vc]->getbetapointer();
-   betap = betavector[i_vc];
-   help=0.0;
-   for(j=0;j<baselinep[i_vc]->get_nrpar();j++,int_D_help_1(i_vc,0)++,betap++)
-         help+=*betap* *int_D_help_1(i_vc,0);
-   spline_o +=help;
-   }
-
- spline_u=spline_o;
-  //------kleinstes ti mit z_vc==1 und splines an der Stelle suchen---------
- while(*(z_vc_help+index(i,0))==0.0)
-   {
-   i++;
-   for(i_vc=0;i_vc<(baselinep.size());i_vc++)
+    int_ti_p=likep->get_integral_ti()+ges_index(i,0);
+    *int_ti_p =erg*0.5/(exp(spline_ges(i,0)));
+
+    int_ti_help_p=int_ti_help.getV()+ges_index(i,0);
+    *int_ti_help_p =erg*0.5;
+    }
+//------------------------------------------------------------------------------
+
+  i=0;
+  for(i=likep->get_nrobs();i<2*likep->get_nrobs();i++)
+    {
+    if(zi_ges(i,0)!=0)
       {
-      spline_zi_help(i_vc,0)++;
-      }
-   }
+      int_ti_p=likep->get_integral_ti()+i-likep->get_nrobs();
+      int_ti_help_p=int_ti_help.getV()+i-likep->get_nrobs();
+      int_ti_help_p2=int_ti_help.getV()+i;
 
- i_help=i;
+      double help = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges(ges_index(i-likep->get_nrobs(),0),0));
+      assert(*int_ti_p>=0.0);
+      }
+    }
+  }//left_trunc
+
+
+//--------------------Beginn=0 ---------------------
+else
+  {
+  double * int_D_help;
+  double * betap;
+  double dist_knots=int_knots(1,0)-int_knots(0,0);
+  unsigned i,j,k;
+  k=1;
+  double erg,spline_u,spline_o;
+  erg = 0.0;
+  double * int_ti_p=likep->get_integral_ti();
+  double * int_ti_help_p=int_ti_help.getV();
+
+  spline_o=0.0;
+  spline_u=0.0;
+
+  int_D_help =int_D.getV();
+  betap=b.getV();
+
+  for(j=0;j<nrpar;j++,int_D_help++,betap++)
+    spline_o += *betap* *int_D_help;
+  spline_u=spline_o;
+
 //------------------erster Integralwert------------------------
 
- while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
-   {
+  while(k<int_knots.rows() && int_knots(k,0)<=zi(index(0,0),0) )
+    {
     spline_u=spline_o;
     spline_o=0.0;
-
-    for(i_vc=0;i_vc<baselinep.size();i_vc++)
-      {
-//      betap = baselinep[i_vc]->getbetapointer();
-      betap = betavector[i_vc];
-      help=0.0;
-      for(j=0;j<baselinep[i_vc]->get_nrpar();j++,int_D_help_1(i_vc,0)++,betap++)
-          help+=*betap* *int_D_help_1(i_vc,0);
-           //   if(i_vc>0) help= help * *z_vc_help;
-      spline_o +=help;
-      }
-
-
+    betap = b.getV();
+    for(j=0;j<nrpar;j++,int_D_help++,betap++)
+      spline_o += *betap* *int_D_help;
     erg=erg+(exp(spline_u)+exp(spline_o));
     k=k+1;
-   }
+    }
 
+  erg=erg*dist_knots;
+  erg=erg+(exp(spline(0,0))+exp(spline_o))*(zi(index(0,0),0)-int_knots(k-1,0));
 
- erg=erg*dist_knots;
+  int_ti_p=likep->get_integral_ti()+index(0,0);
+  *int_ti_p =erg*0.5/(exp(spline(0,0)));
 
- //---------------Spline an der Stelle ti ---------------
-
- for(i_vc=0;i_vc<baselinep.size();i_vc++)
-   {
-   help= *spline_zi_help(i_vc,0);
-    //    if(i_vc>0) help= help * *z_vc(index(i1,0),0);
-   spline_ti +=help;
-   }
-
- spline_ti_help=spline_ti;
- erg=erg+(exp(spline_ti)+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
-
- int_ti_p=likep->get_integral_ti()+index(i,0);
- *int_ti_p =erg*0.5/(exp(spline_ti));
-
- int_ti_help_p=int_ti_help.getV()+index(i,0);
- *int_ti_help_p =erg*0.5;
+  int_ti_help_p=int_ti_help.getV()+index(0,0);
+  *int_ti_help_p =erg*0.5;
 
 //------------------------------------------------------------
 
- i++;
 
- for(i_vc=0;i_vc<(baselinep.size());i_vc++)
-   {
-   spline_zi_help(i_vc,0)++;
-   }
-
- while(i<zi.rows())
-   {
-//-----------falls z_vc==1: zu nächster Beobachtung---------------
-   if(*(z_vc_help+index(i,0))==0)
+  for(i=1;i<zi.rows();i++)
+    {
+    if(k==int_knots.rows())
+      k=int_knots.rows()-1;
+    if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
+      erg=erg+(zi(index(i,0),0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline(i,0))) ;
+    else
       {
-      i++;
-      for(i_vc=0;i_vc<(baselinep.size());i_vc++)
-         {
-         spline_zi_help(i_vc,0)++;
-         }
+      spline_u=spline_o;
+      spline_o=0.0;
+      betap = b.getV();
+      for(j=0;j<nrpar;j++,int_D_help++,betap++)
+        spline_o += *betap* *int_D_help;
+      erg=erg+(int_knots(k,0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline_o)) ;
+
+      k++;
+
+      while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
+        {
+        spline_u=spline_o;
+        spline_o=0.0;
+        betap = b.getV();
+        for(j=0;j<nrpar;j++,int_D_help++,betap++)
+          spline_o += *betap* *int_D_help;
+        erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
+
+        k++;
+        }
+      erg=erg+(exp(spline(i,0))+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
       }
-//-------------falls z_vc==0: Integral berechenen---------------------
-   else
-      {
-      if(k== int_knots.rows())
-          k=int_knots.rows()-1;
 
-         //Spline an der Stelle ti
-      spline_ti=0.0;
-      for(i_vc=0;i_vc<baselinep.size();i_vc++)
-          {
-          help= *spline_zi_help(i_vc,0);
-             //    if(i_vc>0) help= help * z_vc(index(i,0),0);
-          spline_ti +=help;
-          }
+    int_ti_p=likep->get_integral_ti()+index(i,0);
+    *int_ti_p =erg*0.5/(exp(spline(i,0)));
 
-      if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
-      erg=erg+(zi(index(i,0),0)-zi(index(i_help,0),0))*(exp(spline_ti_help)+exp(spline_ti)) ;
+    int_ti_help_p=int_ti_help.getV()+index(i,0);
+    *int_ti_help_p =erg*0.5;
+    }
+  }//else, i.e. not begin0==false
 
-      else
-          {
-          spline_u=spline_o;
-          spline_o=0.0;
-
-          for(i_vc=0;i_vc<baselinep.size();i_vc++)
-             {
-//             betap = baselinep[i_vc]->getbetapointer();
-             betap = betavector[i_vc];
-             help=0.0;
-             for(j=0;j<baselinep[i_vc]->get_nrpar();j++,int_D_help_1(i_vc,0)++,betap++)
-                    help+=*betap* *int_D_help_1(i_vc,0);
-               //    if(i_vc>0) help= help * z_vc(index(i,0),0);
-
-             spline_o +=help;
-             }
-
-          erg=erg+(int_knots(k,0)-zi(index(i_help,0),0))*(exp(spline_ti_help)+exp(spline_o)) ;
-          k++;
-
-          while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
-             {
-             spline_u=spline_o;
-             spline_o=0.0;
-
-             for(i_vc=0;i_vc<baselinep.size();i_vc++)
-                 {
-//                 betap = baselinep[i_vc]->getbetapointer();
-                 betap = betavector[i_vc];
-                 help=0.0;
-                 for(j=0;j<baselinep[i_vc]->get_nrpar();j++,int_D_help_1(i_vc,0)++,betap++)
-                           help+=*betap* *int_D_help_1(i_vc,0);
-                      //    if(i_vc>0) help= help * z_vc(index(i,0),0);
-
-                 spline_o +=help;
-                 }
-
-
-             erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
-             k++;
-             }
-
-          erg=erg+(exp(spline_ti)+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
-          }
-
-      int_ti_p=likep->get_integral_ti()+index(i,0);
-      *int_ti_p =erg*0.5/(exp(spline_ti));
-
-      int_ti_help_p=int_ti_help.getV()+index(i,0);
-      *int_ti_help_p =erg*0.5;
-
-      i_help=i;
-      spline_ti_help=spline_ti;
-      i++;
-         //  z_vc_help++;
-      for(i_vc=0;i_vc<(baselinep.size());i_vc++)
-          {
-          spline_zi_help(i_vc,0)++;
-          }
-
-
-      }//--------------- else: d.h. z_vc(index(i,0),0)==1 -----------------------
-  } //while
-}//--------------compute_int_ti_vc_d1---------------------
+} //compute_ti
 
 
 
 
 void pspline_baseline::compute_int_ti(unsigned beg)
 {
- double * int_D_help;
- double * betap;
- double dist_knots=int_knots(1,0)-int_knots(0,0);
- unsigned i,j,k;
- k=1;
- double erg,spline_u,spline_o;
- erg = 0.0;
- double * int_ti_p=likep->get_integral_ti();
- double * int_ti_help_p=int_ti_help.getV();
- spline_o=0.0;
- spline_u=0.0;
- int_D_help =int_D.getV();
- betap=beta.getV();
- if(beg==0)
+double * int_D_help;
+double * betap;
+double dist_knots=int_knots(1,0)-int_knots(0,0);
+unsigned i,j,k;
+k=1;
+double erg,spline_u,spline_o;
+erg = 0.0;
+double * int_ti_p=likep->get_integral_ti();
+double * int_ti_help_p=int_ti_help.getV();
+spline_o=0.0;
+spline_u=0.0;
+int_D_help =int_D.getV();
+betap=beta.getV();
+if(beg==0)
   {
   for(j=0;j<nrpar;j++,int_D_help++,betap++)
-         spline_o += *betap* *int_D_help;
+    spline_o += *betap* *int_D_help;
   spline_u=spline_o;
 
- //------------------erster Integralwert------------------------
+//------------------erster Integralwert------------------------
 
- while(k<int_knots.rows() && int_knots(k,0)<=zi(index(0,0),0) )
+  while(k<int_knots.rows() && int_knots(k,0)<=zi(index(0,0),0) )
     {
     spline_u=spline_o;
     spline_o=0.0;
 
     betap = beta.getV();
     for(j=0;j<nrpar;j++,int_D_help++,betap++)
-              spline_o += *betap* *int_D_help;
+      spline_o += *betap* *int_D_help;
     erg=erg+(exp(spline_u)+exp(spline_o));
-    k=k+1;
+
+    k++;
     }
 
+  erg=erg*dist_knots;
+  erg=erg+(exp(spline(0,0))+exp(spline_o))*(zi(index(0,0),0)-int_knots(k-1,0));
 
- erg=erg*dist_knots;
+  int_ti_p=likep->get_integral_ti()+index(0,0);
+  *int_ti_p =erg*0.5/(exp(spline(0,0)));
 
- erg=erg+(exp(spline(0,0))+exp(spline_o))*(zi(index(0,0),0)-int_knots(k-1,0));
+  int_ti_help_p=int_ti_help.getV()+index(0,0);
+  *int_ti_help_p =erg*0.5;
 
- int_ti_p=likep->get_integral_ti()+index(0,0);
- *int_ti_p =erg*0.5/(exp(spline(0,0)));
+//------------------------------------------------------------
+  for(i=1;i<zi.rows();i++)
+    {
+    if(k==int_knots.rows())
+      k=int_knots.rows()-1;
+    if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
+      erg=erg+(zi(index(i,0),0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline(i,0))) ;
+    else
+      {
+      spline_u=spline_o;
+      spline_o=0.0;
 
- int_ti_help_p=int_ti_help.getV()+index(0,0);
- *int_ti_help_p =erg*0.5;
+      betap = beta.getV();
+      for(j=0;j<nrpar;j++,int_D_help++,betap++)
+        spline_o += *betap* *int_D_help;
+      erg=erg+(int_knots(k,0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline_o)) ;
 
- //------------------------------------------------------------
+      k++;
 
-
- for(i=1;i<zi.rows();i++)
-     {
-     if(k==int_knots.rows())
-        k=int_knots.rows()-1;
-    
-
-     if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
-            erg=erg+(zi(index(i,0),0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline(i,0))) ;
-     else
+      while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
         {
         spline_u=spline_o;
         spline_o=0.0;
+
         betap = beta.getV();
         for(j=0;j<nrpar;j++,int_D_help++,betap++)
-                spline_o += *betap* *int_D_help;
+          spline_o += *betap* *int_D_help;
+        erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
 
-        erg=erg+(int_knots(k,0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline_o)) ;
         k++;
-
-        while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
-           {
-           spline_u=spline_o;
-           spline_o=0.0;
-
-           betap = beta.getV();
-           for(j=0;j<nrpar;j++,int_D_help++,betap++)
-                 spline_o += *betap* *int_D_help;
-
-           erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
-           k++;
-           }
-
-        erg=erg+(exp(spline(i,0))+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
         }
 
-     int_ti_p=likep->get_integral_ti()+index(i,0);
-     *int_ti_p =erg*0.5/(exp(spline(i,0)));
+      erg=erg+(exp(spline(i,0))+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
+      }
 
-     int_ti_help_p=int_ti_help.getV()+index(i,0);
-     *int_ti_help_p =erg*0.5;
-     }
-   }//----------------if beg==0-------------------------
+    int_ti_p=likep->get_integral_ti()+index(i,0);
+    *int_ti_p =erg*0.5/(exp(spline(i,0)));
+
+    int_ti_help_p=int_ti_help.getV()+index(i,0);
+    *int_ti_help_p =erg*0.5;
+    }
+  }//----------------if beg==0-------------------------
 
     //-----------------if beg!=0-----------------------------
- else
-   {
+else
+  {
 //---------------------erg=Integral bei "beg-1"------------------
-   int_ti_help_p=int_ti_help.getV()+index(beg-1,0);
-   erg=*int_ti_help_p*2.0;
-     //ersten Knoten finden, der größer ist als "beg-1"
-   while(k<int_knots.rows() && int_knots(k,0)<=zi(index(beg-1,0),0) )
-      {
-      for(j=0;j<nrpar;j++)
-           int_D_help++;
-
-      k++;
-      }
+  int_ti_help_p=int_ti_help.getV()+index(beg-1,0);
+  erg=*int_ti_help_p*2.0;
+//ersten Knoten finden, der größer ist als "beg-1"
+  while(k<int_knots.rows() && int_knots(k,0)<=zi(index(beg-1,0),0) )
+    {
+    for(j=0;j<nrpar;j++)
+      int_D_help++;
+    k++;
+    }
 //--------Wert des Splines an diesem Knoten ausrechnen----------
-   for(j=0;j<nrpar;j++,int_D_help++,betap++)
-         spline_o += *betap* *int_D_help;
-   spline_u=spline_o;
-
-
+  for(j=0;j<nrpar;j++,int_D_help++,betap++)
+    spline_o += *betap* *int_D_help;
+  spline_u=spline_o;
 //-----------------------------------------------------------------------
 
-   for(i=beg;i<zi.rows();i++)
+  for(i=beg;i<zi.rows();i++)
+    {
+    if(k==int_knots.rows())
+      k=int_knots.rows()-1;
+    if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
+      erg=erg+(zi(index(i,0),0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline(i,0))) ;
+    else
       {
-      if(k==int_knots.rows())
-              k=int_knots.rows()-1;
-      if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
-              erg=erg+(zi(index(i,0),0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline(i,0))) ;
-      else
-         {
-         spline_u=spline_o;
-         spline_o=0.0;
-         betap = beta.getV();
-         for(j=0;j<nrpar;j++,int_D_help++,betap++)
-                spline_o += *betap* *int_D_help;
+      spline_u=spline_o;
+      spline_o=0.0;
 
-         erg=erg+(int_knots(k,0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline_o)) ;
-         k++;
+      betap = beta.getV();
+      for(j=0;j<nrpar;j++,int_D_help++,betap++)
+        spline_o += *betap* *int_D_help;
+      erg=erg+(int_knots(k,0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline_o)) ;
 
-         while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
-              {
-              spline_u=spline_o;
-              spline_o=0.0;
+      k++;
 
-              betap = beta.getV();
-              for(j=0;j<nrpar;j++,int_D_help++,betap++)
-                     spline_o += *betap* *int_D_help;
+      while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
+        {
+        spline_u=spline_o;
+        spline_o=0.0;
 
-              erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
-              k++;
-              }
+        betap = beta.getV();
+        for(j=0;j<nrpar;j++,int_D_help++,betap++)
+          spline_o += *betap* *int_D_help;
+        erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
 
-         erg=erg+(exp(spline(i,0))+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
-         }
-
-      int_ti_p=likep->get_integral_ti()+index(i,0);
-      *int_ti_p =erg*0.5/(exp(spline(i,0)));
-
-      int_ti_help_p=int_ti_help.getV()+index(i,0);
-      *int_ti_help_p =erg*0.5;
+        k++;
+        }
+      erg=erg+(exp(spline(i,0))+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
       }
+
+    int_ti_p=likep->get_integral_ti()+index(i,0);
+    *int_ti_p =erg*0.5/(exp(spline(i,0)));
+
+    int_ti_help_p=int_ti_help.getV()+index(i,0);
+    *int_ti_help_p =erg*0.5;
+    }
   }// ----------else, d.h. beg!=0
 } //compute_ti
 
 
 
-void pspline_baseline::compute_int_ti(void)
+
+void pspline_baseline::compute_int_ti_vc_di0(const vector<double *> splinevector,const vector<double *> betavector)
 {
+//ofstream oftest_spline ("f:\\baseline\\spline_di0.txt");
+double * int_D_help;
+double * betap;
+double dist_knots=int_knots(1,0)-int_knots(0,0);
+unsigned i,j,k,i_help,i_vc;
+i=0;
+i_help=0;
+double erg,spline_u,spline_o,spline_ti_help,spline_ti;
+double * int_ti_p=likep->get_integral_ti();
+double * int_ti_help_p=int_ti_help.getV();
+double * spline_help;
+statmatrix<double*>z_vc_help;
+z_vc_help = statmatrix<double*>(baselinep.size()-1,1);
+for(i_vc=1;i_vc<baselinep.size();i_vc++)
+  z_vc_help(i_vc-1,0) = baselinep[i_vc]->get_z_vc();
+k=1;
+erg=0.0;
+spline_o=0.0;
+spline_u=0.0;
+spline_help = splinevector[0];
 
-//------------------------left truncation----------------------------
- if(begin0==false)
+int_D_help =baselinep[0]->get_int_D();
+betap = betavector[0];
+
+for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help++,betap++)
+  spline_o += *betap* *int_D_help;
+spline_u=spline_o;
+//------i0 berechnen---------
+double z_vc_sum =0.0;
+for(i_vc=1;i_vc<baselinep.size();i_vc++)
+  z_vc_sum = z_vc_sum + *(z_vc_help(i_vc-1,0) + index(i,0));
+while(z_vc_sum!=0.0 && i < index.rows()-1)
+  {
+  i++;
+  spline_help++;
+  z_vc_sum =0.0;
+  for(i_vc=1;i_vc<baselinep.size();i_vc++)
     {
+    double test1= *(z_vc_help(i_vc-1,0) + index(i,0));
+    double test2 = index(i,0);
+    z_vc_sum = z_vc_sum + *(z_vc_help(i_vc-1,0) + index(i,0));
+    }
+  }
 
-    double * int_D_help;
-    double * betap;
-    double dist_knots=int_knots(1,0)-int_knots(0,0);
-    unsigned i,j,k;
-    k=1;
-    double erg,spline_u,spline_o;
-    erg = 0.0;
-    double * int_ti_p=likep->get_integral_ti();
-    double * int_ti_help_p=int_ti_help.getV();
-    double * int_ti_help_p2=int_ti_help.getV();
+i_help=i;
+//------------------erster Integralwert------------------------
 
+while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
+  {
+  spline_u=spline_o;
+  spline_o=0.0;
+  betap = betavector[0];
+  for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help++,betap++)
+    spline_o += *betap* *int_D_help;
+  erg=erg+(exp(spline_u)+exp(spline_o));
 
+  k++;
+  }
+erg=erg*dist_knots;
+spline_ti=*spline_help;
+spline_ti_help=spline_ti;
+erg=erg+(exp(spline_ti)+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
 
+int_ti_p=likep->get_integral_ti()+index(i,0);
+*int_ti_p =erg*0.5/(exp(spline_ti));
 
-    spline_o=0.0;
-    spline_u=0.0;
-    int_D_help =int_D.getV();
-    betap=beta.getV();
+int_ti_help_p=int_ti_help.getV()+index(i,0);
+*int_ti_help_p =erg*0.5;
+//------------------------------------------------------------
 
-    for(j=0;j<nrpar;j++,int_D_help++,betap++)
-      spline_o += *betap* *int_D_help;
-    spline_u=spline_o;
-
-  //------------------erster Integralwert------------------------
-
-    while(k<int_knots.rows() && int_knots(k,0)<=zi_ges(ges_index(0,0),0) )
+i++;
+spline_help++;
+while(i<zi.rows())
+  {
+  z_vc_sum =0.0;
+  for(i_vc=1;i_vc<baselinep.size();i_vc++)
+    z_vc_sum = z_vc_sum + *(z_vc_help(i_vc-1,0) + index(i,0));
+  if(z_vc_sum!=0.0)
+    {
+    i++;
+    spline_help++;
+    }
+  else
+    {
+    if(k == int_knots.rows())
+      k=int_knots.rows()-1;
+    spline_ti=*spline_help;
+    if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
+      erg=erg+(zi(index(i,0),0)-zi(index(i_help,0),0))*(exp(spline_ti_help)+exp(spline_ti));
+    else
       {
-
       spline_u=spline_o;
       spline_o=0.0;
-      betap = beta.getV();
-
-      for(j=0;j<nrpar;j++,int_D_help++,betap++)
+      betap = betavector[0];
+      for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help++,betap++)
         spline_o += *betap* *int_D_help;
+      erg=erg+(int_knots(k,0)-zi(index(i_help,0),0))*(exp(spline_ti_help)+exp(spline_o)) ;
 
-      erg=erg+(exp(spline_u)+exp(spline_o));
+      k++;
 
-      k=k+1;
-      }
-
-
-    erg=erg*dist_knots;
-
-    erg=erg+(exp(spline_ges(0,0))+exp(spline_o))*(zi_ges(ges_index(0,0),0)-int_knots(k-1,0));
-
-    int_ti_p=likep->get_integral_ti()+ges_index(0,0);
-    *int_ti_p =erg*0.5/(exp(spline_ges(0,0)));
-
-    int_ti_help_p=int_ti_help.getV()+ges_index(0,0);
-    *int_ti_help_p =erg*0.5;
-
-  //------------------------------------------------------------
-
-
-    for(i=1;i<zi_ges.rows();i++)
-      {
-
-      if(k==int_knots.rows())
-         k=int_knots.rows()-1;
-
-      if(k<int_knots.rows() && zi_ges(ges_index(i,0),0)<=int_knots(k,0))
-         erg=erg+(zi_ges(ges_index(i,0),0)-zi_ges(ges_index(i-1,0),0))*(exp(spline_ges(i-1,0))+exp(spline_ges(i,0))) ;
-
-      else
-         {
-         spline_u=spline_o;
-         spline_o=0.0;
-         betap = beta.getV();
-         for(j=0;j<nrpar;j++,int_D_help++,betap++)
-            spline_o += *betap* *int_D_help;
-
-         erg=erg+(int_knots(k,0)-zi_ges(ges_index(i-1,0),0))*(exp(spline_ges(i-1,0))+exp(spline_o)) ;
-
-         k++;
-
-
-         while(k<int_knots.rows() && int_knots(k,0)<=zi_ges(ges_index(i,0),0) )
-            {
-            spline_u=spline_o;
-            spline_o=0.0;
-
-            betap = beta.getV();
-            for(j=0;j<nrpar;j++,int_D_help++,betap++)
-                spline_o += *betap* *int_D_help;
-
-            erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
-            k++;
-            }
-
-         erg=erg+(exp(spline_ges(i,0))+exp(spline_o))*(zi_ges(ges_index(i,0),0)-int_knots(k-1,0));
-         }
-
-      int_ti_p=likep->get_integral_ti()+ges_index(i,0);
-      *int_ti_p =erg*0.5/(exp(spline_ges(i,0)));
-
-      int_ti_help_p=int_ti_help.getV()+ges_index(i,0);
-      *int_ti_help_p =erg*0.5;
-
-
-      }
-
-//-------------------------------------------------------------
-
-    i=0;
-    for(i=likep->get_nrobs();i<2*likep->get_nrobs();i++)
-       {
-       if(zi_ges(i,0)!=0)
-         {
-         int_ti_p=likep->get_integral_ti()+i-likep->get_nrobs();
-         int_ti_help_p=int_ti_help.getV()+i-likep->get_nrobs();
-         int_ti_help_p2=int_ti_help.getV()+i;
-
-         *int_ti_p=(*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges(ges_index(i-likep->get_nrobs(),0),0));
-         assert(*int_ti_p>=0.0);
-
-         }
-       }
-    }//left_trunc
-
-
-//--------------------Beginn=0 ---------------------
- else
-   {
-
-   double * int_D_help;
-   double * betap;
-   double dist_knots=int_knots(1,0)-int_knots(0,0);
-   unsigned i,j,k;
-   k=1;
-   double erg,spline_u,spline_o;
-   erg = 0.0;
-   double * int_ti_p=likep->get_integral_ti();
-   double * int_ti_help_p=int_ti_help.getV();
- //  double * int_ti_help_p2=int_ti_help.getV();
-
-   spline_o=0.0;
-   spline_u=0.0;
-
-   int_D_help =int_D.getV();
-   betap=beta.getV();
-
-   for(j=0;j<nrpar;j++,int_D_help++,betap++)
-      spline_o += *betap* *int_D_help;
-   spline_u=spline_o;
-
-  //------------------erster Integralwert------------------------
-
-   while(k<int_knots.rows() && int_knots(k,0)<=zi(index(0,0),0) )
-     {
-
-     spline_u=spline_o;
-     spline_o=0.0;
-
-     betap = beta.getV();
-     for(j=0;j<nrpar;j++,int_D_help++,betap++)
-         spline_o += *betap* *int_D_help;
-
-     erg=erg+(exp(spline_u)+exp(spline_o));
-     k=k+1;
-     }
-
-
-   erg=erg*dist_knots;
-
-   erg=erg+(exp(spline(0,0))+exp(spline_o))*(zi(index(0,0),0)-int_knots(k-1,0));
-
-   int_ti_p=likep->get_integral_ti()+index(0,0);
-   *int_ti_p =erg*0.5/(exp(spline(0,0)));
-
-   int_ti_help_p=int_ti_help.getV()+index(0,0);
-   *int_ti_help_p =erg*0.5;
-
-  //------------------------------------------------------------
-
-
-   for(i=1;i<zi.rows();i++)
-      {
-      if(k==int_knots.rows())
-         k=int_knots.rows()-1;
-
-      if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
-         erg=erg+(zi(index(i,0),0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline(i,0))) ;
-
-      else
+      while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
         {
         spline_u=spline_o;
         spline_o=0.0;
-        betap = beta.getV();
-        for(j=0;j<nrpar;j++,int_D_help++,betap++)
-            spline_o += *betap* *int_D_help;
-//if(k<int_knots.rows())
-        erg=erg+(int_knots(k,0)-zi(index(i-1,0),0))*(exp(spline(i-1,0))+exp(spline_o)) ;
-//if(k<int_knots.rows()-1)
+        betap = betavector[0];
+        for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help++,betap++)
+          spline_o += *betap* *int_D_help;
+        erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
+
         k++;
-//cout<<k<<" "<<endl;
+        }
+      erg=erg+(exp(spline_ti)+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
+      }
+
+    int_ti_p=likep->get_integral_ti()+index(i,0);
+    *int_ti_p =erg*0.5/(exp(spline_ti));
+
+    int_ti_help_p=int_ti_help.getV()+index(i,0);
+    *int_ti_help_p =erg*0.5;
+
+    i_help=i;
+    i++;
+    spline_help++;
+    spline_ti_help=spline_ti;
+    }//--------------- else: d.h. z_vc(index(i,0),0)==0 -----------------------
+  } //while
+//oftest_spline.close();  
+}
 
 
-        while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
-          {
 
-          spline_u=spline_o;
-          spline_o=0.0;
+void pspline_baseline::compute_int_ti_vc_di(const int dummy, const vector<double *> splinevector,const vector<double *> betavector)
+{
+double * betap;
+double dist_knots=int_knots(1,0)-int_knots(0,0);
+unsigned i,j,k,i_help;
+i=0;
+i_help=0;
+double erg,spline_u,spline_o,spline_ti_help,spline_ti;
+double * int_ti_p=likep->get_integral_ti();
+double * int_ti_help_p=int_ti_help.getV();
+double * z_vc_help;
+spline_ti=0.0;
+spline_ti_help=0.0;
+statmatrix<double*> int_D_help_1;
+int_D_help_1=statmatrix<double*>(2,1);
+statmatrix<double*> spline_zi_help;
+spline_zi_help=statmatrix<double*>(2,1);
+double help;
+int i_vc;
+k=1;
+erg=0.0;
+spline_o=0.0;
+spline_u=0.0;
+z_vc_help = baselinep[dummy]->get_z_vc();
+spline_zi_help(0,0) = splinevector[0];
+int_D_help_1(0,0)= baselinep[0]->get_int_D();
+spline_zi_help(1,0) = splinevector[dummy];
+int_D_help_1(1,0)= baselinep[dummy]->get_int_D();
 
-          betap = beta.getV();
-          for(j=0;j<nrpar;j++,int_D_help++,betap++)
-              spline_o += *betap* *int_D_help;
+betap = betavector[0];
+help=0.0;
+for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help_1(0,0)++,betap++)
+  help+=*betap* *int_D_help_1(0,0);
+spline_o +=help;
 
-          erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
+betap = betavector[dummy];
+help=0.0;
+for(j=0;j<baselinep[dummy]->get_nrpar();j++,int_D_help_1(1,0)++,betap++)
+  help+=*betap* *int_D_help_1(1,0);
+spline_o +=help;
 
-          k++;
+spline_u=spline_o;
 
-          }
+//------kleinstes ti mit z_vc==1 und splines an der Stelle suchen---------
+while(*(z_vc_help+index(i,0))==0.0)
+  {
+  i++;
+  for(i_vc=0;i_vc<2;i_vc++)
+    {
+    spline_zi_help(i_vc,0)++;
+    }
+  }
+i_help=i;
 
-        erg=erg+(exp(spline(i,0))+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
+//------------------erster Integralwert------------------------
+while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
+  {
+  spline_u=spline_o;
+  spline_o=0.0;
+
+  betap = betavector[0];
+  help=0.0;
+  for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help_1(0,0)++,betap++)
+    help+=*betap* *int_D_help_1(0,0);
+  spline_o +=help;
+
+  betap = betavector[dummy];
+  help=0.0;
+  for(j=0;j<baselinep[dummy]->get_nrpar();j++,int_D_help_1(1,0)++,betap++)
+    help+=*betap* *int_D_help_1(1,0);
+  spline_o +=help;
+
+  erg=erg+(exp(spline_u)+exp(spline_o));
+
+  k++;
+  }
+erg=erg*dist_knots;
+
+//---------------Spline an der Stelle ti ---------------
+for(i_vc=0;i_vc<2;i_vc++)
+  {
+  help= *spline_zi_help(i_vc,0);
+  spline_ti +=help;
+  }
+spline_ti_help=spline_ti;
+erg=erg+(exp(spline_ti)+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
+
+int_ti_p=likep->get_integral_ti()+index(i,0);
+*int_ti_p =erg*0.5/(exp(spline_ti));
+
+int_ti_help_p=int_ti_help.getV()+index(i,0);
+*int_ti_help_p =erg*0.5;
+
+//------------------------------------------------------------
+
+i++;
+for(i_vc=0;i_vc<2;i_vc++)
+  spline_zi_help(i_vc,0)++;
+while(i<zi.rows())
+  {
+//-----------falls z_vc==0: zu nächster Beobachtung---------------
+  if(*(z_vc_help+index(i,0))==0)
+    {
+    i++;
+    for(i_vc=0;i_vc<2;i_vc++)
+      spline_zi_help(i_vc,0)++;
+    }
+//-------------falls z_vc==1: Integral berechenen---------------------
+  else
+    {
+    if(k == int_knots.rows())
+      k=int_knots.rows()-1;
+
+//Spline an der Stelle ti
+    spline_ti=0.0;
+    for(i_vc=0;i_vc<2;i_vc++)
+      {
+      help= *spline_zi_help(i_vc,0);
+      spline_ti +=help;
+      }
+    if(k<int_knots.rows() && zi(index(i,0),0)<=int_knots(k,0))
+      erg=erg+(zi(index(i,0),0)-zi(index(i_help,0),0))*(exp(spline_ti_help)+exp(spline_ti)) ;
+    else
+      {
+      spline_u=spline_o;
+      spline_o = 0.0;
+
+      betap = betavector[0];
+      help = 0.0;
+      for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help_1(0,0)++,betap++)
+        help+=*betap* *int_D_help_1(0,0);
+      spline_o +=help;
+
+      betap = betavector[dummy];
+      help=0.0;
+      for(j=0;j<baselinep[dummy]->get_nrpar();j++,int_D_help_1(1,0)++,betap++)
+        help+=*betap* *int_D_help_1(1,0);
+      spline_o +=help;
+
+      erg=erg+(int_knots(k,0)-zi(index(i_help,0),0))*(exp(spline_ti_help)+exp(spline_o)) ;
+
+      k++;
+
+      while(k<int_knots.rows() && int_knots(k,0)<=zi(index(i,0),0) )
+        {
+        spline_u=spline_o;
+        spline_o=0.0;
+
+        betap = betavector[0];
+        help=0.0;
+        for(j=0;j<baselinep[0]->get_nrpar();j++,int_D_help_1(0,0)++,betap++)
+          help+=*betap* *int_D_help_1(0,0);
+        spline_o +=help;
+
+        betap = betavector[dummy];
+        help=0.0;
+        for(j=0;j<baselinep[dummy]->get_nrpar();j++,int_D_help_1(1,0)++,betap++)
+          help+=*betap* *int_D_help_1(1,0);
+        spline_o +=help;
+
+        erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
+
+        k++;
         }
 
-      int_ti_p=likep->get_integral_ti()+index(i,0);
-      *int_ti_p =erg*0.5/(exp(spline(i,0)));
-
-      int_ti_help_p=int_ti_help.getV()+index(i,0);
-      *int_ti_help_p =erg*0.5;
+      erg=erg+(exp(spline_ti)+exp(spline_o))*(zi(index(i,0),0)-int_knots(k-1,0));
       }
-  }//else, i.e. not begin0==false
 
-} //compute_ti
+    int_ti_p=likep->get_integral_ti()+index(i,0);
+    *int_ti_p =erg*0.5/(exp(spline_ti));
+
+    int_ti_help_p=int_ti_help.getV()+index(i,0);
+    *int_ti_help_p =erg*0.5;
+
+    i_help=i;
+    spline_ti_help=spline_ti;
+    i++;
+    for(i_vc=0;i_vc<2;i_vc++)
+      spline_zi_help(i_vc,0)++;
+    }//--------------- else: d.h. z_vc(index(i,0),0)==1 -----------------------
+  } //while
+}//--------------compute_int_ti_vc_di---------------------
 
 
 
+void pspline_baseline::compute_int_gauss(void)
+{
+
+vector<double *> betavec;
+unsigned i,j,k;
+vector<double *> splinevec;
+vector<double *> gausssplinevec;
+vector<datamatrix > z_vc_help;
+
+for(i=0;i<(baselinep.size());i++)
+  splinevec.push_back(baselinep[i]->get_spline_ges());
+for(i=0;i<(baselinep.size());i++)
+  gausssplinevec.push_back(baselinep[i]->get_gaussspline());
+for(i=0;i<(baselinep.size()-1);i++)
+  z_vc_help.push_back(baselinep[i+1]->get_z_vc_np());
+
+double * int_ti_p=likep->get_integral_ti();
+
+double help,splinehelp1,splinehelp2;
+
+for(i=0;i<zi.rows();i++,int_ti_p++)
+  {
+  help = 0.0;
+  splinehelp2 = 0.0;
+  for(j=0;j<gauss_n;j++)
+    {
+    splinehelp2=0.0;
+    for(k=0;k<baselinep.size();k++)
+      {
+      splinehelp1 = *(gausssplinevec[k]);
+      if(k>0) splinehelp1 = splinehelp1* (z_vc_help[k-1](i,0));
+      splinehelp2 = splinehelp2 + splinehelp1;
+      gausssplinevec[k]++;
+      }
+    help = help + coeff(j,0)*exp(splinehelp2);
+    }
+  splinehelp2 = 0.0;
+  for(k=0;k<baselinep.size();splinevec[k]++,k++)
+    {
+    splinehelp1 = *(splinevec[k]);
+    if(k>0)
+      {
+      splinehelp1 = splinehelp1* (z_vc_help[k-1](i,0));
+      }
+    splinehelp2 = splinehelp2 + splinehelp1;
+    }
+  *int_ti_p = ((zi(i,0)-beg_i(i,0))*0.5)*help/(exp(splinehelp2));
+  }
+}
 
 
+void pspline_baseline::compute_int_gauss_DIC(void)
+{
 
+unsigned i,j,k;
+vector<double *> splinevec;
+vector<double *> gausssplinevec;
+vector<double *> z_vc_help;
+
+for(i=0;i<(baselinep.size());i++)
+  splinevec.push_back(baselinep[i]->get_spline_ges_mean());
+for(i=0;i<(baselinep.size());i++)
+  gausssplinevec.push_back(baselinep[i]->get_gaussspline_mean());
+for(i=0;i<(baselinep.size()-1);i++)
+  z_vc_help.push_back(baselinep[i+1]->get_z_vc());
+
+double * int_ti_p=likep->get_integral_ti();
+
+double help,splinehelp1,splinehelp2;
+
+for(i=0;i<zi.rows();i++,int_ti_p++)
+  {
+  help = 0.0;
+  splinehelp2 = 0.0;
+  for(j=0;j<gauss_n;j++)
+    {
+    splinehelp2 = 0.0;
+    for(k=0;k<baselinep.size();gausssplinevec[k]++,k++)
+      {
+      splinehelp1 = *(gausssplinevec[k]);
+      if(k>0) splinehelp1 = splinehelp1* *(z_vc_help[k-1]);
+      splinehelp2 = splinehelp2 + splinehelp1;
+      }
+
+    help = help + coeff(j,0)*exp(splinehelp2);
+    }
+  splinehelp2 = 0.0;
+  for(k=0;k<baselinep.size();splinevec[k]++,k++)
+    {
+    splinehelp1 = *(splinevec[k]);
+    if(k>0)
+      {
+      splinehelp1 = splinehelp1* *(z_vc_help[k-1]);
+      z_vc_help[k]++;
+      }
+    splinehelp2 = splinehelp2 + splinehelp1;
+    }
+  *int_ti_p = ((zi(i,0)-beg_i(i,0))*0.5)*help/(exp(splinehelp2));
+  }
+}
+
+
+void pspline_baseline::update_baseline()
+{
+//---------Integral berechnen---------------------------------
+int i;
+if(baselinep.size()>=1)
+  {
+  if(vc_dummy1==true)   //keine Linkstrunkierung, zeitl. var. Effekt für dummykod. Variable
+    {
+    vector <double *> splinevec;
+    vector <double *> betavec;
+    for(i=0;i<(baselinep.size());i++)
+      splinevec.push_back(baselinep[i]->get_spline_zi());
+    for(i=0;i<(baselinep.size());i++)
+      betavec.push_back(baselinep[i]->getbetapointer());
+    compute_int_ti_vc_di0(splinevec,betavec);
+    for(i=1;i<baselinep.size();i++)
+      {
+      compute_int_ti_vc_di(i,splinevec,betavec);
+      }
+    }
+  else    //zeitl. var. Effekt für beliebige Kovariablen, Linkstrunkierung
+    {
+    compute_int_gauss();
+    }
+  }
+else    //kein zeitl. var. Effekt
+  {
+  if(begin0==false)     //Linkstrunkierung
+    {
+    testmat.mult(spline_ges,beta);
+    compute_int_ti(beta);
+    }
+  else    //keine Linkstrunkierung
+    {
+    multBS(spline,beta);
+    compute_int_ti(beta);
+    }
+  }
+}
+//------------------------------------------------------------------------------
+
+
+double * pspline_baseline::get_gaussspline()
+  {
+  datamatrix egon (gaussspline.rows(),1,0);
+  for(unsigned i=0;i<gauss_n;i++)
+    {
+    egon = gaussspline.getCol(i);
+    gaussmat[i].mult_index(egon,beta);
+    gaussspline.putCol(i,egon);
+    }
+  return gaussspline.getV();
+  }
+
+double * pspline_baseline::get_gaussspline_mean()
+  {
+  datamatrix egon (gaussspline.rows(),1,0);
+  for(unsigned i=0;i<gauss_n;i++)
+    {
+    egon = gaussspline.getCol(i);
+    gaussmat[i].mult_index(egon,betamean);
+    gaussspline.putCol(i,egon);
+    }
+  return gaussspline.getV();
+  }
 
 } // end: namespace MCMC
 

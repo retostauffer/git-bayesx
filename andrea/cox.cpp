@@ -33,11 +33,12 @@ DISTRIBUTION_coxmodel::DISTRIBUTION_coxmodel(MCMCoptions * o,
 
      family = "cox";
      scale(0,0) = 1;
-     scaleexisting = false;
+     scaleexi sting = false;
 
      }
 
-DISTRIBUTION_coxmodel::DISTRIBUTION_coxmodel(const datamatrix & offset,
+DISTRIBUTION_coxmodel::DISTRIBUTION_coxmodel(
+
                    MCMCoptions * o, const datamatrix & r, const datamatrix & t,
                    const datamatrix & dbeg,
                         const datamatrix & w)
