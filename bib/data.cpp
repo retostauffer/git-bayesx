@@ -742,39 +742,73 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
 		}   // end: normal
 	 else if (functionname == "exponential")
 		{
-		valuevek = eval_exp(argument,false);
+        bool bracketmiss;
+		arglist = argument.strtoken2(",",bracketmiss);
+
+        if (bracketmiss)
+          {
+          errormessages.push_back("ERROR: missing bracket(s)\n");
+		  return realvar(nrobs);
+          }
+
+		if (arglist.size() != 1)
+		  {
+		  errormessages.push_back("ERROR: invalid number of arguments for function 'exponential'\n");
+		  return realvar(nrobs);
+		  }
+		else
+          {
+   		  valuevek = eval_exp(arglist[0],false);
 #if defined(JAVA_OUTPUT_WINDOW)
-        realvar h(nrobs);
-        register unsigned i;
-        realvar::iterator it = h.begin();
+          realvar h(nrobs);
+          register unsigned i;
+          realvar::iterator it = h.begin();
 
-        jmethodID javaexponential = adminb_p->Java->GetMethodID(
-        adminb_p->BayesX_cls, "jexponential", "(D)D");
+          jmethodID javaexponential = adminb_p->Java->GetMethodID(
+          adminb_p->BayesX_cls, "jexponential", "(D)D");
 
-        for (i=0;i<nrobs;i++,++it)
-      	 *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javaexponential, valuevek[i]);
-        return h;
+          for (i=0;i<nrobs;i++,++it)
+        	 *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javaexponential, valuevek[i]);
+          return h;
 #else
-		return exponential(valuevek);
+		  return exponential(valuevek);
 #endif
+          }
 		}   // end: exponential
 	 else if (functionname == "bernoulli")
 		{
-		valuevek = eval_exp(argument,false);
+        bool bracketmiss;
+		arglist = argument.strtoken2(",",bracketmiss);
+
+        if (bracketmiss)
+          {
+          errormessages.push_back("ERROR: missing bracket(s)\n");
+		  return realvar(nrobs);
+          }
+
+		if (arglist.size() != 1)
+		  {
+		  errormessages.push_back("ERROR: invalid number of arguments for function 'bernoulli'\n");
+		  return realvar(nrobs);
+		  }
+		else
+          {
+          valuevek = eval_exp(arglist[0],false);
 #if defined(JAVA_OUTPUT_WINDOW)
-        realvar h(nrobs);
-        register unsigned i;
-        realvar::iterator it = h.begin();
+          realvar h(nrobs);
+          register unsigned i;
+          realvar::iterator it = h.begin();
 
-        jmethodID javabernoulli = adminb_p->Java->GetMethodID(
-        adminb_p->BayesX_cls, "jbernoulli", "(D)D");
+          jmethodID javabernoulli = adminb_p->Java->GetMethodID(
+          adminb_p->BayesX_cls, "jbernoulli", "(D)D");
 
-        for (i=0;i<nrobs;i++,++it)
-      	 *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabernoulli, valuevek[i]);
-        return h;
+          for (i=0;i<nrobs;i++,++it)
+            *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabernoulli, valuevek[i]);
+          return h;
 #else
-		return bernoulli(valuevek);
+          return bernoulli(valuevek);
 #endif
+          }
 		}   // end: bernoulli
 	 else if (functionname == "binomial")
 		{
