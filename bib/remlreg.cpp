@@ -319,6 +319,7 @@ void remlreg::create(void)
 
   xlab = stroption("xlab");
   ylab = stroption("ylab");
+  connect = stroption("connect");
   height = intoption("height",210,0,500);
   width = intoption("width",356,0,500);
   ylimtop = doubleoption("ylimtop",-MAXDOUBLE,-MAXDOUBLE,MAXDOUBLE);
@@ -327,6 +328,13 @@ void remlreg::create(void)
   xlimbottom = doubleoption("xlimbottom",MAXDOUBLE,-MAXDOUBLE,MAXDOUBLE);
   xstep = doubleoption("xstep",0.0,-MAXDOUBLE,MAXDOUBLE);
   ystep = doubleoption("ystep",0.0,-MAXDOUBLE,MAXDOUBLE);
+  xstart = doubleoption("xstart",MAXDOUBLE,-MAXDOUBLE,MAXDOUBLE);
+  ystart = doubleoption("ystart",MAXDOUBLE,-MAXDOUBLE,MAXDOUBLE);
+  linewidth = intoption("linewidth",5,0,100);
+  fontsize = intoption("fontsize",12,0,100);
+  pointsize = intoption("pointsize",20,0,100);
+  linecolor = stroption("linecolor");
+  titlescale = doubleoption("titlesize",1.5,0.0,MAXDOUBLE);
 
   vector<ST::string> levelchoice;
   levelchoice.reserve(4);
@@ -343,19 +351,27 @@ void remlreg::create(void)
 
   plotnonpoptions.push_back(&xlab);
   plotnonpoptions.push_back(&ylab);
+  plotnonpoptions.push_back(&connect);
   plotnonpoptions.push_back(&height);
   plotnonpoptions.push_back(&width);
   plotnonpoptions.push_back(&ylimtop);
   plotnonpoptions.push_back(&ylimbottom);
   plotnonpoptions.push_back(&ystep);
+  plotnonpoptions.push_back(&ystart);
   plotnonpoptions.push_back(&xlimtop);
   plotnonpoptions.push_back(&xlimbottom);
   plotnonpoptions.push_back(&xstep);
+  plotnonpoptions.push_back(&xstart);
   plotnonpoptions.push_back(&levels);
   plotnonpoptions.push_back(&median);
   plotnonpoptions.push_back(&title);
   plotnonpoptions.push_back(&outfile2);
   plotnonpoptions.push_back(&replace2);
+  plotnonpoptions.push_back(&linewidth);
+  plotnonpoptions.push_back(&fontsize);
+  plotnonpoptions.push_back(&pointsize);
+  plotnonpoptions.push_back(&linecolor);
+  plotnonpoptions.push_back(&titlescale);
 
   // methods[1]:
 
@@ -3305,18 +3321,34 @@ void plotnonprun(remlreg & b)
     ot = ot + "width="+b.width.getValueAsString() + " ";
     if (b.replace2.getvalue() == true)
       ot = ot + " replace ";
+    if (b.connect.changed() == true)
+      ot = ot + "connect="+b.connect.getvalue() + " ";
     if (b.ylimbottom.changed() == true)
       ot = ot + "ylimbottom="+b.ylimbottom.getValueAsString() + " ";
     if (b.ylimtop.changed() == true)
       ot = ot + "ylimtop="+b.ylimtop.getValueAsString() + " ";
     if (b.ystep.changed() == true)
       ot = ot + "ystep="+b.ystep.getValueAsString() + " ";
+    if (b.ystart.changed() == true)
+      ot = ot + "ystart="+b.ystart.getValueAsString() + " ";
     if (b.xlimbottom.changed() == true)
       ot = ot + "xlimbottom="+b.xlimbottom.getValueAsString() + " ";
     if (b.xlimtop.changed() == true)
       ot = ot + "xlimtop="+b.xlimtop.getValueAsString() + " ";
     if (b.xstep.changed() == true)
       ot = ot + "xstep="+b.xstep.getValueAsString() + " ";
+    if (b.xstart.changed() == true)
+      ot = ot + "xstart="+b.xstart.getValueAsString() + " ";
+    if (b.linewidth.changed() == true)
+      ot = ot + "linewidth="+b.linewidth.getValueAsString() + " ";
+    if (b.fontsize.changed() == true)
+      ot = ot + "fontsize="+b.fontsize.getValueAsString() + " ";
+    if (b.pointsize.changed() == true)
+      ot = ot + "pointsize="+b.pointsize.getValueAsString() + " ";
+    if (b.linecolor.changed() == true)
+      ot = ot + "linecolor="+b.linecolor.getValueAsString() + " ";
+    if (b.titlescale.changed() == true)
+      ot = ot + "titlesize="+b.titlescale.getValueAsString() + " ";
 
     if (ot.length() == 0)
       b.newcommands.push_back(graphname + ".plot " + plotvar + " using " + datasetname);

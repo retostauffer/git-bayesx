@@ -113,11 +113,13 @@ class __EXPORT_TYPE remlreg : public statobject
 
   stroption xlab;
   stroption ylab;
+  stroption connect;
   intoption height;
   intoption width;
   doubleoption ylimtop;
   doubleoption ylimbottom;
   doubleoption ystep;
+  doubleoption ystart;
   stroption levels;
   simpleoption median;
   stroption outfile2;
@@ -126,7 +128,12 @@ class __EXPORT_TYPE remlreg : public statobject
   doubleoption xlimtop;
   doubleoption xlimbottom;
   doubleoption xstep;
-
+  doubleoption xstart;
+  intoption linewidth;
+  intoption fontsize;
+  intoption pointsize;
+  stroption linecolor;
+  doubleoption titlescale;
 
   optionlist plotnonpoptions;
 

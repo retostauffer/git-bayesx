@@ -853,7 +853,7 @@ void plotnonprun(bayesreg & b)
       ot = ot + "ylimtop="+b.ylimtop.getValueAsString() + " ";
     if (b.ystep.changed() == true)
       ot = ot + "ystep="+b.ystep.getValueAsString() + " ";
-    if (b.ystep.changed() == true)
+    if (b.ystart.changed() == true)
       ot = ot + "ystart="+b.ystart.getValueAsString() + " ";
     if (b.xlimbottom.changed() == true)
       ot = ot + "xlimbottom="+b.xlimbottom.getValueAsString() + " ";

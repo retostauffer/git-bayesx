@@ -1354,32 +1354,102 @@ The following options are available for method #plotnonp# (listed
 in alphabetical order):
 
 \begin{itemize}
+\item {\bf connect=1$|$2$|$3$|$4$|$5[specifications for further
+variables]}
+
+Option #connect# specifies how points in the scatterplot are
+connected. There are currently 5 different specifications:
+
+\begin{tabular}{ll}
+#1# & draw straight lines between the points (default) \\
+#2#, #3#, #4# & draw dashed lines (numbers 2-4 indicate different variants)\\
+#5# & do not connect, i.e.~plot points only \\
+\end{tabular}
+
+If you draw more than one scatterplot in the same graph (i.e. more
+than one {\em yvar} is specified) you can connect points for every
+{\em yvar} differently by simply specifying the corresponding number
+(#1,2,3,4,5#) for every {\em yvar}. Typing for example
+
+{\em #connect=15#}
+
+connects the points corresponding to {\em yvar1} and {\em xvar} by
+straight lines, but does not connect the points corresponding to
+{\em yvar2} (if specified) and {\em xvar}. Points corresponding to
+additionally specified variables $yvar3$, etc.~are connected by
+straight lines.
+
+An equivalent way of specifying the different variants is available
+via the symbols 'l', 'd', '\_', '-' and 'p', which correspond to the
+numbers 1-5, i.e.~
+
+{\em #connect=12345#} is equivalent to {\em #connect=ld_-p#}
+
+\item {\bf fontsize = integer}
+
+Specifies the font size (in pixels) for labelling axes etc. Note
+that the title is scaled accordingly. The default is #fontsize=12#.
 \item {\bf height = integer}
 
 Specifies the height (in pixels) of the graph. The default is
 #height=210#.
 \item {\bf levels = all $|$ 1 $|$ 2 $|$ none}
 
-By default, #plotnonp# plots the posterior mode of a nonlinear
+By default, #plotnonp# plots the posterior mean of a nonlinear
 covariate effect together with the pointwise credible intervals
-based on nominal levels of 80\% and 95\% (the nominal levels may
-be changed using the options
-\hyperref[remlreglevel1]{\texttt{level1}} and/or
-\hyperref[remlreglevel2]{\texttt{level2}}). Option #levels# allows
-to omit completely  pointwise credible intervals in the graphs
-(#levels=none#), print only the 95\% credible intervals
-(#levels=1#) or to print only the 80\% credible intervals
-(#levels=2#).
+based on nominal levels of 80\% and 95\% (the nominal levels may be
+changed using the options \hyperref[level1]{level1} and/or
+\hyperref[level2]{level2}). Option #levels# allows to omit
+completely pointwise credible intervals in the graphs
+(#levels=none#), print only the 95\% credible intervals (#levels=1#)
+or to print only the 80\% credible intervals (#levels=2#).
+\item {\bf linecolor = B$|$b$|$c$|$G$|$g$|$o$|$m$|$r$|$y[specifications for further variables]}
+
+Option #linecolor# specifies the color to be used for drawing lines
+(or points, see option #connect#) in the scatterplot. Currently the
+following specifications are available:
+
+\begin{tabular}{ll}
+#B# & black (default) \\
+#b# & blue \\
+#c# & cyan \\
+#G# & gray \\
+#g# & green \\
+#o# & orange \\
+#m# & magenta \\
+#r# & red \\
+#y# & yellow
+\end{tabular}
+
+If you draw more than one scatterplot in the same graph (i.e. more
+than one {\em yvar} is specified) you can use different colors for
+each {\em yvar} by simply specifying the corresponding symbol
+(#B,b,c,G,g,o,m,r,y#) for each {\em yvar}. Typing for example
+
+{\em #linecolor = Bgr#}
+
+colors the lines (points) corresponding to {\em yvar1} and {\em
+xvar} in black, whereas the points corresponding to {\em yvar2} and
+{\em yvar3} (if specified) and {\em xvar} are colored in green and
+red, respectively.
+\item {\bf linewidth = integer}
+
+Specifies how thick lines should be drawn. The default is
+#linewidth=5#.
 \item {\bf outfile = characterstring}
 
 If option #outfile# is specified the graph will be stored as a
 postscript file rather than being printed on the screen. The path
-and the file name must be specified in {\em characterstring}. By
+and the filename must be specified in {\em characterstring}. By
 default, an error will be raised if the specified file is already
 existing or the specified folder is not existing. To overwrite  an
-already existing file, option #replace# must be specified
-additionally. This prevents you from unintentionally overwriting
-your files.
+already existing file, option #replace# must be additionally
+specified. This prevents you from unintentionally overwriting your
+files.
+\item {\bf pointsize = integer}
+
+Specifies the size of the points (in pixels) if drawing points
+rather than lines is specified. The default is #pointsize=20#.
 \item {\bf replace}
 
 The #replace# option is useful only in combination with option
@@ -1389,9 +1459,15 @@ program to overwrite an already existing file (specified in
 
 \item {\bf title = characterstring}
 
-Adds a title to the graph. If the title contains more than one
-word, {\em characterstring} must be enclosed by quotation marks (e.g.
+Adds a title to the graph. If the title contains more than one word,
+{\em characterstring} must be enclosed by quotation marks (e.g.
 \texttt{title="my first title"}).
+\item {\bf titlesize = realvalue}
+
+Specifies the factor by which the size of the title is scaled
+relative to the size of the labels of the axes (compare option
+#fontsize#). The default is \texttt{titlesize=1.5}.
+
 \item {\bf width = integer}
 
 Specifies the width (in pixels) of the graph. The default is
@@ -1400,42 +1476,56 @@ Specifies the width (in pixels) of the graph. The default is
 
 Labels the x-axis. If the label contains more than one word, {\em
 characterstring} must be enclosed by quotation marks (e.g.
-\texttt{xlab="x axis"}). \item {\bf xlimbottom = realvalue}
+\texttt{xlab="x axis"}).
+\item {\bf xlimbottom = realvalue}
 
-Specifies the minimum value at the x-axis to be drawn. The default
+Specifies the minimum value at the x-axis to be plotted. The default
 is the minimum value in the data set. If #xlimbottom# is above the
-minimum value in the data set, only a part of the  graph will be
-visible. \item {\bf xlimtop = realvalue}
+minimum value in the data set, only a part of the graph will be
+visible.
+\item {\bf xlimtop = realvalue}
 
-Specifies the maximum value at the x-axis to be drawn. The default
+Specifies the maximum value at the x-axis to be plotted. The default
 is the maximum value in the data set. If #xlimtop# is below the
-maximum value in the data set, only a part of the  graph will be
-visible. \item {\bf xstep = realvalue}
+maximum value in the data set, only a part of the graph will be
+visible.
+\item {\bf xstart = realvalue}
+
+Specifies the value where the first 'tick' on the x-axis should be
+drawn. The default is the minimum value on the x-axis.
+\item {\bf xstep = realvalue}
 
 If #xstep# is specified,  ticks are drawn at the x-axis with
-stepwidth {\em realvalue} starting at the minimum x value (or at
-the value specified in option #xlimbottom#). By default, five
-equally spaced ticks are drawn at the x-axis. \item {\bf ylab =
-characterstring}
+stepwidth {\em realvalue} starting at the minimum value on the
+x-axis (or at the value specified in option #xstart#). By default,
+five equally spaced ticks are drawn at the x-axis.
+\item {\bf ylab = characterstring}
 
 Labels the y-axis. If the label contains more than one word, {\em
 characterstring} must be enclosed by quotation marks (e.g.
-\texttt{ylab="y axis"}). \item {\bf ylimbottom = realvalue}
+\texttt{ylab="y axis"}).
+\item {\bf ylimbottom = realvalue}
 
-Specifies the minimum value at the y-axis to be drawn. The default
+Specifies the minimum value at the y-axis to be plotted. The default
 is the minimum value in the data set. If #ylimbottom# is above the
-minimum value in the data set, only a part of the  graph will be
-visible. \item {\bf ylimtop = realvalue}
+minimum value in the data set, only a part of the graph will be
+visible.
+\item {\bf ylimtop = realvalue}
 
-Specifies the maximum value at the y-axis to be drawn. The default
+Specifies the maximum value at the y-axis to be plotted. The default
 is the maximum value in the data set. If #ylimtop# is below the
-maximum value in the data set, only a part of the  graph will be
-visible. \item {\bf ystep = realvalue}
+maximum value in the data set, only a part of the graph will be
+visible.
+\item {\bf ystart = realvalue}
+
+Specifies the value where the first 'tick' on the y-axis should be
+drawn. The default is the minimum value on the y-axis.
+\item {\bf ystep = realvalue}
 
 If #ystep# is specified,  ticks are drawn at the y-axis with
-stepwidth {\em realvalue} starting at the minimum y value in the
-data set (or at the value specified in option #ylimbottom#). By
-default, five equally spaced ticks are drawn at the y-axis.
+stepwidth {\em realvalue} starting at the minimum value on the
+y-axis (or at the value specified in option #ystart#). By default,
+five equally spaced ticks are drawn at the y-axis.
 \end{itemize}
 
 
