@@ -379,30 +379,17 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
     thetareml(i,2)=its[i];
     }
 
-  if(respfamily=="cumlogit" || respfamily=="cumprobit")
+  for(i=nrcat2; i<beta.rows(); i++)
     {
-    for(i=nrcat2; i<beta.rows(); i++)
-      {
-      beta(i,0) = -beta(i,0);
-      }
+    beta(i,0) = -beta(i,0);
     }
 
   for(i=1; i<fullcond.size(); i++)
     {
     help = fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,false,xcut[i]+nrcat2-1,totalnrfixed+zcut[i-1],0,false,i);
-    if(respfamily=="cumlogit" || respfamily=="cumprobit")
+    for(j=0; j<nrcat2; j++)
       {
-      for(j=0; j<nrcat2; j++)
-        {
-        beta(j,0) -= help;
-        }
-      }
-    else
-      {
-      for(j=0; j<nrcat2; j++)
-        {
-        beta(j,0) += help;
-        }
+      beta(j,0) -= help;
       }
     }
   ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,Hinv,nrcat2);
@@ -589,12 +576,9 @@ bool remlest_ordinal::estimate_glm(const datamatrix resp,
   out("\n");
 
   H=H.inverse();
-  if(respfamily=="cumlogit" || respfamily=="cumprobit")
+  for(i=nrcat2; i<beta.rows(); i++)
     {
-    for(i=nrcat2; i<beta.rows(); i++)
-      {
-      beta(i,0) = -beta(i,0);
-      }
+    beta(i,0) = -beta(i,0);
     }
 
   ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,H,nrcat2);

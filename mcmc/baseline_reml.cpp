@@ -121,6 +121,130 @@ baseline_reml::baseline_reml(MCMCoptions * o,const datamatrix & d1,
   interact_var = d2;
   }
 
+baseline_reml::baseline_reml(MCMCoptions * o,
+              const datamatrix & right, const datamatrix & left,
+              const datamatrix & trunc,  const unsigned & nrk,
+              const unsigned & degr, const unsigned & tgr, const unsigned & nrq,
+              const unsigned & nrb, const knotpos & kp, const fieldtype & ft,
+              const ST::string & ti, const ST::string & fp,
+              const ST::string & pres, const double & l, const double & sl,
+              const knotpos & gp)
+  : spline_basis(o,right,nrk,degr,kp,ft,ti,fp,pres,l,sl)
+  {
+  unsigned i,j,k;
+
+  baseline=true;
+  varcoeff=false;
+
+  gridpos = gp;
+  double tmax=right.max(0);
+
+  // compute gridpoints for numerical integration
+
+  if(gridpos == MCMC::equidistant)
+    {
+    // Case 1: equidistant points
+    tgrid = tgr;
+    tvalues = datamatrix(tgrid+1,1);
+    tstep = tmax / tgrid;
+    for(i=0;i<tvalues.rows();i++)
+      tvalues(i,0) = i*tstep;
+    }
+  else
+    {
+    // Case 2: quantile based grid
+    tgrid = nrq*nrb;
+    tvalues = datamatrix(tgrid+1,1);
+    nrquant = nrq;
+    nrbetween = nrb;
+    datamatrix tquantiles = datamatrix(nrquant+1,1,0);
+    for(i=1; i<nrquant; i++)
+      {
+      tquantiles(i,0) = right.quantile(((double)i/nrquant)*100,0);
+      }
+    tquantiles(nrquant,0) = tmax;
+
+    double intmax, intmin, intstep;
+    for(i=0; i<nrquant; i++)
+      {
+      intmin=tquantiles(i,0);
+      intmax=tquantiles(i+1,0);
+      intstep=(intmax-intmin)/nrbetween;
+      for(j=0; j<nrbetween; j++)
+        {
+        tvalues(i*nrbetween+j,0) = intmin + j*intstep;
+        }
+      }
+    tvalues(tgrid,0) = tmax;
+    }
+
+  // differences between gridpoints for integration
+  tsteps = datamatrix(tvalues.rows()-1,1,0);
+  for(i=0; i<tsteps.rows(); i++)
+    tsteps(i,0) = tvalues(i+1,0)-tvalues(i,0);
+
+  interact_var = datamatrix(right.rows(),1,1);
+
+  datamatrix betahelp(nrpar,1,0);
+  DG = datamatrix(tvalues.rows(),degree+1,0);
+  DGfirst = vector<int>(tvalues.rows());
+
+  for(i=0;i<tvalues.rows();i++)
+    {
+    betahelp.assign( bspline(tvalues(i,0)) );
+    j=degree+1;
+    while(knot[j] <= tvalues(i,0) && j<nrknots+degree)
+      j++;
+    for(k=0;k<degree+1;k++)
+      DG(i,k) = betahelp(k+j-(degree+1),0);
+    DGfirst[i] = j-(degree+1);
+    }
+
+  tright = vector<unsigned>(right.rows(),0);
+  tleft = vector<unsigned>(right.rows(),1);
+  ttrunc = vector<unsigned>(right.rows(),1);
+
+  // indices for truncation times
+
+  if(trunc.rows()>1)
+    {
+    for(i=0; i<trunc.rows(); i++)
+      {
+      j=1;
+      while(tvalues(j,0) < trunc(i,0))
+        {
+        tstart[i]++;
+        j++;
+        }
+      }
+    }
+
+  // indices for left interval border
+  if(left.rows()>1)
+    {
+    for(i=0; i<left.rows(); i++)
+      {
+      j=1;
+      while(tvalues(j,0) < left(i,0))
+        {
+        tstart[i]++;
+        j++;
+        }
+      }
+    }
+
+  // indices for right interval border
+  for(i=0; i<right.rows(); i++)
+    {
+    j=0;
+    while(j<tvalues.rows()-1 && tvalues(j,0)<right(i,0))
+      {
+      tend[i]++;
+      j++;
+      }
+    }
+  }
+
 
 baseline_reml::baseline_reml(const baseline_reml & fc)
   :spline_basis(spline_basis(fc))

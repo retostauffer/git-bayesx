@@ -36,6 +36,11 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
   vector<unsigned>tstart;
   vector<unsigned>tend;
 
+  // interval censoring and left truncation
+  vector<unsigned>tright;
+  vector<unsigned>tleft;
+  vector<unsigned>ttrunc;
+
   datamatrix t_X;
   datamatrix t_Z;
 
@@ -69,6 +74,16 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
                       const ST::string & ti, const ST::string & fp,
                       const ST::string & pres, const double & l,
                       const double & sl);
+
+  // CONSTRUCTOR 3 (interval censoring & left truncation)
+
+  baseline_reml(MCMCoptions * o, const datamatrix & right,
+               const datamatrix & left, const datamatrix & trunc,
+               const unsigned & nrk, const unsigned & degr, const unsigned & tgr,
+               const unsigned & nrq, const unsigned & nrb, const knotpos & kp,
+               const fieldtype & ft, const ST::string & ti,
+               const ST::string & fp, const ST::string & pres, const double & l,
+               const double & sl, const knotpos & gp);
 
   // COPY CONSTRUCTOR
 

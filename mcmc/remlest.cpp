@@ -2553,16 +2553,16 @@ bool remlest::estimate_survival_interval(datamatrix resp,
     }
 
   // Startwert für beta0 ist der ML-Schätzer bei konstanter Rate + Poisson-Verteilung
-  help = resp.sum(0);
+/*  help = resp.sum(0);
   if(help>0)
     {
-    beta(0,0) = log(help/t_X(t_X.rows()-1,1));
-    beta(0,0) = log(10/t_X(t_X.rows()-1,1));
-    }
+    beta(0,0) = log(help/t_X(t_X.rows()-1,1));*/
+    beta(0,0) = log(5/t_X(t_X.rows()-1,1));
+/*    }
   else
     {
     beta(0,0) = log((nrobs/5)/t_X(t_X.rows()-1,1));
-    }
+    }*/
 
   while(test==true)
     {
@@ -2700,8 +2700,8 @@ bool remlest::estimate_survival_interval(datamatrix resp,
 //        {
         if(interval[i])
           {
-          Survivor(i,0) = pow(exp(-cumbaseline(tstart[i],0)),mult_hazard(i,0));
-          Survivor(i,1) = pow(exp(-cumbaseline(tend[i]-1,0)),mult_hazard(i,0));
+          Survivor(i,0) = exp(-cumbaseline(tstart[i],0)*mult_hazard(i,0));//pow(exp(-cumbaseline(tstart[i],0)),mult_hazard(i,0));
+          Survivor(i,1) = exp(-cumbaseline(tend[i]-1,0)*mult_hazard(i,0));//pow(exp(-cumbaseline(tend[i]-1,0)),mult_hazard(i,0));
           }
 /*        }
       else

@@ -269,6 +269,7 @@ void remlreg::create(void)
   families.push_back("seqprobit");
   families.push_back("cox");
   families.push_back("coxinterval");
+  families.push_back("coxinterval2");
   family = stroption("family",families,"binomial");
 
   maxit = intoption("maxit",400,1,100000);
@@ -671,7 +672,8 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     }
 
   // check whether a baseline effect is specified if family != cox
-  if(family.getvalue()!="cox" && family.getvalue()!="coxinterval")
+  if(family.getvalue()!="cox" && family.getvalue()!="coxinterval" &&
+     family.getvalue()!="coxinterval2")
     {
     unsigned i,j;
     bool baselineexisting = false;
@@ -2875,6 +2877,18 @@ void remlrun(remlreg & b)
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
       failure = b.RE.estimate_survival_interval(response,offset,weight);
+      }
+// Cox-Modell mit Intervallzensierung & Linkstrunkierung
+    else if (b.family.getvalue()=="coxinterval2")
+      {
+      dispers=false;
+      b.RE = remlest(
+      #if defined(JAVA_OUTPUT_WINDOW)
+      b.adminb_p,
+      #endif
+      b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),b.logout);
+      failure = b.RE.estimate_survival_interval2(response,offset,weight);
       }
 // Univariate Modelle mit Dispersionsparameter
     else

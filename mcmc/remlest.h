@@ -117,6 +117,13 @@ class remlest
   bool estimate_survival_interval(datamatrix resp,
                 const datamatrix & offset, const datamatrix & weight);
 
+  // Function: estimate_survival_interval2
+  // Task: compute estimates for survival data in the presence of interval
+  //       censoring and left truncation
+
+  bool estimate_survival_interval2(datamatrix resp,
+                const datamatrix & offset, const datamatrix & weight);
+
 //------------------------------------------------------------------------------
 //----------------------------- Object description -----------------------------
 //------------------------------------------------------------------------------
