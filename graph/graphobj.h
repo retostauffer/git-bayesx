@@ -88,7 +88,8 @@ class __EXPORT_TYPE graphobj : public statobject
   intoption fontsize;
   intoption pointsize;
   stroption linecolor;
-
+  doubleoption titlescale;
+  
   optionlist plotnonpoptions;
 
   friend void plotnonprun(graphobj & o);

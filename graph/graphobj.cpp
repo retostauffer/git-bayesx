@@ -85,6 +85,7 @@ void graphobj::create (void)
 //  fontsize = intoption("fontsize",12,0,100);
   pointsize = intoption("pointsize",20,0,100);
   linecolor = stroption("linecolor");
+  titlescale = doubleoption("titlesize",1.5,0.0,MAXDOUBLE);
 
   plotnonpoptions.push_back(&psname);
   plotnonpoptions.push_back(&title);
@@ -101,13 +102,14 @@ void graphobj::create (void)
   plotnonpoptions.push_back(&xstep);
   plotnonpoptions.push_back(&xstart);
   plotnonpoptions.push_back(&ystep);
-  plotnonpoptions.push_back(&ystart);  
+  plotnonpoptions.push_back(&ystart);
   plotnonpoptions.push_back(&year);
   plotnonpoptions.push_back(&month);
   plotnonpoptions.push_back(&linewidth);
   plotnonpoptions.push_back(&fontsize);
   plotnonpoptions.push_back(&pointsize);
   plotnonpoptions.push_back(&linecolor);
+  plotnonpoptions.push_back(&titlescale);
 
   methods.push_back(command("plot",&m,&plotnonpoptions,&u,
 			 required,notallowed,notallowed,optional,optional,required));
@@ -701,7 +703,7 @@ void plotnonprun(graphobj & o)
     o.adminp_p->set_Dp(&o.D);
 
     jmethodID javaplotnonp = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javaplotnonp",
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIDDDDDDDDIIIII)V");
+                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIDDDDDDDDIIIIID)V");
     o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javaplotnonp,
                                o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()),
                                o.adminb_p->Java->NewStringUTF(o.title.getvalue().strtochar()),
@@ -716,7 +718,7 @@ void plotnonprun(graphobj & o)
                                o.ystep.getvalue(),o.ystart.getvalue(),
                                o.year.getvalue(),o.month.getvalue(),
                                o.linewidth.getvalue(),o.pointsize.getvalue(),
-                               o.fontsize.getvalue()
+                               o.fontsize.getvalue(),o.titlescale.getvalue()
                                );
 
     bool stop=o.adminb_p->breakcommand();
@@ -946,5 +948,8 @@ void graphobj::changedescription(void)
 
 
   }
+
+
+
 
 

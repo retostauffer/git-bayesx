@@ -169,6 +169,7 @@ protected int month;
 protected int linewidth;
 protected int fontsize;
 protected int pointsize;
+protected double titlescale;
 
 // Optionen für Javaplotautocor
 protected boolean meanautocor;
@@ -1864,7 +1865,7 @@ public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4,
 public void Javaplotnonp(String joutfile, String jtitle, String jxlab, String jylab,
                          String jconnect, String jlinecolor, int jheight, int jwidth, double jxmax, double jxmin,
                          double jymax, double jymin, double jxstep, double jxstart, double jystep, double jystart,
-			 int jyear, int jmonth, int jlinewidth, int jpointsize, int jfontsize)                          
+			 int jyear, int jmonth, int jlinewidth, int jpointsize, int jfontsize, double jtitlescale)                          
                          
         {
         if(joutfile.equals(""))
@@ -1896,6 +1897,7 @@ public void Javaplotnonp(String joutfile, String jtitle, String jxlab, String jy
 	linewidth = jlinewidth;
 	pointsize = jpointsize;
 	fontsize = jfontsize;
+	titlescale = jtitlescale;
 
         setEnabled(false);
 

@@ -1338,7 +1338,7 @@ public abstract class PSGrBase extends java.awt.Graphics
     os.println("/AA {0 360 arc closepath gsave eofill grestore stroke 1 setlinewidth grestore} bd");
     os.println("/center {dup stringwidth pop 2 div neg 0 rmoveto} bd");
     
-//    translate(XOFFSET, -YOFFSET);
+    translate(XOFFSET, -YOFFSET);
     setFont(font);
   }
 
