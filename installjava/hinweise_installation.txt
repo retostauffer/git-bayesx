@@ -1,0 +1,28 @@
+Erstellen einer neuen BayesX Installation:
+
+1. In BayesX.java die Versionsnummern ändern (3 mal).
+
+2. Im Handbuch Versionsnummern ändern (in manual_preliminaries.tex).
+
+3. Im Handbuch Literatur checken.
+
+4. Handbuch in pdf umwandeln.
+
+5. Projekt BayesX_project.bpg im C++ Builder öffnen. Alle dlls compilieren.
+
+6. In der Dos Konsole:
+    
+   cd c:\bayesx\java
+   c:\programme\jdk\bin\javac BayesX.java
+
+7. java BayesX - Default windowing herstellen
+
+8. Installationsroutine java herstellen.
+
+9. Literatur im Internet checken.
+
+ 
+
+
+
+     
