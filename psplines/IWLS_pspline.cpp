@@ -970,8 +970,9 @@ void IWLS_pspline::update_isotonic(void)
 
   unsigned i,j;
   double m,help;
+  double unten,oben;
 
-/*------------------------ single move --------------------------------------//
+//*------------------------ single move --------------------------------------//
   double logold,lognew,qold,qnew,alpha,u;
 
   for(i=0;i<nrpar;i++)
@@ -999,6 +1000,49 @@ void IWLS_pspline::update_isotonic(void)
     if(i==0)
       {
       if(increasing)
+        {
+        unten = -20;
+        oben = beta(i+1,0);
+        }
+      else
+        {
+        unten = beta(i+1,0);
+        oben = 20;
+        }
+      }
+    else if(i==(nrpar-1))
+      {
+      if(increasing)
+        {
+        unten = beta(i-1,0);
+        oben = 20;
+        }
+      else
+        {
+        unten = -20;
+        oben = beta(i-1,0);
+        }
+      }
+    else
+      {
+      if(increasing)
+        {
+        unten = beta(i-1,0);
+        oben = beta(i+1,0);
+        }
+      else
+        {
+        unten = beta(i+1,0);
+        oben = beta(i-1,0);
+        }
+      }
+
+    beta(i,0) = trunc_normal2(unten,oben,m,sqrt(1.0/prec_env(i,i)));
+
+/*
+    if(i==0)
+      {
+      if(increasing)
         beta(i,0) = trunc_normal2(-20,beta(i+1,0),m,sqrt(1.0/prec_env(i,i)));
       else
         beta(i,0) = trunc_normal2(beta(i+1,0),20,m,sqrt(1.0/prec_env(i,i)));
@@ -1017,9 +1061,12 @@ void IWLS_pspline::update_isotonic(void)
       else
         beta(i,0) = trunc_normal2(beta(i+1,0),beta(i-1,0),m,sqrt(1.0/prec_env(i,i)));
       }
+*/
 
     logold = likep->loglikelihood(true) - 0.5*Kenv.compute_quadform(betaold,0)/sigma2;
     qold = 0.5*log(prec_env(i,i)) - 0.5*(beta(i,0)-m)*prec_env(i,i)*(beta(i,0)-m);
+
+    double helpold = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) ) - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
 
     add_linearpred_multBS(beta,betaold,true);
 
@@ -1041,7 +1088,12 @@ void IWLS_pspline::update_isotonic(void)
     lognew = likep->loglikelihood(true) - 0.5*Kenv.compute_quadform(beta,0)/sigma2;
     qnew = 0.5*log(prec_env(i,i)) - 0.5*(betaold(i,0)-m)*prec_env(i,i)*(betaold(i,0)-m);
 
+    double helpnew = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) ) - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
+
     alpha = lognew + qnew - logold - qold;
+
+    alpha += log( helpold/helpnew );
+
     u = log(uniform());
 
     if(u<=alpha)
@@ -1052,7 +1104,6 @@ void IWLS_pspline::update_isotonic(void)
         compute_intercept();
         for(j=0;j<nrpar;j++)
           beta(j,0) -= intercept;
-//        likep->add_linearpred_m(-intercept,column);
         fcconst->update_intercept(intercept);
         for(j=0;j<likep->get_nrobs();j++)
           spline(j,0) -= intercept;
@@ -1070,7 +1121,7 @@ void IWLS_pspline::update_isotonic(void)
 
 //------------------------ END: single move ----------------------------------*/
 
-//*---------------------------- Geweke ---------------------------------------//
+/*---------------------------- Geweke ---------------------------------------//
   likep->compute_weight(W,column,true);
   compute_XWXenv(W);
 
@@ -1123,7 +1174,7 @@ void IWLS_pspline::update_isotonic(void)
       beta(nrpar-1,0) = trunc_normal2(-20,beta(nrpar-2,0),m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
     count++;
 
-/*/  Gibbs samples rausschreiben
+//*  Gibbs samples rausschreiben
     ST::string file = "e:\\isotonic\\results\\test\\samples_gamma_"+ST::inttostring(optionsp->get_nriter())+".raw";
     if(optionsp->get_nriter() >= 1900 && optionsp->get_nriter() < 2000)
     {
@@ -1147,7 +1198,7 @@ void IWLS_pspline::update_isotonic(void)
       }
     }
 //  ENDE: Gibbs samples rausschreiben */
-
+/*
     }  // END: while
 
   betahelp.minus(beta,betahelp);
@@ -1185,7 +1236,6 @@ void IWLS_pspline::update_isotonic(void)
       compute_intercept();
       for(i=0;i<nrpar;i++)
         beta(i,0) -= intercept;
-//      likep->add_linearpred_m(-intercept,column);
       fcconst->update_intercept(intercept);
       for(i=0;i<likep->get_nrobs();i++)
         spline(i,0) -= intercept;

@@ -132,6 +132,8 @@ double __EXPORT_TYPE trunc_normal(const double & a,const double & b,const double
 double __EXPORT_TYPE trunc_normal2(const double & a,const double & b,const double & mu,
                     const double & s = 1);
 
+double __EXPORT_TYPE trunc_normal3(const double & a,const double & b,const double & mu,
+                    const double & s = 1);
 
 double __EXPORT_TYPE truncnormal(const double & a,const double & b);
 

@@ -306,6 +306,30 @@ double trunc_normal2(const double & a,const double & b,const double & mu,
   return r;
   }
 
+double trunc_normal3(const double & a,const double & b,const double & mu,
+                    const double & s)
+  {
+  double z;
+  double at = (a-mu)/s;
+  double bt = (b-mu)/s;
+  double u = 1;
+  double r = 0;
+  while(u > r)
+    {
+    z = (bt-at)*uniform()+at;
+
+    if(0 < at)
+      r = exp((at*at-z*z)/2);
+    else if (0 > bt)
+      r = exp((bt*bt-z*z)/2);
+    else
+      r = exp((-z*z)/2);
+
+    u = uniform();
+    }
+
+  return mu+s*z;
+  }
 
 double truncnormal(const double & a,const double & b)
   {
