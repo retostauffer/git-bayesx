@@ -23,7 +23,7 @@ FULLCOND::FULLCOND(MCMCoptions * o,const datamatrix & d,
   {
 
   df_accuracy = 0.05;
-  inthemodel = false;
+  inthemodel = true;
   grenzfall = 0;
   smoothing = "global";
 
