@@ -47,21 +47,21 @@ how regression models can be estimated in {\em BayesX}, we do not
 discuss or interpret the estimation results but simply give the
 commands to produce them.
 
-The main focus in this tutorial is on full Bayesian inference
-based on MCMC-techniques. {\it BayesX} also supports the
-estimation of semiparametric regression models in an empirical
-Bayes context based on mixed model methodology. An advantage of
-the the full Bayesian approach is, that it can deal with massive
-data sets while the empirical Bayes approach is limited to data
-sets with medium sample size. On the other side, questions about
-the convergence of MCMC samples or sensitivity on hyperparameters
-do not arise in the empirical Bayes approach. Furthermore, this
-approach may be much faster in situations with a relatively small
-number of regression parameters and non-normal responses. A
-comparison of both approaches in a simulation study has shown,
-that the empirical Bayes approach yields somewhat better point
-estimates, especially for Bernoulli distributed response, see
-Fahrmeir, Kneib and Lang (2003).\nocite{fahkne03}
+The main focus in this tutorial is on full Bayesian inference based
+on MCMC-techniques. {\it BayesX} also supports the estimation of
+semiparametric regression models in an empirical Bayes context based
+on mixed model methodology. An advantage of the the full Bayesian
+approach is, that it can deal with massive data sets while the
+empirical Bayes approach is limited to data sets with medium sample
+size. On the other side, questions about the convergence of MCMC
+samples or sensitivity on hyperparameters do not arise in the
+empirical Bayes approach. Furthermore, this approach may be much
+faster in situations with a relatively small number of regression
+parameters and non-normal responses. A comparison of both approaches
+in a simulation study has shown, that the empirical Bayes approach
+yields somewhat better point estimates, especially for Bernoulli
+distributed response, see Fahrmeir, Kneib and Lang
+(2004).\nocite{fahkne04}
 
 A second tutorial, dealing with the empirical Bayes approach is
 available from the tutorials section of the {\it BayesX}-homepage.
@@ -72,16 +72,15 @@ the tutorial. Users who are already familiar with the usage of
 sections \ref{usage}-\ref{maps}.
 
 The theoretical background of Bayesian semiparametric regression
-will not be described in this tutorial. Chapter 7 of the manual
-may serve as an introduction, full details about the estimation
+will not be described in this tutorial. Chapter 7 of the manual may
+serve as an introduction, full details about the estimation
 techniques for the full Bayesian approach can be found in Fahrmeir
-and Lang (2001a,2001b),\nocite{fahlan01a}\nocite{fahlan01b} Lang
-and Brezger (2003) and Brezger and Lang
-(2003).\nocite{lanbre03}\nocite{lanbre03} Survival models are
-treated in Hennerfeind, Brezger and Fahrmeir
-(2003)\nocite{henfah03} and Fahrmeir and Hennerfeind
-(2003)\nocite{fahhen03}, Count data regression is covered in
-Fahrmeir and Osuna (2003)\nocite{fahosu03}.
+and Lang (2001a,2001b),\nocite{fahlan01a}\nocite{fahlan01b} Lang and
+Brezger (2004) and Brezger and Lang
+(2005).\nocite{lanbre04}\nocite{lanbre05} Survival models are
+treated in Hennerfeind, Brezger and Fahrmeir (2003)\nocite{henfah03}
+and Fahrmeir and Hennerfeind (2003)\nocite{fahhen03}, Count data
+regression is covered in Fahrmeir and Osuna (2003)\nocite{fahosu03}.
 
 \section{Description of the data set}
 
@@ -219,13 +218,13 @@ currently allocated memory is exceeded. However, this is only
 meaningful for larger data sets with more than 10,000 observations
 and could therefore be omitted in our example.
 
-A second option that may added to the {\tt infile} command is the
+A second option that may be added to the {\tt infile} command is the
 {\tt missing} option to indicate missing values. Specifying for
 example '{\tt missing = M}' defines the letter '{\tt M}' as an
-indicator for a missing value. The default for missing values are
-a period '.' and '{\tt NA}' (which remain valid indicators for
-missing values even if an additional indicator is defined by the
-{\tt missing} option).
+indicator for a missing value. The default for missing values are a
+period '.' and '{\tt NA}' (which remain valid indicators for missing
+values even if an additional indicator is defined by the {\tt
+missing} option).
 
 After having read in the dataset information we can inspect the
 data visually. Executing the command
@@ -602,25 +601,25 @@ achieved automatically by opening a {\it log file} using the
 #> logopen, replace using c:\data\logmcmc.txt#
 
 After opening a {\it log file}, every information written to the
-output window is also stored in the log file. Option #replace#
-allows {\it BayesX} to overwrite an existing file with the same
-name as the specified {\it log file}. Without #replace# results
-are appended to an existing file.
+output window is also stored in this file. Option #replace# allows
+{\it BayesX} to overwrite an existing file with the same name as the
+specified {\it log file}. Without #replace# results are appended to
+an existing file.
 
 The model presented in Kandala et al. (2001) is given by the
 following semiparametric predictor:
 \[\eta=\gamma_0+\gamma_1rcw+\gamma_2edu1+\gamma_3edu2+\gamma_4tpr+\gamma_5sex+f_1(bmi)+f_2(agc)+f^{str}(district)+f^{unstr}(district)\]
-The two continuous covariates {\em bmi} and {\em agc} are assumed
-to have a possibly nonlinear effect on the Z-score and are
-therefore modelled nonparametrically (as P-splines with second
-order random walk prior in our example). The spatial effect of the
-district is split up into a spatially correlated part $
-f^{str}(district)$ and an uncorrelated part $f^{unstr}(district)$,
-see Fahrmeir and Lang (2001b) \nocite{fahlan01b} for a motivation.
-The correlated part is modelled by a Markov random field prior,
-where the neighbourhood matrix and possible weights associated
-with the neighbours are obtained from the {\it map object} #m#.
-The uncorrelated part is modelled by an i.i.d Gaussian effect.
+The two continuous covariates {\em bmi} and {\em agc} are assumed to
+have a possibly nonlinear effect on the Z-score and are therefore
+modelled nonparametrically (as P-splines with second order random
+walk prior in our example). The spatial effect of the district is
+split up into a spatially correlated part $ f^{str}(district)$ and
+an uncorrelated part $f^{unstr}(district)$, see Fahrmeir and Lang
+(2001b) \nocite{fahlan01b} for a motivation. The correlated part is
+modelled by a Markov random field prior, where the neighbourhood
+matrix and possible weights associated with the neighbours are
+obtained from the {\it map object} #m#. The uncorrelated part is
+modelled by an i.i.d. Gaussian effect.
 
 To estimate the model we use method #regress# of {\em bayesreg
 objects}:
@@ -631,16 +630,15 @@ objects}:
 \end{verbatim}
 
 Options {\tt iterations}, {\tt burnin} and {\tt step} define
-properties of the MCMC-algorithm. The total number of of MCMC
-iterations is given by {\tt iterations} while the number of burn
-in iterations is given by {\tt burnin}. Therefore we obtain a
-sample of 10000 random numbers with the above specifications.
-Since, in general, these random numbers are correlated, we do not
-use all of them but thin out the Markov chain by the thinning
-parameter {\tt step}. Specifying {\tt step=10} as above forces
-{\em BayesX} to store only every 10th sampled parameter which
-leads to a random sample of length 1000 for every parameter in our
-example.
+properties of the MCMC-algorithm. The total number of MCMC
+iterations is given by {\tt iterations} while the number of burn in
+iterations is given by {\tt burnin}. Therefore we obtain a sample of
+10000 random numbers with the above specifications. Since, in
+general, these random numbers are correlated, we do not use all of
+them but thin out the Markov chain by the thinning parameter {\tt
+step}. Specifying {\tt step=10} as above forces {\em BayesX} to
+store only every 10th sampled parameter which leads to a random
+sample of length 1000 for every parameter in our example.
 
 Note, that the choice of {\tt iterations} also affects computation
 time. On a 2.4 GHz PC estimation of our model took about 1 minute
@@ -1020,13 +1018,13 @@ effect.\label{spat1}}}
 \subsection{Graph Objects}
 
 The commands presented in the previous subsection work only after
-having estimated a regression model in the current BayesX session
-but it may also be useful to visualise results of former analyses.
-This can be achieved using {\em graph objects}. Note again, that
-{\em graph files} are also used in the batch file containing the
-commands to reproduce the automatically generated graphics.
-Therefore the purpose of this subsection is also to enable the
-user to understand the content of this batch file.
+having estimated a regression model in the current {\em BayesX}
+session but it may also be useful to visualise results of former
+analyses. This can be achieved using {\em graph objects}. Note
+again, that {\em graph files} are also used in the batch file
+containing the commands to reproduce the automatically generated
+graphics. Therefore the purpose of this subsection is also to enable
+the user to understand the content of this batch file.
 
 First we read the estimation results into a {\it dataset object}.
 For example the estimation results for the effect of $bmi$ can be
@@ -1117,14 +1115,14 @@ the options presented in this section also enable the user to
 modify the batch file containing the commands to reproduce the
 automatically generated graphics.
 
-For the presentation of nonparametric effects it may be desirable
-to include only one of the credible interval into the plot. This
-is achieved by specifying the #levels# option. Possible values of
-this option are #1# and #2#, corresponding to the levels specified
-in the #regress# command (compare section \ref{regression}). If
-the default values of #level1# and #level2# have been used,
-specifying #level=2# in the #plotnonp# command causes {\it BayesX}
-to plot the 80\% credible interval only (Figure \ref{bmi3}):
+For the presentation of nonparametric effects it may be desirable to
+include only one of the credible intervals into the plot. This is
+achieved by specifying the #levels# option. Possible values of this
+option are #1# and #2#, corresponding to the levels specified in the
+#regress# command (compare section \ref{regression}). If the default
+values of #level1# and #level2# have been used, specifying #level=2#
+in the #plotnonp# command causes {\it BayesX} to plot the 80\%
+credible interval only (Figure \ref{bmi3}):
 
 #> b.plotnonp 1, levels=2#
 
@@ -1168,7 +1166,7 @@ demonstrated in the following commands which lead to the graph
 shown in Figure \ref{bmi6}.
 
 \begin{verbatim}
-> r.plotnonp 1, xlab="bmi" ylab="f_bmi" title="Mother body mass index"
+> b.plotnonp 1, xlab="bmi" ylab="f_bmi" title="Mother body mass index"
   ylimbottom=-0.8 ylimtop=0.6 ystep=0.2 xlimbottom=12 xlimtop=40
 \end{verbatim}
 
@@ -1177,7 +1175,7 @@ of the child that is customised in the same way as for the effect
 of $bmi$.
 
 \begin{verbatim}
-> r.plotnonp 3, xlab="age" ylab="f_age" title="Age of the child in months"
+> b.plotnonp 3, xlab="age" ylab="f_age" title="Age of the child in months"
   ylimbottom=-0.3  ystep=0.3 xlimbottom=0 xlimtop=60 xstep=10
 \end{verbatim}
 
@@ -1294,7 +1292,7 @@ which stores the sampled parameters in ASCII files in the output
 directory. To avoid too large files, the samples are typically
 partitioned into several files. Executing the #getsample# command
 also produces {\em ps files} of the sampling paths in the output
-directory. (compare Figure \ref{sample1} for the content of one of
+directory (compare Figure \ref{sample1} for the content of one of
 these files).
 
 \begin{figure}[ht]
@@ -1335,13 +1333,13 @@ that much from the estimates with the standard choices.
 \begin{figure}[ht]
 \begin{center}
 \epsfig{file=grafiken/f_bmi7.ps,scale=0.5}
-\epsfig{file=grafiken/f_age3.ps,scale=0.5} {\it\caption{Results
-for the nonparametric effects with hyper parameters $a=b=0.00001$
-for nonparametric and spatial effects.\label{sensi1}}}
+\epsfig{file=grafiken/f_age3.ps,scale=0.5} {\it\caption{Results for
+the nonparametric effects with hyperparameters $a=b=0.00001$ for
+nonparametric and spatial effects.\label{sensi1}}}
 \end{center}
 \end{figure}
 
-Now we try two further choices for the hyper parameters, with both
+Now we try two further choices for the hyperparameters, each with
 $a=1$ and $b$ small. We estimate models with $b=0.005$ and
 $b=0.00005$:
 
@@ -1365,18 +1363,18 @@ nonparametric effects for the two choices of hyperparameters.
 \begin{figure}[ht]
 \begin{center}
 \epsfig{file=grafiken/f_bmi8.ps,scale=0.5}
-\epsfig{file=grafiken/f_age4.ps,scale=0.5} {\it\caption{Results
-for the nonparametric effects with hyper parameters $a=1$ and
-$b=0.005$ for nonparametric and spatial effects.\label{sensi2}}}
+\epsfig{file=grafiken/f_age4.ps,scale=0.5} {\it\caption{Results for
+the nonparametric effects with hyperparameters $a=1$ and $b=0.005$
+for nonparametric and spatial effects.\label{sensi2}}}
 \end{center}
 \end{figure}
 
 \begin{figure}[ht]
 \begin{center}
 \epsfig{file=grafiken/f_bmi9.ps,scale=0.5}
-\epsfig{file=grafiken/f_age5.ps,scale=0.5} {\it\caption{Results
-for the nonparametric effects with hyper parameters $a=1$ and
-$b=0.00005$ for nonparametric and spatial effects.\label{sensi3}}}
+\epsfig{file=grafiken/f_age5.ps,scale=0.5} {\it\caption{Results for
+the nonparametric effects with hyperparameters $a=1$ and $b=0.00005$
+for nonparametric and spatial effects.\label{sensi3}}}
 \end{center}
 \end{figure}
 
@@ -1384,21 +1382,20 @@ $b=0.00005$ for nonparametric and spatial effects.\label{sensi3}}}
 
 \begin{thebibliography}{99}
 
-\harvarditem{Brezger and Lang}{2003}{brelan03} Brezger, A. and
-Lang, S., 2003: Generalized structured additive regression based
-on Bayesian P-splines. SFB 386 Discussion paper 321, Department of
-Statistics, University of Munich.
+\harvarditem{Brezger and Lang}{2005}{brelan05} Brezger, A. and Lang,
+S., 2005: Generalized structured additive regression based on
+Bayesian P-splines. {\it Computational Statistics and Data
+Analysis}, to appear.
 
 \harvarditem{Fahrmeir and Hennerfeind}{2003}{fahhen03} Fahrmeir,
 L. and Hennerfeind, A., 2003: Nonparametric Bayesian hazard rate
 models based on penalized splines. SFB 386 Discussion paper 361,
 University of Munich.
 
-\harvarditem{Fahrmeir et~al.}{2003}{fahkne03} Fahrmeir, L., Kneib,
-T. and Lang, S., 2003: Penalized structured additive regression
-for space-time data: A Bayesian perspective, {\it Statistica
-Sinica (under revision)}. Available from
-www.stat.uni-muenchen.de/$\sim$kneib/papers.html.
+\harvarditem{Fahrmeir et~al.}{2004}{fahkne04} Fahrmeir, L., Kneib,
+T. and Lang, S., 2004: Penalized structured additive regression for
+space-time data: A Bayesian perspective, {\it Statistica Sinica},
+14, 731-761 .
 
 \harvarditem{Fahrmeir and Lang}{2001a}{fahlan01a} Fahrmeir, L. and
 Lang, S., 2001a: Bayesian Inference for Generalized Additive Mixed
@@ -1428,14 +1425,14 @@ the Socio-Demographic and Spatial Determinants of Undernutrition
 in Two African Countries. {\it Research in Official Statistics},
 1, 81-100.
 
-\harvarditem{Lang and Brezger}{2003}{lanbre03} Lang, S. and
-Brezger, A., 2003: Bayesian P-splines. {\it Journal of
-Computational and Graphical Statistics}, to appear.
+\harvarditem{Lang and Brezger}{2004}{lanbre04} Lang, S. and Brezger,
+A., 2004: Bayesian P-splines. {\it Journal of Computational and
+Graphical Statistics}, 13, 183-212.
 
 \harvarditem{Spiegelhalter et. al.}{2002}{spibes02} Spiegelhalter,
 D.J., Best, N.G., Carlin, B.P. and van der Linde, A. (2002):
 Bayesian measures of model complexity and fit. {\it Journal of the
-Royal Statistical Society B, to appear.}
+Royal Statistical Society B}, 65, 583-639
 
 \end{thebibliography}
 
