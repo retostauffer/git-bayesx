@@ -382,8 +382,7 @@ is estimated by the model statement
 
 #delta = time(baseline) + W1 + X1(psplinerw2)#
 
-Note that one, and only one, baseline term has to be specified in
-the model.
+Note that a baseline term has to be specified in the model.
 \end{itemize}
 
 
@@ -458,6 +457,39 @@ respect to grouping variable #X1#. In this case we can include
 additional seasonal effects for each category of #X1# by
 
 #Y = X1*time(season) #
+
+\end{itemize}
+
+{\bf Time-varying effects in Cox models}
+\medskip
+
+{\em P-spline with second order random walk penalty}
+
+\begin{itemize}
+\item[] {\em Description}: Defines a varying coefficients term
+where the effect of #X1# varies over the range of the effect
+modifier #time#, i.e. variable #X1# has time-varying effect. The
+smoothness prior for $f($#time#$)$ is a P-spline with second order
+random walk penalty.
+
+ \item[] {\em Predictor}: $\eta = \log(\lambda_0(time)) +
+f(time)X1 \cdots$ \item[] {\em Syntax}:
+
+ #X1*time(baseline#[, {\em options}]#) #
+ \item[] {\em Example}:
+
+Suppose continuous-time survival data (#time#, #delta#) together
+with an additional covariate #X1# are given, where #time# denotes
+the vector of observed duration times, #delta# is the vector of
+corresponding indicators of non-censoring. The following Cox model
+with hazard rate $\lambda$
+\begin{eqnarray*}
+ \lambda(time) & = & \lambda_0(time)\exp(\gamma_0 + f(time)X1)\\
+ & = & \exp\left(\log(\lambda_0(time)) + \gamma_0 + f(time)X1\right)
+\end{eqnarray*}
+is estimated by the model statement
+
+#delta = time(baseline) + X1*time(baseline)#
 
 \end{itemize}
 
@@ -586,23 +618,6 @@ effect. For example, splines with 10 inner knots are estimated by
 \end{itemize}
 
 
-%{\bf Time-varying effects in Cox models}
-%\medskip
-
-%{\em P-spline with second order random walk penalty for
-%$log(baseline)$}
-
-%\begin{itemize}
-%\item[] {\em Syntax}:
-
-%X1*time(baseline[, options])
-%\item[] {\em Predictor}: $\eta =  \cdots + f_1(time)X1 + \cdots$
-%\item[] {\em Description}: Defines a P-spline with a second order random walk penalty for the
-%parameters of $log(baseline)$.
-%\item[] {\em Example}:
-%\end{itemize}
-
-
 
 \subsubsection{Description of additional options for terms of bayesreg objects}
 \label{localoptions}
@@ -685,10 +700,10 @@ geographically. Covariate
 \hline Two dimensional \newline surface &  #X1*X2(pspline2dimrw1)#
 & Two dimensional surface for the continuous
 covariates #X1# and #X2#. \\
-%\hline Time-varying effects in Cox models & X1*X2(baseline) &
-%Effect of X1 varies smoothly over the range of the
-%effect of X2 (time) of a Cox model. $log(\lambda_0(X1))$ is modelled by a P-spline with second order penalty. \\
-\hline
+\hline Time-varying effect in Cox Models & #X1*time(baseline)# &
+ Nonlinear, time-varying effect of #X1#.\\
+ \hline
+
 \end{tabular}
 {\em\caption {\label{bayesreginteractions} Possible interaction
 terms for bayesreg objects.}}
@@ -1155,22 +1170,14 @@ second order random walk penalty
 
 has to be specified in the options list. The number of knots and
 degree of the P-spline prior for $f_0(t)$ may be specified in the
-baseline term. Note that it is compelling that there is one, and
-only one baseline term specified for the vector of observed
-duration times.
-%Since computing the likelihood involves computing the integral
-%$\int \exp(f_0(t)+\eta_i)dt$ it is no longer possible to calculate
-%the likelihood analytically if the P-spline prior for $f_0(t)$
-%has a degree greater than 1. Therefore the likelihood is
-%approximated numerically (using the trapezoidal rule) if family=
-%cox is specified.
-Time-varying effects are not (yet) implemented.\\
-The indicator of non-censoring $\delta_i$ has to be specified as
-the dependent variable in the model statement. Data augmentation
-and the specification of an offset term are not required here. To
-handle left truncation and time-varying covariates a variable
-#beginvar#, that records when the observation became at risk, may
-be specified by adding #begin=beginvar# to
+baseline term. Note that it is compelling that there is a baseline
+term specified for the vector of observed duration times. The
+indicator of non-censoring $\delta_i$ has to be specified as the
+dependent variable in the model statement. Data augmentation and the
+specification of an offset term are not required here. To handle
+left truncation and time-varying covariates a variable #beginvar#,
+that records when the observation became at risk, may be specified
+by adding #begin=beginvar# to
 the options list.\\
 In the example above with survival data
 
@@ -1190,6 +1197,13 @@ log-baseline would be estimated as follows:
 
 Note, that we assume that a {\em bayesreg object} #b# has been
 created before executing the command.
+
+Further note that a time-varying effect of a covariate #X# may be
+estimated by simply adding the term
+
+#X*time(baseline)#
+
+to the model statement.
 
 \subsection{Options}
 \label{regressoptions}
@@ -1322,6 +1336,9 @@ value of #family# & response distribution & link & additional options \\
 \hline
 #family=nbinomial# & Negative Binomial & log-link &  #distopt#\\
 \hline
+#family=cox#                 & continuous-time survival data & & \\
+\hline
+
 \end{tabular}
 {\em\caption {\label{familyopt} Summary of supported response
 distributions.}}
