@@ -116,6 +116,8 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   stroption procedure;
 
+  stroption minimum;
+
   stroption criterion;
 
   intoption steps;

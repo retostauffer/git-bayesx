@@ -31,6 +31,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   vector<ST::string> modelv;
   vector<FULLCOND*> fullcond_alle;
   ST::string algorithm;
+  ST::string minim;
   ST::string criterion;
   int increment;
   int steps;
@@ -52,47 +53,125 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   ST::string text_alt;
   vector<vector<vector<double> > > modellematrix;
   bool fertig;
+  int steps_aktuell;
+  vector<ST::string> posttitle;
 
-  bool finetuning(vector<double> & modell, vector<vector<double> > & lambdavec,
-                 vector<ST::string> & names_fixed,
-                 const datamatrix & D, const vector<ST::string> & modelv);
+
+  bool finetuning(vector<double> & modell);
 
 // -----------------------------------------------------------------------------
-// ------- Funktionen, die sich bei Stepwise / Stepmin unterscheiden -----------
+// -------------- Funktionen, für Stepwise / Stepmin ---------------------------
 // -----------------------------------------------------------------------------
 
-  void step_nonpfkt(vector<double> & kriteriumiteration2,
+  bool stepfunctions(void);
+
+  unsigned stepwise_fixfactor(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration);
+
+  void stepwise_nonp(vector<double> & kriteriumiteration2,
       vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
       unsigned & z);
 
-  void stepmin(vector<double> & kriteriumiteration2,
+  void stepmin_nonp(vector<double> & kriteriumiteration2,
       vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
-      unsigned & z, double & kriterium);
+      unsigned & z);
 
+  void minexact_nonp(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      unsigned & z);
 
 // -----------------------------------------------------------------------------
 // ------------------ Funktionen für Stepmin -----------------------------------
 // -----------------------------------------------------------------------------
 
-  void stepmin_nonp(unsigned & z, vector<double> & krit_fkt, double & kriterium);
+  void step_minfix(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration);
 
-  void stepmin_fix(unsigned & z, vector<double> & krit_fkt, double & kriterium);
+  void stepmin_fix_leer(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration, unsigned & i);
 
-  void stepmin_leer(unsigned & z, vector<double> & krit_fkt, double & kriterium);
+  void stepmin_leer_fix(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration, unsigned & i);
 
-  double criterion_min(double & df);
+  unsigned step_minfactor(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration);
 
+  void stepmin_factor_leer(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      unsigned & z);
 
-  // -----------------------------------------------------------------------------
+  void stepmin_leer_factor(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      unsigned & z);
+
+  void stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt, double & kriterium);
+
+  void stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, double & kriterium);
+
+  void stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt, double & kriterium);
+
+  void minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
+          double & kriterium, double & df);
+
+  void minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
+          double & kriterium, double & df);
+
+  void minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
+          double & kriterium, double & df);
+
+  double criterion_min(const double & df);
+
+// -----------------------------------------------------------------------------
+// ------------------ Funktionen für Koordinatenmethode ------------------------
+// -----------------------------------------------------------------------------
+
+  bool koordabstieg(void);
+
+  void koord_minfix(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      double & kriterium_aktuell);
+
+  void koord_fix_leer(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      double & kriterium_aktuell, unsigned & i);
+
+  void koord_leer_fix(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      double & kriterium_aktuell, unsigned & i);
+
+  unsigned koord_minfactor(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      double & kriterium_aktuell);
+
+  void koord_factor_leer(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      double & kriterium_aktuell, unsigned & z);
+
+  void koord_leer_factor(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      double & kriterium_aktuell, unsigned & z);
+
+  void koord_minnonp(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      unsigned & z, double & kriterium_aktuell);
+
+  unsigned koordexact_fixfactor(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      double & kriterium_aktuell);
+
+  void koordexact_nonp(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      unsigned & z, double & kriterium_aktuell);
+
+// -----------------------------------------------------------------------------
 // ------- Funktionen für die Erstellung des Startmodels -----------------------
 // -----------------------------------------------------------------------------
 
-  bool vcm_doppelt(const vector<ST::string> & names_fixed,
-      const vector<vector<ST::string> > & names_nonp);
+  bool vcm_doppelt(void);
 
-  void initialise_lambdas(vector<vector<ST::string> > & names_nonp,
-                 vector<ST::string> & names_fixed, vector<vector<double> > & lambdavec,
-                 const int & number, const bool & gewichte);
+  void initialise_lambdas(vector<vector<ST::string> > & namen_nonp,
+       vector<ST::string> & namen_fix, vector<vector<double> > & lambdavector,
+       const int & number, const bool & gewichte);
 
   unsigned search_lambdaindex(const double & m, const vector<double> lam,
                                             bool & b) const;
@@ -101,32 +180,25 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
                            const vector<double> & lambdas) const;
 
   void startwerte(const ST::string & startmodel,
-       const vector<vector<double> > & lambdavec, const vector<ST::string> & names_fixed,
        vector<vector<unsigned> > & startindex, vector<vector<double> > & startfix);
 
 // -----------------------------------------------------------------------------
-// ------- Funktionen für die Berechnung neuer Modelle -------------------------
+// ------- Funktionen für die Berechnung neuer Modelle bei Stepwise ------------
 // -----------------------------------------------------------------------------
 
-  void newmodel(bool & fertig, const vector<double> & modell,
-    vector<double> & krit, vector<vector<double> > & mi,
+  void newmodel(vector<double> & krit, vector<vector<double> > & mi,
     vector<ST::string> & textit);
 
-  void newmodel_fix(bool & fertig, const double & mo, vector<double> & krit,
-      vector<vector<double> > & mi, const vector<double> & modell,
-      vector<ST::string> & textit, const ST::string & name, const datamatrix & D,
-      const vector<ST::string> & modelv);
+  void newmodel_fix(const double & mo, vector<double> & krit,
+      vector<vector<double> > & mi, vector<ST::string> & textit,
+      const ST::string & name);
 
-  void newmodel_factor(bool & fertig, const double & mo,  const unsigned & index,
-      vector<double> & krit, vector<vector<double> > & mi, const vector<double> & modell,
-      vector<ST::string> & textit, const vector<ST::string> & name,
-      const datamatrix & D, const vector<ST::string> & modelv);
+  void newmodel_factor(const double & mo,  const unsigned & index,
+      vector<double> & krit, vector<vector<double> > & mi,
+      vector<ST::string> & textit, const vector<ST::string> & name);
 
-  void newmodel_nonp(bool & f, const unsigned & index, const vector<double> & modell,
-     const vector<double> & modell_alt, vector<double> & krit, vector<vector<double> > & mi,
-     vector<ST::string> & textit, const vector<ST::string> & names_fixed,
-     const vector<vector<ST::string> > & names_nonp,
-     const datamatrix & D, const vector<ST::string> & modelv);
+  void newmodel_nonp(const unsigned & index, vector<double> & krit,
+     vector<vector<double> > & mi, vector<ST::string> & textit);
 
   bool modelcomparison(const vector<double> & m,
        const vector<vector<vector<double> > > & mmatrix);
@@ -135,24 +207,18 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 // ------- Funktionen für die Erstellung des fullcondp-Vektors -----------------
 // -----------------------------------------------------------------------------
 
-  void fullcond_einzeln(const vector<double> & modell_neu,
-         const vector<double> & modell_alt, const unsigned & index,
-         const unsigned & nf_size, const vector<vector<ST::string> > & names_nonp,
-         const datamatrix & D, const vector<ST::string> & modelv);
+  void fullcond_einzeln(const vector<double> & modell1,
+         const vector<double> & modell2, const unsigned & index);
 
-  void fullcond_komplett(const vector<double> & m, const unsigned & nf_size,
-                     const vector<vector<ST::string> > & names_nonp,
-                     const datamatrix & D, const vector<ST::string> & modelv);
+  void fullcond_komplett(const vector<double> & m);
 
-  void fix_komplett(const vector<double> & modell,
-            const vector<ST::string> & names_fixed,
-            const vector<vector<ST::string> > & names_nonp, const datamatrix & D,
-            const vector<ST::string> & modelv);
+  void fix_komplett(const vector<double> & modell);
 
   void reset_fix(const ST::string & name);
 
-  void include_fix(const ST::string & name, const datamatrix & D,
-         const vector<ST::string> & modelv);
+  void include_fix(const ST::string & name);
+
+  int column_for_fix(const ST::string & name);
 
 // -----------------------------------------------------------------------------
 // ------- Funktionen für die Ausgabe im Output-Fenster ------------------------
@@ -164,21 +230,16 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
                 const double & a, ST::string & text, const bool & neutext,
                 const ST::string & tr,const bool & datei);
 
-  void options_text(const int & number, const vector<vector<double> > & lambdavec,
-      const vector<ST::string> & names_fixed,
-      const vector<vector<ST::string> > & names_nonp,
-      const vector<vector<double> > & startfix,
+  void options_text(const int & number, const vector<vector<double> > & startfix,
       const vector<vector<unsigned> > & startindex, const ST::string & name);
 
 // -----------------------------------------------------------------------------
 // ------- Funktionen für die Ausgabe im Tex-File ------------------------------
 // -----------------------------------------------------------------------------
 
-  void make_graphics(const ST::string & name, vector<vector<double> > & lambdavec,
-                 vector<vector<unsigned> > & startindex);
+  void make_graphics(const ST::string & name, vector<vector<unsigned> > & startindex);
 
-  void make_tex_end(ST::string & path, const vector<double> & modell,
-                    const vector<ST::string> & names_f);
+  void make_tex_end(ST::string & path, const vector<double> & modell);
 
   void make_options(void);
 
@@ -186,8 +247,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
   void make_model(void);
 
-  void make_prior(vector<vector<double> > & lambdavec,
-                  vector<vector<unsigned> > & startindex);
+  void make_prior(vector<vector<unsigned> > & startindex);
 
   void make_fixed_table(void);
 
@@ -218,15 +278,12 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   const STEPWISErun & operator=(const STEPWISErun & s);
 
 
-  bool single_stepwise(double & kriterium_alt, vector<double> & modell_alt, ST::string & text_alt,
-                       const vector<vector<double> > & lambdavec, const vector<unsigned> & start,
-                       const vector<double> & startfix, const vector<ST::string> & names_fixed,
-                       const vector<vector<ST::string> > & names_nonp,
-                       const datamatrix & D, const vector<ST::string> & modelv, const bool & tex);
+  bool single_stepwise(const vector<unsigned> & start,
+                         const vector<double> & startfix, const bool & tex);
 
-  bool stepwise(const ST::string & procedure, const ST::string & crit,
-         const int & stp, const ST::string & trac, const int & number,
-         const ST::string & stam, const int & inc, const bool & finet,
+  bool stepwise(const ST::string & procedure, const ST::string & minimum,
+         const ST::string & crit, const int & stp, const ST::string & trac,
+         const int & number, const ST::string & stam, const int & inc, const bool & finet,
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path);
 

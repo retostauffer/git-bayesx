@@ -164,8 +164,16 @@ void stepwisereg::create(void)
   vector<ST::string> proc;
   proc.push_back("stepwise");
   proc.push_back("stepmin");
+  proc.push_back("coorddescent");
 
   procedure = stroption("procedure",proc,"stepwise");
+
+  vector<ST::string> minim;
+  minim.push_back("approx");
+  minim.push_back("approx_control");
+  minim.push_back("exact");
+
+  minimum = stroption("minimum",minim,"approx");
 
   vector<ST::string> cr;
   cr.push_back("AIC");
@@ -183,6 +191,7 @@ void stepwisereg::create(void)
   tr.push_back("trace_on");
   tr.push_back("trace_off");
   tr.push_back("trace_half");
+  tr.push_back("trace_minim");
   trace = stroption("trace",tr,"trace_on");
 
   number = intoption("number",20,1,50);
@@ -192,6 +201,7 @@ void stepwisereg::create(void)
   stmodel.push_back("full");
   stmodel.push_back("both");
   stmodel.push_back("userdefined");
+  stmodel.push_back("emplin");
   startmodel = stroption("startmodel",stmodel,"empty");
 
   increment = intoption("increment",1,1,5);
@@ -263,6 +273,7 @@ void stepwisereg::create(void)
   regressoptions.push_back(&distopt);
 
   regressoptions.push_back(&procedure);
+  regressoptions.push_back(&minimum);
   regressoptions.push_back(&criterion);
   regressoptions.push_back(&steps);
   regressoptions.push_back(&trace);
@@ -2589,6 +2600,7 @@ void regressrun(stepwisereg & b)
     ST::string name = b.name.to_bstr();
     ST::string cr = b.criterion.getvalue();
     ST::string proc = b.procedure.getvalue();
+    ST::string minim = b.minimum.getvalue();
     int steps = b.steps.getvalue();
     ST::string tr = b.trace.getvalue();
     int number = b.number.getvalue();
@@ -2601,7 +2613,7 @@ void regressrun(stepwisereg & b)
 
     ST::string path = b.outfiles[0];
 
-    failure = b.runobj.stepwise(proc,cr,steps,tr,number,stmodel,increment,
+    failure = b.runobj.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
     fine_tuning,b.D,b.modelvarnamesv,name,fullcond_z,path);
 
     if(!failure)
