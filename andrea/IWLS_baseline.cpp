@@ -28,15 +28,7 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
 
   a_invgamma = a;
   b_invgamma = b;
-  prec_env = envmatdouble(0,nrpar,21);
-  cov_cp = datamatrix(22,22,0.0);
-  ifstream covin("d:\\simulationen\\test\\erg\\weibull13_no_IWLS_prec.txt");
-  cov_cp.prettyScan(covin);
-  covin.close();
-//  cov_cp = cov_cp/1.2;
-  ifstream meanin("d:\\simulationen\\test\\erg\\weibull13_no_IWLS_mean.txt");
-  betahelp.prettyScan(meanin);
-  meanin.close();
+  prec_env = envmatdouble(0,nrpar,2);
 
   unsigned i,j;
   gauss_n = 9;
@@ -53,9 +45,7 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
 
   compute_XWtildey(Eins,response_help,1.0);
   Xdelta = muy;
-  ofstream test3("d:\\temp\\Xdelta.txt");
-  Xdelta.prettyPrint(test3);
-  test3.close();
+
   zi = d;
 
 //-----------------linkstrunkiert oder zeitl. variierende Kovariablen?--------
@@ -200,9 +190,6 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
         interval(i,0) = j;
       }
     }
-  ofstream test2("d:\\temp\\int.txt");
-  interval.prettyPrint(test2);
-  test2.close();
 
   for(int i=0;i<d.rows();i++)
     {
@@ -243,9 +230,7 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
         }
       }
     }
-  ofstream exactof("d:\\temp\\deltaexact.txt");
-  deltaexact.prettyPrint(exactof);
-  exactof.close();
+
 
   DeltaN = datamatrix(d.rows(),d.rows(),0);
 
@@ -259,11 +244,6 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
        DeltaN(i,j)=zi(index(j,0),0)-zi(index(j-1,0),0);
       }
     }
-
-  ofstream DeltaNof("d:\\temp\\deltaN.txt");
-  DeltaN.prettyPrint(DeltaNof);
-  DeltaNof.close();
-
 
   }
 
@@ -545,33 +525,6 @@ void IWLS_baseline::update_IWLS(void)
 
   unsigned i;
 
-/*  if(optionsp->get_nriter()==1)
-    {
-    beta(0,0) = -6.481843;
-    beta(1,0) = -5.261254;
-    beta(2,0) = -4.035323;
-    beta(3,0) = -2.855564;
-    beta(4,0) = -1.813996;
-    beta(5,0) = -1.116795;
-    beta(6,0) = -0.668608;
-    beta(7,0) = -0.3481318;
-    beta(8,0) = -0.0590283;
-    beta(9,0) =  0.2067058;
-    beta(10,0) = 0.3909008;
-    beta(11,0) = 0.5491;
-    beta(12,0) = 0.7070876;
-    beta(13,0) = 0.8955011;
-    beta(14,0) = 1.092252;
-    beta(15,0) = 1.306334;
-    beta(16,0) = 1.51953;
-    beta(17,0) = 1.702514;
-    beta(18,0) = 1.890162;
-    beta(19,0) = 2.137843;
-    beta(20,0) = 2.416735;
-    beta(21,0) = 2.70698;
-    add_linearpred_multBS(beta);
-    betaold.assign(beta);
-    } */
 
 
 /*  double logold = - 0.5*Kenv.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
@@ -712,23 +665,15 @@ void IWLS_baseline::update_IWLS(void)
     update_baseline();
     logold += likep->loglikelihood(true);
 
-//    mu.plus(A'beta,mu);
 
     multBS(spline,beta);
-//    compute_score();
-//    compute_Wbase();
-//    compute_AWA();
 
-//    muy = (Xdelta - A.transposed()*Wbase + AWA*beta);
-//    muy = score + AWA*beta;
+    compute_Wbase();
+    compute_AWA();
 
-/*    ofstream test5("d:\\temp\\muy.txt");
-    muy.prettyPrint(test5);
-    test5<<endl;
-    AWA.prettyPrint(test5);
-    test5.close();*/
+    muy = (Xdelta - A.transposed()*Wbase + AWA*beta);
 
-//    XX_env = envmatrix<double>(AWA);
+    XX_env = envmatrix<double>(AWA);
     }
   else
     {
@@ -740,31 +685,10 @@ void IWLS_baseline::update_IWLS(void)
     compute_XWtildey(W,1.0);
     }
 
-//  prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
-    double cov_test=cov_cp(0,0);
-    double cov_test2=cov_cp(1,0);
-    double cov_test3=cov_cp(0,1);
-   prec_env = envmatrix<double>(cov_cp);
+  prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
 
-  ofstream test7("d:\\temp\\prec.txt");
-    test7<<"prec_env"<<endl;
-    prec_env.print4(test7);
-//   test7<<endl<<"Kenv"<<endl;
-//    Kenv.print4(test7);
-//    test7<<endl<<"XX_env"<<endl;
-//    XX_env.print4(test7);
-//    test7<<"Wbase"<<endl;
-//    Wbase.prettyPrint(test7);
-  test7.close();
+  prec_env.solve(muy,betahelp);
 
-//  prec_env.solve(muy,betahelp);
-  ifstream meanin1("d:\\simulationen\\test\\erg\\weibull13_no_IWLS_mean.txt");
-  betahelp.prettyScan(meanin1);
-  meanin1.close();
-
-  double test = betahelp(0,0);
-  double test2= betahelp(1,0);
-  double test3=cov_cp(0,0);
 
   double * work = beta.getV();
   for(i=0;i<nrpar;i++,work++)
@@ -779,8 +703,8 @@ void IWLS_baseline::update_IWLS(void)
   add_linearpred_multBS(beta,betaold,true);
   betahelp.minus(beta,betahelp);
 
-//  double qold = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
-  double qold = - 0.5*prec_env.compute_quadform(betahelp,0);
+  double qold = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
+//  double qold = - 0.5*prec_env.compute_quadform(betahelp,0);
 
   double lognew = - 0.5*Kenv.compute_quadformblock(beta,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
 
@@ -793,27 +717,15 @@ void IWLS_baseline::update_IWLS(void)
     lognew += likep->loglikelihood(true);
 
     multBS(spline,beta);
-//    compute_score();
-//    compute_Wbase();
-//    compute_AWA();
 
-//    muy = (Xdelta - A.transposed()*Wbase + AWA*beta);
-//    muy = score + AWA*beta;
-//    XX_env = envmatrix<double>(AWA);
+    compute_Wbase();
+    compute_AWA();
 
-//    prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
+    muy = (Xdelta - A.transposed()*Wbase + AWA*beta);
 
+    XX_env = envmatrix<double>(AWA);
 
-/*    ofstream test8("d:\\temp\\prec2.txt");
-      test8<<"prec_env"<<endl;
-      prec_env.print4(test8);
-      test8<<endl<<"muy"<<endl;
-      muy.prettyPrint(test8);
-      test8<<endl<<"XX_env"<<endl;
-      XX_env.print4(test8);
-      test8<<"Wbase"<<endl;
-      Wbase.prettyPrint(test8);
-    test8.close();*/
+    prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
 
 
     }
@@ -827,15 +739,13 @@ void IWLS_baseline::update_IWLS(void)
     compute_XWtildey(W,1.0);
     }
 
-//  prec_env.solve(muy,betahelp);
+  prec_env.solve(muy,betahelp);
 
-  ifstream meanin2("d:\\simulationen\\test\\erg\\weibull13_no_IWLS_mean.txt");
-  betahelp.prettyScan(meanin2);
-  meanin2.close();
+
 
   betahelp.minus(betaold,betahelp);
-//  double qnew = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
-  double qnew = - 0.5*prec_env.compute_quadform(betahelp,0);
+  double qnew = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
+//  double qnew = - 0.5*prec_env.compute_quadform(betahelp,0);
 
   if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
       ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
@@ -1835,7 +1745,7 @@ double * IWLS_baseline::get_gaussspline_mean()
 
 void IWLS_baseline::compute_Wbase(void)
   {
-  int i;
+/*  int i;
 
   ofstream splineof ("d:\\temp\\spline.txt");
   spline.prettyPrint(splineof);
@@ -1850,9 +1760,9 @@ void IWLS_baseline::compute_Wbase(void)
 
   W2.mult(DeltaN.transposed(),etaminus);
   for(i=0;i<zi.rows();i++)
-    W(index(i,0),0) = W2(i,0)* exp(spline(i,0));
+    W(index(i,0),0) = W2(i,0)* exp(spline(i,0));    */
 
-/*  datamatrix betatilde;
+  datamatrix betatilde;
 //  datamatrix Wbase_help;
 //  double Wbase_sum = 0.0;
   int i,j;
@@ -1861,31 +1771,16 @@ void IWLS_baseline::compute_Wbase(void)
   betatilde = datamatrix(beta.rows()-2,1,0);
 //  Wbase_help = datamatrix(betatilde.rows(),1,0);
   betatilde.mult(A,beta);
-  ofstream betaof ("d:\\temp\\betatilde.txt");
-  betatilde.prettyPrint(betaof);
-  betaof.close();
-  ofstream splineof ("d:\\temp\\spline.txt");
-  spline.prettyPrint(splineof);
-  splineof.close();
-
-  ofstream lpof ("d:\\temp\\sumlinpred.txt");
 
   for(i=betatilde.rows()-1;i>-1;i--)
     {
     for(j=0;j<zi.rows();j++)
       {
-      double linpredtest= exp(likep->get_linearpred(index(j,0),0));
-      double splinetest = exp(spline(j,0));
-      double etaminustest = exp(likep->get_linearpred(index(j,0),0)-spline(j,0));
-      double betatildetest= exp(betatilde(i,0));
-      double distancetest= distance(i,0);
       if(interval(j,0)==i)
         sumlinpred_help=sumlinpred_help + exp(likep->get_linearpred(index(j,0),0)-spline(j,0));
       }
     Wbase(i,0) = exp(betatilde(i,0))*distance(i,0)*sumlinpred_help;
-    lpof <<sumlinpred_help<<endl;
     }
-  lpof.close();  */
   }
 
 void IWLS_baseline::compute_AWA(void)
