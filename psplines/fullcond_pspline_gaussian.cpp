@@ -989,9 +989,9 @@ void FULLCOND_pspline_gaussian::compute_contourprob(void)
     beta_0(i,0) = fc_contour.get_data(i,0);
 
   double exponent,mPbeta;
-  double pbeta_0;
 
-  datamatrix pbeta_j(optionsp->get_samplesize(),1,0);
+  datamatrix pbeta_0(1,3,0);
+  datamatrix pbeta_j(optionsp->get_samplesize(),3,0);
 
   unsigned step = optionsp->get_samplesize()/1000;
   datamatrix RB(optionsp->get_samplesize()/step,1,0);
@@ -1020,6 +1020,13 @@ void FULLCOND_pspline_gaussian::compute_contourprob(void)
       }
 
     pbeta_j(j,0) = RB.quantile(50,0);
+    pbeta_j(j,1) = RB.mean(0);
+
+    double help = 0.0;
+    for(i=0;i<RB.rows();i++)
+      help += exp( RB(i,0) );
+    pbeta_j(j,2) = help/RB.rows();
+
     }
 
 // compute p(beta_0)
@@ -1036,23 +1043,33 @@ void FULLCOND_pspline_gaussian::compute_contourprob(void)
     RB(i/step,0) = 0.5*contour(i,nrpar+5) - 0.5*(exponent);
     }
 
-  pbeta_0 = RB.quantile(50,0);
+  pbeta_0(0,0) = RB.quantile(50,0);
+  pbeta_0(0,1) = RB.mean(0);
+
+  double help = 0.0;
+  for(i=0;i<RB.rows();i++)
+    help += exp( RB(i,0) );
+  pbeta_0(0,2) = help/RB.rows();
 
 //------------------------------------------------------------------------------
 
-  double contourprob = 0.0;
-  for(i=0;i<optionsp->get_samplesize();i++)
-    if(pbeta_j(i,0) < pbeta_0)
-      contourprob++;
-  contourprob = contourprob/optionsp->get_samplesize();
+  datamatrix contourprob(1,3,0.0);
+  for(i=0;i<contourprob.cols();i++)
+    {
+    for(j=0;j<optionsp->get_samplesize();j++)
+      if(pbeta_j(j,i) < pbeta_0(0,i))
+        contourprob(0,i)++;
+    contourprob(0,i) = contourprob(0,i)/optionsp->get_samplesize();
+    }
 
-  optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob,2) + "\n");
+  optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob(0,0),2) + "\n");
 
   ST::string path = pathresult.substr(0,pathresult.length()-4)+"_contour.res";
 
   ofstream out(path.strtochar());
-  out << "difforder   contourprob" << endl;
-  out << ST::inttostring(0) + "   " + ST::doubletostring(contourprob) << endl;
+  out << "difforder   contourprob   mean(log)  mean" << endl;
+  out << ST::inttostring(0) + "   " + ST::doubletostring(contourprob(0,0)) + "   ";
+  out << ST::doubletostring(contourprob(0,1)) + "   " + ST::doubletostring(contourprob(0,2)) << endl;
   out.close();
 
   }
@@ -1082,7 +1099,6 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
   datamatrix tildeP;
 
   double exponent,mPbeta;
-  double pbeta_0;
   double value;
 
   unsigned step;
@@ -1106,13 +1122,16 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
   int n;
   ST::string RBpath;
   ofstream RBfile;
-  datamatrix start,dn,d0,xi,fxi,var;
-  datamatrix pbeta_j,RB;
+  datamatrix start,dn,d0,fxi,var;       // für approx: pbeta_0, pbeta_j =^ xi
+  datamatrix pbeta_0,pbeta_j,RB;
+
+  pbeta_0 = datamatrix(1,3,0);
+  pbeta_j = datamatrix(optionsp->get_samplesize(),3,0);
 
   if(approx)
     {
     start = datamatrix(lengthstart,optionsp->get_samplesize()+1,0);
-    xi = datamatrix(optionsp->get_samplesize()+1,1,0.0);
+//    xi = datamatrix(optionsp->get_samplesize()+1,1,0.0);
     d0 = datamatrix(optionsp->get_samplesize()+1,1,0.0);
     dn = datamatrix(optionsp->get_samplesize()+1,1,0.0);
     fxi = datamatrix(optionsp->get_samplesize()+1,1,0.0);
@@ -1120,7 +1139,6 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
     }
   else
     {
-    pbeta_j = datamatrix(optionsp->get_samplesize(),1,0);
     RB = datamatrix(optionsp->get_samplesize()/step,1,0);
     RBpath = pathresult.substr(0,pathresult.length()-4) + "_RBfile.raw";
     RBfile.open(RBpath.strtochar(),ios::binary);
@@ -1173,6 +1191,17 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
                + tildeP_env.compute_quadform(m,i) - 2* mPbeta/transform;
       value = 0.5*tildeP_env.getLogDet() - 0.5*(exponent);
 
+      if(i==0)
+        {
+        pbeta_j(j,1) = value;
+        pbeta_j(j,2) = exp(value);
+        }
+      else
+        {
+        pbeta_j(j,1) = step*( (i-1)/double(step)*pbeta_j(j,1) + value)/double(i);
+        pbeta_j(j,2) = step*( (i-1)/double(step)*pbeta_j(j,2) + exp(value))/double(i);
+        }
+
       if(!approx)
         {
         RBfile.write((char *) &value,sizeof(double));
@@ -1185,7 +1214,7 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
 
           if(i==(lengthstart-1)*step)
             {
-            xi(j,0) = start.quantile(50,j);
+            pbeta_j(j,0) = start.quantile(50,j);
             d0(j,0) = 1.0/(start.quantile(75,j)-start.quantile(25,j));
             fxi(j,0) = 0.0;
             var(j,0) = start.var(j);
@@ -1196,7 +1225,7 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
           {
           n = i/step-lengthstart;
 
-          double help = fabs(value-xi(j,0));
+          double help = fabs(value-pbeta_j(j,0));
           help<=var(j,0)*pow(n+1,-0.5)?I=1:I=0;
           if(n==0)
             dn(j,0) = d0(j,0);
@@ -1209,8 +1238,8 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
             else
               dn(j,0) = min(1.0/fxi(j,0),d0(j,0)*pow(n,0.5));
             }
-          value<=xi(j,0)?Z=1:Z=0;
-          xi(j,0) = xi(j,0) - dn(j,0)/(n+1)*(Z-0.5);
+          value<=pbeta_j(j,0)?Z=1:Z=0;
+          pbeta_j(j,0) = pbeta_j(j,0) - dn(j,0)/(n+1)*(Z-0.5);
           }
         }
 
@@ -1225,6 +1254,17 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
              + tildeP_env.compute_quadform(m,i) - 2* mPbeta/transform;
     value = 0.5*tildeP_env.getLogDet() - 0.5*(exponent);
 
+    if(i==0)
+      {
+      pbeta_0(0,1) = value;
+      pbeta_0(0,2) = exp(value);
+      }
+    else
+      {
+      pbeta_0(0,1) = step*( (i-1)/double(step)*pbeta_0(0,1) + value)/double(i);
+      pbeta_0(0,2) = step*( (i-1)/double(step)*pbeta_0(0,2) + exp(value))/double(i);
+      }
+
     if(!approx)
       {
       RBfile.write((char *) &value,sizeof(double));
@@ -1237,7 +1277,7 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
 
         if(i==(lengthstart-1)*step)
           {
-          xi(j,0) = start.quantile(50,j);
+          pbeta_0(0,0) = start.quantile(50,j);
           d0(j,0) = 1.0/(start.quantile(75,j)-start.quantile(25,j));
           fxi(j,0) = 0.0;
           var(j,0) = start.var(j);
@@ -1248,7 +1288,7 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
         {
         n = i/step-lengthstart;
 
-        double help = fabs(value-xi(j,0));
+        double help = fabs(value-pbeta_0(0,0));
         help<=var(j,0)*pow(n+1,-0.5)?I=1:I=0;
         if(n==0)
           dn(j,0) = d0(j,0);
@@ -1261,8 +1301,8 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
           else
             dn(j,0) = min(1.0/fxi(j,0),d0(j,0)*pow(n,0.5));
           }
-        value<=xi(j,0)?Z=1:Z=0;
-        xi(j,0) = xi(j,0) - dn(j,0)/(n+1)*(Z-0.5);
+        value<=pbeta_0(0,0)?Z=1:Z=0;
+        pbeta_0(0,0) = pbeta_0(0,0) - dn(j,0)/(n+1)*(Z-0.5);
         }
       }
 
@@ -1302,51 +1342,47 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
       in.read((char*) work,size);
       in.seekg(size*(optionsp->get_samplesize()),ios::cur);
       }
-    pbeta_0 = RB.quantile(50,0);
+    pbeta_0(0,0) = RB.quantile(50,0);
 
     in.close();
     remove(RBpath.strtochar());
     }
 
-  double contourprob = 0.0;
-  if(approx)
+  datamatrix contourprob(1,3,0.0);
+
+  for(i=0;i<contourprob.cols();i++)
     {
-    for(i=0;i<optionsp->get_samplesize();i++)
-      if(xi(i,0) < xi(optionsp->get_samplesize(),0))
-        contourprob++;
+    for(j=0;j<optionsp->get_samplesize();j++)
+      if(pbeta_j(j,i) < pbeta_0(0,i))
+        contourprob(0,i)++;
+    contourprob(0,i) = contourprob(0,i)/optionsp->get_samplesize();
     }
-  else
-    {
-    for(i=0;i<optionsp->get_samplesize();i++)
-      if(pbeta_j(i,0) < pbeta_0)
-        contourprob++;
-    }
-  contourprob = contourprob/optionsp->get_samplesize();
 
   if(diff==0)
-    optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob,2) + "\n");
+    optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob(0,0),2) + "\n");
   else if(diff==1)
-    optionsp->out("  Contour probability for first differences (const)  : " + ST::doubletostring(contourprob,2) + "\n");
+    optionsp->out("  Contour probability for first differences (const)  : " + ST::doubletostring(contourprob(0,0),2) + "\n");
   else if(diff==2)
-    optionsp->out("  Contour probability for second differences (linear): " + ST::doubletostring(contourprob,2) + "\n");
+    optionsp->out("  Contour probability for second differences (linear): " + ST::doubletostring(contourprob(0,0),2) + "\n");
   else if(diff==3)
-    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences (quadratic) : " + ST::doubletostring(contourprob,2) + "\n");
+    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences (quadratic) : " + ST::doubletostring(contourprob(0,0),2) + "\n");
   else if(diff==4)
-    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences (cubic)     : " + ST::doubletostring(contourprob,2) + "\n");
+    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences (cubic)     : " + ST::doubletostring(contourprob(0,0),2) + "\n");
   else
-    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences             : " + ST::doubletostring(contourprob,2) + "\n");
+    optionsp->out("  Contour probability for " + ST::inttostring(diff) + ". differences             : " + ST::doubletostring(contourprob(0,0),2) + "\n");
 
   ST::string path = pathresult.substr(0,pathresult.length()-4)+"_contour.res";
 
   if(diff==0)
     {
     ofstream out(path.strtochar());
-    out << "difforder   contourprob" << endl;
+    out << "difforder   contourprob   mean(log)   mean" << endl;
     out.close();
     }
 
   ofstream out(path.strtochar(),ios::app);
-  out << ST::inttostring(diff) + "   " + ST::doubletostring(contourprob) << endl;
+  out << ST::inttostring(diff) + "   " + ST::doubletostring(contourprob(0,0)) + "   ";
+  out << ST::doubletostring(contourprob(0,1)) + "   " + ST::doubletostring(contourprob(0,2)) << endl;
   out.close();
 
   }
