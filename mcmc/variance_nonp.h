@@ -45,6 +45,9 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
 
   unsigned column;
 
+  FULLCOND fc_lambda;
+  void outresults_lambda(void);  
+
   public:
 
 

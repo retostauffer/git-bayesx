@@ -34,6 +34,12 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
       setbeta(2,1,distrp->get_scale(column,column)/Kp->getlambda());
     else
       setbeta(1,1,distrp->get_scale(column,column)/Kp->getlambda());
+
+    ST::string path = samplepath.substr(0,samplepath.length()-4)+"_lambda.raw";
+    fc_lambda = FULLCOND(o,datamatrix(1,1),Kp->get_title()+"_lambda",1,1,path);
+    fc_lambda.setflags(MCMC::norelchange | MCMC::nooutput);
+    fc_lambda.set_transform(transform);
+      
     }
 
 
@@ -122,6 +128,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(const FULLCOND_variance_nonp & t)
   a_invgamma = t.a_invgamma;
   b_invgamma = t.b_invgamma;
   rankK = t.rankK;
+  fc_lambda = t.fc_lambda;
   }
 
 
@@ -146,6 +153,7 @@ const FULLCOND_variance_nonp & FULLCOND_variance_nonp::operator=(
   a_invgamma = t.a_invgamma;
   b_invgamma = t.b_invgamma;
   rankK = t.rankK;
+  fc_lambda = t.fc_lambda;  
   return *this;
   }
 
@@ -262,6 +270,11 @@ void FULLCOND_variance_nonp::update(void)
   transform = pow(distrp->get_trmult(column),2);
 
   FULLCOND::update();
+
+  double * lambdap = fc_lambda.getbetapointer();
+  *lambdap = distrp->get_scale(column)/beta(0,0);
+  fc_lambda.update();
+
   }
 
 
@@ -388,6 +401,151 @@ void FULLCOND_variance_nonp::outresults(void)
                   + ST::doubletostring(transform*beta(0,0),6) + "\n");
     optionsp->out("\n");
     }
+
+  outresults_lambda();
+
+  }
+
+
+void FULLCOND_variance_nonp::outresults_lambda(void)
+  {
+
+  fc_lambda.outresults();
+
+  ST::string l1 = ST::doubletostring(lower1,4);
+  ST::string l2 = ST::doubletostring(lower2,4);
+  ST::string u1 = ST::doubletostring(upper1,4);
+  ST::string u2 = ST::doubletostring(upper2,4);
+
+  ST::string nl1 = ST::doubletostring(lower1,4);
+  ST::string nl2 = ST::doubletostring(lower2,4);
+  ST::string nu1 = ST::doubletostring(upper1,4);
+  ST::string nu2 = ST::doubletostring(upper2,4);
+  nl1 = nl1.replaceallsigns('.','p');
+  nl2 = nl2.replaceallsigns('.','p');
+  nu1 = nu1.replaceallsigns('.','p');
+  nu2 = nu2.replaceallsigns('.','p');
+
+  ST::string vstr;
+
+  if (optionsp->get_samplesize()>0)
+    {
+    optionsp->out("  Estimation results for the smoothing parameter:\n");
+    optionsp->out("\n");
+
+    Kp->update_stepwise(fc_lambda.get_betamean(0,0));
+
+    vstr = "  Mean:         ";
+    vstr = vstr + ST::string(' ',20-vstr.length())
+                + ST::doubletostring(fc_lambda.get_betamean(0,0),6);
+    optionsp->out(vstr + ST::string(' ',40-vstr.length())
+                       + "(df: " + ST::doubletostring(Kp->compute_df(),6) + ")\n");
+
+    vstr = "  Std. dev.:    ";
+    if (constlambda==false)
+      {
+      optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+      ST::doubletostring(sqrt(fc_lambda.get_betavar(0,0)),6) + "\n");
+      }
+    else
+      {
+      optionsp->out(vstr + ST::string(' ',20-vstr.length()) + "0 \n");
+      }
+
+    Kp->update_stepwise(fc_lambda.get_beta_lower1(0,0));
+
+    vstr = "  " + l1 + "% Quantile: ";
+    vstr = vstr + ST::string(' ',20-vstr.length())
+                + ST::doubletostring(fc_lambda.get_beta_lower1(0,0),6);
+    optionsp->out(vstr + ST::string(' ',40-vstr.length())
+                       + "(df: " + ST::doubletostring(Kp->compute_df(),6) + ")\n");
+
+    Kp->update_stepwise(fc_lambda.get_beta_lower2(0,0));
+
+    vstr = "  " + l2 + "% Quantile: ";
+    vstr = vstr + ST::string(' ',20-vstr.length())
+                + ST::doubletostring(fc_lambda.get_beta_lower2(0,0),6);
+    optionsp->out(vstr + ST::string(' ',40-vstr.length())
+                       + "(df: " + ST::doubletostring(Kp->compute_df(),6) + ")\n");
+
+    Kp->update_stepwise(fc_lambda.get_betaqu50(0,0));
+
+    vstr = "  50% Quantile: ";
+    vstr = vstr + ST::string(' ',20-vstr.length())
+                + ST::doubletostring(fc_lambda.get_betaqu50(0,0),6);
+    optionsp->out(vstr + ST::string(' ',40-vstr.length())
+                       + "(df: " + ST::doubletostring(Kp->compute_df(),6) + ")\n");
+
+    Kp->update_stepwise(fc_lambda.get_beta_upper2(0,0));
+
+    vstr = "  " + u1 + "% Quantile: ";
+    vstr = vstr + ST::string(' ',20-vstr.length())
+                + ST::doubletostring(fc_lambda.get_beta_upper2(0,0),6);
+    optionsp->out(vstr + ST::string(' ',40-vstr.length())
+                       + "(df: " + ST::doubletostring(Kp->compute_df(),6) + ")\n");
+
+    Kp->update_stepwise(fc_lambda.get_beta_upper1(0,0));
+
+    vstr = "  " + u2 + "% Quantile: ";
+    vstr = vstr + ST::string(' ',20-vstr.length())
+                + ST::doubletostring(fc_lambda.get_beta_upper1(0,0),6);
+    optionsp->out(vstr + ST::string(' ',40-vstr.length())
+                       + "(df: " + ST::doubletostring(Kp->compute_df(),6) + ")\n");
+
+    optionsp->out("\n");
+
+    ST::string lambda_pathresults = pathresults.substr(0,pathresults.length()-7) + "lambda.res";
+
+    ofstream ou(lambda_pathresults.strtochar());
+
+    ou << "pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+    nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
+    ou << fc_lambda.get_betamean(0,0) << "  ";
+    if (constlambda==false)
+      {
+      ou << sqrt(fc_lambda.get_betavar(0,0)) << "  ";
+      }
+    else
+      {
+      ou << 0 << "  ";
+      }
+    ou << fc_lambda.get_beta_lower1(0,0) << "  ";
+    ou << fc_lambda.get_beta_lower2(0,0) << "  ";
+    ou << fc_lambda.get_betaqu50(0,0) << "  ";
+    ou << fc_lambda.get_beta_upper2(0,0) << "  ";
+    ou << fc_lambda.get_beta_upper1(0,0) << "  ";
+    ou << fc_lambda.get_betamin(0,0) << "  ";
+    ou << fc_lambda.get_betamax(0,0) << "  " << endl;
+
+    optionsp->out("  Results for the smoothing parameter are also stored in file\n");
+    optionsp->out("  " + lambda_pathresults + "\n");
+
+    optionsp->out("\n");
+
+
+    }
+  else
+    {
+
+    transform = pow(distrp->get_trmult(column),2);
+
+    optionsp->out("  Estimated variance parameter (mode): "
+                  + ST::doubletostring(transform*Kp->getbeta(0,0),6) + "\n");
+    optionsp->out("\n");
+    }
+/*
+  double lambda;
+  for(int i=1;i<=20;i++)
+    {
+    lambda = Kp->lambda_from_df(i,100);
+    optionsp->out("  " + ST::inttostring(i) + " degree(s) of freedom correspond(s) to lambda = "
+                    + ST::doubletostring(lambda,6) + "\n");
+    }
+*/
+  optionsp->out("\n");
+
+  ST::string file = pathresults.substr(0,pathresults.length()-7) + "lambda_sample.raw";
+  fc_lambda.get_samples(file);
 
   }
 

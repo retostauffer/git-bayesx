@@ -102,6 +102,7 @@ FULLCOND::FULLCOND(const FULLCOND & m)
   lambdamin = m.lambdamin;
   lambdamax = m.lambdamax;
   data_forfixed = m.data_forfixed;
+  df_accuracy = m.df_accuracy;
 
   //---------------------------- end: for stepwise -----------------------------
 
@@ -202,6 +203,7 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
   lambdamin = m.lambdamin;
   lambdamax = m.lambdamax;
   data_forfixed = m.data_forfixed;
+  df_accuracy = m.df_accuracy;
 
   //------------------------------ end: stepwise -------------------------------
 
@@ -287,7 +289,7 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
 
   dimX = m.dimX;
   dimZ = m.dimZ;
-  startlambda = m.startlambda; 
+  startlambda = m.startlambda;
   isnonparametric = m.isnonparametric;
 
   return *this;

@@ -495,6 +495,16 @@ class __EXPORT_TYPE FULLCOND
     return betaqu_l2_upper.getV();
     }
 
+  const double & get_betamin(const unsigned & row, const unsigned & col) const
+    {
+    return betamin(row,col);
+    }
+
+  const double & get_betamax(const unsigned & row, const unsigned & col) const
+    {
+    return betamax(row,col);
+    }
+
   double get_lower1(void)
     {
     return lower1;
