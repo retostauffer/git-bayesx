@@ -2519,7 +2519,15 @@ bool remlest::estimate_survival_interval(datamatrix resp,
   datamatrix Survivor(nrobs,2,0);
 // time-varying effects. the first row corresponds to the log-baseline
   datamatrix basef(t_X.rows(),nrbaseline,0);
-  statmatrix<double>baseline(t_X.rows(),1,0);
+  statmatrix<double>baseline;
+  if(timevarying)
+    {
+    baseline=datamatrix(nrobs,t_X.rows(),0);
+    }
+  else
+    {
+    baseline = datamatrix(t_X.rows(),1,0);
+    }
   statmatrix<double>cumbaseline(t_X.rows(),1,0);
   statmatrix<double>cumhazard(nrobs,1,0);
   statmatrix<double>eta(nrobs,1,0);
@@ -2548,21 +2556,12 @@ bool remlest::estimate_survival_interval(datamatrix resp,
   help = resp.sum(0);
   if(help>0)
     {
-    beta(0,0) = 0.25;//log(help/t_X(t_X.rows()-1,1));
+    beta(0,0) = log(help/t_X(t_X.rows()-1,1));
     }
   else
     {
-    beta(0,0) = log(10/t_X(t_X.rows()-1,1));
+    beta(0,0) = log((nrobs/5)/t_X(t_X.rows()-1,1));
     }
-
-/*ofstream out20("c:\\temp\\X.raw");
-X.prettyPrint(out20);
-out20.close();
-
-ofstream out21("c:\\temp\\Z.raw");
-Z.prettyPrint(out21);
-out21.close();*/
-
 
   while(test==true)
     {
@@ -2601,32 +2600,56 @@ out21.close();*/
 
     // compute baseline
 
-    for(i=0; i < t_X.rows();i++)
+    if(timevarying)
       {
-      baseline(i,0)=exp(basef(i,0));
+      baseline = interactvar*basef.transposed();
+      for(i=0; i<baseline.rows(); i++)
+        {
+        for(j=0; j<tend[i];j++)
+          {
+          baseline(i,j)=exp(basef(i,j));
+          }
+        }
+      }
+    else
+      {
+      for(i=0; i<t_X.rows(); i++)
+        {
+        baseline(i,0) = exp(basef(i,0));
+        }
       }
 
     // compute cumulated baseline
-/*ofstream out4("c:\\temp\\tsteps.raw");
-tsteps.prettyPrint(out4);
-out4.close();
-ofstream out5("c:\\temp\\baseline.raw");
-baseline.prettyPrint(out5);
-out5.close();*/
 
-    cumbaseline = datamatrix(cumbaseline.rows(),1,0);
     double former=0;
-    for(i=0; i<t_X.rows()-1; i++)
+    if(!timevarying)
       {
-      cumbaseline(i,0) = former + 0.5*tsteps(i,0)*(baseline(i,0)+baseline(i+1,0));
-      former = cumbaseline(i,0);
+      cumbaseline = datamatrix(cumbaseline.rows(),1,0);
+      for(i=0; i<t_X.rows()-1; i++)
+        {
+        cumbaseline(i,0) = former + 0.5*tsteps(i,0)*(baseline(i,0)+baseline(i+1,0));
+        former = cumbaseline(i,0);
+        }
+      cumbaseline(t_X.rows()-1,0) = former;
       }
-    cumbaseline(t_X.rows()-1,0) = former;// + 0.5*(former-cumbaseline(t_X.rows()-3,0));
-    datamatrix negcumbaseline = -cumbaseline;
+    else
+      {
+      cumbaseline = datamatrix(nrobs,2,0);
+      for(i=0; i<nrobs; i++)
+        {
+        for(k=0; k<tstart[i]; k++)
+          {
+          cumbaseline(i,0) += 0.5*tsteps(k,0)*(baseline(i,k)+baseline(i,k+1));
+          }
+        cumbaseline(i,1) = cumbaseline(i,0);
+        for(k=tstart[i]; k<tend[i]; k++)
+          {
+          cumbaseline(i,0) += 0.5*tsteps(k,0)*(baseline(i,k)+baseline(i,k+1));
+          }
+        }
+      }
 
-/*ofstream out9("c:\\temp\\cumbaseline.raw");
-cumbaseline.prettyPrint(out9);
-out9.close();*/
+    datamatrix negcumbaseline = -cumbaseline;
 
     // compute mult_hazard = exp(x'beta) without time-varying covariates x(t)
 
@@ -2649,45 +2672,46 @@ out9.close();*/
       mult_hazard(i,0)=exp(mult_eta(i,0));
       }
 
-/*ofstream out3("c:\\temp\\mult_hazard.raw");
-mult_hazard.prettyPrint(out3);
-out3.close();
-ofstream out10("c:\\temp\\eta.raw");
-eta.prettyPrint(out10);
-out10.close();
-ofstream out11("c:\\temp\\mult_eta.raw");
-mult_eta.prettyPrint(out11);
-out11.close();
-ofstream out12("c:\\temp\\baseline_eta.raw");
-baseline_eta.prettyPrint(out12);
-out12.close();*/
-
     // compute cumulated hazard
 
-    for(i=0; i<nrobs; i++)
+    if(!timevarying)
       {
-      cumhazard(i,0)=cumbaseline(tend[i]-1,0)*mult_hazard(i,0);
+      for(i=0; i<nrobs; i++)
+        {
+        cumhazard(i,0)=cumbaseline(tend[i]-1,0)*mult_hazard(i,0);
+        }
+      }
+    else
+      {
+      for(i=0; i<nrobs; i++)
+        {
+        cumhazard(i,0)=cumbaseline(i,0)*mult_hazard(i,0);
+        cumhazard(i,1)=cumbaseline(i,1)*mult_hazard(i,0);
+        }
       }
     datamatrix negcumhazard = - cumhazard;
-
-/*ofstream out13("c:\\temp\\cumhazard.raw");
-cumhazard.prettyPrint(out13);
-out13.close();*/
 
     // compute lower and upper surivor function
 
     for(i=0; i<nrobs; i++)
       {
-      if(interval[i])
+      if(!timevarying)
         {
-        Survivor(i,0) = pow(exp(-cumbaseline(tstart[i],0)),mult_hazard(i,0));
-        Survivor(i,1) = pow(exp(-cumbaseline(tend[i]-1,0)),mult_hazard(i,0));
+        if(interval[i])
+          {
+          Survivor(i,0) = pow(exp(-cumbaseline(tstart[i],0)),mult_hazard(i,0));
+          Survivor(i,1) = pow(exp(-cumbaseline(tend[i]-1,0)),mult_hazard(i,0));
+          }
+        }
+      else
+        {
+        if(interval[i])
+          {
+          Survivor(i,0) = exp(-cumhazard(i,0));
+          Survivor(i,1) = exp(-cumhazard(i,1));
+          }
         }
       }
-
-/*ofstream out1("c:\\temp\\Survivor.raw");
-Survivor.prettyPrint(out1);
-out1.close();*/
 
     // compute derivative matrix D
 
@@ -2721,83 +2745,203 @@ out1.close();*/
 
     // Score-Funktion für beta
 
-/*ofstream out2("c:\\temp\\Dmat.raw");
-Dmat.prettyPrint(out2);
-out2.close();
-
-ofstream out6("c:\\temp\\beta.raw");
-beta.prettyPrint(out6);
-out6.close();*/
+    // X
 
     for(j=0; j<xcols; j++)
       {
       H1(j,0)=(resp.transposed()*X.getCol(j))(0,0);
+
+      // x_j gehört zu Baseline
       if(isbaselinebeta[j]==1)
         {
-        for(i=0; i<nrobs; i++)
+
+        // keine zeitvariierende Effekte
+        if(!timevarying)
           {
-          if(interval[i])
+          for(i=0; i<nrobs; i++)
             {
-            H1(j,0) += (
-                        Dmat(tstart[i],dmat_pos[j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,1)
-                       ) * mult_hazard(i,0) / ( Survivor(i,0)-Survivor(i,1) );
+            if(interval[i])
+              {
+              H1(j,0) += (
+                          Dmat(tstart[i],dmat_pos[j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[j])*Survivor(i,1)
+                         ) * mult_hazard(i,0) / ( Survivor(i,0)-Survivor(i,1) );
+              }
+            else
+              {
+              H1(j,0) += Dmat(tend[i]-1,dmat_pos[j])*mult_hazard(i,0);
+              }
             }
-          else
+          }
+        else
+          {
+
+          // zeitvariierende Effekte
+          for(i=0; i<nrobs; i++)
             {
-            H1(j,0) += Dmat(tend[i]-1,dmat_pos[j])*mult_hazard(i,0);
+            if(interval[i])
+              {
+              double left=0;
+              for(k=0; k<tstart[i]; k++)
+                {
+                left -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[j])*
+                                 (t_X(k,dm_pos[j])*baseline(i,k)+t_X(k+1,dm_pos[j])*baseline(i,k+1));
+                }
+              double right=left;
+              for(k=tstart[i]; k<tend[i]; k++)
+                {
+                right -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[j])*
+                                 (t_X(k,dm_pos[j])*baseline(i,k)+t_X(k+1,dm_pos[j])*baseline(i,k+1));
+                }
+              H1(j,0) += (left*Survivor(i,0) - right*Survivor(i,1))
+                         * mult_hazard(i,0) / ( Survivor(i,0)-Survivor(i,1) );
+              }
+            else
+              {
+              double right=0;
+              for(k=0; k<tend[i]; k++)
+                {
+                right -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[j])*
+                                 (t_X(k,dm_pos[j])*baseline(i,k)+t_X(k+1,dm_pos[j])*baseline(i,k+1));
+                }
+              H1(j,0) += right*mult_hazard(i,0);
+              }
             }
           }
         }
+
+      // x_j gehört nicht zur Baseline
       else
         {
-        for(i=0; i<nrobs; i++)
+
+        // keine zeitvariierenden Effekte
+        if(!timevarying)
           {
-          if(interval[i])
+          for(i=0; i<nrobs; i++)
             {
-            H1(j,0) += (
-                        negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
-                       ) * mult_hazard(i,0) * X(i,j) / (Survivor(i,0)-Survivor(i,1));
+            if(interval[i])
+              {
+              H1(j,0) += (
+                          negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
+                         ) * mult_hazard(i,0) * X(i,j) / (Survivor(i,0)-Survivor(i,1));
+              }
+            else
+              {
+              H1(j,0) += negcumhazard(i,0)*X(i,j);
+              }
             }
-          else
+          }
+
+        // zeitvariierende Effekte
+        else
+          {
+          for(i=0; i<nrobs; i++)
             {
-            H1(j,0) += negcumhazard(i,0)*X(i,j);
+            if(interval[i])
+              {
+              H1(j,0) += (
+                          negcumhazard(i,0)*Survivor(i,0) - negcumhazard(i,1)*Survivor(i,1)
+                         )* X(i,j) / (Survivor(i,0)-Survivor(i,1));
+              }
+            else
+              {
+              H1(j,0) += negcumhazard(i,0)*X(i,j);
+              }
             }
           }
         }
       }
+
+    // Z
 
     for(j=0; j<zcols; j++)
       {
       H1(xcols + j,0)=(resp.transposed()*Z.getCol(j))(0,0);
       if(isbaselinebeta[xcols+j]==1)
         {
-        for(i=0; i<nrobs; i++)
+        if(!timevarying)
           {
-          if(interval[i])
+          for(i=0; i<nrobs; i++)
             {
-            H1(xcols + j,0) += (
-                                Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,1)
-                               ) * mult_hazard(i,0) / (Survivor(i,0)-Survivor(i,1));
+            if(interval[i])
+              {
+              H1(xcols + j,0) += (
+                                  Dmat(tstart[i],dmat_pos[xcols+j])*Survivor(i,0) - Dmat(tend[i]-1,dmat_pos[xcols+j])*Survivor(i,1)
+                                 ) * mult_hazard(i,0) / (Survivor(i,0)-Survivor(i,1));
+              }
+            else
+              {
+              H1(xcols + j,0) += Dmat(tend[i]-1,dmat_pos[xcols+j])*mult_hazard(i,0);
+              }
             }
-          else
+          }
+        else
+          {
+
+          // zeitvariierende Effekte
+          for(i=0; i<nrobs; i++)
             {
-            H1(xcols + j,0) += Dmat(tend[i]-1,dmat_pos[xcols+j])*mult_hazard(i,0);
+            if(interval[i])
+              {
+              double left=0;
+              for(k=0; k<tstart[i]; k++)
+                {
+                left -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[xcols+j])*
+                                 (t_Z(k,dm_pos[xcols+j])*baseline(i,k)+t_Z(k+1,dm_pos[xcols+j])*baseline(i,k+1));
+                }
+              double right=left;
+              for(k=tstart[i]; k<tend[i]; k++)
+                {
+                right -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[xcols+j])*
+                                 (t_Z(k,dm_pos[xcols+j])*baseline(i,k)+t_Z(k+1,dm_pos[xcols+j])*baseline(i,k+1));
+                }
+              H1(xcols+j,0) += (left*Survivor(i,0) - right*Survivor(i,1))
+                         * mult_hazard(i,0) / ( Survivor(i,0)-Survivor(i,1) );
+              }
+            else
+              {
+              double right=0;
+              for(k=0; k<tend[i]; k++)
+                {
+                right -= 0.5*tsteps(k,0)*interactvar(i,fc_pos[xcols+j])*
+                                 (t_Z(k,dm_pos[xcols+j])*baseline(i,k)+t_Z(k+1,dm_pos[xcols+j])*baseline(i,k+1));
+                }
+              H1(xcols+j,0) += right*mult_hazard(i,0);
+              }
             }
           }
         }
       else
         {
-        for(i=0; i<nrobs; i++)
+        if(!timevarying)
           {
-          if(interval[i])
+          for(i=0; i<nrobs; i++)
             {
-            H1(xcols + j,0) += (
-                                negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
-                               ) * mult_hazard(i,0) * Z(i,j) / (Survivor(i,0)-Survivor(i,1));
+            if(interval[i])
+              {
+              H1(xcols + j,0) += (
+                                  negcumbaseline(tstart[i],0)*Survivor(i,0) - negcumbaseline(tend[i]-1,0)*Survivor(i,1)
+                                 ) * mult_hazard(i,0) * Z(i,j) / (Survivor(i,0)-Survivor(i,1));
+              }
+            else
+              {
+              H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
+              }
             }
-          else
+          }
+        else
+          {
+          for(i=0; i<nrobs; i++)
             {
-            H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
+            if(interval[i])
+              {
+              H1(xcols + j,0) += (
+                          negcumhazard(i,0)*Survivor(i,0) - negcumhazard(i,1)*Survivor(i,1)
+                         )* Z(i,j) / (Survivor(i,0)-Survivor(i,1));
+              }
+            else
+              {
+              H1(xcols + j,0) += negcumhazard(i,0)*Z(i,j);
+              }
             }
           }
         }
@@ -2807,10 +2951,6 @@ out6.close();*/
       {
       H1(xcols+j,0) -= Qinv(j,0)*beta(xcols+j,0);
       }
-
-/*ofstream out8("c:\\temp\\H1.raw");
-H1.prettyPrint(out8);
-out8.close();*/
 
     // Fisher-Information for beta
 
@@ -3376,20 +3516,7 @@ out8.close();*/
       }
     H = -H;
 
-
-/*ofstream out7("c:\\temp\\H.raw");
-H.prettyPrint(out7);
-out7.close();*/
-
     H.addtodiag(Qinv,xcols,beta.rows());
-
-/*ofstream out14("c:\\temp\\H.raw");
-H.prettyPrint(out14);
-out14.close();
-
-ofstream out16("c:\\temp\\Qinv.raw");
-Qinv.prettyPrint(out16);
-out16.close();*/
 
     // Fisher-scoring für beta
     beta = betaold + H.solve(H1);
@@ -3402,7 +3529,6 @@ out16.close();*/
   // Marginale Likelihood optimieren          //
   //////////////////////////////////////////////
 
-
     Hinv=H.inverse();
 
     // transform theta
@@ -3412,10 +3538,6 @@ out16.close();*/
       theta(i,0)=signs[i]*sqrt(theta(i,0));
       }
 
-/*ofstream out18("c:\\temp\\beta.raw");
-beta.prettyPrint(out18);
-out18.close();*/
-
     // Score-Funktion für theta
 
    for(j=0; j<theta.rows(); j++)
@@ -3424,10 +3546,6 @@ out18.close();*/
                        (Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[j],X.cols()+zcut[j+1],X.cols()+zcut[j+1])).trace()/(theta(j,0)*theta(j,0)*theta(j,0))-
                        (beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]).transposed()*beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]))(0,0)/(theta(j,0)*theta(j,0)*theta(j,0)));
       }
-
-//ofstream out15("c:\\temp\\score.raw");
-//score.prettyPrint(out15);
-//out15.close();
 
     // Fisher-Info für theta
 
@@ -3440,17 +3558,9 @@ out18.close();*/
         }
       }
 
-//ofstream out17("c:\\temp\\Fisher.raw");
-//Fisher.prettyPrint(out17);
-//out17.close();
-
     //Fisher-scoring für theta
 
     theta = thetaold + Fisher.solve(score);
-
-/*ofstream out19("c:\\temp\\theta.raw");
-theta.prettyPrint(out19);
-out19.close();*/
 
     // transform theta back to original parameterisation
 
