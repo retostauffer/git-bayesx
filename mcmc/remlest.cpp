@@ -2428,8 +2428,6 @@ bool remlest::estimate_survival(const datamatrix resp,
          ST::doubletostring(crit2,6)+"\n");
     out("\n");
 
-    out("\n\n"+ST::doubletostring(theta(0,0),6)+"\n\n");
-
     // count iteration
     it=it+1;
     }
