@@ -25,7 +25,7 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   protected:
 
-  int nrcomp;                   // Number of mixture components
+  unsigned nrcomp;                   // Number of mixture components
   datamatrix compweight;        // Weights of mixture components
   statmatrix<unsigned> csize;   // Sizes of mixture components
   statmatrix<unsigned> compind; // Indicators for mixture components
@@ -52,7 +52,7 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   double centerbeta(void);
   bool checkorder;
-  const update_weights(void);
+  void update_weights(void);
 
   public:
 

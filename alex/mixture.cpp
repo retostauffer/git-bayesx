@@ -233,10 +233,11 @@ double FULLCOND_mixture::centerbeta(void)
  }
 
 
-const FULLCOND_mixture::update_weights(void)
+void FULLCOND_mixture::update_weights(void)
   {
   double cwtempsum;
-  for(unsigned k=0;k<nrcomp;k++)
+  unsigned k;
+  for(k=0;k<nrcomp;k++)
     {
     temp(k,0)=rand_gamma(cwprior(k,0)+csize(k,0),1.0);
     }
@@ -245,7 +246,7 @@ const FULLCOND_mixture::update_weights(void)
   compweight.assign(temp);
 
   checkorder=true;
-  for(unsigned k=0;k<nrcomp-1;k++)
+  for(k=0;k<nrcomp-1;k++)
     {
     if(compweight(k,0)>compweight(k+1,0)) checkorder=false;
     }
@@ -304,7 +305,7 @@ void FULLCOND_mixture::update(void)
 
 // Update random effects
   double scaletemp=likep->get_scale(column); // scale parameter sigma_i^2
-  double remtemp,revtemp,indobs,sumworkres,sumworky,sumworklp;
+  double remtemp,revtemp,indobs,sumworkres;
   unsigned comp,j;
 
   for(i=0;i<beta.rows();i++)
