@@ -107,11 +107,19 @@ void FULLCOND_pspline_surf_gaussian::create(const datamatrix & v1, const datamat
 
   make_index(v1,v2);
 
+  datamatrix Kstat;
+
   if(type == mrflinear)
     {
     Ksp = Kmrflinear(nrpar1dim,nrpar1dim);
     rankK = nrpar-1;
     bands = 1;
+    }
+  else if(type == mrfquadratic8)          //  RW2 * RW2
+    {
+    Kstat = STATMAT_PENALTY::K2dim_pspline_rw2(nrpar1dim,2,2);
+    rankK = nrpar-2;
+    bands = 2;
     }
   else if(type == mrfkr1)          //  RW1 * RW1
     {
@@ -128,14 +136,13 @@ void FULLCOND_pspline_surf_gaussian::create(const datamatrix & v1, const datamat
   // NEU STEFAN
   else if(type == mrflinearband)
     {
+    K = Kmrflinearband(nrpar1dim,nrpar1dim);
     rankK = nrpar1dim*nrpar1dim-nrpar1dim;
     bands=1;
     }
   // ENDE: NEU STEFAN
 
-  if (type==mrflinearband)
-    K = Kmrflinearband(nrpar1dim,nrpar1dim);
-  else
+  if(type == mrflinear || type == mrfkr1 || type == mrfkr2)
     {
     datamatrix de(nrpar,1);
     datamatrix ud;
@@ -155,7 +162,26 @@ void FULLCOND_pspline_surf_gaussian::create(const datamatrix & v1, const datamat
 
     K = bandmatdouble(de,ud);
     }
+  else if(type == mrfquadratic8)
+    {
+    datamatrix de(nrpar,1);
+    datamatrix ud;
+    if (type==mrflinear)
+      ud = datamatrix(nrpar,(nrpar1dim)*bands);
+    else
+      ud = datamatrix(nrpar,(nrpar1dim+1)*bands);
+    for(i=0;i<nrpar;i++)
+      {
+      de(i,0) = Kstat(i,i);
+      for(j=0;j<ud.cols();j++)
+        {
+        if (i+j+1 < nrpar)
+          ud(i,j) = Kstat(i,i+j+1);
+        }
+      } // end: for(i=0;i<sizeK;i++)
 
+    K = bandmatdouble(de,ud);
+    }
 
   Kenv = envmatdouble(K);
 
@@ -2000,6 +2026,8 @@ void FULLCOND_pspline_surf_gaussian::outoptions(void)
     typestr= "Kronecker product interaction";
   else if (type==mrflinear)
     typestr = "2 dimensional first order random walk";
+  else if (type==mrfquadratic8)
+    typestr = "2 dimensional second order random walk";
   else if (type==mrfkr1)
     typestr = "Kronecker product interaction (RW1*RW1)";
   else if (type==mrfkr2)
@@ -2760,9 +2788,16 @@ ST::string FULLCOND_pspline_surf_gaussian::get_effect(void)
   ST::string h;
 
   if(varcoeff)
+    {
     h = datanames[1] + "*" + datanames[0] + "(geospline";
+    }
   else
-    h = datanames[0] + "(pspline2dimrw1";
+    {
+    if(type==mrflinear)
+      h = datanames[0] + "(pspline2dimrw1";
+    else
+      h = datanames[0] + "(pspline2dimrw2";
+    }
 
   h = h + ",df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
 

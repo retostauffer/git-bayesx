@@ -1492,6 +1492,8 @@ bool term_interactpspline::check(term & t)
 
     if (t.options[0] == "pspline2dimrw1")
       t.type = "pspline2dimrw1";
+    else if (t.options[0] == "pspline2dimrw2")
+      t.type = "pspline2dimrw2";
     else if (t.options[0] == "tpspline2dimrw1")
       t.type = "tpspline2dimrw1";
     else if (t.options[0] == "pspline2dimband")
@@ -1602,8 +1604,9 @@ bool term_interactpspline::checkvector(const vector<term> & terms,
 
   assert(i< terms.size());
 
-  if ((terms[i].type == "pspline2dimrw1") || (terms[i].type == "psplinekrrw1")
-     || (terms[i].type == "psplinekrrw2") || (terms[i].type == "tpspline2dimrw1")
+  if ((terms[i].type == "pspline2dimrw1") || (terms[i].type == "pspline2dimrw1")
+     || (terms[i].type == "psplinekrrw1") || (terms[i].type == "psplinekrrw2")
+     || (terms[i].type == "tpspline2dimrw1")
      || (terms[i].type == "pspline2dimband") || (terms[i].type == "tpspline2dimband")
      )
     return true;

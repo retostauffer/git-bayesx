@@ -1196,6 +1196,8 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
           (terms[i].options[0] == "tpspline2dimrw1")
          )
         type = MCMC::mrflinear;
+      else if (terms[i].options[0] == "pspline2dimrw2")
+        type = MCMC::mrfquadratic8;
       else if ((terms[i].options[0] == "pspline2dimband")   ||
           (terms[i].options[0] == "tpspline2dimband")
          )
