@@ -3133,6 +3133,77 @@ void remlrun(remlreg & b)
   if (!failure)
     failure = b.create_geokriging_varcoeff(0);
 
+// Setup for plotting results
+
+  if(!failure)
+    {
+    unsigned i,j,k;
+    if(b.family.getvalue()=="multinomial")
+      {
+      b.nrterms = b.cats.rows() * b.fullcond.size();
+      b.needscat = vector<bool>(b.nrterms,true);
+      b.fullcondnr = vector<unsigned>(b.nrterms,0);
+      b.catnr = statmatrix<double>(b.nrterms,1,0);
+      for(j=0; j<b.cats.rows(); j++)
+        {
+        for(i=0; i<b.fullcond.size(); i++)
+          {
+          b.fullcondnr[j*b.fullcond.size()+i] = i;
+          b.catnr(j*b.fullcond.size()+i,0) = b.cats(j,0);
+          }
+        }
+      }
+    else if(b.family.getvalue()=="cumlogit" || b.family.getvalue()=="cumprobit" ||
+            b.family.getvalue()=="seqlogit" || b.family.getvalue()=="seqprobit")
+      {
+      b.nrterms=1;
+      for(i=1; i<b.fullcond.size(); i++)
+        {
+        if(b.fullcond[i]->get_catspecific())
+          {
+          b.nrterms += b.cats.rows();
+          }
+        else
+          {
+          b.nrterms++;
+          }
+        }
+      b.needscat = vector<bool>(b.nrterms,false);
+      b.fullcondnr = vector<unsigned>(b.nrterms,0);
+      b.catnr = statmatrix<double>(b.nrterms,1,0);
+      k=1;
+      for(i=1; i<b.fullcond.size(); i++)
+        {
+        if(b.fullcond[i]->get_catspecific())
+          {
+          for(j=0; j<b.cats.rows(); j++)
+            {
+            b.fullcondnr[k] = i;
+            b.needscat[k] = true;
+            b.catnr(k,0) = b.cats(j,0);
+            k++;
+            }
+          }
+        else
+          {
+          b.fullcondnr[k] = i;
+          b.needscat[k] = false;
+          k++;
+          }
+        }
+      }
+    else
+      {
+      b.nrterms = b.fullcond.size();
+      b.needscat = vector<bool>(b.nrterms,false);
+      b.fullcondnr = vector<unsigned>(b.nrterms,0);
+      for(i=0; i<b.nrterms; i++)
+        {
+        b.fullcondnr[i] = i;
+        }
+      }
+    }
+
   if (!failure)
     {
     header= "remlreg object " + b.name.to_bstr() + ": reml procedure" ;
@@ -3250,7 +3321,50 @@ void remlrun(remlreg & b)
 #if defined(JAVA_OUTPUT_WINDOW)
   if(!failure)
     {
-    for(unsigned j=0;j<b.fullcond.size();j++)
+    unsigned j;
+    for(j=0; j<b.nrterms; j++)
+      {
+      MCMC::plotstyles plst = b.fullcond[b.fullcondnr[j]]->get_plotstyle();
+      if(plst != MCMC::noplot)
+        {
+        vector<ST::string> varnames = b.fullcond[b.fullcondnr[j]]->get_datanames();
+        ST::string xvar = varnames[0];
+        ST::string effect = xvar;
+        if(varnames.size()>1)
+          {
+          effect = varnames[1] + "*" + effect;
+          }
+        ST::string pathresult = b.fullcond[b.fullcondnr[j]]->get_pathresult();
+        if(b.needscat[j])
+          {
+          pathresult = pathresult.insert_after_string(ST::doubletostring(b.catnr(j,0),6)+"_","_f_");
+          }
+        ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+        if(plst == MCMC::plotnonp)
+          {
+          b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
+          + ", title = \"Effect of " + effect +"\" xlab = " + xvar
+          + " ylab = \" \" outfile = " + pathps + ".ps replace");
+          }
+        else if(plst==MCMC::drawmap)
+          {
+          double u = b.fullcond[b.fullcondnr[j]]->get_level1();
+          double o = b.fullcond[b.fullcondnr[j]]->get_level2();
+          ST::string u_str = ST::doubletostring(u,0);
+          ST::string o_str = ST::doubletostring(o,0);
+          b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+            + ", color outfile = " + pathps + "_pmode.ps replace");
+          b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+            + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+            + "_pcat" + u_str + ".ps replace");
+          b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+            + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+            + "_pcat" + o_str + ".ps replace");
+          }
+        }
+      }
+
+/*    for(unsigned j=0;j<b.fullcond.size();j++)
       {
       MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
       if(plst != MCMC::noplot)
@@ -3319,7 +3433,7 @@ void remlrun(remlreg & b)
             }
           }
         }
-      }
+      }*/
     }
 #endif
 
@@ -3386,7 +3500,12 @@ void drawmaprun(remlreg & b)
     error = true;
     }
 
-  unsigned catnum;
+  if(nr < 0 || nr>=b.nrterms)
+    {
+    b.outerror("ERROR: syntax error for method drawmap\n");
+    error = true;
+    }
+/*  unsigned catnum;
   if(b.ismultinomial)
     {
     catnum = nr / b.fullcond.size();
@@ -3402,11 +3521,12 @@ void drawmaprun(remlreg & b)
     {
     b.outerror("ERROR: syntax error for method drawmap\n");
     error = true;
-    }
+    }*/
 
   if (error == false)
     {
-    if (b.fullcond[nr]->get_plotstyle() != MCMC::drawmap)
+//    if (b.fullcond[nr]->get_plotstyle() != MCMC::drawmap)
+    if (b.fullcond[b.fullcondnr[nr]]->get_plotstyle() != MCMC::drawmap)
       {
       error = true;
       b.outerror("ERROR: results cannot be visualized with method drawmap\n");
@@ -3415,11 +3535,15 @@ void drawmaprun(remlreg & b)
 
   if (error==false)
     {
-
-    ST::string path = b.fullcond[nr]->get_pathresult();
+/*    ST::string path = b.fullcond[nr]->get_pathresult();
     if(b.ismultinomial)
       {
       path = path.insert_after_string(ST::doubletostring(b.cats(catnum,0),6)+"_","_f_");
+      }*/
+    ST::string path = b.fullcond[b.fullcondnr[nr]]->get_pathresult();
+    if(b.needscat[nr])
+      {
+      path = path.insert_after_string(ST::doubletostring(b.catnr(nr,0),6)+"_","_f_");
       }
 
     vector<ST::string> vnames;
@@ -3438,7 +3562,8 @@ void drawmaprun(remlreg & b)
     ST::string plotvar;
       plotvar = b.plotvar.getvalue() + " " + vnames[1] + " ";
 
-    ST::string ot="map=" + b.fullcond[nr]->getinfo() + " ";
+//    ST::string ot="map=" + b.fullcond[nr]->getinfo() + " ";
+    ST::string ot="map=" + b.fullcond[b.fullcondnr[nr]]->getinfo() + " ";
 
     ot = ot + "nrcolors="+b.nrcolors.getValueAsString()+" ";
     ot = ot + "title=\""+b.title2.getvalue() + "\" ";
@@ -3497,7 +3622,7 @@ void plotnonprun(remlreg & b)
     error = true;
     }
 
-  unsigned catnum;
+/*  unsigned catnum;
   if(b.ismultinomial)
     {
     catnum = nr / b.fullcond.size();
@@ -3513,11 +3638,18 @@ void plotnonprun(remlreg & b)
     {
     b.outerror("ERROR: syntax error for method plotnonp\n");
     error = true;
+    }*/
+
+  if (nr < 0 || nr >= b.nrterms)
+    {
+    b.outerror("ERROR: syntax error for method plotnonp\n");
+    error = true;
     }
 
   if (error == false)
     {
-    if (b.fullcond[nr]->get_plotstyle() != MCMC::plotnonp)
+//    if (b.fullcond[nr]->get_plotstyle() != MCMC::plotnonp)
+    if (b.fullcond[b.fullcondnr[nr]]->get_plotstyle() != MCMC::plotnonp)
       {
       error = true;
       b.outerror("ERROR: results cannot be visualized with method plotnonp\n");
@@ -3526,12 +3658,15 @@ void plotnonprun(remlreg & b)
 
   if (error==false)
     {
-
-    ST::string path = b.fullcond[nr]->get_pathresult();
-
+/*    ST::string path = b.fullcond[nr]->get_pathresult();
     if(b.ismultinomial)
       {
       path = path.insert_after_string(ST::doubletostring(b.cats(catnum,0),6)+"_","_f_");
+      }*/
+    ST::string path = b.fullcond[b.fullcondnr[nr]]->get_pathresult();
+    if(b.needscat[nr])
+      {
+      path = path.insert_after_string(ST::doubletostring(b.catnr(nr,0),6)+"_","_f_");
       }
 
     vector<ST::string> vnames;
@@ -3642,6 +3777,7 @@ void plotnonprun(remlreg & b)
 #if defined(BORLAND_OUTPUT_WINDOW)
 #pragma package(smart_init)
 #endif
+
 
 
 

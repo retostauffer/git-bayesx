@@ -78,6 +78,13 @@ class __EXPORT_TYPE remlreg : public statobject
   fileoption outfile;
   optionlist globaloptions;
 
+  // general variables for plotting results
+
+  unsigned nrterms;                         // Anzahl Modellterme
+  vector<unsigned> fullcondnr;              // Welches fullcond-Objekt gehört zu dem Term
+  datamatrix catnr;                         // Zu welcher Kategorie gehört der Term
+  vector<bool> needscat;                    // ist der Effekt kategorienspezifisch
+
 //------------------------------------------------------------------------------
 // ------------------------- for method drawmap --------------------------------
 //------------------------------------------------------------------------------
