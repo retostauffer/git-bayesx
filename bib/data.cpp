@@ -274,6 +274,9 @@ filter filter::operator+(realvar & v)
 
 dataset::dataset(const dataset & d)
   {
+  #if defined(JAVA_OUTPUT_WINDOW)
+  adminb_p = d.adminb_p;
+  #endif
   name = d.name;
   nrobs = d.nrobs;
   datarep = d.datarep;
@@ -286,6 +289,9 @@ const dataset & dataset::operator=(const dataset & d)
   {
   if (this == &d)
 	 return *this;
+  #if defined(JAVA_OUTPUT_WINDOW)
+  adminb_p = d.adminb_p;
+  #endif
   name = d.name;
   nrobs = d.nrobs;
   datarep = d.datarep;
@@ -685,18 +691,48 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
 	 else if (functionname == "uniform")
 		{
 		if (argument.length() == 0)
+          {
+#if defined(JAVA_OUTPUT_WINDOW)
+          realvar h(nrobs);
+          register unsigned i;
+          realvar::iterator it = h.begin();
+
+          jmethodID javauniform = adminb_p->Java->GetMethodID(
+          adminb_p->BayesX_cls, "juniform", "()D");
+
+          for (i=0;i<nrobs;i++,++it)
+        	 *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javauniform);
+          return h;   
+#else
 		  return realob::uniform(nrobs);
+#endif
+          }
 		else
 		  {
 		  errormessages.push_back(
 		  "ERROR: argument not allowed in function uniform\n");
-		  return realvar(nrobs);
+    	  return realvar(nrobs);
 		  }
 		}  // end: uniform
 	 else if (functionname == "normal")
 		{
 		if (argument.length() == 0)
-		  return normal(nrobs);
+          {
+#if defined(JAVA_OUTPUT_WINDOW)
+          realvar h(nrobs);
+          register unsigned i;
+          realvar::iterator it = h.begin();
+
+          jmethodID javanormal = adminb_p->Java->GetMethodID(
+          adminb_p->BayesX_cls, "jnormal", "()D");
+
+          for (i=0;i<nrobs;i++,++it)
+        	 *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javanormal);
+          return h;
+#else
+		  return realob::normal(nrobs);
+#endif
+          }
 		else
 		  {
 		  errormessages.push_back(
@@ -707,12 +743,38 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
 	 else if (functionname == "exponential")
 		{
 		valuevek = eval_exp(argument,false);
+#if defined(JAVA_OUTPUT_WINDOW)
+        realvar h(nrobs);
+        register unsigned i;
+        realvar::iterator it = h.begin();
+
+        jmethodID javaexponential = adminb_p->Java->GetMethodID(
+        adminb_p->BayesX_cls, "jexponential", "(D)D");
+
+        for (i=0;i<nrobs;i++,++it)
+      	 *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javaexponential, valuevek[i]);
+        return h;
+#else
 		return exponential(valuevek);
+#endif
 		}   // end: exponential
 	 else if (functionname == "bernoulli")
 		{
 		valuevek = eval_exp(argument,false);
+#if defined(JAVA_OUTPUT_WINDOW)
+        realvar h(nrobs);
+        register unsigned i;
+        realvar::iterator it = h.begin();
+
+        jmethodID javabernoulli = adminb_p->Java->GetMethodID(
+        adminb_p->BayesX_cls, "jbernoulli", "(D)D");
+
+        for (i=0;i<nrobs;i++,++it)
+      	 *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabernoulli, valuevek[i]);
+        return h;
+#else
 		return bernoulli(valuevek);
+#endif
 		}   // end: bernoulli
 	 else if (functionname == "binomial")
 		{
@@ -734,7 +796,20 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
 		  {
 		  valuevek = eval_exp(arglist[0],false);
 		  valuevek2 = eval_exp(arglist[1],false);
+#if defined(JAVA_OUTPUT_WINDOW)
+          realvar h(nrobs);
+          register unsigned i;
+          realvar::iterator it = h.begin();
+
+          jmethodID javabinomial = adminb_p->Java->GetMethodID(
+          adminb_p->BayesX_cls, "jbinomial", "(DD)D");
+
+          for (i=0;i<nrobs;i++,++it)
+      	   *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabinomial, valuevek[i], valuevek2[i]);
+          return h;
+#else
 		  return binomial(valuevek,valuevek2);
+#endif
 		  }
 		}   // end: binomial
       else if (functionname == "gamma")
@@ -758,7 +833,20 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
 		  {
 		  valuevek = eval_exp(arglist[0],false);
 		  valuevek2 = eval_exp(arglist[1],false);
+#if defined(JAVA_OUTPUT_WINDOW)
+          realvar h(nrobs);
+          register unsigned i;
+          realvar::iterator it = h.begin();
+
+          jmethodID javagamma = adminb_p->Java->GetMethodID(
+          adminb_p->BayesX_cls, "jgamma", "(DD)D");
+
+          for (i=0;i<nrobs;i++,++it)
+      	   *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javagamma, valuevek[i], valuevek2[i]);
+          return h;
+#else
 		  return gamma(valuevek,valuevek2);
+#endif
 		  }
 
         }

@@ -254,6 +254,10 @@ class __EXPORT_TYPE filter : public vector<bool>
 class __EXPORT_TYPE dataset
   {
 
+  #if defined(JAVA_OUTPUT_WINDOW)
+  administrator_basic * adminb_p;
+  #endif
+
   protected:
 
 
@@ -312,8 +316,15 @@ class __EXPORT_TYPE dataset
 
   // CONSTRUCTOR
 
+#if defined(JAVA_OUTPUT_WINDOW)
+  dataset(const ST::string & n,administrator_basic * adb)
+#else
   dataset(const ST::string & n)
+#endif
 	 {
+     #if defined(JAVA_OUTPUT_WINDOW)
+     adminb_p = adb;
+     #endif
 	 datarep = data();
 	 name = n;
 	 nrobs = 0;

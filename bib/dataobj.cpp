@@ -175,7 +175,7 @@ dataobject::dataobject(administrator_basic * adb, administrator_pointer * adp,
 			 : statobject(adb,n,"dataset",lo,in)
 	 {
      adminp_p = adp;
-	 d = dataset(n);
+	 d = dataset(n,adb);
 	 create();
 	 }
 #else
