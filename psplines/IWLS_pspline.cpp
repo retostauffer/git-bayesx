@@ -431,7 +431,6 @@ bool IWLS_pspline::posteriormode(void)
       compute_intercept();
       for(unsigned i=0;i<nrpar;i++)
         beta(i,0) -= intercept;
-//      likep->add_linearpred_m(-intercept,column);
       fcconst->posteriormode_intercept(intercept);
       for(unsigned i=0;i<likep->get_nrobs();i++)
         spline(i,0) -= intercept;
@@ -497,7 +496,7 @@ void IWLS_pspline::update(void)
     update_prediction();
 
   if(interaction == false)                                  // wird bei interaction==true in der full conditional des Interaktionseffekts gemacht
-    {                                                       // spline in fchelp schreiben, etc.    
+    {                                                       // spline in fchelp schreiben, etc.
     if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
         ((optionsp->get_nriter()-optionsp->get_burnin()-1) % optionsp->get_step() == 0) )
       {
@@ -1310,8 +1309,6 @@ void IWLS_pspline::update_diagtransform(void)
         intercepthelp += help(i,j)*intercept;
       beta(i,0) -= intercepthelp;
       }
-
-//    likep->add_linearpred_m(-intercept,column);
     fcconst->update_intercept(intercept);
     for(i=0;i<likep->get_nrobs();i++)
       spline(i,0) -= intercept;

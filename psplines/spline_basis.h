@@ -301,6 +301,14 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
 
   void update_prediction(void);
 
+  // FUNCTION: sample_monotonic
+  // TASK: samples beta under monotonicity constraints
+
+  double sample_monotonic(const unsigned i, const double m, const double s);
+
+  double argmax(const unsigned i);
+
+
 
   public:
 
@@ -363,6 +371,16 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
   // TASK: berechnet Werte der B-Spline Basisfunktionen an der Stelle x
 
   datamatrix bspline(const double & x);
+
+  // FUNCTION: bspline
+  // TASK: berechnet Werte der B-Spline Basisfunktionen vom Grad d an der Stelle x
+
+  datamatrix bspline(const double & x, const unsigned & d);
+
+  // FUNCTION: deriv_f
+  // TASK: berechnet den Spline an der Stelle x mit dem aktuellen beta
+
+  double deriv_f(const double & x);
 
   // FUNCTION: multBS
   // TASK: computes BS*beta (B*beta respectively) and stores the result in res

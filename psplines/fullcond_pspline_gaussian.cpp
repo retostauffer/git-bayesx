@@ -117,7 +117,7 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o,
   muy = datamatrix(nrpar,1,0);
   betahelp = muy;
 
-// gamma initialisieren
+// gamma für hierarchical centering initialisieren
 
   if(hierarchical)
     {
@@ -226,7 +226,7 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o, DISTRIBUTI
   muy = datamatrix(nrpar,1,0);
   betahelp = muy;
 
-// gamma initialisieren
+// gamma für hierarchical centering initialisieren
 
   if(hierarchical)
     {
@@ -306,7 +306,7 @@ void FULLCOND_pspline_gaussian::update(void)
     else
       subtr_spline();                                 // eta = eta - spline + intercept
 
-    if(changingweight)  // für t-link
+    if(changingweight)                                // für t-link
       compute_XWXenv(likep->get_weight());
 
     double scaleinv = 1.0/likep->get_scale(column);   // scaleinv = 1/scale
@@ -462,7 +462,7 @@ void FULLCOND_pspline_gaussian::update_isotonic(void)
 
   subtr_spline();
 
-  if(changingweight)  // für t-link
+  if(changingweight)                                  // für t-link
     compute_XWXenv(likep->get_weight());
 
   double scaleinv = 1.0/likep->get_scale(column);
@@ -470,41 +470,6 @@ void FULLCOND_pspline_gaussian::update_isotonic(void)
 
   likep->compute_respminuslinpred(mu,column);         // nicht ändern wegen multgaussian
   compute_XWtildey(likep->get_weight(),scaleinv);
-/*
-  help = 0.0;
-  for(j=1;j<nrpar;j++)
-    help += prec_env(0,j)*beta(j,0);
-  m = (muy(0,0) - help)/prec_env(0,0);
-  if(increasing)
-    beta(0,0) = trunc_normal2(-20,beta(1,0),m,sqrt(1.0/prec_env(0,0)));
-  else
-    beta(0,0) = trunc_normal2(beta(1,0),20,m,sqrt(1.0/prec_env(0,0)));
-
-  for(i=1;i<nrpar-1;i++)
-    {
-
-    help = 0.0;
-    for(j=0;j<i;j++)
-      help += prec_env(i,j)*beta(j,0);
-    for(j=i+1;j<nrpar;j++)
-      help += prec_env(i,j)*beta(j,0);
-    m = (muy(i,0) - help)/prec_env(i,i);
-    if(increasing)
-      beta(i,0) = trunc_normal2(beta(i-1,0),beta(i+1,0),m,sqrt(1.0/prec_env(i,i)));
-    else
-      beta(i,0) = trunc_normal2(beta(i+1,0),beta(i-1,0),m,sqrt(1.0/prec_env(i,i)));
-
-    }
-
-  help = 0.0;
-  for(j=0;j<nrpar-1;j++)
-    help += prec_env(nrpar-1,j)*beta(j,0);
-  m = (muy(nrpar-1,0) - help)/prec_env(nrpar-1,nrpar-1);
-  if(increasing)
-    beta(nrpar-1,0) = trunc_normal2(beta(nrpar-2,0),20,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
-  else
-    beta(nrpar-1,0) = trunc_normal2(-20,beta(nrpar-2,0),m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
-*/
 
   int count = 0;
   int maxit = 100;
@@ -521,6 +486,8 @@ void FULLCOND_pspline_gaussian::update_isotonic(void)
     else
       beta(0,0) = trunc_normal2(beta(1,0),20,m,sqrt(1.0/prec_env(0,0)));
 
+//    beta(0,0) = sample_monotonic(0,m,sqrt(1.0/prec_env(0,0)));
+
     for(i=1;i<nrpar-1;i++)
       {
 
@@ -535,6 +502,7 @@ void FULLCOND_pspline_gaussian::update_isotonic(void)
       else
         beta(i,0) = trunc_normal2(beta(i+1,0),beta(i-1,0),m,sqrt(1.0/prec_env(i,i)));
 
+//      beta(i,0) = sample_monotonic(i,m,sqrt(1.0/prec_env(i,i)));
       }
 
     help = 0.0;
@@ -546,9 +514,12 @@ void FULLCOND_pspline_gaussian::update_isotonic(void)
     else
       beta(nrpar-1,0) = trunc_normal2(-20,beta(nrpar-2,0),m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
 
+//    beta(nrpar-1,0) = sample_monotonic(nrpar-1,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
+
     count++;
 
 /*/
+// Samples von internem Gibbs Sampler rausschreiben
     ST::string file = "e:\\isotonic\\results\\test\\samples_gauss_"+ST::inttostring(optionsp->get_nriter())+".raw";
     if(optionsp->get_nriter() >= 1900)
     {
@@ -645,9 +616,6 @@ out.close();
 
 bool FULLCOND_pspline_gaussian::posteriormode_converged(const unsigned & itnr)
   {
-//  if(increasing || decreasing)
-//    return true;
-//  else
   return likep->posteriormode_converged_fc(beta,beta_mode,itnr);
   }
 
@@ -655,152 +623,144 @@ bool FULLCOND_pspline_gaussian::posteriormode_converged(const unsigned & itnr)
 bool FULLCOND_pspline_gaussian::posteriormode(void)
   {
 
-/*  if(increasing || decreasing)
-    {
-    return true;
-    }
-  else                          */
-    {
-    transform = likep->get_trmult(column);
-    fchelp.set_transform(transform);
+  transform = likep->get_trmult(column);
+  fchelp.set_transform(transform);
 
-    unsigned i;
+   unsigned i;
+
+  if(samplecentered)
+    likep->substr_linearpred(spline);
+  else
+    subtr_spline();
+
+  compute_XWXenv(likep->get_weightiwls(),column);
+  prec_env.addto(XX_env,Kenv,1.0,lambda);
+  lambda_prec = lambda;
+
+  likep->compute_workingresiduals(column);
+  compute_XWtildey(likep->get_weightiwls(),likep->get_workingresiduals(),1.0,column);
+
+  prec_env.solve(muy,beta);
+// monotone Regression!
+  if(decreasing)
+    {
+    bool ok = false;
+    while(!ok)
+      {
+      bool ok2 = true;
+      for(unsigned i=1;i<nrpar;i++)
+        {
+        double diff = beta(i,0)-beta(i-1,0);
+        if(diff > 0.0001)
+          {
+          ok2 = false;
+          double mean = 0.5*( beta(i-1,0)+beta(i,0) );
+          beta(i-1,0) = mean;
+          beta(i,0) = mean;
+          }
+        if(diff > 0)
+          {
+          double help = beta(i,0);
+          beta(i,0) = beta(i-1,0);
+          beta(i-1,0) = help;
+          }
+        }
+      ok = ok2;
+      }
+    }
+
+  if(increasing)
+    {
+    bool ok = false;
+    while(!ok)
+      {
+      bool ok2 = true;
+      for(unsigned i=1;i<nrpar;i++)
+        {
+        double diff = beta(i-1,0)-beta(i,0);
+        if(diff > 0.0001)
+          {
+          ok2 = false;
+          double mean = 0.5*(beta(i-1,0)+beta(i,0));
+          beta(i-1,0) = mean;
+          beta(i,0) = mean;
+          }
+        if(diff > 0)
+          {
+          double help = beta(i,0);
+          beta(i,0) = beta(i-1,0);
+          beta(i-1,0) = help;
+          }
+        }
+      ok = ok2;
+      }
+    }
+// ENDE: monoton
+  add_linearpred_multBS();
+
+  if(center)
+    {
+    if(samplecentered)
+      {
+      sample_centered_env(beta);
+      }
+    else
+      {
+      compute_intercept();
+      fcconst->posteriormode_intercept(intercept);
+      }
+    }
+
+  if(interaction == false)
+    {
 
     if(samplecentered)
-      likep->substr_linearpred(spline);
+      {
+      write_spline();
+      write_derivative();
+      }
     else
-      subtr_spline();
-
-    compute_XWXenv(likep->get_weightiwls(),column);
-    prec_env.addto(XX_env,Kenv,1.0,lambda);
-    lambda_prec = lambda;
-
-    likep->compute_workingresiduals(column);
-    compute_XWtildey(likep->get_weightiwls(),likep->get_workingresiduals(),1.0,column);
-
-    prec_env.solve(muy,beta);
-// monotone Regression!
-    if(decreasing)
       {
-      bool ok = false;
-      while(!ok)
+      double * fchelpbetap = fchelp.getbetapointer();
+
+      if(gridsize < 0)
         {
-        bool ok2 = true;
-        for(unsigned i=1;i<nrpar;i++)
+        if(varcoeff)
+          multBS(splinehelp,beta);
+
+        vector<int>::iterator freqwork = freqoutput.begin();
+        int * workindex = index.getV();
+        for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
           {
-          double diff = beta(i,0)-beta(i-1,0);
-          if(diff > 0.0001)
+          if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
             {
-            ok2 = false;
-            double mean = 0.5*( beta(i-1,0)+beta(i,0) );
-            beta(i-1,0) = mean;
-            beta(i,0) = mean;
-            }
-          if(diff > 0)
-            {
-            double help = beta(i,0);
-            beta(i,0) = beta(i-1,0);
-            beta(i-1,0) = help;
+            if(varcoeff)
+              *fchelpbetap = splinehelp(i,0) - intercept;
+            else
+              *fchelpbetap = spline(*workindex,0) - intercept;
+            fchelpbetap++;
             }
           }
-        ok = ok2;
-        }
-      }
-
-    if(increasing)
-      {
-      bool ok = false;
-      while(!ok)
-        {
-        bool ok2 = true;
-        for(unsigned i=1;i<nrpar;i++)
-          {
-          double diff = beta(i-1,0)-beta(i,0);
-          if(diff > 0.0001)
-            {
-            ok2 = false;
-            double mean = 0.5*(beta(i-1,0)+beta(i,0));
-            beta(i-1,0) = mean;
-            beta(i,0) = mean;
-            }
-          if(diff > 0)
-            {
-            double help = beta(i,0);
-            beta(i,0) = beta(i-1,0);
-            beta(i-1,0) = help;
-            }
-          }
-        ok = ok2;
-        }
-      }
-// ENDE: monoton
-    add_linearpred_multBS();
-
-    if(center)
-      {
-      if(samplecentered)
-        {
-        sample_centered_env(beta);
         }
       else
         {
-        compute_intercept();
-//        likep->add_linearpred_m(-intercept,column);
-        fcconst->posteriormode_intercept(intercept);
+        multDG(splinehelp,beta);
+        for(i=0;i<gridsize;i++,fchelpbetap++)
+          *fchelpbetap = splinehelp(i,0) - intercept;
         }
+
+      write_derivative();
       }
 
-    if(interaction == false)
-      {
+    if(derivative)
+      fcderivative.posteriormode();
 
-      if(samplecentered)
-        {
-        write_spline();
-        write_derivative();
-        }
-      else
-        {
-        double * fchelpbetap = fchelp.getbetapointer();
-
-        if(gridsize < 0)
-          {
-          if(varcoeff)
-            multBS(splinehelp,beta);
-
-          vector<int>::iterator freqwork = freqoutput.begin();
-          int * workindex = index.getV();
-          for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
-            {
-            if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
-              {
-              if(varcoeff)
-                *fchelpbetap = splinehelp(i,0) - intercept;
-              else
-                *fchelpbetap = spline(*workindex,0) - intercept;
-              fchelpbetap++;
-              }
-            }
-          }
-        else
-          {
-          multDG(splinehelp,beta);
-          for(i=0;i<gridsize;i++,fchelpbetap++)
-            *fchelpbetap = splinehelp(i,0) - intercept;
-          }
-
-        write_derivative();
-        }
-
-      if(derivative)
-        fcderivative.posteriormode();
-
-      fchelp.posteriormode();
-      return FULLCOND_nonp_basis::posteriormode();
-      }  // end: if(interaction == false)
-    else
-      {
-      return true;
-      }
+    fchelp.posteriormode();
+    return FULLCOND_nonp_basis::posteriormode();
+    }  // end: if(interaction == false)
+  else
+    {
+    return true;
     }
 
   }
@@ -906,16 +866,6 @@ double FULLCOND_pspline_gaussian::compute_quadform(void)
     }
   else if(predictright || predictleft)
     {
-/*
-    double quadform = Kenv.compute_quadform(beta,0);
-    if(predictright)
-      for(unsigned i=0;i<nrparpredictright;i++)
-        quadform -= beta(nrpar-1-i,0)*beta(nrpar-1-i,0);
-    if(predictleft)
-      for(unsigned i=0;i<nrparpredictleft;i++)
-        quadform -= beta(i,0)*beta(i,0);
-    return quadform;
-*/
     return Kenv.compute_quadformblock(beta,0,nrparpredictleft,nrpar-nrparpredictright-1);
     }
   else
@@ -1118,7 +1068,6 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
 
   unsigned step;                             // jedes wievielte Sample soll verwendet werden?
   if(approx)
-//    step = 1;
     step = optionsp->get_samplesize()/1000;
   else
     step = optionsp->get_samplesize()/1000;
@@ -1426,59 +1375,7 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
 // sortieren
   for(i=0;i<rankA;i++)
     betasort.sortcol(0,optionsp->get_samplesize()-1,i);
-/*
-  int k,count,t,tstar;
-  bool stop,inside;
 
-  bool significant = false;
-  double p = 0.01;
-
-  while(!significant && p < 1.0)
-    {
-
-    double test = (1.0-p)*optionsp->get_samplesize();
-    k = (int)test;
-
-// Intervall ausrechnen
-
-    stop = false;
-    tstar = optionsp->get_samplesize()/2+1;
-    while(!stop && tstar>=0)
-      {
-      count = 0;
-      for(t=0;t<optionsp->get_samplesize();t++)
-        {
-        inside = true;
-        for(j=0;j<rankA;j++)
-          {
-          if( !( betasort(tstar,j) <= beta(t,j) && beta(t,j) <= betasort(optionsp->get_samplesize()-tstar-1,j) ) )
-            inside = false;
-          }
-        if(inside)           // liegt beta^t drin?
-          count++;
-        }
-      if(count<k)
-        tstar--;             // Intervall verkleinern!
-      else
-        stop = true;         // mindestens k samples liegen im Intervall
-      }
-
-// testen, ob beta_0 drin liegt
-
-    inside = true;
-    for(j=0;j<rankA;j++)
-      {
-      if( !( betasort(tstar,j) <= beta_0(j,0) && beta_0(j,0) <= betasort(optionsp->get_samplesize()-tstar-1,j) ) )
-        inside = false;
-      }
-
-    if(inside)      // liegt beta_0 drin?
-      p += 0.01;    // NICHT signifikant: weiter machen!
-    else
-      significant = true;       // signifikant zum Niveau alpha!
-
-    }
-*/
   double p;
   bool inside;
   unsigned count,t,tstar;

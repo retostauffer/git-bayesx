@@ -261,6 +261,7 @@ void FULLCOND_pspline_surf_gaussian::create(const datamatrix & v1, const datamat
 
   }
 
+  // CONSTRUCTOR
 
 FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
                       DISTRIBUTION * dp, FULLCOND_const * fcc,
@@ -285,8 +286,8 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
 
   }
 
+  // CONSTRUCTOR 2: IWLS
 
-// IWLS
 FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
                       DISTRIBUTION * dp, FULLCOND_const * fcc,
                       const datamatrix & v1, const datamatrix & v2,
@@ -340,6 +341,7 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
   create(v1,v2);
 
 /*
+// Xblock und Kblock initialisieren (für zeilenweise updaten)
   envmatdouble help;
   vector<double>::iterator di;
 
@@ -360,8 +362,8 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
 */
   }
 
+  // CONSTRUCTOR 3: geosplines
 
-// geosplines
 FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
                       MCMCoptions * o, DISTRIBUTION * dp,
                       FULLCOND_const * fcc,
@@ -402,8 +404,8 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
 
   }
 
+  // CONSTRUCTOR 4: IWLS geosplines
 
-// IWLS geosplines
 FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
                       MCMCoptions * o, DISTRIBUTION * dp, FULLCOND_const * fcc,
                       const datamatrix & region, const MAP::map & mp, const ST::string & mn,
@@ -463,8 +465,8 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
 
   }
 
+  // CONSTRUCTOR 5: varying coefficients
 
-// varying coefficients
 FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
                       DISTRIBUTION * dp, FULLCOND_const * fcc,
                       const datamatrix & intact,
@@ -489,8 +491,8 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
 
   }
 
+  // CONSTRUCTOR 6: IWLS varying coefficients
 
-// IWLS varying coefficients
 FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
                       DISTRIBUTION * dp, FULLCOND_const * fcc,const datamatrix & intact,
                       const datamatrix & v1, const datamatrix & v2, const ST::string & ti,
@@ -538,8 +540,8 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
 
   }
 
+  // CONSTRUCTOR 7: geosplines varying coefficients
 
-// geosplines varying coefficients
 FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
                       MCMCoptions * o, DISTRIBUTION * dp, FULLCOND_const * fcc,
                       const datamatrix & intact,
@@ -580,8 +582,8 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
 
   }
 
+  // CONSTRUCTOR 8: IWLS geosplines varying coefficients
 
-// IWLS geosplines varying coefficients
 FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
                       MCMCoptions * o, DISTRIBUTION * dp,FULLCOND_const * fcc,
                       const datamatrix & intact,
@@ -691,7 +693,6 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(const FULLCOND_ps
   muyhelp = fc.muyhelp;
   betahelp = fc.betahelp;
   betahelp2 = fc.betahelp2;
-  betasample = fc.betasample;
   standnormal = fc.standnormal;
 
   }
@@ -748,7 +749,6 @@ const FULLCOND_pspline_surf_gaussian & FULLCOND_pspline_surf_gaussian::operator=
   muyhelp = fc.muyhelp;
   betahelp = fc.betahelp;
   betahelp2 = fc.betahelp2;
-  betasample = fc.betasample;
   standnormal = fc.standnormal;
 
   return *this;
@@ -1389,13 +1389,14 @@ void FULLCOND_pspline_surf_gaussian::update_IWLS_hyperblock_mode(void)
 
   double aprop,bprop;
 
+// Tuning von f bei proposal nach Rue/Held
 //  if(optionsp->get_nriter()%100==0 && optionsp->get_nriter()<optionsp->get_burnin()/2)
 //    tune_updatetau(alpha_30);
 
 //  if(optionsp->get_nriter() == optionsp->get_burnin())
 //    optionsp->out("NOTE: Tuning constant 'f' for term " + title + " set to " + ST::doubletostring(f) + "\n");
 
-// für aprop,bprop
+// für aprop,bprop (Gamma proposal)
   if(optionsp->get_nriter() == optionsp->get_burnin()/2)
     {
     kappamean = 2.0*kappaburnin.mean(0);
@@ -1404,90 +1405,81 @@ void FULLCOND_pspline_surf_gaussian::update_IWLS_hyperblock_mode(void)
 //    optionsp->out("  var for the Gamma proposal: " + ST::doubletostring(kappavar)  + "\n");
     }
 
-// für proposal
+// für Gamma proposal
   aprop = kappamean*kappamean/(f2*kappavar);
   bprop = kappamean/(f2*kappavar);
+  kappamode = (aprop-1)/bprop;                                        // Mode Gamma proposal
 
-// für sigma2
-  kappamode = (aprop-1)/bprop;
-  kappamean = aprop/bprop;
+  sigma2 = 1.0/kappamode;                                             // für prec_env!
 
-  sigma2 = 1.0/kappamode;
-//  sigma2 = 1.0/kappamean;
+//  kappaprop = kappamode*randnumbers::rand_variance(f);              // Rue/Held
+  kappaprop = randnumbers::rand_gamma(aprop,bprop);                   // Gamma proposal
 
-//  kappaprop = kappamode*randnumbers::rand_variance(f);
-  kappaprop = randnumbers::rand_gamma(aprop,bprop);
+  double logold = likep->loglikelihood(true) - 0.5*Kenv.compute_quadform(beta,0)*kappa;
+  logold += 0.5*rankK*log(kappa);                                     // Normalisierungskonstante der Priori von beta ( exp(-1/2 kappa * beta'K beta) )
+  logold += (a_invgamma-1)*log(kappa) - b_invgamma*kappa;             // Gamma prior
 
-  if(singleblock)
+  add_linearpred_multBS2(beta_mode);
+
+  if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+      ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
     {
+    likep->compute_IWLS_weight_tildey(W,mu,column,true);
+    mu.plus(spline,mu);
+    compute_XWXenv(W,column);
+    }
+  else
+    {
+    likep->tilde_y(mu,spline,column,true,W);
+    }
 
-    double logold = likep->loglikelihood(true) - 0.5*Kenv.compute_quadform(beta,0)*kappa;
-    logold += 0.5*rankK*log(kappa);             // Normalisierungs Konstante
-    logold += (a_invgamma-1)*log(kappa) - b_invgamma*kappa;           // gamma prior
+  compute_XWtildey(W,1.0);
 
-    add_linearpred_multBS2(beta_mode);
+  prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
 
-    if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
-        ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
-      {
-      likep->compute_IWLS_weight_tildey(W,mu,column,true);
-      mu.plus(spline,mu);
-      compute_XWXenv(W,column);
-      }
-    else
-      {
-      likep->tilde_y(mu,spline,column,true,W);
-      }
+  prec_env.solve(muy,betahelp);
 
-    compute_XWtildey(W,1.0);
+  double * work = proposal.getV();
+  for(unsigned i=0;i<nrpar;i++,work++)
+    *work = rand_normal();
 
-    prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
+  prec_env.addto(XX_env,Kenv,1.0,kappaprop);
 
-    prec_env.solve(muy,betahelp);
+  prec_env.solveU(proposal,betahelp);
 
-    double * work = proposal.getV();
-    for(unsigned i=0;i<nrpar;i++,work++)
-      *work = rand_normal();
+  add_linearpred_multBS2(proposal);
+  beta_mode.assign(betahelp);
 
-    prec_env.addto(XX_env,Kenv,1.0,kappaprop);
+  betahelp.minus(proposal,beta_mode);
+  double qold = 0.5*prec_env.getLogDet() - 0.5*prec_env.compute_quadform(betahelp,0);
+//  qold += log(1.0/kappamode + 1.0/kappaprop);                         // Rue/Held
+  qold += (aprop-1)*log(kappaprop) - bprop*kappaprop;                 // Gamma proposal
 
-    prec_env.solveU(proposal,betahelp);
+  double lognew = likep->loglikelihood(true) - 0.5*Kenv.compute_quadform(proposal,0)*kappaprop;
+  lognew += 0.5*rankK*log(kappaprop);                                 // Normalisierungskonstante der Priori von beta ( exp(-1/2 kappa * beta'K beta) )
+  lognew += (a_invgamma-1)*log(kappaprop) - b_invgamma*kappaprop;     // Gamma prior
 
-    add_linearpred_multBS2(proposal);
-    beta_mode.assign(betahelp);
+  prec_env.addto(XX_env,Kenv,1.0,kappa);
 
-    betahelp.minus(proposal,beta_mode);
-    double qold = 0.5*prec_env.getLogDet() - 0.5*prec_env.compute_quadform(betahelp,0);
-//    qold += log(1.0/kappamode + 1.0/kappaprop);
-    qold += (aprop-1)*log(kappaprop) - bprop*kappaprop;
+  betahelp.minus(beta,beta_mode);
+  double qnew = 0.5*prec_env.getLogDet() - 0.5*prec_env.compute_quadform(betahelp,0);
+//      qnew += log(1.0/kappamode + 1.0/kappa);                         // Rue/Held
+  qnew += (aprop-1)*log(kappa) - bprop*kappa;                         // Gamma proposal
 
-    double lognew = likep->loglikelihood(true) - 0.5*Kenv.compute_quadform(proposal,0)*kappaprop;
-    lognew += 0.5*rankK*log(kappaprop);
-    lognew += (a_invgamma-1)*log(kappaprop) - b_invgamma*kappaprop;
+  double alpha = lognew + qnew - logold - qold;
 
-    prec_env.addto(XX_env,Kenv,1.0,kappa);
+  double u = log(uniform());
 
-    betahelp.minus(beta,beta_mode);
-    double qnew = 0.5*prec_env.getLogDet() - 0.5*prec_env.compute_quadform(betahelp,0);
-//    qnew += log(1.0/kappamode + 1.0/kappa);
-    qnew += (aprop-1)*log(kappa) - bprop*kappa;
-
-    double alpha = lognew + qnew - logold - qold;
-
-    double u = log(uniform());
-
-    if(u<=alpha)
-      {
-      kappa = kappaprop;
-      sigma2 = 1.0/kappa;
-      acceptance++;
-      beta.assign(proposal);
-      }
-    else
-      {
-      add_linearpred_multBS2(beta);
-      }
-
+  if(u<=alpha)
+    {
+    kappa = kappaprop;
+    sigma2 = 1.0/kappa;
+    acceptance++;
+    beta.assign(proposal);
+    }
+  else
+    {
+    add_linearpred_multBS2(beta);
     }
 
   if(center)
@@ -1550,9 +1542,9 @@ void FULLCOND_pspline_surf_gaussian::update(void)
   else if(utype == hyperblockmode)
     {
     if(optionsp->get_nriter()<optionsp->get_burnin()/2)
-      update_IWLS_hyperblock();
+      update_IWLS_hyperblock();                          // Startwert für kappa ermitteln: getrennt updaten
     else
-      update_IWLS_hyperblock_mode();
+      update_IWLS_hyperblock_mode();                     // Simulation: gemeinsam updaten
 
 //    update_IWLS_hyperblock_mode();
     }
@@ -1692,7 +1684,6 @@ void FULLCOND_pspline_surf_gaussian::update(void)
           beta(i,0) -= intercept;
         for(i=0;i<likep->get_nrobs();i++)
           spline(i,0) -= intercept;
-//        likep->add_linearpred_m(-intercept,column);
         fcconst->update_intercept(intercept);
         intercept = 0.0;
         }
@@ -1707,7 +1698,6 @@ void FULLCOND_pspline_surf_gaussian::update(void)
         compute_intercept();
         compute_main();
         compute_beta();
-//        likep->add_linearpred_m(-intercept,column);
         fcconst->update_intercept(intercept);
         mainp1->change(beta1);
         mainp2->change(beta2);
@@ -1717,8 +1707,7 @@ void FULLCOND_pspline_surf_gaussian::update(void)
         {
         compute_intercept();
         compute_main();
-        compute_beta();        
-//        likep->add_linearpred_m(-intercept,column);
+        compute_beta();
         fcconst->update_intercept(intercept);
         mainp1->change(he1,intercept);
         mainp2->change(he2,intercept);
@@ -1892,7 +1881,6 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
         beta(i,0) -= intercept;
       for(i=0;i<likep->get_nrobs();i++)
         spline(i,0) -= intercept;
-//      likep->add_linearpred_m(-intercept,column);
       fcconst->posteriormode_intercept(intercept);
       intercept = 0.0;
       }
@@ -1906,7 +1894,6 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
         compute_intercept();
         compute_main();
         compute_beta();
-//        likep->add_linearpred_m(-intercept,column);
         fcconst->posteriormode_intercept(intercept);
         converged1 = mainp1->changeposterior(beta1);
         converged2 = mainp2->changeposterior(beta2);
@@ -1917,7 +1904,6 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
         compute_intercept();
         compute_main();
         compute_beta();
-//        likep->add_linearpred_m(-intercept,column);
         fcconst->posteriormode_intercept(intercept);
         converged1 = mainp1->changeposterior(he1,intercept);
         converged2 = mainp2->changeposterior(he2,intercept);
@@ -2644,8 +2630,7 @@ void FULLCOND_pspline_surf_gaussian::sample_centered(datamatrix & beta)
 
   }
 
-
- // stepwise
+//------------------------ für stepwise ----------------------------------------
 
 void FULLCOND_pspline_surf_gaussian::reset_effect(const unsigned & pos)
   {

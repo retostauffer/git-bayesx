@@ -34,58 +34,59 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
 
   protected:
 
-  double lambda_prec;
+  double lambda_prec;           // lambda mit dem die aktuelle Präzisionsmatrix berechnet wurde
 
-  double f2;
-  datamatrix kappaburnin;
+  double f2;                    // Skalierungsfaktor für die Parameter a,b bei Gamma-Proposal für kappa
+                                // bei IWLS update basierend auf dem posteriori Modus
+  datamatrix kappaburnin;       // Samples für kappa aus der ersten Hälfte der burnin Phase
 
-  updatetype utype;
+  updatetype utype;             // iwls || iwlsmode || hyperblock || hyperblockmode
+                                // increasing || decreasing || diagtransform
 
-  double kappa;
-  double kappaprop;
-  double kappacurrent;
-  double kappamean;
-  double kappamode;
-  double kappavar;
+  double kappa;                 // 1/sigma2
+  double kappaprop;             // vorgeschlagenes kappa
+  double kappacurrent;          // für zeilen- und spaltenweises updaten
+  double kappamean;             // Hilfvariable für Startwert von kappamode
+  double kappamode;             // kappa für hyperblock
+  double kappavar;              // Varianz aus kappaburnin
 
-  bool samplecentered;
+  bool samplecentered;          // Samplen unter der Nebenbedingung, dass die Zentrierungskonstante = 0 ist.
 
-  unsigned updateW;
+  unsigned updateW;             // jede wievielte Iteration soll IWLS-Gewicht W neu berechnet werden?
 
-  double a_invgamma;
-  double b_invgamma;
+  double a_invgamma;            // Parameter a der IG(a,b) für sigma2
+  double b_invgamma;            // Parameter a der IG(a,b) für sigma2
 
-  datamatrix beta_ab;
-  datamatrix prop_ab;
-  datamatrix beta_mode_ab;
+  datamatrix W;                 // IWLS Gewichtsmatrix
+  datamatrix proposal;          // Vorgeschlagenes beta
 
-  datamatrix W;
-  datamatrix proposal;
-  bandmatdouble prec2;
+  bandmatdouble XX;             // X'X (für Gauss und zeilenweises updaten)
+  bandmatdouble prec;           // Präzisionsmatrix (X'WX + 1/sigma2*K) als Band-Matrix (für Gauss und zeilenweises updaten)
+  
+  envmatdouble XX_env;          // X'X als Envelope-Matrix (für IWLS)
+  envmatdouble prec_env;        // Präzisionsmatrix (X'WX + 1/sigma2*K) als Envelope-Matrix (für IWLS)
 
-  bandmatdouble XX;
-  envmatdouble XX_env;
-  envmatdouble prec_env;
+  datamatrix mu;                // tildey
+  datamatrix muy;               // X'W*tildey
+  datamatrix standnormal;       // N(0,1)-verteilte ZV
 
-  vector<datamatrix> Xblock;
-  vector<envmatdouble> Kblock;
+// für zeilen- und spaltenweises updaten
 
-  bool singleblock;
+  bool singleblock;             // zeilen- und spaltenweises updaten oder komplett?
 
-  bandmatdouble prec;
-  datamatrix mu;
-  datamatrix muy;
-  datamatrix muyhelp;
-  datamatrix betahelp;
-  datamatrix betahelp2;
-  datamatrix betasample;
-  datamatrix standnormal;
+  vector<datamatrix> Xblock;    // für zeilen- und spaltenweises updaten
+  vector<envmatdouble> Kblock;  // für zeilen- und spaltenweises updaten
+
+  datamatrix beta_ab;           // für zeilen- und spaltenweises updaten
+  datamatrix prop_ab;           // für zeilen- und spaltenweises updaten
+  datamatrix beta_mode_ab;      // für zeilen- und spaltenweises updaten
+
+  datamatrix muyhelp;           // Hilfsvariable
+  datamatrix betahelp;          // Hilfsvariable
+  datamatrix betahelp2;         // Hilfsvariable
+  bandmatdouble prec2;          // Hilfsmatrix
 
   void create(const datamatrix & v1, const datamatrix & v2, const datamatrix & intact=datamatrix(1,1));
-
-  void compute_q(const datamatrix & beta, const unsigned & an, const unsigned & en,
-                 const unsigned & beg, const unsigned & end, const double & sigma2,
-                 const bool & current = true);
 
   // FUNCTION: add_linearpred_multBS
   // TASK: multipliziert 'X' (Desing-Matrix) mit 'b', speichert das Ergebnis in 'spline'
@@ -102,15 +103,22 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
 
   void compute_XWX(const datamatrix & W,const unsigned & col=0);
   void compute_XWXenv(const datamatrix & W,const unsigned & col=0);
+  void compute_XWtildey(const datamatrix & W,const double & scale);
+
+  // für zeilen und spalten weises updaten
 
   void compute_XWX_Block(const datamatrix & W,const unsigned a,const unsigned e,
                          const unsigned beg,const unsigned end,const unsigned & col=0);
   void compute_XWXenv_Block(const datamatrix & W,const unsigned a,const unsigned e,
                             const unsigned beg,const unsigned end,const unsigned & col=0);
-
-  void compute_XWtildey(const datamatrix & W,const double & scale);
-
   void compute_XWtildey_Block(const datamatrix & W,const double & scale,const unsigned & beg,const unsigned & end);
+
+  // FUNCTION: compute_q
+  // TASK: berechnet den Erwartungswertvektor für die IWLS proposal bei zeilenweisem updaten
+
+  void compute_q(const datamatrix & beta, const unsigned & an, const unsigned & en,
+                 const unsigned & beg, const unsigned & end, const double & sigma2,
+                 const bool & current = true);
 
   // für posteriormode
 
@@ -139,16 +147,20 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
 
   // o    : pointer to MCMCoptions object
   // dp   : pointer to DISTRIBUTION object
+  // fcc  : pointer to FULLCOND_const object
   // v1   : covariate vector 1
   // v2   : covariate vector 2
   // ti   : title
   // nrk  : number of knots
   // degr : degree of splines
   // kp   : position of knots (equidistant or quantiles)
-  // dp   : pointer to distribution object
+  // l    : lambda
+  // gs   : gridsize
+  // ft   : fieldtype
   // fp   : file where sampled parameters are stored
   // pres : file where results are stored
-  // sb   :
+  // of   : outfile (wird nicht verwendet)
+  // sb   : singleblock
 
   FULLCOND_pspline_surf_gaussian(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
                          const datamatrix & v1, const datamatrix & v2, const ST::string & ti,
@@ -158,6 +170,11 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
                          const ST::string & of, const bool & sb, const unsigned & c=0);
 
   // CONSTRUCTOR 2: IWLS
+
+  // upW  : updateW
+  // updatetau : updatetau
+  // fstart: Startwert für Tuningparameter f
+  // a,b  : Hyperparameter für IG-prior
 
   FULLCOND_pspline_surf_gaussian(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
                          const datamatrix & v1, const datamatrix & v2,
@@ -169,6 +186,9 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
                          const ST::string & of, const bool & iw, const bool & sb, const unsigned & c=0);
 
   // CONSTRUCTOR 3: geosplines
+
+  // mp   : map object
+  // mn   : name of the map object
 
   FULLCOND_pspline_surf_gaussian(MCMCoptions * o,DISTRIBUTION * dp,
                          FULLCOND_const * fcc,const datamatrix & region,const MAP::map & mp,
@@ -190,6 +210,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
 
 
   // CONSTRUCTOR 5: varying coefficients
+
+  // intact: Interaktionsvariable
 
   FULLCOND_pspline_surf_gaussian(MCMCoptions * o,DISTRIBUTION * dp,
                          FULLCOND_const * fcc,const datamatrix &  intact,
@@ -289,7 +311,7 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
     K.set(i,j,t);
     }
 
-  // stepwise
+// ----------------------- für stepwise ----------------------------------------
 
   void reset_effect(const unsigned & pos);
 
