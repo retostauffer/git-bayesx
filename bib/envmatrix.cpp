@@ -244,6 +244,42 @@ T envmatrix<T>::operator()(const unsigned & i, const unsigned & j) const
 
   }
 
+template<class T>
+envmatrix<T>::envmatrix(const envmatrix & em)
+  {
+  diag = em.diag;
+  env = em.env;
+  ldiag = em.ldiag;
+  lenv = em.lenv;
+  xenv = em.xenv;
+  dim = em.dim;
+  decomposed = em.decomposed;
+  rational_decomposed = em.rational_decomposed;
+  bandwidth = em.bandwidth;
+  }
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+template<class T>
+const envmatrix<T> & envmatrix<T>::operator=(const envmatrix<T> & em)
+  {
+  if (this == &em)
+    return *this;
+
+  diag = em.diag;
+  env = em.env;
+  ldiag = em.ldiag;
+  lenv = em.lenv;
+  xenv = em.xenv;
+  dim = em.dim;
+  decomposed = em.decomposed;
+  rational_decomposed = em.rational_decomposed;
+  bandwidth = em.bandwidth;
+
+  return *this;
+  }
+
+
 //-----------------------------------------------------------------------------
 //--- Functions that decompose a matrix or solve systems of linear equations---
 //-----------------------------------------------------------------------------
@@ -372,7 +408,7 @@ void envmatrix<T>::decomp()
         *ldi=*di;
 //        for(k=0; k<i; k++, h++)
         for(k=0, xe = xenv.begin(), ldk = ldiag.begin(); k<i;
-            k++, h++, ++e, ++le, ++xe, ++l, ++ldk)
+            k++, h++, ++e, ++le, ++xe, ++ldk)
           {
 //          j=xenv[k];
           lej=lenv.begin()+*xe;
@@ -535,6 +571,302 @@ void envmatrix<T>::decomp()
   rational_decomposed=false;
   }
 
+
+template<class T>
+void envmatrix<T>::decomp2(unsigned start)
+  {
+  if(!decomposed)
+    {
+    if(bandwidth==0)
+      {
+//      unsigned i;
+      vector<T>::iterator ld = ldiag.begin();
+      vector<T>::iterator d = diag.begin();
+//      for(i=0; i<dim; i++)
+      for(; d!=diag.end();++ld, ++d)
+        {
+//        ldiag[i]=sqrt(diag[i]);
+        *ld = sqrt(*d);
+        }
+      }
+    else if(bandwidth==1)
+      {
+      vector<T>::iterator d = diag.begin();
+      vector<T>::iterator ld = ldiag.begin();
+      vector<T>::iterator le = lenv.begin();
+      vector<T>::iterator e = env.begin();
+
+      unsigned i;
+//      ldiag[0]=sqrt(diag[0]);
+      *ld=sqrt(*d);
+      ++d;
+//      lenv[0]=env[0]/ldiag[0];
+      if(*e!=0)
+        {
+        *le = *e/ *ld;
+        }
+      else
+        {
+        *le=0;
+        }
+      ++e;
+      ++ld;
+      for(i=1; i<dim-1; i++, ++e, ++ld, ++d)
+        {
+//        ldiag[i]=sqrt(diag[i]-lenv[i-1]*lenv[i-1]);
+        *ld=sqrt(*d-(*le* *le));
+        ++le;
+//        lenv[i]=env[i]/ldiag[i];
+        if(*e!=0)
+          {
+          *le=*e/ *ld;
+          }
+        else
+          {
+          *le=0;
+          }
+        }
+//      ldiag[dim-1]=sqrt(diag[dim-1]-lenv[dim-2]*lenv[dim-2]);
+      *ld=sqrt(*d-*le* *le);
+      }
+    else if(bandwidth==2)
+      {
+      vector<T>::iterator d = diag.begin();
+      vector<T>::iterator ld = ldiag.begin();
+      vector<T>::iterator le = lenv.begin();
+      vector<T>::iterator e = env.begin();
+
+      unsigned i, h;
+//      ldiag[0]=sqrt(diag[0]);
+      *ld=sqrt(*d);
+//      lenv[0]=env[0]/ldiag[0];
+      if(*e!=0)
+        {
+        *le=*e/ *ld;
+        }
+      else
+        {
+        *le=0;
+        }
+      ++d; ++e, ++ld;
+//      ldiag[1]=sqrt(diag[1]-lenv[0]*lenv[0]);
+      *ld=sqrt(*d-*le* *le);
+      ++le;
+      for(i=2, h=1; i<dim; i++)
+        {
+//        lenv[h]=env[h]/ldiag[i-2];
+        if(*e!=0)
+          {
+          *le=*e/ *(ld-1);
+          }
+        else
+          {
+          *le=0;
+          }
+        h++;
+        ++e; ++le;
+//        lenv[h]=(env[h]-lenv[h-1]*lenv[h-2])/ldiag[i-1];
+        *le=(*e-*(le-1)* *(le-2))/ *ld;
+        h++;
+        ++e; ++ld; ++d;
+//        ldiag[i]=sqrt(diag[i]-lenv[h-1]*lenv[h-1]-lenv[h-2]*lenv[h-2]);
+        *ld=sqrt(*d-*le* *le-*(le-1)* *(le-1));
+        ++le;
+        }
+      }
+    else if(bandwidth>2)
+      {
+//      unsigned i, j, k, h, l;
+      unsigned i, k, h, l;
+
+      h = unsigned(start*(start-1)/2);
+      if(start > (unsigned)bandwidth)
+        h = unsigned(bandwidth*(bandwidth-1)/2 + bandwidth*(start-bandwidth));
+
+      vector<T>::iterator di = diag.begin()+start;
+      vector<T>::iterator ldi = ldiag.begin()+start;
+      vector<T>::iterator ldk;
+      vector<T>::iterator e = env.begin()+h;
+      vector<T>::iterator le = lenv.begin()+h;
+      vector<T>::iterator lej;
+      vector<T>::iterator lel;
+      vector<unsigned>::iterator xe;
+
+//      for(i=0; i<bandwidth; i++)
+      for(i=start; i<(unsigned)bandwidth; i++, ++di, ++ldi)
+        {
+//        ldiag[i]=diag[i];
+        *ldi=*di;
+//        for(k=0; k<i; k++, h++)
+        for(k=0, xe = xenv.begin(), ldk = ldiag.begin(); k<i;
+            k++, h++, ++e, ++le, ++xe, ++ldk)
+          {
+//          j=xenv[k];
+          lej=lenv.begin()+*xe;
+//          lenv[h]=env[h];
+          *le=*e;
+//          for(l=h-k; l<h; l++, j++)
+          for(l=h-k, lel=lenv.begin()+h-k; l<h; l++, ++lel, ++lej)
+            {
+//            lenv[h]-=lenv[j]*lenv[l];
+            *le-=*lej* *lel;
+            }
+//          lenv[h]/=ldiag[k];
+          *le/=*ldk;
+//          ldiag[i]-=lenv[h]*lenv[h];
+          *ldi-=*le* *le;
+          }
+//        ldiag[i]=sqrt(ldiag[i]);
+        *ldi=sqrt(*ldi);
+        }
+
+      if(start<=bandwidth)
+        start=bandwidth;
+
+//      for(i=bandwidth; i<dim; i++)
+      for(i=start; i<dim; i++, ++di, ++ldi)
+        {
+//        ldiag[i]=diag[i];
+        *ldi=*di;
+//        for(k=0; k<bandwidth; k++, h++)
+        for(k=0, xe = xenv.begin()+i-bandwidth+1, ldk=ldiag.begin()+i-bandwidth;
+            k<(unsigned)bandwidth; k++, h++, ++e, ++le, ++xe, ++ldk)
+          {
+//          lenv[h]=env[h];
+          *le=*e;
+//          j=xenv[i-bandwidth+k+1]-k;
+          lej=lenv.begin()+*xe-k;
+//          for(l=h-k; l<h; l++, j++)
+          for(l=h-k, lel=lenv.begin()+h-k; l<h; l++, ++lel, ++lej)
+            {
+//            lenv[h]-=lenv[l]*lenv[j];
+            *le-=*lel* *lej;
+            }
+//          lenv[h]/=ldiag[i-bandwidth+k];
+          *le/=*ldk;
+//          ldiag[i]-=lenv[h]*lenv[h];
+          *ldi-=*le* *le;
+          }
+//        ldiag[i]=sqrt(ldiag[i]);
+        *ldi=sqrt(*ldi);
+        }
+      }
+    else
+      {
+      unsigned i, ixenv, iband, ifirst, last, k, l, mstop, m, jstop, j;
+//        unsigned i, ixenv, iband, ifirst, last, k, mstop, m, jstop, j;
+      int kband;
+      T temp = T(0);
+      T s = T(0);
+      T s1 = T(0);
+
+      vector<T>::iterator ldi = ldiag.begin();
+      vector<T>::iterator di = diag.begin();
+      vector<unsigned>::iterator xei = xenv.begin()+1;
+      vector<unsigned>::iterator xek;
+      vector<T>::iterator ek;
+      vector<T>::iterator lem;
+      vector<T>::iterator lel;
+      vector<T>::iterator lek;
+      vector<T>::iterator lej;
+      vector<T>::iterator ldk;
+
+      assert(*di>0);
+      *ldi=sqrt(*di);
+      ++di; ++ldi;
+//        for(i=1; i<dim; i++)
+      for(i=1; i<dim; i++, ++ldi, ++di)
+        {
+//          ixenv = xenv[i];
+//          iband = xenv[i+1]-ixenv;
+//          temp = diag[i];
+
+        ixenv = *xei;
+        ++xei;
+        iband = *xei-ixenv;
+        temp = *di;
+
+        if(iband>0)
+          {
+          ifirst = i-iband;
+          last = ixenv;
+//            for(k=0; k<iband; k++)
+          for(k=0, xek=xenv.begin()+ifirst, ek=env.begin()+ixenv,
+              lek=lenv.begin()+ixenv, ldk=ldiag.begin()+ifirst;
+              k<iband;
+              k++, ++ek, ++lek, ++ldk)
+            {
+//              kband = xenv[k+ifirst+1]-xenv[k+ifirst];
+
+            kband = -(int)*xek;
+            ++xek;
+            kband += *xek;
+
+            if(kband > k)
+              {
+              kband = k;
+              }
+
+//              s=env[k+ixenv];
+            s = *ek;
+
+            l = k+ixenv-kband;
+            lel = lenv.begin()+k+ixenv-kband;
+ //           int h1 = *lel;
+
+            if((kband>0) && (last>=l))
+//              if((kband>0) && (last>=*lel))
+              {
+//                mstop=xenv[k+ifirst+1]-1;
+//                for(m=xenv[k+ifirst+1]-kband; m<=mstop; m++)
+              mstop = *xek - 1;
+              for(lem=lenv.begin() + *xek - kband, m=*xek-kband; m<=mstop;
+                                 ++lem, ++lel, m++)
+                  {
+//                  s=s-lenv[m]*lenv[l];
+                l++;
+                if(*lel!=0 && *lem!=0)
+                  {
+                  s -= *lel**lem;
+                  }
+                }
+              }
+            if(s!=0)
+              {
+//                lenv[k+ixenv]=s/ldiag[k+ifirst];
+              *lek = s/ *ldk;
+              last=k+ixenv;
+              }
+            else
+              {
+//                lenv[k+ixenv]=0;
+              *lek=0;
+              }
+            }
+//            jstop = xenv[i+1]-1;
+          jstop = *xei-1;
+//           for(j=ixenv; j<=jstop; j++)
+         for(j=ixenv, lej=lenv.begin()+ixenv; j<=jstop; j++, ++lej)
+            {
+//              s1 = lenv[j];
+            s1 = *lej;
+            if(s1!=0)
+              {
+              temp = temp - s1*s1;
+              }
+            }
+          }
+        assert(temp>0);
+//          ldiag[i]=sqrt(temp);
+        *ldi = sqrt(temp);
+        }
+      }
+    }
+  decomposed=true;
+  rational_decomposed=false;
+  }
+
+  
 template<class T>
 void envmatrix<T>::decomp_rational()
   {

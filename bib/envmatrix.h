@@ -126,7 +126,11 @@ class envmatrix
 
   // Copy CONSTRUCTOR
 
+  envmatrix(const envmatrix & em);
+
   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const envmatrix & operator=(const envmatrix & em);
 
   //
 
@@ -146,6 +150,13 @@ class envmatrix
   // TASK: Computes the cholesky decomposition and stores it in lenv and ldiag
 
   void decomp();
+
+  // FUNCTION: decomp2
+  // TASK: Computes the cholesky decomposition and stores it in lenv and ldiag
+  // NOTE: The function starts in row 'start' of the calling matrix and assumes
+  //       that all element up to row 'start-1' are already available
+
+  void decomp2(unsigned start=0);
 
   // FUNCTION: decomp_rational
   // TASK: Computes the rational cholesky decomposition U'D^-1U of the calling
