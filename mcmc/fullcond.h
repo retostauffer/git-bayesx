@@ -899,7 +899,7 @@ class __EXPORT_TYPE FULLCOND
   // FUNCTION: posteriormode_single
   // TASK: estimates only the coefficient of the fix effect 'name'
 
-  virtual void posteriormode_single(const vector<ST::string> & name, datamatrix & xnew)
+  virtual void posteriormode_single(const vector<ST::string> & name, datamatrix xnew)
     {
     }
 

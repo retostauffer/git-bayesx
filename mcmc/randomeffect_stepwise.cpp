@@ -128,7 +128,6 @@ void FULLCOND_random::save_betas(vector<double> & modell, unsigned & anzahl)
   {
   vector<double> beta_neu;
   unsigned i;
-  unsigned j;
   if(anzahl == -1)
     {
     double * workbeta = beta.getV();

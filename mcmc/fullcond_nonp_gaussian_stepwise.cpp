@@ -13,7 +13,8 @@ const datamatrix & FULLCOND_nonp_gaussian::get_data_forfixedeffects(void)
      )
     {
     data_forfixed=datamatrix(index.rows(),1);
-    unsigned i,j;
+    unsigned i;
+    int j;
     int * workindex = index.getV();
     double h;
     for(i=0;i<posbeg.size();i++)
@@ -214,7 +215,6 @@ void FULLCOND_nonp_gaussian::save_betas(vector<double> & modell, unsigned & anza
   {
   vector<double> beta_neu;
   unsigned i;
-  unsigned j;
   if(anzahl == -1)
     {
     double * workbeta = beta.getV();
@@ -235,10 +235,10 @@ void FULLCOND_nonp_gaussian::save_betas(vector<double> & modell, unsigned & anza
 
 void FULLCOND_nonp_gaussian::average_posteriormode(vector<double> & crit_weights)
   {
-  unsigned i;
-  unsigned j;
+  unsigned i,k;
+  int j;
   vector<double> beta_spline;
-  for(j=0;j<nrpar;j++)
+  for(i=0;i<nrpar;i++)
     beta_spline.push_back(0);
   double beta_fix = 0;
 
@@ -246,8 +246,8 @@ void FULLCOND_nonp_gaussian::average_posteriormode(vector<double> & crit_weights
     {
     if(beta_average[i].size()>1)
       {
-      for(j=0;j<beta_average[i].size();j++)
-        beta_spline[j] += beta_average[i][j] * crit_weights[i];
+      for(k=0;k<beta_average[i].size();k++)
+        beta_spline[k] += beta_average[i][k] * crit_weights[i];
       }
     else if(beta_average[i].size()==1)
       beta_fix += beta_average[i][0] * crit_weights[i];

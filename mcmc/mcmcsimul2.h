@@ -288,7 +288,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
   void compute_average(void);
 
-  void save_alle_betas(const vector<double> & modell);
+  void save_alle_betas(vector<double> & modell);
 
 
 

@@ -452,7 +452,7 @@ void STEPWISErun::stepwise_nonp(vector<double> & kriteriumiteration2,
   for(i=z;i<fullcond_alle.size();i++)
     {
     unsigned sch;
-    for(sch=1;sch<=increment;sch++)
+    for(sch=1;sch<=unsigned(increment);sch++)
        {
        modell_neu = modell_alt;
        bool lambda_exist;    // zum Überprüfen, ob neues Lambda im Vektor enthalten ist
@@ -799,12 +799,12 @@ void STEPWISErun::stepmin_factor_leer(vector<double> & kriteriumiteration2,
        }
      else
        fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
-                                 fullcond_alle[z]->get_data_forfixedeffects());
+                                  fullcond_alle[z]->get_data_forfixedeffects());
      modell_neu[z+names_fixed.size()-2] = -1;
      }
   else
      fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
-                                 fullcond_alle[z]->get_data_forfixedeffects());                   
+                                 fullcond_alle[z]->get_data_forfixedeffects());
   }
 
 void STEPWISErun::stepmin_leer_factor(vector<double> & kriteriumiteration2,
@@ -1411,7 +1411,7 @@ bool STEPWISErun::koordabstieg(void)
   if(minim == "apprexact")
     {
     minim = "exact";
-    if(fertig==false);
+    if(fertig==false)
       {
       kriterium_neu = kriterium_alt;
       modell_neu = modell_alt;
@@ -2100,7 +2100,7 @@ bool STEPWISErun::finetuning(vector<double> & modell)
               int j = 2;
               while(lambda_exist==false && j>0)
                  {
-                 if(index>=j)
+                 if(int(index)>=j)
                     {
                     if(lambdavec[i-1][index-j]!=0 && lambdavec[i-1][index-j]!=-1)
                        lambda_exist = true;
@@ -3462,8 +3462,9 @@ unsigned STEPWISErun::golden_section(unsigned & z, double & kriterium)
 
   double df = startbedingungen(z);
 
+  bool falsch = false;
   unsigned index = search_lambdaindex(modell_alt[z+names_fixed.size()-2],
-                                lambdavec[z-1],false);
+                                lambdavec[z-1],falsch);
   if(fullcond_alle[z]->get_forced()==false)
     {
     index_vec.push_back(lambdavec[z-1].size()-2);
@@ -3802,11 +3803,11 @@ int STEPWISErun::start_b_suchen(vector<unsigned> & index_vec, vector<double> & k
      while(b_neu > 0)
        {
        found = true;
-       if(b_neu != b)
+       if(b_neu != int(b))
          {
-         if(b_neu != index_vec[2])
+         if(b_neu != int(index_vec[2]))
            {
-           fb = wert_einzeln(z,b_neu,df);
+           fb = wert_einzeln(z,unsigned(b_neu),df);
            index_vec.push_back(b_neu);
            krit_vec.push_back(fb);
            }
@@ -3944,7 +3945,7 @@ void STEPWISErun::compute_average(void)
 
        lambda_exist = false;
        modell_neu = modell_alt;
-       if(index >= sch)
+       if(int(index) >= sch)
           lambda_exist = true;
        if(lambda_exist==true)
           {
@@ -4002,10 +4003,11 @@ versuch.push_back(0.3);
   }
 
 
-void STEPWISErun::save_alle_betas(const vector<double> & modell)
+void STEPWISErun::save_alle_betas(vector<double> & modell)
   {
-  fullcond_alle[0]->save_betas(modell,names_fixed.size());
-  unsigned anzahl = 1;
+  unsigned anzahl = names_fixed.size();
+  fullcond_alle[0]->save_betas(modell,anzahl);
+  anzahl = 1;
   unsigned j;
   for(j=0;j<names_fixed.size()-1;j++)
     {

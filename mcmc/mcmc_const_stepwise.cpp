@@ -148,7 +148,7 @@ bool FULLCOND_const_stepwise::posteriormode(void)
   }
 
 
-void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & names, datamatrix & newx)
+void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & names, datamatrix newx)
   {
   X2 = datamatrix(names.size()+1,names.size()+1,0);
   datamatrix beta_neu = datamatrix(names.size()+1,1,0);

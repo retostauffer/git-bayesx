@@ -125,7 +125,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void include_effect(const vector<ST::string> & names, const datamatrix & newx);
 
-  void posteriormode_single(const vector<ST::string> & names, datamatrix & newx);
+  void posteriormode_single(const vector<ST::string> & names, datamatrix newx);
 
   void safe_const(void);
 
