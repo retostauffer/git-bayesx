@@ -96,11 +96,14 @@ statmatrix<double> K2dim_pspline(const unsigned & nknots)
 statmatrix<double> K2dim_pspline_rw2(const unsigned & nknots)
   {
   statmatrix<double> res(nknots*nknots,nknots*nknots,0);
-  unsigned i,j;
+//  unsigned i,j;
 
-  statmatrix<double> D = diffmat(2,nknots);        // difference matrix of 2nd order
-  statmatrix<double> P1 = kronecker(I,t(D)*D); ?   // penalty matrix of x-direction
-  statmatrix<double> P1 = kronecker(t(D)*D,I); ?   // penalty matrix of y-direction
+  statmatrix<double> D = matrix.diffmat(2,nknots);  ? // difference matrix of 2nd order
+
+  statmatrix<double> DD = matrix.mult(t(D),D) ?       // D'D
+  
+  statmatrix<double> P1 = matrix.kronecker(I,t(D)*D); ?   // penalty matrix of x-direction
+  statmatrix<double> P2 = matrix.kronecker(t(D)*D,I); ?   // penalty matrix of y-direction
   res = P1 + P2;
 
   return res;
