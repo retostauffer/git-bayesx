@@ -1361,25 +1361,27 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
   beta = beta*(A.transposed());
 
   for(i=0;i<rankA;i++)
-    beta.sort(0,optionsp->get_samplesize()-1,i);
+    beta.sortcol(0,optionsp->get_samplesize()-1,i);
 
   double p = 0;
-  bool inside = false;
-  while(!inside && p<optionsp->get_samplesize())
+  bool inside = true;
+  while(inside && p<optionsp->get_samplesize())
     {
 
     inside = true;
 
     for(j=0;j<rankA;j++)
       {
-      if( !(beta(p,j) <= beta_0(j,0) && beta_0(j,0) <= beta(optionsp->get_samplesize()-p-1,j)) )
+      if( !( beta(p,j) <= beta_0(j,0) && beta_0(j,0) <= beta(optionsp->get_samplesize()-p-1,j) ) )
         inside = false;
       }
 
-    p++;
+    if(inside)
+      p++;
+
     }
 
-  p = 1-p/optionsp->get_samplesize();
+  p = p/optionsp->get_samplesize();
 
   if(diff==0)
     optionsp->out("  Pseudo contour probability                                : " + ST::doubletostring(p,3) + "\n");
