@@ -23,7 +23,7 @@ import java.net.*;
  *
  *Created on 14.02.2001
  *
- *Last modified on 20.07.2001
+ *Last modified on 17.08.2004
  *
  *@author Thomas Kneib
  */
@@ -87,6 +87,7 @@ private JDesktopPane jDesktopPanel;
 		private JTextArea commandArea;
 		private JScrollPane commandScrollPane;
 		private ParseThread parseThread = new ParseThread(this);
+		private int threadPriority = Thread.NORM_PRIORITY;
 	private JInternalFrame review;
 		private JList reviewList;
 			private Vector reviewVector;
@@ -123,6 +124,8 @@ private JPanel buttonPanel;
 	protected boolean pause;
 	private boolean processRunning;
 	private JButton outputButton;
+	private JLabel priorityLabel;
+	private JComboBox priorityBox;
 private File registryFile; 
 	private int[] registryArray;
 	private String registryString;
@@ -399,9 +402,22 @@ public BayesX()
 	pauseButton.setPreferredSize(new Dimension(100, 30));
 	outputButton.setPreferredSize(new Dimension(160, 30));
 
+	priorityLabel = new JLabel("PRIORITY:");
+	priorityLabel.setPreferredSize(new Dimension(58, 30));
+
+	String[] priorityStrings = {" VERY LOW", " LOW", " NORMAL", " HIGH", " VERY HIGH"};
+	priorityBox = new JComboBox(priorityStrings);
+	priorityBox.setSelectedIndex(2);
+	priorityBox.setPreferredSize(new Dimension(100, 30));
+	priorityBox.setToolTipText("Change the priority of BayesX");
+	priorityBox.setRequestFocusEnabled(false);
+	priorityBox.addActionListener(this);
+
 	buttonPanel.add(breakButton);
 	buttonPanel.add(pauseButton);
 	buttonPanel.add(outputButton);
+	buttonPanel.add(priorityLabel);
+	buttonPanel.add(priorityBox);
 	this.getContentPane().add(buttonPanel,BorderLayout.NORTH);
 	buttonPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
@@ -783,7 +799,7 @@ public BayesX()
 
 //Listener für die Menüleiste und die Buttons
 
-//ActionListener für File und die Buttons
+//ActionListener für File, die Buttons und die ComboBox
 
 public void actionPerformed(ActionEvent ae)
 	{
@@ -979,7 +995,7 @@ public void actionPerformed(ActionEvent ae)
 				{
 //				parseThread.resume();
 				setPause(false);
-				parseThread.setPriority(Thread.NORM_PRIORITY);
+				parseThread.setPriority(threadPriority);
 				}
 			}
 		else
@@ -1095,7 +1111,7 @@ public void actionPerformed(ActionEvent ae)
 					{
 //					parseThread.resume();
 					setPause(false);
-					parseThread.setPriority(Thread.NORM_PRIORITY);
+					parseThread.setPriority(threadPriority);
 					}
 				}
 			}
@@ -1139,6 +1155,23 @@ public void actionPerformed(ActionEvent ae)
 		setSuppressoutput(false);
 		outputButton.setText("SUPPRESS OUTPUT");
 		outputButton.setToolTipText("Suppresses the documentation of output");
+		}
+	else
+		{
+		JComboBox cb = (JComboBox)ae.getSource();
+		source = (String)cb.getSelectedItem();
+		if(source.equals(" VERY LOW"))
+			threadPriority = 1;
+		else if(source.equals(" LOW"))
+			threadPriority = 3;
+		else if(source.equals(" NORMAL"))
+			threadPriority = 5;
+		else if(source.equals(" HIGH"))
+			threadPriority = 7;
+		else if(source.equals(" VERY HIGH"))
+			threadPriority = 9;
+		if(processRunning && !pause)
+			parseThread.setPriority(threadPriority);
 		}
 	}
 
@@ -1336,7 +1369,7 @@ public void windowClosing(WindowEvent we)
                                                                 mapFrame.dispose();
 //								parseThread.resume();
 								setPause(false);
-								parseThread.setPriority(Thread.NORM_PRIORITY);
+								parseThread.setPriority(threadPriority);
                                                                 return;
 								}
 							else
@@ -1374,7 +1407,7 @@ public void windowClosing(WindowEvent we)
 						mapFrame.dispose();
 //						parseThread.resume();
 						setPause(false);
-						parseThread.setPriority(Thread.NORM_PRIORITY);
+						parseThread.setPriority(threadPriority);
 						}
 					else
 						{
@@ -1393,7 +1426,7 @@ public void windowClosing(WindowEvent we)
 						mapFrame.dispose();
 //						parseThread.resume();
 						setPause(false);
-						parseThread.setPriority(Thread.NORM_PRIORITY);
+						parseThread.setPriority(threadPriority);
 						}
 					}
 				catch(IOException ioe)
@@ -1408,7 +1441,7 @@ public void windowClosing(WindowEvent we)
 			mapFrame.dispose();
 //			parseThread.resume();
 			setPause(false);
-			parseThread.setPriority(Thread.NORM_PRIORITY);
+			parseThread.setPriority(threadPriority);
 			}
 		else
 			{
@@ -1441,7 +1474,7 @@ public void windowClosing(WindowEvent we)
 				{
 //				parseThread.resume();
 				setPause(false);
-				parseThread.setPriority(Thread.NORM_PRIORITY);
+				parseThread.setPriority(threadPriority);
 				}
 			}
 		else
@@ -1624,7 +1657,7 @@ public void JavaShowData()
 			objectFrame.dispose();
 //			parseThread.resume();
 			setPause(false);
-			parseThread.setPriority(Thread.NORM_PRIORITY);
+			parseThread.setPriority(threadPriority);
 			}
 		});
 	objectFrame.addComponentListener(new ComponentAdapter()
@@ -2805,6 +2838,7 @@ private void doparse(String inp)
 	obj.setEnabled(false);
 	open.setEnabled(false);
 	parseThread = new ParseThread(this);
+	parseThread.setPriority(threadPriority);
 	parseThread.setCommand(inp);
 	outputPane.setCaretPosition(outputDocument.getLength());
 	if(pause)
