@@ -46,14 +46,16 @@ const STEPWISErun & st)
 // ------- die grundlegenden Funktionen ----------------------------------------
 // -----------------------------------------------------------------------------
 
-bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
-                   const ST::string & trac, const int & number,
-                   const ST::string & stam, const int & inc,
-                   const bool & finet, const datamatrix & D,
-                   const vector<ST::string> & modelv, const ST::string & name,
-                   vector<FULLCOND*> & fullcond_z, ST::string & path)
+bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & crit,
+        const int & stp, const ST::string & trac, const int & number,
+        const ST::string & stam, const int & inc, const bool & finet,
+        const datamatrix & Da, const vector<ST::string> & modelvar,
+        const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path)
   {
 
+  D = Da;
+  modelv = modelvar;
+  algorithm = procedure;
   criterion = crit;
   increment = inc;
   steps = stp;
@@ -61,25 +63,29 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   fine_tuning = finet;
   trace = trac;
 
-  vector<double> modell_alt;
-  double kriterium_alt;
-  ST::string text_alt;
+  //vector<double> modell_alt;
+  //double kriterium_alt;
+  //ST::string text_alt;
+  modell_alt.erase(modell_alt.begin(),modell_alt.end());
   vector<double> modell_final;
   double kriterium_final;
   ST::string text_final;
 
   ST::string tr_akt = "trace_on";
 
-  vector<vector<double> > lambdavec;
-  vector<ST::string> names_fixed;
-  vector<vector<ST::string> > names_nonparametric;
+  lambdavec.erase(lambdavec.begin(),lambdavec.end());
+  names_fixed.erase(names_fixed.begin(),names_fixed.end());
+  names_nonp.erase(names_nonp.begin(),names_nonp.end());
+  //vector<vector<double> > lambdavec;
+  //vector<ST::string> names_fixed;
+  //vector<vector<ST::string> > names_nonparametric;
 
   fullcond_alle = fullcondp;
 
   bool gewichte = false;
   if(likep_mult[0]->get_family() != "Gaussian")
     gewichte = true;
-  initialise_lambdas(names_nonparametric,names_fixed,lambdavec,number,gewichte);
+  initialise_lambdas(names_nonp,names_fixed,lambdavec,number,gewichte);
 
   unsigned i;
   
@@ -95,14 +101,14 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
       }
     }
   // überprüfen, dass Randomslopes nicht auch als fixe Effekte angegeben werden!
-  if( vcm_doppelt(names_fixed,names_nonparametric) == true)
+  if( vcm_doppelt(names_fixed,names_nonp) == true)
      return true;
 
   vector<vector<unsigned> > startindex;
   vector<vector<double> > startfix;
   startwerte(startmodel,lambdavec,names_fixed,startindex,startfix);
 
-  options_text(number,lambdavec,names_fixed,names_nonparametric,startfix,startindex,name);
+  options_text(number,lambdavec,names_fixed,names_nonp,startfix,startindex,name);
 
   ST::string path_tex = path + "_model_summary.tex";
   outtex.open(path_tex.strtochar());
@@ -122,7 +128,7 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
      {
      abbruch = single_stepwise(kriterium_alt,modell_alt,text_alt,
          lambdavec,startindex[i],startfix[i],names_fixed,
-         names_nonparametric,D,modelv,true);
+         names_nonp,D,modelv,true);
 
      if(abbruch==true)
         return true;
@@ -149,8 +155,8 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   vector<ST::string> title;
   title.push_back("");
   ST::string header = "  Final Model:";
-  fix_komplett(modell_final,names_fixed,names_nonparametric,D,modelv);
-  fullcond_komplett(modell_final,names_fixed.size(),names_nonparametric,D,modelv);
+  fix_komplett(modell_final,names_fixed,names_nonp,D,modelv);
+  fullcond_komplett(modell_final,names_fixed.size(),names_nonp,D,modelv);
   tr_akt = "trace_on";
   maketext(header,modell_final,kriterium_final,text_final,false,tr_akt,false);
   genoptions_mult[0]->out("\n\n");
@@ -177,7 +183,7 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   outcriterium.close();
   outmodels.close();
 
-  
+
   // gibt Lambdas aus, damit man die richtig bestimmten Variablen zählen kann!
   ST::string zaehlername = path + "_lambdas_" + likep_mult[0]->get_responsename() + ".ascii";
   //zaehlername = zaehlername + "_" + ST::inttostring(increment) + ".ascii";
@@ -186,13 +192,13 @@ bool STEPWISErun::stepwise(const ST::string & crit, const int & stp,
   ST::string eintrag = "  " + ST::doubletostring(kriterium_final) + "   ";
   for(i=1;i<names_fixed.size();i++)
      beschriftung = beschriftung + names_fixed[i] + "   ";
-  for(i=0;i<names_nonparametric.size();i++)
-     beschriftung = beschriftung + names_nonparametric[i][0] + "   ";
+  for(i=0;i<names_nonp.size();i++)
+     beschriftung = beschriftung + names_nonp[i][0] + "   ";
   for(i=0;i<modell_final.size();i++)
      eintrag = eintrag + ST::doubletostring(modell_final[i]) + "   ";
   out << beschriftung << endl;
   out << eintrag << endl;
-
+  
   
   return false;
   }
@@ -206,15 +212,16 @@ bool STEPWISErun::single_stepwise(double & kriterium_alt,
          const vector<vector<ST::string> > & names_nonp, const datamatrix & D,
          const vector<ST::string> & modelv, const bool & tex)
   {
-
-  vector<vector<vector<double> > > modellematrix;
-  vector<double> modell_neu;
-  vector<vector<double> > kriteriummatrix;
-  double kriterium_neu;
+  modell_neu.erase(modell_neu.begin(),modell_neu.end());
+  modellematrix.erase(modellematrix.begin(),modellematrix.end());
+  //vector<vector<vector<double> > > modellematrix;
+  //vector<double> modell_neu;
+  //vector<vector<double> > kriteriummatrix;       UNNÖTIG
+  //double kriterium_neu;
   int steps_aktuell = 0;
   ST::string tr_akt = "trace_on";
   vector<vector<double> > startiteration;
-  vector<double> kriteriumiteration;
+  //vector<double> kriteriumiteration;            UNNÖTIG
 
   unsigned i;
   for(i=0;i<names_fixed.size()-1;i++)
@@ -235,21 +242,60 @@ bool STEPWISErun::single_stepwise(double & kriterium_alt,
 
   kriterium_alt = compute_criterion();
 
-  if(tex==true)
+  /*
+  // Versuch!!
+
+  for(i=0;i<lambdavec[0].size()-2;i++)
+    {
+    if(lambdavec[0][i]!=modell_alt[names_fixed.size()-2])
+      {
+      fullcond_alle[1]->update_stepwise(lambdavec[0][i]);
+      fullcond_alle[1]->posteriormode();
+      double kriterium_versuch = compute_criterion();
+      genoptions_mult[0]->out("AIC(" + ST::doubletostring(fullcond_alle[1]->compute_df(),6) + ") = " + ST::doubletostring(kriterium_versuch) + "\n");
+      }
+    }
+  for(i=lambdavec[0].size()-2;i<lambdavec[0].size();i++)
+    {
+    if(lambdavec[0][i]!=modell_alt[names_fixed.size()-2])
+      {
+      fullcond_alle[1]->reset_effect(0);
+      double kriterium_versuch;
+      if(i==lambdavec[0].size()-2)
+        {
+        fullcondp[0]->include_effect(names_nonp[0],
+                                  fullcond_alle[1]->get_data_forfixedeffects());
+        fullcond_alle[0]->posteriormode();
+        kriterium_versuch = compute_criterion()-2*(fullcond_alle[1]->compute_df()) + 2;
+        reset_fix(names_nonp[0][0]);
+        }
+      else
+        {
+        fullcond_alle[0]->posteriormode();
+        kriterium_versuch = compute_criterion()-2*(fullcond_alle[1]->compute_df());
+        }
+      genoptions_mult[0]->out("AIC(" + ST::doubletostring(fullcond_alle[1]->compute_df(),6) + ") = " + ST::doubletostring(kriterium_versuch) + "\n");
+      }
+    }
+
+  // Versuch ENDE
+  */
+  
+    if(tex==true)
      {
      kriterium_tex = kriterium_alt;
      make_predictor();
      }
 
-  kriteriumiteration.push_back(kriterium_alt);
-  kriteriummatrix.push_back(kriteriumiteration);
+  //kriteriumiteration.push_back(kriterium_alt);
+  //kriteriummatrix.push_back(kriteriumiteration);
   // ENDE: startmodel
 
   kriterium_neu = kriterium_alt;
   outcriterium << steps_aktuell << "   " << kriterium_neu << endl;
   outmodels << steps_aktuell << "   " << kriterium_neu << "   ";
   ST::string header;
-  bool fertig = false;    // überprüft, ob es noch nicht gerechnete Modelle gibt
+  fertig = false;    // überprüft, ob es noch nicht gerechnete Modelle gibt
   ST::string text_neu;
   bool eins = true;
 
@@ -310,39 +356,11 @@ bool STEPWISErun::single_stepwise(double & kriterium_alt,
           z = z + 1;
           }
 
-       for(i=z;i<fullcond_alle.size();i++)
-          {
-          unsigned sch;
-          for(sch=1;sch<=increment;sch++)
-             {
-             modell_neu = modell_alt;
-             bool lambda_exist;    // zum Überprüfen, ob neues Lambda im Vektor enthalten ist
-             unsigned index = search_lambdaindex(modell_alt[names_fixed.size()-2+i],
-                                lambdavec[i-1],lambda_exist);
-             lambda_exist = false;
-             if(index < lambdavec[i-1].size()-sch)
-                 lambda_exist = true;
-             if(lambda_exist==true)
-                 {
-                 modell_neu[names_fixed.size()-2+i] = lambdavec[i-1][index+sch];
-                 if(modelcomparison(modell_neu,modellematrix)==false)
-                   newmodel_nonp(fertig,i,modell_neu,modell_alt,kriteriumiteration2,
-                       modeliteration,textiteration,names_fixed,names_nonp,D,modelv);
-                 }
+       if(algorithm == "stepwise")
+         step_nonpfkt(kriteriumiteration2,modeliteration,textiteration,z);
+       else // if(algorithm == "stepmin")
+         stepmin(kriteriumiteration2,modeliteration,textiteration,z,kriterium_alt);
 
-             lambda_exist = false;
-             modell_neu = modell_alt;
-             if(index >= sch)
-                 lambda_exist = true;
-             if(lambda_exist==true)
-                 {
-                 modell_neu[names_fixed.size()-2+i] = lambdavec[i-1][index-sch];
-                 if(modelcomparison(modell_neu,modellematrix)==false)
-                   newmodel_nonp(fertig,i,modell_neu,modell_alt,kriteriumiteration2,
-                       modeliteration,textiteration,names_fixed,names_nonp,D,modelv);
-                 }
-             }
-          }
        if(fertig==false)
          {
          kriterium = kriteriumiteration2[0];
@@ -360,7 +378,7 @@ bool STEPWISErun::single_stepwise(double & kriterium_alt,
          outcriterium << steps_aktuell << "   " << kriterium_neu << endl;
          outmodels << steps_aktuell << "   " << kriterium_neu << "   ";
          modellematrix.push_back(modeliteration);
-         kriteriummatrix.push_back(kriteriumiteration2);
+         //kriteriummatrix.push_back(kriteriumiteration2);
 
          header = "\n\nBest Model of this iteration:";
          fix_komplett(modell_neu,names_fixed,names_nonp,D,modelv);
@@ -411,6 +429,274 @@ bool STEPWISErun::single_stepwise(double & kriterium_alt,
   return false;
   }
 
+  
+// -----------------------------------------------------------------------------
+// ------- Funktionen, die sich bei Stepwise / Stepmin unterscheiden -----------
+// -----------------------------------------------------------------------------
+
+void STEPWISErun::step_nonpfkt(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      unsigned & z)         //!!!
+  {
+  unsigned i;
+  for(i=z;i<fullcond_alle.size();i++)
+    {
+    unsigned sch;
+    for(sch=1;sch<=increment;sch++)
+       {
+       modell_neu = modell_alt;
+       bool lambda_exist;    // zum Überprüfen, ob neues Lambda im Vektor enthalten ist
+       unsigned index = search_lambdaindex(modell_alt[names_fixed.size()-2+i],
+                                lambdavec[i-1],lambda_exist);
+       lambda_exist = false;
+       if(index < lambdavec[i-1].size()-sch)
+          lambda_exist = true;
+       if(lambda_exist==true)
+          {
+          modell_neu[names_fixed.size()-2+i] = lambdavec[i-1][index+sch];
+          if(modelcomparison(modell_neu,modellematrix)==false)
+          newmodel_nonp(fertig,i,modell_neu,modell_alt,kriteriumiteration2,
+                       modeliteration,textiteration,names_fixed,names_nonp,D,modelv);
+          }
+
+       lambda_exist = false;
+       modell_neu = modell_alt;
+       if(index >= sch)
+          lambda_exist = true;
+       if(lambda_exist==true)
+          {
+          modell_neu[names_fixed.size()-2+i] = lambdavec[i-1][index-sch];
+          if(modelcomparison(modell_neu,modellematrix)==false)
+          newmodel_nonp(fertig,i,modell_neu,modell_alt,kriteriumiteration2,
+                       modeliteration,textiteration,names_fixed,names_nonp,D,modelv);
+          }
+       }
+    }
+  }
+
+// Fehler:
+// 1) fixe Effekte -> Absturz
+// 2) Es kann sein, daß das Startmodell nicht wieder korrekt hergestellt wird!  
+
+void STEPWISErun::stepmin(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      unsigned & z, double & kriterium)        
+  {
+  // Stellt linearen Prädiktor auf das Startmodell ein. Besser wäre, den lin. Prädiktor zu speichern!!!
+  fullcondp[0]->set_effect_zero();
+  vector<ST::string> title;
+  title.push_back("");
+  posteriormode(title,true);
+
+  unsigned i;
+  for(i=z;i<fullcond_alle.size();i++)
+    {
+    modell_neu = modell_alt;
+
+//unsigned y;
+
+    vector<double> krit_fkt;
+    if(modell_alt[i+names_fixed.size()-2]==0)
+      stepmin_leer(i,krit_fkt,kriterium);
+    else if(modell_alt[i+names_fixed.size()-2]==-1)
+      stepmin_fix(i,krit_fkt,kriterium);
+    else
+      stepmin_nonp(i,krit_fkt,kriterium);
+
+
+//for(y=0;y<krit_fkt.size();y++)
+//genoptions_mult[0]->out("AIC(" + ST::doubletostring(krit_fkt.size()-1-y) + ") = " + ST::doubletostring(krit_fkt[y]) + "\n");
+
+    double kriterium_min = krit_fkt[0];
+    unsigned j;
+    unsigned lambda_ind;
+    for(j=1;j<krit_fkt.size();j++)  //berechnet den besten Wert
+       {
+       if(krit_fkt[j]<=kriterium_min)
+         {
+         kriterium_min = krit_fkt[j];
+         lambda_ind = j;
+         }
+       }
+
+    modell_neu[names_fixed.size()-2+i] = lambdavec[i-1][lambda_ind];
+    if(modell_neu[names_fixed.size()-2+i] != modell_alt[names_fixed.size()-2+i])
+      {
+      if(modelcomparison(modell_neu,modellematrix)==false)
+        {
+        newmodel_nonp(fertig,i,modell_neu,modell_alt,kriteriumiteration2,
+               modeliteration,textiteration,names_fixed,names_nonp,D,modelv);
+
+        // Stellt linearen Prädiktor wieder her. Besser wäre, den lin. Prädiktor zu speichern!!!
+        fullcondp[0]->set_effect_zero();
+        vector<ST::string> title;
+        title.push_back("");
+        posteriormode(title,true);
+        }
+      }
+    }
+ }
+
+  
+// -----------------------------------------------------------------------------
+// ------------------ Funktionen für Stepmin -----------------------------------
+// -----------------------------------------------------------------------------
+
+void STEPWISErun::stepmin_nonp(unsigned & z, vector<double> & krit_fkt,
+                                double & kriterium)
+  {
+  unsigned i;
+
+  double df = 0;
+  for(i=0;i<fullcondp.size();i++)
+    df = df + fullcondp[i]->compute_df();
+  df = df - fullcond_alle[z]->compute_df();
+
+  for(i=0;i<lambdavec[z-1].size();i++)
+    {
+    if(lambdavec[z-1][i]!=modell_alt[z+names_fixed.size()-2])
+      {
+      double kriterium_versuch;
+      if(lambdavec[z-1][i]!=-1 && lambdavec[z-1][i]!=0)
+        {
+        fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
+        fullcond_alle[z]->posteriormode();
+        kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
+        }
+      else if(lambdavec[z-1][i]==-1)
+        {
+        fullcond_alle[z]->reset_effect(0);
+        fullcondp[0]->include_effect(names_nonp[z-1],
+                                  fullcond_alle[z]->get_data_forfixedeffects());
+        fullcond_alle[0]->posteriormode();
+        kriterium_versuch = criterion_min(df + 1);
+        reset_fix(names_nonp[z-1][0]);
+        fullcond_alle[0]->posteriormode();
+        }
+      else
+        {
+        fullcond_alle[z]->reset_effect(0);
+        kriterium_versuch = criterion_min(df);
+        }
+      krit_fkt.push_back(kriterium_versuch);
+      }
+    else
+      krit_fkt.push_back(kriterium);
+    }
+  double help = modell_alt[z+names_fixed.size()-2];
+  fullcond_alle[z]->update_stepwise(modell_alt[z+names_fixed.size()-2]);
+  fullcond_alle[z]->posteriormode();
+  }
+
+
+void STEPWISErun::stepmin_fix(unsigned & z, vector<double> & krit_fkt,
+                                double & kriterium)
+  {
+  unsigned i;
+  double df = 0;
+  for(i=0;i<fullcondp.size();i++)
+    df = df + fullcondp[i]->compute_df();
+  df = df - 1;
+
+  reset_fix(names_nonp[z-1][0]);
+  fullcond_alle[0]->posteriormode();
+  fullcondp.push_back(fullcond_alle[z]);
+
+  for(i=0;i<lambdavec[z-1].size();i++)
+    {
+    if(lambdavec[z-1][i]!=-1)
+      {
+      double kriterium_versuch;
+      if(lambdavec[z-1][i]!=0)
+        {
+        fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
+        fullcond_alle[z]->posteriormode();
+        kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
+        }
+      else
+        {
+        fullcond_alle[z]->reset_effect(0);
+        kriterium_versuch = criterion_min(df);
+        }
+      krit_fkt.push_back(kriterium_versuch);
+      }
+    else
+      krit_fkt.push_back(kriterium);
+    }
+  fullcond_alle[z]->reset_effect(0);
+  fullcondp[0]->include_effect(names_nonp[z-1],
+                                  fullcond_alle[z]->get_data_forfixedeffects());
+  fullcondp.erase(fullcondp.end()-1,fullcondp.end());
+  fullcond_alle[0]->posteriormode();
+  }
+
+
+void STEPWISErun::stepmin_leer(unsigned & z, vector<double> & krit_fkt,
+                                double & kriterium)
+  {
+  unsigned i;
+
+  double df = 0;
+  for(i=0;i<fullcondp.size();i++)
+    df = df + fullcondp[i]->compute_df();
+
+  fullcondp.push_back(fullcond_alle[z]);
+
+  for(i=0;i<lambdavec[z-1].size();i++)
+    {
+    if(lambdavec[z-1][i]!=0)
+      {
+      double kriterium_versuch;
+      if(lambdavec[z-1][i]!=-1)
+        {
+        fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
+        fullcond_alle[z]->posteriormode();
+        kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
+        }
+      else
+        {
+        fullcond_alle[z]->reset_effect(0);
+        fullcondp[0]->include_effect(names_nonp[z-1],
+                                  fullcond_alle[z]->get_data_forfixedeffects());
+        fullcond_alle[0]->posteriormode();
+        kriterium_versuch = criterion_min(df + 1);
+        reset_fix(names_nonp[z-1][0]);
+        fullcond_alle[0]->posteriormode();
+        }
+      krit_fkt.push_back(kriterium_versuch);
+      }
+    else
+      krit_fkt.push_back(kriterium);
+    }
+  fullcond_alle[z]->reset_effect(0);
+  fullcondp.erase(fullcondp.end()-1,fullcondp.end());
+  }
+
+
+double STEPWISErun::criterion_min(double & df)
+  {
+  double kriterium;
+
+  if(criterion=="GCV")
+    kriterium = likep_mult[0]->compute_gcv(df);
+  else if(criterion=="AIC")
+    kriterium = likep_mult[0]->compute_aic(df);
+  else if(criterion=="BIC")
+    kriterium = likep_mult[0]->compute_bic(df);
+  else //if(criterion=="AIC_imp")
+    kriterium = likep_mult[0]->compute_improvedaic(df);
+  //else if(criterion=="MSEP")
+  //  kriterium = likep_mult[0]->compute_msep();
+  //else //if(criterion=="AUC")
+  //  kriterium = -1 * likep_mult[0]->compute_auc();
+
+  return kriterium;
+  }
+
+
+// -----------------------------------------------------------------------------
+// --------------------------- Fine-Tuning -------------------------------------
+// -----------------------------------------------------------------------------
 
 bool STEPWISErun::finetuning(vector<double> & modell, vector<vector<double> > & lambdavec,
                  vector<ST::string> & names_fixed, const datamatrix & D,
@@ -778,14 +1064,11 @@ void STEPWISErun::startwerte(const ST::string & startmodel,
 double STEPWISErun::compute_criterion(void)
   {
   double df = 0;
-  if(criterion != "MSE" && criterion != "AUC")
+  if(criterion != "MSEP" && criterion != "AUC")
     {
     unsigned i;
     for(i=0;i<fullcondp.size();i++)
-      {
-      double help = fullcondp[i]->compute_df();
       df = df + fullcondp[i]->compute_df();
-      }
     }
   double kriterium;
 
@@ -814,9 +1097,6 @@ void STEPWISErun::newmodel(bool & fertig, const vector<double> & modell,
   mi.push_back(modell);
   vector<ST::string> title;
   title.push_back("");
-
-  //likep_mult[0]->set_linpred_null();
-
   posteriormode(title,true);      //keine Ausgabe
   double kriterium = compute_criterion();
   ST::string header = "  Trial: ";

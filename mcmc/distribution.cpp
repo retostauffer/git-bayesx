@@ -4930,19 +4930,12 @@ void DISTRIBUTION_binomial::compute_deviance(const double * response,
 
 double DISTRIBUTION_binomial::compute_auc(void)
   {
-  // Es fehlt:
-  // - Bindungen, d.h. Durchschnittsränge (dabei beachten: Index beginnt bei 0, nicht bei 1!)
-  // - gruppierte Beobachtungen (mehrere Beob. mit gleichen Kov-Werten) -> wie dann?
-
   datamatrix linpred_null_hilf = datamatrix(nrobs,1,0);       // Erzeugen einer Matrix die Einträge für Beob.
                                                               // mit weight=0 enthält und darunter Nuller
-  datamatrix linpred_default_hilf = datamatrix(nrobs,1,0);    // Erzeugen einer Matrix die Einträge für
-                                                              // Default-Beobachtungen enthält und darunter Nuller
   datamatrix response_null_hilf = datamatrix(nrobs,1,0);      // Erzeugen einer Matrix die Einträge für Beob.
                                                               // mit weight=0 enthält und darunter Nuller
   double * worklin = linearpred.getV();
   double * lin_null = linpred_null_hilf.getV();
-  double * lin_def = linpred_default_hilf.getV();
   double * workweight = weight.getV();
   double * workresp = response.getV();
   double * resp_null = response_null_hilf.getV();
@@ -4959,11 +4952,7 @@ double DISTRIBUTION_binomial::compute_auc(void)
       resp_null++;
       nrnull += 1;
       if(*workresp==1)
-        {
-        *lin_def = *worklin;
-        lin_def++;
-        nrdef += 1;
-        }
+         nrdef += 1;
       }
     }
 
@@ -4979,49 +4968,26 @@ double DISTRIBUTION_binomial::compute_auc(void)
      *resp_null = *resp_hilf;
      }
 
-  datamatrix linpred_default = datamatrix(nrdef,1,0); // Kürzen des Default-Prädiktors, d.h. Weglassen der Nullen
-  lin_hilf = linpred_default_hilf.getV();
-  lin_def = linpred_default.getV();
-  for(i=0;i<nrdef;i++,lin_def++,lin_hilf++)
-     *lin_def = *lin_hilf;
-
   statmatrix<int> index_gesamt(linpred_null.rows(),1);      // Sortieren des linearen Prädiktors
   index_gesamt.indexinit();
   linpred_null.indexsort(index_gesamt,0,linpred_null.rows()-1,0,0);
-  /*
-  statmatrix<int> index_default(linpred_default.rows(),1);   // Sortieren der Default-Matrix
-  index_default.indexinit();
-  linpred_default.indexsort(index_default,0,linpred_default.rows()-1,0,0);
-  */
+  statmatrix<double> rang_gepoolt(linpred_null.rows(),1);
+  linpred_null.rank(rang_gepoolt,index_gesamt,0,linpred_null.rows()-1,0);  // Ränge berechnen
 
-  int* gesamt = index_gesamt.getV();  // Zeiger auf Index. Index enthält die Nr., die die Beob. vor dem Sortieren hat!!
-  //int* defaul = index_default.getV();
+  int* gesamt = index_gesamt.getV();
+  double* rang_gep = rang_gepoolt.getV();
   unsigned rang_default = 1;
   double auc = 0;
 
-  for(i=0;i<nrnull;i++,gesamt++)
+  for(i=0;i<nrnull;i++,gesamt++,rang_gep++)
     {
     if(response_null.get(*gesamt,0) == 1)
       {
-      auc += i+1 - rang_default;
+      //auc += i+1 - rang_default;
+      auc += *rang_gep - rang_default;
       rang_default += 1;
-      //auc += *gesamt - *defaul;     // damit macht man Sortierung wieder rückgängig!!
-      //defaul++;
       }
     }
-
-  /*
-  ofstream out("c:\\cprog\\test\\results\\linearpred.raw");
-  linearpred.prettyPrint(out);
-  ofstream gew("c:\\cprog\\test\\results\\weight.raw");
-  weight.prettyPrint(gew);
-  ofstream resp("c:\\cprog\\test\\results\\response.raw");
-  response.prettyPrint(resp);
-  ofstream out3("c:\\cprog\\test\\results\\linpred_null.raw");
-  linpred_null.prettyPrint(out3);
-  ofstream out2("c:\\cprog\\test\\results\\linpred_default.raw");
-  linpred_default.prettyPrint(out2);
-  */
 
   return auc/(nrdef*(nrnull-nrdef));
   }

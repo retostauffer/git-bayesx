@@ -721,6 +721,41 @@ void statmatrix<T>::indexsort(statmatrix<int> & index,int start,int ende,
 
 
 template<class T>
+void statmatrix<T>::rank(statmatrix<double> & rang,statmatrix<int> & index,
+                        int start,int ende,int col) const
+  {
+  assert(index.rows()==ende+1-start);
+  assert(index.cols()==1);
+  unsigned j;
+  for(j=0;j<rang.rows();j++)
+    rang.put(j,0,j+1);
+
+  unsigned i = 1;
+  unsigned unten;
+  unsigned anzahl = 0;
+  double neurang;
+
+  while(i<=ende-start)  
+    {
+    unten = i-1;
+    while( (i<=ende-start) && (get(index(i,0),col)-get(index(i-1,0),col))<pow(10,-10) )
+      {
+      anzahl++;
+      i++;
+      }
+    if(anzahl!=0)
+      {
+      neurang = (rang(unten,0) + rang(unten+anzahl,0)) / 2;
+      for(j=unten;j<=unten+anzahl;j++)
+      rang.put(j,0,neurang);
+      }
+    anzahl = 0;
+    i++;
+    }
+  }
+
+
+template<class T>
 statmatrix<T> statmatrix<T>::sum (void) const
   {
   statmatrix<T> s(cols(),1,0);

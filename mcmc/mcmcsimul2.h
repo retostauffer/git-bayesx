@@ -23,8 +23,14 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
   protected:
 
-     //  Variablen, die in der ganzen Datei bekannt sind:
+// -----------------------------------------------------------------------------
+// ------------ Variablen, die in der ganzen Datei bekannt sind: ---------------
+// -----------------------------------------------------------------------------
+
+  datamatrix D;
+  vector<ST::string> modelv;
   vector<FULLCOND*> fullcond_alle;
+  ST::string algorithm;
   ST::string criterion;
   int increment;
   int steps;
@@ -36,15 +42,52 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   ofstream outcriterium;
   ofstream outtex;
 
+  vector<vector<double> > lambdavec;
+  vector<ST::string> names_fixed;
+  vector<vector<ST::string> > names_nonp;
+  vector<double> modell_neu;
+  vector<double> modell_alt;
+  double kriterium_alt;
+  double kriterium_neu;
+  ST::string text_alt;
+  vector<vector<vector<double> > > modellematrix;
+  bool fertig;
+
   bool finetuning(vector<double> & modell, vector<vector<double> > & lambdavec,
                  vector<ST::string> & names_fixed,
                  const datamatrix & D, const vector<ST::string> & modelv);
 
 // -----------------------------------------------------------------------------
+// ------- Funktionen, die sich bei Stepwise / Stepmin unterscheiden -----------
+// -----------------------------------------------------------------------------
+
+  void step_nonpfkt(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      unsigned & z);
+
+  void stepmin(vector<double> & kriteriumiteration2,
+      vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
+      unsigned & z, double & kriterium);
+
+
+// -----------------------------------------------------------------------------
+// ------------------ Funktionen für Stepmin -----------------------------------
+// -----------------------------------------------------------------------------
+
+  void stepmin_nonp(unsigned & z, vector<double> & krit_fkt, double & kriterium);
+
+  void stepmin_fix(unsigned & z, vector<double> & krit_fkt, double & kriterium);
+
+  void stepmin_leer(unsigned & z, vector<double> & krit_fkt, double & kriterium);
+
+  double criterion_min(double & df);
+
+
+  // -----------------------------------------------------------------------------
 // ------- Funktionen für die Erstellung des Startmodels -----------------------
 // -----------------------------------------------------------------------------
 
-  bool STEPWISErun::vcm_doppelt(const vector<ST::string> & names_fixed,
+  bool vcm_doppelt(const vector<ST::string> & names_fixed,
       const vector<vector<ST::string> > & names_nonp);
 
   void initialise_lambdas(vector<vector<ST::string> > & names_nonp,
@@ -181,11 +224,11 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
                        const vector<vector<ST::string> > & names_nonp,
                        const datamatrix & D, const vector<ST::string> & modelv, const bool & tex);
 
-  bool stepwise(const ST::string & crit, const int & stp, const ST::string & trac,
-                const int & number, const ST::string & stam, const int & inc,
-                const bool & finet, const datamatrix & D,const vector<ST::string> & modelv,
-                const ST::string & name, vector<FULLCOND*> & fullcond_z,
-                ST::string & path);
+  bool stepwise(const ST::string & procedure, const ST::string & crit,
+         const int & stp, const ST::string & trac, const int & number,
+         const ST::string & stam, const int & inc, const bool & finet,
+         const datamatrix & D,const vector<ST::string> & modelv,
+         const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path);
 
   double compute_criterion(void);
 

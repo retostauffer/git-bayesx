@@ -216,6 +216,14 @@ class statmatrix : public Matrix<T>
   void indexsort (statmatrix<int> & index,int start,int ende,
                   int col,int indexcol) const;
 
+  // FUNCTION: rank
+  // TASK: computes the ranks of the elements within the 'start'th and 'ende'th
+  //       row of the 'col'th column.
+  // Remark: The elements within the 'start'th and 'ende'th row of the 'col'th
+  //         column must be sorted with "indexsort" beforehand.
+
+  void rank (statmatrix<double> & rang,statmatrix<int> & index,
+             int start,int ende,int col) const;
 
 //------------------------- end: sorting a column ------------------------------
 
