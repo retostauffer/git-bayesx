@@ -1508,7 +1508,7 @@ class __EXPORT_TYPE newdistribution : public DISTRIBUTION
 class __EXPORT_TYPE DISTRIBUTION_gamma : public DISTRIBUTION
   {
 
-  protected:
+  public:
 
 
   datamatrix lgamma;
@@ -1583,6 +1583,8 @@ class __EXPORT_TYPE DISTRIBUTION_gamma : public DISTRIBUTION
      b_gamma = 0.005;
      scale(0,0) = 0.1;
      const_it = 500;
+
+     create_lgamma();
      }
 
 
