@@ -64,6 +64,11 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
     gaussy[i] = datamatrix(zi.rows()+1,1,0);
     }
 
+//  make_index(time,z);
+//  make_index2();
+//  make_Bspline(time,true);
+//  make_BS(z);
+
   for(i=0;i<zi.rows();i++)
     {
     zi_ges(i,0)=zi(i,0);
@@ -74,6 +79,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   ges_index.indexinit();
   zi_ges.indexsort(ges_index,0,zi_ges.rows()-1,0,0);
 
+//  testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true,knot);
   testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true);
 
   coeff = datamatrix(gauss_n,1,0);
@@ -125,6 +131,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   for(i=0;i<gauss_n;i++)
     {
     gaussy[i](zi.rows(),0)=maxzi;
+//    gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true,knot);
     gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true);
     }
 
@@ -297,6 +304,11 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
     gaussy[i] = datamatrix(zi.rows()+1,1,0);
     }
 
+//  make_index(d);
+//  make_index2();
+//  make_Bspline(d,true);
+
+
   for(i=0;i<zi.rows();i++)
     {
     zi_ges(i,0) = zi(i,0);
@@ -306,6 +318,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   ges_index.indexinit();
   zi_ges.indexsort(ges_index,0,zi_ges.rows()-1,0,0);
 
+//  testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true,knot);
   testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true);
 
   coeff = datamatrix(gauss_n,1,0);
@@ -357,6 +370,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   for(i=0;i<gauss_n;i++)
     {
     gaussy[i](zi.rows(),0)=maxzi;
+//    gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true,knot);
     gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true);
     }
 //-----------------------------------------------------------------------------

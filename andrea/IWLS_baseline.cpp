@@ -28,7 +28,15 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
 
   a_invgamma = a;
   b_invgamma = b;
-//  prec_env = envmatdouble(0,nrpar,2);
+  prec_env = envmatdouble(0,nrpar,21);
+  cov_cp = datamatrix(22,22,0.0);
+  ifstream covin("d:\\simulationen\\test\\erg\\weibull13_no_IWLS_prec.txt");
+  cov_cp.prettyScan(covin);
+  covin.close();
+//  cov_cp = cov_cp/1.2;
+  ifstream meanin("d:\\simulationen\\test\\erg\\weibull13_no_IWLS_mean.txt");
+  betahelp.prettyScan(meanin);
+  meanin.close();
 
   unsigned i,j;
   gauss_n = 9;
@@ -79,7 +87,7 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
   ges_index.indexinit();
   zi_ges.indexsort(ges_index,0,zi_ges.rows()-1,0,0);
 
-  testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true);
+  testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true,knot);
 
   coeff = datamatrix(gauss_n,1,0);
   coeff(0,0) = 0.330239355001260;
@@ -130,7 +138,7 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
   for(i=0;i<gauss_n;i++)
     {
     gaussy[i](zi.rows(),0)=maxzi;
-    gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true);
+    gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true,knot);
     }
 //------------------Designmatrix int_D für P-Spline an Knoten-------------------
 
@@ -309,6 +317,7 @@ IWLS_baseline::IWLS_baseline(const IWLS_baseline & fc)
   An = fc.An;
   Adelta = fc.Adelta;
   DeltaN = fc.DeltaN;
+  cov_cp = fc.cov_cp;
   }
 
 
@@ -349,6 +358,7 @@ const IWLS_baseline & IWLS_baseline::operator=(const IWLS_baseline & fc)
   An = fc.An;
   Adelta = fc.Adelta;
   DeltaN = fc.DeltaN;
+  cov_cp = fc.cov_cp;
   return *this;
   }
 
@@ -403,7 +413,7 @@ bool IWLS_baseline::posteriormode(void)
 
 void IWLS_baseline::update(void)
   {
-
+  double test = transform;
   if(lambdaconst == true)
     sigma2 = likep->get_scale(column)/lambda;
 
@@ -561,9 +571,10 @@ void IWLS_baseline::update_IWLS(void)
     beta(21,0) = 2.70698;
     add_linearpred_multBS(beta);
     betaold.assign(beta);
-    }*/
+    } */
 
-  double logold = - 0.5*Kenv.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
+
+/*  double logold = - 0.5*Kenv.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
 
   if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
       ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
@@ -597,6 +608,10 @@ void IWLS_baseline::update_IWLS(void)
     *work = rand_normal();
 
   prec_env.solveU(beta,betahelp);
+
+         compute_intercept();
+      for(i=0;i<nrpar;i++)
+        beta(i,0) -= intercept;
 
   ofstream allesout("d:\\temp\\alles.txt");
   allesout<<"prec_env"<<endl;
@@ -681,11 +696,11 @@ void IWLS_baseline::update_IWLS(void)
     add_linearpred_multBS(betaold,beta,true);
     beta.assign(betaold);
     }
-   update_baseline();
+   update_baseline(); */
 
 
 
-/*  unsigned i;
+//  unsigned i;
 
   double logold = - 0.5*Kenv.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
 
@@ -700,18 +715,20 @@ void IWLS_baseline::update_IWLS(void)
 //    mu.plus(A'beta,mu);
 
     multBS(spline,beta);
-    compute_score();
+//    compute_score();
 //    compute_Wbase();
-    compute_AWA();
+//    compute_AWA();
 
-    muy = Xdelta - A.transposed()*Wbase + AWA*beta;
-//    muy = Adelta - A.transposed()*Wbase + AWA*beta;
+//    muy = (Xdelta - A.transposed()*Wbase + AWA*beta);
+//    muy = score + AWA*beta;
 
-    ofstream test5("d:\\temp\\muy.txt");
+/*    ofstream test5("d:\\temp\\muy.txt");
     muy.prettyPrint(test5);
-    test5.close();
+    test5<<endl;
+    AWA.prettyPrint(test5);
+    test5.close();*/
 
-    XX_env = envmatrix<double>(AWA);
+//    XX_env = envmatrix<double>(AWA);
     }
   else
     {
@@ -723,20 +740,31 @@ void IWLS_baseline::update_IWLS(void)
     compute_XWtildey(W,1.0);
     }
 
-  prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
+//  prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
+    double cov_test=cov_cp(0,0);
+    double cov_test2=cov_cp(1,0);
+    double cov_test3=cov_cp(0,1);
+   prec_env = envmatrix<double>(cov_cp);
 
   ofstream test7("d:\\temp\\prec.txt");
     test7<<"prec_env"<<endl;
     prec_env.print4(test7);
-    test7<<endl<<"Kenv"<<endl;
-    Kenv.print4(test7);
-    test7<<endl<<"XX_env"<<endl;
-    XX_env.print4(test7);
-    test7<<"Wbase"<<endl;
-    Wbase.prettyPrint(test7);
+//   test7<<endl<<"Kenv"<<endl;
+//    Kenv.print4(test7);
+//    test7<<endl<<"XX_env"<<endl;
+//    XX_env.print4(test7);
+//    test7<<"Wbase"<<endl;
+//    Wbase.prettyPrint(test7);
   test7.close();
 
-  prec_env.solve(muy,betahelp);
+//  prec_env.solve(muy,betahelp);
+  ifstream meanin1("d:\\simulationen\\test\\erg\\weibull13_no_IWLS_mean.txt");
+  betahelp.prettyScan(meanin1);
+  meanin1.close();
+
+  double test = betahelp(0,0);
+  double test2= betahelp(1,0);
+  double test3=cov_cp(0,0);
 
   double * work = beta.getV();
   for(i=0;i<nrpar;i++,work++)
@@ -744,10 +772,15 @@ void IWLS_baseline::update_IWLS(void)
 
   prec_env.solveU(beta,betahelp);
 
+  compute_intercept();
+  for(i=0;i<nrpar;i++)
+    beta(i,0) -= intercept;
+
   add_linearpred_multBS(beta,betaold,true);
   betahelp.minus(beta,betahelp);
 
-  double qold = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
+//  double qold = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
+  double qold = - 0.5*prec_env.compute_quadform(betahelp,0);
 
   double lognew = - 0.5*Kenv.compute_quadformblock(beta,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
 
@@ -760,17 +793,18 @@ void IWLS_baseline::update_IWLS(void)
     lognew += likep->loglikelihood(true);
 
     multBS(spline,beta);
-    compute_score();
+//    compute_score();
 //    compute_Wbase();
-    compute_AWA();
+//    compute_AWA();
 
-    muy = Xdelta - A.transposed()*Wbase + AWA*beta;
-//    muy = Adelta - A.transposed()*Wbase + AWA*beta;
-    XX_env = envmatrix<double>(AWA);
+//    muy = (Xdelta - A.transposed()*Wbase + AWA*beta);
+//    muy = score + AWA*beta;
+//    XX_env = envmatrix<double>(AWA);
 
-    prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
+//    prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
 
-    ofstream test8("d:\\temp\\prec2.txt");
+
+/*    ofstream test8("d:\\temp\\prec2.txt");
       test8<<"prec_env"<<endl;
       prec_env.print4(test8);
       test8<<endl<<"muy"<<endl;
@@ -779,7 +813,7 @@ void IWLS_baseline::update_IWLS(void)
       XX_env.print4(test8);
       test8<<"Wbase"<<endl;
       Wbase.prettyPrint(test8);
-    test8.close();
+    test8.close();*/
 
 
     }
@@ -793,10 +827,15 @@ void IWLS_baseline::update_IWLS(void)
     compute_XWtildey(W,1.0);
     }
 
-  prec_env.solve(muy,betahelp);
+//  prec_env.solve(muy,betahelp);
+
+  ifstream meanin2("d:\\simulationen\\test\\erg\\weibull13_no_IWLS_mean.txt");
+  betahelp.prettyScan(meanin2);
+  meanin2.close();
 
   betahelp.minus(betaold,betahelp);
-  double qnew = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
+//  double qnew = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
+  double qnew = - 0.5*prec_env.compute_quadform(betahelp,0);
 
   if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
       ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
@@ -807,7 +846,7 @@ void IWLS_baseline::update_IWLS(void)
   double alpha = lognew + qnew - logold - qold;
   double u = log(uniform());
 
-  if(u<=alpha)
+   if(u<=alpha)
     {
      acceptance++;
     if(center)
@@ -827,7 +866,7 @@ void IWLS_baseline::update_IWLS(void)
     add_linearpred_multBS(betaold,beta,true);
     beta.assign(betaold);
     }
-  update_baseline();     */
+  update_baseline();
   }
 
 
@@ -1878,7 +1917,7 @@ void IWLS_baseline::compute_score(void)
   spline.prettyPrint(splinetof);
   splinetof.close();
   datamatrix sumlinpred;
-  sumlinpred = datamatrix(betatilde.rows(),1,0);
+  sumlinpred = datamatrix(betatilde.rows(),1,0.0);
   datamatrix Wtest;
   Wtest = datamatrix(betatilde.rows(),1,0);
   for(j=0;j<betatilde.rows();j++)
@@ -1892,28 +1931,67 @@ void IWLS_baseline::compute_score(void)
 
 
 
-  score(0,0) = Xdelta(0,0)-( 1.0/6.0*exp(betatilde(0,0))*sumlinpred(0,0) );
-  score(1,0) = Xdelta(1,0)-( (2.0/3.0*exp(betatilde(0,0))*sumlinpred(0,0)) + (1.0/6.0*exp(betatilde(1,0))*sumlinpred(1,0)) );
-  score(2,0) = Xdelta(2,0)-( (1.0/6.0*exp(betatilde(0,0))*sumlinpred(0,0)) + (2.0/3.0*exp(betatilde(1,0))*sumlinpred(1,0)) + (1.0/6.0*exp(betatilde(2,0))*sumlinpred(2,0)) );
-  score(3,0) = Xdelta(3,0)-( (1.0/6.0*exp(betatilde(1,0))*sumlinpred(1,0)) + (2.0/3.0*exp(betatilde(2,0))*sumlinpred(2,0)) + (1.0/6.0*exp(betatilde(3,0))*sumlinpred(3,0)) );
-  score(4,0) = Xdelta(4,0)-( (1.0/6.0*exp(betatilde(2,0))*sumlinpred(2,0)) + (2.0/3.0*exp(betatilde(3,0))*sumlinpred(3,0)) + (1.0/6.0*exp(betatilde(4,0))*sumlinpred(4,0)) );
-  score(5,0) = Xdelta(5,0)-( (1.0/6.0*exp(betatilde(3,0))*sumlinpred(3,0)) + (2.0/3.0*exp(betatilde(4,0))*sumlinpred(4,0)) + (1.0/6.0*exp(betatilde(5,0))*sumlinpred(5,0)) );
-  score(6,0) = Xdelta(6,0)-( (1.0/6.0*exp(betatilde(4,0))*sumlinpred(4,0)) + (2.0/3.0*exp(betatilde(5,0))*sumlinpred(5,0)) + (1.0/6.0*exp(betatilde(6,0))*sumlinpred(6,0)) );
-  score(7,0) = Xdelta(7,0)-( (1.0/6.0*exp(betatilde(5,0))*sumlinpred(5,0)) + (2.0/3.0*exp(betatilde(6,0))*sumlinpred(6,0)) + (1.0/6.0*exp(betatilde(7,0))*sumlinpred(7,0)) );
-  score(8,0) = Xdelta(8,0)-( (1.0/6.0*exp(betatilde(6,0))*sumlinpred(6,0)) + (2.0/3.0*exp(betatilde(7,0))*sumlinpred(7,0)) + (1.0/6.0*exp(betatilde(8,0))*sumlinpred(8,0)) );
-  score(9,0) = Xdelta(9,0)-( (1.0/6.0*exp(betatilde(7,0))*sumlinpred(7,0)) + (2.0/3.0*exp(betatilde(8,0))*sumlinpred(8,0)) + (1.0/6.0*exp(betatilde(9,0))*sumlinpred(9,0)) );
-  score(10,0) = Xdelta(10,0)-( (1.0/6.0*exp(betatilde(8,0))*sumlinpred(8,0)) + (2.0/3.0*exp(betatilde(9,0))*sumlinpred(9,0)) + (1.0/6.0*exp(betatilde(10,0))*sumlinpred(10,0)) );
-  score(11,0) = Xdelta(11,0)-( (1.0/6.0*exp(betatilde(9,0))*sumlinpred(9,0)) + (2.0/3.0*exp(betatilde(10,0))*sumlinpred(10,0)) + (1.0/6.0*exp(betatilde(11,0))*sumlinpred(11,0)) );
-  score(12,0) = Xdelta(12,0)-( (1.0/6.0*exp(betatilde(10,0))*sumlinpred(10,0)) + (2.0/3.0*exp(betatilde(11,0))*sumlinpred(11,0)) + (1.0/6.0*exp(betatilde(12,0))*sumlinpred(12,0)) );
-  score(13,0) = Xdelta(13,0)-( (1.0/6.0*exp(betatilde(11,0))*sumlinpred(11,0)) + (2.0/3.0*exp(betatilde(12,0))*sumlinpred(12,0)) + (1.0/6.0*exp(betatilde(13,0))*sumlinpred(13,0)) );
-  score(14,0) = Xdelta(14,0)-( (1.0/6.0*exp(betatilde(12,0))*sumlinpred(12,0)) + (2.0/3.0*exp(betatilde(13,0))*sumlinpred(13,0)) + (1.0/6.0*exp(betatilde(14,0))*sumlinpred(14,0)) );
-  score(15,0) = Xdelta(15,0)-( (1.0/6.0*exp(betatilde(13,0))*sumlinpred(13,0)) + (2.0/3.0*exp(betatilde(14,0))*sumlinpred(14,0)) + (1.0/6.0*exp(betatilde(15,0))*sumlinpred(15,0)) );
-  score(16,0) = Xdelta(16,0)-( (1.0/6.0*exp(betatilde(14,0))*sumlinpred(14,0)) + (2.0/3.0*exp(betatilde(15,0))*sumlinpred(15,0)) + (1.0/6.0*exp(betatilde(16,0))*sumlinpred(16,0)) );
-  score(17,0) = Xdelta(17,0)-( (1.0/6.0*exp(betatilde(15,0))*sumlinpred(15,0)) + (2.0/3.0*exp(betatilde(16,0))*sumlinpred(16,0)) + (1.0/6.0*exp(betatilde(17,0))*sumlinpred(17,0)) );
-  score(18,0) = Xdelta(18,0)-( (1.0/6.0*exp(betatilde(16,0))*sumlinpred(16,0)) + (2.0/3.0*exp(betatilde(17,0))*sumlinpred(17,0)) + (1.0/6.0*exp(betatilde(18,0))*sumlinpred(18,0)) );
-  score(19,0) = Xdelta(19,0)-( (1.0/6.0*exp(betatilde(17,0))*sumlinpred(17,0)) + (2.0/3.0*exp(betatilde(18,0))*sumlinpred(18,0)) + (1.0/6.0*exp(betatilde(19,0))*sumlinpred(19,0)) );
-  score(20,0) = Xdelta(20,0)-( (1.0/6.0*exp(betatilde(18,0))*sumlinpred(18,0)) + (2.0/3.0*exp(betatilde(19,0))*sumlinpred(19,0)) );
-  score(21,0) = Xdelta(21,0)-( 1.0/6.0*exp(betatilde(19,0))*sumlinpred(19,0));
+  score(0,0) = Xdelta(0,0)- (1.0/6.0*exp(betatilde(0,0))*sumlinpred(0,0));
+
+  score(1,0) = Xdelta(1,0)- (2.0/3.0*exp(betatilde(0,0))*sumlinpred(0,0)) - (1.0/6.0*exp(betatilde(1,0))*sumlinpred(1,0));
+
+  score(2,0) = Xdelta(2,0)- (1.0/6.0*exp(betatilde(0,0))*sumlinpred(0,0)) - (2.0/3.0*exp(betatilde(1,0))*sumlinpred(1,0))
+               - (1.0/6.0*exp(betatilde(2,0))*sumlinpred(2,0)) ;
+
+  score(3,0) = Xdelta(3,0)- (1.0/6.0*exp(betatilde(1,0))*sumlinpred(1,0)) - (2.0/3.0*exp(betatilde(2,0))*sumlinpred(2,0))
+               - (1.0/6.0*exp(betatilde(3,0))*sumlinpred(3,0)) ;
+
+  score(4,0) = Xdelta(4,0)- (1.0/6.0*exp(betatilde(2,0))*sumlinpred(2,0)) - (2.0/3.0*exp(betatilde(3,0))*sumlinpred(3,0))
+               - (1.0/6.0*exp(betatilde(4,0))*sumlinpred(4,0)) ;
+
+  score(5,0) = Xdelta(5,0)- (1.0/6.0*exp(betatilde(3,0))*sumlinpred(3,0)) - (2.0/3.0*exp(betatilde(4,0))*sumlinpred(4,0))
+               - (1.0/6.0*exp(betatilde(5,0))*sumlinpred(5,0)) ;
+
+  score(6,0) = Xdelta(6,0)- (1.0/6.0*exp(betatilde(4,0))*sumlinpred(4,0)) - (2.0/3.0*exp(betatilde(5,0))*sumlinpred(5,0))
+               - (1.0/6.0*exp(betatilde(6,0))*sumlinpred(6,0)) ;
+
+  score(7,0) = Xdelta(7,0)- (1.0/6.0*exp(betatilde(5,0))*sumlinpred(5,0)) - (2.0/3.0*exp(betatilde(6,0))*sumlinpred(6,0))
+               - (1.0/6.0*exp(betatilde(7,0))*sumlinpred(7,0)) ;
+
+  score(8,0) = Xdelta(8,0)- (1.0/6.0*exp(betatilde(6,0))*sumlinpred(6,0)) - (2.0/3.0*exp(betatilde(7,0))*sumlinpred(7,0))
+               - (1.0/6.0*exp(betatilde(8,0))*sumlinpred(8,0)) ;
+
+  score(9,0) = Xdelta(9,0)- (1.0/6.0*exp(betatilde(7,0))*sumlinpred(7,0)) - (2.0/3.0*exp(betatilde(8,0))*sumlinpred(8,0))
+               - (1.0/6.0*exp(betatilde(9,0))*sumlinpred(9,0)) ;
+
+  score(10,0) = Xdelta(10,0)- (1.0/6.0*exp(betatilde(8,0))*sumlinpred(8,0)) - (2.0/3.0*exp(betatilde(9,0))*sumlinpred(9,0))
+                - (1.0/6.0*exp(betatilde(10,0))*sumlinpred(10,0)) ;
+
+  score(11,0) = Xdelta(11,0)- (1.0/6.0*exp(betatilde(9,0))*sumlinpred(9,0)) - (2.0/3.0*exp(betatilde(10,0))*sumlinpred(10,0))
+                - (1.0/6.0*exp(betatilde(11,0))*sumlinpred(11,0)) ;
+
+  score(12,0) = Xdelta(12,0)- (1.0/6.0*exp(betatilde(10,0))*sumlinpred(10,0)) - (2.0/3.0*exp(betatilde(11,0))*sumlinpred(11,0))
+                - (1.0/6.0*exp(betatilde(12,0))*sumlinpred(12,0)) ;
+
+  score(13,0) = Xdelta(13,0)- (1.0/6.0*exp(betatilde(11,0))*sumlinpred(11,0)) - (2.0/3.0*exp(betatilde(12,0))*sumlinpred(12,0))
+                - (1.0/6.0*exp(betatilde(13,0))*sumlinpred(13,0)) ;
+
+  score(14,0) = Xdelta(14,0)- (1.0/6.0*exp(betatilde(12,0))*sumlinpred(12,0)) - (2.0/3.0*exp(betatilde(13,0))*sumlinpred(13,0))
+                - (1.0/6.0*exp(betatilde(14,0))*sumlinpred(14,0)) ;
+
+  score(15,0) = Xdelta(15,0)- (1.0/6.0*exp(betatilde(13,0))*sumlinpred(13,0)) - (2.0/3.0*exp(betatilde(14,0))*sumlinpred(14,0))
+                - (1.0/6.0*exp(betatilde(15,0))*sumlinpred(15,0)) ;
+
+  score(16,0) = Xdelta(16,0)- (1.0/6.0*exp(betatilde(14,0))*sumlinpred(14,0)) - (2.0/3.0*exp(betatilde(15,0))*sumlinpred(15,0))
+                - (1.0/6.0*exp(betatilde(16,0))*sumlinpred(16,0)) ;
+
+  score(17,0) = Xdelta(17,0)- (1.0/6.0*exp(betatilde(15,0))*sumlinpred(15,0)) - (2.0/3.0*exp(betatilde(16,0))*sumlinpred(16,0))
+                - (1.0/6.0*exp(betatilde(17,0))*sumlinpred(17,0)) ;
+
+  score(18,0) = Xdelta(18,0)- (1.0/6.0*exp(betatilde(16,0))*sumlinpred(16,0)) - (2.0/3.0*exp(betatilde(17,0))*sumlinpred(17,0))
+                - (1.0/6.0*exp(betatilde(18,0))*sumlinpred(18,0)) ;
+
+  score(19,0) = Xdelta(19,0)- (1.0/6.0*exp(betatilde(17,0))*sumlinpred(17,0)) - (2.0/3.0*exp(betatilde(18,0))*sumlinpred(18,0))
+                - (1.0/6.0*exp(betatilde(19,0))*sumlinpred(19,0)) ;
+
+  score(20,0) = Xdelta(20,0)- (1.0/6.0*exp(betatilde(18,0))*sumlinpred(18,0)) - (2.0/3.0*exp(betatilde(19,0))*sumlinpred(19,0)) ;
+
+  score(21,0) = Xdelta(21,0)- (1.0/6.0*exp(betatilde(19,0))*sumlinpred(19,0));
 
   for(j=0;j<betatilde.rows();j++)
     {
@@ -1924,13 +2002,107 @@ void IWLS_baseline::compute_score(void)
   AWA_test(0,0) = (score(0,0)-Xdelta(0,0))/6.0;
   AWA_test(1,0) = (score(0,0)-Xdelta(0,0))*2.0/3.0;
   AWA_test(2,0) = AWA_test(0,0);
+  AWA_test(0,2) = AWA_test(0,0);
   AWA_test(0,1) = AWA_test(1,0);
-  AWA_test(1,1) = 4.0/9.0*exp(betatilde(0,0))*sumlinpred(0,0) + 1.0/36.0*exp(betatilde(1,0))*sumlinpred(1,0);
-  AWA_test(1,2) = 2.0/18.0*exp(betatilde(0,0))*sumlinpred(0,0) + 2.0/18.0*exp(betatilde(1,0))*sumlinpred(1,0);
+  AWA_test(1,1) = -4.0/9.0*exp(betatilde(0,0))*sumlinpred(0,0) - 1.0/36.0*exp(betatilde(1,0))*sumlinpred(1,0);
+  AWA_test(1,2) = -1.0/9.0*exp(betatilde(0,0))*sumlinpred(0,0) - 1.0/9.0*exp(betatilde(1,0))*sumlinpred(1,0);
   AWA_test(2,1) = AWA_test(1,2);
-  AWA_test(3,1) = 1.0/36.0*exp(betatilde(1,0))*sumlinpred(1,0);
-  AWA_test(2,2) = 1.0/36.0*exp(betatilde(0,0))*sumlinpred(0,0) + 4.0/9.0*exp(betatilde(1,0))*sumlinpred(1,0) + 1.0/36.0*exp(betatilde(2,0))*sumlinpred(2,0);
-
+  AWA_test(3,1) = -1.0/36.0*exp(betatilde(1,0))*sumlinpred(1,0);
+  AWA_test(1,3) = AWA_test(3,1);
+  AWA_test(2,2) = -1.0/36.0*exp(betatilde(0,0))*sumlinpred(0,0) - 4.0/9.0*exp(betatilde(1,0))*sumlinpred(1,0) - 1.0/36.0*exp(betatilde(2,0))*sumlinpred(2,0);
+  AWA_test(2,3) =  -1.0/9.0*exp(betatilde(1,0))*sumlinpred(1,0) - 1.0/9.0*exp(betatilde(2,0))*sumlinpred(2,0);
+  AWA_test(3,2) = AWA_test(2,3);
+  AWA_test(2,4) = -1.0/36.0*exp(betatilde(2,0))*sumlinpred(2,0);
+  AWA_test(4,2) = AWA_test(2,4);
+  AWA_test(3,3) = -1.0/36.0*exp(betatilde(1,0))*sumlinpred(1,0) - 4.0/9.0*exp(betatilde(2,0))*sumlinpred(2,0) - 1.0/36.0*exp(betatilde(3,0))*sumlinpred(3,0);
+  AWA_test(3,4) = -1.0/9.0*exp(betatilde(2,0))*sumlinpred(2,0) - 1.0/9.0*exp(betatilde(3,0))*sumlinpred(3,0);
+  AWA_test(4,3) = AWA_test(3,4);
+  AWA_test(3,5) = -1.0/36.0*exp(betatilde(3,0))*sumlinpred(3,0);
+  AWA_test(5,3) = AWA_test(3,5);
+  AWA_test(4,4) = -1.0/36.0*exp(betatilde(2,0))*sumlinpred(2,0) - 4.0/9.0*exp(betatilde(3,0))*sumlinpred(3,0) - 1.0/36.0*exp(betatilde(4,0))*sumlinpred(4,0);
+  AWA_test(4,5) = -1.0/9.0*exp(betatilde(3,0))*sumlinpred(3,0) - 1.0/9.0*exp(betatilde(4,0))*sumlinpred(4,0);
+  AWA_test(5,4) = AWA_test(4,5);
+  AWA_test(4,6) = -1.0/36.0*exp(betatilde(4,0))*sumlinpred(4,0);
+  AWA_test(6,4) = AWA_test(4,6);
+  AWA_test(5,5) = -1.0/36.0*exp(betatilde(3,0))*sumlinpred(3,0) - 4.0/9.0*exp(betatilde(4,0))*sumlinpred(4,0) - 1.0/36.0*exp(betatilde(5,0))*sumlinpred(5,0);
+  AWA_test(5,6) = -1.0/9.0*exp(betatilde(4,0))*sumlinpred(4,0) - 1.0/9.0*exp(betatilde(5,0))*sumlinpred(5,0);
+  AWA_test(6,5) = AWA_test(5,6);
+  AWA_test(5,7) = -1.0/36.0*exp(betatilde(5,0))*sumlinpred(5,0);
+  AWA_test(7,5) = AWA_test(5,7);
+  AWA_test(6,6) = -1.0/36.0*exp(betatilde(4,0))*sumlinpred(4,0) - 4.0/9.0*exp(betatilde(5,0))*sumlinpred(5,0) - 1.0/36.0*exp(betatilde(6,0))*sumlinpred(6,0);
+  AWA_test(6,7) = -1.0/9.0*exp(betatilde(5,0))*sumlinpred(5,0) - 1.0/9.0*exp(betatilde(6,0))*sumlinpred(6,0);
+  AWA_test(7,6) = AWA_test(6,7);
+  AWA_test(6,8) = -1.0/36.0*exp(betatilde(6,0))*sumlinpred(6,0);
+  AWA_test(8,6) = AWA_test(6,8);
+  AWA_test(7,7) = -1.0/36.0*exp(betatilde(5,0))*sumlinpred(5,0) - 4.0/9.0*exp(betatilde(6,0))*sumlinpred(6,0) - 1.0/36.0*exp(betatilde(7,0))*sumlinpred(7,0);
+  AWA_test(7,8) = -1.0/9.0*exp(betatilde(6,0))*sumlinpred(6,0) - 1.0/9.0*exp(betatilde(7,0))*sumlinpred(7,0);
+  AWA_test(8,7) = AWA_test(7,8);
+  AWA_test(7,9) = -1.0/36.0*exp(betatilde(7,0))*sumlinpred(7,0);
+  AWA_test(9,7) = AWA_test(7,9);
+  AWA_test(8,8) = -1.0/36.0*exp(betatilde(6,0))*sumlinpred(6,0) - 4.0/9.0*exp(betatilde(7,0))*sumlinpred(7,0) - 1.0/36.0*exp(betatilde(8,0))*sumlinpred(8,0);
+  AWA_test(8,9) = -1.0/9.0*exp(betatilde(7,0))*sumlinpred(7,0) - 1.0/9.0*exp(betatilde(8,0))*sumlinpred(8,0);
+  AWA_test(9,8) = AWA_test(8,9);
+  AWA_test(8,10) = -1.0/36.0*exp(betatilde(8,0))*sumlinpred(8,0);
+  AWA_test(10,8) = AWA_test(8,10);
+  AWA_test(9,9) = -1.0/36.0*exp(betatilde(7,0))*sumlinpred(7,0) - 4.0/9.0*exp(betatilde(8,0))*sumlinpred(8,0) - 1.0/36.0*exp(betatilde(9,0))*sumlinpred(9,0);
+  AWA_test(9,10) = -1.0/9.0*exp(betatilde(8,0))*sumlinpred(8,0) - 1.0/9.0*exp(betatilde(9,0))*sumlinpred(9,0);
+  AWA_test(10,9) = AWA_test(9,10);
+  AWA_test(9,11) = -1.0/36.0*exp(betatilde(9,0))*sumlinpred(9,0);
+  AWA_test(11,9) = AWA_test(9,11);
+  AWA_test(10,10) = -1.0/36.0*exp(betatilde(8,0))*sumlinpred(8,0) - 4.0/9.0*exp(betatilde(9,0))*sumlinpred(9,0) - 1.0/36.0*exp(betatilde(10,0))*sumlinpred(10,0);
+  AWA_test(10,11) = -1.0/9.0*exp(betatilde(9,0))*sumlinpred(9,0) - 1.0/9.0*exp(betatilde(10,0))*sumlinpred(10,0);
+  AWA_test(11,10) = AWA_test(10,11);
+  AWA_test(10,12) = -1.0/36.0*exp(betatilde(10,0))*sumlinpred(10,0);
+  AWA_test(12,10) = AWA_test(10,12);
+  AWA_test(11,11) = -1.0/36.0*exp(betatilde(9,0))*sumlinpred(9,0) - 4.0/9.0*exp(betatilde(10,0))*sumlinpred(10,0) - 1.0/36.0*exp(betatilde(11,0))*sumlinpred(11,0);
+  AWA_test(11,12) = -1.0/9.0*exp(betatilde(10,0))*sumlinpred(10,0) - 1.0/9.0*exp(betatilde(11,0))*sumlinpred(11,0);
+  AWA_test(12,11) = AWA_test(11,12);
+  AWA_test(11,13) = -1.0/36.0*exp(betatilde(11,0))*sumlinpred(11,0);
+  AWA_test(13,11) = AWA_test(11,13);
+  AWA_test(12,12) = -1.0/36.0*exp(betatilde(10,0))*sumlinpred(10,0) - 4.0/9.0*exp(betatilde(11,0))*sumlinpred(11,0) - 1.0/36.0*exp(betatilde(12,0))*sumlinpred(12,0);
+  AWA_test(12,13) = -1.0/9.0*exp(betatilde(11,0))*sumlinpred(11,0) - 1.0/9.0*exp(betatilde(12,0))*sumlinpred(12,0);
+  AWA_test(13,12) = AWA_test(12,13);
+  AWA_test(12,14) = -1.0/36.0*exp(betatilde(12,0))*sumlinpred(12,0);
+  AWA_test(14,12) = AWA_test(12,14);
+  AWA_test(13,13) = -1.0/36.0*exp(betatilde(11,0))*sumlinpred(11,0) - 4.0/9.0*exp(betatilde(12,0))*sumlinpred(12,0) - 1.0/36.0*exp(betatilde(13,0))*sumlinpred(13,0);
+  AWA_test(13,14) = -1.0/9.0*exp(betatilde(12,0))*sumlinpred(12,0) - 1.0/9.0*exp(betatilde(13,0))*sumlinpred(13,0);
+  AWA_test(14,13) = AWA_test(13,14);
+  AWA_test(13,15) = -1.0/36.0*exp(betatilde(13,0))*sumlinpred(13,0);
+  AWA_test(15,13) = AWA_test(13,15);
+  AWA_test(14,14) = -1.0/36.0*exp(betatilde(12,0))*sumlinpred(12,0) - 4.0/9.0*exp(betatilde(13,0))*sumlinpred(13,0) - 1.0/36.0*exp(betatilde(14,0))*sumlinpred(14,0);
+  AWA_test(14,15) = -1.0/9.0*exp(betatilde(13,0))*sumlinpred(13,0) - 1.0/9.0*exp(betatilde(14,0))*sumlinpred(14,0);
+  AWA_test(15,14) = AWA_test(14,15);
+  AWA_test(14,16) = -1.0/36.0*exp(betatilde(14,0))*sumlinpred(14,0);
+  AWA_test(16,14) = AWA_test(14,16);
+  AWA_test(15,15) = -1.0/36.0*exp(betatilde(13,0))*sumlinpred(13,0) - 4.0/9.0*exp(betatilde(14,0))*sumlinpred(14,0) - 1.0/36.0*exp(betatilde(15,0))*sumlinpred(15,0);
+  AWA_test(15,16) = -1.0/9.0*exp(betatilde(14,0))*sumlinpred(14,0) - 1.0/9.0*exp(betatilde(15,0))*sumlinpred(15,0);
+  AWA_test(16,15) = AWA_test(15,16);
+  AWA_test(15,17) = -1.0/36.0*exp(betatilde(15,0))*sumlinpred(15,0);
+  AWA_test(17,15) = AWA_test(15,17);
+  AWA_test(16,16) = -1.0/36.0*exp(betatilde(14,0))*sumlinpred(14,0) - 4.0/9.0*exp(betatilde(15,0))*sumlinpred(15,0) - 1.0/36.0*exp(betatilde(16,0))*sumlinpred(16,0);
+  AWA_test(16,17) = -1.0/9.0*exp(betatilde(15,0))*sumlinpred(15,0) - 1.0/9.0*exp(betatilde(16,0))*sumlinpred(16,0);
+  AWA_test(17,16) = AWA_test(16,17);
+  AWA_test(16,18) = -1.0/36.0*exp(betatilde(16,0))*sumlinpred(16,0);
+  AWA_test(18,16) = AWA_test(16,18);
+  AWA_test(17,17) = -1.0/36.0*exp(betatilde(15,0))*sumlinpred(15,0) - 4.0/9.0*exp(betatilde(16,0))*sumlinpred(16,0) - 1.0/36.0*exp(betatilde(17,0))*sumlinpred(17,0);
+  AWA_test(17,18) = -1.0/9.0*exp(betatilde(16,0))*sumlinpred(16,0) - 1.0/9.0*exp(betatilde(17,0))*sumlinpred(17,0);
+  AWA_test(18,17) = AWA_test(17,18);
+  AWA_test(17,19) = -1.0/36.0*exp(betatilde(17,0))*sumlinpred(17,0);
+  AWA_test(19,17) = AWA_test(17,19);
+  AWA_test(18,18) = -1.0/36.0*exp(betatilde(16,0))*sumlinpred(16,0) - 4.0/9.0*exp(betatilde(17,0))*sumlinpred(17,0) - 1.0/36.0*exp(betatilde(18,0))*sumlinpred(18,0);
+  AWA_test(18,19) = -1.0/9.0*exp(betatilde(17,0))*sumlinpred(17,0) - 1.0/9.0*exp(betatilde(18,0))*sumlinpred(18,0);
+  AWA_test(19,18) = AWA_test(18,19);
+  AWA_test(18,20) = -1.0/36.0*exp(betatilde(18,0))*sumlinpred(18,0);
+  AWA_test(20,18) = AWA_test(18,20);
+  AWA_test(19,19) = -1.0/36.0*exp(betatilde(17,0))*sumlinpred(17,0) - 4.0/9.0*exp(betatilde(18,0))*sumlinpred(18,0) - 1.0/36.0*exp(betatilde(19,0))*sumlinpred(19,0);
+  AWA_test(19,20) = -1.0/9.0*exp(betatilde(18,0))*sumlinpred(18,0) - 1.0/9.0*exp(betatilde(19,0))*sumlinpred(19,0);
+  AWA_test(20,19) = AWA_test(19,20);
+  AWA_test(19,21) = -1.0/36.0*exp(betatilde(19,0))*sumlinpred(19,0);
+  AWA_test(21,19) = AWA_test(19,21);
+  AWA_test(20,20) = -1.0/36.0*exp(betatilde(18,0))*sumlinpred(18,0) - 4.0/9.0*exp(betatilde(19,0))*sumlinpred(19,0);
+  AWA_test(20,21) = -1.0/9.0*exp(betatilde(19,0))*sumlinpred(19,0);
+  AWA_test(21,20) = AWA_test(20,21);
+  AWA_test(21,21) = -1.0/36.0*exp(betatilde(19,0))*sumlinpred(19,0);
 
   ofstream sco("d:\\temp\\score.txt");
   sco<<"score bzw. muy"<<endl;
