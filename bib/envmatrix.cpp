@@ -2065,6 +2065,7 @@ void envmatrix<T>::set(const unsigned & i, const unsigned & j, const T & t)
     diag[i]=t;
     decomposed=false;
     rational_decomposed=false;
+    return;
     }
 
   kl=xenv[ih];
