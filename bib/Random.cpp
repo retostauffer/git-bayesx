@@ -42,6 +42,9 @@ double invPhi2 (const double & p)
     else
       pt = 1-p;
 
+    if(pt < 1.0e-100)
+      pt = 1.0e-100;
+
     double t = sqrt(-2.0*log(pt));
     double t2 = t*t;
     double t3 = t2*t;
