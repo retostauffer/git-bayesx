@@ -167,6 +167,7 @@ void bayesreg::create(void)
   nonpspatialxy = term_spatialxy();
   randomeff = term_random();
   randomeffslope = term_randomslope();
+  mixtureeff = term_mixture();
   nonpvarcoeffpspline = term_varcoeff_pspline();
   nonpinteractpspline = term_interactpspline();
   nonpgeospline = term_geospline();
@@ -183,6 +184,7 @@ void bayesreg::create(void)
   termtypes.push_back(&nonpspatial);
   termtypes.push_back(&randomeff);
   termtypes.push_back(&randomeffslope);
+  termtypes.push_back(&mixtureeff);
   termtypes.push_back(&nonpvarcoeffpspline);
   termtypes.push_back(&nonpinteractpspline);
   termtypes.push_back(&nonpspatialxy);

@@ -907,7 +907,7 @@ class __EXPORT_TYPE term_random : public basic_termtype
   stroption proposal;
   simpleoption updatetau;
   simpleoption uniformprior;
-  intoption nrcomp;
+//  intoption nrcomp;
 
   void setdefault(void);
 
@@ -938,6 +938,59 @@ class __EXPORT_TYPE term_random : public basic_termtype
   // DESTRUCTOR
 
   ~term_random() {}
+
+  };
+
+
+
+//------------------------------------------------------------------------------
+//--------------------------- class term_mixture  -------------------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE term_mixture : public basic_termtype
+  {
+
+
+  protected:
+
+//  doubleoption lambda;
+//  doubleoption a;
+//  doubleoption b;
+//  stroption proposal;
+//  simpleoption updatetau;
+//  simpleoption uniformprior;
+  intoption nrcomp;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_mixture(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a mixture random effect
+
+  bool checkvector(const vector<term> & terms,const unsigned & i)
+    {
+
+    assert(i< terms.size());
+
+    if ( terms[i].type == "mixture" )
+      return true;
+
+    return false;
+    }
+
+  // DESTRUCTOR
+
+  ~term_mixture() {}
 
   };
 

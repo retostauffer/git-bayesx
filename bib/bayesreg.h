@@ -485,6 +485,7 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   term_random randomeff;
   term_randomslope randomeffslope;
+  term_mixture mixtureeff;
 
   vector<FULLCOND_random_nongaussian> fcrandom;
   vector<FULLCOND_random_gaussian> fcrandomgaussian;
@@ -492,6 +493,7 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   bool create_random(const unsigned & collinpred=0);
   bool create_randomslope(const unsigned & collinpred=0);
+  bool create_mixture(const unsigned & collinpred=0);
 
 
   //-------------------- end: for random effects -------------------------------

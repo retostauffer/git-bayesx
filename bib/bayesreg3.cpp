@@ -1479,6 +1479,9 @@ void regressrun(bayesreg & b)
         failure = b.create_randomslope(i);
 
       if (!failure)
+        failure = b.create_mixture(i);
+
+      if (!failure)
         failure = b.create_interactionspspline(i);
 
       if (!failure)
