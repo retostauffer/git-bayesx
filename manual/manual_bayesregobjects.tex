@@ -62,7 +62,8 @@ model} using the data specified in {\em dataset}. {\em dataset}
 must be the name of a {\em dataset object} created before. The
 details of correct models are covered in \autoref{modelsyntax}.
 The distribution of the response variable can be either Gaussian,
-gamma, binomial, multinomial, Poisson or negative binomial, see
+gamma, binomial, multinomial, Poisson, negative binomial
+zero inflated Poisson or zero inflated negative binomial, see
 also \autoref{familyopt} for an overview about the distributions
 supported by {\em BayesX}. The response distribution is specified
 using option #family#, see \autoref{familysyntax} below and the
@@ -100,7 +101,8 @@ the mean and $s_r = \nu/weightvar_r$ is the scale parameter.
 
 If estimation is based on latent utility representations, the
 specification of weights is not allowed. Also for negative
-binomial models weighted regression is not implemented.
+binomial, zero inflated Poisson and zero inflated negative 
+binomial models is weighted regression not implemented.
 
 \subsubsection{Syntax of possible model terms}
 \label{modelsyntax}
@@ -857,7 +859,8 @@ bayesreg objects}}
 The current version of {\em BayesX} supports the most common
 distributions of the response. Supported univariate distributions
 are Gaussian, binomial (with logit or probit link), Poisson,
-negative binomial and gamma. Supported multivariate models are
+negative binomial, gamma, zero inflated Poisson and zero inflated
+negative binomial. Supported multivariate models are
 multinomial logit or probit models for categorical responses with
 unordered categories, and the cumulative threshold model with
 probit link for categorical responses with ordered categories.
@@ -1110,6 +1113,40 @@ The prior for the scale parameter $\delta$ is $G(a,b)$ in both
 formulations, where #a=1# is fixed and #b# is estimated. Its prior
 is again a gamma distribution with fixed parameters 1 and 0.005.
 
+{\bf Zero inflated count data models}
+
+A zero inflated regression for count data is specified by adding
+
+#family = zip#
+
+to the options list.
+
+A weight variable can not be additionally specified.
+
+Zero inflated count data distributions are used when the
+number of zero counts in the data exceeds the number of
+zero counts expected by the distribution. They are based on 
+two processes. The first process is an underlying count data 
+process, that can not be observed directly, but after a 
+transformation through a so called selection process. This 
+one is defined through a 0/1 variable. If we have a 0 in the
+selection process, the observed count will be zero, independently
+of the generated value by the underlying count data process.
+Otherwise, if we have a 1, then we will observe directly the
+generated value by the underlying count data process.
+The implemented zero inflated distributions in {\em BayesX}
+do not work with both processes directly. They are marginalized
+versions of a given count data distribution with respect to 
+a $0/1 ~sim Bern(1-\theta)$ selection process. For the count
+data process we have two possibilities, that can be controlled
+throuth the option #zipdistopt#. If we chose a Poisson distribution,
+we get a zero inflated Poisson distribution (#zipdistopt = zip#)
+denoted by $y_i | \eta_i,\theta \sim ZIP(\eta_i,\theta)$.
+We may combine both approaches zero inflation and overdispersion.
+To do this, we may chose a negative binomial distribution leading
+to a zero inflated negative binomial (#zipdistopt = zinb#) and
+denoted by $y_i | \eta_i,\delta, \theta \sim ZINB(\eta_i,\delta,\theta)$.
+
 
 \subsubsection{Continuous time survival analysis}
 \label{cont_survivalAnalysis}
@@ -1296,7 +1333,8 @@ Models supported are Gaussian regression models with the identity
 link, binomial logit or probit models, multinomial logit or probit
 models for unordered categories of the response, cumulative
 threshold models with probit link for ordered categories of the
-response, and Poisson or negative binomial models with the
+response, and Poisson, negative binomial or their zero inflated
+versions with the
 log-link. For some distributions (e.g.~multinomial) additional
 options may be specified to control MCMC inference. A detailed
 description on how to specify the distribution of the response is
@@ -1314,6 +1352,12 @@ defines the reference category to be chosen. Suppose, for
 instance, that the response is three categorical with categories
 1,2, and 3. Then #reference=2# defines the value 2 to be the
 reference category.
+
+\item {\bf zipdistopt =  characterstring} \\
+Defines the zero inflated distribution for the regression analysis.
+The two possibilities are to work with a zero inflated Poisson
+distribution (#zipdistopt=zip#) or to work with the
+zero inflated negative binomial likelihood (#zipdistopt=zinb#).
 \end{itemize}
 
 \begin{table}[ht]
@@ -1334,7 +1378,9 @@ value of #family# & response distribution & link & additional options \\
 \hline
 #family=poisson# & Poisson & log-link &  \\
 \hline
-#family=nbinomial# & Negative Binomial & log-link &  #distopt#\\
+#family=nbinomial# & Negative Binomial & log--link &  #distopt#\\
+\hline
+#family=zip# & Zero inflation & log-link & #zipdistopt#\\
 \hline
 #family=cox#                 & continuous-time survival data & &#begin# \\
 \hline
@@ -1399,7 +1445,7 @@ Spiegelhalter et al.~(2002). The computation of these quantities
 is based on the unstandardized deviance which is defined as
 $D(\theta) = -2\log(p(y|\theta))$ where $\theta = (\mu,\sigma^2)$
 for Gaussian responses, $\theta = (\mu,\delta)$ for negative
-binomial responses and $\theta = \mu$ for the rest of non-Gaussian
+binomial responses  and $\theta = \mu$ for the rest of non-Gaussian
 responses. The effective number of parameters is defined by $p_D =
 \overline{D(\theta)} - D(\bar{\theta})$ where
 $\overline{D(\theta)}$ is the posterior mean deviance and
@@ -1432,7 +1478,6 @@ formulas of the p.d.f.~and the (unstandardized) deviance $D$ for
 the different response distributions provided in {\em BayesX}.
 \end{itemize}
 
-
 \begin{table}[ht]
 \begin{center}
 \begin{tabular} {|l|l|l|}
@@ -1446,12 +1491,27 @@ $\log(\frac{2 \pi \sigma^2}{c}) + \frac{c}{\sigma^2} (y-\mu)^2$ \\
 Binomial & $p(y | \mu)  \propto \mu^y(1-\mu)^{c-y}$ & $-2 y \log(\mu) - 2 (c-y) \log(1-\mu)$ \\
 \hline
 Poisson & $p(y | \mu) \propto \exp((y \log(\mu) - \mu)c)$  & $-2c(y \log(\mu) - \mu)$ \\
-\hline Negative Binomial & $p(y|\mu,\delta) \propto
+\hline 
+Negative Binomial & $p(y|\mu,\delta) \propto
 \frac{\Gamma(y+\delta)}{\Gamma(\delta)}
 \left(\frac{\delta}{\delta+\mu}\right)^\delta
 \left(\frac{\mu}{\delta+\mu}\right)^y$ &
 $-2\{\log(\Gamma(y+\delta))-\log(\Gamma(\delta))+\delta\log(\delta)$\\
 &&$+y\log(\mu)-(\delta+y)\log(\delta+\mu)\}$\\
+\hline
+Zero inflated  & $p(0|\mu, \theta) = \theta + (1-\theta)\exp(-\mu)$ 
+& $-2\log(\theta + (1-\theta)\exp(-\mu))$\\
+Poisson & $p(y|\mu, \theta) \propto (1-\theta)\exp(-\mu)\mu^y$ 
+& $-2\log(1-\theta)-2(y \log(\mu) - \mu)$\\
+\hline
+Zero inflated  & $p(0|\mu, \delta, \theta) = \theta + 
+(1-\theta)\!\!\left(\frac{\delta}{\delta+\mu}\right)^\delta$&
+$-2\log\left( \theta + (1-\theta)\left(\frac{\delta}{\delta+\mu}\right)^\delta \right)$\\
+Negative Binomial& $p(y|\mu, \delta, \theta) \propto (1-\theta)\frac{\Gamma(y+\delta)}{\Gamma(\delta)}$
+& $-2\{\log(1-\theta)$\\
+&$\qquad\qquad\qquad\left(\frac{\delta}{\delta+\mu}\right)^\delta \left(\frac{\mu}{\delta+\mu}\right)^y$ 
+&$+ \log(\Gamma(y+\delta))-\log(\Gamma(\delta))+\delta\log(\delta)$\\
+& & $+ y\log(\mu)-(\delta+y)\log(\delta+\mu)\}$\\
 \hline
 Multinomial logit & $p(y | \mu) \propto \prod \mu_j^{y_j}$ & $-2(\sum y_j \log(\mu_j))$ \\
 \hline
@@ -1464,7 +1524,7 @@ Cumulative probit  & $p(y | \mu) \propto \prod \mu_j^{y_j}$ & $-2(\sum y_j \log(
 probability densities, the unstandardized deviance and the
 saturated deviance for the various response distributions. The
 quantity $c$ in the formulas corresponds to the weights specified
-in a weight statement, see \autoref{weightspecification} for
+in a weight statement, see weightspecification for
 details on how to specify weights. In the case of multinomial
 logit and cumulative probit models the variables $y_j$ are
 indicator variables where $y_j=1$ denotes that the $j$-th category
