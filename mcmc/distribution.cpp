@@ -2274,6 +2274,9 @@ void DISTRIBUTION::outresults(void)
       compute_deviance(&response(i,0),&weight(i,0),&mu_meanlinpred(0,0),
       &reshelp,&devhelp,scalehelp,i);
 
+//      compute_deviance(&response(i,0),&weight(i,0),&mumean(i,0),
+//      &reshelp,&devhelp,scalehelp,i);
+
       deviance2 += reshelp;
       deviance2_sat += devhelp;
 
@@ -6612,6 +6615,14 @@ DISTRIBUTION_cumulative_latent3::DISTRIBUTION_cumulative_latent3(MCMCoptions * o
   if (nrcat > 3)
     errors.push_back("ERROR: response variable must be three categorical\n");
 
+  if (posbeg.size() == 4)
+    {
+    optionsp->out("\n");
+    optionsp->out("WARNING: response has 4 categories.\n");
+    optionsp->out("         BayesX can only estimate models with 3 categories.\n");
+    optionsp->out("         The largest category is assumed to indicate missing response values.\n");
+    }
+
   if (errors.size() == 0)
     {
     unsigned k;
@@ -6718,7 +6729,8 @@ const double * linpred, double * mu) const
   *mu = randnumbers::Phi2(-*linpred);
   help = *mu;
   mu++;
-  *mu = randnumbers::Phi2( 1.0-(*linpred) ) - help;
+  double scalemu = Scalesave.get_betamean(0,0);
+  *mu = randnumbers::Phi2( 1.0/sqrt(scalemu)-(*linpred) ) - help;
   }
 
 
