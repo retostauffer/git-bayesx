@@ -35,6 +35,18 @@ class __EXPORT_TYPE FULLCOND_tvariance2dim : public FULLCOND
   bool rowwise;
   datamatrix u;
 
+  envmatdouble K11;
+  double detalt;
+  double detneu;
+
+  unsigned nrrows;
+
+  vector<double> deltapropvec;
+  vector<double> rowvec;
+  vector<double> colvec;
+  vector<double> betakvec;
+
+
   public:
 
 
@@ -49,7 +61,7 @@ class __EXPORT_TYPE FULLCOND_tvariance2dim : public FULLCOND
 
   FULLCOND_tvariance2dim(MCMCoptions * o,FULLCOND_pspline_surf_gaussian * p,
                      unsigned & v,const ST::string & ti, const ST::string & fp,
-                     const ST::string & pres,const bool & rw = false);
+                     const ST::string & pres,const unsigned & bs,const bool & rw = false);
 
 
   // COPY CONSTRUCTOR

@@ -1090,7 +1090,7 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
   long h;
   double lambda;
   bool reduced, singleblock;
-  unsigned min,max,nrknots,degree;
+  unsigned min,max,nrknots,degree,blocksize;
   double a1,b1;
   int gridsize;
   int f;
@@ -1304,10 +1304,12 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
                  "_pspline_tvar.raw","_pspline_tvar.res","_pspline_tvariance");
 
           unsigned v = nu.getvalue();
+          f = (terms[i].options[16]).strtolong(h);
+          blocksize = unsigned(h);
 
           fctvariance2dim.push_back(FULLCOND_tvariance2dim(&generaloptions[generaloptions.size()-1],
           &fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1],v,title,
-          pathnonp,pathres,rowwise));
+          pathnonp,pathres,blocksize,rowwise));
 
           }
 
@@ -1502,10 +1504,12 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
                  "_pspline_tvar.raw","_pspline_tvar.res","_pspline_tvariance");
 
             unsigned v = nu.getvalue();
+            f = (terms[i].options[16]).strtolong(h);
+            blocksize = unsigned(h);
 
             fctvariance2dim.push_back(FULLCOND_tvariance2dim(&generaloptions[generaloptions.size()-1],
             &fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1],v,title,
-            pathnonp,pathres,rowwise));
+            pathnonp,pathres,blocksize,rowwise));
 
             }
 

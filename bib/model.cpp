@@ -1441,6 +1441,7 @@ term_interactpspline::term_interactpspline(void)
   updatetau = simpleoption("updatetau",false);
   f = doubleoption("f",2,0,10000000);
   uniformprior = simpleoption("uniformprior",false);
+  blocksize=intoption("blocksize",6,2,100);
   }
 
 
@@ -1461,6 +1462,7 @@ void term_interactpspline::setdefault(void)
   updatetau.setdefault();
   f.setdefault();
   uniformprior.setdefault();
+  blocksize.setdefault();
   }
 
 bool term_interactpspline::check(term & t)
@@ -1482,9 +1484,10 @@ bool term_interactpspline::check(term & t)
   optlist.push_back(&updatetau);
   optlist.push_back(&f);
   optlist.push_back(&uniformprior);
+  optlist.push_back(&blocksize);
 
   if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 16) )
+        && (t.options.size() <= 17) )
     {
 
     if (t.options[0] == "pspline2dimrw1")
@@ -1531,7 +1534,7 @@ bool term_interactpspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(16);
+   t.options = vector<ST::string>(17);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -1560,6 +1563,7 @@ bool term_interactpspline::check(term & t)
      t.options[15] = "false";
    else
      t.options[15] = "true";
+   t.options[16] = ST::inttostring(blocksize.getvalue());
 
    if (t.options[1].strtolong(minim) == 1)
      {

@@ -8,8 +8,8 @@ namespace MCMC
 FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(MCMCoptions * o,
                    FULLCOND_pspline_surf_gaussian * p,
                      unsigned & v,const ST::string & ti, const ST::string & fp,
-                     const ST::string & pres,const bool & rw)
-           : FULLCOND(o,datamatrix(1,1),ti,180,1,fp)
+                     const ST::string & pres,const unsigned & bs,const bool & rw)
+           : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
   {
   rowwise = rw;
   Kp = p;
@@ -20,6 +20,28 @@ FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(MCMCoptions * o,
     {
     m = sqrt(p->get_nrpar());
     nrpar = (m-1)*(m-1)*2+2*(m-1);
+
+    SparseMatrix Ksp = Kmrflinear(m,m);
+    datamatrix de(m*m-1,1,0.0);
+    datamatrix ud = datamatrix(m*m-1,m,0.0);
+    for(unsigned i=0;i<m*m-2;i++)
+      {
+      de(i,0) = Ksp(i,i);
+      for(unsigned j=0;j<ud.cols();j++)
+        {
+        if (i+j+1 < m*m)
+          ud(i,j) = Ksp(i,i+j+1);
+        }
+      }
+    de(m*m-2,0) = Ksp(m*m-2,m*m-2);
+    K11 = envmatdouble(bandmatdouble(de,ud));
+    detalt = K11.getLogDet();
+    detneu = 0.0;
+    nrrows = unsigned(bs/2);
+    betakvec = vector<double>(0);
+    rowvec = vector<double>(0);
+    colvec = vector<double>(0);
+    deltapropvec = vector<double>(0);
     }
   else
     {
@@ -42,6 +64,15 @@ FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(const FULLCOND_tvariance2dim & t)
   nu = t.nu;
   m = t.m;
   u = t.u;
+
+  K11 = t.K11;
+  detalt = t.detalt;
+  detneu = t.detneu;
+  betakvec = t.betakvec;
+  rowvec = t.rowvec;
+  colvec = t.colvec;
+  deltapropvec = t.deltapropvec;
+  nrrows = t.nrrows;
   }
 
 
@@ -57,6 +88,15 @@ FULLCOND_tvariance2dim::operator=(const FULLCOND_tvariance2dim & t)
   nu = t.nu;
   m = t.m;
   u = t.u;
+
+  K11 = t.K11;
+  detalt = t.detalt;
+  detneu = t.detneu;
+  betakvec = t.betakvec;
+  rowvec = t.rowvec;
+  colvec = t.colvec;
+  deltapropvec = t.deltapropvec;
+  nrrows = t.nrrows;
   return *this;
   }
 
@@ -70,11 +110,291 @@ void FULLCOND_tvariance2dim::update(void)
 
   if (!rowwise)
     {
+
+    unsigned i,j,l;
+    int k = 0;
+    double aneu = double(nu)/2;
+    double bneu;
+
+    double alpha,u,betak;
+    double deltaprop;
+    unsigned row,col;
+
+    unsigned dim = m*m;
+
+    for (row=0;row<dim;row++)
+      {
+
+      i = row/m;
+      j = row%m;
+
+      col=row+1;
+      if(j < m-1)
+        {
+        betak = beta(k,0);
+
+        bneu = nu*0.5 + 0.5*Kp->compute_squareddiff(i,j,i,j+1,m);
+        deltaprop = randnumbers::rand_gamma(aneu,bneu);
+
+        deltapropvec.push_back(deltaprop);
+        rowvec.push_back(row);
+        colvec.push_back(col);
+        betakvec.push_back(betak);
+
+        K11.setDiag(row,K11(row,row) + deltaprop - beta(k,0));
+        if(col<K11.getDim())
+          {
+          K11.set(row,col,-deltaprop);
+          K11.setDiag(col,K11(col,col) + deltaprop - beta(k,0));
+          }
+
+        k++;
+        }
+
+      col=row+m;
+      if(i < m-1)
+        {
+        betak = beta(k,0);
+
+        bneu = nu*0.5 + 0.5*Kp->compute_squareddiff(i,j,i+1,j,m);
+        deltaprop = randnumbers::rand_gamma(aneu,bneu);
+
+        deltapropvec.push_back(deltaprop);
+        rowvec.push_back(row);
+        colvec.push_back(col);
+        betakvec.push_back(betak);
+
+        K11.setDiag(row,K11(row,row) + deltaprop - beta(k,0));
+        if(col<K11.getDim())
+          {
+          K11.set(row,col,-deltaprop);
+          K11.setDiag(col,K11(col,col) + deltaprop - beta(k,0));
+          }
+
+        k++;
+        }
+
+      if((row+1)%nrrows == 0 || (row+1)==dim)
+        {
+
+        if(detalt==detneu)
+          K11.decomp2(row-nrrows+1);
+        detneu = K11.getLogDet();
+
+        alpha = 0.5*(detneu - detalt);
+        u = log(uniform());
+
+        nrtrials++;
+
+        if(u <= alpha)
+          {
+          for(l=0;l<deltapropvec.size();l++)
+	        {
+    	    beta(k-deltapropvec.size()+l,0) = deltapropvec[l];
+            Kp->setK(rowvec[l],colvec[l],-deltapropvec[l]);
+	        }
+          detalt = detneu;
+          acceptance++;
+          }
+        else
+          {
+          for(l=0;l<deltapropvec.size();l++)
+	        {
+            K11.setDiag(rowvec[l],K11(rowvec[l],rowvec[l]) - deltapropvec[l] + betakvec[l]);
+            if(colvec[l]<K11.getDim())
+              {
+              K11.set(rowvec[l],colvec[l],-betakvec[l]);
+              K11.setDiag(colvec[l],K11(colvec[l],colvec[l]) - deltapropvec[l] + betakvec[l]);
+              }
+    	    }
+          }
+
+        deltapropvec = vector<double>(0);
+	    rowvec = vector<double>(0);
+        colvec = vector<double>(0);
+        betakvec = vector<double>(0);
+
+        } // END:       if(row%nrrows == 0)
+      } // END:    for (row=0;row<dim;row++)
+
+/*
     unsigned i,j;
     int k = 0;
+//    double aneu = double(nu)/2;
     double aneu = double(nu)/2+0.5;
     double bneu;
 
+    double deltaprop,deltaprop2,alpha,u;
+    unsigned row,col;
+
+    for (i=0;i<m;i++)
+      {
+      for(j=0;j<m;j++)
+        {
+
+        if ( (i < m-1) && (j < m-1) )
+          {
+
+          row = i*m+j;
+          col = i*m+j+1;
+
+          bneu = nu*0.5 + 0.5*Kp->compute_squareddiff(i,j,i,j+1,m);
+          deltaprop = randnumbers::rand_gamma(aneu,bneu);
+
+          K11.set(row,col,-deltaprop);
+          K11.setDiag(row,K11(row,row) + deltaprop - beta(k,0));
+          K11.setDiag(col,K11(col,col) + deltaprop - beta(k,0));
+
+          k++;
+
+          row = i*m+j;
+          col = (i+1)*m+j;
+
+          bneu = nu*0.5 + 0.5*Kp->compute_squareddiff(i,j,i+1,j,m);
+          deltaprop2 = randnumbers::rand_gamma(aneu,bneu);
+
+          K11.set(row,col,-deltaprop2);
+          K11.setDiag(row,K11(row,row) + deltaprop2 - beta(k,0));
+          K11.setDiag(col,K11(col,col) + deltaprop2 - beta(k,0));
+
+          if(detalt==detneu)
+            K11.decomp2(row);
+          detneu = K11.getLogDet();
+
+          alpha = 0.5*(detneu - detalt);
+          alpha += 0.5*( log(beta(k-1,0)) + log(beta(k,0)) - log(deltaprop) - log(deltaprop2) );
+          u = log(uniform());
+          nrtrials++;
+
+          if(u <= alpha)
+            {
+            beta(k-1,0) = deltaprop;
+            beta(k,0) = deltaprop2;
+
+            Kp->setK(row,col-m+1,-deltaprop);
+            Kp->setK(row,col,-deltaprop2);
+
+            detalt = detneu;
+            acceptance++;
+            }
+          else
+            {
+            col = i*m+j+1;
+            K11.set(row,col,-beta(k-1,0));
+            K11.setDiag(row,K11(row,row) - deltaprop + beta(k-1,0));
+            K11.setDiag(col,K11(col,col) - deltaprop + beta(k-1,0));
+
+            col = (i+1)*m+j;
+            K11.set(row,col,-beta(k,0));
+            K11.setDiag(row,K11(row,row) - deltaprop2 + beta(k,0));
+            K11.setDiag(col,K11(col,col) - deltaprop2 + beta(k,0));
+            }
+
+          k++;
+
+          }  // end: if ( (i < m-1) && (j < m-1) )
+
+        if ( (i< m-1) && (j == m-1) )
+          {
+
+          row = i*m+j;
+          col = (i+1)*m+j;
+
+          bneu = nu*0.5 + 0.5*Kp->compute_squareddiff(i,j,i+1,j,m);
+          deltaprop = randnumbers::rand_gamma(aneu,bneu);
+
+          K11.setDiag(row,K11(row,row) + deltaprop - beta(k,0));
+          if(col<K11.getDim())
+            {
+            K11.set(row,col,-deltaprop);
+            K11.setDiag(col,K11(col,col) + deltaprop - beta(k,0));
+            }
+
+          if(detalt==detneu)
+            K11.decomp2(row);
+          detneu = K11.getLogDet();
+
+          alpha = 0.5*(detneu - detalt);
+          alpha += 0.5*( log(beta(k,0)) - log(deltaprop) );
+          u = log(uniform());
+          nrtrials++;
+
+          if(u <= alpha)
+            {
+            beta(k,0) = deltaprop;
+
+            Kp->setK(row,col,-deltaprop);
+
+            detalt = detneu;
+            acceptance++;
+            }
+          else
+            {
+            K11.setDiag(row,K11(row,row) - deltaprop + beta(k,0));
+            if(col<K11.getDim())
+              {
+              K11.set(row,col,-beta(k,0));
+              K11.setDiag(col,K11(col,col) - deltaprop + beta(k,0));
+              }
+            }
+
+          k++;
+
+          } // end: if ( (i< m-1) && (j == m-1) )
+
+        if ( (i == m-1) && (j < m-1) )
+          {
+
+          row = i*m+j;
+          col = i*m+j+1;
+
+          bneu = nu*0.5 + 0.5*Kp->compute_squareddiff(i,j,i,j+1,m);
+          deltaprop = randnumbers::rand_gamma(aneu,bneu);
+
+          K11.setDiag(row,K11(row,row) + deltaprop - beta(k,0));
+          if(col<K11.getDim())
+            {
+            K11.set(row,col,-deltaprop);
+            K11.setDiag(col,K11(col,col) + deltaprop - beta(k,0));
+            }
+
+          if(detalt==detneu)
+            K11.decomp2(row);
+          detneu = K11.getLogDet();
+
+          alpha = 0.5*(detneu - detalt);
+          alpha += 0.5*( log(beta(k,0)) - log(deltaprop) );
+          u = log(uniform());
+          nrtrials++;
+
+          if(u <= alpha)
+            {
+            beta(k,0) = deltaprop;
+
+            Kp->setK(row,col,-deltaprop);
+
+            detalt = detneu;
+            acceptance++;
+            }
+          else
+            {
+            K11.setDiag(row,K11(row,row) - deltaprop + beta(k,0));
+            if(col<K11.getDim())
+              {
+              K11.set(row,col,-beta(k,0));
+              K11.setDiag(col,K11(col,col) - deltaprop + beta(k,0));
+              }
+            }
+
+          k++;
+
+          } // end: if ( (i == m-1) && (j < m-1) )
+
+        }  // end: for(j=0;j<m;j++)
+
+      } // end: for (i=0;i<m;i++)
+*/
+/*
     for (i=0;i<m;i++)
       {
       for(j=0;j<m;j++)
@@ -122,6 +442,7 @@ void FULLCOND_tvariance2dim::update(void)
         }  // end: for(j=0;j<m;j++)
 
       } // end: for (i=0;i<m;i++)
+*/
 
     unsigned size = m*m;
     Kmatupper = Kp->getupperpointer();
@@ -279,6 +600,8 @@ void FULLCOND_tvariance2dim::outoptions(void)
 
   optionsp->out("  Hyperprior nu for variance parameter: " +
                 ST::inttostring(nu) + "\n" );
+  optionsp->out("  Blocksize for updating variances: " +
+                ST::inttostring(nrrows*2) + "\n" );
   optionsp->out("\n");
 
   }
