@@ -246,7 +246,7 @@ void TFrame::writetoregistry(void)
   }
 void __fastcall TFrame::FormDestroy(TObject *Sender)
 {
-  writetoregistry();
+//  writetoregistry();
 }
 //---------------------------------------------------------------------------
 
