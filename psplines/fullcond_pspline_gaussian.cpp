@@ -1087,7 +1087,8 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
 
   unsigned step;
   if(approx)
-    step = 1;
+//    step = 1;
+    step = optionsp->get_samplesize()/1000;
   else
     step = optionsp->get_samplesize()/1000;
 
@@ -1170,11 +1171,11 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
         }
       else  // Tierney
         {
-        if(i<lengthstart)
+        if(i<lengthstart*step)
           {
-          start(i,j) = value;
+          start(i/step,j) = value;
 
-          if(i==lengthstart-1)
+          if(i==(lengthstart-1)*step)
             {
             xi(j,0) = start.quantile(50,j);
             d0(j,0) = 1.0/(start.quantile(75,j)-start.quantile(25,j));
@@ -1185,7 +1186,7 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
           }
         else
           {
-          n = i-lengthstart;
+          n = i/step-lengthstart;
 
           double help = fabs(value-xi(j,0));
           help<=var(j,0)*pow(n+1,-0.5)?I=1:I=0;
@@ -1222,11 +1223,11 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
       }
     else    // Tierney
       {
-      if(i<lengthstart)
+      if(i<lengthstart*step)
         {
-        start(i,j) = value;
+        start(i/step,j) = value;
 
-        if(i==lengthstart-1)
+        if(i==(lengthstart-1)*step)
           {
           xi(j,0) = start.quantile(50,j);
           d0(j,0) = 1.0/(start.quantile(75,j)-start.quantile(25,j));
@@ -1237,7 +1238,7 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
         }
       else
         {
-        n = i-lengthstart;
+        n = i/step-lengthstart;
 
         double help = fabs(value-xi(j,0));
         help<=var(j,0)*pow(n+1,-0.5)?I=1:I=0;

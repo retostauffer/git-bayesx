@@ -2653,6 +2653,11 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 
             if(terms[i].options[22]=="true")
                fcvarnonp[fcvarnonp.size()-1].set_uniformprior();
+            if(terms[i].options[24]=="true")
+              {
+              f = terms[i].options[25].strtolong(h);
+              fcvarnonp[fcvarnonp.size()-1].set_discrete(unsigned(h));
+              }
 
             fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);

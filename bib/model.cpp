@@ -722,6 +722,8 @@ term_pspline::term_pspline(void)
   contourprob = intoption("contourprob",-1,0,6);
   uniformprior = simpleoption("uniformprior",false);
   beta_0 = stroption("beta_0");
+  discrete = simpleoption("discrete",false);
+  df = intoption("df",20,3,50);
 //  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
 //  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
 //  lambdastart = doubleoption("lambdastart",-1,-1,10000000);
@@ -752,6 +754,8 @@ void term_pspline::setdefault(void)
   contourprob.setdefault();
   uniformprior.setdefault();
   beta_0.setdefault();
+  discrete.setdefault();
+  df.setdefault();
 //  lambdamin.setdefault();
 //  lambdamax.setdefault();
 //  lambdastart.setdefault();
@@ -761,7 +765,7 @@ bool term_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 24) )
+        && (t.options.size() <= 26) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -813,6 +817,8 @@ bool term_pspline::check(term & t)
     optlist.push_back(&contourprob);
     optlist.push_back(&uniformprior);
     optlist.push_back(&beta_0);
+    optlist.push_back(&discrete);
+    optlist.push_back(&df);
 //    optlist.push_back(&lambdamin);
 //    optlist.push_back(&lambdamax);
 //    optlist.push_back(&lambdastart);
@@ -840,7 +846,7 @@ bool term_pspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(24);
+   t.options = vector<ST::string>(26);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -883,7 +889,12 @@ bool term_pspline::check(term & t)
    else
      t.options[22] = "true";
    t.options[23] = beta_0.getvalue();
-//    t.options[20] = ST::doubletostring(lambdamin.getvalue());
+   if(discrete.getvalue() == false)
+     t.options[24] = "false";
+   else
+     t.options[24] = "true";
+   t.options[25] = ST::inttostring(df.getvalue());
+//    t.options[40] = ST::doubletostring(lambdamin.getvalue());
 //    t.options[21] = ST::doubletostring(lambdamax.getvalue());
 //    t.options[22] = ST::doubletostring(lambdastart.getvalue());
 

@@ -616,6 +616,8 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
   intoption contourprob;
   simpleoption uniformprior;
   stroption beta_0;
+  simpleoption discrete;
+  intoption df;
 //  doubleoption lambdamin;
 //  doubleoption lambdamax;
 //  doubleoption lambdastart;

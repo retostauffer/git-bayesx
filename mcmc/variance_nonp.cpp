@@ -35,6 +35,11 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     else
       setbeta(1,1,distrp->get_scale(column,column)/Kp->getlambda());
 
+    scale = 1.0;
+    uniformprior = false;
+    discrete = false;
+    df = 0;
+
     ST::string path = samplepath.substr(0,samplepath.length()-4)+"_lambda.raw";
     fc_lambda = FULLCOND(o,datamatrix(1,1),Kp->get_title()+"_lambda",1,1,path);
     fc_lambda.setflags(MCMC::norelchange | MCMC::nooutput);
@@ -128,6 +133,11 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(const FULLCOND_variance_nonp & t)
   a_invgamma = t.a_invgamma;
   b_invgamma = t.b_invgamma;
   rankK = t.rankK;
+  scale = t.scale;
+  discrete = t.discrete;
+  df = t.df;
+  tau = t.tau;
+  lambda = t.lambda;
   fc_lambda = t.fc_lambda;
   }
 
@@ -153,13 +163,20 @@ const FULLCOND_variance_nonp & FULLCOND_variance_nonp::operator=(
   a_invgamma = t.a_invgamma;
   b_invgamma = t.b_invgamma;
   rankK = t.rankK;
-  fc_lambda = t.fc_lambda;  
+  scale = t.scale;
+  discrete = t.discrete;
+  df = t.df;  
+  tau = t.tau;
+  lambda = t.lambda;
+  fc_lambda = t.fc_lambda;
   return *this;
   }
 
 
 void FULLCOND_variance_nonp::update(void)
   {
+
+  transform = pow(distrp->get_trmult(column),2);
 
   acceptance++;
 
@@ -214,12 +231,65 @@ void FULLCOND_variance_nonp::update(void)
       {
       if (constlambda==false)
         {
-        if(uniformprior==false)
+        if(discrete)
+          {
+          unsigned i;
+          double help,sum;
+          vector<double> cumtau;
+
+          int start = 1;
+
+          if(Kp->get_type() == MCMC::RW1)
+            start = 0;
+          else if(Kp->get_type() == MCMC::RW2)
+            start = 1;
+
+          if(optionsp->get_nriter() == 1)
+            {
+            for(i=start;i<df;i++)
+              {
+              lambda.push_back(Kp->lambda_from_df(i,exp(5.0/(i+0.5))));
+              lambda.push_back(Kp->lambda_from_df(i+0.5,exp(5.0/(i+0.5))));
+              }
+            lambda.push_back(Kp->lambda_from_df(df,exp(5.0/df)));
+            }
+
+          scale = distrp->get_scale(column,column);
+
+          tau = vector<double>(0);
+          for(i=0;i<lambda.size();i++)
+            {
+            help = scale/lambda[i];
+            tau.push_back(help/transform);
+            }
+
+          i = 0;
+          sum = 0.0;
+          help = -0.5 * Kp->compute_quadform();
+          while(i<tau.size())
+            {
+            if(uniformprior)
+              sum += 1.0/pow(tau[i],0.5*rankK) * exp(help/tau[i]);
+            else
+              sum += 1.0/pow(tau[i],0.5*rankK) * exp(help/tau[i]) * 1.0/tau[i];
+            cumtau.push_back(sum);
+            i++;
+            }
+
+          help = uniform()*sum;
+
+          i = 0;
+          while(cumtau[i] < help)
+            i++;
+
+          beta(0,0) = tau[i];
+          beta(1,0) = (start + i/2.0)/transform;
+          }
+        else if(uniformprior)
+          beta(0,0) = rand_invgamma(-0.5+0.5*rankK,0.5*Kp->compute_quadform());
+        else
           beta(0,0) = rand_invgamma(a_invgamma+0.5*rankK,
                                     b_invgamma+0.5*Kp->compute_quadform());
-        else
-          beta(0,0) = rand_invgamma(-0.5+0.5*rankK,0.5*Kp->compute_quadform());
-
 /*
         beta(0,0) = Kp->get_sigma2();
 
@@ -267,12 +337,11 @@ void FULLCOND_variance_nonp::update(void)
     beta(1,0) = help;
     }
 
-  transform = pow(distrp->get_trmult(column),2);
-
   FULLCOND::update();
 
   double * lambdap = fc_lambda.getbetapointer();
   *lambdap = distrp->get_scale(column)/beta(0,0);
+  fc_lambda.set_transform(transform);
   fc_lambda.update();
 
   }
@@ -533,15 +602,17 @@ void FULLCOND_variance_nonp::outresults_lambda(void)
                   + ST::doubletostring(transform*Kp->getbeta(0,0),6) + "\n");
     optionsp->out("\n");
     }
-/*
+
   double lambda;
-  for(int i=1;i<=20;i++)
+  for(int i=1;i<=3;i++)
     {
-    lambda = Kp->lambda_from_df(i,100);
-    optionsp->out("  " + ST::inttostring(i) + " degree(s) of freedom correspond(s) to lambda = "
+    lambda = Kp->lambda_from_df(i,exp(5.0/i));
+    optionsp->out("  " + ST::inttostring(i) + " degree(s) of freedom approximately correspond(s) to lambda = "
                     + ST::doubletostring(lambda,6) + "\n");
+    Kp->update_stepwise(lambda);
+    optionsp->out("  (" + ST::doubletostring(Kp->compute_df(),6) + ")\n");
     }
-*/
+
   optionsp->out("\n");
 
   ST::string file = pathresults.substr(0,pathresults.length()-7) + "lambda_sample.raw";
@@ -553,7 +624,14 @@ void FULLCOND_variance_nonp::outresults_lambda(void)
 void FULLCOND_variance_nonp::outoptions(void)
   {
 
-  if(uniformprior)
+  if(discrete)
+    {
+    if(uniformprior)
+      optionsp->out("  Discrete uniform prior on approximate degrees of freedom\n");
+    else
+      optionsp->out("  Discrete prior on approximate degrees of freedom (proportional to 1.0/df)\n");
+    }
+  else if(uniformprior)
     {
     optionsp->out("  Uniform prior on sigma\n");
     }

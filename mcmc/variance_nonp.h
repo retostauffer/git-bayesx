@@ -45,6 +45,12 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
 
   unsigned column;
 
+  double scale;
+  bool discrete;
+  unsigned df;
+  vector<double> tau;
+  vector<double> lambda;
+
   FULLCOND fc_lambda;
   void outresults_lambda(void);  
 
@@ -135,6 +141,13 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
   void set_uniformprior(void)
     {
     uniformprior=true;
+    }
+
+  void set_discrete(const unsigned & dof)
+    {
+    discrete=true;
+    df=dof;
+    setbeta(2,1,distrp->get_scale(column,column)/Kp->getlambda());    
     }
 
   // DESTRUCTOR
