@@ -787,20 +787,20 @@ void pspline_baseline::update(void)
 
   if(optionsp->get_nriter()==1 && baselinep.size()>1 && begin0==true)
     {
-    int i=0;
+    unsigned i=0;
 
     statmatrix<double*> z_vc_help;
     z_vc_help = statmatrix<double*>(baselinep.size()-1,1);
 
     double sum_z_vc = 0.0;
 
-    for(int i_vc=0;i_vc<baselinep.size()-1;i_vc++)
+    for(unsigned i_vc=0;i_vc<baselinep.size()-1;i_vc++)
       z_vc_help(i_vc,0) = baselinep[i_vc+1]->get_z_vc();
 
     while( i<zi.rows() && (sum_z_vc==0.0||sum_z_vc==1.0))
       {
       sum_z_vc = 0.0;
-      for(int i_vc=0;i_vc<baselinep.size()-1;i_vc++)
+      for(unsigned i_vc=0;i_vc<baselinep.size()-1;i_vc++)
         {
         if(*z_vc_help(i_vc,0)==0.0||*z_vc_help(i_vc,0)==1.0)
           sum_z_vc = sum_z_vc + *z_vc_help(i_vc,0);
@@ -1072,8 +1072,6 @@ if(begin0==false)
   double * int_D_help;
   double * betap;
   double dist_knots = int_knots(1,0)-int_knots(0,0);
-  double knottest0=int_knots(0,0);
-  double knottest1=int_knots(1,0);
   unsigned i,j,k;
   k=1;
   double erg,spline_u,spline_o;
@@ -1182,10 +1180,6 @@ else
   unsigned i,j,k;
   k=1;
 
-//  ofstream testof("d:\\temp\\beta.txt");
-//  for(i=0;i<22;i++)
-//    testof<<b(i,0)<<endl;
-//  testof.close();
 
   double erg,spline_u,spline_o;
   erg = 0.0;
@@ -1463,8 +1457,8 @@ while(z_vc_sum!=0.0 && i < index.rows()-1)
   z_vc_sum =0.0;
   for(i_vc=1;i_vc<baselinep.size();i_vc++)
     {
-    double test1= *(z_vc_help(i_vc-1,0) + index(i,0));
-    double test2 = index(i,0);
+//    double test1= *(z_vc_help(i_vc-1,0) + index(i,0));
+//    double test2 = index(i,0);
     z_vc_sum = z_vc_sum + *(z_vc_help(i_vc-1,0) + index(i,0));
     }
   }
@@ -1846,7 +1840,7 @@ for(i=0;i<zi.rows();i++,int_ti_p++)
 void pspline_baseline::update_baseline()
 {
 //---------Integral berechnen---------------------------------
-int i;
+unsigned i;
 if(baselinep.size()>=1)
   {
   if(vc_dummy1==true)   //keine Linkstrunkierung, zeitl. var. Effekt für dummykod. Variable

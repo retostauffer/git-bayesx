@@ -40,7 +40,7 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
   Xdelta = datamatrix(beta.rows(),1,0);
   Adelta = datamatrix(beta.rows(),1,0);
   Eins = datamatrix(d.rows(),1,1.0);
-  for(int i=0;i<d.rows();i++)
+  for(i=0;i<d.rows();i++)
     response_help(i,0)=likep->get_response(index(i,0),0);
 
   compute_XWtildey(Eins,response_help,1.0);
@@ -135,15 +135,15 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
   double knot_min = 0.0;
   double knot_max = zi.max(0);
   int_knots=datamatrix (50,1,0);
-  for(int j=0;j<int_knots.rows();j++)
+  for(j=0;j<int_knots.rows();j++)
     int_knots(j,0) = knot_min + j*(knot_max-knot_min)/double(int_knots.rows()-1);
 
   int_D = datamatrix(int_knots.rows(),nrpar,0.0);
   datamatrix bsp;
-  for(int i=0;i<int_knots.rows();i++)
+  for(i=0;i<int_knots.rows();i++)
     {
     bsp = bspline(int_knots(i,0));
-    for(int j=0;j<nrpar;j++)
+    for(j=0;j<nrpar;j++)
       {
       int_D(i,j) = bsp(j,0);
       }
@@ -151,13 +151,14 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
 //------------------------------------------------------------------------------
 
   spline_ges = datamatrix(2*likep->get_nrobs(),1,0);
+  spline_ges2 = datamatrix(2*likep->get_nrobs(),1,0);
   int_ti_help = datamatrix(2*likep->get_nrobs(),1,0);
   gaussspline = datamatrix(zi.rows()+1,gauss_n,0);
   spline_zi = datamatrix(likep->get_nrobs(),1,0);
 //------------------------------------------------------------------------
 
   A = datamatrix(beta.rows()-2,beta.rows(),0);
-  for(int i=0;i<beta.rows()-2;i++)
+  for(i=0;i<beta.rows()-2;i++)
     {
     A(i,i)=1.0/6.0;
     A(i,i+1)=2.0/3.0;
@@ -170,30 +171,26 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
 //  Wbase = datamatrix(d.rows(),1,0);
   distance = datamatrix(beta.rows()-2,1,0);
   distance(0,0)=(knot[4]-knot[3])/2.0;
-  for(int i=1;i<beta.rows()-3;i++)
+  for(i=1;i<beta.rows()-3;i++)
     {
     distance(i,0)=(knot[i+4]-knot[i+2])/2.0;
     }
   distance(beta.rows()-3,0)=(knot[beta.rows()]-knot[beta.rows()-1])/2.0;
 
-  ofstream test("d:\\temp\\dist.txt");
-  distance.prettyPrint(test);
-  test.close();
 
   interval = datamatrix(zi.rows(),1,0);
-  for(int i=0;i<zi.rows();i++)
+  for(i=0;i<zi.rows();i++)
     {
-    for(int j=0;j<beta.rows()-2;j++)
+    for(j=0;j<beta.rows()-2;j++)
       {
-      double testknot=knot[j+3];
       if(zi(index(i,0),0)<=((knot[j+4]+knot[j+3])/2.0) && zi(index(i,0),0) > ((knot[j+3]+knot[j+2])/2.0))
         interval(i,0) = j;
       }
     }
 
-  for(int i=0;i<d.rows();i++)
+  for(i=0;i<d.rows();i++)
     {
-    for(int j=0;j<beta.rows()-2;j++)
+    for(j=0;j<beta.rows()-2;j++)
       {
       if(interval(i,0)==j)
         {
@@ -210,9 +207,9 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
   Adeltaof.close();
 
   deltaexact = datamatrix(zi.rows(),beta.rows()-2,0);
-  for(int i=0;i<zi.rows();i++)
+  for(i=0;i<zi.rows();i++)
     {
-    for(int j=0;j<beta.rows()-2;j++)
+    for(j=0;j<beta.rows()-2;j++)
       {
       if(interval(i,0)>j)
         deltaexact(i,j)=distance(j,0);
@@ -234,12 +231,12 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
 
   DeltaN = datamatrix(d.rows(),d.rows(),0);
 
-  for(int i=0;i<d.rows();i++)
+  for(i=0;i<d.rows();i++)
     DeltaN(i,0)=zi(index(0,0),0);
 
-  for(int i=1;i<d.rows();i++)
+  for(i=1;i<d.rows();i++)
     {
-    for(int j=1;j<=i;j++)
+    for(j=1;j<=i;j++)
       {
        DeltaN(i,j)=zi(index(j,0),0)-zi(index(j-1,0),0);
       }
@@ -279,6 +276,7 @@ IWLS_baseline::IWLS_baseline(const IWLS_baseline & fc)
   z_vc = fc.z_vc;
   vc_dummy1 = fc.vc_dummy1;
   spline_ges = fc.spline_ges;
+  spline_ges2 = fc.spline_ges2;
   spline_zi = fc.spline_zi;
   gaussspline = fc.gaussspline;
   ges_index = fc.ges_index;
@@ -320,6 +318,7 @@ const IWLS_baseline & IWLS_baseline::operator=(const IWLS_baseline & fc)
   z_vc = fc.z_vc;
   vc_dummy1 = fc.vc_dummy1;
   spline_ges = fc.spline_ges;
+  spline_ges2 = fc.spline_ges2;
   spline_zi = fc.spline_zi;
   gaussspline = fc.gaussspline;
   ges_index = fc.ges_index;
@@ -393,7 +392,9 @@ bool IWLS_baseline::posteriormode(void)
 
 void IWLS_baseline::update(void)
   {
+//--------?????--------------
   double test = transform;
+//---------???-------------
   if(lambdaconst == true)
     sigma2 = likep->get_scale(column)/lambda;
 
@@ -873,6 +874,7 @@ void IWLS_baseline::compute_int_ti_mean(void)
     if(begin0==false)
       {
       testmat.mult(spline_ges,betamean);
+      testmat.mult_index(spline_ges2,betamean);
       compute_int_ti(betamean);
       }
     else
@@ -999,7 +1001,7 @@ if(begin0==false)
       int_ti_help_p=int_ti_help.getV()+i-likep->get_nrobs();
       int_ti_help_p2=int_ti_help.getV()+i;
 
-      double help = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges(ges_index(i-likep->get_nrobs(),0),0));
+      *int_ti_p = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges2(i-likep->get_nrobs(),0));
       assert(*int_ti_p>=0.0);
       }
     }
@@ -1296,8 +1298,6 @@ while(z_vc_sum!=0.0 && i < index.rows()-1)
   z_vc_sum =0.0;
   for(i_vc=1;i_vc<baselinep.size();i_vc++)
     {
-    double test1= *(z_vc_help(i_vc-1,0) + index(i,0));
-    double test2 = index(i,0);
     z_vc_sum = z_vc_sum + *(z_vc_help(i_vc-1,0) + index(i,0));
     }
   }
@@ -1679,7 +1679,7 @@ for(i=0;i<zi.rows();i++,int_ti_p++)
 void IWLS_baseline::update_baseline()
 {
 //---------Integral berechnen---------------------------------
-int i;
+unsigned i;
 if(baselinep.size()>=1)
   {
   if(vc_dummy1==true)   //keine Linkstrunkierung, zeitl. var. Effekt für dummykod. Variable
@@ -1706,6 +1706,7 @@ else    //kein zeitl. var. Effekt
   if(begin0==false)     //Linkstrunkierung
     {
     testmat.mult(spline_ges,beta);
+    testmat.mult_index(spline_ges2,beta);
     compute_int_ti(beta);
     }
   else    //keine Linkstrunkierung
@@ -1765,14 +1766,14 @@ void IWLS_baseline::compute_Wbase(void)
   datamatrix betatilde;
 //  datamatrix Wbase_help;
 //  double Wbase_sum = 0.0;
-  int i,j;
+  unsigned j;
   double sumlinpred_help = 0.0;
 
   betatilde = datamatrix(beta.rows()-2,1,0);
 //  Wbase_help = datamatrix(betatilde.rows(),1,0);
   betatilde.mult(A,beta);
 
-  for(i=betatilde.rows()-1;i>-1;i--)
+  for(int i=betatilde.rows()-1;i>-1;i--)
     {
     for(j=0;j<zi.rows();j++)
       {
@@ -1785,7 +1786,7 @@ void IWLS_baseline::compute_Wbase(void)
 
 void IWLS_baseline::compute_AWA(void)
   {
-  int i,j;
+  unsigned i;
   datamatrix Wbase_help;
   datamatrix AWA_help;
   Wbase_help = datamatrix((beta.rows()-2),(beta.rows()-2),0);
@@ -1798,7 +1799,7 @@ void IWLS_baseline::compute_AWA(void)
 
 void IWLS_baseline::compute_score(void)
   {
-  int i,j;
+  unsigned i,j;
   datamatrix betatilde;
   datamatrix AWA_test;
   AWA_test = datamatrix(beta.rows(),beta.rows(),0);
@@ -2021,5 +2022,6 @@ void IWLS_baseline::compute_score(void)
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
+
 
 
