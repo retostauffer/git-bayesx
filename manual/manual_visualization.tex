@@ -71,7 +71,7 @@ connected. There are currently 5 different specifications:
 
 \begin{tabular}{ll}
 #1# & draw straight lines between the points (default) \\
-#2#, #3#, #4# & draw dashed lines (numbers 2-4 indicate different variants)\\
+#2#, #3#, #4# & draw dashed lines (numbers #2#-#4# indicate different variants)\\
 #5# & do not connect, i.e.~plot points only \\
 \end{tabular}
 
@@ -88,9 +88,9 @@ straight lines, but does not connect the points corresponding to
 additionally specified variables $yvar3$, etc.~are connected by
 straight lines.
 
-An equivalent way of specifying the different variants is
-available via the symbols 'l', 'd', '\_', '-' and 'p', which
-correspond to the numbers 1-5, i.e.~
+An equivalent way of specifying the different variants is available
+via the symbols #l#, #d#, #\_#, #-# and #p#, which correspond to the
+numbers #1#-#5#, i.e.~
 
 {\em #connect=12345#} is equivalent to {\em #connect=ld_-p#}
 
@@ -105,7 +105,7 @@ that the title is scaled accordingly. The default is
 Specifies the height (in pixels) of the graph. The default is
 #height=210#.
 
-\item #levels = all #$|$#1#$|$#2#$|$#none#
+\item #levels = all#$|$#1#$|$#2#$|$#none#
 
 By default, #plotnonp# plots the estimated nonlinear covariate
 effect together with the pointwise credible intervals based on
@@ -304,16 +304,16 @@ the graph is stored in postscript format in the file
 #c:\results\result1.ps#.
 
 
-\begin{figure}[ht]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[scale=0.8]{grafiken/plotnonpexample.ps}
-{\em\caption{ \label{plotnonpexample1} Illustration for the usage
-of method \em\tt plotnonp}}
+{\em\caption{ \label{plotnonpexample1} Illustration for the usage of
+method \em\tt plotnonp}}
 \end{center}
 \end{figure}
 
 
-\begin{figure}[ht]
+\begin{figure}[p]
 \begin{center}
 \includegraphics[scale=0.8]{grafiken/plotnonpexample2.ps}
 {\em\caption{ \label{plotnonpexample2} Second illustration for the
@@ -376,16 +376,25 @@ most cases). This can be done by specifying the additional option
 #drawnames#. By default the names of the regions are omitted in
 the map.
 
-\item #nolegend#
-
-By default a legend is drawn into the graph. By specifying the
-option #nolegend# the legend will be omitted.
-
 \item #lowerlimit = #{\em realvalue}
 
 Lower limit of the range to be drawn. If #lowerlimit# is omitted,
 the minimum numerical value in #plotvar# will be used instead as
 the lower limit.
+
+\item #nolegend#
+
+By default a legend is drawn into the graph. By specifying the
+option #nolegend# the legend will be omitted.
+
+\item #nrcolors = #{\em integer}
+
+To color the regions according to their numerical characteristics,
+the data are divided into a (typically large) number of ordered
+categories. Afterwards a color is associated with each category. The
+#nrcolors# option can be used to specify the number of categories
+(and with it the number of different colors). The maximum number of
+colors is 256, which is also the default value.
 
 \item #outfile = #{\em characterstring}
 
@@ -397,6 +406,14 @@ existing or the specified folder is not existing. To overwrite an
 already existing file, option #replace# must be additionally
 specified. This prevents you from unintentionally overwriting your
 files.
+
+\item #pcat#
+
+If you want to visualize the values of the columns #pcat80# or
+#pcat95# it is convenient to specify #pcat#. This forces #drawmap#
+to expect a column that consists only of the values -1, 0 and 1. Of
+course you can achieve the same result by setting #nrcolors=3#,
+#lowerlimit=-1# and #upperlimit=1#.
 
 \item #plotvar = #{\em variablename}
 
@@ -413,15 +430,6 @@ The #replace# option is only useful in combination with option
 #outfile#. Specifying #replace# as an additional option allows the
 program to overwrite an already existing file (specified in
 #outfile#), otherwise an error will be raised.
-
-\item #nrcolors = #{\em integer}
-
-To color the regions according to their numerical characteristics,
-the data are divided into a (typically large) number of ordered
-categories. Afterwards a color is associated with each category.
-The #nrcolors# option can be used to specify the number of
-categories (and with it the number of different colors). The
-maximum number of colors is 256, which is also the default value.
 
 \item #swapcolors#
 
@@ -444,13 +452,6 @@ Upper limit of the range to be plotted. If #upperlimit# is
 omitted, the maximum numerical value in #plotvar# will be used
 instead as the upper limit.
 
-\item #pcat#
-
-If you want to visualize the values of the columns #pcat80# or
-#pcat95# it is convenient to specify #pcat#. This forces #drawmap#
-to expect a column that consists only of the values -1, 0 and 1.
-Of course you can achieve the same result by setting #nrcolors=3#,
-#lowerlimit=-1# and #upperlimit=1#.
 \end{itemize}
 
 
@@ -742,7 +743,7 @@ Name of the postscript output file. If #psname# is specified the
 graph will be stored in a postscript file and will not appear on
 the screen.
 
-\item #level = 0#/#1#/#2# \\
+\item #level = 0#|#1#|#2# \\
 Specifies whether to plot only the 95\% credible intervals
 (#level=1#) or only the 80\% credible intervals (#level=2#).
 Default value is #level=0#, i.e.~both.
@@ -824,12 +825,12 @@ will produce the postscript file shown in \autoref{illgraph2}:
 \end{center}
 \end{figure}
 
-#> plotnonp("c:\\bayes\\reg_f_D_pspline.res", psname="c:\\bayes\\reg_f_D_pspline.ps",#\\
-#  year=1983,month=1,step=12,xlab="date", ylab= " ") #
+#> plotnonp("c:\\bayes\\reg_f_D_pspline.res",psname="c:\\bayes\\reg_f_D_pspline.ps",#\\
+#  year=1983,month=1,step=12,xlab="date",ylab= " ") #
 
-Note, that \texttt{ylab=" "} forces S-plus to omit the y axis
-label. If #ylab# (as well as #xlab#) is omitted, default labels
-will be given to the two axis.
+Note, that \texttt{ylab=" "} forces S-plus to omit the y-axis label.
+If #ylab# (as well as #xlab#) is omitted, default labels will be
+given to the two axis.
 
 Finally, we note that all options that can be passed to the #plot#
 function of S-plus may also be passed to function #plotnonp#.
@@ -1087,8 +1088,8 @@ If you want to visualize the values of the columns #pcat80# or
 \end{itemize}
 
 \subsection{Plotting 2 dimensional surfaces}
-\label{splusplotsurf} \index{S-plus!plotting 2 dimensional
-surfaces} \index{plotting 2 dimensional surface}
+\label{splusplotsurf} \index{S-plus!plotting 2 dimensional surfaces}
+\index{plotting 2 dimensional surfaces}
 
 This subsection describes the usage of the function #plotsurf# for
 visualizing 2 dimensional surfaces. The function #plotsurf# merely
@@ -1190,14 +1191,13 @@ forces S-plus to store the autocorrelation graphs in the
 postscript file #c:\bayes\output\reg_autocor.ps#.
 
 In particular for regression models with a large number of
-parameters the execution of function #plotautocor# can be very
-time consuming. Moreover, the size of the resulting postscript
-file can be very large. To avoid such problems #plotautocor#
-provides the additional argument #mean.autocor#. If
-#mean.autocor=T# is specified, for each lag number and model term
-only minimum, mean and maximum autocorrelations are plotted,
-leading in most cases to a considerable reduction in computing
-time and storing size.
+parameters the execution of function #plotautocor# can be very time
+consuming. Moreover, the size of the resulting postscript file can
+be very large. To avoid such problems #plotautocor# provides the
+additional argument #mean.autocor#. If #mean.autocor=T# is
+specified, for each lag number and model term only minimum, mean and
+maximum autocorrelations are plotted, leading in most cases to a
+considerable reduction in computing time and storing size.
 
 \subsection{Plotting sampled parameters} \label{splusplotsample}
 \index{S-plus!plotting sampled parameters} \index{plotting sampled
