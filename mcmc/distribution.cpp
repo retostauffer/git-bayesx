@@ -58,7 +58,7 @@ double DISTRIBUTION::compute_msep(void)
   }
 */
 
-double DISTRIBUTION::compute_gcv(double & df)
+double DISTRIBUTION::compute_gcv(const double & df)
   {
   double dev=0;
   double devsat=0;
@@ -69,7 +69,7 @@ double DISTRIBUTION::compute_gcv(double & df)
   return gcv;
   }
 
-double DISTRIBUTION::compute_aic(double & df)
+double DISTRIBUTION::compute_aic(const double & df)
   {
   double dev=0;
   double devsat=0;
@@ -79,7 +79,7 @@ double DISTRIBUTION::compute_aic(double & df)
   return aic;
   }
 
-double DISTRIBUTION::compute_improvedaic(double & df)
+double DISTRIBUTION::compute_improvedaic(const double & df)
   {
   double dev=0;
   double devsat=0;
@@ -89,7 +89,7 @@ double DISTRIBUTION::compute_improvedaic(double & df)
   return impaic;
   }
 
-double DISTRIBUTION::compute_bic(double & df)
+double DISTRIBUTION::compute_bic(const double & df)
   {
   double dev=0;
   double devsat=0;
@@ -2528,19 +2528,19 @@ void DISTRIBUTION::outresults(void)
     optionsp->out("  Deviance(bar_mu):           " +
     ST::doubletostring(deviance2_sat,d) + "\n");
     results_latex.push_back( "deviance($\\bar{\\mu}$) \\> "
-                           + ST::doubletostring(deviance2,d)
+                           + ST::doubletostring(deviance2_sat,d)
                            + " \\\\");
 
     optionsp->out("  pD:                         " +
     ST::doubletostring(devhelpm_sat-deviance2_sat,d) + "\n");
     results_latex.push_back("pD \\> " +
-                            ST::doubletostring(devhelpm-deviance2,d) + " \\\\");
+                            ST::doubletostring(devhelpm_sat-deviance2_sat,d) + " \\\\");
 
 
     optionsp->out("  DIC:                        " +
     ST::doubletostring(2*devhelpm_sat-deviance2_sat,d) + "\n");
     results_latex.push_back("DIC \\> " +
-                            ST::doubletostring(2*devhelpm-deviance2,d)
+                            ST::doubletostring(2*devhelpm_sat-deviance2_sat,d)
                             + " \\\\");
 
     optionsp->out("\n");
@@ -4297,7 +4297,7 @@ double DISTRIBUTION_gaussian::compute_msep(void)
   }
 
 
-double DISTRIBUTION_gaussian::compute_gcv(double & df)
+double DISTRIBUTION_gaussian::compute_gcv(const double & df)
   {
   /*
   unsigned i;
@@ -4337,7 +4337,7 @@ double DISTRIBUTION_gaussian::compute_gcv(double & df)
   }
 
 
-double DISTRIBUTION_gaussian::compute_aic(double & df)
+double DISTRIBUTION_gaussian::compute_aic(const double & df)
   {
   /*
   unsigned i;
@@ -4373,7 +4373,7 @@ double DISTRIBUTION_gaussian::compute_aic(double & df)
   return aic;
   }
 
-double DISTRIBUTION_gaussian::compute_improvedaic(double & df)
+double DISTRIBUTION_gaussian::compute_improvedaic(const double & df)
   {
   /*
   unsigned i;
@@ -4410,7 +4410,7 @@ double DISTRIBUTION_gaussian::compute_improvedaic(double & df)
   return impaic;
   }
 
-double DISTRIBUTION_gaussian::compute_bic(double & df)
+double DISTRIBUTION_gaussian::compute_bic(const double & df)
   {
   /*
   unsigned i;

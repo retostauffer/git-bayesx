@@ -509,22 +509,22 @@ class __EXPORT_TYPE DISTRIBUTION
   // FUNCTION: compute_gcv
   // TASK: computes the GCV score
 
-  virtual double compute_gcv(double & df);
+  virtual double compute_gcv(const double & df);
 
   // FUNCTION: compute_aic
   // TASK: computes the AIC
 
-  virtual double compute_aic(double & df);
+  virtual double compute_aic(const double & df);
 
   // FUNCTION: compute_improvedaic
   // TASK: computes the improved AIC
 
-  virtual double compute_improvedaic(double & df);
+  virtual double compute_improvedaic(const double & df);
 
   // FUNCTION: compute_bic
   // TASK: computes the BIC
 
-  virtual double compute_bic(double & df);
+  virtual double compute_bic(const double & df);
 
   //----------------------------------------------------------------------------
   //--------------- functions for maximizing the loglikelihood -----------------
@@ -1995,13 +1995,13 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
 
   double compute_msep(void);
 
-  double compute_gcv(double & df);
+  double compute_gcv(const double & df);
 
-  double compute_aic(double & df);
+  double compute_aic(const double & df);
 
-  double compute_improvedaic(double & df);
+  double compute_improvedaic(const double & df);
 
-  double compute_bic(double & df);
+  double compute_bic(const double & df);
 
   };
 
