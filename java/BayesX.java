@@ -2856,14 +2856,14 @@ private double jbernoulli(double pi)
 	return BinomialGen.nextInt(rStream, 1, pi);
 	}
 
-private double jbinomial(int size, double pi)
+private double jbinomial(double size, double pi)
 	{
-	return BinomialGen.nextInt(rStream, size, pi);
+	return BinomialGen.nextInt(rStream, (int)size, pi);
 	}
 
-private double jgamma(double a, double b)
+private double jgamma(double mu, double nu)
 	{
-	return GammaGen.nextDouble(rStream, a, b);
+	return GammaGen.nextDouble(rStream, nu, nu/mu);
 	}
 
 //Funktion, die bei der Übergabe eines Befehls aufgerufen wird
