@@ -204,6 +204,10 @@ class __EXPORT_TYPE FULLCOND_const_gaussian : public FULLCOND_const
 
   datamatrix mu1;
 
+  // FUNCTION: compute_matrices
+  // TASK: computes X1 = (X'WX)^-0.5
+  //       computes X2 = (X'WX)^-1X'W
+
   void compute_matrices(void);
 
   public:
@@ -220,6 +224,15 @@ class __EXPORT_TYPE FULLCOND_const_gaussian : public FULLCOND_const
                           const ST::string & t,const int & constant,
                           const ST::string & fs,const ST::string & fr,
                           const unsigned & c=0);
+
+  //CONSTRUCTOR2 (for factor)
+
+  FULLCOND_const_gaussian(MCMCoptions * o,
+                 DISTRIBUTION * dp,const datamatrix & d,
+                 const ST::string & code, int & ref,
+                 const ST::string & t,const ST::string & fs,
+                 const ST::string & fr,const unsigned & c=0);
+
 
   // COPY CONSTRUCTOR
 
@@ -386,6 +399,15 @@ class __EXPORT_TYPE FULLCOND_const_nongaussian : public FULLCOND_const
                              const datamatrix & d, const ST::string & t,
                              const int & constant, const ST::string & fs,
                              const ST::string & fr,const unsigned & c=0);
+
+  //CONSTRUCTOR2 (for factor)
+
+  FULLCOND_const_nongaussian(MCMCoptions * o,
+                 DISTRIBUTION * dp,const datamatrix & d,
+                 const ST::string & code, int & ref,
+                 const ST::string & t,const ST::string & fs,
+                 const ST::string & fr,const unsigned & c=0);
+
 
   // COPY CONSTRUCTOR
 

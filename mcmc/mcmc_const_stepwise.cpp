@@ -99,7 +99,6 @@ void FULLCOND_const::reset_effect(unsigned & pos)
 
   for(i=0;i<dataold.rows();i++)
     {
-
     for (j=0;j<dataold.cols();j++,workold++)
       {
       if (j!=pos)
@@ -108,7 +107,6 @@ void FULLCOND_const::reset_effect(unsigned & pos)
         workdata++;
         }
       }
-
     }
 
   vector<ST::string> dn = datanames;
@@ -226,6 +224,10 @@ void FULLCOND_const::make_design(datamatrix & d)
   }
 
 
+// -----------------------------------------------------------------------------
+// ------------------- STEPWISE-FACTOR -----------------------------------------
+//------------------------------------------------------------------------------
+
 void FULLCOND_const::compute_lambdavec(vector<double> & lvec,unsigned & number)
   {
 
@@ -237,9 +239,6 @@ void FULLCOND_const::compute_lambdavec(vector<double> & lvec,unsigned & number)
 
   }
 
-// -----------------------------------------------------------------------------
-// ------------------- STEPWISE-FACTOR -----------------------------------------
-//------------------------------------------------------------------------------
 
 FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
                  const datamatrix & d,const ST::string & code, int
@@ -280,104 +279,10 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
 
 //  negbin=false;
 
-
-  }
-
-FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
-                                const datamatrix & d, const ST::string & t,
-                                const int & constant, const ST::string & fs,
-                                const ST::string & fr,
-                                const unsigned & c)
-          : FULLCOND(o,d,t,d.cols(),1,fs)
-  {
-
-  lambda=-1;
-
-  interceptadd=0;
-
-  fctype = MCMC::fixed;
-
-  likep = dp;
-
-  sumold = 0;
-
-  datamatrix w = likep->get_weight();
-
-  column = c;
-
-  nrconst = data.cols();
-
-  linold = datamatrix(likep->get_nrobs(),1,0);
-  linnew = linold;
-  linoldp = &linold;
-  linnewp = &linnew;
-
-  if (constant>=0)
-    {
-    identifiable = false;
-    interceptpos = constant;
-    interceptyes = true;
-    }
-  else
-    {
-    interceptyes = false;
-    interceptpos = constant;
-    }
-
-  pathresult = fr;
-  pathcurrent = fr;
-
-  results_type="fixed";
-
-//  negbin=false;
-
-  }
-
-
-FULLCOND_const::FULLCOND_const(const FULLCOND_const & m) : FULLCOND(FULLCOND(m))
-  {
-  lambda=m.lambda;
-  reference = m.reference;
-  coding = m.coding;
-  diff_categories = m.diff_categories;
-  interceptadd = m.interceptadd;
-//  negbin=m.negbin;
-  likep = m.likep;
-  nrconst = m.nrconst;
-  linold = m.linold;
-  linnew = m.linnew;
-  sumold = m.sumold;
-  pathresult = m.pathresult;
-  table_results = m.table_results;
-  interceptpos = m.interceptpos;
-  interceptyes = m.interceptyes;
-  }
-
-
-const FULLCOND_const & FULLCOND_const::operator=(const FULLCOND_const & m)
-  {
-  if (this==&m)
-	 return *this;
-  FULLCOND::operator=(FULLCOND(m));
-  lambda=m.lambda;
-  reference = m.reference;
-  diff_categories = m.diff_categories;
-  interceptadd = m.interceptadd;
-//  negbin=m.negbin;
-  likep = m.likep;
-  nrconst = m.nrconst;
-  linold = m.linold;
-  linnew = m.linnew;
-  sumold = m.sumold;
-  pathresult = m.pathresult;
-  table_results = m.table_results;
-  interceptpos = m.interceptpos;
-  interceptyes = m.interceptyes;
-  return *this;
   }
 
 //------------------------------------------------------------------------------
-//------------------ CLASS: FULLCOND_const_stepwise_gaussian_special -----------
+//------------------ CLASS: FULLCOND_const_gaussian_special --------------------
 //------------------------------------------------------------------------------
 
 double FULLCOND_const_gaussian_special::compute_df(void)
@@ -555,43 +460,102 @@ void FULLCOND_const_gaussian_special::reset_effect(unsigned & pos)
 //------------------ CLASS: FULLCOND_const_gaussian ----------------------------
 //------------------------------------------------------------------------------
 
+FULLCOND_const_gaussian::FULLCOND_const_gaussian(MCMCoptions * o,
+                 DISTRIBUTION * dp,const datamatrix & d,
+                 const ST::string & code, int & ref,
+                 const ST::string & t,const ST::string & fs,
+                 const ST::string & fr,const unsigned & c):
+                 FULLCOND_const(o,dp,d,code,ref,t,fs,fr,c)
+  {
+
+  transform = likep->get_trmult(c);
+
+  changingweight = likep->get_changingweight();
+
+  X1 = datamatrix(nrconst,nrconst,0);
+
+  help = datamatrix(nrconst,likep->get_nrobs(),0);
+
+  X2 = datamatrix(nrconst,likep->get_nrobs());
+
+  compute_matrices();
+
+  if (X1.rows() < nrconst)
+    errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
+
+  }
+
 
 void FULLCOND_const_gaussian::include_effect(vector<ST::string> & names,
 datamatrix & newx)
   {
-  FULLCOND_const::include_effect(names,newx);
+  if(fctype != factor)
+    {
+    FULLCOND_const::include_effect(names,newx);
 
-  X1 = datamatrix(nrconst,nrconst,0);
-  X2 = datamatrix(nrconst,likep->get_nrobs());
+    X1 = datamatrix(nrconst,nrconst,0);
+    X2 = datamatrix(nrconst,likep->get_nrobs());
+    }
   }
 
 
 void FULLCOND_const_gaussian::reset_effect(unsigned & pos)
   {
-  FULLCOND_const::reset_effect(pos);
+  if(fctype != factor)
+    {
+    FULLCOND_const::reset_effect(pos);
 
-  X1 = datamatrix(nrconst,nrconst,0);
-  X2 = datamatrix(nrconst,likep->get_nrobs());
+    X1 = datamatrix(nrconst,nrconst,0);
+    X2 = datamatrix(nrconst,likep->get_nrobs());
+    }
   }
 
 //------------------------------------------------------------------------------
 //--- CLASS FULLCOND_const_nongaussian: implementation of member functions -----
 //------------------------------------------------------------------------------
 
+FULLCOND_const_nongaussian::FULLCOND_const_nongaussian(MCMCoptions * o,
+                 DISTRIBUTION * dp,const datamatrix & d,
+                 const ST::string & code, int & ref,
+                 const ST::string & t,const ST::string & fs,
+                 const ST::string & fr,const unsigned & c):
+                 FULLCOND_const(o,dp,d,code,ref,t,fs,fr,c)
+  {
+  step = o->get_step();
+  diff = linnew;
+  weightiwls = datamatrix(likep->get_nrobs(),1,1);
+  tildey = weightiwls;
+  proposal = beta;
+  XWX = datamatrix(nrconst,nrconst);
+  XWXold = XWX;
+  help = beta;
+  muy=datamatrix(nrconst,1);
+
+  compute_XWX(XWXold);
+  datamatrix test = XWXold.cinverse();
+  if (test.rows() < nrconst)
+    errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
+  }
+
+
 void FULLCOND_const_nongaussian::include_effect(vector<ST::string> & names,
 datamatrix & newx)
   {
-  FULLCOND_const::include_effect(names,newx);
-
-  XWX = datamatrix(nrconst,nrconst);
+  if(fctype != factor)
+    {
+    FULLCOND_const::include_effect(names,newx);
+    XWX = datamatrix(nrconst,nrconst);
+    }
   }
 
   
 void FULLCOND_const_nongaussian::reset_effect(unsigned & pos)
   {
-  FULLCOND_const::reset_effect(pos);
-
-  XWX = datamatrix(nrconst,nrconst);
+  if(fctype != factor)
+    {
+    FULLCOND_const::reset_effect(pos);
+    XWX = datamatrix(nrconst,nrconst);
+    }
   }
 
 //------------------------------------------------------------------------------

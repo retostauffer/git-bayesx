@@ -503,6 +503,101 @@ void FULLCOND_const::outresults(void)
 
   }
 
+
+FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
+                                const datamatrix & d, const ST::string & t,
+                                const int & constant, const ST::string & fs,
+                                const ST::string & fr,
+                                const unsigned & c)
+          : FULLCOND(o,d,t,d.cols(),1,fs)
+  {
+
+  lambda=-1;
+
+  interceptadd=0;
+
+  fctype = MCMC::fixed;
+
+  likep = dp;
+
+  sumold = 0;
+
+  datamatrix w = likep->get_weight();
+
+  column = c;
+
+  nrconst = data.cols();
+
+  linold = datamatrix(likep->get_nrobs(),1,0);
+  linnew = linold;
+  linoldp = &linold;
+  linnewp = &linnew;
+
+  if (constant>=0)
+    {
+    identifiable = false;
+    interceptpos = constant;
+    interceptyes = true;
+    }
+  else
+    {
+    interceptyes = false;
+    interceptpos = constant;
+    }
+
+  pathresult = fr;
+  pathcurrent = fr;
+
+  results_type="fixed";
+
+//  negbin=false;
+
+  }
+
+
+FULLCOND_const::FULLCOND_const(const FULLCOND_const & m) : FULLCOND(FULLCOND(m))
+  {
+  lambda=m.lambda;
+  reference = m.reference;
+  coding = m.coding;
+  diff_categories = m.diff_categories;
+  interceptadd = m.interceptadd;
+//  negbin=m.negbin;
+  likep = m.likep;
+  nrconst = m.nrconst;
+  linold = m.linold;
+  linnew = m.linnew;
+  sumold = m.sumold;
+  pathresult = m.pathresult;
+  table_results = m.table_results;
+  interceptpos = m.interceptpos;
+  interceptyes = m.interceptyes;
+  }
+
+
+const FULLCOND_const & FULLCOND_const::operator=(const FULLCOND_const & m)
+  {
+  if (this==&m)
+	 return *this;
+  FULLCOND::operator=(FULLCOND(m));
+  lambda=m.lambda;
+  reference = m.reference;
+  diff_categories = m.diff_categories;
+  interceptadd = m.interceptadd;
+//  negbin=m.negbin;
+  likep = m.likep;
+  nrconst = m.nrconst;
+  linold = m.linold;
+  linnew = m.linnew;
+  sumold = m.sumold;
+  pathresult = m.pathresult;
+  table_results = m.table_results;
+  interceptpos = m.interceptpos;
+  interceptyes = m.interceptyes;
+  return *this;
+  }
+  
+
 void FULLCOND_const::update(void)
   {
 
@@ -768,17 +863,18 @@ void FULLCOND_const_gaussian::posteriormode_intercept(double & m)
 bool FULLCOND_const_gaussian::posteriormode(void)
   {
   unsigned i;
-  double * worklinold=linold.getV();
-  for(i=0;i<linold.rows();i++,worklinold++)
-    *worklinold += interceptadd;
+  double * worklinold=linold.getV();        // linold = data * beta
+  for(i=0;i<linold.rows();i++,worklinold++) // add interceptadd to linold
+    *worklinold += interceptadd;            // interceptadd contains numbers
+                                            // from centering other terms
   interceptadd=0;
-  likep->fisher(X1,data,column);
-  X1.assign((X1.cinverse()));
-  likep->substr_linearpred_m(linold,column);
-  likep->compute_weightiwls_workingresiduals(column);
+  likep->fisher(X1,data,column);            // recomputes X1 = (data' W data)^{-1}
+  X1.assign((X1.cinverse()));               // continued
+  likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+  likep->compute_weightiwls_workingresiduals(column); // computes W(y-linpred)
   beta = X1*data.transposed()*likep->get_workingresiduals();
-  linold.mult(data,beta);
-  likep->add_linearpred_m(linold,column);
+  linold.mult(data,beta);                   // updates linold
+  likep->add_linearpred_m(linold,column);   // updates linpred
   return FULLCOND_const::posteriormode();
   }
 
