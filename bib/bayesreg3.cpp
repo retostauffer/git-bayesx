@@ -871,6 +871,8 @@ void plotnonprun(bayesreg & b)
       ot = ot + "pointsize="+b.pointsize.getValueAsString() + " ";
     if (b.linecolor.changed() == true)
       ot = ot + "linecolor="+b.linecolor.getValueAsString() + " ";
+    if (b.titlescale.changed() == true)
+      ot = ot + "titlesize="+b.titlescale.getValueAsString() + " ";
 
     if (ot.length() == 0)
       b.newcommands.push_back(graphname + ".plot " + plotvar + " using " + datasetname);

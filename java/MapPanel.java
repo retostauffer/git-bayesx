@@ -1103,7 +1103,7 @@ private void plotframe(Graphics g, int col, boolean centering)
                         if(str.length()>32)
                           str = str.substring(0,32);
 			if(centering)
-	                        center = (int)((str.length()*1.5*fontwidth)/2);
+	                        center = (int)((str.length()*titlescale*fontwidth)/2);
                         g.drawString(str,scale*((int)(xoffset+width/2)-center),PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset-(int)(titlescale*fontheight))));
 			if(centering)
 	                        g.setFont(new Font("Monospaced", Font.BOLD, scale*fontsize));                                                                                                           	

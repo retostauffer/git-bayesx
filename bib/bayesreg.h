@@ -198,6 +198,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   intoption fontsize;
   intoption pointsize;
   stroption linecolor;
+  doubleoption titlescale;
 
   optionlist plotnonpoptions;
 

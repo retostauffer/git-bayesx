@@ -413,6 +413,7 @@ void bayesreg::create(void)
   fontsize = intoption("fontsize",12,0,100);
   pointsize = intoption("pointsize",20,0,100);
   linecolor = stroption("linecolor");
+  titlescale = doubleoption("titlesize",1.5,0.0,MAXDOUBLE);
 
   vector<ST::string> levelchoice;
   levelchoice.reserve(4);
@@ -449,7 +450,7 @@ void bayesreg::create(void)
   plotnonpoptions.push_back(&fontsize);
   plotnonpoptions.push_back(&pointsize);
   plotnonpoptions.push_back(&linecolor);
-
+  plotnonpoptions.push_back(&titlescale);
 
   // SYNTAX OF COMMANDS:
   // name [model] [weight varname] [by varname] [if expression]
