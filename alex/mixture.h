@@ -295,16 +295,6 @@ class __EXPORT_TYPE FULLCOND_mixture_gaussian : public FULLCOND_mixture
     FULLCOND_mixture::reset();
     }
 
-  const double & getcompvar(int k) const
-    {
-    return compvar(k,0);
-    }
-
-//  const datamatrix & getcompvar(void) const
-//    {
-//    return compvar;
-//    }
-
   };     // end: class FULLCOND_mixture_gaussian
 
 

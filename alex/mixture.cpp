@@ -142,7 +142,7 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
   nrcomp = nrc;
   compweight = datamatrix(nrcomp,1,1.0/nrcomp);
   cwprior = datamatrix(nrcomp,1,1.0);
-  csize = statmatrix<unsigned>(nrcomp,1,1);
+  csize = statmatrix<unsigned>(nrcomp,1,33);
     compmean = datamatrix(nrcomp,1,0);
     compvar = datamatrix(nrcomp,1,1);
     cmpriorm = 0;
@@ -330,27 +330,30 @@ void FULLCOND_mixture::update(void)
   for(i=0;i<compind.rows();i++)
   {
   datamatrix cprob(nrcomp,1,1.0/nrcomp); // probabilities psi_{ik}
-  datamatrix cptemp(nrcomp,1,0);
+  datamatrix cptemp(nrcomp,1,1);
 
   // calculate psi_{ik}
-  double cptempsum=0;
-  //  FULLCOND_mixture_gaussian  fccvar;
-  //  datamatrix cvartemp(nrcomp,1,fccvar.getcompvar());
-  //  double cvar=fccvar.getcompvar(0);
+//  double cptempsum=1.0;
   for(k=0;k<nrcomp;k++)
     {
     double cmean=compmean(k,0);
     double cvar=compvar(k,0);
-    cptemp(k,0)=compweight(k,0) * (1.0/(sqrt(cvar))) * exp(-0.5*(beta(i,0)-cmean)*cvar*(beta(i,0)-cmean));
-    cptempsum+=cptemp(k,0);
+    cptemp(k,0)=compweight(k,0) * (1.0/(sqrt(cvar))) * exp(-0.5*(beta(i,0)-cmean)*(1.0/cvar)*(beta(i,0)-cmean));
+//    cptempsum+=cptemp(k,0);
     }
-  cptemp=(1.0/cptempsum)*cptemp;
-  cprob.assign(cptemp);
+  double cptempsum=cptemp.sum(0);
+/*  for(k=0;k<nrcomp;k++)
+    {
+    cprob(k,0)=cptemp(k,0)*(1.0/cptempsum);
+    }*/
+
+//  cptemp=(1.0/cptempsum)*cptemp;
+//  cprob.assign(cptemp);
 
   // sample component indicator
   double u;
   u=uniform();
-  double cprobsum=0;
+  double cprobsum=0.0;
   for(k=0;k<nrcomp;k++)
       {
       if ( (cprobsum<u) && (u<=cprobsum+cprob(k,0))) compind(i,0) = k+1;
@@ -364,9 +367,11 @@ void FULLCOND_mixture::update(void)
   if (optionsp->get_nriter()==1 || changingweight)
     compute_XWX(likep->get_weight(),0);
   update_linpred(false);
+
   likep->compute_respminuslinpred(mu,column);
   vector<unsigned>::iterator itbeg = posbeg.begin();
   vector<unsigned>::iterator itend = posend.begin();
+
   double * workbeta = beta.getV();
   int * workindex2 = index2.getV();
   double * workmuy = muy.getV();
@@ -385,18 +390,16 @@ void FULLCOND_mixture::update(void)
 
   // update of random effects
   datamatrix retemp(beta.rows(),1,0);
-  double scaletemp=0.09; // scale parameter sigma_i^2
+  double scaletemp=likep->get_scale(column); // scale parameter sigma_i^2
   for(i=0;i<beta.rows();i++)
   {
-  double mtemp,vtemp;
+  double remtemp,revtemp;
   double indobs=20; // number of observations for individual i=X_i'X_i
   double sumworkres=100; // sum of X_i'y_i
   unsigned comp=compind(i,0);
-  vtemp=1.0;
-  mtemp=0.0;
-//  vtemp = 1.0/( indobs*(1.0/scaletemp)+(1.0/compvar(comp-1,0)) );
-//  mtemp = vtemp*( sumworkres*(1.0/scaletemp)+(1.0/compvar(comp-1,0))*compmean(comp-1,0) );
-  retemp(i,0)=mtemp+vtemp*rand_normal();
+  revtemp = 1.0/( indobs*(1.0/scaletemp)+(1.0/compvar(comp-1,0)) );
+  remtemp = revtemp*( sumworkres*(1.0/scaletemp)+(1.0/compvar(comp-1,0))*compmean(comp-1,0) );
+  retemp(i,0)=remtemp+revtemp*rand_normal();
   }
   beta.assign(retemp);
 
@@ -432,7 +435,7 @@ void FULLCOND_mixture::update(void)
   for(k=0;k<nrcomp;k++)
   {
   double shtemp,sctemp,resum;
-  resum=beta.sum2();
+  resum=beta.sum2(0);
   shtemp = cvpriorsh+csize(k,0);
   sctemp = cvpriorsc+(resum-compmean(k,0))*(resum-compmean(k,0));
   cvartemp(k,0)=rand_gamma(shtemp,sctemp);
@@ -442,15 +445,14 @@ void FULLCOND_mixture::update(void)
 
 // Update component weights
   datamatrix cwtemp(nrcomp,1,0);
-  double cwtempsum=0;
+  double cwtempsum;
   for(k=0;k<nrcomp;k++)
   {
   cwtemp(k,0)=rand_gamma(cwprior(k,0)+csize(k,0),1.0);
-  cwtempsum+=cwtemp(k,0);
   }
+  cwtempsum=cwtemp.sum(0);
   cwtemp=(1.0/cwtempsum)*cwtemp;
   compweight.assign(cwtemp);
-
 
 
   transform = likep->get_trmult(column);
@@ -732,13 +734,13 @@ bool FULLCOND_mixture::posteriormode(void)
 
 void FULLCOND_mixture_gaussian::update(void)
   {
-
+/*
   double var;
   double m;
   unsigned i,j;
   unsigned n = nrpar;
 
-/*
+
   if (optionsp->get_nriter()==1 || changingweight)
     compute_XWX(likep->get_weight(),0);
 
@@ -797,10 +799,6 @@ void FULLCOND_mixture_gaussian::update(void)
   transform = likep->get_trmult(column);
 */
   FULLCOND_mixture::update();
-//  update_compmean(beta, compind, compvar, datamatrix(nrcomp,1,0), datamatrix(nrcomp,1,100));
-//  update_compvar(beta, compind, compmean, datamatrix(nrcomp,1,nrcomp+1),datamatrix(nrcomp,1,nrcomp));
-//  update_compweight(compweight, compind, datamatrix(1,1,1));
-//  update_compweight(compweight);
   }
 
 
