@@ -17,7 +17,7 @@ void DISTRIBUTION::compute_deviance(double & deviance,double & deviancesat)
 
   for(i=0;i<nrobs;i++,workresp++,worklin++,workweight++)
     {
-    if (*workweight != 0)
+    if (workweight != 0)
       {
       compute_mu(worklin,&mu);
       compute_deviance(workresp,workweight,&mu,&dev,&devsat,scale,0);
@@ -25,94 +25,9 @@ void DISTRIBUTION::compute_deviance(double & deviance,double & deviancesat)
       deviancesat+=devsat;
       }
     }
-  }
-
-/*
-double DISTRIBUTION::compute_msep(void)
-  {
-  unsigned i;
-
-  double * worklin = (*linpred_current).getV();
-  double * workresp = response.getV();
-  double * workweight = weight.getV();
-  double mu;
-
-  double sum = 0;
-  double help;
-  double nr = 0;
-
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
-    {
-    if (*workweight == 0)
-      {
-      compute_mu(worklin,&mu);
-      help = *workresp - mu;
-      //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
-                                          // Gewichten != 0, die andere 0/1 Variable
-      sum += help*help;
-      nr += 1;
-      }
-    }
-
-  return  sum/nr;
-  }
-*/
-
-double DISTRIBUTION::compute_gcv(double & df)
-  {
-  double dev=0;
-  double devsat=0;
-  compute_deviance(dev,devsat);
-
-  double help2 = 1-df/get_nrobs_wpw();
-  double gcv = devsat / (get_nrobs_wpw()*help2*help2);
-  return gcv;
-  }
-
-double DISTRIBUTION::compute_aic(double & df)
-  {
-  double dev=0;
-  double devsat=0;
-  compute_deviance(dev,devsat);
-
-  double aic = dev + 2*df;
-  return aic;
-  }
-
-double DISTRIBUTION::compute_improvedaic(double & df)
-  {
-  double dev=0;
-  double devsat=0;
-  compute_deviance(dev,devsat);
-
-  double impaic = dev + 2*df + 2*df*(df+1)/(get_nrobs_wpw()-df-1);
-  return impaic;
-  }
-
-double DISTRIBUTION::compute_bic(double & df)
-  {
-  double dev=0;
-  double devsat=0;
-  compute_deviance(dev,devsat);
-
-  double bic = dev + log(get_nrobs_wpw())*df;
-  return bic;
-  }
 
 
-unsigned DISTRIBUTION::get_nrobs_wpw(void)
-  {
-  unsigned i;
-  double * workweight = weight.getV();
-  double s = 0;
 
-  for (i=0;i<nrobs;i++,workweight++)
-    {
-    if (*workweight == 0)
-      s++;
-    }
-
-  return nrobs-s;
   }
 
 unsigned DISTRIBUTION::get_nrpar(void)
@@ -2640,7 +2555,7 @@ void DISTRIBUTION::outresults(void)
         out << *worklinpred << "   ";
         }
 
-      compute_mu_notransform(workmean_firstcol,&mu_meanlinpred(0,0));
+      compute_mu(workmean_firstcol,&mu_meanlinpred(0,0));
 
       for (j=0;j<size2;j++)
         {
@@ -2783,7 +2698,7 @@ void DISTRIBUTION::outresults(void)
         optionsp->out("\n");
         outscale << m << endl;
 
-        results_latex.push_back("$\\sigma^2$:  \\> " +
+        results_latex.push_back("$\\Sigma^2$:  \\> " +
                             ST::doubletostring(m,6) + " \\\\");
 
         }
@@ -3437,7 +3352,7 @@ DISTRIBUTION_gamma::DISTRIBUTION_gamma(const double & scale_initial,
   scaleold = 0;
 
   scalefixed=true;
-  scaleexisting=true;
+  scaleexisting=false;
   scale(0,0) = scale_initial;
 
   family = "Gamma";
@@ -4062,11 +3977,6 @@ void DISTRIBUTION_gaussian::set_constscale(double s)
   constscale=true;
   }
 
-void DISTRIBUTION_gaussian::set_uniformprior(void)
-  {
-  uniformprior=true;
-  }
-
 void DISTRIBUTION_gaussian::set_variance(DISTRIBUTION_vargaussian * dg)
   {
   dgamma = dg;
@@ -4102,15 +4012,8 @@ void DISTRIBUTION_gaussian::outoptions(void)
   {
   DISTRIBUTION::outoptions();
   optionsp->out("  Response function: identity\n");
-  if(uniformprior)
-    {
-    optionsp->out("  Uniform prior on sigma\n");
-    }
-  else
-    {
-    optionsp->out("  Hyperparameter a: " + ST::doubletostring(a_invgamma,6) + "\n");
-    optionsp->out("  Hyperparameter b: " + ST::doubletostring(b_invgamma,6) + "\n");
-    }
+  optionsp->out("  Hyperparameter a: " + ST::doubletostring(a_invgamma,6) + "\n");
+  optionsp->out("  Hyperparameter b: " + ST::doubletostring(b_invgamma,6) + "\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -4157,18 +4060,8 @@ void DISTRIBUTION_gaussian::update(void)
       sum += *workweight*help*help;
       }
 
-    if(uniformprior==true)
-      {
-      double help = 1000000;
-      while (help > 200000)
-        help = rand_invgamma(-0.5+0.5*nrobsmweightzero,0.5*sum);
-      scale(0,0) = help;
-      }
-    else
-      {
-      scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero,
-                   b_invgamma+0.5*sum);
-      }
+    scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero,
+                 b_invgamma+0.5*sum);
     }
 
 
@@ -4237,65 +4130,9 @@ double DISTRIBUTION_gaussian::loglikelihood(double * res,
   return  - *w * ( help * help )/(2* scale(0,0));
   }
 
-// ------------------- For Stepwise --------------------------------------------
-
-double DISTRIBUTION_gaussian::compute_rss(void)
-    {
-  unsigned i;
-
-  double * worklin = (*linpred_current).getV();
-  double * workresp = response.getV();
-  double * workweight = weight.getV();
-
-  double sum = 0;
-  double help;
-
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
-    {
-    if (*workweight !=0)
-      {
-      help = *workresp - *worklin;
-      sum += *workweight*help*help;
-      }
-    }
-  sum = trmult(0,0)*trmult(0,0)*sum;
-
-  return  sum;
-  }
-
-
-double DISTRIBUTION_gaussian::compute_msep(void)
-  {
-  unsigned i;
-
-  double * worklin = (*linpred_current).getV();
-  double * workresp = response.getV();
-  double * workweight = weight.getV();
-
-  double sum = 0;
-  double help;
-  double nr = 0;
-
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
-    {
-    if (*workweight == 0)
-      {
-      help = *workresp - *worklin;
-      //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
-                                          // Gewichten != 0, die andere 0/1 Variable
-      sum += help*help;
-      nr += 1;
-      }
-    }
-  sum = trmult(0,0)*trmult(0,0)*sum;
-
-  return  sum/nr;
-  }
-
 
 double DISTRIBUTION_gaussian::compute_gcv(double & df)
   {
-  /*
   unsigned i;
 
   double * worklin = (*linpred_current).getV();
@@ -4308,7 +4145,7 @@ double DISTRIBUTION_gaussian::compute_gcv(double & df)
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
-    if (*workweight !=0)
+    if (workweight !=0)
       {
       help = *workresp - *worklin;
       sum += *workweight*help*help;
@@ -4321,21 +4158,16 @@ double DISTRIBUTION_gaussian::compute_gcv(double & df)
 
 
   sum/=(nrobs-s);
-  sum = trmult(0,0)*trmult(0,0)*sum;
-  double help2 = 1-df/(get_nrobs_wpw());
+
+  double help2 = 1-df/(nrobs-s);
 
   return  sum/(help2*help2);
-  */
 
-  double help2 = 1-df/get_nrobs_wpw();
-  double gcv = compute_rss() / (get_nrobs_wpw()*help2*help2);
-  return gcv;
   }
 
 
 double DISTRIBUTION_gaussian::compute_aic(double & df)
   {
-  /*
   unsigned i;
 
   double * worklin = (*linpred_current).getV();
@@ -4348,7 +4180,7 @@ double DISTRIBUTION_gaussian::compute_aic(double & df)
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
-    if (*workweight !=0)
+    if (workweight !=0)
       {
       help = *workresp - *worklin;
       sum += *workweight*help*help;
@@ -4360,18 +4192,14 @@ double DISTRIBUTION_gaussian::compute_aic(double & df)
     }
 
   sum/=(nrobs-s);
-  sum = log(trmult(0,0)*trmult(0,0)*sum) * (nrobs-s);
+  sum = log(sum) * (nrobs-s);
 
   return  sum + 2*df;
-  */
 
-  double aic = log(compute_rss() / get_nrobs_wpw()) * get_nrobs_wpw() + 2*df;
-  return aic;
   }
 
 double DISTRIBUTION_gaussian::compute_improvedaic(double & df)
   {
-  /*
   unsigned i;
 
   double * worklin = (*linpred_current).getV();
@@ -4384,7 +4212,7 @@ double DISTRIBUTION_gaussian::compute_improvedaic(double & df)
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
-    if (*workweight !=0)
+    if (workweight !=0)
       {
       help = *workresp - *worklin;
       sum += *workweight*help*help;
@@ -4396,19 +4224,14 @@ double DISTRIBUTION_gaussian::compute_improvedaic(double & df)
     }
 
   sum/=(nrobs-s);
-  sum = log(trmult(0,0)*trmult(0,0)*sum) * (nrobs-s);
+  sum = log(sum) * (nrobs-s);
 
   return  sum + 2*df + 2*df*(df+1)/((nrobs-s)-df-1);
-  */
 
-  double impaic = log(compute_rss() / get_nrobs_wpw()) * get_nrobs_wpw()
-                  + 2*df + 2*df*(df+1)/(get_nrobs_wpw()-df-1);
-  return impaic;
   }
 
 double DISTRIBUTION_gaussian::compute_bic(double & df)
   {
-  /*
   unsigned i;
 
   double * worklin = (*linpred_current).getV();
@@ -4421,7 +4244,7 @@ double DISTRIBUTION_gaussian::compute_bic(double & df)
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
-    if (*workweight !=0)
+    if (workweight !=0)
       {
       help = *workresp - *worklin;
       sum += *workweight*help*help;
@@ -4433,14 +4256,10 @@ double DISTRIBUTION_gaussian::compute_bic(double & df)
     }
 
   sum/=(nrobs-s);
-  sum = log(trmult(0,0)*trmult(0,0)*sum) * (nrobs-s);
+  sum = log(sum) * (nrobs-s);
 
   return  sum + log(nrobs-s)*df;
-  */
 
-  double bic = log(compute_rss() / get_nrobs_wpw()) * get_nrobs_wpw()
-               + log(get_nrobs_wpw())*df;
-  return bic;
   }
 
 
@@ -4491,7 +4310,6 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const double & a,
   assert (b > 0);
 
   constscale=false;
-  uniformprior=false;
 
   a_invgamma = a;
   b_invgamma = b;
@@ -4521,7 +4339,6 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const datamatrix & offset,
   assert (b > 0);
 
   constscale=false;
-  uniformprior=false;
 
   a_invgamma = a;
   b_invgamma = b;
@@ -4548,7 +4365,6 @@ const DISTRIBUTION_gaussian & DISTRIBUTION_gaussian::operator=(
   b_invgamma = nd.b_invgamma;
   varianceest = nd.varianceest;
   constscale = nd.constscale;
-  uniformprior = nd.uniformprior;
   return *this;
   }
 
@@ -4600,18 +4416,8 @@ void  DISTRIBUTION_gaussian::tr_nonlinear(vector<double *> b,
                                           unsigned & nr,
                                           unsigned & it,ST::string & trtype)
   {
-  if (trtype == "exp")
+  if (trtype == "exp" || (trtype == "lognormal") )
     DISTRIBUTION::tr_nonlinear(b,br,fcp,nr,it,trtype);
-  else if(trtype == "lognormal")
-    {
-    datamatrix help(1,1);
-    Scalesave.readsample2(help,it);
-    unsigned i;
-    for (i=0;i<b.size();i++)
-      {
-      *br[i] = exp(interceptsample(it,0)+*b[i]+help(0,0)/2.0);
-      }
-    }
   else if (trtype == "elasticity")
     {
     if (b.size() == 2)
@@ -4642,7 +4448,7 @@ void  DISTRIBUTION_gaussian::tr_nonlinear(vector<double *> b,
     unsigned i;
     for (i=0;i<b.size();i++)
       {
-      *br[i] = exp(interceptsample(it,0)+help(0,0)/2.0);
+      *br[i] = exp(*b[i]+help(0,0)/2.0);
       }
     }
 
@@ -4686,7 +4492,7 @@ void DISTRIBUTION_binomial::tr_nonlinear(vector<double *> b,vector<double *> br,
     unsigned i;
     for (i=0;i<b.size();i++)
       {
-      eh = exp(interceptsample(it,0));
+      eh = exp(*b[i]);
       *br[i] = eh/(1+eh);
       }
     }
@@ -4928,71 +4734,6 @@ void DISTRIBUTION_binomial::compute_deviance(const double * response,
   }
 
 
-double DISTRIBUTION_binomial::compute_auc(void)
-  {
-  datamatrix linpred_null_hilf = datamatrix(nrobs,1,0);       // Erzeugen einer Matrix die Einträge für Beob.
-                                                              // mit weight=0 enthält und darunter Nuller
-  datamatrix response_null_hilf = datamatrix(nrobs,1,0);      // Erzeugen einer Matrix die Einträge für Beob.
-                                                              // mit weight=0 enthält und darunter Nuller
-  double * worklin = linearpred.getV();
-  double * lin_null = linpred_null_hilf.getV();
-  double * workweight = weight.getV();
-  double * workresp = response.getV();
-  double * resp_null = response_null_hilf.getV();
-  unsigned nrnull = 0;
-  unsigned nrdef = 0;
-  unsigned i;
-  for(i=0;i<response.rows();i++,workresp++,worklin++,workweight++)
-    {
-    if(*workweight == 0)
-      {
-      *lin_null = *worklin;
-      lin_null++;
-      *resp_null = *workresp;
-      resp_null++;
-      nrnull += 1;
-      if(*workresp==1)
-         nrdef += 1;
-      }
-    }
-
-  datamatrix linpred_null = datamatrix(nrnull,1,0);  // Kürzen des "Null"-Prädiktors, d.h. Weglassen der Nullen
-  datamatrix response_null = datamatrix(nrnull,1,0); // Kürzen des "Null"-Response, d.h. Weglassen der Nullen
-  double * lin_hilf = linpred_null_hilf.getV();
-  lin_null = linpred_null.getV();
-  double * resp_hilf = response_null_hilf.getV();
-  resp_null = response_null.getV();
-  for(i=0;i<nrnull;i++,lin_null++,lin_hilf++,resp_null++,resp_hilf++)
-     {
-     *lin_null = *lin_hilf;
-     *resp_null = *resp_hilf;
-     }
-
-  statmatrix<int> index_gesamt(linpred_null.rows(),1);      // Sortieren des linearen Prädiktors
-  index_gesamt.indexinit();
-  linpred_null.indexsort(index_gesamt,0,linpred_null.rows()-1,0,0);
-  statmatrix<double> rang_gepoolt(linpred_null.rows(),1);
-  linpred_null.rank(rang_gepoolt,index_gesamt,0,linpred_null.rows()-1,0);  // Ränge berechnen
-
-  int* gesamt = index_gesamt.getV();
-  double* rang_gep = rang_gepoolt.getV();
-  unsigned rang_default = 1;
-  double auc = 0;
-
-  for(i=0;i<nrnull;i++,gesamt++,rang_gep++)
-    {
-    if(response_null.get(*gesamt,0) == 1)
-      {
-      //auc += i+1 - rang_default;
-      auc += *rang_gep - rang_default;
-      rang_default += 1;
-      }
-    }
-
-  return auc/(nrdef*(nrnull-nrdef));
-  }
-
-
 //------------------------------------------------------------------------------
 //-------------------- CLASS DISTRIBUTION_binomial_latent ----------------------
 //------------------------------------------------------------------------------
@@ -5035,7 +4776,7 @@ void DISTRIBUTION_binomial_latent::tr_nonlinear(vector<double *> b,
       {
       if ((tlink) && (nu==8))
         {
-        eh = exp(interceptsample(it,0));
+        eh = exp(*b[i]);
         *br[i]=eh/(1+eh);
         }
       else
@@ -5073,12 +4814,12 @@ void DISTRIBUTION_binomial_latent::compute_deviance(const double * response,
   {
   if (*weight !=  0)
     {
-    if (*response<=0)
+    if (*response<0)
       {
       *deviance = -2*log(1-*mu);
       *deviancesat = *deviance;
       }
-    else if (*response > 0)
+    else if (*response >= 0)
       {
       *deviance = -2*log(*mu);
       *deviancesat = *deviance;
@@ -5368,7 +5109,7 @@ void DISTRIBUTION_binomial_logit_latent::tr_nonlinear(
     unsigned i;
     for (i=0;i<b.size();i++)
       {
-      eh = exp(interceptsample(it,0));
+      eh = exp(*b[i]);
       *br[i] = eh/(1+eh);
       }
     }
@@ -6205,11 +5946,6 @@ void DISTRIBUTION_multinom::compute_iwls(void)
     for(j=0;j<dim;j++,worklin++,ywork++,workres++,workweightiwls++)
       {
       mu = muhelp(j,0);
-      if(mu > 0.999)
-        mu = 0.999;
-      if(mu < 0.001)
-        mu = 0.001;
-
       *workweightiwls = mu*(1-mu);
       *ywork = *worklin + (*workres - mu)/(*workweightiwls);
       }
@@ -6961,5 +6697,4 @@ void DISTRIBUTION_cumulative_latent3::outresults(void)
   }
 
 } // end: namespace MCMC
-
 
