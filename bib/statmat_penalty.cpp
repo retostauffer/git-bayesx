@@ -90,10 +90,10 @@ statmatrix<double> K2dim_pspline(const unsigned & nknots)
   return res;
   }
 
-}
+//}
 
-/*
-statmatrix<double> K2dim_pspline_rw2(const unsigned & nknots,const unsigned & ox, const unsigned & oy)
+
+statmatrix<double> K2dim_pspline_rw2(const unsigned & nknots, const unsigned & ox, const unsigned & oy)
   {
   statmatrix<double> res(nknots*nknots,nknots*nknots,0);
 //  unsigned i,j;
@@ -110,11 +110,12 @@ statmatrix<double> K2dim_pspline_rw2(const unsigned & nknots,const unsigned & ox
   statmatrix<double> Py = kronecker(DDy,I);      // penalty matrix of y-direction
   res = Px + Py;
 
-  ofstream out1("h:\\da\\tests\\penalty.txt");
-  res.prettyPrint(out1);
-  out1.close();
+//  ofstream out1("h:\\da\\tests\\penalty.txt");
+//  res.prettyPrint(out1);
+//  out1.close();
 
   return res;
   }
 }
+
 

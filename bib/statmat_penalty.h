@@ -19,7 +19,7 @@ statmatrix<double> __EXPORT_TYPE Kmrf(const MAP::map & m);
 
 statmatrix<double> __EXPORT_TYPE K2dim_pspline(const unsigned & nknots);
 
-//statmatrix<double> __EXPORT_TYPE K2dim_pspline_rw2(const unsigned & nknots);
+statmatrix<double> __EXPORT_TYPE K2dim_pspline_rw2(const unsigned & nknots, const unsigned & ox, const unsigned & oy);
 
 }
 
