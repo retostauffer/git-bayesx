@@ -111,13 +111,17 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
   samplepath=fp;
 
   likep = NULL;
-  if(type == mrflinear || type==mrfquadratic12)
+  if(type == mrflinear)
     {
     dimX = 0;
     }
   else if(type == mrfquadratic8)
     {
     dimX = 3;
+    }
+  else if(type == mrfquadratic12)
+    {
+    dimX=2;
     }
   dimZ = nrpar-dimX-1;
 
@@ -266,13 +270,17 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
   samplepath=fp;
 
   likep = NULL;
-  if(type == mrflinear || type == mrfquadratic12)
+  if(type == mrflinear)
     {
     dimX = 0;
     }
   else if(type == mrfquadratic8)
     {
     dimX = 3;
+    }
+  else if(type == mrfquadratic12)
+    {
+    dimX=2;
     }
   dimZ = nrpar-dimX-1;
 
@@ -2270,16 +2278,9 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
   double * workZ;
 
   datamatrix Kstat;
-  if(type == mrflinear || type == mrfquadratic12)
+  if(type == mrflinear)
     {
-    if(type == mrflinear)
-      {
-      Kstat=STATMAT_PENALTY::K2dim_pspline(nrpar1dim);
-      }
-    else if(type == mrfquadratic12)
-      {
-      Kstat=STATMAT_PENALTY::K2dim_pspline_biharmonic(nrpar1dim);
-      }
+    Kstat=STATMAT_PENALTY::K2dim_pspline(nrpar1dim);
     datamatrix vals(Kstat.rows(),1,0);
 
     bool eigentest=eigen2(Kstat,vals);
@@ -2298,9 +2299,16 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       Kstat = multdiagback(Kstat,vals).getColBlock(0,Kstat.cols()-1);
       }
     }
-  else if(type == mrfquadratic8)
+  else if(type == mrfquadratic8 || type == mrfquadratic12)
     {
-    Kstat=STATMAT_PENALTY::K2dim_pspline_rw2(nrpar1dim,2,2);
+    if(type == mrfquadratic8)
+      {
+      Kstat=STATMAT_PENALTY::K2dim_pspline_rw2(nrpar1dim,2,2);
+      }
+    else if(type == mrfquadratic12)
+      {
+      Kstat=STATMAT_PENALTY::K2dim_pspline_biharmonic(nrpar1dim);
+      }
     datamatrix vals(Kstat.rows(),1,0);
 
     bool eigentest=eigen2(Kstat,vals);
@@ -2395,6 +2403,36 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
     for(i=0; i<spline.rows(); i++)
       {
       X(i,Xpos+2) = spline(i,0)-mean;
+      }
+    }
+
+  if(type==mrfquadratic12)
+    {
+    datamatrix knoten1(nrpar1dim,1,0);
+    datamatrix knoten2(nrpar1dim,1,0);
+    for(i=0; i<nrpar1dim; i++)
+      {
+      knoten1(i,0)=knot1[i];
+      knoten2(i,0)=knot2[i];
+      }
+    statmatrix<double> I = statmatrix<double>(nrpar1dim,1,1);
+    knoten1 = kronecker(I,knoten1);
+    knoten2 = kronecker(knoten2,I);
+
+    double mean=0;
+
+    multBS_index(spline,knoten1);
+    mean=spline.mean(0);
+    for(i=0; i<spline.rows(); i++)
+      {
+      X(i,Xpos) = spline(i,0)-mean;
+      }
+
+    multBS_index(spline,knoten2);
+    mean=spline.mean(0);
+    for(i=0; i<spline.rows(); i++)
+      {
+      X(i,Xpos+1) = spline(i,0)-mean;
       }
     }
 
@@ -2494,7 +2532,7 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
     }
   else
     {
-    if(type==mrflinear || type==mrfquadratic12)
+    if(type==mrflinear)
       {
       for(i=0,j=0;i<spline.rows();i++,indexit++,freqwork++,k+=*indexit)
         {
@@ -2508,7 +2546,7 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
           }
         }
       }
-    else if(type==mrfquadratic8)
+    else if(type==mrfquadratic8 || type==mrfquadratic12)
       {
       for(i=0,j=0;i<spline.rows();i++,indexit++,freqwork++,k+=*indexit)
         {

@@ -117,6 +117,201 @@ statmatrix<double> K2dim_pspline_biharmonic(const unsigned & nknots)
   unsigned i,j;
   statmatrix<double> res(nknots*nknots,nknots*nknots,0);
 
+// 4 corners
+
+// upper left
+res(0,0) = 4;
+res(0,1) = res(0,nknots) = -4;
+res(0,2) = res(0,2*nknots) = 1;
+res(0,nknots+1) = 2;
+
+// upper right
+res(nknots-1,nknots-1) = 4;
+res(nknots-1,nknots-2) = res(nknots-1,2*nknots-1) = -4;
+res(nknots-1,nknots-3) = res(nknots-1,3*nknots-1) = 1;
+res(nknots-1,2*nknots-2) = 2;
+
+// lower left
+res(nknots*(nknots-1),nknots*(nknots-1)) = 4;
+res(nknots*(nknots-1),nknots*(nknots-1)+1) = res(nknots*(nknots-1),nknots*(nknots-2)) = -4;
+res(nknots*(nknots-1),nknots*(nknots-1)+2) = res(nknots*(nknots-1),nknots*(nknots-3)) = 1;
+res(nknots*(nknots-1),nknots*(nknots-2)+1) = 2;
+
+// lower right
+res(nknots*nknots-1,nknots*nknots-1) = 4;
+res(nknots*nknots-1,nknots*nknots-2) = res(nknots*nknots-1,nknots*(nknots-1)-1) = -4;
+res(nknots*nknots-1,nknots*nknots-3) = res(nknots*nknots-1,nknots*(nknots-2)-1) = 1;
+res(nknots*nknots-1,nknots*(nknots-1)-2) = 2;
+
+// 4 second order corners
+
+// upper left
+res(nknots+1,nknots+1) = 18;
+res(nknots+1,nknots+2) = res(nknots+1,2*nknots+1) = -8;
+res(nknots+1,nknots) = res(nknots+1,1) = -6;
+res(nknots+1,0) = res(nknots+1,2) = res(nknots+1,2*nknots) = res(nknots+1,2*nknots+2) = 2;
+res(nknots+1,nknots+3) = res(nknots+1,3*nknots+1) = 1;
+
+// upper right
+res(2*nknots-2,2*nknots-2) = 18;
+res(2*nknots-2,2*nknots-3) = res(2*nknots-2,3*nknots-2) = -8;
+res(2*nknots-2,2*nknots-1) = res(2*nknots-2,nknots-2) = -6;
+res(2*nknots-2,nknots-3) = res(2*nknots-2,nknots-1) = res(2*nknots-2,3*nknots-3) = res(2*nknots-2,3*nknots-1) = 2;
+res(2*nknots-2,4*nknots-2) = res(2*nknots-2,2*nknots-4) = 1;
+
+// lower left
+res(nknots*(nknots-2)+1,nknots*(nknots-2)+1) = 18;
+res(nknots*(nknots-2)+1,nknots*(nknots-2)+2) = res(nknots*(nknots-2)+1,nknots*(nknots-3)+1) = -8;
+res(nknots*(nknots-2)+1,nknots*(nknots-2)) = res(nknots*(nknots-2)+1,nknots*(nknots-1)+1) = -6;
+res(nknots*(nknots-2)+1,nknots*(nknots-3)) = res(nknots*(nknots-2)+1,nknots*(nknots-3)+2) = res(nknots*(nknots-2)+1,nknots*(nknots-1)) = res(nknots*(nknots-2)+1,nknots*(nknots-1)+2) = 2;
+res(nknots*(nknots-2)+1,nknots*(nknots-2)+3) = res(nknots*(nknots-2)+1,nknots*(nknots-4)+1) = 1;
+
+// lower right
+res(nknots*(nknots-1)-2,nknots*(nknots-1)-2) = 18;
+res(nknots*(nknots-1)-2,nknots*(nknots-1)-3) = res(nknots*(nknots-1)-2,nknots*(nknots-2)-2) = -8;
+res(nknots*(nknots-1)-2,nknots*(nknots-1)-1) = res(nknots*(nknots-1)-2,nknots*nknots-2) = -6;
+res(nknots*(nknots-1)-2,nknots*(nknots-2)-3) = res(nknots*(nknots-1)-2,nknots*(nknots-2)-1) = res(nknots*(nknots-1)-2,nknots*nknots-3) = res(nknots*(nknots-1)-2,nknots*nknots-1) = 2;
+res(nknots*(nknots-1)-2,nknots*(nknots-3)-2) = res(nknots*(nknots-1)-2,nknots*(nknots-1)-4) = 1;
+
+// 8 next to corner edges
+
+// upper left
+res(1,1) = 10;
+res(1,2) = -6;
+res(1,nknots+1) = -6;
+res(1,0) = -4;
+res(1,nknots) = res(1,nknots+2) = 2;
+res(1,3) = res(1,2*nknots+1) = 1;
+
+res(nknots,nknots) = 10;
+res(nknots,2*nknots) = -6;
+res(nknots,nknots+1) = -6;
+res(nknots,0) = -4;
+res(nknots,1) = res(nknots,2*nknots+1) = 2;
+res(nknots,nknots+2) = res(nknots,3*nknots) = 1;
+
+// upper right
+res(nknots-2,nknots-2) = 10;
+res(nknots-2,nknots-3) = -6;
+res(nknots-2,2*nknots-2) = -6;
+res(nknots-2,nknots-1) = -4;
+res(nknots-2,2*nknots-3) = res(nknots-2,2*nknots-1) = 2;
+res(nknots-2,nknots-4) = res(nknots-2,3*nknots-2) = 1;
+
+res(2*nknots-1,2*nknots-1) = 10;
+res(2*nknots-1,3*nknots-1) = -6;
+res(2*nknots-1,2*nknots-2) = -6;
+res(2*nknots-1,nknots-1) = -4;
+res(2*nknots-1,nknots-2) = res(2*nknots-1,3*nknots-2) = 2;
+res(2*nknots-1,2*nknots-3) = res(2*nknots-1,4*nknots-1) = 1;
+
+// lower left
+res(nknots*(nknots-2),nknots*(nknots-2)) = 10;
+res(nknots*(nknots-2),nknots*(nknots-3)) = -6;
+res(nknots*(nknots-2),nknots*(nknots-2)+1) = -6;
+res(nknots*(nknots-2),nknots*(nknots-1)) = -4;
+res(nknots*(nknots-2),nknots*(nknots-3)+1) = res(nknots*(nknots-2),nknots*(nknots-1)+1) = 2;
+res(nknots*(nknots-2),nknots*(nknots-2)+2) = res(nknots*(nknots-2),nknots*(nknots-4)) = 1;
+
+res(nknots*(nknots-1)+1,nknots*(nknots-1)+1) = 10;
+res(nknots*(nknots-1)+1,nknots*(nknots-1)+2) = -6;
+res(nknots*(nknots-1)+1,nknots*(nknots-2)+1) = -6;
+res(nknots*(nknots-1)+1,nknots*(nknots-1)) = -4;
+res(nknots*(nknots-1)+1,nknots*(nknots-2)) = res(nknots*(nknots-1)+1,nknots*(nknots-2)+2) = 2;
+res(nknots*(nknots-1)+1,nknots*(nknots-1)+3) = res(nknots*(nknots-1)+1,nknots*(nknots-3)+1) = 1;
+
+// lower right
+res(nknots*(nknots-1)-1,nknots*(nknots-1)-1) = 10;
+res(nknots*(nknots-1)-1,nknots*(nknots-2)-1) = -6;
+res(nknots*(nknots-1)-1,nknots*(nknots-1)-2) = -6;
+res(nknots*(nknots-1)-1,nknots*nknots-1) = -4;
+res(nknots*(nknots-1)-1,nknots*nknots-2) = res(nknots*(nknots-1)-1,nknots*(nknots-2)-2) = 2;
+res(nknots*(nknots-1)-1,nknots*(nknots-1)-3) = res(nknots*(nknots-1)-1,nknots*(nknots-3)-1) = 1;
+
+res(nknots*nknots-2,nknots*nknots-2) = 10;
+res(nknots*nknots-2,nknots*nknots-3) = -6;
+res(nknots*nknots-2,nknots*(nknots-1)-2) = -6;
+res(nknots*nknots-2,nknots*nknots-1) = -4;
+res(nknots*nknots-2,nknots*(nknots-1)-3) = res(nknots*nknots-2,nknots*(nknots-1)-1) = 2;
+res(nknots*nknots-2,nknots*nknots-4) = res(nknots*nknots-2,nknots*(nknots-2)-2) = 1;
+
+for(i=2; i<nknots-2; i++)
+  {
+  // real edges
+
+  // upper edge
+  res(i,i) = 11;
+  res(i,i-1) = res(i,i+1) = res(i,nknots+i) = -6;
+  res(i,nknots+i-1) = res(i,nknots+i+1) = 2;
+  res(i,i-2) = res(i,i+2) = res(i,2*nknots+i) = 1;
+
+  // left edge
+  res(i*nknots,i*nknots) = 11;
+  res(i*nknots,i*nknots+1) = res(i*nknots,(i-1)*nknots) = res(i*nknots,(i+1)*nknots) = -6;
+  res(i*nknots,(i-1)*nknots+1) = res(i*nknots,(i+1)*nknots+1) = 2;
+  res(i*nknots,i*nknots+2) = res(i*nknots,(i-2)*nknots) = res(i*nknots,(i+2)*nknots) = 1;
+
+  // right edge
+  res((i+1)*nknots-1,(i+1)*nknots-1) = 11;
+  res((i+1)*nknots-1,i*nknots-1) = res((i+1)*nknots-1,(i+1)*nknots-2) = res((i+1)*nknots-1,(i+2)*nknots-1) = -6;
+  res((i+1)*nknots-1,i*nknots-2) = res((i+1)*nknots-1,(i+2)*nknots-2) = 2;
+  res((i+1)*nknots-1,(i+1)*nknots-3) = res((i+1)*nknots-1,(i-1)*nknots-1) = res((i+1)*nknots-1,(i+3)*nknots-1) = 1;
+
+  // lower edge
+  res(nknots*(nknots-1)+i,nknots*(nknots-1)+i) = 11;
+  res(nknots*(nknots-1)+i,nknots*(nknots-1)+i-1) = res(nknots*(nknots-1)+i,nknots*(nknots-1)+i+1) = res(nknots*(nknots-1)+i,nknots*(nknots-2)+i) = -6;
+  res(nknots*(nknots-1)+i,nknots*(nknots-2)+i-1) = res(nknots*(nknots-1)+i,nknots*(nknots-2)+i+1) = 2;
+  res(nknots*(nknots-1)+i,nknots*(nknots-1)+i-2) = res(nknots*(nknots-1)+i,nknots*(nknots-1)+i+2) = res(nknots*(nknots-1)+i,nknots*(nknots-3)+i) = 1;
+
+  // second order edges
+
+  // upper edge
+  res(nknots+i,nknots+i) = 19;
+  res(nknots+i,nknots+i-1) = res(nknots+i,nknots+i+1) = res(nknots+i,2*nknots+i) = -8;
+  res(nknots+i,i) = -6;
+  res(nknots+i,i-1) = res(nknots+i,i+1) = res(nknots+i,2*nknots+i-1) = res(nknots+i,2*nknots+i+1) = 2;
+  res(nknots+i,nknots+i-2) = res(nknots+i,nknots+i+2) = res(nknots+i,3*nknots+i) = 1;
+
+  // left edge
+  res(i*nknots+1,i*nknots+1) = 19;
+  res(i*nknots+1,i*nknots+2) = res(i*nknots+1,(i-1)*nknots+1) = res(i*nknots+1,(i+1)*nknots+1) = -8;
+  res(i*nknots+1,i*nknots) = -6;
+  res(i*nknots+1,(i-1)*nknots) = res(i*nknots+1,(i-1)*nknots+2) = res(i*nknots+1,(i+1)*nknots) = res(i*nknots+1,(i+1)*nknots+2) = 2;
+  res(i*nknots+1,i*nknots+3) = res(i*nknots+1,(i-2)*nknots+1) = res(i*nknots+1,(i+2)*nknots+1) = 1;
+
+  // right edge
+  res((i+1)*nknots-2,(i+1)*nknots-2) = 19;
+  res((i+1)*nknots-2,(i+1)*nknots-3) = res((i+1)*nknots-2,i*nknots-2) = res((i+1)*nknots-2,(i+2)*nknots-2) = -8;
+  res((i+1)*nknots-2,(i+1)*nknots-1) = -6;
+  res((i+1)*nknots-2,i*nknots-3) = res((i+1)*nknots-2,i*nknots-1) = res((i+1)*nknots-2,(i+2)*nknots-3) = res((i+1)*nknots-2,(i+2)*nknots-1) = 2;
+  res((i+1)*nknots-2,(i+1)*nknots-4) = res((i+1)*nknots-2,(i-1)*nknots-2) = res((i+1)*nknots-2,(i+3)*nknots-2) = 1;
+
+  // lower edge
+  res(nknots*(nknots-2)+i,nknots*(nknots-2)+i) = 19;
+  res(nknots*(nknots-2)+i,nknots*(nknots-2)+i-1) = res(nknots*(nknots-2)+i,nknots*(nknots-2)+i+1) = res(nknots*(nknots-2)+i,nknots*(nknots-3)+i) = -8;
+  res(nknots*(nknots-2)+i,nknots*(nknots-1)+i) = -6;
+  res(nknots*(nknots-2)+i,nknots*(nknots-3)+i-1) = res(nknots*(nknots-2)+i,nknots*(nknots-3)+i+1) = res(nknots*(nknots-2)+i,nknots*(nknots-1)+i-1) = res(nknots*(nknots-2)+i,nknots*(nknots-1)+i+1) = 2;
+  res(nknots*(nknots-2)+i,nknots*(nknots-2)+i-2) = res(nknots*(nknots-2)+i,nknots*(nknots-2)+i+2) = res(nknots*(nknots-2)+i,nknots*(nknots-4)+i) = 1;
+  }
+
+// interior
+
+for(i=2; i<nknots-2; i++)
+  {
+  for(j=2; j<nknots-2; j++)
+    {
+    res(i*nknots+j,i*nknots+j) = 20;
+    res(i*nknots+j,i*nknots+j-1) = res(i*nknots+j,i*nknots+j+1) = res(i*nknots+j,(i-1)*nknots+j) = res(i*nknots+j,(i+1)*nknots+j) = -8;
+    res(i*nknots+j,(i-1)*nknots+j-1) = res(i*nknots+j,(i-1)*nknots+j+1) = res(i*nknots+j,(i+1)*nknots+j-1) = res(i*nknots+j,(i+1)*nknots+j+1) = 2;
+    res(i*nknots+j,i*nknots+j-2) = res(i*nknots+j,i*nknots+j+2) = res(i*nknots+j,(i-2)*nknots+j) = res(i*nknots+j,(i+2)*nknots+j) = 1;
+    }
+  }
+
+ofstream out1("c:\\temp\\K.raw");
+res.prettyPrint(out1);
+out1.close();
+
+/*
 // Corners
   res(0,1) = 1;
   res(0,nknots) = 1;
@@ -172,7 +367,7 @@ statmatrix<double> K2dim_pspline_biharmonic(const unsigned & nknots)
     }
 
   res = res.transposed()*res;
-
+  */
   return res;
   }
 
