@@ -1155,7 +1155,8 @@ if(begin0==false)
       int_ti_help_p=int_ti_help.getV()+i-likep->get_nrobs();
       int_ti_help_p2=int_ti_help.getV()+i;
 
-      double help = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges(ges_index(i-likep->get_nrobs(),0),0));
+//      double help = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges(ges_index(i-likep->get_nrobs(),0),0));
+      *int_ti_p = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_ges(ges_index(i-likep->get_nrobs(),0),0));
       assert(*int_ti_p>=0.0);
       }
     }
