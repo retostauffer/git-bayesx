@@ -341,7 +341,7 @@ void FULLCOND_variance_nonp::update(void)
   FULLCOND::update();
 
   if(!fullcondnonp && !randomeffect)
-    }
+    {
     double * lambdap = fc_lambda.getbetapointer();
     *lambdap = distrp->get_scale(column)/beta(0,0);
     fc_lambda.set_transform(transform);
