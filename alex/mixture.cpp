@@ -24,7 +24,7 @@ void FULLCOND_mixture::init_name(const ST::string & na)
     else
       priorassumptions.push_back("$" + term_symbolic + "$");
 
-    priorassumptions.push_back("i.i.d. Gaussian random effects");
+    priorassumptions.push_back("Gaussian random effect mixture");
     }
 
 
@@ -53,7 +53,7 @@ void FULLCOND_mixture::init_names(const vector<ST::string> & na)
     else
       priorassumptions.push_back("$" + term_symbolic + "$");
 
-    priorassumptions.push_back("i.i.d. Gaussian random effects");
+    priorassumptions.push_back("Gaussian random effect mixture");
     }
 
 
@@ -78,6 +78,7 @@ double FULLCOND_mixture::centerbeta(void)
  }
 
 
+
 FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
                               FULLCOND_const * fcc,
                               const datamatrix & d, const ST::string & t,
@@ -98,6 +99,7 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
     cvpriorsh = 10;
     cvpriorsc = 10;
   temp = datamatrix(nrcomp,1,0);
+  checkorder = false;
 // End of Mixture stuff
 
 
@@ -155,8 +157,6 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
   setbeta(posbeg.size(),1,0);
 
   compind = statmatrix<unsigned>(nrpar,1,1);
-  muy = datamatrix(nrpar,1);
-  mu = datamatrix(index.rows(),1);
 
   identifiable = false;
 //  identifiable =true;
@@ -179,9 +179,8 @@ FULLCOND_mixture::FULLCOND_mixture(const FULLCOND_mixture & fc)
     cvpriorsh=fc.cvpriorsh;
     cvpriorsc=fc.cvpriorsc;
   temp=fc.temp;
+  checkorder = fc.checkorder;
 
-  muy = fc.muy;
-  mu = fc.mu;
   fcconst = fc.fcconst;
 
   likep = fc.likep;
@@ -211,9 +210,8 @@ const FULLCOND_mixture & FULLCOND_mixture::
     cvpriorsh=fc.cvpriorsh;
     cvpriorsc=fc.cvpriorsc;
   temp=fc.temp;
+  checkorder = fc.checkorder;
   
-  muy = fc.muy;
-  mu = fc.mu;
   fcconst = fc.fcconst;
 
   likep = fc.likep;
@@ -227,11 +225,29 @@ const FULLCOND_mixture & FULLCOND_mixture::
   }
 
 
+const FULLCOND_mixture::update_weights(void)
+  {
+  double cwtempsum;
+  for(unsigned k=0;k<nrcomp;k++)
+    {
+    temp(k,0)=rand_gamma(cwprior(k,0)+csize(k,0),1.0);
+    }
+  cwtempsum=temp.sum(0);
+  temp=(1.0/cwtempsum)*temp;
+  compweight.assign(temp);
+
+  checkorder=true;
+  for(unsigned k=0;k<nrcomp-1;k++)
+    {
+     if(compweight(k,0)<compweight(k+1,0)) checkorder= false;
+    }
+  }
+
+
 
 void FULLCOND_mixture::update(void)
   {
   unsigned i,k;
-
 
 // Update component indicators
   for(i=0;i<compind.rows();i++)
@@ -311,42 +327,19 @@ void FULLCOND_mixture::update(void)
     fcconst->update_intercept(m);
     }
 
-  acceptance++;
-  transform = likep->get_trmult(column);
-
-
-
-/*
-  datamatrix test(beta.rows(),1,0);
-  test = likep->get_response();
-
-  // Sampling
-  ST::string pathtemp2 = pathcurrent.substr(0,pathcurrent.length()-4)+"_comptemp2.res";
-  ofstream outrest2(pathtemp2.strtochar(),ios::app);
-  for(i=0;i<beta.rows();i++)
-    {
-    ST::string pt2 = pathcurrent.substr(0,pathcurrent.length()-4)+"_lp_after.res";
-    ofstream ot2(pt2.strtochar(),ios::app);
-    ot2 << likep->get_linearpred(i,0) << endl;
-    }
-*/
-
-
 
 
 // Update component means
-  datamatrix cmeantemp(nrcomp,1,0);
+  double mtemp,vtemp,remean,resum;
 
   for(k=0;k<nrcomp;k++)
   {
-  double mtemp,vtemp,remean,resum;
-
   resum=0.0;
   for(i=0;i<nrpar;i++)
-  {
+    {
     if(compind(i,0)==k+1)
       resum+=beta(i,0);
-  }
+    }
   if(csize(k,0)==0)
     remean=0.0;
   else
@@ -355,25 +348,13 @@ void FULLCOND_mixture::update(void)
   vtemp = 1.0 / ( csize(k,0)*(1.0/compvar(k,0))+(1.0/cmpriorv) ) ;
   mtemp = vtemp*( csize(k,0)*(1.0/compvar(k,0))*remean+(1.0/cmpriorv)*cmpriorm );
 
-  cmeantemp(k,0)=mtemp+vtemp*rand_normal();
+  temp(k,0)=mtemp+vtemp*rand_normal();
   }
-  compmean.assign(cmeantemp);
+  compmean.assign(temp);
 
-/*
-  // Sampling
-  ST::string pathtemp = pathcurrent.substr(0,pathcurrent.length()-4)+"_comptemp.res";
-  ofstream outrest(pathtemp.strtochar(),ios::app);
-  for(unsigned k=0;k<nrcomp;k++)
-    {
-    outrest << compmean(k,0) << "  " ;
-    }
-  outrest << endl;
-*/
 
 
 // Update component variances
-  datamatrix cvartemp(nrcomp,1,0);
-
   for(k=0;k<nrcomp;k++)
   {
   double shtemp,sctemp,resum;
@@ -384,26 +365,51 @@ void FULLCOND_mixture::update(void)
       resum+=(beta(i,0)-compmean(k,0))*(beta(i,0)-compmean(k,0));
   }
 
-  shtemp = cvpriorsh+csize(k,0);
-  sctemp = cvpriorsc+resum;
-  cvartemp(k,0)=rand_gamma(shtemp,sctemp);
+  shtemp = cvpriorsh+0.5*csize(k,0);
+  sctemp = cvpriorsc+0.5*resum;
+  temp(k,0)=rand_invgamma(shtemp,sctemp);
   }
-  compvar.assign(cvartemp);
+  compvar.assign(temp);
 
 
 // Update component weights
-//  datamatrix cwtemp(nrcomp,1,0);
-  double cwtempsum;
-  for(k=0;k<nrcomp;k++)
-  {
-  temp(k,0)=rand_gamma(cwprior(k,0)+csize(k,0),1.0);
-  }
-  cwtempsum=temp.sum(0);
-  temp=(1.0/cwtempsum)*temp;
-  compweight.assign(temp);
+  checkorder=false;
+  while(checkorder==false)
+    {
+    update_weights();
+    }
 
-  FULLCOND::update();
-  }
+
+  // Sampling
+  ST::string pt1 = pathcurrent.substr(0,pathcurrent.length()-4)+"_cmeantemp.res";
+  ofstream ot1(pt1.strtochar(),ios::app);
+  for(unsigned k=0;k<nrcomp;k++)
+    {
+    ot1 << compmean(k,0)*likep->get_trmult(column) << "  " ;
+    }
+  ot1 << endl;
+
+  ST::string pt2 = pathcurrent.substr(0,pathcurrent.length()-4)+"_cvartemp.res";
+  ofstream ot2(pt2.strtochar(),ios::app);
+  for(unsigned k=0;k<nrcomp;k++)
+    {
+    ot2 << compvar(k,0)*likep->get_trmult(column) << "  " ;
+    }
+  ot2 << endl;
+
+  ST::string pt3 = pathcurrent.substr(0,pathcurrent.length()-4)+"_cweighttemp.res";
+  ofstream ot3(pt3.strtochar(),ios::app);
+  for(unsigned k=0;k<nrcomp;k++)
+    {
+    ot3 << compweight(k,0) << "  " ;
+    }
+  ot3 << endl;
+
+ acceptance++;
+ transform = likep->get_trmult(column);  //???
+
+ FULLCOND::update();
+ }
 
 
 void FULLCOND_mixture::outresults(void)
