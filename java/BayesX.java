@@ -970,6 +970,7 @@ public void actionPerformed(ActionEvent ae)
 				finished();
 //				setPause(false);
 				pause = false;
+				parseThread.setPriority(Thread.NORM_PRIORITY);
 				pauseButton.setText("PAUSE");
 				pauseButton.setToolTipText("Interrupts the current process");
 				fileCommand(1);
@@ -1082,6 +1083,7 @@ public void actionPerformed(ActionEvent ae)
 				setProcessrunning(false);
                                 setStop(true);
 				setPause(false);
+				parseThread.setPriority(Thread.NORM_PRIORITY);
 				pause = false;
 				pauseButton.setText("PAUSE");
 				pauseButton.setToolTipText("Interrupts the current process");
@@ -1105,6 +1107,7 @@ public void actionPerformed(ActionEvent ae)
 		{
 		setPause(true);
 		pause = true;
+		parseThread.setPriority(Thread.MIN_PRIORITY);
 		pauseButton.setText("CONTINUE");
 		if(processRunning)
 			{
@@ -1117,6 +1120,7 @@ public void actionPerformed(ActionEvent ae)
 		{
 		setPause(false);
 		pause = false;
+		parseThread.setPriority(Thread.NORM_PRIORITY);
 		pauseButton.setText("PAUSE");
 		if(processRunning)
 			{
@@ -1428,6 +1432,7 @@ public void windowClosing(WindowEvent we)
 				finished();
 //				setPause(false);
 				pause = false;
+				parseThread.setPriority(Thread.NORM_PRIORITY);
 				pauseButton.setText("PAUSE");
 				pauseButton.setToolTipText("Interrupts the current process");
 				fileCommand(1);
