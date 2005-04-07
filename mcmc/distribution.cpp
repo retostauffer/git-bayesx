@@ -4589,9 +4589,9 @@ double DISTRIBUTION_gaussian::compute_weight(double * linpred, double * weight,
 
 void DISTRIBUTION_gaussian::compute_mu(const double * linpred,double * mu) const
   {
-  *mu = trmult(0,0)* *linpred;
+//  *mu = trmult(0,0)* *linpred;
 // für lognormal
-//  *mu = exp(trmult(0,0)* *linpred + scale(0,0)*trmult(0,0)*trmult(0,0)/2.0);
+  *mu = exp(trmult(0,0)* *linpred + scale(0,0)*trmult(0,0)*trmult(0,0)/2.0);
   }
 
 
