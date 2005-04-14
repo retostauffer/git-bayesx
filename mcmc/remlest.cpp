@@ -3684,6 +3684,7 @@ for(i=0; i<nrobs; i++)
     {
     outerror("ERROR: observation "+ST::inttostring(i+1)+" has censoring indicator 1\n");
     outerror("       and left interval time smaller than right interval time\n");
+    return true;
     }
   if(ttrunc[i] > tright[i])
     {
