@@ -701,8 +701,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     }
 
   // family=cox
-  if(family.getvalue()=="cox" || family.getvalue()=="coxold" ||
-     family.getvalue()=="coxinterval")
+  if(family.getvalue()=="cox" || family.getvalue()=="coxold")
     {
     unsigned i;
     for(i=0; i<response.rows(); i++)
@@ -2750,8 +2749,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
         lowertrunc = datamatrix(1,1,0);
         }
 
-/*      datamatrix lower;
-      if(terms[i].options[9]!="")
+      if(terms[i].options[9]!="" && family.getvalue()=="coxinterval")
         {
         dataobject * datap;                           // pointer to datsetobject
         int objpos = findstatobject(*statobj,terms[i].options[9],"dataset");
@@ -2777,12 +2775,12 @@ bool remlreg::create_baseline(const unsigned & collinpred)
           }
         list<ST::string> lowname = datap->getVarnames();
         ST::string expr = "";
-        datap->makematrix(lowname,lower,expr);
+        datap->makematrix(lowname,lowerint,expr);
         }
       else
         {
-        lower = datamatrix(1,1,0);
-        }*/
+        lowerint = datamatrix(1,1,0);
+        }
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
