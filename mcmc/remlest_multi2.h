@@ -115,6 +115,13 @@ class remlest_ordinal
   bool estimate_glm(const datamatrix resp, const datamatrix & offset,
                 const datamatrix & weight);
 
+  // Function: estimate_glm
+  // Task: Perform REML-estimation without nonparametric terms and
+  //       category-specific effects
+
+  bool estimate_glm2(const datamatrix resp, const datamatrix & offset,
+                const datamatrix & weight);
+
 //------------------------------------------------------------------------------
 //------------- Weights, expectation, linear predictor, etc --------------------
 //------------------------------------------------------------------------------

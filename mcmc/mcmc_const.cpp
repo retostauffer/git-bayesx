@@ -311,6 +311,8 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
                      datamatrix & betareml, datamatrix & betacov,
                      unsigned nrcat2)
   {
+
+  // Redefine term_symbolic (for tex-output)
   if(term_symbolic.length()>20)
     {
     term_symbolic = "\\theta "+term_symbolic.substr(20,term_symbolic.length()-20);
@@ -319,13 +321,44 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
     {
     term_symbolic="\\theta ";
     }
-  nrconst=dimX+nrcat2-1;
+
+  // Redefine names and number of parameters
+
+  unsigned i,j;
+  vector<ST::string> helpnames = datanames;
+  datanames = vector<ST::string>(1,"theta_1");
+  for(j=1; j<nrcat2; j++)
+    {
+    datanames.push_back("theta_"+ST::inttostring(j+1));
+    }
+  nrconst = nrcat2;
+  i=1;
+  for(j=1; j<catspecific_fixed.size(); j++)
+    {
+    if(catspecific_fixed[j])
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        datanames.push_back(helpnames[i]+"_"+ST::inttostring(j+1));
+        nrconst++;
+        }
+      i++;
+      }
+    else
+      {
+      datanames.push_back(helpnames[i]);
+      nrconst++;
+      i++;
+      }
+    }
+
+/*  nrconst=dimX+nrcat2-1;
   datanames[0]="theta_"+ST::inttostring(nrcat2);
   int j;
   for(j=nrcat2-1; j>0; j--)
     {
     datanames.insert(datanames.begin(),"theta_"+ST::inttostring(j));
-    }
+    }*/
   outresultsreml(X,Z,betareml,betacov,datamatrix(1,1,0),0,0,0,false,0,0,0,false,0);
   }
 
