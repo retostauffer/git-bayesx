@@ -382,8 +382,8 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
 
   for(j=0; j<nrcat2; j++)
     {
-    out("\n");
-    out("RESULTS FOR CATEGORY "+ST::doubletostring(cats(j,0),6)+":\n",true);
+//    out("\n");
+//    out("RESULTS FOR CATEGORY "+ST::doubletostring(cats(j,0),6)+":\n",true);
     out("\n");
     for(i=1; i<fullcond.size(); i++)
       {
@@ -587,8 +587,8 @@ bool remlest_multinomial::estimate_glm(const datamatrix resp,
 
   for(j=0; j<nrcat2; j++)
     {
-    out("\n");
-    out("RESULTS FOR CATEGORY "+ST::doubletostring(cats(j,0),6)+":\n",true);
+//    out("\n");
+//    out("RESULTS FOR CATEGORY "+ST::doubletostring(cats(j,0),6)+":\n",true);
     out("\n");
     for(i=1; i<fullcond.size(); i++)
       {

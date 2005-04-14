@@ -3704,8 +3704,17 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
       }
     }
 
-
-  FULLCOND::outresults();
+  optionsp->out("\n");
+  if(ismultinomial)
+    {
+    optionsp->out("  " + title + " (cat."+ST::doubletostring(category,6)+")\n",true);
+    }
+  else
+    {
+    optionsp->out("  " + title + "\n",true);
+    }
+  optionsp->out("\n");
+  optionsp->out("\n");
 
   optionsp->out("  Estimated variance:  "
                 + ST::doubletostring(thetareml(thetapos,0),6) + "\n");

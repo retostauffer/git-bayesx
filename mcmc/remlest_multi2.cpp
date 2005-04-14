@@ -2719,7 +2719,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
   char hcharu = '_';
   ST::string hstringu = "\\_";
 
-  unsigned j;
+  unsigned i,j;
   ST::string pathresult;
   bool stil = false;
 
@@ -2802,6 +2802,8 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
     ST::string u_str = ST::doubletostring(u,0);
     ST::string o_str = ST::doubletostring(o,0);
 
+    unsigned k;
+
     // durchlaufen der Fullconditionals
     for(j=0;j<fullcond.size();j++)
       {
@@ -2812,135 +2814,156 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
       // Plotstyle: noplot, plotnonp, drawmap
       plst = fullcond[j]->get_plotstyle();
 
-      if (plst != MCMC::noplot)
+      if(!catspecific[j])
         {
+        k=1;
+        }
+      else
+        {
+        k=nrcat2;
+        }
 
-        // Pfade für ps-, tex-, SPlus-files
-        ST::string pathps = pathresult.substr(0, pathresult.length()-4);
-        ST::string pathgr = pathps.replaceallsigns('\\', '/');
-
-        char hchar = '\\';
-        ST::string hstring = "\\\\";
-
-        ST::string pathps_spl = pathps.insert_string_char(hchar,hstring);
-        ST::string pathres_spl = pathresult.insert_string_char(hchar,hstring);
-
-        if (plst == MCMC::plotnonp)
+      for(i=0; i<k; i++)
+        {
+        if (plst != MCMC::noplot)
           {
-          outbatch << "\n";                // Befehle f. d. batch-file
-          outbatch << "dataset _dat" << endl;
-          outbatch << "_dat.infile using " << pathresult << endl;
-          outbatch << "graph _g" << endl;
-          vector<ST::string> varnames = fullcond[j]->get_datanames();
-          ST::string xvar = varnames[0];
-          outbatch << "_g.plot " << xvar
-                   << " pmode ci" << u_str << "lower ci"
-                   << o_str.replaceallsigns('.','p') << "lower ci"
-                   << o_str.replaceallsigns('.','p') << "upper ci"
-                   << u_str.replaceallsigns('.','p') << "upper, "
-                   << "title = \"Effect of " << xvar << "\" xlab = " << xvar
-                   << " ylab = \" \" " << "outfile = " << pathps
-                   << ".ps replace using _dat" << endl;
-          outbatch << "drop _dat" << endl;
-          outbatch << "drop _g" << endl;
-          // Plot-Befehle f. d. SPlus-file
-          outsplus << "plotnonp(\"" << pathres_spl << "\", psname = \""
-                   << pathps_spl << ".ps\")" << endl;
-          // Plot-Befehle f. d. tex-file
-          ST::string effect = xvar;
-          if(varnames.size()>1)
+          pathresult = fullcond[j]->get_pathresult();
+          if(catspecific[j])
             {
-            effect = varnames[1] + "*" + effect;
+            pathresult = pathresult.insert_after_string(ST::doubletostring(cats(i,0),6)+"_","_f_");
             }
-          outtex << "\n\\begin{figure}[h!]" << endl
-                  << "\\centering" << endl
-                  << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
-                  << "\\caption{Non--linear Effect of '" <<
-                  effect.insert_string_char(hcharu,hstringu) << "'";
-          outtex << "." << endl << "Shown are the posterior modes together with "
-                 << u_str << "\\% and " << o_str
-                 << "\\% pointwise credible intervals.}" << endl
-                 << "\\end{figure}" << endl;
-          }
-        // für map-Funktionen
-        else if (plst == MCMC::drawmap)
-          {
-          outbatch << "\n";                 // Befehle f. d. batch-file
-          outbatch << "dataset _dat" << endl;
-          outbatch << "_dat.infile using " << pathresult << endl;
-          outbatch << "map _map" << endl;
-          outbatch << "_map.infile using input_filename" << endl;
-          outbatch << "graph _g" << endl;
-          vector<ST::string> varnames = fullcond[j]->get_datanames();
-          ST::string regionvar = varnames[0];
-          outbatch << "_g.drawmap " << "pmode" << " " << regionvar
-                   << ", map = _map color outfile = " << pathps
-                   << "_pmode.ps replace using _dat" << endl;
-          outbatch << "_g.drawmap " << "pcat" << u_str << " " << regionvar
-                     << ", map = _map nolegend pcat outfile = " << pathps
-                     << "_pcat" << u_str << ".ps replace using _dat" << endl;
-          outbatch << "_g.drawmap " << "pcat" << o_str << " " << regionvar
-                     << ", map = _map nolegend pcat outfile = " << pathps
-                     << "_pcat" << o_str << ".ps replace using _dat" << endl;
-          outbatch << "drop _dat" << endl;
-          outbatch << "drop _g" << endl;
-          outbatch << "drop _map" << endl;
-          // Plot-Befehle f. d. SPlus-file
-          outsplus << "# NOTE: 'input_filename' must be substituted by the "
-                   << "filename of the boundary-file \n"
-                   << "# NOTE: choose a 'name' for the map \n" << endl
-                   << "readbndfile(\"'input_filename'\", \"'name'\")" << endl
-                   << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                   <<"_pmode.ps\", dfile = \"" << pathres_spl
-                   << "\" ,plotvar = \"pmode\", regionvar = \""
-                   << regionvar << "\", color = T)" << endl;
-          outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                    <<"_pcat" << u_str << ".ps\", dfile = \"" << pathres_spl
-                    << "\" ,plotvar = \"pcat" << u_str << "\", regionvar = \""
-                  << regionvar << "\", legend = F, pcat = T)" << endl;
-          outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                    <<"_pcat" << o_str << ".ps\", dfile = \"" << pathres_spl
-                    << "\",plotvar = \"pcat" << o_str << "\", regionvar = \""
-                    << regionvar << "\", legend = F, pcat = T)" << endl;
+
+          // Pfade für ps-, tex-, SPlus-files
+          ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+          ST::string pathgr = pathps.replaceallsigns('\\', '/');
+
+          char hchar = '\\';
+          ST::string hstring = "\\\\";
+
+          ST::string pathps_spl = pathps.insert_string_char(hchar,hstring);
+          ST::string pathres_spl = pathresult.insert_string_char(hchar,hstring);
+
+          if (plst == MCMC::plotnonp)
+            {
+            outbatch << "\n";                // Befehle f. d. batch-file
+            outbatch << "dataset _dat" << endl;
+            outbatch << "_dat.infile using " << pathresult << endl;
+            outbatch << "graph _g" << endl;
+            vector<ST::string> varnames = fullcond[j]->get_datanames();
+            ST::string xvar = varnames[0];
+            outbatch << "_g.plot " << xvar
+                     << " pmode ci" << u_str << "lower ci"
+                     << o_str.replaceallsigns('.','p') << "lower ci"
+                     << o_str.replaceallsigns('.','p') << "upper ci"
+                     << u_str.replaceallsigns('.','p') << "upper, "
+                     << "title = \"Effect of " << xvar << "\" xlab = " << xvar
+                     << " ylab = \" \" " << "outfile = " << pathps
+                     << ".ps replace using _dat" << endl;
+            outbatch << "drop _dat" << endl;
+            outbatch << "drop _g" << endl;
+            // Plot-Befehle f. d. SPlus-file
+            outsplus << "plotnonp(\"" << pathres_spl << "\", psname = \""
+                     << pathps_spl << ".ps\")" << endl;
             // Plot-Befehle f. d. tex-file
-          ST::string effect = regionvar;
-          if(varnames.size()>1)
-            {
-            effect = varnames[1] + "*" + effect;
+            ST::string effect = xvar;
+            if(varnames.size()>1)
+              {
+              effect = varnames[1] + "*" + effect;
+              }
+            outtex << "\n\\begin{figure}[h!]" << endl
+                    << "\\centering" << endl
+                    << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
+                    << "\\caption{Non--linear Effect of '" <<
+                    effect.insert_string_char(hcharu,hstringu) << "'";
+            if(catspecific[j])
+              {
+              outtex << " (Category " << cats(i,0) << ")";
+              }
+            outtex << "." << endl << "Shown are the posterior modes together with "
+                   << u_str << "\\% and " << o_str
+                   << "\\% pointwise credible intervals.}" << endl
+                   << "\\end{figure}" << endl;
             }
-          outtex << "\n\\begin{figure}[h!]" << endl
-                 << "\\centering" << endl
-                 << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
-                 << endl
-                 << "\\caption{Non--linear Effect of '" <<
-                 effect.insert_string_char(hcharu,hstringu) << "'";
-          outtex << ". Shown are the posterior modes.}" << endl
-                 << "\\end{figure}" << endl;
-          outtex << "\n\\begin{figure}[htb]" << endl
-                 << "\\centering" << endl
-                 << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                 << u_str << ".ps}" << endl
-                 << "\\caption{Non--linear Effect of '" << effect << "'";
-          outtex << ". Posterior probabilities for a nominal level of "
-                 << u_str << "\\%." << endl
-                 << "Black denotes regions with strictly negative credible intervals,"
-                 << endl
-                 << "white denotes regions with strictly positive credible intervals.}"
-                 << endl << "\\end{figure}" << endl;
-          outtex << "\n\\begin{figure}[htb]" << endl
-                 << "\\centering" << endl
-                 << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                 << o_str << ".ps}" << endl
-                 << "\\caption{Non--linear Effect of '" << effect << "'";
-          outtex << ". Posterior probabilities for a nominal level of "
-                 << o_str << "\\%." << endl
-                 << "Black denotes regions with strictly negative credible intervals,"
-                 << endl
-                 << "white denotes regions with strictly positive credible intervals.}"
-                 << endl << "\\end{figure}" << endl;
-          } // end: else if
-        } // end: if
-      } // end: for
+          // für map-Funktionen
+          else if (plst == MCMC::drawmap)
+            {
+            outbatch << "\n";                 // Befehle f. d. batch-file
+            outbatch << "dataset _dat" << endl;
+            outbatch << "_dat.infile using " << pathresult << endl;
+            outbatch << "map _map" << endl;
+            outbatch << "_map.infile using input_filename" << endl;
+            outbatch << "graph _g" << endl;
+            vector<ST::string> varnames = fullcond[j]->get_datanames();
+            ST::string regionvar = varnames[0];
+            outbatch << "_g.drawmap " << "pmode" << " " << regionvar
+                     << ", map = _map color outfile = " << pathps
+                     << "_pmode.ps replace using _dat" << endl;
+            outbatch << "_g.drawmap " << "pcat" << u_str << " " << regionvar
+                       << ", map = _map nolegend pcat outfile = " << pathps
+                       << "_pcat" << u_str << ".ps replace using _dat" << endl;
+            outbatch << "_g.drawmap " << "pcat" << o_str << " " << regionvar
+                       << ", map = _map nolegend pcat outfile = " << pathps
+                       << "_pcat" << o_str << ".ps replace using _dat" << endl;
+            outbatch << "drop _dat" << endl;
+            outbatch << "drop _g" << endl;
+            outbatch << "drop _map" << endl;
+            // Plot-Befehle f. d. SPlus-file
+            outsplus << "# NOTE: 'input_filename' must be substituted by the "
+                     << "filename of the boundary-file \n"
+                     << "# NOTE: choose a 'name' for the map \n" << endl
+                     << "readbndfile(\"'input_filename'\", \"'name'\")" << endl
+                     << "drawmap(map = 'name', outfile = \"" << pathps_spl
+                     <<"_pmode.ps\", dfile = \"" << pathres_spl
+                     << "\" ,plotvar = \"pmode\", regionvar = \""
+                     << regionvar << "\", color = T)" << endl;
+            outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
+                     <<"_pcat" << u_str << ".ps\", dfile = \"" << pathres_spl
+                     << "\" ,plotvar = \"pcat" << u_str << "\", regionvar = \""
+                     << regionvar << "\", legend = F, pcat = T)" << endl;
+            outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
+                     <<"_pcat" << o_str << ".ps\", dfile = \"" << pathres_spl
+                     << "\",plotvar = \"pcat" << o_str << "\", regionvar = \""
+                     << regionvar << "\", legend = F, pcat = T)" << endl;
+            // Plot-Befehle f. d. tex-file
+            ST::string effect = regionvar;
+            if(varnames.size()>1)
+              {
+              effect = varnames[1] + "*" + effect;
+              }
+            outtex << "\n\\begin{figure}[h!]" << endl
+                   << "\\centering" << endl
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                   << endl
+                   << "\\caption{Non--linear Effect of '" <<
+                   effect.insert_string_char(hcharu,hstringu) << "'";
+            outtex << ". Shown are the posterior modes.}" << endl
+                   << "\\end{figure}" << endl;
+            outtex << "\n\\begin{figure}[htb]" << endl
+                   << "\\centering" << endl
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                   << u_str << ".ps}" << endl
+                   << "\\caption{Non--linear Effect of '" << effect << "'";
+            outtex << ". Posterior probabilities for a nominal level of "
+                   << u_str << "\\%." << endl
+                   << "Black denotes regions with strictly negative credible intervals,"
+                   << endl
+                   << "white denotes regions with strictly positive credible intervals.}"
+                   << endl << "\\end{figure}" << endl;
+            outtex << "\n\\begin{figure}[htb]" << endl
+                   << "\\centering" << endl
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                   << o_str << ".ps}" << endl
+                   << "\\caption{Non--linear Effect of '" << effect << "'";
+            outtex << ". Posterior probabilities for a nominal level of "
+                   << o_str << "\\%." << endl
+                   << "Black denotes regions with strictly negative credible intervals,"
+                   << endl
+                   << "white denotes regions with strictly positive credible intervals.}"
+                   << endl << "\\end{figure}" << endl;
+            }
+          }
+        }
+      }
     }
   }
 
@@ -2978,7 +3001,7 @@ void remlest_ordinal::make_model(ofstream & outtex, const ST::string & rname)
          << "Response Variable: \\> " << helprname << "\\\\" << endl
          << "Family: \\> " << familyname << "\\\\" << endl
          << "\\end{tabbing}" << endl
-         << "\n\\noindent {\\bf \\large Predictor:}\\\\" << endl;
+         << "\n\\noindent {\\bf \\large Predictor:}" << endl << endl;
   }
 
 void remlest_ordinal::make_predictor(ofstream & outtex)
@@ -2987,22 +3010,17 @@ void remlest_ordinal::make_predictor(ofstream & outtex)
   unsigned j;
 
   ST::string term2 = fullcond[0]->get_term_symbolic();
-  ST::string term = "$\\eta$ & $=$ & $" + term2;    //linearer Prädiktor wird erweitert
+  ST::string term = "$\\eta_j = " + term2;    //linearer Prädiktor wird erweitert
   for(j=1;j<fullcond.size();j++)
     {
     term2 = fullcond[j]->get_term_symbolic();
-    term = term + " + " + term2;    //linearer Prädiktor wird erweitert
+    if(catspecific[j])
+      {
+      term2 = term2.insert_after_all_string("^{(j)}","f");;
+      }
+    term = term + " - " + term2;    //linearer Prädiktor wird erweitert
     }
-
-  outtex << endl << "\n\\begin{tabular}{ccp{12cm}}\n";
-  for(j=1; j<=nrcat2; j++)
-    {
-    term2 = term.insert_after_string("_"+ST::inttostring(j),"\\eta");
-    term2 = term2.insert_after_string("_"+ST::inttostring(j),"\\theta");
-
-    outtex << term2 << "$\\\\\n";
-    }
-  outtex << "\\end{tabular}\n\\\\ \n\\\\" << endl;
+  outtex << term << "$\\\\\n";
   }
 
 void remlest_ordinal::make_prior(ofstream & outtex)
@@ -3014,6 +3032,10 @@ void remlest_ordinal::make_prior(ofstream & outtex)
     vector<ST::string> prior = fullcond[j]->get_priorassumptions();
     if(prior.size() != 0)// nur wenn Priors da sind (d.h. Vektor hat Elemente)
       {
+      if(fullcond[j]->get_results_type()!="fixed" && catspecific[j])
+        {
+        prior[0] = prior[0].insert_after_string("^{(j)}","f");
+        }
       for(i=0;i<prior.size();i++)
         {
         if( j!=0 || i<prior.size()-1)

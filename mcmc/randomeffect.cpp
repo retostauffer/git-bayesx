@@ -416,7 +416,17 @@ double FULLCOND_random::outresultsreml(datamatrix & X,datamatrix & Z,
     betaqu_l2_upper(i,0) = betamean(i,0)+randnumbers::invPhi2(upper1/100)*betastd(i,0);
     }
 
-  FULLCOND::outresults();
+  optionsp->out("\n");
+  if(ismultinomial)
+    {
+    optionsp->out("  " + title + " (cat."+ST::doubletostring(category,6)+")\n",true);
+    }
+  else
+    {
+    optionsp->out("  " + title + "\n",true);
+    }
+  optionsp->out("\n");
+  optionsp->out("\n");
 
   ST::string vstr;
 

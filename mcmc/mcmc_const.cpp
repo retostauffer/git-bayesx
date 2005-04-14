@@ -191,7 +191,16 @@ double FULLCOND_const::outresultsreml(datamatrix & X,datamatrix & Z,
       }
     }
 
-  FULLCOND::outresults();
+  if(ismultinomial)
+    {
+    optionsp->out("  " + title + " (cat."+ST::doubletostring(category,6)+")\n",true);
+    }
+  else
+    {
+    optionsp->out("  " + title + "\n",true);
+    }
+  optionsp->out("\n");
+  optionsp->out("\n");
 
   ST::string outest=pathcurrent;
   if(ismultinomial)
@@ -311,20 +320,41 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
                      datamatrix & betareml, datamatrix & betacov,
                      unsigned nrcat2)
   {
+  unsigned i,j;
 
   // Redefine term_symbolic (for tex-output)
-  if(term_symbolic.length()>20)
+  char charh ='_';
+  ST::string stringh = "\\_";
+  ST::string helpname;
+
+  term_symbolic = "\\theta_j";
+  if(datanames.size()>1)
+    {
+    for(i=1; i<datanames.size(); i++)
+      {
+      helpname = datanames[i].insert_string_char(charh,stringh);
+      if(catspecific_fixed[i])
+        {
+        term_symbolic = term_symbolic + " - \\gamma^{(j)}_{"+helpname+"}"+helpname;
+        }
+      else
+        {
+        term_symbolic = term_symbolic + " - \\gamma_{"+helpname+"}"+helpname;
+        }
+      }
+    }
+
+/*  if(term_symbolic.length()>20)
     {
     term_symbolic = "\\theta "+term_symbolic.substr(20,term_symbolic.length()-20);
     }
   else
     {
     term_symbolic="\\theta ";
-    }
+    }*/
 
   // Redefine names and number of parameters
 
-  unsigned i,j;
   vector<ST::string> helpnames = datanames;
   datanames = vector<ST::string>(1,"theta_1");
   for(j=1; j<nrcat2; j++)
@@ -339,7 +369,7 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
       {
       for(j=0; j<nrcat2; j++)
         {
-        datanames.push_back(helpnames[i]+"_"+ST::inttostring(j+1));
+        datanames.push_back(helpnames[i]+" (Cat."+ST::inttostring(j+1)+")");
         nrconst++;
         }
       i++;
