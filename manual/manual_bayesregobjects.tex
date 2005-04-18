@@ -6,7 +6,7 @@
 \href{mailto:andib@stat.uni-muenchen.de}{andib@stat.uni-muenchen.de},
 \href{mailto:lang@stat.uni-muenchen.de}{lang@stat.uni-muenchen.de}}
 and
-\href{mailto:kneib@stat.uni-muenchen.de}{kneib@stat.uni-muenchen.de} \\
+{\em\href{mailto:kneib@stat.uni-muenchen.de}{kneib@stat.uni-muenchen.de}} \\
 \vspace{0.3cm}
 
 
@@ -62,7 +62,7 @@ model} using the data specified in {\em dataset}. {\em dataset}
 must be the name of a {\em dataset object} created before. The
 details of correct models are covered in \autoref{modelsyntax}.
 The distribution of the response variable can be either Gaussian,
-gamma, binomial, multinomial, Poisson, negative binomial
+gamma, binomial, multinomial, Poisson, negative binomial,
 zero inflated Poisson or zero inflated negative binomial, see
 also \autoref{familyopt} for an overview about the distributions
 supported by {\em BayesX}. The response distribution is specified
@@ -131,7 +131,7 @@ Throughout this section #Y# denotes the dependent variable.
 
 \begin{itemize}
 \item[] {\em Description}: Adds an offset term to the predictor.
-\item[] {\em Predictor}: $\eta =  \cdots + offs + \cdots$
+\item[] {\em Predictor}: $\eta =  \cdots + \mbox{\it offs} + \cdots$
 \item[] {\em Syntax}: #offs(offset)#
 \item[] {\em Example}:
 
@@ -305,7 +305,7 @@ walk penalty where the geographical information is stored in the
 \subsubsection*{Unordered group indicators}
 
 \begin{itemize}
-\item[]{\bf\sffamily Unit- or cluster specific unstructured
+\item[]{\bf\sffamily Unit- or cluster-specific unstructured
 effect}
 
 \item[] {\em Description}: Defines an unstructured (uncorrelated)
@@ -524,7 +524,7 @@ map object} #germany# (see \autoref{mapinfile}).
 (random slopes)}
 
 \begin{itemize}
-\item[]{\bf\sffamily Unit- or cluster specific unstructured
+\item[]{\bf\sffamily Unit- or cluster-specific unstructured
 effect}
 
 \item[] {\em Description}:
@@ -547,7 +547,7 @@ automatically estimated.
 #X1*grvar(random#[, {\em options}]#) #
 \item[] {\em Example}:
 
-For example, a random intercept term with incorporation of #X1# as
+For example, a random slope term with incorporation of #X1# as
 fixed effect is specified as follows:
 
 #Y = X1*grvar(random)#
@@ -639,7 +639,7 @@ seasonal prior & #time(season,period=12)# & Varying seasonal effect of #time# wi
 \hline Markov random \newline field &  #region(spatial,map=m)#  &
 Spatial effect of #region# where #region# indicates the region an
 observation pertains to. The boundary information and the
-neighborhood structure is stored in the {\em map object}
+neighborhood structure are stored in the {\em map object}
 #m#. \\
 \hline Two dimensional \newline P-spline &
 #region(geospline,map=m)# & Spatial effect of #region#. Estimates
@@ -670,7 +670,7 @@ for bayesreg objects.}}
 #X1# varies smoothly over the range of the continuous covariate #X2# or #time#, respectively. \\
 \hline random slope & #X1*grvar(random)#  &  The regression
 coefficient of #X1# varies with respect
-to the unit- or cluster index variable #grvar#. \\
+to the unit- or cluster-index variable #grvar#. \\
 \hline Geographically weighted \newline regression &
 #X1*region(spatial,map=m)#  & Effect of #X1# varies
 geographically. Covariate
@@ -895,10 +895,10 @@ to the options list, the values of #a# and #b# are both set to
 In the literature, the density function of the gamma distribution
 is parameterized in various ways. In the context of regression
 analysis the density is usually parameterized in terms of the mean
-$\mu$ and the scale parameter #s#. Then, the density of a gamma
+$\mu$ and the scale parameter $s$. Then, the density of a gamma
 distributed random variable $y$ is given by
 \begin{equation}
-\label{gammapar1} p(y) \propto y^{s-1}\exp(-\frac{s}{\mu} y)
+\label{gammapar1} p(y) \propto y^{s-1}\exp \left( -\frac{s}{\mu} y \right)
 \end{equation}
 for $y > 0$. For the mean and the variance we obtain $E(y) = \mu$
 and $Var(y) = \mu^2/s$. We write $y \sim G(\mu,s)$.
@@ -1014,10 +1014,10 @@ binomial logit and probit models for details.
 Usually a second option must be added to the options list to
 define the reference category. This is achieved by specifying the
 #reference# option. Suppose that the response variable has three
-categories 1,2 and 3. To define, for instance, the reference
+categories 1, 2 and 3. To define, for instance, the reference
 category to be 2, simply add
 
-#reference=2 #
+#reference=2#
 
 to the options list. If this option is omitted, the {\em smallest}
 number will be used as the reference category.
@@ -1073,7 +1073,7 @@ to the options list.
 A weight variable can not be additionally specified.
 
 For negative binomial responses {\em BayesX} assumes $y_i |
-\eta_i,\delta \sim NB(\eta_i,\delta)$ for a pure negative binomial
+\eta_i,\delta \sim \mbox{\it NB}(\eta_i,\delta)$ for a pure negative binomial
 formulation or equivalently $y_i | \eta_i \sim Po(\nu_i \eta_i)$
 with $\nu_i|\delta \sim G(\delta, \delta)$ for a Poisson-Gamma
 formulation. Both alternatives are specified by setting the option
@@ -1093,7 +1093,7 @@ is again a gamma distribution with fixed parameters 1 and 0.005.
 
 A zero inflated regression for count data is specified by adding
 
-#family = zip#
+#family=zip#
 
 to the options list.
 
@@ -1114,13 +1114,13 @@ with both processes directly. They are marginalized versions of a
 given count data distribution with respect to a $0/1 \sim
 Bern(1-\theta)$ selection process. For the count data process we
 have two possibilities, that can be controlled through the option
-#zipdistopt#. If we chose a Poisson distribution, we get a zero
+#zipdistopt#. If we choose a Poisson distribution, we get a zero
 inflated Poisson distribution (#zipdistopt = zip#) denoted by $y_i |
-\eta_i,\theta \sim ZIP(\eta_i,\theta)$. We may combine both
+\eta_i,\theta \sim \mbox{\it ZIP}(\eta_i,\theta)$. We may combine both
 approaches zero inflation and overdispersion. To do this, we may
-chose a negative binomial distribution leading to a zero inflated
+choose a negative binomial distribution leading to a zero inflated
 negative binomial (#zipdistopt = zinb#) and denoted by $y_i |
-\eta_i,\delta, \theta \sim ZINB(\eta_i,\delta,\theta)$.
+\eta_i,\delta, \theta \sim \mbox{\it ZINB}(\eta_i,\delta,\theta)$.
 
 
 \subsubsection{Continuous time survival analysis}
@@ -1241,7 +1241,7 @@ DEFAULT: #burnin=2000#
 Changes the number of MCMC iterations to {\em integer}, where {\em
 integer} must be a positive integer number. The number of
 iterations must be larger than the
-number of burnin iterations. \\
+number of burn-in iterations. \\
 DEFAULT: #iterations=52000 #
 
 
@@ -1320,11 +1320,11 @@ with the particular response distribution is given. \\
 DEFAULT: #family=binomial#
 
 \item #reference = #{\em realvalue} \\
-Option #reference# is meaningful only if  #family=multinomial# is
+Option #reference# is meaningful only if either #family=multinomial# or #family=multinomialprobit# is
 specified as the response distribution. In this case #reference#
 defines the reference category to be chosen. Suppose, for
 instance, that the response is three categorical with categories
-1,2, and 3. Then #reference=2# defines the value 2 to be the
+1, 2 and 3. Then #reference=2# defines the value 2 to be the
 reference category.
 
 \item #zipdistopt = #{\em characterstring} \\
@@ -1388,7 +1388,7 @@ model. In a Bayesian approach based on MCMC simulation techniques
 credible intervals are estimated by computing the respective
 quantiles of the sampled effects. By default, {\em BayesX}
 computes (pointwise) credible intervals for nominal levels of 80\%
-and 95 \%. The option #level1# allows to redefine one of the
+and 95\%. The option #level1# allows to redefine one of the
 nominal levels (95\%). Adding, for instance,
 
 #level1=99#
@@ -1540,7 +1540,7 @@ following columns the estimation results are given in form of the
 posterior means and the 2.5\%, 10\%, 50\%, 90\% and 97.5\%
 quantiles. The last two columns contain posterior probabilities
 based on nominal levels of 95\% and 80\%. A value of 1 corresponds
-to a strictly positive 95 or 80\% credible interval and a value of
+to a strictly positive 95\% or 80\% credible interval and a value of
 -1 to a strictly negative credible interval. A value of 0
 indicates that the corresponding credible interval contains zero.
 Other quantiles may be obtained by specifying the #level1# and/or
@@ -1597,7 +1597,7 @@ $$
 This model is estimated by typing:
 
 #> b.regress y = x1 + x2 + x3, iterations=12000 burnin=2000# \\
-#  family=binomial step=10 using test#
+#  step=10 family=binomial using test#
 
 Here, #step=10# defines the thinning parameter, i.e.~only every
 10th sampled parameter will be stored and used for estimation.
@@ -1613,7 +1613,7 @@ of #x2# and #x3#. Defining cubic P-splines with second order
 random walk penalty as smoothness priors, we obtain
 
 #> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2), iterations=12000 #\\
-#  burnin=2000 family=binomial step=10 using test#
+#  burnin=2000 step=10 family=binomial using test#
 
 which corresponds to the predictor
 
@@ -1627,7 +1627,7 @@ case we can estimate either a multinomial logit or a probit model.
 A logit model is estimated by typing:
 
 #> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2), iterations=12000# \\
-#  burnin=2000 family=multinomial reference=2 step=10 using test#
+#  burnin=2000 step=10 family=multinomial reference=2 using test#
 
 That is, #family=binomial# was altered to #family=multinomial#,
 and the option #reference=2# was added in order to define the
@@ -1635,7 +1635,7 @@ value 2 as the reference category. Accordingly, a multinomial
 probit model is estimated by typing
 
  #> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2), iterations=12000 #\\
- #  burnin=2000 family=multinomialprobit reference=2 step=10 using test#
+ #  burnin=2000 step=10 family=multinomialprobit reference=2 using test#
 
 \subsubsection*{Time scales}
 
@@ -1644,8 +1644,8 @@ additional trend and a flexible seasonal component for the time
 scale #t#:
 
 #> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2) + t(psplinerw2) + #\\
-#  t(season,period=12), iterations=12000 burnin=2000 family=binomial#\\
-#  step=10 using test#
+#  t(season,period=12), iterations=12000 burnin=2000 step=10#\\
+#  family=binomial using test#
 
 Note that we passed the period of the seasonal component as a
 second argument.
@@ -1680,7 +1680,7 @@ We can now extend our predictor with a spatial effect:
 
 #> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2) + t(psplinerw2) +# \\
 #  t(season,period=12) + region(spatial,map=m), iterations=12000 burnin=2000 #\\
-#  family=binomial step=10 using test#
+#  step=10 family=binomial using test#
 
 In some situations it may be reasonable to incorporate  an
 additional unstructured  random effect into the model in order to
@@ -1689,7 +1689,7 @@ unstructured component. This is done by typing
 
 #> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2) + t(psplinerw2) +# \\
 #  t(season,period=12) + region(spatial,map=m) + region(random), iterations=12000 #\\
-#  burnin=2000 family=binomial step=10 using test#
+#  burnin=2000 step=10 family=binomial using test#
 
 \section{Method autocor}
 \label{bayesautocorr} \index{bayesreg object!autocor command}
@@ -1782,7 +1782,7 @@ following statement computes autocorrelations up to lag 100 and
 stores the result in the default output directory with filename
 #b_autocor.raw#:
 
-#> b.autocor , maxlag=100#
+#> b.autocor, maxlag=100#
 
 The default output directory is
 {\em$<$INSTALLDIRECTORY$>$}#\output#. So if, for instance, {\em
@@ -1816,7 +1816,8 @@ The following statement in S-plus plots and stores the
 autocorrelations in the postscript file
 #c:\data\estimate1_autocor.ps#:
 
- #> plotautocor("c:\\data\\estimate1_autocor.raw","c:\\data\\estimate1_autocor.ps")#
+ #> plotautocor("c:\\data\\estimate1_autocor.raw",#\\
+ #  "c:\\data\\estimate1_autocor.ps")#
 
 Note that double backslashes are required in S-plus to specify the
 directory of a file correctly. For more details about the function
@@ -1832,7 +1833,7 @@ commands produce the desired results:
 
 #> b.outfile = c:\data\estimate1# \\
 #> b.regress Y = X, family=gaussian using d# \\
-#> b.autocor , maxlag=100# \\
+#> b.autocor, maxlag=100# \\
 #> dataset a# \\
 #> a.infile using c:\data\estimate1_autocor.raw# \\
 #> graph g# \\
@@ -1852,7 +1853,7 @@ are computed and plotted in one step.
 
 \begin{stanza}{Description}
 
-This method is a post estimation command, that is it is only
+This method is a post estimation command, that is only
 meaningful if method #regress# has been applied before. With
 method #getsample# all sampled parameters will be stored in (one
 or more) ASCII file(s). Afterwards, sampling paths can be plotted
@@ -2038,7 +2039,7 @@ after every 100th iteration.
 \section{Visualizing estimation results}
 
 Visualization of estimation results is described in
-\autoref{visualization}
+\autoref{visualization}.
 
 \section{Examples}
 \label{bayesregexamples}
@@ -2316,8 +2317,8 @@ the rest omitted):
 We  visualize estimated effects for #amount# and #duration# using
 method #plotnonp# (as advised by the program):
 
-#> b.plotnonp 1 , outfile="c:\results\credit_duration.ps"#\\
-#> b.plotnonp 3 , outfile="c:\results\credit_amount.ps"#
+#> b.plotnonp 1, outfile="c:\results\credit_duration.ps"#\\
+#> b.plotnonp 3, outfile="c:\results\credit_amount.ps"#
 
 This produces the graphs (stored in postscript files) shown in
 \autoref{creditfigures}.
@@ -2330,17 +2331,17 @@ This produces the graphs (stored in postscript files) shown in
 \vspace{0.5cm}
 \includegraphics[scale=0.65]{grafiken/credit_amount.ps}
 \end{center}
-{\em\caption{ \label{creditfigures} Estimated effects of duration
-and amount of credit. Shown is the posterior mean within 80\% and
+{\em\caption{ \label{creditfigures} Estimated effects of {\em\tt duration}
+and {\em\tt amount} of credit. Shown is the posterior mean within 80\% and
 95\% credible regions.}}
 \end{figure}
 
 We add a title, x-axis and y-axis labels by typing \hfill
 
-#> b.plotnonp 1 , outfile="c:\results\credit_duration.ps" replace #\\
+#> b.plotnonp 1, outfile="c:\results\credit_duration.ps" replace #\\
 #  xlab="duration" ylab="f(duration)" title="effect of duration"#
 
-#> b.plotnonp 3 , outfile="c:\results\credit_amount.ps" replace# \\
+#> b.plotnonp 3, outfile="c:\results\credit_amount.ps" replace# \\
 #  xlab="amount" ylab="f(amount)" title="effect of amount"#
 
 and obtain the improved graphs shown in \autoref{creditfigures_2}.
@@ -2366,7 +2367,7 @@ We now want to check the mixing of the generated Markov chains,
 although the mixing for probit models is usually excellent. For that
 reason we compute and plot the autocorrelation functions by typing:
 
-#> b.plotautocor , outfile="c:\results\credit_autocor.ps"#
+#> b.plotautocor, outfile="c:\results\credit_autocor.ps"#
 
 We obtain the file
 #c:#$\backslash$#results#$\backslash$#credit_autocor.ps# containing
@@ -2443,7 +2444,7 @@ model.}}
 Once again, to check the mixing of the sampled parameters we compute
 and plot the autocorrelation functions using method #plotautocor#:
 
-#> b.plotautocor , outfile="c:\results\credit_logit_autocor.ps"#
+#> b.plotautocor, outfile="c:\results\credit_logit_autocor.ps"#
 
 The first page of the resulting postscript file is shown in
 \autoref{creditautocorlogit_1}. As can be seen, the autocorrelations
@@ -2577,7 +2578,7 @@ in generalized linear models. {\em Statistics and Computing}, 7,
 57-68.
 
 \item[Gelfand, A.E., Sahu, S.K. and Carlin, B.P. (1996):] Efficient Parametrizations for
-Generalized Linear Mixed Models. In: Bernardo, J.M., Berger, J.O.,
+Genera\-lized Linear Mixed Models. In: Bernardo, J.M., Berger, J.O.,
 Dawid, A.P. and Smith, A.F.M. (eds.), {\em Bayesian Statistics,
 5}. Oxford University Press, 165-180.
 
