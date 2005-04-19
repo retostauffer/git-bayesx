@@ -768,13 +768,101 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
           adminb_p->BayesX_cls, "jexponential", "(D)D");
 
           for (i=0;i<nrobs;i++,++it)
-        	 *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javaexponential, valuevek[i]);
+            {
+            if(valuevek[i]<=0 || valuevek[i]==NA)
+              *it =  NA;
+            else
+              *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javaexponential, valuevek[i]);
+            }
           return h;
 #else
 		  return exponential(valuevek);
 #endif
           }
 		}   // end: exponential
+	 else if (functionname == "poisson")
+		{
+        bool bracketmiss;
+		arglist = argument.strtoken2(",",bracketmiss);
+
+        if (bracketmiss)
+          {
+          errormessages.push_back("ERROR: missing bracket(s)\n");
+		  return realvar(nrobs);
+          }
+
+		if (arglist.size() != 1)
+		  {
+		  errormessages.push_back("ERROR: invalid number of arguments for function 'poisson'\n");
+		  return realvar(nrobs);
+		  }
+		else
+          {
+   		  valuevek = eval_exp(arglist[0],false);
+#if defined(JAVA_OUTPUT_WINDOW)
+          realvar h(nrobs);
+          register unsigned i;
+          realvar::iterator it = h.begin();
+
+          jmethodID javapoisson = adminb_p->Java->GetMethodID(
+          adminb_p->BayesX_cls, "jpoisson", "(D)D");
+
+          for (i=0;i<nrobs;i++,++it)
+            {
+            if(valuevek[i]<=0 || valuevek[i]==NA)
+              *it = NA;
+            else
+        	  *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javapoisson, valuevek[i]);
+            }
+          return h;
+#else
+		  errormessages.push_back("ERROR: Function 'poisson' not available in this version.\n");
+		  return realvar(nrobs);
+#endif
+          }
+  		}   // end: poisson
+	 else if (functionname == "weibull")
+		{
+        bool bracketmiss;
+		arglist = argument.strtoken2(",",bracketmiss);
+
+        if (bracketmiss)
+          {
+          errormessages.push_back("ERROR: missing bracket(s)\n");
+		  return realvar(nrobs);
+          }
+
+		if (arglist.size() != 2)
+		  {
+		  errormessages.push_back("ERROR: invalid number of arguments for function 'weibull'\n");
+		  return realvar(nrobs);
+		  }
+		else
+          {
+		  valuevek = eval_exp(arglist[0],false);
+		  valuevek2 = eval_exp(arglist[1],false);
+#if defined(JAVA_OUTPUT_WINDOW)
+          realvar h(nrobs);
+          register unsigned i;
+          realvar::iterator it = h.begin();
+
+          jmethodID javaweibull = adminb_p->Java->GetMethodID(
+          adminb_p->BayesX_cls, "jweibull", "(DD)D");
+
+          for (i=0;i<nrobs;i++,++it)
+            {
+            if(valuevek[i]<=0 || valuevek[i]==NA || valuevek2[i]<=0 || valuevek2[i]==NA)
+              *it =  NA;
+            else
+              *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javaweibull, valuevek[i], valuevek2[i]);
+            }
+          return h;
+#else
+		  errormessages.push_back("ERROR: Function 'weibull' not available in this version.\n");
+		  return realvar(nrobs);
+#endif
+          }
+  		}   // end: weibull
 	 else if (functionname == "bernoulli")
 		{
         bool bracketmiss;
@@ -803,7 +891,12 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
           adminb_p->BayesX_cls, "jbernoulli", "(D)D");
 
           for (i=0;i<nrobs;i++,++it)
-            *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabernoulli, valuevek[i]);
+            {
+            if(valuevek[i]<0 || valuevek[i]>1 || valuevek[i]==NA)
+              *it =  NA;
+            else
+              *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabernoulli, valuevek[i]);
+            }
           return h;
 #else
           return bernoulli(valuevek);
@@ -839,7 +932,13 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
           adminb_p->BayesX_cls, "jbinomial", "(DD)D");
 
           for (i=0;i<nrobs;i++,++it)
-      	   *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabinomial, valuevek[i], valuevek2[i]);
+            {
+            if(valuevek2[i]<0 || valuevek2[i]>1 || valuevek2[i]==NA
+                              || valuevek[i]<1 || valuevek[i]==NA)
+              *it = NA;
+            else
+      	      *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabinomial, valuevek[i], valuevek2[i]);
+            }
           return h;
 #else
 		  return binomial(valuevek,valuevek2);
@@ -876,7 +975,12 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
           adminb_p->BayesX_cls, "jgamma", "(DD)D");
 
           for (i=0;i<nrobs;i++,++it)
-      	   *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javagamma, valuevek[i], valuevek2[i]);
+            {
+            if(valuevek[i]<=0 || valuevek[i]==NA || valuevek2[i]<=0 || valuevek2[i]==NA)
+              *it = NA;
+            else
+      	      *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javagamma, valuevek[i], valuevek2[i]);
+            }
           return h;
 #else
 		  return gamma(valuevek,valuevek2);

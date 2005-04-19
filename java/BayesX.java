@@ -2893,18 +2893,35 @@ private double jexponential(double rate)
 
 private double jbernoulli(double pi)
 	{
-	return BinomialGen.nextInt(rStream, 1, pi);
+	if(pi==1)
+		return 1;
+	else
+		return BinomialGen.nextInt(rStream, 1, pi);
 	}
 
 private double jbinomial(double size, double pi)
 	{
-	return BinomialGen.nextInt(rStream, (int)size, pi);
+	if(pi==1)
+		return (int)size;
+	else
+		return BinomialGen.nextInt(rStream, (int)size, pi);
 	}
 
 private double jgamma(double mu, double nu)
 	{
 	return GammaGen.nextDouble(rStream, nu, nu/mu);
 	}
+
+private double jpoisson(double lambda)
+	{
+	return PoissonGen.nextInt(rStream, lambda);
+	}
+
+private double jweibull(double alpha, double lambda)
+	{
+	return WeibullGen.nextDouble(rStream, alpha, lambda, 0.0);
+	}
+
 
 //Funktion, die bei der Übergabe eines Befehls aufgerufen wird
 

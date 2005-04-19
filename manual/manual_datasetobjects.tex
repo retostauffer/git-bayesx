@@ -251,10 +251,12 @@ arguments or when the result is undefined.
 \index{functions!square root} \index{functions!bernoulli
 distributed random numbers} \index{functions!binomial distributed
 random numbers} \index{functions!cumulative distribution function}
-%\index{Functions!gamma distributed random numbers}
+\index{Functions!gamma distributed random numbers}
 \index{functions!exponential distributed random numbers}
 \index{functions!normally distributed random numbers}
 \index{functions!uniformly distributed random numbers}
+\index{functions!poisson distributed random numbers}
+\index{functions!weibull distributed random numbers}
 
 
 \begin{table}[ht]
@@ -286,32 +288,46 @@ sqrt(x) & square root \\
 \begin{tabular}{|l|p{11cm}|}
 \hline
 {\bf Function} & {\bf Description} \\
-\hline \hline bernoulli($p$) & returns Bernoulli distributed
-random numbers with probability of success $p$. If $p$ is not
-within the interval $[0;1]$, a
+ \hline \hline
+ bernoulli($p$) & returns Bernoulli distributed
+ random numbers with probability of success $p$. If $p$ is not
+ within the interval $[0;1]$, a
  missing value will be returned. \\
-\hline binomial($n,p$) & returns $B(n;p)$ distributed random
-numbers. Both, the number of trials $n$ and the probability of
-success $p$ may be expressions. If $n < 1$, a missing value will
-be returned. If $n$ is not integer valued, the number of trials
-will be $[n]$. If $p$ is not within the interval $[0;1]$, a
-missing value will be returned. \\
-\hline
-cumul($x$) & cumulative distribution function \\
-\hline
-cumulnorm($x$) & cumulative distribution function $\Phi$ of the standard normal distribution. \\
-\hline exponential($\lambda$) & returns exponentially distributed
-random numbers with parameter $\lambda$.
-If $\lambda \leq 0$, a missing value will be returned. \\
-\hline gamma($\mu$,$\nu$) & returns gamma distributed random
-numbers with mean $\mu$ and variance $\mu^2/ \nu$.
-If $\mu$ and/or $\nu$ are less than zero, a missing value will be returned.  \\
-\hline normal() & returns standard normally distributed random
-numbers;
-$N(\mu,\sigma^2)$ distributed random numbers may be generated with $\mu + \sigma$*normal(). \\
-\hline uniform() & uniform pseudo random number function; returns
-uniformly distributed
-pseudo-random numbers on the interval $(0,1)$ \\
+ \hline
+ binomial($n,p$) & returns $B(n;p)$ distributed random
+ numbers. Both, the number of trials $n$ and the probability of
+ success $p$ may be expressions. If $n < 1$, a missing value will
+ be returned. If $n$ is not integer valued, the number of trials
+ will be $[n]$. If $p$ is not within the interval $[0;1]$, a
+ missing value will be returned. \\
+ \hline
+ cumul($x$) & cumulative distribution function \\
+ \hline
+ cumulnorm($x$) & cumulative distribution function $\Phi$ of the standard normal distribution. \\
+ \hline
+ exponential($\lambda$) & returns exponentially distributed
+ random numbers with parameter $\lambda$.
+ If $\lambda \leq 0$, a missing value will be returned. \\
+ \hline
+ gamma($\mu$,$\nu$) & returns gamma distributed random
+ numbers with mean $\mu$ and variance $\mu^2/ \nu$.
+ If $\mu$ and/or $\nu$ are less than zero, a missing value will be returned.  \\
+ \hline
+ normal() & returns standard normally distributed random
+ numbers;
+ $N(\mu,\sigma^2)$ distributed random numbers may be generated with $\mu + \sigma$*normal(). \\
+ \hline
+ poisson($\lambda$) & returns poisson distributed random
+ numbers with parameter $\lambda$.  If $\lambda \leq 0$, a missing value will be returned.\\
+ \hline
+ uniform() & uniform
+ pseudo random number function; returns uniformly distributed
+ pseudo-random numbers on the interval $(0,1)$ \\
+ \hline
+ weibull($\alpha$,$\lambda$) & returns weibull distributed
+ random numbers with density
+ $f(x)=\alpha\lambda^\alpha x^{\alpha-1}\exp(-\lambda x^\alpha)$.
+ If $\alpha \leq 0$ and/or $\lambda \leq 0$, a missing value will be returned.\\
 \hline
 \end{tabular}
 {\em \caption{\label{statfunc} List of statistical functions}}
