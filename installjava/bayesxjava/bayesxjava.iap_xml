@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This script was automatically generated using Zero G's InstallAnywhere 5.5.1 Now, Build 2032
      STATUS: Fully Functional LICENSED Edition
-     DATE:   Thu Aug 26 12:27:21 CEST 2004 -->
+     DATE:   Thu Nov 11 19:16:43 CET 2004 -->
 <InstallAnywhere_Deployment_Project increments="2857">
 	<!-- ** DO NOT EDIT ** Essential authorization and configuration data ** DO NOT EDIT ** -->
 	<essentialScriptInfo>
@@ -10,7 +10,7 @@
 		<scriptID>12,42,11,90,83,52,54,54,53,76,81,66,70,67,78,72</scriptID>
 		<buildID>3,13,71,87,105,110,100,111,119,115,32,50,48,48,48,44,32,53,46,48,44,32,120,56,54,59,32,74,97,118,97,32,49,46,51,46,49,95,48,56,44,32,83,117,110,32,77,105,99,114,111,115,121,115,116,101,109,115,32,73,110,99,46,44,32,104,116,116,112,58,47,47,106,97,118,97,46,115,117,110,46,99,111,109,47,59,32,100,101,44,32,68,69,59,32,67,112,49,50,53,50</buildID>
 		<!-- The authorizationID may change between project saves and builds.  This does not effect the integrity of the project, nor do changes in this value represent changes in the actual InstallAnywhere project. -->
-		<authorizationID>1,0,0,-16,-104,-91,-112,-80,80,112,112,97,87,98,113,97,113,65,81,51,74,65,78,68,71,68,64,69,66,69,48,79,87,5,2,8,14,-110,122,14,0,0,0</authorizationID>
+		<authorizationID>1,0,0,0,40,-43,0,80,80,112,112,97,87,98,113,97,113,65,81,51,74,65,78,68,71,68,64,69,66,69,48,79,87,5,2,2,2,-102,120,0,1,0,0</authorizationID>
 	</essentialScriptInfo>
 	<installationObjects uniqueObjects="143">
 		<object class="com.zerog.ia.installer.Installer" objectID="8f479e2aa37f">
@@ -166,7 +166,7 @@ it will search for ones in this list]]></string>
 								</object>
 							</method>
 							<method name="addElement">
-								<object class="com.zerog.ia.installer.util.LAXPropertyData" objectID="ae22efdca39b">
+								<object class="com.zerog.ia.installer.util.LAXPropertyData" objectID="3c5afc57a39f">
 									<property name="propertyValue">
 										<string><![CDATA[BayesX]]></string>
 									</property>
@@ -563,7 +563,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[adminparseDLL_java.dll]]></string>
 									</property>
 									<property name="fileSize">
-										<long>719360</long>
+										<long>731136</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -592,7 +592,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[adminparseDLL_java.lib]]></string>
 									</property>
 									<property name="fileSize">
-										<long>31908</long>
+										<long>32436</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -650,7 +650,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[bayesregDLL_java.dll]]></string>
 									</property>
 									<property name="fileSize">
-										<long>1592320</long>
+										<long>1613312</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -679,7 +679,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[bayesregDLL_java.lib]]></string>
 									</property>
 									<property name="fileSize">
-										<long>65860</long>
+										<long>67140</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -1227,7 +1227,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[BayesX.class]]></string>
 									</property>
 									<property name="fileSize">
-										<long>45290</long>
+										<long>45150</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -1256,7 +1256,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[BayesX.java]]></string>
 									</property>
 									<property name="fileSize">
-										<long>85884</long>
+										<long>85886</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -1314,7 +1314,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[BayesXdll.dll]]></string>
 									</property>
 									<property name="fileSize">
-										<long>569856</long>
+										<long>579584</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -1343,7 +1343,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[BayesXdll.lib]]></string>
 									</property>
 									<property name="fileSize">
-										<long>24420</long>
+										<long>24500</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -1430,7 +1430,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[dagDLL_java.dll]]></string>
 									</property>
 									<property name="fileSize">
-										<long>744960</long>
+										<long>747008</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -1459,7 +1459,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[dagDLL_java.lib]]></string>
 									</property>
 									<property name="fileSize">
-										<long>46308</long>
+										<long>48564</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -1517,7 +1517,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[dagobjectDLL_java.lib]]></string>
 									</property>
 									<property name="fileSize">
-										<long>13236</long>
+										<long>13604</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -1546,7 +1546,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[dataobjDLL_java.dll]]></string>
 									</property>
 									<property name="fileSize">
-										<long>142848</long>
+										<long>143360</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -1575,7 +1575,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[dataobjDLL_java.lib]]></string>
 									</property>
 									<property name="fileSize">
-										<long>8372</long>
+										<long>8468</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -1981,7 +1981,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[MCMCDLL_java.dll]]></string>
 									</property>
 									<property name="fileSize">
-										<long>3542528</long>
+										<long>3673600</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -2010,7 +2010,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[MCMCDLL_java.lib]]></string>
 									</property>
 									<property name="fileSize">
-										<long>165028</long>
+										<long>177988</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -2213,7 +2213,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[parser_dataDLL_java.dll]]></string>
 									</property>
 									<property name="fileSize">
-										<long>723968</long>
+										<long>726528</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -2358,7 +2358,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[stepwiseregDLL_java.dll]]></string>
 									</property>
 									<property name="fileSize">
-										<long>959488</long>
+										<long>1055232</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -2387,7 +2387,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[stepwiseregDLL_java.lib]]></string>
 									</property>
 									<property name="fileSize">
-										<long>41412</long>
+										<long>46708</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -2671,7 +2671,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[remlregDLL_java.dll]]></string>
 									</property>
 									<property name="fileSize">
-										<long>1698304</long>
+										<long>1732608</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -2700,7 +2700,7 @@ and any path to a file to read from that file]]></string>
 										<string><![CDATA[remlregDLL_java.lib]]></string>
 									</property>
 									<property name="fileSize">
-										<long>38516</long>
+										<long>39748</long>
 									</property>
 									<property name="macBinary">
 										<boolean>false</boolean>
@@ -3254,7 +3254,7 @@ Press "Done" to quit the installer.]]></string>
 				<object class="java.util.Properties">
 					<method name="put">
 						<string><![CDATA[com.zerog.ia.project.save.last.date]]></string>
-						<string><![CDATA[Thu Aug 26 12:27:21 CEST 2004]]></string>
+						<string><![CDATA[Thu Nov 11 19:16:43 CET 2004]]></string>
 					</method>
 					<method name="put">
 						<string><![CDATA[com.zerog.ia.build.options.optimization.platform.merge]]></string>
@@ -3286,7 +3286,7 @@ Press "Done" to quit the installer.]]></string>
 					</method>
 					<method name="put">
 						<string><![CDATA[com.zerog.ia.project.build.last.date]]></string>
-						<string><![CDATA[Thu Aug 26 12:27:21 CEST 2004]]></string>
+						<string><![CDATA[Thu Nov 11 19:16:43 CET 2004]]></string>
 					</method>
 					<method name="put">
 						<string><![CDATA[com.zerog.ia.installer.options.heap.size.initial]]></string>
