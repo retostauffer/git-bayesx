@@ -4,9 +4,9 @@
 {\em Authors: Andreas Brezger, Thomas Kneib and Stefan Lang} \\
 {\em email:
 \href{mailto:andib@stat.uni-muenchen.de}{andib@stat.uni-muenchen.de},
-\href{mailto:kneib@stat.uni-muenchen.de}{kneib@stat.uni-muenchen.de},
-and
-\href{mailto:lang@stat.uni-muenchen.de}{lang@stat.uni-muenchen.de}} \\
+\href{mailto:thomas.kneib@stat.uni-muenchen.de}{thomas.kneib@stat.uni-muenchen.de},
+and\newline
+\href{mailto:stefan.lang@stat.uni-muenchen.de}{stefan.lang@stat.uni-muenchen.de}} \\
 \vspace{0.3cm}
 
 {\em Remlreg objects} are used to fit generalized linear models with
@@ -16,10 +16,10 @@ of the regression models and may be seen as empirical Bayes /
 posterior mode estimation. The methodological background is provided
 in considerable detail in the methodology manual. More details on
 models for univariate responses can be found in Fahrmeir, Kneib and
-Lang (2004), Kneib and Fahrmeir (2004a) deals with models for
+Lang (2004), Kneib and Fahrmeir (2005) deals with models for
 multicategorical responses. A description of models for continuous
 time survival analysis based on the Cox model can be found in Kneib
-and Fahrmeir (2004b) Good introductions into generalized linear
+and Fahrmeir (2004). Good introductions into generalized linear
 models are the monographs of Fahrmeir and Tutz (2001) and McCullagh
 and Nelder (1989). Introductions to semi- and nonparametric models
 are given in Green and Silverman (1994), Hastie and Tibshirani
@@ -180,7 +180,9 @@ terms for remlreg objects.}
 \begin{itemize}
 \item[] {\em Description}: Adds an offset term to the predictor.
 \item[] {\em Predictor}: $\eta =  \cdots + offs + \cdots$
-\item[] {\em Syntax}: #offs(offset)#
+\item[] {\em Syntax}:
+
+#offs(offset)#
 \item[] {\em Example}:
 
 For example, the following model statement can be used to estimate
@@ -195,7 +197,9 @@ fixed effects (if #family=poisson# is specified in addition):
 \begin{itemize}
 \item[] {\em Description}: Incorporates covariate #W1# as a fixed effect into the model.
 \item[] {\em Predictor}: $\eta =  \cdots + \gamma_1 W1 + \cdots$
-\item[] {\em Syntax}: #W1#
+\item[] {\em Syntax}:
+
+#W1#
 \item[] {\em Example}:
 
 The following model statement causes #regress# to estimate a model
@@ -268,7 +272,7 @@ with 30 knots:
 A seasonal component for a time scale #time# is specified for
 example by
 
-#Y = time(season,period=12)#.
+#Y = time(season,period=12)#
 
 Here, the second argument specifies the period of the seasonal
 effect. In the example above the period is 12, corresponding to
@@ -290,11 +294,11 @@ Syntax}:
 #time(baseline#[, {\em options}]#) # \item[] {\em Example}:
 
 Suppose continuous-time survival data (#time#, #delta#) together
-with additional covariates (#W1#,#X1#) are given, where #time#
-denotes the vector of observed duration times, #delta# is the
-vector of corresponding indicators of non-censoring, #W1# is a
-discrete covariate and #X1# a continuous one. The following Cox
-model with hazard rate $\lambda$ and log-baseline effect
+with additional covariates (#W1#, #X1#) are given, where #time#
+denotes the vector of observed duration times, #delta# is the vector
+of corresponding indicators of non-censoring, #W1# is a discrete
+covariate and #X1# a continuous one. The following Cox model with
+hazard rate $\lambda$ and log-baseline effect
 $\log(\lambda_0$(#time#))
 \begin{eqnarray*}
  \lambda(time) & = & \lambda_0(time)\exp (\gamma_0 + \gamma_1 W1 + f(X1))\\
@@ -368,6 +372,33 @@ neighbors. The model term
 specifies a tensor product cubic P-spline with first order random
 walk penalty where the geographical information is stored in the
 {\em map object} #germany#.
+
+\item[]{\bf\sffamily Stationary Gaussian random field}
+
+\item[] {\em Description}:
+
+Defines a stationary Gaussian random field for the spatial covariate
+#region#. Estimation is based on the coordinates of the centroids of
+the regions an observation pertains to. The centroids are computed
+using the geographical information stored in the {\em map object}
+specified through the option #map#.
+\item[] {\em Predictor}: $\eta= \cdots + f(centroids) + \cdots$
+\item[] {\em Syntax}:
+
+#region(geokriging,map=#{\em characterstring}[, {\em options}]#)#
+\item[] {\em Example}:
+
+The specification of a stationary Gaussian random field
+(#geokriging#) for spatial data has #map# as a required argument
+which must be the name of a {\em map object} (see \autoref{map})
+that contains all necessary spatial information about the
+geographical map, i.e.~the neighbors of each region and the weights
+associated with the neighbors. The model term
+
+#Y = region(geokriging,map=germany)#
+
+specifies a stationary Gaussian random field where the geographical
+information is stored in the {\em map object} #germany#.
 \end{itemize}
 
 \subsubsection*{Unordered group indicators}
@@ -384,13 +415,12 @@ Syntax}:
 #grvar(random#[, {\em options}]#)#
 \item[] {\em Example}:
 
-Method regress supports Gaussian i.i.d.~random effects to cope
-with unobserved heterogeneity among units or clusters of
-observations. Suppose the analyzed data set contains a group
-indicator #grvar# that gives information about the individual or
-cluster a particular observation belongs to. Then an individual
-specific uncorrelated random effect is incorporated through the
-term
+Method regress supports Gaussian i.i.d.~random effects to cope with
+unobserved heterogeneity among units or clusters of observations.
+Suppose the analyzed data set contains a group indicator #grvar#
+that gives information about the individual or cluster a particular
+observation belongs to. Then an individual or cluster specific
+uncorrelated random effect is incorporated through the term
 
 #Y = grvar(random)#
 
@@ -562,7 +592,7 @@ are included automatically. If main effects should be included in
 the model, they have to be specified as additional fixed effects.
 The syntax for obtaining the predictor
 
-{\em Predictor}: $\eta = \cdots + \gamma X1 + f(grvar)X1 + \cdots$
+$\eta = \cdots + \gamma X1 + f(grvar)X1 + \cdots$
 
 would be
 
@@ -594,14 +624,14 @@ The model term
 specifies a tensor product cubic P-spline with first order random
 walk penalty.
 
-In many applications it is favorable to additionally incorporate
-the 1 dimensional main effects of #X1# and #X2# into the models. In
-this case the 2 dimensional surface can be seen as the deviation
-from the main effects. Note, that in contrast to {\em bayesreg
-objects} the number of inner knots and the degree of the spline
-may be different for the main effects and for the interaction. For
-example, a model with 20 inner knots for the main effects and 10
-inner knots for the 2 dimensional P-Spline is estimated by
+In many applications it is favorable to additionally incorporate the
+1 dimensional main effects of #X1# and #X2# into the models. In this
+case the 2 dimensional surface can be seen as the deviation from the
+main effects. Note, that in contrast to {\em bayesreg objects} the
+number of inner knots and the degree of the spline may be different
+for the main effects and for the interaction. For example, a model
+with 20 inner knots for the main effects and 10 inner knots for the
+2 dimensional P-spline is estimated by
 
  #Y = X1(psplinerw2,nrknots=20) + X2(psplinerw2,nrknots=20)#\\
  #    + X1*X2(pspline2dimrw1,nrknots=10)#
@@ -642,10 +672,10 @@ used as knots, we have to specify
 #Y = X1*X2(kriging,full)#
 
 Note, that the knots computed by the space filling algorithm are
-stored in the outfile directory of the {\em remlreg object}. These
-knots can be read into a {\em dataset object} which may be passed
-in the call of method #regress# if we want to use the same knots
-as in previous calls:
+stored in {\it knotfile} in the outfile directory of the {\em
+remlreg object}. These knots can be read into a {\em dataset object}
+which may be passed in the call of method #regress# if we want to
+use the same knots as in previous calls:
 
  #dataset kn#\\
  #kn.infile using #{\em knotfile}\\
@@ -801,9 +831,12 @@ the different models:
  #family=cumprobit#           & cumulative multinomial   & probit & \\
  #family=cumlogit#            & cumulative multinomial   & logit & \\
  \hline
- #family=poisson#             & Poisson               & log-link & \\
+ #family=seqprobit#           & sequential multinomial   & probit & \\
+ #family=seqlogit#            & sequential multinomial   & logit & \\
  \hline
- #family=gamma#               & gamma                 & log-link & \\
+ #family=poisson#             & Poisson               & log & \\
+ \hline
+ #family=gamma#               & gamma                 & log & \\
  \hline
  #family=cox#                 & continuous-time survival data & & \\
  \hline
@@ -819,7 +852,7 @@ For Gaussian responses {\em BayesX} assumes $y_i | \eta_i,\sigma^2
 \sim N(\eta_i,\sigma^2/weightvar_i)$ or equivalently in matrix
 notation $y | \eta, \sigma^2 \sim N(\eta,\sigma^2C^{-1})$. Here
 $C^{-1}=diag(weightvar_1,\dots,weightvar_n)$ is a known covariance
-matrix. Gaussian response is specified by adding
+matrix. A Gaussian response is specified by adding
 
 #family=gaussian#
 
@@ -853,7 +886,7 @@ and a complementary log-log model by adding
 
 #family=binomialcomploglog#
 
-to the option list.
+to the options list.
 
 A weight variable may be additionally specified, see
 \autoref{remlregregresssyntax} for the syntax. {\em BayesX}
@@ -902,6 +935,19 @@ objects} can deal with an arbitrary number of ordered categories.
 However, for more than 5 categories estimation will become rather
 computer intensive and time demanding.
 
+\subsubsection*{Sequential logit and probit models}
+
+A sequential logit model is specified by adding
+
+#family=cumlogit#
+
+to the options list, a sequential probit model by adding
+
+#family=cumprobit#
+
+to the options list. The reference category will always be the
+largest value of the response.
+
 \subsubsection*{Poisson regression}
 
 A Poisson regression is specified by adding
@@ -927,7 +973,7 @@ distributed random number $y$ is given by
 \label{remlgammapar1} p(y) \propto y^{s-1}\exp(-\frac{s}{\mu} y)
 \end{equation}
 for $y > 0$. For the mean and the variance we obtain $E(y) = \mu$
-and $Var(y) = \mu^2/s$. We write $y \sim G(\mu,s)$
+and $Var(y) = \mu^2/s$. We write $y \sim G(\mu,s)$.
 
 A second parameterization is based on hyperparameters $a$ and $b$
 and is usually used in the context of Bayesian hierarchical models
@@ -940,11 +986,11 @@ for $y>0$. In this parameterization we obtain $E(y) = a/b$ and
 $Var(y) = a/b^2$ for the mean and the variance, respectively. We
 write $y \sim G(a,b)$
 
-In {\em BayesX} gamma distributed response is defined in the first
+In {\em BayesX} a gamma distributed response is defined in the first
 parameterization (\ref{remlgammapar1}). For the $r$th observation
 {\em BayesX} assumes  $y_r | \eta_r,\nu \sim
-G(\exp(\eta_r),\nu/weightvar_r)$ where $\mu_r = \exp(\eta_r)$ is
-the mean and $s=\nu/weightvar_r$ is the scale parameter. Gamma
+G(\exp(\eta_r),\nu/weightvar_r)$ where $\mu_r = \exp(\eta_r)$ is the
+mean and $s=\nu/weightvar_r$ is the scale parameter. A Gamma
 distributed response is specified by adding
 
 #family=gamma#
@@ -961,7 +1007,7 @@ the syntax.
 time Cox models with semiparametric predictor $\eta$, which are
 described in section \ref*{continuoustime} of the methodology
 manual. The first alternative is to assume that all time-dependent
-values are piecewise constant, which leads to the so called
+effects are piecewise constant, which leads to the so called
 \textit{piecewise exponential model} (p.e.m.), and the second one is
 to estimate the log-baseline effect $\log(\lambda_0(t))=f_0(t)$ by a
 P-spline with second order random walk penalty.
@@ -1100,18 +1146,18 @@ redefine one of the nominal levels (95\%). Adding, for instance,
 
 #level1=99 #
 
-to the option list leads to the computation of credible intervals
+to the options list leads to the computation of credible intervals
 for a nominal level of 99\% rather than 95\%.
 \item \label{remlreglevel2} #level2 = #{\em integer} \\
 Besides the posterior mode, #regress# provides (approximate)
 pointwise posterior credible intervals for every effect in the
 model. By default, {\em BayesX} computes credible intervals for
 nominal levels of 80\% and 95\%. The option #level2# allows to
-redefine one of the nominal levels (95\%). Adding, for instance,
+redefine one of the nominal levels (80\%). Adding, for instance,
 
 #level2=70#
 
-to the option list leads to the computation of credible intervals
+to the options list leads to the computation of credible intervals
 for a nominal level of 70\% rather than 80\%.
 \end{itemize}
 
@@ -1133,7 +1179,7 @@ different way. Here, results are stored in external ASCII-files
 whose contents can be read into any general purpose statistics
 program (e.g. STATA, S-plus) to further analyze and/or visualize the
 results. The structure of these files is as follows: There will be
-one file for every nonparametric effect in the model. The name of
+one file for every nonparametric effect in the model. The names of
 the files and the storing directory are displayed in the {\em output
 window} and/or a log file. The files contain ten or eleven columns,
 depending on whether the corresponding model term is an interaction
@@ -1291,7 +1337,7 @@ split the total spatial effect into a structured and an
 unstructured component. This is done by typing
 
 #> r.regress y = x1 + x2(psplinerw2) + x3(psplinerw2) + t(psplinerw2)#\\
-#  + t(season,period=12) + region(spatial,map=m) +region(random),#\\
+#  + t(season,period=12) + region(spatial,map=m) + region(random),#\\
 #  family=binomial using test#
 
 \section{Global options}
@@ -1317,7 +1363,7 @@ By default, the estimation output produced by the #regress#
 procedure will be written to the default output directory, which
 is
 
-{\em$<$INSTALLDIRECTORY$>$}#\output#.
+{\em$<$INSTALLDIRECTORY$>$}#\output#
 
 The default file name is composed of the name of the {\em remlreg
 object} and the type of the file. For example, if you estimated a
@@ -1371,15 +1417,13 @@ Hall, London.
 {\em Journal of the Royal Statistical Society B} , 55, 757-796.
 
 \item[Hastie, T., Tisbshirani, R. and Friedman, J. (2001):] {\em The Elements of Statistical Learning: Data Mining,
-Inference and Prediction.} New York: Sprigner--Verlag.
+Inference and Prediction.} New York: Springer--Verlag.
 
-\item[Kneib, T. and Fahrmeir, L. (2004a):] Structured additive
+\item[Kneib, T. and Fahrmeir, L. (2005):] Structured additive
 regression for multicategorical space-time data: A mixed model
-approach. SFB 386 discussion Paper 377, University of Munich.
-Available from
-\href{http://www.stat.uni-muenchen.de/~kneib/papers.html}{www.stat.uni-muenchen.de/$\sim$kneib/papers.html}
+approach. {\it Biometrics}, to appear.
 
-\item[Kneib, T. and Fahrmeir, L. (2004b):] A mixed model approach
+\item[Kneib, T. and Fahrmeir, L. (2004):] A mixed model approach
 for structured hazard regression. SFB 386 discussion Paper 400,
 University of Munich. Available from
 \href{http://www.stat.uni-muenchen.de/~kneib/papers.html}{www.stat.uni-muenchen.de/$\sim$kneib/papers.html}
