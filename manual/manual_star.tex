@@ -4,6 +4,7 @@
 \usepackage[dvips]{graphicx}
 \usepackage[dvips]{epsfig}
 \usepackage{fancyhdr}
+\usepackage{dsfont}
 
 %\usepackage{showkeys}
 %\usepackage{showidx}
@@ -197,7 +198,7 @@ user, assume all risks when using it.
 \vspace{0.5cm}
 
 {\em BayesX} is available at {
-\href{http://www.stat.uni-muenchen.de/~lang/bayesx}{http://www.stat.uni-muenchen.de/\~{}lang/bayesx}}
+\href{http://www.stat.uni-muenchen.de/~bayesx}{http://www.stat.uni-muenchen.de/\~{}bayesx}}
 
 \newpage
 
@@ -211,7 +212,7 @@ objects}) is based on mixed model representations of regression
 models and inference is based on restricted maximum likelihood
 (REML). Both regression tools are able to estimate complex
 semiparametric regression and survival models with {\em structured
-additive predictor}, STAR, Fahrmeir, Kneib and Lang, 2004). STAR
+additive predictor} (STAR, Fahrmeir, Kneib and Lang, 2004). STAR
 models cover a number of well known model classes as special cases,
 including {\em generalized additive models} (Hastie and Tibshirani,
 1990), {\em generalized additive mixed models} (Lin and Zhang,
@@ -368,7 +369,7 @@ description of these procedures is considerably facilitated.
 
 
 \section{Prior assumptions}
-\label{priorassumptions}
+\label{priorassumptions}\index{Prior assumptions}
 
 For Bayesian inference, the unknown functions $f_{1},\dots ,f_{p}$
 in (\ref{gampred}), more exactly corresponding vectors of function
@@ -428,7 +429,7 @@ types of covariates and functions $f_j$.
 
 
 \subsection{Priors for continuous covariates and time scales}
-\label{psplines}
+\label{psplines}\index{continuous covariates}\index{time scales}
 
 Several alternatives have been  proposed for specifying smoothness
 priors for continuous covariates or time scales. These are {\em
@@ -438,7 +439,7 @@ Bayesian P-splines} (Lang and Brezger, 2003) and {\em Bayesian
 smoothing splines} (Hastie and Tibshirani, 2000). {\em BayesX}
 supports random walk priors and P-splines.
 
-\subsubsection{Random walks}
+\subsubsection{Random walks}\index{random walk priors}
 
 Suppose first that $x_j$ is a time scale or continuous covariate
 with equally spaced ordered observations
@@ -504,7 +505,7 @@ approach this specification has the advantage that it allows for a
 time varying rather than a time constant seasonal effect.
 
 
-\subsubsection{P-splines}
+\subsubsection{P-splines}\index{p-splines}
 
 A closely related approach for continuous covariates is based on
 P-splines introduced by Eilers and Marx (1996). The approach
@@ -550,8 +551,9 @@ case. More details about Bayesian P-splines can be found in Lang
 and Brezger (2003) and Brezger and Lang (2003).
 
 
-\subsection{Priors for spatial effects}
-\label{spatial}
+\subsection{Priors for spatial effects}\index{spatial
+priors}\index{Markov random fields}\index{Kriging}\index{Gaussian
+random fields} \label{spatial}
 
 Suppose that the index $s \in \{ 1,\dots,S \}$ represents the
 location or site in connected geographical regions. For simplicity
@@ -696,7 +698,7 @@ approximation ($M$ close to the sample size) and the numerical
 simplification ($M$ small).
 
 \subsection{Unordered group indicators and unstructured spatial effects}
-\label{random}
+\label{random}\index{random effects}\index{group indicators}
 
 In many situations we observe the problem of heterogeneity among
 clusters of observations caused by unobserved covariates.
@@ -738,7 +740,8 @@ smoothers as described in the next section. For the uncorrelated
 part we may assume prior (\ref{randomeff}).
 
 \subsection{Modelling interactions}
-\label{interactions}
+\label{interactions}\index{interactions}\index{varying
+coefficients}\index{two-dimensional p-splines}
 
 The models considered so far are not appropriate for modelling
 interactions between covariates. A common approach is based on
@@ -802,7 +805,7 @@ edges. The prior can be easily brought into the general form
 
 
 \subsection{Mixed Model representation}
-\label{glmmrep}
+\label{glmmrep}\index{mixed model representation}
 
 You may skip this section if you are not interested in using the
 regression tool based on mixed model methodology ({\em remlreg
@@ -930,7 +933,7 @@ representations of STAR models for empirical Bayesian inference, see
 
 
 \subsection{Full Bayesian inference based on MCMC techniques}
-\label{fullbayes}
+\label{fullbayes}\index{full Bayesian inference}\index{MCMC}
 
 This section may be skipped if you are not interested in using the
 regression tool for full Bayesian inference based on MCMC techniques
@@ -1121,7 +1124,7 @@ conditionals with parameters given in (\ref{hypab}) and
 \end{enumerate}
 
 \subsubsection{(Multi)categorical Response}
-\label{mulitcategoricalresp}
+\label{mulitcategoricalresp} \index{MCMC!categorical Response}
 
 For most models with categorical responses efficient sampling
 schemes based on latent utility representations can be developed.
@@ -1187,7 +1190,8 @@ response categories. For multinomial logit models updating schemes
 based on latent utilities are not available.
 
 \subsubsection{General uni- or multivariate response from an exponential family}
-\label{IWLS}
+\label{IWLS}\index{MCMC!exponential families}
+
 
 Let us now turn our attention to general responses from an
 exponential family (\ref{likel}). In this case the full
@@ -1349,7 +1353,7 @@ conditionals with parameters given in (\ref{hypab}).
 
 
 \subsection{Empirical Bayesian inference based on GLMM methodology}
-\label{glmmmeth}
+\label{glmmmeth}\index{empirical Bayes inference}
 
 This section may be skipped if you are not interested in using the
 regression tool based on mixed model methodology ({\em remlreg
@@ -1418,11 +1422,10 @@ approximation to the marginal covariance matrix of $\tilde{y} |
 \beta^{pen}$.
 \end{enumerate}
 
-The two estimation steps are iterated until convergence. We
-maximize (\ref{restrl}) through a computationally efficient
-alternative to the usual Fisher scoring iterations as described
-e.g. in Harville (1977), see Fahrmeir, Kneib and Lang (2003) for
-details.
+The two estimation steps are iterated until convergence. We maximize
+(\ref{restrl}) through a computationally efficient alternative to
+the usual Fisher scoring iterations as described e.g. in Harville
+(1977), see Fahrmeir, Kneib and Lang (2004) for details.
 
 Note, that convergence problems may occur, if one of the
 parameters $\tau_j^2$ is small. In this case the maximum of the
@@ -1438,21 +1441,30 @@ is smaller than the user-specified value #lowerlim# (see section
 8.1.2). This usually corresponds to small values of the variances
 $\tau_j^2$ but defines "small" in a data driven way.
 
+Models for categorical responses are in principle estimated in the
+same way as presented above but have to be embedded into the
+framework of multivariate generalized linear models, see Kneib and
+Fahrmeir (2005) for details.
+
 \section{Survival analysis and competing risks models}
-\label{survivalAnalysis}
+\label{survivalAnalysis}\index{survival analysis}
 
 Discrete time duration and competing risks models can be estimated
-by expressing such models as categorical regression models. This
-is sketched in \autoref{discretetime} while
-\autoref{continuoustime} deals with continuous time survival
-analysis. \textit{BayesX} offers two possibilities of estimating
-continuous time hazard rate models, the piecewise exponential
-model and nonparametric as well as spatial extensions of the well
-known Cox model.
+by expressing such models as categorical regression models. This is
+sketched in \autoref{discretetime} while \autoref{continuoustime}
+deals with continuous time survival analysis. \textit{BayesX} offers
+two possibilities of estimating continuous time hazard rate models,
+the piecewise exponential model and nonparametric as well as spatial
+extensions of the well known Cox model. For the latter, extensions
+allowing for interval censored survival times are described in
+\autoref{intervalcensoring}. Estimation of models for continuous
+survival times based on MCMC is described in more detail in
+Hennerfeind, Brezger and Fahrmeir (2005). Kneib and Fahrmeir (2004)
+and Kneib (2005) present inference based on mixed model methodology.
 
 
 \subsection{Discrete time duration data}
-\label{discretetime}
+\label{discretetime}\index{discrete time survival models}
 
 In applications, duration data are often measured on a discrete
 time scale or are grouped in intervals. In this section we show
@@ -1640,8 +1652,9 @@ model with y as the response, reference category 0, and covariates
 t, x1, x2.
 
 
-\subsection{Continuous time survival analysis}
-\label{continuoustime}
+\subsection{Continuous time survival analysis for right censored survival times}
+\label{continuoustime}\index{continuous time survival
+models}\index{Cox model}
 
 In applications, where duration time $t$ is measured on a
 continuous time scale, grouping the data for a discrete time
@@ -1684,7 +1697,8 @@ either by a piecewise constant function (i.e.~assuming a p.e.m.)
 or by a P-spline.
 
 
-\textbf{Piecewise exponential model (p.e.m.)}
+\subsubsection{Piecewise exponential model (p.e.m.)}
+\index{piecewise exponential model}
 
 The basic idea of the p.e.m.~is to assume that all values that
 depend on time $t$ are piecewise constant on a grid
@@ -1776,7 +1790,7 @@ the response, $a$ as a covariate with random walk prior and x1 and
 x2 as covariates with appropriate priors.
 
 
-\textbf{Specifying a P-spline prior for the log-baseline}
+\subsubsection{Specifying a P-spline prior for the log-baseline}
 
 The p.e.m.~can be seen as a model where the log-baseline $f_0(t)$
 in (\ref{CoxModel}) is modelled by a P-spline (see
@@ -1804,6 +1818,109 @@ one the integral can not be calculated analytically anymore. For
 linear P-splines the integral can still be solved but the
 computational effort is quite high. Therefore {\it BayesX} makes
 use of the trapezoidal rule for a numerical approximation.
+
+\subsection{Continuous time survival analysis for right censored survival times}
+\label{intervalcensoring}\index{interval
+censoring}\index{time-varying covariates}\index{left truncation}
+
+Usually, the Cox model and extensions are developed for
+right-censored observations. More formally spoken, if the true
+survival time is given by $T$ and $C$ is a censoring time, only
+$\tilde{T}=\min(T,C)$ is observed along with the censoring indicator
+$\delta=\mathds{1}_{(T\le C)}$. Many applications, however, confront
+the analyst with more complicated data structures involving more
+general censoring schemes. For example, interval censored survival
+times $T$ are not observed exactly but are only known to fall into
+an interval $[T_{lo},T_{up}]$. If $T_{lo}=0$ such survival times are
+also referred to as being left censored. Furthermore, each of the
+censoring schemes may appear in combination with left truncation of
+the corresponding observation, i.e. the survival time is only
+observed if it exceeds the truncation time $T_{tr}$. Accordingly,
+some survival times are not observable and the likelihood has to be
+adjusted appropriately. Figure \ref{censoringschemes} illustrates
+the different censoring schemes we will consider in the following:
+The true survival time is given by $T$ which is observed for
+individual 1 and 2. While individual 1 is not truncated, individual
+2 is left truncated at time $T_{tr}$. Similarly, individuals 3 and 4
+are right-censored at time $C$ and individuals 5 and 6 are interval
+censored with interval $[T_{lo},T_{up}]$ with the same pattern for
+left truncation.
+
+\begin{figure}[htb]
+\begin{center}
+\epsfig{file=grafiken/censoringschemes.eps,scale=0.7}
+{\it\caption{Illustration of different censoring
+schemes.\label{censoringschemes}}}
+\end{center}
+\end{figure}
+
+In a general framework an observation can now be described
+completely by the quadruple $(T_{tr},T_{lo},T_{up},\delta)$, with
+\begin{center}
+\begin{tabular}{ll}
+$T_{lo}=T_{up}=T$, $\delta=1$ & if the observation is uncensored,\\
+$T_{lo}=T_{up}=C$, $\delta=0$ & if the observation is right censored,\\
+$T_{lo}<T_{up}$, $\delta=0$ & if the observation is interval censored.\\
+\end{tabular}
+\end{center}
+For left truncated observations we have $T_{tr}>0$ and $T_{tr}=0$
+for observations which are not truncated.
+
+Based on these definitions we can now construct the likelihood
+contributions for the different censoring schemes in terms of the
+hazard rate $\lambda_i(t_i)$ and the survivor function
+$S(t)=\exp(\int_0^t\lambda(u)du)$. Under the common assumption of
+noninformative censoring and conditional independence, the
+likelihood is given by
+\begin{equation}\label{likelihood}
+ L=\prod_{i=1}^n L_i,
+\end{equation}
+where
+\[L_i = \lambda(T_{up})S(T_{up})/S(T_{tr}) = \lambda(T_{up})\exp\left(-\int_{T_{tr}}^{T_{up}}\lambda(t)dt\right)\]
+for an uncensored observation,
+\[L_i = S(T_{up})/S(T_{tr}) = \exp\left(-\int_{T_{tr}}^{T_{up}}\lambda(t)dt\right)\]
+for a right censored observation and
+\[L_i = (S(T_{lo})-S(T_{up}))/S(T_{tr}) = \exp\left(-\int_{T_{tr}}^{T_{lo}}\lambda(t)dt\right)\left(1-\exp\left(-\int_{T_{lo}}^{T_{up}}\lambda(t)dt\right)\right)\]
+for an interval censored observation. Note that for explicit
+evaluation of the likelihood (\ref{likelihood}) some numerical
+integration technique has to be employed, since none of the
+integrals can in general be solved analytically.
+
+The above notation also allows for the easy inclusion of piecewise
+constant, time-varying covariates via some data augmentation. Noting
+that
+\[\int_{T_{tr}}^{T}\lambda(t)dt = \int_{T_{tr}}^{t_1}\lambda(t)dt + \int_{t_1}^{t_2}\lambda(t)dt + \ldots + \int_{t_{p-1}}^{t_p}\lambda(t)dt + \int_{t_p}^{T}\lambda(t)dt\]
+for $T_{tr}<t_1<\ldots<t_q<T$, we can replace an observation
+$(T_{tr},T_{lo},T_{up},\delta)$ by a set of new observations
+$(T_{tr},t_1,t_1,0)$, $(t_1,t_2,t_2,0)$, \ldots
+$(t_{p-1},t_p,t_p,0)$, $(t_{p},T_{lo},T_{up},\delta)$ without
+changing the likelihood. Therefore, observations with time-varying
+covariates can be split up into several observations, where the
+values $t_1<\ldots<t_p$ are defined by the changepoints of the
+covariate and the covariate is now time-constant on each of the
+intervals. In theory, other paths for a covariate $x(t)$ than
+piecewise constant ones are also possible, if $x(t)$ is known for
+$T_{tr}\le t\le T_{lo}$. In this case the the likelihood
+(\ref{likelihood}) can also be evaluated numerically but a general
+path $x(t)$ may lead to complicated data structures.
+
+Figure \ref{timevaryingcovs} illustrates the data augmentation step
+for a left truncated, uncensored observation and a covariate $x(t)$
+that takes the three different values $x_1,x_2$ and $x_3$ on the
+three intervals $[T_{tr},t_1], [t_1,t_2]$ and $[t_2,T_{up}]$. Here,
+the original observation $(T_{tr},T_{up},T_{up},1)$ has to be
+replaced by $(T_{tr},t_1,t_1,0)$, $(t_1,t_2,t_2,0)$ and
+$(t_2,T_{up},T_{up},1)$.
+\begin{figure}[htb]
+\begin{center}
+\epsfig{file=grafiken/timevaryingcovs.eps,scale=0.7}
+{\it\caption{Illustration of time-varying
+covariates.\label{timevaryingcovs}}}
+\end{center}
+\end{figure}
+
+Currently, interval censored survival times can only be handled with
+{\em remlreg objects}.
 
 \section{References}
 \label{bayesregref}
@@ -1898,8 +2015,8 @@ Hall, London.
 \item[Hastie, T., Tisbshirani, R. and Friedman, J. (2001):] {\em The Elements of Statistical Learning: Data Mining,
 Inference and Prediction.} New York: Springer--Verlag.
 
-\item[Hennerfeind, A., Brezger, A., Fahrmeir, L. (2003):]
-Geoadditive Survival models. SFB 386 Discussion paper 333,
+\item[Hennerfeind, A., Brezger, A., Fahrmeir, L. (2005):]
+Geoadditive Survival models. SFB 386 Discussion paper 414,
 University of Munich.
 
 \item[Johnson, M.E., Moore, L.M. and
@@ -1909,13 +2026,17 @@ Ylvisaker, D., (1990):] Minimax and maximin designs. {\it Journal of Statistical
 \item[Kammann, E. E. and Wand, M. P., (2003):] Geoadditive Models. {\it Journal of the Royal
 Statistical Society C}, 52, 1-18.
 
-\item[Kneib, T. and Fahrmeir, L., (2004a):] Structured additive
-regression for multicategorical space-time data: A mixed model
-approach. SFB 386 Discussion paper 377, University of Munich.
-
-\item[Kneib, T. and Fahrmeir, L., (2004b):] A mixed model approach
+\item[Kneib, T. and Fahrmeir, L., (2004):] A mixed model approach
 to structured hazard regression. SFB 386 Discussion paper 400,
 University of Munich.
+
+\item[Kneib, T. and Fahrmeir, L., (2005):] Structured additive
+regression for categorical space-time data: A mixed model approach.
+{\it Biometrics}, to appear.
+
+\item[Kneib, T. (2005):] Geoadditive hazard regression for interval
+censored survival times. SFB 386 Discussion paper ???, University of
+Munich.
 
 \item[Knorr-Held, L. (1999):] Conditional Prior Proposals in
 Dynamic Models. {\em Scandinavian Journal of Statistics}, 26,
@@ -1956,7 +2077,7 @@ Royal Statistical Society B}, 65, 583-639.
 
 \end{description}
 
-\addcontentsline{toc}{section}{Index} \pdfbookmark[1]{Index}{index}
+\addcontentsline{toc}{section}{Index}
 \input{manual_star.ind}
 \hypertarget{index}{}
 

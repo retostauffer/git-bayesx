@@ -19,12 +19,13 @@ models for univariate responses can be found in Fahrmeir, Kneib and
 Lang (2004), Kneib and Fahrmeir (2005) deals with models for
 multicategorical responses. A description of models for continuous
 time survival analysis based on the Cox model can be found in Kneib
-and Fahrmeir (2004). Good introductions into generalized linear
-models are the monographs of Fahrmeir and Tutz (2001) and McCullagh
-and Nelder (1989). Introductions to semi- and nonparametric models
-are given in Green and Silverman (1994), Hastie and Tibshirani
-(1990), Hastie and Tibshirani (1993) and Hastie, Tibshirani and
-Friedman (2001).
+and Fahrmeir (2004). Interval censoring and some further extensions
+are discussed in Kneib (2005) Good introductions into generalized
+linear models are the monographs of Fahrmeir and Tutz (2001) and
+McCullagh and Nelder (1989). Introductions to semi- and
+nonparametric models are given in Green and Silverman (1994), Hastie
+and Tibshirani (1990), Hastie and Tibshirani (1993) and Hastie,
+Tibshirani and Friedman (2001).
 
 First steps with {\em remlreg objects} can be done with the example
 in chapter \ref*{remlregzambiaanalysis} of the tutorial manual.
@@ -838,7 +839,7 @@ the different models:
  \hline
  #family=gamma#               & gamma                 & log & \\
  \hline
- #family=cox#                 & continuous-time survival data & & \\
+ #family=cox#                 & continuous-time survival data & & #leftint#, #lefttrunc#\\
  \hline
 \end{tabular}
 {\em \caption {\label{remlregfamilyopt} Summary of supported
@@ -1010,7 +1011,10 @@ manual. The first alternative is to assume that all time-dependent
 effects are piecewise constant, which leads to the so called
 \textit{piecewise exponential model} (p.e.m.), and the second one is
 to estimate the log-baseline effect $\log(\lambda_0(t))=f_0(t)$ by a
-P-spline with second order random walk penalty.
+P-spline with second order random walk penalty. For the latter
+approach, inclusion of interval censoring as well as left truncation
+are described in section \ref*{intervalcensoring} of the methodology
+manual.
 
 \subsubsection*{Piecewise exponential model (p.e.m.)}
 
@@ -1083,6 +1087,35 @@ log-baseline would be estimated as follows:
 Note, that we assume that a {\em remlreg object} #r# has been
 created before executing the command.
 
+\subsubsection*{Interval censoring and left truncation}
+\index{interval censoring} \index{left truncation}
+
+Interval censoring and left truncation can be incorporated using the
+additional options #leftint# and #lefttrunc#. These two variables
+represent the lower interval boundary $T_{lo}$ and the left
+truncation time $T_{tr}$ as discussed in section
+\ref*{intervalcensoring} of the methodology manual. The usual time
+variable that is specified in the baseline statement corresponds to
+$T_{up}$, the upper boundary of the interval. In general an
+observation can now be described completely by the quadruple
+$(T_{tr},T_{lo},T_{up},\delta)$, with
+\begin{center}
+\begin{tabular}{ll}
+$T_{lo}=T_{up}$, $\delta=1$ & if the observation is uncensored,\\
+$T_{lo}=T_{up}$, $\delta=0$ & if the observation is right censored,\\
+$T_{lo}<T_{up}$, $\delta=0$ & if the observation is interval censored.\\
+\end{tabular}
+\end{center}
+For left truncated observations we have $T_{tr}>0$ and $T_{tr}=0$
+for observations which are not truncated.
+
+An example for a statement that estimates a model with left
+truncation and interval censoring is given by
+
+ #> r.regress delta = tup(baseline)+ x1 + x2(psplinerw2), family=cox#\\
+ #  lefttrunc=ttr leftint=tlo# \ldots
+
+
 \subsection{Options}
 \label{remlregregressoptions}
 
@@ -1128,7 +1161,25 @@ results based on the current values of all parameters even if the
 estimation procedure is stopped due to numerical problems, but an
 error message will be printed in the {\it output window}.\\
 DEFAULT: #maxchange=1000000#
+\end{itemize}
 
+\subsubsection*{Options for the analysis of survival times}
+\label{remlest_survival_options}
+
+\begin{itemize}
+\item #leftint = #{\em variablename}\\
+Gives the name of the variable that contains the lower (left)
+boundary $T_{lo}$ of the interval $[T_{lo},T_{up}]$ for an interval
+censored observation. For right censored or uncensored observations
+we have to specify $T_{lo}=T_{up}$. If #leftint# is missing, all
+observations are assumed to be right censored or uncensored,
+depending on the corresponding value of the censoring indicator.
+
+\item #lefttrunc = #{\em variablename}\\
+Gives the name of the variable containing the left truncation time
+$T_{tr}$. For observations that are not truncated we have to specify
+$T_{tr}=0$. If #lefttrunc# is missing, all obeservations are assumed
+to be not truncated.
 \end{itemize}
 
 \subsubsection*{Further options} \label{remlreg_further_options}
@@ -1419,14 +1470,16 @@ Hall, London.
 \item[Hastie, T., Tisbshirani, R. and Friedman, J. (2001):] {\em The Elements of Statistical Learning: Data Mining,
 Inference and Prediction.} New York: Springer--Verlag.
 
-\item[Kneib, T. and Fahrmeir, L. (2005):] Structured additive
-regression for multicategorical space-time data: A mixed model
-approach. {\it Biometrics}, to appear.
+\item[Kneib, T. (2005):] Geoadditive hazard regression for interval censored survival times. SFB 386 discussion Paper ???,
+University of Munich.
 
 \item[Kneib, T. and Fahrmeir, L. (2004):] A mixed model approach
 for structured hazard regression. SFB 386 discussion Paper 400,
-University of Munich. Available from
-\href{http://www.stat.uni-muenchen.de/~kneib/papers.html}{www.stat.uni-muenchen.de/$\sim$kneib/papers.html}
+University of Munich.
+
+\item[Kneib, T. and Fahrmeir, L. (2005):] Structured additive
+regression for multicategorical space-time data: A mixed model
+approach. {\it Biometrics}, to appear.
 
 \item[Brezger, A. (2000):]
 \href{http://www.stat.uni-muenchen.de/~andib} {\em Bayesianische
