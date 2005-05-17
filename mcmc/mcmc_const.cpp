@@ -320,7 +320,7 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
                      datamatrix & betareml, datamatrix & betacov,
                      unsigned nrcat2)
   {
-  unsigned i,j;
+  unsigned i,j,k;
 
   // Redefine term_symbolic (for tex-output)
   char charh ='_';
@@ -367,9 +367,9 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
     {
     if(catspecific_fixed[j])
       {
-      for(j=0; j<nrcat2; j++)
+      for(k=0; k<nrcat2; k++)
         {
-        datanames.push_back(helpnames[i]+" (Cat."+ST::inttostring(j+1)+")");
+        datanames.push_back(helpnames[i]+" (Cat."+ST::inttostring(k+1)+")");
         nrconst++;
         }
       i++;
