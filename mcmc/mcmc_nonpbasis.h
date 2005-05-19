@@ -220,6 +220,10 @@ class __EXPORT_TYPE FULLCOND_nonp_basis : public FULLCOND
     return rankK;
     }
 
+  unsigned get_rankK2(void)  // neu!!!
+    {                        // neu!!!
+    return rankK;            //neu
+    }                        //neu
 
   const double & getlambda(void)
     {

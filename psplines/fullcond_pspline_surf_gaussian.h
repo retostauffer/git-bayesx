@@ -256,11 +256,6 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
   void init_maineffects(spline_basis * mp1,spline_basis * mp2,
                          const ST::string & pnt,const ST::string & prt);
 
-  void init_maineffect(spline_basis * mp1,const ST::string & pnt,
-                             const ST::string & prt, const unsigned & number);
-
-  void search_maineffects(void);
-
   // COPY CONSTRUCTOR
 
   FULLCOND_pspline_surf_gaussian(const FULLCOND_pspline_surf_gaussian & fc);
@@ -315,27 +310,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
     K.set(i,j,t);
     }
 
-// ----------------------- für stepwise ----------------------------------------
-
-  void reset_effect(const unsigned & pos);
-
   double compute_df(void);
 
-  void hierarchie_rw1(vector<double> & untervector);
-
-  void compute_lambdavec(vector<double> & lvec, int & number);
-
-  void update_stepwise(double la)
-    {
-    lambda=la;
-    }
-
-  // FUNCTION: get_effect
-  // TASK: returns a string of the estimated effect
-
-  ST::string  get_effect(void);
-
-  const datamatrix & get_data_forfixedeffects(void);
 
 
   // DESTRUCTOR

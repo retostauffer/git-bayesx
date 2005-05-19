@@ -130,11 +130,6 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o,
 
   identifiable = false;
 
-  if (type==RW1)
-    grenzfall = 0;
-  else if (type == RW2)
-    grenzfall = 1;
-
   }
 
 
@@ -243,11 +238,6 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o, DISTRIBUTI
     }
 
   identifiable = true;
-
-  if (type==RW1)
-    grenzfall = 1;
-  else if (type == RW2)
-    grenzfall = 2;
 
   }
 
@@ -691,8 +681,6 @@ bool FULLCOND_pspline_gaussian::posteriormode(void)
       }
     }
 
-  if(interactions_pointer.size()>0)
-      search_for_interaction();
   if(interaction == false)
     {
 

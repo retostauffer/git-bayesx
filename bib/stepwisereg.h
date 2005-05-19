@@ -30,10 +30,10 @@
 #include<variance_nonp.h>
 #include<fullcond_surf_gaussian.h>
 
-#include<fullcond_pspline_gaussian.h>
-#include<IWLS_pspline.h>
+#include<fullcond_pspline_stepwise.h>
+//#include<IWLS_pspline.h>
 #include<mcmc_pspline_surf.h>
-#include<fullcond_pspline_surf_gaussian.h>
+#include<fullcond_pspline_surf_stepwise.h>
 #include<mcmc_pspline.h>
 
 #include<randomeffect.h>
@@ -60,10 +60,12 @@ using MCMC::FULLCOND_const_gaussian_special;
 using MCMC::FULLCOND_nonp_gaussian;
 using MCMC::FULLCOND_variance_nonp;
 using MCMC::FULLCOND_pspline;
-using MCMC::FULLCOND_pspline_gaussian;
-using MCMC::IWLS_pspline;
+//using MCMC::FULLCOND_pspline_gaussian;
+using MCMC::FULLCOND_pspline_stepwise;
+//using MCMC::IWLS_pspline;
 using MCMC::FULLCOND_pspline_surf;
-using MCMC::FULLCOND_pspline_surf_gaussian;
+//using MCMC::FULLCOND_pspline_surf_gaussian;
+using MCMC::FULLCOND_pspline_surf_stepwise;
 using MCMC::FULLCOND_random_nongaussian;
 using MCMC::FULLCOND_random_gaussian;
 using MCMC::STEPWISErun;
@@ -131,6 +133,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
   intoption increment;
 
   simpleoption fine_tuning;
+  simpleoption fine_local;
 
   simpleoption maveraging;
   intoption window;
@@ -240,6 +243,17 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   friend void plotnonprun(stepwisereg & b);
 
+  // for method texsummary
+
+  modelStandard mtexsummary;
+
+  optionlist texsummaryoptions;
+
+  use utexsummary;
+
+  friend void texsummaryrun(stepwisereg & b);
+
+
 //------------------------------ DISTRIBUTION ----------------------------------
 
   vector<ST::string> distrstring;
@@ -305,10 +319,11 @@ class __EXPORT_TYPE stepwisereg : public statobject
   bool create_spatial(const unsigned & collinpred=0);
 
   vector<FULLCOND_pspline> fcpspline;
-  vector<FULLCOND_pspline_gaussian> fcpsplinegaussian;
-  vector<IWLS_pspline> fciwlspspline;
+  //vector<FULLCOND_pspline_gaussian> fcpsplinegaussian;
+  vector<FULLCOND_pspline_stepwise> fcpsplinestep;
+  //vector<IWLS_pspline> fciwlspspline;
   vector<FULLCOND_pspline_surf> fcpsplinesurf;
-  vector<FULLCOND_pspline_surf_gaussian> fcpsplinesurfgaussian;
+  vector<FULLCOND_pspline_surf_stepwise> fcpsplinesurfstep;
   term_pspline_stepwise nonppspline;
   bool create_pspline(const unsigned & collinpred=0);
 

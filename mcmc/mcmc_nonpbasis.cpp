@@ -116,6 +116,10 @@ void FULLCOND_nonp_basis::updateK(const datamatrix & q)
 void FULLCOND_nonp_basis::updateKenv(const datamatrix & q)
   {
 
+//ofstream out1("c:\\cprog\\test\\results\\Kenv_alt.txt");
+//Kenv.print2(out1);
+//out1.close();
+
   register unsigned i;
 
   if (type==RW1)
@@ -191,6 +195,10 @@ void FULLCOND_nonp_basis::updateKenv(const datamatrix & q)
     *workenv = F1(nrpar-1,0)/(g(nrpar-1,0)*q(nrpar-1,0));
 
     }
+
+//ofstream out2("c:\\cprog\\test\\results\\Kenv_neu.txt");
+//Kenv.print2(out2);
+//out2.close();
 
   }
 
@@ -444,7 +452,7 @@ void FULLCOND_nonp_basis::outresults(void)
     optionsp->out("  plotnonp(\""+ pathresultsplus + "\")\n");
     optionsp->out("\n");
     optionsp->out("  or \n");
-    optionsp->out("\n");    
+    optionsp->out("\n");
     optionsp->out("  plotnonp(\""+ pathresultsplus + "\",\"" + psfile
                   + "\")\n");
     optionsp->out("\n");
@@ -473,7 +481,6 @@ void FULLCOND_nonp_basis::outresults(void)
   unsigned i;
 
   ofstream outres(pathcurrent.strtochar());
-
 //  ST::string name = title;
   ST::string name = datanames[0];
 
@@ -499,45 +506,44 @@ void FULLCOND_nonp_basis::outresults(void)
 
   outres << endl;
 
-  double * workmean = betamean.getV();
-  double * workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
-  double * workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
-  double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
-  double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
-  double * workbetaqu50 = betaqu50.getV();
+    double * workmean = betamean.getV();
+    double * workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
+    double * workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
+    double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
+    double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
+    double * workbetaqu50 = betaqu50.getV();
 
-  vector<ST::string>::iterator effit = effectvalues.begin();
+    vector<ST::string>::iterator effit = effectvalues.begin();
 
-  for(i=0;i<nrpar;i++,++effit,workmean++,workbetaqu_l1_lower_p++,
-                           workbetaqu_l2_lower_p++,workbetaqu50++,
-                           workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++)
-    {
-    outres << (i+1) << "   ";
-    outres << *effit << "   ";
-    outres << *workmean << "   ";
-    outres << *workbetaqu_l1_lower_p << "   ";
-    outres << *workbetaqu_l2_lower_p << "   ";
-    outres << *workbetaqu50 << "   ";
-    outres << *workbetaqu_l2_upper_p << "   ";
-    outres << *workbetaqu_l1_upper_p << "   ";
+    for(i=0;i<nrpar;i++,++effit,workmean++,workbetaqu_l1_lower_p++,
+                            workbetaqu_l2_lower_p++,workbetaqu50++,
+                            workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++)
+      {
+      outres << (i+1) << "   ";
+      outres << *effit << "   ";
+      outres << *workmean << "   ";
+      outres << *workbetaqu_l1_lower_p << "   ";
+      outres << *workbetaqu_l2_lower_p << "   ";
+      outres << *workbetaqu50 << "   ";
+      outres << *workbetaqu_l2_upper_p << "   ";
+      outres << *workbetaqu_l1_upper_p << "   ";
 
-    if (*workbetaqu_l1_lower_p > 0)
-      outres << 1 << "   ";
-    else if (*workbetaqu_l1_upper_p < 0)
-      outres << -1 << "   ";
-    else
-      outres << 0 << "   ";
+      if (*workbetaqu_l1_lower_p > 0)
+        outres << 1 << "   ";
+      else if (*workbetaqu_l1_upper_p < 0)
+        outres << -1 << "   ";
+      else
+        outres << 0 << "   ";
 
-    if (*workbetaqu_l2_lower_p > 0)
-      outres << 1 << "   ";
-    else if (*workbetaqu_l2_upper_p < 0)
-      outres << -1 << "   ";
-    else
-      outres << 0 << "   ";
+      if (*workbetaqu_l2_lower_p > 0)
+        outres << 1 << "   ";
+      else if (*workbetaqu_l2_upper_p < 0)
+        outres << -1 << "   ";
+      else
+        outres << 0 << "   ";
 
-    outres << endl;
-    }
-
+      outres << endl;
+      }
   }
 
 

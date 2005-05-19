@@ -638,6 +638,9 @@ bool MCMCsimulate::posteriormode(const vector<ST::string> & header,
 
       allconverged = true;
 
+      for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)    // für stepwise
+        fullcondp[j]->remove_centering_fix();
+
       if (likepexisting)
         if (likep_mult[nrmodels-1-i]->posteriormode_converged(k) == false)
           allconverged = false;

@@ -131,9 +131,6 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
   vector<int> DGfirst;                  // Gibt pro Zeile die Position des ersten Elements
                                         // von DG an das ungleich Null ist
 
-  vector< vector<double> > beta_average;// für stepwise
-  vector<FULLCOND*> interactions_pointer;
-
 
   // FUNCTION: make_index
   // TASK: berechnet index, freq und freqoutput
@@ -491,39 +488,9 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
     }
 
 
-  // --------------------------- FOR STEPWISE ----------------------------------
-
-  void reset_effect(const unsigned & pos);
-
-  void hierarchie_rw1(vector<double> & untervector);
-
-  void compute_lambdavec(vector<double> & lvec, int & number);
-
   double compute_df(void);
 
   double compute_df_eigen(void);
-
-  void update_stepwise(double la)
-    {
-    lambda=la;
-    }
-
-  void multBS_sort(datamatrix & res, const datamatrix & beta);
-
-    // FUNCTION: get_effect
-  // TASK: returns a string of the estimated effect
-
-  ST::string  get_effect(void);
-
-  const datamatrix & get_data_forfixedeffects(void);
-
-  void save_betas(vector<double> & modell, unsigned & anzahl);
-      
-  void average_posteriormode(vector<double> & crit_weights);
-
-  void set_pointer_to_interaction(FULLCOND * inter);
-
-  void search_for_interaction(void);
 
   // ------------------------- FOR REML ----------------------------------------
 

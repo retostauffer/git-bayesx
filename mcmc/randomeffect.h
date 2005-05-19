@@ -175,6 +175,8 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
 
   unsigned get_rankK(void);
 
+  unsigned get_rankK2(void);
+
   double getlambda(void)
     {
     return lambda;

@@ -105,6 +105,10 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
     {
     }
 
+  virtual void update_interceptold(double & m) 
+    {
+    }
+
   bool posteriormode(void);
 
   virtual void posteriormode_intercept(double & m)

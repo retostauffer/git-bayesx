@@ -23,7 +23,8 @@ FULLCOND::FULLCOND(MCMCoptions * o,const datamatrix & d,
   {
 
   df_accuracy = 0.05;
-  inthemodel = true;
+  inthemodel = true;   // false ???
+  fixornot = false;
   grenzfall = 0;
   smoothing = "global";
 
@@ -107,6 +108,7 @@ FULLCOND::FULLCOND(const FULLCOND & m)
   data_forfixed = m.data_forfixed;
   df_accuracy = m.df_accuracy;
   inthemodel = m.inthemodel;
+  fixornot = m.fixornot;
   grenzfall = m.grenzfall;
   smoothing = m.smoothing;
 
@@ -211,6 +213,7 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
   data_forfixed = m.data_forfixed;
   df_accuracy = m.df_accuracy;
   inthemodel = m.inthemodel;
+  fixornot = m.fixornot;
   grenzfall = m.grenzfall;
   smoothing = m.smoothing;
 
@@ -1196,14 +1199,26 @@ void FULLCOND::outresults(void)
 void FULLCOND::set_inthemodel(double modell)
   {
   if(modell > 0)
-   inthemodel = true;
+    {
+    inthemodel = true;
+    fixornot = false;
+    }
+  else if(modell==0)
+    {
+    fixornot = false;
+    inthemodel = false;
+    }
   else
-   inthemodel = false;
+    {
+    fixornot = true;
+    inthemodel = false;
+    }
   }
 
-bool FULLCOND::get_inthemodel(void)
+void FULLCOND::get_inthemodel(bool & drin, bool & fix)       
   {
-  return inthemodel;
+  drin = inthemodel;
+  fix = fixornot;
   }
 
   // FUNCTION: compute_lambdavec

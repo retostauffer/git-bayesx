@@ -218,6 +218,7 @@ void stepwisereg::create(void)
   increment = intoption("increment",1,1,5);
 
   fine_tuning = simpleoption("fine_tuning",false);
+  fine_local = simpleoption("fine_local",false);
 
   maveraging = simpleoption("model_averaging",false);
   window = intoption("window",2,1,5);
@@ -295,6 +296,7 @@ void stepwisereg::create(void)
   regressoptions.push_back(&startmodel);
   regressoptions.push_back(&increment);
   regressoptions.push_back(&fine_tuning);
+  regressoptions.push_back(&fine_local);
   regressoptions.push_back(&maveraging);
   regressoptions.push_back(&window);
 
@@ -406,6 +408,23 @@ void stepwisereg::create(void)
 
   functions[2] = drawmaprun;
 
+  // -------------------------- method texsummary ------------------------------
+
+  utexsummary = use();
+
+  mtexsummary = modelStandard();
+
+  // SYNTAX OF COMMANDS:
+  // name [model] [weight varname] [by varname] [if expression]
+  //      [, options] [using usingtext]
+
+  // methods 2
+  methods.push_back(command("texsummary",&mtexsummary,&texsummaryoptions,&utexsummary,
+                   notallowed,notallowed,notallowed,notallowed,notallowed,
+                   notallowed));
+
+  functions[3] = texsummaryrun;
+
   }
 
 
@@ -431,8 +450,8 @@ void stepwisereg::initpointers(void)
     }
 
 
-  for(i=0;i<fcpsplinesurfgaussian.size();i++)
-    fullcond.push_back(&fcpsplinesurfgaussian[i]);
+  for(i=0;i<fcpsplinesurfstep.size();i++)
+    fullcond.push_back(&fcpsplinesurfstep[i]);
 
   for(i=0;i<normalconst.size();i++)
     fullcond.push_back(&normalconst[i]);
@@ -452,11 +471,11 @@ void stepwisereg::initpointers(void)
   for(i=0;i<fcpspline.size();i++)
     fullcond.push_back(&fcpspline[i]);
 
-  for(i=0;i<fciwlspspline.size();i++)
-    fullcond.push_back(&fciwlspspline[i]);
+  //for(i=0;i<fciwlspspline.size();i++)
+  //  fullcond.push_back(&fciwlspspline[i]);
 
-  for(i=0;i<fcpsplinegaussian.size();i++)
-    fullcond.push_back(&fcpsplinegaussian[i]);
+  for(i=0;i<fcpsplinestep.size();i++)
+    fullcond.push_back(&fcpsplinestep[i]);
 
   for(i=0;i<fcpsplinesurf.size();i++)
     fullcond.push_back(&fcpsplinesurf[i]);
@@ -512,18 +531,18 @@ void stepwisereg::clear(void)
   fcpspline.erase(fcpspline.begin(),fcpspline.end());
   fcpspline.reserve(40);
 
-  fciwlspspline.erase(fciwlspspline.begin(),fciwlspspline.end());
-  fciwlspspline.reserve(20);
+  //fciwlspspline.erase(fciwlspspline.begin(),fciwlspspline.end());
+  //fciwlspspline.reserve(20);
 
-  fcpsplinegaussian.erase(fcpsplinegaussian.begin(),fcpsplinegaussian.end());
-  fcpsplinegaussian.reserve(40);
+  fcpsplinestep.erase(fcpsplinestep.begin(),fcpsplinestep.end());
+  fcpsplinestep.reserve(40);
 
   fcpsplinesurf.erase(fcpsplinesurf.begin(),fcpsplinesurf.end());
   fcpsplinesurf.reserve(20);
 
-  fcpsplinesurfgaussian.erase(fcpsplinesurfgaussian.begin(),
-                              fcpsplinesurfgaussian.end());
-  fcpsplinesurfgaussian.reserve(20);
+  fcpsplinesurfstep.erase(fcpsplinesurfstep.begin(),
+                              fcpsplinesurfstep.end());
+  fcpsplinesurfstep.reserve(20);
 
   fcrandom.erase(fcrandom.begin(),fcrandom.end());
   fcrandom.reserve(40);
@@ -625,7 +644,9 @@ bool stepwisereg::create_generaloptions(void)
   #if defined(JAVA_OUTPUT_WINDOW)
   adminb_p,
   #endif
-  1000,100,10,logout,95,80));
+  12000,1000,10,logout,95,80));
+
+  // generaloptions[generaloptions.size()-1].set_nrout(1000);
 
   return false;
 
@@ -1620,14 +1641,10 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
 
       //----- end: creating path for samples and and results, creating title ---
 
-      // ---------------------- gaussian response, etc. ------------------------
-      if (check_gaussian())
+      if(varcoeff==false)
         {
-
-        if(varcoeff==false)
-          {
-          fcpsplinegaussian.push_back(
-          FULLCOND_pspline_gaussian(&generaloptions[generaloptions.size()-1],
+        fcpsplinestep.push_back(
+        FULLCOND_pspline_stepwise(&generaloptions[generaloptions.size()-1],
                                               distr[distr.size()-1],
                                               fcconst_intercept,
                                               D.getCol(j1),
@@ -1645,91 +1662,46 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
                                               false,
                                               collinpred
                                              )
-                           );
+                         );
 
-          fcpsplinegaussian[fcpsplinegaussian.size()-1].init_name(terms[i].varnames[0]);
-          }
-        else
-          {
-          fcpsplinegaussian.push_back(
-          FULLCOND_pspline_gaussian(&generaloptions[generaloptions.size()-1],
-                                              distr[distr.size()-1],
-                                              fcconst_intercept,
-                                              D.getCol(j2),
-                                              D.getCol(j1),
-                                              nrknots,
-                                              degree,
-                                              po,
-                                              type,
-                                              "unrestricted",
-                                              title,
-                                              pathnonp,
-                                              pathres,
-                                              false,
-                                              lambda,
-                                              gridsize,
-                                              collinpred
-                                             )
-                           );
-
-          vector<ST::string> na;
-          na.push_back(terms[i].varnames[1]);
-          na.push_back(terms[i].varnames[0]);
-          fcpsplinegaussian[fcpsplinegaussian.size()-1].init_names(na);
-          }
-
-        fcpsplinegaussian[fcpsplinegaussian.size()-1].set_stepwise_options(
-               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
-               numb,df_equidist);
-        fcpsplinegaussian[fcpsplinegaussian.size()-1].set_stepwise_accuracy(df_accuracy);
-
-
-        fcpsplinegaussian[fcpsplinegaussian.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcpsplinegaussian[fcpsplinegaussian.size()-1]);
-
-        // ---------------------- end: gaussian response, etc. -----------------
+        fcpsplinestep[fcpsplinestep.size()-1].init_name(terms[i].varnames[0]);
         }
       else
         {
-        // -------------------- non-gaussian response, etc. --------------------
+        fcpsplinestep.push_back(
+        FULLCOND_pspline_stepwise(&generaloptions[generaloptions.size()-1],
+                                            distr[distr.size()-1],
+                                            fcconst_intercept,
+                                            D.getCol(j2),
+                                            D.getCol(j1),
+                                            nrknots,
+                                            degree,
+                                            po,
+                                            type,
+                                            "unrestricted",
+                                            title,
+                                            pathnonp,
+                                            pathres,
+                                            false,
+                                            lambda,
+                                            gridsize,
+                                            collinpred
+                                           )
+                         );
 
-        fciwlspspline.push_back( IWLS_pspline(&generaloptions[generaloptions.size()-1],
-                                                distr[distr.size()-1],
-                                                fcconst_intercept,
-                                                D.getCol(j1),
-                                                false,
-                                                nrknots,
-                                                degree,
-                                                po,
-                                                lambda,
-                                                type,
-                                                "unrestricted",
-                                                1,
-                                                false,
-                                                2,
-                                                1.0,0.005,
-                                                title,
-                                                pathnonp,
-                                                pathres,
-                                                false,
-                                                gridsize,
-                                                false,
-                                                collinpred
-                                               )
-                             );
-
-          fciwlspspline[fciwlspspline.size()-1].init_name(terms[i].varnames[0]);
-
-          fciwlspspline[fciwlspspline.size()-1].set_stepwise_options(
-               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
-               numb,df_equidist);
-          fciwlspspline[fciwlspspline.size()-1].set_stepwise_accuracy(df_accuracy);
-
-          fciwlspspline[fciwlspspline.size()-1].set_fcnumber(fullcond.size());
-          fullcond.push_back(&fciwlspspline[fciwlspspline.size()-1]);
-
-        // ----------------- end:  non-gaussian response, etc. -----------------
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[0]);
+        fcpsplinestep[fcpsplinestep.size()-1].init_names(na);
         }
+
+      fcpsplinestep[fcpsplinestep.size()-1].set_stepwise_options(
+             lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+             numb,df_equidist);
+      fcpsplinestep[fcpsplinestep.size()-1].set_stepwise_accuracy(df_accuracy);
+
+      fcpsplinestep[fcpsplinestep.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcpsplinestep[fcpsplinestep.size()-1]);
 
       }
 
@@ -2524,6 +2496,43 @@ void plotnonprun(stepwisereg & b)
   }
 
 
+void texsummaryrun(stepwisereg & b)
+  {
+
+#if defined(BORLAND_OUTPUT_WINDOW)
+
+  b.outerror("ERROR: method texsummary is not available in this version\n");
+
+#elif defined(JAVA_OUTPUT_WINDOW)
+
+  bool error = false;
+
+  if (error==false)
+    {
+
+    //ST::string path = b.fullcond[nr]->get_pathresult();
+    ST::string path = b.outfiles[0];
+
+    mkdir(path.strtochar());
+    ST::string helpbat = path + "\\latexcommands.bat";
+    ofstream outbat(helpbat.strtochar());
+    outbat << "cd " << path << endl;
+    outbat << path.substr(0,1) << ":" << endl;
+    outbat << "cd.." << endl;
+    outbat << "latex " << path << "_model_summary.tex" << endl;
+    outbat << "dvips " << path << "_model_summary.dvi" << endl;
+    outbat.close();
+    system(helpbat.strtochar());
+    remove(helpbat.strtochar());
+    rmdir(path.strtochar());
+
+    }
+
+#endif
+
+  }
+
+
 
 void regressrun(stepwisereg & b)
   {
@@ -2608,6 +2617,7 @@ void regressrun(stepwisereg & b)
     ST::string stmodel = b.startmodel.getvalue();
     int increment = b.increment.getvalue();
     bool fine_tuning = b.fine_tuning.getvalue();
+    bool fine_local = b.fine_local.getvalue();
     bool maveraging = b.maveraging.getvalue();
     int window = b.window.getvalue();
     vector<FULLCOND*> fullcond_z;
@@ -2617,7 +2627,7 @@ void regressrun(stepwisereg & b)
     ST::string path = b.outfiles[0];
 
     failure = b.runobj.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
-    fine_tuning,maveraging,window,b.D,b.modelvarnamesv,name,fullcond_z,path);
+    fine_tuning,fine_local,maveraging,window,b.D,b.modelvarnamesv,name,fullcond_z,path);
 
     if(!failure)
       {
@@ -2676,21 +2686,23 @@ void regressrun(stepwisereg & b)
                    }
            }
 
-         // ofstream outbat(...);   siehe unten!
-
+         /*mkdir(path.strtochar());
+         ST::string helpbat = path + "\\latexcommands.bat";
+         ofstream outbat(helpbat.strtochar());
+         outbat << "cd " << path << endl;
+         outbat << path.substr(0,1) << ":" << endl;
+         outbat << "cd.." << endl;
+         outbat << "latex " << path << "_model_summary.tex" << endl;
+         outbat << "dvips " << path << "_model_summary.dvi" << endl;
+         outbat.close();
+         system(helpbat.strtochar());
+         remove(helpbat.strtochar());
+         rmdir(path.strtochar()); */
          }
 
+      b.newcommands.push_back(b.name + ".texsummary"); 
+          
 #endif
-
-/*ForceDirectories(path.strtochar());
-ST::string helpbat = path + "\\latexcommands.bat";
-ofstream outbat(helpbat.strtochar());
-outbat << "cd " << path << endl;
-outbat << "cd.." << endl;
-outbat << "latex " << path << "_model_summary.tex" << endl;
-outbat << "dvips " << path << "_model_summary.dvi" << endl;
-system(helpbat.strtochar());
-rmdir(path.strtochar());*/
 
      }
 
@@ -2917,73 +2929,72 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
                  "_pspline.raw","_pspline.res","_pspline");
 
 
-      if (check_gaussian())
+      FULLCOND_pspline_stepwise * mainp1;
+      FULLCOND_pspline_stepwise * mainp2;
+      unsigned main1=0;
+      unsigned main2=0;
+
+      //FULLCOND_pspline_surf_gaussian * inter;
+      FULLCOND * inter;
+
+      unsigned j;
+      for (j=0;j<fcpsplinestep.size();j++)
         {
-
-        FULLCOND_pspline_gaussian * mainp1;
-        FULLCOND_pspline_gaussian * mainp2;
-        unsigned main1=0;
-        unsigned main2=0;
-
-        //FULLCOND_pspline_surf_gaussian * inter;
-        FULLCOND * inter;
-
-        unsigned j;
-        for (j=0;j<fcpsplinegaussian.size();j++)
+        if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+             (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&
+              fcpsplinestep[j].get_col() == collinpred
+            )
           {
-          if  ( ((fcpsplinegaussian[j].get_datanames()).size() == 1) &&
-               (fcpsplinegaussian[j].get_datanames()[0] == terms[i].varnames[0]) &&
-                fcpsplinegaussian[j].get_col() == collinpred
-              )
+          mainp1 = &fcpsplinestep[j];
+          if(mainp1->get_gridsize() != gridsize)
             {
-            mainp1 = &fcpsplinegaussian[j];
-            if(mainp1->get_gridsize() != gridsize)
-              {
-              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
-              return true;
-              }
-            if(mainp1->get_nrknots() != nrknots)
-              {
-              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
-              return true;
-              }
-            if(mainp1->get_degree() != degree)
-              {
-              outerror("ERROR: degree for interaction term and main effects must be the same\n");
-              return true;
-              }
-            main1 ++;
+            outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
+            return true;
             }
-
-
-          if  ( ((fcpsplinegaussian[j].get_datanames()).size() == 1) &&
-              (fcpsplinegaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
-              fcpsplinegaussian[j].get_col() == collinpred
-              )
+          if(mainp1->get_nrknots() != nrknots)
             {
-            mainp2 = &fcpsplinegaussian[j];
-            if(mainp2->get_gridsize() != gridsize)
-              {
-              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
-              return true;
-              }
-            if(mainp2->get_nrknots() != nrknots)
-              {
-              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
-              return true;
-              }
-            if(mainp2->get_degree() != degree)
-              {
-              outerror("ERROR: degree for interaction term and main effects must be the same\n");
-              return true;
-              }
-            main2 ++;
+            outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
+            return true;
             }
-
+          if(mainp1->get_degree() != degree)
+            {
+            outerror("ERROR: degree for interaction term and main effects must be the same\n");
+            return true;
+            }
+          main1 ++;
           }
 
-        fcpsplinesurfgaussian.push_back(
-        FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
+
+        if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+            (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[1]) &&
+            fcpsplinestep[j].get_col() == collinpred
+            )
+          {
+          mainp2 = &fcpsplinestep[j];
+          if(mainp2->get_gridsize() != gridsize)
+            {
+            outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
+            return true;
+            }
+          if(mainp2->get_nrknots() != nrknots)
+            {
+            outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
+            return true;
+            }
+          if(mainp2->get_degree() != degree)
+            {
+            outerror("ERROR: degree for interaction term and main effects must be the same\n");
+            return true;
+            }
+          main2 ++;
+          }
+
+        }
+
+      if (check_gaussian())
+        {
+        fcpsplinesurfstep.push_back(
+        FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
                                       fcconst_intercept,
                                       D.getCol(j1),
                                       D.getCol(j2),
@@ -2998,203 +3009,90 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
                                       true,
                                       collinpred
                                       ));
-
-        //if (constlambda.getvalue() == true)
-        //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
-
-        inter = &fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1];
-
-        if ( (main1==1) && (main2==1) )
-          {
-          ST::string pathnonpt;
-          ST::string pathrest;
-          ST::string titlet;
-
-          make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
-                 "_pspline_total.raw","_pspline_total.res","_pspline_total");
-
-          fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].
-             init_maineffects(mainp1,mainp2,pathnonpt,pathrest);
-          mainp1->set_interaction();
-          mainp1->set_pointer_to_interaction(inter);
-          mainp2->set_interaction();
-          mainp2->set_pointer_to_interaction(inter);
-          }
-        else if ( (main1==0) && (main2==0) )
-          {
-          }
-        else if ( (main1==1) || (main2==1) )
-          {
-          ST::string pathnonpt;
-          ST::string pathrest;
-          ST::string titlet;
-
-          make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
-                 "_pspline_total.raw","_pspline_total.res","_pspline_total");
-
-          if(main1==1)
-            {
-            fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].
-                        init_maineffect(mainp1,pathnonpt,pathrest,1);  //  -> ändern zu init_maineffect(mainp1,pathnonpt,pathrest),
-                                                                // d.h. neue Fkt. in "fullcond_pspline_surf_gaussian.cpp"
-            mainp1->set_interaction();
-            mainp1->set_pointer_to_interaction(inter);
-            }
-          else
-            {
-            fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].
-                        init_maineffect(mainp2,pathnonpt,pathrest,2);  // siehe oben
-            mainp2->set_interaction();
-            mainp2->set_pointer_to_interaction(inter);
-            }
-          }
-
-        vector<ST::string> na;
-        na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-        na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
-
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_options(
-               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
-               numb,df_equidist);
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
-
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1]);
-
         }
       else
         {
-        // NONGAUSSIAN CASE
-        IWLS_pspline * mainp1;
-        IWLS_pspline * mainp2;
-        unsigned main1=0;
-        unsigned main2=0;
-
-        unsigned j;
-        for (j=0;j<fciwlspspline.size();j++)
-          {
-          if  ( ((fciwlspspline[j].get_datanames()).size() == 1) &&
-                 (fciwlspspline[j].get_datanames()[0] == terms[i].varnames[0]) &&
-                 fciwlspspline[j].get_col() == collinpred
-              )
-            {
-            mainp1 = &fciwlspspline[j];
-            if(mainp1->get_gridsize() != gridsize)
-              {
-              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
-              return true;
-              }
-            if(mainp1->get_nrknots() != nrknots)
-              {
-              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
-              return true;
-              }
-            if(mainp1->get_degree() != degree)
-              {
-              outerror("ERROR: degree for interaction term and main effects must be the same\n");
-              return true;
-              }
-            main1 ++;
-            }
-
-
-          if  ( ((fciwlspspline[j].get_datanames()).size() == 1) &&
-              (fciwlspspline[j].get_datanames()[0] == terms[i].varnames[1]) &&
-              fciwlspspline[j].get_col() == collinpred
-              )
-            {
-            mainp2 = &fciwlspspline[j];
-            if(mainp2->get_gridsize() != gridsize)
-              {
-              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
-              return true;
-              }
-            if(mainp2->get_nrknots() != nrknots)
-              {
-              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
-              return true;
-              }
-            if(mainp2->get_degree() != degree)
-              {
-              outerror("ERROR: degree for interaction term and main effects must be the same\n");
-              return true;
-              }
-            main2 ++;
-            }
-
-          }
-
-
-
-        fcpsplinesurfgaussian.push_back( FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],
-                                         distr[distr.size()-1],
-                                         fcconst_intercept,
-                                         D.getCol(j1),
-                                         D.getCol(j2),
-                                         false,
-                                         title,
-                                         nrknots,degree,
-                                         po,
-                                         lambda,
-                                         1,
-                                         false,
-                                         2,
-                                         1.0,0.005,
-                                         gridsize,
-                                         type,
-                                         pathnonp,
-                                         pathres,
-                                         outfile.getvalue(),
-                                         true,
-                                         true,
-                                         collinpred
-                                        )
-                        );
+        fcpsplinesurfstep.push_back(
+        FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
+                                      fcconst_intercept,
+                                      D.getCol(j1),
+                                      D.getCol(j2),
+                                      title,
+                                      nrknots,degree,po,
+                                      lambda,
+                                      gridsize,
+                                      type,
+                                      pathnonp,
+                                      pathres,
+                                      outfile.getvalue(),
+                                      false,
+                                      collinpred
+                                      ));
+        }
 
         //if (constlambda.getvalue() == true)
         //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
 
-        if ( (main1==1) && (main2==1) )
-          {
+      inter = &fcpsplinesurfstep[fcpsplinesurfstep.size()-1];
 
-          ST::string pathnonpt;
-          ST::string pathrest;
-          ST::string titlet;
+      if ( (main1==1) && (main2==1) )
+        {
+        ST::string pathnonpt;
+        ST::string pathrest;
+        ST::string titlet;
 
-          make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
+        make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
                "_pspline_total.raw","_pspline_total.res","_pspline_total");
 
-          fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].
-          init_maineffects(mainp1,mainp2,pathnonpt,pathrest);
-          mainp1->set_interaction();
-          mainp2->set_interaction();
-          }
-        else if ( (main1==0) && (main2==0) )
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].
+           init_maineffects(mainp1,mainp2,pathnonpt,pathrest);
+        mainp1->set_interaction();
+        mainp1->set_pointer_to_interaction(inter);
+        mainp2->set_interaction();
+        mainp2->set_pointer_to_interaction(inter);
+        }
+      else if ( (main1==0) && (main2==0) )
+        {
+        }
+      else if ( (main1==1) || (main2==1) )
+        {
+        ST::string pathnonpt;
+        ST::string pathrest;
+        ST::string titlet;
+
+        make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
+               "_pspline_total.raw","_pspline_total.res","_pspline_total");
+
+        if(main1==1)
           {
+          fcpsplinesurfstep[fcpsplinesurfstep.size()-1].
+                      init_maineffect(mainp1,pathnonpt,pathrest,1);  //  -> ändern zu init_maineffect(mainp1,pathnonpt,pathrest),
+                                                                // d.h. neue Fkt. in "fullcond_pspline_surf_gaussian.cpp"
+          mainp1->set_interaction();
+          mainp1->set_pointer_to_interaction(inter);
           }
         else
           {
-          // FEHLERMELDUNG
+          fcpsplinesurfstep[fcpsplinesurfstep.size()-1].
+                      init_maineffect(mainp2,pathnonpt,pathrest,2);  // siehe oben
+          mainp2->set_interaction();
+          mainp2->set_pointer_to_interaction(inter);
           }
-
-
-        vector<ST::string> na;
-        na.push_back(terms[i].varnames[0]);
-        na.push_back(terms[i].varnames[1]);
-
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
-
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_options(
-             lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
-             numb,df_equidist);
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
-
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1]);
         }
 
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].init_names(na);
+
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_stepwise_options(
+               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+               numb,df_equidist);
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_stepwise_accuracy(df_accuracy);
+
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcpsplinesurfstep[fcpsplinesurfstep.size()-1]);
       }
 
     }
@@ -3304,8 +3202,8 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
       if (check_gaussian())
         {
 
-        fcpsplinesurfgaussian.push_back(
-        FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],
+        fcpsplinesurfstep.push_back(
+        FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],
                                       distr[distr.size()-1],fcconst_intercept,
                                       D.getCol(j),m,terms[i].options[4],
                                       title,
@@ -3318,64 +3216,41 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
                                       true,
                                       collinpred
                                       ));
-
-        //if (constlambda.getvalue() == true)
-        //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
-
-        vector<ST::string> na;
-        na.push_back(terms[i].varnames[0]);
-
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
-
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_options(
-               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
-               numb,df_equidist);
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
-
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1]);
-
         }
       else
         {
         // NONGAUSSIAN CASE
-        fcpsplinesurfgaussian.push_back(
-        FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],
-                                    distr[distr.size()-1],fcconst_intercept,
-                                    D.getCol(j),m,terms[i].options[4],
-                                    false,
-                                    title,
-                                    nrknots,degree,po,
-                                    lambda,
-                                    1,
-                                    false,
-                                    2,
-                                    1.0,0.005,
-                                    gridsize,
-                                    type,
-                                    pathnonp,
-                                    pathres,
-                                    true,
-                                    true,
-                                    collinpred
-                                    ));
+        fcpsplinesurfstep.push_back(
+        FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],
+                                      distr[distr.size()-1],fcconst_intercept,
+                                      D.getCol(j),m,terms[i].options[4],
+                                      title,
+                                      nrknots,degree,po,
+                                      lambda,
+                                      gridsize,
+                                      type,
+                                      pathnonp,
+                                      pathres,
+                                      false,
+                                      collinpred
+                                      ));
+        }
 
         //if (constlambda.getvalue() == true)
         //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
 
-        vector<ST::string> na;
-        na.push_back(terms[i].varnames[0]);
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
+      vector<ST::string> na;
+      na.push_back(terms[i].varnames[0]);
 
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_options(
+      fcpsplinesurfstep[fcpsplinesurfstep.size()-1].init_names(na);
+
+      fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_stepwise_options(
              lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
              numb,df_equidist);
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
+      fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_stepwise_accuracy(df_accuracy);
 
-        fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1]);
-        }
-
+      fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcpsplinesurfstep[fcpsplinesurfstep.size()-1]);
       }
 
     }

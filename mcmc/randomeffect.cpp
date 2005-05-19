@@ -205,6 +205,11 @@ unsigned FULLCOND_random::get_rankK(void)
     return nrpar;
   }
 
+unsigned FULLCOND_random::get_rankK2(void)
+  {
+  return get_rankK();
+  }
+
 
 void FULLCOND_random::set_lambdaconst(double la)
   {

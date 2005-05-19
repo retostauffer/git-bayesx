@@ -94,7 +94,20 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   const FULLCOND_const_stepwise & operator=(const FULLCOND_const_stepwise & m);
 
+  /*void hilfeee(void)        // nur für Kontrolle!!!
+    {
+    ofstream out("c:\\cprog\\test\\results\\linold.txt");
+    linold.prettyPrint(out);
+    ofstream outc("c:\\cprog\\test\\results\\const.txt");
+    double * zeiger = beta.getV();
+    outc << *zeiger << endl;
+    } */
+
   void update_intercept(double & m);
+
+  void update_interceptold(double & m);
+
+  void update_linold(void); 
 
   void posteriormode_intercept(double & m);
 

@@ -704,7 +704,7 @@ term_spatial_stepwise::term_spatial_stepwise(void)
   df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,500);
   lambdamax_opt = simpleoption("lambdamax_opt",false);
   lambdamin_opt = simpleoption("lambdamin_opt",false);
-  number = intoption("number",0,0,50);
+  number = intoption("number",0,0,100);
   df_equidist = simpleoption("df_equidist",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
   }
@@ -1298,7 +1298,7 @@ term_interactpspline_stepwise::term_interactpspline_stepwise(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   gridsize = intoption("gridsize",-1,10,35);
   lambdamin = doubleoption("lambdamin",0.000001,0.000001,100000000);
-  lambdamax = doubleoption("lambdamax",10,0.000001,100000000);
+  lambdamax = doubleoption("lambdamax",100,0.000001,100000000);
   lambdastart = doubleoption("lambdastart",-1,-1,100000000);
   forced_into = simpleoption("forced_into",false);
   df_for_lambdamax = doubleoption("df_for_lambdamax",2,0,400);         // Unterscheidung rw1/rw2 bei default-Wert!!!

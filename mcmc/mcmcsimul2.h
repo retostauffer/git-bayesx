@@ -37,12 +37,15 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   int steps;
   ST::string startmodel;
   bool fine_tuning;
+  bool finelocal;
   ST::string trace;
   double kriterium_tex;
   ofstream outmodels;
   ofstream outcriterium;
   ofstream outtex;
   ST::string smoothing;                      // für Unterscheidung globaler / lokaler Glättungsparameter
+
+unsigned BIC_min;
 
   vector<vector<double> > lambdavec;
   vector<ST::string> names_fixed;
@@ -122,6 +125,8 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
           double & kriterium, double & df);
 
   double criterion_min(const double & df);
+
+  double criterion_min(const double & df, const ST::string & auswahl);
 
 // -----------------------------------------------------------------------------
 // ------------------ Funktionen für Koordinatenmethode ------------------------
@@ -287,7 +292,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 // ------------- Model Averaging -----------------------------------------------
 // -----------------------------------------------------------------------------
 
-  void compute_average(void);
+  void compute_average(ofstream & outweight);
 
   void save_alle_betas(vector<double> & modell);
 
@@ -323,7 +328,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   bool stepwise(const ST::string & procedure, const ST::string & minimum,
          const ST::string & crit, const int & stp, const ST::string & trac,
          const int & number, const ST::string & stam, const int & inc, const bool & finet,
-         const bool & maveraging, int & fenster,
+         const bool & fineloc, const bool & maveraging, int & fenster,
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path);
 

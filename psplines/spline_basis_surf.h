@@ -52,9 +52,6 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
   ST::string outfile;
 
   bool centertotal;
-  unsigned centerboth;               // gibt an, welche(r) Haupteffekt(e) aktuell im Modell ist
-  unsigned maineffectsexisting;      // gibt an, welche Haupteffekte (Fullcond-Obj.) zu Beginn angegeben sind
-                                     // Kombinationen: 0 (kein HE), 1 (HE Nr. 1), 10 (HE Nr. 2), 11 (beide HE)
 
   int gridsize;
   int gridsizex;

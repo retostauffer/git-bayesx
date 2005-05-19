@@ -64,7 +64,6 @@ void FULLCOND_pspline_surf_gaussian::init_maineffects(
   interaction = true;
 
   centertotal = false;
-  maineffectsexisting = 11;
 
   fctotalrespath = prt;
 
@@ -84,70 +83,6 @@ void FULLCOND_pspline_surf_gaussian::init_maineffects(
   }
 
 
-void FULLCOND_pspline_surf_gaussian::init_maineffect(spline_basis * mp1,
-         const ST::string & pnt,const ST::string & prt, const unsigned & number)
-  {
-  interaction = true;
-
-  centertotal = false;
-  centerboth = number;  // neu: normalerweise = 0, hier 1 oder 2, gibt damit an,
-                        // daﬂ nur ein Haupteffekt vorhanden ist und welcher!
-
-  fctotalrespath = prt;
-
-  datamatrix h(1,1,0);
-  if(gridsize < 0)
-    fctotal = FULLCOND(optionsp,h,title+"total",nrdiffobs,1,pnt);
-  else
-    fctotal = FULLCOND(optionsp,h,title+"total",gridsize,1,pnt);
-  fctotal.setflags(MCMC::norelchange | MCMC::nooutput);
-  fctotal.set_transform(transform);
-
-  if(number == 1)
-    {
-    maineffectsexisting = 1;
-    mainp1 = mp1;
-    beta1 = datamatrix(nrpar1dim,1,0);
-    he1 = datamatrix(xv.size(),1,0);
-    }
-  else
-    {
-    maineffectsexisting = 10;
-    mainp2 = mp1;
-    beta2 = datamatrix(nrpar1dim,1,0);
-    he2 = datamatrix(yv.size(),1,0);
-    }
-  }
-
-
-void FULLCOND_pspline_surf_gaussian::search_maineffects(void)
-  {
-  bool h1 = false;
-  bool h2 = false;
-  if(maineffectsexisting == 1 || maineffectsexisting == 11)
-    h1 = mainp1->get_inthemodel();
-  if(maineffectsexisting == 10 || maineffectsexisting == 11)
-    h2 = mainp2->get_inthemodel();
-  if(h1 == false && h2 == false)
-    centertotal = true;
-  else if(h1 == true && h2 == false)
-    {
-    centertotal = false;
-    centerboth = 1;
-    }
-  else if(h1 == false && h2 == true)
-    {
-    centertotal = false;
-    centerboth = 2;
-    }
-  else
-    {
-    centertotal = false;
-    centerboth = 0;
-    }
-  }
-
-
 void FULLCOND_pspline_surf_gaussian::create(const datamatrix & v1, const datamatrix & v2, const datamatrix & intact)
   {
 
@@ -158,17 +93,7 @@ void FULLCOND_pspline_surf_gaussian::create(const datamatrix & v1, const datamat
 
   unsigned i,j,bands;
 
-// stepwise
-
-  data_forfixed = v1;
-  for(i=0;i<v2.rows();i++)
-    {
-    data_forfixed(i,0) *= v2(i,0);
-    }
-  fctype = nonparametric;
   lambda_prec = -1;
-
-// END: stepwise
 
   make_index(v1,v2);
 
@@ -349,11 +274,6 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
 
   create(v1,v2);
 
-  if(type == mrflinear)
-    grenzfall = 0;
-  else if(type == mrfquadratic8)
-    grenzfall = 1;
-
   }
 
   // CONSTRUCTOR 2: IWLS
@@ -472,11 +392,6 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
 
   create(v1,v2);
 
-  if(type == mrflinear)
-    grenzfall = 0;
-  else if(type == mrfquadratic8)          
-    grenzfall = 1;
-
   }
 
   // CONSTRUCTOR 4: IWLS geosplines
@@ -563,11 +478,6 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
   outfile = of;
 
   create(v1,v2,intact);
-
-  if(type == mrflinear)
-    grenzfall = 1;
-  else if(type == mrfquadratic8)
-    grenzfall = 2;
 
   }
 
@@ -659,11 +569,6 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
     }
 
   create(v1,v2,intact);
-
-  if(type == mrflinear)
-    grenzfall = 1;
-  else if(type == mrfquadratic8)
-    grenzfall = 2;
 
   }
 
@@ -1929,16 +1834,9 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode_converged(const unsigned & it
 
 bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
   {
-  if(maineffectsexisting != 0)
-    search_maineffects();      //schlecht, weil Fkt. in jeder Iteration eines Backfitting aufgerufen wird!!!
-
   bool converged = false;
-  bool converged1 = true;
-  bool converged2 = true;
-  if(centerboth == 0 || centerboth == 1)
-    converged1 = false;
-  if(centerboth == 0 || centerboth == 2)
-    converged2 = false;
+  bool converged1 = false;
+  bool converged2 = false;
 
   transform = likep->get_trmult(column);
   fchelp.set_transform(transform);
@@ -1982,30 +1880,22 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
 
       if(utype != gaussian)
         {
-        if(centerboth == 0)
-          compute_intercept();
+        compute_intercept();
         compute_main();
         compute_beta();
-        if(centerboth == 0)
-          fcconst->posteriormode_intercept(intercept);
-        if(centerboth == 0 || centerboth == 1)
-          converged1 = mainp1->changeposterior(beta1);
-        if(centerboth == 0 || centerboth == 2)
-          converged2 = mainp2->changeposterior(beta2);
+        fcconst->posteriormode_intercept(intercept);
+        converged1 = mainp1->changeposterior(beta1);
+        converged2 = mainp2->changeposterior(beta2);
         intercept = 0.0;
         }
       else
         {
-        if(centerboth == 0)
-          compute_intercept();
+        compute_intercept();
         compute_main();
         compute_beta();
-        if(centerboth == 0)
-          fcconst->posteriormode_intercept(intercept);
-        if(centerboth == 0 || centerboth == 1)
-          converged1 = mainp1->changeposterior(he1,intercept);
-        if(centerboth == 0 ||centerboth == 2)
-          converged2 = mainp2->changeposterior(he2,intercept);
+        fcconst->posteriormode_intercept(intercept);
+        converged1 = mainp1->changeposterior(he1,intercept);
+        converged2 = mainp2->changeposterior(he2,intercept);
         intercept = 0.0;
         }
 
@@ -2021,16 +1911,9 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
             {
             if(freqwork==freq.begin() || *freqwork!=*(freqwork-1))
               {
-              if(centerboth == 0)
-                *fctotalbetap = spline(*workindex,0)
-                              + mainp1->get_spline()(*workindex,0)
-                              + mainp2->get_spline()(*workindex,0);
-              else if(centerboth == 1)
-                *fctotalbetap = spline(*workindex,0)
-                              + mainp1->get_spline()(*workindex,0);
-              else if(centerboth == 2)
-                *fctotalbetap = spline(*workindex,0)
-                              + mainp2->get_spline()(*workindex,0);
+              *fctotalbetap = spline(*workindex,0)
+                            + mainp1->get_spline()(*workindex,0)
+                            + mainp2->get_spline()(*workindex,0);
               fctotalbetap++;
               }
             }
@@ -2041,18 +1924,9 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
           unsigned k,l;
           for(k=0;k<gridsizex;k++)
             for(l=0;l<gridsizey;l++,fctotalbetap++)
-              {
-              if(centerboth == 0)
-                *fctotalbetap = splinehelp(k*gridsizey + l,0)
-                              + mainp1->get_splinehelp()(k,0)
-                              + mainp2->get_splinehelp()(l,0);
-              else if(centerboth == 1)
-                *fctotalbetap = splinehelp(k*gridsizey + l,0)
-                              + mainp1->get_splinehelp()(k,0);
-              else if(centerboth == 2)
-                *fctotalbetap = splinehelp(k*gridsizey + l,0)
-                              + mainp2->get_splinehelp()(l,0);
-              }
+              *fctotalbetap = splinehelp(k*gridsizey + l,0)
+                            + mainp1->get_splinehelp()(k,0)
+                            + mainp2->get_splinehelp()(l,0);
           }
 
       fctotal.posteriormode();
@@ -2745,22 +2619,6 @@ void FULLCOND_pspline_surf_gaussian::sample_centered(datamatrix & beta)
 
   }
 
-//------------------------ f¸r stepwise ----------------------------------------
-
-void FULLCOND_pspline_surf_gaussian::reset_effect(const unsigned & pos)
-  {
-  likep->substr_linearpred_m(spline,column,true);
-  unsigned i;
-  double * work;
-  work = spline.getV();
-  for(i=0;i<spline.rows();i++,work++)
-    *work = 0.0;
-  work = beta.getV();
-  for(i=0;i<nrpar;i++,work++)
-    *work = 0.0;
-  intercept = 0.0;
-  }
-
 
 double FULLCOND_pspline_surf_gaussian::compute_df(void)
   {
@@ -2792,116 +2650,6 @@ double FULLCOND_pspline_surf_gaussian::compute_df(void)
     return invprec.traceOfProduct(XX_env);
   else
     return invprec.traceOfProduct(XX_env)-1;
-  }
-
-
-void FULLCOND_pspline_surf_gaussian::hierarchie_rw1(vector<double> & untervector)
-  {
-
-  unsigned number = untervector.size()-1;
-
-  update_stepwise(untervector[0]);
-  double df_max = compute_df();
-
-  update_stepwise(untervector[number]);
-  double df_min = compute_df();
-
-  if(df_max > 1 && df_min < 1)
-     {
-     bool geordnet = false;
-     unsigned stelle_oben = number;
-     unsigned stelle_unten = 0;
-     while(geordnet==false)
-        {
-        unsigned stelle = stelle_oben + stelle_unten;
-        update_stepwise(untervector[stelle/2]);
-        double df_mitteunten = compute_df();
-        update_stepwise(untervector[stelle/2 + 1]);
-        double df_mitteoben = compute_df();
-
-        if(df_mitteunten > 1 && df_mitteoben > 1)
-          stelle_unten = stelle/2;
-        else if(df_mitteunten < 1 && df_mitteoben < 1)
-          stelle_oben = stelle/2 + 1;
-        else
-          {
-          geordnet = true;
-          vector<double> hilf;
-          unsigned i;
-          stelle_unten = stelle/2;
-          stelle_oben = stelle/2 + 1;
-          for(i=0;i<=stelle_unten;i++)
-             hilf.push_back(untervector[i]);
-          hilf.push_back(-1);
-          for(i=stelle_oben;i<untervector.size();i++)
-            hilf.push_back(untervector[i]);
-          untervector = hilf;
-          }
-        }
-     }
-  else if(df_min >= 1)
-     {
-     untervector.push_back(-1);
-     }
-  else
-     {
-     vector<double> hilf;
-     hilf.push_back(-1);
-     unsigned i;
-     for(i=0;i<untervector.size();i++)
-        hilf.push_back(untervector[i]);
-     untervector = hilf;
-     }
-  }
-
-
-void FULLCOND_pspline_surf_gaussian::compute_lambdavec(
-vector<double> & lvec, int & number)
-  {
-  if (get_df_equidist()==true)
-     FULLCOND::compute_lambdavec_equi(lvec,number);
-  else
-     FULLCOND::compute_lambdavec(lvec,number);
-
-  if (varcoeff || type==RW2)
-    {
-    lvec.push_back(-1);
-    }
-  else if (type==RW1 || type==mrflinear)
-    {
-    hierarchie_rw1(lvec);
-    }
-  get_forced();
-  if(forced_into==false)
-     lvec.push_back(0);
-  }
-
-
-const datamatrix & FULLCOND_pspline_surf_gaussian::get_data_forfixedeffects(void)
-  {
-  return data_forfixed;
-  }
-
-
-ST::string FULLCOND_pspline_surf_gaussian::get_effect(void)
-  {
-  ST::string h;
-
-  if(varcoeff)
-    {
-    h = datanames[1] + "*" + datanames[0] + "(geospline";
-    }
-  else
-    {
-    if(type==mrflinear)
-      h = datanames[0] + "(pspline2dimrw1";
-    else
-      h = datanames[0] + "(pspline2dimrw2";
-    }
-
-  h = h + ",df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
-
-  return h;
   }
 
 

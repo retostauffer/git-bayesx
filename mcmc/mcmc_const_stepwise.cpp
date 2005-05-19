@@ -120,12 +120,31 @@ void FULLCOND_const_stepwise::update_intercept(double & m)
   beta(interceptpos,0) +=m;
   }
 
+void FULLCOND_const_stepwise::update_interceptold(double & m)
+  {
+  betameanold(interceptpos,0) -= m;
+  }
+
 
 void FULLCOND_const_stepwise::posteriormode_intercept(double & m)   // wird bei Posteriormode(title,false)
-  {                                                                 // aufgerufen
+  {
   interceptadd+=m;
   beta(interceptpos,0) +=m;
   betameanold(interceptpos,0) +=m;
+  }
+
+
+void FULLCOND_const_stepwise::update_linold(void)
+  {
+  unsigned i;
+  double * worklinold=linold.getV();        // linold = data * beta
+  for(i=0;i<linold.rows();i++,worklinold++) // add "interceptadd" to linold
+    *worklinold += interceptadd;
+  interceptadd = 0;
+
+  double * workbetamean = betamean.getV();
+  double * workbeta = beta.getV();
+  *workbetamean = *workbeta * transform;
   }
 
 
@@ -150,13 +169,24 @@ bool FULLCOND_const_stepwise::posteriormode(void)
 
 void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & names, datamatrix newx)
   {
+  unsigned i;
+  if(interceptadd != 0)
+    {
+    likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+    double * worklinold=linold.getV();        // linold = data * beta
+    for(i=0;i<linold.rows();i++,worklinold++) // add interceptadd to linold
+      *worklinold += interceptadd;            // interceptadd contains numbers
+    interceptadd=0;                           // from centering other terms
+    likep->add_linearpred_m(linold,column);
+    }
+
   X2 = datamatrix(names.size()+1,names.size()+1,0);
   datamatrix beta_neu = datamatrix(names.size()+1,1,0);
 
   datamatrix newx2 = datamatrix(newx.rows(),newx.cols()+1,1);
   double * alt = newx.getV();
   double * neu = newx2.getV();
-  unsigned i,j;
+  unsigned j;
   for(i=0;i<newx.rows();i++)
     {
     neu++;
@@ -168,7 +198,6 @@ void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & na
   X2.assign((X2.cinverse()));               // continued
   likep->compute_weightiwls_workingresiduals(column); // computes W(y-linpred)
   beta_neu = X2*newx2.transposed()*likep->get_workingresiduals();
-
   likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
   datamatrix linold_single = datamatrix(newx2.rows(),1,0);
   linold_single.mult(newx2,beta_neu);
@@ -216,6 +245,15 @@ void FULLCOND_const_stepwise::set_const_old(void)
 
 void FULLCOND_const_stepwise::posteriormode_const(void)
   {
+  unsigned i;    
+  if(interceptadd !=0 )
+    {
+    double * worklinold=linold.getV();        // linold = data * beta
+    for(i=0;i<linold.rows();i++,worklinold++) // add interceptadd to linold
+      *worklinold += interceptadd;            // interceptadd contains numbers
+    interceptadd=0;                           // from centering other terms
+    }
+  
   double * workbeta = beta.getV();
   likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
   datamatrix linold_const = datamatrix(linold.rows(),1,*workbeta);
@@ -397,6 +435,16 @@ void FULLCOND_const_stepwise::include_effect(const vector<ST::string> & names, c
 
 void FULLCOND_const_stepwise::reset_effect(const unsigned & pos)
   {
+  unsigned i;
+  if(interceptadd != 0)
+    {
+    likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+    double * worklinold=linold.getV();        // linold = data * beta
+    for(i=0;i<linold.rows();i++,worklinold++) // add interceptadd to linold
+      *worklinold += interceptadd;            // interceptadd contains numbers
+    interceptadd=0;                           // from centering other terms
+    likep->add_linearpred_m(linold,column);
+    }
 
   if(fctype != factor)
     {
@@ -451,7 +499,6 @@ void FULLCOND_const_stepwise::reset_effect(const unsigned & pos)
     likep->substr_linearpred_m(linold,column);
     linold.mult(data,beta);
     likep->add_linearpred_m(linold,column);
-
     X1 = datamatrix(nrconst,nrconst,0);
     }
   }

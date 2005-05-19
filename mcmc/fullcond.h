@@ -172,6 +172,7 @@ class __EXPORT_TYPE FULLCOND
   bool df_equidist;
   double df_accuracy;
   bool inthemodel;    //gibt an, ob Fullc-Obj. im aktuellen Modell enthalten ist
+  bool fixornot;      // gibt an, ob statt Fullc-Obj. fixer Effekt da ist
   int grenzfall;      // gibt den FG für lambda -> unendlich an!
   ST::string smoothing;
 
@@ -768,8 +769,12 @@ class __EXPORT_TYPE FULLCOND
   // ------------------------ FOR STEPWISE SELECTION ---------------------------
   // ---------------------------------------------------------------------------
 
+  virtual void set_lambdaconst(double la)
+    {
+    }
+
   void set_inthemodel(double modell);
-  bool get_inthemodel(void);
+  void get_inthemodel(bool & drin, bool & fix);
 
   const int & get_grenzfall(void)
     {
@@ -781,10 +786,46 @@ class __EXPORT_TYPE FULLCOND
     smoothing = wert;
     }
 
-  /*virtual const unsigned get_rankK(void)
+  virtual void remove_centering(void)
+    {     // holt Zentrierung des 2d-Splines von Haupteffekten zurück
+    }
+
+  virtual void remove_centering_fix(void)
+    {
+    }
+
+  virtual void wiederholen(FULLCOND * haupt, bool konst)
+    {     // schlägt Zentrierung wieder auf Haupteffekt drauf
+    }
+
+  virtual void wiederholen_fix(FULLCOND * haupt, int vorzeichen, bool inter)
+    {     // zieht Zentrierung für fixen Haupteffekt von der Interaktion ab
+    }
+
+  virtual void set_zentrierung(FULLCOND * haupt, int & vorzeichen, bool & inter)
+    {
+    }
+
+  virtual void get_zentrierung(FULLCOND * haupt, bool & konst)
+    {
+    }
+
+  virtual void update_linold(void)
+    {
+    }
+
+  virtual unsigned get_rankK2(void)
      {
-     return 1;
-     } */
+     return 0;
+     }
+
+  virtual void set_lambdas_vector(double & la)
+    {
+    }
+
+  virtual void set_lambda_nr(void)
+    {
+    }
 
   //virtual double compute_penalterm(void)
   //  {
