@@ -38,7 +38,8 @@ bool bayesreg::check_gaussian(void)
   {
 
   if ( (family.getvalue() == "gaussian") ||
-       (family.getvalue() == "multgaussian") ||
+     (family.getvalue() == "multgaussian") ||
+     (family.getvalue() == "lognormal") ||
      (family.getvalue() == "binomialprobit") ||
      (family.getvalue() == "bernoullilogit") ||
      (family.getvalue() == "binomialtlink") ||
@@ -229,6 +230,7 @@ void bayesreg::create(void)
   families.reserve(10);
   families.push_back("gaussian");
   families.push_back("multgaussian");
+  families.push_back("lognormal");
   families.push_back("binomial");
   families.push_back("binomialprobit");
   families.push_back("binomialtlink");
@@ -568,9 +570,11 @@ void bayesreg::initpointers(void)
   for(i=0;i<distrstring.size();i++)
     {
     if (distrstring[i] == "gaussian")
-    distr.push_back(&distr_gaussian[distrposition[i]]);
+      distr.push_back(&distr_gaussian[distrposition[i]]);
     else if (distrstring[i] == "multgaussian")
       distr.push_back(&distr_multgaussian);
+    else if (distrstring[i] == "lognormal")
+      distr.push_back(&distr_lognormal);
     else if (distrstring[i] == "binomial")
       distr.push_back(&distr_binomial);
     else if (distrstring[i] == "poisson")
@@ -1145,6 +1149,75 @@ bool bayesreg::create_distribution(void)
     nrcategories = 1;
     }
 //-------------------------- END: Gaussian response ----------------------------
+  else if (family.getvalue() == "lognormal")
+    {
+
+    ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+    ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+
+    if (offs.rows() == 1)
+      distr_lognormal = DISTRIBUTION_lognormal(aresp.getvalue(),bresp.getvalue(),
+                                             &generaloptions[generaloptions.size()-1],
+                                             D.getCol(0),path2,
+                                             path3,w);
+    else
+      distr_lognormal = DISTRIBUTION_lognormal(offs,aresp.getvalue(),
+                                             bresp.getvalue(),&generaloptions[generaloptions.size()-1],
+                                             D.getCol(0),path2,path3,
+                                             w);
+
+    if (uniformprior.getvalue()==true)
+      {
+      distr_lognormal.set_uniformprior();
+      }
+
+    if (constscale.getvalue()==true)
+      {
+      distr_lognormal.set_constscale(scalevalue.getvalue());
+      }
+
+
+    distr_lognormal.init_names(rname,wn);
+
+
+    // prediction stuff
+
+    if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+      distr_lognormal.set_predict(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_lognormal.set_predictfull(pathfullsample,pathfull,n);
+      }
+
+    if (pind.rows() > 1)
+      distr_lognormal.set_predictresponse(pind);
+
+    // end: prediction stuff
+
+    if (varianceest==true)
+      {
+
+      distr_lognormal.set_variance(&distr_vargaussian);
+      distr_vargaussian.set_gaussian(&distr_lognormal);
+
+      }
+
+    distr.push_back(&distr_lognormal);
+    distrstring.push_back("lognormal");
+    distrposition.push_back(0);
+    nrcategories = 1;
+    }
+//-------------------------- END: lognormal ------------------------------------
   else if (family.getvalue() == "multgaussian")
     {
 
@@ -2001,6 +2074,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
     varnames.push_back(varnamesh[i]);
 
   unsigned nr = varnames.size();
+//  unsigned blocksize = 50;
 
   if (nr > 0)
     {
@@ -2019,6 +2093,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
         {
 
         if (c2 == 7)
+//        if (c2>1 && (c2-1)%blocksize == 0)
           {
           varnamesvec.push_back( vector<ST::string>() );
           }

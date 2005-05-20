@@ -59,6 +59,7 @@ using randnumbers::rand_invgamma;
 using MCMC::MCMCoptions;
 using MCMC::DISTRIBUTION;
 using MCMC::DISTRIBUTION_gaussian;
+using MCMC::DISTRIBUTION_lognormal;
 using MCMC::DISTRIBUTION_multgaussian;
 using MCMC::DISTRIBUTION_binomial;
 using MCMC::DISTRIBUTION_binomial_latent;
@@ -371,6 +372,7 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   vector<DISTRIBUTION_gaussian> distr_gaussian;
   DISTRIBUTION_multgaussian distr_multgaussian;
+  DISTRIBUTION_lognormal distr_lognormal;  
   DISTRIBUTION_binomial distr_binomial;
   DISTRIBUTION_binomial_latent distr_binomlat;
   DISTRIBUTION_binomial_logit_latent distr_binomlogitlat;
