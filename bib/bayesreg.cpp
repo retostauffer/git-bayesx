@@ -2074,36 +2074,25 @@ bool bayesreg::create_const(const unsigned & collinpred)
     varnames.push_back(varnamesh[i]);
 
   unsigned nr = varnames.size();
-//  unsigned blocksize = 50;
+  unsigned blocksize = 10;
 
   if (nr > 0)
     {
     vector< vector<ST::string> > varnamesvec;
 
-    if ( (check_gaussian()) || (nr <= 12) )
+    unsigned c=0;
+    varnamesvec.push_back( vector<ST::string> () );
+    while (c<varnames.size())
       {
-      varnamesvec.push_back(varnames);
-      }
-    else
-      {
-      unsigned c=0;
-      unsigned c2=1;
-      varnamesvec.push_back( vector<ST::string> () );
-      while (c<varnames.size())
+
+      if (c>0 && c%blocksize == 0)
         {
-
-        if (c2 == 7)
-//        if (c2>1 && (c2-1)%blocksize == 0)
-          {
-          varnamesvec.push_back( vector<ST::string>() );
-          }
-
-        varnamesvec[varnamesvec.size()-1].push_back(varnames[c]);
-
-        c2++;
-        c++;
+        varnamesvec.push_back( vector<ST::string>() );
         }
 
+      varnamesvec[varnamesvec.size()-1].push_back(varnames[c]);
+
+      c++;
       }
 
     for(unsigned k=0;k<varnamesvec.size();k++)
