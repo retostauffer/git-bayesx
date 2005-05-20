@@ -2007,6 +2007,95 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
 
 
 //------------------------------------------------------------------------------
+//-------------------- CLASS: DISTRIBUTION_lognormal ---------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTRIBUTION_lognormal : public DISTRIBUTION_gaussian
+  {
+
+  protected:
+
+
+  public:
+
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTRIBUTION_lognormal(void) : DISTRIBUTION_gaussian()
+     {
+     family = "lognormal";
+     }
+
+   // CONSTRUCTOR1
+   // a_invgamma = a
+   // b_invgamma = b
+
+   DISTRIBUTION_lognormal(const double & a,
+                         const double & b,
+                         MCMCoptions * o,
+                         const datamatrix & r,const ST::string & p,
+                         const ST::string & ps,
+                         const datamatrix & w=datamatrix());
+
+   // CONSTRUCTOR2
+   // a_invgamma = a
+   // b_invgamma = b
+
+   DISTRIBUTION_lognormal(const datamatrix & offset, const double & a,
+                         const double & b,
+                         MCMCoptions * o,
+                         const datamatrix & r,
+                         const ST::string & p,const ST::string & ps,
+                         const datamatrix & w=datamatrix());
+
+
+
+   // COPY CONSTRUCTOR
+
+   DISTRIBUTION_lognormal(const DISTRIBUTION_lognormal & nd)
+   : DISTRIBUTION_gaussian(DISTRIBUTION_gaussian(nd))
+     {
+     }
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTRIBUTION_lognormal & operator=(const DISTRIBUTION_lognormal & nd);
+
+   // DESTRUCTOR
+
+   ~DISTRIBUTION_lognormal() {}
+
+   // FUNCTION: loglikelihood
+   // TASK: computes the loglikelihood for a single observation
+
+  double loglikelihood(double * res,
+                       double * lin,
+                       double * w,
+                       const int & i) const;
+
+
+  // FUNCTION: compute_mu
+  // TASK: computes mu for a new linear predictor 'linpred'
+
+  void compute_mu(const double * linpred,double * mu) const;
+
+  void compute_mu_notransform(const double * linpred,double * mu) const;
+
+  // FUNCTION: compute_deviance
+  // TASK: computes the retransformed individual deviance
+  //       scale and response is assumed to be NOT RETRANSFORMED
+  //       but will be retransformed when computing the residual
+  //       mu is assumed to be already restransformed
+
+  void compute_deviance(const double * response,const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           const datamatrix & scale,const int & i) const;
+
+  };
+
+
+//------------------------------------------------------------------------------
 //-------------------- CLASS: DISTRIBUTION_binomial ----------------------------
 //------------------------------------------------------------------------------
 

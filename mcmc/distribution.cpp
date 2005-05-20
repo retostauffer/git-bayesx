@@ -4568,8 +4568,6 @@ void DISTRIBUTION_gaussian::compute_deviance(const double * response,
     double s = scale(0,0)*pow(trmult(0,0),2);
     double r = *response*trmult(0,0)-*mu;
     *deviance =  (*weight/s)*r*r+log(2*M_PI*s/(*weight));
-// für lognormal
-//    *deviance =  (*weight/s)*r*r+log(2*M_PI*s/(*weight)) + 2.0**response*trmult(0,0);
     *deviancesat = (*weight/s)*r*r;
     }
   else
@@ -4589,9 +4587,7 @@ double DISTRIBUTION_gaussian::compute_weight(double * linpred, double * weight,
 
 void DISTRIBUTION_gaussian::compute_mu(const double * linpred,double * mu) const
   {
-//  *mu = trmult(0,0)* *linpred;
-// für lognormal
-  *mu = exp(trmult(0,0)* *linpred + scale(0,0)*trmult(0,0)*trmult(0,0)/2.0);
+  *mu = trmult(0,0)* *linpred;
   }
 
 
@@ -4654,6 +4650,92 @@ void  DISTRIBUTION_gaussian::tr_nonlinear(vector<double *> b,
       }
     }
 
+  }
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS DISTRIBUTION_lognormal -------------------------
+//------------------------------------------------------------------------------
+
+
+double DISTRIBUTION_lognormal::loglikelihood(double * res,
+                       double * lin,
+                       double * w,
+                       const int & i) const
+  {
+  double help = *res-*lin;
+  return  - *w * ( help * help )/(2* scale(0,0));
+  }
+
+
+// constructor without offset
+DISTRIBUTION_lognormal::DISTRIBUTION_lognormal(const double & a,
+                                             const double & b,
+                                             MCMCoptions * o,
+                                             const datamatrix & r,
+                                             const ST::string & p,
+                                             const ST::string & ps,
+                                             const datamatrix & w)
+  : DISTRIBUTION_gaussian(a,b,o,r,p,ps,w)
+
+  {
+  family = "lognormal";
+  }
+
+
+// constructor with offset
+DISTRIBUTION_lognormal::DISTRIBUTION_lognormal(const datamatrix & offset,
+                      const double & a, const double & b, MCMCoptions * o,
+                      const datamatrix & r,const ST::string & p,
+                      const ST::string & ps,const datamatrix & w)
+  : DISTRIBUTION_gaussian(offset,a,b,o,r,p,ps,w)
+
+  {
+  family = "lognormal";
+  }
+
+
+const DISTRIBUTION_lognormal & DISTRIBUTION_lognormal::operator=(
+                                      const DISTRIBUTION_lognormal & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTRIBUTION_gaussian::operator=(DISTRIBUTION_gaussian(nd));
+  return *this;
+  }
+
+
+void DISTRIBUTION_lognormal::compute_deviance(const double * response,
+                           const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           const datamatrix & scale,const int & i) const
+  {
+  if ((*weight != 0) && (varianceest == false))
+    {
+    double s = scale(0,0)*pow(trmult(0,0),2);
+    double r = *response*trmult(0,0)-(log(*mu)-0.5*s);
+    *deviance = (*weight/s)*r*r+log(2*M_PI*s/(*weight)) + 2.0**response*trmult(0,0);
+    *deviancesat = (*weight/s)*r*r;
+    }
+  else
+    {
+    *deviance = 0;
+    *deviancesat = 0;
+    }
+  }
+
+
+void DISTRIBUTION_lognormal::compute_mu(const double * linpred,double * mu) const
+  {
+  *mu = exp(trmult(0,0)* *linpred + scale(0,0)*trmult(0,0)*trmult(0,0)/2.0);
+  }
+
+
+void DISTRIBUTION_lognormal::compute_mu_notransform(
+const double * linpred,double * mu) const
+  {
+  *mu = exp(*linpred + scale(0,0)/2.0);
   }
 
 
