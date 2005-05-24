@@ -379,7 +379,7 @@ void estimaterun(dagobject & d)
     MCMCsimulate sim(&mopt,fc);
     vector<ST::string> header;
     header.push_back("DAG object: method estimate");
-    sim.simulate(header,false);
+    sim.simulate(header,-1,false);
 
     } // end: if (error==false)
 

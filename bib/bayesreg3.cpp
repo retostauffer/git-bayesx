@@ -417,7 +417,7 @@ void mregressrun(bayesreg & b)
       vector<ST::string> header;
       header.push_back("BAYESREG OBJECT " + b.name.to_bstr() +
                                     ": regression procedure");
-      failure = b.simobj.simulate(header,!b.noposteriormode.getvalue());
+      failure = b.simobj.simulate(header,b.setseed.getvalue(),!b.noposteriormode.getvalue());
       }
     }
 
@@ -1543,7 +1543,7 @@ void regressrun(bayesreg & b)
         failure = b.simobj.posteriormode(header,false);
         }
       else
-        failure = b.simobj.simulate(header,!b.noposteriormode.getvalue());
+        failure = b.simobj.simulate(header,b.setseed.getvalue(),!b.noposteriormode.getvalue());
 
       b.varianceest=false;
       }
@@ -1598,10 +1598,10 @@ void regressrun(bayesreg & b)
         {
         if (b.family.getvalue() == "cumprobit")
           {
-          failure = b.simobj.simulate(header,false);
+          failure = b.simobj.simulate(header,b.setseed.getvalue(),false);
           }
         else
-          failure = b.simobj.simulate(header,!b.noposteriormode.getvalue());
+          failure = b.simobj.simulate(header,b.setseed.getvalue(),!b.noposteriormode.getvalue());
         }
 
       b.missingest=false;
@@ -1627,11 +1627,11 @@ void regressrun(bayesreg & b)
              (b.family.getvalue() == "binomialtlink")
            )
            {
-           failure = b.simobj.simulate(header,false);
+           failure = b.simobj.simulate(header,b.setseed.getvalue(),false);
            }
         else
           {
-          failure = b.simobj.simulate(header,!b.noposteriormode.getvalue());
+          failure = b.simobj.simulate(header,b.setseed.getvalue(),!b.noposteriormode.getvalue());
           }
 
         }

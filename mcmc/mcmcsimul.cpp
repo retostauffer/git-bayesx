@@ -198,7 +198,7 @@ void MCMCsimulate::setflags(const bitset<flagnr> & newflags)
   }
 
 
-bool MCMCsimulate::simulate(const vector<ST::string> & header,
+bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
                                  const bool & computemode)
   {
 
@@ -281,6 +281,9 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header,
     randomize();
     }
   #endif
+
+  if(seed >= 0)
+    srand(seed);
 
   clock_t beginsim = clock();
   clock_t it1per;

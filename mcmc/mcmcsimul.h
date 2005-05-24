@@ -92,7 +92,7 @@ class __EXPORT_TYPE MCMCsimulate
   // TASK: runs a MCMC simulation
   //       returns true, if simulation error or user break occured
 
-  bool simulate(const vector<ST::string> & header,
+  bool simulate(const vector<ST::string> & header, const int & seed,
                 const bool & computemode=true);
 
   bool posteriormode(const vector<ST::string> & header,

@@ -216,6 +216,8 @@ void bayesreg::create(void)
   modeonly = simpleoption("modeonly",false);
   noposteriormode = simpleoption("noposteriormode",false);
 
+  setseed = intoption("setseed",-1,0,MAXINT);
+
   pseudocontourprob = simpleoption("pseudocontourprob",false);
   uniformprior = simpleoption("uniformprior",false);
   approx = simpleoption("approx",false);
@@ -304,6 +306,7 @@ void bayesreg::create(void)
 
   regressoptions.push_back(&modeonly);
   regressoptions.push_back(&noposteriormode);
+  regressoptions.push_back(&setseed);
   regressoptions.push_back(&pseudocontourprob);
   regressoptions.push_back(&uniformprior);
   regressoptions.push_back(&approx);
