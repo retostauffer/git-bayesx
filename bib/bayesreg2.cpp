@@ -1041,8 +1041,7 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
   {
 
 //  ST::string pathnonp2;
-  int f;
-  unsigned nrcomp,aclag;
+  int f,nrcomp;
   double wprior,mpriorm,mpriorv,vpriora,vpriorb;
   long h;
   bool nosamples=false;
@@ -1064,8 +1063,6 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
       f = (terms[i].options[6]).strtodouble(vpriorb);
       if (terms[i].options[7] == "true")
         nosamples = true;
-      f = (terms[i].options[8]).strtolong(h);
-      aclag = unsigned(h);
 
       if (f==1)
         return true;
@@ -1125,7 +1122,7 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
                                                         nrcomp,wprior,
                                                         mpriorm,mpriorv,
                                                         vpriora,vpriorb,
-                                                        nosamples,aclag,
+                                                        nosamples,
                                                         collinpred
                                                         )
                           );
@@ -2357,7 +2354,7 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
   long h;
   unsigned min,max,degree,nrknots;
   double lambda,a1,b1;
-  bool ub;
+  bool ub, wb;
   int gridsize;
   int f;
 
@@ -2410,6 +2407,11 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
 
       proposal = terms[i].options[11];
 
+      if (terms[i].options[12] == "false")
+        wb = false;
+      else
+        wb = true;
+
       if (f==1)
         return true;
 
@@ -2435,6 +2437,8 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
                                                 distr[distr.size()-1],
                                                 fcconst_intercept,
                                                 D.getCol(j),
+                                                a1,
+                                                b1,
                                                 nrknots,
                                                 degree,
                                                 po,
@@ -2447,7 +2451,8 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
                                                 pathres,
                                                 gridsize,
                                                 collinpred,
-                                                beg
+                                                beg,
+                                                wb
                                                )
                              );
 
