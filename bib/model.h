@@ -965,7 +965,6 @@ class __EXPORT_TYPE term_mixture : public basic_termtype
   doubleoption vpriora;
   doubleoption vpriorb;
   simpleoption nosamples;
-  intoption aclag;  
 
   void setdefault(void);
 
@@ -1326,6 +1325,7 @@ class __EXPORT_TYPE term_baseline : public basic_termtype
   intoption gridsize;
   simpleoption uniformprior;
   stroption proposal;
+  simpleoption weibull;
 
 
   void setdefault(void);

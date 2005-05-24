@@ -2558,13 +2558,12 @@ term_mixture::term_mixture(void)
 //  updatetau = simpleoption("updatetau",false);
 //  uniformprior = simpleoption("uniformprior",false);
   nrcomp = intoption("nrcomp",1,1,50); //name,vorbelegung,minerlaubt,maxerlaubt
-  wprior = doubleoption("wprior",1.0,0.0,100.0);
-  mpriorm = doubleoption("mpriorm",0.0,-100.0,100.0);
-  mpriorv = doubleoption("mpriorv",100,0.000001,1000);
-  vpriora = doubleoption("vpriora",2.0,0.000001,100.0);
-  vpriorb = doubleoption("vpriorb",0.0,0.0,100.0);
+  wprior = doubleoption("wprior",1,0,100);
+  mpriorm = doubleoption("mpriorm",0,-100,100);
+  mpriorv = doubleoption("mpriorv",100,0,1000);
+  vpriora = doubleoption("vpriora",2,0,100);
+  vpriorb = doubleoption("vpriorb",0.5,0,100);
   nosamples = simpleoption("nosamples",false);
-  aclag = intoption("aclag",0,0,500);  
   }
 
 
@@ -2581,14 +2580,13 @@ void term_mixture::setdefault(void)
   vpriora.setdefault();
   vpriorb.setdefault();
   nosamples.setdefault();
-  aclag.setdefault();
   }
 
 
 bool term_mixture::check(term & t)
   {
 
-  if ( (t.varnames.size()==1)  && (t.options.size()<=9) ) // 9, da 9 optionen ("mixture",nrcomp,...)
+  if ( (t.varnames.size()==1)  && (t.options.size()<=8) ) // 8, da 8 optionen ("mixture",nrcomp,...)
     {
 
     if (t.options[0] == "mixture")
@@ -2611,7 +2609,6 @@ bool term_mixture::check(term & t)
     optlist.push_back(&vpriora);
     optlist.push_back(&vpriorb);
     optlist.push_back(&nosamples);
-    optlist.push_back(&aclag);
 
     unsigned i;
     bool rec = true;
@@ -2636,7 +2633,7 @@ bool term_mixture::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(9); // 9, s.o.
+    t.options = vector<ST::string>(8); // 8, s.o.
     t.options[0] = t.type;
 //    t.options[4] = proposal.getvalue();
     t.options[1] = ST::inttostring(nrcomp.getvalue());
@@ -2649,7 +2646,7 @@ bool term_mixture::check(term & t)
       t.options[7] = "false";
     else
       t.options[7] = "true";
-    t.options[8] = ST::inttostring(aclag.getvalue());
+
 
     setdefault();
     return true;
@@ -2713,6 +2710,7 @@ term_baseline::term_baseline(void)
   adm_prop.push_back("iwls");
   adm_prop.push_back("iwlsmode");
   proposal = stroption("proposal",adm_prop,"cp");
+  weibull = simpleoption("weibull",false);
   }
 
 void term_baseline::setdefault(void)
@@ -2728,13 +2726,14 @@ void term_baseline::setdefault(void)
   gridsize.setdefault();
   uniformprior.setdefault();
   proposal.setdefault();
+  weibull.setdefault();
   }
 
 bool term_baseline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 12) )
+        && (t.options.size() <= 13) )
     {
 
     if (t.options[0] == "baseline")
@@ -2759,6 +2758,7 @@ bool term_baseline::check(term & t)
     optlist.push_back(&gridsize);
     optlist.push_back(&uniformprior);
     optlist.push_back(&proposal);
+    optlist.push_back(&weibull);
 
     unsigned i;
     bool rec = true;
@@ -2783,7 +2783,7 @@ bool term_baseline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(14);
+   t.options = vector<ST::string>(13);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -2802,6 +2802,10 @@ bool term_baseline::check(term & t)
    else
      t.options[10] = "true";
    t.options[11] = proposal.getvalue();
+   if (weibull.getvalue() == false)
+     t.options[12] = "false";
+   else
+     t.options[12] = "true";
 
    if (t.options[1].strtolong(minim) == 1)
      {

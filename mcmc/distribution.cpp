@@ -2219,7 +2219,10 @@ void DISTRIBUTION::outresults(void)
       out << "mu" << "   ";
       }
 
-    out << "saturated_deviance" << "   ";
+    if(family!="cox")
+      out << "saturated_deviance" << "   ";
+    else
+      out << "unstandardized_deviance" << "   ";
 
     out << "leverage" << "   ";
 
@@ -2286,8 +2289,16 @@ void DISTRIBUTION::outresults(void)
 
         out << (*workdevmean-reshelp) << "   ";
         }
+      else if (weight(i,0) != 0 && family=="cox")
+        {
+        out << reshelp << "   ";
+
+        out << ".   ";
+        }
       else
+        {
         out << ".   .   ";
+        }
 
       out << endl;
       }

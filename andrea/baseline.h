@@ -48,6 +48,11 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
    datamatrix gaussspline;
    datamatrix int_ti_help;
    bool vc_dummy1;
+   bool Weibull;
+   double weibullprior_alpha;
+   double weibullproposal_a1;
+   double weibullproposal_a2;
+   double b_prop;
 
   public:
 
@@ -61,12 +66,12 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
   // CONSTRUCTOR 1
 
   pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
-                    const datamatrix & d,
+                    const datamatrix & d, const double & a, const double & b,
                     const unsigned & nrk,const unsigned & degr,const knotpos & kp,
                     const double & l,const unsigned & minb,const unsigned & maxb,
                     const fieldtype & ft,const ST::string & ti,
                     const ST::string & fp, const ST::string & pres,
-                    const int & gs,const unsigned & c,const datamatrix & anfang);
+                    const int & gs,const unsigned & c,const datamatrix & anfang,const bool & wb);
 
 
 // CONSTRUCTOR 2 (für zeitabhängige Effekte)
@@ -96,6 +101,7 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
 //  void outresults(void);
   void compute_int_ti(const datamatrix & b);
   void compute_int_ti_linear(const double & b);
+  void compute_int_ti_weibull(const double & r);
   void compute_int_ti(unsigned beg);
   void compute_int_ti_vc_di0(const vector<double *>,const vector<double *>);
   void compute_int_ti_vc_di(const int,const vector<double *>,const vector<double *>);
@@ -174,6 +180,11 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
     fcconst = fcc;
     }
 
+
+  datamatrix lgamma;
+  void create_lgamma(void);
+  double lgammafunc(const double & nu) const;
+  double lfac(const double & nu) const;
 
 
 
