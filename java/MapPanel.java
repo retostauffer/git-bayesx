@@ -102,6 +102,9 @@ public void paintComponent(Graphics g1)                 // für Bildschirmanzeige
             case 5:
                 plotautocor(g1);
                 break;
+	    case 6:
+		plotsurf(g1);
+		break;	
             }
 	}
   
@@ -1388,6 +1391,20 @@ private void plotautocor(Graphics g)
                 }
         }
         
+
+private void plotsurf(Graphics g)
+	{
+	setplotparam((PAGEWIDTH-b.width)/2,120,b.width,b.height,b.pointsize,b.fontsize,b.titlescale);
+
+	}
+
+
+public void Saveplotsurf(PrintWriter out)
+	{
+	setplotparam((PAGEWIDTH-b.width)/2,120,b.width,b.height,b.pointsize,b.fontsize,b.titlescale);
+
+	}
+
 private void plot(Graphics g,int col)
         {
 

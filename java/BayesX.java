@@ -1435,6 +1435,8 @@ public void windowClosing(WindowEvent we)
                                                                         mapPanel.Saveplotsample(out);
                                                                 else if(function==5)
                                                                         mapPanel.Saveplotautocor(out);
+                                                                else if(function==6)
+                                                                        mapPanel.Saveplotsurf(out);
                                                                 setEnabled(true);
                                                                 mapFrame.dispose();
 //								parseThread.resume();
@@ -1473,6 +1475,8 @@ public void windowClosing(WindowEvent we)
                                                         mapPanel.Saveplotsample(out);
                                                 else if(function==5)
                                                         mapPanel.Saveplotautocor(out);
+                                                else if(function==6)
+                                                        mapPanel.Saveplotsurf(out);
                                                 setEnabled(true);
 						mapFrame.dispose();
 //						parseThread.resume();
@@ -1492,6 +1496,8 @@ public void windowClosing(WindowEvent we)
                                                         mapPanel.Saveplotsample(out);
                                                 else if(function==5)
                                                         mapPanel.Saveplotautocor(out);
+                                                else if(function==6)
+                                                        mapPanel.Saveplotsurf(out);
                                                 setEnabled(true);
 						mapFrame.dispose();
 //						parseThread.resume();
@@ -2216,6 +2222,67 @@ public void Javaplotautocor(String joutfile, String jconnect, boolean jmeanautoc
 		        }
                 }        
         }
+
+
+public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jylab,
+                         String jlinecolor, int jheight, int jwidth, 
+			 int jlinewidth, int jpointsize, int jfontsize, double jtitlescale)                          
+                         
+        {
+        if(joutfile.equals(""))
+                {
+		setPause(true);
+		parseThread.setPriority(Thread.MIN_PRIORITY);
+		}
+        function = 6;
+        
+        outfile = joutfile;
+        title = jtitle;
+        xlab = jxlab;
+        ylab = jylab;
+	linecolor = jlinecolor;
+        height = jheight;
+        width = jwidth;
+        linewidth = jlinewidth;
+	pointsize = jpointsize;
+	fontsize = jfontsize;
+	titlescale = jtitlescale;
+
+        setEnabled(false);
+
+        mapFrame = new JFrame("Object-Viewer");
+
+        mapPanel = new MapPanel(this);
+        
+        if(outfile.equals(""))
+                {
+	        fileChooser2 = new JFileChooser(defaultDirectory);
+	        fileChooser2.addChoosableFileFilter(new MapFilter());
+
+                mapFrame.getContentPane().add(mapPanel,BorderLayout.CENTER);          
+	        mapFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
+ 	        mapFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+ 	        mapFrame.addWindowListener(this);
+                mapFrame.setSize(596,(height>210)?(height+240):500);
+                mapFrame.show();
+                }
+        else
+                {
+                try
+                        {
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));        
+                        mapPanel.Saveplotsurf(out);   
+                        setEnabled(true);
+                        mapFrame.dispose();
+                        }
+                catch(IOException ioe)
+        	        {
+	        	System.err.println(ioe.getMessage());
+		        }
+                }        
+        
+        }
+
 
 /*        
 private void resetplotoptions()

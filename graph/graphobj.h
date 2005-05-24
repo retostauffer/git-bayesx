@@ -108,6 +108,12 @@ class __EXPORT_TYPE graphobj : public statobject
 
   friend void plotautocorrun(graphobj & o);
 
+  // for method 'plotsurf'
+
+  optionlist plotsurfoptions;
+
+  friend void plotsurfrun(graphobj & o);
+
   //------------------------ PRIVATE FUNCTIONS ---------------------------------
 
   void create(void);

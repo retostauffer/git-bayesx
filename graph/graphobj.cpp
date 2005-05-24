@@ -137,6 +137,23 @@ void graphobj::create (void)
 
   functions[3] = plotautocorrun;
 
+  plotsurfoptions.push_back(&psname);
+  plotsurfoptions.push_back(&replace);
+  plotsurfoptions.push_back(&title);
+  plotsurfoptions.push_back(&xlab);
+  plotsurfoptions.push_back(&ylab);
+  plotsurfoptions.push_back(&height);
+  plotsurfoptions.push_back(&width);
+  plotsurfoptions.push_back(&linewidth);
+  plotsurfoptions.push_back(&fontsize);
+  plotsurfoptions.push_back(&pointsize);
+  plotsurfoptions.push_back(&linecolor);
+  plotsurfoptions.push_back(&titlescale);
+
+  methods.push_back(command("plotsurf",&m,&plotsurfoptions,&u,
+                    required,notallowed,notallowed,optional,optional,required));
+
+  functions[4] = plotsurfrun;
 
   }
 
@@ -932,6 +949,128 @@ void plotautocorrun(graphobj & o)
                                o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()),
                                o.adminb_p->Java->NewStringUTF(o.connect.getvalue().strtochar()),
                                o.mean.getvalue()
+                               );
+
+    bool stop=o.adminb_p->breakcommand();
+
+    }
+
+  }
+
+
+void plotsurfrun(graphobj & o)
+  {
+
+  bool error = false;
+
+  //--------------------- reading dataset information --------------------------
+
+  dataobject * datap;               // pointer to dataset
+
+  int objpos = findstatobject(*(o.statobj),o.u.getusingtext(),"dataset");
+
+  statobject * s;
+  if (objpos >= 0)
+    {
+    s = o.statobj->at(objpos);
+    datap = dynamic_cast<dataobject*>(s);
+    }
+  else
+    {
+    if (objpos == -1)
+      {
+      o.outerror("ERROR: " + o.u.getusingtext() + " is not existing\n");
+      error = true;
+      }
+    else
+      {
+      o.outerror("ERROR: " + o.u.getusingtext() + " is not a dataset object\n");
+      error = true;
+      }
+
+    }
+
+  //------------------ end: reading dataset information ------------------------
+
+  vector<ST::string> varnames;
+
+  if (error==false)
+    {
+
+    varnames = o.m.getModelVarnamesAsVector();
+
+    if (varnames.size() != 3)
+      {
+      error = true;
+      o.outerror("ERROR: 3 variable names expected\n");
+      }
+
+    }
+
+
+  if (error == false)
+    {
+
+    vector<ST::string> notex;
+
+    if (datap->allexisting(varnames,notex) == false)
+      {
+      error = true;
+      unsigned i;
+      for (i=0;i<notex.size();i++)
+        o.outerror("ERROR: variable " + notex[i] + " is not existing\n");
+      }
+
+    }
+
+  if (error == false)
+    {
+
+    ST::string ifexpression = o.methods[0].getexpression();
+
+    datap->makematrix(varnames,o.D,ifexpression);
+
+    vector<ST::string> em = datap->geterrormessages();
+
+    if (em.size() > 0)
+      {
+      o.outerror(em);
+      error = true;
+      }
+
+    }
+
+  if (error == false)
+    {
+    ST::string path = o.psname.getvalue();
+    if ( path.isvalidfile() == 1 && path != "" )
+        {
+        o.outerror("ERROR: file " + path + " is not a valid file name\n");
+        error = true;
+        }
+    if ( (path.isexistingfile() == 0) && (o.replace.getvalue() == false) )
+        {
+        o.outerror("ERROR: file " + path + " is already existing\n");
+        error = true;
+        }
+    }
+
+  if (error == false)
+    {
+
+    o.adminp_p->set_Dp(&o.D);
+
+    jmethodID javaplotsurf = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javaplotsurf",
+                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIIIID)V");
+    o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javaplotsurf,
+                               o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()),
+                               o.adminb_p->Java->NewStringUTF(o.title.getvalue().strtochar()),
+                               o.adminb_p->Java->NewStringUTF(o.xlab.getvalue().strtochar()),
+                               o.adminb_p->Java->NewStringUTF(o.ylab.getvalue().strtochar()),
+                               o.adminb_p->Java->NewStringUTF(o.linecolor.getvalue().strtochar()),
+                               o.height.getvalue(),o.width.getvalue(),
+                               o.linewidth.getvalue(),o.pointsize.getvalue(),
+                               o.fontsize.getvalue(),o.titlescale.getvalue()
                                );
 
     bool stop=o.adminb_p->breakcommand();
