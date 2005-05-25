@@ -3550,6 +3550,9 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
   statmatrix<double>betaold(beta.rows(),1,0);
   statmatrix<double>thetaold(theta.rows(),1,0);
 
+  // Matrix to store iteration history of theta
+  statmatrix<double>thetahist(maxit+1,theta.rows(),0);
+
   // Score-function and expected Fisher information for theta
   statmatrix<double>score(theta.rows(),1,0);
   statmatrix<double>Fisher(theta.rows(),theta.rows(),0);
@@ -3756,6 +3759,9 @@ for(i=0; i<nrobs; i++)
     // store current values in betaold and thetaold
     betaold=beta;
     thetaold=theta;
+
+    // save theta history
+    thetahist.putRow(it-1,theta.transposed());
 
     // compute Qinv
     for(i=0, j=0; i<theta.rows(); i++)
@@ -5287,6 +5293,10 @@ for(i=0; i<nrobs; i++)
     beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,false,xcut[i],X.cols()+zcut[i-1],0,false,i);
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcut[0],0,0,false,0);
+
+  ofstream out_thetahist((outfile+"_thetahist.res").strtochar());
+  thetahist.prettyPrint(out_thetahist);
+  out_thetahist.close();
 
   return false;
   }
