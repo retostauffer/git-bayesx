@@ -255,7 +255,7 @@ void remlreg::create(void)
   level2 = doubleoption("level2",80,40,99);
   maxint = intoption("maxint",150,0,20000);
 
-  families.reserve(15);
+  families.reserve(25);
   families.push_back("gaussian");
   families.push_back("binomial");
   families.push_back("binomialprobit");
@@ -266,6 +266,7 @@ void remlreg::create(void)
   families.push_back("binomialdispers");
   families.push_back("binomialprobitdispers");
   families.push_back("multinomial");
+  families.push_back("multinomialcatsp");
   families.push_back("cumlogit");
   families.push_back("cumprobit");
   families.push_back("seqlogit");
@@ -509,7 +510,7 @@ void remlreg::describe(optionlist & globaloptions)
 
 bool remlreg::create_data(datamatrix & weight)
   {
-  unsigned i;
+  unsigned i,j;
   bool failure=false;
 
   // find the dataset object
@@ -568,14 +569,62 @@ bool remlreg::create_data(datamatrix & weight)
     lefttruncpos = modelvarnamesv.size()-1;
     }
 
-  /*  // Für Cox model: variable 'leftint' an 2. Stelle setzen
-  vector<ST::string>::iterator modelit = modelvarnamesv.begin()+1;
-  if(leftint.getvalue() != "")
-    modelvarnamesv.insert(modelit,1,leftint.getvalue());
-  // Für Cox model: variable 'lefttrunc' an 3. Stelle setzen
-  modelit++;
-  if(lefttrunc.getvalue() != "")
-    modelvarnamesv.insert(modelit,2,lefttrunc.getvalue());*/
+  // Für multinomiale Modelle: Kategorienspezifische Kovariablen extrahieren
+
+  if(family.getvalue()=="multinomialcatsp")
+    {
+    vector<ST::string> helpstring1;
+    helpstring1.push_back(modelvarnamesv[0]);
+    vector<ST::string> helpstring2;
+
+    if ((datap->allexisting(helpstring1,helpstring2)) == false)
+      {
+      outerror("ERROR: variable " + helpstring2[0] + " is not existing\n");
+      return(true);
+      }
+
+    datamatrix resphelp;
+    datap->makematrix(modelvarnamesv[0],resphelp,ifexpression);
+
+    // extract categories
+    resphelp.sort(0,resphelp.rows()-1,0);
+    allcats.push_back(resphelp(0,0));
+    unsigned refpos;
+    for(i=1; i<resphelp.rows(); i++)
+      {
+      if(resphelp(i,0)!=resphelp(i-1,0))
+        {
+        allcats.push_back(resphelp(i,0));
+        }
+      }
+
+    ST::string test;
+    vector<ST::string> modelvarnamesvhelp;
+    for(i=0; i<modelvarnamesv.size(); i++)
+      {
+      if(modelvarnamesv[i].length()>12)
+        {
+        test = modelvarnamesv[i].substr(modelvarnamesv[i].length()-12,12);
+        if(test=="_catspecific")
+          {
+          test = modelvarnamesv[i].substr(0,modelvarnamesv[i].length()-12);
+          for(j=0; j<allcats.size(); j++)
+            {
+            modelvarnamesvhelp.push_back(test + ST::inttostring(allcats[j]));
+            }
+          }
+        else
+          {
+          modelvarnamesvhelp.push_back(modelvarnamesv[i]);
+          }
+        }
+      else
+        {
+        modelvarnamesvhelp.push_back(modelvarnamesv[i]);
+        }
+      }
+    modelvarnamesv = modelvarnamesvhelp;
+    }
 
   // testing, wether all variables specified are already existing
   vector<ST::string> notex;
@@ -611,6 +660,7 @@ bool remlreg::create_data(datamatrix & weight)
     {
     // check for correct distributions
     if(family.getvalue()=="multinomial" ||
+       family.getvalue()=="multinomialcatsp" ||
        family.getvalue()=="cumlogit" ||
        family.getvalue()=="cumprobit" ||
        family.getvalue()=="seqlogit" ||
@@ -701,7 +751,8 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     }
 
   // family=cox
-  if(family.getvalue()=="cox" || family.getvalue()=="coxold")
+  if(family.getvalue()=="cox" || family.getvalue()=="coxold" ||
+     family.getvalue()=="coxinterval")
     {
     unsigned i;
     for(i=0; i<response.rows(); i++)
@@ -767,7 +818,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
 
 
   // family=multinomial / family=cumlogit / family=cumprobit
-  if (family.getvalue()=="multinomial")
+  if (family.getvalue()=="multinomial" || family.getvalue()=="multinomialcatsp")
     {
     ismultinomial=true;
     }
@@ -776,9 +827,9 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     ismultinomial=false;
     }
 
-  if (family.getvalue()=="multinomial" || family.getvalue()=="cumlogit" ||
-      family.getvalue()=="cumprobit" || family.getvalue()=="seqlogit" ||
-      family.getvalue()=="seqprobit")
+  if (family.getvalue()=="multinomial" || family.getvalue()=="multinomialcatsp" ||
+      family.getvalue()=="cumlogit" || family.getvalue()=="cumprobit" ||
+      family.getvalue()=="seqlogit" || family.getvalue()=="seqprobit")
     {
     // extract categories
     datamatrix resphelp=response;
@@ -808,7 +859,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
       }
 
     // Define / extract the reference category
-    if(family.getvalue()=="multinomial")
+    if(family.getvalue()=="multinomial" || family.getvalue()=="multinomialcatsp")
       {
       refpos=0; //categories.size()-1;
       if(reference.changed())
@@ -844,6 +895,19 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
         refpos=categories.size()-1;
         }
       }
+
+    if(family.getvalue()=="multinomialcatsp")
+      {
+      // put reference category at last position in allcats
+      int helpint = reference.getvalue();
+      for(i=refpos; i<allcats.size(); i++)
+        {
+        allcats[i] = allcats[i+1];
+        }
+      allcats[allcats.size()-1] = helpint;
+      }
+
+    // define cats (categories without reference category)
     cats=datamatrix(categories.size()-1,1,0);
     unsigned j=0;
     for(i=0; i<categories.size(); i++)
@@ -871,6 +935,7 @@ bool remlreg::create_offset(datamatrix & o)
       {
       // check for right distributions
       if(family.getvalue()=="multinomial" ||
+         family.getvalue()=="multinomialcatsp" ||
          family.getvalue()=="cumlogit" ||
          family.getvalue()=="cumprobit" ||
          family.getvalue()=="seqlogit" ||
@@ -914,7 +979,7 @@ bool remlreg::create_offset(datamatrix & o)
 bool remlreg::create_const(const unsigned & collinpred)
   {
   unsigned i;
-  int j;
+  int j, k, l, m;
 
   vector<ST::string> varnames;
   vector<ST::string> varnamesh =  fixedeffects.get_constvariables(terms);
@@ -924,6 +989,7 @@ bool remlreg::create_const(const unsigned & collinpred)
     varnames.push_back("const");
     }
 
+  // add catspecific terms for ordinal and sequential models
   for(i=0;i<terms.size();i++)
     {
     if(fixed_catsp.checkvector(terms,i) == true)
@@ -953,6 +1019,54 @@ bool remlreg::create_const(const unsigned & collinpred)
       catsp[j]=true;
       j++;
       }
+    }
+
+  // Category specific covariates for the multinomiallogit model
+  if(family.getvalue()=="multinomialcatsp")
+    {
+    // set values in catsp (catsp[i]==true if corresponding covariate is category-specific)
+    catsp[0]=false;
+    ST::string test;
+    for(i=0; i<varnames.size(); i++)
+      {
+      if(varnames[i].length()>12)
+        {
+        test = varnames[i].substr(varnames[i].length()-12,12);
+        if(test=="_catspecific")
+          {
+          catsp[i] = true;
+          }
+        }
+      }
+
+    // modify variable names
+    vector<ST::string> varnameshelp;
+    for(i=0; i<varnames.size(); i++)
+      {
+      if(varnames[i].length()>12)
+        {
+        test = varnames[i].substr(varnames[i].length()-12,12);
+        if(test=="_catspecific")
+          {
+          test = varnames[i].substr(0,varnames[i].length()-12);
+          for(j=0; j<allcats.size(); j++)
+            {
+            varnameshelp.push_back(test + ST::inttostring(allcats[j]));
+            }
+          }
+        else
+          {
+          varnameshelp.push_back(varnames[i]);
+          }
+        }
+      else
+        {
+        varnameshelp.push_back(varnames[i]);
+        }
+      }
+
+    // redefine varnames
+    varnames=varnameshelp;
     }
 
   ST::string title;
@@ -987,7 +1101,7 @@ bool remlreg::create_const(const unsigned & collinpred)
     return true;
     }
 
-  datamatrix X(D.rows(),nr,1);
+  datamatrix X(D.rows(),varnames.size(),1);
 
   for(i=0;i<varnames.size();i++)
     {
@@ -1006,8 +1120,50 @@ bool remlreg::create_const(const unsigned & collinpred)
       }
     }
 
-  fcconst.push_back(FULLCOND_const(&generaloptions,X,title,0,
-                                   pathconst,pathconstres,catsp));
+  // modify X matrix if category-specific covariates are present
+
+  unsigned nrcatsp=0;
+  if(family.getvalue()=="multinomialcatsp")
+    {
+    for(i=0; i<catsp.size(); i++)
+      {
+      if(catsp[i])
+        nrcatsp++;
+      }
+
+    datamatrix Xhelp(D.rows(),nr + nrcatsp*(cats.rows()-1),0);
+    k=0;
+    m=0;
+    for(i=0; i<varnames.size();)
+      {
+      if(catsp[m])
+        {
+        for(l=0; l<cats.rows(); l++)
+          {
+          for(j=0; j<D.rows(); j++)
+            {
+            Xhelp(j,k) = X(j,i+l)-X(j,i+cats.rows());
+            }
+          k++;
+          }
+        i += allcats.size();
+        }
+      else
+        {
+        for(j=0; j<D.rows(); j++)
+          {
+          Xhelp(j,k) = X(j,i);
+          }
+        k++;
+        i++;
+        }
+      m++;
+      }
+    X = Xhelp;
+    }
+
+  fcconst.push_back(FULLCOND_const(&generaloptions,X,title,0,pathconst,
+                                   pathconstres,catsp,nrcatsp,nr,cats));
 
   fcconst[fcconst.size()-1].init_names(varnames);
   fcconst[fcconst.size()-1].set_fcnumber(fullcond.size());
@@ -2749,7 +2905,8 @@ bool remlreg::create_baseline(const unsigned & collinpred)
         lowertrunc = datamatrix(1,1,0);
         }
 
-      if(terms[i].options[9]!="" && family.getvalue()=="coxinterval")
+/*      datamatrix lower;
+      if(terms[i].options[9]!="")
         {
         dataobject * datap;                           // pointer to datsetobject
         int objpos = findstatobject(*statobj,terms[i].options[9],"dataset");
@@ -2775,12 +2932,12 @@ bool remlreg::create_baseline(const unsigned & collinpred)
           }
         list<ST::string> lowname = datap->getVarnames();
         ST::string expr = "";
-        datap->makematrix(lowname,lowerint,expr);
+        datap->makematrix(lowname,lower,expr);
         }
       else
         {
-        lowerint = datamatrix(1,1,0);
-        }
+        lower = datamatrix(1,1,0);
+        }*/
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
@@ -3151,6 +3308,9 @@ void remlrun(remlreg & b)
           }
         }
       }
+    else if(b.family.getvalue()=="multinomialcatsp")
+      {
+      }
     else if(b.family.getvalue()=="cumlogit" || b.family.getvalue()=="cumprobit" ||
             b.family.getvalue()=="seqlogit" || b.family.getvalue()=="seqprobit")
       {
@@ -3221,6 +3381,21 @@ void remlrun(remlreg & b)
       else
         failure = b.RE_M.estimate(response,offset,weight);
       }
+// Nominale Modelle mit kategorienspezifischen Kovariablen
+    else if (b.family.getvalue()=="multinomialcatsp")
+      {
+      b.RE_M_catsp = remlest_multinomial_catsp(
+      #if defined(JAVA_OUTPUT_WINDOW)
+      b.adminb_p,
+      #endif
+      b.fullcond, response, b.family.getvalue(), b.outfile.getvalue(),
+      b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
+      b.maxchange.getvalue(), b.cats,b.logout);
+      if (b.fullcond.size() == 1)    // fixed effects only
+        failure = b.RE_M_catsp.estimate_glm(response,offset,weight);
+      else
+        failure = b.RE_M_catsp.estimate(response,offset,weight);
+      }
 // Ordinale Modelle
     else if (b.family.getvalue()=="cumlogit" ||
         b.family.getvalue()=="cumprobit" ||
@@ -3235,9 +3410,9 @@ void remlrun(remlreg & b)
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
       b.maxchange.getvalue(),b.cats,b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
-        failure = b.RE_O.estimate_glm(response,offset,weight);
+        failure = b.RE_O.estimate_glm2(response,offset,weight);
       else
-        failure = b.RE_O.estimate(response,offset,weight);
+        failure = b.RE_O.estimate2(response,offset,weight);
       }
 // Univariate Modelle ohne Dispersionsparameter
     else if (b.family.getvalue()=="binomial" ||
@@ -3446,6 +3621,11 @@ void remlrun(remlreg & b)
       {
       b.RE_M.make_graphics(header,path,path2,path3,
                          b.modreg.getModelVarnamesAsVector()[0].to_bstr());
+      }
+    else if(b.family.getvalue()=="multinomialcatsp")
+      {
+//      b.RE_M_catsp.make_graphics(header,path,path2,path3,
+//                         b.modreg.getModelVarnamesAsVector()[0].to_bstr());
       }
     else if(b.family.getvalue()=="cumlogit" || b.family.getvalue()=="cumprobit" ||
             b.family.getvalue()=="seqlogit" || b.family.getvalue()=="seqprobit")
@@ -3775,6 +3955,8 @@ void plotnonprun(remlreg & b)
 #if defined(BORLAND_OUTPUT_WINDOW)
 #pragma package(smart_init)
 #endif
+
+
 
 
 

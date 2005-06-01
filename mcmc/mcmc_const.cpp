@@ -103,13 +103,18 @@ void FULLCOND_const::init_names(const vector<ST::string> & na)
 FULLCOND_const::FULLCOND_const(MCMCoptions * op,const datamatrix & d,
                                const ST::string & t, const int & constant,
                                const ST::string & fs, const ST::string & fr,
-                               const vector<bool> & catsp)
+                               const vector<bool> & catsp, const unsigned & np,
+                               const unsigned & nrpar, const datamatrix & c)
                   : FULLCOND(op,t)
   {
 
   data = d;
 
-  nrconst = data.cols();
+  cats = c;
+  catspecific_effects = np;
+
+  nrconst = nrpar;
+  nrvars = data.cols();
 
   dimX = nrconst;
   dimZ = 0;
@@ -133,7 +138,7 @@ void FULLCOND_const::createreml(datamatrix & X,datamatrix & Z,
 
   double * workdata= data.getV();
   double * workX = X.getV()+Xpos;
-  unsigned s = X.cols()-nrconst;
+  unsigned s = X.cols()-nrvars;
   for (i=0;i<data.rows();i++,workX+=s)
     for(j=0;j<nrconst;j++,workdata++,workX++)
       {
@@ -155,11 +160,33 @@ double FULLCOND_const::outresultsreml(datamatrix & X,datamatrix & Z,
                                     const bool & ismultinomial,
                                     const unsigned plotpos)
   {
+  unsigned i, k;
   double meanhelp=0;
 
   if(nrconst==0)
     {
     return meanhelp;
+    }
+
+  if(catspecific_effects>0)
+    {
+    vector<ST::string> datanameshelp;
+    for(i=0; i<nrconst; i++)
+      {
+      if(catspecific_fixed[i])
+        {
+        datanameshelp.push_back(datanames[i]);
+        }
+      else
+        {
+        for(k=0; k<cats.rows(); k++)
+          {
+          datanameshelp.push_back(datanames[i] + "(cat. " + ST::doubletostring(cats(k,0),5) + ")");
+          }
+        }
+      }
+    datanames = datanameshelp;
+    nrconst = datanames.size();;
     }
 
   betamean=datamatrix(nrconst,1,0);
@@ -170,11 +197,8 @@ double FULLCOND_const::outresultsreml(datamatrix & X,datamatrix & Z,
   betaqu_l2_upper=datamatrix(nrconst,1,0);
   datamatrix betapval=datamatrix(nrconst,1,0);
 
-  unsigned i;
   for(i=0;i<nrconst;i++)
     {
-//    betamean(i,0) = betareml(i,0);
-//    betastd(i,0) = sqrt(betacov(i,i));
     betamean(i,0) = betareml(betaXpos+i,0);
     betastd(i,0) = sqrt(betacov(betaXpos+i,betaXpos+i));
     betaqu_l1_lower(i,0) = betamean(i,0)+randnumbers::invPhi2(lower1/100)*betastd(i,0);
@@ -607,6 +631,9 @@ FULLCOND_const::FULLCOND_const(const FULLCOND_const & m) : FULLCOND(FULLCOND(m))
   interceptpos = m.interceptpos;
   interceptyes = m.interceptyes;
   catspecific_fixed = m.catspecific_fixed;
+  nrvars = m.nrvars;
+  cats = m.cats;
+  catspecific_effects = m.catspecific_effects;
   }
 
 
@@ -629,6 +656,9 @@ const FULLCOND_const & FULLCOND_const::operator=(const FULLCOND_const & m)
   interceptpos = m.interceptpos;
   interceptyes = m.interceptyes;
   catspecific_fixed = m.catspecific_fixed;
+  nrvars = m.nrvars;
+  cats = m.cats;
+  catspecific_effects = m.catspecific_effects;
   return *this;
   }
 

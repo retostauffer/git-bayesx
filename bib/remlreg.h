@@ -20,6 +20,7 @@
 #include<remlest.h>
 #include<remlest_multi.h>
 #include<remlest_multi2.h>
+#include<remlest_multi3.h>
 #include<model_remlreg.h>
 
 #include<mcmc.h>
@@ -154,6 +155,7 @@ class __EXPORT_TYPE remlreg : public statobject
 
   remlest RE;
   remlest_multinomial RE_M;
+  remlest_multinomial_catsp RE_M_catsp;
   remlest_ordinal RE_O;
 
   friend void remlrun(remlreg & b);
@@ -175,6 +177,7 @@ class __EXPORT_TYPE remlreg : public statobject
 
   doubleoption reference;              // Options and variables for
   datamatrix cats;                     // multicategorical models
+  vector<int> allcats;                 // categories including reference category (at last position)
   bool ismultinomial;
 
   intoption maxint;

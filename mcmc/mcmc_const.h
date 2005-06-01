@@ -57,6 +57,10 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   // REML
 
   vector<bool> catspecific_fixed;
+  unsigned nrvars;   // no. of variables involved (equal to no.of fixed effects
+                     // if no category specific covariates are present)
+  datamatrix cats;   // names of the categories
+  int catspecific_effects; // no. of category specific covariates
 
   // End: REML
 
@@ -86,9 +90,11 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
 
   // CONSTRUCTOR_3 (REML)
 
-  FULLCOND_const(MCMCoptions * op,const datamatrix & d,const ST::string & t,
+  FULLCOND_const(MCMCoptions * op, const datamatrix & d, const ST::string & t,
                  const int & constant, const ST::string & fs,
-                 const ST::string & fr, const vector<bool> & catsp);
+                 const ST::string & fr, const vector<bool> & catsp,
+                 const unsigned & np,
+                 const unsigned & nrpar, const datamatrix & c);
 
 
   // COPY CONSTRUCTOR
