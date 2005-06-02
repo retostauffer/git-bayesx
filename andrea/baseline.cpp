@@ -1083,8 +1083,8 @@ else
           spline_zi(i,0) -= intercept;
           }
         }
-      else
-        {
+//      else
+//        {
         for(i=0;i<2.0*likep->get_nrobs();i++)
           {
           spline_ges(i,0) -= intercept;
@@ -1102,7 +1102,7 @@ else
        spline8(i,0) -= intercept;
        spline9(i,0) -= intercept;
        }*/
-        }
+//        }
       }
     else
       {
@@ -1134,7 +1134,7 @@ else
       }
     //-------------------------------------/
 
-    likep->add_linearpred_m(-intercept,column);
+//    likep->add_linearpred_m(-intercept,column);
     fcconst->update_intercept(intercept);
     }
 
