@@ -351,7 +351,7 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
   ST::string stringh = "\\_";
   ST::string helpname;
 
-  term_symbolic = "\\theta_j";
+  term_symbolic = "\\theta^{(j)}";
   if(datanames.size()>1)
     {
     for(i=1; i<datanames.size(); i++)
@@ -367,15 +367,6 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
         }
       }
     }
-
-/*  if(term_symbolic.length()>20)
-    {
-    term_symbolic = "\\theta "+term_symbolic.substr(20,term_symbolic.length()-20);
-    }
-  else
-    {
-    term_symbolic="\\theta ";
-    }*/
 
   // Redefine names and number of parameters
 
