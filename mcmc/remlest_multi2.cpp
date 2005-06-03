@@ -71,14 +71,18 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
 
   catspec=false;
   catspecific_fixed = (dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]))->get_catspecific_fixed();
-  for(i=1; i<fullcond.size(); i++)
+  for(i=0; i<fullcond.size(); i++)
     {
     catspecific.push_back(fullcond[i]->get_catspecific());
+    }
+  for(i=1; i<fullcond.size(); i++)
+    {
     if(catspecific[i])
       {
       catspec=true;
       }
     }
+
   for(i=1; i<catspecific_fixed.size(); i++)
     {
     if(catspecific_fixed[i])
@@ -1173,7 +1177,8 @@ out21.close();
       }
     else
       {
-      help = fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],k-1,false,xcutbeta[k]+nrcat2-1,totalnrfixed+zcutbeta[k-1],0,false,k);
+//      help = fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],k-1,false,xcutbeta[k]+nrcat2-1,totalnrfixed+zcutbeta[k-1],0,false,k);
+      help = fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],k-1,false,xcutbeta[k],totalnrfixed+zcutbeta[k-1],0,false,k);
       k++;
       for(j=0; j<nrcat2; j++)
         {
