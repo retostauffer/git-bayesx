@@ -1049,7 +1049,7 @@ bool remlreg::create_const(const unsigned & collinpred)
         if(test=="_catspecific")
           {
           test = varnames[i].substr(0,varnames[i].length()-12);
-          for(j=0; j<allcats.size(); j++)
+          for(j=0; j<(int)allcats.size(); j++)
             {
             varnameshelp.push_back(test + ST::inttostring(allcats[j]));
             }
@@ -1138,9 +1138,9 @@ bool remlreg::create_const(const unsigned & collinpred)
       {
       if(catsp[m])
         {
-        for(l=0; l<cats.rows(); l++)
+        for(l=0; l<(int)cats.rows(); l++)
           {
-          for(j=0; j<D.rows(); j++)
+          for(j=0; j<(int)D.rows(); j++)
             {
             Xhelp(j,k) = X(j,i+l)-X(j,i+cats.rows());
             }
@@ -1150,7 +1150,7 @@ bool remlreg::create_const(const unsigned & collinpred)
         }
       else
         {
-        for(j=0; j<D.rows(); j++)
+        for(j=0; j<(int)D.rows(); j++)
           {
           Xhelp(j,k) = X(j,i);
           }
@@ -3149,7 +3149,7 @@ bool remlreg::create_randomslope(const unsigned & collinpred)
   ST::string pathnonp;
   ST::string pathres;
   ST::string title;
-  unsigned i;
+  unsigned i,j;
   int j1,j2;
   double lambda, startlambda;
   bool catsp;
@@ -3158,8 +3158,29 @@ bool remlreg::create_randomslope(const unsigned & collinpred)
     {
     if ( randomeffslope.checkvector(terms,i) == true )
       {
-      j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
       j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+
+      datamatrix intvar;
+      ST::string test ="test";
+      if(terms[i].varnames[0].length()>12)
+        {
+        test = terms[i].varnames[0].substr(terms[i].varnames[0].length()-12,12);
+        }
+      if(test=="_catspecific")
+        {
+        test = terms[i].varnames[0].substr(0,terms[i].varnames[0].length()-12);
+        intvar = datamatrix(D.rows(),allcats.size(),0);
+        for(j=0; j<allcats.size(); j++)
+          {
+          j1 = (test+ST::inttostring(allcats[j])).isinlist(modelvarnamesv);
+          intvar.putCol(j,D.getCol(j1));
+          }
+        }
+      else
+        {
+        j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
+        intvar = D.getCol(j1);
+        }
 
       f = (terms[i].options[1]).strtodouble(lambda);
       f = (terms[i].options[2]).strtodouble(startlambda);
@@ -3179,7 +3200,7 @@ bool remlreg::create_randomslope(const unsigned & collinpred)
                  terms[i].varnames[0],
                  "_random.raw","_random.res","_random");
 
-      fcrandom.push_back(FULLCOND_random(&generaloptions,D.getCol(j1),
+      fcrandom.push_back(FULLCOND_random(&generaloptions,intvar,
                           D.getCol(j2),title,pathnonp,pathres,lambda,
                           startlambda,catsp));
 
@@ -3409,10 +3430,20 @@ void remlrun(remlreg & b)
       b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
       b.maxchange.getvalue(),b.cats,b.logout);
-      if (b.fullcond.size() == 1)    // fixed effects only
-        failure = b.RE_O.estimate_glm2(response,offset,weight);
+      if(b.RE_O.get_catspec())
+        {
+        if (b.fullcond.size() == 1)    // fixed effects only
+          failure = b.RE_O.estimate_glm2(response,offset,weight);
+        else
+          failure = b.RE_O.estimate2(response,offset,weight);
+        }
       else
-        failure = b.RE_O.estimate2(response,offset,weight);
+        {
+        if (b.fullcond.size() == 1)    // fixed effects only
+          failure = b.RE_O.estimate_glm(response,offset,weight);
+        else
+          failure = b.RE_O.estimate(response,offset,weight);
+        }
       }
 // Univariate Modelle ohne Dispersionsparameter
     else if (b.family.getvalue()=="binomial" ||
@@ -3955,6 +3986,7 @@ void plotnonprun(remlreg & b)
 #if defined(BORLAND_OUTPUT_WINDOW)
 #pragma package(smart_init)
 #endif
+
 
 
 

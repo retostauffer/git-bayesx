@@ -108,7 +108,10 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
 
 /*  ofstream out1("c:\\temp\\X.raw");
   X.prettyPrint(out1);
-  out1.close();*/
+  out1.close();
+  ofstream out2("c:\\temp\\Z.raw");
+  Z.prettyPrint(out2);
+  out2.close();*/
 
   beta=statmatrix<double>(totalnrpar,1,0);
   theta=statmatrix<double>(totalvars,1,0);
@@ -146,6 +149,13 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
 
   for(i=0;i<fullcond.size();i++)
     fullcond[i]->outoptionsreml();
+
+// ----------------------------------------------------------------------------
+// --- Conny: Konstruiere groﬂes X und Z
+// ----------------------------------------------------------------------------
+
+  datamatrix Xneu(nrobs*nrcat2, xcutbeta[xcutbeta.size()-1],0);
+  datamatrix Zneu(nrobs*nrcat2, zcutbeta[zcutbeta.size()-1],0);
 
   out("\n");
   out("REML ESTIMATION STARTED\n",true);
@@ -220,24 +230,35 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
         }
       }
 
-    compute_eta2(eta);
+    eta = Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
+//    compute_eta2(eta);
 
     compute_weights(mu,workweight,worky,eta,respind);
-    compute_sscp2(H,workweight);
+
+// -----------------------------------------------------------------------------
+// conny: H berechnen
+// -----------------------------------------------------------------------------
+//    compute_sscp2(H,workweight);
 
     stop = check_pause();
     if (stop)
       return true;
 
-    compute_sscp_resp2(H1,workweight,worky);
+// -----------------------------------------------------------------------------
+// conny: H1 berechnen
+// -----------------------------------------------------------------------------
+//    compute_sscp_resp2(H1,workweight,worky);
+
     H.addtodiag(Qinv,totalnrfixed,totalnrpar);
 
     // Fisher-Scoring for beta
     beta=H.solve(H1);
 
     // update linear predictor and compute residuals
-    compute_eta2(eta);
+    eta = Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
+//    compute_eta2(eta);
     worky = worky - eta;
+
     for(i=0; i<resp.rows(); i++)
       {
       for(j=0; j<nrcat2; j++)
@@ -274,6 +295,10 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
         }
       }
 
+// -----------------------------------------------------------------------------
+// Thomas: modifizieren
+// -----------------------------------------------------------------------------
+
     for(j=0; j<nrcat2; j++)
       {
       for(i=0; i<partialvar; i++)
@@ -300,7 +325,11 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
 
     // test whether to stop estimation of theta[i]
 
-    //compute norm of eta for the different catetgories
+// -----------------------------------------------------------------------------
+// Thomas: modifizieren
+// -----------------------------------------------------------------------------
+
+    //compute norm of eta for the different categories
     helpmat=datamatrix(nrcat2,1,0);
     for(i=0; i<resp.rows(); i++)
       {
@@ -408,17 +437,34 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
     thetareml(i,2)=its[i];
     }
 
-  for(j=0; j<nrcat2; j++)
+// -----------------------------------------------------------------------------
+// Thomas: modifizieren
+// -----------------------------------------------------------------------------
+
+  double mean=0;
+  k=0;
+  for(i=1; i<fullcond.size(); i++)
     {
-//    out("\n");
-//    out("RESULTS FOR CATEGORY "+ST::doubletostring(cats(j,0),6)+":\n",true);
-    out("\n");
-    for(i=1; i<fullcond.size(); i++)
+    if(catspecific[i])
       {
-      beta(j*partialnrfixed,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],j*partialvar+i-1,false,xcutbeta[j*fullcond.size()+i],totalnrfixed+zcutbeta[j*partialvar+i-1],cats(j,0),true,j*fullcond.size()+i);
+      out("\n");
+      for(j=0; j<nrcat2; j++)
+        {
+        beta(j,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],k,false,xcutbeta[k+1],totalnrfixed+zcutbeta[k],cats(j,0),true,k+1);
+        k++;
+        }
       }
-    beta(j*partialnrfixed,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcutbeta[j*fullcond.size()],0,cats(j,0),true,0);
+    else
+      {
+      mean = fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],k,false,xcutbeta[k+1],totalnrfixed+zcutbeta[k],0,false,k+1);
+      for(j=0; j<nrcat2; j++)
+        {
+        beta(j,0) += mean;
+        }
+      k++;
+      }
     }
+  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcutbeta[0],0,0,false,0);
 
   double loglike=0;
   double aic=0;
@@ -514,9 +560,9 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
 
 
 // Ausgabe von Xalt unter Xalt
-  ofstream outXalt("c:\\bayesx\\mcmc\\Xalt");
+/*  ofstream outXalt("c:\\bayesx\\mcmc\\Xalt");
         X.prettyPrint(outXalt);
-        outXalt.close();
+        outXalt.close();*/
 
 // Hilfsmatrix zu catspecific_fixed
   datamatrix help01(catspecific_fixed.size(),1,0);                          // Anzahl Zeilen= zcutbeta.size(), Anzahl Spalten=1, alle Werte=0
@@ -526,9 +572,9 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
   }
 
 // Ausgabe von catspecific_fixed unter catspecific_fixed
-  ofstream outcatspecific_fixed("c:\\bayesx\\mcmc\\catspecific_fixed");
+/*  ofstream outcatspecific_fixed("c:\\bayesx\\mcmc\\catspecific_fixed");
         help01.prettyPrint(outcatspecific_fixed);
-        outcatspecific_fixed.close();
+        outcatspecific_fixed.close();*/
 // ----------------------------------------------------------------------------
 
 // Dimension von Xneu
@@ -551,7 +597,7 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
    datamatrix Xneu (Xneu_rows,Xneu_cols,0);          // Initialisiert mit 0
 
 // ----------------------------------------------------------------------------
-   
+
  // Belegt die ersten Spalten von Xneu
 // Durchlaufen von catspecific_fixed
 
@@ -646,9 +692,9 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
 
 // ----------------------------------------------------------------------------
 // Ausgabe von Xneu unter Xneu
-     ofstream outXneu("c:\\bayesx\\mcmc\\Xneu");
+/*     ofstream outXneu("c:\\bayesx\\mcmc\\Xneu");
         Xneu.prettyPrint(outXneu);
-        outXneu.close();
+        outXneu.close();*/
 
 // ----------------------------------------------------------------------------
 // --- Conny: Konstruiere groﬂes X    Ende
@@ -753,14 +799,14 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
 }
 
                   // Ausgabe von H  unter H
-                     ofstream outH ("c:\\bayesx\\mcmc\\H ");
+/*                     ofstream outH ("c:\\bayesx\\mcmc\\H ");
                      H.prettyPrint(outH );
-                     outH.close();
+                     outH.close();*/
 
                   // Ausgabe von H1  unter H1
-                     ofstream outH1 ("c:\\bayesx\\mcmc\\H1 ");
+/*                     ofstream outH1 ("c:\\bayesx\\mcmc\\H1 ");
                      H1.prettyPrint(outH1 );
-                     outH1.close();
+                     outH1.close();*/
 
 
 

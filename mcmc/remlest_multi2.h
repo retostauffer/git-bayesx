@@ -45,6 +45,8 @@ class remlest_ordinal
   unsigned nrcat;                                    // Anzahl Kategorien
   unsigned nrcat2;                                   // Anzahl nicht redundanter Kategorien
   statmatrix<double> cats;                         // Mögliche Kategorien
+  bool catspec;                                 // are there category-specific effects
+                                                // (apart from thresholds)
 
   unsigned totalnrfixed;
   unsigned totalnrpar;
@@ -90,6 +92,14 @@ class remlest_ordinal
           const int & maxiter, const double & lowerlimit, const double & epsi,
           const double & maxch, const datamatrix & categories,
           ostream * lo=&cout);
+//------------------------------------------------------------------------------
+//--------------------------- get characteristics ------------------------------
+//------------------------------------------------------------------------------
+
+  bool get_catspec()
+    {
+    return catspec;
+    }
 
 //------------------------------------------------------------------------------
 //----------------------------- REML estimation --------------------------------

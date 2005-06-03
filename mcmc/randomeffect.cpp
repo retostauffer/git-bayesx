@@ -220,13 +220,17 @@ void FULLCOND_random::set_lambdaconst(double la)
 
 // REML: random slope
 FULLCOND_random::FULLCOND_random(MCMCoptions * o,
-                  const datamatrix & intvar,const datamatrix & effmod,
-                  const ST::string & t,const ST::string & fp,
-                  const ST::string & pr,const double & la, const double & las,
+                  const datamatrix & intvar, const datamatrix & effmod,
+                  const ST::string & t, const ST::string & fp,
+                  const ST::string & pr, const double & la, const double & las,
                   const bool & catsp)
                   : FULLCOND(o,t)
   {
   catspecific = catsp;
+  if(intvar.cols()>1)
+    {
+    catspecific=true;
+    }
 
   fctype = randomslopes;
 
@@ -361,15 +365,32 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * op,const datamatrix & d,
 void FULLCOND_random::createreml(datamatrix & X,datamatrix & Z,
                                  const unsigned & Xpos, const unsigned & Zpos)
   {
-  unsigned i,j;
+  unsigned i,j,k;
 
   if (randomslope)
     {
-
-    for(i=0;i<posbeg.size();i++)
+    if(data.cols()==1)
       {
-      for (j=posbeg[i];j<=posend[i];j++)
-        Z(index(j,0),Zpos+i) = data(index(j,0),0);
+      for(i=0;i<posbeg.size();i++)
+        {
+        for (j=posbeg[i];j<=posend[i];j++)
+          Z(index(j,0),Zpos+i) = data(index(j,0),0);
+        }
+      }
+    else
+      {
+      unsigned nrcat = data.cols();
+      unsigned nrcat2 = nrcat-1;
+      for(i=0;i<posbeg.size();i++)
+        {
+        for (j=posbeg[i];j<=posend[i];j++)
+          {
+          for(k=0; k<nrcat2; k++)
+            {
+            Z(index(j,0),Zpos+k*nrpar+i) = data(index(j,0),k) - data(index(j,0),nrcat2);
+            }
+          }
+        }
       }
 
     }

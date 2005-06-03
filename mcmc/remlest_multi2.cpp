@@ -69,9 +69,9 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
     fullcond[i]->createreml(X,Z,xcut[i],zcut[i-1]);
     }
 
-  bool catspec=false;
+  catspec=false;
   catspecific_fixed = (dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]))->get_catspecific_fixed();
-  for(i=0; i<fullcond.size(); i++)
+  for(i=1; i<fullcond.size(); i++)
     {
     catspecific.push_back(fullcond[i]->get_catspecific());
     if(catspecific[i])
@@ -79,7 +79,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
       catspec=true;
       }
     }
-  for(i=0; i<catspecific_fixed.size(); i++)
+  for(i=1; i<catspecific_fixed.size(); i++)
     {
     if(catspecific_fixed[i])
       {
