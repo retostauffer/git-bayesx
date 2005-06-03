@@ -139,8 +139,9 @@ void FULLCOND_const::createreml(datamatrix & X,datamatrix & Z,
   double * workdata= data.getV();
   double * workX = X.getV()+Xpos;
   unsigned s = X.cols()-nrvars;
+
   for (i=0;i<data.rows();i++,workX+=s)
-    for(j=0;j<nrconst;j++,workdata++,workX++)
+    for(j=0;j<nrvars;j++,workdata++,workX++)
       {
       *workX = *workdata;
       }
