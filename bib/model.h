@@ -953,11 +953,6 @@ class __EXPORT_TYPE term_mixture : public basic_termtype
 
   protected:
 
-//  doubleoption lambda;
-//  doubleoption b;
-//  stroption proposal;
-//  simpleoption updatetau;
-//  simpleoption uniformprior;
   intoption nrcomp;
   doubleoption wprior;
   doubleoption mpriorm;
@@ -965,6 +960,10 @@ class __EXPORT_TYPE term_mixture : public basic_termtype
   doubleoption vpriora;
   doubleoption vpriorb;
   simpleoption nosamples;
+  intoption aclag;
+  stroption order;  
+  simpleoption vpriorbunif;
+  simpleoption vpriorbgamma;
 
   void setdefault(void);
 

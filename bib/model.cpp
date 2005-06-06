@@ -2549,30 +2549,25 @@ bool term_random::check(term & t)
 term_mixture::term_mixture(void)
   {
   type = "term_mixture";
-//  lambda = doubleoption("lambda",100000,0,10000000);
-//  b = doubleoption("b",0.001,0,500);
-//  vector<ST::string> adm_prop;
-//  adm_prop.push_back("iwls");
-//  adm_prop.push_back("iwlsmode");
-//  proposal = stroption("proposal",adm_prop,"iwls");
-//  updatetau = simpleoption("updatetau",false);
-//  uniformprior = simpleoption("uniformprior",false);
   nrcomp = intoption("nrcomp",1,1,50); //name,vorbelegung,minerlaubt,maxerlaubt
-  wprior = doubleoption("wprior",1,0,100);
-  mpriorm = doubleoption("mpriorm",0,-100,100);
-  mpriorv = doubleoption("mpriorv",100,0,1000);
-  vpriora = doubleoption("vpriora",2,0,100);
-  vpriorb = doubleoption("vpriorb",0.5,0,100);
+  wprior = doubleoption("wprior",1.0,0.0,100.0);
+  mpriorm = doubleoption("mpriorm",0.0,-100.0,100.0);
+  mpriorv = doubleoption("mpriorv",100,0.000001,1000);
+  vpriora = doubleoption("vpriora",2.0,0.000001,100.0);
+  vpriorb = doubleoption("vpriorb",1.0,0.000001,100.0);
   nosamples = simpleoption("nosamples",false);
+  aclag = intoption("aclag",0,0,500);
+  vector<ST::string> adm_order;
+  adm_order.push_back("n");
+  adm_order.push_back("w");
+  order = stroption("order",adm_order,"n");
+  vpriorbunif = simpleoption("vpriorbunif",false);
+  vpriorbgamma = simpleoption("vpriorbgamma",false);
   }
 
 
 void term_mixture::setdefault(void)
   {
-//  lambda.setdefault();
-//  b.setdefault();
-//  proposal.setdefault();
-//  updatetau.setdefault();
   nrcomp.setdefault();
   wprior.setdefault();
   mpriorm.setdefault();
@@ -2580,13 +2575,17 @@ void term_mixture::setdefault(void)
   vpriora.setdefault();
   vpriorb.setdefault();
   nosamples.setdefault();
+  aclag.setdefault();
+  order.setdefault();
+  vpriorbunif.setdefault();
+  vpriorbgamma.setdefault();
   }
 
 
 bool term_mixture::check(term & t)
   {
 
-  if ( (t.varnames.size()==1)  && (t.options.size()<=8) ) // 8, da 8 optionen ("mixture",nrcomp,...)
+  if ( (t.varnames.size()==1)  && (t.options.size()<=12) ) // 12, da 12 optionen ("mixture",nrcomp,...)
     {
 
     if (t.options[0] == "mixture")
@@ -2598,10 +2597,8 @@ bool term_mixture::check(term & t)
       return false;
       }
 
-
     vector<ST::string> opt;
     optionlist optlist;
-//    optlist.push_back(&proposal);
     optlist.push_back(&nrcomp);
     optlist.push_back(&wprior);
     optlist.push_back(&mpriorm);
@@ -2609,6 +2606,10 @@ bool term_mixture::check(term & t)
     optlist.push_back(&vpriora);
     optlist.push_back(&vpriorb);
     optlist.push_back(&nosamples);
+    optlist.push_back(&aclag);
+    optlist.push_back(&order);
+    optlist.push_back(&vpriorbunif);
+    optlist.push_back(&vpriorbgamma);
 
     unsigned i;
     bool rec = true;
@@ -2633,9 +2634,8 @@ bool term_mixture::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(8); // 8, s.o.
+    t.options = vector<ST::string>(12); // 12, s.o.
     t.options[0] = t.type;
-//    t.options[4] = proposal.getvalue();
     t.options[1] = ST::inttostring(nrcomp.getvalue());
     t.options[2] = ST::doubletostring(wprior.getvalue());
     t.options[3] = ST::doubletostring(mpriorm.getvalue());
@@ -2646,7 +2646,16 @@ bool term_mixture::check(term & t)
       t.options[7] = "false";
     else
       t.options[7] = "true";
-
+    t.options[8] = ST::inttostring(aclag.getvalue());
+    t.options[9] = order.getvalue();
+    if (vpriorbunif.getvalue() == false)
+      t.options[10] = "false";
+    else
+      t.options[10] = "true";
+    if (vpriorbgamma.getvalue() == false)
+      t.options[11] = "false";
+    else
+      t.options[11] = "true";
 
     setdefault();
     return true;

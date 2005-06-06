@@ -1039,12 +1039,12 @@ bool bayesreg::create_random(const unsigned & collinpred)
 
 bool bayesreg::create_mixture(const unsigned & collinpred)
   {
-
-//  ST::string pathnonp2;
-  int f,nrcomp;
+  int f;
+  unsigned nrcomp,aclag;
   double wprior,mpriorm,mpriorv,vpriora,vpriorb;
   long h;
-  bool nosamples=false;
+  bool nosamples=false,vpriorbunif=false,vpriorbgamma=false;
+  ST::string ordertype="n";
 
   unsigned i;
   int j;
@@ -1061,57 +1061,27 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
       f = (terms[i].options[4]).strtodouble(mpriorv);
       f = (terms[i].options[5]).strtodouble(vpriora);
       f = (terms[i].options[6]).strtodouble(vpriorb);
-      if (terms[i].options[7] == "true")
+      if(terms[i].options[7] == "true")
         nosamples = true;
+      f = (terms[i].options[8]).strtolong(h);
+      aclag = unsigned(h);
+      if(terms[i].options[9] == "w")
+        ordertype = "w";
+      if(terms[i].options[10] == "true")
+        vpriorbunif = true;
+      if(terms[i].options[11] == "true")
+        vpriorbgamma = true;
 
       if (f==1)
         return true;
 
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                    "_mixture.raw","_mixture.res","_mixture");
-//        make_paths(collinpred,pathnonp2,pathres2,title2,terms[i].varnames[0],"",
-//                   "_mixture_var.raw","_mixture_var.res","_mixture_variance");
-
 
       if (check_gaussian())
         {
 
-/*        FULLCOND_nonp_gaussian * structuredp;
-        unsigned structured=0;
 
-        unsigned j1;
-        for (j1=0;j1<fcnonpgaussian.size();j1++)
-          {
-          if  ( ((fcnonpgaussian[j1].get_datanames()).size() == 1) &&
-                (fcnonpgaussian[j1].get_datanames()[0]==terms[i].varnames[0]) &&
-                (fcnonpgaussian[j1].get_col() == collinpred) &&
-                (fcnonpgaussian[j1].get_type() == MCMC::mrf)
-              )
-            {
-            structuredp = &fcnonpgaussian[j1];
-            structured ++;
-            }
-          }
-
-        if(nrcomp > 0)
-          structured = 0;
-
-        if(nrcomp == 0)
-          {
-          fcrandomgaussian.push_back(
-          FULLCOND_random_gaussian(&generaloptions[generaloptions.size()-1],
-                                                        distr[distr.size()-1],
-                                                        fcconst_intercept,
-                                                        D.getCol(j),
-                                                        title,
-                                                        pathnonp,pathres,
-                                                        lambda,collinpred
-                                                        )
-                          );
-           }
-         else
-           {
-*/
            fcmixture.push_back(
            FULLCOND_mixture(&generaloptions[generaloptions.size()-1],
                                                         distr[distr.size()-1],
@@ -1122,35 +1092,13 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
                                                         nrcomp,wprior,
                                                         mpriorm,mpriorv,
                                                         vpriora,vpriorb,
-                                                        nosamples,
+                                                        nosamples,aclag,
+                                                        ordertype,
+                                                        vpriorbunif,vpriorbgamma,
                                                         collinpred
                                                         )
                           );
-//           }
 
-/*        if (structured==1)
-          {
-
-          ST::string pathnonpt = defaultpath + "\\temp\\" + name + add_name +
-                 terms[i].varnames[0] +
-                 "_spatialtotal.raw";
-
-          ST::string pathrest = outfile.getvalue() + add_name + "_" + terms[i].varnames[0] +
-                                "_spatialtotal.res";
-
-          fcrandomgaussian[fcrandomgaussian.size()-1].init_spatialtotal(
-          structuredp,pathnonpt,pathrest);
-          }
-        else if (structured==0)
-          {
-          }
-        else
-          {
-          outerror("ERROR: more than one spatial effect specified for variable "
-                   + terms[i].varnames[0] + "\n");
-          return true;
-          }
-*/
           fcmixture[fcmixture.size()-1].init_name(terms[i].varnames[0]);
           fcmixture[fcmixture.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fcmixture[fcmixture.size()-1]);
