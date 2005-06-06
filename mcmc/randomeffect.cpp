@@ -3163,7 +3163,7 @@ void FULLCOND_random_nongaussian::update_random_slope(void)
 
 void FULLCOND_random_nongaussian::update(void)
   {
-/*
+
   if (iwlsmode)
     {
 
@@ -3200,9 +3200,8 @@ void FULLCOND_random_nongaussian::update(void)
       }
 
     }
-*/
 
-//*
+/*
   {
 
   unsigned i,j;
@@ -3395,7 +3394,7 @@ void FULLCOND_random_nongaussian::update(void)
 
   }
 
-//*/
+*/
   }
 
 
