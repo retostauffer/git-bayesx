@@ -302,7 +302,7 @@ function (map, dfile, outfile, regionvar,
             fill.colors <- (fill.colors - 1)/(3 * (nrcolors - 
                 1))
             if (swapcolors == T) 
-                fill.colors <- sum(range(fill.colors)) - fill.colors
+                fill.colors <- 1/3 - fill.colors
             fill.colors <- hsv(h = fill.colors)
             legend.colors <- hsv(h = (0:(nrcolors - 1))/(3 * 
                 (nrcolors - 1)))
@@ -310,8 +310,7 @@ function (map, dfile, outfile, regionvar,
         else {
             fill.colors <- (fill.colors - 1)/(nrcolors - 1)
             if (swapcolors == T) 
-                fill.colors <- max(fill.colors) - fill.colors + 
-                  min(fill.colors)
+                fill.colors <- 1 - fill.colors
             fill.colors <- grey(fill.colors)
             legend.colors <- grey((0:(nrcolors - 1))/(nrcolors - 
                 1))

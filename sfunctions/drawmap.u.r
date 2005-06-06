@@ -1,12 +1,14 @@
 "drawmap" <-
 function (map, dfile, outfile, regionvar, 
     plotvar, lowerlimit, upperlimit, nrcolors = 100, pstitle = "", 
-    color = F, legend = T, drawnames = F, swapcolors = F) 
+    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F) 
 {
     if (!missing(outfile) && !missing(dfile)) {
         if (dfile == outfile) 
             stop("Argument \"dfile\" and argument \"outfile\" are identical")
     }
+    if(pcat) 
+        nrcolors <- 3
     black <- grey(0)
     white <- grey(1)
     xmin <- 1:length(map)
@@ -55,22 +57,28 @@ function (map, dfile, outfile, regionvar,
         }
         maxim <- max(plotvar, na.rm = T)
         minim <- min(plotvar, na.rm = T)
-        if (missing(lowerlimit)) {
-            lowerlimit <- minim
-        }
-        else if (lowerlimit > minim) {
-            plotvar[plotvar < lowerlimit] <- lowerlimit
-            cat(paste("Note: lowerlimit is above minimum value (", 
-                lowerlimit, " > ", minim, ")\n"))
-        }
-        if (missing(upperlimit)) {
-            upperlimit <- maxim
-        }
-        else if (upperlimit < maxim) {
-            plotvar[plotvar > upperlimit] <- upperlimit
-            cat(paste("Note: upperlimit is below maximum value (", 
-                upperlimit, " < ", maxim, ")\n"))
-        }
+	if(pcat) {
+		upperlimit <- 1
+		lowerlimit <- -1
+	}
+	else {
+	        if (missing(lowerlimit)) {
+        	    lowerlimit <- minim
+		}
+	        else if (lowerlimit > minim) {
+        	    plotvar[plotvar < lowerlimit] <- lowerlimit
+	            cat(paste("Note: lowerlimit is above minimum value (", 
+        	        lowerlimit, " > ", minim, ")\n"))
+	        }
+	        if (missing(upperlimit)) {
+        	    upperlimit <- maxim
+	        }
+        	else if (upperlimit < maxim) {
+	            plotvar[plotvar > upperlimit] <- upperlimit
+        	    cat(paste("Note: upperlimit is below maximum value (", 
+	                upperlimit, " < ", maxim, ")\n"))
+        	}
+	}
         fill.colors <- cut(c(lowerlimit, plotvar, upperlimit), 
             nrcolors)
         fill.colors <- fill.colors[c(-1, -length(fill.colors))]
@@ -79,7 +87,7 @@ function (map, dfile, outfile, regionvar,
             fill.colors <- (fill.colors - 1)/(3 * (nrcolors - 
                 1))
             if (swapcolors == T) 
-                fill.colors <- sum(range(fill.colors)) - fill.colors
+                fill.colors <- 1/3 - fill.colors
             fill.colors <- hsv(h = fill.colors)
             legend.colors <- hsv(h = (0:(nrcolors - 1))/(3 * 
                 (nrcolors - 1)))
@@ -87,8 +95,7 @@ function (map, dfile, outfile, regionvar,
         else {
             fill.colors <- (fill.colors - 1)/(nrcolors - 1)
             if (swapcolors == T) 
-                fill.colors <- max(fill.colors) - fill.colors + 
-                  min(fill.colors)
+                fill.colors <- 1 - fill.colors
             fill.colors <- grey(fill.colors)
             legend.colors <- grey((0:(nrcolors - 1))/(nrcolors - 
                 1))
