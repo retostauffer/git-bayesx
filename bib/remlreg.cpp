@@ -1620,8 +1620,11 @@ bool remlreg::create_pspline(const unsigned & collinpred)
   bool catsp;
   int f;
 
-  unsigned i;
+  unsigned i,k;
   int j;
+
+  datamatrix data;
+
   for(i=0;i<terms.size();i++)
     {
     if ( nonppspline.checkvector(terms,i) == true )
@@ -1632,7 +1635,29 @@ bool remlreg::create_pspline(const unsigned & collinpred)
       else
         type = MCMC::RW2;
 
-      j = terms[i].varnames[0].isinlist(modelvarnamesv);
+      ST::string test ="test";
+      if(terms[i].varnames[0].length()>12)
+        {
+        test = terms[i].varnames[0].substr(terms[i].varnames[0].length()-12,12);
+        }
+      if(test=="_catspecific")
+        // category specific covariates
+        {
+        test = terms[i].varnames[0].substr(0,terms[i].varnames[0].length()-12);
+        data = datamatrix(allcats.size()*D.rows(),1,0);
+        for(k=0; k<allcats.size(); k++)
+          {
+          j = (test+ST::inttostring(allcats[k])).isinlist(modelvarnamesv);
+          data.putRowBlock(k*D.rows(), (k+1)*D.rows(), D.getCol(j));
+          }
+        test="_catspecific";
+        }
+      else
+        // no category specific covariates
+        {
+        j = terms[i].varnames[0].isinlist(modelvarnamesv);
+        data = D.getCol(j);
+        }
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
@@ -1640,7 +1665,7 @@ bool remlreg::create_pspline(const unsigned & collinpred)
       nrknots = unsigned(h);
       f = (terms[i].options[3]).strtodouble(lambda);
       f = (terms[i].options[7]).strtodouble(startlambda);
-      if(terms[i].options[8] == "true")
+      if(terms[i].options[8] == "true" || test=="_catspecific")
         {
         catsp=true;
         }
@@ -1662,7 +1687,7 @@ bool remlreg::create_pspline(const unsigned & collinpred)
                  "_pspline.raw","_pspline.res","_pspline");
 
       fcpspline.push_back( spline_basis(&generaloptions,
-                                              D.getCol(j),
+                                              data,
                                               nrknots,
                                               degree,
                                               po,

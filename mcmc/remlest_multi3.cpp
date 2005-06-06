@@ -152,441 +152,10 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
 
 // ----------------------------------------------------------------------------
 // --- Conny: Konstruiere groﬂes X und Z
-// -----------------------------------------------------------------------------------------------------------------
-
-//  datamatrix Xneu(nrobs*nrcat2, xcutbeta[xcutbeta.size()-1],0);
-//  datamatrix Zneu(nrobs*nrcat2, zcutbeta[zcutbeta.size()-1],0);
-
-
-  //----------------------------------------------------------------------------
-  //--- Konstruiere groﬂes X und groﬂes Z aus remlest_multi2
-  //----------------------------------------------------------------------------
-
-
-
-//------------------------------------------------------------------------------------------------------
-// Zu X: Ausgabe der Testdateien zu X
-
-// Ausgabe von Xalt unter Xalt
-  ofstream outXalt("c:\\bayesx\\mcmc\\Xalt");
-        X.prettyPrint(outXalt);
-        outXalt.close();
-
-// Hilfsmatrix zu xcut unter help2
-/*  datamatrix help2(xcut.size(),1,0);
-  for(i=0; i<xcut.size(); i++)
-  {
-  help2(i,0) = xcut[i];
-  }
-
-// Ausgabe von xcut unter conny2
-   ofstream out2("c:\\bayesx\\mcmc\\conny2");
-        help2.prettyPrint(out2);
-        out2.close();*/
-
-
-// Hilfsmatrix zu xcutbeta unter help4
-/*  datamatrix help4(xcutbeta.size(),1,0);
-  for(i=0; i<xcutbeta.size(); i++)
-  {
-  help4(i,0) = xcutbeta[i];
-  }
-
-// Ausgabe von xcutbeta unter conny4
-  ofstream out4("c:\\bayesx\\mcmc\\conny4");
-        help4.prettyPrint(out4);
-        out4.close();*/
-
-//--------------------------------------------------------------------------------------------------------
-// Zu Z: Ausgabe der Testdateien zu Z
-
-// Ausgabe von Zalt unter Zalt
-  ofstream outZalt("c:\\bayesx\\mcmc\\Zalt");
-        Z.prettyPrint(outZalt);
-        outZalt.close();
-
-// Hilfsmatrix zu zcut unter help6
-/*  datamatrix help6(zcut.size(),1,0);
-  for(i=0; i<zcut.size(); i++)
-  {
-  help6(i,0) = zcut[i];
-  }
-
-// Ausgabe von zcut unter conny6
-  ofstream out6("c:\\bayesx\\mcmc\\conny6");
-        help6.prettyPrint(out6);
-        out6.close();*/
-
-
-// Hilfsmatrix zu zcutbeta unter help8
-/*  datamatrix help8(zcutbeta.size(),1,0);
-  for(i=0; i<zcutbeta.size(); i++)
-  {
-  help8(i,0) = zcutbeta[i];
-  }
-
-// Ausgabe von zcutbeta unter conny8
-  ofstream out8("c:\\bayesx\\mcmc\\conny8");
-        help8.prettyPrint(out8);
-        out8.close();*/
-
-//-----------------------------------------------------------------------------------------------
-// Zu catspecific und catspecific_fixed: Ausgabe der Testdateien
-
-// Hilfsmatrix zu catspecific
-  datamatrix help0(catspecific.size(),1,0);
-  for(i=0; i<catspecific.size(); i++)
-  {
-  help0(i,0) = catspecific[i];
-  }
-
-// Ausgabe von catspecific unter catspecific
-  ofstream outcatspecific("c:\\bayesx\\mcmc\\catspecific");
-        help0.prettyPrint(outcatspecific);
-        outcatspecific.close(); 
-
-
-// Hilfsmatrix zu catspecific_fixed
-  datamatrix help01(catspecific_fixed.size(),1,0);
-  for(i=0; i<catspecific_fixed.size(); i++)
-  {
-  help01(i,0) = catspecific_fixed[i];
-  }
-
-// Ausgabe von catspecific_fixed unter catspecific_fixed
-  ofstream outcatspecific_fixed("c:\\bayesx\\mcmc\\catspecific_fixed");
-        help01.prettyPrint(outcatspecific_fixed);
-        outcatspecific_fixed.close();
-
-
-
-
-//------------------------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------------------------------------
-// Basteln an X
-
-//---------------------------------------------
-// Zu X: Hilfsvektor bzw. Hilfsmatrix f¸r die if - Schleifen
-
-// xcutbetalength gibt die L‰nge der Abschnitte von xcutbeta an
-  vector <unsigned> xcutbetalength (xcutbeta.size()-1);
-  for (i=0; i<xcutbetalength.size(); i++)
-  {
-  xcutbetalength[i]=xcutbeta[i+1]-xcutbeta[i];
-  }
-
-// Hilfsmatrix zu xcutbetalength namens Xlength
- datamatrix Xlength(xcutbetalength.size(), 1, 0);
-  for (i=0; i<xcutbetalength.size(); i++)
-  {
-  Xlength(i,0)=xcutbeta[i+1]-xcutbeta[i];
-  }
-
-// Ausgabe von Xlength
-  ofstream outXlength("c:\\bayesx\\mcmc\\xcutbetalength");
-        Xlength.prettyPrint(outXlength);
-        outXlength.close();
-
-//----------------------------------------------------------------------------------------------------------------------------------
-// xcutlength gibt die L‰nge der Abschnitte von xcut an
-  vector <unsigned> xcutlength (xcut.size()-1);
-  for (i=0; i<xcutlength.size(); i++)
-  {
-  xcutlength[i]=xcut[i+1]-xcut[i];
-  }
-
-// Hilfsmatrix zu xcutlength namens Xlength
- datamatrix Xcutlength(xcutlength.size(), 1, 0);
-  for (i=0; i<xcutlength.size(); i++)
-  {
-  Xcutlength(i,0)=xcut[i+1]-xcut[i];
-  }
-
-// Ausgabe von Xlength
-  ofstream outXcutlength("c:\\bayesx\\mcmc\\xcutlength");
-        Xcutlength.prettyPrint(outXcutlength);
-        outXcutlength.close();
-
-
-//----------------------------------------------
-// Erzeugt Xneu mit 0
-   datamatrix Xneu (nrobs*nrcat2,xcutbeta[xcutbeta.size()-1],0);
-
 // ----------------------------------------------------------------------------
 
-// Belegt die ersten Spalten von Xneu
-// Durchlaufen von catspecific_fixed
-
-// Zwei neue Variablen, beginnend bei 0
-   unsigned XaltSpalte_fixed=0;                                                  // gibt die aktuelle Spalte in Xalt an
-   unsigned XneuSpalte_fixed=0;                                                  // gibt die aktuelle Spalte in Xneu an
-
-// j durchl‰uft den Bereich 0..catspecific_fixed.size()           // catspecific_fixed.size() = xcut[1]
-
-   for (j=0; j<catspecific_fixed.size(); j++)                                    // Durchlauf solange Bedingung vorhanden
-   {                                                                             // Anfang zur for-Schleife f¸r X
-
-      //----------------------------------
-      // 1. Skalar und catspecific
-      // -> nrcat2 x 1 - Matrizen
-
-      if (catspecific_fixed[j])
-      {
-         for(i=0; i<nrobs; i++)                                                  // i durchl‰uft die Zeilen von Xalt
-         {
-             for(k=0; k<nrcat2; k++)                                             // k durchl‰uft nrcat2
-             {
-             Xneu(i*nrcat2+k, XneuSpalte_fixed)= X (i, XaltSpalte_fixed + k );
-             }
-         }
-
-      XaltSpalte_fixed=XaltSpalte_fixed+nrcat2;                                       // aktualisiert XaltSpalte_fixed
-      XneuSpalte_fixed=XneuSpalte_fixed+1;                                       // aktualisiert XneuSpalte_fixed
-      }
-
-      //----------------------------------
-      // 2. Skalar und nicht catspecific
-      // -> nrcat2 x nrcat2 - Matrizen
-
-      else
-      {
-         for(i=0; i<nrobs; i++)                                                  // i durchl‰uft die Zeilen von Xalt
-         {
-             for(k=0; k<nrcat2; k++)                                             // k durchl‰uft nrcat2
-             {
-             Xneu(i*nrcat2+k, XneuSpalte_fixed+k)= X (i, XaltSpalte_fixed );
-             }
-         }
-
-      XaltSpalte_fixed=XaltSpalte_fixed+1;                                       // aktualisiert XaltSpalte_fixed
-      XneuSpalte_fixed=XneuSpalte_fixed+nrcat2;                                  // aktualisiert XneuSpalte_fixed
-      }
-
-    }
-
-                                                                                   //---------------------------------------- bis hierher ok
-
-
-
-//-------------------------
-// Interessante Matrixoperationen, Matrizen A, B
-     // datamatrix A (zeilen, spalten, wert);  z.B. datamatrix A(2, 2, 0);       Anlegen einer Matrix
-     // A.diag(dimension, wert);                                                 Diagonalmatrix mit "wert" auf der Diagonalen
-     // A.diag(werte);                                                           "werte" als Spaltenvektor mit dem gew≥nschten Werten der Diagonalen
-
-// Zugriff auf einzelne Teile
-    // A.rows();  Anzahl der Zeilen
-    // A.cols();  Anzahl der Spalten
-    // A.getBlock(rowfirst, colfirst, rowlast+1, collast+1);                     Blockweiser Elementzugriff
-
-// Besondere Matrizen:
-   // A.blockdiag(B);     Blockdiagonalmatrix liefert (A 0
-   //                                                  0 B)
-   // A.hcat(B);          Horizontale Konkatenation liefert Matrix (A B)           z.B. help2=help2.vcat(help6);
-   // A.vcat(B);          Vertikale Konkatenation liefert Matrix (A
-   //                                                             B)
-   // A.putBlock(B, rowfirst, colfirst, rowlast+1, collast+1);                   ??? siehe Collegeblock
-   // A.putColBlock(colfirst, collast+1, B);                                     Vor: B hat genauso viele Zeilen wie A
-   // A.putRowBlock(rowfirst, rowlast+1, B);                                     Vor: B hat genauso viele Spalten wie A
-
-
-   // Matrix X
-// von oben:  X = datamatrix(re.rows(),xcut[xcut.size()-1],0);
-
-
-
-  // c anfang
-  // Schreibt die Matrix X bzw. Z in eine Textdatei
-        //ofstream out("c://bayesx/mcmc/conny/test.txt");
-        //X.prettyPrint(out);
-                                  //oder
-                                       //Z.prettyPrint(out);
-        //out.close();
-  // c ende
-  //--------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------
-// Schleife, um Xneu zu erweitern
-// Durchlaufen von catspecific
-
-// Zwei neue Variablen, beginnend bei vektor[1], da vorher catspecific_fixed
-   unsigned XaltSpalte=xcut[1];                                                  // gibt die aktuelle Spalte in Xalt an
-   unsigned XneuSpalte=xcutbeta[1];                                              // gibt die aktuelle Spalte in Xneu an
-
-// j durchl‰uft den Bereich 1..catspecific.size()
-
-   for (j=1; j<catspecific.size(); j++)                                          // Durchlauf solange Bedingung vorhanden
-   {                                                                             // Anfang zur for-Schleife f¸r X
-
-      //----------------------------------
-      // 1. Vektor und catspecific
-      // -> nrcat2 x 1*xcutlength[j] - Matrizen
-
-
-      if ( catspecific[j])
-      {
-            for(i=0; i<nrobs; i++)                                               // i durchl‰uft die Zeilen von Xalt
-            {
-               for(k=0; k<nrcat2; k++)                                           // k durchl‰uft nrcat2
-               {
-                  for(l=0; l<xcutlength[j]; l++)                                 // l durchl‰uft xcutbetalength[j]
-                  {
-                  Xneu(i*nrcat2+k, XneuSpalte+l)= X (i, XaltSpalte+l );
-                  }
-               }
-            }
-
-      XaltSpalte=XaltSpalte+xcutlength[j];                                       // aktualisiert XaltSpalte
-      XneuSpalte=XneuSpalte+xcutlength[j];                                       // aktualisiert XneuSpalte
-      }
-
-      //----------------------------------
-      // 2. Vektor und nicht catspecific                                           sollte ok sein !!!
-      // -> nrcat2 x nrcat2*xcutlength[j] - Matrizen
-
-      else
-      {
-            for(i=0; i<nrobs; i++)                                               // i durchl‰uft die Zeilen von Xalt
-            {
-               for(k=0; k<nrcat2; k++)                                           // k durchl‰uft nrcat2
-               {
-                  for(l=0; l<xcutlength[j]; l++)                                 // l durchl‰uft xcutbetalength[j]
-                  {
-                  Xneu(i*nrcat2+k, XneuSpalte+(k*xcutlength[j]) +l)= X (i, XaltSpalte+l );
-                  }
-               }
-            }
-
-      XaltSpalte=XaltSpalte+xcutlength[j];                                       // aktualisiert XaltSpalte
-      XneuSpalte=XneuSpalte+(xcutlength[j]*nrcat2);                              // aktualisiert XneuSpalte
-      }
-
-   }                                                                             // Ende zur for-Schleife f¸r X
-
-   // Ausgabe von Xneu unter Xneu
-     ofstream outXneu("c:\\bayesx\\mcmc\\Xneu");
-        Xneu.prettyPrint(outXneu);
-        outXneu.close();   
-
-
-//-------------------------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------------------------
-//  Basteln an Z
-
-//---------------------------------------------
-// Zu Z: Hilfsvektor bzw. Hilfsmatrix f¸r die if - Schleifen
-
-// zcutbetalength gibt die L‰nge der Abschnitte von zcutbeta an
-  vector <unsigned> zcutbetalength (zcutbeta.size()-1);
-  for (i=0; i<zcutbetalength.size(); i++)
-  {
-  zcutbetalength[i]=zcutbeta[i+1]-zcutbeta[i];
-  }
-
-// Hilfsmatrix zu zcutbetalength namens Zlength
-/* datamatrix Zlength(zcutbetalength.size(), 1, 0);
-  for (i=0; i<zcutbetalength.size(); i++)
-  {
-  Zlength(i,0)=zcutbeta[i+1]-zcutbeta[i];
-  }
-
-// Ausgabe von Zlength
-  ofstream outZlength("c:\\bayesx\\mcmc\\Zlength");
-        Zlength.prettyPrint(outZlength);
-        outZlength.close();  */
-
-//------------------------------------------------------------------
-// zcutlength gibt die L‰nge der Abschnitte von zcut an
-  vector <unsigned> zcutlength (zcut.size()-1);
-  for (i=0; i<zcutlength.size(); i++)
-  {
-  zcutlength[i]=zcut[i+1]-zcut[i];
-  }
-
-// Hilfsmatrix zu zcutlength namens Zcutlength
-/* datamatrix Zcutlength(zcutlength.size(), 1, 0);
-  for (i=0; i<zcutlength.size(); i++)
-  {
-  Zcutlength(i,0)=zcut[i+1]-zcut[i];
-  }
-
-// Ausgabe von Zcutlength
-  ofstream outZcutlength("c:\\bayesx\\mcmc\\Zcutlength");
-        Zcutlength.prettyPrint(outZcutlength);
-        outZcutlength.close();     */
-
-//------------------------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------------------------------------
-// Erzeugt Zneu mit Nullen
-datamatrix Zneu (nrobs*nrcat2,zcutbeta[zcutbeta.size()-1],0);
-
-// Zwei neue Variablen, beginnend bei 0
-   unsigned ZaltSpalte=0;                                                        // gibt die aktuelle Spalte in Zalt an
-   unsigned ZneuSpalte=0;                                                        // gibt die aktuelle Spalte in Zneu an
-
-// j durchl‰uft den Bereich 1..catspecific.size()
-
-   for (j=1; j<catspecific.size(); j++)                                          // Durchlauf solange Bedingung vorhanden
-   {                                                                             // Anfang zur for-Schleife f¸r Z
-
-      //----------------------------------
-      // 1. Vektor und catspecific
-      // -> nrcat2 x 1*xcutbetalength[j-1] - Matrizen
-
-     if (catspecific[j])
-       {
-            for(i=0; i<nrobs; i++)                                               // i durchl‰uft die Zeilen von Zalt
-            {
-               for(k=0; k<nrcat2; k++)                                           // k durchl‰uft nrcat2
-               {
-                  for(l=0; l<zcutlength[j-1]; l++)                               // l durchl‰uft zcutbetalength[j-1]
-                  {
-                  Zneu(i*nrcat2+k, ZneuSpalte+l)= Z (i, ZaltSpalte+l );
-                  }
-               }
-        }
-
-      ZaltSpalte=ZaltSpalte+zcutlength[j-1];                                     // aktualisiert ZaltSpalte
-      ZneuSpalte=ZneuSpalte+zcutlength[j-1];                                     // aktualisiert ZneuSpalte
-      }
-
-      //----------------------------------
-      // 2. Vektor und nicht catspecific                                           sollte ok sein !!!
-      // -> nrcat2 x nrcat2*xcutbetalength[j-1] - Matrizen
-
-      else
-      {
-            for(i=0; i<nrobs; i++)                                               // i durchl‰uft die Zeilen von Zalt
-            {
-               for(k=0; k<nrcat2; k++)                                           // k durchl‰uft nrcat2
-               {
-                  for(l=0; l<zcutlength[j-1]; l++)                               // l durchl‰uft zcutbetalength[j-1]
-                  {    
-                  Zneu(i*nrcat2+k, ZneuSpalte+(k*zcutlength[j-1]) +l)= Z (i, ZaltSpalte+l );
-                  }
-               }
-            }
-
-      ZaltSpalte=ZaltSpalte+zcutlength[j-1];                                     // aktualisiert ZaltSpalte
-      ZneuSpalte=ZneuSpalte+(zcutlength[j-1]*nrcat2);                            // aktualisiert ZneuSpalte
-      }
-
-   }                                                                             // Ende zur for-Schleife f¸r Z
-
-// Ausgabe von Zneu unter Zneu
-  ofstream outZneu("c:\\bayesx\\mcmc\\Zneu");
-        Zneu.prettyPrint(outZneu);
-        outZneu.close();
-
-//-----------------------------------------------------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-// ----------------------------------------------------------------------------
+  datamatrix Xneu(nrobs*nrcat2, xcutbeta[xcutbeta.size()-1],0);
+  datamatrix Zneu(nrobs*nrcat2, zcutbeta[zcutbeta.size()-1],0);
 
   out("\n");
   out("REML ESTIMATION STARTED\n",true);
@@ -730,7 +299,7 @@ datamatrix Zneu (nrobs*nrcat2,zcutbeta[zcutbeta.size()-1],0);
 // Thomas: modifizieren
 // -----------------------------------------------------------------------------
 
-    for(j=0; j<nrcat2; j++)
+/*    for(j=0; j<nrcat2; j++)
       {
       for(i=0; i<partialvar; i++)
         {
@@ -739,6 +308,14 @@ datamatrix Zneu (nrobs*nrcat2,zcutbeta[zcutbeta.size()-1],0);
           help = (wresid.getRow(j)*(Z.getCol(l)))(0,0);
           score(j*partialvar+i,0) += 0.5*help*help*thetaold(j*partialvar+i,0)*2;
           }
+        }
+      }*/
+    for(i=0; i<theta.rows(); i++)
+      {
+      for(l=zcutbeta[i]; l<zcutbeta[i+1]; l++)
+        {
+        help = ( wresid*( Zneu.getCol(l) ) )(0,0);
+        score(i,0) += 0.5*help*help*thetaold(i,0)*2;
         }
       }
 
@@ -773,8 +350,27 @@ datamatrix Zneu (nrobs*nrcat2,zcutbeta[zcutbeta.size()-1],0);
       {
       helpmat(j,0) = sqrt(helpmat(j,0));
       }
+    help=helpmat.max(0);
+
     // compute norm of the random parts
-    for(j=0; j<nrcat2; j++)
+    for(i=0; i<theta.rows(); i++)
+      {
+      helpmat = Zneu.getColBlock(zcutbeta[i-1],zcutbeta[i])*beta.getRowBlock(totalnrfixed+zcutbeta[i-1],totalnrfixed+zcutbeta[i]);
+      stopcrit[i] = helpmat.norm(0)/help;
+      }
+    for(i=0; i<theta.rows(); i++)
+      {
+      if(stopcrit[i]<lowerlim)
+        {
+        theta(i,0)=thetaold(i,0);
+        }
+      else
+        {
+        its[i]=it;
+        }
+      }
+
+/*    for(j=0; j<nrcat2; j++)
       {
       for(i=0; i<partialvar; i++)
         {
@@ -789,7 +385,7 @@ datamatrix Zneu (nrobs*nrcat2,zcutbeta[zcutbeta.size()-1],0);
           its[j*partialvar+i]=it;
           }
         }
-      }
+      }*/
 
     // compute convergence criteria
     help=betaold.norm(0);
@@ -1188,11 +784,11 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
 
 //----------------------------------------------------------------------
 // Erzeugen von H = Xneu' workweight Xneu
-   H = datamatrix(xcutbeta[xcutbeta.size()-1],  xcutbeta[xcutbeta.size()-1],  0);
+   datamatrix  H (xcutbeta[xcutbeta.size()-1],  xcutbeta[xcutbeta.size()-1],  0);
 
 //----------------------------------------------------------------------
 // Erzeugen von H1 = Xneu' workweight worky
-   H1 = datamatrix(xcutbeta[xcutbeta.size()-1],  1, 0);
+   datamatrix  H1 (xcutbeta[xcutbeta.size()-1],  1, 0);
 
 //----------------------------------------------------------------------
 // Hilfsmatrix zum Berechnen der Zeilen von Xneu' workweight

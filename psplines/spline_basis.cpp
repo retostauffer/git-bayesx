@@ -3073,7 +3073,7 @@ void spline_basis::set_contour(int cp, bool pseudocp, bool app, int ls, const da
 void spline_basis::createreml(datamatrix & X,datamatrix & Z,
                                 const unsigned & Xpos, const unsigned & Zpos)
   {
-  unsigned i,j;
+  unsigned i,j,k;
 
   double * workdata;
   double * workZ;
@@ -3116,28 +3116,44 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
         }
       }
 
-    workdata = spline.getV();
-    workX = X.getV()+Xpos;
-
-    if(varcoeff)
+    if(X.rows()<spline.rows())
+    // category specific covariates
       {
-      double * workintact = data_forfixed.getV();
-      double * workX_VCM = X_VCM.getV()+1;
-      for (i=0;i<spline.rows();i++,workdata++,workintact++,workX+=Xcols,workX_VCM+=2)
+      unsigned nrcat2 = spline.rows()/X.rows()-1;
+      unsigned nrobs=X.rows();
+      for(i=0; i<X.rows(); i++)
         {
-        *workX = *workintact;
-        *(workX+1) = *workdata**workintact;
-        *workX_VCM = *workdata;
+        for(j=0; j<nrcat2; j++)
+          {
+          X(i,Xpos+j) = spline(j*nrobs+i,0) - spline(nrcat2*nrobs+i,0);
+          }
         }
       }
     else
+    // no category specific covariates
       {
-      for (i=0;i<spline.rows();i++,workdata++,workX+=Xcols)
+      workdata = spline.getV();
+      workX = X.getV()+Xpos;
+
+      if(varcoeff)
         {
-        *workX = *workdata;
+        double * workintact = data_forfixed.getV();
+        double * workX_VCM = X_VCM.getV()+1;
+        for (i=0;i<spline.rows();i++,workdata++,workintact++,workX+=Xcols,workX_VCM+=2)
+          {
+          *workX = *workintact;
+          *(workX+1) = *workdata**workintact;
+          *workX_VCM = *workdata;
+          }
+        }
+      else
+        {
+        for (i=0;i<spline.rows();i++,workdata++,workX+=Xcols)
+          {
+          *workX = *workdata;
+          }
         }
       }
-
     }
 
 // Z berechnen
@@ -3152,24 +3168,41 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
     {
     multBS_index(spline,diffmatrix.getCol(j));
 
-    workdata = spline.getV();
-    workZ = Z.getV()+Zpos+j;
-
-    if(varcoeff)
+    if(Z.rows()<spline.rows())
+      // category specific covariates
       {
-      double * workintact = data_forfixed.getV();
-      double * workZ_VCM = Z_VCM.getV()+j;
-      for (i=0;i<spline.rows();i++,workdata++,workintact++,workZ+=Zcols,workZ_VCM+=dimZ)
+      unsigned nrcat2 = spline.rows()/Z.rows()-1;
+      unsigned nrobs=Z.rows();
+      for(i=0; i<nrobs; i++)
         {
-        *workZ = *workdata**workintact;
-        *workZ_VCM = *workdata;
+        for(k=0; k<nrcat2; k++)
+          {
+          Z(i, Zpos + k*dimZ + j) = spline(k*nrobs+i,0) - spline(nrcat2*nrobs+i,0);
+          }
         }
       }
     else
+      // no category specific covariates
       {
-      for (i=0;i<spline.rows();i++,workdata++,workZ+=Zcols)
+      workdata = spline.getV();
+      workZ = Z.getV()+Zpos+j;
+
+      if(varcoeff)
         {
-        *workZ = *workdata;
+        double * workintact = data_forfixed.getV();
+        double * workZ_VCM = Z_VCM.getV()+j;
+        for (i=0;i<spline.rows();i++,workdata++,workintact++,workZ+=Zcols,workZ_VCM+=dimZ)
+          {
+          *workZ = *workdata**workintact;
+          *workZ_VCM = *workdata;
+          }
+        }
+      else
+        {
+        for (i=0;i<spline.rows();i++,workdata++,workZ+=Zcols)
+          {
+          *workZ = *workdata;
+          }
         }
       }
     }
