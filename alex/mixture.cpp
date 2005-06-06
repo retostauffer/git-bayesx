@@ -66,6 +66,8 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
                               const double & pmm,const double & pmv,
                               const double & pva,const double & pvb,
                               const bool & s,const unsigned & acl,
+                              const ST::string & ot,
+                              const bool & pvbu,const bool & pvbg,
                               const unsigned & c)
                             : FULLCOND(o,datamatrix(1,1),t,1,1,fp)
   {
@@ -80,7 +82,12 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
   cvpriora = pva;
   cvpriorb = pvb;
   nosamples = s;
+  cvpriorbunif = pvbu;
+  cvpriorbgamma = pvbg;
+  if(cvpriorb==1.0 && cvpriorbunif==true && cvpriorbgamma==false)
+    cvpriorb=10.0;
   aclag = acl;
+  ordertype = ot;
 
   csize = statmatrix<unsigned>(nrcomp,1,0);
   temp = datamatrix(nrcomp,1,0.0);
@@ -100,7 +107,7 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
   index.indexinit();
   d.indexsort(index,0,d.rows()-1,0,0);
 
-  unsigned j;
+  unsigned j,k;
   int * workindex = index.getV();
   int * workindex2 = index2.getV();
   *workindex2 = *workindex;
@@ -137,9 +144,22 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
   for(j=0;j<posbeg.size();j++,workeffvalues++)
     *workeffvalues = d(index(posbeg[j],0),0);
 
-  setbeta(posbeg.size(),2,0.0);
+  setbeta(posbeg.size(),1,0.0);
 
-  compind = datamatrix(beta.rows(),nrcomp+1,1.0);
+  compind = datamatrix(beta.rows(),nrcomp+1,0.0);
+  double u,inc,incsum;
+  for(j=0;j<compind.rows();j++)
+    {
+    u=uniform();
+    incsum=0.0;
+    inc=1.0/nrcomp;
+    for(k=0;k<nrcomp;k++)
+      {
+      if( (incsum<u) && (u<=incsum+inc) )
+        compind(j,nrcomp)=k+1;
+      incsum+=inc;
+      }
+    }
 
   ST::string path = samplepath.substr(0,samplepath.length()-4)+"_compparsample.raw";
   cpar_fc = FULLCOND(o,datamatrix(1,1),t+"_cpar_fc",nrcomp,3,path);
@@ -151,6 +171,7 @@ FULLCOND_mixture::FULLCOND_mixture(MCMCoptions * o,DISTRIBUTION * dp,
 
   transform = likep->get_trmult(column);
 
+  setflags(MCMC::norelchange);
   identifiable = false;
   }
 
@@ -171,6 +192,10 @@ FULLCOND_mixture::FULLCOND_mixture(const FULLCOND_mixture & fc)
   cvpriorb=fc.cvpriorb;
   nosamples=fc.nosamples;
   aclag=fc.aclag;
+  ordertype=fc.ordertype;
+  cvpriorbunif=fc.cvpriorbunif;
+  cvpriorbgamma=fc.cvpriorbgamma;
+
   temp=fc.temp;
   checkorder = fc.checkorder;
 
@@ -206,6 +231,10 @@ const FULLCOND_mixture & FULLCOND_mixture::
   cvpriorb=fc.cvpriorb;
   nosamples=fc.nosamples;
   aclag=fc.aclag;
+  ordertype=fc.ordertype;
+  cvpriorbunif=fc.cvpriorbunif;
+  cvpriorbgamma=fc.cvpriorbgamma;
+
   temp=fc.temp;
   checkorder = fc.checkorder;
 
@@ -232,16 +261,23 @@ void FULLCOND_mixture::outoptions(void)
 
   optionsp->out("  Number of components: " + ST::inttostring(nrcomp) + "\n",true);
   optionsp->out("  Type of Mixture: Gaussian\n",true);
+  if(ordertype=="w")
+    optionsp->out("  Labelling restriction: ordered weights\n",true);
+  else
+    optionsp->out("  Labelling restriction: none\n",true);
   optionsp->out("  Prior parameter for component weights: " + ST::doubletostring(cwprior(0,0)) + "\n",true);
   optionsp->out("  Prior parameters for component means:\n",true);
   optionsp->out("    Hyperprior for means: " + ST::doubletostring(cmpriorm,4) + "\n",true);
   optionsp->out("    Hyperprior for variances: " + ST::doubletostring(cmpriorv,4) + "\n",true);
   optionsp->out("  Prior parameters for component variances:\n",true);
   optionsp->out("    Hyperprior for a: " + ST::doubletostring(cvpriora,4) + "\n",true);
-  if(cvpriorb==0)
-    optionsp->out("    Hyperprior for b: IG(0.2,"+ ST::doubletostring((100.0*0.2)/(cvpriora*cmpriorv)) +")\n",true);
-  else
+  if((cvpriorbunif==false && cvpriorbgamma==false) || (cvpriorbunif==true && cvpriorbgamma==true))
     optionsp->out("    Hyperprior for b: " + ST::doubletostring(cvpriorb,4) + "\n",true);
+  if(cvpriorbunif==true && cvpriorbgamma==false)
+    optionsp->out("    Hyperprior for b: U(0,"+ ST::doubletostring(cvpriorb,4) +")\n",true);
+  if(cvpriorbunif==false && cvpriorbgamma==true)
+    optionsp->out("    Hyperprior for b: G(" + ST::doubletostring(cvpriorb,4)+ "," +
+                                               ST::doubletostring((100.0*cvpriorb)/(cvpriora*cmpriorv),4) +")\n",true);
   if(nosamples==false)
     optionsp->out("  Samples: yes\n",true);
   else
@@ -260,12 +296,10 @@ bool FULLCOND_mixture::posteriormode(void)
   }
 
 
-
 double FULLCOND_mixture::centerbeta(void)
   {
   unsigned i;
-  double sum=0;
-  sum = beta.sum(0);
+  double sum = beta.sum(0);
   sum/=beta.rows();
   for (i=0;i<beta.rows();i++)
     beta(i,0) -= sum;
@@ -280,7 +314,7 @@ void FULLCOND_mixture::update_weights(void)
   for(k=0;k<nrcomp;k++)
     {
     temp(k,0)=rand_gamma(cwprior(k,0)+csize(k,0),1.0);
-    if(csize(k,0)>2)
+    if(csize(k,0)>0)
       nzc++;
     }
   cwtempsum=temp.sum(0);
@@ -290,7 +324,7 @@ void FULLCOND_mixture::update_weights(void)
   datamatrix nzcmat=datamatrix(nzc,1,0.0);
   for(k=0;k<nrcomp;k++)
     {
-    if(csize(k,0)>2)
+    if(csize(k,0)>0)
       {
       nzcmat(nzcindex,0)=compweight(k,0);
       nzcindex++;
@@ -303,11 +337,6 @@ void FULLCOND_mixture::update_weights(void)
     if( (nzcmat(k,0)<nzcmat(k+1,0)) )
       checkorder=false;
     }
-
-//  for(k=0;k<nrcomp-1;k++)
-//    {
-//    if( (compweight(k,0)<compweight(k+1,0)) ) checkorder=false;
-//    }
   }
 
 
@@ -318,23 +347,18 @@ void FULLCOND_mixture::update(void)
 
 // Update component indicators, class probabilities
   datamatrix cprob(nrcomp,1,1.0/nrcomp); // probabilities psi_{ik}
-  double cmean,cvar,cptempsum;
+  double cptempsum=0.0;
   for(i=0;i<compind.rows();i++)
     {
     // calculate psi_{ik}
     for(k=0;k<nrcomp;k++)
-      {
-      cmean=compmean(k,0);
-      cvar=compvar(k,0);
-      temp(k,0)=compweight(k,0) * (1.0/(sqrt(cvar))) * exp(-0.5*(beta(i,0)-cmean)*(1.0/cvar)*(beta(i,0)-cmean));
-      }
+      temp(k,0)=compweight(k,0) * (1.0/(sqrt(compvar(k,0))))
+                                * exp(-0.5*(beta(i,0)-compmean(k,0))*(1.0/compvar(k,0))*(beta(i,0)-compmean(k,0)));
     cptempsum=temp.sum(0);
     temp=(1.0/cptempsum)*temp;
     cprob.assign(temp);
     for(k=0;k<nrcomp;k++)
-      {
       compind(i,k) = cprob(k,0);
-      }
 
     // sample component indicator
     double cprobsum=0.0, u=uniform();
@@ -381,7 +405,7 @@ void FULLCOND_mixture::update(void)
 
 
 // Update component means, variances
-  double mtemp,vtemp,remean,resum,cvb=0.0,cvsum;
+  double mtemp,vtemp,remean,resum,cvb=0.0,cvsum=0.0;
   for(k=0;k<nrcomp;k++)
     {
     resum=0.0;
@@ -400,12 +424,21 @@ void FULLCOND_mixture::update(void)
     compmean(k,0)=mtemp+sqrt(vtemp)*rand_normal();
     }
 
-  if(cvpriorb==0.0)
+  if(cvpriorbunif==false && cvpriorbgamma==true)
     {
-    cvsum=0.0;
     for(k=0;k<nrcomp;k++)
       cvsum+=(1.0/compvar(k,0));
-    cvb=rand_gamma(0.2+(1.0/cmpriorv)*cvpriora,(100.0*0.2)/(cvpriora*cmpriorv)+cvsum);
+    cvb=0.0;
+    while (cvb < 1e-3)
+       cvb=rand_gamma(cvpriorb+nrcomp*cvpriora,(100.0*cvpriorb)/(cvpriora*cmpriorv)+cvsum);
+    }
+  if(cvpriorbunif==true && cvpriorbgamma==false)
+    {
+    for(k=0;k<nrcomp;k++)
+      cvsum+=(1.0/compvar(k,0));
+    cvb=cvpriorb+1.0;
+    while (cvb < 1e-6 || cvb > cvpriorb)
+      cvb = rand_gamma(1+nrcomp*cvpriora,cvsum);
     }
   for(k=0;k<nrcomp;k++)
     {
@@ -415,10 +448,10 @@ void FULLCOND_mixture::update(void)
       if(compind(i,nrcomp)==k+1)
         resum+=(beta(i,0)-compmean(k,0))*(beta(i,0)-compmean(k,0));
       }
-    if(cvpriorb==0.0 && csize(k,0)>0)
+    if((cvpriorbunif==true && cvpriorbgamma==false) || (cvpriorbunif==false && cvpriorbgamma==true))
+      {
       compvar(k,0)=rand_invgamma(cvpriora+0.5*csize(k,0),cvb+0.5*resum);
-    else if(cvpriorb==0.0 && csize(k,0)==0)
-      compvar(k,0)=rand_invgamma(cvpriora+0.5*csize(k,0),0.000001+0.5*resum);
+      }
     else
       compvar(k,0)=rand_invgamma(cvpriora+0.5*csize(k,0),cvpriorb+0.5*resum);
     }
@@ -426,32 +459,27 @@ void FULLCOND_mixture::update(void)
 
 
 // Update component weights
-  checkorder=false;
-  unsigned loopcount=0;
-  while(checkorder==false)
+  if(ordertype=="w")
     {
-    ++loopcount;
-    update_weights();
+    checkorder=false;
+    unsigned loopcount=0;
+    while(checkorder==false && loopcount<5000)
+      {
+      ++loopcount;
+      update_weights();
+      }
     }
-
-
-  ST::string pt2 = pathcurrent.substr(0,pathcurrent.length()-4)+"_test.txt";
-  ofstream ot2(pt2.strtochar(),ios::app);
-  ot2 << loopcount << "     ";
-  for(k=0;k<nrcomp;k++)
-    ot2 << csize(k,0) << "   ";
-  ot2 << endl;
-
-
-/*  double cwtempsum;
-  for(unsigned k=0;k<nrcomp;k++)
+  else
     {
-    temp(k,0)=rand_gamma(cwprior(k,0)+csize(k,0),1.0);
+    double cwtempsum=0.0;
+    for(unsigned k=0;k<nrcomp;k++)
+      temp(k,0)=rand_gamma(cwprior(k,0)+csize(k,0),1.0);
+    cwtempsum=temp.sum(0);
+    temp=(1.0/cwtempsum)*temp;
+    compweight.assign(temp);
     }
-  cwtempsum=temp.sum(0);
-  temp=(1.0/cwtempsum)*temp;
-  compweight.assign(temp);
-*/
+    
+
 
   double m = centerbeta();
   fcconst->update_intercept(m);
@@ -484,7 +512,8 @@ void FULLCOND_mixture::update(void)
 
   FULLCOND::update();
 
-/*  ST::string pt2 = pathcurrent.substr(0,pathcurrent.length()-4)+"_test.txt";
+/*
+  ST::string pt2 = pathcurrent.substr(0,pathcurrent.length()-4)+"_test.txt";
   ofstream ot2(pt2.strtochar(),ios::app);
   for(k=0;k<nrcomp;k++)
     ot2 << compvar(k,0)*transform*transform << "   ";
@@ -525,8 +554,8 @@ void FULLCOND_mixture::outresults(void)
 
   // computing autocorrelations/sampling inefficiency factors of mixture component parameters
   unsigned aclagloc,acsig;
-  if(aclag==0 && optionsp->get_samplesize()<=1000)
-    aclagloc=floor(optionsp->get_samplesize()*0.1);  // to ensure calculation of cdmat for output
+  if(aclag==0 && optionsp->get_samplesize()<=1000)      // to ensure calculation of cdmat for output
+    aclagloc=floor(optionsp->get_samplesize()*0.1);
   else if(aclag==0 && optionsp->get_samplesize()>1000)
     aclagloc=100;
   else
@@ -599,64 +628,67 @@ void FULLCOND_mixture::outresults(void)
     }
 
   // Bildschirm-Ausgabe
-  optionsp->out("  Sampling diagnostics for mixture component parameters:");
+  optionsp->out("  Sampling diagnostics for mixture component parameters:\n");
   optionsp->out("\n");
   for(k=0;k<nrcomp;k++)
     {
-    optionsp->out("   Component "+ ST::inttostring(k+1));
+    optionsp->out("   Component " + ST::inttostring(k+1) + "\n");
     optionsp->out("    Parameter   SIF-lag   SIF\n");
-    optionsp->out("    Weight         " + ST::doubletostring(cdmat(0,3*k),3) + "      " + ST::doubletostring(cdmat(1,3*k),3) );
-    optionsp->out("    Mean           " + ST::doubletostring(cdmat(0,3*k+1),3) + "      " + ST::doubletostring(cdmat(1,3*k+1),3));
-    optionsp->out("    Variance       " + ST::doubletostring(cdmat(0,3*k+2),3) + "      " + ST::doubletostring(cdmat(1,3*k+2),3));
+    optionsp->out("    Weight         " + ST::doubletostring(cdmat(0,3*k),3) +
+                  "      " + ST::doubletostring(cdmat(1,3*k),3) + "\n" );
+    optionsp->out("    Mean           " + ST::doubletostring(cdmat(0,3*k+1),3) +
+                  "      " + ST::doubletostring(cdmat(1,3*k+1),3) + "\n");
+    optionsp->out("    Variance       " + ST::doubletostring(cdmat(0,3*k+2),3) +
+                  "      " + ST::doubletostring(cdmat(1,3*k+2),3) + "\n");
     optionsp->out("\n");
     }
   optionsp->out("\n");
   optionsp->out("\n");
 
-  optionsp->out("  Results for mixture component parameters:");
+  optionsp->out("  Results for mixture component parameters:\n");
   optionsp->out("\n");
   for(k=0;k<nrcomp;k++)
     {
-    optionsp->out("   Component "+ ST::inttostring(k+1));
-    optionsp->out("    Parameter    Post. Mean     Std. Dev.      " + levell + "50% quant.     " + levelu);
+    optionsp->out("   Component " + ST::inttostring(k+1) + "\n");
+    optionsp->out("    Parameter    Post. Mean     Std. Dev.      " + levell + "50% quant.     " + levelu + "\n");
     if(nrcomp==1)
       {
       optionsp->out("  " + ST::outresults(5,"Weight  ",cpar_fc.get_betamean(k,0),
-                     0,cpar_fc.get_beta_lower1(k,0),cpar_fc.get_betaqu50(k,0),cpar_fc.get_beta_upper1(k,0)));
+                     0,cpar_fc.get_beta_lower1(k,0),cpar_fc.get_betaqu50(k,0),cpar_fc.get_beta_upper1(k,0)) + "\n");
       }
     else
       {
       optionsp->out("  " + ST::outresults(5,"Weight  ",cpar_fc.get_betamean(k,0),
                      sqrt(cpar_fc.get_betavar(k,0)),cpar_fc.get_beta_lower1(k,0),
-                     cpar_fc.get_betaqu50(k,0),cpar_fc.get_beta_upper1(k,0)));
+                     cpar_fc.get_betaqu50(k,0),cpar_fc.get_beta_upper1(k,0)) + "\n");
       }
     optionsp->out("  " + ST::outresults(5,"Mean    ",cpar_fc.get_betamean(k,1),
                      sqrt(cpar_fc.get_betavar(k,1)),cpar_fc.get_beta_lower1(k,1),
-                     cpar_fc.get_betaqu50(k,1),cpar_fc.get_beta_upper1(k,1)));
+                     cpar_fc.get_betaqu50(k,1),cpar_fc.get_beta_upper1(k,1)) + "\n");
     optionsp->out("  " + ST::outresults(5,"Variance",cpar_fc.get_betamean(k,2),
                      sqrt(cpar_fc.get_betavar(k,2)),cpar_fc.get_beta_lower1(k,2),
-                     cpar_fc.get_betaqu50(k,2),cpar_fc.get_beta_upper1(k,2)));
+                     cpar_fc.get_betaqu50(k,2),cpar_fc.get_beta_upper1(k,2)) + "\n");
     optionsp->out("\n");
     }
   optionsp->out("\n");
 
-  optionsp->out("  Results for mixture component indicators:");
+  optionsp->out("  Results for mixture component indicators:\n");
   optionsp->out("\n");
-  optionsp->out("   Component   Assigned subjects   Mean of comp. prob." );
+  optionsp->out("   Component   Assigned subjects   Mean of comp. prob.\n");
   for(k=0;k<nrcomp;k++)
     {
     if(cindout(k,0)>=10)
       optionsp->out("       " + ST::inttostring(k+1) +
                     "               " + ST::doubletostring(cindout(k,0)) +
-                    "                  " + ST::doubletostring(cindout(k,1)/cindout(k,0),4));
+                    "                  " + ST::doubletostring(cindout(k,1)/cindout(k,0),4) + "\n");
     else if(cindout(k,0)==0)
       optionsp->out("       " + ST::inttostring(k+1) +
                     "                " + ST::doubletostring(cindout(k,0)) +
-                    "                  " + ST::doubletostring(0));
+                    "                  " + ST::doubletostring(0) + "\n");
     else
       optionsp->out("       " + ST::inttostring(k+1) +
                     "                " + ST::doubletostring(cindout(k,0)) +
-                    "                  " + ST::doubletostring(cindout(k,1)/cindout(k,0),4));
+                    "                  " + ST::doubletostring(cindout(k,1)/cindout(k,0),4) + "\n");
     }
   optionsp->out("\n");
   optionsp->out("\n");

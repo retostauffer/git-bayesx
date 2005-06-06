@@ -19,30 +19,38 @@
 namespace MCMC
 {
 
+//------------------------------------------------------------------------------
+//--------------------- class: FULLCOND_mixture --------------------------------
+//------------------------------------------------------------------------------
 
 class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
   {
 
   protected:
 
-  unsigned nrcomp;              // Number of mixture components
-  datamatrix compweight;        // Weights of mixture components
-  statmatrix<unsigned> csize;   // Sizes of mixture components
+  unsigned nrcomp;              // Number k of mixture components
+  datamatrix compweight;        // Weights w_k of mixture components
+  statmatrix<unsigned> csize;   // Sizes n_k of mixture components
   datamatrix compind;           // Indicators, class probabilities for mixture components
-  datamatrix compmean;          // Means of mixture components
-  datamatrix compvar;           // Variances of mixture components
+  datamatrix compmean;          // Means mu_k of mixture components
+  datamatrix compvar;           // Variances sigma_k^2 of mixture components
 
   datamatrix cwprior;           // Prior parameter weights of mixture components
   double cmpriorm,cmpriorv;     // Prior parameters means of mixture components
   double cvpriora,cvpriorb;     // Prior parameters variances of mixture components
+  bool cvpriorbunif;            // cvpriorbunif=true  => sigma_k^2~IG(a,b)
+                                //                               b~U(0,cvpriorb)
+  bool cvpriorbgamma;           // cvpriorbgamma=true => sigma_k^2~IG(a,b)
+                                //                               b~G(cvpriorb,(100*cvpriorb)/(cvpriora*cmpriorv))
 
-  bool nosamples;
+  bool nosamples;               // samples of mixture parameters
   unsigned aclag;               // Lag for autocorrelations of mixture component parameters
-                               // aclag=0 => no autocorrelations written in file
+                                // aclag=0 => no autocorrelations written in file
+  ST::string ordertype;         // type of labelling restriction
   datamatrix temp;
 
-  FULLCOND cpar_fc;  // FULLCOND object for component parameters
-  FULLCOND cind_fc;  // FULLCOND object for component indicators
+  FULLCOND cpar_fc;             // FULLCOND object for component parameters
+  FULLCOND cind_fc;             // FULLCOND object for component indicators
   FULLCOND_const * fcconst;
   DISTRIBUTION * likep;
 
@@ -75,6 +83,8 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
                   const double & pmm,const double & pmv,
                   const double & pva,const double & pvb,
                   const bool & s, const unsigned & acl,
+                  const ST::string & ot,
+                  const bool & pvbu,const bool & pvbg,
                   const unsigned & c=0);
 
 
@@ -122,109 +132,6 @@ class __EXPORT_TYPE FULLCOND_mixture : public FULLCOND
 
   };     // end: class FULLCOND_mixture
 
-
-//------------------------------------------------------------------------------
-//--------------------- class: FULLCOND_mixture_gaussian ------------------------
-//------------------------------------------------------------------------------
-
-/*
-class __EXPORT_TYPE FULLCOND_mixture_gaussian : public FULLCOND_mixture
-  {
-
-  protected:
-
-//  datamatrix compmean; // Means of normal mixture components
-//  datamatrix compvar;  // Variances of normal mixture components
-
-//  datamatrix mu;
-
-  public:
-
-  // DEFAULT CONSTRUCTOR:
-
-  FULLCOND_mixture_gaussian(void) : FULLCOND_mixture()
-    {
-    }
-
-  // CONSTRUCTOR1
-  // random intercept
-
-  FULLCOND_mixture_gaussian(MCMCoptions * o,DISTRIBUTION * dp,
-                           FULLCOND_const * fcc,
-                           const datamatrix & d, const ST::string & t,
-                           const ST::string & fp,const ST::string & pr,
-                           const int & nrc, const double & la,
-                           const unsigned & c = 0)
-                           : FULLCOND_mixture(o,dp,fcc,d,t,fp,pr,nrc,la,c)
-    {
-//    mu = datamatrix(index.rows(),1);
-
-//    compmean = datamatrix(nrcomp,1,0);
-//    compvar = datamatrix(nrcomp,1,1);
-    }
-
-  // COPY CONSTRUCTOR
-
-  FULLCOND_mixture_gaussian(const FULLCOND_mixture_gaussian & fc)
-  : FULLCOND_mixture(FULLCOND_mixture(fc))
-    {
-//    mu = fc.mu;
-//    muy = fc.muy;
-
-//    compmean=fc.compmean;
-//    compvar=fc.compvar;
-    }
-
-  // OVERLOADED ASSIGNMENT OPERATOR
-
-  const FULLCOND_mixture_gaussian & operator=(
-                        const FULLCOND_mixture_gaussian & fc)
-    {
-    if (this==&fc)
-      return *this;
-    FULLCOND_mixture::operator=(FULLCOND_mixture(fc));
-//    mu = fc.mu;
-//    muy = fc.muy;
-
-//    compmean=fc.compmean;
-//    compvar=fc.compvar;
-    return *this;
-    }
-
-  // DESTRUCTOR
-
-  ~FULLCOND_mixture_gaussian() {}
-
-  // FUNCTION: update
-  // TASK: updates parameters (i.e. matrix beta)
-
-  void update(void);
-
-  // FUNCTION: outresults
-  // TASK: writes estimation results to logout or into a file (after estimation)
-
-  void outresults(void)
-    {
-    FULLCOND_mixture::outresults();
-    }
-
-  // FUNCTION: outoptions
-
-  void outoptions(void)
-    {
-    FULLCOND_mixture::outoptions();
-    }
-
-  // FUNCTION: reset
-  // TASK: resets all parameters for a new simulation
-
-  void reset(void)
-    {
-    FULLCOND_mixture::reset();
-    }
-
-  };     // end: class FULLCOND_mixture_gaussian
-*/
 
 }   // end: namespace MCMC
 
