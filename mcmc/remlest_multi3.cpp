@@ -119,7 +119,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
   k=0;
   for(i=1; i<fullcond.size(); i++)
     {
-    if(fullcond[i])
+    if(catspecific[i])
       {
       theta(k,0) = fullcond[i]->get_startlambda();
       k++;
@@ -643,6 +643,236 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
 // conny: H1 berechnen
 // -----------------------------------------------------------------------------
 //    compute_sscp_resp2(H1,workweight,worky);
+
+//---------------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// neue Funktion compute_sscp2 (Conny)
+
+// Ausgabe von workweight
+/*  ofstream outWorkweight("c:\\bayesx\\mcmc\\Workweight");
+        workweight.prettyPrint(outWorkweight);
+        outWorkweight.close();*/
+
+
+//---------------------------------------------------------------------------------------------------------------------------------------------
+// zu Xneu und Zneu: Dimensionen
+// von oben:
+// datamatrix   Xneu            (   nrobs*nrcat2,    xcutbeta[xcutbeta.size()-1],  0);
+// datamatrix   Zneu            (   nrobs*nrcat2,    zcutbeta[zcutbeta.size()-1],  0);
+//
+// datamatrix   workweight   (   nrobs*nrcat2,     nrcat2,      0);
+// datamatrix   worky          (    nrobs*nrcat2,     1,        0);
+
+        // Ausgabe von Worky unter Worky
+/*           ofstream outWorky("c:\\bayesx\\mcmc\\Worky");
+           worky.prettyPrint(outWorky);
+           outWorky.close();*/
+
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// Berechnen von Xneu' unter XneuTr
+
+   datamatrix XneuTr (xcutbeta[xcutbeta.size()-1], nrobs*nrcat2, 0);
+   XneuTr = Xneu.transposed();
+
+        // Ausgabe von XneuTr unter XneuTr
+       /*   ofstream outXneuTr ("c:\\bayesx\\mcmc\\XneuTr");
+           XneuTr.prettyPrint(outXneuTr);
+           outXneuTr.close();  */
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// Berechnen von Zneu' unter ZneuTr
+
+   datamatrix ZneuTr (zcutbeta[zcutbeta.size()-1], nrobs*nrcat2, 0);
+   ZneuTr = Zneu.transposed();
+
+        // Ausgabe von ZneuTr unter ZneuTr
+      /*    ofstream outZneuTr ("c:\\bayesx\\mcmc\\ZneuTr");
+           ZneuTr.prettyPrint(outZneuTr);
+           outZneuTr.close(); */
+
+//--------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------
+// Berechnen von H
+//
+//               Xneu' workweight Xneu           Xneu' workweight Zneu              H_00       H_01
+//    H  =                                                                   =
+//               Zneu' workweight Xneu           Zneu' workweight Zneu              H_10       H_11
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+// Berechnen von H1
+//
+//                 Xneu' workweight worky                 H1_0
+//   H1 =                                          =
+//                 Zneu' workweight worky                 H1_1
+
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
+// Berechnen von H_00, H_01, H1_0
+
+//----------------------------------------------------------------------
+// Erzeugen von H_00 = Xneu' workweight Xneu
+   datamatrix  H_00 (xcutbeta[xcutbeta.size()-1],  xcutbeta[xcutbeta.size()-1],  0);
+
+//----------------------------------------------------------------------
+// Erzeugen von H_01 = Xneu' workweight Zneu
+   datamatrix  H_01 (xcutbeta[xcutbeta.size()-1],  zcutbeta[zcutbeta.size()-1],  0);
+
+//----------------------------------------------------------------------
+// Erzeugen von H1_0 = Xneu' workweight worky
+   datamatrix  H1_0 (xcutbeta[xcutbeta.size()-1],  1, 0);
+
+
+//----------------------------------------------------------------------
+//----------------------------------------------------------------------
+// Hilfsmatrix zum Berechnen der Zeilen von Xneu' workweight
+   datamatrix H_00hilf (1, nrobs*nrcat2,  0);
+
+for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                   // l durchläuft die Zeilen von Xneu' und die Zeilen von H_00
+{
+     for  (j=0;  j<nrobs*nrcat2;  j=j+nrcat2)                                                                                                                      // j durchläuft die Spalten von Xneu'
+     {
+          for (i=0; i<nrcat2; i++)                                                                                                                                       // i durchläuft nrcat2
+          {
+          H_00hilf (0, j+i) = ((XneuTr.getBlock( l, j, l+1, j+nrcat2)) * (workweight.getBlock(j, i,  j+nrcat2, i+1)))(0,0);
+          }
+     }
+
+                  // Ausgabe von H_00hilf  unter H_00hilf
+/*                     ofstream outH_00hilf  ("c:\\bayesx\\mcmc\\H_00hilf ");
+                     H_00hilf .prettyPrint(outH_00hilf );
+                     outH_00hilf .close();*/
+
+
+//----------------------------------------------------------------------------
+// Berechnen von H_00 = Xneu' workweight Xneu
+
+     for (k=l; k<xcutbeta[xcutbeta.size()-1]; k++ )                              // k durchläuft die Spalten von Xneu
+     {
+     H_00(l, k) = ((H_00hilf) * (Xneu.getCol(k)))(0,0);
+     H_00(k,l)=H_00(l,k);
+     }
+
+                  // Ausgabe von H_00  unter H_00
+/*                     ofstream outH_00 ("c:\\bayesx\\mcmc\\H_00 ");
+                     H_00.prettyPrint(outH_00 );
+                     outH_00.close();*/
+//-----------------------------------------------------------------------
+// Berechnen von H_01 = Xneu' workweight Zneu
+     for (k=0; k<zcutbeta[zcutbeta.size()-1]; k++ )                              // k durchläuft die Spalten von Zneu
+     {
+     H_01(l, k) = ((H_00hilf) * (Zneu.getCol(k))) (0,0);
+     }
+
+//----------------------------------------------------------------------
+// Berechnen von H_10 = Zneu' workweight Xneu
+// durch Einsetzen von H_01.transposed() in H
+
+//----------------------------------------------------------------------
+// Berechnen von H1_0 = Xneu' workweight worky
+    H1_0(l, 0) = ((H_00hilf) * (worky)) (0,0);
+//----------------------------------------------------------------------
+
+}                                                                                // Ende der l-Schleife
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
+// Berechnen von H_11, H1_1
+
+//----------------------------------------------------------------------------------------------------------------------------------
+// Erzeugen von H_11 = Zneu' workweight Zneu
+   datamatrix  H_11 (zcutbeta[zcutbeta.size()-1],  zcutbeta[zcutbeta.size()-1],  0);
+
+//----------------------------------------------------------------------------------------------------------------------------------
+// Erzeugen von H1_1 = Zneu' workweight worky
+   datamatrix  H1_1 (zcutbeta[zcutbeta.size()-1],  1, 0);
+
+
+//----------------------------------------------------------------------
+//----------------------------------------------------------------------
+// Hilfsmatrix zum Berechnen der Zeilen von Zneu' workweight
+   datamatrix H_11hilf (1, nrobs*nrcat2,  0);
+
+for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                   // l durchläuft die Zeilen von Zneu' und die Zeilen von H_11
+{
+
+     for  (j=0;  j<nrobs*nrcat2; j=j+nrcat2)                                                                                                                      // j durchläuft die Spalten von Zneu'
+     {
+          for (i=0; i<nrcat2; i++)                                                                                                                                       // i durchläuft nrcat2
+          {
+          H_11hilf (0, j+i) = ((ZneuTr.getBlock( l, j, l+1, j+nrcat2)) * (workweight.getBlock(j, i,  j+nrcat2, i+1))) (0,0);
+          }
+     }
+
+                  // Ausgabe von H_11hilf  unter H_11hilf
+/*                     ofstream outH_11hilf  ("c:\\bayesx\\mcmc\\H_11hilf ");
+                     H_11hilf .prettyPrint(outH_11hilf );
+                     outH_11hilf .close();*/
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+// Berechnen von H_11 = Zneu' workweight Zneu
+     for (k=l; k<zcutbeta[zcutbeta.size()-1]; k++ )                              // k durchläuft die Spalten von Zneu
+     {
+     H_11(l, k) = ((H_11hilf) * (Zneu.getCol(k))) (0,0);
+     H_11(k,l)=H_11(l,k);
+     }
+
+                  // Ausgabe von H_11  unter H_11
+/*                     ofstream outH_11 ("c:\\bayesx\\mcmc\\H_11 ");
+                     H_11.prettyPrint(outH_11 );
+                     outH_11 .close();*/
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+// Berechnen von H1_1 = Zneu' workweight worky
+    H1_1(l, 0) = ((H_11hilf) * (worky)) (0,0);
+}                                                                                // Ende der l-Schleife
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+// Zusammensetzen von H
+
+// datamatrix H (xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1], xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1],  0);
+
+   H.putBlock (H_00 , 0, 0,
+                                       xcutbeta[xcutbeta.size()-1],  xcutbeta[xcutbeta.size()-1] );
+
+   H.putBlock (H_01 , 0, xcutbeta[xcutbeta.size()-1],
+                                       xcutbeta[xcutbeta.size()-1],  xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1] );
+
+   H.putBlock (H_01.transposed() , xcutbeta[xcutbeta.size()-1],  0,
+                                       xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1] , xcutbeta[xcutbeta.size()-1] );
+
+   H.putBlock (H_11 , xcutbeta[xcutbeta.size()-1],  xcutbeta[xcutbeta.size()-1],
+                                       xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1] , xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1] );
+
+        // Ausgabe von H unter H
+          ofstream outH ("c:\\bayesx\\mcmc\\H");
+           H.prettyPrint(outH);
+           outH.close();
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+// Zusammensetzen von H1
+
+//   datamatrix H1 (xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1], 1, 0);
+
+   H1.putRowBlock(0, xcutbeta[xcutbeta.size()-1], H1_0 );
+   H1.putRowBlock(xcutbeta[xcutbeta.size()-1], xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1], H1_1 );
+
+
+        // Ausgabe von H1 unter H1
+           ofstream outH1 ("c:\\bayesx\\mcmc\\H1");
+           H1.prettyPrint(outH1);
+           outH1.close();
+
+//---------------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------
+
+
+
 
     H.addtodiag(Qinv,totalnrfixed,totalnrpar);
 
