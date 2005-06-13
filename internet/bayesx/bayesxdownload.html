@@ -76,61 +76,24 @@ Ende: Allgemeiner Teil der Seite
   <tr>
     <td>
 
-<p>BayesX is available for Windows (95/98/2000/NT/Xp). 
-To save download time, most files are compressed using <a href="http://www.winzip.com/winzip/download.htm">Winzip</a>.
-Currently we distribute two versions of BayesX, a Java based version and a non Java based version.
-The Java based version has additional functionality compared to the non Java based version. In particular,
-the Java based version has graphics facilities.</p>
+<p>BayesX is available for Windows (95/98/2000/NT/Xp).
+Until version 1.30, BayesX was distributed in two different versions, a Java based version and a non Java based version.
+Starting with version 1.40, the non Java based version of BayesX is no longer supported, since the Java based version has additional functionality.
+ </p>
 
-<p>You may <a href="bayesxdownload.html#pull-down">register</a> yourself as a BayesX-user. In this case you will be informed
-when new versions are released or if severe bugs have been found.</p>
+<p style="font-weight:bold">Download</p>
 
-<p>We recommend to download and use the Java based version 
-although this version runs slightly slower than the non Java based 
-version. Please choose from the pull-down menu <a href="bayesxdownload.html#pull-down">below</a>. 
-</p>
+<p>Last Update: Version 1.40 (??.06.2005)</p> 
 
-<p style="font-weight:bold">Java based Version</p>
-
-<p>Last Update: Version 1.30 (08.11.2004)</p> 
-
-
-<ul>
-<li>Download the complete package (incl. manual and examples). To install BayesX on your Computer, select "Java based version" from the 
-pull down menu <a href="bayesxdownload.html#pull-down">below</a> and click on the 'download' button. Store the file 
+<p>Download the complete package (incl. manuals and examples) by clicking on the 'download' button below. Store the file 
 installBayesX.exe in a temporary directory. Execute the  program and follow the installation 
 instructions on the screen. After a successful installation, BayesX can be executed using the 
-Windows start button. The manual of the program (file manual.pdf) can be found in the 'doc' directory 
-which is a subdirectory of the installation directory. </li>
-</ul>
+Windows start button. The manuals of the program can be found in the 'doc' directory 
+which is a subdirectory of the installation directory. They are also available from the BayesX help menu.</p>
 
-<p style="font-weight:bold">Non Java based Version</p>
+<p><a href="http://www.statistik.lmu.de/sys/cgi/perl/bayesx-down-new.pl"><input type="submit" value="Download"></a></p>
 
-<p>Last Update: Version 1.30 (08.11.2004)</p> 
-
-<ul>
-<li> Download the exe-file only. This is useful, 
-     if BayesX has already been installed on your computer. In this case it is faster to download the 
-     exe-file only, and replace the old exe-file on your computer with the new version. Select "Exe-file for the non java based version"
-     from the pull down menu <a href="bayesxdownload.html#pull-down">below</a> and click on the 'download' button.</li>
-<li> Download the complete package (incl. manual and examples). To install BayesX on your Computer, select "Non java based version" from the 
-pull down menu <a href="bayesxdownload.html#pull-down">below</a> and click on the 'download' button. Store the file 
-bayesx.zip in a temporary directory. Unzip the file using 
-      <a href="http://www.winzip.com/winzip/download.htm">Winzip</a>. Execute the program setup.exe and 
-      follow the installation instructions on the screen. After a successful installation, 
-      BayesX can be executed using the Windows start button. The manual of the 
-      program (file manual.pdf) can be found in the 'doc' directory which is a subdirectory of the installation directory.</li>
-</ul>
-
-<p style="font-weight:bold">Manual</p>
-
-<ul>
-<li> Download the <a href="manual/manual.pdf">manual</a> only. </li>
-</ul>
-
-<p style="font-weight:bold"><a name="pull-down">Download</a></p>
-
-<p>Please select the version of BayesX you want to download from the pull down menu below and click on the 'download' button.
+<!--<p>Please select the version of BayesX you want to download from the pull down menu below and click on the 'download' button.
 
 <p><table><form action="http://www.statistik.lmu.de/sys/cgi/perl/bayesx-down.pl" method="post" name="regunddown">
 <tr>
@@ -142,10 +105,16 @@ bayesx.zip in a temporary directory. Unzip the file using
 </select></center>
 </tr>
 <tr>
-<td>
-<input type="submit" value="Download">
+<td>-->
+<!--<input type="submit" value="Download" action="http://www.statistik.lmu.de/sys/cgi/perl/bayesx-down.pl" method="post">
 </form></tr>
-</table></p>
+</table></p>-->
+
+<p style="font-weight:bold">Manuals</p>
+
+<p>BayesX is distributed with three manuals: A <a href="manual/reference_manual.pdf">reference manual</a> containing a detailled description of the BayesX commands, a <a href="manual/methodology_manual.pdf">methodology manual</a> containing a short review of the methodological background,
+    and a <a href="manual/tutorials_manual.pdf">tutorial manual</a> containing tutorial like sections for new users. All three manuals are part of the standard installation of BayesX
+    and can be found in the 'doc' directory which is a subdirectory of the installation directory. They are also available from the BayesX help menu.</p>
 
 <p style="font-weight:bold"><a name="register">Registration</a></p>
 
@@ -168,14 +137,11 @@ or if severe bugs have been found in the current version.</p>
 <p>Please obey the following limitations:</p>
 
 <ul>
-<li> Cumulative threshold models are restricted to three categorical responses.</li>
+<li> Cumulative threshold models are restricted to three categorical responses (bayesreg objects only).</li>
 <li> The manual describes for first and second order random walk priors
 automatic determination of block sizes for block move updates. This it not yet 
 implemented. For P-splines, however, the automatic determination of block sizes works
 properly.</li>
-<li> In the Java based version, the generation of variables works properly only if random numbers
-are not involved (e.g. generate x = uniform() works not properly). In the non Java based Version, however,
-the problem does not occur. </li>
 </ul>
 
 <p>The <a href=bayesxbugs.html>bug list</a> contains a complete list of (severe) bugs of the different versions of BayesX. </p>

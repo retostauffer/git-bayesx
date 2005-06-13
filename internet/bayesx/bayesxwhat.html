@@ -97,7 +97,12 @@ Recently complex models for continuous time survival analysis based on the Cox m
 <span style="font-weight:normal">BayesX provides a second regression tool for estimating STAR models with comparable functionality as the first tool based on MCMC.
 This tool represents STAR models as variance components mixed models.
 Inference is then based on estimation procedures for such mixed models, particularly restricted maximum
-likelihood (REML). From a Bayesian perspective this yields empirical Bayes or posterior mode estimates.<br>
+likelihood (REML). From a Bayesian perspective this yields empirical Bayes or posterior mode estimates.
+Supported distributions for univariate responses are Gaussian, binomial, Poisson and gamma. 
+For categorial responses, multinomial logit models for unordered categories of the responses as well as cumulative and sequential models for ordered categories can be estimated. 
+Recently complex models for continuous time survival analysis based on the Cox model, allowing for arbitrary combinations of left- interval- and
+right-censoring as well as left-truncation have been added.
+<br>
 </span></li>
 <li> Model selection for Gaussian and non-Gaussian dags.<br>
 <span style="font-weight:normal">This tool estimates Gaussian and non-Gaussian directed acyclical graphs (dag) via reversible jump MCMC.</span>
@@ -136,10 +141,10 @@ More details on the theoretical background of BayesX are given in the following 
     <a href="publications/paper334.ps">
     Structured count data regression.</a><br>
     SFB 386 discussion paper 334, University of Munich.</li>
-<li>Hennerfeind, A., Brezger, A., Fahrmeir, L. (2003)<br>
-    <a href="publications/paper333.pdf">
+<li>Hennerfeind, A., Brezger, A., Fahrmeir, L. (2005)<br>
+    <a href="publications/paper414.pdf">
     Geoadditive survival models.</a><br>
-    SFB 386 discussion paper 333, University of Munich.</li>
+    SFB 386 discussion paper 414, University of Munich.</li>
 <li>Fahrmeir, L., Lang, S. (2001)<br>
     <a href="publications/Fahrmeir_Lang_JRSSC2001.pdf"> 
     Bayesian Inference for Generalized Additive Mixed Models Based on Markov Random     
@@ -149,7 +154,7 @@ More details on the theoretical background of BayesX are given in the following 
     <a href="publications/Fahrmeir_Lang_AISM2001.pdf"> 
     Bayesian Semiparametric Regression Analysis of Multicategorical Time-Space Data.</a><br>
     <i> Annals of the Institute of Statistical Mathematics</i>, 53, 10-30.</li>
-<li>Osuna, L. (2003)<br>
+<li>Osuna, L. (2005)<br>
     Semiparametric Bayesian Count Data Models.<br>
     Dr. Hut Verlag, München.</li>
 </ul>
@@ -159,14 +164,20 @@ More details on the theoretical background of BayesX are given in the following 
 
 
 <ul>
+<li>Kneib, T. (2005): <br>
+    <a href="publications/paper447.pdf">Geoadditive hazard regression for interval censored survival times. </a><br>
+    SFB 386 discussion paper 4447, University of Munich.</li>
+<li>Kneib, T., Fahrmeir, L. (2005): <br>
+    Structured additive regression for multicategorical space-time data: A mixed model approach. <br>
+    <i>Biometrics</i>, to appear.<br>
+    <a href="publications/paper377.ps">Preprint in ps-format</a></li>
+<li>Kneib, T., Fahrmeir, L. (2005): <br>
+    <a href="publications/paper431.pdf">Supplement to "Structured additive regression for multicategorical space-time data: A mixed model approach."</a><br>
+    SFB 386 discussion paper 431, University of Munich.</li>
 <li>Fahrmeir, L., Kneib, T., Lang, S. (2004)<br>
     <a href="publications/Fahrmeir_Kneib_Lang_StatSinica2004.pdf"> 
     Penalized structured additive regression for space-time data: a Bayesian perspective.</a> <br>
     <i>Statistica Sinica</i>, 14, 715-745 </li>  
-<li>Kneib, T., Fahrmeir, L. (2004): <br>
-    <a href="publications/paper377.ps">
-    Structured additive regression for multicategorical space-time data: A mixed model approach.</a> <br>
-    SFB 386 discussion paper 377, University of Munich.</li>
 <li>Kneib, T., Fahrmeir, L. (2004): <br>
     <a href="publications/paper400.pdf">
     A mixed model approach for structured hazard regression.</a> <br>
