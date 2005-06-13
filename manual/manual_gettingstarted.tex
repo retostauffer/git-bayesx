@@ -1,72 +1,65 @@
 \chapter{Getting started}
 \label{gettingstarted}
 
-This chapter provides information on the different versions of
-{\em BayesX}, how to install {\em BayesX} on your computer and
-explains the purpose of the different windows that appear after
-having started {\em BayesX}. A fourth section covers the general
-usage of the program and the features of the current version.
-Finally we describe three data sets, which serve as the basis for
-most of the illustrating examples in this manual.
+This chapter provides information on how to install {\em BayesX} on
+your computer and briefly describes the {\em BayesX} manuals. In
+addition, the  different windows and buttons that appear after
+having started {\em BayesX} are explained. Section
+\ref{generalusage} covers the general usage of the program and the
+features of the current version. Finally we describe three data
+sets, which serve as the basis for most of the illustrating examples
+in this manual.
 
 \section{Available versions of BayesX}
-\label{availableversions} \index{Java based version}
-\index{non-Java based version} \index{versions}
-\index{versions!Java based} \index{versions!non-Java based} {\em
-BayesX} is currently available in two versions, a {\em Java based
-version} and a {\em non-Java based version}. Both versions run
-only under the various versions of the Windows operating system
-(e.g. Windows 95, 98, 2000, NT, XP). The Java based version is
-implemented partly in Java, only the computerintensive parts of
-the program are implemented in C++. The non-Java based version is
-written completely in C++. The non-Java based version runs
-slightly faster and uses less disk space than the Java based
-version. The Java based version has additional features. In
-particular, functions for visualizing data and estimation results
-are available only in the Java based version. We recommend the
-installation of the Java based version. Both versions of {\em
-BayesX} can be downloaded at
+\label{availableversions} \index{Java based version} \index{non-Java
+based version} \index{versions} \index{versions!Java based}
+\index{versions!non-Java based}
+
+In its current form, {\em BayesX} runs only under the various
+versions of the Windows operating system (e.g. Windows 95, 98, 2000,
+NT, XP). The graphical user interface and functions for visualizing
+data and estimation results are written in Java, while the
+computerintensive parts of the program are implemented in C++. The
+latest version of {\em BayesX} can be downloaded at
 \href{http://www.stat.uni-muenchen.de/~bayesx}
 {http://www.stat.uni-muenchen.de/\~{}bayesx}.
 
+Up to version 1.3, {\em BayesX} was distributed in two versions, the
+{\em Java based version} described above and a {\em non-Java based
+version}, which was written completely in C++. Since the Java based
+version has additional features, the non-Java based version is no
+longer supported.
 
 \section{Installing BayesX}
 \index{installation} \index{installation directories} Installing
-{\em BayesX} is very easy. Suppose you have already downloaded one
-of the installation files, #bayesx.zip# for the non-Java based
-version or #installBayesX.exe# for the Java based version. To
-install the non-Java based version unzip  the file #bayesx.zip#
-using the program {\em winzip} and store the unzipped files in a
-temporary directory. Start the program #setup.exe#, for example by
-double clicking it in the {\em Windows explorer}. Now follow the
-instructions of the setup routine to install {\em BayesX}. To
-install the Java based version simply execute the file
-#installBayesX.exe# and follow the installation instructions.
+{\em BayesX} is very easy. Suppose you have already downloaded the
+installation file #installBayesX.exe#. To install {\em BayesX}
+simply execute the file #installBayesX.exe# and follow the
+installation instructions.
 
-After the successful installation of {\em BayesX} your
-installation directory contains five additional subdirectories,
-namely the directories #doc#, #examples#, #output#, #sfunctions#
-and #temp#. The #doc# directory contains the program
-documentation, that is the three different manuals (see the
-following subsection). The #examples# directory contains three
-data sets, #credit.raw#, #rents.raw# and #zambia.raw#. These data
-sets exemplify many of the statistical functions and routines
-described in the following chapters. A detailed description of the
-three data sets is given in \autoref{datadescription}. The
-#examples# directory also contains some tutorial programs that
-illustrate the usage of most of the functions of {\em BayesX}, see
-the tutorials manual. The #output# directory is the default
-directory for the program output. The #output# directory can be
-redefined by the user. The #sfunctions# directory contains some
-S-plus and R functions for visualizing estimation results obtained
-with {\em bayesreg objects} or {\em remlreg objects}, see
-\autoref{splus} for a detailed description of the S-plus
-functions. However, by using the Java based version of {\em
-BayesX} the S-plus functions are obsolete because this version has
-its own capabilities for visualizing data and results, see
-\autoref{graphobj} and \autoref{visualization} for details.
-Finally in the #temp# directory some temporary files will be
-stored. Usually you will never use this directory.
+After the successful installation of {\em BayesX} your installation
+directory contains five additional subdirectories, namely the
+directories #doc#, #examples#, #output#, #sfunctions# and #temp#.
+The #doc# directory contains the program documentation, that is the
+three different manuals (see the following subsection). The
+#examples# directory contains three data sets, #credit.raw#,
+#rents.raw# and #zambia.raw#. These data sets exemplify many of the
+statistical functions and routines described in the following
+chapters. A detailed description of the three data sets is given in
+\autoref{datadescription}. The #examples# directory also contains
+some tutorial programs that illustrate the usage of most of the
+functions of {\em BayesX}, see the tutorials manual. The #output#
+directory is the default directory for the program output. The
+#output# directory can be redefined by the user. The #sfunctions#
+directory contains some S-plus and R functions for visualizing
+estimation results obtained with {\em bayesreg objects} or {\em
+remlreg objects}, see \autoref{splus} for a detailed description of
+the S-plus functions. However, in the current version of {\em
+BayesX} the S-plus functions are more or less obsolete because this
+version has its own capabilities for visualizing data and results,
+see \autoref{graphobj} and \autoref{visualization} for details.
+Finally in the #temp# directory some temporary files will be stored.
+Usually you will never use this directory.
 
 The created directories and their contents are briefly summarized
 in \autoref{dirtable}.
@@ -96,19 +89,17 @@ the {\em Windows Start} button or the icon created on the desktop.
 \index{Manuals}
 
 {\em BayesX} is shipped together with three different manuals. The
-reference manual gives detailed information on the general usage
-of BayesX, the syntax of {\em BayesX} commands and the different
+reference manual gives detailed information on the general usage of
+BayesX, the syntax of {\em BayesX} commands and the different
 objects used by {\em BayesX}. The methodology manual provides
 background information on the statistical methodology that is
-implemented in {\em BayesX}. In this manual you will also find
-more references on the methodological background. The tutorial
-manual can be used to make yourself familiar with the usage of
-{\em BayesX}. It contains some self-contained tutorials,
-describing how to perform semiparametric regression analyses using
-{\em BayesX}. In the Java based version of {\em BayesX} the
-manuals are available from the help menu. In both versions they
-can be found in the #doc# directory, which is a subdirectory of
-the installation directory.
+implemented in {\em BayesX}. In this manual you will also find more
+references on the methodological background. The tutorial manual can
+be used to make yourself familiar with the usage of {\em BayesX}. It
+contains some self-contained tutorials, describing how to perform
+semiparametric regression analyses using {\em BayesX}. The manuals
+are also available from the help menu and can be found in the #doc#
+directory, which is a subdirectory of the installation directory.
 
 \section{Windows in BayesX}
 \index{windows}
@@ -156,18 +147,16 @@ Depending on the screen resolution of your computer, letters
 appearing in the {\em output window} may be very small or too large. The
 font size can be changed  using the {\em preferences menu}.
 
-
-
 \subsection{The review window}
 \index{review window} \index{windows!review}
 
 In many cases subsequent commands change only slightly. The {\em
 review window} gives you a convenient way to bring back and edit
-past commands. In the {\em review window} the last 100 past
-commands entered during a session are shown. Click once (double
-click in the Java based version) on one of these past commands and
-it is automatically copied to the {\em command window}, where the
-command or a slightly modified version can be executed again.
+past commands. In the {\em review window} the last 100 past commands
+entered during a session are shown. Double click on one of these
+past commands and it is automatically copied to the {\em command
+window}, where the command or a slightly modified version can be
+executed again.
 
 \subsection{The object browser}
 \index{object browser}

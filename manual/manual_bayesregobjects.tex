@@ -12,13 +12,13 @@ and
 
 {\em bayesreg objects} are used to fit (multivariate) generalized
 linear models or hazard rate models with a {\em Structured Additive
-Predictor (STAR)}, see Fahrmeir, Kneib, and Lang (2003). Inference
+Predictor (STAR)}, see Fahrmeir, Kneib, and Lang (2004). Inference
 is fully Bayesian via Markov Chain Monte Carlo (MCMC) techniques.
 The methodological background is provided in considerable detail in
 the methodology manual. More details can be found in Fahrmeir and
-Lang (2001a), Fahrmeir and Lang (2001b), Lang and Brezger (2003),
-Brezger and Lang (2003), Fahrmeir and Osuna (2003), Hennerfeind,
-Brezger and Fahrmeir (2003), and Fahrmeir and Hennerfeind (2003).
+Lang (2001a), Fahrmeir and Lang (2001b), Lang and Brezger (2004),
+Brezger and Lang (2005), Fahrmeir and Osuna (2003), Hennerfeind,
+Brezger and Fahrmeir (2005), and Fahrmeir and Hennerfeind (2003).
 Good introductions into generalized linear models are the monographs
 of Fahrmeir and Tutz (2001) and Mc Cullagh and Nelder (1989).
 Introductions to semi- and nonparametric models are given in Green
@@ -1304,14 +1304,13 @@ link, binomial logit or probit models, multinomial logit or probit
 models for unordered categories of the response, cumulative
 threshold models with probit link for ordered categories of the
 response, and Poisson, negative binomial or their zero inflated
-versions with the
-log-link. For some distributions (e.g.~multinomial) additional
-options may be specified to control MCMC inference. A detailed
-description on how to specify the distribution of the response is
-given in \autoref{familysyntax}. \autoref{familyopt} lists all
-possible specifications for the distribution of the response
-currently supported by {\em BayesX}. In addition, a list of
-options associated
+versions with the log-link. For some distributions
+(e.g.~multinomial) additional options may be specified to control
+MCMC inference. A detailed description on how to specify the
+distribution of the response is given in \autoref{familysyntax}.
+\autoref{familyopt} lists all possible specifications for the
+distribution of the response currently supported by {\em BayesX}. In
+addition, a list of options associated
 with the particular response distribution is given. \\
 DEFAULT: #family=binomial#
 
@@ -1563,11 +1562,10 @@ Note that the first row always contains the names of the variables
 in the ten columns.
 
 The estimated nonlinear effects can be visualized by using either
-the graphics capabilities of {\em BayesX} (Java based version
-only) or a couple of S-plus functions, see \autoref{bayesxplot}
-and \autoref{splus}, respectively. Of course, any other
-(statistics) software package with plotting facilities may be used
-as well.
+the graphics capabilities of {\em BayesX} or a couple of S-plus
+functions, see \autoref{bayesxplot} and \autoref{splus},
+respectively. Of course, any other (statistics) software package
+with plotting facilities may be used as well.
 
 \subsection{Examples}
 
@@ -1695,15 +1693,15 @@ functions!computing of}
 \begin{stanza}{Description}
 
 This method is a post estimation command, i.e.~its usage is
-meaningful only if method #regress# has been applied before.
-Method #autocor# computes the autocorrelation functions of all
-sampled (and stored) parameters. The computed functions will be
-written to an external file whose name and storing path is printed
-in the {\em output window} and/or an additional log file. The
-computed autocorrelations can be visualized by using either
+meaningful only if method #regress# has been applied before. Method
+#autocor# computes the autocorrelation functions of all sampled (and
+stored) parameters. The computed functions will be written to an
+external file whose name and storing path is printed in the {\em
+output window} and/or an additional log file. The computed
+autocorrelations can be visualized by using either
 \hyperref[graphplotautocor]{method #plotautocor#} of {\em graph
-objects} (Java based version only) or the
-\hyperref[splusplotautocor]{S-plus function #plotautocor#}.
+objects} or the \hyperref[splusplotautocor]{S-plus function
+#plotautocor#}.
 \end{stanza}
 
 \begin{stanza}{Syntax}
@@ -1744,11 +1742,10 @@ the file contains the column names.
 
 The computed autocorrelations can be visualized by using either
 \hyperref[graphplotautocor]{method #plotautocor#} of {\em graph
-objects} (Java based version only) or the
-\hyperref[splusplotautocor]{S-plus function #plotautocor#}.
-However, since the structure of the file is very simple, the
-visualization of the functions can be done with every software
-package which has graphics capabilities.
+objects} or the \hyperref[splusplotautocor]{S-plus function
+#plotautocor#}. However, since the structure of the file is very
+simple, the visualization of the functions can be done with every
+software package which has graphics capabilities.
 \end{stanza}
 
 \subheader{Options}
@@ -1821,11 +1818,10 @@ directory of a file correctly. For more details about the function
 
 The autocorrelation functions can be plotted directly in {\em
 BayesX} using \hyperref[graphplotautocor]{method #plotautocor#} of
-{\em graph objects} (Java based version only). For that purpose,
-the computed autocorrelation functions must be first read into
-{\em BayesX} as a new data set, #a# say, and then visualized using
-method #plotautocor# of {\em graph objects}. The following
-commands produce the desired results:
+{\em graph objects}. For that purpose, the computed autocorrelation
+functions must be first read into {\em BayesX} as a new data set,
+#a# say, and then visualized using method #plotautocor# of {\em
+graph objects}. The following commands produce the desired results:
 
 #> b.outfile = c:\data\estimate1# \\
 #> b.regress Y = X, family=gaussian using d# \\
@@ -1837,8 +1833,8 @@ commands produce the desired results:
 
 A third way for plotting autocorrelation functions is given by
 applying \hyperref[plotautocor]{method #plotautocor#} of {\em
-bayesreg objects} (Java based version only). Here autocorrelations
-are computed and plotted in one step.
+bayesreg objects}. Here autocorrelations are computed and plotted in
+one step.
 \end{stanza}
 
 \clearpage
@@ -1849,16 +1845,14 @@ are computed and plotted in one step.
 
 \begin{stanza}{Description}
 
-This method is a post estimation command, that is only
-meaningful if method #regress# has been applied before. With
-method #getsample# all sampled parameters will be stored in (one
-or more) ASCII file(s). Afterwards, sampling paths can be plotted
-and stored in a postscript file either by using
-\hyperref[graphplotsample]{method #plotsample#} of {\em graph
-objects} (Java based version only) or by using the
-\hyperref[splusplotsample]{S-plus function #plotsample#}. Of
-course, any other program with graphics capacities could be used
-as well.
+This method is a post estimation command, that is only meaningful if
+method #regress# has been applied before. With method #getsample#
+all sampled parameters will be stored in (one or more) ASCII
+file(s). Afterwards, sampling paths can be plotted and stored in a
+postscript file either by using \hyperref[graphplotsample]{method
+#plotsample#} of {\em graph objects} or by using the
+\hyperref[splusplotsample]{S-plus function #plotsample#}. Of course,
+any other program with graphics capacities could be used as well.
 \end{stanza}
 
 \begin{stanza}{Syntax}
@@ -1950,10 +1944,9 @@ intnr \quad b\_1  \\
 
 \hspace {1cm} $\vdots$
 
-We can now visualize the sampling paths. If the Java based version
-of {\em BayesX} is installed we can plot sampling paths directly
-using \hyperref[graphplotsample]{method #plotsample#} of {\em
-graph objects}. We first read in sampled parameters by typing:
+We can now visualize the sampling paths directly using
+\hyperref[graphplotsample]{method #plotsample#} of {\em graph
+objects}. We first read in sampled parameters by typing:
 
 #> dataset s1# \\
 #> s1.infile using c:\data\estimate1_FixedEffects1_sample.raw#
@@ -1964,9 +1957,9 @@ method #plotsample#:
 #> graph g #\\
 #> g.plotsample using s1#
 
-If the Java based version is not installed we could use
-\hyperref[splusplotsample]{S-plus and the function #plotsample#}
-for visualizing sampling paths. We type, for instance, in S-plus:
+Alternatively we could use \hyperref[splusplotsample]{S-plus and the
+function #plotsample#} for visualizing sampling paths. We type, for
+instance, in S-plus:
 
 #> plotsample("c:\\data\\estimate1_FixedEffects1_sample.raw")#
 
@@ -2397,7 +2390,7 @@ regression coefficients are no longer Gaussian. {\em BayesX} offers
 3 different types of proposal densities. These are iteratively
 weighted least squares (IWLS) proposals based either on the current
 state of the parameters or on the posterior modes as described in
-\autoref{IWLS} or Brezger and Lang (2003), and conditional prior
+\autoref{IWLS} or Brezger and Lang (2005), and conditional prior
 proposals as described in Fahrmeir and Lang (2001b). We recommend
 the usage of IWLS proposals, since no tuning is required and mixing
 properties are superior to those of conditional prior proposals. The
@@ -2533,7 +2526,7 @@ Skaker Verlag, Aachen.
 \item[Brezger, A. (2000):] \href{http://www.stat.uni-muenchen.de/~andib}
 {\em Bayesianische P-splines.} Master thesis, University of Munich.
 
-\item[Brezger, A. and Lang, S. (2003):]
+\item[Brezger, A. and Lang, S. (2005):]
 Generalized additive regression based on Bayesian P-splines. {\em
 Computational Statistics and Data Analysis} (to appear).
 

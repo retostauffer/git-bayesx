@@ -311,13 +311,13 @@ A reasonable predictor for such data is given by
 \eta_{r} = f_1(x_{r1})+\dots+f_k(x_{rk}) + f_{spat}(s_{r}) + u_r'
 \gamma
 \end{equation}
-where $f_{spat}$ is an additional spatially correlated effect of
-the location $s_{r}$ an observation pertains to. Models with a
-predictor that contains a spatial effect are also called
-geoadditive models, see Kammann and Wand (2003). In {\em BayesX},
-the spatial effect may be modelled by Markov random fields (Besag,
-York and Mollie (2003)) or two dimensional P-splines (Lang and
-Brezger, 2003), compare \autoref{spatial}.
+where $f_{spat}$ is an additional spatially correlated effect of the
+location $s_{r}$ an observation pertains to. Models with a predictor
+that contains a spatial effect are also called geoadditive models,
+see Kammann and Wand (2003). In {\em BayesX}, the spatial effect may
+be modelled by Markov random fields (Besag, York and Mollie (2003))
+or two dimensional P-splines (Lang and Brezger, 2005), compare
+\autoref{spatial}.
 \item {\em Varying coefficient model (VCM) - Geographically weighted regression} \\
 A VCM as proposed by Hastie and Tibshirani (1993) is defined by
 $$
@@ -435,7 +435,7 @@ Several alternatives have been  proposed for specifying smoothness
 priors for continuous covariates or time scales. These are {\em
 random walk priors} or more generally {\em autoregressive priors}
 (see Fahrmeir and Lang, 2001a, and Fahrmeir and Lang, 2001b), {\em
-Bayesian P-splines} (Lang and Brezger, 2003) and {\em Bayesian
+Bayesian P-splines} (Lang and Brezger, 2005) and {\em Bayesian
 smoothing splines} (Hastie and Tibshirani, 2000). {\em BayesX}
 supports random walk priors and P-splines.
 
@@ -539,16 +539,15 @@ penalized likelihood estimation with penalty terms
 (\Delta^k \beta_{jm})^2 , \quad k=1,2
 \end{equation}
 where $\lambda_j$ is the smoothing parameter. First order
-differences penalize abrupt jumps $\beta_{jm}-\beta_{j,m-1}$
-between successive parameters and second order differences
-penalize deviations from the linear trend $2
-\beta_{j,m-1}-\beta_{j,m-2}$. In a Bayesian approach we use the
-stochastic analogue of difference penalties, i.e. first or second
-order random walks, as a prior for the regression coefficients.
-Note that simple first or second order random walks can be
-regarded as P-splines of degree $l=0$ and are therefore a special
-case. More details about Bayesian P-splines can be found in Lang
-and Brezger (2003) and Brezger and Lang (2003).
+differences penalize abrupt jumps $\beta_{jm}-\beta_{j,m-1}$ between
+successive parameters and second order differences penalize
+deviations from the linear trend $2 \beta_{j,m-1}-\beta_{j,m-2}$. In
+a Bayesian approach we use the stochastic analogue of difference
+penalties, i.e. first or second order random walks, as a prior for
+the regression coefficients. Note that simple first or second order
+random walks can be regarded as P-splines of degree $l=0$ and are
+therefore a special case. More details about Bayesian P-splines can
+be found in Lang and Brezger (2004) and Brezger and Lang (2005).
 
 
 \subsection{Priors for spatial effects}\index{spatial
@@ -774,14 +773,14 @@ where $X_j^*$ is the design matrix corresponding to the prior for
 $g_j$. Hence the overall design matrix is given by $X_j =
 diag(z_{1j},\dots,z_{nj})  X_j^*$.
 
-Suppose now that both interacting covariates are continuous. In
-this case, a flexible approach for modelling interactions can be
-based on (nonparametric) two dimensional surface fitting. In {\em
-BayesX} surface fitting is based on two dimensional P-splines
-described in more detail in Lang and Brezger (2003) and Brezger
-and Lang (2003). The assumption is that the unknown surface
-$f_j(w_{rj},z_{rj})$ can be approximated by the tensor product of
-two one dimensional B-splines, i.e.
+Suppose now that both interacting covariates are continuous. In this
+case, a flexible approach for modelling interactions can be based on
+(nonparametric) two dimensional surface fitting. In {\em BayesX}
+surface fitting is based on two dimensional P-splines described in
+more detail in Lang and Brezger (2004) and Brezger and Lang (2005).
+The assumption is that the unknown surface $f_j(w_{rj},z_{rj})$ can
+be approximated by the tensor product of two one dimensional
+B-splines, i.e.
 $$
 f_{j}(w_{rj},z_{rj}) = \sum_{m_1=1}^{M_j} \sum_{m_2=1}^{M_j}
 \beta_{j,m_1 m_2} B_{j, m_1}(w_{rj}) B_{j,m_2} (z_{rj}).
@@ -1936,7 +1935,7 @@ Scale mixtures of normal distributions. {\it Journal of the Royal
 Statistical Society B}, 36, 99-102.
 
 
-\item[Brezger, A. and Lang, S., (2003):]
+\item[Brezger, A. and Lang, S., (2005):]
 Generalized additive regression based on Bayesian P-splines. {\it
 Computational Statistics and Data Analysis} (to appear).
 
@@ -2035,7 +2034,7 @@ regression for categorical space-time data: A mixed model approach.
 {\it Biometrics}, to appear.
 
 \item[Kneib, T. (2005):] Geoadditive hazard regression for interval
-censored survival times. SFB 386 Discussion paper ???, University of
+censored survival times. SFB 386 Discussion paper 447, University of
 Munich.
 
 \item[Knorr-Held, L. (1999):] Conditional Prior Proposals in
@@ -2047,7 +2046,7 @@ Dynamic Models. {\em Scandinavian Journal of Statistics}, 26,
 Krankenversicherungen.} Master thesis, University of Munich.
 
 
-\item[Lang, S. and Brezger, A. (2003):] Bayesian P-splines. {\it
+\item[Lang, S. and Brezger, A. (2004):] Bayesian P-splines. {\it
 Journal of Computational and Graphical Statistics}, 13, 183-212.
 
 \item[Lin, X. and Zhang, D., (1999):]

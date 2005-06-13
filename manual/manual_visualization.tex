@@ -2,11 +2,11 @@
 \label{visualization} \index{visualizing estimation results}
 
 In this chapter we show, how estimation results produced with one of
-the regression tools described in the two previous sections can be
+the regression tools described in the two previous chapters can be
 visualized. In general, there are two possibilities to visualize
-results: Within the Java based version, special functions can be
-applied to regression objects. Since both regression tools provide
-almost the same possibilities to visualize results, we describe them
+results: Within {\em BayesX}, special functions can be applied to
+regression objects. Since both regression tools provide almost the
+same possibilities to visualize results, we describe them
 simultaneously in the next section. Tools for the visualization of
 autocorrelations for MCMC samples are described in
 \autoref{plotautocor}. An alternative way to visualize results is to
@@ -15,11 +15,10 @@ functions are described in \autoref{splus}.
 
 \section{BayesX functions} \label{bayesxplot}
 
-The Java based version allows to visualize estimation results
-directly in {\em BayesX} and immediately after estimation. The {\em
-output window} and/or the log file describes how to visualize the
-estimated effects for a particular model term. Nonlinear effects of
-continuous covariates and time scales are plotted with
+{\em BayesX} allows to visualize estimation results immediately
+after estimation. The {\em output window} and/or the log file
+describe how to do this for a particular model term. Nonlinear
+effects of continuous covariates and time scales are plotted with
 \hyperref[bayesxplotnonp]{method #plotnonp#}. Spatial effects are
 visualized with \hyperref[drawmap]{method #drawmap#}. When using
 {\em bayesreg objects}, autocorrelation functions of sampled
@@ -36,8 +35,7 @@ nonparametric functions} \index{plotnonp command}
 Method #plotnonp# is a post estimation command, i.e.~it is
 meaningful only if method #regress# has been applied before. The
 method allows to plot estimated effects of nonlinear covariate
-effects immediately after estimation. This command is available
-only in the Java based version.
+effects immediately after estimation. T
 
 \end{stanza}
 
@@ -258,6 +256,7 @@ y-axis (or at the value specified in option #ystart#). By default,
 five equally spaced ticks are drawn at the y-axis.
 \end{itemize}
 
+\newpage
 
 \begin{stanza}{Examples}
 
@@ -330,11 +329,10 @@ usage of method \em\tt plotnonp}}
 
 \begin{stanza}{Description}
 
-Method #drawmap# is a post estimation command, i.e.~it is
-meaningful only if method #regress# has been applied before. The
-method allows to visualize estimated effects of spatial covariates
-immediately after estimation. This command is available only in
-the Java based version.
+Method #drawmap# is a post estimation command, i.e.~it is meaningful
+only if method #regress# has been applied before. The method allows
+to visualize estimated effects of spatial covariates immediately
+after estimation.
 
 \end{stanza}
 
@@ -622,16 +620,14 @@ method \em\texttt{plotautocor}}}
 
 \section{S-plus functions} \label{splus} \index{S-plus functions}
 
-Since only the Java based version of {\em BayesX} provides
-capabilities for visualizing estimation results, some S-plus
-functions for plotting estimated functions are shipped together
-with {\em BayesX}. These functions can be found in the
-subdirectory #sfunctions# of the installation directory.
+Some S-plus and R functions for plotting estimated functions are
+shipped together with {\em BayesX}. These functions can be found in
+the subdirectory #sfunctions# of the installation directory.
 \autoref{plotfunctions} gives a first overview over the different
 functions and their abilities. The usage of the functions is very
 simple so that also users not familiar with the S-plus environment
-should be able to apply the functions without any difficulties.
-The following subsections describe how to install the functions in
+should be able to apply the functions without any difficulties. The
+following subsections describe how to install the functions in
 S-plus and give a detailed description of the usage of the
 respective functions.
 
@@ -666,11 +662,10 @@ Afterwards the functions will be installed by entering
 
 #> source("#{\em $<$INSTALLDIRECTORY$>$}#\\sfunctions\\plot.s")#
 
-in the {\em Commands Window} of S-plus. Note that a double
-backslash is required in S-plus to specify a directory correctly.
-For use with the R package the file #plot.r# is supplied, which
-contains slightly modified versions of the S-plus functions. Note
-that the #plotsurf# function is not available for R.
+in the {\em Commands Window} of S-plus. Note that a double backslash
+is required in S-plus to specify a directory correctly. For use with
+the R package the file #plot.r# is supplied, which contains slightly
+modified versions of the S-plus functions.
 
 \subsection{Plotting nonparametric functions} \label{splusplotnonp}
 \index{S-plus functions!plotting nonparametric functions}
