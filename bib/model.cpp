@@ -993,7 +993,7 @@ term_spatial::term_spatial(void)
   lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
   lambdastart = doubleoption("lambdastart",10000,0,10000000);
   uniformprior = simpleoption("uniformprior",false);
-
+  nrrows = intoption("nrrows",2,0,100);
   }
 
 void term_spatial::setdefault(void)
@@ -1012,6 +1012,7 @@ void term_spatial::setdefault(void)
   lambdamax.setdefault();
   lambdastart.setdefault();
   uniformprior.setdefault();
+  nrrows.setdefault();
   }
 
 
@@ -1019,13 +1020,17 @@ bool term_spatial::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size()>=1) &&
-       (t.options.size()<=15) && (t.options.size() >= 1) )
+       (t.options.size()<=16) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "spatial" && t.varnames.size()==1)
       t.type = "spatial";
+    else  if (t.options[0] == "tspatial" && t.varnames.size()==1)
+      t.type = "tspatial";
     else  if (t.options[0] == "spatial" && t.varnames.size()==2)
       t.type = "varcoeffspatial";
+    else  if (t.options[0] == "tspatial" && t.varnames.size()==2)
+      t.type = "tvarcoeffspatial";
     else
       {
       setdefault();
@@ -1051,6 +1056,7 @@ bool term_spatial::check(term & t)
     optlist.push_back(&lambdamax);
     optlist.push_back(&lambdastart);
     optlist.push_back(&uniformprior);
+    optlist.push_back(&nrrows);
 
     unsigned i;
     bool rec = true;
@@ -1075,7 +1081,7 @@ bool term_spatial::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(15);
+    t.options = vector<ST::string>(16);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::inttostring(min.getvalue());
@@ -1097,6 +1103,8 @@ bool term_spatial::check(term & t)
       t.options[14] = "false";
     else
       t.options[14] = "true";
+    t.options[15] = ST::inttostring(nrrows.getvalue());
+
     if (t.options[2].strtolong(minim) == 1)
       {
       setdefault();

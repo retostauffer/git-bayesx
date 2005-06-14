@@ -281,7 +281,7 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
       {
 
       j1 = terms[i].varnames[0].isinlist(modelvarnamesv);  // interacting var
-      if (terms[i].type == "varcoeffspatial")
+      if (terms[i].type == "varcoeffspatial" || terms[i].type == "tvarcoeffspatial")
         {
         varcoeff=true;
         j2 = terms[i].varnames[1].isinlist(modelvarnamesv);  // effect modifier
@@ -458,6 +458,34 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
 
           fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+          }
+
+        if ((terms[i].options[0] == "tspatial") ||
+            (terms[i].options[0] == "tvarcoeffspatial")
+           )
+          {
+
+          ST::string help;
+          if(varcoeff==true)
+            help  = terms[i].varnames[0] + "_" + terms[i].varnames[1];
+          else
+            help  = terms[i].varnames[0];
+
+          make_paths(collinpred,pathnonp,pathres,title,help,"",
+                 "_spatial_tvar.raw","_spatial_tvar.res","_spatial_tvariance");
+
+          unsigned v = nu.getvalue();
+          unsigned nrrows;
+          f = (terms[i].options[15]).strtolong(h);
+          nrrows = unsigned(h);
+
+          fctvariance2dim.push_back(FULLCOND_tvariance2dim(&generaloptions[generaloptions.size()-1],
+          &fcnonpgaussian[fcnonpgaussian.size()-1],v,title,
+          pathnonp,pathres,nrrows,false));
+
+          fctvariance2dim[fctvariance2dim.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fctvariance2dim[fctvariance2dim.size()-1]);
+
           }
 
         }

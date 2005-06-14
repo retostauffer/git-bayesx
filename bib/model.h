@@ -688,6 +688,7 @@ class __EXPORT_TYPE term_spatial : public basic_termtype
   doubleoption lambdamax;
   doubleoption lambdastart;
   simpleoption uniformprior;
+  intoption nrrows;
 
 
   void setdefault(void);
@@ -710,7 +711,8 @@ class __EXPORT_TYPE term_spatial : public basic_termtype
 
     assert(i< terms.size());
 
-    if ( (terms[i].type == "spatial") ||  (terms[i].type == "varcoeffspatial"))
+    if ( (terms[i].type == "spatial") ||  (terms[i].type == "varcoeffspatial") ||
+         (terms[i].type == "tspatial") ||  (terms[i].type == "tvarcoeffspatial") )
       return true;
 
     return false;

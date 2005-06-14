@@ -597,10 +597,9 @@ void FULLCOND_tvariance2dim::update_2dim(void)
 
       }
 
+    acceptance++;
+
     }
-
-
-  acceptance++;
 
   FULLCOND::update();
   }
@@ -789,8 +788,11 @@ void FULLCOND_tvariance2dim::outoptions(void)
 
   optionsp->out("  Hyperprior nu for variance parameter: " +
                 ST::inttostring(nu) + "\n" );
-  optionsp->out("  Blocksize for updating variances: " +
-                ST::inttostring(nrrows*2) + "\n" );
+  optionsp->out("  Blocksize for updating variances: ");
+  if(spatial)
+    optionsp->out(ST::inttostring(nrrows) + " rows of penalty matrix\n" );
+  else
+    optionsp->out(ST::inttostring(nrrows*2) + "\n" );  
   optionsp->out("\n");
 
   }
