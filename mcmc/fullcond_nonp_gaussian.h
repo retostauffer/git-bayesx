@@ -306,6 +306,28 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   const FULLCOND_nonp_gaussian & operator=(const FULLCOND_nonp_gaussian & fc);
 
+  const envmatdouble & get_K(void)
+    {
+    return Kenv;
+    }
+
+  void setK(unsigned i, unsigned j, double t)
+    {
+    Kenv.set(i,j,t);
+    }
+
+  double get(unsigned i, unsigned j)
+    {
+    return Kenv(i,j);
+    }
+
+  double compute_squareddiff(unsigned i,unsigned j)
+    {
+    double diff = beta(i,0)-beta(j,0);
+
+    return (diff*diff)/sigma2;
+    }
+
   double compute_quadform(void)
     {
     return Kenv.compute_quadform(beta,0);

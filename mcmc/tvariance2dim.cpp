@@ -11,6 +11,8 @@ FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(MCMCoptions * o,
                      const ST::string & pres,const unsigned & bs,const bool & rw)
            : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
   {
+  spatial = false;
+
   rowwise = rw;
   Kp = p;
   pathresults = pres;
@@ -55,11 +57,74 @@ FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(MCMCoptions * o,
   }
 
 
+FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(MCMCoptions * o,
+                   FULLCOND_nonp_gaussian * p,
+                     unsigned & v,const ST::string & ti, const ST::string & fp,
+                     const ST::string & pres,const unsigned & bs,const bool & rw)
+           : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
+  {
+  spatial = true;
+
+  rowwise = rw;
+  Kp_spat = p;
+  pathresults = pres;
+  nu = v;
+
+    envmatdouble Kenv = Kp_spat->get_K();
+
+    nrpar = 0;
+    for(unsigned i=0;i<Kenv.getDim();i++)
+      nrpar += Kenv.getDiag(i);
+    nrpar = nrpar/2;
+
+    datamatrix help(Kenv.getDim()-1,Kenv.getDim()-1,0);
+
+    for(unsigned i=0;i<help.rows();i++)
+      {
+      for(unsigned j=0;j<help.cols();j++)
+        {
+        help(i,j) = Kenv(i,j);
+        }
+      }
+
+    unsigned k = 0;
+    indexmat = statmatrix<int>(nrpar,3,0);
+
+    for(unsigned i=0;i<help.rows()+1;i++)
+      {
+      for(unsigned j=0;j<help.cols()+1;j++)
+        {
+        if(Kenv(i,j) != 0 && j>i)
+          {
+          indexmat(k,0) = i;
+          indexmat(k,1) = j;
+          k++;
+          }
+        }
+      }
+
+    K11 = envmatdouble(help);
+    detalt = K11.getLogDet();
+    detneu = 0.0;
+    nrrows = bs;
+    betakvec = vector<double>(0);
+    rowvec = vector<double>(0);
+    colvec = vector<double>(0);
+    deltapropvec = vector<double>(0);
+
+  setbeta(nrpar,1,1);
+
+  }
+
+
 FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(const FULLCOND_tvariance2dim & t)
   : FULLCOND(FULLCOND(t))
   {
   rowwise = t.rowwise;
   Kp = t.Kp;
+  Kp_spat = t.Kp_spat;
+  spatial = t.spatial;
+  indexmat = t.indexmat;
   pathresults = t.pathresults;
   nu = t.nu;
   m = t.m;
@@ -84,6 +149,9 @@ FULLCOND_tvariance2dim::operator=(const FULLCOND_tvariance2dim & t)
   FULLCOND::operator=(FULLCOND(t));
   rowwise = t.rowwise;
   Kp = t.Kp;
+  Kp_spat = t.Kp_spat;
+  spatial = t.spatial;
+  indexmat = t.indexmat;  
   pathresults = t.pathresults;
   nu = t.nu;
   m = t.m;
@@ -101,12 +169,16 @@ FULLCOND_tvariance2dim::operator=(const FULLCOND_tvariance2dim & t)
   }
 
 
-
 void FULLCOND_tvariance2dim::update(void)
   {
+  if(spatial)
+    update_spat();
+  else
+    update_2dim();
+  }
 
-  Kmatdiag = Kp->getdiagpointer();
-  Kmatupper = Kp->getupperpointer();
+void FULLCOND_tvariance2dim::update_2dim(void)
+  {
 
   if (!rowwise)
     {
@@ -445,6 +517,7 @@ void FULLCOND_tvariance2dim::update(void)
 */
 
     unsigned size = m*m;
+    Kmatdiag = Kp->getdiagpointer();
     Kmatupper = Kp->getupperpointer();
     double * phelp;
 
@@ -532,6 +605,122 @@ void FULLCOND_tvariance2dim::update(void)
   FULLCOND::update();
   }
 
+
+void FULLCOND_tvariance2dim::update_spat(void)
+  {
+
+    unsigned i,j,l;
+    int k = 0;
+    double aneu = double(nu)/2;
+    double bneu;
+
+    double alpha,u,betak;
+    double deltaprop;
+    unsigned row,col;
+
+    while(k<nrpar)
+      {
+
+      betak = beta(k,0);
+      row = indexmat(k,0);
+      col = indexmat(k,1);
+
+      bneu = nu*0.5 + 0.5*Kp_spat->compute_squareddiff(row,col);
+      deltaprop = randnumbers::rand_gamma(aneu,bneu);
+
+      deltapropvec.push_back(deltaprop);
+      rowvec.push_back(row);
+      colvec.push_back(col);
+      betakvec.push_back(betak);
+
+      K11.setDiag(row,K11(row,row) + deltaprop - beta(k,0));
+      if(col<K11.getDim())
+        {
+        K11.set(row,col,-deltaprop);
+        K11.setDiag(col,K11(col,col) + deltaprop - beta(k,0));
+        }
+
+      k++;
+
+      if((row+1)%nrrows == 0 || k==nrpar)
+        {
+
+        if(detalt==detneu)
+          K11.decomp2(row-nrrows+1);
+        detneu = K11.getLogDet();
+
+        alpha = 0.5*(detneu - detalt);
+        u = log(uniform());
+
+        nrtrials++;
+
+        if(u <= alpha)
+          {
+          for(l=0;l<deltapropvec.size();l++)
+	        {
+    	    beta(k-deltapropvec.size()+l,0) = deltapropvec[l];
+            Kp_spat->setK(rowvec[l],colvec[l],-deltapropvec[l]);
+
+            Kp_spat->setK(colvec[l],colvec[l],Kp_spat->get(colvec[l],colvec[l])+deltapropvec[l]-betakvec[l]);
+            Kp_spat->setK(rowvec[l],rowvec[l],Kp_spat->get(rowvec[l],rowvec[l])+deltapropvec[l]-betakvec[l]);
+
+	        }
+          detalt = detneu;
+          acceptance++;
+          }
+        else
+          {
+          for(l=0;l<deltapropvec.size();l++)
+	        {
+            K11.setDiag(rowvec[l],K11(rowvec[l],rowvec[l]) - deltapropvec[l] + betakvec[l]);
+            if(colvec[l]<K11.getDim())
+              {
+              K11.set(rowvec[l],colvec[l],-betakvec[l]);
+              K11.setDiag(colvec[l],K11(colvec[l],colvec[l]) - deltapropvec[l] + betakvec[l]);
+              }
+    	    }
+          }
+
+        deltapropvec = vector<double>(0);
+	    rowvec = vector<double>(0);
+        colvec = vector<double>(0);
+        betakvec = vector<double>(0);
+
+        } // END:       if(row%nrrows == 0)
+      } // END:    for (row=0;row<dim;row++)
+/*
+ofstream out("c:\\bayesx\\K11.raw");
+K11.print4(out);
+out.close();
+
+ofstream out2("c:\\bayesx\\Kenv.raw");
+(Kp_spat->get_K()).print4(out2);
+out2.close();
+*/
+
+/*/ Diagonalelemente ausrechnen
+
+  unsigned size = (Kp_spat->get_K()).getDim();
+
+  double help;
+  k=0;
+  for(unsigned i=0;i<size;i++)
+    {
+    help = 0.0;
+    row = indexmat(i,0);
+    while(indexmat(i,0) == row)
+      {
+      help += beta(k,0);
+      i++;
+      }
+    Kp_spat->setK(row,row,-help);
+    k++;
+    }
+*/
+//  acceptance++;
+
+  FULLCOND::update();
+  }
 
 
 void FULLCOND_tvariance2dim::outresults(void)

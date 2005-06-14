@@ -8,6 +8,7 @@
 #define TVARIANCE2DIM_INCLUDED
 
 #include<fullcond_pspline_surf_gaussian.h>
+#include<fullcond_nonp_gaussian.h>
 
 namespace MCMC
 {
@@ -21,6 +22,10 @@ class __EXPORT_TYPE FULLCOND_tvariance2dim : public FULLCOND
   protected:
 
   FULLCOND_pspline_surf_gaussian * Kp;  // pointer to psplines full conditional
+  FULLCOND_nonp_gaussian * Kp_spat;  // pointer to psplines full conditional
+  bool spatial;
+
+  statmatrix<int> indexmat; 
 
   double * Kmatdiag;                    //
   double * Kmatupper;
@@ -63,6 +68,10 @@ class __EXPORT_TYPE FULLCOND_tvariance2dim : public FULLCOND
                      unsigned & v,const ST::string & ti, const ST::string & fp,
                      const ST::string & pres,const unsigned & bs,const bool & rw = false);
 
+  FULLCOND_tvariance2dim(MCMCoptions * o,FULLCOND_nonp_gaussian * p,
+                     unsigned & v,const ST::string & ti, const ST::string & fp,
+                     const ST::string & pres,const unsigned & bs,const bool & rw = false);
+
 
   // COPY CONSTRUCTOR
 
@@ -74,6 +83,9 @@ class __EXPORT_TYPE FULLCOND_tvariance2dim : public FULLCOND
 
   void update(void);
 
+  void update_2dim(void); 
+
+  void update_spat(void);
 
   bool posteriormode(void)
     {
