@@ -4746,7 +4746,7 @@ void DISTRIBUTION_lognormal::compute_mu(const double * linpred,double * mu) cons
 void DISTRIBUTION_lognormal::compute_mu_notransform(
 const double * linpred,double * mu) const
   {
-  *mu = exp(*linpred + scale(0,0)/2.0);
+  *mu = exp(*linpred + scale(0,0)*pow(trmult(0,0),2)/2.0);
   }
 
 
