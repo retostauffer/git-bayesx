@@ -588,6 +588,7 @@ bool remlreg::create_data(datamatrix & weight)
 
     // extract categories
     resphelp.sort(0,resphelp.rows()-1,0);
+    allcats.erase(allcats.begin(),allcats.end());
     allcats.push_back(resphelp(0,0));
     unsigned refpos;
     for(i=1; i<resphelp.rows(); i++)
@@ -1162,8 +1163,16 @@ bool remlreg::create_const(const unsigned & collinpred)
     X = Xhelp;
     }
 
+  // define indicator for multinomial models with category specific covariates
+  bool ismultinomialcatsp=false;
+  if(family.getvalue()=="multinomialcatsp")
+    {
+    ismultinomialcatsp=true;
+    }
+
   fcconst.push_back(FULLCOND_const(&generaloptions,X,title,0,pathconst,
-                                   pathconstres,catsp,nrcatsp,nr,cats));
+                                   pathconstres,catsp,nrcatsp,nr,cats,
+                                   ismultinomialcatsp));
 
   fcconst[fcconst.size()-1].init_names(varnames);
   fcconst[fcconst.size()-1].set_fcnumber(fullcond.size());
