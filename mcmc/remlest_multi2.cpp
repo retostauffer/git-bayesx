@@ -992,12 +992,12 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
       }
 //------------------------------------------------------------------------------
 
-ofstream out20("c:\\temp\\score.raw");
+/*ofstream out20("c:\\temp\\score.raw");
 score.prettyPrint(out20);
 out20.close();
 ofstream out21("c:\\temp\\Fisher.raw");
 Fisher.prettyPrint(out21);
-out21.close();
+out21.close();*/
 
 
     // fisher scoring for theta

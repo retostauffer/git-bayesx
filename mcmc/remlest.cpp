@@ -5298,6 +5298,74 @@ for(i=0; i<nrobs; i++)
   thetahist.prettyPrint(out_thetahist);
   out_thetahist.close();*/
 
+  H.addtodiag(-Qinv,X.cols(),beta.rows());
+  double loglike=0;
+  double aic=0;
+  double bic=0;
+  double df=(H*Hinv).trace();
+
+  if(!timevarying)
+    {
+    for(i=0; i<nrobs; i++)
+      {
+      if(interval[i])
+        {
+        loglike += - cumbaseline(tleft[i],0)*mult_hazard(i,0) + log(1-exp((-cumbaseline(tright[i]-1,0) + cumbaseline(tleft[i],0)) * mult_hazard(i,0)));
+        }
+      else
+        {
+        loglike += resp(i,0)*eta(i,0) - cumbaseline(tright[i]-1,0)*mult_hazard(i,0);
+        }
+      if(ttrunc[i] > 0)
+        {
+        loglike -= cumbaseline(ttrunc[i]-1,0)*mult_hazard(i,0);
+        }
+      }
+    }
+  else
+    {
+    for(i=0; i<nrobs; i++)
+      {
+      if(interval[i])
+        {
+        help=help2=0;
+        for(l=ttrunc[i]; l<tleft[i]; l++)
+          {
+          help += 0.5*tsteps(l,0)*(baseline(i,l) + baseline(i,l+1));
+          }
+        for(l=tleft[i]; l<tright[i]; l++)
+          {
+          help2 += 0.5*tsteps(l,0)*(baseline(i,l) + baseline(i,l+1));
+          }
+        loglike += -help + log(1-exp(-help2));
+        }
+      else
+        {
+        help=0;
+        for(l=ttrunc[i]; l<tright[i]; l++)
+          {
+          help += 0.5*tsteps(l,0)*(baseline(i,l) + baseline(i,l+1));
+          }
+        loglike += resp(i,0)*eta(i,0) - help*mult_hazard(i,0);
+        }
+      }
+    }
+
+  loglike *= -2;
+  aic = loglike + 2*df;
+  bic = loglike + log(eta.rows())*df;
+
+
+  out("\n");
+  out("  Model Fit\n",true);
+  out("\n");
+  out("\n");
+  out("  -2*log-likelihood:                 " + ST::doubletostring(loglike,6) + "\n");
+  out("  Degrees of freedom:                " + ST::doubletostring(df,6) + "\n");
+  out("  (conditional) AIC:                 " + ST::doubletostring(aic,6) + "\n");
+  out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
+  out("\n");
+
   return false;
   }
 

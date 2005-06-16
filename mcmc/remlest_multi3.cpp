@@ -603,8 +603,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
 
   // Matrices for Fisher scoring (variance parameters)
   statmatrix<double>Hinv(beta.rows(),beta.rows(),0);
-  statmatrix<double>wresid(nrcat2,resp.rows(),0);                  //matrix containing row vectors !!
-
+//  statmatrix<double>wresid(nrcat2,resp.rows(),0);                  //matrix containing row vectors !!
+  statmatrix<double>wresid(1,nrcat2*resp.rows(),0);                  //matrix containing row vectors !!
+  
   // Transform smoothing paramater starting values to variances
   for(i=0; i<theta.rows(); i++)
     {
@@ -888,9 +889,16 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
       {
       for(j=0; j<nrcat2; j++)
         {
-        wresid(j,i)=(workweight.getRow(i*nrcat2+j)*worky.getRowBlock(i*nrcat2,(i+1)*nrcat2))(0,0);
+        wresid(0,i*nrcat2+j)=(workweight.getRow(i*nrcat2+j)*worky.getRowBlock(i*nrcat2,(i+1)*nrcat2))(0,0);
         }
       }
+/*    for(i=0; i<resp.rows(); i++)
+      {
+      for(j=0; j<nrcat2; j++)
+        {
+        wresid(j,i)=(workweight.getRow(i*nrcat2+j)*worky.getRowBlock(i*nrcat2,(i+1)*nrcat2))(0,0);
+        }
+      }*/
 
     // transform theta
     for(i=0; i<theta.rows(); i++)
@@ -980,7 +988,7 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
     // compute norm of the random parts
     for(i=0; i<theta.rows(); i++)
       {
-      helpmat = Zneu.getColBlock(zcutbeta[i-1],zcutbeta[i])*beta.getRowBlock(totalnrfixed+zcutbeta[i-1],totalnrfixed+zcutbeta[i]);
+      helpmat = Zneu.getColBlock(zcutbeta[i],zcutbeta[i+1])*beta.getRowBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1]);
       stopcrit[i] = helpmat.norm(0)/help;
       }
     for(i=0; i<theta.rows(); i++)
@@ -1099,21 +1107,21 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
     {
     if(catspecific[i])
       {
-      out("\n");
-      for(j=0; j<nrcat2; j++)
-        {
-        beta(j,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],k,false,xcutbeta[k+1],totalnrfixed+zcutbeta[k],cats(j,0),true,k+1);
-        k++;
-        }
-      }
-    else
-      {
       mean = fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],k,false,xcutbeta[k+1],totalnrfixed+zcutbeta[k],0,false,k+1);
       for(j=0; j<nrcat2; j++)
         {
         beta(j,0) += mean;
         }
       k++;
+      }
+    else
+      {
+      out("\n");
+      for(j=0; j<nrcat2; j++)
+        {
+        beta(j,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],k,false,xcutbeta[k+1],totalnrfixed+zcutbeta[k],cats(j,0),true,k+1);
+        k++;
+        }
       }
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcutbeta[0],0,0,false,0);

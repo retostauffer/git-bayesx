@@ -104,9 +104,11 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * op,const datamatrix & d,
                                const ST::string & t, const int & constant,
                                const ST::string & fs, const ST::string & fr,
                                const vector<bool> & catsp, const unsigned & np,
-                               const unsigned & nrpar, const datamatrix & c)
+                               const unsigned & nrpar, const datamatrix & c,
+                               const bool & ismcatsp)
                   : FULLCOND(op,t)
   {
+  ismultinomialcatsp = ismcatsp;
 
   data = d;
 
@@ -169,7 +171,7 @@ double FULLCOND_const::outresultsreml(datamatrix & X,datamatrix & Z,
     return meanhelp;
     }
 
-  if(catspecific_effects>0)
+  if(ismultinomialcatsp)
     {
     vector<ST::string> datanameshelp;
     for(i=0; i<nrconst; i++)
@@ -626,6 +628,7 @@ FULLCOND_const::FULLCOND_const(const FULLCOND_const & m) : FULLCOND(FULLCOND(m))
   nrvars = m.nrvars;
   cats = m.cats;
   catspecific_effects = m.catspecific_effects;
+  ismultinomialcatsp = m.ismultinomialcatsp;
   }
 
 
@@ -651,6 +654,7 @@ const FULLCOND_const & FULLCOND_const::operator=(const FULLCOND_const & m)
   nrvars = m.nrvars;
   cats = m.cats;
   catspecific_effects = m.catspecific_effects;
+  ismultinomialcatsp = m.ismultinomialcatsp;
   return *this;
   }
 

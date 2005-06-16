@@ -3119,6 +3119,8 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
     if(X.rows()<spline.rows())
     // category specific covariates
       {
+      X_VCM = spline;
+
       unsigned nrcat2 = spline.rows()/X.rows()-1;
       unsigned nrobs=X.rows();
       for(i=0; i<X.rows(); i++)
@@ -3164,6 +3166,13 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
   diffmatrix = diffmatrix.transposed()*diffmatrix.transposed().sscp().inverse();
 
   unsigned Zcols = Z.cols();
+
+  if(Z.rows()<spline.rows())
+    // category specific covariates
+    {
+    Z_VCM = datamatrix(spline.rows(), dimZ, 0);
+    }
+
   for(j=0;j<dimZ;j++)
     {
     multBS_index(spline,diffmatrix.getCol(j));
@@ -3179,6 +3188,10 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
           {
           Z(i, Zpos + k*dimZ + j) = spline(k*nrobs+i,0) - spline(nrcat2*nrobs+i,0);
           }
+        }
+      for(i=0; i<spline.rows(); i++)
+        {
+        Z_VCM(i,j) = spline(i,0);
         }
       }
     else
@@ -3247,30 +3260,14 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
   unsigned k = *indexit;
   vector<int>::iterator freqwork = freqoutput.begin();
 
-  if(varcoeff)
+  if(varcoeff || X.rows()<X_VCM.rows())
     {
-    for(i=0,j=0;i<X.rows();i++,indexit++,freqwork++,k+=*indexit)
+    for(i=0,j=0;i<X_VCM.rows();i++,indexit++,freqwork++,k+=*indexit)
       {
       if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
         {
         if(type == RW1)
           {
-/*          betamean(j,0) = betareml(Xpos,0)*X_VCM(k,0) + (Z_VCM.getRow(k)*betareml.getBlock(X.cols()+Zpos,0,X.cols()+Zpos+nrpar-1,1))(0,0);
-          betastd(j,0) = sqrt(
-                              (
-                               X_VCM(k,0)*betacov(Xpos,Xpos)
-                               +
-                               (Z_VCM.getRow(k)*betacov.getBlock(X.cols()+Zpos,Xpos,X.cols()+Zpos+dimZ,Xpos+1))(0,0)
-                              )*X_VCM(k,0)
-                              +
-                              (
-                               (
-                                X_VCM(k,0)*betacov.getBlock(Xpos,X.cols()+Zpos,Xpos+1,X.cols()+Zpos+dimZ)
-                                +
-                                Z_VCM.getRow(k)*betacov.getBlock(X.cols()+Zpos,X.cols()+Zpos,X.cols()+Zpos+dimZ,X.cols()+Zpos+dimZ)
-                               )*(Z_VCM.getRow(k).transposed())
-                              )(0,0)
-                             );*/
           betamean(j,0) = betareml(betaXpos,0)*X_VCM(k,0) + (Z_VCM.getRow(k)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
           betastd(j,0) = sqrt(
                               (
@@ -3290,22 +3287,6 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
           }
         else
           {
-/*          betamean(j,0) = (X_VCM.getRow(k)*betareml.getBlock(Xpos,0,Xpos+dimX,1))(0,0) + (Z_VCM.getRow(k)*betareml.getBlock(X.cols()+Zpos,0,X.cols()+Zpos+dimZ,1))(0,0);
-          betastd(j,0) = sqrt(
-                              ((
-                              X_VCM.getRow(k)*betacov.getBlock(Xpos,Xpos,Xpos+dimX,Xpos+dimX)
-                              +
-                              (Z_VCM.getRow(k)*betacov.getBlock(X.cols()+Zpos,Xpos,X.cols()+Zpos+dimZ,Xpos+dimX))
-                              )*X_VCM.getRow(k).transposed())(0,0)
-                              +
-                              (
-                              (
-                               X_VCM.getRow(k)*betacov.getBlock(Xpos,X.cols()+Zpos,Xpos+dimX,X.cols()+Zpos+dimZ)
-                               +
-                               Z_VCM.getRow(k)*betacov.getBlock(X.cols()+Zpos,X.cols()+Zpos,X.cols()+Zpos+dimZ,X.cols()+Zpos+dimZ)
-                              )*(Z_VCM.getRow(k).transposed())
-                              )(0,0)
-                             );*/
           betamean(j,0) = (X_VCM.getRow(k)*betareml.getBlock(betaXpos,0,betaXpos+dimX,1))(0,0) + (Z_VCM.getRow(k)*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1))(0,0);
           betastd(j,0) = sqrt(
                               ((
@@ -3335,10 +3316,6 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
         {
         if(type == RW1)
           {
-/*          betamean(j,0) = (Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)*betareml.getBlock(X.cols()+Zpos,0,X.cols()+Zpos+nrpar-1,1))(0,0);
-          betastd(j,0) = sqrt((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)*
-                   betacov.getBlock(X.cols()+Zpos,X.cols()+Zpos,X.cols()+Zpos+nrpar-1,X.cols()+Zpos+nrpar-1)*
-                   Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1).transposed())(0,0));*/
           betamean(j,0) = (Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
           betastd(j,0) = sqrt((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)*
                    betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar-1,betaZpos+nrpar-1)*
@@ -3346,22 +3323,6 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
           }
         else
           {
-/*          betamean(j,0) = betareml(Xpos,0)*X(k,Xpos) + (Z.getBlock(k,Zpos,k+1,Zpos+dimZ)*betareml.getBlock(X.cols()+Zpos,0,X.cols()+Zpos+dimZ,1))(0,0);
-          betastd(j,0) = sqrt(
-                              (
-                               X(k,Xpos)*betacov(Xpos,Xpos)
-                               +
-                               (Z.getBlock(k,Zpos,k+1,Zpos+dimZ)*betacov.getBlock(X.cols()+Zpos,Xpos,X.cols()+Zpos+dimZ,Xpos+1))(0,0)
-                              )*X(k,Xpos)
-                              +
-                              (
-                               (
-                                X(k,Xpos)*betacov.getBlock(Xpos,X.cols()+Zpos,Xpos+1,X.cols()+Zpos+dimZ)
-                                +
-                                Z.getBlock(k,Zpos,k+1,Zpos+dimZ)*betacov.getBlock(X.cols()+Zpos,X.cols()+Zpos,X.cols()+Zpos+dimZ,X.cols()+Zpos+dimZ)
-                               )*(Z.getBlock(k,Zpos,k+1,Zpos+dimZ).transposed())
-                              )(0,0)
-                             );*/
           betamean(j,0) = betareml(betaXpos,0)*X(k,Xpos) + (Z.getBlock(k,Zpos,k+1,Zpos+dimZ)*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1))(0,0);
           betastd(j,0) = sqrt(
                               (

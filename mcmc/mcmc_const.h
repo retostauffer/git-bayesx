@@ -61,6 +61,7 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
                      // if no category specific covariates are present)
   datamatrix cats;   // names of the categories
   int catspecific_effects; // no. of category specific covariates
+  bool ismultinomialcatsp; // indicator for multinomial models with cat specific covariates
 
   // End: REML
 
@@ -93,8 +94,8 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   FULLCOND_const(MCMCoptions * op, const datamatrix & d, const ST::string & t,
                  const int & constant, const ST::string & fs,
                  const ST::string & fr, const vector<bool> & catsp,
-                 const unsigned & np,
-                 const unsigned & nrpar, const datamatrix & c);
+                 const unsigned & np, const unsigned & nrpar,
+                 const datamatrix & c, const bool & ismcatsp);
 
 
   // COPY CONSTRUCTOR
