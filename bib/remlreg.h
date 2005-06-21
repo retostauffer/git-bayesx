@@ -191,6 +191,8 @@ class __EXPORT_TYPE remlreg : public statobject
   doubleoption eps;
   doubleoption maxchange;
 
+  simpleoption aiccontrol;              // control estimation of survival models by AIC
+
   simpleoption noconst;                 // exclude intercept
 
   stroption leftint;                    // Cox Model: left interval boundary

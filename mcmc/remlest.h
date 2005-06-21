@@ -128,7 +128,8 @@ class remlest
   //       censoring and left truncation
 
   bool estimate_survival_interval2(datamatrix resp,
-                const datamatrix & offset, const datamatrix & weight);
+                const datamatrix & offset, const datamatrix & weight,
+                const bool & aiccontrol);
 
 //------------------------------------------------------------------------------
 //----------------------------- Object description -----------------------------

@@ -3536,11 +3536,17 @@ bool remlest::estimate_survival_interval(datamatrix resp,
 //------------------------------------------------------------------------------
 
 bool remlest::estimate_survival_interval2(datamatrix resp,
-                const datamatrix & offset, const datamatrix & weight)
+                const datamatrix & offset, const datamatrix & weight,
+                const bool & aiccontrol)
   {
 
   unsigned i, j, k, l;
   double help, former, helpint, help2, help3, help4;
+
+  double loglike, bic, df;
+  double aic=1000000;
+  double aicold=1000000;
+  bool aicstop=false;
 
   bool stop = check_pause();
   if (stop)
@@ -5160,65 +5166,133 @@ for(i=0; i<nrobs; i++)
 
     Hinv=H.inverse();
 
-    // transform theta
-    for(i=0; i<theta.rows(); i++)
+    if(!aicstop)
       {
-      thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
-      theta(i,0)=signs[i]*sqrt(theta(i,0));
-      }
-
-    // Score-Funktion für theta
-
-   for(j=0; j<theta.rows(); j++)
-      {
-      score(j,0)=-1*((zcut[j+1]-zcut[j])/theta(j,0)-
-                       (Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[j],X.cols()+zcut[j+1],X.cols()+zcut[j+1])).trace()/(theta(j,0)*theta(j,0)*theta(j,0))-
-                       (beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]).transposed()*beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]))(0,0)/(theta(j,0)*theta(j,0)*theta(j,0)));
-      }
-
-    // Fisher-Info für theta
-
-    for(j=0; j<theta.rows(); j++)
-      {
-      for(k=j; k< theta.rows(); k++)
+      // transform theta
+      for(i=0; i<theta.rows(); i++)
         {
-        Fisher(j,k) = 2*((Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[k],X.cols()+zcut[j+1],X.cols()+zcut[k+1])*Hinv.getBlock(X.cols()+zcut[k],X.cols()+zcut[j],X.cols()+zcut[k+1],X.cols()+zcut[j+1])).trace())/(theta(j,0)*theta(j,0)*theta(j,0)*theta(k,0)*theta(k,0)*theta(k,0));
-        Fisher(k,j) = Fisher(j,k);
+        thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
+        theta(i,0)=signs[i]*sqrt(theta(i,0));
         }
-      }
 
-    //Fisher-scoring für theta
+      // Score-Funktion für theta
 
-    theta = thetaold + Fisher.solve(score);
+     for(j=0; j<theta.rows(); j++)
+        {
+        score(j,0)=-1*((zcut[j+1]-zcut[j])/theta(j,0)-
+                         (Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[j],X.cols()+zcut[j+1],X.cols()+zcut[j+1])).trace()/(theta(j,0)*theta(j,0)*theta(j,0))-
+                         (beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]).transposed()*beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]))(0,0)/(theta(j,0)*theta(j,0)*theta(j,0)));
+        }
 
-    // transform theta back to original parameterisation
+      // Fisher-Info für theta
 
-    for(i=0; i<theta.rows(); i++)
-      {
-      signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
-      theta(i,0) *= theta(i,0);
-      thetaold(i,0) *= thetaold(i,0);
+      for(j=0; j<theta.rows(); j++)
+        {
+        for(k=j; k< theta.rows(); k++)
+          {
+          Fisher(j,k) = 2*((Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[k],X.cols()+zcut[j+1],X.cols()+zcut[k+1])*Hinv.getBlock(X.cols()+zcut[k],X.cols()+zcut[j],X.cols()+zcut[k+1],X.cols()+zcut[j+1])).trace())/(theta(j,0)*theta(j,0)*theta(j,0)*theta(k,0)*theta(k,0)*theta(k,0));
+          Fisher(k,j) = Fisher(j,k);
+          }
+        }
+
+      //Fisher-scoring für theta
+
+      theta = thetaold + Fisher.solve(score);
+
+      // transform theta back to original parameterisation
+
+      for(i=0; i<theta.rows(); i++)
+        {
+        signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
+        theta(i,0) *= theta(i,0);
+        thetaold(i,0) *= thetaold(i,0);
+        }
       }
 
     // update linear predictor
     eta=X*beta.getRowBlock(0,xcols)+Z*beta.getRowBlock(xcols,beta.rows());
 
-    // test whether to stop estimation of theta[i]
-   help=eta.norm(0);
-   for(i=0; i<theta.rows(); i++)
+    if(aiccontrol && aicstop==false)
+      {
+      aicold = aic;
+      H.addtodiag(-Qinv,X.cols(),beta.rows());
+      loglike=0;
+      aic=0;
+      df=(H*Hinv).trace();
+
+      if(!timevarying)
+        {
+        for(i=0; i<nrobs; i++)
+          {
+          if(interval[i])
+            {
+            loglike += - cumbaseline(tleft[i],0)*mult_hazard(i,0) + log(1-exp((-cumbaseline(tright[i]-1,0) + cumbaseline(tleft[i],0)) * mult_hazard(i,0)));
+            }
+          else
+            {
+            loglike += resp(i,0)*eta(i,0) - cumbaseline(tright[i]-1,0)*mult_hazard(i,0);
+            }
+          if(ttrunc[i] > 0)
+            {
+            loglike -= cumbaseline(ttrunc[i]-1,0)*mult_hazard(i,0);
+            }
+         }
+        }
+      else
+        {
+        for(i=0; i<nrobs; i++)
+          {
+          if(interval[i])
+            {
+            help=help2=0;
+            for(l=ttrunc[i]; l<tleft[i]; l++)
+              {
+              help += 0.5*tsteps(l,0)*(baseline(i,l) + baseline(i,l+1));
+              }
+            for(l=tleft[i]; l<tright[i]; l++)
+              {
+              help2 += 0.5*tsteps(l,0)*(baseline(i,l) + baseline(i,l+1));
+              }
+            loglike += -help + log(1-exp(-help2));
+            }
+          else
+            {
+            help=0;
+            for(l=ttrunc[i]; l<tright[i]; l++)
+              {
+              help += 0.5*tsteps(l,0)*(baseline(i,l) + baseline(i,l+1));
+              }
+            loglike += resp(i,0)*eta(i,0) - help*mult_hazard(i,0);
+            }
+          }
+        }
+      loglike *= -2;
+      aic = loglike + 2*df;
+
+      if(aicold<aic)
+        {
+        aicstop=true;
+        }
+      }
+
+   if(!aicstop)
      {
-     helpmat=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
-     stopcrit[i]=helpmat.norm(0)/help;
-     if(stopcrit[i]<lowerlim)
+     // test whether to stop estimation of theta[i]
+     help=eta.norm(0);
+     for(i=0; i<theta.rows(); i++)
        {
-       theta(i,0)=thetaold(i,0);
-       }
-     else
-       {
-       its[i]=it;
+       helpmat=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
+       stopcrit[i]=helpmat.norm(0)/help;
+       if(stopcrit[i]<lowerlim)
+         {
+         theta(i,0)=thetaold(i,0);
+         }
+       else
+         {
+         its[i]=it;
+         }
        }
      }
-
     // compute convergence criteria
     help=betaold.norm(0);
     if(help==0)
@@ -5248,6 +5322,11 @@ for(i=0; i<nrobs; i++)
          ST::doubletostring(crit1,6)+"\n");
     out("  relative changes in the variance parameters:     "+
          ST::doubletostring(crit2,6)+"\n");
+    if(aiccontrol)
+      {
+      out("  AIC:     "+
+         ST::doubletostring(aic,6)+"\n");
+      }
     out("\n");
 
     // count iteration
@@ -5298,11 +5377,14 @@ for(i=0; i<nrobs; i++)
   thetahist.prettyPrint(out_thetahist);
   out_thetahist.close();*/
 
-  H.addtodiag(-Qinv,X.cols(),beta.rows());
-  double loglike=0;
-  double aic=0;
-  double bic=0;
-  double df=(H*Hinv).trace();
+  if(aicstop || !aiccontrol)
+    {
+    H.addtodiag(-Qinv,X.cols(),beta.rows());
+    }
+  loglike=0;
+  aic=0;
+  bic=0;
+  df=(H*Hinv).trace();
 
   if(!timevarying)
     {
@@ -5999,6 +6081,7 @@ void remlest::outerror(const ST::string & s)
 //------------------------------------------------------------------------------
 //------------------------------- Miscellanea ----------------------------------
 //------------------------------------------------------------------------------
+
 
 
 

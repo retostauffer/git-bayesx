@@ -285,6 +285,8 @@ void remlreg::create(void)
 
   noconst = simpleoption("noconst",false);
 
+  aiccontrol = simpleoption("aiccontrol",false);
+
   leftint = stroption("leftint");
   lefttrunc = stroption("lefttrunc");
 
@@ -304,6 +306,8 @@ void remlreg::create(void)
   regressoptions.push_back(&reference);
 
   regressoptions.push_back(&noconst);
+
+  regressoptions.push_back(&aiccontrol);
 
   regressoptions.push_back(&leftint);
   regressoptions.push_back(&lefttrunc);
@@ -3535,7 +3539,8 @@ void remlrun(remlreg & b)
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
       b.maxchange.getvalue(),b.logout);
-      failure = b.RE.estimate_survival_interval2(response,offset,weight);
+      failure = b.RE.estimate_survival_interval2(response,offset,weight,
+                                                 b.aiccontrol.getvalue());
       }
 // Univariate Modelle mit Dispersionsparameter
     else
