@@ -173,6 +173,29 @@ double FULLCOND_const::outresultsreml(datamatrix & X,datamatrix & Z,
 
   if(ismultinomialcatsp)
     {
+    // Redefine term_symbolic (for tex-output)
+    char charh ='_';
+    ST::string stringh = "\\_";
+    ST::string helpname;
+
+    term_symbolic = "\\gamma^{(j)}_{"+datanames[0]+"}"+datanames[0] ;
+    if(datanames.size()>0)
+      {
+      for(i=1; i<datanames.size(); i++)
+        {
+        helpname = datanames[i].insert_string_char(charh,stringh);
+        if(catspecific_fixed[i])
+          {
+          term_symbolic = term_symbolic + " + \\gamma_{"+helpname+"}"+helpname;
+          }
+        else
+          {
+          term_symbolic = term_symbolic + " + \\gamma^{(j)}_{"+helpname+"}"+helpname;
+          }
+        }
+      }
+
+    // Redefine variable names
     vector<ST::string> datanameshelp;
     for(i=0; i<nrconst; i++)
       {
@@ -184,12 +207,12 @@ double FULLCOND_const::outresultsreml(datamatrix & X,datamatrix & Z,
         {
         for(k=0; k<cats.rows(); k++)
           {
-          datanameshelp.push_back(datanames[i] + "(cat. " + ST::doubletostring(cats(k,0),5) + ")");
+          datanameshelp.push_back(datanames[i] + " (cat. " + ST::doubletostring(cats(k,0),5) + ")");
           }
         }
       }
     datanames = datanameshelp;
-    nrconst = datanames.size();;
+    nrconst = datanames.size();
     }
 
   betamean=datamatrix(nrconst,1,0);

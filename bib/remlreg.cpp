@@ -1026,6 +1026,7 @@ bool remlreg::create_const(const unsigned & collinpred)
       }
     }
 
+  vector<ST::string> varnames2 = varnames;
   // Category specific covariates for the multinomiallogit model
   if(family.getvalue()=="multinomialcatsp")
     {
@@ -1040,6 +1041,7 @@ bool remlreg::create_const(const unsigned & collinpred)
         if(test=="_catspecific")
           {
           catsp[i] = true;
+          varnames2[i] = varnames[i].substr(0,varnames[i].length()-12);          
           }
         }
       }
@@ -1178,7 +1180,7 @@ bool remlreg::create_const(const unsigned & collinpred)
                                    pathconstres,catsp,nrcatsp,nr,cats,
                                    ismultinomialcatsp));
 
-  fcconst[fcconst.size()-1].init_names(varnames);
+  fcconst[fcconst.size()-1].init_names(varnames2);
   fcconst[fcconst.size()-1].set_fcnumber(fullcond.size());
   fullcond.push_back(&fcconst[fcconst.size()-1]);
 
@@ -1663,6 +1665,7 @@ bool remlreg::create_pspline(const unsigned & collinpred)
           j = (test+ST::inttostring(allcats[k])).isinlist(modelvarnamesv);
           data.putRowBlock(k*D.rows(), (k+1)*D.rows(), D.getCol(j));
           }
+        terms[i].varnames[0] = test;
         test="_catspecific";
         }
       else
@@ -3213,6 +3216,7 @@ bool remlreg::create_randomslope(const unsigned & collinpred)
           j1 = (test+ST::inttostring(allcats[j])).isinlist(modelvarnamesv);
           intvar.putCol(j,D.getCol(j1));
           }
+        terms[i].varnames[0] = terms[i].varnames[0].substr(0,terms[i].varnames[0].length()-12);
         }
       else
         {
@@ -3369,6 +3373,41 @@ void remlrun(remlreg & b)
       }
     else if(b.family.getvalue()=="multinomialcatsp")
       {
+      b.nrterms=1;
+      for(i=1; i<b.fullcond.size(); i++)
+        {
+        if(b.fullcond[i]->get_catspecific())
+          {
+          b.nrterms++;
+          }
+        else
+          {
+          b.nrterms += b.cats.rows();
+          }
+        }
+      b.needscat = vector<bool>(b.nrterms,false);
+      b.fullcondnr = vector<unsigned>(b.nrterms,0);
+      b.catnr = statmatrix<double>(b.nrterms,1,0);
+      k=1;
+      for(i=1; i<b.fullcond.size(); i++)
+        {
+        if(b.fullcond[i]->get_catspecific())
+          {
+          b.fullcondnr[k] = i;
+          b.needscat[k] = false;
+          k++;
+          }
+        else
+          {
+          for(j=0; j<b.cats.rows(); j++)
+            {
+            b.fullcondnr[k] = i;
+            b.needscat[k] = true;
+            b.catnr(k,0) = b.cats(j,0);
+            k++;
+            }
+          }
+        }
       }
     else if(b.family.getvalue()=="cumlogit" || b.family.getvalue()=="cumprobit" ||
             b.family.getvalue()=="seqlogit" || b.family.getvalue()=="seqprobit")
@@ -3694,8 +3733,8 @@ void remlrun(remlreg & b)
       }
     else if(b.family.getvalue()=="multinomialcatsp")
       {
-//      b.RE_M_catsp.make_graphics(header,path,path2,path3,
-//                         b.modreg.getModelVarnamesAsVector()[0].to_bstr());
+      b.RE_M_catsp.make_graphics(header,path,path2,path3,
+                         b.modreg.getModelVarnamesAsVector()[0].to_bstr());
       }
     else if(b.family.getvalue()=="cumlogit" || b.family.getvalue()=="cumprobit" ||
             b.family.getvalue()=="seqlogit" || b.family.getvalue()=="seqprobit")

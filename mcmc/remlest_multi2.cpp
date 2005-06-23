@@ -2750,6 +2750,10 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
                    << endl
                    << "\\caption{Non--linear Effect of '" <<
                    effect.insert_string_char(hcharu,hstringu) << "'";
+            if(catspecific[j])
+              {
+              outtex << " (Category " << cats(i,0) << ")";
+              }
             outtex << ". Shown are the posterior modes.}" << endl
                    << "\\end{figure}" << endl;
             outtex << "\n\\begin{figure}[htb]" << endl
@@ -2757,6 +2761,10 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
                    << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
                    << u_str << ".ps}" << endl
                    << "\\caption{Non--linear Effect of '" << effect << "'";
+            if(catspecific[j])
+              {
+              outtex << " (Category " << cats(i,0) << ")";
+              }
             outtex << ". Posterior probabilities for a nominal level of "
                    << u_str << "\\%." << endl
                    << "Black denotes regions with strictly negative credible intervals,"
@@ -2768,6 +2776,10 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
                    << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
                    << o_str << ".ps}" << endl
                    << "\\caption{Non--linear Effect of '" << effect << "'";
+            if(catspecific[j])
+              {
+              outtex << " (Category " << cats(i,0) << ")";
+              }
             outtex << ". Posterior probabilities for a nominal level of "
                    << o_str << "\\%." << endl
                    << "Black denotes regions with strictly negative credible intervals,"

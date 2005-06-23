@@ -1417,11 +1417,11 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
 
 //----------------------------------------------------------------------
 // Erzeugen von H = Xneu' workweight Xneu
-   datamatrix  H (xcutbeta[xcutbeta.size()-1],  xcutbeta[xcutbeta.size()-1],  0);
+   H = datamatrix(xcutbeta[xcutbeta.size()-1],  xcutbeta[xcutbeta.size()-1],  0);
 
 //----------------------------------------------------------------------
 // Erzeugen von H1 = Xneu' workweight worky
-   datamatrix  H1 (xcutbeta[xcutbeta.size()-1],  1, 0);
+   H1 = datamatrix(xcutbeta[xcutbeta.size()-1],  1, 0);
 
 //----------------------------------------------------------------------
 // Hilfsmatrix zum Berechnen der Zeilen von Xneu' workweight
@@ -1638,31 +1638,6 @@ void remlest_multinomial_catsp::compute_respind(const datamatrix & re, datamatri
     }
   }
 
-void remlest_multinomial_catsp::compute_eta(datamatrix & eta)
-  {
-  unsigned i,j;
-  for(i=0; i<nrobs; i++)
-    {
-    for(j=0; j<nrcat2; j++)
-      {
-      eta(i*nrcat2+j,0)=((X.getRow(i))*(beta.getRowBlock(j*partialnrpar,(j+1)*partialnrpar)))(0,0);
-      }
-    }
-  }
-
-void remlest_multinomial_catsp::compute_eta2(datamatrix & eta)
-  {
-  unsigned i,j;
-  for(i=0; i<nrobs; i++)
-    {
-    for(j=0; j<nrcat2; j++)
-      {
-      eta(i*nrcat2+j,0)=((X.getRow(i))*(beta.getRowBlock(j*partialnrfixed,(j+1)*partialnrfixed)))(0,0)+
-                        ((Z.getRow(i))*(beta.getRowBlock(totalnrfixed+j*partialnrrandom,totalnrfixed+(j+1)*partialnrrandom)))(0,0);
-      }
-    }
-  }
-
 void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & weights,
                   datamatrix & worky, datamatrix & eta, datamatrix & respind)
   {
@@ -1710,64 +1685,6 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & we
                       (respind.getRowBlock(i*nrcat2,(i+1)*nrcat2)-mu.getRowBlock(i*nrcat2,(i+1)*nrcat2)));
     }
 
-  }
-
-void remlest_multinomial_catsp::compute_sscp(datamatrix & H, datamatrix & workweight)
-  {
-  unsigned i;
-  H=datamatrix(H.rows(),H.cols(),0);
-  datamatrix Htemp=datamatrix(H.rows(),H.cols(),0);
-  for(i=0; i<nrobs; i++)
-    {
-    Htemp=kronecker(workweight.getRowBlock(i*nrcat2,(i+1)*nrcat2),(X.getRow(i).transposed())*(X.getRow(i)));
-    H.plus(Htemp);
-    }
-  }
-
-void remlest_multinomial_catsp::compute_sscp2(datamatrix & H, datamatrix & workweight)
-  {
-  unsigned i;
-  H=datamatrix(H.rows(),H.cols(),0);
-  datamatrix Htemp=datamatrix(H.rows(),H.cols(),0);
-  datamatrix weighttemp=datamatrix(nrcat2,nrcat2,0);
-  for(i=0; i<nrobs; i++)
-    {
-    weighttemp=workweight.getRowBlock(i*nrcat2,(i+1)*nrcat2);
-    Htemp.putBlock(kronecker(weighttemp,(X.getRow(i).transposed())*(X.getRow(i))),0,0,totalnrfixed,totalnrfixed);
-    Htemp.putBlock(kronecker(weighttemp,(Z.getRow(i).transposed())*(Z.getRow(i))),totalnrfixed,totalnrfixed,totalnrpar,totalnrpar);
-    Htemp.putBlock(kronecker(weighttemp,(X.getRow(i).transposed())*(Z.getRow(i))),0,totalnrfixed,totalnrfixed,totalnrpar);
-    Htemp.putBlock(Htemp.getBlock(0,totalnrfixed,totalnrfixed,totalnrpar).transposed(),totalnrfixed,0,totalnrpar,totalnrfixed);
-    H.plus(Htemp);
-    }
-  }
-
-void remlest_multinomial_catsp::compute_sscp_resp(datamatrix & H1, datamatrix & workweight, datamatrix & worky)
-  {
-  unsigned i;
-  H1=datamatrix(H1.rows(),1,0);
-  datamatrix H1temp = datamatrix(nrcat2,1,0);
-  datamatrix xtemp;
-  for(i=0; i<nrobs;i++)
-    {
-    H1temp = workweight.getRowBlock(i*nrcat2,(i+1)*nrcat2)*worky.getRowBlock(i*nrcat2,(i+1)*nrcat2);
-    xtemp = X.getRow(i).transposed();
-    H1.plus(kronecker(H1temp,xtemp));
-    }
-  }
-
-void remlest_multinomial_catsp::compute_sscp_resp2(datamatrix & H1, datamatrix & workweight, datamatrix & worky)
-  {
-  unsigned i;
-  H1=datamatrix(H1.rows(),1,0);
-  datamatrix H1temp = datamatrix(H1.rows(),1,0);
-  datamatrix weightytemp=datamatrix(nrcat2,1,0);
-  for(i=0; i<nrobs;i++)
-    {
-    weightytemp=workweight.getRowBlock(i*nrcat2,(i+1)*nrcat2)*worky.getRowBlock(i*nrcat2,(i+1)*nrcat2);
-    H1temp.putRowBlock(0,totalnrfixed,kronecker(weightytemp,X.getRow(i).transposed()));
-    H1temp.putRowBlock(totalnrfixed,totalnrpar,kronecker(weightytemp,Z.getRow(i).transposed()));
-    H1.plus(H1temp);
-    }
   }
 
 //------------------------------------------------------------------------------
@@ -1884,148 +1801,179 @@ void remlest_multinomial_catsp::make_plots(ofstream & outtex,ST::string path_bat
     ST::string u_str = ST::doubletostring(u,0);
     ST::string o_str = ST::doubletostring(o,0);
 
-    for(i=0; i<nrcat2; i++)
-      {
+    unsigned k;
+
     // durchlaufen der Fullconditionals
     for(j=0;j<fullcond.size();j++)
       {
 
       // Pfad der Regr.-Ergebnisse
       pathresult = fullcond[j]->get_pathresult();
-      pathresult = pathresult.insert_after_string(ST::doubletostring(cats(i,0),6)+"_","_f_");
 
       // Plotstyle: noplot, plotnonp, drawmap
       plst = fullcond[j]->get_plotstyle();
 
-      if (plst != MCMC::noplot)
+      if(catspecific[j])
         {
+        k=1;
+        }
+      else
+        {
+        k=nrcat2;
+        }
 
-        // Pfade für ps-, tex-, SPlus-files
-        ST::string pathps = pathresult.substr(0, pathresult.length()-4);
-        ST::string pathgr = pathps.replaceallsigns('\\', '/');
-
-        char hchar = '\\';
-        ST::string hstring = "\\\\";
-
-        ST::string pathps_spl = pathps.insert_string_char(hchar,hstring);
-        ST::string pathres_spl = pathresult.insert_string_char(hchar,hstring);
-
-        if (plst == MCMC::plotnonp)
+      for(i=0; i<k; i++)
+        {
+        if (plst != MCMC::noplot)
           {
-          outbatch << "\n";                // Befehle f. d. batch-file
-          outbatch << "dataset _dat" << endl;
-          outbatch << "_dat.infile using " << pathresult << endl;
-          outbatch << "graph _g" << endl;
-          vector<ST::string> varnames = fullcond[j]->get_datanames();
-          ST::string xvar = varnames[0];
-          outbatch << "_g.plot " << xvar
-                   << " pmode ci" << u_str << "lower ci"
-                   << o_str.replaceallsigns('.','p') << "lower ci"
-                   << o_str.replaceallsigns('.','p') << "upper ci"
-                   << u_str.replaceallsigns('.','p') << "upper, "
-                   << "title = \"Effect of " << xvar << "\" xlab = " << xvar
-                   << " ylab = \" \" " << "outfile = " << pathps
-                   << ".ps replace using _dat" << endl;
-          outbatch << "drop _dat" << endl;
-          outbatch << "drop _g" << endl;
-          // Plot-Befehle f. d. SPlus-file
-          outsplus << "plotnonp(\"" << pathres_spl << "\", psname = \""
-                   << pathps_spl << ".ps\")" << endl;
-          // Plot-Befehle f. d. tex-file
-          ST::string effect = xvar;
-          if(varnames.size()>1)
+          pathresult = fullcond[j]->get_pathresult();
+          if(!catspecific[j])
             {
-            effect = varnames[1] + "*" + effect;
+            pathresult = pathresult.insert_after_string(ST::doubletostring(cats(i,0),6)+"_","_f_");
             }
-          outtex << "\n\\begin{figure}[h!]" << endl
-                  << "\\centering" << endl
-                  << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
-                  << "\\caption{Non--linear Effect of '" <<
-                  effect.insert_string_char(hcharu,hstringu) << "'";
-          outtex << " (Category " << cats(i,0) << ")." << endl << "Shown are the posterior modes together with "
-                 << u_str << "\\% and " << o_str
-                 << "\\% pointwise credible intervals.}" << endl
-                 << "\\end{figure}" << endl;
-          }
-        // für map-Funktionen
-        else if (plst == MCMC::drawmap)
-          {
-          outbatch << "\n";                 // Befehle f. d. batch-file
-          outbatch << "dataset _dat" << endl;
-          outbatch << "_dat.infile using " << pathresult << endl;
-          outbatch << "map _map" << endl;
-          outbatch << "_map.infile using input_filename" << endl;
-          outbatch << "graph _g" << endl;
-          vector<ST::string> varnames = fullcond[j]->get_datanames();
-          ST::string regionvar = varnames[0];
-          outbatch << "_g.drawmap " << "pmode" << " " << regionvar
-                   << ", map = _map color outfile = " << pathps
-                   << "_pmode.ps replace using _dat" << endl;
-          outbatch << "_g.drawmap " << "pcat" << u_str << " " << regionvar
-                     << ", map = _map nolegend pcat outfile = " << pathps
-                     << "_pcat" << u_str << ".ps replace using _dat" << endl;
-          outbatch << "_g.drawmap " << "pcat" << o_str << " " << regionvar
-                     << ", map = _map nolegend pcat outfile = " << pathps
-                     << "_pcat" << o_str << ".ps replace using _dat" << endl;
-          outbatch << "drop _dat" << endl;
-          outbatch << "drop _g" << endl;
-          outbatch << "drop _map" << endl;
-          // Plot-Befehle f. d. SPlus-file
-          outsplus << "# NOTE: 'input_filename' must be substituted by the "
-                   << "filename of the boundary-file \n"
-                   << "# NOTE: choose a 'name' for the map \n" << endl
-                   << "readbndfile(\"'input_filename'\", \"'name'\")" << endl
-                   << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                   <<"_pmode.ps\", dfile = \"" << pathres_spl
-                   << "\" ,plotvar = \"pmode\", regionvar = \""
-                   << regionvar << "\", color = T)" << endl;
-          outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                    <<"_pcat" << u_str << ".ps\", dfile = \"" << pathres_spl
-                    << "\" ,plotvar = \"pcat" << u_str << "\", regionvar = \""
-                  << regionvar << "\", legend = F, pcat = T)" << endl;
-          outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                    <<"_pcat" << o_str << ".ps\", dfile = \"" << pathres_spl
-                    << "\",plotvar = \"pcat" << o_str << "\", regionvar = \""
-                    << regionvar << "\", legend = F, pcat = T)" << endl;
+
+          // Pfade für ps-, tex-, SPlus-files
+          ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+          ST::string pathgr = pathps.replaceallsigns('\\', '/');
+
+          char hchar = '\\';
+          ST::string hstring = "\\\\";
+
+          ST::string pathps_spl = pathps.insert_string_char(hchar,hstring);
+          ST::string pathres_spl = pathresult.insert_string_char(hchar,hstring);
+
+          if (plst == MCMC::plotnonp)
+            {
+            outbatch << "\n";                // Befehle f. d. batch-file
+            outbatch << "dataset _dat" << endl;
+            outbatch << "_dat.infile using " << pathresult << endl;
+            outbatch << "graph _g" << endl;
+            vector<ST::string> varnames = fullcond[j]->get_datanames();
+            ST::string xvar = varnames[0];
+            outbatch << "_g.plot " << xvar
+                     << " pmode ci" << u_str << "lower ci"
+                     << o_str.replaceallsigns('.','p') << "lower ci"
+                     << o_str.replaceallsigns('.','p') << "upper ci"
+                     << u_str.replaceallsigns('.','p') << "upper, "
+                     << "title = \"Effect of " << xvar << "\" xlab = " << xvar
+                     << " ylab = \" \" " << "outfile = " << pathps
+                     << ".ps replace using _dat" << endl;
+            outbatch << "drop _dat" << endl;
+            outbatch << "drop _g" << endl;
+            // Plot-Befehle f. d. SPlus-file
+            outsplus << "plotnonp(\"" << pathres_spl << "\", psname = \""
+                     << pathps_spl << ".ps\")" << endl;
             // Plot-Befehle f. d. tex-file
-          ST::string effect = regionvar;
-          if(varnames.size()>1)
-            {
-            effect = varnames[1] + "*" + effect;
+            ST::string effect = xvar;
+            if(varnames.size()>1)
+              {
+              effect = varnames[1] + "*" + effect;
+              }
+            outtex << "\n\\begin{figure}[h!]" << endl
+                    << "\\centering" << endl
+                    << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
+                    << "\\caption{Non--linear Effect of '" <<
+                    effect.insert_string_char(hcharu,hstringu) << "'";
+            if(!catspecific[j])
+              {
+              outtex << " (Category " << cats(i,0) << ")";
+              }
+            outtex << "." << endl << "Shown are the posterior modes together with "
+                   << u_str << "\\% and " << o_str
+                   << "\\% pointwise credible intervals.}" << endl
+                   << "\\end{figure}" << endl;
             }
-          outtex << "\n\\begin{figure}[h!]" << endl
-                 << "\\centering" << endl
-                 << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
-                 << endl
-                 << "\\caption{Non--linear Effect of '" <<
-                 effect.insert_string_char(hcharu,hstringu) << "'";
-          outtex << " (Category " << cats(i,0) << "). Shown are the posterior modes.}" << endl
-                 << "\\end{figure}" << endl;
-          outtex << "\n\\begin{figure}[htb]" << endl
-                 << "\\centering" << endl
-                 << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                 << u_str << ".ps}" << endl
-                 << "\\caption{Non--linear Effect of '" << effect << "'";
-          outtex << " (Category " << cats(i,0) << "). Posterior probabilities for a nominal level of "
-                 << u_str << "\\%." << endl
-                 << "Black denotes regions with strictly negative credible intervals,"
-                 << endl
-                 << "white denotes regions with strictly positive credible intervals.}"
-                 << endl << "\\end{figure}" << endl;
-          outtex << "\n\\begin{figure}[htb]" << endl
-                 << "\\centering" << endl
-                 << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                 << o_str << ".ps}" << endl
-                 << "\\caption{Non--linear Effect of '" << effect << "'";
-          outtex << " (Category " << cats(i,0) << "). Posterior probabilities for a nominal level of "
-                 << o_str << "\\%." << endl
-                 << "Black denotes regions with strictly negative credible intervals,"
-                 << endl
-                 << "white denotes regions with strictly positive credible intervals.}"
-                 << endl << "\\end{figure}" << endl;
-          } // end: else if
-        } // end: if
-      } // end: for
+          // für map-Funktionen
+          else if (plst == MCMC::drawmap)
+            {
+            outbatch << "\n";                 // Befehle f. d. batch-file
+            outbatch << "dataset _dat" << endl;
+            outbatch << "_dat.infile using " << pathresult << endl;
+            outbatch << "map _map" << endl;
+            outbatch << "_map.infile using input_filename" << endl;
+            outbatch << "graph _g" << endl;
+            vector<ST::string> varnames = fullcond[j]->get_datanames();
+            ST::string regionvar = varnames[0];
+            outbatch << "_g.drawmap " << "pmode" << " " << regionvar
+                     << ", map = _map color outfile = " << pathps
+                     << "_pmode.ps replace using _dat" << endl;
+            outbatch << "_g.drawmap " << "pcat" << u_str << " " << regionvar
+                       << ", map = _map nolegend pcat outfile = " << pathps
+                       << "_pcat" << u_str << ".ps replace using _dat" << endl;
+            outbatch << "_g.drawmap " << "pcat" << o_str << " " << regionvar
+                       << ", map = _map nolegend pcat outfile = " << pathps
+                       << "_pcat" << o_str << ".ps replace using _dat" << endl;
+            outbatch << "drop _dat" << endl;
+            outbatch << "drop _g" << endl;
+            outbatch << "drop _map" << endl;
+            // Plot-Befehle f. d. SPlus-file
+            outsplus << "# NOTE: 'input_filename' must be substituted by the "
+                     << "filename of the boundary-file \n"
+                     << "# NOTE: choose a 'name' for the map \n" << endl
+                     << "readbndfile(\"'input_filename'\", \"'name'\")" << endl
+                     << "drawmap(map = 'name', outfile = \"" << pathps_spl
+                     <<"_pmode.ps\", dfile = \"" << pathres_spl
+                     << "\" ,plotvar = \"pmode\", regionvar = \""
+                     << regionvar << "\", color = T)" << endl;
+            outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
+                     <<"_pcat" << u_str << ".ps\", dfile = \"" << pathres_spl
+                     << "\" ,plotvar = \"pcat" << u_str << "\", regionvar = \""
+                     << regionvar << "\", legend = F, pcat = T)" << endl;
+            outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
+                     <<"_pcat" << o_str << ".ps\", dfile = \"" << pathres_spl
+                     << "\",plotvar = \"pcat" << o_str << "\", regionvar = \""
+                     << regionvar << "\", legend = F, pcat = T)" << endl;
+            // Plot-Befehle f. d. tex-file
+            ST::string effect = regionvar;
+            if(varnames.size()>1)
+              {
+              effect = varnames[1] + "*" + effect;
+              }
+            outtex << "\n\\begin{figure}[h!]" << endl
+                   << "\\centering" << endl
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                   << endl
+                   << "\\caption{Non--linear Effect of '" <<
+                   effect.insert_string_char(hcharu,hstringu) << "'";
+            if(!catspecific[j])
+              {
+              outtex << " (Category " << cats(i,0) << ")";
+              }
+            outtex << ". Shown are the posterior modes.}" << endl
+                   << "\\end{figure}" << endl;
+            outtex << "\n\\begin{figure}[htb]" << endl
+                   << "\\centering" << endl
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                   << u_str << ".ps}" << endl
+                   << "\\caption{Non--linear Effect of '" << effect << "'";
+            if(!catspecific[j])
+              {
+              outtex << " (Category " << cats(i,0) << ")";
+              }
+            outtex << ". Posterior probabilities for a nominal level of "
+                   << u_str << "\\%." << endl
+                   << "Black denotes regions with strictly negative credible intervals,"
+                   << endl
+                   << "white denotes regions with strictly positive credible intervals.}"
+                   << endl << "\\end{figure}" << endl;
+            outtex << "\n\\begin{figure}[htb]" << endl
+                   << "\\centering" << endl
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                   << o_str << ".ps}" << endl
+                   << "\\caption{Non--linear Effect of '" << effect << "'";
+            if(!catspecific[j])
+              {
+              outtex << " (Category " << cats(i,0) << ")";
+              }
+            outtex << ". Posterior probabilities for a nominal level of "
+                   << o_str << "\\%." << endl
+                   << "Black denotes regions with strictly negative credible intervals,"
+                   << endl
+                   << "white denotes regions with strictly positive credible intervals.}"
+                   << endl << "\\end{figure}" << endl;
+            }
+          }
+        }
       }
     }
   }
@@ -2061,24 +2009,17 @@ void remlest_multinomial_catsp::make_predictor(ofstream & outtex)
   unsigned j;
 
   ST::string term2 = fullcond[0]->get_term_symbolic();
-  ST::string term = "$\\eta$ & $=$ & $" + term2;    //linearer Prädiktor wird erweitert
+  ST::string term = "$\\eta_j = " + term2;    //linearer Prädiktor wird erweitert
   for(j=1;j<fullcond.size();j++)
     {
-    out(fullcond[j]->get_results_type());
     term2 = fullcond[j]->get_term_symbolic();
-    term = term + " + " + term2;    //linearer Prädiktor wird erweitert
+    if(!catspecific[j])
+      {
+      term2 = term2.insert_after_all_string("^{(j)}","f");;
+      }
+    term = term + " - " + term2;    //linearer Prädiktor wird erweitert
     }
-
-  outtex << endl << "\n\\begin{tabular}{ccp{12cm}}\n";
-  for(j=0; j<nrcat2; j++)
-    {
-    term2 = term.insert_after_string("^{("+ST::doubletostring(cats(j,0),6)+")}","\\eta");
-    term2 = term2.insert_after_all_string("^{("+ST::doubletostring(cats(j,0),6)+")}","\\gamma");
-    term2 = term2.insert_after_all_string("^{("+ST::doubletostring(cats(j,0),6)+")}","+ f");
-
-    outtex << term2 << "$\\\\\n";
-    }
-  outtex << "\\end{tabular}\n\\\\ \n\\\\" << endl;
+  outtex << term << "$\\\\\n";
   }
 
 void remlest_multinomial_catsp::make_prior(ofstream & outtex)
@@ -2090,7 +2031,7 @@ void remlest_multinomial_catsp::make_prior(ofstream & outtex)
     vector<ST::string> prior = fullcond[j]->get_priorassumptions();
     if(prior.size() != 0)// nur wenn Priors da sind (d.h. Vektor hat Elemente)
       {
-      if(fullcond[j]->get_results_type()!="fixed")
+      if(fullcond[j]->get_results_type()!="fixed" && !catspecific[j])
         {
         prior[0] = prior[0].insert_after_string("^{(j)}","f");
         }
@@ -2125,55 +2066,50 @@ void remlest_multinomial_catsp::make_options(ofstream & outtex)
 
 void remlest_multinomial_catsp::make_fixed_table(ofstream & outtex)
   {
-
   // falls andere Quantile gewünscht werden
   double u = fullcond[0]->get_level1();
   ST::string u_str = ST::doubletostring(u,0);
 
   vector<ST::string> h;
+
+  unsigned j;
+  unsigned r;
+
+  r = 2;
+
+  // Tabelle im Tex-File mit fixen Effekten
+  outtex << "\n\\newpage \n" << endl << "\n\\noindent {\\bf \\large Fixed Effects:}\\\\"
+       << endl << "\\\\" << endl;
+
+  outtex << "\\begin{tabular}{|r|rrrrr|}" << endl << "\\hline" << endl
+         << "Variable & Post. Mode & Std. Dev. & p-value & \\multicolumn{2}{r|}{" << u << "\\% confidence interval}\\\\"
+         << endl << "\\hline" << endl;
+
   h = fullcond[0]->get_results_latex();
-
-  unsigned i,j, r;
-  unsigned partialhsize=h.size()/nrcat2;
-
-  for(i=0; i<nrcat2; i++)
+  for (j=0;j<h.size();j++)
     {
-    r=2;
-    // Tabelle im Tex-File mit fixen Effekten
-    outtex << "\n\\newpage \n" << endl << "\n\\noindent {\\bf \\large Fixed Effects (Category "
-         << ST::doubletostring(cats(i,0),6) << "):}\\\\"
-         << endl << "\\\\" << endl;
-
-    outtex << "\\begin{tabular}{|r|rrrrr|}" << endl << "\\hline" << endl
-           << "Variable & Post. Mode & Std. Dev. & p-value & \\multicolumn{2}{r|}{" << u << "\\% confidence interval}\\\\"
-           << endl << "\\hline" << endl;
-
-    for (j=i*partialhsize;j<(i+1)*partialhsize;j++)
+    r++;
+    if (r < 39)
       {
-      r++;
-      if (r < 39)
-        {
-        outtex << h[j] << endl;
-        }
-      else
-        {
-        r=1;
-        outtex << "\\hline \n\\end{tabular}" << endl;
-
-        outtex << "\n\\newpage \n" << endl
-               << "\n\\noindent {\\bf \\large Fixed Effects (Category "
-               << ST::doubletostring(cats(i,0),6) << "continued):}\\\\"
-               << endl << "\\\\" << endl;
-
-        outtex << "\\begin{tabular}{|r|rrrrr|}" << endl << "\\hline" << endl
-               << "Variable & Post. Mode & Std. Dev. & p-value & \\multicolumn{2}{r|}{" << u << "\\% confidence interval}\\\\"
-               << endl << "\\hline" << endl;
-
-        outtex << h[j] << endl;
-        }
+      outtex << h[j] << endl;
       }
-    outtex << "\\hline \n\\end{tabular}" << endl;
+    else
+      {
+      r=1;
+      outtex << "\\hline \n\\end{tabular}" << endl;
+
+      outtex << "\n\\newpage \n" << endl
+             << "\n\\noindent {\\bf \\large Fixed Effects (continued):}\\\\"
+             << endl << "\\\\" << endl;
+
+      outtex << "\\begin{tabular}{|r|rrrrr|}" << endl << "\\hline" << endl
+             << "Variable & Post. Mode & Std. Dev. & p-value & \\multicolumn{2}{r|}{" << u << "\\% confidence interval}\\\\"
+             << endl << "\\hline" << endl;
+
+      outtex << h[j] << endl;
+      }
     }
+  outtex << "\\hline \n\\end{tabular}" << endl;
   }
 
 void remlest_multinomial_catsp::make_graphics(const ST::string & title,
