@@ -1,4 +1,4 @@
-// DATE: 15.12.97
+// DATE: 15.s12.97
 
 #ifdef __BUILDING_THE_DLL
 #define __EXPORT_TYPE __export
