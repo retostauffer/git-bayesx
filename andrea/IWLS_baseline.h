@@ -52,8 +52,11 @@ class __EXPORT_TYPE IWLS_baseline : public IWLS_pspline
   datamatrix spline_ges;
   datamatrix spline_ges2;
   datamatrix spline_zi;
+  datamatrix spline_zi2;
   datamatrix gaussspline;
   datamatrix int_ti_help;
+  datamatrix int_deriv;
+  datamatrix int_H;
   datamatrix response_help;
   datamatrix Xdelta;
   datamatrix Adelta;
@@ -151,6 +154,8 @@ class __EXPORT_TYPE IWLS_baseline : public IWLS_pspline
   void compute_int_gauss_DIC(void);
   void update_baseline(void);
   void compute_int_ti_mean(void);
+  void compute_int_deriv(const datamatrix & b);
+  void compute_int_H(const datamatrix & b);
 
   void set_baselinep(vector<IWLS_baseline*> bp)
     {

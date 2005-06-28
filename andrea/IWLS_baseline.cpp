@@ -36,6 +36,9 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
   baseline = true;
   baselinep = vector<IWLS_baseline*>(0);
 
+  int_deriv = datamatrix(nrpar,1,0.0);
+  int_H = datamatrix(nrpar,nrpar,0.0);
+
   response_help = datamatrix(d.rows(),1,0);
   Xdelta = datamatrix(beta.rows(),1,0);
   Adelta = datamatrix(beta.rows(),1,0);
@@ -155,6 +158,7 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
   int_ti_help = datamatrix(2*likep->get_nrobs(),1,0);
   gaussspline = datamatrix(zi.rows()+1,gauss_n,0);
   spline_zi = datamatrix(likep->get_nrobs(),1,0);
+  spline_zi2 = datamatrix(likep->get_nrobs(),1,0);
 //------------------------------------------------------------------------
 
   A = datamatrix(beta.rows()-2,beta.rows(),0);
@@ -187,6 +191,10 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
         interval(i,0) = j;
       }
     }
+  ofstream intof("d:\\temp\\interval.txt");
+  interval.prettyPrint(intof);
+  intof.close();
+
 
   for(i=0;i<d.rows();i++)
     {
@@ -201,10 +209,10 @@ IWLS_baseline::IWLS_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * 
       }
     }
 
-  Adelta.mult(An.transposed(),response_help);
+/*  Adelta.mult(An.transposed(),response_help);
   ofstream Adeltaof("d:\\temp\\Adelta.txt");
   Adelta.prettyPrint(Adeltaof);
-  Adeltaof.close();
+  Adeltaof.close();*/
 
   deltaexact = datamatrix(zi.rows(),beta.rows()-2,0);
   for(i=0;i<zi.rows();i++)
@@ -278,9 +286,11 @@ IWLS_baseline::IWLS_baseline(const IWLS_baseline & fc)
   spline_ges = fc.spline_ges;
   spline_ges2 = fc.spline_ges2;
   spline_zi = fc.spline_zi;
+  spline_zi2 = fc.spline_zi2;
   gaussspline = fc.gaussspline;
   ges_index = fc.ges_index;
   int_ti_help = fc.int_ti_help;
+  int_deriv = fc.int_deriv;
   baselinep = fc.baselinep;
   A = fc.A;
   distance = fc.distance;
@@ -320,9 +330,11 @@ const IWLS_baseline & IWLS_baseline::operator=(const IWLS_baseline & fc)
   spline_ges = fc.spline_ges;
   spline_ges2 = fc.spline_ges2;
   spline_zi = fc.spline_zi;
+  spline_zi2 = fc.spline_zi2;
   gaussspline = fc.gaussspline;
   ges_index = fc.ges_index;
   int_ti_help = fc.int_ti_help;
+  int_deriv = fc.int_deriv;
   baselinep = fc.baselinep;
   A = fc.A;
   distance = fc.distance;
@@ -660,6 +672,9 @@ void IWLS_baseline::update_IWLS(void)
     {
 //    likep->compute_weight(W,column,true);
 //    likep->tilde_y(mu,spline,column,true,W);
+    multBS_index(spline_zi2,beta);
+    compute_int_deriv(beta);
+    compute_int_H(beta);
     update_baseline();
     logold += likep->loglikelihood(true);
 
@@ -700,7 +715,7 @@ void IWLS_baseline::update_IWLS(void)
 
   add_linearpred_multBS(beta,betaold,true);
   betahelp.minus(beta,betahelp);
-
+   
   double qold = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
 //  double qold = - 0.5*prec_env.compute_quadform(betahelp,0);
 
@@ -1258,7 +1273,7 @@ else
 void IWLS_baseline::compute_int_ti_vc_di0(const vector<double *> splinevector,const vector<double *> betavector)
 {
 //ofstream oftest_spline ("f:\\baseline\\spline_di0.txt");
-double * int_D_help;
+/*double * int_D_help;
 double * betap;
 double dist_knots=int_knots(1,0)-int_knots(0,0);
 unsigned i,j,k,i_help,i_vc;
@@ -1381,7 +1396,7 @@ while(i<zi.rows())
     spline_ti_help=spline_ti;
     }//--------------- else: d.h. z_vc(index(i,0),0)==0 -----------------------
   } //while
-//oftest_spline.close();  
+//oftest_spline.close(); */
 }
 
 
@@ -1709,6 +1724,7 @@ else    //kein zeitl. var. Effekt
   else    //keine Linkstrunkierung
     {
     multBS(spline,beta);
+    multBS_index(spline_zi2,beta);
     compute_int_ti(beta);
     }
   }
@@ -1794,9 +1810,185 @@ void IWLS_baseline::compute_AWA(void)
   AWA.mult(AWA_help,A);
   }
 
+
+void IWLS_baseline::compute_int_deriv(const datamatrix & b)
+  {
+
+  double dist_knots = int_knots(1,0)-int_knots(0,0);
+  datamatrix B(nrpar,1,0.0);
+  datamatrix H(nrpar,1,0.0);
+  datamatrix spline_knots;
+  spline_knots = datamatrix(int_knots.rows(),1,0.0);
+  double * spline_knots_help;
+  double * spline_knots_help2;
+  double * int_D_help;
+  double * int_D_help2;
+  double * betap;
+
+  unsigned i,j;
+  unsigned k=0;
+
+  for(j=0;j<nrpar;j++)
+    int_deriv(j,0)=0.0;
+  int_H = datamatrix(nrpar,nrpar,0.0);
+
+  int_D_help = int_D.getV();
+  for(i=0;i<int_knots.rows();i++)
+    {
+    betap = b.getV();
+    for(j=0;j<nrpar;j++,int_D_help++,betap++)
+      {
+      spline_knots(i,0) += *betap* *int_D_help;
+      }
+    }
+
+
+  int_D_help = int_D.getV();
+  int_D_help2 = int_D.getV()+nrpar;
+  spline_knots_help=spline_knots.getV();
+  spline_knots_help2=spline_knots.getV()+1;
+
+  for(j=0;j<nrpar;j++,int_D_help++,int_D_help2++)
+    {
+    B(j,0) = *int_D_help*exp(*spline_knots_help) + *int_D_help2*exp(*spline_knots_help2);
+    H(j,0) = *int_D_help* *int_D_help*exp(*spline_knots_help) + *int_D_help2* *int_D_help2*exp(*spline_knots_help2);
+    }
+
+
+  for(i=0;i<zi.rows();i++)
+    {
+    if(interval(i,0)==k)
+      {
+      for(j=0;j<nrpar;j++)
+         {
+         int_deriv(j,0) += exp(likep->get_linearpred(index(i,0),0)-spline(i,0)) * B(j,0);
+         int_H(j,j) += exp(likep->get_linearpred(index(i,0),0)-spline(i,0)) * H(j,0);
+         }
+      }
+    else
+      {
+      k++;
+      spline_knots_help++;
+      spline_knots_help2++;
+
+      for(j=0;j<nrpar;j++,int_D_help++,int_D_help2++)
+        {
+        B(j,0) += *int_D_help*exp(*spline_knots_help) + *int_D_help2*exp(*spline_knots_help2);
+        H(j,0) += *int_D_help* *int_D_help*exp(*spline_knots_help) + *int_D_help2* *int_D_help2*exp(*spline_knots_help2);
+        }
+      }
+    }
+
+  for(j=0;j<nrpar;j++)
+    {
+    int_deriv(j,0) = int_deriv(j,0)/2.0*dist_knots;
+    int_H(j,j) = int_H(j,j)/2.0*dist_knots;
+    }
+
+  ofstream intderivof("d:\\temp\\int_deriv.txt");
+  int_knots.prettyPrint(intderivof);
+  intderivof<<endl;
+  int_D.prettyPrint(intderivof);
+  intderivof<<endl;
+  int_deriv.prettyPrint(intderivof);
+  intderivof<<endl;
+  int_H.prettyPrint(intderivof);
+  intderivof.close();
+
+  }
+
+
+void IWLS_baseline::compute_int_H(const datamatrix & b)
+  {
+  double dist_knots = int_knots(1,0)-int_knots(0,0);
+  datamatrix H(nrpar,1,0.0);
+  datamatrix spline_knots;
+  spline_knots = datamatrix(int_knots.rows(),1,0.0);
+  double * spline_knots_help;
+  double * spline_knots_help2;
+  double * int_D_help;
+  double * int_D_help2;
+  double * betap;
+
+  unsigned i,j,n;
+  unsigned k,z;
+
+
+  int_H = datamatrix(nrpar,nrpar,0.0);
+
+  int_D_help = int_D.getV();
+  for(i=0;i<int_knots.rows();i++)
+    {
+    betap = b.getV();
+    for(j=0;j<nrpar;j++,int_D_help++,betap++)
+      {
+      spline_knots(i,0) += *betap* *int_D_help;
+      }
+    }
+
+  for(n=0;n<nrpar;n++)
+    {
+    int_D_help = int_D.getV();
+    int_D_help2 = int_D.getV()+nrpar;
+    spline_knots_help=spline_knots.getV();
+    spline_knots_help2=spline_knots.getV()+1;
+    k=0;
+    z=0;
+
+    for(j=n;j<nrpar;j++)
+      {
+      H(j,0) = int_D(0,n)*int_D(0,j)*exp(*spline_knots_help) + int_D(1,n)* int_D(1,j)*exp(*spline_knots_help2);
+      }
+
+
+    for(i=0;i<zi.rows();i++)
+      {
+      if(interval(i,0)==k)
+        {
+        for(j=n;j<nrpar;j++)
+          {
+           int_H(n,j) += exp(likep->get_linearpred(index(i,0),0)-spline(i,0)) * H(j,0);
+          }
+        }
+      else
+        {
+        k++;
+        z++;
+        spline_knots_help++;
+        spline_knots_help2++;
+
+        for(j=n;j<nrpar;j++)
+          {
+          H(j,0) += int_D(z,n)*int_D(z,j)*exp(*spline_knots_help) + int_D(z+1,n) *int_D(z+1,j)*exp(*spline_knots_help2);
+          }
+        }
+      }
+    }
+    for(j=0;j<nrpar;j++)
+      {
+      for(k=j;k<nrpar;k++)
+        {
+        int_H(j,k) = int_H(j,k)/2.0*dist_knots;
+        }
+      }
+    for(j=0;j<nrpar;j++)
+      {
+      for(k=j;k<nrpar;k++)
+        {
+        int_H(k,j) = int_H(j,k);
+        }
+      }
+
+
+  ofstream intHof("d:\\temp\\int_H.txt");
+  int_H.prettyPrint(intHof);
+  intHof.close();
+  }
+
+
 void IWLS_baseline::compute_score(void)
   {
-  unsigned i,j;
+/*  unsigned i,j;
   datamatrix betatilde;
   datamatrix AWA_test;
   AWA_test = datamatrix(beta.rows(),beta.rows(),0);
@@ -2007,7 +2199,7 @@ void IWLS_baseline::compute_score(void)
   Wtest.prettyPrint(sco);
   sco<<"AWA_test"<<endl;
   AWA_test.prettyPrint(sco);
-  sco.close();
+  sco.close();  */
 
 
   }
