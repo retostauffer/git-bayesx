@@ -466,10 +466,10 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
           {
 
           if(varcoeff==true)
-            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],terms[i].varnames[0],
                    "_spatial_tvar.raw","_spatial_tvar.res","_spatial_tvariance");
           else
-            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],terms[i].varnames[0],
+            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                    "_spatial_tvar.raw","_spatial_tvar.res","_spatial_tvariance");
 
           unsigned v = nu.getvalue();
