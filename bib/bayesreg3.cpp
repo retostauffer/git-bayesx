@@ -667,10 +667,16 @@ void drawmaprun(bayesreg & b)
 
   if (error == false)
     {
-    if (b.fullcond[nr]->get_plotstyle() != MCMC::drawmap)
+    if (b.fullcond[nr]->get_plotstyle() != MCMC::drawmap
+                      && b.fullcond[nr]->get_plotstyle() != MCMC::drawmapgraph)
       {
       error = true;
       b.outerror("ERROR: results cannot be visualized with method drawmap\n");
+      }
+    else if (b.fullcond[nr]->get_plotstyle() == MCMC::drawmapgraph)
+      {
+      error = true;
+      b.outerror("ERROR: boundaries of the regions are not available from the graph-file \n");
       }
     }
 
@@ -886,6 +892,44 @@ void plotnonprun(bayesreg & b)
 #endif
 
   b.plotnonpoptions.setdefault();
+
+  }
+
+
+void texsummaryrun(bayesreg & b)
+  {
+
+#if defined(BORLAND_OUTPUT_WINDOW)
+
+  b.outerror("ERROR: method texsummary is not available in this version\n");
+
+#elif defined(JAVA_OUTPUT_WINDOW)
+
+  ST::string path = b.outfiles[0];
+  ST::string path2 = path;
+
+  int i = path2.length()-1;
+  bool gefunden = false;
+  while(i>=0 && gefunden == false)
+    {
+    if(path2[i] == '\\')
+      gefunden = true;
+    path2 = path2.substr(0,i);
+    i--;
+    }
+
+  ST::string helpbat = path2 + "_latexcommands.bat";
+  ofstream outbat(helpbat.strtochar());
+  outbat << "cd " << path2 << endl;
+  outbat << path.substr(0,1) << ":" << endl;
+  outbat << "latex " << path << "_model_summary.tex" << endl;
+    //if(FileExists((path + "_model_summary.dvi").strtochar()))
+  outbat << "dvips " << path << "_model_summary.dvi" << endl;
+  outbat.close();
+  system(helpbat.strtochar());
+  remove(helpbat.strtochar());
+
+#endif
 
   }
 
@@ -1680,7 +1724,7 @@ void regressrun(bayesreg & b)
                  + " ylab = \" \" outfile = " + pathps + ".ps replace");
                  }
 
-         if(plst==MCMC::drawmap)
+         if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
                  {
                  double u = b.fullcond[j]->get_level1();
                  double o = b.fullcond[j]->get_level2();
@@ -1698,6 +1742,8 @@ void regressrun(bayesreg & b)
                  }
          }
        }
+
+    b.newcommands.push_back(b.name + ".texsummary");
 
 #endif
 

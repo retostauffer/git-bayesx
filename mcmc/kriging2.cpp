@@ -114,7 +114,10 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
   m = mp;
   mapexisting = true;
   mapname = mn;
-  plotstyle = drawmap;
+  if(mp.polygones_existing() == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   datamatrix v1 = datamatrix(region.rows(),1,0.0);
   datamatrix v2 = datamatrix(region.rows(),1,0.0);
@@ -266,7 +269,10 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
   m = mp;
   mapexisting = true;
   mapname = mn;
-  plotstyle = drawmap;
+  if(mp.polygones_existing() == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   datamatrix v1 = datamatrix(region.rows(),1,0.0);
   datamatrix v2 = datamatrix(region.rows(),1,0.0);

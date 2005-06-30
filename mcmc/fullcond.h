@@ -50,7 +50,7 @@ const std::bitset<flagnr> nooutput("100");    // acceptance rates and title
 
 enum covstyle {covariance,precision,correlation};
 
-enum plotstyles {noplot,plotnonp,drawmap};
+enum plotstyles {noplot,plotnonp,drawmap,drawmapgraph};
 
 enum fullcondtype {fixed,variance,nonparametric,spatial,randomeffects,
                    season,randomslopes,factor,nonlinearf};
@@ -939,11 +939,18 @@ class __EXPORT_TYPE FULLCOND
   // FUNCTION: get_effect
   // TASK: returns a string of the estimated effect
 
-  virtual ST::string  get_effect(void)
+  virtual ST::string get_effect(void)
     {
     return "";
     }
 
+  // FUNCTION: get_befehl
+  // TASK: returns a string of the estimated effect to call a new command
+
+  virtual ST::string get_befehl(void)
+    {
+    return "";
+    }
 
   // FUNCTION: reset_effect
   // TASK: resets the effect, subtracts the current effect from linearpred

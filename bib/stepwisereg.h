@@ -50,6 +50,9 @@ using MCMC::DISTRIBUTION_binomial_latent;
 using MCMC::DISTRIBUTION_poisson;
 using MCMC::DISTRIBUTION_gamma;
 using MCMC::DISTRIBUTION_nbinomial;
+using MCMC::DISTRIBUTION_multinom;
+using MCMC::DISTRIBUTION_multinomial_latent;
+using MCMC::DISTRIBUTION_cumulative_latent3;
 using MCMC::FULLCOND;
 using MCMC::FULLCOND_const;
 using MCMC::FULLCOND_const_stepwise;
@@ -138,6 +141,10 @@ class __EXPORT_TYPE stepwisereg : public statobject
   simpleoption maveraging;
   intoption window;
 
+  simpleoption ci;
+  doubleoption level1;
+  doubleoption level2;
+
   intoption maxint;
 
   vector<ST::string> outfiles;
@@ -166,7 +173,11 @@ class __EXPORT_TYPE stepwisereg : public statobject
   stroption distopt;
   stroption propopt;
   simpleoption hierarchical;
-  // options negative binomial distributed resposne
+  // options negative binomial distributed response
+
+  // options for cumprobit
+  simpleoption nosort;
+  // end: options for cumprobit
 
   simpleoption predict;                 // indicates that predicted values,
                                         // deviances, etc. should be computed
@@ -267,6 +278,12 @@ class __EXPORT_TYPE stepwisereg : public statobject
   DISTRIBUTION_poisson distr_poisson;
   DISTRIBUTION_gamma distr_gamma;
   DISTRIBUTION_nbinomial distr_nbinomial;
+  //DISTRIBUTION_multgaussian distr_multgaussian;
+  DISTRIBUTION_multinom distr_multinom;
+  DISTRIBUTION_multinomial_latent distr_multinom_latent;
+  DISTRIBUTION_cumulative_latent3 distr_cumlat3;
+
+  doubleoption reference;
 
   vector<DISTRIBUTION *> distr;              // Pointer to distribution objects
 

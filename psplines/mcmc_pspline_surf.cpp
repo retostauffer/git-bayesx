@@ -201,7 +201,10 @@ FULLCOND_pspline_surf::FULLCOND_pspline_surf(MCMCoptions * o,DISTRIBUTION * dp,
   m = mp;
   mapexisting = true;
   mapname = mn;
-  plotstyle = drawmap;
+  if(mp.polygones_existing() == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   datamatrix v1 = datamatrix(likep->get_nrobs(),1,0.0);
   datamatrix v2 = datamatrix(likep->get_nrobs(),1,0.0);
@@ -518,7 +521,10 @@ FULLCOND_pspline_surf::FULLCOND_pspline_surf(MCMCoptions * o,DISTRIBUTION * dp,
   m = mp;
   mapexisting = true;
   mapname = mn;
-  plotstyle = drawmap;
+  if(mp.polygones_existing() == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   datamatrix v1 = datamatrix(likep->get_nrobs(),1,0.0);
   datamatrix v2 = datamatrix(likep->get_nrobs(),1,0.0);

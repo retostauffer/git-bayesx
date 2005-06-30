@@ -253,6 +253,16 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   friend void __EXPORT_TYPE outresultsrun(bayesreg & b);
 
+    // for method texsummary
+
+  modelStandard mtexsummary;
+
+  optionlist texsummaryoptions;
+
+  use utexsummary;
+
+  friend void __EXPORT_TYPE texsummaryrun(bayesreg & b);
+
   // ---------------------  for method 'regress'  ------------------------------
 
   vector<ST::string> outfiles;

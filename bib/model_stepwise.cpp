@@ -1298,7 +1298,7 @@ term_interactpspline_stepwise::term_interactpspline_stepwise(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   gridsize = intoption("gridsize",-1,10,35);
   lambdamin = doubleoption("lambdamin",0.000001,0.000001,100000000);
-  lambdamax = doubleoption("lambdamax",100,0.000001,100000000);
+  lambdamax = doubleoption("lambdamax",500,0.000001,100000000);
   lambdastart = doubleoption("lambdastart",-1,-1,100000000);
   forced_into = simpleoption("forced_into",false);
   df_for_lambdamax = doubleoption("df_for_lambdamax",2,0,400);         // Unterscheidung rw1/rw2 bei default-Wert!!!

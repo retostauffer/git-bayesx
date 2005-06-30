@@ -414,7 +414,9 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   // FUNCTION: get_effect
   // TASK: returns a string of the estimated effect
 
-  ST::string  get_effect(void);
+  ST::string get_effect(void);
+
+  ST::string get_befehl(void);
 
   void reset_effect(const unsigned & pos);
 

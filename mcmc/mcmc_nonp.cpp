@@ -853,8 +853,11 @@ FULLCOND_nonp::FULLCOND_nonp(MCMCoptions * o,DISTRIBUTION * dp,PenaltyMatrix* K,
     {
     plotstyle = plotnonp;
     }
+  else if(K->get_polex()==false)
+    plotstyle = drawmapgraph;
   else
     plotstyle = drawmap;
+
   mapname = mn;
   pathresult = pres;
   pathcurrent = pres;
@@ -919,8 +922,11 @@ FULLCOND_nonp::FULLCOND_nonp(MCMCoptions * o,DISTRIBUTION * dp,PenaltyMatrix* K,
     {
     plotstyle = plotnonp;
     }
+  else if(K->get_polex()==false)
+    plotstyle = drawmapgraph;
   else
     plotstyle = drawmap;
+
   mapname = mn;
   pathresult = pres;
   pathcurrent = pres;

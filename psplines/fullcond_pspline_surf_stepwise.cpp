@@ -149,7 +149,9 @@ FULLCOND_pspline_surf_stepwise::FULLCOND_pspline_surf_stepwise(MCMCoptions * o,
   else if(type == mrfquadratic8)
     grenzfall = 1;
 
-  interhaupt = 0.0;  
+  interhaupt = 0.0;
+  interhaupt1 = 0.0;
+  interhaupt2 = 0.0;
 
   centerboth = 0;
   maineffectsexisting = 0;
@@ -267,6 +269,9 @@ FULLCOND_pspline_surf_stepwise::FULLCOND_pspline_surf_stepwise(const FULLCOND_ps
   mainpoi2 = fc.mainpoi2;
 
   interhaupt = fc.interhaupt;
+  interhaupt1 = fc.interhaupt1;
+  interhaupt2 = fc.interhaupt2;
+
   centerboth = fc.centerboth;
   maineffectsexisting = fc.maineffectsexisting;
   centerfix = fc.centerfix;
@@ -284,6 +289,9 @@ const FULLCOND_pspline_surf_stepwise & FULLCOND_pspline_surf_stepwise::operator=
   mainpoi2 = fc.mainpoi2;
 
   interhaupt = fc.interhaupt;
+  interhaupt1 = fc.interhaupt1;
+  interhaupt2 = fc.interhaupt2;
+  
   centerboth = fc.centerboth;
   maineffectsexisting = fc.maineffectsexisting;
   centerfix = fc.centerfix;
@@ -351,17 +359,22 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
       compute_main();
       //compute_beta();
 
-/*ofstream out("c:\\cprog\\test\\results\\he1.txt");
-he1.prettyPrint(out);
-ofstream out2("c:\\cprog\\test\\results\\he2.txt");
-he2.prettyPrint(out2);*/
-//hilfeee();
-
       //if(centerboth==11)      // alt!!!
       //  fcconst->posteriormode_intercept(intercept);
       //else if(centerfix==11 || (centerboth==1 && centerfix==10) || (centerboth==10 && centerfix==1))
       if(centerfix==11 || (centerboth==1 && centerfix==10) || (centerboth==10 && centerfix==1) || centerboth==11)
         fcconst->update_intercept(intercept);
+
+      if(centerboth == 11)       // neu!!!
+        {
+        interhaupt1 = mainpoi1->get_intercept();
+        interhaupt2 = mainpoi2->get_intercept();
+        }
+      else
+        {
+        interhaupt1 = 0.0;
+        interhaupt2 = 0.0;
+        }                       // bis hier!!!
 
       if(centerboth==1 && centerfix==10)
         {
@@ -387,6 +400,7 @@ he2.prettyPrint(out2);*/
         }
       else
         interhaupt = 0.0;
+
       if(centerboth == 11 || centerboth == 1)
          converged1 = mainpoi1->changeposterior(he1,intercept);
       if(centerboth == 11 ||centerboth == 10)
@@ -498,10 +512,16 @@ void FULLCOND_pspline_surf_stepwise::compute_main(void)
 
   datamatrix hilf = datamatrix(spline.rows(),1,0);
 
+  // Haupteffekte berechnen
+  if(maineffectsexisting == 11 || maineffectsexisting == 1)
+    he1.mult(betaweightx,beta);
+  if(maineffectsexisting == 11 || maineffectsexisting == 10)
+    he2.mult(betaweighty,beta);
+
   if(centerboth == 11 || centerboth == 1 || centerfix == 11 || centerfix == 1)
     {
     // Haupteffekt berechnen
-    he1.mult(betaweightx,beta);
+    //he1.mult(betaweightx,beta);
     // 'spline' ändern
     freqwork = mainpoi1->get_freqit();
     workindex = mainpoi1->get_indexp();
@@ -520,7 +540,7 @@ void FULLCOND_pspline_surf_stepwise::compute_main(void)
   if(centerboth == 11 || centerboth == 10 || centerfix == 11 || centerfix == 10)
     {
     // Haupteffekt berechnen
-    he2.mult(betaweighty,beta);
+    //he2.mult(betaweighty,beta);
     // 'spline' ändern
     freqwork = mainpoi2->get_freqit();
     workindex = mainpoi2->get_indexp();
@@ -601,17 +621,14 @@ void FULLCOND_pspline_surf_stepwise::remove_centering(void)
     if(centerboth==11 || (centerboth==1 && centerfix==10) || (centerboth==10 && centerfix==1))
       {
       double addieren = -intercept;
-
       if(centerboth==11)
         {
         double * workspline = spline.getV();
         for(i=0;i<spline.rows();i++,workspline++)
           *workspline += addieren;
         }
-
       if((centerboth==1 && centerfix==10) || (centerboth==10 && centerfix==1))
         addieren -= interhaupt;
-        
       fcconst->posteriormode_intercept(addieren);
       fcconst->update_linold();
       }
@@ -623,6 +640,7 @@ void FULLCOND_pspline_surf_stepwise::remove_centering(void)
 
 void FULLCOND_pspline_surf_stepwise::remove_centering_fix(void)
   {
+
   if(center && !centertotal && centerboth!=11 && centerfix!=0)
     {
 
@@ -655,19 +673,17 @@ void FULLCOND_pspline_surf_stepwise::remove_centering_fix(void)
       likep->add_linearpred(hilf);
       }
 
+    fcconst->update_linold();
+
     if((centerboth==1 && centerfix==10) || (centerboth==10 && centerfix==1) || centerfix==11)
       {
-      double abziehen = -intercept;
-      if(centerfix == 11)
-        fcconst->posteriormode_intercept(abziehen);
       double * workspline = spline.getV();
       for(i=0;i<spline.rows();i++,workspline++)
         *workspline -= intercept;
+      fcconst->posteriormode_const();
       }
     else
       intercept = 0.0;
-
-    fcconst->update_linold();
 
     // Interaktionseffekt in fchelp schreiben
     double * fchelpbetap = fchelp.getbetapointer();
@@ -709,9 +725,11 @@ void FULLCOND_pspline_surf_stepwise::get_zentrierung(FULLCOND * haupt, bool & ko
   if(centerboth == 11)
     {
     if(haupt == mainpoi1)
-      m2 = he2.mean(0);
+      m2 = -interhaupt1;
+      //m2 = he2.mean(0);    // entspricht dem Zentrierungsfaktor des Haupteffekts bei nur einer Interaktion!
     else
-      m2 = he1.mean(0);
+      m2 = -interhaupt2;      // Versuch!!!
+      //m2 = he1.mean(0);
     }
   double m = -intercept+m2;
 
@@ -719,6 +737,7 @@ void FULLCOND_pspline_surf_stepwise::get_zentrierung(FULLCOND * haupt, bool & ko
     mainpoi1->changeposterior2(he1,m);
   else if(haupt == mainpoi2)
     mainpoi2->changeposterior2(he2,m);
+
   if(konst == true)
     fcconst->posteriormode_intercept(m2);
   fcconst->update_linold();
@@ -767,9 +786,7 @@ void FULLCOND_pspline_surf_stepwise::set_zentrierung(FULLCOND * haupt, int & vor
     likep->add_linearpred(hilf);
     }
 
-  m = vorzeichen*m;
-  fcconst->posteriormode_intercept(m);
-  fcconst->update_linold();  
+  fcconst->posteriormode_const();
   }
 
 
@@ -882,5 +899,31 @@ ST::string FULLCOND_pspline_surf_stepwise::get_effect(void)
   return h;
   }
 
+
+ST::string FULLCOND_pspline_surf_stepwise::get_befehl(void)
+  {
+  ST::string h;
+
+  if(varcoeff)
+    {
+    h = datanames[1] + "*" + datanames[0] + "(geospline";
+    }
+  else
+    {
+    if(type==mrflinear)
+      h = datanames[0] + "(pspline2dimrw1";
+    else
+      h = datanames[0] + "(pspline2dimrw2";
+    }
+
+  h = h + ", lambda=" + ST::doubletostring(lambda,6);
+  if(degree!=3)
+    h = h + ", degree=" + ST::inttostring(degree);
+  if(nrknots!=20)
+    h = h + ",nrknots=" + ST::inttostring(nrknots);
+  h = h + ")";
+
+  return h;
+  }
 
 } // end: namespace MCMC

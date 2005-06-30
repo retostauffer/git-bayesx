@@ -28,8 +28,6 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
   mapname = mn;
 
-  plotstyle = drawmap;
-
   lambda = l;
   startlambda = sl;
 
@@ -39,6 +37,11 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
     polex = true;
   else
     polex = false;
+
+  if(polex == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   m.compute_reg(d,posbeg,posend,effectvalues,index);
 
@@ -109,8 +112,6 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
   mapname = mn;
 
-  plotstyle = drawmap;
-
   lambda = l;
   startlambda = sl;
 
@@ -120,6 +121,11 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
     polex = true;
   else
     polex = false;
+
+  if(polex == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   m.compute_reg(d1,posbeg,posend,effectvalues,index);
 
@@ -1308,8 +1314,6 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
   mapname = mn;
 
-  plotstyle = drawmap;
-
   lambda = l;
 
   transform = likep->get_trmult(c);
@@ -1322,6 +1326,11 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
     polex = true;
   else
     polex = false;
+
+  if(polex == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   if (ma.get_bandsize() > 40)
     ma.reorderopt();
@@ -1400,8 +1409,6 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   lambda = l;
   mapname = mn;
 
-  plotstyle = drawmap;
-
   transform = likep->get_trmult(c);
 
   updatelinpred = true;
@@ -1412,6 +1419,11 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
     polex = true;
   else
     polex = false;
+
+  if(polex == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   if (ma.get_bandsize() > 40)
     ma.reorderopt();

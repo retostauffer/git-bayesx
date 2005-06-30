@@ -146,6 +146,8 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   ST::string get_effect(void);
 
+  ST::string get_befehl(void);
+
   const datamatrix & get_data_forfixedeffects(void);
 
   void save_betas(vector<double> & modell, unsigned & anzahl);

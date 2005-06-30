@@ -30,6 +30,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
   FULLCOND_pspline_stepwise * mainpoi2;
 
   double interhaupt;
+  double interhaupt1;
+  double interhaupt2;
 
   unsigned centerboth;               // gibt an, welche(r) Haupteffekt(e) aktuell im Modell ist
   unsigned maineffectsexisting;      // gibt an, welche Haupteffekte (Fullcond-Obj.) zu Beginn angegeben sind
@@ -137,8 +139,10 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
  /*void hilfeee(void)        // nur für Kontrolle!!!
     {
-    ofstream out(("c:\\cprog\\test\\results\\inter_" + datanames[0] + ".txt").strtochar());
-    spline.prettyPrint(out);
+    ST::string test = datanames[0];
+    test = test.replaceallsigns('*', '_');
+    ofstream outi(("c:\\cprog\\test\\results\\inter_" + test + ".txt").strtochar());
+    spline.prettyPrint(outi);
     }*/
 
   void reset_effect(const unsigned & pos);
@@ -164,6 +168,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
   // TASK: returns a string of the estimated effect
 
   ST::string  get_effect(void);
+
+  ST::string get_befehl(void);
 
   const datamatrix & get_data_forfixedeffects(void);
 

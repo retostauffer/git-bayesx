@@ -1338,7 +1338,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned & nr,
     for(j=begin[nr];j<=end[nr];j++)  //Schleife überprüft, ob es map-Objekt gibt
       {
       plst = fullcondp[j]->get_plotstyle();
-      if(plst == MCMC::drawmap)
+      if(plst == MCMC::drawmap || plst == MCMC::drawmapgraph)
         stil2 = false;
       }
 
@@ -1490,7 +1490,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned & nr,
                    << "\\end{figure}" << endl;
             }
           // für map-Funktionen
-          else if (plst == MCMC::drawmap && fullcondp[j]->get_col()==i)
+          else if ((plst == MCMC::drawmap || plst == MCMC::drawmapgraph) && fullcondp[j]->get_col()==i)
             {
             outbatch << "\n";                 // Befehle f. d. batch-file
             outbatch << "dataset _dat" << endl;
@@ -1530,42 +1530,84 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned & nr,
                       << "\",plotvar = \"pcat" << o_str << "\", regionvar = \""
                       << regionvar << "\", legend = F, pcat = T)" << endl;
             // Plot-Befehle f. d. tex-file
-            outtex << "\n\\begin{figure}[h!]" << endl
-                   << "\\centering" << endl
-                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pmean.ps}"
-                   << endl
-                   << "\\caption{Non--linear Effect of '" <<
-                   regionvar.insert_string_char(hcharu,hstringu) << "'";
-            if(lp>1)
-              outtex << " (" << ST::inttostring(i+1) << ". response category)";
-            outtex << ". Shown are the posterior means.}" << endl
-                   << "\\end{figure}" << endl;
-            outtex << "\n\\begin{figure}[htb]" << endl
-                   << "\\centering" << endl
-                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                   << u_str << ".ps}" << endl
-                   << "\\caption{Non--linear Effect of '" << regionvar << "'";
-            if(lp>1)
-              outtex << " (" <<  ST::inttostring(i+1) << ". response category)";
-            outtex << ". Posterior probabilities for a nominal level of "
-                   << u_str << "\\%." << endl
-                   << "Black denotes regions with strictly negative credible intervals,"
-                   << endl
-                   << "white denotes regions with strictly positive credible intervals.}"
-                   << endl << "\\end{figure}" << endl;
-            outtex << "\n\\begin{figure}[htb]" << endl
-                   << "\\centering" << endl
-                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                   << o_str << ".ps}" << endl
-                   << "\\caption{Non--linear Effect of '" << regionvar << "'";
-            if(lp>1)
-              outtex << " (" << ST::inttostring(i+1) << ". response category)";
-            outtex << ". Posterior probabilities for a nominal level of "
-                   << o_str << "\\%." << endl
-                   << "Black denotes regions with strictly negative credible intervals,"
-                   << endl
-                   << "white denotes regions with strictly positive credible intervals.}"
-                   << endl << "\\end{figure}" << endl;
+            if(plst == MCMC::drawmap)
+              {
+              outtex << "\n\\begin{figure}[h!]" << endl
+                     << "\\centering" << endl
+                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pmean.ps}"
+                     << endl
+                     << "\\caption{Non--linear Effect of '" <<
+                     regionvar.insert_string_char(hcharu,hstringu) << "'";
+              if(lp>1)
+                outtex << " (" << ST::inttostring(i+1) << ". response category)";
+              outtex << ". Shown are the posterior means.}" << endl
+                     << "\\end{figure}" << endl;
+              outtex << "\n\\begin{figure}[htb]" << endl
+                     << "\\centering" << endl
+                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                     << u_str << ".ps}" << endl
+                     << "\\caption{Non--linear Effect of '" << regionvar << "'";
+              if(lp>1)
+                outtex << " (" <<  ST::inttostring(i+1) << ". response category)";
+              outtex << ". Posterior probabilities for a nominal level of "
+                     << u_str << "\\%." << endl
+                     << "Black denotes regions with strictly negative credible intervals,"
+                     << endl
+                     << "white denotes regions with strictly positive credible intervals.}"
+                     << endl << "\\end{figure}" << endl;
+              outtex << "\n\\begin{figure}[htb]" << endl
+                     << "\\centering" << endl
+                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                     << o_str << ".ps}" << endl
+                     << "\\caption{Non--linear Effect of '" << regionvar << "'";
+              if(lp>1)
+                outtex << " (" << ST::inttostring(i+1) << ". response category)";
+              outtex << ". Posterior probabilities for a nominal level of "
+                     << o_str << "\\%." << endl
+                     << "Black denotes regions with strictly negative credible intervals,"
+                     << endl
+                     << "white denotes regions with strictly positive credible intervals.}"
+                     << endl << "\\end{figure}" << endl;
+              }
+            else if(plst == MCMC::drawmapgraph)
+              {
+              outtex << "\n%\\begin{figure}[h!]" << endl
+                     << "%\\centering" << endl
+                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmean.ps}"
+                     << endl
+                     << "%\\caption{Non--linear Effect of '" <<
+                     regionvar.insert_string_char(hcharu,hstringu) << "'";
+              if(lp>1)
+                outtex << " (" << ST::inttostring(i+1) << ". response category)";
+              outtex << ". Shown are the posterior means.}" << endl
+                     << "%\\end{figure}" << endl;
+              outtex << "\n%\\begin{figure}[htb]" << endl
+                     << "%\\centering" << endl
+                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                     << u_str << ".ps}" << endl
+                     << "%\\caption{Non--linear Effect of '" << regionvar << "'";
+              if(lp>1)
+                outtex << " (" <<  ST::inttostring(i+1) << ". response category)";
+              outtex << ". Posterior probabilities for a nominal level of "
+                     << u_str << "\\%." << endl
+                     << "%Black denotes regions with strictly negative credible intervals,"
+                     << endl
+                     << "%white denotes regions with strictly positive credible intervals.}"
+                     << endl << "%\\end{figure}" << endl;
+              outtex << "\n%\\begin{figure}[htb]" << endl
+                     << "%\\centering" << endl
+                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                     << o_str << ".ps}" << endl
+                     << "%\\caption{Non--linear Effect of '" << regionvar << "'";
+              if(lp>1)
+                outtex << " (" << ST::inttostring(i+1) << ". response category)";
+              outtex << ". Posterior probabilities for a nominal level of "
+                     << o_str << "\\%." << endl
+                     << "%Black denotes regions with strictly negative credible intervals,"
+                     << endl
+                     << "%white denotes regions with strictly positive credible intervals.}"
+                     << endl << "%\\end{figure}" << endl;
+              }
 
             } // end: else if (plst == MCMC::drawmap && fullcondp[j]->get_col()==i)
 

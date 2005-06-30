@@ -221,7 +221,11 @@ void stepwisereg::create(void)
   fine_local = simpleoption("fine_local",false);
 
   maveraging = simpleoption("model_averaging",false);
-  window = intoption("window",2,1,5);
+  window = intoption("window",2,1,30);
+
+  ci = simpleoption("ci",false);
+  level1 = doubleoption("level1",95,40,99);
+  level2 = doubleoption("level2",80,40,99);
 
   //----------END: STEPWISE --------------------------------------
 
@@ -246,8 +250,12 @@ void stepwisereg::create(void)
   families.push_back("binomialprobit");
   families.push_back("poisson");
   families.push_back("gamma");
+  families.push_back("multinomial");
+  families.push_back("multinomialprobit");
+  families.push_back("cumprobit");
   families.push_back("nbinomial");
   family = stroption("family",families,"binomial");
+  reference = doubleoption("reference",0,-10000,10000);
 
   vector<ST::string> dop;
   dop.push_back("nb");
@@ -299,6 +307,9 @@ void stepwisereg::create(void)
   regressoptions.push_back(&fine_local);
   regressoptions.push_back(&maveraging);
   regressoptions.push_back(&window);
+  regressoptions.push_back(&ci);
+  regressoptions.push_back(&level1);
+  regressoptions.push_back(&level2);
 
   // method 0
 
@@ -445,6 +456,15 @@ void stepwisereg::initpointers(void)
       distr.push_back(&distr_poisson);
     else if (distrstring[i] == "gamma")
       distr.push_back(&distr_gamma);
+
+    //else if (distrstring[i] == "multgaussian")
+    //  distr.push_back(&distr_multgaussian);
+    else if (distrstring[i] == "multinom")
+      distr.push_back(&distr_multinom);
+    else if (distrstring[i] == "multinom_latent")
+      distr.push_back(&distr_multinom_latent);
+    else if (distrstring[i] == "cumlat3")
+      distr.push_back(&distr_cumlat3);
     else if (distrstring[i] == "nbinomial")
       distr.push_back(&distr_nbinomial);
     }
@@ -644,9 +664,9 @@ bool stepwisereg::create_generaloptions(void)
   #if defined(JAVA_OUTPUT_WINDOW)
   adminb_p,
   #endif
-  12000,1000,10,logout,95,80));
+  12000,2000,10,logout,95,80));
 
-  // generaloptions[generaloptions.size()-1].set_nrout(1000);
+  generaloptions[generaloptions.size()-1].set_nrout(2000);
 
   return false;
 
@@ -1010,6 +1030,259 @@ bool stepwisereg::create_distribution(void)
 
     }
 //------------------------ END: poisson response -------------------------------
+
+//-------------------- multinomial response, probit link -----------------------
+  else if (family.getvalue() == "multinomialprobit")
+    {
+
+    if (wn.length() != 0)
+      {
+      outerror("ERROR: weight not allowed for multivariate response\n");
+      return true;
+      }
+
+    if (offs.rows() > 1)
+      {
+      outerror("ERROR: offset not allowed for family=multinomialprobit\n");
+      return true;
+      }
+
+    D.sort(0,D.rows()-1,0);
+
+    if (reference.changed() == true)
+      {
+      bool existing=false;
+      unsigned i;
+      double * workD = D.getV();
+      unsigned c = D.cols();
+      i=0;
+      double ref = reference.getvalue();
+      while ( (i<D.rows()) && (existing == false) )
+        {
+        if (*workD == ref)
+          existing = true;
+        i++;
+        if (i<D.rows())
+          workD+=c;
+        }
+
+      if (existing == false)
+        {
+        outerror("ERROR: reference category is not existing\n");
+        return true;
+        }
+
+      }
+
+
+    distr_multinom_latent =
+    DISTRIBUTION_multinomial_latent(
+    &generaloptions[generaloptions.size()-1],D.getCol(0),
+                                    reference.getvalue());
+    distr_multinom_latent.init_names(rname,wn);
+
+    if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+      distr_multinom_latent.set_predict(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_multinom_latent.set_predictfull(pathfullsample,pathfull,n);
+      }
+
+    distr.push_back(&distr_multinom_latent);
+    distrstring.push_back("multinom_latent");
+    distrposition.push_back(0);
+    nrcategories = distr_multinom_latent.get_nrcat();
+
+    }
+//------------------- END: multinomial response, probit link -------------------
+
+//--------------------- multinomial response, logit link -----------------------
+  else if (family.getvalue() == "multinomial")
+    {
+
+    if (wn.length() != 0)
+      {
+      outerror("ERROR: weight not allowed for multivariate response\n");
+      return true;
+      }
+
+    if (offs.rows() > 1)
+      {
+      outerror("ERROR: offset not allowed for family=multinomial\n");
+      return true;
+      }
+
+    statmatrix<int> index(D.rows(),1);
+    index.indexinit();
+    D.indexsort(index,0,D.rows()-1,0,0);
+
+    unsigned nrcat = 1;
+    unsigned refcat;
+    double refvalue;
+
+    unsigned i,j;
+    vector<unsigned> beg;
+    beg.push_back(0);
+    bool existing = false;
+    if (reference.getvalue() == D(index(0,0),0))
+      {
+      refvalue = D(index(0,0),0);
+      refcat = 0;
+      existing = true;
+      }
+
+    for (i=1;i<D.rows();i++)
+      {
+      if ( D(index(i,0),0) != D(index(i-1,0),0) )
+        {
+        beg.push_back(i);
+        if (reference.getvalue() == D(index(i,0),0))
+          {
+          refcat = nrcat;
+          refvalue = D(index(i,0),0);
+          existing = true;
+          }
+        nrcat++;
+        }
+
+      }
+
+    if (existing == false)
+      {
+      if (reference.changed() == true)
+        {
+        outerror("ERROR: reference category is not existing\n");
+        return true;
+        }
+      else
+        {
+        refvalue = D(index(0,0),0);
+        refcat = 0;
+        }
+
+      }
+
+    if (nrcat == 1)
+      {
+      outerror("ERROR: response variable does not vary\n");
+      return true;
+      }
+
+    if (nrcat > 10)
+      {
+      outerror("ERROR: too many values for the response variable\n");
+      return true;
+      }
+
+
+    datamatrix response(D.rows(),nrcat-1,0);
+
+    unsigned end;
+    unsigned c=0;
+    for(i=0;i<nrcat;i++)
+      {
+      if (i == nrcat-1)
+        end = D.rows()-1;
+      else
+        end = beg[i+1]-1;
+
+      if (i != refcat)
+        {
+        for (j=beg[i];j<=end;j++)
+          response(index(j,0),c) = 1;
+        c++;
+        }
+
+      }
+
+    distr_multinom = DISTRIBUTION_multinom(
+    &generaloptions[generaloptions.size()-1],response,refvalue,w);
+
+    distr_multinom.init_names(rname,wn);
+
+    if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+      distr_multinom.set_predict(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_multinom.set_predictfull(pathfullsample,pathfull,n);
+      }
+
+
+    distr.push_back(&distr_multinom);
+    distrstring.push_back("multinom");
+    distrposition.push_back(0);
+    nrcategories = nrcat-1;
+    }
+//------------------- END: multinomial response, logit link -------------------
+
+//------------------- cumulative threshold model, probit link ------------------
+  else if (family.getvalue() == "cumprobit")
+    {
+
+    if (nosort.getvalue() == false)
+      D.sort(0,D.rows()-1,0);
+
+    if (wn.length() == 0)
+      w = datamatrix(1,1);
+    else
+      w = D.getCol(D.cols()-1);
+
+    ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+    ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+
+    distr_cumlat3 = DISTRIBUTION_cumulative_latent3(
+    &generaloptions[generaloptions.size()-1],D.getCol(0),
+                    w,0.001,0.001,path2,path3);
+    distr_cumlat3.init_names(rname);
+
+
+    if (predict.getvalue() == true || (predictmu.getvalue() == true) )
+      distr_cumlat3.set_predict_cum(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_cumlat3.set_predictfull(pathfullsample,pathfull,n);
+      }
+
+
+
+    distr.push_back(&distr_cumlat3);
+    distrstring.push_back("cumulat3");
+    distrposition.push_back(0);
+    nrcategories = 1;
+
+    }
+//----------------- END: cumulative threshold model, probit link ---------------
+
 //----------------------- negative binomial response ---------------------------
   else
     {
@@ -2290,10 +2563,16 @@ void drawmaprun(stepwisereg & b)
 
   if (error == false)
     {
-    if (b.fullcond[nr]->get_plotstyle() != MCMC::drawmap)
+    if (b.fullcond[nr]->get_plotstyle() != MCMC::drawmap
+                       && b.fullcond[nr]->get_plotstyle() != MCMC::drawmapgraph)
       {
       error = true;
       b.outerror("ERROR: results cannot be visualized with method drawmap\n");
+      }
+    else if (b.fullcond[nr]->get_plotstyle() == MCMC::drawmapgraph)
+      {
+      error = true;
+      b.outerror("ERROR: boundaries of the regions are not available from the graph-file \n");
       }
     }
 
@@ -2512,19 +2791,31 @@ void texsummaryrun(stepwisereg & b)
 
     //ST::string path = b.fullcond[nr]->get_pathresult();
     ST::string path = b.outfiles[0];
+    ST::string path2 = path;
 
-    mkdir(path.strtochar());
-    ST::string helpbat = path + "\\latexcommands.bat";
+    int i = path2.length()-1;
+    bool gefunden = false;
+    while(i>=0 && gefunden == false)
+      {
+      if(path2[i] == '\\')
+        gefunden = true;
+      path2 = path2.substr(0,i);
+      i--;
+      }
+
+    ////mkdir(path.strtochar());
+    ST::string helpbat = path2 + "_latexcommands.bat";
     ofstream outbat(helpbat.strtochar());
-    outbat << "cd " << path << endl;
+    outbat << "cd " << path2 << endl;
     outbat << path.substr(0,1) << ":" << endl;
-    outbat << "cd.." << endl;
+    ////outbat << "cd.." << endl;
     outbat << "latex " << path << "_model_summary.tex" << endl;
+    //if(FileExists((path + "_model_summary.dvi").strtochar()))
     outbat << "dvips " << path << "_model_summary.dvi" << endl;
     outbat.close();
     system(helpbat.strtochar());
     remove(helpbat.strtochar());
-    rmdir(path.strtochar());
+    ////rmdir(path.strtochar());
 
     }
 
@@ -2620,87 +2911,72 @@ void regressrun(stepwisereg & b)
     bool fine_local = b.fine_local.getvalue();
     bool maveraging = b.maveraging.getvalue();
     int window = b.window.getvalue();
+    bool CI = b.ci.getvalue();
     vector<FULLCOND*> fullcond_z;
 
     b.runobj = STEPWISErun(&b.generaloptions[0],b.distr[0],b.fullcond);
 
     ST::string path = b.outfiles[0];
+    ST::string path2 = path;
 
     failure = b.runobj.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
-    fine_tuning,fine_local,maveraging,window,b.D,b.modelvarnamesv,name,fullcond_z,path);
+    fine_tuning,fine_local,maveraging,window,b.D,b.modelvarnamesv,name,fullcond_z,path2,CI);
 
     if(!failure)
       {
-      /*
-      vector<ST::string> path;
-      vector<ST::string> path2;
-      vector<ST::string> path3;
-      vector<ST::string> path4;
-
-      unsigned i;
-      for(i=0;i<b.outfiles.size();i++)
-         {
-         path.push_back(b.outfiles[i] + "_graphics.prg");
-         path2.push_back(b.outfiles[i] + "_model_summary.tex");
-         path3.push_back(b.outfiles[i] +  "_splus.txt");
-         path4.push_back(b.outfiles[i] +  "_stata.do");
-         }
-
-      b.runobj.make_graphics(header,path,path2,path3,path4);
-      */
 
 #if defined(JAVA_OUTPUT_WINDOW)
 
-      b.fullcond = fullcond_z;
-      for(unsigned j=0;j<b.fullcond.size();j++)
-         {
-         MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
-         if(plst != MCMC::noplot)
+      if(CI == true)
+        {
+        b.newcommands.push_back("drop " + b.name);
+        b.newcommands.push_back("bayesreg " + b.name);
+        b.newcommands.push_back(b.name + ".outfile = " + path);
+        double level1 = b.level1.getvalue();
+        double level2 = b.level2.getvalue();
+        ST::string data = " level1=" + ST::doubletostring(int(level1))
+             + " level2=" + ST::doubletostring(int(level2)) + " using " + b.udata.getusingtext();
+        b.newcommands.push_back(path2 + data);  // eigentlich String "befehl, nur für den Versuch!!!
+        }
+      else
+        {
+        b.fullcond = fullcond_z;
+        for(unsigned j=0;j<b.fullcond.size();j++)
            {
-           vector<ST::string> varnames = b.fullcond[j]->get_datanames();
-           ST::string xvar = varnames[0];
-           ST::string pathresult = b.fullcond[j]->get_pathresult();
-           ST::string pathps = pathresult.substr(0, pathresult.length()-4);
-           if(plst == MCMC::plotnonp)
-                   {
-                   b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
-                   + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
-                   + " ylab = \" \" outfile = " + pathps + ".ps replace");
-                   }
+           MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
+           if(plst != MCMC::noplot)
+             {
+             vector<ST::string> varnames = b.fullcond[j]->get_datanames();
+             ST::string xvar = varnames[0];
+             ST::string pathresult = b.fullcond[j]->get_pathresult();
+             ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+             if(plst == MCMC::plotnonp)
+               {
+               b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
+               + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
+               + " ylab = \" \" outfile = " + pathps + ".ps replace");
+               }
 
-           if(plst==MCMC::drawmap)
-                   {
-                  // double u = b.fullcond[j]->get_level1();
-                  // double o = b.fullcond[j]->get_level2();
-                  // ST::string u_str = ST::doubletostring(u,0);
-                  // ST::string o_str = ST::doubletostring(o,0);
-                   b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-                   + ", color outfile = " + pathps + "_pmean.ps replace");
-                  // b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-                  // + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
-                  // + "_pcat" + u_str + ".ps replace");
-                  // b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-                  // + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
-                  // + "_pcat" + o_str + ".ps replace");
-
-                   }
+             if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
+               {
+               // double u = b.fullcond[j]->get_level1();
+               // double o = b.fullcond[j]->get_level2();
+               // ST::string u_str = ST::doubletostring(u,0);
+               // ST::string o_str = ST::doubletostring(o,0);
+               b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+               + ", color outfile = " + pathps + "_pmean.ps replace");
+               // b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+               // + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+               // + "_pcat" + u_str + ".ps replace");
+               // b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+               // + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+               // + "_pcat" + o_str + ".ps replace");
+               }
+             }
            }
 
-         /*mkdir(path.strtochar());
-         ST::string helpbat = path + "\\latexcommands.bat";
-         ofstream outbat(helpbat.strtochar());
-         outbat << "cd " << path << endl;
-         outbat << path.substr(0,1) << ":" << endl;
-         outbat << "cd.." << endl;
-         outbat << "latex " << path << "_model_summary.tex" << endl;
-         outbat << "dvips " << path << "_model_summary.dvi" << endl;
-         outbat.close();
-         system(helpbat.strtochar());
-         remove(helpbat.strtochar());
-         rmdir(path.strtochar()); */
-         }
-
-      b.newcommands.push_back(b.name + ".texsummary"); 
+        b.newcommands.push_back(b.name + ".texsummary");
+       }
           
 #endif
 

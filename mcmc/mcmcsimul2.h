@@ -296,6 +296,11 @@ unsigned BIC_min;
 
   void save_alle_betas(vector<double> & modell);
 
+  void alle_modelle_berechnen(double & z, vector<double> & hilf,
+                      const vector<double> & unten, const vector<double> & oben,
+                      vector<double> & kriterien_alle, vector<double> & priori,
+                      vector<vector<double> > & modelle, vector<ST::string> & ausgabe);
+
 
 
   public:
@@ -330,7 +335,8 @@ unsigned BIC_min;
          const int & number, const ST::string & stam, const int & inc, const bool & finet,
          const bool & fineloc, const bool & maveraging, int & fenster,
          const datamatrix & D,const vector<ST::string> & modelv,
-         const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path);
+         const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
+         const bool & CI);
 
   double compute_criterion(void);
 

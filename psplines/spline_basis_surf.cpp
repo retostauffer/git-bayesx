@@ -226,7 +226,11 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
   m = mp;
   mapexisting = true;
   mapname = mn;
-  plotstyle = drawmap;
+
+  if(mp.polygones_existing() == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   datamatrix v1 = datamatrix(region.rows(),1,0.0);
   datamatrix v2 = datamatrix(region.rows(),1,0.0);
@@ -322,7 +326,10 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
   m = mp;
   mapexisting = true;
   mapname = mn;
-  plotstyle = drawmap;
+  if(mp.polygones_existing() == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   datamatrix v1 = datamatrix(region.rows(),1,0.0);
   datamatrix v2 = datamatrix(region.rows(),1,0.0);

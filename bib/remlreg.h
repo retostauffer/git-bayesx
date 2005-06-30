@@ -149,6 +149,17 @@ class __EXPORT_TYPE remlreg : public statobject
 
   friend void plotnonprun(remlreg & b);
 
+  // for method texsummary
+
+  modelStandard mtexsummary;
+
+  optionlist texsummaryoptions;
+
+  use utexsummary;
+
+  friend void texsummaryrun(remlreg & b);
+
+
 //------------------------------------------------------------------------------
 // -----------------------  for method 'regress'  ------------------------------
 //------------------------------------------------------------------------------

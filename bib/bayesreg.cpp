@@ -560,6 +560,23 @@ void bayesreg::create(void)
 
   functions[7] = outresultsrun;
 
+  // -------------------------- method texsummary ------------------------------
+
+  utexsummary = use();
+
+  mtexsummary = modelStandard();
+
+  // SYNTAX OF COMMANDS:
+  // name [model] [weight varname] [by varname] [if expression]
+  //      [, options] [using usingtext]
+
+  // methods 8
+  methods.push_back(command("texsummary",&mtexsummary,&texsummaryoptions,&utexsummary,
+                   notallowed,notallowed,notallowed,notallowed,notallowed,
+                   notallowed));
+
+  functions[8] = texsummaryrun;
+
   }
 
 

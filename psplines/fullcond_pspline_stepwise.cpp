@@ -191,7 +191,7 @@ bool FULLCOND_pspline_stepwise::changeposterior(const datamatrix & main,const do
     {
     if(freqwork==freq.begin() || *freqwork!=*(freqwork-1))
       {
-      *fchelpbetap = spline(*workindex,0);  
+      *fchelpbetap = spline(*workindex,0);
       fchelpbetap++;
       }
     }
@@ -207,8 +207,9 @@ bool FULLCOND_pspline_stepwise::changeposterior(const datamatrix & main,const do
   }
 
 
-bool FULLCOND_pspline_stepwise::changeposterior2(const datamatrix & main,const double & inter)       
+bool FULLCOND_pspline_stepwise::changeposterior2(const datamatrix & main,const double & inter)
   {
+
   unsigned i;
 
   vector<int>::iterator freqwork = freq.begin();
@@ -219,14 +220,14 @@ bool FULLCOND_pspline_stepwise::changeposterior2(const datamatrix & main,const d
 // spline ändern
   for(i=0;i<spline.rows();i++,freqwork++,workindex++)
     {
-    spline(*workindex,0) += main(*freqwork,0) + inter;
+    spline(*workindex,0) += main(*freqwork,0) + inter;  
     hilf(*workindex,0) += main(*freqwork,0) + inter;
     }
 
   likep->add_linearpred(hilf);
 
 // Intercept ändern
-  intercept = 0.0;     
+  intercept = 0.0;
 
   return FULLCOND_nonp_basis::posteriormode();
   }
@@ -580,5 +581,28 @@ ST::string FULLCOND_pspline_stepwise::get_effect(void)
   return h;
   }
 
+
+ST::string FULLCOND_pspline_stepwise::get_befehl(void)
+  {
+  ST::string h;
+
+  if(varcoeff)
+    h = datanames[1] + "*" + datanames[0] + "(psplinerw";
+  else
+    h = datanames[0] + "(psplinerw";
+  if (type== MCMC::RW1)
+    h = h + "1";
+  else
+    h = h + "2";
+
+  h = h + ", lambda=" + ST::doubletostring(lambda,6);
+  if(degree!=3)
+    h = h + ", degree=" + ST::inttostring(degree);
+  if(nrknots!=20)
+    h = h + ",nrknots=" + ST::inttostring(nrknots);
+  h = h + ")";
+
+  return h;
+  }
   
 } // end: namespace MCMC

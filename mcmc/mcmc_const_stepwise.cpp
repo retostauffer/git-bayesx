@@ -136,15 +136,18 @@ void FULLCOND_const_stepwise::posteriormode_intercept(double & m)   // wird bei 
 
 void FULLCOND_const_stepwise::update_linold(void)
   {
-  unsigned i;
-  double * worklinold=linold.getV();        // linold = data * beta
-  for(i=0;i<linold.rows();i++,worklinold++) // add "interceptadd" to linold
-    *worklinold += interceptadd;
-  interceptadd = 0;
+  if(fabs(interceptadd) >= pow10(-9))
+    {
+    unsigned i;
+    double * worklinold=linold.getV();        // linold = data * beta
+    for(i=0;i<linold.rows();i++,worklinold++) // add "interceptadd" to linold
+      *worklinold += interceptadd;
+    interceptadd = 0;
 
-  double * workbetamean = betamean.getV();
-  double * workbeta = beta.getV();
-  *workbetamean = *workbeta * transform;
+    double * workbetamean = betamean.getV();
+    double * workbeta = beta.getV();
+    *workbetamean = *workbeta * transform;
+    }
   }
 
 
@@ -374,6 +377,27 @@ ST::string FULLCOND_const_stepwise::get_effect(void)
   return h;
   }
 
+
+ST::string FULLCOND_const_stepwise::get_befehl(void)
+  {
+  ST::string h="";
+  unsigned i;
+  if (fctype==MCMC::factor)
+    {
+    for(i=0;i<datanames.size();i++)
+      h = h + " + " + datanames[i];
+    }
+  else
+    {
+    if(datanames.size()>1)
+      {
+      h = datanames[1];
+      for(i=2;i<datanames.size();i++)
+        h = h + " + " + datanames[i];
+      }
+    }
+  return h;
+  }
 
 
 void FULLCOND_const_stepwise::update_stepwise(double la)

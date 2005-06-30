@@ -5588,7 +5588,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
     for(j=0;j<fullcond.size();j++)  //Schleife überprüft, ob es map-Objekt gibt
       {
       plst = fullcond[j]->get_plotstyle();
-      if(plst == MCMC::drawmap)
+      if(plst == MCMC::drawmap || plst == MCMC::drawmapgraph)
         stil2 = false;
       }
 
@@ -5632,7 +5632,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
       // Pfad der Regr.-Ergebnisse
       pathresult = fullcond[j]->get_pathresult();
 
-      // Plotstyle: noplot, plotnonp, drawmap
+      // Plotstyle: noplot, plotnonp, drawmap, drawmapgraph
       plst = fullcond[j]->get_plotstyle();
 
       if (plst != MCMC::noplot)
@@ -5686,7 +5686,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
                  << "\\end{figure}" << endl;
           }
         // für map-Funktionen
-        else if (plst == MCMC::drawmap)
+        else if (plst == MCMC::drawmap || plst == MCMC::drawmapgraph)
           {
           outbatch << "\n";                 // Befehle f. d. batch-file
           outbatch << "dataset _dat" << endl;
@@ -5731,36 +5731,73 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
             {
             effect = varnames[1] + "*" + effect;
             }
-          outtex << "\n\\begin{figure}[h!]" << endl
-                 << "\\centering" << endl
-                 << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
-                 << endl
-                 << "\\caption{Non--linear Effect of '" <<
-                 effect.insert_string_char(hcharu,hstringu) << "'";
-          outtex << ". Shown are the posterior modes.}" << endl
-                 << "\\end{figure}" << endl;
-          outtex << "\n\\begin{figure}[htb]" << endl
-                 << "\\centering" << endl
-                 << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                 << u_str << ".ps}" << endl
-                 << "\\caption{Non--linear Effect of '" << effect << "'";
-          outtex << ". Posterior probabilities for a nominal level of "
-                 << u_str << "\\%." << endl
-                 << "Black denotes regions with strictly negative credible intervals,"
-                 << endl
-                 << "white denotes regions with strictly positive credible intervals.}"
-                 << endl << "\\end{figure}" << endl;
-          outtex << "\n\\begin{figure}[htb]" << endl
-                 << "\\centering" << endl
-                 << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                 << o_str << ".ps}" << endl
-                 << "\\caption{Non--linear Effect of '" << effect << "'";
-          outtex << ". Posterior probabilities for a nominal level of "
-                 << o_str << "\\%." << endl
-                 << "Black denotes regions with strictly negative credible intervals,"
-                 << endl
-                 << "white denotes regions with strictly positive credible intervals.}"
-                 << endl << "\\end{figure}" << endl;
+
+          if(plst == MCMC::drawmap)
+            {
+            outtex << "\n\\begin{figure}[h!]" << endl
+                   << "\\centering" << endl
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                   << endl
+                   << "\\caption{Non--linear Effect of '" <<
+                   effect.insert_string_char(hcharu,hstringu) << "'";
+            outtex << ". Shown are the posterior modes.}" << endl
+                   << "\\end{figure}" << endl;
+            outtex << "\n\\begin{figure}[htb]" << endl
+                   << "\\centering" << endl
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                   << u_str << ".ps}" << endl
+                   << "\\caption{Non--linear Effect of '" << effect << "'";
+            outtex << ". Posterior probabilities for a nominal level of "
+                   << u_str << "\\%." << endl
+                   << "Black denotes regions with strictly negative credible intervals,"
+                   << endl
+                   << "white denotes regions with strictly positive credible intervals.}"
+                   << endl << "\\end{figure}" << endl;
+            outtex << "\n\\begin{figure}[htb]" << endl
+                   << "\\centering" << endl
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                   << o_str << ".ps}" << endl
+                   << "\\caption{Non--linear Effect of '" << effect << "'";
+            outtex << ". Posterior probabilities for a nominal level of "
+                   << o_str << "\\%." << endl
+                   << "Black denotes regions with strictly negative credible intervals,"
+                   << endl
+                   << "white denotes regions with strictly positive credible intervals.}"
+                   << endl << "\\end{figure}" << endl;
+            }
+          else if(plst == MCMC::drawmapgraph)
+            {
+            outtex << "\n%\\begin{figure}[h!]" << endl
+                   << "%\\centering" << endl
+                   << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                   << endl
+                   << "%\\caption{Non--linear Effect of '" <<
+                   effect.insert_string_char(hcharu,hstringu) << "'";
+            outtex << ". Shown are the posterior modes.}" << endl
+                   << "%\\end{figure}" << endl;
+            outtex << "\n%\\begin{figure}[htb]" << endl
+                   << "%\\centering" << endl
+                   << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                   << u_str << ".ps}" << endl
+                   << "%\\caption{Non--linear Effect of '" << effect << "'";
+            outtex << ". Posterior probabilities for a nominal level of "
+                   << u_str << "\\%." << endl
+                   << "%Black denotes regions with strictly negative credible intervals,"
+                   << endl
+                   << "%white denotes regions with strictly positive credible intervals.}"
+                   << endl << "%\\end{figure}" << endl;
+            outtex << "\n%\\begin{figure}[htb]" << endl
+                   << "%\\centering" << endl
+                   << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                   << o_str << ".ps}" << endl
+                   << "%\\caption{Non--linear Effect of '" << effect << "'";
+            outtex << ". Posterior probabilities for a nominal level of "
+                   << o_str << "\\%." << endl
+                   << "%Black denotes regions with strictly negative credible intervals,"
+                   << endl
+                   << "%white denotes regions with strictly positive credible intervals.}"
+                   << endl << "%\\end{figure}" << endl;
+            }
           } // end: else if
         } // end: if
       } // end: for

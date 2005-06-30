@@ -206,7 +206,10 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & region,
   m = mp;
   mapexisting = true;
   mapname = mn;
-  plotstyle = drawmap;
+  if(mp.polygones_existing() == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   varcoeff=false;
   onedim=false;
@@ -313,7 +316,10 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
   m = mp;
   mapexisting = true;
   mapname = mn;
-  plotstyle = drawmap;
+  if(mp.polygones_existing() == true)
+    plotstyle = drawmap;
+  else
+    plotstyle = drawmapgraph;
 
   varcoeff=true;
   data_forfixed = intact;

@@ -1306,7 +1306,10 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
     for(i=number-2;i>=1;i--)
        {
        df_wunsch = get_df_lambdamax() + i*diff;
-       lambda_df = lambdamin + i*(lambdamax-lambdamin)/(number-1);
+       //lambda_df = lambdamax - i*(lambdamax-lambdamin)/(number-1);
+       double l = log10(lambdamin);
+       double u = log10(lambdamax);
+       lambda_df = pow(10,u-double(i)*((u-l)/(double(number)-1)));
        lvec.push_back(lambda_from_df(df_wunsch,lambda_df));
        }
      }

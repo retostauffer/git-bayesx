@@ -78,7 +78,7 @@ double FULLCOND_nonp_gaussian::compute_df(void)
   }
 
 
-ST::string  FULLCOND_nonp_gaussian::get_effect(void)
+ST::string FULLCOND_nonp_gaussian::get_effect(void)
   {
   ST::string h;
 
@@ -98,6 +98,31 @@ ST::string  FULLCOND_nonp_gaussian::get_effect(void)
     h = datanames[0];
 
   h = h + "(" + t + ",df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
+
+  return h;
+  }
+
+
+ST::string FULLCOND_nonp_gaussian::get_befehl(void)
+  {
+  ST::string h;
+
+  ST::string t;
+  if (type==MCMC::RW1)
+    t = "rw1";
+  else if (type==MCMC::RW2)
+    t = "rw2";
+  else if (type==MCMC::seasonal)
+    t = "season,period=" + ST::inttostring(period);
+  else if (type==MCMC::mrf)
+    t = "spatial,map=" + mapname;
+
+  if(varcoeff)
+    h = datanames[1] + "*" + datanames[0];
+  else
+    h = datanames[0];
+
+  h = h + "(" + t + ",lambda=" + ST::doubletostring(lambda,6) + ")";
 
   return h;
   }
@@ -287,15 +312,40 @@ void FULLCOND_nonp_gaussian::average_posteriormode(vector<double> & crit_weights
   datamatrix pmean_fix = datamatrix(likep->get_nrobs(),1,0);
   datamatrix beta_fixx = datamatrix(1,1,beta_fix);
   if(beta_fix != 0)
+    {
     pmean_fix.mult(data_forfixed,beta_fixx);     // berechnet den Anteil der fixen Effekte
-  pmean_spline.plus(pmean_spline,pmean_fix);     
+
+    if(!varcoeff)      // Zentrieren
+      {
+      workbeta = beta.getV();
+      itbeg = posbeg.begin();
+      itend = posend.begin();
+      int * workindex = index.getV();
+      for(i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
+        {
+        if(*itbeg != -1)
+          {
+          *workbeta = pmean_fix(*workindex,0);
+          for(j=*itbeg;j<=*itend;j++)
+            workindex++;
+          }
+        }
+
+      double intercept = centerbeta();
+      fcconst->set_intercept_for_center(intercept);
+      datamatrix inter = datamatrix(likep->get_nrobs(),1,-intercept);
+      pmean_fix.plus(pmean_fix,inter);         // zentrierte durchschnittliche Fkt, Einträge in Reihenfolge x_1,...,x_n
+      }
+    }
+
+  pmean_spline.plus(pmean_spline,pmean_fix);
 
   // für Ausgabe: Vektor "pmean_spline" muß für Ausgabe sortiert werden!
   workbeta = beta.getV();
   double * workeff = pmean_spline.getV();
   itbeg = posbeg.begin();
   itend = posend.begin();
-  int * workindex = index.getV(); 
+  int * workindex = index.getV();
   for(i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
     {
     if(*itbeg != -1)
@@ -307,14 +357,6 @@ void FULLCOND_nonp_gaussian::average_posteriormode(vector<double> & crit_weights
       for(j=*itbeg;j<=*itend;j++)
         workindex++;
       }
-    }
-
-  if(!varcoeff)      // Zentrieren
-    {
-    double intercept = centerbeta();
-    fcconst->set_intercept_for_center(intercept);
-    datamatrix inter = datamatrix(likep->get_nrobs(),1,-intercept);
-    pmean_spline.plus(pmean_spline,inter);         // zentrierte durchschnittliche Fkt, Einträge in Reihenfolge x_1,...,x_n
     }
 
   likep->add_linearpred_m(pmean_spline,column);     // addiert durchschnittl. Fkt. zum Gesamtprädiktor
