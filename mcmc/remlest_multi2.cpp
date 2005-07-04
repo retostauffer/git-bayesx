@@ -2792,7 +2792,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
               }
             else if(plst == MCMC::drawmapgraph)
               {
-              outtex << "%\n\\begin{figure}[h!]" << endl
+              outtex << "\n%\\begin{figure}[h!]" << endl
                      << "%\\centering" << endl
                      << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
                      << endl
