@@ -8,6 +8,11 @@ double FULLCOND_nonp_basis::compute_quadform(void)
   return K.compute_quadform(beta,0);
   }
 
+double FULLCOND_nonp_basis::compute_sumfabsdiff(void)
+  {
+  return 0.0;
+  }
+
 void FULLCOND_nonp_basis::updateK(const datamatrix & q)
   {
 

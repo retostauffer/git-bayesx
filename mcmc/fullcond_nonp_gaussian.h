@@ -333,6 +333,18 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
     return Kenv.compute_quadform(beta,0);
     }
 
+  double compute_fabsdiff(unsigned i,unsigned j)
+    {
+    double diff = beta(i,0)-beta(j,0);
+
+    return fabs(diff)/sigma2;
+    }
+
+  double compute_sumfabsdiff(void)
+    {
+    return Kenv.compute_sumfabsdiff(beta,0);
+    }
+    
   // FUNCTION: updateK
   // TASK: updates the penalty matrix K
 
