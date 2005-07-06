@@ -78,7 +78,7 @@ void graphobj::create (void)
   xstep = doubleoption("xstep",0.0,-MAXDOUBLE,MAXDOUBLE);
   xstart = doubleoption("xstart",MAXDOUBLE,-MAXDOUBLE,MAXDOUBLE);
   ystep = doubleoption("ystep",0.0,-MAXDOUBLE,MAXDOUBLE);
-  ystart = doubleoption("ystart",MAXDOUBLE,-MAXDOUBLE,MAXDOUBLE);  
+  ystart = doubleoption("ystart",MAXDOUBLE,-MAXDOUBLE,MAXDOUBLE);
   year = intoption("year",0,0,3000);
   month = intoption("month",0,1,12);
   linewidth = intoption("linewidth",5,0,100);
@@ -137,14 +137,38 @@ void graphobj::create (void)
 
   functions[3] = plotautocorrun;
 
+  zlab = stroption("zlab");
+  zlimtop = doubleoption("zlimtop",-MAXDOUBLE,-MAXDOUBLE,MAXDOUBLE);
+  zlimbottom = doubleoption("zlimbottom",MAXDOUBLE,-MAXDOUBLE,MAXDOUBLE);
+  zstep = doubleoption("zstep",0.0,-MAXDOUBLE,MAXDOUBLE);
+  zstart = doubleoption("zstart",MAXDOUBLE,-MAXDOUBLE,MAXDOUBLE);
+  xrot = doubleoption("xrot",0.0,-360,360);
+  yrot = doubleoption("yrot",0.0,-360,360);
+  zrot = doubleoption("zrot",0.0,-360,360);
+
   plotsurfoptions.push_back(&psname);
   plotsurfoptions.push_back(&replace);
   plotsurfoptions.push_back(&title);
   plotsurfoptions.push_back(&xlab);
   plotsurfoptions.push_back(&ylab);
-  plotsurfoptions.push_back(&zlab);  
+  plotsurfoptions.push_back(&zlab);
+  plotsurfoptions.push_back(&xrot);
+  plotsurfoptions.push_back(&yrot);
+  plotsurfoptions.push_back(&zrot);
   plotsurfoptions.push_back(&height);
   plotsurfoptions.push_back(&width);
+  plotsurfoptions.push_back(&xlimtop);
+  plotsurfoptions.push_back(&ylimtop);
+  plotsurfoptions.push_back(&zlimtop);
+  plotsurfoptions.push_back(&xlimbottom);
+  plotsurfoptions.push_back(&ylimbottom);
+  plotsurfoptions.push_back(&zlimbottom);
+  plotsurfoptions.push_back(&xstep);
+  plotsurfoptions.push_back(&ystep);
+  plotsurfoptions.push_back(&zstep);
+  plotsurfoptions.push_back(&xstart);
+  plotsurfoptions.push_back(&ystart);
+  plotsurfoptions.push_back(&zstart);
   plotsurfoptions.push_back(&linewidth);
   plotsurfoptions.push_back(&fontsize);
   plotsurfoptions.push_back(&pointsize);
