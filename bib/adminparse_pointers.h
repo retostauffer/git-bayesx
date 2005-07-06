@@ -1,9 +1,9 @@
 
 
 #ifdef __BUILDING_THE_DLL
-#define __EXPORT_TYPE __export
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
-#define __EXPORT_TYPE __import
+#define __EXPORT_TYPE __declspec(dllimport)
 #endif
 
 
@@ -22,9 +22,9 @@
 
 #include<fstream.h>
 #include<string.h>
-#include<data.h>
-#include<map.h>
-#include<dir.h>
+#include "data2.h"
+#include "map3.h"
+//#include<dir.h>
 //------------------------------------------------------------------------------
 
 

@@ -5,8 +5,8 @@
 
 #define SYMBANDMATRIX_INCLUDED
 
-#include <statmat.h>
-#include <map.h>
+#include "statmat1.h"
+#include "map3.h"
 
 //------------------------------------------------------------------------------
 //-------------------------- CLASS: symbandmatrix ------------------------------
@@ -451,7 +451,7 @@ typedef symbandmatrix<double> bandmatdouble;
   bandmatdouble Kmrflinearband(const unsigned & nr1,const unsigned & nr2);
 
 
-#include<bandmat.cpp>
+#include "bandmat1.cpp"
 
 #endif
 
