@@ -179,6 +179,16 @@ protected double titlescale;
 // Optionen für Javaplotautocor
 protected boolean meanautocor;
 
+// Optionen für Javaplotsurf
+protected String zlab;
+protected double xrot;
+protected double yrot;
+protected double zrot;
+protected double zmin;
+protected double zmax;
+protected double zstart;
+protected double zstep;
+
 // Random Number Generation
 
 RandMrg rStream;
@@ -2224,8 +2234,10 @@ public void Javaplotautocor(String joutfile, String jconnect, boolean jmeanautoc
         }
 
 
-public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jylab,
-                         String jlinecolor, int jheight, int jwidth, 
+public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jylab, String jzlab,
+			 double jxrot, double jyrot, double jzrot, String jlinecolor, int jheight, int jwidth, 
+ 			 double jxlimtop, double jxlimbottom, double jylimtop, double jylimbottom, double jzlimtop, double jzlimbottom,
+	                 double jxstep, double jxstart, double jystep, double jystart, double jzstep, double jzstart,	
 			 int jlinewidth, int jpointsize, int jfontsize, double jtitlescale)                          
                          
         {
@@ -2240,9 +2252,25 @@ public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jy
         title = jtitle;
         xlab = jxlab;
         ylab = jylab;
+ 	zlab = jzlab;
+	xrot = jxrot;
+	yrot = jyrot;
+	zrot = jzrot;
 	linecolor = jlinecolor;
         height = jheight;
         width = jwidth;
+	xmax = jxlimtop;
+	ymax = jylimtop;
+	zmax = jzlimtop;
+	xmin = jxlimbottom;
+	ymin = jylimbottom;
+	zmin = jzlimbottom;
+	xstep = jxstep;
+	ystep = jystep;
+	zstep = jzstep;
+	xstart = jxstart;
+	ystart = jystart;
+	zstart = jzstart;
         linewidth = jlinewidth;
 	pointsize = jpointsize;
 	fontsize = jfontsize;

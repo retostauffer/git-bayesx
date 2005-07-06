@@ -142,6 +142,7 @@ void graphobj::create (void)
   plotsurfoptions.push_back(&title);
   plotsurfoptions.push_back(&xlab);
   plotsurfoptions.push_back(&ylab);
+  plotsurfoptions.push_back(&zlab);  
   plotsurfoptions.push_back(&height);
   plotsurfoptions.push_back(&width);
   plotsurfoptions.push_back(&linewidth);
@@ -1061,14 +1062,22 @@ void plotsurfrun(graphobj & o)
     o.adminp_p->set_Dp(&o.D);
 
     jmethodID javaplotsurf = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javaplotsurf",
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIIIID)V");
+                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DDDLjava/lang/String;IIDDDDDDDDDDDDIIID)V");
     o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javaplotsurf,
                                o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()),
                                o.adminb_p->Java->NewStringUTF(o.title.getvalue().strtochar()),
                                o.adminb_p->Java->NewStringUTF(o.xlab.getvalue().strtochar()),
                                o.adminb_p->Java->NewStringUTF(o.ylab.getvalue().strtochar()),
+                               o.adminb_p->Java->NewStringUTF(o.zlab.getvalue().strtochar()),
+                               o.xrot.getvalue(),o.yrot.getvalue(),o.zrot.getvalue(),
                                o.adminb_p->Java->NewStringUTF(o.linecolor.getvalue().strtochar()),
                                o.height.getvalue(),o.width.getvalue(),
+                               o.xlimtop.getvalue(),o.xlimbottom.getvalue(),
+                               o.ylimtop.getvalue(),o.ylimbottom.getvalue(),
+                               o.zlimtop.getvalue(),o.zlimbottom.getvalue(),
+                               o.xstep.getvalue(),o.xstart.getvalue(),
+                               o.ystep.getvalue(),o.ystart.getvalue(),
+                               o.zstep.getvalue(),o.zstart.getvalue(),
                                o.linewidth.getvalue(),o.pointsize.getvalue(),
                                o.fontsize.getvalue(),o.titlescale.getvalue()
                                );

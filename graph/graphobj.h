@@ -110,6 +110,17 @@ class __EXPORT_TYPE graphobj : public statobject
 
   // for method 'plotsurf'
 
+  stroption zlab;
+  doubleoption xrot;
+  doubleoption yrot;
+  doubleoption zrot;
+  doubleoption zmin;
+  doubleoption zmax;
+  doubleoption zstart;
+  doubleoption zstep;
+  doubleoption zlimtop;
+  doubleoption zlimbottom;
+
   optionlist plotsurfoptions;
 
   friend void plotsurfrun(graphobj & o);
