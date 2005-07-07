@@ -1,8 +1,9 @@
 
+
 #ifdef __BUILDING_THE_DLL
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __export
 #else
-#define __EXPORT_TYPE __declspec(dllimport)
+#define __EXPORT_TYPE __import
 #endif
 
 
@@ -19,7 +20,7 @@
 #include<StatwinFrame.h>
 #include<statwin_haupt.h>
 #elif defined(JAVA_OUTPUT_WINDOW)
-#include "jni.h"
+#include<jni.h>
 #endif
 
 
@@ -49,46 +50,15 @@ class __EXPORT_TYPE administrator_basic
   jmethodID javaoutput;
 #endif
 
-
   // CONSTRUCTOR
 
-  //administrator_basic(void);
-  administrator_basic(void)
-    {
-
-    pause = false;
-    stop = false;
-    processrunning = false;
-    suppressoutput = false;
-
-  }
+  administrator_basic(void);
 
   // DESTRUCTOR
 
   ~administrator_basic() {}
 
-  //bool breakcommand(void);
-  bool breakcommand(void)
-    {
-
-    if(stop)
-      return true;
-
-    if(pause)
-      {
-
-      while(pause)
-        {
-        if(stop)
-          {
-          return true;
-          }
-        }
-
-      }
-
-    return false;
-  }
+  bool breakcommand(void);
 
   bool get_pause(void)
     {
@@ -131,7 +101,7 @@ class __EXPORT_TYPE administrator_basic
     }
 
 
-
+ 
   };
 
 

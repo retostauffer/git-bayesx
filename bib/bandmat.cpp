@@ -1,7 +1,9 @@
 
+#include <bandmat.h>
+
 template<class T>
 symbandmatrix<T>::symbandmatrix(const unsigned & d,const unsigned & bs,
-                                const double  & v)
+                                const T & v)
   {
   diagelem = statmatrix<T>(d,1,v);
   D = diagelem;

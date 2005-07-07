@@ -1,6 +1,5 @@
 
-#include "first.h"
-#include "adminparse_pointers1.h"
+#include "adminparse_pointers.h"
 
 
 administrator_pointer::administrator_pointer(void)
@@ -11,7 +10,3 @@ administrator_pointer::administrator_pointer(void)
 
 
 
-int main()
-{
-	return(0);
-}
