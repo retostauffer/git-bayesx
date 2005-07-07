@@ -1,7 +1,7 @@
 // DATUM: 06.07.98
 
 #include "first.h"
-#include "clstring1.h"
+#include "clstring.h"
 #include<stdlib.h>
 #include<iostream.h>
 
