@@ -1,9 +1,6 @@
 // DATUM: 06.07.98
 
-#include "first.h"
-#include "clstring.h"
-#include<stdlib.h>
-#include<iostream.h>
+#include <clstring.h>
 
 //------------------------------------------------------------------------------
 //-------------- CLASS STRING: Implementation of member functions --------------
@@ -12,81 +9,64 @@
 namespace ST
 {
 
- int operator==(const string & s1, const string & s2)
-   {
-   assert(s1.str != NULL);
-   assert(s2.str != NULL);
-   return strcmp(s1.str,s2.str) == 0;
-  }
-
-string operator+(const string & st1,const string & st2)
-  {
-  char * h = new char[st1.len+st2.len+1];
-  strcpy(h,st1.str);
-  strcpy(h+st1.len,st2.str);
-  string sum(h);
-  delete [] h;
-  return sum;
-  }
-
-/*string::string()
+string::string()
   {
   len = 0;
   str = new char[1];
   strcpy(str,"");
-  }*/
+  }
 
-/*string::string(const char & sign,const unsigned & l)
+string::string(const char & sign,const unsigned & l)
   {
   len = l;
   str = new char[len+1];
   for (unsigned i=0;i<len;i++)
 	 str[i] = sign;
   str[len] = '\0';
-  }*/
+  }
 
 
-/*string::string(const string & s)
+string::string(const string & s)
   {
   len = s.len;
   str = new char[len+1];
   strcpy(str,s.str);
-  }*/
+  }
 
 
-/*string::string(const char * s)
+string::string(const char * s)
   {
   len = strlen(s);
   str = new char[len+1];
   strcpy(str,s);
-  }*/
+  }
 
-/*string::string(const std::string & s)
+string::string(const std::string & s)
   {
   len = s.length();
   str = new char[len+1];
   strcpy(str,s.c_str());
-  }*/
+  }
 
 
-/*std::string string::to_bstr(void) const
+std::string string::to_bstr(void) const
   {
   return std::string(str);
-  }*/
+  }
 
 
 void open(ifstream & fin,string & s,int mode)
   {
-  fin.open(s.strtochar(),ios::in);
+  fin.open(s.strtochar(),mode);
   }
 
 
 void open(ofstream & out, string & s,int mode)
   {
-  out.open(s.strtochar(),ios::out);
+  out.open(s.strtochar(),mode);
   }
 
-/*const string & string::operator=(const string & s)
+const string & string::operator=(const string & s)
   {
   if (this == &s)
 	 return *this;
@@ -95,10 +75,10 @@ void open(ofstream & out, string & s,int mode)
   str = new char[len+1];
   strcpy(str,s.str);
   return *this;
-  }*/
+  }
 
 
-/*const string & string::operator=(string & s)
+const string & string::operator=(string & s)
   {
   if (this == &s)
 	 return *this;
@@ -107,27 +87,27 @@ void open(ofstream & out, string & s,int mode)
   str = new char[len+1];
   strcpy(str,s.str);
   return *this;
-  }*/
+  }
 
 
-/*const string & string::operator=(const char * s)
+const string & string::operator=(const char * s)
   {
   delete [] str;
   len = strlen(s);
   str = new char[len+1];
   strcpy(str,s);
   return *this;
-  }*/
+  }
 
 
-/*const string & string::operator=(const std::string & s)
+const string & string::operator=(const std::string & s)
   {
   delete[] str;
   len = s.length();
   str = new char[len+1];
   strcpy(str,s.c_str());
   return *this;
-  }*/
+  }
 
 
 int operator==(const string & s1, const char * s2)
@@ -138,38 +118,12 @@ int operator==(const string & s1, const char * s2)
   }
 
 
-int operator!=(string & s1, string & s2)
+int operator==(const string & s1, const string & s2)
   {
-  	 assert(s1.str != NULL);
-  	 assert(s2.str != NULL);
-  	 return strcmp(s1.str,s2.str) != 0;
+  assert(s1.str != NULL);
+  assert(s2.str != NULL);
+  return strcmp(s1.str,s2.str) == 0;
   }
-
-
-ostream & operator<<(ostream & c, const string & s)
-	 {
-	 c << s.str;
-     return c;
-	 }
-
-
-/*int operator<(const string & s2) const
-	  {
-	  if (len < s2.len)
-		 return 1;
-	  else if (len > s2.len)
-		 return 0;
-	  else
-		 {
-       return strcmp(str,s2.str) < 0;
-		 }
-	  }*/
-
-
-int operator>(string & s1,string & s2)
-	  {
-	  return s2 < s1;
-      }
 
 
 int operator!=(const string & s1, char * s2)
@@ -179,6 +133,16 @@ int operator!=(const string & s1, char * s2)
   return strcmp(s1.str,s2) != 0;
   }
 
+
+string operator+(const string & st1,const string & st2)
+  {
+  char * h = new char[st1.len+st2.len+1];
+  strcpy(h,st1.str);
+  strcpy(h+st1.len,st2.str);
+  string sum(h);
+  delete [] h;
+  return sum;
+  }
 
 
 string operator+(const char * s,const string & st)
@@ -213,14 +177,14 @@ istream & getline(istream & i,string & s,char delim)
   }
 
 
-/*char & string::operator[](int i)
+char & string::operator[](int i)
   {
   checkindex(i);
   return str[i];
-  }*/
+  }
 
 
-/*string string::helpfill(unsigned n)
+string string::helpfill(unsigned n)
   {
   unsigned d;
   ST::string wert;
@@ -237,10 +201,10 @@ istream & getline(istream & i,string & s,char delim)
   ST::string platz = string(' ',d);
   ST::string out = platz + wert;
   return out;
-  }*/
+  }
 
 
-/*string string::substr(unsigned pos, unsigned nr) const
+string string::substr(unsigned pos, unsigned nr) const
   {
   assert(pos+nr <= len);
   assert(nr > 0);
@@ -251,10 +215,10 @@ istream & getline(istream & i,string & s,char delim)
   string ret(help);
   delete [] help;
   return ret;
-  }*/
+  }
 
 
-/*int string::firstpos (char sign) const
+int string::firstpos (char sign) const
   {
   int pos = -1;
   unsigned i = 0;
@@ -265,10 +229,10 @@ istream & getline(istream & i,string & s,char delim)
 	 i++;
 	 }
   return pos;
-  }*/
+  }
 
 
-/*string string::deletesign(unsigned pos) const
+string string::deletesign(unsigned pos) const
   {
   checkindex(pos);
   if (pos == 0)
@@ -282,10 +246,10 @@ istream & getline(istream & i,string & s,char delim)
 	 return substr(0,len-1);
   else
     return substr(0,pos) + substr(pos+1,len-pos-1);
-  }*/
+  }
 
 
-/*string string::deleteallsigns(char sign) const
+string string::deleteallsigns(char sign) const
   {
   string result = *this;
   int i=0;
@@ -299,11 +263,11 @@ istream & getline(istream & i,string & s,char delim)
 		i++;
 	 }
   return result;
-  }*/
+  }
 
 
 
-/*string string::replaceallsigns(char oldsign, char newsign) const
+string string::replaceallsigns(char oldsign, char newsign) const
   {
   int i=0;
   string result = *this;
@@ -314,11 +278,11 @@ istream & getline(istream & i,string & s,char delim)
 	 i++;
 	 }
   return result;
-  }*/
+  }
 
 
 
-/*string string::insert_string_num(unsigned pos, string & str) const
+string string::insert_string_num(unsigned pos, string & str) const
   {
   string s = *this;
   assert(pos<s.length());
@@ -326,11 +290,11 @@ istream & getline(istream & i,string & s,char delim)
   string s2 = s.substr(pos, s.length()-pos);
   string result = s1 + str + s2;
   return result;
-  }*/
+  }
 
+  
 
-
-/*string string::insert_string_char(char p, string & str) const
+string string::insert_string_char(char p, string & str) const
   {
   string s = *this;
   string result = s;
@@ -348,9 +312,9 @@ istream & getline(istream & i,string & s,char delim)
          }
       }
   return result;
-  }*/
+  }
 
-/*string string::insert_after_string(string s1, string s2) const
+string string::insert_after_string(string s1, string s2) const
   {
   string s = *this;
   string shelp;
@@ -371,9 +335,9 @@ istream & getline(istream & i,string & s,char delim)
       }
     }
   return s;
-  }*/
+  }
 
-/*string string::insert_after_all_string(string s1, string s2) const
+string string::insert_after_all_string(string s1, string s2) const
   {
   string s = *this;
   string shelp;
@@ -410,9 +374,9 @@ istream & getline(istream & i,string & s,char delim)
     return result;
     }
   return s;
-  }*/
+  }
 
-/*string string::eatwhitespace(void) const
+string string::eatwhitespace(void) const
   {
 
   int beginpos;
@@ -433,10 +397,10 @@ istream & getline(istream & i,string & s,char delim)
 
   return substr(beginpos,endpos-beginpos+1);
 
-  }*/
+  }
 
 
-/*int string::closingbracketpos(const unsigned bracketpos) const
+int string::closingbracketpos(const unsigned bracketpos) const
   {
   assert (bracketpos < len);
   assert (str[bracketpos] == '(');
@@ -455,9 +419,9 @@ istream & getline(istream & i,string & s,char delim)
 	 return i-1;
   else
 	 return -1;
-  }*/
+  }
 
-/*int string::closingbracketpos2(const unsigned bracketpos) const
+int string::closingbracketpos2(const unsigned bracketpos) const
   {
   assert (bracketpos < len);
   assert (str[bracketpos] == '[');
@@ -476,11 +440,11 @@ istream & getline(istream & i,string & s,char delim)
 	 return i-1;
   else
 	 return -1;
-  }*/
+  }
 
 
 
-/*int string::lowestprecedencepos(string & sign) const
+int string::lowestprecedencepos(string & sign) const
   {
   int i = 0;
   int pos = -1;
@@ -623,11 +587,11 @@ istream & getline(istream & i,string & s,char delim)
 		i++;
 	 }
   return pos;
-  }*/
+  }
 
 
 
-/*int string::isfunction(string & functionname,string & argument) const
+int string::isfunction(string & functionname,string & argument) const
   {
   int startbr = firstpos('(');
   if (startbr > 0)
@@ -649,12 +613,12 @@ istream & getline(istream & i,string & s,char delim)
     }
   else
 	 return 0;
-  }*/
+  }
 
 
 
 
-/*int string::issubscribing(string & varname,string & argument) const
+int string::issubscribing(string & varname,string & argument) const
   {
   int startbr = firstpos('[');
   if ( (startbr > 0) && (startbr != -1) )
@@ -671,22 +635,22 @@ istream & getline(istream & i,string & s,char delim)
 	 }
   else
 	 return -1;
-  }*/
+  }
 
 
 
 
-/*int string::isexistingfile(void) const
+int string::isexistingfile(void) const
   {
   ifstream fin(str,ios::in);
   if (fin.fail() != 0)
 	 return 1;
   else
 	 return 0;
-  }*/
+  }
 
 
-/*int string::isvalidfile(void) const
+int string::isvalidfile(void) const
   {
   struct stat statbuf;
   int existing = stat(str,&statbuf);
@@ -714,10 +678,10 @@ istream & getline(istream & i,string & s,char delim)
 		return 0;
 		}
 	 }
-  }*/
+  }
 
 
-/*int string::isvarname() const
+int string::isvarname() const
   {
   if (len > 0)
 	 {
@@ -738,10 +702,10 @@ istream & getline(istream & i,string & s,char delim)
 	 }
   else
 	 return 1;
-  }*/
+  }
 
 
-/*int string::isint(void) const
+int string::isint(void) const
   {
   if ((len == 0))
 	 return 0;
@@ -767,20 +731,18 @@ istream & getline(istream & i,string & s,char delim)
 	 return h;
 
 	 }
-  }*/
+  }
 
 
-/*char * string::strtochar() const
+char * string::strtochar() const
   {
   char * h = new char[len+1];
   strcpy(h,str);
   return h;
-  }*/
+  }
 
 
-
-
-/*int string::strtolong(long & value) const
+int string::strtolong(long & value) const
   {
   if (len > 0)
 	 {
@@ -796,10 +758,10 @@ istream & getline(istream & i,string & s,char delim)
 	 }
   else
 	 return 1;
-  }*/
+  }
 
 
-/*int string::strtochar(char & value) const
+int string::strtochar(char & value) const
   {
   long h;
   if (strtolong(h) == 1)
@@ -811,10 +773,10 @@ istream & getline(istream & i,string & s,char delim)
 	 value = h;
 	 return 0;
 	 }
-  }*/
+  }
 
 
-/*int string::strtouchar(unsigned char & value) const
+int string::strtouchar(unsigned char & value) const
   {
   long h;
   if (strtolong(h) == 1)
@@ -826,10 +788,10 @@ istream & getline(istream & i,string & s,char delim)
 	 value = h;
 	 return 0;
 	 }
-  }*/
+  }
 
 
-/*int string::strtodouble(double & value) const
+int string::strtodouble(double & value) const
   {
   if (len > 0)
 	 {
@@ -845,13 +807,13 @@ istream & getline(istream & i,string & s,char delim)
 	 }
   else
 	 return 1;
-  }*/
+  }
 
 
 string inttostring(int value)
   {
   char h[20];
-  sprintf(h,"%d",value);
+  itoa(value,h,10);
   return string(h);
   }
 
@@ -866,7 +828,7 @@ string doubletostring(double value,int dec)
 //  return string(h);
   }
 
-/*int string::checksign(const char sign) const
+int string::checksign(const char sign) const
   {
   unsigned i=0;
   int isfrom = -1;
@@ -877,10 +839,10 @@ string doubletostring(double value,int dec)
 	 i++;
 	 }
   return isfrom;
-  }*/
+  }
 
 
-/*int string::isinlist(const vector<string> & stringlist) const
+int string::isinlist(const vector<string> & stringlist) const
   {
   unsigned i = 0;
   int isinl = -1;
@@ -891,10 +853,10 @@ string doubletostring(double value,int dec)
 	 i++;
 	 }
   return isinl;
-  }*/
+  }
 
 
-/*string string::getFirstToken(const string & parsingsigns) const
+string string::getFirstToken(const string & parsingsigns) const
   {
   if (len > 0)
 	 {
@@ -912,10 +874,10 @@ string doubletostring(double value,int dec)
 	 }
   else
 	 return string();
-  }*/
+  }
 
 
-/*vector<string> string::strtoken(const string & parsingsigns,bool inclsigns) const
+vector<string> string::strtoken(const string & parsingsigns,bool inclsigns) const
   {
   vector<string>  hilfe;
 
@@ -945,10 +907,10 @@ string doubletostring(double value,int dec)
 		}
 	 }
   return hilfe;
-  }*/
+  }
 
 
-/*int string::strtoken_quot(vector<string> & hilfe, const string & parsingsigns,
+int string::strtoken_quot(vector<string> & hilfe, const string & parsingsigns,
                                      bool inclsigns) const
   {
 
@@ -1002,10 +964,10 @@ string doubletostring(double value,int dec)
 
   return ok;
 
-  }*/
+  }
 
 
-/*vector<string> string::strtoken2(const string & parsingsigns,
+vector<string> string::strtoken2(const string & parsingsigns,
                                       bool & bracketmiss) const
   {
   vector<string>  hilfe;
@@ -1045,11 +1007,11 @@ string doubletostring(double value,int dec)
 
   return hilfe;
 
-  }*/
+  }
 
 
-
-/*vector<string> string::strtoken2_quot(const string & parsingsigns,
+  
+vector<string> string::strtoken2_quot(const string & parsingsigns,
                                       bool & bracketmiss,bool & quotmiss) const
   {
   vector<string>  hilfe;
@@ -1083,7 +1045,7 @@ string doubletostring(double value,int dec)
           if ( ( i < len) && (str[i] == '"') )
             {
             }
-          else
+          else  
             quotmiss = true;
 
           i++;
@@ -1104,10 +1066,10 @@ string doubletostring(double value,int dec)
 
   return hilfe;
 
-  }*/
+  }
 
 
-/*vector<string> string::strtoken(const vector<string> & parsingtoken) const
+vector<string> string::strtoken(const vector<string> & parsingtoken) const
   {
 
   vector<string> hilfe;
@@ -1128,10 +1090,10 @@ string doubletostring(double value,int dec)
 	 hilfe.push_back(h);
 	 }
   return hilfe;
-  }*/
+  }
 
 
-/*vector<string> string::strtoken2_quot(const vector<string> & parsingtoken,
+vector<string> string::strtoken2_quot(const vector<string> & parsingtoken,
                                       bool & bracketmiss, bool & quotmiss) const
   {
   vector<string> hilfe;
@@ -1157,10 +1119,10 @@ string doubletostring(double value,int dec)
 
   return hilfe;
 
-  }*/
+  }
 
 
-/*vector<string> string::strtoken2(const vector<string> & parsingtoken,
+vector<string> string::strtoken2(const vector<string> & parsingtoken,
                                  bool & bracketmiss) const
   {
   vector<string> hilfe;
@@ -1186,10 +1148,10 @@ string doubletostring(double value,int dec)
 
   return hilfe;
 
-  }*/
+  }
 
 
-/*list<string> string::strtokenlist(const string & parsingsigns,bool inclsigns) const
+list<string> string::strtokenlist(const string & parsingsigns,bool inclsigns) const
   {
   list<string> help;                     // will be returned at the
 													  // of the function
@@ -1219,10 +1181,10 @@ string doubletostring(double value,int dec)
 		}  // end: while (i < text.length())
 	 }  // end: if (text.length() > 0)
   return help;
-  }*/
+  }
 
 
-/*bool string::endswith(const char * c) const
+bool string::endswith(const char * c) const
     {
     int lenc = strlen(c);
     bool endwith = true;
@@ -1230,9 +1192,7 @@ string doubletostring(double value,int dec)
       if(c[lenc-1-i] != str[len-1-i])
         return false;
     return true;
-    }*/
-
-
+    }
 
 
 string outresults(const unsigned & l,const string & name, const double & mean,
@@ -1284,9 +1244,3 @@ string make_latextable(vector<string> & v)
 
 
 } // end: namespace ST
-
-
-int main()
- {
-	 return(0);
- }
