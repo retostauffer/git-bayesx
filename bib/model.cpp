@@ -994,6 +994,7 @@ term_spatial::term_spatial(void)
   lambdastart = doubleoption("lambdastart",10000,0,10000000);
   uniformprior = simpleoption("uniformprior",false);
   nrrows = intoption("nrrows",2,0,100);
+  Laplace = simpleoption("Laplace",false);
   }
 
 void term_spatial::setdefault(void)
@@ -1013,6 +1014,7 @@ void term_spatial::setdefault(void)
   lambdastart.setdefault();
   uniformprior.setdefault();
   nrrows.setdefault();
+  Laplace.setdefault();
   }
 
 
@@ -1020,7 +1022,7 @@ bool term_spatial::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size()>=1) &&
-       (t.options.size()<=16) && (t.options.size() >= 1) )
+       (t.options.size()<=17) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "spatial" && t.varnames.size()==1)
@@ -1057,6 +1059,7 @@ bool term_spatial::check(term & t)
     optlist.push_back(&lambdastart);
     optlist.push_back(&uniformprior);
     optlist.push_back(&nrrows);
+    optlist.push_back(&Laplace);
 
     unsigned i;
     bool rec = true;
@@ -1081,7 +1084,7 @@ bool term_spatial::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(16);
+    t.options = vector<ST::string>(17);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::inttostring(min.getvalue());
@@ -1104,6 +1107,11 @@ bool term_spatial::check(term & t)
     else
       t.options[14] = "true";
     t.options[15] = ST::inttostring(nrrows.getvalue());
+    if (Laplace.getvalue()==false)
+      t.options[16] = "false";
+    else
+      t.options[16] = "true";
+
 
     if (t.options[2].strtolong(minim) == 1)
       {

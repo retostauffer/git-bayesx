@@ -689,6 +689,7 @@ class __EXPORT_TYPE term_spatial : public basic_termtype
   doubleoption lambdastart;
   simpleoption uniformprior;
   intoption nrrows;
+  simpleoption Laplace;
 
 
   void setdefault(void);

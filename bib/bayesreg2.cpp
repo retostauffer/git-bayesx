@@ -270,7 +270,7 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
   bool iwls;
   bool varcoeff=false;
   unsigned updateW;
-  bool updatetau;
+  bool updatetau,Laplace;
   double ftune;
   ST::string proposal;
   vector<ST::string> na;
@@ -344,6 +344,11 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
 
       f = (terms[i].options[10]).strtodouble(ftune);
 
+      if (terms[i].options[16] == "true")
+        Laplace=true;
+      else
+        Laplace=false;
+
       if (f==1)
         return true;
 
@@ -395,6 +400,9 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
 
           fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
           }
+
+        if(Laplace)
+          fcnonpgaussian[fcnonpgaussian.size()-1].set_Laplace();
 
         if (fcnonpgaussian[fcnonpgaussian.size()-1].get_errors().size() > 0)
           {
@@ -458,6 +466,10 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
 
           fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+
+          if(Laplace)
+            fcvarnonp[fcvarnonp.size()-1].set_Laplace();
+
           }
 
         if ((terms[i].options[0] == "tspatial") ||
@@ -483,6 +495,9 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
 
           fctvariance2dim[fctvariance2dim.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fctvariance2dim[fctvariance2dim.size()-1]);
+
+          if(Laplace)
+            fctvariance2dim[fctvariance2dim.size()-1].set_Laplace();
 
           }
 
