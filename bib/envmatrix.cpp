@@ -2815,7 +2815,7 @@ T envmatrix<T>::compute_sumfabsdiff(const statmatrix<T> & x,
         if(*ej!=0)
           {
           sum += *wp * fabs(*xi - *xk);
-          dp++;
+          wp++;
           }
         }
       }
