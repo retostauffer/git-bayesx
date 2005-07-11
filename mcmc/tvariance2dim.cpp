@@ -12,6 +12,7 @@ FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(MCMCoptions * o,
            : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
   {
   spatial = false;
+  Laplace = false;
 
   rowwise = rw;
   Kp = p;
@@ -64,6 +65,7 @@ FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(MCMCoptions * o,
            : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
   {
   spatial = true;
+  Laplace = false;
 
   rowwise = rw;
   Kp_spat = p;
@@ -124,6 +126,7 @@ FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(const FULLCOND_tvariance2dim & t)
   Kp = t.Kp;
   Kp_spat = t.Kp_spat;
   spatial = t.spatial;
+  Laplace = t.Laplace;
   indexmat = t.indexmat;
   pathresults = t.pathresults;
   nu = t.nu;
@@ -151,6 +154,7 @@ FULLCOND_tvariance2dim::operator=(const FULLCOND_tvariance2dim & t)
   Kp = t.Kp;
   Kp_spat = t.Kp_spat;
   spatial = t.spatial;
+  Laplace = t.Laplace;  
   indexmat = t.indexmat;  
   pathresults = t.pathresults;
   nu = t.nu;
@@ -171,10 +175,22 @@ FULLCOND_tvariance2dim::operator=(const FULLCOND_tvariance2dim & t)
 
 void FULLCOND_tvariance2dim::update(void)
   {
+
   if(spatial)
-    update_spat();
+    {
+    if(optionsp->get_nriter()<optionsp->get_burnin() || (optionsp->get_nriter()-1)%5==0)
+      {
+      if(Laplace)
+        update_spat_laplace();
+      else
+        update_spat();
+      }
+    }
   else
+    {
     update_2dim();
+    }
+
   }
 
 void FULLCOND_tvariance2dim::update_2dim(void)
@@ -610,7 +626,7 @@ void FULLCOND_tvariance2dim::update_spat(void)
 
     unsigned i,j,l;
     int k = 0;
-    double aneu = double(nu)/2;
+    double aneu = 0.5*double(nu);
     double bneu;
 
     double alpha,u,betak;
@@ -722,6 +738,130 @@ out2.close();
   }
 
 
+void FULLCOND_tvariance2dim::update_spat_laplace(void)
+  {
+
+    unsigned i,j,l;
+    int k = 0;
+    double aneu = 1.0 + 0.5*double(nu);
+    double bneu;
+
+    double alpha,u,betak;
+    double deltaprop;
+    unsigned row,col;
+
+    double quadform;
+    double nu_K = fabs(0.5*(2-double(nrpar)));
+    double propnew=0.0,propold=0.0;
+    double lognew=0.0,logold=0.0;
+
+    while(k<nrpar)
+      {
+
+      betak = beta(k,0);
+      row = indexmat(k,0);
+      col = indexmat(k,1);
+
+      bneu = 0.5*nu + 0.5*Kp_spat->compute_fabsdiff(row,col);
+      deltaprop = randnumbers::rand_gamma(aneu,bneu);
+
+      lognew += (0.5*nu-1)*log(deltaprop) - 0.5*nu*deltaprop;
+      logold += (0.5*nu-1)*log(betak) - 0.5*nu*betak;
+      propnew += (aneu-1)*log(betak) - bneu*betak;
+      propold += (aneu-1)*log(deltaprop) - bneu*deltaprop;
+
+      deltapropvec.push_back(deltaprop);
+      rowvec.push_back(row);
+      colvec.push_back(col);
+      betakvec.push_back(betak);
+
+      K11.setDiag(row,K11(row,row) + deltaprop - beta(k,0));
+      if(col<K11.getDim())
+        {
+        K11.set(row,col,-deltaprop);
+        K11.setDiag(col,K11(col,col) + deltaprop - beta(k,0));
+        }
+
+      k++;
+
+      if((row+1)%nrrows == 0 || k==nrpar)
+        {
+
+        if(detalt==detneu)
+          K11.decomp2(row-nrrows+1);
+        detneu = K11.getLogDet();
+
+        quadform = Kp_spat->compute_quadform();
+//        if(quadform>0.1)
+        logold += 0.5*nu_K*log(quadform) + log(besselK(sqrt(2*quadform),nu_K));
+
+        for(l=0;l<deltapropvec.size();l++)
+          {
+          Kp_spat->setK(rowvec[l],colvec[l],-deltapropvec[l]);
+
+          Kp_spat->setK(colvec[l],colvec[l],Kp_spat->get(colvec[l],colvec[l])+deltapropvec[l]-betakvec[l]);
+          Kp_spat->setK(rowvec[l],rowvec[l],Kp_spat->get(rowvec[l],rowvec[l])+deltapropvec[l]-betakvec[l]);
+          }
+
+        quadform = Kp_spat->compute_quadform();
+//        if(quadform>0.1)
+        lognew += 0.5*nu_K*log(quadform) + log(besselK(sqrt(2*quadform),nu_K));
+
+        alpha = 0.5*(detneu - detalt) + lognew + propnew - logold - propold;
+        u = log(uniform());
+
+        nrtrials++;
+
+        if(u <= alpha)
+          {
+          for(l=0;l<deltapropvec.size();l++)
+	        {
+    	    beta(k-deltapropvec.size()+l,0) = deltapropvec[l];
+//            Kp_spat->setK(rowvec[l],colvec[l],-deltapropvec[l]);
+
+//            Kp_spat->setK(colvec[l],colvec[l],Kp_spat->get(colvec[l],colvec[l])+deltapropvec[l]-betakvec[l]);
+//            Kp_spat->setK(rowvec[l],rowvec[l],Kp_spat->get(rowvec[l],rowvec[l])+deltapropvec[l]-betakvec[l]);
+
+	        }
+          detalt = detneu;
+          acceptance++;
+          }
+        else
+          {
+          for(l=0;l<deltapropvec.size();l++)
+	        {
+            Kp_spat->setK(rowvec[l],colvec[l],-betakvec[l]);
+            Kp_spat->setK(colvec[l],colvec[l],Kp_spat->get(colvec[l],colvec[l]) - deltapropvec[l] + betakvec[l]);
+            Kp_spat->setK(rowvec[l],rowvec[l],Kp_spat->get(rowvec[l],rowvec[l]) - deltapropvec[l] + betakvec[l]);
+
+            K11.setDiag(rowvec[l],K11(rowvec[l],rowvec[l]) - deltapropvec[l] + betakvec[l]);
+            if(colvec[l]<K11.getDim())
+              {
+              K11.set(rowvec[l],colvec[l],-betakvec[l]);
+              K11.setDiag(colvec[l],K11(colvec[l],colvec[l]) - deltapropvec[l] + betakvec[l]);
+              }
+    	    }
+          }
+
+        lognew = 0.0;
+        logold = 0.0;
+        propnew = 0.0;
+        propold = 0.0;
+
+        deltapropvec = vector<double>(0);
+	    rowvec = vector<double>(0);
+        colvec = vector<double>(0);
+        betakvec = vector<double>(0);
+
+        } // END:       if(row%nrrows == 0)
+      } // END:    for (row=0;row<dim;row++)
+
+  Kp_spat->set_delta(beta);
+
+  FULLCOND::update();
+  }
+
+
 void FULLCOND_tvariance2dim::outresults(void)
   {
 
@@ -798,7 +938,168 @@ void FULLCOND_tvariance2dim::outoptions(void)
   }
 
 
+double besselK(const double x, const double xnu)
+  {
+  double x1,x2,x3,x4;
+  bessik(x,xnu,x1,x2,x3,x4);
+  return x2;
+  }
 
+void bessik(const double x, const double xnu, double &ri, double &rk, double &rip, double &rkp)
+  {
+  const int MAXIT=10000;
+  const double EPS=numeric_limits<double>::epsilon();
+  const double FPMIN=numeric_limits<double>::min()/EPS;
+  const double XMIN=2.0;
+//  const double PI=3.141592653589793;
+  double a,a1,b,c,d,del,del1,delh,dels,e,f,fact,fact2,ff,gam1,gam2,
+          gammi,gampl,h,p,pimu,q,q1,q2,qnew,ril,ril1,rimu,rip1,ripl,
+          ritemp,rk1,rkmu,rkmup,rktemp,s,sum,sum1,x2,xi,xi2,xmu,xmu2;
+  int i,l,nl;
+
+  assert(x > 0.0 && xnu >= 0.0);
+  nl=int(xnu+0.5);
+  xmu=xnu-nl;
+  xmu2=xmu*xmu;
+  xi=1.0/x;
+  xi2=2.0*xi;
+  h=xnu*xi;
+  if (h < FPMIN) h=FPMIN;
+  b=xi2*xnu;
+  d=0.0;
+  c=h;
+  for (i=0;i<MAXIT;i++) {
+    b += xi2;
+    d=1.0/(b+d);
+    c=b+1.0/c;
+    del=c*d;
+    h=del*h;
+    if (fabs(del-1.0) <= EPS) break;
+  }
+  assert(i<MAXIT);
+  ril=FPMIN;
+  ripl=h*ril;
+  ril1=ril;
+  rip1=ripl;
+  fact=xnu*xi;
+  for (l=nl-1;l >= 0;l--) {
+    ritemp=fact*ril+ripl;
+    fact -= xi;
+    ripl=fact*ritemp+ril;
+    ril=ritemp;
+  }
+  f=ripl/ril;
+  if (x < XMIN) {
+    x2=0.5*x;
+    pimu=PI*xmu;
+    fact = (fabs(pimu) < EPS ? 1.0 : pimu/sin(pimu));
+    d = -log(x2);
+    e=xmu*d;
+    fact2 = (fabs(e) < EPS ? 1.0 : sinh(e)/e);
+    beschb(xmu,gam1,gam2,gampl,gammi);
+    ff=fact*(gam1*cosh(e)+gam2*fact2*d);
+    sum=ff;
+    e=exp(e);
+    p=0.5*e/gampl;
+    q=0.5/(e*gammi);
+    c=1.0;
+    d=x2*x2;
+    sum1=p;
+    for (i=1;i<=MAXIT;i++) {
+      ff=(i*ff+p+q)/(i*i-xmu2);
+      c *= (d/i);
+      p /= (i-xmu);
+      q /= (i+xmu);
+      del=c*ff;
+      sum += del;
+      del1=c*(p-i*ff);
+      sum1 += del1;
+      if (fabs(del) < fabs(sum)*EPS) break;
+    }
+    assert(i <= MAXIT);
+    rkmu=sum;
+    rk1=sum1*xi2;
+  } else {
+    b=2.0*(1.0+x);
+    d=1.0/b;
+    h=delh=d;
+    q1=0.0;
+    q2=1.0;
+    a1=0.25-xmu2;
+    q=c=a1;
+    a = -a1;
+    s=1.0+q*delh;
+    for (i=1;i<MAXIT;i++) {
+      a -= 2*i;
+      c = -a*c/(i+1.0);
+      qnew=(q1-b*q2)/a;
+      q1=q2;
+      q2=qnew;
+      q += c*qnew;
+      b += 2.0;
+      d=1.0/(b+a*d);
+      delh=(b*d-1.0)*delh;
+      h += delh;
+      dels=q*delh;
+      s += dels;
+      if (fabs(dels/s) <= EPS) break;
+    }
+    assert(i < MAXIT);
+    h=a1*h;
+    rkmu=sqrt(PI/(2.0*x))*exp(-x)/s;
+    rk1=rkmu*(xmu+x+0.5-h)*xi;
+  }
+  rkmup=xmu*xi*rkmu+rk1;
+  rimu=xi/(f*rkmu-rkmup);
+  ri=(rimu*ril1)/ril;
+  rip=(rimu*rip1)/ril;
+  for (i=1;i <= nl;i++) {
+    rktemp=(xmu+i)*xi2*rk1+rkmu;
+    rkmu=rk1;
+    rk1=rktemp;
+  }
+  rk=rkmu;
+  rkp=xnu*xi*rkmu+rk1;
+  }
+
+void beschb(const double x, double &gam1, double &gam2, double &gampl, double &gammi)
+  {
+
+  const int NUSE1=7, NUSE2=8;
+  static const double c1_d[7] = {
+      -1.142022680371168e0,6.5165112670737e-3,
+      3.087090173086e-4,-3.4706269649e-6,6.9437664e-9,
+      3.67795e-11,-1.356e-13};
+  static const double c2_d[8] = {
+      1.843740587300905e0,-7.68528408447867e-2,
+      1.2719271366546e-3,-4.9717367042e-6,-3.31261198e-8,
+      2.423096e-10,-1.702e-13,-1.49e-15};
+  double xx;
+  static Vec_DP c1(c1_d,7),c2(c2_d,8);
+
+  xx=8.0*x*x-1.0;
+  gam1=chebev(-1.0,1.0,c1,NUSE1,xx);
+  gam2=chebev(-1.0,1.0,c2,NUSE2,xx);
+  gampl= gam2-x*gam1;
+  gammi= gam2+x*gam1;
+
+  }
+
+double chebev(const double a, const double b, Vec_I_DP &c, const int m, const double x)
+  {
+  double d=0.0,dd=0.0,sv,y,y2;
+  int j;
+
+  assert((x-a)*(x-b) <= 0.0);
+  y2=2.0*(y=(2.0*x-a-b)/(b-a));
+  for (j=m-1;j>0;j--) {
+    sv=d;
+    d=y2*d-dd+c[j];
+    dd=sv;
+  }
+  return y*d-dd+0.5*c[0];
+
+  }
 
 } // end: namespace MCMC
 

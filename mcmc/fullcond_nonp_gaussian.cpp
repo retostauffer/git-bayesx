@@ -1102,6 +1102,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   {
 
   lambdaconst=false;
+  Laplace=false;
 
   fcconst = fcc;
 
@@ -1213,6 +1214,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,DISTRIBUTION * dp
   {
 
   lambdaconst=false;
+  Laplace=false;
 
   fcconst = fcc;
 
@@ -1269,7 +1271,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,DISTRIBUTION * dp
     betahelp = muy;
 
     precenv.addtodiag(XXenv,Kenv,1.0,lambda);
-    lambda_prec=lambda;    
+    lambda_prec=lambda;
 
     varcoeff = true;
 
@@ -1301,6 +1303,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   {
 
   lambdaconst=false;
+  Laplace=false;
 
   MAP::map ma=m;
 
@@ -1395,6 +1398,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   {
 
   lambdaconst=false;
+  Laplace=false;
 
   MAP::map ma = m;
 
@@ -1452,7 +1456,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
     precenv = envmatdouble(Kenv.getXenv(),0,nrpar);
 
     precenv.addtodiag(XXenv,Kenv,1.0,lambda);
-    lambda_prec=lambda;    
+    lambda_prec=lambda;
 
     mu = datamatrix(likep->get_nrobs(),1,0);
     muy = datamatrix(nrpar,1);
@@ -1488,6 +1492,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   {
 
   lambdaconst=false;
+  Laplace=false;
 
   fcconst = fcc;
 
@@ -1626,9 +1631,12 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(const FULLCOND_nonp_gaussian & fc
   : FULLCOND_nonp_basis(FULLCOND_nonp_basis(fc))
   {
   lambdaconst = fc.lambdaconst;
+  Laplace=fc.Laplace;
+  delta=fc.delta;
   diff = fc.diff;
   betaKbeta = fc.betaKbeta;
   data2 = fc.data2;
+  betaold = fc.betaold;
   tildey = fc.tildey;
   weightiwls = fc.weightiwls;
   a_invgamma=fc.a_invgamma;
@@ -1667,9 +1675,12 @@ const FULLCOND_nonp_gaussian & FULLCOND_nonp_gaussian::operator=(
     return *this;
   FULLCOND_nonp_basis::operator=(FULLCOND_nonp_basis(fc));
   lambdaconst = fc.lambdaconst;
+  Laplace=fc.Laplace;
+  delta=fc.delta;  
   diff = fc.diff;
   betaKbeta = fc.betaKbeta;
   data2 = fc.data2;
+  betaold = fc.betaold;
   tildey = fc.tildey;
   weightiwls = fc.weightiwls;
   a_invgamma=fc.a_invgamma;
@@ -1677,7 +1688,7 @@ const FULLCOND_nonp_gaussian & FULLCOND_nonp_gaussian::operator=(
   oldacceptance = fc.oldacceptance;
   oldnrtrials=fc.oldnrtrials;
   lambdaprop = fc.lambdaprop;
-  lambda_prec = fc.lambda_prec;  
+  lambda_prec = fc.lambda_prec;
   f=fc.f;
   utype = fc.utype;
   updateW=fc.updateW;
@@ -2852,6 +2863,10 @@ void FULLCOND_nonp_gaussian::update(void)
     else
       update_IWLS_hyperblock_mode();
     }
+  else if (utype==gaussianlaplace)
+    {
+    update_gaussian_laplace();
+    }
   else
   {
   if (lambdaconst == true && changingweight == false)
@@ -2929,7 +2944,6 @@ void FULLCOND_nonp_gaussian::update(void)
       fcconst->update_intercept(m);
       }
 
-
     acceptance++;
 
     transform = likep->get_trmult(column);
@@ -2939,6 +2953,125 @@ void FULLCOND_nonp_gaussian::update(void)
     }
 
   }
+
+  }
+
+
+void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
+  {
+
+  int j;
+  unsigned i;
+
+  int * workindex;
+
+  if (optionsp->get_nriter() == 1)
+    betaold.assign(beta);
+
+  double logold;
+  logold = likep->loglikelihood();
+  if(delta.rows()>1)
+    logold -= Kenv.compute_sumfabsdiff(betaold,0,delta)/sigma2;
+  else
+    logold -= Kenv.compute_sumfabsdiff(betaold,0)/sigma2;
+
+  update_linpred(false);
+
+  lambda = likep->get_scale(column)/sigma2;
+  double scale = likep->get_scale(column);
+
+  if (optionsp->get_nriter()==1 || changingweight)
+    {
+    if (varcoeff)
+      compute_XWX_varcoeff_env(likep->get_weight());
+    else
+      compute_XWX_env(likep->get_weight());
+    }
+
+  precenv.addtodiag(XXenv,Kenv,1.0,lambda);
+
+  double sigmaresp = sqrt(likep->get_scale(column));
+
+  double * work = betahelp.getV();
+  for(i=0;i<nrpar;i++,work++)
+    *work = sigmaresp*rand_normal();
+
+  precenv.solveU(betahelp);
+
+  likep->compute_respminuslinpred(mu,column);
+
+  workindex = index.getV();
+  double * workmuy = muy.getV();
+
+  if (varcoeff)
+    {
+    double * workdata=data.getV();
+    for(i=0;i<nrpar;i++,workmuy++)
+      {
+      *workmuy = 0;
+      if (posbeg[i] != -1)
+        for(j=posbeg[i];j<=posend[i];j++,workindex++,workdata++)
+          *workmuy+= likep->get_weight(*workindex,0)*mu(*workindex,0)*
+          (*workdata);
+      }
+    }
+  else  // else additive
+    {
+
+    for(i=0;i<nrpar;i++,workmuy++)
+      {
+      *workmuy = 0;
+      if (posbeg[i] != -1)
+        for(j=posbeg[i];j<=posend[i];j++,workindex++)
+          *workmuy+= likep->get_weight(*workindex,0)*mu(*workindex,0);
+
+      }
+
+    }
+
+  precenv.solve(muy,betahelp,beta);
+
+  update_linpred(true);
+
+  datamatrix mhelp = betahelp;
+  precenv.solve(muy,mhelp);
+
+  betahelp.minus(beta,mhelp);
+  double qold = - 0.5*precenv.compute_quadform(betahelp,0)/scale;
+
+  double lognew;
+  lognew = likep->loglikelihood();
+  if(delta.rows()>1)
+    lognew -= Kenv.compute_sumfabsdiff(beta,0,delta)/sigma2;
+  else
+    lognew -= Kenv.compute_sumfabsdiff(beta,0)/sigma2;
+
+  betahelp.minus(betaold,mhelp);
+  double qnew = - 0.5*precenv.compute_quadform(betahelp,0)/scale;
+
+  double u = log(uniform());
+  double alpha = (lognew - logold  + qnew - qold);
+  if ( u <= alpha )
+    {
+    acceptance++;
+
+    if (center)
+      {
+      double m = centerbeta();
+      fcconst->update_intercept(m);
+      }
+
+    betaold.assign(beta);
+    }
+  else
+    {
+    update_linpred_diff(betaold,beta);
+    beta.assign(betaold);
+    }
+
+  transform = likep->get_trmult(column);
+
+  FULLCOND::update();
 
   }
 

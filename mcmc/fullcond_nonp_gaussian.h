@@ -21,7 +21,7 @@ namespace MCMC
 //----------------------- class: FULLCOND_nonp_gaussian ------------------------
 //------------------------------------------------------------------------------
 
-enum updatetype {gaussian,iwls,iwlsmode,hyperblock,hyperblockmode};
+enum updatetype {gaussian,iwls,iwlsmode,hyperblock,hyperblockmode,gaussianlaplace};
 
 class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   {
@@ -35,6 +35,9 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   double a_invgamma;
   double b_invgamma;
   bool lambdaconst;
+  bool Laplace;
+
+  datamatrix delta;
 
 // For REML
 
@@ -298,6 +301,25 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   void set_lambdaconst(double la);
 
+  void set_Laplace(void)
+    {
+    Laplace = true;
+    utype = gaussianlaplace;
+    betaold = beta;
+    tildey=datamatrix(likep->get_nrobs(),1);
+    weightiwls=datamatrix(likep->get_nrobs(),1,0);
+    }
+
+  void set_deltadim(const unsigned & d)
+    {
+    delta = datamatrix(d,1,1.0);
+    }
+
+  void set_delta(const datamatrix & d)
+    {
+    delta.assign(d);
+    }
+
   // COPY CONSTRUCTOR
 
   FULLCOND_nonp_gaussian(const FULLCOND_nonp_gaussian & fc);
@@ -342,9 +364,12 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   double compute_sumfabsdiff(void)
     {
-    return Kenv.compute_sumfabsdiff(beta,0);
+    if(delta.rows()>1)
+      return Kenv.compute_sumfabsdiff(beta,0,delta);
+    else
+      return Kenv.compute_sumfabsdiff(beta,0);
     }
-    
+
   // FUNCTION: updateK
   // TASK: updates the penalty matrix K
 
@@ -379,6 +404,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   void update_IWLS_hyperblock(void);
 
   void update_IWLS_hyperblock_mode(void);
+
+  void update_gaussian_laplace(void);
 
   void update_lambdaconst(void);  
 
