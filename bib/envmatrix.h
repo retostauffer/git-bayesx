@@ -378,6 +378,12 @@ class envmatrix
 
   T compute_sumfabsdiff(const statmatrix<T> & x,const unsigned & c);
 
+  // FUNCTION compute_sumfabsdiff
+  // TASK: computes sum_{i~j} w_ij * |x_i-x_j|, if (i,j) of the calling matrix is !=0
+  //       column 'c' of x is used
+
+  T compute_sumfabsdiff(const statmatrix<T> & x,const unsigned & c,const statmatrix<T> & w);
+
   // FUNCTION compute_quadformblock
   // TASK: computes x[a:b]'K[a:b,a:b]x[a:b]
   //       column 'c' of x ist used to compute the quadratic form.

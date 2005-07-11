@@ -22,6 +22,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
 
   bool constlambda;
   bool uniformprior;
+  bool Laplace;
 
   FULLCOND_nonp_basis * Kp;
 
@@ -112,6 +113,11 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
     {
     update_sigma2 = false;
     average = false;
+    }
+
+  void set_Laplace(void)
+    {
+    Laplace = true;
     }
 
   // FUNCTION: reset

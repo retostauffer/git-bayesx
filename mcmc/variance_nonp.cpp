@@ -15,6 +15,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     fctype = MCMC::variance;
     constlambda=false;
     uniformprior=false;
+    Laplace=false;
     discrete=false;
     update_sigma2 = true;
     randomeffect=false;
@@ -56,6 +57,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     fctype = MCMC::variance;
     constlambda=false;
     uniformprior=false;
+    Laplace=false;
     discrete=false;
     update_sigma2 = true;
     randomeffect=false;
@@ -90,6 +92,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     fctype = MCMC::variance;
     constlambda=false;
     uniformprior=false;
+    Laplace=false;
     discrete=false;
     update_sigma2 = true;
     randomeffect = true;
@@ -119,6 +122,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(const FULLCOND_variance_nonp & t)
   {
   constlambda=t.constlambda;
   uniformprior=t.uniformprior;
+  Laplace=t.Laplace;
   randomeffect = t.randomeffect;
   fullcondnonp = t.fullcondnonp;
   average = t.average;
@@ -149,6 +153,7 @@ const FULLCOND_variance_nonp & FULLCOND_variance_nonp::operator=(
   FULLCOND::operator=(FULLCOND(t));
   constlambda=t.constlambda;
   uniformprior=t.uniformprior;
+  Laplace=t.Laplace;  
   randomeffect = t.randomeffect;
   fullcondnonp = t.fullcondnonp;
   average = t.average;
@@ -183,11 +188,11 @@ void FULLCOND_variance_nonp::update(void)
     {
     if (constlambda==false)
       {
-      if(uniformprior==false)
+      if(uniformprior)
+        beta(0,0) = rand_invgamma(-0.5+0.5*rankK,0.5*Fnp->compute_quadform());
+      else
         beta(0,0) = rand_invgamma(a_invgamma+0.5*rankK,
                                   b_invgamma+0.5*Fnp->compute_quadform());
-      else
-        beta(0,0) = rand_invgamma(-0.5+0.5*rankK,0.5*Fnp->compute_quadform());
       }
     else
       {
@@ -298,6 +303,11 @@ void FULLCOND_variance_nonp::update(void)
           while (help > 200000)
             help = rand_invgamma(-0.5+0.5*rankK,0.5*Kp->compute_quadform());
           beta(0,0) = help;
+          }
+        else if(Laplace)
+          {
+          beta(0,0) = rand_invgamma(a_invgamma+rankK,
+                                    b_invgamma+Kp->compute_sumfabsdiff());
           }
         else
           {
