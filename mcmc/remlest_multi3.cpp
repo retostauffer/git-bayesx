@@ -365,7 +365,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
 
 
 
- 
+
 
  //---------------------------------------------------------------------------------------------------------
  // ---------------------------------------------------------------------------------------------------------
@@ -400,13 +400,19 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
              }
 
 
-            
+
        XaltSpalte=XaltSpalte+(nrcat2*xcutlength[j]);                                       // aktualisiert XaltSpalte
-       XneuSpalte=XneuSpalte+xcutlength[j];                                       // aktualisiert XneuSpalte
+       XneuSpalte=XneuSpalte+xcutlength[j];                                                // aktualisiert XneuSpalte
+
        }
 
+
+
+       //------------------------------------------------------------------------------------------------------------------------
+       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
        //----------------------------------
-       // 2. Vektor und nicht catspecific                                           sollte ok sein !!!
+       // 2. Vektor und nicht catspecific                                           irgendwo Fehler !!!
        // -> nrcat2 x nrcat2*xcutlength[j] - Matrizen
 
        else
@@ -418,6 +424,12 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
                    for(l=0; l<xcutlength[j]; l++)                                 // l durchläuft xcutbetalength[j]
                    {
                    Xneu(i*nrcat2+k, XneuSpalte+(k*xcutlength[j]) +l)= X (i, XaltSpalte+l );
+
+                    // Ausgabe von Xneu unter Xneu
+      ofstream outXneu("c:\\bayesx\\mcmc\\Xneu");
+         Xneu.prettyPrint(outXneu);
+         outXneu.close();
+
                    }
                 }
              }
