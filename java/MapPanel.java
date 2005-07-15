@@ -16,8 +16,8 @@ import java.io.*;
  *
  *Last modified on 17.04.2001
  */
- 
- 
+
+
 public class MapPanel extends JPanel
 {
 
@@ -66,49 +66,49 @@ public void setplotparam(int xoff, int yoff, int w, int h, int ps, int fs, doubl
         yoffset = yoff;
         width = w;
         height = h;
-	pspointsize = ps;
-	fontsize = fs;
-	titlescale = ts;
+	    pspointsize = ps;
+	    fontsize = fs;
+	    titlescale = ts;
         }
-        
-public void paintComponent(Graphics g1)                 // für Bildschirmanzeige        
+
+public void paintComponent(Graphics g1)                 // für Bildschirmanzeige
 	{
 
-        Graphics2D g2 = (Graphics2D)g1;           
-        
+        Graphics2D g2 = (Graphics2D)g1;
+
 	g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
         g2.setPaint(Color.white);
 
         Rectangle R = this.getBounds();
 
-        R.setBounds(0,0,(int)R.getWidth(),(int)R.getHeight());        
+        R.setBounds(0,0,(int)R.getWidth(),(int)R.getHeight());
         g2.fill(R);
 
         g2.setColor(Color.black);
-        
+
         switch(b.function){
-            case 1:                   
+            case 1:
                 showmap(g2);    // Umrisse zeichnen (map.describe)
                 break;
-            case 2:                     
+            case 2:
                 drawmap(g1);    // Funktion drawmap
                 break;
-            case 3:  
+            case 3:
                 plotnonp(g1);
                 break;
-            case 4:    
+            case 4:
                 plotsample(g1);
                 break;
             case 5:
                 plotautocor(g1);
                 break;
-	    case 6:
-		plotsurf(g1);
-		break;	
+	   case 6:
+	        plotsurf(g1);    // For plotting a surface
+	        break;
             }
 	}
-  
-private void showmap(Graphics2D g)        
+
+private void showmap(Graphics2D g)
         {
 
         double width = getWidth();
@@ -121,10 +121,10 @@ private void showmap(Graphics2D g)
 	maxY = d2[3];
 	minX = d2[0];
 	minY = d2[1];
-        
-        setSize((int)width,(int)height);        
+
+        setSize((int)width,(int)height);
         height = (int)(width*(maxY-minY)/(maxX-minX));
-        
+
         for(int i=0; i<b.getnrregions(); i++)
 		{
         	for(int j=0; j<b.getnrpoly(i); j++)
@@ -140,23 +140,23 @@ private void showmap(Graphics2D g)
 
         if(b.drawnames)
                 {
-                g.setFont(new Font("TimesRoman", Font.BOLD, b.fontsize));                                    
-                for(int i=0; i<b.getnrregions(); i++)            
+                g.setFont(new Font("TimesRoman", Font.BOLD, b.fontsize));
+                for(int i=0; i<b.getnrregions(); i++)
                         {
-                        b.getcentroid(centroid,i);    
+                        b.getcentroid(centroid,i);
                         g.drawString(b.getregionname(i),
                                     (int)((centroid[0]-minX)*0.9*width/(maxX-minX)+0.05*width),
                                     (int)(-(centroid[1]-minY)*0.9*height/(maxY-minY)+0.95*height)
                                     );
                         }
-                g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));                                    
+                g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));
                 }
-        
+
         }
-        
+
 private void drawmap(Graphics g)
         {
-        
+
         double width = getWidth();
 	double height = getHeight();
 	double[] d2 = new double[4];
@@ -166,19 +166,19 @@ private void drawmap(Graphics g)
 	maxY = d2[3];
 	minX = d2[0];
 	minY = d2[1];
-        
+
         int offset = 0;
         if(!b.title.equals(""))
             offset = offset + 10 + (int)(1.5*b.fontsize);
-        
-        helpdrawmap(g,height,width,offset,true);        
-        
+
+        helpdrawmap(g,height,width,offset,true);
+
         }
 
-public void SaveMap(PrintWriter out)              // Zum Speichern als PostScript   
+public void SaveMap(PrintWriter out)              // Zum Speichern als PostScript
 	{
-        
-        Graphics g = new PSGr2(out);                    
+
+        Graphics g = new PSGr2(out);
 
 	double[] d2 = new double[4];
 
@@ -194,10 +194,10 @@ public void SaveMap(PrintWriter out)              // Zum Speichern als PostScrip
         if(height>PAGEHEIGHT)
                 {
                 width = width*PAGEHEIGHT/height;
-                height = height*PAGEHEIGHT/height;             
-                }        
+                height = height*PAGEHEIGHT/height;
+                }
 
-        out.println("%!PS-Adobe-3.0");      
+        out.println("%!PS-Adobe-3.0");
         out.print("%%BoundingBox:");
         out.print((int)Math.round(0.05*width));
         out.print(" ");
@@ -208,8 +208,8 @@ public void SaveMap(PrintWriter out)              // Zum Speichern als PostScrip
         out.println(PAGEHEIGHT-((int)Math.round(0.05*height)));
         out.println("0 setlinewidth");
         out.println("%%Pages:1");
-        out.println("%%Page:1 1");                 
-            
+        out.println("%%Page:1 1");
+
         for(int i=0; i<b.getnrregions(); i++)
 		{
         	for(int j=0; j<b.getnrpoly(i); j++)
@@ -222,18 +222,18 @@ public void SaveMap(PrintWriter out)              // Zum Speichern als PostScrip
 			        }
 		        }
                 }
-        
-        out.println("showpage");    
+
+        out.println("showpage");
         out.println("grestore");
-        out.println("gsave");        
+        out.println("gsave");
 	out.close();
-       
-	}         
-        
-public void Savedrawmap(PrintWriter out)              // Zum Speichern als PostScript   
+
+	}
+
+public void Savedrawmap(PrintWriter out)              // Zum Speichern als PostScript
 	{
-        
-        Graphics g = new PSGr2(out);                    
+
+        Graphics g = new PSGr2(out);
 
 	double[] d2 = new double[4];
 
@@ -245,23 +245,23 @@ public void Savedrawmap(PrintWriter out)              // Zum Speichern als PostS
 
 	double width = PAGEWIDTH;
 	double height = width*(maxY-minY)/(maxX-minX);
-        
+
         int offset = 0;
         if(!b.title.equals(""))
             offset = offset + 10 + (int)(1.5*b.fontsize);
-        
+
         int hlp = offset;
-        
+
         if(b.legend)
                 hlp = hlp + 30 + 13*b.fontsize/10;
 
         if(height+hlp>PAGEHEIGHT)
                 {
                 width = width*(PAGEHEIGHT-hlp)/(height+hlp);
-                height = height*(PAGEHEIGHT-hlp)/(height+hlp);             
-                }        
-        
-        out.println("%!PS-Adobe-3.0");      
+                height = height*(PAGEHEIGHT-hlp)/(height+hlp);
+                }
+
+        out.println("%!PS-Adobe-3.0");
         out.print("%%BoundingBox:");
         out.print((int)Math.round(0.05*width));
         out.print(" ");
@@ -272,24 +272,24 @@ public void Savedrawmap(PrintWriter out)              // Zum Speichern als PostS
         out.println(PAGEHEIGHT-((int)Math.round(0.05*height)));
         out.println("0 setlinewidth");
         out.println("%%Pages:1");
-        out.println("%%Page:1 1");                 
-            
+        out.println("%%Page:1 1");
+
         helpdrawmap(g,height,width,offset,false);
-        
-        out.println("showpage");    
+
+        out.println("showpage");
         out.println("grestore");
-        out.println("gsave");        
+        out.println("gsave");
 	out.close();
-       
-	}         
-        
+
+	}
+
 private void helpdrawmap(Graphics g, double height, double width, int offset, boolean centering)
         {
 
-        boolean NA = false;   
+        boolean NA = false;
 
         b.nrNA = 0;
-        
+
 	double[] d2 = new double[4];
         double[] help = new double[4];
         double[] centroid = new double[2];
@@ -300,16 +300,16 @@ private void helpdrawmap(Graphics g, double height, double width, int offset, bo
         double y;
 
         setSize((int)width,(int)height);
-        height = (int)(width*(maxY-minY)/(maxX-minX));            
-            
+        height = (int)(width*(maxY-minY)/(maxX-minX));
+
         for(int i=0; i<b.getnrregions(); i++)
 		{
                 if(!b.isin(i))
                         {
 	        	for(int j=0; j<b.getnrpoly(i); j++)
         			{
-// Polygon einlesen  
-                                p = new Polygon();                            
+// Polygon einlesen
+                                p = new Polygon();
                                 b.getline(help,i,j,b.getnrlines(i,j)-1);
                                 b.getline(d2,i,j,0);
                                 if( (d2[0]==help[0] && d2[2]==help[2]) || (d2[0]==help[1] && d2[2]==help[3]))
@@ -318,43 +318,43 @@ private void helpdrawmap(Graphics g, double height, double width, int offset, bo
                                                     (int)Math.round(-(d2[2]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
                                                   );
                                         p.addPoint( (int)Math.round((d2[1]-minX)*0.9*width/(maxX-minX)+0.05*width),
-                                                    (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)  
-                                                  );         
+                                                    (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
+                                                  );
                                         x = d2[1];
                                         y = d2[3];
                                         }
                                 else
                                         {
                                         p.addPoint( (int)Math.round((d2[1]-minX)*0.9*width/(maxX-minX)+0.05*width),
-                                                    (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)  
-                                                  );                        
+                                                    (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
+                                                  );
                                         p.addPoint( (int)Math.round((d2[0]-minX)*0.9*width/(maxX-minX)+0.05*width),
-                                                    (int)Math.round(-(d2[2]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)  
-                                                  );                        
+                                                    (int)Math.round(-(d2[2]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
+                                                  );
                                         x = d2[0];
                                         y = d2[2];
                                         }
                                 for(int k=1; k<b.getnrlines(i,j); k++)
-        				{        
+        				{
                                         b.getline(d2,i,j,k);
                                         if( d2[0]==x && d2[2]==y )
                                                 {
-                                                x = d2[1];   
-                                                y = d2[3];  
+                                                x = d2[1];
+                                                y = d2[3];
                                                 p.addPoint( (int)Math.round((d2[1]-minX)*0.9*width/(maxX-minX)+0.05*width),
-                                                            (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)  
+                                                            (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
                                                           );
-                                                }                                        
+                                                }
                                         else
                                                 {
-                                                x = d2[0];   
-                                                y = d2[2];  
+                                                x = d2[0];
+                                                y = d2[2];
                                                 p.addPoint( (int)Math.round((d2[0]-minX)*0.9*width/(maxX-minX)+0.05*width),
                                                             (int)Math.round(-(d2[2]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
-                                                          );  
+                                                          );
                                                 }
-                                        }            
-// ENDE: Polygon einlesen                        
+                                        }
+// ENDE: Polygon einlesen
                                 if( b.shades > 0 )
                                 	{
 	                                NA = ComputeColor(g,i);
@@ -362,13 +362,13 @@ private void helpdrawmap(Graphics g, double height, double width, int offset, bo
                 	                g.setColor(Color.black);
                         	        }
                                 g.drawPolygon(p.xpoints,p.ypoints,b.getnrlines(i,j)+1);
-                                
+
                                 if(NA)
                                         {
                                         drawNA(g,p);
                                         b.nrNA = b.nrNA + 1;
                                         }
-                        
+
                                 }   // ENDE: for(int i=0; i<b.getnrpoly(); i++)
                         }   // ENDE: if(b.isnotin())
         	}   // ENDE: for(int i=0; i<b.getnrregions(); i++)
@@ -379,8 +379,8 @@ private void helpdrawmap(Graphics g, double height, double width, int offset, bo
                         {
 	        	for(int j=0; j<b.getnrpoly(i); j++)
         			{
-// Polygon einlesen  
-                                p = new Polygon();                            
+// Polygon einlesen
+                                p = new Polygon();
                                 b.getline(help,i,j,b.getnrlines(i,j)-1);
                                 b.getline(d2,i,j,0);
                                 if( (d2[0]==help[0] && d2[2]==help[2]) || (d2[0]==help[1] && d2[2]==help[3]))
@@ -389,43 +389,43 @@ private void helpdrawmap(Graphics g, double height, double width, int offset, bo
                                                     (int)Math.round(-(d2[2]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
                                                   );
                                         p.addPoint( (int)Math.round((d2[1]-minX)*0.9*width/(maxX-minX)+0.05*width),
-                                                    (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)  
-                                                  );         
+                                                    (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
+                                                  );
                                         x = d2[1];
                                         y = d2[3];
                                         }
                                 else
                                         {
                                         p.addPoint( (int)Math.round((d2[1]-minX)*0.9*width/(maxX-minX)+0.05*width),
-                                                    (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)  
-                                                  );                        
+                                                    (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
+                                                  );
                                         p.addPoint( (int)Math.round((d2[0]-minX)*0.9*width/(maxX-minX)+0.05*width),
-                                                    (int)Math.round(-(d2[2]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)  
-                                                  );                        
+                                                    (int)Math.round(-(d2[2]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
+                                                  );
                                         x = d2[0];
                                         y = d2[2];
                                         }
                                 for(int k=1; k<b.getnrlines(i,j); k++)
-        				{        
+        				{
                                         b.getline(d2,i,j,k);
                                         if( d2[0]==x && d2[2]==y )
                                                 {
-                                                x = d2[1];   
-                                                y = d2[3];  
+                                                x = d2[1];
+                                                y = d2[3];
                                                 p.addPoint( (int)Math.round((d2[1]-minX)*0.9*width/(maxX-minX)+0.05*width),
-                                                            (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)  
+                                                            (int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
                                                           );
-                                                }                                        
+                                                }
                                         else
                                                 {
-                                                x = d2[0];   
-                                                y = d2[2];  
+                                                x = d2[0];
+                                                y = d2[2];
                                                 p.addPoint( (int)Math.round((d2[0]-minX)*0.9*width/(maxX-minX)+0.05*width),
                                                             (int)Math.round(-(d2[2]-minY)*0.9*height/(maxY-minY)+0.95*height + offset)
-                                                          );  
+                                                          );
                                                 }
-                                        }            
-// ENDE: Polygon einlesen                        
+                                        }
+// ENDE: Polygon einlesen
                                 if(b.shades > 0)
                                 	{
 	                                NA = ComputeColor(g,i);
@@ -439,25 +439,25 @@ private void helpdrawmap(Graphics g, double height, double width, int offset, bo
                                         drawNA(g,p);
                                         b.nrNA = b.nrNA + 1;
                                         }
-                        
+
                                 }   // ENDE: for(int i=0; i<b.getnrpoly(); i++)
                         }   // ENDE: if(b.isnotin())
         	}   // ENDE: for(int i=0; i<b.getnrregions(); i++)
 
                 if(b.drawnames)
                         {
-                        g.setFont(new Font("TimesRoman", Font.BOLD, b.fontsize));                                    
-                        for(int i=0; i<b.getnrregions(); i++)                            
+                        g.setFont(new Font("TimesRoman", Font.BOLD, b.fontsize));
+                        for(int i=0; i<b.getnrregions(); i++)
                                 {
-                                b.getcentroid(centroid,i);    
+                                b.getcentroid(centroid,i);
                                 g.drawString(b.getregionname(i),
                                              (int)((centroid[0]-minX)*0.9*width/(maxX-minX)+0.05*width),
                                              (int)(-(centroid[1]-minY)*0.9*height/(maxY-minY)+0.95*height+offset)
                                              );
                                 }
-                        g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));                                    
+                        g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));
                         }
-        
+
                 if(b.legend)
                         drawlegend(g,height,width,centering);
                 if(!b.title.equals(""))
@@ -465,32 +465,32 @@ private void helpdrawmap(Graphics g, double height, double width, int offset, bo
 /*
                 if(nrNA > 0 && nrNA < b.getnrregions())
                     {
-                    String str = "NOTE: " + String.valueOf(nrNA) + " missing value(s) plotted\n";                    
-                    b.Out(str,false,false,(short)11,0,0,0);        
+                    String str = "NOTE: " + String.valueOf(nrNA) + " missing value(s) plotted\n";
+                    b.Out(str,false,false,(short)11,0,0,0);
                     }
-                else if (nrNA >= b.getnrregions())        
+                else if (nrNA >= b.getnrregions())
                     {
-                    String str = "WARNING: only missing values plotted - map probably doesn't match data file\n";   
-                    b.Out(str,true,true,(short)11,255,0,0);        
+                    String str = "WARNING: only missing values plotted - map probably doesn't match data file\n";
+                    b.Out(str,true,true,(short)11,255,0,0);
                     }
-*/        
+*/
         }
 
 private boolean ComputeColor(Graphics g, int i)
         {
 
-        int r;    
+        int r;
 
         double min = b.lowerlimit;
         double max = b.upperlimit;
-        
-        double value = 0.0;        
+
+        double value = 0.0;
         double mitte = min+(max-min)/2;
 
         int d=0;
         while(d<b.getDRows() && b.getname(i)!=b.getDoubleValue(d,1))
-                d++; 
-        
+                d++;
+
         if(d<b.getDRows())
         {
         value = b.getDoubleValue(d,0);
@@ -499,20 +499,20 @@ private boolean ComputeColor(Graphics g, int i)
                 {
                 if(value < mitte)
                         {
-                        
+
                         if(b.shades == 1)
                             r = 255;
                         else
-                            r = (int)(b.shades*(value-min)/(max-min)) * 510/(b.shades-1);    
-                        
+                            r = (int)(b.shades*(value-min)/(max-min)) * 510/(b.shades-1);
+
                         if(r>255)
                                 r = 255;
                         if(r<0)
                                 r = 0;
                         if(b.swap)
-                                g.setColor(new Color(r,255,0));                
+                                g.setColor(new Color(r,255,0));
                         else
-                                g.setColor(new Color(255,r,0));                
+                                g.setColor(new Color(255,r,0));
                         }
                 else
                         {
@@ -521,13 +521,13 @@ private boolean ComputeColor(Graphics g, int i)
                             r = 255;
                         else
                             r = ( (b.shades-1) - (int)(b.shades*(value-min)/(max-min)) ) * 510/(b.shades-1);
-                        
+
                         if(r>255)
                                 r = 255;
                         if(r<0)
-                                r = 0;                     
+                                r = 0;
                         if(b.swap)
-                                g.setColor(new Color(255,r,0));                
+                                g.setColor(new Color(255,r,0));
                         else
                                 g.setColor(new Color(r,255,0));
                         }
@@ -539,51 +539,51 @@ private boolean ComputeColor(Graphics g, int i)
                     r = 127;
                 else
                     r = (int)(b.shades*(value-min)/(max-min)) * 255/(b.shades-1);
-                
+
                 if(r>255)
                         r = 255;
                 if(r<0)
                         r = 0;
                 if(b.swap)
-                        g.setColor(new Color(255-r,255-r,255-r));                
-                else    
-                        g.setColor(new Color(r,r,r));                    
+                        g.setColor(new Color(255-r,255-r,255-r));
+                else
+                        g.setColor(new Color(r,r,r));
                 }
         return false;
-        }                
+        }
         else
-        {    
-        g.setColor(new Color(255,255,255));            
+        {
+        g.setColor(new Color(255,255,255));
         return true;
         }
-                
+
         }
-      
+
 private void drawlegend(Graphics g,double height,double width,boolean centering)
         {
-        
+
         int r;
         int end;
         double step;
-        
+
         int offset = 0;
         if(!b.title.equals(""))
             offset = offset + 10 + (int)(1.5*b.fontsize);
-        
+
         double xoffset = 0.55*width;
-        double yoffset = 0.95*height + offset + 10;        
+        double yoffset = 0.95*height + offset + 10;
         int legendheight = 20;
-        
-        Polygon p;    
+
+        Polygon p;
 
         if(b.color)
                 {
                 end = (b.shades+1)/2;
                 step = width*0.3/b.shades;
-                 
+
                 for(int i=0;i<end;i++)
                         {
-                        p = new Polygon();    
+                        p = new Polygon();
                         p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset));
                         p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset+legendheight));
                         p.addPoint((int)Math.round(xoffset + (i+1)*step), (int)Math.round(yoffset+legendheight));
@@ -593,64 +593,64 @@ private void drawlegend(Graphics g,double height,double width,boolean centering)
                         if(b.shades == 1)
                             r = 255;
                         else
-                            r = i*510/(b.shades-1);  
-                       
+                            r = i*510/(b.shades-1);
+
                         if(b.swap)
                                 g.setColor(new Color(r,255,0));
                         else
                                 g.setColor(new Color(255,r,0));
-        
+
                         g.fillPolygon(p.xpoints,p.ypoints,5);
                         }
                 for(int i=0;i<end;i++)
                         {
-                        p = new Polygon();    
+                        p = new Polygon();
                         p.addPoint((int)Math.round(xoffset + 0.3*width - i*step), (int)Math.round(yoffset));
                         p.addPoint((int)Math.round(xoffset + 0.3*width - i*step), (int)Math.round(yoffset+legendheight));
                         p.addPoint((int)Math.round(xoffset + 0.3*width - (i+1)*step), (int)Math.round(yoffset+legendheight));
                         p.addPoint((int)Math.round(xoffset + 0.3*width - (i+1)*step), (int)Math.round(yoffset));
                         p.addPoint((int)Math.round(xoffset + 0.3*width - i*step), (int)Math.round(yoffset));
-                        
+
                         if(b.shades == 1)
                             r = 255;
                         else
-                            r = i*510/(b.shades-1);  
-                        
+                            r = i*510/(b.shades-1);
+
                         if(b.swap)
                                 g.setColor(new Color(255,r,0));
                         else
                                 g.setColor(new Color(r,255,0));
-        
+
                         g.fillPolygon(p.xpoints,p.ypoints,5);
                         }
                 }
         else
                 {
-                end = b.shades;    
-                step = width*0.3/end;    
+                end = b.shades;
+                step = width*0.3/end;
                 for(int i=0;i<end;i++)
                         {
-                        p = new Polygon();    
+                        p = new Polygon();
                         p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset));
                         p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset+legendheight));
                         p.addPoint((int)Math.round(xoffset + (i+1)*step), (int)Math.round(yoffset+legendheight));
                         p.addPoint((int)Math.round(xoffset + (i+1)*step), (int)Math.round(yoffset));
                         p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset));
-                        
+
                         if(b.shades == 1)
                             r = 127;
                         else
-                            r = i*255/(b.shades-1);                        
-                        
+                            r = i*255/(b.shades-1);
+
                         if(b.swap)
                                 g.setColor(new Color(255-r,255-r,255-r));
                         else
                                 g.setColor(new Color(r,r,r));
-        
+
                         g.fillPolygon(p.xpoints,p.ypoints,5);
-                        }                    
+                        }
                 }
-        
+
         p = new Polygon();
         p.addPoint((int)Math.round(xoffset), (int)Math.round(yoffset));
         p.addPoint((int)Math.round(xoffset), (int)Math.round(yoffset+legendheight));
@@ -659,21 +659,21 @@ private void drawlegend(Graphics g,double height,double width,boolean centering)
         p.addPoint((int)Math.round(xoffset), (int)Math.round(yoffset));
         g.setColor(Color.black);
         g.drawPolygon(p.xpoints,p.ypoints,5);
-        
+
         String str;
 	int center = 0;
         double max = b.upperlimit;
         double min = b.lowerlimit;
-        
-        g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));                                    
- 
+
+        g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));
+
         str = String.valueOf(min);
 	if(centering)
 		center = (int)(str.length()*b.fontsize*0.25);
         g.drawString(str,(int)Math.round(xoffset)-center,(int)Math.round(yoffset+legendheight+1.3*b.fontsize));
         g.drawLine((int)Math.round(xoffset),(int)Math.round(yoffset+legendheight),(int)Math.round(xoffset),(int)Math.round(yoffset+legendheight+3));
-        if(min < 0 && 0 < max)                
-            if(b.lowerlimit + (b.upperlimit-b.lowerlimit)/3 < 0 && 0 < b.upperlimit - (b.upperlimit-b.lowerlimit)/3)        
+        if(min < 0 && 0 < max)
+            if(b.lowerlimit + (b.upperlimit-b.lowerlimit)/3 < 0 && 0 < b.upperlimit - (b.upperlimit-b.lowerlimit)/3)
                 {
                 str = String.valueOf(0);
 		if(centering)
@@ -686,21 +686,21 @@ private void drawlegend(Graphics g,double height,double width,boolean centering)
 	if(centering)
 		center = (int)(str.length()*b.fontsize*0.25);
         g.drawString(str,(int)Math.round(xoffset+0.3*width)-center,(int)Math.round(yoffset+legendheight+1.3*b.fontsize));
-        g.drawLine((int)Math.round(xoffset+0.3*width),(int)Math.round(yoffset+legendheight),(int)Math.round(xoffset+0.3*width),(int)Math.round(yoffset+legendheight+3));        
-        
+        g.drawLine((int)Math.round(xoffset+0.3*width),(int)Math.round(yoffset+legendheight),(int)Math.round(xoffset+0.3*width),(int)Math.round(yoffset+legendheight+3));
+
         }
 
 private void drawNA(Graphics g, Polygon p)
         {
 
-        int x,y;            
-        int dist = 5;        
+        int x,y;
+        int dist = 5;
         Rectangle rect = p.getBounds();
 
         int start;
-        
-        start = rect.y;    
-        while(start < rect.y+rect.height)         
+
+        start = rect.y;
+        while(start < rect.y+rect.height)
             {
             x = rect.x;
             y = start;
@@ -708,14 +708,14 @@ private void drawNA(Graphics g, Polygon p)
                 {
                 if(p.contains(x,y,1,1))
                         g.drawLine(x,y,x+1,y+1);
-                y++;    
+                y++;
                 x++;
-                }                        
-            start = start + dist;    
+                }
+            start = start + dist;
             }
-        
-        start = rect.x;    
-        while(start < rect.x+rect.width)         
+
+        start = rect.x;
+        while(start < rect.x+rect.width)
             {
             y = rect.y;
             x = start;
@@ -723,49 +723,49 @@ private void drawNA(Graphics g, Polygon p)
                 {
                 if(p.contains(x,y,1,1))
                         g.drawLine(x,y,x+1,y+1);
-                y++;    
+                y++;
                 x++;
-                }                        
-            start = start + dist;    
+                }
+            start = start + dist;
             }
-            
+
         }
-        
+
 private void drawtitle(Graphics g,double height,double width,boolean centering)
         {
 	int center = 0;
 	if(centering)
   		center = (int)(b.title.length()*b.fontsize*0.5);
 
-        g.setFont(new Font("TimesRoman", Font.BOLD, 2*b.fontsize));            
+        g.setFont(new Font("TimesRoman", Font.BOLD, 2*b.fontsize));
         g.drawString(b.title,(int)(width/2-center),(int)(0.05*height+1.5*b.fontsize));
-        g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));            
+        g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));
         }
 
-        
-public void plotnonp(Graphics g)        
+
+public void plotnonp(Graphics g)
         {
         setplotparam((PAGEWIDTH-b.width)/2,120,b.width,b.height,b.pointsize,b.fontsize,b.titlescale);
-        plotframe(g,0,true);      
+        plotframe(g,0,true);
         for(int i=1;i<b.getDCols();i++)
             plot(g,i);
         }
 
 public void Saveplotnonp(PrintWriter out)
         {
-            
-        setplotparam((PAGEWIDTH-b.width)/2,120,b.width,b.height,b.pointsize,b.fontsize,b.titlescale);        
-        
+
+        setplotparam((PAGEWIDTH-b.width)/2,120,b.width,b.height,b.pointsize,b.fontsize,b.titlescale);
+
 	int fontwidth = (int)(0.6*fontsize);
 	int fontheight = (int)(1.5*fontsize);
 
-        out.println("%!PS-Adobe-3.0");      
+        out.println("%!PS-Adobe-3.0");
         out.print("%%BoundingBox:");
 
         if(b.ylab.equals(""))
 	    out.print(xoffset-6*fontwidth-6);
-	else        
-	    out.print(xoffset-6*fontwidth-fontheight);	
+	else
+	    out.print(xoffset-6*fontwidth-fontheight);
 	out.print(" ");
 
         if(b.xlab.equals(""))
@@ -777,49 +777,49 @@ public void Saveplotnonp(PrintWriter out)
         out.print(xoffset+width+2);
         out.print(" ");
 
-	if(b.title.equals(""))         
+	if(b.title.equals(""))
             out.println(PAGEHEIGHT-yoffset+2);
-        else    
-            out.println(PAGEHEIGHT-yoffset+1.5*titlescale*fontheight);            
+        else
+            out.println(PAGEHEIGHT-yoffset+1.5*titlescale*fontheight);
 
         PSGr2 g = new PSGr2(out);
-	PSGr = g;        
-            
-        scale = 10;        
-        pointsize = pspointsize;   
+	PSGr = g;
+
+        scale = 10;
+        pointsize = pspointsize;
 
         out.println("%%Pages:(atend)");
         out.println("%%Page:1 1");
         out.println("0.1 0.1 scale");
 	out.print(b.linewidth);
-        out.println(" setlinewidth");                
-        
+        out.println(" setlinewidth");
+
         plotframe(g,0,false);
-        
+
         for(int i=1;i<b.getDCols();i++)
             plot(g,i);
-       
-        out.println("showpage");  
+
+        out.println("showpage");
         out.close();
-        
+
         }
 
 private void plotframe(Graphics g, int col, boolean centering)
         {
 
         boolean date = false;
-        
-        String str;        
-        
+
+        String str;
+
         int center = 0;
- 
+
         int nrticks_x = 5;
         int nrticks_y = 5;
 
 	int fontwidth = (int)(0.6*fontsize);
 	int fontheight = (int)(1.5*fontsize);
 
-// Wertebereich        
+// Wertebereich
         if(b.function == 3)
                 {
                 minX = b.getMin(0);
@@ -834,12 +834,12 @@ private void plotframe(Graphics g, int col, boolean centering)
                         maxY = b.getMax(i);
 
                 if(b.xmax > -MAXDOUBLE)
-                    maxX = b.xmax; 
+                    maxX = b.xmax;
                 if(b.xmin < MAXDOUBLE)
                     minX = b.xmin;
 
                 if(b.ymax > -MAXDOUBLE)
-                    maxY = b.ymax; 
+                    maxY = b.ymax;
                 if(b.ymin < MAXDOUBLE)
                     minY = b.ymin;
 
@@ -863,13 +863,13 @@ private void plotframe(Graphics g, int col, boolean centering)
                 }
 
         if(maxY==minY)
-                { 
+                {
                 maxY = maxY*1.1;
                 minY = minY*0.9;
-                }                
+                }
 
 	xstart = minX;
-	ystart = minY;        
+	ystart = minY;
 
 	if(b.function == 3)
  		{
@@ -880,23 +880,23 @@ private void plotframe(Graphics g, int col, boolean centering)
 		}
 
         xstep = (maxX-xstart)/(nrticks_x-1);
-        ystep = (maxY-ystart)/(nrticks_y-1);                        
+        ystep = (maxY-ystart)/(nrticks_y-1);
 
-        if(b.function == 3)        
+        if(b.function == 3)
             {
             if(b.xstep > 0.0)
                 {
                 xstep = b.xstep;
-                nrticks_x = (int)((maxX-xstart)/xstep)+1;   
+                nrticks_x = (int)((maxX-xstart)/xstep)+1;
                 }
             if(b.ystep > 0.0)
                 {
                 ystep = b.ystep;
-                nrticks_y = (int)((maxY-ystart)/ystep)+1;                                      
+                nrticks_y = (int)((maxY-ystart)/ystep)+1;
                 }
             }
         else
-            { 
+            {
             if((int)(maxX%4)==0)
                 {
                 nrticks_x = 5;
@@ -917,7 +917,7 @@ private void plotframe(Graphics g, int col, boolean centering)
                 nrticks_x = 3;
                 xstep = maxX/2;
                 }
-            else 
+            else
                 {
                 nrticks_x = 5;
                 xstep = (maxX - maxX%4)/4;
@@ -925,67 +925,67 @@ private void plotframe(Graphics g, int col, boolean centering)
             }
 
         g.setColor(Color.black);
-        g.drawRect(scale*xoffset, PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset), scale*width, scale*height);        
+        g.drawRect(scale*xoffset, PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset), scale*width, scale*height);
 	if(centering)
-	        g.setFont(new Font("Monospaced", Font.BOLD, scale*fontsize));                                                                 	
+	        g.setFont(new Font("Monospaced", Font.BOLD, scale*fontsize));
 	else
-	        g.setFont(new Font("TimesRoman", Font.BOLD, scale*fontsize));                                                                 
-        
+	        g.setFont(new Font("TimesRoman", Font.BOLD, scale*fontsize));
+
 // Beschriftung und Ticks x-Achse
         if(b.function == 3)
                 {
 		if(date)
                     {
-                        
-                    int start = (int)(b.getDoubleValue(0,0));                
+
+                    int start = (int)(b.getDoubleValue(0,0));
                     int stop = (int)(b.getDoubleValue(b.getDRows()-1,0));
-                    int year = b.year;    
+                    int year = b.year;
                     int step = 12;
                     if(b.xstep != 0.0)
                         step = (int)(b.xstep);
                     int i = start;
                     int j = b.month;
-                    
+
                     if(stop-start < 24)
                         {
-                        String[] names = {};   
+                        String[] names = {};
                         if(xstep == 12)
-                            names = new String[]{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};                        
+                            names = new String[]{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
                         else if(xstep == 4)
-                            names = new String[]{"Jan","Apr","Jul","Oct"};                        
+                            names = new String[]{"Jan","Apr","Jul","Oct"};
                         else if(xstep == 2)
-                            names = new String[]{"Jan","Jul"};                        
-                        
+                            names = new String[]{"Jan","Jul"};
+
                         while(i <= stop)
                             {
-                            if(stop-start < 12 || (j-1)%2 == 0)     
+                            if(stop-start < 12 || (j-1)%2 == 0)
                                 {
                                 str = String.valueOf(names[j-1]);
-                                str = formatLabel(str,centering);                                                                
+                                str = formatLabel(str,centering);
 		                if(centering)
-	        		        center = (str.length()+1)*fontwidth/2;     
-                                g.drawString(str,translateX(i)-scale*center,PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset+height+17*fontheight/20)));                                                                                
+	        		        center = (str.length()+1)*fontwidth/2;
+                                g.drawString(str,translateX(i)-scale*center,PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset+height+17*fontheight/20)));
                                 }
                             if((j-1)%step == 0)
                                 {
                                 str = String.valueOf(year);
-                                str = formatLabel(str,centering);                                
+                                str = formatLabel(str,centering);
 		                if(centering)
-	        		        center = (str.length()+1)*fontwidth/2;     
-                                g.drawString(str,translateX(i)-scale*center,PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset+height+29*fontheight/20)));                                                                                
+	        		        center = (str.length()+1)*fontwidth/2;
+                                g.drawString(str,translateX(i)-scale*center,PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset+height+29*fontheight/20)));
                                 }
                             if(j%step == 0)
                                 year++;
                             if(j == step)
                                 j = 0;
 
-                            g.drawLine(translateX(i), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height), 
-				       translateX(i), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height-5));                                                                                    
-                            
+                            g.drawLine(translateX(i), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height),
+				       translateX(i), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height-5));
+
                             i++;
                             j++;
                             }
-                        }   // end: <24    
+                        }   // end: <24
                     else
                         {
                         int k = (int)((stop-start)/6);
@@ -996,65 +996,65 @@ private void plotframe(Graphics g, int col, boolean centering)
                                 str = String.valueOf(year);
                                 str = formatLabel(str,centering);
 		                if(centering)
-	        		        center = (str.length()+1)*fontwidth/2;     
-                                g.drawString(str,translateX(i)-scale*center,PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset+height+fontheight)));                                                                                
+	        		        center = (str.length()+1)*fontwidth/2;
+                                g.drawString(str,translateX(i)-scale*center,PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset+height+fontheight)));
                                 }
                             if((j-1)%step == 0)
-                                g.drawLine(translateX(i), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height), 
-					   translateX(i), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height-5));                                                                                    
+                                g.drawLine(translateX(i), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height),
+					   translateX(i), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height-5));
                             if(i%step == 0)
                                 year++;
-                           
+
                             i++;
                             j++;
                             }
                         }
                     }   // end: date
                 else
-                    {    
-                    for(int i=0;i<nrticks_x;i++)                    
+                    {
+                    for(int i=0;i<nrticks_x;i++)
                             {
-                            double value = (double)(Math.round((xstart+i*xstep)*1.0E10))/1.0E10;   
-                            str = String.valueOf(value);                            
+                            double value = (double)(Math.round((xstart+i*xstep)*1.0E10))/1.0E10;
+                            str = String.valueOf(value);
                             str = formatLabel(str,centering);
-			    double pos = xstart+i*xstep;	
+			    double pos = xstart+i*xstep;
 			    if(xstart <= maxX && pos >= minX && pos <= maxX*1.0000000001)
- 				    {	
+ 				    {
 			            if(centering)
-		             	    	center = (str.length()+1)*fontwidth/2;     
+		             	    	center = (str.length()+1)*fontwidth/2;
 	                            g.drawString(str,translateX(pos)-scale*center, PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset+height+fontheight)));
-        	                    g.drawLine(translateX(pos), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height), 
-				               translateX(pos), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height-5));                                
-				    }	
+        	                    g.drawLine(translateX(pos), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height),
+				               translateX(pos), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height-5));
+				    }
                             }
                     }
-                }       // end: function 3              
-        else        
+                }       // end: function 3
+        else
                 {
                 str = String.valueOf(minX);
-                str = str.substring(0,str.indexOf('.'));                
+                str = str.substring(0,str.indexOf('.'));
 		if(centering)
-	                center = str.length()*fontwidth/2;  			
+	                center = str.length()*fontwidth/2;
                 g.drawString(str,translateX(minX)-scale*center,PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset+height+fontheight)));
-                for(int i=1;i<nrticks_x;i++)                    
+                for(int i=1;i<nrticks_x;i++)
                         {
                         str = String.valueOf(i*xstep);
                         str = str.substring(0,str.indexOf('.'));
 			if(centering)
-		                center = str.length()*fontwidth/2;  			
+		                center = str.length()*fontwidth/2;
                         g.drawString(str,translateX(i*xstep)-scale*center, PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset+height+fontheight)));
                         g.drawLine(translateX(i*xstep), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height),
-				   translateX(i*xstep), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height-5));    
+				   translateX(i*xstep), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height-5));
                         }
                 g.drawLine(translateX(minX), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height),
-			   translateX(minX), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height-5));                    
+			   translateX(minX), PAGEHEIGHT-scale*(PAGEHEIGHT-yoffset-height-5));
                 }
 
 // Ticks auf y-Achse
         if(b.function == 5)
                 {
                 for(int i=0;i<6;i++)
-                        g.drawLine(scale*xoffset, translateY(i*0.2), scale*(xoffset-5), translateY(i*0.2));                                        
+                        g.drawLine(scale*xoffset, translateY(i*0.2), scale*(xoffset-5), translateY(i*0.2));
                 }
         else
                 {
@@ -1062,11 +1062,11 @@ private void plotframe(Graphics g, int col, boolean centering)
 			{
 			double pos = ystart+i*ystep;
 			if(ystart <= maxY && pos >= minY && pos <= maxY*1.0000000001)
-	                        g.drawLine(scale*xoffset, translateY(pos), scale*(xoffset-5), translateY(pos));                   
+	                        g.drawLine(scale*xoffset, translateY(pos), scale*(xoffset-5), translateY(pos));
 			}
                 }
-        
-// Beschriftung y-Achse              
+
+// Beschriftung y-Achse
         if(b.function == 5)
                 {
                 for(int i=0;i<6;i++)
@@ -1077,31 +1077,31 @@ private void plotframe(Graphics g, int col, boolean centering)
 	                        center = (str.length()+1)*fontwidth+5 - 3*fontwidth;
                         g.drawString(str,scale*(xoffset-center-3*fontwidth),translateY(i*0.2)+scale*fontsize/3);
                         }
-                }              
-        else            
+                }
+        else
                 {
-                for(int i=0;i<nrticks_y;i++)                    
+                for(int i=0;i<nrticks_y;i++)
                         {
-                        double value = (double)(Math.round((ystart+i*ystep)*1.0E10))/1.0E10;   
-                        str = String.valueOf(value);                            
+                        double value = (double)(Math.round((ystart+i*ystep)*1.0E10))/1.0E10;
+                        str = String.valueOf(value);
                         str = formatLabel(str,centering);
-			if(centering)	
+			if(centering)
 	                        center = (str.length()+1)*fontwidth+5 - 3*fontwidth;
 			double pos = ystart+i*ystep;
 			if(ystart <= maxY && pos >= minY && pos <= maxY*1.0000000001)
-	                        g.drawString(str,scale*(xoffset-center-3*fontwidth),translateY(pos)+scale*fontsize/3); 
+	                        g.drawString(str,scale*(xoffset-center-3*fontwidth),translateY(pos)+scale*fontsize/3);
                         }
-                }               
-                
-// title            
+                }
+
+// title
         if(b.function == 3)
                 {
                 if(!b.title.equals(""))
                         {
 			if(centering)
-	                        g.setFont(new Font("Monospaced", Font.BOLD, (int)(scale*fontsize*titlescale)));                                        
+	                        g.setFont(new Font("Monospaced", Font.BOLD, (int)(scale*fontsize*titlescale)));
 			else
-	                        g.setFont(new Font("TimesRoman", Font.BOLD, (int)(scale*fontsize*titlescale)));                                        
+	                        g.setFont(new Font("TimesRoman", Font.BOLD, (int)(scale*fontsize*titlescale)));
                         str = b.title;
                         if(str.length()>32)
                           str = str.substring(0,32);
@@ -1109,9 +1109,9 @@ private void plotframe(Graphics g, int col, boolean centering)
 	                        center = (int)((str.length()*titlescale*fontwidth)/2);
                         g.drawString(str,scale*((int)(xoffset+width/2)-center),PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset-(int)(titlescale*fontheight))));
 			if(centering)
-	                        g.setFont(new Font("Monospaced", Font.BOLD, scale*fontsize));                                                                                                           	
+	                        g.setFont(new Font("Monospaced", Font.BOLD, scale*fontsize));
 			else
-	                        g.setFont(new Font("TimesRoman", Font.BOLD, scale*fontsize));                                                                                                           
+	                        g.setFont(new Font("TimesRoman", Font.BOLD, scale*fontsize));
                         }
                 if(!b.xlab.equals(""))
                         {
@@ -1127,7 +1127,7 @@ private void plotframe(Graphics g, int col, boolean centering)
 				{
 	                        if(str.length()>14)
 					center = 7*fontwidth;
-				else	
+				else
 		                        center = (int)((str.length()*fontwidth)/2);
 				}
 	                if(centering)
@@ -1141,7 +1141,7 @@ private void plotframe(Graphics g, int col, boolean centering)
 				PSGr.emitThis("grestore");
 				}
                         }
-                }               
+                }
         else if(b.function == 4)
                 {
                 str = "iteration";
@@ -1173,45 +1173,45 @@ private void plotframe(Graphics g, int col, boolean centering)
 				center = 5*fontwidth;
 			else
 		                center = (int)((str.length()*fontwidth)/2);
-			}	
+			}
                 g.drawString(str,scale*(xoffset-center),PAGEHEIGHT-scale*(PAGEHEIGHT-(yoffset-fontheight)));
                 }
-                
-        }                
+
+        }
 
 private int translateX(double x)
-        { 
-        return (int)Math.round( scale*(0.05*width + (x-minX)*0.9*width/(maxX-minX)) ) + scale*xoffset;        
+        {
+        return (int)Math.round( scale*(0.05*width + (x-minX)*0.9*width/(maxX-minX)) ) + scale*xoffset;
         }
- 
+
 private int translateY(double y)
-        { 
-        return (int)Math.round( PAGEHEIGHT - scale*(PAGEHEIGHT-yoffset-height + 0.05*height + (y-minY)*0.9*height/(maxY-minY)) );        
+        {
+        return (int)Math.round( PAGEHEIGHT - scale*(PAGEHEIGHT-yoffset-height + 0.05*height + (y-minY)*0.9*height/(maxY-minY)) );
         }
 
 private void plotsample(Graphics g)
         {
-            
+
         width = 165;
         height = 130;
 
         int start = page*b.plotsperpage+1;
         int count = 0;
-        
+
         yoffset = 50-(height+100);
         while(start < b.getDCols() && count < b.plotsperpage)
                 {
                 if(start%2!=0)
                         {
                         xoffset = 100;
-                        yoffset += height+100;   
+                        yoffset += height+100;
                         }
                 else
                         {
                         xoffset = 100+width+66;
                         }
                 plotframe(g,start,true);
-                plot(g,start);                     
+                plot(g,start);
                 start++;
                 count++;
                 }
@@ -1224,10 +1224,10 @@ public void Saveplotsample(PrintWriter out)
         width = 165;
         height = 130;
         xoffset = 100;
-        
-        out.println("%!PS-Adobe-3.0");      
+
+        out.println("%!PS-Adobe-3.0");
         out.print("%%BoundingBox:");
-        out.print(xoffset-6*11*12/18-6);        
+        out.print(xoffset-6*11*12/18-6);
         out.print(" ");
         out.print(PAGEHEIGHT-100-2*100-3*130-42);
         out.print(" ");
@@ -1238,20 +1238,20 @@ public void Saveplotsample(PrintWriter out)
 
         PSGr2 g = new PSGr2(out);
 
-        scale = 10;        
+        scale = 10;
         pointsize = pspointsize;
 
         int start = 1;
         int nrplots = b.getDCols();
         int nrpages = (b.getDCols()-2)/b.plotsperpage+1;
         int count;
-        
+
         for(int i=1;i<=nrpages;i++)
                 {
                 out.println("%%Page:"+i+" "+i);
-                out.println("0.1 0.1 scale");                
-                out.println("3 setlinewidth");                                
-                
+                out.println("0.1 0.1 scale");
+                out.println("3 setlinewidth");
+
                 yoffset = 100-(height+100);
                 count = 0;
                 while(start < nrplots && count < 6)
@@ -1259,7 +1259,7 @@ public void Saveplotsample(PrintWriter out)
                         if(start%2!=0)
                                 {
                                 xoffset = 100;
-                                yoffset += height+100;   
+                                yoffset += height+100;
                                 }
                         else
                                 {
@@ -1267,28 +1267,28 @@ public void Saveplotsample(PrintWriter out)
                                 }
 
                         plotframe(g,start,false);
-                        plot(g,start);                             
-                        
+                        plot(g,start);
+
                         start = start+1;
                         count = count+1;
                         }
                 out.println("showpage");
                 }
 
-        out.close();        
+        out.close();
 
         }
-        
+
 public void Saveplotautocor(PrintWriter out)
         {
 
         width = 165;
         height = 130;
         xoffset = 100;
-        
-        out.println("%!PS-Adobe-3.0");      
+
+        out.println("%!PS-Adobe-3.0");
         out.print("%%BoundingBox:");
-        out.print(xoffset-4*11*12/18-6);        
+        out.print(xoffset-4*11*12/18-6);
         out.print(" ");
         out.print(PAGEHEIGHT-100-2*100-3*130-42);
         out.print(" ");
@@ -1296,34 +1296,34 @@ public void Saveplotautocor(PrintWriter out)
         out.print(" ");
         out.println(PAGEHEIGHT-100+30);
         out.println("%%Pages:(atend)");
-                
+
         PSGr2 g = new PSGr2(out);
 
-        scale = 10;        
-        pointsize = pspointsize;                        
+        scale = 10;
+        pointsize = pspointsize;
 
         int start = 1;
         int nrplots = b.getDCols();
         int nrpages = (b.getDCols()-2)/b.plotsperpage+1;
         int count;
-        
+
         for(int i=1;i<=nrpages;i++)
                 {
                 out.println("%%Page:"+i+" "+i);
-                out.println("0.1 0.1 scale");                
-                out.println("3 setlinewidth");                
+                out.println("0.1 0.1 scale");
+                out.println("3 setlinewidth");
 
                 yoffset = 100-(height+100);
                 count = 0;
                 while(start < nrplots && count < b.plotsperpage)
                         {
-                            
+
                         if(b.plotsperpage == 6)
                         {
                         if(count%2==0)
                                 {
                                 xoffset = 100;
-                                yoffset += height+100;   
+                                yoffset += height+100;
                                 }
                         else
                                 {
@@ -1331,23 +1331,23 @@ public void Saveplotautocor(PrintWriter out)
                                 }
                         }
                         else if(b.plotsperpage == 3)
-                        {  
-                        width = 396;    
+                        {
+                        width = 396;
                         xoffset = 100;
                         yoffset += height+100;
                         }
-                        
+
                         plotframe(g,start,false);
-                        plot(g,start);     
+                        plot(g,start);
                         drawLine(g);
-                        
+
                         start = start+1;
                         count = count+1;
                         }
                 out.println("showpage");
                 }
 
-        out.close();        
+        out.close();
 
         }
 
@@ -1359,17 +1359,17 @@ private void plotautocor(Graphics g)
 
         int start = page*b.plotsperpage+1;
         int count = 0;
-        
+
         yoffset = 50-(height+100);
         while(start < b.getDCols() && count < b.plotsperpage)
                 {
-                    
+
                 if(b.plotsperpage == 6)
                 {
                 if(count%2==0)
                         {
                         xoffset = 100;
-                        yoffset += height+100;   
+                        yoffset += height+100;
                         }
                 else
                         {
@@ -1377,33 +1377,60 @@ private void plotautocor(Graphics g)
                         }
                 }
                 else if(b.plotsperpage == 3)
-                {  
-                width = 396;    
+                {
+                width = 396;
                 xoffset = 100;
                 yoffset += height+100;
                 }
-                
-                plotframe(g,start,true);                
-                plot(g,start);     
+
+                plotframe(g,start,true);
+                plot(g,start);
                 drawLine(g);
                 start++;
                 count++;
                 }
         }
-        
 
+
+
+// Function to plot surface from the given 3D-points data
 private void plotsurf(Graphics g)
 	{
-	setplotparam((PAGEWIDTH-b.width)/2,120,b.width,b.height,b.pointsize,b.fontsize,b.titlescale);
+	setplotparam((PAGEWIDTH-500)/2,120,500,500,b.pointsize,b.fontsize,b.titlescale);
+	double x[][] = new double [b.getDRows()][3];
+	for(int i=0;i<b.getDRows();i++)
+		{
+		x[i][0] = b.getDoubleValue(i,0);
+		x[i][1] = b.getDoubleValue(i,1);
+		x[i][2] = b.getDoubleValue(i,2);
+		}
 
+	int gridsize = 40;
+	Plot3D plot1 = new Plot3D(x,gridsize,b.linecolor.charAt(0),b.title,b.xlab,b.ylab,b.zlab,b.xstart,b.xstep,b.ystart,b.ystep,b.zstart,b.zstep,b.xrot,b.yrot,b.zrot);
+	plot1.Plot(g);
+	return;
 	}
+
 
 
 public void Saveplotsurf(PrintWriter out)
 	{
-	setplotparam((PAGEWIDTH-b.width)/2,120,b.width,b.height,b.pointsize,b.fontsize,b.titlescale);
+	//setplotparam((PAGEWIDTH-500)/2,120,500,500,b.pointsize,b.fontsize,b.titlescale);
+	//setplotparam((PAGEWIDTH-500)/2,120,500,500,10,10,10);
+	//setplotparam(500,120,500,500,10,10,10);
+    out.println("%!PS-Adobe-3.0");
+    //out.print("%%BoundingBox:");
+    //out.println("0 1000 1000 0");
 
-	}
+    out.println("%%Pages:1");
+    out.println("%%Page:1 1");
+
+	PSGr2 g = new PSGr2(out);
+	plotsurf(g);
+
+	out.println("showpage");
+    out.close();
+    }
 
 private void plot(Graphics g,int col)
         {
@@ -1453,28 +1480,28 @@ private void plot(Graphics g,int col)
                 if(b.connect.equals("points") || (b.connect.length()>=col&&b.connect.charAt(col-1)=='p'))
                         {
                         for(int i=0;i<b.getDRows();i++)
-                                if(b.getDoubleValue(i,col)>=-0.16)                    
+                                if(b.getDoubleValue(i,col)>=-0.16)
                                         g.fillOval(translateX(b.getDoubleValue(i,0)),translateY(b.getDoubleValue(i,col)),pointsize,pointsize);
                         }
                 else
                         {
-                        int x[] = new int[b.getDRows()];    
-                        int y[] = new int[b.getDRows()];    
+                        int x[] = new int[b.getDRows()];
+                        int y[] = new int[b.getDRows()];
 
-                        for(int i=0;i<b.getDRows();i++)    
+                        for(int i=0;i<b.getDRows();i++)
                                 {
                                 x[i] = translateX(b.getDoubleValue(i,0));
                                 if(b.getDoubleValue(i,col)<-0.16)
-                                    y[i] = translateY(-0.16);                            
-                                else    
+                                    y[i] = translateY(-0.16);
+                                else
                                     y[i] = translateY(b.getDoubleValue(i,col));
                                 }
                         g.drawPolyline(x,y,b.getDRows());
-                        }                
+                        }
                 }
         else
-                {    
-                if( (b.connect.length()>=col&&b.connect.charAt(col-1)=='p') || 
+                {
+                if( (b.connect.length()>=col&&b.connect.charAt(col-1)=='p') ||
 		    (b.connect.length()>=col&&b.connect.charAt(col-1)=='5') )
                         {
                         double x;
@@ -1486,41 +1513,41 @@ private void plot(Graphics g,int col)
                                 if(minX<=x&x<=maxX&minY<=y&y<=maxY)
 					g.fillOval(translateX(x),translateY(y),pointsize,pointsize);
 				}
-                        }  
+                        }
 		else if( (b.connect.length()>=col&&b.connect.charAt(col-1)=='-') ||
                          (b.connect.length()>=col&&b.connect.charAt(col-1)=='4') )
 			{
 			dashedLine(g,30,0.5,col);
-			}			              
+			}
 		else if( (b.connect.length()>=col&&b.connect.charAt(col-1)=='_') ||
                          (b.connect.length()>=col&&b.connect.charAt(col-1)=='3') )
 			{
 			dashedLine(g,25,0.7,col);
-			}			              
+			}
 		else if( (b.connect.length()>=col&&b.connect.charAt(col-1)=='d') ||
                          (b.connect.length()>=col&&b.connect.charAt(col-1)=='2') )
 			{
 			dashedLine(g,12,0.7,col);
-			}			              
-		else 
+			}
+		else
                         {
                         double x;
                         double y;
                         double x2;
                         double y2;
-                        for(int i=1;i<b.getDRows();i++)    
+                        for(int i=1;i<b.getDRows();i++)
                                 {
                                 x = b.getDoubleValue(i-1,0);
                                 y = b.getDoubleValue(i-1,col);
                                 x2 = b.getDoubleValue(i,0);
                                 y2 = b.getDoubleValue(i,col);
                                 if(minX<=x&x<=maxX&minX<=x2&x2<=maxX&minY<=y&y<=maxY&minY<=y2&y2<=maxY)
-                                    g.drawLine(translateX(x),translateY(y),translateX(x2),translateY(y2));       
+                                    g.drawLine(translateX(x),translateY(y),translateX(x2),translateY(y2));
                                 }
                         }
                 }
 
-	g.setColor(Color.black);	
+	g.setColor(Color.black);
 
         }
 
@@ -1539,7 +1566,7 @@ private void dashedLine(Graphics g, int intervals, double frac, int col)
                         x = b.getDoubleValue(0,0);
                         y = b.getDoubleValue(0,col);
 
-                        for(int j=0;j<intervals;j++)    
+                        for(int j=0;j<intervals;j++)
                                 {
 				xend1 = minX + (j+frac)*dist;
 				xend2 = minX + (j+1.0)*dist;
@@ -1550,9 +1577,9 @@ private void dashedLine(Graphics g, int intervals, double frac, int col)
 				while(i<b.getDRows()-1 && x2 <= xend1)
 					{
 					if(minX<=x&x<=maxX&minX<=x2&x2<=maxX&minY<=y&y<=maxY&minY<=y2&y2<=maxY)
-        	                            g.drawLine(translateX(x),translateY(y),translateX(x2),translateY(y2));       
+        	                            g.drawLine(translateX(x),translateY(y),translateX(x2),translateY(y2));
 					x = x2;
-					y = y2;	
+					y = y2;
 					i++;
 		                        x2 = b.getDoubleValue(i,0);
 		                        y2 = b.getDoubleValue(i,col);
@@ -1561,15 +1588,15 @@ private void dashedLine(Graphics g, int intervals, double frac, int col)
 	                        y2 = y + (xend1-x)*(y2-y)/(x2-x);
 	                        x2 = xend1;
 				if(minX<=x&x<=maxX&minX<=x2&x2<=maxX&minY<=y&y<=maxY&minY<=y2&y2<=maxY)
-		                        g.drawLine(translateX(x),translateY(y),translateX(x2),translateY(y2));       
+		                        g.drawLine(translateX(x),translateY(y),translateX(x2),translateY(y2));
 
 	                        x2 = b.getDoubleValue(i,0);
-				while(i<b.getDRows()-1 && x2 <= xend2)				
+				while(i<b.getDRows()-1 && x2 <= xend2)
 					{
 					i++;
 		                        x2 = b.getDoubleValue(i,0);
 					}
-				
+
 
 				y2 = b.getDoubleValue(i,col);
 				y = b.getDoubleValue(i-1,col);
@@ -1596,27 +1623,27 @@ private void drawLine(Graphics g)
 private String formatLabel(String str, boolean centering)
         {
 
-        if(str.indexOf('E')>-1)        
+        if(str.indexOf('E')>-1)
             {
-            if(str.indexOf('.')>-1)    
-                str = str.substring(0,str.indexOf('.')+2) + str.substring(str.indexOf('E'));    
+            if(str.indexOf('.')>-1)
+                str = str.substring(0,str.indexOf('.')+2) + str.substring(str.indexOf('E'));
             }
-        else if(str.indexOf('e')>-1)        
+        else if(str.indexOf('e')>-1)
             {
-            if(str.indexOf('.')>-1)    
-                str = str.substring(0,str.indexOf('.')+2) + str.substring(str.indexOf('e'));    
+            if(str.indexOf('.')>-1)
+                str = str.substring(0,str.indexOf('.')+2) + str.substring(str.indexOf('e'));
             }
         else if(str.indexOf('.')>-1)
                 {
 
-                int prec;    
-                    
+                int prec;
+
                 if(str.charAt(0)!='-')          // um Position von '.' richtig festzustellen
                     str = ' '+str;
-                    
+
                 if(str.indexOf('.') < 3)        // weniger als 2 Ziffern vor dem '.'
                     {
-                    prec = 2;    
+                    prec = 2;
                     while(Math.pow(10.0,(prec-2)) * ystep < 0.1)
                         prec++;
                     double d = round(Double.parseDouble(str),prec);
@@ -1624,7 +1651,7 @@ private String formatLabel(String str, boolean centering)
                     }
                 else if(str.indexOf('.') == 3)  // genau 2 Ziffern vor dem '.'
                     {
-                    prec = 1;    
+                    prec = 1;
                     double d = round(Double.parseDouble(str),prec);
                     str = String.valueOf(d);
                     }
@@ -1633,11 +1660,11 @@ private String formatLabel(String str, boolean centering)
                     double d = round(Double.parseDouble(str),0);
                     str = String.valueOf(d);
                     }
-                
+
                 // '.0' am Ende entfernen
-                if(str.charAt(str.length()-2)=='.'&str.charAt(str.length()-1)=='0')     
-                    str = str.substring(0,str.indexOf('.'));        
-                
+                if(str.charAt(str.length()-2)=='.'&str.charAt(str.length()-1)=='0')
+                    str = str.substring(0,str.indexOf('.'));
+
                 }
         else
                 {
@@ -1647,18 +1674,18 @@ private String formatLabel(String str, boolean centering)
 	if(centering)
 	        if(str.charAt(0)!='-')
         	    str = ' '+str;          // erstes Zeichen '-' oder ' '
-        
+
         return str;
         }
 
-        
+
 private double round(double d,int n)
         {
         double x = Math.pow(10.0,n);
         d = Math.round(d*x)/x;
         return d;
-        }        
-        
-    
-       
+        }
+
+
+
 }        // END: class MapPanel
