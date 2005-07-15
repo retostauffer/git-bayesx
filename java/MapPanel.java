@@ -1405,8 +1405,10 @@ private void plotsurf(Graphics g)
 		x[i][2] = b.getDoubleValue(i,2);
 		}
 
-	int gridsize = 40;
-	Plot3D plot1 = new Plot3D(x,gridsize,b.linecolor.charAt(0),b.title,b.xlab,b.ylab,b.zlab,b.xstart,b.xstep,b.ystart,b.ystep,b.zstart,b.zstep,b.xrot,b.yrot,b.zrot);
+	char color = 'G';
+	if(b.linecolor.length()>0)
+          color = b.linecolor.charAt(0);
+	Plot3D plot1 = new Plot3D(x,b.gridsize,color,b.title,b.xlab,b.ylab,b.zlab,b.xstart,b.xstep,b.ystart,b.ystep,b.zstart,b.zstep,b.xrot,b.yrot,b.zrot);
 	plot1.Plot(g);
 	return;
 	}

@@ -188,6 +188,7 @@ protected double zmin;
 protected double zmax;
 protected double zstart;
 protected double zstep;
+protected int gridsize;
 
 // Random Number Generation
 
@@ -2237,7 +2238,7 @@ public void Javaplotautocor(String joutfile, String jconnect, boolean jmeanautoc
 public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jylab, String jzlab,
 			 double jxrot, double jyrot, double jzrot, String jlinecolor, int jheight, int jwidth, 
  			 double jxlimtop, double jxlimbottom, double jylimtop, double jylimbottom, double jzlimtop, double jzlimbottom,
-	                 double jxstep, double jxstart, double jystep, double jystart, double jzstep, double jzstart,	
+	                 double jxstep, double jxstart, double jystep, double jystart, double jzstep, double jzstart, int jgridsize,
 			 int jlinewidth, int jpointsize, int jfontsize, double jtitlescale)                          
                          
         {
@@ -2271,6 +2272,7 @@ public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jy
 	xstart = jxstart;
 	ystart = jystart;
 	zstart = jzstart;
+	gridsize = jgridsize;
         linewidth = jlinewidth;
 	pointsize = jpointsize;
 	fontsize = jfontsize;

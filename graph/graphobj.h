@@ -120,6 +120,7 @@ class __EXPORT_TYPE graphobj : public statobject
   doubleoption zstep;
   doubleoption zlimtop;
   doubleoption zlimbottom;
+  intoption gridsize;
 
   optionlist plotsurfoptions;
 

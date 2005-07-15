@@ -145,6 +145,7 @@ void graphobj::create (void)
   xrot = doubleoption("xrot",0.0,-360,360);
   yrot = doubleoption("yrot",0.0,-360,360);
   zrot = doubleoption("zrot",0.0,-360,360);
+  gridsize = intoption("gridsize",30,0,500);
 
   plotsurfoptions.push_back(&psname);
   plotsurfoptions.push_back(&replace);
@@ -169,6 +170,7 @@ void graphobj::create (void)
   plotsurfoptions.push_back(&xstart);
   plotsurfoptions.push_back(&ystart);
   plotsurfoptions.push_back(&zstart);
+  plotsurfoptions.push_back(&gridsize);
   plotsurfoptions.push_back(&linewidth);
   plotsurfoptions.push_back(&fontsize);
   plotsurfoptions.push_back(&pointsize);
@@ -1086,7 +1088,7 @@ void plotsurfrun(graphobj & o)
     o.adminp_p->set_Dp(&o.D);
 
     jmethodID javaplotsurf = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javaplotsurf",
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DDDLjava/lang/String;IIDDDDDDDDDDDDIIID)V");
+                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DDDLjava/lang/String;IIDDDDDDDDDDDDIIIID)V");
     o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javaplotsurf,
                                o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()),
                                o.adminb_p->Java->NewStringUTF(o.title.getvalue().strtochar()),
@@ -1102,6 +1104,7 @@ void plotsurfrun(graphobj & o)
                                o.xstep.getvalue(),o.xstart.getvalue(),
                                o.ystep.getvalue(),o.ystart.getvalue(),
                                o.zstep.getvalue(),o.zstart.getvalue(),
+                               o.gridsize.getvalue(),
                                o.linewidth.getvalue(),o.pointsize.getvalue(),
                                o.fontsize.getvalue(),o.titlescale.getvalue()
                                );
