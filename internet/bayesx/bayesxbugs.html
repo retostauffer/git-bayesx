@@ -82,25 +82,28 @@ in the menue help->about.</p>
 
 <p>To report bugs, contact us via <script src="http://www.stat.uni-muenchen.de/dec/decode.js"></script><script language="JavaScript">var l="(4.09434456222)(4.5747109785)(3.4657359028)(4.64439089914)(4.73619844839)(4.61512051684)(4.62497281328)(4.11087386417)(3.52636052462)(4.69134788223)(4.5747109785)(4.65396035016)(4.68213122712)(4.75359019111)(4.70953020131)(4.06044301055)(4.58496747867)(4.5747109785)(4.7957905456)(4.61512051684)(4.74493212836)(4.78749174278)(4.15888308336)(4.74493212836)(4.75359019111)(4.5747109785)(4.75359019111)(3.82864139649)(4.7621739348)(4.70048036579)(4.65396035016)(3.80666248977)(4.69134788223)(4.7621739348)(4.61512051684)(4.70048036579)(4.59511985013)(4.64439089914)(4.61512051684)(4.70048036579)(3.82864139649)(4.60517018599)(4.61512051684)(3.52636052462)(4.12713438505)(4.58496747867)(4.5747109785)(4.7957905456)(4.61512051684)(4.74493212836)(4.78749174278)(4.15888308336)(4.74493212836)(4.75359019111)(4.5747109785)(4.75359019111)(3.82864139649)(4.7621739348)(4.70048036579)(4.65396035016)(3.80666248977)(4.69134788223)(4.7621739348)(4.61512051684)(4.70048036579)(4.59511985013)(4.64439089914)(4.61512051684)(4.70048036579)(3.82864139649)(4.60517018599)(4.61512051684)(4.09434456222)(3.85014760171)(4.5747109785)(4.12713438505)";l = decode(l);document.write(l);</script><noscript> <i>(due to SPAM, activated scripting is needed to show this adress)</i> </noscript>. Please include any files that are needed to reproduce the bug and describe the problem as precise as possible.</p>
 
-<p style="font-weight:bold">Current version: 1.40 (06.07.2005) </p>
+<p style="font-weight:bold">Current version: 1.40 (18.07.2005) </p>
 
-<p style="font-weight:bold">Version 1.40</p>
+<p style="font-weight:bold">Version 1.40 (18.07.2005)</p>
 
 <ul>
 <li>Currently no severe bugs found.</li>
 </ul>
+
+<p style="font-weight:bold">Version 1.40 (06.07.2005)</p>
+
+<ul>
+<li>remlreg objects: Offsets are ignored if they are not specified as the <i>last</i> model term. This bug is fixed in version 1.40 (18.07.2005).</li></ul>
 
 <p style="font-weight:bold">Version 1.30</p>
 
 <ul>
-<li>Currently no severe bugs found.</li>
-</ul>
+<li>remlreg objects: Offsets are ignored if they are not specified as the <i>last</i> model term. This bug is fixed in version 1.40 (18.07.2005).</li></ul>
 
 <p style="font-weight:bold">Version 1.20</p>
 
 <ul>
-<li>Currently no severe bugs found.</li>
-</ul>
+<li>remlreg objects: Offsets are ignored if they are not specified as the <i>last</i> model term. This bug is fixed in version 1.40 (18.07.2005).</li></ul>
 
 <p style="font-weight:bold">Version 1.11</p>
 
@@ -108,6 +111,7 @@ in the menue help->about.</p>
 <li> bayesreg objects: DIC is not cumputed correctly for cumulative probit models.
 This bug is fixed in version 1.20.
 <li>remlreg objects: Thresholds in cumulative logit and probit models are not computed correctly (all other results remain valid). This bug is fixed in version 1.20.</li>
+<li>remlreg objects: Offsets are ignored if they are not specified as the <i>last</i> model term. This bug is fixed in version 1.40 (18.07.2005).</li>
 </ul>
 
 
@@ -119,13 +123,13 @@ remlreg objects: Results for stationary Gaussian random fields (Kriging terms) a
 correct. The bug is fixed in version 1.11 (15.06.2004). 
  </li>
 <li>remlreg objects: Thresholds in cumulative logit and probit models are not computed correctly (all other results remain valid). The bug is fixed in version 1.20.</li>
+<li>remlreg objects: Offsets are ignored if they are not specified as the <i>last</i> model term. This bug is fixed in version 1.40 (18.07.2005).</li>
 </ul>
 
 <p style="font-weight:bold">Version 1.04</p>
 
 <ul>
-<li>Currently no severe bugs found. </li>
-</ul>
+<li>remlreg objects: Offsets are ignored if they are not specified as the <i>last</i> model term. This bug is fixed in version 1.40 (18.07.2005).</li></ul>
 
 <p style="font-weight:bold">Version 1.03</p>
 
@@ -138,6 +142,7 @@ you should rerun your analysis. Using remlreg objects the problems do not occur.
 is fixed in version 1.04 (20.01.2004). If you have further questions please contact the developers. 
 </li>
 <li> The Pause button does not work properly. The bug is fixed in version 1.04 (20.01.2004).
+<li>remlreg objects: Offsets are ignored if they are not specified as the <i>last</i> model term. This bug is fixed in version 1.40 (18.07.2005).</li>
 </ul>
 
 
@@ -151,6 +156,7 @@ If the bandsize is greater than 40 it is very likely that your estimates are wro
 you should rerun your analysis. Using remlreg objects the problems do not occur. The bug
 is fixed in version 1.04 (20.01.2004). If you have further questions please contact the developers. 
 </li>
+<li>remlreg objects: Offsets are ignored if they are not specified as the <i>last</i> model term. This bug is fixed in version 1.40 (18.07.2005).</li>
 </ul>
 
 
@@ -166,6 +172,7 @@ is fixed in version 1.04 (20.01.2004). If you have further questions please cont
 </li>
 <li> Geosplines for bayesreg objects are not 
 working properly because the variance parameters are not updated (fixed in Version 1.02). </li>
+<li>remlreg objects: Offsets are ignored if they are not specified as the <i>last</i> model term. This bug is fixed in version 1.40 (18.07.2005).</li>
 </ul>
 
 
@@ -181,6 +188,7 @@ is fixed in version 1.04 (20.01.2004). If you have further questions please cont
 </li>
 <li>  Multinomial logit models are not working properly (fixed in Version 1.01).       
 </li>
+<li>remlreg objects: Offsets are ignored if they are not specified as the <i>last</i> model term. This bug is fixed in version 1.40 (18.07.2005).</li>
 </ul>
 
 <p style="font-weight:bold">Version 0.9</p>
