@@ -537,7 +537,7 @@ public BayesX()
 	jDesktopPanel.add(output);
 	output.setBounds(registryArray[2],registryArray[3],registryArray[4],registryArray[5]);
 	Out("BayesX - Software for Bayesian inference\n\n",true,false,(short)11,0,0,0);
-	Out("Version 1.40 (06.07.2005)\n\n");
+	Out("Version 1.40 (18.07.2005)\n\n");
 
 //	Out("Note: When running time consuming computations it is useful to reduce the priority of BayesX in the Windows Task-Manager!\n\n");
 	hasBeenSaved = false;
@@ -1140,7 +1140,7 @@ public void actionPerformed(ActionEvent ae)
         else if(source.equals("About BayesX"))
                 {
 		JOptionPane.showMessageDialog(this,"BayesX\n\nSoftware for Bayesian Inference\n"+
-			"Version 1.40 (06.07.2005)\n\n"+
+			"Version 1.40 (18.07.2005)\n\n"+
 			"developed at\n"+
 			"  University of Munich\n"+
 			"  Department of Statistics\n"+
