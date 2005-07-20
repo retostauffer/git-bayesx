@@ -1,5 +1,5 @@
-/** This program creates a grid of size 40*40 and evaluates
-  * the z value at new points using Shepherd interpolation technique.
+/** This program creates a grid of size gridsize x gridsize and evaluates
+  * the function value at new points using Shepherd interpolation technique.
   */
 
 class Dense
@@ -96,7 +96,7 @@ class Dense
        }
       }
 
-      int l2 = l1+13;
+      int l2 = l1+10;
       double[][] final2 = new double[l2][3];
 
       for(int i=0; i<l1; i++)
@@ -109,32 +109,55 @@ class Dense
 
 
       // Adding points for drawing axes on the plot
-         final2[l1+1][0] = 1.4*Math.min(0,temp1[0]);
-         final2[l1+2][1] = 1.4*Math.min(0,temp2[0]);
-         final2[l1+3][2] = 1.4*Math.min(0,temp3[0]);
-         final2[l1+4][0] = 1.4*temp1[p.length-1];
-         final2[l1+5][1] = 1.4*temp2[p.length-1];
-         final2[l1+6][2] = 1.4*temp3[p.length-1];
+         double xax,yax,zax;
+         if(temp1[0] >0) xax = 0.9*temp1[0];
+         else xax = 1.1*temp1[0];
+         if(temp2[0] >0) yax = 0.9*temp2[0];
+         else yax = 1.1*temp2[0];
+         if(temp3[0] >0) zax = 0.9*temp3[0];
+         else zax = 1.1*temp3[0];
+
+         final2[l1][0] = xax;
+		 final2[l1][1] = yax;
+		 final2[l1][2] = zax;
+
+         final2[l1+1][0] = 1.2*temp1[p.length-1];
+         final2[l1+1][1] = yax;
+         final2[l1+1][2] = zax;
+
+         final2[l1+2][0] = xax;
+		 final2[l1+2][1] = 1.2*temp2[p.length-1];
+         final2[l1+2][2] = zax;
+
+         final2[l1+3][0] = xax;
+		 final2[l1+3][1] = yax;
+		 final2[l1+3][2] = 1.2*temp3[p.length-1];
 
 
      //  Adding points for drawing arrows at the end of the axes
                double h3 = (temp1[p.length-1] - temp1[0])*0.0075;
                double h4 = (temp2[p.length-1] - temp2[0])*0.0075;
                double h5 = (temp3[p.length-1] - temp3[0])*0.0075;
-         final2[l1+7][0] = 1.4*temp1[p.length-1]-(8*h3);
-         final2[l1+7][1] = 2*h4;
-         final2[l1+8][0] = 1.4*temp1[p.length-1]-(8*h3);
-         final2[l1+8][1] = -2*h4;
+         final2[l1+4][0] = 1.2*temp1[p.length-1]-(8*h3);
+         final2[l1+4][1] = yax+2*h4;
+         final2[l1+4][2] = zax;
+         final2[l1+5][0] = 1.2*temp1[p.length-1]-(8*h3);
+         final2[l1+5][1] = yax-2*h4;
+         final2[l1+5][2] = zax;
 
-         final2[l1+9][0] = 2*h3;
-         final2[l1+9][1] = 1.4*temp2[p.length-1]-(8*h4);
-         final2[l1+10][0] = -2*h3;
-         final2[l1+10][1] = 1.4*temp2[p.length-1]-(8*h4);
+         final2[l1+6][0] = xax+2*h3;
+         final2[l1+6][1] = 1.2*temp2[p.length-1]-(8*h4);
+         final2[l1+6][2] = zax;
+         final2[l1+7][0] = xax-2*h3;
+         final2[l1+7][1] = 1.2*temp2[p.length-1]-(8*h4);
+         final2[l1+7][2] = zax;
 
-         final2[l1+11][0] = 2*h3;
-         final2[l1+11][2] = 1.4*temp3[p.length-1]-(8*h5);
-         final2[l1+12][0] = -2*h3;
-         final2[l1+12][2] = 1.4*temp3[p.length-1]-(8*h5);
+         final2[l1+8][0] = xax+2*h3;
+         final2[l1+8][1] = yax;
+         final2[l1+8][2] = 1.2*temp3[p.length-1]-(8*h5);
+         final2[l1+9][0] = xax-2*h3;
+         final2[l1+9][1] = yax;
+         final2[l1+9][2] = 1.2*temp3[p.length-1]-(8*h5);
 
 
      //  Adding points for drawing the tick marks
@@ -152,9 +175,11 @@ class Dense
 		    for(int i=l2; i<l2+9; i=i+2)
 		    {
 		      finalm[i][0] = temp1[0] + f1*h6;
-		      finalm[i][1] = 2*h4;
+		      finalm[i][1] = yax+2*h4;
+		      finalm[i][2] = zax;
 		      finalm[i+1][0] = finalm[i][0];
-		      finalm[i+1][1] = -2*h4;
+		      finalm[i+1][1] = yax-2*h4;
+		      finalm[i+1][2] = zax;
 		      f1++;
 		    }
 
@@ -162,10 +187,12 @@ class Dense
             double h7 = (temp2[p.length-1] - temp2[0])/4;
 	        for(int i=l2+10; i<l2+19; i=i+2)
 		    {
-		      finalm[i][0] = 2*h3;
+		      finalm[i][0] = xax+2*h3;
 		      finalm[i][1] = temp2[0] + f2*h7;
-		      finalm[i+1][0] = -2*h3;
+		      finalm[i][2] = zax;
+		      finalm[i+1][0] = xax-2*h3;
 		      finalm[i+1][1] = finalm[i][1];
+		      finalm[i+1][2] = zax;
 		      f2++;
 		    }
 
@@ -173,9 +200,11 @@ class Dense
 	        double h8 = (temp3[p.length-1] - temp3[0])/4;
 		    for(int i=l2+20; i<l2+29; i=i+2)
 		    {
-		      finalm[i][0] = 2*h3;
+		      finalm[i][0] = xax+2*h3;
+		      finalm[i][1] = yax;
 		      finalm[i][2] = temp3[0] + f3*h8;
-		      finalm[i+1][0] = -2*h3;
+		      finalm[i+1][0] = xax-2*h3;
+		      finalm[i+1][1] = yax;
 		      finalm[i+1][2] = finalm[i][2];
 		      f3++;
            }
@@ -198,28 +227,34 @@ class Dense
 	       for(int i=l2; i<l2+2*k1+1; i=i+2)
 		   {
 		      finalm[i][0] = xstart + f1*xstep;
-		      finalm[i][1] = 2*h4;
+		      finalm[i][1] = yax+2*h4;
+		      finalm[i][2] = zax;
 		    finalm[i+1][0] = finalm[i][0];
-		    finalm[i+1][1] = -2*h4;
+		    finalm[i+1][1] = yax-2*h4;
+		    finalm[i+1][2] = zax;
 		    f1++;
 	       }
 
            int f2 = 0;
            for(int i=l2+2*(k1+1); i<l2+2*(k1+k2)+3; i=i+2)
 		   {
-		      finalm[i][0] = 2*h3;
+		      finalm[i][0] = xax+2*h3;
 		      finalm[i][1] = ystart + f2*ystep;
-		    finalm[i+1][0] = -2*h3;
+		      finalm[i][2] = zax;
+		    finalm[i+1][0] = xax-2*h3;
 		    finalm[i+1][1] = finalm[i][1];
+		    finalm[i+1][2] = zax;
 		    f2++;
 		   }
 
            int f3 = 0;
 	       for(int i=l2+2*(k1+k2+2); i<l2+2*(k1+k2+k3)+5; i=i+2)
 		   {
-		      finalm[i][0] = 2*h3;
+		      finalm[i][0] = xax+2*h3;
+			  finalm[i][1] = yax;
 			  finalm[i][2] = zstart + f3*zstep;
-		    finalm[i+1][0] = -2*h3;
+		    finalm[i+1][0] = xax-2*h3;
+		    finalm[i+1][1] = yax;
 		    finalm[i+1][2] = finalm[i][2];
 		    f3++;
            }

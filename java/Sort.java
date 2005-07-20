@@ -1,6 +1,5 @@
 /** This program implements MergeSort algorithm and returns the
-  * sorted array.
-  */
+  * sorted array.*/
 
 public class Sort
 {

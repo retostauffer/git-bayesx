@@ -1,3 +1,5 @@
+//This program is to create and run the applet for surfplot program
+
 import java.applet.Applet;
 import java.awt.*;
 import java.io.*;
@@ -18,7 +20,7 @@ public class ThreeD extends Applet implements Runnable
     {
 	mdname = getParameter("model");
 	amat.yrot(20);
-	amat.xrot(20);
+	amat.xrot(110);
 	if (mdname == null)
 	    mdname = "model.txt";
 	resize(getSize().width <= 20 ? 400 : getSize().width,
@@ -73,6 +75,7 @@ public class ThreeD extends Applet implements Runnable
     {
     }
 
+    // For rotating the object by clicking on the applet
     public boolean mouseDown(Event e, int x, int y)
     {
 	 prevx = x;
@@ -98,6 +101,7 @@ public class ThreeD extends Applet implements Runnable
 	 return true;
     }
 
+    // Creating an object from Model3D class and painting it on the applet
     public void paint(Graphics g2)
     {
      Graphics2D g = (Graphics2D) g2;

@@ -1,4 +1,5 @@
 /** This program constructs a 3D surface from the scattered point data entered as an array.*/
+
 import java.awt.*;
 import java.awt.geom.*;
 import java.io.*;
@@ -15,7 +16,8 @@ public class Plot3D
   InputStream is;
 
 
- // The constructor here takes the 3D data set, the color of the plot and the title for the plot as argument*/
+ /** The constructor here takes the 3D data set, gridsize,the color of the plot, title, axes labels,
+  *  starting points and length of tick marks and the angle of rotation about each of the three axes as arguments*/
     public Plot3D(double[][] p_1, int g1, char c1, String title1, String xlab1, String ylab1, String zlab1,double x1,double xs,double y1,double ys,double z1,double zs,double angx1, double angy1, double angz1)
     {
      Dense d1 = new Dense(p_1,g1,x1,xs,y1,ys,z1,zs);
@@ -39,7 +41,7 @@ public class Plot3D
 
     void Plot(Graphics g)
      {
-      int l1 = (gridsize*gridsize*3)+(2*gridsize)+12;
+      int l1 = (gridsize*gridsize*3)+(2*gridsize)+9;
       int l2 = (gridsize+1)*(gridsize+1);
       int l3 = (gridsize*gridsize*3)+(2*gridsize);
 
@@ -77,32 +79,25 @@ public class Plot3D
      }
 
 
-   // Adding lines to draw arrows at the ends of each axis
+   // Adding lines to draw axes and arrows at the ends of each axis denoting the positive side
      lin[l3][0] = l2+1;
      lin[l3][1] = l2+2;
      lin[l3+1][0] = l2+1;
      lin[l3+1][1] = l2+3;
      lin[l3+2][0] = l2+1;
      lin[l3+2][1] = l2+4;
-     lin[l3+3][0] = l2+1;
+     lin[l3+3][0] = l2+2;
      lin[l3+3][1] = l2+5;
-     lin[l3+4][0] = l2+1;
+     lin[l3+4][0] = l2+2;
      lin[l3+4][1] = l2+6;
-     lin[l3+5][0] = l2+1;
+     lin[l3+5][0] = l2+3;
      lin[l3+5][1] = l2+7;
-     lin[l3+6][0] = l2+5;
+     lin[l3+6][0] = l2+3;
      lin[l3+6][1] = l2+8;
-     lin[l3+7][0] = l2+5;
+     lin[l3+7][0] = l2+4;
      lin[l3+7][1] = l2+9;
-     lin[l3+8][0] = l2+6;
+     lin[l3+8][0] = l2+4;
      lin[l3+8][1] = l2+10;
-     lin[l3+9][0] = l2+6;
-	 lin[l3+9][1] = l2+11;
-     lin[l3+10][0] = l2+7;
-     lin[l3+10][1] = l2+12;
-     lin[l3+11][0] = l2+7;
-	 lin[l3+11][1] = l2+13;
-
 
    // Adding lines to draw tick marks on each axis
      double[] xcord = new double[p.length];
@@ -138,7 +133,7 @@ public class Plot3D
 
       for(int i= l1; i<l1+15; i++)
 	  {
-	   linf[i][0] = l2+13+2*(i-l1+1)-1;
+	   linf[i][0] = l2+10+2*(i-l1+1)-1;
 	   linf[i][1] = linf[i][0]+1;
 	  }
      }
@@ -157,7 +152,7 @@ public class Plot3D
 
 	  for(int i= l1; i<linf.length; i++)
 	  {
-	   linf[i][0] = l2+13+2*(i-l1+1)-1;
+	   linf[i][0] = l2+10+2*(i-l1+1)-1;
 	   linf[i][1] = linf[i][0]+1;
 	  }
 	 }
@@ -168,7 +163,7 @@ public class Plot3D
 	 s.paint(g);
 
 
-    // Adding few additional things for the applet
+    // Adding few additional things for the applet part of the program
     double[] scale = new double[3];
    double[] scalet = new double[3];
           scale[0] = Math.max(Math.abs(temp1[0]), Math.abs(temp1[p.length-1]));

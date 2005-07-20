@@ -1,6 +1,7 @@
 
 /** A 3D matrix object that can transform sets of 3D points
 and perform a variety of manipulations on the transform */
+
 class Matrix3D
 {
     double xx, xy, xz, xo;

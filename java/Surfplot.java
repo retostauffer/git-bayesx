@@ -1,5 +1,7 @@
-  import java.awt.*;
+// Similar to ThreeD.java but this paints the 3D object on the
+// Bayesx window.
 
+  import java.awt.*;
 
   public class Surfplot
    {
@@ -30,9 +32,13 @@
      ystep = ys;
     zstart = z1;
      zstep = zs;
-     amat.xrot(360-angx);
-	 amat.yrot(360-angy);
-	 amat.zrot(360-angz);
+     amat.xrot(70);
+     amat.yrot(340);
+     amat.zrot(340);
+     tmat.zrot(360-angz);
+     tmat.yrot(360-angy);
+     tmat.xrot(360-angx);
+     amat.mult(tmat);
 	}
 
     public void run()

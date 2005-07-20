@@ -1,3 +1,6 @@
+// This is the program where "model.txt" file is parsed
+// and it is painted into a graphics content
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
@@ -332,7 +335,7 @@ scan:
 	return;
 
     // Drawing the main plot
-	for (int i = 0; i < lim-(15+k1+k2+k3); i++)
+	for (int i = 0; i < lim-(12+k1+k2+k3); i++)
 	{
 	    int T = c[i];
 	    int p1 = ((T >> 16) & 0xFFFF) * 3;
@@ -352,15 +355,6 @@ scan:
 
     // Drawing the axes and writing the axes-labels
 	g.setColor(Color.BLACK);
-	for (int i = lim-(15+k1+k2+k3); i < lim-(12+k1+k2+k3); i++)
-	{
-	    int T = c[i];
-	    int p1 = ((T >> 16) & 0xFFFF) * 3;
-	    int p2 = (T & 0xFFFF) * 3;
-	    g.drawLine(v[p1], v[p1 + 1], v[p2], v[p2 + 1]);
-    }
-
-
 	int temp = 0;
 	for (int i = lim-(12+k1+k2+k3); i < lim-(9+k1+k2+k3); i++)
 	{

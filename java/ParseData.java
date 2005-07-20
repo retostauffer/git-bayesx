@@ -1,7 +1,11 @@
+/** Similar to the Model3D.java program.The difference is that here we directly need to
+  * enter point and line array to form the model*/
+
 import java.awt.*;
 import java.awt.geom.*;
 import java.util.*;
 import java.lang.Comparable.*;
+
 class ParseData
 {
     double p[][], p_org[][];
@@ -219,7 +223,7 @@ class ParseData
 		    return;
 
         // Drawing the main plot
-		for (int i = 0; i < lim-(15+k1+k2+k3); i++)
+		for (int i = 0; i < lim-(12+k1+k2+k3); i++)
 		{
 		    int T = c[i];
 		    int p1 = ((T >> 16) & 0xFFFF) * 3;
@@ -238,16 +242,7 @@ class ParseData
 		}
 
         // Drawing the axes and writing the axes-labels
-		for (int i = lim-(15+k1+k2+k3); i < lim-(12+k1+k2+k3); i++)
-		{
-		    int T = c[i];
-		    int p1 = ((T >> 16) & 0xFFFF) * 3;
-		    int p2 = (T & 0xFFFF) * 3;
-		    g.setColor(Color.BLACK);
-		    g.drawLine(v[p1], v[p1 + 1], v[p2], v[p2 + 1]);
-	    }
-
-   		int temp = 0;
+	    int temp = 0;
 		for (int i = lim-(12+k1+k2+k3); i < lim-(9+k1+k2+k3); i++)
 		{
 		    int T1 = c[i];
@@ -271,7 +266,6 @@ class ParseData
 			 if (zlab.length() == 0)	g.drawString("Z" , v[p2]+15,v[p2+1]+10);
 			 else 	g.drawString(zlab , v[p2]+15,v[p2+1]+15);
 			}
-			g.drawString("O", v[p1]+5,v[p1+1]+5);
 		}
 
         // Drawing arrows at the end of each axis,denoting positive direction
@@ -296,53 +290,41 @@ class ParseData
 
 			if (0<= flag1 && flag1<k1+1)
 			{
-				if(p[((gridsize+1)*(gridsize+1)+13)+2*flag1][0]==0);
-				else
-				{
-				 int flag2 = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+13)+2*flag1][0])).indexOf('.');
-				 char[] tempc = new char[ Math.min( flag2+3, (Double.toString(p_org[((gridsize+1)*(gridsize+1)+13)+2*flag1][0])).length()) ];
+				 int flag2 = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+10)+2*flag1][0])).indexOf('.');
+				 char[] tempc = new char[ Math.min( flag2+3, (Double.toString(p_org[((gridsize+1)*(gridsize+1)+10)+2*flag1][0])).length()) ];
 				 for(int j=0; j<tempc.length; j++)
 				 {
-				  tempc[j] = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+13)+2*flag1][0])).charAt(j);
+				  tempc[j] = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+10)+2*flag1][0])).charAt(j);
 				 }
 
 				 String stemp = new String(tempc);
 				 g.drawString(stemp, v[p2]+15, v[p2+1]+10);
-			    }
 			}
 
 			if (k1+1<= flag1 && flag1<k1+k2+2)
 			{
-				if(p[((gridsize+1)*(gridsize+1)+13)+2*flag1][1]==0);
-				else
-				{
-				 int flag2 = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+13)+2*flag1][1])).indexOf('.');
-				 char[] tempc = new char[ Math.min( flag2+3, (Double.toString(p_org[((gridsize+1)*(gridsize+1)+13)+2*flag1][1])).length()) ];
+				 int flag2 = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+10)+2*flag1][1])).indexOf('.');
+				 char[] tempc = new char[ Math.min( flag2+3, (Double.toString(p_org[((gridsize+1)*(gridsize+1)+10)+2*flag1][1])).length()) ];
 				 for(int j=0; j<tempc.length; j++)
 				 {
-				  tempc[j] = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+13)+2*flag1][1])).charAt(j);
+				  tempc[j] = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+10)+2*flag1][1])).charAt(j);
 				 }
 
                  String stemp = new String(tempc);
 				 g.drawString(stemp, v[p2], v[p2+1]+10);
-				}
 			}
 
 			if (k1+k2+2<= flag1 && flag1<k1+k2+k3+3)
 			{
-				if(p[((gridsize+1)*(gridsize+1)+13)+2*flag1][2]==0);
-				else
-				{
-				 int flag2 = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+13)+2*flag1][2])).indexOf('.');
-				 char[] tempc = new char[ Math.min( flag2+3, (Double.toString(p_org[((gridsize+1)*(gridsize+1)+13)+2*flag1][2])).length()) ];
+				 int flag2 = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+10)+2*flag1][2])).indexOf('.');
+				 char[] tempc = new char[ Math.min( flag2+3, (Double.toString(p_org[((gridsize+1)*(gridsize+1)+10)+2*flag1][2])).length()) ];
 				 for(int j=0; j<tempc.length; j++)
 				 {
-				  tempc[j] = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+13)+2*flag1][2])).charAt(j);
+				  tempc[j] = (Double.toString(p_org[((gridsize+1)*(gridsize+1)+10)+2*flag1][2])).charAt(j);
 				 }
 
 				 String stemp = new String(tempc);
 				 g.drawString(stemp, v[p2]+10, v[p2+1]+10);
-				}
 			}
 
 			flag1 = flag1+1;
@@ -382,11 +364,11 @@ class ParseData
    		zmax = z;
    	 }
    	 this.xmax = xmax;
-   	 this.xmin = xmin;
+   	 this.xmin = 1.2*xmin;
    	 this.ymax = ymax;
-   	 this.ymin = ymin;
+   	 this.ymin = 1.2*ymin;
    	 this.zmax = zmax;
-   	 this.zmin = zmin;
+   	 this.zmin = 1.2*zmin;
     }
 
 

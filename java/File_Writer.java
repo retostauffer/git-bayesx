@@ -1,3 +1,6 @@
+/** Given a point and line set this program writes a file in .obj format.
+  * This is the standard file format for many other plotting softwares*/
+
 import java.lang.System;
 import java.io.*;
 

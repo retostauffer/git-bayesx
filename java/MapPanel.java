@@ -1408,7 +1408,8 @@ private void plotsurf(Graphics g)
 	char color = 'G';
 	if(b.linecolor.length()>0)
           color = b.linecolor.charAt(0);
-	Plot3D plot1 = new Plot3D(x,b.gridsize,color,b.title,b.xlab,b.ylab,b.zlab,b.xstart,b.xstep,b.ystart,b.ystep,b.zstart,b.zstep,b.xrot,b.yrot,b.zrot);
+
+    Plot3D plot1 = new Plot3D(x,b.gridsize,color,b.title,b.xlab,b.ylab,b.zlab,b.xstart,b.xstep,b.ystart,b.ystep,b.zstart,b.zstep,b.xrot,b.yrot,b.zrot);
 	plot1.Plot(g);
 	return;
 	}
@@ -1417,21 +1418,15 @@ private void plotsurf(Graphics g)
 
 public void Saveplotsurf(PrintWriter out)
 	{
-	//setplotparam((PAGEWIDTH-500)/2,120,500,500,b.pointsize,b.fontsize,b.titlescale);
-	//setplotparam((PAGEWIDTH-500)/2,120,500,500,10,10,10);
-	//setplotparam(500,120,500,500,10,10,10);
-    out.println("%!PS-Adobe-3.0");
-    //out.print("%%BoundingBox:");
-    //out.println("0 1000 1000 0");
+	 out.println("%!PS-Adobe-3.0");
+     out.println("%%Pages:1");
+     out.println("%%Page:1 1");
 
-    out.println("%%Pages:1");
-    out.println("%%Page:1 1");
+	 PSGr2 g = new PSGr2(out);
+	 plotsurf(g);
 
-	PSGr2 g = new PSGr2(out);
-	plotsurf(g);
-
-	out.println("showpage");
-    out.close();
+	 out.println("showpage");
+     out.close();
     }
 
 private void plot(Graphics g,int col)
