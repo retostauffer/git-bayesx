@@ -1378,6 +1378,19 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
   grenzfall = 0;
 
+  unsigned j;
+  neighbors=vector<vector<double>>(nrpar);
+  for(i=0;i<nrpar;i++)
+    {
+    for(j=0;j<nrpar;j++)
+      {
+      if(Kenv(i,j)!=0 && i!=j)
+        {
+        neighbors[i].push_back(j);
+        }
+      }
+    }
+
   }
 
 
@@ -1633,6 +1646,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(const FULLCOND_nonp_gaussian & fc
   lambdaconst = fc.lambdaconst;
   Laplace=fc.Laplace;
   delta=fc.delta;
+  neighbors=fc.neighbors;
   diff = fc.diff;
   betaKbeta = fc.betaKbeta;
   data2 = fc.data2;
@@ -1676,7 +1690,8 @@ const FULLCOND_nonp_gaussian & FULLCOND_nonp_gaussian::operator=(
   FULLCOND_nonp_basis::operator=(FULLCOND_nonp_basis(fc));
   lambdaconst = fc.lambdaconst;
   Laplace=fc.Laplace;
-  delta=fc.delta;  
+  delta=fc.delta;
+  neighbors=fc.neighbors;  
   diff = fc.diff;
   betaKbeta = fc.betaKbeta;
   data2 = fc.data2;
@@ -1996,6 +2011,34 @@ void FULLCOND_nonp_gaussian::update_linpred_diff(datamatrix & b1,
       if (*itbeg != -1)
         likep->add_linearpred(*workb1-*workb2,*itbeg,*itend,index,column);
       }
+    }
+
+  }
+
+
+void FULLCOND_nonp_gaussian::update_linpred_diff(const unsigned & beg,const unsigned & end,
+                                                 const double & beta)
+  {
+
+  int * workindex;
+  int j;
+
+  if (varcoeff)
+    {
+
+    workindex = index.getV()+beg;
+    double * workdata=data.getV()+beg;
+
+    for(j=beg;j<=end;j++,workindex++,workdata++)
+      {
+      likep->add_linearpred((beta) * (*workdata),
+                                unsigned(*workindex),column);
+      }
+
+    }
+  else
+    {
+    likep->add_linearpred(beta,beg,end,index,column);
     }
 
   }
@@ -2960,6 +3003,82 @@ void FULLCOND_nonp_gaussian::update(void)
 void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
   {
 
+  unsigned i,j;
+
+  double sqrtscale = 0.3;
+  double help;
+
+  unsigned beg,end;
+
+  for(i=0;i<nrpar;i++)
+    {
+
+    beg=posbeg[i];
+    end=posend[i];
+
+    betaold.assign(beta);
+
+    double sum;
+    sum = 0.0;
+    for(j=0;j<neighbors[i].size();j++)
+      sum += fabs(betaold(i,0)-betaold(neighbors[i][j],0));
+
+    double logold;
+    logold = likep->loglikelihood(beg,end,index);
+    if(delta.rows()>1)
+      logold -= Kenv.compute_sumfabsdiff(betaold,0,delta)/sigma2;
+    else
+//      logold -= Kenv.compute_sumfabsdiff(betaold,0)/sigma2;
+      logold -= sum/sigma2;
+
+    help = sqrtscale*rand_normal();
+    beta(i,0) = betaold(i,0) + help;
+
+//    update_linpred_diff(beta,betaold);
+    update_linpred_diff(beg,end,help);
+
+    sum = 0.0;
+    for(j=0;j<neighbors[i].size();j++)
+      sum += fabs(beta(i,0)-beta(neighbors[i][j],0));
+
+    double lognew;
+    lognew = likep->loglikelihood(beg,end,index);
+    if(delta.rows()>1)
+      lognew -= Kenv.compute_sumfabsdiff(beta,0,delta)/sigma2;
+    else
+//      lognew -= Kenv.compute_sumfabsdiff(beta,0)/sigma2;
+      lognew -= sum/sigma2;
+
+    double alpha = lognew - logold;
+    double u = log(uniform());
+
+    nrtrials++;
+
+    if ( u <= alpha )
+      {
+      acceptance++;
+      }
+    else
+      {
+//      update_linpred_diff(betaold,beta);
+      update_linpred_diff(beg,end,-help);
+      beta.assign(betaold);
+      }
+
+    }
+
+  if (center)
+    {
+    double m = centerbeta();
+    fcconst->update_intercept(m);
+    }
+
+  transform = likep->get_trmult(column);
+
+  FULLCOND::update();
+
+
+/*
   int j;
   unsigned i;
 
@@ -3072,7 +3191,7 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
   transform = likep->get_trmult(column);
 
   FULLCOND::update();
-
+*/
   }
 
 

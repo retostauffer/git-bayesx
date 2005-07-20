@@ -38,6 +38,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   bool Laplace;
 
   datamatrix delta;
+  vector<vector<double>> neighbors;
 
 // For REML
 
@@ -134,6 +135,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   const unsigned & col);
 
   void update_linpred_diff(datamatrix & b1,datamatrix & b2);
+
+  void update_linpred_diff(const unsigned & beg,const unsigned & end,const double & beta);
 
   double scale_proposal(void);
 
