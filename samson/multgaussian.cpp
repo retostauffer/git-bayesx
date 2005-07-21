@@ -61,6 +61,7 @@ DISTRIBUTION_multgaussian::DISTRIBUTION_multgaussian(const double & a,
   scaleexisting = true;
 
   scale = datamatrix(nrcat,nrcat,0);
+  scale_mode = datamatrix(nrcat,nrcat,0);
   sigma_rmr = datamatrix(nrcat,1);
   unsigned i;
   for (i=0;i<nrcat;i++)
