@@ -402,7 +402,7 @@ void mregressrun(bayesreg & b)
   if (!failure)
     {
 
-//    b.simobj = MCMCsimulate(&b.generaloptions[0],b.distr[0],b.fullcond,begin,end);
+    b.simobj = MCMCsimulate(&b.generaloptions[0],b.distr[0],b.fullcond);
 
     if (b.modeonly.getvalue())
       {
