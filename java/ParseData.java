@@ -75,9 +75,9 @@ class ParseData
 
       double[] scale = new double[3];
 	 double[] scalet = new double[3];
-	        scale[0] = Math.max(Math.abs(temp1[0]), Math.abs(temp1[p_org.length-1]));
-	        scale[1] = Math.max(Math.abs(temp2[0]), Math.abs(temp2[p_org.length-1]));
-	        scale[2] = Math.max(Math.abs(temp3[0]), Math.abs(temp3[p_org.length-1]));
+	        scale[0] = temp1[p_org.length-1]- temp1[0];
+	        scale[1] = temp2[p_org.length-1]- temp2[0];
+	        scale[2] = temp3[p_org.length-1]- temp3[0];
 
 	  for(int i=0; i<3; i++)
 	  {
@@ -253,17 +253,17 @@ class ParseData
 		    temp = temp+1;
 			if (temp == 1)
 			{
-			 if (xlab.length() == 0)	g.drawString("X" , v[p2]+15,v[p2+1]+10);
+			 if (xlab.length() == 0)	g.drawString("" , v[p2]+15,v[p2+1]+10);
 			 else 	g.drawString(xlab , v[p2]+25,v[p2+1]+10);
 			}
 			else if (temp == 2)
 			{
-			 if (ylab.length() == 0)	g.drawString("Y" , v[p2]+15,v[p2+1]+10);
+			 if (ylab.length() == 0)	g.drawString("" , v[p2]+15,v[p2+1]+10);
 			 else 	g.drawString(ylab , v[p2]+15,v[p2+1]+15);
 			}
 			else
 			{
-			 if (zlab.length() == 0)	g.drawString("Z" , v[p2]+15,v[p2+1]+10);
+			 if (zlab.length() == 0)	g.drawString("" , v[p2]+15,v[p2+1]+10);
 			 else 	g.drawString(zlab , v[p2]+15,v[p2+1]+15);
 			}
 		}

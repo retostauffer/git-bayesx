@@ -48,9 +48,9 @@ class Dense
 
     double[] scale = new double[3];
    double[] scalet = new double[3];
-          scale[0] = Math.max(Math.abs(temp1[0]), Math.abs(temp1[p.length-1]));
-          scale[1] = Math.max(Math.abs(temp2[0]), Math.abs(temp2[p.length-1]));
-          scale[2] = Math.max(Math.abs(temp3[0]), Math.abs(temp3[p.length-1]));
+          scale[0] = temp1[p.length-1]- temp1[0];
+		  scale[1] = temp2[p.length-1]- temp2[0];
+	      scale[2] = temp3[p.length-1]- temp3[0];
 
     for(int i=0; i<3; i++)
     {
