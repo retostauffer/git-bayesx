@@ -2092,6 +2092,10 @@ class __EXPORT_TYPE DISTRIBUTION_lognormal : public DISTRIBUTION_gaussian
                            double * deviancesat,
                            const datamatrix & scale,const int & i) const;
 
+  void tr_nonlinear(vector<double *> b,vector<double *> br,
+                    vector<FULLCOND*> & fcp,unsigned & nr,
+                    unsigned & it,ST::string & trtype);
+
   };
 
 

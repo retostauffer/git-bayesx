@@ -4154,7 +4154,40 @@ void DISTRIBUTION_gaussian::update(void)
 
   if ( (varianceest==true) || (constscale==true) )
     {
+/* ------------------------- für sigma2_i bei fMRI !!! ------------------------
+    unsigned j;
+    double sum;
 
+    worklin = (*linpred_current).getV();
+    workresp = response.getV();
+    workweight = weight.getV();
+
+    i=0;
+    while(i<nrobs)
+      {
+      j=0;
+      sum=0.0;
+      while(j<70)
+        {
+        help = *workresp - *worklin;
+        sum += help*help;
+        worklin++;workresp++;
+        j++;
+        i++;
+        }
+
+      help = rand_invgamma(a_invgamma+0.5*70,b_invgamma+0.5*sum);
+
+      j=0;
+      while(j<70)
+        {
+        *workweight = 1.0/help;
+        workweight++;
+        j++;
+        }
+
+      }
+//----------------------------------------------------------------------------*/
     }
 
   else
@@ -4508,6 +4541,13 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const double & a,
   constscale=false;
   uniformprior=false;
 
+/* ---------------------- für sigma2_i bei fMRI !!! ---------------------------
+  scale(0,0)=1;
+  changingweight=true;
+  constscale=true;
+  scaleexisting=false;
+//----------------------------------------------------------------------------*/
+
   a_invgamma = a;
   b_invgamma = b;
   family = "Gaussian";
@@ -4747,6 +4787,40 @@ void DISTRIBUTION_lognormal::compute_mu_notransform(
 const double * linpred,double * mu) const
   {
   *mu = exp(*linpred + scale(0,0)*pow(trmult(0,0),2)/2.0);
+  }
+
+
+void DISTRIBUTION_lognormal::tr_nonlinear(vector<double *> b,vector<double *> br,
+                    vector<FULLCOND*> & fcp,unsigned & nr,
+                    unsigned & it,ST::string & trtype)
+  {
+
+  if (trtype == "exp")
+    DISTRIBUTION::tr_nonlinear(b,br,fcp,nr,it,trtype);
+  else if (trtype == "elasticity")
+    {
+    if (b.size() == 2)
+      {
+      *br[1] = *b[1] * fcp[0]->get_data(nr,0);
+      }
+    }
+  else if (trtype=="marginal")
+    {
+    unsigned i;
+    for (i=0;i<b.size();i++)
+      {
+      *br[i] = exp(interceptsample(it,0)+ *b[i]);
+      }
+    }
+  else if (trtype=="marginalintercept")
+    {
+    unsigned i;
+    for (i=0;i<b.size();i++)
+      {
+      *br[i] = exp(interceptsample(it,0));
+      }
+    }
+
   }
 
 

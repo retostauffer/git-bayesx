@@ -176,9 +176,11 @@ FULLCOND_tvariance2dim::operator=(const FULLCOND_tvariance2dim & t)
 void FULLCOND_tvariance2dim::update(void)
   {
 
+  unsigned step = 5;
+
   if(spatial)
     {
-    if(optionsp->get_nriter()<optionsp->get_burnin() || (optionsp->get_nriter()-1)%5==0)
+    if(optionsp->get_nriter()<optionsp->get_burnin() || (optionsp->get_nriter()-1)%step==0)
       {
       if(Laplace)
         update_spat_laplace();
@@ -743,7 +745,8 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
 
     unsigned i,j,l;
     int k = 0;
-    double aneu = 1.0 + 0.5*double(nu);
+//    double aneu = 1.0 + 0.5*double(nu);
+    double aneu = 0.5*double(nu);
     double bneu;
 
     double alpha,u,betak;
@@ -762,7 +765,8 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
       row = indexmat(k,0);
       col = indexmat(k,1);
 
-      bneu = 0.5*nu + 0.5*Kp_spat->compute_fabsdiff(row,col);
+//      bneu = 0.5*nu + Kp_spat->compute_fabsdiff(row,col);
+      bneu = 0.5*nu + 0.5*Kp_spat->compute_squareddiff(row,col);
       deltaprop = randnumbers::rand_gamma(aneu,bneu);
 
       lognew += (0.5*nu-1)*log(deltaprop) - 0.5*nu*deltaprop;
@@ -793,7 +797,8 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
 
         quadform = Kp_spat->compute_quadform();
 //        if(quadform>0.1)
-        logold += 0.5*nu_K*log(quadform) + log(besselK(sqrt(2*quadform),nu_K));
+        logold += 0.5*nu_K*log(quadform);
+        logold += log(besselK(sqrt(2*quadform),nu_K));
 
         for(l=0;l<deltapropvec.size();l++)
           {
@@ -805,7 +810,8 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
 
         quadform = Kp_spat->compute_quadform();
 //        if(quadform>0.1)
-        lognew += 0.5*nu_K*log(quadform) + log(besselK(sqrt(2*quadform),nu_K));
+        lognew += 0.5*nu_K*log(quadform);
+        lognew += log(besselK(sqrt(2*quadform),nu_K));
 
         alpha = 0.5*(detneu - detalt) + lognew + propnew - logold - propold;
         u = log(uniform());
@@ -928,11 +934,11 @@ void FULLCOND_tvariance2dim::outoptions(void)
 
   optionsp->out("  Hyperprior nu for variance parameter: " +
                 ST::inttostring(nu) + "\n" );
-  optionsp->out("  Blocksize for updating variances: ");
+//  optionsp->out("  Blocksize for updating variances: ");
   if(spatial)
-    optionsp->out(ST::inttostring(nrrows) + " rows of penalty matrix\n" );
+    optionsp->out("  Blocksize for updating variances: " + ST::inttostring(nrrows) + " rows of penalty matrix\n" );
   else
-    optionsp->out(ST::inttostring(nrrows*2) + "\n" );  
+    optionsp->out("  Blocksize for updating variances: " + ST::inttostring(nrrows*2) + "\n" );
   optionsp->out("\n");
 
   }
