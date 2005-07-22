@@ -858,6 +858,7 @@ class __EXPORT_TYPE term_randomslope : public basic_termtype
   stroption proposal;
   simpleoption updatetau;
   simpleoption uniformprior;
+  simpleoption constlambda;
 
   void setdefault(void);
 
@@ -910,6 +911,7 @@ class __EXPORT_TYPE term_random : public basic_termtype
   stroption proposal;
   simpleoption updatetau;
   simpleoption uniformprior;
+  simpleoption constlambda;
 
   void setdefault(void);
 

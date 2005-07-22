@@ -2356,6 +2356,7 @@ term_randomslope::term_randomslope(void)
   proposal = stroption("proposal",adm_prop,"iwls");
   updatetau = simpleoption("updatetau",false);
   uniformprior = simpleoption("uniformprior",false);
+  constlambda = simpleoption("constlambda",false);
   }
 
 void term_randomslope::setdefault(void)
@@ -2367,13 +2368,14 @@ void term_randomslope::setdefault(void)
   proposal.setdefault();
   updatetau.setdefault();
   uniformprior.setdefault();
+  constlambda.setdefault();
   }
 
 
 bool term_randomslope::check(term & t)
   {
 
-  if ( (t.varnames.size()==2)  && (t.options.size()<=8) )
+  if ( (t.varnames.size()==2)  && (t.options.size()<=9) )
     {
 
     if (t.options[0] == "random")
@@ -2393,6 +2395,7 @@ bool term_randomslope::check(term & t)
     optlist.push_back(&proposal);
     optlist.push_back(&updatetau);
     optlist.push_back(&uniformprior);
+    optlist.push_back(&constlambda);
 
 
     unsigned i;
@@ -2418,7 +2421,7 @@ bool term_randomslope::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(8);
+    t.options = vector<ST::string>(9);
     t.options[0] = t.type;
     if (nofixed.getvalue() == true)
       t.options[1] = "true";
@@ -2436,6 +2439,10 @@ bool term_randomslope::check(term & t)
       t.options[7] = "false";
     else
       t.options[7] = "true";
+    if (constlambda.getvalue() == false)
+      t.options[8] = "false";
+    else
+      t.options[8] = "true";
 
     setdefault();
     return true;
@@ -2467,6 +2474,7 @@ term_random::term_random(void)
   proposal = stroption("proposal",adm_prop,"iwls");
   updatetau = simpleoption("updatetau",false);
   uniformprior = simpleoption("uniformprior",false);
+  constlambda = simpleoption("constlambda",false);
   }
 
 
@@ -2478,13 +2486,14 @@ void term_random::setdefault(void)
   proposal.setdefault();
   updatetau.setdefault();
   uniformprior.setdefault();
+  constlambda.setdefault();
   }
 
 
 bool term_random::check(term & t)
   {
 
-  if ( (t.varnames.size()==1)  && (t.options.size()<=7) )
+  if ( (t.varnames.size()==1)  && (t.options.size()<=8) )
     {
 
     if (t.options[0] == "random")
@@ -2505,6 +2514,7 @@ bool term_random::check(term & t)
     optlist.push_back(&proposal);
     optlist.push_back(&updatetau);
     optlist.push_back(&uniformprior);
+    optlist.push_back(&constlambda);
 
     unsigned i;
     bool rec = true;
@@ -2543,6 +2553,10 @@ bool term_random::check(term & t)
       t.options[6] = "false";
     else
       t.options[6] = "true";
+    if (constlambda.getvalue() == false)
+      t.options[7] = "false";
+    else
+      t.options[7] = "true";
 
 
     setdefault();
