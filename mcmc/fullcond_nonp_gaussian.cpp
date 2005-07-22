@@ -1487,6 +1487,19 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
   grenzfall = 1;
 
+  unsigned j;
+  neighbors=vector<vector<double>>(nrpar);
+  for(i=0;i<nrpar;i++)
+    {
+    for(j=0;j<nrpar;j++)
+      {
+      if(Kenv(i,j)!=0 && i!=j)
+        {
+        neighbors[i].push_back(j);
+        }
+      }
+    }
+
   }
 
 
