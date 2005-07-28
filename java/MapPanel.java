@@ -1602,7 +1602,7 @@ private void dashedLine(Graphics g, int intervals, double frac, int col)
 		i=0;
 		help = b.getDoubleValue(i,0);
 
-		while(i<nrobs && help<xstart)
+		while(i+1<nrobs && help<xstart)
 			{
 			i++;
 			help = b.getDoubleValue(i,0);
@@ -1614,13 +1614,14 @@ private void dashedLine(Graphics g, int intervals, double frac, int col)
 			start = i;
 			}
 
-		while(i<nrobs && help<xend1)
+		while(i+1<nrobs && help<xend1)
 			{
 			i++;
 			help = b.getDoubleValue(i,0);
 			}
 		xi2 = help;
 		yi2 = b.getDoubleValue(i,col);
+
 
 		i=nrobs-1;
 		help = b.getDoubleValue(i,0);
@@ -1655,6 +1656,8 @@ private void dashedLine(Graphics g, int intervals, double frac, int col)
 		
 			if(x1!=x2 && minX<=x1&x1<=maxX&minX<=x2&x2<=maxX&minY<=y1&y1<=maxY&minY<=y2&y2<=maxY)
        		                g.drawLine(translateX(x1),translateY(y1),translateX(x2),translateY(y2));
+			else if(x1==x2)
+       		                g.fillOval(translateX(x1),translateY(y1),3,3);
 
 			}
 		else // mindestens eine Beobachtung in [xstart,xend1]
@@ -1666,6 +1669,8 @@ private void dashedLine(Graphics g, int intervals, double frac, int col)
 		
 			if(x1!=x2 && minX<=x1&x1<=maxX&minX<=x2&x2<=maxX&minY<=y1&y1<=maxY&minY<=y2&y2<=maxY)
        		                g.drawLine(translateX(x1),translateY(y1),translateX(x2),translateY(y2));
+			else if(x1==x2)
+       		                g.fillOval(translateX(x1),translateY(y1),3,3);
 
 			x1 = xi2help;
 			y1 = yi2help;
@@ -1674,6 +1679,8 @@ private void dashedLine(Graphics g, int intervals, double frac, int col)
 		
 			if(x1!=x2 && minX<=x1&x1<=maxX&minX<=x2&x2<=maxX&minY<=y1&y1<=maxY&minY<=y2&y2<=maxY)
        		                g.drawLine(translateX(x1),translateY(y1),translateX(x2),translateY(y2));
+			else if(x1==x2)
+       		                g.fillOval(translateX(x1),translateY(y1),3,3);
 
 			}	
 
@@ -1687,6 +1694,8 @@ private void dashedLine(Graphics g, int intervals, double frac, int col)
 
 			if(x1!=x2 && minX<=x1&x1<=maxX&minX<=x2&x2<=maxX&minY<=y1&y1<=maxY&minY<=y2&y2<=maxY)
        		                g.drawLine(translateX(x1),translateY(y1),translateX(x2),translateY(y2));
+			else if(x1==x2)
+       		                g.fillOval(translateX(x1),translateY(y1),3,3);
 
 			}
 
