@@ -1550,56 +1550,148 @@ private void plot(Graphics g,int col)
 
 private void dashedLine(Graphics g, int intervals, double frac, int col)
         {
-                        double x;
-                        double y;
-                        double x2;
-                        double y2;
-			double xend1;
-			double xend2;
+	double xi1;
+	double xi2;
+	double yi1;
+	double yi2;
+        double x1;
+        double y1;
+        double x2;
+        double y2;
+	double xstart;
+	double xend1;
+	double xend2;
+	double xi1help;
+	double yi1help;
+	double xi2help;
+	double yi2help;
+	double help;
 
-			int i = 1;
-			double dist = (maxX-minX)/intervals;
+	int nrobs = b.getDRows();	
+	int start;
+	int stop;
 
-                        x = b.getDoubleValue(0,0);
-                        y = b.getDoubleValue(0,col);
+	int i;
+	double dist = (maxX-minX)/intervals;
 
-                        for(int j=0;j<intervals;j++)
-                                {
-				xend1 = minX + (j+frac)*dist;
-				xend2 = minX + (j+1.0)*dist;
+        for(int j=0;j<intervals;j++)
+	        {
 
-	                        x2 = b.getDoubleValue(i,0);
-	                        y2 = b.getDoubleValue(i,col);
+		xstart = minX + j*dist;
+        	xend1 = minX + (j+frac)*dist;
+		xend2 = minX + (j+1.0)*dist;
 
-				while(i<b.getDRows()-1 && x2 <= xend1)
-					{
-					if(minX<=x&x<=maxX&minX<=x2&x2<=maxX&minY<=y&y<=maxY&minY<=y2&y2<=maxY)
-        	                            g.drawLine(translateX(x),translateY(y),translateX(x2),translateY(y2));
-					x = x2;
-					y = y2;
-					i++;
-		                        x2 = b.getDoubleValue(i,0);
-		                        y2 = b.getDoubleValue(i,col);
-					}
+		start = -1;
+		stop = -2;
 
-	                        y2 = y + (xend1-x)*(y2-y)/(x2-x);
-	                        x2 = xend1;
-				if(minX<=x&x<=maxX&minX<=x2&x2<=maxX&minY<=y&y<=maxY&minY<=y2&y2<=maxY)
-		                        g.drawLine(translateX(x),translateY(y),translateX(x2),translateY(y2));
+		xi1 = b.getDoubleValue(0,0);
+		xi2 = b.getDoubleValue(nrobs-1,0);
+		yi1 = b.getDoubleValue(0,col);
+		yi2 = b.getDoubleValue(nrobs-1,col);
 
-	                        x2 = b.getDoubleValue(i,0);
-				while(i<b.getDRows()-1 && x2 <= xend2)
-					{
-					i++;
-		                        x2 = b.getDoubleValue(i,0);
-					}
+		if(xstart<xi1)
+			xstart=xi1;
+		if(xend1>xi2)
+			xend1=xi2;
+
+		xi1help = minX-1;	
+		yi1help = minX-1;
+		xi2help = maxX+1;	
+		yi2help = maxX+1;
+
+		i=0;
+		help = b.getDoubleValue(i,0);
+
+		while(i<nrobs && help<xstart)
+			{
+			i++;
+			help = b.getDoubleValue(i,0);
+			}
+		if(xstart<=help && help<=xend1)
+			{
+   			xi1help = help;
+			yi1help = b.getDoubleValue(i,col);
+			start = i;
+			}
+
+		while(i<nrobs && help<xend1)
+			{
+			i++;
+			help = b.getDoubleValue(i,0);
+			}
+		xi2 = help;
+		yi2 = b.getDoubleValue(i,col);
+
+		i=nrobs-1;
+		help = b.getDoubleValue(i,0);
+
+		while(i>0 && help>xend1)
+			{
+			i--;
+			help = b.getDoubleValue(i,0);
+			}
+		if(xstart<=help && help<=xend1)
+			{
+   			xi2help = help;
+			yi2help = b.getDoubleValue(i,col);
+			stop = i;
+			}
+
+		while(i>0 && help>xstart)
+			{
+			i--;
+			help = b.getDoubleValue(i,0);
+			}
+		xi1 = help;
+		yi1 = b.getDoubleValue(i,col);
 
 
-				y2 = b.getDoubleValue(i,col);
-				y = b.getDoubleValue(i-1,col);
-	                        y = y + (xend2-x)*(y2-y)/(x2-x);
-	                        x = xend2;
-                                }
+		if(xi1help<minX && xi2help>maxX) // keine Beobachtung in [xstart,xend1]
+			{
+			x1 = xstart;			
+			y1 = yi1 + (xstart-xi1) * (yi2-yi1)/(xi2-xi1);
+			x2 = xend1;
+			y2 = yi1 + (xend1-xi1) * (yi2-yi1)/(xi2-xi1);
+		
+			if(x1!=x2 && minX<=x1&x1<=maxX&minX<=x2&x2<=maxX&minY<=y1&y1<=maxY&minY<=y2&y2<=maxY)
+       		                g.drawLine(translateX(x1),translateY(y1),translateX(x2),translateY(y2));
+
+			}
+		else // mindestens eine Beobachtung in [xstart,xend1]
+			{
+			x1 = xstart;			
+			y1 = yi1 + (xstart-xi1) * (yi1help-yi1)/(xi1help-xi1);
+			x2 = xi1help; 
+			y2 = yi1help;
+		
+			if(x1!=x2 && minX<=x1&x1<=maxX&minX<=x2&x2<=maxX&minY<=y1&y1<=maxY&minY<=y2&y2<=maxY)
+       		                g.drawLine(translateX(x1),translateY(y1),translateX(x2),translateY(y2));
+
+			x1 = xi2help;
+			y1 = yi2help;
+			x2 = xend1;
+			y2 = yi1 + (xend1-xi1) * (yi2-yi2help)/(xi2-xi2help);
+		
+			if(x1!=x2 && minX<=x1&x1<=maxX&minX<=x2&x2<=maxX&minY<=y1&y1<=maxY&minY<=y2&y2<=maxY)
+       		                g.drawLine(translateX(x1),translateY(y1),translateX(x2),translateY(y2));
+
+			}	
+
+
+		for(int k=start;k<stop;k++)
+			{
+			x1 = b.getDoubleValue(k,0); 
+			y1 = b.getDoubleValue(k,col);
+			x2 = b.getDoubleValue(k+1,0);
+			y2 = b.getDoubleValue(k+1,col);
+
+			if(x1!=x2 && minX<=x1&x1<=maxX&minX<=x2&x2<=maxX&minY<=y1&y1<=maxY&minY<=y2&y2<=maxY)
+       		                g.drawLine(translateX(x1),translateY(y1),translateX(x2),translateY(y2));
+
+			}
+
+		}
+
         }
 
 private void drawLine(Graphics g)
