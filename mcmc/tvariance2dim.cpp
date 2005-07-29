@@ -798,7 +798,10 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
         quadform = Kp_spat->compute_quadform();
 //        if(quadform>0.1)
         logold += 0.5*nu_K*log(quadform);
-        logold += log(besselK(sqrt(2*quadform),nu_K));
+        if(nu_K<100)
+          logold += log(besselK(sqrt(2*quadform),nu_K));
+        else
+          logold += log_besselK(sqrt(2*quadform),nu_K);
 
         for(l=0;l<deltapropvec.size();l++)
           {
@@ -811,7 +814,10 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
         quadform = Kp_spat->compute_quadform();
 //        if(quadform>0.1)
         lognew += 0.5*nu_K*log(quadform);
-        lognew += log(besselK(sqrt(2*quadform),nu_K));
+        if(nu_K<100)
+          lognew += log(besselK(sqrt(2*quadform),nu_K));
+        else
+          lognew += log_besselK(sqrt(2*quadform),nu_K);
 
         alpha = 0.5*(detneu - detalt) + lognew + propnew - logold - propold;
         u = log(uniform());
@@ -1106,6 +1112,24 @@ double chebev(const double a, const double b, Vec_I_DP &c, const int m, const do
   return y*d-dd+0.5*c[0];
 
   }
+
+double log_besselK(const double x, const double xnu)
+  {
+// nach Abramowitz/Stegun 9.7.8
+  double z,eta,u1,u2,t,t2;
+
+  z   = x/xnu;
+  t   = 1.0/sqrt(1.0+z*z);
+  t2  = t*t;
+  eta = sqrt(1.0+z*z)+log(z/(1+sqrt(1.0+z*z)));
+  u1  = t*(3.0-5.0*t2)/24.0;
+  u2  = t2*(81.0-462.0*t2+385.0*t2*t2)/1152.0;
+
+  z = -xnu*eta - 0.25*log(1+z*z) + log(1.0 - u1/xnu + u2/(xnu*xnu));
+
+  return  z;
+  }
+
 
 } // end: namespace MCMC
 

@@ -235,6 +235,8 @@ void bessik(const double x, const double xnu, double &ri, double &rk, double &ri
 void beschb(const double x, double &gam1, double &gam2, double &gampl, double &gammi);
 double chebev(const double a, const double b, Vec_I_DP &c, const int m, const double x);
 
+double log_besselK(const double x, const double xnu);
+
 } // end: namespace MCMC
 
 #endif
