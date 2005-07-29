@@ -27,7 +27,8 @@ bool bayesreg::check_iwls(bool & iwls)
        ( (family.getvalue() == "nbinomial") && (iwls==true) ) ||
        ( (family.getvalue() == "zip") && (iwls==true) ) ||
        ( (family.getvalue() == "multinomial") && (iwls==true) ) ||
-       ( (family.getvalue() == "cox") && (iwls==true) )
+       ( (family.getvalue() == "cox") && (iwls==true) ) ||
+       ( (family.getvalue() == "multistate") && (iwls==true) )
       )
     return true;
   else
@@ -59,7 +60,8 @@ bool  bayesreg::check_nongaussian(void)
        (family.getvalue() == "vargaussian") ||       
        (family.getvalue() == "nbinomial") ||
        (family.getvalue() == "zip") ||
-       (family.getvalue() == "multinomial") || (family.getvalue() == "cox") )
+       (family.getvalue() == "multinomial") || (family.getvalue() == "cox") ||
+       (family.getvalue() == "multistate") )
      return true;
   else
     return false;
@@ -246,6 +248,7 @@ void bayesreg::create(void)
   families.push_back("nbinomial");
   families.push_back("zip");
   families.push_back("cox");
+  families.push_back("multistate");
   family = stroption("family",families,"binomial");
   aresp = doubleoption("aresp",0.001,0,500);
   bresp = doubleoption("bresp",0.001,0,500);
@@ -289,6 +292,8 @@ void bayesreg::create(void)
   nosamples = simpleoption("nosamples",false);
 
   begin = stroption("begin");
+
+  state = stroption("state");
 
   predictind = stroption("predictind");
 
@@ -348,6 +353,7 @@ void bayesreg::create(void)
   regressoptions.push_back(&nosamples);
 
   regressoptions.push_back(&begin);
+  regressoptions.push_back(&state);
 
   regressoptions.push_back(&predictind);
 
@@ -617,6 +623,8 @@ void bayesreg::initpointers(void)
       distr.push_back(&distr_zip);
     else if (distrstring[i] == "cox")
       distr.push_back(&distr_cox);
+    else if (distrstring[i] == "multistate")
+      distr.push_back(&distr_multistatemodel);
     }
 
 
@@ -971,10 +979,12 @@ bool bayesreg::create_distribution(void)
   ST::string predictindicator;
   ST::string missingindicator;
   unsigned weightpos;
+  unsigned begpos;
+  unsigned statepos;
   unsigned predictindpos;
   unsigned missingindpos;
 
-  if (family.getvalue() =="multgaussian")
+  if (family.getvalue() =="multgaussian" || family.getvalue() == "multistate")
     {
     modelvarnamesv = modregmult.getModelVarnamesAsVector();
     wn = methods[5].get_weight_variable().to_bstr();
@@ -1020,10 +1030,19 @@ bool bayesreg::create_distribution(void)
     ifexpression = methods[0].getexpression();
     }
 
-  // Für Cox model: variable 'begin' an 2. Stelle setzen
-  vector<ST::string>::iterator modelit = modelvarnamesv.begin()+1;
+  // Für Cox/Multistate model
   if(begin.getvalue() != "")
-    modelvarnamesv.insert(modelit,1,begin.getvalue());
+    {
+    modelvarnamesv.push_back(begin.getvalue());
+    begpos = modelvarnamesv.size()-1;
+    }
+
+  // Für Multistate model
+  if(state.getvalue() != "")
+    {
+    modelvarnamesv.push_back(state.getvalue());
+    statepos = modelvarnamesv.size()-1;
+    }
 
   // testing, wether all variables specified are already existing
   vector<ST::string> notex;
@@ -1081,13 +1100,19 @@ bool bayesreg::create_distribution(void)
     mind.push_back(datamatrix(1,1));
     }
 
-
-  // Für Cox model:
   datamatrix beg;
+  datamatrix statemat;
+
   if (begin.getvalue() == "")
-    beg = datamatrix(D.rows(),1,0);
+    beg = D.getCol(begpos);
   else
-    beg = D.getCol(1);
+    beg = datamatrix(1,1);
+
+  if (state.getvalue() == "")
+    statemat = D.getCol(statepos);
+  else
+    statemat = datamatrix(1,1);
+
 
   describetext.push_back("Response distribution: "
                            + family.getvalue() + "\n");
@@ -1923,6 +1948,75 @@ bool bayesreg::create_distribution(void)
 
     }
 //--------------------- END: Cox model -----------------------------------------
+//---------------------Multistate model-----------------------------------------
+  else if (family.getvalue() == "multistate")
+    {
+
+    bool baselineexisting;
+
+    unsigned j,k;
+    for(i=0;i<termsmult.size();i++)
+      {
+      baselineexisting=false;
+      for(k=0;k<termsmult[i].size();k++)
+        {
+        if ( baseline.checkvector(termsmult[i],k) == true )
+          {
+          j = termsmult[i][k].varnames[0].isinlist(modelvarnamesv);
+          baselineexisting = true;
+          }
+        }
+
+      if(baselineexisting == false)
+        {
+        outerror("ERROR: no baseline specified\n");
+        return true;
+        }
+      }
+
+    vector<unsigned> rescol  = modregmult.getresponsecol();
+
+    // Responsematrix
+
+    unsigned c;
+
+    datamatrix res(D.rows(),rescol.size());
+//    unsigned k;
+    for(j=0;j<res.cols();j++)
+      {
+      c = rescol[j];
+      for(k=0;k<res.rows();k++)
+        res(k,j) = D(k,c);
+      }
+    if (offs.rows() == 1)
+      distr_multistatemodel = DISTRIBUTION_multistatemodel(
+                              &generaloptions[generaloptions.size()-1],res,
+                              D.getCol(j),beg,statemat,w);
+
+    if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+      distr_multistatemodel.set_predict(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_multistatemodel.set_predictfull(pathfullsample,pathfull,n);
+      }
+
+    distr.push_back(&distr_multistatemodel);
+    distrstring.push_back("multistate");
+    distrposition.push_back(0);
+    nrcategories = res.cols();
+    }
+
+//------------------------- END: multistate model ------------------------------
 
 //----------------------- negative binomial response ---------------------------
   else if (family.getvalue() == "nbinomial")
@@ -3000,4 +3094,6 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 //------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
+
+
 

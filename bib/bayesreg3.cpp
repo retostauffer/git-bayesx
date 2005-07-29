@@ -362,7 +362,7 @@ void mregressrun(bayesreg & b)
 
   bool failure = false;
 
-  if (b.family.getvalue() != "multgaussian")
+  if ((b.family.getvalue() != "multgaussian") && (b.family.getvalue() != "multistate"))
     {
     failure = true;
     b.out("ERROR: family " + b.family.getvalue() + " is not allowed for method mregress\n");
@@ -385,6 +385,9 @@ void mregressrun(bayesreg & b)
 
       if (!failure)
         failure = b.create_const(i);
+
+      if (!failure)
+        failure = b.create_baseline(i);
 
       if (!failure)
         failure = b.create_nonprw1rw2(i);
@@ -432,6 +435,48 @@ void mregressrun(bayesreg & b)
     b.describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
     b.resultsyesno = false;
     }
+
+#if defined(JAVA_OUTPUT_WINDOW)
+
+    for(unsigned j=0;j<b.fullcond.size();j++)
+       {
+       MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
+       if(plst != MCMC::noplot)
+         {
+         vector<ST::string> varnames = b.fullcond[j]->get_datanames();
+         ST::string xvar = varnames[0];
+         ST::string pathresult = b.fullcond[j]->get_pathresult();
+         ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+         if(plst == MCMC::plotnonp)
+                 {
+                 b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
+                 + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
+                 + " ylab = \" \" outfile = " + pathps + ".ps replace");
+                 }
+
+         if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
+                 {
+                 double u = b.fullcond[j]->get_level1();
+                 double o = b.fullcond[j]->get_level2();
+                 ST::string u_str = ST::doubletostring(u,0);
+                 ST::string o_str = ST::doubletostring(o,0);
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", color outfile = " + pathps + "_pmean.ps replace");
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+                 + "_pcat" + u_str + ".ps replace");
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+                 + "_pcat" + o_str + ".ps replace");
+
+                 }
+         }
+       }
+
+    b.newcommands.push_back(b.name + ".texsummary");
+
+#endif
+    
 
   }
 
@@ -1470,6 +1515,12 @@ void regressrun(bayesreg & b)
     {
     failure = true;
     b.out("ERROR: family multivariate gaussian is not allowed for method regress\n");
+    }
+
+  if (b.family.getvalue() == "multistate")
+    {
+    failure = true;
+    b.out("ERROR: family multistate is not allowed for method regress\n");
     }
 
   if (!failure)

@@ -24,6 +24,7 @@
 #include<nbinomial.h>
 #include<zip.h>
 #include<cox.h>
+#include<multistate.h>
 
 #include<mcmc_const.h>
 
@@ -73,6 +74,7 @@ using MCMC::DISTRIBUTION_multinom;
 using MCMC::DISTRIBUTION_multinomial_latent;
 using MCMC::DISTRIBUTION_cumulative_latent3;
 using MCMC::DISTRIBUTION_coxmodel;
+using MCMC::DISTRIBUTION_multistatemodel;
 using MCMC::FULLCOND;
 using MCMC::FULLCOND_const;
 using MCMC::FULLCOND_const_gaussian;
@@ -334,7 +336,8 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   // options cox model
   stroption begin;
-  // options cox model
+  stroption state;
+  // options multistate model
 
   simpleoption predict;                 // indicates that predicted values,
                                         // deviances, etc. should be computed
@@ -397,6 +400,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   DISTRIBUTION_multinom distr_multinom;
   DISTRIBUTION_multinomial_latent distr_multinom_latent;
   DISTRIBUTION_coxmodel distr_cox;
+  DISTRIBUTION_multistatemodel distr_multistatemodel;
 
   doubleoption reference;
 
