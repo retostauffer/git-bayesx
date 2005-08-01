@@ -634,6 +634,9 @@ void bayesreg::initpointers(void)
   for(i=0;i<fcbaselineiwls.size();i++)
     fullcond.push_back(&fcbaselineiwls[i]);
 
+  for(i=0;i<fcmultibaseline.size();i++)
+    fullcond.push_back(&fcmultibaseline[i]);
+
   for(i=0;i<fcpsplinesurfgaussian.size();i++)
     fullcond.push_back(&fcpsplinesurfgaussian[i]);
 
@@ -780,6 +783,9 @@ void bayesreg::clear(void)
   fcbaselineiwls.erase(fcbaselineiwls.begin(),fcbaselineiwls.end());
   fcbaselineiwls.reserve(20);
 
+  fcmultibaseline.erase(fcmultibaseline.begin(),fcmultibaseline.end());
+  fcmultibaseline.reserve(20);
+
   fckriging.erase(fckriging.begin(),fckriging.end());
   fckriging.reserve(20);
 
@@ -843,6 +849,7 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   fckriging = b.fckriging;
   fcbaseline = b.fcbaseline;
   fcbaselineiwls = b.fcbaselineiwls;
+  fcmultibaseline = b.fcmultibaseline;
   resultsyesno = b.resultsyesno;
   posteriormode = b.posteriormode;
 //  initpointers();
@@ -881,6 +888,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   fckriging = b.fckriging;  
   fcbaseline = b.fcbaseline;
   fcbaselineiwls = b.fcbaselineiwls;
+  fcmultibaseline = b.fcmultibaseline;
   resultsyesno = b.resultsyesno;
   posteriormode = b.posteriormode;
 //  initpointers();
@@ -979,8 +987,6 @@ bool bayesreg::create_distribution(void)
   ST::string predictindicator;
   ST::string missingindicator;
   unsigned weightpos;
-  unsigned begpos;
-  unsigned statepos;
   unsigned predictindpos;
   unsigned missingindpos;
 
@@ -1104,14 +1110,14 @@ bool bayesreg::create_distribution(void)
   datamatrix statemat;
 
   if (begin.getvalue() == "")
-    beg = D.getCol(begpos);
-  else
     beg = datamatrix(1,1);
+  else
+    beg = D.getCol(begpos);
 
   if (state.getvalue() == "")
-    statemat = D.getCol(statepos);
-  else
     statemat = datamatrix(1,1);
+  else
+    statemat = D.getCol(statepos);
 
 
   describetext.push_back("Response distribution: "
@@ -2326,14 +2332,6 @@ bool bayesreg::create_const(const unsigned & collinpred)
           if (constincl == true)
             fcconst_intercept = &nbinomialconst[nbinomialconst.size()-1];
 
-          if (family.getvalue() == "cox")
-            {
-            for(unsigned ii=0;ii<fcbaseline.size();ii++)
-              fcbaseline[ii].set_fcconst(fcconst_intercept);
-            for(unsigned ii=0;ii<fcbaselineiwls.size();ii++)
-              fcbaselineiwls[ii].set_fcconst(fcconst_intercept);
-            }
-
           fullcond.push_back(&nbinomialconst[nbinomialconst.size()-1]);
 
           } //end: if (family.getvalue() == "nbinomial" && hierarchical.getvalue() == true)
@@ -2357,6 +2355,11 @@ bool bayesreg::create_const(const unsigned & collinpred)
               fcbaseline[ii].set_fcconst(fcconst_intercept);
             for(unsigned ii=0;ii<fcbaselineiwls.size();ii++)
               fcbaselineiwls[ii].set_fcconst(fcconst_intercept);
+            }
+          if (family.getvalue() == "multistate")
+            {
+            for(unsigned ii=0;ii<fcmultibaseline.size();ii++)
+              fcmultibaseline[ii].set_fcconst(fcconst_intercept);
             }
 
           fullcond.push_back(&nongaussianconst[nongaussianconst.size()-1]);

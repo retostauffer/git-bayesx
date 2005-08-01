@@ -2408,7 +2408,7 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
       if (begin.getvalue() == "")
         beg = datamatrix(1,1);
       else
-        beg = D.getCol(1);
+        beg = D.getCol(begpos);
 
       // -------------end: reading options, term information -------------------
 
