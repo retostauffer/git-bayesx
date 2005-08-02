@@ -2648,6 +2648,14 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
           {
           //------------------- non-gaussian response, etc. --------------------
 
+          if (terms[i].options[0] == "rw1vrw1" || terms[i].options[0] == "rw2vrw1"
+          || terms[i].options[0] == "rw1vrw2" || terms[i].options[0] == "rw2vrw2"
+          || terms[i].options[0] == "trw1" || terms[i].options[0] == "trw2")
+            {
+            outerror("ERROR: '" + terms[i].options[0] + "' not available\n");
+            return true;
+            }
+
           if (varcoeff==false)
             Pmatrices.push_back(PenaltyMatrix(D.getCol(j1),title,
             unsigned(maxint.getvalue()),min,max,type));
