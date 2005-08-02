@@ -29,14 +29,12 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
   protected:
 
    bool begin0;
+   unsigned col;
    datamatrix int_knots;
    datamatrix int_D;
    MCMC::bsplinemat testmat;
-   vector<MCMC::bsplinemat> gaussmat;
    vector<pspline_multibaseline*> baselinep;
    datamatrix zi;
-   unsigned gauss_n;
-   datamatrix coeff;
    datamatrix z_vc;
    datamatrix zi_ges;
    datamatrix beg_i;
@@ -46,15 +44,9 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
    datamatrix spline_ges;
    datamatrix spline_ges2;
    datamatrix spline_zi;
-   datamatrix gaussspline;
    datamatrix int_ti_help;
    bool vc_dummy1;
-   bool Weibull;
-   double weibullprior_alpha;
-   double weibullproposal_a1;
-   double weibullproposal_a2;
-   double b_prop;
-   double acceptance_between;
+
 
   public:
 
@@ -79,13 +71,13 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
 
 // CONSTRUCTOR 2 (für zeitabhängige Effekte)
 
-  pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
+/*pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
                     const datamatrix & time, const datamatrix & z,
                     const unsigned & nrk,const unsigned & degr,const knotpos & kp,
                     const double & l,const unsigned & minb,const unsigned & maxb,
                     const fieldtype & ft,const ST::string & ti,
                     const ST::string & fp, const ST::string & pres,
-                    const int & gs,const unsigned & c,const datamatrix & anfang);
+                    const int & gs,const unsigned & c,const datamatrix & anfang);*/
 
 
   // COPY CONSTRUCTOR
@@ -103,14 +95,14 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
   void outoptions(void);
 //  void outresults(void);
   void compute_int_ti(const datamatrix & b);
-  void compute_int_ti_linear(const double & b);
-  void compute_int_ti_weibull(const double & r);
+//void compute_int_ti_linear(const double & b);
+//void compute_int_ti_weibull(const double & r);
   void compute_int_ti(unsigned beg);
   void compute_int_ti_vc_di0(const vector<double *>,const vector<double *>);
   void compute_int_ti_vc_di(const int,const vector<double *>,const vector<double *>);
-  void compute_int_gauss(void);
-  void compute_int_gauss_DIC(void);
-  void update_baseline(void);
+//void compute_int_gauss(void);
+//void compute_int_gauss_DIC(void);
+  void update_multibaseline(void);
   void compute_int_ti_mean(void);
   void set_baselinep(vector<pspline_multibaseline*> bp)
     {
@@ -156,10 +148,10 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
     return spline_ges.getV();
     }
 
-  double * get_gaussspline(void);
+//double * get_gaussspline(void);
 
 
-  double * get_gaussspline_mean(void);
+//double * get_gaussspline_mean(void);
 
 
   double * get_betamean(void)
@@ -184,10 +176,10 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
     }
 
 
-  datamatrix lgamma;
+/*datamatrix lgamma;
   void create_lgamma(void);
   double lgammafunc(const double & nu) const;
-  double lfac(const double & nu) const;
+  double lfac(const double & nu) const;*/
 
 
 

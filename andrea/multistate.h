@@ -10,7 +10,7 @@
 
 #include <distribution.h>
 #include <mcmc_pspline.h>
-#include <baseline.h>
+#include <multibaseline.h>
 
 namespace MCMC
 {
@@ -34,6 +34,7 @@ class __EXPORT_TYPE DISTRIBUTION_multistatemodel : public DISTRIBUTION
 
   datamatrix ti;
   datamatrix state_i;
+  datamatrix beg;
   datamatrix transition;
   datamatrix transition_help;
 //  datamatrix relrisk;
@@ -74,6 +75,7 @@ class __EXPORT_TYPE DISTRIBUTION_multistatemodel : public DISTRIBUTION
      nrtransition = nd.nrtransition;
      ti=nd.ti;
      state_i = nd.state_i;
+     beg = nd.beg;
      transition_help = nd.transition_help;
      transition = nd.transition;
 
@@ -98,6 +100,7 @@ class __EXPORT_TYPE DISTRIBUTION_multistatemodel : public DISTRIBUTION
      nrtransition = nd.nrtransition;
      ti=nd.ti;
      state_i = nd.state_i;
+     beg = nd.beg;
      transition_help = nd.transition_help;
      transition = nd.transition;
 

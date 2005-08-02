@@ -23,6 +23,7 @@ DISTRIBUTION_multistatemodel::DISTRIBUTION_multistatemodel(MCMCoptions * o,
      nrtransition = response.cols();
      ti = t;
      state_i = state;
+     beg = dbeg;
 
      nrcat = state_i.max(0);
 
@@ -33,11 +34,33 @@ DISTRIBUTION_multistatemodel::DISTRIBUTION_multistatemodel(MCMCoptions * o,
          {
          for(k=0;k<nrtransition;k++)
            {
-           if(state_i(i,0)==j && response(i,k)==1.0) transition_help(j-1,k)==1.0;
+           if(state_i(i,0)==j && response(i,k)==1.0) transition_help(j-1,k)+=1.0;
            }
          }
        }
 
+     optionsp->out("\n");
+     optionsp->out("Matrix of possible transitions:\n");
+     optionsp->out("\n");
+
+     ST::string str = "\tTransition\t";
+     for(j=0;j<transition_help.cols();j++)
+       {
+       str = str + ST::inttostring(j+1) + "\t";
+       }
+     optionsp->out(str);
+     optionsp->out("State");
+
+     for(i=0;i<transition_help.rows();i++)
+       {
+       ST::string str = ST::inttostring(i+1) + "\t\t\t";
+       for(j=0;j<transition_help.cols();j++)
+         {
+         str = str + ST::doubletostring(transition_help(i,j)) + "\t";
+         }
+       optionsp->out(str);
+       }
+     optionsp->out("\n");
 
      transition = datamatrix(ti.rows(),nrtransition,0.0);
      for(i=0;i<ti.rows();i++)
@@ -48,7 +71,7 @@ DISTRIBUTION_multistatemodel::DISTRIBUTION_multistatemodel(MCMCoptions * o,
            {
            for(k=0;k<nrtransition;k++)
              {
-             transition(i,k)=transition_help(j-1,k);
+             if(transition_help(j-1,k)>0.0) transition(i,k)=1.0;
              }
            }
          }
