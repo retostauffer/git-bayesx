@@ -398,6 +398,9 @@ void mregressrun(bayesreg & b)
       if (!failure)
         failure = b.create_spatial(i);
 
+      if (!failure)
+        failure = b.create_random(i);
+
       }
     }
 
