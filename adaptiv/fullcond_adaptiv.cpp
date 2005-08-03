@@ -19,7 +19,6 @@ FULLCOND_adaptiv::FULLCOND_adaptiv(MCMCoptions * o, FULLCOND_nonp_basis * p,
                              const ST::string & fp, const ST::string & pres)
   : FULLCOND(o,datamatrix(1,1),ti,p->get_nrpar(),1,fp)
   {
-
   unifb = uniformb;
 
   Gp = p;
@@ -31,7 +30,7 @@ FULLCOND_adaptiv::FULLCOND_adaptiv(MCMCoptions * o, FULLCOND_nonp_basis * p,
     start=2;
 
   Gp->update_sigma2(1);
-  sigma2beta=1;
+//  sigma2beta=1;
 
   identifiable = true;
   sigma2 = startvalue;
@@ -53,7 +52,6 @@ FULLCOND_adaptiv::FULLCOND_adaptiv(MCMCoptions * o, FULLCOND_nonp_basis * p,
   minblocksize = minb;
   maxblocksize = maxb;
   Pm = PenaltyMatrix(md,"varhelp",p->get_nrpar(),minb,maxb,ft);
-
   }
 
 
@@ -69,7 +67,7 @@ FULLCOND_adaptiv::FULLCOND_adaptiv(const FULLCOND_adaptiv & fc)
   type = fc.type;
   pathresults = fc.pathresults;
   Gp = fc.Gp;
-  sigma2beta = fc.sigma2beta;
+//  sigma2beta = fc.sigma2beta;
   start = fc.start;
   h = fc.h;
   Pm = fc.Pm;
@@ -90,51 +88,13 @@ const FULLCOND_adaptiv & FULLCOND_adaptiv::operator=(const FULLCOND_adaptiv & fc
   type = fc.type;
   pathresults = fc.pathresults;
   Gp = fc.Gp;
-  sigma2beta = fc.sigma2beta;
+//  sigma2beta = fc.sigma2beta;
   start = fc.start;
   h = fc.h;
   Pm = fc.Pm;
   minblocksize = fc.minblocksize;
   maxblocksize = fc.maxblocksize;
   return *this;
-  }
-
-/*
-double FULLCOND_adaptiv::compute_hprop(unsigned & i)
-  {
-
-  double mu;
-  double sigma = sqrt(sigma2/2.0);
-
-  if (i==start)
-    {
-    mu = 0.5*h(1,0);
-    return rand_normal()*sigma + mu;
-    }
-  else if (i==beta.rows()-1)
-    {
-    mu = h(i-1-start,0);
-    return rand_normal()*sigma + mu;
-    }
-  else
-    {
-    mu = 0.5*h(i+1-start,0) + 0.5*h(i-1-start,0);
-    return rand_normal()*sigma + mu;
-    }
-
-  }
-*/
-
-double FULLCOND_adaptiv::compute_denquot(unsigned i,double hp)
-  {
-  double hdiff,qt,qtp;
-
-  hdiff = h(i-start,0) - hp;
-
-  qt = beta(i,0)*sigma2beta;
-  qtp = exp(hp)*sigma2beta;
-
-  return 0.5*hdiff + 0.5*Gp->compute_ui(i)*(1/qt-1/qtp);
   }
 
 
@@ -153,14 +113,11 @@ void FULLCOND_adaptiv::outoptions(void)
   optionsp->out("  Hyperprior a for variance parameter: " +
                 ST::doubletostring(a_invgamma) + "\n" );
   if (unifb==true)
-  {
-  optionsp->out("  Hyperprior b for variance parameter: uniform\n" );
-  }
+    optionsp->out("  Hyperprior b for variance parameter: uniform\n" );
   else
-  {
-  optionsp->out("  Hyperprior b for variance parameter: " +
-                ST::doubletostring(b_invgamma) + "\n" );
-  }
+    optionsp->out("  Hyperprior b for variance parameter: " +
+                     ST::doubletostring(b_invgamma) + "\n" );
+
   optionsp->out("  Minimum blocksize for blockmove updates: " +
                    ST::inttostring(minblocksize) + "\n");
   optionsp->out("  Maximum blocksize for blockmove updates: " +
@@ -170,6 +127,39 @@ void FULLCOND_adaptiv::outoptions(void)
   }
 
 
+/*
+double FULLCOND_adaptiv::compute_hprop(unsigned & i)
+  {
+  double mu;
+  double sigma = sqrt(sigma2/2.0);
+  if (i==start)
+    {
+    mu = 0.5*h(1,0);
+    return rand_normal()*sigma + mu;
+    }
+  else if (i==beta.rows()-1)
+    {
+    mu = h(i-1-start,0);
+    return rand_normal()*sigma + mu;
+    }
+  else
+    {
+    mu = 0.5*h(i+1-start,0) + 0.5*h(i-1-start,0);
+    return rand_normal()*sigma + mu;
+    }
+  }
+*/
+
+
+double FULLCOND_adaptiv::compute_denquot(unsigned i,double hp)
+  {
+  double hdiff,qt,qtp;
+  hdiff = h(i-start,0) - hp;
+  qt = beta(i,0);
+  qtp = exp(hp);
+  return 0.5*hdiff + 0.5*Gp->compute_ui(i)*(1/qt-1/qtp);
+  }
+
 
 void FULLCOND_adaptiv::update(void)
   {
@@ -177,14 +167,12 @@ void FULLCOND_adaptiv::update(void)
   double denquot,u;
 
   unsigned blocksize = int(Pm.get_minsize() +
-	  uniform()*(Pm.get_maxsize()-Pm.get_minsize()+1));
-
+                       uniform()*(Pm.get_maxsize()-Pm.get_minsize()+1));
   unsigned an = 1;
   unsigned en = blocksize;
 
   for(j=0;j<Pm.get_nrblocks(blocksize);j++)
     {
-
     nrtrials++;
 
     Pm.compute_fc(h,blocksize,an,en,sqrtl(sigma2));
@@ -194,51 +182,41 @@ void FULLCOND_adaptiv::update(void)
       denquot += compute_denquot(k+start-1,Pm.get_fc_random()[en-an](k-an,0));
 
     u = log(uniform());
-
     if (u <= denquot)    // accept
       {
-
       for(k=an;k<=en;k++)
         {
         h(k-1,0) = Pm.get_fc_random()[en-an](k-an,0);
-
         if (h(k-1,0) < -20)
           h(k-1,0) = -20;
-
         beta(k+start-1,0) = exp(h(k-1,0));
         beta(k+start-1,1) = h(k-1,0);
         }
-
       acceptance++;
       }
-
 
     an+=blocksize;
     if (j ==  Pm.get_nrblocks(blocksize)-2)
       en = Pm.get_sizeK();
     else
       en+=blocksize;
-
     }
-
-
 
   if (unifb==true)
     {
     double help=0;
     while (help < 0.0000005 || help > 0.05)
       help = randnumbers::rand_gamma(a_invgamma+1,1.0/beta(0,0));
-
     b_invgamma = help;
 //    beta(1,0) = help;
     }
 
   if (type==RW1)
-    sigma2 = rand_invgamma(a_invgamma+0.5*(h.rows()-1),b_invgamma+0.5*
-    Pm.compute_quadform(h,0));
+    sigma2 = rand_invgamma(a_invgamma+0.5*(h.rows()-1),
+                           b_invgamma+0.5*Pm.compute_quadform(h,0));
   else
-    sigma2 = rand_invgamma(a_invgamma+0.5*(h.rows()-2),b_invgamma+0.5*
-    Pm.compute_quadform(h,0));
+    sigma2 = rand_invgamma(a_invgamma+0.5*(h.rows()-2),
+                           b_invgamma+0.5*Pm.compute_quadform(h,0));
 
   if(   (optionsp->get_nriter() > optionsp->get_burnin())
     &&
@@ -247,7 +225,6 @@ void FULLCOND_adaptiv::update(void)
     {
     sigma2sum += sigma2;
     }
-
 
   Gp->updateK(beta.getCol(0));
 
@@ -259,16 +236,33 @@ void FULLCOND_adaptiv::outresults(void)
   {
   FULLCOND::outresults();
 
-  optionsp->out("  Parameter-Results are stored in file " + pathresults + "\n");
+  char hchar = '\\';
+  ST::string hstring = "\\\\";
+  ST::string pathresultsplus = pathresults.insert_string_char(hchar,hstring);
+  ST::string psfile = pathresultsplus.substr(0,pathresultsplus.length()-4) + ".ps";
+
+  optionsp->out("  Results are stored in file\n");
+  optionsp->out("  " +   pathresults + "\n");
+  optionsp->out("\n");
   optionsp->out("  Results may be visualized using the S-Plus function 'plotnonp'\n");
+  optionsp->out("\n");
+
+  optionsp->out("  Type for example:\n");
+  optionsp->out("\n");
+  optionsp->out("  plotnonp(\""+ pathresultsplus + "\")\n");
+  optionsp->out("\n");
+  optionsp->out("  or \n");
+  optionsp->out("\n");
+  optionsp->out("  plotnonp(\""+ pathresultsplus + "\",\"" + psfile + "\")\n");
   optionsp->out("\n");
   optionsp->out("  Estimated variance parameter for variance random walk (sample mean):\n"
                 + ST::doubletostring(sigma2sum/optionsp->get_samplesize(),6) + "\n");
   optionsp->out("\n");
+  optionsp->out("\n");
 
-  ST::string pathhyper = pathresults.substr(0,pathresults.length()-4)+"_rwhyper.res";
+  ST::string pathhyper = pathresults.substr(0,pathresults.length()-4)+"_var.res";
   ofstream outreshyper(pathhyper.strtochar());
-  outreshyper << "rwvariance" << endl;
+  outreshyper << "pmean" << endl;
   outreshyper << ST::doubletostring(sigma2sum/optionsp->get_samplesize(),6);
 
   unsigned i;

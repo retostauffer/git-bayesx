@@ -30,13 +30,12 @@ class __EXPORT_TYPE FULLCOND_adaptiv : public FULLCOND
   {
 
   protected:
-  fieldtype type;                    // type of random walk (first or second
-                                     //                      order)
-
-  long double sigma2;                     // Varianze parameter tau^2 in the paper
+  fieldtype type;                    // order of variance random walk (RW1 or RW2)
+  long double sigma2;                // variance parameter sigma_j^2 for
+                                     // variance random walk
+  double a_invgamma;                 // Hyperparameter a_j' of sigma_j^2
+  double b_invgamma;                 // Hyperparameter b_j' of sigma_j^2
   double sigma2sum;
-  double a_invgamma;                 // Hyperparameter a of sigma2
-  double b_invgamma;                 // Hyperparameter b of sigma2
   bool unifb;
 
   unsigned minblocksize;             // Minimum blocksize for blockmove
@@ -44,14 +43,12 @@ class __EXPORT_TYPE FULLCOND_adaptiv : public FULLCOND
 
   unsigned start;
 
-  FULLCOND_nonp_basis * Gp;       // pointer
+  FULLCOND_nonp_basis * Gp;          // pointer
 
   ST::string pathresults;            // path for variance-parameter-results
 
   datamatrix h;                      // matrix of h_t's
   PenaltyMatrix  Pm;                 // Penalty matrix object
-
-  double sigma2beta;
 
    // FUNCTION: compute_denquot
    // TASK: computes ln{P(beta_t|beta_[s<t],h*_t)/P(beta_t|beta_[s<t],h_t)}
