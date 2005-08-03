@@ -219,6 +219,7 @@ pspline_multibaseline::pspline_multibaseline(const pspline_multibaseline & fc)
   ges_index = fc.ges_index;
   int_ti_help = fc.int_ti_help;
   baselinep = fc.baselinep;
+  col = fc.col;
   }
 
 
@@ -244,6 +245,7 @@ const pspline_multibaseline & pspline_multibaseline::operator=(const pspline_mul
   ges_index = fc.ges_index;
   int_ti_help = fc.int_ti_help;
   baselinep = fc.baselinep;
+  col = fc.col;
 
   return *this;
   }

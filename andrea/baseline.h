@@ -53,6 +53,7 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
    double weibullproposal_a1;
    double weibullproposal_a2;
    double b_prop;
+   double acceptance_between;
 
   public:
 

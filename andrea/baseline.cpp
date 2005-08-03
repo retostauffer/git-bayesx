@@ -516,6 +516,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   weibullproposal_a2 = 1.0/weibullprior_alpha - sum_logti;
   create_lgamma();
   b_prop = b;
+  acceptance_between = 0.0;
 
 
 
@@ -551,6 +552,7 @@ pspline_baseline::pspline_baseline(const pspline_baseline & fc)
   lgamma = fc.lgamma;
   Weibull = fc.Weibull;
   b_prop = fc.b_prop;
+  acceptance_between = fc.acceptance_between;
   }
 
 
@@ -585,6 +587,7 @@ const pspline_baseline & pspline_baseline::operator=(const pspline_baseline & fc
   lgamma = fc.lgamma;
   Weibull = fc.Weibull;
   b_prop = fc.b_prop;
+  acceptance_between = fc.acceptance_between;
 
   return *this;
   }
@@ -723,7 +726,7 @@ if(Weibull)
 unsigned i;
   if(optionsp->get_nriter()==1)
     {
-    beta(0,0) = 2.0;
+    beta(0,0) = 1.0;
     for(i=0;i<zi.rows();i++)
       {
       spline(i,0)=log(beta(0,0))+(beta(0,0)-1.0)*log(zi(i,0));
@@ -826,6 +829,31 @@ unsigned i;
 
  //-------------------------------------
 
+    }
+
+  if( (optionsp->get_nriter() < optionsp->get_burnin()) &&
+      (optionsp->get_nriter() % (200) == 0) )
+    {
+//    if(optionsp->get_nriter()== 200)
+//      acceptance_between = 0.0;
+//    else
+//      acceptance_between = acceptance - acceptance_between;
+    if((acceptance-acceptance_between)/2.0 < 20.0)
+      b_prop = b_prop*1.5;
+    if((acceptance-acceptance_between)/2.0 >= 20.0 && (acceptance-acceptance_between)/2.0 < 30.0)
+      b_prop = b_prop*1.25;
+    if((acceptance-acceptance_between)/2.0 >= 40.0 && (acceptance-acceptance_between)/2.0 < 50.0)
+      b_prop = b_prop/1.25;
+    if((acceptance-acceptance_between)/2.0 >= 50.0)
+      b_prop = b_prop/1.5;
+    acceptance_between = acceptance;
+    }
+
+  if((optionsp->get_nriter() == optionsp->get_burnin()))
+    {
+    optionsp->out("\n");
+    optionsp->out("b-parameter is set to " + ST::inttostring(b_prop));
+    optionsp->out("\n");
     }
 
   if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
@@ -1729,7 +1757,7 @@ while(i<zi.rows())
     spline_ti_help=spline_ti;
     }//--------------- else: d.h. z_vc(index(i,0),0)==0 -----------------------
   } //while
-//oftest_spline.close();  
+//oftest_spline.close();                            
 }
 
 

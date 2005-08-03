@@ -83,7 +83,12 @@ DISTRIBUTION_multistatemodel::DISTRIBUTION_multistatemodel(MCMCoptions * o,
        for(j=0;j<nrtransition;j++)
          {
          if(transition(i,j)==1.0)
-           int_ti(i,j) = t(i,0)-dbeg(i,0);
+           {
+           int_ti(i,j) = ti(i,0)-beg(i,0);
+           double testti= ti(i,0);
+           double testbeg=beg(i,0);
+           double testint=int_ti(i,j);
+           }
          else
            int_ti(i,j) = 0.0;
          int_ti(t.rows()+i,j)=0.0;
@@ -212,7 +217,10 @@ void DISTRIBUTION_multistatemodel::compute_IWLS_weight_tildey(double * response,
   double weighthelp = transition(i,col)* exp(*(linpred+col))* *(int_ti.getV()+i*nrtransition+col);
 
   *weightiwls = weighthelp;
-  *tildey = *(response+col)/(*weightiwls)-1.0;
+  if(*weightiwls==0.0)
+    *tildey = 0.0;
+  else
+    *tildey = *(response+col)/(*weightiwls)-1.0;
 
   }
 
@@ -226,7 +234,10 @@ double DISTRIBUTION_multistatemodel::compute_IWLS(double * response,double * lin
 
   if(weightyes)
     *weightiwls = weighthelp;
-  *tildey = *(response+col)/(*weightiwls)-1.0;
+  if(weighthelp==0.0)
+    *tildey = 0.0;
+  else
+    *tildey = *(response+col)/(*weightiwls)-1.0;
 
   double erg=0.0;
   for(unsigned j=0; j<nrtransition;j++,response++,linpred++)
