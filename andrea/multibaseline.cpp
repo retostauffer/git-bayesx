@@ -182,6 +182,21 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
       int_D(i,j) = bsp(j,0);
       }
     }
+/*/------------------------------------------------------------------------------
+     double * int_ti_out_p=likep->get_integral_ti()+col;
+     for(i=0;i<zi.rows();i++)
+       {
+           *int_ti_out_p = zi(i,0)-beg_i(i,0);
+           if(*int_ti_out_p<0.0)
+             *int_ti_out_p=0.0;
+           double testti= zi(i,0);
+           double testbeg=beg_i(i,0);
+           double testint=*int_ti_out_p;
+           int_ti_out_p= int_ti_out_p+likep->get_responsedim();
+       }
+
+//---------------------------------------------------------------------------*/
+
 //------------------------------------------------------------------------------
 
   spline_ges = datamatrix(2*likep->get_nrobs(),1,0);

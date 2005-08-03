@@ -95,6 +95,17 @@ DISTRIBUTION_multistatemodel::DISTRIBUTION_multistatemodel(MCMCoptions * o,
          }
        }
 
+/*     ofstream intout("d:\\temp\\int_ti_start.txt");
+     for(i=0;i<t.rows();i++)
+       {
+       for(j=0;j<nrtransition;j++)
+         {
+         intout<<int_ti(i,j)<<" ";
+         }
+       intout<<endl;
+       }
+     intout.close();     */
+
      family = "multistate";
      scale(0,0) = 1;
      scaleexisting = false;
