@@ -1988,11 +1988,11 @@ bool bayesreg::create_distribution(void)
 
     datamatrix res(D.rows(),rescol.size());
 //    unsigned k;
-    for(j=0;j<res.cols();j++)
+    for(i=0;i<res.cols();i++)
       {
-      c = rescol[j];
+      c = rescol[i];
       for(k=0;k<res.rows();k++)
-        res(k,j) = D(k,c);
+        res(k,i) = D(k,c);
       }
     if (offs.rows() == 1)
       distr_multistatemodel = DISTRIBUTION_multistatemodel(
@@ -2355,11 +2355,6 @@ bool bayesreg::create_const(const unsigned & collinpred)
               fcbaseline[ii].set_fcconst(fcconst_intercept);
             for(unsigned ii=0;ii<fcbaselineiwls.size();ii++)
               fcbaselineiwls[ii].set_fcconst(fcconst_intercept);
-            }
-          if (family.getvalue() == "multistate")
-            {
-            for(unsigned ii=0;ii<fcmultibaseline.size();ii++)
-              fcmultibaseline[ii].set_fcconst(fcconst_intercept);
             }
 
           fullcond.push_back(&nongaussianconst[nongaussianconst.size()-1]);
