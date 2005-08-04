@@ -1110,7 +1110,7 @@ bool bayesreg::create_distribution(void)
   datamatrix statemat;
 
   if (begin.getvalue() == "")
-    beg = datamatrix(1,1);
+    beg = datamatrix(D.rows(),1,0);
   else
     beg = D.getCol(begpos);
 
