@@ -2782,40 +2782,7 @@ T envmatrix<T>::compute_sumfabsdiff(const statmatrix<T> & x,
         {
         if(*ej!=0)
           {
-          sum += fabs(*xi - *xk);
-          }
-        }
-      }
-    }
-  return sum;
-  }
-
-template<class T>
-T envmatrix<T>::compute_sumfabsdiff(const statmatrix<T> & x,
-                                 const unsigned & c,const statmatrix<T> & w)
-  {
-  T sum = T(0);
-  unsigned i,j,jstop;
-  unsigned d = x.cols();
-  vector<T>::iterator ej;
-  vector<unsigned>::iterator xei1 = xenv.begin();
-  vector<unsigned>::iterator xei2 = xenv.begin()+1;
-  T* xi = x.getV()+c;
-  T* xk;
-  T* wp = w.getV();
-
-  for(i=0; i<dim; i++, ++xei1, ++xei2, xi+=d)
-    {
-   if(*xei2-*xei1>0)
-      {
-      jstop = *xei2;
-      xk = x.getV()+c+(i-*xei2+*xei1)*d;
-      for(j=*xei1, ej= env.begin()+*xei1; j<jstop; j++, xk+=d, ++ej)
-        {
-        if(*ej!=0)
-          {
-          sum += *wp * fabs(*xi - *xk);
-          wp++;
+          sum -= *ej * fabs(*xi - *xk);
           }
         }
       }
