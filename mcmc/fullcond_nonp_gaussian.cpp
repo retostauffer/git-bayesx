@@ -1379,12 +1379,12 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   grenzfall = 0;
 
   unsigned j;
-  neighbors=vector<vector<double>>(nrpar);
+  neighbors=vector<vector<unsigned>>(nrpar);
   for(i=0;i<nrpar;i++)
     {
     for(j=0;j<nrpar;j++)
       {
-      if(Kenv(i,j)!=0 && i!=j)
+      if(Kenv(i,j)!=0.0 && i!=j)
         {
         neighbors[i].push_back(j);
         }
@@ -1488,12 +1488,12 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   grenzfall = 1;
 
   unsigned j;
-  neighbors=vector<vector<double>>(nrpar);
+  neighbors=vector<vector<unsigned>>(nrpar);
   for(i=0;i<nrpar;i++)
     {
     for(j=0;j<nrpar;j++)
       {
-      if(Kenv(i,j)!=0 && i!=j)
+      if(Kenv(i,j)!=0.0 && i!=j)
         {
         neighbors[i].push_back(j);
         }
@@ -2581,6 +2581,10 @@ void FULLCOND_nonp_gaussian::update_IWLS_mode(void)
   // Compute log-likelihood with old beta: log(l)-1/(2tau^2)*beta^c'K beta^c
 
   double logold = likep->loglikelihood();
+
+  if(adaptiv)
+    betaKbeta =Kenv.compute_quadform(beta,0);
+
   logold -= 0.5*betaKbeta*lambda;
 
   // Compute new weights and tildey's based on old betamode
@@ -2658,7 +2662,9 @@ void FULLCOND_nonp_gaussian::update_IWLS_mode(void)
       fcconst->update_intercept(m);
       }
 
-    betaKbeta=Kenv.compute_quadform(beta,0);
+    if(!adaptiv)
+      betaKbeta=Kenv.compute_quadform(beta,0);
+
     betaold.assign(beta);
     }
   else
@@ -2704,6 +2710,10 @@ void FULLCOND_nonp_gaussian::update_IWLS(void)
     {
     logold = likep->compute_IWLS(weightiwls,tildey,false,column);
     }
+
+  if(adaptiv)
+    betaKbeta=Kenv.compute_quadform(beta,0);
+
   logold -= 0.5*betaKbeta*lambda;
 
   workbeta = betaold.getV();
@@ -2798,7 +2808,9 @@ void FULLCOND_nonp_gaussian::update_IWLS(void)
       }
 
     betaold.assign(beta);
-    betaKbeta=Kenv.compute_quadform(beta,0);
+
+    if(!adaptiv)
+      betaKbeta=Kenv.compute_quadform(beta,0);
 
     }
   else
@@ -3015,11 +3027,13 @@ void FULLCOND_nonp_gaussian::update(void)
 
 void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
   {
-
   unsigned i,j;
 
   double sqrtscale = 0.3;
   double help;
+  double sum;
+//  double m,sumw;
+  double w;
 
   unsigned beg,end;
 
@@ -3031,18 +3045,26 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
 
     betaold.assign(beta);
 
-    double sum;
-    sum = 0.0;
-    for(j=0;j<neighbors[i].size();j++)
-      sum += fabs(betaold(i,0)-betaold(neighbors[i][j],0));
-
     double logold;
     logold = likep->loglikelihood(beg,end,index);
+
+    sum = 0.0;
+//    m = 0.0;
+//    sumw = 0.0;
     if(delta.rows()>1)
-      logold -= Kenv.compute_sumfabsdiff(betaold,0,delta)/sigma2;
+      for(j=0;j<neighbors[i].size();j++)
+        {
+        w = -Kenv(i,neighbors[i][j]);
+        sum += w * fabs(betaold(i,0)-betaold(neighbors[i][j],0));
+//        sumw += w;
+//        m += w * betaold(neighbors[i][j],0);
+        }
     else
+      for(j=0;j<neighbors[i].size();j++)
+        sum += fabs(betaold(i,0)-betaold(neighbors[i][j],0));
+
 //      logold -= Kenv.compute_sumfabsdiff(betaold,0)/sigma2;
-      logold -= sum/sigma2;
+    logold -= sum/sigma2;
 
     help = sqrtscale*rand_normal();
     beta(i,0) = betaold(i,0) + help;
@@ -3050,17 +3072,22 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
 //    update_linpred_diff(beta,betaold);
     update_linpred_diff(beg,end,help);
 
-    sum = 0.0;
-    for(j=0;j<neighbors[i].size();j++)
-      sum += fabs(beta(i,0)-beta(neighbors[i][j],0));
-
     double lognew;
     lognew = likep->loglikelihood(beg,end,index);
+
+    sum = 0.0;
     if(delta.rows()>1)
-      lognew -= Kenv.compute_sumfabsdiff(beta,0,delta)/sigma2;
+      for(j=0;j<neighbors[i].size();j++)
+        {
+        w = -Kenv(i,neighbors[i][j]);
+        sum += w * fabs(beta(i,0)-beta(neighbors[i][j],0));
+        }
     else
-//      lognew -= Kenv.compute_sumfabsdiff(beta,0)/sigma2;
-      lognew -= sum/sigma2;
+      for(j=0;j<neighbors[i].size();j++)
+        sum += fabs(beta(i,0)-beta(neighbors[i][j],0));
+
+//    lognew -= Kenv.compute_sumfabsdiff(beta,0)/sigma2;
+    lognew -= sum/sigma2;
 
     double alpha = lognew - logold;
     double u = log(uniform());
@@ -3102,10 +3129,7 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
 
   double logold;
   logold = likep->loglikelihood();
-  if(delta.rows()>1)
-    logold -= Kenv.compute_sumfabsdiff(betaold,0,delta)/sigma2;
-  else
-    logold -= Kenv.compute_sumfabsdiff(betaold,0)/sigma2;
+  logold -= Kenv.compute_sumfabsdiff(betaold,0)/sigma2;
 
   update_linpred(false);
 
@@ -3173,10 +3197,7 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
 
   double lognew;
   lognew = likep->loglikelihood();
-  if(delta.rows()>1)
-    lognew -= Kenv.compute_sumfabsdiff(beta,0,delta)/sigma2;
-  else
-    lognew -= Kenv.compute_sumfabsdiff(beta,0)/sigma2;
+  lognew -= Kenv.compute_sumfabsdiff(beta,0)/sigma2;
 
   betahelp.minus(betaold,mhelp);
   double qnew = - 0.5*precenv.compute_quadform(betahelp,0)/scale;
@@ -3415,3 +3436,5 @@ void FULLCOND_nonp_gaussian::outoptions(void)
 
 
 } // end: namespace MCMC
+
+

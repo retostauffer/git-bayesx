@@ -38,7 +38,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   bool Laplace;
 
   datamatrix delta;
-  vector<vector<double>> neighbors;
+  vector<vector<unsigned>> neighbors;
 
 // For REML
 
@@ -353,6 +353,13 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
     return (diff*diff)/sigma2;
     }
 
+  double compute_squareddiff2(unsigned i,unsigned j)
+    {
+    double diff = beta(i,0)-beta(j,0);
+
+    return (diff*diff);
+    }
+
   double compute_quadform(void)
     {
     return Kenv.compute_quadform(beta,0);
@@ -367,10 +374,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   double compute_sumfabsdiff(void)
     {
-    if(delta.rows()>1)
-      return Kenv.compute_sumfabsdiff(beta,0,delta);
-    else
-      return Kenv.compute_sumfabsdiff(beta,0);
+    return Kenv.compute_sumfabsdiff(beta,0);
     }
 
   // FUNCTION: updateK
