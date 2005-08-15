@@ -1330,6 +1330,7 @@ class __EXPORT_TYPE term_baseline : public basic_termtype
   simpleoption uniformprior;
   stroption proposal;
   simpleoption weibull;
+  stroption begin;
 
 
   void setdefault(void);

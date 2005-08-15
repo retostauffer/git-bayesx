@@ -1006,6 +1006,26 @@ bool bayesreg::create_distribution(void)
       modelvarnamesv.push_back(predictindicator);
       predictindpos = modelvarnamesv.size()-1;
       }
+
+    if (family.getvalue() == "multistate")
+      {
+
+      unsigned j,k;
+      for(i=0;i<termsmult.size();i++)
+        {
+        for(k=0;k<termsmult[i].size();k++)
+          {
+          if ( baseline.checkvector(termsmult[i],k) == true )
+            {
+            ST::string beg = termsmult[i][k].options[13];
+            if(beg.length() != 0)
+              modelvarnamesv.push_back(beg);
+            }
+          }
+        }
+
+      }
+
     ifexpression = methods[5].getexpression();
     }
   else

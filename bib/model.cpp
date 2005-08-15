@@ -2750,6 +2750,7 @@ term_baseline::term_baseline(void)
   adm_prop.push_back("iwlsmode");
   proposal = stroption("proposal",adm_prop,"cp");
   weibull = simpleoption("weibull",false);
+  begin = stroption("begin");
   }
 
 void term_baseline::setdefault(void)
@@ -2766,13 +2767,14 @@ void term_baseline::setdefault(void)
   uniformprior.setdefault();
   proposal.setdefault();
   weibull.setdefault();
+  begin.setdefault();
   }
 
 bool term_baseline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 13) )
+        && (t.options.size() <= 14) )
     {
 
     if (t.options[0] == "baseline")
@@ -2798,6 +2800,7 @@ bool term_baseline::check(term & t)
     optlist.push_back(&uniformprior);
     optlist.push_back(&proposal);
     optlist.push_back(&weibull);
+    optlist.push_back(&begin);
 
     unsigned i;
     bool rec = true;
@@ -2822,7 +2825,7 @@ bool term_baseline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(13);
+   t.options = vector<ST::string>(14);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -2845,6 +2848,8 @@ bool term_baseline::check(term & t)
      t.options[12] = "false";
    else
      t.options[12] = "true";
+
+   t.options[13] = begin.getvalue();
 
    if (t.options[1].strtolong(minim) == 1)
      {
@@ -3180,9 +3185,9 @@ void modeltermmult::parse(const ST::string & m)
             if (found)
               {
               unsigned j;
-            for (j=0;j<terms[e][i].varnames.size();j++)
-              modelVarnames.push_back(terms[e][i].varnames[j]);
-            }
+              for (j=0;j<terms[e][i].varnames.size();j++)
+                modelVarnames.push_back(terms[e][i].varnames[j]);
+              }
           k++;
           }
           if (!found)

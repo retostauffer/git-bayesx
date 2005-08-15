@@ -1395,7 +1395,7 @@ bool bayesreg::create_varcoeffbaseline(const unsigned & collinpred)
       if (begin.getvalue() == "")
         beg = datamatrix(1,1);
       else
-        beg = D.getCol(1);
+        beg = D.getCol(begpos);
 
       if (f==1)
         return true;
@@ -1483,7 +1483,7 @@ bool bayesreg::create_multibaseline(const unsigned & collinpred)
   int f;
 
   unsigned i;
-  int j;
+  int j,k;
   for(i=0;i<terms.size();i++)
     {
     if ( baseline.checkvector(terms,i) == true )
@@ -1539,9 +1539,17 @@ bool bayesreg::create_multibaseline(const unsigned & collinpred)
       if (f==1)
         return true;
 
+      if (terms[i].options[13] != "" && begin.getvalue() != "")
+        outerror("WARNING: begin variable specified twice");
+
+      if (terms[i].options[13] != "")
+        k = terms[i].options[13].isinlist(modelvarnamesv);
+
       datamatrix beg;
-      if (begin.getvalue() == "")
+      if (begin.getvalue() == "" && terms[i].options[13] == "")
         beg = datamatrix(1,1);
+      else if (terms[i].options[13] != "")
+        beg = D.getCol(k);
       else
         beg = D.getCol(begpos);
 
