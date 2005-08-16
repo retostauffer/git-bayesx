@@ -5513,6 +5513,11 @@ for(i=0; i<nrobs; i++)
       familyname="binomial";
       respname="extreme minimal value distribution (complementary log-log-link)";
       }
+    else if(respfamily=="aft")
+      {
+      familyname="accelerated failure time with smoothed error distribution";
+      respname="identity";
+      }
 
     if(respfamily=="cox" || respfamily=="coxold" || respfamily=="coxinterval")
       {
@@ -6114,10 +6119,6 @@ void remlest::outerror(const ST::string & s)
   {
   out(s,true,true,12,255,0,0);
   }
-
-//------------------------------------------------------------------------------
-//------------------------------- Miscellanea ----------------------------------
-//------------------------------------------------------------------------------
 
 
 

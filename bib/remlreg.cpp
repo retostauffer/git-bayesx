@@ -274,6 +274,7 @@ void remlreg::create(void)
   families.push_back("cox");
   families.push_back("coxinterval");
   families.push_back("coxold");
+  families.push_back("aft");
   family = stroption("family",families,"binomial");
 
   maxit = intoption("maxit",400,1,100000);
@@ -3667,6 +3668,19 @@ void remlrun(remlreg & b)
       b.maxchange.getvalue(),b.logout);
       failure = b.RE.estimate_survival_interval2(response,offset,weight,
                                                  b.aiccontrol.getvalue());
+      }
+// AFT-models with smoothed error distribution
+    else if (b.family.getvalue()=="aft")
+      {
+      dispers=false;
+      b.RE = remlest(
+      #if defined(JAVA_OUTPUT_WINDOW)
+      b.adminb_p,
+      #endif
+      b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
+      b.maxchange.getvalue(),b.logout);
+      failure = b.RE.estimate_aft(response,offset,weight);
       }
 // Univariate Modelle mit Dispersionsparameter
     else
