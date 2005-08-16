@@ -425,7 +425,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
                    {
                    Xneu(i*nrcat2+k, XneuSpalte+(k*xcutlength[j]) +l)= X (i, XaltSpalte+l );
 
-                 
+
                    }
                 }
              }
@@ -486,7 +486,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
  // Ausgabe von Zcutlength
    ofstream outZcutlength("c:\\bayesx\\mcmc\\zcutlength");
          Zcutlength.prettyPrint(outZcutlength);
-         outZcutlength.close();     
+         outZcutlength.close();
 
  //------------------------------------------------------------------------------------------------------------------------------
  //------------------------------------------------------------------------------------------------------------------------------
@@ -615,7 +615,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
   statmatrix<double>Hinv(beta.rows(),beta.rows(),0);
 //  statmatrix<double>wresid(nrcat2,resp.rows(),0);                  //matrix containing row vectors !!
   statmatrix<double>wresid(1,nrcat2*resp.rows(),0);                  //matrix containing row vectors !!
-  
+
   // Transform smoothing paramater starting values to variances
   for(i=0; i<theta.rows(); i++)
     {
@@ -636,10 +636,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
         }
       }
 
-    eta = Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
-//    compute_eta2(eta);
-
+    eta = offset + Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
     compute_weights(mu,workweight,worky,eta,respind);
+    worky = worky - offset;
 
 // -----------------------------------------------------------------------------
 // conny: H berechnen
@@ -892,7 +891,7 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
 
     // update linear predictor and compute residuals
     eta = Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
-//    compute_eta2(eta);
+//    compute_weights(mu,workweight,worky,eta,respind);
     worky = worky - eta;
 
     for(i=0; i<resp.rows(); i++)
@@ -1135,6 +1134,10 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
       }
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcutbeta[0],0,0,false,0);
+
+  // update linear predictor and working weights
+  eta = offset + Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
+  compute_weights(mu,workweight,worky,eta,respind);
 
   double loglike=0;
   double aic=0;
@@ -1410,10 +1413,13 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
     // store current values in betaold
     betaold=beta;
 
-    eta=Xneu*beta;
-//    compute_eta(eta);
+    ofstream out1("c:\\temp\\offset.raw");
+    offset.prettyPrint(out1);
+    out1.close();
 
+    eta = offset + Xneu*beta;
     compute_weights(mu,workweight,worky,eta,respind);
+    worky = worky - offset;
 
 // ----------------------------------------------------------------------------
 // --- Conny: Berechne H=Xneu'WXneu und H1=Xneu'Wy
@@ -1553,6 +1559,9 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
   out("\n");
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,datamatrix(1,1,0),xcut[0],0,0,false,xcutbeta[0],0,0,false,0);
 
+  // update eta and working weights
+  eta = offset + Xneu*beta;
+  compute_weights(mu,workweight,worky,eta,respind);
   double loglike=0;
   double aic=0;
   double bic=0;
@@ -2069,7 +2078,7 @@ void remlest_multinomial_catsp::make_predictor(ofstream & outtex)
   unsigned j;
 
   ST::string term2 = fullcond[0]->get_term_symbolic();
-  ST::string term = "$\\eta_j = " + term2;    //linearer Prädiktor wird erweitert
+  ST::string term = "$\\eta^{(j)} = " + term2;    //linearer Prädiktor wird erweitert
   for(j=1;j<fullcond.size();j++)
     {
     term2 = fullcond[j]->get_term_symbolic();

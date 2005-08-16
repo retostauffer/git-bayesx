@@ -922,7 +922,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     if(family.getvalue()=="multinomialcatsp")
       {
       // put reference category at last position in allcats
-      int helpint = reference.getvalue();
+      int helpint = categories[refpos];//reference.getvalue();
       for(i=refpos; i<allcats.size(); i++)
         {
         allcats[i] = allcats[i+1];
@@ -952,30 +952,103 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
 bool remlreg::create_offset(datamatrix & o)
   {
   unsigned i;
+  unsigned nroffs=0;
+  unsigned index = 0;
   for(i=0;i<terms.size();i++)
     {
     if ( offset.checkvector(terms,i) == true)
       {
-      // check for right distributions
-      if(family.getvalue()=="multinomial" ||
-         family.getvalue()=="multinomialcatsp" ||
-         family.getvalue()=="cumlogit" ||
-         family.getvalue()=="cumprobit" ||
-         family.getvalue()=="seqlogit" ||
-         family.getvalue()=="seqprobit")
-        {
-        outerror("ERROR: offset not allowed for multicategorical response\n");
-        return true;
-        }
-      if(family.getvalue()=="cox" || family.getvalue()=="coxold" ||
-         family.getvalue()=="coxinterval")
-        {
-        outerror("ERROR: offset not allowed for family=cox\n");
-        return true;
-        }
+      nroffs ++;
+      index = i;
+      }
+    }
 
+  if(nroffs > 1)
+    {
+    outerror("ERROR: multiple offsets are not allowed\n");
+    return true;
+    }
+  else if(nroffs==0)
+    {
+    // Default offset (=0)
+    if(family.getvalue()=="multinomial" ||
+       family.getvalue()=="multinomialcatsp" ||
+       family.getvalue()=="cumlogit" ||
+       family.getvalue()=="cumprobit" ||
+       family.getvalue()=="seqlogit" ||
+       family.getvalue()=="seqprobit")
+      {
+      o = datamatrix(cats.rows()*D.rows(),1,0);
+      }
+    else
+      {
+      o = datamatrix(D.rows(),1,0);
+      }
+    }
+  else if(nroffs==1)
+    {
+    // check for right distributions
+    if(family.getvalue()=="multinomial" ||
+       family.getvalue()=="cumlogit" ||
+       family.getvalue()=="cumprobit" ||
+       family.getvalue()=="seqlogit" ||
+       family.getvalue()=="seqprobit")
+      {
+      outerror("ERROR: offset not allowed for multinomial response\n");
+      return true;
+      }
+    else if(family.getvalue()=="cox" || family.getvalue()=="coxold" ||
+       family.getvalue()=="coxinterval")
+      {
+      outerror("ERROR: offset not allowed for family=cox\n");
+      return true;
+      }
+    else if(family.getvalue()=="multinomialcatsp")
+      {
+      unsigned j, k;
+      o = datamatrix(cats.rows()*D.rows(),1,0);
+      datamatrix ohelp = datamatrix(allcats.size()*D.rows(),1,0);
+      ST::string test ="test";
+      if(terms[index].varnames[0].length()>12)
+        {
+        test = terms[index].varnames[0].substr(terms[index].varnames[0].length()-12,12);
+        }
+      else
+        {
+        outerror("ERROR: offset has to be category-specific if family=multinomial\n");
+        return true;
+        }
+      if(test=="_catspecific")
+        // category specific covariates
+        {
+        test = terms[index].varnames[0].substr(0,terms[index].varnames[0].length()-12);
+        for(k=0; k<allcats.size(); k++)
+          {
+          j = (test+ST::inttostring(allcats[k])).isinlist(modelvarnamesv);
+          ohelp.putRowBlock(k*D.rows(), (k+1)*D.rows(), D.getCol(j));
+          }
+
+        for(i=0; i<D.rows(); i++)
+          {
+          for(k=0; k<cats.rows(); k++)
+            {
+            o(i*cats.rows()+k,0) = ohelp(k*D.rows()+i,0)-ohelp(cats.rows()*D.rows()+i,0);
+            }
+          }
+
+        terms[index].varnames[0] = test;
+        test="_catspecific";
+        }
+      else
+        {
+        outerror("ERROR: offset has to be category-specific if family=multinomial\n");
+        return true;
+        }
+      }
+    else
+      {
       // Extract offset if specified
-      unsigned j = terms[i].varnames[0].isinlist(modelvarnamesv);
+      unsigned j = terms[index].varnames[0].isinlist(modelvarnamesv);
       if (o.rows() < D.rows())
         o = datamatrix(D.rows(),1,0);
 
@@ -986,12 +1059,8 @@ bool remlreg::create_offset(datamatrix & o)
       for(k=0;k<D.rows();k++,worko++,workD+=size)
         *worko += *workD;
       }
-    else
-      {
-      // Default offset (=0)
-      o = datamatrix(D.rows(),1,0);
-      }
     }
+
   return false;
   }
 
@@ -1059,7 +1128,7 @@ bool remlreg::create_const(const unsigned & collinpred)
         if(test=="_catspecific")
           {
           catsp[i] = true;
-          varnames2[i] = varnames[i].substr(0,varnames[i].length()-12);          
+          varnames2[i] = varnames[i].substr(0,varnames[i].length()-12);
           }
         }
       }
