@@ -3059,7 +3059,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
             title,pathnonp,pathres,ub,collinpred));
 
             if (terms[i].options[26] == "true")
-              fciwlspspline[fciwlspspline.size()-1].set_stationary();
+              fcvarnonp[fcvarnonp.size()-1].set_stationary();
 
             if (constlambda.getvalue() == false)
               {
