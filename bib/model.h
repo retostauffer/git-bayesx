@@ -618,6 +618,7 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
   stroption beta_0;
   simpleoption discrete;
   intoption df;
+  simpleoption alpha;
 //  doubleoption lambdamin;
 //  doubleoption lambdamax;
 //  doubleoption lambdastart;

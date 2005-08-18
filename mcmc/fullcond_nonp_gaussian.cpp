@@ -3032,7 +3032,6 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
   double sqrtscale = 0.3;
   double help;
   double sum;
-//  double m,sumw;
   double w;
 
   unsigned beg,end;
@@ -3049,15 +3048,11 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
     logold = likep->loglikelihood(beg,end,index);
 
     sum = 0.0;
-//    m = 0.0;
-//    sumw = 0.0;
     if(delta.rows()>1)
       for(j=0;j<neighbors[i].size();j++)
         {
         w = -Kenv(i,neighbors[i][j]);
         sum += w * fabs(betaold(i,0)-betaold(neighbors[i][j],0));
-//        sumw += w;
-//        m += w * betaold(neighbors[i][j],0);
         }
     else
       for(j=0;j<neighbors[i].size();j++)

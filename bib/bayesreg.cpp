@@ -2868,6 +2868,9 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
         if (bsplinebasis == true)
           fcpsplinegaussian[fcpsplinegaussian.size()-1].set_outbsplines();
 
+        if (terms[i].options[26] == "true")
+          fcpsplinegaussian[fcpsplinegaussian.size()-1].set_stationary();
+
         fcpsplinegaussian[fcpsplinegaussian.size()-1].init_name(terms[i].varnames[0]);
         fcpsplinegaussian[fcpsplinegaussian.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcpsplinegaussian[fcpsplinegaussian.size()-1]);
@@ -2894,6 +2897,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
               f = terms[i].options[25].strtolong(h);
               fcvarnonp[fcvarnonp.size()-1].set_discrete(unsigned(h));
               }
+            if (terms[i].options[26] == "true")
+              fcvarnonp[fcvarnonp.size()-1].set_stationary();
 
             fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
@@ -2958,6 +2963,12 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 
         if (proposal == "cp")
           {
+
+          if (terms[i].options[26] == "true")
+            {
+            outerror("ERROR: option 'alpha' not available\n");
+            return true;
+            }
 
           if (terms[i].options[0] == "tpsplinerw1" || terms[i].options[0] == "tpsplinerw2" ||
               terms[i].options[0] == "psplinerw1vrw1" || terms[i].options[0] == "psplinerw1vrw2" ||
@@ -3028,6 +3039,9 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           if (constlambda.getvalue() == true)
             fciwlspspline[fciwlspspline.size()-1].set_lambdaconst(lambda);
 
+          if (terms[i].options[26] == "true")
+            fciwlspspline[fciwlspspline.size()-1].set_stationary();
+
           fciwlspspline[fciwlspspline.size()-1].init_name(terms[i].varnames[0]);
           fciwlspspline[fciwlspspline.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fciwlspspline[fciwlspspline.size()-1]);
@@ -3043,6 +3057,9 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
             FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
             &fciwlspspline[fciwlspspline.size()-1],distr[distr.size()-1],a1,b1,
             title,pathnonp,pathres,ub,collinpred));
+
+            if (terms[i].options[26] == "true")
+              fciwlspspline[fciwlspspline.size()-1].set_stationary();
 
             if (constlambda.getvalue() == false)
               {

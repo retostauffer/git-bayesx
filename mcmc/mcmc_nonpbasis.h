@@ -182,6 +182,13 @@ class __EXPORT_TYPE FULLCOND_nonp_basis : public FULLCOND
 
   virtual void updateKenv(const datamatrix & q);
 
+  // FUNCTION: updateK
+  // TASK: updates the penalty matrix K(alpha)
+
+  virtual void updateKenv_alpha(const double alpha1, const double alpha2=0.0);
+
+  virtual double getLogDet();
+
   virtual void compute_u(datamatrix & u);
 
   double compute_ui(unsigned i);

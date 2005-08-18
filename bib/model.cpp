@@ -724,6 +724,7 @@ term_pspline::term_pspline(void)
   beta_0 = stroption("beta_0");
   discrete = simpleoption("discrete",false);
   df = intoption("df",20,3,50);
+  alpha = simpleoption("alpha",false);
 //  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
 //  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
 //  lambdastart = doubleoption("lambdastart",-1,-1,10000000);
@@ -756,6 +757,7 @@ void term_pspline::setdefault(void)
   beta_0.setdefault();
   discrete.setdefault();
   df.setdefault();
+  alpha.setdefault();
 //  lambdamin.setdefault();
 //  lambdamax.setdefault();
 //  lambdastart.setdefault();
@@ -765,7 +767,7 @@ bool term_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 26) )
+        && (t.options.size() <= 27) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -819,6 +821,7 @@ bool term_pspline::check(term & t)
     optlist.push_back(&beta_0);
     optlist.push_back(&discrete);
     optlist.push_back(&df);
+    optlist.push_back(&alpha);
 //    optlist.push_back(&lambdamin);
 //    optlist.push_back(&lambdamax);
 //    optlist.push_back(&lambdastart);
@@ -846,7 +849,7 @@ bool term_pspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(26);
+   t.options = vector<ST::string>(27);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -894,6 +897,10 @@ bool term_pspline::check(term & t)
    else
      t.options[24] = "true";
    t.options[25] = ST::inttostring(df.getvalue());
+   if(alpha.getvalue() == false)
+     t.options[26] = "false";
+   else
+     t.options[26] = "true";
 //    t.options[40] = ST::doubletostring(lambdamin.getvalue());
 //    t.options[21] = ST::doubletostring(lambdamax.getvalue());
 //    t.options[22] = ST::doubletostring(lambdastart.getvalue());

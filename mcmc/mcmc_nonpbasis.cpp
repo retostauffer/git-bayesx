@@ -207,6 +207,74 @@ void FULLCOND_nonp_basis::updateKenv(const datamatrix & q)
 
   }
 
+void FULLCOND_nonp_basis::updateKenv_alpha(const double alpha1, const double alpha2)
+  {
+  unsigned i;
+
+  if (type==RW1)
+    {
+    double alpha1_2 = alpha1*alpha1;
+
+    double * workdiag=Kenv.getDiagIterator();
+    double * workenv =Kenv.getEnvIterator();
+
+    *workenv  = -alpha1;
+
+    workdiag++;
+    workenv++;
+
+    for (i=1;i<nrpar-1;i++,workdiag++,workenv++)
+      {
+      *workdiag = 1.0 + alpha1_2;
+      *workenv  = -alpha1;
+      }
+    }
+  else if (type==RW2)
+    {
+    double alpha1_2 = alpha1*alpha1;
+    double alpha2_2 = alpha2*alpha2;
+
+    double * workdiag=Kenv.getDiagIterator();
+    double * workenv = Kenv.getEnvIterator();
+
+    workdiag++;
+
+    *workdiag = 1.0 + alpha1_2;
+    workdiag++;
+
+    *workenv = alpha1;                 //(2,1)
+    workenv++;
+    *workenv = alpha2;                           //(3,1)
+    workenv++;
+
+    *workenv = alpha1*(1.0+alpha2);     //(3,2)
+    workenv++;
+
+    *workenv = alpha2;                           //(4,2)
+    workenv++;
+
+    for(i=2;i<nrpar-2;i++,workdiag++,workenv++)
+      {
+      *workdiag = 1.0 + alpha1_2 + alpha2_2;
+
+      *workenv = alpha1*(1.0+alpha2);      //(i+1,i)
+      workenv++;
+
+      *workenv = alpha2;                    //(i+2,i)
+      }
+
+    *workdiag = 1.0 + alpha1_2;
+    *workenv = alpha1;
+
+    }
+
+  }
+
+double FULLCOND_nonp_basis::getLogDet(void)
+  {
+  return Kenv.getLogDet();
+  }
+
 void FULLCOND_nonp_basis::compute_u(datamatrix & u)
   {
   register unsigned i;
