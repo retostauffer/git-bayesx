@@ -23,6 +23,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
   bool constlambda;
   bool uniformprior;
   bool Laplace;
+  bool stationary;
 
   FULLCOND_nonp_basis * Kp;
 
@@ -102,6 +103,10 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
   const FULLCOND_variance_nonp & operator=(const FULLCOND_variance_nonp & t);
 
   void update(void);
+
+  void update_stationary(void);
+
+  void set_stationary(void);
 
   bool posteriormode(void);
 

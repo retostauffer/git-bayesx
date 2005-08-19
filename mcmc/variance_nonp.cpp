@@ -16,6 +16,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     constlambda=false;
     uniformprior=false;
     Laplace=false;
+    stationary=false;
     discrete=false;
     update_sigma2 = true;
     randomeffect=false;
@@ -58,6 +59,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     constlambda=false;
     uniformprior=false;
     Laplace=false;
+    stationary=false;
     discrete=false;
     update_sigma2 = true;
     randomeffect=false;
@@ -93,6 +95,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     constlambda=false;
     uniformprior=false;
     Laplace=false;
+    stationary=false;
     discrete=false;
     update_sigma2 = true;
     randomeffect = true;
@@ -123,6 +126,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(const FULLCOND_variance_nonp & t)
   constlambda=t.constlambda;
   uniformprior=t.uniformprior;
   Laplace=t.Laplace;
+  stationary=t.stationary;
   randomeffect = t.randomeffect;
   fullcondnonp = t.fullcondnonp;
   average = t.average;
@@ -153,7 +157,8 @@ const FULLCOND_variance_nonp & FULLCOND_variance_nonp::operator=(
   FULLCOND::operator=(FULLCOND(t));
   constlambda=t.constlambda;
   uniformprior=t.uniformprior;
-  Laplace=t.Laplace;  
+  Laplace=t.Laplace;
+  stationary=t.stationary;    
   randomeffect = t.randomeffect;
   fullcondnonp = t.fullcondnonp;
   average = t.average;
@@ -311,8 +316,11 @@ void FULLCOND_variance_nonp::update(void)
           }
         else
           {
-          beta(0,0) = rand_invgamma(a_invgamma+0.5*rankK,
-                                    b_invgamma+0.5*Kp->compute_quadform());
+          if(stationary)
+            update_stationary();
+          else
+            beta(0,0) = rand_invgamma(a_invgamma+0.5*rankK,
+                                      b_invgamma+0.5*Kp->compute_quadform());
           }
 
 /*
@@ -350,6 +358,8 @@ void FULLCOND_variance_nonp::update(void)
       {
       beta(0,0) = Kp->get_sigma2();
       }
+
+
     }
 
   if (average==true)
@@ -371,6 +381,97 @@ void FULLCOND_variance_nonp::update(void)
     fc_lambda.update();
     }
 
+  }
+
+
+void FULLCOND_variance_nonp::update_stationary(void)
+  {
+
+  double betaold = beta(0,0);
+  beta(0,0) = rand_invgamma(a_invgamma+0.5*rankK,
+                            b_invgamma+0.5*Kp->compute_quadform());
+
+  if(Kp->get_type()==RW1)
+    {
+    double alphawork = beta(1,0)*sqrt(transform);
+    double alphaprop = uniform()*2.0-1.0;
+
+    double u = log(uniform());
+    double alpha = 0.5*log(1.0-alphaprop*alphaprop) - 0.5*log(1.0-alphawork*alphawork);
+
+    alpha -= -0.5*Kp->compute_quadform()/beta(0,0);
+    Kp->updateKenv_alpha(alphaprop);
+    alpha += -0.5*Kp->compute_quadform()/beta(0,0);
+
+    if(u<=alpha)
+      {
+      beta(1,0) = alphaprop/sqrt(transform);
+      }
+    else
+      {
+      Kp->updateKenv_alpha(alphawork);
+      beta(0,0) = betaold;
+      }
+    }
+  else if(Kp->get_type()==RW2)
+    {
+    double alpha1work = beta(1,0)*sqrt(transform);
+    double alpha2work = beta(2,0)*sqrt(transform);
+
+    double alpha1help = uniform()*2.0-1.0;
+    double alpha2help = uniform()*2.0-1.0;
+
+    double alpha1prop = -(alpha1help+alpha2help);
+    double alpha2prop = alpha1help*alpha2help;
+
+    double u = log(uniform());
+
+    double helpprop = 1.0-alpha2prop*alpha2prop;
+    double helpwork = 1.0-alpha2work*alpha2work;
+
+    double detKwork = helpwork * (helpwork - alpha1work*alpha1work * (1.0-alpha2work)/(1.0+alpha2work) );
+    double detKprop = helpprop * (helpprop - alpha1prop*alpha1prop * (1.0-alpha2prop)/(1.0+alpha2prop) );
+
+    double alpha = 0.5*log(detKprop)-0.5*log(detKwork);
+
+    alpha -= -0.5*Kp->compute_quadform()/beta(0,0);
+    Kp->updateKenv_alpha(alpha1prop,alpha2prop);
+    alpha += -0.5*Kp->compute_quadform()/beta(0,0);
+
+    if(u<=alpha)
+      {
+      beta(1,0) = alpha1prop/sqrt(transform);
+      beta(2,0) = alpha2prop/sqrt(transform);
+      }
+    else
+      {
+      Kp->updateKenv_alpha(alpha1work,alpha2work);
+      beta(0,0) = betaold;
+      }
+    }
+
+  }
+
+
+void FULLCOND_variance_nonp::set_stationary(void)
+  {
+  stationary = true;
+  double alphastart = 0.0;
+  if(Kp->get_type()==RW1)
+    {
+    datamatrix betahelp = datamatrix(2,1);
+    betahelp(0,0) = distrp->get_scale(column,column)/Kp->getlambda();
+    betahelp(1,0) = alphastart/distrp->get_trmult(column);
+    setbeta(betahelp);
+    }
+  else if(Kp->get_type()==RW2)
+    {
+    datamatrix betahelp = datamatrix(3,1);
+    betahelp(0,0) = distrp->get_scale(column,column)/Kp->getlambda();
+    betahelp(1,0) = alphastart/distrp->get_trmult(column);
+    betahelp(2,0) = alphastart/distrp->get_trmult(column);;
+    setbeta(betahelp);
+    }
   }
 
 
@@ -480,6 +581,31 @@ void FULLCOND_variance_nonp::outresults(void)
     ou << betaqu_l1_upper(0,0) << "  ";
     ou << betamin(0,0) << "  ";
     ou << betamax(0,0) << "  " << endl;
+
+    if(beta.rows()>1)
+      {
+      ou << betamean(1,0) << "  ";
+      ou << sqrt(betavar(1,0)) << "  ";
+      ou << betaqu_l1_lower(1,0) << "  ";
+      ou << betaqu_l2_lower(1,0) << "  ";
+      ou << betaqu50(1,0) << "  ";
+      ou << betaqu_l2_upper(1,0) << "  ";
+      ou << betaqu_l1_upper(1,0) << "  ";
+      ou << betamin(1,0) << "  ";
+      ou << betamax(1,0) << "  " << endl;
+      }
+    if(beta.rows()>2)
+      {
+      ou << betamean(2,0) << "  ";
+      ou << sqrt(betavar(2,0)) << "  ";
+      ou << betaqu_l1_lower(2,0) << "  ";
+      ou << betaqu_l2_lower(2,0) << "  ";
+      ou << betaqu50(2,0) << "  ";
+      ou << betaqu_l2_upper(2,0) << "  ";
+      ou << betaqu_l1_upper(2,0) << "  ";
+      ou << betamin(2,0) << "  ";
+      ou << betamax(2,0) << "  " << endl;
+      }
 
     optionsp->out("  Results for the variance component are also stored in file\n");
     optionsp->out("  " + pathresults + "\n");
