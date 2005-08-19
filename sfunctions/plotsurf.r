@@ -1,4 +1,4 @@
-plotsurf<-function(data, outfile, x, y, z, mode = 1, cols = c(2, 3, 4), ticktype="detailed", expand=0.5, d=200, ...)
+plotsurf<-function(data, outfile, x, y, z, mode = 1, cols = c(2, 3, 4), ticktype="detailed", expand=0.5, d=200, theta=-40, phi=20, ...)
 {
 	require(akima)
 	if(!missing(data)) {
@@ -20,7 +20,7 @@ plotsurf<-function(data, outfile, x, y, z, mode = 1, cols = c(2, 3, 4), ticktype
 		postscript(outfile,horizontal=F)
 
 	if(mode==1)
-		persp(data, ticktype=ticktype, expand=expand, d=d, ...)
+		persp(data, ticktype=ticktype, expand=expand, d=d, theta=theta, phi=phi, ...)
 	else if(mode==2)
 		contour(data,...)
 	else if(mode==3)
