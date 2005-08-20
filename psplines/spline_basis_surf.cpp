@@ -71,7 +71,8 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
                       const unsigned & nrk, const unsigned & degr,
                       const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl, const bool & catsp)
+                      const double & sl, const bool & catsp, const unsigned & grx,
+                      const unsigned & gry)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
@@ -94,9 +95,9 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
   degree = degr;
   knpos = MCMC::equidistant;
 
-  gridsizex = -1;
-  gridsizey = -1;
-  gridsize = -1;
+  gridsizex = grx;
+  gridsizey = gry;
+  gridsize = grx*gry;
 
   transformnonlinear = false;
   transformed =  false;
@@ -127,6 +128,11 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
   dimZ = nrpar-dimX-1;
 
 //------------------------------------------------------------------------------
+  if(gridsize>0)
+    {
+    X_VCM = datamatrix(gridsize,dimX,1.0);
+    Z_VCM = datamatrix(gridsize,dimZ,0.0);
+    }
 
   spline = datamatrix(v1.rows(),1,0);
 
@@ -142,6 +148,12 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
     index2.push_back(index(i,0)-index(i-1,0));
 
   make_xy_v(v1,v2);
+
+  if(gridsize>0)
+    {
+    make_xy_values_REML(v1,v2);
+    make_DG_REML();
+    }
 
   }
 
@@ -218,7 +230,8 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
                       const unsigned & nrk, const unsigned & degr,
                       const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl, const bool & catsp)
+                      const double & sl, const bool & catsp, const unsigned & grx,
+                      const unsigned & gry)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
@@ -226,6 +239,10 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
   m = mp;
   mapexisting = true;
   mapname = mn;
+
+  gridsizex = grx;
+  gridsizey = gry;
+  gridsize = grx*gry;
 
   if(mp.polygones_existing() == true)
     plotstyle = drawmap;
@@ -256,10 +273,6 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
   nrknots = nrk;
   degree = degr;
   knpos = MCMC::equidistant;
-
-  gridsizex = -1;
-  gridsizey = -1;
-  gridsize = -1;
 
   varcoeff = false;
 
@@ -293,6 +306,12 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
 
 //------------------------------------------------------------------------------
 
+  if(gridsize>0)
+    {
+    X_VCM = datamatrix(gridsize,dimX,1.0);
+    Z_VCM = datamatrix(gridsize,dimZ,0.0);
+    }
+
   spline = datamatrix(v1.rows(),1,0);
 
   lambda = l;
@@ -307,6 +326,12 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
     index2.push_back(index(i,0)-index(i-1,0));
 
   make_xy_v(v1,v2);
+
+  if(gridsize>0)
+    {
+    make_xy_values_REML(v1,v2);
+    make_DG_REML();
+    }
 
   }
 
@@ -465,6 +490,11 @@ spline_basis_surf::spline_basis_surf(const spline_basis_surf & sp)
 
   X_VCM=sp.X_VCM;
   Z_VCM=sp.Z_VCM;
+
+  effectvaluesxgrid = sp.effectvaluesxgrid;
+  effectvaluesygrid = sp.effectvaluesygrid;
+  xvaluesgrid = sp.xvaluesgrid;
+  yvaluesgrid = sp.yvaluesgrid;
   }
 
 
@@ -543,6 +573,10 @@ const spline_basis_surf & spline_basis_surf::operator=(const spline_basis_surf &
 
   X_VCM=sp.X_VCM;
   Z_VCM=sp.Z_VCM;
+  effectvaluesxgrid = sp.effectvaluesxgrid;
+  effectvaluesygrid = sp.effectvaluesygrid;
+  xvaluesgrid = sp.xvaluesgrid;
+  yvaluesgrid = sp.yvaluesgrid;
 
   return *this;
   }
@@ -713,6 +747,45 @@ void spline_basis_surf::make_DG(void)
 
   }
 
+void spline_basis_surf::make_DG_REML(void)
+  {
+
+  int i,j;
+  unsigned k,l,m,n;
+  datamatrix betahelp(nrpar,1,0);
+
+  DG = datamatrix(gridsize,(degree+1)*(degree+1),0);
+  DGfirst = vector<int>(gridsize);
+
+  effectvaluesxgrid = vector<double>(gridsize);
+  effectvaluesygrid = vector<double>(gridsize);
+
+  for(i=0;i<gridsizex;i++)
+    {
+    for(j=0;j<gridsizey;j++)
+      {
+
+      betahelp.assign(bspline(xvaluesgrid(i,0),yvaluesgrid(j,0)));
+
+      k=degree+1;
+      while(knot2[k] <= yvaluesgrid(j,0) && k<nrknots+degree)
+        k++;
+      l=degree+1;
+      while(knot1[l] <= xvaluesgrid(i,0) && l<nrknots+degree)
+        l++;
+
+      for(m=0;m<degree+1;m++)
+        for(n=0;n<degree+1;n++)
+          DG(i*gridsizey + j,n + m*(degree+1)) = betahelp(n+l-(degree+1) + (m+k-(degree+1))*nrpar1dim,0);
+
+      DGfirst[i*gridsizey + j] = l-(degree+1) + (k-(degree+1))*nrpar1dim;
+      effectvaluesxgrid[i*gridsizey + j] = xvaluesgrid(i,0);
+      effectvaluesygrid[i*gridsizey + j] = yvaluesgrid(j,0);
+
+      }
+    }
+
+  }
 
 void spline_basis_surf::make_xy_v(datamatrix var1,datamatrix var2)
   {
@@ -756,6 +829,25 @@ void spline_basis_surf::make_xy_values(const datamatrix & var1,const datamatrix 
 
   }
 
+void spline_basis_surf::make_xy_values_REML(const datamatrix & var1,const datamatrix & var2)
+  {
+
+  int i;
+
+// Design-Daten erzeugen
+  double xmin = var1.min(0);
+  double xmax = var1.max(0);
+  double ymin = var2.min(0);
+  double ymax = var2.max(0);
+  xvaluesgrid = datamatrix(gridsizex,1);
+  yvaluesgrid = datamatrix(gridsizey,1);
+
+  for(i=0;i<gridsizex;i++)
+    xvaluesgrid(i,0) = xmin + i*(xmax-xmin)/double(xvaluesgrid.rows()-1);
+  for(i=0;i<gridsizey;i++)
+    yvaluesgrid(i,0) = ymin + i*(ymax-ymin)/double(yvaluesgrid.rows()-1);
+
+  }
 
 void spline_basis_surf::make_B(const datamatrix & x,const datamatrix & y)
   {
@@ -2360,7 +2452,12 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
   out2.close();
 //END: Susanne
 */
-
+  datamatrix spline2;
+  if(gridsize>0)
+    {
+    spline2 = datamatrix(gridsize,1,0);
+    }
+    
 // X berechnen (varcoeff)
   if(varcoeff)
     {
@@ -2402,6 +2499,14 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       {
       X(i,Xpos) = spline(i,0)-mean;
       }
+    if(gridsize>0)
+      {
+      multDG(spline2,knoten1);
+      for(i=0; i<spline2.rows(); i++)
+        {
+        X_VCM(i,0) = spline2(i,0)-mean;
+        }
+      }
 
     multBS_index(spline,knoten2);
     mean=spline.mean(0);
@@ -2409,12 +2514,28 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       {
       X(i,Xpos+1) = spline(i,0)-mean;
       }
+    if(gridsize>0)
+      {
+      multDG(spline2,knoten2);
+      for(i=0; i<spline2.rows(); i++)
+        {
+        X_VCM(i,1) = spline2(i,0)-mean;
+        }
+      }
 
     multBS_index(spline,knoten3);
     mean=spline.mean(0);
     for(i=0; i<spline.rows(); i++)
       {
       X(i,Xpos+2) = spline(i,0)-mean;
+      }
+    if(gridsize>0)
+      {
+      multDG(spline2,knoten3);
+      for(i=0; i<spline2.rows(); i++)
+        {
+        X_VCM(i,2) = spline2(i,0)-mean;
+        }
       }
     }
 
@@ -2439,12 +2560,28 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       {
       X(i,Xpos) = spline(i,0)-mean;
       }
+    if(gridsize>0)
+      {
+      multDG(spline2,knoten1);
+      for(i=0; i<spline2.rows(); i++)
+        {
+        X_VCM(i,0) = spline2(i,0)-mean;
+        }
+      }
 
     multBS_index(spline,knoten2);
     mean=spline.mean(0);
     for(i=0; i<spline.rows(); i++)
       {
       X(i,Xpos+1) = spline(i,0)-mean;
+      }
+    if(gridsize>0)
+      {
+      multDG(spline2,knoten2);
+      for(i=0; i<spline2.rows(); i++)
+        {
+        X_VCM(i,1) = spline2(i,0)-mean;
+        }
       }
     }
 
@@ -2471,6 +2608,22 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
     else
       {
       for (i=0;i<spline.rows();i++,workdata++,workZ+=Zcols)
+        {
+        *workZ = *workdata;
+        }
+      }
+    }
+
+  if(gridsize>0)
+    {
+    for(j=0;j<dimZ;j++)
+      {
+      multDG(spline2,Kstat.getCol(j));
+
+      workdata = spline2.getV();
+      workZ = Z_VCM.getV()+j;
+
+      for (i=0;i<spline2.rows();i++,workdata++,workZ+=dimZ)
         {
         *workZ = *workdata;
         }
@@ -2775,6 +2928,128 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
     outres << endl;
     }
 
+  if(gridsize>0)
+    {
+    unsigned nr = gridsize;
+    betamean=datamatrix(nr,1,0);
+    datamatrix betastd=datamatrix(nr,1,0);
+    betaqu_l1_lower=datamatrix(nr,1,0);
+    betaqu_l1_upper=datamatrix(nr,1,0);
+    betaqu_l2_lower=datamatrix(nr,1,0);
+    betaqu_l2_upper=datamatrix(nr,1,0);
+
+    if(type==mrflinear)
+      {
+      betamean = Z_VCM*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1);
+      for(i=0; i<gridsize; i++)
+        {
+        betamean(i,0)=betamean(i,0)-mean;
+        betastd(i,0) = sqrt((Z_VCM.getRow(i)*
+                 betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar-1,betaZpos+nrpar-1)*
+                 Z_VCM.getRow(i).transposed())(0,0));
+        }
+      }
+    else if(type==mrfquadratic8 || type==mrfquadratic12)
+      {
+      betamean = X_VCM*betareml.getBlock(betaXpos,0,betaXpos+dimX,1) + Z_VCM*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1);
+      for(i=0; i<gridsize; i++)
+        {
+        betamean(i,0)=betamean(i,0)-mean;
+        betastd(i,0) = sqrt(
+                           ((
+                            X_VCM.getRow(i)*betacov.getBlock(betaXpos,betaXpos,betaXpos+dimX,betaXpos+dimX)
+                            +
+                            (Z_VCM.getRow(i)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+dimX))
+                           )*X_VCM.getRow(i).transposed())(0,0)
+                           +
+                           (
+                            (
+                             X_VCM.getRow(i)*betacov.getBlock(betaXpos,betaZpos,betaXpos+dimX,betaZpos+dimZ)
+                             +
+                             Z_VCM.getRow(i)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                            )*(Z_VCM.getRow(i).transposed())
+                           )(0,0)
+                          );
+        }
+      }
+
+    outest = outest.substr(0,outest.length()-4) + "_grid.res";
+    ofstream outgrid(outest.strtochar());
+
+    optionsp->out("  Results on a grid are stored in file\n");
+    optionsp->out("  " + outest + "\n");
+    optionsp->out("\n");
+
+    optionsp->out("  Results may be visualized using the S-Plus function 'plotsurf'\n");
+    ST::string doublebackslash = "\\\\";
+    ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
+    optionsp->out("  Type for example:\n");
+    optionsp->out("  plotsurf(\"" + spluspath + "\")");
+    optionsp->out("\n");
+    optionsp->out("\n");
+
+    assert(!outgrid.fail());
+    outgrid << "intnr" << "   ";
+    if(mapexisting)
+     {
+     outgrid << "x   " << "y   ";
+     }
+    else
+      {
+      outgrid << datanames[1] << "   ";
+      outgrid << datanames[0] << "   ";
+      }
+    outgrid << "pmode   ";
+    outgrid << "ci"  << level1  << "lower   ";
+    outgrid << "ci"  << level2  << "lower   ";
+    outgrid << "std   ";
+    outgrid << "ci"  << level2  << "upper   ";
+    outgrid << "ci"  << level1  << "upper   ";
+    outgrid << "pcat" << level1 << "   ";
+    outgrid << "pcat" << level2 << "   ";
+    outgrid << endl;
+
+    workmean = betamean.getV();
+    workstd = betastd.getV();
+    workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
+    workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
+    workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
+    workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
+    workxvalues = effectvaluesxgrid.begin();
+    workyvalues = effectvaluesygrid.begin();
+
+    for(i=0;i<gridsize;i++,workmean++,workstd++,
+                       workbetaqu_l1_lower_p++,workbetaqu_l2_lower_p++,
+                       workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++,
+                       workxvalues++,workyvalues++)
+      {
+      outgrid << (i+1) << "   ";
+      outgrid << *workxvalues << "   ";
+      outgrid << *workyvalues << "   ";
+      outgrid << *workmean << "   ";
+      outgrid << *workbetaqu_l1_lower_p << "   ";
+      outgrid << *workbetaqu_l2_lower_p << "   ";
+      outgrid << *workstd << "   ";
+      outgrid << *workbetaqu_l2_upper_p << "   ";
+      outgrid << *workbetaqu_l1_upper_p << "   ";
+      if (*workbetaqu_l1_lower_p > 0)
+        outgrid << "1   ";
+      else if (*workbetaqu_l1_upper_p < 0)
+        outgrid << "-1   ";
+      else
+        outgrid << "0   ";
+
+      if (*workbetaqu_l2_lower_p > 0)
+        outgrid << "1   ";
+      else if (*workbetaqu_l2_upper_p < 0)
+        outgrid << "-1   ";
+      else
+        outgrid << "0   ";
+
+      outgrid << endl;
+      }
+    }
+
 /*
 //BEGIN: Susanne
   datamatrix betaout = Z_VCM*betareml.getRowBlock(X.cols()+Zpos,X.cols()+Zpos+dimZ);
@@ -2814,10 +3089,11 @@ void spline_basis_surf::outoptionsreml()
   optionsp->out("\n");
   }
 
-
 } // end: namespace MCMC
 
 
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
+
+

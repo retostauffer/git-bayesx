@@ -101,6 +101,10 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
 
   datamatrix X_VCM;                  // für REML VCM
   datamatrix Z_VCM;                  // für REML VCM
+  vector<double> effectvaluesxgrid;      // bildet zusammen mit effectvaluesy die Daten-Paare
+  vector<double> effectvaluesygrid;      // für die Ausgabe auf einem Gitter
+  datamatrix xvaluesgrid;                // geordnete, äquidistante Werte zwischen Min(x/y) und Max(x/y)
+  datamatrix yvaluesgrid;                // falls gridsize > 0
 
   datamatrix DG;                     // B-Spline-Matrix für regelmäßiges 50*50-Gitter
   vector<int> DGfirst;
@@ -145,6 +149,8 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
 
   void make_xy_values(const datamatrix & var1,const datamatrix & var2);
 
+  void make_xy_values_REML(const datamatrix & var1,const datamatrix & var2);
+
   // FUNCTION: make_B
   // TASK: creates matrix of B-Splines basis functions for (x,y)-values
 
@@ -153,6 +159,8 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
   void make_BVC(const datamatrix & intact);
 
   void make_DG(void);
+
+  void make_DG_REML(void);
 
   datamatrix bspline(const double x, const double y);
 
@@ -195,7 +203,8 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
                const unsigned & nrk, const unsigned & degr,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl, const bool & catsp);
+               const double & sl, const bool & catsp, const unsigned & grx,
+               const unsigned & gry);
 
   // CONSTRUCTOR for REML (varcoeff)
 
@@ -213,7 +222,8 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
                const unsigned & nrk, const unsigned & degr,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl, const bool & catsp);
+               const double & sl, const bool & catsp, const unsigned & grx,
+               const unsigned & gry);
 
   // CONSTRUCTOR for REML (geospline_varcoeff)
 

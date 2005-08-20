@@ -967,6 +967,8 @@ term_interactpspline_remlreg::term_interactpspline_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
   catspecific = simpleoption("catspecific",false);
+  gridsizex=intoption("gridsizex",0,0,500);
+  gridsizey=intoption("gridsizey",0,0,500);
   }
 
 void term_interactpspline_remlreg::setdefault(void)
@@ -976,6 +978,8 @@ void term_interactpspline_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   catspecific.setdefault();
+  gridsizex.setdefault();
+  gridsizey.setdefault();
   }
 
 bool term_interactpspline_remlreg::check(term & t)
@@ -986,9 +990,11 @@ bool term_interactpspline_remlreg::check(term & t)
   optlist.push_back(&lambda);
   optlist.push_back(&lambdastart);
   optlist.push_back(&catspecific);
+  optlist.push_back(&gridsizex);
+  optlist.push_back(&gridsizey);
 
   if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 6) )
+        && (t.options.size() <= 8) )
     {
 
     if (t.options[0] == "pspline2dimrw1")
@@ -1024,7 +1030,7 @@ bool term_interactpspline_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(6);
+    t.options = vector<ST::string>(8);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -1038,6 +1044,8 @@ bool term_interactpspline_remlreg::check(term & t)
       {
       t.options[5] = "false";
       }
+    t.options[6] = ST::inttostring(gridsizex.getvalue());
+    t.options[7] = ST::inttostring(gridsizey.getvalue());
 
     setdefault();
     return true;
@@ -1175,6 +1183,8 @@ term_geospline_remlreg::term_geospline_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
   catspecific = simpleoption("catspecific",false);
+  gridsizex = intoption("gridsizex",0,0,500);
+  gridsizey = intoption("gridsizey",0,0,500);
   }
 
 
@@ -1186,12 +1196,14 @@ void term_geospline_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   catspecific.setdefault();
+  gridsizex.setdefault();
+  gridsizey.setdefault();
   }
 
 bool term_geospline_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 7) )
+        && (t.options.size() <= 9) )
     {
     if (t.options[0] == "geosplinerw1" || t.options[0] == "geospline")
       t.type = "geosplinerw1";
@@ -1212,6 +1224,8 @@ bool term_geospline_remlreg::check(term & t)
     optlist.push_back(&map);
     optlist.push_back(&lambdastart);
     optlist.push_back(&catspecific);
+    optlist.push_back(&gridsizex);
+    optlist.push_back(&gridsizey);
 
     unsigned i;
 
@@ -1234,7 +1248,7 @@ bool term_geospline_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(7);
+    t.options = vector<ST::string>(9);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -1249,6 +1263,8 @@ bool term_geospline_remlreg::check(term & t)
       {
       t.options[6] = "false";
       }
+    t.options[7] = ST::inttostring(gridsizex.getvalue());
+    t.options[8] = ST::inttostring(gridsizey.getvalue());
 
     setdefault();
     return true;

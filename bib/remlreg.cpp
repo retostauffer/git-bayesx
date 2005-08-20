@@ -1908,7 +1908,7 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
   ST::string pathres;
   long h;
   double lambda,startlambda;
-  unsigned nrknots,degree;
+  unsigned nrknots,degree,gridsizex,gridsizey;
   bool catsp;
   int f;
 
@@ -1943,7 +1943,10 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
         {
         catsp=false;
         }
-
+      f = (terms[i].options[6]).strtolong(h);
+      gridsizex = unsigned(h);
+      f = (terms[i].options[7]).strtolong(h);
+      gridsizey = unsigned(h);
 
       if (f==1)
         return true;
@@ -1965,7 +1968,8 @@ bool remlreg::create_interactionspspline(const unsigned & collinpred)
                                       pathres,
                                       lambda,
                                       startlambda,
-                                      catsp
+                                      catsp,
+                                      gridsizex,gridsizey
                                       ));
 
       vector<ST::string> na;
@@ -2068,7 +2072,7 @@ bool remlreg::create_geospline(const unsigned & collinpred)
   ST::string pathres;
   long h;
   double lambda,startlambda;
-  unsigned nrknots,degree;
+  unsigned nrknots,degree,gridsizex,gridsizey;
   bool catsp;
   int f;
 
@@ -2102,6 +2106,10 @@ bool remlreg::create_geospline(const unsigned & collinpred)
         {
         catsp=false;
         }
+      f = (terms[i].options[7]).strtolong(h);
+      gridsizex = unsigned(h);
+      f = (terms[i].options[8]).strtolong(h);
+      gridsizey = unsigned(h);
 
       if (f==1)
         return true;
@@ -2144,7 +2152,8 @@ bool remlreg::create_geospline(const unsigned & collinpred)
                                       pathres,
                                       lambda,
                                       startlambda,
-                                      catsp
+                                      catsp,
+                                      gridsizex,gridsizey
                                       ));
 
       vector<ST::string> na;

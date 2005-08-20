@@ -380,6 +380,8 @@ class __EXPORT_TYPE term_interactpspline_remlreg : public basic_termtype
   doubleoption lambda;
   doubleoption lambdastart;
   simpleoption catspecific;
+  intoption gridsizex;
+  intoption gridsizey;
 
   void setdefault(void);
 
@@ -461,6 +463,8 @@ class __EXPORT_TYPE term_geospline_remlreg : public basic_termtype
                                // geographical information
   doubleoption lambdastart;
   simpleoption catspecific;
+  intoption gridsizex;
+  intoption gridsizey;
 
   void setdefault(void);
 
