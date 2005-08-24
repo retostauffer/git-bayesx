@@ -393,8 +393,11 @@ void FULLCOND_variance_nonp::update_stationary(void)
 
   if(Kp->get_type()==RW1)
     {
-    double alphawork = beta(1,0)*sqrt(transform);
+    double alphawork = beta(1,0)*transform;
     double alphaprop = uniform()*2.0-1.0;
+
+//  alpha fix
+    alphaprop = alphawork;
 
     double u = log(uniform());
     double alpha = 0.5*log(1.0-alphaprop*alphaprop) - 0.5*log(1.0-alphawork*alphawork);
@@ -405,7 +408,7 @@ void FULLCOND_variance_nonp::update_stationary(void)
 
     if(u<=alpha)
       {
-      beta(1,0) = alphaprop/sqrt(transform);
+      beta(1,0) = alphaprop/transform;
       }
     else
       {
@@ -415,14 +418,19 @@ void FULLCOND_variance_nonp::update_stationary(void)
     }
   else if(Kp->get_type()==RW2)
     {
-    double alpha1work = beta(1,0)*sqrt(transform);
-    double alpha2work = beta(2,0)*sqrt(transform);
+    double alpha1work = beta(1,0)*transform;
+    double alpha2work = beta(2,0)*transform;
 
     double alpha1help = uniform()*2.0-1.0;
-    double alpha2help = uniform()*2.0-1.0;
+//    double alpha2help = uniform()*2.0-1.0;
+    double alpha2help = alpha1help;
 
     double alpha1prop = -(alpha1help+alpha2help);
     double alpha2prop = alpha1help*alpha2help;
+
+//  alpha1, alpha2 fix
+//    alpha1prop = alpha1work;
+//    alpha2prop = alpha2work;
 
     double u = log(uniform());
 
@@ -440,8 +448,8 @@ void FULLCOND_variance_nonp::update_stationary(void)
 
     if(u<=alpha)
       {
-      beta(1,0) = alpha1prop/sqrt(transform);
-      beta(2,0) = alpha2prop/sqrt(transform);
+      beta(1,0) = alpha1prop/transform;
+      beta(2,0) = alpha2prop/transform;
       }
     else
       {
@@ -456,21 +464,19 @@ void FULLCOND_variance_nonp::update_stationary(void)
 void FULLCOND_variance_nonp::set_stationary(void)
   {
   stationary = true;
-  double alphastart = 0.0;
+  double alphastart = 0.9;
   if(Kp->get_type()==RW1)
     {
-    datamatrix betahelp = datamatrix(2,1);
-    betahelp(0,0) = distrp->get_scale(column,column)/Kp->getlambda();
-    betahelp(1,0) = alphastart/distrp->get_trmult(column);
-    setbeta(betahelp);
+    setbeta(2,1,0.0);
+    setbetavalue(0,0,distrp->get_scale(column,column)/Kp->getlambda());
+    setbetavalue(1,0,alphastart/(distrp->get_trmult(column)*distrp->get_trmult(column)));
     }
   else if(Kp->get_type()==RW2)
     {
-    datamatrix betahelp = datamatrix(3,1);
-    betahelp(0,0) = distrp->get_scale(column,column)/Kp->getlambda();
-    betahelp(1,0) = alphastart/distrp->get_trmult(column);
-    betahelp(2,0) = alphastart/distrp->get_trmult(column);;
-    setbeta(betahelp);
+    setbeta(3,1,0.0);
+    setbetavalue(0,0,distrp->get_scale(column,column)/Kp->getlambda());
+    setbetavalue(1,0,-(alphastart+alphastart)/(distrp->get_trmult(column)*distrp->get_trmult(column)));
+    setbetavalue(2,0,alphastart*alphastart/(distrp->get_trmult(column)*distrp->get_trmult(column)));
     }
   }
 
@@ -566,14 +572,7 @@ void FULLCOND_variance_nonp::outresults(void)
     ou << "pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
     nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
     ou << betamean(0,0) << "  ";
-    if (constlambda==false)
-      {
-      ou << sqrt(betavar(0,0)) << "  ";
-      }
-    else
-      {
-      ou << 0 << "  ";
-      }
+    ou << (betavar(0,0)<0.0?0.0:sqrt(betavar(0,0))) << "  ";
     ou << betaqu_l1_lower(0,0) << "  ";
     ou << betaqu_l2_lower(0,0) << "  ";
     ou << betaqu50(0,0) << "  ";
@@ -585,7 +584,7 @@ void FULLCOND_variance_nonp::outresults(void)
     if(beta.rows()>1)
       {
       ou << betamean(1,0) << "  ";
-      ou << sqrt(betavar(1,0)) << "  ";
+      ou << (betavar(1,0)<0.0?0.0:sqrt(betavar(1,0))) << "  ";
       ou << betaqu_l1_lower(1,0) << "  ";
       ou << betaqu_l2_lower(1,0) << "  ";
       ou << betaqu50(1,0) << "  ";
@@ -597,7 +596,7 @@ void FULLCOND_variance_nonp::outresults(void)
     if(beta.rows()>2)
       {
       ou << betamean(2,0) << "  ";
-      ou << sqrt(betavar(2,0)) << "  ";
+      ou << (betavar(2,0)<0.0?0.0:sqrt(betavar(2,0))) << "  ";
       ou << betaqu_l1_lower(2,0) << "  ";
       ou << betaqu_l2_lower(2,0) << "  ";
       ou << betaqu50(2,0) << "  ";

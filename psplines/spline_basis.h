@@ -487,11 +487,7 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
     outbsplines = true;
     }
 
-  void set_stationary(void)
-    {
-    updateKenv_alpha(0.0,0.0);
-    rankK = nrpar;
-    }
+  void set_stationary(void);
 
   double compute_df(void);
 
