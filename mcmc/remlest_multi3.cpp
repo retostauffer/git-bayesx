@@ -167,9 +167,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
  // Zu X: Ausgabe der Testdateien zu X
 
  // Ausgabe von Xalt unter Xalt
-   ofstream outXalt("c:\\bayesx\\mcmc\\Xalt");
+/*   ofstream outXalt("c:\\bayesx\\mcmc\\Xalt");
          X.prettyPrint(outXalt);
-         outXalt.close();
+         outXalt.close();*/
 
  // Hilfsmatrix zu xcut unter help2
  /*  datamatrix help2(xcut.size(),1,0);
@@ -200,9 +200,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
  // Zu Z: Ausgabe der Testdateien zu Z
 
  // Ausgabe von Zalt unter Zalt
-   ofstream outZalt("c:\\bayesx\\mcmc\\Zalt");
+/*   ofstream outZalt("c:\\bayesx\\mcmc\\Zalt");
          Z.prettyPrint(outZalt);
-         outZalt.close();
+         outZalt.close();*/
 
  // Hilfsmatrix zu zcut unter help6
  /*  datamatrix help6(zcut.size(),1,0);
@@ -240,9 +240,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
    }
 
  // Ausgabe von catspecific unter catspecific
-   ofstream outcatspecific("c:\\bayesx\\mcmc\\catspecific");
+/*   ofstream outcatspecific("c:\\bayesx\\mcmc\\catspecific");
          help0.prettyPrint(outcatspecific);
-         outcatspecific.close();
+         outcatspecific.close();*/
 
 
  // Hilfsmatrix zu catspecific_fixed
@@ -253,9 +253,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
    }
 
  // Ausgabe von catspecific_fixed unter catspecific_fixed
-   ofstream outcatspecific_fixed("c:\\bayesx\\mcmc\\catspecific_fixed");
+/*   ofstream outcatspecific_fixed("c:\\bayesx\\mcmc\\catspecific_fixed");
          help01.prettyPrint(outcatspecific_fixed);
-         outcatspecific_fixed.close();
+         outcatspecific_fixed.close();*/
 
 
 
@@ -282,9 +282,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
    }
 
  // Ausgabe von Xlength
-   ofstream outXlength("c:\\bayesx\\mcmc\\xcutbetalength");
+/*   ofstream outXlength("c:\\bayesx\\mcmc\\xcutbetalength");
          Xlength.prettyPrint(outXlength);
-         outXlength.close();
+         outXlength.close();*/
 
  //----------------------------------------------------------------------------------------------------------------------------------
  // xcutlength gibt die Länge der Abschnitte von xcut an
@@ -302,9 +302,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
    }
 
  // Ausgabe von Xlength
-   ofstream outXcutlength("c:\\bayesx\\mcmc\\xcutlength");
+/*   ofstream outXcutlength("c:\\bayesx\\mcmc\\xcutlength");
          Xcutlength.prettyPrint(outXcutlength);
-         outXcutlength.close();
+         outXcutlength.close();*/
 
 
  //----------------------------------------------
@@ -437,9 +437,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
     }                                                                             // Ende zur for-Schleife für X
 
     // Ausgabe von Xneu unter Xneu
-      ofstream outXneu("c:\\bayesx\\mcmc\\Xneu");
+/*      ofstream outXneu("c:\\bayesx\\mcmc\\Xneu");
          Xneu.prettyPrint(outXneu);
-         outXneu.close();
+         outXneu.close();*/
 
 
  //-------------------------------------------------------------------------------------------------------------
@@ -464,9 +464,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
    }
 
  // Ausgabe von Zlength
-   ofstream outZlength("c:\\bayesx\\mcmc\\zcutbetalength");
+/*   ofstream outZlength("c:\\bayesx\\mcmc\\zcutbetalength");
          Zlength.prettyPrint(outZlength);
-         outZlength.close();
+         outZlength.close();*/
 
  //------------------------------------------------------------------
  // zcutlength gibt die Länge der Abschnitte von zcut an
@@ -484,9 +484,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
    }
 
  // Ausgabe von Zcutlength
-   ofstream outZcutlength("c:\\bayesx\\mcmc\\zcutlength");
+/*   ofstream outZcutlength("c:\\bayesx\\mcmc\\zcutlength");
          Zcutlength.prettyPrint(outZcutlength);
-         outZcutlength.close();
+         outZcutlength.close();*/
 
  //------------------------------------------------------------------------------------------------------------------------------
  //------------------------------------------------------------------------------------------------------------------------------
@@ -553,9 +553,9 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
     }                                                                             // Ende zur for-Schleife für Z
 
  // Ausgabe von Zneu unter Zneu
-   ofstream outZneu("c:\\bayesx\\mcmc\\Zneu");
+/*   ofstream outZneu("c:\\bayesx\\mcmc\\Zneu");
          Zneu.prettyPrint(outZneu);
-         outZneu.close();
+         outZneu.close();*/
 
  //-----------------------------------------------------------------------------------------------------------------------------------------
  //-----------------------------------------------------------------------------------------------------------------------------------------
@@ -859,9 +859,9 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
                                        xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1] , xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1] );
 
         // Ausgabe von H unter H
-          ofstream outH ("c:\\bayesx\\mcmc\\H");
+/*          ofstream outH ("c:\\bayesx\\mcmc\\H");
            H.prettyPrint(outH);
-           outH.close();
+           outH.close();*/
 
 //-----------------------------------------------------------------------------------------------------------------------------------
 // Zusammensetzen von H1
@@ -873,9 +873,9 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
 
 
         // Ausgabe von H1 unter H1
-           ofstream outH1 ("c:\\bayesx\\mcmc\\H1");
+/*           ofstream outH1 ("c:\\bayesx\\mcmc\\H1");
            H1.prettyPrint(outH1);
-           outH1.close();
+           outH1.close();*/
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------------------------------------------------
