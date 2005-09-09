@@ -73,7 +73,7 @@ Component1GroupList=1 2 3 4 5 6
 
 [Groups]
 Groups=6
-Group1Size=10151440
+Group1Size=10393104
 Group1Files=5
 Group1Name=Programms
 Group1Dir=<INSTALLDIR>
@@ -113,7 +113,7 @@ Group5Files=0
 Group5Name=output
 Group5Dir=<INSTALLDIR>\output
 Group5Update=2
-Group6Size=3007374
+Group6Size=2964492
 Group6Files=1
 Group6Name=doc
 Group6Dir=<INSTALLDIR>\doc

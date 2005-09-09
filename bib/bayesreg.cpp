@@ -1849,7 +1849,13 @@ bool bayesreg::create_distribution(void)
     distr_cumlat3 = DISTRIBUTION_cumulative_latent3(
     &generaloptions[generaloptions.size()-1],D.getCol(0),
                     w,aresp.getvalue(),bresp.getvalue(),path2,path3);
+
     distr_cumlat3.init_names(rname);
+
+    if (offs.rows() > 1)
+      {
+      distr_cumlat3.init_offset(offs);
+      }
 
 
     if (predict.getvalue() == true || (predictmu.getvalue() == true) )
