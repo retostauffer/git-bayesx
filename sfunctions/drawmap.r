@@ -1,7 +1,7 @@
 "drawmap" <-
 function (map, dfile, outfile, regionvar, 
     plotvar, lowerlimit, upperlimit, nrcolors = 100, pstitle = "", 
-    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F) 
+    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F, cex.legend=0.7) 
 {
     if (!missing(outfile) && !missing(dfile)) {
         if (dfile == outfile) 
@@ -150,16 +150,16 @@ function (map, dfile, outfile, regionvar,
             }
             lines(c(xlo, xro, xru, xlu, xlo), c(ylo, yro, yru, 
                 ylu, ylo), col = black)
-            text(xlu + 0.5 * step, tylu, lowerlimit, cex = 0.7, 
+            text(xlu + 0.5 * step, tylu, lowerlimit, cex = cex.legend, 
                 col = black)
-            text(xru - 0.5 * step, tyru, upperlimit, cex = 0.7, 
+            text(xru - 0.5 * step, tyru, upperlimit, cex = cex.legend, 
                 col = black)
             if (lowerlimit + (upperlimit - lowerlimit)/3 < 0 && 
                 0 < upperlimit - (upperlimit - lowerlimit)/3) {
                 help <- cut(c(0, lowerlimit, upperlimit), nrcolors)
                 help <- as.vector(help, mode = "numeric")
                 text(xlu + step * (help[1] - 0.5), tylu, "0", 
-                  cex = 0.7, col = black)
+                  cex = cex.legend, col = black)
             }
         }
     }
