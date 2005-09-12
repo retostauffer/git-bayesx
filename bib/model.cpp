@@ -257,6 +257,9 @@ term_autoreg::term_autoreg(void)
   lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
   lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
   lambdastart = doubleoption("lambdastart",-1,-1,10000000);
+  stationary = simpleoption("stationary",false);
+  alpha = doubleoption("alpha",0.9,-1.0,1.0);
+  alphafix = simpleoption("alphafix",false);
   }
 
 void term_autoreg::setdefault(void)
@@ -276,6 +279,9 @@ void term_autoreg::setdefault(void)
   lambdamin.setdefault();
   lambdamax.setdefault();
   lambdastart.setdefault();
+  alpha.setdefault();
+  stationary.setdefault();
+  alphafix.setdefault();
   }
 
 
@@ -283,7 +289,7 @@ bool term_autoreg::check(term & t)
   {
 
   if ( (t.varnames.size() <= 2) && (t.varnames.size() >= 1) &&
-       (t.options.size()<=16) && (t.options.size() >= 1) )
+       (t.options.size()<=18) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "rw1" && t.varnames.size() == 1)
@@ -332,6 +338,9 @@ bool term_autoreg::check(term & t)
     optlist.push_back(&lambdamin);
     optlist.push_back(&lambdamax);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&stationary);
+    optlist.push_back(&alpha);
+    optlist.push_back(&alphafix);
 
     unsigned i;
     bool rec = true;
@@ -355,24 +364,8 @@ bool term_autoreg::check(term & t)
       return false;
       }
 
-    optlist.push_back(&min);
-    optlist.push_back(&max);
-    optlist.push_back(&minvar);
-    optlist.push_back(&maxvar);
-    optlist.push_back(&startv);
-    optlist.push_back(&lambda);
-    optlist.push_back(&a);
-    optlist.push_back(&b);
-    optlist.push_back(&proposal);
-    optlist.push_back(&updateW);
-    optlist.push_back(&updatetau);
-    optlist.push_back(&f);
-    optlist.push_back(&lambdamin);
-    optlist.push_back(&lambdamax);
-    optlist.push_back(&lambdastart);
-
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(16);
+    t.options = vector<ST::string>(19);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(min.getvalue());
     t.options[2] = ST::inttostring(max.getvalue());
@@ -392,7 +385,15 @@ bool term_autoreg::check(term & t)
     t.options[13] = ST::doubletostring(lambdamin.getvalue());
     t.options[14] = ST::doubletostring(lambdamax.getvalue());
     t.options[15] = ST::doubletostring(lambdastart.getvalue());
-
+    if(stationary.getvalue() == false)
+      t.options[16] = "false";
+    else
+      t.options[16] = "true";
+    t.options[17] = ST::doubletostring(alpha.getvalue());
+    if(alphafix.getvalue() == false)
+      t.options[18] = "false";
+    else
+      t.options[18] = "true";
 
     if (t.options[1].strtolong(minim) == 1)
       {
@@ -533,7 +534,7 @@ void term_season::setdefault(void)
 
 bool term_season::check(term & t)
   {
-  if ( (t.varnames.size()<=2)  && (t.options.size()<=15) &&
+  if ( (t.varnames.size()<=2)  && (t.options.size()<=16) &&
        (t.options.size() >= 1) )
     {
 
@@ -591,7 +592,7 @@ bool term_season::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(15);
+    t.options = vector<ST::string>(16);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(period.getvalue());
     t.options[2] = ST::inttostring(min.getvalue());
@@ -724,7 +725,9 @@ term_pspline::term_pspline(void)
   beta_0 = stroption("beta_0");
   discrete = simpleoption("discrete",false);
   df = intoption("df",20,3,50);
-  alpha = simpleoption("alpha",false);
+  stationary = simpleoption("stationary",false);
+  alpha = doubleoption("alpha",0.9,-1.0,1.0);
+  alphafix = simpleoption("alphafix",false);
 //  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
 //  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
 //  lambdastart = doubleoption("lambdastart",-1,-1,10000000);
@@ -758,6 +761,8 @@ void term_pspline::setdefault(void)
   discrete.setdefault();
   df.setdefault();
   alpha.setdefault();
+  stationary.setdefault();
+  alphafix.setdefault();
 //  lambdamin.setdefault();
 //  lambdamax.setdefault();
 //  lambdastart.setdefault();
@@ -767,7 +772,7 @@ bool term_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 27) )
+        && (t.options.size() <= 29) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -821,7 +826,9 @@ bool term_pspline::check(term & t)
     optlist.push_back(&beta_0);
     optlist.push_back(&discrete);
     optlist.push_back(&df);
+    optlist.push_back(&stationary);
     optlist.push_back(&alpha);
+    optlist.push_back(&alphafix);
 //    optlist.push_back(&lambdamin);
 //    optlist.push_back(&lambdamax);
 //    optlist.push_back(&lambdastart);
@@ -849,7 +856,7 @@ bool term_pspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(27);
+   t.options = vector<ST::string>(29);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -897,10 +904,15 @@ bool term_pspline::check(term & t)
    else
      t.options[24] = "true";
    t.options[25] = ST::inttostring(df.getvalue());
-   if(alpha.getvalue() == false)
+   if(stationary.getvalue() == false)
      t.options[26] = "false";
    else
      t.options[26] = "true";
+   t.options[27] = ST::doubletostring(alpha.getvalue());
+   if(alphafix.getvalue() == false)
+     t.options[28] = "false";
+   else
+     t.options[28] = "true";
 //    t.options[40] = ST::doubletostring(lambdamin.getvalue());
 //    t.options[21] = ST::doubletostring(lambdamax.getvalue());
 //    t.options[22] = ST::doubletostring(lambdastart.getvalue());
@@ -1002,6 +1014,9 @@ term_spatial::term_spatial(void)
   uniformprior = simpleoption("uniformprior",false);
   nrrows = intoption("nrrows",2,0,100);
   Laplace = simpleoption("Laplace",false);
+  stationary = simpleoption("stationary",false);
+  alpha = doubleoption("alpha",0.9,-1.0,1.0);
+  alphafix = simpleoption("alphafix",false);
   }
 
 void term_spatial::setdefault(void)
@@ -1022,6 +1037,9 @@ void term_spatial::setdefault(void)
   uniformprior.setdefault();
   nrrows.setdefault();
   Laplace.setdefault();
+  alpha.setdefault();
+  stationary.setdefault();
+  alphafix.setdefault();
   }
 
 
@@ -1029,7 +1047,7 @@ bool term_spatial::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size()>=1) &&
-       (t.options.size()<=17) && (t.options.size() >= 1) )
+       (t.options.size()<=18) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "spatial" && t.varnames.size()==1)
@@ -1067,6 +1085,9 @@ bool term_spatial::check(term & t)
     optlist.push_back(&uniformprior);
     optlist.push_back(&nrrows);
     optlist.push_back(&Laplace);
+    optlist.push_back(&stationary);
+    optlist.push_back(&alpha);
+    optlist.push_back(&alphafix);
 
     unsigned i;
     bool rec = true;
@@ -1091,7 +1112,7 @@ bool term_spatial::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(17);
+    t.options = vector<ST::string>(20);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::inttostring(min.getvalue());
@@ -1118,7 +1139,15 @@ bool term_spatial::check(term & t)
       t.options[16] = "false";
     else
       t.options[16] = "true";
-
+    if(stationary.getvalue() == false)
+      t.options[17] = "false";
+    else
+      t.options[17] = "true";
+    t.options[18] = ST::doubletostring(alpha.getvalue());
+    if(alphafix.getvalue() == false)
+      t.options[19] = "false";
+    else
+      t.options[19] = "true";
 
     if (t.options[2].strtolong(minim) == 1)
       {

@@ -478,6 +478,9 @@ class __EXPORT_TYPE term_autoreg : public basic_termtype
   doubleoption lambdamin;
   doubleoption lambdamax;
   doubleoption lambdastart;
+  simpleoption stationary;
+  doubleoption alpha;
+  simpleoption alphafix;
 
   void setdefault(void);
 
@@ -618,7 +621,9 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
   stroption beta_0;
   simpleoption discrete;
   intoption df;
-  simpleoption alpha;
+  simpleoption stationary;
+  doubleoption alpha;
+  simpleoption alphafix;
 //  doubleoption lambdamin;
 //  doubleoption lambdamax;
 //  doubleoption lambdastart;
@@ -691,7 +696,9 @@ class __EXPORT_TYPE term_spatial : public basic_termtype
   simpleoption uniformprior;
   intoption nrrows;
   simpleoption Laplace;
-
+  simpleoption stationary;
+  doubleoption alpha;
+  simpleoption alphafix;
 
   void setdefault(void);
 
