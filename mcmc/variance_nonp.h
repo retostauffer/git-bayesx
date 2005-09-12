@@ -24,6 +24,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
   bool uniformprior;
   bool Laplace;
   bool stationary;
+  bool alphafix;
 
   FULLCOND_nonp_basis * Kp;
 
@@ -106,7 +107,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
 
   void update_stationary(void);
 
-  void set_stationary(void);
+  void set_stationary(double alphastart,bool afix=false);
 
   bool posteriormode(void);
 

@@ -259,6 +259,8 @@ class __EXPORT_TYPE FULLCOND_nonp_basis : public FULLCOND
     return effectvalues;
     }
 
+  void set_stationary(double alphastart);
+
   // FUNCTION: reset
   // TASK: resets all parameters
 

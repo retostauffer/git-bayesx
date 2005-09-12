@@ -515,6 +515,8 @@ void bayesreg::create(void)
   plotvar = stroption("plotvar","pmean");
   pcat = simpleoption("pcat",false);
   drawnames = simpleoption("drawnames",false);
+  fontsize = intoption("fontsize",12,0,100);  
+  titlescale = doubleoption("titlesize",1.5,0.0,MAXDOUBLE);
 
   drawmapoptions.push_back(&outfile4);
   drawmapoptions.push_back(&title2);
@@ -528,6 +530,8 @@ void bayesreg::create(void)
   drawmapoptions.push_back(&plotvar);
   drawmapoptions.push_back(&pcat);
   drawmapoptions.push_back(&drawnames);
+  drawmapoptions.push_back(&fontsize);
+  drawmapoptions.push_back(&titlescale);
 
   // SYNTAX OF COMMANDS:
   // name [model] [weight varname] [by varname] [if expression]
@@ -2402,7 +2406,7 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
   long h;
   double hd;
   unsigned min,max;
-  double lambda,a1,b1;
+  double lambda,a1,b1,alpha;
   bool updatetau;
   bool iwls;
   double ftune;
@@ -2469,6 +2473,8 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
         updatetau=false;
 
       f = (terms[i].options[12]).strtodouble(ftune);
+
+      f = (terms[i].options[17]).strtodouble(alpha);
 
       if (f==1)
         return true;
@@ -2554,6 +2560,8 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
                                                       updateW,a1,b1,true);
             }
 
+          if (terms[i].options[16] == "true")
+            fcnonpgaussian[fcnonpgaussian.size()-1].set_stationary(alpha);
 
           if (terms[i].options[0] == "rw1vrw1" || terms[i].options[0] == "rw2vrw1"
           || terms[i].options[0] == "rw1vrw2" || terms[i].options[0] == "rw2vrw2"
@@ -2591,6 +2599,12 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
             if ( (check_nongaussian()) && (proposal == "iwlsmode")
               && (updatetau==true) )
               fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
+
+            bool alphafix = false;
+            if (terms[i].options[18] == "true")
+              alphafix = true;
+            if (terms[i].options[16] == "true")
+              fcvarnonp[fcvarnonp.size()-1].set_stationary(alpha,alphafix);
 
             fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
@@ -2729,7 +2743,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 
   long h;
   unsigned min,max,degree,nrknots;
-  double lambda,a1,b1;
+  double lambda,a1,b1,alpha;
   bool ub,diagtransform,derivative,bsplinebasis;
   int gridsize,contourprob;
   int f;
@@ -2810,6 +2824,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
       f = (terms[i].options[21]).strtolong(h);
       contourprob = unsigned(h);
 
+      f = (terms[i].options[27]).strtodouble(alpha);
+
       // -------------end: reading options, term information -------------------
 
       //--------- creating path for samples and and results, creating title ----
@@ -2875,7 +2891,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           fcpsplinegaussian[fcpsplinegaussian.size()-1].set_outbsplines();
 
         if (terms[i].options[26] == "true")
-          fcpsplinegaussian[fcpsplinegaussian.size()-1].set_stationary();
+          fcpsplinegaussian[fcpsplinegaussian.size()-1].set_stationary(alpha);
 
         fcpsplinegaussian[fcpsplinegaussian.size()-1].init_name(terms[i].varnames[0]);
         fcpsplinegaussian[fcpsplinegaussian.size()-1].set_fcnumber(fullcond.size());
@@ -2903,8 +2919,11 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
               f = terms[i].options[25].strtolong(h);
               fcvarnonp[fcvarnonp.size()-1].set_discrete(unsigned(h));
               }
+            bool alphafix = false;
+            if (terms[i].options[28] == "true")
+              alphafix = true;
             if (terms[i].options[26] == "true")
-              fcvarnonp[fcvarnonp.size()-1].set_stationary();
+              fcvarnonp[fcvarnonp.size()-1].set_stationary(alpha,alphafix);
 
             fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
@@ -3046,7 +3065,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
             fciwlspspline[fciwlspspline.size()-1].set_lambdaconst(lambda);
 
           if (terms[i].options[26] == "true")
-            fciwlspspline[fciwlspspline.size()-1].set_stationary();
+            fciwlspspline[fciwlspspline.size()-1].set_stationary(alpha);
 
           fciwlspspline[fciwlspspline.size()-1].init_name(terms[i].varnames[0]);
           fciwlspspline[fciwlspspline.size()-1].set_fcnumber(fullcond.size());
@@ -3064,8 +3083,11 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
             &fciwlspspline[fciwlspspline.size()-1],distr[distr.size()-1],a1,b1,
             title,pathnonp,pathres,ub,collinpred));
 
+            bool alphafix = false;
+            if (terms[i].options[28] == "true")
+              alphafix = true;
             if (terms[i].options[26] == "true")
-              fcvarnonp[fcvarnonp.size()-1].set_stationary();
+              fcvarnonp[fcvarnonp.size()-1].set_stationary(alpha,alphafix);
 
             if (constlambda.getvalue() == false)
               {
@@ -3143,6 +3165,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 //------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
+
+
 
 
 

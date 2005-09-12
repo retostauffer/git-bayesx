@@ -771,6 +771,10 @@ void drawmaprun(bayesreg & b)
       ot = ot + "pcat ";
     if (b.drawnames.getvalue() == true)
       ot = ot + "drawnames ";
+    if (b.fontsize.changed() == true)
+      ot = ot + "fontsize=" + b.fontsize.getValueAsString() + " ";
+    if (b.titlescale.changed() == true)
+      ot = ot + "titlesize=" + b.titlescale.getValueAsString() + " ";
 
     if (ot.length() == 0)
       b.newcommands.push_back(

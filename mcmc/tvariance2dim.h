@@ -9,6 +9,7 @@
 
 #include<fullcond_pspline_surf_gaussian.h>
 #include<fullcond_nonp_gaussian.h>
+#include<distribution.h>
 
 #include<cmath>
 #include<limits>
@@ -21,6 +22,8 @@ class __EXPORT_TYPE FULLCOND_tvariance2dim : public FULLCOND
 
 
   protected:
+
+  DISTRIBUTION_gamma dgam;
 
   FULLCOND_pspline_surf_gaussian * Kp;  // pointer to psplines full conditional
   FULLCOND_nonp_gaussian * Kp_spat;  // pointer to psplines full conditional

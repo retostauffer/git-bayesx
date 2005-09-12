@@ -72,6 +72,8 @@ FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(MCMCoptions * o,
   pathresults = pres;
   nu = v;
 
+//  dgam = DISTRIBUTION_gamma();
+
     envmatdouble Kenv = Kp_spat->get_K();
 
     nrpar = 0;
@@ -122,6 +124,7 @@ FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(MCMCoptions * o,
 FULLCOND_tvariance2dim::FULLCOND_tvariance2dim(const FULLCOND_tvariance2dim & t)
   : FULLCOND(FULLCOND(t))
   {
+//  dgam = t.dgam;
   rowwise = t.rowwise;
   Kp = t.Kp;
   Kp_spat = t.Kp_spat;
@@ -150,6 +153,7 @@ FULLCOND_tvariance2dim::operator=(const FULLCOND_tvariance2dim & t)
   if (this == &t)
     return *this;
   FULLCOND::operator=(FULLCOND(t));
+//  dgam = t.dgam;
   rowwise = t.rowwise;
   Kp = t.Kp;
   Kp_spat = t.Kp_spat;
@@ -176,7 +180,7 @@ FULLCOND_tvariance2dim::operator=(const FULLCOND_tvariance2dim & t)
 void FULLCOND_tvariance2dim::update(void)
   {
 
-  unsigned step = 5;
+  unsigned step = 2;
 
   if(spatial)
     {
@@ -745,8 +749,7 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
 
     unsigned i,j,l;
     int k = 0;
-//    double aneu = 1.0 + 0.5*double(nu);
-    double aneu = 0.5*double(nu);
+    double aneu = 1.0 + 0.5*double(nu);
     double bneu;
 
     double alpha,u,betak;
@@ -755,8 +758,12 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
 
     double quadform;
     double nu_K = fabs(0.5*(2-double(nrpar)));
-    double propnew=0.0,propold=0.0;
-    double lognew=0.0,logold=0.0;
+    double propnew=0.0;
+    double propold=0.0;
+    double lognew=0.0;
+    double logold=0.0;
+
+//    double proposalvar = 0.15;
 
     while(k<nrpar)
       {
@@ -764,15 +771,39 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
       betak = beta(k,0);
       row = indexmat(k,0);
       col = indexmat(k,1);
-
-//      bneu = 0.5*nu + Kp_spat->compute_fabsdiff(row,col);
-      bneu = 0.5*nu + 0.5*Kp_spat->compute_squareddiff(row,col);
+/*
+      if(betak>0.1)
+        {
+        aneu = betak*betak/proposalvar;
+        bneu = betak/proposalvar;
+        }
+      else
+        {
+        aneu = 0.01/proposalvar;
+        bneu = 0.1/proposalvar;
+        }
+*/
+      bneu = 0.5*nu + Kp_spat->compute_fabsdiff(row,col);
       deltaprop = randnumbers::rand_gamma(aneu,bneu);
+      lognew  += (0.5*nu-1)*log(deltaprop) - 0.5*nu*deltaprop;
+      logold  += (0.5*nu-1)*log(betak)     - 0.5*nu*betak;
 
-      lognew += (0.5*nu-1)*log(deltaprop) - 0.5*nu*deltaprop;
-      logold += (0.5*nu-1)*log(betak) - 0.5*nu*betak;
-      propnew += (aneu-1)*log(betak) - bneu*betak;
-      propold += (aneu-1)*log(deltaprop) - bneu*deltaprop;
+      propold +=   (aneu-1)*log(deltaprop) -   bneu*deltaprop;
+//      propold += aneu*log(bneu) - dgam.lgammafunc(aneu);
+/*
+      if(deltaprop>0.1)
+        {
+        aneu = deltaprop*deltaprop/proposalvar;
+        bneu = deltaprop/proposalvar;
+        }
+      else
+        {
+        aneu = 0.01/proposalvar;
+        bneu = 0.1/proposalvar;
+        }
+*/
+      propnew +=   (aneu-1)*log(betak)     -   bneu*betak;
+//      propnew += aneu*log(bneu) - dgam.lgammafunc(aneu);
 
       deltapropvec.push_back(deltaprop);
       rowvec.push_back(row);
@@ -796,8 +827,8 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
         detneu = K11.getLogDet();
 
         quadform = Kp_spat->compute_quadform();
-//        if(quadform>0.1)
-        logold += 0.5*nu_K*log(quadform);
+        if(quadform>0.1)
+          logold += 0.5*nu_K*log(quadform);
         if(nu_K<100)
           logold += log(besselK(sqrt(2*quadform),nu_K));
         else
@@ -812,8 +843,8 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
           }
 
         quadform = Kp_spat->compute_quadform();
-//        if(quadform>0.1)
-        lognew += 0.5*nu_K*log(quadform);
+        if(quadform>0.1)
+          lognew += 0.5*nu_K*log(quadform);
         if(nu_K<100)
           lognew += log(besselK(sqrt(2*quadform),nu_K));
         else
@@ -1132,6 +1163,7 @@ double log_besselK(const double x, const double xnu)
 
 
 } // end: namespace MCMC
+
 
 
 

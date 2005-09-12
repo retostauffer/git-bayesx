@@ -17,6 +17,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     uniformprior=false;
     Laplace=false;
     stationary=false;
+    alphafix=false;
     discrete=false;
     update_sigma2 = true;
     randomeffect=false;
@@ -60,6 +61,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     uniformprior=false;
     Laplace=false;
     stationary=false;
+    alphafix=false;    
     discrete=false;
     update_sigma2 = true;
     randomeffect=false;
@@ -96,6 +98,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     uniformprior=false;
     Laplace=false;
     stationary=false;
+    alphafix=false;    
     discrete=false;
     update_sigma2 = true;
     randomeffect = true;
@@ -127,6 +130,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(const FULLCOND_variance_nonp & t)
   uniformprior=t.uniformprior;
   Laplace=t.Laplace;
   stationary=t.stationary;
+  alphafix=t.alphafix;
   randomeffect = t.randomeffect;
   fullcondnonp = t.fullcondnonp;
   average = t.average;
@@ -158,7 +162,8 @@ const FULLCOND_variance_nonp & FULLCOND_variance_nonp::operator=(
   constlambda=t.constlambda;
   uniformprior=t.uniformprior;
   Laplace=t.Laplace;
-  stationary=t.stationary;    
+  stationary=t.stationary;
+  alphafix=t.alphafix;      
   randomeffect = t.randomeffect;
   fullcondnonp = t.fullcondnonp;
   average = t.average;
@@ -396,8 +401,8 @@ void FULLCOND_variance_nonp::update_stationary(void)
     double alphawork = beta(1,0)*transform;
     double alphaprop = uniform()*2.0-1.0;
 
-//  alpha fix
-    alphaprop = alphawork;
+    if(alphafix)
+      alphaprop = alphawork;
 
     double u = log(uniform());
     double alpha = 0.5*log(1.0-alphaprop*alphaprop) - 0.5*log(1.0-alphawork*alphawork);
@@ -428,9 +433,11 @@ void FULLCOND_variance_nonp::update_stationary(void)
     double alpha1prop = -(alpha1help+alpha2help);
     double alpha2prop = alpha1help*alpha2help;
 
-//  alpha1, alpha2 fix
-//    alpha1prop = alpha1work;
-//    alpha2prop = alpha2work;
+    if(alphafix)
+      {
+      alpha1prop = alpha1work;
+      alpha2prop = alpha2work;
+      }
 
     double u = log(uniform());
 
@@ -461,10 +468,10 @@ void FULLCOND_variance_nonp::update_stationary(void)
   }
 
 
-void FULLCOND_variance_nonp::set_stationary(void)
+void FULLCOND_variance_nonp::set_stationary(double alphastart,bool afix)
   {
+  alphafix = afix;
   stationary = true;
-  double alphastart = 0.9;
   if(Kp->get_type()==RW1)
     {
     setbeta(2,1,0.0);
@@ -477,6 +484,12 @@ void FULLCOND_variance_nonp::set_stationary(void)
     setbetavalue(0,0,distrp->get_scale(column,column)/Kp->getlambda());
     setbetavalue(1,0,-(alphastart+alphastart)/(distrp->get_trmult(column)*distrp->get_trmult(column)));
     setbetavalue(2,0,alphastart*alphastart/(distrp->get_trmult(column)*distrp->get_trmult(column)));
+    }
+  else if(Kp->get_type()==mrf)
+    {
+    setbeta(2,1,0.0);
+    setbetavalue(0,0,distrp->get_scale(column,column)/Kp->getlambda());
+    setbetavalue(1,0,alphastart/(distrp->get_trmult(column)*distrp->get_trmult(column)));
     }
   }
 

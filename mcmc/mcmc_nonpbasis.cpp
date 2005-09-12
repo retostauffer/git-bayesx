@@ -267,8 +267,25 @@ void FULLCOND_nonp_basis::updateKenv_alpha(const double alpha1, const double alp
     *workenv = alpha1;
 
     }
+  else if (type==mrf)
+    {
+    double * workenv =Kenv.getEnvIterator();
+    for (i=0;i<Kenv.getXenv(Kenv.getDim());i++,workenv++)
+      *workenv  = -alpha1;
+    }
 
   }
+
+
+void FULLCOND_nonp_basis::set_stationary(double alphastart)
+  {
+  if(type==RW2)
+    updateKenv_alpha(-(alphastart+alphastart),alphastart*alphastart);
+  else
+    updateKenv_alpha(alphastart);
+  rankK = nrpar;
+  }
+
 
 double FULLCOND_nonp_basis::getLogDet(void)
   {

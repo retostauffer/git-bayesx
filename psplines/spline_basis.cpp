@@ -3045,15 +3045,6 @@ void spline_basis::set_lambdaconst(double la)
   lambdaconst = true;
   }
 
-void spline_basis::set_stationary(void)
-  {
-  double alphastart = 0.9;
-  if(type==RW1)
-    updateKenv_alpha(alphastart);
-  else
-    updateKenv_alpha(-(alphastart+alphastart),alphastart*alphastart);
-  rankK = nrpar;
-  }
 
 void spline_basis::set_contour(int cp, bool pseudocp, bool app, int ls, const datamatrix & b)
   {

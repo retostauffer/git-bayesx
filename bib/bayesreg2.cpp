@@ -264,7 +264,7 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
   double hd;
   unsigned min,max;
   int f;
-  double lambda,a1,b1;
+  double lambda,a1,b1,alpha;
   unsigned i;
   int j1,j2;
   bool iwls;
@@ -348,6 +348,8 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
         Laplace=true;
       else
         Laplace=false;
+
+      f = (terms[i].options[18]).strtodouble(alpha);
 
       if (f==1)
         return true;
@@ -442,6 +444,9 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
                                                       updateW,a1,b1,true);
           }
 
+        if (terms[i].options[17] == "true")
+          fcnonpgaussian[fcnonpgaussian.size()-1].set_stationary(alpha);
+
         fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
 
@@ -463,6 +468,12 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
           if ( (check_nongaussian()) && (proposal == "iwlsmode")
             && (updatetau==true) )
             fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
+
+          bool alphafix = false;
+          if (terms[i].options[19] == "true")
+            alphafix = true;
+          if (terms[i].options[17] == "true")
+            fcvarnonp[fcvarnonp.size()-1].set_stationary(alpha,alphafix);
 
           fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
