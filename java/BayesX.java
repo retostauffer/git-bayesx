@@ -1842,7 +1842,7 @@ public void JavaShowMap(boolean opt)
 
 public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4,
                         double jlowerlimit, double jupperlimit, short jshades, boolean jpcat,
-                        int jfontsize, String joutfile, String jtitle)
+                        int jfontsize, String joutfile, String jtitle, double jtitlescale)
 	{
         if(joutfile.equals(""))
                 {
@@ -1866,6 +1866,7 @@ public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4,
 	fontsize = jfontsize;
         outfile = joutfile;
         title = jtitle;        
+        titlescale = jtitlescale;
 
         if(jpcat)
             {

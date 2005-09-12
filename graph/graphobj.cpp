@@ -37,7 +37,8 @@ void graphobj::create (void)
   drawnames = simpleoption("drawnames",false);
   replace = simpleoption("replace",false);
   pcat = simpleoption("pcat",false);
-  fontsize = intoption("fontsize",12,0,100);  
+  fontsize = intoption("fontsize",12,0,100);
+  titlescale = doubleoption("titlesize",1.5,0.0,MAXDOUBLE);
 
   drawmapoptions.push_back(&mapname);
   drawmapoptions.push_back(&psname);
@@ -52,6 +53,7 @@ void graphobj::create (void)
   drawmapoptions.push_back(&replace);
   drawmapoptions.push_back(&pcat);
   drawmapoptions.push_back(&fontsize);
+  drawmapoptions.push_back(&titlescale);
 
   methods.push_back(command("drawmap",&m,&drawmapoptions,&u,
 //              required,notallowed,notallowed,optional,optional,required));
@@ -85,7 +87,6 @@ void graphobj::create (void)
 //  fontsize = intoption("fontsize",12,0,100);
   pointsize = intoption("pointsize",20,0,100);
   linecolor = stroption("linecolor");
-  titlescale = doubleoption("titlesize",1.5,0.0,MAXDOUBLE);
 
   plotnonpoptions.push_back(&psname);
   plotnonpoptions.push_back(&title);
@@ -583,13 +584,14 @@ else
       legend = true;
 
     jmethodID javadrawmap = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javadrawmap",
-                                                    "(ZZZZDDSZILjava/lang/String;Ljava/lang/String;)V");
+                                                    "(ZZZZDDSZILjava/lang/String;Ljava/lang/String;D)V");
     o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javadrawmap, o.color.getvalue(), legend,
                                o.swapcolors.getvalue(), o.drawnames.getvalue(),
                                lowerlim, upperlim, o.nrcolors.getvalue(), o.pcat.getvalue(),
                                o.fontsize.getvalue(),
                                o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()),
-                               o.adminb_p->Java->NewStringUTF(o.title.getvalue().strtochar()));
+                               o.adminb_p->Java->NewStringUTF(o.title.getvalue().strtochar()),
+                               o.titlescale.getvalue());
 
     bool stop=o.adminb_p->breakcommand();
 

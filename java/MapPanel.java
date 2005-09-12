@@ -169,7 +169,7 @@ private void drawmap(Graphics g)
 
         int offset = 0;
         if(!b.title.equals(""))
-            offset = offset + 10 + (int)(1.5*b.fontsize);
+           offset = offset + 10 + (int)(b.titlescale*b.fontsize);
 
         helpdrawmap(g,height,width,offset,true);
 
@@ -177,8 +177,6 @@ private void drawmap(Graphics g)
 
 public void SaveMap(PrintWriter out)              // Zum Speichern als PostScript
 	{
-
-        Graphics g = new PSGr2(out);
 
 	double[] d2 = new double[4];
 
@@ -210,6 +208,8 @@ public void SaveMap(PrintWriter out)              // Zum Speichern als PostScrip
         out.println("%%Pages:1");
         out.println("%%Page:1 1");
 
+        Graphics g = new PSGr2(out);
+
         for(int i=0; i<b.getnrregions(); i++)
 		{
         	for(int j=0; j<b.getnrpoly(i); j++)
@@ -233,8 +233,6 @@ public void SaveMap(PrintWriter out)              // Zum Speichern als PostScrip
 public void Savedrawmap(PrintWriter out)              // Zum Speichern als PostScript
 	{
 
-        Graphics g = new PSGr2(out);
-
 	double[] d2 = new double[4];
 
         b.getboundaries(d2);
@@ -248,7 +246,7 @@ public void Savedrawmap(PrintWriter out)              // Zum Speichern als PostS
 
         int offset = 0;
         if(!b.title.equals(""))
-            offset = offset + 10 + (int)(1.5*b.fontsize);
+            offset = offset + 10 + (int)(b.titlescale*b.fontsize);
 
         int hlp = offset;
 
@@ -273,6 +271,8 @@ public void Savedrawmap(PrintWriter out)              // Zum Speichern als PostS
         out.println("0 setlinewidth");
         out.println("%%Pages:1");
         out.println("%%Page:1 1");
+
+        Graphics g = new PSGr2(out);
 
         helpdrawmap(g,height,width,offset,false);
 
@@ -568,7 +568,7 @@ private void drawlegend(Graphics g,double height,double width,boolean centering)
 
         int offset = 0;
         if(!b.title.equals(""))
-            offset = offset + 10 + (int)(1.5*b.fontsize);
+            offset = offset + 10 + (int)(b.titlescale*b.fontsize);
 
         double xoffset = 0.55*width;
         double yoffset = 0.95*height + offset + 10;
@@ -735,10 +735,10 @@ private void drawtitle(Graphics g,double height,double width,boolean centering)
         {
 	int center = 0;
 	if(centering)
-  		center = (int)(b.title.length()*b.fontsize*0.5);
+  		center = (int)(b.title.length()*b.titlescale*b.fontsize*0.5);
 
-        g.setFont(new Font("TimesRoman", Font.BOLD, 2*b.fontsize));
-        g.drawString(b.title,(int)(width/2-center),(int)(0.05*height+1.5*b.fontsize));
+        g.setFont(new Font("TimesRoman", Font.BOLD, (int)(b.titlescale*b.fontsize)));
+        g.drawString(b.title,(int)(width/2-center),(int)(0.05*height+b.titlescale*b.fontsize));
         g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));
         }
 
