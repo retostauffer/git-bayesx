@@ -138,6 +138,13 @@ class remlest
   bool estimate_aft(datamatrix resp, const datamatrix & offset,
                     const datamatrix & weight);
 
+  // Function: estimate_aft
+  // Task: compute estimates for survival data based on an AFT model with
+  // smoothed error distribution if only fixed effects are present
+
+  bool estimate_aft_glm(datamatrix resp, const datamatrix & offset,
+                    const datamatrix & weight);
+
 //------------------------------------------------------------------------------
 //----------------------------- Object description -----------------------------
 //------------------------------------------------------------------------------

@@ -3689,7 +3689,10 @@ void remlrun(remlreg & b)
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
       b.maxchange.getvalue(),b.logout);
-      failure = b.RE.estimate_aft(response,offset,weight);
+      if (b.fullcond.size() == 1)    // fixed effects only
+        failure = b.RE.estimate_aft_glm(response,offset,weight);
+      else
+        failure = b.RE.estimate_aft(response,offset,weight);
       }
 // Univariate Modelle mit Dispersionsparameter
     else
