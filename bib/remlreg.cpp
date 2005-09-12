@@ -426,6 +426,8 @@ void remlreg::create(void)
   drawmapoptions.push_back(&plotvar);
   drawmapoptions.push_back(&pcat);
   drawmapoptions.push_back(&drawnames);
+  drawmapoptions.push_back(&fontsize);
+  drawmapoptions.push_back(&titlescale);
 
   // methods[2]:
   methods.push_back(command("drawmap",&mdrawmap,&drawmapoptions,&udrawmap,
@@ -3993,6 +3995,10 @@ void drawmaprun(remlreg & b)
       ot = ot + "pcat ";
     if (b.drawnames.getvalue() == true)
       ot = ot + "drawnames ";
+    if (b.fontsize.changed() == true)
+      ot = ot + "fontsize=" + b.fontsize.getValueAsString() + " ";
+    if (b.titlescale.changed() == true)
+      ot = ot + "titlesize=" + b.titlescale.getValueAsString() + " ";
 
     if (ot.length() == 0)
       b.newcommands.push_back(graphname + ".drawmap " + plotvar + " using " + datasetname);
