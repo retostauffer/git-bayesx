@@ -970,7 +970,7 @@ void texsummaryrun(bayesreg & b)
     i--;
     }
 
-  ST::string helpbat = path2 + "_latexcommands.bat";
+  ST::string helpbat = path + "_latexcommands.bat";
   ofstream outbat(helpbat.strtochar());
   outbat << "cd " << path2 << endl;
   outbat << path.substr(0,1) << ":" << endl;
