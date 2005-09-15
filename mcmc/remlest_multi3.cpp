@@ -2086,7 +2086,7 @@ void remlest_multinomial_catsp::make_predictor(ofstream & outtex)
       {
       term2 = term2.insert_after_all_string("^{(j)}","f");;
       }
-    term = term + " - " + term2;    //linearer Prädiktor wird erweitert
+    term = term + " + " + term2;    //linearer Prädiktor wird erweitert
     }
   outtex << term << "$\\\\\n";
   }
