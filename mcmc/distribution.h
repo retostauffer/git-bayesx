@@ -833,6 +833,10 @@ class __EXPORT_TYPE DISTRIBUTION
     double * temp;
     return temp;
     }
+  virtual double  get_transition(unsigned i, unsigned j)
+    {
+    return 0.0;
+    }
 
 
   //----------------------------------------------------------------------------
