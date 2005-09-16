@@ -1482,7 +1482,7 @@ bool bayesreg::create_multibaseline(const unsigned & collinpred)
   long h;
   unsigned min,max,degree,nrknots;
   double lambda,a1,b1;
-  bool ub, wb;
+  bool ub, gl;
   int gridsize;
   int f;
 
@@ -1535,16 +1535,18 @@ bool bayesreg::create_multibaseline(const unsigned & collinpred)
 
       proposal = terms[i].options[11];
 
-      if (terms[i].options[12] == "false")
-        wb = false;
-      else
-        wb = true;
+
 
       if (f==1)
         return true;
 
       if (terms[i].options[13] != "" && begin.getvalue() != "")
         outerror("WARNING: begin variable specified twice");
+
+      if (terms[i].options[13] != "")
+        gl = false;
+      else
+        gl = true;
 
       if (terms[i].options[13] != "")
         k = terms[i].options[13].isinlist(modelvarnamesv);
@@ -1595,7 +1597,7 @@ bool bayesreg::create_multibaseline(const unsigned & collinpred)
                                                 collinpred,
                                                 statemat,
                                                 beg,
-                                                wb
+                                                gl
                                                )
                              );
 
