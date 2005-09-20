@@ -250,8 +250,8 @@ void bayesreg::create(void)
   families.push_back("cox");
   families.push_back("multistate");
   family = stroption("family",families,"binomial");
-  aresp = doubleoption("aresp",0.001,0,500);
-  bresp = doubleoption("bresp",0.001,0,500);
+  aresp = doubleoption("aresp",0.001,-1.0,500);
+  bresp = doubleoption("bresp",0.001,0.0,500);
   reference = doubleoption("reference",0,-10000,10000);
 
   vector<ST::string> dop;
