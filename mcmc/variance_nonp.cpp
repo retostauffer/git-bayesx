@@ -309,10 +309,7 @@ void FULLCOND_variance_nonp::update(void)
           }
         else if(uniformprior)
           {
-          double help = 1000000;
-          while (help > 200000)
-            help = rand_invgamma(-0.5+0.5*rankK,0.5*Kp->compute_quadform());
-          beta(0,0) = help;
+          beta(0,0) = rand_invgamma(-0.5+0.5*rankK,0.5*Kp->compute_quadform());
           }
         else if(Laplace)
           {
@@ -399,7 +396,13 @@ void FULLCOND_variance_nonp::update_stationary(void)
   if(Kp->get_type()==RW1)
     {
     double alphawork = beta(1,0)*transform;
-    double alphaprop = uniform()*2.0-1.0;
+//    double alphaprop = uniform()*2.0-1.0;
+    double alphaprop;
+    double help = uniform();
+    if(help < (alphawork+1.0)/2.0)
+      alphaprop = sqrt(2.0*help*(alphawork+1.0)) - 1.0;
+    else
+      alphaprop = sqrt(2.0*(help-1.0)*(alphawork-1.0)) + 1.0;
 
     if(alphafix)
       alphaprop = alphawork;
@@ -411,6 +414,8 @@ void FULLCOND_variance_nonp::update_stationary(void)
     Kp->updateKenv_alpha(alphaprop);
     alpha += -0.5*Kp->compute_quadform()/beta(0,0);
 
+    alpha += log( (pow(alphawork,2)-1.0) / (pow(alphaprop,2)-1.0) );
+
     if(u<=alpha)
       {
       beta(1,0) = alphaprop/transform;
@@ -418,7 +423,7 @@ void FULLCOND_variance_nonp::update_stationary(void)
     else
       {
       Kp->updateKenv_alpha(alphawork);
-      beta(0,0) = betaold;
+//      beta(0,0) = betaold;
       }
     }
   else if(Kp->get_type()==RW2)
@@ -426,8 +431,15 @@ void FULLCOND_variance_nonp::update_stationary(void)
     double alpha1work = beta(1,0)*transform;
     double alpha2work = beta(2,0)*transform;
 
-    double alpha1help = uniform()*2.0-1.0;
-//    double alpha2help = uniform()*2.0-1.0;
+//    double alpha1help = uniform()*2.0-1.0;
+    double alphawork = sqrt(alpha2work);
+    double alpha1help;
+    double help = uniform();
+    if(help < (alphawork+1.0)/2.0)
+      alpha1help = sqrt(2.0*help*(alphawork+1.0)) - 1.0;
+    else
+      alpha1help = sqrt(2.0*(help-1.0)*(alphawork-1.0)) + 1.0;
+//    double alpha2help = uniform()*2.0-1.0;       // falls alpha1 und alpha2 unabhängig
     double alpha2help = alpha1help;
 
     double alpha1prop = -(alpha1help+alpha2help);
@@ -453,6 +465,8 @@ void FULLCOND_variance_nonp::update_stationary(void)
     Kp->updateKenv_alpha(alpha1prop,alpha2prop);
     alpha += -0.5*Kp->compute_quadform()/beta(0,0);
 
+    alpha += log( (pow(alphawork,2)-1.0) / (pow(alpha1help,2)-1.0) );
+
     if(u<=alpha)
       {
       beta(1,0) = alpha1prop/transform;
@@ -461,7 +475,42 @@ void FULLCOND_variance_nonp::update_stationary(void)
     else
       {
       Kp->updateKenv_alpha(alpha1work,alpha2work);
-      beta(0,0) = betaold;
+//      beta(0,0) = betaold;
+      }
+    }
+  else if (Kp->get_type()==mrf)
+    {
+    double alphawork = beta(1,0)*transform;
+//    double alphaprop = uniform()*2.0-1.0;
+    double alphaprop;
+    double help = uniform();
+    if(help < (alphawork+1.0)/2.0)
+      alphaprop = sqrt(2.0*help*(alphawork+1.0)) - 1.0;
+    else
+      alphaprop = 1.0 - sqrt(2.0*(help-1.0)*(alphawork-1.0));
+
+    if(alphafix)
+      alphaprop = alphawork;
+
+    double u = log(uniform());
+    double alpha = 0.0;
+
+    alpha -= -0.5*Kp->compute_quadform()/beta(0,0);
+    alpha -= 0.5*Kp->getLogDet();
+    Kp->updateKenv_alpha(alphaprop);
+    alpha += -0.5*Kp->compute_quadform()/beta(0,0);
+    alpha += 0.5*Kp->getLogDet();
+
+    alpha += log( (pow(alphawork,2)-1.0) / (pow(alphaprop,2)-1.0) );
+
+    if(u<=alpha)
+      {
+      beta(1,0) = alphaprop/transform;
+      }
+    else
+      {
+      Kp->updateKenv_alpha(alphawork);
+//      beta(0,0) = betaold;
       }
     }
 
