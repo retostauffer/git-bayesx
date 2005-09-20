@@ -244,7 +244,7 @@ term_autoreg::term_autoreg(void)
   maxvar=intoption("maxvar",1,1,500);
   startv = doubleoption("startv",0.05,0.00001,1000);
   lambda = doubleoption("lambda",0.1,0,10000000);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
   adm_prop.push_back("cp");
@@ -495,7 +495,7 @@ term_season::term_season(void)
   min=intoption("min",1,1,500);
   max=intoption("max",1,1,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
   adm_prop.push_back("cp");
@@ -697,7 +697,7 @@ term_pspline::term_pspline(void)
   degree=intoption("degree",3,0,5);
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   uniformb = simpleoption("uniformb",false);
   gridsize = intoption("gridsize",-1,10,500);
@@ -998,7 +998,7 @@ term_spatial::term_spatial(void)
   min=intoption("min",1,1,500);
   max=intoption("max",1,1,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
   adm_prop.push_back("cp");
@@ -1209,7 +1209,7 @@ term_spatialxy::term_spatialxy(void)
   min=intoption("min",1,1,500);
   max=intoption("max",1,1,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   maxdist = doubleoption("maxdist",1,0,100000000);
   }
@@ -1323,7 +1323,7 @@ term_geokriging::term_geokriging(void)
   lambdastart = doubleoption("lambdastart",0.1,0,10000000);
   map=stroption("map");
 
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
   adm_prop.push_back("iwls");
@@ -1480,7 +1480,7 @@ term_interactpspline::term_interactpspline(void)
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   reduced = simpleoption("reduced",false);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   singleblock = simpleoption("singleblock",false);
   gridsize = intoption("gridsize",-1,10,35);
@@ -1682,7 +1682,7 @@ term_geospline::term_geospline(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   reduced = simpleoption("reduced",false);
   singleblock = simpleoption("singleblock",false);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
   adm_prop.push_back("cp");
@@ -1854,7 +1854,7 @@ term_varcoeff_interactpspline::term_varcoeff_interactpspline(void)
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   reduced = simpleoption("reduced",false);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   singleblock = simpleoption("singleblock",false);
   gridsize = intoption("gridsize",-1,10,35);
@@ -2049,7 +2049,7 @@ term_varcoeff_geospline::term_varcoeff_geospline(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   reduced = simpleoption("reduced",false);
   singleblock = simpleoption("singleblock",false);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
   adm_prop.push_back("cp");
@@ -2218,7 +2218,7 @@ term_varcoeff_pspline::term_varcoeff_pspline(void)
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   gridsize = intoption("gridsize",-1,10,500);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
   adm_prop.push_back("cp");
@@ -2384,7 +2384,7 @@ term_randomslope::term_randomslope(void)
   type = "term_randomslope";
   nofixed = simpleoption("nofixed",false);
   lambda = doubleoption("lambda",0.1,0,10000000);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
   adm_prop.push_back("iwls");
@@ -2502,7 +2502,7 @@ term_random::term_random(void)
   {
   type = "term_random";
   lambda = doubleoption("lambda",100000,0,10000000);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
   adm_prop.push_back("iwls");
@@ -2775,7 +2775,7 @@ term_baseline::term_baseline(void)
   degree=intoption("degree",3,0,5);
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   uniformb = simpleoption("uniformb",false);
   gridsize = intoption("gridsize",-1,10,500);
@@ -2938,7 +2938,7 @@ term_varcoeff_baseline::term_varcoeff_baseline(void)
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   gridsize = intoption("gridsize",-1,10,500);
-  a = doubleoption("a",0.001,0,500);
+  a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   uniformprior = simpleoption("uniformprior",false);
   }
