@@ -32,6 +32,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   gauss_n=9;
   vc_dummy1 = false;
   baselinep = vector<pspline_baseline*>(0);
+  Weibull = false;
 
   lambda = l;
   sigma2 = 1.0/l;
@@ -1260,6 +1261,7 @@ void pspline_baseline::compute_int_ti_linear(const double & b)
 
 
 void pspline_baseline::compute_int_ti_weibull(const double & r)
+
   {
   double * int_ti_p=likep->get_integral_ti();
   for(unsigned i=0;i<zi.rows();i++,int_ti_p++)
@@ -1267,7 +1269,12 @@ void pspline_baseline::compute_int_ti_weibull(const double & r)
     if(r==0)
       *int_ti_p = 0.0;
     else
-      *int_ti_p = zi(i,0)/r;
+      {
+      if(begin0==true)
+        *int_ti_p = zi(i,0)/r;
+      else
+        *int_ti_p = (pow(zi(i,0),r)-pow(beg_i(i,0),r))/(r*pow(zi(i,0),(r-1.0)));
+      }
     }
   }
 
