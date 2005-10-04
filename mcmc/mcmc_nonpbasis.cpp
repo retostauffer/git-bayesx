@@ -271,7 +271,10 @@ void FULLCOND_nonp_basis::updateKenv_alpha(const double alpha1, const double alp
     {
     double * workenv =Kenv.getEnvIterator();
     for (i=0;i<Kenv.getXenv(Kenv.getDim());i++,workenv++)
-      *workenv  = -alpha1;
+      {
+      if(*workenv != 0.0)
+        *workenv  = -alpha1;
+      }
     }
 
   }
@@ -830,5 +833,6 @@ void FULLCOND_nonp_basis::tune_updatetau(const rate & r)
 
 
 } // end: namespace MCMC
+
 
 

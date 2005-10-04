@@ -239,6 +239,11 @@ class __EXPORT_TYPE FULLCOND_nonp_basis : public FULLCOND
     return lambda;
     }
 
+  void update_stepwise(double la)
+    {
+    lambda=la;
+    }
+
   const double & get_sigma2(void)
     {
     return sigma2;
