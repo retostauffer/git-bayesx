@@ -727,10 +727,10 @@ void bayesreg::clear(void)
   normalconst.reserve(20);
 
   nongaussianconst.erase(nongaussianconst.begin(),nongaussianconst.end());
-  nongaussianconst.reserve(10);
+  nongaussianconst.reserve(20);
 
   nbinomialconst.erase(nbinomialconst.begin(),nbinomialconst.end());
-  nbinomialconst.reserve(10);
+  nbinomialconst.reserve(20);
 
   Pmatrices.erase(Pmatrices.begin(),Pmatrices.end());
   Pmatrices.reserve(20);
