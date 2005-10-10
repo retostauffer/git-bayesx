@@ -1702,6 +1702,18 @@ void regressrun(bayesreg & b)
   if (!failure)
     failure = b.create_distribution();
 
+// Speicherplatz für normalconst/nongaussianconst/nbinomialconst reservieren
+  unsigned nrfcfixed = b.fixedeffects.get_constvariables(b.terms).size()+1;
+  unsigned blocksize_fixed = 10;
+  unsigned reserved = 20;
+  if ( nrfcfixed*b.nrcategories > reserved*blocksize_fixed )
+    {
+    nrfcfixed = ceil(nrfcfixed/double(blocksize_fixed));
+    b.normalconst.reserve(nrfcfixed*b.nrcategories);
+    b.nongaussianconst.reserve(nrfcfixed*b.nrcategories);
+    b.nbinomialconst.reserve(nrfcfixed*b.nrcategories);
+    }
+
   unsigned i;
 
   if (!failure)
