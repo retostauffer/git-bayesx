@@ -360,6 +360,8 @@ void mregressrun(bayesreg & b)
 
   b.clear();
 
+  b.outfiles.push_back(b.outfile.getvalue()+b.add_name);
+
   bool failure = false;
 
   if ((b.family.getvalue() != "multgaussian") && (b.family.getvalue() != "multistate"))
