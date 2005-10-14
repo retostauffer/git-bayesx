@@ -943,7 +943,7 @@ bool bayesreg::create_random(const unsigned & collinpred)
         fcrandomgaussian[fcrandomgaussian.size()-1].init_name(terms[i].varnames[0]);
         fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
 
-        if (constlambda.getvalue() == true || terms[i].options[8]=="true")
+        if (constlambda.getvalue() == true || terms[i].options[7]=="true")
           {
           fcrandomgaussian[fcrandomgaussian.size()-1].set_lambdaconst(lambda);
           fullcond.push_back(&fcrandomgaussian[fcrandomgaussian.size()-1]);
