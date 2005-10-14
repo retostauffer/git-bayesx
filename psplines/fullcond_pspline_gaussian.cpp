@@ -909,6 +909,9 @@ void FULLCOND_pspline_gaussian::write_contour(void)
 void FULLCOND_pspline_gaussian::compute_contourprob(void)
   {
 
+//  double LIMIT = log(MAXDOUBLE);
+  double LIMIT = 700;
+
   unsigned i,j,k;
 
   datamatrix mPhelp;
@@ -959,7 +962,7 @@ void FULLCOND_pspline_gaussian::compute_contourprob(void)
 
     double help = 0.0;
     for(i=0;i<RB.rows();i++)
-      help += exp( RB(i,0) );
+      help += RB(i,0)<LIMIT?exp( RB(i,0) ):exp(LIMIT);
     pbeta_j(j,2) = help/RB.rows();
 
     }
@@ -983,7 +986,7 @@ void FULLCOND_pspline_gaussian::compute_contourprob(void)
 
   double help = 0.0;
   for(i=0;i<RB.rows();i++)
-    help += exp( RB(i,0) );
+    help += RB(i,0)<LIMIT?exp( RB(i,0) ):exp(LIMIT);
   pbeta_0(0,2) = help/RB.rows();
 
 //------------------------------------------------------------------------------
@@ -1100,7 +1103,8 @@ void FULLCOND_pspline_gaussian::compute_contourprob(const int & diff)
         }
       tildeP = A*tildeP;                              //  AP^-1A^T
       tildeP = tildeP.inverse();                      // (AP^-1A^T)^-1
-      tildeP_env = envmatdouble(tildeP,0.000001);
+//      tildeP_env = envmatdouble(tildeP,0.000001);
+      tildeP_env = envmatdouble(tildeP,0.01);
       }
     else
       {
