@@ -49,6 +49,16 @@ class __EXPORT_TYPE DISTRIBUTION_multistatemodel : public DISTRIBUTION
   return int_ti.getV();
   }
 
+  double  get_transition (unsigned i, unsigned j)
+  {
+  if(i<transition.rows())
+    return transition(i,j);
+  else
+  {
+    double testrow= transition.rows();
+    return transition(i-transition.rows(),j);
+  }
+  }
 
 
    // DEFAULT CONSTRUCTOR

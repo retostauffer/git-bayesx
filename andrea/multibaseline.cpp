@@ -15,10 +15,10 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
                     const double & l,const unsigned & minb,const unsigned & maxb,
                     const fieldtype & ft,const ST::string & ti,
                     const ST::string & fp, const ST::string & pres,
-                    const int & gs, const unsigned & c,const datamatrix & zustand, const datamatrix & anfang, const bool & wb)
+                    const int & gs, const unsigned & c,const datamatrix & zustand, const datamatrix & anfang, const bool & gl)
   : FULLCOND_pspline(o,dp,fcc,ft,ti,nrk,degr,kp,fp,pres,false,gs,c)
   {
-  unsigned i,j;
+  unsigned i,j,k;
 
   baseline = true;
   baselinep = vector<pspline_multibaseline*>(0);
@@ -27,9 +27,9 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
   sigma2 = 1.0/l;
 
   zi = d;
-  col =c;
+  col = c;
 
-//  Weibull = wb;
+  global = gl;
 
   state_i = zustand;
 
@@ -55,13 +55,74 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
   ges_index.indexinit();
   zi_ges.indexsort(ges_index,0,zi_ges.rows()-1,0,0);
 
+  if(global==false)
+    {
+    zi_teil = vector<datamatrix>(likep->get_responsedim());
+    j=0;
+    for(i=0;i<zi.rows();i++)
+      if(likep->get_transition(i,col)==1) j=j+1;
+    zi_teil[col] = datamatrix(2*j,1,0);
+
+    teil_index = vector<statmatrix<int>>(likep->get_responsedim());
+    teil_index[col] = statmatrix<int>(zi_teil[col].rows(),1);
+
+    k=0;
+    for(i=0;i<zi.rows();i++)
+      {
+      if(likep->get_transition(i,col)==1)
+        {
+        zi_teil[col](k,0) = zi(i,0);
+        zi_teil[col](j+k,0) = beg_i(i,0);
+        k=k+1;
+        }
+      }
+
+/*    if(col==0)
+    {
+    ofstream ziteil("d:\\temp\\ziteil.txt");
+    zi_teil[col].prettyPrint(ziteil);
+    ziteil.close();
+    }*/
+
+    k=0;
+    for(i=0;i<2*zi.rows();i++)
+      {
+      unsigned tin = ges_index(i,0);
+      if(likep->get_transition(ges_index(i,0),col)==1)
+        {
+        teil_index[col](k,0)=ges_index(i,0);
+        k = k+1;
+        }
+      }
+/*    if(col==0)
+    {
+    ofstream teilind("d:\\temp\\teilindex.txt");
+    teil_index[0].prettyPrint(teilind);
+    teilind.close();
+    }*/
+    }
+
   testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true);
 
+  if(global==false)
+    {
+    testmat_l = vector<MCMC::bsplinemat>(likep->get_responsedim());
+    testmat_l[col] = MCMC::bsplinemat(zi_teil[col],nrk,degr,kp,true);
+    }
 
 
-  double maxzi=0.0;
+
+/*  double maxzi=0.0;
   for(i=0;i<zi.rows();i++)
     if (zi(i,0)>maxzi) maxzi=zi(i,0);
+
+  if(global == false)
+    {
+    datamatrix maxzi_l;
+    maxzi_l= datamatrix(likep->get_responsedim(),1,0.0);
+    for(i=0;i<zi_teil[col].rows();i++)
+     if (zi_teil[col](i,0)>maxzi_l[col]) maxzi_l[col]=zi_teil[col](i,0);
+    }*/
 
 //-----------------------------------------------------------------------------
 
@@ -168,49 +229,85 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
 
   double knot_min = 0.0;
   double knot_max = zi.max(0);
-  int_knots=datamatrix (50,1,0);
-  for(j=0;j<int_knots.rows();j++)
-    int_knots(j,0) = knot_min + j*(knot_max-knot_min)/double(int_knots.rows()-1);
 
-  int_D = datamatrix(int_knots.rows(),nrpar,0.0);
-  datamatrix bsp;
-  for(i=0;i<int_knots.rows();i++)
+  if(global==false)
     {
-    bsp = bspline(int_knots(i,0));
-    for(j=0;j<nrpar;j++)
+    knot_max = zi_teil[col].max(0);
+    }
+
+  if(global == false)
+    {
+    int_knots_l = vector<datamatrix>(likep->get_responsedim());
+    int_knots_l[col]=datamatrix (50,1,0);
+    for(j=0;j<int_knots_l[col].rows();j++)
+      int_knots_l[col](j,0) = knot_min + j*(knot_max-knot_min)/double(int_knots_l[col].rows()-1);
+    int_D_l = vector<datamatrix>(likep->get_responsedim());
+    int_D_l[col] = datamatrix(int_knots_l[col].rows(),nrpar,0.0);
+    datamatrix bsp;
+    for(i=0;i<int_knots_l[col].rows();i++)
       {
-      int_D(i,j) = bsp(j,0);
+      bsp = bspline(int_knots_l[col](i,0));
+      for(j=0;j<nrpar;j++)
+        {
+        int_D_l[col](i,j) = bsp(j,0);
+        }
       }
     }
-/*/------------------------------------------------------------------------------
+  else
+    {
+    int_knots = datamatrix (50,1,0);
+    for(j=0;j<int_knots.rows();j++)
+      int_knots(j,0) = knot_min + j*(knot_max-knot_min)/double(int_knots.rows()-1);
+    int_D = datamatrix(int_knots.rows(),nrpar,0.0);
+    datamatrix bsp;
+    for(i=0;i<int_knots.rows();i++)
+      {
+      bsp = bspline(int_knots(i,0));
+      for(j=0;j<nrpar;j++)
+        {
+        int_D(i,j) = bsp(j,0);
+        }
+      }
+    }
+//------------------------------------------------------------------------------
      double * int_ti_out_p=likep->get_integral_ti()+col;
      for(i=0;i<zi.rows();i++)
        {
-           *int_ti_out_p = zi(i,0)-beg_i(i,0);
-           if(*int_ti_out_p<0.0)
-             *int_ti_out_p=0.0;
+//           *int_ti_out_p = zi(i,0)-beg_i(i,0);
+//           if(*int_ti_out_p<0.0)
+             *int_ti_out_p=0.1;
            double testti= zi(i,0);
            double testbeg=beg_i(i,0);
            double testint=*int_ti_out_p;
            int_ti_out_p= int_ti_out_p+likep->get_responsedim();
        }
 
-//---------------------------------------------------------------------------*/
+//---------------------------------------------------------------------------/
 
 //------------------------------------------------------------------------------
-
-  spline_ges = datamatrix(2*likep->get_nrobs(),1,0);
-  spline_ges2 = datamatrix(2*likep->get_nrobs(),1,0);
   int_ti_help = datamatrix(2*likep->get_nrobs(),1,0);
-  spline_zi = datamatrix(likep->get_nrobs(),1,0);
+
+  if(global==true)
+    {
+    spline_ges = datamatrix(2*likep->get_nrobs(),1,0);
+    spline_ges2 = datamatrix(2*likep->get_nrobs(),1,0);
+    spline_zi = datamatrix(likep->get_nrobs(),1,0);
+    }
+  else
+    {
+    spline_teil = vector<datamatrix>(likep->get_responsedim());
+    spline_teil2 = vector<datamatrix>(likep->get_responsedim());
+    spline_teil[col] = datamatrix(zi_teil[col].rows(),1,0);
+    spline_teil2[col] = datamatrix(zi_teil[col].rows(),1,0);
+    }
 //------------------------------------------------------------------------
 
-  double sum_logti = 0.0;
+/*  double sum_logti = 0.0;
   for(i=0;i<zi.rows();i++)
     {
     sum_logti = sum_logti + log(zi(i,0))*likep->get_response(i,0);
     }
-
+   */
   }
 
 
@@ -220,21 +317,29 @@ pspline_multibaseline::pspline_multibaseline(const pspline_multibaseline & fc)
 
   begin0 = fc.begin0;
   int_knots = fc.int_knots;
+  int_knots_l = fc.int_knots_l;
   int_D = fc.int_D;
+  int_D_l = fc.int_D_l;
   testmat = fc.testmat;
+  testmat_l = fc.testmat_l;
   zi = fc.zi;
   vc_dummy1 = fc.vc_dummy1;
   beg_i = fc.beg_i;
   state_i = fc.state_i;
   zi_ges = fc.zi_ges;
+  zi_teil = fc.zi_teil;
   z_vc = fc.z_vc;
   spline_ges = fc.spline_ges;
+  spline_teil = fc.spline_teil;
+  spline_teil2 = fc.spline_teil2;
   spline_ges2 = fc.spline_ges2;
   spline_zi = fc.spline_zi;
   ges_index = fc.ges_index;
+  teil_index = fc.teil_index;
   int_ti_help = fc.int_ti_help;
   baselinep = fc.baselinep;
   col = fc.col;
+  global = fc.global;
   }
 
 
@@ -246,22 +351,29 @@ const pspline_multibaseline & pspline_multibaseline::operator=(const pspline_mul
 
   begin0 = fc.begin0;
   int_knots = fc.int_knots;
+  int_knots_l = fc.int_knots_l;
   int_D = fc.int_D;
+  int_D_l = fc.int_D_l;
   testmat = fc.testmat;
+  testmat_l = fc.testmat_l;
   zi=fc.zi;
   beg_i = fc.beg_i;
   state_i = fc.state_i;
   zi_ges = fc.zi_ges;
+  zi_teil = fc.zi_teil;
   z_vc = fc.z_vc;
   vc_dummy1 = fc.vc_dummy1;
   spline_ges = fc.spline_ges;
+  spline_teil = fc.spline_teil;
+  spline_teil2 = fc.spline_teil2;
   spline_ges2 = fc.spline_ges2;
   spline_zi = fc.spline_zi;
   ges_index = fc.ges_index;
+  teil_index = fc.teil_index;
   int_ti_help = fc.int_ti_help;
   baselinep = fc.baselinep;
   col = fc.col;
-
+  global = fc.global;
   return *this;
   }
 
@@ -408,11 +520,21 @@ void pspline_multibaseline::update(void)
 //-------------------Spline zentrieren------------------------------------------
 
 
-
-        for(i=0;i<2.0*likep->get_nrobs();i++)
+        if(global==true)
           {
-          spline_ges(i,0) -= intercept;
-          spline_ges2(i,0) -= intercept;
+          for(i=0;i<2.0*likep->get_nrobs();i++)
+            {
+            spline_ges(i,0) -= intercept;
+            spline_ges2(i,0) -= intercept;
+            }
+          }
+        else
+          {
+          for(i=0;i<zi_teil[col].rows();i++)
+            {
+            spline_teil[col](i,0) -= intercept;
+            spline_teil2[col](i,0) -=intercept;
+            }
           }
 
 
@@ -458,9 +580,19 @@ void pspline_multibaseline::update(void)
 //--------Für's DIC-------------------------------------------------------------
 void pspline_multibaseline::compute_int_ti_mean(void)
   {
-  testmat.mult(spline_ges,betamean);
-  testmat.mult_index(spline_ges2,betamean);
-  compute_int_ti(betamean);
+
+  if(global==true)
+    {
+    testmat.mult(spline_ges,betamean);
+    testmat.mult_index(spline_ges2,betamean);
+    compute_int_ti_global(betamean);
+    }
+  else
+    {
+    testmat_l[col].mult(spline_teil[col],betamean);
+    testmat_l[col].mult_index(spline_teil2[col],betamean);
+    compute_int_ti_nonglobal(betamean);
+    }
   }
 
 
@@ -469,7 +601,142 @@ void pspline_multibaseline::compute_int_ti_mean(void)
 
 //--------berechnet int_0^{t_i}/exp(logbaseline(t_i))---------------------------
 //--------mit Hilfe von geordneten t_i und Knoten-------------------------------
-void pspline_multibaseline::compute_int_ti(const datamatrix & b)
+void pspline_multibaseline::compute_int_ti_nonglobal(const datamatrix & b)
+{
+
+//------------------------left truncation----------------------------
+if(begin0==false)
+  {
+  double * int_D_help;
+  double * betap;
+  double dist_knots = int_knots_l[col](1,0)-int_knots_l[col](0,0);
+  unsigned i,j,k;
+  k=1;
+  double erg,spline_u,spline_o;
+  erg = 0.0;
+  double * int_ti_p = likep->get_integral_ti()+col;
+  double * int_ti_help_p = int_ti_help.getV();
+  double * int_ti_help_p2 = int_ti_help.getV();
+
+  spline_o=0.0;
+  spline_u=0.0;
+  int_D_help = int_D_l[col].getV();
+  betap=b.getV();
+
+  for(j=0;j<nrpar;j++,int_D_help++,betap++)
+    spline_o += *betap* *int_D_help;
+  spline_u=spline_o;
+
+//--------------------------------erster Integralwert---------------------------
+
+  while(k<int_knots_l[col].rows() && int_knots_l[col](k,0)<=zi_ges(teil_index[col](0,0),0))
+    {
+    spline_u=spline_o;
+    spline_o=0.0;
+    betap = b.getV();
+    for(j=0;j<nrpar;j++,int_D_help++,betap++)
+      spline_o += *betap* *int_D_help;
+    erg=erg+(exp(spline_u)+exp(spline_o));
+
+    k=k+1;
+    }
+  double indextest=teil_index[col](0,0);
+  double zigestest=zi_ges(teil_index[col](0,0),0);
+  erg=erg*dist_knots;
+  erg=erg+(exp(spline_teil[col](0,0))+exp(spline_o))*(zi_ges(teil_index[col](0,0),0)-int_knots_l[col](k-1,0));
+
+  int_ti_p=likep->get_integral_ti()+(teil_index[col](0,0)*likep->get_responsedim()+col);
+  *int_ti_p =erg*0.5/(exp(spline_teil[col](0,0)));
+
+  int_ti_help_p=int_ti_help.getV()+teil_index[col](0,0);
+     *int_ti_help_p = erg*0.5;
+
+//------------------------------------------------------------
+
+  for(i=1;i<(zi_teil[col].rows());i++)
+    {
+    if(k==int_knots_l[col].rows())
+      k=int_knots_l[col].rows()-1;
+    if(k<int_knots_l[col].rows() && zi_ges(teil_index[col](i,0),0)<=int_knots_l[col](k,0))
+      erg=erg+(zi_ges(teil_index[col](i,0),0)-zi_ges(teil_index[col](i-1,0),0))*(exp(spline_teil[col](i-1,0))+exp(spline_teil[col](i,0)));
+    else
+      {
+      spline_u=spline_o;
+      spline_o=0.0;
+      betap = b.getV();
+      for(j=0;j<nrpar;j++,int_D_help++,betap++)
+        spline_o += *betap* *int_D_help;
+      erg=erg+(int_knots_l[col](k,0)-zi_ges(teil_index[col](i-1,0),0))*(exp(spline_teil[col](i-1,0))+exp(spline_o)) ;
+
+      k++;
+
+      while(k<int_knots_l[col].rows() && int_knots_l[col](k,0)<=zi_ges(teil_index[col](i,0),0) )
+        {
+        spline_u=spline_o;
+        spline_o=0.0;
+        betap = b.getV();
+        for(j=0;j<nrpar;j++,int_D_help++,betap++)
+          spline_o += *betap* *int_D_help;
+        erg=erg+dist_knots*(exp(spline_u)+exp(spline_o));
+
+        k++;
+        }
+      double test= spline_o;
+      erg=erg+(exp(spline_teil[col](i,0))+exp(spline_o))*(zi_ges(teil_index[col](i,0),0)-int_knots_l[col](k-1,0));
+      }
+
+    int_ti_p=likep->get_integral_ti()+teil_index[col](i,0)*likep->get_responsedim()+col;
+    *int_ti_p =erg*0.5/(exp(spline_teil[col](i,0)));
+
+    int_ti_help_p=int_ti_help.getV()+teil_index[col](i,0);
+    *int_ti_help_p =erg*0.5;
+    }
+//------------------------------------------------------------------------------
+
+/*  ofstream intof("d:\\temp\\int_ti.txt");
+  int_ti_p=likep->get_integral_ti();
+  for(i=0;i<2*likep->get_nrobs();i++)
+    {
+    intof<<*int_ti_p<<endl;
+    int_ti_p = int_ti_p+4;
+    }
+  intof.close();
+
+  ofstream intof2("d:\\temp\\int_ti_2.txt");
+  int_ti_help_p=int_ti_help.getV();
+  for(i=0;i<2*likep->get_nrobs();i++)
+    {
+    intof2<<*int_ti_help_p<<endl;
+    int_ti_help_p++;
+    }
+    intof2.close();*/
+
+  i=0;
+  k=0;
+  for(i=likep->get_nrobs();i<2*likep->get_nrobs();i++)
+    {
+    if(likep->get_transition(i-likep->get_nrobs(),col)==1)
+      {
+      if(zi_ges(i,0)!=0)
+        {
+        int_ti_p=likep->get_integral_ti()+(i-likep->get_nrobs())*likep->get_responsedim()+col;
+        int_ti_help_p=int_ti_help.getV()+i-likep->get_nrobs();
+        int_ti_help_p2=int_ti_help.getV()+i;
+        *int_ti_p = (*int_ti_help_p-*int_ti_help_p2)/exp(spline_teil2[col](k,0));
+        assert(*int_ti_p>=0.0);
+        }
+      k = k+1;
+      }
+    }
+  }//left_trunc
+
+
+
+} //compute_ti
+
+
+
+void pspline_multibaseline::compute_int_ti_global(const datamatrix & b)
 {
 
 //------------------------left truncation----------------------------
@@ -548,6 +815,7 @@ if(begin0==false)
 
         k++;
         }
+      double test= spline_o;
       erg=erg+(exp(spline_ges(i,0))+exp(spline_o))*(zi_ges(ges_index(i,0),0)-int_knots(k-1,0));
       }
 
@@ -585,15 +853,23 @@ if(begin0==false)
 
 
 
-
-
 void pspline_multibaseline::update_multibaseline()
 {
 //---------Integral berechnen---------------------------------
 
-    testmat.mult(spline_ges,beta);
-    testmat.mult_index(spline_ges2,beta);
-    compute_int_ti(beta);
+
+    if(global == true)
+      {
+      testmat.mult(spline_ges,beta);
+      testmat.mult_index(spline_ges2,beta);
+      compute_int_ti_global(beta);
+      }
+    else
+      {
+      testmat_l[col].mult(spline_teil[col],beta);
+      testmat_l[col].mult_index(spline_teil2[col],beta);
+      compute_int_ti_nonglobal(beta);
+      }
 }
 //------------------------------------------------------------------------------
 
@@ -606,6 +882,7 @@ void pspline_multibaseline::update_multibaseline()
 
 
 } // end: namespace MCMC
+
 
 
 

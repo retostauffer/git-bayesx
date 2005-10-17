@@ -30,9 +30,14 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
 
    bool begin0;
    unsigned col;
-   datamatrix int_knots;
+//   datamatrix int_knots;
+//   datamatrix int_D;
+   vector<datamatrix> int_D_l;
    datamatrix int_D;
+   vector<datamatrix> int_knots_l;
+   datamatrix int_knots;
    MCMC::bsplinemat testmat;
+   vector<MCMC::bsplinemat> testmat_l;
    vector<pspline_multibaseline*> baselinep;
    datamatrix zi;
    datamatrix z_vc;
@@ -41,11 +46,16 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
    datamatrix state_i;
    statmatrix<int> zi_index;
    statmatrix<int> ges_index;
+   vector<statmatrix<int>> teil_index;
+   vector<datamatrix> zi_teil;
+   vector<datamatrix> spline_teil;
+   vector<datamatrix> spline_teil2;
    datamatrix spline_ges;
    datamatrix spline_ges2;
    datamatrix spline_zi;
    datamatrix int_ti_help;
    bool vc_dummy1;
+   bool global;
 
 
   public:
@@ -94,7 +104,8 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
 
   void outoptions(void);
 //  void outresults(void);
-  void compute_int_ti(const datamatrix & b);
+  void compute_int_ti_nonglobal(const datamatrix & b);
+  void compute_int_ti_global(const datamatrix & b);
 //void compute_int_ti_linear(const double & b);
 //void compute_int_ti_weibull(const double & r);
   void compute_int_ti(unsigned beg);
@@ -109,10 +120,10 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
     baselinep=bp;
     }
 
-  double * get_int_D(void)
+/*  double * get_int_D(void)
     {
     return int_D.getV();
-    }
+    }*/
 
   double * get_z_vc(void)
     {

@@ -27,7 +27,7 @@ DISTRIBUTION_coxmodel::DISTRIBUTION_coxmodel(MCMCoptions * o,
      int_ti=datamatrix(2*t.rows(),1,0.0);
      for(i=0;i<t.rows();i++)
      {
-     int_ti(i,0) = t(i,0)-dbeg(i,0);
+     int_ti(i,0) = t(i,0)- dbeg(i,0);
      int_ti(t.rows()+i,0)=0.0;
      }
 

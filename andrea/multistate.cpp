@@ -78,7 +78,7 @@ DISTRIBUTION_multistatemodel::DISTRIBUTION_multistatemodel(MCMCoptions * o,
        }
 
      int_ti=datamatrix(2*t.rows(),nrtransition,0.0);
-     for(i=0;i<t.rows();i++)
+/*     for(i=0;i<t.rows();i++)
        {
        for(j=0;j<nrtransition;j++)
          {
@@ -93,7 +93,7 @@ DISTRIBUTION_multistatemodel::DISTRIBUTION_multistatemodel(MCMCoptions * o,
            int_ti(i,j) = 0.0;
          int_ti(t.rows()+i,j)=0.0;
          }
-       }
+       }      */
 
 /*     ofstream intout("d:\\temp\\int_ti_start.txt");
      for(i=0;i<t.rows();i++)
