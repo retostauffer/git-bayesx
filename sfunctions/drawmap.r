@@ -1,8 +1,10 @@
 "drawmap" <-
 function (map, dfile, outfile, regionvar, 
     plotvar, lowerlimit, upperlimit, nrcolors = 100, pstitle = "", 
-    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F, cex.legend=0.7) 
+    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F, cex.legend=0.7, h = c(260, 10), c = 110, l = c(90, 50)) 
 {
+    hcl.available <- require("vcd", character.only=TRUE)
+
     if (!missing(outfile) && !missing(dfile)) {
         if (dfile == outfile) 
             stop("Argument \"dfile\" and argument \"outfile\" are identical")
@@ -84,24 +86,29 @@ function (map, dfile, outfile, regionvar,
         fill.colors <- fill.colors[c(-1, -length(fill.colors))]
         fill.colors <- as.vector(fill.colors, mode = "numeric")
         if (color == T) {
-            fill.colors <- (fill.colors - 1)/(3 * (nrcolors - 
-                1))
-            if (swapcolors == T) 
-                fill.colors <- 1/3 - fill.colors
-            fill.colors <- hsv(h = fill.colors)
-            legend.colors <- hsv(h = (0:(nrcolors - 1))/(3 * 
-                (nrcolors - 1)))
+            if(hcl.available) {
+                if (swapcolors == T) 
+                    h <- rev(h)
+                fill.colors <- diverge_hcl(nrcolors,h=h,c=c,l=l)[fill.colors]
+                legend.colors <- diverge_hcl(nrcolors,h=h,c=c,l=l)
+		}
+            else {
+                fill.colors <- (fill.colors-1)/(3*(nrcolors-1))
+                if (swapcolors == T) 
+                    fill.colors <- 1/3 - fill.colors
+                fill.colors <- hsv(h = fill.colors)
+                legend.colors <- hsv(h = (0:(nrcolors-1))/(3*(nrcolors-1)))
+                }
         }
         else {
-            fill.colors <- (fill.colors - 1)/(nrcolors - 1)
+            fill.colors <- (fill.colors-1)/(nrcolors-1)
             if (swapcolors == T) 
                 fill.colors <- 1 - fill.colors
             fill.colors <- grey(fill.colors)
-            legend.colors <- grey((0:(nrcolors - 1))/(nrcolors - 
-                1))
+            legend.colors <- grey((0:(nrcolors-1))/(nrcolors-1))
         }
         if (swapcolors == T) {
-            legend.colors <- legend.colors[length(legend.colors):1]
+            legend.colors <- rev(legend.colors)
         }
         plot(xlimits, ylimits, type = "n", axes = F, col = white, 
             xlab = "", ylab = "")
@@ -173,3 +180,4 @@ function (map, dfile, outfile, regionvar,
         dev.off()
     return(invisible())
 }
+
