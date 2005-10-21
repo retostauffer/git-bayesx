@@ -4534,9 +4534,9 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const double & a,
   : DISTRIBUTION(o,r,w,p,ps)
 
   {
-
-  assert (a > 0);
-  assert (b > 0);
+// auskommentiert um nichtinformative Prioris zu erlauben
+//  assert (a > 0);
+//  assert (b > 0);
 
   constscale=false;
   uniformprior=false;
@@ -4572,8 +4572,9 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const datamatrix & offset,
 
   {
 
-  assert (a > 0);
-  assert (b > 0);
+// auskommentiert um nichtinformative Prioris zu erlauben
+//  assert (a > 0);
+//  assert (b > 0);
 
   constscale=false;
   uniformprior=false;
