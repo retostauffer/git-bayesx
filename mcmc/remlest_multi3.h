@@ -51,6 +51,7 @@ class remlest_multinomial_catsp
   vector<bool> catspecific_fixed;               // similar vector for fixed effects
 
   unsigned nrobs;
+  unsigned nrobspos;
 
   // miscellanious
   unsigned partialnrpar;
@@ -95,7 +96,7 @@ class remlest_multinomial_catsp
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
           const double & maxch, const datamatrix & categories,
-          ostream * lo=&cout);
+          const datamatrix & weight, ostream * lo=&cout);
 
 //------------------------------------------------------------------------------
 //----------------------------- REML estimation --------------------------------
@@ -126,8 +127,9 @@ class remlest_multinomial_catsp
   // FUNCTION: compute_weights
   // TASK: Computes mu, weights and the working observations
 
-  void compute_weights(datamatrix & mu, datamatrix & weights,
-                       datamatrix & worky, datamatrix & eta, datamatrix & respind);
+  void compute_weights(datamatrix & mu, datamatrix & workweights,
+                       datamatrix & worky, datamatrix & eta,
+                       datamatrix & respind, const datamatrix & weights);
 
   // FUNCTION: compute_eta
   // TASK: Computes the linear predictor X*beta

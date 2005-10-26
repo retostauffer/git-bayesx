@@ -22,7 +22,8 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
                 const ST::string & family, const ST::string & ofile,
                 const int & maxiter, const double & lowerlimit,
                 const double & epsi, const double & maxch,
-                const datamatrix & categories, ostream * lo)
+                const datamatrix & categories,
+                const datamatrix & weight, ostream * lo)
   {
 
   nrcat2=categories.rows();
@@ -30,6 +31,14 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
   cats=categories;
 
   nrobs=re.rows();
+  nrobspos=nrobs;
+  for(int i=0; i<nrobs; i++)
+    {
+    if(weight(i,0)==0)
+      {
+      nrobspos--;
+      }
+    }
 
   #if defined(JAVA_OUTPUT_WINDOW)
   adminb_p = adb;
@@ -637,7 +646,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
       }
 
     eta = offset + Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
-    compute_weights(mu,workweight,worky,eta,respind);
+    compute_weights(mu,workweight,worky,eta,respind,weight);
     worky = worky - offset;
 
 // -----------------------------------------------------------------------------
@@ -1112,7 +1121,7 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
 
   // update linear predictor and working weights
   eta = offset + Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
-  compute_weights(mu,workweight,worky,eta,respind);
+  compute_weights(mu,workweight,worky,eta,respind,weight);
 
   double mean=0;
   k=0;
@@ -1150,29 +1159,32 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
 
   for(i=0; i<resp.rows(); i++)
     {
-    k=0;
-    refprob=0;
-    for(j=0; j<nrcat2; j++)
+    if(weight(i,0)>0)
       {
-      if(respind(i*nrcat2+j,0)==1)
+      k=0;
+      refprob=0;
+      for(j=0; j<nrcat2; j++)
         {
-        loglike += log(mu(i*nrcat2+j,0));
-        k=1;
+        if(respind(i*nrcat2+j,0)==1)
+          {
+          loglike += log(mu(i*nrcat2+j,0));
+          k=1;
+          }
+        else
+          {
+          refprob += mu(i*nrcat2+j,0);
+          }
         }
-      else
+      if(k==0)
         {
-        refprob += mu(i*nrcat2+j,0);
+        loglike += log(1-refprob);
         }
-      }
-    if(k==0)
-      {
-      loglike += log(1-refprob);
       }
     }
   loglike *= -2;
-  gcv = loglike/(double)resp.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+  gcv = loglike/(double)nrobspos*(1-(double)df/(double)nrobspos)*(1-(double)df/(double)nrobspos);
   aic = loglike + 2*df;
-  bic = loglike + log(resp.rows())*df;
+  bic = loglike + log(nrobspos)*df;
 
   out("\n");
   out("  Model Fit\n",true);
@@ -1420,7 +1432,7 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
     out1.close();
 
     eta = offset + Xneu*beta;
-    compute_weights(mu,workweight,worky,eta,respind);
+    compute_weights(mu,workweight,worky,eta,respind,weight);
     worky = worky - offset;
 
 // ----------------------------------------------------------------------------
@@ -1563,7 +1575,7 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
 
   // update eta and working weights
   eta = offset + Xneu*beta;
-  compute_weights(mu,workweight,worky,eta,respind);
+  compute_weights(mu,workweight,worky,eta,respind,weight);
   double loglike=0;
   double aic=0;
   double bic=0;
@@ -1574,29 +1586,32 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
 
   for(i=0; i<resp.rows(); i++)
     {
-    k=0;
-    refprob=0;
-    for(j=0; j<nrcat2; j++)
+    if(weight(i,0)>0)
       {
-      if(respind(i*nrcat2+j,0)==1)
+      k=0;
+      refprob=0;
+      for(j=0; j<nrcat2; j++)
         {
-        loglike += log(mu(i*nrcat2+j,0));
-        k=1;
+        if(respind(i*nrcat2+j,0)==1)
+          {
+          loglike += log(mu(i*nrcat2+j,0));
+          k=1;
+          }
+        else
+          {
+          refprob += mu(i*nrcat2+j,0);
+          }
         }
-      else
+      if(k==0)
         {
-        refprob += mu(i*nrcat2+j,0);
+        loglike += log(1-refprob);
         }
-      }
-    if(k==0)
-      {
-      loglike += log(1-refprob);
       }
     }
   loglike *= -2;
-  gcv = loglike/(double)resp.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+  gcv = loglike/(double)nrobspos*(1-(double)df/(double)nrobspos)*(1-(double)df/(double)nrobspos);
   aic = loglike + 2*df;
-  bic = loglike + log(resp.rows())*df;
+  bic = loglike + log(nrobspos)*df;
 
   out("\n");
   out("  Model Fit\n",true);
@@ -1659,8 +1674,9 @@ void remlest_multinomial_catsp::compute_respind(const datamatrix & re, datamatri
     }
   }
 
-void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & weights,
-                  datamatrix & worky, datamatrix & eta, datamatrix & respind)
+void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & workweights,
+                  datamatrix & worky, datamatrix & eta, datamatrix & respind,
+                  const datamatrix & weight)
   {
   unsigned i,j,k1,k2,l;
 
@@ -1686,13 +1702,16 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & we
 
   for(i=0; i<nrobs; i++)
     {
-    for(j=i*nrcat2,l=0; l<nrcat2; j++, l++)
+    if(weight(i,0)>0)
       {
-      weights(j,l)=mu(j,0)*(1-mu(j,0));
-      for(k1=j+1,k2=l+1; k2<nrcat2; k1++, k2++)
+      for(j=i*nrcat2,l=0; l<nrcat2; j++, l++)
         {
-        weights(j,k2)=-mu(j,0)*mu(k1,0);
-        weights(k1,l)=weights(j,k2);
+        workweights(j,l)=mu(j,0)*(1-mu(j,0));
+        for(k1=j+1,k2=l+1; k2<nrcat2; k1++, k2++)
+          {
+          workweights(j,k2)=-mu(j,0)*mu(k1,0);
+          workweights(k1,l)=workweights(j,k2);
+          }
         }
       }
     }
@@ -1701,9 +1720,12 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & we
 
   for(i=0; i<nrobs; i++)
     {
-    worky.putRowBlock(i*nrcat2,(i+1)*nrcat2,eta.getRowBlock(i*nrcat2,(i+1)*nrcat2)+
-                      weights.getRowBlock(i*nrcat2,(i+1)*nrcat2).inverse()*
-                      (respind.getRowBlock(i*nrcat2,(i+1)*nrcat2)-mu.getRowBlock(i*nrcat2,(i+1)*nrcat2)));
+    if(weight(i,0)>0)
+      {
+      worky.putRowBlock(i*nrcat2,(i+1)*nrcat2,eta.getRowBlock(i*nrcat2,(i+1)*nrcat2)+
+                        workweights.getRowBlock(i*nrcat2,(i+1)*nrcat2).inverse()*
+                        (respind.getRowBlock(i*nrcat2,(i+1)*nrcat2)-mu.getRowBlock(i*nrcat2,(i+1)*nrcat2)));
+      }
     }
 
   }
@@ -1726,6 +1748,7 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & we
     ST::string familyname = "multinomial logit";
     out("  Family:                 "+familyname+"\n");
     out("  Number of observations: "+ST::inttostring(X.rows())+"\n");
+    out("  Number of observations with positive weight: "+ST::inttostring(nrobspos)+"\n");
     }
 
 //------------------------------------------------------------------------------
@@ -2067,7 +2090,9 @@ void remlest_multinomial_catsp::make_model(ofstream & outtex, const ST::string &
   //schreibt das Modell und die Priori-annahmen ins Tex-File
   outtex << "\n\\noindent {\\bf \\large Response:}" << endl
          << "\\begin{tabbing}\n"
-         << "Number of observations: \\= " << obs << "\\\\" << endl
+         << "Number of observations with positive weight: \\= \\kill" << endl
+         << "Number of observations: \\> " << obs << "\\\\" << endl
+         << "Number of observations with positive weight: \\> " << nrobspos << "\\\\" << endl
          << "Response Variable: \\> " << helprname << "\\\\" << endl
          << "Family: \\> " << familyname << "\\\\" << endl
          << "\\end{tabbing}" << endl

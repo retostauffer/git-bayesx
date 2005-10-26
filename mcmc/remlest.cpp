@@ -84,6 +84,17 @@
   // indices
   unsigned i,k,l;
 
+  // Number of observations & number of observations with positive weight
+  unsigned nrobs=resp.rows();
+  nrobspos=nrobs;
+  for(i=0; i<nrobs; i++)
+    {
+    if(weight(i,0)==0)
+      {
+      nrobspos--;
+      }
+    }
+
   outoptions();
   out("\n");
 
@@ -442,9 +453,9 @@
     }
   loglike *= -2;
   gcv = loglike+2*gcv;
-  gcv /= (double)eta.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+  gcv /= (double)nrobspos*(1-(double)df/(double)nrobspos)*(1-(double)df/(double)nrobspos);
   aic = loglike + 2*df;
-  bic = loglike + log(eta.rows())*df;
+  bic = loglike + log(nrobspos)*df;
 
   out("\n");
   out("  Model Fit\n",true);
@@ -481,6 +492,17 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
   {
   // indices
   unsigned i;//,k,l;
+
+  // Number of observations & number of observations with positive weight
+  unsigned nrobs=resp.rows();
+  nrobspos=nrobs;
+  for(i=0; i<nrobs; i++)
+    {
+    if(weight(i,0)==0)
+      {
+      nrobspos--;
+      }
+    }
 
   outoptions();
   out("\n");
@@ -708,7 +730,7 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
     }
   loglike *= -2;
   gcv = loglike+2*gcv;
-  gcv /= (double)eta.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+  gcv /= (double)nrobspos*(1-(double)df/(double)nrobspos)*(1-(double)df/(double)nrobspos);
   aic = loglike + 2*df;
   bic = loglike + log((double)eta.rows())*df;
 
@@ -753,6 +775,17 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
   {
   // indices
   unsigned i,k,l;
+
+  // Number of observations & number of observations with positive weight
+  unsigned nrobs=resp.rows();
+  nrobspos=nrobs;
+  for(i=0; i<nrobs; i++)
+    {
+    if(weight(i,0)==0)
+      {
+      nrobspos--;
+      }
+    }
 
   outoptions();
   out("\n");
@@ -951,11 +984,11 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
         Fisher(k,i)=Fisher(i,k);
         }
       }
-    score(theta.rows()-1,0)=-(double)resp.rows()/thetaold(theta.rows()-1,0)+
+    score(theta.rows()-1,0)=-(double)nrobspos/thetaold(theta.rows()-1,0)+
           0.5*(2/thetaold(theta.rows()-1,0)*H*Hinv).trace()+
           w1resid.sum2(0)/thetaold(theta.rows()-1,0);
 
-    Fisher(theta.rows()-1,theta.rows()-1)=2*(double)resp.rows()/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))-
+    Fisher(theta.rows()-1,theta.rows()-1)=2*(double)nrobspos/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))-
            (H*Hinv*4/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace()+
            0.5*(H*Hinv*H*Hinv*4/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace();
 
@@ -1141,9 +1174,12 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
       {
       for(i=0; i<eta.rows(); i++)
         {
-        s = theta(theta.rows()-1,0)/weight(i,0);
-        gcv += weight(i,0)*(resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0));
-        loglike += log(s) + (resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0))/s;
+        if(weight(i,0)!=0)
+          {
+          s = theta(theta.rows()-1,0)/weight(i,0);
+          gcv += weight(i,0)*(resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0));
+          loglike += log(s) + (resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0))/s;
+          }
         }
       }
 /*    else if(respfamily=="gamma")
@@ -1158,9 +1194,9 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
       loglike *= -2;
       gcv *= 2;
       }*/
-    gcv /= (double)eta.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+    gcv /= (double)nrobspos*(1-(double)df/(double)nrobspos)*(1-(double)df/(double)nrobspos);
     aic = loglike + 2*df;
-    bic = loglike + log(eta.rows())*df;
+    bic = loglike + log(nrobspos)*df;
 
     out("\n");
     out("  Model Fit\n",true);
@@ -1220,6 +1256,17 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
 
   // indices
   unsigned i;
+
+  // Number of observations & number of observations with positive weight
+  unsigned nrobs=resp.rows();
+  nrobspos=nrobs;
+  for(i=0; i<nrobs; i++)
+    {
+    if(weight(i,0)==0)
+      {
+      nrobspos--;
+      }
+    }
 
   outoptions();
   out("\n");
@@ -1356,8 +1403,8 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
 
     // compute score-function and expected fisher information
 
-    score(0,0)=-0.5*(resp.rows()-beta.rows())+0.5*w1resid.sum2(0);
-    Fisher(0,0)=(resp.rows()-beta.rows())/(2*thetaold(0,0));
+    score(0,0)=-0.5*(nrobspos-beta.rows())+0.5*w1resid.sum2(0);
+    Fisher(0,0)=(nrobspos-beta.rows())/(2*thetaold(0,0));
 
     // fisher scoring for theta
     theta(0,0) = thetaold(0,0) + score(0,0)/Fisher(0,0);
@@ -1499,9 +1546,12 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
       {
       for(i=0; i<eta.rows(); i++)
         {
-        s = theta(theta.rows()-1,0)/weight(i,0);
-        gcv += weight(i,0)*(resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0));
-        loglike += log(s) + (resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0))/s;
+        if(weight(i,0)!=0)
+          {
+          s = theta(theta.rows()-1,0)/weight(i,0);
+          gcv += weight(i,0)*(resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0));
+          loglike += log(s) + (resp(i,0)-eta(i,0))*(resp(i,0)-eta(i,0))/s;
+          }
         }
       }
 /*    else if(respfamily=="gamma")
@@ -1516,9 +1566,9 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
       loglike *= -2;
       gcv *= 2;
       }*/
-    gcv /= (double)eta.rows()*(1-(double)df/(double)eta.rows())*(1-(double)df/(double)eta.rows());
+    gcv /= (double)nrobspos*(1-(double)df/(double)nrobspos)*(1-(double)df/(double)nrobspos);
     aic = loglike + 2*df;
-    bic = loglike + log(eta.rows())*df;
+    bic = loglike + log(nrobspos)*df;
 
     out("\n");
     out("  Model Fit\n",true);
@@ -5533,6 +5583,7 @@ for(i=0; i<nrobs; i++)
       out("  Family:                 "+familyname+"\n");
       out("  Response function:      "+respname+"\n");
       out("  Number of observations: "+ST::inttostring(X.rows())+"\n");
+      out("  Number of observations with positive weight: "+ST::inttostring(nrobspos)+"\n");
       }
     }
 
@@ -5884,8 +5935,9 @@ void remlest::make_model(ofstream & outtex, const ST::string & rname)
     }
   else
     {
-    outtex << "Number of observations: \\= \\kill" << endl;
+    outtex << "Number of observations with positive weight: \\= \\kill" << endl;
     outtex << "Number of observations: \\> " << obs << "\\\\" << endl;
+    outtex << "Number of observations with positive weight: \\> " << nrobspos << "\\\\" << endl; 
     }
     
   outtex << "Response Variable: \\> " << helprname << "\\\\" << endl

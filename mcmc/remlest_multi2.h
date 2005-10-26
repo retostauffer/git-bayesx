@@ -52,6 +52,7 @@ class remlest_ordinal
   unsigned totalnrpar;
 
   unsigned nrobs;
+  unsigned nrobspos;
 
   statmatrix<double> X;                         // fixed effects
   statmatrix<double> Z;                         // random effects
@@ -91,6 +92,7 @@ class remlest_ordinal
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
           const double & maxch, const datamatrix & categories,
+          const datamatrix & weight,
           ostream * lo=&cout);
 //------------------------------------------------------------------------------
 //--------------------------- get characteristics ------------------------------
@@ -144,8 +146,9 @@ class remlest_ordinal
   // FUNCTION: compute_weights
   // TASK: Computes mu, weights and the working observations
 
-  void compute_weights(datamatrix & mu, datamatrix & weights,
-                       datamatrix & worky, datamatrix & eta, datamatrix & respind);
+  void compute_weights(datamatrix & mu, datamatrix & workweights,
+                       datamatrix & worky, datamatrix & eta,
+                       datamatrix & respind, const datamatrix & weights);
 
   // FUNCTION: compute_eta
   // TASK: Computes the linear predictor X*beta

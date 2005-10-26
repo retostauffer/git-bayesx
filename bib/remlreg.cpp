@@ -685,16 +685,6 @@ bool remlreg::create_data(datamatrix & weight)
   else
     {
     // check for correct distributions
-    if(family.getvalue()=="multinomial" ||
-       family.getvalue()=="multinomialcatsp" ||
-       family.getvalue()=="cumlogit" ||
-       family.getvalue()=="cumprobit" ||
-       family.getvalue()=="seqlogit" ||
-       family.getvalue()=="seqprobit")
-      {
-      outerror("ERROR: weight not allowed for multicategorical response\n");
-      return true;
-      }
     if(family.getvalue()=="cox" || family.getvalue()=="coxold")
       {
       outerror("ERROR: weight not allowed for family=cox\n");
@@ -709,6 +699,24 @@ bool remlreg::create_data(datamatrix & weight)
       outerror("ERROR: negative weights encountered\n");
       return true;
       }
+    // only weights 1 or 0 allowed for multinomial responses
+    if(family.getvalue()=="multinomial" ||
+       family.getvalue()=="multinomialcatsp" ||
+       family.getvalue()=="cumlogit" ||
+       family.getvalue()=="cumprobit" ||
+       family.getvalue()=="seqlogit" ||
+       family.getvalue()=="seqprobit")
+      {
+      for(int i=0; i<weight.rows(); i++)
+        {
+        if(weight(i,0)!=0 && weight(i,0)!=1)
+          {
+          outerror("ERROR: weights have to equal 0 or 1 for multicategorical response\n");
+          return true;
+          }
+        }
+      }
+
     }
   return false;
   }
@@ -733,26 +741,29 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     unsigned i;
     for(i=0; i<response.rows(); i++)
       {
-      if (response(i,0) != int(response(i,0)))
+      if(weight(i,0)>0)
         {
-        outerror("ERROR: response cannot be binomial\; values must be integer numbers\n");
-        return true;
-        }
+        if (response(i,0) != int(response(i,0)))
+          {
+          outerror("ERROR: response cannot be binomial\; values must be integer numbers\n");
+          return true;
+          }
 
-      if (response(i,0) < 0)
-        {
-        outerror("ERROR: response cannot be binomial\; some values are negative\n");
-        return true;
-        }
+        if (response(i,0) < 0)
+          {
+          outerror("ERROR: response cannot be binomial\; some values are negative\n");
+          return true;
+          }
 
-      if (response(i,0) > weight(i,0))
-        {
-        outerror("ERROR: response cannot be binomial\;\n");
-        outerror("       number of successes larger than number of trials for some values\n");
-        return true;
+        if (response(i,0) > weight(i,0))
+          {
+          outerror("ERROR: response cannot be binomial\;\n");
+          outerror("       number of successes larger than number of trials for some values\n");
+          return true;
+          }
+        // Transform response for binomial families  (to match usual GLM definition)
+        response(i,0) = response(i,0)/weight(i,0);
         }
-      // Transform response for binomial families  (to match usual GLM definition)
-      response(i,0) = response(i,0)/weight(i,0);
       }
     }
 
@@ -3572,7 +3583,7 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(),b.cats,b.logout);
+      b.maxchange.getvalue(),b.cats,weight,b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE_M.estimate_glm(response,offset,weight);
       else
@@ -3587,7 +3598,7 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond, response, b.family.getvalue(), b.outfile.getvalue(),
       b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
-      b.maxchange.getvalue(), b.cats,b.logout);
+      b.maxchange.getvalue(), b.cats, weight, b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE_M_catsp.estimate_glm(response,offset,weight);
       else
@@ -3605,7 +3616,7 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(),b.cats,b.logout);
+      b.maxchange.getvalue(),b.cats,weight,b.logout);
       if(b.RE_O.get_catspec())
         {
         if (b.fullcond.size() == 1)    // fixed effects only

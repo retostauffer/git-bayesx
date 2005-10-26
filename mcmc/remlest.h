@@ -55,6 +55,8 @@ class remlest
   int nrlefttrunc;                         // linkstrunkierter,
   int nruncens;                            // unzensierter Beobachtungen
 
+  int nrobspos;                           // Beobachtungen mit positivem Gewicht
+  
   public:
 
 //------------------------------------------------------------------------------

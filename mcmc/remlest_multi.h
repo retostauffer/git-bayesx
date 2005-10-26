@@ -46,6 +46,7 @@ class remlest_multinomial
   statmatrix<double> cats;                         // Mögliche Kategorien
 
   unsigned nrobs;
+  unsigned nrobspos;
 
   unsigned partialnrpar;                        // Parameter pro Kategorie
   unsigned partialnrfixed;                      // fixe Effekte pro Kategorien
@@ -88,7 +89,7 @@ class remlest_multinomial
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
           const double & maxch, const datamatrix & categories,
-          ostream * lo=&cout);
+          const datamatrix & weight, ostream * lo=&cout);
 
 //------------------------------------------------------------------------------
 //----------------------------- REML estimation --------------------------------
@@ -119,8 +120,9 @@ class remlest_multinomial
   // FUNCTION: compute_weights
   // TASK: Computes mu, weights and the working observations
 
-  void compute_weights(datamatrix & mu, datamatrix & weights,
-                       datamatrix & worky, datamatrix & eta, datamatrix & respind);
+  void compute_weights(datamatrix & mu, datamatrix & workweights,
+                       datamatrix & worky, datamatrix & eta,
+                       datamatrix & respind, const datamatrix & weights);
 
   // FUNCTION: compute_eta
   // TASK: Computes the linear predictor X*beta
