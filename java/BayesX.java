@@ -11,9 +11,16 @@ import java.util.*;
 import java.io.*;
 import java.beans.*;
 
-import umontreal.iro.lecuyer.rng.*;
-import umontreal.iro.lecuyer.randvar.*;
-import umontreal.iro.lecuyer.probdist.*;
+import umontreal.iro.lecuyer.rng.RandMrg;
+import umontreal.iro.lecuyer.randvar.UniformGen;
+import umontreal.iro.lecuyer.randvar.NormalGen;
+import umontreal.iro.lecuyer.randvar.ExponentialGen;
+import umontreal.iro.lecuyer.randvar.BinomialGen;
+import umontreal.iro.lecuyer.randvar.GammaGen;
+import umontreal.iro.lecuyer.randvar.PoissonGen;
+import umontreal.iro.lecuyer.randvar.WeibullGen;
+//import umontreal.iro.lecuyer.randvar.*;
+//import umontreal.iro.lecuyer.probdist.*;
 
 //import gov.sandia.postscript.PSGrBase;
 //import gov.sandia.postscript.PSGr1;
