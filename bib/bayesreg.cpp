@@ -219,6 +219,7 @@ void bayesreg::create(void)
   noposteriormode = simpleoption("noposteriormode",false);
 
   setseed = intoption("setseed",-1,0,MAXINT);
+  nographs = simpleoption("nographs",false);
 
   pseudocontourprob = simpleoption("pseudocontourprob",false);
   uniformprior = simpleoption("uniformprior",false);
@@ -312,6 +313,7 @@ void bayesreg::create(void)
   regressoptions.push_back(&modeonly);
   regressoptions.push_back(&noposteriormode);
   regressoptions.push_back(&setseed);
+  regressoptions.push_back(&nographs);
   regressoptions.push_back(&pseudocontourprob);
   regressoptions.push_back(&uniformprior);
   regressoptions.push_back(&approx);
@@ -560,6 +562,7 @@ void bayesreg::create(void)
   transformtype = stroption("transformtype",trtypes,"exp");
 
   outresultsoptions.push_back(&transformtype);
+  outresultsoptions.push_back(&nographs);
 
   // methods 7
   methods.push_back(command("outresults",&moutresults,

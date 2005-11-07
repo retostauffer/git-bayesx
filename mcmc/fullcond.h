@@ -622,6 +622,11 @@ class __EXPORT_TYPE FULLCOND
     return pathresult;
     }
 
+  ST::string get_pathcurrent(void) const
+    {
+    return pathcurrent;
+    }
+
   unsigned get_fcnumber(void) const
     {
     return fcnumber;

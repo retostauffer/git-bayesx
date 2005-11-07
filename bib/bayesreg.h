@@ -289,6 +289,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   simpleoption modeonly;               // Computes the posterior mode only
   simpleoption noposteriormode;
   intoption setseed;
+  simpleoption nographs;
 
   simpleoption pseudocontourprob;
   simpleoption uniformprior;

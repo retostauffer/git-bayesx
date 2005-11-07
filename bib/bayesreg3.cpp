@@ -442,7 +442,8 @@ void mregressrun(bayesreg & b)
     }
 
 #if defined(JAVA_OUTPUT_WINDOW)
-
+    if(b.nographs.getvalue() == false)
+    {
     for(unsigned j=0;j<b.fullcond.size();j++)
        {
        MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
@@ -479,9 +480,9 @@ void mregressrun(bayesreg & b)
        }
 
     b.newcommands.push_back(b.name + ".texsummary");
-
+    }
 #endif
-    
+
 
   }
 
@@ -654,6 +655,46 @@ void outresultsrun(bayesreg & b)
           }
 
         }
+
+#if defined(JAVA_OUTPUT_WINDOW)
+      if(b.nographs.getvalue() == false)
+      {
+      for(unsigned j=0;j<b.fullcond.size();j++)
+         {
+         MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
+         if(plst != MCMC::noplot)
+           {
+           vector<ST::string> varnames = b.fullcond[j]->get_datanames();
+           ST::string xvar = varnames[0];
+           ST::string pathresult = b.fullcond[j]->get_pathcurrent();
+           ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+           if(plst == MCMC::plotnonp)
+                 {
+                 b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
+                 + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
+                 + " ylab = \" \" outfile = " + pathps + ".ps replace");
+                 }
+
+           if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
+                 {
+                 double u = b.fullcond[j]->get_level1();
+                 double o = b.fullcond[j]->get_level2();
+                 ST::string u_str = ST::doubletostring(u,0);
+                 ST::string o_str = ST::doubletostring(o,0);
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", color outfile = " + pathps + "_pmean.ps replace");
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+                 + "_pcat" + u_str + ".ps replace");
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+                 + "_pcat" + o_str + ".ps replace");
+
+                 }
+           }
+         }
+      }
+#endif
 
       } // end: if (error==false)
 
@@ -839,7 +880,10 @@ void plotnonprun(bayesreg & b)
   if (error==false)
     {
 
-    ST::string path = b.fullcond[nr]->get_pathresult();
+    ST::string path = b.fullcond[nr]->get_pathcurrent();
+
+    if(path == "")
+      path = b.fullcond[nr]->get_pathresult();
 
     vector<ST::string> vnames;
     ifstream in(path.strtochar());
@@ -1530,7 +1574,7 @@ bool bayesreg::create_multibaseline(const unsigned & collinpred)
 
       MCMC::knotpos po;
 
-      if (knots.getvalue() == "equidistant")
+      if (knots.getvalue() == "equidistant" && terms[i].options[14] == "equidistant")
         po = MCMC::equidistant;
       else
         po = MCMC::quantiles;
@@ -1945,7 +1989,8 @@ void regressrun(bayesreg & b)
     b.simobj.make_graphics(header,path,path2,path3,path4);
 
 #if defined(JAVA_OUTPUT_WINDOW)
-
+    if(b.nographs.getvalue() == false)
+    {
     for(unsigned j=0;j<b.fullcond.size();j++)
        {
        MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
@@ -1982,7 +2027,7 @@ void regressrun(bayesreg & b)
        }
 
     b.newcommands.push_back(b.name + ".texsummary");
-
+    }
 #endif
 
     }
