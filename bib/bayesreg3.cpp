@@ -69,7 +69,7 @@ bool bayesreg::create_varcoeffpspline(const unsigned & collinpred)
 
       MCMC::knotpos po;
 
-      if (knots.getvalue() == "equidistant")
+      if (knots.getvalue() == "equidistant" && terms[i].options[19] == "equidistant")
         po = MCMC::equidistant;
       else
         po = MCMC::quantiles;
@@ -1392,7 +1392,7 @@ bool bayesreg::create_varcoeffbaseline(const unsigned & collinpred)
 
       MCMC::knotpos po;
 
-      if (knots.getvalue() == "equidistant")
+      if (knots.getvalue() == "equidistant" && terms[i].options[10] == "equidistant")
         po = MCMC::equidistant;
       else
         po = MCMC::quantiles;

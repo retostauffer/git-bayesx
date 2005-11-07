@@ -728,6 +728,10 @@ term_pspline::term_pspline(void)
   stationary = simpleoption("stationary",false);
   alpha = doubleoption("alpha",0.9,-1.0,1.0);
   alphafix = simpleoption("alphafix",false);
+  vector<ST::string> knotsdef;
+  knotsdef.push_back("equidistant");
+  knotsdef.push_back("quantiles");
+  knots = stroption("knots",knotsdef,"equidistant");
 //  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
 //  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
 //  lambdastart = doubleoption("lambdastart",-1,-1,10000000);
@@ -763,6 +767,7 @@ void term_pspline::setdefault(void)
   alpha.setdefault();
   stationary.setdefault();
   alphafix.setdefault();
+  knots.setdefault();
 //  lambdamin.setdefault();
 //  lambdamax.setdefault();
 //  lambdastart.setdefault();
@@ -772,7 +777,7 @@ bool term_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 29) )
+        && (t.options.size() <= 30) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -829,6 +834,7 @@ bool term_pspline::check(term & t)
     optlist.push_back(&stationary);
     optlist.push_back(&alpha);
     optlist.push_back(&alphafix);
+    optlist.push_back(&knots);
 //    optlist.push_back(&lambdamin);
 //    optlist.push_back(&lambdamax);
 //    optlist.push_back(&lambdastart);
@@ -856,7 +862,7 @@ bool term_pspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(29);
+   t.options = vector<ST::string>(30);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -913,6 +919,7 @@ bool term_pspline::check(term & t)
      t.options[28] = "false";
    else
      t.options[28] = "true";
+   t.options[29] = knots.getvalue();  
 //    t.options[40] = ST::doubletostring(lambdamin.getvalue());
 //    t.options[21] = ST::doubletostring(lambdamax.getvalue());
 //    t.options[22] = ST::doubletostring(lambdastart.getvalue());
@@ -2238,6 +2245,10 @@ term_varcoeff_pspline::term_varcoeff_pspline(void)
   contourprob = intoption("contourprob",-1,0,6);
   uniformprior = simpleoption("uniformprior",false);
   beta_0 = stroption("beta_0");
+  vector<ST::string> knotsdef;
+  knotsdef.push_back("equidistant");
+  knotsdef.push_back("quantiles");
+  knots = stroption("knots",knotsdef,"equidistant");
   }
 
 
@@ -2261,6 +2272,7 @@ void term_varcoeff_pspline::setdefault(void)
   contourprob.setdefault();
   uniformprior.setdefault();
   beta_0.setdefault();
+  knots.setdefault();
   }
 
 
@@ -2268,7 +2280,7 @@ bool term_varcoeff_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-        && (t.options.size() <= 19) )
+        && (t.options.size() <= 20) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -2300,6 +2312,7 @@ bool term_varcoeff_pspline::check(term & t)
     optlist.push_back(&contourprob);
     optlist.push_back(&uniformprior);
     optlist.push_back(&beta_0);
+    optlist.push_back(&knots);
 
     unsigned i;
     bool rec = true;
@@ -2324,7 +2337,7 @@ bool term_varcoeff_pspline::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(19);
+    t.options = vector<ST::string>(20);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(min.getvalue());
     t.options[2] = ST::inttostring(max.getvalue());
@@ -2356,6 +2369,7 @@ bool term_varcoeff_pspline::check(term & t)
     else
       t.options[17] = "true";
     t.options[18] = beta_0.getvalue();
+    t.options[19] = knots.getvalue();
 
     if ( contourprob.getvalue()-1 > degree.getvalue())
       {
@@ -2787,6 +2801,10 @@ term_baseline::term_baseline(void)
   proposal = stroption("proposal",adm_prop,"cp");
   weibull = simpleoption("weibull",false);
   begin = stroption("begin");
+  vector<ST::string> knotsdef;
+  knotsdef.push_back("equidistant");
+  knotsdef.push_back("quantiles");
+  knots = stroption("knots",knotsdef,"equidistant");
   }
 
 void term_baseline::setdefault(void)
@@ -2804,13 +2822,14 @@ void term_baseline::setdefault(void)
   proposal.setdefault();
   weibull.setdefault();
   begin.setdefault();
+  knots.setdefault();
   }
 
 bool term_baseline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 14) )
+        && (t.options.size() <= 15) )
     {
 
     if (t.options[0] == "baseline")
@@ -2837,6 +2856,7 @@ bool term_baseline::check(term & t)
     optlist.push_back(&proposal);
     optlist.push_back(&weibull);
     optlist.push_back(&begin);
+    optlist.push_back(&knots);
 
     unsigned i;
     bool rec = true;
@@ -2861,7 +2881,7 @@ bool term_baseline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(14);
+   t.options = vector<ST::string>(15);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -2886,6 +2906,7 @@ bool term_baseline::check(term & t)
      t.options[12] = "true";
 
    t.options[13] = begin.getvalue();
+   t.options[14] = knots.getvalue();
 
    if (t.options[1].strtolong(minim) == 1)
      {
@@ -2941,6 +2962,10 @@ term_varcoeff_baseline::term_varcoeff_baseline(void)
   a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   uniformprior = simpleoption("uniformprior",false);
+  vector<ST::string> knotsdef;
+  knotsdef.push_back("equidistant");
+  knotsdef.push_back("quantiles");
+  knots = stroption("knots",knotsdef,"equidistant");
   }
 
 
@@ -2955,6 +2980,7 @@ void term_varcoeff_baseline::setdefault(void)
   a.setdefault();
   b.setdefault();
   uniformprior.setdefault();
+  knots.setdefault();
   }
 
 
@@ -2962,7 +2988,7 @@ bool term_varcoeff_baseline::check(term & t)
   {
 
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-        && (t.options.size() <= 10) )
+        && (t.options.size() <= 11) )
     {
 
     if (t.options[0] == "baseline")
@@ -2983,6 +3009,7 @@ bool term_varcoeff_baseline::check(term & t)
     optlist.push_back(&a);
     optlist.push_back(&b);
     optlist.push_back(&uniformprior);
+    optlist.push_back(&knots);
 
     unsigned i;
     bool rec = true;
@@ -3020,7 +3047,8 @@ bool term_varcoeff_baseline::check(term & t)
     if(uniformprior.getvalue() == false)
       t.options[9] = "false";
     else
-      t.options[9] = "true";  
+      t.options[9] = "true";
+    t.options[10] = knots.getvalue();
 
     setdefault();
     return true;

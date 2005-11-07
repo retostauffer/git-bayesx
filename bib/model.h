@@ -624,6 +624,7 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
   simpleoption stationary;
   doubleoption alpha;
   simpleoption alphafix;
+  stroption knots;
 //  doubleoption lambdamin;
 //  doubleoption lambdamax;
 //  doubleoption lambdastart;
@@ -1282,6 +1283,7 @@ class __EXPORT_TYPE term_varcoeff_pspline : public basic_termtype
   intoption contourprob;
   simpleoption uniformprior;
   stroption beta_0;
+  stroption knots;
 
   void setdefault(void);
 
@@ -1339,6 +1341,7 @@ class __EXPORT_TYPE term_baseline : public basic_termtype
   stroption proposal;
   simpleoption weibull;
   stroption begin;
+  stroption knots;
 
 
   void setdefault(void);
@@ -1395,6 +1398,7 @@ class __EXPORT_TYPE term_varcoeff_baseline : public basic_termtype
   doubleoption a;
   doubleoption b;
   simpleoption uniformprior;
+  stroption knots;
 
   void setdefault(void);
 

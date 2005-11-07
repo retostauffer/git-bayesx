@@ -2400,7 +2400,7 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
 
       MCMC::knotpos po;
 
-      if (knots.getvalue() == "equidistant")
+      if (knots.getvalue() == "equidistant" && terms[i].options[14] == "equidistant")
         po = MCMC::equidistant;
       else
         po = MCMC::quantiles;
