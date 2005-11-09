@@ -21,6 +21,7 @@
 #include<remlest_multi.h>
 #include<remlest_multi2.h>
 #include<remlest_multi3.h>
+#include<remlest_multistate.h>
 #include<model_remlreg.h>
 
 #include<mcmc.h>
@@ -161,13 +162,14 @@ class __EXPORT_TYPE remlreg : public statobject
 
 
 //------------------------------------------------------------------------------
-// -----------------------  for method 'regress'  ------------------------------
+// -----------------------  for method 'remlrun'  ------------------------------
 //------------------------------------------------------------------------------
 
   remlest RE;
   remlest_multinomial RE_M;
   remlest_multinomial_catsp RE_M_catsp;
   remlest_ordinal RE_O;
+  remlest_multistate RE_MSM;
 
   friend void remlrun(remlreg & b);
 
@@ -222,6 +224,17 @@ class __EXPORT_TYPE remlreg : public statobject
   use udata;
 
   bool resultsyesno;
+
+//------------------------------------------------------------------------------
+// -----------------------  for method 'mremlrun'  -----------------------------
+//------------------------------------------------------------------------------
+
+  friend void mremlrun(remlreg & b);
+
+  modeltermmult modregmult;
+  vector < vector <term> > termsmult;
+
+  unsigned nrcategories;
 
 //------------------------------------------------------------------------------
 //----------------------------- Model terms ------------------------------------

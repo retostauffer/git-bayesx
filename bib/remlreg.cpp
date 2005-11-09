@@ -275,6 +275,7 @@ void remlreg::create(void)
   families.push_back("coxinterval");
   families.push_back("coxold");
   families.push_back("aft");
+  families.push_back("multistate");
   family = stroption("family",families,"binomial");
 
   maxit = intoption("maxit",400,1,100000);
@@ -323,7 +324,7 @@ void remlreg::create(void)
   functions[0] = remlrun;
 
 //------------------------------------------------------------------------------
-// ----------------------------- method plotnonp -------------------------------
+// --------------------------- methods[1] plotnonp -----------------------------
 //------------------------------------------------------------------------------
 
   uplotnonp = use();
@@ -394,7 +395,7 @@ void remlreg::create(void)
   functions[1] = plotnonprun;
 
 //------------------------------------------------------------------------------
-// ---------------------------- method drawmaprun ------------------------------
+// -------------------------- methods[2] drawmaprun ----------------------------
 //------------------------------------------------------------------------------
 
   udrawmap = use();
@@ -435,8 +436,9 @@ void remlreg::create(void)
                    notallowed));
 
   functions[2] = drawmaprun;
-
-  // -------------------------- method texsummary ------------------------------
+//------------------------------------------------------------------------------
+// ------------------------ methods[3] texsummary ------------------------------
+//------------------------------------------------------------------------------
 
   utexsummary = use();
 
@@ -453,8 +455,16 @@ void remlreg::create(void)
 
   functions[3] = texsummaryrun;
 
-  }
+//------------------------------------------------------------------------------
+// -------------------------- methods[4] mremlrun ------------------------------
+//------------------------------------------------------------------------------
 
+  methods.push_back(command("mregress",&modreg,&regressoptions,&udata,required,
+			 optional,optional,optional,optional,required));
+
+  functions[4] = mremlrun;
+
+  }
 
 //------------------------------------------------------------------------------
 // ------------------------------- Constructor ---------------------------------
@@ -866,7 +876,8 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
 
   if (family.getvalue()=="multinomial" || family.getvalue()=="multinomialcatsp" ||
       family.getvalue()=="cumlogit" || family.getvalue()=="cumprobit" ||
-      family.getvalue()=="seqlogit" || family.getvalue()=="seqprobit")
+      family.getvalue()=="seqlogit" || family.getvalue()=="seqprobit" ||
+      family.getvalue()=="multistate")
     {
     // extract categories
     datamatrix resphelp=response;
@@ -933,7 +944,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
         }
       }
 
-    if(family.getvalue()=="multinomialcatsp")
+    if(family.getvalue()=="multinomialcatsp" || family.getvalue()=="multistate")
       {
       // put reference category at last position in allcats
       int helpint = categories[refpos];//reference.getvalue();
@@ -942,6 +953,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
         allcats[i] = allcats[i+1];
         }
       allcats[allcats.size()-1] = helpint;
+      nrcategories = allcats.size();
       }
 
     // define cats (categories without reference category)
@@ -4199,6 +4211,9 @@ void plotnonprun(remlreg & b)
   b.plotnonpoptions.setdefault();
   }
 
+// -----------------------------------------------------------------------------
+// -------------------------- texsummaryrun ------------------------------------
+// -----------------------------------------------------------------------------
 
 void texsummaryrun(remlreg & b)
   {
@@ -4239,13 +4254,155 @@ void texsummaryrun(remlreg & b)
     }
 
 #endif
+  }
 
+// -----------------------------------------------------------------------------
+// ----------------------------- mremlrun --------------------------------------
+// -----------------------------------------------------------------------------
+
+void mremlrun(remlreg & b)
+  {
+  b.termsmult = b.modregmult.getterms();
+
+  b.describetext.erase(b.describetext.begin(),b.describetext.end());
+  b.describetext.push_back("LAST ESTIMATED MODEL: \n");
+  b.describetext.push_back("\n");
+  b.describetext.push_back(b.modregmult.getModelText());
+  b.describetext.push_back("\n");
+
+  b.clear();
+
+//  bool failure = false;
+  #if defined(BORLAND_OUTPUT_WINDOW)
+    bool failure = false;
+  #elif defined(JAVA_OUTPUT_WINDOW)
+    bool failure = b.adminb_p->breakcommand();
+  #endif
+
+  if ((b.family.getvalue() != "multistate"))
+    {
+    failure = true;
+    b.out("ERROR: family " + b.family.getvalue() + " is not allowed for method mregress\n");
+    }
+
+  b.generaloptions = MCMCoptions(
+  #if defined(JAVA_OUTPUT_WINDOW)
+  b.adminb_p,
+  #endif
+  12000,2000,100,b.logout,b.level1.getvalue(),
+                               b.level2.getvalue());
+
+  ST::string header;
+
+  unsigned i;
+
+// Read design matrix, compute weights, etc.
+  datamatrix weight;
+  if (!failure)
+    failure = b.create_data(weight);
+
+// Define and check response
+  datamatrix response;
+  if(!failure)
+    failure = b.create_response(response,weight);
+
+// Compute offset
+  datamatrix offset;
+  if(!failure)
+    failure = b.create_offset(offset);
+
+// Compute model terms
+  if (!failure)
+    {
+    for (i=0;i<b.nrcategories;i++)
+      {
+      b.terms = b.termsmult[i];
+      if (!failure)
+        failure = b.create_const(0);
+      if( !failure)
+        failure = b.create_baseline(0);
+      if( !failure)
+        failure = b.create_baseline_varcoeff(0);
+      if (!failure)
+        failure = b.create_nonprw1rw2(0);
+      if (!failure)
+        failure = b.create_nonprw1rw2_varcoef(0);
+      if (!failure)
+        failure = b.create_pspline(0);
+      if (!failure)
+       failure = b.create_nonpseason(0);
+      if (!failure)
+        failure = b.create_nonpseason_varcoef(0);
+      if (!failure)
+        failure = b.create_spatial(0);
+      if (!failure)
+        failure = b.create_spatial_varcoef(0);
+      if (!failure)
+         failure = b.create_geospline(0);
+      if (!failure)
+        failure = b.create_geospline_varcoeff(0);
+      if (!failure)
+        failure = b.create_varcoeffpspline(0);
+      if (!failure)
+        failure = b.create_random(0);
+      if (!failure)
+        failure = b.create_randomslope(0);
+      if (!failure)
+        failure = b.create_interactionspspline(0);
+      if (!failure)
+        failure = b.create_varcoeffinteractionspspline(0);
+      if (!failure)
+        failure = b.create_kriging(0);
+      if (!failure)
+        failure = b.create_kriging_1dim(0);
+      if (!failure)
+        failure = b.create_kriging_varcoeff(0);
+      if (!failure)
+        failure = b.create_geokriging(0);
+      if (!failure)
+        failure = b.create_geokriging_varcoeff(0);
+      }
+    }
+
+  if (!failure)
+    {
+    header= "remlreg object " + b.name.to_bstr() + ": reml procedure" ;
+    if (b.family.getvalue()=="multistate")
+      {
+      b.RE_MSM = remlest_multistate(
+      #if defined(JAVA_OUTPUT_WINDOW)
+      b.adminb_p,
+      #endif
+      b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
+      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
+      b.maxchange.getvalue(),b.cats,weight,b.logout);
+
+      if (b.fullcond.size() == b.nrcategories)    // fixed effects only
+        failure = b.RE_MSM.estimate_glm(response,offset,weight);
+      else
+        failure = b.RE_MSM.estimate(response,offset,weight);
+      }
+    }
+
+  if (!failure)
+    {
+    b.resultsyesno = true;
+    }
+  else
+    {
+    b.describetext.erase(b.describetext.begin(),b.describetext.end());
+    b.describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
+    b.resultsyesno = false;
+    }
   }
 
 
 #if defined(BORLAND_OUTPUT_WINDOW)
 #pragma package(smart_init)
 #endif
+
+
+
 
 
 
