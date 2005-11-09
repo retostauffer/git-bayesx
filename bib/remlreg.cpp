@@ -3704,7 +3704,7 @@ void remlrun(remlreg & b)
                                                  b.aiccontrol.getvalue());
       }
 // AFT-models with smoothed error distribution
-    else if (b.family.getvalue()=="aft")
+/*    else if (b.family.getvalue()=="aft")
       {
       dispers=false;
       b.RE = remlest(
@@ -3718,7 +3718,7 @@ void remlrun(remlreg & b)
         failure = b.RE.estimate_aft_glm(response,offset,weight);
       else
         failure = b.RE.estimate_aft(response,offset,weight);
-      }
+      }*/
 // Univariate Modelle mit Dispersionsparameter
     else
       {
