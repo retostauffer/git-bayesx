@@ -743,7 +743,7 @@ out2.close();
 
 void FULLCOND_tvariance2dim::update_spat_laplace(void)
   {
-
+/*         geht nicht !!!
     unsigned l;
     int k = 0;
     double aneu = 1.0 + 0.5*double(nu);
@@ -768,18 +768,7 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
       betak = beta(k,0);
       row = indexmat(k,0);
       col = indexmat(k,1);
-/*
-      if(betak>0.1)
-        {
-        aneu = betak*betak/proposalvar;
-        bneu = betak/proposalvar;
-        }
-      else
-        {
-        aneu = 0.01/proposalvar;
-        bneu = 0.1/proposalvar;
-        }
-*/
+
       bneu = 0.5*nu + Kp_spat->compute_fabsdiff(row,col);
       deltaprop = randnumbers::rand_gamma(aneu,bneu);
       lognew  += (0.5*nu-1)*log(deltaprop) - 0.5*nu*deltaprop;
@@ -787,18 +776,7 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
 
       propold +=   (aneu-1)*log(deltaprop) -   bneu*deltaprop;
 //      propold += aneu*log(bneu) - dgam.lgammafunc(aneu);
-/*
-      if(deltaprop>0.1)
-        {
-        aneu = deltaprop*deltaprop/proposalvar;
-        bneu = deltaprop/proposalvar;
-        }
-      else
-        {
-        aneu = 0.01/proposalvar;
-        bneu = 0.1/proposalvar;
-        }
-*/
+
       propnew +=   (aneu-1)*log(betak)     -   bneu*betak;
 //      propnew += aneu*log(bneu) - dgam.lgammafunc(aneu);
 
@@ -895,7 +873,7 @@ void FULLCOND_tvariance2dim::update_spat_laplace(void)
 
         } // END:       if(row%nrrows == 0)
       } // END:    for (row=0;row<dim;row++)
-
+*/
   Kp_spat->set_delta(beta);
 
   FULLCOND::update();
