@@ -4,13 +4,13 @@
 
 #ifdef __BUILDING_THE_DLL
 #define __EXPORT_TYPE __export
-#else
-#define __EXPORT_TYPE __import
+#elif __BUILDING_GNU
+#define __EXPORT_TYPE __declspec(dllexport)
 #endif
 
 #include<deque.h>
-#include<statmat.h>
-#include<mcmc_nonpbasis.h>
+#include "statmat.h"
+#include "mcmc_nonpbasis.h"
 
 namespace MCMC
 {

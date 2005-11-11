@@ -1,5 +1,5 @@
-
-#include<tvariance2dim.h>
+#include "first.h"
+#include "tvariance2dim.h"
 
 
 namespace MCMC
@@ -589,9 +589,6 @@ void FULLCOND_tvariance2dim::update_2dim(void)
     double * worku = u.getV()+1;
     double wold,wnew;
     double v = nu/2.0;
-    double b,t;
-
-
 
     for (i=0;i<m;i++,workbeta++,worku++,Kmatdiag++,Kmatupper++)
       {
@@ -630,7 +627,7 @@ void FULLCOND_tvariance2dim::update_2dim(void)
 void FULLCOND_tvariance2dim::update_spat(void)
   {
 
-    unsigned i,j,l;
+    unsigned l;
     int k = 0;
     double aneu = 0.5*double(nu);
     double bneu;
@@ -747,7 +744,7 @@ out2.close();
 void FULLCOND_tvariance2dim::update_spat_laplace(void)
   {
 
-    unsigned i,j,l;
+    unsigned l;
     int k = 0;
     double aneu = 1.0 + 0.5*double(nu);
     double bneu;

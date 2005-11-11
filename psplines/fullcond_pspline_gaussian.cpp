@@ -1,5 +1,5 @@
 // DATE: 27.04.99
-
+#include "first.h"
 #include "fullcond_pspline_gaussian.h"
 
 namespace MCMC
@@ -1427,5 +1427,10 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
 } // end: namespace MCMC
 
 
-
+#ifdef __BUILDING_GNU
+int main()
+{
+	return(0);
+}
+#endif
 

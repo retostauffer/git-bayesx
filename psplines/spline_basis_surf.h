@@ -1,19 +1,19 @@
 //---------------------------------------------------------------------------
 #ifdef __BUILDING_THE_DLL
 #define __EXPORT_TYPE __export
-#else
-#define __EXPORT_TYPE __import
+#elif __BUILDING_GNU
+#define __EXPORT_TYPE __declspec(dllexport)
 #endif
 
 
 #ifndef spline_basis_surfH
 #define spline_basis_surfH
 
-#include<fullcond.h>
-#include<mcmc_nonpbasis.h>
-#include<spline_basis.h>
+#include "fullcond.h"
+#include "mcmc_nonpbasis.h"
+#include "spline_basis.h"
 #include<deque.h>
-#include<statmat_penalty.h>
+#include "statmat_penalty.h"
 
 namespace MCMC
 {

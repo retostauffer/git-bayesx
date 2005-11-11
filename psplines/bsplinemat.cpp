@@ -1,5 +1,8 @@
 //---------------------------------------------------------------------------
+#include "first.h"
+#ifdef BORLAND_OUTPUT_WINDOW
 #include <vcl.h>
+#endif
 #pragma hdrstop
 
 #include "bsplinemat.h"
@@ -409,3 +412,10 @@ void bsplinemat::mult_index(datamatrix & res, const datamatrix & beta)
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
+
+#ifdef __BUILDING_GNU
+int main()
+{
+	return(0);
+}
+#endif

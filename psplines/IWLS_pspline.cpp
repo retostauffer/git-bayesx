@@ -1,5 +1,8 @@
 //---------------------------------------------------------------------------
+#include "first.h"
+#if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
+#endif
 #pragma hdrstop
 
 #include "IWLS_pspline.h"
@@ -975,7 +978,8 @@ void IWLS_pspline::update_isotonic(void)
 
   unsigned i,j;
   double m,help;
-  double unten,oben;
+  double unten = -MAXDOUBLE;
+  double oben = MAXDOUBLE;
 
 //*------------------------ single move --------------------------------------//
   double logold,lognew,qold,qnew,alpha,u;
@@ -1010,6 +1014,11 @@ void IWLS_pspline::update_isotonic(void)
     logold = likep->loglikelihood(true) - 0.5*Kenv.compute_quadform(betaold,0)/sigma2;
     qold = 0.5*log(prec_env(i,i)) - 0.5*(beta(i,0)-m)*prec_env(i,i)*(beta(i,0)-m);
 
+    if(i>0)
+      unten = beta(i-1,0);
+    if(i<nrpar-1)
+      oben = beta(i+1,0);
+
     double helpold = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) ) - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
 
     add_linearpred_multBS(beta,betaold,true);
@@ -1034,6 +1043,11 @@ void IWLS_pspline::update_isotonic(void)
 
     lognew = likep->loglikelihood(true) - 0.5*Kenv.compute_quadform(beta,0)/sigma2;
     qnew = 0.5*log(prec_env(i,i)) - 0.5*(betaold(i,0)-m)*prec_env(i,i)*(betaold(i,0)-m);
+
+    if(i>0)
+      unten = betaold(i-1,0);
+    if(i<nrpar-1)
+      oben = betaold(i+1,0);
 
     double helpnew = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) ) - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
 

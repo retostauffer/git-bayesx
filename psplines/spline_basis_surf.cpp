@@ -1,15 +1,13 @@
 //---------------------------------------------------------------------------
-//#include <vcl.h>
-//#pragma hdrstop
-
+#include "first.h"
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
 
-#include<StatwinFrame.h>
+#include "StatwinFrame.h"
 #endif
 
-#include <spline_basis_surf.h>
+#include "spline_basis_surf.h"
 
 
 namespace MCMC
@@ -2367,7 +2365,7 @@ bool spline_basis_surf::breakpause(void)
 
     return Frame->stop;
 #elif defined(JAVA_OUTPUT_WINDOW)
-    bool b = optionsp->adminb_p->breakcommand();
+    return optionsp->adminb_p->breakcommand();
 #endif
 
   }
@@ -3095,5 +3093,13 @@ void spline_basis_surf::outoptionsreml()
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
+
+#ifdef __BUILDING_GNU
+int main()
+{
+	return(0);
+}
+#endif
+
 
 

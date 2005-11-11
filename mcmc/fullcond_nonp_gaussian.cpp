@@ -1,3 +1,4 @@
+#include "first.h"
 #include "fullcond_nonp_gaussian.h"
 
 namespace MCMC
@@ -43,7 +44,13 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   else
     plotstyle = drawmapgraph;
 
+#ifdef __BUILDING_GNU
+  MAP::map type15;
+  type15 = m;
+  type15.compute_reg(d,posbeg,posend,effectvalues,index);
+#else
   m.compute_reg(d,posbeg,posend,effectvalues,index);
+#endif
 
   if (m.get_errormessages().size() > 0)
     errors = m.get_errormessages();
@@ -127,7 +134,13 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   else
     plotstyle = drawmapgraph;
 
+#ifdef __BUILDING_GNU
+  MAP::map temp16;
+  temp16 = m;
+  temp16.compute_reg(d1,posbeg,posend,effectvalues,index);
+#else
   m.compute_reg(d1,posbeg,posend,effectvalues,index);
+#endif
 
   if (m.get_errormessages().size() > 0)
     errors = m.get_errormessages();
@@ -1379,7 +1392,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   grenzfall = 0;
 
   unsigned j;
-  neighbors=vector<vector<unsigned>>(nrpar);
+  neighbors=vector< vector<unsigned> >(nrpar);
   for(i=0;i<nrpar;i++)
     {
     for(j=0;j<nrpar;j++)
@@ -1488,7 +1501,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   grenzfall = 1;
 
   unsigned j;
-  neighbors=vector<vector<unsigned>>(nrpar);
+  neighbors=vector< vector<unsigned> >(nrpar);
   for(i=0;i<nrpar;i++)
     {
     for(j=0;j<nrpar;j++)

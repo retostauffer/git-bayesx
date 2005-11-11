@@ -4,14 +4,14 @@
 
 #ifdef __BUILDING_THE_DLL
 #define __EXPORT_TYPE __export
-#else
-#define __EXPORT_TYPE __import
+#elif __BUILDING_GNU
+#define __EXPORT_TYPE __declspec(dllexport)
 #endif
 
 #include<deque>
-#include<fullcond.h>
-#include<mcmc_nonpbasis.h>
-#include<bsplinemat.h>
+#include "fullcond.h"
+#include "mcmc_nonpbasis.h"
+#include "bsplinemat.h"
 
 namespace MCMC
 {

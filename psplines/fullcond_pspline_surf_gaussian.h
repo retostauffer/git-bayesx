@@ -4,21 +4,17 @@
 
 #ifdef __BUILDING_THE_DLL
 #define __EXPORT_TYPE __export
-#else
-#define __EXPORT_TYPE __import
+#elif __BUILDING_GNU
+#define __EXPORT_TYPE __declspec(dllexport)
 #endif
 
-//#include<mcmc.h>
-//#include<fullcond.h>
-//#include<distribution.h>
-//#include<mcmc_pspline.h>
-#include<sparsemat.h>
-#include<bandmat.h>
+#include "sparsemat.h"
+#include "bandmat.h"
 #include<deque>
-#include<mcmc_nonpbasis.h>
-#include<FULLCOND_pspline_gaussian.h>
-#include <spline_basis_surf.h>
-#include <fullcond_nonp_gaussian.h>
+#include "mcmc_nonpbasis.h"
+#include "FULLCOND_pspline_gaussian.h"
+#include "spline_basis_surf.h"
+#include "fullcond_nonp_gaussian.h"
 
 namespace MCMC
 {

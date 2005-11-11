@@ -1,5 +1,5 @@
 // DATE: 20.08.99
-
+#include "first.h"
 #include "mcmc_pspline_surf.h"
 
 
@@ -811,13 +811,13 @@ void FULLCOND_pspline_surf::compute_mu(const datamatrix & beta,
   unsigned matnr = begin[bs-min]+ ((a-1)/bs);
 
   if (a==1)
-    KABr_sp[matnr].substr_mult(beta,b,v,fc_random[b-a]);
+    KABr_sp[matnr].substr_mult(beta,b,v,fc_random[b-a],0);
   else if (b == nrpar)
-    KABl_sp[matnr].substr_mult(beta,0,v,fc_random[b-a]);
+    KABl_sp[matnr].substr_mult(beta,0,v,fc_random[b-a],0);
   else
     {
-    KABr_sp[matnr].substr_mult(beta,b,v,fc_random[b-a]);
-    KABl_sp[matnr].substr_mult(beta,0,v,fc_random[b-a]);
+    KABr_sp[matnr].substr_mult(beta,b,v,fc_random[b-a],0);
+    KABl_sp[matnr].substr_mult(beta,0,v,fc_random[b-a],0);
     }
   }
 
@@ -939,13 +939,21 @@ void FULLCOND_pspline_surf::update(void)
       optionsp->out("NOTE: Maximum blocksize for " + title + " set to " + ST::inttostring(maxauto) + "\n");
       optionsp->out("\n");
       }
+#ifndef __BUILDING_GNU
     blocksize = minauto + random(maxauto-minauto+1);
+#else
+    blocksize = minauto + int((maxauto-minauto+1)*rand()/(RAND_MAX + 1.0));
+#endif
     }
   else
     {
+#ifndef __BUILDING_GNU
     blocksize = min + random(max-min+1);
+#else
+    blocksize = min + int((max-min+1)*rand()/(RAND_MAX + 1.0));
+#endif
     }
-
+    
   double u;
   unsigned an = 1;
   unsigned en = blocksize;

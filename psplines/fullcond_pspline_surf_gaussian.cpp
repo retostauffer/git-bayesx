@@ -1,5 +1,8 @@
 //---------------------------------------------------------------------------
+#include "first.h"
+#if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
+#endif
 #pragma hdrstop
 
 #include "fullcond_pspline_surf_gaussian.h"
@@ -114,6 +117,9 @@ void FULLCOND_pspline_surf_gaussian::create(const datamatrix & v1, const datamat
   else if(type == mrfkr1)          //  RW1 * RW1
     {
     Ksp = Krw1(vector<double>(nrpar1dim,1.0)).kronecker(Krw1(vector<double>(nrpar1dim,1.0)));
+/*	SparseMatrix mathur;              // Rajan ???
+	mathur = Krw1(vector<double>(nrpar1dim,1.0));
+    Ksp = mathur.kronecker(mathur); */
     rankK = (nrpar1dim-1)*(nrpar1dim-1);
     bands = 1;
     }
@@ -2669,4 +2675,11 @@ double FULLCOND_pspline_surf_gaussian::compute_df(void)
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
+
+#ifdef __BUILDING_GNU
+int main()
+{
+	return(0);
+}
+#endif
 

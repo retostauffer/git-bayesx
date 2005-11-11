@@ -1,4 +1,4 @@
-
+#include "first.h"        // Hier werden die Präprozessorbedingungen für GNU Version definiert
 #include "spline_basis.h"
 
 
@@ -3540,4 +3540,10 @@ void spline_basis::outoptionsreml()
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 
+#ifdef __BUILDING_GNU
+int main()
+{
+	return(0);
+}
+#endif
 

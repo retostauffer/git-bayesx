@@ -2,8 +2,8 @@
 
 #ifdef __BUILDING_THE_DLL
 #define __EXPORT_TYPE __export
-#else
-#define __EXPORT_TYPE __import
+#elif __BUILDING_GNU
+#define __EXPORT_TYPE __declspec(dllexport)
 #endif
 
 
@@ -11,8 +11,8 @@
 
 #define MCMCnonpgaussian_INCLUDED
 
-#include<mcmc_nonpbasis.h>
-#include<statmat_penalty.h>
+#include "mcmc_nonpbasis.h"
+#include "statmat_penalty.h"
 
 namespace MCMC
 {
@@ -38,7 +38,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   bool Laplace;
 
   datamatrix delta;
-  vector<vector<unsigned>> neighbors;
+  vector< vector<unsigned> > neighbors;
 
 // For REML
 
