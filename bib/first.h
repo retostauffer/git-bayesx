@@ -1,6 +1,8 @@
 
-#if !defined (__BUILDING_THE_DLL)
-#define __BUILDING_THE_DLL
+#if !defined (__BUILDING_THE_DLL) && !defined (BORLAND_OUTPUT_WINDOW)
+
+#if !defined (__BUILDING_GNU)
+#define __BUILDING_GNU
 #endif
 
 #if !defined (JAVA_OUTPUT_WINDOW)
@@ -19,6 +21,6 @@
 #define NO_TEMPLATE_FRIENDS
 #endif
 
-
+#endif
 
 
