@@ -35,6 +35,7 @@ void graphobj::create (void)
   nolegend = simpleoption("nolegend",false);
   swapcolors = simpleoption("swapcolors",false);
   drawnames = simpleoption("drawnames",false);
+  hclcolors = simpleoption("hclcolors",false);
   replace = simpleoption("replace",false);
   pcat = simpleoption("pcat",false);
   fontsize = intoption("fontsize",12,0,100);
@@ -50,6 +51,7 @@ void graphobj::create (void)
   drawmapoptions.push_back(&nolegend);
   drawmapoptions.push_back(&swapcolors);
   drawmapoptions.push_back(&drawnames);
+  drawmapoptions.push_back(&hclcolors);
   drawmapoptions.push_back(&replace);
   drawmapoptions.push_back(&pcat);
   drawmapoptions.push_back(&fontsize);
@@ -417,9 +419,9 @@ if(drawonlyboundaries)
     o.adminp_p->set_mapinfo(&o.mapinfo);
 
     jmethodID javadrawmap = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javadrawmap",
-                                                    "(ZZZZDDSZILjava/lang/String;Ljava/lang/String;)V");
+                                                    "(ZZZZZDDSZILjava/lang/String;Ljava/lang/String;)V");
     o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javadrawmap, false, false, false, o.drawnames.getvalue(),
-                               0.0, 1.0, 0, false, o.fontsize.getvalue(),
+                               false, 0.0, 1.0, 0, false, o.fontsize.getvalue(),
                                o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()),
                                o.adminb_p->Java->NewStringUTF(o.title.getvalue().strtochar()));
 
@@ -584,9 +586,9 @@ else
       legend = true;
 
     jmethodID javadrawmap = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javadrawmap",
-                                                    "(ZZZZDDSZILjava/lang/String;Ljava/lang/String;D)V");
+                                                    "(ZZZZZDDSZILjava/lang/String;Ljava/lang/String;D)V");
     o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javadrawmap, o.color.getvalue(), legend,
-                               o.swapcolors.getvalue(), o.drawnames.getvalue(),
+                               o.swapcolors.getvalue(), o.drawnames.getvalue(), o.hclcolors.getvalue(),
                                lowerlim, upperlim, o.nrcolors.getvalue(), o.pcat.getvalue(),
                                o.fontsize.getvalue(),
                                o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()),

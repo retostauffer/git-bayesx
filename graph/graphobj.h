@@ -60,6 +60,7 @@ class __EXPORT_TYPE graphobj : public statobject
   simpleoption nolegend;
   simpleoption swapcolors;
   simpleoption drawnames;
+  simpleoption hclcolors;
   simpleoption replace;
   simpleoption pcat;
 
