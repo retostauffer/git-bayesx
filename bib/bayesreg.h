@@ -169,6 +169,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   stroption plotvar;
   simpleoption pcat;
   simpleoption drawnames;
+  simpleoption hclcolors;
 
   optionlist drawmapoptions;
 
