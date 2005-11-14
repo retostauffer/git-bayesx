@@ -1019,7 +1019,13 @@ void IWLS_pspline::update_isotonic(void)
     if(i<nrpar-1)
       oben = beta(i+1,0);
 
-    double helpold = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) ) - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
+    double helpold;
+    if(i==0)
+      helpold = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) );
+    else if (i==nrpar-1)
+      helpold = 1.0 - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
+    else
+      helpold = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) ) - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
 
     add_linearpred_multBS(beta,betaold,true);
 /*
@@ -1049,7 +1055,13 @@ void IWLS_pspline::update_isotonic(void)
     if(i<nrpar-1)
       oben = betaold(i+1,0);
 
-    double helpnew = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) ) - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
+    double helpnew;
+    if(i==0)
+      helpnew = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) );
+    else if(i==nrpar-1)
+      helpnew = 1.0 - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
+    else
+      helpnew = randnumbers::Phi2( (oben-m) * sqrt(prec_env(i,i)) ) - randnumbers::Phi2( (unten-m) * sqrt(prec_env(i,i)) );
 
     alpha = lognew + qnew - logold - qold;
 
