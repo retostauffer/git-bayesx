@@ -216,8 +216,10 @@ function(file, psname, type = "l", ...)
 "drawmap" <-
 function (map, dfile, outfile, regionvar, 
     plotvar, lowerlimit, upperlimit, nrcolors = 100, pstitle = "", 
-    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F) 
+    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F, cex.legend=0.7, h = c(130, 25), c = 100, l = c(90, 70), hcl=T) 
 {
+    hcl.available <- hcl && require("vcd", character.only=TRUE)
+
     if (!missing(outfile) && !missing(dfile)) {
         if (dfile == outfile) 
             stop("Argument \"dfile\" and argument \"outfile\" are identical")
@@ -242,7 +244,7 @@ function (map, dfile, outfile, regionvar,
     if (missing(dfile) && missing(regionvar) && missing(plotvar)) {
         if (missing(outfile)) 
             x11()
-        else postscript(outfile, horizontal = F, width = 8, height = 9.5 * 
+        else postscript(outfile, horizontal = F, width = 8, height = 8.5 * 
             ratio.xy)
         plot(xlimits, ylimits, type = "n", axes = F, col = white, 
             xlab = "", ylab = "")
@@ -267,7 +269,7 @@ function (map, dfile, outfile, regionvar,
             x11()
         }
         else {
-            postscript(outfile, horizontal = F, width = 8, height = 9.5 * 
+            postscript(outfile, horizontal = F, width = 8, height = 8 * 
                 ratio.xy)
         }
         maxim <- max(plotvar, na.rm = T)
@@ -299,24 +301,29 @@ function (map, dfile, outfile, regionvar,
         fill.colors <- fill.colors[c(-1, -length(fill.colors))]
         fill.colors <- as.vector(fill.colors, mode = "numeric")
         if (color == T) {
-            fill.colors <- (fill.colors - 1)/(3 * (nrcolors - 
-                1))
-            if (swapcolors == T) 
-                fill.colors <- 1/3 - fill.colors
-            fill.colors <- hsv(h = fill.colors)
-            legend.colors <- hsv(h = (0:(nrcolors - 1))/(3 * 
-                (nrcolors - 1)))
+            if(hcl.available) {
+                if (swapcolors == T) 
+                    h <- rev(h)
+                fill.colors <- diverge_hcl(nrcolors,h=h,c=c,l=l)[fill.colors]
+                legend.colors <- diverge_hcl(nrcolors,h=h,c=c,l=l)
+		}
+            else {
+                fill.colors <- (fill.colors-1)/(3*(nrcolors-1))
+                if (swapcolors == T) 
+                    fill.colors <- 1/3 - fill.colors
+                fill.colors <- hsv(h = fill.colors)
+                legend.colors <- hsv(h = (0:(nrcolors-1))/(3*(nrcolors-1)))
+                }
         }
         else {
-            fill.colors <- (fill.colors - 1)/(nrcolors - 1)
+            fill.colors <- (fill.colors-1)/(nrcolors-1)
             if (swapcolors == T) 
                 fill.colors <- 1 - fill.colors
             fill.colors <- grey(fill.colors)
-            legend.colors <- grey((0:(nrcolors - 1))/(nrcolors - 
-                1))
+            legend.colors <- grey((0:(nrcolors-1))/(nrcolors-1))
         }
         if (swapcolors == T) {
-            legend.colors <- legend.colors[length(legend.colors):1]
+            legend.colors <- rev(legend.colors)
         }
         plot(xlimits, ylimits, type = "n", axes = F, col = white, 
             xlab = "", ylab = "")
@@ -365,16 +372,16 @@ function (map, dfile, outfile, regionvar,
             }
             lines(c(xlo, xro, xru, xlu, xlo), c(ylo, yro, yru, 
                 ylu, ylo), col = black)
-            text(xlu + 0.5 * step, tylu, lowerlimit, cex = 0.7, 
+            text(xlu + 0.5 * step, tylu, lowerlimit, cex = cex.legend, 
                 col = black)
-            text(xru - 0.5 * step, tyru, upperlimit, cex = 0.7, 
+            text(xru - 0.5 * step, tyru, upperlimit, cex = cex.legend, 
                 col = black)
             if (lowerlimit + (upperlimit - lowerlimit)/3 < 0 && 
                 0 < upperlimit - (upperlimit - lowerlimit)/3) {
                 help <- cut(c(0, lowerlimit, upperlimit), nrcolors)
                 help <- as.vector(help, mode = "numeric")
                 text(xlu + step * (help[1] - 0.5), tylu, "0", 
-                  cex = 0.7, col = black)
+                  cex = cex.legend, col = black)
             }
         }
     }

@@ -1,9 +1,9 @@
 "drawmap" <-
 function (map, dfile, outfile, regionvar, 
     plotvar, lowerlimit, upperlimit, nrcolors = 100, pstitle = "", 
-    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F, cex.legend=0.7, h = c(260, 10), c = 110, l = c(90, 50)) 
+    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F, cex.legend=0.7, h = c(130, 25), c = 100, l = c(90, 70), hcl=T) 
 {
-    hcl.available <- require("vcd", character.only=TRUE)
+    hcl.available <- hcl && require("vcd", character.only=TRUE)
 
     if (!missing(outfile) && !missing(dfile)) {
         if (dfile == outfile) 
@@ -54,7 +54,7 @@ function (map, dfile, outfile, regionvar,
             x11()
         }
         else {
-            postscript(outfile, horizontal = F, width = 8, height = 9.5 * 
+            postscript(outfile, horizontal = F, width = 8, height = 8.5 * 
                 ratio.xy)
         }
         maxim <- max(plotvar, na.rm = T)
