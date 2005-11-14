@@ -153,6 +153,7 @@ protected boolean color;
 protected boolean legend;
 protected boolean swap;
 protected boolean drawnames;
+protected boolean hcl;
 protected String title;
 protected String outfile;
 protected double upperlimit;
@@ -1847,7 +1848,7 @@ public void JavaShowMap(boolean opt)
 	parseThread.setPriority(Thread.MIN_PRIORITY);
 	}
 
-public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4,
+public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4, boolean opt5,
                         double jlowerlimit, double jupperlimit, short jshades, boolean jpcat,
                         int jfontsize, String joutfile, String jtitle, double jtitlescale)
 	{
@@ -1867,6 +1868,7 @@ public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4,
         legend = opt2;
         swap = opt3;
         drawnames = opt4;
+	hcl = opt5;
         lowerlimit = jlowerlimit;
         upperlimit = jupperlimit;
         shades = jshades;

@@ -25,6 +25,28 @@ private BayesX b;
 
 public static final double MAXDOUBLE = 1.7976931348623157E308;
 
+public static final double WHITE_X = 95.047;
+public static final double WHITE_Y = 100.000;
+public static final double WHITE_Z = 108.883;
+public static final double WHITE_u = 0.1978398;
+public static final double WHITE_v = 0.4683363;
+
+/* Gamma-Korrektur Faktor für hcl Farben */
+
+public static final double GAMMA = 2.2;
+
+/* PI/180.0 */
+
+public static final double DEG2RAD = 0.0174532925199433;
+
+/* Default-Werte für hcl Farben */
+
+private double h1 = 260;
+private double h2 =  10;
+private double  c = 110;
+private double l1 =  90;
+private double l2 =  50;			
+
 protected short page;
 
 private double xstep;
@@ -497,41 +519,74 @@ private boolean ComputeColor(Graphics g, int i)
 
         if(b.color == true)
                 {
-                if(value < mitte)
-                        {
+		if(b.hcl)
+			{
+			double rval;
+			double[] RGB = new double[3];
+
+                        if(b.swap)
+				{
+				double help = h1;
+				h1 = h2;
+				h2 = help;
+				}
 
                         if(b.shades == 1)
-                            r = 255;
+                            rval = 0.0;
                         else
-                            r = (int)(b.shades*(value-min)/(max-min)) * 510/(b.shades-1);
+                            rval = (double)(Math.floor( (b.shades-1)*(value-min)/(max-min) ))/(b.shades-1) * 2.0 - 1.0 ;
 
-                        if(r>255)
-                                r = 255;
-                        if(r<0)
-                                r = 0;
-                        if(b.swap)
-                                g.setColor(new Color(r,255,0));
-                        else
-                                g.setColor(new Color(255,r,0));
-                        }
-                else
-                        {
+                        if(rval > 1.0)
+                                rval = 1.0;
+                        if(rval < -1.0)
+                                rval = -1.0;
 
-                        if(b.shades == 1)
-                            r = 255;
-                        else
-                            r = ( (b.shades-1) - (int)(b.shades*(value-min)/(max-min)) ) * 510/(b.shades-1);
+			if(rval > 0.0)
+				RGB = hcl2rgb(h1,c*Math.abs(rval),l1+(l2-l1)*Math.abs(rval));
+			else
+				RGB = hcl2rgb(h2,c*Math.abs(rval),l1+(l2-l1)*Math.abs(rval));
 
-                        if(r>255)
-                                r = 255;
-                        if(r<0)
-                                r = 0;
-                        if(b.swap)
-                                g.setColor(new Color(255,r,0));
-                        else
-                                g.setColor(new Color(r,255,0));
-                        }
-                }
+                        g.setColor(new Color((int)RGB[0],(int)RGB[1],(int)RGB[2]));
+
+			}
+		else
+			{
+        	        if(value < mitte)
+                	        {
+	
+        	                if(b.shades == 1)
+                	            r = 255;
+                        	else
+	                            r = (int)(b.shades*(value-min)/(max-min)) * 510/(b.shades-1);
+
+        	                if(r>255)
+                	                r = 255;
+                        	if(r<0)
+	                                	r = 0;
+	                        if(b.swap)
+        	                        g.setColor(new Color(r,255,0));
+                	        else
+                        	        g.setColor(new Color(255,r,0));
+	                        }
+        	        else
+                	        {
+	
+        	                if(b.shades == 1)
+                	            r = 255;
+                        	else
+	                            r = ( (b.shades-1) - (int)(b.shades*(value-min)/(max-min)) ) * 510/(b.shades-1);
+
+        	                if(r>255)
+                	                r = 255;
+                        	if(r<0)
+                                	r = 0;
+	                        if(b.swap)
+        	                        g.setColor(new Color(255,r,0));
+                	        else
+                        	        g.setColor(new Color(r,255,0));
+	                        }
+        	        }
+		}
         else
                 {
 
@@ -564,6 +619,7 @@ private void drawlegend(Graphics g,double height,double width,boolean centering)
 
         int r;
         int end;
+	double rval;
         double step;
 
         int offset = 0;
@@ -578,50 +634,89 @@ private void drawlegend(Graphics g,double height,double width,boolean centering)
 
         if(b.color)
                 {
-                end = (b.shades+1)/2;
-                step = width*0.3/b.shades;
+		if(b.hcl)
+			{
+			double[] RGB = new double[3];
 
-                for(int i=0;i<end;i++)
-                        {
-                        p = new Polygon();
-                        p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset));
-                        p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset+legendheight));
-                        p.addPoint((int)Math.round(xoffset + (i+1)*step), (int)Math.round(yoffset+legendheight));
-                        p.addPoint((int)Math.round(xoffset + (i+1)*step), (int)Math.round(yoffset));
-                        p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset));
+       	                if(b.swap)
+				{
+				double help = h1;
+				h1 = h2;
+				h2 = help;
+				}
 
-                        if(b.shades == 1)
-                            r = 255;
-                        else
-                            r = i*510/(b.shades-1);
+        	        step = width*0.3/b.shades;
 
-                        if(b.swap)
-                                g.setColor(new Color(r,255,0));
-                        else
-                                g.setColor(new Color(255,r,0));
+                	for(int i=0;i<b.shades;i++)
+	                        {
+        	                p = new Polygon();
+                	        p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset));
+                        	p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset+legendheight));
+	                        p.addPoint((int)Math.round(xoffset + (i+1)*step), (int)Math.round(yoffset+legendheight));
+        	                p.addPoint((int)Math.round(xoffset + (i+1)*step), (int)Math.round(yoffset));
+                	        p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset));
 
-                        g.fillPolygon(p.xpoints,p.ypoints,5);
-                        }
-                for(int i=0;i<end;i++)
-                        {
-                        p = new Polygon();
-                        p.addPoint((int)Math.round(xoffset + 0.3*width - i*step), (int)Math.round(yoffset));
-                        p.addPoint((int)Math.round(xoffset + 0.3*width - i*step), (int)Math.round(yoffset+legendheight));
-                        p.addPoint((int)Math.round(xoffset + 0.3*width - (i+1)*step), (int)Math.round(yoffset+legendheight));
-                        p.addPoint((int)Math.round(xoffset + 0.3*width - (i+1)*step), (int)Math.round(yoffset));
-                        p.addPoint((int)Math.round(xoffset + 0.3*width - i*step), (int)Math.round(yoffset));
+                	        if(b.shades == 1)
+                        	    rval = 0.0;
+	                        else
+        	                    rval = (double)(i)/(b.shades-1) * 2.0 - 1.0;
 
-                        if(b.shades == 1)
-                            r = 255;
-                        else
-                            r = i*510/(b.shades-1);
+				if(rval > 0.0)
+					RGB = hcl2rgb(h1,c*Math.abs(rval),l1+(l2-l1)*Math.abs(rval));
+				else
+					RGB = hcl2rgb(h2,c*Math.abs(rval),l1+(l2-l1)*Math.abs(rval));
 
-                        if(b.swap)
-                                g.setColor(new Color(255,r,0));
-                        else
-                                g.setColor(new Color(r,255,0));
+	                        g.setColor(new Color((int)RGB[0],(int)RGB[1],(int)RGB[2]));
+	                        g.fillPolygon(p.xpoints,p.ypoints,5);
+				}
+			}
+		else
+			{
+	                end = (b.shades+1)/2;
+        	        step = width*0.3/b.shades;
 
-                        g.fillPolygon(p.xpoints,p.ypoints,5);
+                	for(int i=0;i<end;i++)
+	                        {
+        	                p = new Polygon();
+                	        p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset));
+                        	p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset+legendheight));
+	                        p.addPoint((int)Math.round(xoffset + (i+1)*step), (int)Math.round(yoffset+legendheight));
+        	                p.addPoint((int)Math.round(xoffset + (i+1)*step), (int)Math.round(yoffset));
+                	        p.addPoint((int)Math.round(xoffset + i*step), (int)Math.round(yoffset));
+
+	                        if(b.shades == 1)
+       		                    r = 255;
+               		        else
+                       		    r = i*510/(b.shades-1);
+
+	                        if(b.swap)
+       		                        g.setColor(new Color(r,255,0));
+               		        else
+                       		        g.setColor(new Color(255,r,0));
+
+	                        g.fillPolygon(p.xpoints,p.ypoints,5);
+        	                }
+                	for(int i=0;i<end;i++)
+                        	{
+	                        p = new Polygon();
+        	                p.addPoint((int)Math.round(xoffset + 0.3*width - i*step), (int)Math.round(yoffset));
+                	        p.addPoint((int)Math.round(xoffset + 0.3*width - i*step), (int)Math.round(yoffset+legendheight));
+                        	p.addPoint((int)Math.round(xoffset + 0.3*width - (i+1)*step), (int)Math.round(yoffset+legendheight));
+	                        p.addPoint((int)Math.round(xoffset + 0.3*width - (i+1)*step), (int)Math.round(yoffset));
+        	                p.addPoint((int)Math.round(xoffset + 0.3*width - i*step), (int)Math.round(yoffset));
+
+                	        if(b.shades == 1)
+                       		    r = 255;
+	               	        else
+       		                    r = i*510/(b.shades-1);
+	
+        	                if(b.swap)
+                	       	        g.setColor(new Color(255,r,0));
+              	        	else
+       	                        	g.setColor(new Color(r,255,0));
+
+	                        g.fillPolygon(p.xpoints,p.ypoints,5);
+				}
                         }
                 }
         else
@@ -1783,6 +1878,57 @@ private double round(double d,int n)
         d = Math.round(d*x)/x;
         return d;
         }
+
+
+static double gtrans(double u)
+	{
+	if (u > 0.00304)
+	        return 1.055 * Math.pow(u, (1 / GAMMA)) - 0.055;
+	else
+        	return 12.92 * u;
+	}
+
+static double[] hcl2rgb(double h, double c, double l)
+	{
+	double L, U, V;
+	double u, v;
+	double X, Y, Z;
+	double R, G, B;
+
+    /* Step 1 : Convert to CIE-LUV */
+
+	h = DEG2RAD * h;
+	L = l;
+    	U = c * Math.cos(h);
+	V = c * Math.sin(h);
+
+    /* Step 2 : Convert to CIE-XYZ */
+
+	if (L <= 0 && U == 0 && V == 0) 
+		{
+	        X = 0; Y = 0; Z = 0;
+	    	}
+	else 
+		{
+	        Y = WHITE_Y * ((L > 7.999592) ? Math.pow((L + 16)/116, 3) : L / 903.3);
+        	u = U / (13 * L) + WHITE_u;
+	        v = V / (13 * L) + WHITE_v;
+        	X =  9.0 * Y * u / (4 * v);
+	        Z =  - X / 3 - 5 * Y + 3 * Y / v;
+		}
+
+    /* Step 4 : CIE-XYZ to sRGB */
+
+	R = 255.0 * gtrans(( 3.240479 * X - 1.537150 * Y - 0.498535 * Z) / WHITE_Y);
+	G = 255.0 * gtrans((-0.969256 * X + 1.875992 * Y + 0.041556 * Z) / WHITE_Y);
+	B = 255.0 * gtrans(( 0.055648 * X - 0.204043 * Y + 1.057311 * Z) / WHITE_Y);
+
+	double[] RGB = new double[3];
+        RGB[0] = R;
+        RGB[1] = G;
+        RGB[2] = B;
+	return RGB;
+	}
 
 
 
