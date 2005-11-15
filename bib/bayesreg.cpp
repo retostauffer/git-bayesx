@@ -531,7 +531,7 @@ void bayesreg::create(void)
   drawmapoptions.push_back(&plotvar);
   drawmapoptions.push_back(&pcat);
   drawmapoptions.push_back(&drawnames);
-  drawnapoptions.push_back(&hclcolors);
+  drawmapoptions.push_back(&hclcolors);
   drawmapoptions.push_back(&fontsize);
   drawmapoptions.push_back(&titlescale);
 
