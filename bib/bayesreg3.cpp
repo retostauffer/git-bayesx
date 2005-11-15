@@ -815,7 +815,7 @@ void drawmaprun(bayesreg & b)
     if (b.drawnames.getvalue() == true)
       ot = ot + "drawnames ";
     if (b.hclcolors.getvalue() == true)
-      ot = ot + "hclcolors ";
+      ot = ot + "hcl ";
     if (b.fontsize.changed() == true)
       ot = ot + "fontsize=" + b.fontsize.getValueAsString() + " ";
     if (b.titlescale.changed() == true)

@@ -35,7 +35,7 @@ void graphobj::create (void)
   nolegend = simpleoption("nolegend",false);
   swapcolors = simpleoption("swapcolors",false);
   drawnames = simpleoption("drawnames",false);
-  hclcolors = simpleoption("hclcolors",false);
+  hclcolors = simpleoption("hcl",false);
   replace = simpleoption("replace",false);
   pcat = simpleoption("pcat",false);
   fontsize = intoption("fontsize",12,0,100);

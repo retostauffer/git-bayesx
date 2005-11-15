@@ -41,11 +41,11 @@ public static final double DEG2RAD = 0.0174532925199433;
 
 /* Default-Werte für hcl Farben */
 
-private double h1 = 260;
-private double h2 =  10;
-private double  c = 110;
+private double h1 = 130;
+private double h2 =  25;
+private double  c = 100;
 private double l1 =  90;
-private double l2 =  50;			
+private double l2 =  70;			
 
 protected short page;
 
@@ -522,14 +522,7 @@ private boolean ComputeColor(Graphics g, int i)
 		if(b.hcl)
 			{
 			double rval;
-			double[] RGB = new double[3];
-
-                        if(b.swap)
-				{
-				double help = h1;
-				h1 = h2;
-				h2 = help;
-				}
+			int[] RGB = new int[3];
 
                         if(b.shades == 1)
                             rval = 0.0;
@@ -541,12 +534,15 @@ private boolean ComputeColor(Graphics g, int i)
                         if(rval < -1.0)
                                 rval = -1.0;
 
-			if(rval > 0.0)
+			if(b.swap)
+				rval = -rval;
+
+			if(rval < 0.0)
 				RGB = hcl2rgb(h1,c*Math.abs(rval),l1+(l2-l1)*Math.abs(rval));
 			else
 				RGB = hcl2rgb(h2,c*Math.abs(rval),l1+(l2-l1)*Math.abs(rval));
 
-                        g.setColor(new Color((int)RGB[0],(int)RGB[1],(int)RGB[2]));
+                        g.setColor(new Color(RGB[0],RGB[1],RGB[2]));
 
 			}
 		else
@@ -636,14 +632,7 @@ private void drawlegend(Graphics g,double height,double width,boolean centering)
                 {
 		if(b.hcl)
 			{
-			double[] RGB = new double[3];
-
-       	                if(b.swap)
-				{
-				double help = h1;
-				h1 = h2;
-				h2 = help;
-				}
+			int[] RGB = new int[3];
 
         	        step = width*0.3/b.shades;
 
@@ -661,12 +650,12 @@ private void drawlegend(Graphics g,double height,double width,boolean centering)
 	                        else
         	                    rval = (double)(i)/(b.shades-1) * 2.0 - 1.0;
 
-				if(rval > 0.0)
+				if(rval < 0.0)
 					RGB = hcl2rgb(h1,c*Math.abs(rval),l1+(l2-l1)*Math.abs(rval));
 				else
 					RGB = hcl2rgb(h2,c*Math.abs(rval),l1+(l2-l1)*Math.abs(rval));
 
-	                        g.setColor(new Color((int)RGB[0],(int)RGB[1],(int)RGB[2]));
+	                        g.setColor(new Color(RGB[0],RGB[1],RGB[2]));
 	                        g.fillPolygon(p.xpoints,p.ypoints,5);
 				}
 			}
@@ -1888,7 +1877,7 @@ static double gtrans(double u)
         	return 12.92 * u;
 	}
 
-static double[] hcl2rgb(double h, double c, double l)
+static int[] hcl2rgb(double h, double c, double l)
 	{
 	double L, U, V;
 	double u, v;
@@ -1923,10 +1912,25 @@ static double[] hcl2rgb(double h, double c, double l)
 	G = 255.0 * gtrans((-0.969256 * X + 1.875992 * Y + 0.041556 * Z) / WHITE_Y);
 	B = 255.0 * gtrans(( 0.055648 * X - 0.204043 * Y + 1.057311 * Z) / WHITE_Y);
 
-	double[] RGB = new double[3];
-        RGB[0] = R;
-        RGB[1] = G;
-        RGB[2] = B;
+	if(R>255.0)
+ 		R = 255.0;
+	if(R<0.0)
+		R = 0.0;
+
+	if(G>255.0)
+ 		G = 255.0;
+	if(G<0.0)
+		G = 0.0;
+
+	if(B>255.0)
+ 		B = 255.0;
+	if(B<0.0)
+		B = 0.0;
+
+	int[] RGB = new int[3];
+        RGB[0] = (int)R;
+        RGB[1] = (int)G;
+        RGB[2] = (int)B;
 	return RGB;
 	}
 

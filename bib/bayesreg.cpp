@@ -517,7 +517,7 @@ void bayesreg::create(void)
   plotvar = stroption("plotvar","pmean");
   pcat = simpleoption("pcat",false);
   drawnames = simpleoption("drawnames",false);
-  hclcolors = simpleoption("hclcolors",false);
+  hclcolors = simpleoption("hcl",false);
 
   drawmapoptions.push_back(&outfile4);
   drawmapoptions.push_back(&title2);
