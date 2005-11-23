@@ -291,6 +291,7 @@ void remlreg::create(void)
 
   leftint = stroption("leftint");
   lefttrunc = stroption("lefttrunc");
+  state = stroption("state");
 
   regressoptions.reserve(100);
 
@@ -313,6 +314,7 @@ void remlreg::create(void)
 
   regressoptions.push_back(&leftint);
   regressoptions.push_back(&lefttrunc);
+  regressoptions.push_back(&state);
 
 //------------------------------------------------------------------------------
 //-------------------------- methods[0]: remlrun -------------------------------
@@ -459,8 +461,11 @@ void remlreg::create(void)
 // -------------------------- methods[4] mremlrun ------------------------------
 //------------------------------------------------------------------------------
 
-  methods.push_back(command("mregress",&modreg,&regressoptions,&udata,required,
-			 optional,optional,optional,optional,required));
+  modregmult = modeltermmult(&termtypes);
+  methods.push_back(command("mregress",&modregmult,&regressoptions,&udata,
+                   required,optional,optional,optional,optional,required));
+//  methods.push_back(command("mregress",&modreg,&regressoptions,&udata,required,
+//			 optional,optional,optional,optional,required));
 
   functions[4] = mremlrun;
 
@@ -504,6 +509,7 @@ remlreg::remlreg(const remlreg & b) : statobject(statobject(b))
   resultsyesno = b.resultsyesno;
   leftintpos = b.leftintpos;
   lefttruncpos = b.lefttruncpos;
+  statepos = b.statepos;
   initpointers();
   }
 
@@ -521,6 +527,7 @@ const remlreg & remlreg::operator=(const remlreg & b)
   terms = b.terms;
   fcpspline = b.fcpspline;
   resultsyesno = b.resultsyesno;
+  statepos = b.statepos;
   initpointers();
   return *this;
   }
@@ -576,77 +583,115 @@ bool remlreg::create_data(datamatrix & weight)
   ST::string missingindicator;
   int wpos=-1;
 
-  modelvarnamesv = modreg.getModelVarnamesAsVector();
-  rname = modelvarnamesv[0].to_bstr();
-  wn = methods[0].get_weight_variable().to_bstr();
-
-  if (wn.length() != 0)
+  if(family.getvalue()=="multistate")
     {
-    modelvarnamesv.push_back(wn);
-    wpos = modelvarnamesv.size()-1;
-    }
-
-  ifexpression = methods[0].getexpression();
-
-  // Für Cox model: variable 'leftint' an 2. Stelle setzen
-  leftintpos=-1;
-  if(leftint.getvalue() != "")
-    {
-    modelvarnamesv.push_back(leftint.getvalue());
-    leftintpos = modelvarnamesv.size()-1;
-    }
-
-  // Für Cox model: variable 'lefttrunc' an 3. Stelle setzen
-  lefttruncpos=-1;
-  if(lefttrunc.getvalue() != "")
-    {
-    modelvarnamesv.push_back(lefttrunc.getvalue());
-    lefttruncpos = modelvarnamesv.size()-1;
-    }
-
-  // Für multinomiale Modelle: Kategorienspezifische Kovariablen extrahieren
-
-  if(family.getvalue()=="multinomialcatsp")
-    {
-    vector<ST::string> helpstring1;
-    helpstring1.push_back(modelvarnamesv[0]);
-    vector<ST::string> helpstring2;
-
-    if ((datap->allexisting(helpstring1,helpstring2)) == false)
+    modelvarnamesv = modregmult.getModelVarnamesAsVector();
+    wn = methods[4].get_weight_variable().to_bstr();
+    if (wn.length() != 0)
       {
-      outerror("ERROR: variable " + helpstring2[0] + " is not existing\n");
+      modelvarnamesv.push_back(wn);
+      wpos = modelvarnamesv.size()-1;
+      }
+    ifexpression = methods[4].getexpression();
+
+    // variable 'state' anfügen
+    statepos=-1;
+    if(state.getvalue() != "")
+      {
+      modelvarnamesv.push_back(state.getvalue());
+      statepos = modelvarnamesv.size()-1;
+      }
+    else
+      {
+      outerror("ERROR: Variable state has to be specified as a global option!\n");
       return(true);
       }
-
-    datamatrix resphelp;
-    datap->makematrix(modelvarnamesv[0],resphelp,ifexpression);
-
-    // extract categories
-    resphelp.sort(0,resphelp.rows()-1,0);
-    allcats.erase(allcats.begin(),allcats.end());
-    allcats.push_back(resphelp(0,0));
-    unsigned refpos;
-    for(i=1; i<resphelp.rows(); i++)
+    // 'lefttrunc' anfügen
+    lefttruncpos=-1;
+    if(lefttrunc.getvalue() != "")
       {
-      if(resphelp(i,0)!=resphelp(i-1,0))
-        {
-        allcats.push_back(resphelp(i,0));
-        }
+      modelvarnamesv.push_back(lefttrunc.getvalue());
+      lefttruncpos = modelvarnamesv.size()-1;
+      }
+    }
+  else
+    {
+    modelvarnamesv = modreg.getModelVarnamesAsVector();
+    rname = modelvarnamesv[0].to_bstr();
+    wn = methods[0].get_weight_variable().to_bstr();
+
+    if (wn.length() != 0)
+      {
+      modelvarnamesv.push_back(wn);
+      wpos = modelvarnamesv.size()-1;
       }
 
-    ST::string test;
-    vector<ST::string> modelvarnamesvhelp;
-    for(i=0; i<modelvarnamesv.size(); i++)
+    ifexpression = methods[0].getexpression();
+
+    // Für Cox model: variable 'leftint' an 2. Stelle setzen
+    leftintpos=-1;
+    if(leftint.getvalue() != "")
       {
-      if(modelvarnamesv[i].length()>12)
+      modelvarnamesv.push_back(leftint.getvalue());
+      leftintpos = modelvarnamesv.size()-1;
+      }
+
+    // Für Cox model: variable 'lefttrunc' an 3. Stelle setzen
+    lefttruncpos=-1;
+    if(lefttrunc.getvalue() != "")
+      {
+      modelvarnamesv.push_back(lefttrunc.getvalue());
+      lefttruncpos = modelvarnamesv.size()-1;
+      }
+
+    // Für multinomiale Modelle: Kategorienspezifische Kovariablen extrahieren
+
+    if(family.getvalue()=="multinomialcatsp")
+      {
+      vector<ST::string> helpstring1;
+      helpstring1.push_back(modelvarnamesv[0]);
+      vector<ST::string> helpstring2;
+
+      if ((datap->allexisting(helpstring1,helpstring2)) == false)
         {
-        test = modelvarnamesv[i].substr(modelvarnamesv[i].length()-12,12);
-        if(test=="_catspecific")
+        outerror("ERROR: variable " + helpstring2[0] + " is not existing\n");
+        return(true);
+        }
+
+      datamatrix resphelp;
+      datap->makematrix(modelvarnamesv[0],resphelp,ifexpression);
+
+      // extract categories
+      resphelp.sort(0,resphelp.rows()-1,0);
+      allcats.erase(allcats.begin(),allcats.end());
+      allcats.push_back(resphelp(0,0));
+      unsigned refpos;
+      for(i=1; i<resphelp.rows(); i++)
+        {
+        if(resphelp(i,0)!=resphelp(i-1,0))
           {
-          test = modelvarnamesv[i].substr(0,modelvarnamesv[i].length()-12);
-          for(j=0; j<allcats.size(); j++)
+          allcats.push_back(resphelp(i,0));
+          }
+        }
+
+      ST::string test;
+      vector<ST::string> modelvarnamesvhelp;
+      for(i=0; i<modelvarnamesv.size(); i++)
+        {
+        if(modelvarnamesv[i].length()>12)
+          {
+          test = modelvarnamesv[i].substr(modelvarnamesv[i].length()-12,12);
+          if(test=="_catspecific")
             {
-            modelvarnamesvhelp.push_back(test + ST::inttostring(allcats[j]));
+            test = modelvarnamesv[i].substr(0,modelvarnamesv[i].length()-12);
+            for(j=0; j<allcats.size(); j++)
+              {
+              modelvarnamesvhelp.push_back(test + ST::inttostring(allcats[j]));
+              }
+            }
+          else
+            {
+            modelvarnamesvhelp.push_back(modelvarnamesv[i]);
             }
           }
         else
@@ -654,12 +699,8 @@ bool remlreg::create_data(datamatrix & weight)
           modelvarnamesvhelp.push_back(modelvarnamesv[i]);
           }
         }
-      else
-        {
-        modelvarnamesvhelp.push_back(modelvarnamesv[i]);
-        }
+      modelvarnamesv = modelvarnamesvhelp;
       }
-    modelvarnamesv = modelvarnamesvhelp;
     }
 
   // testing, wether all variables specified are already existing
@@ -700,6 +741,11 @@ bool remlreg::create_data(datamatrix & weight)
       outerror("ERROR: weight not allowed for family=cox\n");
       return true;
       }
+    if(family.getvalue()=="multistate")
+      {
+      outerror("ERROR: weight not allowed for family=multistate\n");
+      return true;
+      }
 
     weight = D.getCol(wpos);
 
@@ -738,8 +784,26 @@ bool remlreg::create_data(datamatrix & weight)
 bool remlreg::create_response(datamatrix & response, datamatrix & weight)
   {
 
-  // extract response variable
-  response = D.getCol(0);
+  // extract response variable(s)
+  if(family.getvalue()=="multistate")
+    {
+    vector<unsigned> rescol  = modregmult.getresponsecol();
+    response = datamatrix(D.rows(),rescol.size());
+    unsigned j,k,c;
+    for(j=0;j<response.cols();j++)
+      {
+      c = rescol[j];
+      for(k=0; k<response.rows(); k++)
+        {
+        response(k,j) = D(k,c);
+        }
+      }
+    nrtransitions = rescol.size();
+    }
+  else
+    {
+    response = D.getCol(0);
+    }
 
   // family=binomial
   if(family.getvalue()=="binomial" ||
@@ -829,7 +893,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
 
   // check whether a baseline effect is specified if family != cox
   if(family.getvalue()!="cox" && family.getvalue()!="coxinterval" &&
-     family.getvalue()!="coxold")
+     family.getvalue()!="coxold" && family.getvalue()!="multistate")
     {
     unsigned i;
     bool baselineexisting = false;
@@ -849,7 +913,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
 
   // check whether leftint or lefttrunc are specified if family != cox
   if(family.getvalue()!="cox" && family.getvalue()!="coxinterval" &&
-     family.getvalue()!="coxold")
+     family.getvalue()!="coxold" && family.getvalue()!="multistate")
     {
     if(leftint.getvalue() != "")
       {
@@ -863,7 +927,16 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
       }
     }
 
+  // family=multistate
 
+  if(family.getvalue()!="multistate")
+    {
+    if(state.getvalue() != "")
+      {
+      outerror("ERROR: variable state can only be used with family=multistate\n");
+      return true;
+      }
+    }
   // family=multinomial / family=cumlogit / family=cumprobit
   if (family.getvalue()=="multinomial" || family.getvalue()=="multinomialcatsp")
     {
@@ -876,8 +949,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
 
   if (family.getvalue()=="multinomial" || family.getvalue()=="multinomialcatsp" ||
       family.getvalue()=="cumlogit" || family.getvalue()=="cumprobit" ||
-      family.getvalue()=="seqlogit" || family.getvalue()=="seqprobit" ||
-      family.getvalue()=="multistate")
+      family.getvalue()=="seqlogit" || family.getvalue()=="seqprobit")
     {
     // extract categories
     datamatrix resphelp=response;
@@ -944,7 +1016,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
         }
       }
 
-    if(family.getvalue()=="multinomialcatsp" || family.getvalue()=="multistate")
+    if(family.getvalue()=="multinomialcatsp")
       {
       // put reference category at last position in allcats
       int helpint = categories[refpos];//reference.getvalue();
@@ -953,7 +1025,6 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
         allcats[i] = allcats[i+1];
         }
       allcats[allcats.size()-1] = helpint;
-      nrcategories = allcats.size();
       }
 
     // define cats (categories without reference category)
@@ -3034,7 +3105,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
     {
     if ( nonp_baseline.checkvector(terms,i) == true )
       {
-      if(fcbaseline.size()>0)
+      if(family.getvalue()!="multistate" && fcbaseline.size()>0)
         {
         outerror("ERROR: More than one baseline term specified!\n");
         return true;
@@ -3112,9 +3183,13 @@ bool remlreg::create_baseline(const unsigned & collinpred)
         {
         gridpo = MCMC::equidistant;
         }
-      else
+      else if(terms[i].options[4] == "quantiles")
         {
         gridpo = MCMC::quantiles;
+        }
+      else
+        {
+        gridpo = MCMC::all;
         }
       f = (terms[i].options[5]).strtolong(h);
       nrquant = unsigned(h);
@@ -4311,56 +4386,79 @@ void mremlrun(remlreg & b)
   if(!failure)
     failure = b.create_offset(offset);
 
-// Compute model terms
+// Extract state variable
+  datamatrix state;
   if (!failure)
     {
-    for (i=0;i<b.nrcategories;i++)
+    if(b.statepos==-1)
+      {
+      b.errormessages.push_back("  Variable state has to be specified as global option!");
+      failure=true;
+      }
+    else
+      {
+      state = b.D.getCol(b.statepos);
+      }
+    }
+
+// Compute model terms
+  b.nrfullconds = vector<unsigned>(b.nrtransitions,0);
+  if (!failure)
+    {
+    for (i=0;i<b.nrtransitions;i++)
       {
       b.terms = b.termsmult[i];
+      int test = b.terms.size();
       if (!failure)
-        failure = b.create_const(0);
+        failure = b.create_const(i);
       if( !failure)
-        failure = b.create_baseline(0);
+        failure = b.create_baseline(i);
       if( !failure)
-        failure = b.create_baseline_varcoeff(0);
+        failure = b.create_baseline_varcoeff(i);
       if (!failure)
-        failure = b.create_nonprw1rw2(0);
+        failure = b.create_nonprw1rw2(i);
       if (!failure)
-        failure = b.create_nonprw1rw2_varcoef(0);
+        failure = b.create_nonprw1rw2_varcoef(i);
       if (!failure)
-        failure = b.create_pspline(0);
+        failure = b.create_pspline(i);
       if (!failure)
-       failure = b.create_nonpseason(0);
+       failure = b.create_nonpseason(i);
       if (!failure)
-        failure = b.create_nonpseason_varcoef(0);
+        failure = b.create_nonpseason_varcoef(i);
       if (!failure)
-        failure = b.create_spatial(0);
+        failure = b.create_spatial(i);
       if (!failure)
-        failure = b.create_spatial_varcoef(0);
+        failure = b.create_spatial_varcoef(i);
       if (!failure)
-         failure = b.create_geospline(0);
+         failure = b.create_geospline(i);
       if (!failure)
-        failure = b.create_geospline_varcoeff(0);
+        failure = b.create_geospline_varcoeff(i);
       if (!failure)
-        failure = b.create_varcoeffpspline(0);
+        failure = b.create_varcoeffpspline(i);
       if (!failure)
-        failure = b.create_random(0);
+        failure = b.create_random(i);
       if (!failure)
-        failure = b.create_randomslope(0);
+        failure = b.create_randomslope(i);
       if (!failure)
-        failure = b.create_interactionspspline(0);
+        failure = b.create_interactionspspline(i);
       if (!failure)
-        failure = b.create_varcoeffinteractionspspline(0);
+        failure = b.create_varcoeffinteractionspspline(i);
       if (!failure)
-        failure = b.create_kriging(0);
+        failure = b.create_kriging(i);
       if (!failure)
-        failure = b.create_kriging_1dim(0);
+        failure = b.create_kriging_1dim(i);
       if (!failure)
-        failure = b.create_kriging_varcoeff(0);
+        failure = b.create_kriging_varcoeff(i);
       if (!failure)
-        failure = b.create_geokriging(0);
+        failure = b.create_geokriging(i);
       if (!failure)
-        failure = b.create_geokriging_varcoeff(0);
+        failure = b.create_geokriging_varcoeff(i);
+
+      b.nrfullconds[i] = b.fullcond.size();
+      }
+    for(i=b.nrtransitions; i>0; i--)
+      {
+      b.nrfullconds[i] = b.nrfullconds[i] - b.nrfullconds[i-1];
       }
     }
 
@@ -4373,14 +4471,11 @@ void mremlrun(remlreg & b)
       #if defined(JAVA_OUTPUT_WINDOW)
       b.adminb_p,
       #endif
-      b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(),b.cats,weight,b.logout);
+      b.fullcond, response, b.family.getvalue(), b.outfile.getvalue(),
+      b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
+      b.maxchange.getvalue(), b.nrfullconds, weight, b.logout);
 
-      if (b.fullcond.size() == b.nrcategories)    // fixed effects only
-        failure = b.RE_MSM.estimate_glm(response,offset,weight);
-      else
-        failure = b.RE_MSM.estimate(response,offset,weight);
+      failure = b.RE_MSM.estimate(response,offset,weight,state);
       }
     }
 
@@ -4400,6 +4495,8 @@ void mremlrun(remlreg & b)
 #if defined(BORLAND_OUTPUT_WINDOW)
 #pragma package(smart_init)
 #endif
+
+
 
 
 

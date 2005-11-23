@@ -35,7 +35,7 @@ baseline_reml::baseline_reml(MCMCoptions * o,
     for(i=0;i<tvalues.rows();i++)
       tvalues(i,0) = i*tstep;
     }
-  else
+  else if(gridpos == MCMC::quantiles)
     {
     tgrid = nrq*nrb;
     tvalues = datamatrix(tgrid+1,1);
@@ -60,6 +60,16 @@ baseline_reml::baseline_reml(MCMCoptions * o,
         }
       }
     tvalues(tgrid,0) = tmax;
+    }
+  else
+    {
+    make_index(d);
+    vector<int>::iterator freqwork = freqoutput.begin();
+    int * workindex = index.getV();
+    tvalues = datamatrix(nrdiffobs,1,0);
+    for(j=0;j<d.rows();j++,freqwork++,workindex++)
+      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+        tvalues(*freqwork,0) = d(*workindex,0);
     }
 
   tsteps = datamatrix(tvalues.rows()-1,1,0);
@@ -359,11 +369,15 @@ void baseline_reml::outoptionsreml()
       optionsp->out("  Grid choice for numerical integration: equidistant");
       optionsp->out("  Number of grid points: " + ST::inttostring(tgrid) +"\n");
       }
-    else
+    else if(gridpos==MCMC::quantiles)
       {
       optionsp->out("  Grid choice for numerical integration: quantiles");
       optionsp->out("  Number of quantiles: " + ST::inttostring(nrquant) +"\n");
       optionsp->out("  Number of points between quantiles: " + ST::inttostring(nrbetween) +"\n");
+      }
+    else
+      {
+      optionsp->out("  Grid choice for numerical integration: all");
       }
     }
   optionsp->out("\n");

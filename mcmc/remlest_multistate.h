@@ -12,10 +12,10 @@
 
 
 //------------------------------------------------------------------------------
-//------------------------------ CLASS: remlest --------------------------------
+//------------------------ CLASS: remlest_multistate ---------------------------
 //------------------------------------------------------------------------------
 
-class remlest_multistate
+/*class remlest_multistate
   {
 
 //------------------------------------------------------------------------------
@@ -41,12 +41,18 @@ class remlest_multistate
   double eps;
   double maxchange;
 
-  vector< statmatrix<double> > X;                         // fixed effects
-  vector< statmatrix<double> > Z;                         // random effects
+  unsigned nrtransitions;
 
-  vector< vector<unsigned> > xcut;                        // partition of X
-  vector< vector<unsigned> > zcut;                        // partition of Z
+  statmatrix<double> X;                         // fixed effects
+  statmatrix<double> Z;                         // random effects
 
+  vector<unsigned> xcut;                        // partition of X
+  vector<unsigned> zcut;                        // partition of Z
+  vector<unsigned> xcuttrans;            // partition of X corresponding to different transitions
+  vector<unsigned> zcuttrans;            // partition of Z corresponding to different transitions
+
+  statmatrix<double> beta;                          // regression coefficients
+  statmatrix<double> theta;                         // variance parameters
 
   public:
 
@@ -68,7 +74,7 @@ class remlest_multistate
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const double & maxch, const datamatrix & categories,
+          const double & maxch, const vector<unsigned> & nrfullconds,
           const datamatrix & weight, ostream * lo=&cout);
 
 //------------------------------------------------------------------------------
@@ -81,13 +87,6 @@ class remlest_multistate
   //       returns true if an error or user break occured
 
   bool estimate(const datamatrix resp, const datamatrix & offset,
-                const datamatrix & weight);
-
-  // Function: estimate_glm
-  // Task: Perform REML-estimation of multi state models if only fixed effects
-  //       are specified
-
-  bool estimate_glm(const datamatrix resp, const datamatrix & offset,
                 const datamatrix & weight);
 
 
@@ -122,7 +121,7 @@ class remlest_multistate
                      const bool & dispers);
 
   bool check_pause();
-  
+
   // FUNCTION: out
   // TASK: writes results to outputstream or
   //       in Output window if BORLAND_OUTPUT_WINDOW is defined
@@ -132,7 +131,7 @@ class remlest_multistate
 
   void outerror(const ST::string & s);
 
-  };
+  };*/
 
 #endif
 

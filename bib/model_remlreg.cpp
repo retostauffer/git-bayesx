@@ -723,6 +723,7 @@ term_baseline_remlreg::term_baseline_remlreg(void)
   vector<ST::string> gridchoices;
   gridchoices.push_back("equidistant");
   gridchoices.push_back("quantiles");
+  gridchoices.push_back("all");
   gridchoice = stroption("gridchoice",gridchoices,"quantiles");
   numberquantiles = intoption("nrquantiles",60,5,1000);
   numberbetween = intoption("nrbetween",5,1,100);

@@ -40,7 +40,7 @@ enum fieldtype {
                 };
 
 
-enum knotpos {equidistant,quantiles};
+enum knotpos {equidistant,quantiles,all};
 enum model {additiv,varcoeff};
 enum cmode {center_beta,center_spline,center_linpred};
 enum rate {alpha_10=10,alpha_30=30,alpha_50=50,alpha_60=60,alpha_70=70,alpha_80=80};
@@ -78,7 +78,7 @@ class __EXPORT_TYPE FULLCOND_nonp_basis : public FULLCOND
 
   double sigma2;                     // Varianze parameter /tau^2 in the paper
 
-  bool polex; 
+  bool polex;
 
   ST::string pathresults;
 

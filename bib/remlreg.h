@@ -21,7 +21,7 @@
 #include<remlest_multi.h>
 #include<remlest_multi2.h>
 #include<remlest_multi3.h>
-#include<remlest_multistate.h>
+//#include<remlest_multistate.h>
 #include<model_remlreg.h>
 
 #include<mcmc.h>
@@ -213,6 +213,9 @@ class __EXPORT_TYPE remlreg : public statobject
   int leftintpos;                       // Positionen der Variablen in der
   int lefttruncpos;                     // Datenmatrix
 
+  stroption state;                      // multistate: aktueller Zustand
+  int statepos;                         // Position in der Datenmatrix
+
   optionlist regressoptions;
 
   // end: OPTIONS for method regress
@@ -234,7 +237,8 @@ class __EXPORT_TYPE remlreg : public statobject
   modeltermmult modregmult;
   vector < vector <term> > termsmult;
 
-  unsigned nrcategories;
+  unsigned nrtransitions;             // no. of possible transitions 
+  vector<unsigned> nrfullconds;       // no. of fullconds per transition
 
 //------------------------------------------------------------------------------
 //----------------------------- Model terms ------------------------------------
