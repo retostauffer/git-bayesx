@@ -1485,6 +1485,14 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
         }
       }
 
+/*    ofstream out1("c:\\temp\\X.raw");
+    X.prettyPrint(out1);
+    out1.close();
+    ofstream out2("c:\\temp\\Z.raw");
+    Z.prettyPrint(out2);
+    out2.close();
+*/
+
     beta=statmatrix<double>(X.cols()+Z.cols(),1,0);
     theta=statmatrix<double>(zcut.size()-1,1,0);
 
@@ -1662,8 +1670,8 @@ for(i=0; i<tr_pos.size(); i++)
     out3.close();
     ofstream out4("c:\\temp\\tr_pos.raw");
     help4.prettyPrint(out4);
-    out4.close();*/
-
+    out4.close();
+*/
 
 // Matrices and variables for baseline effects
   datamatrix tsteps;
@@ -1675,54 +1683,54 @@ for(i=0; i<tr_pos.size(); i++)
   datamatrix interactvar(nrobs,1,0);
   statmatrix<int> index(nrobs,1,0);
   i=0;
-  while(!fullcond[i]->is_baseline())
+  while(isbaseline[i]!=1)
     {
     i++;
     }
   fullcond[i]->initialize_baseline(0,t_X,t_Z,tstart,tend,ttrunc,interactvar,tsteps,index);
 
-/*datamatrix help1(tstart.size(),1,0);
-datamatrix help2(tend.size(),1,0);
-datamatrix help3(ttrunc.size(),1,0);
+/*datamatrix help5(tstart.size(),1,0);
+datamatrix help6(tend.size(),1,0);
+datamatrix help7(ttrunc.size(),1,0);
 for(i=0; i<tstart.size(); i++)
   {
-  help1(i,0) = tstart[i];
+  help5(i,0) = tstart[i];
   }
 for(i=0; i<tend.size(); i++)
   {
-  help2(i,0) = tend[i];
+  help6(i,0) = tend[i];
   }
 for(i=0; i<ttrunc.size(); i++)
   {
-  help3(i,0) = ttrunc[i];
+  help7(i,0) = ttrunc[i];
   }
 
-    ofstream out1("c:\\temp\\tstart.raw");
-    help1.prettyPrint(out1);
-    out1.close();
-    ofstream out2("c:\\temp\\tend.raw");
-    help2.prettyPrint(out2);
-    out2.close();
-    ofstream out3("c:\\temp\\ttrunc.raw");
-    help3.prettyPrint(out3);
-    out3.close();*/
+    ofstream out5("c:\\temp\\tstart.raw");
+    help5.prettyPrint(out5);
+    out5.close();
+    ofstream out6("c:\\temp\\tend.raw");
+    help6.prettyPrint(out6);
+    out6.close();
+    ofstream out7("c:\\temp\\ttrunc.raw");
+    help7.prettyPrint(out7);
+    out7.close();
 
-/*    ofstream out1("c:\\temp\\tsteps.raw");
-    tsteps.prettyPrint(out1);
-    out1.close();
-    ofstream out2("c:\\temp\\t_X.raw");
-    t_X.prettyPrint(out2);
-    out2.close();
-    ofstream out3("c:\\temp\\t_Z.raw");
-    t_Z.prettyPrint(out3);
-    out3.close();
-    ofstream out4("c:\\temp\\interactvar.raw");
-    interactvar.prettyPrint(out4);
-    out4.close();
-    ofstream out5("c:\\temp\\index.raw");
-    index.prettyPrint(out5);
-    out5.close();*/
-
+    ofstream out8("c:\\temp\\tsteps.raw");
+    tsteps.prettyPrint(out8);
+    out8.close();
+    ofstream out9("c:\\temp\\t_X.raw");
+    t_X.prettyPrint(out9);
+    out9.close();
+    ofstream out10("c:\\temp\\t_Z.raw");
+    t_Z.prettyPrint(out10);
+    out10.close();
+    ofstream out11("c:\\temp\\interactvar.raw");
+    interactvar.prettyPrint(out11);
+    out11.close();
+    ofstream out12("c:\\temp\\index.raw");
+    index.prettyPrint(out12);
+    out12.close();
+*/
 
   // Baseline-HR, linear predictor
   datamatrix basef(t_X.rows(),nrtransitions,0);
@@ -1778,22 +1786,52 @@ for(i=0; i<ttrunc.size(); i++)
       }
     }
 
+// check for incorrect times
+
+  for(i=0; i<nrobs; i++)
+    {
+    if(resp(i,0)==1 && tstart[i] < tend[i])
+      {
+      outerror("ERROR: observation "+ST::inttostring(i+1)+" has censoring indicator 1\n");
+      outerror("       and left interval time smaller than right interval time\n");
+      return true;
+      }
+    if(ttrunc[i] > tend[i])
+      {
+      outerror("ERROR: left-truncation time larger then observed survival time\n");
+      outerror("       for observation "+ST::inttostring(i+1)+"\n");
+      return true;
+      }
+    if(ttrunc[i] > tstart[i])
+      {
+      outerror("ERROR: left-truncation time larger then left interval time\n");
+      outerror("       for observation "+ST::inttostring(i+1)+"\n");
+      return true;
+      }
+   if(tstart[i]>tend[i])
+       {
+      outerror("ERROR: left interval time larger then right interval time");
+      outerror("       for observation "+ST::inttostring(i+1)+"\n");
+      return true;
+      }
+    }
+
   // Transform smoothing paramater starting values to variances
   for(i=0; i<theta.rows(); i++)
     {
     theta(i,0)=1/theta(i,0);
     }
 
-/*    ofstream out1("c:\\temp\\transition.raw");
-    transition.prettyPrint(out1);
-    out1.close();
-    ofstream out2("c:\\temp\\riskset.raw");
-    riskset.prettyPrint(out2);
-    out2.close();
-    ofstream out3("c:\\temp\\theta.raw");
-    theta.prettyPrint(out3);
-    out3.close();
-    */
+/*    ofstream out13("c:\\temp\\transition.raw");
+    transition.prettyPrint(out13);
+    out13.close();
+    ofstream out14("c:\\temp\\riskset.raw");
+    riskset.prettyPrint(out14);
+    out14.close();
+    ofstream out15("c:\\temp\\theta.raw");
+    theta.prettyPrint(out15);
+    out15.close();
+*/
 
   // Startwert für beta0 ist der ML-Schätzer bei konstanter Rate + Poisson-Verteilung
   j=k=0;
@@ -1801,16 +1839,16 @@ for(i=0; i<ttrunc.size(); i++)
     {
     if(fullcond[i]->get_dimZ()==0)
       {
-      beta(j,0) = log(resp.sum(k)/t_X(t_X.rows()-1,1));
+      beta(j,0) = log(10/t_X(t_X.rows()-1,1));
       k++;
       }
     j += fullcond[i]->get_dimX();
     }
 
-/*    ofstream out3("c:\\temp\\beta.raw");
-    beta.prettyPrint(out3);
-    out3.close();
-    */
+/*    ofstream out16("c:\\temp\\beta.raw");
+    beta.prettyPrint(out16);
+    out16.close();
+*/
 
   while(test==true)
     {
@@ -1829,9 +1867,9 @@ for(i=0; i<ttrunc.size(); i++)
       }
 
 /*
-    ofstream out3("c:\\temp\\Qinv.raw");
-    Qinv.prettyPrint(out3);
-    out3.close();
+    ofstream out17("c:\\temp\\Qinv.raw");
+    Qinv.prettyPrint(out17);
+    out17.close();
 */
 
     // compute basef
@@ -1859,9 +1897,9 @@ for(i=0; i<ttrunc.size(); i++)
       }
 
 /*
-    ofstream out3("c:\\temp\\basef.raw");
-    basef.prettyPrint(out3);
-    out3.close();
+    ofstream out18("c:\\temp\\basef.raw");
+    basef.prettyPrint(out18);
+    out18.close();
 */
 
     // compute baseline & cumulative baseline
@@ -1886,12 +1924,12 @@ for(i=0; i<ttrunc.size(); i++)
       }
 
 /*
-    ofstream out4("c:\\temp\\baseline.raw");
-    baseline.prettyPrint(out4);
-    out4.close();
-    ofstream out5("c:\\temp\\cumbaseline.raw");
-    cumbaseline.prettyPrint(out5);
-    out5.close();
+    ofstream out19("c:\\temp\\baseline.raw");
+    baseline.prettyPrint(out19);
+    out19.close();
+    ofstream out20("c:\\temp\\cumbaseline.raw");
+    cumbaseline.prettyPrint(out20);
+    out20.close();
 */
 
     // compute eta, mult. hazard, ...
@@ -1924,23 +1962,25 @@ for(i=0; i<ttrunc.size(); i++)
         }
       }
 
-    ofstream out4("c:\\temp\\baseline_eta.raw");
-    baseline_eta.prettyPrint(out4);
-    out4.close();
-    ofstream out5("c:\\temp\\eta.raw");
-    eta.prettyPrint(out5);
-    out5.close();
-    ofstream out6("c:\\temp\\mult_eta.raw");
-    mult_eta.prettyPrint(out6);
-    out6.close();
-    ofstream out7("c:\\temp\\mult_hazard.raw");
-    mult_hazard.prettyPrint(out7);
-    out7.close();
+/*    ofstream out21("c:\\temp\\baseline_eta.raw");
+    baseline_eta.prettyPrint(out21);
+    out21.close();
+    ofstream out22("c:\\temp\\eta.raw");
+    eta.prettyPrint(out22);
+    out22.close();
+    ofstream out23("c:\\temp\\mult_eta.raw");
+    mult_eta.prettyPrint(out23);
+    out23.close();
+    ofstream out24("c:\\temp\\mult_hazard.raw");
+    mult_hazard.prettyPrint(out24);
+    out24.close();
+*/
 
-    // Score-function for beta
+  // Score-function for beta
 
     //clear H1-matrix
     H1 = datamatrix(H1.rows(),1,0);
+
     // X
 
     for(j=0; j<X.cols(); j++)
@@ -1956,16 +1996,34 @@ for(i=0; i<ttrunc.size(); i++)
           }
         helpmat(t_X.rows()-1,0) = former;
 
+/*    ofstream out29("c:\\temp\\Dmat.raw");
+    helpmat.prettyPrint(out29);
+    out29.close();*/
+
         for(i=0; i<nrobs; i++)
           {
-          H1(j,0) += resp(i,tr_pos[j])*X(i,j) - riskset(i,tr_pos[j]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * mult_hazard(i,tr_pos[j]);
+          if(ttrunc[i]>0)
+            {
+            H1(j,0) += resp(i,tr_pos[j])*X(i,j) - riskset(i,tr_pos[j]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * mult_hazard(i,tr_pos[j]);
+            }
+          else
+            {
+            H1(j,0) += resp(i,tr_pos[j])*X(i,j) - riskset(i,tr_pos[j]) * helpmat(tend[i]-1,0) * mult_hazard(i,tr_pos[j]);
+            }
           }
         }
       else
         {
         for(i=0; i<nrobs; i++)
           {
-          H1(j,0) += resp(i,tr_pos[j])*X(i,j) - riskset(i,tr_pos[j]) * (cumbaseline(tend[i],tr_pos[j])-cumbaseline(ttrunc[i],tr_pos[j])) * X(i,j) * mult_hazard(i,tr_pos[j]);
+          if(ttrunc[i]>0)
+            {
+            H1(j,0) += resp(i,tr_pos[j])*X(i,j) - riskset(i,tr_pos[j]) * (cumbaseline(tend[i]-1,tr_pos[j])-cumbaseline(ttrunc[i]-1,tr_pos[j])) * X(i,j) * mult_hazard(i,tr_pos[j]);
+            }
+          else
+            {
+            H1(j,0) += resp(i,tr_pos[j])*X(i,j) - riskset(i,tr_pos[j]) * cumbaseline(tend[i]-1,tr_pos[j]) * X(i,j) * mult_hazard(i,tr_pos[j]);
+            }
           }
         }
       }
@@ -1978,25 +2036,68 @@ for(i=0; i<ttrunc.size(); i++)
         {
         helpmat = datamatrix(t_Z.rows(),1,0);
         former=0;
-        for(i=0; i<t_X.rows()-1; i++)
+        for(i=0; i<t_Z.rows()-1; i++)
           {
           helpmat(i,0) = former + 0.5*tsteps(i,0)*(t_Z(i,dm_pos[xcols+j])*baseline(i,tr_pos[xcols+j])+t_Z(i+1,dm_pos[xcols+j])*baseline(i+1,tr_pos[xcols+j]));
           former=helpmat(i,0);
           }
         helpmat(t_Z.rows()-1,0) = former;
 
+/*
+  if(j==0)
+    {
+    ofstream out28("c:\\temp\\Dmat.raw");
+    helpmat.prettyPrint(out28);
+    out28.close();
+    datamatrix testmat(nrobs,1,0);
+    for(i=0; i<nrobs; i++)
+      {
+      testmat(i,0) = resp(i,0)*Z(i,j) - helpmat(tend[i]-1,0) * mult_hazard(i,0);
+      }
+    ofstream out33("c:\\temp\\testmat.raw");
+    testmat.prettyPrint(out33);
+    out33.close();
+    }
+  else
+    {
+    }
+*/
+
         for(i=0; i<nrobs; i++)
           {
-          H1(xcols+j,0) += resp(i,tr_pos[xcols+j])*Z(i,j) - riskset(i,tr_pos[xcols+j]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * mult_hazard(i,tr_pos[xcols+j]);
+          if(ttrunc[i]>0)
+            {
+            H1(xcols+j,0) += resp(i,tr_pos[xcols+j])*Z(i,j) - riskset(i,tr_pos[xcols+j]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * mult_hazard(i,tr_pos[xcols+j]);
+            }
+          else
+            {
+            H1(xcols+j,0) += resp(i,tr_pos[xcols+j])*Z(i,j) - riskset(i,tr_pos[xcols+j]) * helpmat(tend[i]-1,0) * mult_hazard(i,tr_pos[xcols+j]);
+//            H1(xcols+j,0) += resp(i,0)*Z(i,j) - helpmat(tend[i]-1,0) * mult_hazard(i,0);
+//            H1(xcols+j,0) -= riskset(i,tr_pos[xcols+j]) * helpmat(tend[i]-1,0) * mult_hazard(i,tr_pos[xcols+j]);
+            }
           }
         }
       else
         {
         for(i=0; i<nrobs; i++)
           {
-          H1(xcols+j,0) += resp(i,tr_pos[xcols+j])*Z(i,j) - riskset(i,tr_pos[xcols+j]) * (cumbaseline(tend[i],tr_pos[xcols+j])-cumbaseline(ttrunc[i],tr_pos[xcols+j])) * Z(i,j) * mult_hazard(i,tr_pos[xcols+j]);
+          if(ttrunc[i]>0)
+            {
+            H1(xcols+j,0) += resp(i,tr_pos[xcols+j])*Z(i,j) - riskset(i,tr_pos[xcols+j]) * (cumbaseline(tend[i]-1,tr_pos[xcols+j])-cumbaseline(ttrunc[i]-1,tr_pos[xcols+j])) * Z(i,j) * mult_hazard(i,tr_pos[xcols+j]);
+            }
+          else
+            {
+            H1(xcols+j,0) += resp(i,tr_pos[xcols+j])*Z(i,j) - riskset(i,tr_pos[xcols+j]) * cumbaseline(tend[i]-1,tr_pos[xcols+j]) * Z(i,j) * mult_hazard(i,tr_pos[xcols+j]);
+//            H1(xcols+j,0) += resp(i,0)*Z(i,j) - cumbaseline(tend[i]-1,0) * Z(i,j) * mult_hazard(i,0);
+//            H1(xcols+j,0) -= riskset(i,tr_pos[xcols+j]) * cumbaseline(tend[i]-1,tr_pos[xcols+j]) * Z(i,j) * mult_hazard(i,tr_pos[xcols+j]);
+            }
           }
         }
+      }
+
+    for(j=0; j<zcols;j++)
+      {
+      H1(xcols+j,0) -= Qinv(j,0)*beta(xcols+j,0);
       }
 
   // Fisher-Info for beta
@@ -2025,7 +2126,14 @@ for(i=0; i<ttrunc.size(); i++)
 
             for(i=0; i<nrobs; i++)
               {
-              H(j,k) += riskset(i,tr_pos[j]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * mult_hazard(i,tr_pos[j]);
+              if(ttrunc[i]>0)
+                {
+                H(j,k) += riskset(i,tr_pos[j]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * mult_hazard(i,tr_pos[j]);
+                }
+              else
+                {
+                H(j,k) += riskset(i,tr_pos[j]) * helpmat(tend[i]-1,0) * mult_hazard(i,tr_pos[j]);
+                }
               }
             }
           else if(isbaselinebeta[j]==1 && isbaselinebeta[k]==0)
@@ -2041,7 +2149,14 @@ for(i=0; i<ttrunc.size(); i++)
 
             for(i=0; i<nrobs; i++)
               {
-              H(j,k) += riskset(i,tr_pos[j]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * X(i,k) * mult_hazard(i,tr_pos[j]);
+              if(ttrunc[i]>0)
+                {
+                H(j,k) += riskset(i,tr_pos[j]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * X(i,k) * mult_hazard(i,tr_pos[j]);
+                }
+              else
+                {
+                H(j,k) += riskset(i,tr_pos[j]) * helpmat(tend[i]-1,0) * X(i,k) * mult_hazard(i,tr_pos[j]);
+                }
               }
             }
           else if(isbaselinebeta[j]==0 && isbaselinebeta[k]==1)
@@ -2057,14 +2172,28 @@ for(i=0; i<ttrunc.size(); i++)
 
             for(i=0; i<nrobs; i++)
               {
-              H(j,k) += riskset(i,tr_pos[j]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * X(i,j) * mult_hazard(i,tr_pos[j]);
+              if(ttrunc[i]>0)
+                {
+                H(j,k) += riskset(i,tr_pos[j]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * X(i,j) * mult_hazard(i,tr_pos[j]);
+                }
+              else
+                {
+                H(j,k) += riskset(i,tr_pos[j]) * helpmat(tend[i]-1,0) * X(i,j) * mult_hazard(i,tr_pos[j]);
+                }
               }
             }
           else if(isbaselinebeta[j]==0 && isbaselinebeta[k]==0)
             {
             for(i=0; i<nrobs; i++)
               {
-              H(j,k) += riskset(i,tr_pos[j]) * (cumbaseline(tend[i],tr_pos[j])-cumbaseline(ttrunc[i],tr_pos[j])) * X(i,j)*X(i,k) * mult_hazard(i,tr_pos[j]);
+              if(ttrunc[i]>0)
+                {
+                H(j,k) += riskset(i,tr_pos[j]) * (cumbaseline(tend[i]-1,tr_pos[j])-cumbaseline(ttrunc[i]-1,tr_pos[j])) * X(i,j)*X(i,k) * mult_hazard(i,tr_pos[j]);
+                }
+              else
+                {
+                H(j,k) += riskset(i,tr_pos[j]) * cumbaseline(tend[i]-1,tr_pos[j]) * X(i,j)*X(i,k) * mult_hazard(i,tr_pos[j]);
+                }
               }
             }
           H(k,j) = H(j,k);
@@ -2092,7 +2221,14 @@ for(i=0; i<ttrunc.size(); i++)
 
             for(i=0; i<nrobs; i++)
               {
-              H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+j]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * mult_hazard(i,tr_pos[xcols+j]);
+              if(ttrunc[i]>0)
+                {
+                H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+j]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * mult_hazard(i,tr_pos[xcols+j]);
+                }
+              else
+                {
+                H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+j]) * helpmat(tend[i]-1,0) * mult_hazard(i,tr_pos[xcols+j]);
+                }
               }
             }
           else if(isbaselinebeta[xcols+j]==0 && isbaselinebeta[xcols+k]==1)
@@ -2108,7 +2244,14 @@ for(i=0; i<ttrunc.size(); i++)
 
             for(i=0; i<nrobs; i++)
               {
-              H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+k]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * Z(i,j) * mult_hazard(i,tr_pos[xcols+k]);
+              if(ttrunc[i]>0)
+                {
+                H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+k]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * Z(i,j) * mult_hazard(i,tr_pos[xcols+k]);
+                }
+              else
+                {
+                H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+k]) * helpmat(tend[i]-1,0) * Z(i,j) * mult_hazard(i,tr_pos[xcols+k]);
+                }
               }
             }
           else if(isbaselinebeta[xcols+j]==1 && isbaselinebeta[xcols+k]==0)
@@ -2124,14 +2267,28 @@ for(i=0; i<ttrunc.size(); i++)
 
             for(i=0; i<nrobs; i++)
               {
-              H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+j]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * Z(i,k) * mult_hazard(i,tr_pos[xcols+j]);
+              if(ttrunc[i]>0)
+                {
+                H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+j]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * Z(i,k) * mult_hazard(i,tr_pos[xcols+j]);
+                }
+              else
+                {
+                H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+j]) * helpmat(tend[i]-1,0) * Z(i,k) * mult_hazard(i,tr_pos[xcols+j]);
+                }
               }
             }
           else if(isbaselinebeta[xcols+j]==0 && isbaselinebeta[xcols+k]==0)
             {
             for(i=0; i<nrobs; i++)
               {
-              H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+j]) * (cumbaseline(tend[i],tr_pos[xcols+j])-cumbaseline(ttrunc[i],tr_pos[xcols+j])) * Z(i,j)*Z(i,k) * mult_hazard(i,tr_pos[xcols+j]);
+              if(ttrunc[i]>0)
+                {
+                H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+j]) * (cumbaseline(tend[i]-1,tr_pos[xcols+j])-cumbaseline(ttrunc[i]-1,tr_pos[xcols+j])) * Z(i,j)*Z(i,k) * mult_hazard(i,tr_pos[xcols+j]);
+                }
+              else
+                {
+                H(xcols+j,xcols+k) += riskset(i,tr_pos[xcols+j]) * cumbaseline(tend[i]-1,tr_pos[xcols+j]) * Z(i,j)*Z(i,k) * mult_hazard(i,tr_pos[xcols+j]);
+                }
               }
             }
           }
@@ -2159,7 +2316,14 @@ for(i=0; i<ttrunc.size(); i++)
 
             for(i=0; i<nrobs; i++)
               {
-              H(j,xcols+k) += riskset(i,tr_pos[j]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * mult_hazard(i,tr_pos[j]);
+              if(ttrunc[i]>0)
+                {
+                H(j,xcols+k) += riskset(i,tr_pos[j]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * mult_hazard(i,tr_pos[j]);
+                }
+              else
+                {
+                H(j,xcols+k) += riskset(i,tr_pos[j]) * helpmat(tend[i]-1,0) * mult_hazard(i,tr_pos[j]);
+                }
               }
             }
           else if(isbaselinebeta[j]==0 && isbaselinebeta[xcols+k]==1)
@@ -2175,7 +2339,14 @@ for(i=0; i<ttrunc.size(); i++)
 
             for(i=0; i<nrobs; i++)
               {
-              H(j,xcols+k) += riskset(i,tr_pos[j]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * X(i,j) * mult_hazard(i,tr_pos[j]);
+              if(ttrunc[i]>0)
+                {
+                H(j,xcols+k) += riskset(i,tr_pos[j]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * X(i,j) * mult_hazard(i,tr_pos[j]);
+                }
+              else
+                {
+                H(j,xcols+k) += riskset(i,tr_pos[j]) * helpmat(tend[i]-1,0) * X(i,j) * mult_hazard(i,tr_pos[j]);
+                }
               }
             }
           else if(isbaselinebeta[j]==1 && isbaselinebeta[xcols+k]==0)
@@ -2191,14 +2362,28 @@ for(i=0; i<ttrunc.size(); i++)
 
             for(i=0; i<nrobs; i++)
               {
-              H(j,xcols+k) += riskset(i,tr_pos[j]) * (helpmat(tend[i],0)-helpmat(ttrunc[i],0)) * Z(i,k) * mult_hazard(i,tr_pos[j]);
+              if(ttrunc[i]>0)
+                {
+                H(j,xcols+k) += riskset(i,tr_pos[j]) * (helpmat(tend[i]-1,0)-helpmat(ttrunc[i]-1,0)) * Z(i,k) * mult_hazard(i,tr_pos[j]);
+                }
+              else
+                {
+                H(j,xcols+k) += riskset(i,tr_pos[j]) * helpmat(tend[i]-1,0) * Z(i,k) * mult_hazard(i,tr_pos[j]);
+                }
               }
             }
           else if(isbaselinebeta[j]==0 && isbaselinebeta[xcols+k]==0)
             {
             for(i=0; i<nrobs; i++)
               {
-              H(j,xcols+k) += riskset(i,tr_pos[j]) * (cumbaseline(tend[i],tr_pos[j])-cumbaseline(ttrunc[i],tr_pos[j])) * X(i,j)*Z(i,k) * mult_hazard(i,tr_pos[j]);
+              if(ttrunc[i]>0)
+                {
+                H(j,xcols+k) += riskset(i,tr_pos[j]) * (cumbaseline(tend[i]-1,tr_pos[j])-cumbaseline(ttrunc[i]-1,tr_pos[j])) * X(i,j)*Z(i,k) * mult_hazard(i,tr_pos[j]);
+                }
+              else
+                {
+                H(j,xcols+k) += riskset(i,tr_pos[j]) * cumbaseline(tend[i]-1,tr_pos[j]) * X(i,j)*Z(i,k) * mult_hazard(i,tr_pos[j]);
+                }
               }
             }
           }
@@ -2208,13 +2393,12 @@ for(i=0; i<ttrunc.size(); i++)
 
     H.addtodiag(Qinv,xcols,beta.rows());
 
-    ofstream out1("c:\\temp\\H.raw");
-    H.prettyPrint(out1);
-    out1.close();
-    ofstream out2("c:\\temp\\H1.raw");
-    H1.prettyPrint(out2);
-    out2.close();
-
+/*    ofstream out25("c:\\temp\\H.raw");
+    H.prettyPrint(out25);
+    out25.close();
+    ofstream out26("c:\\temp\\H1.raw");
+    H1.prettyPrint(out26);
+    out26.close();*/
 
     // Fisher-scoring für beta
     beta = betaold + H.solve(H1);
@@ -2226,7 +2410,7 @@ for(i=0; i<ttrunc.size(); i++)
     Hinv=H.inverse();
 
     // transform theta
-/*    for(i=0; i<theta.rows(); i++)
+    for(i=0; i<theta.rows(); i++)
       {
       thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
       theta(i,0)=signs[i]*sqrt(theta(i,0));
@@ -2252,9 +2436,27 @@ for(i=0; i<ttrunc.size(); i++)
         }
       }
 
+/*
+    ofstream out27("c:\\temp\\score.raw");
+    score.prettyPrint(out27);
+    out27.close();
+    ofstream out28("c:\\temp\\fisher.raw");
+    Fisher.prettyPrint(out28);
+    out28.close();
+    ofstream out30("c:\\temp\\resp.raw");
+    resp.prettyPrint(out30);
+    out30.close();
+*/
+
     //Fisher-scoring für theta
 
     theta = thetaold + Fisher.solve(score);
+
+/*
+    ofstream out29("c:\\temp\\theta.raw");
+    theta.prettyPrint(out29);
+    out29.close();
+*/
 
     // transform theta back to original parameterisation
 
@@ -2263,7 +2465,7 @@ for(i=0; i<ttrunc.size(); i++)
       signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
       theta(i,0) *= theta(i,0);
       thetaold(i,0) *= thetaold(i,0);
-      }*/
+      }
 
     // compute convergence criteria
     help=betaold.norm(0);
@@ -2475,6 +2677,10 @@ void remlest_multistate::outerror(const ST::string & s)
   {
   out(s,true,true,12,255,0,0);
   }
+
+
+
+
 
 
 

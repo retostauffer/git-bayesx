@@ -3912,7 +3912,7 @@ for(i=0; i<nrobs; i++)
         {
         cumhazard(i,0)=cumbaseline(tright[i]-1,0)*mult_hazard(i,0);
         }
-      negcumhazard = - cumhazard;
+      negcumhazard = -cumhazard;
       }
 
     // compute derivative matrix D
@@ -6171,6 +6171,8 @@ void remlest::outerror(const ST::string & s)
   {
   out(s,true,true,12,255,0,0);
   }
+
+
 
 
 
