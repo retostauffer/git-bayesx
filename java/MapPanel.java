@@ -650,6 +650,14 @@ private void drawlegend(Graphics g,double height,double width,boolean centering)
 	                        else
         	                    rval = (double)(i)/(b.shades-1) * 2.0 - 1.0;
 
+                        	if(rval > 1.0)
+                	                rval = 1.0;
+        	                if(rval < -1.0)
+	                                rval = -1.0;
+
+				if(b.swap)
+					rval = -rval;
+
 				if(rval > 0.0)
 					RGB = hcl2rgb(h1,c*Math.abs(rval),l1+(l2-l1)*Math.abs(rval));
 				else
