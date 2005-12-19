@@ -137,6 +137,7 @@ class __EXPORT_TYPE DISTRIBUTION
   datamatrix deviance;            // sample of the deviance
 
   FULLCOND musave;                // handles samples for mu
+  FULLCOND responsesave;          // handles samples for the predicted response
 
   datamatrix * Dp;
   vector<ST::string> Dnames;

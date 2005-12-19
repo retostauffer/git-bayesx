@@ -253,6 +253,7 @@ void DISTRIBUTION::set_predictfull(const ST::string & pathsample,
   musave = FULLCOND(optionsp,datamatrix(1,1),"Predictmu",
            fo,mumean.cols(),pathsample);
   musave.setflags(MCMC::norelchange | MCMC::nooutput);
+
   }
 
 void DISTRIBUTION::set_predictresponse(const datamatrix & pr)
@@ -1820,6 +1821,7 @@ void DISTRIBUTION::update_predict(void)
       double * musavep = musave.getbetapointer();
 
 
+
       if (samplesize==1)
         {
         for (i=0;i<nrobs;i++,workdevmean++,workdevmean_sat++,workmumean+=size2,
@@ -2110,6 +2112,43 @@ void DISTRIBUTION::outresults(void)
       optionsp->out("\n");
 
       musave.outresults();
+
+/*
+// speichert die samples der mu's
+
+      datamatrix s(optionsp->get_samplesize(),nrobs*mumean.cols());
+
+      musave.readsample3(s);
+
+      ST::string predictfullpathsample = predictfullpath.substr(0,predictfullpath.length()-4)+"_sample.raw";
+
+      ofstream outmusample(predictfullpathsample.strtochar());
+
+      for (i=0;i< nrobs;i++)
+        {
+        for (j=0;j<mumean.cols();j++)
+          {
+
+          outmusample << "mu" << (j+1) << "_" << (i+1) << "  ";
+
+          }
+
+        }
+
+      outmusample << endl;
+
+      for (i=0;i<s.rows();i++)
+        {
+        for (j=0;j<s.cols();j++)
+          {
+
+          outmusample << s(i,j) << "  ";
+
+          }
+         outmusample << endl;
+        }
+
+*/
 
       ofstream outmu(predictfullpath.strtochar());
 
