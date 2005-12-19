@@ -226,6 +226,8 @@ class remlest_multistate
   double eps;
   double maxchange;
 
+  bool globalfrailty;                 // is a global frailty term specified?
+
   unsigned nrtransitions;             // number of transitions
   vector<unsigned> nrfullconds;       // number of fullconds per transition
 
@@ -260,7 +262,8 @@ class remlest_multistate
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const double & maxch, const vector<unsigned> & nrfullc,
+          const double & maxch, const bool & glfrailty,
+          const vector<unsigned> & nrfullc,
           const datamatrix & weight, ostream * lo=&cout);
 
 //------------------------------------------------------------------------------

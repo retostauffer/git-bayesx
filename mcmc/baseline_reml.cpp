@@ -336,7 +336,7 @@ void baseline_reml::initialize_baseline(unsigned j, datamatrix & tx,
                vector<unsigned> & tt,  datamatrix & iv,
                statmatrix<double> & steps, statmatrix<int> & ind)
   {
-  if(!varcoeff)
+  if(j==0)
     {
     tx = t_X;
     tz = t_Z;

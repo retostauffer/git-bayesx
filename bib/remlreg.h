@@ -216,6 +216,9 @@ class __EXPORT_TYPE remlreg : public statobject
   stroption state;                      // multistate: aktueller Zustand
   int statepos;                         // Position in der Datenmatrix
 
+  stroption globalfrailty;              // multistate: Globale Frailty-Variable
+  int gfrailtypos;                      // Position in der Datenmatrix
+
   optionlist regressoptions;
 
   // end: OPTIONS for method regress

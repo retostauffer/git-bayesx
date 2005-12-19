@@ -292,6 +292,7 @@ void remlreg::create(void)
   leftint = stroption("leftint");
   lefttrunc = stroption("lefttrunc");
   state = stroption("state");
+  globalfrailty = stroption("globalfrailty");
 
   regressoptions.reserve(100);
 
@@ -315,6 +316,7 @@ void remlreg::create(void)
   regressoptions.push_back(&leftint);
   regressoptions.push_back(&lefttrunc);
   regressoptions.push_back(&state);
+  regressoptions.push_back(&globalfrailty);
 
 //------------------------------------------------------------------------------
 //-------------------------- methods[0]: remlrun -------------------------------
@@ -613,6 +615,14 @@ bool remlreg::create_data(datamatrix & weight)
       modelvarnamesv.push_back(lefttrunc.getvalue());
       lefttruncpos = modelvarnamesv.size()-1;
       }
+    // variable 'globalfrailty' anfügen
+    gfrailtypos=-1;
+    if(globalfrailty.getvalue() != "")
+      {
+      modelvarnamesv.push_back(globalfrailty.getvalue());
+      gfrailtypos = modelvarnamesv.size()-1;
+      }
+
     }
   else
     {
@@ -4403,12 +4413,12 @@ void mremlrun(remlreg & b)
 
 // Compute model terms
   b.nrfullconds = vector<unsigned>(b.nrtransitions,0);
+  bool glfrailty = false;
   if (!failure)
     {
     for (i=0;i<b.nrtransitions;i++)
       {
       b.terms = b.termsmult[i];
-      int test = b.terms.size();
       if (!failure)
         failure = b.create_const(i);
       if( !failure)
@@ -4460,6 +4470,27 @@ void mremlrun(remlreg & b)
       {
       b.nrfullconds[i] = b.nrfullconds[i] - b.nrfullconds[i-1];
       }
+
+    // Add global frailty term (if specified)
+    if(!failure)
+      {
+      if(b.gfrailtypos>-1)
+        {
+        glfrailty=true;
+        ST::string pathnonp, pathres, title;
+        double lambda = 10;
+        double startlambda = 10;
+        b.make_paths(0,pathnonp,pathres,title,b.globalfrailty.getvalue(),"",
+                 "_random.raw","_random.res","_random");
+        b.fcrandom.push_back(FULLCOND_random(&b.generaloptions,
+                         b.D.getCol(b.gfrailtypos),title,pathnonp,
+                         pathres,lambda,startlambda,false));
+        b.fcrandom[b.fcrandom.size()-1].init_name(b.globalfrailty.getvalue());
+        b.fcrandom[b.fcrandom.size()-1].set_fcnumber(b.fullcond.size());
+        b.fullcond.push_back(&b.fcrandom[b.fcrandom.size()-1]);
+        }
+      }
+
     }
 
   if (!failure)
@@ -4473,7 +4504,7 @@ void mremlrun(remlreg & b)
       #endif
       b.fullcond, response, b.family.getvalue(), b.outfile.getvalue(),
       b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
-      b.maxchange.getvalue(), b.nrfullconds, weight, b.logout);
+      b.maxchange.getvalue(), glfrailty, b.nrfullconds, weight, b.logout);
 
       failure = b.RE_MSM.estimate(response,offset,weight,state);
       }
