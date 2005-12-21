@@ -4466,9 +4466,10 @@ void mremlrun(remlreg & b)
 
       b.nrfullconds[i] = b.fullcond.size();
       }
-    for(i=b.nrtransitions; i>0; i--)
+
+    for(i=b.nrtransitions-1; i>0; i--)
       {
-      b.nrfullconds[i] = b.nrfullconds[i] - b.nrfullconds[i-1];
+      b.nrfullconds[i] = b.nrfullconds.at(i) - b.nrfullconds.at(i-1);
       }
 
     // Add global frailty term (if specified)

@@ -3165,7 +3165,7 @@ out3.close();
 
     Hinv=H.inverse();
 
-/*ofstream out1("c:\\temp\\H1.raw");
+ofstream out1("c:\\temp\\H1.raw");
 H1.prettyPrint(out1);
 out1.close();
 ofstream out2("c:\\temp\\H.raw");
@@ -3179,7 +3179,7 @@ betaold.prettyPrint(out9);
 out9.close();
 ofstream out8("c:\\temp\\Hinv.raw");
 Hinv.prettyPrint(out8);
-out8.close();*/
+out8.close();
 
     // transform theta
     for(i=0; i<theta.rows(); i++)
@@ -3212,7 +3212,7 @@ out8.close();*/
 
     theta = thetaold + Fisher.solve(score);
 
-/*ofstream out5("c:\\temp\\Fisher.raw");
+ofstream out5("c:\\temp\\Fisher.raw");
 Fisher.prettyPrint(out5);
 out5.close();
 ofstream out6("c:\\temp\\score.raw");
@@ -3220,7 +3220,7 @@ score.prettyPrint(out6);
 out6.close();
 ofstream out7("c:\\temp\\theta.raw");
 theta.prettyPrint(out7);
-out7.close();*/
+out7.close();
 
 
     // transform theta back to original parameterisation
@@ -3232,28 +3232,8 @@ out7.close();*/
       thetaold(i,0) *= thetaold(i,0);
       }
 
-//theta(4,0) = thetaold(4,0);
+    // stop estimation of small variances
 
-/*  Berechnungen übrgangsspezifisch machen!
-
-    // update linear predictor
-    eta=X*beta.getRowBlock(0,xcols)+Z*beta.getRowBlock(xcols,beta.rows());
-
-    // test whether to stop estimation of theta[i]
-   help=eta.norm(0);
-   for(i=0; i<theta.rows(); i++)
-     {
-     helpmat=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
-     stopcrit[i]=helpmat.norm(0)/help;
-     if(stopcrit[i]<lowerlim)
-       {
-       theta(i,0)=thetaold(i,0);
-       }
-     else
-       {
-       its[i]=it;
-       }
-     }*/
 
     // compute convergence criteria
     help=betaold.norm(0);
@@ -3469,6 +3449,7 @@ void remlest_multistate::outerror(const ST::string & s)
   {
   out(s,true,true,12,255,0,0);
   }
+
 
 
 
