@@ -77,13 +77,6 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
         }
       }
 
-/*    if(col==0)
-    {
-    ofstream ziteil("d:\\temp\\ziteil.txt");
-    zi_teil[col].prettyPrint(ziteil);
-    ziteil.close();
-    }*/
-
     k=0;
     for(i=0;i<2*zi.rows();i++)
       {
@@ -94,12 +87,6 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
         k = k+1;
         }
       }
-/*    if(col==0)
-    {
-    ofstream teilind("d:\\temp\\teilindex.txt");
-    teil_index[0].prettyPrint(teilind);
-    teilind.close();
-    }*/
     }
 
   testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true);
@@ -110,23 +97,7 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
     testmat_l[col] = MCMC::bsplinemat(zi_teil[col],nrk,degr,kp,true);
     }
 
-
-
-/*  double maxzi=0.0;
-  for(i=0;i<zi.rows();i++)
-    if (zi(i,0)>maxzi) maxzi=zi(i,0);
-
-  if(global == false)
-    {
-    datamatrix maxzi_l;
-    maxzi_l= datamatrix(likep->get_responsedim(),1,0.0);
-    for(i=0;i<zi_teil[col].rows();i++)
-     if (zi_teil[col](i,0)>maxzi_l[col]) maxzi_l[col]=zi_teil[col](i,0);
-    }*/
-
 //-----------------------------------------------------------------------------
-
-
 
   oldacceptance = 0;
   oldnrtrials = 0;
@@ -162,8 +133,6 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
     {
     double xmin = d.min(0);
     double xmax = d.max(0);
-//    xmin = 0.0;
-//    xmax = 2.0;
     xvalues = datamatrix(gridsize,1);
     for(i=0;i<gridsize;i++)
       xvalues(i,0) = xmin + i*(xmax-xmin)/double(xvalues.rows()-1);
@@ -273,13 +242,8 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
      double * int_ti_out_p=likep->get_integral_ti()+col;
      for(i=0;i<zi.rows();i++)
        {
-//           *int_ti_out_p = zi(i,0)-beg_i(i,0);
-//           if(*int_ti_out_p<0.0)
-             *int_ti_out_p=0.1;
-           double testti= zi(i,0);
-           double testbeg=beg_i(i,0);
-           double testint=*int_ti_out_p;
-           int_ti_out_p= int_ti_out_p+likep->get_responsedim();
+         *int_ti_out_p=0.1;
+          int_ti_out_p= int_ti_out_p+likep->get_responsedim();
        }
 
 //---------------------------------------------------------------------------/
@@ -302,13 +266,206 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
     }
 //------------------------------------------------------------------------
 
-/*  double sum_logti = 0.0;
+  }
+
+
+//------------------------------------------------------------------------------
+//-----------------------Multi-Baseline-varcoeff--------------------------------
+//------------------------------------------------------------------------------
+pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
+                    const datamatrix & time, const datamatrix & z,
+                    const unsigned & nrk,const unsigned & degr,const knotpos & kp,
+                    const double & l,const unsigned & minb,const unsigned & maxb,
+                    const fieldtype & ft,const ST::string & ti,
+                    const ST::string & fp, const ST::string & pres,
+                    const int & gs, const unsigned & c,const datamatrix & zustand, const datamatrix & anfang, const bool & gl)
+  : FULLCOND_pspline(o,dp,fcc,ft,ti,nrk,degr,kp,fp,pres,false,gs,c)
+  {
+  unsigned i,j,k;
+
+  baselinep = vector<pspline_multibaseline*>(0);
+
+  lambda = l;
+  sigma2 = 1.0/l;
+
+  zi = time;
+  z_vc = datamatrix(2*z.rows(),1,0);
+  for(i=0;i<z.rows();i++)
+    {
+    z_vc(i,0) = z(i,0);
+    z_vc(z.rows()+i,0) = z(i,0);
+    }
+
+  col = c;
+
+  global = true;
+
+  state_i = zustand;
+
+  if(anfang.rows()==1)
+    {
+    begin0 = true;
+    beg_i = datamatrix(zi.rows(),1,0);
+    }
+  else
+    {
+    begin0 = false;
+    beg_i = anfang;
+    }
+
+  zi_ges = datamatrix(2*zi.rows(),1,0);
+
   for(i=0;i<zi.rows();i++)
     {
-    sum_logti = sum_logti + log(zi(i,0))*likep->get_response(i,0);
+    zi_ges(i,0) = zi(i,0);
+    zi_ges(zi.rows()+i,0) = beg_i(i,0);
     }
-   */
+  ges_index = statmatrix<int>(zi_ges.rows(),1);
+  ges_index.indexinit();
+  zi_ges.indexsort(ges_index,0,zi_ges.rows()-1,0,0);
+
+  testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true);
+
+//-----------------------------------------------------------------------------
+
+  oldacceptance = 0;
+  oldnrtrials = 0;
+
+  min = minb;
+  max = maxb;
+  mintoobig = false;
+  maxtoobig = false;
+
+  varcoeff = true;
+  setbeta(nrknots-1+degree,1,0);
+  betaold = datamatrix(nrpar,1,0);
+
+  make_index(time,z);
+  make_index2();
+  make_Bspline(time,true);
+  make_BS(z);
+
+
+// xvalues und fchelp initialisieren
+  ST::string pnt = fp.substr(0,fp.length()-4)+"_fchelp.raw";
+  vector<int>::iterator freqwork = freqoutput.begin();
+  int * workindex = index.getV();
+  if(gridsize < 0)
+    {
+    xvalues = datamatrix(nrdiffobs,1,0);
+    for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+        xvalues(*freqwork,0) = time(*workindex,0);
+    fchelp = FULLCOND(optionsp,datamatrix(1,1,0),title+"fchelp",nrdiffobs,1,pnt);
+    splinehelp = datamatrix(likep->get_nrobs(),1,0);
+    }
+  else
+    {
+    double xmin = time.min(0);
+    double xmax = time.max(0);
+    xvalues = datamatrix(gridsize,1);
+    for(i=0;i<gridsize;i++)
+      xvalues(i,0) = xmin + i*(xmax-xmin)/double(xvalues.rows()-1);
+    fchelp = FULLCOND(optionsp,datamatrix(1,1,0),title+"fchelp",gridsize,1,pnt);
+    splinehelp = datamatrix(gridsize,1,0);
+    make_DG();
+    }
+  fchelp.setflags(MCMC::norelchange | MCMC::nooutput);
+
+  compute_Kweights();
+
+  if (type == RW1)
+    {
+    K = Krw1(weight);
+    rankK = K.get_rows()-1;
+    }
+  else if (type == RW2)
+    {
+    K = Krw2(weight);
+    rankK = K.get_rows()-2;
+    }
+
+  if(minb == 0 && maxb == 0)
+    {
+    automatic = true;
+
+    min = 1;
+    max = rankK;
+    minauto = nrpar/5;
+    maxauto = nrpar/3;
+    if(minauto < 1)
+      minauto = 1;
+    }
+  else
+    {
+    automatic = false;
+
+    if(max > rankK || max == 0)
+      {
+      maxtoobig = true;
+      max = rankK;
+      }
+    if(min > max || min == 0)
+      {
+      mintoobig = true;
+      min = 1;
+      }
+    }
+
+  for(i=0;i<max;i++)
+    {
+    fc_random.push_back(datamatrix(i+1,1,0));
+    randnorm.push_back(datamatrix(i+1,1,0));
+    }
+
+  make_Kab_list();
+
+  identifiable = true;
+
+  compute_betaweight();
+
+//------------------Designmatrix int_D für P-Spline an Knoten-------------------
+
+  double knot_min = 0.0;
+  double knot_max = zi.max(0);
+
+
+  int_knots = datamatrix (50,1,0);
+  for(j=0;j<int_knots.rows();j++)
+    int_knots(j,0) = knot_min + j*(knot_max-knot_min)/double(int_knots.rows()-1);
+  int_D = datamatrix(int_knots.rows(),nrpar,0.0);
+  datamatrix bsp;
+  for(i=0;i<int_knots.rows();i++)
+    {
+    bsp = bspline(int_knots(i,0));
+    for(j=0;j<nrpar;j++)
+      {
+      int_D(i,j) = bsp(j,0);
+      }
+    }
+
+//------------------------------------------------------------------------------
+     double * int_ti_out_p=likep->get_integral_ti()+col;
+     for(i=0;i<zi.rows();i++)
+       {
+         *int_ti_out_p=0.1;
+          int_ti_out_p= int_ti_out_p+likep->get_responsedim();
+       }
+
+//---------------------------------------------------------------------------/
+
+//------------------------------------------------------------------------------
+  int_ti_help = datamatrix(2*likep->get_nrobs(),1,0);
+
+  spline_ges = datamatrix(2*likep->get_nrobs(),1,0);
+  spline_ges2 = datamatrix(2*likep->get_nrobs(),1,0);
+  spline_zi = datamatrix(likep->get_nrobs(),1,0);
+
+
   }
+
+
+
 
 
 pspline_multibaseline::pspline_multibaseline(const pspline_multibaseline & fc)
@@ -693,23 +850,7 @@ if(begin0==false)
     }
 //------------------------------------------------------------------------------
 
-/*  ofstream intof("d:\\temp\\int_ti.txt");
-  int_ti_p=likep->get_integral_ti();
-  for(i=0;i<2*likep->get_nrobs();i++)
-    {
-    intof<<*int_ti_p<<endl;
-    int_ti_p = int_ti_p+4;
-    }
-  intof.close();
 
-  ofstream intof2("d:\\temp\\int_ti_2.txt");
-  int_ti_help_p=int_ti_help.getV();
-  for(i=0;i<2*likep->get_nrobs();i++)
-    {
-    intof2<<*int_ti_help_p<<endl;
-    int_ti_help_p++;
-    }
-    intof2.close();*/
 
   i=0;
   k=0;
@@ -857,19 +998,18 @@ void pspline_multibaseline::update_multibaseline()
 {
 //---------Integral berechnen---------------------------------
 
-
-    if(global == true)
-      {
-      testmat.mult(spline_ges,beta);
-      testmat.mult_index(spline_ges2,beta);
-      compute_int_ti_global(beta);
-      }
-    else
-      {
-      testmat_l[col].mult(spline_teil[col],beta);
-      testmat_l[col].mult_index(spline_teil2[col],beta);
-      compute_int_ti_nonglobal(beta);
-      }
+      if(global == true)
+        {
+        testmat.mult(spline_ges,beta);
+        testmat.mult_index(spline_ges2,beta);
+        compute_int_ti_global(beta);
+        }
+      else
+        {
+        testmat_l[col].mult(spline_teil[col],beta);
+        testmat_l[col].mult_index(spline_teil2[col],beta);
+        compute_int_ti_nonglobal(beta);
+        }
 }
 //------------------------------------------------------------------------------
 
@@ -882,6 +1022,7 @@ void pspline_multibaseline::update_multibaseline()
 
 
 } // end: namespace MCMC
+
 
 
 

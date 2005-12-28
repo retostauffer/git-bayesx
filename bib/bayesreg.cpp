@@ -638,8 +638,8 @@ void bayesreg::initpointers(void)
   for(i=0;i<fcbaseline.size();i++)
     fullcond.push_back(&fcbaseline[i]);
 
-  for(i=0;i<fcbaselineiwls.size();i++)
-    fullcond.push_back(&fcbaselineiwls[i]);
+//  for(i=0;i<fcbaselineiwls.size();i++)
+//    fullcond.push_back(&fcbaselineiwls[i]);
 
   for(i=0;i<fcmultibaseline.size();i++)
     fullcond.push_back(&fcmultibaseline[i]);
@@ -787,8 +787,8 @@ void bayesreg::clear(void)
   fcbaseline.erase(fcbaseline.begin(),fcbaseline.end());
   fcbaseline.reserve(20);
 
-  fcbaselineiwls.erase(fcbaselineiwls.begin(),fcbaselineiwls.end());
-  fcbaselineiwls.reserve(20);
+//  fcbaselineiwls.erase(fcbaselineiwls.begin(),fcbaselineiwls.end());
+//  fcbaselineiwls.reserve(20);
 
   fcmultibaseline.erase(fcmultibaseline.begin(),fcmultibaseline.end());
   fcmultibaseline.reserve(20);
@@ -855,7 +855,7 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   fcpspline = b.fcpspline;
   fckriging = b.fckriging;
   fcbaseline = b.fcbaseline;
-  fcbaselineiwls = b.fcbaselineiwls;
+//  fcbaselineiwls = b.fcbaselineiwls;
   fcmultibaseline = b.fcmultibaseline;
   resultsyesno = b.resultsyesno;
   posteriormode = b.posteriormode;
@@ -894,7 +894,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   fcpspline = b.fcpspline;
   fckriging = b.fckriging;  
   fcbaseline = b.fcbaseline;
-  fcbaselineiwls = b.fcbaselineiwls;
+//  fcbaselineiwls = b.fcbaselineiwls;
   fcmultibaseline = b.fcmultibaseline;
   resultsyesno = b.resultsyesno;
   posteriormode = b.posteriormode;
@@ -2386,8 +2386,8 @@ bool bayesreg::create_const(const unsigned & collinpred)
             {
             for(unsigned ii=0;ii<fcbaseline.size();ii++)
               fcbaseline[ii].set_fcconst(fcconst_intercept);
-            for(unsigned ii=0;ii<fcbaselineiwls.size();ii++)
-              fcbaselineiwls[ii].set_fcconst(fcconst_intercept);
+//            for(unsigned ii=0;ii<fcbaselineiwls.size();ii++)
+//              fcbaselineiwls[ii].set_fcconst(fcconst_intercept);
             }
 
           fullcond.push_back(&nongaussianconst[nongaussianconst.size()-1]);

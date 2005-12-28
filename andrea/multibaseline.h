@@ -81,13 +81,14 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
 
 // CONSTRUCTOR 2 (für zeitabhängige Effekte)
 
-/*pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
+pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
                     const datamatrix & time, const datamatrix & z,
                     const unsigned & nrk,const unsigned & degr,const knotpos & kp,
                     const double & l,const unsigned & minb,const unsigned & maxb,
                     const fieldtype & ft,const ST::string & ti,
                     const ST::string & fp, const ST::string & pres,
-                    const int & gs,const unsigned & c,const datamatrix & anfang);*/
+                    const int & gs,const unsigned & c,const datamatrix & zustand,
+                    const datamatrix & anfang,const bool & wb);
 
 
   // COPY CONSTRUCTOR

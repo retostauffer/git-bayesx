@@ -2476,7 +2476,7 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
       else if(proposal == "iwls")
         {
 
-        fcbaselineiwls.push_back( IWLS_baseline(&generaloptions[generaloptions.size()-1],
+/*        fcbaselineiwls.push_back( IWLS_baseline(&generaloptions[generaloptions.size()-1],
                                                 distr[distr.size()-1],
                                                 fcconst_intercept,
                                                 D.getCol(j),
@@ -2517,7 +2517,7 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
                                 &fcbaselineiwls[fcbaselineiwls.size()-1],
                                 distr[distr.size()-1],a1,b1,
                                 title,pathnonp,pathres,ub,collinpred)
-                                );
+                                );   */
         }
 
       if (constlambda.getvalue() == false)

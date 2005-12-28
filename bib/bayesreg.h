@@ -49,7 +49,7 @@
 #include<kriging2.h>
 #include<baseline.h>
 #include<multibaseline.h>
-#include<IWLS_baseline.h>
+//#include<IWLS_baseline.h>
 
 #include<mcmcsimul.h>
 
@@ -100,7 +100,7 @@ using MCMC::FULLCOND_random_gaussian;
 using MCMC::FULLCOND_mixture;
 using MCMC::FULLCOND_kriging2;
 using MCMC::pspline_baseline;
-using MCMC::IWLS_baseline;
+//using MCMC::IWLS_baseline;
 using MCMC::pspline_multibaseline;
 using MCMC::MCMCsimulate;
 
@@ -499,13 +499,14 @@ class __EXPORT_TYPE bayesreg : public statobject
 
 //--------------------------- for baseline terms -------------------------------
   vector<pspline_baseline> fcbaseline;
-  vector<IWLS_baseline> fcbaselineiwls;
+//  vector<IWLS_baseline> fcbaselineiwls;
   vector<pspline_multibaseline> fcmultibaseline;
   term_baseline baseline;
   term_varcoeff_baseline varcoeffbaseline;
   bool create_baseline(const unsigned & collinpred=0);
   bool create_varcoeffbaseline(const unsigned & collinpred=0);
   bool create_multibaseline(const unsigned & collinpred=0);
+  bool create_varcoeffmultibaseline(const unsigned & collinpred=0);
 //------------------------ for baseline terms ----------------------------------
 
   //------------------------- for random effects -------------------------------

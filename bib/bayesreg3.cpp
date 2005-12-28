@@ -376,7 +376,9 @@ void mregressrun(bayesreg & b)
   if (!failure)
     failure = b.create_distribution();
 
-  unsigned i;
+  unsigned i,j;
+  unsigned nrbaseline,nrbaseline_i;
+  unsigned nrbaseline_help=0;
 
   if (!failure)
     {
@@ -392,6 +394,9 @@ void mregressrun(bayesreg & b)
         failure = b.create_multibaseline(i);
 
       if (!failure)
+        failure = b.create_varcoeffmultibaseline(i);
+
+      if (!failure)
         failure = b.create_nonprw1rw2(i);
 
       if (!failure)
@@ -402,6 +407,20 @@ void mregressrun(bayesreg & b)
 
       if (!failure)
         failure = b.create_random(i);
+
+      nrbaseline = b.fcmultibaseline.size();
+      nrbaseline_i = nrbaseline - nrbaseline_help;
+
+      if(nrbaseline_i>1)
+        {
+        vector<MCMC::pspline_multibaseline*> basep;
+        for(j=0;j<nrbaseline_i;j++)
+          basep.push_back(&b.fcmultibaseline[nrbaseline_help+j]);
+        for(j=0;j<nrbaseline_i;j++)
+          b.fcmultibaseline[nrbaseline_help+j].set_baselinep(basep);
+        }
+
+      nrbaseline_help = nrbaseline;
 
       }
     }
@@ -591,8 +610,11 @@ void outresultsrun(bayesreg & b)
       for(i=0;i<b.fcbaseline.size();i++)
         b.fcbaseline[i].set_transform(suffix,trtype);
 
-      for(i=0;i<b.fcbaselineiwls.size();i++)
-        b.fcbaselineiwls[i].set_transform(suffix,trtype);
+//      for(i=0;i<b.fcbaselineiwls.size();i++)
+//        b.fcbaselineiwls[i].set_transform(suffix,trtype);
+
+      for(i=0;i<b.fcmultibaseline.size();i++)
+        b.fcmultibaseline[i].set_transform(suffix,trtype);
 
       for(i=0;i<b.fcpspline.size();i++)
         b.fcpspline[i].set_transform(suffix,trtype);
@@ -1830,12 +1852,12 @@ void regressrun(bayesreg & b)
       b.fcbaseline[i].set_baselinep(basep);
     }
 
-  if(b.fcbaselineiwls.size()>1 ||
+/*  if(b.fcbaselineiwls.size()>1 ||
      (b.fcbaselineiwls.size()>0 && b.fcbaseline.size()>0))
     {
     failure = true;
     b.out("ERROR: geht nicht!\n");
-    }
+    }*/
 
   if (!failure                          &&
       (b.family.getvalue() != "vargaussian") &&
