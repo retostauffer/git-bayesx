@@ -1109,6 +1109,12 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
                   + ST::doubletostring(thetareml(thetapos,2),0) + "\n");
     optionsp->out("        because the corresponding penalized part was small relative to the linear predictor.");
     }
+  if(thetareml(thetapos,1)==-1)
+    {
+    optionsp->out("  NOTE: Estimation of the variance was stopped after iteration "
+                  + ST::doubletostring(thetareml(thetapos,2),0) + "\n");
+    optionsp->out("        to avoid numerical problems due to large variances.");
+    }
   ST::string varpath=pathcurrent.substr(0,pathcurrent.length()-4) + "_var.res";
   if(ismultinomial)
     {
