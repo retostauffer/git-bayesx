@@ -11,7 +11,7 @@
 
 
 model::model(const model & m)
-  {
+  {                                                  
   modelexisting = m.modelexisting;
   modeltext = m.modeltext;
   errormessages = m.errormessages;
@@ -3034,7 +3034,7 @@ bool term_varcoeff_baseline::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(10);
+    t.options = vector<ST::string>(11);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(min.getvalue());
     t.options[2] = ST::inttostring(max.getvalue());
