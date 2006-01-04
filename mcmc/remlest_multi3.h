@@ -40,6 +40,7 @@ class remlest_multinomial_catsp
   double lowerlim;
   double eps;
   double maxchange;
+  double maxvar;
 
   double refcat;                                   // Referenz-Kategorie
   unsigned nrcat;                                  // Anzahl Kategorien
@@ -55,9 +56,9 @@ class remlest_multinomial_catsp
 
   // miscellanious
   unsigned partialnrpar;
-  unsigned partialnrfixed;                     
+  unsigned partialnrfixed;
   unsigned partialnrrandom;
-  unsigned partialvar; 
+  unsigned partialvar;
 
   unsigned totalnrfixed;                        // Anzahl fixer Effekte für alle Kategorien!
   unsigned totalnrpar;                          // Parameter in allen Kategorien
@@ -95,7 +96,8 @@ class remlest_multinomial_catsp
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const double & maxch, const datamatrix & categories,
+          const double & maxch, const double & maxv,
+          const datamatrix & categories,
           const datamatrix & weight, ostream * lo=&cout);
 
 //------------------------------------------------------------------------------
