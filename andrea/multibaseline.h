@@ -110,8 +110,8 @@ pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
 //void compute_int_ti_linear(const double & b);
 //void compute_int_ti_weibull(const double & r);
   void compute_int_ti(unsigned beg);
-  void compute_int_ti_vc_di0(const vector<double *>,const vector<double *>);
-  void compute_int_ti_vc_di(const int,const vector<double *>,const vector<double *>);
+  void compute_int_ti_vc_di0(const vector<double *>,const vector<double *>,const vector<double *>);
+  void compute_int_ti_vc_di(const int,const vector<double *>,const vector<double *>,const vector<double *>);
 //void compute_int_gauss(void);
 //void compute_int_gauss_DIC(void);
   void update_multibaseline(void);
@@ -121,10 +121,10 @@ pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
     baselinep=bp;
     }
 
-/*  double * get_int_D(void)
+  double * get_int_D(void)
     {
     return int_D.getV();
-    }*/
+    }
 
   double * get_z_vc(void)
     {
@@ -144,7 +144,7 @@ pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
 
   double * get_spline_ges(void)
     {
-    testmat.mult_index(spline_ges,beta);
+    testmat.mult(spline_ges,beta);
     return spline_ges.getV();
     }
 
