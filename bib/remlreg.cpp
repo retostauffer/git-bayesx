@@ -282,6 +282,7 @@ void remlreg::create(void)
   lowerlim = doubleoption("lowerlim",0.001,0,1);
   eps = doubleoption("eps",0.00001,0,1);
   maxchange = doubleoption("maxchange",1000000,0,100000000);
+  maxvar = doubleoption("maxvar",100000,0,100000000);
 
   reference = doubleoption("reference",0,-10000,10000);
 
@@ -293,6 +294,7 @@ void remlreg::create(void)
   lefttrunc = stroption("lefttrunc");
   state = stroption("state");
   globalfrailty = stroption("globalfrailty");
+  gflambdastart = doubleoption("gflambdastart",1000,0,10000000);
 
   regressoptions.reserve(100);
 
@@ -306,6 +308,7 @@ void remlreg::create(void)
   regressoptions.push_back(&lowerlim);
   regressoptions.push_back(&eps);
   regressoptions.push_back(&maxchange);
+  regressoptions.push_back(&maxvar);
 
   regressoptions.push_back(&reference);
 
@@ -317,6 +320,7 @@ void remlreg::create(void)
   regressoptions.push_back(&lefttrunc);
   regressoptions.push_back(&state);
   regressoptions.push_back(&globalfrailty);
+  regressoptions.push_back(&gflambdastart);
 
 //------------------------------------------------------------------------------
 //-------------------------- methods[0]: remlrun -------------------------------
@@ -3680,7 +3684,7 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(),b.cats,weight,b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(),b.cats,weight,b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE_M.estimate_glm(response,offset,weight);
       else
@@ -3695,7 +3699,7 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond, response, b.family.getvalue(), b.outfile.getvalue(),
       b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
-      b.maxchange.getvalue(), b.cats, weight, b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.cats, weight, b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE_M_catsp.estimate_glm(response,offset,weight);
       else
@@ -3713,7 +3717,7 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(),b.cats,weight,b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(),b.cats,weight,b.logout);
       if(b.RE_O.get_catspec())
         {
         if (b.fullcond.size() == 1)    // fixed effects only
@@ -3742,7 +3746,7 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(),b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE.estimate_glm(response,offset,weight);
       else
@@ -3758,7 +3762,7 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(),b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.logout);
       failure = b.RE.estimate_survival(response,offset,weight);
       }
 // Cox-Modell mit Intervallzensierung (ohne zeitvariierende Effekte)
@@ -3771,7 +3775,7 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(),b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.logout);
       failure = b.RE.estimate_survival_interval(response,offset,weight);
       }
 // Cox-Modell mit Intervallzensierung & Linkstrunkierung  & zeitvariierenden Effekten
@@ -3782,9 +3786,9 @@ void remlrun(remlreg & b)
       #if defined(JAVA_OUTPUT_WINDOW)
       b.adminb_p,
       #endif
-      b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
-      b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(),b.logout);
+      b.fullcond, response, dispers, b.family.getvalue(), b.outfile.getvalue(),
+      b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.logout);
       failure = b.RE.estimate_survival_interval2(response,offset,weight,
                                                  b.aiccontrol.getvalue());
       }
@@ -3814,7 +3818,7 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(),b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE.estimate_glm_dispers(response,offset,weight);
       else
@@ -4479,8 +4483,8 @@ void mremlrun(remlreg & b)
         {
         glfrailty=true;
         ST::string pathnonp, pathres, title;
-        double lambda = 10;
-        double startlambda = 10;
+        double lambda = 1000;
+        double startlambda = b.gflambdastart.getvalue();
         b.make_paths(0,pathnonp,pathres,title,b.globalfrailty.getvalue(),"",
                  "_random.raw","_random.res","_random");
         b.fcrandom.push_back(FULLCOND_random(&b.generaloptions,
@@ -4505,7 +4509,8 @@ void mremlrun(remlreg & b)
       #endif
       b.fullcond, response, b.family.getvalue(), b.outfile.getvalue(),
       b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
-      b.maxchange.getvalue(), glfrailty, b.nrfullconds, weight, b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), glfrailty, b.nrfullconds,
+      weight, b.logout);
 
       failure = b.RE_MSM.estimate(response,offset,weight,state);
       }

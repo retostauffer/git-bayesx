@@ -21,7 +21,7 @@ administrator_basic * adb,
 vector<MCMC::FULLCOND*> & fc,datamatrix & re,
                 const ST::string & family, const ST::string & ofile,
                 const int & maxiter, const double & lowerlimit,
-                const double & epsi, const double & maxch,
+                const double & epsi, const double & maxch, const double & maxv,
                 const datamatrix & categories,
                 const datamatrix & weight, ostream * lo)
   {
@@ -52,6 +52,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
   lowerlim=lowerlimit;
   eps=epsi;
   maxchange=maxch;
+  maxvar = maxv;
 
   fullcond = fc;
   unsigned i,j;
@@ -301,7 +302,7 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
         {
         helpmat2 = Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(totalnrfixed+zcutbeta[j*partialvar+i],totalnrfixed+zcutbeta[j*partialvar+i+1]);
         stopcrit[j*partialvar+i]=helpmat2.norm(0)/helpmat(j,0);
-        if(stopcrit[j*partialvar+i]<lowerlim)
+        if(stopcrit[j*partialvar+i]<lowerlim  || theta(j*partialvar+i,0)>maxvar)
           {
           theta(j*partialvar+i,0)=thetaold(j*partialvar+i,0);
           }
@@ -385,6 +386,10 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
     if(stopcrit[i]<lowerlim)
       {
       thetareml(i,1)=1;
+      }
+    else if(theta(i,0)>maxvar)
+      {
+      thetareml(i,1)=-1;
       }
     thetareml(i,2)=its[i];
     }
@@ -1417,7 +1422,7 @@ administrator_basic * adb,
 vector<MCMC::FULLCOND*> & fc,datamatrix & re,
                 const ST::string & family, const ST::string & ofile,
                 const int & maxiter, const double & lowerlimit,
-                const double & epsi, const double & maxch,
+                const double & epsi, const double & maxch, const double & maxv,
                 const bool & glfrailty,
                 const vector<unsigned> & nrfullc,
                 const datamatrix & weight, ostream * lo)
@@ -1435,6 +1440,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
     lowerlim=lowerlimit;
     eps=epsi;
     maxchange=maxch;
+    maxvar=maxv;
 
     globalfrailty=glfrailty;
 
@@ -1614,7 +1620,7 @@ bool remlest_multistate::estimate(const datamatrix resp,
     k=0;
     for(j=1; j<nrtransitions; j++)
       {
-      cumtimevar[j] =k;
+      cumtimevar[j] = k;
       if(timevarying[j])
         {
         k++;
@@ -1722,6 +1728,15 @@ bool remlest_multistate::estimate(const datamatrix resp,
       }
     }
 
+/*datamatrix help1(fc_pos.size(),1,0);
+for(i=0; i<fc_pos.size(); i++)
+  {
+  help1(i,0) = fc_pos[i];
+  }
+ofstream out1("c:\\temp\\fc_pos.raw");
+help1.prettyPrint(out1);
+out1.close();*/
+
 // Inzidenzvector defining the assignment between beta and transition
 
   vector<int>tr_pos(beta.rows(),1);
@@ -1743,10 +1758,13 @@ bool remlest_multistate::estimate(const datamatrix resp,
       }
     }
   // -1 denotes global effects
-  for(j=zcut[zcut.size()-2]; j<zcut[zcut.size()-1]; j++)
+  if(globalfrailty)
     {
-    tr_pos[k] = -1;
-    k++;
+    for(j=zcut[zcut.size()-2]; j<zcut[zcut.size()-1]; j++)
+      {
+      tr_pos[k] = -1;
+      k++;
+      }
     }
 
 // Matrices and variables for baseline effects
@@ -1774,13 +1792,12 @@ bool remlest_multistate::estimate(const datamatrix resp,
   statmatrix<double>cumbaseline(t_X.rows(),nrtransitions,0);
   statmatrix<double>baseline_tv;
   statmatrix<double>cumbaseline_tv;
+
   if(nrbaseline>nrtransitions)
     {
-//    baseline_tv=datamatrix(nrobs,t_X.rows()*nrtransitions,0);
-    baseline_tv=datamatrix(nrobs,t_X.rows()*cumtimevar[nrtransitions-1],0);
+    baseline_tv=datamatrix(nrobs,t_X.rows()*(cumtimevar[nrtransitions-1]+1),0);
     cumbaseline_tv=datamatrix(nrobs,nrtransitions,0);
     }
-//  statmatrix<double>cumhazard(nrobs,nrtransitions,0);
   statmatrix<double>eta(nrobs,nrtransitions,0);
   statmatrix<double>baseline_eta(nrobs,nrtransitions,0);
   statmatrix<double>mult_eta(nrobs,nrtransitions,0);
@@ -1895,9 +1912,9 @@ bool remlest_multistate::estimate(const datamatrix resp,
         }
       }
 
-ofstream out3("c:\\temp\\Qinv.raw");
-Qinv.prettyPrint(out3);
-out3.close();
+/*ofstream out8("c:\\temp\\Qinv.raw");
+Qinv.prettyPrint(out8);
+out8.close();*/
 
     // compute basef
     j=k=m=0;
@@ -2013,9 +2030,19 @@ out3.close();
       {
       for(i=0; i<nrobs; i++)
         {
-        mult_hazard(i,j)=exp(mult_eta(i,j)*mult_global(i,0));
+        mult_hazard(i,j)=exp(mult_eta(i,j))*mult_global(i,0);
         }
       }
+
+/*ofstream out5("c:\\temp\\baseline.raw");
+baseline.prettyPrint(out5);
+out5.close();
+ofstream out6("c:\\temp\\mult_hazard.raw");
+mult_hazard.prettyPrint(out6);
+out6.close();
+ofstream out7("c:\\temp\\eta.raw");
+eta.prettyPrint(out7);
+out7.close();*/
 
   // Score-function for beta
 
@@ -2128,6 +2155,10 @@ out3.close();
           }
         }
       }
+
+/*ofstream out1("c:\\temp\\H1.raw");
+H1.prettyPrint(out1);
+out1.close();*/
 
     // Z
 
@@ -3165,23 +3196,17 @@ out3.close();
 
     Hinv=H.inverse();
 
-ofstream out1("c:\\temp\\H1.raw");
-H1.prettyPrint(out1);
-out1.close();
-ofstream out2("c:\\temp\\H.raw");
+/*ofstream out2("c:\\temp\\H.raw");
 H.prettyPrint(out2);
 out2.close();
-ofstream out4("c:\\temp\\beta.raw");
-beta.prettyPrint(out4);
-out4.close();
-ofstream out9("c:\\temp\\betaold.raw");
-betaold.prettyPrint(out9);
-out9.close();
-ofstream out8("c:\\temp\\Hinv.raw");
-Hinv.prettyPrint(out8);
-out8.close();
+ofstream out3("c:\\temp\\beta.raw");
+beta.prettyPrint(out3);
+out3.close();
+ofstream out4("c:\\temp\\betaold.raw");
+betaold.prettyPrint(out4);
+out4.close();*/
 
-    // transform theta
+/*    // transform theta
     for(i=0; i<theta.rows(); i++)
       {
       thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
@@ -3212,17 +3237,6 @@ out8.close();
 
     theta = thetaold + Fisher.solve(score);
 
-ofstream out5("c:\\temp\\Fisher.raw");
-Fisher.prettyPrint(out5);
-out5.close();
-ofstream out6("c:\\temp\\score.raw");
-score.prettyPrint(out6);
-out6.close();
-ofstream out7("c:\\temp\\theta.raw");
-theta.prettyPrint(out7);
-out7.close();
-
-
     // transform theta back to original parameterisation
 
     for(i=0; i<theta.rows(); i++)
@@ -3230,10 +3244,85 @@ out7.close();
       signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
       theta(i,0) *= theta(i,0);
       thetaold(i,0) *= thetaold(i,0);
+      }*/
+
+    // transform theta
+    for(i=0; i<theta.rows(); i++)
+      {
+      thetaold(i,0)=log(sqrt(thetaold(i,0)));
+      theta(i,0)=log(sqrt(theta(i,0)));
+      }
+
+    // Score-Funktion für theta
+
+   for(j=0; j<theta.rows(); j++)
+      {
+/*      score(j,0)=-1*exp(theta(j,0))*((zcut[j+1]-zcut[j])/exp(theta(j,0))-
+                       (Hinv.getBlock(xcols+zcut[j],X.cols()+zcut[j],xcols+zcut[j+1],xcols+zcut[j+1])).trace()/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0)))-
+                       (beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]).transposed()*beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]))(0,0)/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0))));*/
+      score(j,0)=-1*((zcut[j+1]-zcut[j])-
+                       (Hinv.getBlock(xcols+zcut[j],X.cols()+zcut[j],xcols+zcut[j+1],xcols+zcut[j+1])).trace()/(exp(theta(j,0))*exp(theta(j,0)))-
+                       (beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]).transposed()*beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]))(0,0)/(exp(theta(j,0))*exp(theta(j,0))));
+      }
+
+    // Fisher-Info für theta
+
+    for(j=0; j<theta.rows(); j++)
+      {
+      for(k=j; k< theta.rows(); k++)
+        {
+//        Fisher(j,k) = 2*exp(theta(j,0))*exp(theta(k,0))*((Hinv.getBlock(xcols+zcut[j],xcols+zcut[k],xcols+zcut[j+1],xcols+zcut[k+1])*Hinv.getBlock(xcols+zcut[k],xcols+zcut[j],xcols+zcut[k+1],xcols+zcut[j+1])).trace())/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0))*exp(theta(k,0))*exp(theta(k,0))*exp(theta(k,0)));
+        Fisher(j,k) = 2*((Hinv.getBlock(xcols+zcut[j],xcols+zcut[k],xcols+zcut[j+1],xcols+zcut[k+1])*Hinv.getBlock(xcols+zcut[k],xcols+zcut[j],xcols+zcut[k+1],xcols+zcut[j+1])).trace())/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(k,0))*exp(theta(k,0)));
+        Fisher(k,j) = Fisher(j,k);
+        }
+      }
+
+    //Fisher-scoring für theta
+
+    theta = thetaold + Fisher.solve(score);
+
+    // transform theta back to original parameterisation
+
+    for(i=0; i<theta.rows(); i++)
+      {
+      theta(i,0) = exp(theta(i,0))*exp(theta(i,0));
+      thetaold(i,0) = exp(thetaold(i,0))*exp(thetaold(i,0));
       }
 
     // stop estimation of small variances
 
+    datamatrix helpmat2=datamatrix(nrtransitions,1,0);
+    for(i=0; i<nrtransitions; i++)
+      {
+      helpmat2(i,0) = eta.norm(i);
+      }
+    k=0;
+    for(i=0; i<nrtransitions; i++)
+      {
+      for(j=1; j<nrfullconds[i]; j++)
+        {
+        helpmat = Z.getColBlock(zcut[k],zcut[k+1])*beta.getRowBlock(xcols+zcut[k],xcols+zcut[k+1]);
+        stopcrit[k] = helpmat.norm(0)/helpmat2(i,0);
+        k++;
+        }
+      }
+    if(globalfrailty)
+      {
+      helpmat = Z.getColBlock(zcut[k],zcut[k+1])*beta.getRowBlock(xcols+zcut[k],xcols+zcut[k+1]);
+      stopcrit[k] = helpmat.norm(0)/helpmat2.mean(0);
+      }
+
+    for(i=0; i<theta.rows(); i++)
+      {
+      if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
+        {
+        theta(i,0)=thetaold(i,0);
+        }
+      else
+        {
+        its[i]=it;
+        }
+      }
 
     // compute convergence criteria
     help=betaold.norm(0);
@@ -3300,6 +3389,10 @@ out7.close();
     if(stopcrit[i]<lowerlim)
       {
       thetareml(i,1)=1;
+      }
+    else if(theta(i,0)>maxvar)
+      {
+      thetareml(i,1)=-1;
       }
     thetareml(i,2)=its[i];
     }
@@ -3449,6 +3542,7 @@ void remlest_multistate::outerror(const ST::string & s)
   {
   out(s,true,true,12,255,0,0);
   }
+
 
 
 

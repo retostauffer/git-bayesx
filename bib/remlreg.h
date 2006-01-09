@@ -202,7 +202,8 @@ class __EXPORT_TYPE remlreg : public statobject
   intoption maxit;                      // Properties of the estimation
   doubleoption lowerlim;
   doubleoption eps;
-  doubleoption maxchange;
+  doubleoption maxchange;               // maximal value allowed for relative changes
+  doubleoption maxvar;                  // maximal value allowed for a variance
 
   simpleoption aiccontrol;              // control estimation of survival models by AIC
 
@@ -217,6 +218,7 @@ class __EXPORT_TYPE remlreg : public statobject
   int statepos;                         // Position in der Datenmatrix
 
   stroption globalfrailty;              // multistate: Globale Frailty-Variable
+  doubleoption gflambdastart;           // starting value for variance of the global frailty
   int gfrailtypos;                      // Position in der Datenmatrix
 
   optionlist regressoptions;

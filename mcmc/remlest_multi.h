@@ -39,6 +39,7 @@ class remlest_multinomial
   double lowerlim;
   double eps;
   double maxchange;
+  double maxvar;
 
   double refcat;                                   // Referenz-Kategorie
   unsigned nrcat;                                    // Anzahl Kategorien
@@ -88,7 +89,8 @@ class remlest_multinomial
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const double & maxch, const datamatrix & categories,
+          const double & maxch, const double & maxv,
+          const datamatrix & categories,
           const datamatrix & weight, ostream * lo=&cout);
 
 //------------------------------------------------------------------------------
@@ -225,6 +227,7 @@ class remlest_multistate
   double lowerlim;
   double eps;
   double maxchange;
+  double maxvar;
 
   bool globalfrailty;                 // is a global frailty term specified?
 
@@ -262,7 +265,7 @@ class remlest_multistate
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const double & maxch, const bool & glfrailty,
+          const double & maxch, const double & maxv, const bool & glfrailty,
           const vector<unsigned> & nrfullc,
           const datamatrix & weight, ostream * lo=&cout);
 

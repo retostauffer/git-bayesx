@@ -40,6 +40,7 @@ class remlest
   double lowerlim;
   double eps;
   double maxchange;
+  double maxvar;
 
   statmatrix<double> X;                         // fixed effects
   statmatrix<double> Z;                         // random effects
@@ -77,7 +78,7 @@ class remlest
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,bool dispers,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const double & maxch, ostream * lo=&cout);
+          const double & maxch, const double & maxv, ostream * lo=&cout);
 
 //------------------------------------------------------------------------------
 //----------------------------- REML estimation --------------------------------

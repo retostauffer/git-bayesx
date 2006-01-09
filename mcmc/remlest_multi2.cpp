@@ -21,7 +21,7 @@ administrator_basic * adb,
 vector<MCMC::FULLCOND*> & fc,datamatrix & re,
                 const ST::string & family, const ST::string & ofile,
                 const int & maxiter, const double & lowerlimit,
-                const double & epsi, const double & maxch,
+                const double & epsi, const double & maxch, const double & maxv,
                 const datamatrix & categories,
                 const datamatrix & weight, ostream * lo)
   {
@@ -52,6 +52,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
   lowerlim=lowerlimit;
   eps=epsi;
   maxchange=maxch;
+  maxvar = maxv;
 
   fullcond = fc;
   unsigned i, j, k;
@@ -1079,7 +1080,7 @@ out21.close();*/
      }
    for(i=0; i<theta.rows(); i++)
      {
-     if(stopcrit[i]<lowerlim)
+     if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
        {
        theta(i,0)=thetaold(i,0);
        }
@@ -1167,6 +1168,10 @@ out21.close();*/
     if(stopcrit[i]<lowerlim)
       {
       thetareml(i,1)=1;
+      }
+    else if(theta(i,0)>maxvar)
+      {
+      thetareml(i,1)=-1;
       }
     thetareml(i,2)=its[i];
     }
@@ -1464,7 +1469,7 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
      {
      helpmat2=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1]);
      stopcrit[i]=helpmat2.norm(0)/help;
-     if(stopcrit[i]<lowerlim)
+     if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
        {
        theta(i,0)=thetaold(i,0);
        }
@@ -1547,6 +1552,10 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
     if(stopcrit[i]<lowerlim)
       {
       thetareml(i,1)=1;
+      }
+    else if(theta(i,0)>maxvar)
+      {
+      thetareml(i,1)=-1;
       }
     thetareml(i,2)=its[i];
     }

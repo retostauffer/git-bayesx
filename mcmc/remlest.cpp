@@ -16,7 +16,8 @@
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,bool dispers,
                    const ST::string & family, const ST::string & ofile,
                   const int & maxiter, const double & lowerlimit,
-                  const double & epsi, const double & maxch, ostream * lo)
+                  const double & epsi, const double & maxch,
+                  const double & maxv, ostream * lo)
     {
 
     #if defined(JAVA_OUTPUT_WINDOW)
@@ -31,6 +32,7 @@
     lowerlim=lowerlimit;
     eps=epsi;
     maxchange=maxch;
+    maxvar = maxv;
 
     fullcond = fc;
     unsigned i;
@@ -287,7 +289,7 @@
      {
      dinv=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
      stopcrit[i]=dinv.norm(0)/help;
-     if(stopcrit[i]<lowerlim)
+     if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
        {
        theta(i,0)=thetaold(i,0);
        }
@@ -413,6 +415,10 @@
     if(stopcrit[i]<lowerlim)
       {
       thetareml(i,1)=1;
+      }
+    else if(theta(i,0)>maxvar)
+      {
+      thetareml(i,1)=-1;
       }
     thetareml(i,2)=its[i];
     }
@@ -1010,7 +1016,7 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
      {
      dinv=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
      stopcrit[i]=dinv.norm(0)/help;
-     if(stopcrit[i]<lowerlim)
+     if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
        {
        theta(i,0)=thetaold(i,0);
        }
@@ -1139,6 +1145,10 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
     if(stopcrit[i]<lowerlim)
       {
       thetareml(i,1)=1;
+      }
+    else if(theta(i,0)>maxvar)
+      {
+      thetareml(i,1)=-1;
       }
     thetareml(i,2)=its[i];
     }
@@ -1626,7 +1636,7 @@ bool remlest::estimate_survival(const datamatrix resp,
                 const datamatrix & offset, const datamatrix & weight)
   {
 
-  unsigned i, j, k, l;
+/*  unsigned i, j, k, l;
   double help;
 
   outoptions();
@@ -2480,7 +2490,7 @@ bool remlest::estimate_survival(const datamatrix resp,
     {
     beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,false,xcut[i],X.cols()+zcut[i-1],0,false,i);
     }
-  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcut[0],0,0,false,0);
+  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcut[0],0,0,false,0);*/
 
   return false;
   }
@@ -5216,7 +5226,7 @@ for(i=0; i<nrobs; i++)
 
     Hinv=H.inverse();
 
-    if(!aicstop)
+/*    if(!aicstop)
       {
       // transform theta
       for(i=0; i<theta.rows(); i++)
@@ -5256,6 +5266,52 @@ for(i=0; i<nrobs; i++)
         signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
         theta(i,0) *= theta(i,0);
         thetaold(i,0) *= thetaold(i,0);
+        }
+      }*/
+
+    if(!aicstop)
+      {
+      // transform theta
+      for(i=0; i<theta.rows(); i++)
+        {
+        thetaold(i,0)=log(sqrt(thetaold(i,0)));
+        theta(i,0)=log(sqrt(theta(i,0)));
+        }
+
+      // Score-Funktion für theta
+
+     for(j=0; j<theta.rows(); j++)
+        {
+/*        score(j,0)=-1*exp(theta(j,0))*((zcut[j+1]-zcut[j])/exp(theta(j,0))-
+                         (Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[j],X.cols()+zcut[j+1],X.cols()+zcut[j+1])).trace()/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0)))-
+                         (beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]).transposed()*beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]))(0,0)/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0))));*/
+        score(j,0)=-1*((zcut[j+1]-zcut[j])-
+                         (Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[j],X.cols()+zcut[j+1],X.cols()+zcut[j+1])).trace()/(exp(theta(j,0))*exp(theta(j,0)))-
+                         (beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]).transposed()*beta.getRowBlock(X.cols()+zcut[j],X.cols()+zcut[j+1]))(0,0)/(exp(theta(j,0))*exp(theta(j,0))));
+        }
+
+      // Fisher-Info für theta
+
+      for(j=0; j<theta.rows(); j++)
+        {
+        for(k=j; k< theta.rows(); k++)
+          {
+//          Fisher(j,k) = 2*exp(theta(j,0))*exp(theta(k,0))*((Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[k],X.cols()+zcut[j+1],X.cols()+zcut[k+1])*Hinv.getBlock(X.cols()+zcut[k],X.cols()+zcut[j],X.cols()+zcut[k+1],X.cols()+zcut[j+1])).trace())/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0))*exp(theta(k,0))*exp(theta(k,0))*exp(theta(k,0)));
+          Fisher(j,k) = 2*((Hinv.getBlock(X.cols()+zcut[j],X.cols()+zcut[k],X.cols()+zcut[j+1],X.cols()+zcut[k+1])*Hinv.getBlock(X.cols()+zcut[k],X.cols()+zcut[j],X.cols()+zcut[k+1],X.cols()+zcut[j+1])).trace())/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(k,0))*exp(theta(k,0)));
+          Fisher(k,j) = Fisher(j,k);
+          }
+        }
+
+      //Fisher-scoring für theta
+
+      theta = thetaold + Fisher.solve(score);
+
+      // transform theta back to original parameterisation
+
+      for(i=0; i<theta.rows(); i++)
+        {
+        theta(i,0) = exp(theta(i,0))*exp(theta(i,0));
+        thetaold(i,0) = exp(thetaold(i,0))*exp(thetaold(i,0));
         }
       }
 
@@ -5333,7 +5389,7 @@ for(i=0; i<nrobs; i++)
        {
        helpmat=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
        stopcrit[i]=helpmat.norm(0)/help;
-       if(stopcrit[i]<lowerlim)
+       if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
          {
          theta(i,0)=thetaold(i,0);
          }
@@ -5413,6 +5469,10 @@ for(i=0; i<nrobs; i++)
     if(stopcrit[i]<lowerlim)
       {
       thetareml(i,1)=1;
+      }
+    else if(theta(i,0)>maxvar)
+      {
+      thetareml(i,1)=-1;
       }
     thetareml(i,2)=its[i];
     }
@@ -6171,6 +6231,7 @@ void remlest::outerror(const ST::string & s)
   {
   out(s,true,true,12,255,0,0);
   }
+
 
 
 

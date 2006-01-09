@@ -40,6 +40,7 @@ class remlest_ordinal
   double lowerlim;
   double eps;
   double maxchange;
+  double maxvar;
 
   double refcat;                                   // Referenz-Kategorie
   unsigned nrcat;                                    // Anzahl Kategorien
@@ -91,8 +92,8 @@ class remlest_ordinal
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const double & maxch, const datamatrix & categories,
-          const datamatrix & weight,
+          const double & maxch, const double & maxv,
+          const datamatrix & categories, const datamatrix & weight,
           ostream * lo=&cout);
 //------------------------------------------------------------------------------
 //--------------------------- get characteristics ------------------------------
