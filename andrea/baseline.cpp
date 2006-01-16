@@ -324,7 +324,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   zi_ges.indexsort(ges_index,0,zi_ges.rows()-1,0,0);
 
 //  testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true,knot);
-  testmat = MCMC::bsplinemat(zi,nrk,degr,kp,true);
+  testmat = MCMC::bsplinemat(zi_ges,nrk,degr,kp,true);
 
   coeff = datamatrix(gauss_n,1,0);
   coeff(0,0) = 0.330239355001260;
