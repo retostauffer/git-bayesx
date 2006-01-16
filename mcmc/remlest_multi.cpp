@@ -1890,7 +1890,7 @@ out1.close();*/
     {
     if(fullcond[i]->get_dimZ()==0)
       {
-      beta(j,0) = log(10/t_X(t_X.rows()-1,1));
+      beta(j,0) = log(100/t_X(t_X.rows()-1,1));
       k++;
       }
     j += fullcond[i]->get_dimX();
