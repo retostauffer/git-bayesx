@@ -745,8 +745,8 @@ void pspline_multibaseline::compute_int_ti_mean(void)
       vector <double *> betavec;
       for(i=0;i<(baselinep.size());i++)
         {
-        splinevec.push_back(baselinep[i]->get_spline_ges());
-        splinevec2.push_back(baselinep[i]->get_spline_ges2());
+        splinevec.push_back(baselinep[i]->get_spline_ges_mean());
+        splinevec2.push_back(baselinep[i]->get_spline_ges2_mean());
         }
       for(i=0;i<(baselinep.size());i++)
         betavec.push_back(baselinep[i]->get_betamean());

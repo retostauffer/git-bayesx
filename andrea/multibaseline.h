@@ -156,8 +156,14 @@ pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fcc,
 
   double * get_spline_ges_mean(void)
     {
-    testmat.mult_index(spline_ges,betamean);
+    testmat.mult(spline_ges,betamean);
     return spline_ges.getV();
+    }
+
+  double * get_spline_ges2_mean(void)
+    {
+    testmat.mult_index(spline_ges2,betamean);
+    return spline_ges2.getV();
     }
 
 //double * get_gaussspline(void);
