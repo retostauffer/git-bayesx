@@ -117,6 +117,10 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
   totalvars = zcutbeta.size()-1;
 
   beta=statmatrix<double>(totalnrpar,1,0);
+  for(i=0; i<nrcat2; i++)
+    {
+    beta(i,0) = randnumbers::uniform();
+    }
   theta=statmatrix<double>(totalvars,1,0);
 
   k=0;
@@ -143,7 +147,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
 //------------------------------------------------------------------------------
 
 bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix & offset,
-                const datamatrix & weight)
+                const datamatrix & weight/*, const datamatrix & naindicator*/)
   {
   unsigned i, j, k, l;
 
@@ -152,6 +156,18 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
 
   for(i=0;i<fullcond.size();i++)
     fullcond[i]->outoptionsreml();
+
+/*  vector<int>nasum(nrobs,0);
+  for(i=0; i<nrobs; i++)
+    {
+    for(j=0; j<nrcat2; j++)
+      {
+      if(naindicator(i,j)==1)
+        {
+        nasum[i]++;
+        }
+      }
+    }*/
 
 // ----------------------------------------------------------------------------
 // --- Conny: Konstruiere großes X und Z
@@ -409,6 +425,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
 
   vector<double>stopcrit(theta.rows(),10);
   vector<int>its(theta.rows(),0);
+  vector<int>thetastop(theta.rows(),0);
   vector<int>signs(theta.rows(),1);
 
   // Linear predictor and indicator response
@@ -454,7 +471,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
       }
 
     eta = offset + Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
-    compute_weights(mu,workweight,worky,eta,respind,weight);
+    compute_weights(mu,workweight,worky,eta,respind,weight/*,naindicator,nasum*/);
     worky = worky - offset;
 
     stop = check_pause();
@@ -653,6 +670,14 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
       if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
         {
         theta(i,0)=thetaold(i,0);
+        if(stopcrit[i]<lowerlim)
+          {
+          thetastop[i]=1;
+          }
+        else
+          {
+          thetastop[i]=-1;
+          }
         }
       else
         {
@@ -730,14 +755,7 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
   thetareml.putCol(0,theta);
   for(i=0; i<theta.rows(); i++)
     {
-    if(stopcrit[i]<lowerlim)
-      {
-      thetareml(i,1)=1;
-      }
-    else if(theta(i,0)>maxvar)
-      {
-      thetareml(i,1)=-1;
-      }
+    thetareml(i,1)=thetastop[i];
     thetareml(i,2)=its[i];
     }
 
@@ -747,7 +765,7 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
 
   // update linear predictor and working weights
   eta = offset + Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
-  compute_weights(mu,workweight,worky,eta,respind,weight);
+  compute_weights(mu,workweight,worky,eta,respind,weight/*,naindicator,nasum*/);
 
   double mean=0;
   k=0;
@@ -854,12 +872,25 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
   }
 
 bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
-                  const datamatrix & offset, const datamatrix & weight)
+                  const datamatrix & offset, const datamatrix & weight/*,
+                  const datamatrix & naindicator*/)
   {
   unsigned i,j,k,l;
 
   outoptions();
   out("\n");
+
+/*  vector<int>nasum(nrobs,0);
+  for(i=0; i<nrobs; i++)
+    {
+    for(j=0; j<nrcat2; j++)
+      {
+      if(naindicator(i,j)==1)
+        {
+        nasum[i]++;
+        }
+      }
+    }*/
 
   for(i=0;i<fullcond.size();i++)
     fullcond[i]->outoptionsreml();
@@ -1058,7 +1089,7 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
     out1.close();*/
 
     eta = offset + Xneu*beta;
-    compute_weights(mu,workweight,worky,eta,respind,weight);
+    compute_weights(mu,workweight,worky,eta,respind,weight/*,naindicator,nasum*/);
     worky = worky - offset;
 
 // ----------------------------------------------------------------------------
@@ -1201,7 +1232,7 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
 
   // update eta and working weights
   eta = offset + Xneu*beta;
-  compute_weights(mu,workweight,worky,eta,respind,weight);
+  compute_weights(mu,workweight,worky,eta,respind,weight/*,naindicator,nasum*/);
   double loglike=0;
   double aic=0;
   double bic=0;
@@ -1302,15 +1333,44 @@ void remlest_multinomial_catsp::compute_respind(const datamatrix & re, datamatri
 
 void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & workweights,
                   datamatrix & worky, datamatrix & eta, datamatrix & respind,
-                  const datamatrix & weight)
+                  const datamatrix & weight/*, const datamatrix & naindicator,
+                  const vector<int> & nasum*/)
+
   {
   unsigned i,j,k1,k2,l;
 
+//  datamatrix workweighthelp;
+//  datamatrix workweighthelpinverse;
+
 // Compute mu
+/*  datamatrix expos(nrcat2,1,0);
+  double exposum;
+  for(i=0; i<nrobs; i++)
+    {
+    expos=datamatrix(nrcat2,1,0);
+    exposum=0;
+    for(j=0; j<nrcat2; j++)
+      {
+      if(naindicator(i,j)==0)
+        {
+        expos(j,0)=exp(eta(i*nrcat2+j,0));
+        exposum+=expos(j,0);
+        }
+      }
+    if(naindicator(i,nrcat2)==0)
+      {
+      exposum+=1;
+      }
+    for(j=0; j<nrcat2; j++)
+      {
+      mu(i*nrcat2+j,0)=expos(j,0)/exposum;
+      }
+    }*/
   datamatrix expos(nrcat2,1,0);
   double exposum;
   for(i=0; i<nrobs; i++)
     {
+    expos=datamatrix(nrcat2,1,0);
     exposum=0;
     for(j=0; j<nrcat2; j++)
       {
@@ -1344,6 +1404,61 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & wo
 
 // Compute worky;
 
+/*  for(i=0; i<nrobs; i++)
+    {
+    if(weight(i,0)>0)
+      {
+      if(nasum[i]>0)
+        {
+        int test=nasum[i];
+        workweighthelp = datamatrix(nrcat2-nasum[i],nrcat2-nasum[i],0);
+        workweighthelpinverse = datamatrix(nrcat2,nrcat2,0);
+        k1=0;
+        for(j=0; j<nrcat2; j++)
+          {
+          k2=0;
+          if(naindicator(i,j)==0)
+            {
+            for(l=0; l<nrcat2; l++)
+              {
+              if(naindicator(i,l)==0)
+                {
+                workweighthelp(k1,k2) = workweights(i*nrcat2+j,l);
+                k2++;
+                }
+              }
+            k1++;
+            }
+          }
+        workweighthelp=workweighthelp.inverse();
+        k1=0;
+        for(j=0; j<nrcat2; j++)
+          {
+          k2=0;
+          if(naindicator(i,j)==0)
+            {
+            for(l=0; l<nrcat2; l++)
+              {
+              if(naindicator(i,l)==0)
+                {
+                workweighthelpinverse(j,l) = workweighthelp(k1,k2);
+                k2++;
+                }
+              }
+            k1++;
+            }
+          }
+        worky.putRowBlock(i*nrcat2,(i+1)*nrcat2,eta.getRowBlock(i*nrcat2,(i+1)*nrcat2)+
+                        workweighthelpinverse*(respind.getRowBlock(i*nrcat2,(i+1)*nrcat2)-mu.getRowBlock(i*nrcat2,(i+1)*nrcat2)));
+        }
+      else
+        {
+        worky.putRowBlock(i*nrcat2,(i+1)*nrcat2,eta.getRowBlock(i*nrcat2,(i+1)*nrcat2)+
+                        workweights.getRowBlock(i*nrcat2,(i+1)*nrcat2).inverse()*
+                        (respind.getRowBlock(i*nrcat2,(i+1)*nrcat2)-mu.getRowBlock(i*nrcat2,(i+1)*nrcat2)));
+        }
+      }
+    }*/
   for(i=0; i<nrobs; i++)
     {
     if(weight(i,0)>0)
@@ -1353,7 +1468,6 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & wo
                         (respind.getRowBlock(i*nrcat2,(i+1)*nrcat2)-mu.getRowBlock(i*nrcat2,(i+1)*nrcat2)));
       }
     }
-
   }
 
 //------------------------------------------------------------------------------
@@ -1945,6 +2059,8 @@ void remlest_multinomial_catsp::outerror(const ST::string & s)
   {
   out(s,true,true,12,255,0,0);
   }
+
+
 
 
 

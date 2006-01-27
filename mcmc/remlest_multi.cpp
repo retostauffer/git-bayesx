@@ -159,6 +159,7 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
 
   vector<double>stopcrit(theta.rows(),10);
   vector<int>its(theta.rows(),0);
+  vector<int>thetastop(theta.rows(),0);
   vector<int>signs(theta.rows(),1);
 
   // Linear predictor and indicator response
@@ -302,9 +303,17 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
         {
         helpmat2 = Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(totalnrfixed+zcutbeta[j*partialvar+i],totalnrfixed+zcutbeta[j*partialvar+i+1]);
         stopcrit[j*partialvar+i]=helpmat2.norm(0)/helpmat(j,0);
-        if(stopcrit[j*partialvar+i]<lowerlim  || theta(j*partialvar+i,0)>maxvar)
+        if(stopcrit[j*partialvar+i]<lowerlim || theta(j*partialvar+i,0)>maxvar)
           {
           theta(j*partialvar+i,0)=thetaold(j*partialvar+i,0);
+          if(stopcrit[j*partialvar+i]<lowerlim)
+            {
+            thetastop[j*partialvar+i]=1;
+            }
+          else
+            {
+            thetastop[j*partialvar+i]=-1;
+            }
           }
         else
           {
@@ -383,14 +392,7 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
   thetareml.putCol(0,theta);
   for(i=0; i<theta.rows(); i++)
     {
-    if(stopcrit[i]<lowerlim)
-      {
-      thetareml(i,1)=1;
-      }
-    else if(theta(i,0)>maxvar)
-      {
-      thetareml(i,1)=-1;
-      }
+    thetareml(i,1)=thetastop[i];
     thetareml(i,2)=its[i];
     }
 
@@ -1581,6 +1583,7 @@ bool remlest_multistate::estimate(const datamatrix resp,
 
   vector<double>stopcrit(theta.rows(),10);
   vector<int>its(theta.rows(),0);
+  vector<int>thetastop(theta.rows(),0);
   vector<int>signs(theta.rows(),1);
 
   // Matrix containing the inverse covariance matrix of the random effects
@@ -3317,6 +3320,14 @@ out4.close();*/
       if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
         {
         theta(i,0)=thetaold(i,0);
+        if(stopcrit[i]<lowerlim)
+          {
+          thetastop[i]=1;
+          }
+        else
+          {
+          thetastop[i]=-1;
+          }
         }
       else
         {
@@ -3386,14 +3397,7 @@ out4.close();*/
   thetareml.putCol(0,theta);
   for(i=0; i<theta.rows(); i++)
     {
-    if(stopcrit[i]<lowerlim)
-      {
-      thetareml(i,1)=1;
-      }
-    else if(theta(i,0)>maxvar)
-      {
-      thetareml(i,1)=-1;
-      }
+    thetareml(i,1)=thetastop[i];
     thetareml(i,2)=its[i];
     }
 
@@ -3542,6 +3546,7 @@ void remlest_multistate::outerror(const ST::string & s)
   {
   out(s,true,true,12,255,0,0);
   }
+
 
 
 

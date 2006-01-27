@@ -109,13 +109,13 @@ class remlest_multinomial_catsp
   // Task: Perform REML-estimation with nonparametric terms
 
   bool estimate(const datamatrix resp, const datamatrix & offset,
-                const datamatrix & weight);
+                const datamatrix & weight/*, const datamatrix & naindicator*/);
 
   // Function: estimate_glm
   // Task: Perform REML-estimation without nonparametric terms
 
   bool estimate_glm(const datamatrix resp, const datamatrix & offset,
-                const datamatrix & weight);
+                const datamatrix & weight/*, const datamatrix & naindicator*/);
 
 //------------------------------------------------------------------------------
 //------------- Weights, expectation, linear predictor, etc --------------------
@@ -131,7 +131,10 @@ class remlest_multinomial_catsp
 
   void compute_weights(datamatrix & mu, datamatrix & workweights,
                        datamatrix & worky, datamatrix & eta,
-                       datamatrix & respind, const datamatrix & weights);
+                       datamatrix & respind, const datamatrix & weights/*,
+                       const datamatrix & naindicator,
+                       const vector<int> & nasum*/
+                       );
 
   // FUNCTION: compute_eta
   // TASK: Computes the linear predictor X*beta

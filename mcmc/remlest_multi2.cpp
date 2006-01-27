@@ -641,6 +641,7 @@ datamatrix Zneu (nrobs*nrcat2,zcutbeta[zcutbeta.size()-1],0);
 
   vector<double>stopcrit(theta.rows(),10);
   vector<int>its(theta.rows(),0);
+  vector<int>thetastop(theta.rows(),0);
   vector<int>signs(theta.rows(),1);
 
   // Linear predictor and indicator response
@@ -1083,6 +1084,14 @@ out21.close();*/
      if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
        {
        theta(i,0)=thetaold(i,0);
+       if(stopcrit[i]<lowerlim)
+         {
+         thetastop[i]=1;
+         }
+       else
+         {
+         thetastop[i]=-1;
+         }
        }
      else
        {
@@ -1165,14 +1174,7 @@ out21.close();*/
   thetareml.putCol(0,theta);
   for(i=0; i<theta.rows(); i++)
     {
-    if(stopcrit[i]<lowerlim)
-      {
-      thetareml(i,1)=1;
-      }
-    else if(theta(i,0)>maxvar)
-      {
-      thetareml(i,1)=-1;
-      }
+    thetareml(i,1)=thetastop[i];
     thetareml(i,2)=its[i];
     }
 
