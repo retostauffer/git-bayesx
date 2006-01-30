@@ -15,6 +15,7 @@
 #include<distribution.h>
 #include<fullcond.h>
 #include<baseline.h>
+#include<multibaseline.h>
 
 namespace MCMC
 {

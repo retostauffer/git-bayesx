@@ -440,6 +440,13 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
             j++;
           ( dynamic_cast<pspline_baseline*>(fullcondp[j]) )->compute_int_ti_mean();
           }
+       else if (likep_mult[i]->get_family() == "multistate" && likep_mult[i]->get_predict() == true)
+          {
+          j = begin[i];
+          while( !fullcondp[j]->is_baseline() )
+            j++;
+          ( dynamic_cast<pspline_multibaseline*>(fullcondp[j]) )->compute_int_ti_mean();
+          }
 
         if (likepexisting)
           likep_mult[i]->outresults();
