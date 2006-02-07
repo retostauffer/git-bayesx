@@ -1,0 +1,11 @@
+source("c:\\bayesx\\sfunctions\\shp2poly.r")
+source("c:\\bayesx\\sfunctions\\readbndfile.r")
+source("c:\\bayesx\\sfunctions\\drawmap.r")
+
+shp2bnd(shpname="c:\\temp\\gm",regionnames=1:16,bndname="c:\\temp\\test.bnd",replace=T)
+
+readbndfile("c:\\temp\\test.bnd","m")
+col <- runif(16)
+nam <- levels(as.factor(names(m)))
+drawmap(map=m,plotvar=col,regionvar=nam)
+
