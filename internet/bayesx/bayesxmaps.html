@@ -76,10 +76,44 @@ Ende: Allgemeiner Teil der Seite
   <tr>
     <td>
 
+<p style="font-weight:bold">Map objects in BayesX</p>
+
 <p>In BayesX map objects are used to handle, store and visualize geographical information. In the current version map objects 
 serve as auxiliary objects for regression analyses, where the effect of spatial covariates on a dependent variable
 can be modelled via Markov random field priors, but they also allow the visualization of any geographical information associated with the map that is provided in a dataset object. Map objects can be created from boundary files or graph files, compare section 5 of the manual for a
 description of these file formats. </p>
+
+<p style="font-weight:bold">Converting shape files to boundary files</p>
+
+<p>To convert a shape file into a boundary file, you may use the <a href="http://www.r-project.org">R</a>-function <a href="shp2poly.r">shp2poly</a>.
+Shp2poly uses facilities provided in the packages shapefiles and maptools to extract the required information from a shape file and writes the boundary information into a specified file 
+(Thanks to Frank Sagerer for the reference to the shapefiles-package!).</p>
+
+<p>An exemplary R-session might look like this:</p>
+
+<p style="font-family:monospace; font-size:medium">
+source("c:\\bayesx\\sfunctions\\shp2poly.r")<br>
+shp2bnd(shpname="c:\\temp\\gm",regionnames=1:16,bndname="c:\\temp\\test.bnd",replace=T)<br>
+</p>
+
+<p>To check whether the specified boundary file was created correctly, type</p>
+
+<p style="font-family:monospace; font-size:medium">
+source("c:\\bayesx\\sfunctions\\readbndfile.r")<br>
+source("c:\\bayesx\\sfunctions\\drawmap.r")<br>
+<br>
+readbndfile("c:\\temp\\test.bnd","m")<br>
+col <- runif(16)<br>
+nam <- levels(as.factor(names(m)))<br>
+drawmap(map=m,plotvar=col,regionvar=nam)<br>
+</p>
+
+<p>To reproduce the example, download the shapefile <a href="gm.zip">gm.zip</a> and extract it to a directory (c:\temp in the example above). 
+Download the function <a href="shp2poly.r">shp2poly</a> and store it in the directory 'sfunctions' (a subdirectory of the BayesX installation directory, c:\bayesx in the example above).
+Now you can paste the example code (after changing the paths according to your specifications).
+</p>
+
+<p style="font-weight:bold">Available boundary and graph files</p>
 
 <p>On this page we provide boundary files as well as graph files for some maps that have already been used with BayesX. 
 We also request users of BayesX to provide us their maps so that we can make them available on this page.</p>
