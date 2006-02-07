@@ -85,14 +85,14 @@ description of these file formats. </p>
 
 <p style="font-weight:bold">Converting shape files to boundary files</p>
 
-<p>To convert a shape file into a boundary file, you may use the <a href="http://www.r-project.org">R</a>-function <a href="shp2poly.r">shp2poly</a>.
-Shp2poly uses facilities provided in the packages shapefiles and maptools to extract the required information from a shape file and writes the boundary information into a specified file 
+<p>To convert a shape file into a boundary file, you may use the <a href="http://www.r-project.org">R</a>-function <a href="maps/shp2bnd.r">shp2bnd</a>.
+Shp2bnd uses facilities provided in the packages shapefiles and maptools to extract the required information from a shape file and writes the boundary information into a specified file 
 (Thanks to Frank Sagerer for the reference to the shapefiles-package!).</p>
 
 <p>An exemplary R-session might look like this:</p>
 
 <p style="font-family:monospace; font-size:medium">
-source("c:\\bayesx\\sfunctions\\shp2poly.r")<br>
+source("c:\\bayesx\\sfunctions\\shp2bnd.r")<br>
 shp2bnd(shpname="c:\\temp\\gm",regionnames=1:16,bndname="c:\\temp\\test.bnd",replace=T)<br>
 </p>
 
@@ -108,8 +108,8 @@ nam <- levels(as.factor(names(m)))<br>
 drawmap(map=m,plotvar=col,regionvar=nam)<br>
 </p>
 
-<p>To reproduce the example, download the shapefile <a href="gm.zip">gm.zip</a> and extract it to a directory (c:\temp in the example above). 
-Download the function <a href="shp2poly.r">shp2poly</a> and store it in the directory 'sfunctions' (a subdirectory of the BayesX installation directory, c:\bayesx in the example above).
+<p>To reproduce the example, download the shapefile <a href="maps/gm.zip">gm.zip</a> and extract it to a directory (c:\temp in the example above). 
+Download the function <a href="maps/shp2bnd.r">shp2bnd</a> and store it in the directory 'sfunctions' (a subdirectory of the BayesX installation directory, c:\bayesx in the example above).
 Now you can paste the example code (after changing the paths according to your specifications).
 </p>
 
