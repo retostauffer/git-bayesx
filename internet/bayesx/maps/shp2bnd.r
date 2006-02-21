@@ -1,4 +1,4 @@
-shp2bnd <- function(shpname = "c:\\temp\\gm", regionnames = 1:16, bndname = "c:\\temp\\test.bnd", check.is.in = TRUE, replace = FALSE)
+shp2bnd <- function(shpname = "c:\\temp\\gm", regionnames, bndname = "c:\\temp\\test.bnd", check.is.in = TRUE, replace = FALSE)
 {
 # TASK:
 # 
