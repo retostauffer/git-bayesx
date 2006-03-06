@@ -1,6 +1,9 @@
-// DATUM: 06.07.98
 
-#include <clstring.h>
+#include "first.h"
+
+#if !defined (CLSTRING_INCLUDED)
+#include "clstring.h"
+#endif
 
 //------------------------------------------------------------------------------
 //-------------- CLASS STRING: Implementation of member functions --------------
@@ -54,16 +57,19 @@ std::string string::to_bstr(void) const
   return std::string(str);
   }
 
-
 void open(ifstream & fin,string & s,int mode)
   {
-  fin.open(s.strtochar(),mode);
+// GNU:
+  fin.open(s.strtochar(),ios::in);
+//  fin.open(s.strtochar(),mode);
   }
 
 
 void open(ofstream & out, string & s,int mode)
   {
-  out.open(s.strtochar(),mode);
+// GNU:
+  out.open(s.strtochar(),ios::out);
+//  out.open(s.strtochar(),mode);
   }
 
 const string & string::operator=(const string & s)
@@ -813,7 +819,9 @@ int string::strtodouble(double & value) const
 string inttostring(int value)
   {
   char h[20];
-  itoa(value,h,10);
+// GNU:
+  sprintf(h,"%d",value);
+//  itoa(value,h,10);
   return string(h);
   }
 

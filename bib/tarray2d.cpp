@@ -1,11 +1,13 @@
-//	tarray2d.cc 3.1 97/08/05 01:54:47
-//
+
 //	Muster fuer die outline-Funktionen der template-Klasse
 //	Array2D
 
-#include <tarray2d.h>
-#include <tlinklst.h>
-#include <tarray.h>
+#if !defined(TARRAY2D_H_INCLUDED)
+#include "tarray2d.h"
+#endif
+
+#include "tlinklst.h"
+#include "tarray.h"
 #include <assert.h>
 
 //	Array2D(unsigned rows, unsigned cols, const T init)

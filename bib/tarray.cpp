@@ -1,8 +1,9 @@
-//	tarray.cc	1.1	97/07/02	18:58:33 
-//
+
 //	Muster fuer die outline-Funktionen der template-Klasse Array
 
+#if !defined(TARRAY_H_INCLUDED)
 #include "tarray.h"
+#endif
 
 //	Array( unsigned size, const T init )
 //

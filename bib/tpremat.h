@@ -1,5 +1,4 @@
-// tpremat.h 3.3 97/08/20 11:09:39
-// 
+
 // Deklaration einer template-Klasse PreMatrix
 //
 // Der Typ T muss ein "numerischer" Datentyp sein, der neben
@@ -7,10 +6,9 @@
 // bestimmte Funktionen kennt. 
 
 #if !defined(TPREMAT_H_INCLUDED)
-
 #define TPREMAT_H_INCLUDED
 
-#include <tarray2d.h>
+#include "tarray2d.h"
 
 template <class T>
 class PreMatrix : public Array2D<T>

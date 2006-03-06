@@ -1,9 +1,7 @@
-// tarray2d.h 3.1 97/08/05 01:54:37
-//
+
 // Deklaration der template-Klasse Array2D
 
 #if !defined(TARRAY2D_H_INCLUDED)
-
 #define TARRAY2D_H_INCLUDED
 
 #include <iostream.h>

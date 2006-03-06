@@ -1,9 +1,7 @@
-//	/home/kurt/src/templib/SCCS/s.tarray.h 3.1 97/08/05 01:55:49
-//
+
 //	Deklaration der template-Klasse Array
 
 #if !defined(TARRAY_H_INCLUDED)
-
 #define TARRAY_H_INCLUDED
 
 #include <iostream.h>

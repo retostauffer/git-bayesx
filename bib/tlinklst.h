@@ -1,10 +1,7 @@
-// tlinklst.h 3.1 97/08/05 01:57:15
-//
 // Deklaration der template-Klassen LinkedList und
 // LinkedListIterator
 
 #if !defined(TLINKLST_H_INCLUDED)
-
 #define TLINKLST_H_INCLUDED
 
 #include <assert.h>
@@ -191,6 +188,13 @@ public:
 		assert(at <= m_memSize);
 		return m_nodeMemory + (at - 1);
 	}
+
+// GNU:
+    unsigned get_mhead(void)
+	{
+		return(m_head);
+	}
+
 #if defined(NO_TEMPLATE_FRIENDS)
 protected:
 #endif
@@ -257,12 +261,16 @@ public:
 
 	void remove()
 	{
-		removeHead();
+// GNU:
+		this->removeHead();
+//		removeHead();
 	}
 
 	const T &top() const
 	{
-		return head();
+// GNU:
+		return this->head();
+//		return head();
 	}
 };
 
@@ -286,12 +294,16 @@ public:
 
 	void remove()
 	{
-		removeHead();
+// GNU:
+		this->removeHead();
+//		removeHead();
 	}
 
 	const T &top() 
 	{
-	  return head();
+// GNU:
+	  return this->head();
+//	  return head();
 	}
 
 };
@@ -313,19 +325,23 @@ public:
 
 	//	2. Schnittstelle einer Queue
 
-	void insert(T v) 
+	void insert(T v)
 	{
 		addTail(v);
 	}
 
 	void remove()
 	{
-		removeHead();
+// GNU:
+		this->removeHead();
+//		removeHead();
 	}
 
 	const T& first() const
 	{
-		return head();
+// GNU:
+	  return this->head();
+//	  return head();
 	}
 };
 
@@ -362,7 +378,9 @@ public:
 
 	void remove()
 	{
-		removeHead();
+// GNU:
+		this->removeHead();
+//		removeHead();
 	}
 
 
@@ -379,12 +397,18 @@ public:
 	//	4. befreundete Klassen und Funktionen -------------------
 
 #if !defined(NO_TEMPLATE_FRIENDS)
-	friend class ListIterator<T>;
+// GNU:
+	friend class ListIterator;
+//	friend class ListIterator<T>;
 
 private:
-	unsigned int ihead() { return m_head; }
+// GNU:
+	unsigned int ihead() { return this->get_mhead(); }
+//	unsigned int ihead() { return m_head; }
 #else
-        unsigned int ihead() { return m_head; }
+// GNU:
+	unsigned int ihead() { return this->get_mhead(); }
+//	unsigned int ihead() { return m_head; }
 #endif
 };
 

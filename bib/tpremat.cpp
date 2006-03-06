@@ -1,5 +1,4 @@
-// tpremat.cc 3.3 97/08/07 17:01:19 
-//
+
 // Muster fuer die outline-Funktionen der template-Klasse 
 // PreMatrix
 //
@@ -16,15 +15,19 @@
 // wenn der Overhead der Algorithmen gegenueber der Rechenzeit
 // ins Gewicht faellt.
 
-#include <tlinklst.h>
-#include <tarray.h>
+#if !defined(TPREMAT_H_INCLUDED)
+#include "tpremat.h"
+#endif
+
+#include "tlinklst.h"
+#include "tarray.h"
 #include <math.h>
 #include <limits.h>
 
 #if defined(_MSC_VER2)
 #include <strstrea.h>
 #else
-#include <strstream.h>
+#include <strstream>
 #endif
 #include <string.h>
 
@@ -48,16 +51,16 @@
 template <class T>
 PreMatrix<T> PreMatrix<T>::operator+( const PreMatrix<T> &m ) const
 {
-	assert( !operator!( ) );
+	assert( !this->operator!( ) );
 	assert( m );
-	assert( m.rows( ) == rows( ) );
-	assert( m.cols( ) == cols( ) );
+	assert( m.rows( ) == this->rows( ) );
+	assert( m.cols( ) == this->cols( ) );
 
-	if ( operator!( ) || !m || m.rows( ) != rows( ) ||
-		m.cols( ) != cols( )  )
+	if ( this->operator!( ) || !m || m.rows( ) != this->rows( ) ||
+		m.cols( ) != this->cols( )  )
 		return PreMatrix<T>( 0 );
 
-	PreMatrix<T> result( rows( ), cols( ) );
+	PreMatrix<T> result( this->rows( ), this->cols( ) );
 	assert( result );
 	if ( !result )
 		return result;
@@ -81,11 +84,11 @@ PreMatrix<T> PreMatrix<T>::operator+( const PreMatrix<T> &m ) const
 	// Je ein Zeiger laeuft durch jede der drei Matrizen,
 	// die ja von gleicher Gestalt sind.
 
-	unsigned size = rows( ) * cols( );
+	unsigned size = this->rows( ) * this->cols( );
 
 	// Laufvariablen (Zeiger und Zäaehler)
 
-	T *workA = getV( );
+	T *workA = this->getV( );
 	T *workB = m.getV( );
 	T *workR = result.getV( );
 	register unsigned i;
@@ -112,7 +115,7 @@ PreMatrix<T> PreMatrix<T>::operator+()
 	return PreMatrix<T>( *this );
 }
 
- 
+
 // PreMatrix operator-( const PreMatrix &m ) const
 //
 // (Elementweise) NonRealMatrixsubtraktion
@@ -133,16 +136,16 @@ PreMatrix<T> PreMatrix<T>::operator+()
 template <class T>
 PreMatrix<T> PreMatrix<T>::operator-( const PreMatrix<T> &m ) const
 {
-	assert( !operator!( ) );
+	assert( !this->operator!( ) );
 	assert( m );
-	assert( m.rows( ) == rows( ) );
-	assert( m.cols( ) == cols( ) );
+	assert( m.rows( ) == this->rows( ) );
+	assert( m.cols( ) == this->cols( ) );
 
-	if ( operator!( ) || !m || m.rows( ) != rows( ) ||
-		m.cols( ) != cols( )  )
+	if ( this->operator!( ) || !m || m.rows( ) != this->rows( ) ||
+		m.cols( ) != this->cols( )  )
 		return PreMatrix<T>( 0 );
 
-	PreMatrix<T> result( rows( ), cols( ) );
+	PreMatrix<T> result( this->rows( ), this->cols( ) );
 	assert( result );
 	if ( !result )
 		return result;
@@ -156,20 +159,20 @@ PreMatrix<T> PreMatrix<T>::operator-( const PreMatrix<T> &m ) const
 	// r_{ij} = a_{ij} - b_{ij}
 
 	register unsigned i, j;
-	for ( i = 0; i < rows( ); i++ )
-		for( j = 0; j < cols( ); j++ )
-			result( i, j ) = get( i, j ) - m.get( i, j );
+	for ( i = 0; i < this->rows( ); i++ )
+		for( j = 0; j < this->cols( ); j++ )
+			result( i, j ) = this->get( i, j ) - m.get( i, j );
 #else
 
 	// An der Speicherdarstellung orientierte Variante:
 	// Je ein Zeiger laeuft durch jede der drei Matrizen,
 	// die ja von gleicher Gestalt sind.
 
-	unsigned size = rows( ) * cols( );
+	unsigned size = this->rows( ) * this->cols( );
 
 	// Laufvariablen
 
-	T *workA = getV( );
+	T *workA = this->getV( );
 	T *workB = m.getV( );
 	T *workR = result.getV( );
 	register unsigned i;
@@ -218,14 +221,14 @@ PreMatrix<T> PreMatrix<T>::operator-()
 template <class T>
 PreMatrix<T> PreMatrix<T>::operator*( const PreMatrix<T> &m ) const
 {
-	assert( !operator!( ) );
+	assert( !this->operator!( ) );
 	assert( m );
-	assert( m.rows( ) == cols( ) );
+	assert( m.rows( ) == this->cols( ) );
 
-	if ( operator!( ) || !m || m.rows( ) != cols( ) )
+	if ( this->operator!( ) || !m || m.rows( ) != this->cols( ) )
 		return PreMatrix<T>( 0 );
 
-	PreMatrix<T> result( rows( ), m.cols( ) );
+	PreMatrix<T> result( this->rows( ), m.cols( ) );
 	assert( result );
 	if ( !result )
 		return PreMatrix<T>( 0 );
@@ -246,7 +249,7 @@ PreMatrix<T> PreMatrix<T>::operator*( const PreMatrix<T> &m ) const
 		for( j = 0; j < result.cols( ); j++ )
 		{
 			sum = T( 0 );
-			for ( k = 0; k < cols( ); k++ )
+			for ( k = 0; k < this->cols( ); k++ )
 			{
 				T aik = get( i, k );
 				T bkj = m.get( k, j );
@@ -282,7 +285,7 @@ PreMatrix<T> PreMatrix<T>::operator*( const PreMatrix<T> &m ) const
 
 		// workA zeigt auf den Anfang der Zeile i/n
 
-		T *workA = getV( ) +  (i / n) * cols( );
+		T *workA = this->getV( ) +  (i / n) * this->cols( );
 
 		// workB zeigt auf das entsprechende Element in der ersten Zeile
 
@@ -292,7 +295,7 @@ PreMatrix<T> PreMatrix<T>::operator*( const PreMatrix<T> &m ) const
 		// workA in jedem Schritt um ein Element, der Zeiger workB in
 		// jedem Schritt um eine Zeile weitergezaehlt.
 
-		for (k = 0; k < cols(); ++k, ++workA, workB += n )
+		for (k = 0; k < this->cols(); ++k, ++workA, workB += n )
 			if (!(*workA == T(0) || *workB == T(0)))
 				sum += *workA * *workB;
 
@@ -321,21 +324,21 @@ PreMatrix<T> PreMatrix<T>::operator*( const PreMatrix<T> &m ) const
 template <class T>
 PreMatrix<T> PreMatrix<T>::operator*( const T v ) const
 {
-	assert( !operator!( ) );
-	if ( operator!( ) )
+	assert( !this->operator!( ) );
+	if ( this->operator!( ) )
 		return PreMatrix<T>( 0 );
 
 	if ( v == T( 1 ) )
 		return PreMatrix<T>( *this );
    else if ( v == T( 0 ) )
-		return PreMatrix<T>( rows( ), cols( ), T( 0 ) );
+		return PreMatrix<T>( this->rows( ), this->cols( ), T( 0 ) );
 
 	//	PreMatrix uninitialisiert anlgen und mit der PreMatrix, deren 
 	//	Methode aufgerufen wurde und dem Argument der Methode 
 	//	besetzten (spart die initialisierung mit Werten, die 
 	//	im naechsten Schritt ueberschrieben werden.
 
-	PreMatrix<T> result( rows( ), cols( ) );
+	PreMatrix<T> result( this->rows( ), this->cols( ) );
 	assert( result );
 	if ( !result )
 		return PreMatrix<T>( 0 );
@@ -349,16 +352,16 @@ PreMatrix<T> PreMatrix<T>::operator*( const T v ) const
 	// r_{ij} = a_{ik} * v
 
 	register unsigned i, j;
-	for ( i = 0; i < rows( ); i++ )
-		for( j = 0; j < cols( ); j++ )
-			result( i, j ) = get( i, j ) * v;
+	for ( i = 0; i < this->rows( ); i++ )
+		for( j = 0; j < this->cols( ); j++ )
+			result( i, j ) = this->get( i, j ) * v;
 
 #else
 
-	unsigned size = rows( ) * cols( );
+	unsigned size = this->rows( ) * this->cols( );
 	register unsigned i;
 	T *work  = result.getV( );
-	T *workA = getV( );
+	T *workA = this->getV( );
 
 	for ( i = 0; i < size; i++, work++, workA++ )
 		*work = *workA * v;
@@ -383,16 +386,16 @@ PreMatrix<T> PreMatrix<T>::operator*( const T v ) const
 template <class T>
 PreMatrix<T> PreMatrix<T>::operator/( const T v ) const
 {
-	assert(!operator!());	
+	assert(!this->operator!());	
 	assert(!(v == T(0)));
 
-	if ( operator!( ) || v == T( 0 ) )
+	if ( this->operator!( ) || v == T( 0 ) )
 		return PreMatrix<T>( 0 );
 
 	if ( v == T( 1 ) )
 		return PreMatrix<T>( *this );
 
-	PreMatrix<T> result( rows( ), cols( ) );
+	PreMatrix<T> result( this->rows( ), this->cols( ) );
 	assert( result );
 	if ( !result )
 		return result;
@@ -406,16 +409,16 @@ PreMatrix<T> PreMatrix<T>::operator/( const T v ) const
 	// r_{ij} = a_{ik} * v
 
 	register unsigned i, j;
-	for ( i = 0; i < rows( ); i++ )
-		for( j = 0; j < cols( ); j++ )
-			result( i, j ) = get( i, j ) / v;
+	for ( i = 0; i < this->rows( ); i++ )
+		for( j = 0; j < this->cols( ); j++ )
+			result( i, j ) = this->get( i, j ) / v;
 
 #else
 
-	unsigned size = rows( ) * cols( );
+	unsigned size = this->rows( ) * this->cols( );
 	register unsigned i;
 	T *work  = result.getV( );
-	T *workA = getV( );
+	T *workA = this->getV( );
 	for ( i = 0; i < size; i++, work++, workA++ )
 		*work = *workA / v;
 
@@ -427,16 +430,16 @@ PreMatrix<T> PreMatrix<T>::operator/( const T v ) const
 template <class T>
 const PreMatrix<T> &PreMatrix<T>::operator+=( const PreMatrix<T> &m )
 {
-	assert( !operator!( ) );
+	assert( !this->operator!( ) );
 	assert( m );
-	assert( m.rows( ) == rows( ) );
-	assert( m.cols( ) == cols( ) );
+	assert( m.rows( ) == this->rows( ) );
+	assert( m.cols( ) == this->cols( ) );
 
-	if ( operator!( ) )
+	if ( this->operator!( ) )
 	{
 		return *this;
 	}
-	else if ( !m || m.rows( ) != rows( ) ||  m.cols( ) != cols( )  )
+	else if ( !m || m.rows( ) != this->rows( ) ||  m.cols( ) != this->cols( )  )
 	{
 		*this = PreMatrix<T>( 0 );
 		return *this;
@@ -445,15 +448,15 @@ const PreMatrix<T> &PreMatrix<T>::operator+=( const PreMatrix<T> &m )
 #if defined( SAVE_ALGORITHMS )
 
 	register unsigned i, j;
-	for ( i = 0; i < rows( ); i++ )
-		for ( j = 0; j < cols( ); j++ )
-			operator()( i, j ) += m.get( i, j );
+	for ( i = 0; i < this->rows( ); i++ )
+		for ( j = 0; j < this->cols( ); j++ )
+			this->operator()( i, j ) += m.get( i, j );
 
 #else
 	
-	unsigned size = rows( ) * cols( );
+	unsigned size = this->rows( ) * this->cols( );
 	register unsigned i;
-	T * work = getV( );
+	T * work = this->getV( );
 	T * workB = m.getV( );
 	for ( i = 0; i < size; i++ )
 		*work++ += *workB++;
@@ -466,16 +469,16 @@ const PreMatrix<T> &PreMatrix<T>::operator+=( const PreMatrix<T> &m )
 template <class T>
 const PreMatrix<T> &PreMatrix<T>::operator-=( const PreMatrix<T> &m )
 {
-	assert( !operator!( ) );
+	assert( !this->operator!( ) );
 	assert( m );
-	assert( m.rows( ) == rows( ) );
-	assert( m.cols( ) == cols( ) );
+	assert( m.rows( ) == this->rows( ) );
+	assert( m.cols( ) == this->cols( ) );
 
-	if ( operator!( ) )
+	if ( this->operator!( ) )
 	{
 		return *this;
 	}
-	else if ( !m || m.rows( ) != rows( ) || m.cols( ) != cols( )  )
+	else if ( !m || m.rows( ) != this->rows( ) || m.cols( ) != this->cols( )  )
 	{
 		*this = PreMatrix<T>( 0 );
 		return *this;
@@ -484,14 +487,14 @@ const PreMatrix<T> &PreMatrix<T>::operator-=( const PreMatrix<T> &m )
 #if defined( SAVE_ALGORITHMS )
 
 	register unsigned i, j;
-	for ( i = 0; i < rows( ); i++ )
-		for ( j = 0; j < cols( ); j++ )
-			operator()( i, j ) += m.get( i, j );
+	for ( i = 0; i < this->rows( ); i++ )
+		for ( j = 0; j < this->cols( ); j++ )
+			this->operator()( i, j ) += m.get( i, j );
 #else
 
-	unsigned size = rows( ) * cols( );
+	unsigned size = this->rows( ) * this->cols( );
 	register unsigned i;
-	T * work  = getV( );
+	T * work  = this->getV( );
 	T * workB = m.getV( );
 	for ( i = 0; i < size; i++ )
 		*work++ -= *workB++;
@@ -504,23 +507,23 @@ const PreMatrix<T> &PreMatrix<T>::operator-=( const PreMatrix<T> &m )
 template <class T>
 const PreMatrix<T> &PreMatrix<T>::operator*=( const T v )
 {
-	assert( !operator!( ) );
+	assert( !this->operator!( ) );
 
-	if ( operator!( ) )
+	if ( this->operator!( ) )
 		return *this;
 
 #if defined( SAVE_ALGORITHMS )
 
 	register unsigned i, j;
-	for ( i = 0; i < rows( ); i++ )
-		for ( j = 0; j < cols( ); j++ )
-			operator()( i, j ) *= v;
+	for ( i = 0; i < this->rows( ); i++ )
+		for ( j = 0; j < this->cols( ); j++ )
+			this->operator()( i, j ) *= v;
 
 #else
 
-	unsigned size = rows( ) * cols( );
+	unsigned size = this->rows( ) * this->cols( );
 	register unsigned i;
-	T * work  = getV( );
+	T * work  = this->getV( );
 	for ( i = 0; i < size; i++ )
 		*work++ *= v;
 
@@ -532,9 +535,9 @@ const PreMatrix<T> &PreMatrix<T>::operator*=( const T v )
 template <class T>
 const PreMatrix<T> &PreMatrix<T>::operator/=( const T v )
 {
-	assert( !operator!( ) );
+	assert( !this->operator!( ) );
 
-	if ( operator!( ) )
+	if ( this->operator!( ) )
 		return *this;
 
 	assert( v != T( 0 ) );
@@ -548,15 +551,15 @@ const PreMatrix<T> &PreMatrix<T>::operator/=( const T v )
 #if defined( SAVE_ALGORITHMS )
 
 	register unsigned i, j;
-	for ( i = 0; i < rows( ); i++ )
-		for ( j = 0; j < cols( ); j++ )
-			operator()( i, j ) /= v;
+	for ( i = 0; i < this->rows( ); i++ )
+		for ( j = 0; j < this->cols( ); j++ )
+			this->operator()( i, j ) /= v;
 
 #else
 
-	unsigned size = rows( ) * cols( );
+	unsigned size = this->rows( ) * this->cols( );
 	register unsigned i;
-	T * work  = getV( );
+	T * work  = this->getV( );
 	for ( i = 0; i < size; i++ )
 		*work++ /= v;
 
@@ -569,29 +572,29 @@ const PreMatrix<T> &PreMatrix<T>::operator/=( const T v )
 template <class T>
 PreMatrix<T> PreMatrix<T>::transposed( void ) const
 {
-	if ( operator!( ) )
+	if ( this->operator!( ) )
 		return PreMatrix<T>( 0 );
 
-	PreMatrix<T> result( cols( ), rows( ) );
+	PreMatrix<T> result( this->cols( ), this->rows( ) );
 	if ( !result )
 		return result;
 
 	register unsigned i, j;
-	for ( i = 0; i < rows( ); i++ )
-		for ( j = 0; j < cols( ); j++ )
-			result( j, i ) = get( i, j );
+	for ( i = 0; i < this->rows( ); i++ )
+		for ( j = 0; j < this->cols( ); j++ )
+			result( j, i ) = this->get( i, j );
 	return result;
 }
 
 template <class T>
 PreMatrix<T> PreMatrix<T>::sscp( void ) const
 {
-	assert( !operator!( ) );
+	assert( !this->operator!( ) );
 
-	if ( operator!( ) )
+	if ( this->operator!( ) )
 		return PreMatrix<T>( 0 );
 
-	PreMatrix<T> result( cols( ), cols( ) );
+	PreMatrix<T> result( this->cols( ), this->cols( ) );
 	assert( result );
 	if ( !result )
 		return result;
@@ -599,13 +602,13 @@ PreMatrix<T> PreMatrix<T>::sscp( void ) const
 #if defined( SAVE_ALGORITHMS )
 
 	register unsigned i, j, k;
-	for ( i = 0; i < cols( ); i++ )
+	for ( i = 0; i < this->cols( ); i++ )
 	{
-		for ( j = i; j < cols( ); j++ )
+		for ( j = i; j < this->cols( ); j++ )
 		{
 			T sum = T( 0 );
-			for ( k = 0; k < rows( ); k++ )
-				sum += get( k, i ) * get( k, j );
+			for ( k = 0; k < this->rows( ); k++ )
+				sum += this->get( k, i ) * this->get( k, j );
 			result( i, j ) = sum;
 			if ( i != j )
 				result( j, i ) = sum;
@@ -614,16 +617,16 @@ PreMatrix<T> PreMatrix<T>::sscp( void ) const
 
 #else
 
-	unsigned n = cols( );
+	unsigned n = this->cols( );
 	register unsigned i, j, k;
 	for ( i = 0; i < n; i++ )
 	{
 		for ( j = i; j < n; j++ )
 		{
 			T sum = T( 0 );
-			T *workA = getV( ) +  i;
-			T *workB = getV( ) +  j;
-			for ( k = 0; k < rows( ); k++, workA += n, workB += n )
+			T *workA = this->getV( ) +  i;
+			T *workB = this->getV( ) +  j;
+			for ( k = 0; k < this->rows( ); k++, workA += n, workB += n )
 				sum += (*workA) * (*workB);
 			result( i, j ) = sum;
 			if ( i != j )
@@ -641,28 +644,28 @@ void PreMatrix<T>::prettyPrint( ostream &out)
 {
 	register unsigned int i, j;
 
-	int *w = new int[ cols( ) ];
-	for ( j = 0; j < cols( ); j++ )
+	int *w = new int[ this->cols( ) ];
+	for ( j = 0; j < this->cols( ); j++ )
 	{
 		w[ j ] = 0;
-		for ( i = 0; i < rows( ); i++ )
+		for ( i = 0; i < this->rows( ); i++ )
 		{
 			char buffer[128];
-			ostrstream item(buffer, sizeof buffer);
+			std::ostrstream item(buffer, sizeof buffer);
 
-			item << get( i, j ) << ends;
+			item << this->get( i, j ) << ends;
 
 			int currW = strlen( item.str( ) );
 			if ( currW > w[ j ] )
 				w[ j ] = currW;
 		}
 	}
-	for ( i = 0; i < rows( ); i++ )
+	for ( i = 0; i < this->rows( ); i++ )
 	{
-		for ( j = 0; j < cols( ); j++ )
+		for ( j = 0; j < this->cols( ); j++ )
 		{
 			out.width( w[ j ] + 2 );
-			out << get( i, j );
+			out << this->get( i, j );
 		}
 		out << endl;
 	}
@@ -725,7 +728,7 @@ prettyScan( istream &in )
 		//	Die Datenelemente in der Zeile werden ebenfalls erst in
 		//	einem Stack von Elementen (dataRow) gesammelt  
 
-		istrstream line( lineBuffer, buffSize );
+		std::istrstream line( lineBuffer, buffSize );
 
 		Stack<T> dataRow;
 
@@ -787,10 +790,10 @@ prettyScan( istream &in )
 	unsigned rows = inputBuffer.len( );
 	if ( rows && cols )
 	{
-		discard( );
-		m_rows = rows;
-		m_cols = cols;
-		create( );
+		this->discard( );
+		this->m_rows = rows;
+		this->m_cols = cols;
+		this->create( );
 
 		unsigned at = rows - 1;
 
@@ -813,22 +816,22 @@ prettyScan( istream &in )
 template <class T>
 void PreMatrix<T>::print( ostream& out, char delimiter ) const
 {  
-  for ( register unsigned i=0; i<rows(); i++ ) 
+  for ( register unsigned i=0; i<this->rows(); i++ ) 
   {
-    for ( register unsigned j=0; j<cols()-1; j++ )
-      out << get(i,j) << delimiter;
-    out << get(i, cols()-1) << endl;	
+    for ( register unsigned j=0; j<this->cols()-1; j++ )
+      out << this->get(i,j) << delimiter;
+    out << this->get(i, this->cols()-1) << endl;	
   }
 }
 
 template <class T>
 void PreMatrix<T>::print( ostream& out, char* delimiter ) const
 {  
-  for ( register unsigned i=0; i<rows(); i++ ) 
+  for ( register unsigned i=0; i<this->rows(); i++ ) 
   {
-    for ( register unsigned j=0; j<cols()-1; j++ )
-      out << get(i,j) << delimiter;
-    out << get(i, cols()-1) << endl;	
+    for ( register unsigned j=0; j<this->cols()-1; j++ )
+      out << this->get(i,j) << delimiter;
+    out << get(i, this->cols()-1) << endl;	
   }
 }
 
@@ -839,13 +842,13 @@ zero(const T epsilon) const
 {
 	register unsigned int i, j;
 	
-	assert(!operator!());
+   assert(!this->operator!());
    assert(epsilon >= T(0));
 	
-	for (i = 0; i < rows(); ++i)
-		for (j = 0; j < cols(); ++j)
+	for (i = 0; i < this->rows(); ++i)
+		for (j = 0; j < this->cols(); ++j)
 		   {
-			T curr = get(i, j);
+			T curr = this->get(i, j);
 			if (curr > epsilon || curr < -epsilon)
 				return false;
 		   }
@@ -859,15 +862,15 @@ symmetric(const T epsilon) const
 {
   register unsigned i, j;
 
-  assert(!operator!());
-  assert(rows() == cols());
+  assert(!this->operator!());
+  assert(this->rows() == this->cols());
   assert(epsilon >= T(0));
   
-  for (i = 0; i < rows(); i++)
+  for (i = 0; i < this->rows(); i++)
      {
-     for (j = i + 1; j < rows(); j++)
+     for (j = i + 1; j < this->rows(); j++)
         {
-	T diff = get(i, j) - get(j, i);
+	T diff = this->get(i, j) - this->get(j, i);
 	if (diff < T(0))
 	   diff = -diff;
 	if (epsilon < diff)
@@ -883,14 +886,14 @@ PreMatrix<T>
 PreMatrix<T>::
 diag() const
 {
-	assert(!operator!());
-	assert(rows() == cols());
+	assert(!this->operator!());
+	assert(this->rows() == this->cols());
 
-	PreMatrix<T> res(rows(), 1);
+	PreMatrix<T> res(this->rows(), 1);
 
-	for (register unsigned int i = 0; i < rows(); ++i)
-		res.put(i, 0, get(i, i));
-	
+	for (register unsigned int i = 0; i < this->rows(); ++i)
+		res.put(i, 0, this->get(i, i));
+
 	return res;
 }
 
@@ -1083,10 +1086,10 @@ PreMatrix<T>
 PreMatrix<T>:: 
 blockdiag(const PreMatrix<T> &m)
 {
-  PreMatrix<T> res(rows() + m.rows(), cols() + m.cols(), T(0));
+  PreMatrix<T> res(this->rows() + m.rows(), this->cols() + m.cols(), T(0));
 
   res.putBlock(*this, 0, 0);
-  res.putBlock(m, rows(), cols());
+  res.putBlock(m, this->rows(), this->cols());
   return res;
 }
 
@@ -1108,10 +1111,10 @@ decompLU( int *Index, int *IsEven, int unique )  const
   int i, imax, j, k, n;
   T Big, Summe, Temp;
 
-  assert( !(operator!( ) ) );
-  assert( rows( ) == cols( ) );
+  assert( !(this->operator!( ) ) );
+  assert( this->rows( ) == this->cols( ) );
 
-  n = rows( );
+  n = this->rows( );
   PreMatrix<T> Scalings( n, 1, T( 1 ) );
   assert( Scalings );
   if ( !Scalings )
@@ -1281,13 +1284,13 @@ PreMatrix<T>
 PreMatrix<T>::
 luinverse() const
 {
-  assert( !( operator!( ) ) );
-  assert( rows( ) == cols( ) );
-  assert( rows( ) );
+  assert( !( this->operator!( ) ) );
+  assert( this->rows( ) == this->cols( ) );
+  assert( this->rows( ) );
 
-  if ( rows( ) == 1 )
+  if ( this->rows( ) == 1 )
     {
-    T v = get( 0, 0 );
+    T v = this->get( 0, 0 );
 
     if ( v == T( 0 ) )
       return PreMatrix<T>( 0 );
@@ -1295,11 +1298,11 @@ luinverse() const
     return PreMatrix<T>( 1, 1, T( T(1) / v ) );
     }
 
-  PreMatrix<T> Inverse( rows( ), cols( ) );
+  PreMatrix<T> Inverse( this->rows( ), this->cols( ) );
   if ( !Inverse )
     return PreMatrix<T>( 0 );
 
-  int *index = new int[ rows( ) ];
+  int *index = new int[ this->rows( ) ];
   if ( !index )
     return PreMatrix<T>( 0 );
 
@@ -1309,9 +1312,9 @@ luinverse() const
     delete [] index;
     return PreMatrix<T>( 0 );
     }
-  for ( register unsigned j = 0; j < cols( ); j++ )
+  for ( register unsigned j = 0; j < this->cols( ); j++ )
     {
-    PreMatrix<T> select( rows( ), 1, T( 0 ) );
+    PreMatrix<T> select( this->rows( ), 1, T( 0 ) );
     if ( !select )
       {
       delete [] index;
@@ -1327,7 +1330,7 @@ luinverse() const
       return PreMatrix<T>( 0 );
       }
 
-    for ( register unsigned i = 0; i < rows( ); i++ )
+    for ( register unsigned i = 0; i < this->rows( ); i++ )
       Inverse( i, j ) = colInverse( i, 0 );
     }
   delete [] index;
@@ -1349,19 +1352,19 @@ PreMatrix<T>
 PreMatrix<T>::
 solve ( const PreMatrix<T> &bIn ) const
 {
-  assert( !( operator!( ) ) );
-  assert( rows( ) == cols( ) );
-  assert( bIn.rows() == rows() && bIn.cols() == 1 );
+  assert( !( this->operator!( ) ) );
+  assert( this->rows( ) == this->cols( ) );
+  assert( bIn.rows() == this->rows() && bIn.cols() == 1 );
 
-  if ( rows( ) == 1 )
+  if ( this->rows( ) == 1 )
     {
-    if (get( 0, 0 ) == T(0))
+    if (this->get( 0, 0 ) == T(0))
       return PreMatrix<T>( 0 );
 
-    return PreMatrix<T>( 1, 1, T( bIn.get(0,0) / get( 0, 0 ) ) );
+    return PreMatrix<T>( 1, 1, T( bIn.get(0,0) / this->get( 0, 0 ) ) );
     }
 
-  int *index = new int[ rows( ) ];
+  int *index = new int[ this->rows( ) ];
   if ( !index )
     return PreMatrix<T>( 0 );
 
@@ -1396,12 +1399,12 @@ PreMatrix<T>
 PreMatrix<T>::
 kronecker(const PreMatrix<T> &m) const
 {
-   PreMatrix<T> res(rows() * m.rows(), cols() * m.cols());
+   PreMatrix<T> res(this->rows() * m.rows(), this->cols() * m.cols());
    unsigned int i, j;
 
-   for (i = 0; i < rows(); ++i)
-      for (j = 0; j < cols(); ++j)
-         res.putBlock(get(i, j) * m, i * m.rows(), j * m.cols());
+   for (i = 0; i < this->rows(); ++i)
+      for (j = 0; j < this->cols(); ++j)
+         res.putBlock(this->get(i, j) * m, i * m.rows(), j * m.cols());
    return res;
 }
 
@@ -1418,11 +1421,11 @@ PreMatrix<T>
 PreMatrix<T>::
 vec() const
 {
-   PreMatrix<T> res(rows() * cols(), 1);
+   PreMatrix<T> res(this->rows() * this->cols(), 1);
    unsigned int j;
 
-   for (j = 0; j < cols(); ++j)
-      res.putBlock(getCol(j), j * rows(), 0);
+   for (j = 0; j < this->cols(); ++j)
+      res.putBlock(getCol(j), j * this->rows(), 0);
    return res;
 }
 
@@ -1439,11 +1442,11 @@ PreMatrix<T>
 PreMatrix<T>::
 vech() const
 {
-   PreMatrix<T> res(1, cols() * rows());
+   PreMatrix<T> res(1, this->cols() * this->rows());
    unsigned int i;
 
-   for (i = 0; i < rows(); ++i)
-      res.putBlock(getRow(i), 0, i * cols());
+   for (i = 0; i < this->rows(); ++i)
+      res.putBlock(getRow(i), 0, i * this->cols());
    return res;
 }
 
@@ -1460,8 +1463,8 @@ T
 PreMatrix<T>::
 det() const
 {
-	assert(!operator!());
-	assert(rows() == cols());
+	assert(!this->operator!());
+	assert(this->rows() == this->cols());
 
         int isEven;
 	PreMatrix<T> LU = decompLU(0, &isEven);
@@ -1469,7 +1472,7 @@ det() const
 		return PreMatrix<T>(0);
 
 	T res = T(1);
-	for (unsigned int i = 0; i < rows(); ++i)
+	for (unsigned int i = 0; i < this->rows(); ++i)
 		res *= LU.get(i, i);
 	return res * T(isEven);
 }
@@ -1487,12 +1490,12 @@ template <class T>
 T
 PreMatrix<T>::trace() const
 {
-	assert(!operator!());
-	assert(rows() == cols());
+	assert(!this->operator!());
+	assert(this->rows() == this->cols());
 
 	T res = 0.0;
-	for (unsigned int i = 0; i < rows(); ++i)
-		res += get(i, i);
+	for (unsigned int i = 0; i < this->rows(); ++i)
+		res += this->get(i, i);
 	return res;
 }
 

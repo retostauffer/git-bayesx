@@ -1,5 +1,3 @@
-// tlinklst.cc 3.1 97/08/05 01:57:27
-//
 // Schablonen fuer die Klassen LinkedList und LinkedListIterator
 
 #if !defined(TLINKLST_H_INCLUDED)
@@ -681,11 +679,15 @@ void
 Heap<T>::
 insert(T v)
 {
-  if (empty())
+// GNU:
+  if (this->empty())
+//  if (empty())
     addTail(v);
   else
     {
-    ListNode<T> *curr = getNode(m_head);
+  // GNU:
+    ListNode<T> *curr = getNode(this->get_mhead());
+//    ListNode<T> *curr = getNode(m_head);
   
     while(curr && (curr->v < v))
        curr = curr->next ? getNode(curr->next) : 0;
