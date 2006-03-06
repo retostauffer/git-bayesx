@@ -294,7 +294,7 @@ void remlreg::create(void)
   lefttrunc = stroption("lefttrunc");
   state = stroption("state");
   binomweight = stroption("binomweight");
-//  naindicator = stroption("naindicator");
+  naindicator = stroption("naindicator");
   globalfrailty = stroption("globalfrailty");
   gflambdastart = doubleoption("gflambdastart",1000,0,10000000);
 
@@ -322,7 +322,7 @@ void remlreg::create(void)
   regressoptions.push_back(&lefttrunc);
   regressoptions.push_back(&state);
   regressoptions.push_back(&binomweight);
-//  regressoptions.push_back(&naindicator);
+  regressoptions.push_back(&naindicator);
   regressoptions.push_back(&globalfrailty);
   regressoptions.push_back(&gflambdastart);
 
@@ -672,7 +672,7 @@ bool remlreg::create_data(datamatrix & weight)
       }
 
     // Für multinomiale Modelle: NA-Indikator anfügen
-/*    if(naindicator.getvalue() != "")
+    if(naindicator.getvalue() != "")
       {
       ST::string test;
       if(naindicator.getvalue().length()>12)
@@ -693,7 +693,7 @@ bool remlreg::create_data(datamatrix & weight)
         outerror("ERROR: naindicator has to be category-specific\n");
         return true;
         }
-      }*/
+      }
 
     // Für multinomiale Modelle: Kategorienspezifische Kovariablen extrahieren
 
@@ -1083,7 +1083,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
 
     // extract NA-Indicator
 
-/*      naind = datamatrix(D.rows(),allcats.size(),0);
+      naind = datamatrix(D.rows(),allcats.size(),0);
       if(naindicator.getvalue()!="" && family.getvalue()=="multinomialcatsp")
         {
         unsigned k,j;
@@ -1093,7 +1093,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
           j = (help+ST::inttostring(allcats[k])).isinlist(modelvarnamesv);
           naind.putCol(k, D.getCol(j));
           }
-        }*/
+        }
       }
 
     // define cats (categories without reference category)
@@ -3756,9 +3756,9 @@ void remlrun(remlreg & b)
       b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
       b.maxchange.getvalue(), b.maxvar.getvalue(), b.cats, weight, b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
-        failure = b.RE_M_catsp.estimate_glm(response,offset,weight/*,b.naind*/);
+        failure = b.RE_M_catsp.estimate_glm(response,offset,weight,b.naind);
       else
-        failure = b.RE_M_catsp.estimate(response,offset,weight/*,b.naind*/);
+        failure = b.RE_M_catsp.estimate(response,offset,weight,b.naind);
       }
 // Ordinale Modelle
     else if (b.family.getvalue()=="cumlogit" ||

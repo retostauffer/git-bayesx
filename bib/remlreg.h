@@ -220,8 +220,8 @@ class __EXPORT_TYPE remlreg : public statobject
   stroption binomweight;                // Gewichtung von Binomialverteilung
   int binomweightpos;                   // Position in der Datenmatrix
 
-//  stroption naindicator;
-//  datamatrix naind;
+  stroption naindicator;
+  datamatrix naind;
 
   stroption globalfrailty;              // multistate: Globale Frailty-Variable
   doubleoption gflambdastart;           // starting value for variance of the global frailty

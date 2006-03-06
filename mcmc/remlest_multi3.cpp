@@ -147,7 +147,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
 //------------------------------------------------------------------------------
 
 bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix & offset,
-                const datamatrix & weight/*, const datamatrix & naindicator*/)
+                const datamatrix & weight, const datamatrix & naindicator)
   {
   unsigned i, j, k, l;
 
@@ -157,7 +157,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
   for(i=0;i<fullcond.size();i++)
     fullcond[i]->outoptionsreml();
 
-/*  vector<int>nasum(nrobs,0);
+  vector<int>nasum(nrobs,0);
   for(i=0; i<nrobs; i++)
     {
     for(j=0; j<nrcat2; j++)
@@ -167,7 +167,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
         nasum[i]++;
         }
       }
-    }*/
+    }
 
 // ----------------------------------------------------------------------------
 // --- Conny: Konstruiere großes X und Z
@@ -471,7 +471,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
       }
 
     eta = offset + Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
-    compute_weights(mu,workweight,worky,eta,respind,weight/*,naindicator,nasum*/);
+    compute_weights(mu,workweight,worky,eta,respind,weight,naindicator,nasum);
     worky = worky - offset;
 
     stop = check_pause();
@@ -765,7 +765,7 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
 
   // update linear predictor and working weights
   eta = offset + Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
-  compute_weights(mu,workweight,worky,eta,respind,weight/*,naindicator,nasum*/);
+  compute_weights(mu,workweight,worky,eta,respind,weight,naindicator,nasum);
 
   double mean=0;
   k=0;
@@ -862,7 +862,14 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
     {
     for(j=0; j<nrcat2; j++)
       {
-      outpredict << eta(i*nrcat2+j,0) << " " << mu(i*nrcat2+j,0) << " ";
+      if(naindicator(i,j)==0)
+        {
+        outpredict << eta(i*nrcat2+j,0) << " " << mu(i*nrcat2+j,0) << " ";
+        }
+      else
+        {
+        outpredict << "NA" << " " << 0 << " ";
+        }
       }
     outpredict << endl;
     }
@@ -872,15 +879,15 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
   }
 
 bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
-                  const datamatrix & offset, const datamatrix & weight/*,
-                  const datamatrix & naindicator*/)
+                  const datamatrix & offset, const datamatrix & weight,
+                  const datamatrix & naindicator)
   {
   unsigned i,j,k,l;
 
   outoptions();
   out("\n");
 
-/*  vector<int>nasum(nrobs,0);
+  vector<int>nasum(nrobs,0);
   for(i=0; i<nrobs; i++)
     {
     for(j=0; j<nrcat2; j++)
@@ -890,7 +897,7 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
         nasum[i]++;
         }
       }
-    }*/
+    }
 
   for(i=0;i<fullcond.size();i++)
     fullcond[i]->outoptionsreml();
@@ -1089,7 +1096,7 @@ bool remlest_multinomial_catsp::estimate_glm(const datamatrix resp,
     out1.close();*/
 
     eta = offset + Xneu*beta;
-    compute_weights(mu,workweight,worky,eta,respind,weight/*,naindicator,nasum*/);
+    compute_weights(mu,workweight,worky,eta,respind,weight,naindicator,nasum);
     worky = worky - offset;
 
 // ----------------------------------------------------------------------------
@@ -1232,7 +1239,7 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
 
   // update eta and working weights
   eta = offset + Xneu*beta;
-  compute_weights(mu,workweight,worky,eta,respind,weight/*,naindicator,nasum*/);
+  compute_weights(mu,workweight,worky,eta,respind,weight,naindicator,nasum);
   double loglike=0;
   double aic=0;
   double bic=0;
@@ -1303,7 +1310,14 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
     {
     for(j=0; j<nrcat2; j++)
       {
-      outpredict << eta(i*nrcat2+j,0) << " " << mu(i*nrcat2+j,0) << " ";
+      if(naindicator(i,j)==0)
+        {
+        outpredict << eta(i*nrcat2+j,0) << " " << mu(i*nrcat2+j,0) << " ";
+        }
+      else
+        {
+        outpredict << "NA" << " " << 0 << " ";
+        }
       }
     outpredict << endl;
     }
@@ -1333,17 +1347,17 @@ void remlest_multinomial_catsp::compute_respind(const datamatrix & re, datamatri
 
 void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & workweights,
                   datamatrix & worky, datamatrix & eta, datamatrix & respind,
-                  const datamatrix & weight/*, const datamatrix & naindicator,
-                  const vector<int> & nasum*/)
+                  const datamatrix & weight, const datamatrix & naindicator,
+                  const vector<int> & nasum)
 
   {
   unsigned i,j,k1,k2,l;
 
-//  datamatrix workweighthelp;
-//  datamatrix workweighthelpinverse;
+  datamatrix workweighthelp;
+  datamatrix workweighthelpinverse;
 
 // Compute mu
-/*  datamatrix expos(nrcat2,1,0);
+  datamatrix expos(nrcat2,1,0);
   double exposum;
   for(i=0; i<nrobs; i++)
     {
@@ -1365,8 +1379,8 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & wo
       {
       mu(i*nrcat2+j,0)=expos(j,0)/exposum;
       }
-    }*/
-  datamatrix expos(nrcat2,1,0);
+    }
+/*  datamatrix expos(nrcat2,1,0);
   double exposum;
   for(i=0; i<nrobs; i++)
     {
@@ -1382,7 +1396,7 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & wo
       {
       mu(i*nrcat2+j,0)=expos(j,0)/exposum;
       }
-    }
+    }*/
 
 // Compute weights
 
@@ -1404,7 +1418,7 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & wo
 
 // Compute worky;
 
-/*  for(i=0; i<nrobs; i++)
+  for(i=0; i<nrobs; i++)
     {
     if(weight(i,0)>0)
       {
@@ -1458,8 +1472,8 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & wo
                         (respind.getRowBlock(i*nrcat2,(i+1)*nrcat2)-mu.getRowBlock(i*nrcat2,(i+1)*nrcat2)));
         }
       }
-    }*/
-  for(i=0; i<nrobs; i++)
+    }
+/*  for(i=0; i<nrobs; i++)
     {
     if(weight(i,0)>0)
       {
@@ -1467,7 +1481,7 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & wo
                         workweights.getRowBlock(i*nrcat2,(i+1)*nrcat2).inverse()*
                         (respind.getRowBlock(i*nrcat2,(i+1)*nrcat2)-mu.getRowBlock(i*nrcat2,(i+1)*nrcat2)));
       }
-    }
+    }*/
   }
 
 //------------------------------------------------------------------------------
