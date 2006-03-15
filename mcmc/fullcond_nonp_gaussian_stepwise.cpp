@@ -1,10 +1,291 @@
-#include "fullcond_nonp_gaussian.h"
+
 #include "fullcond_nonp_gaussian_stepwise.h"
 
 namespace MCMC
 {
 
-const datamatrix & FULLCOND_nonp_gaussian::get_data_forfixedeffects(void)
+// additive Effekte, RW1 RW2 und season
+
+FULLCOND_nonp_gaussian_stepwise::FULLCOND_nonp_gaussian_stepwise(MCMCoptions * o,
+                      DISTRIBUTION * dp,
+                      const datamatrix & d,
+                      FULLCOND_const * fcc,
+                      const unsigned & maxint,const fieldtype & ft,
+                      const ST::string & ti,
+                      const ST::string & fp, const ST::string & pres,
+                      const unsigned & c,const double & l,
+                      const unsigned & per)
+  : FULLCOND_nonp_gaussian(o,dp,d,fcc,maxint,ft,ti,fp,pres,c,l,per)
+  {
+
+  intercept = 0.0;
+
+  beta_average.erase(beta_average.begin(),beta_average.end());
+  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
+
+  if (type == RW1)
+    grenzfall = 0;
+  else if (type == RW2)
+    grenzfall = 1;
+  else if (type == seasonal)
+    grenzfall = period - 2;
+
+  }
+
+// varying coefficients , RW1 RW2 und season
+
+FULLCOND_nonp_gaussian_stepwise::FULLCOND_nonp_gaussian_stepwise(MCMCoptions * o,DISTRIBUTION * dp,
+                       const datamatrix & d,
+                       const datamatrix & intvar,
+                       FULLCOND_const * fcc,
+                       const unsigned & maxint,
+                       const fieldtype & ft,const ST::string & ti,
+                       const ST::string & fp, const ST::string & pres,
+                       const unsigned & c,const double & l, const bool & nofixed,
+                       const unsigned & per)
+  : FULLCOND_nonp_gaussian(o,dp,d,intvar,fcc,maxint,ft,ti,fp,pres,c,l,per)
+
+  {
+
+  intercept = 0.0;
+  //VCM_neu
+  if(nofixed == true)
+    identifiable = false;
+
+  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
+  beta_average.erase(beta_average.begin(),beta_average.end());
+
+  effmodi = d;
+  unsigned nrobs = index.rows();
+
+  if (data_varcoeff_fix.rows() < nrobs)
+    {
+    data_varcoeff_fix = datamatrix(nrobs,2,1);
+    for(unsigned i=0;i<nrobs;i++)
+      {
+      data_varcoeff_fix(i,0) = intvar(i,0);
+      data_varcoeff_fix(i,1) = d(i,0)*intvar(i,0);
+      }
+    }
+
+  if (type == RW1)
+    grenzfall = 1;
+  else if (type == RW2)
+    grenzfall = 2;
+  else if (type == seasonal)
+    grenzfall = period - 1;
+  if(identifiable == false)
+    grenzfall -= 1;
+
+  }
+
+// spatial covariates
+
+FULLCOND_nonp_gaussian_stepwise::FULLCOND_nonp_gaussian_stepwise(MCMCoptions * o,
+                        DISTRIBUTION * dp,const datamatrix & d,
+                        FULLCOND_const * fcc,
+                        const MAP::map & m, const ST::string & mn,
+                        const ST::string & ti,
+                        const ST::string & fp, const ST::string & pres,
+                        const unsigned & c,const double & l)
+  : FULLCOND_nonp_gaussian(o,dp,d,fcc,m,mn,ti,fp,pres,c,l)
+
+  {
+
+  intercept = 0.0;
+  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
+
+  beta_average.erase(beta_average.begin(),beta_average.end());
+
+  grenzfall = 0;
+
+  }
+
+// varying coefficients , spatial covariates as effect modifier
+
+FULLCOND_nonp_gaussian_stepwise::FULLCOND_nonp_gaussian_stepwise(MCMCoptions * o,
+                        DISTRIBUTION * dp,
+                        FULLCOND_const * fcc,
+                        const MAP::map & m,
+                        const ST::string & mn,
+                        const datamatrix & d,
+                        const datamatrix & d2,
+                        const ST::string & ti,
+                        const ST::string & fp, const ST::string & pres,
+                        const unsigned & c, const double & l, const bool & nofixed)
+  : FULLCOND_nonp_gaussian(o,dp,fcc,m,mn,d,d2,ti,fp,pres,c,l)
+
+  {
+
+  intercept = 0.0;
+  //VCM_neu
+  if(nofixed == true)
+    identifiable = false;
+
+  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
+  beta_average.erase(beta_average.begin(),beta_average.end());
+
+  grenzfall = 1;
+  if(identifiable == false)
+    grenzfall -= 1;
+  }
+
+
+  // COPY CONSTRUCTOR
+
+FULLCOND_nonp_gaussian_stepwise::FULLCOND_nonp_gaussian_stepwise(const FULLCOND_nonp_gaussian_stepwise & fc)
+  : FULLCOND_nonp_gaussian(FULLCOND_nonp_gaussian(fc))
+  {
+  intercept = fc.intercept;
+  beta_average = fc.beta_average;
+  interactions_pointer = fc.interactions_pointer;
+  //lambda_nr = fc.lambda_nr;
+  //lambdas_local = fc.lambdas_local;
+  data_varcoeff_fix = fc.data_varcoeff_fix;
+  effmodi = fc.effmodi;
+  }
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+const FULLCOND_nonp_gaussian_stepwise & FULLCOND_nonp_gaussian_stepwise::operator=(
+                                            const FULLCOND_nonp_gaussian_stepwise & fc)
+  {
+  if (this == &fc)
+    return *this;
+  FULLCOND_nonp_gaussian::operator=(FULLCOND_nonp_gaussian(fc));
+
+  intercept = fc.intercept;
+  beta_average = fc.beta_average;
+  interactions_pointer = fc.interactions_pointer;
+  //lambda_nr = fc.lambda_nr;
+  //lambdas_local = fc.lambdas_local;
+  data_varcoeff_fix = fc.data_varcoeff_fix;
+  effmodi = fc.effmodi;
+
+  return *this;
+  }
+
+
+bool FULLCOND_nonp_gaussian_stepwise::posteriormode(void)
+  {
+  int j;
+  unsigned i;
+
+  int * workindex;
+
+  update_linpred(false);
+
+  // NEU!!!
+  if(varcoeff && lambda == -2)
+    {
+    datamatrix X = datamatrix(2,2,0);
+    datamatrix betas = datamatrix(2,1,0);
+
+    likep->fisher(X,data_varcoeff_fix,column);            // recomputes X1 = (newx' W newx)^{-1}
+    X.assign((X.cinverse()));               // continued
+    likep->compute_weightiwls_workingresiduals(column); // computes W(y-linpred)
+    betas = X*data_varcoeff_fix.transposed()*likep->get_workingresiduals();
+
+    datamatrix spline = datamatrix(likep->get_nrobs(),1,0);
+    spline.mult(data_varcoeff_fix,betas);
+    double * workbeta = beta.getV();
+    vector<int>::iterator itbeg = posbeg.begin();
+    vector<int>::iterator itend = posend.begin();
+    int * workindex = index.getV();
+    for(i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
+      {
+      if(*itbeg != -1)
+        {
+        *workbeta = betas(0,0) + effmodi(*workindex,0)*betas(1,0);
+        for(j=*itbeg;j<=*itend;j++)
+          workindex++;
+        }
+      }
+    likep->add_linearpred_m(spline,column);     // addiert durchschnittl. Fkt. zum Gesamtprädiktor
+
+    if(center)
+      {
+      intercept = centerbeta();
+      //int * workindex = index.getV();
+      //for(i=0;i<spline.rows();i++,workindex++)
+      //  spline(*workindex,0) -= intercept*data_forfixed(*workindex,0);
+      update_fix_effect(intercept);
+      //intercept = 0.0;
+      }
+    }
+  else
+    {
+    if ( (lambda_prec != lambda) || (likep->iwlsweights_constant() == false) )
+      {
+
+      if (likep->iwlsweights_constant() == false)
+        {
+        if (varcoeff)
+          compute_XWX_varcoeff_env(likep->get_weightiwls(),column);
+        else
+          compute_XWX_env(likep->get_weightiwls(),column);
+        }
+
+      precenv.addtodiag(XXenv,Kenv,1.0,lambda);
+      lambda_prec = lambda;
+      }
+
+    likep->compute_weightiwls_workingresiduals(column);
+
+    workindex = index.getV();
+    double * workmuy = beta.getV();
+
+    if (varcoeff)
+      {
+      double * workdata=data.getV();
+      for(i=0;i<nrpar;i++,workmuy++)
+        {
+        *workmuy = 0;
+        if (posbeg[i] != -1)
+          for(j=posbeg[i];j<=posend[i];j++,workindex++,workdata++)
+            *workmuy+=
+            likep->get_workingresiduals()(*workindex,0)*(*workdata);
+        }
+      }
+    else  // else additive
+      {
+      for(i=0;i<nrpar;i++,workmuy++)
+        {
+        *workmuy = 0;
+        if (posbeg[i] != -1)
+          for(j=posbeg[i];j<=posend[i];j++,workindex++)
+            *workmuy+= likep->get_workingresiduals()(*workindex,0);
+        }
+      }
+
+    precenv.solve(beta);
+    update_linpred(true);
+
+    if (center)
+      {
+      intercept = centerbeta();
+      if(varcoeff == false)
+        {
+        fcconst->posteriormode_intercept(intercept);
+        }
+      else if(varcoeff == true)
+        {
+        update_fix_effect(intercept);
+        //double * workbeta = beta.getV();
+        //for (i=0;i<nrpar;i++,workbeta++)
+        //  *workbeta += intercept;
+        }
+      }
+    } // END: else if(!varcoeff || lambda != -2)
+
+  transform = likep->get_trmult(column);
+
+  return FULLCOND_nonp_basis::posteriormode();
+
+  }
+
+
+const datamatrix & FULLCOND_nonp_gaussian_stepwise::get_data_forfixedeffects(void)
   {
 
   if ( (data_forfixed.rows() < index.rows()) &&
@@ -45,7 +326,7 @@ const datamatrix & FULLCOND_nonp_gaussian::get_data_forfixedeffects(void)
   }
 
 
-double FULLCOND_nonp_gaussian::compute_df(void)
+double FULLCOND_nonp_gaussian_stepwise::compute_df(void)
   {
 
   if ( (lambda_prec != lambda) || (likep->iwlsweights_constant() == false) )
@@ -71,14 +352,25 @@ double FULLCOND_nonp_gaussian::compute_df(void)
 
   precenv.inverse_envelope(invprec);
 
-  if (varcoeff)
-    return invprec.traceOfProduct(XXenv);  
+  if(varcoeff && lambda == -2)
+    {
+    if(identifiable)
+      return 2;
+      //return 1;
+    else
+      return 1;
+    }
   else
-    return invprec.traceOfProduct(XXenv)-1;
+    {
+    if(identifiable)
+      return invprec.traceOfProduct(XXenv);
+    else
+      return invprec.traceOfProduct(XXenv)-1;
+    }
   }
 
 
-ST::string FULLCOND_nonp_gaussian::get_effect(void)
+ST::string FULLCOND_nonp_gaussian_stepwise::get_effect(void)
   {
   ST::string h;
 
@@ -103,7 +395,7 @@ ST::string FULLCOND_nonp_gaussian::get_effect(void)
   }
 
 
-ST::string FULLCOND_nonp_gaussian::get_befehl(void)
+ST::string FULLCOND_nonp_gaussian_stepwise::get_befehl(void)
   {
   ST::string h;
 
@@ -128,7 +420,7 @@ ST::string FULLCOND_nonp_gaussian::get_befehl(void)
   }
 
 
-void FULLCOND_nonp_gaussian::reset_effect(const unsigned & pos)
+void FULLCOND_nonp_gaussian_stepwise::reset_effect(const unsigned & pos)
   {
 
   update_linpred(false);
@@ -139,10 +431,13 @@ void FULLCOND_nonp_gaussian::reset_effect(const unsigned & pos)
   for(i=0;i<nrpar;i++,work++)
     *work = 0.0;
 
+  if(varcoeff && center)
+    update_fix_effect(-intercept);
+  intercept = 0.0;
   }
 
   
-void FULLCOND_nonp_gaussian::hierarchie_rw1(vector<double> & untervector)
+void FULLCOND_nonp_gaussian_stepwise::hierarchie_rw1(vector<double> & untervector)
   {
 
   unsigned number = untervector.size()-1;
@@ -202,7 +497,7 @@ void FULLCOND_nonp_gaussian::hierarchie_rw1(vector<double> & untervector)
   }
 
 
-void FULLCOND_nonp_gaussian::compute_lambdavec(
+void FULLCOND_nonp_gaussian_stepwise::compute_lambdavec(
 vector<double> & lvec, int & number)
   {
   if (get_df_equidist()==true)
@@ -218,13 +513,20 @@ vector<double> & lvec, int & number)
     {
     lvec.push_back(-1);
     }
-  else if (type==RW2)
+  else if ( (type==RW2) && (!varcoeff) )
     {
     lvec.push_back(-1);
     }
+  else if ( (type==RW2) && (varcoeff) )
+    {
+    lvec.push_back(-2);
+    if(identifiable)    //VCM_neu
+      lvec.push_back(-1);
+    }
   else if ( (type==mrf) && (varcoeff) )
     {
-    lvec.push_back(-1);
+    if(identifiable)
+      lvec.push_back(-1);
     }
 
 
@@ -234,9 +536,98 @@ vector<double> & lvec, int & number)
   }
 
 
+// BEGIN: For Varying Coefficients ---------------------------------------------
+
+void FULLCOND_nonp_gaussian_stepwise::update_fix_effect(double & intercept)
+  {
+  bool raus = false;
+  unsigned j = 1;
+  ST::string name_richtig = datanames[1];
+  while(j<fcconst->get_datanames().size() && raus==false)
+     {
+     if(fcconst->get_datanames()[j] == datanames[1])
+        {
+        raus = true;
+        }
+     if(fcconst->get_datanames()[j] == (datanames[1]+"_1"))
+        {
+        raus = true;
+        name_richtig = datanames[1] + "_1";
+        }
+     j = j + 1;
+     }
+  if(raus == true)
+    {
+    fcconst->update_fix_effect(j-1,intercept,data_forfixed);
+    }
+  else
+    {
+    vector<ST::string> names;
+    names.push_back(name_richtig);
+    fcconst->include_effect(names,data_forfixed);
+    fcconst->update_fix_effect(j,intercept,data_forfixed);
+    }
+  }
+
+
+void FULLCOND_nonp_gaussian_stepwise::set_pointer_to_interaction(FULLCOND * inter)
+  {
+  interactions_pointer.push_back(inter);
+  }
+
+
+void FULLCOND_nonp_gaussian_stepwise::hierarchical(ST::string & possible)
+  {
+  unsigned i;
+  bool spline = false;
+  //bool fix = false;
+  bool spline1, fix1;
+  if(!varcoeff)
+    {
+    for(i=0;i<interactions_pointer.size();i++)
+      {
+      interactions_pointer[i]->get_inthemodel(spline1,fix1);
+      if(spline1 == true)
+        spline = true;
+      //if(fix1 == true)
+      //  fix = true;
+      }
+
+    /*if(interaction)
+      {
+      if(spline == true)
+        possible = "spline";
+      else if(fix == true && spline == false)
+        possible = "spfix";
+      else
+        possible = "alles";
+      }*/
+    //else     // VC
+    //  {
+      if(spline == true)
+        possible = "vfix";
+      else
+        possible = "alles";
+    //  }
+    }
+  else
+    {
+    possible = "alles";
+    }
+  }
+
+
+void FULLCOND_nonp_gaussian_stepwise::const_varcoeff(void)
+  {
+  if(varcoeff)
+    fcconst->posteriormode_const_varcoeff(data_forfixed);
+  }
+
+// END: For Varying Coefficients -----------------------------------------------
+
 // BEGIN: MODEL-AVERAGING ------------------------------------------------------
 
-void FULLCOND_nonp_gaussian::save_betas(vector<double> & modell, unsigned & anzahl)
+void FULLCOND_nonp_gaussian_stepwise::save_betas(vector<double> & modell, unsigned & anzahl)
   {
   vector<double> beta_neu;
   unsigned i;
@@ -258,7 +649,7 @@ void FULLCOND_nonp_gaussian::save_betas(vector<double> & modell, unsigned & anza
   }
 
 
-void FULLCOND_nonp_gaussian::average_posteriormode(vector<double> & crit_weights)
+void FULLCOND_nonp_gaussian_stepwise::average_posteriormode(vector<double> & crit_weights)
   {
   unsigned i,k;
   int j;
@@ -368,7 +759,7 @@ void FULLCOND_nonp_gaussian::average_posteriormode(vector<double> & crit_weights
   }
 
 
-void FULLCOND_nonp_gaussian::effect_sort(datamatrix & effect, const double & m,
+void FULLCOND_nonp_gaussian_stepwise::effect_sort(datamatrix & effect, const double & m,
             const unsigned & beg, const unsigned & end,const statmatrix<int> & index)
   {
   unsigned register i;
@@ -377,7 +768,7 @@ void FULLCOND_nonp_gaussian::effect_sort(datamatrix & effect, const double & m,
     effect(*workindex,0)+=m;
   }
 
-void FULLCOND_nonp_gaussian::effect_sort(datamatrix & effect, const double & m, unsigned & row)
+void FULLCOND_nonp_gaussian_stepwise::effect_sort(datamatrix & effect, const double & m, unsigned & row)
   {
   double * workl = effect.getV() + row;
   *workl += m;
@@ -386,3 +777,5 @@ void FULLCOND_nonp_gaussian::effect_sort(datamatrix & effect, const double & m, 
 
  
 } // end: namespace MCMC
+
+

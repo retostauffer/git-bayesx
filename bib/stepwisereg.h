@@ -13,6 +13,8 @@
 
 #define stepwisereg_INCLUDED
 
+#include <FileCtrl.hpp>
+
 #include<statobj.h>
 #include<dataobj.h>
 #include<map.h>
@@ -23,22 +25,21 @@
 #include<distribution.h>
 #include<nbinomial.h>
 
-//#include<mcmc_const.h>
 #include<mcmc_const_stepwise.h>
 
-#include<fullcond_nonp_gaussian.h>
+#include<fullcond_nonp_gaussian_stepwise.h>
 #include<variance_nonp.h>
 #include<fullcond_surf_gaussian.h>
 
 #include<fullcond_pspline_stepwise.h>
-//#include<IWLS_pspline.h>
 #include<mcmc_pspline_surf.h>
 #include<fullcond_pspline_surf_stepwise.h>
 #include<mcmc_pspline.h>
 
-#include<randomeffect.h>
+#include<randomeffect_stepwise.h>
 
 #include<mcmcsimul2.h>
+#include<mcmcsimul2_multi.h>
 
 #include<model_stepwise.h>
 
@@ -48,7 +49,7 @@ using MCMC::DISTRIBUTION_gaussian;
 using MCMC::DISTRIBUTION_binomial;
 using MCMC::DISTRIBUTION_binomial_latent;
 using MCMC::DISTRIBUTION_poisson;
-using MCMC::DISTRIBUTION_gamma;
+using MCMC::DISTRIBUTION_gamma2;
 using MCMC::DISTRIBUTION_nbinomial;
 using MCMC::DISTRIBUTION_multinom;
 using MCMC::DISTRIBUTION_multinomial_latent;
@@ -56,22 +57,16 @@ using MCMC::DISTRIBUTION_cumulative_latent3;
 using MCMC::FULLCOND;
 using MCMC::FULLCOND_const;
 using MCMC::FULLCOND_const_stepwise;
-//using MCMC::FULLCOND_const_gaussian;
-using MCMC::FULLCOND_const_gamma;
-using MCMC::FULLCOND_const_nongaussian;
 using MCMC::FULLCOND_const_gaussian_special;
-using MCMC::FULLCOND_nonp_gaussian;
+using MCMC::FULLCOND_nonp_gaussian_stepwise;
 using MCMC::FULLCOND_variance_nonp;
 using MCMC::FULLCOND_pspline;
-//using MCMC::FULLCOND_pspline_gaussian;
 using MCMC::FULLCOND_pspline_stepwise;
-//using MCMC::IWLS_pspline;
 using MCMC::FULLCOND_pspline_surf;
-//using MCMC::FULLCOND_pspline_surf_gaussian;
 using MCMC::FULLCOND_pspline_surf_stepwise;
-using MCMC::FULLCOND_random_nongaussian;
-using MCMC::FULLCOND_random_gaussian;
+using MCMC::FULLCOND_random_stepwise;
 using MCMC::STEPWISErun;
+using MCMC::STEPMULTIrun;
 
 
 class __EXPORT_TYPE stepwisereg : public statobject
@@ -145,12 +140,15 @@ class __EXPORT_TYPE stepwisereg : public statobject
   doubleoption level1;
   doubleoption level2;
 
+  simpleoption hier;
+
   intoption maxint;
 
   vector<ST::string> outfiles;
 
   vector<FULLCOND*> fullcond;       // Vector of pointers to full conditionals
-  STEPWISErun runobj;              
+  STEPWISErun runobj;
+  STEPMULTIrun runobjm;
 
   vector<MCMCoptions> generaloptions;
   bool create_generaloptions(void);
@@ -284,7 +282,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
   DISTRIBUTION_binomial distr_binomial;
   DISTRIBUTION_binomial_latent distr_binomlat;
   DISTRIBUTION_poisson distr_poisson;
-  DISTRIBUTION_gamma distr_gamma;
+  DISTRIBUTION_gamma2 distr_gamma;
   DISTRIBUTION_nbinomial distr_nbinomial;
   //DISTRIBUTION_multgaussian distr_multgaussian;
   DISTRIBUTION_multinom distr_multinom;
@@ -332,7 +330,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
 //------------------------ for nonparametric terms -----------------------------
 
-  vector<FULLCOND_nonp_gaussian> fcnonpgaussian;
+  vector<FULLCOND_nonp_gaussian_stepwise> fcnonpgaussian;
   term_autoreg_stepwise nonprw1rw2;
   term_season_stepwise nonpseason;
 
@@ -365,8 +363,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
   term_random_stepwise randomeff;
   term_randomslope_stepwise randomeffslope;
 
-  vector<FULLCOND_random_nongaussian> fcrandom;
-  vector<FULLCOND_random_gaussian> fcrandomgaussian;
+  vector<FULLCOND_random_stepwise> fcrandomgaussian;
 
   bool create_random(const unsigned & collinpred=0);
   bool create_randomslope(const unsigned & collinpred=0);

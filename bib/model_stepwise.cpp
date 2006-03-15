@@ -111,6 +111,7 @@ term_autoreg_stepwise::term_autoreg_stepwise(void)
   df_equidist = simpleoption("df_equidist",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
   // df_start =  = doubleoption("df_start",-1,-1,100);
+  nofixed = simpleoption("nofixed",false);
   }
 
 void term_autoreg_stepwise::setdefault(void)
@@ -128,6 +129,7 @@ void term_autoreg_stepwise::setdefault(void)
   df_equidist.setdefault();
   df_accuracy.setdefault();
   // df_start.setdefault();
+  nofixed.setdefault();
   }
 
 
@@ -135,7 +137,7 @@ bool term_autoreg_stepwise::check(term & t)
   {
 
   if ( (t.varnames.size() <= 2) && (t.varnames.size() >= 1) &&
-       (t.options.size()<=13) && (t.options.size() >= 1) )
+       (t.options.size()<=14) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "rw1" && t.varnames.size() == 1)
@@ -169,6 +171,7 @@ bool term_autoreg_stepwise::check(term & t)
     optlist.push_back(&df_equidist);
     optlist.push_back(&df_accuracy);
     // optlist.push_back(&df_start);
+    optlist.push_back(&nofixed);
 
     unsigned i;
     bool rec = true;
@@ -205,10 +208,11 @@ bool term_autoreg_stepwise::check(term & t)
     optlist.push_back(&df_equidist);
     optlist.push_back(&df_accuracy);
     // optlist.push_back(&df_start);
+    optlist.push_back(&nofixed);
 
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(13);
+    t.options = vector<ST::string>(14);
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(lambda.getvalue());
     t.options[2] = ST::doubletostring(lambdamin.getvalue());
@@ -234,6 +238,10 @@ bool term_autoreg_stepwise::check(term & t)
     else
         t.options[11] = "true";
     t.options[12] = ST::doubletostring(df_accuracy.getvalue());
+    if (nofixed.getvalue()==false)
+        t.options[13] = "false";
+    else
+        t.options[13] = "true";
 
 
     int b = t.options[2].strtodouble(minl);
@@ -496,6 +504,12 @@ term_pspline_stepwise::term_pspline_stepwise(void)
   number = intoption("number",0,-1,50);
   df_equidist = simpleoption("df_equidist",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
+  vector<ST::string> adm;
+  adm.push_back("unrestricted");
+  adm.push_back("increasing");
+  adm.push_back("decreasing");
+  monotone = stroption("monotone",adm,"unrestricted");
+  nofixed = simpleoption("nofixed",false);
   }
 
 void term_pspline_stepwise::setdefault(void)
@@ -517,13 +531,15 @@ void term_pspline_stepwise::setdefault(void)
   number.setdefault();
   df_equidist.setdefault();
   df_accuracy.setdefault();
+  monotone.setdefault();
+  nofixed.setdefault();
   }
 
 bool term_pspline_stepwise::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size() >= 1)
-       && (t.options.size() >= 1) && (t.options.size() <= 18) )
+       && (t.options.size() >= 1) && (t.options.size() <= 20) )
     {
 
     if (t.options[0] == "psplinerw1" && t.varnames.size() == 1)
@@ -560,6 +576,8 @@ bool term_pspline_stepwise::check(term & t)
     optlist.push_back(&number);
     optlist.push_back(&df_equidist);
     optlist.push_back(&df_accuracy);
+    optlist.push_back(&monotone);
+    optlist.push_back(&nofixed);
 
     unsigned i;
     bool rec = true;
@@ -584,7 +602,7 @@ bool term_pspline_stepwise::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(18);
+   t.options = vector<ST::string>(20);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(degree.getvalue());
    t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -621,6 +639,11 @@ bool term_pspline_stepwise::check(term & t)
     else
        t.options[16] = "true";
     t.options[17] = ST::doubletostring(df_accuracy.getvalue());
+   t.options[18] = monotone.getvalue();
+    if (nofixed.getvalue()==false)
+       t.options[19] = "false";
+    else
+       t.options[19] = "true";
 
       
    if (lambda.getvalue() < 0)
@@ -707,6 +730,7 @@ term_spatial_stepwise::term_spatial_stepwise(void)
   number = intoption("number",0,0,100);
   df_equidist = simpleoption("df_equidist",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
+  nofixed = simpleoption("nofixed",false);
   }
 
 void term_spatial_stepwise::setdefault(void)
@@ -724,6 +748,7 @@ void term_spatial_stepwise::setdefault(void)
   number.setdefault();
   df_equidist.setdefault();
   df_accuracy.setdefault();
+  nofixed.setdefault();
   }
 
 
@@ -731,7 +756,7 @@ bool term_spatial_stepwise::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size()>=1) &&
-       (t.options.size()<=14) && (t.options.size() >= 1) )
+       (t.options.size()<=15) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "spatial" && t.varnames.size()==1)
@@ -761,6 +786,7 @@ bool term_spatial_stepwise::check(term & t)
     optlist.push_back(&number);
     optlist.push_back(&df_equidist);
     optlist.push_back(&df_accuracy);
+    optlist.push_back(&nofixed);
 
     unsigned i;
     bool rec = true;
@@ -785,7 +811,7 @@ bool term_spatial_stepwise::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(14);
+    t.options = vector<ST::string>(15);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::doubletostring(lambda.getvalue());
@@ -812,6 +838,10 @@ bool term_spatial_stepwise::check(term & t)
     else
         t.options[12] = "true";
     t.options[13] = ST::doubletostring(df_accuracy.getvalue());
+    if (nofixed.getvalue()==false)
+        t.options[14] = "false";
+    else
+        t.options[14] = "true";
 
 
     int b = t.options[3].strtodouble(minl);
@@ -1298,7 +1328,7 @@ term_interactpspline_stepwise::term_interactpspline_stepwise(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   gridsize = intoption("gridsize",-1,10,35);
   lambdamin = doubleoption("lambdamin",0.000001,0.000001,100000000);
-  lambdamax = doubleoption("lambdamax",500,0.000001,100000000);
+  lambdamax = doubleoption("lambdamax",10000,0.000001,100000000);
   lambdastart = doubleoption("lambdastart",-1,-1,100000000);
   forced_into = simpleoption("forced_into",false);
   df_for_lambdamax = doubleoption("df_for_lambdamax",2,0,400);         // Unterscheidung rw1/rw2 bei default-Wert!!!

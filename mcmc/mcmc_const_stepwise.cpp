@@ -57,6 +57,7 @@ const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   beta_average = m.beta_average;
   betas_aktuell = m.betas_aktuell;
   intercept_for_center = m.intercept_for_center;
+  interactions_pointer = m.interactions_pointer;
 
   }
 
@@ -81,6 +82,7 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
   beta_average = m.beta_average;
   betas_aktuell = m.betas_aktuell;
   intercept_for_center = m.intercept_for_center;
+  interactions_pointer = m.interactions_pointer;
 
   return *this;
   }
@@ -170,7 +172,8 @@ bool FULLCOND_const_stepwise::posteriormode(void)
   }
 
 
-void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & names, datamatrix newx)
+void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & names, datamatrix newx,
+                                                   const bool include)
   {
   unsigned i;
   if(interceptadd != 0)
@@ -206,7 +209,9 @@ void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & na
   linold_single.mult(newx2,beta_neu);
   linold = linold + linold_single;            // updates linold
   likep->add_linearpred_m(linold,column);     // updates linpred
-  include_effect(names,newx);
+
+  if(include)
+    include_effect(names,newx);
 
   //unsigned i;
   double * workbeta = beta.getV();
@@ -215,13 +220,35 @@ void FULLCOND_const_stepwise::posteriormode_single(const vector<ST::string> & na
   *workbeta = *workbeta + *workbeta_neu;
   *workbetameanold = *workbeta;
 
-  workbeta = beta.getV() + beta.rows()-names.size();
-  workbeta_neu = beta_neu.getV() + 1;
-  workbetameanold = betameanold.getV() + beta.rows()-names.size();
-  for(i=beta.rows()-names.size();i<beta.rows();i++,workbeta_neu++,workbeta++,workbetameanold++)
+  if(include)
     {
-    *workbeta=*workbeta_neu;
-    *workbetameanold = *workbeta;
+    workbeta = beta.getV() + beta.rows()-names.size();
+    workbeta_neu = beta_neu.getV() + 1;
+    workbetameanold = betameanold.getV() + beta.rows()-names.size();
+    for(i=beta.rows()-names.size();i<beta.rows();i++,workbeta_neu++,workbeta++,workbetameanold++)
+      {
+      *workbeta=*workbeta_neu;
+      *workbetameanold = *workbeta;
+      }
+    }
+  else
+    {
+    bool raus = false;
+    i = 1;
+    while(i<datanames.size() && raus==false)
+      {
+      if(datanames[i] == names[0])
+        raus = true;
+      i = i + 1;
+      }
+    workbeta = beta.getV() + i-1;
+    workbeta_neu = beta_neu.getV() + 1;
+    workbetameanold = betameanold.getV() + i-1;
+    for(i=0;i<names.size();i++,workbeta_neu++,workbeta++,workbetameanold++)
+      {
+      *workbeta+=*workbeta_neu;
+      *workbetameanold = *workbeta;
+      }
     }
   }
 
@@ -285,6 +312,21 @@ bool FULLCOND_const_stepwise::posteriormode_converged(const unsigned & itnr)
   return likep->posteriormode_converged_fc(beta,beta_mode,itnr);
   }
 
+// For updating the fixed effect with the fixed part of a varying coefficient
+void FULLCOND_const_stepwise::update_fix_effect(const unsigned & pos, double & value, datamatrix fix)
+  {
+  double * work = beta.getV()+pos;
+  *work += value;
+
+  double * lin = linold.getV();
+  double * dat = fix.getV();
+  //linold.mult(data,beta);     // nur wenn "spline" den zentrierten Effekt enthält!
+  for(unsigned i=0;i<linold.rows();i++,lin++,dat++)
+    {
+    *lin += value * *dat;
+    }
+  }
+
 
 void FULLCOND_const_stepwise::init_name(const ST::string & na)
   {
@@ -293,10 +335,15 @@ void FULLCOND_const_stepwise::init_name(const ST::string & na)
     {
     vector<ST::string> nam;
     unsigned i;
-    for (i=0;i<diff_categories.size();i++)
+    if(diff_categories.size()==2)
+      nam.push_back(na);
+    else
       {
-      if (diff_categories[i] != reference)
-        nam.push_back(na+"_" + ST::doubletostring(diff_categories[i]));
+      for (i=0;i<diff_categories.size();i++)
+        {
+        if (diff_categories[i] != reference)
+          nam.push_back(na+"_" + ST::doubletostring(diff_categories[i]));
+        }
       }
     FULLCOND::init_names(nam);
 
@@ -530,7 +577,7 @@ void FULLCOND_const_stepwise::reset_effect(const unsigned & pos)
 
 void FULLCOND_const_stepwise::set_effect_zero(void)
   {
-  double * workbeta = beta.getV();
+  /*double * workbeta = beta.getV();
   double * workbetameanold = betameanold.getV();
   unsigned i;
   for(i=0;i<beta.rows();i++,workbeta++,workbetameanold++)
@@ -543,9 +590,34 @@ void FULLCOND_const_stepwise::set_effect_zero(void)
     }
   likep->substr_linearpred_m(linold,column);   // zieht den Anteil der fixen Effekte von Gesamtprädiktor ab
   linold.mult(data,beta);                      // berechnet den Anteil der fixen Effekte neu
-  likep->add_linearpred_m(linold,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor
-  }
+  likep->add_linearpred_m(linold,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor */
+
+  unsigned i;    
+  if(interceptadd !=0 )
+    {
+    double * worklinold=linold.getV();        // linold = data * beta
+    for(i=0;i<linold.rows();i++,worklinold++) // add interceptadd to linold
+      *worklinold += interceptadd;            // interceptadd contains numbers
+    interceptadd=0;                           // from centering other terms
+    }
   
+  double * workbeta = beta.getV();
+  datamatrix linold_const = datamatrix(linold.rows(),1,*workbeta);
+  likep->substr_linearpred_m(linold_const,column);  // substracts linold from linpred
+  *workbeta = 0;
+  linold = linold - linold_const;            // updates linold (subtracts the constant)
+
+  *workbeta -= likep->get_linearpred().mean(0);
+
+  double mean = likep->get_response().mean(0);
+  *workbeta += log(mean);  // speziell für Log-Link, sonst anders!
+
+  linold_const = datamatrix(linold.rows(),1,*workbeta);
+  linold = linold + linold_const;            // updates linold (subtracts the constant)
+  likep->add_linearpred_m(linold_const,column);     // updates linpred
+
+  }
+
 
 // BEGIN: MODEL-AVERAGING ------------------------------------------------------
 
@@ -649,6 +721,54 @@ void FULLCOND_const_stepwise::set_intercept_for_center(double & dazu)
 // END: MODEL-AVERAGING --------------------------------------------------------
 
 
+// For Varying Coefficient Model -----------------------------------------------
+
+void FULLCOND_const_stepwise::posteriormode_const_varcoeff(datamatrix newx)
+  {  // Diese Funktion schätzt b0 und b1, damit b0 zum Variierenden Koeffizienten passt! (D.h., es wird nur b0 verwendet)
+  unsigned i;
+  if(interceptadd != 0)
+    {
+    likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+    double * worklinold=linold.getV();        // linold = data * beta
+    for(i=0;i<linold.rows();i++,worklinold++) // add interceptadd to linold
+      *worklinold += interceptadd;            // interceptadd contains numbers
+    interceptadd=0;                           // from centering other terms
+    likep->add_linearpred_m(linold,column);
+    }
+
+  X2 = datamatrix(newx.cols()+1,newx.cols()+1,0);
+  datamatrix beta_neu = datamatrix(newx.cols()+1,1,0);
+
+  datamatrix newx2 = datamatrix(newx.rows(),newx.cols()+1,1);
+  double * alt = newx.getV();
+  double * neu = newx2.getV();
+  unsigned j;
+  for(i=0;i<newx.rows();i++)
+    {
+    neu++;
+    for(j=0;j<newx.cols();j++,alt++,neu++)
+      *neu = *alt;
+    }
+
+  likep->fisher(X2,newx2,column);            // recomputes X1 = (newx' W newx)^{-1}
+  X2.assign((X2.cinverse()));               // continued
+  likep->compute_weightiwls_workingresiduals(column); // computes W(y-linpred)
+  beta_neu = X2*newx2.transposed()*likep->get_workingresiduals();
+  likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+  datamatrix linold_single = datamatrix(newx2.rows(),1,beta_neu(0,0));
+  linold = linold + linold_single;            // updates linold
+  likep->add_linearpred_m(linold,column);     // updates linpred
+
+  double * workbeta = beta.getV();
+  double * workbeta_neu = beta_neu.getV();
+  double * workbetameanold = betameanold.getV();
+  *workbeta = *workbeta + *workbeta_neu;
+  *workbetameanold = *workbeta;
+  }
+
+// End: For Varying Coefficient Model ----------------------------------------------------------
+
+
 void FULLCOND_const_stepwise::make_design(datamatrix & d)
   {
   vector<unsigned> zaehlen;
@@ -747,6 +867,31 @@ void FULLCOND_const_stepwise::compute_lambdavec(vector<double> & lvec, int & num
   }
 
 
+// Für VCM-Modell  
+void FULLCOND_const_stepwise::set_pointer_to_interaction(FULLCOND * inter)
+  {
+  interactions_pointer.push_back(inter);
+  }
+
+
+void FULLCOND_const_stepwise::hierarchical(ST::string & possible)
+  {
+  unsigned i;
+  bool spline1, fix1;
+  bool spline = false;
+  for(i=0;i<interactions_pointer.size();i++)
+    {
+    interactions_pointer[i]->get_inthemodel(spline1,fix1);
+    if(spline1 == true)
+      spline = true;
+    }
+  if(spline == true)
+    possible = "vfix";
+  else
+    possible = "alles";
+  }
+
+
 FULLCOND_const_stepwise::FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * dp,
                  FULLCOND_const * fcc,
                  const datamatrix & d,const ST::string & code, int & ref,
@@ -757,6 +902,7 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * 
   {
 
   fcconst = fcc;
+  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
 
   optionsp = o;
   pathresult = fr;

@@ -28,6 +28,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   protected:
 
   FULLCOND_const * fcconst;
+  vector<FULLCOND*> interactions_pointer;
 
   vector<double> diff_categories;
   double reference;
@@ -85,7 +86,10 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void make_design(datamatrix & d);  //, const ST::string & coding);
 
+  void set_pointer_to_interaction(FULLCOND * inter);
 
+  void hierarchical(ST::string & possible);
+  
   // COPY CONSTRUCTOR
 
   FULLCOND_const_stepwise(const FULLCOND_const_stepwise & m);
@@ -140,13 +144,17 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void include_effect(const vector<ST::string> & names, const datamatrix & newx);
 
-  void posteriormode_single(const vector<ST::string> & names, datamatrix newx);
+  void posteriormode_single(const vector<ST::string> & names, datamatrix newx, const bool include);
 
   void safe_const(void);
 
   void set_const_old(void);
 
   void posteriormode_const(void);
+
+  void update_fix_effect(const unsigned & pos, double & value, datamatrix fix);
+
+  void posteriormode_const_varcoeff(datamatrix newx);
 
   void reset_effect(const unsigned & pos);
 

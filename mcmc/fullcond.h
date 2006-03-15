@@ -791,6 +791,18 @@ class __EXPORT_TYPE FULLCOND
     smoothing = wert;
     }
 
+  virtual void hierarchical(ST::string & possible)  // neu! für hierarchisches Modell
+    {
+    }
+
+  virtual void const_varcoeff(void)
+    {
+    }
+
+  virtual void set_pointer_to_interaction(FULLCOND * inter)
+    {
+    }
+
   virtual void remove_centering(void)
     {     // holt Zentrierung des 2d-Splines von Haupteffekten zurück
     }
@@ -979,7 +991,8 @@ class __EXPORT_TYPE FULLCOND
   // FUNCTION: posteriormode_single
   // TASK: estimates only the coefficient of the fix effect 'name'
 
-  virtual void posteriormode_single(const vector<ST::string> & name, datamatrix xnew)
+  virtual void posteriormode_single(const vector<ST::string> & name, datamatrix xnew,
+                                    const bool include)
     {
     }
 

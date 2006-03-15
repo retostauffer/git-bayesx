@@ -7,9 +7,9 @@
 #endif
 
 
-#if !defined (STEPWISErun_INCLUDED)
+#if !defined (STEPMULTIrun_INCLUDED)
 
-#define STEPWISErun_INCLUDED
+#define STEPMULTIrun_INCLUDED
 
 
 #include<mcmcsimul.h>
@@ -18,7 +18,7 @@
 namespace MCMC
 {
 
-class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
+class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   {
 
   protected:
@@ -46,7 +46,9 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   ST::string smoothing;    // für Unterscheidung globaler / lokaler Glättungsparameter
   bool hierarchical;
 
-unsigned BIC_min;
+  unsigned kategorien;
+  unsigned katje;
+  unsigned anz_fullcond;
 
   vector<vector<double> > lambdavec;
   vector<ST::string> names_fixed;
@@ -61,9 +63,6 @@ unsigned BIC_min;
   int steps_aktuell;
   int window;
   vector<ST::string> posttitle;
-
-  bool finetuning(vector<double> & modell);
-  bool fine_local(vector<double> & modell);  // für Wahl lokaler Glättungsparameter
 
 // -----------------------------------------------------------------------------
 // -------------- Funktionen, für Stepwise / Stepmin ---------------------------
@@ -222,15 +221,11 @@ unsigned BIC_min;
 
   void fix_komplett(const vector<double> & modell);
 
-  void fix_ganz_komplett(const vector<double> &  modell);
-
   void reset_fix(const ST::string & name);
 
   void include_fix(const ST::string & name);
 
   int column_for_fix(const ST::string & name);
-
-  void korrektur(void);
 
 // -----------------------------------------------------------------------------
 // ------- Funktionen für die Ausgabe im Output-Fenster ------------------------
@@ -267,60 +262,12 @@ unsigned BIC_min;
                  // ST::string & path_stata);
 
 
-// -----------------------------------------------------------------------------
-// ------- Funktionen für Golden Section Search --------------------------------
-// -----------------------------------------------------------------------------
-
-  unsigned golden_section(unsigned & z, double & kriterium);
-
-  double startbedingungen(unsigned & z, double & kriterium);
-
-  void approx_zurueck(unsigned & z);
-
-  void exact_zurueck(unsigned & z);
-
-  double wert_einzeln(unsigned & z, unsigned i, double & df);
-
-  double approx_einzeln(unsigned & z, unsigned & i, double & df);
-
-  double exact_einzeln(unsigned & z, unsigned & i, double & df);
-
-  int index_suchen(const unsigned & index, const vector<unsigned> & index_vec);
-
-  int start_b_suchen(vector<unsigned> & index_vec, vector<double> & krit_vec,
-                    double & df, unsigned & b, unsigned & z);
-
-  double compute_findex(vector<unsigned> & index_vec, vector<double> & krit_vec,
-                  unsigned & index, unsigned & z, double & df);
-
-// -----------------------------------------------------------------------------
-// ------------- Model Averaging -----------------------------------------------
-// -----------------------------------------------------------------------------
-
-  void compute_average(ofstream & outweight);
-
-  void save_alle_betas(vector<double> & modell);
-
-  void alle_modelle_berechnen(double z, vector<double> & hilf,
-                      const vector<double> & best,
-                      const vector<double> & unten, const vector<double> & oben,
-                      vector<double> & kriterien_alle, vector<double> & priori,
-                      vector<vector<double> > & modelle, vector<ST::string> & ausgabe);
-
-  void occam(vector<double> & kriterien_alle, vector<double> & priori,
-           vector<vector<double> > & modelle, vector<ST::string> & ausgabe,
-           ofstream & outweight, vector<int> & vorgekommen);
-
-  void mc3(vector<double> & kriterien_alle, vector<double> & priori,
-           vector<vector<double> > & modelle, vector<ST::string> & ausgabe,
-           ofstream & outweight, vector<int> & vorgekommen);
-
 
   public:
 
   // DEFAULT CONSTRUCTOR
 
-  STEPWISErun(void)
+  STEPMULTIrun(void)
     {
     }
 
@@ -328,16 +275,16 @@ unsigned BIC_min;
   // TASK: initializes the MCMC simulation object with general MCMC options 'go'
   //       distribuiton object dp and a vector of full conditionals 'fc'
 
-  STEPWISErun(MCMCoptions * go,DISTRIBUTION * dp,vector<FULLCOND*> & fc);
+  STEPMULTIrun(MCMCoptions * go,DISTRIBUTION * dp,vector<FULLCOND*> & fc);
 
 
   // COPY CONSTRUCTOR
 
-  STEPWISErun(const STEPWISErun & s);
+  STEPMULTIrun(const STEPMULTIrun & s);
 
   // OVERLOADED ASSIGNMENT CONSTRUCTOR
 
-  const STEPWISErun & operator=(const STEPWISErun & s);
+  const STEPMULTIrun & operator=(const STEPMULTIrun & s);
 
 
   bool single_stepwise(const vector<unsigned> & start,
@@ -355,7 +302,7 @@ unsigned BIC_min;
 
   // DESTRUCTOR
 
-  ~STEPWISErun() {}
+  ~STEPMULTIrun() {}
 
   };
 
@@ -373,3 +320,4 @@ unsigned BIC_min;
 
 
 
+ 

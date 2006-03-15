@@ -30,6 +30,9 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
   int lambda_nr;
   datamatrix lambdas_local;
 
+  datamatrix data_varcoeff_fix;
+  datamatrix effmodi;
+
 
   public:
 
@@ -75,7 +78,8 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
                          const unsigned & nrk, const unsigned & degr, const knotpos & kp,
                          const fieldtype & ft, const ST::string & monotone, const ST::string & ti,
                          const ST::string & fp, const ST::string & pres, const bool & deriv,
-                         const double & l, const int & gs, const unsigned & c=0);
+                         const double & l, const int & gs, const bool & nofixed,
+                         const unsigned & c=0);
 
 
   // COPY CONSTRUCTOR
@@ -105,7 +109,7 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   void compute_lambdavec(vector<double> & lvec, int & number);
 
-  //double compute_df(void);
+  double compute_df(void);
 
   //double compute_df_eigen(void);
 
@@ -117,13 +121,25 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
       {
       lambda = 1;
       lambdas_local(lambda_nr+nrpar-rankK,0) = 1/la;
+// lineare Interpolation der log. Lambdas für dazwischenliegende Lambdas:
+/*if( (lambda_nr+nrpar-rankK) < rankK )
+  {
+  double lambda0 = log10(1/lambdas_local(lambda_nr+nrpar-rankK+2,0));
+  lambdas_local(lambda_nr+nrpar-rankK+1,0) = 1/(pow(10,0.5*(lambda0+log10(la))));
+  }
+if( (lambda_nr+nrpar-rankK) > (nrpar-rankK))
+  {
+  double lambda0 = log10(1/lambdas_local(lambda_nr+nrpar-rankK-2,0));
+  lambdas_local(lambda_nr+nrpar-rankK-1,0) = 1/(pow(10,0.5*(lambda0+log10(la))));
+  }
+*/
       updateK(lambdas_local);
       }
     }
 
   void set_lambdas_vector(double & la)       // neu!!!
     {
-    lambdas_local = datamatrix(nrpar,1,1/la);            
+    lambdas_local = datamatrix(nrpar,1,1/la);
     g = datamatrix(nrpar,1,1);
     if(type==RW2)
       {
@@ -132,12 +148,39 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
       }
     }
 
-  void set_lambda_nr(void)               // neu!!!
+  void set_lambda_nr(void)
     {
     lambda_nr += 1;
-    if(lambda_nr == rankK)
+    if(lambda_nr >= rankK)  
       lambda_nr = 0;
     }
+
+  /*double compute_penal_lambda(void) //Versuch!!!
+    {
+    double penal = 0;
+    unsigned i;
+    double lambda1,lambda2;
+
+    // Bestrafung von Differenzen 1. Ordnung:
+    /*for(i=1;i<rankK;i++)
+      {
+      lambda1 = log10(lambdas_local(i+nrpar-rankK,0));
+      lambda2 = log10(lambdas_local(i-1+nrpar-rankK,0));
+      penal += (lambda1-lambda2) * (lambda1-lambda2);
+      }*/
+    /*
+    // Bestrafung von Differenzen 2. Ordnung:
+    double lambda3;
+    for(i=2;i<rankK;i++)
+      {
+      lambda1 = log10(lambdas_local(i+nrpar-rankK,0));
+      lambda2 = log10(lambdas_local(i-1+nrpar-rankK,0));
+      lambda3 = log10(lambdas_local(i-2+nrpar-rankK,0));
+      penal += (lambda1-2*lambda2+lambda3) * (lambda1-2*lambda2+lambda3);
+      }
+
+    return 0.25 * penal;
+    }*/
 
   void multBS_sort(datamatrix & res, const datamatrix & beta);
 
@@ -150,6 +193,10 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   const datamatrix & get_data_forfixedeffects(void);
 
+  void update_fix_effect(void);
+
+  void const_varcoeff(void);
+
   void save_betas(vector<double> & modell, unsigned & anzahl);
 
   void average_posteriormode(vector<double> & crit_weights);
@@ -161,6 +208,8 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
   void wiederholen(FULLCOND * haupt, bool konst);
 
   void wiederholen_fix(FULLCOND * haupt, int vorzeichen, bool inter);
+
+  void hierarchical(ST::string & possible);
 
 
   // DESTRUCTOR

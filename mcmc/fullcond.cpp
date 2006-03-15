@@ -1198,20 +1198,20 @@ void FULLCOND::outresults(void)
 
 void FULLCOND::set_inthemodel(double modell)
   {
-  if(modell > 0)
-    {
-    inthemodel = true;
-    fixornot = false;
-    }
-  else if(modell==0)
+  if(modell==0)
     {
     fixornot = false;
     inthemodel = false;
     }
-  else
+  else if(modell==-1)
     {
     fixornot = true;
     inthemodel = false;
+    }
+  else //if(modell > 0 ||modell == -2)
+    {
+    inthemodel = true;
+    fixornot = false;
     }
   }
 

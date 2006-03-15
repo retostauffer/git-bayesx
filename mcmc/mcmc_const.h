@@ -141,6 +141,14 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
     {
     }
 
+  virtual void update_fix_effect(const unsigned & pos, double & value, datamatrix fix)
+    {
+    }
+
+  virtual void posteriormode_const_varcoeff(datamatrix newx)
+    {
+    }
+
   // ------------------------------- for REML ----------------------------------
 
   void createreml(datamatrix & X,datamatrix & Z,const unsigned & Xpos,

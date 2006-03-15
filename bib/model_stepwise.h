@@ -71,6 +71,7 @@ class __EXPORT_TYPE term_autoreg_stepwise : public basic_termtype
   intoption number;
   simpleoption df_equidist;
   doubleoption df_accuracy;
+  simpleoption nofixed;
 
   void setdefault(void);
 
@@ -183,6 +184,8 @@ class __EXPORT_TYPE term_pspline_stepwise : public basic_termtype
   intoption number;
   simpleoption df_equidist;
   doubleoption df_accuracy;
+  stroption monotone;
+  simpleoption nofixed;
 
   void setdefault(void);
 
@@ -236,6 +239,7 @@ class __EXPORT_TYPE term_spatial_stepwise : public basic_termtype
   intoption number;
   simpleoption df_equidist;
   doubleoption df_accuracy;
+  simpleoption nofixed;
 
   void setdefault(void);
 

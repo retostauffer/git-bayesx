@@ -153,11 +153,15 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   void get_zentrierung(FULLCOND * haupt, bool & konst);
 
-  void set_zentrierung(FULLCOND * haupt, int & vorzeichen, bool & inter);    
+  void set_zentrierung(FULLCOND * haupt, int & vorzeichen, bool & inter);
+
+  void hierarchical(ST::string & possible);
 
   void hierarchie_rw1(vector<double> & untervector);
 
   void compute_lambdavec(vector<double> & lvec, int & number);
+
+  double compute_df(void);  
 
   void update_stepwise(double la)
     {

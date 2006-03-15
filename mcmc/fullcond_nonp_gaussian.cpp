@@ -1186,15 +1186,6 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
     } // end: errors.size() == 0
 
-  beta_average.erase(beta_average.begin(),beta_average.end());
-
-  if (type == RW1)
-    grenzfall = 0;
-  else if (type == RW2)
-    grenzfall = 1;
-  else if (type == seasonal)
-    grenzfall = period - 2;
-
   }
 
 
@@ -1295,16 +1286,6 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,DISTRIBUTION * dp
     varcoeff = true;
 
     }
-
-  beta_average.erase(beta_average.begin(),beta_average.end());
-
-  if (type == RW1)
-    grenzfall = 1;
-  else if (type == RW2)
-    grenzfall = 2;
-  else if (type == seasonal)
-    grenzfall = period - 1;
-
   }
 
 
@@ -1392,10 +1373,6 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
       }
 
     } // end: if (error==false)
-
-  beta_average.erase(beta_average.begin(),beta_average.end());
-
-  grenzfall = 0;
 
   unsigned j;
   neighbors=vector< vector<unsigned> >(nrpar);
@@ -1501,10 +1478,6 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
       }
 
     } // end: if (error == false)
-
-  beta_average.erase(beta_average.begin(),beta_average.end());
-
-  grenzfall = 1;
 
   unsigned j;
   neighbors=vector< vector<unsigned> >(nrpar);
@@ -1710,7 +1683,6 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(const FULLCOND_nonp_gaussian & fc
   remlspatialdesign=fc.remlspatialdesign;
   X_VCM=fc.X_VCM;
   Z_VCM=fc.Z_VCM;
-  beta_average = fc.beta_average;
   }
 
 
@@ -1755,7 +1727,6 @@ const FULLCOND_nonp_gaussian & FULLCOND_nonp_gaussian::operator=(
   remlspatialdesign=fc.remlspatialdesign;
   X_VCM=fc.X_VCM;
   Z_VCM=fc.Z_VCM;
-  beta_average = fc.beta_average;
   return *this;
   }
 

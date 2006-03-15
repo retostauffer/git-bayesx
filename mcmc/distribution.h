@@ -1719,6 +1719,124 @@ class __EXPORT_TYPE DISTRIBUTION_gamma : public DISTRIBUTION
   };
 
 
+// ----------------------- Gamma für Stepwise ----------------------------------
+
+//------------------------------------------------------------------------------
+//-------------------- CLASS: DISTRIBUTION_gamma2 ------------------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE DISTRIBUTION_gamma2 : public DISTRIBUTION
+  {
+
+  public:
+
+
+  datamatrix lgamma;
+
+
+  double scaleold;
+
+  bool scalefixed;
+
+  void create_lgamma(void);
+
+  // FUNCTION lgammafunc
+  // TASK: computes the log gammafunction for a special value nu
+
+  double lgammafunc(const double & nu) const;
+
+  double lfac(const double & nu) const;
+
+  // FUNCTION phi_hat
+  // TASK: computes phi_hat as a consistent estimation for the scale parameter phi
+
+  double phi_hat() const;
+
+  void check(void);
+
+  void standardize(void);
+
+  public:
+
+
+  // DEFAULT CONSTRUCTOR
+
+   DISTRIBUTION_gamma2(void) : DISTRIBUTION()
+     {
+     family = "gamma";
+     scale(0,0) = 0.1;
+     create_lgamma();
+     }
+
+
+   // CONSTRUCTOR 0 (with constant scale)
+   // scale = scale_initial
+
+   DISTRIBUTION_gamma2(const double & scale_initial,
+                         MCMCoptions * o,
+                         const datamatrix & r,
+                         const ST::string & p,
+                         const ST::string & ps,
+                         const datamatrix & w=datamatrix());
+
+   // CONSTRUCTOR 1 (with consistent estimation for scale)
+
+   DISTRIBUTION_gamma2(const double & a,
+                         const double & b,
+                         const unsigned & cit,
+                         MCMCoptions * o,
+                         const datamatrix & r,
+                         const ST::string & p,
+                         const ST::string & ps,
+                         const datamatrix & w=datamatrix());
+
+
+   // COPY CONSTRUCTOR
+
+   DISTRIBUTION_gamma2(const DISTRIBUTION_gamma2 & ga);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTRIBUTION_gamma2 & operator=(const DISTRIBUTION_gamma2 & ga);
+
+   // DESTRUCTOR
+
+   ~DISTRIBUTION_gamma2() {}
+
+
+  // FUNCTION: compute_mu
+  // TASK: computes mu for a new linear predictor 'linpred'
+
+  void compute_mu(const double * linpred,double * mu) const;
+
+  void compute_mu_notransform(const double * linpred,double * mu) const;
+
+  // FUNCTION: compute_devresidual
+  // TASK: computes the deviance residual
+  // weight NICHT berücksichtigt
+
+  void compute_deviance(const double * response,const double * weight,
+                        const double * mu,double * deviance,
+                        double * deviancesat,const datamatrix & scale,
+                        const int & i) const;
+
+  bool posteriormode(void);
+
+  bool posteriormode_converged(const unsigned & itnr);
+
+  void outresults(void);
+
+   // FUNCTION: compute_weight
+   // TASK: computes the weights for iteratively weighted least squares
+
+  double compute_weight(double * worklin,double * weight,
+                        const int & i,const unsigned & col=0) const;
+
+  double compute_gmu(double * linpred,const unsigned & col=0) const;
+  };
+
+  
 class __EXPORT_TYPE DISTRIBUTION_vargaussian : public DISTRIBUTION_gamma
   {
 

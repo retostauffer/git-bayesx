@@ -13,7 +13,7 @@ void DISTRIBUTION::compute_deviance(double & deviance,double & deviancesat)
   double * workweight = weight.getV();
   double dev=0;
   double devsat=0;
-  double mu;
+  double mu;            // Fehler bei multinomial!
 
   for(i=0;i<nrobs;i++,workresp++,worklin++,workweight++)
     {
@@ -2698,7 +2698,7 @@ void DISTRIBUTION::outresults(void)
 
       for (j=0;j<size2;j++)
         {
-        out << mu_meanlinpred(j,0) << "   ";
+        out << mu_meanlinpred(j,0) << "   ";         // Fehler: mu_meanlinpred(0,j)
         }
 
       compute_deviance(&response(i,0),&weight(i,0),&mu_meanlinpred(0,0),
@@ -3877,6 +3877,378 @@ void DISTRIBUTION_gamma::tr_nonlinear(vector<double *> b,vector<double *> br,
       *br[i] = exp(interceptsample(it,0));
       }
     }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS DISTRIBUTION_gamma (stepwise) ------------------
+//------------------------------------------------------------------------------
+
+double DISTRIBUTION_gamma2::compute_weight(double * worklin,double * weight,
+                                          const int & i,const unsigned & col)
+                                          const
+  {
+  return 1/scale(0,0) * *weight;
+  }
+
+
+void DISTRIBUTION_gamma2::create_lgamma(void)
+  {
+  lgamma = datamatrix(101,1);
+
+  lgamma(0,0) = 0.000000000;
+  lgamma(1,0) = -0.005690308;
+  lgamma(2,0) = -0.011218489;
+  lgamma(3,0) = -0.016586854;
+  lgamma(4,0) = -0.021797651;
+  lgamma(5,0) = -0.026853073;
+  lgamma(6,0) = -0.031755254;
+  lgamma(7,0) = -0.036506276;
+  lgamma(8,0) = -0.041108170;
+  lgamma(9,0) = -0.045562915;
+  lgamma(10,0) = -0.049872441;
+  lgamma(11,0) = -0.054038634;
+  lgamma(12,0) = -0.058063333;
+  lgamma(13,0) = -0.061948332;
+  lgamma(14,0) = -0.065695387;
+  lgamma(15,0) = -0.069306209;
+  lgamma(16,0) = -0.072782472;
+  lgamma(17,0) = -0.076125811;
+  lgamma(18,0) = -0.079337824;
+  lgamma(19,0) = -0.082420074;
+  lgamma(20,0) = -0.085374090;
+  lgamma(21,0) = -0.088201365;
+  lgamma(22,0) = -0.090903362;
+  lgamma(23,0) = -0.093481511;
+  lgamma(24,0) = -0.095937212;
+  lgamma(25,0) = -0.098271836;
+  lgamma(26,0) = -0.100486725;
+  lgamma(27,0) = -0.102583193;
+  lgamma(28,0) = -0.104562527;
+  lgamma(29,0) = -0.106425987;
+  lgamma(30,0) = -0.108174810;
+  lgamma(31,0) = -0.109810204;
+  lgamma(32,0) = -0.111333359;
+  lgamma(33,0) = -0.112745436;
+  lgamma(34,0) = -0.114047576;
+  lgamma(35,0) = -0.115240897;
+  lgamma(36,0) = -0.116326498;
+  lgamma(37,0) = -0.117305454;
+  lgamma(38,0) = -0.118178821;
+  lgamma(39,0) = -0.118947635;
+  lgamma(40,0) = -0.119612914;
+  lgamma(41,0) = -0.120175656;
+  lgamma(42,0) = -0.120636841;
+  lgamma(43,0) = -0.120997431;
+  lgamma(44,0) = -0.121258371;
+  lgamma(45,0) = -0.121420591;
+  lgamma(46,0) = -0.121485001;
+  lgamma(47,0) = -0.121452498;
+  lgamma(48,0) = -0.121323962;
+  lgamma(49,0) = -0.121100259;
+  lgamma(50,0) = -0.120782238;
+  lgamma(51,0) = -0.120370735;
+  lgamma(52,0) = -0.119866573;
+  lgamma(53,0) = -0.119270560;
+  lgamma(54,0) = -0.118583490;
+  lgamma(55,0) = -0.117806145;
+  lgamma(56,0) = -0.116939293;
+  lgamma(57,0) = -0.115983691;
+  lgamma(58,0) = -0.114940083;
+  lgamma(59,0) = -0.113809201;
+  lgamma(60,0) = -0.112591766;
+  lgamma(61,0) = -0.111288486;
+  lgamma(62,0) = -0.109900061;
+  lgamma(63,0) = -0.108427177;
+  lgamma(64,0) = -0.106870510;
+  lgamma(65,0) = -0.105230728;
+  lgamma(66,0) = -0.103508486;
+  lgamma(67,0) = -0.101704430;
+  lgamma(68,0) = -0.099819197;
+  lgamma(69,0) = -0.097853413;
+  lgamma(70,0) = -0.095807697;
+  lgamma(71,0) = -0.093682657;
+  lgamma(72,0) = -0.091478893;
+  lgamma(73,0) = -0.089196995;
+  lgamma(74,0) = -0.086837546;
+  lgamma(75,0) = -0.084401121;
+  lgamma(76,0) = -0.081888285;
+  lgamma(77,0) = -0.079299595;
+  lgamma(78,0) = -0.076635603;
+  lgamma(79,0) = -0.073896851;
+  lgamma(80,0) = -0.071083873;
+  lgamma(81,0) = -0.068197197;
+  lgamma(82,0) = -0.065237343;
+  lgamma(83,0) = -0.062204825;
+  lgamma(84,0) = -0.059100148;
+  lgamma(85,0) = -0.055923813;
+  lgamma(86,0) = -0.052676312;
+  lgamma(87,0) = -0.049358131;
+  lgamma(88,0) = -0.045969750;
+  lgamma(89,0) = -0.042511642;
+  lgamma(90,0) = -0.038984276;
+  lgamma(91,0) = -0.035388112;
+  lgamma(92,0) = -0.031723605;
+  lgamma(93,0) = -0.027991206;
+  lgamma(94,0) = -0.024191358;
+  lgamma(95,0) = -0.020324499;
+  lgamma(96,0) = -0.016391062;
+  lgamma(97,0) = -0.012391474;
+  lgamma(98,0) = -0.008326158;
+  lgamma(99,0) = -0.004195529;
+  lgamma(100,0) = 0.000000000;
+
+  }
+
+
+double DISTRIBUTION_gamma2::lgammafunc(const double & nu) const
+    {
+
+    if (fmod(nu,1)==0)
+      return lfac(nu-1);
+    else if (nu<1)
+      return lgammafunc(nu+1) - log(nu);
+    else if (nu>2)
+      return log(nu-1) + lgammafunc(nu-1);
+    else
+      return lgamma(int(nu*100)-100,0);
+    }
+
+double DISTRIBUTION_gamma2::lfac(const double & nu) const
+    {
+    if (nu==0 || nu==1) return 0;
+    else return log(nu) + lfac(nu-1);
+    }
+
+
+bool DISTRIBUTION_gamma2::posteriormode(void)
+  {
+
+  if (!scalefixed)
+    scale(0,0) = phi_hat();
+
+  return true;
+
+  }
+
+
+bool DISTRIBUTION_gamma2::posteriormode_converged(const unsigned & itnr)
+  {
+
+  return true;
+
+  }
+
+
+void DISTRIBUTION_gamma2::check(void)
+  {
+
+  unsigned i=0;
+  bool error=false;
+  double * workr=response.getV();
+  while ( (i<nrobs) && (error==false) )
+    {
+    if (*workr <= 0)
+      {
+      error=true;
+      errors.push_back(
+    "ERROR: response cannot be gamma distributed\; some values are negative\n");
+      }
+    i++;
+    workr++;
+    }
+
+  }
+
+
+
+void DISTRIBUTION_gamma2::standardize(void)
+  {
+
+  double s = sqrt(response.var(0,weight));
+  unsigned i;
+  double * workresp = response.getV();
+  for (i=0;i<nrobs;i++,workresp++)
+   {
+   *workresp = *workresp/s;
+   }
+
+  addinterceptsample = log(s);
+
+  }
+
+
+// CONSTRUCTOR 0
+
+DISTRIBUTION_gamma2::DISTRIBUTION_gamma2(const double & scale_initial,
+                                       MCMCoptions * o,
+                                       const datamatrix & r,
+                                       const ST::string & p,
+                                       const ST::string & ps,
+                                       const datamatrix & w)
+  : DISTRIBUTION(o,r,w,p,ps)
+  {
+
+  create_lgamma();
+
+  optionsp = o;
+
+  scaleold = 0;
+
+  scalefixed=true;
+  scaleexisting=true;
+  scale(0,0) = scale_initial;
+
+  family = "Gamma";
+
+  check();
+
+  standardize();
+
+  }
+
+
+
+// CONSTRUCTOR 1
+
+DISTRIBUTION_gamma2::DISTRIBUTION_gamma2(const double & a, const double & b,
+                                       const unsigned & cit, MCMCoptions * o,
+                                       const datamatrix & r,
+                                       const ST::string & p,
+                                       const ST::string & ps,
+                                       const datamatrix & w)
+  : DISTRIBUTION(o,r,w,p,ps)
+  {
+
+  assert (a > 0);
+  assert (b > 0);
+
+  create_lgamma();
+
+  optionsp = o;
+
+  scaleold = 0;
+  family = "Gamma";
+
+  check();
+
+  scalefixed=false;
+
+  standardize();
+
+  }
+
+
+DISTRIBUTION_gamma2::DISTRIBUTION_gamma2(const DISTRIBUTION_gamma2 & ga)
+   : DISTRIBUTION(DISTRIBUTION(ga))
+   {
+   scale = ga.scale;
+   scaleold = ga.scaleold;
+   lgamma=ga.lgamma;
+   scalefixed = ga.scalefixed;
+   }
+
+
+const DISTRIBUTION_gamma2 & DISTRIBUTION_gamma2::operator=(
+                                      const DISTRIBUTION_gamma2 & ga)
+  {
+
+  if (this==&ga)
+    return *this;
+  DISTRIBUTION::operator=(DISTRIBUTION(ga));
+  scale = ga.scale;
+  scaleold = ga.scaleold;
+  lgamma=ga.lgamma;
+  scalefixed = ga.scalefixed;
+  return *this;
+  }
+
+
+void DISTRIBUTION_gamma2::compute_mu(const double * linpred,double * mu) const
+  {
+  *mu = exp(*linpred);
+  }
+
+void DISTRIBUTION_gamma2::compute_mu_notransform(
+const double * linpred,double * mu) const
+  {
+  *mu = exp(*linpred);
+  }
+
+
+double DISTRIBUTION_gamma2::compute_gmu(double * linpred,
+                                       const unsigned & col) const
+  {
+  return 1.0/exp(*linpred);
+  }
+
+
+void DISTRIBUTION_gamma2::compute_deviance(const double * response,
+                                          const double * weight,
+                                          const double * mu,double * deviance,
+                        double * deviancesat,const datamatrix & scale,const int & i) const
+  {
+  if (*weight!=0)
+    {
+
+    double rtr = *response;
+    double nu   = (*weight)/scale(0,0);
+    double help = nu/(*mu);
+    double help2 = (rtr)/(*mu);
+    if (scalefixed)
+      {
+      *deviance   = 2*(nu*log(*mu)
+                  -(nu-1)*log(rtr)+ help*(rtr));
+      *deviancesat = 2*(-log(help2) + help2 - 1);
+      }
+    else
+      {
+      *deviance   = 2*(lgammafunc(nu)-nu*log(help)
+                  -(nu-1)*log(rtr)+ help*(rtr));
+      *deviancesat = 2*(-log(help2) + help2 - 1);
+      }
+    *deviance -= 2*addinterceptsample;
+    }
+  else
+    {
+    *deviance=0;
+    *deviancesat=0;
+    }
+
+  }
+
+
+void DISTRIBUTION_gamma2::outresults(void)
+    {
+    DISTRIBUTION::outresults();
+    }
+
+
+double DISTRIBUTION_gamma2::phi_hat() const
+  {
+
+  register unsigned i;
+  double* workweight = weight.getV();
+  double* worklin = (*linpred_current).getV();
+  double* workres = response.getV();
+  double phi = 0;
+
+  double explin;
+  double diff;
+  double sumweight = 0;
+  for (i=0;i<nrobs;i++,workweight++,worklin++,workres++)
+     {
+     if (*workweight != 0)
+       {
+       sumweight += *workweight;
+       explin = exp(*worklin);
+       diff = (*workres - explin);
+       phi += diff*diff / (explin*explin / *workweight);
+       }
+     }
+
+  return phi / sumweight;    // ohne p!
 
   }
 

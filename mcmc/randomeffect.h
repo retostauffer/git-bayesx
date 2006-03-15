@@ -58,8 +58,6 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
   statmatrix<int> indextotal;
   ST::string pathsample_total;
 
-  vector<vector<double> > beta_average;          // For Stepwise: Model-Averaging
-
 
   FULLCOND ftotal;
 
@@ -74,8 +72,6 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
   void update_linpred(const bool & add);
 
   void update_linpred_diff(datamatrix & b1,datamatrix & b2);
-
-  const datamatrix & get_data_forfixedeffects(void);
 
   public:
 
@@ -206,43 +202,6 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
 
   void outoptionsreml();
 
-  // FOR STEPWISE
-
-  void compute_lambdavec(vector<double> & lvec, int & number);
-
-// ---------------------- For Stepwise -----------------------------------------
-
-  // FUNCTION: compute_df
-  // TASK: returns the approximate degrees of freedom of a smoother
-
-  double compute_df(void);
-
-  // FUNCTION: update_stepwise
-  // TASK: returns (usually) the current smoothing parameter
-
-  void update_stepwise(double la);
-
-  // FUNCTION: get_effect
-  // TASK: returns a string of the estimated effect
-
-  ST::string  get_effect(void);
-
-  // FUNCTION: reset_effect
-  // TASK: resets the effect, subtracts the current effect from linearpred
-
-  void reset_effect(const unsigned & pos);
-
-  void save_betas(vector<double> & modell, unsigned & anzahl);
-
-  void average_posteriormode(vector<double> & crit_weights);
-
-  void effect_sort(datamatrix & effect, const double & m,
-       const unsigned & beg, const unsigned & end,const statmatrix<int> & index);
-
-  void effect_sort(datamatrix & effect, const double & m, unsigned & row);
-
-
-// ------- END: For Stepwise ---------------------------------------------------  
 
   };     // end: class FULLCOND_random
 

@@ -118,10 +118,14 @@ void FULLCOND_pspline_surf_stepwise::create(const datamatrix & v1, const datamat
   {
 
   unsigned i;
-  data_forfixed = v1;
+  data_forfixed = datamatrix(v1.rows(),1,0);
+
+  // neu:
+  double mean1 = v1.mean(0);
+  double mean2 = v2.mean(0);
   for(i=0;i<v2.rows();i++)
     {
-    data_forfixed(i,0) *= v2(i,0);
+    data_forfixed(i,0) = (v1(i,0)-mean1) * (v2(i,0)-mean2);
     }
 
   }
@@ -728,10 +732,15 @@ void FULLCOND_pspline_surf_stepwise::get_zentrierung(FULLCOND * haupt, bool & ko
       m2 = -interhaupt1;
       //m2 = he2.mean(0);    // entspricht dem Zentrierungsfaktor des Haupteffekts bei nur einer Interaktion!
     else
-      m2 = -interhaupt2;      // Versuch!!!
+      m2 = -interhaupt2;
       //m2 = he1.mean(0);
     }
   double m = -intercept+m2;
+
+  if(haupt == mainpoi1)
+    m2 = -1 * mainpoi1->get_intercept();
+  else
+    m2 = -1 * mainpoi2->get_intercept();  
 
   if(haupt == mainpoi1)
     mainpoi1->changeposterior2(he1,m);
@@ -739,7 +748,9 @@ void FULLCOND_pspline_surf_stepwise::get_zentrierung(FULLCOND * haupt, bool & ko
     mainpoi2->changeposterior2(he2,m);
 
   if(konst == true)
+    {
     fcconst->posteriormode_intercept(m2);
+    }
   fcconst->update_linold();
   }
 
@@ -753,6 +764,8 @@ void FULLCOND_pspline_surf_stepwise::set_zentrierung(FULLCOND * haupt, int & vor
     {
     if(centerfix == 11)
       m = -he1.mean(0);
+    else if(centerfix == 1)
+      m = he1.mean(0);
 
     int *workindex = index.getV();
     vector<int>::iterator freqwork;
@@ -771,6 +784,8 @@ void FULLCOND_pspline_surf_stepwise::set_zentrierung(FULLCOND * haupt, int & vor
     {
     if(centerfix == 11)
       m = -he2.mean(0);
+    else if(centerfix == 10)
+      m = he2.mean(0);
 
     int *workindex = index.getV();
     vector<int>::iterator freqwork;
@@ -787,6 +802,39 @@ void FULLCOND_pspline_surf_stepwise::set_zentrierung(FULLCOND * haupt, int & vor
     }
 
   fcconst->posteriormode_const();
+  }
+
+
+void FULLCOND_pspline_surf_stepwise::hierarchical(ST::string & possible)
+  {
+  bool raus = false;
+  bool fix = false;
+  bool spline1, fix1;
+
+  if(maineffectsexisting == 1 || maineffectsexisting == 11)
+    {
+    mainpoi1->get_inthemodel(spline1,fix1);
+    if(spline1 == false && fix1 == false)
+      raus = true;
+    else if(fix1 == true)
+      fix = true;
+    }
+
+  if(maineffectsexisting == 10 || maineffectsexisting == 11)
+    {
+    mainpoi2->get_inthemodel(spline1,fix1);
+    if(spline1 == false && fix1 == false)
+      raus = true;
+    else if(fix1 == true)
+      fix = true;
+    }
+    
+  if(raus == true)
+    possible = "raus";
+  else if(fix == false && raus == false)
+    possible = "alles";
+  else
+    possible = "rfix";
   }
 
 
@@ -855,7 +903,7 @@ vector<double> & lvec, int & number)
   {
   if(number>0)
     {
-    if (get_df_equidist()==true)
+    if (get_df_equidist()==true && number>1)
        FULLCOND::compute_lambdavec_equi(lvec,number);
     else
        FULLCOND::compute_lambdavec(lvec,number);
@@ -869,6 +917,83 @@ vector<double> & lvec, int & number)
   get_forced();
   if(forced_into==false)
      lvec.push_back(0);
+  }
+
+
+double FULLCOND_pspline_surf_stepwise::compute_df(void)
+  {
+  double df = FULLCOND_pspline_surf_gaussian::compute_df();
+
+  if(maineffectsexisting != 0)
+    {
+    df += 1;
+    double p = sqrt(df);
+    df = p*p - 1;
+
+    search_maineffects();
+
+    if(centerboth == 1 || centerboth == 11)        // Versuch: Spur von he1 berechnen und von df abziehen!
+      {
+      df -= p-1;
+      //datamatrix einheit = datamatrix(xv.size(),1,0);
+      //double * e = einheit.getV();
+      //datamatrix hilf1 = datamatrix(nrpar,1,0);
+      //datamatrix hilf2 = datamatrix(xv.size(),1,0);
+      //double * h2;
+      //datamatrix diagonal = datamatrix(xv.size(),1,0);
+      //double * d = diagonal.getV();
+      //unsigned i;
+      //for(i=0;i<xv.size();i++,d++,e++)
+      //  {
+      //  *e = 1;
+      //  compute_XWtildey(likep->get_weightiwls(),einheit,1.0,column);
+      //  prec_env.solve(muy,hilf1);
+      //  hilf2.mult(betaweightx,hilf1);
+      //  h2 = hilf2.getV()+i;
+      //  *d = *h2;
+      //  *e = 0;
+      //  }
+      //double spur = 0;
+      //d = diagonal.getV();
+      //for(i=0;i<xv.size();i++,d++)
+      //  spur += *d;
+      //df -= spur;
+      }
+    if(centerboth == 10 || centerboth == 11)
+      {
+      df -= p-1;
+      //datamatrix einheit = datamatrix(yv.size(),1,0);
+      //double * e = einheit.getV();
+      //datamatrix hilf1 = datamatrix(nrpar,1,0);
+      //datamatrix hilf2 = datamatrix(yv.size(),1,0);
+      //double * h2;
+      //datamatrix diagonal = datamatrix(yv.size(),1,0);
+      //double * d = diagonal.getV();
+      //unsigned i;
+      //for(i=0;i<yv.size();i++,d++,e++)
+      //  {
+      //  *e = 1;
+      //  compute_XWtildey(likep->get_weightiwls(),einheit,1.0,column);
+      //  prec_env.solve(muy,hilf1);
+      //  hilf2.mult(betaweighty,hilf1);
+      //  h2 = hilf2.getV()+i;
+      //  *d = *h2;
+      //  *e = 0;
+      //  }
+      //double spur = 0;
+      //d = diagonal.getV();
+      //for(i=0;i<yv.size();i++,d++)
+      //  spur += *d;
+      //df -= spur;
+      }
+
+    if(centerfix == 1 || centerfix == 11)
+      df -= 1;
+    if(centerfix == 10 || centerfix == 11)
+      df -= 1;
+    }
+    
+  return df;
   }
 
 
