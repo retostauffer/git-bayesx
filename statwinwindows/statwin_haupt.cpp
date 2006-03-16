@@ -94,7 +94,7 @@ __fastcall Thauptformular::Thauptformular(TComponent* Owner)
   objecttyps.push_back("dataset");
   objecttyps.push_back("bayesreg");
   objecttyps.push_back("map");
-  objecttyps.push_back("dag");
+//  objecttyps.push_back("dag");
   objecttyps.push_back("remlreg");
   objecttyps.push_back("stepwisereg");
 //  objecttyps.push_back("diseasemap");
@@ -207,7 +207,7 @@ void Thauptformular::dropobjects(ST::string name, ST::string type)
 		i++;
 		}
 	 } // end: type map
-  else if (type == "dag")
+/*  else if (type == "dag")
      {
 	 while ( (i < dagobjects.size()) && (recognized == 0) )
 		{
@@ -222,6 +222,7 @@ void Thauptformular::dropobjects(ST::string name, ST::string type)
 		}
 
      }
+*/     
  /*
   else if (type == "diseasemap")
      {
@@ -314,11 +315,12 @@ ST::string Thauptformular::create(const ST::string & in)
 			 mapobject newobject(token[1],&logout,input,defaultpath,&objects);
 			 mapobjects.push_back(newobject);
 			 }
-           else if (token[0] == "dag")
+/*           else if (token[0] == "dag")
              {
              dagobject newobject(token[1],&logout,input,defaultpath,&objects);
              dagobjects.push_back(newobject);
              }
+*/             
 //           else if (token[0] == "diseasemap")
 //             {
 //             diseaseobj newobject(token[1],&logout,input,defaultpath,&objects);
@@ -383,8 +385,8 @@ void Thauptformular::adjustobjects(void)
   for (i=0;i<mapobjects.size();i++)
 	 objects.push_back(&mapobjects[i]);
 
-  for (i=0;i<dagobjects.size();i++)
-	 objects.push_back(&dagobjects[i]);
+//  for (i=0;i<dagobjects.size();i++)
+//	 objects.push_back(&dagobjects[i]);
 
 //  for (i=0;i<diseasemapobjects.size();i++)
 //	 objects.push_back(&diseasemapobjects[i]);

@@ -16,7 +16,7 @@
 #include<remlreg.h>
 #include<stepwisereg.h>
 #include<mapobject.h>
-#include<dagobject.h>
+//#include<dagobject.h>
 //#include<diseaseobj.h>
 #include <ComCtrls.hpp>
 //---------------------------------------------------------------------------
@@ -92,7 +92,7 @@ private:        // Benutzerdeklarationen
 
   // 'dagobjects' contains current dag objects
 
-  vector<dagobject> dagobjects;
+//  vector<dagobject> dagobjects;
 
   // 'diseasemapobjects' contains current diseasemap objects
 
