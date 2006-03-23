@@ -1,6 +1,7 @@
-#include "first.h"        // Hier werden die Präprozessorbedingungen für GNU Version definiert
-#include "spline_basis.h"
 
+#include "first.h"        // Hier werden die Präprozessorbedingungen für GNU Version definiert
+
+#include "spline_basis.h"
 
 namespace MCMC
 {

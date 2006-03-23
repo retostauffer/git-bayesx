@@ -1,6 +1,7 @@
-#include "first.h"
-#include "tvariance2dim.h"
 
+#include "first.h"
+
+#include "tvariance2dim.h"
 
 namespace MCMC
 {
@@ -966,8 +967,8 @@ double besselK(const double x, const double xnu)
 void bessik(const double x, const double xnu, double &ri, double &rk, double &rip, double &rkp)
   {
   const int MAXIT=10000;
-  const double EPS=numeric_limits<double>::epsilon();
-  const double FPMIN=numeric_limits<double>::min()/EPS;
+  const double EPS=std::numeric_limits<double>::epsilon();
+  const double FPMIN=std::numeric_limits<double>::min()/EPS;
   const double XMIN=2.0;
 //  const double PI=3.141592653589793;
   double a,a1,b,c,d,del,del1,delh,dels,e,f,fact,fact2,ff,gam1,gam2,

@@ -1,5 +1,8 @@
-#ifdef __BUILDING_THE_DLL
+
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -7,9 +10,9 @@
 #if !defined (VARIANCENONP_INCLUDED)
 #define VARIANCENONP_INCLUDED
 
-#include<mcmc_nonpbasis.h>
-#include<randomeffect.h>
-#include<mcmc_nonp.h>
+#include"mcmc_nonpbasis.h"
+#include"randomeffect.h"
+#include"mcmc_nonp.h"
 
 namespace MCMC
 {

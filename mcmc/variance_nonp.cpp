@@ -1,4 +1,7 @@
-#include<variance_nonp.h>
+
+#include "first.h"
+
+#include"variance_nonp.h"
 
 namespace MCMC
 {
@@ -261,17 +264,21 @@ void FULLCOND_variance_nonp::update(void)
           if(optionsp->get_nriter() == 1)
             {
             double init;
-            lambda.push_back(Kp->lambda_from_df(start,100.0));
+            double help1=(double)start;
+            double help2=100.0;
+            lambda.push_back(Kp->lambda_from_df(help1,help2));
             init = lambda[lambda.size()-1]/2;
             for(i=start+1;i<=df;i++)
               {
               if(init < 0.0000001)
                 break;
-              lambda.push_back(Kp->lambda_from_df(i-0.5,init));
+              double help1=i-0.5;
+              lambda.push_back(Kp->lambda_from_df(help1,init));
               init = lambda[lambda.size()-1]/2;
               if(init < 0.0000001)
                 break;
-              lambda.push_back(Kp->lambda_from_df(i,init));
+              help1=(double)i;
+              lambda.push_back(Kp->lambda_from_df(help1,init));
               init = lambda[lambda.size()-1]/2;
               }
             }

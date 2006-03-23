@@ -1,7 +1,7 @@
-// DATE: 20.08.99
-#include "first.h"
-#include "mcmc_pspline.h"
 
+#include "first.h"
+
+#include "mcmc_pspline.h"
 
 namespace MCMC
 {

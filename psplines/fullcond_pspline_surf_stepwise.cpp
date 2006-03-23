@@ -1,4 +1,6 @@
 
+#include "first.h"
+
 #include "fullcond_pspline_surf_stepwise.h"
 
 namespace MCMC

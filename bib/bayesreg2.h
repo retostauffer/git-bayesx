@@ -5,5 +5,4 @@
 
 //void plotnonprun(bayesreg & b);
 
-
 #endif

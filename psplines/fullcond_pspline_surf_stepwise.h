@@ -1,15 +1,17 @@
-//---------------------------------------------------------------------------
-#ifndef fullcond_pspline_surf_stepwiseH
-#define fullcond_pspline_surf_stepwiseH
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
 
-#include<FULLCOND_pspline_surf_gaussian.h>
-#include<FULLCOND_pspline_stepwise.h>
+#ifndef fullcond_pspline_surf_stepwiseH
+#define fullcond_pspline_surf_stepwiseH
+
+#include"FULLCOND_pspline_surf_gaussian.h"
+#include"FULLCOND_pspline_stepwise.h"
 
 
 namespace MCMC

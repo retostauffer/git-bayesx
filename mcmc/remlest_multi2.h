@@ -2,12 +2,12 @@
 
 #define remlest_multi2_INCLUDED
 
-#include <statmat.h>
-#include <fullcond.h>
-#include <mcmc_const.h>
+#include "statmat.h"
+#include "fullcond.h"
+#include "mcmc_const.h"
 
 #if defined(JAVA_OUTPUT_WINDOW)
-#include<adminparse_basic.h>
+#include"adminparse_basic.h"
 #endif
 
 

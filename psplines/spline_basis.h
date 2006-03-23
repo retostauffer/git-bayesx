@@ -1,12 +1,14 @@
-//---------------------------------------------------------------------------
+
+#if defined (__BUILDING_THE_DLL)
+#define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
+#else
+#define __EXPORT_TYPE __import
+#endif
+
 #ifndef spline_basisH
 #define spline_basisH
-
-#ifdef __BUILDING_THE_DLL
-#define __EXPORT_TYPE __export
-#elif __BUILDING_GNU
-#define __EXPORT_TYPE __declspec(dllexport)
-#endif
 
 #include<deque>
 #include "fullcond.h"

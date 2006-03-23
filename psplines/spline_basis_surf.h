@@ -1,10 +1,11 @@
-//---------------------------------------------------------------------------
-#ifdef __BUILDING_THE_DLL
-#define __EXPORT_TYPE __export
-#elif __BUILDING_GNU
-#define __EXPORT_TYPE __declspec(dllexport)
-#endif
 
+#if defined (__BUILDING_THE_DLL)
+#define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
+#else
+#define __EXPORT_TYPE __import
+#endif
 
 #ifndef spline_basis_surfH
 #define spline_basis_surfH

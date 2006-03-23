@@ -1,4 +1,7 @@
-#include <remlest_multi2.h>
+
+#include "first.h"
+
+#include "remlest_multi2.h"
 
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include "StatResults.h"
@@ -974,13 +977,13 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
 
     for(i=0; i<theta.rows(); i++)
       {
-      score(i,0)=-0.5*(H.getBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1],totalnrfixed+zcutbeta[i+1])*thetaold(i,0)*2).trace()+
-                 0.5*((H.getRowBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1]))*Hinv*(H.getColBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1]))*thetaold(i,0)*2).trace();
+      score(i,0)=-1*(H.getBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1],totalnrfixed+zcutbeta[i+1])*thetaold(i,0)).trace()+
+                 ((H.getRowBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1]))*Hinv*(H.getColBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1]))*thetaold(i,0)).trace();
       for(k=0; k<theta.rows(); k++)
         {
-        Fisher(i,k)=0.5*(H.getBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[i+1],totalnrfixed+zcutbeta[k+1])*H.getBlock(totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[k+1],totalnrfixed+zcutbeta[i+1])*thetaold(i,0)*4*thetaold(k,0)).trace()-
-                    (H.getRowBlock(totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[k+1])*Hinv*H.getColBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1])*H.getBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[i+1],totalnrfixed+zcutbeta[k+1])*thetaold(i,0)*4*thetaold(k,0)).trace()+
-                    0.5*(H.getRowBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1])*Hinv*H.getColBlock(totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[k+1])*H.getRowBlock(totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[k+1])*Hinv*H.getColBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1])*thetaold(i,0)*4*thetaold(k,0)).trace();
+        Fisher(i,k)=2*(H.getBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[i+1],totalnrfixed+zcutbeta[k+1])*H.getBlock(totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[k+1],totalnrfixed+zcutbeta[i+1])*thetaold(i,0)*thetaold(k,0)).trace()-
+                    4*(H.getRowBlock(totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[k+1])*Hinv*H.getColBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1])*H.getBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[i+1],totalnrfixed+zcutbeta[k+1])*thetaold(i,0)*thetaold(k,0)).trace()+
+                    2*(H.getRowBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1])*Hinv*H.getColBlock(totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[k+1])*H.getRowBlock(totalnrfixed+zcutbeta[k],totalnrfixed+zcutbeta[k+1])*Hinv*H.getColBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1])*thetaold(i,0)*thetaold(k,0)).trace();
         Fisher(k,i)=Fisher(i,k);
         }
       }
@@ -1001,7 +1004,7 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
       for(l=zcutbeta[i]; l<zcutbeta[i+1]; l++)
         {
         help = ( wresid*( Zneu.getCol(l) ) )(0,0);
-        score(i,0) += 0.5*help*help*thetaold(i,0)*2;
+        score(i,0) += help*help*thetaold(i,0);
         }
       }
 //------------------------------------------------------------------------------
@@ -1414,13 +1417,13 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
 
     for(i=0; i<theta.rows(); i++)
       {
-      score(i,0)=-0.5*(H.getBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i],totalnrfixed+zcut[i+1],totalnrfixed+zcut[i+1])*thetaold(i,0)*2).trace()+
-                 0.5*((H.getRowBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1]))*Hinv*(H.getColBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1]))*thetaold(i,0)*2).trace();
+      score(i,0)=-1*(H.getBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i],totalnrfixed+zcut[i+1],totalnrfixed+zcut[i+1])*thetaold(i,0)).trace()+
+                 ((H.getRowBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1]))*Hinv*(H.getColBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1]))*thetaold(i,0)).trace();
       for(k=0; k<theta.rows(); k++)
         {
-        Fisher(i,k)=0.5*(H.getBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[k],totalnrfixed+zcut[i+1],totalnrfixed+zcut[k+1])*H.getBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[i],totalnrfixed+zcut[k+1],totalnrfixed+zcut[i+1])*thetaold(i,0)*4*thetaold(k,0)).trace()-
-                    (H.getRowBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[k+1])*Hinv*H.getColBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1])*H.getBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[k],totalnrfixed+zcut[i+1],totalnrfixed+zcut[k+1])*thetaold(i,0)*4*thetaold(k,0)).trace()+
-                    0.5*(H.getRowBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1])*Hinv*H.getColBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[k+1])*H.getRowBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[k+1])*Hinv*H.getColBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1])*thetaold(i,0)*4*thetaold(k,0)).trace();
+        Fisher(i,k)=2*(H.getBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[k],totalnrfixed+zcut[i+1],totalnrfixed+zcut[k+1])*H.getBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[i],totalnrfixed+zcut[k+1],totalnrfixed+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace()-
+                    4*(H.getRowBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[k+1])*Hinv*H.getColBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1])*H.getBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[k],totalnrfixed+zcut[i+1],totalnrfixed+zcut[k+1])*thetaold(i,0)*thetaold(k,0)).trace()+
+                    2*(H.getRowBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1])*Hinv*H.getColBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[k+1])*H.getRowBlock(totalnrfixed+zcut[k],totalnrfixed+zcut[k+1])*Hinv*H.getColBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace();
         Fisher(k,i)=Fisher(i,k);
         }
       }
@@ -1434,7 +1437,7 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
           {
           help += (wresid.getRow(j)*(Z.getCol(l)))(0,0);
           }
-        score(i,0) += 0.5*help*help*thetaold(i,0)*2;
+        score(i,0) += help*help*thetaold(i,0);
         }
       }
 

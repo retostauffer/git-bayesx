@@ -1,5 +1,6 @@
-// DATE: 27.04.99
+
 #include "first.h"
+
 #include "fullcond_pspline_gaussian.h"
 
 namespace MCMC

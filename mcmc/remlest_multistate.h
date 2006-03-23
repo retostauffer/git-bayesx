@@ -2,12 +2,12 @@
 
 #define remlest_multistate_INCLUDED
 
-#include <statmat.h>
-#include <fullcond.h>
-#include <distribution.h>
+#include "statmat.h"
+#include "fullcond.h"
+#include "distribution.h"
 
 #if defined(JAVA_OUTPUT_WINDOW)
-#include<adminparse_basic.h>
+#include"adminparse_basic.h"
 #endif
 
 

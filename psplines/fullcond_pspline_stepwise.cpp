@@ -1,4 +1,6 @@
 
+#include "first.h"
+
 #include "fullcond_pspline_stepwise.h"
 
 
@@ -587,7 +589,10 @@ void FULLCOND_pspline_stepwise::average_posteriormode(vector<double> & crit_weig
         alpha_fix += - beta_average[i][0] * crit_weights[i] * (data_forfixed.max(0)+data_forfixed.min(0))/2;
       }
     }
-  fcconst->set_intercept_for_center(-alpha_fix);
+// Vorschlag:
+//  fcconst->set_intercept_for_center(-alpha_fix);
+  double helpdouble = -alpha_fix;
+  fcconst->set_intercept_for_center(helpdouble);
 
   setbeta(beta_spline.size(),1,0);
   double * workbeta = beta.getV();

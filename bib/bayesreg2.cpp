@@ -18,7 +18,6 @@
 
 #include<stddef.h>
 
-
 bool bayesreg::create_geokriging(const unsigned & collinpred)
   {
 
