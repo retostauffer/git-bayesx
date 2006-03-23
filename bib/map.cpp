@@ -1,4 +1,5 @@
-// DATE: 16.12.98
+   
+#include "first.h"
 
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
@@ -8,7 +9,7 @@
 #include<statwin_haupt.h>
 #endif
 
-#include<map.h>
+#include"map.h"
 
 
 namespace MAP

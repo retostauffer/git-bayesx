@@ -1,3 +1,6 @@
+
+#include "first.h"
+
 #include <remlest.h>
 
 #if defined(BORLAND_OUTPUT_WINDOW)
@@ -255,19 +258,19 @@
 
     for(i=0; i<theta.rows(); i++)
       {
-      score(i,0)=-0.5*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)*2).trace()+
-                 0.5*((H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*Hinv*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*thetaold(i,0)*2).trace();
+      score(i,0)=-1*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)).trace()+
+                 ((H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*Hinv*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*thetaold(i,0)).trace();
       for(l=zcut[i]; l<zcut[i+1]; l++)
         {
         help = (wresid*(Z.getCol(l)))(0,0);
-        score(i,0) += 0.5*help*help*thetaold(i,0)*2;
+        score(i,0) += help*help*thetaold(i,0);
         }
 
       for(k=0; k<theta.rows(); k++)
         {
-        Fisher(i,k)=0.5*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*H.getBlock(X.cols()+zcut[k],X.cols()+zcut[i],X.cols()+zcut[k+1],X.cols()+zcut[i+1])*thetaold(i,0)*4*thetaold(k,0)).trace()-
-                    (H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*thetaold(i,0)*4*thetaold(k,0)).trace()+
-                    0.5*(H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*H.getColBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*thetaold(i,0)*4*thetaold(k,0)).trace();
+        Fisher(i,k)=2*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*H.getBlock(X.cols()+zcut[k],X.cols()+zcut[i],X.cols()+zcut[k+1],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace()-
+                    4*(H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*thetaold(i,0)*thetaold(k,0)).trace()+
+                    2*(H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*H.getColBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace();
         Fisher(k,i)=Fisher(i,k);
         }
       }
@@ -702,12 +705,12 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
-
+  datamatrix helpmat = datamatrix(1,1,0);
   for(i=1;i<fullcond.size();i++)
     {
-    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,H,datamatrix(1,1,0),xcut[i],zcut[i-1],i-1,false,xcut[i],X.cols()+zcut[i-1],0,false,i);
+    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,H,helpmat,xcut[i],zcut[i-1],i-1,false,xcut[i],X.cols()+zcut[i-1],0,false,i);
     }
-  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,datamatrix(1,1,0),xcut[0],0,0,false,xcut[0],0,0,false,0);
+  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,helpmat,xcut[0],0,0,false,xcut[0],0,0,false,0);
 
   double loglike=0;
   double aic=0;
@@ -973,22 +976,22 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
 
     for(i=0; i<theta.rows()-1; i++)
       {
-      score(i,0)=-0.5*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)*2).trace()+
-                 0.5*((H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*Hinv*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*thetaold(i,0)*2).trace();
+      score(i,0)=-1*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)).trace()+
+                 ((H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*Hinv*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*thetaold(i,0)).trace();
       for(l=zcut[i]; l<zcut[i+1]; l++)
         {
         help = (wresid*(Z.getCol(l)))(0,0);
-        score(i,0) += 0.5*help*help*thetaold(i,0)*2;
+        score(i,0) += help*help*thetaold(i,0);
         }
-      Fisher(theta.rows()-1,i)=0.5*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*4*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace()-
-                  (H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*4*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace()+
-                  0.5*(H*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*4*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace();
+      Fisher(theta.rows()-1,i)=2*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace()-
+                  4*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace()+
+                  2*(H*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace();
       Fisher(i,theta.rows()-1)=Fisher(theta.rows()-1,i);
       for(k=0; k<theta.rows()-1; k++)
         {
-        Fisher(i,k)=0.5*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*H.getBlock(X.cols()+zcut[k],X.cols()+zcut[i],X.cols()+zcut[k+1],X.cols()+zcut[i+1])*thetaold(i,0)*4*thetaold(k,0)).trace()-
-                    (H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*thetaold(i,0)*4*thetaold(k,0)).trace()+
-                    0.5*(H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*H.getColBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*thetaold(i,0)*4*thetaold(k,0)).trace();
+        Fisher(i,k)=2*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*H.getBlock(X.cols()+zcut[k],X.cols()+zcut[i],X.cols()+zcut[k+1],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace()-
+                    4*(H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*thetaold(i,0)*thetaold(k,0)).trace()+
+                    2*(H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*H.getColBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace();
         Fisher(k,i)=Fisher(i,k);
         }
       }
@@ -997,8 +1000,8 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
           w1resid.sum2(0)/thetaold(theta.rows()-1,0);
 
     Fisher(theta.rows()-1,theta.rows()-1)=2*(double)nrobspos/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))-
-           (H*Hinv*4/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace()+
-           0.5*(H*Hinv*H*Hinv*4/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace();
+           4*(H*Hinv/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace()+
+           2*(H*Hinv*H*Hinv/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace();
 
     // fisher scoring for theta
     theta = thetaold + Fisher.solve(score);

@@ -1,5 +1,5 @@
-// DATE: 27.06.2000
 
+#include "first.h"
 
 #include "fullcond_adaptiv.h"
 
@@ -175,7 +175,12 @@ void FULLCOND_adaptiv::update(void)
     {
     nrtrials++;
 
+// Vorschlag:
+# if defined(__BUILDING_GNU)
+    Pm.compute_fc(h,blocksize,an,en,sqrt(sigma2));
+# else
     Pm.compute_fc(h,blocksize,an,en,sqrtl(sigma2));
+#endif
 
     denquot = 0;
     for (k=an;k<=en;k++)

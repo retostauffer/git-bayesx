@@ -1,4 +1,6 @@
-//---------------------------------------------------------------------------
+
+#include "first.h"
+
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -8,9 +10,12 @@
 #endif
 
 
-#include<stepwisereg.h>
-#include<fullcond.h>
-#include<typeinfo.h>
+#include"stepwisereg.h"
+#include"fullcond.h"
+
+// Vorschlag:
+//#include<typeinfo.h>
+
 #include<stddef.h>
 #include <stdlib.h>
 
@@ -275,7 +280,7 @@ void stepwisereg::create(void)
 
   predict = simpleoption("predict",false);
   predictmu = simpleoption("predictmu",false);
-  predictuntil=intoption("predictuntil",0,1,100000000000);
+  predictuntil=intoption("predictuntil",0,1,1000000000);
 
   regressoptions.reserve(100);
 
@@ -498,8 +503,8 @@ void stepwisereg::initpointers(void)
   for(i=0;i<normalconst.size();i++)
     fullcond.push_back(&normalconst[i]);
 
-  for(i=0;i<gammaconst.size();i++)
-    fullcond.push_back(&gammaconst[i]);
+//  for(i=0;i<gammaconst.size();i++)
+//    fullcond.push_back(&gammaconst[i]);
 
   for(i=0;i<factor.size();i++)
     fullcond.push_back(&factor[i]);
@@ -561,8 +566,8 @@ void stepwisereg::clear(void)
   factor.erase(factor.begin(),factor.end());
   factor.reserve(60);
 
-  gammaconst.erase(gammaconst.begin(),gammaconst.end());
-  gammaconst.reserve(10);
+//  gammaconst.erase(gammaconst.begin(),gammaconst.end());
+//  gammaconst.reserve(10);
 
   fcnonpgaussian.erase(fcnonpgaussian.begin(),fcnonpgaussian.end());
   fcnonpgaussian.reserve(40);
@@ -1427,13 +1432,23 @@ bool stepwisereg::create_factor(const unsigned & collinpred)
                  "_factor.raw","_factor.res","");
 
 
-      factor.push_back(
+// Vorschlag:                  
+/*      factor.push_back(
       FULLCOND_const_stepwise(&generaloptions[generaloptions.size()-1],
                                 distr[distr.size()-1],
                                 fcconst_intercept,
                                 D.getCol(j),
                                 terms[i].options[1],
                                 reference,title,pathconst,pathconstres,
+                                collinpred));*/
+      int helpint = (int)reference;
+      factor.push_back(
+      FULLCOND_const_stepwise(&generaloptions[generaloptions.size()-1],
+                                distr[distr.size()-1],
+                                fcconst_intercept,
+                                D.getCol(j),
+                                terms[i].options[1],
+                                helpint,title,pathconst,pathconstres,
                                 collinpred));
 
       factor[factor.size()-1].init_name(terms[i].varnames[0]);

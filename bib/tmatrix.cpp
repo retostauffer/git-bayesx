@@ -1,5 +1,3 @@
-// tmatrix.cc 2.4 97/08/07 16:17:56
-//
 // Muster fuer die outline-Funktionen der template-Klasse Matrix
 //
 // SCHALTER :
@@ -15,15 +13,11 @@
 // wenn der Overhead der Algorithmen gegenueber der Rechenzeit
 // ins Gewicht faellt.
 
-#include <tmatrix.h>
-#include <tlinklst.h>
-#include <tarray.h>
+#include "tmatrix.h"
+#include "tlinklst.h"
+#include "tarray.h"
 
-#if defined(_MSC_VER2)
-#include <strstrea.h>
-#else
-#include <strstream.h>
-#endif
+#include <strstream>
 #include <string.h>
 
 
@@ -32,10 +26,10 @@ Matrix<T>
 Matrix<T>::
 root() const
 {
-   if (operator!() || rows() != cols())
+   if (this->operator!() || this->rows() != this->cols())
       return Matrix<T>(0);
 
-   unsigned n = rows( );
+   unsigned n = this->rows( );
 
    Matrix<T> result = *this;
    if (!result)
@@ -43,7 +37,7 @@ root() const
 
    if (n == 1)
       {
-      T x = get(0, 0);
+      T x = this->get(0, 0);
 
       if (T(0) < x)
 	 result(0, 0) =  T(sqrt(x));
@@ -92,7 +86,7 @@ Matrix<T> Matrix<T>::decompCholesky( void ) const
 {
 	Matrix<T> mat( *this );
 	unsigned i, j, k;
-	unsigned n = rows( );
+	unsigned n = this->rows( );
 
 	for ( j = 0; j < n; j++ )
 	{
@@ -156,14 +150,14 @@ Matrix<T>
 Matrix<T>::
 cinverse() const
 {
-   assert(!(operator!()));
-   assert(rows() == cols());
-   assert(symmetric());
-   assert(rows() > 0);
+   assert(!(this->operator!()));
+   assert(this->rows() == this->cols());
+   assert(this->symmetric());
+   assert(this->rows() > 0);
 
-   if (rows() == 1)
+   if (this->rows() == 1)
       {
-      T v = get(0, 0);
+      T v = this->get(0, 0);
       if (v == T(0))
 	 return Matrix<T>(0);
 
@@ -174,13 +168,13 @@ cinverse() const
    if (!CH)
       return Matrix<T>(0);
 
-   Matrix<T> Inverse(rows(), cols());
+   Matrix<T> Inverse(this->rows(), this->cols());
    if (!Inverse)
       return Matrix<T>(0);
 
    unsigned j;
 
-   for(j = 0; j < cols(); ++j)
+   for(j = 0; j < this->cols(); ++j)
       {
       Matrix<T> xvec = solveCholesky(CH, j);
       if (!xvec)
@@ -207,9 +201,9 @@ Matrix<T>
 Matrix<T>::
 inverse(const T) const
 {
-   if (operator!())
+   if (this->operator!())
       return Matrix<T>(0);
-   if (rows() != cols())
+   if (this->rows() != this->cols())
       return Matrix<T>(0);
 
    Matrix<T> res;

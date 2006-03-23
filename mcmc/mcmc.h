@@ -1,26 +1,25 @@
-// DATE 11.8.99
 
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (MCMC_INCLUDED)
 
 #define MCMC_INCLUDED
 
-#include<statmat.h>
-#include<sparsemat.h>
-#include<random.h>
+#include"statmat.h"
+#include"sparsemat.h"
+#include"random.h"
 #include<fstream.h>
 #include<vector>
-#include<clstring.h>
+#include"clstring.h"
 
 #if defined(JAVA_OUTPUT_WINDOW)
-#include<adminparse_basic.h>
+#include"adminparse_basic.h"
 #endif
 
 

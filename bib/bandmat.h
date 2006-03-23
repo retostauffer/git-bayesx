@@ -1,12 +1,10 @@
-// date: 02.12.99
-
 
 #if !defined(SYMBANDMATRIX_INCLUDED)
 
 #define SYMBANDMATRIX_INCLUDED
 
-#include <statmat.h>
-#include <map.h>
+#include "statmat.h"
+#include "map.h"
 
 //------------------------------------------------------------------------------
 //-------------------------- CLASS: symbandmatrix ------------------------------
@@ -148,8 +146,13 @@
 
 // Then beta is distributed according to N(E(beta),P^{-1})
 
+#if defined(__BUILDING_GNU)
+template <class T>
+class symbandmatrix;
 
-
+template <class T>
+symbandmatrix<T> operator*(const T & v,const symbandmatrix<T> & bm);
+#endif
 
 template <class T>
 class symbandmatrix
@@ -226,7 +229,11 @@ class symbandmatrix
   // TASK: computes v*bm, where v is a scalar. The resulting bandmatrix is
   //       assigned to the calling matrix
 
+  #if defined(__BUILDING_GNU)
+  friend symbandmatrix operator*<>(const T & v,const symbandmatrix & bm);
+  #else
   friend symbandmatrix operator*(const T & v,const symbandmatrix & bm);
+  #endif
 
   // ACCESS TO THE i,j th element
 
@@ -450,8 +457,9 @@ typedef symbandmatrix<double> bandmatdouble;
 
   bandmatdouble Kmrflinearband(const unsigned & nr1,const unsigned & nr2);
 
-
-#include<bandmat.cpp>
+#if !defined(BANDMAT_CPP_INCLUDED)
+#include"bandmat.cpp"
+#endif
 
 #endif
 

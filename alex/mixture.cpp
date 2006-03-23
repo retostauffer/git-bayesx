@@ -1,3 +1,6 @@
+
+#include "first.h"
+
 #include "mixture.h"
 
 namespace MCMC

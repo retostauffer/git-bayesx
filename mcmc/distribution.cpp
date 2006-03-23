@@ -1,3 +1,6 @@
+
+#include "first.h"
+
 #include "distribution.h"
 
 namespace MCMC
@@ -3439,7 +3442,7 @@ void DISTRIBUTION_gamma::check(void)
       {
       error=true;
       errors.push_back(
-    "ERROR: response cannot be gamma distributed\; some values are negative\n");
+    "ERROR: response cannot be gamma distributed; some values are negative\n");
       }
     i++;
     workr++;
@@ -5309,19 +5312,19 @@ void DISTRIBUTION_binomial::create(void)
       if (*workresp != int(*workresp))
         {
         error=true;
-        errors.push_back("ERROR: response cannot be binomial\; values must be integer numbers\n");
+        errors.push_back("ERROR: response cannot be binomial; values must be integer numbers\n");
         }
 
       if (*workresp < 0)
         {
         error=true;
-        errors.push_back("ERROR: response cannot be binomial\; some values are negative\n");
+        errors.push_back("ERROR: response cannot be binomial; some values are negative\n");
         }
 
       if (*workresp > *workweight)
         {
         error = true;
-        errors.push_back("ERROR: response cannot be binomial\;\n");
+        errors.push_back("ERROR: response cannot be binomial;\n");
         errors.push_back("       number of successes larger than number of trials for some values\n");
         }
 

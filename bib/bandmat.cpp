@@ -1,9 +1,15 @@
 
-#include <bandmat.h>
+#include "first.h"
+
+#if !defined(BANDMAT_CPP_INCLUDED)
+#define BANDMAT_CPP_INCLUDED
+#endif
+
+#include "bandmat.h"
 
 template<class T>
 symbandmatrix<T>::symbandmatrix(const unsigned & d,const unsigned & bs,
-                                const T & v)
+                                const double & v)
   {
   diagelem = statmatrix<T>(d,1,v);
   D = diagelem;

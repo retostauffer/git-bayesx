@@ -1,8 +1,7 @@
-// DATE: 14.11.97
 
+#include "first.h"
 
-#include <option.h>
-
+#include "option.h"
 
 //------------------------------------------------------------------------------
 //------------ CLASS option: implementation of member functions ----------------

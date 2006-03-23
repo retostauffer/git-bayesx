@@ -1,22 +1,21 @@
-// DATE 19.01.98
 
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (GRAPHOBJ_INCLUDED)
 
 #define GRAPHOBJ_INCLUDED
 
-#include<statobj.h>
-#include<map.h>
+#include"statobj.h"
+#include"map.h"
 
 #if defined(JAVA_OUTPUT_WINDOW)
-#include<adminparse_pointers.h>
+#include"adminparse_pointers.h"
 #endif
 
 

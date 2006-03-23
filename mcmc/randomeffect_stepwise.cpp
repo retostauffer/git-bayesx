@@ -1,4 +1,6 @@
 
+#include "first.h"
+
 #include "randomeffect_stepwise.h"
 
 namespace MCMC
@@ -364,8 +366,12 @@ void FULLCOND_random_stepwise::reset_effect(const unsigned & pos)
   for(i=0;i<nrpar;i++,work++)
     *work = 0.0;
 
+// Vorschlag:
+//  if(randomslope && center)
+//    update_fix_effect(-intercept);
+  double helpdouble = -intercept;
   if(randomslope && center)
-    update_fix_effect(-intercept);
+    update_fix_effect(helpdouble);
   intercept = 0.0;
   }
 
@@ -499,7 +505,9 @@ void FULLCOND_random_stepwise::effect_sort(datamatrix & effect, const double & m
     effect(*workindex,0)+=m;
   }
 
-void FULLCOND_random_stepwise::effect_sort(datamatrix & effect, const double & m, unsigned & row)
+// Vorschlag:
+//void FULLCOND_random_stepwise::effect_sort(datamatrix & effect, const double & m, unsigned & row)
+void FULLCOND_random_stepwise::effect_sort(datamatrix & effect, double m, unsigned row)
   {
   double * workl = effect.getV() + row;
   *workl += m;

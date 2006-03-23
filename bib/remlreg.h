@@ -1,37 +1,36 @@
 
-// DATE: today
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (remlreg_INCLUDED)
 
 #define remlreg_INCLUDED
 
-#include<statobj.h>
-#include<dataobj.h>
-#include<map.h>
-#include<mapobject.h>
+#include"statobj.h"
+#include"dataobj.h"
+#include"map.h"
+#include"mapobject.h"
 
-#include<remlest.h>
-#include<remlest_multi.h>
-#include<remlest_multi2.h>
-#include<remlest_multi3.h>
+#include"remlest.h"
+#include"remlest_multi.h"
+#include"remlest_multi2.h"
+#include"remlest_multi3.h"
 //#include<remlest_multistate.h>
-#include<model_remlreg.h>
+#include"model_remlreg.h"
 
-#include<mcmc.h>
-#include<mcmc_const.h>
-#include<fullcond_nonp_gaussian.h>
-#include<spline_basis.h>
-#include<spline_basis_surf.h>
-#include<randomeffect.h>
-#include<kriging.h>
-#include<baseline_reml.h>
+#include"mcmc.h"
+#include"mcmc_const.h"
+#include"fullcond_nonp_gaussian.h"
+#include"spline_basis.h"
+#include"spline_basis_surf.h"
+#include"randomeffect.h"
+#include"kriging.h"
+#include"baseline_reml.h"
 
 using MCMC::MCMCoptions;
 

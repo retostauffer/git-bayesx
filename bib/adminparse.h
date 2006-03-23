@@ -1,14 +1,15 @@
-#ifdef __BUILDING_THE_DLL
+
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
 
-
-//---------------------------------------------------------------------------
 #ifndef ADMINPARSE
 #define ADMINPARSE
-//---------------------------------------------------------------------------
+
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -23,20 +24,20 @@
 
 #include <vcl.h>
 #include <FileCtrl.hpp>
+#include<dir.h>
 
 #include<fstream.h>
-#include<adminparse_basic.h>
-#include<adminparse_pointers.h>
-#include<data.h>
-#include<statobj.h>
-#include<dataobj.h>
-#include<bayesreg.h>
-#include<remlreg.h>
-#include<mapobject.h>
-#include<dagobject.h>
-#include<graphobj.h>
-#include<stepwisereg.h>
-#include<dir.h>
+#include"adminparse_basic.h"
+#include"adminparse_pointers.h"
+#include"data.h"
+#include"statobj.h"
+#include"dataobj.h"
+#include"bayesreg.h"
+#include"remlreg.h"
+#include"mapobject.h"
+#include"dagobject.h"
+#include"graphobj.h"
+#include"stepwisereg.h"
 //------------------------------------------------------------------------------
 
 

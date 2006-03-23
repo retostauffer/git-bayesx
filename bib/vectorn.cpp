@@ -1,8 +1,13 @@
-// DATE: 17.12.97
 
+#include "first.h"
 
-#include<vectorn.h>
+#if !defined (VECTORN_CPP_INCLUDED)
+#define VECTORN_CPP_INCLUDE
+#endif
 
+#if !defined (VECTORN_INCLUDED)
+#include "vectorn.h"
+#endif
 
 //------------------------------------------------------------------------------
 //------------- CLASS vectornum: implementation of member functions ------------
@@ -12,8 +17,8 @@
 template<class T>
 const vectornum<T> & vectornum<T>::operator=(const T v)
   {
-  vectornum<T>::iterator pos;
-  for (pos=begin(); pos != end();++pos)
+  class vectornum<T>::iterator pos;
+  for (pos=this->begin(); pos != this->end();++pos)
 	 *pos = v;
   return *this;
   }
@@ -201,7 +206,7 @@ vectornum<T> operator>(const vectornum<T> & v1,const vectornum<T> & v2)
 template<class T>
 vectornum<T> operator>(const T & v1,const vectornum<T> & v2)
   {
-  vectornum<T>::iterator pos1,pos2;
+  class vectornum<T>::iterator pos1,pos2;
   vectornum<T> h(v2.size());
   for (pos1=v2.begin(),pos2=h.begin(); pos1 != v2.end();++pos1,++pos2)
 	 *pos2 = (v1 > (*pos1));
@@ -212,7 +217,7 @@ vectornum<T> operator>(const T & v1,const vectornum<T> & v2)
 template<class T>
 vectornum<T> operator>(const vectornum<T> & v1,const T & v2)
   {
-  vectornum<T>::iterator pos1,pos2;
+  class vectornum<T>::iterator pos1,pos2;
   vectornum<T> h(v1.size());
   for (pos1=v1.begin(),pos2=h.begin(); pos1 != v1.end();++pos1,++pos2)
 	 *pos2 = (*pos1 > v2);
@@ -244,10 +249,14 @@ vectornum<T> operator<(const T & v2,const vectornum<T> & v1)
 template<class T>
 vectornum<T>  vectornum<T>::isequal(vectornum<T> & v2)
   {
+  #if defined(__BUILDING_GNU)
+  class vectornum<T>::iterator pos1,pos2,pos3;
+  #else
   vectornum<T>::iterator pos1,pos2,pos3;
+  #endif
   vectornum<T> h(v2.size());
-  for (pos1=begin(),pos2=v2.begin(),pos3=h.begin();
-		 pos1 != end();++pos1,++pos2,++pos3)
+  for (pos1=this->begin(),pos2=v2.begin(),pos3=h.begin();
+		 pos1 != this->end();++pos1,++pos2,++pos3)
 	 *pos3 = (*pos1 == *pos2);
   return h;
   }
@@ -256,7 +265,7 @@ vectornum<T>  vectornum<T>::isequal(vectornum<T> & v2)
 template<class T>
 vectornum<T> isequal(T v1, vectornum<T> & v2)
   {
-  vectornum<T>::iterator pos1,pos2;
+  class vectornum<T>::iterator pos1,pos2;
   vectornum<T> h(v2.size());
   for (pos1=v2.begin(),pos2=h.begin(); pos1 != v2.end();++pos1,++pos2)
 	 *pos2 = (v1 == (*pos1));
@@ -267,7 +276,7 @@ vectornum<T> isequal(T v1, vectornum<T> & v2)
 template<class T>
 vectornum<T> isequal(vectornum<T> & v1,const T v2)
   {
-  vectornum<T>::iterator pos1,pos2;
+  class vectornum<T>::iterator pos1,pos2;
   vectornum<T> h(v1.size());
   for (pos1=v1.begin(),pos2=h.begin(); pos1 != v1.end();++pos1,++pos2)
 	 *pos2 = (*pos1 == v2);
@@ -278,10 +287,14 @@ vectornum<T> isequal(vectornum<T> & v1,const T v2)
 template<class T>
 vectornum<T> vectornum<T>::isnotequal(vectornum<T> & v2)
   {
+  #if defined(__BUILDING_GNU)
+  class vectornum<T>::iterator pos1,pos2,pos3;
+  #else
   vectornum<T>::iterator pos1,pos2,pos3;
+  #endif
   vectornum<T> h(v2.size());
-  for (pos1=begin(),pos2=v2.begin(),pos3=h.begin();
-		 pos1 != end();++pos1,++pos2,++pos3)
+  for (pos1=this->begin(),pos2=v2.begin(),pos3=h.begin();
+		 pos1 != this->end();++pos1,++pos2,++pos3)
 	 *pos3 = (*pos1 != *pos2);
   return h;
   }
@@ -290,7 +303,7 @@ vectornum<T> vectornum<T>::isnotequal(vectornum<T> & v2)
 template<class T>
 vectornum<T> isnotequal(T v1, vectornum<T> & v2)
   {
-  vectornum<T>::iterator pos1,pos2;
+  class vectornum<T>::iterator pos1,pos2;
   vectornum<T> h(v2.size());
   for (pos1=v2.begin(),pos2=h.begin(); pos1 != v2.end();++pos1,++pos2)
 	 *pos2 = (v1 != (*pos1));
@@ -301,7 +314,7 @@ vectornum<T> isnotequal(T v1, vectornum<T> & v2)
 template<class T>
 vectornum<T> isnotequal(vectornum<T> & v1,const T v2)
   {
-  vectornum<T>::iterator pos1,pos2;
+  class vectornum<T>::iterator pos1,pos2;
   vectornum<T> h(v1.size());
   for (pos1=v1.begin(),pos2=h.begin(); pos1 != v1.end();++pos1,++pos2)
 	 *pos2 = (*pos1 != v2);
@@ -425,7 +438,7 @@ vectornum<T> operator&&(const vectornum<T> & v1,const vectornum<T> & v2)
 template<class T>
 ostream & operator<<(ostream & out,vectornum<T> & v)
   {
-  vectornum<T>::iterator pos;
+  class vectornum<T>::iterator pos;
   for (pos=v.begin(); pos != v.end();++pos)
 	 out << (*pos) << endl;
   return out;
@@ -435,9 +448,9 @@ ostream & operator<<(ostream & out,vectornum<T> & v)
 template<class T>
 vectornum<T> vectornum<T>::applied(T (*func)(const T &))
   {
-  vectornum<T>::iterator pos,pos2;
-  vectornum<T> h(size());
-  for (pos=begin(),pos2=h.begin(); pos != end();++pos,++pos2)
+  class vectornum<T>::iterator pos,pos2;
+  vectornum<T> h(this->size());
+  for (pos=this->begin(),pos2=h.begin(); pos != this->end();++pos,++pos2)
 	 *pos2 = (func(*pos));
   return h;
   }
@@ -446,10 +459,10 @@ vectornum<T> vectornum<T>::applied(T (*func)(const T &))
 template<class T>
 vectornum<T> vectornum<T>::applied(T (*func)(T))
   {
-  vectornum<T>::iterator pos;
-  vectornum<T>::iterator pos2;
-  vectornum<T> h(size());
-  for (pos=begin(),pos2=h.begin(); pos != end();++pos,++pos2)
+  class vectornum<T>::iterator pos;
+  class vectornum<T>::iterator pos2;
+  vectornum<T> h(this->size());
+  for (pos=this->begin(),pos2=h.begin(); pos != this->end();++pos,++pos2)
 	 *pos2 = (func(*pos));
   return h;
   }
@@ -461,12 +474,12 @@ void vectornum<T>::sort(vector<int> & index,int left,int right)
   int help;
   int i = left;
   int j = right;
-  T x = operator[](index[(left+right)/2]);
+  T x = this->operator[](index[(left+right)/2]);
   do
 	 {
-	 while (operator[](index[i]) < x)
+	 while (this->operator[](index[i]) < x)
 		i++;
-	 while (x < operator[](index[j]))
+	 while (x < this->operator[](index[j]))
 		j--;
 	 if (i <= j)
 		{

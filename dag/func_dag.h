@@ -1,6 +1,5 @@
+
 // Modul zur Erzeugung von Zufallszahlen
-
-
 
 #if !defined( FUNCTIONS_INCLUDED )
 

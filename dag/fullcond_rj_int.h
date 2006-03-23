@@ -19,26 +19,28 @@ IMPORTANT: This procedure is HOPEFULLY reversible.
 
 ****************************************************************************/
 
-#ifdef __BUILDING_THE_DLL
+
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (FULLCOND_RJ_INT_INCLUDED)
 
 #define FULLCOND_RJ_INT_INCLUDED
 
-#include<mcmc.h>
-#include<distribution.h>
-#include<fullcond.h>
-#include<fullcond_rj.h>
-#include<fullcond_dag.h>
-#include<fullcond_dag_ia.h>
-#include<fullcond_dag_ia_mixed.h>
-#include<adjacency.h>
-#include<functions.h>
+#include"mcmc.h"
+#include"distribution.h"
+#include"fullcond.h"
+#include"fullcond_rj.h"
+#include"fullcond_dag.h"
+#include"fullcond_dag_ia.h"
+#include"fullcond_dag_ia_mixed.h"
+#include"adjacency.h"
+#include"functions.h"
 
 
 namespace MCMC

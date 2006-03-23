@@ -1,28 +1,29 @@
-// DATE: 11.8.99
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (FULLCOND_INCLUDED)
 
 #define FULLCOND_INCLUDED
 
-#include<statmat.h>
-#include<random.h>
+#include"statmat.h"
+#include"random.h"
 #if defined(MICROSOFT_VISUAL)
 #include<limits>
 #else
-#include<values.h>
+#include"../values.h"
 #endif
 #include<fstream.h>
 #include<vector>
 #include<bitset>
-#include<mcmc.h>
-#include<clstring.h>
+#include"mcmc.h"
+#include"clstring.h"
+#include<cmath>
 
 namespace MCMC
 {
@@ -39,13 +40,13 @@ using std::bitset;
 //------------------------------------------------------------------------------
 
 
-const flagnr = 3;
+const int flagnr = 3;
 
-const std::bitset<flagnr> nosamples("001");   // samples should not be stored in
+const std::bitset<flagnr> nosamples(001);   // samples should not be stored in
                                               // a file
-const std::bitset<flagnr> norelchange("010"); // relative changes of parameters
+const std::bitset<flagnr> norelchange(010); // relative changes of parameters
                                               // should not be printed
-const std::bitset<flagnr> nooutput("100");    // acceptance rates and title
+const std::bitset<flagnr> nooutput(100);    // acceptance rates and title
                                               // should not be printed
 
 enum covstyle {covariance,precision,correlation};
@@ -84,7 +85,7 @@ class __EXPORT_TYPE FULLCOND
   vector<ST::string> priorassumptions;
 
   vector<ST::string> results_latex;
-  string results_type;
+  ST::string results_type;
 
   unsigned fcnumber;
 
@@ -758,7 +759,7 @@ class __EXPORT_TYPE FULLCOND
     }
 
 
-  string & get_results_type(void)
+  ST::string & get_results_type(void)
     {
     return results_type;
     }

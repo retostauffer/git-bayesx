@@ -1,5 +1,7 @@
-#include "baseline_reml.h"
 
+#include "first.h"
+
+#include "baseline_reml.h"
 
 namespace MCMC
 {

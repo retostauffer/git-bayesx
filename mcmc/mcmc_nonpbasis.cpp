@@ -1,3 +1,6 @@
+
+#include "first.h"
+
 #include<mcmc_nonpbasis.h>
 
 namespace MCMC
@@ -129,8 +132,8 @@ void FULLCOND_nonp_basis::updateKenv(const datamatrix & q)
 
   if (type==RW1)
     {
-    double * workdiag=Kenv.getDiagIterator();
-    double * workenv = Kenv.getEnvIterator();
+    vector<double>::iterator workdiag = Kenv.getDiagIterator();
+    vector<double>::iterator workenv = Kenv.getEnvIterator();
     double * workg = g.getV()+1;
     double * workq = q.getV()+1;
     double wold=1.0/(*workq * *workg);
@@ -156,8 +159,8 @@ void FULLCOND_nonp_basis::updateKenv(const datamatrix & q)
   else if (type==RW2)
     {
 
-    double * workdiag=Kenv.getDiagIterator();
-    double * workenv = Kenv.getEnvIterator();
+    vector<double>::iterator workdiag=Kenv.getDiagIterator();
+    vector<double>::iterator workenv = Kenv.getEnvIterator();
 //    double * workq = q.getV()+2;
 
 
@@ -215,8 +218,8 @@ void FULLCOND_nonp_basis::updateKenv_alpha(const double alpha1, const double alp
     {
     double alpha1_2 = alpha1*alpha1;
 
-    double * workdiag=Kenv.getDiagIterator();
-    double * workenv =Kenv.getEnvIterator();
+    vector<double>::iterator workdiag=Kenv.getDiagIterator();
+    vector<double>::iterator workenv =Kenv.getEnvIterator();
 
     *workenv  = -alpha1;
 
@@ -234,8 +237,8 @@ void FULLCOND_nonp_basis::updateKenv_alpha(const double alpha1, const double alp
     double alpha1_2 = alpha1*alpha1;
     double alpha2_2 = alpha2*alpha2;
 
-    double * workdiag=Kenv.getDiagIterator();
-    double * workenv = Kenv.getEnvIterator();
+    vector<double>::iterator workdiag=Kenv.getDiagIterator();
+    vector<double>::iterator workenv = Kenv.getEnvIterator();
 
     workdiag++;
 
@@ -269,7 +272,7 @@ void FULLCOND_nonp_basis::updateKenv_alpha(const double alpha1, const double alp
     }
   else if (type==mrf)
     {
-    double * workenv =Kenv.getEnvIterator();
+    vector<double>::iterator workenv =Kenv.getEnvIterator();
     for (i=0;i<Kenv.getXenv(Kenv.getDim());i++,workenv++)
       {
       if(*workenv != 0.0)

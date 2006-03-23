@@ -141,7 +141,7 @@ template <class T> class Array
 #	if defined(CC_SOURCE)
 #		include <tarray.cc>
 #	else
-#		include <tarray.cpp>
+#		include "tarray.cpp"
 #	endif
 #endif
 

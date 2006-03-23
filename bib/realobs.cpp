@@ -1,7 +1,7 @@
-// DATE 18.12.97
+  
+#include "first.h"
 
-
-#include<realobs.h>
+#include "realobs.h"
 
 namespace realob
 {

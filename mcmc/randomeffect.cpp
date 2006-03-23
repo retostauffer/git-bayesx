@@ -1,4 +1,6 @@
 
+#include "first.h"
+
 #include "randomeffect.h"
 
 namespace MCMC

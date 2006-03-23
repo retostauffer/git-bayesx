@@ -1,10 +1,9 @@
 
-#include <fullcond_dag.h>
+#include "first.h"
 
+#include "fullcond_dag.h"
 
 #include <iterator>
-
-
 
 
 namespace MCMC

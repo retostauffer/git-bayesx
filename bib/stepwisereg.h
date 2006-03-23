@@ -1,47 +1,43 @@
 
-// DATE: today
-
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (stepwisereg_INCLUDED)
 
 #define stepwisereg_INCLUDED
 
-#include <FileCtrl.hpp>
+#include"statobj.h"
+#include"dataobj.h"
+#include"map.h"
+#include"mapobject.h"
 
-#include<statobj.h>
-#include<dataobj.h>
-#include<map.h>
-#include<mapobject.h>
+#include"mcmc.h"
 
-#include<mcmc.h>
+#include"distribution.h"
+#include"nbinomial.h"
 
-#include<distribution.h>
-#include<nbinomial.h>
+#include"mcmc_const_stepwise.h"
 
-#include<mcmc_const_stepwise.h>
+#include"fullcond_nonp_gaussian_stepwise.h"
+#include"variance_nonp.h"
+#include"fullcond_surf_gaussian.h"
 
-#include<fullcond_nonp_gaussian_stepwise.h>
-#include<variance_nonp.h>
-#include<fullcond_surf_gaussian.h>
+#include"fullcond_pspline_stepwise.h"
+#include"mcmc_pspline_surf.h"
+#include"fullcond_pspline_surf_stepwise.h"
+#include"mcmc_pspline.h"
 
-#include<fullcond_pspline_stepwise.h>
-#include<mcmc_pspline_surf.h>
-#include<fullcond_pspline_surf_stepwise.h>
-#include<mcmc_pspline.h>
+#include"randomeffect_stepwise.h"
 
-#include<randomeffect_stepwise.h>
+#include"mcmcsimul2.h"
+#include"mcmcsimul2_multi.h"
 
-#include<mcmcsimul2.h>
-#include<mcmcsimul2_multi.h>
-
-#include<model_stepwise.h>
+#include"model_stepwise.h"
 
 using MCMC::MCMCoptions;
 using MCMC::DISTRIBUTION;
@@ -314,7 +310,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
   vector<FULLCOND_const_stepwise> factor;
   vector<FULLCOND_const_gaussian_special> normalconst_special;
   vector<FULLCOND_const_stepwise> normalconst;
-  vector<FULLCOND_const_gamma> gammaconst;
+//  vector<FULLCOND_const_gamma> gammaconst;
   FULLCOND_const * fcconst_intercept;
 
   basic_termtype fixedeffects;

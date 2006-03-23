@@ -1,5 +1,9 @@
-// DATE: 20.01.98
 
+#include "first.h"
+
+#if !defined(STATMAT_CPP_INCLUDED)
+#define STATMAT_CPP_INCLUDED
+#endif
 
 #include "statmat.h"
 #include <fstream.h>
@@ -14,8 +18,8 @@ statmatrix<T>::statmatrix(const SparseMatrix & m)
   {
   register unsigned i,j;
   double * work = getV();
-  for(i=0;i<rows();i++)
-    for(j=0;j<cols();j++,work++)
+  for(i=0;i<this->rows();i++)
+    for(j=0;j<this->cols();j++,work++)
       *work = m(i,j);
   }
 
@@ -25,8 +29,8 @@ statmatrix<T>::statmatrix(const vector<T> & v)
                             : Matrix<T>(v.size(),1)
   {
   register unsigned i;
-  double * work = getV();
-  for(i=0;i<rows();i++,work++)
+  double * work = this->getV();
+  for(i=0;i<this->rows();i++,work++)
     *work = v[i];
   }
 
@@ -62,11 +66,11 @@ const statmatrix<T> & statmatrix<T>::operator=(const SparseMatrix & m)
 template<class T>
 void statmatrix<T>::assign(const statmatrix & A)
   {
-  assert(rows()==A.rows());
-  unsigned size = rows( ) * cols( );
+  assert(this->rows()==A.rows());
+  unsigned size = this->rows( ) * this->cols( );
 
   T *workA = A.getV( );
-  T *workR = getV( );
+  T *workR = this->getV( );
   register unsigned i;
   for ( i = 0;i < size;i++, workA++,workR++ )
     *workR = *workA;
@@ -77,11 +81,11 @@ template<class T>
 void statmatrix<T>::plus(const statmatrix & A,const statmatrix & B)
   {
 
-  unsigned size = rows( ) * cols( );
+  unsigned size = this->rows( ) * this->cols( );
 
   T *workA = A.getV( );
   T *workB = B.getV( );
-  T *workR = getV( );
+  T *workR = this->getV( );
   register unsigned i;
 
   for ( i = 0;i < size;i++, workA++, workB++, workR++ )
@@ -92,10 +96,10 @@ template<class T>
 void statmatrix<T>::plus(const statmatrix & A)
   {
 
-  unsigned size = rows( ) * cols( );
+  unsigned size = this->rows( ) * this->cols( );
 
   T *workA = A.getV( );
-  T *workR = getV( );
+  T *workR = this->getV( );
   register unsigned i;
 
   for ( i = 0;i < size;i++, workA++, workR++ )
@@ -106,11 +110,11 @@ void statmatrix<T>::plus(const statmatrix & A)
 template<class T>
 void statmatrix<T>::minus(const statmatrix & A,const statmatrix & B)
   {
-  unsigned size = rows( ) * cols( );
+  unsigned size = this->rows( ) * this->cols( );
 
   T *workA = A.getV( );
   T *workB = B.getV( );
-  T *workR = getV( );
+  T *workR = this->getV( );
   register unsigned i;
 
   for ( i = 0;i < size;i++, workA++, workB++, workR++ )
@@ -123,13 +127,13 @@ void statmatrix<T>::minus(const statmatrix & A,const statmatrix & B,
                          const unsigned & colA,const unsigned & colB)
   {
 
-  unsigned size = rows();
+  unsigned size = this->rows();
   unsigned sizeA = A.cols();
   unsigned sizeB = B.cols();
   register unsigned i;
   T * workA = A.getV()+colA;
   T * workB = B.getV()+colB;
-  T* workR = getV();
+  T* workR = this->getV();
   for (i=0;i<size;i++,workA+=sizeA,workB+=sizeB,workR++)
     *workR = *workA- *workB;
 
@@ -141,14 +145,14 @@ void statmatrix<T>::mult(const statmatrix & A,const statmatrix & B)
   {
 
   assert(A.cols() == B.rows());
-  assert(rows() == A.rows());
-  assert(cols() == B.cols());
+  assert(this->rows() == A.rows());
+  assert(this->cols() == B.cols());
 
   T * workA;
   T * workB;
-  T * workR = getV();
-  unsigned n = cols();
-  unsigned size = rows()*n;
+  T * workR = this->getV();
+  unsigned n = this->cols();
+  unsigned size = this->rows()*n;
   register unsigned i, k;
 
   for (i=0;i <size;i++,workR++)
@@ -172,14 +176,14 @@ void statmatrix<T>::addmult(const statmatrix & A,const statmatrix & B)
   {
 
   assert(A.cols() == B.rows());
-  assert(rows() == A.rows());
-  assert(cols() == B.cols());
+  assert(this->rows() == A.rows());
+  assert(this->cols() == B.cols());
 
   T * workA;
   T * workB;
-  T * workR = getV();
-  unsigned n = cols();
-  unsigned size = rows()*n;
+  T * workR = this->getV();
+  unsigned n = this->cols();
+  unsigned size = this->rows()*n;
   register unsigned i, k;
 
   for (i=0;i <size;i++,workR++)
@@ -201,18 +205,18 @@ void statmatrix<T>::addmultsym(const statmatrix & A,const statmatrix & B)
   {
 
   assert(A.cols() == B.rows());
-  assert(rows() == A.rows());
-  assert(cols() == B.cols());
+  assert(this->rows() == A.rows());
+  assert(this->cols() == B.cols());
 
   T * workA;
   T * workB;
-  T * workR = getV();
-  unsigned n = cols();
+  T * workR = this->getV();
+  unsigned n = this->cols();
   unsigned m = A.cols();
 
   register unsigned i,j,k;
 
-  for (i=0;i<rows();i++)
+  for (i=0;i<this->rows();i++)
     for(j=0;j<n;j++,workR++)
       {
 
@@ -225,7 +229,7 @@ void statmatrix<T>::addmultsym(const statmatrix & A,const statmatrix & B)
 
       workA = A.getV() + (i+1)*m + i;
 
-      for(k=i+1;k<rows();k++,workB+=n,workA+=m)
+      for(k=i+1;k<this->rows();k++,workB+=n,workA+=m)
         *workR += *workA * *workB;
 //        *workR += A(k,i)*B(j,k);
 
@@ -236,25 +240,25 @@ void statmatrix<T>::addmultsym(const statmatrix & A,const statmatrix & B)
 template<class T>
 statmatrix<T> statmatrix<T>::inverse(void)
   {
-  assert(rows()==cols());
-  if (rows() == 1)
+  assert(this->rows()==this->cols());
+  if (this->rows() == 1)
     {
     assert( *getV() != T(0) );
     return statmatrix<T>(1,1,T(1)/(*getV()));
     }
-  else if (rows()==2)
+  else if (this->rows()==2)
     {
-    T det = get(0,0)*get(1,1)-get(0,1)*get(1,0);
+    T det = this->get(0,0)*this->get(1,1)-this->get(0,1)*this->get(1,0);
     assert(det !=  T(0));
     statmatrix<T> result(2,2);
     T* work = result.getV();
-    *work =  get(1,1)/det;                 // result(0,0)
+    *work =  this->get(1,1)/det;                 // result(0,0)
     work++;
-    *work =  -get(0,1)/det;                // result(0,1)
+    *work =  -this->get(0,1)/det;                // result(0,1)
     work++;
-    *work =  -get(1,0)/det;                // result(1,0)
+    *work =  -this->get(1,0)/det;                // result(1,0)
     work++;
-    *work =  get(0,0)/det;                 // result(0,0)
+    *work =  this->get(0,0)/det;                 // result(0,0)
     return result;
     }
   else
@@ -267,9 +271,9 @@ void statmatrix<T>::multdiagback(const statmatrix & d)
   T* dpoint;
   T* thispoint=getV();
   unsigned i, j;
-  for(i=0; i<rows(); i++)
+  for(i=0; i<this->rows(); i++)
     {
-    for(j=0, dpoint=d.getV(); j<cols(); j++, dpoint++, thispoint++)
+    for(j=0, dpoint=d.getV(); j<this->cols(); j++, dpoint++, thispoint++)
       {
       *thispoint *= *dpoint;
       }
@@ -280,11 +284,11 @@ template<class T>
 void statmatrix<T>::multdiagfront(const statmatrix & d)
   {
   T* dpoint=d.getV();
-  T* thispoint=getV();
+  T* thispoint=this->getV();
   unsigned i, j;
-  for(i=0; i<rows(); i++, dpoint++)
+  for(i=0; i<this->rows(); i++, dpoint++)
     {
-    for(j=0; j<cols(); j++, thispoint++)
+    for(j=0; j<this->cols(); j++, thispoint++)
       {
       *thispoint *= *dpoint;
       }
@@ -294,16 +298,16 @@ void statmatrix<T>::multdiagfront(const statmatrix & d)
 template<class T>
 void statmatrix<T>::multdiagfront(const statmatrix & A, const statmatrix & d)
   {
-  assert(A.rows()==rows());
-  assert(A.cols()==cols());
+  assert(A.rows()==this->rows());
+  assert(A.cols()==this->cols());
   assert(A.rows()==d.rows());
   T* dpoint=d.getV();
   T* apoint=A.getV();
-  T* thispoint=getV();
+  T* thispoint=this->getV();
   unsigned i, j;
-  for(i=0; i<rows(); i++, dpoint++)
+  for(i=0; i<this->rows(); i++, dpoint++)
     {
-    for(j=0; j<cols(); j++, thispoint++, apoint++)
+    for(j=0; j<this->cols(); j++, thispoint++, apoint++)
       {
       *thispoint = *apoint * *dpoint;
       }
@@ -314,11 +318,11 @@ template<class T>
 void statmatrix<T>::addtodiag(const statmatrix & d, unsigned first,
                               unsigned last)
   {
-  assert(rows()==cols());
+  assert(this->rows()==this->cols());
   T* dpoint=d.getV();
-  T* thispoint=getV()+first*cols()+first;
+  T* thispoint=getV()+first*this->cols()+first;
   unsigned i;
-  for(i=first; i<last; i++, dpoint++, thispoint+=cols()+1)
+  for(i=first; i<last; i++, dpoint++, thispoint+=this->cols()+1)
     {
     *thispoint += *dpoint;
     }
@@ -328,11 +332,11 @@ template<class T>
 void statmatrix<T>::subfromdiag(const statmatrix & d, unsigned first,
                               unsigned last)
   {
-  assert(rows()==cols());
+  assert(this->rows()==this->cols());
   T* dpoint=d.getV();
-  T* thispoint=getV()+first*cols()+first;
+  T* thispoint=this->getV()+first*this->cols()+first;
   unsigned i;
-  for(i=first; i<last; i++, dpoint++, thispoint+=cols()+1)
+  for(i=first; i<last; i++, dpoint++, thispoint+=this->cols()+1)
     {
     *thispoint -= *dpoint;
     }
@@ -341,12 +345,12 @@ void statmatrix<T>::subfromdiag(const statmatrix & d, unsigned first,
 template<class T>
 void statmatrix<T>::elemmult(const statmatrix<T> & A)
   {
-  assert(A.cols()==cols());
-  assert(A.rows()==rows());
+  assert(A.cols()==this->cols());
+  assert(A.rows()==this->rows());
   T* Apoint = A.getV();
-  T* thispoint = getV();
+  T* thispoint = this->getV();
   unsigned i;
-  for(i=0; i<cols()*rows(); i++, thispoint++, Apoint++)
+  for(i=0; i<this->cols()*this->rows(); i++, thispoint++, Apoint++)
     {
     *thispoint *= *Apoint;
     }
@@ -355,12 +359,12 @@ void statmatrix<T>::elemmult(const statmatrix<T> & A)
 template<class T>
 void statmatrix<T>::elemquot(const statmatrix<T> & A)
   {
-  assert(A.cols()==cols());
-  assert(A.rows()==rows());
+  assert(A.cols()==this->cols());
+  assert(A.rows()==this->rows());
   T* Apoint = A.getV();
-  T* thispoint = getV();
+  T* thispoint = this->getV();
   unsigned i;
-  for(i=0; i<cols()*rows(); i++, thispoint++, Apoint++)
+  for(i=0; i<this->cols()*this->rows(); i++, thispoint++, Apoint++)
     {
     *thispoint /= *Apoint;
     }
@@ -373,8 +377,8 @@ void statmatrix<T>::weightedsscp(const statmatrix<T> & X,
   unsigned xcols=X.cols();
   unsigned n=X.rows();
 
-  assert(cols()==xcols);
-  assert(rows()==xcols);
+  assert(this->cols()==xcols);
+  assert(this->rows()==xcols);
   assert(w.rows()==n);
 
   T* xpointi;
@@ -402,10 +406,10 @@ void statmatrix<T>::weightedsscp(const statmatrix<T> & X,
           sum += *xpointi * *xpointj * *wpoint;
           }
         }
-      put(i,j,sum);
+      this->put(i,j,sum);
       if(i!=j)
         {
-        put(j,i,sum);
+        this->put(j,i,sum);
         }
       }
     }
@@ -419,8 +423,8 @@ void statmatrix<T>::weightedsscp2(const statmatrix<T> & X, const statmatrix<T> &
   unsigned zcols=Z.cols();
   unsigned n=Z.rows();
 
-  assert(cols()==xcols+zcols);
-  assert(rows()==xcols+zcols);
+  assert(this->cols()==xcols+zcols);
+  assert(this->rows()==xcols+zcols);
   assert(w.rows()==n);
   assert(X.rows()==n);
 
@@ -452,10 +456,10 @@ void statmatrix<T>::weightedsscp2(const statmatrix<T> & X, const statmatrix<T> &
           sum += *xpointi * *xpointj * *wpoint;
           }
         }
-      put(i,j,sum);
+      this->put(i,j,sum);
       if(i!=j)
         {
-        put(j,i,sum);
+        this->put(j,i,sum);
         }
       }
     for(j=0, j1=xcols; j<zcols; j++, j1++)
@@ -474,8 +478,8 @@ void statmatrix<T>::weightedsscp2(const statmatrix<T> & X, const statmatrix<T> &
           sum += *xpointi * *zpointj * *wpoint;
           }
         }
-      put(i,j1,sum);
-      put(j1,i,sum);
+      this->put(i,j1,sum);
+      this->put(j1,i,sum);
       }
     }
 
@@ -498,10 +502,10 @@ void statmatrix<T>::weightedsscp2(const statmatrix<T> & X, const statmatrix<T> &
           sum += *zpointi * *zpointj * *wpoint;
           }
         }
-      put(i1,j1,sum);
+      this->put(i1,j1,sum);
       if(i!=j)
         {
-        put(j1,i1,sum);
+        this->put(j1,i1,sum);
         }
       }
     }
@@ -514,7 +518,7 @@ void statmatrix<T>::weightedsscp_resp(const statmatrix & X, const statmatrix & y
   unsigned xcols=X.cols();
   unsigned n=X.rows();
 
-  assert(rows()==xcols);
+  assert(this->rows()==xcols);
   assert(w.rows()==n);
   assert(y.rows()==n);
 
@@ -561,7 +565,7 @@ void statmatrix<T>::weightedsscp_resp2(const statmatrix<T> & X,
   unsigned zcols=Z.cols();
   unsigned n=Z.rows();
 
-  assert(rows()==xcols+zcols);
+  assert(this->rows()==xcols+zcols);
   assert(w.rows()==n);
   assert(y.rows()==n);
   assert(X.rows()==n);
@@ -623,18 +627,18 @@ void statmatrix<T>::sort(int start,int ende,int col)
   {
   int i = start;
   int j = ende;
-  T x = get((start+ende)/2,col);
+  T x = this->get((start+ende)/2,col);
   statmatrix<T> hilfe;
   do
 	 {
-	 while (get(i,col) < x)
+	 while (this->get(i,col) < x)
 		i++;
-	 while (x < get(j,col))
+	 while (x < this->get(j,col))
 		j--;
 	 if (i <= j)
 		{
-		hilfe = getRow(i);
-		putRow(i,getRow(j));
+		hilfe = this->getRow(i);
+		putRow(i,this->getRow(j));
 		putRow(j,hilfe);
 		i++;
 		j--;
@@ -653,18 +657,18 @@ void statmatrix<T>::sortcol(int start,int ende,int col)
   {
   int i = start;
   int j = ende;
-  T x = get((start+ende)/2,col);
+  T x = this->get((start+ende)/2,col);
   T hilfe;
   do
 	 {
-	 while (get(i,col) < x)
+	 while (this->get(i,col) < x)
 		i++;
-	 while (x < get(j,col))
+	 while (x < this->get(j,col))
 		j--;
 	 if (i <= j)
 		{
-		hilfe = get(i,col);
-		put(i,col,get(j,col));
+		hilfe = this->get(i,col);
+		put(i,col,this->get(j,col));
 		put(j,col,hilfe);
 		i++;
 		j--;
@@ -683,9 +687,9 @@ void statmatrix<T>::indexinit(void)
   {
   unsigned i;
   unsigned j;
-  for (i=0;i<cols();i++)
-	 for (j=0;j<rows();j++)
-		put(j,i,j);
+  for (i=0;i<this->cols();i++)
+	 for (j=0;j<this->rows();j++)
+		this->put(j,i,j);
   }
 
 
@@ -695,13 +699,13 @@ void statmatrix<T>::indexsort(statmatrix<int> & index,int start,int ende,
   {
   int i = start;
   int j = ende;
-  T x = get(index((start+ende)/2,indexcol),col);
+  T x = this->get(index((start+ende)/2,indexcol),col);
   int hilfe;
   do
 	 {
-	 while (get(index(i,indexcol),col) < x)
+	 while (this->get(index(i,indexcol),col) < x)
 		i++;
-	 while (x < get(index(j,indexcol),col))
+	 while (x < this->get(index(j,indexcol),col))
 		j--;
 	 if (i <= j)
 		{
@@ -738,7 +742,7 @@ void statmatrix<T>::rank(statmatrix<double> & rang,statmatrix<int> & index,
   while(i<=ende-start)  
     {
     unten = i-1;
-    while( (i<=ende-start) && (get(index(i,0),col)-get(index(i-1,0),col))<pow(10,-10) )
+    while( (i<=ende-start) && (this->get(index(i,0),col)-this->get(index(i-1,0),col))<pow(10,-10) )
       {
       anzahl++;
       i++;
@@ -758,9 +762,9 @@ void statmatrix<T>::rank(statmatrix<double> & rang,statmatrix<int> & index,
 template<class T>
 statmatrix<T> statmatrix<T>::sum (void) const
   {
-  statmatrix<T> s(cols(),1,0);
+  statmatrix<T> s(this->cols(),1,0);
   unsigned col;
-  for (col=0;col<cols();col++)
+  for (col=0;col<this->cols();col++)
     s(col,0) = sum(col);
   return s;
   }
@@ -770,12 +774,12 @@ template<class T>
 T statmatrix<T>::sum (const unsigned & col) const
   {
 
-  assert(col < cols());
+  assert(col < this->cols());
 
   T sum = 0;
   register unsigned i;
-  T* work = getV()+col;
-  for (i=0;i<rows();i++,work+=cols())
+  T* work = this->getV()+col;
+  for (i=0;i<this->rows();i++,work+=this->cols())
     sum += *work;
   return sum;
   }
@@ -785,12 +789,12 @@ template<class T>
 T statmatrix<T>::sum2 (const unsigned & col) const
   {
 
-  assert(col < cols());
+  assert(col < this->cols());
 
   T sum = 0;
   register unsigned i;
-  T* work = getV()+col;
-  for (i=0;i<rows();i++,work+=cols())
+  T* work = this->getV()+col;
+  for (i=0;i<this->rows();i++,work+=this->cols())
     sum += *work * *work;
   return sum;
   }
@@ -800,13 +804,13 @@ template<class T>
 T  statmatrix<T>::sum2(const unsigned & col,const statmatrix<T> & weight) const
   {
 
-  assert(col < cols());
+  assert(col < this->cols());
 
   T sum = 0;
-  T* work = getV()+col;
+  T* work = this->getV()+col;
   T* workweight = weight.getV();
   register unsigned i;
-  for (i=0;i<rows();i++,work+=cols(),workweight++)
+  for (i=0;i<this->rows();i++,work+=this->cols(),workweight++)
     {
     sum += *workweight* (*work) * (*work);
     }
@@ -818,9 +822,9 @@ T  statmatrix<T>::sum2(const unsigned & col,const statmatrix<T> & weight) const
 template<class T>
 statmatrix<T> statmatrix<T>::sum2()
   {
-  statmatrix<T>res(cols(),1,0);
+  statmatrix<T>res(this->cols(),1,0);
   unsigned i;
-  for(i=0; i<cols(); i++)
+  for(i=0; i<this->cols(); i++)
     {
     res(i,0)=sum2(i);
     }
@@ -831,14 +835,14 @@ template<class T>
 T statmatrix<T>::mean(const unsigned & col,
                       const statmatrix<T> & weight) const
   {
-  assert(col < cols());
+  assert(col < this->cols());
 
   T sum = 0;
   T sumweight = 0;
   register unsigned i;
-  T* work = getV()+col;
+  T* work = this->getV()+col;
   T* workweight = weight.getV();
-  for (i=0;i<rows();i++,work+=cols(),workweight++)
+  for (i=0;i<this->rows();i++,work+=this->cols(),workweight++)
     {
     sumweight+= *workweight;
     sum += *workweight * *work;
@@ -850,11 +854,11 @@ T statmatrix<T>::mean(const unsigned & col,
 template<class T>
 T statmatrix<T>::min (const unsigned & c) const
   {
-  T* work = getV()+c;
+  T* work = this->getV()+c;
   T minv = *work;
-  work+=cols();
+  work+=this->cols();
   unsigned i;
-  for (i=1;i<rows();i++,work+=cols())
+  for (i=1;i<this->rows();i++,work+=this->cols())
     {
     if ((*work) < minv)
       minv = *work;
@@ -866,11 +870,11 @@ T statmatrix<T>::min (const unsigned & c) const
 template<class T>
 T statmatrix<T>::max (const unsigned & c) const
   {
-  T* work = getV()+c;
+  T* work = this->getV()+c;
   T maxv = *work;
-  work+=cols();
+  work+=this->cols();
   unsigned i;
-  for (i=1;i<rows();i++,work+=cols())
+  for (i=1;i<this->rows();i++,work+=this->cols())
     {
     if ((*work) > maxv)
       maxv = *work;
@@ -883,8 +887,8 @@ template<class T>
 T statmatrix<T>::sumcomplete(void) const
   {
   register unsigned i;
-  unsigned size = rows()*cols();
-  T* work = getV();
+  unsigned size = this->rows()*this->cols();
+  T* work = this->getV();
   T sum = 0;
   for (i=0;i<size;i++,work++)
 	 sum += *work;
@@ -902,9 +906,9 @@ T statmatrix<T>::norm(unsigned col) const
 template<class T>
 statmatrix<T> statmatrix<T>::norm()
   {
-  statmatrix<T>res(cols(),1,0);
+  statmatrix<T>res(this->cols(),1,0);
   unsigned i;
-  for(i=0; i<cols(); i++)
+  for(i=0; i<this->cols(); i++)
     {
     res(i,0)=norm(i);
     }
@@ -914,8 +918,8 @@ statmatrix<T> statmatrix<T>::norm()
 template<class T>
 statmatrix<T> statmatrix<T>::mean() const
   {
-  statmatrix<T> m(cols(),1);
-  for (unsigned col=0;col<cols();col++)
+  statmatrix<T> m(this->cols(),1);
+  for (unsigned col=0;col<this->cols();col++)
 	 m(col,0) = mean(col);
   return m;
   }
@@ -924,7 +928,7 @@ template<class T>
 T statmatrix<T>::var(const unsigned & col) const
   {
   T m = mean(col);
-  return T(1)/T(rows())*sum2(col)-m*m;
+  return T(1)/T(this->rows())*sum2(col)-m*m;
   }
 
 template<class T>
@@ -941,21 +945,21 @@ template<class T>
 T statmatrix<T>::quantile(const T & percent,const unsigned & col) const
   {
 
-  T k = rows()*(percent/100.0);           // (alpha * Anzahl der Beobachtungen)
+  T k = this->rows()*(percent/100.0);           // (alpha * Anzahl der Beobachtungen)
   unsigned kganz = unsigned(k);
 
-  statmatrix<int> index(rows(),1);
+  statmatrix<int> index(this->rows(),1);
   index.indexinit();
-  indexsort(index,0,rows()-1,col,0);
+  indexsort(index,0,this->rows()-1,col,0);
 
   if(kganz == 0)                             // T==0 => Minimum
-     return get(index(0,0),col);
-  else if(kganz == rows())                   // T==100 => Maximum
-     return get(index(rows()-1,0),col);
+     return this->get(index(0,0),col);
+  else if(kganz == this->rows())                   // T==100 => Maximum
+     return this->get(index(this->rows()-1,0),col);
   else if (k == kganz)                             // Falls k ganzzahlig ist
-	 return (get(index(kganz-1,0),col) + get(index(kganz,0),col))/2.0;
+	 return (this->get(index(kganz-1,0),col) + this->get(index(kganz,0),col))/2.0;
   else                                       // Falls k nicht ganzzahlig ist
-	 return get(index(kganz,0),col);
+	 return this->get(index(kganz,0),col);
 
   }
 
@@ -963,8 +967,8 @@ T statmatrix<T>::quantile(const T & percent,const unsigned & col) const
 template<class T>
 statmatrix<T> statmatrix<T>::quantile(T percent)
   {
-  statmatrix<T> quant(cols(),1);
-  for (int col=0;col<cols();col++)
+  statmatrix<T> quant(this->cols(),1);
+  for (int col=0;col<this->cols();col++)
 	 quant(col,0) = quantile(percent,col);
   return quant;
   }
@@ -980,15 +984,15 @@ T statmatrix<T>::autocorr (const unsigned & lag,const unsigned & col) const
   T sum_lag2 = 0;                          // Quadratsumme der verzögerten Werte
   T sum_wertlag = 0;                       // Summe Wert * verzögerter Wert
   T mean,mean_lag;                         // Mittelwert, verzögerter Mittelwert
-  T anz = rows()-lag;                      // Anzahl Beobachtungen
+  T anz = this->rows()-lag;                      // Anzahl Beobachtungen
 
-  for (unsigned k=lag;k<rows();k++)
+  for (unsigned k=lag;k<this->rows();k++)
 	 {
-	 sum = sum + get(k,col);
-	 sum2 = sum2 + get(k,col)*get(k,col);
-	 sum_lag = sum_lag + get(k-lag,col);
-	 sum_lag2 = sum_lag2 + get(k-lag,col)*get(k-lag,col);
-	 sum_wertlag = sum_wertlag + get(k,col)*get(k-lag,col);
+	 sum = sum + this->get(k,col);
+	 sum2 = sum2 + this->get(k,col)*this->get(k,col);
+	 sum_lag = sum_lag + this->get(k-lag,col);
+	 sum_lag2 = sum_lag2 + this->get(k-lag,col)*this->get(k-lag,col);
+	 sum_wertlag = sum_wertlag + this->get(k,col)*this->get(k-lag,col);
 	 }
 
   mean = (1.0/anz)*sum;
@@ -1005,10 +1009,10 @@ template<class T>
 statmatrix<T> statmatrix<T>::autocorr (const unsigned & lag) const
   {
 
-  statmatrix<T> corr(lag,cols());
+  statmatrix<T> corr(lag,this->cols());
 
   for (unsigned i=1;i<=lag;i++)
-	 for (unsigned j=0;j<cols();j++)
+	 for (unsigned j=0;j<this->cols();j++)
 		corr(i-1,j) = autocorr(i,j);
 
   return corr;
@@ -1036,15 +1040,15 @@ statmatrix<T> statmatrix<T>::autocorr(const unsigned & beginlag,
   T sum_lag2 = 0;                          // Quadratsumme der verzögerten Werte
   T sum_wertlag = 0;                       // Summe Wert * verzögerter Wert
   T mean,mean_lag;                         // Mittelwert, verzögerter Mittelwert
-  T anz = rows() - beginlag;                   // Anzahl Beobachtungen
+  T anz = this->rows() - beginlag;                   // Anzahl Beobachtungen
 
-  for (unsigned k=beginlag;k<rows();k++)
+  for (unsigned k=beginlag;k<this->rows();k++)
     {
-	 sum = sum + get(k,col);
-	 sum2 = sum2 + get(k,col)*get(k,col);
-	 sum_lag = sum_lag + get(k-beginlag,col);
-	 sum_lag2 = sum_lag2 + get(k-beginlag,col)*get(k-beginlag,col);
-	 sum_wertlag = sum_wertlag + get(k,col)*get(k-beginlag,col);
+	 sum = sum + this->get(k,col);
+	 sum2 = sum2 + this->get(k,col)*this->get(k,col);
+	 sum_lag = sum_lag + this->get(k-beginlag,col);
+	 sum_lag2 = sum_lag2 + this->get(k-beginlag,col)*this->get(k-beginlag,col);
+	 sum_wertlag = sum_wertlag + this->get(k,col)*this->get(k-beginlag,col);
 	 }
 
   mean = (1.0/anz)*sum;
@@ -1060,14 +1064,14 @@ statmatrix<T> statmatrix<T>::autocorr(const unsigned & beginlag,
   for(i=beginlag+1;i<=endlag;i++)
     {
 
-    sum -= get(i-1,col);
-    sum2 -= get(i-1,col)*get(i-1,col);
-    sum_lag -= get(rows()-1-(i-1),col);
-    sum_lag2 -=  get(rows()-1-(i-1),col)*get(rows()-1-(i-1),col);
+    sum -= this->get(i-1,col);
+    sum2 -= this->get(i-1,col)*this->get(i-1,col);
+    sum_lag -= this->get(this->rows()-1-(i-1),col);
+    sum_lag2 -=  this->get(this->rows()-1-(i-1),col)*this->get(this->rows()-1-(i-1),col);
 
     sum_wertlag = 0;
-    for (unsigned k=i;k<rows();k++)
-      sum_wertlag += get(k,col)*get(k-i,col);
+    for (unsigned k=i;k<this->rows();k++)
+      sum_wertlag += this->get(k,col)*this->get(k-i,col);
 
     anz--;
     mean = (1.0/anz)*sum;
@@ -1093,10 +1097,10 @@ statmatrix<T> statmatrix<T>::autocorr(const unsigned & beginlag,
 template<class T>
 statmatrix<T> statmatrix<T>::cov()
   {
-  statmatrix<T> one(rows(),1,1);
+  statmatrix<T> one(this->rows(),1,1);
 
-  return (1.0/(rows()-1))*( (*this).transposed()*(*this) -
-			(1.0/rows())*(*this).transposed()*one*one.transposed()*(*this) );
+  return (1.0/(this->rows()-1))*( (*this).transposed()*(*this) -
+			(1.0/this->rows())*(*this).transposed()*one*one.transposed()*(*this) );
   }
 
 
@@ -1105,7 +1109,7 @@ statmatrix<T> statmatrix<T>::corr()
   {
   int i,j;
   statmatrix<T> c = cov();
-  statmatrix<T> co(cols(),cols());
+  statmatrix<T> co(this->cols(),this->cols());
   for (i=0;i<c.rows();i++)
 	 for(j=0;j<c.cols();j++)
 		co(i,j) = c(i,j)/sqrt(c(i,i)*c(j,j));
@@ -1120,16 +1124,16 @@ T statmatrix<T>::compute_quadform(const statmatrix<T> & x,const unsigned & c)
   T res=0;
   T * xi=x.getV()+c;
   T * xj;
-  T * workm=getV();
+  T * workm=this->getV();
   unsigned d = x.cols();
-  for (i=0;i<rows();i++,xi+=d)
+  for (i=0;i<this->rows();i++,xi+=d)
     {
     workm+=i;
 //    res+= x(i,0)*x(i,0)*get(i,i);
     res+= *xi * *xi * *workm;
     xj = xi+d;
     workm++;
-    for(j=i+1;j<cols();j++,xj+=d,workm++)
+    for(j=i+1;j<this->cols();j++,xj+=d,workm++)
       {
 //      res+=2*x(i,0)*x(j,0)*get(i,j);
       res+=2* *xi * *xj * *workm;
@@ -1147,7 +1151,7 @@ template<class T>
 statmatrix<T> statmatrix<T>::strike (unsigned int k)
 {
 	unsigned int i,j;
-	unsigned rows_new = rows()-1;
+	unsigned rows_new = this->rows()-1;
 
 	statmatrix<T> matrix_new (rows_new,rows_new);
 
@@ -1155,13 +1159,13 @@ statmatrix<T> statmatrix<T>::strike (unsigned int k)
 	{
 		for(i=0; i<rows_new; i++)
 			for(j=0; j<rows_new; j++)
-				matrix_new(i,j)=get(i+1,j+1);
+				matrix_new(i,j)=this->get(i+1,j+1);
 	}
 	else if(k==rows_new+1)
 	{
 		for(i=0; i<rows_new; i++)
 			for(j=0; j<rows_new; j++)
-				matrix_new(i,j)=get(i,j);
+				matrix_new(i,j)=this->get(i,j);
 	}
 
 	else
@@ -1171,13 +1175,13 @@ statmatrix<T> statmatrix<T>::strike (unsigned int k)
 			for(j=0; j<rows_new; j++)
 			{
 				if(i<k && j<k)
-					 matrix_new(i,j)=get(i,j);
+					 matrix_new(i,j)=this->get(i,j);
 				else if(i<k && j>k-1)
-					matrix_new(i,j)=get(i,j+1);
+					matrix_new(i,j)=this->get(i,j+1);
 				else if(i>k-1 && j<k)
-					matrix_new(i,j)=get(i+1,j);
+					matrix_new(i,j)=this->get(i+1,j);
 				else if (i>k-1 && j>k-1)
-					matrix_new(i,j)=get(i+1,j+1); 
+					matrix_new(i,j)=this->get(i+1,j+1);
 			}
 		}
 	}
@@ -1188,19 +1192,19 @@ statmatrix<T> statmatrix<T>::strike (unsigned int k)
 template<class T>
 statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 {
-	assert(rows()==cols());
+	assert(this->rows()==this->cols());
 	int k,l;
-	datamatrix res (1,rows()-2);
+	datamatrix res (1,this->rows()-2);
 
 	l=0;
-	for(k=0; k<rows(); k++)
+	for(k=0; k<this->rows(); k++)
 	{
 		if(k==i)
 			l--;
 		else if(k==j)
 			l--;
 		else
-			res(0,l) = get(i,k);
+			res(0,l) = this->get(i,k);
 		l++;
 	}
 	
@@ -1258,8 +1262,8 @@ template<class T>
 statmatrix<T> statmatrix<T>::partial_var(void) 
 {
 	unsigned i,j,m,n;
-	unsigned nvar = cols();
-	unsigned nobs = rows(); 
+	unsigned nvar = this->cols();
+	unsigned nobs = this->rows();
 
 	double numerator, denominator;
 

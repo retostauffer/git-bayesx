@@ -1,4 +1,6 @@
-//---------------------------------------------------------------------------
+
+#include "first.h"
+
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -8,9 +10,11 @@
 
 #endif
 
+#include"bayesreg.h"
 
-#include<bayesreg.h>
-#include<typeinfo.h>
+// Vorschlag:
+//#include<typeinfo.h>
+
 #include<stddef.h>
 
 
@@ -18,7 +22,9 @@
 //------------- CLASS bayesreg: implementation of member functions -------------
 //------------------------------------------------------------------------------
 
-bool bayesreg::check_iwls(bool & iwls)
+// Vorschlag:
+//bool bayesreg::check_iwls(bool & iwls)
+bool bayesreg::check_iwls(bool iwls)
   {
   if ( ( (family.getvalue() == "binomial") && (iwls==true) ) ||
        ( (family.getvalue() == "poisson") && (iwls==true) ) ||
@@ -284,7 +290,10 @@ void bayesreg::create(void)
 
   predict = simpleoption("predict",false);
   predictmu = simpleoption("predictmu",false);
-  predictuntil=intoption("predictuntil",0,1,100000000000);
+
+// Vorschlag: 
+//  predictuntil=intoption("predictuntil",0,1,100000000000);
+  predictuntil=intoption("predictuntil",0,1,1000000000);
 
   nutlink = intoption("nutlink",8,1,40);
 

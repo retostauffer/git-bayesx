@@ -1,6 +1,7 @@
 
-#include "multibaseline.h"
+#include "first.h"
 
+#include "multibaseline.h"
 
 namespace MCMC
 {
@@ -63,7 +64,7 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
       if(likep->get_transition(i,col)==1) j=j+1;
     zi_teil[col] = datamatrix(2*j,1,0);
 
-    teil_index = vector<statmatrix<int>>(likep->get_responsedim());
+    teil_index = vector< statmatrix<int> >(likep->get_responsedim());
     teil_index[col] = statmatrix<int>(zi_teil[col].rows(),1);
 
     k=0;
@@ -588,12 +589,16 @@ void pspline_multibaseline::update(void)
   if(automatic)
     {
      if(optionsp->get_nriter()%100==0 && optionsp->get_nriter()<optionsp->get_burnin())
-      adjust_blocksize(30,70);
-      blocksize = minauto + random(maxauto-minauto+1);
+       adjust_blocksize(30,70);
+// Vorschlag:
+//     blocksize = minauto + random(maxauto-minauto+1);
+     blocksize = minauto + rand() % (maxauto-minauto+1);
     }
   else
     {
-    blocksize = min + random(max-min+1);
+// Vorschlag:
+//    blocksize = min + random(max-min+1);
+    blocksize = min + rand() % (max-min+1);
     }
 
   double u;

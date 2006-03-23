@@ -1,6 +1,9 @@
-#include <fullcond_rj_int.h>
+
+#include "first.h"
+
+#include "fullcond_rj_int.h"
 #include <set>
-#include<algorithm>
+#include <algorithm>
 
 
 namespace MCMC
@@ -344,11 +347,17 @@ void FULLCOND_rj_int::birth_step(unsigned int v_i, unsigned int v_j)
 				preg_mods[v_j]->create_matrices("b", ncoef_new);
 			
 			// instead of: datamatrix b_new (ncoef_new,1);
-			datamatrix & b_new = preg_mods[v_j]->get_b_new_b();
+// Vorschlag:
+//			datamatrix & b_new = preg_mods[v_j]->get_b_new_b();
+			datamatrix b_new = preg_mods[v_j]->get_b_new_b();
 			// instead of: datamatrix x_new (nobs,ncoef_new);
-			datamatrix & x_new = preg_mods[v_j]->get_x_new_b() ;
+// Vorschlag:
+//			datamatrix & x_new = preg_mods[v_j]->get_x_new_b() ;
+			datamatrix x_new = preg_mods[v_j]->get_x_new_b() ;
 			// instead of: datamatrix xx_new (ncoef_new,ncoef_new);
-			datamatrix & xx_new = preg_mods[v_j]->get_xx_new_b() ;
+// Vorschlag:
+//			datamatrix & xx_new = preg_mods[v_j]->get_xx_new_b() ;
+			datamatrix xx_new = preg_mods[v_j]->get_xx_new_b() ;
 
 			datamatrix beta_new (num_ia_new+1,1);
 				
@@ -510,11 +519,17 @@ void FULLCOND_rj_int::switch_version_1(unsigned v_i, unsigned j)
 				preg_mods[j]->create_matrices("b", ncoef_new_j);
 
 		// instead of: datamatrix b_new (ncoef_new,1);
-		datamatrix & b_new_j = preg_mods[j]->get_b_new_b();
+// Vorschlag:
+//		datamatrix & b_new_j = preg_mods[j]->get_b_new_b();
+		datamatrix b_new_j = preg_mods[j]->get_b_new_b();
 		// instead of: datamatrix x_new (nobs,ncoef_new);
-		datamatrix & x_new_j = preg_mods[j]->get_x_new_b() ;
+// Vorschlag:
+//		datamatrix & x_new_j = preg_mods[j]->get_x_new_b() ;
+		datamatrix x_new_j = preg_mods[j]->get_x_new_b() ;
 		// instead of: datamatrix xx_new (ncoef_new,ncoef_new);
-		datamatrix & xx_new_j = preg_mods[j]->get_xx_new_b() ;
+// Vorschlag:
+//		datamatrix & xx_new_j = preg_mods[j]->get_xx_new_b() ;
+		datamatrix xx_new_j = preg_mods[j]->get_xx_new_b() ;
 
 		datamatrix beta_new_j (num_ia_new_j+1,1);
 
@@ -651,11 +666,17 @@ void FULLCOND_rj_int::switch_version_1(unsigned v_i, unsigned j)
 					preg_mods[v_j]->create_matrices("b", ncoef_new_j);
 
 			// instead of: datamatrix b_new (ncoef_new,1);
-			datamatrix & b_new_j = preg_mods[v_j]->get_b_new_b();
+// Vorschlag:
+//			datamatrix & b_new_j = preg_mods[v_j]->get_b_new_b();
+			datamatrix b_new_j = preg_mods[v_j]->get_b_new_b();
 			// instead of: datamatrix x_new (nobs,ncoef_new);
-			datamatrix & x_new_j = preg_mods[v_j]->get_x_new_b() ;
+// Vorschlag:
+//			datamatrix & x_new_j = preg_mods[v_j]->get_x_new_b() ;
+			datamatrix x_new_j = preg_mods[v_j]->get_x_new_b() ;
 			// instead of: datamatrix xx_new (ncoef_new,ncoef_new);
-			datamatrix & xx_new_j = preg_mods[v_j]->get_xx_new_b() ;
+// Vorschlag:
+//			datamatrix & xx_new_j = preg_mods[v_j]->get_xx_new_b() ;
+			datamatrix xx_new_j = preg_mods[v_j]->get_xx_new_b() ;
 
 			datamatrix beta_new_j (num_ia_new_j+1,1);
 

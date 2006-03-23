@@ -1,6 +1,7 @@
-#include<dagobject.h>
 
+#include "first.h"
 
+#include"dagobject.h"
 
 void estimaterun(dagobject & d)
   {
@@ -532,7 +533,8 @@ const dagobject & dagobject::operator=(const dagobject & d)
 
 int dagobject::parse(const ST::string & c)
   {
-  int pos = statobject::parsecom(c,methods);
+  optionlist globaloptions = optionlist();
+  int pos = statobject::parsecom(c,methods,globaloptions);
 
   if (pos >= 0)
 	 (*functions[pos])(*this);

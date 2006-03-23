@@ -1,4 +1,6 @@
-//---------------------------------------------------------------------------
+
+#include "first.h"
+
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -8,10 +10,9 @@
 
 #endif
 
-
-#include<remlreg.h>
-#include<fullcond.h>
-#include<typeinfo.h>
+#include"remlreg.h"
+#include"fullcond.h"
+//#include<typeinfo.h>
 #include<stddef.h>
 
 

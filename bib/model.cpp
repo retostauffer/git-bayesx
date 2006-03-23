@@ -1,9 +1,8 @@
-// DATE: 29.06.98
 
+#include "first.h"
 
-#include<model.h>
-#include<algorith>
-
+#include"model.h"
+#include<algorithm>
 
 //------------------------------------------------------------------------------
 //-------------- CLASS model: implementation of member functions ---------------

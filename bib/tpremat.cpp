@@ -24,11 +24,8 @@
 #include <math.h>
 #include <limits.h>
 
-#if defined(_MSC_VER2)
-#include <strstrea.h>
-#else
 #include <strstream>
-#endif
+
 #include <string.h>
 
 // PreMatrix operator+( const PreMatrix &m ) const

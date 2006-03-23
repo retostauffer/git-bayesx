@@ -1,4 +1,6 @@
 
+#include "first.h"
+
 #include "adminparse.h"
 
 administrator::administrator(void)

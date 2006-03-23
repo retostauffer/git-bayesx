@@ -1,19 +1,18 @@
 
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined(SPARSEMATRIX_INCLUDED)
 
 #define SPARSEMATRIX_INCLUDED
 
-
-#include<statmat.h>
-#include<map.h>
+#include"statmat.h"
+#include"map.h"
 
 
 double __EXPORT_TYPE norm(const datamatrix & v);

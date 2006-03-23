@@ -1,7 +1,7 @@
-// DATE: 09.11.97
 
+#include "first.h"
 
-#include<command.h>
+#include"command.h"
 
 
 //------------------------------------------------------------------------------
@@ -89,8 +89,10 @@ const command & command::operator=(const command & c)
   }
 
 
-int command::parse(ST::string & c)
+int command::parse(const ST::string & c1)
   {
+
+  ST::string c=c1;
 
   errormessages.clear();
 

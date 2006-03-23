@@ -1,19 +1,18 @@
-// DATE: 22.06.99
 
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (DISTRIBUTION_nbinomial_INCLUDED)
 
 #define DISTRIBUTION_nbinomial_INCLUDED
 
-#include <distribution.h>
-#include <random.h>
+#include "distribution.h"
+#include "random.h"
 
 
 
@@ -305,7 +304,7 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
   // happens in the file "mcmc_const.cpp", in the function
   // "FULLCOND_const_nbinomial::update_hierint(void)".
 
-  double update_hierint(void) const;
+  double update_hierint(void);
 
   // Updates the scale parameter, depending on the model chosen.
 
@@ -314,7 +313,7 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
   // Updates the hyperparameter b of the prior for the scale parameter.
   // The update step is independent of the model chosen!  
 
-  double update_b_pri(void) const;
+  double update_b_pri(void);
 
   // This function samples a new value for the scale parameter, depending on the
   // proposal, that we have chosen, and calculates the proposal_ratio for this

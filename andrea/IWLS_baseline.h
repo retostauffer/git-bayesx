@@ -1,21 +1,23 @@
-//---------------------------------------------------------------------------
-#ifndef IWLS_baselineH
-#define IWLS_baselineH
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
 
-#include<mcmc.h>
-#include<fullcond.h>
+#ifndef IWLS_baselineH
+#define IWLS_baselineH
+
+#include"mcmc.h"
+#include"fullcond.h"
 #include "time.h"
 #include <deque>
-#include <sparsemat.h>
-#include<mcmc_nonpbasis.h>
-#include<IWLS_pspline.h>
-#include<fullcond_nonp_gaussian.h>
+#include"sparsemat.h"
+#include"mcmc_nonpbasis.h"
+#include"IWLS_pspline.h"
+#include"fullcond_nonp_gaussian.h"
 
 namespace MCMC
 {

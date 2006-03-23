@@ -1,19 +1,20 @@
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (FULLCOND_DAG_INCLUDED)
 
 #define FULLCOND_DAG_INCLUDED
 
-#include<mcmc.h>
-#include<distribution.h>
-#include<fullcond.h>
-#include<adjacency.h>
+#include"mcmc.h"
+#include"distribution.h"
+#include"fullcond.h"
+#include"adjacency.h"
 
 //#include <FULLCOND_DAG_D_IA.h>
 

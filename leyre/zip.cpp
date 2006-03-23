@@ -1,5 +1,12 @@
-#include <zip.h>
+
+#include "first.h"
+
+#include "zip.h"
+
+#if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
+#pragma hdrstop
+#endif
 
 namespace MCMC
 {
@@ -1081,7 +1088,7 @@ double DISTRIBUTION_zip::update_nu(void)
 }
 
 
-double DISTRIBUTION_zip::update_hierint(void) const
+double DISTRIBUTION_zip::update_hierint(void) 
 {
     double *intwork = hierint.getV();
     double * hierintsavep = hierintsave.getbetapointer();
@@ -1180,7 +1187,7 @@ double DISTRIBUTION_zip::update_scale(void) const
 }
 
 
-double DISTRIBUTION_zip::update_theta(void) const	
+double DISTRIBUTION_zip::update_theta(void)	
 {
 
   double *thetawork = theta.getV();
@@ -1229,7 +1236,7 @@ double DISTRIBUTION_zip::update_theta(void) const
 }
 
 
-double DISTRIBUTION_zip::update_b_pri(void) const
+double DISTRIBUTION_zip::update_b_pri(void)
 {
     double alpha = 1;
     double beta = 0.005;
@@ -1348,8 +1355,8 @@ double DISTRIBUTION_zip::proposal_theta(void) const
     double *pwork = pvar.getV();
     pwork += nrobs+2;
 
-    double a = max(0.0, thetaaux-*pwork);
-    double b = min(thetaaux+*pwork, 1.0);
+    double a = std::max(0.0, thetaaux-*pwork);
+    double b = std::min(thetaaux+*pwork, 1.0);
     double a_prop;
     double b_prop;
 
@@ -1358,8 +1365,8 @@ double DISTRIBUTION_zip::proposal_theta(void) const
     // Formula (5.43) from diss.            
 
     *thetawork = a +(b-a)*randnumbers::uniform();
-    a_prop = max(0, *thetawork-*pwork);
-    b_prop = min(*thetawork+*pwork, 1);
+    a_prop = std::max(0.0, *thetawork-*pwork);
+    b_prop = std::min(*thetawork+*pwork, 1.0);
     return log_proposal_ratio = log(b-a)-log(b_prop-a_prop);
 }
 

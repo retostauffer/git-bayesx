@@ -1,6 +1,6 @@
-// date: 20.10.99
 
-//---------------------------------------------------------------------------
+#include "first.h"
+
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -9,13 +9,13 @@
 #endif
 
 
-#include<mapobject.h>
-#include<graph.h>
+#include"mapobject.h"
+#include"graph.h"
 
 
 void mapobject::create(void)
   {
-
+                                                                                          
   // SYNTAX OF COMMANDS:
   // name [model] [weight varname] [by varname] [if expression]
   //      [, options] [using usingtext]
@@ -175,8 +175,8 @@ const mapobject & mapobject::operator=(const mapobject & m)
 
 int mapobject::parse(const ST::string & c)
   {
-
-  int pos = statobject::parsecom(c,methods);
+  optionlist globaloptions = optionlist();
+  int pos = statobject::parsecom(c,methods,globaloptions);
 
   if (pos >= 0)
 	 (*functions[pos])(*this);

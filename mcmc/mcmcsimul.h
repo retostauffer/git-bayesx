@@ -1,21 +1,21 @@
-// DATE 14.10.99
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (MCMCsimulate_INCLUDED)
 
 #define MCMCsimulate_INCLUDED
 
-#include<mcmc.h>
-#include<distribution.h>
-#include<fullcond.h>
-#include<baseline.h>
-#include<multibaseline.h>
+#include"mcmc.h"
+#include"distribution.h"
+#include"fullcond.h"
+#include"baseline.h"
+#include"multibaseline.h"
 
 namespace MCMC
 {
@@ -116,9 +116,9 @@ class __EXPORT_TYPE MCMCsimulate
 
   void make_fixed_table(ofstream & o,const unsigned & nr);
 
-  void make_plots(ofstream & outtex,const unsigned & nr,
-                  ST::string & path_batch,ST::string & path_splus,
-                  ST::string & path_stata);
+  void make_plots(ofstream & outtex,const unsigned nr,
+                  const ST::string & path_batch,const ST::string & path_splus,
+                  const ST::string & path_stata);
 
   // FUNCTION: autocorr
   // TASK: computes autocorrelations for all samples parameters

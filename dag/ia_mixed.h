@@ -2,8 +2,8 @@
 
 #define IA_MIXED_INCLUDED
 
-#include<clstring.h>
-#include<statmat.h>
+#include "clstring.h"
+#include "statmat.h"
 #include "ia.h"
 
 namespace MCMC

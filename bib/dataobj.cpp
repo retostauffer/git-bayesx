@@ -1,7 +1,6 @@
-// DATE: 18.12.97
 
+#include "first.h"
 
-//---------------------------------------------------------------------------
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -9,13 +8,14 @@
 #include<describe_dataset.h>
 #endif
 
-#include<dataobj.h>
+#include"dataobj.h"
 
 
 void dataobject::create(void)
   {
 
-  randomize();
+  srand((unsigned)time(0));
+//  randomize();
 
   m = modelStandard();
   e = expression();
@@ -237,8 +237,8 @@ bool dataobject::allexisting(vector<ST::string> & varnames,
 
 int dataobject::parse(const ST::string & c)
   {
-
-  int pos = statobject::parsecom(c,methods);
+  optionlist globaloptions = optionlist();
+  int pos = statobject::parsecom(c,methods,globaloptions);
 
   if (pos >= 0)
 	 (*functions[pos])(*this);
@@ -729,7 +729,7 @@ void marketingrun(dataobject & o)    //Reihenfolge zum Einlesen: outlet, wocheni
     o.errormessages.push_back("ERROR: not enough variables");
   else     //Überprüfen, ob die Variablen existieren
     {
-    boolean richtig = true;
+    bool richtig = true;
     for(unsigned i=0; i<vnames.size();i++)
       {
       int test = o.d.findvar(vnames[i]);

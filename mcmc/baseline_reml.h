@@ -1,15 +1,17 @@
-//---------------------------------------------------------------------------
-#ifndef baseline_remlH
-#define baseline_remlH
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
 
-#include<mcmc_pspline.h>
-#include<spline_basis.h>
+#ifndef baseline_remlH
+#define baseline_remlH
+
+#include"mcmc_pspline.h"
+#include"spline_basis.h"
 #include<vector>
 
 namespace MCMC

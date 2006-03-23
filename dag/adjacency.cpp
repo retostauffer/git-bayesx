@@ -1,8 +1,11 @@
+
+#include "first.h"
+
 #include "adjacency.h"
 
 #include <iostream>
-#include <clstring.h>
-#include<algorithm>
+#include "clstring.h"
+#include <algorithm>
 
 
 #include <stdlib.h>
@@ -435,7 +438,9 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 		}
 		#else
 		{
-			limit = min(nedge+1, nvar);
+// Vorschlag:
+//			limit = min(nedge+1, nvar);
+			limit = std::min(nedge+1, nvar);
 		}
 		#endif
 
@@ -502,7 +507,9 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 		}
 		#else
 		{
-			limit = min(nedge+1, nvar);
+// Vorschlag:
+//			limit = min(nedge+1, nvar);
+			limit = std::min(nedge+1, nvar);
 		}
 		#endif
 

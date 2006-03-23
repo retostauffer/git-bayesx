@@ -1,6 +1,7 @@
 
-#include "cox.h"
+#include "first.h"
 
+#include "cox.h"
 
 namespace MCMC
 {

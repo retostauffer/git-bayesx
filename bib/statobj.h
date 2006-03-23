@@ -1,21 +1,20 @@
-// DATE: 15.12.98
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (STATOBJECT_INCLUDED)
 
 #define STATOBJECT_INCLUDED
 
-
 #include<vector>
-#include<clstring.h>
-#include<option.h>
-#include<command.h>
+#include"clstring.h"
+#include"option.h"
+#include"command.h"
 
 #if defined(JAVA_OUTPUT_WINDOW)
 #include "adminparse_basic.h"
@@ -80,7 +79,7 @@ class __EXPORT_TYPE statobject
   //                if 'c' specifies a method, the position of method in
   //                'methods'
 
-  int parsecom(const ST::string & c,vector<command> & methods,
+  int parsecom(const ST::string & c, vector<command> & methods,
 					optionlist & globaloptions = optionlist());
 
   // FUNCTIONS: out

@@ -1,17 +1,17 @@
-// DATE 29.01.98
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (MCMCconststepwise_INCLUDED)
 
 #define MCMCconststepwise_INCLUDED
 
-#include<mcmc_const.h>
+#include"mcmc_const.h"
 
 namespace MCMC
 {
@@ -84,7 +84,9 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
                           const ST::string & t,const ST::string & fs,
                           const ST::string & fr,const unsigned & c=0);
 
-  void make_design(datamatrix & d);  //, const ST::string & coding);
+// Vorschlag:
+//  void make_design(datamatrix & d);  //, const ST::string & coding);
+  void make_design(const datamatrix & d);  //, const ST::string & coding);
 
   void set_pointer_to_interaction(FULLCOND * inter);
 

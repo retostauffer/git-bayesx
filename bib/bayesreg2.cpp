@@ -1,4 +1,6 @@
-//---------------------------------------------------------------------------
+
+#include "first.h"
+
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -8,9 +10,12 @@
 
 #endif
 
-#include<bayesreg.h>
-#include<bayesreg2.h>
-#include<typeinfo.h>
+#include"bayesreg.h"
+#include"bayesreg2.h"
+
+// Vorschlag:
+//#include<typeinfo.h>
+
 #include<stddef.h>
 
 

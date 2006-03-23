@@ -1,6 +1,6 @@
-// DATE: 01.02.99
+ 
+#include "first.h"
 
-//---------------------------------------------------------------------------
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -9,9 +9,9 @@
 
 #endif
 
-#include<mcmcsimul.h>
+#include"mcmcsimul.h"
 #include<time.h>
-#include<clstring.h>
+#include"clstring.h"
 #include <stdlib.h>
 #include<math.h>
 
@@ -1281,9 +1281,9 @@ void MCMCsimulate::make_fixed_table(ofstream & outtex,const unsigned & nr)
 
 
 
-void MCMCsimulate::make_plots(ofstream & outtex,const unsigned & nr,
-                              ST::string & path_batch,ST::string & path_splus,
-                              ST::string & path_stata)
+void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
+                              const ST::string & path_batch, const ST::string & path_splus,
+                              const ST::string & path_stata)
   {
 
   char hcharu = '_';

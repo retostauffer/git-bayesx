@@ -1,17 +1,18 @@
-//---------------------------------------------------------------------------
-#ifndef multibaselineH
-#define multibaselineH
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
 
+#ifndef multibaselineH
+#define multibaselineH
 
-#include<multistate.h>
-#include<mcmc_pspline.h>
-#include<spline_basis.h>
+#include"multistate.h"
+#include"mcmc_pspline.h"
+#include"spline_basis.h"
 #include<vector>
 
 namespace MCMC
@@ -46,7 +47,7 @@ class __EXPORT_TYPE pspline_multibaseline : public FULLCOND_pspline
    datamatrix state_i;
    statmatrix<int> zi_index;
    statmatrix<int> ges_index;
-   vector<statmatrix<int>> teil_index;
+   vector< statmatrix<int> > teil_index;
    vector<datamatrix> zi_teil;
    vector<datamatrix> spline_teil;
    vector<datamatrix> spline_teil2;

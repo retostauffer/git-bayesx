@@ -1,23 +1,23 @@
-// DATE 20.10.99
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (MAPOBJECT_INCLUDED)
 
 #define MAPOBJECT_INCLUDED
 
 #if defined(JAVA_OUTPUT_WINDOW)
-#include<adminparse_pointers.h>
+#include"adminparse_pointers.h"
 #endif
 
-#include<map.h>
-#include<statobj.h>
-#include<dataobj.h>
+#include"map.h"
+#include"statobj.h"
+#include"dataobj.h"
 
 
 

@@ -1,4 +1,5 @@
-// DATE: 16.12.97
+
+#include "first.h"
 
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
@@ -8,7 +9,7 @@
 #include<statwin_haupt.h>
 #endif
 
-#include<data.h>
+#include"data.h"
 #include<time.h>
 
 
@@ -189,7 +190,7 @@ const filter & filter::operator=(vector<bool> & v)
   }
 
 
-void filter::filterNA(const data & d,const list<ST::string> & names)
+void filter::filterNA(data & d, list<ST::string> & names)
   {
 
   if (size() != d.obs())
@@ -620,9 +621,21 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
 		else if (sign == ">=")
 		  return (eval_exp(leftexp,false) >= eval_exp(rightexp,false) );
 		else if (sign == "=")
-		  return (eval_exp(leftexp,false).isequal(eval_exp(rightexp,false)));
+//		  return (eval_exp(leftexp,false).isequal(eval_exp(rightexp,false)));
+          {
+		  realvar help1,help2;
+		  help1 = eval_exp(leftexp,false);
+		  help2 =eval_exp(rightexp,false);
+          return (help1.isequal(help2));
+          }
 		else if (sign == "!=")
-		  return (eval_exp(leftexp,false).isnotequal(eval_exp(rightexp,false)));
+//		  return (eval_exp(leftexp,false).isnotequal(eval_exp(rightexp,false)));
+          {
+          realvar help1,help2;
+          help1= eval_exp(leftexp,false);
+          help2 =eval_exp(rightexp,false);
+          return (help1.isnotequal(help2));
+          }
 		else if (sign == "&")
 		  return (eval_exp(leftexp,false) && eval_exp(rightexp,false));
 		else if (sign == "|")
@@ -681,13 +694,28 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
 	 else if (functionname == "log")
 		return realob::log(eval_exp(argument,false));
      else if (functionname == "cumulnorm")
-       return realob::cumulnorm(eval_exp(argument,false));
+//       return realob::cumulnorm(eval_exp(argument,false));
+        {
+        realvar help;
+        help = eval_exp(argument,false);
+        return realob::cumulnorm(help);
+        }
 	 else if (functionname == "log10")
 		return realob::log10(eval_exp(argument,false));
 	 else if (functionname == "lag")
-		return lagrealvar(eval_exp(argument,false),datarep.index);
+//		return lagrealvar(eval_exp(argument,false),datarep.index);
+        {
+		realvar temp1;
+		temp1 = eval_exp(argument,false);
+		return lagrealvar(temp1,datarep.index);
+        }
 	 else if (functionname == "cumul")
-		return cumul(eval_exp(argument,false),datarep.index);
+//		return cumul(eval_exp(argument,false),datarep.index);
+		{
+		realvar temp2;
+		temp2 = eval_exp(argument,false);
+		return cumul(temp2,datarep.index);
+		}
 	 else if (functionname == "uniform")
 		{
 		if (argument.length() == 0)
@@ -772,7 +800,7 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
             if(valuevek[i]<=0 || valuevek[i]==NA)
               *it =  NA;
             else
-              *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javaexponential, valuevek[i]);
+              *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javaexponential, valuevek[i].getvalue());
             }
           return h;
 #else
@@ -812,7 +840,7 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
             if(valuevek[i]<=0 || valuevek[i]==NA)
               *it = NA;
             else
-        	  *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javapoisson, valuevek[i]);
+        	  *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javapoisson, valuevek[i].getvalue());
             }
           return h;
 #else
@@ -854,7 +882,7 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
             if(valuevek[i]<=0 || valuevek[i]==NA || valuevek2[i]<=0 || valuevek2[i]==NA)
               *it =  NA;
             else
-              *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javaweibull, valuevek[i], valuevek2[i]);
+              *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javaweibull, valuevek[i].getvalue(), valuevek2[i].getvalue());
             }
           return h;
 #else
@@ -895,7 +923,7 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
             if(valuevek[i]<0 || valuevek[i]>1 || valuevek[i]==NA)
               *it =  NA;
             else
-              *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabernoulli, valuevek[i]);
+              *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabernoulli, valuevek[i].getvalue());
             }
           return h;
 #else
@@ -937,7 +965,7 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
                               || valuevek[i]<1 || valuevek[i]==NA)
               *it = NA;
             else
-      	      *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabinomial, valuevek[i], valuevek2[i]);
+      	      *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javabinomial, valuevek[i].getvalue(), valuevek2[i].getvalue());
             }
           return h;
 #else
@@ -979,7 +1007,7 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
             if(valuevek[i]<=0 || valuevek[i]==NA || valuevek2[i]<=0 || valuevek2[i]==NA)
               *it = NA;
             else
-      	      *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javagamma, valuevek[i], valuevek2[i]);
+      	      *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javagamma, valuevek[i].getvalue(), valuevek2[i].getvalue());
             }
           return h;
 #else

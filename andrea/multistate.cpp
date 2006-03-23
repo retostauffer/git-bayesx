@@ -1,5 +1,7 @@
-#include "multistate.h"
 
+#include "first.h"
+
+#include "multistate.h"
 
 namespace MCMC
 {

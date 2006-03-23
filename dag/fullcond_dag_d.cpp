@@ -1,7 +1,7 @@
 
-#include <fullcond_dag_d.h>
+#include "first.h"
 
-
+#include "fullcond_dag_d.h"
 
 
 namespace MCMC

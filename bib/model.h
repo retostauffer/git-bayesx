@@ -1,20 +1,19 @@
-// DATE: 24.10.1999
 
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
 
-
 #if !defined (MODEL_INCLUDED)
 #define MODEL_INCLUDED
 
-#include<clstring.h>
+#include"clstring.h"
 #include<vector>
-#include<data.h>
-#include<option.h>
+#include"data.h"
+#include"option.h"
 
 
 
@@ -406,7 +405,7 @@ class __EXPORT_TYPE term
 class __EXPORT_TYPE basic_termtype
   {
 
-  friend term;
+  friend class term;
 
   protected:
 

@@ -1,6 +1,8 @@
-//---------------------------------------------------------------------------
-#ifdef __BUILDING_THE_DLL
+
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -8,8 +10,8 @@
 #if !defined (kriging_INCLUDED)
 #define kriging_INCLUDED
 
-#include<fullcond.h>
-#include<mcmc_nonpbasis.h>
+#include"fullcond.h"
+#include"mcmc_nonpbasis.h"
 
 namespace MCMC
 {

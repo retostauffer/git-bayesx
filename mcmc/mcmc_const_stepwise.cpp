@@ -1,4 +1,6 @@
 
+#include "first.h"
+
 #include "mcmc_const.h"
 #include "mcmc_const_stepwise.h"
 
@@ -138,7 +140,7 @@ void FULLCOND_const_stepwise::posteriormode_intercept(double & m)   // wird bei 
 
 void FULLCOND_const_stepwise::update_linold(void)
   {
-  if(fabs(interceptadd) >= pow10(-9))
+  if(fabs(interceptadd) >= std::pow(10,-9.0))
     {
     unsigned i;
     double * worklinold=linold.getV();        // linold = data * beta
@@ -720,7 +722,6 @@ void FULLCOND_const_stepwise::set_intercept_for_center(double & dazu)
 
 // END: MODEL-AVERAGING --------------------------------------------------------
 
-
 // For Varying Coefficient Model -----------------------------------------------
 
 void FULLCOND_const_stepwise::posteriormode_const_varcoeff(datamatrix newx)
@@ -769,7 +770,9 @@ void FULLCOND_const_stepwise::posteriormode_const_varcoeff(datamatrix newx)
 // End: For Varying Coefficient Model ----------------------------------------------------------
 
 
-void FULLCOND_const_stepwise::make_design(datamatrix & d)
+// Vorschlag:
+//void FULLCOND_const_stepwise::make_design(datamatrix & d)
+void FULLCOND_const_stepwise::make_design(const datamatrix & d)
   {
   vector<unsigned> zaehlen;
 

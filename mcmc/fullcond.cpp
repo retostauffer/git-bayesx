@@ -1,7 +1,8 @@
-// DATE: 11.8.99
+
+#include "first.h"
 
 #include "fullcond.h"
-#include <clstring.h>
+#include "clstring.h"
 
 //------------------------------------------------------------------------------
 //--------------- CLASS: FULLCOND implementation of member functions -----------
@@ -43,7 +44,7 @@ FULLCOND::FULLCOND(MCMCoptions * o,const datamatrix & d,
 
   samplepath = fp;
 
-  flags = bitset<flagnr>("000");
+  flags = bitset<flagnr>(000);
 
   data = d;
 
@@ -1235,7 +1236,7 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
       lambdamax = lambda_df;
     else
       {
-      lambdamax = pow10(lambda_df);
+      lambdamax = std::pow(10,lambda_df);
       number = 1;
       optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
       + ST::doubletostring(lambdamax) + "\n\n");
@@ -1249,7 +1250,7 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
       lambdamin = lambda_df;
     else
       {
-      lambdamin = pow10(lambda_df);
+      lambdamin = std::pow(10,lambda_df);
       optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
       + ST::doubletostring(lambdamin) + "\n\n");
       }
@@ -1281,7 +1282,7 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
     lambdamax = lambda_df;
   else
     {
-    lambdamax = pow10(lambda_df);
+    lambdamax = std::pow(10,lambda_df);
     number = 1;
     optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
       + ST::doubletostring(lambdamax) + "! The number of different smoothing parameters has set to one!\n\n");
@@ -1309,7 +1310,7 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
        //lambda_df = lambdamax - i*(lambdamax-lambdamin)/(number-1);
        double l = log10(lambdamin);
        double u = log10(lambdamax);
-       lambda_df = pow(10,u-double(i)*((u-l)/(double(number)-1)));
+       lambda_df = std::pow(10,u-double(i)*((u-l)/(double(number)-1)));
        lvec.push_back(lambda_from_df(df_wunsch,lambda_df));
        }
      }

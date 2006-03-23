@@ -1,10 +1,11 @@
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (REALVAR_INCLUDED)
 
@@ -12,8 +13,8 @@
 
 
 #include<list>
-#include<vectorn.h>
-#include<realobs.h>
+#include"vectorn.h"
+#include"realobs.h"
 
 //------------------------------------------------------------------------------
 //-------------------------- CLASS realvar -------------------------------------
@@ -62,8 +63,14 @@ class __EXPORT_TYPE realvar : public vectorrealobs
     {
     realvar h(size());
     unsigned i;
+    realobs help;
     for (i=0;i<size();i++)
-	  h[i] = func(operator[](i));
+      {
+      help = operator[](i);
+      h[i] = help;
+      }
+//    for (i=0;i<size();i++)
+//	  h[i] = func(operator[](i));
     return h;
     }
 
@@ -201,7 +208,7 @@ realvar __EXPORT_TYPE gamma(realvar & mu,realvar & nu);
 
 //--------------------------- TYPE DEFINITIONS ---------------------------------
 
-typedef list<realvar>::iterator __EXPORT_TYPE variterator;
+typedef std::list<realvar>::iterator __EXPORT_TYPE variterator;
 
 }   // end: namespace realob
 

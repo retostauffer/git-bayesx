@@ -1,4 +1,7 @@
-#include <statmat_penalty.h>
+
+#include "first.h"
+
+#include "statmat_penalty.h"
 
 namespace STATMAT_PENALTY
 {

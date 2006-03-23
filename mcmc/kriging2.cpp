@@ -1,5 +1,7 @@
-#include "kriging2.h"
 
+#include "first.h"
+
+#include "kriging2.h"
 
 namespace MCMC
 {
@@ -1208,8 +1210,8 @@ void FULLCOND_kriging2::outoptions()
     {
     optionsp->out("  Options for the space-filling algorithm:\n");
     optionsp->out("  Maximum number of iteration steps: " + ST::inttostring(maxsteps) + "\n");
-    optionsp->out("  p: " + ST::inttostring(p) + "\n");
-    optionsp->out("  q: " + ST::inttostring(q) + "\n");
+    optionsp->out("  p: " + ST::doubletostring(p,5) + "\n");
+    optionsp->out("  q: " + ST::doubletostring(q,5) + "\n");
     optionsp->out("\n");
     }
   }
@@ -1411,8 +1413,8 @@ void FULLCOND_kriging2::init_names(const vector<ST::string> & na)
     {
     priorassumptions.push_back("Options for the space-filling algorithm:");
     priorassumptions.push_back("Maximum number of iteration steps: " + ST::inttostring(maxsteps));
-    priorassumptions.push_back("p: " + ST::inttostring(p));
-    priorassumptions.push_back("q: " + ST::inttostring(q));
+    priorassumptions.push_back("p: " + ST::doubletostring(p,5));
+    priorassumptions.push_back("q: " + ST::doubletostring(q,5));
     }
   }
 

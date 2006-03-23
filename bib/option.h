@@ -1,11 +1,11 @@
-// DATE 17.02.98
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (OPTION_INCLUDED)
 
@@ -14,9 +14,9 @@
 
 #include<fstream.h>
 #include<vector>
-#include<clstring.h>
+#include"clstring.h"
 //#include<errorm.h>
-#include<values.h>
+#include"../values.h"
 
 
 // POSSIBLE OPTIONS:

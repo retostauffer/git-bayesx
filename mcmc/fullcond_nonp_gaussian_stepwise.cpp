@@ -1,4 +1,6 @@
 
+#include "first.h"
+
 #include "fullcond_nonp_gaussian_stepwise.h"
 
 namespace MCMC
@@ -431,8 +433,12 @@ void FULLCOND_nonp_gaussian_stepwise::reset_effect(const unsigned & pos)
   for(i=0;i<nrpar;i++,work++)
     *work = 0.0;
 
+// Vorschlag:
+//  if(varcoeff && center)
+//    update_fix_effect(-intercept);
+  double helpdouble = -intercept;
   if(varcoeff && center)
-    update_fix_effect(-intercept);
+    update_fix_effect(helpdouble);
   intercept = 0.0;
   }
 
@@ -768,7 +774,9 @@ void FULLCOND_nonp_gaussian_stepwise::effect_sort(datamatrix & effect, const dou
     effect(*workindex,0)+=m;
   }
 
-void FULLCOND_nonp_gaussian_stepwise::effect_sort(datamatrix & effect, const double & m, unsigned & row)
+// Vorschlag:
+//void FULLCOND_nonp_gaussian_stepwise::effect_sort(datamatrix & effect, const double & m, unsigned & row)
+void FULLCOND_nonp_gaussian_stepwise::effect_sort(datamatrix & effect, double m, unsigned row)
   {
   double * workl = effect.getV() + row;
   *workl += m;

@@ -1,16 +1,15 @@
 
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
 
-
-//---------------------------------------------------------------------------
 #ifndef ADMINPARSEPOINTER
 #define ADMINPARSEPOINTER
-//---------------------------------------------------------------------------
+
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -22,9 +21,9 @@
 
 #include<fstream.h>
 #include<string.h>
-#include<data.h>
-#include<map.h>
-#include<dir.h>
+#include"data.h"
+#include"map.h"
+//#include<dir.h>
 //------------------------------------------------------------------------------
 
 

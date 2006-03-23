@@ -1,13 +1,11 @@
-// DATE: 02.01.99
-
 
 #if !defined(STATMATRIX_INCLUDED)
 
 #define STATMATRIX_INCLUDED
 
-#include <tmatrix.h>
+#include "tmatrix.h"
 #include <vector>
-# include <clstring.h>
+#include "clstring.h"
 
 using std::vector;
 
@@ -15,15 +13,24 @@ using std::vector;
 //---------------------------- CLASS: statmatrix -------------------------------
 //------------------------------------------------------------------------------
 
+#if !defined(__BUILDING_GNU)
 class SparseMatrix;
 
 // AENDERUNG (Eva)
 class adja;
+#endif
 
 template <class T>
 class statmatrix : public Matrix<T>
 
   {
+
+#if defined(__BUILDING_GNU)
+class SparseMatrix;
+
+// AENDERUNG (Eva)
+class adja;
+#endif
 
   public:
 
@@ -265,7 +272,7 @@ class statmatrix : public Matrix<T>
 
   T mean(const unsigned & col) const
     {
-    return sum(col)/T(rows());
+    return sum(col)/T(this->rows());
     }
 
   T mean(const unsigned & col,const statmatrix<T> & weight) const;
@@ -275,7 +282,7 @@ class statmatrix : public Matrix<T>
 
   T meancomplete(void) const
     {
-    return sumcomplete()/T(rows());
+    return sumcomplete()/T(this->rows());
     }
 
   // FUNCTION: norm
@@ -358,7 +365,7 @@ class statmatrix : public Matrix<T>
 
   	//	Datenzeiger zugreifbar
 
-  T *getV() const { return m_v; }
+  T *getV() const { return this->m_v; }
 
 
    statmatrix<T> strike (unsigned int k);
@@ -485,8 +492,8 @@ statmatrix<double> kronecker(const statmatrix<double> & A, const statmatrix<doub
 void compare(const datamatrix & ref, const datamatrix & neu, double limit, unsigned col, const ST::string & colname, vector<ST::string> & out);
 void compare_nonp(const ST::string & ref, const ST::string & neu, double limit, vector<ST::string> & out);
 
-
-#include<statmat.cpp>
-
+#if !defined(STATMAT_CPP_INCLUDED)
+#include"statmat.cpp"
+#endif
 
 #endif

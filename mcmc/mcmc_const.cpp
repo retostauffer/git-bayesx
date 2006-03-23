@@ -1,4 +1,6 @@
 
+#include "first.h"
+
 #include "mcmc_const.h"
 
 namespace MCMC
@@ -153,7 +155,7 @@ void FULLCOND_const::createreml(datamatrix & X,datamatrix & Z,
 
 double FULLCOND_const::outresultsreml(datamatrix & X,datamatrix & Z,
                                     datamatrix & betareml, datamatrix & betacov,
-                                    datamatrix & thetareml,
+                                    const datamatrix & thetareml,
                                     const unsigned & Xpos,const unsigned & Zpos,
                                     const unsigned & thetapos,
                                     const bool & dispers,
@@ -376,6 +378,7 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
   char charh ='_';
   ST::string stringh = "\\_";
   ST::string helpname;
+  double help=0.0;
 
   term_symbolic = "\\theta^{(j)}";
   if(datanames.size()>1)
@@ -430,7 +433,7 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
     {
     datanames.insert(datanames.begin(),"theta_"+ST::inttostring(j));
     }*/
-  outresultsreml(X,Z,betareml,betacov,datamatrix(1,1,0),0,0,0,false,0,0,0,false,0);
+  help = outresultsreml(X,Z,betareml,betacov,datamatrix(1,1,0),0,0,0,false,0,0,0.0,false,0);
   }
 
 vector<bool> FULLCOND_const::get_catspecific_fixed()

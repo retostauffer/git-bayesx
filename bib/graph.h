@@ -1,17 +1,17 @@
-// DATE: 06.08.2000
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (GRAPH_included)
 
 #define GRAPH_included
 
-#include<clstring.h>
+#include"clstring.h"
 #include<vector>
 
 

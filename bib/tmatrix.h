@@ -1,5 +1,3 @@
-// tmatrix.h 3.2 97/08/07 16:18:20
-//
 // Deklaration einer template-Klasse Matrix
 //
 // Der Typ T muss ein "arithmetischer" Datentyp sein, der neben
@@ -13,7 +11,7 @@
 
 #define TMATRIX_H_INCLUDED
 
-#include <tpremat.h>
+#include "tpremat.h"
 
 template <class T>
 class Matrix : public PreMatrix<T>
@@ -224,7 +222,7 @@ strikedOutCol(unsigned int col) const
 #	if defined( CC_SOURCE )
 #		include <tmatrix.cc>
 #	else
-#		include <tmatrix.cpp>
+#		include "tmatrix.cpp"
 #	endif
 #endif
 

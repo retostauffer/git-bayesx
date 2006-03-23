@@ -1,26 +1,26 @@
-// DATE 30.06.98
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (DATA_INCLUDED)
 
 #define DATA_INCLUDED
 
 #include<fstream>
-#include<clstring.h>
-#include<realobs.h>
-#include<realvar.h>
-#include<statmat.h>
-#include<vectorn.h>
+#include"clstring.h"
+#include"realobs.h"
+#include"realvar.h"
+#include"statmat.h"
+#include"vectorn.h"
 #include<list>
 
 #if defined(JAVA_OUTPUT_WINDOW)
-#include<adminparse_basic.h>
+#include"adminparse_basic.h"
 #endif
 
 
@@ -103,7 +103,7 @@ class __EXPORT_TYPE data
   //       returns: 1 if variable name is not found
   //                0 if variable name is found (no error occured)
 
-  int findvar(const ST::string & name) const
+  int findvar(const ST::string & name)// const
 	 {
 	 list<ST::string>::iterator stit;
 	 list<realvar>::iterator varit;
@@ -213,7 +213,7 @@ class __EXPORT_TYPE filter : public vector<bool>
   // FUNCTION: nrunfiltered
   // TASK: returns number of unfiltered observations (number of false's)
 
-  nrunfiltered()
+  int nrunfiltered()
 	 {
 	 return (size()-sum);
 	 }
@@ -225,7 +225,7 @@ class __EXPORT_TYPE filter : public vector<bool>
   // ADDITIONAL INFORMATION: filter will not be changed if messages occur
   //                         i.e. 'names' contain unknown variablenames
 
-  void filterNA(const data & d,const list<ST::string> & names);
+  void filterNA(data & d, list<ST::string> & names);
 
   // OVERLOADED + OPERATOR
   // TASK: a value of the resulting filter is true if

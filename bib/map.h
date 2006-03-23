@@ -1,11 +1,11 @@
-// DATE: 16.12.98
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (MAP_INCLUDED)
 
@@ -14,19 +14,19 @@
 #if defined(MICROSOFT_VISUAL)
 #include<limits>
 #else
-#include<values.h>
+#include "../values.h"
 #endif
 #include<fstream.h>
-#include<clstring.h>
+#include "clstring.h"
 #include<assert.h>
 #include<vector>
 #include<algorithm>
-#include<matrix.h>
-#include<statmat.h>
-#include<graph.h>
+#include "matrix.h"
+#include "statmat.h"
+#include "graph.h"
 
 #if defined(JAVA_OUTPUT_WINDOW)
-#include<adminparse_basic.h>
+#include"adminparse_basic.h"
 #endif
 
 
@@ -278,10 +278,10 @@ class region
   // FUNCTION: set_order
   // TASK: sets the order relation according to which the regions are sorted
 
-  void set_order(const order & or)
+/*  void set_order(const order & or)
     {
     orderrelation = or;
-    }
+    }*/
 
   // FUNCTION: order
   // TASK: returns the order relation according to which the regions are sorted

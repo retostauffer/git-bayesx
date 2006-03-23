@@ -1,6 +1,7 @@
-#include<sparsemat.h>
 
+#include "first.h"
 
+#include "sparsemat.h"
 
 double norm(const datamatrix & v)
   {

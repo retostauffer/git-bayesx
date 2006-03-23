@@ -2,9 +2,9 @@
 
 #define ENVMATRIX_INCLUDED
 
-#include <statmat.h>
-#include <map.h>
-#include <bandmat.h>
+#include "statmat.h"
+#include "map.h"
+#include "bandmat.h"
 
 
 //------------------------------------------------------------------------------
@@ -307,9 +307,14 @@ class envmatrix
 //---------- Functions to get pointers to elements of the matrix----------------
 //------------------------------------------------------------------------------
 
-
+  #if defined(__BUILDING_GNU)
+  class
+  #endif
   vector<T>::iterator getDiagIterator();
 
+  #if defined(__BUILDING_GNU)
+  class
+  #endif
   vector<T>::iterator getEnvIterator();
 
   vector<unsigned>::iterator getXenvIterator();
@@ -461,8 +466,9 @@ class envmatrix
 
   envmatrix<double> Kseasonenv(const unsigned & per,const unsigned & s);
 
-
-#include<envmatrix.cpp>
+#if !defined(ENVMATRIX_CPP_INCLUDED)
+#include"envmatrix.cpp"
+#endif
 
 #endif
 

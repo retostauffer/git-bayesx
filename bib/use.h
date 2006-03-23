@@ -1,11 +1,11 @@
-// DATE: 19.01.98
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (USE_INCLUDED)
 
@@ -14,8 +14,8 @@
 
 #include<vector>
 //#include<errorm.h>
-#include<clstring.h>
-#include<data.h>
+#include"clstring.h"
+#include"data.h"
 
 
 //------------------------------------------------------------------------------

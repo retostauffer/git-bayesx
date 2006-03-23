@@ -296,7 +296,7 @@ protected :
 #	if defined(CC_SOURCE)
 #		include <tarray2d.cc>
 #	else
-#		include <tarray2d.cpp>
+#		include "tarray2d.cpp"
 #	endif
 #endif
 

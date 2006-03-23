@@ -3,15 +3,11 @@
 
 #define adja_INCLUDED
 
-
-
-
-
-#include <tmatrix.h>
+#include "tmatrix.h"
 #include <vector>
-#include<clstring.h>
+#include "clstring.h"
 
-#include <statmat.h>
+#include "statmat.h"
 #include <list> 
 
 using std::vector;

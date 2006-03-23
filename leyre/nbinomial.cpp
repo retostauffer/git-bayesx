@@ -1,5 +1,12 @@
-#include <nbinomial.h>
+
+#include "first.h"
+
+#include "nbinomial.h"
+
+#if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
+#pragma hdrstop
+#endif
 
 namespace MCMC
 {
@@ -888,7 +895,7 @@ double DISTRIBUTION_nbinomial::update_nu(void)
 }
 
 
-double DISTRIBUTION_nbinomial::update_hierint(void) const
+double DISTRIBUTION_nbinomial::update_hierint(void)
 {
     double *intwork = hierint.getV();
     double * hierintsavep = hierintsave.getbetapointer();
@@ -896,7 +903,7 @@ double DISTRIBUTION_nbinomial::update_hierint(void) const
     *hierintsavep = *intwork;
 
     // Tuning function for the acceptance rates of the M-H algorithm
-    // It will be called only in the burnin phase and each 100 iterations.    
+    // It will be called only in the burnin phase and each 100 iterations.
 
     if(optionsp->get_nriter() % 100 == 0 &&
             optionsp->get_nriter() <= optionsp->get_burnin())
@@ -989,7 +996,7 @@ double DISTRIBUTION_nbinomial::update_scale(void) const
 
 
 
-double DISTRIBUTION_nbinomial::update_b_pri(void) const
+double DISTRIBUTION_nbinomial::update_b_pri(void) 
 {
     double alpha = 1;
     double beta = 0.005;

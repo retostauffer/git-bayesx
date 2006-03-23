@@ -208,7 +208,7 @@ getRowBlock(unsigned int rl, unsigned int ru) const
 #	if defined(CC_SOURCE)
 #		include <tpremat.cc>
 #	else
-#		include <tpremat.cpp>
+#		include "tpremat.cpp"
 #	endif
 #endif
 

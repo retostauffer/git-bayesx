@@ -1,22 +1,22 @@
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
-
 
 #if !defined (MCMCnonp_INCLUDED)
 
 #define MCMCnonp_INCLUDED
 
-#include<mcmc.h>
-#include<fullcond.h>
-#include<distribution.h>
-#include<map.h>
-#include<bandmat.h>
-#include<mcmc_nonpbasis.h>
+#include"mcmc.h"
+#include"fullcond.h"
+#include"distribution.h"
+#include"map.h"
+#include"bandmat.h"
+#include"mcmc_nonpbasis.h"
 
 namespace MCMC
 {
@@ -171,7 +171,7 @@ class __EXPORT_TYPE PenaltyMatrix
   //       minb = min              Minimum block size
   //       maxb = max              Maximum block size
 
-  PenaltyMatrix(const datamatrix & md,const ST::string & na,const MAP::map & m,
+  PenaltyMatrix(const datamatrix & md,const ST::string & na, MAP::map & m,
                 const unsigned & minb, const unsigned & maxb);
 
   // CONSTRUCTOR 3 (for 2 dimensional surfaces)
@@ -254,7 +254,7 @@ double compute_quadform_prec(const datamatrix & beta,const datamatrix & prop,
                   const double & Q,const unsigned & v=0);
 
 
-  void compute_proposal2(const bandmatdouble & prec, const datamatrix & muab,
+  void compute_proposal2(bandmatdouble & prec, const datamatrix & muab,
                          const datamatrix & beta, datamatrix & res ,const unsigned & bs,
                   const unsigned & a,const unsigned & b,const unsigned & v=0);
 
@@ -475,7 +475,7 @@ class __EXPORT_TYPE FULLCOND_nonp : public FULLCOND
   // FUNCTION: centerbeta
   // TASK: centers the current parametermatrix about the mean
 
-  double centerbeta (const vector<double> & weight);
+  double centerbeta (vector<double> & weight);
 
   // FUNCTION: centerbeta2
 

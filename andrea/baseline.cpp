@@ -1,6 +1,7 @@
 
-#include "baseline.h"
+#include "first.h"
 
+#include "baseline.h"
 
 namespace MCMC
 {
@@ -1015,11 +1016,15 @@ else
     {
      if(optionsp->get_nriter()%100==0 && optionsp->get_nriter()<optionsp->get_burnin())
       adjust_blocksize(30,70);
-      blocksize = minauto + random(maxauto-minauto+1);
+// Vorschlag:
+//      blocksize = minauto + random(maxauto-minauto+1);
+      blocksize = minauto + rand() % (maxauto-minauto+1);
     }
   else
     {
-      blocksize = min + random(max-min+1);
+// Vorschlag:
+//    blocksize = min + random(max-min+1);
+    blocksize = min + rand() % (max-min+1);
     }
 
   double u;

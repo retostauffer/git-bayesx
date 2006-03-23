@@ -1,20 +1,114 @@
-// Date: 17.12.97
-
 
 #if !defined (VECTORN_INCLUDED)
 
 #define VECTORN_INCLUDED
 
-
 #include<math.h>
 #include<vector>
-#include<realobs.h>
+#include"realobs.h"
 
+using std::vector;
 
 //------------------------------------------------------------------------------
 //----------------------------- CLASS vectornum --------------------------------
 //------------------------------------------------------------------------------
 
+// Forward Declarations of template functions and template class
+
+template <class T>
+class vectornum;
+
+template <class T>
+vectornum<T> operator+(const vectornum<T> & v1, const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator+(const T & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator-(const vectornum<T> & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator-(const T & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator-(const vectornum<T> & v1,const T & v2);
+
+template <class T>
+vectornum<T> operator*(const vectornum<T> & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator*(const T & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator/(const vectornum<T> & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator/(const T & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator>(const vectornum<T> & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator>(const vectornum<T> & v1,const T & v2);
+
+template <class T>
+vectornum<T> operator>(const T & v1, const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator<(const vectornum<T> & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator<(const vectornum<T> & v1,const T & v2);
+
+template <class T>
+vectornum<T> operator<(const T & v2,const vectornum<T> & v1);
+
+template <class T>
+vectornum<T> isequal(vectornum<T> & v2);
+
+template <class T>
+vectornum<T> isequal(vectornum<T> & v1,const T v2);
+
+template <class T>
+vectornum<T> isequal(T v2, vectornum<T> & v1);
+
+template <class T>
+vectornum<T> isnotequal(vectornum<T> & v1,const T v2);
+
+template <class T>
+vectornum<T> isnotequal(T v2, vectornum<T> & v1);
+
+template <class T>
+vectornum<T> isnotequal(vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator>=(const vectornum<T> & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator>=(vectornum<T> & v1,const T v2);
+
+template <class T>
+vectornum<T> operator>=(const T v2, const vectornum<T> & v1);
+
+template <class T>
+vectornum<T> operator<=(const vectornum<T> & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator<=(vectornum<T> & v1,const T v2);
+
+template <class T>
+vectornum<T> operator<=(const T v2, vectornum<T> & v1);
+
+template <class T>
+vectornum<T> operator||(const vectornum<T> & v1,const vectornum<T> & v2);
+
+template <class T>
+vectornum<T> operator&&(const vectornum<T> & v1,const vectornum<T> & v2);
+
+template <class T>
+ostream & operator<<(ostream & out,vectornum<T> & v);
+
+// Implementation of template functions and template class
 
 template <class T>
 class vectornum : public vector<T>
@@ -87,13 +181,21 @@ class vectornum : public vector<T>
   // BINARY ADDITION OPERATOR
   // TASK: adds to vectornum objects (element by element)
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator+ <>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator+(const vectornum<T> & v1,const vectornum<T> & v2);
+  #endif
 
   // BINARY ADDITION OPERATOR
   // TASK: creates a vector with the same length as v2 and all elements
   //       equal to v1 and finaly adds the two vectors (element by element)
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator+<>(const T & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator+(const T & v1,const vectornum<T> & v2);
+  #endif
 
   // BINARY ADDITION OPERATOR
   // TASK: creates a vector with the same length as the calling vector
@@ -115,11 +217,23 @@ class vectornum : public vector<T>
   // BINARY MINUS OPERATORS
   // (see BIARY ADDITION OPERATORS for description)
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator-<>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator-(const vectornum<T> & v1,const vectornum<T> & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator-<>(const T & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator-(const T & v1,const vectornum<T> & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator-<>(const vectornum<T> & v1,const T & v2);
+  #else
   friend vectornum<T> operator-(const vectornum<T> & v1,const T & v2);
+  #endif
 
   // UNARY - OPERATOR
 
@@ -131,9 +245,17 @@ class vectornum : public vector<T>
   // BINARY MULTIPLIKATION OPERATORS
   // (see BIARY ADDITION OPERATORS for description)
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator*<>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator*(const vectornum<T> & v1,const vectornum<T> & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator*<>(const T & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator*(const T & v1,const vectornum<T> & v2);
+  #endif
 
   friend vectornum<T> operator*(vectornum<T> & v1, const T & v2)
 	 {
@@ -143,9 +265,17 @@ class vectornum : public vector<T>
   // BINARY DIVISION OPERATORS
   // (see BIARY ADDITION OPERATORS for description)
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator/<>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator/(const vectornum<T> & v1,const vectornum<T> & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator/<>(const T & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator/(const T & v1,const vectornum<T> & v2);
+  #endif
 
   vectornum<T> operator/(const T & v2) const
 	 {
@@ -161,67 +291,143 @@ class vectornum : public vector<T>
   //        returns 1 in the i. row of the resulting vector, if
   //        v1[i] > v2[i], else 0
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator> <>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator> <>(const vectornum<T> & v1,const T & v2);
+  #else
   friend vectornum<T> operator>(const vectornum<T> & v1,const T & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator> <>(const T & v1, const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator>(const T & v1, const vectornum<T> & v2);
+  #endif
 
   // < OPERATORS
   // (see > OPERATORS for description)
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator< <>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator<(const vectornum<T> & v1,const vectornum<T> & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator< <>(const vectornum<T> & v1,const T & v2);
+  #else
   friend vectornum<T> operator<(const vectornum<T> & v1,const T & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator< <>(const T & v2,const vectornum<T> & v1);
+  #else
   friend vectornum<T> operator<(const T & v2,const vectornum<T> & v1);
+  #endif
 
   // == OPERATORS
   // (see > OPERATORS for description)
 
   vectornum<T> isequal(vectornum<T> & v2);
 
+  #if defined (__BUILDING_GNU)
+  vectornum<T> isequal(vectornum<T> & v1,const T v2);
+  #else
   friend vectornum<T> isequal(vectornum<T> & v1,const T v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  vectornum<T> isequal(T v2, vectornum<T> & v1);
+  #else
   friend vectornum<T> isequal(T v2, vectornum<T> & v1);
+  #endif
 
   // != OPERATORS
   // (see > OPERATORS for description)
 
   vectornum<T> isnotequal(vectornum<T> & v2);
 
+  #if defined (__BUILDING_GNU)
+  vectornum<T> isnotequal(vectornum<T> & v1,const T v2);
+  #else
   friend vectornum<T> isnotequal(vectornum<T> & v1,const T v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  vectornum<T> isnotequal(T v2, vectornum<T> & v1);
+  #else
   friend vectornum<T> isnotequal(T v2, vectornum<T> & v1);
+  #endif
 
   // >= OPERATORS
   // (see > OPERATORS for description)
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator>= <>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator>=(const vectornum<T> & v1,const vectornum<T> & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator>= <>(vectornum<T> & v1,const T v2);
+  #else
   friend vectornum<T> operator>=(vectornum<T> & v1,const T v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator>= <>(const T v2, const vectornum<T> & v1);
+  #else
   friend vectornum<T> operator>=(const T v2, const vectornum<T> & v1);
+  #endif
 
   // <= OPERATORS
   // (see > OPERATORS for description)
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator<= <>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator<=(const vectornum<T> & v1,const vectornum<T> & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator<= <>(vectornum<T> & v1,const T v2);
+  #else
   friend vectornum<T> operator<=(vectornum<T> & v1,const T v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator<= <>(const T v2, vectornum<T> & v1);
+  #else
   friend vectornum<T> operator<=(const T v2, vectornum<T> & v1);
+  #endif
 
   // OVERLOADED LOGICAL OPERATORS
   // (see > OPERATORS for description)
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator||<>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator||(const vectornum<T> & v1,const vectornum<T> & v2);
+  #endif
 
+  #if defined (__BUILDING_GNU)
+  friend vectornum<T> operator&&<>(const vectornum<T> & v1,const vectornum<T> & v2);
+  #else
   friend vectornum<T> operator&&(const vectornum<T> & v1,const vectornum<T> & v2);
+  #endif
 
   // OVERLOADED << OPERATOR
 
+  #if defined (__BUILDING_GNU)
+  friend ostream & operator<< <>(ostream & out,vectornum<T> & v);
+  #else
   friend ostream & operator<<(ostream & out,vectornum<T> & v);
+  #endif
 
   // FUNCTION: applied
   // TASK: applies function func (which must be implemented for type T)
@@ -246,8 +452,8 @@ class vectornum : public vector<T>
 
   void clear()
 	 {
-	 if (size() > 0)
-		erase(begin(),end());
+	 if (this->size() > 0)
+		erase(this->begin(),this->end());
 	 }
 
 
@@ -378,9 +584,9 @@ typedef vectornum<float> vectorf;
 typedef vectornum<int> vectori;
 typedef vectornum<realob::realobs> vectorrealobs; 
 
-
-#include<vectorn.cpp>
-
+#if !defined (__BUILDING_GNU)
+#include "vectorn.cpp"
+#endif
 
 #endif
 

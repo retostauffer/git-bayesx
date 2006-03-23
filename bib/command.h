@@ -1,11 +1,11 @@
-// DATE: 12.11.97
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (COMMAND_INCLUDED)
 
@@ -13,10 +13,10 @@
 
 
 #include<vector>
-#include<clstring.h>
-#include<model.h>
-#include<option.h>
-#include<use.h>
+#include"clstring.h"
+#include"model.h"
+#include"option.h"
+#include"use.h"
 
 
 enum specification_allowed {required,optional,notallowed};
@@ -135,7 +135,7 @@ class __EXPORT_TYPE command
   // - current errormessages will be deleted
   // - option values are set to their default values before (re-)parsing
 
-  int parse(ST::string & c);
+  int parse(const ST::string & c1);
 
   // FUNCTION: get_weight_variable
   // TASK: returns the weight variable name (if specified)

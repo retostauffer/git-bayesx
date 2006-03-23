@@ -1,4 +1,6 @@
 
+#include "first.h"
+
 #include "mcmc_nonp.h"
 
 namespace MCMC
@@ -286,7 +288,7 @@ PenaltyMatrix::PenaltyMatrix(const datamatrix & md, const ST::string & na,
 
 
 PenaltyMatrix::PenaltyMatrix(const datamatrix & md,const ST::string & na,
-                             const MAP::map & m,const unsigned & minb,
+                             MAP::map & m,const unsigned & minb,
                              const unsigned & maxb)
   {
   type = mrf;
@@ -752,7 +754,8 @@ void FULLCOND_nonp::init_priorassumptions(const ST::string & na)
 void FULLCOND_nonp::init_name(const ST::string & na)
     {
     FULLCOND::init_name(na);
-    ST::string helpname = na.insert_string_char('_', "\\_");
+    ST::string temp = "\\_";
+    ST::string helpname = na.insert_string_char('_', temp);
     if (Pmatrix->get_type()==MCMC::seasonal)
       term_symbolic = "f^{Season}_{" +  helpname + "}("+helpname+")";
     else
@@ -772,7 +775,8 @@ void FULLCOND_nonp::init_names(const vector<ST::string> & na)
     FULLCOND::init_names(na);
     if (na.size()==1)
       {
-      ST::string helpname = na[0].insert_string_char('_', "\\_");
+      ST::string temp = "\\_";
+      ST::string helpname = na[0].insert_string_char('_', temp);
       if (Pmatrix->get_type()==MCMC::seasonal)
         term_symbolic = "f^{Season}_{" +  helpname + "}("+helpname+")";
       else
@@ -780,8 +784,9 @@ void FULLCOND_nonp::init_names(const vector<ST::string> & na)
       }
     else
       {
-      ST::string helpname1 = na[0].insert_string_char('_', "\\_");
-      ST::string helpname2 = na[1].insert_string_char('_', "\\_");
+      ST::string temp = "\\_";
+      ST::string helpname1 = na[0].insert_string_char('_', temp);
+      ST::string helpname2 = na[1].insert_string_char('_', temp);
       if (Pmatrix->get_type()==MCMC::seasonal)
         term_symbolic = "f^{Season}_{" +  helpname1 + "}("+helpname1+") \\cdot "
                         + helpname2;
@@ -996,7 +1001,7 @@ const FULLCOND_nonp & FULLCOND_nonp::operator=(const FULLCOND_nonp & fc)
   }
 
 
-double FULLCOND_nonp::centerbeta(const vector<double> & weight)
+double FULLCOND_nonp::centerbeta(vector<double> & weight)
   {
   unsigned i;
   double sum=0;
@@ -1006,7 +1011,7 @@ double FULLCOND_nonp::centerbeta(const vector<double> & weight)
   for (i=0;i<nrpar;i++,workbeta++)
     sum+= weight[i] * *workbeta;
 #else
-  std::vector<const double>::iterator weightwork = weight.begin();
+  vector<double>::iterator weightwork = weight.begin();
 
   for (i=0;i<nrpar;i++,workbeta++,++weightwork)
     sum+= *weightwork * *workbeta;
@@ -1526,7 +1531,7 @@ void PenaltyMatrix::compute_fc2(const datamatrix & beta,  datamatrix & res,
   }
 
 
-void PenaltyMatrix::compute_proposal2(const bandmatdouble & prec,const datamatrix & muab,
+void PenaltyMatrix::compute_proposal2(bandmatdouble & prec,const datamatrix & muab,
                             const datamatrix & beta, datamatrix & res,
                             const unsigned & bs,
                             const unsigned & a,const unsigned & b,

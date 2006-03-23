@@ -1,14 +1,16 @@
-#ifndef randomeffect_stepwiseH
-#define randomeffect_stepwiseH
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
 
+#ifndef randomeffect_stepwiseH
+#define randomeffect_stepwiseH
 
-#include<randomeffect.h>
+#include"randomeffect.h"
 
 
 namespace MCMC
@@ -123,7 +125,9 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
   void effect_sort(datamatrix & effect, const double & m, const unsigned & beg,
                    const unsigned & end,const statmatrix<int> & index);
 
-  void effect_sort(datamatrix & effect, const double & m, unsigned & row);
+// Vorschlag:
+//  void effect_sort(datamatrix & effect, const double & m, unsigned & row);
+  void effect_sort(datamatrix & effect, double m, unsigned row);
 
   void init_spatialtotal(FULLCOND_nonp_basis * sp,const ST::string & pnt,
                          const ST::string & prt);

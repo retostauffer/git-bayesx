@@ -1,6 +1,6 @@
- // DATE: 01.02.99
 
-//---------------------------------------------------------------------------
+#include "first.h"
+
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -8,9 +8,9 @@
 #include<StatwinFrame.h>
 #endif
 
-#include<mcmcsimul2_multi.h>
+#include"mcmcsimul2_multi.h"
 #include<time.h>
-#include<clstring.h>
+#include"clstring.h"
 #include <stdlib.h>
 #include<math.h>
 
@@ -1929,7 +1929,7 @@ void STEPMULTIrun::koord_fix_leer(vector<double> & kriteriumiteration2,
 
   if(minim == "adaptiv" || minim == "adap_exact")
     {
-    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
+    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
       fertig = false;
     if(modell_alt[i-1] != modell_neu[i-1] && (trace == "trace_on" || trace == "trace_minim"))
       {
@@ -2017,7 +2017,7 @@ void STEPMULTIrun::koord_leer_fix(vector<double> & kriteriumiteration2,
 
   if(minim == "adaptiv" || minim == "adap_exact")
     {
-    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
+    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
       fertig = false;
     if(modell_alt[i-1] != modell_neu[i-1] && (trace == "trace_on" || trace == "trace_minim"))
       {
@@ -2133,7 +2133,7 @@ void STEPMULTIrun::koord_factor_leer(vector<double> & kriteriumiteration2,
 
   if(minim == "adaptiv" || minim == "adap_exact")
     {
-    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
+    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
       fertig = false;
     if(modell_alt[ind_mod] != modell_neu[ind_mod]
                     && (trace == "trace_on" || trace == "trace_minim"))
@@ -2225,7 +2225,7 @@ void STEPMULTIrun::koord_leer_factor(vector<double> & kriteriumiteration2,
 
   if(minim == "adaptiv" || minim == "adap_exact")
     {
-    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
+    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
       fertig = false;
     if(modell_alt[ind_mod] != modell_neu[ind_mod]
                     && (trace == "trace_on" || trace == "trace_minim"))
@@ -2367,7 +2367,7 @@ void STEPMULTIrun::koord_minnonp(vector<double> & kriteriumiteration2,
       modell_alt = modell_neu;
       kriterium_aktuell = kriterium_min;
       kriterium_alt = kriterium_aktuell;
-      if(fabs((kriterium_test - kriterium_aktuell)/kriterium_test) >= pow10(-6))
+      if(fabs((kriterium_test - kriterium_aktuell)/kriterium_test) >= std::pow(10,-6.0))
         fertig = false;
       modeliteration.push_back(modell_alt);
       }

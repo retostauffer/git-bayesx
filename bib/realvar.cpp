@@ -1,5 +1,12 @@
+             
+#include "first.h"
 
-#include <realvar.h>
+#include "realvar.h"
+
+#include <list>
+#include <iterator>
+
+using namespace std;
 
 namespace realob
 {
@@ -283,8 +290,9 @@ realvar binomial(realvar & n,realvar & p)
 		  {
 		  u = _uniform();
 		  if (u <= (*pit))
-			 (*hit)++;
-		  }
+//			 (*hit)++;
+			 ++(*hit);
+             }
 		}
 	 }
   return h;

@@ -1,4 +1,6 @@
-//---------------------------------------------------------------------------
+
+#include "first.h"
+
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -8,9 +10,12 @@
 
 #endif
 
-#include<bayesreg.h>
-#include<bayesreg3.h>
-#include<typeinfo.h>
+#include"bayesreg.h"
+#include"bayesreg3.h"
+
+// Vorschlag:
+//#include<typeinfo.h>
+
 #include<stddef.h>
 
 bool bayesreg::create_varcoeffpspline(const unsigned & collinpred)
@@ -672,7 +677,8 @@ void outresultsrun(bayesreg & b)
         if (b.fullcond[i]->transform_yes() == true)
           {
           fcp[0] = b.fullcond[i];
-          b.distr[0]->transform_nonlinear(fcp,b.transformtype.getvalue());
+          ST::string helptr = b.transformtype.getvalue();
+          b.distr[0]->transform_nonlinear(fcp,helptr);
           b.fullcond[i]->outresults();
           }
 

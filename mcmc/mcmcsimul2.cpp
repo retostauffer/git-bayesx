@@ -1,6 +1,6 @@
-// DATE: 01.02.99
 
-//---------------------------------------------------------------------------
+#include "first.h"
+
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -8,9 +8,9 @@
 #include<StatwinFrame.h>
 #endif
 
-#include<mcmcsimul2.h>
+#include"mcmcsimul2.h"
 #include<time.h>
-#include<clstring.h>
+#include"clstring.h"
 #include <stdlib.h>
 #include<math.h>
 
@@ -1978,7 +1978,7 @@ void STEPWISErun::koord_fix_leer(vector<double> & kriteriumiteration2,
 
   if(minim == "adaptiv" || minim == "adap_exact" || minim == "adaptiv_golden")
     {
-    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
+    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
       fertig = false;
     if(modell_alt[i-1] != modell_neu[i-1] && (trace == "trace_on" || trace == "trace_minim"))
       {
@@ -2062,7 +2062,7 @@ void STEPWISErun::koord_leer_fix(vector<double> & kriteriumiteration2,
 
   if(minim == "adaptiv" || minim == "adap_exact" || minim == "adaptiv_golden")
     {
-    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
+    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
       fertig = false;
     if(modell_alt[i-1] != modell_neu[i-1] && (trace == "trace_on" || trace == "trace_minim"))
       {
@@ -2200,7 +2200,7 @@ void STEPWISErun::koord_factor_leer(vector<double> & kriteriumiteration2,
 
   if(minim == "adaptiv" || minim == "adap_exact" || minim == "adaptiv_golden")
     {
-    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
+    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
       fertig = false;
     if(modell_alt[z+names_fixed.size()-2] != modell_neu[z+names_fixed.size()-2]
                     && (trace == "trace_on" || trace == "trace_minim"))
@@ -2287,7 +2287,7 @@ void STEPWISErun::koord_leer_factor(vector<double> & kriteriumiteration2,
 
   if(minim == "adaptiv" || minim == "adap_exact" || minim == "adaptiv_golden")
     {
-    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= pow10(-6))
+    if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
       fertig = false;
     if(modell_alt[z+names_fixed.size()-2] != modell_neu[z+names_fixed.size()-2]
                     && (trace == "trace_on" || trace == "trace_minim"))
@@ -2442,7 +2442,7 @@ test = test;*/
       modell_alt = modell_neu;
       kriterium_aktuell = kriterium_min;
       kriterium_alt = kriterium_aktuell;
-      if(fabs((kriterium_test - kriterium_aktuell)/kriterium_test) >= pow10(-6))
+      if(fabs((kriterium_test - kriterium_aktuell)/kriterium_test) >= std::pow(10,-6.0))
         fertig = false;
       modeliteration.push_back(modell_alt);
       }
@@ -2743,7 +2743,10 @@ bool STEPWISErun::finetuning(vector<double> & modell)
               untervector.push_back(lambdavec_ursp[i-1][j]);
             if(fullcond_alle[i]->get_forced()==true)
               untervector.push_back(lambdavec_ursp[i-1][lambdavec_ursp[i-1].size()-3]);
-            fullcond_alle[i]->compute_lambdavec(untervector,number);
+// Vorschlag:
+//            fullcond_alle[i]->compute_lambdavec(untervector,number);
+            int intnumber = (int)number;
+            fullcond_alle[i]->compute_lambdavec(untervector,intnumber);
             lambdavec_fine.push_back(untervector);
             }
           else
@@ -2806,7 +2809,10 @@ bool STEPWISErun::fine_local(vector<double> & modell)
      {
      if(modell[names_fixed.size()-2+i]!=0 && modell[names_fixed.size()-2+i]!=-1)
        {
-       fullcond_alle[i]->set_smoothing("local");
+// Vorschlag:
+//       fullcond_alle[i]->set_smoothing("local");
+       ST::string helpstring = "local";
+       fullcond_alle[i]->set_smoothing(helpstring);
 
        vector<double> lambdas;
        double lambdastart = modell[names_fixed.size()-2+i];
@@ -4837,13 +4843,20 @@ void STEPWISErun::save_alle_betas(vector<double> & modell)
     }
   for(j=1;j<fullcond_alle.size();j++)
     {
+// Vorschlag:
+    unsigned helpint;
     if(modell[j+names_fixed.size()-2] == -1)
       {
       fullcond_alle[j]->save_betas(modell,anzahl);
       anzahl += fullcond_alle[j]->get_data_forfixedeffects().cols();
       }
     else if(modell[j+names_fixed.size()-2] == 0)
-      fullcond_alle[j]->save_betas(modell,0);
+// Vorschlag:
+//      fullcond_alle[j]->save_betas(modell,0);
+      {
+      helpint=0;
+      fullcond_alle[j]->save_betas(modell,helpint);
+      }
     else
       fullcond_alle[j]->save_betas(modell,-1);   // ACHTUNG: hier steht -1 für nichtlinear!!!
     }

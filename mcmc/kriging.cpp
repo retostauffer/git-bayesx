@@ -1,5 +1,7 @@
-#include "kriging.h"
 
+#include "first.h"
+
+#include "kriging.h"
 
 namespace MCMC
 {

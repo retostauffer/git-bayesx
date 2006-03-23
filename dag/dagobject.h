@@ -1,30 +1,28 @@
-// DATE 16.03.98
 
-
-
-#if !defined (DAGOBJECT_INCLUDED)
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
 
+#if !defined (DAGOBJECT_INCLUDED)
 
 #define DAGOBJECT_INCLUDED
 
-#include<statobj.h>
-#include<dataobj.h>
-#include<adjacency.h>
-#include<fullcond_dag.h>
-#include<fullcond_dag_d.h>
-#include<fullcond_dag_ia.h>
-#include<fullcond_dag_ia_mixed.h>
-#include<fullcond_rj.h>
-#include<fullcond_rj_int.h>
-#include<fullcond_rj_mix.h>
-#include<ia.h>
-#include<mcmcsimul.h>
+#include"statobj.h"
+#include"dataobj.h"
+#include"adjacency.h"
+#include"fullcond_dag.h"
+#include"fullcond_dag_d.h"
+#include"fullcond_dag_ia.h"
+#include"fullcond_dag_ia_mixed.h"
+#include"fullcond_rj.h"
+#include"fullcond_rj_int.h"
+#include"fullcond_rj_mix.h"
+#include"ia.h"
+#include"mcmcsimul.h"
 
 using MCMC::MCMCoptions;
 using MCMC::DISTRIBUTION;

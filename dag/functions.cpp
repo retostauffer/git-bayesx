@@ -1,11 +1,9 @@
 // functions that do not belong to one class
 // but are used by several ones
 
+#include "first.h"
+
 #include "functions.h"
-
-
-
-
 
 namespace func
 {

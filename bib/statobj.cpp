@@ -1,4 +1,5 @@
-// DATE 18.02.98
+
+#include "first.h"
 
 #if defined(BORLAND_OUTPUT_WINDOW)
 
@@ -9,17 +10,14 @@
 
 #endif
 
-
-
-#include<statobj.h>
-
+#include"statobj.h"
 
 //------------------------------------------------------------------------------
 //----------- CLASS statobject: implementation of member functions -------------
 //------------------------------------------------------------------------------
 
 
-int statobject::parsecom(const ST::string & c,vector<command> & methods,
+int statobject::parsecom(const ST::string & c, vector<command> & methods,
 								 optionlist & globaloptions)
   {
 

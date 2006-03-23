@@ -1,57 +1,56 @@
 
-// DATE: today
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (BAYESREG_INCLUDED)
 
 #define BAYESREG_INCLUDED
 
-#include<statobj.h>
-#include<dataobj.h>
-#include<map.h>
-#include<mapobject.h>
+#include"statobj.h"
+#include"dataobj.h"
+#include"map.h"
+#include"mapobject.h"
 
-#include<mcmc.h>
+#include"mcmc.h"
 
-#include<distribution.h>
-#include<multgaussian.h>
-#include<nbinomial.h>
-#include<zip.h>
-#include<cox.h>
-#include<multistate.h>
+#include"distribution.h"
+#include"multgaussian.h"
+#include"nbinomial.h"
+#include"zip.h"
+#include"cox.h"
+#include"multistate.h"
 
 #include<mcmc_const.h>
 
-#include<mcmc_nonp.h>
-#include<fullcond_nonp_gaussian.h>
-#include<tvariance.h>
-#include<tvariance2dim.h>
-#include<fullcond_adaptiv.h>
-#include<variance_nonp.h>
-#include<fullcond_surf_gaussian.h>
+#include"mcmc_nonp.h"
+#include"fullcond_nonp_gaussian.h"
+#include"tvariance.h"
+#include"tvariance2dim.h"
+#include"fullcond_adaptiv.h"
+#include"variance_nonp.h"
+#include"fullcond_surf_gaussian.h"
 
-#include<fullcond_pspline_gaussian.h>
-#include<IWLS_pspline.h>
-#include<mcmc_pspline_surf.h>
-#include<fullcond_pspline_surf_gaussian.h>
-#include<mcmc_pspline.h>
+#include"fullcond_pspline_gaussian.h"
+#include"IWLS_pspline.h"
+#include"mcmc_pspline_surf.h"
+#include"fullcond_pspline_surf_gaussian.h"
+#include"mcmc_pspline.h"
 //#include<isotonic.h>
 
-#include<randomeffect.h>
-#include<mixture.h>
+#include"randomeffect.h"
+#include"mixture.h"
 
-#include<kriging2.h>
-#include<baseline.h>
-#include<multibaseline.h>
+#include"kriging2.h"
+#include"baseline.h"
+#include"multibaseline.h"
 //#include<IWLS_baseline.h>
 
-#include<mcmcsimul.h>
+#include"mcmcsimul.h"
 
 
 using randnumbers::uniform;
@@ -124,7 +123,9 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   bool check_nongaussian(void);
 
-  bool check_iwls(bool & iwls);
+// Vorschlag:
+//  bool check_iwls(bool & iwls);
+  bool check_iwls(bool iwls);
 
   void clear(void);
   void initpointers(void);

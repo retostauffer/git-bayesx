@@ -24,26 +24,25 @@ is already given and one is only interested in the interactions.
 ****************************************************************************/
 
 
-
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
-
 
 #if !defined (FULLCOND_DAG_IA_INCLUDED)
 
 #define FULLCOND_DAG_IA_INCLUDED
 
-#include<mcmc.h>
-#include<distribution.h>
-#include<fullcond.h>
-#include<fullcond_dag.h>
-#include<fullcond_dag_d.h>
-#include<ia.h>
-#include<func_dag.h>
+#include"mcmc.h"
+#include"distribution.h"
+#include"fullcond.h"
+#include"fullcond_dag.h"
+#include"fullcond_dag_d.h"
+#include"ia.h"
+#include"func_dag.h"
 
 
 namespace MCMC

@@ -1,10 +1,12 @@
-//---------------------------------------------------------------------------
+
+#include "first.h"
+
+#if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
+#endif
 
 #include "IWLS_baseline.h"
-
-
 
 namespace MCMC
 {

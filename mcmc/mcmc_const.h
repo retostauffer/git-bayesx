@@ -1,21 +1,21 @@
-// DATE 29.01.98
 
-#ifdef __BUILDING_THE_DLL
+#if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
+#elif defined (__BUILDING_GNU)
+#define __EXPORT_TYPE __declspec(dllexport)
 #else
 #define __EXPORT_TYPE __import
 #endif
-
 
 #if !defined (MCMCconst_INCLUDED)
 
 #define MCMCconst_INCLUDED
 
-#include<mcmc.h>
-#include<fullcond.h>
-#include<distribution.h>
-#include<nbinomial.h>
-#include<zip.h>
+#include"mcmc.h"
+#include"fullcond.h"
+#include"distribution.h"
+#include"nbinomial.h"
+#include"zip.h"
 
 
 namespace MCMC
@@ -155,7 +155,7 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
                   const unsigned & Zpos);
 
   double outresultsreml(datamatrix & X,datamatrix & Z,datamatrix & betareml,
-                      datamatrix & betacov, datamatrix & thetareml,
+                      datamatrix & betacov, const datamatrix & thetareml,
                       const unsigned & Xpos, const unsigned & Zpos,
                       const unsigned & thetapos, const bool & dispers,
                       const unsigned & betaXpos,

@@ -1,14 +1,13 @@
-// DATE:03.06.01
 
+#include "first.h"
 
-//---------------------------------------------------------------------------
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
 #endif
 
-#include<graphobj.h>
-#include<mapobject.h>
+#include"graphobj.h"
+#include"mapobject.h"
 
 void graphobj::create (void)
   {
@@ -243,8 +242,8 @@ const graphobj & graphobj::operator=(const graphobj & o)
 
 int graphobj::parse(const ST::string & c)
   {
-
-  int pos = statobject::parsecom(c,methods);
+  optionlist globaloptions = optionlist();
+  int pos = statobject::parsecom(c,methods,globaloptions);
 
   if (pos >= 0)
 	 (*functions[pos])(*this);
@@ -367,7 +366,6 @@ void drawmaprun(graphobj & o)
 
 if(drawonlyboundaries)
   {
-
   if(o.color.changed())
     {
     o.outerror("ERROR: option " + o.color.getname() + " not meaningful for drawing boundaries only\n");
@@ -418,20 +416,28 @@ if(drawonlyboundaries)
     o.adminp_p->set_Dp(&o.D);
     o.adminp_p->set_mapinfo(&o.mapinfo);
 
-    jmethodID javadrawmap = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javadrawmap",
+    if(drawonlyboundaries)
+      {
+      jmethodID javashowmap = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "JavaShowMap", "(Z)V");
+      o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javashowmap, o.drawnames.getvalue());
+      }
+    else
+      {
+      jmethodID javadrawmap = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javadrawmap",
                                                     "(ZZZZZDDSZILjava/lang/String;Ljava/lang/String;)V");
-    o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javadrawmap, false, false, false, o.drawnames.getvalue(),
+      o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javadrawmap, false, false, false, o.drawnames.getvalue(),
                                false, 0.0, 1.0, 0, false, o.fontsize.getvalue(),
                                o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()),
                                o.adminb_p->Java->NewStringUTF(o.title.getvalue().strtochar()));
+      }
 
     bool stop=o.adminb_p->breakcommand();
 
 /*
     admin.set_mapinfo(&o.mapinfo);
 
-    jmethodID javashowmap = admin.Java->GetMethodID(admin.BayesX_cls, "JavaShowMap", "(Z)V");
-    admin.Java->CallVoidMethod(admin.BayesX_obj, javashowmap, o.drawnames.getvalue());
+    jmethodID javashowmap = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "JavaShowMap", "(Z)V");
+    o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javashowmap, o.drawnames.getvalue());
 */
     }
 

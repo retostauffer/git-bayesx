@@ -490,7 +490,7 @@ private :
 #	if defined (CC_SOURCE)
 #		include <tlinklst.cc>
 #	else
-#		include <tlinklst.cpp>
+#		include "tlinklst.cpp"
 #	endif
 #endif
 

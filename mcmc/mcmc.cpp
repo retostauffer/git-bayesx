@@ -1,5 +1,5 @@
-// DATE: 04.02.1999
-// CLASS MCMCoptions, CLASS MCMC
+
+#include "first.h"
 
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include "StatResults.h"

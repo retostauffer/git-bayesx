@@ -1,6 +1,9 @@
-#include <fullcond_rj.h>
+
+#include "first.h"
+
+#include "fullcond_rj.h"
 #include <set>
-#include<algorithm>
+#include <algorithm>
 #include <math.h>
 
 
@@ -323,11 +326,17 @@ void FULLCOND_rj::birth_step(unsigned int v_i, unsigned int v_j)
 				preg_mods[v_j]->create_matrices("b", ncoef_new);
 
 		// instead of: datamatrix b_new (ncoef_new,1);
-		datamatrix & b_new = preg_mods[v_j]->get_b_new_b();
+// Vorschlag:
+//		datamatrix & b_new = preg_mods[v_j]->get_b_new_b();
+		datamatrix b_new = preg_mods[v_j]->get_b_new_b();
 		// instead of: datamatrix x_new (nobs,ncoef_new);
-		datamatrix & x_new = preg_mods[v_j]->get_x_new_b() ;
+// Vorschlag:
+//		datamatrix & x_new = preg_mods[v_j]->get_x_new_b() ;
+		datamatrix x_new = preg_mods[v_j]->get_x_new_b() ;
 		// instead of: datamatrix xx_new (ncoef_new,ncoef_new);
-		datamatrix & xx_new = preg_mods[v_j]->get_xx_new_b() ;
+// Vorschlag:
+//		datamatrix & xx_new = preg_mods[v_j]->get_xx_new_b() ;
+		datamatrix xx_new = preg_mods[v_j]->get_xx_new_b() ;
 
 		assert(ncoef_new==b_new.rows());
 		
@@ -581,11 +590,17 @@ void FULLCOND_rj::switch_version_1(unsigned i, unsigned j)
 				preg_mods[j]->create_matrices("b", ncoef_new_j);
 
 	// instead of: datamatrix b_new_j (ncoef_new_j,1);
-	datamatrix & b_new_j = preg_mods[j]->get_b_new_b();
+// Vorschlag:
+//  datamatrix & b_new_j = preg_mods[j]->get_b_new_b();
+	datamatrix b_new_j = preg_mods[j]->get_b_new_b();
 	// instead of: datamatrix x_new_j (nobs,ncoef_new_j);
-	datamatrix & x_new_j = preg_mods[j]->get_x_new_b() ;
+// Vorschlag:
+// 	datamatrix & x_new_j = preg_mods[j]->get_x_new_b() ;
+	datamatrix x_new_j = preg_mods[j]->get_x_new_b() ;
 	// instead of: datamatrix xx_new_j (ncoef_new_j,ncoef_new_j);
-	datamatrix & xx_new_j = preg_mods[j]->get_xx_new_b() ;
+// Vorschlag:
+//	datamatrix & xx_new_j = preg_mods[j]->get_xx_new_b() ;
+	datamatrix xx_new_j = preg_mods[j]->get_xx_new_b() ;
 
 	double beta_new_ji=0;
 
@@ -693,11 +708,17 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 				preg_mods[v_j]->create_matrices("b", ncoef_new_j);
 
 		// instead of: datamatrix b_new_j (ncoef_new_j,1);
-		datamatrix & b_new_j = preg_mods[v_j]->get_b_new_b();
+// Vorschlag:
+//		datamatrix & b_new_j = preg_mods[v_j]->get_b_new_b();
+		datamatrix b_new_j = preg_mods[v_j]->get_b_new_b();
 		// instead of: datamatrix x_new_j (nobs,ncoef_new_j);
-		datamatrix & x_new_j = preg_mods[v_j]->get_x_new_b() ;
+// Vorschlag:
+//		datamatrix & x_new_j = preg_mods[v_j]->get_x_new_b() ;
+		datamatrix x_new_j = preg_mods[v_j]->get_x_new_b() ;
 		// instead of: datamatrix xx_new_j (ncoef_new_j,ncoef_new_j);
-		datamatrix & xx_new_j = preg_mods[v_j]->get_xx_new_b() ;
+// Vorschlag:
+//		datamatrix & xx_new_j = preg_mods[v_j]->get_xx_new_b() ;
+		datamatrix xx_new_j = preg_mods[v_j]->get_xx_new_b() ;
 
 		double beta_new_ji=0;
 
@@ -1832,7 +1853,9 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 		}
 		#else
 		{
-			loop_end = min(size_list, unsigned (10)) ;
+// Vorschlag:
+//			loop_end = min(size_list, unsigned (10)) ;
+			loop_end = std::min(size_list, unsigned (10)) ;
 		}
 		#endif
 
