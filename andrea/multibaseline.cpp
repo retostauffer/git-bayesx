@@ -591,14 +591,14 @@ void pspline_multibaseline::update(void)
      if(optionsp->get_nriter()%100==0 && optionsp->get_nriter()<optionsp->get_burnin())
        adjust_blocksize(30,70);
 // Vorschlag:
-//     blocksize = minauto + random(maxauto-minauto+1);
-     blocksize = minauto + rand() % (maxauto-minauto+1);
+     blocksize = minauto + random(maxauto-minauto+1);
+//     blocksize = minauto + rand() % (maxauto-minauto+1);
     }
   else
     {
 // Vorschlag:
-//    blocksize = min + random(max-min+1);
-    blocksize = min + rand() % (max-min+1);
+    blocksize = min + random(max-min+1);
+//    blocksize = min + rand() % (max-min+1);
     }
 
   double u;
