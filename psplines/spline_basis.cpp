@@ -200,21 +200,10 @@ spline_basis::spline_basis(MCMCoptions * o,
 
   nrpar = nrknots-1+degree;
 
-//------------------------------------------------------------------------------
-
 //  samplepath = pres;
   samplepath=fp;
 
   likep = NULL;
-
-  if(type == RW1)
-    dimX = 0;
-  else
-    dimX = 1;
-
-  dimZ = nrpar-dimX-1;
-
-//------------------------------------------------------------------------------
 
   spline = datamatrix(d.rows(),1,0);
 
@@ -223,6 +212,13 @@ spline_basis::spline_basis(MCMCoptions * o,
 
   make_index(d);
   make_Bspline(d);
+
+  if(type == RW1)
+    dimX = 0;
+  else
+    dimX = 1;
+
+  dimZ = nrpar-dimX-1;
 
   index2.push_back(index(0,0));
   for(unsigned i=1;i<d.rows();i++)
@@ -851,6 +847,16 @@ void spline_basis::make_Bspline(const datamatrix & md, const bool & minnull)
         knot.push_front(knot[0] - (knot[1] - knot[0]));
       nrknots++;
       nrparpredictleft++;
+      }
+    }
+
+  if(knpos==quantiles)
+    {
+    if(nrpar > nrknots-1+degree)
+      {
+      optionsp->outerror("\n");
+      optionsp->outerror("WARNING: Reducing the number of basis functions for term " + title + "\n");
+      optionsp->outerror("         due to equal quantiles for the knot positions.\n");
       }
     }
 
@@ -2944,12 +2950,11 @@ void spline_basis::write_derivative(void)
 void spline_basis::compute_Kweights(void)
   {
 
-  if(type == RW1)
+/*  if(type == RW1)
     weight = vector<double>(nrpar,1.0);
   else if(type == RW2)
-    weight = vector<double>(nrpar,0.5);
+    weight = vector<double>(nrpar,0.5);*/
 
-/*
   unsigned i,j;
 
 // compute weights
@@ -2974,7 +2979,7 @@ void spline_basis::compute_Kweights(void)
 
   for(j=1;j<weight.size();j++)
     weight[j] *= sum;
-*/
+
   }
 
 void spline_basis::init_name(const ST::string & na)
@@ -3518,10 +3523,10 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
 
 void spline_basis::outoptionsreml()
   {
-  optionsp->out("OPTIONS FOR P-SPLINE TERM:: " + title + "\n",true);
+  optionsp->out("OPTIONS FOR P-SPLINE TERM: " + title + "\n",true);
   optionsp->out("\n");
 
-  ST::string typestr;
+  ST::string typestr;                                                                                             
   ST::string knotstr;
 
   if (type == RW1)
