@@ -155,7 +155,7 @@ void FULLCOND_const::createreml(datamatrix & X,datamatrix & Z,
 
 double FULLCOND_const::outresultsreml(datamatrix & X,datamatrix & Z,
                                     datamatrix & betareml, datamatrix & betacov,
-                                    const datamatrix & thetareml,
+                                    datamatrix & thetareml,
                                     const unsigned & Xpos,const unsigned & Zpos,
                                     const unsigned & thetapos,
                                     const bool & dispers,

@@ -155,7 +155,7 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
                   const unsigned & Zpos);
 
   double outresultsreml(datamatrix & X,datamatrix & Z,datamatrix & betareml,
-                      datamatrix & betacov, const datamatrix & thetareml,
+                      datamatrix & betacov, datamatrix & thetareml,
                       const unsigned & Xpos, const unsigned & Zpos,
                       const unsigned & thetapos, const bool & dispers,
                       const unsigned & betaXpos,
