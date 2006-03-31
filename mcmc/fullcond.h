@@ -42,11 +42,14 @@ using std::bitset;
 
 const int flagnr = 3;
 
-const std::bitset<flagnr> nosamples(001);   // samples should not be stored in
+const std::bitset<flagnr> nosamples(1ul);
+//const std::bitset<flagnr> nosamples(001);   // samples should not be stored in
                                               // a file
-const std::bitset<flagnr> norelchange(010); // relative changes of parameters
+const std::bitset<flagnr> norelchange(2ul);
+//const std::bitset<flagnr> norelchange(010); // relative changes of parameters
                                               // should not be printed
-const std::bitset<flagnr> nooutput(100);    // acceptance rates and title
+const std::bitset<flagnr> nooutput(4ul);
+//const std::bitset<flagnr> nooutput(100);    // acceptance rates and title
                                               // should not be printed
 
 enum covstyle {covariance,precision,correlation};

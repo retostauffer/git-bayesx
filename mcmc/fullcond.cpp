@@ -44,7 +44,9 @@ FULLCOND::FULLCOND(MCMCoptions * o,const datamatrix & d,
 
   samplepath = fp;
 
-  flags = bitset<flagnr>(000);
+//  flags = bitset<flagnr>(000);
+  flags = bitset<flagnr>(0ul);
+
 
   data = d;
 
