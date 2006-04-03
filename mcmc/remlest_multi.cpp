@@ -26,7 +26,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
                 const int & maxiter, const double & lowerlimit,
                 const double & epsi, const double & maxch, const double & maxv,
                 const datamatrix & categories,
-                const datamatrix & weight, ostream * lo)
+                const datamatrix & weight, const bool & fi, ostream * lo)
   {
 
   nrcat2=categories.rows();
@@ -46,6 +46,8 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
   #if defined(JAVA_OUTPUT_WINDOW)
   adminb_p = adb;
   #endif
+
+  fisher=fi;
 
   logout = lo;
   respfamily=family;
@@ -411,11 +413,25 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
     beta(j*partialnrfixed,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcutbeta[j*fullcond.size()],0,cats(j,0),true,0);
     }
 
-  double loglike=0;
-  double aic=0;
-  double bic=0;
-  double gcv=0;
-  double df=(H*Hinv).trace();
+// store inverse Fisher-Info and design matrices
+  if(fisher)
+    {
+    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
+    Hinv.prettyPrint(outfisher);
+    outfisher.close();
+    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
+    X.prettyPrint(outx);
+    outx.close();
+    ofstream outz((outfile+"_randomdesign.raw").strtochar());
+    Z.prettyPrint(outz);
+    outz.close();
+    }
+
+  loglike=0;
+  aic=0;
+  bic=0;
+  gcv=0;
+  df=(H*Hinv).trace();
   double refprob;
 
   for(i=0; i<resp.rows(); i++)
@@ -457,6 +473,14 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
   out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
   out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
   out("\n");
+  out("  Results on the model fit are stored in file\n");
+  out("  "+outfile+"_modelfit.raw");
+  out("\n");
+
+  ofstream outfit((outfile+"_modelfit.raw").strtochar());
+  outfit << "loglike df aic bic gcv" << endl;
+  outfit << loglike << " " << df << " " << aic << " " << bic << " " << gcv << endl;
+  outfit.close();
 
   out("\n");
   out("  Additive predictors and expectations\n",true);
@@ -620,11 +644,25 @@ bool remlest_multinomial::estimate_glm(const datamatrix resp,
     beta(j*partialnrfixed,0) += fullcond[0]->outresultsreml(X,Z,beta,H,helpmat,xcut[0],0,0,false,xcutbeta[j*fullcond.size()],0,cats(j,0),true,0);
     }
 
-  double loglike=0;
-  double aic=0;
-  double bic=0;
-  double gcv=0;
-  double df=beta.rows();
+// store inverse Fisher-Info and design matrices
+  if(fisher)
+    {
+    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
+    H.prettyPrint(outfisher);
+    outfisher.close();
+    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
+    X.prettyPrint(outx);
+    outx.close();
+    ofstream outz((outfile+"_randomdesign.raw").strtochar());
+    Z.prettyPrint(outz);
+    outz.close();
+    }
+
+  loglike=0;
+  aic=0;
+  bic=0;
+  gcv=0;
+  df=beta.rows();
   double refprob;
   unsigned k;
 
@@ -667,6 +705,14 @@ bool remlest_multinomial::estimate_glm(const datamatrix resp,
   out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
   out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
   out("\n");
+  out("  Results on the model fit are stored in file\n");
+  out("  "+outfile+"_modelfit.raw");
+  out("\n");
+
+  ofstream outfit((outfile+"_modelfit.raw").strtochar());
+  outfit << "loglike df aic bic gcv" << endl;
+  outfit << loglike << " " << df << " " << aic << " " << bic << " " << gcv << endl;
+  outfit.close();
 
 
   out("\n");
@@ -1333,6 +1379,16 @@ void remlest_multinomial::make_graphics(const ST::string & title,
   make_prior(outtex);
 
   make_options(outtex);
+
+  outtex << "\n\\noindent {\\bf \\large Model Fit:}" << endl
+         << "\\begin{tabbing}\n";
+  outtex << "GCV (based on deviance residuals): \\= \\kill" << endl;
+  outtex << "-2*log-likelihood: \\> " << loglike << "\\\\" << endl;
+  outtex << "Degrees of freedom: \\> " << df << "\\\\" << endl;
+  outtex << "(conditional) AIC: \\> " << aic << "\\\\" << endl;
+  outtex << "(conditional) BIC: \\> " << bic << "\\\\" << endl;
+  outtex << "GCV (based on deviance residuals): \\> " << gcv << "\\\\" << endl;
+  outtex << "\\end{tabbing}" << endl;
 
   make_fixed_table(outtex);
 
@@ -3460,35 +3516,502 @@ void remlest_multistate::outoptions()
 void remlest_multistate::make_plots(ofstream & outtex,ST::string path_batch,
                          ST::string path_splus)
   {
+  char hcharu = '_';
+  ST::string hstringu = "\\_";
+
+  unsigned i,j,k;
+  ST::string pathresult;
+  bool stil = false;
+
+// Schleife überprüft, ob es ein fullcond-Object
+// gibt, bei dem Effekt gezeichnet werden kann
+  MCMC::plotstyles plst;
+  for(j=0;j<fullcond.size();j++)
+    {
+    plst = fullcond[j]->get_plotstyle();
+    if(plst != MCMC::noplot)
+      stil = true;
+    }
+
+
+  if(stil == true)
+    {
+//erzeugt File, das Plot-Befehle für Java-Version enthält
+    ofstream outbatch(path_batch.strtochar());
+
+//erzeugt File, das SPlus-Befehle zum Plotten enthält
+    ofstream outsplus(path_splus.strtochar());
+
+    outsplus << "# NOTE: 'directory' must be substituted by the directory"
+             << " where the sfunctions are stored \n"
+             << endl
+    // einlesen der Source-Files für S-Plus
+             << "source(\"'directory'\\\\sfunctions\\\\plotsample.s\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\plotnonp.s\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\plotsurf.s\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\drawmap.s\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.s\")\n" << endl;
+
+#if defined(JAVA_OUTPUT_WINDOW)
+    out("  --------------------------------------------------------------------------- \n");
+    out("\n");
+    out("  Batch file for visualizing effects of nonlinear functions is stored in file \n");
+    out("  " + path_batch + "\n");
+    out("\n");
+#endif
+
+    bool stil2 = true;
+    for(j=0;j<fullcond.size();j++)  //Schleife überprüft, ob es map-Objekt gibt
+      {
+      plst = fullcond[j]->get_plotstyle();
+      if(plst == MCMC::drawmap || plst == MCMC::drawmapgraph)
+        stil2 = false;
+      }
+
+    if(stil2 == true)
+      {
+      out("  --------------------------------------------------------------------------- \n");
+      out("\n");
+      out("  Batch file for visualizing effects of nonlinear functions ");
+      out("  in S-Plus is stored in file \n");
+      out("  " + path_splus + "\n");
+      out("\n");
+      }
+
+    if(stil2 == false)
+      {
+      out("  NOTE: 'input filename' must be substituted by the filename of the boundary-file \n");
+      out("\n");
+      out("  --------------------------------------------------------------------------- \n");
+      out("\n");
+      out("  Batch file for visualizing effects of nonlinear functions ");
+      out("  in S-Plus is stored in file \n");
+      out("  " + path_splus + "\n");
+      out("\n");
+      out("  NOTE: 'input filename' must be substituted by the filename of the boundary-file \n");
+      out("\n");
+      }
+
+
+    outbatch << "% usefile " << path_batch << endl;
+
+    // falls andere Quantile gewünscht werden
+    double u = fullcond[0]->get_level1();
+    double o = fullcond[0]->get_level2();
+    ST::string u_str = ST::doubletostring(u,0);
+    ST::string o_str = ST::doubletostring(o,0);
+
+    // durchlaufen der Fullconditionals
+    j=0;
+    for(i=0; i<nrtransitions; i++)
+      {
+      outtex << "\n\\newpage" << "\n\\noindent {\\bf \\large Plots (Transition " << ST::inttostring(i+1) << "):}" << endl;
+      for(k=0; k<nrfullconds[i]; k++, j++)
+        {
+
+        // Pfad der Regr.-Ergebnisse
+        pathresult = fullcond[j]->get_pathresult();
+
+        // Plotstyle: noplot, plotnonp, drawmap, drawmapgraph
+        plst = fullcond[j]->get_plotstyle();
+
+        if (plst != MCMC::noplot)
+          {
+
+          // Pfade für ps-, tex-, SPlus-files
+          ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+          ST::string pathgr = pathps.replaceallsigns('\\', '/');
+
+          char hchar = '\\';
+          ST::string hstring = "\\\\";
+
+          ST::string pathps_spl = pathps.insert_string_char(hchar,hstring);
+          ST::string pathres_spl = pathresult.insert_string_char(hchar,hstring);
+
+          if (plst == MCMC::plotnonp)
+            {
+            outbatch << "\n";                // Befehle f. d. batch-file
+            outbatch << "dataset _dat" << endl;
+            outbatch << "_dat.infile using " << pathresult << endl;
+            outbatch << "graph _g" << endl;
+            vector<ST::string> varnames = fullcond[j]->get_datanames();
+            ST::string xvar = varnames[0];
+            outbatch << "_g.plot " << xvar
+                     << " pmode ci" << u_str << "lower ci"
+                     << o_str.replaceallsigns('.','p') << "lower ci"
+                     << o_str.replaceallsigns('.','p') << "upper ci"
+                     << u_str.replaceallsigns('.','p') << "upper, "
+                     << "title = \"Effect of " << xvar << "\" xlab = " << xvar
+                     << " ylab = \" \" " << "outfile = " << pathps
+                     << ".ps replace using _dat" << endl;
+            outbatch << "drop _dat" << endl;
+            outbatch << "drop _g" << endl;
+            // Plot-Befehle f. d. SPlus-file
+            outsplus << "plotnonp(\"" << pathres_spl << "\", psname = \""
+                     << pathps_spl << ".ps\")" << endl;
+            // Plot-Befehle f. d. tex-file
+            ST::string effect = xvar;
+            if(varnames.size()>1)
+              {
+              effect = varnames[1] + "*" + effect;
+              }
+            outtex << "\n\\begin{figure}[h!]" << endl
+                    << "\\centering" << endl
+                    << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
+                    << "\\caption{Non--linear Effect of '" <<
+                    effect.insert_string_char(hcharu,hstringu) << "'";
+            outtex << "." << endl << "Shown are the posterior modes together with "
+                   << u_str << "\\% and " << o_str
+                   << "\\% pointwise credible intervals.}" << endl
+                   << "\\end{figure}" << endl;
+            }
+          // für map-Funktionen
+          else if (plst == MCMC::drawmap || plst == MCMC::drawmapgraph)
+            {
+            outbatch << "\n";                 // Befehle f. d. batch-file
+            outbatch << "dataset _dat" << endl;
+            outbatch << "_dat.infile using " << pathresult << endl;
+            outbatch << "map _map" << endl;
+            outbatch << "_map.infile using input_filename" << endl;
+            outbatch << "graph _g" << endl;
+            vector<ST::string> varnames = fullcond[j]->get_datanames();
+            ST::string regionvar = varnames[0];
+            outbatch << "_g.drawmap " << "pmode" << " " << regionvar
+                     << ", map = _map color outfile = " << pathps
+                     << "_pmode.ps replace using _dat" << endl;
+            outbatch << "_g.drawmap " << "pcat" << u_str << " " << regionvar
+                       << ", map = _map nolegend pcat outfile = " << pathps
+                       << "_pcat" << u_str << ".ps replace using _dat" << endl;
+            outbatch << "_g.drawmap " << "pcat" << o_str << " " << regionvar
+                       << ", map = _map nolegend pcat outfile = " << pathps
+                       << "_pcat" << o_str << ".ps replace using _dat" << endl;
+            outbatch << "drop _dat" << endl;
+            outbatch << "drop _g" << endl;
+            outbatch << "drop _map" << endl;
+            // Plot-Befehle f. d. SPlus-file
+            outsplus << "# NOTE: 'input_filename' must be substituted by the "
+                     << "filename of the boundary-file \n"
+                     << "# NOTE: choose a 'name' for the map \n" << endl
+                     << "readbndfile(\"'input_filename'\", \"'name'\")" << endl
+                     << "drawmap(map = 'name', outfile = \"" << pathps_spl
+                     <<"_pmode.ps\", dfile = \"" << pathres_spl
+                     << "\" ,plotvar = \"pmode\", regionvar = \""
+                     << regionvar << "\", color = T)" << endl;
+            outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
+                      <<"_pcat" << u_str << ".ps\", dfile = \"" << pathres_spl
+                      << "\" ,plotvar = \"pcat" << u_str << "\", regionvar = \""
+                    << regionvar << "\", legend = F, pcat = T)" << endl;
+            outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
+                      <<"_pcat" << o_str << ".ps\", dfile = \"" << pathres_spl
+                      << "\",plotvar = \"pcat" << o_str << "\", regionvar = \""
+                      << regionvar << "\", legend = F, pcat = T)" << endl;
+              // Plot-Befehle f. d. tex-file
+            ST::string effect = regionvar;
+            if(varnames.size()>1)
+              {
+              effect = varnames[1] + "*" + effect;
+              }
+
+            if(plst == MCMC::drawmap)
+              {
+              outtex << "\n\\begin{figure}[h!]" << endl
+                     << "\\centering" << endl
+                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                     << endl
+                     << "\\caption{Non--linear Effect of '" <<
+                     effect.insert_string_char(hcharu,hstringu) << "'";
+              outtex << ". Shown are the posterior modes.}" << endl
+                     << "\\end{figure}" << endl;
+              outtex << "\n\\begin{figure}[htb]" << endl
+                     << "\\centering" << endl
+                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                     << u_str << ".ps}" << endl
+                     << "\\caption{Non--linear Effect of '" << effect << "'";
+              outtex << ". Posterior probabilities for a nominal level of "
+                     << u_str << "\\%." << endl
+                     << "Black denotes regions with strictly negative credible intervals,"
+                     << endl
+                     << "white denotes regions with strictly positive credible intervals.}"
+                     << endl << "\\end{figure}" << endl;
+              outtex << "\n\\begin{figure}[htb]" << endl
+                     << "\\centering" << endl
+                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                     << o_str << ".ps}" << endl
+                     << "\\caption{Non--linear Effect of '" << effect << "'";
+              outtex << ". Posterior probabilities for a nominal level of "
+                   << o_str << "\\%." << endl
+                     << "Black denotes regions with strictly negative credible intervals,"
+                     << endl
+                     << "white denotes regions with strictly positive credible intervals.}"
+                     << endl << "\\end{figure}" << endl;
+              }
+            else if(plst == MCMC::drawmapgraph)
+              {
+              outtex << "\n%\\begin{figure}[h!]" << endl
+                     << "%\\centering" << endl
+                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                     << endl
+                     << "%\\caption{Non--linear Effect of '" <<
+                     effect.insert_string_char(hcharu,hstringu) << "'";
+              outtex << ". Shown are the posterior modes.}" << endl
+                     << "%\\end{figure}" << endl;
+              outtex << "\n%\\begin{figure}[htb]" << endl
+                     << "%\\centering" << endl
+                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                     << u_str << ".ps}" << endl
+                     << "%\\caption{Non--linear Effect of '" << effect << "'";
+              outtex << ". Posterior probabilities for a nominal level of "
+                     << u_str << "\\%." << endl
+                     << "%Black denotes regions with strictly negative credible intervals,"
+                     << endl
+                     << "%white denotes regions with strictly positive credible intervals.}"
+                     << endl << "%\\end{figure}" << endl;
+              outtex << "\n%\\begin{figure}[htb]" << endl
+                     << "%\\centering" << endl
+                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
+                     << o_str << ".ps}" << endl
+                     << "%\\caption{Non--linear Effect of '" << effect << "'";
+              outtex << ". Posterior probabilities for a nominal level of "
+                     << o_str << "\\%." << endl
+                     << "%Black denotes regions with strictly negative credible intervals,"
+                     << endl
+                     << "%white denotes regions with strictly positive credible intervals.}"
+                     << endl << "%\\end{figure}" << endl;
+              }
+            } // end: else if
+          } // end: if
+        } // end: for
+      }
+    }
   }
 
-void remlest_multistate::make_model(ofstream & outtex, const ST::string & rname)
+void remlest_multistate::make_model(ofstream & outtex,
+                                    const vector<ST::string> & rnames)
   {
+  unsigned i;
+  ST::string familyname ="multistate";
+
+  //Anz. Beob. wird übergeben
+  unsigned obs = X.rows();
+
+  char charh = '_';
+  ST::string stringh = "\\_";
+  vector<ST::string> helprname;
+  for(i=0; i<nrtransitions; i++)
+    {
+    helprname.push_back(rnames[i].insert_string_char(charh,stringh));
+    }
+
+  //schreibt das Modell und die Priori-annahmen ins Tex-File
+  outtex << "\n\\noindent {\\bf \\large Response:}" << endl
+         << "\\begin{tabbing}\n";
+  outtex << "Number of observations: \\= \\kill" << endl;
+  outtex << "Number of observations: \\> " << obs << "\\\\" << endl;
+  outtex << "Response Variables: \\> ";
+  for(i=0; i < (nrtransitions-1); i++)
+    {
+    outtex << helprname[i] << ", ";
+    }
+  outtex << helprname[i] << "\\\\" << endl;
+
+  outtex << "Family: \\> " << familyname << "\\\\" << endl;
+  outtex << "\\end{tabbing}" << endl;
+
+  outtex << "\n\\noindent {\\bf \\large Predictor:}\\\\" << endl;
   }
 
 void remlest_multistate::make_predictor(ofstream & outtex)
   {
+  unsigned i,j,k;
+  ST::string term, term2;
+  outtex << endl << "\n\\begin{tabular}{ccp{12cm}}\n";
+  j=0;
+  for(i=0; i<nrtransitions; i++)
+    {
+    term2 = fullcond[j]->get_term_symbolic();
+    term = "$\\eta\_" + ST::inttostring(i+1) + "$ & $=$ & $" + term2;    //linearer Prädiktor wird erweitert
+    j++;
+    for(k=1; k<nrfullconds[i]; k++, j++)
+      {
+      term2 = fullcond[j]->get_term_symbolic();
+      term = term + " + " + term2;    //linearer Prädiktor wird erweitert
+      }
+    term = term.insert_after_all_string("^{("+ST::inttostring(i+1)+")}","\\gamma");
+    term = term.insert_after_all_string("^{("+ST::inttostring(i+1)+")}","+ f");
+    outtex << term << "$\\\\\n";
+    }
+  outtex << "\n\\end{tabular}\n\\\\ \n\\\\" << endl;
+
   }
 
 void remlest_multistate::make_prior(ofstream & outtex)
   {
+  unsigned i,j,k,l;
+  j=0;
+  outtex << "\n\\noindent {\\bf \\large Priors:}\\\\" << endl;
+  for(i=0; i<nrtransitions; i++)
+    {
+    outtex << "\n\\noindent {\\bf Transition " << i+1 << ":}\\\\" << endl << "\\\\" << endl;
+    for(k=0; k<nrfullconds[i]; k++, j++)
+      {
+      vector<ST::string> prior = fullcond[j]->get_priorassumptions();
+      if(prior.size() != 0)// nur wenn Priors da sind (d.h. Vektor hat Elemente)
+        {
+        for(l=0;l<prior.size();l++)
+          {
+          if( k!=0 || l<prior.size()-1)
+            {
+            outtex << prior[l] << "\\\\" << endl;
+            }
+          }
+        outtex << "\\\\" <<endl;
+        }
+      }
+    }
   }
 
 void remlest_multistate::make_options(ofstream & outtex)
   {
+  double l1 = fullcond[0]->get_level1();
+  double l2 = fullcond[0]->get_level2();
+
+  //schreibt REML options ins Tex-File
+  outtex << "\n\\noindent {\\bf \\large General Options:}" << endl
+         << "\\begin{tabbing}" << endl
+         << "Levels for credible intervals: \\hspace{2cm}\\= \\\\" << endl
+         << "Level 1: \\> " << l1 << "\\\\" << endl
+         << "Level 2: \\> " << l2 << "\\\\" << endl
+         << "Maxmimum number of iterations: \\> " << maxit << "\\\\" << endl
+         << "Termination criterion: \\> " << eps << "\\\\" << endl
+         << "Stopping criterion for small variances: \\> " << lowerlim << endl
+         << "\\end{tabbing}\n"  << "\\vspace{0.5cm}" <<  endl;
   }
 
 void remlest_multistate::make_fixed_table(ofstream & outtex)
   {
+  // falls andere Quantile gewünscht werden
+  double u = fullcond[0]->get_level1();
+  ST::string u_str = ST::doubletostring(u,0);
+
+  unsigned i,j,k,l;
+  j=0;
+  for(i=0; i<nrtransitions; i++)
+    {
+    vector<ST::string> h;
+    unsigned r=2;
+
+    // Tabelle im Tex-File mit fixen Effekten
+    outtex << "\n\\newpage \n" << endl << "\n\\noindent {\\bf \\large Fixed Effects (Transition " << ST::inttostring(i+1) << "):}\\\\"
+         << endl << "\\\\" << endl;
+
+    outtex << "\\begin{tabular}{|r|rrrrr|}" << endl << "\\hline" << endl
+           << "Variable & Post. Mode & Std. Dev. & p-value & \\multicolumn{2}{r|}{" << u << "\\% confidence interval}\\\\"
+           << endl << "\\hline" << endl;
+
+    h = fullcond[j]->get_results_latex();
+    for (l=0;l<h.size();l++)
+      {
+      r++;
+      if (r < 39)
+        {
+        outtex << h[l] << endl;
+        }
+      else
+        {
+        r=1;
+        outtex << "\\hline \n\\end{tabular}" << endl;
+
+        outtex << "\n\\newpage \n" << endl
+               << "\n\\noindent {\\bf \\large Fixed Effects (continued):}\\\\"
+               << endl << "\\\\" << endl;
+
+        outtex << "\\begin{tabular}{|r|rrrrr|}" << endl << "\\hline" << endl
+               << "Variable & Post. Mode & Std. Dev. & p-value & \\multicolumn{2}{r|}{" << u << "\\% confidence interval}\\\\"
+               << endl << "\\hline" << endl;
+
+        outtex << h[l] << endl;
+        }
+      }
+    outtex << "\\hline \n\\end{tabular}" << endl;
+    for(k=0; k<nrfullconds[i]; k++, j++)
+      {
+      }
+    }
   }
 
 void remlest_multistate::make_graphics(const ST::string & title,
                      const ST::string & path_batch,
                      const ST::string & path_tex,
                      const ST::string & path_splus,
-                     const ST::string & rname,
-                     const bool & dispers)
+                     const vector<ST::string> & rnames)
   {
+  ST::string pathresult;                 //Pfad des Ergebnis-Files
+
+  vector<ST::string> distr_results;
+
+ // erzeugt Tex-File
+  ofstream outtex(path_tex.strtochar());
+
+  //erzeugt den Kopf des Tex-Files
+  outtex << "\\documentclass[a4paper, 12pt]{article}" << endl
+         << "\n" << "\\usepackage{graphicx}" << endl
+         << "\\parindent0em" << endl
+         << "\n\\begin{document}" << endl
+         << "\\begin{center}" << endl
+         << "\\LARGE{\\bf " << title << "}"
+         << endl << "\\end{center} \n\\vspace{1cm}" << endl;
+
+  make_model(outtex,rnames);
+
+  make_predictor(outtex);
+
+  make_prior(outtex);
+
+  make_options(outtex);
+
+/*  outtex << "\n\\noindent {\\bf \\large Model Fit:}" << endl
+         << "\\begin{tabbing}\n";
+  if(respfamily=="cox" || respfamily=="coxold" || respfamily=="coxinterval" || respfamily=="gaussian")
+    {
+    outtex << "Degrees of freedom: \\= \\kill" << endl;
+    }
+  else
+    {
+    outtex << "GCV (based on deviance residuals): \\= \\kill" << endl;
+    }
+  outtex << "-2*log-likelihood: \\> " << loglike << "\\\\" << endl;
+  outtex << "Degrees of freedom: \\> " << df << "\\\\" << endl;
+  outtex << "(conditional) AIC: \\> " << aic << "\\\\" << endl;
+  outtex << "(conditional) BIC: \\> " << bic << "\\\\" << endl;
+  if(respfamily!="cox" && respfamily!="coxold" && respfamily!="coxinterval" && respfamily!="gaussian")
+    {
+    outtex << "GCV (based on deviance residuals): \\> " << gcv << "\\\\" << endl;
+    }
+  else if (respfamily=="gaussian")
+    {
+    outtex << "GCV: \\> " << gcv << "\\\\" << endl;
+    }
+  outtex << "\\end{tabbing}" << endl;*/
+
+  make_fixed_table(outtex);
+
+  // Pfade der Files
+  //werden im BayesX-Output angegeben
+  out("  Files of model summary: \n" , true);
+  out("\n");
+
+  make_plots(outtex,path_batch,path_splus);
+
+  out("  --------------------------------------------------------------------------- \n");
+  out("\n");
+  out("  Latex file of model summaries is stored in file \n");
+  out("  " + path_tex + "\n");
+  out("\n");
+  out("  --------------------------------------------------------------------------- \n");
+  out("\n");
+
+
+  outtex << "\\end{document}" << endl;
   }
 
 bool remlest_multistate::check_pause()

@@ -41,6 +41,8 @@ class remlest_multinomial
   double maxchange;
   double maxvar;
 
+  bool fisher;                                  // store final fisher infor-matrix?
+  
   double refcat;                                   // Referenz-Kategorie
   unsigned nrcat;                                    // Anzahl Kategorien
   unsigned nrcat2;                                   // Anzahl nicht redundanter Kategorien
@@ -48,6 +50,12 @@ class remlest_multinomial
 
   unsigned nrobs;
   unsigned nrobspos;
+
+  double loglike;
+  double df;
+  double aic;
+  double bic;
+  double gcv;
 
   unsigned partialnrpar;                        // Parameter pro Kategorie
   unsigned partialnrfixed;                      // fixe Effekte pro Kategorien
@@ -91,7 +99,7 @@ class remlest_multinomial
           const int & maxiter, const double & lowerlimit, const double & epsi,
           const double & maxch, const double & maxv,
           const datamatrix & categories,
-          const datamatrix & weight, ostream * lo=&cout);
+          const datamatrix & weight, const bool & fi, ostream * lo=&cout);
 
 //------------------------------------------------------------------------------
 //----------------------------- REML estimation --------------------------------
@@ -295,7 +303,7 @@ class remlest_multistate
   void make_plots(ofstream & outtex,ST::string path_batch,
                   ST::string path_splus);
 
-  void make_model(ofstream & outtex, const ST::string & rname);
+  void make_model(ofstream & outtex, const vector<ST::string> & rnames);
 
   void make_predictor(ofstream & outtex);
 
@@ -309,8 +317,7 @@ class remlest_multistate
                      const ST::string & path_batch,
                      const ST::string & path_tex,
                      const ST::string & path_splus,
-                     const ST::string & rname,
-                     const bool & dispers);
+                     const vector<ST::string> & rnames);
 
   bool check_pause();
   

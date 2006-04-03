@@ -290,6 +290,7 @@ void remlreg::create(void)
   noconst = simpleoption("noconst",false);
 
   aiccontrol = simpleoption("aiccontrol",false);
+  fisher = simpleoption("fisher",false);
 
   leftint = stroption("leftint");
   lefttrunc = stroption("lefttrunc");
@@ -316,6 +317,7 @@ void remlreg::create(void)
   regressoptions.push_back(&reference);
 
   regressoptions.push_back(&noconst);
+  regressoptions.push_back(&fisher);
 
   regressoptions.push_back(&aiccontrol);
 
@@ -427,6 +429,7 @@ void remlreg::create(void)
   plotvar = stroption("plotvar","pmode");
   pcat = simpleoption("pcat",false);
   drawnames = simpleoption("drawnames",false);
+  hclcolors = simpleoption("hcl",false);
 
   drawmapoptions.push_back(&outfile4);
   drawmapoptions.push_back(&title2);
@@ -440,6 +443,7 @@ void remlreg::create(void)
   drawmapoptions.push_back(&plotvar);
   drawmapoptions.push_back(&pcat);
   drawmapoptions.push_back(&drawnames);
+  drawmapoptions.push_back(&hclcolors);
   drawmapoptions.push_back(&fontsize);
   drawmapoptions.push_back(&titlescale);
 
@@ -3305,8 +3309,8 @@ bool remlreg::create_baseline(const unsigned & collinpred)
                                              )
                            );
 
-      fcbaseline[fcbaseline.size()-1].init_name(terms[i].varnames[0]);
       fcbaseline[fcbaseline.size()-1].set_fcnumber(fullcond.size());
+      fcbaseline[fcbaseline.size()-1].init_name(terms[i].varnames[0]);
       fullcond.push_back(&fcbaseline[fcbaseline.size()-1]);
       }
     }
@@ -3740,7 +3744,8 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(), b.maxvar.getvalue(),b.cats,weight,b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(),b.cats,weight,
+      b.fisher.getvalue(),b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE_M.estimate_glm(response,offset,weight);
       else
@@ -3755,7 +3760,8 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond, response, b.family.getvalue(), b.outfile.getvalue(),
       b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
-      b.maxchange.getvalue(), b.maxvar.getvalue(), b.cats, weight, b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.cats, weight,
+      b.fisher.getvalue(), b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE_M_catsp.estimate_glm(response,offset,weight,b.naind);
       else
@@ -3773,7 +3779,8 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(), b.maxvar.getvalue(),b.cats,weight,b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(),b.cats,weight,
+      b.fisher.getvalue(),b.logout);
       if(b.RE_O.get_catspec())
         {
         if (b.fullcond.size() == 1)    // fixed effects only
@@ -3802,7 +3809,8 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(), b.maxvar.getvalue(), b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.fisher.getvalue(),
+      b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE.estimate_glm(response,offset,weight);
       else
@@ -3818,7 +3826,8 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(), b.maxvar.getvalue(), b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.fisher.getvalue(),
+      b.logout);
       failure = b.RE.estimate_survival(response,offset,weight);
       }
 // Cox-Modell mit Intervallzensierung (ohne zeitvariierende Effekte)
@@ -3831,7 +3840,8 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(), b.maxvar.getvalue(), b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.fisher.getvalue(),
+      b.logout);
       failure = b.RE.estimate_survival_interval(response,offset,weight);
       }
 // Cox-Modell mit Intervallzensierung & Linkstrunkierung  & zeitvariierenden Effekten
@@ -3844,7 +3854,8 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond, response, dispers, b.family.getvalue(), b.outfile.getvalue(),
       b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
-      b.maxchange.getvalue(), b.maxvar.getvalue(), b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.fisher.getvalue(),
+      b.logout);
       failure = b.RE.estimate_survival_interval2(response,offset,weight,
                                                  b.aiccontrol.getvalue());
       }
@@ -3874,7 +3885,8 @@ void remlrun(remlreg & b)
       #endif
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
-      b.maxchange.getvalue(), b.maxvar.getvalue(), b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.fisher.getvalue(),
+      b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE.estimate_glm_dispers(response,offset,weight);
       else
@@ -4163,6 +4175,8 @@ void drawmaprun(remlreg & b)
       ot = ot + "pcat ";
     if (b.drawnames.getvalue() == true)
       ot = ot + "drawnames ";
+    if (b.hclcolors.getvalue() == true)
+      ot = ot + "hcl ";
     if (b.fontsize.changed() == true)
       ot = ot + "fontsize=" + b.fontsize.getValueAsString() + " ";
     if (b.titlescale.changed() == true)
@@ -4551,8 +4565,22 @@ void mremlrun(remlreg & b)
         b.fullcond.push_back(&b.fcrandom[b.fcrandom.size()-1]);
         }
       }
-
     }
+
+// Setup for plotting results
+
+  if(!failure)
+    {
+    unsigned i;
+    b.nrterms = b.fullcond.size();
+    b.needscat = vector<bool>(b.nrterms,false);
+    b.fullcondnr = vector<unsigned>(b.nrterms,0);
+    for(i=0; i<b.nrterms; i++)
+      {
+      b.fullcondnr[i] = i;
+      }
+    }
+
 
   if (!failure)
     {
@@ -4570,6 +4598,72 @@ void mremlrun(remlreg & b)
 
       failure = b.RE_MSM.estimate(response,offset,weight,state);
       }
+    }
+
+// Compute graphics
+#if defined(JAVA_OUTPUT_WINDOW)
+  if(!failure)
+    {
+    unsigned j;
+    for(j=0; j<b.nrterms; j++)
+      {
+      MCMC::plotstyles plst = b.fullcond[b.fullcondnr[j]]->get_plotstyle();
+      if(plst != MCMC::noplot)
+        {
+        vector<ST::string> varnames = b.fullcond[b.fullcondnr[j]]->get_datanames();
+        ST::string xvar = varnames[0];
+        ST::string effect = xvar;
+        if(varnames.size()>1)
+          {
+          effect = varnames[1] + "*" + effect;
+          }
+        ST::string pathresult = b.fullcond[b.fullcondnr[j]]->get_pathresult();
+        if(b.needscat[j])
+          {
+          pathresult = pathresult.insert_after_string(ST::doubletostring(b.catnr(j,0),6)+"_","_f_");
+          }
+        ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+        if(plst == MCMC::plotnonp)
+          {
+          b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
+          + ", title = \"Effect of " + effect +"\" xlab = " + xvar
+          + " ylab = \" \" outfile = " + pathps + ".ps replace");
+          }
+        else if(plst==MCMC::drawmap)
+          {
+          double u = b.fullcond[b.fullcondnr[j]]->get_level1();
+          double o = b.fullcond[b.fullcondnr[j]]->get_level2();
+          ST::string u_str = ST::doubletostring(u,0);
+          ST::string o_str = ST::doubletostring(o,0);
+          b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+            + ", color outfile = " + pathps + "_pmode.ps replace");
+          b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+            + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+            + "_pcat" + u_str + ".ps replace");
+          b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+            + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+            + "_pcat" + o_str + ".ps replace");
+          }
+        }
+      }
+    b.newcommands.push_back(b.name + ".texsummary");
+    }
+#endif
+
+// Produce batch-file for graphics and model summary in tex
+  if(!failure)
+    {
+    ST::string path = b.outfile.getvalue() + "_graphics.prg";
+    ST::string path2 = b.outfile.getvalue() + "_model_summary.tex";
+    ST::string path3 = b.outfile.getvalue() +  "_splus.txt";
+    vector<ST::string> rnames;
+    vector<unsigned> rescol  = b.modregmult.getresponsecol();
+    for(i=0; i<b.nrtransitions; i++)
+      {
+      rnames.push_back(b.modregmult.getModelVarnamesAsVector()[rescol[i]].to_bstr());
+      }
+
+    b.RE_MSM.make_graphics(header,path,path2,path3,rnames);
     }
 
   if (!failure)

@@ -7,7 +7,7 @@
 #include "StatResults.h"
 #include "statwinframe.h"
 
-#endif
+#endif                                                                           
 
 //------------------------------------------------------------------------------
 //------------------------ CLASS: remlest_multinomial --------------------------
@@ -26,7 +26,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
                 const int & maxiter, const double & lowerlimit,
                 const double & epsi, const double & maxch, const double & maxv,
                 const datamatrix & categories,
-                const datamatrix & weight, ostream * lo)
+                const datamatrix & weight, const bool & fi, ostream * lo)
   {
 
   nrcat2=categories.rows();
@@ -46,6 +46,8 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
   #if defined(JAVA_OUTPUT_WINDOW)
   adminb_p = adb;
   #endif
+
+  fisher=fi;
 
   logout = lo;
   respfamily=family;
@@ -795,13 +797,27 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcutbeta[0],0,0,false,0);
 
+// store inverse Fisher-Info and design matrices
+  if(fisher)
+    {
+    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
+    Hinv.prettyPrint(outfisher);
+    outfisher.close();
+    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
+    X.prettyPrint(outx);
+    outx.close();
+    ofstream outz((outfile+"_randomdesign.raw").strtochar());
+    Z.prettyPrint(outz);
+    outz.close();
+    }
+
 // compute log-likelihood, AIC, BIC, GCV etc.
 
-  double loglike=0;
-  double aic=0;
-  double bic=0;
-  double gcv=0;
-  double df=(H*Hinv).trace();
+  loglike=0;
+  aic=0;
+  bic=0;
+  gcv=0;
+  df=(H*Hinv).trace();
   double refprob;
 
   for(i=0; i<resp.rows(); i++)
@@ -843,6 +859,14 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
   out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
   out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
   out("\n");
+  out("  Results on the model fit are stored in file\n");
+  out("  "+outfile+"_modelfit.raw");
+  out("\n");
+
+  ofstream outfit((outfile+"_modelfit.raw").strtochar());
+  outfit << "loglike df aic bic gcv" << endl;
+  outfit << loglike << " " << df << " " << aic << " " << bic << " " << gcv << endl;
+  outfit.close();
 
   out("\n");
   out("  Additive predictors and expectations\n",true);
@@ -1241,14 +1265,29 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
   datamatrix helpmat = datamatrix(1,1,0);
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,helpmat,xcut[0],0,0,false,xcutbeta[0],0,0,false,0);
 
+// store inverse Fisher-Info and design matrices
+  if(fisher)
+    {
+    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
+    H.prettyPrint(outfisher);
+    outfisher.close();
+    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
+    X.prettyPrint(outx);
+    outx.close();
+    ofstream outz((outfile+"_randomdesign.raw").strtochar());
+    Z.prettyPrint(outz);
+    outz.close();
+    }
+
   // update eta and working weights
   eta = offset + Xneu*beta;
   compute_weights(mu,workweight,worky,eta,respind,weight,naindicator,nasum);
-  double loglike=0;
-  double aic=0;
-  double bic=0;
-  double gcv=0;
-  double df=beta.rows();
+
+  loglike=0;
+  aic=0;
+  bic=0;
+  gcv=0;
+  df=beta.rows();
   double refprob;
 //  unsigned k;
 
@@ -1291,7 +1330,14 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
   out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
   out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
   out("\n");
+  out("  Results on the model fit are stored in file\n");
+  out("  "+outfile+"_modelfit.raw");
+  out("\n");
 
+  ofstream outfit((outfile+"_modelfit.raw").strtochar());
+  outfit << "loglike df aic bic gcv" << endl;
+  outfit << loglike << " " << df << " " << aic << " " << bic << " " << gcv << endl;
+  outfit.close();
 
   out("\n");
   out("  Linear predictors and expectations\n",true);
@@ -1995,6 +2041,16 @@ void remlest_multinomial_catsp::make_graphics(const ST::string & title,
   make_prior(outtex);
 
   make_options(outtex);
+
+  outtex << "\n\\noindent {\\bf \\large Model Fit:}" << endl
+         << "\\begin{tabbing}\n";
+  outtex << "GCV (based on deviance residuals): \\= \\kill" << endl;
+  outtex << "-2*log-likelihood: \\> " << loglike << "\\\\" << endl;
+  outtex << "Degrees of freedom: \\> " << df << "\\\\" << endl;
+  outtex << "(conditional) AIC: \\> " << aic << "\\\\" << endl;
+  outtex << "(conditional) BIC: \\> " << bic << "\\\\" << endl;
+  outtex << "GCV (based on deviance residuals): \\> " << gcv << "\\\\" << endl;
+  outtex << "\\end{tabbing}" << endl;
 
   make_fixed_table(outtex);
 

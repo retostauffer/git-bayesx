@@ -1,7 +1,7 @@
 "drawmap" <-
 function (map, dfile, outfile, regionvar, 
     plotvar, lowerlimit, upperlimit, nrcolors = 100, pstitle = "", 
-    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F, cex.legend=0.7, h = c(130, 25), c = 100, l = c(90, 70), hcl=T) 
+    color = F, legend = T, drawnames = F, swapcolors = F, pcat = F, cex.legend=0.7, h = c(25, 130), c = 100, l = c(90, 70), hcl=F) 
 {
     hcl.available <- hcl && require("vcd", character.only=TRUE)
 
@@ -98,6 +98,8 @@ function (map, dfile, outfile, regionvar,
                     fill.colors <- 1/3 - fill.colors
                 fill.colors <- hsv(h = fill.colors)
                 legend.colors <- hsv(h = (0:(nrcolors-1))/(3*(nrcolors-1)))
+                if (swapcolors == T)
+                   legend.colors <- rev(legend.colors)
                 }
         }
         else {
@@ -106,9 +108,8 @@ function (map, dfile, outfile, regionvar,
                 fill.colors <- 1 - fill.colors
             fill.colors <- grey(fill.colors)
             legend.colors <- grey((0:(nrcolors-1))/(nrcolors-1))
-        }
-        if (swapcolors == T) {
-            legend.colors <- rev(legend.colors)
+            if (swapcolors == T)
+               legend.colors <- rev(legend.colors)
         }
         plot(xlimits, ylimits, type = "n", axes = F, col = white, 
             xlab = "", ylab = "")

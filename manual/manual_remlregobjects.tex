@@ -16,10 +16,10 @@ of the regression models and may be seen as empirical Bayes /
 posterior mode estimation. The methodological background is provided
 in considerable detail in the methodology manual. More details on
 models for univariate responses can be found in Fahrmeir, Kneib and
-Lang (2004), Kneib and Fahrmeir (2005) deals with models for
+Lang (2004), Kneib and Fahrmeir (2006) deals with models for
 multicategorical responses. A description of models for continuous
 time survival analysis based on the Cox model can be found in Kneib
-and Fahrmeir (2004). Interval censoring and some further extensions
+and Fahrmeir (2006). Interval censoring and some further extensions
 are discussed in Kneib (2005) Good introductions into generalized
 linear models are the monographs of Fahrmeir and Tutz (2001) and
 McCullagh and Nelder (1989). Introductions to semi- and
@@ -109,6 +109,8 @@ Throughout this section Y denotes the dependent variable.
 offset & #offs(offset)#  & Variable #offs# is an offset term. \\
 \hline
 linear effect & #W1#  & Linear effect for #W1#. \\
+\hline
+category-specific linear effect & #W1(catspecific)#  & Category-specific linear effect for #W1# (only in cumulative or sequential models). \\
 \hline
 first or second order random walk &   #X1(rw1)#  \newline  #X1(rw2)#  & Nonlinear effect of #X1#. \\
 \hline
@@ -209,6 +211,28 @@ with $q$ fixed (linear) effects:
 \texttt{Y = W1 + W2 + $\cdots$ + Wq}
 \end{itemize}
 
+\subsubsection*{Category-specific fixed effects}
+
+\begin{itemize}
+\item[] {\em Description}: In cumulative and sequential models for
+ordered categorical response variables, fixed effects may be defined
+globally or category-specific. To request the estimation of
+category-specific fixed effects, the keyword #catspecific# has to be
+specified. Category-specific effects can only estimated for the
+response families #cumlogit#, #cumprobit#, #seqlogit#, and
+#seqprobit#.
+\item[] {\em Predictor}: $\eta^{(j)} =  \cdots + \gamma_1^{(j)} W1 + \cdots$
+\item[] {\em Syntax}:
+
+#W1(catspecific)#
+\item[] {\em Example}:
+
+The following model statement causes #regress# to estimate a model
+with a category-specific effect of covariate #W1# and a global fixed
+effect of covariate #W2#:
+
+\texttt{Y = W1(catspecific) + W2}
+\end{itemize}
 
 \subsubsection*{Nonlinear effects of metrical covariates and time
 scales}
@@ -340,8 +364,6 @@ example the statement
 defines a Markov random field prior for #region# where the
 geographical information is stored in the {\em map object}
 #germany#. An error will be raised if #germany# is not existing.
-
-\newpage
 
 \item[]{\bf\sffamily 2 dimensional P-spline with first order
 random walk penalty}
@@ -740,6 +762,8 @@ terms and options can be found.
  \hline
  #period# & The period of the seasonal effect can be specified with the option #period#. The default is #period=12# which corresponds to monthly data. & #period=12# \\
  \hline
+ #catspecific# & Requests that the corresponding effect should be modelled category-specific. Can only be used in cumulative and sequential models for categorical responses, i.e. with response families #cumlogit#, #cumprobit#, #seqlogit# and #seqprobit#. & - \\
+ \hline
 \end{tabular}
 {\em \caption{\label{remlregoptions} Optional arguments for {\em
 remlreg object} terms}}
@@ -782,6 +806,8 @@ remlreg object} terms}}
  #period#      & $\times$   & integer     & $\times$  & $\times$      & $\times$  & $\times$ & $\times$ & $\times$  & $\times$ & $\times$\\
  \hline
  #map#      & $\times$   & $\times$     & $\times$  & {\em map object}  & $\times$  & {\em map object} & $\times$ & $\times$ & {\em map object} & $\times$ \\
+ \hline
+ #catspecific#      & $\triangle$   & $\triangle$     & $\triangle$  & $\triangle$ & $\triangle$  & $\triangle$ & $\triangle$ & $\triangle$ & $\triangle$ & $\times$ \\
  \hline \hline
  $^*$ & \multicolumn{10}{l|}{positive values only}\\
  \hline
@@ -936,6 +962,21 @@ objects} can deal with an arbitrary number of ordered categories.
 However, for more than 5 categories estimation will become rather
 computer intensive and time demanding.
 
+By default, all effects in cumulative logit and probit models are
+considered to be globally defined. To obtain category-specific
+effects, the additional keyword #catspecific# has to be specified.
+For example, the specification of the predictor
+
+ #Y = W1(catspecific) + W2 + X1(psplinerw2, catspecific) + X2(psplinerw2)#
+
+requests category-specific effects for the covariates #W1# and #X1#,
+and global effects for the covariates #W2# and #X2#. Note that
+complicated ordering restrictions have to be fulfilled for the
+covariate-dependent thresholds defined implicitly by
+category-specific effects. Therefore numerical problames are likely
+to be observed in models with sparse data or a lot of
+category-specific effects.
+
 \subsubsection*{Sequential logit and probit models}
 
 A sequential logit model is specified by adding
@@ -948,6 +989,19 @@ to the options list, a sequential probit model by adding
 
 to the options list. The reference category will always be the
 largest value of the response.
+
+Similar as in cumulative models, all effects in sequential logit and
+probit models are considered to be globally defined by default. To
+obtain category-specific effects, the additional keyword
+#catspecific# has to be specified. For example, the specification of
+the predictor
+
+ #Y = W1(catspecific) + W2 + X1(psplinerw2, catspecific) + X2(psplinerw2)#
+
+requests category-specific effects for the covariates #W1# and #X1#,
+and global effects for the covariates #W2# and #X2#. In contrast to
+cumulative models no ordering restrictions are imposed in sequential
+models.
 
 \subsubsection*{Poisson regression}
 
@@ -1473,11 +1527,11 @@ Inference and Prediction.} New York: Springer--Verlag.
 \item[Kneib, T. (2005):] Geoadditive hazard regression for interval censored survival times. SFB 386 discussion Paper 447,
 University of Munich.
 
-\item[Kneib, T. and Fahrmeir, L. (2004):] A mixed model approach
-for structured hazard regression. SFB 386 discussion Paper 400,
-University of Munich.
+\item[Kneib, T. and Fahrmeir, L. (2006):] A mixed model approach
+for geoadditive hazard regression. {\em Scandinavian Journal of
+Statistics}, to appear.
 
-\item[Kneib, T. and Fahrmeir, L. (2005):] Structured additive
+\item[Kneib, T. and Fahrmeir, L. (2006):] Structured additive
 regression for multicategorical space-time data: A mixed model
 approach. {\it Biometrics}, to appear.
 

@@ -42,6 +42,8 @@ class remlest_ordinal
   double maxchange;
   double maxvar;
 
+  bool fisher;                                  // store final fisher infor-matrix?
+
   double refcat;                                   // Referenz-Kategorie
   unsigned nrcat;                                    // Anzahl Kategorien
   unsigned nrcat2;                                   // Anzahl nicht redundanter Kategorien
@@ -54,6 +56,12 @@ class remlest_ordinal
 
   unsigned nrobs;
   unsigned nrobspos;
+
+  double loglike;
+  double df;
+  double aic;
+  double bic;
+  double gcv;
 
   statmatrix<double> X;                         // fixed effects
   statmatrix<double> Z;                         // random effects
@@ -94,7 +102,7 @@ class remlest_ordinal
           const int & maxiter, const double & lowerlimit, const double & epsi,
           const double & maxch, const double & maxv,
           const datamatrix & categories, const datamatrix & weight,
-          ostream * lo=&cout);
+          const bool & fi, ostream * lo=&cout);
 //------------------------------------------------------------------------------
 //--------------------------- get characteristics ------------------------------
 //------------------------------------------------------------------------------

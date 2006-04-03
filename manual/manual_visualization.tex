@@ -374,6 +374,24 @@ most cases). This can be done by specifying the additional option
 #drawnames#. By default the names of the regions are omitted in
 the map.
 
+\item #fontsize = #{\em integer}
+
+Specifies the font size (in pixels) for labelling the legend and
+writing the names of the regions (if specified). Note, that the
+title is scaled accordingly (see option #titlesize#). The default is
+#fontsize=12#.
+
+\item #hcl#
+
+Requests that a color palette from the HCL color space should be
+used instead of an RGB palette. The HCL colors will be selected
+diverging from a neutral center (grey) to two different extreme
+colors (red and green) in contrast to the RGB colors diverging from
+yellow to red and green. HCL colors are particularly useful for
+electronic presentations since they are device-independent. The
+option #hcl# is only meaningful in combination with the option
+#color#.
+
 \item #lowerlimit = #{\em realvalue}
 
 Lower limit of the range to be drawn. If #lowerlimit# is omitted,
@@ -444,6 +462,12 @@ Adds a title to the graph. If the title contains more than one
 word, {\em characterstring} must be enclosed by quotation marks
 (e.g. #title="my first map"#).
 
+\item #titlesize = #{\em realvalue}
+
+Specifies the factor by which the size of the title is scaled
+relative to the size of the labels of the legend (compare option
+#fontsize#). The default is \texttt{titlesize=1.5}.
+
 \item #upperlimit = #{\em realvalue}
 
 Upper limit of the range to be plotted. If #upperlimit# is
@@ -452,6 +476,7 @@ instead as the upper limit.
 
 \end{itemize}
 
+\newpage
 
 \begin{stanza}{Examples}
 
@@ -984,40 +1009,54 @@ optional arguments that can be passed to #drawmap#. They are
 listed and described below together with a summary of the
 arguments already described:
 
-
 \begin{itemize}
-\item #map = "#{\em characterstring}#"#
+\item #cex.legend = #{\em realvalue}
 
-Name of the S-plus {\em map object}. Use function #readbndfile# to
-read in geographical maps into S-plus.
+This option is only available for the R-version of #drawmap#.
+#cex.legend# specifies the  magnification to be used for legend
+annotation. The default value is #cex.legend=0.7#.
+
+\item #color = T#/#F#
+
+The #color# option allows to choose between a grey scale for the
+colors and a colored scale. The default is #color=F#, which means a
+grey scale.
 
 \item #dfile = "#{\em filename (including path)}#"#
 
 Filename (including path) of the file containing numerical
-characteristics of the regions of the map. The file must contain
-at least two columns, one column that lists the names of the
-regions and one column containing the numerical characteristics of
-the respective regions. It is important that the names of the
-regions listed match with the region names stored in the S-plus
-{\em map object}. The first row of the file must contain the names
-of the columns.
+characteristics of the regions of the map. The file must contain at
+least two columns, one column that lists the names of the regions
+and one column containing the numerical characteristics of the
+respective regions. It is important that the names of the regions
+listed match with the region names stored in the S-plus {\em map
+object}. The first row of the file must contain the names of the
+columns.
 
-\item #outfile = "#{\em filename (including path)}#"#
+\item #drawnames = T#/#F#
 
-Filename (including path) of the postscript file where the map
-should be stored.
+In some situations it may be favorable to print the names of the
+regions into the graph (although the result may be confusing in most
+cases). This can be done by specifying the additional option
+#drawnames=T#. By default the names of the regions are omitted in
+the graph.
 
-\item #regionvar = "#{\em characterstring}#"#
+\item #hcl = T#/#F#
 
-Name of the column in the data file containing the region names
-(see also argument #dfile#). Note that the right hand side must be
-enclosed by quotation marks.
+This option is only available for the R-version of #drawmap# and
+depends on the package #vcd#. Specifying #hcl=T# requests that a
+color palette from the HCL color space should be used instead of an
+RGB palette. The HCL colors will be selected diverging from a
+neutral center (grey) to two different extreme colors (red and
+green) in contrast to the RGB colors diverging from yellow to red
+and green. HCL colors are particularly useful for electronic
+presentations since they are device-independent. Option #hcl=T# is
+only meaningful in combination with the option #color=T#.
 
-\item #plotvar = "#{\em characterstring}#"#
+\item #legend = T#/#F#
 
-Name of the column in the data file containing the numerical
-characteristics of the regions (see also argument #dfile#). Note
-that the right hand side must be enclosed by quotation marks.
+By default a legend is drawn into the graph. To omit the legend in
+the graph, #legend=F# must be passed as an additional argument.
 
 \item #lowerlimit = #{\em realvalue}
 
@@ -1025,61 +1064,63 @@ Lower limit of the range to be drawn. If #lowerlimit# is omitted,
 the minimum numerical value in the #plotvar# column will be used
 instead as the lower limit.
 
-\item #upperlimit = #{\em realvalue}
+\item #map = "#{\em characterstring}#"#
 
-Upper limit of the range to be drawn. If #upperlimit# is omitted,
-the maximum numerical value in the #plotvar# column will be used
-instead as the upper limit.
+Name of the S-plus {\em map object}. Use function #readbndfile# to
+read in geographical maps into S-plus.
 
 \item #nrcolors = #{\em integer}
 
 To color the regions according to their numerical characteristics,
 the data are divided into a (typically large) number of ordered
-categories. Afterwards a color is associated with each category.
-The #nrcolors# option can be used to specify the number of
-categories (and with it the number of different colors). Default
-value is 100.
+categories. Afterwards a color is associated with each category. The
+#nrcolors# option can be used to specify the number of categories
+(and with it the number of different colors). Default value is 100.
+
+\item #outfile = "#{\em filename (including path)}#"#
+
+Filename (including path) of the postscript file where the map
+should be stored.
+
+\item #pcat = T#/#F#
+
+If you want to visualize the values of the columns #pcat80# or
+#pcat95# it is convenient to specify #pcat=T#. This forces #drawmap#
+to expect a column that consists only of the values -1, 0 and 1. Of
+course you can achieve the same result by setting #nrcolors=3#,
+#lowerlimit=-1# and #upperlimit=1#. The default is #pcat=F#.
+
+\item #plotvar = "#{\em characterstring}#"#
+
+Name of the column in the data file containing the numerical
+characteristics of the regions (see also argument #dfile#). Note
+that the right hand side must be enclosed by quotation marks.
 
 \item #pstitle = "#{\em characterstring}#"#
 
 Adds a title to the graph. Note that the right hand side must be
 enclosed by quotation marks.
 
-\item #color = T#/#F#
+\item #regionvar = "#{\em characterstring}#"#
 
-The #color# option allows to choose between a grey scale for the
-colors and a colored scale. The default is #color=F#, which means
-a grey scale.
-
-\item #legend = T#/#F#
-
-By default a legend is drawn into the graph. To omit the legend in
-the graph, #legend=F# must be passed as an additional argument.
-
-\item #drawnames = T#/#F#
-
-In some situations it may be favorable to print the names of the
-regions into the graph (although the result may be confusing in
-most cases). This can be done by specifying the additional option
-#drawnames=T#. By default the names of the regions are omitted in
-the graph.
+Name of the column in the data file containing the region names
+(see also argument #dfile#). Note that the right hand side must be
+enclosed by quotation marks.
 
 \item #swapcolors = T#/#F#
 
 In some situations it may be favorable to swap the order of the
 colors, i.e.~red shades corresponding to large values and green
-shades corresponding to small values. This is achieved by
-specifying #swapcolors=T#. By default small values are colored in
-red shades and large values in green shades.
+shades corresponding to small values. This is achieved by specifying
+#swapcolors=T#. By default small values are colored in red shades
+and large values in green shades.
 
-\item #pcat = T#/#F#
+\item #upperlimit = #{\em realvalue}
 
-If you want to visualize the values of the columns #pcat80# or
-#pcat95# it is convenient to specify #pcat=T#. This forces
-#drawmap# to expect a column that consists only of the values -1,
-0 and 1. Of course you can achieve the same result by setting
-#nrcolors=3#, #lowerlimit=-1# and #upperlimit=1#. The default is
-#pcat=F#.
+Upper limit of the range to be drawn. If #upperlimit# is omitted,
+the maximum numerical value in the #plotvar# column will be used
+instead as the upper limit.
+
 \end{itemize}
 
 \subsection{Plotting 2 dimensional surfaces}
@@ -1088,10 +1129,9 @@ If you want to visualize the values of the columns #pcat80# or
 
 This subsection describes the usage of the function #plotsurf# for
 visualizing 2 dimensional surfaces. The function #plotsurf# merely
-invokes different S-plus functions for visualizing 2 dimensional
-data. Thus, users familiar with S-plus may prefer to use this
-functions directly to gain more flexibility. Note that this
-function is only available for S-plus and not for R.
+invokes different S-plus/R functions for visualizing 2 dimensional
+data. Thus, users familiar with S-plus/R may prefer to use this
+functions directly to gain more flexibility.
 
 Suppose that a Bayesian regression model has already been
 estimated with predictor
@@ -1106,9 +1146,9 @@ estimation results are stored in file:
 
 #c:\bayes\output\reg_f_X1_X2_pspline.res#
 
-The S-plus function #plotsurf# requires at least one argument,
-which is the name (including path) of the file containing the
-estimation results. For example the command
+The function #plotsurf# requires at least one argument, which is the
+name (including path) of the file containing the estimation results.
+For example the command
 
 #> plotsurf("c:\\bayes\\output\\reg_f_X1_X2_pspline.res")#
 
@@ -1120,6 +1160,14 @@ following list describes all possible arguments that may be passed
 to the function #plotsurf#:
 
 \begin{itemize}
+\item #cols = #{\em 3 column vector}
+
+This option is only meaningful, if the argument #data# is specified.
+In this case #cols# gives the columns of the object or data file
+passed to the argument #data#, that should be used as values for the
+x, y and z axis. The default is #cols=c(2,3,4)# which corresponds to
+plotting the estimated surface against #X1# and #X2#.
+
 \item #data = "#{\em filename (including path)}#"#
 
 Name (including path) of the file containing the estimation
@@ -1127,31 +1175,28 @@ results. The file must contain at least 3 columns, one for the
 x-axis, one for the y-axis and one for the z-axis. The file must
 contain a header.
 
+\item #mode = 1#/#2#/#3#/#4#/#5#
+
+This option specifies the plot type. In S-Plus there are 5 different
+types available, where the default value #mode=1# corresponds to
+what is called a 'Surface Plot' in S-plus. In R 3 different types
+are available corresponding to a perspective plot (#mode=1#,
+function #persp# in R), a contour plot (#mode=2#, function #contour#
+in R), and an image plot (#mode=2#, function #image# in R) of the
+data. In R #plotsurf# depends on the package #akima# for the
+interpolation of irregular data.
+
 \item #outfile = "#{\em filename (including path)}#"#
 
 Name (including path) of the postscript file where the graph
 should be stored. This option is only meaningful for #mode=2# and
 #mode=3#.
 
-\item #cols = #{\em 3 column vector}
-
-This option is only meaningful, if the argument #data# is
-specified. In this case #cols# gives the columns of the object or
-data file passed to the argument #data#, that should be used as
-values for the x, y and z axis. The default is #cols=c(2,3,4)#
-which corresponds to plotting the estimated surface against #X1#
-and #X2#.
-
 %\item {\bf zlim = 2 column vector}
 
 %2 column vector giving the minimum and maximum value to be put on
 %the z-axis.
 
-\item #mode = 1#/#2#/#3#/#4#/#5#
-
-This option specifies the plot type. Currently there are 5
-different types available. The default is #mode=1#, which
-corresponds to what is called a 'Surface Plot' in S-plus.
 \end{itemize}
 
 \subsection{Plotting autocorrelation functions}

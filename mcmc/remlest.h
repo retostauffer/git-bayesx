@@ -42,6 +42,8 @@ class remlest
   double maxchange;
   double maxvar;
 
+  bool fisher;                                  // store final fisher infor-matrix?
+
   statmatrix<double> X;                         // fixed effects
   statmatrix<double> Z;                         // random effects
 
@@ -57,6 +59,12 @@ class remlest
   int nruncens;                            // unzensierter Beobachtungen
 
   int nrobspos;                           // Beobachtungen mit positivem Gewicht
+
+  double loglike;
+  double df;
+  double aic;
+  double bic;
+  double gcv;
   
   public:
 
@@ -78,7 +86,8 @@ class remlest
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,bool dispers,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const double & maxch, const double & maxv, ostream * lo=&cout);
+          const double & maxch, const double & maxv, const bool & fi,
+          ostream * lo=&cout);
 
 //------------------------------------------------------------------------------
 //----------------------------- REML estimation --------------------------------

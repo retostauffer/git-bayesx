@@ -404,16 +404,22 @@ void baseline_reml::init_name(const ST::string & na)
   priorassumptions.push_back("Number of knots: " + ST::inttostring(nrknots));
   priorassumptions.push_back("Knot choice: " + knotstr);
   priorassumptions.push_back("Degree of Splines: " + ST::inttostring(degree));
+
   if(gridpos==MCMC::equidistant)
     {
     priorassumptions.push_back("Grid choice for numerical integration: equidistant");
     priorassumptions.push_back("Number of grid points: " + ST::inttostring(tgrid) +"\n");
     }
-  else
+  else if(gridpos==MCMC::quantiles)
     {
     priorassumptions.push_back("Grid choice for numerical integration: quantiles");
     priorassumptions.push_back("Number of quantiles: " + ST::inttostring(nrquant) +"\n");
     priorassumptions.push_back("Number of points between quantiles: " + ST::inttostring(nrbetween) +"\n");
+    }
+  else
+    {
+    priorassumptions.push_back("Grid choice for numerical integration: all");
+    priorassumptions.push_back("Number of grid points: " + ST::inttostring(nrdiffobs) +"\n");
     }
   }
 

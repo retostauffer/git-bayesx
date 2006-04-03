@@ -316,7 +316,7 @@ location $s_{r}$ an observation pertains to. Models with a predictor
 that contains a spatial effect are also called geoadditive models,
 see Kammann and Wand (2003). In {\em BayesX}, the spatial effect may
 be modelled by Markov random fields (Besag, York and Mollie (2003))
-or two dimensional P-splines (Lang and Brezger, 2005), compare
+or two dimensional P-splines (Lang and Brezger, 2006), compare
 \autoref{spatial}.
 \item {\em Varying coefficient model (VCM) - Geographically weighted regression} \\
 A VCM as proposed by Hastie and Tibshirani (1993) is defined by
@@ -435,7 +435,7 @@ Several alternatives have been  proposed for specifying smoothness
 priors for continuous covariates or time scales. These are {\em
 random walk priors} or more generally {\em autoregressive priors}
 (see Fahrmeir and Lang, 2001a, and Fahrmeir and Lang, 2001b), {\em
-Bayesian P-splines} (Lang and Brezger, 2005) and {\em Bayesian
+Bayesian P-splines} (Lang and Brezger, 2006) and {\em Bayesian
 smoothing splines} (Hastie and Tibshirani, 2000). {\em BayesX}
 supports random walk priors and P-splines.
 
@@ -547,7 +547,7 @@ penalties, i.e. first or second order random walks, as a prior for
 the regression coefficients. Note that simple first or second order
 random walks can be regarded as P-splines of degree $l=0$ and are
 therefore a special case. More details about Bayesian P-splines can
-be found in Lang and Brezger (2004) and Brezger and Lang (2005).
+be found in Lang and Brezger (2004) and Brezger and Lang (2006).
 
 
 \subsection{Priors for spatial effects}\index{spatial
@@ -777,7 +777,7 @@ Suppose now that both interacting covariates are continuous. In this
 case, a flexible approach for modelling interactions can be based on
 (nonparametric) two dimensional surface fitting. In {\em BayesX}
 surface fitting is based on two dimensional P-splines described in
-more detail in Lang and Brezger (2004) and Brezger and Lang (2005).
+more detail in Lang and Brezger (2004) and Brezger and Lang (2006).
 The assumption is that the unknown surface $f_j(w_{rj},z_{rj})$ can
 be approximated by the tensor product of two one dimensional
 B-splines, i.e.
@@ -1127,20 +1127,20 @@ conditionals with parameters given in (\ref{hypab}) and
 
 For most models with categorical responses efficient sampling
 schemes based on latent utility representations can be developed.
-The seminal paper by Albert and Chib (1993) develops algorithms
-for probit models  with  ordered categorical responses. The case
-of probit models with unordered multicategorical responses is
-dealt with e.g. in Fahrmeir and Lang (2001b). Recently, another
-important data augmentation approach for binary logit models has
-been presented by Holmes and Knorr-Held (2003). The adaption of
-these sampling schemes to STAR models used in {\em BayesX} is more
-or less straightforward. We briefly illustrate the concept for
-binary data, i.e. $y_i$ takes only the values 0 or 1. We first
-assume a probit model. Conditional on the covariates and the
-parameters, $y_i$ follows a Bernoulli distribution $y_i \sim
-B(1,\mu_i)$ with conditional mean $\mu_i = \Phi(\eta_i)$ where
-$\Phi$ is the cumulative distribution function of a standard
-normal distribution. Introducing latent variables
+The seminal paper by Albert and Chib (1993) develops algorithms for
+probit models  with  ordered categorical responses. The case of
+probit models with unordered multicategorical responses is dealt
+with e.g. in Fahrmeir and Lang (2001b). Recently, another important
+data augmentation approach for binary logit models has been
+presented by Holmes and Knorr-Held (2006). The adaption of these
+sampling schemes to STAR models used in {\em BayesX} is more or less
+straightforward. We briefly illustrate the concept for binary data,
+i.e. $y_i$ takes only the values 0 or 1. We first assume a probit
+model. Conditional on the covariates and the parameters, $y_i$
+follows a Bernoulli distribution $y_i \sim B(1,\mu_i)$ with
+conditional mean $\mu_i = \Phi(\eta_i)$ where $\Phi$ is the
+cumulative distribution function of a standard normal distribution.
+Introducing latent variables
 \begin{equation}
 \label{latut} L_i = \eta_i + \epsilon_i,
 \end{equation}
@@ -1170,15 +1170,15 @@ utilities as (pseudo) responses and setting $\sigma^2=1$, $C=I$.
 For binary logit models, the sampling schemes become slightly more
 complicated. A logit model can be expressed in terms of latent
 utilities by assuming $\epsilon_i \sim N(0,\lambda_i)$ in
-(\ref{latut}) with $\lambda_i = 4\psi_i^2$, where $\psi_i$ follows
-a Kolmogorov-Smirnov distribution (Devroye, 1986). Hence,
-$\epsilon_i$ is  a scale mixture of normal form with a marginal
-logistic distribution (Andrews and Mallows, 1974). The full
-conditionals for the $L_i's$ are still truncated normals with $L_i
-| \cdot \sim N(\eta_i,\lambda_i)$ but additional drawings from the
-conditional distributions of $\lambda_i$ are necessary. Drawing
-random numbers from the $\lambda_i$'s is quite complicated, see
-Holmes and Knorr-Held (2003) for details.
+(\ref{latut}) with $\lambda_i = 4\psi_i^2$, where $\psi_i$ follows a
+Kolmogorov-Smirnov distribution (Devroye, 1986). Hence, $\epsilon_i$
+is  a scale mixture of normal form with a marginal logistic
+distribution (Andrews and Mallows, 1974). The full conditionals for
+the $L_i's$ are still truncated normals with $L_i | \cdot \sim
+N(\eta_i,\lambda_i)$ but additional drawings from the conditional
+distributions of $\lambda_i$ are necessary. Drawing random numbers
+from the $\lambda_i$'s is quite complicated, see Holmes and
+Knorr-Held (2006) for details.
 
 Similar updating schemes may be developed for multinomial probit
 models with unordered categories and cumulative threshold models
@@ -1443,7 +1443,7 @@ $\tau_j^2$ but defines "small" in a data driven way.
 Models for categorical responses are in principle estimated in the
 same way as presented above but have to be embedded into the
 framework of multivariate generalized linear models, see Kneib and
-Fahrmeir (2005) for details.
+Fahrmeir (2006) for details.
 
 \section{Survival analysis and competing risks models}
 \label{survivalAnalysis}\index{survival analysis}
@@ -1458,7 +1458,7 @@ extensions of the well known Cox model. For the latter, extensions
 allowing for interval censored survival times are described in
 \autoref{intervalcensoring}. Estimation of models for continuous
 survival times based on MCMC is described in more detail in
-Hennerfeind, Brezger and Fahrmeir (2005). Kneib and Fahrmeir (2004)
+Hennerfeind, Brezger and Fahrmeir (2006). Kneib and Fahrmeir (2006)
 and Kneib (2005) present inference based on mixed model methodology.
 
 
@@ -1935,9 +1935,9 @@ Scale mixtures of normal distributions. {\it Journal of the Royal
 Statistical Society B}, 36, 99-102.
 
 
-\item[Brezger, A. and Lang, S., (2005):]
+\item[Brezger, A. and Lang, S., (2006):]
 Generalized additive regression based on Bayesian P-splines. {\it
-Computational Statistics and Data Analysis} (to appear).
+Computational Statistics and Data Analysis}, 50, 967-991.
 
 \item[Devroye, L. (1986):]
 {\it Non-Uniform Random Variate Generation.} Springer-Verlag, New
@@ -2014,9 +2014,13 @@ Hall, London.
 \item[Hastie, T., Tisbshirani, R. and Friedman, J. (2001):] {\em The Elements of Statistical Learning: Data Mining,
 Inference and Prediction.} New York: Springer--Verlag.
 
-\item[Hennerfeind, A., Brezger, A., Fahrmeir, L. (2005):]
-Geoadditive Survival models. SFB 386 Discussion paper 414,
-University of Munich.
+\item[Hennerfeind, A., Brezger, A., Fahrmeir, L. (2006):]
+Geoadditive Survival models. {\em Journal of the American
+Statistical Association}, to appear.
+
+\item[Holmes, C., Held, L. (2006):]
+Bayesian auxiliary variable models for binary and multinomial
+regression. {\em Bayesian Analysis}, 1, 145-168.
 
 \item[Johnson, M.E., Moore, L.M. and
 Ylvisaker, D., (1990):] Minimax and maximin designs. {\it Journal of Statistical Planning and Inference}
@@ -2025,11 +2029,11 @@ Ylvisaker, D., (1990):] Minimax and maximin designs. {\it Journal of Statistical
 \item[Kammann, E. E. and Wand, M. P., (2003):] Geoadditive Models. {\it Journal of the Royal
 Statistical Society C}, 52, 1-18.
 
-\item[Kneib, T. and Fahrmeir, L., (2004):] A mixed model approach
-to structured hazard regression. SFB 386 Discussion paper 400,
-University of Munich.
+\item[Kneib, T. and Fahrmeir, L., (2006):] A mixed model approach
+to structured hazard regression. {\em Scandinavian Journal of
+Statistics}, to appear.
 
-\item[Kneib, T. and Fahrmeir, L., (2005):] Structured additive
+\item[Kneib, T. and Fahrmeir, L., (2006):] Structured additive
 regression for categorical space-time data: A mixed model approach.
 {\it Biometrics}, to appear.
 

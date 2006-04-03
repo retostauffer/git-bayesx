@@ -104,6 +104,7 @@ class __EXPORT_TYPE remlreg : public statobject
   stroption plotvar;
   simpleoption pcat;
   simpleoption drawnames;
+  simpleoption hclcolors;
 
   optionlist drawmapoptions;
 
@@ -207,6 +208,7 @@ class __EXPORT_TYPE remlreg : public statobject
   simpleoption aiccontrol;              // control estimation of survival models by AIC
 
   simpleoption noconst;                 // exclude intercept
+  simpleoption fisher;                  // request storage of the fisher information matrix
 
   stroption leftint;                    // Cox Model: left interval boundary
   stroption lefttrunc;                  //            left truncation time

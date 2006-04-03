@@ -20,7 +20,7 @@
                    const ST::string & family, const ST::string & ofile,
                   const int & maxiter, const double & lowerlimit,
                   const double & epsi, const double & maxch,
-                  const double & maxv, ostream * lo)
+                  const double & maxv, const bool & fi, ostream * lo)
     {
 
     #if defined(JAVA_OUTPUT_WINDOW)
@@ -37,6 +37,8 @@
     maxchange=maxch;
     maxvar = maxv;
 
+    fisher=fi;
+    
     fullcond = fc;
     unsigned i;
 
@@ -434,12 +436,23 @@
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcut[0],0,0,false,0);
 
+// store inverse Fisher-Info and design matrices
+  if(fisher)
+    {
+    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
+    Hinv.prettyPrint(outfisher);
+    outfisher.close();
+    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
+    X.prettyPrint(outx);
+    outx.close();
+    ofstream outz((outfile+"_randomdesign.raw").strtochar());
+    Z.prettyPrint(outz);
+    outz.close();
+    }
+
+  loglike=aic=bic=gcv=0;
   H.addtodiag(-Qinv,X.cols(),beta.rows());
-  double loglike=0;
-  double aic=0;
-  double bic=0;
-  double gcv=0;
-  double df=(H*Hinv).trace();
+  df=(H*Hinv).trace();
   if(respfamily=="poisson")
     {
     for(i=0; i<eta.rows(); i++)
@@ -478,6 +491,14 @@
   out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
   out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
   out("\n");
+  out("  Results on the model fit are stored in file\n");
+  out("  "+outfile+"_modelfit.raw");
+  out("\n");
+
+  ofstream outfit((outfile+"_modelfit.raw").strtochar());
+  outfit << "loglike df aic bic gcv" << endl;
+  outfit << loglike << " " << df << " " << aic << " " << bic << " " << gcv << endl;
+  outfit.close();
 
   out("\n");
   out("  Additive predictor and expectations\n",true);
@@ -712,11 +733,22 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,helpmat,xcut[0],0,0,false,xcut[0],0,0,false,0);
 
-  double loglike=0;
-  double aic=0;
-  double bic=0;
-  double gcv=0;
-  double df=X.cols();
+  // store inverse Fisher-Info and design matrices
+  if(fisher)
+    {
+    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
+    H.prettyPrint(outfisher);
+    outfisher.close();
+    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
+    X.prettyPrint(outx);
+    outx.close();
+    ofstream outz((outfile+"_randomdesign.raw").strtochar());
+    Z.prettyPrint(outz);
+    outz.close();
+    }
+
+  loglike=aic=bic=gcv=0;
+  df=X.cols();
   if(respfamily=="poisson")
     {
     for(i=0; i<eta.rows(); i++)
@@ -755,6 +787,14 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
   out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
   out("  GCV (based on deviance residuals): " + ST::doubletostring(gcv,6) + "\n");
   out("\n");
+  out("  Results on the model fit are stored in file\n");
+  out("  "+outfile+"_modelfit.raw");
+  out("\n");
+
+  ofstream outfit((outfile+"_modelfit.raw").strtochar());
+  outfit << "loglike df aic bic gcv" << endl;
+  outfit << loglike << " " << df << " " << aic << " " << bic << " " << gcv << endl;
+  outfit.close();
 
   out("\n");
   out("  Linear predictor and expectations\n",true);
@@ -1176,15 +1216,26 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,true,xcut[0],0,0,false,0);
 
+// store inverse Fisher-Info and design matrices
+  if(fisher)
+    {
+    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
+    Hinv.prettyPrint(outfisher);
+    outfisher.close();
+    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
+    X.prettyPrint(outx);
+    outx.close();
+    ofstream outz((outfile+"_randomdesign.raw").strtochar());
+    Z.prettyPrint(outz);
+    outz.close();
+    }
+
   if(respfamily=="gaussian")// || respfamily=="gamma")
     {
     H.addtodiag(-Qinv,X.cols(),beta.rows());
-    double loglike=0;
-    double aic=0;
-    double bic=0;
-    double gcv=0;
+    loglike=aic=bic=gcv=0;
     double s;
-    double df=(H*Hinv).trace();
+    df=(H*Hinv).trace();
     if(respfamily=="gaussian")
       {
       for(i=0; i<eta.rows(); i++)
@@ -1231,7 +1282,14 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
       }*/
     out("\n");
     }
+  out("  Results on the model fit are stored in file\n");
+  out("  "+outfile+"_modelfit.raw");
+  out("\n");
 
+  ofstream outfit((outfile+"_modelfit.raw").strtochar());
+  outfit << "loglike df aic bic gcv" << endl;
+  outfit << loglike << " " << df << " " << aic << " " << bic << " " << gcv << endl;
+  outfit.close();
 
   out("\n");
   out("  Additive predictor and expectations\n",true);
@@ -1549,14 +1607,25 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,theta,xcut[0],0,0,true,xcut[0],0,0,false,0);
 
+// store inverse Fisher-Info and design matrices
+  if(fisher)
+    {
+    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
+    H.prettyPrint(outfisher);
+    outfisher.close();
+    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
+    X.prettyPrint(outx);
+    outx.close();
+    ofstream outz((outfile+"_randomdesign.raw").strtochar());
+    Z.prettyPrint(outz);
+    outz.close();
+    }
+
   if(respfamily=="gaussian")// || respfamily=="gamma")
     {
-    double loglike=0;
-    double aic=0;
-    double bic=0;
-    double gcv=0;
+    loglike=aic=bic=gcv=0;
     double s;
-    double df=X.cols();
+    df=X.cols();
     if(respfamily=="gaussian")
       {
       for(i=0; i<eta.rows(); i++)
@@ -1603,6 +1672,14 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
       }*/
     out("\n");
     }
+  out("  Results on the model fit are stored in file\n");
+  out("  "+outfile+"_modelfit.raw");
+  out("\n");
+
+  ofstream outfit((outfile+"_modelfit.raw").strtochar());
+  outfit << "loglike df aic bic gcv" << endl;
+  outfit << loglike << " " << df << " " << aic << " " << bic << " " << gcv << endl;
+  outfit.close();
 
   out("\n");
   out("  Linear predictor and expectations\n",true);
@@ -3608,8 +3685,8 @@ bool remlest::estimate_survival_interval2(datamatrix resp,
   unsigned i, j, k, l;
   double help, former, helpint, help2, help3, help4;
 
-  double loglike, bic, df;
-  double aic=1000000;
+  loglike=aic=bic=gcv=0;
+  aic=1000000;
   double aicold=1000000;
   bool aicstop=false;
 
@@ -5562,6 +5639,14 @@ for(i=0; i<nrobs; i++)
   out("  (conditional) AIC:                 " + ST::doubletostring(aic,6) + "\n");
   out("  (conditional) BIC:                 " + ST::doubletostring(bic,6) + "\n");
   out("\n");
+  out("  Results on the model fit are stored in file\n");
+  out("  "+outfile+"_modelfit.raw");
+  out("\n");
+
+  ofstream outfit((outfile+"_modelfit.raw").strtochar());
+  outfit << "loglike df aic bic" << endl;
+  outfit << loglike << " " << df << " " << aic << " " << bic << " " << endl;
+  outfit.close();
 
   return false;
   }
@@ -6011,9 +6096,9 @@ void remlest::make_model(ofstream & outtex, const ST::string & rname)
   if(respfamily!="cox" && respfamily!="coxinterval" && respfamily!="coxold")
     outtex << "Response function: \\> " << respname << "\\\\" << endl;
 
-  outtex << "\\end{tabbing}" << endl
-         << "\n\\noindent {\\bf \\large Predictor:}\\\\" << endl;
+  outtex << "\\end{tabbing}" << endl;
 
+  outtex << "\n\\noindent {\\bf \\large Predictor:}\\\\" << endl;
   }
 
 void remlest::make_predictor(ofstream & outtex)
@@ -6150,6 +6235,30 @@ void remlest::make_graphics(const ST::string & title,
   make_prior(outtex);
 
   make_options(outtex);
+
+  outtex << "\n\\noindent {\\bf \\large Model Fit:}" << endl
+         << "\\begin{tabbing}\n";
+  if(respfamily=="cox" || respfamily=="coxold" || respfamily=="coxinterval" || respfamily=="gaussian")
+    {
+    outtex << "Degrees of freedom: \\= \\kill" << endl;
+    }
+  else
+    {
+    outtex << "GCV (based on deviance residuals): \\= \\kill" << endl;
+    }
+  outtex << "-2*log-likelihood: \\> " << loglike << "\\\\" << endl;
+  outtex << "Degrees of freedom: \\> " << df << "\\\\" << endl;
+  outtex << "(conditional) AIC: \\> " << aic << "\\\\" << endl;
+  outtex << "(conditional) BIC: \\> " << bic << "\\\\" << endl;
+  if(respfamily!="cox" && respfamily!="coxold" && respfamily!="coxinterval" && respfamily!="gaussian")
+    {
+    outtex << "GCV (based on deviance residuals): \\> " << gcv << "\\\\" << endl;
+    }
+  else if (respfamily=="gaussian")
+    {
+    outtex << "GCV: \\> " << gcv << "\\\\" << endl;
+    }
+  outtex << "\\end{tabbing}" << endl;
 
   if(dispers==true)
     {
