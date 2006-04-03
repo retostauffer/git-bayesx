@@ -433,7 +433,8 @@ void FULLCOND_const::outresultsreml_ordinal(datamatrix & X,datamatrix & Z,
     {
     datanames.insert(datanames.begin(),"theta_"+ST::inttostring(j));
     }*/
-  help = outresultsreml(X,Z,betareml,betacov,datamatrix(1,1,0),0,0,0,false,0,0,0.0,false,0);
+  datamatrix helpmat = datamatrix(1,1,0);
+  help = outresultsreml(X,Z,betareml,betacov,helpmat,0,0,0,false,0,0,0.0,false,0);
   }
 
 vector<bool> FULLCOND_const::get_catspecific_fixed()

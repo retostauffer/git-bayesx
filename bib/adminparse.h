@@ -22,9 +22,11 @@
 #include<jni.h>
 #endif
 
-#include <vcl.h>
+//#include <vcl.h>
+#if !defined(__BUILDING_GNU)
 #include <FileCtrl.hpp>
 #include<dir.h>
+#endif
 
 #include<fstream.h>
 #include"adminparse_basic.h"

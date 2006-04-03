@@ -9,6 +9,7 @@ administrator::administrator(void)
   adminb = administrator_basic();
   adminp = administrator_pointer();
 
+  #if !defined(__BUILDING_GNU)
   char path[100];
   getcurdir(0,path);
   char disk = 'A'+getdisk();
@@ -72,6 +73,7 @@ administrator::administrator(void)
     out("  Specify a new default directory using the defaultpath command\n");
     out("  Type for example: defaultpath=c:\\temp");
     }
+  #endif
 
   logfileopen = false;
   input = &cin;
@@ -655,6 +657,7 @@ bool administrator::parse(ST::string & in)
            errormessages.push_back("ERROR: invalid syntax\n");
          else if (token[1] != "=")
            errormessages.push_back("ERROR: \"=\" expected\n");
+#if !defined(__BUILDING_GNU)
          else if (!DirectoryExists(token[2].strtochar()))
            errormessages.push_back("ERROR: path " + token[2] + " does not exist\n");
          else
@@ -718,8 +721,8 @@ bool administrator::parse(ST::string & in)
          	 out("  Specify a new default directory using the defaultpath command\n");
          	 out("  Type for example: defaultpath=c:\\temp");
              }
-
            }
+#endif
 	    outerror(errormessages);
         errormessages.clear();
         return false;
