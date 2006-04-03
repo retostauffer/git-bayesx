@@ -623,7 +623,7 @@ void FULLCOND_const_stepwise::set_effect_zero(void)
 
 // BEGIN: MODEL-AVERAGING ------------------------------------------------------
 
-void FULLCOND_const_stepwise::save_betas(vector<double> & modell, unsigned & anzahl)
+void FULLCOND_const_stepwise::save_betas(vector<double> & modell, int & anzahl)
   {
   betas_aktuell.erase(betas_aktuell.begin(),betas_aktuell.end());
   double * workbeta = beta.getV();
@@ -769,9 +769,7 @@ void FULLCOND_const_stepwise::posteriormode_const_varcoeff(datamatrix newx)
 
 // End: For Varying Coefficient Model ----------------------------------------------------------
 
-
-// Vorschlag:
-//void FULLCOND_const_stepwise::make_design(datamatrix & d)
+              
 void FULLCOND_const_stepwise::make_design(const datamatrix & d)
   {
   vector<unsigned> zaehlen;
@@ -851,6 +849,33 @@ void FULLCOND_const_stepwise::make_design(const datamatrix & d)
            data(*q,j) = -1;
         }
      }
+  }
+
+
+// ------------ Funktionen für gesamte Hatmatrix: ------------------------------
+
+
+unsigned FULLCOND_const_stepwise::get_nrvar(void)
+  {
+  return data.cols();
+  }
+
+
+void FULLCOND_const_stepwise::createreml(datamatrix & X,datamatrix & Z,
+                                const unsigned & Xpos, const unsigned & Zpos)
+  {
+  unsigned i,j;
+
+  double * workdata= data.getV();
+  double * workX = X.getV()+Xpos;
+  unsigned s = X.cols()-data.cols();
+
+  for (i=0;i<data.rows();i++,workX+=s)
+    for(j=0;j<data.cols();j++,workdata++,workX++)
+      {
+      *workX = *workdata;
+      }
+
   }
 
 
@@ -1129,6 +1154,7 @@ void FULLCOND_const_gaussian_special::reset_effect(const unsigned & pos)
 
   beta(0,0) = 0;
   }
+
 
 } // end: namespace MCMC
 

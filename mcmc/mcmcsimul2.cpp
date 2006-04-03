@@ -205,6 +205,59 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
       {
       posteriormode(posttitle,false); // Problem: linearer Prädiktor bei "true" standardisiert! Hier wird zurückgerechnet!
                                       // danach nicht mehr compute_criterion() aufrufen!!!
+/*
+vector<unsigned> xcut;
+vector<unsigned> zcut;
+xcut.push_back(0);                          // enthält Struktur von Matrix X (unbestr. Anteil)
+zcut.push_back(0);                          // enthält Struktur von Matrix Z (bestr. Anteil)
+xcut.push_back(fullcondp[0]->get_datanames().size());
+for(i=1;i<fullcondp.size();i++)
+  {
+  xcut.push_back(xcut[i] + fullcondp[i]->get_dimX());  // gibt die höchste Spalte von X an, die Einträge von fullcond[i] enthält
+  if (i>0)
+    {                                               // gibt die höchste Spalte von Z an, die Einträge von fullcond[i] enthält
+    zcut.push_back(zcut[i-1] + fullcondp[i]->get_dimZ());
+    }
+  }                                                 // Bem.: Dimension von "zcut" hier immer eins kleiner als bei "xcut"
+
+datamatrix X = datamatrix(likep_mult[0]->get_nrobs(),xcut[xcut.size()-1],0);    // Initialisierung von X
+datamatrix Z = datamatrix(likep_mult[0]->get_nrobs(),zcut[zcut.size()-1],0);    // Initialisierung von Z
+
+fullcond_alle[0]->createreml(X,Z,xcut[0],0);             // trägt fixe Effekte in X ein
+for(i=1;i<fullcondp.size();i++)
+  {
+  fullcondp[i]->createreml(X,Z,xcut[i],zcut[i-1]);   // schreibt Matrizen X und Z voll
+  }
+
+statmatrix<double>theta(zcut.size()-1,1,0);        // speichert Glättungsparameter als Spalte ab, jeden Wert 1x
+for(i=1; i<fullcondp.size(); i++)
+  {
+  theta(i-1,0) = modell_final[names_fixed.size()-2+i];
+  }
+unsigned l,k;
+statmatrix<double>Qinv(Z.cols(),1,0);
+for(i=0, l=0; i<theta.rows(); i++)                  // Strafmatrix ist hier Einheitsmatrix
+  {
+  for(k=zcut[i]; k<zcut[i+1]; k++, l++)
+    {
+    Qinv(l,0) = theta(i,0);                         // Diagonale enthält dann dimZ * das jeweilige Lambda
+    }
+  }
+
+statmatrix<double>H(X.cols()+Z.cols(),X.cols()+Z.cols(),0);
+statmatrix<double>Hinv(H.rows(),H.rows(),0);
+H.weightedsscp2(X,Z,likep_mult[0]->get_weightiwls());       // berechnet (X,Z)'W(X,Z) und speichert es in Matrix H
+H.addtodiag(Qinv,X.cols(),X.cols()+Z.cols());             // berechnet H + Qinv und speichert es wieder in H
+Hinv = H.inverse();
+H.addtodiag(-Qinv,X.cols(),X.cols()+Z.cols());
+double df = (H*Hinv).trace();
+genoptions_mult[0]->out("\n       Exact degrees of freedom for the final model: " + ST::doubletostring(df,6) + "\n");
+
+df = 0;
+for(i=0;i<fullcondp.size();i++)
+  df = df + fullcondp[i]->compute_df();
+genoptions_mult[0]->out("\n Approximate degrees of freedom for the final model: " + ST::doubletostring(df,6) + "\n");
+*/
       }
     else
       {
@@ -247,7 +300,7 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
   outtex.close();
   outcriterium.close();
   outmodels.close();
-
+   /*
   // gibt Lambdas aus, damit man die richtig bestimmten Variablen zählen kann!
   ST::string zaehlername = path + "_lambdas_" + likep_mult[0]->get_responsename() + ".ascii";
   //zaehlername = zaehlername + "_" + ST::inttostring(increment) + ".ascii";
@@ -262,7 +315,7 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
      eintrag = eintrag + ST::doubletostring(modell_final[i]) + "   ";
   out << beschriftung << endl;
   out << eintrag << endl;
-
+   */
   return false;
   }
 
@@ -1113,7 +1166,7 @@ for(i=0;i<fullcondp.size();i++)
       double kriterium_versuch = MAXDOUBLE;
       if(lambdavec[z-1][i]!=-1 && lambdavec[z-1][i]!=0)
         {
-        if(possible == "alles" || possible == "spline" || possible == "spfix")
+        if(possible == "alles" || possible == "valles" || possible == "spline" || possible == "spfix")
           {
           fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
           fullcond_alle[z]->posteriormode();
@@ -1138,11 +1191,15 @@ for(i=0;i<fullcondp.size();i++)
         }
       else
         {
-        if(possible == "alles")
+        if(possible == "alles" || possible == "valles")
           {
           fullcond_alle[z]->set_inthemodel(0);
           fullcond_alle[z]->reset_effect(0);
-          fullcond_alle[0]->posteriormode_const();
+          if(possible != "valles")
+            fullcond_alle[0]->posteriormode_const();
+          else if(possible == "valles")  // bei Rauslassen von VC muß zugehöriger fixer Effekt upgedatet werden!
+            fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
+                                  fullcond_alle[z]->get_data_forfixedeffects(),false);
           fullcond_alle[z]->wiederholen(fullcond_alle[z],false);
           kriterium_versuch = criterion_min(df);
           fullcond_alle[0]->set_const_old();
@@ -1357,6 +1414,9 @@ versuch = 3;*/                                       // bis hier
   ST::string possible = "alles";
   if(hierarchical == true)
     fullcond_alle[z]->hierarchical(possible);
+  if(possible == "valles")
+    possible = "alles";
+    
   // VCM
   if(possible == "vfix")
     {
@@ -1366,7 +1426,6 @@ versuch = 3;*/                                       // bis hier
     }
 
   double df = 0;
-  double df_const = fullcondp[0]->compute_df();
   for(i=0;i<fullcondp.size();i++)
     df = df + fullcondp[i]->compute_df();
 
@@ -1392,13 +1451,9 @@ fullcond_alle[z]->wiederholen_fix(fullcond_alle[z],1,false);*/
           fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
 //fullcond_alle[z]->wiederholen_fix(fullcond_alle[z],-1,false);
           fullcond_alle[z]->posteriormode();
-          if(hierarchical)
-            {
-            if(df_const == fullcondp[0]->compute_df()-1)
-              df += 1;
-            }
+          double df_hier = fullcond_alle[z]->compute_df();
 //fullcond_alle[z]->wiederholen_fix(fullcond_alle[z],1,false);
-          kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
+          kriterium_versuch = criterion_min(df + df_hier);
           fullcond_alle[0]->set_const_old();
           }
         }
@@ -1484,6 +1539,8 @@ void STEPWISErun::minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
   ST::string possible = "alles";
   if(hierarchical == true)
     fullcond_alle[z]->hierarchical(possible);
+  if(possible == "valles")
+    possible = "alles";
 
   unsigned i;
   for(i=0;i<lambdavec[z-1].size();i++)
@@ -1631,6 +1688,9 @@ void STEPWISErun::minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
   ST::string possible = "alles";
   if(hierarchical == true)
     fullcond_alle[z]->hierarchical(possible);
+  if(possible == "valles")
+    possible = "alles";
+
   // VCM
   if(possible == "vfix")
     {
@@ -1656,12 +1716,13 @@ void STEPWISErun::minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
           fullcond_alle[z]->update_stepwise(lambdavec[z-1][i]);
           korrektur();  // fullcondp[0]->posteriormode_const();
           posteriormode(posttitle,true);
+          double df_hier = fullcond_alle[z]->compute_df();
           if(hierarchical)
             {
             if(df_const == fullcondp[0]->compute_df()-1)
-              df += 1;
+              df_hier += 1;
             }
-          kriterium_versuch = criterion_min(df + fullcond_alle[z]->compute_df());
+          kriterium_versuch = criterion_min(df + df_hier);
           }
         }
       else
@@ -2232,7 +2293,7 @@ void STEPWISErun::koord_leer_factor(vector<double> & kriteriumiteration2,
                                  fullcond_alle[z]->get_data_forfixedeffects(),true);
   kriterium_neu = criterion_min(df);
   fullcond_alle[0]->set_const_old();
-  if(minim == "approx_control")
+  if(minim == "approx_control" && kriterium_aktuell < MAXDOUBLE)
     {
     posteriormode(posttitle,true);
     double kriterium_test = criterion_min(df);
@@ -2396,7 +2457,17 @@ void STEPWISErun::koord_minnonp(vector<double> & kriteriumiteration2,
           {
           //fullcond_alle[i]->reset_effect(0);   // Nicht nötig, wegen "fullcond_einzeln"-> fullcond_alle[i] nicht in fullcondp!!!
           if(modell_alt[names_fixed.size()-2+i] > 0)
+            {
             fullcond_alle[i]->wiederholen_fix(fullcond_alle[i],1,true);
+            if(hierarchical)                        // neu für VCM!  Versuch!!!
+              {
+              ST::string possible = "alles";
+              fullcond_alle[i]->hierarchical(possible);
+              if(possible == "valles")
+                fullcond_alle[i]->posteriormode_single(names_nonp[i-1],
+                                 fullcond_alle[i]->get_data_forfixedeffects(),false);
+              }
+            }
           fullcond_alle[0]->posteriormode_const();
           }
         else if(modell_neu[names_fixed.size()-2+i] == -1)
@@ -2418,13 +2489,13 @@ void STEPWISErun::koord_minnonp(vector<double> & kriteriumiteration2,
           else
             fullcond_alle[i]->wiederholen_fix(fullcond_alle[i],-1,true);
 
-if(modell_alt[names_fixed.size()-2+i] == 0)
-  fullcond_alle[i]->const_varcoeff();
+          if(modell_alt[names_fixed.size()-2+i] == 0)
+            fullcond_alle[i]->const_varcoeff();
 
           fullcond_alle[i]->update_stepwise(modell_neu[names_fixed.size()-2+i]);
           fullcond_alle[i]->posteriormode();
           fullcond_alle[0]->update_linold();
-          fullcond_alle[i]->wiederholen(fullcond_alle[i],true); 
+          fullcond_alle[i]->wiederholen(fullcond_alle[i],true);
           fullcond_alle[i]->remove_centering_fix();
           }
         if(trace == "trace_on" || trace == "trace_minim")
@@ -2743,8 +2814,6 @@ bool STEPWISErun::finetuning(vector<double> & modell)
               untervector.push_back(lambdavec_ursp[i-1][j]);
             if(fullcond_alle[i]->get_forced()==true)
               untervector.push_back(lambdavec_ursp[i-1][lambdavec_ursp[i-1].size()-3]);
-// Vorschlag:
-//            fullcond_alle[i]->compute_lambdavec(untervector,number);
             int intnumber = (int)number;
             fullcond_alle[i]->compute_lambdavec(untervector,intnumber);
             lambdavec_fine.push_back(untervector);
@@ -2828,56 +2897,6 @@ bool STEPWISErun::fine_local(vector<double> & modell)
        lambdamin = lambdas[0];
        lambdamax = lambdas[lambdas.size()-1];
 
-       /*    oben werden alle lambdas verwendet, hier weniger!!!
-       bool lambda_exist;
-       unsigned index = search_lambdaindex(modell[names_fixed.size()-2+i],lambdavec[i-1],lambda_exist);
-       double lambdastart = lambdavec[i-1][index];
-
-       fullcond_alle[i]->set_lambdas_vector(lambdastart);
-
-       double lambdamin;
-       double lambdamax;
-
-       lambda_exist = false;                       // für die Lambdas < Startwert
-       int j = 2;
-       while(lambda_exist==false && j>0)
-          {
-          if(int(index)>=j)
-            {
-            if(lambdavec[i-1][index-j]!=0 && lambdavec[i-1][index-j]!=-1)
-               lambda_exist = true;
-             }
-          j = j - 1;
-          }
-       if(lambda_exist==true)
-         lambdamin = lambdavec[i-1][index-j-1];
-       else
-         lambdamin = fullcond_alle[i]->get_lambdamin()/10;
-       double l = log10(lambdamin);
-       double u = log10(lambdastart);
-       for(j=0;j<(floor(nummer/2));j++)
-         lambdas.push_back(pow(10,l+double(j)*((u-l)/(double(floor(nummer/2))-1))));
-
-       lambda_exist = false;                        // für die Lambdas >= Startwert
-       j = 2;
-       while(lambda_exist==false && j>0)
-          {
-	      if(index<lambdavec[i-1].size()-j)
-	        {
-	        if(lambdavec[i-1][index+j]!=0 && lambdavec[i-1][index+j]!=-1)
-              lambda_exist = true;
-	        }
-	     j = j - 1;
- 	     }
-       if(lambda_exist==true)
-         lambdamax = lambdavec[i-1][index+j+1];
-       else
-         lambdamax = 1.5*lambdavec[i-1][index] - 0.5*lambdavec[i-1][index-1];
-       l = log10(lambdastart);
-       u = log10(lambdamax);
-       for(j=0;j<(nummer-floor(nummer/2));j++)
-         lambdas.push_back(pow(10,l+double(j)*((u-l)/(double(nummer-floor(nummer/2))-1))));  */
-
        fullcond_alle[i]->set_stepwise_options(lambdastart,lambdamax,lambdamin,true,
                fullcond_alle[i]->get_df_lambdamax(),fullcond_alle[i]->get_df_lambdamin(),false,false,nummer,false);
 
@@ -2919,8 +2938,8 @@ bool STEPWISErun::fine_local(vector<double> & modell)
   fix_komplett(modell_alt);
   fullcond_komplett(modell_alt);
 
-smoothing = "global";    // Versuch!!!
-kriterium_alt = compute_criterion();
+  smoothing = "global";    // Versuch!!!
+  kriterium_alt = compute_criterion();
 
   ST::string tr_akt = "trace_on";
   maketext(header,modell_alt,kriterium_alt,text_alt,false,tr_akt,false);
@@ -4843,22 +4862,23 @@ void STEPWISErun::save_alle_betas(vector<double> & modell)
     }
   for(j=1;j<fullcond_alle.size();j++)
     {
-// Vorschlag:
-    unsigned helpint;
+    int helpint;
     if(modell[j+names_fixed.size()-2] == -1)
       {
-      fullcond_alle[j]->save_betas(modell,anzahl);
+      helpint = int(anzahl);
+      fullcond_alle[j]->save_betas(modell,helpint);
       anzahl += fullcond_alle[j]->get_data_forfixedeffects().cols();
       }
     else if(modell[j+names_fixed.size()-2] == 0)
-// Vorschlag:
-//      fullcond_alle[j]->save_betas(modell,0);
       {
-      helpint=0;
+      helpint = 0;
       fullcond_alle[j]->save_betas(modell,helpint);
       }
     else
-      fullcond_alle[j]->save_betas(modell,-1);   // ACHTUNG: hier steht -1 für nichtlinear!!!
+      {
+      helpint = -1;
+      fullcond_alle[j]->save_betas(modell,helpint);   // ACHTUNG: hier steht -1 für nichtlinear!!!
+      }
     }
   fullcond_alle[0]->save_betas2();
   }

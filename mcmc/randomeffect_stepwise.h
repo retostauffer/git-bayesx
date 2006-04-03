@@ -100,6 +100,8 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 
   void compute_lambdavec(vector<double> & lvec, int & number);
 
+  void hierarchie_fix(vector<double> & untervector, int dfo);
+
   void update_fix_effect(double & intercept);
 
   void const_varcoeff(void);
@@ -118,7 +120,9 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
   // TASK: returns (usually) the current smoothing parameter
   void update_stepwise(double la);
 
-  void save_betas(vector<double> & modell, unsigned & anzahl);
+  void get_lambda(double la);
+
+  void save_betas(vector<double> & modell, int & anzahl);
 
   void average_posteriormode(vector<double> & crit_weights);
 

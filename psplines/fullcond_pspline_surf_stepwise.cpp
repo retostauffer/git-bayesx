@@ -123,11 +123,9 @@ void FULLCOND_pspline_surf_stepwise::create(const datamatrix & v1, const datamat
   data_forfixed = datamatrix(v1.rows(),1,0);
 
   // neu:
-  double mean1 = v1.mean(0);
-  double mean2 = v2.mean(0);
   for(i=0;i<v2.rows();i++)
     {
-    data_forfixed(i,0) = (v1(i,0)-mean1) * (v2(i,0)-mean2);
+    data_forfixed(i,0) = v1(i,0) * v2(i,0);
     }
 
   }

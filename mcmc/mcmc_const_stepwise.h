@@ -84,8 +84,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
                           const ST::string & t,const ST::string & fs,
                           const ST::string & fr,const unsigned & c=0);
 
-// Vorschlag:
-//  void make_design(datamatrix & d);  //, const ST::string & coding);
+
   void make_design(const datamatrix & d);  //, const ST::string & coding);
 
   void set_pointer_to_interaction(FULLCOND * inter);
@@ -162,7 +161,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void set_effect_zero(void);
 
-  void save_betas(vector<double> & modell, unsigned & anzahl);
+  void save_betas(vector<double> & modell, int & anzahl);
 
   void save_betas2(void);
 
@@ -173,6 +172,11 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   void set_intercept_for_center(double & dazu);
 
   void beta_to_fix(const vector<double> & betas);
+
+  void createreml(datamatrix & X,datamatrix & Z,
+                                const unsigned & Xpos, const unsigned & Zpos);
+
+  unsigned get_nrvar(void);                                
 
   };
 

@@ -21,6 +21,9 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(MCMCoptions * o,DISTRIBUTION 
   identifiable = false;
   grenzfall = 0;
   intercept = 0.0;
+
+  dimX = 0;
+  dimZ = nrpar;
   }
 
 // randomslope
@@ -34,12 +37,13 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(MCMCoptions * o,DISTRIBUTION 
                   const bool & inclfixed,const unsigned & c)
                   : FULLCOND_random(o,dp,fcc,intvar,effmod,t,fp,pr,prf,la,false,c)
   {
-  grenzfall = 1;
+  grenzfall = 0;
+  dimX = 0;
+  dimZ = nrpar;
 
   if(inclfixed == false)
     {
     identifiable = false;
-    grenzfall -= 1;
     }
 
   includefixed = false;
@@ -150,6 +154,7 @@ bool FULLCOND_random_stepwise::posteriormode(void)
       *workbeta -= intercept;
 
     update_fix_effect(intercept);
+    intercept = 0.0;
     }
 
   update_linpred(true);
@@ -167,17 +172,17 @@ void FULLCOND_random_stepwise::update_fix_effect(double & intercept)
   {
   bool raus = false;
   unsigned j = 1;
-  ST::string name_richtig = datanames[1];
+  ST::string name_richtig = datanames[0];
   while(j<fcconst->get_datanames().size() && raus==false)
      {
-     if(fcconst->get_datanames()[j] == datanames[1])
+     if(fcconst->get_datanames()[j] == datanames[0])
         {
         raus = true;
         }
-     if(fcconst->get_datanames()[j] == (datanames[1]+"_1"))
+     if(fcconst->get_datanames()[j] == (datanames[0]+"_1"))
         {
         raus = true;
-        name_richtig = datanames[1] + "_1";
+        name_richtig = datanames[0] + "_1";
         }
      j = j + 1;
      }
@@ -222,7 +227,7 @@ void FULLCOND_random_stepwise::hierarchical(ST::string & possible)
     }
   else
     {
-    possible = "alles";
+    possible = "valles";
     }
   }
 
@@ -243,10 +248,68 @@ void FULLCOND_random_stepwise::compute_lambdavec(vector<double> & lvec, int & nu
   else
      FULLCOND::compute_lambdavec(lvec,number);
   if (randomslope && identifiable)
-    lvec.push_back(-1);
+    hierarchie_fix(lvec,1);
   get_forced();
   if(forced_into==false)
      lvec.push_back(0);
+  }
+
+
+void FULLCOND_random_stepwise::hierarchie_fix(vector<double> & untervector, int dfo)
+  {
+
+  unsigned number = untervector.size()-1;
+
+  update_stepwise(untervector[0]);
+  double df_max = compute_df();
+
+  update_stepwise(untervector[number]);
+  double df_min = compute_df();
+
+  if(df_max > dfo && df_min < dfo)
+     {
+     bool geordnet = false;
+     unsigned stelle_oben = number;
+     unsigned stelle_unten = 0;
+     while(geordnet==false)
+        {
+        unsigned stelle = stelle_oben + stelle_unten;
+        update_stepwise(untervector[stelle/2]);
+        double df_mitteunten = compute_df();
+        update_stepwise(untervector[stelle/2 + 1]);
+        double df_mitteoben = compute_df();
+
+        if(df_mitteunten > dfo && df_mitteoben > dfo)
+          stelle_unten = stelle/2;
+        else if(df_mitteunten < dfo && df_mitteoben < dfo)
+          stelle_oben = stelle/2 + 1;
+        else
+          {
+          geordnet = true;
+          vector<double> hilf;
+          unsigned i;
+          stelle_unten = stelle/2;
+          stelle_oben = stelle/2 + 1;
+          for(i=0;i<=stelle_unten;i++)
+             hilf.push_back(untervector[i]);
+          hilf.push_back(-1);
+          for(i=stelle_oben;i<untervector.size();i++)
+            hilf.push_back(untervector[i]);
+          untervector = hilf;
+          }
+        }
+     }
+  else if(df_min >= dfo)
+     untervector.push_back(-1);
+  else
+     {
+     vector<double> hilf;
+     hilf.push_back(-1);
+     unsigned i;
+     for(i=0;i<untervector.size();i++)
+        hilf.push_back(untervector[i]);
+     untervector = hilf;
+     }
   }
 
 
@@ -273,16 +336,36 @@ double FULLCOND_random_stepwise::compute_df(void)
   {
   unsigned i;
   double df=0;
-  double * workXX=XX.getV();
-  unsigned n;
 
-  if (randomslope && includefixed)
+  if(randomslope && !identifiable && !center)
+    {
+    bool raus = false;
+    unsigned j = 1;
+    while(j<fcconst->get_datanames().size() && raus==false)
+      {
+      if(fcconst->get_datanames()[j] == datanames[0]
+        || fcconst->get_datanames()[j] == (datanames[0]+"_1"))
+        {
+        raus = true;
+        }
+      j = j + 1;
+      }
+    if(raus == false)
+      {
+      df += 1;
+      }
+    }
+
+  double * workXX=XX.getV();
+  unsigned n = nrpar;
+
+  /*if (randomslope && includefixed)
     {
     n = nrpar-1;
     df=1;
     }
   else
-    n = nrpar;
+    n = nrpar; */
 
 
   if ((lambdaold1==lambda) && (likep->iwlsweights_constant() == true) )
@@ -295,22 +378,29 @@ double FULLCOND_random_stepwise::compute_df(void)
     }
   else
     {
+    if(!identifiable)
+      {
+      double c = 0;
+      double w = 0;
+      for(i=0;i<n;i++,workXX++)
+        {
+        c += (*workXX * *workXX)/(*workXX+lambda);
+        w += *workXX;
+        }
+     c = 1/(w - c);
 
-double c = 0;
-double w = 0;
-for(i=0;i<n;i++,workXX++)
-  {
-  c += (*workXX * *workXX)/(*workXX+lambda);
-  w += *workXX;
-  }
-c = 1/(w - c);
-
-workXX = XX.getV();
-for(i=0;i<n;i++,workXX++)
-  {
-  df += (*workXX * (lambda + *workXX * (-c * (*workXX + 2*lambda) + 1)))/((*workXX+lambda) * (*workXX+lambda));
-  }
-df += w*c - 1;
+     workXX = XX.getV();
+     for(i=0;i<n;i++,workXX++)
+       {
+       df += (*workXX * (lambda + *workXX * (-c * (*workXX + 2*lambda) + 1)))/((*workXX+lambda) * (*workXX+lambda));
+       }
+     df += w*c - 1;
+     }
+    else
+      {
+      for(i=0;i<n;i++,workXX++)
+        df += (*workXX)/(*workXX+lambda);
+      }
 
     /*for(i=0;i<n;i++,workXX++)
       {
@@ -324,17 +414,18 @@ df += w*c - 1;
 
     }
 
-  if(identifiable)
-    return df;
-  else
-    //return df-1;
-    return df;
+  return df;
   }
 
 
 void FULLCOND_random_stepwise::update_stepwise(double la)
   {
   lambda = la;
+  }
+
+void FULLCOND_random_stepwise::get_lambda(double la)
+  {
+  la = lambda;
   }
 
 
@@ -344,7 +435,7 @@ ST::string FULLCOND_random_stepwise::get_effect(void)
   ST::string h;
 
   if(randomslope)
-    h = datanames[1] + "*" + datanames[0];
+    h = datanames[1];
   else
     h = datanames[0];
 
@@ -366,19 +457,13 @@ void FULLCOND_random_stepwise::reset_effect(const unsigned & pos)
   for(i=0;i<nrpar;i++,work++)
     *work = 0.0;
 
-// Vorschlag:
-//  if(randomslope && center)
-//    update_fix_effect(-intercept);
-  double helpdouble = -intercept;
-  if(randomslope && center)
-    update_fix_effect(helpdouble);
   intercept = 0.0;
   }
 
 
 // BEGIN: MODEL-AVERAGING ------------------------------------------------------
 
-void FULLCOND_random_stepwise::save_betas(vector<double> & modell, unsigned & anzahl)
+void FULLCOND_random_stepwise::save_betas(vector<double> & modell, int & anzahl)
   {
   vector<double> beta_neu;
   unsigned i;
@@ -532,7 +617,7 @@ ST::string FULLCOND_random_stepwise::get_befehl(void)
   ST::string h;
 
   if(randomslope)
-    h = datanames[1] + "*" + datanames[0];
+    h = datanames[1];
   else
     h = datanames[0];
 

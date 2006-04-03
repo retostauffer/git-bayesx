@@ -1848,8 +1848,11 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
           }
 
         vector<ST::string> na;
-        na.push_back(terms[i].varnames[1]);
         na.push_back(terms[i].varnames[0]);
+        if(nofixed == true)
+          na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+        else
+          na.push_back(terms[i].varnames[0]);
         fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
 
         }
@@ -2097,8 +2100,11 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
           }
 
         vector<ST::string> na;
-        na.push_back(terms[i].varnames[1]);
         na.push_back(terms[i].varnames[0]);
+        if(nofixed == true)
+          na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+        else
+          na.push_back(terms[i].varnames[0]);
         fcpsplinestep[fcpsplinestep.size()-1].init_names(na);
         }
 
@@ -2319,8 +2325,11 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
           }
 
         vector<ST::string> na;
-        na.push_back(terms[i].varnames[1]);
         na.push_back(terms[i].varnames[0]);
+        if(nofixed == true)
+          na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+        else
+          na.push_back(terms[i].varnames[0]);
         fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
 
         }
@@ -2490,8 +2499,11 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
           }
 
       vector<ST::string> na;
-      na.push_back(terms[i].varnames[1]);
       na.push_back(terms[i].varnames[0]);
+      if(inclf == false)
+        na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+      else
+        na.push_back(terms[i].varnames[0]);
       fcrandomgaussian[fcrandomgaussian.size()-1].init_names(na);
 
       fcrandomgaussian[fcrandomgaussian.size()-1].set_stepwise_options(
@@ -2626,6 +2638,8 @@ bool stepwisereg::create_random(const unsigned & collinpred)
 
         fcrandomgaussian[fcrandomgaussian.size()-1].init_spatialtotal(
         structuredp,pathnonpt,pathrest);
+
+        fcnonpgaussian[j1].init_spatialtotal(&fcrandomgaussian[fcrandomgaussian.size()-1]);
         }
       else if (structured==0)
         {
@@ -3031,7 +3045,14 @@ void regressrun(stepwisereg & b)
 
   if (!failure)
     {
-
+// für die Gesamt-Hatmatrix wäre es möglich ein remlreg-Objekt zu erzeugen:
+/*
+ofstream * outlog;
+istream * putin;
+ST::string dpath = "C:\\bayesx";
+vector<statobject*> * st;
+remlreg newobject("r",outlog,putin,dpath,st);
+*/
     //vector<ST::string> header;
     //header.push_back("STEPWISEREG OBJECT " + b.name.to_bstr() +
     //                   ": stepwise procedure" );
@@ -3416,13 +3437,44 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
 
         }
 
+      datamatrix v1 = D.getCol(j1);
+      datamatrix v2 = D.getCol(j2);
+      double mean1 = v1.mean(0);
+      double mean2 = v2.mean(0);
+      double * v1z = v1.getV();
+      double * v2z = v2.getV();
+      for(j=0;j<v1.rows();j++,v1z++,v2z++)
+        {
+        *v1z -= mean1;
+        *v2z -= mean2;
+        }
+      if(modelvarnamesv[j1] == modelvarnamesv[j1+2] && modelvarnamesv[j2] == modelvarnamesv[j2+2])
+        {
+        modelvarnamesv[j1+2] = modelvarnamesv[j1+2] + "_c";
+        modelvarnamesv[j2+2] = modelvarnamesv[j2+2] + "_c";
+
+        v1z = v1.getV();
+        v2z = v2.getV();
+        for(j=0;j<v1.rows();j++,v1z++,v2z++)
+          {
+          D(j,j1+2) = *v1z;
+          D(j,j2+2) = *v2z;
+          }
+
+        ST::string path = outfile.getvalue() + add_name + "_predictmean.raw";
+        ST::string pathdev = outfile.getvalue() + add_name + "_deviance_sample.raw";
+        if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+          distr_gaussian[distr_gaussian.size()-1].set_predict(path,pathdev,&D,modelvarnamesv);
+
+        }
+
       if (check_gaussian())
         {
         fcpsplinesurfstep.push_back(
         FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
                                       fcconst_intercept,
-                                      D.getCol(j1),
-                                      D.getCol(j2),
+                                      v1,
+                                      v2,
                                       title,
                                       nrknots,degree,po,
                                       lambda,
@@ -3440,8 +3492,8 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         fcpsplinesurfstep.push_back(
         FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
                                       fcconst_intercept,
-                                      D.getCol(j1),
-                                      D.getCol(j2),
+                                      v1,
+                                      v2,
                                       title,
                                       nrknots,degree,po,
                                       lambda,
@@ -3506,8 +3558,8 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         }
 
         vector<ST::string> na;
-        na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-        na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[0] + "_c*" + terms[i].varnames[1] + "_c");
+        na.push_back(terms[i].varnames[0] + "_c*" + terms[i].varnames[1] + "_c");
 
         fcpsplinesurfstep[fcpsplinesurfstep.size()-1].init_names(na);
 
@@ -3695,6 +3747,7 @@ void stepwisereg::describe(optionlist & globaloptions)
 //------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
+
 
 
 

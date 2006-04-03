@@ -28,6 +28,8 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o,
   else if (type == RW2)
     grenzfall = 1;
 
+  dimX = nrpar - rankK - 1;
+  dimZ = rankK;
   }
 
 
@@ -135,7 +137,7 @@ bool FULLCOND_pspline_stepwise::posteriormode(void)
         spline(*workindex,0) -= intercept*data_forfixed(*workindex,0);
       betas(0,0) -= intercept;
       update_fix_effect();
-      //intercept = 0.0;
+      intercept = 0.0;
       }
       
     double * fchelpbetap = fchelp.getbetapointer();
@@ -151,6 +153,7 @@ bool FULLCOND_pspline_stepwise::posteriormode(void)
       }
 
     fchelp.posteriormode();
+    return FULLCOND_nonp_basis::posteriormode();
     }
   else
     {
@@ -289,7 +292,7 @@ for(unsigned i=0;i<nrpar;i++,work++,s1++)
           for(i=0;i<spline.rows();i++,workindex++)
             spline(*workindex,0) -= intercept*data_forfixed(*workindex,0);
           }
-      }
+        }
       double * fchelpbetap = fchelp.getbetapointer();
 
       if(gridsize < 0)
@@ -350,17 +353,17 @@ void FULLCOND_pspline_stepwise::update_fix_effect(void)
   {
   bool raus = false;
   unsigned j = 1;
-  ST::string name_richtig = datanames[1];
+  ST::string name_richtig = datanames[0];
   while(j<fcconst->get_datanames().size() && raus==false)
      {
-     if(fcconst->get_datanames()[j] == datanames[1])
+     if(fcconst->get_datanames()[j] == datanames[0])
         {
         raus = true;
         }
-     if(fcconst->get_datanames()[j] == (datanames[1]+"_1"))
+     if(fcconst->get_datanames()[j] == (datanames[0]+"_1"))
         {
         raus = true;
-        name_richtig = datanames[1] + "_1";
+        name_richtig = datanames[0] + "_1";
         }
      j = j + 1;
      }
@@ -536,14 +539,14 @@ void FULLCOND_pspline_stepwise::hierarchical(ST::string & possible)
     }
   else
     {
-    possible = "alles";
+    possible = "valles";
     }
   }
 
 
 // BEGIN: MODEL-AVERAGING ------------------------------------------------------
 
-void FULLCOND_pspline_stepwise::save_betas(vector<double> & modell, unsigned & anzahl)
+void FULLCOND_pspline_stepwise::save_betas(vector<double> & modell, int & anzahl)
   {
   vector<double> beta_neu;
   unsigned i;
@@ -589,8 +592,6 @@ void FULLCOND_pspline_stepwise::average_posteriormode(vector<double> & crit_weig
         alpha_fix += - beta_average[i][0] * crit_weights[i] * (data_forfixed.max(0)+data_forfixed.min(0))/2;
       }
     }
-// Vorschlag:
-//  fcconst->set_intercept_for_center(-alpha_fix);
   double helpdouble = -alpha_fix;
   fcconst->set_intercept_for_center(helpdouble);
 
@@ -723,31 +724,48 @@ void FULLCOND_pspline_stepwise::reset_effect(const unsigned & pos)
   for(i=0;i<nrpar;i++,work++)
     *work = 0.0;
 
-  if(varcoeff && center)
-    {
-    intercept *= -1;
-    update_fix_effect();
-    }
   intercept = 0.0;
   }
 
 
 double FULLCOND_pspline_stepwise::compute_df(void)
   {
+  double df = 0;
+
+  // falls ‹bergang: leer --> VC kann fixer Effekt noch nicht enthalten sein, d.h. es muﬂ ein df addiert werden!
+  if(varcoeff && !identifiable && !center)
+    {
+    bool raus = false;
+    unsigned j = 1;
+    while(j<fcconst->get_datanames().size() && raus==false)
+      {
+      if(fcconst->get_datanames()[j] == datanames[0]
+        || fcconst->get_datanames()[j] == (datanames[0]+"_1"))
+        {
+        raus = true;
+        }
+      j = j + 1;
+      }
+    if(raus == false)
+      {
+      df += 1;
+      }
+    }
+
   if(varcoeff && lambda == -2)
     {
     if(identifiable)
       return 2;
       //return 1;
     else
-      return 1;
+      return df + 1;
     }
   else
-    return spline_basis::compute_df();
+    return df + spline_basis::compute_df();
   }
 
 
-void FULLCOND_pspline_stepwise::hierarchie_rw1(vector<double> & untervector)
+void FULLCOND_pspline_stepwise::hierarchie_rw1(vector<double> & untervector, int dfo)
   {
 
   unsigned number = untervector.size()-1;
@@ -758,7 +776,7 @@ void FULLCOND_pspline_stepwise::hierarchie_rw1(vector<double> & untervector)
   update_stepwise(untervector[number]);
   double df_min = compute_df();
 
-  if(df_max > 1 && df_min < 1)
+  if(df_max > dfo && df_min < dfo)
      {
      bool geordnet = false;
      unsigned stelle_oben = number;
@@ -771,9 +789,9 @@ void FULLCOND_pspline_stepwise::hierarchie_rw1(vector<double> & untervector)
         update_stepwise(untervector[stelle/2 + 1]);
         double df_mitteoben = compute_df();
 
-        if(df_mitteunten > 1 && df_mitteoben > 1)
+        if(df_mitteunten > dfo && df_mitteoben > dfo)
           stelle_unten = stelle/2;
-        else if(df_mitteunten < 1 && df_mitteoben < 1)
+        else if(df_mitteunten < dfo && df_mitteoben < dfo)
           stelle_oben = stelle/2 + 1;
         else
           {
@@ -784,21 +802,30 @@ void FULLCOND_pspline_stepwise::hierarchie_rw1(vector<double> & untervector)
           stelle_oben = stelle/2 + 1;
           for(i=0;i<=stelle_unten;i++)
              hilf.push_back(untervector[i]);
-          hilf.push_back(-1);
+          if(!varcoeff)
+            hilf.push_back(-1);
+          else
+            hilf.push_back(-2);
           for(i=stelle_oben;i<untervector.size();i++)
             hilf.push_back(untervector[i]);
           untervector = hilf;
           }
         }
      }
-  else if(df_min >= 1)
+  else if(df_min >= dfo)
      {
-     untervector.push_back(-1);
+     if(!varcoeff)
+       untervector.push_back(-1);
+     else
+       untervector.push_back(-2);
      }
   else
      {
      vector<double> hilf;
-     hilf.push_back(-1);
+     if(!varcoeff)
+       hilf.push_back(-1);
+     else
+       hilf.push_back(-2);
      unsigned i;
      for(i=0;i<untervector.size();i++)
         hilf.push_back(untervector[i]);
@@ -821,14 +848,22 @@ vector<double> & lvec, int & number)
   if(!varcoeff)
     {
     if(type==RW1 && number>0)
-      hierarchie_rw1(lvec);
+      hierarchie_rw1(lvec,1);
     else  // if(type==RW2 || (type==RW1 && number==-1))
       lvec.push_back(-1);
     }
   else
     {
     if(type==RW1 && number>0)
-      hierarchie_rw1(lvec);
+      {
+      if(identifiable)
+        {
+        hierarchie_rw1(lvec,2);
+        lvec.push_back(-1);
+        }
+      else
+        hierarchie_rw1(lvec,1);
+      }
     else  // if(type==RW2 || (type==RW1 && number==-1))
       {
       lvec.push_back(-2);
@@ -867,7 +902,7 @@ ST::string FULLCOND_pspline_stepwise::get_effect(void)
   ST::string h;
 
   if(varcoeff)
-    h = datanames[1] + "*" + datanames[0] + "(psplinerw";
+    h = datanames[1] + "(psplinerw";
   else
     h = datanames[0] + "(psplinerw";
   if (type== MCMC::RW1)
@@ -884,7 +919,7 @@ ST::string FULLCOND_pspline_stepwise::get_befehl(void)
   ST::string h;
 
   if(varcoeff)
-    h = datanames[1] + "*" + datanames[0] + "(psplinerw";
+    h = datanames[1] + "(psplinerw";
   else
     h = datanames[0] + "(psplinerw";
   if (type== MCMC::RW1)

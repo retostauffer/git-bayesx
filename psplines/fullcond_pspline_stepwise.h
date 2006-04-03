@@ -106,7 +106,7 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   void reset_effect(const unsigned & pos);
 
-  void hierarchie_rw1(vector<double> & untervector);
+  void hierarchie_rw1(vector<double> & untervector, int dfo);
 
   void compute_lambdavec(vector<double> & lvec, int & number);
 
@@ -198,7 +198,7 @@ if( (lambda_nr+nrpar-rankK) > (nrpar-rankK))
 
   void const_varcoeff(void);
 
-  void save_betas(vector<double> & modell, unsigned & anzahl);
+  void save_betas(vector<double> & modell, int & anzahl);
 
   void average_posteriormode(vector<double> & crit_weights);
 

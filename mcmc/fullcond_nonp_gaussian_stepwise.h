@@ -37,6 +37,9 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   datamatrix data_varcoeff_fix;
   datamatrix effmodi;
 
+  FULLCOND * fcunstruct;
+  bool spatialtotal;
+
 
   public:
 
@@ -121,7 +124,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   void reset_effect(const unsigned & pos);
 
-  void hierarchie_rw1(vector<double> & untervector);
+  void hierarchie_rw1(vector<double> & untervector, int dfo);
 
   void compute_lambdavec(vector<double> & lvec, int & number);
 
@@ -133,9 +136,11 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   void set_pointer_to_interaction(FULLCOND * inter);
 
+  void init_spatialtotal(FULLCOND * unstructp);
+
   const datamatrix & get_data_forfixedeffects(void);
 
-  void save_betas(vector<double> & modell, unsigned & anzahl);
+  void save_betas(vector<double> & modell, int & anzahl);
 
   void average_posteriormode(vector<double> & crit_weights);
 

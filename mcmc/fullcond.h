@@ -778,6 +778,10 @@ class __EXPORT_TYPE FULLCOND
   // ------------------------ FOR STEPWISE SELECTION ---------------------------
   // ---------------------------------------------------------------------------
 
+  virtual void get_lambda(double la)
+    {
+    }
+
   virtual void set_lambdaconst(double la)
     {
     }
@@ -892,7 +896,12 @@ class __EXPORT_TYPE FULLCOND
 
   void set_df_lambdamin(double & df_lmin)
     {
-    lambdamin = df_lmin;
+    df_for_lambdamin = df_lmin;
+    }
+
+  void set_df_lambdamax(double & df_lmax)
+    {
+    df_for_lambdamax = df_lmax;
     }
 
   double get_lambdastart(void)
@@ -1023,7 +1032,7 @@ class __EXPORT_TYPE FULLCOND
 
   double lambda_from_df(double & df_wunsch, double & lambda_vorg);
 
-  virtual void save_betas(vector<double> & modell, unsigned & anzahl)
+  virtual void save_betas(vector<double> & modell, int & anzahl)
     {
     }
 
@@ -1043,6 +1052,7 @@ class __EXPORT_TYPE FULLCOND
     {
     return 0;
     }
+
 
   // ---------------------------------------------------------------------------
   // ------------------------------- FOR REML ----------------------------------

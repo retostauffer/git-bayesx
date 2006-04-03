@@ -1280,40 +1280,62 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
   double diff = (get_df_lambdamin()-get_df_lambdamax())/(number-1);
   df_wunsch = get_df_lambdamax();
   lambda_df = lambda_from_df(df_wunsch,lambdamax);
-  if(lambda_df != -9)
+
+  if(lambda_df != -9 && lambda_df < std::pow(10,9))
     lambdamax = lambda_df;
-  else
+  else if(lambda_df == -9)
     {
     lambdamax = std::pow(10,lambda_df);
     number = 1;
     optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
       + ST::doubletostring(lambdamax) + "! The number of different smoothing parameters has set to one!\n\n");
     }
+  else if(lambda_df == std::pow(10,9))
+    {
+    while(lambda_df == std::pow(10,9) && number>=1)
+      {
+      df_wunsch += diff;
+      lambda_df = lambda_from_df(df_wunsch,lambdamax);
+      number = number - 1;
+      }
+    set_df_lambdamax(df_wunsch);
+    set_number(number);
+    lambdamax = lambda_df;
+    }
+
   if(number>1)
     {
     double df_lambdamin = get_df_lambdamin();
     lambda_df = lambda_from_df(df_lambdamin,lambdamin);
     int i = 1;
-    while(lambda_df == - 9 && number>=1)
+    while(lambda_df == -9 && number>1)
       {
       df_lambdamin -= diff;
       lambda_df = lambda_from_df(df_lambdamin,lambdamin);
       number = number - 1;
-      i = i + 1;
       }
     set_df_lambdamin(df_lambdamin);
     set_number(number);
     lambdamin = lambda_df;
     if(number>1)
       lvec.push_back(lambdamin);
-    for(i=number-2;i>=1;i--)
+    i = number-2;
+    bool fertig = false;
+    while(i>=1 && fertig == false)
        {
        df_wunsch = get_df_lambdamax() + i*diff;
        //lambda_df = lambdamax - i*(lambdamax-lambdamin)/(number-1);
        double l = log10(lambdamin);
        double u = log10(lambdamax);
        lambda_df = std::pow(10,u-double(i)*((u-l)/(double(number)-1)));
-       lvec.push_back(lambda_from_df(df_wunsch,lambda_df));
+       if(lambda_df < std::pow(10,9))
+         lvec.push_back(lambda_from_df(df_wunsch,lambda_df));
+       else
+         {
+         fertig = true;
+         number -= 1;
+         }
+       i--;
        }
      }
   lvec.push_back(lambdamax);
@@ -1329,10 +1351,12 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
   double lambda_unten, lambda_oben, df_mitte;
   if( (df_wunsch-df_vorg) < get_accuracy() && (df_wunsch-df_vorg) > -1*get_accuracy() )
     {
-    if(lambda_vorg >= pow(10,-9))
+    if(lambda_vorg >= pow(10,-9) && lambda_vorg <= pow(10,9))
       return lambda_vorg;
-    else
+    else if(lambda_vorg < pow(10,-9))
       return -9;
+    else
+      return pow(10,9);
      }
   else if((df_wunsch-df_vorg) >= get_accuracy())
      {
@@ -1345,10 +1369,19 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
         df_vers = compute_df();
         if( (df_wunsch-df_vers) < get_accuracy() && (df_wunsch-df_vers) > -1*get_accuracy() )
           {
-          if(lambda_vers >= pow(10,-9))
+          if(lambda_vers >= pow(10,-9) && lambda_vorg <= pow(10,9))
             return lambda_vers;
-          else
+          else if(lambda_vers < pow(10,-9))
             return -9;
+          else
+            return pow(10,9);
+          }
+        else
+          {
+          if(lambda_vers < pow(10,-9))
+            return -9;
+          else if(lambda_vers > pow(10,9))
+            return pow(10,9);
           }
         }
      lambda_unten = lambda_vorg;
@@ -1366,10 +1399,19 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
         df_vers = compute_df();
         if( (df_wunsch-df_vers) < get_accuracy() && (df_wunsch-df_vers) > -1*get_accuracy())
           {
-          if(lambda_vers >= pow(10,-9))
+          if(lambda_vers >= pow(10,-9) && lambda_vorg <= pow(10,9))
             return lambda_vers;
-          else
+          else if(lambda_vers < pow(10,-9))
             return -9;
+          else
+            return pow(10,9);
+          }
+        else
+          {
+          if(lambda_vers < pow(10,-9))
+            return -9;
+          else if(lambda_vers > pow(10,9))
+            return pow(10,9);
           }
         }
      lambda_unten = lambda_vers;
@@ -1389,9 +1431,13 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
 
      if(lambda_unten < pow(10,-9) && lambda_mitte < pow(10,-9) && lambda_oben < pow(10,-9))
        return -9;
+     if(lambda_unten > pow(10,9) && lambda_mitte > pow(10,9) && lambda_oben > pow(10,9))
+       return pow(10,9);
      }
   if(lambda_mitte < pow(10,-9))
     lambda_mitte = -9;
+  else if(lambda_mitte > pow(10,9))
+   lambda_mitte = pow(10,9);
   return lambda_mitte;
   }
 

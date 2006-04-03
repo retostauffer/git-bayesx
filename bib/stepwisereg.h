@@ -39,6 +39,7 @@
 
 #include"model_stepwise.h"
 
+
 using MCMC::MCMCoptions;
 using MCMC::DISTRIBUTION;
 using MCMC::DISTRIBUTION_gaussian;
