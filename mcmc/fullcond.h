@@ -1048,7 +1048,7 @@ class __EXPORT_TYPE FULLCOND
     {
     }
 
-  virtual double get_betafix(unsigned & welches)
+  virtual double get_betafix(int & welches)
     {
     return 0;
     }

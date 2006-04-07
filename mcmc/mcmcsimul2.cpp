@@ -4851,7 +4851,7 @@ BIC_min=1;
 
 void STEPWISErun::save_alle_betas(vector<double> & modell)
   {
-  unsigned anzahl = names_fixed.size();
+  int anzahl = names_fixed.size();
   fullcond_alle[0]->save_betas(modell,anzahl);
   anzahl = 1;
   unsigned j;

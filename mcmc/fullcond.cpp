@@ -1281,7 +1281,7 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
   df_wunsch = get_df_lambdamax();
   lambda_df = lambda_from_df(df_wunsch,lambdamax);
 
-  if(lambda_df != -9 && lambda_df < std::pow(10,9))
+  if(lambda_df != -9 && lambda_df < std::pow(10,9.0))
     lambdamax = lambda_df;
   else if(lambda_df == -9)
     {
@@ -1290,9 +1290,9 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
     optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
       + ST::doubletostring(lambdamax) + "! The number of different smoothing parameters has set to one!\n\n");
     }
-  else if(lambda_df == std::pow(10,9))
+  else if(lambda_df == std::pow(10,9.0))
     {
-    while(lambda_df == std::pow(10,9) && number>=1)
+    while(lambda_df == std::pow(10,9.0) && number>=1)
       {
       df_wunsch += diff;
       lambda_df = lambda_from_df(df_wunsch,lambdamax);
@@ -1328,7 +1328,7 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
        double l = log10(lambdamin);
        double u = log10(lambdamax);
        lambda_df = std::pow(10,u-double(i)*((u-l)/(double(number)-1)));
-       if(lambda_df < std::pow(10,9))
+       if(lambda_df < std::pow(10,9.0))
          lvec.push_back(lambda_from_df(df_wunsch,lambda_df));
        else
          {
