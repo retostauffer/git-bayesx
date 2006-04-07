@@ -2335,8 +2335,8 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
   void FULLCOND_rj::setzeta(const adja & zetanew)
   {
-	  zetamean = zeta;
-	  zetameanold = zeta;
+	  zetamean = Matrix<double>(zeta);
+	  zetameanold = Matrix<double>(zeta);
 
    /* zetas2 = beta;
 	  betavar = beta;

@@ -1259,11 +1259,11 @@ statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 
 
 template<class T>
-statmatrix<T> statmatrix<T>::partial_var(void) 
+statmatrix<T> statmatrix<T>::partial_var(void)
 {
-	unsigned i,j,m,n;
+	unsigned i,j;
 	unsigned nvar = this->cols();
-	unsigned nobs = this->rows();
+
 
 	double numerator, denominator;
 
@@ -1294,8 +1294,8 @@ statmatrix<T> statmatrix<T>::partial_var(void)
 		{
 			if(i<j)
 			{
-				cov_iX.assign(cov_all.get_cov_iX(i,j)); 
-				cov_jX.assign(cov_all.get_cov_iX(j,i)); 
+				cov_iX.assign(cov_all.get_cov_iX(i,j));
+				cov_jX.assign(cov_all.get_cov_iX(j,i));
 
 			//	cout<<cov_iX<<endl;
 			//	cout<<cov_jX<<endl;
