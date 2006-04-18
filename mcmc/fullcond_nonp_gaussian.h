@@ -412,7 +412,9 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   void update_gaussian_laplace(void);
 
-  void update_lambdaconst(void);  
+  void update_gaussian_gemanreynolds(void);
+
+  void update_lambdaconst(void);
 
   bool posteriormode(void);
 

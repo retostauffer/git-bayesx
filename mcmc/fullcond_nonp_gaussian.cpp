@@ -2925,7 +2925,8 @@ void FULLCOND_nonp_gaussian::update(void)
     }
   else if (utype==gaussianlaplace)
     {
-    update_gaussian_laplace();
+//    update_gaussian_laplace();
+    update_gaussian_gemanreynolds();
     }
   else
   {
@@ -3214,6 +3215,107 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
   FULLCOND::update();
 */
   }
+
+void FULLCOND_nonp_gaussian::update_gaussian_gemanreynolds(void)
+  {
+  unsigned i,j;
+
+  double sqrtscale = 0.3;
+  double help;
+  double sum;
+  double w;
+  double u;
+
+  double p = 2.0;
+  double lambda = 3.0;
+  double tau = 0.2;
+
+  unsigned beg,end;
+
+  for(i=0;i<nrpar;i++)
+    {
+
+    beg=posbeg[i];
+    end=posend[i];
+
+    betaold.assign(beta);
+
+    double logold;
+    logold = likep->loglikelihood(beg,end,index);
+
+    sum = 0.0;
+    if(delta.rows()>1)
+      for(j=0;j<neighbors[i].size();j++) // adaptive Gewichte!!!
+        {
+        w = -Kenv(i,neighbors[i][j]);
+        sum += w * fabs(betaold(i,0)-betaold(neighbors[i][j],0));
+        }
+    else
+      for(j=0;j<neighbors[i].size();j++)
+        {
+//        sum += fabs(betaold(i,0)-betaold(neighbors[i][j],0));
+        u = (betaold(i,0)-betaold(neighbors[i][j],0))/sigma2;
+        sum += lambda/(1.0 + pow(fabs(u),p));
+        }
+
+//    logold -= sum/sigma2;
+    logold -= sum;
+
+    help = sqrtscale*rand_normal();
+    beta(i,0) = betaold(i,0) + help;
+
+    update_linpred_diff(beg,end,help);
+
+    double lognew;
+    lognew = likep->loglikelihood(beg,end,index);
+
+    sum = 0.0;
+    if(delta.rows()>1)
+      for(j=0;j<neighbors[i].size();j++) // adaptive Gewichte!!!
+        {
+        w = -Kenv(i,neighbors[i][j]);
+        sum += w * fabs(beta(i,0)-beta(neighbors[i][j],0));
+        }
+    else
+      for(j=0;j<neighbors[i].size();j++)
+        {
+//        sum += fabs(beta(i,0)-beta(neighbors[i][j],0));
+        u = (beta(i,0)-beta(neighbors[i][j],0))/sigma2;
+        sum += lambda/(1.0 + pow(fabs(u),p));
+        }
+
+//    lognew -= sum/sigma2;
+    lognew -= sum/sigma2;
+
+    double alpha = lognew - logold;
+    double u = log(uniform());
+
+    nrtrials++;
+
+    if ( u <= alpha )
+      {
+      acceptance++;
+      }
+    else
+      {
+      update_linpred_diff(beg,end,-help);
+      beta.assign(betaold);
+      }
+
+    }
+
+  if (center)
+    {
+    double m = centerbeta();
+    fcconst->update_intercept(m);
+    }
+
+  transform = likep->get_trmult(column);
+
+  FULLCOND::update();
+
+  }
+
 
 
 bool FULLCOND_nonp_gaussian::posteriormode(void)
