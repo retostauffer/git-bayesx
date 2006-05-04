@@ -2388,6 +2388,185 @@ bool term_varcoeff_pspline::check(term & t)
 
   }
 
+
+//------------------------------------------------------------------------------
+//------ class term_varcoeff_merror: implementation of member functions --------
+//------------------------------------------------------------------------------
+
+
+term_varcoeff_merror::term_varcoeff_merror(void)
+  {
+  type = "term_varcoeff_merror";
+  min=intoption("min",0,1,100);
+  max=intoption("max",0,1,100);
+  degree=intoption("degree",3,0,5);
+  numberknots=intoption("nrknots",20,5,500);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  gridsize = intoption("gridsize",-1,10,500);
+  a = doubleoption("a",0.001,-1.0,500);
+  b = doubleoption("b",0.001,0,500);
+  vector<ST::string> adm_prop;
+  adm_prop.push_back("cp");
+  adm_prop.push_back("iwls");
+  adm_prop.push_back("iwlsmode");
+  proposal = stroption("proposal",adm_prop,"iwls");
+  vector<ST::string> adm;
+  adm.push_back("unrestricted");
+  adm.push_back("increasing");
+  adm.push_back("decreasing");
+  monotone = stroption("monotone",adm,"unrestricted");
+  updateW = intoption("updateW",1,0,100);
+  updatetau = simpleoption("updatetau",false);
+  f = doubleoption("f",2,0,10000000);
+  diagtransform = simpleoption("diagtransform",false);
+  derivative = simpleoption("derivative",false);
+  contourprob = intoption("contourprob",-1,0,6);
+  uniformprior = simpleoption("uniformprior",false);
+  beta_0 = stroption("beta_0");
+  vector<ST::string> knotsdef;
+  knotsdef.push_back("equidistant");
+  knotsdef.push_back("quantiles");
+  knots = stroption("knots",knotsdef,"equidistant");
+  }
+
+
+void term_varcoeff_merror::setdefault(void)
+  {
+  min.setdefault();
+  max.setdefault();
+  degree.setdefault();
+  numberknots.setdefault();
+  lambda.setdefault();
+  gridsize.setdefault();
+  a.setdefault();
+  b.setdefault();
+  proposal.setdefault();
+  monotone.setdefault();
+  updateW.setdefault();
+  updatetau.setdefault();
+  f.setdefault();
+  diagtransform.setdefault();
+  derivative.setdefault();
+  contourprob.setdefault();
+  uniformprior.setdefault();
+  beta_0.setdefault();
+  knots.setdefault();
+  }
+
+
+bool term_varcoeff_merror::check(term & t)
+  {
+
+  if ( (t.varnames.size()==2)  && (t.options.size() >=1)
+        && (t.options.size() <= 20) )
+    {
+
+    if (t.options[0] == "merrorpsplinerw1")
+      t.type = "varmepsplinerw1";
+    else if (t.options[0] == "merrorpsplinerw2")
+      t.type = "varmepsplinerw2";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    optionlist optlist;
+    optlist.push_back(&min);
+    optlist.push_back(&max);
+    optlist.push_back(&degree);
+    optlist.push_back(&numberknots);
+    optlist.push_back(&lambda);
+    optlist.push_back(&gridsize);
+    optlist.push_back(&a);
+    optlist.push_back(&b);
+    optlist.push_back(&proposal);
+    optlist.push_back(&monotone);
+    optlist.push_back(&updateW);
+    optlist.push_back(&updatetau);
+    optlist.push_back(&f);
+    optlist.push_back(&diagtransform);
+    optlist.push_back(&derivative);
+    optlist.push_back(&contourprob);
+    optlist.push_back(&uniformprior);
+    optlist.push_back(&beta_0);
+    optlist.push_back(&knots);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(20);
+    t.options[0] = t.type;
+    t.options[1] = ST::inttostring(min.getvalue());
+    t.options[2] = ST::inttostring(max.getvalue());
+    t.options[3] = ST::inttostring(degree.getvalue());
+    t.options[4] = ST::inttostring(numberknots.getvalue());
+    t.options[5] = ST::doubletostring(lambda.getvalue());
+    t.options[6] = ST::inttostring(gridsize.getvalue());
+    t.options[7] = ST::doubletostring(a.getvalue());
+    t.options[8] = ST::doubletostring(b.getvalue());
+    t.options[9] = proposal.getvalue();
+    t.options[10] = monotone.getvalue();
+    t.options[11] = ST::inttostring(updateW.getvalue());
+    if (updatetau.getvalue() == false)
+      t.options[12] = "false";
+    else
+      t.options[12] = "true";
+    t.options[13] = ST::doubletostring(f.getvalue());
+    if (diagtransform.getvalue() == false)
+      t.options[14] = "false";
+    else
+      t.options[14] = "true";
+    if (derivative.getvalue() == false)
+      t.options[15] = "false";
+    else
+      t.options[15] = "true";
+    t.options[16] = ST::inttostring(contourprob.getvalue());
+    if (uniformprior.getvalue() == false)
+      t.options[17] = "false";
+    else
+      t.options[17] = "true";
+    t.options[18] = beta_0.getvalue();
+    t.options[19] = knots.getvalue();
+
+    if ( contourprob.getvalue()-1 > degree.getvalue())
+      {
+      setdefault();
+      return false;
+      }
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
 //------------------------------------------------------------------------------
 //--------- class term_randomslope: implementation of member functions ---------
 //------------------------------------------------------------------------------

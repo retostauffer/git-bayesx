@@ -50,6 +50,8 @@
 #include"multibaseline.h"
 //#include<IWLS_baseline.h>
 
+#include"fullcond_merror.h"
+
 #include"mcmcsimul.h"
 
 
@@ -101,6 +103,7 @@ using MCMC::FULLCOND_kriging2;
 using MCMC::pspline_baseline;
 //using MCMC::IWLS_baseline;
 using MCMC::pspline_multibaseline;
+using MCMC::fullcond_merror;
 using MCMC::MCMCsimulate;
 
 
@@ -495,6 +498,10 @@ class __EXPORT_TYPE bayesreg : public statobject
   vector<FULLCOND_kriging2> fckriging;
   term_geokriging nonpspatial_geokriging;
   bool create_geokriging(const unsigned & collinpred=0);
+
+  term_varcoeff_merror nonpvarcoeffmerror;
+  bool create_varcoeffmerror(const unsigned & collinpred=0);
+  vector<fullcond_merror> fcmerror;
 
 //------------------------ for nonparametric terms -----------------------------
 

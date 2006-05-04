@@ -184,6 +184,7 @@ void bayesreg::create(void)
   nonpspatial_geokriging = term_geokriging();
   baseline = term_baseline();
   varcoeffbaseline = term_varcoeff_baseline();
+  nonpvarcoeffmerror = term_varcoeff_merror();
 
   termtypes.push_back(&offset);
   termtypes.push_back(&fixedeffects);
@@ -202,6 +203,7 @@ void bayesreg::create(void)
   termtypes.push_back(&nonpspatial_geokriging);
   termtypes.push_back(&baseline);
   termtypes.push_back(&varcoeffbaseline);
+  termtypes.push_back(&nonpvarcoeffmerror);
 
   modreg = modelterm(&termtypes);
 
@@ -707,6 +709,9 @@ void bayesreg::initpointers(void)
   for(i=0;i<fckriging.size();i++)
     fullcond.push_back(&fckriging[i]);
 
+  for(i=0;i<fcmerror.size();i++)
+    fullcond.push_back(&fcmerror[i]);
+
   }
 
 
@@ -805,6 +810,8 @@ void bayesreg::clear(void)
   fckriging.erase(fckriging.begin(),fckriging.end());
   fckriging.reserve(20);
 
+  fcmerror.erase(fcmerror.begin(),fcmerror.end());
+  fcmerror.reserve(2);
   }
 
 
@@ -1085,6 +1092,36 @@ bool bayesreg::create_distribution(void)
     modelvarnamesv.push_back(state.getvalue());
     statepos = modelvarnamesv.size()-1;
     }
+
+  // add variables for measurement error terms
+
+  unsigned j;
+  ST::string test;
+  vector<ST::string> modelvarnamesvhelp;
+  for(i=0; i<modelvarnamesv.size(); i++)
+    {
+    if(modelvarnamesv[i].length()>7)
+      {
+      test = modelvarnamesv[i].substr(modelvarnamesv[i].length()-7,7);
+      if(test=="_merror")
+        {
+        test = modelvarnamesv[i].substr(0,modelvarnamesv[i].length()-7);
+        for(j=1; j<3; j++)
+          {
+          modelvarnamesvhelp.push_back(test + ST::inttostring(j));
+          }
+        }
+      else
+        {
+        modelvarnamesvhelp.push_back(modelvarnamesv[i]);
+        }
+      }
+    else
+      {
+      modelvarnamesvhelp.push_back(modelvarnamesv[i]);
+      }
+    }
+  modelvarnamesv = modelvarnamesvhelp;
 
   // testing, wether all variables specified are already existing
   vector<ST::string> notex;
