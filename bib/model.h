@@ -1,4 +1,3 @@
-
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
@@ -1321,32 +1320,28 @@ class __EXPORT_TYPE term_varcoeff_pspline : public basic_termtype
 //- varying coefficient term with measurement error in the interaction variable -
 //-------------------------------------------------------------------------------
 
-
 class __EXPORT_TYPE term_varcoeff_merror : public basic_termtype
   {
-
-
   protected:
 
   intoption min;
   intoption max;
-  intoption degree;
-  intoption numberknots;
+  intoption minvar;
+  intoption maxvar;
+  doubleoption startv;
   doubleoption lambda;
-  intoption gridsize;
   doubleoption a;
   doubleoption b;
   stroption proposal;
-  stroption monotone;
   intoption updateW;
   simpleoption updatetau;
   doubleoption f;
-  simpleoption diagtransform;
-  simpleoption derivative;
-  intoption contourprob;
-  simpleoption uniformprior;
-  stroption beta_0;
-  stroption knots;
+  doubleoption lambdamin;
+  doubleoption lambdamax;
+  doubleoption lambdastart;
+  simpleoption stationary;
+  doubleoption alpha;
+  simpleoption alphafix;
 
   void setdefault(void);
 
@@ -1361,14 +1356,16 @@ class __EXPORT_TYPE term_varcoeff_merror : public basic_termtype
   bool check(term & t);
 
   // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is an interaction term
+  // TASK: returns true if term 'i' is a first or second order random walk
 
-  bool checkvector(const vector<term> & terms,const unsigned & i)
+  bool checkvector(const vector<term>  & terms,const unsigned & i)
     {
 
     assert(i< terms.size());
 
-    if ((terms[i].type == "varmepsplinerw1") || (terms[i].type == "varmepsplinerw2"))
+    if ((terms[i].type == "varcoeffmerrorrw1") ||
+        (terms[i].type == "varcoeffmerrorrw2")
+       )
       return true;
 
     return false;
