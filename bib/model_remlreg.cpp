@@ -1895,6 +1895,8 @@ term_kriging_remlreg::term_kriging_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",0.1,0,10000000);
   catspecific = simpleoption("catspecific",false);
+  gridsizex=intoption("gridsizex",0,0,500);
+  gridsizey=intoption("gridsizey",0,0,500);
   }
 
 void term_kriging_remlreg::setdefault(void)
@@ -1910,12 +1912,14 @@ void term_kriging_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   catspecific.setdefault();
+  gridsizex.setdefault();
+  gridsizey.setdefault();
   }
 
 bool term_kriging_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-        && (t.options.size() <= 12) )
+        && (t.options.size() <= 14) )
     {
     if (t.options[0] == "kriging")
       t.type = "kriging";
@@ -1937,6 +1941,8 @@ bool term_kriging_remlreg::check(term & t)
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
     optlist.push_back(&catspecific);
+    optlist.push_back(&gridsizex);
+    optlist.push_back(&gridsizey);
 
     unsigned i;
     bool rec = true;
@@ -1957,7 +1963,7 @@ bool term_kriging_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(12);
+    t.options = vector<ST::string>(14);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(numberknots.getvalue());
     t.options[2] = ST::doubletostring(nu.getvalue());
@@ -1984,6 +1990,8 @@ bool term_kriging_remlreg::check(term & t)
       {
       t.options[11] = "false";
       }
+    t.options[12] = ST::inttostring(gridsizex.getvalue());
+    t.options[13] = ST::inttostring(gridsizey.getvalue());
 
     setdefault();
     return true;
@@ -2154,6 +2162,8 @@ term_geokriging_remlreg::term_geokriging_remlreg(void)
   lambdastart = doubleoption("lambdastart",0.1,0,10000000);
   map=stroption("map");
   catspecific = simpleoption("catspecific",false);
+  gridsizex=intoption("gridsizex",0,0,500);
+  gridsizey=intoption("gridsizey",0,0,500);
   }
 
 void term_geokriging_remlreg::setdefault(void)
@@ -2169,13 +2179,14 @@ void term_geokriging_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   map.setdefault();
-  catspecific.setdefault();
+  gridsizex.setdefault();
+  gridsizey.setdefault();
   }
 
 bool term_geokriging_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >=1)
-        && (t.options.size() <= 13) )
+        && (t.options.size() <= 15) )
     {
     if (t.options[0] == "geokriging")
       t.type = "geokriging";
@@ -2198,6 +2209,8 @@ bool term_geokriging_remlreg::check(term & t)
     optlist.push_back(&lambdastart);
     optlist.push_back(&map);
     optlist.push_back(&catspecific);
+    optlist.push_back(&gridsizex);
+    optlist.push_back(&gridsizey);
 
     unsigned i;
     bool rec = true;
@@ -2218,7 +2231,7 @@ bool term_geokriging_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(13);
+    t.options = vector<ST::string>(15);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(numberknots.getvalue());
     t.options[2] = ST::doubletostring(nu.getvalue());
@@ -2246,6 +2259,8 @@ bool term_geokriging_remlreg::check(term & t)
       {
       t.options[12] = "false";
       }
+    t.options[13] = ST::inttostring(gridsizex.getvalue());
+    t.options[14] = ST::inttostring(gridsizey.getvalue());
 
     setdefault();
     return true;

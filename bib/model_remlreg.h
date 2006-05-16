@@ -746,6 +746,8 @@ class __EXPORT_TYPE term_kriging_remlreg : public basic_termtype
   doubleoption lambda;
   doubleoption lambdastart;
   simpleoption catspecific;
+  intoption gridsizex;
+  intoption gridsizey;
 
   void setdefault(void);
 
@@ -841,6 +843,8 @@ class __EXPORT_TYPE term_geokriging_remlreg : public basic_termtype
   stroption map;            // name of the map-object containing the
                             // geographical information
   simpleoption catspecific;
+  intoption gridsizex;
+  intoption gridsizey;
 
   void setdefault(void);
 

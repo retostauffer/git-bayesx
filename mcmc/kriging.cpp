@@ -12,7 +12,8 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & v1,
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu,const fieldtype & ft, const ST::string & ti,
                const ST::string & fp,const ST::string & pres, const double & l,
-               const double & sl, const bool & catsp)
+               const double & sl, const bool & catsp, const unsigned & gsx,
+               const unsigned & gsy)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
@@ -56,7 +57,6 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & v1,
     nrknots = nrk;
     }
 
-
   xknots.clear();
   yknots.clear();
   if(knotdata.cols()>1)
@@ -96,6 +96,16 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & v1,
       }
     }
   rho=sqrt(rho)/maxdist;
+
+  gridsizex = gsx;
+  gridsizey = gsy;
+  gridsize = gsx*gsy;
+  if(gridsize>0)
+    {
+    X_VCM = datamatrix(gridsize,dimX,1.0);
+    Z_VCM = datamatrix(gridsize,dimZ,0.0);
+    }
+  make_xy_values_grid(v1,v2);
   }
 
 FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o,
@@ -200,7 +210,8 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & region,
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl, const bool & catsp)
+               const double & sl, const bool & catsp, const unsigned & gsx,
+               const unsigned & gsy)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
@@ -299,6 +310,16 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & region,
       }
     }
   rho=sqrt(rho)/maxdist;
+
+  gridsizex = gsx;
+  gridsizey = gsy;
+  gridsize = gsx*gsy;
+  if(gridsize>0)
+    {
+    X_VCM = datamatrix(gridsize,dimX,1.0);
+    Z_VCM = datamatrix(gridsize,dimZ,0.0);
+    }
+  make_xy_values_grid(v1,v2);
   }
 
   // Constructor 3: geokriging (varcoeff)
@@ -515,6 +536,13 @@ FULLCOND_kriging::FULLCOND_kriging(const FULLCOND_kriging & kr)
   data_forfixed = kr.data_forfixed;
   onedim = kr.onedim;
   incidence = kr.incidence;
+  gridsize = kr.gridsize;
+  gridsizex = kr.gridsizex;
+  gridsizey = kr.gridsizey;
+  xvaluesgrid=kr.xvaluesgrid;
+  yvaluesgrid=kr.yvaluesgrid;
+  effectvaluesxgrid=kr.effectvaluesxgrid;
+  effectvaluesygrid=kr.effectvaluesygrid;
   }
 
 const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr)
@@ -549,6 +577,13 @@ const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr
   data_forfixed = kr.data_forfixed;
   onedim = kr.onedim;
   incidence = kr.incidence;
+  gridsize = kr.gridsize;
+  gridsizex = kr.gridsizex;
+  gridsizey = kr.gridsizey;
+  xvaluesgrid=kr.xvaluesgrid;
+  yvaluesgrid=kr.yvaluesgrid;
+  effectvaluesxgrid=kr.effectvaluesxgrid;
+  effectvaluesygrid=kr.effectvaluesygrid;
   return *this;
   }
 
@@ -583,6 +618,33 @@ void FULLCOND_kriging::createreml(datamatrix & X,datamatrix & Z,
         else if(nu==3.5)
           {
           Z(i,Zpos+j)=exp(-r)*(1+r+2*r*r/5+r*r*r/15);
+          }
+        }
+      }
+    if(gridsize>0)
+      {
+      for(i=0; i<gridsize; i++)
+        {
+        for(j=0; j<nrknots; j++)
+          {
+          r=sqrt((effectvaluesxgrid[i]-xknots[j])*(effectvaluesxgrid[i]-xknots[j]) +
+                   (effectvaluesygrid[i]-yknots[j])*(effectvaluesygrid[i]-yknots[j]))/rho;
+          if(nu==0.5)
+            {
+            Z_VCM(i,j)=exp(-r);
+            }
+          else if(nu==1.5)
+            {
+            Z_VCM(i,j)=exp(-r)*(1+r);
+            }
+          else if(nu==2.5)
+            {
+            Z_VCM(i,j)=exp(-r)*(1+r+r*r/3);
+            }
+          else if(nu==3.5)
+            {
+            Z_VCM(i,j)=exp(-r)*(1+r+2*r*r/5+r*r*r/15);
+            }
           }
         }
       }
@@ -633,6 +695,10 @@ void FULLCOND_kriging::createreml(datamatrix & X,datamatrix & Z,
     if(!varcoeff)
       {
       Z.putColBlock(Zpos,Zpos+nrknots,Z.getColBlock(Zpos,Zpos+nrknots)*cov);
+      if(gridsize>0)
+        {
+        Z_VCM = Z_VCM*cov;
+        }
       }
     else
       {
@@ -1290,6 +1356,102 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
     outres << endl;
     }
 
+  if(gridsize>0)
+    {
+    nr = gridsize;
+
+    betamean=datamatrix(nr,1,0);
+    datamatrix betastd=datamatrix(nr,1,0);
+    betaqu_l1_lower=datamatrix(nr,1,0);
+    betaqu_l1_upper=datamatrix(nr,1,0);
+    betaqu_l2_lower=datamatrix(nr,1,0);
+    betaqu_l2_upper=datamatrix(nr,1,0);
+
+    betamean = Z_VCM*betareml.getBlock(betaZpos,0,betaZpos+nrpar,1);
+    for(i=0; i<gridsize; i++)
+      {
+      betamean(i,0)=betamean(i,0)-mean;
+      betastd(i,0) = sqrt((Z_VCM.getRow(i)*
+               betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar,betaZpos+nrpar)*
+               Z_VCM.getRow(i).transposed())(0,0));
+      }
+    outest = outest.substr(0,outest.length()-4) + "_grid.res";
+    ofstream outgrid(outest.strtochar());
+
+    optionsp->out("  Results on a grid are stored in file\n");
+    optionsp->out("  " + outest + "\n");
+    optionsp->out("\n");
+
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotsurf'\n");
+    ST::string doublebackslash = "\\\\";
+    ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
+    optionsp->out("  Type for example:\n");
+    optionsp->out("  plotsurf(\"" + spluspath + "\")");
+    optionsp->out("\n");
+    optionsp->out("\n");
+
+    assert(!outgrid.fail());
+    outgrid << "intnr" << "   ";
+    if(mapexisting)
+     {
+     outgrid << "x   " << "y   ";
+     }
+    else
+      {
+      outgrid << datanames[1] << "   ";
+      outgrid << datanames[0] << "   ";
+      }
+    outgrid << "pmode   ";
+    outgrid << "ci"  << level1  << "lower   ";
+    outgrid << "ci"  << level2  << "lower   ";
+    outgrid << "std   ";
+    outgrid << "ci"  << level2  << "upper   ";
+    outgrid << "ci"  << level1  << "upper   ";
+    outgrid << "pcat" << level1 << "   ";
+    outgrid << "pcat" << level2 << "   ";
+    outgrid << endl;
+
+    workmean = betamean.getV();
+    workstd = betastd.getV();
+    workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
+    workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
+    workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
+    workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
+    workxvalues = effectvaluesxgrid.begin();
+    workyvalues = effectvaluesygrid.begin();
+
+    for(i=0;i<gridsize;i++,workmean++,workstd++,
+                       workbetaqu_l1_lower_p++,workbetaqu_l2_lower_p++,
+                       workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++,
+                       workxvalues++,workyvalues++)
+      {
+      outgrid << (i+1) << "   ";
+      outgrid << *workxvalues << "   ";
+      outgrid << *workyvalues << "   ";
+      outgrid << *workmean << "   ";
+      outgrid << *workbetaqu_l1_lower_p << "   ";
+      outgrid << *workbetaqu_l2_lower_p << "   ";
+      outgrid << *workstd << "   ";
+      outgrid << *workbetaqu_l2_upper_p << "   ";
+      outgrid << *workbetaqu_l1_upper_p << "   ";
+      if (*workbetaqu_l1_lower_p > 0)
+        outgrid << "1   ";
+      else if (*workbetaqu_l1_upper_p < 0)
+        outgrid << "-1   ";
+      else
+        outgrid << "0   ";
+
+      if (*workbetaqu_l2_lower_p > 0)
+        outgrid << "1   ";
+      else if (*workbetaqu_l2_upper_p < 0)
+        outgrid << "-1   ";
+      else
+        outgrid << "0   ";
+
+      outgrid << endl;
+      }
+    }
+
   return mean;
   }
 
@@ -1396,6 +1558,35 @@ void FULLCOND_kriging::make_index(const datamatrix & moddata)
       xvalues[*freqwork] = moddata(*workindex,0);
   }
 
+void FULLCOND_kriging::make_xy_values_grid(const datamatrix & var1,const datamatrix & var2)
+  {
+  int i,j;
+
+// Design-Daten erzeugen
+  double xmin = var1.min(0);
+  double xmax = var1.max(0);
+  double ymin = var2.min(0);
+  double ymax = var2.max(0);
+  xvaluesgrid = datamatrix(gridsizex,1);
+  yvaluesgrid = datamatrix(gridsizey,1);
+
+  for(i=0;i<gridsizex;i++)
+    xvaluesgrid(i,0) = xmin + i*(xmax-xmin)/double(xvaluesgrid.rows()-1);
+  for(i=0;i<gridsizey;i++)
+    yvaluesgrid(i,0) = ymin + i*(ymax-ymin)/double(yvaluesgrid.rows()-1);
+
+  effectvaluesxgrid = vector<double>(gridsize);
+  effectvaluesygrid = vector<double>(gridsize);
+
+  for(i=0;i<gridsizex;i++)
+    {
+    for(j=0;j<gridsizey;j++)
+      {
+      effectvaluesxgrid[i*gridsizey + j] = xvaluesgrid(i,0);
+      effectvaluesygrid[i*gridsizey + j] = yvaluesgrid(j,0);
+      }
+    }
+  }
 
 } // end: namespace MCMC
 

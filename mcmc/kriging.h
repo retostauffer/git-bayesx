@@ -52,6 +52,15 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
   datamatrix xorig;                   // Original x- und y-Variable.
   datamatrix yorig;
 
+  unsigned gridsize;
+  unsigned gridsizex;
+  unsigned gridsizey;
+
+  vector<double> effectvaluesxgrid;      // bildet zusammen mit effectvaluesy die Daten-Paare
+  vector<double> effectvaluesygrid;      // für die Ausgabe auf einem Gitter
+  datamatrix xvaluesgrid;                // geordnete, äquidistante Werte zwischen Min(x/y) und Max(x/y)
+  datamatrix yvaluesgrid;                // falls gridsize > 0
+  
   vector<int> index2;
 
   vector<int>freq;
@@ -89,7 +98,8 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl, const bool & catsp);
+               const double & sl, const bool & catsp, const unsigned &gsx,
+               const unsigned & gsy);
 
 
   // Constructor 2: varcoef
@@ -111,7 +121,8 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
                const double & pval, const double & qval, const unsigned & maxst,
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl, const bool & catsp);
+               const double & sl, const bool & catsp, const unsigned & gsx,
+               const unsigned & gsy);
 
   // Constructor 4: geokriging (varcoeff)
 
@@ -160,6 +171,9 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
   ST::string getinfo(void);
 
   void make_index(const datamatrix & moddata);
+
+  void make_xy_values_grid(const datamatrix & var1,const datamatrix & var2);
+
   };
 
 

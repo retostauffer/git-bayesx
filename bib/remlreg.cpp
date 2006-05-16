@@ -2444,7 +2444,7 @@ bool remlreg::create_kriging(const unsigned & collinpred)
   ST::string pathres;
   long h;
   double nu,maxdist,p,q,lambda,startlambda;
-  unsigned nrknots, maxsteps;
+  unsigned nrknots, maxsteps,gridsizex,gridsizey;
   bool full, catsp;
   int f;
 
@@ -2511,6 +2511,10 @@ bool remlreg::create_kriging(const unsigned & collinpred)
         {
         catsp=false;
         }
+      f = (terms[i].options[12]).strtolong(h);
+      gridsizex = unsigned(h);
+      f = (terms[i].options[13]).strtolong(h);
+      gridsizey = unsigned(h);
 
       if (f==1)
         return true;
@@ -2568,7 +2572,8 @@ bool remlreg::create_kriging(const unsigned & collinpred)
               pathres,
               lambda,
               startlambda,
-              catsp
+              catsp,
+              gridsizex,gridsizey
               ));
 
       vector<ST::string> na;
@@ -2836,7 +2841,7 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
   ST::string pathres;
   long h;
   double nu,maxdist,p,q,lambda,startlambda;
-  unsigned nrknots, maxsteps;
+  unsigned nrknots, maxsteps, gridsizex, gridsizey;
   bool full, catsp;
   int f;
 
@@ -2902,6 +2907,10 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
         {
         catsp=false;
         }
+      f = (terms[i].options[13]).strtolong(h);
+      gridsizex = unsigned(h);
+      f = (terms[i].options[14]).strtolong(h);
+      gridsizey = unsigned(h);
 
       if (f==1)
         return true;
@@ -2977,7 +2986,8 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
               pathres,
               lambda,
               startlambda,
-              catsp
+              catsp,
+              gridsizex,gridsizey
               ));
 
       vector<ST::string> na;
