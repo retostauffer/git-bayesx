@@ -44,6 +44,9 @@ class remlest
 
   bool fisher;                                  // store final fisher infor-matrix?
 
+  bool constlambda;        // fix smoothing parameters at their starting values?
+  bool constscale;         // fix scale parameter at its starting value?
+
   statmatrix<double> X;                         // fixed effects
   statmatrix<double> Z;                         // random effects
 
@@ -87,6 +90,7 @@ class remlest
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
           const double & maxch, const double & maxv, const bool & fi,
+          const bool & cl, const bool & cs,
           ostream * lo=&cout);
 
 //------------------------------------------------------------------------------

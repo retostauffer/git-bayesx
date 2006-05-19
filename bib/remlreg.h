@@ -210,6 +210,9 @@ class __EXPORT_TYPE remlreg : public statobject
   simpleoption noconst;                 // exclude intercept
   simpleoption fisher;                  // request storage of the fisher information matrix
 
+  simpleoption constlambda;             // fix values of the smoothing parameters at the starting values
+  simpleoption constscale;              // fix values of the scale parameter at the starting value
+
   stroption leftint;                    // Cox Model: left interval boundary
   stroption lefttrunc;                  //            left truncation time
   int leftintpos;                       // Positionen der Variablen in der

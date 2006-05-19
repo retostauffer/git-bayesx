@@ -20,7 +20,9 @@
                    const ST::string & family, const ST::string & ofile,
                   const int & maxiter, const double & lowerlimit,
                   const double & epsi, const double & maxch,
-                  const double & maxv, const bool & fi, ostream * lo)
+                  const double & maxv, const bool & fi,
+                  const bool & cl, const bool & cs,
+                  ostream * lo)
     {
 
     #if defined(JAVA_OUTPUT_WINDOW)
@@ -38,7 +40,10 @@
     maxvar = maxv;
 
     fisher=fi;
-    
+
+    constlambda=cl;
+    constscale=cs;
+
     fullcond = fc;
     unsigned i;
 
@@ -243,73 +248,76 @@
       eta(i,0) += offset(i,0);
       }
 
-    // transform theta
-    for(i=0; i<theta.rows(); i++)
+    if(!constlambda)
       {
-      thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
-      }
-
-    Hinv=H.inverse();
-    H.subfromdiag(Qinv,X.cols(),beta.rows());
-
-    stop = check_pause();
-    if (stop)
-      return true;
-
-    // compute score-function and expected fisher information
-
-    for(i=0; i<theta.rows(); i++)
-      {
-      score(i,0)=-1*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)).trace()+
-                 ((H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*Hinv*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*thetaold(i,0)).trace();
-      for(l=zcut[i]; l<zcut[i+1]; l++)
+      // transform theta
+      for(i=0; i<theta.rows(); i++)
         {
-        help = (wresid*(Z.getCol(l)))(0,0);
-        score(i,0) += help*help*thetaold(i,0);
+        thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
         }
 
-      for(k=0; k<theta.rows(); k++)
+      Hinv=H.inverse();
+      H.subfromdiag(Qinv,X.cols(),beta.rows());
+
+      stop = check_pause();
+      if (stop)
+        return true;
+
+      // compute score-function and expected fisher information
+
+      for(i=0; i<theta.rows(); i++)
         {
-        Fisher(i,k)=2*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*H.getBlock(X.cols()+zcut[k],X.cols()+zcut[i],X.cols()+zcut[k+1],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace()-
-                    4*(H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*thetaold(i,0)*thetaold(k,0)).trace()+
-                    2*(H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*H.getColBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace();
-        Fisher(k,i)=Fisher(i,k);
+        score(i,0)=-1*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)).trace()+
+                   ((H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*Hinv*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*thetaold(i,0)).trace();
+        for(l=zcut[i]; l<zcut[i+1]; l++)
+          {
+          help = (wresid*(Z.getCol(l)))(0,0);
+          score(i,0) += help*help*thetaold(i,0);
+          }
+
+        for(k=0; k<theta.rows(); k++)
+          {
+          Fisher(i,k)=2*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*H.getBlock(X.cols()+zcut[k],X.cols()+zcut[i],X.cols()+zcut[k+1],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace()-
+                      4*(H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*thetaold(i,0)*thetaold(k,0)).trace()+
+                      2*(H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*H.getColBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace();
+          Fisher(k,i)=Fisher(i,k);
+          }
         }
-      }
 
-    // fisher scoring for theta
-    theta = thetaold + Fisher.solve(score);
+      // fisher scoring for theta
+      theta = thetaold + Fisher.solve(score);
 
-    // transform theta back to original parameterisation
+      // transform theta back to original parameterisation
 
-    for(i=0; i<theta.rows(); i++)
-      {
-      signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
-      theta(i,0) *= theta(i,0);
-      thetaold(i,0) *= thetaold(i,0);
-      }
+      for(i=0; i<theta.rows(); i++)
+        {
+        signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
+        theta(i,0) *= theta(i,0);
+        thetaold(i,0) *= thetaold(i,0);
+        }
 
-    // test whether to stop estimation of theta[i]
-   help=eta.norm(0);
-   for(i=0; i<theta.rows(); i++)
-     {
-     dinv=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
-     stopcrit[i]=dinv.norm(0)/help;
-     if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
+      // test whether to stop estimation of theta[i]
+     help=eta.norm(0);
+     for(i=0; i<theta.rows(); i++)
        {
-       theta(i,0)=thetaold(i,0);
-        if(stopcrit[i]<lowerlim)
-          {
-          thetastop[i]=1;
-          }
-        else
-          {
-          thetastop[i]=-1;
-          }
-       }
-     else
-       {
-       its[i]=it;
+       dinv=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
+       stopcrit[i]=dinv.norm(0)/help;
+       if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
+         {
+         theta(i,0)=thetaold(i,0);
+          if(stopcrit[i]<lowerlim)
+            {
+            thetastop[i]=1;
+            }
+          else
+            {
+            thetastop[i]=-1;
+            }
+         }
+       else
+         {
+         its[i]=it;
+         }
        }
      }
 
@@ -897,6 +905,11 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
   statmatrix<double>w1resid(resp.rows(),1,0);
 
   // Transform smoothing paramater starting values to variances
+  datamatrix consttheta;
+  if(constlambda)
+    {
+    consttheta=theta;
+    }
   theta(theta.rows()-1,0)=resp.var(0);
   for(i=0; i<theta.rows()-1; i++)
     {
@@ -999,77 +1012,119 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
       eta(i,0) += offset(i,0);
       }
 
-    // transform theta
-    for(i=0; i<theta.rows(); i++)
+    if(!constlambda && !constscale)
       {
-      thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
-      }
-
-    Hinv=H.inverse();
-    H.subfromdiag(Qinv,X.cols(),beta.rows());
-
-    stop = check_pause();
-    if (stop)
-      return true;
-
-    // compute score-function and expected fisher information
-
-    for(i=0; i<theta.rows()-1; i++)
-      {
-      score(i,0)=-1*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)).trace()+
-                 ((H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*Hinv*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*thetaold(i,0)).trace();
-      for(l=zcut[i]; l<zcut[i+1]; l++)
+      // transform theta
+      for(i=0; i<theta.rows(); i++)
         {
-        help = (wresid*(Z.getCol(l)))(0,0);
-        score(i,0) += help*help*thetaold(i,0);
+        thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
         }
-      Fisher(theta.rows()-1,i)=2*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace()-
-                  4*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace()+
-                  2*(H*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace();
-      Fisher(i,theta.rows()-1)=Fisher(theta.rows()-1,i);
-      for(k=0; k<theta.rows()-1; k++)
+
+      Hinv=H.inverse();
+      H.subfromdiag(Qinv,X.cols(),beta.rows());
+
+      stop = check_pause();
+      if (stop)
+        return true;
+
+      // compute score-function and expected fisher information
+
+      for(i=0; i<theta.rows()-1; i++)
         {
-        Fisher(i,k)=2*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*H.getBlock(X.cols()+zcut[k],X.cols()+zcut[i],X.cols()+zcut[k+1],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace()-
-                    4*(H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*thetaold(i,0)*thetaold(k,0)).trace()+
-                    2*(H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*H.getColBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace();
-        Fisher(k,i)=Fisher(i,k);
+        score(i,0)=-1*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)).trace()+
+                   ((H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*Hinv*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]))*thetaold(i,0)).trace();
+        for(l=zcut[i]; l<zcut[i+1]; l++)
+          {
+          help = (wresid*(Z.getCol(l)))(0,0);
+          score(i,0) += help*help*thetaold(i,0);
+          }
+        Fisher(theta.rows()-1,i)=2*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace()-
+                    4*(H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace()+
+                    2*(H*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*thetaold(i,0)/thetaold(theta.rows()-1,0)).trace();
+        Fisher(i,theta.rows()-1)=Fisher(theta.rows()-1,i);
+        for(k=0; k<theta.rows()-1; k++)
+          {
+          Fisher(i,k)=2*(H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*H.getBlock(X.cols()+zcut[k],X.cols()+zcut[i],X.cols()+zcut[k+1],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace()-
+                      4*(H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*H.getBlock(X.cols()+zcut[i],X.cols()+zcut[k],X.cols()+zcut[i+1],X.cols()+zcut[k+1])*thetaold(i,0)*thetaold(k,0)).trace()+
+                      2*(H.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*Hinv*H.getColBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*H.getRowBlock(X.cols()+zcut[k],X.cols()+zcut[k+1])*Hinv*H.getColBlock(X.cols()+zcut[i],X.cols()+zcut[i+1])*thetaold(i,0)*thetaold(k,0)).trace();
+          Fisher(k,i)=Fisher(i,k);
+          }
         }
-      }
-    score(theta.rows()-1,0)=-(double)nrobspos/thetaold(theta.rows()-1,0)+
-          0.5*(2/thetaold(theta.rows()-1,0)*H*Hinv).trace()+
-          w1resid.sum2(0)/thetaold(theta.rows()-1,0);
+      score(theta.rows()-1,0)=-(double)nrobspos/thetaold(theta.rows()-1,0)+
+            0.5*(2/thetaold(theta.rows()-1,0)*H*Hinv).trace()+
+            w1resid.sum2(0)/thetaold(theta.rows()-1,0);
 
-    Fisher(theta.rows()-1,theta.rows()-1)=2*(double)nrobspos/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))-
-           4*(H*Hinv/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace()+
-           2*(H*Hinv*H*Hinv/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace();
+      Fisher(theta.rows()-1,theta.rows()-1)=2*(double)nrobspos/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))-
+             4*(H*Hinv/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace()+
+             2*(H*Hinv*H*Hinv/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace();
 
-    // fisher scoring for theta
-    theta = thetaold + Fisher.solve(score);
+      // fisher scoring for theta
+      theta = thetaold + Fisher.solve(score);
 
-    // transform theta back to original parameterisation
+      // transform theta back to original parameterisation
 
-    for(i=0; i<theta.rows(); i++)
-      {
-      signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
-      theta(i,0) *= theta(i,0);
-      thetaold(i,0) *= thetaold(i,0);
-      }
+      for(i=0; i<theta.rows(); i++)
+        {
+        signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
+        theta(i,0) *= theta(i,0);
+        thetaold(i,0) *= thetaold(i,0);
+        }
 
-    // test whether to stop estimation of theta[i]
-   help=eta.norm(0);
-   for(i=0; i<theta.rows()-1; i++)
-     {
-     dinv=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
-     stopcrit[i]=dinv.norm(0)/help;
-     if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
+      // test whether to stop estimation of theta[i]
+     help=eta.norm(0);
+     for(i=0; i<theta.rows()-1; i++)
        {
-       theta(i,0)=thetaold(i,0);
-       }
-     else
-       {
-       its[i]=it;
+       dinv=Z.getColBlock(zcut[i],zcut[i+1])*beta.getRowBlock(X.cols()+zcut[i],X.cols()+zcut[i+1]);
+       stopcrit[i]=dinv.norm(0)/help;
+       if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
+         {
+         theta(i,0)=thetaold(i,0);
+         }
+       else
+         {
+         its[i]=it;
+         }
        }
      }
+   if(constlambda && !constscale)
+     {
+     score = datamatrix(1,1,0);
+     Fisher = datamatrix(1,1,0);
+      for(i=0; i<theta.rows(); i++)
+        {
+        thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
+        }
+
+      Hinv=H.inverse();
+      H.subfromdiag(Qinv,X.cols(),beta.rows());
+
+      stop = check_pause();
+      if (stop)
+        return true;
+
+      score(0,0)=-(double)nrobspos/thetaold(theta.rows()-1,0)+
+            0.5*(2/thetaold(theta.rows()-1,0)*H*Hinv).trace()+
+            w1resid.sum2(0)/thetaold(theta.rows()-1,0);
+
+      Fisher(0,0)=2*(double)nrobspos/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))-
+             4*(H*Hinv/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace()+
+             2*(H*Hinv*H*Hinv/(thetaold(theta.rows()-1,0)*thetaold(theta.rows()-1,0))).trace();
+
+      theta(theta.rows()-1,0) = thetaold(theta.rows()-1,0) + score(0,0)/Fisher(0,0);
+
+      for(i=0; i<theta.rows(); i++)
+        {
+        signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
+        theta(i,0) *= theta(i,0);
+        thetaold(i,0) *= thetaold(i,0);
+        }
+
+      for(i=0; i<theta.rows()-1; i++)
+       {
+       theta(i,0)=theta(theta.rows()-1,0)/consttheta(i,0);
+       }
+     }
+
 
     // compute convergence criteria
     help=betaold.norm(0);

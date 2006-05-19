@@ -291,6 +291,9 @@ void remlreg::create(void)
 
   aiccontrol = simpleoption("aiccontrol",false);
   fisher = simpleoption("fisher",false);
+  
+  constlambda = simpleoption("constlambda",false);
+  constscale = simpleoption("constscale",false);
 
   leftint = stroption("leftint");
   lefttrunc = stroption("lefttrunc");
@@ -320,6 +323,9 @@ void remlreg::create(void)
   regressoptions.push_back(&fisher);
 
   regressoptions.push_back(&aiccontrol);
+
+  regressoptions.push_back(&constlambda);
+  regressoptions.push_back(&constscale);
 
   regressoptions.push_back(&leftint);
   regressoptions.push_back(&lefttrunc);
@@ -3820,7 +3826,7 @@ void remlrun(remlreg & b)
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
       b.maxchange.getvalue(), b.maxvar.getvalue(), b.fisher.getvalue(),
-      b.logout);
+      b.constlambda.getvalue(),b.constscale.getvalue(),b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE.estimate_glm(response,offset,weight);
       else
@@ -3837,7 +3843,7 @@ void remlrun(remlreg & b)
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
       b.maxchange.getvalue(), b.maxvar.getvalue(), b.fisher.getvalue(),
-      b.logout);
+      b.constlambda.getvalue(),b.constscale.getvalue(),b.logout);
       failure = b.RE.estimate_survival(response,offset,weight);
       }
 // Cox-Modell mit Intervallzensierung (ohne zeitvariierende Effekte)
@@ -3851,7 +3857,7 @@ void remlrun(remlreg & b)
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
       b.maxchange.getvalue(), b.maxvar.getvalue(), b.fisher.getvalue(),
-      b.logout);
+      b.constlambda.getvalue(),b.constscale.getvalue(),b.logout);
       failure = b.RE.estimate_survival_interval(response,offset,weight);
       }
 // Cox-Modell mit Intervallzensierung & Linkstrunkierung  & zeitvariierenden Effekten
@@ -3865,7 +3871,7 @@ void remlrun(remlreg & b)
       b.fullcond, response, dispers, b.family.getvalue(), b.outfile.getvalue(),
       b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
       b.maxchange.getvalue(), b.maxvar.getvalue(), b.fisher.getvalue(),
-      b.logout);
+      b.constlambda.getvalue(),b.constscale.getvalue(),b.logout);
       failure = b.RE.estimate_survival_interval2(response,offset,weight,
                                                  b.aiccontrol.getvalue());
       }
@@ -3896,6 +3902,7 @@ void remlrun(remlreg & b)
       b.fullcond,response,dispers,b.family.getvalue(),b.outfile.getvalue(),
       b.maxit.getvalue(),b.lowerlim.getvalue(),b.eps.getvalue(),
       b.maxchange.getvalue(), b.maxvar.getvalue(), b.fisher.getvalue(),
+      b.constlambda.getvalue(),b.constscale.getvalue(),
       b.logout);
       if (b.fullcond.size() == 1)    // fixed effects only
         failure = b.RE.estimate_glm_dispers(response,offset,weight);
