@@ -19,7 +19,7 @@ namespace MCMC
   //        (i.e. number of categories of the response variable)
   // fp   : file path for storing sampled parameters
 
-  fullcond_merror::fullcond_merror(MCMCoptions * o, FULLCOND_nonp_basis * p,
+  fullcond_merror::fullcond_merror(MCMCoptions * o, FULLCOND_nonp_gaussian * p,
            const datamatrix & d, const ST::string & t, const ST::string & fp)
                          : FULLCOND(o,d,t,d.rows(),d.cols(),fp)
     {
@@ -66,7 +66,11 @@ namespace MCMC
 
   void fullcond_merror::update(void)
     {
+
+
+    designp->init_data_varcoeff(data);
     }
+
 
   // FUNCTION: posteriormode
   // TASK: computes the posterior mode

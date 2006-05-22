@@ -84,10 +84,6 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   bool lattice;
   ST::string pathmap;
 
-  // FUNCTION: init_data_varcoeff
-  // TASK: initializes data and data2 (data^2) for varying coefficient model
-
-  void init_data_varcoeff(const datamatrix & intvar);
 
   // FUNCTION: make_categories
   // TASK: devides the data in moddata into categories, maximal number of
@@ -231,7 +227,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   //------------------------ REML CONSTRUCTOR(s) -------------------------------
 
-  // CONSTRUCTOR 6: REML: RW1, RW2, seasonal 
+  // CONSTRUCTOR 6: REML: RW1, RW2, seasonal
 
   // d      : datamatrix
   // maxint : Maximum number of intervals
@@ -259,7 +255,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   // nach init_names:
   // datanames: vector von strings mit Variablennamen
-  //            erst mal nur datanames[0] 
+  //            erst mal nur datanames[0]
 
   FULLCOND_nonp_gaussian(MCMCoptions * o,const datamatrix & d,
                          const unsigned & maxint, const fieldtype & ft,
@@ -399,6 +395,12 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   void update_linpred(const bool & add);
 
   void update_linpred_current(const bool & add);
+
+  // FUNCTION: init_data_varcoeff
+  // TASK: initializes data and data2 (data^2) for varying coefficient model
+
+  void init_data_varcoeff(const datamatrix & intvar);
+
 
   void update(void);
 

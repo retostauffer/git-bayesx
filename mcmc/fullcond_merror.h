@@ -13,6 +13,8 @@
 
 #include "fullcond.h"
 #include "mcmc_nonpbasis.h"
+#include "fullcond_nonp_gaussian.h"
+
 
 namespace MCMC
 {
@@ -21,7 +23,7 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
 
   protected:
 
-  FULLCOND_nonp_basis * designp;
+  FULLCOND_nonp_gaussian * designp;
 
   public:
 
@@ -39,7 +41,7 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   //        (i.e. number of categories of the response variable)
   // fp   : file path for storing sampled parameters
 
-  fullcond_merror(MCMCoptions * o, FULLCOND_nonp_basis * p,
+  fullcond_merror(MCMCoptions * o, FULLCOND_nonp_gaussian * p,
            const datamatrix & d, const ST::string & t, const ST::string & fp);
 
   // COPY CONSTRUCTOR
