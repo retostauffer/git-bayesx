@@ -68,7 +68,7 @@ namespace MCMC
     {
 
 
-    designp->init_data_varcoeff(data);
+    designp->init_data_varcoeff(beta);
     }
 
 
