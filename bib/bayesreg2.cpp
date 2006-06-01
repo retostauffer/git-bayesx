@@ -158,7 +158,7 @@ bool bayesreg::create_geokriging(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                  "_geokriging.raw","_geokriging.res","_geokriging");
 
-      if ( check_gaussian() )
+      if ( check_gaussian(collinpred) )
         {
 
         fckriging.push_back(
@@ -176,7 +176,7 @@ bool bayesreg::create_geokriging(const unsigned & collinpred)
                 ));
 
         }
-      else if( check_iwls(true) )
+      else if( check_iwls(true,collinpred) )
         {
 
         ST::string proposal = terms[i].options[14];
@@ -383,7 +383,7 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
       else
         iwls=false;
 
-      if ( (check_gaussian()) || (check_iwls(iwls)) )
+      if ( (check_gaussian(collinpred)) || (check_iwls(iwls,collinpred)) )
         {
 
         if (varcoeff == true)
@@ -422,27 +422,27 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
 
         if (constlambda.getvalue() == true)
           {
-          if (check_nongaussian())
+          if (check_nongaussian(collinpred))
             fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW,true);
           fcnonpgaussian[fcnonpgaussian.size()-1].set_lambdaconst(lambda);
           }
         else
           {
 
-          if ( (check_nongaussian()) && (proposal == "iwls")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
               && (updatetau==false) )
             fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW);
 
-          if ( (check_nongaussian()) && (proposal == "iwlsmode")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
             && (updatetau==false) )
             fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW,true);
 
-          if ( (check_nongaussian()) && (proposal == "iwls")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
             && (updatetau==true) )
             fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS_hyperblock(
                                                                  updateW,a1,b1);
 
-          if ( (check_nongaussian()) && (proposal == "iwlsmode")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
             && (updatetau==true) )
             fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS_hyperblock(
                                                       updateW,a1,b1,true);
@@ -465,11 +465,11 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
           if(terms[i].options[14]=="true")
             fcvarnonp[fcvarnonp.size()-1].set_uniformprior();
 
-          if ( (check_nongaussian()) && (proposal == "iwls")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
             && (updatetau==true) )
             fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
 
-          if ( (check_nongaussian()) && (proposal == "iwlsmode")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
             && (updatetau==true) )
             fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
 
@@ -636,7 +636,7 @@ bool bayesreg::create_spatialxy(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,help,"",
                  "_spatial.raw","_spatial.res","_spatial");
 
-      if (check_gaussian())
+      if (check_gaussian(collinpred))
         {
 
         fcnonpgaussian.push_back( FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
@@ -749,7 +749,7 @@ bool bayesreg::create_randomslope(const unsigned & collinpred)
 
                  
 
-      if (check_gaussian())
+      if (check_gaussian(collinpred))
         {
 
         fcrandomgaussian.push_back(
@@ -890,7 +890,7 @@ bool bayesreg::create_random(const unsigned & collinpred)
                    "_random_var.raw","_random_var.res","_random_variance");
 
 
-      if (check_gaussian())
+      if (check_gaussian(collinpred))
         {
 
         FULLCOND_nonp_gaussian * structuredp;
@@ -1134,7 +1134,7 @@ bool bayesreg::create_mixture(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                    "_mixture.raw","_mixture.res","_mixture");
 
-      if (check_gaussian())
+      if (check_gaussian(collinpred))
         {
 
 
@@ -1263,7 +1263,7 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
                  "_pspline.raw","_pspline.res","_pspline");
 
 
-      if (check_gaussian())
+      if (check_gaussian(collinpred))
         {
 
         FULLCOND_pspline_gaussian * mainp1;
@@ -1881,7 +1881,7 @@ bool bayesreg::create_geospline(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                  "_geospline.raw","_geospline.res","_geospline");
 
-      if (check_gaussian())
+      if (check_gaussian(collinpred))
         {
 
         fcpsplinesurfgaussian.push_back(
@@ -2161,7 +2161,7 @@ bool bayesreg::create_varcoeff_geospline(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],terms[i].varnames[0],
                  "_geospline.raw","_geospline.res","_geospline");
 
-      if (check_gaussian())
+      if (check_gaussian(collinpred))
         {
 
         fcpsplinesurfgaussian.push_back(

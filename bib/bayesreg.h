@@ -20,6 +20,7 @@
 
 #include"distribution.h"
 #include"multgaussian.h"
+#include"gaussian_heteroskedastic.h"
 #include"nbinomial.h"
 #include"zip.h"
 #include"cox.h"
@@ -64,6 +65,7 @@ using MCMC::DISTRIBUTION;
 using MCMC::DISTRIBUTION_gaussian;
 using MCMC::DISTRIBUTION_lognormal;
 using MCMC::DISTRIBUTION_multgaussian;
+using MCMC::DISTRIBUTION_gaussianh;
 using MCMC::DISTRIBUTION_binomial;
 using MCMC::DISTRIBUTION_binomial_latent;
 using MCMC::DISTRIBUTION_binomial_logit_latent;
@@ -122,13 +124,13 @@ class __EXPORT_TYPE bayesreg : public statobject
                           ST::string  endingraw,ST::string  endingres,
                           ST::string  endingtitle) ;
 
-  bool check_gaussian(void);
+  bool check_gaussian(const unsigned & collinpred);
 
-  bool check_nongaussian(void);
+  bool check_nongaussian(const unsigned & collinpred);
 
 // Vorschlag:
 //  bool check_iwls(bool & iwls);
-  bool check_iwls(bool iwls);
+  bool check_iwls(bool iwls,const unsigned & collinpred);
 
   void clear(void);
   void initpointers(void);
@@ -411,6 +413,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   DISTRIBUTION_multinomial_latent distr_multinom_latent;
   DISTRIBUTION_coxmodel distr_cox;
   DISTRIBUTION_multistatemodel distr_multistatemodel;
+  DISTRIBUTION_gaussianh distr_gaussianh;
 
   doubleoption reference;
 

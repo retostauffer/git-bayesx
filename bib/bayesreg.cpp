@@ -24,14 +24,15 @@
 
 // Vorschlag:
 //bool bayesreg::check_iwls(bool & iwls)
-bool bayesreg::check_iwls(bool iwls)
+bool bayesreg::check_iwls(bool iwls,const unsigned & collinpred)
   {
   if ( ( (family.getvalue() == "binomial") && (iwls==true) ) ||
        ( (family.getvalue() == "poisson") && (iwls==true) ) ||
        ( (family.getvalue() == "gamma") && (iwls==true) ) ||
-       ( (family.getvalue() == "vargaussian") && (iwls==true) ) ||       
+       ( (family.getvalue() == "vargaussian") && (iwls==true) ) ||
        ( (family.getvalue() == "nbinomial") && (iwls==true) ) ||
        ( (family.getvalue() == "zip") && (iwls==true) ) ||
+       ((family.getvalue() == "gaussianh") && (collinpred==1) && (iwls==true)) ||
        ( (family.getvalue() == "multinomial") && (iwls==true) ) ||
        ( (family.getvalue() == "cox") && (iwls==true) ) ||
        ( (family.getvalue() == "multistate") && (iwls==true) )
@@ -41,7 +42,7 @@ bool bayesreg::check_iwls(bool iwls)
     return false;
   }
 
-bool bayesreg::check_gaussian(void)
+bool bayesreg::check_gaussian(const unsigned & collinpred)
   {
 
   if ( (family.getvalue() == "gaussian") ||
@@ -51,6 +52,7 @@ bool bayesreg::check_gaussian(void)
      (family.getvalue() == "bernoullilogit") ||
      (family.getvalue() == "binomialtlink") ||
      (family.getvalue() == "multinomialprobit") ||
+     ((family.getvalue() == "gaussianh") && (collinpred==0)) ||
      (family.getvalue() == "cumprobit")
      )
      return true;
@@ -59,13 +61,14 @@ bool bayesreg::check_gaussian(void)
   }
 
 
-bool  bayesreg::check_nongaussian(void)
+bool  bayesreg::check_nongaussian(const unsigned & collinpred)
   {
   if ( (family.getvalue() == "binomial") || (family.getvalue() == "poisson") ||
        (family.getvalue() == "gamma") ||
-       (family.getvalue() == "vargaussian") ||       
+       (family.getvalue() == "vargaussian") ||
        (family.getvalue() == "nbinomial") ||
        (family.getvalue() == "zip") ||
+       ((family.getvalue() == "gaussianh") && (collinpred==1)) ||
        (family.getvalue() == "multinomial") || (family.getvalue() == "cox") ||
        (family.getvalue() == "multistate") )
      return true;
@@ -240,7 +243,7 @@ void bayesreg::create(void)
   level1 = doubleoption("level1",95,40,99);
   level2 = doubleoption("level2",80,40,99);
   maxint = intoption("maxint",150,0,20000);
-  families.reserve(10);
+  families.reserve(20);
   families.push_back("gaussian");
   families.push_back("multgaussian");
   families.push_back("lognormal");
@@ -250,7 +253,7 @@ void bayesreg::create(void)
   families.push_back("bernoullilogit");
   families.push_back("poisson");
   families.push_back("gamma");
-  families.push_back("vargaussian");  
+  families.push_back("vargaussian");
   families.push_back("multinomial");
   families.push_back("multinomialprobit");
   families.push_back("cumprobit");
@@ -258,6 +261,7 @@ void bayesreg::create(void)
   families.push_back("zip");
   families.push_back("cox");
   families.push_back("multistate");
+  families.push_back("gaussianh");
   family = stroption("family",families,"binomial");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -293,7 +297,7 @@ void bayesreg::create(void)
   predict = simpleoption("predict",false);
   predictmu = simpleoption("predictmu",false);
 
-// Vorschlag: 
+// Vorschlag:
 //  predictuntil=intoption("predictuntil",0,1,100000000000);
   predictuntil=intoption("predictuntil",0,1,1000000000);
 
@@ -609,7 +613,7 @@ void bayesreg::initpointers(void)
 
   unsigned i;
 
-  unsigned r = distrstring.size();
+//  unsigned r = distrstring.size();
 
   for(i=0;i<distrstring.size();i++)
     {
@@ -862,6 +866,7 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   distr_nbinomial = b.distr_nbinomial;
   distr_zip = b.distr_zip;
   distr_cox = b.distr_cox;
+  distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
   nongaussianconst = b.nongaussianconst;
@@ -901,6 +906,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   distr_nbinomial = b.distr_nbinomial;
   distr_zip = b.distr_zip;
   distr_cox = b.distr_cox;
+  distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
   nongaussianconst = b.nongaussianconst;
@@ -908,7 +914,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   Pmatrices = b.Pmatrices;
   fcnonp = b.fcnonp;
   fcpspline = b.fcpspline;
-  fckriging = b.fckriging;  
+  fckriging = b.fckriging;
   fcbaseline = b.fcbaseline;
 //  fcbaselineiwls = b.fcbaselineiwls;
   fcmultibaseline = b.fcmultibaseline;
@@ -1033,7 +1039,7 @@ bool bayesreg::create_distribution(void)
     if (family.getvalue() == "multistate")
       {
 
-      unsigned j,k;
+      unsigned k;
       for(i=0;i<termsmult.size();i++)
         {
         for(k=0;k<termsmult[i].size();k++)
@@ -1273,6 +1279,77 @@ bool bayesreg::create_distribution(void)
     nrcategories = 1;
     }
 //-------------------------- END: Gaussian response ----------------------------
+
+//---------------------- Gaussian with heteroscedastic variances ---------------
+  else if (family.getvalue() == "gaussianh")
+    {
+
+    ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+    ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+
+    if (offs.rows() == 1)
+      distr_gaussian.push_back(DISTRIBUTION_gaussian(aresp.getvalue(),bresp.getvalue(),
+                                             &generaloptions[generaloptions.size()-1],
+                                             D.getCol(0),path2,
+                                             path3,w));
+    else
+      distr_gaussian.push_back(DISTRIBUTION_gaussian(offs,aresp.getvalue(),
+                                             bresp.getvalue(),&generaloptions[generaloptions.size()-1],
+                                             D.getCol(0),path2,path3,
+                                             w));
+
+    if (uniformprior.getvalue()==true)
+      {
+      distr_gaussian[distr_gaussian.size()-1].set_uniformprior();
+      }
+
+    if (constscale.getvalue()==true)
+      {
+      distr_gaussian[distr_gaussian.size()-1].set_constscale(scalevalue.getvalue());
+      }
+
+
+    distr_gaussian[distr_gaussian.size()-1].init_names(rname,wn);
+
+
+    // prediction stuff
+
+    if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+      distr_gaussian[distr_gaussian.size()-1].set_predict(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_gaussian[distr_gaussian.size()-1].set_predictfull(pathfullsample,pathfull,n);
+      }
+
+    if (pind.rows() > 1)
+      distr_gaussian[distr_gaussian.size()-1].set_predictresponse(pind);
+
+    // end: prediction stuff
+
+    if (varianceest==true)
+      {
+
+      distr_gaussian[distr_gaussian.size()-1].set_variance(&distr_vargaussian);
+      distr_vargaussian.set_gaussian(&distr_gaussian[distr_gaussian.size()-1]);
+
+      }
+
+    distr.push_back(&distr_gaussian[distr_gaussian.size()-1]);
+    distrstring.push_back("gaussian");
+    distrposition.push_back(distr_gaussian.size()-1);
+    nrcategories = 1;
+    }
+//-------------- END: Gaussian with heteroscedastic variances ------------------
   else if (family.getvalue() == "lognormal")
     {
 
@@ -2367,7 +2444,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
 
           }
 
-        if ( check_gaussian())
+        if ( check_gaussian(collinpred))
           {
 
           normalconst.push_back(FULLCOND_const_gaussian(
@@ -2551,7 +2628,7 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
 
 
         //-------------------- gaussian response, etc. -------------------------
-        if ( (check_gaussian()) || (check_iwls(iwls)) )
+        if ( (check_gaussian(collinpred)) || (check_iwls(iwls,collinpred)) )
           {
 
           if (varcoeff==false)
@@ -2583,27 +2660,27 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
 
           if (constlambda.getvalue() == true)
             {
-            if (check_nongaussian())
+            if (check_nongaussian(collinpred))
               fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW,true);
             fcnonpgaussian[fcnonpgaussian.size()-1].set_lambdaconst(lambda);
             }
           else
             {
 
-            if ( (check_nongaussian()) && (proposal == "iwls")
+            if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
                 && (updatetau==false) )
               fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW);
 
-            if ( (check_nongaussian()) && (proposal == "iwlsmode")
+            if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
                && (updatetau==false) )
                fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW,true);
 
-            if ( (check_nongaussian()) && (proposal == "iwls")
+            if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
                 && (updatetau==true) )
               fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS_hyperblock(
                                                                  updateW,a1,b1);
 
-            if ( (check_nongaussian()) && (proposal == "iwlsmode")
+            if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
                 && (updatetau==true) )
               fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS_hyperblock(
                                                       updateW,a1,b1,true);
@@ -2641,11 +2718,11 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
             &fcnonpgaussian[fcnonpgaussian.size()-1],distr[distr.size()-1],
             a1,b1,title,pathnonp,pathres,false,collinpred));
 
-            if ( (check_nongaussian()) && (proposal == "iwls")
+            if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
               && (updatetau==true) )
               fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
 
-            if ( (check_nongaussian()) && (proposal == "iwlsmode")
+            if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
               && (updatetau==true) )
               fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
 
@@ -2885,7 +2962,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
       //----- end: creating path for samples and and results, creating title ---
 
       // ---------------------- gaussian response, etc. ------------------------
-      if (check_gaussian())
+      if (check_gaussian(collinpred))
         {
 
         fcpsplinegaussian.push_back(

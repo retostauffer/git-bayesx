@@ -102,7 +102,7 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
         iwls=false;
 
       //-------------------- gaussian response, etc. -------------------------
-      if ( (check_gaussian()) || (check_iwls(iwls)) )
+      if ( (check_gaussian(collinpred)) || (check_iwls(iwls,collinpred)) )
         {
         fcnonpgaussian.push_back(
         FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
@@ -115,17 +115,17 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
         na.push_back(terms[i].varnames[0]);
         fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
 
-        if ( (check_nongaussian()) && (proposal == "iwls")
+        if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
              && (updatetau==false) )
           fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW);
-        if ( (check_nongaussian()) && (proposal == "iwlsmode")
+        if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
              && (updatetau==false) )
            fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW,true);
-        if ( (check_nongaussian()) && (proposal == "iwls")
+        if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
              && (updatetau==true) )
            fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS_hyperblock(
                                                                updateW,a1,b1);
-        if ( (check_nongaussian()) && (proposal == "iwlsmode")
+        if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
              && (updatetau==true) )
           fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS_hyperblock(
                                                       updateW,a1,b1,true);
@@ -270,7 +270,7 @@ bool bayesreg::create_varcoeffpspline(const unsigned & collinpred)
                  terms[i].varnames[0],
                  "_pspline.raw","_pspline.res","_pspline");
 
-      if (check_gaussian())
+      if (check_gaussian(collinpred))
         {
 
         fcpsplinegaussian.push_back( FULLCOND_pspline_gaussian(&generaloptions[generaloptions.size()-1],
@@ -1320,7 +1320,7 @@ bool bayesreg::create_nonpseason(const unsigned & collinpred)
       else
         iwls=false;
 
-      if ((check_gaussian()) || (check_iwls(iwls)) )
+      if ((check_gaussian(collinpred)) || (check_iwls(iwls,collinpred)) )
         {
 
         if (varcoeff==false)
@@ -1362,26 +1362,26 @@ bool bayesreg::create_nonpseason(const unsigned & collinpred)
 
         if (constlambda.getvalue() == true)
           {
-          if (check_nongaussian())
+          if (check_nongaussian(collinpred))
             fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW,true);
           fcnonpgaussian[fcnonpgaussian.size()-1].set_lambdaconst(lambda);
           }
         else
           {
-          if ( (check_nongaussian()) && (proposal == "iwls")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
               && (updatetau==false) )
             fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW);
 
-          if ( (check_nongaussian()) && (proposal == "iwlsmode")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
              && (updatetau==false) )
              fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW,true);
 
-          if ( (check_nongaussian()) && (proposal == "iwls")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
               && (updatetau==true) )
             fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS_hyperblock(
                                                                  updateW,a1,b1);
 
-          if ( (check_nongaussian()) && (proposal == "iwlsmode")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
               && (updatetau==true) )
             fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS_hyperblock(
                                                     updateW,a1,b1,true);
@@ -1404,11 +1404,11 @@ bool bayesreg::create_nonpseason(const unsigned & collinpred)
                                          false,collinpred)
                              );
 
-          if ( (check_nongaussian()) && (proposal == "iwls")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
             && (updatetau==true) )
             fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
 
-          if ( (check_nongaussian()) && (proposal == "iwlsmode")
+          if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
             && (updatetau==true) )
             fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
 
