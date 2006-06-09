@@ -102,11 +102,13 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
                         const MAP::map & m, const ST::string & mn,
                         const ST::string & ti, const ST::string & fp,
                         const ST::string & pres, const double & l,
-                        const double & sl, const bool & catsp)
+                        const double & sl, const bool & catsp,
+                        const bool & ctr)
   : FULLCOND_nonp_basis(o,ti)
 
   {
   catspecific = catsp;
+  centervcm=ctr;
 
   data_forfixed = d2;
 
@@ -182,6 +184,12 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
   dimX=1;
   dimZ=posbeg.size()-1;
+
+  if(centervcm)
+    {
+    dimX = dimX-1;
+    }
+
   X_VCM = datamatrix(d1.rows(),dimX,1.0);
   }
 
@@ -251,10 +259,12 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
                         const fieldtype & ft,const ST::string & ti,
                         const ST::string & pres,const double & l,
                         const double & sl,
-                        const bool & catsp, const unsigned & per)
+                        const bool & catsp, const bool & ctr,
+                        const unsigned & per)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
+  centervcm = ctr;
 
   fctype = nonparametric;
 
@@ -297,6 +307,11 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
       {
       dimX = per-1;
       dimZ = nrpar-per+1;
+      }
+
+    if(centervcm)
+      {
+      dimX = dimX-1;
       }
 
     X_VCM = datamatrix(d1.rows(),dimX,1.0);
@@ -397,9 +412,12 @@ void FULLCOND_nonp_gaussian::createreml(datamatrix & X,datamatrix & Z,
     {
     if(fctype==MCMC::spatial)
       {
-      for(i=0; i<X.rows(); i++)
+      if(!centervcm)
         {
-        X(i,Xpos)=data_forfixed(i,0);
+        for(i=0; i<X.rows(); i++)
+          {
+          X(i,Xpos)=data_forfixed(i,0);
+          }
         }
       for(i=0;i<posbeg.size();i++)
         {
@@ -439,9 +457,12 @@ void FULLCOND_nonp_gaussian::createreml(datamatrix & X,datamatrix & Z,
       }
     else if(type==MCMC::RW1)
       {
-      for(i=0; i<X.rows(); i++)
+      if(!centervcm)
         {
-        X(i,Xpos)=data_forfixed(i,0);
+        for(i=0; i<X.rows(); i++)
+          {
+          X(i,Xpos)=data_forfixed(i,0);
+          }
         }
       datamatrix diffmatrix = weighteddiffmat(1,weight);
       diffmatrix = diffmatrix.transposed()*diffmatrix.transposed().sscp().inverse();
@@ -473,9 +494,20 @@ void FULLCOND_nonp_gaussian::createreml(datamatrix & X,datamatrix & Z,
         {
         for (j=posbeg[i];j<=posend[i];j++)
           {
-          X(index(j,0),Xpos)=data_forfixed(index(j,0),0);
-          X(index(j,0),Xpos+1)=xhelp(i,0)*data_forfixed(index(j,0),0);
-          X_VCM(index(j,0),1)=xhelp(i,0);
+          if(!centervcm)
+            {
+            X(index(j,0),Xpos)=data_forfixed(index(j,0),0);
+            X_VCM(index(j,0),1)=xhelp(i,0);
+            X(index(j,0),Xpos+1)=xhelp(i,0)*data_forfixed(index(j,0),0);
+            }
+          else
+            {
+            X_VCM(index(j,0),0)=xhelp(i,0);
+            double test1 = data_forfixed(index(j,0),0);
+            double test2 =xhelp(i,0);
+            int test3 = index(j,0);
+            X(index(j,0),Xpos)=xhelp(i,0)*data_forfixed(index(j,0),0);
+            }
           for(k=0; k<nrpar-2; k++)
             {
             Z(index(j,0),Zpos+k)=diffmatrix(i,k)*data_forfixed(index(j,0),0);
@@ -636,42 +668,37 @@ double FULLCOND_nonp_gaussian::outresultsreml(datamatrix & X,datamatrix & Z,
     {
     if(fctype==MCMC::spatial)
       {
-/*      betamean=datamatrix(nrpar,1,betareml(Xpos,0))+remlspatialdesign*betareml.getBlock(X.cols()+Zpos,0,X.cols()+Zpos+nrpar-1,1);
-      for(i=0; i<nrpar; i++)
+      if(!centervcm)
         {
-        betastd(i,0) = sqrt(
-                            (
-                             X_VCM(0,0)*betacov(Xpos,Xpos)
-                             +
-                             (remlspatialdesign.getRow(i)*betacov.getBlock(X.cols()+Zpos,Xpos,X.cols()+Zpos+dimZ,Xpos+1))(0,0)
-                            )*X_VCM(0,0)
-                            +
-                            (
-                             (
-                              X_VCM(0,0)*betacov.getBlock(Xpos,X.cols()+Zpos,Xpos+1,X.cols()+Zpos+dimZ)
+        betamean=datamatrix(nrpar,1,betareml(betaXpos,0))+remlspatialdesign*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1);
+        for(i=0; i<nrpar; i++)
+          {
+          betastd(i,0) = sqrt(
+                              (
+                              X_VCM(0,0)*betacov(betaXpos,betaXpos)
+                               +
+                               (remlspatialdesign.getRow(i)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
+                              )*X_VCM(0,0)
                               +
-                              remlspatialdesign.getRow(i)*betacov.getBlock(X.cols()+Zpos,X.cols()+Zpos,X.cols()+Zpos+dimZ,X.cols()+Zpos+dimZ)
-                             )*(remlspatialdesign.getRow(i).transposed())
-                            )(0,0)
-                           );*/
-      betamean=datamatrix(nrpar,1,betareml(betaXpos,0))+remlspatialdesign*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1);
-      for(i=0; i<nrpar; i++)
+                              (
+                               (
+                                X_VCM(0,0)*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+                                +
+                                remlspatialdesign.getRow(i)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                               )*(remlspatialdesign.getRow(i).transposed())
+                              )(0,0)
+                             );
+          }
+        }
+      else
         {
-        betastd(i,0) = sqrt(
-                            (
-                             X_VCM(0,0)*betacov(betaXpos,betaXpos)
-                             +
-                             (remlspatialdesign.getRow(i)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
-                            )*X_VCM(0,0)
-                            +
-                            (
-                             (
-                              X_VCM(0,0)*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
-                              +
-                              remlspatialdesign.getRow(i)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
-                             )*(remlspatialdesign.getRow(i).transposed())
-                            )(0,0)
-                           );
+        betamean=remlspatialdesign*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1);
+        for(i=0; i<nrpar; i++)
+          {
+          betastd(i,0) = sqrt((remlspatialdesign.getRow(i)*
+                              betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)*
+                              (remlspatialdesign.getRow(i).transposed()))(0,0));
+          }
         }
       }
     else if(type==MCMC::RW1)
@@ -679,38 +706,32 @@ double FULLCOND_nonp_gaussian::outresultsreml(datamatrix & X,datamatrix & Z,
       for(i=0;i<nrpar;i++)
         {
         j=index(posbeg[i],0);
-/*        betamean(i,0) = betareml(Xpos,0)*X_VCM(j,0) + (Z_VCM.getRow(j)*betareml.getBlock(X.cols()+Zpos,0,X.cols()+Zpos+nrpar-1,1))(0,0);
-        betastd(i,0) = sqrt(
-                            (
-                             X_VCM(j,0)*betacov(Xpos,Xpos)
-                             +
-                             (Z_VCM.getRow(j)*betacov.getBlock(X.cols()+Zpos,Xpos,X.cols()+Zpos+dimZ,Xpos+1))(0,0)
-                            )*X_VCM(j,0)
-                            +
-                            (
-                             (
-                              X_VCM(j,0)*betacov.getBlock(Xpos,X.cols()+Zpos,Xpos+1,X.cols()+Zpos+dimZ)
+        if(!centervcm)
+          {
+          betamean(i,0) = betareml(betaXpos,0)*X_VCM(j,0) + (Z_VCM.getRow(j)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
+          betastd(i,0) = sqrt(
+                              (
+                               X_VCM(j,0)*betacov(betaXpos,betaXpos)
+                               +
+                               (Z_VCM.getRow(j)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
+                              )*X_VCM(j,0)
                               +
-                              Z_VCM.getRow(j)*betacov.getBlock(X.cols()+Zpos,X.cols()+Zpos,X.cols()+Zpos+dimZ,X.cols()+Zpos+dimZ)
-                             )*(Z_VCM.getRow(j).transposed())
-                            )(0,0)
-                           );*/
-        betamean(i,0) = betareml(betaXpos,0)*X_VCM(j,0) + (Z_VCM.getRow(j)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
-        betastd(i,0) = sqrt(
-                            (
-                             X_VCM(j,0)*betacov(betaXpos,betaXpos)
-                             +
-                             (Z_VCM.getRow(j)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
-                            )*X_VCM(j,0)
-                            +
-                            (
-                             (
-                              X_VCM(j,0)*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
-                              +
-                              Z_VCM.getRow(j)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
-                             )*(Z_VCM.getRow(j).transposed())
-                            )(0,0)
-                           );
+                              (
+                               (
+                                X_VCM(j,0)*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+                                +
+                                Z_VCM.getRow(j)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                               )*(Z_VCM.getRow(j).transposed())
+                              )(0,0)
+                             );
+          }
+        else
+          {
+          betamean(i,0) = (Z_VCM.getRow(j)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
+          betastd(i,0) = sqrt((Z_VCM.getRow(j)*
+                              betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)*
+                              (Z_VCM.getRow(j).transposed()))(0,0));
+          }
         }
       }
     else if(type==MCMC::RW2)
@@ -1697,7 +1718,7 @@ const FULLCOND_nonp_gaussian & FULLCOND_nonp_gaussian::operator=(
   lambdaconst = fc.lambdaconst;
   Laplace=fc.Laplace;
   delta=fc.delta;
-  neighbors=fc.neighbors;  
+  neighbors=fc.neighbors;
   diff = fc.diff;
   betaKbeta = fc.betaKbeta;
   data2 = fc.data2;

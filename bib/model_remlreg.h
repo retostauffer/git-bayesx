@@ -96,6 +96,7 @@ class __EXPORT_TYPE term_autoreg_varcoef_remlreg : public basic_termtype
   doubleoption lambda;
   doubleoption lambdastart;
   simpleoption catspecific;
+  simpleoption center;
 
   void setdefault(void);
 
@@ -257,6 +258,7 @@ class __EXPORT_TYPE term_varcoeff_pspline_remlreg : public basic_termtype
   doubleoption lambda;
   doubleoption lambdastart;
   simpleoption catspecific;
+  simpleoption center;
 
   void setdefault(void);
 
@@ -421,6 +423,7 @@ class __EXPORT_TYPE term_interactpspline_varcoeff_remlreg : public basic_termtyp
   doubleoption lambda;
   doubleoption lambdastart;
   simpleoption catspecific;
+  simpleoption center;
 
   void setdefault(void);
 
@@ -507,6 +510,7 @@ class __EXPORT_TYPE term_geospline_varcoeff_remlreg : public basic_termtype
   doubleoption lambda;
   doubleoption lambdastart;
   simpleoption catspecific;
+  simpleoption center;
 
   void setdefault(void);
 
@@ -585,6 +589,7 @@ class __EXPORT_TYPE term_spatial_varcoef_remlreg : public basic_termtype
   doubleoption lambda;
   doubleoption lambdastart;
   simpleoption catspecific;
+  simpleoption center;
 
   void setdefault(void);
 

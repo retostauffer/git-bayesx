@@ -163,10 +163,12 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
                       const unsigned & nrk, const unsigned & degr,
                       const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres,
-                      const double & l, const double & sl, const bool & catsp)
+                      const double & l, const double & sl, const bool & catsp,
+                      const bool & ctr)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
+  centervcm = ctr;
 
   mapexisting = false;
   varcoeff=true;
@@ -200,6 +202,11 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
   likep = NULL;
   dimX = 1;
   dimZ = nrpar-1;
+
+  if(centervcm)
+    {
+    dimX = dimX-1;
+    }
 
   X_VCM = datamatrix(intact.rows(),dimX,1.0);
   Z_VCM = datamatrix(intact.rows(),dimZ,0.0);
@@ -342,10 +349,11 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
                const unsigned & nrk, const unsigned & degr,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl, const bool & catsp)
+               const double & sl, const bool & catsp, const bool & ctr)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
+  centervcm = ctr;
 
   m = mp;
   mapexisting = true;
@@ -397,6 +405,12 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
   likep = NULL;
   dimX = 1;
   dimZ = nrpar-1;
+
+  if(centervcm)
+    {
+    dimX = dimX-1;
+    }
+
   X_VCM = datamatrix(region.rows(),dimX,1.0);
   Z_VCM = datamatrix(region.rows(),dimZ,0.0);
 
@@ -2458,7 +2472,7 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
     }
     
 // X berechnen (varcoeff)
-  if(varcoeff)
+  if(varcoeff & !centervcm)
     {
     double * workX;
     unsigned Xcols = X.cols();
@@ -2674,23 +2688,34 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
       {
       if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
         {
-        betamean(j,0) = betareml(betaXpos,0)*X_VCM(k,0) + (Z_VCM.getRow(k)*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1))(0,0);
-        betastd(j,0) = sqrt(
-                            (
-                             X_VCM(k,0)*betacov(betaXpos,betaXpos)
-                             +
-                             (Z_VCM.getRow(k)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
-                            )*X_VCM(k,0)
-                            +
-                            (
-                             (
-                              X_VCM(k,0)*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+        if(!centervcm)
+          {
+          betamean(j,0) = betareml(betaXpos,0)*X_VCM(k,0) + (Z_VCM.getRow(k)*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1))(0,0);
+          betastd(j,0) = sqrt(
+                              (
+                               X_VCM(k,0)*betacov(betaXpos,betaXpos)
+                               +
+                               (Z_VCM.getRow(k)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
+                              )*X_VCM(k,0)
                               +
-                              Z_VCM.getRow(k)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
-                             )*(Z_VCM.getRow(k).transposed())
-                            )(0,0)
-                           );
-        j++;
+                              (
+                               (
+                                X_VCM(k,0)*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+                                +
+                                Z_VCM.getRow(k)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                               )*(Z_VCM.getRow(k).transposed())
+                              )(0,0)
+                             );
+          j++;
+          }
+        else
+          {
+          betamean(j,0) = (Z_VCM.getRow(k)*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1))(0,0);
+          betastd(j,0) = sqrt((Z_VCM.getRow(k)*
+                               betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)*
+                               (Z_VCM.getRow(k).transposed()))(0,0));
+          j++;
+          }
         }
       }
     }

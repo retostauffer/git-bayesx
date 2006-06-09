@@ -199,6 +199,7 @@ FULLCOND::FULLCOND(const FULLCOND & m)
   startlambda = m.startlambda;
   isnonparametric = m.isnonparametric;
   catspecific = m.catspecific;
+  centervcm = m.centervcm;
   }
 
 
@@ -307,6 +308,8 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
   startlambda = m.startlambda;
   isnonparametric = m.isnonparametric;
   catspecific = m.catspecific;
+  centervcm = m.centervcm;
+
   return *this;
 
   }

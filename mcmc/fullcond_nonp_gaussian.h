@@ -271,7 +271,9 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                         const fieldtype & ft,const ST::string & ti,
                         const ST::string & pres,const double & l,
                         const double & sl,
-                        const bool & catsp, const unsigned & per=12);
+                        const bool & catsp, const bool & ctr,
+                        const unsigned & per=12
+                        );
 
   // Constructor 8: REML spatial
 
@@ -289,7 +291,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                          const ST::string & mn,const ST::string & ti,
                          const ST::string & fp, const ST::string & pres,
                          const double & l, const double & sl,
-                         const bool & catsp);
+                         const bool & catsp, const bool & ctr);
 
   void set_IWLS(const unsigned & uw,bool mode=false);
 

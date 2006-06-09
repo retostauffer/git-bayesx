@@ -214,7 +214,7 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
                const unsigned & nrk, const unsigned & degr,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl, const bool & catsp);
+               const double & sl, const bool & catsp, const bool & ctr);
 
   // CONSTRUCTOR for REML (geospline)
 
@@ -234,7 +234,7 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
                const unsigned & nrk, const unsigned & degr,
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl, const bool & catsp);
+               const double & sl, const bool & catsp, const bool & ctr);
 
   // COPY CONSTRUCTOR
 

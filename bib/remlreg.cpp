@@ -1524,7 +1524,7 @@ bool remlreg::create_nonprw1rw2_varcoef(const unsigned & collinpred)
 
   double hd;
   double lambda, startlambda;
-  bool catsp;
+  bool catsp, ctr;
   int f;
 
   unsigned i;
@@ -1554,6 +1554,10 @@ bool remlreg::create_nonprw1rw2_varcoef(const unsigned & collinpred)
         {
         catsp=false;
         }
+      if(terms[i].options[4] == "true")
+        ctr=true;
+      else
+        ctr=false;
 
       if (f==1)
         return true;
@@ -1564,7 +1568,7 @@ bool remlreg::create_nonprw1rw2_varcoef(const unsigned & collinpred)
       fcnonpgaussian.push_back(FULLCOND_nonp_gaussian(&generaloptions,
                          D.getCol(j2),D.getCol(j1),
                          unsigned(maxint.getvalue()),type,
-                         title,pathres,lambda,startlambda,catsp));
+                         title,pathres,lambda,startlambda,catsp,ctr));
 
       vector<ST::string> na;
       na.push_back(terms[i].varnames[1]);
@@ -1805,7 +1809,7 @@ bool remlreg::create_spatial_varcoef(const unsigned & collinpred)
   double hd;
   int f;
   double lambda, startlambda;
-  bool catsp;
+  bool catsp, ctr;
   unsigned i;
   int j1, j2;
 
@@ -1850,6 +1854,10 @@ bool remlreg::create_spatial_varcoef(const unsigned & collinpred)
         {
         catsp=false;
         }
+      if(terms[i].options[5] == "true")
+        ctr=true;
+      else
+        ctr=false;
 
       if (f==1)
         return true;
@@ -1862,7 +1870,7 @@ bool remlreg::create_spatial_varcoef(const unsigned & collinpred)
       fcnonpgaussian.push_back(
       FULLCOND_nonp_gaussian(&generaloptions,D.getCol(j2),D.getCol(j1),m,
                              terms[i].options[1],title,pathnonp,pathres,lambda,
-                             startlambda,catsp)
+                             startlambda,catsp,ctr)
                            );
 
       if (fcnonpgaussian[fcnonpgaussian.size()-1].get_errors().size() > 0)
@@ -2000,7 +2008,7 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
   long h;
   unsigned degree,nrknots;
   double lambda,startlambda;
-  bool catsp;
+  bool catsp, ctr;
   int f;
 
   unsigned i;
@@ -2032,6 +2040,10 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
         {
         catsp=false;
         }
+      if(terms[i].options[6] == "true")
+        ctr=true;
+      else
+        ctr=false;
 
       if (f==1)
         return true;
@@ -2060,7 +2072,8 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
                                               pathres,
                                               lambda,
                                               startlambda,
-                                              catsp
+                                              catsp,
+                                              ctr
                                              )
                            );
       vector<ST::string> na;
@@ -2170,7 +2183,7 @@ bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
   long h;
   double lambda,startlambda;
   unsigned nrknots,degree;
-  bool catsp;
+  bool catsp, ctr;
   int f;
 
   unsigned i;
@@ -2201,6 +2214,10 @@ bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
         {
         catsp=false;
         }
+      if(terms[i].options[6] == "true")
+        ctr=true;
+      else
+        ctr=false;
 
       if (f==1)
         return true;
@@ -2223,7 +2240,8 @@ bool remlreg::create_varcoeffinteractionspspline(const unsigned & collinpred)
                                       pathres,
                                       lambda,
                                       startlambda,
-                                      catsp
+                                      catsp,
+                                      ctr
                                       ));
 
       vector<ST::string> na;
@@ -2353,7 +2371,7 @@ bool remlreg::create_geospline_varcoeff(const unsigned & collinpred)
   long h;
   double lambda,startlambda;
   unsigned nrknots,degree;
-  bool catsp;
+  bool catsp, ctr;
   int f;
 
   unsigned i;
@@ -2381,7 +2399,10 @@ bool remlreg::create_geospline_varcoeff(const unsigned & collinpred)
         {
         catsp=false;
         }
-
+      if(terms[i].options[7] == "true")
+        ctr=true;
+      else
+        ctr=false;
 
       if (f==1)
         return true;
@@ -2426,7 +2447,8 @@ bool remlreg::create_geospline_varcoeff(const unsigned & collinpred)
                                       pathres,
                                       lambda,
                                       startlambda,
-                                      catsp
+                                      catsp,
+                                      ctr
                                       ));
 
       vector<ST::string> na;

@@ -193,6 +193,7 @@ class __EXPORT_TYPE FULLCOND
   double startlambda;
   bool isnonparametric;
   bool catspecific;
+  bool centervcm;
 
   //----------------------------------------------------------------------------
   //------------------------ end: Variables for REML ---------------------------

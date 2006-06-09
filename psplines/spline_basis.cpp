@@ -240,10 +240,11 @@ spline_basis::spline_basis(MCMCoptions * o,const datamatrix & d1,
                       const datamatrix & d2, const unsigned & nrk, const unsigned & degr,
                       const knotpos & kp, const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl, const bool & catsp)
+                      const double & sl, const bool & catsp, const bool & ctr)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
+  centervcm = ctr;
 
   pseudocontourprob = false;
 
@@ -299,6 +300,11 @@ spline_basis::spline_basis(MCMCoptions * o,const datamatrix & d1,
     dimX = 2;
 
   dimZ = nrpar-dimX;
+
+  if(centervcm)
+    {
+    dimX = dimX-1;
+    }
 
   X_VCM = datamatrix(d1.rows(),dimX,1.0);
   Z_VCM = datamatrix(d1.rows(),dimZ,0.0);
@@ -3089,7 +3095,7 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
 
   if(type == RW1)
     {
-    if(varcoeff)
+    if(varcoeff && !centervcm)
       {
       double * workX;
       unsigned Xcols = X.cols();
@@ -3147,12 +3153,24 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
       if(varcoeff)
         {
         double * workintact = data_forfixed.getV();
-        double * workX_VCM = X_VCM.getV()+1;
-        for (i=0;i<spline.rows();i++,workdata++,workintact++,workX+=Xcols,workX_VCM+=2)
+        if(!centervcm)
           {
-          *workX = *workintact;
-          *(workX+1) = *workdata**workintact;
-          *workX_VCM = *workdata;
+          double * workX_VCM = X_VCM.getV()+1;
+          for (i=0;i<spline.rows();i++,workdata++,workintact++,workX+=Xcols,workX_VCM+=2)
+            {
+            *workX = *workintact;
+            *(workX+1) = *workdata**workintact;
+            *workX_VCM = *workdata;
+            }
+          }
+        else
+          {
+          double * workX_VCM = X_VCM.getV();
+          for (i=0;i<spline.rows();i++,workdata++,workintact++,workX+=Xcols,workX_VCM++)
+            {
+            *workX = *workdata**workintact;
+            *workX_VCM = *workdata;
+            }
           }
         }
       else
@@ -3269,28 +3287,39 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
 
   if(varcoeff || X.rows()<X_VCM.rows())
     {
-    for(i=0,j=0;i<X_VCM.rows();i++,indexit++,freqwork++,k+=*indexit)
+    for(i=0,j=0;i<Z_VCM.rows();i++,indexit++,freqwork++,k+=*indexit)
       {
       if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
         {
         if(type == RW1)
           {
-          betamean(j,0) = betareml(betaXpos,0)*X_VCM(k,0) + (Z_VCM.getRow(k)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
-          betastd(j,0) = sqrt(
-                              (
-                               X_VCM(k,0)*betacov(betaXpos,betaXpos)
-                               +
-                               (Z_VCM.getRow(k)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
-                              )*X_VCM(k,0)
-                              +
-                              (
-                               (
-                                X_VCM(k,0)*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+          if(!centervcm)
+            {
+            betamean(j,0) = betareml(betaXpos,0)*X_VCM(k,0) + (Z_VCM.getRow(k)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
+            betastd(j,0) = sqrt(
+                                (
+                                 X_VCM(k,0)*betacov(betaXpos,betaXpos)
+                                 +
+                                 (Z_VCM.getRow(k)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
+                                )*X_VCM(k,0)
                                 +
-                                Z_VCM.getRow(k)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
-                               )*(Z_VCM.getRow(k).transposed())
-                              )(0,0)
-                             );
+                                (
+                                 (
+                                  X_VCM(k,0)*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+                                  +
+                                  Z_VCM.getRow(k)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                                 )*(Z_VCM.getRow(k).transposed())
+                                )(0,0)
+                               );
+            }
+          else
+            {
+            betamean(j,0) = (Z_VCM.getRow(k)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
+            betastd(j,0) = sqrt(
+                                (Z_VCM.getRow(k)*
+                                 betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)*
+                                 (Z_VCM.getRow(k).transposed()))(0,0));
+            }
           }
         else
           {

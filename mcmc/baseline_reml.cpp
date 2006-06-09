@@ -163,7 +163,7 @@ baseline_reml::baseline_reml(MCMCoptions * o,const datamatrix & d1,
                       const knotpos & kp, const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
                       const double & sl, const bool & catsp)
-  : spline_basis(o,d1,d2,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp)
+  : spline_basis(o,d1,d2,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp,false)
   {
   baseline=true;
   interact_var = d2;

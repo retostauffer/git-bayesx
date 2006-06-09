@@ -163,6 +163,7 @@ term_autoreg_varcoef_remlreg::term_autoreg_varcoef_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
   catspecific = simpleoption("catspecific",false);
+  center = simpleoption("center",false);
   }
 
 void term_autoreg_varcoef_remlreg::setdefault(void)
@@ -170,12 +171,13 @@ void term_autoreg_varcoef_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   catspecific.setdefault();
+  center.setdefault();
   }
 
 bool term_autoreg_varcoef_remlreg::check(term & t)
   {
   if ( (t.varnames.size() == 2) &&
-       (t.options.size()<=4) && (t.options.size() >= 1) )
+       (t.options.size()<=5) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "rw1")
@@ -195,6 +197,7 @@ bool term_autoreg_varcoef_remlreg::check(term & t)
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
     optlist.push_back(&catspecific);
+    optlist.push_back(&center);
 
     unsigned i;
     bool rec = true;
@@ -220,16 +223,18 @@ bool term_autoreg_varcoef_remlreg::check(term & t)
     optlist.push_back(&catspecific);
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(4);
+    t.options = vector<ST::string>(5);
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(lambda.getvalue());
     t.options[2] = ST::doubletostring(lambdastart.getvalue());
     if(catspecific.getvalue())
-      {
       t.options[3] = "true";
-      }
     else
       t.options[3] = "false";
+    if(center.getvalue())
+      t.options[4] = "true";
+    else
+      t.options[4] = "false";
 
     int b = t.options[2].strtodouble(startl);
     if (b==1)
@@ -622,6 +627,7 @@ term_varcoeff_pspline_remlreg::term_varcoeff_pspline_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",0.1,0,10000000);
   catspecific = simpleoption("catspecific",false);
+  center = simpleoption("center",false);
   }
 
 void term_varcoeff_pspline_remlreg::setdefault(void)
@@ -631,12 +637,13 @@ void term_varcoeff_pspline_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   catspecific.setdefault();
+  center.setdefault();
   }
 
 bool term_varcoeff_pspline_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-        && (t.options.size() <= 6) )
+        && (t.options.size() <= 7) )
     {
     if (t.options[0] == "psplinerw1")
       t.type = "varpsplinerw1";
@@ -654,6 +661,7 @@ bool term_varcoeff_pspline_remlreg::check(term & t)
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
     optlist.push_back(&catspecific);
+    optlist.push_back(&center);
 
     unsigned i;
     bool rec = true;
@@ -676,7 +684,7 @@ bool term_varcoeff_pspline_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(6);
+    t.options = vector<ST::string>(7);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -689,6 +697,14 @@ bool term_varcoeff_pspline_remlreg::check(term & t)
     else
       {
       t.options[5] = "false";
+      }
+    if(center.getvalue())
+      {
+      t.options[6] = "true";
+      }
+    else
+      {
+      t.options[6] = "false";
       }
 
     setdefault();
@@ -1084,6 +1100,7 @@ term_interactpspline_varcoeff_remlreg::term_interactpspline_varcoeff_remlreg(voi
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
   catspecific = simpleoption("catspecific",false);
+  center = simpleoption("center",false);
   }
 
 
@@ -1094,6 +1111,7 @@ void term_interactpspline_varcoeff_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   catspecific.setdefault();
+  center.setdefault();
   }
 
 bool term_interactpspline_varcoeff_remlreg::check(term & t)
@@ -1104,9 +1122,10 @@ bool term_interactpspline_varcoeff_remlreg::check(term & t)
   optlist.push_back(&lambda);
   optlist.push_back(&lambdastart);
   optlist.push_back(&catspecific);
+  optlist.push_back(&center);
 
   if ( (t.varnames.size()==3)  && (t.options.size() >= 1)
-        && (t.options.size() <= 6) )
+        && (t.options.size() <= 7) )
     {
     if (t.options[0] == "pspline2dimrw1")
       t.type = "varpspline2dimrw1";
@@ -1136,7 +1155,7 @@ bool term_interactpspline_varcoeff_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(6);
+    t.options = vector<ST::string>(7);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -1149,6 +1168,14 @@ bool term_interactpspline_varcoeff_remlreg::check(term & t)
     else
       {
       t.options[5] = "false";
+      }
+    if(center.getvalue())
+      {
+      t.options[6] = "true";
+      }
+    else
+      {
+      t.options[6] = "false";
       }
 
     setdefault();
@@ -1305,6 +1332,7 @@ term_geospline_varcoeff_remlreg::term_geospline_varcoeff_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
   catspecific = simpleoption("catspecific",false);
+  center = simpleoption("center",false);
   }
 
 
@@ -1316,12 +1344,13 @@ void term_geospline_varcoeff_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   catspecific.setdefault();
+  center.setdefault();
   }
 
 bool term_geospline_varcoeff_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 7) )
+        && (t.options.size() <= 8) )
     {
     if (t.options[0] == "geospline")
       t.type = "vargeospline";
@@ -1338,6 +1367,7 @@ bool term_geospline_varcoeff_remlreg::check(term & t)
     optlist.push_back(&map);
     optlist.push_back(&lambdastart);
     optlist.push_back(&catspecific);
+    optlist.push_back(&center);
 
     unsigned i;
 
@@ -1360,7 +1390,7 @@ bool term_geospline_varcoeff_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(7);
+    t.options = vector<ST::string>(8);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -1374,6 +1404,14 @@ bool term_geospline_varcoeff_remlreg::check(term & t)
     else
       {
       t.options [6] = "false";
+      }
+    if(center.getvalue())
+      {
+      t.options [7] = "true";
+      }
+    else
+      {
+      t.options [7] = "false";
       }
 
     setdefault();
@@ -1504,6 +1542,7 @@ term_spatial_varcoef_remlreg::term_spatial_varcoef_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",10,0,10000000);
   catspecific = simpleoption("catspecific",false);
+  center = simpleoption("center",false);
   }
 
 void term_spatial_varcoef_remlreg::setdefault(void)
@@ -1512,13 +1551,14 @@ void term_spatial_varcoef_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   catspecific.setdefault();
+  center.setdefault();
   }
 
 
 bool term_spatial_varcoef_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2) &&
-       (t.options.size()<=5) && (t.options.size() >= 1) )
+       (t.options.size()<=6) && (t.options.size() >= 1) )
     {
     if (t.options[0] == "spatial")
       t.type = "varcoeffspatial";
@@ -1534,6 +1574,7 @@ bool term_spatial_varcoef_remlreg::check(term & t)
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
     optlist.push_back(&catspecific);
+    optlist.push_back(&center);
 
     unsigned i;
     bool rec = true;
@@ -1554,7 +1595,7 @@ bool term_spatial_varcoef_remlreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(5);
+    t.options = vector<ST::string>(6);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::doubletostring(lambda.getvalue());
@@ -1566,6 +1607,14 @@ bool term_spatial_varcoef_remlreg::check(term & t)
     else
       {
       t.options[4] = "false";
+      }
+    if(center.getvalue())
+      {
+      t.options[5] = "true";
+      }
+    else
+      {
+      t.options[5] = "false";
       }
 
     setdefault();
