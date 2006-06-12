@@ -30,6 +30,11 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   FULLCOND_const * fcconst;
   vector<FULLCOND*> interactions_pointer;
 
+  datamatrix data_rest;
+  datamatrix beta_rest;
+  datamatrix linold_rest;
+  vector<ST::string> names_rest;
+
   vector<double> diff_categories;
   double reference;
   ST::string coding;
@@ -88,6 +93,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   void make_design(const datamatrix & d);  //, const ST::string & coding);
 
   void set_pointer_to_interaction(FULLCOND * inter);
+
+  void get_interactionspointer(vector<FULLCOND*> & inter);
 
   void hierarchical(ST::string & possible);
   
@@ -161,6 +168,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void set_effect_zero(void);
 
+  double compute_df(void);
+
   void save_betas(vector<double> & modell, int & anzahl);
 
   void save_betas2(void);
@@ -173,10 +182,18 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void beta_to_fix(const vector<double> & betas);
 
+// Für ganze Hatmatrix (REML)
+
   void createreml(datamatrix & X,datamatrix & Z,
                                 const unsigned & Xpos, const unsigned & Zpos);
 
-  unsigned get_nrvar(void);                                
+  unsigned get_nrvar(void);
+
+// Für Mini-Backfitting
+
+  void split_data(const vector<ST::string> & names);
+
+  void merge_data(void);
 
   };
 

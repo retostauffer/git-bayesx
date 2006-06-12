@@ -28,6 +28,10 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   protected:
 
   double intercept;
+  double df_lambdaold;
+  double lambdaold;
+  double lambdaold_unstr;
+  double df_lambdaold_unstr;
 
   vector< vector<double> > beta_average;
   vector<FULLCOND*> interactions_pointer;
@@ -39,6 +43,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   FULLCOND * fcunstruct;
   bool spatialtotal;
+  //bool gleichwertig;
 
 
   public:
@@ -110,9 +115,18 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   double compute_df(void);
 
+  //double compute_df_andererteil(void);
+
+  //void set_gleichwertig(const bool & gleich, bool weiter);  // für spatialtotal
+
   void update_stepwise(double la)
     {
     lambda=la;
+    }
+
+  double get_lambda(void)
+    {
+    return lambda;
     }
 
   // FUNCTION: get_effect
@@ -136,9 +150,13 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   void set_pointer_to_interaction(FULLCOND * inter);
 
+  void get_interactionspointer(vector<FULLCOND*> & inter);
+
   void init_spatialtotal(FULLCOND * unstructp);
 
   const datamatrix & get_data_forfixedeffects(void);
+
+  void create_weight(datamatrix & w);  
 
   void save_betas(vector<double> & modell, int & anzahl);
 
@@ -150,6 +168,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 // Vorschlag:
 //  void effect_sort(datamatrix & effect, const double & m, unsigned & row);
   void effect_sort(datamatrix & effect, double m, unsigned row);
+
+  void createreml(datamatrix & X,datamatrix & Z, const unsigned & Xpos, const unsigned & Zpos);
 
 // ------------------------- END: FOR STEPWISE ---------------------------------
 

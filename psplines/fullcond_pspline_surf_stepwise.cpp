@@ -15,6 +15,9 @@ void FULLCOND_pspline_surf_stepwise::init_maineffects(
   mainpoi1 = mp1;
   mainpoi2 = mp2;
 
+  interactions_pointer.push_back(mp1);
+  interactions_pointer.push_back(mp2);
+
   interaction = true;
 
   centertotal = false;
@@ -63,6 +66,7 @@ void FULLCOND_pspline_surf_stepwise::init_maineffect(FULLCOND_pspline_stepwise *
     mainpoi1 = mp1;
     beta1 = datamatrix(nrpar1dim,1,0);
     he1 = datamatrix(xv.size(),1,0);
+    interactions_pointer.push_back(mp1);
     }
   else
     {
@@ -70,6 +74,7 @@ void FULLCOND_pspline_surf_stepwise::init_maineffect(FULLCOND_pspline_stepwise *
     mainpoi2 = mp1;
     beta2 = datamatrix(nrpar1dim,1,0);
     he2 = datamatrix(yv.size(),1,0);
+    interactions_pointer.push_back(mp1);
     }
   }
 
@@ -279,6 +284,8 @@ FULLCOND_pspline_surf_stepwise::FULLCOND_pspline_surf_stepwise(const FULLCOND_ps
   centerboth = fc.centerboth;
   maineffectsexisting = fc.maineffectsexisting;
   centerfix = fc.centerfix;
+  df_lambdaold = fc.df_lambdaold;
+  lambdaold = fc.lambdaold;
   }
 
 
@@ -299,7 +306,9 @@ const FULLCOND_pspline_surf_stepwise & FULLCOND_pspline_surf_stepwise::operator=
   centerboth = fc.centerboth;
   maineffectsexisting = fc.maineffectsexisting;
   centerfix = fc.centerfix;
-
+  df_lambdaold = fc.df_lambdaold;
+  lambdaold = fc.lambdaold;
+    
   return *this;
   }
 
@@ -326,9 +335,15 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
   if(utype == gaussian)
     likep->substr_linearpred_m(spline,column,true);
 
-  compute_XWXenv(likep->get_weightiwls(),column);
-
-  prec_env.addto(XX_env,Kenv,1.0,lambda);
+  if (lambda_prec != lambda || likep->iwlsweights_constant() == false)
+    {
+    if (likep->iwlsweights_constant() == false)
+      {
+      compute_XWXenv(likep->get_weightiwls(),column);
+      }
+    prec_env.addto(XX_env,Kenv,1.0,lambda);
+    lambda_prec = lambda;
+    }
 
   if(utype != gaussian)
     likep->substr_linearpred_m(spline,column,true);
@@ -838,6 +853,12 @@ void FULLCOND_pspline_surf_stepwise::hierarchical(ST::string & possible)
   }
 
 
+void FULLCOND_pspline_surf_stepwise::get_interactionspointer(vector<FULLCOND*> & inter)
+  {
+  inter = interactions_pointer;
+  }
+
+
 void FULLCOND_pspline_surf_stepwise::hierarchie_rw1(vector<double> & untervector)
   {
 
@@ -922,75 +943,50 @@ vector<double> & lvec, int & number)
 
 double FULLCOND_pspline_surf_stepwise::compute_df(void)
   {
-  double df = FULLCOND_pspline_surf_gaussian::compute_df();
-
-  if(maineffectsexisting != 0)
+  double df = 0;
+  //if(inthemodel == false && fixornot == true)
+  //  df = 1;
+  if(inthemodel == true)
     {
-    df += 1;
-    double p = sqrt(df);
-    df = p*p - 1;
-
-    search_maineffects();
-
-    if(centerboth == 1 || centerboth == 11)        // Versuch: Spur von he1 berechnen und von df abziehen!
+    if(lambda != lambdaold || likep->get_iwlsweights_notchanged() == false)
       {
-      df -= p-1;
-      //datamatrix einheit = datamatrix(xv.size(),1,0);
-      //double * e = einheit.getV();
-      //datamatrix hilf1 = datamatrix(nrpar,1,0);
-      //datamatrix hilf2 = datamatrix(xv.size(),1,0);
-      //double * h2;
-      //datamatrix diagonal = datamatrix(xv.size(),1,0);
-      //double * d = diagonal.getV();
-      //unsigned i;
-      //for(i=0;i<xv.size();i++,d++,e++)
-      //  {
-      //  *e = 1;
-      //  compute_XWtildey(likep->get_weightiwls(),einheit,1.0,column);
-      //  prec_env.solve(muy,hilf1);
-      //  hilf2.mult(betaweightx,hilf1);
-      //  h2 = hilf2.getV()+i;
-      //  *d = *h2;
-      //  *e = 0;
-      //  }
-      //double spur = 0;
-      //d = diagonal.getV();
-      //for(i=0;i<xv.size();i++,d++)
-      //  spur += *d;
-      //df -= spur;
+      if (likep->get_iwlsweights_notchanged() == false)
+        compute_XWXenv(likep->get_weightiwls(),column);
+      if(lambda != lambda_prec || likep->get_iwlsweights_notchanged() == false)
+        {
+        prec_env.addto(XX_env,Kenv,1.0,lambda);
+        lambda_prec = lambda;
+        }
+      invprec = envmatdouble(0,nrpar,prec_env.getBandwidth());
+      prec_env.inverse_envelope(invprec);
+      df = df + invprec.traceOfProduct(XX_env);
+      if(!identifiable)
+        df -= 1;
+      //df = FULLCOND_pspline_surf_gaussian::compute_df();
+      df_lambdaold = df;
+      lambdaold = lambda;
       }
-    if(centerboth == 10 || centerboth == 11)
-      {
-      df -= p-1;
-      //datamatrix einheit = datamatrix(yv.size(),1,0);
-      //double * e = einheit.getV();
-      //datamatrix hilf1 = datamatrix(nrpar,1,0);
-      //datamatrix hilf2 = datamatrix(yv.size(),1,0);
-      //double * h2;
-      //datamatrix diagonal = datamatrix(yv.size(),1,0);
-      //double * d = diagonal.getV();
-      //unsigned i;
-      //for(i=0;i<yv.size();i++,d++,e++)
-      //  {
-      //  *e = 1;
-      //  compute_XWtildey(likep->get_weightiwls(),einheit,1.0,column);
-      //  prec_env.solve(muy,hilf1);
-      //  hilf2.mult(betaweighty,hilf1);
-      //  h2 = hilf2.getV()+i;
-      //  *d = *h2;
-      //  *e = 0;
-      //  }
-      //double spur = 0;
-      //d = diagonal.getV();
-      //for(i=0;i<yv.size();i++,d++)
-      //  spur += *d;
-      //df -= spur;
-      }
+    else
+      df = df_lambdaold;
 
-    if(centerfix == 1 || centerfix == 11)
-      df -= 1;
-    if(centerfix == 10 || centerfix == 11)
-      df -= 1;
+    if(maineffectsexisting != 0)
+      {
+      df += 1;
+      double p = sqrt(df);
+      df = df - 1;
+
+      search_maineffects();
+
+      if(centerboth == 1 || centerboth == 11 || centerfix == 1 || centerfix == 11)       // egal, ob linearer oder nichtlin. Effekt???
+        df -= p-1;
+      if(centerboth == 10 || centerboth == 11 || centerfix == 10 || centerfix == 11)
+        df -= p-1;
+
+/*      if(centerfix == 1 || centerfix == 11)
+        df -= 1;
+      if(centerfix == 10 || centerfix == 11)
+        df -= 1;   */
+      }
     }
     
   return df;

@@ -24,6 +24,8 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(MCMCoptions * o,DISTRIBUTION 
 
   dimX = 0;
   dimZ = nrpar;
+
+  //gleichwertig = true;
   }
 
 // randomslope
@@ -48,6 +50,7 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(MCMCoptions * o,DISTRIBUTION 
 
   includefixed = false;
   intercept = 0.0;
+  //gleichwertig = true;
   }
 
 
@@ -56,10 +59,11 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(const FULLCOND_random_stepwis
   {
   intercept = fc.intercept;
   beta_average = fc.beta_average;
-  interactions_pointer = fc.interactions_pointer;
   data_varcoeff_fix = fc.data_varcoeff_fix;
   effmodi = fc.effmodi;
   fbasisp = fc.fbasisp;
+  df_unstruct = fc.df_unstruct;
+  //gleichwertig = fc.gleichwertig;
   }
 
 
@@ -73,10 +77,11 @@ const FULLCOND_random_stepwise & FULLCOND_random_stepwise::
 
   intercept = fc.intercept;
   beta_average = fc.beta_average;
-  interactions_pointer = fc.interactions_pointer;
   data_varcoeff_fix = fc.data_varcoeff_fix;
   effmodi = fc.effmodi;
   fbasisp = fc.fbasisp;
+  df_unstruct = fc.df_unstruct;
+  //gleichwertig = fc.gleichwertig;
 
   return *this;
   }
@@ -88,7 +93,10 @@ bool FULLCOND_random_stepwise::posteriormode(void)
 
   update_linpred(false);
 
-  compute_XWX(likep->get_weightiwls(),column);
+  if(likep->iwlsweights_constant() == false)
+    {
+    compute_XWX(likep->get_weightiwls(),column);
+    }
 
   likep->compute_weightiwls_workingresiduals(column);
 
@@ -205,6 +213,11 @@ void FULLCOND_random_stepwise::set_pointer_to_interaction(FULLCOND * inter)
   interactions_pointer.push_back(inter);
   }
 
+void FULLCOND_random_stepwise::get_interactionspointer(vector<FULLCOND*> & inter)
+  {
+  inter = interactions_pointer;
+  }
+
 
 void FULLCOND_random_stepwise::hierarchical(ST::string & possible)
   {
@@ -239,6 +252,29 @@ void FULLCOND_random_stepwise::const_varcoeff(void)
   }
 
 // END: For Varying Coefficients -----------------------------------------------
+
+
+void FULLCOND_random_stepwise::create_weight(datamatrix & w)
+  {
+  if(!spatialtotal)
+    {
+    vector<unsigned>::iterator itbeg = posbeg.begin();
+    vector<unsigned>::iterator itend = posend.begin();
+    int * workindex = index.getV();
+    unsigned i;
+
+    unsigned j;
+    for(i=0;i<nrpar;i++,++itbeg,++itend)
+      {
+      if(*itbeg != -1)
+        {
+        w(*workindex,0) = 1;
+        for(j=*itbeg;j<=*itend;j++)
+          workindex++;
+        }
+      }
+    }
+  }
 
 
 void FULLCOND_random_stepwise::compute_lambdavec(vector<double> & lvec, int & number)
@@ -330,91 +366,144 @@ const datamatrix & FULLCOND_random_stepwise::get_data_forfixedeffects(void)
 
   return data_forfixed;
   }
-  
+
 
 double FULLCOND_random_stepwise::compute_df(void)
   {
-  unsigned i;
-  double df=0;
-
-  if(randomslope && !identifiable && !center)
+  double df = 0;
+  //if(inthemodel == false && fixornot == false)
+  //  {
+  //  if(spatialtotal)
+  //    fbasisp->compute_df_andererteil();
+  //  }
+  //if(inthemodel == false && fixornot == true)
+  //  df = 1;
+  if(inthemodel == true)
     {
-    bool raus = false;
-    unsigned j = 1;
-    while(j<fcconst->get_datanames().size() && raus==false)
+    unsigned i;
+    bool struct_included = false;
+    if(spatialtotal)
       {
-      if(fcconst->get_datanames()[j] == datanames[0]
-        || fcconst->get_datanames()[j] == (datanames[0]+"_1"))
+      bool fix;
+      fbasisp->get_inthemodel(struct_included,fix);
+      if(struct_included == true)
         {
-        raus = true;
+        //if(!gleichwertig)
+        //  df = fbasisp->compute_df();
+        //else
+          df = df_unstruct;
         }
-      j = j + 1;
       }
-    if(raus == false)
+
+    if(!spatialtotal || !struct_included)
       {
-      df += 1;
-      }
-    }
-
-  double * workXX=XX.getV();
-  unsigned n = nrpar;
-
-  /*if (randomslope && includefixed)
-    {
-    n = nrpar-1;
-    df=1;
-    }
-  else
-    n = nrpar; */
-
-
-  if ((lambdaold1==lambda) && (likep->iwlsweights_constant() == true) )
-    {
-    df = df_lambdaold1;
-    }
-  else if ((lambdaold2==lambda) && (likep->iwlsweights_constant() == true) )
-    {
-    df = df_lambdaold2;
-    }
-  else
-    {
-    if(!identifiable)
-      {
-      double c = 0;
-      double w = 0;
-      for(i=0;i<n;i++,workXX++)
+      //if ((lambdaold1==lambda) && (likep->iwlsweights_constant() == true) )
+      if (lambdaold1==lambda && likep->get_iwlsweights_notchanged() == true && !spatialtotal)
         {
-        c += (*workXX * *workXX)/(*workXX+lambda);
-        w += *workXX;
+        df = df_lambdaold1;
         }
-     c = 1/(w - c);
+      //else if ((lambdaold2==lambda) && (likep->iwlsweights_constant() == true) )
+      //  {
+      //  df = df_lambdaold2;
+      //  }
+      else
+        {
+        if(likep->get_iwlsweights_notchanged() == false)
+          {
+          compute_XWX(likep->get_weightiwls(),column);
+          }
+        double * workXX=XX.getV();
+        unsigned n = nrpar;
 
-     workXX = XX.getV();
-     for(i=0;i<n;i++,workXX++)
-       {
-       df += (*workXX * (lambda + *workXX * (-c * (*workXX + 2*lambda) + 1)))/((*workXX+lambda) * (*workXX+lambda));
-       }
-     df += w*c - 1;
-     }
-    else
-      {
-      for(i=0;i<n;i++,workXX++)
-        df += (*workXX)/(*workXX+lambda);
+        if(!identifiable)
+          {
+          double c = 0;
+          double w = 0;
+          for(i=0;i<n;i++,workXX++)
+            {
+            c += (*workXX * *workXX)/(*workXX+lambda);
+            w += *workXX;
+            }
+         c = 1/(w - c);
+
+         workXX = XX.getV();
+         for(i=0;i<n;i++,workXX++)
+           {
+           df += (*workXX * (lambda + *workXX * (-c * (*workXX + 2*lambda) + 1)))/((*workXX+lambda) * (*workXX+lambda));
+           }
+         df += w*c - 1;
+         }
+        else
+          {
+          for(i=0;i<n;i++,workXX++)
+            df += (*workXX)/(*workXX+lambda);
+          }
+
+        /*for(i=0;i<n;i++,workXX++)
+          {
+          df += (*workXX)/(*workXX+lambda);
+          } */
+
+        //df_lambdaold2 = df_lambdaold1;
+        //lambdaold2 = lambdaold1;
+        df_lambdaold1 = df;
+        lambdaold1 = lambda;
+        }
+
+/*      if(randomslope && !identifiable && !center)
+        {
+        bool raus = false;
+        unsigned j = 1;
+        while(j<fcconst->get_datanames().size() && raus==false)
+          {
+          if(fcconst->get_datanames()[j] == datanames[0]
+            || fcconst->get_datanames()[j] == (datanames[0]+"_1"))
+            {
+            raus = true;
+            }
+          j = j + 1;
+          }
+        if(raus == false)
+          {
+          df += 1;
+          }
+        } */
       }
-
-    /*for(i=0;i<n;i++,workXX++)
-      {
-      df += (*workXX)/(*workXX+lambda);
-      } */
-
-    df_lambdaold2 = df_lambdaold1;
-    lambdaold2 = lambdaold1;
-    df_lambdaold1 = df;
-    lambdaold1 = lambda;
-
     }
 
   return df;
+  }
+
+
+/*double FULLCOND_random_stepwise::compute_df_andererteil(void)     // für spatialtotal
+  {
+  double df = 0;
+  if(spatialtotal && !gleichwertig)
+    {
+    bool fix, struct_included;
+    fbasisp->get_inthemodel(struct_included,fix);
+    if(struct_included == true)
+      df = fbasisp->compute_df();
+    }
+
+  return df;
+  }      */
+
+
+/*void FULLCOND_random_stepwise::set_gleichwertig(const bool & gleich, bool weiter)       // für spatialtotal
+  {
+  if(spatialtotal)
+    {
+    gleichwertig = gleich;
+    if(weiter == true)
+      fbasisp->set_gleichwertig(gleich,false);
+    }
+  }    */
+
+
+void FULLCOND_random_stepwise::set_dfunstruct(const double & df_unstr)
+  {
+  df_unstruct = df_unstr;
   }
 
 
@@ -423,9 +512,9 @@ void FULLCOND_random_stepwise::update_stepwise(double la)
   lambda = la;
   }
 
-void FULLCOND_random_stepwise::get_lambda(double la)
+double FULLCOND_random_stepwise::get_lambda(void)
   {
-  la = lambda;
+  return lambda;
   }
 
 
@@ -603,7 +692,7 @@ void FULLCOND_random_stepwise::init_spatialtotal(FULLCOND_nonp_basis * sp,
                                         const ST::string & pnt,
                                         const ST::string & prt)
   {
-
+  df_unstruct = 0;
   fbasisp = sp;
   vector<ST::string> ev = sp->get_effectvalues();
 

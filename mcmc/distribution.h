@@ -36,6 +36,7 @@ class __EXPORT_TYPE DISTRIBUTION
   protected:
 
   bool constant_iwlsweights;
+  bool iwlsweights_notchanged;    // für "stepwise": gibt an, ob Gewichte verändert wurden
 
   bool nosamples;                 // true if samples should not be stored
                                   //
@@ -78,6 +79,10 @@ class __EXPORT_TYPE DISTRIBUTION
 
   double addinterceptsample;      // constant to be added to  the samples of the
                                   // intercept
+
+  datamatrix weight2;             // saves the original weightvariable when a second one is defined for Cross-Validation
+  datamatrix weightiwls2;         // saves original "weightiwls" when Cross-Validation is performed
+  datamatrix weightcv;            // contains information about how the dataset is splitted for CV
 
   datamatrix weight;              // Weightvariable for weighted regression
   double sumweight;               // sum of weights
@@ -494,13 +499,32 @@ class __EXPORT_TYPE DISTRIBUTION
     return 0;
     }
 
+  // FUNCTION: create_weight
+  // TASK: Splits the dataset in two parts: one for estimation and one for validation
+  //       or
+  //       splits the dataset in the respective number of parts when 5-(10)-fold crossvalidation is used
+
+  void create_weight(datamatrix & w, const double & p1, const bool & fertig, const bool & CV);
+
+  void weight_for_all(void);
+
+  // FUNCTION: compute_cvweights
+  // TASK: changes weightvariables "weight" and "weightiwls" according to the currently used parts of the dataset for CV
+
+  void compute_cvweights(int pos);
+
+  // FUNCTION: save_weightiwls
+  // TASK: saves variable "weightiwls" when CV
+
+  void save_weightiwls(void);
+
   // FUNCTION: compute_msep
   // TASK: computes the MSE from observations with weight=0 for gaussian data
 
-  virtual double compute_msep(void)
-    {
-    return 0;
-    }
+  virtual double compute_msep(void);
+//    {
+//    return 0;
+//    }
 
   // FUNCTION: compute_auc
   // TASK: computes the AUC for binomial data (logit link)
@@ -514,6 +538,8 @@ class __EXPORT_TYPE DISTRIBUTION
   // TASK: computes the GCV score
 
   virtual double compute_gcv(const double & df);
+
+  virtual double compute_gcv2(const double & df);
 
   // FUNCTION: compute_aic
   // TASK: computes the AIC
@@ -537,6 +563,16 @@ class __EXPORT_TYPE DISTRIBUTION
   bool iwlsweights_constant(void)
     {
     return constant_iwlsweights;
+    }
+
+  bool get_iwlsweights_notchanged(void)
+    {
+    return iwlsweights_notchanged;
+    }
+
+  bool set_iwlsweights_notchanged(bool change)
+    {
+    iwlsweights_notchanged = change;
     }
 
   // FUNCTION: compute_IWLS

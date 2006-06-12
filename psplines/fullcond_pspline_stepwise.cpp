@@ -19,7 +19,6 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o,
   {
 
   beta_average.erase(beta_average.begin(),beta_average.end());
-  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
   lambda_nr = -1;
   //lambdas_local = datamatrix(rankK,1,1);
 
@@ -45,7 +44,6 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o, DISTRIBUTI
   {
 
   beta_average.erase(beta_average.begin(),beta_average.end());
-  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
   lambda_nr = 0;
 
   data_forfixed = intact;
@@ -81,11 +79,11 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(const FULLCOND_pspline_step
   : FULLCOND_pspline_gaussian(FULLCOND_pspline_gaussian(fc))
   {
   beta_average = fc.beta_average;
-  interactions_pointer = fc.interactions_pointer;
   lambda_nr = fc.lambda_nr;
   lambdas_local = fc.lambdas_local;
   data_varcoeff_fix = fc.data_varcoeff_fix;
   effmodi = fc.effmodi;
+  df_lambdaold = fc.df_lambdaold;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -98,11 +96,11 @@ const FULLCOND_pspline_stepwise & FULLCOND_pspline_stepwise::operator=(
   FULLCOND_pspline_gaussian::operator=(FULLCOND_pspline_gaussian(fc));
 
   beta_average = fc.beta_average;
-  interactions_pointer = fc.interactions_pointer;
   lambda_nr = fc.lambda_nr;
   lambdas_local = fc.lambdas_local;
   data_varcoeff_fix = fc.data_varcoeff_fix;
   effmodi = fc.effmodi;
+  df_lambdaold = fc.df_lambdaold;
 
   return *this;
   }
@@ -152,20 +150,20 @@ bool FULLCOND_pspline_stepwise::posteriormode(void)
         }
       }
 
-    fchelp.posteriormode();
-    return FULLCOND_nonp_basis::posteriormode();
+    return fchelp.posteriormode();
+    //return FULLCOND_nonp_basis::posteriormode();
     }
   else
     {
-    compute_XWXenv(likep->get_weightiwls(),column);
-    prec_env.addto(XX_env,Kenv,1.0,lambda);
-    lambda_prec = lambda;
-/*
-ofstream out("c:\\cprog\\test\\results\\B.txt");
-datamatrix X = datamatrix(likep->get_nrobs(),nrpar,0);
-getX(X);
-X.prettyPrint(out);
-*/
+    if ( (lambda_prec != lambda) || (likep->iwlsweights_constant() == false) )
+      {
+      if (likep->iwlsweights_constant() == false)
+        {
+        compute_XWXenv(likep->get_weightiwls(),column);
+        }
+      prec_env.addto(XX_env,Kenv,1.0,lambda);
+      lambda_prec = lambda;
+      }
     likep->compute_workingresiduals(column);
     compute_XWtildey(likep->get_weightiwls(),likep->get_workingresiduals(),1.0,column);
 
@@ -257,15 +255,16 @@ for(unsigned i=0;i<nrpar;i++,work++,s1++)
 
     add_linearpred_multBS();
 
+    bool interaction2 = false;
     if(interactions_pointer.size()>0)
-        search_for_interaction();
+      interaction2 = search_for_interaction();
 
     if(center)
       {
       compute_intercept();
       if(!varcoeff)
         {
-        if(interaction==false)
+        if(interaction==false || interaction2 == false)
           fcconst->posteriormode_intercept(intercept);
         else
           fcconst->update_intercept(intercept);
@@ -276,7 +275,7 @@ for(unsigned i=0;i<nrpar;i++,work++,s1++)
         }
       }
 
-    if(interaction == false)
+    if(interaction == false || interaction2 == false)
       {
       if(center)
         {
@@ -347,6 +346,19 @@ for(unsigned i=0;i<nrpar;i++,work++,s1++)
   }
 
 
+void FULLCOND_pspline_stepwise::create_weight(datamatrix & w)
+  {
+  vector<int>::iterator freqwork = freqoutput.begin();
+  int * workindex = index.getV();
+  unsigned i;
+  for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+    {
+    if(freqwork==freqoutput.begin() || (*freqwork!=*(freqwork-1) && *freqwork == *(freqoutput.end()-1) ))
+      w(*workindex,0) = 1;
+    }
+  }
+
+
 // BEGIN: For Varying Coefficients ---------------------------------------------
 
 void FULLCOND_pspline_stepwise::update_fix_effect(void)
@@ -376,6 +388,7 @@ void FULLCOND_pspline_stepwise::update_fix_effect(void)
     vector<ST::string> names;
     names.push_back(name_richtig);
     fcconst->include_effect(names,data_forfixed);
+    interactions_pointer[1]->set_inthemodel(-1);
     fcconst->update_fix_effect(j,intercept,data_forfixed);
     }
   }
@@ -459,7 +472,13 @@ void FULLCOND_pspline_stepwise::set_pointer_to_interaction(FULLCOND * inter)
   interactions_pointer.push_back(inter);
   }
 
-void FULLCOND_pspline_stepwise::search_for_interaction(void)
+void FULLCOND_pspline_stepwise::get_interactionspointer(vector<FULLCOND*> & inter)
+  {
+  inter = interactions_pointer;
+  }
+
+
+bool FULLCOND_pspline_stepwise::search_for_interaction(void)
   {
   unsigned i;
   bool thereis = false;
@@ -470,10 +489,11 @@ void FULLCOND_pspline_stepwise::search_for_interaction(void)
     if(drin == true)
       thereis = true;
     }
-  if(thereis == true)
+/*  if(thereis == true)
     interaction = true;
   else
-    interaction = false;
+    interaction = false;   */
+  return thereis;
   }
 
 
@@ -531,7 +551,7 @@ void FULLCOND_pspline_stepwise::hierarchical(ST::string & possible)
       }
     else     // VC
       {
-      if(spline == true)
+      if(spline == true && number == -1)
         possible = "vfix";
       else
         possible = "alles";
@@ -731,37 +751,64 @@ void FULLCOND_pspline_stepwise::reset_effect(const unsigned & pos)
 double FULLCOND_pspline_stepwise::compute_df(void)
   {
   double df = 0;
-
-  // falls ‹bergang: leer --> VC kann fixer Effekt noch nicht enthalten sein, d.h. es muﬂ ein df addiert werden!
-  if(varcoeff && !identifiable && !center)
+  //if(inthemodel == false && fixornot == true)
+  //  df = 1;
+  if(inthemodel == true)
     {
-    bool raus = false;
-    unsigned j = 1;
-    while(j<fcconst->get_datanames().size() && raus==false)
+    // falls ‹bergang: leer --> VC kann fixer Effekt noch nicht enthalten sein, d.h. es muﬂ ein df addiert werden!
+    /*if(varcoeff && !identifiable && !center)
       {
-      if(fcconst->get_datanames()[j] == datanames[0]
-        || fcconst->get_datanames()[j] == (datanames[0]+"_1"))
+      bool raus = false;
+      unsigned j = 1;
+      while(j<fcconst->get_datanames().size() && raus==false)
         {
-        raus = true;
+        if(fcconst->get_datanames()[j] == datanames[0]
+          || fcconst->get_datanames()[j] == (datanames[0]+"_1"))
+          {
+          raus = true;
+          }
+        j = j + 1;
         }
-      j = j + 1;
-      }
-    if(raus == false)
+      if(raus == false)
+        {
+        df += 1;
+        }
+      }*/
+
+    if(varcoeff && lambda == -2)
       {
-      df += 1;
+      if(identifiable)
+        df = 2;
+      else
+        df = df + 1;
+      }
+    else
+      {
+      if (lambdaold == lambda && likep->get_iwlsweights_notchanged() == true)
+        {
+        df = df_lambdaold;
+        }
+      else if (lambdaold != lambda || likep->get_iwlsweights_notchanged() == false)
+        {
+        if (likep->get_iwlsweights_notchanged() == false)
+          compute_XWXenv(likep->get_weightiwls(),column);
+        if(lambda != lambda_prec || likep->iwlsweights_constant() == false)
+          {
+          prec_env.addto(XX_env,Kenv,1.0,lambda);
+          lambda_prec = lambda;
+          }
+        invprec = envmatdouble(0,nrpar,prec_env.getBandwidth());
+        prec_env.inverse_envelope(invprec);
+        df = df + invprec.traceOfProduct(XX_env);
+        if(!identifiable)
+          df -= 1;
+        df_lambdaold = df;
+        lambdaold = lambda;
+        }
       }
     }
 
-  if(varcoeff && lambda == -2)
-    {
-    if(identifiable)
-      return 2;
-      //return 1;
-    else
-      return df + 1;
-    }
-  else
-    return df + spline_basis::compute_df();
+  return df;
   }
 
 
@@ -936,5 +983,160 @@ ST::string FULLCOND_pspline_stepwise::get_befehl(void)
 
   return h;
   }
+
+
+void FULLCOND_pspline_stepwise::createreml(datamatrix & X,datamatrix & Z,
+                                const unsigned & Xpos, const unsigned & Zpos)
+  {
+  unsigned i,j,k;
+
+  double * workdata;
+  double * workZ;
+  datamatrix spline1 = datamatrix(spline.rows(),1,0);
+
+// X berechen
+
+  if(type == RW1)
+    {
+    if(varcoeff)
+      {
+      double * workX;
+      unsigned Xcols = X.cols();
+
+      workX = X.getV()+Xpos;
+
+      double * workintact = data_forfixed.getV();
+      for (i=0;i<spline1.rows();i++,workintact++,workX+=Xcols)
+        {
+        *workX = *workintact;
+        }
+      }
+    }
+  else if(type == RW2)
+    {
+    double * workX;
+    unsigned Xcols = X.cols();
+
+    datamatrix knoten = datamatrix(nrpar,1,0.0);
+    for(i=0;i<nrpar;i++)
+      knoten(i,0) = knot[i];
+
+    multBS_index(spline1,knoten);
+
+    if(!varcoeff)
+      {
+      double splinemean=spline1.mean(0);
+      for(i=0; i<spline1.rows(); i++)
+        {
+        spline1(i,0)=spline1(i,0)-splinemean;
+        }
+      }
+
+    if(X.rows()<spline1.rows())
+    // category specific covariates
+      {
+      X_VCM = spline1;
+
+      unsigned nrcat2 = spline1.rows()/X.rows()-1;
+      unsigned nrobs=X.rows();
+      for(i=0; i<X.rows(); i++)
+        {
+        for(j=0; j<nrcat2; j++)
+          {
+          X(i,Xpos+j) = spline1(j*nrobs+i,0) - spline1(nrcat2*nrobs+i,0);
+          }
+        }
+      }
+    else
+    // no category specific covariates
+      {
+      workdata = spline1.getV();
+      workX = X.getV()+Xpos;
+
+      if(varcoeff)
+        {
+        double * workintact = data_forfixed.getV();
+        double * workX_VCM = X_VCM.getV()+1;
+        for (i=0;i<spline1.rows();i++,workdata++,workintact++,workX+=Xcols,workX_VCM+=2)
+          {
+          *workX = *workintact;
+          *(workX+1) = *workdata**workintact;
+          *workX_VCM = *workdata;
+          }
+        }
+      else
+        {
+        for (i=0;i<spline1.rows();i++,workdata++,workX+=Xcols)
+          {
+          *workX = *workdata;
+          }
+        }
+      }
+    }
+
+// Z berechnen
+
+  compute_Kweights();
+//  datamatrix diffmatrix = diffmat(dimX+1,nrpar);
+  datamatrix diffmatrix = weighteddiffmat(type==RW1?1:2,weight);
+  diffmatrix = diffmatrix.transposed()*diffmatrix.transposed().sscp().inverse();
+
+  unsigned Zcols = Z.cols();
+
+  if(Z.rows()<spline1.rows())
+    // category specific covariates
+    {
+    Z_VCM = datamatrix(spline1.rows(), dimZ, 0);
+    }
+
+  for(j=0;j<dimZ;j++)
+    {
+    multBS_index(spline1,diffmatrix.getCol(j));
+
+    if(Z.rows()<spline1.rows())
+      // category specific covariates
+      {
+      unsigned nrcat2 = spline1.rows()/Z.rows()-1;
+      unsigned nrobs=Z.rows();
+      for(i=0; i<nrobs; i++)
+        {
+        for(k=0; k<nrcat2; k++)
+          {
+          Z(i, Zpos + k*dimZ + j) = spline1(k*nrobs+i,0) - spline1(nrcat2*nrobs+i,0);
+          }
+        }
+      for(i=0; i<spline1.rows(); i++)
+        {
+        Z_VCM(i,j) = spline1(i,0);
+        }
+      }
+    else
+      // no category specific covariates
+      {
+      workdata = spline1.getV();
+      workZ = Z.getV()+Zpos+j;
+
+      if(varcoeff)
+        {
+        double * workintact = data_forfixed.getV();
+        double * workZ_VCM = Z_VCM.getV()+j;
+        for (i=0;i<spline1.rows();i++,workdata++,workintact++,workZ+=Zcols,workZ_VCM+=dimZ)
+          {
+          *workZ = *workdata**workintact;
+          *workZ_VCM = *workdata;
+          }
+        }
+      else
+        {
+        for (i=0;i<spline1.rows();i++,workdata++,workZ+=Zcols)
+          {
+          *workZ = *workdata;
+          }
+        }
+      }
+    } 
+
+  }
+
   
 } // end: namespace MCMC

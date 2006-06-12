@@ -40,7 +40,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
                                      // Kombinationen: 0 (kein HE), 1 (HE Nr. 1), 10 (HE Nr. 2), 11 (beide HE)
   unsigned centerfix;                // gibt an, welche Haupteffekte linear modelliert werden
                                      // Kombinationen: s. "maineffectsexisting"
-  
+  double df_lambdaold;
+  double lambdaold;
 
   void create(const datamatrix & v1, const datamatrix & v2, const datamatrix & intact=datamatrix(1,1));
 
@@ -159,6 +160,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   void hierarchical(ST::string & possible);
 
+  void get_interactionspointer(vector<FULLCOND*> & inter);
+
   void hierarchie_rw1(vector<double> & untervector);
 
   void compute_lambdavec(vector<double> & lvec, int & number);
@@ -168,6 +171,11 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
   void update_stepwise(double la)
     {
     lambda=la;
+    }
+
+  double get_lambda(void)
+    {
+    return lambda;
     }
 
   // FUNCTION: get_effect

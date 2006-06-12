@@ -30,36 +30,49 @@ void DISTRIBUTION::compute_deviance(double & deviance,double & deviancesat)
     }
   }
 
-/*
 double DISTRIBUTION::compute_msep(void)
   {
   unsigned i;
+  unsigned nlcols = linearpred.cols();
 
   double * worklin = (*linpred_current).getV();
   double * workresp = response.getV();
   double * workweight = weight.getV();
-  double mu;
+  double dev=0;
+  double devsat=0;
+  double deviancesat = 0;
+  double deviance = 0;
 
-  double sum = 0;
-  double help;
+  datamatrix mu = datamatrix(nlcols,1,0);
+  double * mum = mu.getV();
+  // double mu;   // siehe "compute_deviance"
+ 
   double nr = 0;
+  double * work2 = weight2.getV();
 
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
+  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++,work2++)
     {
     if (*workweight == 0)
       {
-      compute_mu(worklin,&mu);
-      help = *workresp - mu;
-      //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
-                                          // Gewichten != 0, die andere 0/1 Variable
-      sum += help*help;
+      compute_mu(worklin,mum);
+      compute_deviance(workresp,work2,mum,&dev,&devsat,scale,0);
+      deviance+=dev;
+      deviancesat+=devsat;
+      worklin += nlcols - 1;
+      workresp += nlcols - 1;
+
       nr += 1;
       }
+    else       // überprüfen!!!!!
+      {
+      worklin += nlcols - 1;
+      workresp += nlcols - 1;
+      }  
     }
 
-  return  sum/nr;
+  return  deviancesat;   //      /nr;
   }
-*/
+
 
 double DISTRIBUTION::compute_gcv(const double & df)
   {
@@ -69,6 +82,17 @@ double DISTRIBUTION::compute_gcv(const double & df)
 
   double help2 = 1-df/get_nrobs_wpw();
   double gcv = devsat / (get_nrobs_wpw()*help2*help2);
+  return gcv;
+  }
+
+double DISTRIBUTION::compute_gcv2(const double & df)
+  {
+  double dev=0;
+  double devsat=0;
+  compute_deviance(dev,devsat);
+
+  double help2 = 1-df/get_nrobs_wpw();
+  double gcv = dev  - 2*get_nrobs_wpw() * log(help2);
   return gcv;
   }
 
@@ -126,6 +150,116 @@ unsigned DISTRIBUTION::get_nrpar(void)
 
   return nrpar;
   }
+
+
+void DISTRIBUTION::create_weight(datamatrix & w, const double & p1, const bool & fertig, const bool & CV)
+  {
+  weight2 = weight;
+
+srand(1);
+
+  if(fertig == true)
+    {
+    double a = 0;
+    unsigned i;
+    double * workweight = w.getV();
+    for(i=0;i<nrobs;i++,workweight++)
+      a += *workweight;
+    double p = (p1 * nrobs - a) / (nrobs - a);
+    double u;
+    workweight = w.getV();
+    for(i=0;i<nrobs;i++,workweight++)
+      {
+      u = uniform();
+      if(u<p && *workweight==0)
+        *workweight = 1;
+      }
+
+    double * workw = w.getV();
+    workweight = weight.getV();
+    for(i=0;i<nrobs;i++,workweight++,workw++)
+      {
+      if(*workw == 0)
+        *workweight = 0;
+      }
+    }
+
+  if(CV == true)
+    {
+    unsigned i;
+    double anzahl = floor(double(nrobs)/p1);    // p1 hier =5 oder =10, gibt Aufteilung an
+    double rest = fmod(double(nrobs),p1);      // "anzahl" = Anzahl der Beobachtungen pro Teil,
+                                              // "rest" = Anzahl Teile mit einer Beobachtung mehr
+    constant_iwlsweights = false;
+    iwlsweights_notchanged = false;
+    weightcv = datamatrix(nrobs,p1,1);
+    datamatrix u = datamatrix(nrobs,1,0);
+    for(i=0;i<nrobs;i++)
+      u(i,0) = uniform();
+
+    statmatrix<int> index(nrobs,1);
+    index.indexinit();
+    u.indexsort(index,0,nrobs-1,0,0);
+
+    unsigned pos = 0;
+    unsigned anz=0;
+    int* p = index.getV();
+    for(i=0;i<index.rows();i++,p++)
+      {
+      double plus = 0;
+      if(rest > 0)
+        plus += 1;
+      if(anz < anzahl + plus)
+        {
+        weightcv(*p,pos) = 0;
+        anz = anz+1;
+        }
+      else
+        {
+        pos += 1;
+        rest -= 1;
+        weightcv(*p,pos) = 0;
+        anz = 1;
+        }
+      }
+    }
+  }
+
+
+void DISTRIBUTION::weight_for_all(void)
+  {
+  weight = weight2;
+  }
+
+
+void DISTRIBUTION::compute_cvweights(int pos)
+  {
+  if(pos < 0)
+    {
+    weight = weight2;
+    weightiwls = weightiwls2;
+    }
+  if(pos >= 0)
+    {
+    double * w1 = weight.getV();
+    double * w2 = weightiwls.getV();
+    double * mw = weightcv.getV()+pos;
+    unsigned cv = weightcv.cols();
+    unsigned i;
+    for(i=0;i<nrobs;i++,w1++,w2++,mw+=cv)
+      {
+      *w1 *= *mw;
+      *w2 *= *mw;
+      }
+    }
+  }
+
+
+void DISTRIBUTION::save_weightiwls(void)
+  {
+  weightiwls2 = weightiwls;
+  }
+
 
 void DISTRIBUTION::create(MCMCoptions * o, const datamatrix & r,
                            const datamatrix & w)
@@ -313,6 +447,7 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   {
 
   constant_iwlsweights=d.constant_iwlsweights;
+  iwlsweights_notchanged = d.iwlsweights_notchanged;
 
   nosamples = d.nosamples;
 
@@ -338,6 +473,8 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
 
   weight = d.weight;
   weightname = d.weightname;
+  weight2 = d.weight2;
+  weightiwls2 = d.weightiwls2;
 
   offsetname = d.offsetname;
 
@@ -396,6 +533,7 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
     return *this;
 
   constant_iwlsweights=d.constant_iwlsweights;
+  iwlsweights_notchanged = d.iwlsweights_notchanged;
 
   nosamples = d.nosamples;
 
@@ -420,6 +558,8 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
 
   weight = d.weight;
   weightname = d.weightname;
+  weight2 = d.weight2;
+  weightiwls2 = d.weightiwls2;
 
   offsetname = d.offsetname;
 
@@ -4733,25 +4873,26 @@ double DISTRIBUTION_gaussian::compute_msep(void)
   double * worklin = (*linpred_current).getV();
   double * workresp = response.getV();
   double * workweight = weight.getV();
+  double * work2 = weight2.getV();
 
   double sum = 0;
   double help;
   double nr = 0;
 
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
+  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++,work2++)
     {
     if (*workweight == 0)
       {
       help = *workresp - *worklin;
       //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
                                           // Gewichten != 0, die andere 0/1 Variable
-      sum += help*help;
+      sum += help*help * *work2;
       nr += 1;
       }
     }
   sum = trmult(0,0)*trmult(0,0)*sum;
 
-  return  sum/nr;
+  return  sum;     // /nr;
   }
 
 

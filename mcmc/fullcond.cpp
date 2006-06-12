@@ -24,10 +24,11 @@ FULLCOND::FULLCOND(MCMCoptions * o,const datamatrix & d,
   {
 
   df_accuracy = 0.05;
-  inthemodel = true;   // false ???
+  inthemodel = false;
   fixornot = false;
   grenzfall = 0;
   smoothing = "global";
+  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
 
   transformnonlinear = false;
   transformed =  false;
@@ -114,6 +115,7 @@ FULLCOND::FULLCOND(const FULLCOND & m)
   fixornot = m.fixornot;
   grenzfall = m.grenzfall;
   smoothing = m.smoothing;
+  interactions_pointer = m.interactions_pointer;  
 
   //---------------------------- end: for stepwise -----------------------------
 
@@ -220,6 +222,7 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
   fixornot = m.fixornot;
   grenzfall = m.grenzfall;
   smoothing = m.smoothing;
+  interactions_pointer = m.interactions_pointer;  
 
   //------------------------------ end: stepwise -------------------------------
 
@@ -1221,7 +1224,7 @@ void FULLCOND::set_inthemodel(double modell)
     }
   }
 
-void FULLCOND::get_inthemodel(bool & drin, bool & fix)       
+void FULLCOND::get_inthemodel(bool & drin, bool & fix)
   {
   drin = inthemodel;
   fix = fixornot;
@@ -1241,7 +1244,7 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
       lambdamax = lambda_df;
     else
       {
-      lambdamax = std::pow(10,lambda_df);
+      lambdamax = 0.000000001;
       number = 1;
       optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
       + ST::doubletostring(lambdamax) + "\n\n");
@@ -1255,7 +1258,7 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
       lambdamin = lambda_df;
     else
       {
-      lambdamin = std::pow(10,lambda_df);
+      lambdamin = 0.000000001;
       optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
       + ST::doubletostring(lambdamin) + "\n\n");
       }
@@ -1284,18 +1287,18 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
   df_wunsch = get_df_lambdamax();
   lambda_df = lambda_from_df(df_wunsch,lambdamax);
 
-  if(lambda_df != -9 && lambda_df < std::pow(10,9.0))
+  if(lambda_df != -9 && lambda_df < 1000000000)
     lambdamax = lambda_df;
   else if(lambda_df == -9)
     {
-    lambdamax = std::pow(10,lambda_df);
+    lambdamax = 0.000000001;
     number = 1;
     optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
       + ST::doubletostring(lambdamax) + "! The number of different smoothing parameters has set to one!\n\n");
     }
-  else if(lambda_df == std::pow(10,9.0))
+  else if(lambda_df == 1000000000)
     {
-    while(lambda_df == std::pow(10,9.0) && number>=1)
+    while(lambda_df == 1000000000 && number>=1)
       {
       df_wunsch += diff;
       lambda_df = lambda_from_df(df_wunsch,lambdamax);
@@ -1331,7 +1334,7 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
        double l = log10(lambdamin);
        double u = log10(lambdamax);
        lambda_df = std::pow(10,u-double(i)*((u-l)/(double(number)-1)));
-       if(lambda_df < std::pow(10,9.0))
+       if(lambda_df < 1000000000)
          lvec.push_back(lambda_from_df(df_wunsch,lambda_df));
        else
          {
@@ -1354,12 +1357,12 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
   double lambda_unten, lambda_oben, df_mitte;
   if( (df_wunsch-df_vorg) < get_accuracy() && (df_wunsch-df_vorg) > -1*get_accuracy() )
     {
-    if(lambda_vorg >= pow(10,-9) && lambda_vorg <= pow(10,9))
+    if(lambda_vorg >= 0.000000001 && lambda_vorg <= 1000000000)
       return lambda_vorg;
-    else if(lambda_vorg < pow(10,-9))
+    else if(lambda_vorg < 0.000000001)
       return -9;
     else
-      return pow(10,9);
+      return 1000000000;
      }
   else if((df_wunsch-df_vorg) >= get_accuracy())
      {
@@ -1372,19 +1375,19 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
         df_vers = compute_df();
         if( (df_wunsch-df_vers) < get_accuracy() && (df_wunsch-df_vers) > -1*get_accuracy() )
           {
-          if(lambda_vers >= pow(10,-9) && lambda_vorg <= pow(10,9))
+          if(lambda_vers >= 0.000000001 && lambda_vorg <= 1000000000)
             return lambda_vers;
-          else if(lambda_vers < pow(10,-9))
+          else if(lambda_vers < 0.000000001)
             return -9;
           else
-            return pow(10,9);
+            return 1000000000;
           }
         else
           {
-          if(lambda_vers < pow(10,-9))
+          if(lambda_vers < 0.000000001)
             return -9;
-          else if(lambda_vers > pow(10,9))
-            return pow(10,9);
+          else if(lambda_vers > 1000000000)
+            return 1000000000;
           }
         }
      lambda_unten = lambda_vorg;
@@ -1402,19 +1405,19 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
         df_vers = compute_df();
         if( (df_wunsch-df_vers) < get_accuracy() && (df_wunsch-df_vers) > -1*get_accuracy())
           {
-          if(lambda_vers >= pow(10,-9) && lambda_vorg <= pow(10,9))
+          if(lambda_vers >= 0.000000001 && lambda_vorg <= 1000000000)
             return lambda_vers;
-          else if(lambda_vers < pow(10,-9))
+          else if(lambda_vers < 0.000000001)
             return -9;
           else
-            return pow(10,9);
+            return 1000000000;
           }
         else
           {
-          if(lambda_vers < pow(10,-9))
+          if(lambda_vers < 0.000000001)
             return -9;
-          else if(lambda_vers > pow(10,9))
-            return pow(10,9);
+          else if(lambda_vers > 1000000000)
+            return 1000000000;
           }
         }
      lambda_unten = lambda_vers;
@@ -1432,22 +1435,21 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
      else
        lambda_oben = lambda_mitte;
 
-     if(lambda_unten < pow(10,-9) && lambda_mitte < pow(10,-9) && lambda_oben < pow(10,-9))
+     if(lambda_unten < 0.000000001 && lambda_mitte < 0.000000001 && lambda_oben < 0.000000001)
        return -9;
-     if(lambda_unten > pow(10,9) && lambda_mitte > pow(10,9) && lambda_oben > pow(10,9))
-       return pow(10,9);
+     if(lambda_unten > 1000000000 && lambda_mitte > 1000000000 && lambda_oben > 1000000000)
+       return 1000000000;
      }
-  if(lambda_mitte < pow(10,-9))
+  if(lambda_mitte < 0.000000001)
     lambda_mitte = -9;
-  else if(lambda_mitte > pow(10,9))
-   lambda_mitte = pow(10,9);
+  else if(lambda_mitte > 1000000000)
+   lambda_mitte = 1000000000;
   return lambda_mitte;
   }
 
 // ---------------------------------------------------------------------------
 // ------------------------END: FOR STEPWISE----------------------------------
 // ---------------------------------------------------------------------------
-
 
 } // end: namespace MCMC
 

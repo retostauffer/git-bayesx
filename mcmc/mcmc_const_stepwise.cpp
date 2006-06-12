@@ -61,6 +61,10 @@ const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   intercept_for_center = m.intercept_for_center;
   interactions_pointer = m.interactions_pointer;
 
+  data_rest = m.data_rest;
+  beta_rest = m.beta_rest;
+  linold_rest = m.linold_rest;
+  names_rest = m.names_rest;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -85,6 +89,10 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
   betas_aktuell = m.betas_aktuell;
   intercept_for_center = m.intercept_for_center;
   interactions_pointer = m.interactions_pointer;
+  data_rest = m.data_rest;
+  beta_rest = m.beta_rest;
+  linold_rest = m.linold_rest;
+  names_rest = m.names_rest;
 
   return *this;
   }
@@ -617,7 +625,167 @@ void FULLCOND_const_stepwise::set_effect_zero(void)
   linold_const = datamatrix(linold.rows(),1,*workbeta);
   linold = linold + linold_const;            // updates linold (subtracts the constant)
   likep->add_linearpred_m(linold_const,column);     // updates linpred
+  }
 
+
+double FULLCOND_const_stepwise::compute_df(void)
+  {
+  double df = 0;
+  if(data_rest.rows()>1)
+    df = df + data_rest.cols();
+  df += FULLCOND_const::compute_df();
+  return df;
+  }
+
+
+// -----------------------------------------------------------------------------
+// --------------------------- Mini-Backfitting --------------------------------
+// -----------------------------------------------------------------------------
+
+void FULLCOND_const_stepwise::split_data(const vector<ST::string> & names)
+  {
+  if(fctype != factor && data.cols() != names.size()+1)
+    {
+
+if(data.cols() < names.size()+1)
+  {
+  double t = names.size();
+  t = data.cols();
+  for(unsigned i=0;i<names.size();i++)
+    {
+    ST::string test = names[i];
+    test = test;
+    }
+  for(unsigned i=0;i<data.cols();i++)
+    {
+    ST::string test = datanames[i];
+    test = test;
+    }
+  }
+
+    unsigned i,j;
+
+    nrconst = names.size()+1;  // +1 wegen Intercept
+    datamatrix dataold = data;
+
+    data = datamatrix(data.rows(),nrconst);
+    datamatrix betao = beta;
+    setbeta(nrconst,1,0);
+
+    data_rest = datamatrix(data.rows(),dataold.cols()-nrconst);
+    beta_rest = datamatrix(dataold.cols()-nrconst,1,0);
+    linold_rest = datamatrix(data.rows(),1,0);
+
+    double * workold = dataold.getV();
+    double * workdata = data.getV();
+    double * workrest = data_rest.getV();
+    double * workbr = beta_rest.getV();
+    double * workbeta = beta.getV();
+    double * workbetao = betao.getV();
+//    double * workbetameanold = betameanold.getV();
+
+
+    vector<ST::string> dnames;
+    vector<unsigned> reihenfolge;
+
+    for(j=0;j<dataold.cols();j++,workbetao++)
+      {
+      unsigned z = 0;
+      bool gefunden = false;
+      while(z<names.size() && gefunden == false)
+        {
+        if(datanames[j] == names[z])
+          gefunden = true;
+        z++;
+        }
+      if(gefunden == true || j==0)
+        {
+        reihenfolge.push_back(1);
+        dnames.push_back(datanames[j]);
+        *workbeta = *workbetao;
+        workbeta++;
+        }
+      else
+        {
+        reihenfolge.push_back(0);
+        names_rest.push_back(datanames[j]);
+        *workbr = *workbetao;
+        workbr++;
+        }
+      }
+
+
+    for(i=0;i<dataold.rows();i++)
+      {
+      for (j=0;j<dataold.cols();j++,workold++)
+        {
+        if(reihenfolge[j] == 1)
+          {
+          *workdata = *workold;
+          workdata++;
+          }
+        else
+          {
+          *workrest = *workold;
+          workrest++;
+          }
+        }
+      }
+
+    datanames = dnames;
+    X1 = datamatrix(nrconst,nrconst,0);
+    linold_rest.mult(data_rest,beta_rest);
+    linold -= linold_rest;
+    }
+  }
+
+
+
+void FULLCOND_const_stepwise::merge_data(void)
+  {
+  if(fctype != factor && names_rest.size()>0)
+    {
+    unsigned i,j;
+
+    nrconst = names_rest.size() + datanames.size();
+    datamatrix dataold = data;
+
+    data = datamatrix(data.rows(),nrconst);
+    datamatrix betao = beta;
+    setbeta(nrconst,1,0);
+
+    double * workold = dataold.getV();
+    double * workdata = data.getV();
+    double * workrest = data_rest.getV();
+    double * workbr = beta_rest.getV();
+    double * workbeta = beta.getV();
+    double * workbetao = betao.getV();
+//    double * workbetameanold = betameanold.getV();
+
+    for(j=0;j<dataold.cols();j++,workbeta++,workbetao++)
+      *workbeta = *workbetao;
+    for(j=0;j<data_rest.cols();j++,workbeta++,workbr++)
+      *workbeta = *workbr;
+
+    for(i=0;i<data.rows();i++)
+      {
+      for (j=0;j<dataold.cols();j++,workold++,workdata++)
+        *workdata = *workold;
+
+      for (j=0;j<data_rest.cols();j++,workdata++,workrest++)
+        *workdata = *workrest;
+      }
+
+    for(i=0;i<names_rest.size();i++)
+      {
+      datanames.push_back(names_rest[i]);
+      }
+
+    X1 = datamatrix(nrconst,nrconst,0);
+    linold += linold_rest;
+    names_rest.erase(names_rest.begin(),names_rest.end());
+    data_rest = datamatrix(1,1,0);
+    }
   }
 
 
@@ -899,6 +1067,12 @@ void FULLCOND_const_stepwise::compute_lambdavec(vector<double> & lvec, int & num
 void FULLCOND_const_stepwise::set_pointer_to_interaction(FULLCOND * inter)
   {
   interactions_pointer.push_back(inter);
+  }
+
+
+void FULLCOND_const_stepwise::get_interactionspointer(vector<FULLCOND*> & inter)
+  {
+  inter = interactions_pointer;
   }
 
 

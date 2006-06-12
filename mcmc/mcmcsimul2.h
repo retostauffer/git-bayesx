@@ -44,6 +44,14 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   ofstream outtex;
   ST::string smoothing;    // für Unterscheidung globaler / lokaler Glättungsparameter
   bool hierarchical;
+  bool miniback_off;
+
+  bool df_exact;
+  bool ganze_matrix;
+  vector<unsigned> xcut;
+  vector<unsigned> zcut;
+  datamatrix X;
+  datamatrix Z;
 
 unsigned BIC_min;
 
@@ -63,6 +71,8 @@ unsigned BIC_min;
 
   bool finetuning(vector<double> & modell);
   bool fine_local(vector<double> & modell);  // für Wahl lokaler Glättungsparameter
+
+  void schaetzen(int z, double & kriterium, bool neu, ST::string variante);
 
 // -----------------------------------------------------------------------------
 // -------------- Funktionen, für Stepwise / Stepmin ---------------------------
@@ -115,14 +125,11 @@ unsigned BIC_min;
 
   void stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt, double & kriterium);
 
-  void minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
-          double & kriterium, double & df);
+  void minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt, double & kriterium);
 
-  void minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
-          double & kriterium, double & df);
+  void minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt, double & kriterium);
 
-  void minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
-          double & kriterium, double & df);
+  void minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt, double & kriterium);
 
   double criterion_min(const double & df);
 
@@ -170,6 +177,17 @@ unsigned BIC_min;
       vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
       unsigned & z, double & kriterium_aktuell);
 
+
+// -----------------------------------------------------------------------------
+// --------------------------- Mini-Backfitting --------------------------------
+// -----------------------------------------------------------------------------
+
+  bool blockbilden(vector<FULLCOND*> & fullcond_block, unsigned & z, unsigned & pos);
+
+  void minifullcond_aendern(FULLCOND* & fullcondz, vector<FULLCOND*> & fullcond, unsigned & pos);
+
+  void minibackfitting(vector<FULLCOND*> & fullcond);
+
 // -----------------------------------------------------------------------------
 // ------- Funktionen für die Erstellung des Startmodels -----------------------
 // -----------------------------------------------------------------------------
@@ -179,6 +197,8 @@ unsigned BIC_min;
   void initialise_lambdas(vector<vector<ST::string> > & namen_nonp,
        vector<ST::string> & namen_fix, vector<vector<double> > & lambdavector,
        const int & number, const bool & gewichte);
+
+  void STEPWISErun::initialise_weights(double prop);
 
   unsigned search_lambdaindex(const double & m, const vector<double> lam,
                                             bool & b) const;
@@ -209,6 +229,8 @@ unsigned BIC_min;
 
   bool modelcomparison(const vector<double> & m,
        const vector<vector<vector<double> > > & mmatrix);
+
+  double df_ganzehatmatrix(void);
 
 // -----------------------------------------------------------------------------
 // ------- Funktionen für die Erstellung des fullcondp-Vektors -----------------
@@ -348,7 +370,7 @@ unsigned BIC_min;
          const bool & fineloc, const bool & maveraging, int & fenster,
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
-         const bool & CI, bool & hier);
+         const bool & CI, bool & hier, bool & gm, const double & prop, const bool & minib);
 
   double compute_criterion(void);
 

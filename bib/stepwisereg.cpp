@@ -191,15 +191,24 @@ void stepwisereg::create(void)
 
   minimum = stroption("minimum",minim,"approx");
 
+  minibackfitting_off = simpleoption("minibackfitting_off",false);
+
+  ganzematrix = simpleoption("df_exact",false);
+
   vector<ST::string> cr;
   cr.push_back("AIC");
   cr.push_back("AIC_imp");
   cr.push_back("GCV");
+  cr.push_back("GCV2");
   cr.push_back("BIC");
   cr.push_back("MSEP");
+  cr.push_back("CV5");
+  cr.push_back("CV10");
   cr.push_back("AUC");
 
   criterion = stroption("criterion",cr,"GCV");
+
+  proportion = doubleoption("proportion",0.75,0,1);
 
   steps = intoption("steps",1000,0,10000);
 
@@ -305,7 +314,10 @@ void stepwisereg::create(void)
 
   regressoptions.push_back(&procedure);
   regressoptions.push_back(&minimum);
+  regressoptions.push_back(&minibackfitting_off);
+  regressoptions.push_back(&ganzematrix);
   regressoptions.push_back(&criterion);
+  regressoptions.push_back(&proportion);
   regressoptions.push_back(&steps);
   regressoptions.push_back(&trace);
   regressoptions.push_back(&number);
@@ -744,11 +756,11 @@ bool stepwisereg::create_distribution(void)
 
   //testing if weightvariable is specified when MSEP or AUC is used as criterion
   ST::string cr = criterion.getvalue();
-  if(wn.length() == 0 && (cr == "MSEP" || cr == "AUC"))
+  /*if(wn.length() == 0 && (cr == "MSEP" || cr == "AUC"))
      {
      outerror("ERROR: You must specify a weight variable if you want to use " + cr + " as information criterion!\n");
      return true;
-     }
+     }*/
   if(cr == "AUC" && family.getvalue() != "binomial")
      {
      outerror("ERROR: You can use AUC only with binomial distributed response!\n");
@@ -1802,12 +1814,36 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
         unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,nofixed,
         lambda));
 
+        // Zeiger auf Haupteffekt
+        FULLCOND * mainp2;
+        unsigned main2=0;
+
+        FULLCOND * inter;
+
+        unsigned j;
+        for (j=0;j<fcnonpgaussian.size();j++)
+          {
+          if  ( ((fcnonpgaussian[j].get_datanames()).size() == 1) &&
+                (fcnonpgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
+                fcnonpgaussian[j].get_col() == collinpred )
+                {
+                mainp2 = &fcnonpgaussian[j];
+                main2 ++;
+                }
+            }
+        if(main2 == 1)
+          {
+          inter = &fcnonpgaussian[fcnonpgaussian.size()-1];
+          mainp2->set_pointer_to_interaction(inter);
+          fcnonpgaussian[fcnonpgaussian.size()-1].set_pointer_to_interaction(mainp2);
+          }
+
         if(nofixed == true)
           {
           FULLCOND * mainp1;
           unsigned main1=0;
 
-          FULLCOND * inter;
+          //FULLCOND * inter;
 
           unsigned j;
           for (j=0;j<fcpsplinestep.size();j++)
@@ -1849,10 +1885,10 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
 
         vector<ST::string> na;
         na.push_back(terms[i].varnames[0]);
-        if(nofixed == true)
+//        if(nofixed == true)
           na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-        else
-          na.push_back(terms[i].varnames[0]);
+//        else
+//          na.push_back(terms[i].varnames[0]);
         fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
 
         }
@@ -2053,13 +2089,35 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
                                             collinpred
                                            )
                          );
-        
+
+        // Zeiger auf Haupteffekt
+        FULLCOND * mainp2;
+        unsigned main2=0;
+
+        FULLCOND * inter;
+
+        unsigned j;
+        for (j=0;j<fcpsplinestep.size();j++)
+          {
+          if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+                (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[1]) &&
+                fcpsplinestep[j].get_col() == collinpred )
+                {
+                mainp2 = &fcpsplinestep[j];
+                main2 ++;
+                }
+            }
+        if(main2 == 1)
+          {
+          inter = &fcpsplinestep[fcpsplinestep.size()-1];
+          mainp2->set_pointer_to_interaction(inter);
+          fcpsplinestep[fcpsplinestep.size()-1].set_pointer_to_interaction(mainp2);
+          }
+
         if(nofixed == true)
           {
           FULLCOND * mainp1;
           unsigned main1=0;
-
-          FULLCOND * inter;
 
           unsigned j;
           for (j=0;j<fcpsplinestep.size();j++)
@@ -2101,10 +2159,10 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
 
         vector<ST::string> na;
         na.push_back(terms[i].varnames[0]);
-        if(nofixed == true)
+//        if(nofixed == true)
           na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-        else
-          na.push_back(terms[i].varnames[0]);
+//        else
+//          na.push_back(terms[i].varnames[0]);
         fcpsplinestep[fcpsplinestep.size()-1].init_names(na);
         }
 
@@ -2279,12 +2337,34 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
         distr[distr.size()-1],fcconst_intercept,m,terms[i].options[1],
         D.getCol(j2),D.getCol(j1),title,pathnonp,pathres,collinpred,lambda,nofixed));
 
+        // Zeiger auf Haupteffekt
+        FULLCOND * mainp2;
+        unsigned main2=0;
+
+        FULLCOND * inter;
+
+        unsigned j;
+        for (j=0;j<fcnonpgaussian.size();j++)
+          {
+          if  ( ((fcnonpgaussian[j].get_datanames()).size() == 1) &&
+                (fcnonpgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
+                fcnonpgaussian[j].get_col() == collinpred )
+                {
+                mainp2 = &fcnonpgaussian[j];
+                main2 ++;
+                }
+            }
+        if(main2 == 1)
+          {
+          inter = &fcnonpgaussian[fcnonpgaussian.size()-1];
+          mainp2->set_pointer_to_interaction(inter);
+          fcnonpgaussian[fcnonpgaussian.size()-1].set_pointer_to_interaction(mainp2);
+          }
+
         if(nofixed == true)
           {
           FULLCOND * mainp1;
           unsigned main1=0;
-
-          FULLCOND * inter;
 
           unsigned j;
           for (j=0;j<fcpsplinestep.size();j++)
@@ -2326,10 +2406,10 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
 
         vector<ST::string> na;
         na.push_back(terms[i].varnames[0]);
-        if(nofixed == true)
+//        if(nofixed == true)
           na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-        else
-          na.push_back(terms[i].varnames[0]);
+//        else
+//          na.push_back(terms[i].varnames[0]);
         fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
 
         }
@@ -2453,12 +2533,33 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
                                                         )
                           );
 
+        // Zeiger auf Haupteffekt
+        FULLCOND * mainp2;
+        unsigned main2=0;
+
+        FULLCOND * inter;
+
+        unsigned j;
+        for (j=0;j<fcrandomgaussian.size();j++)
+          {
+          if  ( ((fcrandomgaussian[j].get_datanames()).size() == 1) &&
+                (fcrandomgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
+                fcrandomgaussian[j].get_col() == collinpred )
+                {
+                mainp2 = &fcrandomgaussian[j];
+                main2 ++;
+                }
+            }
+        if(main2 == 1)
+          {
+          inter = &fcrandomgaussian[fcrandomgaussian.size()-1];
+          mainp2->set_pointer_to_interaction(inter);
+          fcrandomgaussian[fcrandomgaussian.size()-1].set_pointer_to_interaction(mainp2);
+          }
         if(inclf == false)
           {
           FULLCOND * mainp1;
           unsigned main1=0;
-
-          FULLCOND * inter;
 
           unsigned j;
           for (j=0;j<fcpsplinestep.size();j++)
@@ -2500,10 +2601,10 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
 
       vector<ST::string> na;
       na.push_back(terms[i].varnames[0]);
-      if(inclf == false)
+//      if(inclf == false)
         na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-      else
-        na.push_back(terms[i].varnames[0]);
+//      else
+//        na.push_back(terms[i].varnames[0]);
       fcrandomgaussian[fcrandomgaussian.size()-1].init_names(na);
 
       fcrandomgaussian[fcrandomgaussian.size()-1].set_stepwise_options(
@@ -2596,7 +2697,7 @@ bool stepwisereg::create_random(const unsigned & collinpred)
       FULLCOND_nonp_gaussian_stepwise * structuredp;
       unsigned structured=0;
 
-      unsigned j1;
+      unsigned j1,s;
       for (j1=0;j1<fcnonpgaussian.size();j1++)
         {
         if  ( ((fcnonpgaussian[j1].get_datanames()).size() == 1) &&
@@ -2607,6 +2708,7 @@ bool stepwisereg::create_random(const unsigned & collinpred)
           {
           structuredp = &fcnonpgaussian[j1];
           structured ++;
+          s = j1;
           }
         }
 
@@ -2639,7 +2741,7 @@ bool stepwisereg::create_random(const unsigned & collinpred)
         fcrandomgaussian[fcrandomgaussian.size()-1].init_spatialtotal(
         structuredp,pathnonpt,pathrest);
 
-        fcnonpgaussian[j1].init_spatialtotal(&fcrandomgaussian[fcrandomgaussian.size()-1]);
+        fcnonpgaussian[s].init_spatialtotal(&fcrandomgaussian[fcrandomgaussian.size()-1]);
         }
       else if (structured==0)
         {
@@ -3059,6 +3161,7 @@ remlreg newobject("r",outlog,putin,dpath,st);
 
     ST::string name = b.name.to_bstr();
     ST::string cr = b.criterion.getvalue();
+    double prop = b.proportion.getvalue();
     ST::string proc = b.procedure.getvalue();
     ST::string minim = b.minimum.getvalue();
     int steps = b.steps.getvalue();
@@ -3072,6 +3175,8 @@ remlreg newobject("r",outlog,putin,dpath,st);
     int window = b.window.getvalue();
     bool CI = b.ci.getvalue();
     bool hier = b.hier.getvalue();
+    bool gm = b.ganzematrix.getvalue();
+    bool minib = b.minibackfitting_off.getvalue();
     vector<FULLCOND*> fullcond_z;
 
     ST::string path = b.outfiles[0];
@@ -3082,7 +3187,7 @@ remlreg newobject("r",outlog,putin,dpath,st);
      b.runobj = STEPWISErun(&b.generaloptions[0],b.distr[0],b.fullcond);
      failure = b.runobj.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
                        fine_tuning,fine_local,maveraging,window,b.D,b.modelvarnamesv,
-                       name,fullcond_z,path2,CI,hier);
+                       name,fullcond_z,path2,CI,hier,gm,prop,minib);
       }
    else
      {
@@ -3747,6 +3852,7 @@ void stepwisereg::describe(optionlist & globaloptions)
 //------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
+
 
 
 

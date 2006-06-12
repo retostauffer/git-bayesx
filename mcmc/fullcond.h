@@ -179,6 +179,7 @@ class __EXPORT_TYPE FULLCOND
   bool fixornot;      // gibt an, ob statt Fullc-Obj. fixer Effekt da ist
   int grenzfall;      // gibt den FG für lambda -> unendlich an!
   ST::string smoothing;
+  vector<FULLCOND*> interactions_pointer;
 
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
@@ -779,7 +780,11 @@ class __EXPORT_TYPE FULLCOND
   // ------------------------ FOR STEPWISE SELECTION ---------------------------
   // ---------------------------------------------------------------------------
 
-  virtual void get_lambda(double la)
+  virtual void create_weight(datamatrix & w)
+    {
+    }
+
+  virtual double get_lambda(void)
     {
     }
 
@@ -789,6 +794,18 @@ class __EXPORT_TYPE FULLCOND
 
   void set_inthemodel(double modell);
   void get_inthemodel(bool & drin, bool & fix);
+
+  virtual void get_interactionspointer(vector<FULLCOND*> & inter)
+    {
+    }
+
+  virtual void split_data(const vector<ST::string> & names)
+    {
+    }
+
+  virtual void merge_data(void)
+    {
+    }
 
   const int & get_grenzfall(void)
     {
@@ -864,6 +881,10 @@ class __EXPORT_TYPE FULLCOND
   virtual double compute_df(void)
     {
     return 0;
+    }
+
+  virtual void set_dfunstruct(const double & df_unstr)  // für spatialtotal
+    {
     }
 
     // FUNCTION: set_stepwise_options

@@ -27,13 +27,14 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
   protected:
 
   vector< vector<double> > beta_average; 
-  vector<FULLCOND*> interactions_pointer;
   int lambda_nr;
   datamatrix lambdas_local;
 
   datamatrix data_varcoeff_fix;
   datamatrix effmodi;
 
+  double df_lambdaold;
+  double lambdaold;
 
   public:
 
@@ -156,6 +157,11 @@ if( (lambda_nr+nrpar-rankK) > (nrpar-rankK))
       lambda_nr = 0;
     }
 
+  double get_lambda(void)
+    {
+    return lambda;
+    }
+
   /*double compute_penal_lambda(void) //Versuch!!!
     {
     double penal = 0;
@@ -185,6 +191,8 @@ if( (lambda_nr+nrpar-rankK) > (nrpar-rankK))
 
   void multBS_sort(datamatrix & res, const datamatrix & beta);
 
+  void create_weight(datamatrix & w);  
+
   // FUNCTION: get_effect
   // TASK: returns a string of the estimated effect
 
@@ -204,13 +212,18 @@ if( (lambda_nr+nrpar-rankK) > (nrpar-rankK))
 
   void set_pointer_to_interaction(FULLCOND * inter);
 
-  void search_for_interaction(void);
+  void get_interactionspointer(vector<FULLCOND*> & inter);
+
+  bool search_for_interaction(void);
 
   void wiederholen(FULLCOND * haupt, bool konst);
 
   void wiederholen_fix(FULLCOND * haupt, int vorzeichen, bool inter);
 
   void hierarchical(ST::string & possible);
+
+  void createreml(datamatrix & X,datamatrix & Z,
+                           const unsigned & Xpos, const unsigned & Zpos);
 
 
   // DESTRUCTOR

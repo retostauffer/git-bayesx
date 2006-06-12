@@ -33,12 +33,13 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
   double intercept;
 
   vector< vector<double> > beta_average;
-  vector<FULLCOND*> interactions_pointer;
   //int lambda_nr;
   //datamatrix lambdas_local;
 
   datamatrix data_varcoeff_fix;
   datamatrix effmodi;
+  double df_unstruct;
+//  bool gleichwertig;
 
 
   public:
@@ -100,6 +101,8 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 
   void compute_lambdavec(vector<double> & lvec, int & number);
 
+  void create_weight(datamatrix & w);  
+
   void hierarchie_fix(vector<double> & untervector, int dfo);
 
   void update_fix_effect(double & intercept);
@@ -110,17 +113,25 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 
   void set_pointer_to_interaction(FULLCOND * inter);
 
+  void get_interactionspointer(vector<FULLCOND*> & inter);
+
   const datamatrix & get_data_forfixedeffects(void);
 
   // FUNCTION: compute_df
   // TASK: returns the approximate degrees of freedom of a smoother
   double compute_df(void);
 
+//  double compute_df_andererteil(void);
+
+//  void set_gleichwertig(const bool & gleich, bool weiter);
+
+  void set_dfunstruct(const double & df_unstr);
+
   // FUNCTION: update_stepwise
   // TASK: returns (usually) the current smoothing parameter
   void update_stepwise(double la);
 
-  void get_lambda(double la);
+  double get_lambda(void);
 
   void save_betas(vector<double> & modell, int & anzahl);
 

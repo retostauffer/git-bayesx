@@ -1076,7 +1076,7 @@ term_random_stepwise::term_random_stepwise(void)
   df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,500);
   lambdamax_opt = simpleoption("lambdamax_opt",false);
   lambdamin_opt = simpleoption("lambdamin_opt",false);
-  number = intoption("number",0,0,50);
+  number = intoption("number",0,0,100);
   df_equidist = simpleoption("df_equidist",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
   }

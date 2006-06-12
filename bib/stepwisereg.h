@@ -115,7 +115,13 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   stroption minimum;
 
+  simpleoption minibackfitting_off;
+
+  simpleoption ganzematrix;
+
   stroption criterion;
+
+  doubleoption proportion;
 
   intoption steps;
 
