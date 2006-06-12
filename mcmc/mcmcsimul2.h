@@ -320,7 +320,7 @@ unsigned BIC_min;
 
   void compute_average(ofstream & outweight);
 
-  void save_alle_betas(vector<double> & modell);
+  void save_alle_betas(vector<double> modell);
 
   void alle_modelle_berechnen(double z, vector<double> & hilf,
                       const vector<double> & best,

@@ -5650,10 +5650,12 @@ BIC_min=1;
   }
 
 
-void STEPWISErun::save_alle_betas(vector<double> & modell)
+void STEPWISErun::save_alle_betas(vector<double> modell)
   {
   unsigned anzahl = names_fixed.size();
-  fullcond_alle[0]->save_betas(modell,anzahl);
+  int helpint;
+  helpint = int(anzahl);
+  fullcond_alle[0]->save_betas(modell,helpint);
   anzahl = 1;
   unsigned j;
   for(j=0;j<names_fixed.size()-1;j++)
@@ -5663,7 +5665,6 @@ void STEPWISErun::save_alle_betas(vector<double> & modell)
     }
   for(j=1;j<fullcond_alle.size();j++)
     {
-    int helpint;
     if(modell[j+names_fixed.size()-2] == -1)
       {
       helpint = int(anzahl);
