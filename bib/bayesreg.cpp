@@ -1019,7 +1019,10 @@ bool bayesreg::create_distribution(void)
   unsigned predictindpos;
   unsigned missingindpos;
 
-  if (family.getvalue() =="multgaussian" || family.getvalue() == "multistate")
+  if (family.getvalue() =="multgaussian" ||
+      family.getvalue() == "multistate"  ||
+      family.getvalue() == "gaussianh"
+     )
     {
     modelvarnamesv = modregmult.getModelVarnamesAsVector();
     wn = methods[5].get_weight_variable().to_bstr();
@@ -1053,7 +1056,7 @@ bool bayesreg::create_distribution(void)
           }
         }
 
-      }
+      } // end: if (family.getvalue() == "multistate")
 
     ifexpression = methods[5].getexpression();
     }
@@ -1284,38 +1287,29 @@ bool bayesreg::create_distribution(void)
   else if (family.getvalue() == "gaussianh")
     {
 
-    ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
-    ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
 
-    if (offs.rows() == 1)
-      distr_gaussian.push_back(DISTRIBUTION_gaussian(aresp.getvalue(),bresp.getvalue(),
-                                             &generaloptions[generaloptions.size()-1],
-                                             D.getCol(0),path2,
-                                             path3,w));
-    else
-      distr_gaussian.push_back(DISTRIBUTION_gaussian(offs,aresp.getvalue(),
-                                             bresp.getvalue(),&generaloptions[generaloptions.size()-1],
-                                             D.getCol(0),path2,path3,
-                                             w));
 
-    if (uniformprior.getvalue()==true)
+    datamatrix res(D.rows(),2);
+    unsigned k;
+    for(k=0;k<D.rows();k++)
       {
-      distr_gaussian[distr_gaussian.size()-1].set_uniformprior();
-      }
-
-    if (constscale.getvalue()==true)
-      {
-      distr_gaussian[distr_gaussian.size()-1].set_constscale(scalevalue.getvalue());
+      res(k,0) = D(k,0);
+      res(k,1) = D(k,0);
       }
 
 
-    distr_gaussian[distr_gaussian.size()-1].init_names(rname,wn);
+
+    distr_gaussianh = DISTRIBUTION_gaussianh(aresp.getvalue(),bresp.getvalue(),
+                                       &generaloptions[generaloptions.size()-1],
+                                             res,w);
+
+    distr_gaussianh.init_names(rname,wn);
 
 
     // prediction stuff
 
     if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
-      distr_gaussian[distr_gaussian.size()-1].set_predict(path,pathdev,&D,modelvarnamesv);
+      distr_gaussianh.set_predict(path,pathdev,&D,modelvarnamesv);
 
     if (predictmu.getvalue() == true)
       {
@@ -1328,26 +1322,19 @@ bool bayesreg::create_distribution(void)
         }
       else
          n = D.rows();
-      distr_gaussian[distr_gaussian.size()-1].set_predictfull(pathfullsample,pathfull,n);
+      distr_gaussianh.set_predictfull(pathfullsample,pathfull,n);
       }
 
     if (pind.rows() > 1)
-      distr_gaussian[distr_gaussian.size()-1].set_predictresponse(pind);
+      distr_gaussianh.set_predictresponse(pind);
 
     // end: prediction stuff
 
-    if (varianceest==true)
-      {
 
-      distr_gaussian[distr_gaussian.size()-1].set_variance(&distr_vargaussian);
-      distr_vargaussian.set_gaussian(&distr_gaussian[distr_gaussian.size()-1]);
-
-      }
-
-    distr.push_back(&distr_gaussian[distr_gaussian.size()-1]);
-    distrstring.push_back("gaussian");
-    distrposition.push_back(distr_gaussian.size()-1);
-    nrcategories = 1;
+    distr.push_back(&distr_gaussianh);
+    distrstring.push_back("gaussianh");
+    distrposition.push_back(0);
+    nrcategories = 2;
     }
 //-------------- END: Gaussian with heteroscedastic variances ------------------
   else if (family.getvalue() == "lognormal")
@@ -2298,7 +2285,7 @@ bool bayesreg::create_distribution(void)
     nrcategories = 1;
 
     }
-//--------------------- END: zip response ------------------------
+//--------------------- END: zip response --------------------------------------
 
 
 
@@ -3291,6 +3278,11 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 //------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
+
+
+
+
+
 
 
 

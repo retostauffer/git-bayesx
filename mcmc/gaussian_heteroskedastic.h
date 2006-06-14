@@ -20,7 +20,14 @@ namespace MCMC
 class __EXPORT_TYPE DISTRIBUTION_gaussianh : public DISTRIBUTION
   {
 
-   protected:
+  protected:
+
+  // FUNCTION: standardise
+  // TASK: standardises the response and the offset
+  //       sets scalesave.transform = trmult*trmult (!!!)
+
+  void standardise(void);
+
 
 
   public:
@@ -33,7 +40,6 @@ class __EXPORT_TYPE DISTRIBUTION_gaussianh : public DISTRIBUTION
 
    DISTRIBUTION_gaussianh(const double & a,const datamatrix & b,
                    MCMCoptions * o, const datamatrix & r,
-                   const ST::string & fp,const ST::string & fs,
                    const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
@@ -54,26 +60,16 @@ class __EXPORT_TYPE DISTRIBUTION_gaussianh : public DISTRIBUTION
    // TASK: computes the loglikelihood for a single observation
 
   double loglikelihood(double * response,double * linpred,
-                       double * weight,const int & i) const
-      {
-
-      /*
-      datamatrix V;
-      datamatrix likeli;
-      V=Sigma.inverse();
-      likeli = 0.5*nrobs * V.det() * log(V) - 0.5 * diff.transposed()*V*diff;
-
-       */
-    // include program code to compute the loglikelihood for the distribution
-
-    return 0;
-    }
+                       double * weight,const int & i) const;
 
   // FUNCTION: compute_mu
   // TASK: computes mu for a new linear predictor 'linpred' and stores
   //       the result in 'mu'
 
   void compute_mu(const double * linpred,double * mu) const;
+
+  void compute_mu_notransform(const double * linpred,double * mu) const;
+
 
   // FUNCTION: compute_deviance
 
@@ -83,16 +79,26 @@ class __EXPORT_TYPE DISTRIBUTION_gaussianh : public DISTRIBUTION
                         const datamatrix & scale,const int & i) const;
 
 
+  double compute_weight(double * linpred, double * weight,
+                        const int & i, const unsigned & col=0) const;
+
+
+ double compute_IWLS(double * response,double * linpred, double * weight,
+                      const int & i,double * weightiwls,double * tildey,
+                      bool weightyes, const unsigned & col=0);
+
+ void compute_IWLS_weight_tildey(double * response,double * linpred,
+                              double * weight,const int & i,
+                              double * weightiwls,double * tildey,
+                              const unsigned & col=0);
+
+double compute_gmu(double * linpred,const unsigned & col=0) const;
+
+
   // FUNCTION: outoptions
   // TASK: writing options of the distribution
 
-  void outoptions(void)
-    {
-    DISTRIBUTION::outoptions();
-
-    optionsp->out("\n");
-
-    }
+  void outoptions(void);
 
 
   // FUNCTION: update
@@ -100,10 +106,9 @@ class __EXPORT_TYPE DISTRIBUTION_gaussianh : public DISTRIBUTION
 
   void update(void);
 
-  void outresults(void)
-    {
-    DISTRIBUTION::outresults();
-    }
+  void update_predict(void);
+
+  void outresults(void);
 
   // FUNCTION: posteriormode
   // TASK: computes the posterior mode for the scale parameter and the
@@ -113,15 +118,9 @@ class __EXPORT_TYPE DISTRIBUTION_gaussianh : public DISTRIBUTION
 
   bool posteriormode_converged_fc(const datamatrix & beta,
                                   const datamatrix & beta_mode,
-                                  const unsigned & itnr)
-    {
-    return true;
-    }
+                                  const unsigned & itnr);
 
-  void compute_iwls(void)
-    {
-    tildey.assign(response);
-    }
+  void compute_iwls(void);
 
 
   };

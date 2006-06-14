@@ -540,7 +540,10 @@ void mregressrun(bayesreg & b)
 
   bool failure = false;
 
-  if ((b.family.getvalue() != "multgaussian") && (b.family.getvalue() != "multistate"))
+  if ((b.family.getvalue() != "multgaussian") &&
+      (b.family.getvalue() != "multistate") &&
+      (b.family.getvalue() != "gaussianh")       
+     )
     {
     failure = true;
     b.out("ERROR: family " + b.family.getvalue() + " is not allowed for method mregress\n");
