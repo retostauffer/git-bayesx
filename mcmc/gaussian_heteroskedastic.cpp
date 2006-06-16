@@ -181,6 +181,11 @@ void DISTRIBUTION_gaussianh::update_predict(void)
   }
 
 
+void DISTRIBUTION_gaussianh::outresults(void)
+  {
+
+  }
+
 bool DISTRIBUTION_gaussianh::posteriormode(void)
   {
 
