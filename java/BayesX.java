@@ -215,7 +215,7 @@ public BayesX()
 	registryFile = new File(new File(System.getProperty("user.dir")),"registry.bayesx");
 	try
 		{
-		if(!registryFile.exists())
+		if(!registryFile.exists() && registryFile.canWrite())
 			{
 			PrintWriter out = new PrintWriter(new FileWriter(registryFile));
 			if(out!=null)
@@ -224,8 +224,12 @@ public BayesX()
 				out.close();
 				}
 			}
+		else
+			{
+//			System.out.println("write check failed 1");
+			}
 		BufferedReader in = new BufferedReader(new FileReader(registryFile.getName()));
-		if(in!=null)
+		if(registryFile.canWrite() && in!=null)
 			{
 			registryString = in.readLine();
 			in.close();
@@ -239,11 +243,15 @@ public BayesX()
 			}
 		else
 			{
+//			System.out.println("write check failed 2");
+			registryArray = new int[19];
 			int[] regArray = {750,500,5,115,450,285,5,5,450,105,460,5,275,200,460,210,275,190,12};
 			for(int i=0;i<regArray.length; i++)
 				{
+//				System.out.println(i);
 				registryArray[i] = regArray[i];
 				}
+//			System.out.println("write check failed 3");
 			}
 		}
 	catch(IOException ioe)
@@ -2352,14 +2360,21 @@ public void fileAction(int i)
 		{
 		try
 			{
-			registryString = getWidth()+" "+getHeight()+" "+output.getX()+" "+output.getY()+" "+output.getWidth()+" "+output.getHeight()+" "+command.getX()+" "+command.getY()+
-				" "+command.getWidth()+" "+command.getHeight()+" "+review.getX()+" "+review.getY()+" "+review.getWidth()+" "+review.getHeight()+" "+objects.getX()+
-				" "+objects.getY()+" "+objects.getWidth()+" "+objects.getHeight()+" "+scriptsize+"\nBayesX System-File. DO NOT EDIT!";
-			PrintWriter out = new PrintWriter(new FileWriter(registryFile));
-			if(out!=null)
+			if(registryFile.canWrite())
 				{
-				out.println(registryString);
-				out.close();
+				registryString = getWidth()+" "+getHeight()+" "+output.getX()+" "+output.getY()+" "+output.getWidth()+" "+output.getHeight()+" "+command.getX()+" "+command.getY()+
+					" "+command.getWidth()+" "+command.getHeight()+" "+review.getX()+" "+review.getY()+" "+review.getWidth()+" "+review.getHeight()+" "+objects.getX()+
+					" "+objects.getY()+" "+objects.getWidth()+" "+objects.getHeight()+" "+scriptsize+"\nBayesX System-File. DO NOT EDIT!";
+				PrintWriter out = new PrintWriter(new FileWriter(registryFile));
+				if(out!=null)
+					{
+					out.println(registryString);
+					out.close();
+					}
+				}
+			else
+				{
+//				System.out.println("write chack failed 4");
 				}
 			System.exit(0);
 			}
