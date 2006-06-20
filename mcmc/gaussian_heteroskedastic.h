@@ -22,6 +22,8 @@ class __EXPORT_TYPE DISTRIBUTION_gaussianh : public DISTRIBUTION
 
   protected:
 
+  unsigned nrcat;               // number of categories of the response
+
   // FUNCTION: standardise
   // TASK: standardises the response and the offset
   //       sets scalesave.transform = trmult*trmult (!!!)

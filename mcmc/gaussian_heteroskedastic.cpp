@@ -36,6 +36,7 @@ DISTRIBUTION_gaussianh::DISTRIBUTION_gaussianh(const double & a,
   : DISTRIBUTION(o,r,w)
   {
 
+  nrcat = response.cols(); //neu
 
   family = "Gaussian with heteroscedastic errors";
 
@@ -53,8 +54,9 @@ DISTRIBUTION_gaussianh::DISTRIBUTION_gaussianh(const double & a,
 DISTRIBUTION_gaussianh::DISTRIBUTION_gaussianh(
 const DISTRIBUTION_gaussianh & nd)
 : DISTRIBUTION(DISTRIBUTION(nd))
-  {
-  }
+    {
+        nrcat = nd.nrcat;//neu
+    }
 
 
 const DISTRIBUTION_gaussianh & DISTRIBUTION_gaussianh::operator=(
@@ -65,6 +67,8 @@ const DISTRIBUTION_gaussianh & nd)
     return *this;
   DISTRIBUTION::operator=(DISTRIBUTION(nd));
 
+  nrcat = nd.nrcat;//neu
+
   return *this;
   }
 
@@ -72,11 +76,20 @@ const DISTRIBUTION_gaussianh & nd)
 
 double DISTRIBUTION_gaussianh::loglikelihood(double * response,
                       double * linpred,
-                       double * weight,const int & i) const
+                      double * weight,const int & i) const//für eine Beob.
   {
+        double * worklin = linpred;
+        double eta1 = (*worklin); //erster Prediktor, also der für mu
+        worklin++;
+        double eta2 = exp((*worklin)); //zweiter Prediktor, also der für die
+                                        //Varianz/ist die Anwendung von exp auf
+                                        //linearen Prediktor hier notwendig,
+                                        //dies hängt vom Schätzverfahren ab
+        double help = (*response) - eta1;
+        return -0.5 * (*linpred) - 0.5*(help*help)/eta2;
 
-  // DISTRIBUTION_gaussian abschauen
-  // DISTRIBUTION_multinomial abschauen
+        // DISTRIBUTION_gaussian abschauen
+        // DISTRIBUTION_multinomial abschauen
 
   return 0;
   }
