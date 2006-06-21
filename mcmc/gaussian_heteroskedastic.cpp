@@ -86,10 +86,11 @@ double DISTRIBUTION_gaussianh::loglikelihood(double * response,
                                         //linearen Prediktor hier notwendig,
                                         //dies hängt vom Schätzverfahren ab
         double help = (*response) - eta1;
-        return -0.5 * (*linpred) - 0.5*(help*help)/eta2;
+        return -0.5 * (*worklin) - 0.5*(help*help)/eta2;
 
         // DISTRIBUTION_gaussian abschauen
         // DISTRIBUTION_multinomial abschauen
+        // Die Variablen weight ist hier überflüssig und wird nicht genutzt
 
   return 0;
   }
@@ -99,11 +100,23 @@ double DISTRIBUTION_gaussianh::loglikelihood(double * response,
 void DISTRIBUTION_gaussianh::compute_mu(const double * linpred,double * mu)
                                            const
   {
+        const double * worklin = linpred;
+        double * workmu = mu;
+
+        //Zunächst den Wert für den Erwartungswertschätzer zuweisen
+        (*mu) = trmult(0,0)* (*linpred);
+
+        //Zeiger auf die Einträge des Varianzschätzers richten
+        worklin++;
+        workmu++;
+
+        //Wert für den Varianzschätzer zuweisen, Transformation nicht notwendig,
+        //da in Funktion standardise nicht vorgenommen
+        (*workmu) = exp((*worklin));
 
   // DISTRIBUTION_gaussian abschauen
   // DISTRIBUTION_multinomial abschauen
   // zweite Spalte: exp(linpred für varianz)
-
 
   }
 
@@ -111,6 +124,19 @@ void DISTRIBUTION_gaussianh::compute_mu(const double * linpred,double * mu)
 void DISTRIBUTION_gaussianh::compute_mu_notransform(const double * linpred,
 double * mu) const
   {
+        const double * worklin = linpred;
+        double * workmu = mu;
+
+        //Zunächst den Wert für den Erwartungswertschätzer zuweisen
+        (*mu) = (*linpred);
+
+        //Zeiger auf die Einträge des Varianzschätzers richten
+        worklin++;
+        workmu++;
+
+        //Wert für den Varianzschätzer zuweisen
+        (*workmu) = exp((*worklin));
+
 
   // DISTRIBUTION_gaussian abschauen
   // DISTRIBUTION_multinomial abschauen
@@ -124,10 +150,18 @@ void DISTRIBUTION_gaussianh::compute_deviance(const double * response,
                              double * deviance,double * deviancesat,
                              const datamatrix & scale,const int & i) const
   {
+      const double  * workmu = mu;
+      double r = (*response)* trmult(0,0) - (*mu);
+      workmu++;
+      double s = (*workmu)*pow(trmult(0,0),2);
+      *deviance =  ((double)1.0/s)*r*r+log(2*M_PI*s);
+      *deviancesat = ((double)1.0/s)*r*r;
 
   // DISTRIBUTION_gaussian abschauen
   // DISTRIBUTION_multinomial abschauen
   // zweite Spalte: exp(linpred für varianz)
+  // die Variable weight als Argument der Funktion ist wahrscheinlich
+  // überflüssig
 
   }
 
@@ -137,6 +171,9 @@ double DISTRIBUTION_gaussianh::compute_weight(double * linpred, double * weight,
   {
 
   // vgl. distribution h datei
+  // diese Funktion dürfte eigentlich überflüssig sein, da eine gewichtete
+  // Regression, da die Heteroskedastizität der Varianz bereits durch
+  // sigma_{i}^{2} modelliert wird.
 
   }
 
@@ -147,7 +184,40 @@ double DISTRIBUTION_gaussianh::compute_IWLS(double * response,double * linpred,
                       bool weightyes, const unsigned & col)
   {
 
+    double * workweightiwls = weightiwls;
+    double * worktildey = tildey;
+
+
+    if(col == 0) //Berechnung für den Prädiktor des Mittelwertes
+    {
+
+
+
+    }
+    if(col == 1) //Berechnung für den Prädiktor der Varianz
+    {
+
+
+
+
+    }
+
+
   // vgl. distribution h datei
+  // Berechnet die IWLS-Gewichte und speichert diese in weightiwls. Als iwls
+  // Gewichte werden die negativen Erwartungswerte der jeweiligen Gewichts-
+  // matrizen verwendet. Dies entspricht Fisher-Scoring. Inwiefern dies im
+  // Rahmen der Programmlogik zulässig ist, ist mir unklar.
+  // Berechnet die working-observations ~y und speichert diese in tildey
+  // Der i-te Summand der Loglikelihood wird zurückgegeben
+  // Die Berechnung erfolgt für die i-te Beobachtung
+  // Der Übergabewert weight wird nicht beachtet, da Heteroskedastizität mittels
+  // sigma_{i}^{2} modelliert wird.
+  // Der Übergabewert col kennzeichnet, ob Berechnungen für den Prädiktor
+  // des Mittelwertes (col=0) oder für den der Varianz (col=1) durchgeführt
+  // werden.
+  // weightiwls gibt an, ob die IWLS-Gewichte berechnet werden sollen, d.h.
+  // weightiwls = true, falls dies erfolgen sollen, weightiwls = false, sonst
 
   }
 
@@ -167,6 +237,7 @@ const unsigned & col) const
   {
 
   // vgl. distribution h datei
+  // wir benötigt, um die working observations zu berechnen
 
   }
 
