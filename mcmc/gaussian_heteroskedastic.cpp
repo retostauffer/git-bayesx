@@ -79,14 +79,14 @@ double DISTRIBUTION_gaussianh::loglikelihood(double * response,
                       double * weight,const int & i) const//für eine Beob.
   {
         double * worklin = linpred;
-        double eta1 = (*worklin); //erster Prediktor, also der für mu
+        double workmu = (*worklin); //erster Prediktor, also der für mu
         worklin++;
-        double eta2 = exp((*worklin)); //zweiter Prediktor, also der für die
+        double s = exp((*worklin)); //zweiter Prediktor, also der für die
                                         //Varianz/ist die Anwendung von exp auf
                                         //linearen Prediktor hier notwendig,
                                         //dies hängt vom Schätzverfahren ab
-        double help = (*response) - eta1;
-        return -0.5 * (*worklin) - 0.5*(help*help)/eta2;
+        double help = (*response) - workmu;
+        return -0.5 * (*worklin) - 0.5*(help*help)/s;
 
         // DISTRIBUTION_gaussian abschauen
         // DISTRIBUTION_multinomial abschauen
@@ -186,21 +186,31 @@ double DISTRIBUTION_gaussianh::compute_IWLS(double * response,double * linpred,
 
     double * workweightiwls = weightiwls;
     double * worktildey = tildey;
+    double * worklinpred = linpred;
+    double workmu = (*worklinpred);
+    worklinpred++; //zeigt jetzt auf eta
+    double s = exp((*worklinpred));
+    double help = (*response)-workmu;
 
 
     if(col == 0) //Berechnung für den Prädiktor des Mittelwertes
     {
+        (*workweightiwls) = (double)1.0/s;//1/exp(eta)
 
-
-
+        (*worktildey) =  (*response); //Für den Erwartungswertschätzer stimmen
+                                   //working-obs mit obs überein
     }
     if(col == 1) //Berechnung für den Prädiktor der Varianz
     {
+        workweightiwls++;
+        worktildey++;
 
+        (*workweightiwls) = (double)0.5;
 
-
-
+        (*worktildey) = (*worklinpred) + ((help*help)/s) - 1;
     }
+
+    return - 0.5 * (*worklinpred) - 0.5 * (help*help)/s;
 
 
   // vgl. distribution h datei
