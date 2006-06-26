@@ -67,7 +67,7 @@ class __EXPORT_TYPE realvar : public vectorrealobs
     for (i=0;i<size();i++)
       {
       help = operator[](i);
-      h[i] = help;
+      h[i] = func(help);
       }
 //    for (i=0;i<size();i++)
 //	  h[i] = func(operator[](i));
@@ -214,4 +214,5 @@ typedef std::list<realvar>::iterator __EXPORT_TYPE variterator;
 
 
 #endif
+
 

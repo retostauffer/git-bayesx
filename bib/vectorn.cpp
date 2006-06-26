@@ -498,3 +498,4 @@ void vectornum<T>::sort(vector<int> & index,int left,int right)
 	 sort(index,i,right);
   }
 
+
