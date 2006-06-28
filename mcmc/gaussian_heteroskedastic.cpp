@@ -46,7 +46,8 @@ DISTRIBUTION_gaussianh::DISTRIBUTION_gaussianh(const double & a,
   scaleexisting = false;
 
   constant_iwlsweights=true;
-
+  // für den Fall des Mittelwertschätzers wäre dies falsch
+  // für den Fall des Varianzschätzers ist dies richtig
 
   }
 
@@ -56,6 +57,10 @@ const DISTRIBUTION_gaussianh & nd)
 : DISTRIBUTION(DISTRIBUTION(nd))
     {
         nrcat = nd.nrcat;//neu
+        family = nd.family;
+        scale = nd.scale;
+        scaleexisting = nd.scaleexisting;
+        constant_iwlsweights = nd.constant_iwlsweights;
     }
 
 
@@ -68,6 +73,10 @@ const DISTRIBUTION_gaussianh & nd)
   DISTRIBUTION::operator=(DISTRIBUTION(nd));
 
   nrcat = nd.nrcat;//neu
+  family = nd.family;
+  scale = nd.scale;
+  scaleexisting = nd.scaleexisting;
+  constant_iwlsweights = nd.constant_iwlsweights;
 
   return *this;
   }
@@ -82,17 +91,13 @@ double DISTRIBUTION_gaussianh::loglikelihood(double * response,
         double workmu = (*worklin); //erster Prediktor, also der für mu
         worklin++;
         double s = exp((*worklin)); //zweiter Prediktor, also der für die
-                                        //Varianz/ist die Anwendung von exp auf
-                                        //linearen Prediktor hier notwendig,
-                                        //dies hängt vom Schätzverfahren ab
+                                    //Varianz
         double help = (*response) - workmu;
         return -0.5 * (*worklin) - 0.5*(help*help)/s;
 
         // DISTRIBUTION_gaussian abschauen
         // DISTRIBUTION_multinomial abschauen
         // Die Variablen weight ist hier überflüssig und wird nicht genutzt
-
-  return 0;
   }
 
 
@@ -161,7 +166,7 @@ void DISTRIBUTION_gaussianh::compute_deviance(const double * response,
   // DISTRIBUTION_multinomial abschauen
   // zweite Spalte: exp(linpred für varianz)
   // die Variable weight als Argument der Funktion ist wahrscheinlich
-  // überflüssig
+  // überflüssig, diese enthält die IWLS-Gewichte nach distribution.h
 
   }
 
@@ -169,12 +174,29 @@ void DISTRIBUTION_gaussianh::compute_deviance(const double * response,
 double DISTRIBUTION_gaussianh::compute_weight(double * linpred, double * weight,
                         const int & i, const unsigned & col) const
   {
+    double * workweightiwls = weight;
+    double * worklinpred = linpred;
+    worklinpred++; //zeigt jetzt auf eta
+    double s = exp((*worklinpred));
 
+    if(col == 0) //Berechnung für den Prädiktor des Mittelwertes
+    {
+        (*workweightiwls) = (double)1.0/s;//1/exp(eta)
+    }
+    else if(col == 1) //Berechnung für den Prädiktor der Varianz
+    {
+        workweightiwls++;
+
+        (*workweightiwls) = (double)0.5;
+    }
   // vgl. distribution h datei
   // diese Funktion dürfte eigentlich überflüssig sein, da eine gewichtete
   // Regression, da die Heteroskedastizität der Varianz bereits durch
   // sigma_{i}^{2} modelliert wird.
+  // Funktion speichert in weight die IWLS-Gewichte ab.
+  // Warum besitzt die Funktion einen Rückgabewert?
 
+  return 0; //ist dies sinnvoll
   }
 
 
@@ -195,7 +217,10 @@ double DISTRIBUTION_gaussianh::compute_IWLS(double * response,double * linpred,
 
     if(col == 0) //Berechnung für den Prädiktor des Mittelwertes
     {
-        (*workweightiwls) = (double)1.0/s;//1/exp(eta)
+        if(weightyes)
+        {
+            (*workweightiwls) = (double)1.0/s;//1/exp(eta)
+        }
 
         (*worktildey) =  (*response); //Für den Erwartungswertschätzer stimmen
                                    //working-obs mit obs überein
@@ -205,7 +230,10 @@ double DISTRIBUTION_gaussianh::compute_IWLS(double * response,double * linpred,
         workweightiwls++;
         worktildey++;
 
-        (*workweightiwls) = (double)0.5;
+        if(weightyes)
+        {
+            (*workweightiwls) = (double)0.5;
+        }
 
         (*worktildey) = (*worklinpred) + ((help*help)/s) - 1;
     }
@@ -217,7 +245,7 @@ double DISTRIBUTION_gaussianh::compute_IWLS(double * response,double * linpred,
   // Berechnet die IWLS-Gewichte und speichert diese in weightiwls. Als iwls
   // Gewichte werden die negativen Erwartungswerte der jeweiligen Gewichts-
   // matrizen verwendet. Dies entspricht Fisher-Scoring. Inwiefern dies im
-  // Rahmen der Programmlogik zulässig ist, ist mir unklar.
+  // Rahmen der Programmlogik zulässig ist, ist noch unklar.
   // Berechnet die working-observations ~y und speichert diese in tildey
   // Der i-te Summand der Loglikelihood wird zurückgegeben
   // Die Berechnung erfolgt für die i-te Beobachtung
@@ -226,8 +254,8 @@ double DISTRIBUTION_gaussianh::compute_IWLS(double * response,double * linpred,
   // Der Übergabewert col kennzeichnet, ob Berechnungen für den Prädiktor
   // des Mittelwertes (col=0) oder für den der Varianz (col=1) durchgeführt
   // werden.
-  // weightiwls gibt an, ob die IWLS-Gewichte berechnet werden sollen, d.h.
-  // weightiwls = true, falls dies erfolgen sollen, weightiwls = false, sonst
+  // weightyes gibt an, ob die IWLS-Gewichte berechnet werden sollen, d.h.
+  // weightyes = true, falls dies erfolgen sollen, weightyes = false, sonst
 
   }
 
@@ -238,7 +266,36 @@ void DISTRIBUTION_gaussianh::compute_IWLS_weight_tildey(double * response,
                               const unsigned & col)
   {
 
+    double * workweightiwls = weightiwls;
+    double * worktildey = tildey;
+    double * worklinpred = linpred;
+    double workmu = (*worklinpred);
+    worklinpred++; //zeigt jetzt auf eta
+    double s = exp((*worklinpred));
+    double help = (*response)-workmu;
+
+
+    if(col == 0) //Berechnung für den Prädiktor des Mittelwertes
+    {
+        (*workweightiwls) = (double)1.0/s;//1/exp(eta)
+
+        (*worktildey) =  (*response); //Für den Erwartungswertschätzer stimmen
+                                   //working-obs mit obs überein
+    }
+    else if(col == 1) //Berechnung für den Prädiktor der Varianz
+    {
+        workweightiwls++;
+        worktildey++;
+
+        (*workweightiwls) = (double)0.5;
+
+        (*worktildey) = (*worklinpred) + ((help*help)/s) - 1;
+    }
+
   // vgl. distribution h datei
+  // im Wesentlichen identisch mit compute_IWLS, allerdings wird nicht
+  // abgefragt, ob IWLS-Gewichte berechnet werden sollen und es existiert
+  // kein Rückgabewert
 
   }
 
@@ -246,9 +303,22 @@ double DISTRIBUTION_gaussianh::compute_gmu(double * linpred,
 const unsigned & col) const
   {
 
-  // vgl. distribution h datei
-  // wir benötigt, um die working observations zu berechnen
+  double * worklinpred = linpred;
 
+  if(col == 0)
+  {
+    return (double)0;
+  }
+  else if(col == 1)
+  {
+    worklinpred++;
+    return (double)1.0/exp((*worklinpred));
+  }
+
+  // vgl. distribution h datei
+  // berechne g'(mu_i) = 1/h'(eta_i)
+
+  return 0; //ist dies sinnvoll?
   }
 
 
@@ -264,14 +334,14 @@ void DISTRIBUTION_gaussianh::outoptions(void)
 void DISTRIBUTION_gaussianh::update(void)
   {
 
-//  DISTRIBUTION::update();
+    DISTRIBUTION::update();
 
   }
 
 
 void DISTRIBUTION_gaussianh::update_predict(void)
   {
-  DISTRIBUTION::update_predict();
+    DISTRIBUTION::update_predict();
   }
 
 
@@ -298,10 +368,50 @@ bool DISTRIBUTION_gaussianh::posteriormode_converged_fc(const datamatrix & beta,
 
 void DISTRIBUTION_gaussianh::compute_iwls(void)
   {
+    register unsigned i,j;
+    unsigned dim = response.cols(); //Der Wert zur Laufzeit müsste 2 sein
+
+    double * worklin = (*linpred_current).getV();
+
+    double * workres = response.getV();
+    double * worktildey = tildey.getV();
+    double * workweightiwls = weightiwls.getV();
+    double help;
+
+
+    for (i=0;i<nrobs;i++)
+    {
+        for(j=0;j<dim;j++,worktildey++,workres++,workweightiwls++)
+        {
+          //compute_weight(worklin, workweightiwls, &i, &j);
+          if(j==0)// Entspricht dem Mittelwertschätzer
+          {
+            help = (*workres)-(*worklin);
+            worklin++;
+            double s = exp((*worklin));
+
+            (*workweightiwls) = (double)1.0/s;//1/exp(eta)
+            (*worktildey) = (*workres);
+          }
+          else if(j==1)//Entspricht dem Varianzschätzer
+          {
+            (*workweightiwls) = (double)0.5;
+            (*worktildey) = (*worklin) + ((help*help)/exp((*worklin))) - 1;
+            worklin++;
+          }
+
+        }
+    }
+
+  //Ist der folgende Funktionsaufruf notwendig.
+  //tildey.assign(response);
+
 
   // vgl. distribution h datei
-  tildey.assign(response);
-  }
+  // Berechnet die working-obs, die in tildey abgespeichert werden
+  // Berechnet die iwls-Gewichte, basierend auf den aktuellen linearen
+  // Prediktoren und speichert diese in weightiwls ab
+ }
 
 
 
