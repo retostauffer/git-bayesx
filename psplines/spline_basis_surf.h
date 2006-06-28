@@ -102,6 +102,8 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
 
   datamatrix X_VCM;                  // für REML VCM
   datamatrix Z_VCM;                  // für REML VCM
+  datamatrix X_grid;                  // für Ausgabe auf einem Gitter
+  datamatrix Z_grid;                  // für Ausgabe auf einem Gitter
   vector<double> effectvaluesxgrid;      // bildet zusammen mit effectvaluesy die Daten-Paare
   vector<double> effectvaluesygrid;      // für die Ausgabe auf einem Gitter
   datamatrix xvaluesgrid;                // geordnete, äquidistante Werte zwischen Min(x/y) und Max(x/y)

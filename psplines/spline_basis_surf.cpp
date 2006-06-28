@@ -129,8 +129,8 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & v1, con
 //------------------------------------------------------------------------------
   if(gridsize>0)
     {
-    X_VCM = datamatrix(gridsize,dimX,1.0);
-    Z_VCM = datamatrix(gridsize,dimZ,0.0);
+    X_grid = datamatrix(gridsize,dimX,1.0);
+    Z_grid = datamatrix(gridsize,dimZ,0.0);
     }
 
   spline = datamatrix(v1.rows(),1,0);
@@ -314,8 +314,8 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & region,
 
   if(gridsize>0)
     {
-    X_VCM = datamatrix(gridsize,dimX,1.0);
-    Z_VCM = datamatrix(gridsize,dimZ,0.0);
+    X_grid = datamatrix(gridsize,dimX,1.0);
+    Z_grid = datamatrix(gridsize,dimZ,0.0);
     }
 
   spline = datamatrix(v1.rows(),1,0);
@@ -504,6 +504,9 @@ spline_basis_surf::spline_basis_surf(const spline_basis_surf & sp)
   X_VCM=sp.X_VCM;
   Z_VCM=sp.Z_VCM;
 
+  X_grid=sp.X_grid;
+  Z_grid=sp.Z_grid;
+
   effectvaluesxgrid = sp.effectvaluesxgrid;
   effectvaluesygrid = sp.effectvaluesygrid;
   xvaluesgrid = sp.xvaluesgrid;
@@ -586,6 +589,10 @@ const spline_basis_surf & spline_basis_surf::operator=(const spline_basis_surf &
 
   X_VCM=sp.X_VCM;
   Z_VCM=sp.Z_VCM;
+
+  X_grid=sp.X_grid;
+  Z_grid=sp.Z_grid;
+
   effectvaluesxgrid = sp.effectvaluesxgrid;
   effectvaluesygrid = sp.effectvaluesygrid;
   xvaluesgrid = sp.xvaluesgrid;
@@ -2470,7 +2477,7 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
     {
     spline2 = datamatrix(gridsize,1,0);
     }
-    
+
 // X berechnen (varcoeff)
   if(varcoeff & !centervcm)
     {
@@ -2517,7 +2524,7 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       multDG(spline2,knoten1);
       for(i=0; i<spline2.rows(); i++)
         {
-        X_VCM(i,0) = spline2(i,0)-mean;
+        X_grid(i,0) = spline2(i,0)-mean;
         }
       }
 
@@ -2532,7 +2539,7 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       multDG(spline2,knoten2);
       for(i=0; i<spline2.rows(); i++)
         {
-        X_VCM(i,1) = spline2(i,0)-mean;
+        X_grid(i,1) = spline2(i,0)-mean;
         }
       }
 
@@ -2547,7 +2554,7 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       multDG(spline2,knoten3);
       for(i=0; i<spline2.rows(); i++)
         {
-        X_VCM(i,2) = spline2(i,0)-mean;
+        X_grid(i,2) = spline2(i,0)-mean;
         }
       }
     }
@@ -2578,7 +2585,7 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       multDG(spline2,knoten1);
       for(i=0; i<spline2.rows(); i++)
         {
-        X_VCM(i,0) = spline2(i,0)-mean;
+        X_grid(i,0) = spline2(i,0)-mean;
         }
       }
 
@@ -2593,7 +2600,7 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       multDG(spline2,knoten2);
       for(i=0; i<spline2.rows(); i++)
         {
-        X_VCM(i,1) = spline2(i,0)-mean;
+        X_grid(i,1) = spline2(i,0)-mean;
         }
       }
     }
@@ -2634,7 +2641,7 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       multDG(spline2,Kstat.getCol(j));
 
       workdata = spline2.getV();
-      workZ = Z_VCM.getV()+j;
+      workZ = Z_grid.getV()+j;
 
       for (i=0;i<spline2.rows();i++,workdata++,workZ+=dimZ)
         {
@@ -2970,38 +2977,46 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
 
     if(type==mrflinear)
       {
-      betamean = Z_VCM*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1);
+      betamean = Z_grid*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1);
       for(i=0; i<gridsize; i++)
         {
         betamean(i,0)=betamean(i,0)-mean;
-        betastd(i,0) = sqrt((Z_VCM.getRow(i)*
+        betastd(i,0) = sqrt((Z_grid.getRow(i)*
                  betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar-1,betaZpos+nrpar-1)*
-                 Z_VCM.getRow(i).transposed())(0,0));
+                 Z_grid.getRow(i).transposed())(0,0));
         }
       }
     else if(type==mrfquadratic8 || type==mrfquadratic12)
       {
-      betamean = X_VCM*betareml.getBlock(betaXpos,0,betaXpos+dimX,1) + Z_VCM*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1);
+      betamean = X_grid*betareml.getBlock(betaXpos,0,betaXpos+dimX,1) + Z_grid*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1);
       for(i=0; i<gridsize; i++)
         {
         betamean(i,0)=betamean(i,0)-mean;
         betastd(i,0) = sqrt(
                            ((
-                            X_VCM.getRow(i)*betacov.getBlock(betaXpos,betaXpos,betaXpos+dimX,betaXpos+dimX)
+                            X_grid.getRow(i)*betacov.getBlock(betaXpos,betaXpos,betaXpos+dimX,betaXpos+dimX)
                             +
-                            (Z_VCM.getRow(i)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+dimX))
-                           )*X_VCM.getRow(i).transposed())(0,0)
+                            (Z_grid.getRow(i)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+dimX))
+                           )*X_grid.getRow(i).transposed())(0,0)
                            +
                            (
                             (
-                             X_VCM.getRow(i)*betacov.getBlock(betaXpos,betaZpos,betaXpos+dimX,betaZpos+dimZ)
+                             X_grid.getRow(i)*betacov.getBlock(betaXpos,betaZpos,betaXpos+dimX,betaZpos+dimZ)
                              +
-                             Z_VCM.getRow(i)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
-                            )*(Z_VCM.getRow(i).transposed())
+                             Z_grid.getRow(i)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                            )*(Z_grid.getRow(i).transposed())
                            )(0,0)
                           );
         }
       }
+
+     for(j=0; j<nr; j++)
+       {
+       betaqu_l1_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower1/100)*betastd(j,0);
+       betaqu_l1_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper2/100)*betastd(j,0);
+       betaqu_l2_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower2/100)*betastd(j,0);
+       betaqu_l2_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper1/100)*betastd(j,0);
+       }
 
     outest = outest.substr(0,outest.length()-4) + "_grid.res";
     ofstream outgrid(outest.strtochar());
@@ -3132,6 +3147,7 @@ int main()
 	return(0);
 }
 #endif
+
 
 
 

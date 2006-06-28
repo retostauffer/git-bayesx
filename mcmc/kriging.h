@@ -52,9 +52,12 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
   datamatrix xorig;                   // Original x- und y-Variable.
   datamatrix yorig;
 
-  unsigned gridsize;
+  unsigned gridsize;                 // Variablen zur Auswertung des Effekts auf einem vorgegebenen Gitter
   unsigned gridsizex;
   unsigned gridsizey;
+
+  datamatrix X_grid;
+  datamatrix Z_grid;
 
   vector<double> effectvaluesxgrid;      // bildet zusammen mit effectvaluesy die Daten-Paare
   vector<double> effectvaluesygrid;      // für die Ausgabe auf einem Gitter

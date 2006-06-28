@@ -1903,9 +1903,9 @@ bool remlreg::create_pspline(const unsigned & collinpred)
   ST::string title;
   long h;
   unsigned degree,nrknots;
-  double lambda, startlambda;
+  double lambda, startlambda, lowergrid, uppergrid, lowerknot, upperknot;
   bool catsp;
-  int f;
+  int f, gridsize;
 
   unsigned i,k;
   int j;
@@ -1952,6 +1952,8 @@ bool remlreg::create_pspline(const unsigned & collinpred)
       f = (terms[i].options[2]).strtolong(h);
       nrknots = unsigned(h);
       f = (terms[i].options[3]).strtodouble(lambda);
+      f = (terms[i].options[4]).strtolong(h);
+      gridsize = unsigned(h);
       f = (terms[i].options[7]).strtodouble(startlambda);
       if(terms[i].options[8] == "true" || test=="_catspecific")
         {
@@ -1961,6 +1963,10 @@ bool remlreg::create_pspline(const unsigned & collinpred)
         {
         catsp=false;
         }
+      f = (terms[i].options[9]).strtodouble(lowergrid);
+      f = (terms[i].options[10]).strtodouble(uppergrid);
+      f = (terms[i].options[11]).strtodouble(lowerknot);
+      f = (terms[i].options[12]).strtodouble(upperknot);
 
       if (f==1)
         return true;
@@ -1985,7 +1991,12 @@ bool remlreg::create_pspline(const unsigned & collinpred)
                                               pathres,
                                               lambda,
                                               startlambda,
-                                              catsp
+                                              catsp,
+                                              lowergrid,
+                                              uppergrid,
+                                              lowerknot,
+                                              upperknot,
+                                              gridsize
                                              )
                            );
       fcpspline[fcpspline.size()-1].init_name(terms[i].varnames[0]);

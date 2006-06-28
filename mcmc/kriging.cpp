@@ -102,8 +102,8 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & v1,
   gridsize = gsx*gsy;
   if(gridsize>0)
     {
-    X_VCM = datamatrix(gridsize,dimX,1.0);
-    Z_VCM = datamatrix(gridsize,dimZ,0.0);
+    X_grid = datamatrix(gridsize,dimX,1.0);
+    Z_grid = datamatrix(gridsize,dimZ,0.0);
     }
   make_xy_values_grid(v1,v2);
   }
@@ -316,8 +316,8 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & region,
   gridsize = gsx*gsy;
   if(gridsize>0)
     {
-    X_VCM = datamatrix(gridsize,dimX,1.0);
-    Z_VCM = datamatrix(gridsize,dimZ,0.0);
+    X_grid = datamatrix(gridsize,dimX,1.0);
+    Z_grid = datamatrix(gridsize,dimZ,0.0);
     }
   make_xy_values_grid(v1,v2);
   }
@@ -533,6 +533,7 @@ FULLCOND_kriging::FULLCOND_kriging(const FULLCOND_kriging & kr)
   mapname = kr.mapname;
   regionnames = kr.regionnames;
   Z_VCM = kr.Z_VCM;
+  X_VCM = kr.X_VCM;
   data_forfixed = kr.data_forfixed;
   onedim = kr.onedim;
   incidence = kr.incidence;
@@ -543,6 +544,8 @@ FULLCOND_kriging::FULLCOND_kriging(const FULLCOND_kriging & kr)
   yvaluesgrid=kr.yvaluesgrid;
   effectvaluesxgrid=kr.effectvaluesxgrid;
   effectvaluesygrid=kr.effectvaluesygrid;
+  Z_grid = kr.Z_grid;
+  X_grid = kr.X_grid;
   }
 
 const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr)
@@ -574,6 +577,7 @@ const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr
   mapname = kr.mapname;
   regionnames = kr.regionnames;
   Z_VCM = kr.Z_VCM;
+  X_VCM = kr.X_VCM;
   data_forfixed = kr.data_forfixed;
   onedim = kr.onedim;
   incidence = kr.incidence;
@@ -584,6 +588,8 @@ const FULLCOND_kriging & FULLCOND_kriging::operator=(const FULLCOND_kriging & kr
   yvaluesgrid=kr.yvaluesgrid;
   effectvaluesxgrid=kr.effectvaluesxgrid;
   effectvaluesygrid=kr.effectvaluesygrid;
+  Z_grid = kr.Z_grid;
+  X_grid = kr.X_grid;
   return *this;
   }
 
@@ -631,19 +637,19 @@ void FULLCOND_kriging::createreml(datamatrix & X,datamatrix & Z,
                    (effectvaluesygrid[i]-yknots[j])*(effectvaluesygrid[i]-yknots[j]))/rho;
           if(nu==0.5)
             {
-            Z_VCM(i,j)=exp(-r);
+            Z_grid(i,j)=exp(-r);
             }
           else if(nu==1.5)
             {
-            Z_VCM(i,j)=exp(-r)*(1+r);
+            Z_grid(i,j)=exp(-r)*(1+r);
             }
           else if(nu==2.5)
             {
-            Z_VCM(i,j)=exp(-r)*(1+r+r*r/3);
+            Z_grid(i,j)=exp(-r)*(1+r+r*r/3);
             }
           else if(nu==3.5)
             {
-            Z_VCM(i,j)=exp(-r)*(1+r+2*r*r/5+r*r*r/15);
+            Z_grid(i,j)=exp(-r)*(1+r+2*r*r/5+r*r*r/15);
             }
           }
         }
@@ -697,7 +703,7 @@ void FULLCOND_kriging::createreml(datamatrix & X,datamatrix & Z,
       Z.putColBlock(Zpos,Zpos+nrknots,Z.getColBlock(Zpos,Zpos+nrknots)*cov);
       if(gridsize>0)
         {
-        Z_VCM = Z_VCM*cov;
+        Z_grid = Z_grid*cov;
         }
       }
     else
@@ -1367,14 +1373,24 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
     betaqu_l2_lower=datamatrix(nr,1,0);
     betaqu_l2_upper=datamatrix(nr,1,0);
 
-    betamean = Z_VCM*betareml.getBlock(betaZpos,0,betaZpos+nrpar,1);
+    betamean = Z_grid*betareml.getBlock(betaZpos,0,betaZpos+nrpar,1);
     for(i=0; i<gridsize; i++)
       {
       betamean(i,0)=betamean(i,0)-mean;
-      betastd(i,0) = sqrt((Z_VCM.getRow(i)*
+      betastd(i,0) = sqrt((Z_grid.getRow(i)*
                betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar,betaZpos+nrpar)*
-               Z_VCM.getRow(i).transposed())(0,0));
+               Z_grid.getRow(i).transposed())(0,0));
       }
+
+    for(j=0; j<nr; j++)
+      {
+      betaqu_l1_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower1/100)*betastd(j,0);
+      betaqu_l1_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper2/100)*betastd(j,0);
+      betaqu_l2_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower2/100)*betastd(j,0);
+      betaqu_l2_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper1/100)*betastd(j,0);
+      }
+
+      
     outest = outest.substr(0,outest.length()-4) + "_grid.res";
     ofstream outgrid(outest.strtochar());
 

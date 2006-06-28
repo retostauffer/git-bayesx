@@ -126,6 +126,16 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
   datamatrix X_VCM;                     // für REML VCM
   datamatrix Z_VCM;                     // für REML VCM
 
+  datamatrix X_grid;                    // Evaulation on a predefined grid
+  datamatrix Z_grid;                    //
+
+  datamatrix xvaluesgrid;
+
+  double lowergrid;                     // Variable for SIMEX
+  double uppergrid;
+  double lowerknot;
+  double upperknot;
+
   vector<int> begcol;                   // Gibt pro Zeile die Position des ersten Elements
                                         // der B-Spline-Designmatrix an das ungleich Null ist
 
@@ -168,6 +178,11 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
   // TASK: berechnet die B-Spline-Designmatrix falls gridsize>0
 
   void make_DG(void);
+
+  // FUNCTION: make_DG_REML
+  // TASK: berechnet die B-Spline-Designmatrix falls gridsize>0
+
+  void make_DG_REML(void);
 
   // FUNCTION: init_fchelp
   // TASK: initialisiert xvalues, fchelp und fcderivative
@@ -333,7 +348,9 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
   spline_basis(MCMCoptions * o, const datamatrix & d, const unsigned & nrk, const unsigned & degr,
                const knotpos & kp, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
-               const double & sl, const bool & catsp);
+               const double & sl, const bool & catsp, const double & lg,
+               const double & ug, const double & lk, const double & uk,
+               const int & gs);
 
   // CONSTRUCTOR für REML VCM
 

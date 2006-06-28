@@ -217,7 +217,10 @@ class __EXPORT_TYPE term_pspline_remlreg : public basic_termtype
   simpleoption derivative;
   doubleoption lambdastart;
   simpleoption catspecific;
-
+  doubleoption lowergrid;
+  doubleoption uppergrid;
+  doubleoption lowerknot;
+  doubleoption upperknot;
 
   void setdefault(void);
 

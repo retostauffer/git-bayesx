@@ -156,14 +156,21 @@ spline_basis::spline_basis(MCMCoptions * o,
                       const datamatrix & d, const unsigned & nrk, const unsigned & degr,
                       const knotpos & kp, const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl, const bool & catsp)
+                      const double & sl, const bool & catsp, const double & lg,
+                      const double & ug, const double & lk, const double & uk,
+                      const int & gs)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
 
   pseudocontourprob = false;
 
-//------------------------------------------------------------------------------
+  gridsize = gs;
+
+  lowergrid = lg;
+  uppergrid = ug;
+  lowerknot = lk;
+  upperknot = uk;
 
   fctype = nonparametric;
 
@@ -185,8 +192,6 @@ spline_basis::spline_basis(MCMCoptions * o,
   nrknots = nrk;
   degree = degr;
   knpos = kp;
-
-  gridsize = -1;
 
   varcoeff = false;
 
@@ -220,6 +225,12 @@ spline_basis::spline_basis(MCMCoptions * o,
 
   dimZ = nrpar-dimX-1;
 
+  if(gridsize>0)
+    {
+    X_grid = datamatrix(gridsize,dimX,1.0);
+    Z_grid = datamatrix(gridsize,dimZ,0.0);
+    }
+
   index2.push_back(index(0,0));
   for(unsigned i=1;i<d.rows();i++)
     index2.push_back(index(i,0)-index(i-1,0));
@@ -232,6 +243,25 @@ spline_basis::spline_basis(MCMCoptions * o,
   for(j=0;j<d.rows();j++,freqwork++,workindex++)
     if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
       xvalues(*freqwork,0) = d(*workindex,0);
+
+  if(gridsize>0)
+    {
+    if(lowergrid<uppergrid)
+      {
+      }
+    else
+      {
+      lowergrid = d.min(0);
+      uppergrid = d.max(0);
+      }
+    xvaluesgrid = datamatrix(gridsize,1,lowergrid);
+    double step = (uppergrid-lowergrid)/(gridsize-1);
+    for(j=1; j<gridsize; j++)
+      {
+      xvaluesgrid(j,0) = xvaluesgrid(j-1,0) + step;
+      }
+    make_DG_REML();
+    }
   }
 
   // CONSTRUCTOR für REML VCM
@@ -411,6 +441,17 @@ spline_basis::spline_basis(const spline_basis & sp)
   begcol = sp.begcol;
   DG = sp.DG;
   DGfirst = sp.DGfirst;
+
+  lowergrid = sp.lowergrid;
+  uppergrid = sp.uppergrid;
+  lowerknot = sp.lowerknot;
+  upperknot = sp.upperknot;
+
+  X_grid = sp.X_grid;
+  Z_grid = sp.Z_grid;
+
+  xvaluesgrid = sp.xvaluesgrid;
+
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -489,7 +530,17 @@ const spline_basis & spline_basis::operator=(const spline_basis & sp)
   begcol = sp.begcol;
   DG = sp.DG;
   DGfirst = sp.DGfirst;
-  
+
+  lowergrid = sp.lowergrid;
+  uppergrid = sp.uppergrid;
+  lowerknot = sp.lowerknot;
+  upperknot = sp.upperknot;
+
+  X_grid = sp.X_grid;
+  Z_grid = sp.Z_grid;
+
+  xvaluesgrid = sp.xvaluesgrid;
+
   return *this;
   }
 
@@ -791,6 +842,15 @@ void spline_basis::make_Bspline(const datamatrix & md, const bool & minnull)
 
   if(minnull)
     min = 0.0;
+
+// SIMEX
+
+  if(lowerknot<upperknot)
+    {
+    min=lowerknot;
+    max=upperknot;
+    }
+
 // Knoten berechnen
   if(knpos == equidistant)
     {
@@ -961,9 +1021,28 @@ void spline_basis::make_DG(void)
       DG(i,k) = betahelp(k+j-(degree+1),0);
     DGfirst[i] = j-(degree+1);
     }
-
   }
 
+void spline_basis::make_DG_REML(void)
+  {
+// DG und DGfirst berechnen
+  int i;
+  unsigned j,k;
+  datamatrix betahelp(nrpar,1,0);
+  DG = datamatrix(gridsize,degree+1,0);
+  DGfirst = vector<int>(gridsize);
+
+  for(i=0;i<gridsize;i++)
+    {
+    betahelp.assign( bspline(xvaluesgrid(i,0)) );
+    j=degree+1;
+    while(knot[j] <= xvaluesgrid(i,0) && j<nrknots+degree)
+      j++;
+    for(k=0;k<degree+1;k++)
+      DG(i,k) = betahelp(k+j-(degree+1),0);
+    DGfirst[i] = j-(degree+1);
+    }
+  }
 
 void spline_basis::init_fchelp(const datamatrix & d)
   {
@@ -3093,6 +3172,12 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
 
 // X berechen
 
+  datamatrix spline2;
+  if(gridsize>0)
+    {
+    spline2 = datamatrix(gridsize,1,0);
+    }
+
   if(type == RW1)
     {
     if(varcoeff && !centervcm)
@@ -3126,6 +3211,14 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
       for(i=0; i<spline.rows(); i++)
         {
         spline(i,0)=spline(i,0)-splinemean;
+        }
+      if(gridsize>0)
+        {
+        multDG(spline2,knoten);
+        for(i=0; i<spline2.rows(); i++)
+          {
+          X_grid(i,0) = spline2(i,0)-splinemean;
+          }
         }
       }
 
@@ -3241,6 +3334,20 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
           {
           *workZ = *workdata;
           }
+        }
+      }
+    }
+
+  if(gridsize>0)
+    {
+    for(j=0;j<dimZ;j++)
+      {
+      multDG(spline2,diffmatrix.getCol(j));
+      workdata = spline2.getV();
+      workZ = Z_grid.getV()+j;
+      for (i=0;i<spline2.rows();i++,workdata++,workZ+=dimZ)
+        {
+        *workZ = *workdata;
         }
       }
     }
@@ -3547,6 +3654,120 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
 
     outres << endl;
     }
+
+  if(gridsize>0)
+    {
+    unsigned nr = gridsize;
+    betamean=datamatrix(nr,1,0);
+    datamatrix betastd=datamatrix(nr,1,0);
+    betaqu_l1_lower=datamatrix(nr,1,0);
+    betaqu_l1_upper=datamatrix(nr,1,0);
+    betaqu_l2_lower=datamatrix(nr,1,0);
+    betaqu_l2_upper=datamatrix(nr,1,0);
+
+    if(type == RW1)
+      {
+      betamean = Z_grid*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1);
+      for(i=0; i<gridsize; i++)
+        {
+        betamean(i,0)=betamean(i,0)-mean;
+        betastd(i,0) = sqrt((Z_grid.getRow(i)*
+                 betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar-1,betaZpos+nrpar-1)*
+                 Z_grid.getRow(i).transposed())(0,0));
+        }
+      }
+    else
+      {
+      betamean = X_grid*betareml.getBlock(betaXpos,0,betaXpos+dimX,1) + Z_grid*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1);
+      for(i=0; i<gridsize; i++)
+        {
+        betamean(i,0)=betamean(i,0)-mean;
+        betastd(i,0) = sqrt(
+                           ((
+                            X_grid.getRow(i)*betacov.getBlock(betaXpos,betaXpos,betaXpos+dimX,betaXpos+dimX)
+                            +
+                            (Z_grid.getRow(i)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+dimX))
+                           )*X_grid.getRow(i).transposed())(0,0)
+                           +
+                           (
+                            (
+                             X_grid.getRow(i)*betacov.getBlock(betaXpos,betaZpos,betaXpos+dimX,betaZpos+dimZ)
+                             +
+                             Z_grid.getRow(i)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                            )*(Z_grid.getRow(i).transposed())
+                           )(0,0)
+                          );
+        }
+      }
+
+    for(j=0; j<nr; j++)
+      {
+      betaqu_l1_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower1/100)*betastd(j,0);
+      betaqu_l1_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper2/100)*betastd(j,0);
+      betaqu_l2_lower(j,0) = betamean(j,0)+randnumbers::invPhi2(lower2/100)*betastd(j,0);
+      betaqu_l2_upper(j,0) = betamean(j,0)+randnumbers::invPhi2(upper1/100)*betastd(j,0);
+      }
+
+    outest = outest.substr(0,outest.length()-4) + "_grid.res";
+    ofstream outgrid(outest.strtochar());
+
+    optionsp->out("  Results on a grid are stored in file\n");
+    optionsp->out("  " + outest + "\n");
+    optionsp->out("\n");
+
+    assert(!outgrid.fail());
+
+    outgrid << "intnr" << "   ";
+    outgrid << datanames[0] << "   ";
+    outgrid << "pmode   ";
+    outgrid << "ci"  << level1  << "lower   ";
+    outgrid << "ci"  << level2  << "lower   ";
+    outgrid << "std   ";
+    outgrid << "ci"  << level2  << "upper   ";
+    outgrid << "ci"  << level1  << "upper   ";
+    outgrid << "pcat" << level1 << "   ";
+    outgrid << "pcat" << level2 << "   ";
+    outgrid << endl;
+
+    double * workmean = betamean.getV();
+    double * workstd = betastd.getV();
+    double * workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
+    double * workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
+    double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
+    double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
+    double * workxvalues = xvaluesgrid.getV();
+
+    for(i=0;i<gridsize;i++,workmean++,workstd++,
+                       workbetaqu_l1_lower_p++,workbetaqu_l2_lower_p++,
+                       workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++,
+                       workxvalues++)
+      {
+      outgrid << (i+1) << "   ";
+      outgrid << *workxvalues << "   ";
+      outgrid << *workmean << "   ";
+      outgrid << *workbetaqu_l1_lower_p << "   ";
+      outgrid << *workbetaqu_l2_lower_p << "   ";
+      outgrid << *workstd << "   ";
+      outgrid << *workbetaqu_l2_upper_p << "   ";
+      outgrid << *workbetaqu_l1_upper_p << "   ";
+      if (*workbetaqu_l1_lower_p > 0)
+        outgrid << "1   ";
+      else if (*workbetaqu_l1_upper_p < 0)
+        outgrid << "-1   ";
+      else
+        outgrid << "0   ";
+
+      if (*workbetaqu_l2_lower_p > 0)
+        outgrid << "1   ";
+      else if (*workbetaqu_l2_upper_p < 0)
+        outgrid << "-1   ";
+     else
+        outgrid << "0   ";
+
+      outgrid << endl;
+      }
+    }
+
   return mean;
   }
 
