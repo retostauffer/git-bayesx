@@ -276,6 +276,9 @@ spline_basis::spline_basis(MCMCoptions * o,const datamatrix & d1,
   catspecific = catsp;
   centervcm = ctr;
 
+  lowerknot=0.0;
+  upperknot=0.0;
+
   pseudocontourprob = false;
 
 //------------------------------------------------------------------------------
