@@ -9,23 +9,28 @@ namespace MCMC
 
 void DISTRIBUTION_gaussianh::standardise(void)
   {
-
+/*
   double s = sqrt(response.var(0,weight));
 
-  trmult = datamatrix(1,1,s);
+  trmult = datamatrix(2,1,s);
+  trmult(1,0) = 1.0;
 
   unsigned i;
   double * workresp = response.getV();
   double * worklin = (*linpred_current).getV();
-  for (i=0;i<nrobs;i++,workresp+=2,worklin+=2)
+  for (i=0;i<nrobs;i++,workresp++,worklin++)
    {
    *workresp = *workresp/trmult(0,0);
+   workresp++;
+   *workresp = *workresp/trmult(0,0);
    *worklin = *worklin/trmult(0,0);
+   worklin++;
+   *worklin=*worklin-2*log(s);
    }
+*/
 
-
-  datamatrix tr(1,1,trmult(0,0)*trmult(0,0));
-  Scalesave.set_transformmult(tr);
+//  datamatrix tr(1,1,trmult(0,0)*trmult(0,0));
+//  Scalesave.set_transformmult(tr);
 
   }
 
@@ -232,10 +237,12 @@ double DISTRIBUTION_gaussianh::compute_IWLS(double * response,double * linpred,
 
         if(weightyes)
         {
-            (*workweightiwls) = (double)0.5;
+            (*workweightiwls) = 0.5;
+//            (*workweightiwls) = 1.0;
         }
 
-        (*worktildey) = (*worklinpred) + ((help*help)/s) - 1;
+//        (*worktildey) = (*worklinpred) + ((help*help)/s) - 1;
+        (*worktildey) =  ((help*help)/s) - 1;
     }
 
     return - 0.5 * (*worklinpred) - 0.5 * (help*help)/s;
@@ -289,7 +296,8 @@ void DISTRIBUTION_gaussianh::compute_IWLS_weight_tildey(double * response,
 
         (*workweightiwls) = (double)0.5;
 
-        (*worktildey) = (*worklinpred) + ((help*help)/s) - 1;
+//        (*worktildey) = (*worklinpred) + ((help*help)/s) - 1;
+        (*worktildey) =  ((help*help)/s) - 1;
     }
 
   // vgl. distribution h datei
@@ -298,6 +306,49 @@ void DISTRIBUTION_gaussianh::compute_IWLS_weight_tildey(double * response,
   // kein Rückgabewert
 
   }
+
+
+void DISTRIBUTION_gaussianh::compute_iwls(void)
+  {
+    register unsigned i,j;
+    unsigned dim = response.cols(); //Der Wert zur Laufzeit müsste 2 sein
+
+    double * worklin = (*linpred_current).getV();
+
+    double * workres = response.getV();
+    double * worktildey = tildey.getV();
+    double * workweightiwls = weightiwls.getV();
+    double help;
+
+
+    for (i=0;i<nrobs;i++)
+    {
+        for(j=0;j<dim;j++,worktildey++,workres++,workweightiwls++)
+        {
+          //compute_weight(worklin, workweightiwls, &i, &j);
+          if(j==0)// Entspricht dem Mittelwertschätzer
+          {
+            help = (*workres)-(*worklin);
+            worklin++;
+            double s = exp((*worklin));
+
+            (*workweightiwls) = 1.0/s;//1/exp(eta)
+            (*worktildey) = (*workres);
+          }
+          else if(j==1)//Entspricht dem Varianzschätzer
+          {
+            (*workweightiwls) = 0.5;
+            (*worktildey) = (*worklin) + ((help*help)/exp((*worklin))) - 1;
+//            (*worktildey) =  ((help*help)/exp((*worklin))) - 1;
+            worklin++;
+          }
+
+        }
+    }
+
+
+ }
+
 
 double DISTRIBUTION_gaussianh::compute_gmu(double * linpred,
 const unsigned & col) const
@@ -348,6 +399,8 @@ void DISTRIBUTION_gaussianh::update_predict(void)
 void DISTRIBUTION_gaussianh::outresults(void)
   {
 
+
+
   }
 
 bool DISTRIBUTION_gaussianh::posteriormode(void)
@@ -357,61 +410,15 @@ bool DISTRIBUTION_gaussianh::posteriormode(void)
 
   }
 
-
+/*
 bool DISTRIBUTION_gaussianh::posteriormode_converged_fc(const datamatrix & beta,
                                   const datamatrix & beta_mode,
                                   const unsigned & itnr)
   {
   return true;
   }
+*/
 
-
-void DISTRIBUTION_gaussianh::compute_iwls(void)
-  {
-    register unsigned i,j;
-    unsigned dim = response.cols(); //Der Wert zur Laufzeit müsste 2 sein
-
-    double * worklin = (*linpred_current).getV();
-
-    double * workres = response.getV();
-    double * worktildey = tildey.getV();
-    double * workweightiwls = weightiwls.getV();
-    double help;
-
-
-    for (i=0;i<nrobs;i++)
-    {
-        for(j=0;j<dim;j++,worktildey++,workres++,workweightiwls++)
-        {
-          //compute_weight(worklin, workweightiwls, &i, &j);
-          if(j==0)// Entspricht dem Mittelwertschätzer
-          {
-            help = (*workres)-(*worklin);
-            worklin++;
-            double s = exp((*worklin));
-
-            (*workweightiwls) = (double)1.0/s;//1/exp(eta)
-            (*worktildey) = (*workres);
-          }
-          else if(j==1)//Entspricht dem Varianzschätzer
-          {
-            (*workweightiwls) = (double)0.5;
-            (*worktildey) = (*worklin) + ((help*help)/exp((*worklin))) - 1;
-            worklin++;
-          }
-
-        }
-    }
-
-  //Ist der folgende Funktionsaufruf notwendig.
-  //tildey.assign(response);
-
-
-  // vgl. distribution h datei
-  // Berechnet die working-obs, die in tildey abgespeichert werden
-  // Berechnet die iwls-Gewichte, basierend auf den aktuellen linearen
-  // Prediktoren und speichert diese in weightiwls ab
- }
 
 
 

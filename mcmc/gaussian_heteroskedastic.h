@@ -1,4 +1,4 @@
-g
+
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
@@ -118,9 +118,11 @@ double compute_gmu(double * linpred,const unsigned & col=0) const;
 
   bool posteriormode(void);
 
+/*
   bool posteriormode_converged_fc(const datamatrix & beta,
                                   const datamatrix & beta_mode,
                                   const unsigned & itnr);
+*/
 
   void compute_iwls(void);
 
