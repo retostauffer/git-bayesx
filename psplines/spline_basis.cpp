@@ -5,7 +5,7 @@
 
 namespace MCMC
 {
-
+                            
 
 void spline_basis::change_K(void)
   {
@@ -115,6 +115,9 @@ spline_basis::spline_basis(MCMCoptions * o, DISTRIBUTION * dp,
   lambdaconst = false;
   outbsplines = false;
   lambda_prec = -1.0;
+
+  lowerknot = 0.0;
+  upperknot = 0.0;
 
   fctype = nonparametric;
 
