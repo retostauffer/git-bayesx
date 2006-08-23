@@ -99,6 +99,7 @@ class __EXPORT_TYPE MCMCsimulate
   bool posteriormode(const vector<ST::string> & header,
                      const bool & presim=false);
 
+  void out_effects(const vector<ST::string> & paths);
 
   void make_graphics(const vector<ST::string> & title,
                      const vector<ST::string> & path_batch,

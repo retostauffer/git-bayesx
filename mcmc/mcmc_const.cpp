@@ -442,6 +442,24 @@ vector<bool> FULLCOND_const::get_catspecific_fixed()
   return catspecific_fixed;
   }
 
+
+void FULLCOND_const::get_effectmatrix(datamatrix & e,unsigned be, unsigned en)
+  {
+  datamatrix eh;
+  eh = datamatrix(data.rows(),beta.rows());
+  eh.mult(data,betamean);
+  unsigned i,j;
+  for (i=0;i<eh.rows();i++)
+    for(j=0;j<eh.cols();j++)
+      e(i,be+j) = eh(i,j);
+  }
+
+unsigned FULLCOND_const::get_nreffects(void)
+  {
+  return beta.rows();
+  }
+
+
 void FULLCOND_const::outresults(void)
   {
   FULLCOND::outresults();

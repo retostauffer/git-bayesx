@@ -2325,6 +2325,8 @@ void regressrun(bayesreg & b)
     vector<ST::string> path2;
     vector<ST::string> path3;
     vector<ST::string> path4;
+    vector<ST::string> path5;
+
 
     for (i=0;i<b.outfiles.size();i++)
       {
@@ -2332,9 +2334,10 @@ void regressrun(bayesreg & b)
       path2.push_back(b.outfiles[i] + "_model_summary.tex");
       path3.push_back(b.outfiles[i] +  "_splus.txt");
       path4.push_back(b.outfiles[i] +  "_stata.do");
+      path5.push_back(b.outfiles[i] +  "_effects.res");      
       }
 
-
+    b.simobj.out_effects(path5);
 
     b.simobj.make_graphics(header,path,path2,path3,path4);
 

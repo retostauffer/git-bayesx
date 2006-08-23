@@ -360,6 +360,25 @@ class __EXPORT_TYPE FULLCOND
     return column;
     }
 
+
+  //--------------------------- ACCESS TO EFFECTS ------------------------------
+
+  // FUNCTION: get_effectmatrix
+  // TASK: returns true if full conditional contains predictor effects
+  //       returns false if full conditional contains no predictor effects
+  //       (e.g. variance parameters)
+  //       if true, the effect will be stored in datamatrix e
+
+  virtual void get_effectmatrix(datamatrix & e,unsigned be,unsigned en)
+    {
+    }
+
+  virtual unsigned get_nreffects(void)
+    {
+    return 0;
+    }
+
+
   //------------- ACCESS TO PARAMETERS AND OTHER CHARACTERISTICS ---------------
 
    // FUNCTION: setbeta

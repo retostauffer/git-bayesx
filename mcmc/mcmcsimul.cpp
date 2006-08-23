@@ -1637,6 +1637,48 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
   }
 
 
+ void MCMCsimulate::out_effects(const vector<ST::string> & paths)
+   {
+
+  unsigned i,j;
+
+  unsigned nrmodels = genoptions_mult.size();
+
+  datamatrix e;
+
+  for (i=0;i<nrmodels;i++)
+    {
+
+    vector<unsigned> be;
+    vector<unsigned> en;
+    unsigned nr=0;
+
+    ofstream oute(paths[nrmodels-1-i].strtochar());
+
+    for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+      {
+      be.push_back(nr);
+      nr+=fullcondp[j]->get_nreffects();
+      en.push_back(nr);
+      }
+
+    e = datamatrix(likep_mult[nrmodels-1-i]->get_nrobs(),nr);
+
+//    vector<unsigned>::iterator itbe = be.begin();
+//    vector<unsigned>::iterator iten = en.begin();
+    unsigned it=0;
+    for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++,it++)
+      {
+      fullcondp[j]->get_effectmatrix(e,be[it],en[it]);
+      }
+
+
+
+
+    }
+
+   }
+
 void MCMCsimulate::make_graphics(const vector<ST::string> & title,
 const vector<ST::string> & path_batch,
 const vector<ST::string> & path_tex,
