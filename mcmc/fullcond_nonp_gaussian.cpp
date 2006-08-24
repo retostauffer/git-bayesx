@@ -503,9 +503,6 @@ void FULLCOND_nonp_gaussian::createreml(datamatrix & X,datamatrix & Z,
           else
             {
             X_VCM(index(j,0),0)=xhelp(i,0);
-            double test1 = data_forfixed(index(j,0),0);
-            double test2 =xhelp(i,0);
-            int test3 = index(j,0);
             X(index(j,0),Xpos)=xhelp(i,0)*data_forfixed(index(j,0),0);
             }
           for(k=0; k<nrpar-2; k++)
@@ -3249,7 +3246,7 @@ void FULLCOND_nonp_gaussian::update_gaussian_gemanreynolds(void)
 
   double p = 2.0;
   double lambda = 3.0;
-  double tau = 0.2;
+
 
   unsigned beg,end;
 
@@ -3415,6 +3412,107 @@ bool FULLCOND_nonp_gaussian::posteriormode(void)
 bool FULLCOND_nonp_gaussian::posteriormode_converged(const unsigned & itnr)
   {
   return likep->posteriormode_converged_fc(beta,beta_mode,itnr);
+  }
+
+
+void FULLCOND_nonp_gaussian::get_effectmatrix(datamatrix & e,
+                                        vector<ST::string> & enames,unsigned be,
+                                        unsigned en, effecttype t)
+  {
+
+  int * workindex = index.getV();
+
+  double * workbeta;
+  if (t==MCMC::current || t==MCMC::fvar_current)
+    workbeta = beta.getV();
+  else if (t==MCMC::mean || t==MCMC::fvar_mean)
+    workbeta = betamean.getV();
+  else
+    workbeta = betaqu50.getV();
+
+  vector<int>::iterator itbeg = posbeg.begin();
+  vector<int>::iterator itend = posend.begin();
+
+  int j;
+  unsigned i,k;
+
+  if (varcoeff)
+    {
+
+    if (t==MCMC::fvar_current || t==MCMC::fvar_mean  || t==MCMC::fvar_median)
+      {
+
+      for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
+        {
+        if (*itbeg != -1)
+          {
+          for(j=*itbeg;j<=*itend;j++,workindex++)
+            e(*workindex,be) = *workbeta;
+          }
+        }
+
+      }
+    else
+      {
+
+      double * workdata=data.getV();
+
+      vector<double>::iterator effit = effectvdouble.begin();
+
+      enames.push_back("f_"+datanames[0]+"_"+datanames[1]);
+      enames.push_back(datanames[0]);
+      enames.push_back(datanames[1]);
+
+      for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend,++effit)
+        {
+        if (*itbeg != -1)
+          {
+          for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
+            {
+            e(*workindex,be) = *workbeta*(*workdata);
+            e(*workindex,be+1) = *effit;
+            e(*workindex,be+2) = *workdata;
+            }
+          }
+        }
+
+      }
+    }
+  else
+    {
+    vector<double>::iterator effit = effectvdouble.begin();
+
+    enames.push_back("f_"+datanames[0]);
+    enames.push_back(datanames[0]);
+
+
+    for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend,++effit)
+      {
+      if (*itbeg != -1)
+        {
+        for (k=(*itbeg);k<=(*itend);k++,workindex++)
+          {
+          e(*workindex,be) = *workbeta;
+          e(*workindex,be+1) = *effit;
+          }
+        }
+      }
+    }
+
+  }
+
+
+unsigned FULLCOND_nonp_gaussian::get_nreffects(effecttype t)
+  {
+  if (varcoeff)
+    {
+    if (t==MCMC::fvar_current || t==MCMC::fvar_mean  || t==MCMC::fvar_median)
+      return 1;
+    else
+      return 3;
+    }
+  else
+    return 2;
   }
 
 

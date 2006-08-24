@@ -59,6 +59,8 @@ enum plotstyles {noplot,plotnonp,drawmap,drawmapgraph};
 enum fullcondtype {fixed,variance,nonparametric,spatial,randomeffects,
                    season,randomslopes,factor,nonlinearf};
 
+enum effecttype {current,mean,median,fvar_current,fvar_mean,fvar_median};
+
 class __EXPORT_TYPE FULLCOND
   {
 
@@ -369,11 +371,12 @@ class __EXPORT_TYPE FULLCOND
   //       (e.g. variance parameters)
   //       if true, the effect will be stored in datamatrix e
 
-  virtual void get_effectmatrix(datamatrix & e,unsigned be,unsigned en)
+  virtual void get_effectmatrix(datamatrix & e,vector<ST::string> & enames,
+                                unsigned be,unsigned en, effecttype t)
     {
     }
 
-  virtual unsigned get_nreffects(void)
+  virtual unsigned get_nreffects(effecttype t)
     {
     return 0;
     }

@@ -1640,44 +1640,57 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
  void MCMCsimulate::out_effects(const vector<ST::string> & paths)
    {
 
-  unsigned i,j;
+   unsigned i,j,k;
 
-  unsigned nrmodels = genoptions_mult.size();
+   unsigned nrmodels = genoptions_mult.size();
 
-  datamatrix e;
+   datamatrix e;
 
-  for (i=0;i<nrmodels;i++)
-    {
 
-    vector<unsigned> be;
-    vector<unsigned> en;
-    unsigned nr=0;
+   for (i=0;i<nrmodels;i++)
+     {
 
-    ofstream oute(paths[nrmodels-1-i].strtochar());
+     vector<unsigned> be;
+     vector<unsigned> en;
+     unsigned nr=0;
 
-    for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
-      {
-      be.push_back(nr);
-      nr+=fullcondp[j]->get_nreffects();
-      en.push_back(nr);
-      }
+     ofstream oute(paths[nrmodels-1-i].strtochar());
 
-    e = datamatrix(likep_mult[nrmodels-1-i]->get_nrobs(),nr);
+     for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+       {
+       be.push_back(nr);
+       nr+=fullcondp[j]->get_nreffects(MCMC::mean);
+       en.push_back(nr);
+       }
 
+     e = datamatrix(likep_mult[nrmodels-1-i]->get_nrobs(),nr);
+     vector<ST::string> enames;
 //    vector<unsigned>::iterator itbe = be.begin();
 //    vector<unsigned>::iterator iten = en.begin();
-    unsigned it=0;
-    for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++,it++)
-      {
-      fullcondp[j]->get_effectmatrix(e,be[it],en[it]);
-      }
+     unsigned it=0;
+     for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++,it++)
+       {
+       fullcondp[j]->get_effectmatrix(e,enames,be[it],en[it],MCMC::mean);
+       }
 
+     for(j=0;j<enames.size();j++)
+       {
+       oute << enames[j] << "   ";
+       }
 
+     oute << endl;
 
+     for(j=0;j<e.rows();j++)
+       {
+       for(k=0;k<e.cols();k++)
+         oute << e(j,k) << "   ";
+       oute << endl;
+       }
 
-    }
+     }
 
    }
+
 
 void MCMCsimulate::make_graphics(const vector<ST::string> & title,
 const vector<ST::string> & path_batch,

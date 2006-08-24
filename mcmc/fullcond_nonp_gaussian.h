@@ -426,6 +426,13 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
 
   void outresults(void);
 
+  void get_effectmatrix(datamatrix & e,vector<ST::string> & enames,
+                        unsigned be, unsigned en,effecttype t);
+
+
+  unsigned get_nreffects(effecttype t);
+
+
   void outoptions(void);
 
   ST::string getinfo(void)

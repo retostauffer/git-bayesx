@@ -443,20 +443,50 @@ vector<bool> FULLCOND_const::get_catspecific_fixed()
   }
 
 
-void FULLCOND_const::get_effectmatrix(datamatrix & e,unsigned be, unsigned en)
+void FULLCOND_const::get_effectmatrix(datamatrix & e,
+                           vector<ST::string> & enames,unsigned be, unsigned en,
+                           effecttype t)
   {
-  datamatrix eh;
-  eh = datamatrix(data.rows(),beta.rows());
-  eh.mult(data,betamean);
+  double * betastart;
+  if (t == MCMC::current || t == MCMC::fvar_current)
+    betastart = beta.getV();
+  else if (t == MCMC::mean || t == MCMC::fvar_mean)
+    betastart = betamean.getV();
+  else
+    betastart = betaqu50.getV();
+  double * betap;
+
   unsigned i,j;
-  for (i=0;i<eh.rows();i++)
-    for(j=0;j<eh.cols();j++)
-      e(i,be+j) = eh(i,j);
+  for (i=0;i<data.rows();i++)
+    {
+    betap = betastart;
+    for(j=0;j<data.cols();j++,betap++)
+      e(i,be+j) = data(i,j)*(*betap);
+
+    for(j=0;j<data.cols();j++)
+      e(i,be+data.cols()+j) = data(i,j);
+
+    }
+
+  for (i=0;i<datanames.size();i++)
+    if (datanames[i]=="const")
+      enames.push_back("const");
+    else
+      enames.push_back("f_"+datanames[i]);
+
+  for (i=0;i<datanames.size();i++)
+    if (datanames[i]=="const")
+      enames.push_back("one");
+    else
+      enames.push_back(datanames[i]);
+
+
   }
 
-unsigned FULLCOND_const::get_nreffects(void)
+
+unsigned FULLCOND_const::get_nreffects(effecttype t)
   {
-  return beta.rows();
+  return beta.rows()+beta.rows();
   }
 
 

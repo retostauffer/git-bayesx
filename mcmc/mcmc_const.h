@@ -126,9 +126,10 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
 
   void init_names(const vector<ST::string> & na);
 
-  void get_effectmatrix(datamatrix & e,unsigned be, unsigned en);
+  void get_effectmatrix(datamatrix & e,vector<ST::string> & enames,
+                        unsigned be, unsigned en, effecttype t);
 
-  unsigned get_nreffects(void);  
+  unsigned get_nreffects(effecttype t);  
 
   void outresults(void);
 
