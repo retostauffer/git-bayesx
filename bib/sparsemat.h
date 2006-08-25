@@ -12,6 +12,7 @@
 #define SPARSEMATRIX_INCLUDED
 
 #include"statmat.h"
+
 #include"map.h"
 
 

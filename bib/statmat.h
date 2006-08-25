@@ -376,7 +376,6 @@ class adja;
 
   };
 
-
 typedef statmatrix<double> datamatrix;
 
 // FUNCTION: multdiagback
@@ -493,7 +492,7 @@ void compare(const datamatrix & ref, const datamatrix & neu, double limit, unsig
 void compare_nonp(const ST::string & ref, const ST::string & neu, double limit, vector<ST::string> & out);
 
 #if !defined(STATMAT_CPP_INCLUDED)
-#include"statmat.cpp"
+#include "statmat.cpp"
 #endif
 
 #endif

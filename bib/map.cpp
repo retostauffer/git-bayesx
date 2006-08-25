@@ -11,7 +11,6 @@
 
 #include"map.h"
 
-
 namespace MAP
 {
 
