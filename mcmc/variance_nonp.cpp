@@ -409,7 +409,7 @@ void FULLCOND_variance_nonp::update_stationary(void)
     if(help < (alphawork+1.0)/2.0)
       alphaprop = sqrt(2.0*help*(alphawork+1.0)) - 1.0;
     else
-      alphaprop = sqrt(2.0*(help-1.0)*(alphawork-1.0)) + 1.0;
+      alphaprop = 1.0 - sqrt(2.0*(help-1.0)*(alphawork-1.0));
 
     if(alphafix)
       alphaprop = alphawork;
@@ -445,7 +445,7 @@ void FULLCOND_variance_nonp::update_stationary(void)
     if(help < (alphawork+1.0)/2.0)
       alpha1help = sqrt(2.0*help*(alphawork+1.0)) - 1.0;
     else
-      alpha1help = sqrt(2.0*(help-1.0)*(alphawork-1.0)) + 1.0;
+      alpha1help = 1.0 - sqrt(2.0*(help-1.0)*(alphawork-1.0));
 //    double alpha2help = uniform()*2.0-1.0;       // falls alpha1 und alpha2 unabhängig
     double alpha2help = alpha1help;
 
