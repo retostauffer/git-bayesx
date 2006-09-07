@@ -443,6 +443,43 @@ class __EXPORT_TYPE basic_termtype
 
   };
 
+//------------------------------------------------------------------------------
+//------------------------------- class term_ridge -----------------------------
+//------------------------------------------------------------------------------
+
+// Category-specific fixed effects in cumulative or sequential models
+
+class __EXPORT_TYPE term_ridge : public basic_termtype
+  {
+  protected:
+
+  // add options here
+  // option types are intoption, doubleoption, simpleoption
+  // see the example below
+
+  doubleoption lambda;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_ridge(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a category-specific fixed effect
+
+  bool checkvector(const vector<term>  & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_ridge() {}
+  };
 
 //------------------------------------------------------------------------------
 //-------------------------- class term_autoreg  -------------------------------

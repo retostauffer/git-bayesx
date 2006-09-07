@@ -188,6 +188,7 @@ void bayesreg::create(void)
   baseline = term_baseline();
   varcoeffbaseline = term_varcoeff_baseline();
   nonpvarcoeffmerror = term_varcoeff_merror();
+  ridge = term_ridge();
 
   termtypes.push_back(&offset);
   termtypes.push_back(&fixedeffects);
@@ -207,6 +208,7 @@ void bayesreg::create(void)
   termtypes.push_back(&baseline);
   termtypes.push_back(&varcoeffbaseline);
   termtypes.push_back(&nonpvarcoeffmerror);
+  termtypes.push_back(&ridge);
 
   modreg = modelterm(&termtypes);
 
@@ -716,6 +718,8 @@ void bayesreg::initpointers(void)
   for(i=0;i<fcmerror.size();i++)
     fullcond.push_back(&fcmerror[i]);
 
+  for(i=0;i<fcridge.size();i++)
+    fullcond.push_back(&fcridge[i]);
   }
 
 
@@ -816,6 +820,9 @@ void bayesreg::clear(void)
 
   fcmerror.erase(fcmerror.begin(),fcmerror.end());
   fcmerror.reserve(2);
+
+  fcridge.erase(fcridge.begin(),fcridge.end());
+  fcridge.reserve(2);
   }
 
 

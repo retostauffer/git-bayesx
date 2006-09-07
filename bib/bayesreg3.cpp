@@ -2029,7 +2029,65 @@ bool bayesreg::create_varcoeffmultibaseline(const unsigned & collinpred)
   return false;
   }
 
-  
+bool bayesreg::create_ridge(const unsigned & collinpred)
+  {
+  int j, f;
+  unsigned i;
+  double helpvar;
+
+  vector<ST::string> varnames;
+  vector<double> variances;
+
+  bool ridgecheck=false;
+
+  for(i=0;i<terms.size();i++)
+    {
+    if ( ridge.checkvector(terms,i) == true )
+      {
+      ridgecheck=true;
+      varnames.push_back(terms[i].varnames[0]);
+      f = terms[i].options[1].strtodouble(helpvar);
+      variances.push_back(1/helpvar);
+      }
+    }
+
+  if(ridgecheck)
+    {
+    datamatrix data(D.rows(),varnames.size(),0);
+
+    for(i=0; i<varnames.size(); i++)
+      {
+      j = varnames[i].isinlist(modelvarnamesv);
+      data.putCol(i, D.getCol(j));
+      }
+
+    ST::string title;
+    ST::string pathconst;
+    ST::string pathconstres;
+
+    title = "Ridge";
+    pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                       + add_name + "_ridge" + ".raw";
+    pathconstres = outfile.getvalue() + add_name + "_ridge" + ".res";
+
+    if (pathconst.isvalidfile() == 1)
+      {
+      errormessages.push_back("ERROR: unable to open file " + pathconst +
+                               " for writing\n");
+      return true;
+      }
+
+    fcridge.push_back(FULLCOND_ridge(&generaloptions[generaloptions.size()-1],
+            distr[distr.size()-1], data, title, pathconst, pathconstres,
+            variances,collinpred)
+            );
+    fcridge[fcridge.size()-1].init_names(varnames);
+    fcridge[fcridge.size()-1].set_fcnumber(fullcond.size());
+    fullcond.push_back(&fcridge[fcridge.size()-1]);
+    }
+    
+  return false;
+  }
 
 
 
@@ -2164,6 +2222,9 @@ void regressrun(bayesreg & b)
 
       if(!failure)
         failure = b.create_varcoeffmerror(i);
+
+     if(!failure)
+        failure = b.create_ridge(i);
 
       } // end: for (i=0;i<b.nrcategories;i++)
     } // end: if (!failure)

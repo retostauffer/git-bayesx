@@ -52,6 +52,7 @@
 //#include<IWLS_baseline.h>
 
 #include"fullcond_merror.h"
+#include"mcmc_ridge.h"
 
 #include"mcmcsimul.h"
 
@@ -106,6 +107,7 @@ using MCMC::pspline_baseline;
 //using MCMC::IWLS_baseline;
 using MCMC::pspline_multibaseline;
 using MCMC::fullcond_merror;
+using MCMC::FULLCOND_ridge;
 using MCMC::MCMCsimulate;
 
 
@@ -452,10 +454,17 @@ class __EXPORT_TYPE bayesreg : public statobject
 
 
   basic_termtype fixedeffects;
-
   bool create_const(const unsigned & colllinpred=0);
 
 // ----------------------- end: for fixed effects ------------------------------
+
+// ------------------------ for ridge regression -------------------------------
+
+  term_ridge ridge;
+  bool create_ridge(const unsigned & collinpred=0);
+  vector<FULLCOND_ridge> fcridge;
+
+// ---------------------- end: for ridge regression ----------------------------
 
 //------------------------ for nonparametric terms -----------------------------
 

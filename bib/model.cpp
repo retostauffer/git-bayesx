@@ -227,6 +227,89 @@ vector<ST::string> basic_termtype::get_constvariables(vector<term> & terms)
   return res;
   }
 
+//------------------------------------------------------------------------------
+//------------ class term_ridge: implementation of member functions ------------
+//------------------------------------------------------------------------------
+
+term_ridge::term_ridge(void)
+  {
+  type = "term_ridge";
+
+  // initialize options here
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  
+  }
+
+
+void term_ridge::setdefault(void)
+  {
+  // call setdefault-methods of the options
+  lambda.setdefault();
+
+  }
+
+bool term_ridge::check(term & t)
+  {
+  if ( (t.varnames.size() == 1) && (t.options.size()<=2) && (t.options.size()>=1))
+    {
+    // extract options
+
+    if (t.options[0] == "ridge")
+      t.type = "ridge";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    vector<ST::string> opt;
+    optionlist optlist;
+    optlist.push_back(&lambda);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(2);
+    t.options[0] = t.type;
+    t.options[1] = ST::doubletostring(lambda.getvalue());
+
+    setdefault();
+    return true;
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+  }
+
+bool term_ridge::checkvector(const vector<term> & terms, const unsigned & i)
+  {
+  assert(i< terms.size());
+  if (terms[i].type == "ridge")
+    return true;
+  return false;
+  }
 
 //------------------------------------------------------------------------------
 //---------- class term_autoreg: implementation of member functions ------------
