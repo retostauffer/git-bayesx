@@ -515,7 +515,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
 
   weibullprior_alpha = a;
   weibullproposal_a1 = weibullprior_alpha + (likep->get_response()).sum(0);
-  weibullproposal_a2 = 1.0/weibullprior_alpha - sum_logti;
+  if(weibullprior_alpha>0){weibullproposal_a2 = 1.0/weibullprior_alpha - sum_logti;}
   create_lgamma();
   b_prop = b;
   acceptance_between = 0.0;
