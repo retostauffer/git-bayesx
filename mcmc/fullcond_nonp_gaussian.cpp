@@ -3457,8 +3457,8 @@ void FULLCOND_nonp_gaussian::get_effectmatrix(datamatrix & e,
 
       double * workdata=data.getV();
 
-      vector<double>::iterator effit = effectvdouble.begin();
-
+      vector<ST::string>::iterator effit = effectvalues.begin();
+      int t;
       enames.push_back("f_"+datanames[0]+"_"+datanames[1]);
       enames.push_back(datanames[0]);
       enames.push_back(datanames[1]);
@@ -3470,7 +3470,7 @@ void FULLCOND_nonp_gaussian::get_effectmatrix(datamatrix & e,
           for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
             {
             e(*workindex,be) = *workbeta*(*workdata);
-            e(*workindex,be+1) = *effit;
+            t = (*effit).strtodouble(e(*workindex,be+1));
             e(*workindex,be+2) = *workdata;
             }
           }
@@ -3480,7 +3480,8 @@ void FULLCOND_nonp_gaussian::get_effectmatrix(datamatrix & e,
     }
   else
     {
-    vector<double>::iterator effit = effectvdouble.begin();
+    vector<ST::string>::iterator effit = effectvalues.begin();
+    int t;
 
     enames.push_back("f_"+datanames[0]);
     enames.push_back(datanames[0]);
@@ -3493,7 +3494,7 @@ void FULLCOND_nonp_gaussian::get_effectmatrix(datamatrix & e,
         for (k=(*itbeg);k<=(*itend);k++,workindex++)
           {
           e(*workindex,be) = *workbeta;
-          e(*workindex,be+1) = *effit;
+          t = (*effit).strtodouble(e(*workindex,be+1));
           }
         }
       }
