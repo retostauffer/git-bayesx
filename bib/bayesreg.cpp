@@ -621,6 +621,8 @@ void bayesreg::initpointers(void)
     {
     if (distrstring[i] == "gaussian")
       distr.push_back(&distr_gaussian[distrposition[i]]);
+    else if (distrstring[i] == "gaussianh")
+      distr.push_back(&distr_gaussianh);
     else if (distrstring[i] == "multgaussian")
       distr.push_back(&distr_multgaussian);
     else if (distrstring[i] == "lognormal")

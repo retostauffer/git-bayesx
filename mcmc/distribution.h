@@ -1875,13 +1875,14 @@ class __EXPORT_TYPE DISTRIBUTION_gamma2 : public DISTRIBUTION
   double compute_gmu(double * linpred,const unsigned & col=0) const;
   };
 
-  
+
 class __EXPORT_TYPE DISTRIBUTION_vargaussian : public DISTRIBUTION_gamma
   {
 
   protected:
 
   DISTRIBUTION * dgaussian;
+  bool usegamma;
 
   public:
 
@@ -1975,15 +1976,29 @@ class __EXPORT_TYPE DISTRIBUTION_vargaussian : public DISTRIBUTION_gamma
 
   void outresults(void);
 
-  double DISTRIBUTION_vargaussian::compute_IWLS(double * response,
-                                              double * linpred, double * weight,
-                                              const int & i,double * weightiwls,
-                                              double * tildey,bool weightyes,
-                                              const unsigned & col);
+  double compute_IWLS(double * response,double * linpred, double * weight,
+                      const int & i,double * weightiwls,
+                      double * tildey,bool weightyes,
+                      const unsigned & col);
+
+  double compute_weight(double * linpred, double * weight,
+                        const int & i, const unsigned & col=0) const;
+
+  void compute_IWLS_weight_tildey(double * response,double * linpred,
+                              double * weight,const int & i,
+                              double * weightiwls,double * tildey,
+                              const unsigned & col=0);
+
+  double compute_gmu(double * linpred,const unsigned & col=0) const;
+
+  void compute_iwls(void);  
 
   void set_gaussian(DISTRIBUTION * g);
 
   void update_variance(datamatrix & we);
+
+  void update_predict(void);
+
 
   };
 

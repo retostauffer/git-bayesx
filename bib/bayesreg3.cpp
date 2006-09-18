@@ -639,6 +639,7 @@ void mregressrun(bayesreg & b)
     b.resultsyesno = false;
     }
 
+ 
 #if defined(JAVA_OUTPUT_WINDOW)
     if(b.nographs.getvalue() == false)
     {

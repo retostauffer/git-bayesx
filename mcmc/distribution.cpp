@@ -687,7 +687,7 @@ double DISTRIBUTION::compute_IWLS(datamatrix & weightiwls,datamatrix & tildey,
       workresphelp = workres;
       help += compute_IWLS(workresphelp,worklinhelp,workweight,i,workweightiwls,
                            worktildey,false,col);
-      }                     
+      }
     }
 
   return help;
@@ -4404,13 +4404,18 @@ double DISTRIBUTION_gamma2::phi_hat() const
 bool DISTRIBUTION_vargaussian::posteriormode(void)
   {
 
-  dgaussian->compute_respminuslinpred(response,0);
-  unsigned i;
-  double * workresponse = response.getV();
-  for (i=0;i<nrobs;i++,workresponse++)
-  *workresponse = *workresponse * *workresponse;
+  if (usegamma==true)
+    {
+    dgaussian->compute_respminuslinpred(response,0);
+    unsigned i;
+    double * workresponse = response.getV();
+    for (i=0;i<nrobs;i++,workresponse++)
+      *workresponse = *workresponse * *workresponse;
 
-  return DISTRIBUTION_gamma::posteriormode();
+    return DISTRIBUTION_gamma::posteriormode();
+    }
+  else
+    return true;
 
   }
 
@@ -4418,13 +4423,19 @@ bool DISTRIBUTION_vargaussian::posteriormode(void)
 void DISTRIBUTION_vargaussian::update(void)
   {
 
+
   dgaussian->compute_respminuslinpred(response,0);
   unsigned i;
   double * workresponse = response.getV();
   for (i=0;i<nrobs;i++,workresponse++)
   *workresponse = *workresponse * *workresponse;
 
-  DISTRIBUTION_gamma::update();
+  if (usegamma==true)
+    {
+    DISTRIBUTION_gamma::update();
+    }
+  else
+    DISTRIBUTION::update();
 
   }
 
@@ -4462,7 +4473,10 @@ DISTRIBUTION_vargaussian::DISTRIBUTION_vargaussian(const double & scale_initial,
   {
 
   family = "VarianceGaussian";
+  usegamma=false;
 
+  if (usegamma==false)
+    scaleexisting=false;
   }
 
 
@@ -4480,8 +4494,12 @@ DISTRIBUTION_vargaussian::DISTRIBUTION_vargaussian(
   {
 
   family = "VarianceGaussian";
+  usegamma=false;
 
+  if (usegamma==false)
+    scaleexisting=false;
   }
+
 
 
 // CONSTRUCTOR 2
@@ -4497,7 +4515,10 @@ DISTRIBUTION_vargaussian::DISTRIBUTION_vargaussian(
   {
 
   family = "VarianceGaussian";
+  usegamma=false;
 
+  if (usegamma==false)
+    scaleexisting=false;
   }
 
 
@@ -4506,6 +4527,7 @@ DISTRIBUTION_vargaussian::DISTRIBUTION_vargaussian(
    : DISTRIBUTION_gamma(DISTRIBUTION_gamma(ga))
   {
   dgaussian = ga.dgaussian;
+  usegamma=ga.usegamma;
   }
 
 
@@ -4517,6 +4539,7 @@ const DISTRIBUTION_vargaussian & DISTRIBUTION_vargaussian::operator=(
     return *this;
   DISTRIBUTION_gamma::operator=(DISTRIBUTION_gamma(ga));
   dgaussian = ga.dgaussian;
+  usegamma=ga.usegamma;
   return *this;
   }
 
@@ -4547,7 +4570,12 @@ double DISTRIBUTION_vargaussian::compute_IWLS(double * response,
   double m = exp(*linpred);
 
   if (weightyes)
-    *weightiwls = 1/scale(0,0) * *weight;
+    {
+    if (usegamma==true)
+      *weightiwls = 1/scale(0,0) * *weight;
+    else
+      *weightiwls = 0.5;
+    }
 
   *tildey = (*response - m)/m;
 
@@ -4557,6 +4585,58 @@ double DISTRIBUTION_vargaussian::compute_IWLS(double * response,
     return 0;
 
   }
+
+
+double DISTRIBUTION_vargaussian::compute_weight(double * linpred, double * weight,
+                        const int & i, const unsigned & col) const
+  {
+  if (usegamma==true)
+    return DISTRIBUTION_gamma::compute_weight(linpred,weight,i,col);
+  else
+    {
+    return 0.5;
+    }
+
+  }
+
+
+void DISTRIBUTION_vargaussian::compute_IWLS_weight_tildey(double * response,
+                              double * linpred,
+                              double * weight,const int & i,
+                              double * weightiwls,double * tildey,
+                              const unsigned & col)
+  {
+  if (usegamma==true)
+    {
+    DISTRIBUTION_gamma::compute_IWLS_weight_tildey(
+    response,linpred,weight,i,weightiwls,tildey,col);
+    }
+  else
+    {
+    *weightiwls = 0.5;
+
+    double m = exp(*linpred);
+
+    *tildey = (*response - m)/m;
+
+    }
+
+  }
+
+
+void DISTRIBUTION_vargaussian::compute_iwls(void)
+  {
+
+  DISTRIBUTION_gamma::compute_iwls();
+  }
+
+
+double DISTRIBUTION_vargaussian::compute_gmu(double * linpred,
+const unsigned & col) const
+  {
+  return DISTRIBUTION_gamma::compute_gmu(linpred,col);
+  }
+
 
 
 void DISTRIBUTION_vargaussian::compute_deviance(const double * response,
@@ -4576,49 +4656,60 @@ void DISTRIBUTION_vargaussian::outoptions(void)
   DISTRIBUTION::outoptions();
   optionsp->out("  Response function: exp\n");
 
-  if (mh)
+  if (usegamma==true)
     {
-    optionsp->out("  Update of scale parameter by MH-algorithm \n");
-    optionsp->out("  Fixed variance: " + ST::doubletostring(var_nu,6) + "\n");
-    optionsp->out("  Hyperparameter a: " + ST::doubletostring(a_gamma,6) + "\n");
-    optionsp->out("  Hyperparameter b: " + ST::doubletostring(b_gamma,6) + "\n");
-    }
-
-  else if (!mh && !scalefixed)
-    {
-    optionsp->out("  Update of scale parameter by consistent estimation \n");
-    }
-
-  else
-    {
-    optionsp->out("  Fixed scale parameter: " + ST::doubletostring(scale(0,0),6) + "\n");
-    }
-
-  optionsp->out("\n");
-  optionsp->out("\n");
-  }
-
-
-
-void DISTRIBUTION_vargaussian::outresults(void)
-    {
-
     if (mh)
       {
-      acceptancescale = double(acceptance)/
-                        double(nriterations-optionsp->get_burnin())*100;
+      optionsp->out("  Update of scale parameter by MH-algorithm \n");
+      optionsp->out("  Fixed variance: " + ST::doubletostring(var_nu,6) + "\n");
+      optionsp->out("  Hyperparameter a: " + ST::doubletostring(a_gamma,6) + "\n");
+      optionsp->out("  Hyperparameter b: " + ST::doubletostring(b_gamma,6) + "\n");
+      }
 
+    else if (!mh && !scalefixed)
+      {
+      optionsp->out("  Update of scale parameter by consistent estimation \n");
       }
 
     else
       {
-      acceptancescale=100;
+      optionsp->out("  Fixed scale parameter: " + ST::doubletostring(scale(0,0),6) + "\n");
       }
 
+    optionsp->out("\n");
+    optionsp->out("\n");
+    }
+
+  }
+
+
+void DISTRIBUTION_vargaussian::outresults(void)
+    {
+    if (usegamma==true)
+      {
+      if (mh)
+        {
+        acceptancescale = double(acceptance)/
+                          double(nriterations-optionsp->get_burnin())*100;
+
+        }
+
+      else
+        {
+        acceptancescale=100;
+        }
+      }
 
     DISTRIBUTION::outresults();
 
     }
+
+
+
+void DISTRIBUTION_vargaussian::update_predict(void)
+  {
+    DISTRIBUTION::update_predict();
+  }
 
 
 //------------------------------------------------------------------------------
