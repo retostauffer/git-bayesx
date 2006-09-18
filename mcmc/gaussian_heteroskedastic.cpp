@@ -179,29 +179,19 @@ void DISTRIBUTION_gaussianh::compute_deviance(const double * response,
 double DISTRIBUTION_gaussianh::compute_weight(double * linpred, double * weight,
                         const int & i, const unsigned & col) const
   {
-    double * workweightiwls = weight;
-    double * worklinpred = linpred;
-    worklinpred++; //zeigt jetzt auf eta
-    double s = exp((*worklinpred));
+  double * worklinpred = linpred;
+  worklinpred++; //zeigt jetzt auf eta
+  double s = exp((*worklinpred));
 
-    if(col == 0) //Berechnung für den Prädiktor des Mittelwertes
+  if(col == 0) //Berechnung für den Prädiktor des Mittelwertes
     {
-        (*workweightiwls) = (double)1.0/s;//1/exp(eta)
+    return   1.0/s;//1/exp(eta)
     }
-    else if(col == 1) //Berechnung für den Prädiktor der Varianz
+  else if(col == 1) //Berechnung für den Prädiktor der Varianz
     {
-        workweightiwls++;
-
-        (*workweightiwls) = (double)0.5;
+    return 0.5;
     }
-  // vgl. distribution h datei
-  // diese Funktion dürfte eigentlich überflüssig sein, da eine gewichtete
-  // Regression, da die Heteroskedastizität der Varianz bereits durch
-  // sigma_{i}^{2} modelliert wird.
-  // Funktion speichert in weight die IWLS-Gewichte ab.
-  // Warum besitzt die Funktion einen Rückgabewert?
 
-  return 0; //ist dies sinnvoll
   }
 
 
