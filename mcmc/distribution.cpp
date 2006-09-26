@@ -4473,7 +4473,7 @@ DISTRIBUTION_vargaussian::DISTRIBUTION_vargaussian(const double & scale_initial,
   {
 
   family = "VarianceGaussian";
-  usegamma=false;
+  usegamma=true;
 
   if (usegamma==false)
     scaleexisting=false;
@@ -4494,7 +4494,7 @@ DISTRIBUTION_vargaussian::DISTRIBUTION_vargaussian(
   {
 
   family = "VarianceGaussian";
-  usegamma=false;
+  usegamma=true;
 
   if (usegamma==false)
     scaleexisting=false;
@@ -4515,7 +4515,7 @@ DISTRIBUTION_vargaussian::DISTRIBUTION_vargaussian(
   {
 
   family = "VarianceGaussian";
-  usegamma=false;
+  usegamma=true;
 
   if (usegamma==false)
     scaleexisting=false;
