@@ -4643,8 +4643,8 @@ void mremlrun(remlreg & b)
       #endif
       b.fullcond, response, b.family.getvalue(), b.outfile.getvalue(),
       b.maxit.getvalue(), b.lowerlim.getvalue(), b.eps.getvalue(),
-      b.maxchange.getvalue(), b.maxvar.getvalue(), glfrailty, b.nrfullconds,
-      weight, b.logout);
+      b.maxchange.getvalue(), b.maxvar.getvalue(), b.constlambda.getvalue(),
+      glfrailty, b.nrfullconds, weight, b.logout);
 
       failure = b.RE_MSM.estimate(response,offset,weight,state);
       }

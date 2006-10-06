@@ -42,7 +42,7 @@ class remlest_multinomial
   double maxvar;
 
   bool fisher;                                  // store final fisher infor-matrix?
-  
+
   double refcat;                                   // Referenz-Kategorie
   unsigned nrcat;                                    // Anzahl Kategorien
   unsigned nrcat2;                                   // Anzahl nicht redundanter Kategorien
@@ -237,6 +237,8 @@ class remlest_multistate
   double maxchange;
   double maxvar;
 
+  bool constlambda;                             // fix smoothing parameters?
+
   bool globalfrailty;                 // is a global frailty term specified?
 
   unsigned nrtransitions;             // number of transitions
@@ -273,8 +275,8 @@ class remlest_multistate
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,
-          const double & maxch, const double & maxv, const bool & glfrailty,
-          const vector<unsigned> & nrfullc,
+          const double & maxch, const double & maxv, const bool & cl,
+          const bool & glfrailty, const vector<unsigned> & nrfullc,
           const datamatrix & weight, ostream * lo=&cout);
 
 //------------------------------------------------------------------------------

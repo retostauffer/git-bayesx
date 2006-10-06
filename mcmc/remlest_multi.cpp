@@ -1485,7 +1485,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
                 const ST::string & family, const ST::string & ofile,
                 const int & maxiter, const double & lowerlimit,
                 const double & epsi, const double & maxch, const double & maxv,
-                const bool & glfrailty,
+                const bool & cl, const bool & glfrailty,
                 const vector<unsigned> & nrfullc,
                 const datamatrix & weight, ostream * lo)
   {
@@ -1503,6 +1503,8 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
     eps=epsi;
     maxchange=maxch;
     maxvar=maxv;
+
+    constlambda = cl;
 
     globalfrailty=glfrailty;
 
@@ -3259,139 +3261,92 @@ out1.close();*/
 
     Hinv=H.inverse();
 
-/*ofstream out2("c:\\temp\\H.raw");
-H.prettyPrint(out2);
-out2.close();
-ofstream out3("c:\\temp\\beta.raw");
-beta.prettyPrint(out3);
-out3.close();
-ofstream out4("c:\\temp\\betaold.raw");
-betaold.prettyPrint(out4);
-out4.close();*/
-
-/*    // transform theta
-    for(i=0; i<theta.rows(); i++)
+    if(!constlambda)
       {
-      thetaold(i,0)=signs[i]*sqrt(thetaold(i,0));
-      theta(i,0)=signs[i]*sqrt(theta(i,0));
-      }
-
-    // Score-Funktion für theta
-
-   for(j=0; j<theta.rows(); j++)
-      {
-      score(j,0)=-1*((zcut[j+1]-zcut[j])/theta(j,0)-
-                       (Hinv.getBlock(xcols+zcut[j],X.cols()+zcut[j],xcols+zcut[j+1],xcols+zcut[j+1])).trace()/(theta(j,0)*theta(j,0)*theta(j,0))-
-                       (beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]).transposed()*beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]))(0,0)/(theta(j,0)*theta(j,0)*theta(j,0)));
-      }
-
-    // Fisher-Info für theta
-
-    for(j=0; j<theta.rows(); j++)
-      {
-      for(k=j; k< theta.rows(); k++)
+      // transform theta
+      for(i=0; i<theta.rows(); i++)
         {
-        Fisher(j,k) = 2*((Hinv.getBlock(xcols+zcut[j],xcols+zcut[k],xcols+zcut[j+1],xcols+zcut[k+1])*Hinv.getBlock(xcols+zcut[k],xcols+zcut[j],xcols+zcut[k+1],xcols+zcut[j+1])).trace())/(theta(j,0)*theta(j,0)*theta(j,0)*theta(k,0)*theta(k,0)*theta(k,0));
-        Fisher(k,j) = Fisher(j,k);
+        thetaold(i,0)=log(sqrt(thetaold(i,0)));
+        theta(i,0)=log(sqrt(theta(i,0)));
         }
-      }
 
-    //Fisher-scoring für theta
+      // Score-Funktion für theta
 
-    theta = thetaold + Fisher.solve(score);
-
-    // transform theta back to original parameterisation
-
-    for(i=0; i<theta.rows(); i++)
-      {
-      signs[i] = -1*(theta(i,0)<0)+1*(theta(i,0)>=0);
-      theta(i,0) *= theta(i,0);
-      thetaold(i,0) *= thetaold(i,0);
-      }*/
-
-    // transform theta
-    for(i=0; i<theta.rows(); i++)
-      {
-      thetaold(i,0)=log(sqrt(thetaold(i,0)));
-      theta(i,0)=log(sqrt(theta(i,0)));
-      }
-
-    // Score-Funktion für theta
-
-   for(j=0; j<theta.rows(); j++)
-      {
-/*      score(j,0)=-1*exp(theta(j,0))*((zcut[j+1]-zcut[j])/exp(theta(j,0))-
-                       (Hinv.getBlock(xcols+zcut[j],X.cols()+zcut[j],xcols+zcut[j+1],xcols+zcut[j+1])).trace()/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0)))-
-                       (beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]).transposed()*beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]))(0,0)/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0))));*/
-      score(j,0)=-1*((zcut[j+1]-zcut[j])-
-                       (Hinv.getBlock(xcols+zcut[j],X.cols()+zcut[j],xcols+zcut[j+1],xcols+zcut[j+1])).trace()/(exp(theta(j,0))*exp(theta(j,0)))-
-                       (beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]).transposed()*beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]))(0,0)/(exp(theta(j,0))*exp(theta(j,0))));
-      }
-
-    // Fisher-Info für theta
-
-    for(j=0; j<theta.rows(); j++)
-      {
-      for(k=j; k< theta.rows(); k++)
+     for(j=0; j<theta.rows(); j++)
         {
-//        Fisher(j,k) = 2*exp(theta(j,0))*exp(theta(k,0))*((Hinv.getBlock(xcols+zcut[j],xcols+zcut[k],xcols+zcut[j+1],xcols+zcut[k+1])*Hinv.getBlock(xcols+zcut[k],xcols+zcut[j],xcols+zcut[k+1],xcols+zcut[j+1])).trace())/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0))*exp(theta(k,0))*exp(theta(k,0))*exp(theta(k,0)));
-        Fisher(j,k) = 2*((Hinv.getBlock(xcols+zcut[j],xcols+zcut[k],xcols+zcut[j+1],xcols+zcut[k+1])*Hinv.getBlock(xcols+zcut[k],xcols+zcut[j],xcols+zcut[k+1],xcols+zcut[j+1])).trace())/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(k,0))*exp(theta(k,0)));
-        Fisher(k,j) = Fisher(j,k);
+/*        score(j,0)=-1*exp(theta(j,0))*((zcut[j+1]-zcut[j])/exp(theta(j,0))-
+                         (Hinv.getBlock(xcols+zcut[j],X.cols()+zcut[j],xcols+zcut[j+1],xcols+zcut[j+1])).trace()/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0)))-
+                         (beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]).transposed()*beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]))(0,0)/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0))));*/
+        score(j,0)=-1*((zcut[j+1]-zcut[j])-
+                         (Hinv.getBlock(xcols+zcut[j],X.cols()+zcut[j],xcols+zcut[j+1],xcols+zcut[j+1])).trace()/(exp(theta(j,0))*exp(theta(j,0)))-
+                         (beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]).transposed()*beta.getRowBlock(xcols+zcut[j],xcols+zcut[j+1]))(0,0)/(exp(theta(j,0))*exp(theta(j,0))));
         }
-      }
 
-    //Fisher-scoring für theta
+      // Fisher-Info für theta
 
-    theta = thetaold + Fisher.solve(score);
+      for(j=0; j<theta.rows(); j++)
+        {
+        for(k=j; k< theta.rows(); k++)
+          {
+//          Fisher(j,k) = 2*exp(theta(j,0))*exp(theta(k,0))*((Hinv.getBlock(xcols+zcut[j],xcols+zcut[k],xcols+zcut[j+1],xcols+zcut[k+1])*Hinv.getBlock(xcols+zcut[k],xcols+zcut[j],xcols+zcut[k+1],xcols+zcut[j+1])).trace())/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(j,0))*exp(theta(k,0))*exp(theta(k,0))*exp(theta(k,0)));
+          Fisher(j,k) = 2*((Hinv.getBlock(xcols+zcut[j],xcols+zcut[k],xcols+zcut[j+1],xcols+zcut[k+1])*Hinv.getBlock(xcols+zcut[k],xcols+zcut[j],xcols+zcut[k+1],xcols+zcut[j+1])).trace())/(exp(theta(j,0))*exp(theta(j,0))*exp(theta(k,0))*exp(theta(k,0)));
+          Fisher(k,j) = Fisher(j,k);
+          }
+        }
 
-    // transform theta back to original parameterisation
+      //Fisher-scoring für theta
 
-    for(i=0; i<theta.rows(); i++)
-      {
-      theta(i,0) = exp(theta(i,0))*exp(theta(i,0));
-      thetaold(i,0) = exp(thetaold(i,0))*exp(thetaold(i,0));
-      }
+      theta = thetaold + Fisher.solve(score);
 
-    // stop estimation of small variances
+      // transform theta back to original parameterisation
 
-    datamatrix helpmat2=datamatrix(nrtransitions,1,0);
-    for(i=0; i<nrtransitions; i++)
-      {
-      helpmat2(i,0) = eta.norm(i);
-      }
-    k=0;
-    for(i=0; i<nrtransitions; i++)
-      {
-      for(j=1; j<nrfullconds[i]; j++)
+      for(i=0; i<theta.rows(); i++)
+        {
+        theta(i,0) = exp(theta(i,0))*exp(theta(i,0));
+        thetaold(i,0) = exp(thetaold(i,0))*exp(thetaold(i,0));
+        }
+
+      // stop estimation of small variances
+
+      datamatrix helpmat2=datamatrix(nrtransitions,1,0);
+      for(i=0; i<nrtransitions; i++)
+        {
+        helpmat2(i,0) = eta.norm(i);
+        }
+      k=0;
+      for(i=0; i<nrtransitions; i++)
+        {
+        for(j=1; j<nrfullconds[i]; j++)
+          {
+          helpmat = Z.getColBlock(zcut[k],zcut[k+1])*beta.getRowBlock(xcols+zcut[k],xcols+zcut[k+1]);
+          stopcrit[k] = helpmat.norm(0)/helpmat2(i,0);
+          k++;
+          }
+        }
+      if(globalfrailty)
         {
         helpmat = Z.getColBlock(zcut[k],zcut[k+1])*beta.getRowBlock(xcols+zcut[k],xcols+zcut[k+1]);
-        stopcrit[k] = helpmat.norm(0)/helpmat2(i,0);
-        k++;
+        stopcrit[k] = helpmat.norm(0)/helpmat2.mean(0);
         }
-      }
-    if(globalfrailty)
-      {
-      helpmat = Z.getColBlock(zcut[k],zcut[k+1])*beta.getRowBlock(xcols+zcut[k],xcols+zcut[k+1]);
-      stopcrit[k] = helpmat.norm(0)/helpmat2.mean(0);
-      }
 
-    for(i=0; i<theta.rows(); i++)
-      {
-      if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
+      for(i=0; i<theta.rows(); i++)
         {
-        theta(i,0)=thetaold(i,0);
-        if(stopcrit[i]<lowerlim)
+        if(stopcrit[i]<lowerlim || theta(i,0)>maxvar)
           {
-          thetastop[i]=1;
+          theta(i,0)=thetaold(i,0);
+          if(stopcrit[i]<lowerlim)
+            {
+            thetastop[i]=1;
+            }
+          else
+            {
+            thetastop[i]=-1;
+            }
           }
         else
           {
-          thetastop[i]=-1;
+          its[i]=it;
           }
-        }
-      else
-        {
-        its[i]=it;
         }
       }
 
