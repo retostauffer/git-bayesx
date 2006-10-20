@@ -2454,6 +2454,30 @@ void spline_basis_surf::createreml(datamatrix & X,datamatrix & Z,
       Kstat = multdiagback(Kstat,vals).getColBlock(0,dimZ);
       }
     }
+
+/*
+// BEGIN: Charris
+Kstat = statmatrix<double>::diag(nrpar,1.0);
+datamatrix design(X.rows(),nrpar,0);
+datamatrix h1(nrpar,1,0);
+datamatrix h2(X.rows(),1,0);
+
+for(i=0; i<nrpar; i++)
+  {
+  h1 = Kstat.getCol(i);
+  multBS_index(h2,h1);
+  for(j=0; j<X.rows(); j++)
+    {
+    design(j,i) = h2(j,0);
+    }
+  }
+
+ofstream out1("c:\\temp\\design.raw");
+design.prettyPrint(out1);
+out1.close();
+// END: Charris
+*/
+
 /*
 // BEGIN: Susanne
   Z_VCM = Kstat;
