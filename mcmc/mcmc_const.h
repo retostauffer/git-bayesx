@@ -31,13 +31,18 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
 
   protected:
 
-  double lambda;  
+  double lambda;
 
   bool negbin;
 
   bool interceptyes;
   int interceptpos;
   double interceptadd;
+
+  // Ridge
+  bool ridge;
+  datamatrix variances;
+  // Ridge
 
   unsigned nrconst;                // number of fixed effects paramters
 
@@ -106,13 +111,18 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
 
   const FULLCOND_const & operator=(const FULLCOND_const & m);
 
+  // Ridge
+  void update_variances(datamatrix & v);
+  datamatrix get_variances(void);
+  // Ridge
+
   void update(void);
 
   virtual void update_intercept(double & m)
     {
     }
 
-  virtual void update_interceptold(double & m) 
+  virtual void update_interceptold(double & m)
     {
     }
 
@@ -223,6 +233,7 @@ class __EXPORT_TYPE FULLCOND_const_gaussian : public FULLCOND_const
   FULLCOND_const_gaussian(MCMCoptions * o,DISTRIBUTION * dp,const datamatrix & d,
                           const ST::string & t,const int & constant,
                           const ST::string & fs,const ST::string & fr,
+                          const bool & r, const datamatrix vars,
                           const unsigned & c=0);
 
   //CONSTRUCTOR2 (for factor)
@@ -310,7 +321,8 @@ class __EXPORT_TYPE FULLCOND_const_nongaussian : public FULLCOND_const
   FULLCOND_const_nongaussian(MCMCoptions* o,DISTRIBUTION * dp,
                              const datamatrix & d, const ST::string & t,
                              const int & constant, const ST::string & fs,
-                             const ST::string & fr,const unsigned & c=0);
+                             const ST::string & fr, const bool & r,
+                             const datamatrix vars, const unsigned & c=0);
 
   //CONSTRUCTOR2 (for factor)
 
@@ -362,7 +374,7 @@ class FULLCOND_const_gamma : public FULLCOND_const
 
 
 //------------------------------------------------------------------------------
-//------------------- CLASS: FULLCOND_const_nongaussian ------------------------
+//--------------------- CLASS: FULLCOND_const_nbinomial ------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE FULLCOND_const_nbinomial : public FULLCOND_const_nongaussian
@@ -384,7 +396,8 @@ class __EXPORT_TYPE FULLCOND_const_nbinomial : public FULLCOND_const_nongaussian
   FULLCOND_const_nbinomial(MCMCoptions* o,DISTRIBUTION * dp,DISTRIBUTION_nbinomial * nb,
                              const datamatrix & d, const ST::string & t,
                              const int & constant, const ST::string & fs,
-                             const ST::string & fr,const unsigned & c=0);
+                             const ST::string & fr, const bool & r,
+                             const datamatrix & vars, const unsigned & c=0);
 
   // COPY CONSTRUCTOR
 

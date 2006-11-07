@@ -1,17 +1,36 @@
 
 #include "first.h"
-
 #include "mcmc_ridge.h"
+
 
 //------------------------------------------------------------------------------
 //------------ CLASS: FULLCOND_ridge implementation of member functions --------
 //------------------------------------------------------------------------------
 
 
+
 namespace MCMC
 {
-
+          
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
+//______________________________________________________________________________
+//
+// CONSTRUCTOR with Parameters
+//
+// o         : pointer to MCMCoptions object
+// dp        : pointer to DISTRIBUTION object
+// d         : reference to datamatrix - designmatrix X
+// t         : reference to title of the full conditional
+//             (for example "fixed effects")
+// fs        : reference to file path for storing sampled parameters
+// fr        : reference to filename for storing results
+// vars      : reference to vector of variances for the ridge penalty
+// c         : reference to responsecategory
+//             (important in the case of multivariate response)
+// d.cols()  : number of rows of the beta matrix (i.e. number of parameters)
+// 1         : number of columns of the beta matrix
+//             (i.e. number of categories of the response variable)
+//______________________________________________________________________________
 
 FULLCOND_ridge::FULLCOND_ridge(MCMCoptions * o, DISTRIBUTION * dp,
                 const datamatrix & d, const ST::string & t,
@@ -19,107 +38,232 @@ FULLCOND_ridge::FULLCOND_ridge(MCMCoptions * o, DISTRIBUTION * dp,
                 const vector<double> & vars, const unsigned & c)
   : FULLCOND(o,d,t,d.cols(),1,fs)
   {
-  unsigned i;//, j;
-
-  variances = vars;
+  
+  // initialize attributes of the class FULLCOND
+  //--------------------------------------------
   nrpar = d.cols();
-  likep = dp;
-
-  linold = datamatrix(likep->get_nrobs(),1,0);
-  mu1 = datamatrix(likep->get_nrobs(),1,0);
-
   column = c;
-
-/*  XX = datamatrix(d.cols(),1,0);
-  for(i=0; i<d.rows(); i++)
-    {
-    for(j=0; j<d.cols(); j++)
-      {
-      XX(j,0) += d(i,j)*d(i,j);
-      }
-    }*/
-
-  datamatrix XX = d.transposed()*d;
-  for(i=0; i<nrpar; i++)
-    {
-    XX(i,i) = XX(i,i) + 1/variances[i];
-    }
-  X2 = XX.cinverse()*(d.transposed());
-  X1 = (XX.cinverse()).root();
-
-  setbeta(d.cols(),1,0);
-
   pathresult = fr;
   pathcurrent = fr;
+  setbeta(d.cols(),1,0);                         //initialize beta matrices
+  
+  // initialize attributes of the class FULLCOND_ridge 
+  //--------------------------------------------------      
+  variances = vars;
+  lasso = 0.01;                                                              //SET!
+  likep = dp;                      
+  linold = datamatrix(likep->get_nrobs(),1,0);   
+  mu1 = datamatrix(likep->get_nrobs(),1,0); 
+  XX = d.transposed()*d;   
+  X1 = datamatrix(d.cols(),d.cols(),0);
+  X2 = datamatrix(d.cols(),likep->get_nrobs(),0);
+  
+//-Temorär ---------------------------------------------------------------------
+  // Outputmatrix für Varianzschätzer und Lassoschätzer und Hyperparameter
+  hypr = 0.01;                                                           //SET!
+  hyps = 0.01;                                                           //SET!
+  estimVariances = datamatrix(1,d.cols(),0);
+  estimLasso = datamatrix(1,1,0);
+
+  //Ausgabe der Startwerte
+  ofstream outpHyperPar("c:/bayesx/test/results/HyperPar.txt", ios::out);
+  outpHyperPar << hypr << ' ' << hyps << endl;
+
+  ofstream outpInitialVal("c:/bayesx/test/results/InitialVal.txt", ios::out);
+  outpInitialVal << lasso << ' ';
+  for(unsigned int i=0; i<nrpar; i++)
+    {
+    outpInitialVal << variances[i] << ' ';
+    }
+  outpInitialVal << endl;
+//-Temorär Ende-----------------------------------------------------------------
   }
 
+
+//______________________________________________________________________________
+//
 // COPY CONSTRUCTOR
+//______________________________________________________________________________
 
 FULLCOND_ridge::FULLCOND_ridge(const FULLCOND_ridge & m)
   : FULLCOND(FULLCOND(m))
-  {
+  {        
   variances = m.variances;
+  lasso = m.lasso;
+  likep = m.likep;
+  linold = m.linold;
+  mu1 = m.mu1; 
+  XX = m.XX;
   X1 = m.X1;
   X2 = m.X2;
-  linold = m.linold;
-  mu1 = m.mu1;
-  likep = m.likep;
+//-Temorär ---------------------------------------------------------------------
+  hypr = m.hypr;
+  hyps = m.hyps;
+  estimVariances = m.estimVariances;
+  estimLasso = m.estimLasso;
+//-Temorär Ende-----------------------------------------------------------------
   }
 
+  
+//______________________________________________________________________________  
+//
 // OVERLOADED ASSIGNMENT OPERATOR
+//______________________________________________________________________________
 
 const FULLCOND_ridge & FULLCOND_ridge::operator=(const FULLCOND_ridge & m)
   {
   if (this == &m)
     return *this;
   FULLCOND::operator=(FULLCOND(m));
-
+      
   variances = m.variances;
+  lasso = m.lasso;
+  likep = m.likep;
+  linold = m.linold;
+  mu1 = m.mu1; 
+  XX = m.XX;
   X1 = m.X1;
   X2 = m.X2;
-  linold = m.linold;
-  mu1 = m.mu1;
-  likep = m.likep;
+//-Temorär ---------------------------------------------------------------------
+  hypr = m.hypr;
+  hyps = m.hyps;
+  estimVariances = m.estimVariances;
+  estimLasso = m.estimLasso;
+//-Temorär Ende-----------------------------------------------------------------  
 
   return *this;
   }
 
-//-------------------------- UPDATE and related methods-------------------------
 
-  // FUNCTION: update
-  // TASK: - stores sampled parameters in file 'samplepath'
-  //         storing order: first row, second row, ...
+//-------------------------- UPDATE and related methods-------------------------
+//______________________________________________________________________________
+//
+// FUNCTION: update
+// TASK: - stores sampled parameters in file 'samplepath'
+//         storing order: first row, second row, ...
+// STATUS: In Bearbeitung
+//______________________________________________________________________________
 
 void FULLCOND_ridge::update(void)
   {
+   
+  // Gibbs-Update of parameter beta with Normaldistribution
+  //--------------------------------------------------------
+     
+  // stores sampled betaparameters in file 'samplepath'
+  // computes samplemean, samplevariance,...
+  // storing order: first row, second row, ...  
   FULLCOND::update();
 
-  likep->substr_linearpred_m(linold,column);
 
+  // DO: likep.'linpred_current'[,column]=likep.'linpred_current'[,column]-linold
+  // RESULT: likep.'linpred_current'= PredictorpartNotUpdatedHere
+  likep->substr_linearpred_m(linold,column);
+ 
+ 
+  // DO: mu1=likep.'response'[,column]-likep.'linpred_current'[,column]
+  // RESULT: mu1=response-PredictorpartNotUpdatedHere
   likep->compute_respminuslinpred(mu1,column);
 
+
+  // Gibbs-Update of parameter beta 
+  // RESULT: beta=X2*mu1 + sqrt(sigma)*X1*rand_normvek(nrpar)
+  for(unsigned int i=0; i<nrpar; i++)
+    {
+    XX(i,i) = XX(i,i) + likep->get_scale(column)/variances[i];  
+    }
+  X1 = (XX.cinverse()).root();                      // X1=XX^-0.5
+  X2 = XX.cinverse()*(data.transposed());           // X2=XX^-1 * X'
   beta.mult(X2,mu1);
   beta+= sqrt(likep->get_scale(column))*X1*rand_normvek(nrpar);
 
+
+  // UpdatedPredictorpart=linold=X*beta
   linold.mult(data,beta);
+
+
+  // DO: likep.'linpred_current'[,column]=likep.'linpred_current'[,column]+linold
+  // RESULT: likep.'linpred_current'=PredictorpartNotUpdatedHere + UpdatedPredictorpart  
   likep->add_linearpred_m(linold,column);
 
+  
+  // number of accepted iterations  
   acceptance++;
 
+
+  // transform: factor with which all beta's will be multiplied before storing 
+  // trmult: multiplicative constant with which response has been transformed
   transform = likep->get_trmult(column);
+
+
   
+  // Gibbs-Update of parameter lasso with Gammadistribution
+  //--------------------------------------------------------
+  double sumvariances = 0;
+  for(unsigned int i=0; i<nrpar; i++)
+    {
+    sumvariances = sumvariances + variances[i];
+    }
+  lasso = sqrt(rand_gamma(nrpar + hypr, hyps + 0.5*sumvariances));
+//-Temorär----------------------------------------------------------------------
+// Update der Outputmatrix für Lassoschätzer
+  estimLasso = estimLasso.vcat(datamatrix(1,1,lasso));
+//-Temorär Ende-----------------------------------------------------------------
+
+  
+  // Gibbs-Update of parameters 1/tau^2: with Inverse Normaldistribution
+  //--------------------------------------------------------------------
+        
+  double* workbeta = beta.getV();
+  datamatrix matrixvariances = datamatrix(1,nrpar,0);
+  for(unsigned int i=0; i<nrpar; i++, workbeta++)
+    {
+    if (*workbeta>0)
+      {
+       variances[i] = 1.0/rand_inv_gaussian(lasso/(*workbeta), lasso*lasso);
+      }
+   else
+      {
+      variances[i] = 1.0/rand_inv_gaussian(-1.0*lasso/(*workbeta), lasso*lasso);
+      }
+   matrixvariances(0,i) = variances[i];
+    }
+//-Temorär----------------------------------------------------------------------
+// Update der Outputmatrix für Varianzschätzer und Lassoschätzer
+  estimVariances = estimVariances.vcat(matrixvariances);
+//-Temorär Ende-----------------------------------------------------------------
+
+
+  // Bedingugng zur Erzeugung des Ouutputs
+  //--------------------------------------  
   if  (optionsp->get_nriter() == optionsp->get_iterations())
     {
     FULLCOND::outresults();
     }
+
   }
 
-  // FUNCTION: outresults
-  // TASK: - write results to output window and files
+
+
+//______________________________________________________________________________
+//
+// FUNCTION: outresults
+// TASK: - write results to output window and files
+// Status: Noch nicht bearbeitet
+//______________________________________________________________________________
 
 void FULLCOND_ridge::outresults(void)
   {
   FULLCOND::outresults();
+  
+//-Temorär----------------------------------------------------------------------  
+  // Output der Matrizen für Varianzschätzer und Lassoschätzer
+  ofstream outpLasso("c:/bayesx/test/results/Lasso.txt", ios::out);
+  ofstream outpVariances("c:/bayesx/test/results/Variances.txt", ios::out);
+  estimLasso.prettyPrint(outpLasso);
+  estimVariances.prettyPrint(outpVariances);
+//-Temorär Ende-----------------------------------------------------------------
+
 
   ofstream outp(pathcurrent.strtochar());
 
@@ -248,5 +392,6 @@ void FULLCOND_ridge::outresults(void)
   }
 
 
-} // end: namespace MCMC
+}
 
+// end: namespace MCMC

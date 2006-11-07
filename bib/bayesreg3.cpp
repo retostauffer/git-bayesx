@@ -177,7 +177,7 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
                  "_merror.res","_merror");
 
       fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
-                         distr[distr.size()-1],
+//                         distr[distr.size()-1],
                          &fcnonpgaussian[fcnonpgaussian.size()-1],
                                    medata,
                                    title,
@@ -2038,7 +2038,8 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   double helpvar;
 
   vector<ST::string> varnames;
-  vector<double> variances;
+  vector<double> varhelp;
+  datamatrix variances;
 
   bool ridgecheck=false;
 
@@ -2049,12 +2050,16 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       ridgecheck=true;
       varnames.push_back(terms[i].varnames[0]);
       f = terms[i].options[1].strtodouble(helpvar);
-      variances.push_back(1/helpvar);
+      varhelp.push_back(1/helpvar);
       }
     }
 
   if(ridgecheck)
     {
+    variances = datamatrix(varhelp.size(),1,0);
+    for(i=0; i<varhelp.size(); i++)
+      variances(i,0) = varhelp[i];
+
     datamatrix data(D.rows(),varnames.size(),0);
 
     for(i=0; i<varnames.size(); i++)
@@ -2066,6 +2071,9 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
     ST::string title;
     ST::string pathconst;
     ST::string pathconstres;
+
+    vector<double> a1(data.cols(),0.1);
+    vector<double> b1(data.cols(),0.1);
 
     title = "Ridge";
     pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
@@ -2079,15 +2087,52 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       return true;
       }
 
-    fcridge.push_back(FULLCOND_ridge(&generaloptions[generaloptions.size()-1],
-            distr[distr.size()-1], data, title, pathconst, pathconstres,
-            variances,collinpred)
-            );
-    fcridge[fcridge.size()-1].init_names(varnames);
-    fcridge[fcridge.size()-1].set_fcnumber(fullcond.size());
-    fullcond.push_back(&fcridge[fcridge.size()-1]);
+    int constpos=-1;
+
+    if ( check_gaussian(collinpred))
+      {
+      normalconst.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
+                              distr[distr.size()-1], data, title, constpos,
+                              pathconst, pathconstres, true,
+                              variances, collinpred));
+
+//    normalconst.push_back(FULLCOND_ridge(&generaloptions[generaloptions.size()-1],
+//            distr[distr.size()-1], data, title, pathconst, pathconstres,
+//            variances,collinpred)
+//            );
+      normalconst[normalconst.size()-1].init_names(varnames);
+      normalconst[normalconst.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&normalconst[normalconst.size()-1]);
+
+      make_paths(collinpred,pathnonp,pathres,title,"ridge","",
+             "_var.raw","_var.res","_ridge_variance");
+      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
+          &generaloptions[generaloptions.size()-1],
+          &normalconst[normalconst.size()-1],distr[distr.size()-1],
+          a1,b1,title,pathnonp,pathres,collinpred));
+      fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
+      }
+
+    else
+      {
+      nongaussianconst.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
+                              distr[distr.size()-1], data, title, constpos,
+                              pathconst, pathconstres, true,
+                              variances, collinpred));
+      nongaussianconst[nongaussianconst.size()-1].init_names(varnames);
+      nongaussianconst[nongaussianconst.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&nongaussianconst[nongaussianconst.size()-1]);
+
+      make_paths(collinpred,pathnonp,pathres,title,"ridge","",
+             "_var.raw","_var.res","_ridge_variance");
+      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
+          &generaloptions[generaloptions.size()-1],
+          &nongaussianconst[nongaussianconst.size()-1],distr[distr.size()-1],
+          a1,b1,title,pathnonp,pathres,collinpred));
+      fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
+      }
     }
-    
+
   return false;
   }
 

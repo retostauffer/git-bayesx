@@ -706,6 +706,9 @@ void bayesreg::initpointers(void)
   for(i=0;i<fcvarnonp.size();i++)
     fullcond.push_back(&fcvarnonp[i]);
 
+  for(i=0;i<fcvarnonpvec.size();i++)
+    fullcond.push_back(&fcvarnonpvec[i]);
+
   for(i=0;i<fctvariance.size();i++)
     fullcond.push_back(&fctvariance[i]);
 
@@ -721,8 +724,8 @@ void bayesreg::initpointers(void)
   for(i=0;i<fcmerror.size();i++)
     fullcond.push_back(&fcmerror[i]);
 
-  for(i=0;i<fcridge.size();i++)
-    fullcond.push_back(&fcridge[i]);
+//  for(i=0;i<fcridge.size();i++)
+//    fullcond.push_back(&fcridge[i]);
   }
 
 
@@ -767,6 +770,9 @@ void bayesreg::clear(void)
 
   fcvarnonp.erase(fcvarnonp.begin(),fcvarnonp.end());
   fcvarnonp.reserve(40);
+
+  fcvarnonpvec.erase(fcvarnonpvec.begin(),fcvarnonpvec.end());
+  fcvarnonpvec.reserve(5);
 
   fcnonp.erase(fcnonp.begin(),fcnonp.end());
   fcnonp.reserve(20);
@@ -824,8 +830,8 @@ void bayesreg::clear(void)
   fcmerror.erase(fcmerror.begin(),fcmerror.end());
   fcmerror.reserve(2);
 
-  fcridge.erase(fcridge.begin(),fcridge.end());
-  fcridge.reserve(2);
+//  fcridge.erase(fcridge.begin(),fcridge.end());
+//  fcridge.reserve(2);
   }
 
 
@@ -2349,6 +2355,9 @@ bool bayesreg::create_const(const unsigned & collinpred)
   unsigned nr = varnames.size();
   unsigned blocksize = 10;
 
+  bool ridge = false;
+  vector<double> variances;
+
   if (nr > 0)
     {
     vector< vector<ST::string> > varnamesvec;
@@ -2447,7 +2456,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
           normalconst.push_back(FULLCOND_const_gaussian(
           &generaloptions[generaloptions.size()-1],distr[distr.size()-1],X,
                                 title,constpos,pathconst,pathconstres,
-                                collinpred));
+                                ridge, variances, collinpred));
           normalconst[normalconst.size()-1].init_names(varnamesvec[k]);
 
           normalconst[normalconst.size()-1].set_fcnumber(fullcond.size());
@@ -2476,7 +2485,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
           {
             nbinomialconst.push_back(FULLCOND_const_nbinomial(&generaloptions[generaloptions.size()-1],
                                 distr[distr.size()-1],&distr_nbinomial,X,title,constpos,pathconst,
-                                pathconstres,collinpred));
+                                pathconstres, ridge, variances, collinpred));
 
             nbinomialconst[nbinomialconst.size()-1].init_names(varnamesvec[k]);
 
@@ -2493,7 +2502,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
           {
             nongaussianconst.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
                                    distr[distr.size()-1],X,title,constpos,pathconst,pathconstres,
-                                   collinpred));
+                                   ridge, variances, collinpred));
             nongaussianconst[nongaussianconst.size()-1].init_names(varnamesvec[k]);
 
             nongaussianconst[nongaussianconst.size()-1].set_fcnumber(fullcond.size());

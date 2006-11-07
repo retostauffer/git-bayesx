@@ -34,6 +34,7 @@
 #include"tvariance2dim.h"
 #include"fullcond_adaptiv.h"
 #include"variance_nonp.h"
+#include"variance_nonp_vector.h"
 #include"fullcond_surf_gaussian.h"
 
 #include"fullcond_pspline_gaussian.h"
@@ -52,7 +53,7 @@
 //#include<IWLS_baseline.h>
 
 #include"fullcond_merror.h"
-#include"mcmc_ridge.h"
+//#include"mcmc_ridge.h"
 
 #include"mcmcsimul.h"
 
@@ -92,6 +93,7 @@ using MCMC::FULLCOND_tvariance;
 using MCMC::FULLCOND_tvariance2dim;
 using MCMC::FULLCOND_adaptiv;
 using MCMC::FULLCOND_variance_nonp;
+using MCMC::FULLCOND_variance_nonp_vector;
 using MCMC::FULLCOND_pspline;
 using MCMC::FULLCOND_pspline_gaussian;
 using MCMC::IWLS_pspline;
@@ -107,7 +109,7 @@ using MCMC::pspline_baseline;
 //using MCMC::IWLS_baseline;
 using MCMC::pspline_multibaseline;
 using MCMC::fullcond_merror;
-using MCMC::FULLCOND_ridge;
+//using MCMC::FULLCOND_ridge;
 using MCMC::MCMCsimulate;
 
 
@@ -462,7 +464,8 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   term_ridge ridge;
   bool create_ridge(const unsigned & collinpred=0);
-  vector<FULLCOND_ridge> fcridge;
+//  vector<FULLCOND_ridge> fcridge;
+  vector<FULLCOND_variance_nonp_vector> fcvarnonpvec;
 
 // ---------------------- end: for ridge regression ----------------------------
 
