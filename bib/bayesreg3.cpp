@@ -2105,7 +2105,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       fullcond.push_back(&normalconst[normalconst.size()-1]);
 
       make_paths(collinpred,pathnonp,pathres,title,"ridge","",
-             "_var.raw","_var.res","_ridge_variance");
+             "_var.raw","_var.res","_variance");
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],
           &normalconst[normalconst.size()-1],distr[distr.size()-1],
@@ -2124,7 +2124,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       fullcond.push_back(&nongaussianconst[nongaussianconst.size()-1]);
 
       make_paths(collinpred,pathnonp,pathres,title,"ridge","",
-             "_var.raw","_var.res","_ridge_variance");
+             "_var.raw","_var.res","_variance");
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],
           &nongaussianconst[nongaussianconst.size()-1],distr[distr.size()-1],

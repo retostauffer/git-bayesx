@@ -37,6 +37,10 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   vector<double> tau;
   vector<double> lambda;
 
+  double lasso;
+  FULLCOND fc_lasso;
+  void outresults_lasso(void);
+
   public:
 
   // DEFAULT CONSTRUCTOR
