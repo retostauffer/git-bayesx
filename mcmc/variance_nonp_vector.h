@@ -21,67 +21,113 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
 
   protected:
 
-  FULLCOND_const * Cp;
+  vector<double> tau;           //  vector of variances for the ridge penalty
+  vector<double> lambda;        //  should be removed as option!!!!!!!!!!!!!!!!
 
   bool update_sigma2;
 
+  unsigned column;              //
+
+  ST::string pathresults;       //  file path for storing sampled parameters
+  
+  FULLCOND_const * Cp;
+  
   DISTRIBUTION * distrp;
 
-  vector<double> a_invgamma;
-  vector<double> b_invgamma;
+  vector<double> a_invgamma;    //  Hyperparameters, not used yet
+  vector<double> b_invgamma;    //  Hyperparameters, not used yet
 
-  ST::string pathresults;
-
-  unsigned column;
-
-  vector<double> tau;
-  vector<double> lambda;
-
-  double lasso;
-  FULLCOND fc_lasso;
-  void outresults_lasso(void);
+  FULLCOND fc_lasso;            //
+  double lasso;                 //  lassoparameter
+  double a_lassogamma;          //  Hyperparameter for lasso
+  double b_lassogamma;          //  Hyperparameter for lasso
+  
+  void outresults_lasso(void);  //  Function to write results to output window and files
 
   public:
 
+  //____________________________________________________________________________
+  //
   // DEFAULT CONSTRUCTOR
+  //____________________________________________________________________________
 
   FULLCOND_variance_nonp_vector(void) : FULLCOND()
     {
     }
+    
 
-
-  // CONSTRUCTOR1
+  //____________________________________________________________________________
+  //
+  // CONSTRUCTOR
+  //____________________________________________________________________________
 
   FULLCOND_variance_nonp_vector(MCMCoptions * o, FULLCOND_const * p,
                          DISTRIBUTION * d, const vector<double> & a,
                          const vector<double> & b, const ST::string & ti,
                          const ST::string & fp, const ST::string & fr,
                          const unsigned & c);
-
+                         
+                         
+  //____________________________________________________________________________
+  //
   // COPY CONSTRUCTOR
+  //____________________________________________________________________________
 
   FULLCOND_variance_nonp_vector(const FULLCOND_variance_nonp_vector & t);
-
+  
+  
+  //____________________________________________________________________________
+  //
   // OVERLOADED ASSIGNMENT OPERATOR
+  //____________________________________________________________________________
 
   const FULLCOND_variance_nonp_vector & operator=(const FULLCOND_variance_nonp_vector & t);
+  
+  
+  //____________________________________________________________________________
+  //
+  // FUNCTION: update
+  // TASK: - stores sampled parameters in file 'samplepath'
+  //____________________________________________________________________________
 
   void update(void);
+  
+  
+  //____________________________________________________________________________
+  //
+  // FUNCTION: outresults
+  // TASK: - write results to output window and files
+  //____________________________________________________________________________
 
   void outresults(void);
+  
+  
+  //____________________________________________________________________________
+  //
+  // FUNCTION: outoptions
+  // TASK: - write options to output window
+  //____________________________________________________________________________
 
   void outoptions(void);
-
+  
+  
+  //____________________________________________________________________________
+  //
   // FUNCTION: reset
   // TASK: resets all parameters
+  //____________________________________________________________________________
 
   void reset(void)
     {
     FULLCOND::reset();
     setbeta(beta.rows(),1,0.1);
     }
-
+    
+    
+  //____________________________________________________________________________
+  //
   // DESTRUCTOR
+  //____________________________________________________________________________
 
   ~FULLCOND_variance_nonp_vector() {}
 

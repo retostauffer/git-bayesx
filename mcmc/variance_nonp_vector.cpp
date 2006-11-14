@@ -1,39 +1,83 @@
-
 #include "first.h"
-
 #include"variance_nonp_vector.h"
+
+
+
+//------------------------------------------------------------------------------
+//------------ CLASS: FULLCOND_ridge implementation of member functions --------
+//------------------------------------------------------------------------------
+
+
 
 namespace MCMC
 {
+
+using randnumbers::rand_inv_gaussian;
+
+//______________________________________________________________________________
+//
+// CONSTRUCTOR with Parameters
+//
+// o         : pointer to MCMCoptions object
+// p         : pointer to FULLCOND_const object
+// d        : pointer to DISTRIBUTION object
+// a
+// b
+// ti        : reference to title of the full conditional
+//             (for example "fixed effects")
+// fp        : reference to file path for storing sampled parameters
+// fr        : reference to filename for storing results
+// c         : reference to responsecategory
+//             (important in the case of multivariate response)
+//______________________________________________________________________________
 
 FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
                          FULLCOND_const * p,DISTRIBUTION * d,
                          const vector<double> & a, const vector<double> & b,
                          const ST::string & ti, const ST::string & fp,
-                         const ST::string & fr,
-                         const unsigned & c)
+                         const ST::string & fr, const unsigned & c)
                          : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
     {
     fctype = MCMC::variance;
+
+//  tau = Startwerte fuer Varianzen aus Optionen holen
+    
     update_sigma2 = true;
+    
     column = c;
+    
     pathresults = fr;
+    
     Cp = p;
+    
     distrp = d;
+
     a_invgamma = a;
     b_invgamma = b;
+
 //    priorassumptions.push_back("Inverse gamma prior for variance component with hyperparameters a="
 //    +ST::doubletostring(a,6)+ " and b=" + ST::doubletostring(b,6) );
+
     priorassumptions.push_back("\\\\");
 
     ST::string path = samplepath.substr(0,samplepath.length()-4)+"_lasso.raw";
+
     fc_lasso = FULLCOND(o,datamatrix(1,1),Cp->get_title()+"_lasso",1,1,path);
+
     fc_lasso.setflags(MCMC::norelchange | MCMC::nooutput);
 
-    lasso=1;
-
+    lasso = 1;                    // Startwert, aus Option holen
+    a_lassogamma = 3.33;          //  Hyperparameter for lasso aus Option holen
+    b_lassogamma = 4.44;          //  Hyperparameter for lasso aus Option holen
+  
     setbeta(Cp->get_variances());
     }
+
+
+//______________________________________________________________________________
+//
+// COPY CONSTRUCTOR
+//______________________________________________________________________________
 
 FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(const FULLCOND_variance_nonp_vector & t)
     : FULLCOND(FULLCOND(t))
@@ -47,8 +91,15 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(const FULLCOND_vari
   b_invgamma = t.b_invgamma;
   fc_lasso = t.fc_lasso;
   lasso = t.lasso;
+  a_lassogamma = t.a_lassogamma;
+  b_lassogamma = t.b_lassogamma;
   }
 
+
+//______________________________________________________________________________
+//
+// OVERLOADED ASSIGNMENT OPERATOR
+//______________________________________________________________________________
 
 const FULLCOND_variance_nonp_vector & FULLCOND_variance_nonp_vector::operator=(
                                         const FULLCOND_variance_nonp_vector & t)
@@ -65,27 +116,95 @@ const FULLCOND_variance_nonp_vector & FULLCOND_variance_nonp_vector::operator=(
   b_invgamma = t.b_invgamma;
   fc_lasso = t.fc_lasso;
   lasso = t.lasso;
+  a_lassogamma = t.a_lassogamma;
+  b_lassogamma = t.b_lassogamma;
   return *this;
   }
 
 
+//______________________________________________________________________________
+//
+// FUNCTION: update
+// TASK: - stores sampled parameters in file 'samplepath'
+//         storing order: first row, second row, ...
+//______________________________________________________________________________
+
 void FULLCOND_variance_nonp_vector::update(void)
   {
   acceptance++;
+  
+  double * lassop = fc_lasso.getbetapointer();        // current value of lassoparameter
 
-  // Hier kommen die Update-Schritte fuer die Varianzen hin.
+  // Gibbs-Update of varianceparameters 1/tau^2 with Inverse Normaldistribution
+  //--------------------------------------------------------------------
+  double * workbeta = Cp->getbetapointer();           // current value of first regressionparameter
 
+  ofstream output("c:/bayesx/test/test.txt", ios::out|ios::app);
+  ofstream outputlasso("c:/bayesx/test/lasso.txt", ios::out|ios::app);
+  outputlasso << *lassop << "\n";
+  output << "fall " << "index " << "randinvgaussian " << "beta " << "lasso " <<"\n";
+
+  for(unsigned int i=0; i<nrpar; i++, workbeta++)
+    {
+    if (*workbeta>0 && *lassop>0)
+      {
+      double rand_invgaussian = rand_inv_gaussian((*lassop)/(*workbeta), (*lassop)*(*lassop));
+
+      output << "*workbeta>0 && *lassop>0 " << i << " " << rand_invgaussian << " " << *workbeta << " " << *lassop << "\n" ;
+
+      beta(i,0) = 1.0/rand_invgaussian;
+      }
+    if (*workbeta<0 && *lassop>0)
+      {
+      double rand_invgaussian = rand_inv_gaussian(-1.0*(*lassop)/(*workbeta), (*lassop)*(*lassop));
+
+      output << "*workbeta<0 && *lassop>0 " << i << " " << rand_invgaussian << " " << *workbeta << " " << *lassop << "\n" ;
+
+      beta(i,0) = 1.0/(rand_invgaussian + 1E-8);
+      }
+    if (*workbeta==0 || *lassop<=0)
+      {
+      output <<"else" << i << " " << *workbeta << " " << *lassop << "\n" ;
+      beta(i,0) = 1E-6;
+      }
+    }
   // Ergebnisse zu den Regressionskoeffizienten zurueckschreiben
   Cp->update_variances(beta);
 
-  // Lasso-Parameter abspeichern
-  double * lassop = fc_lasso.getbetapointer();
-  *lassop = lasso;
+  // Gibbs-Update of lassoparameter with Gammadistribution
+  //--------------------------------------------------------
+
+  double sumvariances = 0;
+  double * workbetamean = betamean.getV();               // mean of variances
+
+  datamatrix variances = Cp->get_variances();          // current variances
+  for(unsigned int i=0; i<nrpar; i++)
+    {
+    sumvariances = sumvariances + variances(i,0);      // sum of current variances
+    }
+  *lassop = sqrt(rand_gamma(nrpar + a_lassogamma, b_lassogamma + 0.5*sumvariances));
+
+  outputlasso << "beta1 " << beta(0,0) << "\n";
+  outputlasso << "betamean " << *workbetamean << "\n";
+  outputlasso << "betamean " << *(workbetamean + 1) << "\n";
+  outputlasso << "sample " << optionsp->get_samplesize() << "\n";
+  outputlasso << "burnin " << optionsp->get_burnin() << "\n";
+  outputlasso << "iterationen " << optionsp->get_nriter() << "\n";
+  outputlasso << "lassonew " << *lassop << "\n";
+
+  // Update lassoparameter
   fc_lasso.update();
 
+  // Update varianceparameter
   FULLCOND::update();
   }
 
+
+//______________________________________________________________________________
+//
+// FUNCTION: outresults
+// TASK: - write results to output window and files
+//______________________________________________________________________________
 
 void FULLCOND_variance_nonp_vector::outresults(void)
   {
@@ -132,6 +251,13 @@ void FULLCOND_variance_nonp_vector::outresults(void)
 
   outresults_lasso();
   }
+
+
+//______________________________________________________________________________
+//
+// FUNCTION: outresults_lasso
+// TASK: - write results to output window and files
+//______________________________________________________________________________
 
 void FULLCOND_variance_nonp_vector::outresults_lasso(void)
   {
@@ -218,17 +344,28 @@ void FULLCOND_variance_nonp_vector::outresults_lasso(void)
   }
 
 
+//______________________________________________________________________________
+//
+// FUNCTION: outoptions
+// TASK: - write options to output window
+//______________________________________________________________________________
+
 void FULLCOND_variance_nonp_vector::outoptions(void)
   {
   optionsp->out("  Hyperprior a for variance parameter: " +
                    ST::doubletostring(a_invgamma[0]) + "\n" );
   optionsp->out("  Hyperprior b for variance parameter: " +
                    ST::doubletostring(b_invgamma[0]) + "\n" );
+  optionsp->out("  Hyperprior a for lasso parameter: " +
+                   ST::doubletostring(a_lassogamma) + "\n" );
+  optionsp->out("  Hyperprior b for lasso parameter: " +
+                   ST::doubletostring(b_lassogamma) + "\n" );
   optionsp->out("\n");
   }
 
 
 } // end: namespace MCMC
+
 
 
 
