@@ -2023,7 +2023,10 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
   int f;
 
   unsigned i;
-  int j1,j2;
+  int j1,j2,k;
+
+  datamatrix data1;
+  datamatrix data2;
   for(i=0;i<terms.size();i++)
     {
     if ( nonpvarcoeffpspline.checkvector(terms,i) == true )
@@ -2034,8 +2037,35 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
       else
         type = MCMC::RW2;
 
-      j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
       j2 = terms[i].varnames[1].isinlist(modelvarnamesv); // effectmod
+
+      ST::string test ="test";
+      if(terms[i].varnames[0].length()>12)
+        {
+        test = terms[i].varnames[0].substr(terms[i].varnames[0].length()-12,12);
+        }
+      if(test=="_catspecific")
+        // category specific interacting variable
+        {
+        test = terms[i].varnames[0].substr(0,terms[i].varnames[0].length()-12);
+        data1 = datamatrix(allcats.size()*D.rows(),1,0);
+        data2 = datamatrix(allcats.size()*D.rows(),1,0);
+        for(k=0; k<allcats.size(); k++)
+          {
+          j1 = (test+ST::inttostring(allcats[k])).isinlist(modelvarnamesv);
+          data1.putRowBlock(k*D.rows(), (k+1)*D.rows(), D.getCol(j1));
+          data2.putRowBlock(k*D.rows(), (k+1)*D.rows(), D.getCol(j2));
+          }
+        terms[i].varnames[0] = test;
+        test="_catspecific";
+        }
+      else
+        // no category specific interacting variable
+        {
+        j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interacting var
+        data1 = D.getCol(j1);
+        data2 = D.getCol(j2);
+        }
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
@@ -2043,7 +2073,7 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
       nrknots = unsigned(h);
       f = (terms[i].options[3]).strtodouble(lambda);
       f = (terms[i].options[4]).strtodouble(startlambda);
-      if(terms[i].options[5] == "true")
+      if(terms[i].options[5] == "true" || test=="_catspecific")
         {
         catsp=true;
         }
@@ -2072,8 +2102,8 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
                  "_pspline.raw","_pspline.res","_pspline");
 
       fcpspline.push_back( spline_basis(&generaloptions,
-                                              D.getCol(j2),
-                                              D.getCol(j1),
+                                              data2,
+                                              data1,
                                               nrknots,
                                               degree,
                                               po,
@@ -4732,6 +4762,7 @@ void mremlrun(remlreg & b)
 #if defined(BORLAND_OUTPUT_WINDOW)
 #pragma package(smart_init)
 #endif
+
 
 
 

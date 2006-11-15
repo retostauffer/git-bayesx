@@ -3188,15 +3188,32 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
     {
     if(varcoeff && !centervcm)
       {
-      double * workX;
-      unsigned Xcols = X.cols();
-
-      workX = X.getV()+Xpos;
-
-      double * workintact = data_forfixed.getV();
-      for (i=0;i<spline.rows();i++,workintact++,workX+=Xcols)
+      if(X.rows()<spline.rows())
+      // category specific interacting var
         {
-        *workX = *workintact;
+        unsigned nrcat2 = spline.rows()/X.rows()-1;
+        unsigned nrobs=X.rows();
+        for(i=0; i<X.rows(); i++)
+          {
+          for(j=0; j<nrcat2; j++)
+            {
+            X(i,Xpos+j) = data_forfixed(j*nrobs+i,0) - data_forfixed(nrcat2*nrobs+i,0);
+            }
+          }
+        }
+      else
+      // no category interacting var
+        {
+        double * workX;
+        unsigned Xcols = X.cols();
+
+        workX = X.getV()+Xpos;
+
+        double * workintact = data_forfixed.getV();
+        for (i=0;i<spline.rows();i++,workintact++,workX+=Xcols)
+          {
+          *workX = *workintact;
+          }
         }
       }
     }
@@ -3231,15 +3248,31 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
     if(X.rows()<spline.rows())
     // category specific covariates
       {
-      X_VCM = spline;
-
       unsigned nrcat2 = spline.rows()/X.rows()-1;
       unsigned nrobs=X.rows();
-      for(i=0; i<X.rows(); i++)
+      if(varcoeff)
         {
-        for(j=0; j<nrcat2; j++)
+        X_VCM.putCol(1,spline);
+
+        for(i=0; i<X.rows(); i++)
           {
-          X(i,Xpos+j) = spline(j*nrobs+i,0) - spline(nrcat2*nrobs+i,0);
+          for(j=0; j<nrcat2; j++)
+            {
+            X(i,Xpos+2*j) = data_forfixed(j*nrobs+i,0) - data_forfixed(nrcat2*nrobs+i,0);
+            X(i,Xpos+2*j+1) = spline(i,0)*(data_forfixed(j*nrobs+i,0) - data_forfixed(nrcat2*nrobs+i,0));
+            }
+          }
+        }
+      else
+        {
+        X_VCM = spline;
+
+        for(i=0; i<X.rows(); i++)
+          {
+          for(j=0; j<nrcat2; j++)
+            {
+            X(i,Xpos+j) = spline(j*nrobs+i,0) - spline(nrcat2*nrobs+i,0);
+            }
           }
         }
       }
@@ -3306,16 +3339,33 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
       {
       unsigned nrcat2 = spline.rows()/Z.rows()-1;
       unsigned nrobs=Z.rows();
-      for(i=0; i<nrobs; i++)
+      if(varcoeff)
         {
-        for(k=0; k<nrcat2; k++)
+        for(i=0; i<nrobs; i++)
           {
-          Z(i, Zpos + k*dimZ + j) = spline(k*nrobs+i,0) - spline(nrcat2*nrobs+i,0);
+          for(k=0; k<nrcat2; k++)
+            {
+            Z(i, Zpos + k*dimZ + j) = spline(i,0)*(data_forfixed(k*nrobs+i,0) - data_forfixed(nrcat2*nrobs+i,0));
+            }
+          }
+        for(i=0; i<spline.rows(); i++)
+          {
+          Z_VCM(i,j) = spline(i,0);
           }
         }
-      for(i=0; i<spline.rows(); i++)
+      else
         {
-        Z_VCM(i,j) = spline(i,0);
+        for(i=0; i<nrobs; i++)
+          {
+          for(k=0; k<nrcat2; k++)
+            {
+            Z(i, Zpos + k*dimZ + j) = spline(k*nrobs+i,0) - spline(nrcat2*nrobs+i,0);
+            }
+          }
+        for(i=0; i<spline.rows(); i++)
+          {
+          Z_VCM(i,j) = spline(i,0);
+          }
         }
       }
     else
@@ -3357,7 +3407,6 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
         }
       }
     }
-
   }
 
 
@@ -3814,4 +3863,5 @@ int main()
 	return(0);
 }
 #endif
+
 
