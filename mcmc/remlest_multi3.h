@@ -162,7 +162,8 @@ class remlest_multinomial_catsp
   // FUNCTION: compute_sscp2
   // TASK: Computes the weighted SSCP matrix for X and Z
 
-  void compute_sscp2(datamatrix & H, datamatrix & workweight);
+  void compute_sscp2(datamatrix & H, datamatrix & workweight,
+                     const datamatrix & Xneu, const datamatrix & Zneu);
 
   // FUNCTION: compute_sscp_resp
   // TASK: Computes the SSCP matrix X'W worky
@@ -172,7 +173,8 @@ class remlest_multinomial_catsp
   // FUNCTION: compute_sscp_resp2
   // TASK: Computes the SSCP matrix (X Z)'W worky
 
-  void compute_sscp_resp2(datamatrix & H1, datamatrix & workweight, datamatrix & worky);
+  void compute_sscp_resp2(datamatrix & H1, datamatrix & workweight, datamatrix & worky,
+                          const datamatrix & Xneu, const datamatrix & Zneu);
 
 //------------------------------------------------------------------------------
 //----------------------------- Object description -----------------------------

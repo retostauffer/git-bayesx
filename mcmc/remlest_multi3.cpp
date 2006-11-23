@@ -367,6 +367,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
        }
     }                                                                             // Ende zur for-Schleife für Z
 
+
 // Berechnen von Xneu' unter XneuTr
 
    datamatrix XneuTr = Xneu.transposed();
@@ -483,6 +484,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
     if (stop)
       return true;
 
+/*
 // zu Xneu und Zneu: Dimensionen
 // von oben:
 // datamatrix   Xneu            (   nrobs*nrcat2,    xcutbeta[xcutbeta.size()-1],  0);
@@ -579,7 +581,10 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
 
    H1.putRowBlock(0, xcutbeta[xcutbeta.size()-1], H1_0 );
    H1.putRowBlock(xcutbeta[xcutbeta.size()-1], xcutbeta[xcutbeta.size()-1]+zcutbeta[zcutbeta.size()-1], H1_1 );
+*/
 
+    compute_sscp_resp2(H1,workweight,worky,Xneu,Zneu);
+    compute_sscp2(H,workweight,Xneu,Zneu);
 
     H.addtodiag(Qinv,totalnrfixed,totalnrpar);
 
@@ -1532,6 +1537,78 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & wo
                         (respind.getRowBlock(i*nrcat2,(i+1)*nrcat2)-mu.getRowBlock(i*nrcat2,(i+1)*nrcat2)));
       }
     }*/
+  }
+
+void remlest_multinomial_catsp::compute_sscp_resp2(datamatrix & H1, datamatrix & workweight, datamatrix & worky,
+                                const datamatrix & Xneu, const datamatrix & Zneu)
+  {
+  unsigned i,j;
+  unsigned xcols = Xneu.cols();
+  unsigned zcols = Zneu.cols();
+//  H1=datamatrix(H1.rows(),1,0);
+  datamatrix weightytemp=datamatrix(worky.rows(),1,0);
+  for(i=0; i<nrobs;i++)
+    {
+    weightytemp.putRowBlock(i*nrcat2,(i+1)*nrcat2,workweight.getRowBlock(i*nrcat2,(i+1)*nrcat2)*worky.getRowBlock(i*nrcat2,(i+1)*nrcat2));
+    }
+  for(j=0; j<xcols; j++)
+    {
+    H1(j,0) = (((Xneu.getCol(j)).transposed())*weightytemp)(0,0);
+    }
+  for(j=0; j<zcols; j++)
+    {
+    H1(xcols+j,0) = (((Zneu.getCol(j)).transposed())*weightytemp)(0,0);
+    }
+//  H1.putRowBlock(0,Xneu.cols(),Xneu.transposed()*weightytemp);
+//  H1.putRowBlock(Xneu.cols(),Xneu.cols()+Zneu.cols(),Zneu.transposed()*weightytemp);
+  }
+
+void remlest_multinomial_catsp::compute_sscp2(datamatrix & H, datamatrix & workweight,
+                                const datamatrix & Xneu, const datamatrix & Zneu)
+  {
+  unsigned i,j,k;
+  unsigned xcols = Xneu.cols();
+  unsigned zcols = Zneu.cols();
+//  H1=datamatrix(H1.rows(),1,0);
+  datamatrix temp=datamatrix(Zneu.rows(),1,0);
+//  datamatrix temp2;
+  for(j=0; j<zcols; j++)
+    {
+    for(i=0; i<nrobs;i++)
+      {
+      temp.putRowBlock(i*nrcat2,(i+1)*nrcat2,workweight.getRowBlock(i*nrcat2,(i+1)*nrcat2)*Zneu.getBlock(i*nrcat2,j,(i+1)*nrcat2,j+1));
+      }
+    for(k=j; k<zcols; k++)
+      {
+      H(xcols+j,xcols+k) = (((Zneu.getCol(k)).transposed())*temp)(0,0);
+      H(xcols+k,xcols+j) = H(xcols+j,xcols+k);
+      }
+//    temp2 = Zneu.transposed()*temp;
+//    H.putBlock(temp2,xcols,xcols+j,xcols+zcols,xcols+j+1);
+    }
+  for(j=0; j<xcols; j++)
+    {
+    for(i=0; i<nrobs;i++)
+      {
+      temp.putRowBlock(i*nrcat2,(i+1)*nrcat2,workweight.getRowBlock(i*nrcat2,(i+1)*nrcat2)*Xneu.getBlock(i*nrcat2,j,(i+1)*nrcat2,j+1));
+      }
+    for(k=0; k<zcols; k++)
+      {
+      H(j,xcols+k) = (((Zneu.getCol(k)).transposed())*temp)(0,0);
+      H(xcols+k,j) = H(j,xcols+k);
+      }
+//    temp2 = Zneu.transposed()*temp;
+//    H.putBlock(temp2,xcols,j,xcols+zcols,j+1);
+//    H.putBlock(temp2.transposed(),j,xcols,j+1,xcols+zcols);
+
+    for(k=j; k<xcols; k++)
+      {
+      H(j,k) = (((Xneu.getCol(k)).transposed())*temp)(0,0);
+      H(k,j) = H(j,k);
+      }
+//    temp2 = Xneu.transposed()*temp;
+//    H.putBlock(temp2,0,j,xcols,j+1);
+    }
   }
 
 //------------------------------------------------------------------------------
