@@ -177,8 +177,8 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
                  "_merror.res","_merror");
 
       fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
-//                         distr[distr.size()-1],
                          &fcnonpgaussian[fcnonpgaussian.size()-1],
+                         distr[distr.size()-1],
                                    medata,
                                    title,
                                    pathres)

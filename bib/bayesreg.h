@@ -322,6 +322,10 @@ class __EXPORT_TYPE bayesreg : public statobject
                                        // interavals etc. not possible
   // general MCMC options
 
+// BEGIN: merror
+  intoption merror;
+// END: merror
+
   intoption nutlink;
 
   simpleoption constscale;

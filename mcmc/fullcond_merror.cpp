@@ -13,18 +13,20 @@ namespace MCMC
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
-  // CONSTRUCTOR
+  // CONSTRUCTOR (Susi)
   // o    : pointer to MCMCoptions object
   // t    : title of the full conditional (for example "fixed effects")
   //        (i.e. number of categories of the response variable)
   // fp   : file path for storing sampled parameters
 
   fullcond_merror::fullcond_merror(MCMCoptions * o, FULLCOND_nonp_gaussian * p,
-           const datamatrix & d, const ST::string & t, const ST::string & fp)
+           DISTRIBUTION * dp, const datamatrix & d, const ST::string & t, const ST::string & fp)
                          : FULLCOND(o,d,t,d.rows(),d.cols(),fp)
     {
     designp = p;
+    likep = dp;
 
+    varcoeff=true;
     unsigned i, j;
     datamatrix meandata = datamatrix(d.rows(),1,0);
     unsigned dcols = d.cols();
@@ -39,12 +41,40 @@ namespace MCMC
     setbeta(meandata);
     }
 
+// BEGIN: merror
+  // CONSTRUCTOR (Thomas)
+  fullcond_merror::fullcond_merror(MCMCoptions * o, spline_basis * p, DISTRIBUTION * dp,
+           const datamatrix & d, const ST::string & t, const ST::string & fp)
+                         : FULLCOND(o,d,t,d.rows(),d.cols(),fp)
+  {
+    splinep = p;
+    likep= dp;
+    varcoeff=false;
+    unsigned i, j;
+    datamatrix meandata = datamatrix(d.rows(),1,0);
+    unsigned dcols = d.cols();
+    for(i=0; i<d.rows(); i++)
+      {
+      for(j=0; j<dcols; j++)
+        {
+        meandata(i,0) = d(i,j);
+        }
+      meandata(i,0) /= dcols;
+      }
+    setbeta(meandata);
+  }
+// END: merror
+
   // COPY CONSTRUCTOR
 
   fullcond_merror::fullcond_merror(const fullcond_merror & m)
     : FULLCOND(FULLCOND(m))
     {
     designp = m.designp;
+    likep = m.likep;
+// BEGIN: merror
+    splinep = m.splinep;
+// END: merror
     }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -56,6 +86,10 @@ namespace MCMC
     FULLCOND::operator=(FULLCOND(m));
 
     designp = m.designp;
+    likep = m.likep;
+// BEGIN: merror
+    splinep = m.splinep;
+// END: merror
 
     return *this;
     }
@@ -66,9 +100,14 @@ namespace MCMC
 
   void fullcond_merror::update(void)
     {
+    if(varcoeff)
+      {
+      designp->init_data_varcoeff(beta);
+      }
+    else
+      {
 
-
-    designp->init_data_varcoeff(beta);
+      }
     }
 
 

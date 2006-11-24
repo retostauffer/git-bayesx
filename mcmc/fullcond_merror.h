@@ -14,7 +14,7 @@
 #include "fullcond.h"
 #include "mcmc_nonpbasis.h"
 #include "fullcond_nonp_gaussian.h"
-
+#include "spline_basis.h"
 
 namespace MCMC
 {
@@ -24,6 +24,12 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   protected:
 
   FULLCOND_nonp_gaussian * designp;
+  DISTRIBUTION * likep;
+
+// BEGIN: merror
+  spline_basis * splinep;
+  bool varcoeff;
+// END: merror
 
   public:
 
@@ -35,14 +41,20 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
     {
     }
 
-  // CONSTRUCTOR
+  // CONSTRUCTOR : Susi (Measurement error in the interaction variable of a VCM)
   // o    : pointer to MCMCoptions object
   // t    : title of the full conditional (for example "fixed effects")
   //        (i.e. number of categories of the response variable)
   // fp   : file path for storing sampled parameters
 
-  fullcond_merror(MCMCoptions * o, FULLCOND_nonp_gaussian * p,
+  fullcond_merror(MCMCoptions * o, FULLCOND_nonp_gaussian * p, DISTRIBUTION * dp,
            const datamatrix & d, const ST::string & t, const ST::string & fp);
+
+// BEGIN: merror
+  // CONSTRUCTOR : Thomas (Measurement error in a nonparametric effect)
+  fullcond_merror(MCMCoptions * o, spline_basis * p, DISTRIBUTION * dp,
+           const datamatrix & d, const ST::string & t, const ST::string & fp);
+// END: merror
 
   // COPY CONSTRUCTOR
 
