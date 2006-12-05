@@ -446,19 +446,34 @@ class __EXPORT_TYPE basic_termtype
 //------------------------------------------------------------------------------
 //------------------------------- class term_ridge -----------------------------
 //------------------------------------------------------------------------------
-
 // Category-specific fixed effects in cumulative or sequential models
 
 class __EXPORT_TYPE term_ridge : public basic_termtype
   {
   protected:
 
-  // add options here
-  // option types are intoption, doubleoption, simpleoption
-  // see the example below
-
+  // Startwert für Varianz
   doubleoption lambda;
+  // // Alternativ: Startwert für die Varianzparameter
+  // doubleoption taustart;
+  
+  // Startwert für den Lassoparameter lasso
+  doubleoption lassostart;
+  
+  // Hyperparameter der Lassopriori
+  doubleoption a_lasso;
+  doubleoption b_lasso;
 
+  // Feste Werte für den Lassoparameter
+  simpleoption lassofix;
+  
+  // Untere und obere Intervallgrenze für die festen Werte des Lassoparameters
+  doubleoption lassomin;
+  doubleoption lassomax;
+  //Anzahl der Punkte für das Intervall [lassomin,lassomax]
+  intoption lassogrid;
+  
+  // FUNCTION: setdefault
   void setdefault(void);
 
   public:
@@ -466,15 +481,18 @@ class __EXPORT_TYPE term_ridge : public basic_termtype
   // DEFAULT CONSTRUCTOR
 
   term_ridge(void);
+  
 
   // FUNCTION: check
 
   bool check(term & t);
+  
 
   // FUNCTION: checkvector
   // TASK: returns true if term 'i' is a category-specific fixed effect
 
   bool checkvector(const vector<term>  & terms,const unsigned & i);
+
 
   // DESTRUCTOR
 

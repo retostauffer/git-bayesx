@@ -2033,13 +2033,26 @@ bool bayesreg::create_varcoeffmultibaseline(const unsigned & collinpred)
 
 bool bayesreg::create_ridge(const unsigned & collinpred)
   {
+
+  // options
+  double lassostart;
+  double a_lassogamma;
+  double b_lassogamma;
+  bool lassofix;
+  double lassomin;
+  double lassomax;
+  int lassogrid;
+  
+  datamatrix variances;
+
   int j, f;
   unsigned i;
   double helpvar;
-
+  long h;
+  
   vector<ST::string> varnames;
   vector<double> varhelp;
-  datamatrix variances;
+
 
   bool ridgecheck=false;
 
@@ -2051,15 +2064,31 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       varnames.push_back(terms[i].varnames[0]);
       f = terms[i].options[1].strtodouble(helpvar);
       varhelp.push_back(1/helpvar);
+      
+      // letzter Term enthält die verwendeten Werte
+      f = (terms[i].options[2]).strtodouble(lassostart);
+      f = (terms[i].options[3]).strtodouble(a_lassogamma);
+      f = (terms[i].options[4]).strtodouble(b_lassogamma);
+      if (terms[i].options[5] == "true")
+        lassofix = true;
+      else
+        lassofix = false;
+      f = (terms[i].options[6]).strtodouble(lassomin);
+      f = (terms[i].options[7]).strtodouble(lassomax);
+      f = (terms[i].options[8]).strtolong(h);
+      lassogrid = unsigned(h);
       }
     }
 
   if(ridgecheck)
     {
+
+    // Varianzen
     variances = datamatrix(varhelp.size(),1,0);
     for(i=0; i<varhelp.size(); i++)
       variances(i,0) = varhelp[i];
 
+    // Daten
     datamatrix data(D.rows(),varnames.size(),0);
 
     for(i=0; i<varnames.size(); i++)
@@ -2068,13 +2097,14 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       data.putCol(i, D.getCol(j));
       }
 
-    ST::string title;
-    ST::string pathconst;
-    ST::string pathconstres;
-
+    // Werte für inverse Gammaverteilung (Derzeit nicht in Gebrauch)
     vector<double> a1(data.cols(),0.1);
     vector<double> b1(data.cols(),0.1);
 
+    // Titel und Pfade zur Datenspeicherung
+    ST::string title;
+    ST::string pathconst;
+    ST::string pathconstres;
     title = "Ridge";
     pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                        + add_name + "_ridge" + ".raw";
@@ -2087,34 +2117,43 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       return true;
       }
 
+    // keine Intercept
     int constpos=-1;
 
+
+    // Case: Gaussian
     if ( check_gaussian(collinpred))
       {
+
+      // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
       normalconst.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
                               distr[distr.size()-1], data, title, constpos,
                               pathconst, pathconstres, true,
                               variances, collinpred));
 
-//    normalconst.push_back(FULLCOND_ridge(&generaloptions[generaloptions.size()-1],
-//            distr[distr.size()-1], data, title, pathconst, pathconstres,
-//            variances,collinpred)
-//            );
       normalconst[normalconst.size()-1].init_names(varnames);
       normalconst[normalconst.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&normalconst[normalconst.size()-1]);
 
       make_paths(collinpred,pathnonp,pathres,title,"ridge","",
              "_var.raw","_var.res","_variance");
+
+      // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],
           &normalconst[normalconst.size()-1],distr[distr.size()-1],
-          a1,b1,title,pathnonp,pathres,collinpred));
+          a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,lassofix,
+          lassomin,lassomax,lassogrid,collinpred));
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
+//      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_lassopointer());
       }
 
+
+    // Case: NonGaussian
     else
       {
+
+      // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
       nongaussianconst.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
                               distr[distr.size()-1], data, title, constpos,
                               pathconst, pathconstres, true,
@@ -2125,18 +2164,20 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
 
       make_paths(collinpred,pathnonp,pathres,title,"ridge","",
              "_var.raw","_var.res","_variance");
+
+     // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],
           &nongaussianconst[nongaussianconst.size()-1],distr[distr.size()-1],
-          a1,b1,title,pathnonp,pathres,collinpred));
+          a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,lassofix,
+          lassomin,lassomax,lassogrid,collinpred));
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
+//      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_lassopointer());
       }
     }
 
   return false;
   }
-
-
 
 void regressrun(bayesreg & b)
   {

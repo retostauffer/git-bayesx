@@ -21,8 +21,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
 
   protected:
 
-  vector<double> tau;           //  vector of variances for the ridge penalty
-  vector<double> lambda;        //  should be removed as option!!!!!!!!!!!!!!!!
+  vector<double> tau;           //  Wozu sind diese Vektoren (löschen veursacht Probleme in BayesX)!!!!!!!!!!!!!
+  vector<double> lambda;        //  Wozu sind diese Vektoren (löschen veursacht Probleme in BayesX)!!!!!!!!!!!!!!
 
   bool update_sigma2;
 
@@ -37,10 +37,13 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   vector<double> a_invgamma;    //  Hyperparameters, not used yet
   vector<double> b_invgamma;    //  Hyperparameters, not used yet
 
-  FULLCOND fc_lasso;            //
-  double lasso;                 //  lassoparameter
+  FULLCOND fc_lasso;
+  bool lassofix;                //  Lassoparameter fix
   double a_lassogamma;          //  Hyperparameter for lasso
   double b_lassogamma;          //  Hyperparameter for lasso
+  double lassomin;              //  Lower interval limit
+  double lassomax;              //  Upper interval limit
+  int lassogrid;                //  Interval gridpoints
   
   void outresults_lasso(void);  //  Function to write results to output window and files
 
@@ -65,8 +68,10 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
                          DISTRIBUTION * d, const vector<double> & a,
                          const vector<double> & b, const ST::string & ti,
                          const ST::string & fp, const ST::string & fr,
-                         const unsigned & c);
-                         
+                         const double & lasso_start, const double & a_lasso_gamma,
+                         const double & b_lasso_gamma, const bool & lasso_fix,
+                         const double & lasso_min, const double & lasso_max,
+                         const int lasso_grid, const unsigned & c);
                          
   //____________________________________________________________________________
   //
@@ -82,8 +87,11 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   //____________________________________________________________________________
 
   const FULLCOND_variance_nonp_vector & operator=(const FULLCOND_variance_nonp_vector & t);
-  
-  
+
+
+  // Pointer auf das lasso-Parameter Fullcond-Objekt
+  FULLCOND * get_lassopointer();
+
   //____________________________________________________________________________
   //
   // FUNCTION: update
@@ -138,5 +146,4 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
 } // end: namespace MCMC
 
 #endif
-
 
