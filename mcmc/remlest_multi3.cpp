@@ -367,7 +367,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
        }
     }                                                                             // Ende zur for-Schleife für Z
 
-
+/*
 // Berechnen von Xneu' unter XneuTr
 
    datamatrix XneuTr = Xneu.transposed();
@@ -395,7 +395,7 @@ bool remlest_multinomial_catsp::estimate(const datamatrix resp, const datamatrix
    datamatrix  H1_1 (zcutbeta[zcutbeta.size()-1],  1, 0);
 
 // Hilfsmatrix zum Berechnen der Zeilen von Zneu' workweight
-   datamatrix H_11hilf (1, nrobs*nrcat2,  0);
+   datamatrix H_11hilf (1, nrobs*nrcat2,  0);*/
 
 // ----------------------------------------------------------------------------
 // --- Ende: Konstruiere großes X und Z
