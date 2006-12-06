@@ -303,7 +303,7 @@ void FULLCOND_variance_nonp_vector::outresults(void)
 void FULLCOND_variance_nonp_vector::outresults_lasso(void)
   {
 
-//  fc_lasso.outresults();
+  fc_lasso.outresults();
 
   ST::string l1 = ST::doubletostring(lower1,4);
   ST::string l2 = ST::doubletostring(lower2,4);
