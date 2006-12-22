@@ -29,6 +29,15 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
 // BEGIN: merror
   spline_basis * splinep;
   bool varcoeff;
+
+  double maxx;
+  double minx;
+
+  datamatrix meandata;
+
+  datamatrix old;
+
+  statmatrix<int> index;
 // END: merror
 
   public:
@@ -53,7 +62,8 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
 // BEGIN: merror
   // CONSTRUCTOR : Thomas (Measurement error in a nonparametric effect)
   fullcond_merror(MCMCoptions * o, spline_basis * p, DISTRIBUTION * dp,
-           const datamatrix & d, const ST::string & t, const ST::string & fp);
+           const datamatrix & d, const ST::string & t, const ST::string & fp,
+           const ST::string & pres);
 // END: merror
 
   // COPY CONSTRUCTOR

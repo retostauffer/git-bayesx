@@ -3852,6 +3852,59 @@ void spline_basis::outoptionsreml()
   optionsp->out("\n");
   }
 
+// ------------------------- FOR MERROR ----------------------------------------
+
+void spline_basis::update_merror(datamatrix & newdata)
+  {
+  unsigned i,j,k;
+  double value;
+
+  freq = vector<int>();
+//  firstnonzero = deque<int>();
+//  lastnonzero = deque<int>();
+//  knot = deque<double>();
+  begcol = vector<int>();
+  index2 = vector<int>();
+
+  make_index(newdata);
+  make_index2();
+//  make_Bspline(newdata);
+
+  datamatrix help(nrpar,1,0.0);
+  Bcolmean = datamatrix(nrpar,1,0.0);
+
+  BS = datamatrix(nrdiffobs,degree+1,0.0);
+  double * work = BS.getV();
+
+  vector<int>::iterator freqwork = freq.begin();
+  for(i=0;i<newdata.rows();i++,++freqwork)
+    {
+    value = newdata(index(i,0),0);
+    if(freqwork == freq.begin() || *freqwork != *(freqwork-1))
+      {
+      j=0;
+      while(knot[degree+j+1] <= value)
+        j++;
+      begcol.push_back(j);
+      help.assign(bspline(value));
+      for(k=0;k<degree+1;k++,work++)
+        {
+        *work = help(k+j,0);
+        Bcolmean(k+j,0) += *work;
+        }
+      }
+    }
+
+  for(i=0;i<nrpar;i++)
+    Bcolmean(i,0) /= double(nrdiffobs);
+
+  // Frage: Ist spline in der richtigen Reihenfolge (wie der lineare Prädiktor)?
+  multBS_index(spline, beta);
+
+  }
+// -------------------------END: FOR MERROR ------------------------------------
+
+
 } // end: namespace MCMC
 
 //---------------------------------------------------------------------------
@@ -3863,5 +3916,6 @@ int main()
 	return(0);
 }
 #endif
+
 
 

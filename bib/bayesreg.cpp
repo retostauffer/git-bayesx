@@ -2884,6 +2884,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
   bool ub,diagtransform,derivative,bsplinebasis;
   int gridsize,contourprob;
   int f;
+  ST::string test ="test";
 
   unsigned i;
   int j;
@@ -2905,7 +2906,6 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 // BEGIN: merror
       datamatrix meandata;
       datamatrix medata;
-      ST::string test ="test";
       if(terms[i].varnames[0].length()>7)
         {
         test = terms[i].varnames[0].substr(terms[i].varnames[0].length()-7,7);
@@ -2933,7 +2933,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           {
           for(j=0; j<me; j++)
             {
-            meandata(k,0) = medata(k,j);
+            meandata(k,0) += medata(k,j);
             }
           meandata(k,0) /= me;
           }
@@ -3003,6 +3003,17 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
       contourprob = unsigned(h);
 
       f = (terms[i].options[27]).strtodouble(alpha);
+
+// BEGIN: merror
+      if(merror.getvalue()>0)
+        // covariates measured with measurement error
+        // Overwrite some of the options
+        {
+        derivative=true;               // for IWLS-proposal
+        if(gridsize<5)
+          gridsize = 100;              // evaluate the function on a grid
+        }
+// END: merror
 
       // -------------end: reading options, term information -------------------
 
@@ -3158,22 +3169,25 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 
           } // end: if (terms[i].options[0] == "psplinerw1vrw1" ...
 
+//BEGIN: merror
         if(merror.getvalue()>0)
         // Fullcond-Objekt zur Generierung der wahren Kovariablenwerte
           {
-          make_paths(collinpred,pathnonp,pathres,title,"",terms[i].varnames[0],
-                     "_merror.raw","_merror.res","_merror");
+            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                       "_merror.raw","_merror.res","_merror");
 
           fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
                          &fcpsplinegaussian[fcpsplinegaussian.size()-1],
                          distr[distr.size()-1],
                                    medata,
                                    title,
+                                   pathnonp,
                                    pathres)
                          );
           fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fcmerror[fcmerror.size()-1]);
           }
+//END: merror
 
         // ---------------------- end: gaussian response, etc. -----------------
         }
@@ -3229,10 +3243,11 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
             fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
             }
 
+//BEGIN: merror
           if(merror.getvalue()>0)
           // Fullcond-Objekt zur Generierung der wahren Kovariablenwerte
             {
-            make_paths(collinpred,pathnonp,pathres,title,"",terms[i].varnames[0],
+            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                        "_merror.raw","_merror.res","_merror");
 
             fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
@@ -3240,11 +3255,13 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                            distr[distr.size()-1],
                                    medata,
                                    title,
+                                   pathnonp,
                                    pathres)
                            );
             fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcmerror[fcmerror.size()-1]);
             }
+//END: merror
           }
         else // iwls
           {
@@ -3362,10 +3379,11 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 
           }
 
+//BEGIN: merror
           if(merror.getvalue()>0)
           // Fullcond-Objekt zur Generierung der wahren Kovariablenwerte
             {
-            make_paths(collinpred,pathnonp,pathres,title,"",terms[i].varnames[0],
+            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                        "_merror.raw","_merror.res","_merror");
 
             fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
@@ -3373,11 +3391,13 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                            distr[distr.size()-1],
                                    medata,
                                    title,
+                                   pathnonp,
                                    pathres)
                            );
             fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcmerror[fcmerror.size()-1]);
             }
+//END: merror
         // ----------------- end:  non-gaussian response, etc. -----------------
         }
 

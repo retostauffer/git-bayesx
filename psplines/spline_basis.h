@@ -510,6 +510,12 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
 
   double compute_df_eigen(void);
 
+  // ------------------------- FOR MERROR --------------------------------------
+
+  void update_merror(datamatrix & newdata);
+
+  // -------------------------END: FOR MERROR ----------------------------------
+
   // ------------------------- FOR REML ----------------------------------------
 
   void createreml(datamatrix & X,datamatrix & Z,const unsigned & Xpos,
