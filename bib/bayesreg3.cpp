@@ -2144,8 +2144,11 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
           &normalconst[normalconst.size()-1],distr[distr.size()-1],
           a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,lassofix,
           lassomin,lassomax,lassogrid,collinpred));
+
+      distr[distr.size()-1]->set_ridge(data.cols());
+      distr[distr.size()-1]->update_ridge(0.0);
+
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
-//      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_lassopointer());
       }
 
 

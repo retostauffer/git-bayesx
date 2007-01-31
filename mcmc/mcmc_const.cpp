@@ -6,7 +6,7 @@
 namespace MCMC
 {
 
-// Ridge
+// BEGIN: Ridge
 void FULLCOND_const::update_variances(datamatrix & v)
   {
   variances = v;
@@ -16,7 +16,7 @@ datamatrix FULLCOND_const::get_variances(void)
   {
   return variances;
   }
-// Ridge  
+// END: Ridge
 
 double FULLCOND_const::compute_df(void)
   {
@@ -123,9 +123,9 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * op,const datamatrix & d,
                   : FULLCOND(op,t)
   {
 
-  // Ridge
+  // BEGIN: Ridge
   ridge=false;
-  // Ridge
+  // END: Ridge
 
   ismultinomialcatsp = ismcatsp;
 
@@ -656,9 +656,9 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
           : FULLCOND(o,d,t,d.cols(),1,fs)
   {
 
-  // Ridge
+  // BEGIN: Ridge
   ridge=false;
-  // Ridge
+  // END: Ridge
 
   lambda=-1;
 
@@ -725,10 +725,10 @@ FULLCOND_const::FULLCOND_const(const FULLCOND_const & m) : FULLCOND(FULLCOND(m))
   cats = m.cats;
   catspecific_effects = m.catspecific_effects;
   ismultinomialcatsp = m.ismultinomialcatsp;
-  // Ridge
+  // BEGIN: Ridge
   ridge = m.ridge;
   variances = m.variances;
-  // Ridge
+  // END: Ridge
   }
 
 
@@ -755,10 +755,10 @@ const FULLCOND_const & FULLCOND_const::operator=(const FULLCOND_const & m)
   cats = m.cats;
   catspecific_effects = m.catspecific_effects;
   ismultinomialcatsp = m.ismultinomialcatsp;
-  // Ridge
+  // BEGIN: Ridge
   ridge = m.ridge;
   variances = m.variances;
-  // Ridge
+  // END: Ridge
   return *this;
   }
 
@@ -877,10 +877,10 @@ FULLCOND_const_gaussian::FULLCOND_const_gaussian(MCMCoptions * o,
                          : FULLCOND_const(o,dp,d,t,constant,fs,fr,c)
   {
 
-  // Ridge
+  // BEGIN: Ridge
   ridge=r;
   variances = vars;
-  // Ridge
+  // END: Ridge
 
   transform = likep->get_trmult(c);
 
@@ -955,14 +955,15 @@ void FULLCOND_const_gaussian::compute_matrices(void)
         X1(k,j) = X1(j,k);
       }
 
-  // Ridge
+  // BEGIN: Ridge
    if(ridge)
      {
-     double help = likep->get_scale(column);
+//     double help = likep->get_scale(column);
      for (j=0;j<nrconst;j++)
-       X1(j,j) += help/variances(j,0);
+//       X1(j,j) += help/variances(j,0);
+       X1(j,j) += 1/variances(j,0);
      }
-  // Ridge
+  // END: Ridge
 
    X1 = X1.cinverse();
 
@@ -1049,14 +1050,15 @@ bool FULLCOND_const_gaussian::posteriormode(void)
   interceptadd=0;
   likep->fisher(X1,data,column);            // recomputes X1 = (data' W data)^{-1}
 
-  // Ridge
+  // BEGIN: Ridge
   if(ridge)
     {
-    double help = likep->get_scale();
+//    double help = likep->get_scale();
     for(i=0; i<nrconst; i++)
-      X1(i,i) += help/variances(i,0);
+//      X1(i,i) += help/variances(i,0);
+      X1(i,i) += 1/variances(i,0);
     }
-  // Ridge
+  // END: Ridge
 
   X1.assign((X1.cinverse()));               // continued
   likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
@@ -1094,10 +1096,10 @@ FULLCOND_const_nongaussian::FULLCOND_const_nongaussian(MCMCoptions* o,
                             : FULLCOND_const(o,dp,d,t,constant,fs,fr,c)
   {
 
-  // Ridge
+  // BEGIN: Ridge
   ridge=r;
   variances = vars;
-  // Ridge
+  // END: Ridge
 
   step = o->get_step();
   diff = linnew;
@@ -1110,14 +1112,14 @@ FULLCOND_const_nongaussian::FULLCOND_const_nongaussian(MCMCoptions* o,
   muy=datamatrix(nrconst,1);
 
   compute_XWX(XWXold);
-  // Ridge
+  // BEGIN: Ridge
   if(!ridge)
     {
     datamatrix test = XWXold.cinverse();
     if (test.rows() < nrconst)
       errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
     }
-  // Ridge
+  // END: Ridge
   }
 
 FULLCOND_const_nongaussian::FULLCOND_const_nongaussian(
@@ -1167,7 +1169,7 @@ bool FULLCOND_const_nongaussian::posteriormode(void)
   {
 
   likep->fisher(XWX,data,column);
-  // Ridge
+  // BEGIN: Ridge
   if(ridge)
     {
     unsigned j;
@@ -1176,7 +1178,7 @@ bool FULLCOND_const_nongaussian::posteriormode(void)
       XWX(j,j) += 1/variances(j,0);
       }
     }
-  // Ridge
+  // END: Ridge
   XWX.assign(XWX.cinverse());
 
   unsigned i;
@@ -1234,7 +1236,7 @@ void FULLCOND_const_nongaussian::compute_XWX(datamatrix & XWXw)
       XWXw(k,p) = XWXw(p,k);
       }
 
-  // Ridge
+  // BEGIN: Ridge
   if(ridge)
     {
     for(p=0; p<nrconst; p++)
@@ -1242,7 +1244,7 @@ void FULLCOND_const_nongaussian::compute_XWX(datamatrix & XWXw)
       XWXold(p,p) += 1/variances(p,0);
       }
     }
-  // Ridge
+  // END: Ridge
 
   }
 

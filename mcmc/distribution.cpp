@@ -524,6 +524,9 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   interceptold = d.interceptold;
   addinterceptsample = d.addinterceptsample;
 
+  ridge = d.ridge;
+  nrridge = d.nrridge;
+  ridgesum = d.ridgesum;
   }
 
 
@@ -606,6 +609,10 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   interceptsample = d.interceptsample;
   interceptold = d.interceptold;
   addinterceptsample = d.addinterceptsample;
+
+  ridge = d.ridge;
+  nrridge = d.nrridge;
+  ridgesum = d.ridgesum;
 
   return *this;
   }
@@ -4859,8 +4866,16 @@ void DISTRIBUTION_gaussian::update(void)
       }
     else
       {
-      scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero,
-                   b_invgamma+0.5*sum);
+      if(ridge)
+        {
+        scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero + 0.5*nrridge,
+                     b_invgamma+0.5*sum + 0.5*ridgesum);
+        }
+      else
+        {
+        scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero,
+                     b_invgamma+0.5*sum);
+        }
       }
     }
 

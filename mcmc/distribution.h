@@ -177,6 +177,14 @@ class __EXPORT_TYPE DISTRIBUTION
 
 
 //------------------------------------------------------------------------------
+//----------------------------- FOR Ridge Regression ---------------------------
+//------------------------------------------------------------------------------
+
+  bool ridge;
+  unsigned nrridge;
+  double ridgesum;
+
+//------------------------------------------------------------------------------
 //--------------------------- ERRORMESSAGES ------------------------------------
 //------------------------------------------------------------------------------
 
@@ -184,6 +192,7 @@ class __EXPORT_TYPE DISTRIBUTION
 
 
   void create(MCMCoptions * o, const datamatrix & r, const datamatrix & w);
+
 
   public:
 
@@ -201,6 +210,10 @@ class __EXPORT_TYPE DISTRIBUTION
 
     scaleexisting = true;
     scale = datamatrix(1,1,0.1);
+
+    ridge=false;
+    nrridge=0;
+    ridgesum=0.0;
     }
 
   // CONSTRUCTOR1
@@ -1288,6 +1301,21 @@ class __EXPORT_TYPE DISTRIBUTION
   void exchange_intercept2(double & inter)
     {
     interceptold = inter;
+    }
+
+//------------------------------------------------------------------------------
+//----------------------------- FOR Ridge Regression ---------------------------
+//------------------------------------------------------------------------------
+
+  void set_ridge(const unsigned & nr)
+    {
+    ridge=true;
+    nrridge=nr;
+    }
+
+  void update_ridge(const double & sum)
+    {
+    ridgesum=sum;
     }
 
 
