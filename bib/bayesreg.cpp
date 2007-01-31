@@ -2885,6 +2885,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
   int gridsize,contourprob;
   int f;
   ST::string test ="test";
+  double lowerknot=0;
+  double upperknot=0;
 
   unsigned i;
   int j;
@@ -3009,10 +3011,13 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
         // covariates measured with measurement error
         // Overwrite some of the options
         {
-        derivative=true;               // for IWLS-proposal
+//        derivative=true;               // for IWLS-proposal
         if(gridsize<5)
           gridsize = 100;              // evaluate the function on a grid
-        }
+
+       f = (terms[i].options[30]).strtodouble(lowerknot);
+       f = (terms[i].options[31]).strtodouble(upperknot);
+       }
 // END: merror
 
       // -------------end: reading options, term information -------------------
@@ -3032,7 +3037,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
         FULLCOND_pspline_gaussian(&generaloptions[generaloptions.size()-1],
         distr[distr.size()-1],fcconst_intercept,meandata,nrknots,degree,po,
         type,monotone,title,pathnonp,pathres,derivative,lambda,gridsize,
-        diagtransform,collinpred));
+        diagtransform,lowerknot,upperknot,collinpred));
 
         //
         datamatrix beta_0;
@@ -3173,7 +3178,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
         if(merror.getvalue()>0)
         // Fullcond-Objekt zur Generierung der wahren Kovariablenwerte
           {
-            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+          make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                        "_merror.raw","_merror.res","_merror");
 
           fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
@@ -3182,7 +3187,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    medata,
                                    title,
                                    pathnonp,
-                                   pathres)
+                                   pathres,
+                                   lowerknot, upperknot)
                          );
           fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fcmerror[fcmerror.size()-1]);
@@ -3214,7 +3220,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 
           fcpspline.push_back( FULLCOND_pspline(&generaloptions[generaloptions.size()-1],
           distr[distr.size()-1],fcconst_intercept,meandata,nrknots,degree,po,
-          lambda,min,max,type,title,pathnonp,pathres,derivative,gridsize,
+          lambda,min,max,type,title,pathnonp,pathres,derivative,lowerknot,
+          upperknot,gridsize,
           collinpred));
 
           if (constlambda.getvalue() == true)
@@ -3256,7 +3263,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    medata,
                                    title,
                                    pathnonp,
-                                   pathres)
+                                   pathres,
+                                   lowerknot, upperknot)
                            );
             fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcmerror[fcmerror.size()-1]);
@@ -3287,7 +3295,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           IWLS_pspline(&generaloptions[generaloptions.size()-1],
           distr[distr.size()-1],fcconst_intercept,meandata,iwlsmode,nrknots,degree,po,
           lambda,type,monotone,updateW,updatetau,fstart,a1,b1,title,pathnonp,
-          pathres,derivative,gridsize,diagtransform,collinpred));
+          pathres,derivative,gridsize,diagtransform,lowerknot,upperknot,
+          collinpred));
 
           if (constlambda.getvalue() == true)
             fciwlspspline[fciwlspspline.size()-1].set_lambdaconst(lambda);
@@ -3392,7 +3401,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    medata,
                                    title,
                                    pathnonp,
-                                   pathres)
+                                   pathres,
+                                   lowerknot, upperknot)
                            );
             fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcmerror[fcmerror.size()-1]);

@@ -106,7 +106,8 @@ spline_basis::spline_basis(MCMCoptions * o, DISTRIBUTION * dp,
                 FULLCOND_const * fcc, const fieldtype & ft,
                 const ST::string & ti, const unsigned & nrk, const unsigned & degr,
                 const MCMC::knotpos & kp, const int & gs, const ST::string & fp,
-                const ST::string & pres, const bool & deriv, const unsigned & c)
+                const ST::string & pres, const bool & deriv, const double & lk,
+                const double & uk, const unsigned & c)
   : FULLCOND_nonp_basis(o,dp,ft,ti,fp,pres,c)
   {
 
@@ -116,8 +117,8 @@ spline_basis::spline_basis(MCMCoptions * o, DISTRIBUTION * dp,
   outbsplines = false;
   lambda_prec = -1.0;
 
-  lowerknot = 0.0;
-  upperknot = 0.0;
+  lowerknot = lk;
+  upperknot = uk;
 
   fctype = nonparametric;
 
@@ -2335,8 +2336,8 @@ void spline_basis::compute_XWX(const datamatrix & weight)
 void spline_basis::compute_XWXenv(const datamatrix & weight, const unsigned & c)
   {
 
-  unsigned i,j,k,l;
-  unsigned stop;
+  unsigned i,j,k;
+  int stop, l;
   unsigned BScols = degree+1;
   unsigned weightcols = weight.cols();
 
@@ -2376,24 +2377,28 @@ void spline_basis::compute_XWXenv(const datamatrix & weight, const unsigned & c)
         {
 
         l = *firstit;
-        freqwork = freq.begin() + l;
-        workindex2 = index2.begin() + l;
-        workweight = weight.getV() + c + weightcols*index(l,0);
-        workBS = BS.getV() + BScols**freqwork;
-        workupper = XX_env.getEnvIterator() + ( *(xenv+k+1) - (k-j) );
-//        workupper = XX_env.getEnvIterator() + ( *(xenv+i+k+1) - (k-j) );
-//        workupper = XX_env.getEnvIterator() + ( XX_env.getXenv(i+k+1) - (k-j) );
-        while(l <= stop)
+        if(l <= stop)
           {
-          if(j == k)
-            *workdiag += *(workBS+j) * *workweight * *(workBS+k);
-          else
-            *workupper += *(workBS+j) * *workweight * *(workBS+k);
-          l++;
-          freqwork++;
-          workBS += BScols*(*freqwork-*(freqwork-1));
-          workindex2++;
-          workweight += *workindex2*weightcols;
+          freqwork = freq.begin() + l;
+          workindex2 = index2.begin() + l;
+          workweight = weight.getV() + c + weightcols*index(l,0);
+          workBS = BS.getV() + BScols**freqwork;
+          workupper = XX_env.getEnvIterator() + ( *(xenv+k+1) - (k-j) );
+//          workupper = XX_env.getEnvIterator() + ( *(xenv+i+k+1) - (k-j) );
+//          workupper = XX_env.getEnvIterator() + ( XX_env.getXenv(i+k+1) - (k-j) );
+            while(l <= stop)
+            {
+            if(j == k)
+              *workdiag += *(workBS+j) * *workweight * *(workBS+k);
+            else
+              *workupper += *(workBS+j) * *workweight * *(workBS+k);
+            l++;
+            freqwork++;
+            workBS += BScols*(*freqwork-*(freqwork-1));
+            workindex2++;
+            workweight += *workindex2*weightcols;
+            }
+
           }
 
         }
@@ -2408,8 +2413,8 @@ void spline_basis::compute_XWXenv(const datamatrix & weight, const unsigned & c)
 void spline_basis::compute_XWXenv_XWtildey(const datamatrix & weight, const double & scale, const unsigned & c)
   {
 
-  unsigned i,j,k,l;
-  unsigned stop;
+  unsigned i,j,k;
+  int stop, l;
   unsigned ind;
   unsigned BScols = degree+1;
   unsigned weightcols = weight.cols();
@@ -2458,36 +2463,38 @@ void spline_basis::compute_XWXenv_XWtildey(const datamatrix & weight, const doub
       for(k=j;k<BScols;k++)
         {
         l = *firstit;
-        ind = index(l,0);
-        freqwork = freq.begin() + l;
-        workindex2 = index2.begin() + l;
-        workweight = weight.getV() + c + weightcols*ind;
-        if(j == k)
+        if(l <= stop)
           {
-          workmu = mu.getV() + ind;
-          workmuy2 = workmuy + j;
-          }
-        workBS = BS.getV() + BScols**freqwork;
-        workupper = XX_env.getEnvIterator() + ( *(xenv+k+1) - (k-j) );
-        while(l <= stop)
-          {
+          ind = index(l,0);
+          freqwork = freq.begin() + l;
+          workindex2 = index2.begin() + l;
+          workweight = weight.getV() + c + weightcols*ind;
           if(j == k)
             {
-            *workmuy2 += *(workBS+j) * *workweight * *workmu;
-            *workdiag += *(workBS+j) * *workweight * *(workBS+k);
+            workmu = mu.getV() + ind;
+            workmuy2 = workmuy + j;
             }
-          else
+          workBS = BS.getV() + BScols**freqwork;
+          workupper = XX_env.getEnvIterator() + ( *(xenv+k+1) - (k-j) );
+          while(l <= stop)
             {
-            *workupper += *(workBS+j) * *workweight * *(workBS+k);
+            if(j == k)
+              {
+              *workmuy2 += *(workBS+j) * *workweight * *workmu;
+              *workdiag += *(workBS+j) * *workweight * *(workBS+k);
+              }
+            else
+              {
+              *workupper += *(workBS+j) * *workweight * *(workBS+k);
+              }
+            l++;
+            freqwork++;
+            workBS += BScols*(*freqwork-*(freqwork-1));
+            workindex2++;
+            workweight += *workindex2*weightcols;
+            workmu += *workindex2;
             }
-          l++;
-          freqwork++;
-          workBS += BScols*(*freqwork-*(freqwork-1));
-          workindex2++;
-          workweight += *workindex2*weightcols;
-          workmu += *workindex2;
           }
-
         }
       }
     }
@@ -2533,8 +2540,8 @@ void spline_basis::compute_XWtildey(const datamatrix & weight, const double & sc
     muy(i,0) *= scale;
 */
 
-  unsigned i,j,l;
-  unsigned stop;
+  unsigned i,j;
+  int stop, l;
   unsigned ind;
   unsigned BScols = degree+1;
 
@@ -2562,22 +2569,25 @@ void spline_basis::compute_XWtildey(const datamatrix & weight, const double & sc
     for(j=0;j<BScols;j++)
       {
       l = *firstit;
-      ind = index(l,0);
-      freqwork = freq.begin() + l;
-      workindex2 = index2.begin() + l;
-      workweight = weight.getV() + ind;
-      workmu = mu.getV() + ind;
-      workBS = BS.getV() + BScols**freqwork + j;
-      workmuy2 = workmuy + j;
-      while(l <= stop)
+      if(l<=stop)
         {
-        *workmuy2 += *workBS * *workweight * *workmu;
-        l++;
-        freqwork++;
-        workindex2++;
-        workweight += *workindex2;
-        workmu += *workindex2;
-        workBS += BScols*(*freqwork - *(freqwork-1));
+        ind = index(l,0);
+        freqwork = freq.begin() + l;
+        workindex2 = index2.begin() + l;
+        workweight = weight.getV() + ind;
+        workmu = mu.getV() + ind;
+        workBS = BS.getV() + BScols**freqwork + j;
+        workmuy2 = workmuy + j;
+        while(l <= stop)
+          {
+          *workmuy2 += *workBS * *workweight * *workmu;
+          l++;
+          freqwork++;
+          workindex2++;
+          workweight += *workindex2;
+          workmu += *workindex2;
+          workBS += BScols*(*freqwork - *(freqwork-1));
+          }
         }
       }
     }
@@ -2592,8 +2602,8 @@ void spline_basis::compute_XWtildey(const datamatrix & weight, const double & sc
 void spline_basis::compute_XWtildey(const datamatrix & weight, const datamatrix & tildey, const double & scale, const unsigned & c)
   {
 
-  unsigned i,j,l;
-  unsigned stop;
+  unsigned i,j;
+  int stop, l;
   unsigned ind;
   unsigned BScols = degree+1;
   unsigned weightcols = weight.cols();
@@ -2622,22 +2632,25 @@ void spline_basis::compute_XWtildey(const datamatrix & weight, const datamatrix 
     for(j=0;j<BScols;j++)
       {
       l = *firstit;
-      ind = index(l,0);
-      freqwork = freq.begin() + l;
-      workindex2 = index2.begin() + l;
-      workweight = weight.getV() + c + weightcols*ind;
-      workmu = tildey.getV() + ind;
-      workBS = BS.getV() + BScols**freqwork + j;
-      workmuy2 = workmuy + j;
-      while(l <= stop)
+      if(l<=stop)
         {
-        *workmuy2 += *workBS * *workweight * *workmu;
-        l++;
-        freqwork++;
-        workindex2++;
-        workweight += *workindex2*weightcols;
-        workmu += *workindex2;
-        workBS += BScols*(*freqwork - *(freqwork-1));
+        ind = index(l,0);
+        freqwork = freq.begin() + l;
+        workindex2 = index2.begin() + l;
+        workweight = weight.getV() + c + weightcols*ind;
+        workmu = tildey.getV() + ind;
+        workBS = BS.getV() + BScols**freqwork + j;
+        workmuy2 = workmuy + j;
+        while(l <= stop)
+          {
+          *workmuy2 += *workBS * *workweight * *workmu;
+          l++;
+          freqwork++;
+          workindex2++;
+          workweight += *workindex2*weightcols;
+          workmu += *workindex2;
+          workBS += BScols*(*freqwork - *(freqwork-1));
+          }
         }
       }
     }
@@ -3898,8 +3911,12 @@ void spline_basis::update_merror(datamatrix & newdata)
   for(i=0;i<nrpar;i++)
     Bcolmean(i,0) /= double(nrdiffobs);
 
-  // Frage: Ist spline in der richtigen Reihenfolge (wie der lineare Prädiktor)?
+  // neuen Spline ausrechnen
   multBS_index(spline, beta);
+
+  // Zentrierung
+  for(i=0; i<spline.rows(); i++)
+    spline(i,0) -= intercept;
 
   }
 // -------------------------END: FOR MERROR ------------------------------------
@@ -3916,6 +3933,7 @@ int main()
 	return(0);
 }
 #endif
+
 
 
 

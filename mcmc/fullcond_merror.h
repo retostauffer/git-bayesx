@@ -33,11 +33,26 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   double maxx;
   double minx;
 
-  datamatrix meandata;
+  datamatrix meandata;      // mean of the observed covariate values
+  datamatrix old;           // sampled values from the previous iteration
 
-  datamatrix old;
+  datamatrix currentspline; // stores current f(x) (i.e. f(x^{old})
+  datamatrix diffspline;    // stores f(x^{prop})-f(x^{old})
+  datamatrix logfcold;      // full conditional evaluated for old values
+  datamatrix logfcnew;      // full conditional evaluated for propsed values
+
+  int merror;               // counts number of replicated measurements for each covariate value
 
   statmatrix<int> index;
+
+  FULLCOND fc_merrorvar;    // full conditional for the variance of the measurement error
+  FULLCOND fc_ximu;         // full conditional for the expectation of the true covariate values
+  FULLCOND fc_xivar;        // full conditional for the variance of the true covariate values
+
+  unsigned generrcount;      // counts the number of generated values out of range
+  unsigned generrtrial;
+
+  ST::string pathresults;
 // END: merror
 
   public:
@@ -63,7 +78,7 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   // CONSTRUCTOR : Thomas (Measurement error in a nonparametric effect)
   fullcond_merror(MCMCoptions * o, spline_basis * p, DISTRIBUTION * dp,
            const datamatrix & d, const ST::string & t, const ST::string & fp,
-           const ST::string & pres);
+           const ST::string & pres, const double & lk, const double & uk);
 // END: merror
 
   // COPY CONSTRUCTOR

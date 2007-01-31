@@ -13,7 +13,7 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
                const bool & fu,const fieldtype & ft, const ST::string & ti,
                const ST::string & fp,const ST::string & pres, const double & l,
                const double & sl, const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,0.0,0.0,c)
   {
 
   mapexisting=false;
@@ -108,7 +108,7 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
                const bool & fu, const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
                const double & sl, const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,0.0,0.0,c)
   {
 
   utype = gaussian;
@@ -247,7 +247,7 @@ FULLCOND_kriging2::FULLCOND_kriging2(MCMCoptions * o, DISTRIBUTION * dp, FULLCON
                const ST::string & fp, const ST::string & pres, const double & l,
                const double & sl, const bool & mode, const unsigned & upW,
                const bool & updatetau, const double & fstart, const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,1,MCMC::equidistant,-1,fp,pres,false,0.0,0.0,c)
   {
 
   updateW = upW;

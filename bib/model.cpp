@@ -871,6 +871,8 @@ term_pspline::term_pspline(void)
 //  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
 //  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
 //  lambdastart = doubleoption("lambdastart",-1,-1,10000000);
+  lowerknot = doubleoption("lowerknot",0,-10000000,10000000);
+  upperknot = doubleoption("upperknot",0,-10000000,10000000);
   }
 
 void term_pspline::setdefault(void)
@@ -907,13 +909,15 @@ void term_pspline::setdefault(void)
 //  lambdamin.setdefault();
 //  lambdamax.setdefault();
 //  lambdastart.setdefault();
+  lowerknot.setdefault();
+  upperknot.setdefault();
   }
 
 bool term_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 30) )
+        && (t.options.size() <= 32) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -974,6 +978,8 @@ bool term_pspline::check(term & t)
 //    optlist.push_back(&lambdamin);
 //    optlist.push_back(&lambdamax);
 //    optlist.push_back(&lambdastart);
+    optlist.push_back(&lowerknot);
+    optlist.push_back(&upperknot);
 
     unsigned i;
     bool rec = true;
@@ -998,7 +1004,7 @@ bool term_pspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(30);
+   t.options = vector<ST::string>(32);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -1055,10 +1061,12 @@ bool term_pspline::check(term & t)
      t.options[28] = "false";
    else
      t.options[28] = "true";
-   t.options[29] = knots.getvalue();  
+   t.options[29] = knots.getvalue();
 //    t.options[40] = ST::doubletostring(lambdamin.getvalue());
 //    t.options[21] = ST::doubletostring(lambdamax.getvalue());
 //    t.options[22] = ST::doubletostring(lambdastart.getvalue());
+    t.options[30] = ST::doubletostring(lowerknot.getvalue());
+    t.options[31] = ST::doubletostring(upperknot.getvalue());
 
    if (t.options[1].strtolong(minim) == 1)
      {

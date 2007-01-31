@@ -15,7 +15,7 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o,
                       const fieldtype & ft, const ST::string & monotone, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const bool & deriv,
                       const double & l, const int & gs, const bool & diag, const unsigned & c)
-  : FULLCOND_pspline_gaussian(o,dp,fcc,d,nrk,degr,kp,ft,monotone,ti,fp,pres,deriv,l,gs,diag,c)
+  : FULLCOND_pspline_gaussian(o,dp,fcc,d,nrk,degr,kp,ft,monotone,ti,fp,pres,deriv,l,gs,diag,0.0,0.0,c)
   {
 
   beta_average.erase(beta_average.begin(),beta_average.end());

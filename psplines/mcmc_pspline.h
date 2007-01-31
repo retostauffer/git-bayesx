@@ -94,7 +94,8 @@ class __EXPORT_TYPE FULLCOND_pspline : public spline_basis
                     const double & l, const unsigned & minb,const unsigned & maxb,
                     const fieldtype & ft,const ST::string & ti,
                     const ST::string & fp, const ST::string & pres, const bool & deriv,
-                    const int & gs, const unsigned & c);
+                    const int & gs, const double & lk, const double & uk,
+                    const unsigned & c);
 
   // CONSTRUCTOR 2 für variierende Koeffizienten
 

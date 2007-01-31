@@ -341,7 +341,8 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
                FULLCOND_const * fcc, const fieldtype & ft,
                 const ST::string & ti, const unsigned & nrk, const unsigned & degr,
                 const MCMC::knotpos & kp, const int & gs, const ST::string & fp,
-                const ST::string & pres, const bool & deriv, const unsigned & c);
+                const ST::string & pres, const bool & deriv, const double & lk,
+                const double & uk, const unsigned & c);
 
   // CONSTRUCTOR für REML
 

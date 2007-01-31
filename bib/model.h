@@ -681,6 +681,9 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
 //  doubleoption lambdamin;
 //  doubleoption lambdamax;
 //  doubleoption lambdastart;
+  doubleoption lowerknot;
+  doubleoption upperknot;
+
 
   void setdefault(void);
 

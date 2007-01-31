@@ -80,7 +80,8 @@ class __EXPORT_TYPE IWLS_pspline : public spline_basis
                     const unsigned & upW, const bool & updatetau, const double & fstart,
                     const double & a, const double & b, const ST::string & ti,
                     const ST::string & fp, const ST::string & pres, const bool & deriv,
-                    const int & gs, const bool & diag, const unsigned & c);
+                    const int & gs, const bool & diag, const double & lk,
+                    const double & uk, const unsigned & c);
 
   // CONSTRUCTOR 2 (für variierende Koeffizienten)
 
