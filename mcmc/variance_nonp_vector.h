@@ -44,6 +44,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   double lassomin;              //  Lower interval limit
   double lassomax;              //  Upper interval limit
   int lassogrid;                //  Interval gridpoints
+  double ridgesum;               //  sum(beta^2/variances^2)
   
   void outresults_lasso(void);  //  Function to write results to output window and files
 
