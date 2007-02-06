@@ -347,6 +347,7 @@ DISTRIBUTION::DISTRIBUTION(MCMCoptions * o, const datamatrix & r,
   Scalesave = FULLCOND(o,datamatrix(1,1),"Scaleparameter",1,1,ps);
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
 
+  ridge=false;
   create(o,r,w);
   }
 
@@ -359,6 +360,9 @@ DISTRIBUTION::DISTRIBUTION(const datamatrix & offset,MCMCoptions * o,
   pathresultsscale = pr;
   Scalesave = FULLCOND(o,datamatrix(1,1),"Scaleparameter",1,1,ps);
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
+
+  ridge=false;
+
   create(o,r,w);
   add_linearpred(offset);
 
