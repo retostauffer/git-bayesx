@@ -1155,12 +1155,15 @@ void MCMCsimulate::make_model(ofstream & outtex,const unsigned & nr)
 
   //Name der Resp.-Var. übergeben
   ST::string resp = likep_mult[nr]->get_responsename();
+  char charh = '_';
+  ST::string stringh = "\\_";
+  ST::string helprname = resp.insert_string_char(charh,stringh);
 
   //schreibt das Modell und die Prior-annahmen ins Tex-File
   outtex << "\n\\noindent {\\bf \\large Response:}" << endl
          << "\\begin{tabbing}\n"
          << "Number of observations: \\= " << obs << "\\\\" << endl
-         << "Response Variable: \\> " << resp << "\\\\" << endl
+         << "Response Variable: \\> " << helprname << "\\\\" << endl
          << "Family: \\> " << fam << "\\\\" << endl
          << "\\end{tabbing}" << endl
          << "\n\\noindent {\\bf \\large Predictor:}\\\\" << endl;

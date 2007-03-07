@@ -765,7 +765,12 @@ bool bayesreg::create_randomslope(const unsigned & collinpred)
                                                         inclf,collinpred
                                                         )
                           );
-        fcrandomgaussian[fcrandomgaussian.size()-1].init_name(terms[i].varnames[1]);
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[0]);
+        fcrandomgaussian[fcrandomgaussian.size()-1].init_names(na);
+
         fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
 
         if (constlambda.getvalue() == true || terms[i].options[8]=="true")
@@ -808,7 +813,11 @@ bool bayesreg::create_randomslope(const unsigned & collinpred)
                                                         )
                           );
 
-        fcrandom[fcrandom.size()-1].init_name(terms[i].varnames[1]);
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[0]);
+        fcrandom[fcrandom.size()-1].init_names(na);
+
         fcrandom[fcrandom.size()-1].set_fcnumber(fullcond.size());
 
         if (constlambda.getvalue() == true || terms[i].options[8]=="true")
