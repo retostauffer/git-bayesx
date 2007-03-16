@@ -92,25 +92,25 @@ Shp2bnd uses facilities provided in the packages shapefiles and maptools to extr
 <p>An exemplary R-session might look like this:</p>
 
 <p style="font-family:monospace; font-size:medium">
-source("c:\\bayesx\\sfunctions\\shp2bnd.r")<br>
-shp2bnd(shpname="c:\\temp\\gm",regionnames=1:16,bndname="c:\\temp\\test.bnd",replace=T)<br>
+R> source("c:\\bayesx\\sfunctions\\shp2bnd.r")<br>
+R> shp2bnd(shpname="c:\\temp\\gm", regionnames=1:16, bndname="c:\\temp\\test.bnd", replace=T)<br>
 </p>
 
 <p>To check whether the specified boundary file was created correctly, type</p>
 
 <p style="font-family:monospace; font-size:medium">
-source("c:\\bayesx\\sfunctions\\readbndfile.r")<br>
-source("c:\\bayesx\\sfunctions\\drawmap.r")<br>
+R> source("c:\\bayesx\\sfunctions\\readbndfile.r")<br>
+R> source("c:\\bayesx\\sfunctions\\drawmap.r")<br>
 <br>
-readbndfile("c:\\temp\\test.bnd","m")<br>
-col <- runif(16)<br>
-nam <- levels(as.factor(names(m)))<br>
-drawmap(map=m,plotvar=col,regionvar=nam)<br>
+R> readbndfile("c:\\temp\\test.bnd", "m")<br>
+R> col <- runif(16)<br>
+R> nam <- levels(as.factor(names(m)))<br>
+R> drawmap(map=m, plotvar=col, regionvar=nam)<br>
 </p>
 
 <p>To reproduce the example, download the shapefile <a href="maps/gm.zip">gm.zip</a> and extract it to a directory (c:\temp in the example above). 
 Download the function <a href="maps/shp2bnd.r">shp2bnd</a> and store it in the directory 'sfunctions' (a subdirectory of the BayesX installation directory, c:\bayesx in the example above).
-Now you can paste the example code (after changing the paths according to your specifications).
+Now you can paste the example code to the R prompt (after changing the paths according to your specifications).
 </p>
 
 <p style="font-weight:bold">Available boundary and graph files</p>

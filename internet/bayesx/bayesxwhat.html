@@ -76,7 +76,7 @@ Ende: Allgemeiner Teil der Seite
   <tr>
     <td>
 
-      <p>BayesX is a software tool for performing complex Bayesian inference. The main features of BayesX are:</p>
+      <p>BayesX is a software tool for performing Bayesian inference in geoadditive and related regression models. The main features of BayesX are:</p>
 
 <ul style="font-weight:bold">
 <li> Bayesian semiparametric regression based on MCMC simulation techniques.<br>
@@ -92,7 +92,7 @@ The regression tool  supports the most common distributions for the response var
 Supported distributions for univariate responses are Gaussian, binomial, Poisson and gamma.
 For multicategorical responses, both multinomial logit or probit models for ordered categories of
 the responses as well as cumulative threshold models for unordered categories may be estimated.
-Recently complex models for continuous time survival analysis based on the Cox model have been added.</span></li>
+Recently complex models for continuous time survival analysis based on the Cox model and continuous time multi-state models have been added.</span></li>
 <li> Inference for STAR models based on methodology for mixed models.<br>
 <span style="font-weight:normal">BayesX provides a second regression tool for estimating STAR models with comparable functionality as the first tool based on MCMC.
 This tool represents STAR models as variance components mixed models.
@@ -100,8 +100,8 @@ Inference is then based on estimation procedures for such mixed models, particul
 likelihood (REML). From a Bayesian perspective this yields empirical Bayes or posterior mode estimates.
 Supported distributions for univariate responses are Gaussian, binomial, Poisson and gamma. 
 For categorial responses, multinomial logit models for unordered categories of the responses as well as cumulative and sequential models for ordered categories can be estimated. 
-Recently complex models for continuous time survival analysis based on the Cox model, allowing for arbitrary combinations of left- interval- and
-right-censoring as well as left-truncation have been added.
+Models for continuous time survival analysis based on the Cox model, allowing for arbitrary combinations of left- interval- and
+right-censoring as well as left-truncation have been added in BayesX version 1.4. The latest version also supports continuous time multi-state models.
 <br>
 </span></li>
 <li> Model selection for Gaussian and non-Gaussian dags.<br>
@@ -112,7 +112,8 @@ right-censoring as well as left-truncation have been added.
 for reading ASCII data sets, creating new variables, obtaining summary statistics etc.</span></li>
 <li> Handling and manipulation of geographical maps.<br>
 <span style="font-weight:normal">BayesX is able to manipulate and draw geographical maps.  The regions of the map may be colored
-according to some numerical characteristics.</span></li>
+according to some numerical characteristics. In Bayesx version 1.5, a new color scheme based on HCL colors has been added to obtain 
+a better representation of colored maps independent of the disply device.</span></li>
 <li> Visualizing data.<br>
 <span style="font-weight:normal">BayesX provides functions for drawing scatter plots and geographical maps.
 A number of additional options are provided to customize the graphs according to
@@ -129,10 +130,10 @@ More details on the theoretical background of BayesX are given in the following 
     <a href="publications/Brezger_Lang_CSDA_2005.pdf"> 
     Generalized structured additive regression based on Bayesian P-Splines.</a><br>
     <i> Computational Statistics and Data Analysis</i>, 50, 967-991.</li>
-<li>Fahrmeir, L., Hennerfeind, A. (2003)<br>
+<!--<li>Fahrmeir, L., Hennerfeind, A. (2003)<br>
     <a href="publications/paper361.ps">
     Nonparametric Bayesian hazard rate models based on penalized splines.</a><br>
-    SFB 386 discussion paper 361, University of Munich.</li>
+    SFB 386 discussion paper 361, University of Munich.</li>-->
 <li>Fahrmeir, L., Lang, S. (2001)<br>
     <a href="publications/Fahrmeir_Lang_JRSSC2001.pdf"> 
     Bayesian Inference for Generalized Additive Mixed Models Based on Markov Random     
@@ -146,10 +147,14 @@ More details on the theoretical background of BayesX are given in the following 
     <a href="publications/paper334.ps">
     Structured count data regression.</a><br>
     SFB 386 discussion paper 334, University of Munich.</li>
-<li>Hennerfeind, A., Brezger, A., Fahrmeir, L. (2005)<br>
+<li>Hennerfeind, A., Brezger, A., Fahrmeir, L. (2006)<br>
     <a href="publications/paper414.pdf">
     Geoadditive survival models.</a><br>
-    <i>Journal of the American Statistical Association</i>, to appear</li>
+    <i>Journal of the American Statistical Association</i>, 101, 1065-1075</li>
+<li>Kneib, T., Hennerfeind, A. (2006)<br>
+    <a href="publications/paper502.pdf">
+    Bayesian Semiparametric Multi-State Models</a><br>
+    SFB 386 Discussion Paper 502</li>
 <li>Lang, S., Brezger, A. (2004)<br>
     <a href="publications/Lang_Brezger_JCGS2004.pdf"> 
     Bayesian P-Splines</a><br>
@@ -169,20 +174,28 @@ More details on the theoretical background of BayesX are given in the following 
     Penalized structured additive regression for space-time data: a Bayesian perspective.</a> <br>
     <i>Statistica Sinica</i>, 14, 715-745.</li>  
 <li>Kneib, T. (2006): <br>
+    Mixed model based inference in structured additive regression.<br>
+    Dr. Hut Verlag, München.<br>
+    Also available online from the <a href="http://edoc.ub.uni-muenchen.de/archive/00005011/">Munich University Library</a>.
+<li>Kneib, T. (2006): <br>
     Geoadditive hazard regression for interval censored survival times. </a><br>
-    <i>Computational Statistics and Data Analysis</i>, to appear.<br>
+    <i>Computational Statistics and Data Analysis</i>, 51, 777-792.<br>
     <a href="publications/paper447.pdf">Preprint</a></li>
-<li>Kneib, T., Fahrmeir, L. (2006): <br>
+<li>Kneib, T., Fahrmeir, L. (2007): <br>
     A mixed model approach for geoadditive hazard regression.<br>
-    <i>Scandinavian Journal of Statistics</i>, to appear.<br>
+    <i>Scandinavian Journal of Statistics</i>, 34, 207-228.<br>
     <a href="publications/paper400.pdf">Preprint</a></li>
 <li>Kneib, T., Fahrmeir, L. (2006): <br>
     Structured additive regression for multicategorical space-time data: A mixed model approach. <br>
     <i>Biometrics</i>, 62, 109-118.<br>
     <a href="publications/paper377.ps">Preprint</a></li>
-<li>Kneib, T., Fahrmeir, L. (2005): <br>
+<!--<li>Kneib, T., Fahrmeir, L. (2005): <br>
     <a href="publications/paper431.pdf">Supplement to "Structured additive regression for multicategorical space-time data: A mixed model approach."</a><br>
-    SFB 386 discussion paper 431, University of Munich.</li>
+    SFB 386 discussion paper 431, University of Munich.</li>-->
+<li>Kneib, T., Hennerfeind, A. (2006)<br>
+    <a href="publications/paper502.pdf">
+    Bayesian Semiparametric Multi-State Models</a><br>
+    SFB 386 Discussion Paper 502</li>
 </ul>
 
 

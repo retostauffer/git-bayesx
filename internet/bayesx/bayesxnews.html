@@ -75,6 +75,22 @@ Ende: Allgemeiner Teil der Seite
   <tr>
     <td>
 
+<p><b>New features in version 1.5 of BayesX are:</b></p>
+
+<ul>
+<li>New color option for visualizing spatial effects. Specifying option <i>hcl</i> requests a color palette from the HCL colors space. The HCL colors will be selected
+diverging from a neutral center (grey) to two different extreme
+colors (red and green) in contrast to the RGB colors diverging from
+yellow to red and green. HCL colors are particularly useful for
+electronic presentations since they are device-independent. See sections 6.1 and 9.1.2 of the reference manual.</li>
+<li>Category-specific effects for cumulative and sequential regression models. Effects in cumulative and sequential regression models for ordered
+responses can now be requested to be category-specific, see sections 8.1.1.3 and 8.1.1.4 of the reference manual. Available for remlreg objects only.</li>
+<li>Category-specific covariates in multinomial logit models. It is now possible to include parametric as well as nonparametric effects of category-specific covariates into 
+the multinomial logit model, see Section x.x.x of the reference manual. Available for remlreg objects only.</li>
+<li>Availability-indicator and category-specific offsets to account for varying choice sets in multinomial logit models.</li>
+<li>Multi-state models. For bayesreg and remlreg objects.</li>
+</ul>
+
 <p><b>New features in version 1.4 of BayesX are:</b></p>
 
 <ul>
