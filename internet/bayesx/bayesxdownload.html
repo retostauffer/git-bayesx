@@ -76,20 +76,23 @@ Ende: Allgemeiner Teil der Seite
   <tr>
     <td>
 
-<p>BayesX is available for Windows (95/98/2000/NT/Xp).
-Until version 1.30, BayesX was distributed in two different versions, a Java based version and a non Java based version.
-Starting with version 1.40, the non Java based version of BayesX is no longer supported, since the Java based version has additional functionality.
- </p>
+<p>Currently BayesX is only available for the various versions of the Windows operating system (95/98/2000/NT/Xp).
+A Linux version and a connection to R are planned for the next generation of BayesX (i.e. version 2.0 of BayesX).</p>
+
+<p>Up to version 1.30, BayesX has been distributed in two different versions, with either a Java-based GUI or a Borland C++ GUI.
+Since the Java-based GUI has additional functionality (i.e. graphics features), the Borland version is no longer supported.
+</p>
 
 <p style="font-weight:bold">Download</p>
 
-<p>Last Update: Version 1.40 (18.07.2005)</p> 
+<p>Last Update: Version 1.50 (19.04.2007)</p> 
 
-<p>Download the complete package (incl. manuals and examples) by clicking on the 'download' button below. Store the file 
-installBayesX.exe in a temporary directory. Execute the  program and follow the installation 
+<p>Download the complete package (including manuals and tutorials) by clicking on the 'download' button below. Store the file 
+installBayesX.exe in a temporary directory. Execute this file and follow the installation 
 instructions on the screen. After a successful installation, BayesX can be executed using the 
-Windows start button. The manuals of the program can be found in the 'doc' directory 
-which is a subdirectory of the installation directory. They are also available from the BayesX help menu.</p>
+Windows start button or the icon on the desktop (depending on your choice during the installation process).
+The manuals of the program can be found in the 'doc' directory 
+(a subdirectory of the installation directory) and are also available from the BayesX help menu.</p>
 
 <!--<p><a href="http://www.statistik.lmu.de/sys/cgi/perl/bayesx-down-new.pl"><input type="submit" value="Download"></a></p>-->
 
@@ -114,9 +117,9 @@ which is a subdirectory of the installation directory. They are also available f
 
 <p style="font-weight:bold">Manuals</p>
 
-<p>BayesX is distributed with three manuals: A <a href="manual/reference_manual.pdf">reference manual</a> containing a detailled description of the BayesX commands, a <a href="manual/methodology_manual.pdf">methodology manual</a> containing a short review of the methodological background,
+<p>BayesX is distributed with three manuals: A <a href="manual/reference_manual.pdf">reference manual</a> containing a detailed description of the BayesX commands, a <a href="manual/methodology_manual.pdf">methodology manual</a> containing a short review of the methodological background,
     and a <a href="manual/tutorials_manual.pdf">tutorial manual</a> containing tutorial like sections for new users. All three manuals are part of the standard installation of BayesX
-    and can be found in the 'doc' directory which is a subdirectory of the installation directory. They are also available from the BayesX help menu.</p>
+    and can be found in the 'doc' directory (a subdirectory of the installation directory). They are also available from the BayesX help menu.</p>
 
 <p style="font-weight:bold"><a name="register">Registration</a></p>
 
@@ -134,16 +137,14 @@ or if severe bugs have been found in the current version.</p>
 </form></tr>
 </table></p>
 
-<p style="font-weight:bold">Problems with the current version</p>
+<p style="font-weight:bold">Limitations of the current version</p>
 
-<p>Please obey the following limitations:</p>
+<p>Please take note of the following limitations:</p>
 
 <ul>
-<li> Cumulative threshold models are restricted to three categorical responses (bayesreg objects only).</li>
-<li> The manual describes for first and second order random walk priors
-automatic determination of block sizes for block move updates. This it not yet 
-implemented. For P-splines, however, the automatic determination of block sizes works
-properly.</li>
+<li>For bayesreg objects cumulative threshold models are restricted to responses with three categories.</li>
+<li>The manual describes automatic determination of block sizes for block move updates.
+For first and second order random walk priors this not implemented yet, but works properly with P-splines.</li>
 </ul>
 
 <p>The <a href=bayesxbugs.html>bug list</a> contains a complete list of (severe) bugs of the different versions of BayesX. </p>

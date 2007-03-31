@@ -78,9 +78,13 @@ Ende: Allgemeiner Teil der Seite
 
 <p style="font-weight:bold">Map objects in BayesX</p>
 
-<p>In BayesX map objects are used to handle, store and visualize geographical information. In the current version map objects 
+<p>In BayesX, map objects are used to handle, store and visualize geographical information. In the current version, map objects 
 serve as auxiliary objects for regression analyses, where the effect of spatial covariates on a dependent variable
-can be modelled via Markov random field priors, but they also allow the visualization of any geographical information associated with the map that is provided in a dataset object. Map objects can be created from boundary files or graph files, compare section 5 of the manual for a
+can be modelled via Markov random field priors or other spatial effects. In addition,
+they allow the visualization of any geographical information associated with the map.</p>
+
+
+<p>Map objects can be created from boundary files or graph files, compare Section 5 of the manual for a
 description of these file formats. </p>
 
 <p style="font-weight:bold">Converting shape files to boundary files</p>
@@ -96,15 +100,30 @@ R> source("c:\\bayesx\\sfunctions\\shp2bnd.r")<br>
 R> shp2bnd(shpname="c:\\temp\\gm", regionnames=1:16, bndname="c:\\temp\\test.bnd", replace=T)<br>
 </p>
 
-<p>To check whether the specified boundary file was created correctly, type</p>
+<p>Note that option <tt>regionnames</tt> specifies the number as well as the names of the regions in the shapefile. 
+This is the most crucial point in the conversion to a boundary file and should specified with care.</p>
+
+
+<p>To check whether the specified boundary file was created correctly, source the functions <tt>readbndfile</tt> and <tt>drawmap</tt>:</p>
 
 <p style="font-family:monospace; font-size:medium">
 R> source("c:\\bayesx\\sfunctions\\readbndfile.r")<br>
-R> source("c:\\bayesx\\sfunctions\\drawmap.r")<br>
-<br>
-R> readbndfile("c:\\temp\\test.bnd", "m")<br>
+R> source("c:\\bayesx\\sfunctions\\drawmap.r")</p>
+
+<p>Afterwards, read the created boundary file into R and store it in the object <tt>m</tt></p>
+
+<p style="font-family:monospace; font-size:medium">
+R> readbndfile("c:\\temp\\test.bnd", "m")</p>
+
+<p>and generate random colors and a variable containing the region names</p>
+
+<p style="font-family:monospace; font-size:medium">
 R> col <- runif(16)<br>
-R> nam <- levels(as.factor(names(m)))<br>
+R> nam <- levels(as.factor(names(m)))</p>
+
+<p>Finally, create a plot of the map:</p>
+
+<p style="font-family:monospace; font-size:medium">
 R> drawmap(map=m, plotvar=col, regionvar=nam)<br>
 </p>
 
@@ -126,7 +145,7 @@ We also request users of BayesX to provide us their maps so that we can make the
 
 <p style="font-weight:bold">Germany:</p>
 
-<p> For the map of Germany we provide several maps, since between 1993 and 1996 the boundaries and number of districts changed in the eastern part of Germany. In 2001 the two districts of Hannover were united. Moreover the island Rügen causes the
+<p> For the map of Germany we provide several maps, since between 1993 and 1996 the boundaries and number of districts changed in the eastern part of Germany. In 2001 the two districts of Hanover were united. Moreover the island Rügen causes the
 map to be disconnected resulting in problems when estimating structured spatial effects and therefore we provide one version including Rügen and one version without Rügen. The regioncodes are given by the key numbers of the administrative districts.
 
 <ul>

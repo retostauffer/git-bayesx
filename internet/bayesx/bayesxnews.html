@@ -78,63 +78,74 @@ Ende: Allgemeiner Teil der Seite
 <p><b>New features in version 1.5 of BayesX are:</b></p>
 
 <ul>
-<li>New color option for visualizing spatial effects. Specifying option <i>hcl</i> requests a color palette from the HCL colors space. The HCL colors will be selected
+<li>New color option for visualizing spatial effects. Specifying option <tt>hcl</tt> requests a color palette from the HCL colors space. The HCL colors will be selected
 diverging from a neutral center (grey) to two different extreme
 colors (red and green) in contrast to the RGB colors diverging from
 yellow to red and green. HCL colors are particularly useful for
-electronic presentations since they are device-independent. See sections 6.1 and 9.1.2 of the reference manual.</li>
-<li>Category-specific effects for cumulative and sequential regression models. Effects in cumulative and sequential regression models for ordered
-responses can now be requested to be category-specific, see sections 8.1.1.3 and 8.1.1.4 of the reference manual. Available for remlreg objects only.</li>
+electronic presentations since they are device-independent and avoid extremely bright colors. 
+See Sections 6.1 and 9.1.2 of the reference manual for details.</li>
+<li>Category-specific effects for cumulative and sequential regression models. Effects in cumulative and sequential regression models for ordered categorical
+responses can now be requested to be category-specific, see Sections 8.1.1.3 and 8.1.1.4 of the reference manual. Available for remlreg objects only.</li>
 <li>Category-specific covariates in multinomial logit models. It is now possible to include parametric as well as nonparametric effects of category-specific covariates into 
 the multinomial logit model, see Section x.x.x of the reference manual. Available for remlreg objects only.</li>
-<li>Availability-indicator and category-specific offsets to account for varying choice sets in multinomial logit models.</li>
-<li>Multi-state models. For bayesreg and remlreg objects.</li>
+<li>Varying choice sets in multinomial logit models. To account for the non-availability of some of the categories for specific
+observations, it is now possible to specify either category-specific offsets or non-availability indicators in multinomial logit models.
+Details are provided in Section x.x.x of the reference manual. Available for remlreg objects only.</li>
+<li>Centered varying coefficient terms to avoid identification problems. Varying coefficient terms (with either
+continuous or spatial effect modifier) can be requested to be centered in order to avoid identification restrictions. 
+In particular, this allows to request several varying coefficient terms with the same interaction variable.
+Details can be found in Section x.x.x of the reference manual. Avalable for remlreg objects only.
+<li>Continuous time multi-state models. A new class of regression models is available for the estimation of multi-type transition models.
+This type of models allows to describe the evolution of discrete phenomena in continuous time in terms of transition
+intensities comparable to the hazard rate of continuous time survival models. Some theoretical background is included in Section 
+x.x.x of the methodology manual while Section x.x.x of the reference manual describes how to specify multi-state models within BayesX.
+Multi-state models can be estimated with both bayesreg and remlreg objects.</li>
 </ul>
 
 <p><b>New features in version 1.4 of BayesX are:</b></p>
 
 <ul>
 <li>Continuous time survival analysis with remlreg objects now allows arbitrary combinations of left, right, and interval censoring as well as left truncation. 
-    See section 8.1.1.4 of the reference manual and section 5.3 of the methodology manual.</li>
-<li>Sequential logit and probit models (remlreg objects). See section 8.1.1.4 of the reference manual.</li>
-<li>The manual is now divided in three parts: A reference manual containing a detailled description of the BayesX commands, a methodology manual containing a short review of the methodological background,
-    and a tutorial manual containing tutorial like sections for new users.</li>
+    See Section 8.1.1.4 of the reference manual and Section 5.3 of the methodology manual.</li>
+<li>Sequential logit and probit models can be estimated using remlreg objects. See Section 8.1.1.4 of the reference manual.</li>
+<li>The manual has been divided into three parts: A reference manual containing a detailed description of the BayesX commands, a methodology manual containing a short review of the methodological background,
+    and a tutorial manual containing tutorial-like Sections for new users.</li>
 </ul>
 
 <p><b>New features in version 1.3 of BayesX are:</b></p>
 
 <ul>
-<li> Complex models for continuous time survival analysis based on the Cox model within the mixed model approach (remlreg objects). Compare section 5.2
-    of the methodology manual for a description of the theoretical background and section 8.1 of the reference manual on how to estimate a cox model using remlreg objects.</li>
-<li>Time-varying effects in Cox models (bayesreg and remlreg objects). See sections 7.1.2.2 and 8.1.1.2 of the reference manual.</li>
-<li>Zero-inflated poisson and zero-inflated negative binomial models (bayesreg objects). See section 7.1.2.4 of the reference manual.</li>
-<li>Complementary log-log models (remlreg objects). See section 8.1.1.4 of the reference manual.</li>
+<li> Complex models for continuous time survival analysis based on the Cox model within the mixed model approach (remlreg objects). Compare Section 5.2
+    of the methodology manual for a description of the theoretical background and Section 8.1 of the reference manual for the BayesX syntax.</li>
+<li>Time-varying effects in Cox models (bayesreg and remlreg objects). See Sections 7.1.2.2 and 8.1.1.2 of the reference manual.</li>
+<li>Zero-inflated poisson and zero-inflated negative binomial models (bayesreg objects). See Section 7.1.2.4 of the reference manual.</li>
+<li>Complementary log-log models (remlreg objects). See Section 8.1.1.4 of the reference manual.</li>
 </ul>
 
 <p><b>New features in version 1.2 of BayesX are:</b></p>
 
 <ul>
-<li> The priority can be regulated within BayesX, see the priority button.</li>
+<li> The priority can be regulated within BayesX using the priority button.</li>
 </ul>
 
 <p><b>New features in version 1.1 of BayesX are:</b></p>
 
 <ul>
-  <li> Inference for semiparametric regression models with multicategorial responses based on mixed model methodology (compare section 8.1.1.4 of the reference manual). This feature allows the
+  <li> Inference for semiparametric regression models with categorial responses based on mixed model methodology (compare Section 8.1.1.4 of the reference manual). This feature allows the
        estimation of models for multinomial and ordinal responses.</li>
-  <li> Surface smoothing based on stationary Gaussian random fields (compare sections 3.2 of the methodology manual and 8.1.1.2 of the reference manual).</li>
+  <li> Surface smoothing based on stationary Gaussian random fields (compare Sections 3.2 of the methodology manual and 8.1.1.2 of the reference manual).</li>
 </ul>
 
 <p><b>New features in version 1.0 of BayesX are:</b></p>
 
 <ul>
-  <li> Complex models for continuous time survival analysis based on the Cox model (bayesreg objects). Compare section 5.2
-       of the methodology manual for a description of the theoretical background and section 7.1 on how to estimate a cox model using bayesreg objects.</li>
+  <li> Regression models for continuous time survival analysis based on the Cox model (bayesreg objects). Compare Section 5.2
+       of the methodology manual for a description of the theoretical background and Section 7.1 on how to estimate a cox model using bayesreg objects.</li>
   <li> Improved sampling schemes for semiparametric regression with general responses from an exponential family. Proposal densities based on approximations of the full conditional distributions, depending either on the current state of the
-parameters or the current posterior mode are now available for nearly all types of model terms. Compare section 4.1 of the methodology manual for details on the different
+parameters or the current posterior mode are now available for nearly all types of model terms. Compare Section 4.1 of the methodology manual for details on the different
 sampling schemes in BayesX. </li>
   <li> Inference for semiparametric regression models with structured additive predictor (STAR) based on methodology for mixed models. This tool represents STAR models as generalized linear mixed models (GLMM).
-Inference is then based on estimation procedures for GLMM's, particularly restricted maximum
+Inference is then based on estimation procedures for GLMMs, particularly restricted maximum
 likelihood (REML). From a Bayesian perspective this yields empirical Bayes or posterior mode estimates. Compare chapter 4.2 of the methodology manual for the theoretical background of STAR models and chapter 8 for details on how to use this regression tool.</li>
   <li> Tutorials on semiparametric regression using the two regression tools of BayesX. Visit the <a href=bayesxtutorials.html>tutorials</a> page.
 </ul>
