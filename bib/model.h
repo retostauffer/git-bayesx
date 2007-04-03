@@ -1715,4 +1715,66 @@ class __EXPORT_TYPE modeltermmult : public model
   };
 
 
+class __EXPORT_TYPE term_random_autoreg : public basic_termtype
+  {
+
+  protected:
+
+  // OPTIONEN von term_random
+
+  intoption min;
+  intoption max;
+  intoption minvar;
+  intoption maxvar;
+  doubleoption startv;
+  doubleoption lambda;
+  doubleoption a;
+  doubleoption b;
+  stroption proposal;
+  intoption updateW;
+  simpleoption updatetau;
+  doubleoption f;
+  doubleoption lambdamin;
+  doubleoption lambdamax;
+  doubleoption lambdastart;
+  simpleoption stationary;
+  doubleoption alpha;
+  simpleoption alphafix;
+
+
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_random_autoreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a first or second order random walk
+
+  bool checkvector(const vector<term>  & terms,const unsigned & i)
+    {
+
+    assert(i< terms.size());
+
+    if ( (terms[i].type == "random_rw1") || (terms[i].type == "random_rw2")
+       )
+      return true;
+
+    return false;
+    }
+
+  // DESTRUCTOR
+
+  ~term_random_autoreg() {}
+
+  };
+
+
 #endif
