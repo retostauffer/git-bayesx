@@ -255,11 +255,31 @@ namespace MCMC
           }
         }
 
+/*      ofstream out1("c:\\temp\\beta.raw");
+      beta.prettyPrint(out1);
+      out1.close();
+      ofstream out2("c:\\temp\\old.raw");
+      old.prettyPrint(out2);
+      out2.close();
+      ofstream out3("c:\\temp\\logfcold.raw");
+      logfcold.prettyPrint(out3);
+      out3.close();
+      ofstream out4("c:\\temp\\logfcnew.raw");
+      logfcnew.prettyPrint(out4);
+      out4.close();
+      ofstream out5("c:\\temp\\diffspline.raw");
+      diffspline.prettyPrint(out5);
+      out5.close();
+      ofstream out6("c:\\temp\\currentspline.raw");
+      currentspline.prettyPrint(out6);
+      out6.close();*/
+
       // compute acceptance probabilities; overwrite non-accepted values with old values
       for(i=0; i<beta.rows(); i++)
         {
         u = log(uniform());
         nrtrials++;
+        double test = (logfcnew(i,0)-logfcold(i,0));
         if(u <= (logfcnew(i,0)-logfcold(i,0)))
           {
           acceptance += 1.0;
@@ -575,4 +595,5 @@ namespace MCMC
     }
 
 } // end: namespace MCMC
+
 

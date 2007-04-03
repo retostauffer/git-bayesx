@@ -142,6 +142,11 @@ class __EXPORT_TYPE FULLCOND_nonp_basis : public FULLCOND
     interaction=true;
     }
 
+  void set_changingweight(void)
+    {
+    changingweight=true;
+    }
+
   //----------------------------------------------------------------------------
   // ------------- FUNCTIONS FOR UPDATING THE VARIANCE PARAMETER ---------------
   //----------------------------------------------------------------------------

@@ -3915,8 +3915,11 @@ void spline_basis::update_merror(datamatrix & newdata)
   multBS_index(spline, beta);
 
   // Zentrierung
-  for(i=0; i<spline.rows(); i++)
-    spline(i,0) -= intercept;
+//  if(!changingweight)
+//    {
+    for(i=0; i<spline.rows(); i++)
+      spline(i,0) -= intercept;
+//    }
 
   }
 // -------------------------END: FOR MERROR ------------------------------------
