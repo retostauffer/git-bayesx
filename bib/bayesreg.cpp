@@ -3178,6 +3178,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
         if(merror.getvalue()>0)
         // Fullcond-Objekt zur Generierung der wahren Kovariablenwerte
           {
+          fcpsplinegaussian[fcpsplinegaussian.size()-1].set_changingweight();
+
           make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                        "_merror.raw","_merror.res","_merror");
 
