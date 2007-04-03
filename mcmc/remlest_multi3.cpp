@@ -2102,13 +2102,17 @@ void remlest_multinomial_catsp::make_graphics(const ST::string & title,
  // erzeugt Tex-File
   ofstream outtex(path_tex.strtochar());
 
+  char charh = '_';
+  ST::string stringh = "\\_";
+  ST::string helptitle = title.insert_string_char(charh,stringh);
+
   //erzeugt den Kopf des Tex-Files
   outtex << "\\documentclass[a4paper, 12pt]{article}" << endl
          << "\n" << "\\usepackage{graphicx}" << endl
          << "\\parindent0em" << endl
          << "\n\\begin{document}" << endl
          << "\\begin{center}" << endl
-         << "\\LARGE{\\bf " << title << "}"
+         << "\\LARGE{\\bf " << helptitle << "}"
          << endl << "\\end{center} \n\\vspace{1cm}" << endl;
 
   make_model(outtex,rname);
