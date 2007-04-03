@@ -511,6 +511,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   bool create_pspline(const unsigned & collinpred=0);
   bool create_varcoeffpspline(const unsigned & collinpred=0);
   bool create_interactionspspline(const unsigned & collinpred=0);
+  bool create_varcoeff_interactionspspline(const unsigned & collinpred=0);  
   bool create_geospline(const unsigned & collinpred=0);
   bool create_varcoeff_geospline(const unsigned & collinpred=0);
 

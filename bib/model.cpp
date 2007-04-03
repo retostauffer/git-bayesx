@@ -1689,24 +1689,34 @@ bool term_interactpspline::check(term & t)
   optlist.push_back(&uniformprior);
   optlist.push_back(&blocksize);
 
-  if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
+  if ( (t.varnames.size()<=3)  && (t.options.size() >= 1)
         && (t.options.size() <= 17) )
     {
 
-    if (t.options[0] == "pspline2dimrw1")
+    if (t.options[0] == "pspline2dimrw1" && t.varnames.size()==2)
       t.type = "pspline2dimrw1";
-    else if (t.options[0] == "pspline2dimrw2")
+    else if (t.options[0] == "pspline2dimrw2" && t.varnames.size()==2)
       t.type = "pspline2dimrw2";
-    else if (t.options[0] == "tpspline2dimrw1")
+    else if (t.options[0] == "tpspline2dimrw1" && t.varnames.size()==2)
       t.type = "tpspline2dimrw1";
-    else if (t.options[0] == "pspline2dimband")
+    else if (t.options[0] == "pspline2dimband" && t.varnames.size()==2)
       t.type = "pspline2dimband";
-    else if (t.options[0] == "tpspline2dimband")
+    else if (t.options[0] == "tpspline2dimband" && t.varnames.size()==2)
       t.type = "tpspline2dimband";
-    else if (t.options[0] == "psplinekrrw1")
+    else if (t.options[0] == "psplinekrrw1" && t.varnames.size()==2)
       t.type = "psplinekrrw1";
-    else if (t.options[0] == "psplinekrrw2")
+    else if (t.options[0] == "psplinekrrw2" && t.varnames.size()==2)
       t.type = "psplinekrrw2";
+    else if (t.options[0] == "pspline2dimrw1" && t.varnames.size()==3)
+      t.type = "varpspline2dimrw1";
+    else if (t.options[0] == "pspline2dimrw2" && t.varnames.size()==3)
+      t.type = "varpspline2dimrw2";
+    else if (t.options[0] == "pspline2dimband" && t.varnames.size()==3)
+      t.type = "varpspline2dimband";
+    else if (t.options[0] == "psplinekrrw1" && t.varnames.size()==3)
+      t.type = "varpsplinekrrw1";
+    else if (t.options[0] == "psplinekrrw2" && t.varnames.size()==3)
+      t.type = "varpsplinekrrw2";
     else
       {
       setdefault();
@@ -1809,8 +1819,11 @@ bool term_interactpspline::checkvector(const vector<term> & terms,
 
   if ((terms[i].type == "pspline2dimrw1") || (terms[i].type == "pspline2dimrw2")
      || (terms[i].type == "psplinekrrw1") || (terms[i].type == "psplinekrrw2")
+     || (terms[i].type == "varpspline2dimrw1") || (terms[i].type == "varpspline2dimrw2")
+     || (terms[i].type == "varpsplinekrrw1") || (terms[i].type == "varpsplinekrrw2")
      || (terms[i].type == "tpspline2dimrw1")
      || (terms[i].type == "pspline2dimband") || (terms[i].type == "tpspline2dimband")
+     ||  (terms[i].type == "varpspline2dimband")
      )
     return true;
 
@@ -1996,6 +2009,7 @@ bool term_geospline::checkvector(const vector<term> & terms, const unsigned & i)
 //------ class term_varcoeff_interactpspline: implementation of member functions
 //------------------------------------------------------------------------------
 
+/*
 term_varcoeff_interactpspline::term_varcoeff_interactpspline(void)
   {
   type = "term_varcoeff_interactpspline";
@@ -2183,7 +2197,7 @@ bool term_varcoeff_interactpspline::checkvector(const vector<term> & terms,
 
   return false;
   }
-
+*/
 
 //------------------------------------------------------------------------------
 //---------- class term_varcoeff_geospline: implementation of member functions -

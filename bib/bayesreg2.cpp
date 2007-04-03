@@ -866,7 +866,7 @@ bool bayesreg::create_random(const unsigned & collinpred)
   ST::string title2;
   double a1,b1,lambda;
   int f;
-  long h;
+//  long h;
   bool iwlsmode=false;
 
   unsigned i;
@@ -1188,6 +1188,8 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
   {
 
   ST::string proposal;
+  bool varcoeff;
+  int j1,j2,j3;
 
   long h;
   double lambda;
@@ -1198,30 +1200,50 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
   int f;
 
   unsigned i;
-  int j1,j2;
+
+
   for(i=0;i<terms.size();i++)
     {
     if ( nonpinteractpspline.checkvector(terms,i) == true )
       {
 
       MCMC::fieldtype type;
+
+      if (terms[i].varnames.size()==2)
+        varcoeff=false;
+      else
+        varcoeff=true;  
+
       if ((terms[i].options[0] == "pspline2dimrw1")   ||
-          (terms[i].options[0] == "tpspline2dimrw1")
+          (terms[i].options[0] == "tpspline2dimrw1") ||
+          (terms[i].options[0] == "varpspline2dimrw1")
          )
         type = MCMC::mrflinear;
-      else if (terms[i].options[0] == "pspline2dimrw2")
+      else if ( (terms[i].options[0] == "pspline2dimrw2") ||
+                (terms[i].options[0] == "varpspline2dimrw2")
+              )
         type = MCMC::mrfquadratic8;
       else if ((terms[i].options[0] == "pspline2dimband")   ||
+              (terms[i].options[0] == "varpspline2dimband") ||
           (terms[i].options[0] == "tpspline2dimband")
          )
         type = MCMC::mrflinearband;
-      else if (terms[i].options[0] == "psplinekrrw1")
+      else if ( (terms[i].options[0] == "psplinekrrw1") ||
+                (terms[i].options[0] == "varpsplinekrrw1")
+              )
         type = MCMC::mrfkr1;
-      else if (terms[i].options[0] == "psplinekrrw2")
+      else if ( (terms[i].options[0] == "psplinekrrw2") ||
+                (terms[i].options[0] == "varpsplinekrrw2")
+              )
         type = MCMC::mrfkr2;
 
       j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
       j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+
+
+      if (varcoeff==true)
+        j3 = terms[i].varnames[2].isinlist(modelvarnamesv);
+
 
       f = (terms[i].options[1]).strtolong(h);
       min = unsigned(h);
@@ -1266,10 +1288,23 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
       if (f==1)
         return true;
 
-      ST::string help  = terms[i].varnames[0] + "_" + terms[i].varnames[1];
+      ST::string help;
 
-      make_paths(collinpred,pathnonp,pathres,title,help,"",
-                 "_pspline.raw","_pspline.res","_pspline");
+      if (varcoeff==false)
+        {
+        help  = terms[i].varnames[0] + "_" + terms[i].varnames[1];
+
+        make_paths(collinpred,pathnonp,pathres,title,help,"",
+                   "_pspline.raw","_pspline.res","_pspline");
+        }
+      else
+        {
+        help  = terms[i].varnames[0] + "_" + terms[i].varnames[1]+
+                           "_" + terms[i].varnames[2];
+
+        make_paths(collinpred,pathnonp,pathres,title,help,"",
+                   "_pspline.raw","_pspline.res","_pspline");
+        }
 
 
       if (check_gaussian(collinpred))
@@ -1334,22 +1369,46 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
 
           }
 
-        fcpsplinesurfgaussian.push_back(
-        FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
-                                      fcconst_intercept,
-                                      D.getCol(j1),
-                                      D.getCol(j2),
-                                      title,
-                                      nrknots,degree,po,
-                                      lambda,
-                                      gridsize,
-                                      type,
-                                      pathnonp,
-                                      pathres,
-                                      outfile.getvalue(),
-                                      singleblock,
-                                      collinpred
-                                      ));
+        if (varcoeff==false)
+          {
+          fcpsplinesurfgaussian.push_back(
+          FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
+                                        fcconst_intercept,
+                                        D.getCol(j1),
+                                        D.getCol(j2),
+                                        title,
+                                        nrknots,degree,po,
+                                        lambda,
+                                        gridsize,
+                                        type,
+                                        pathnonp,
+                                        pathres,
+                                        outfile.getvalue(),
+                                        singleblock,
+                                        collinpred
+                                        ));
+           }
+         else
+           {
+           fcpsplinesurfgaussian.push_back(
+           FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
+                                          fcconst_intercept,
+                                          D.getCol(j1),
+                                          D.getCol(j2),
+                                          D.getCol(j3),
+                                          title,
+                                          nrknots,degree,po,
+                                          lambda,
+                                          gridsize,
+                                          type,
+                                          pathnonp,
+                                          pathres,
+                                          outfile.getvalue(),
+                                          singleblock,
+                                          collinpred
+                                          ));
+
+           }
 
         if (constlambda.getvalue() == true)
           fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
@@ -1380,6 +1439,9 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
         vector<ST::string> na;
         na.push_back(terms[i].varnames[0]);
         na.push_back(terms[i].varnames[1]);
+
+        if (varcoeff==true)
+          na.push_back(terms[i].varnames[2]);
 
         fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
 
@@ -1521,31 +1583,61 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
             }
 
 
+          if (varcoeff==false)
+            {
+            fcpsplinesurfgaussian.push_back( FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],
+                                           distr[distr.size()-1],
+                                           fcconst_intercept,
+                                           D.getCol(j1),
+                                           D.getCol(j2),
+                                           iwlsmode,
+                                           title,
+                                           nrknots,degree,
+                                           po,
+                                           lambda,
+                                           updateW,
+                                           updatetau,
+                                           fstart,
+                                           a1,b1,
+                                           gridsize,
+                                           type,
+                                           pathnonp,
+                                           pathres,
+                                           outfile.getvalue(),
+                                           true,
+                                           singleblock,
+                                           collinpred
+                                          )
+                          );
+            }
+          else
+            {
 
-          fcpsplinesurfgaussian.push_back( FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],
-                                         distr[distr.size()-1],
-                                         fcconst_intercept,
-                                         D.getCol(j1),
-                                         D.getCol(j2),
-                                         iwlsmode,
-                                         title,
-                                         nrknots,degree,
-                                         po,
-                                         lambda,
-                                         updateW,
-                                         updatetau,
-                                         fstart,
-                                         a1,b1,
-                                         gridsize,
-                                         type,
-                                         pathnonp,
-                                         pathres,
-                                         outfile.getvalue(),
-                                         true,
-                                         singleblock,
-                                         collinpred
-                                        )
-                        );
+            fcpsplinesurfgaussian.push_back( FULLCOND_pspline_surf_gaussian(&generaloptions[generaloptions.size()-1],
+                                           distr[distr.size()-1],
+                                           fcconst_intercept,
+                                           D.getCol(j1),
+                                           D.getCol(j2),
+                                           D.getCol(j3),
+                                           title,
+                                           nrknots,degree,
+                                           po,
+                                           lambda,
+                                           updateW,
+                                           updatetau,
+                                           fstart,
+                                           a1,b1,
+                                           gridsize,
+                                           type,
+                                           pathnonp,
+                                           pathres,
+                                           outfile.getvalue(),
+                                           true,
+                                           singleblock,
+                                           collinpred
+                                          )
+                          );
+            }
 
           if (constlambda.getvalue() == true)
             fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
@@ -1577,6 +1669,10 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
           vector<ST::string> na;
           na.push_back(terms[i].varnames[0]);
           na.push_back(terms[i].varnames[1]);
+
+          if (varcoeff==true)
+            na.push_back(terms[i].varnames[1]);
+
 
           fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
 
@@ -1791,6 +1887,12 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
 
   }
 
+/*
+bool bayesreg::create_varcoeff_interactionspspline(const unsigned & collinpred=0)
+  {
+
+  }
+*/
 
 bool bayesreg::create_geospline(const unsigned & collinpred)
   {

@@ -1216,6 +1216,7 @@ class __EXPORT_TYPE term_geospline : public basic_termtype
 //---------------------- class term_varcoeff_interactpspline  ------------------
 //------------------------------------------------------------------------------
 
+/*
 class __EXPORT_TYPE term_varcoeff_interactpspline : public basic_termtype
   {
 
@@ -1259,7 +1260,7 @@ class __EXPORT_TYPE term_varcoeff_interactpspline : public basic_termtype
   ~term_varcoeff_interactpspline() {}
 
   };
-
+*/
 
 //------------------------------------------------------------------------------
 //--------------------------- class term_varcoeff_geospline  -------------------
@@ -1714,7 +1715,7 @@ class __EXPORT_TYPE modeltermmult : public model
 
   };
 
-
+/*
 class __EXPORT_TYPE term_random_autoreg : public basic_termtype
   {
 
@@ -1775,6 +1776,6 @@ class __EXPORT_TYPE term_random_autoreg : public basic_termtype
   ~term_random_autoreg() {}
 
   };
-
+*/
 
 #endif
