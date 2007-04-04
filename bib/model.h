@@ -1723,11 +1723,15 @@ class __EXPORT_TYPE term_random_autoreg : public basic_termtype
 
   // OPTIONEN von term_random
 
-  intoption min;
-  intoption max;
-  intoption minvar;
-  intoption maxvar;
-  doubleoption startv;
+  doubleoption lambda_r;
+  doubleoption a_r;
+  doubleoption b_r;
+  stroption proposal_r;
+  simpleoption updatetau_r;
+  simpleoption uniformprior_r;
+  simpleoption constlambda_r;
+
+
   doubleoption lambda;
   doubleoption a;
   doubleoption b;
@@ -1764,8 +1768,7 @@ class __EXPORT_TYPE term_random_autoreg : public basic_termtype
 
     assert(i< terms.size());
 
-    if ( (terms[i].type == "random_rw1") || (terms[i].type == "random_rw2")
-       )
+    if ( (terms[i].type == "random_rw1") ||  (terms[i].type == "random_rw2") )
       return true;
 
     return false;

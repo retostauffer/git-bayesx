@@ -2650,3 +2650,131 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
   return false;
   }
 
+
+bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
+  {
+
+  double lambda_r;
+  double a_r,b_r;
+  bool updatetau_r;
+  ST::string proposal_r;
+
+  long h;
+  double hd;
+  double lambda,a1,b1,alpha;
+  bool updatetau;
+  double ftune;
+  unsigned updateW;
+  ST::string proposal;
+  int f;
+
+  unsigned i;
+  int j1,j2;
+
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonprw1rw2.checkvector(terms,i) == true)
+      {
+
+      // -------------- reading options, term information ----------------------
+
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+
+      MCMC::fieldtype type;
+
+      if (terms[i].options[0] == "random_rw1")
+        type = MCMC::RW1;
+      else
+        type = MCMC::RW2;
+
+      f = (terms[i].options[1]).strtodouble(lambda_r);
+
+      f = (terms[i].options[2]).strtodouble(a_r);
+
+      f = (terms[i].options[3]).strtodouble(b_r);
+
+      proposal_r = terms[i].options[4];
+
+
+      f = (terms[i].options[8]).strtodouble(lambda);
+
+      f = (terms[i].options[9]).strtodouble(a1);
+
+      f = (terms[i].options[10]).strtodouble(b1);
+
+      proposal = terms[i].options[11];
+
+      f = (terms[i].options[12]).strtolong(h);
+      updateW = unsigned(h);
+
+      if (terms[i].options[13] == "true")
+        updatetau=true;
+      else
+        updatetau=false;
+
+      f = (terms[i].options[14]).strtodouble(ftune);
+
+      f = (terms[i].options[19]).strtodouble(alpha);
+
+      // -------------- reading options, term information ----------------------
+
+      // -------- creating paths for samples and results, titles ---------------
+
+
+      // -------- end: creating paths for samples and results, titles ----------
+
+
+      //-------------------- gaussian response, etc. -------------------------
+      if ( (check_gaussian(collinpred)) || (check_iwls(true,collinpred)) )
+        {
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],
+                 terms[i].varnames[1],
+                 "_mult_rw.raw","_mult_rw.res","_mult_rw");
+
+        fcnonpgaussian.push_back(
+        FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
+        distr[distr.size()-1],D.getCol(j2),fcconst_intercept,
+        unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,
+        lambda));
+
+        fcnonpgaussian[fcnonpgaussian.size()-1].init_name(
+        terms[i].varnames[1]);
+
+        if (constlambda.getvalue() == true)
+          {
+          fcnonpgaussian[fcnonpgaussian.size()-1].set_lambdaconst(lambda);
+          }
+
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
+
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                  terms[i].varnames[0],"_mult_rw_var.raw","_mult_rw_var.res","_mult_rw_variance");
+
+        fcvarnonp.push_back(
+        FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+        &fcnonpgaussian[fcnonpgaussian.size()-1],distr[distr.size()-1],
+        a1,b1,title,pathnonp,pathres,false,collinpred));
+
+
+        fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+
+
+
+
+          //------------------- end: gaussian response, etc. -------------------
+        }
+
+
+      } // end: if ( nonprw1rw2.checkvector(terms,i) == true )
+
+    }
+
+  return false;
+
+  }
+

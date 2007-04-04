@@ -3656,6 +3656,187 @@ void modeltermmult::parse(const ST::string & m)
 
 
 
+//------------------------------------------------------------------------------
+//--------- class term_random_autoreg: implementation of member functions ------
+//------------------------------------------------------------------------------
+
+
+term_random_autoreg::term_random_autoreg(void)
+  {
+  type = "term_random_autoreg";
+
+  lambda_r = doubleoption("lambda_r",100000,0,10000000);
+  a_r = doubleoption("a_r",0.001,-1.0,500);
+  b_r = doubleoption("b_r",0.001,0,500);
+  vector<ST::string> adm_prop;
+  adm_prop.push_back("iwls");
+  adm_prop.push_back("iwlsmode");
+  proposal_r = stroption("proposal_r",adm_prop,"iwls");
+  updatetau_r = simpleoption("updatetau_r",false);
+  uniformprior_r = simpleoption("uniformprior_r",false);
+  constlambda_r = simpleoption("constlambda_r",false);
+
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  a = doubleoption("a",0.001,-1.0,500);
+  b = doubleoption("b",0.001,0,500);
+  proposal = stroption("proposal",adm_prop,"iwls");
+  updateW = intoption("updateW",1,0,100);
+  updatetau = simpleoption("updatetau",false);
+  f = doubleoption("f",2,0,10000000);
+  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
+  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
+  lambdastart = doubleoption("lambdastart",-1,-1,10000000);
+  stationary = simpleoption("stationary",false);
+  alpha = doubleoption("alpha",0.9,-1.0,1.0);
+  alphafix = simpleoption("alphafix",false);
+
+  }
+
+
+void term_random_autoreg::setdefault(void)
+  {
+  lambda_r.setdefault();
+  a_r.setdefault();
+  b_r.setdefault();
+  proposal_r.setdefault();
+  updatetau_r.setdefault();
+  uniformprior_r.setdefault();
+  constlambda_r.setdefault();  // 7
+
+  lambda.setdefault();
+  a.setdefault();
+  b.setdefault();
+  proposal.setdefault();
+  updateW.setdefault();
+  updatetau.setdefault();
+  f.setdefault();
+  lambdamin.setdefault();
+  lambdamax.setdefault();
+  lambdastart.setdefault();
+  stationary.setdefault();
+  alpha.setdefault();
+  alphafix.setdefault();     // 13 (total 13+7=20)
+  }
+
+
+bool term_random_autoreg::check(term & t)
+  {
+
+  if ( (t.varnames.size()==2)  && (t.options.size()<=21) )
+    {
+
+    if (t.options[0] == "random_rw1")
+      t.type = "random_rw1";
+    else if   (t.options[0] == "random_rw2")
+      t.type = "random_rw2";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    vector<ST::string> opt;
+    optionlist optlist;
+    optlist.push_back(&lambda_r);
+    optlist.push_back(&a_r);
+    optlist.push_back(&b_r);
+    optlist.push_back(&proposal_r);
+    optlist.push_back(&updatetau_r);
+    optlist.push_back(&uniformprior_r);
+    optlist.push_back(&constlambda_r);
+
+    optlist.push_back(&lambda);
+    optlist.push_back(&a);
+    optlist.push_back(&b);
+    optlist.push_back(&proposal);
+    optlist.push_back(&updateW);
+    optlist.push_back(&updatetau);
+    optlist.push_back(&f);
+    optlist.push_back(&lambdamin);
+    optlist.push_back(&lambdamax);
+    optlist.push_back(&lambdastart);
+    optlist.push_back(&stationary);
+    optlist.push_back(&alpha);
+    optlist.push_back(&alphafix);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(21);
+    t.options[0] = t.type;
+    t.options[1] = ST::doubletostring(lambda_r.getvalue());
+    t.options[2] = ST::doubletostring(a_r.getvalue());
+    t.options[3] = ST::doubletostring(b_r.getvalue());
+    t.options[4] = proposal_r.getvalue();
+    if (updatetau_r.getvalue() == false)
+      t.options[5] = "false";
+    else
+      t.options[5] = "true";
+    if (uniformprior_r.getvalue() == false)
+      t.options[6] = "false";
+    else
+      t.options[6] = "true";
+    if (constlambda_r.getvalue() == false)
+      t.options[7] = "false";
+    else
+      t.options[7] = "true";
+
+    t.options[8] = ST::doubletostring(lambda.getvalue());
+    t.options[9] = ST::doubletostring(a.getvalue());
+    t.options[10] = ST::doubletostring(b.getvalue());
+    t.options[11] = proposal.getvalue();
+    t.options[12] = ST::inttostring(updateW.getvalue());
+    if (updatetau.getvalue()==false)
+      t.options[13] = "false";
+    else
+      t.options[13] = "true";
+    t.options[14] = ST::doubletostring(f.getvalue());
+    t.options[15] = ST::doubletostring(lambdamin.getvalue());
+    t.options[16] = ST::doubletostring(lambdamax.getvalue());
+    t.options[17] = ST::doubletostring(lambdastart.getvalue());
+    if(stationary.getvalue() == false)
+      t.options[18] = "false";
+    else
+      t.options[18] = "true";
+    t.options[19] = ST::doubletostring(alpha.getvalue());
+    if(alphafix.getvalue() == false)
+      t.options[20] = "false";
+    else
+      t.options[20] = "true";
+
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
 
 
 

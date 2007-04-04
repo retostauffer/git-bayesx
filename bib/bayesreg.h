@@ -554,6 +554,17 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   //-------------------- end: for random effects -------------------------------
 
+  //-------------------- for multiplicative effects ----------------------------
+
+  term_random_autoreg randomrw;
+
+  vector<FULLCOND_mult> fcmult; 
+
+  bool create_random_rw1rw2(const unsigned & collinpred=0);
+
+  //------------------ end: for multiplicative effects -------------------------
+
+
   friend void __EXPORT_TYPE regressrun(bayesreg & b);
 
   friend void __EXPORT_TYPE mregressrun(bayesreg & b);
