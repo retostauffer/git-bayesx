@@ -2673,7 +2673,7 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
 
   for(i=0;i<terms.size();i++)
     {
-    if ( nonprw1rw2.checkvector(terms,i) == true)
+    if ( randomrw.checkvector(terms,i) == true)
       {
 
       // -------------- reading options, term information ----------------------

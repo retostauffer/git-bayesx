@@ -190,6 +190,7 @@ void bayesreg::create(void)
   varcoeffbaseline = term_varcoeff_baseline();
   nonpvarcoeffmerror = term_varcoeff_merror();
   ridge = term_ridge();
+  randomrw = term_random_autoreg();
 
   termtypes.push_back(&offset);
   termtypes.push_back(&fixedeffects);
@@ -210,6 +211,8 @@ void bayesreg::create(void)
   termtypes.push_back(&varcoeffbaseline);
   termtypes.push_back(&nonpvarcoeffmerror);
   termtypes.push_back(&ridge);
+  termtypes.push_back(&randomrw);
+
 
   modreg = modelterm(&termtypes);
 
@@ -582,7 +585,7 @@ void bayesreg::create(void)
   trtypes.push_back("lognormal");
   trtypes.push_back("elasticity");
   trtypes.push_back("marginal");
-  trtypes.push_back("oddsratio");  
+  trtypes.push_back("oddsratio");
 
   transformtype = stroption("transformtype",trtypes,"exp");
 

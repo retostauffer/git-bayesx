@@ -95,7 +95,9 @@ __fastcall Thauptformular::Thauptformular(TComponent* Owner)
   objecttyps.push_back("bayesreg");
   objecttyps.push_back("map");
 //  objecttyps.push_back("dag");
+#if defined(INCLUDE_REML)
   objecttyps.push_back("remlreg");
+#endif
   objecttyps.push_back("stepwisereg");
 //  objecttyps.push_back("diseasemap");
 
@@ -164,6 +166,7 @@ void Thauptformular::dropobjects(ST::string name, ST::string type)
 		i++;
 		}
 	 }  // end: type bayesreg
+#if defined(INCLUDE_REML)
   else if (type == "remlreg")
 	 {
 	 while ( (i < remlregobjects.size()) && (recognized == 0) )
@@ -178,6 +181,7 @@ void Thauptformular::dropobjects(ST::string name, ST::string type)
 		i++;
 		}
 	 }  // end: type remlreg
+#endif     
   else if (type == "stepwisereg")
 	 {
 	 while ( (i < stepwiseregobjects.size()) && (recognized == 0) )
@@ -300,11 +304,13 @@ ST::string Thauptformular::create(const ST::string & in)
 			 bayesreg newobject(token[1],&logout,input,defaultpath,&objects);
 			 bayesregobjects.push_back(newobject);
 			 }
+#if defined(INCLUDE_REML)
 		  else if (token[0] == "remlreg")
 			 {
 			 remlreg newobject(token[1],&logout,input,defaultpath,&objects);
 			 remlregobjects.push_back(newobject);
 			 }
+#endif             
 		  else if (token[0] == "stepwisereg")
 			 {
 			 stepwisereg newobject(token[1],&logout,input,defaultpath,&objects);
@@ -376,8 +382,10 @@ void Thauptformular::adjustobjects(void)
   for (i=0;i<bayesregobjects.size();i++)
 	 objects.push_back(&bayesregobjects[i]);
 
+#if defined(INCLUDE_REML)
   for (i=0;i<remlregobjects.size();i++)
 	 objects.push_back(&remlregobjects[i]);
+#endif     
 
   for (i=0;i<stepwiseregobjects.size();i++)
 	 objects.push_back(&stepwiseregobjects[i]);

@@ -1715,7 +1715,7 @@ class __EXPORT_TYPE modeltermmult : public model
 
   };
 
-/*
+
 class __EXPORT_TYPE term_random_autoreg : public basic_termtype
   {
 
@@ -1779,6 +1779,6 @@ class __EXPORT_TYPE term_random_autoreg : public basic_termtype
   ~term_random_autoreg() {}
 
   };
-*/
+
 
 #endif

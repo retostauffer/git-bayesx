@@ -2317,6 +2317,10 @@ void regressrun(bayesreg & b)
      if(!failure)
         failure = b.create_ridge(i);
 
+      if (!failure)
+        failure = b.create_random_rw1rw2(i);
+
+
       } // end: for (i=0;i<b.nrcategories;i++)
     } // end: if (!failure)
 

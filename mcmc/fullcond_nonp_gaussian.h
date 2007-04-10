@@ -41,9 +41,11 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   vector< vector<unsigned> > neighbors;
 
 // For REML
-
+#if defined(INCLUDE_REML)
   datamatrix X_VCM;                     // für REML VCM
   datamatrix Z_VCM;                     // für REML VCM
+
+#endif
 
   datamatrix remlspatialdesign;
 
@@ -225,6 +227,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                          const unsigned & c,const double & l);
 
 
+#if defined(INCLUDE_REML)
   //------------------------ REML CONSTRUCTOR(s) -------------------------------
 
   // CONSTRUCTOR 6: REML: RW1, RW2, seasonal
@@ -292,6 +295,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                          const ST::string & fp, const ST::string & pres,
                          const double & l, const double & sl,
                          const bool & catsp, const bool & ctr);
+#endif
 
   void set_IWLS(const unsigned & uw,bool mode=false);
 
@@ -463,6 +467,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   ~FULLCOND_nonp_gaussian() {}
 
 
+#if defined(INCLUDE_REML)
   //------------------------------- FOR REML -----------------------------------
 
   void createreml(datamatrix & X,datamatrix & Z,
@@ -484,6 +489,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                                      const unsigned plotpos);
 
   void outoptionsreml();
+#endif  
 
   };
 

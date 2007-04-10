@@ -42,6 +42,9 @@
 #include"mcmc_pspline_surf.h"
 #include"fullcond_pspline_surf_gaussian.h"
 #include"mcmc_pspline.h"
+
+
+
 //#include<isotonic.h>
 
 #include"randomeffect.h"
@@ -52,8 +55,11 @@
 #include"multibaseline.h"
 //#include<IWLS_baseline.h>
 
+#include"fullcond_mult.h"
+
 #include"fullcond_merror.h"
 //#include"mcmc_ridge.h"
+
 
 #include"mcmcsimul.h"
 
@@ -97,6 +103,7 @@ using MCMC::FULLCOND_variance_nonp_vector;
 using MCMC::FULLCOND_pspline;
 using MCMC::FULLCOND_pspline_gaussian;
 using MCMC::IWLS_pspline;
+using MCMC::FULLCOND_mult;
 //using MCMC::ISOTONIC;
 //using MCMC::ISOTONIC_IWLS;
 using MCMC::FULLCOND_pspline_surf;

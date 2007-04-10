@@ -13,7 +13,11 @@
 #include<statobj.h>
 #include<dataobj.h>
 #include<bayesreg.h>
+
+#if defined(INCLUDE_REML)
 #include<remlreg.h>
+#endif
+
 #include<stepwisereg.h>
 #include<mapobject.h>
 //#include<dagobject.h>
@@ -79,7 +83,9 @@ private:        // Benutzerdeklarationen
 
   // 'remlregobjects' contains current remlreg objects
 
+#if defined(INCLUDE_REML)
   vector<remlreg> remlregobjects;
+#endif  
 
   // 'stepwiseregobjects' contains current stepwisereg objects
 
