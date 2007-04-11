@@ -31,6 +31,8 @@ class __EXPORT_TYPE FULLCOND_mult : public FULLCOND
   FULLCOND_nonp_basis * basis2p;
   FULLCOND_random * reffectp;
 
+  bool first;
+
 
   public:
 
@@ -51,6 +53,7 @@ class __EXPORT_TYPE FULLCOND_mult : public FULLCOND
   FULLCOND_mult(MCMCoptions * o,DISTRIBUTION * dp,
                          FULLCOND_random * rp,
                          FULLCOND_nonp_basis * ba,
+                         bool fi,
                          const ST::string & ti,
                          const ST::string & fp, const ST::string & pres,
                          const unsigned & c);
@@ -73,7 +76,7 @@ class __EXPORT_TYPE FULLCOND_mult : public FULLCOND
 
   bool posteriormode(void);
 
-  bool posteriormode_converged(const unsigned & itnr);
+//  bool posteriormode_converged(const unsigned & itnr);
 
   void outresults(void);
 

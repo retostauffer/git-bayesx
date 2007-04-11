@@ -186,6 +186,13 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
 
   void set_lambdaconst(double la);
 
+  void init_data_varcoeff(const datamatrix & intvar);
+
+  void get_effectmatrix(datamatrix & e,vector<ST::string> & enames,
+                                unsigned be,unsigned en, effecttype t);
+
+
+
   // FOR REML
 
   void createreml(datamatrix & X,datamatrix & Z,

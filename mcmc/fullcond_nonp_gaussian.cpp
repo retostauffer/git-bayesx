@@ -3351,10 +3351,11 @@ bool FULLCOND_nonp_gaussian::posteriormode(void)
 
   update_linpred(false);
 
-  if ( (lambda_prec != lambda) || (likep->iwlsweights_constant() == false) )
+  if ( (lambda_prec != lambda) ||
+     (likep->iwlsweights_constant() == false) || (changingweight==true) )
     {
 
-    if (likep->iwlsweights_constant() == false)
+    if ( (likep->iwlsweights_constant() == false ) || (changingweight==true) )
       {
       if (varcoeff)
         compute_XWX_varcoeff_env(likep->get_weightiwls(),column);

@@ -10,11 +10,16 @@ namespace MCMC
 FULLCOND_mult::FULLCOND_mult(MCMCoptions * o,DISTRIBUTION * dp,
                          FULLCOND_random * rp,
                          FULLCOND_nonp_basis * ba,
+                         bool fi,
                          const ST::string & ti,
                          const ST::string & fp, const ST::string & pres,
                          const unsigned & c)
+  : FULLCOND(o,datamatrix(dp->get_nrobs(),1),ti,1,1,fp)
   {
 
+  basis1p = ba;
+  reffectp = rp;
+  first = fi;
 
   }
 
@@ -26,6 +31,7 @@ FULLCOND_mult::FULLCOND_mult(const FULLCOND_mult & fc)
   basis1p = fc.basis1p;
   basis2p = fc.basis2p;
   reffectp = fc.reffectp;
+  first = fc.first;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -37,6 +43,7 @@ const FULLCOND_mult & FULLCOND_mult::operator=(const FULLCOND_mult & fc)
   basis1p = fc.basis1p;
   basis2p = fc.basis2p;
   reffectp = fc.reffectp;
+  first = fc.first;
   return *this;
   }
 
@@ -51,17 +58,31 @@ void FULLCOND_mult::update(void)
 //    }
 
 
+
 bool FULLCOND_mult::posteriormode(void)
   {
+  vector<ST::string> enames;
+  if (first)
+    {
+    basis1p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+    reffectp->init_data_varcoeff(data);
+    }
+  else
+    {
+    reffectp->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+    basis1p->init_data_varcoeff(data);
+    }
 
-
+  return true;
   }
 
+/*
 bool FULLCOND_mult::posteriormode_converged(const unsigned & itnr)
   {
 
 
   }
+*/
 
 
 void FULLCOND_mult::outresults(void)

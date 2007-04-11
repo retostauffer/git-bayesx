@@ -147,6 +147,16 @@ class __EXPORT_TYPE FULLCOND_nonp_basis : public FULLCOND
     changingweight=true;
     }
 
+
+  // FUNCTION: init_data_varcoeff
+  // TASK: initializes data and data2 (data^2) for varying coefficient model
+
+  virtual void init_data_varcoeff(const datamatrix & intvar)
+    {
+
+    }
+
+
   //----------------------------------------------------------------------------
   // ------------- FUNCTIONS FOR UPDATING THE VARIANCE PARAMETER ---------------
   //----------------------------------------------------------------------------

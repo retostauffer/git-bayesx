@@ -1335,6 +1335,124 @@ void FULLCOND_random::update_linpred(const bool & add)
   }
 
 
+void FULLCOND_random::init_data_varcoeff(const datamatrix & intvar)
+  {
+
+  double * datap = data.getV();
+  double * datap2 = data2.getV();
+  int * workindex = index.getV();
+  unsigned j;  
+
+  for(j=0;j<data.rows();j++,datap++,datap2++,workindex++)
+    {
+    *datap = intvar(*workindex,0);
+    *datap2 = (*datap) * (*datap);
+    }
+
+  }
+
+
+void FULLCOND_random::get_effectmatrix(datamatrix & e,
+                                vector<ST::string> & enames,
+                                unsigned be,unsigned en, effecttype t)
+  {
+
+  int * workindex = index.getV();
+
+  double * workbeta;
+  if (t==MCMC::current || t==MCMC::fvar_current)
+    workbeta = beta.getV();
+  else if (t==MCMC::mean || t==MCMC::fvar_mean)
+    workbeta = betamean.getV();
+  else
+    workbeta = betaqu50.getV();
+
+  vector<unsigned>::iterator itbeg = posbeg.begin();
+  vector<unsigned>::iterator itend = posend.begin();
+
+  int j;
+  unsigned i,k;
+
+  if (randomslope)
+    {
+
+    if (t==MCMC::fvar_current || t==MCMC::fvar_mean  || t==MCMC::fvar_median)
+      {
+
+      unsigned n;
+      if (includefixed)
+        n= nrpar-1;
+      else
+         n=nrpar;
+
+      for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
+        {
+        for(j=*itbeg;j<=*itend;j++,workindex++)
+          e(*workindex,be) = *workbeta;
+        }
+
+      }
+/*
+    else
+      {
+
+      double * workdata=data.getV();
+
+      vector<ST::string>::iterator effit = effectvalues.begin();
+      int t;
+      enames.push_back("f_"+datanames[0]+"_"+datanames[1]);
+      enames.push_back(datanames[0]);
+      enames.push_back(datanames[1]);
+
+      for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend,++effit)
+        {
+        if (*itbeg != -1)
+          {
+          for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
+            {
+            e(*workindex,be) = *workbeta*(*workdata);
+            t = (*effit).strtodouble(e(*workindex,be+1));
+            e(*workindex,be+2) = *workdata;
+            }
+          }
+        }
+
+      }
+
+      */
+    }
+  else
+    {
+
+/*
+
+    vector<ST::string>::iterator effit = effectvalues.begin();
+    int t;
+
+    enames.push_back("f_"+datanames[0]);
+    enames.push_back(datanames[0]);
+
+
+    for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend,++effit)
+      {
+      if (*itbeg != -1)
+        {
+        for (k=(*itbeg);k<=(*itend);k++,workindex++)
+          {
+          e(*workindex,be) = *workbeta;
+          t = (*effit).strtodouble(e(*workindex,be+1));
+          }
+        }
+      }
+
+ */
+ 
+    }
+
+  }
+
+
+
 bool FULLCOND_random::posteriormode(void)
   {
 
