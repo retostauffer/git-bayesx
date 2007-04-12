@@ -2744,14 +2744,16 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
         fcnonpgaussian[fcnonpgaussian.size()-1].init_name(
         terms[i].varnames[1]);
 
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_changingweight();
+
+
         if (constlambda.getvalue() == true)
           {
           fcnonpgaussian[fcnonpgaussian.size()-1].set_lambdaconst(lambda);
           }
 
-        fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
 
+        // Include variance of nonlinear f
 
         make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
         "f_"+terms[i].varnames[0]+"_random",
@@ -2761,25 +2763,6 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
         FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
         &fcnonpgaussian[fcnonpgaussian.size()-1],distr[distr.size()-1],
         a1,b1,title,pathnonp,pathres,false,collinpred));
-
-
-        fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
-/*
-FULLCOND_mult::FULLCOND_mult(MCMCoptions * o,DISTRIBUTION * dp,
-                         FULLCOND_random * rp,
-                         FULLCOND_nonp_basis * ba,
-                         bool fi,
-                         const ST::string & ti,
-                         const ST::string & fp, const ST::string & pres,
-                         const unsigned & c)
-
-       fcmult.push_back(&generaloptions[generaloptions.size()-1],
-        &fcnonpgaussian[fcnonpgaussian.size()-1],distr[distr.size()-1],
-       )
-
-*/       
 
       // Include random effect
 
@@ -2806,6 +2789,32 @@ FULLCOND_mult::FULLCOND_mult(MCMCoptions * o,DISTRIBUTION * dp,
         na.push_back(terms[i].varnames[1]);
         fcrandomgaussian[fcrandomgaussian.size()-1].init_names(na);
 
+
+       // Include first fcmult
+
+       fcmult.push_back(FULLCOND_mult(&generaloptions[generaloptions.size()-1],
+       distr[distr.size()-1],&fcrandomgaussian[fcrandomgaussian.size()-1],
+       &fcnonpgaussian[fcnonpgaussian.size()-1],true,"","","",collinpred));
+
+       // Include second fcmult
+
+       fcmult.push_back(FULLCOND_mult(&generaloptions[generaloptions.size()-1],
+       distr[distr.size()-1],&fcrandomgaussian[fcrandomgaussian.size()-1],
+       &fcnonpgaussian[fcnonpgaussian.size()-1],false,"","","",collinpred));
+
+
+        // Reinhängen in fullcond
+
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
+
+        fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+
+        fcmult[fcmult.size()-2].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcmult[fcmult.size()-2]);
+
+
         fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
 
         if (constlambda.getvalue() == true)
@@ -2830,6 +2839,10 @@ FULLCOND_mult::FULLCOND_mult(MCMCoptions * o,DISTRIBUTION * dp,
           fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
           }
+
+        fcmult[fcmult.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcmult[fcmult.size()-1]);
+
 
           //------------------- end: gaussian response, etc. -------------------
         }

@@ -27,6 +27,7 @@ FULLCOND_mult::FULLCOND_mult(MCMCoptions * o,DISTRIBUTION * dp,
   // COPY CONSTRUCTOR
 
 FULLCOND_mult::FULLCOND_mult(const FULLCOND_mult & fc)
+  : FULLCOND(FULLCOND(fc))
   {
   basis1p = fc.basis1p;
   basis2p = fc.basis2p;
@@ -40,6 +41,7 @@ const FULLCOND_mult & FULLCOND_mult::operator=(const FULLCOND_mult & fc)
   {
   if (this == &fc)
     return *this;
+  FULLCOND::operator=(FULLCOND(fc));
   basis1p = fc.basis1p;
   basis2p = fc.basis2p;
   reffectp = fc.reffectp;
