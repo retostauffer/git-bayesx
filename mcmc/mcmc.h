@@ -181,6 +181,8 @@ class __EXPORT_TYPE MCMCoptions
 
   void update(void);
 
+  void update_bootstrap(void);
+
   // FUNCTION: outoptions
   // TASK: writes general options (iterations,burnin,step,family) to
   //       output stream

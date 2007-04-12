@@ -29,6 +29,9 @@ FULLCOND::FULLCOND(MCMCoptions * o,const datamatrix & d,
   grenzfall = 0;
   smoothing = "global";
   interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
+  calculate_xwx = true;
+  calculate_xwx_vc = true;
+  nofixed = false;
 
   transformnonlinear = false;
   transformed =  false;
@@ -110,12 +113,23 @@ FULLCOND::FULLCOND(const FULLCOND & m)
   lambdamin = m.lambdamin;
   lambdamax = m.lambdamax;
   data_forfixed = m.data_forfixed;
+  forced_into = m.forced_into;
+  df_for_lambdamax = m.df_for_lambdamax;
+  df_for_lambdamin = m.df_for_lambdamin;
+  dfstart = m.dfstart;
+  spfromdf = m.spfromdf;
+  number = m.number;
+  df_equidist = m.df_equidist;
   df_accuracy = m.df_accuracy;
   inthemodel = m.inthemodel;
   fixornot = m.fixornot;
   grenzfall = m.grenzfall;
   smoothing = m.smoothing;
   interactions_pointer = m.interactions_pointer;  
+  betaright = m.betaright;
+  calculate_xwx = m.calculate_xwx;
+  calculate_xwx_vc = m.calculate_xwx_vc;
+  nofixed = m.nofixed;
 
   //---------------------------- end: for stepwise -----------------------------
 
@@ -217,12 +231,23 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
   lambdamin = m.lambdamin;
   lambdamax = m.lambdamax;
   data_forfixed = m.data_forfixed;
+  forced_into = m.forced_into;
+  df_for_lambdamax = m.df_for_lambdamax;
+  df_for_lambdamin = m.df_for_lambdamin;
+  dfstart = m.dfstart;
+  spfromdf = m.spfromdf;
+  number = m.number;
+  df_equidist = m.df_equidist;
   df_accuracy = m.df_accuracy;
   inthemodel = m.inthemodel;
   fixornot = m.fixornot;
   grenzfall = m.grenzfall;
   smoothing = m.smoothing;
   interactions_pointer = m.interactions_pointer;  
+  betaright = m.betaright;
+  calculate_xwx = m.calculate_xwx;
+  calculate_xwx_vc = m.calculate_xwx_vc;
+  nofixed = m.nofixed;
 
   //------------------------------ end: stepwise -------------------------------
 
@@ -1236,9 +1261,9 @@ void FULLCOND::get_inthemodel(bool & drin, bool & fix)
 void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
   {
   double lambda_df, df_wunsch;
-  if(get_lambdamax_opt()==true)
+  if(spfromdf==true)
     {
-    df_wunsch = get_df_lambdamax();
+    df_wunsch = df_for_lambdamax;
     lambda_df = lambda_from_df(df_wunsch,lambdamax);
     if(lambda_df != -9)
       lambdamax = lambda_df;
@@ -1246,20 +1271,20 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
       {
       lambdamax = 0.000000001;
       number = 1;
-      optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
+      optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and was set to "
       + ST::doubletostring(lambdamax) + "\n\n");
       }
     }
-  if(get_lambdamin_opt()==true)
+  if(spfromdf==true)
     {
-    df_wunsch = get_df_lambdamin();
+    df_wunsch = df_for_lambdamin;
     lambda_df = lambda_from_df(df_wunsch,lambdamin);
     if(lambda_df != -9)
       lambdamin = lambda_df;
     else
       {
       lambdamin = 0.000000001;
-      optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
+      optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and was set to "
       + ST::doubletostring(lambdamin) + "\n\n");
       }
     }
@@ -1283,8 +1308,8 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
 void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
   {
   double lambda_df, df_wunsch;
-  double diff = (get_df_lambdamin()-get_df_lambdamax())/(number-1);
-  df_wunsch = get_df_lambdamax();
+  double diff = (df_for_lambdamin-df_for_lambdamax)/(number-1);
+  df_wunsch = df_for_lambdamax;
   lambda_df = lambda_from_df(df_wunsch,lambdamax);
 
   if(lambda_df != -9 && lambda_df < 1000000000)
@@ -1293,8 +1318,8 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
     {
     lambdamax = 0.000000001;
     number = 1;
-    optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and has set to "
-      + ST::doubletostring(lambdamax) + "! The number of different smoothing parameters has set to one!\n\n");
+    optionsp->out("\n\n  NOTE: The smoothing parameter for the given minimum of degrees of freedom got too small and was set to "
+      + ST::doubletostring(lambdamax) + "! The number of different smoothing parameters was set to one!\n\n");
     }
   else if(lambda_df == 1000000000)
     {
@@ -1304,14 +1329,14 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
       lambda_df = lambda_from_df(df_wunsch,lambdamax);
       number = number - 1;
       }
-    set_df_lambdamax(df_wunsch);
-    set_number(number);
+    df_for_lambdamax = df_wunsch;
+    //set_number(number);
     lambdamax = lambda_df;
     }
 
   if(number>1)
     {
-    double df_lambdamin = get_df_lambdamin();
+    double df_lambdamin = df_for_lambdamin;
     lambda_df = lambda_from_df(df_lambdamin,lambdamin);
     int i = 1;
     while(lambda_df == -9 && number>1)
@@ -1320,8 +1345,8 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
       lambda_df = lambda_from_df(df_lambdamin,lambdamin);
       number = number - 1;
       }
-    set_df_lambdamin(df_lambdamin);
-    set_number(number);
+    df_for_lambdamin = df_lambdamin;
+    //set_number(number);
     lambdamin = lambda_df;
     if(number>1)
       lvec.push_back(lambdamin);
@@ -1329,7 +1354,7 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
     bool fertig = false;
     while(i>=1 && fertig == false)
        {
-       df_wunsch = get_df_lambdamax() + i*diff;
+       df_wunsch = df_for_lambdamax + i*diff;
        //lambda_df = lambdamax - i*(lambdamax-lambdamin)/(number-1);
        double l = log10(lambdamin);
        double u = log10(lambdamax);
@@ -1347,7 +1372,8 @@ void FULLCOND::compute_lambdavec_equi(vector<double> & lvec, int & number)
   lvec.push_back(lambdamax);
   }
 
-  // FUNCTION: compute_lambdavec
+
+  // FUNCTION: lambda_from_df
   // TASK: returns the value for the smoothing parameter of a given df
 
 double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
@@ -1355,7 +1381,7 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
   update_stepwise(lambda_vorg);
   double df_vorg = compute_df();
   double lambda_unten, lambda_oben, df_mitte;
-  if( (df_wunsch-df_vorg) < get_accuracy() && (df_wunsch-df_vorg) > -1*get_accuracy() )
+  if( (df_wunsch-df_vorg) < df_accuracy && (df_wunsch-df_vorg) > -1*df_accuracy )
     {
     if(lambda_vorg >= 0.000000001 && lambda_vorg <= 1000000000)
       return lambda_vorg;
@@ -1364,7 +1390,7 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
     else
       return 1000000000;
      }
-  else if((df_wunsch-df_vorg) >= get_accuracy())
+  else if((df_wunsch-df_vorg) >= df_accuracy)
      {
      double lambda_vers = lambda_vorg;
      double df_vers = df_vorg;
@@ -1373,7 +1399,7 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
         lambda_vers = lambda_vers*0.75;
         update_stepwise(lambda_vers);
         df_vers = compute_df();
-        if( (df_wunsch-df_vers) < get_accuracy() && (df_wunsch-df_vers) > -1*get_accuracy() )
+        if( (df_wunsch-df_vers) < df_accuracy && (df_wunsch-df_vers) > -1*df_accuracy )
           {
           if(lambda_vers >= 0.000000001 && lambda_vorg <= 1000000000)
             return lambda_vers;
@@ -1403,7 +1429,7 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
         lambda_vers = lambda_vers*2;
         update_stepwise(lambda_vers);
         df_vers = compute_df();
-        if( (df_wunsch-df_vers) < get_accuracy() && (df_wunsch-df_vers) > -1*get_accuracy())
+        if( (df_wunsch-df_vers) < df_accuracy && (df_wunsch-df_vers) > -1*df_accuracy)
           {
           if(lambda_vers >= 0.000000001 && lambda_vorg <= 1000000000)
             return lambda_vers;
@@ -1425,7 +1451,7 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
      df_mitte = df_vers;
      }
   double lambda_mitte;
-  while( (df_mitte-df_wunsch) >= get_accuracy() || (df_mitte-df_wunsch) <= -1*get_accuracy() )
+  while( (df_mitte-df_wunsch) >= df_accuracy || (df_mitte-df_wunsch) <= -1*df_accuracy )
      {
      lambda_mitte = lambda_oben + (lambda_unten - lambda_oben) / 2;
      update_stepwise(lambda_mitte);
@@ -1445,6 +1471,94 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
   else if(lambda_mitte > 1000000000)
    lambda_mitte = 1000000000;
   return lambda_mitte;
+  }
+
+
+void FULLCOND::update_bootstrap(const bool & uncond)
+  {
+  register unsigned i;
+  double* workbeta = beta.getV();
+//  double* workbetas2 = betas2.getV();
+//  double* workbetavar = betavar.getV();
+//  double* workbetamin = betamin.getV();
+//  double* workbetamax = betamax.getV();
+
+  unsigned samplesize = optionsp->get_nriter();
+  if(samplesize==1)
+    betaright = datamatrix(nrpar,1,0);
+  double* workbetamean = betaright.getV();
+
+  if ((flags[0] != 1) && (samplesize == 1))
+    {
+    samplestream.open(samplepath.strtochar(),ios::binary);
+    if (samplestream.fail())
+      flags[0] = 1;
+    }
+
+  double betatransform;
+
+//ofstream out;
+//ST::string pathdf = samplepath.substr(0,samplepath.length()-4)+".txt";
+//out.open(pathdf.strtochar(),ios::app);
+
+  for(i=0;i<nrpar;i++,workbeta++,workbetamean++)
+    {
+    betatransform = transform * (*workbeta)+addon;
+
+//out << ST::doubletostring(betatransform,6) << "   ";
+
+    // storing sampled parameters in binary mode
+    if (flags[0] != 1)
+      samplestream.write((char *) &betatransform,sizeof betatransform);
+
+    // updating betamean
+    if (samplesize==1)
+      *workbetamean = betatransform;
+//    else
+//      *workbetamean = (1.0/(samplesize))*((samplesize-1)*(*workbetamean) + betatransform);
+
+    // updating betavar
+//    *workbetas2 += betatransform*betatransform;
+//    *workbetavar = (1.0/samplesize)*(*workbetas2)-(*workbetamean)*(*workbetamean);
+
+    // updating betamin, betamax
+//    if (samplesize==1)
+//      {
+//      *workbetamin = betatransform;
+//      *workbetamax = betatransform;
+//      }
+//    else
+//      {
+//      if (betatransform < *workbetamin)
+//        *workbetamin = betatransform;
+//      if (betatransform > *workbetamax)
+//        *workbetamax = betatransform;
+//      }
+
+    // initializing betameanold,betavarold,betaminold and betamaxold
+//    if (samplesize==1)
+//      {
+//      betameanold = betamean;
+//      betavarold = betavar;
+//      betaminold = betamin;
+//      betamaxold = betamax;
+//      }
+     }  // end: for i=0; ...
+
+//out << endl;
+
+  if(flags[1]!= 1 && samplesize % optionsp->get_nrbetween() == 0)
+    {
+    optionsp->out("\n");
+    optionsp->out("  Selection is completed for " + ST::inttostring(samplesize) + " boostrap datasets \n");
+    optionsp->out("\n");
+    }  // end: if (it % nrbetween == 0)
+  }
+
+void FULLCOND::update_bootstrap_betamean(void)
+  {
+  betamean = betaright;
+  samplestream.close();
   }
 
 // ---------------------------------------------------------------------------

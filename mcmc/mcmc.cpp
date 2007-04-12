@@ -172,6 +172,14 @@ void MCMCoptions::update(void)
   }
 
 
+void MCMCoptions::update_bootstrap(void)
+  {
+  nriter++;
+  //if(nriter > burnin+1 || nriter==1)
+    samplesize++;
+  }
+
+
 unsigned MCMCoptions::compute_samplesize(void)
   {
   return 1+(iterations-burnin-1)/step;

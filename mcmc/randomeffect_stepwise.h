@@ -41,6 +41,8 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
   double df_unstruct;
 //  bool gleichwertig;
 
+  FULLCOND fc_df;
+
 
   public:
 
@@ -95,6 +97,8 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 
   ST::string get_befehl(void);
 
+  void init_names(const vector<ST::string> & na);
+
   // FUNCTION: reset_effect
   // TASK: resets the effect, subtracts the current effect from linearpred
   void reset_effect(const unsigned & pos);
@@ -133,16 +137,21 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 
   double get_lambda(void);
 
-  void save_betas(vector<double> & modell, int & anzahl);
+  void update_bootstrap(const bool & uncond=false);
 
-  void average_posteriormode(vector<double> & crit_weights);
+  void update_bootstrap_betamean(void);
+  
 
-  void effect_sort(datamatrix & effect, const double & m, const unsigned & beg,
-                   const unsigned & end,const statmatrix<int> & index);
+//  void save_betas(vector<double> & modell, int & anzahl);
+
+//  void average_posteriormode(vector<double> & crit_weights);
+
+//  void effect_sort(datamatrix & effect, const double & m, const unsigned & beg,
+//                   const unsigned & end,const statmatrix<int> & index);
 
 // Vorschlag:
 //  void effect_sort(datamatrix & effect, const double & m, unsigned & row);
-  void effect_sort(datamatrix & effect, double m, unsigned row);
+//  void effect_sort(datamatrix & effect, double m, unsigned row);
 
   void init_spatialtotal(FULLCOND_nonp_basis * sp,const ST::string & pnt,
                          const ST::string & prt);

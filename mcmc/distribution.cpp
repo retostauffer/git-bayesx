@@ -7,7 +7,7 @@ namespace MCMC
 {
 
 
-void DISTRIBUTION::compute_deviance(double & deviance,double & deviancesat)
+void DISTRIBUTION::compute_overall_deviance(double & deviance,double & deviancesat)
   {
 
   unsigned i;
@@ -74,25 +74,50 @@ double DISTRIBUTION::compute_msep(void)
   }
 
 
+double DISTRIBUTION::compute_rss(void)
+  {
+  unsigned i;
+
+  double * worklin = (*linpred_current).getV();
+  double * workresp = tildey.getV();
+  double * workweight = weightiwls.getV();
+
+  double sum = 0;
+  double help;
+
+  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
+    {
+    if (*workweight !=0)
+      {
+      help = *workresp - *worklin;
+      sum += *workweight*help*help;
+      }
+    }
+  sum = trmult(0,0)*trmult(0,0)*sum;
+  return  sum;
+  }
+
+
 double DISTRIBUTION::compute_gcv(const double & df)
   {
   double dev=0;
   double devsat=0;
-  compute_deviance(dev,devsat);
+  compute_overall_deviance(dev,devsat);
 
-  double help2 = 1-df/get_nrobs_wpw();
+  double help2 = 1- gcvfactor * df/get_nrobs_wpw();
   double gcv = devsat / (get_nrobs_wpw()*help2*help2);
   return gcv;
   }
 
 double DISTRIBUTION::compute_gcv2(const double & df)
   {
-  double dev=0;
-  double devsat=0;
-  compute_deviance(dev,devsat);
+  //double dev=0;
+  //double devsat=0;
+  //compute_overall_deviance(dev,devsat);
 
-  double help2 = 1-df/get_nrobs_wpw();
-  double gcv = dev  - 2*get_nrobs_wpw() * log(help2);
+  double help2 = 1 - gcvfactor * df/get_nrobs_wpw();
+  //double gcv = dev  - 2*get_nrobs_wpw() * log(help2);
+  double gcv = compute_rss() / (get_nrobs_wpw()*help2*help2);
   return gcv;
   }
 
@@ -100,7 +125,7 @@ double DISTRIBUTION::compute_aic(const double & df)
   {
   double dev=0;
   double devsat=0;
-  compute_deviance(dev,devsat);
+  compute_overall_deviance(dev,devsat);
 
   double aic = dev + 2*df;
   return aic;
@@ -110,7 +135,7 @@ double DISTRIBUTION::compute_improvedaic(const double & df)
   {
   double dev=0;
   double devsat=0;
-  compute_deviance(dev,devsat);
+  compute_overall_deviance(dev,devsat);
 
   double impaic = dev + 2*df + 2*df*(df+1)/(get_nrobs_wpw()-df-1);
   return impaic;
@@ -120,14 +145,14 @@ double DISTRIBUTION::compute_bic(const double & df)
   {
   double dev=0;
   double devsat=0;
-  compute_deviance(dev,devsat);
+  compute_overall_deviance(dev,devsat);
 
   double bic = dev + log(get_nrobs_wpw())*df;
   return bic;
   }
 
 
-unsigned DISTRIBUTION::get_nrobs_wpw(void)
+void DISTRIBUTION::set_nrobs_wpw(void)
   {
   unsigned i;
   double * workweight = weight.getV();
@@ -139,7 +164,7 @@ unsigned DISTRIBUTION::get_nrobs_wpw(void)
       s++;
     }
 
-  return nrobs-s;
+  nrobs_wpw = nrobs-s;
   }
 
 unsigned DISTRIBUTION::get_nrpar(void)
@@ -152,14 +177,53 @@ unsigned DISTRIBUTION::get_nrpar(void)
   }
 
 
+void DISTRIBUTION::create_bootstrap_weights(void)   // wie bei MSEP und CV???
+  {
+/*ofstream out;
+out.open("c:\\cprog\\test\\results\\linearpred.txt",ios::app);
+for(unsigned s=0;s<linearpred.rows();s++)
+   out << ST::doubletostring(linearpred(s,0),6) << "   ";
+out << endl;   */
+
+  if(optionsp->get_nriter()==1)
+    {
+    srand(seed);
+    response_ori = response;  // speichert Response vom Original-Datensatz
+    linearpred_ori = linearpred;     // speichert Residuen vom Original-Datensatz
+    }
+
+  double * workresp = response.getV();
+  double * worklin = linearpred_ori.getV();
+  double * workw = weight.getV();
+
+  unsigned i;
+  double u;
+  for(i=0;i<nrobs;i++,workresp++,worklin++,workw++)
+    {
+    u = uniform()*nrobs;
+    u = floor(u);
+    *workresp = *worklin + (sqrt(weight(u,0)) * (response_ori(u,0) - linearpred_ori(u,0))) / sqrt(*workw);
+    }
+  }
+
+
+void DISTRIBUTION::set_original_response(void)
+  {
+  response = response_ori;
+  linearpred = linearpred_ori;
+  }
+
+
 void DISTRIBUTION::create_weight(datamatrix & w, const double & p1, const bool & fertig, const bool & CV)
   {
   weight2 = weight;
 
-srand(1);
+  srand(seed);
 
   if(fertig == true)
     {
+    constant_iwlsweights = false;
+    iwlsweights_notchanged_df = false;
     double a = 0;
     unsigned i;
     double * workweight = w.getV();
@@ -191,7 +255,7 @@ srand(1);
     double rest = fmod(double(nrobs),p1);      // "anzahl" = Anzahl der Beobachtungen pro Teil,
                                               // "rest" = Anzahl Teile mit einer Beobachtung mehr
     constant_iwlsweights = false;
-    iwlsweights_notchanged = false;
+    iwlsweights_notchanged_df = false;
     weightcv = datamatrix(nrobs,p1,1);
     datamatrix u = datamatrix(nrobs,1,0);
     for(i=0;i<nrobs;i++)
@@ -228,7 +292,11 @@ srand(1);
 
 void DISTRIBUTION::weight_for_all(void)
   {
+  constant_iwlsweights = false;
+  iwlsweights_notchanged_df = false;
   weight = weight2;
+  if(weightiwls2.rows()>1)
+    weightiwls = weightiwls2;
   }
 
 
@@ -334,7 +402,8 @@ void DISTRIBUTION::create(MCMCoptions * o, const datamatrix & r,
   addinterceptsample=0;
 
   constant_iwlsweights=false;
-
+  iwlsweights_notchanged_df = false;
+  nrobs_wpw = -1;
   }
 
 
@@ -451,7 +520,7 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   {
 
   constant_iwlsweights=d.constant_iwlsweights;
-  iwlsweights_notchanged = d.iwlsweights_notchanged;
+  iwlsweights_notchanged_df = d.iwlsweights_notchanged_df;
 
   nosamples = d.nosamples;
 
@@ -479,6 +548,12 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   weightname = d.weightname;
   weight2 = d.weight2;
   weightiwls2 = d.weightiwls2;
+  nrobs_wpw = d.nrobs_wpw;
+
+  linearpred_ori = d.linearpred_ori;
+  response_ori = d.response_ori;
+  gcvfactor = d.gcvfactor;
+  seed = d.seed;
 
   offsetname = d.offsetname;
 
@@ -540,7 +615,7 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
     return *this;
 
   constant_iwlsweights=d.constant_iwlsweights;
-  iwlsweights_notchanged = d.iwlsweights_notchanged;
+  iwlsweights_notchanged_df = d.iwlsweights_notchanged_df;
 
   nosamples = d.nosamples;
 
@@ -567,6 +642,12 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   weightname = d.weightname;
   weight2 = d.weight2;
   weightiwls2 = d.weightiwls2;
+
+  nrobs_wpw = d.nrobs_wpw;
+  linearpred_ori = d.linearpred_ori;
+  response_ori = d.response_ori;
+  gcvfactor = d.gcvfactor;
+  seed = d.seed;
 
   offsetname = d.offsetname;
 
@@ -1300,6 +1381,7 @@ double DISTRIBUTION::fisher2(const unsigned & beg, const unsigned & end,
 
 void DISTRIBUTION::compute_iwls(void)
   {
+  iwlsweights_notchanged_df = false;
   tilde_y(tildey);
   compute_weight(weightiwls,0);
   }
@@ -2059,6 +2141,81 @@ void DISTRIBUTION::update_predict(void)
 
     } // end: if predict
 
+  }
+
+
+void DISTRIBUTION::update_bootstrap(void)
+  {
+  if (scaleexisting)
+    {
+    ST::string test = "Fehlt noch!";
+    } // end: if (scaleexisting)
+  }
+
+
+void DISTRIBUTION::update_predict_bootstrap(void)
+  {
+  if (predict)
+    {
+    unsigned samplesize = optionsp->get_samplesize();
+    register unsigned i,j;
+    double * worklin = (*linpred_current).getV();
+    double * workmean = linpredmean.getV();
+    double * workmumean = mumean.getV();
+    datamatrix muhelp(mumean.cols(),1,0);
+    double * workresponse = response.getV();
+    double * workw = weight.getV();
+
+    unsigned size = linearpred.cols();
+    unsigned size2 = mumean.cols();
+    unsigned respsize = response.cols();
+
+    double * mumeanhelp;
+    double * musavep = musave.getbetapointer();
+
+    if (samplesize==1)
+      {
+      for (i=0;i<nrobs;i++,workmumean+=size2,workresponse+=respsize,workw++)
+        {
+        mumeanhelp = workmumean;
+        compute_mu(worklin,mumeanhelp);
+        for(j=0;j<size;j++,worklin++,workmean++)
+          *workmean = trmult(j,0) * *worklin;
+
+//        if ((predictfull) && 
+        if(i<firstobs)
+          {
+          mumeanhelp = workmumean;
+          for(j=0;j<size2;j++,musavep++,mumeanhelp++)
+            {
+            *musavep = *mumeanhelp;
+            }
+          }
+        }
+       }  // end: (samplesize==1)
+    else
+      {
+      for (i=0;i<nrobs;i++,workresponse+=respsize,workw++)
+        {
+        mumeanhelp = muhelp.getV();
+        compute_mu(worklin,mumeanhelp);
+        mumeanhelp = muhelp.getV();
+
+//        if ((predictfull) && 
+        if(i<firstobs)
+          {
+          mumeanhelp = muhelp.getV();
+          for(j=0;j<size2;j++,musavep++,mumeanhelp++)
+            {
+            *musavep = *mumeanhelp;
+            }
+          }  // end: if (predictfull)
+        }
+      }
+
+//    if (predictfull)
+      //musave.update_bootstrap();  // stürzt ab! Soll wieder rein!
+    } // end: if predict
   }
 
 
@@ -2852,7 +3009,7 @@ void DISTRIBUTION::outresults(void)
 
       for (j=0;j<size2;j++)
         {
-        out << mu_meanlinpred(j,0) << "   ";         // Fehler: mu_meanlinpred(0,j)
+        out << mu_meanlinpred(0,j) << "   ";
         }
 
       compute_deviance(&response(i,0),&weight(i,0),&mu_meanlinpred(0,0),
@@ -4039,6 +4196,13 @@ void DISTRIBUTION_gamma::tr_nonlinear(vector<double *> b,vector<double *> br,
 //----------------------- CLASS DISTRIBUTION_gamma (stepwise) ------------------
 //------------------------------------------------------------------------------
 
+void DISTRIBUTION_gamma2::set_constscale(double s)
+  {
+  scale(0,0) = s/(trmult(0,0)*trmult(0,0));
+  scalefixed=true;
+  }
+
+
 double DISTRIBUTION_gamma2::compute_weight(double * worklin,double * weight,
                                           const int & i,const unsigned & col)
                                           const
@@ -4395,7 +4559,7 @@ double DISTRIBUTION_gamma2::phi_hat() const
      {
      if (*workweight != 0)
        {
-       sumweight += *workweight;
+       sumweight += 1; // *workweight;
        explin = exp(*worklin);
        diff = (*workres - explin);
        phi += diff*diff / (explin*explin / *workweight);
@@ -5008,39 +5172,7 @@ double DISTRIBUTION_gaussian::compute_msep(void)
 
 double DISTRIBUTION_gaussian::compute_gcv(const double & df)
   {
-  /*
-  unsigned i;
-
-  double * worklin = (*linpred_current).getV();
-  double * workresp = response.getV();
-  double * workweight = weight.getV();
-
-  double sum = 0;
-  double help;
-  double s = 0;
-
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
-    {
-    if (*workweight !=0)
-      {
-      help = *workresp - *worklin;
-      sum += *workweight*help*help;
-      }
-    else
-      {
-      s++;
-      }
-    }
-
-
-  sum/=(nrobs-s);
-  sum = trmult(0,0)*trmult(0,0)*sum;
-  double help2 = 1-df/(get_nrobs_wpw());
-
-  return  sum/(help2*help2);
-  */
-
-  double help2 = 1-df/get_nrobs_wpw();
+  double help2 = 1 - gcvfactor * df/get_nrobs_wpw();
   double gcv = compute_rss() / (get_nrobs_wpw()*help2*help2);
   return gcv;
   }
@@ -5048,72 +5180,12 @@ double DISTRIBUTION_gaussian::compute_gcv(const double & df)
 
 double DISTRIBUTION_gaussian::compute_aic(const double & df)
   {
-  /*
-  unsigned i;
-
-  double * worklin = (*linpred_current).getV();
-  double * workresp = response.getV();
-  double * workweight = weight.getV();
-
-  double sum = 0;
-  double help;
-  double s = 0;
-
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
-    {
-    if (*workweight !=0)
-      {
-      help = *workresp - *worklin;
-      sum += *workweight*help*help;
-      }
-    else
-      {
-      s++;
-      }
-    }
-
-  sum/=(nrobs-s);
-  sum = log(trmult(0,0)*trmult(0,0)*sum) * (nrobs-s);
-
-  return  sum + 2*df;
-  */
-
   double aic = log(compute_rss() / get_nrobs_wpw()) * get_nrobs_wpw() + 2*df;
   return aic;
   }
 
 double DISTRIBUTION_gaussian::compute_improvedaic(const double & df)
   {
-  /*
-  unsigned i;
-
-  double * worklin = (*linpred_current).getV();
-  double * workresp = response.getV();
-  double * workweight = weight.getV();
-
-  double sum = 0;
-  double help;
-  double s = 0;
-
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
-    {
-    if (*workweight !=0)
-      {
-      help = *workresp - *worklin;
-      sum += *workweight*help*help;
-      }
-    else
-      {
-      s++;
-      }
-    }
-
-  sum/=(nrobs-s);
-  sum = log(trmult(0,0)*trmult(0,0)*sum) * (nrobs-s);
-
-  return  sum + 2*df + 2*df*(df+1)/((nrobs-s)-df-1);
-  */
-
   double impaic = log(compute_rss() / get_nrobs_wpw()) * get_nrobs_wpw()
                   + 2*df + 2*df*(df+1)/(get_nrobs_wpw()-df-1);
   return impaic;
@@ -5121,36 +5193,6 @@ double DISTRIBUTION_gaussian::compute_improvedaic(const double & df)
 
 double DISTRIBUTION_gaussian::compute_bic(const double & df)
   {
-  /*
-  unsigned i;
-
-  double * worklin = (*linpred_current).getV();
-  double * workresp = response.getV();
-  double * workweight = weight.getV();
-
-  double sum = 0;
-  double help;
-  double s = 0;
-
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
-    {
-    if (*workweight !=0)
-      {
-      help = *workresp - *worklin;
-      sum += *workweight*help*help;
-      }
-    else
-      {
-      s++;
-      }
-    }
-
-  sum/=(nrobs-s);
-  sum = log(trmult(0,0)*trmult(0,0)*sum) * (nrobs-s);
-
-  return  sum + log(nrobs-s)*df;
-  */
-
   double bic = log(compute_rss() / get_nrobs_wpw()) * get_nrobs_wpw()
                + log(get_nrobs_wpw())*df;
   return bic;
@@ -5224,6 +5266,7 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const double & a,
   varianceest=false;
 
   constant_iwlsweights=true;
+  iwlsweights_notchanged_df = true;
 
   }
 
@@ -5255,6 +5298,7 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const datamatrix & offset,
   varianceest=false;
 
   constant_iwlsweights=true;  
+  iwlsweights_notchanged_df = true;
 
   }
 
@@ -7070,6 +7114,454 @@ bool DISTRIBUTION_multinom::posteriormode_converged(const unsigned & itnr)
   return true;
   }
 
+
+//------------------------------------------------------------------------------
+//------------------------ CLASS DISTRIBUTION_multinom2 ------------------------
+//------------------------------------------------------------------------------
+
+void DISTRIBUTION_multinom2::create(void)
+  {
+  bool error=false;
+  unsigned i=0;
+  unsigned j;
+  double * workresp = response.getV();
+  double * workweight = weight.getV();
+  while ( (i<nrobs) && (error==false) )
+    {
+    j=0;
+    while ( (j<response.cols()) && (error==false) )
+      {
+      if (*workweight > 0)
+        {
+        if (*workresp != int(*workresp))
+          {
+          error=true;
+          errors.push_back("ERROR: response cannot be multinomial; values must be integer numbers\n");
+          }
+
+        if (*workresp < 0)
+          {
+          error=true;
+          errors.push_back("ERROR: response cannot be multinomial; some values are negative\n");
+          }
+
+        if (*workresp > *workweight)
+          {
+          error = true;
+          errors.push_back("ERROR: response cannot be multinomial;\n");
+          errors.push_back("       number of successes larger than number of trials for some values\n");
+          }
+
+        *workresp = *workresp/(*workweight);
+        }
+      workresp++;
+      j++;
+      }
+    i++;
+    workweight++;
+    }
+  }
+
+
+DISTRIBUTION_multinom2::DISTRIBUTION_multinom2(MCMCoptions * o,
+                       const datamatrix & r,
+                      const double & refvalue,
+                      const datamatrix & w)
+
+  : DISTRIBUTION(o,r,w)
+  {
+  muhelp = datamatrix(response.cols(),1);
+  family = "Multinomial (logit link)";
+  scale(0,0) = 1;
+  scaleexisting = false;
+  reference = ST::doubletostring(refvalue,6);
+  if(refvalue == -100)
+    create();
+  }
+
+
+DISTRIBUTION_multinom2::DISTRIBUTION_multinom2(const DISTRIBUTION_multinom2 & nd) :
+                         DISTRIBUTION(DISTRIBUTION(nd))
+  {
+  reference = nd.reference;
+  muhelp = nd.muhelp;
+  }
+
+
+const DISTRIBUTION_multinom2 & DISTRIBUTION_multinom2::operator=(
+                                         const DISTRIBUTION_multinom2 & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTRIBUTION::operator=(DISTRIBUTION(nd));
+  reference = nd.reference;
+  muhelp = nd.muhelp;
+  return *this;
+  }
+
+
+void DISTRIBUTION_multinom2::compute_mu(const double * linpred,double * mu) const
+  {
+
+  unsigned i;
+  double sum = 1;
+
+  const double * linpredstart = linpred;
+
+  for(i=0;i<linearpred.cols();i++,linpred++)
+    sum+= exp(*linpred);
+
+  for(i=0;i<linearpred.cols();i++,linpredstart++,mu++)
+    *mu = exp(*linpredstart)/sum;
+
+  }
+
+
+void DISTRIBUTION_multinom2::compute_mu_notransform(
+const double * linpred,double * mu) const
+  {
+
+  unsigned i;
+  double sum = 1;
+
+  const double * linpredstart = linpred;
+
+  for(i=0;i<linearpred.cols();i++,linpred++)
+    sum+= exp(*linpred);
+
+  for(i=0;i<linearpred.cols();i++,linpredstart++,mu++)
+    *mu = exp(*linpredstart)/sum;
+
+  }
+
+
+double DISTRIBUTION_multinom2::compute_gmu(double * linpred,
+                                          const unsigned & col) const
+  {
+
+  double * linpredstart = linpred;
+
+  double sum = 1;
+
+  unsigned i;
+  for(i=0;i<linearpred.cols();i++,linpredstart++)
+    sum+= exp(*linpredstart);
+
+  linpredstart = linpred+col;
+
+  double el = exp(*linpredstart);
+  double mu = el/sum;
+  if(mu > 0.999)
+    mu = 0.999;
+  if(mu < 0.001)
+    mu = 0.001;
+  return 1.0/(mu*(1-mu));
+
+  }
+
+
+double DISTRIBUTION_multinom2::compute_weight(double * linpred, double * weight,
+                                             const int & i,
+                                             const unsigned & col) const
+  {
+
+  register unsigned j;
+  double expcol;
+  double sumexp=0;
+  for (j=0;j<linearpred.cols();j++,linpred++)
+    {
+    if (j==col)
+      {
+      expcol=exp(*linpred);
+      sumexp+= expcol;
+      }
+    else
+      {
+      sumexp+= exp(*linpred);
+      }
+
+    }
+
+  double mu = expcol/(1+sumexp);
+  return mu*(1-mu)* *weight;
+
+  }
+
+
+
+void DISTRIBUTION_multinom2::compute_IWLS_weight_tildey(double * response,
+                      double * linpred, double * weight,
+                      const int & i,double * weightiwls,
+                      double * tildey, const unsigned & col)
+  {
+
+  register unsigned j;
+  double expcol;
+  double sumexp=0;
+  for (j=0;j<linearpred.cols();j++,linpred++)
+    {
+    if (j==col)
+      {
+      expcol=exp(*linpred);
+      sumexp+= expcol;
+      }
+    else
+      {
+      sumexp+= exp(*linpred);
+      }
+
+    }
+
+  double mu = expcol/(1+sumexp);
+  if(mu > 0.999)
+    mu = 0.999;
+  if(mu < 0.001)
+    mu = 0.001;
+
+  *weightiwls = mu*(1-mu) * *weight;
+
+  double *respc = response+col;
+
+  *tildey = (*respc - mu)/(*weightiwls);
+
+  }
+
+
+double DISTRIBUTION_multinom2::compute_IWLS(double * resp,double * linpred,
+                            double * weight,const int & i,
+                            double * weightiwls, double * tildey,
+                            bool weightyes,
+                            const unsigned & col)
+  {
+
+  unsigned dim = response.cols();
+
+  register unsigned j;
+  double expcol;
+  double sumexp=0;
+  double * worklin = linpred;
+  for (j=0;j<dim;j++,worklin++)
+    {
+    if (j==col)
+      {
+      expcol=exp(*worklin);
+      sumexp+= expcol;
+      }
+    else
+      {
+      sumexp+= exp(*worklin);
+      }
+
+    }
+
+  double mu = expcol/(1+sumexp);
+  if(mu > 0.999)
+    mu = 0.999;
+  if(mu < 0.001)
+    mu = 0.001;
+
+   double v = mu*(1-mu);
+
+  if (weightyes)
+    *weightiwls = v;
+
+  double * respc = resp+col;
+
+  *tildey = (*respc - mu)/v;
+
+  worklin = linpred;
+
+  double logl = 0;
+  double sum2=0;
+
+  double * workresp = resp;
+
+  for (j=0;j<dim;j++,workresp++,worklin++)
+    {
+    if ((*workresp) == 1)
+      {
+      sum2+= *workresp;
+      logl +=  *worklin - log(1+sumexp);
+      }
+    }
+
+  if (1-sum2 > 0)                                       // reference category
+    {
+    logl -= log(1+sumexp);
+    }
+
+  return logl;
+  }
+
+
+void DISTRIBUTION_multinom2::compute_overall_deviance(double & deviance,double & deviancesat)
+  {
+
+  unsigned i;
+  double * workresp=response.getV();
+  double * worklin = (*linpred_current).getV();
+  double * workweight = weight.getV();
+  double dev=0;
+  double devsat=0;
+  //double mu;
+  datamatrix mu = datamatrix(linearpred.cols(),1,0);
+  double * mum = mu.getV();
+
+  for(i=0;i<nrobs;i++,workresp++,worklin++,workweight++)
+    {
+    if (*workweight != 0)
+      {
+      compute_mu(worklin,mum);
+      compute_deviance(workresp,workweight,mum,&dev,&devsat,scale,0);
+      deviance+=dev;
+      deviancesat+=devsat;
+      worklin += linearpred.cols() - 1;
+      workresp += linearpred.cols() - 1;
+      }
+    }
+  }
+
+
+void DISTRIBUTION_multinom2::compute_deviance(const double * response,
+                                     const double * weight,
+                                     const double * mu,double * deviance,
+                                     double * deviancesat,
+                                     const datamatrix & scale,const int & i)
+                                     const
+  {
+
+  *deviance = 0;
+  *deviancesat = 0;
+  if(*weight > 0)
+    {
+    unsigned j=0;
+    double sumy = 0;
+    double summu = 0;
+    for(j=0;j<linearpred.cols();j++,response++,mu++)
+      {
+      if (*response > 0)
+        {
+        sumy += *response;
+        *deviance += *response * log(*mu);
+        *deviancesat += *response * log(*response);
+        }
+      summu += *mu;
+      }
+
+    if ( 1-sumy > 0)
+      {
+      *deviance += (1-sumy) * log(1-summu);
+      *deviancesat += (1-sumy) * log(1-sumy);
+      }
+
+    *deviance = -2 * *weight * *deviance;
+    *deviancesat = *deviance + 2 * *weight * *deviancesat;
+    }
+  }
+
+
+void DISTRIBUTION_multinom2::outoptions(void)
+  {
+  DISTRIBUTION::outoptions();
+  optionsp->out("  Response function: logistic distribution function\n");
+  optionsp->out("  Reference category: " + reference + "\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTRIBUTION_multinom2::loglikelihood(double * resp,double * linpred,
+                                            double * weight,const int & i) const
+  {
+
+  unsigned j;
+  unsigned dim = response.cols();
+
+  double * worklin = linpred;
+
+  double sum=0;
+  for (j=0;j<dim;j++,worklin++)
+    {
+    sum+= exp(*worklin);
+    }
+
+  worklin = linpred;
+
+  double logl = 0;
+  double sum2=0;
+
+  for (j=0;j<dim;j++,resp++,worklin++)
+    {
+    if ((*resp) == 1)
+      {
+      sum2+= 1;
+      logl += *worklin - log(1+sum);
+      }
+    }
+
+  if (sum2 == 0)                 // reference category
+    {
+    logl -= log(1+sum);
+    }
+
+  return logl;
+  }
+
+
+void DISTRIBUTION_multinom2::update(void)
+  {
+  DISTRIBUTION::update();
+  }
+
+
+void DISTRIBUTION_multinom2::compute_iwls(void)
+  {
+  iwlsweights_notchanged_df = false;
+
+  register unsigned i,j;
+  unsigned dim = response.cols();
+
+  double * worklin = (*linpred_current).getV();
+
+  double * workres = response.getV();
+  double * ywork = tildey.getV();
+  double * workweightiwls = weightiwls.getV();
+  double * wweight = weight.getV();
+  double mu;
+  double * muhelpp;
+
+  for (i=0;i<nrobs;i++)
+    {
+    muhelpp = muhelp.getV();
+    compute_mu(worklin,muhelpp);
+    for(j=0;j<dim;j++,worklin++,ywork++,workres++,workweightiwls++)
+      {
+      mu = muhelp(j,0);
+      if(mu > 0.999)
+        mu = 0.999;
+      if(mu < 0.001)
+        mu = 0.001;
+
+      *workweightiwls = mu*(1-mu);
+      *ywork = *worklin + (*workres - mu)/(*workweightiwls);
+      *workweightiwls = *workweightiwls * *wweight;
+      }
+    wweight++;
+    }
+  }
+
+
+bool DISTRIBUTION_multinom2::posteriormode(void)
+  {
+
+  return true;
+
+  }
+
+bool DISTRIBUTION_multinom2::posteriormode_converged(const unsigned & itnr)
+  {
+  return true;
+  }
 
 
 //------------------------------------------------------------------------------

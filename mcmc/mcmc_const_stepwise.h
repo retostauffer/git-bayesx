@@ -27,13 +27,14 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   protected:
 
-  FULLCOND_const * fcconst;
+  FULLCOND_const_stepwise * fcconst;
   vector<FULLCOND*> interactions_pointer;
 
   datamatrix data_rest;
   datamatrix beta_rest;
   datamatrix linold_rest;
   vector<ST::string> names_rest;
+  vector<ST::string> datanames_fixed_only;
 
   vector<double> diff_categories;
   double reference;
@@ -41,7 +42,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   double const_alt; 
   
-
+  bool changed_data;
   bool changingweight;
 
   datamatrix X1;                   // (X'WX)^-0.5
@@ -63,6 +64,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void compute_matrices(void);
 
+  FULLCOND fc_df;
 
 
   public:
@@ -84,7 +86,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   // CONSTRUCTOR_4 factor variable
 
   FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * dp,
-                          FULLCOND_const * fcc, const datamatrix & d,
+                          FULLCOND_const_stepwise * fcc, const datamatrix & d,
                           const ST::string & code, int & ref,
                           const ST::string & t,const ST::string & fs,
                           const ST::string & fr,const unsigned & c=0);
@@ -117,8 +119,6 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void update_intercept(double & m);
 
-  void update_interceptold(double & m);
-
   void update_linold(void); 
 
   void posteriormode_intercept(double & m);
@@ -130,6 +130,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   void init_name(const ST::string & na);
 
   void init_names(const vector<ST::string> & na);
+
+  void set_datanames_fixed_only(const vector<ST::string> & na);
 
   void outresults(void);
 
@@ -166,6 +168,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void reset_effect(const unsigned & pos);
 
+  void reset(void);
+
   void set_effect_zero(void);
 
   double compute_df(void);
@@ -176,11 +180,15 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void average_posteriormode(vector<double> & crit_weights);
 
-  double get_betafix(unsigned & welches);
+//  double get_betafix(unsigned & welches);
 
   void set_intercept_for_center(double & dazu);
 
   void beta_to_fix(const vector<double> & betas);
+
+  void update_bootstrap(const bool & uncond=false);
+
+  void update_bootstrap_betamean(void);
 
 // Für ganze Hatmatrix (REML)
 

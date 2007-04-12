@@ -60,17 +60,19 @@ class __EXPORT_TYPE term_autoreg_stepwise : public basic_termtype
   protected:
 
   doubleoption lambda;
-  doubleoption lambdamin;
-  doubleoption lambdamax;
-  doubleoption lambdastart;
+  doubleoption spmin;
+  doubleoption spmax;
+  doubleoption spstart;
   simpleoption forced_into;
-  doubleoption df_for_lambdamax;
-  doubleoption df_for_lambdamin;
-  simpleoption lambdamax_opt;
-  simpleoption lambdamin_opt;
+  doubleoption dfmax;
+  doubleoption dfmin;
+  doubleoption dfstart;
+  simpleoption sp;
+  //simpleoption lambdamin_opt;
   intoption number;
-  simpleoption df_equidist;
+  simpleoption logscale;
   doubleoption df_accuracy;
+  simpleoption center;
   simpleoption nofixed;
 
   void setdefault(void);
@@ -115,16 +117,16 @@ class __EXPORT_TYPE term_season_stepwise : public basic_termtype
 
   intoption period;
   doubleoption lambda;
-  doubleoption lambdamin;
-  doubleoption lambdamax;
-  doubleoption lambdastart;
+  doubleoption spmin;
+  doubleoption spmax;
+  doubleoption spstart;
   simpleoption forced_into;
-  doubleoption df_for_lambdamax;
-  doubleoption df_for_lambdamin;
-  simpleoption lambdamax_opt;
-  simpleoption lambdamin_opt;
+  doubleoption dfmin;
+  doubleoption dfmax;
+  doubleoption dfstart;
+  simpleoption sp;
   intoption number;
-  simpleoption df_equidist;
+  simpleoption logscale;
   doubleoption df_accuracy;
 
   void setdefault(void);
@@ -173,18 +175,20 @@ class __EXPORT_TYPE term_pspline_stepwise : public basic_termtype
   intoption gridsize;
   simpleoption diagtransform;
   simpleoption derivative;
-  doubleoption lambdamin;
-  doubleoption lambdamax;
-  doubleoption lambdastart;
+  doubleoption spmin;
+  doubleoption spmax;
+  doubleoption spstart;
   simpleoption forced_into;
-  doubleoption df_for_lambdamax;
-  doubleoption df_for_lambdamin;
-  simpleoption lambdamax_opt;
-  simpleoption lambdamin_opt;
+  doubleoption dfmin;
+  doubleoption dfmax;
+  doubleoption dfstart;
+  simpleoption sp;
   intoption number;
-  simpleoption df_equidist;
+  simpleoption logscale;
   doubleoption df_accuracy;
   stroption monotone;
+  simpleoption center;
+  stroption knots;  
   simpleoption nofixed;
 
   void setdefault(void);
@@ -228,17 +232,18 @@ class __EXPORT_TYPE term_spatial_stepwise : public basic_termtype
 
   stroption map;
   doubleoption lambda;
-  doubleoption lambdamin;
-  doubleoption lambdamax;
-  doubleoption lambdastart;
+  doubleoption spmin;
+  doubleoption spmax;
+  doubleoption spstart;
   simpleoption forced_into;
-  doubleoption df_for_lambdamax;
-  doubleoption df_for_lambdamin;
-  simpleoption lambdamax_opt;
-  simpleoption lambdamin_opt;
+  doubleoption dfmin;
+  doubleoption dfmax;
+  doubleoption dfstart;
+  simpleoption sp;
   intoption number;
-  simpleoption df_equidist;
+  simpleoption logscale;
   doubleoption df_accuracy;
+  simpleoption center;
   simpleoption nofixed;
 
   void setdefault(void);
@@ -279,19 +284,20 @@ class __EXPORT_TYPE term_randomslope_stepwise : public basic_termtype
 
   protected:
 
-  simpleoption nofixed;
+  simpleoption center;
   doubleoption lambda;
-  doubleoption lambdamin;
-  doubleoption lambdamax;
-  doubleoption lambdastart;
+  doubleoption spmin;
+  doubleoption spmax;
+  doubleoption spstart;
   simpleoption forced_into;
-  doubleoption df_for_lambdamax;
-  doubleoption df_for_lambdamin;
-  simpleoption lambdamax_opt;
-  simpleoption lambdamin_opt;
+  doubleoption dfmin;
+  doubleoption dfmax;
+  doubleoption dfstart;
+  simpleoption sp;
   intoption number;
-  simpleoption df_equidist;
+  simpleoption logscale;
   doubleoption df_accuracy;
+  simpleoption nofixed;
 
   void setdefault(void);
 
@@ -332,16 +338,16 @@ class __EXPORT_TYPE term_random_stepwise : public basic_termtype
   protected:
 
   doubleoption lambda;
-  doubleoption lambdamin;
-  doubleoption lambdamax;
-  doubleoption lambdastart;
+  doubleoption spmin;
+  doubleoption spmax;
+  doubleoption spstart;
   simpleoption forced_into;
-  doubleoption df_for_lambdamax;
-  doubleoption df_for_lambdamin;
-  simpleoption lambdamax_opt;
-  simpleoption lambdamin_opt;
+  doubleoption dfmin;
+  doubleoption dfmax;
+  doubleoption dfstart;
+  simpleoption sp;
   intoption number;
-  simpleoption df_equidist;
+  simpleoption logscale;
   doubleoption df_accuracy;
 
   void setdefault(void);
@@ -384,8 +390,10 @@ class __EXPORT_TYPE term_factor_stepwise : public basic_termtype
 
   stroption coding;
   doubleoption reference;
-  intoption lambdastart;
+  intoption spstart;
   simpleoption forced_into;
+  intoption dfstart;
+  simpleoption nofixed;
 
   void setdefault(void);
 
@@ -433,17 +441,19 @@ class __EXPORT_TYPE term_interactpspline_stepwise : public basic_termtype
   intoption numberknots;
   doubleoption lambda;
   intoption gridsize;
-  doubleoption lambdamin;
-  doubleoption lambdamax;
-  doubleoption lambdastart;
+  doubleoption spmin;
+  doubleoption spmax;
+  doubleoption spstart;
   simpleoption forced_into;
-  doubleoption df_for_lambdamax;
-  doubleoption df_for_lambdamin;
-  simpleoption lambdamax_opt;
-  simpleoption lambdamin_opt;
+  doubleoption dfmin;
+  doubleoption dfmax;
+  doubleoption dfstart;
+  simpleoption sp;
   intoption number;
-  simpleoption df_equidist;
+  simpleoption logscale;
   doubleoption df_accuracy;
+  simpleoption center;
+  simpleoption nofixed;
 
   void setdefault(void);
 
@@ -482,17 +492,19 @@ class __EXPORT_TYPE term_geospline_stepwise : public basic_termtype
   intoption numberknots;
   doubleoption lambda;
   stroption map;
-  doubleoption lambdamin;
-  doubleoption lambdamax;
-  doubleoption lambdastart;
+  doubleoption spmin;
+  doubleoption spmax;
+  doubleoption spstart;
   simpleoption forced_into;
-  doubleoption df_for_lambdamax;
-  doubleoption df_for_lambdamin;
-  simpleoption lambdamax_opt;
-  simpleoption lambdamin_opt;
+  doubleoption dfmin;
+  doubleoption dfmax;
+  doubleoption dfstart;
+  simpleoption sp;
   intoption number;
-  simpleoption df_equidist;
+  simpleoption logscale;
   doubleoption df_accuracy;
+  simpleoption nofixed;
+  simpleoption center;
 
   void setdefault(void);
 
@@ -518,6 +530,54 @@ class __EXPORT_TYPE term_geospline_stepwise : public basic_termtype
   };
 
 
+class __EXPORT_TYPE term_projection_stepwise : public basic_termtype
+  {
+
+  protected:
+
+  intoption degree;
+  intoption numberknots;
+  doubleoption lambda;
+  intoption gridsize;
+  simpleoption diagtransform;
+  simpleoption derivative;
+  doubleoption spmin;
+  doubleoption spmax;
+  doubleoption spstart;
+  simpleoption forced_into;
+  doubleoption dfmin;
+  doubleoption dfmax;
+  doubleoption dfstart;
+  simpleoption sp;
+  intoption number;
+  simpleoption logscale;
+  doubleoption df_accuracy;
+  stroption monotone;
+  simpleoption center;
+  intoption nterms;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_projection_stepwise(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a psline with rw1 oder rw2 Penalty
+
+  bool checkvector(const vector<term> & terms,const unsigned & i);
+
+  // DESTRUCTOR
+
+  ~term_projection_stepwise() {}
+
+  };
 
 
 #endif

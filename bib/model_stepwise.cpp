@@ -101,36 +101,39 @@ term_autoreg_stepwise::term_autoreg_stepwise(void)
   {
   type = "term_autoreg";
   lambda = doubleoption("lambda",0.1,0,10000000);
-  lambdamin = doubleoption("lambdamin",0.0001,0.000001,100000000);
-  lambdamax = doubleoption("lambdamax",10000,0.000001,100000000);
-  lambdastart = doubleoption("lambdastart",-1,-1,100000000);
+  spmin = doubleoption("spmin",0.0001,0.000001,100000000);
+  spmax = doubleoption("spmax",10000,0.000001,100000000);
+  spstart = doubleoption("spstart",-1,-1,100000000);
   forced_into = simpleoption("forced_into",false);
-  df_for_lambdamax = doubleoption("df_for_lambdamax",2,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
-  df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,200);
-  lambdamax_opt = simpleoption("lambdamax_opt",false);
-  lambdamin_opt = simpleoption("lambdamin_opt",false);
-  number = intoption("number",0,0,50);
-  df_equidist = simpleoption("df_equidist",false);
+  dfmin = doubleoption("dfmin",2,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  dfmax = doubleoption("dfmax",10,0,200);
+  dfstart = doubleoption("dfstart",1,0,200);
+  //lambdamax_opt = simpleoption("lambdamax_opt",false);
+  sp = simpleoption("sp",false);
+  number = intoption("number",0,0,100);
+  logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
   // df_start =  = doubleoption("df_start",-1,-1,100);
+  center = simpleoption("center",false);
   nofixed = simpleoption("nofixed",false);
   }
 
 void term_autoreg_stepwise::setdefault(void)
   {
   lambda.setdefault();
-  lambdamin.setdefault();
-  lambdamax.setdefault();
-  lambdastart.setdefault();
+  spmin.setdefault();
+  spmax.setdefault();
+  spstart.setdefault();
   forced_into.setdefault();
-  df_for_lambdamax.setdefault();
-  df_for_lambdamin.setdefault();
-  lambdamax_opt.setdefault();
-  lambdamin_opt.setdefault();
+  dfmin.setdefault();
+  dfmax.setdefault();
+  dfstart.setdefault();
+  sp.setdefault();
   number.setdefault();
-  df_equidist.setdefault();
+  logscale.setdefault();
   df_accuracy.setdefault();
   // df_start.setdefault();
+  center.setdefault();
   nofixed.setdefault();
   }
 
@@ -139,7 +142,7 @@ bool term_autoreg_stepwise::check(term & t)
   {
 
   if ( (t.varnames.size() <= 2) && (t.varnames.size() >= 1) &&
-       (t.options.size()<=14) && (t.options.size() >= 1) )
+       (t.options.size()<=15) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "rw1" && t.varnames.size() == 1)
@@ -161,18 +164,19 @@ bool term_autoreg_stepwise::check(term & t)
     vector<ST::string> opt;
     optionlist optlist;
     optlist.push_back(&lambda);
-    optlist.push_back(&lambdamin);
-    optlist.push_back(&lambdamax);
-    optlist.push_back(&lambdastart);
+    optlist.push_back(&spmin);
+    optlist.push_back(&spmax);
+    optlist.push_back(&spstart);
     optlist.push_back(&forced_into);
-    optlist.push_back(&df_for_lambdamax);
-    optlist.push_back(&df_for_lambdamin);
-    optlist.push_back(&lambdamax_opt);
-    optlist.push_back(&lambdamin_opt);
+    optlist.push_back(&dfmin);
+    optlist.push_back(&dfmax);
+    optlist.push_back(&dfstart);
+    optlist.push_back(&sp);
     optlist.push_back(&number);
-    optlist.push_back(&df_equidist);
+    optlist.push_back(&logscale);
     optlist.push_back(&df_accuracy);
     // optlist.push_back(&df_start);
+    optlist.push_back(&center);
     optlist.push_back(&nofixed);
 
     unsigned i;
@@ -197,7 +201,7 @@ bool term_autoreg_stepwise::check(term & t)
       return false;
       }
 
-    optlist.push_back(&lambda);
+    /*optlist.push_back(&lambda);
     optlist.push_back(&lambdamin);
     optlist.push_back(&lambdamax);
     optlist.push_back(&lambdastart);
@@ -210,41 +214,41 @@ bool term_autoreg_stepwise::check(term & t)
     optlist.push_back(&df_equidist);
     optlist.push_back(&df_accuracy);
     // optlist.push_back(&df_start);
-    optlist.push_back(&nofixed);
+    optlist.push_back(&center);*/
 
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(14);
+    t.options = vector<ST::string>(15);
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(lambda.getvalue());
-    t.options[2] = ST::doubletostring(lambdamin.getvalue());
-    t.options[3] = ST::doubletostring(lambdamax.getvalue());
-    t.options[4] = ST::doubletostring(lambdastart.getvalue());
+    t.options[2] = ST::doubletostring(spmin.getvalue());
+    t.options[3] = ST::doubletostring(spmax.getvalue());
+    t.options[4] = ST::doubletostring(spstart.getvalue());
     if (forced_into.getvalue()==false)
         t.options[5] = "false";
     else
         t.options[5] = "true";
-    t.options[6] = ST::doubletostring(df_for_lambdamax.getvalue());
-    t.options[7] = ST::doubletostring(df_for_lambdamin.getvalue());
-    if (lambdamax_opt.getvalue()==false)
-        t.options[8] = "false";
-    else
-        t.options[8] = "true";
-    if (lambdamin_opt.getvalue()==false)
+    t.options[6] = ST::doubletostring(dfmin.getvalue());
+    t.options[7] = ST::doubletostring(dfmax.getvalue());
+    t.options[8] = ST::doubletostring(dfstart.getvalue());
+    if (sp.getvalue()==false)
         t.options[9] = "false";
     else
         t.options[9] = "true";
     t.options[10] = ST::inttostring(number.getvalue());
-    if (df_equidist.getvalue()==false)
+    if (logscale.getvalue()==false)
         t.options[11] = "false";
     else
         t.options[11] = "true";
     t.options[12] = ST::doubletostring(df_accuracy.getvalue());
-    if (nofixed.getvalue()==false)
+    if (center.getvalue()==false)
         t.options[13] = "false";
     else
         t.options[13] = "true";
-
+    if(nofixed.getvalue()==false)
+        t.options[14] = "false";
+    else
+        t.options[14] = "true";
 
     int b = t.options[2].strtodouble(minl);
     b = t.options[3].strtodouble(maxl);
@@ -312,16 +316,16 @@ term_season_stepwise::term_season_stepwise(void)
   type = "term_season";
   period = intoption("period",12,2,72);
   lambda = doubleoption("lambda",0.1,0,10000000);
-  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
-  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
-  lambdastart = doubleoption("lambdastart",10000,0,10000000);
+  spmin = doubleoption("spmin",0.0001,0.000001,10000000);
+  spmax = doubleoption("spmax",10000,0.000001,10000000);
+  spstart = doubleoption("spstart",10000,0,10000000);
   forced_into = simpleoption("forced_into",false);
-  df_for_lambdamax = doubleoption("df_for_lambdamax",11,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
-  df_for_lambdamin = doubleoption("df_for_lambdamin",15,0,200);
-  lambdamax_opt = simpleoption("lambdamax_opt",false);
-  lambdamin_opt = simpleoption("lambdamin_opt",false);
-  number = intoption("number",0,0,50);
-  df_equidist = simpleoption("df_equidist",false);
+  dfmin = doubleoption("dfmin",11,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  dfmax = doubleoption("dfmax",15,0,200);
+  dfstart = doubleoption("dfstart",12,0,200);
+  sp = simpleoption("sp",false);
+  number = intoption("number",0,0,100);
+  logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
   }
 
@@ -330,16 +334,16 @@ void term_season_stepwise::setdefault(void)
   {
   period.setdefault();
   lambda.setdefault();
-  lambdamin.setdefault();
-  lambdamax.setdefault();
-  lambdastart.setdefault();
+  spmin.setdefault();
+  spmax.setdefault();
+  spstart.setdefault();
   forced_into.setdefault();
-  df_for_lambdamax.setdefault();
-  df_for_lambdamin.setdefault();
-  lambdamax_opt.setdefault();
-  lambdamin_opt.setdefault();
+  dfmin.setdefault();
+  dfmax.setdefault();
+  dfstart.setdefault();
+  sp.setdefault();
   number.setdefault();
-  df_equidist.setdefault();
+  logscale.setdefault();
   df_accuracy.setdefault();
   }
 
@@ -368,16 +372,16 @@ bool term_season_stepwise::check(term & t)
 
     optlist.push_back(&period);
     optlist.push_back(&lambda);
-    optlist.push_back(&lambdamin);
-    optlist.push_back(&lambdamax);
-    optlist.push_back(&lambdastart);
+    optlist.push_back(&spmin);
+    optlist.push_back(&spmax);
+    optlist.push_back(&spstart);
     optlist.push_back(&forced_into);
-    optlist.push_back(&df_for_lambdamax);
-    optlist.push_back(&df_for_lambdamin);
-    optlist.push_back(&lambdamax_opt);
-    optlist.push_back(&lambdamin_opt);
+    optlist.push_back(&dfmin);
+    optlist.push_back(&dfmax);
+    optlist.push_back(&dfstart);
+    optlist.push_back(&sp);
     optlist.push_back(&number);
-    optlist.push_back(&df_equidist);
+    optlist.push_back(&logscale);
     optlist.push_back(&df_accuracy);
 
     unsigned i;
@@ -407,25 +411,22 @@ bool term_season_stepwise::check(term & t)
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(period.getvalue());
     t.options[2] = ST::doubletostring(lambda.getvalue());
-    t.options[3] = ST::doubletostring(lambdamin.getvalue());
-    t.options[4] = ST::doubletostring(lambdamax.getvalue());
-    t.options[5] = ST::doubletostring(lambdastart.getvalue());
+    t.options[3] = ST::doubletostring(spmin.getvalue());
+    t.options[4] = ST::doubletostring(spmax.getvalue());
+    t.options[5] = ST::doubletostring(spstart.getvalue());
     if (forced_into.getvalue()==false)
       t.options[6] = "false";
     else
       t.options[6] = "true";
-    t.options[7] = ST::doubletostring(df_for_lambdamax.getvalue());
-    t.options[8] = ST::doubletostring(df_for_lambdamin.getvalue());
-    if (lambdamax_opt.getvalue()==false)
-        t.options[9] = "false";
-    else
-        t.options[9] = "true";
-    if (lambdamin_opt.getvalue()==false)
+    t.options[7] = ST::doubletostring(dfmin.getvalue());
+    t.options[8] = ST::doubletostring(dfmax.getvalue());
+    t.options[9] = ST::doubletostring(dfstart.getvalue());
+    if (sp.getvalue()==false)
         t.options[10] = "false";
     else
         t.options[10] = "true";
     t.options[11] = ST::inttostring(number.getvalue());
-    if(df_equidist.getvalue()==false)
+    if(logscale.getvalue()==false)
         t.options[12] = "false";
     else
         t.options[12] = "true";
@@ -495,22 +496,29 @@ term_pspline_stepwise::term_pspline_stepwise(void)
   gridsize = intoption("gridsize",-1,10,500);
   diagtransform = simpleoption("diagtransform",false);
   derivative = simpleoption("derivative",false);
-  lambdamin = doubleoption("lambdamin",0.0001,0.000001,100000000);
-  lambdamax = doubleoption("lambdamax",10000,0.000001,100000000);
-  lambdastart = doubleoption("lambdastart",-1,-1,100000000);
+  spmin = doubleoption("spmin",0.0001,0.000001,100000000);
+  spmax = doubleoption("spmax",10000,0.000001,100000000);
+  spstart = doubleoption("spstart",-1,-1,100000000);
   forced_into = simpleoption("forced_into",false);
-  df_for_lambdamax = doubleoption("df_for_lambdamax",2,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
-  df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,200);
-  lambdamax_opt = simpleoption("lambdamax_opt",false);
-  lambdamin_opt = simpleoption("lambdamin_opt",false);
-  number = intoption("number",0,-1,50);
-  df_equidist = simpleoption("df_equidist",false);
+  dfmin = doubleoption("dfmin",2,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  dfmax = doubleoption("dfmax",10,0,200);
+  dfstart = doubleoption("dfstart",1,0,200);
+  sp = simpleoption("sp",false);
+  number = intoption("number",0,-1,100);
+  logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
   vector<ST::string> adm;
   adm.push_back("unrestricted");
   adm.push_back("increasing");
   adm.push_back("decreasing");
+  adm.push_back("convex");
+  adm.push_back("concave");
   monotone = stroption("monotone",adm,"unrestricted");
+  center = simpleoption("center",false);
+  vector<ST::string> knotsdef;
+  knotsdef.push_back("equidistant");
+  knotsdef.push_back("quantiles");
+  knots = stroption("knots",knotsdef,"equidistant");
   nofixed = simpleoption("nofixed",false);
   }
 
@@ -522,18 +530,20 @@ void term_pspline_stepwise::setdefault(void)
   gridsize.setdefault();
   diagtransform.setdefault();
   derivative.setdefault();
-  lambdamin.setdefault();
-  lambdamax.setdefault();
-  lambdastart.setdefault();
+  spmin.setdefault();
+  spmax.setdefault();
+  spstart.setdefault();
   forced_into.setdefault();
-  df_for_lambdamax.setdefault();
-  df_for_lambdamin.setdefault();
-  lambdamax_opt.setdefault();
-  lambdamin_opt.setdefault();
+  dfmin.setdefault();
+  dfmax.setdefault();
+  dfstart.setdefault();
+  sp.setdefault();
   number.setdefault();
-  df_equidist.setdefault();
+  logscale.setdefault();
   df_accuracy.setdefault();
   monotone.setdefault();
+  center.setdefault();
+  knots.setdefault();
   nofixed.setdefault();
   }
 
@@ -541,7 +551,7 @@ bool term_pspline_stepwise::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size() >= 1)
-       && (t.options.size() >= 1) && (t.options.size() <= 20) )
+       && (t.options.size() >= 1) && (t.options.size() <= 22) )
     {
 
     if (t.options[0] == "psplinerw1" && t.varnames.size() == 1)
@@ -567,18 +577,20 @@ bool term_pspline_stepwise::check(term & t)
     optlist.push_back(&gridsize);
     optlist.push_back(&diagtransform);
     optlist.push_back(&derivative);
-    optlist.push_back(&lambdamin);
-    optlist.push_back(&lambdamax);
-    optlist.push_back(&lambdastart);
+    optlist.push_back(&spmin);
+    optlist.push_back(&spmax);
+    optlist.push_back(&spstart);
     optlist.push_back(&forced_into);
-    optlist.push_back(&df_for_lambdamax);
-    optlist.push_back(&df_for_lambdamin);
-    optlist.push_back(&lambdamax_opt);
-    optlist.push_back(&lambdamin_opt);
+    optlist.push_back(&dfmin);
+    optlist.push_back(&dfmax);
+    optlist.push_back(&dfstart);
+    optlist.push_back(&sp);
     optlist.push_back(&number);
-    optlist.push_back(&df_equidist);
+    optlist.push_back(&logscale);
     optlist.push_back(&df_accuracy);
     optlist.push_back(&monotone);
+    optlist.push_back(&center);
+    optlist.push_back(&knots);
     optlist.push_back(&nofixed);
 
     unsigned i;
@@ -604,7 +616,7 @@ bool term_pspline_stepwise::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(20);
+   t.options = vector<ST::string>(22);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(degree.getvalue());
    t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -618,34 +630,36 @@ bool term_pspline_stepwise::check(term & t)
      t.options[6] = "false";
    else
      t.options[6] = "true";
-    t.options[7] = ST::doubletostring(lambdamin.getvalue());
-    t.options[8] = ST::doubletostring(lambdamax.getvalue());
-    t.options[9] = ST::doubletostring(lambdastart.getvalue());
+    t.options[7] = ST::doubletostring(spmin.getvalue());
+    t.options[8] = ST::doubletostring(spmax.getvalue());
+    t.options[9] = ST::doubletostring(spstart.getvalue());
     if (forced_into.getvalue()==false)
       t.options[10] = "false";
     else
       t.options[10] = "true";
-    t.options[11] = ST::doubletostring(df_for_lambdamax.getvalue());
-    t.options[12] = ST::doubletostring(df_for_lambdamin.getvalue());
-    if (lambdamax_opt.getvalue()==false)
-        t.options[13] = "false";
-    else
-        t.options[13] = "true";
-    if (lambdamin_opt.getvalue()==false)
+    t.options[11] = ST::doubletostring(dfmin.getvalue());
+    t.options[12] = ST::doubletostring(dfmax.getvalue());
+    t.options[13] = ST::doubletostring(dfstart.getvalue());
+    if (sp.getvalue()==false)
         t.options[14] = "false";
     else
         t.options[14] = "true";
     t.options[15] = ST::inttostring(number.getvalue());
-    if (df_equidist.getvalue()==false)
+    if (logscale.getvalue()==false)
        t.options[16] = "false";
     else
        t.options[16] = "true";
     t.options[17] = ST::doubletostring(df_accuracy.getvalue());
-   t.options[18] = monotone.getvalue();
-    if (nofixed.getvalue()==false)
+    t.options[18] = monotone.getvalue();
+    if (center.getvalue()==false)
        t.options[19] = "false";
     else
        t.options[19] = "true";
+    t.options[20] = knots.getvalue();
+    if (nofixed.getvalue()==false)
+       t.options[21] = "false";
+    else
+       t.options[21] = "true";
 
       
    if (lambda.getvalue() < 0)
@@ -721,17 +735,18 @@ term_spatial_stepwise::term_spatial_stepwise(void)
   type = "term_spatial";
   map=stroption("map");
   lambda = doubleoption("lambda",0.1,0,10000000);
-  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
-  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
-  lambdastart = doubleoption("lambdastart",10000,-1,10000000);
+  spmin = doubleoption("spmin",0.0001,0.000001,10000000);
+  spmax = doubleoption("spmax",10000,0.000001,10000000);
+  spstart = doubleoption("spstart",10000,-1,10000000);
   forced_into = simpleoption("forced_into",false);
-  df_for_lambdamax = doubleoption("df_for_lambdamax",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
-  df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,500);
-  lambdamax_opt = simpleoption("lambdamax_opt",false);
-  lambdamin_opt = simpleoption("lambdamin_opt",false);
+  dfmin = doubleoption("dfmin",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  dfmax = doubleoption("dfmax",10,0,500);
+  dfstart = doubleoption("dfstart",1,0,500);
+  sp = simpleoption("sp",false);
   number = intoption("number",0,0,100);
-  df_equidist = simpleoption("df_equidist",false);
+  logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
+  center = simpleoption("center",false);
   nofixed = simpleoption("nofixed",false);
   }
 
@@ -739,17 +754,18 @@ void term_spatial_stepwise::setdefault(void)
   {
   map.setdefault();
   lambda.setdefault();
-  lambdamin.setdefault();
-  lambdamax.setdefault();
-  lambdastart.setdefault();
+  spmin.setdefault();
+  spmax.setdefault();
+  spstart.setdefault();
   forced_into.setdefault();
-  df_for_lambdamax.setdefault();
-  df_for_lambdamin.setdefault();
-  lambdamax_opt.setdefault();
-  lambdamin_opt.setdefault();
+  dfmin.setdefault();
+  dfmax.setdefault();
+  dfstart.setdefault();
+  sp.setdefault();
   number.setdefault();
-  df_equidist.setdefault();
+  logscale.setdefault();
   df_accuracy.setdefault();
+  center.setdefault();
   nofixed.setdefault();
   }
 
@@ -758,7 +774,7 @@ bool term_spatial_stepwise::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size()>=1) &&
-       (t.options.size()<=15) && (t.options.size() >= 1) )
+       (t.options.size()<=16) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "spatial" && t.varnames.size()==1)
@@ -777,17 +793,18 @@ bool term_spatial_stepwise::check(term & t)
     optionlist optlist;
     optlist.push_back(&map);
     optlist.push_back(&lambda);
-    optlist.push_back(&lambdamin);
-    optlist.push_back(&lambdamax);
-    optlist.push_back(&lambdastart);
+    optlist.push_back(&spmin);
+    optlist.push_back(&spmax);
+    optlist.push_back(&spstart);
     optlist.push_back(&forced_into);
-    optlist.push_back(&df_for_lambdamax);
-    optlist.push_back(&df_for_lambdamin);
-    optlist.push_back(&lambdamax_opt);
-    optlist.push_back(&lambdamin_opt);
+    optlist.push_back(&dfmin);
+    optlist.push_back(&dfmax);
+    optlist.push_back(&dfstart);
+    optlist.push_back(&sp);
     optlist.push_back(&number);
-    optlist.push_back(&df_equidist);
+    optlist.push_back(&logscale);
     optlist.push_back(&df_accuracy);
+    optlist.push_back(&center);
     optlist.push_back(&nofixed);
 
     unsigned i;
@@ -813,37 +830,38 @@ bool term_spatial_stepwise::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(15);
+    t.options = vector<ST::string>(16);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::doubletostring(lambda.getvalue());
-    t.options[3] = ST::doubletostring(lambdamin.getvalue());
-    t.options[4] = ST::doubletostring(lambdamax.getvalue());
-    t.options[5] = ST::doubletostring(lambdastart.getvalue());
+    t.options[3] = ST::doubletostring(spmin.getvalue());
+    t.options[4] = ST::doubletostring(spmax.getvalue());
+    t.options[5] = ST::doubletostring(spstart.getvalue());
     if (forced_into.getvalue()==false)
       t.options[6] = "false";
     else
       t.options[6] = "true";
-    t.options[7] = ST::doubletostring(df_for_lambdamax.getvalue());
-    t.options[8] = ST::doubletostring(df_for_lambdamin.getvalue());
-    if (lambdamax_opt.getvalue()==false)
-        t.options[9] = "false";
-    else
-        t.options[9] = "true";
-    if (lambdamin_opt.getvalue()==false)
+    t.options[7] = ST::doubletostring(dfmin.getvalue());
+    t.options[8] = ST::doubletostring(dfmax.getvalue());
+    t.options[9] = ST::doubletostring(dfstart.getvalue());
+    if (sp.getvalue()==false)
         t.options[10] = "false";
     else
         t.options[10] = "true";
     t.options[11] = ST::inttostring(number.getvalue());
-    if (df_equidist.getvalue()==false)
+    if (logscale.getvalue()==false)
         t.options[12] = "false";
     else
         t.options[12] = "true";
     t.options[13] = ST::doubletostring(df_accuracy.getvalue());
-    if (nofixed.getvalue()==false)
+    if (center.getvalue()==false)
         t.options[14] = "false";
     else
         t.options[14] = "true";
+    if (nofixed.getvalue()==false)
+        t.options[15] = "false";
+    else
+        t.options[15] = "true";
 
 
     int b = t.options[3].strtodouble(minl);
@@ -896,43 +914,45 @@ bool term_spatial_stepwise::check(term & t)
 term_randomslope_stepwise::term_randomslope_stepwise(void)
   {
   type = "term_randomslope";
-  nofixed = simpleoption("nofixed",false);
+  center = simpleoption("center",false);
   lambda = doubleoption("lambda",0.1,0,10000000);
-  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
-  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
-  lambdastart = doubleoption("lambdastart",-1,-1,10000000);
+  spmin = doubleoption("spmin",0.0001,0.000001,10000000);
+  spmax = doubleoption("spmax",10000,0.000001,10000000);
+  spstart = doubleoption("spstart",-1,-1,10000000);
   forced_into = simpleoption("forced_into",false);
-  df_for_lambdamax = doubleoption("df_for_lambdamax",2,1.01,500);
-  df_for_lambdamin = doubleoption("df_for_lambdamin",10,1.01,500);
-  lambdamax_opt = simpleoption("lambdamax_opt",false);
-  lambdamin_opt = simpleoption("lambdamin_opt",false);
-  number = intoption("number",0,0,50);
-  df_equidist = simpleoption("df_equidist",false);
+  dfmin = doubleoption("dfmin",2,0,500);
+  dfmax = doubleoption("dfmax",10,0,500);
+  dfstart = doubleoption("dfstart",1,0,500);
+  sp = simpleoption("sp",false);
+  number = intoption("number",0,0,100);
+  logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
+  nofixed = simpleoption("nofixed",false);
   }
 
 void term_randomslope_stepwise::setdefault(void)
   {
-  nofixed.setdefault();
+  center.setdefault();
   lambda.setdefault();
-  lambdamin.setdefault();
-  lambdamax.setdefault();
-  lambdastart.setdefault();
+  spmin.setdefault();
+  spmax.setdefault();
+  spstart.setdefault();
   forced_into.setdefault();
-  df_for_lambdamax.setdefault();
-  df_for_lambdamin.setdefault();
-  lambdamax_opt.setdefault();
-  lambdamin_opt.setdefault();
+  dfmin.setdefault();
+  dfmax.setdefault();
+  dfstart.setdefault();
+  sp.setdefault();
   number.setdefault();
-  df_equidist.setdefault();
+  logscale.setdefault();
   df_accuracy.setdefault();
+  nofixed.setdefault();
   }
 
 
 bool term_randomslope_stepwise::check(term & t)
   {
 
-  if ( (t.varnames.size()==2)  && (t.options.size()<=14) )
+  if ( (t.varnames.size()==2)  && (t.options.size()<=15) )
     {
 
     if (t.options[0] == "random")
@@ -945,19 +965,20 @@ bool term_randomslope_stepwise::check(term & t)
 
     vector<ST::string> opt;
     optionlist optlist;
-    optlist.push_back(&nofixed);
+    optlist.push_back(&center);
     optlist.push_back(&lambda);
-    optlist.push_back(&lambdamin);
-    optlist.push_back(&lambdamax);
-    optlist.push_back(&lambdastart);
+    optlist.push_back(&spmin);
+    optlist.push_back(&spmax);
+    optlist.push_back(&spstart);
     optlist.push_back(&forced_into);
-    optlist.push_back(&df_for_lambdamax);
-    optlist.push_back(&df_for_lambdamin);
-    optlist.push_back(&lambdamax_opt);
-    optlist.push_back(&lambdamin_opt);
+    optlist.push_back(&dfmin);
+    optlist.push_back(&dfmax);
+    optlist.push_back(&dfstart);
+    optlist.push_back(&sp);
     optlist.push_back(&number);
-    optlist.push_back(&df_equidist);
+    optlist.push_back(&logscale);
     optlist.push_back(&df_accuracy);
+    optlist.push_back(&nofixed);
 
     unsigned i;
     bool rec = true;
@@ -982,36 +1003,37 @@ bool term_randomslope_stepwise::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(14);
+    t.options = vector<ST::string>(15);
     t.options[0] = t.type;
-    if (nofixed.getvalue() == true)
+    if (center.getvalue() == true)
       t.options[1] = "true";
     else
       t.options[1] = "false";
     t.options[2] = ST::doubletostring(lambda.getvalue());
-    t.options[3] = ST::doubletostring(lambdamin.getvalue());
-    t.options[4] = ST::doubletostring(lambdamax.getvalue());
-    t.options[5] = ST::doubletostring(lambdastart.getvalue());
+    t.options[3] = ST::doubletostring(spmin.getvalue());
+    t.options[4] = ST::doubletostring(spmax.getvalue());
+    t.options[5] = ST::doubletostring(spstart.getvalue());
     if (forced_into.getvalue()==false)
       t.options[6] = "false";
     else
       t.options[6] = "true";
-    t.options[7] = ST::doubletostring(df_for_lambdamax.getvalue());
-    t.options[8] = ST::doubletostring(df_for_lambdamin.getvalue());
-    if (lambdamax_opt.getvalue()==false)
-        t.options[9] = "false";
-    else
-        t.options[9] = "true";
-    if (lambdamin_opt.getvalue()==false)
+    t.options[7] = ST::doubletostring(dfmin.getvalue());
+    t.options[8] = ST::doubletostring(dfmax.getvalue());
+    t.options[9] = ST::doubletostring(dfstart.getvalue());
+    if (sp.getvalue()==false)
         t.options[10] = "false";
     else
         t.options[10] = "true";
     t.options[11] = ST::inttostring(number.getvalue());
-    if (df_equidist.getvalue()==false)
+    if (logscale.getvalue()==false)
         t.options[12] = "false";
     else
         t.options[12] = "true";
     t.options[13] = ST::doubletostring(df_accuracy.getvalue());
+    if (nofixed.getvalue()==false)
+        t.options[14] = "false";
+    else
+        t.options[14] = "true";
 
 
     double minl, maxl, startl,df_max,df_min;
@@ -1068,16 +1090,16 @@ term_random_stepwise::term_random_stepwise(void)
   {
   type = "term_random";
   lambda = doubleoption("lambda",0.1,0,10000000);
-  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
-  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
-  lambdastart = doubleoption("lambdastart",10000,0,10000000);
+  spmin = doubleoption("spmin",0.0001,0.000001,10000000);
+  spmax = doubleoption("spmax",10000,0.000001,10000000);
+  spstart = doubleoption("spstart",10000,0,10000000);
   forced_into = simpleoption("forced_into",false);
-  df_for_lambdamax = doubleoption("df_for_lambdamax",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
-  df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,500);
-  lambdamax_opt = simpleoption("lambdamax_opt",false);
-  lambdamin_opt = simpleoption("lambdamin_opt",false);
+  dfmin = doubleoption("dfmin",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  dfmax = doubleoption("dfmax",10,0,500);
+  dfstart = doubleoption("dfstart",1,0,500);
+  sp = simpleoption("sp",false);
   number = intoption("number",0,0,100);
-  df_equidist = simpleoption("df_equidist",false);
+  logscale = simpleoption("logsale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
   }
 
@@ -1085,16 +1107,16 @@ term_random_stepwise::term_random_stepwise(void)
 void term_random_stepwise::setdefault(void)
   {
   lambda.setdefault();
-  lambdamin.setdefault();
-  lambdamax.setdefault();
-  lambdastart.setdefault();
+  spmin.setdefault();
+  spmax.setdefault();
+  spstart.setdefault();
   forced_into.setdefault();
-  df_for_lambdamax.setdefault();
-  df_for_lambdamin.setdefault();
-  lambdamax_opt.setdefault();
-  lambdamin_opt.setdefault();
+  dfmin.setdefault();
+  dfmax.setdefault();
+  dfstart.setdefault();
+  sp.setdefault();
   number.setdefault();
-  df_equidist.setdefault();
+  logscale.setdefault();
   df_accuracy.setdefault();
   }
 
@@ -1120,16 +1142,16 @@ bool term_random_stepwise::check(term & t)
     vector<ST::string> opt;
     optionlist optlist;
     optlist.push_back(&lambda);
-    optlist.push_back(&lambdamin);
-    optlist.push_back(&lambdamax);
-    optlist.push_back(&lambdastart);
+    optlist.push_back(&spmin);
+    optlist.push_back(&spmax);
+    optlist.push_back(&spstart);
     optlist.push_back(&forced_into);
-    optlist.push_back(&df_for_lambdamax);
-    optlist.push_back(&df_for_lambdamin);
-    optlist.push_back(&lambdamax_opt);
-    optlist.push_back(&lambdamin_opt);
+    optlist.push_back(&dfmin);
+    optlist.push_back(&dfmax);
+    optlist.push_back(&dfstart);
+    optlist.push_back(&sp);
     optlist.push_back(&number);
-    optlist.push_back(&df_equidist);
+    optlist.push_back(&logscale);
     optlist.push_back(&df_accuracy);
 
     unsigned i;
@@ -1158,25 +1180,22 @@ bool term_random_stepwise::check(term & t)
     t.options = vector<ST::string>(13);
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(lambda.getvalue());
-    t.options[2] = ST::doubletostring(lambdamin.getvalue());
-    t.options[3] = ST::doubletostring(lambdamax.getvalue());
-    t.options[4] = ST::doubletostring(lambdastart.getvalue());
+    t.options[2] = ST::doubletostring(spmin.getvalue());
+    t.options[3] = ST::doubletostring(spmax.getvalue());
+    t.options[4] = ST::doubletostring(spstart.getvalue());
     if (forced_into.getvalue()==false)
       t.options[5] = "false";
     else
       t.options[5] = "true";
-    t.options[6] = ST::doubletostring(df_for_lambdamax.getvalue());
-    t.options[7] = ST::doubletostring(df_for_lambdamin.getvalue());
-    if (lambdamax_opt.getvalue()==false)
-        t.options[8] = "false";
-    else
-        t.options[8] = "true";
-    if (lambdamin_opt.getvalue()==false)
+    t.options[6] = ST::doubletostring(dfmin.getvalue());
+    t.options[7] = ST::doubletostring(dfmax.getvalue());
+    t.options[8] = ST::doubletostring(dfstart.getvalue());
+    if (sp.getvalue()==false)
         t.options[9] = "false";
     else
         t.options[9] = "true";
     t.options[10] = ST::inttostring(number.getvalue());
-    if (df_equidist.getvalue()==false)
+    if (logscale.getvalue()==false)
         t.options[11] = "false";
     else
         t.options[11] = "true";
@@ -1230,18 +1249,23 @@ term_factor_stepwise::term_factor_stepwise(void)
   vector<ST::string> code;
   code.push_back("dummy");
   code.push_back("effect");
+  code.push_back("userdef");
   coding = stroption("coding",code,"dummy");
   reference = doubleoption("reference",1,-100,100);
-  lambdastart = intoption("lambdastart",-1,-1,0);
+  spstart = intoption("spstart",-1,-1,0);
   forced_into = simpleoption("forced_into",false);
+  dfstart = intoption("dfstart",1,0,100);
+  nofixed = simpleoption("nofixed",false);
   }
 
 void term_factor_stepwise::setdefault(void)
   {
   coding.setdefault();
   reference.setdefault();
-  lambdastart.setdefault();
+  spstart.setdefault();
   forced_into.setdefault();
+  dfstart.setdefault();
+  nofixed.setdefault();
   }
 
 
@@ -1249,7 +1273,7 @@ bool term_factor_stepwise::check(term & t)
   {
 
   if ( (t.varnames.size() == 1) &&
-       (t.options.size()<=5) && (t.options.size() >= 1) )
+       (t.options.size()<=7) && (t.options.size() >= 1) )
     {
 
     if ( (t.options[0] == "factor") && (t.varnames.size() == 1) )
@@ -1264,8 +1288,10 @@ bool term_factor_stepwise::check(term & t)
     optionlist optlist;
     optlist.push_back(&coding);
     optlist.push_back(&reference);
-    optlist.push_back(&lambdastart);
+    optlist.push_back(&spstart);
     optlist.push_back(&forced_into);
+    optlist.push_back(&dfstart);
+    optlist.push_back(&nofixed);
 
     unsigned i;
     bool rec = true;
@@ -1289,22 +1315,33 @@ bool term_factor_stepwise::check(term & t)
       return false;
       }
 
-    optlist.push_back(&coding);
+    /*optlist.push_back(&coding);
     optlist.push_back(&reference);
     optlist.push_back(&lambdastart);
-    optlist.push_back(&forced_into);
+    optlist.push_back(&forced_into); */
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(5);
+    t.options = vector<ST::string>(7);
     t.options[0] = t.type;
     t.options[1] = coding.getvalue();
     t.options[2] = ST::doubletostring(reference.getvalue());
-    t.options[3] = ST::inttostring(lambdastart.getvalue());
+    t.options[3] = ST::inttostring(spstart.getvalue());
     if (forced_into.getvalue()==false)
       t.options[4] = "false";
     else
       t.options[4] = "true";
+    t.options[5] = ST::inttostring(dfstart.getvalue());
+    if (nofixed.getvalue()==false)
+      t.options[6] = "false";
+    else
+      t.options[6] = "true";
 
+
+    if (nofixed.getvalue()==true && forced_into.getvalue()==true)
+      {
+      setdefault();
+      return false;
+      }
 
     setdefault();
     return true;
@@ -1329,17 +1366,19 @@ term_interactpspline_stepwise::term_interactpspline_stepwise(void)
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   gridsize = intoption("gridsize",-1,10,35);
-  lambdamin = doubleoption("lambdamin",0.000001,0.000001,100000000);
-  lambdamax = doubleoption("lambdamax",10000,0.000001,100000000);
-  lambdastart = doubleoption("lambdastart",-1,-1,100000000);
+  spmin = doubleoption("spmin",0.000001,0.000001,100000000);
+  spmax = doubleoption("spmax",10000,0.000001,1000000000);
+  spstart = doubleoption("spstart",-1,-1,1000000000);
   forced_into = simpleoption("forced_into",false);
-  df_for_lambdamax = doubleoption("df_for_lambdamax",2,0,400);         // Unterscheidung rw1/rw2 bei default-Wert!!!
-  df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,400);
-  lambdamax_opt = simpleoption("lambdamax_opt",false);
-  lambdamin_opt = simpleoption("lambdamin_opt",false);
-  number = intoption("number",0,-1,50);
-  df_equidist = simpleoption("df_equidist",false);
+  dfmin = doubleoption("dfmin",2,0,400);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  dfmax = doubleoption("dfmax",10,0,400);
+  dfstart = doubleoption("dfstart",0,0,400);
+  sp = simpleoption("sp",false);
+  number = intoption("number",0,-1,100);
+  logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,1);
+  center = simpleoption("center",false);
+  nofixed = simpleoption("nofixed",false);
   }
 
 
@@ -1349,17 +1388,19 @@ void term_interactpspline_stepwise::setdefault(void)
   numberknots.setdefault();
   lambda.setdefault();
   gridsize.setdefault();
-  lambdamin.setdefault();
-  lambdamax.setdefault();
-  lambdastart.setdefault();
+  spmin.setdefault();
+  spmax.setdefault();
+  spstart.setdefault();
   forced_into.setdefault();
-  df_for_lambdamax.setdefault();
-  df_for_lambdamin.setdefault();
-  lambdamax_opt.setdefault();
-  lambdamin_opt.setdefault();
+  dfmin.setdefault();
+  dfmax.setdefault();
+  dfstart.setdefault();
+  sp.setdefault();
   number.setdefault();
-  df_equidist.setdefault();
+  logscale.setdefault();
   df_accuracy.setdefault();
+  center.setdefault();
+  nofixed.setdefault();
   }
 
 bool term_interactpspline_stepwise::check(term & t)
@@ -1370,26 +1411,30 @@ bool term_interactpspline_stepwise::check(term & t)
   optlist.push_back(&numberknots);
   optlist.push_back(&lambda);
   optlist.push_back(&gridsize);
-  optlist.push_back(&lambdamin);
-  optlist.push_back(&lambdamax);
-  optlist.push_back(&lambdastart);
+  optlist.push_back(&spmin);
+  optlist.push_back(&spmax);
+  optlist.push_back(&spstart);
   optlist.push_back(&forced_into);
-  optlist.push_back(&df_for_lambdamax);
-  optlist.push_back(&df_for_lambdamin);
-  optlist.push_back(&lambdamax_opt);
-  optlist.push_back(&lambdamin_opt);
+  optlist.push_back(&dfmin);
+  optlist.push_back(&dfmax);
+  optlist.push_back(&dfstart);
+  optlist.push_back(&sp);
   optlist.push_back(&number);
-  optlist.push_back(&df_equidist);
+  optlist.push_back(&logscale);
   optlist.push_back(&df_accuracy);
+  optlist.push_back(&center);
+  optlist.push_back(&nofixed);
 
-  if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 16) )
+  if ( ((t.varnames.size()==2) || (t.varnames.size()==3))  && (t.options.size() >= 1)
+        && (t.options.size() <= 18) )
     {
 
     if (t.options[0] == "pspline2dimrw1")
       t.type = "pspline2dimrw1";
     else if (t.options[0] == "pspline2dimrw2")
       t.type = "pspline2dimrw2";
+    else if (t.options[0] == "psplineinteract")
+      t.type = "psplineinteract";
     //else if (t.options[0] == "tpspline2dimrw1")
     //  t.type = "tpspline2dimrw1";
     //else if (t.options[0] == "pspline2dimband")
@@ -1432,35 +1477,40 @@ bool term_interactpspline_stepwise::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(16);
+   t.options = vector<ST::string>(18);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(degree.getvalue());
    t.options[2] = ST::inttostring(numberknots.getvalue());
    t.options[3] = ST::doubletostring(lambda.getvalue());
    t.options[4] = ST::inttostring(gridsize.getvalue());
-   t.options[5] = ST::doubletostring(lambdamin.getvalue());
-   t.options[6] = ST::doubletostring(lambdamax.getvalue());
-   t.options[7] = ST::doubletostring(lambdastart.getvalue());
+   t.options[5] = ST::doubletostring(spmin.getvalue());
+   t.options[6] = ST::doubletostring(spmax.getvalue());
+   t.options[7] = ST::doubletostring(spstart.getvalue());
    if (forced_into.getvalue()==false)
      t.options[8] = "false";
    else
      t.options[8] = "true";
-   t.options[9] = ST::doubletostring(df_for_lambdamax.getvalue());
-   t.options[10] = ST::doubletostring(df_for_lambdamin.getvalue());
-   if (lambdamax_opt.getvalue()==false)
-       t.options[11] = "false";
-   else
-       t.options[11] = "true";
-   if (lambdamin_opt.getvalue()==false)
+   t.options[9] = ST::doubletostring(dfmin.getvalue());
+   t.options[10] = ST::doubletostring(dfmax.getvalue());
+   t.options[11] = ST::doubletostring(dfstart.getvalue());
+   if (sp.getvalue()==false)
        t.options[12] = "false";
    else
        t.options[12] = "true";
    t.options[13] = ST::inttostring(number.getvalue());
-   if (df_equidist.getvalue()==false)
+   if (logscale.getvalue()==false)
       t.options[14] = "false";
    else
       t.options[14] = "true";
    t.options[15] = ST::doubletostring(df_accuracy.getvalue());
+   if (center.getvalue()==false)
+       t.options[16] = "false";
+   else
+       t.options[16] = "true";
+   if (nofixed.getvalue()==false)
+       t.options[17] = "false";
+   else
+       t.options[17] = "true";
 
 
    if (lambda.getvalue() < 0)
@@ -1526,7 +1576,8 @@ bool term_interactpspline_stepwise::checkvector(const vector<term> & terms,
 
   assert(i< terms.size());
 
-  if ((terms[i].type == "pspline2dimrw1") || (terms[i].type == "pspline2dimrw2"))
+  if ((terms[i].type == "pspline2dimrw1") || (terms[i].type == "pspline2dimrw2")
+      || (terms[i].type == "psplineinteract") )
      //|| (terms[i].type == "psplinekrrw1") || (terms[i].type == "psplinekrrw2")
      //|| (terms[i].type == "tpspline2dimrw1")
      //|| (terms[i].type == "pspline2dimband") || (terms[i].type == "tpspline2dimband") )
@@ -1547,17 +1598,19 @@ term_geospline_stepwise::term_geospline_stepwise(void)
   degree=intoption("degree",3,1,5);
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
-  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
-  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
-  lambdastart = doubleoption("lambdastart",10000,-1,10000000);
+  spmin = doubleoption("spmin",0.0001,0.000001,10000000);
+  spmax = doubleoption("spmax",10000,0.000001,10000000);
+  spstart = doubleoption("spstart",10000,-1,10000000);
   forced_into = simpleoption("forced_into",false);
-  df_for_lambdamax = doubleoption("df_for_lambdamax",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
-  df_for_lambdamin = doubleoption("df_for_lambdamin",10,0,500);
-  lambdamax_opt = simpleoption("lambdamax_opt",false);
-  lambdamin_opt = simpleoption("lambdamin_opt",false);
-  number = intoption("number",0,0,50);
-  df_equidist = simpleoption("df_equidist",false);
+  dfmin = doubleoption("dfmin",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  dfmax = doubleoption("dfmax",10,0,500);
+  dfstart = doubleoption("dfstart",1,0,500);
+  sp = simpleoption("sp",false);
+  number = intoption("number",0,0,100);
+  logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
+  center = simpleoption("center",false);
+  nofixed = simpleoption("nofixed",false);
   }
 
 
@@ -1567,24 +1620,26 @@ void term_geospline_stepwise::setdefault(void)
   degree.setdefault();
   numberknots.setdefault();
   lambda.setdefault();
-  lambdamin.setdefault();
-  lambdamax.setdefault();
-  lambdastart.setdefault();
+  spmin.setdefault();
+  spmax.setdefault();
+  spstart.setdefault();
   forced_into.setdefault();
-  df_for_lambdamax.setdefault();
-  df_for_lambdamin.setdefault();
-  lambdamax_opt.setdefault();
-  lambdamin_opt.setdefault();
+  dfmin.setdefault();
+  dfmax.setdefault();
+  dfstart.setdefault();
+  sp.setdefault();
   number.setdefault();
-  df_equidist.setdefault();
+  logscale.setdefault();
   df_accuracy.setdefault();
+  center.setdefault();
+  nofixed.setdefault();
   }
 
 bool term_geospline_stepwise::check(term & t)
   {
 
-  if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 16) )
+  if ( ((t.varnames.size()==1) || (t.varnames.size()==2))  && (t.options.size() >= 1)
+        && (t.options.size() <= 18) )
     {
 
     if (t.options[0] == "geospline")
@@ -1606,17 +1661,19 @@ bool term_geospline_stepwise::check(term & t)
     optlist.push_back(&numberknots);
     optlist.push_back(&lambda);
     optlist.push_back(&map);
-    optlist.push_back(&lambdamin);
-    optlist.push_back(&lambdamax);
-    optlist.push_back(&lambdastart);
+    optlist.push_back(&spmin);
+    optlist.push_back(&spmax);
+    optlist.push_back(&spstart);
     optlist.push_back(&forced_into);
-    optlist.push_back(&df_for_lambdamax);
-    optlist.push_back(&df_for_lambdamin);
-    optlist.push_back(&lambdamax_opt);
-    optlist.push_back(&lambdamin_opt);
+    optlist.push_back(&dfmin);
+    optlist.push_back(&dfmax);
+    optlist.push_back(&dfstart);
+    optlist.push_back(&sp);
     optlist.push_back(&number);
-    optlist.push_back(&df_equidist);
+    optlist.push_back(&logscale);
     optlist.push_back(&df_accuracy);
+    optlist.push_back(&center);
+    optlist.push_back(&nofixed);
 
     unsigned i;
 
@@ -1642,35 +1699,40 @@ bool term_geospline_stepwise::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(16);
+    t.options = vector<ST::string>(18);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
     t.options[3] = ST::doubletostring(lambda.getvalue());
     t.options[4] = map.getvalue();
-    t.options[5] = ST::doubletostring(lambdamin.getvalue());
-    t.options[6] = ST::doubletostring(lambdamax.getvalue());
-    t.options[7] = ST::doubletostring(lambdastart.getvalue());
+    t.options[5] = ST::doubletostring(spmin.getvalue());
+    t.options[6] = ST::doubletostring(spmax.getvalue());
+    t.options[7] = ST::doubletostring(spstart.getvalue());
     if (forced_into.getvalue()==false)
       t.options[8] = "false";
     else
       t.options[8] = "true";
-    t.options[9] = ST::doubletostring(df_for_lambdamax.getvalue());
-    t.options[10] = ST::doubletostring(df_for_lambdamin.getvalue());
-    if (lambdamax_opt.getvalue()==false)
-        t.options[11] = "false";
-    else
-        t.options[11] = "true";
-    if (lambdamin_opt.getvalue()==false)
+    t.options[9] = ST::doubletostring(dfmin.getvalue());
+    t.options[10] = ST::doubletostring(dfmax.getvalue());
+    t.options[11] = ST::doubletostring(dfstart.getvalue());
+    if (sp.getvalue()==false)
         t.options[12] = "false";
     else
         t.options[12] = "true";
     t.options[13] = ST::inttostring(number.getvalue());
-    if (df_equidist.getvalue()==false)
+    if (logscale.getvalue()==false)
        t.options[14] = "false";
     else
        t.options[14] = "true";
     t.options[15] = ST::doubletostring(df_accuracy.getvalue());
+    if (center.getvalue()==false)
+       t.options[16] = "false";
+    else
+       t.options[16] = "true";
+    if (nofixed.getvalue()==false)
+       t.options[17] = "false";
+    else
+       t.options[17] = "true";
 
 
     int b = t.options[5].strtodouble(minl);
@@ -1722,10 +1784,249 @@ bool term_geospline_stepwise::checkvector(const vector<term> & terms, const unsi
 
   assert(i< terms.size());
 
-  if (terms[i].type == "geospline")
+  if (terms[i].type == "geospline" || terms[i].type == "geosplinerw1"
+       || terms[i].type == "geosplinerw2")
     return true;
 
   return false;
   }
+
+
+//------------------------------------------------------------------------------
+//----------- class term_projection: implementation of member functions -----------
+//------------------------------------------------------------------------------
+
+term_projection_stepwise::term_projection_stepwise(void)
+  {
+  type = "term_projection";
+  degree=intoption("degree",3,0,5);           // geht alles, wegen Ableitung?
+  numberknots=intoption("nrknots",20,5,500);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  gridsize = intoption("gridsize",-1,10,500);
+  diagtransform = simpleoption("diagtransform",false);
+  derivative = simpleoption("derivative",false);
+  spmin = doubleoption("spmin",0.0001,0.000001,100000000);
+  spmax = doubleoption("spmax",10000,0.000001,100000000);
+  spstart = doubleoption("spstart",-1,-1,100000000);
+  forced_into = simpleoption("forced_into",false);
+  dfmin = doubleoption("dfmin",2,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
+  dfmax = doubleoption("dfmax",10,0,200);
+  dfstart = doubleoption("dfstart",1,0,200);
+  sp = simpleoption("sp",false);
+  number = intoption("number",0,-1,100);
+  logscale = simpleoption("logscale",false);
+  df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
+  vector<ST::string> adm;
+  adm.push_back("unrestricted");
+  adm.push_back("increasing");
+  adm.push_back("decreasing");
+  monotone = stroption("monotone",adm,"unrestricted");
+  center = simpleoption("center",false);
+  nterms = intoption("nterms",2,1,10);
+  }
+
+void term_projection_stepwise::setdefault(void)
+  {
+  degree.setdefault();
+  numberknots.setdefault();
+  lambda.setdefault();
+  gridsize.setdefault();
+  diagtransform.setdefault();
+  derivative.setdefault();
+  spmin.setdefault();
+  spmax.setdefault();
+  spstart.setdefault();
+  forced_into.setdefault();
+  dfmin.setdefault();
+  dfmax.setdefault();
+  dfstart.setdefault();
+  sp.setdefault();
+  number.setdefault();
+  logscale.setdefault();
+  df_accuracy.setdefault();
+  monotone.setdefault();
+  center.setdefault();
+  nterms.setdefault();
+  }
+
+bool term_projection_stepwise::check(term & t)
+  {
+
+  if ( (t.varnames.size() >= 1)
+       && (t.options.size() >= 1) && (t.options.size() <= 21) )
+    {
+
+    if (t.options[0] == "projection_rw1")
+      t.type = "projection_rw1";
+    else if (t.options[0] == "projection_rw2")
+      t.type = "projection_rw2";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    double maxl,minl,startl,df_max,df_min;
+
+    optionlist optlist;
+    optlist.push_back(&degree);
+    optlist.push_back(&numberknots);
+    optlist.push_back(&lambda);
+    optlist.push_back(&gridsize);
+    optlist.push_back(&diagtransform);
+    optlist.push_back(&derivative);
+    optlist.push_back(&spmin);
+    optlist.push_back(&spmax);
+    optlist.push_back(&spstart);
+    optlist.push_back(&forced_into);
+    optlist.push_back(&dfmin);
+    optlist.push_back(&dfmax);
+    optlist.push_back(&dfstart);
+    optlist.push_back(&sp);
+    optlist.push_back(&number);
+    optlist.push_back(&logscale);
+    optlist.push_back(&df_accuracy);
+    optlist.push_back(&monotone);
+    optlist.push_back(&center);
+    optlist.push_back(&nterms);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+   t.options.erase(t.options.begin(),t.options.end());
+   t.options = vector<ST::string>(21);
+   t.options[0] = t.type;
+   t.options[1] = ST::inttostring(degree.getvalue());
+   t.options[2] = ST::inttostring(numberknots.getvalue());
+   t.options[3] = ST::doubletostring(lambda.getvalue());
+   t.options[4] = ST::inttostring(gridsize.getvalue());
+   if (diagtransform.getvalue() == false)
+     t.options[5] = "false";
+   else
+     t.options[5] = "true";
+   if (derivative.getvalue() == false)
+     t.options[6] = "false";
+   else
+     t.options[6] = "true";
+    t.options[7] = ST::doubletostring(spmin.getvalue());
+    t.options[8] = ST::doubletostring(spmax.getvalue());
+    t.options[9] = ST::doubletostring(spstart.getvalue());
+    if (forced_into.getvalue()==false)
+      t.options[10] = "false";
+    else
+      t.options[10] = "true";
+    t.options[11] = ST::doubletostring(dfmin.getvalue());
+    t.options[12] = ST::doubletostring(dfmax.getvalue());
+    t.options[13] = ST::doubletostring(dfstart.getvalue());
+    if (sp.getvalue()==false)
+        t.options[14] = "false";
+    else
+        t.options[14] = "true";
+    t.options[15] = ST::inttostring(number.getvalue());
+    if (logscale.getvalue()==false)
+       t.options[16] = "false";
+    else
+       t.options[16] = "true";
+   t.options[17] = ST::doubletostring(df_accuracy.getvalue());
+   t.options[18] = monotone.getvalue();
+    if (center.getvalue()==false)
+       t.options[19] = "false";
+    else
+       t.options[19] = "true";
+   t.options[20] = ST::inttostring(nterms.getvalue());
+
+      
+   if (lambda.getvalue() < 0)
+     {
+     setdefault();
+     return false;
+     }
+
+    int b = t.options[7].strtodouble(minl);
+    b = t.options[8].strtodouble(maxl);
+    b = t.options[9].strtodouble(startl);
+    b = t.options[11].strtodouble(df_max);
+    b = t.options[12].strtodouble(df_min);
+
+    if (b==1)
+      {
+      setdefault();
+      return false;
+      }
+
+
+    if (minl >= maxl)
+      {
+      setdefault();
+      return false;
+      }
+
+    if (maxl < startl)
+      {
+      setdefault();
+      return false;
+      }
+
+    if ((df_min <= 1 && t.options[0] == "projection_rw2") ||            // kann man auf Anzahl der Parameter zugreifen???
+            (df_max <= 1 && t.options[0] == "projection_rw2"))
+      {
+      setdefault();
+      return false;
+      }
+
+    if ((df_min == 1 && t.options[0] == "projection_rw1") ||            // kann man auf Anzahl der Parameter zugreifen???
+            (df_max == 1 && t.options[0] == "projection_rw1"))
+      {
+      setdefault();
+      return false;
+      }
+
+    if(df_max>=df_min)
+      {
+      setdefault();
+      return false;
+      }
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+  }
+
+bool term_projection_stepwise::checkvector(const vector<term> & terms, const unsigned & i)
+  {
+
+  assert(i< terms.size());
+
+  if (terms[i].type == "projection_rw1" || terms[i].type == "projection_rw2")
+    return true;
+
+  return false;
+  }
+
 
 

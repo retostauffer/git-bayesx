@@ -45,6 +45,10 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   ofstream outtex;
   ST::string smoothing;    // für Unterscheidung globaler / lokaler Glättungsparameter
   bool hierarchical;
+  bool miniback_off;
+  int bootstrap;
+  bool isboot;
+  bool unconditional;
 
   unsigned kategorien;
   unsigned katje;
@@ -61,8 +65,10 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   vector<vector<vector<double> > > modellematrix;
   bool fertig;
   int steps_aktuell;
-  int window;
+  //int window;
   vector<ST::string> posttitle;
+
+  void schaetzen(int z, double & kriterium, bool neu, ST::string variante);
 
 // -----------------------------------------------------------------------------
 // -------------- Funktionen, für Stepwise / Stepmin ---------------------------
@@ -115,14 +121,11 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
 
   void stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt, double & kriterium);
 
-  void minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt,
-          double & kriterium, double & df);
+  void minexact_nonp_nonp(unsigned & z, vector<double> & krit_fkt, double & kriterium);
 
-  void minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
-          double & kriterium, double & df);
+  void minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt, double & kriterium);
 
-  void minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
-          double & kriterium, double & df);
+  void minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt, double & kriterium);
 
   double criterion_min(const double & df);
 
@@ -170,6 +173,17 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
       vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
       unsigned & z, double & kriterium_aktuell);
 
+
+// -----------------------------------------------------------------------------
+// --------------------------- Mini-Backfitting --------------------------------
+// -----------------------------------------------------------------------------
+
+  bool blockbilden(vector<FULLCOND*> & fullcond_block, unsigned & z, unsigned & pos);
+
+  void minifullcond_aendern(FULLCOND* & fullcondz, vector<FULLCOND*> & fullcond, unsigned & pos);
+
+  void minibackfitting(vector<FULLCOND*> & fullcond);
+
 // -----------------------------------------------------------------------------
 // ------- Funktionen für die Erstellung des Startmodels -----------------------
 // -----------------------------------------------------------------------------
@@ -179,6 +193,8 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   void initialise_lambdas(vector<vector<ST::string> > & namen_nonp,
        vector<ST::string> & namen_fix, vector<vector<double> > & lambdavector,
        const int & number, const bool & gewichte);
+
+  void initialise_weights(double prop);
 
   unsigned search_lambdaindex(const double & m, const vector<double> lam,
                                             bool & b) const;
@@ -286,6 +302,7 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
 
   const STEPMULTIrun & operator=(const STEPMULTIrun & s);
 
+  bool posteriormode(const vector<ST::string> & header, const bool & presim);
 
   bool single_stepwise(const vector<unsigned> & start,
                          const vector<double> & startfix, const bool & tex);
@@ -293,10 +310,10 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   bool stepwise(const ST::string & procedure, const ST::string & minimum,
          const ST::string & crit, const int & stp, const ST::string & trac,
          const int & number, const ST::string & stam, const int & inc, const bool & finet,
-         const bool & fineloc, const bool & maveraging, int & fenster,
+         const bool & fineloc, const int & boot, const bool & uncond, 
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
-         const bool & CI, bool & hier);
+         const bool & CI, bool & hier, const double & prop, const bool & minib);
 
   double compute_criterion(void);
 

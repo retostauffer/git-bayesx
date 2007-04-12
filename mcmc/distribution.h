@@ -36,7 +36,12 @@ class __EXPORT_TYPE DISTRIBUTION
   protected:
 
   bool constant_iwlsweights;
-  bool iwlsweights_notchanged;    // für "stepwise": gibt an, ob Gewichte verändert wurden
+  bool iwlsweights_notchanged_df;    // für "stepwise": gibt an, ob gegenüber dem letzten Mal "df" berechnen die Gewichte verändert wurden
+  double gcvfactor;
+  int seed;
+
+  datamatrix linearpred_ori;
+  datamatrix response_ori;
 
   bool nosamples;                 // true if samples should not be stored
                                   //
@@ -83,6 +88,7 @@ class __EXPORT_TYPE DISTRIBUTION
   datamatrix weight2;             // saves the original weightvariable when a second one is defined for Cross-Validation
   datamatrix weightiwls2;         // saves original "weightiwls" when Cross-Validation is performed
   datamatrix weightcv;            // contains information about how the dataset is splitted for CV
+  unsigned nrobs_wpw;             // contains the number of observations with positive weights
 
   datamatrix weight;              // Weightvariable for weighted regression
   double sumweight;               // sum of weights
@@ -306,7 +312,14 @@ class __EXPORT_TYPE DISTRIBUTION
   // FUNCTION: get_nrobs_wpw
   // TASK: returns the number of observation with positive weights
 
-  unsigned get_nrobs_wpw(void);
+  unsigned get_nrobs_wpw(void)
+    {
+    if(nrobs_wpw == -1)
+      set_nrobs_wpw();
+    return nrobs_wpw;
+    }
+
+  void set_nrobs_wpw(void);
 
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
@@ -334,6 +347,8 @@ class __EXPORT_TYPE DISTRIBUTION
                        const ST::string & path,const unsigned & fo);
 
   virtual void update_predict(void);
+
+  virtual void update_predict_bootstrap(void);
 
   void set_predictresponse(const datamatrix & pr);
 
@@ -404,6 +419,10 @@ class __EXPORT_TYPE DISTRIBUTION
   const bool & get_scaleexisting(void)
     {
     return scaleexisting;
+    }
+
+  virtual void set_constscale(double s)
+    {
     }
 
   // FUNCTION: compute_autocor_scale
@@ -501,16 +520,27 @@ class __EXPORT_TYPE DISTRIBUTION
     {
     }
 
-  void compute_deviance(double & deviance,double & deviancesat);
+  virtual void compute_overall_deviance(double & deviance,double & deviancesat);
 
 
   // FUNCTION: compute_rss
   // TASK: computes the residual sum of squares for gaussian data
 
-  virtual double compute_rss(void)
+  double compute_rss(void);
+
+  void set_seed(int & seeed)
     {
-    return 0;
+    seed = seeed;
     }
+
+  int get_seed(void)
+    {
+    return seed;
+    }
+
+  void create_bootstrap_weights(void);   // wie bei MSEP und CV???
+
+  void set_original_response(void);
 
   // FUNCTION: create_weight
   // TASK: Splits the dataset in two parts: one for estimation and one for validation
@@ -550,6 +580,11 @@ class __EXPORT_TYPE DISTRIBUTION
   // FUNCTION: compute_gcv
   // TASK: computes the GCV score
 
+  void set_gcvfactor(double & factor)
+    {
+    gcvfactor = factor;
+    }
+
   virtual double compute_gcv(const double & df);
 
   virtual double compute_gcv2(const double & df);
@@ -580,12 +615,12 @@ class __EXPORT_TYPE DISTRIBUTION
 
   bool get_iwlsweights_notchanged(void)
     {
-    return iwlsweights_notchanged;
+    return iwlsweights_notchanged_df;
     }
 
   bool set_iwlsweights_notchanged(bool change)
     {
-    iwlsweights_notchanged = change;
+    iwlsweights_notchanged_df = change;
     }
 
   // FUNCTION: compute_IWLS
@@ -1239,6 +1274,8 @@ class __EXPORT_TYPE DISTRIBUTION
 
   virtual void update(void);
 
+  virtual void update_bootstrap(void);
+
   // FUNCTION: outresults
   // TASK: writes estimation results for the scale parameter
   //       estimated mean and variance
@@ -1817,6 +1854,8 @@ class __EXPORT_TYPE DISTRIBUTION_gamma2 : public DISTRIBUTION
 
   // FUNCTION phi_hat
   // TASK: computes phi_hat as a consistent estimation for the scale parameter phi
+
+  void set_constscale(double s);
 
   double phi_hat() const;
 
@@ -2866,7 +2905,110 @@ class __EXPORT_TYPE DISTRIBUTION_multinom : public DISTRIBUTION
 
   };
 
+//------------------------------------------------------------------------------
+//-------------------------- CLASS: multinomial2 -------------------------------
+//------------------------------------------------------------------------------
 
+class __EXPORT_TYPE DISTRIBUTION_multinom2 : public DISTRIBUTION
+  {
+
+   protected:
+
+   ST::string reference;
+
+   datamatrix muhelp;
+
+   public:
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTRIBUTION_multinom2(void) : DISTRIBUTION()
+     {
+     }
+
+   // CONSTRUCTOR
+
+   DISTRIBUTION_multinom2(MCMCoptions * o, const datamatrix & r,
+                         const double & refvalue,
+                         const datamatrix & w=datamatrix());
+
+
+   // COPY CONSTRUCTOR
+
+   DISTRIBUTION_multinom2(const DISTRIBUTION_multinom2 & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTRIBUTION_multinom2 & operator=(const DISTRIBUTION_multinom2 & nd);
+
+   // DESTRUCTOR
+
+   ~DISTRIBUTION_multinom2() {}
+
+  void outoptions(void);
+
+  void create(void);
+
+   // FUNCTION: loglikelihood
+   // TASK: computes the loglikelihood for a single observation
+
+  double loglikelihood(double * resp,double * linpred,
+                       double * weight,const int & i) const;
+
+  // FUNCTION: compute_mu
+  // TASK: computes mu for a new linear predictor 'linpred' and returns the
+  //        result
+
+  void compute_mu(const double * linpred,double * mu) const;
+
+  void compute_mu_notransform(const double * linpred,double * mu) const;  
+
+  void compute_overall_deviance(double & deviance,double & deviancesat);
+
+  void compute_deviance(const double * response,const double * weight,
+                           const double * mu,double * deviance,
+                           double * deviancesat,
+                           const datamatrix & scale,const int & i) const;
+
+  // FUNCTION: compute_weight
+  // TASK: computes the weights for iteratively weighted least squares and
+  //       stores the result in w, w must be of size nrobs X 1
+  //       see e.g. Fahrmeir, Tutz (1997) page 39 ff.
+
+  double compute_weight(double * linpred,double * weight,
+                        const int & i,const unsigned & col=0) const;
+
+  double compute_gmu(double * linpred,const unsigned & col=0) const;
+
+  void compute_IWLS_weight_tildey(double * resp,
+                      double * linpred, double * weight,
+                      const int & i,double * weightiwls,
+                      double * tildey, const unsigned & col);
+
+  double compute_IWLS(double * response,double * linpred,
+                            double * weight,const int & i,
+                            double * weightiwls, double * tildey,
+                            bool weightyes,
+                            const unsigned & col);
+
+  // FUNCTION: update
+  // TASK: updates the scale parameter
+
+  void update(void);
+
+  void compute_iwls(void);
+
+  bool posteriormode(void);
+
+  bool posteriormode_converged(const unsigned & itnr);
+
+  void update_predict(void)
+    {
+    DISTRIBUTION::update_predict();
+    }
+
+
+  };
 
 //------------------------------------------------------------------------------
 //------------------ CLASS: DISTRIBUTION_multinomial_latent --------------------

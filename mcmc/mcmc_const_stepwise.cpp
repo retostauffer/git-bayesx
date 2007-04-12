@@ -21,6 +21,7 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(
   transform = likep->get_trmult(c);
 
   changingweight = likep->get_changingweight();
+  changed_data = true;
 
   mu1 = datamatrix(likep->get_nrobs(),1);
 
@@ -34,11 +35,10 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(
   betas_aktuell.erase(betas_aktuell.begin(),betas_aktuell.end());
 
   intercept_for_center = 0;
+  datanames_fixed_only.erase(datanames_fixed_only.begin(),datanames_fixed_only.end());
 
   if (X1.rows() < nrconst)
     errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
-
-
   }
 
   // COPY CONSTRUCTOR
@@ -56,6 +56,7 @@ const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   mu1 = m.mu1;
   help = m.help;
   changingweight = m.changingweight;
+  changed_data = m.changed_data;
   beta_average = m.beta_average;
   betas_aktuell = m.betas_aktuell;
   intercept_for_center = m.intercept_for_center;
@@ -65,6 +66,8 @@ const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   beta_rest = m.beta_rest;
   linold_rest = m.linold_rest;
   names_rest = m.names_rest;
+  datanames_fixed_only = m.datanames_fixed_only;
+  fc_df = m.fc_df;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -85,6 +88,7 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
   mu1 = m.mu1;
   help = m.help;
   changingweight = m.changingweight;
+  changed_data = m.changed_data;
   beta_average = m.beta_average;
   betas_aktuell = m.betas_aktuell;
   intercept_for_center = m.intercept_for_center;
@@ -93,6 +97,8 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
   beta_rest = m.beta_rest;
   linold_rest = m.linold_rest;
   names_rest = m.names_rest;
+  datanames_fixed_only = m.datanames_fixed_only;
+  fc_df = m.fc_df;  
 
   return *this;
   }
@@ -132,10 +138,10 @@ void FULLCOND_const_stepwise::update_intercept(double & m)
   beta(interceptpos,0) +=m;
   }
 
-void FULLCOND_const_stepwise::update_interceptold(double & m)
+/*void FULLCOND_const_stepwise::update_interceptold(double & m)
   {
   betameanold(interceptpos,0) -= m;
-  }
+  } */
 
 
 void FULLCOND_const_stepwise::posteriormode_intercept(double & m)   // wird bei Posteriormode(title,false)
@@ -171,8 +177,13 @@ bool FULLCOND_const_stepwise::posteriormode(void)
     *worklinold += interceptadd;            // interceptadd contains numbers
                                             // from centering other terms
   interceptadd=0;
-  likep->fisher(X1,data,column);            // recomputes X1 = (data' W data)^{-1}
-  X1.assign((X1.cinverse()));               // continued
+  if (calculate_xwx == true || changed_data==true)
+    {
+    calculate_xwx = false;
+    likep->fisher(X1,data,column);            // recomputes X1 = (data' W data)^{-1}
+    X1.assign((X1.cinverse()));               // continued
+    changed_data = false;
+    }
   likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
   likep->compute_weightiwls_workingresiduals(column); // computes W(y-linpred)
   beta = X1*data.transposed()*likep->get_workingresiduals();
@@ -395,24 +406,51 @@ void FULLCOND_const_stepwise::init_name(const ST::string & na)
     {
     FULLCOND_const::init_name(na);
     }
+  if(fctype != MCMC::factor)
+    datanames_fixed_only = datanames;
+  else if(fctype == MCMC::factor)
+    {
+    fcconst->set_datanames_fixed_only(datanames);
+    }
   }
 
 
 void FULLCOND_const_stepwise::init_names(const vector<ST::string> & na)
   {
   FULLCOND_const::init_names(na);
+  if(fctype != MCMC::factor)
+    datanames_fixed_only = datanames;
+  else if(fctype == MCMC::factor)
+    {
+    fcconst->set_datanames_fixed_only(datanames);
+    }
+  }
+
+
+void FULLCOND_const_stepwise::set_datanames_fixed_only(const vector<ST::string> & na)
+  {
+  if(fctype != MCMC::factor)
+    {
+    for(unsigned i=0;i<na.size();i++)
+      datanames_fixed_only.push_back(na[i]);
+    }
   }
 
 
 void FULLCOND_const_stepwise::outresults(void)
   {
-  FULLCOND_const::outresults();
+  if(fctype != MCMC::factor)
+    {
+    if(betamean.rows() == datanames_fixed_only.size())
+      datanames = datanames_fixed_only;
+    FULLCOND_const::outresults();
+    }
   }
 
 void FULLCOND_const_stepwise::outoptions(void)
   {
-  FULLCOND_const::outoptions();
-
+  if(fctype != MCMC::factor)
+    FULLCOND_const::outoptions();
   }
 
 
@@ -470,6 +508,7 @@ void FULLCOND_const_stepwise::include_effect(const vector<ST::string> & names, c
     unsigned i,j;
 
     nrconst+=names.size();
+    nrpar = nrconst;
     datamatrix dataold = data;
 
     data = datamatrix(data.rows(),nrconst);
@@ -510,6 +549,7 @@ void FULLCOND_const_stepwise::include_effect(const vector<ST::string> & names, c
       }
 
     X1 = datamatrix(nrconst,nrconst,0);
+    changed_data = true;
     }
   }
 
@@ -532,6 +572,7 @@ void FULLCOND_const_stepwise::reset_effect(const unsigned & pos)
     unsigned i,j;
 
     nrconst--;
+    nrpar = nrconst;
     datamatrix dataold = data;
     data = datamatrix(data.rows(),nrconst);
 
@@ -581,7 +622,16 @@ void FULLCOND_const_stepwise::reset_effect(const unsigned & pos)
     linold.mult(data,beta);
     likep->add_linearpred_m(linold,column);
     X1 = datamatrix(nrconst,nrconst,0);
+    changed_data = true;
     }
+  }
+
+
+void FULLCOND_const_stepwise::reset(void)
+  {
+  linold = datamatrix(linold.rows(),linold.cols(),0);
+  interceptadd = 0;
+  FULLCOND::reset();
   }
 
 
@@ -631,9 +681,12 @@ void FULLCOND_const_stepwise::set_effect_zero(void)
 double FULLCOND_const_stepwise::compute_df(void)
   {
   double df = 0;
-  if(data_rest.rows()>1)
-    df = df + data_rest.cols();
-  df += FULLCOND_const::compute_df();
+  if(fctype != factor)
+    {
+    if(data_rest.rows()>1)
+      df = df + data_rest.cols();
+    df += FULLCOND_const::compute_df();
+    }
   return df;
   }
 
@@ -646,26 +699,10 @@ void FULLCOND_const_stepwise::split_data(const vector<ST::string> & names)
   {
   if(fctype != factor && data.cols() != names.size()+1)
     {
-
-if(data.cols() < names.size()+1)
-  {
-  double t = names.size();
-  t = data.cols();
-  for(unsigned i=0;i<names.size();i++)
-    {
-    ST::string test = names[i];
-    test = test;
-    }
-  for(unsigned i=0;i<data.cols();i++)
-    {
-    ST::string test = datanames[i];
-    test = test;
-    }
-  }
-
     unsigned i,j;
 
     nrconst = names.size()+1;  // +1 wegen Intercept
+    nrpar = nrconst;
     datamatrix dataold = data;
 
     data = datamatrix(data.rows(),nrconst);
@@ -734,6 +771,7 @@ if(data.cols() < names.size()+1)
 
     datanames = dnames;
     X1 = datamatrix(nrconst,nrconst,0);
+    changed_data = true;    
     linold_rest.mult(data_rest,beta_rest);
     linold -= linold_rest;
     }
@@ -748,6 +786,7 @@ void FULLCOND_const_stepwise::merge_data(void)
     unsigned i,j;
 
     nrconst = names_rest.size() + datanames.size();
+    nrpar = nrconst;
     datamatrix dataold = data;
 
     data = datamatrix(data.rows(),nrconst);
@@ -782,6 +821,7 @@ void FULLCOND_const_stepwise::merge_data(void)
       }
 
     X1 = datamatrix(nrconst,nrconst,0);
+    changed_data = true;    
     linold += linold_rest;
     names_rest.erase(names_rest.begin(),names_rest.end());
     data_rest = datamatrix(1,1,0);
@@ -876,16 +916,128 @@ void FULLCOND_const_stepwise::average_posteriormode(vector<double> & crit_weight
   }
 
 
-double FULLCOND_const_stepwise::get_betafix(unsigned & welches)
+/*double FULLCOND_const_stepwise::get_betafix(unsigned & welches)
   {
   double * workbeta = beta.getV() + welches;
   return *workbeta;
-  }
+  }    */
 
 
 void FULLCOND_const_stepwise::set_intercept_for_center(double & dazu)
   {
   intercept_for_center += dazu;
+  }
+
+
+void FULLCOND_const_stepwise::update_bootstrap(const bool & uncond)
+  {
+  interceptadd = 0;
+  if(fctype != factor)
+    {
+    datamatrix betaold = beta;
+    if(!uncond)
+      {
+      nrconst = datanames_fixed_only.size();
+      nrpar = nrconst;
+      }
+    else
+      datanames_fixed_only = datanames;
+
+    if(optionsp->get_samplesize()==1)
+      {
+      ST::string path = samplepath.substr(0,samplepath.length()-4)+"_df.raw";
+      fc_df = FULLCOND(optionsp,datamatrix(1,1),"title?",nrconst,1,path);
+      fc_df.setflags(MCMC::norelchange | MCMC::nooutput);
+      }
+
+    if(!uncond)
+      {
+      setbeta(nrconst,1,0);
+      unsigned i,j;
+      for(i=0;i<datanames_fixed_only.size();i++)
+        {
+        bool gefunden = false;
+        j = 0;
+        while(j<datanames.size() && gefunden==false)
+          {
+          if(datanames_fixed_only[i] == datanames[j])
+            gefunden = true;
+          j += 1;
+          }
+        if(gefunden==true)
+          {
+          beta(i,0) = betaold(j-1,0);
+          fc_df.setbetavalue(i,0,1);
+          }
+        else
+          fc_df.setbetavalue(i,0,0);
+        }
+      }
+
+    FULLCOND::update_bootstrap();
+    fc_df.update_bootstrap();
+    beta = betaold;
+    nrpar = beta.rows();
+    nrconst = nrpar;
+    }
+  }
+
+
+void FULLCOND_const_stepwise::update_bootstrap_betamean(void)
+  {
+  if(fctype != MCMC::factor)
+    {
+    FULLCOND::update_bootstrap_betamean();
+    nrpar = betamean.rows();
+    nrconst = nrpar;
+
+    fc_df.update_bootstrap_betamean();
+    //fc_df.outresults();
+    double * workmean;
+
+    ST::string pathdf = pathcurrent.substr(0,pathcurrent.length()-4)+"_df.res";
+    ofstream outres(pathdf.strtochar());
+
+    outres << "varname  ";
+    outres << "value   ";
+    outres << "frequency  ";
+    outres << "pmean   " << endl;
+
+    //samplestream.close();
+    datamatrix sample(optionsp->get_samplesize(),1);
+
+    unsigned v,i;
+    for(v=1;v<nrconst;v++)
+      {
+      fc_df.readsample(sample,v);
+      workmean = fc_df.get_betameanp() + v;
+      unsigned anz1 = 0;
+      unsigned anz0 = 0;
+      double * works = sample.getV();
+      for(i=0;i<sample.rows();i++,works++)
+        {
+        if(*works==0)
+          anz0 += 1;
+        else if(*works==1)
+          anz1 += 1;
+        }
+
+      outres << datanames_fixed_only[v] << "   ";
+      outres << ST::inttostring(0) << "   " << ST::inttostring(anz0) << "   ";
+      if(*workmean == 0)
+        outres << "selected"; // ST::doubletostring(*workmean,6);
+      else
+        outres << "-";
+      outres << endl;
+      outres << datanames_fixed_only[v] << "   ";
+      outres << ST::inttostring(1) << "   " << ST::inttostring(anz1) << "   ";
+      if(*workmean == 1)
+        outres << "selected"; // ST::doubletostring(*workmean,6);
+      else
+        outres << "-";
+      outres << endl << endl;
+      }
+    }  // END: if(fctype != MCMC::factor)
   }
 
 // END: MODEL-AVERAGING --------------------------------------------------------
@@ -991,30 +1143,36 @@ void FULLCOND_const_stepwise::make_design(const datamatrix & d)
        for(j=0;j<zeile;j++,q++)
           data(*q,spalte) = 0;
        q = index.getV() + zeile;
+       double wert = 1;
+       if(coding=="userdef")
+         wert = double(d.rows())/double(zaehlen[i]);
        for(j=zeile;j<zeile+zaehlen[i];j++,q++)
-          data(*q,spalte) = 1;
+          data(*q,spalte) = wert;
        q = index.getV() + zeile + zaehlen[i];
        for(j=zeile+zaehlen[i];j<d.rows();j++,q++)
           data(*q,spalte) = 0;
        spalte = spalte + 1;
        }
 
-     else if(diff_categories[i]==reference && coding=="effect")
+     else if(diff_categories[i]==reference && (coding=="effect" || coding=="userdef"))
        ref = i;
 
      zeile = zeile + zaehlen[i];
      }
 
-  if(coding=="effect")
+  if(coding=="effect" || coding=="userdef")
      {
      zeile = 0;
+     double wert = -1;
+     if(coding=="userdef")
+       wert = wert* double(d.rows())/double(zaehlen[ref]);
      for(i=0;i<ref;i++)
         zeile = zeile + zaehlen[i];
      int* q = index.getV() + zeile;
      for(i=zeile;i<zeile+zaehlen[ref];i++,q++)
         {
         for(j=0;j<data.cols();j++)
-           data(*q,j) = -1;
+          data(*q,j) = wert;
         }
      }
   }
@@ -1056,10 +1214,17 @@ void FULLCOND_const_stepwise::compute_lambdavec(vector<double> & lvec, int & num
 
   assert(fctype == MCMC::factor);
   lvec.push_back(-1);
-  get_forced();
   if(forced_into==false)
      lvec.push_back(0);
 
+  // Startwert für lambda aus df:
+  if(spfromdf==true && fctype == MCMC::factor)
+    {
+    if(dfstart!=0)
+      lambdastart = -1;
+    else if(dfstart==0)
+      lambdastart = 0;
+    }
   }
 
 
@@ -1095,7 +1260,7 @@ void FULLCOND_const_stepwise::hierarchical(ST::string & possible)
 
 
 FULLCOND_const_stepwise::FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * dp,
-                 FULLCOND_const * fcc,
+                 FULLCOND_const_stepwise * fcc,
                  const datamatrix & d,const ST::string & code, int & ref,
                  const ST::string & t,
                  const ST::string & fs,const ST::string & fr,
@@ -1295,7 +1460,6 @@ void FULLCOND_const_gaussian_special::compute_lambdavec(
   lvec.push_back(2);       // 1/x+1
   lvec.push_back(1);       // ln
   lvec.push_back(-1);
-  get_forced();
   if(forced_into==false)
      lvec.push_back(0);
 

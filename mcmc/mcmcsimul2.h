@@ -31,6 +31,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   vector<FULLCOND*> fullcond_alle;
   ST::string algorithm;
   ST::string minim;
+  ST::string minim2;
   ST::string criterion;
   int increment;
   int steps;
@@ -45,6 +46,9 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   ST::string smoothing;    // für Unterscheidung globaler / lokaler Glättungsparameter
   bool hierarchical;
   bool miniback_off;
+  int bootstrap;
+  bool isboot;
+  bool unconditional;
 
   bool df_exact;
   bool ganze_matrix;
@@ -53,7 +57,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   datamatrix X;
   datamatrix Z;
 
-unsigned BIC_min;
+  //unsigned BIC_min;
 
   vector<vector<double> > lambdavec;
   vector<ST::string> names_fixed;
@@ -66,7 +70,7 @@ unsigned BIC_min;
   vector<vector<vector<double> > > modellematrix;
   bool fertig;
   int steps_aktuell;
-  int window;
+  //int window;
   vector<ST::string> posttitle;
 
   bool finetuning(vector<double> & modell);
@@ -198,7 +202,7 @@ unsigned BIC_min;
        vector<ST::string> & namen_fix, vector<vector<double> > & lambdavector,
        const int & number, const bool & gewichte);
 
-  void STEPWISErun::initialise_weights(double prop);
+  void initialise_weights(double prop);
 
   unsigned search_lambdaindex(const double & m, const vector<double> lam,
                                             bool & b) const;
@@ -294,47 +298,49 @@ unsigned BIC_min;
 
   unsigned golden_section(unsigned & z, double & kriterium);
 
-  double startbedingungen(unsigned & z, double & kriterium);
+//  double startbedingungen(unsigned & z, double & kriterium);
 
-  void approx_zurueck(unsigned & z);
+//  void approx_zurueck(unsigned & z);
 
-  void exact_zurueck(unsigned & z);
+//  void exact_zurueck(unsigned & z);
 
-  double wert_einzeln(unsigned & z, unsigned i, double & df);
+//  double wert_einzeln(unsigned & z, unsigned i, double & df);
 
-  double approx_einzeln(unsigned & z, unsigned & i, double & df);
+//  double approx_einzeln(unsigned & z, unsigned & i, double & df);
 
-  double exact_einzeln(unsigned & z, unsigned & i, double & df);
+//  double exact_einzeln(unsigned & z, unsigned & i, double & df);
 
-  int index_suchen(const unsigned & index, const vector<unsigned> & index_vec);
+//  int index_suchen(const unsigned & index, const vector<unsigned> & index_vec);
 
-  int start_b_suchen(vector<unsigned> & index_vec, vector<double> & krit_vec,
-                    double & df, unsigned & b, unsigned & z);
+//  int start_b_suchen(vector<unsigned> & index_vec, vector<double> & krit_vec,
+//                   double & df, unsigned & b, unsigned & z);
 
-  double compute_findex(vector<unsigned> & index_vec, vector<double> & krit_vec,
-                  unsigned & index, unsigned & z, double & df);
+//  double compute_findex(vector<unsigned> & index_vec, vector<double> & krit_vec,
+//                  unsigned & index, unsigned & z, double & df);
 
 // -----------------------------------------------------------------------------
 // ------------- Model Averaging -----------------------------------------------
 // -----------------------------------------------------------------------------
 
-  void compute_average(ofstream & outweight);
+  void update_bootstrap(void);
 
-  void save_alle_betas(vector<double> modell);
+//  void compute_average(ofstream & outweight);
 
-  void alle_modelle_berechnen(double z, vector<double> & hilf,
+//  void save_alle_betas(vector<double> modell);
+
+/*  void alle_modelle_berechnen(double z, vector<double> & hilf,
                       const vector<double> & best,
                       const vector<double> & unten, const vector<double> & oben,
                       vector<double> & kriterien_alle, vector<double> & priori,
-                      vector<vector<double> > & modelle, vector<ST::string> & ausgabe);
+                      vector<vector<double> > & modelle, vector<ST::string> & ausgabe);   */
 
-  void occam(vector<double> & kriterien_alle, vector<double> & priori,
+/*  void occam(vector<double> & kriterien_alle, vector<double> & priori,
            vector<vector<double> > & modelle, vector<ST::string> & ausgabe,
-           ofstream & outweight, vector<int> & vorgekommen);
+           ofstream & outweight, vector<int> & vorgekommen);   */
 
-  void mc3(vector<double> & kriterien_alle, vector<double> & priori,
+/*  void mc3(vector<double> & kriterien_alle, vector<double> & priori,
            vector<vector<double> > & modelle, vector<ST::string> & ausgabe,
-           ofstream & outweight, vector<int> & vorgekommen);
+           ofstream & outweight, vector<int> & vorgekommen);     */
 
 
   public:
@@ -360,6 +366,7 @@ unsigned BIC_min;
 
   const STEPWISErun & operator=(const STEPWISErun & s);
 
+  bool posteriormode(const vector<ST::string> & header, const bool & presim);
 
   bool single_stepwise(const vector<unsigned> & start,
                          const vector<double> & startfix, const bool & tex);
@@ -367,7 +374,7 @@ unsigned BIC_min;
   bool stepwise(const ST::string & procedure, const ST::string & minimum,
          const ST::string & crit, const int & stp, const ST::string & trac,
          const int & number, const ST::string & stam, const int & inc, const bool & finet,
-         const bool & fineloc, const bool & maveraging, int & fenster,
+         const bool & fineloc, const int & boot, const bool & uncond, 
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
          const bool & CI, bool & hier, bool & gm, const double & prop, const bool & minib);

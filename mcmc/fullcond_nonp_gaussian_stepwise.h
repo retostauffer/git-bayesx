@@ -40,11 +40,16 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   datamatrix data_varcoeff_fix;
   datamatrix effmodi;
+  datamatrix XVX;
 
   FULLCOND * fcunstruct;
   bool spatialtotal;
   //bool gleichwertig;
 
+  vector<envmatdouble> all_precenv;      // vector of all possible (X'X + lambda_i P)
+  vector<double> lambdavec;
+
+  FULLCOND fc_df;
 
   public:
 
@@ -76,7 +81,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
                        const unsigned & maxint,
                        const fieldtype & ft,const ST::string & ti,
                        const ST::string & fp, const ST::string & pres,
-                       const unsigned & c,const double & l, const bool & nofixed,
+                       const unsigned & c,const double & l, const bool & vccent,
                        const unsigned & per=12);
 
   // spatial covariates
@@ -100,7 +105,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
                         const datamatrix & d2,
                         const ST::string & ti,
                         const ST::string & fp, const ST::string & pres,
-                        const unsigned & c, const double & l, const bool & nofixed);
+                        const unsigned & c, const double & l, const bool & vccent);
 
   // COPY CONSTRUCTOR
 
@@ -119,10 +124,10 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   //void set_gleichwertig(const bool & gleich, bool weiter);  // für spatialtotal
 
-  void update_stepwise(double la)
-    {
+  void update_stepwise(double la);
+    /*{
     lambda=la;
-    }
+    } */
 
   double get_lambda(void)
     {
@@ -135,6 +140,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   ST::string get_effect(void);
 
   ST::string get_befehl(void);
+
+  void init_names(const vector<ST::string> & na);
 
   void reset_effect(const unsigned & pos);
 
@@ -156,18 +163,23 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   const datamatrix & get_data_forfixedeffects(void);
 
-  void create_weight(datamatrix & w);  
+  void create_weight(datamatrix & w);
 
-  void save_betas(vector<double> & modell, int & anzahl);
+  void update_bootstrap(const bool & uncond=false);
 
-  void average_posteriormode(vector<double> & crit_weights);
+  void update_bootstrap_betamean(void);
+  
 
-  void effect_sort(datamatrix & effect, const double & m, const unsigned & beg,
-                   const unsigned & end,const statmatrix<int> & index);
+  //void save_betas(vector<double> & modell, int & anzahl);
+
+  //void average_posteriormode(vector<double> & crit_weights);
+
+  //void effect_sort(datamatrix & effect, const double & m, const unsigned & beg,
+  //                 const unsigned & end,const statmatrix<int> & index);
 
 // Vorschlag:
 //  void effect_sort(datamatrix & effect, const double & m, unsigned & row);
-  void effect_sort(datamatrix & effect, double m, unsigned row);
+  //void effect_sort(datamatrix & effect, double m, unsigned row);
 
   void createreml(datamatrix & X,datamatrix & Z, const unsigned & Xpos, const unsigned & Zpos);
 

@@ -32,9 +32,19 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   datamatrix data_varcoeff_fix;
   datamatrix effmodi;
+  datamatrix XVX;
 
   double df_lambdaold;
   double lambdaold;
+
+  vector<envmatdouble> all_precenv;      // vector of all possible (X'X + lambda_i P)
+  vector<double> lambdavec;
+
+  envmatdouble Menv;
+  bool concave;
+  bool convex;
+
+  FULLCOND fc_df;
 
   public:
 
@@ -80,7 +90,7 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
                          const unsigned & nrk, const unsigned & degr, const knotpos & kp,
                          const fieldtype & ft, const ST::string & monotone, const ST::string & ti,
                          const ST::string & fp, const ST::string & pres, const bool & deriv,
-                         const double & l, const int & gs, const bool & nofixed,
+                         const double & l, const int & gs, const bool & vccent,
                          const unsigned & c=0);
 
 
@@ -95,9 +105,9 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   bool posteriormode(void);
 
-  bool changeposterior(const datamatrix & main, const double & inter);   
+  bool changeposterior3(const datamatrix & main, const double & inter);
 
-  bool changeposterior2(const datamatrix & main,const double & inter);    
+  bool changeposterior_varcoeff(const datamatrix & main, const double & inter);
 
   /*void hilfeee(void)        // nur für Kontrolle!!!
     {
@@ -107,6 +117,8 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   void reset_effect(const unsigned & pos);
 
+  void reset(void);
+
   void hierarchie_rw1(vector<double> & untervector, int dfo);
 
   void compute_lambdavec(vector<double> & lvec, int & number);
@@ -115,29 +127,39 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   //double compute_df_eigen(void);
 
-  void update_stepwise(double la)         // neu!!!
-    {
+  void update_stepwise(double la);         // neu!!!
+/*    {
     if(smoothing == "global")
+      {
       lambda=la;
+
+if(likep->iwlsweights_constant() == true)
+  {
+  bool gefunden = false;
+  unsigned i = 0;
+  while(i<lambdavec.size() && gefunden == false)
+    {
+    if(lambda == lambdavec[i])
+      gefunden = true;
+    i++;
+    }
+  if(gefunden == true)
+    {
+    prec_env = all_precenv[i-1];
+    lambda_prec = lambda;
+    }
+  }
+
+      }
     else
       {
+      lambda_prec = -1;
+      lambdaold = -1;
       lambda = 1;
       lambdas_local(lambda_nr+nrpar-rankK,0) = 1/la;
-// lineare Interpolation der log. Lambdas für dazwischenliegende Lambdas:
-/*if( (lambda_nr+nrpar-rankK) < rankK )
-  {
-  double lambda0 = log10(1/lambdas_local(lambda_nr+nrpar-rankK+2,0));
-  lambdas_local(lambda_nr+nrpar-rankK+1,0) = 1/(pow(10,0.5*(lambda0+log10(la))));
-  }
-if( (lambda_nr+nrpar-rankK) > (nrpar-rankK))
-  {
-  double lambda0 = log10(1/lambdas_local(lambda_nr+nrpar-rankK-2,0));
-  lambdas_local(lambda_nr+nrpar-rankK-1,0) = 1/(pow(10,0.5*(lambda0+log10(la))));
-  }
-*/
       updateK(lambdas_local);
       }
-    }
+    }*/
 
   void set_lambdas_vector(double & la)       // neu!!!
     {
@@ -189,9 +211,9 @@ if( (lambda_nr+nrpar-rankK) > (nrpar-rankK))
     return 0.25 * penal;
     }*/
 
-  void multBS_sort(datamatrix & res, const datamatrix & beta);
+  //void multBS_sort(datamatrix & res, const datamatrix & beta);
 
-  void create_weight(datamatrix & w);  
+  void create_weight(datamatrix & w);
 
   // FUNCTION: get_effect
   // TASK: returns a string of the estimated effect
@@ -200,15 +222,17 @@ if( (lambda_nr+nrpar-rankK) > (nrpar-rankK))
 
   ST::string get_befehl(void);
 
+  void init_names(const vector<ST::string> & na);
+
   const datamatrix & get_data_forfixedeffects(void);
 
   void update_fix_effect(void);
 
   void const_varcoeff(void);
 
-  void save_betas(vector<double> & modell, int & anzahl);
+  //void save_betas(vector<double> & modell, int & anzahl);
 
-  void average_posteriormode(vector<double> & crit_weights);
+  //void average_posteriormode(vector<double> & crit_weights);
 
   void set_pointer_to_interaction(FULLCOND * inter);
 
@@ -216,15 +240,28 @@ if( (lambda_nr+nrpar-rankK) > (nrpar-rankK))
 
   bool search_for_interaction(void);
 
-  void wiederholen(FULLCOND * haupt, bool konst);
-
-  void wiederholen_fix(FULLCOND * haupt, int vorzeichen, bool inter);
-
   void hierarchical(ST::string & possible);
 
   void createreml(datamatrix & X,datamatrix & Z,
                            const unsigned & Xpos, const unsigned & Zpos);
 
+  void updateMenv(void);
+
+  void update_bootstrap(const bool & uncond=false);
+
+  void update_bootstrap_betamean(void);
+
+  void get_samples(const ST::string & filename,const unsigned & step) const;  
+
+  vector<int>::iterator get_freqoutputit(void)
+    {
+    return freqoutput.begin();
+    }
+
+  void set_spline(datamatrix & sp)
+    {
+    spline.assign(sp);
+    }
 
   // DESTRUCTOR
 

@@ -31,22 +31,33 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
   FULLCOND_pspline_stepwise * mainpoi1;
   FULLCOND_pspline_stepwise * mainpoi2;
 
-  double interhaupt;
-  double interhaupt1;
-  double interhaupt2;
+  datamatrix splineo1;
+  datamatrix splineo2;
 
-  unsigned centerboth;               // gibt an, welche(r) Haupteffekt(e) aktuell im Modell ist
+  datamatrix data_varcoeff_fix;
+  datamatrix effmodi;
+  datamatrix XVX;
+  double centervalue;
+
   unsigned maineffectsexisting;      // gibt an, welche Haupteffekte (Fullcond-Obj.) zu Beginn angegeben sind
-                                     // Kombinationen: 0 (kein HE), 1 (HE Nr. 1), 10 (HE Nr. 2), 11 (beide HE)
-  unsigned centerfix;                // gibt an, welche Haupteffekte linear modelliert werden
-                                     // Kombinationen: s. "maineffectsexisting"
+                                     // Kombinationen: 0 (kein HE), 11 (beide HE)
   double df_lambdaold;
   double lambdaold;
+  double lambdaxold;
+  double lambdayold;
+  double lambdax_prec;
+  double lambday_prec;
+
+  envmatdouble KHenv;
+  envmatdouble Kxenv;
+  envmatdouble Kyenv;
+
+  vector<envmatdouble> all_precenv;      // vector of all possible (X'X + lambda_i P)
+  vector<double> lambdavec;
 
   void create(const datamatrix & v1, const datamatrix & v2, const datamatrix & intact=datamatrix(1,1));
 
-  void compute_main(void);
-
+  FULLCOND fc_df;
 
   public:
 
@@ -105,7 +116,7 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
                          const unsigned & nrk, const unsigned & degr, const knotpos & kp,
                          const double & l, const int & gs,
                          const fieldtype & ft, const ST::string & fp, const ST::string & pres,
-                         const ST::string & of, const bool & gauss, const unsigned & c=0);
+                         const ST::string & of, const bool & gauss, const bool & vccent, const unsigned & c=0);
 
 
   // CONSTRUCTOR 7: geosplines varying coefficients
@@ -115,16 +126,11 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
                          const datamatrix & region,const MAP::map & mp, const ST::string & mn,
                          const ST::string & ti, const unsigned & nrk, const unsigned & degr, const knotpos & kp,
                          const double & l, const int & gs, const fieldtype & ft, const ST::string & fp,
-                         const ST::string & pres, const bool & gauss, const unsigned & c=0);
+                         const ST::string & pres, const bool & gauss, const bool & vccent, const unsigned & c=0);
 
 
   void init_maineffects(FULLCOND_pspline_stepwise * mp1,FULLCOND_pspline_stepwise * mp2,
                          const ST::string & pnt,const ST::string & prt);
-
-  void init_maineffect(FULLCOND_pspline_stepwise * mp1,const ST::string & pnt,
-                             const ST::string & prt, const unsigned & number);
-
-  void search_maineffects(void);
 
   // COPY CONSTRUCTOR
 
@@ -150,28 +156,24 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   void reset_effect(const unsigned & pos);
 
-  void remove_centering(void);
+  void reset(void);
 
   void remove_centering_fix(void);
-
-  void get_zentrierung(FULLCOND * haupt, bool & konst);
-
-  void set_zentrierung(FULLCOND * haupt, int & vorzeichen, bool & inter);
 
   void hierarchical(ST::string & possible);
 
   void get_interactionspointer(vector<FULLCOND*> & inter);
 
-  void hierarchie_rw1(vector<double> & untervector);
+  void hierarchie_rw1(vector<double> & untervector, int dfo);
 
   void compute_lambdavec(vector<double> & lvec, int & number);
 
   double compute_df(void);  
 
-  void update_stepwise(double la)
-    {
+  void update_stepwise(double la);
+    /*{
     lambda=la;
-    }
+    }*/
 
   double get_lambda(void)
     {
@@ -187,6 +189,25 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   const datamatrix & get_data_forfixedeffects(void);
 
+  void update_fix_effect(void);
+
+  void const_varcoeff(void);
+
+  void update_bootstrap(const bool & uncond=false);
+
+  void update_bootstrap_betamean(void);
+  
+  void get_samples(const ST::string & filename,const unsigned & step) const;
+
+  void compute_main(void);
+
+  void safe_splines(bool & interact);
+
+  void set_splines_old(void);
+
+  void compute_main_varcoeff(void);
+
+  void multBS_index(datamatrix & res, const datamatrix & b);
 
   // DESTRUCTOR
 

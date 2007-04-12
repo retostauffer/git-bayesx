@@ -168,12 +168,12 @@ class __EXPORT_TYPE FULLCOND
   double lambdastart;
   double lambdamin;
   double lambdamax;
-  datamatrix  data_forfixed;
+  datamatrix data_forfixed;
   bool forced_into;
   double df_for_lambdamax;
   double df_for_lambdamin;
-  bool lambdamax_opt;
-  bool lambdamin_opt;
+  double dfstart;
+  bool spfromdf;
   int number;
   bool df_equidist;
   double df_accuracy;
@@ -182,6 +182,10 @@ class __EXPORT_TYPE FULLCOND
   int grenzfall;      // gibt den FG für lambda -> unendlich an!
   ST::string smoothing;
   vector<FULLCOND*> interactions_pointer;
+  datamatrix betaright;
+  bool calculate_xwx;
+  bool calculate_xwx_vc;
+  bool nofixed;
 
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
@@ -802,6 +806,17 @@ class __EXPORT_TYPE FULLCOND
   // ------------------------ FOR STEPWISE SELECTION ---------------------------
   // ---------------------------------------------------------------------------
 
+  void set_calculate_xwx(void)
+    {
+    calculate_xwx = true;
+    calculate_xwx_vc = true;
+    }
+
+  void set_nofixed(bool fix)
+    {
+    nofixed = fix;
+    }
+
   virtual void create_weight(datamatrix & w)
     {
     }
@@ -851,30 +866,6 @@ class __EXPORT_TYPE FULLCOND
     {
     }
 
-  virtual void remove_centering(void)
-    {     // holt Zentrierung des 2d-Splines von Haupteffekten zurück
-    }
-
-  virtual void remove_centering_fix(void)
-    {
-    }
-
-  virtual void wiederholen(FULLCOND * haupt, bool konst)
-    {     // schlägt Zentrierung wieder auf Haupteffekt drauf
-    }
-
-  virtual void wiederholen_fix(FULLCOND * haupt, int vorzeichen, bool inter)
-    {     // zieht Zentrierung für fixen Haupteffekt von der Interaktion ab
-    }
-
-  virtual void set_zentrierung(FULLCOND * haupt, int & vorzeichen, bool & inter)
-    {
-    }
-
-  virtual void get_zentrierung(FULLCOND * haupt, bool & konst)
-    {
-    }
-
   virtual void update_linold(void)
     {
     }
@@ -913,7 +904,7 @@ class __EXPORT_TYPE FULLCOND
     // TASK: übergibt die Optionen der einzelnen Funktionen
 
   void set_stepwise_options(double lstart, double lmax, double lmin, bool forced,
-                            double df_lmax, double df_lmin, bool lmax_opt, bool lmin_opt,
+                            double df_lmax, double df_lmin, bool spdf, //bool lmax_opt, bool lmin_opt,
                             double numb, bool df_equi)
      {
      lambdamin=lmin;
@@ -922,11 +913,15 @@ class __EXPORT_TYPE FULLCOND
      forced_into = forced;
      df_for_lambdamax = df_lmax;
      df_for_lambdamin = df_lmin;
-     lambdamax_opt = lmax_opt;
-     lambdamin_opt = lmin_opt;
+     spfromdf = spdf;
      number = numb;
      df_equidist = df_equi;
      }
+
+  void set_dfstart(double df_start)
+    {
+    dfstart = df_start;
+    }
 
   void set_stepwise_accuracy(double df_accu)
      {
@@ -978,15 +973,15 @@ class __EXPORT_TYPE FULLCOND
      return df_for_lambdamin;
      }
 
-  bool get_lambdamax_opt(void)
+  bool get_spfromdf(void)
      {
-     return lambdamax_opt;
+     return spfromdf;
      }
 
-  bool get_lambdamin_opt(void)
-     {
-     return lambdamin_opt;
-     }
+  double get_dfstart(void)
+    {
+    return dfstart;
+    }
 
   double get_number(void)
      {
@@ -1053,6 +1048,14 @@ class __EXPORT_TYPE FULLCOND
     {
     }
 
+  virtual void safe_splines(bool & interact)
+    {
+    }
+
+  virtual void set_splines_old(void)
+    {
+    }
+
   virtual void safe_const(void)
     {
     }
@@ -1092,11 +1095,9 @@ class __EXPORT_TYPE FULLCOND
     {
     }
 
-  virtual double get_betafix(int & welches)
-    {
-    return 0;
-    }
+  virtual void update_bootstrap(const bool & uncond=false);
 
+  virtual void update_bootstrap_betamean(void);
 
   // ---------------------------------------------------------------------------
   // ------------------------------- FOR REML ----------------------------------

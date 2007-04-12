@@ -44,7 +44,7 @@ bool stepwisereg::check_gaussian(void)
 bool  stepwisereg::check_nongaussian(void)
   {
   if ( (family.getvalue() == "binomial") || (family.getvalue() == "poisson") ||
-       (family.getvalue() == "gamma") || (family.getvalue() == "nbinomial") ||
+       (family.getvalue() == "gamma") || //(family.getvalue() == "nbinomial") ||
        (family.getvalue() == "multinomial") || (family.getvalue() == "cox") )
      return true;
   else
@@ -151,6 +151,7 @@ void stepwisereg::create(void)
   termnonlinearf = term_nonlinearf_stepwise();
   nonpinteractpspline = term_interactpspline_stepwise();                //neu
   nonpgeospline = term_geospline_stepwise();                            //neu
+//  termprojection = term_projection_stepwise();
 
   termtypes.push_back(&offset);
   termtypes.push_back(&fixedeffects);
@@ -164,6 +165,7 @@ void stepwisereg::create(void)
   termtypes.push_back(&termnonlinearf);
   termtypes.push_back(&nonpinteractpspline);                           //neu
   termtypes.push_back(&nonpgeospline);                                 //neu
+//  termtypes.push_back(&termprojection);
 
   modreg = modelterm(&termtypes);
 
@@ -191,7 +193,7 @@ void stepwisereg::create(void)
 
   minimum = stroption("minimum",minim,"approx");
 
-  minibackfitting_off = simpleoption("minibackfitting_off",false);
+  minibackfitting_off = simpleoption("minibackfitting_off",true);
 
   ganzematrix = simpleoption("df_exact",false);
 
@@ -199,7 +201,7 @@ void stepwisereg::create(void)
   cr.push_back("AIC");
   cr.push_back("AIC_imp");
   cr.push_back("GCV");
-  cr.push_back("GCV2");
+  cr.push_back("GCVrss");
   cr.push_back("BIC");
   cr.push_back("MSEP");
   cr.push_back("CV5");
@@ -207,6 +209,7 @@ void stepwisereg::create(void)
   cr.push_back("AUC");
 
   criterion = stroption("criterion",cr,"GCV");
+  gcvfactor = doubleoption("gcvfactor",1,1,2);
 
   proportion = doubleoption("proportion",0.75,0,1);
 
@@ -234,10 +237,16 @@ void stepwisereg::create(void)
   fine_tuning = simpleoption("fine_tuning",false);
   fine_local = simpleoption("fine_local",false);
 
-  maveraging = simpleoption("model_averaging",false);
-  window = intoption("window",10,1,30);
+  bootstrap = intoption("bootstrap",0,0,20000);
+  unconditional = simpleoption("conditional",false);
+  //maveraging = simpleoption("model_averaging",false);
+  //window = intoption("window",10,1,30);
+  setseed = intoption("setseed",-1,0,MAXINT);
 
   ci = simpleoption("ci",false);
+  iterations = intoption("iterations",52000,1,10000000);
+  burnin = intoption("burnin",2000,0,500000);
+  step = intoption("step",50,1,1000);
   level1 = doubleoption("level1",95,40,99);
   level2 = doubleoption("level2",80,40,99);
 
@@ -270,7 +279,7 @@ void stepwisereg::create(void)
   families.push_back("multinomial");
   families.push_back("multinomialprobit");
   families.push_back("cumprobit");
-  families.push_back("nbinomial");
+//  families.push_back("nbinomial");
   family = stroption("family",families,"binomial");
   reference = doubleoption("reference",0,-10000,10000);
 
@@ -317,6 +326,7 @@ void stepwisereg::create(void)
   regressoptions.push_back(&minibackfitting_off);
   regressoptions.push_back(&ganzematrix);
   regressoptions.push_back(&criterion);
+  regressoptions.push_back(&gcvfactor);
   regressoptions.push_back(&proportion);
   regressoptions.push_back(&steps);
   regressoptions.push_back(&trace);
@@ -325,9 +335,15 @@ void stepwisereg::create(void)
   regressoptions.push_back(&increment);
   regressoptions.push_back(&fine_tuning);
   regressoptions.push_back(&fine_local);
-  regressoptions.push_back(&maveraging);
-  regressoptions.push_back(&window);
+  //regressoptions.push_back(&maveraging);
+  regressoptions.push_back(&bootstrap);
+  regressoptions.push_back(&unconditional);
+  //regressoptions.push_back(&window);
+  regressoptions.push_back(&setseed);
   regressoptions.push_back(&ci);
+  regressoptions.push_back(&burnin);
+  regressoptions.push_back(&step);
+  regressoptions.push_back(&iterations);
   regressoptions.push_back(&level1);
   regressoptions.push_back(&level2);
   regressoptions.push_back(&hier);
@@ -468,12 +484,30 @@ void stepwisereg::create(void)
   // name [model] [weight varname] [by varname] [if expression]
   //      [, options] [using usingtext]
 
-  // methods 2
+  // methods 3
   methods.push_back(command("texsummary",&mtexsummary,&texsummaryoptions,&utexsummary,
                    notallowed,notallowed,notallowed,notallowed,notallowed,
                    notallowed));
 
   functions[3] = texsummaryrun;
+
+  // -------------------------- method getsample -------------------------------
+
+  // methods 4
+  methods.push_back(command("getsample",&mgetsample,&getsampleoptions,
+						  &usegetsample,notallowed,notallowed,notallowed,
+                          notallowed,notallowed,notallowed));
+
+  functions[4] = getsamplerun;
+
+  //---------------------------- method mregress -------------------------------
+
+  // methods 5
+  modregmult = modeltermmult(&termtypes);
+  methods.push_back(command("mregress",&modregmult,&regressoptions,&udata,
+                   required,optional,optional,optional,optional,required));
+
+  functions[5] = mregressrun;
 
   }
 
@@ -500,12 +534,12 @@ void stepwisereg::initpointers(void)
     //  distr.push_back(&distr_multgaussian);
     else if (distrstring[i] == "multinom")
       distr.push_back(&distr_multinom);
-    else if (distrstring[i] == "multinom_latent")
-      distr.push_back(&distr_multinom_latent);
+//    else if (distrstring[i] == "multinom_latent")
+//      distr.push_back(&distr_multinom_latent);
     else if (distrstring[i] == "cumlat3")
       distr.push_back(&distr_cumlat3);
-    else if (distrstring[i] == "nbinomial")
-      distr.push_back(&distr_nbinomial);
+//    else if (distrstring[i] == "nbinomial")
+//      distr.push_back(&distr_nbinomial);
     }
 
 
@@ -535,6 +569,9 @@ void stepwisereg::initpointers(void)
 
   for(i=0;i<fcpsplinestep.size();i++)
     fullcond.push_back(&fcpsplinestep[i]);
+
+//  for(i=0;i<fcprojection.size();i++)
+//    fullcond.push_back(&fcprojection[i]);
 
   for(i=0;i<fcpsplinesurf.size();i++)
     fullcond.push_back(&fcpsplinesurf[i]);
@@ -593,6 +630,9 @@ void stepwisereg::clear(void)
   fcpsplinestep.erase(fcpsplinestep.begin(),fcpsplinestep.end());
   fcpsplinestep.reserve(80);
 
+//  fcprojection.erase(fcprojection.begin(),fcprojection.end());
+//  fcprojection.reserve(20);
+
   fcpsplinesurf.erase(fcpsplinesurf.begin(),fcpsplinesurf.end());
   fcpsplinesurf.reserve(20);
 
@@ -618,6 +658,7 @@ adb,
 #endif
 n,"stepwisereg",lo,in,p)
   {
+  hierarchical_model_yesno = false;
   statobj = st;
   create();
   resultsyesno = false;
@@ -641,7 +682,7 @@ stepwisereg::stepwisereg(const stepwisereg & b) : statobject(statobject(b))
   distr_binomial = b.distr_binomial;
   distr_poisson = b.distr_poisson;
   distr_gamma = b.distr_gamma;
-  distr_nbinomial = b.distr_nbinomial;
+//  distr_nbinomial = b.distr_nbinomial;
   terms = b.terms;
   normalconst = b.normalconst;
   fcpspline = b.fcpspline;
@@ -669,7 +710,7 @@ const stepwisereg & stepwisereg::operator=(const stepwisereg & b)
   distr_binomial = b.distr_binomial;
   distr_poisson = b.distr_poisson;
   distr_gamma = b.distr_gamma;
-  distr_nbinomial = b.distr_nbinomial;
+//  distr_nbinomial = b.distr_nbinomial;
   terms = b.terms;
   normalconst = b.normalconst;
   fcpspline = b.fcpspline;
@@ -695,13 +736,25 @@ int stepwisereg::parse(const ST::string & c)
 bool stepwisereg::create_generaloptions(void)
   {
 
+  if (iterations.getvalue()- burnin.getvalue() < 100)
+    {
+    outerror("ERROR: number of iterations must exceed number of burnin iterations about 100\n");
+    return true;
+    }
+
+  if (step.getvalue() >= iterations.getvalue() - burnin.getvalue())
+    {
+    outerror("ERROR: thinning parameter too large\n");
+    return true;
+    }
+  
   generaloptions.push_back(MCMCoptions(
   #if defined(JAVA_OUTPUT_WINDOW)
   adminb_p,
   #endif
-  12000,2000,10,logout,95,80));
-
-  generaloptions[generaloptions.size()-1].set_nrout(2000);
+  iterations.getvalue(),burnin.getvalue(),step.getvalue(),logout,
+                               level1.getvalue(),level2.getvalue()));
+  generaloptions[generaloptions.size()-1].set_nrout(iterations.getvalue());
 
   return false;
 
@@ -709,7 +762,7 @@ bool stepwisereg::create_generaloptions(void)
 
 
 
-bool stepwisereg::create_distribution(void)
+bool stepwisereg::create_distribution(ST::string method)
   {
 
   unsigned i;
@@ -745,9 +798,21 @@ bool stepwisereg::create_distribution(void)
   ST::string ifexpression;
   unsigned weightpos;
 
+if(method == "regress")
+  {
   modelvarnamesv = modreg.getModelVarnamesAsVector();
-  rname = modelvarnamesv[0].to_bstr();
   wn = methods[0].get_weight_variable().to_bstr();
+  ifexpression = methods[0].getexpression();
+  }
+else if(method == "mregress")
+  {
+  modelvarnamesv = modregmult.getModelVarnamesAsVector();
+  wn = methods[5].get_weight_variable().to_bstr();
+  ifexpression = methods[5].getexpression();
+  }
+
+  rname = modelvarnamesv[0].to_bstr();
+  
   if (wn.length() != 0)
     {
     modelvarnamesv.push_back(wn);
@@ -766,9 +831,6 @@ bool stepwisereg::create_distribution(void)
      outerror("ERROR: You can use AUC only with binomial distributed response!\n");
      return true;
      }
-
-
-  ifexpression = methods[0].getexpression();
 
   // testing, wether all variables specified are already existing
   vector<ST::string> notex;
@@ -798,7 +860,7 @@ bool stepwisereg::create_distribution(void)
 
 
   datamatrix w;
-  datamatrix pind;
+  datamatrix pind = datamatrix(1,1);   // Was macht das?
 
   if (wn.length() > 0)
     {
@@ -806,7 +868,6 @@ bool stepwisereg::create_distribution(void)
     }
   else
     w = datamatrix(1,1);
-
 
   ST::string path = outfile.getvalue() + add_name + "_predictmean.raw";
   ST::string pathfull = outfile.getvalue() + add_name + "_predictmu.raw";
@@ -1062,7 +1123,7 @@ bool stepwisereg::create_distribution(void)
 //------------------------ END: poisson response -------------------------------
 
 //-------------------- multinomial response, probit link -----------------------
-  else if (family.getvalue() == "multinomialprobit")
+/*  else if (family.getvalue() == "multinomialprobit")
     {
 
     if (wn.length() != 0)
@@ -1133,16 +1194,18 @@ bool stepwisereg::create_distribution(void)
     distrposition.push_back(0);
     nrcategories = distr_multinom_latent.get_nrcat();
 
-    }
+    }   */
 //------------------- END: multinomial response, probit link -------------------
 
 //--------------------- multinomial response, logit link -----------------------
   else if (family.getvalue() == "multinomial")
     {
 
+if(method == "regress")
+  {
     if (wn.length() != 0)
       {
-      outerror("ERROR: weight not allowed for multivariate response\n");
+      outerror("ERROR: weight not allowed for multivariate response and method regress!\n");
       return true;
       }
 
@@ -1184,7 +1247,6 @@ bool stepwisereg::create_distribution(void)
           }
         nrcat++;
         }
-
       }
 
     if (existing == false)
@@ -1199,7 +1261,6 @@ bool stepwisereg::create_distribution(void)
         refvalue = D(index(0,0),0);
         refcat = 0;
         }
-
       }
 
     if (nrcat == 1)
@@ -1213,7 +1274,6 @@ bool stepwisereg::create_distribution(void)
       outerror("ERROR: too many values for the response variable\n");
       return true;
       }
-
 
     datamatrix response(D.rows(),nrcat-1,0);
 
@@ -1232,10 +1292,9 @@ bool stepwisereg::create_distribution(void)
           response(index(j,0),c) = 1;
         c++;
         }
-
       }
 
-    distr_multinom = DISTRIBUTION_multinom(
+    distr_multinom = DISTRIBUTION_multinom2(
     &generaloptions[generaloptions.size()-1],response,refvalue,w);
 
     distr_multinom.init_names(rname,wn);
@@ -1257,16 +1316,65 @@ bool stepwisereg::create_distribution(void)
       distr_multinom.set_predictfull(pathfullsample,pathfull,n);
       }
 
-
     distr.push_back(&distr_multinom);
     distrstring.push_back("multinom");
     distrposition.push_back(0);
     nrcategories = nrcat-1;
     }
+else // if(method=="mregress")
+  {
+    vector<unsigned> rescol  = modregmult.getresponsecol();
+
+    if (offs.rows() > 1)
+      {
+      outerror("ERROR: offset not allowed for family=multinomial\n");
+      return true;
+      }
+
+    unsigned c;
+    datamatrix response(D.rows(),rescol.size());
+    unsigned k,j;
+    for(j=0;j<response.cols();j++)
+      {
+      c = rescol[j];
+      for(k=0;k<response.rows();k++)
+        response(k,j) = D(k,c);
+      }
+
+
+    distr_multinom = DISTRIBUTION_multinom2(
+    &generaloptions[generaloptions.size()-1],response,-100,w);      // refvalue = -100
+
+    distr_multinom.init_names(rname,wn);
+
+    if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+      distr_multinom.set_predict(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_multinom.set_predictfull(pathfullsample,pathfull,n);
+      }
+
+    distr.push_back(&distr_multinom);
+    distrstring.push_back("multinom");
+    distrposition.push_back(0);
+    nrcategories = response.cols();
+    }
+  }
+
 //------------------- END: multinomial response, logit link -------------------
 
 //------------------- cumulative threshold model, probit link ------------------
-  else if (family.getvalue() == "cumprobit")
+/*  else if (family.getvalue() == "cumprobit")
     {
 
     if (nosort.getvalue() == false)
@@ -1310,11 +1418,11 @@ bool stepwisereg::create_distribution(void)
     distrposition.push_back(0);
     nrcategories = 1;
 
-    }
+    }  */
 //----------------- END: cumulative threshold model, probit link ---------------
 
 //----------------------- negative binomial response ---------------------------
-  else
+/*  else
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
@@ -1368,7 +1476,7 @@ bool stepwisereg::create_distribution(void)
     distrposition.push_back(0);
     nrcategories = 1;
 
-    }
+    } */
 //--------------------- END: negative binomial response ------------------------
 
 
@@ -1413,8 +1521,10 @@ bool stepwisereg::create_factor(const unsigned & collinpred)
   int f;
   double reference;
   double lambdastart;
+  double dfstart;
   bool forced_into;
   unsigned i;
+  bool nofixed;
 
   for(i=0;i<terms.size();i++)
     {
@@ -1431,6 +1541,13 @@ bool stepwisereg::create_factor(const unsigned & collinpred)
          forced_into = true;
       else
          forced_into = false;
+
+      f = (terms[i].options[5]).strtodouble(dfstart);
+
+      if (terms[i].options[6] == "true")
+         nofixed = true;
+      else
+         nofixed = false;
 
 
       if (f==1)
@@ -1454,10 +1571,14 @@ bool stepwisereg::create_factor(const unsigned & collinpred)
                                 reference,title,pathconst,pathconstres,
                                 collinpred));*/
       int helpint = (int)reference;
+      FULLCOND_const_stepwise * fcc;
+      if(normalconst.size()>=1)
+        fcc = &normalconst[normalconst.size()-1];
+
       factor.push_back(
       FULLCOND_const_stepwise(&generaloptions[generaloptions.size()-1],
                                 distr[distr.size()-1],
-                                fcconst_intercept,
+                                fcc, //fcconst_intercept,
                                 D.getCol(j),
                                 terms[i].options[1],
                                 helpint,title,pathconst,pathconstres,
@@ -1466,7 +1587,9 @@ bool stepwisereg::create_factor(const unsigned & collinpred)
       factor[factor.size()-1].init_name(terms[i].varnames[0]);
 
       factor[factor.size()-1].set_stepwise_options(
-      lambdastart,0,-1,forced_into,0,0,false,false,0,false);
+      lambdastart,0,-1,forced_into,0,0,false,0,false);
+      factor[factor.size()-1].set_dfstart(dfstart);
+      factor[factor.size()-1].set_nofixed(nofixed);
 
       factor[factor.size()-1].set_fcnumber(fullcond.size());
 
@@ -1528,7 +1651,7 @@ bool stepwisereg::create_nonlinearf(const unsigned & collinpred)
         normalconst_special[normalconst_special.size()-1].init_name(terms[i].varnames[0]);
 
         normalconst_special[normalconst_special.size()-1].set_stepwise_options(
-        lambdastart,2,1,forced_into,0,0,false,false,0,false);
+        lambdastart,2,1,forced_into,0,0,false,0,false);
 
         normalconst_special[normalconst_special.size()-1].set_fcnumber(fullcond.size());
 
@@ -1692,11 +1815,12 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
   bool forced_into;
   double df_lambdamax;
   double df_lambdamin;
-  bool lambdamax_opt;
-  bool lambdamin_opt;
+  bool spnot;
+  double dfstart;
   double numb;
   bool df_equidist;
   double df_accuracy;
+  bool center;
   bool nofixed;
 
   bool varcoeff;
@@ -1739,8 +1863,6 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
         }
 
 
-
-
       f = (terms[i].options[1]).strtodouble(hd);
       lambda = hd;
 
@@ -1755,28 +1877,30 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
 
       f = (terms[i].options[6]).strtodouble(df_lambdamax);
       f = (terms[i].options[7]).strtodouble(df_lambdamin);
-
-      if (terms[i].options[8] == "true")
-         lambdamax_opt = true;
-      else
-         lambdamax_opt = false;
+      f = (terms[i].options[8]).strtodouble(dfstart);
 
       if (terms[i].options[9] == "true")
-         lambdamin_opt = true;
+         spnot = false;
       else
-         lambdamin_opt = false;
+         spnot = true;
 
       f = (terms[i].options[10]).strtodouble(numb);
       if (terms[i].options[11] == "true")
-         df_equidist = true;
-      else
          df_equidist = false;
+      else
+         df_equidist = true;
       f = (terms[i].options[12]).strtodouble(df_accuracy);
 
       if (terms[i].options[13] == "true")
+         center = true;
+      else
+         center = false;
+
+      if (terms[i].options[14] == "true")
          nofixed = true;
       else
          nofixed = false;
+
 
       if (f==1)
         return true;
@@ -1811,39 +1935,16 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
         fcnonpgaussian.push_back(
         FULLCOND_nonp_gaussian_stepwise(&generaloptions[generaloptions.size()-1],
         distr[distr.size()-1],D.getCol(j2),D.getCol(j1),fcconst_intercept,
-        unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,nofixed,
+        unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,center,
         lambda));
-
-        // Zeiger auf Haupteffekt
-        FULLCOND * mainp2;
-        unsigned main2=0;
 
         FULLCOND * inter;
 
-        unsigned j;
-        for (j=0;j<fcnonpgaussian.size();j++)
+        if(center == true)
           {
-          if  ( ((fcnonpgaussian[j].get_datanames()).size() == 1) &&
-                (fcnonpgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
-                fcnonpgaussian[j].get_col() == collinpred )
-                {
-                mainp2 = &fcnonpgaussian[j];
-                main2 ++;
-                }
-            }
-        if(main2 == 1)
-          {
-          inter = &fcnonpgaussian[fcnonpgaussian.size()-1];
-          mainp2->set_pointer_to_interaction(inter);
-          fcnonpgaussian[fcnonpgaussian.size()-1].set_pointer_to_interaction(mainp2);
-          }
-
-        if(nofixed == true)
-          {
+          hierarchical_model_yesno = true;
           FULLCOND * mainp1;
           unsigned main1=0;
-
-          //FULLCOND * inter;
 
           unsigned j;
           for (j=0;j<fcpsplinestep.size();j++)
@@ -1883,19 +1984,44 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
             }
           }
 
+        // Zeiger auf Haupteffekt
+        FULLCOND * mainp2;
+        unsigned main2=0;
+
+        unsigned j;
+        for (j=0;j<fcnonpgaussian.size();j++)
+          {
+          if  ( ((fcnonpgaussian[j].get_datanames()).size() == 1) &&
+                (fcnonpgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
+                fcnonpgaussian[j].get_col() == collinpred )
+                {
+                mainp2 = &fcnonpgaussian[j];
+                main2 ++;
+                }
+            }
+        if(main2 == 1)
+          {
+          inter = &fcnonpgaussian[fcnonpgaussian.size()-1];
+          mainp2->set_pointer_to_interaction(inter);
+          fcnonpgaussian[fcnonpgaussian.size()-1].set_pointer_to_interaction(mainp2);
+          }
+
         vector<ST::string> na;
         na.push_back(terms[i].varnames[0]);
-//        if(nofixed == true)
+        na.push_back(terms[i].varnames[1]);
+        if(center == true)
           na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-//        else
-//          na.push_back(terms[i].varnames[0]);
+        else
+          na.push_back(terms[i].varnames[0]);
         fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
 
         }
 
       fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_options(
-      lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+      lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
       numb,df_equidist);
+      fcnonpgaussian[fcnonpgaussian.size()-1].set_dfstart(dfstart);
+      fcnonpgaussian[fcnonpgaussian.size()-1].set_nofixed(nofixed);
       fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
 
 
@@ -1930,12 +2056,13 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
   bool varcoeff;
   double df_lambdamax;
   double df_lambdamin;
-  bool lambdamax_opt;
-  bool lambdamin_opt;
+  bool spnot;
+  double dfstart;
   double numb;
   bool df_equidist;
   double df_accuracy;
   ST::string monotone;
+  bool center;
   bool nofixed;
 
   unsigned i;
@@ -1988,28 +2115,29 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
 
       f = (terms[i].options[11]).strtodouble(df_lambdamax);
       f = (terms[i].options[12]).strtodouble(df_lambdamin);
-
-      if (terms[i].options[13] == "true")
-         lambdamax_opt = true;
-      else
-         lambdamax_opt = false;
+      f = (terms[i].options[13]).strtodouble(dfstart);
 
       if (terms[i].options[14] == "true")
-         lambdamin_opt = true;
+         spnot = false;
       else
-         lambdamin_opt = false;
+         spnot = true;
 
       f = (terms[i].options[15]).strtodouble(numb);
 
       if (terms[i].options[16] == "true")
-         df_equidist = true;
-      else
          df_equidist = false;
+      else
+         df_equidist = true;
       f = (terms[i].options[17]).strtodouble(df_accuracy);
 
       monotone = terms[i].options[18];
 
       if (terms[i].options[19] == "true")
+         center = true;
+      else
+         center = false;
+
+      if (terms[i].options[21] == "true")
          nofixed = true;
       else
          nofixed = false;
@@ -2017,7 +2145,7 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
 
       MCMC::knotpos po;
 
-      if (knots.getvalue() == "equidistant")
+      if (knots.getvalue() == "equidistant" && terms[i].options[20] == "equidistant")
         po = MCMC::equidistant;
       else
         po = MCMC::quantiles;
@@ -2085,37 +2213,16 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
                                             false,
                                             lambda,
                                             gridsize,
-                                            nofixed,
+                                            center,
                                             collinpred
                                            )
                          );
 
-        // Zeiger auf Haupteffekt
-        FULLCOND * mainp2;
-        unsigned main2=0;
-
         FULLCOND * inter;
 
-        unsigned j;
-        for (j=0;j<fcpsplinestep.size();j++)
+        if(center == true)
           {
-          if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
-                (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[1]) &&
-                fcpsplinestep[j].get_col() == collinpred )
-                {
-                mainp2 = &fcpsplinestep[j];
-                main2 ++;
-                }
-            }
-        if(main2 == 1)
-          {
-          inter = &fcpsplinestep[fcpsplinestep.size()-1];
-          mainp2->set_pointer_to_interaction(inter);
-          fcpsplinestep[fcpsplinestep.size()-1].set_pointer_to_interaction(mainp2);
-          }
-
-        if(nofixed == true)
-          {
+          hierarchical_model_yesno = true;
           FULLCOND * mainp1;
           unsigned main1=0;
 
@@ -2157,18 +2264,43 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
             }
           }
 
+        // Zeiger auf Haupteffekt
+        FULLCOND * mainp2;
+        unsigned main2=0;
+
+        unsigned j;
+        for (j=0;j<fcpsplinestep.size();j++)
+          {
+          if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+                (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[1]) &&
+                fcpsplinestep[j].get_col() == collinpred )
+                {
+                mainp2 = &fcpsplinestep[j];
+                main2 ++;
+                }
+            }
+        if(main2 == 1)
+          {
+          inter = &fcpsplinestep[fcpsplinestep.size()-1];
+          mainp2->set_pointer_to_interaction(inter);
+          fcpsplinestep[fcpsplinestep.size()-1].set_pointer_to_interaction(mainp2);
+          }
+
         vector<ST::string> na;
         na.push_back(terms[i].varnames[0]);
-//        if(nofixed == true)
+        na.push_back(terms[i].varnames[1]);
+        if(center == true)
           na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-//        else
-//          na.push_back(terms[i].varnames[0]);
+        else
+          na.push_back(terms[i].varnames[0]);
         fcpsplinestep[fcpsplinestep.size()-1].init_names(na);
         }
 
       fcpsplinestep[fcpsplinestep.size()-1].set_stepwise_options(
-             lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+             lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
              numb,df_equidist);
+      fcpsplinestep[fcpsplinestep.size()-1].set_dfstart(dfstart);
+      fcpsplinestep[fcpsplinestep.size()-1].set_nofixed(nofixed);
       fcpsplinestep[fcpsplinestep.size()-1].set_stepwise_accuracy(df_accuracy);
 
       fcpsplinestep[fcpsplinestep.size()-1].set_fcnumber(fullcond.size());
@@ -2199,11 +2331,12 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
   bool forced_into;
   double df_lambdamax;
   double df_lambdamin;
-  bool lambdamax_opt;
-  bool lambdamin_opt;
+  double dfstart;
+  bool spnot;
   double numb;
   bool df_equidist;
   double df_accuracy;
+  bool center;
   bool nofixed;
 
   bool varcoeff;
@@ -2264,25 +2397,26 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
 
       f = (terms[i].options[7]).strtodouble(df_lambdamax);
       f = (terms[i].options[8]).strtodouble(df_lambdamin);
-
-      if (terms[i].options[9] == "true")
-         lambdamax_opt = true;
-      else
-         lambdamax_opt = false;
+      f = (terms[i].options[9]).strtodouble(dfstart);
 
       if (terms[i].options[10] == "true")
-         lambdamin_opt = true;
+         spnot = false;
       else
-         lambdamin_opt = false;
+         spnot = true;
 
       f = (terms[i].options[11]).strtodouble(numb);
 
       if (terms[i].options[12] == "true")
-         df_equidist = true;
-      else
          df_equidist = false;
+      else
+         df_equidist = true;
       f = (terms[i].options[13]).strtodouble(df_accuracy);
       if (terms[i].options[14] == "true")
+         center = true;
+      else
+         center = false;
+
+      if (terms[i].options[15] == "true")
          nofixed = true;
       else
          nofixed = false;
@@ -2335,34 +2469,13 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
         fcnonpgaussian.push_back(
         FULLCOND_nonp_gaussian_stepwise(&generaloptions[generaloptions.size()-1],
         distr[distr.size()-1],fcconst_intercept,m,terms[i].options[1],
-        D.getCol(j2),D.getCol(j1),title,pathnonp,pathres,collinpred,lambda,nofixed));
-
-        // Zeiger auf Haupteffekt
-        FULLCOND * mainp2;
-        unsigned main2=0;
+        D.getCol(j2),D.getCol(j1),title,pathnonp,pathres,collinpred,lambda,center));
 
         FULLCOND * inter;
 
-        unsigned j;
-        for (j=0;j<fcnonpgaussian.size();j++)
+        if(center == true)
           {
-          if  ( ((fcnonpgaussian[j].get_datanames()).size() == 1) &&
-                (fcnonpgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
-                fcnonpgaussian[j].get_col() == collinpred )
-                {
-                mainp2 = &fcnonpgaussian[j];
-                main2 ++;
-                }
-            }
-        if(main2 == 1)
-          {
-          inter = &fcnonpgaussian[fcnonpgaussian.size()-1];
-          mainp2->set_pointer_to_interaction(inter);
-          fcnonpgaussian[fcnonpgaussian.size()-1].set_pointer_to_interaction(mainp2);
-          }
-
-        if(nofixed == true)
-          {
+          hierarchical_model_yesno = true;
           FULLCOND * mainp1;
           unsigned main1=0;
 
@@ -2404,19 +2517,44 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
             }
           }
 
+        // Zeiger auf Haupteffekt
+        FULLCOND * mainp2;
+        unsigned main2=0;
+
+        unsigned j;
+        for (j=0;j<fcnonpgaussian.size();j++)
+          {
+          if  ( ((fcnonpgaussian[j].get_datanames()).size() == 1) &&
+                (fcnonpgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
+                fcnonpgaussian[j].get_col() == collinpred )
+                {
+                mainp2 = &fcnonpgaussian[j];
+                main2 ++;
+                }
+            }
+        if(main2 == 1)
+          {
+          inter = &fcnonpgaussian[fcnonpgaussian.size()-1];
+          mainp2->set_pointer_to_interaction(inter);
+          fcnonpgaussian[fcnonpgaussian.size()-1].set_pointer_to_interaction(mainp2);
+          }
+
         vector<ST::string> na;
         na.push_back(terms[i].varnames[0]);
-//        if(nofixed == true)
+        na.push_back(terms[i].varnames[1]);
+        if(center == true)
           na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-//        else
-//          na.push_back(terms[i].varnames[0]);
+        else
+          na.push_back(terms[i].varnames[0]);
         fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
 
         }
 
       fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_options(
-      lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+      lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
       numb,df_equidist);
+      fcnonpgaussian[fcnonpgaussian.size()-1].set_dfstart(dfstart);
+      fcnonpgaussian[fcnonpgaussian.size()-1].set_nofixed(nofixed);
       fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
 
 
@@ -2460,11 +2598,12 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
   bool forced_into;
   double df_lambdamax;
   double df_lambdamin;
-  bool lambdamax_opt;
-  bool lambdamin_opt;
+  double dfstart;
+  bool spnot;
   double numb;
   bool df_equidist;
   double df_accuracy;
+  bool nofixed;
 
   int f;
   for(i=0;i<terms.size();i++)
@@ -2493,24 +2632,26 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
 
       f = (terms[i].options[7]).strtodouble(df_lambdamax);
       f = (terms[i].options[8]).strtodouble(df_lambdamin);
-
-      if (terms[i].options[9] == "true")
-         lambdamax_opt = true;
-      else
-         lambdamax_opt = false;
+      f = (terms[i].options[9]).strtodouble(dfstart);
 
       if (terms[i].options[10] == "true")
-         lambdamin_opt = true;
+         spnot = false;
       else
-         lambdamin_opt = false;
+         spnot = true;
 
       f = (terms[i].options[11]).strtodouble(numb);
 
       if (terms[i].options[12] == "true")
-         df_equidist = true;
-      else
          df_equidist = false;
+      else
+         df_equidist = true;
       f = (terms[i].options[13]).strtodouble(df_accuracy);
+
+      if (terms[i].options[14] == "true")
+         nofixed = true;
+      else
+         nofixed = false;
+
 
       if (f==1)
         return true;
@@ -2533,31 +2674,11 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
                                                         )
                           );
 
-        // Zeiger auf Haupteffekt
-        FULLCOND * mainp2;
-        unsigned main2=0;
-
         FULLCOND * inter;
 
-        unsigned j;
-        for (j=0;j<fcrandomgaussian.size();j++)
-          {
-          if  ( ((fcrandomgaussian[j].get_datanames()).size() == 1) &&
-                (fcrandomgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
-                fcrandomgaussian[j].get_col() == collinpred )
-                {
-                mainp2 = &fcrandomgaussian[j];
-                main2 ++;
-                }
-            }
-        if(main2 == 1)
-          {
-          inter = &fcrandomgaussian[fcrandomgaussian.size()-1];
-          mainp2->set_pointer_to_interaction(inter);
-          fcrandomgaussian[fcrandomgaussian.size()-1].set_pointer_to_interaction(mainp2);
-          }
         if(inclf == false)
           {
+          hierarchical_model_yesno = true;
           FULLCOND * mainp1;
           unsigned main1=0;
 
@@ -2599,17 +2720,42 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
             }
           }
 
+        // Zeiger auf Haupteffekt
+        FULLCOND * mainp2;
+        unsigned main2=0;
+
+        unsigned j;
+        for (j=0;j<fcrandomgaussian.size();j++)
+          {
+          if  ( ((fcrandomgaussian[j].get_datanames()).size() == 1) &&
+                (fcrandomgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
+                fcrandomgaussian[j].get_col() == collinpred )
+                {
+                mainp2 = &fcrandomgaussian[j];
+                main2 ++;
+                }
+            }
+        if(main2 == 1)
+          {
+          inter = &fcrandomgaussian[fcrandomgaussian.size()-1];
+          mainp2->set_pointer_to_interaction(inter);
+          fcrandomgaussian[fcrandomgaussian.size()-1].set_pointer_to_interaction(mainp2);
+          }
+
       vector<ST::string> na;
       na.push_back(terms[i].varnames[0]);
-//      if(inclf == false)
+      na.push_back(terms[i].varnames[1]);
+      if(inclf == false)
         na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-//      else
-//        na.push_back(terms[i].varnames[0]);
+      else
+        na.push_back(terms[i].varnames[0]);
       fcrandomgaussian[fcrandomgaussian.size()-1].init_names(na);
 
       fcrandomgaussian[fcrandomgaussian.size()-1].set_stepwise_options(
-        lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+        lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
         numb,df_equidist);
+      fcrandomgaussian[fcrandomgaussian.size()-1].set_dfstart(dfstart);
+      fcrandomgaussian[fcrandomgaussian.size()-1].set_nofixed(nofixed);
       fcrandomgaussian[fcrandomgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
 
       fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
@@ -2634,8 +2780,8 @@ bool stepwisereg::create_random(const unsigned & collinpred)
   bool forced_into;
   double df_lambdamax;
   double df_lambdamin;
-  bool lambdamax_opt;
-  bool lambdamin_opt;
+  double dfstart;
+  bool spnot;
   double numb;
   bool df_equidist;
   double df_accuracy;
@@ -2662,23 +2808,19 @@ bool stepwisereg::create_random(const unsigned & collinpred)
 
       f = (terms[i].options[6]).strtodouble(df_lambdamax);
       f = (terms[i].options[7]).strtodouble(df_lambdamin);
-
-      if (terms[i].options[8] == "true")
-         lambdamax_opt = true;
-      else
-         lambdamax_opt = false;
+      f = (terms[i].options[8]).strtodouble(dfstart);
 
       if (terms[i].options[9] == "true")
-         lambdamin_opt = true;
+         spnot = false;
       else
-         lambdamin_opt = false;
+         spnot = true;
 
       f = (terms[i].options[10]).strtodouble(numb);
 
       if (terms[i].options[11] == "true")
-         df_equidist = true;
-      else
          df_equidist = false;
+      else
+         df_equidist = true;
       f = (terms[i].options[12]).strtodouble(df_accuracy);
 
       ST::string start = startmodel.getvalue();
@@ -2724,12 +2866,17 @@ bool stepwisereg::create_random(const unsigned & collinpred)
                           );
 
       fcrandomgaussian[fcrandomgaussian.size()-1].set_stepwise_options(
-        lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+        lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
         numb,df_equidist);
+      fcrandomgaussian[fcrandomgaussian.size()-1].set_dfstart(dfstart);
       fcrandomgaussian[fcrandomgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
 
       if (structured==1)
         {
+        FULLCOND * inter = &fcrandomgaussian[fcrandomgaussian.size()-1];
+        structuredp->set_pointer_to_interaction(inter);
+        fcrandomgaussian[fcrandomgaussian.size()-1].set_pointer_to_interaction(structuredp);
+
         ST::string pathnonpt = defaultpath + "\\temp\\" + name + add_name +
                terms[i].varnames[0] +
                "_spatialtotal.raw";
@@ -3075,6 +3222,27 @@ void texsummaryrun(stepwisereg & b)
   }
 
 
+void getsamplerun(stepwisereg & b)
+  {
+  if (b.resultsyesno == true)
+    {
+    if (b.bootyesno == true)
+      {
+      #if defined(JAVA_OUTPUT_WINDOW)
+
+      b.runobj.get_samples(b.newcommands,b.outfile.getvalue() + "_");
+      #else
+      b.runobj.get_samples(b.outfile.getvalue() + "_");
+      #endif
+      }
+    else
+      b.outerror("ERROR: no Bootstrap simulation results\n");
+    }
+  else
+    b.outerror("ERROR: no regression results\n");
+
+  }
+
 
 void regressrun(stepwisereg & b)
   {
@@ -3099,7 +3267,7 @@ void regressrun(stepwisereg & b)
     failure = b.create_generaloptions();
 
   if (!failure)
-    failure = b.create_distribution();
+    failure = b.create_distribution("regress");
 
   unsigned i;
 
@@ -3141,26 +3309,20 @@ void regressrun(stepwisereg & b)
       if (!failure)
         failure = b.create_geospline(i);
 
+//      if (!failure)
+//        failure = b.create_projection(i);
+
       }// end: for (i=0;i<b.nrcategories;i++)
     } // end: if (!failure)
 
 
   if (!failure)
     {
-// für die Gesamt-Hatmatrix wäre es möglich ein remlreg-Objekt zu erzeugen:
-/*
-ofstream * outlog;
-istream * putin;
-ST::string dpath = "C:\\bayesx";
-vector<statobject*> * st;
-remlreg newobject("r",outlog,putin,dpath,st);
-*/
-    //vector<ST::string> header;
-    //header.push_back("STEPWISEREG OBJECT " + b.name.to_bstr() +
-    //                   ": stepwise procedure" );
-
     ST::string name = b.name.to_bstr();
     ST::string cr = b.criterion.getvalue();
+    if(cr=="GCVrss")
+      cr = "GCV2";
+    double gcvfac = b.gcvfactor.getvalue();
     double prop = b.proportion.getvalue();
     ST::string proc = b.procedure.getvalue();
     ST::string minim = b.minimum.getvalue();
@@ -3171,30 +3333,41 @@ remlreg newobject("r",outlog,putin,dpath,st);
     int increment = b.increment.getvalue();
     bool fine_tuning = b.fine_tuning.getvalue();
     bool fine_local = b.fine_local.getvalue();
-    bool maveraging = b.maveraging.getvalue();
-    int window = b.window.getvalue();
+    //bool maveraging = b.maveraging.getvalue();
+    //int window = b.window.getvalue();
+    int boot = b.bootstrap.getvalue();
+    bool uncond = b.unconditional.getvalue();
     bool CI = b.ci.getvalue();
-    bool hier = b.hier.getvalue();
+    //bool hier = b.hier.getvalue();
+    bool hier = b.hierarchical_model_yesno;
     bool gm = b.ganzematrix.getvalue();
     bool minib = b.minibackfitting_off.getvalue();
     vector<FULLCOND*> fullcond_z;
+    int seed = b.setseed.getvalue();
+
+    b.distr[0]->set_gcvfactor(gcvfac);
+    b.distr[0]->set_seed(seed);
 
     ST::string path = b.outfiles[0];
     ST::string path2 = path;
+    if(boot > 0)
+      b.bootyesno = true;
+    else
+      b.bootyesno = false;
 
    if(b.nrcategories == 1)
      {
      b.runobj = STEPWISErun(&b.generaloptions[0],b.distr[0],b.fullcond);
      failure = b.runobj.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
-                       fine_tuning,fine_local,maveraging,window,b.D,b.modelvarnamesv,
-                       name,fullcond_z,path2,CI,hier,gm,prop,minib);
+                       fine_tuning,fine_local,boot,uncond,//maveraging,window,
+                       b.D,b.modelvarnamesv,name,fullcond_z,path2,CI,hier,gm,prop,minib);
       }
    else
      {
      b.runobjm = STEPMULTIrun(&b.generaloptions[0],b.distr[0],b.fullcond);
      failure = b.runobjm.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
-                       fine_tuning,fine_local,maveraging,window,b.D,b.modelvarnamesv,
-                       name,fullcond_z,path2,CI,hier); 
+                       fine_tuning,fine_local,boot,uncond, //maveraging,window,
+                       b.D,b.modelvarnamesv,name,fullcond_z,path2,CI,hier,prop,minib); 
      }
 
     if(!failure)
@@ -3269,8 +3442,217 @@ remlreg newobject("r",outlog,putin,dpath,st);
     b.describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
     b.resultsyesno = false;
     }
-
   }
+
+
+void mregressrun(stepwisereg & b)
+  {
+
+  b.resultsyesno = false;
+
+  b.termsmult = b.modregmult.getterms();
+
+  b.describetext.erase(b.describetext.begin(),b.describetext.end());
+  b.describetext.push_back("LAST ESTIMATED MODEL: \n");
+  b.describetext.push_back("\n");
+  b.describetext.push_back(b.modregmult.getModelText());
+  b.describetext.push_back("\n");
+
+  b.clear();
+
+  b.outfiles.push_back(b.outfile.getvalue()+b.add_name);
+
+  bool failure = false;
+
+  if ((b.family.getvalue() != "multgaussian") &&
+      (b.family.getvalue() != "gaussianh") &&
+      (b.family.getvalue() != "multinomial"))
+    {
+    failure = true;
+    b.out("ERROR: family " + b.family.getvalue() + " is not allowed for method mregress\n");
+    }
+
+  if (!failure)
+    failure = b.create_generaloptions();
+
+  if (!failure)
+    failure = b.create_distribution("mregress");
+
+  unsigned i;
+
+  if (!failure)
+    {
+    for (i=0;i<b.nrcategories;i++)
+      {
+
+      b.terms = b.termsmult[i];
+
+      if (!failure)
+        failure = b.create_const(i);
+
+      if (!failure)
+        failure = b.create_factor(i);
+
+      if (!failure)
+        failure = b.create_nonlinearf(i);
+
+      if (!failure)
+        failure = b.create_pspline(i);
+
+      if (!failure)
+         failure = b.create_nonprw1rw2(i);
+
+      if (!failure)
+        failure = b.create_nonpseason(i);
+
+      if (!failure)
+        failure = b.create_spatial(i);
+
+      if (!failure)
+        failure = b.create_random(i);
+
+      if (!failure)
+        failure = b.create_randomslope(i);
+
+      if (!failure)
+        failure = b.create_interactionspspline(i);
+
+      if (!failure)
+        failure = b.create_geospline(i);
+
+//      if (!failure)
+//        failure = b.create_projection(i);
+
+      }// end: for (i=0;i<b.nrcategories;i++)
+    } // end: if (!failure)
+
+
+  if (!failure)
+    {
+    ST::string name = b.name.to_bstr();
+    ST::string cr = b.criterion.getvalue();
+    if(cr=="GCVrss")
+      cr = "GCV2";
+    double gcvfac = b.gcvfactor.getvalue();
+    double prop = b.proportion.getvalue();
+    ST::string proc = b.procedure.getvalue();
+    ST::string minim = b.minimum.getvalue();
+    int steps = b.steps.getvalue();
+    ST::string tr = b.trace.getvalue();
+    int number = b.number.getvalue();
+    ST::string stmodel = b.startmodel.getvalue();
+    int increment = b.increment.getvalue();
+    bool fine_tuning = b.fine_tuning.getvalue();
+    bool fine_local = b.fine_local.getvalue();
+    //bool maveraging = b.maveraging.getvalue();
+    //int window = b.window.getvalue();
+    int boot = b.bootstrap.getvalue();
+    bool uncond = b.unconditional.getvalue();
+    bool CI = b.ci.getvalue();
+    //bool hier = b.hier.getvalue();
+    bool hier = b.hierarchical_model_yesno;
+    bool gm = b.ganzematrix.getvalue();
+    bool minib = b.minibackfitting_off.getvalue();
+    vector<FULLCOND*> fullcond_z;
+
+    b.distr[0]->set_gcvfactor(gcvfac);
+
+    ST::string path = b.outfiles[0];
+    ST::string path2 = path;
+    if(boot > 0)
+      b.bootyesno = true;
+    else
+      b.bootyesno = false;
+
+   //if(b.nrcategories == 1)
+   //  {
+   //  b.runobj = STEPWISErun(&b.generaloptions[0],b.distr[0],b.fullcond);
+   //  failure = b.runobj.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
+   //                    fine_tuning,fine_local,boot,//maveraging,window,
+   //                    b.D,b.modelvarnamesv,name,fullcond_z,path2,CI,hier,gm,prop,minib);
+   //   }
+   //else
+   //  {
+     b.runobjm = STEPMULTIrun(&b.generaloptions[0],b.distr[0],b.fullcond);
+     failure = b.runobjm.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
+                       fine_tuning,fine_local,boot,uncond,
+                       b.D,b.modelvarnamesv,name,fullcond_z,path2,CI,hier,prop,minib);
+   //  }
+
+    if(!failure)
+      {
+
+#if defined(JAVA_OUTPUT_WINDOW)
+
+      if(CI == true && b.nrcategories == 1)
+        {
+        b.newcommands.push_back("drop " + b.name);
+        b.newcommands.push_back("bayesreg " + b.name);
+        b.newcommands.push_back(b.name + ".outfile = " + path);
+        double level1 = b.level1.getvalue();
+        double level2 = b.level2.getvalue();
+        ST::string data = " level1=" + ST::doubletostring(int(level1))
+             + " level2=" + ST::doubletostring(int(level2)) + " using " + b.udata.getusingtext();
+        b.newcommands.push_back(path2 + data);  
+        }
+      else
+        {
+        b.fullcond = fullcond_z;
+        for(unsigned j=0;j<b.fullcond.size();j++)
+           {
+           MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
+           if(plst != MCMC::noplot)
+             {
+             vector<ST::string> varnames = b.fullcond[j]->get_datanames();
+             ST::string xvar = varnames[0];
+             ST::string pathresult = b.fullcond[j]->get_pathresult();
+             ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+             if(plst == MCMC::plotnonp)
+               {
+               b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
+               + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
+               + " ylab = \" \" outfile = " + pathps + ".ps replace");
+               }
+
+             if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
+               {
+               // double u = b.fullcond[j]->get_level1();
+               // double o = b.fullcond[j]->get_level2();
+               // ST::string u_str = ST::doubletostring(u,0);
+               // ST::string o_str = ST::doubletostring(o,0);
+               b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+               + ", color outfile = " + pathps + "_pmean.ps replace");
+               // b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+               // + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+               // + "_pcat" + u_str + ".ps replace");
+               // b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+               // + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+               // + "_pcat" + o_str + ".ps replace");
+               }
+             }
+           }
+
+        b.newcommands.push_back(b.name + ".texsummary");
+       }
+          
+#endif
+
+     }
+
+    }
+
+  if (!failure)
+    {
+    b.resultsyesno = true;
+    }
+  else
+    {
+    b.describetext.erase(b.describetext.begin(),b.describetext.end());
+    b.describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
+    b.resultsyesno = false;
+    }
+  }
+
 
 bool stepwisereg::create_nonpseason(const unsigned & collinpred)
   {
@@ -3289,8 +3671,8 @@ bool stepwisereg::create_nonpseason(const unsigned & collinpred)
   bool forced_into;
   double df_lambdamax;
   double df_lambdamin;
-  bool lambdamax_opt;
-  bool lambdamin_opt;
+  double dfstart;
+  bool spnot;
   double numb;
   bool df_equidist;
   double df_accuracy;
@@ -3321,23 +3703,19 @@ bool stepwisereg::create_nonpseason(const unsigned & collinpred)
 
       f = (terms[i].options[7]).strtodouble(df_lambdamax);
       f = (terms[i].options[8]).strtodouble(df_lambdamin);
-
-      if (terms[i].options[9] == "true")
-         lambdamax_opt = true;
-      else
-         lambdamax_opt = false;
+      f = (terms[i].options[9]).strtodouble(dfstart);
 
       if (terms[i].options[10] == "true")
-         lambdamin_opt = true;
+         spnot = false;
       else
-         lambdamin_opt = false;
+         spnot = true;
 
       f = (terms[i].options[11]).strtodouble(numb);
 
       if (terms[i].options[12] == "true")
-         df_equidist = true;
-      else
          df_equidist = false;
+      else
+         df_equidist = true;
       f = (terms[i].options[13]).strtodouble(df_accuracy);
 
       if (f==1)
@@ -3372,8 +3750,9 @@ bool stepwisereg::create_nonpseason(const unsigned & collinpred)
       fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
 
       fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_options(
-      lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+      lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
       numb,df_equidist);
+      fcnonpgaussian[fcnonpgaussian.size()-1].set_dfstart(dfstart);
       fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
 
 
@@ -3395,13 +3774,14 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
   long h;
   unsigned degree,nrknots;
   int gridsize,f;
-  double lambda,lambdamin,lambdamax,lambdastart,df_lambdamax,df_lambdamin,numb;
-  bool forced_into,lambdamax_opt,lambdamin_opt,df_equidist;
+  double lambda,lambdamin,lambdamax,lambdastart,df_lambdamax,df_lambdamin,dfstart,numb;
+  bool forced_into,spnot,df_equidist;
   //bool varcoeff;
   double df_accuracy;
+  bool center, varcoeff, nofixed;
 
   unsigned i;
-  int j1,j2;
+  int j1,j2,j3;
   for(i=0;i<terms.size();i++)
     {
     if ( nonpinteractpspline.checkvector(terms,i) == true )
@@ -3414,17 +3794,39 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         type = MCMC::mrflinear;
       else if (terms[i].options[0] == "pspline2dimrw2")
         type = MCMC::mrfquadratic8;
-      else if ((terms[i].options[0] == "pspline2dimband")   ||
-          (terms[i].options[0] == "tpspline2dimband")
-         )
-        type = MCMC::mrflinearband;
-      else if (terms[i].options[0] == "psplinekrrw1")
+//      else if ((terms[i].options[0] == "pspline2dimband")   ||
+//          (terms[i].options[0] == "tpspline2dimband")
+//         )
+//        type = MCMC::mrflinearband;
+      else if (terms[i].options[0] == "psplinekrrw1" || terms[i].options[0] == "psplineinteract")
         type = MCMC::mrfkr1;
-      else if (terms[i].options[0] == "psplinekrrw2")
-        type = MCMC::mrfkr2;
+//      else if (terms[i].options[0] == "psplinekrrw2")
+//        type = MCMC::mrfkr2;
+      else
+        {
+        outerror("ERROR: This penalty type is not supported!\n");
+        return true;
+        }
 
-      j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
-      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+      if (terms[i].varnames.size()==2)
+        {
+        varcoeff=false;
+        j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
+        j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+        }
+      else
+        {
+        varcoeff=true;
+        j1 = terms[i].varnames[1].isinlist(modelvarnamesv);
+        j2 = terms[i].varnames[2].isinlist(modelvarnamesv);
+        j3 = terms[i].varnames[0].isinlist(modelvarnamesv);
+        }
+
+      //if(varcoeff==true && type==MCMC::mrfkr1)
+      //  {
+      //  outerror("ERROR: Varying coefficients are not possible in combination with 'psplineintertact'!\n");
+      //  return true;
+      //  }
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
@@ -3445,25 +3847,31 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
 
       f = (terms[i].options[9]).strtodouble(df_lambdamax);
       f = (terms[i].options[10]).strtodouble(df_lambdamin);
-
-      if (terms[i].options[11] == "true")
-         lambdamax_opt = true;
-      else
-         lambdamax_opt = false;
+      f = (terms[i].options[11]).strtodouble(dfstart);
 
       if (terms[i].options[12] == "true")
-         lambdamin_opt = true;
+         spnot = false;
       else
-         lambdamin_opt = false;
+         spnot = true;
 
       f = (terms[i].options[13]).strtodouble(numb);
 
       if (terms[i].options[14] == "true")
-         df_equidist = true;
-      else
          df_equidist = false;
+      else
+         df_equidist = true;
 
       f = (terms[i].options[15]).strtodouble(df_accuracy);
+
+      if (terms[i].options[16] == "true")
+         center = true;
+      else
+         center = false;
+
+      if (terms[i].options[17] == "true")
+         nofixed = true;
+      else
+         nofixed = false;
 
       MCMC::knotpos po;
       if (knots.getvalue() == "equidistant")
@@ -3476,94 +3884,101 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
 
       ST::string help  = terms[i].varnames[0] + "_" + terms[i].varnames[1];
 
-      make_paths(collinpred,pathnonp,pathres,title,help,"",
+      if(varcoeff==false)
+        make_paths(collinpred,pathnonp,pathres,title,help,"",
                  "_pspline.raw","_pspline.res","_pspline");
-
-
-      FULLCOND_pspline_stepwise * mainp1;
-      FULLCOND_pspline_stepwise * mainp2;
-      unsigned main1=0;
-      unsigned main2=0;
-
-      //FULLCOND_pspline_surf_gaussian * inter;
-      FULLCOND * inter;
-
-      unsigned j;
-      for (j=0;j<fcpsplinestep.size();j++)
+      else
         {
-        if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
-             (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&
+        help  = terms[i].varnames[1] + "_" + terms[i].varnames[2];
+        make_paths(collinpred,pathnonp,pathres,title,help,terms[i].varnames[0],
+                 "_pspline.raw","_pspline.res","_pspline");
+        }
+
+      if(varcoeff==false)
+        {
+        FULLCOND_pspline_stepwise * mainp1;
+        FULLCOND_pspline_stepwise * mainp2;
+        unsigned main1=0;
+        unsigned main2=0;
+
+        //FULLCOND_pspline_surf_gaussian * inter;
+        FULLCOND * inter;
+
+        unsigned j;
+        for (j=0;j<fcpsplinestep.size();j++)
+          {
+          if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+               (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&
+                fcpsplinestep[j].get_col() == collinpred
+              )
+            {
+            mainp1 = &fcpsplinestep[j];
+            if(mainp1->get_gridsize() != gridsize)
+              {
+              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp1->get_nrknots() != nrknots)
+              {
+              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp1->get_degree() != degree)
+              {
+              outerror("ERROR: degree for interaction term and main effects must be the same\n");
+              return true;
+              }
+            main1 ++;
+            }
+
+
+          if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+              (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[1]) &&
               fcpsplinestep[j].get_col() == collinpred
-            )
-          {
-          mainp1 = &fcpsplinestep[j];
-          if(mainp1->get_gridsize() != gridsize)
+              )
             {
-            outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
-            return true;
+            mainp2 = &fcpsplinestep[j];
+            if(mainp2->get_gridsize() != gridsize)
+              {
+              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp2->get_nrknots() != nrknots)
+              {
+              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp2->get_degree() != degree)
+              {
+              outerror("ERROR: degree for interaction term and main effects must be the same\n");
+              return true;
+              }
+            main2 ++;
             }
-          if(mainp1->get_nrknots() != nrknots)
-            {
-            outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
-            return true;
-            }
-          if(mainp1->get_degree() != degree)
-            {
-            outerror("ERROR: degree for interaction term and main effects must be the same\n");
-            return true;
-            }
-          main1 ++;
           }
 
-
-        if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
-            (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[1]) &&
-            fcpsplinestep[j].get_col() == collinpred
-            )
+        datamatrix v1 = D.getCol(j1);
+        datamatrix v2 = D.getCol(j2);
+        double mean1 = v1.mean(0);
+        double mean2 = v2.mean(0);
+        double * v1z = v1.getV();
+        double * v2z = v2.getV();
+        for(j=0;j<v1.rows();j++,v1z++,v2z++)
           {
-          mainp2 = &fcpsplinestep[j];
-          if(mainp2->get_gridsize() != gridsize)
-            {
-            outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
-            return true;
-            }
-          if(mainp2->get_nrknots() != nrknots)
-            {
-            outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
-            return true;
-            }
-          if(mainp2->get_degree() != degree)
-            {
-            outerror("ERROR: degree for interaction term and main effects must be the same\n");
-            return true;
-            }
-          main2 ++;
+          *v1z -= mean1;
+          *v2z -= mean2;
           }
-
-        }
-
-      datamatrix v1 = D.getCol(j1);
-      datamatrix v2 = D.getCol(j2);
-      double mean1 = v1.mean(0);
-      double mean2 = v2.mean(0);
-      double * v1z = v1.getV();
-      double * v2z = v2.getV();
-      for(j=0;j<v1.rows();j++,v1z++,v2z++)
-        {
-        *v1z -= mean1;
-        *v2z -= mean2;
-        }
-      if(modelvarnamesv[j1] == modelvarnamesv[j1+2] && modelvarnamesv[j2] == modelvarnamesv[j2+2])
-        {
-        modelvarnamesv[j1+2] = modelvarnamesv[j1+2] + "_c";
-        modelvarnamesv[j2+2] = modelvarnamesv[j2+2] + "_c";
+        //if(modelvarnamesv[j1] == modelvarnamesv[j1+2] && modelvarnamesv[j2] == modelvarnamesv[j2+2])
+        //  {
+        modelvarnamesv[j1] = modelvarnamesv[j1] + "_c";     // vorher j1+2
+        modelvarnamesv[j2] = modelvarnamesv[j2] + "_c";     // vorher j2+2
 
         v1z = v1.getV();
         v2z = v2.getV();
         for(j=0;j<v1.rows();j++,v1z++,v2z++)
           {
-          D(j,j1+2) = *v1z;
-          D(j,j2+2) = *v2z;
+          D(j,j1) = *v1z;
+          D(j,j2) = *v2z;
           }
 
         ST::string path = outfile.getvalue() + add_name + "_predictmean.raw";
@@ -3571,10 +3986,8 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
           distr_gaussian[distr_gaussian.size()-1].set_predict(path,pathdev,&D,modelvarnamesv);
 
-        }
+        //  }
 
-      if (check_gaussian())
-        {
         fcpsplinesurfstep.push_back(
         FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
                                       fcconst_intercept,
@@ -3591,12 +4004,159 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
                                       true,
                                       collinpred
                                       ));
+
+        //if (constlambda.getvalue() == true)
+        //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
+
+        inter = &fcpsplinesurfstep[fcpsplinesurfstep.size()-1];
+
+        if ( (main1==1) && (main2==1) )
+          {
+          if(type == MCMC::mrflinear || type == MCMC::mrfquadratic8)
+            outerror("ERROR: Use 'psplineinteract' for interaction terms!\n");
+            
+          hierarchical_model_yesno = true;
+
+          ST::string pathnonpt;
+          ST::string pathrest;
+          ST::string titlet;
+
+          make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
+                 "_pspline_total.raw","_pspline_total.res","_pspline_total");
+
+          fcpsplinesurfstep[fcpsplinesurfstep.size()-1].
+                            init_maineffects(mainp1,mainp2,pathnonpt,pathrest);
+          mainp1->set_interaction();
+          mainp1->set_pointer_to_interaction(inter);
+          mainp2->set_interaction();
+          mainp2->set_pointer_to_interaction(inter);
+          }
+        else if ( (main1==0) && (main2==0) )
+          {
+          if(type == MCMC::mrfkr1)
+            {
+            outerror("ERROR: This penalty is supported for ANOVA type interaction models only!\n");
+            return true;
+            }
+          }
+        else if ( (main1==1) || (main2==1) )
+          {
+          outerror("ERROR: Both main effects are necessary for interaction terms!\n");
+          return true;
+          }
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[0] + "_c");
+        na.push_back(terms[i].varnames[1] + "_c");
+        na.push_back(terms[i].varnames[0] + "_c*" + terms[i].varnames[1] + "_c");
+        na.push_back(terms[i].varnames[0] + "_c*" + terms[i].varnames[1] + "_c");
+
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].init_names(na);
+
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_stepwise_options(
+               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
+               numb,df_equidist);
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_dfstart(dfstart);
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_nofixed(nofixed);
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_stepwise_accuracy(df_accuracy);
+
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcpsplinesurfstep[fcpsplinesurfstep.size()-1]);
         }
-      else
+      else // if(varcoeff == true)
         {
+        FULLCOND_pspline_stepwise * mainp1;
+        FULLCOND_pspline_stepwise * mainp2;
+        unsigned main1=0;
+        unsigned main2=0;
+
+        //FULLCOND_pspline_surf_gaussian * inter;
+        FULLCOND * inter;
+
+        unsigned j;
+        for (j=0;j<fcpsplinestep.size();j++)
+          {
+          if  ( ((fcpsplinestep[j].get_datanames()).size() >= 2) &&
+               (fcpsplinestep[j].get_datanames()[1] == terms[i].varnames[1]) &&
+                fcpsplinestep[j].get_col() == collinpred
+              )
+            {
+            mainp1 = &fcpsplinestep[j];
+            if(mainp1->get_gridsize() != gridsize)
+              {
+              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp1->get_nrknots() != nrknots)
+              {
+              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp1->get_degree() != degree)
+              {
+              outerror("ERROR: degree for interaction term and main effects must be the same\n");
+              return true;
+              }
+            main1 ++;
+            }
+
+
+          if  ( ((fcpsplinestep[j].get_datanames()).size() >= 2) &&
+              (fcpsplinestep[j].get_datanames()[1] == terms[i].varnames[2]) &&
+              fcpsplinestep[j].get_col() == collinpred
+              )
+            {
+            mainp2 = &fcpsplinestep[j];
+            if(mainp2->get_gridsize() != gridsize)
+              {
+              outerror("ERROR: gridsize for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp2->get_nrknots() != nrknots)
+              {
+              outerror("ERROR: number of knots for interaction term and main effects must be the same\n");
+              return true;
+              }
+            if(mainp2->get_degree() != degree)
+              {
+              outerror("ERROR: degree for interaction term and main effects must be the same\n");
+              return true;
+              }
+            main2 ++;
+            }
+          }
+
+        datamatrix v1 = D.getCol(j1);
+        datamatrix v2 = D.getCol(j2);
+        double mean1 = v1.mean(0);
+        double mean2 = v2.mean(0);
+        double * v1z = v1.getV();
+        double * v2z = v2.getV();
+        for(j=0;j<v1.rows();j++,v1z++,v2z++)
+          {
+          *v1z -= mean1;
+          *v2z -= mean2;
+          }
+        modelvarnamesv[j1] = modelvarnamesv[j1] + "_c";     // vorher j1+2
+        modelvarnamesv[j2] = modelvarnamesv[j2] + "_c";     // vorher j2+2
+
+        v1z = v1.getV();
+        v2z = v2.getV();
+        for(j=0;j<v1.rows();j++,v1z++,v2z++)
+          {
+          D(j,j1) = *v1z;
+          D(j,j2) = *v2z;
+          }
+
+        ST::string path = outfile.getvalue() + add_name + "_predictmean.raw";
+        ST::string pathdev = outfile.getvalue() + add_name + "_deviance_sample.raw";
+        if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+          distr_gaussian[distr_gaussian.size()-1].set_predict(path,pathdev,&D,modelvarnamesv);
+
         fcpsplinesurfstep.push_back(
         FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
                                       fcconst_intercept,
+                                      D.getCol(j3),
                                       v1,
                                       v2,
                                       title,
@@ -3607,78 +4167,113 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
                                       pathnonp,
                                       pathres,
                                       outfile.getvalue(),
-                                      false,
+                                      true,
+                                      center,
                                       collinpred
                                       ));
-        }
 
-        //if (constlambda.getvalue() == true)
-        //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
-
-      inter = &fcpsplinesurfstep[fcpsplinesurfstep.size()-1];
-
-      if ( (main1==1) && (main2==1) )
-        {
-        ST::string pathnonpt;
-        ST::string pathrest;
-        ST::string titlet;
-
-        make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
-               "_pspline_total.raw","_pspline_total.res","_pspline_total");
-
-        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].
-           init_maineffects(mainp1,mainp2,pathnonpt,pathrest);
-        mainp1->set_interaction();
-        mainp1->set_pointer_to_interaction(inter);
-        mainp2->set_interaction();
-        mainp2->set_pointer_to_interaction(inter);
-        }
-      else if ( (main1==0) && (main2==0) )
-        {
-        }
-      else if ( (main1==1) || (main2==1) )
-        {
-        ST::string pathnonpt;
-        ST::string pathrest;
-        ST::string titlet;
-
-        make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
-               "_pspline_total.raw","_pspline_total.res","_pspline_total");
-
-        if(main1==1)
+        if(center == true)
           {
+          hierarchical_model_yesno = true;
+          FULLCOND * mainp3;
+          unsigned main3=0;
+
+          unsigned j;
+          for (j=0;j<fcpsplinestep.size();j++)
+            {
+            if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+                (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&
+                fcpsplinestep[j].get_col() == collinpred )
+                {
+                mainp3 = &fcpsplinestep[j];
+                main3 ++;
+                }
+            }
+          if(main3 == 0)
+            {
+            for (j=0;j<factor.size();j++)
+              {
+              if  ( ((factor[j].get_datanames()).size() == 1) &&
+                  (factor[j].get_datanames()[0] == terms[i].varnames[0]) &&
+                  factor[j].get_col() == collinpred )
+                  {
+                  mainp3 = &factor[j];
+                  main3 ++;
+                  }
+              }
+            }
+
+          if(main3 == 0)
+            {
+            outerror("ERROR: Variable " + terms[i].varnames[2] + " must be included in the regress command! \n");
+            return true;
+            }
+          else
+            {
+            inter = &fcpsplinesurfstep[fcpsplinesurfstep.size()-1];
+            mainp3->set_pointer_to_interaction(inter);
+            fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_pointer_to_interaction(mainp3);
+            }
+          }
+
+        inter = &fcpsplinesurfstep[fcpsplinesurfstep.size()-1];
+
+        if ( (main1==1) && (main2==1) )
+          {
+          if(type == MCMC::mrflinear || type == MCMC::mrfquadratic8)
+            outerror("ERROR: Use 'psplineinteract' for interaction terms!\n");
+            
+          hierarchical_model_yesno = true;
+
+          ST::string pathnonpt;
+          ST::string pathrest;
+          ST::string titlet;
+
+          make_paths(collinpred,pathnonpt,pathrest,titlet,help,"",
+                 "_pspline_total.raw","_pspline_total.res","_pspline_total");
+
           fcpsplinesurfstep[fcpsplinesurfstep.size()-1].
-                      init_maineffect(mainp1,pathnonpt,pathrest,1);  //  -> ändern zu init_maineffect(mainp1,pathnonpt,pathrest),
-                                                                // d.h. neue Fkt. in "fullcond_pspline_surf_gaussian.cpp"
+                            init_maineffects(mainp1,mainp2,pathnonpt,pathrest);
           mainp1->set_interaction();
           mainp1->set_pointer_to_interaction(inter);
-          }
-        else
-          {
-          fcpsplinesurfstep[fcpsplinesurfstep.size()-1].
-                      init_maineffect(mainp2,pathnonpt,pathrest,2);  // siehe oben
           mainp2->set_interaction();
           mainp2->set_pointer_to_interaction(inter);
           }
-        }
+        else if ( (main1==0) && (main2==0) )
+          {
+          if(type == MCMC::mrfkr1)
+            {
+            outerror("ERROR: This penalty is supported for ANOVA type interaction models only!\n");
+            return true;
+            }
+          }
+        else if ( (main1==1) || (main2==1) )
+          {
+          outerror("ERROR: Both main effects are necessary for interaction terms!\n");
+          return true;
+          }
 
         vector<ST::string> na;
-        na.push_back(terms[i].varnames[0] + "_c*" + terms[i].varnames[1] + "_c");
-        na.push_back(terms[i].varnames[0] + "_c*" + terms[i].varnames[1] + "_c");
+        na.push_back(terms[i].varnames[0]);
+        na.push_back("(" + terms[i].varnames[1] + "_c*" + terms[i].varnames[2] + "_c)");
+        if(center == true)
+          na.push_back(terms[i].varnames[0] + "*(" + terms[i].varnames[1] + "_c*" + terms[i].varnames[2] + "_c)");
+        else
+          na.push_back(terms[i].varnames[0]);
 
         fcpsplinesurfstep[fcpsplinesurfstep.size()-1].init_names(na);
 
         fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_stepwise_options(
-               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+               lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
                numb,df_equidist);
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_dfstart(dfstart);
         fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_stepwise_accuracy(df_accuracy);
 
         fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcpsplinesurfstep[fcpsplinesurfstep.size()-1]);
+        }
       }
-
     }
-
 
   return false;
 
@@ -3690,13 +4285,13 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
   long h;
   unsigned degree,nrknots;
   int gridsize,f;
-  double lambda,lambdamin,lambdamax,lambdastart,df_lambdamax,df_lambdamin,numb;
-  bool forced_into,lambdamax_opt,lambdamin_opt,df_equidist;
-  //bool varcoeff;
+  double lambda,lambdamin,lambdamax,lambdastart,df_lambdamax,df_lambdamin,dfstart,numb;
+  bool forced_into,spnot,df_equidist,nofixed;
+  bool varcoeff, center;
   double df_accuracy;
 
   unsigned i;
-  int j;
+  int j,j1,j2;
   for(i=0;i<terms.size();i++)
     {
     if ( nonpgeospline.checkvector(terms,i) == true )
@@ -3708,7 +4303,17 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
       else if (terms[i].options[0] == "geosplinerw2")
         type = MCMC::mrfquadratic8;
 
-      j = terms[i].varnames[0].isinlist(modelvarnamesv);
+      if (terms[i].varnames.size()==1)
+        {
+        varcoeff=false;
+        j = terms[i].varnames[0].isinlist(modelvarnamesv);
+        }
+      else
+        {
+        varcoeff=true;
+        j1 = terms[i].varnames[0].isinlist(modelvarnamesv); // interaction var
+        j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+        }
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
@@ -3748,25 +4353,32 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
 
       f = (terms[i].options[9]).strtodouble(df_lambdamax);
       f = (terms[i].options[10]).strtodouble(df_lambdamin);
-
-      if (terms[i].options[11] == "true")
-         lambdamax_opt = true;
-      else
-         lambdamax_opt = false;
+      f = (terms[i].options[11]).strtodouble(dfstart);
 
       if (terms[i].options[12] == "true")
-         lambdamin_opt = true;
+         spnot = false;
       else
-         lambdamin_opt = false;
+         spnot = true;
 
       f = (terms[i].options[13]).strtodouble(numb);
 
       if (terms[i].options[14] == "true")
-         df_equidist = true;
-      else
          df_equidist = false;
+      else
+         df_equidist = true;
 
       f = (terms[i].options[15]).strtodouble(df_accuracy);
+
+      if (terms[i].options[16] == "true")
+         center = true;
+      else
+         center = false;
+
+      if (terms[i].options[17] == "true")
+         nofixed = true;
+      else
+         nofixed = false;
+
 
       gridsize = -1;
       MCMC::knotpos po;
@@ -3778,12 +4390,15 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
       if (f==1)
         return true;
 
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+      if(!varcoeff)
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_geospline.raw","_geospline.res","_geospline");
+      else
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],terms[i].varnames[0],
                  "_geospline.raw","_geospline.res","_geospline");
 
-      if (check_gaussian())
+      if(!varcoeff)
         {
-
         fcpsplinesurfstep.push_back(
         FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],
                                       distr[distr.size()-1],fcconst_intercept,
@@ -3798,14 +4413,18 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
                                       true,
                                       collinpred
                                       ));
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[0]);
+
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].init_names(na);
         }
       else
         {
-        // NONGAUSSIAN CASE
         fcpsplinesurfstep.push_back(
-        FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],
-                                      distr[distr.size()-1],fcconst_intercept,
-                                      D.getCol(j),m,terms[i].options[4],
+        FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
+                                      fcconst_intercept,
+                                      D.getCol(j1),D.getCol(j2),m,terms[i].options[4],
                                       title,
                                       nrknots,degree,po,
                                       lambda,
@@ -3813,22 +4432,94 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
                                       type,
                                       pathnonp,
                                       pathres,
-                                      false,
+                                      true,
+                                      center,
                                       collinpred
                                       ));
+
+        FULLCOND * inter;
+
+        if(center == true)
+          {
+          hierarchical_model_yesno = true;
+          FULLCOND * mainp1;
+          unsigned main1=0;
+
+          unsigned j;
+          for (j=0;j<fcpsplinestep.size();j++)
+            {
+            if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+                (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&
+                fcpsplinestep[j].get_col() == collinpred )
+                {
+                mainp1 = &fcpsplinestep[j];
+                main1 ++;
+                }
+            }
+          if(main1 == 0)
+            {
+            for (j=0;j<factor.size();j++)
+              {
+              if  ( ((factor[j].get_datanames()).size() == 1) &&
+                  (factor[j].get_datanames()[0] == terms[i].varnames[0]) &&
+                  factor[j].get_col() == collinpred )
+                  {
+                  mainp1 = &factor[j];
+                  main1 ++;
+                  }
+              }
+            }
+
+          if(main1 == 0)
+            {
+            outerror("ERROR: Variable " + terms[i].varnames[2] + " must be included in the regress command! \n");
+            return true;
+            }
+          else
+            {
+            inter = &fcpsplinesurfstep[fcpsplinesurfstep.size()-1];
+            mainp1->set_pointer_to_interaction(inter);
+            fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_pointer_to_interaction(mainp1);
+            }
+          }
+
+        // Zeiger auf Haupteffekt
+        FULLCOND * mainp2;
+        unsigned main2=0;
+
+        for (j=0;j<fcpsplinesurfstep.size();j++)
+          {
+          if  ( ((fcpsplinesurfstep[j].get_datanames()).size() == 1) &&
+                (fcpsplinesurfstep[j].get_datanames()[0] == terms[i].varnames[1]) &&
+                fcpsplinesurfstep[j].get_col() == collinpred )
+                {
+                mainp2 = &fcpsplinesurfstep[j];
+                main2 ++;
+                }
+            }
+        if(main2 == 1)
+          {
+          inter = &fcpsplinesurfstep[fcpsplinesurfstep.size()-1];
+          mainp2->set_pointer_to_interaction(inter);
+          fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_pointer_to_interaction(mainp2);
+          }
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[0]);
+        na.push_back(terms[i].varnames[1]);
+        if(center == true)
+          na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+        else
+          na.push_back(terms[i].varnames[0]);
+
+        fcpsplinesurfstep[fcpsplinesurfstep.size()-1].init_names(na);
         }
 
-        //if (constlambda.getvalue() == true)
-        //  fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].set_lambdaconst(lambda);
-
-      vector<ST::string> na;
-      na.push_back(terms[i].varnames[0]);
-
-      fcpsplinesurfstep[fcpsplinesurfstep.size()-1].init_names(na);
-
       fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_stepwise_options(
-             lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,lambdamax_opt,lambdamin_opt,
+             lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
              numb,df_equidist);
+      fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_dfstart(dfstart);
+      fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_nofixed(nofixed);
       fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_stepwise_accuracy(df_accuracy);
 
       fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_fcnumber(fullcond.size());
@@ -3842,6 +4533,186 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
   }
 
 
+/*bool stepwisereg::create_projection(const unsigned & collinpred)
+  {
+
+  long h;
+  unsigned degree,nrknots;
+  double lambda;
+  int gridsize;
+  int f;
+  double lambdamin;
+  double lambdamax;
+  double lambdastart;
+  bool forced_into;
+  double df_lambdamax;
+  double df_lambdamin;
+  double dfstart;
+  bool spnot;
+  double numb;
+  bool df_equidist;
+  double df_accuracy;
+  ST::string monotone;
+  bool center;
+  unsigned nterms;
+
+  unsigned i,j,k;
+  vector<int> js;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( termprojection.checkvector(terms,i) == true )  // ???
+      {
+
+      // --------------- reading options, term information ---------------------
+      MCMC::fieldtype type;
+
+      if (terms[i].options[0] == "projection_rw1")
+        type = MCMC::RW1;
+      else
+        type = MCMC::RW2;
+
+      unsigned nrvar = terms[i].varnames.size();
+      datamatrix variables = datamatrix(D.rows(),nrvar,0);
+      for(j=0;j<nrvar;j++)
+        {
+        js.push_back(terms[i].varnames[j].isinlist(modelvarnamesv));
+        }
+
+      double * vz = variables.getV();
+      for(k=0;k<D.rows();k++)
+        {
+        for(j=0;j<nrvar;j++,vz++)
+          {
+          *vz = D(k,js[j]); // - D.mean(j);
+          }
+        }
+
+
+      f = (terms[i].options[1]).strtolong(h);
+      degree = unsigned(h);
+
+      f = (terms[i].options[2]).strtolong(h);
+      nrknots = unsigned(h);
+
+      f = (terms[i].options[3]).strtodouble(lambda);
+
+      f = (terms[i].options[4]).strtolong(h);
+      gridsize = unsigned(h);
+
+      f = (terms[i].options[7]).strtodouble(lambdamin);
+      f = (terms[i].options[8]).strtodouble(lambdamax);
+      f = (terms[i].options[9]).strtodouble(lambdastart);
+
+      if (terms[i].options[10] == "true")
+         forced_into = true;
+      else
+         forced_into = false;
+
+      f = (terms[i].options[11]).strtodouble(df_lambdamax);
+      f = (terms[i].options[12]).strtodouble(df_lambdamin);
+      f = (terms[i].options[13]).strtodouble(dfstart);
+
+      if (terms[i].options[14] == "true")
+         spnot = false;
+      else
+         spnot = true;
+
+      f = (terms[i].options[15]).strtodouble(numb);
+
+      if (terms[i].options[16] == "true")
+         df_equidist = false;
+      else
+         df_equidist = true;
+      f = (terms[i].options[17]).strtodouble(df_accuracy);
+
+      monotone = terms[i].options[18];
+
+      if (terms[i].options[19] == "true")
+         center = true;
+      else
+         center = false;
+
+      f = (terms[i].options[20]).strtolong(h);
+      nterms = unsigned(h);
+
+      MCMC::knotpos po;
+
+      if (knots.getvalue() == "equidistant")
+        po = MCMC::equidistant;
+      else
+        po = MCMC::quantiles;
+
+      if (f==1)
+        return true;
+
+
+      // -------------end: reading options, term information -------------------
+
+      vector<FULLCOND_projection*> zeiger;
+      ST::string helpname = terms[i].varnames[0];
+      for(j=1;j<nrvar;j++)
+        helpname = helpname + "." + terms[i].varnames[j];
+
+      for(k=0;k<nterms;k++)
+        {
+
+        //--------- creating path for samples and and results, creating title ----
+
+        ST::string helppath = helpname;
+        if(zeiger.size()>0)
+          helppath = helpname + "_" + ST::inttostring(zeiger.size()+1);
+        make_paths(collinpred,pathnonp,pathres,title,helppath,"",
+                 "_projection.raw","_projection.res","");
+
+        //----- end: creating path for samples and and results, creating title ---
+
+        fcprojection.push_back(
+        FULLCOND_projection(&generaloptions[generaloptions.size()-1],
+                                              distr[distr.size()-1],
+                                              fcconst_intercept,
+                                              variables,
+                                              nrknots,
+                                              degree,
+                                              po,
+                                              type,
+                                              monotone,    // vorher: "unrestricted"
+                                              title,
+                                              pathnonp,
+                                              pathres,
+                                              false,
+                                              //lambda,
+                                              gridsize,
+                                              //false,
+                                              zeiger,
+                                              nterms,
+                                              collinpred
+                                             )
+                           );
+
+        vector<ST::string> na;
+        for(j=0;j<nrvar;j++)
+          na.push_back(terms[i].varnames[j]);
+        fcprojection[fcprojection.size()-1].init_names(na);
+
+        fcprojection[fcprojection.size()-1].set_stepwise_options(
+             lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
+             numb,df_equidist);
+        fcprojection[fcprojection.size()-1].set_dfstart(dfstart);
+        fcprojection[fcprojection.size()-1].set_stepwise_accuracy(df_accuracy);
+
+        fcprojection[fcprojection.size()-1].set_fcnumber(fullcond.size());
+
+        zeiger.push_back(&fcprojection[fcprojection.size()-1]);
+        fullcond.push_back(&fcprojection[fcprojection.size()-1]);
+        }
+      }
+
+    }
+
+  return false;
+  }       */
+
+
 void stepwisereg::describe(optionlist & globaloptions)
   {
   statobject::describe(globaloptions);
@@ -3852,6 +4723,10 @@ void stepwisereg::describe(optionlist & globaloptions)
 //------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
+
+
+
+
 
 
 

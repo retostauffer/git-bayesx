@@ -19,7 +19,7 @@
 #include"mcmc.h"
 
 #include"distribution.h"
-#include"nbinomial.h"
+//#include"nbinomial.h"
 
 #include"mcmc_const_stepwise.h"
 
@@ -31,6 +31,7 @@
 #include"mcmc_pspline_surf.h"
 #include"fullcond_pspline_surf_stepwise.h"
 #include"mcmc_pspline.h"
+//#include"fullcond_projection.h"
 
 #include"randomeffect_stepwise.h"
 
@@ -47,9 +48,9 @@ using MCMC::DISTRIBUTION_binomial;
 using MCMC::DISTRIBUTION_binomial_latent;
 using MCMC::DISTRIBUTION_poisson;
 using MCMC::DISTRIBUTION_gamma2;
-using MCMC::DISTRIBUTION_nbinomial;
-using MCMC::DISTRIBUTION_multinom;
-using MCMC::DISTRIBUTION_multinomial_latent;
+//using MCMC::DISTRIBUTION_nbinomial;
+using MCMC::DISTRIBUTION_multinom2;
+//using MCMC::DISTRIBUTION_multinomial_latent;
 using MCMC::DISTRIBUTION_cumulative_latent3;
 using MCMC::FULLCOND;
 using MCMC::FULLCOND_const;
@@ -62,6 +63,7 @@ using MCMC::FULLCOND_pspline_stepwise;
 using MCMC::FULLCOND_pspline_surf;
 using MCMC::FULLCOND_pspline_surf_stepwise;
 using MCMC::FULLCOND_random_stepwise;
+//using MCMC::FULLCOND_projection;
 using MCMC::STEPWISErun;
 using MCMC::STEPMULTIrun;
 
@@ -120,6 +122,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
   simpleoption ganzematrix;
 
   stroption criterion;
+  doubleoption gcvfactor;
 
   doubleoption proportion;
 
@@ -136,10 +139,16 @@ class __EXPORT_TYPE stepwisereg : public statobject
   simpleoption fine_tuning;
   simpleoption fine_local;
 
-  simpleoption maveraging;
-  intoption window;
+  intoption bootstrap;
+  simpleoption unconditional;
+  //simpleoption maveraging;
+  //intoption window;
+  intoption setseed;
 
   simpleoption ci;
+  intoption iterations;                // Number of iterations
+  intoption burnin;                    // Number of burnin iterations
+  intoption step;                      // Thinning parameter
   doubleoption level1;
   doubleoption level2;
 
@@ -201,6 +210,8 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
 
   friend void regressrun(stepwisereg & b);
+
+  friend void mregressrun(stepwisereg & b);
 
   // end for method stepwise
 
@@ -274,6 +285,17 @@ class __EXPORT_TYPE stepwisereg : public statobject
   friend void texsummaryrun(stepwisereg & b);
 
 
+  // ---------------------  for method 'getsample' -----------------------------
+
+  optionlist getsampleoptions;
+
+  modelStandard mgetsample;
+
+  useDataset usegetsample;
+
+  friend void __EXPORT_TYPE getsamplerun(stepwisereg & b);
+
+
 //------------------------------ DISTRIBUTION ----------------------------------
 
   vector<ST::string> distrstring;
@@ -286,10 +308,10 @@ class __EXPORT_TYPE stepwisereg : public statobject
   DISTRIBUTION_binomial_latent distr_binomlat;
   DISTRIBUTION_poisson distr_poisson;
   DISTRIBUTION_gamma2 distr_gamma;
-  DISTRIBUTION_nbinomial distr_nbinomial;
+//  DISTRIBUTION_nbinomial distr_nbinomial;
   //DISTRIBUTION_multgaussian distr_multgaussian;
-  DISTRIBUTION_multinom distr_multinom;
-  DISTRIBUTION_multinomial_latent distr_multinom_latent;
+  DISTRIBUTION_multinom2 distr_multinom;
+//  DISTRIBUTION_multinomial_latent distr_multinom_latent;
   DISTRIBUTION_cumulative_latent3 distr_cumlat3;
 
   doubleoption reference;
@@ -297,15 +319,22 @@ class __EXPORT_TYPE stepwisereg : public statobject
   vector<DISTRIBUTION *> distr;              // Pointer to distribution objects
 
 
-  bool create_distribution(void);
+  bool create_distribution(ST::string method);
 
   vector<basic_termtype*> termtypes;
   modelterm modreg;
   vector<term> terms;
 
+  // for multivariate regression
+
+  modeltermmult modregmult;
+  vector < vector <term> > termsmult;
+
   use udata;
 
   bool resultsyesno;
+  bool bootyesno;
+  bool hierarchical_model_yesno;
 
 //--------------------------- for the offset -----------------------------------
 
@@ -358,6 +387,10 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   bool create_interactionspspline(const unsigned & collinpred=0);
   bool create_geospline(const unsigned & collinpred=0);
+
+//  vector<FULLCOND_projection> fcprojection;
+//  term_projection_stepwise termprojection;
+//  bool create_projection(const unsigned & collinpred=0);
 
 //------------------------ for nonparametric terms -----------------------------
 
