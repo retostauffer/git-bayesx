@@ -640,7 +640,7 @@ void mregressrun(bayesreg & b)
     b.resultsyesno = false;
     }
 
- 
+
 #if defined(JAVA_OUTPUT_WINDOW)
     if(b.nographs.getvalue() == false)
     {
@@ -679,7 +679,7 @@ void mregressrun(bayesreg & b)
          }
        }
 
-    b.newcommands.push_back(b.name + ".texsummary");
+//usefile c:\temp\temp.prg    b.newcommands.push_back(b.name + ".texsummary");
     }
 #endif
 
@@ -1227,12 +1227,10 @@ void texsummaryrun(bayesreg & b)
   outbat << "cd " << path2 << endl;
   outbat << path.substr(0,1) << ":" << endl;
   outbat << "latex " << path << "_model_summary.tex" << endl;
-    //if(FileExists((path + "_model_summary.dvi").strtochar()))
   outbat << "dvips " << path << "_model_summary.dvi" << endl;
   outbat.close();
   system(helpbat.strtochar());
   remove(helpbat.strtochar());
-
 #endif
 
   }
