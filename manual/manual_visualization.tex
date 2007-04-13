@@ -10,7 +10,7 @@ same possibilities to visualize results, we describe them
 simultaneously in the next section. Tools for the visualization of
 autocorrelations for MCMC samples are described in
 \autoref{plotautocor}. An alternative way to visualize results is to
-use the S-Plus functions shipped together with BayesX. These
+use the R / S-Plus functions shipped together with BayesX. These
 functions are described in \autoref{splus}.
 
 \section{BayesX functions} \label{bayesxplot}
@@ -643,18 +643,19 @@ method \em\texttt{plotautocor}}}
 
 \clearpage
 
-\section{S-plus functions} \label{splus} \index{S-plus functions}
+\section{R / S-plus functions} \label{splus} \index{S-plus functions}
+ \index{R functions}
 
 Some S-plus and R functions for plotting estimated functions are
 shipped together with {\em BayesX}. These functions can be found in
 the subdirectory #sfunctions# of the installation directory.
 \autoref{plotfunctions} gives a first overview over the different
 functions and their abilities. The usage of the functions is very
-simple so that also users not familiar with the S-plus environment
-should be able to apply the functions without any difficulties. The
-following subsections describe how to install the functions in
-S-plus and give a detailed description of the usage of the
-respective functions.
+simple so that also users not familiar with the R / S-plus
+environment should be able to apply the functions without any
+difficulties. The following subsections describe how to install the
+functions in R / S-plus and give a detailed description of the usage
+of the respective functions.
 
 \begin{table}[ht]
 \begin{center}
@@ -667,17 +668,17 @@ respective functions.
 #plotsample# & visualizes sampling paths of sampled parameters \\
 #readbndfile# & reads in boundaries of geographical maps \\
 #drawmap# & visualizes estimation results for spatial covariates \\
-#plotsurf# & visualizes estimated 2 dimensional surfaces \\
+#plotsurf# & visualizes estimated twodimensional surfaces \\
 \hline
 \end{tabular}
-{\em\caption{\label{plotfunctions} Overview over S-plus
+{\em\caption{\label{plotfunctions} Overview over R / S-plus
 functions}}
 \end{center}
 \end{table}
 
 
 \subsection{Installation of the functions} \index{S-plus
-functions!installation}
+functions!installation}\index{R functions!installation}
 
 Installation of the different functions is very easy. The S-plus
 code for the functions is stored in the directory {\em
@@ -689,12 +690,13 @@ Afterwards the functions will be installed by entering
 
 in the {\em Commands Window} of S-plus. Note that a double backslash
 is required in S-plus to specify a directory correctly. For use with
-the R package the file #plot.r# is supplied, which contains slightly
-modified versions of the S-plus functions.
+R the file #plot.r# is supplied, which contains slightly modified
+versions of the S-plus functions.
 
 \subsection{Plotting nonparametric functions} \label{splusplotnonp}
-\index{S-plus functions!plotting nonparametric functions}
-\index{plotting nonparametric functions}
+\index{S-plus functions!plotting nonparametric functions} \index{R
+functions!plotting nonparametric functions} \index{plotting
+nonparametric functions}
 
 This subsection describes the usage of the function #plotnonp# for
 visualizing nonparametric function estimates.
@@ -734,7 +736,7 @@ possible (and very easy) to visualize the estimated nonparametric
 function with any software package that has plotting capabilities, a
 fast and easy way of plotting estimation results without knowing the
 particular structure of the results-file is desirable. This is the
-task of the S-plus function #plotnonp#.
+task of function #plotnonp#.
 
 The function has only one required and many optional arguments.
 The required argument is the directory and the filename where
@@ -743,12 +745,11 @@ entering the command
 
 #> plotnonp("c:\\bayes\\output\\reg_f_X_rw.res")#
 
-a S-plus {\em graphic window} will be opened with the plotted
-function estimate. The function plots the estimated effect
-together with the posterior 2.5\%, 10\%, 90\% and 97.5\%
-quantiles. One advantage of the function is that after its
-application no permanent objects will remain in the S-plus
-environment.
+a graphic window will be opened with the plotted function estimate.
+The function plots the estimated effect together with the posterior
+2.5\%, 10\%, 90\% and 97.5\% quantiles. One advantage of the
+function is that after its application no permanent objects will
+remain in the R / S-plus environment.
 
 Besides the required argument a lot of optional arguments may be
 passed to the function. Among others there are options for
@@ -795,7 +796,7 @@ Specifies the line type for the credible intervals. Default value
 is #linetype=1# (solid).
 \end{itemize}
 
-As an illustration compare the following S-plus statement:
+As an illustration compare the following statement:
 
 #> plotnonp("c:\\bayes\\reg_f_X_rw.res", psname="c:\\bayes\\reg_f_X_rw.ps", #\\
 #  maintitle="Maintitle",ylab="effect of X",xlab="X") #
@@ -815,26 +816,25 @@ title, a x-axis and y-axis label are added to the graph. For
 illustration purposes, the resulting graph is shown in
 \autoref{illgraph}.
 
-In some situations the effect of a covariate representing dates
-must be plotted. Suppose for example that a covariate has values
-ranging from 1 to 19 representing the time period from January
-1983 to July 1984. In this case, we naturally prefer that the
-x-axis is labelled in terms of dates rather than in the original
-coding (from 1 to 19). To achieve this, function #plotnonp#
-provides the three additional options #year#, #month# and #step#.
-Options #year# and #month# are used to specify the year and the
-month (1 for January, 2 for February, \dots) corresponding to the
-minimum covariate value. In the example mentioned above
-#year=1983# and #month=1# will produce the correct result. In
-addition, option #step# may be specified to define the periodicity
-in which your data are collected. For example #step=12# (the
-default) corresponds to monthly data, while #step=4#, #step=2# and
-#step=1# correspond to quarterly, half yearly and yearly data. We
-illustrate the usage of #year#, #month# and #step# with our
-example. Suppose we estimated the effect of calendar time #D#,
-say, on a certain dependent variable, where the range of the data
-is as described above. Then the following S-plus function call
-will produce the postscript file shown in \autoref{illgraph2}:
+In some situations the effect of a covariate representing dates must
+be plotted. Suppose for example that a covariate has values ranging
+from 1 to 19 representing the time period from January 1983 to July
+1984. In this case, we naturally prefer that the x-axis is labelled
+in terms of dates rather than in the original coding (from 1 to 19).
+To achieve this, function #plotnonp# provides the three additional
+options #year#, #month# and #step#. Options #year# and #month# are
+used to specify the year and the month (1 for January, 2 for
+February, \dots) corresponding to the minimum covariate value. In
+the example mentioned above #year=1983# and #month=1# will produce
+the correct result. In addition, option #step# may be specified to
+define the periodicity in which your data are collected. For example
+#step=12# (the default) corresponds to monthly data, while #step=4#,
+#step=2# and #step=1# correspond to quarterly, half yearly and
+yearly data. We illustrate the usage of #year#, #month# and #step#
+with our example. Suppose we estimated the effect of calendar time
+#D#, say, on a certain dependent variable, where the range of the
+data is as described above. Then the following function call will
+produce the postscript file shown in \autoref{illgraph2}:
 
 \begin{figure}[ht]
 \begin{center}
@@ -848,18 +848,19 @@ will produce the postscript file shown in \autoref{illgraph2}:
 #> plotnonp("c:\\bayes\\reg_f_D_pspline.res",psname="c:\\bayes\\reg_f_D_pspline.ps",#\\
 #  year=1983,month=1,step=12,xlab="date",ylab= " ") #
 
-Note, that \texttt{ylab=" "} forces S-plus to omit the y-axis label.
-If #ylab# (as well as #xlab#) is omitted, default labels will be
-given to the two axis.
+Note, that \texttt{ylab=" "} forces R / S-plus to omit the y-axis
+label. If #ylab# (as well as #xlab#) is omitted, default labels will
+be given to the two axis.
 
 Finally, we note that all options that can be passed to the #plot#
-function of S-plus may also be passed to function #plotnonp#.
+function of R / S-plus may also be passed to function #plotnonp#.
 Thus, function #plotnonp# is more or less a specialized version of
-the S-plus #plot# function.
+the #plot# function.
 
 
 \subsection{Drawing geographical maps} \index{S-plus!drawing
-geographical maps} \index{drawing geographical maps}
+geographical maps} \index{R!drawing geographical maps}
+\index{drawing geographical maps}
 
 This subsection describes how to visualize estimation results of
 spatial covariates, where the observations represent the location
@@ -888,27 +889,26 @@ covariates into a semiparametric regression  model are given in
 \autoref{remlregregress} ({\em remlreg objects}). For the rest of
 this section we assume that an effect of a spatial covariate has
 already been estimated and that we now want to visualize the
-estimation results. This can be easily done with the two S-plus
-functions #readbndfile# and #drawmap#. Function #readbndfile# is
-used to read the boundary information of a map that is stored in a
-so called boundary file and to store this information as a permanent
-S-plus {\em map object}. The boundary file contains mainly the
-polygons which form the different geographical regions of the map.
-The required structure of such a file is described below. After the
-successful reading of the boundary information of a map, the second
-function #drawmap# may be used to draw and print the map either on
-the screen or into a postscript file. There are several possible
-ways to draw the map. In the simplest case the map can be drawn
-without any estimation effects, i.e.~only the boundaries of the
-different regions or sites are drawn, see \autoref{munich} for an
-example. In practice, however, one usually wants to color the
-regions of the map according to some numerical characteristics. As
-an example compare \autoref{munichrelfreq} in which the subquarters
-of Munich are colored according to the frequency of flats in the
-'rents for flats' data set located in the respective subquarter.
-Subquarters colored in red contain less flats compared to
-subquarters colored in green. In striped areas no observations are
-available.
+estimation results. This can be easily done with the two functions
+#readbndfile# and #drawmap#. Function #readbndfile# is used to read
+the boundary information of a map that is stored in a so called
+boundary file and to store this information as a permanent {\em map
+object}. The boundary file contains mainly the polygons which form
+the different geographical regions of the map. The required
+structure of such a file is described below. After the successful
+reading of the boundary information of a map, the second function
+#drawmap# may be used to draw and print the map either on the screen
+or into a postscript file. There are several possible ways to draw
+the map. In the simplest case the map can be drawn without any
+estimation effects, i.e.~only the boundaries of the different
+regions or sites are drawn, see \autoref{munich} for an example. In
+practice, however, one usually wants to color the regions of the map
+according to some numerical characteristics. As an example compare
+\autoref{munichrelfreq} in which the subquarters of Munich are
+colored according to the frequency of flats in the 'rents for flats'
+data set located in the respective subquarter. Subquarters colored
+in red contain less flats compared to subquarters colored in green.
+In striped areas no observations are available.
 
 \begin{figure}[ht]
 \begin{center}
@@ -923,41 +923,40 @@ In the following we give a detailed description of the usage of
 the functions #readbndfile# and #drawmap#.
 
 \subsubsection*{Function readbndfile}
-\index{S-plus!reading boundary files} \index{reading boundary
-files}
+\index{R!reading boundary files} \index{S-plus!reading boundary
+files} \index{reading boundary files}
 
 Function #readbndfile# is used to read in boundary information
-stored in a boundary file into S-plus. The function has two
-required arguments. The first argument is the filename of the
-boundary file to read in. The second argument specifies the name
-of the {\em map object} in S-plus (recall that the map information
-is stored as a permanent S-plus object). To give an example,
-suppose that {\em BayesX} is installed in the directory #c:\bayes#
-and that we want to read in the map of Munich. In this case the
-boundary file of the map is stored in the subdirectory #examples#
-of the installation directory, that is in #c:\bayes\examples#. The
-name of the boundary file is simply #munich.bnd#. The following
-function call reads in the boundary information of Munich and
-stores the map permanently in S-plus:
+stored in a boundary file. The function has two required arguments.
+The first argument is the filename of the boundary file to read in.
+The second argument specifies the name of the {\em map object}
+(recall that the map information is stored as a permanent object).
+To give an example, suppose that {\em BayesX} is installed in the
+directory #c:\bayes# and that we want to read in the map of Munich.
+In this case the boundary file of the map is stored in the
+subdirectory #examples# of the installation directory, that is in
+#c:\bayes\examples#. The name of the boundary file is simply
+#munich.bnd#. The following function call reads in the boundary
+information of Munich and stores the map permanently in the object
+#munich#:
 
 #> readbndfile("c:\\bayes\\examples\\munich.bnd","munich")#
 
-Once again, note that double backslashes are required in S-plus to
-specify a directory. The second argument in the statement above is
-"munich", i.e.~the name of the map object is simply #munich#. To
-refer to the map of Munich in subsequent statements and function
-calls, the quotation marks must be omitted.
+Once again, note that double backslashes are required to specify a
+directory. The second argument in the statement above is "munich",
+i.e.~the name of the map object is simply #munich#. To refer to the
+map of Munich in subsequent statements and function calls, the
+quotation marks must be omitted.
 
 \subsubsection*{Function drawmap}
-\index{S-plus!drawmap}
+\index{S-plus!drawmap}\index{R!drawmap}
 
 Function #drawmap# is used to draw geographical maps and color the
 regions according to some numerical characteristics. There is only
-one required argument that must be passed to #drawmap#, that is
-the name of the map to be drawn. Provided that the map has already
-been read into S-plus (via function #readbndfile#), the following
-statement draws the map of Munich in a S-plus graphic-window on
-the screen:
+one required argument that must be passed to #drawmap#, that is the
+name of the map to be drawn. Provided that the map has already been
+read into R / S-plus (via function #readbndfile#), the following
+statement draws the map of Munich in a graphic-window on the screen:
 
 #> drawmap(map=munich)#
 
@@ -983,13 +982,13 @@ structure of the file is described in detail in
 Suppose now that we want to visualize estimation results for the
 spatial covariate #L# by coloring the subquarters of Munich
 according to the posterior mean estimated using a {\em bayesreg
-object}. Compared to the S-plus statement above, (at least) three
-more arguments must be passed to function #drawmap#; the argument
-#dfile# that specifies the filename of estimated results, the
-argument #plotvar# that specifies the variable to be plotted and
-the argument #regionvar# that specifies which column of the file,
-containing estimation results, stores the region names. The
-following statement produces the desired result:
+object}. Compared to the statement above, (at least) three more
+arguments must be passed to function #drawmap#; the argument #dfile#
+that specifies the filename of estimated results, the argument
+#plotvar# that specifies the variable to be plotted and the argument
+#regionvar# that specifies which column of the file, containing
+estimation results, stores the region names. The following statement
+produces the desired result:
 
  #> drawmap(map=munich,outfile="c:\\bayes\\munich.ps", #\\
  #  dfile="c:\\bayes\\output\\reg_f_L_spatial.res", plotvar="pmean",regionvar="L")#
@@ -1029,9 +1028,8 @@ characteristics of the regions of the map. The file must contain at
 least two columns, one column that lists the names of the regions
 and one column containing the numerical characteristics of the
 respective regions. It is important that the names of the regions
-listed match with the region names stored in the S-plus {\em map
-object}. The first row of the file must contain the names of the
-columns.
+listed match with the region names stored in the {\em map object}.
+The first row of the file must contain the names of the columns.
 
 \item #drawnames = T#/#F#
 
@@ -1066,8 +1064,8 @@ instead as the lower limit.
 
 \item #map = "#{\em characterstring}#"#
 
-Name of the S-plus {\em map object}. Use function #readbndfile# to
-read in geographical maps into S-plus.
+Name of the {\em map object}. Use function #readbndfile# to read in
+geographical maps.
 
 \item #nrcolors = #{\em integer}
 
@@ -1123,15 +1121,16 @@ instead as the upper limit.
 
 \end{itemize}
 
-\subsection{Plotting 2 dimensional surfaces}
-\label{splusplotsurf} \index{S-plus!plotting 2 dimensional surfaces}
-\index{plotting 2 dimensional surfaces}
+\subsection{Plotting twodimensional surfaces}
+\label{splusplotsurf} \index{S-plus!plotting twodimensional
+surfaces} \index{R!plotting twodimensional surfaces} \index{plotting
+twodimensional surfaces}
 
 This subsection describes the usage of the function #plotsurf# for
-visualizing 2 dimensional surfaces. The function #plotsurf# merely
-invokes different S-plus/R functions for visualizing 2 dimensional
-data. Thus, users familiar with S-plus/R may prefer to use this
-functions directly to gain more flexibility.
+visualizing twodimensional surfaces. The function #plotsurf# merely
+invokes different R / S-plus functions for visualizing
+twodimensional data. Thus, users familiar with R / S-plus may prefer
+to use this functions directly to gain more flexibility.
 
 Suppose that a Bayesian regression model has already been
 estimated with predictor
@@ -1141,7 +1140,7 @@ $$
 $$
 
 where the interaction effect of #X1# and #X2# is modelled
-nonparametrically using 2 dimensional P-splines and that the
+nonparametrically using twodimensional P-splines and that the
 estimation results are stored in file:
 
 #c:\bayes\output\reg_f_X1_X2_pspline.res#
@@ -1177,14 +1176,14 @@ contain a header.
 
 \item #mode = 1#/#2#/#3#/#4#/#5#
 
-This option specifies the plot type. In S-Plus there are 5 different
-types available, where the default value #mode=1# corresponds to
-what is called a 'Surface Plot' in S-plus. In R 3 different types
-are available corresponding to a perspective plot (#mode=1#,
-function #persp# in R), a contour plot (#mode=2#, function #contour#
-in R), and an image plot (#mode=2#, function #image# in R) of the
-data. In R #plotsurf# depends on the package #akima# for the
-interpolation of irregular data.
+This option specifies the plot type. In S-Plus there are five
+different types available, where the default value #mode=1#
+corresponds to what is called a 'Surface Plot' in S-plus. In R three
+different types are available corresponding to a perspective plot
+(#mode=1#, function #persp# in R), a contour plot (#mode=2#,
+function #contour# in R), and an image plot (#mode=2#, function
+#image# in R) of the data. In R #plotsurf# depends on the package
+#akima# for the interpolation of irregular data.
 
 \item #outfile = "#{\em filename (including path)}#"#
 
@@ -1201,11 +1200,12 @@ should be stored. This option is only meaningful for #mode=2# and
 
 \subsection{Plotting autocorrelation functions}
 \label{splusplotautocor} \index{S-plus!plotting autocorrelation
-functions} \index{plotting autocorrelation functions}
-\index{autocorrelation functions!plotting}
+functions} \index{R!plotting autocorrelation functions}
+\index{plotting autocorrelation functions} \index{autocorrelation
+functions!plotting}
 
-This section describes how to visualize autocorrelation functions
-of sampled parameters using the S-plus function #plotautocor#.
+This section describes how to visualize autocorrelation functions of
+sampled parameters using the function #plotautocor#.
 
 To compute autocorrelation functions, the post-estimation command
 #autocor# must be applied, see \autoref{bayesautocorr} for
@@ -1216,10 +1216,10 @@ autocorrelations are already computed and stored in file:
 
 The minimum number of arguments required for the function is one,
 namely the file where the computed autocorrelation functions are
-stored. In this case a S-plus {\em graphic window} will be opened
-and the autocorrelation functions are plotted on the screen. To
-store autocorrelations in a postscript file, an output filename
-must be specified as a second argument. Thus, the S-plus command
+stored. In this case a {\em graphic window} will be opened and the
+autocorrelation functions are plotted on the screen. To store
+autocorrelations in a postscript file, an output filename must be
+specified as a second argument. Thus, the command
 
 #> plotautocor("c:\\bayes\\output\\reg_autocor.raw")#
 
@@ -1227,7 +1227,7 @@ prints autocorrelations on the screen, while the statement
 
  #> plotautocor("c:\\bayes\\output\\reg_autocor.raw","c:\\bayes\\output\\reg_autocor.ps")#
 
-forces S-plus to store the autocorrelation graphs in the
+forces R / S-plus to store the autocorrelation graphs in the
 postscript file #c:\bayes\output\reg_autocor.ps#.
 
 In particular for regression models with a large number of
@@ -1240,16 +1240,16 @@ maximum autocorrelations are plotted, leading in most cases to a
 considerable reduction in computing time and storing size.
 
 \subsection{Plotting sampled parameters} \label{splusplotsample}
-\index{S-plus!plotting sampled parameters} \index{plotting sampled
-parameters}
+\index{R!plotting sampled parameters}\index{S-plus!plotting sampled
+parameters} \index{plotting sampled parameters}
 
 This section describes how to plot sampled parameters using the
-S-plus function #plotsample#. Before applying function
-#plotsample#, sampled parameters must be stored in ASCII-format
-using the post-estimation command #getsample#. See
-\autoref{bayesgetsample} for details, but note that sampled
-parameters will be stored in several different files, typically
-one file for each term in the model.
+function #plotsample#. Before applying function #plotsample#,
+sampled parameters must be stored in ASCII-format using the
+post-estimation command #getsample#. See \autoref{bayesgetsample}
+for details, but note that sampled parameters will be stored in
+several different files, typically one file for each term in the
+model.
 
 Suppose now that we want to visualize sampling paths for the
 parameters of the nonlinear effect of a covariate X. Assume
@@ -1274,6 +1274,6 @@ get:
 
  #> plotsample("c:\\bayes\\output\\reg_X_sample.raw","c:\\bayes\\output\\reg_X_sample.ps")#
 
-In addition, all options that are available for the S-plus
+In addition, all options that are available for the R / S-plus
 function #plot# may be passed to function #plotsample#, see the
 S-plus documentation for details.

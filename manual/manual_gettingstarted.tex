@@ -51,15 +51,15 @@ some tutorial programs that illustrate the usage of most of the
 functions of {\em BayesX}, see the tutorials manual. The #output#
 directory is the default directory for the program output. The
 #output# directory can be redefined by the user. The #sfunctions#
-directory contains some S-plus and R functions for visualizing
+directory contains some R and S-plus functions for visualizing
 estimation results obtained with {\em bayesreg objects} or {\em
 remlreg objects}, see \autoref{splus} for a detailed description of
-the S-plus functions. However, in the current version of {\em
-BayesX} the S-plus functions are more or less obsolete because this
-version has its own capabilities for visualizing data and results,
-see \autoref{graphobj} and \autoref{visualization} for details.
-Finally in the #temp# directory some temporary files will be stored.
-Usually you will never use this directory.
+the R / S-plus functions. However, in the current version of {\em
+BayesX} the R / S-plus functions are more or less obsolete because
+this version has its own capabilities for visualizing data and
+results, see \autoref{graphobj} and \autoref{visualization} for
+details. Finally in the #temp# directory some temporary files will
+be stored. Usually you will never use this directory.
 
 The created directories and their contents are briefly summarized
 in \autoref{dirtable}.
@@ -73,7 +73,7 @@ Directory & Contents \\
 #doc# & contains the manuals \\
 #examples# & contains data set examples and tutorial programs \\
 #output# & default directory for estimation output \\
-#sfunctions# & contains some S-plus functions for visualizing output \\
+#sfunctions# & contains some R and S-plus functions for visualizing output \\
 #temp# & stores temporary files \\
 \hline
 \end{tabular}
@@ -221,33 +221,32 @@ current computations use the PAUSE button.
 
 \index{objects} \index{objects!create} {\em BayesX} is object
 oriented, that is the first thing to do during a session is to
-create some objects. Currently there are six different object
-types available: {\em dataset objects}, {\em bayesreg objects},
-{\em remlreg objects}, {\em map objects}, {\em dag objects} and {\em
+create some objects. Currently there are six different object types
+available: {\em dataset objects}, {\em bayesreg objects}, {\em
+remlreg objects}, {\em map objects}, {\em dag objects} and {\em
 graph objects}. {\em Dataset objects} are used to handle and
 manipulate data sets, see \autoref{datasetobj} for details. {\em Map
 objects} are used to handle geographical maps and are covered in
-more detail in \autoref{map}. The main purpose of {\em map objects} is
-to serve as auxiliary objects for estimating spatial covariate
+more detail in \autoref{map}. The main purpose of {\em map objects}
+is to serve as auxiliary objects for estimating spatial covariate
 effects with {\em bayesreg objects} or {\em remlreg objects}. {\em
-graph objects} are used to visualize data (e.g. create
-scatterplots or color geographical maps according to some
-numerical characteristics), see \autoref{graphobj} for details.
-Probably the most important object types are {\em bayesreg
-objects} and {\em remlreg objects}. These objects are used to
-estimate Bayesian semiparametric regression models based on either
-Markov Chain Monte Carlo simulation techniques ({\em bayesreg
-objects}) or mixed model representations of the regression model
-({\em remlreg objects}). See \autoref{bayesreg} for a detailed
-description of {\em bayesreg objects} and \autoref{remlreg} for a
-detailed description of {\em remlreg objects}. Another important
-object type is the {\em dag object}. {\em Dag objects} are used to
-estimate Gaussian or non-Gaussian dags (direct acyclic graphs)
-using reversible jump MCMC simulation techniques. A detailed
-description of {\em dag objects} can be found in \autoref{dag}.
-The object oriented concept does not go too far, that is
-inheritance or other concepts of object oriented programs or
-languages such as S-plus or C++ are not supported.
+graph objects} are used to visualize data (e.g. create scatterplots
+or color geographical maps according to some numerical
+characteristics), see \autoref{graphobj} for details. Probably the
+most important object types are {\em bayesreg objects} and {\em
+remlreg objects}. These objects are used to estimate Bayesian
+semiparametric regression models based on either Markov Chain Monte
+Carlo simulation techniques ({\em bayesreg objects}) or mixed model
+representations of the regression model ({\em remlreg objects}). See
+\autoref{bayesreg} for a detailed description of {\em bayesreg
+objects} and \autoref{remlreg} for a detailed description of {\em
+remlreg objects}. Another important object type is the {\em dag
+object}. {\em Dag objects} are used to estimate Gaussian or
+non-Gaussian dags (direct acyclic graphs) using reversible jump MCMC
+simulation techniques. A detailed description of {\em dag objects}
+can be found in \autoref{dag}. The object oriented concept does not
+go too far, that is inheritance or other concepts of object oriented
+programs or languages such as S or C++ are not supported.
 
 Creating a new object during a session is very easy. The syntax for creating a new object is:
 

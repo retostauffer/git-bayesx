@@ -1,35 +1,28 @@
 \chapter{map objects}
 \label{map} \index{map object}
 
-
-{\em Authors: Stefan Lang and Andreas Brezger} \\
-{\em email: \href{mailto:stefan.lang@stat.uni-muenchen.de}{stefan.lang@stat.uni-muenchen.de} and \href{mailto:andib@stat.uni-muenchen.de}{andib@stat.uni-muenchen.de}}\\
-\vspace{0.3cm}
-
-
 {\em Map objects} are used to handle and store geographical maps.
 For the moment {\em map objects} serve more or less as auxiliary
-objects for {\em bayesreg objects} and {\em remlreg objects},
-where the effect of spatial covariates on a dependent variable can
-be modelled via spatial priors, especially Markov random field
-priors. The main purpose of {\em map objects} in this context is
-to provide the neighborhood structure of the map and to compute
-weights associated with this neighborhood structure. The typical
-approach is as follows: A {\em map object} is created and the
-boundary information of a geographical map is read from an
-external file and stored in the {\em map object}. This can be
-achieved using the #infile# command, see \autoref{mapinfile}
-below. Based on the boundary information, the {\em map object}
-automatically computes the neighborhood structure of the map and
-the weights associated with the neighborhood structure. Since
-there are several proposals in the spatial statistics literature
-for defining the weights, the user is given the choice between a
-couple of alternative weight definitions. After the correct
-initialization, the {\em map object} can be passed to the
-#regress# function of a {\em bayesreg object} in order to estimate
-regression models with spatial covariates, see \autoref{bayesreg}
-and \autoref{remlreg}, and the subsections about spatial
-covariates therein.
+objects for {\em bayesreg objects} and {\em remlreg objects}, where
+the effect of spatial covariates on a dependent variable can be
+modelled via spatial priors, especially Markov random field priors.
+The main purpose of {\em map objects} in this context is to provide
+the neighborhood structure of the map and to compute weights
+associated with this neighborhood structure. The typical approach is
+as follows: A {\em map object} is created and the boundary
+information of a geographical map is read from an external file and
+stored in the {\em map object}. This can be achieved using the
+#infile# command, see \autoref{mapinfile} below. Based on the
+boundary information, the {\em map object} automatically computes
+the neighborhood structure of the map and the weights associated
+with the neighborhood structure. Since there are several proposals
+in the spatial statistics literature for defining the weights, the
+user is given the choice between a couple of alternative weight
+definitions. After the correct initialization, the {\em map object}
+can be passed to the #regress# function of a {\em bayesreg object}
+in order to estimate regression models with spatial covariates, see
+\autoref{bayesreg} and \autoref{remlreg}, and the subsections about
+spatial covariates therein.
 
 \clearpage
 

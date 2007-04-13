@@ -5,6 +5,8 @@
 \usepackage[dvips]{epsfig}
 \usepackage{fancyhdr}
 \usepackage{dsfont}
+\usepackage{amsmath}
+\usepackage{dsfont}
 
 %\usepackage{showkeys}
 %\usepackage{showidx}
@@ -16,6 +18,11 @@
 
 \usepackage[ps2pdf]{thumbpdf}
 \usepackage[ps2pdf]{hyperref}
+
+\input{prepictex}
+\input{pictexwd}
+\input{postpictex}
+
 \hypersetup{
 %    pdffitwindow=true,
     pdfstartview=FitB,
@@ -32,11 +39,15 @@
     hyperindex=true
     }
 
-\sloppy
-\parindent0em
-\parskip0.3em
-\topmargin -0.3cm \textheight24cm \textwidth16.5cm \headheight0.5cm
-\oddsidemargin-0.4cm \evensidemargin-0.4cm
+ \sloppy
+ \parindent0em
+ \parskip0.3em
+ \topmargin-0.3cm
+ \textheight24cm
+ \textwidth16.5cm
+ \headheight0.5cm
+ \oddsidemargin-0.4cm
+ \evensidemargin-0.4cm
 
  \fancyhead[RO,LE]{\thepage}
  \fancyhead[C]{}
@@ -50,60 +61,16 @@
  \renewcommand{\headrulewidth}{.4pt}
  \renewcommand{\footrulewidth}{0pt} %Am Ende 0 !!!
 
-\pagestyle{fancy}
+ \pagestyle{fancy}
 
-
-\renewcommand{\descriptionlabel}[1]{\hspace\labelsep\sc #1}
-
-\def \re {{\bf R}}
-\def \beq {\begin{equation}}
-\def \eeq {\end{equation}}
-\def \bdis {\begin{displaymath}}
-\def \edis {\end{displaymath}}
-\def \ds {\displaystyle}
-
-\def \mbeta {\mbox{\boldmath $\beta$}}
-\def \mtheta {\mbox{\boldmath $\theta$}}
-\def \hatmbeta {\mbox{\boldmath $\hat\beta$}}
-\def \eps {\epsilon}
-\def \meps {\mbox{\boldmath $\epsilon$}}
-\def \mmu {\mbox{\boldmath $\mu$}}
-\def \mnu {\mbox{\boldmath $\nu$}}
-\def \mSigma {\mbox{\boldmath $\Sigma$}}
-\def \mGamma {\mbox{\boldmath $\Gamma$}}
-\def \msigma {\mbox{\boldmath $\sigma$}}
-\def \mPhi {\mbox{\boldmath $\Phi$}}
-
-\newcommand{\N}{\mbox{N}}
-\newcommand{\Var}{\mbox{Var}}
-\newcommand{\E}{\mbox{E}}
-
-\newcommand{\X}{\mbox{\boldmath $X$}}
-\newcommand{\x}{\mbox{\boldmath $x$}}
-\newcommand{\Z}{\mbox{\boldmath $Z$}}
-\newcommand{\z}{\mbox{\boldmath $z$}}
-\newcommand{\mb}{\mbox{\boldmath $b$}}
-\newcommand{\Fx}{\mbox{\scriptsize \boldmath $x$}}
-\newcommand{\I}{\mbox{\boldmath $I$}}
-\newcommand{\Y}{\mbox{\boldmath $Y$}}
-\newcommand{\y}{\mbox{\boldmath $y$}}
-\newcommand{\mS}{\mbox{\boldmath $S$}}
-\newcommand{\T}{\mbox{\boldmath $T$}}
-\newcommand{\K}{\mbox{\boldmath $K$}}
-\newcommand{\kt}{\mbox{\boldmath $t$}}
-\newcommand{\U}{\mbox{\boldmath $U$}}
-\newcommand{\fu}{\mbox{\boldmath $u$}}
-\newcommand{\ba}{\mbox{\boldmath $\alpha$}}
-\newcommand{\bb}{\mbox{\boldmath $\beta$}}
-
-\newcommand{\subheader}[1]{\textsf{\textbf{{\large #1}}}}
-
-\newenvironment{stanza}[2]{\subheader{#1} \begin{itemize} \item[]#2}{\end{itemize}}
+ \def \re {\mathds{R}}
+ \newcommand{\Var}{\mbox{Var}}
+ \newcommand{\diag}{\mbox{diag}}
 
  \externaldocument{manual}
  \externaldocument{manual_tutorials}
 
-\makeindex
+ \makeindex
 
 \begin{document}
 \MakeShortVerb{\#}
@@ -111,15 +78,15 @@
 \thispagestyle{empty}
 
 \begin{center}
-{\bf \em \huge Bayes{\Huge X}}
+{\bf \em \huge BayesX}
 
 \vspace{0.5cm}
 
-{\em \large Software for Bayesian Inference}
+ {\em \large Software for Bayesian Inference in Structured Additive Regression Models}
 
 \vspace{0.5cm}
 
-{\em Version 1.40}
+ {\em Version 1.50}
 
 \vspace{0.5cm}
 
@@ -131,44 +98,45 @@
 
 \vfill
 
-{\bf\sffamily \huge Methodological Background}
+{\bf\sffamily \huge Methodology Manual}
 
 \vfill
 
 \end{center}
 
-\begin{table}[ht]
-\begin{center}
-\begin{tabular}{lll}
-{\em developed at} & \hspace{1.5cm} & {\em developed by} \\
-University of Munich & \hspace{1.5cm} & Andreas Brezger \\
-Department of Statistics & \hspace{1.5cm} & Thomas Kneib \\
-Ludwigstr. 33 & \hspace{1.5cm} & Stefan Lang \\
-80539 Munich & \hspace{1.5cm} & \\
-  & & \\
-{\em with contributions by}  &  \hspace{1.5cm} &  {\em supported by} \\
-Christiane Belitz&  \hspace{1.5cm} & Ludwig Fahrmeir (mentally) \\
-Eva--Maria Fronk  & \hspace{1.5cm} & Leo Held (mentally) \\
-Andrea Hennerfeind & \hspace{1.5cm} & German Science Foundation  \\
-Manuela Hummel & \\
-Alexander Jerak & \\
-Petra Kragler & \\
-Leyre Osuna Echavarr\'{\i}a& \\
-\end{tabular}
-\end{center}
-\end{table}
+{\em Developed by}
 
+Andreas Brezger (Hypovereinsbank Munich)\\
+Thomas Kneib (Ludwig-Maximilians-University Munich)\\
+Stefan Lang (Leopold-Franzens-University Innsbruck)\\
+
+{\em With contributions by}
+
+Christiane Belitz\\
+Eva-Maria Fronk\\
+Andrea Hennerfeind\\
+Manuela Hummel\\
+Alexander Jerak\\
+Petra Kragler\\
+Leyre Osuna Echavarr\'{\i}a\\
+
+{\em Supported by}
+
+Ludwig Fahrmeir (mentally)\\
+Leo Held (mentally)\\
+German Science Foundation
 
 \newpage
 
 \subsection*{Acknowledgements}
 
 The development of {\em BayesX} has been supported by grants from
-the German National Science Foundation (DFG),
-Sonderforschungsbereich 386.
+the German National Science Foundation (DFG), Collaborative Research
+Center 386 "Statistical Analysis of Discrete Structures".
 
 Special thanks go to (in alphabetical order of first names):
 
+{\em Achim Zeileis} for advertising HCL colors; \\
 {\em Dieter Gollnow} for computing and providing the map of Munich (a really hard job); \\
 {\em Leo Held} for advertising the program; \\
 {\em Ludwig Fahrmeir} for his patience with finishing the program
@@ -204,43 +172,109 @@ user, assume all risks when using it.
 
 \section{Introduction}
 
-In this manual we provide the methodological background for the two
-regression tools implemented in BayesX. The first regression tool
-({\em bayesreg objects}) relies on Markov chain Monte Carlo
-simulation techniques. The second regression tool ({\em remlreg
-objects}) is based on mixed model representations of regression
-models and inference is based on restricted maximum likelihood
-(REML). Both regression tools are able to estimate complex
-semiparametric regression and survival models with {\em structured
-additive predictor} (STAR, Fahrmeir, Kneib and Lang, 2004). STAR
-models cover a number of well known model classes as special cases,
-including {\em generalized additive models} (Hastie and Tibshirani,
-1990), {\em generalized additive mixed models} (Lin and Zhang,
-1999), {\em geoadditive models} (Kammann and Wand, 2003), {\em
-varying coefficient models} (Hastie and Tibshirani, 1993), and {\em
-geographically weighted regression} (Fotheringham, Brunsdon, and
-Charlton, 2002).
+In this manual we provide a brief overview of the methodological
+background for the two regression tools currently implemented in
+BayesX. The first regression tool ({\em bayesreg objects}) relies on
+Markov chain Monte Carlo simulation techniques and yields fully
+Bayesian posterior mean estimates. The second regression tool ({\em
+remlreg objects}) is based on the mixed model representation of
+penalised regression models with inference being based on penalised
+maximum likelihood and marginal likelihood (a generalisation of
+restricted maximum likelihood) estimation. Both regression tools
+allow to estimate structured additive regression (STAR) models
+(Fahrmeir, Kneib and Lang, 2004) with complex semiparametric
+predictors. STAR models cover a number of well known model classes
+as special cases, including {\em generalized additive models}
+(Hastie and Tibshirani, 1990), {\em generalized additive mixed
+models} (Lin and Zhang, 1999), {\em geoadditive models} (Kammann and
+Wand, 2003), {\em varying coefficient models} (Hastie and
+Tibshirani, 1993), and {\em geographically weighted regression}
+(Fotheringham, Brunsdon, and Charlton, 2002). Besides models for
+responses from univariate exponential families, BayesX also supports
+non-standard regression situations such as models for categorical
+responses with either ordered and unordered categories, continuous
+time survival data, or continuous time multi-state models. To
+provide a first impression of structured additive regression,
+Sections~\ref{obsmodel} to \ref{inference} describe STAR models for
+exponential family regression. Section~\ref{survivalAnalysis}
+extends structured additive regression to the analysis of survival
+times and multi-state data. Full details on STAR methodology can be
+found in the following references:
+
+\subsubsection*{Structured additive regression based on MCMC
+simulation:}
+
+\begin{itemize}
+\item Brezger, A., Lang, S. (2006)
+      Generalized structured additive regression based on Bayesian P-Splines.
+      Computational Statistics and Data Analysis, 50,
+      967-991.\vspace{-0.25cm}
+\item Fahrmeir, L., Lang, S. (2001)
+      Bayesian Inference for Generalized Additive Mixed Models Based on Markov Random Field Priors.
+      Journal of the Royal Statistical Society C (Applied Statistics), 50, 201-220.\vspace{-0.25cm}
+\item Fahrmeir, L., Lang, S. (2001)
+      Bayesian Semiparametric Regression Analysis of Multicategorical Time-Space Data.
+      Annals of the Institute of Statistical Mathematics, 53, 10-30.\vspace{-0.25cm}
+\item Fahrmeir, L., Osuna, L.. (2006)
+      Structured additive regression for overdispersed and zero-inflated count data.
+      Applied Stochastic Models in Business and Industry, 22, 351-369.\vspace{-0.25cm}
+\item Hennerfeind, A., Brezger, A., Fahrmeir, L. (2006)
+      Geoadditive survival models.
+      Journal of the American Statistical Association, 101, 1065-1075.\vspace{-0.25cm}
+\item Kneib, T., Hennerfeind, A. (2006)
+      Bayesian Semiparametric Multi-State Models.
+      SFB 386 Discussion Paper 502.\vspace{-0.25cm}
+\item Lang, S., Brezger, A. (2004)
+      Bayesian P-Splines
+      Journal of Computational and Graphical Statistics, 13, 183-212.
+\end{itemize}
+
+\subsubsection*{Structured additive regression based on mixed model
+methodology:}
+
+\begin{itemize}
+\item Fahrmeir, L., Kneib, T., Lang, S. (2004)
+      Penalized structured additive regression for space-time data: a Bayesian perspective.
+      Statistica Sinica, 14, 715-745.\vspace{-0.25cm}
+\item Kneib, T. (2006):
+      Mixed model based inference in structured additive regression.
+      Dr. Hut Verlag, M\"{u}nchen.
+      Available online from {\tt http://edoc.ub.uni-muenchen.de/archive/ 00005011/}\vspace{-0.25cm}
+\item Kneib, T. (2006):
+      Geoadditive hazard regression for interval censored survival times.
+      Computational Statistics and Data Analysis, 51, 777-792.\vspace{-0.25cm}
+\item Kneib, T., Fahrmeir, L. (2007):
+      A mixed model approach for geoadditive hazard regression.
+      Scandinavian Journal of Statistics, 34, 207-228.\vspace{-0.25cm}
+\item Kneib, T., Fahrmeir, L. (2006):
+      Structured additive regression for multicategorical space-time data: A mixed model approach.
+      Biometrics, 62, 109-118.\vspace{-0.25cm}
+\item Kneib, T., Hennerfeind, A. (2006)
+      Bayesian Semiparametric Multi-State Models.
+      SFB 386 Discussion Paper 502.
+\end{itemize}
 
 
-\section{Observation model}
 
-Bayesian generalized linear models (e.g. Fahrmeir and Tutz, 2001)
-assume that, given covariates $u$ and unknown parameters $\gamma$,
-the distribution of the response variable $y$ belongs to an
-exponential family, i.e.
+\section{Observation model}\label{obsmodel}
+
+\index{Generalized linear model}\index{Exponential family} Bayesian
+generalized linear models assume that, given covariates $u$ and
+unknown parameters $\gamma$, the distribution of the response
+variable $y$ belongs to an exponential family, i.e.
 \begin{equation}
 \label{likel} p(y \, | \, u) = \exp \left( \frac{y \theta -
 b(\theta)}{\phi} \right) c(y,\phi)
 \end{equation}
 where $b(\cdot)$, $c(\cdot)$, $\theta$ and $\phi$ determine the
-respective distributions. A list of the most common distributions
-and their specific parameters can be found e.g. in Fahrmeir and
-Tutz (2001), page 21. The mean $\mu=E(y|u,\gamma)$ is linked to a
-linear predictor $\eta$ by
+specific response distribution. A list of the most common
+distributions and their parameters can be found for example in
+Fahrmeir and Tutz (2001), page 21. The mean $\mu=E(y|u,\gamma)$ is
+linked to a linear predictor $\eta$ by
 \begin{equation}
-\label{glm} \mu=h(\eta) \qquad \eta= u'\gamma.
+\label{glm} \mu=h(\eta) \qquad \eta= u'\gamma,
 \end{equation}
-Here $h$ is a known response function, and $\gamma$ are unknown
+where $h$ is a known response function and $\gamma$ are unknown
 regression parameters.
 
 In most practical regression situations, however, we are facing at
@@ -252,11 +286,13 @@ effect on the predictor may be not appropriate. \vspace{-0.2cm}
 \vspace{-0.2cm}
 \item Observations may be {\em temporally correlated}.
 \vspace{-0.2cm}
+\item Complex interactions may be required to model the joint effect
+of some of the covariates adequately. \vspace{-0.2cm}
 \item  Heterogeneity among individuals or units may be not sufficiently described by covariates. Hence,
 unobserved {\em unit or cluster specific heterogeneity} must be
 considered appropriately.
 \end{itemize}
-To overcome the difficulties, we replace the strictly linear
+To overcome these difficulties, we replace the strictly linear
 predictor in (\ref{glm}) by a structured additive predictor
 \begin{equation}
 \label{gampred}
@@ -264,19 +300,21 @@ predictor in (\ref{glm}) by a structured additive predictor
 \end{equation}
 where $r$ is a generic observation index, the $x_j$ denote generic
 covariates of different type and dimension, and $f_j$ are (not
-necessarily smooth) functions of the covariates. The functions
-$f_j$ comprise usual nonlinear effects of continuous covariates,
-time trends and seasonal effects, two dimensional surfaces,
-varying coefficient models, i.i.d. random intercepts and slopes
-and spatially correlated random effects. In order to demonstrate
-the generality of the approach we point out some special cases of
-(\ref{gampred}) well known from the literature:
+necessarily smooth) functions of the covariates. The functions $f_j$
+comprise usual nonlinear effects of continuous covariates, time
+trends and seasonal effects, two-dimensional surfaces, varying
+coefficient models, i.i.d. random intercepts and slopes as well as
+spatial effects. In order to demonstrate the generality of the
+approach we point out some special cases of (\ref{gampred}) well
+known from the literature:
+
 \begin{itemize}
 \item {\em Generalized additive model (GAM) for cross-sectional data} \\
 A GAM is obtained if  the $x_j$, $j=1,\dots,p$, are univariate and
 continuous and $f_j$ are smooth functions. In {\em BayesX} the
 functions $f_j$ are modelled either by random walk priors or
-P-splines, see \autoref{psplines}.
+P-splines, see \autoref{psplines}.\index{Generalized additive model}
+
 \item {\em Generalized additive mixed model (GAMM) for longitudinal data} \\
 Consider longitudinal data for individuals $i=1,\dots,n,$ observed
 at time points $t \in \{ t_1,t_2,\dots \}$. For notational
@@ -288,25 +326,25 @@ $$
 \eta_{it} = f_1(x_{it1})+\dots+f_k(x_{itk}) + b_{1i} w_{it1}  +
 \cdots + b_{qi} w_{itq}  + u_{it}'\gamma
 $$
-where
-$\eta_{it},x_{it1},\dots,x_{itk},w_{it1},\dots,w_{itq},u_{it}$ are
-predictor and covariate values for individual $i$ at time $t$ and
-$b_i=(b_{1i},\dots,b_{qi})$ is a vector of $q$ i.i.d.~random
+where $\eta_{it},x_{it1},\dots,x_{itk},w_{it1},\dots,w_{itq},u_{it}$
+are predictor and covariate values for individual $i$ at time $t$
+and $b_i=(b_{1i},\dots,b_{qi})$ is a vector of $q$ i.i.d.~random
 intercepts (if $w_{itj} = 1$) or random slopes. The random effects
 components are modelled by i.i.d.~Gaussian priors, see
 \autoref{random}. GAMM's can be subsumed into (\ref{gampred}) by
-defining $r=(i,t)$, $x_{rj} = x_{itj}$, $j=1,\dots,k$, $x_{r,k+h}
-= w_{ith}$, and $f_{k+h}(x_{r,k+h}) = b_{hi} w_{ith}$,
-$h=1,\dots,q$. Similarly, GAMM's for cluster data can be written
-in the general form (\ref{gampred}).
+defining $r=(i,t)$, $x_{rj} = x_{itj}$, $j=1,\dots,k$, $x_{r,k+h} =
+w_{ith}$, and $f_{k+h}(x_{r,k+h}) = b_{hi} w_{ith}$, $h=1,\dots,q$.
+Similarly, GAMM's for cluster data can be written in the general
+form (\ref{gampred}).\index{Generalized additive mixed model}
+
 \item {\em Geoadditive Models} \\
-In many situations additional geographic information for the
-observations in the data set is available. As an example compare our
-demonstrating examples on the determinants of childhood
-undernutrition in Zambia in the tutorial manual. Here, the district
-where the mother of a child lives is given and may be used as an
-indicator for regional differences in the health status of children.
-A reasonable predictor for such data is given by
+In many situations additional geographic information is available
+for the observations in the data set. As an example, compare the
+demonstrating example on determinants of childhood undernutrition in
+Zambia in the tutorial manual. The district where the mother of a
+child lives is given as a covariate and may be used as an indicator
+for regional differences in the health status of children. A
+reasonable predictor for such data is given by
 \begin{equation}
 \eta_{r} = f_1(x_{r1})+\dots+f_k(x_{rk}) + f_{spat}(s_{r}) + u_r'
 \gamma
@@ -314,10 +352,12 @@ A reasonable predictor for such data is given by
 where $f_{spat}$ is an additional spatially correlated effect of the
 location $s_{r}$ an observation pertains to. Models with a predictor
 that contains a spatial effect are also called geoadditive models,
-see Kammann and Wand (2003). In {\em BayesX}, the spatial effect may
-be modelled by Markov random fields (Besag, York and Mollie (2003))
-or two dimensional P-splines (Lang and Brezger, 2006), compare
-\autoref{spatial}.
+see Kammann and Wand (2003). In {\em BayesX}, spatial effects can be
+modelled by Markov random fields (Besag, York and Mollie (2003)),
+stationary Gaussian random fields (Kriging, Kamman and Wand, 2003),
+or two-dimensional P-splines (Lang and Brezger, 2006), compare
+\autoref{spatial}.\index{Geoadditive model}
+
 \item {\em Varying coefficient model (VCM) - Geographically weighted regression} \\
 A VCM as proposed by Hastie and Tibshirani (1993) is defined by
 $$
@@ -325,16 +365,17 @@ $$
 $$
 where the effect modifiers $w_{rj}$ are continuous covariates or
 time scales and the interacting variables $z_{rj}$ are either
-continuous or categorical. A VCM can be cast into (\ref{gampred})
-with $x_{rj} = (w_{rj},z_{rj})$ and by defining the special
-function $f_j(x_{rj}) = f_j(w_{rj},z_{rj}) = g_j(w_{rj})z_{rj}$.
-Note that in {\em BayesX} the effect modifiers are not necessarily
-restricted to be continuous variables as in Hastie and Tibshirani
-(1993). E.g.~the geographical location may be used as effect
-modifier as well. VCM's with spatially varying regression
-coefficients are well known in the geography literature as {\em
-geographically weighted regression}, see e.g.~Fotheringham,
-Brunsdon, and Charlton (2002).
+continuous or categorical. A VCM can be cast into the general form
+(\ref{gampred}) with $x_{rj} = (w_{rj},z_{rj})$ and by defining the
+special function $f_j(x_{rj}) = f_j(w_{rj},z_{rj}) =
+g_j(w_{rj})z_{rj}$. Note that in {\em BayesX} the effect modifiers
+are not necessarily restricted to be continuous variables as in
+Hastie and Tibshirani (1993). For example, the geographical location
+may be used as effect modifier as well. VCMs with spatially varying
+regression coefficients are well known in the geography literature
+as {\em geographically weighted regression}, see e.g.~Fotheringham,
+Brunsdon, and Charlton (2002).\index{Varying coefficient
+models}\index{Geographically weighted regression}
 \item {\em ANOVA type interaction model} \\
 Suppose $w_{r}$ and $z_{r}$ are two continuous covariates. Then,
 the effect of $w_{r}$ and $z_{r}$ may be modelled by a predictor
@@ -343,11 +384,11 @@ $$
 \eta_r = f_{1}(w_{r})+f_{2}(z_{r})+f_{1|2}(w_{r},z_{r}) + \dots,
 $$
 see e.g. Chen (1993). The functions $f_1$ and $f_2$ are the main
-effects of the two covariates and $f_{1|2}$ is a two dimensional
-interaction surface which can be modelled e.g. by two dimensional
+effects of the two covariates and $f_{1|2}$ is a two-dimensional
+interaction surface which can be modelled e.g. by two-dimensional
 P-splines, see \autoref{interactions}. The interaction can be cast
-into the form (\ref{gampred}) by defining $x_{r1}=w_r$,
-$x_{r2}=z_r$ and  $x_{r3} = (w_{r},z_{r})$.
+into the form (\ref{gampred}) by defining $x_{r1}=w_r$, $x_{r2}=z_r$
+and  $x_{r3} = (w_{r},z_{r})$.
 \end{itemize}
 
 At first sight it may look strange to use one general notation for
@@ -359,10 +400,10 @@ components in the model has several advantages:
 \item Since we adopt a Bayesian perspective it is generally not necessary to distinguish between
 fixed and random effects because in a Bayesian approach all
 unknown parameters are assumed to be random. \vspace{-0.2cm}
-\item As we will see below in \autoref{priorassumptions}  the priors for smooth functions, two dimensional
+\item As we will see below in \autoref{priorassumptions}  the priors for smooth functions, two-dimensional
 surfaces, i.i.d., serially and spatially correlated effects can be
-cast into a general form. \vspace{-0.2cm}
-\item The general form of the priors also allows rather general and unified estimation procedures,
+cast into a general form as well. \vspace{-0.2cm}
+\item The general form of both predictors and priors allows for rather general and unified estimation procedures,
 see \autoref{inference}. As a  side effect the implementation and
 description of these procedures is considerably facilitated.
 \end{itemize}
@@ -372,28 +413,27 @@ description of these procedures is considerably facilitated.
 \label{priorassumptions}\index{Prior assumptions}
 
 For Bayesian inference, the unknown functions $f_{1},\dots ,f_{p}$
-in (\ref{gampred}), more exactly corresponding vectors of function
-evaluations, and the fixed effects parameters $\gamma$ are
+in predictor (\ref{gampred}), more exactly corresponding vectors of
+function evaluations, and the fixed effects parameters $\gamma$ are
 considered as random variables and must be supplemented by
 appropriate prior assumptions.
 
-In the absence of any prior knowledge diffuse priors are the
+In the absence of any prior knowledge, diffuse priors are the
 appropriate choice for fixed effects parameters, i.e.
 $$
-\gamma_j \propto const
+ p(\gamma_j) \propto const
 $$
-Another common choice not yet supported by {\em BayesX} are
+Another common choice, not yet supported by {\em BayesX}, are
 informative multivariate Gaussian priors with mean $\mu_0$ and
-covariance matrix $\Sigma_0$.
+covariance matrix $\Sigma_0$.\index{Prior assumptions!Fixed effects}
 
 
 Priors for the unknown functions $f_{1},\dots,f_{p}$ depend on the
 {\em type of the covariates} and on {\em prior beliefs about the
-smoothness of $f_j$.} In the following we will always be able to
-express the vector of function evaluations
-$f_j=(f_j(x_{1j}),\dots,f_j(x_{nj}))'$ of an unknown function
-$f_j$ as the matrix product of a design matrix $X_j$ and a vector
-of unknown parameters $\beta_j$, i.e.
+smoothness of $f_j$.} In the following we express the vector of
+function evaluations $f_j=(f_j(x_{1j}),\dots,f_j(x_{nj}))'$ of a
+function $f_j$ as the matrix product of a design matrix $X_j$ and a
+vector of unknown parameters $\beta_j$, i.e.
 \begin{equation}
 \label{matproduct} f_j=X_j \beta_j.
 \end{equation}
@@ -406,10 +446,10 @@ U \gamma,
 where $U$ corresponds to the usual design matrix for fixed
 effects.
 
-A prior for a function $f_j$ is now defined by specifying a
-suitable design matrix $X_j$ and a prior distribution for the
-vector $\beta_j$ of unknown parameters. The general form of the
-prior for $\beta_j$ is given by
+A prior for a function $f_j$ is defined by specifying a suitable
+design matrix $X_j$ and a prior distribution for the vector
+$\beta_j$ of unknown parameters. The general form of the prior for
+$\beta_j$ is given by
 \begin{equation}
 \label{genform} p(\beta_j | \tau_j^2) \propto
 \frac{1}{(\tau^2_j)^{rank(K_j)/2}} \exp\left(-\frac{1}{2\tau_j^2}
@@ -429,7 +469,8 @@ types of covariates and functions $f_j$.
 
 
 \subsection{Priors for continuous covariates and time scales}
-\label{psplines}\index{continuous covariates}\index{time scales}
+\label{psplines}\index{Continuous covariates}\index{Time scales}
+\index{Prior assumptions!Continuous covariates}
 
 Several alternatives have been  proposed for specifying smoothness
 priors for continuous covariates or time scales. These are {\em
@@ -439,7 +480,7 @@ Bayesian P-splines} (Lang and Brezger, 2006) and {\em Bayesian
 smoothing splines} (Hastie and Tibshirani, 2000). {\em BayesX}
 supports random walk priors and P-splines.
 
-\subsubsection{Random walks}\index{random walk priors}
+\subsubsection{Random walks}\index{Random walk priors}
 
 Suppose first that $x_j$ is a time scale or continuous covariate
 with equally spaced ordered observations
@@ -450,27 +491,27 @@ Here $M_j \leq n$ denotes the number of {\em different} observed
 values for $x_j$ in the data set. A common approach in dynamic or
 state space models is to estimate one parameter $\beta_{jm}$ for
 each distinct $x_j^{(m)}$, i.e. $f_j(x_j^{(m)}) = \beta_{jm}$, and
-penalize too abrupt jumps between successive parameters using
-random walk priors. Most commonly used are first or second order
-random walk models
+penalize too abrupt jumps between successive parameters using random
+walk priors. For example, first and second order random walk models
+are given by
 \begin{equation}
 \label{rwpriors}
-\beta_{jm}=\beta_{j,m-1}+u_{jm}\,\,\,\,\mbox{or}\,\,\,\,\beta_{jm}=2\beta_{j,m-1}-\beta_{j,m-2}+u_{jm}
+\beta_{jm}=\beta_{j,m-1}+u_{jm}\,\,\,\,\mbox{and}\,\,\,\,\beta_{jm}=2\beta_{j,m-1}-\beta_{j,m-2}+u_{jm}
 \end{equation}
-with Gaussian errors $u_{jm}\sim N(0,\tau_j^{2})$ and diffuse
-priors $\beta_{j1}\propto$ const, or $\beta_{j1}$ and
-$\beta_{j2}\propto$ const, for initial values, respectively. Both
-specifications act as smoothness priors penalizing too rough
-functions $f_j$. A first order random walk penalizes too abrupt
-jumps $\beta_{jm}-\beta_{j,m-1}$ between successive states and a
-second order random walk penalizes deviations from the linear
-trend $2 \beta_{j,m-1}-\beta_{j,m-2}$. The joint distribution of
-the regression parameters $\beta_j$ is easily computed as a
-product of conditional densities defined by (\ref{rwpriors}) and
-can be brought into the general form (\ref{genform}). The penalty
-matrix is of the form $K_j=D'D$ where $D$ is a first or second
-order difference matrix. For example, for a random walk of first
-order the penalty matrix is given by:
+with Gaussian errors $u_{jm}\sim N(0,\tau_j^{2})$ and diffuse priors
+$p(\beta_{j1})\propto const$, and $p(\beta_{j1})$ and
+$p(\beta_{j2})\propto const$, for initial values, respectively. Both
+specifications act as smoothness priors that penalize too rough
+functions $f_j$. A first order random walk penalizes abrupt jumps
+$\beta_{jm}-\beta_{j,m-1}$ between successive states while a second
+order random walk penalizes deviations from the linear trend $2
+\beta_{j,m-1}-\beta_{j,m-2}$. The joint distribution of the
+regression parameters $\beta_j$ is easily computed as the product of
+conditional densities defined by (\ref{rwpriors}) and can be brought
+into the general form (\ref{genform}). The penalty matrix is of the
+form $K_j=D'D$ where $D$ is a first or second order difference
+matrix. For example, for a random walk of first order the penalty
+matrix is given by:
 $$
 K_j = {\footnotesize \left(
 \begin{array}{rrrrr}
@@ -483,14 +524,14 @@ K_j = {\footnotesize \left(
 \right) }.
 $$
 The design matrix $X_j$ is a simple 0/1 matrix where the number of
-columns is equal to the number of parameters, respectively the
-number of distinct covariate values. If for observation $r$ the
-value of $x_j$ is $l$, then the element in the $r$-th row and
-$l$-th column of $X_j$ is one and zero otherwise.
+columns equals the number of parameters, i.e. the number of distinct
+covariate values. If for the $r$-th observation $x_{rj}=x_j^{(l)}$
+the element in the $r$-th row and $l$-th column of $X_j$ is one and
+zero otherwise.
 
-In the case of non-equally spaced observations slight
-modifications of the priors defined in (\ref{rwpriors}) are
-necessary, see Fahrmeir and Lang (2001a) for details.
+In case of non-equally spaced observations slight modifications of
+the priors defined in (\ref{rwpriors}) are necessary, see Fahrmeir
+and Lang (2001a) for details.
 
 If $x_j$ is a time  scale we may introduce an additional seasonal
 effect of $x_j$. A common smoothness prior for a seasonal
@@ -499,84 +540,86 @@ component $f_j(x_j^{(m)}) = \beta_{jm}$ is given by
 \beta_{jm} = -\beta_{j,m-1} - \cdots -
 \beta_{j,m-per-1}+u_{jm}\label{seasonal}
 \end{equation}
-where $u_{jm}\sim N(0,\tau_j^{2})$ and $per$ is the period, for
-instance $per = 12$ for monthly data. Compared to a dummy variable
-approach this specification has the advantage that it allows for a
-time varying rather than a time constant seasonal effect.
+where $u_{jm}\sim N(0,\tau_j^{2})$ and $per$ is the period of the
+seasonal effect (e.g. $per = 12$ for monthly data). Compared to a
+dummy variable approach this specification has the advantage that it
+allows for a time varying rather than a time constant seasonal
+effect.
 
 
-\subsubsection{P-splines}\index{p-splines}
+\subsubsection{P-splines}\index{P-splines}
 
-A closely related approach for continuous covariates is based on
-P-splines introduced by Eilers and Marx (1996). The approach
-assumes that an unknown smooth function $f_j$ of a covariate $x_j$
-can be approximated by a polynomial spline of degree $l$ defined
-on a set of equally spaced knots $x_j^{min} = \zeta_{0}  <
-\zeta_{1} < \dots < \zeta_{d-1} < \zeta_{d} = x_j^{max}$ within
-the domain of $x_j$. Such a spline can be written in terms of a
-linear combination of $M_j = d+l$ B-spline basis functions
-$B_{m}$, i.e.
+A second approach for effects of continuous covariates, that is
+closely related to random walk models, is based on P-splines
+introduced by Eilers and Marx (1996). The approach assumes that an
+unknown smooth function $f_j$ of a covariate $x_j$ can be
+approximated by a polynomial spline of degree $l$ defined by a set
+of equally spaced knots $x_j^{min} = \zeta_{0}  < \zeta_{1} < \dots
+< \zeta_{d-1} < \zeta_{d} = x_j^{max}$ within the domain of $x_j$.
+Such a spline can be written in terms of a linear combination of
+$M_j = d+l$ B-spline basis functions $B_{m}$, i.e.
 $$
 f_j(x_j) = \sum_{m=1}^{M_j} \beta_{jm} B_{m}(x_j).
 $$
-Here $\beta_j = (\beta_{j1},\dots,\beta_{jM_j})'$ corresponds to
-the vector of unknown regression coefficients. The $n \times M_j$
-design matrix $X_j$ consists of the basis functions evaluated at
-the observations $x_{rj}$, i.e. $X_j(r,m) = B_m(x_{rj})$. The
-crucial point is the choice of the number of knots. For a small
-number of knots, the resulting spline may be not flexible enough
-to capture the variability of the data. For a large number of
-knots, estimated curves tend to overfit the data and, as a result,
-too rough functions are obtained. As a remedy Eilers and Marx
-(1996) suggest a moderately large number of equally spaced knots
-(usually between 20 and 40) to ensure enough flexibility, and to
-define a roughness penalty based on first or second order
+In this case, $\beta_j = (\beta_{j1},\dots,\beta_{jM_j})'$
+corresponds to the vector of unknown regression coefficients and the
+$n \times M_j$ design matrix $X_j$ consists of the basis functions
+evaluated at the observations $x_{rj}$, i.e. $X_j[r,m] =
+B_m(x_{rj})$. The crucial point is the choice of the number of
+knots. For a small number of knots, the resulting spline may not be
+flexible enough to capture the variability of the data. For a large
+number of knots, estimated curves tend to overfit the data and, as a
+result, too rough functions are obtained. As a remedy, Eilers and
+Marx (1996) suggest a moderately large number of equally spaced
+knots (usually between 20 and 40) to ensure enough flexibility, and
+to define a roughness penalty based on first or second order
 differences of adjacent B-Spline coefficients to guarantee
-sufficient smoothness of the fitted curves. This leads to
-penalized likelihood estimation with penalty terms
+sufficient smoothness of the fitted curves. This leads to penalized
+likelihood estimation with penalty terms
 \begin{equation}
 \label{diffpenalty} P(\lambda_j) = \lambda_j \sum_{m=k+1}^{M_j}
 (\Delta^k \beta_{jm})^2 , \quad k=1,2
 \end{equation}
 where $\lambda_j$ is the smoothing parameter. First order
 differences penalize abrupt jumps $\beta_{jm}-\beta_{j,m-1}$ between
-successive parameters and second order differences penalize
+successive parameters while second order differences penalize
 deviations from the linear trend $2 \beta_{j,m-1}-\beta_{j,m-2}$. In
 a Bayesian approach we use the stochastic analogue of difference
-penalties, i.e. first or second order random walks, as a prior for
+penalties, i.e. first or second order random walks, as priors for
 the regression coefficients. Note that simple first or second order
 random walks can be regarded as P-splines of degree $l=0$ and are
-therefore a special case. More details about Bayesian P-splines can
-be found in Lang and Brezger (2004) and Brezger and Lang (2006).
+therefore included as a special case. More details about Bayesian
+P-splines can be found in Lang and Brezger (2004) and Brezger and
+Lang (2006).
 
 
-\subsection{Priors for spatial effects}\index{spatial
+\subsection{Priors for spatial effects}\index{Spatial
 priors}\index{Markov random fields}\index{Kriging}\index{Gaussian
-random fields} \label{spatial}
+random fields} \label{spatial}\index{Prior assumptions!Spatial
+effects}
 
 Suppose that the index $s \in \{ 1,\dots,S \}$ represents the
 location or site in connected geographical regions. For simplicity
-we assume that the regions are labelled consecutively. A common
-way to introduce a spatially correlated effect is to assume that
-neighboring sites are more alike than two arbitrary sites. Thus
-for a valid prior definition a set of neighbors for each site $s$
-must be defined. For geographical data one usually assumes that
-two sites $s$ and $s'$ are neighbors if they share a common
-boundary.
+we assume that the regions are labelled consecutively. A common way
+to introduce a spatially correlated effect is to assume that
+neighboring sites are more alike than arbitrary sites. Thus, for a
+valid prior definition a set of neighbors for each site $s$ must be
+defined. For geographical data one usually assumes that two sites
+$s$ and $s'$ are neighbors if they share a common boundary.
 
-The simplest (but most often used) spatial smoothness prior for
-the function evaluations $f_j(s)=\beta_{js}$ is
+The simplest (but most frequently used) spatial smoothness prior for
+the function evaluations $f_j(s)=\beta_{js}$ is given by
 \begin{equation}
 \label{adjacency} \beta_{js} | \beta_{js'}, \, {s \neq
 s'},\tau_j^2 \sim N \left( \frac{1}{N_s} \sum_{s' \in \partial_s}
 \beta_{js'} , \frac{\tau_j^2}{N_s} \right),
 \end{equation}
 where $N_s$ is the number of adjacent sites and $s' \in
-\partial_s$ denotes that site $s'$ is a neighbor of site $s$. Thus
+\partial_s$ denotes that site $s'$ is a neighbor of site $s$. Hence,
 the (conditional) mean of $\beta_{js}$ is an unweighted average of
 function evaluations of neighboring sites. The prior is a direct
-generalization of a first order random walk to two dimensions and
-is called a Markov random field (MRF).
+generalization of a first order random walk to two-dimensions and is
+called a Markov random field (MRF).
 
 A more general prior including (\ref{adjacency}) as a special case
 is given by
@@ -602,24 +645,22 @@ matrix.
 
 If exact locations $s=(s_x,s_y)$ are available, we can use
 two-dimensional surface estimators to model spatial effects. One
-option are two-dimensional P-splines, see \autoref{psplines}.
+option are two-dimensional P-splines, see \autoref{interactions}.
 Another option are Gaussian random field (GRF) priors, originating
-from geostatistics. They can be seen as two-dimensional surface
-smoothers based on special basis functions, e.g. radial basis
-functions, and have been used by Kammann and Wand (2003) to model
-the spatial component in Gaussian regression models. The spatial
-component $f_{j}(s)=\beta_s$ is then assumed to follow a zero
-mean stationary Gaussian random field
-$\{\beta_s:s\in\mathbb{R}^2\}$ with variance $\tau_{j}^2$ and
-isotropic correlation function
+from geostatistics. These can also be interpreted as two-dimensional
+surface smoothers based on radial basis functions and have been
+employed by Kammann and Wand (2003) to model the spatial component
+in Gaussian regression models. The spatial component
+$f_{j}(s)=\beta_s$ is assumed to follow a zero mean stationary
+Gaussian random field $\{\beta_s:s\in\mathbb{R}^2\}$ with variance
+$\tau_{j}^2$ and isotropic correlation function
 $cov(\beta_s,\beta_{s+h})=C(||h||)$. This means that correlations
-between sites that are $||h||$ units apart are the same,
-regardless of direction and the sites location. For a finite array
-$s\in\{1,\ldots,S\}$ of sites as in image analysis or in our
-application to forest health data, the prior for
-$\beta_j=(\beta_1,\ldots,\beta_s)'$ is of the general form
+between sites that are $||h||$ units apart are the same, regardless
+of direction and the sites location. For a finite array
+$s\in\{1,\ldots,S\}$ of sites as in image analysis, the prior for
+$\beta_j=(\beta_1,\ldots,\beta_S)'$ is of the general form
 (\ref{genform}) with $K=C^{-1}$ and
-\[C(i,j)=C(||s_i-s_j||), 1\le i,j\le n.\]
+\[C(i,j)=C(||s_i-s_j||), 1\le i,j\le S.\]
 The design matrix $X$ is again a 0/1 incidence matrix.
 
 Several proposals for the choice of the correlation function
@@ -628,119 +669,121 @@ family $C(r;\rho,\nu)$ is highly recommended. For prechosen values $\nu=m+1/2$,
 $m=0,1,2,\ldots$ of the smoothness parameter $\nu$ simple
 correlation functions $C(r;\rho)$ are obtained, e.g.
 \[C(r;\rho)=\exp(-|r/\rho|)(1+|r/\rho|)\]
-with $\nu=1.5$. The parameter $\rho$ controls how fast
-correlations die out with increasing $r=||h||$. It can be
-determined in a preprocessing step or may be estimated with
-variance components by restricted maximum likelihood. A simple
-rule to choose $\rho$ is
-\[\hat{\rho}=\max_{i,j}||s_i-s_j||/c\]
-ensuring scale invariance. The constant $c>0$ is chosen in such a
-way, that $C(c)$ is small, e.g. 0.001. Therefore the different
-values of $||s_i-s_j||/\hat{\rho}$ are spread out over the
-$r$-axis of the correlation function. This choice of $\rho$ has
-proved to work well in our experience.
+with $\nu=1.5$. The parameter $\rho$ controls how fast correlations
+die out with increasing $r=||h||$. It can be determined in a
+preprocessing step or may be estimated jointly with the variance
+components by restricted maximum likelihood. A simple rule, that
+also ensures scale invariance of the estimates, is to choose $\rho$
+as
+\[\hat{\rho}=\max_{i,j}||s_i-s_j||/c.\]
+The constant $c>0$ is chosen in such a way, that $C(c)$ is small,
+e.g. 0.001. Therefore the different values of
+$||s_i-s_j||/\hat{\rho}$ are spread out over the $r$-axis of the
+correlation function. This choice of $\rho$ has proved to work well
+in our experience.
 
 Although we described them separately, approaches for exact
 locations can also be used in the case of connected geographical
-regions, e.g. based on the centroids of the regions. Conversely,
-we can also apply MRFs to exact locations if neighborhoods are
-defined based on a distance measure. Furthermore GRFs may be
-approximated by MRFs, see Rue and Tjelmeland (2002). In general, it is
-not clear which of the different approaches leads to the ''best''
-fits. For data observed on a discrete lattice MRFs seem to be most
-appropriate. If the exact locations are available, surface
-estimators may be more natural, particularly because predictions
-for unobserved locations are available. However, in some
-situations surface estimators lead to an improved fit compared to
-MRF's even for discrete lattices and vice versa. A general
-approach that can handle both situations is given by
-M\"{u}ller et al. (1997).
+regions, e.g. based on the centroids of the regions. Conversely, we
+can also apply MRFs to exact locations if neighborhoods are defined
+based on a distance measure. In general, it is not clear which of
+the different approaches leads to the ''best'' fits. For data
+observed on a discrete lattice MRFs seem to be most appropriate. If
+the exact locations are available, surface estimators may be more
+natural, particularly because predictions for unobserved locations
+are available. However, in some situations surface estimators lead
+to an improved fit compared to MRF's even for discrete lattices and
+vice versa. A general approach that can handle both situations is
+given by M\"{u}ller et al. (1997).
 
-From a computational point of view MRF's and P-splines are preferable to
-GRF's because their posterior precision matrices are band matrices
-or can be transformed into a band matrix like structure. The
-special structure of the matrices considerably speeds up
-computations, at least for inference based on MCMC techniques.
-For inference based on mixed models, the main difference between GRFs and MRFs, considering their
-numerical properties, is the dimension of the penalty matrix. For
-MRFs the dimension of $K$ equals the number of different regions
-$S$ and is therefore independent from the sample size. On the
-other side, for GRFs, the dimension of $K$ is given by the number
-of distinct locations, which is usually close to the sample size.
-So the number of regression coefficients used to describe a MRF is
-usually much smaller than for a GRF and therefore the estimation
-of GRFs is computationally much more expensive. To overcome this
-difficulty Kammann and Wand (2003) propose low-rank kriging to
-approximate stationary Gaussian random fields. Note first, that we
-can define GRFs equivalently based on a design matrix $X$ with
-entries $X(i,j)=C(||s_i-s_j||)$ and penalty matrix $K=C$. To
-reduce the dimensionality of the estimation problem we define a
-subset of knots $\mathcal{D}=\{\kappa_1,\ldots,\kappa_M\}$ of the
-set of distinct locations $\mathcal{C}$. These knots can be chosen
-to be ''representative'' for the set of distinct locations
-$\mathcal{C}$ based on a space filling algorithm. Therefore
-consider the distance measure
+From a computational point of view MRF's and P-splines are
+preferable to GRF's because their posterior precision matrices are
+band matrices or can be transformed into a band matrix like
+structure. This special structure considerably speeds up
+computations, at least for inference based on MCMC techniques. For
+inference based on mixed models, the main difference between GRFs
+and MRFs, considering their numerical properties, is the dimension
+of the penalty matrix. For MRFs the dimension of $K$ equals the
+number of different regions $S$ and is therefore independent from
+the sample size. On the other side, for GRFs, the dimension of $K$
+is given by the number of distinct locations, which is usually close
+to the sample size. Therefore, the number of regression coefficients
+used to describe a MRF is usually much smaller than for a GRF and
+therefore the estimation of GRFs is computationally much more
+expensive. To overcome this difficulty Kammann and Wand (2003)
+propose low-rank kriging to approximate stationary Gaussian random
+fields. Note first, that we can define GRFs equivalently based on a
+design matrix $X$ with entries $X[i,j]=C(||s_i-s_j||)$ and penalty
+matrix $K=C$. To reduce the dimensionality of the estimation problem
+we define a subset of knots
+$\mathcal{D}=\{\kappa_1,\ldots,\kappa_M\}$ of the set of distinct
+locations $\mathcal{C}$. These knots can be chosen to be
+''representative'' for the set of distinct locations $\mathcal{C}$
+based on a space filling algorithm. Therefore consider the distance
+measure
 \[d(s,\mathcal{D})=\left(\sum_{\kappa\in\mathcal{D}}||s-\kappa||^p\right)^{\frac{1}{p}},\]
 with $p<0$, between any location $s\in\mathcal{D}$ and a possible
 set of knots $\mathcal{C}$. Obviously this distance measure is
 zero for all knots. Using a simple swapping algorithm to minimize
 the overall coverage criterion
 \[\left(\sum_{s\in\mathcal{C}}d(s,\mathcal{D})^q\right)^{\frac{1}{q}}\]
-with $q>0$ (compare Johnson et al. (1990) and
-Nychka and Saltzman (1998) for details) yields an optimal set of knots
-$\mathcal{D}$. Based on these knots we define the approximation
-$f_{j}=X\beta_j$ with the $n\times M$ design matrix
-$X(i,j)=C(||s_i-\kappa_j||)$, penalty matrix $K=C$ and
-$C(i,j)=C(||\kappa_i-\kappa_j||)$. The number of knots $M$ allows
-us to control the trade-off between the accuracy of the
-approximation ($M$ close to the sample size) and the numerical
+with $q>0$ (compare Johnson et al. (1990) and Nychka and Saltzman
+(1998) for details) yields an optimal set of knots $\mathcal{D}$.
+Based on these knots we define the approximation $f_{j}=X\beta_j$
+with the $n\times M$ design matrix $X[i,j]=C(||s_i-\kappa_j||)$,
+penalty matrix $K=C$, and $C[i,j]=C(||\kappa_i-\kappa_j||)$. The
+number of knots $M$ allows to control the trade-off between accuracy
+of the approximation ($M$ close to the sample size) and numerical
 simplification ($M$ small).
 
 \subsection{Unordered group indicators and unstructured spatial effects}
-\label{random}\index{random effects}\index{group indicators}
+\label{random}\index{Random effects}\index{Group
+indicators}\index{Unstructured spatial effects}
 
 In many situations we observe the problem of heterogeneity among
-clusters of observations caused by unobserved covariates.
-Neglecting unobserved heterogeneity may lead to considerably
-biased estimates for the remaining effects. Suppose $c \in
-\{1,\dots,C\}$ is a cluster variable indicating the cluster a
-particular observation belongs to. A common approach to overcome
-the difficulties of unobserved heterogeneity is to introduce
-additional Gaussian i.i.d. effects $f_j(c) = \beta_{jc}$ with
+clusters of observations caused by unobserved covariates. Neglecting
+unobserved heterogeneity may lead to considerably biased estimates
+for the remaining effects as well as false standard error estimates.
+Suppose $c \in \{1,\dots,C\}$ is a cluster variable indicating the
+cluster a particular observation belongs to. A common approach to
+overcome the difficulties of unobserved heterogeneity is to
+introduce additional Gaussian i.i.d. effects $f_j(c) = \beta_{jc}$
+with
 \begin{equation}
 \label{randomeff} \beta_{jc} \sim N(0,\tau_j^2), \quad
 c=1,\dots,C.
 \end{equation}
-The design matrix $X_j$ is again a $n \times C$ 0/1 incidence
-matrix and the penalty matrix is the identity matrix, i.e.
+The design matrix $X_j$ is again a $n \times C$-dimensional 0/1
+incidence matrix that represents the grouping structure of the data,
+while the penalty matrix is simply the identity matrix, i.e.
 $K_j=I$. From a classical perspective, (\ref{randomeff}) defines
-i.i.d. {\em random effects}. However, from a Bayesian point of
-view all unknown parameters are assumed to be random and hence the
-notation "random effects" in this context is misleading. We think
-of (\ref{randomeff}) more as an approach for modelling an unsmooth
-function.
+i.i.d. {\em random effects}. However, from a Bayesian point of view
+all unknown parameters are assumed to be random and hence the
+notation "random effects" in this context is misleading. Hence, one
+may also think of (\ref{randomeff}) as an approach for modelling an
+unsmooth function.
 
 Prior (\ref{randomeff}) may also be used for a more sophisticated
-modelling of spatial effects. In some situation it may be useful
-to split up a spatial effect $f_{spat}$ into a spatially
-correlated (structured) part $f_{str}$ and a spatially
-uncorrelated (unstructured) part $f_{unstr}$, i.e.
+modelling of spatial effects. In some situation it may be useful to
+split up the spatial effect $f_{spat}$ into a spatially correlated
+(structured) part $f_{str}$ and a spatially uncorrelated
+(unstructured) part $f_{unstr}$, i.e.
 $$
 f_{spat} = f_{str}+f_{unstr}.
 $$
-A rationale is that a spatial effect is usually a surrogate of
-many unobserved influential factors, some of them may obey a
-strong spatial structure and others may be present only locally.
-By estimating a structured and an unstructured component we aim at
+A rationale is that a spatial effect is usually a surrogate of many
+unobserved influential factors, some of which obeying a strong
+spatial structure while others are present only locally. By
+estimating a structured and an unstructured component we aim at
 distinguishing between the two kinds of influential factors, see
 also Besag, York and Mollie (1991). For the smooth spatial part we
-assume Markov random field priors or two dimensional surface
-smoothers as described in the next section. For the uncorrelated
-part we may assume prior (\ref{randomeff}).
+can assume any of the spatial priors discussed in \autoref{spatial}.
+For the uncorrelated part we may assume prior (\ref{randomeff}).
 
 \subsection{Modelling interactions}
-\label{interactions}\index{interactions}\index{varying
-coefficients}\index{two-dimensional p-splines}
+\label{interactions}\index{Interactions}\index{Varying coefficient
+models}\index{Two-dimensional p-splines}\index{Prior
+assumptions!Interactions}
 
 The models considered so far are not appropriate for modelling
 interactions between covariates. A common approach is based on
@@ -752,129 +795,126 @@ the range of a second covariate $w_{rj}$, i.e.
 \label{varcoeffterm} f_j(w_{rj},z_{rj}) = g_j(w_{rj}) z_{rj}.
 \end{equation}
 In most cases the interacting covariate $z_{rj}$ is categorical
-whereas the effect modifier may be either metrical, spatial or an
-unordered group indicator. For the nonlinear function $g_j$ we may
-assume the priors already defined in \autoref{psplines} for
+whereas the effect modifier may be either continuous, spatial or an
+unordered group indicator. For the nonlinear function $g_j$ we can
+assume any of the priors already defined in \autoref{psplines} for
 continuous effect modifiers, \autoref{spatial} for spatial effect
-modifiers and \autoref{random} for unordered group indicators as
-effect modifiers. In Hastie and Tibshirani (1993) only continuous
-effect modifiers have been considered. Models with spatial effect
-modifiers are used in Fahrmeir, Lang, Wolff and Bender (2003) and
-Gamerman, Moreira and Rue (2003). From a classical point of view,
-models with unordered group indicators as effect modifiers are
+modifiers, and \autoref{random} for unordered group indicators as
+effect modifiers. In Hastie and Tibshirani (1993) continuous effect
+modifiers have been considered exclusively. Models with spatial
+effect modifiers are used in Fahrmeir, Lang, Wolff and Bender (2003)
+and Gamerman, Moreira and Rue (2003). From a frequentist point of
+view, models with unordered group indicators as effect modifiers are
 called models with {\em random slopes}.
 
-In matrix notation we obtain for the vector of function
-evaluations
+In matrix notation we obtain
 $$
-f_j = diag(z_{1j},\dots,z_{nj})  X_j^* \beta_j
+f_j = \diag(z_{1j},\dots,z_{nj})  X_j^* \beta_j
 $$
-where $X_j^*$ is the design matrix corresponding to the prior for
-$g_j$. Hence the overall design matrix is given by $X_j =
-diag(z_{1j},\dots,z_{nj})  X_j^*$.
+for the vector of function evaluations, where $X_j^*$ is the design
+matrix corresponding to the prior for $g_j$. Hence the overall
+design matrix is given by $X_j = \diag(z_{1j},\dots,z_{nj})  X_j^*$.
 
 Suppose now that both interacting covariates are continuous. In this
 case, a flexible approach for modelling interactions can be based on
-(nonparametric) two dimensional surface fitting. In {\em BayesX}
-surface fitting is based on two dimensional P-splines described in
+(nonparametric) two-dimensional surface fitting. In {\em BayesX}
+surface fitting is based on two-dimensional P-splines described in
 more detail in Lang and Brezger (2004) and Brezger and Lang (2006).
-The assumption is that the unknown surface $f_j(w_{rj},z_{rj})$ can
-be approximated by the tensor product of two one dimensional
-B-splines, i.e.
+The unknown surface $f_j(w_{rj},z_{rj})$ is approximated by the
+tensor product of two one-dimensional B-splines, i.e.
 $$
 f_{j}(w_{rj},z_{rj}) = \sum_{m_1=1}^{M_j} \sum_{m_2=1}^{M_j}
 \beta_{j,m_1 m_2} B_{j, m_1}(w_{rj}) B_{j,m_2} (z_{rj}).
 $$
-Similar to one-dimensional P-splines, the $n \times M_j^2$ design
-matrix $X_j$ is composed of products of basis functions. Priors
-for $\beta_{j} = (\beta_{j,11},\dots,\beta_{j,M_jM_j})'$ are now
-based on spatial smoothness priors common in spatial statistics,
-e.g. two dimensional first order random walks. The most commonly
-used prior specification based on the four nearest neighbors can
-be defined by
+In analogy to one-dimensional P-splines, the $n \times M_j^2$ design
+matrix $X_j$ is composed of products of basis functions. Priors for
+$\beta_{j} = (\beta_{j,11},\dots,\beta_{j,M_jM_j})'$ can be based on
+spatial smoothness priors common in spatial statistics, e.g.
+two-dimensional first order random walks. The most commonly used
+prior specification based on the four nearest neighbors is defined
+by
 \begin{equation}
 \label{2dimrw1} \beta_{j, m_1 m_2} | \cdot \sim N \left(
 \frac{1}{4} ( \beta_{j, m_1-1,m_2}+ \beta_{j, m_1+1,m_2} +
 \beta_{j, m_1,m_2-1} +\beta_{j, m_1,m_2+1}),\frac{\tau^2_{j}}{4}
 \right)
 \end{equation}
-for $m_1,m_2=2,\dots,M_j$ and appropriate changes for corners and
-edges. The prior can be easily brought into the general form
-(\ref{genform}).
+for $m_1,m_2=2,\dots,M_j-1$ and appropriate edge corrections. This
+prior as well as higher order bivariate random walks can be easily
+brought into the general form (\ref{genform}).
 
 
 \subsection{Mixed Model representation}
-\label{glmmrep}\index{mixed model representation}
+\label{glmmrep}\index{Mixed model representation}\index{Marginal
+likelihood}\index{Restricted maximum likelihood}
 
 You may skip this section if you are not interested in using the
 regression tool based on mixed model methodology ({\em remlreg
-objects}.
+objects}).
 
-In this section, we show how STAR models can be represented as
+In this section we show how STAR models can be represented as
 generalized linear mixed models (GLMM) after appropriate
-reparametrization, see also Lin and Zhang (1999) and Green (1987)
-in the context of smoothing splines. In fact, model (\ref{glm})
-with the structured additive predictor (\ref{gampredmatrix}) can
-always be expressed as a GLMM. This provides the key for
-simultaneous estimation of the functions $f_j$, $j=1,\dots,p$ and
-the variance parameters $\tau^2_j$ in the empirical Bayes approach
-described in \autoref{glmmmeth} and used for estimation by {\em
-remlreg objects}.  To rewrite the model as a GLMM, the general
-model formulation is useful again. We proceed as follows:
+reparametrization, see also Lin and Zhang (1999) or Green (1987) in
+the context of smoothing splines. In fact, model (\ref{glm}) with
+the structured additive predictor (\ref{gampredmatrix}) can always
+be expressed as a GLMM. This provides the key for simultaneous
+estimation of the functions $f_j$, $j=1,\dots,p$ and the variance
+parameters $\tau^2_j$ in the empirical Bayes approach described in
+\autoref{glmmmeth} and used for estimation by {\em remlreg objects}.
+To rewrite the model as a GLMM, the general model formulation again
+proves to be useful. We proceed as follows:
 
 The  vectors of regression coefficients $\beta_j$, $j=1,\dots,p$,
-are decomposed into an {\em unpenalized} and a {\em penalized
-part}. Suppose that the $j$-th coefficient vector has dimension
-$M_j \times 1$ and the corresponding penalty matrix $K_j$ has rank
-$rk_j$. Then we define the decomposition
+are decomposed into an {\em unpenalized} and a {\em penalized part}.
+Suppose that the $j$-th coefficient vector has dimension $M_j \times
+1$ and the corresponding penalty matrix $K_j$ has rank $k_j$. Then
+we define the decomposition
 \begin{equation}
 \label{decompbeta} \beta_j = X_j^{unp} \beta_j^{unp} + X_j^{pen}
 \beta_j^{pen},
 \end{equation}
-where the columns of the $M_j \times (M_j - rk_j)$ matrix
-$X_j^{unp}$ contain a basis of the nullspace of $K_j$. The  $M_j
-\times rk_j$ matrix $X_j^{pen}$ is given by $X_j^{pen} =
-L_j(L_j'L_j)^{-1}$ where the $M_j \times rk_j$ matrix $L_j$ is
-determined by the decomposition of the penalty matrix $K_j$ into
-$K_j = L_jL_j'$. A requirement for the decomposition is that
-$L_j'X_j^{unp} = 0$ and $X_j^{unp}L_j' = 0$ hold. Hence the
-parameter vector $\beta_j^{unp}$ represents the part of $\beta_j$
-which is not penalized by $K_j$ whereas the vector $\beta_j^{pen}$
-represents the deviations of the parameters $\beta_j$ from the
+where the columns of the $M_j \times (M_j - k_j)$ matrix $X_j^{unp}$
+contain a basis of the nullspace of $K_j$. The  $M_j \times k_j$
+matrix $X_j^{pen}$ is given by $X_j^{pen} = L_j(L_j'L_j)^{-1}$ where
+the $M_j \times k_j$ matrix $L_j$ is determined by the decomposition
+of the penalty matrix $K_j$ into $K_j = L_jL_j'$. A requirement for
+the decomposition is that $L_j'X_j^{unp} = 0$ and $X_j^{unp}L_j' =
+0$ hold. Hence the parameter vector $\beta_j^{unp}$ represents the
+part of $\beta_j$ which is not penalized by $K_j$ whereas the vector
+$\beta_j^{pen}$ represents the deviation of $\beta_j$ from the
 nullspace of $K_j$.
 
-In general, the decomposition $K_j=L_jL_j'$ of $K_j$ can be
-obtained from the spectral decomposition $K_j = \Gamma_j \Omega_j
-\Gamma_j'$. The ($rk_j \times rk_j$)  diagonal matrix $\Omega_j$
-contains the positive eigenvalues $\omega_{jm}$, $m=1,\dots,rk_j$,
-of $K_j$ in descending order, i.e. $\Omega_j =
-diag(\omega_{j1},\dots,\omega_{j,rk_j})$. $\Gamma_j$ is a ($M_j
-\times rk_j$) orthogonal matrix of the corresponding eigenvectors.
-From the spectral decomposition we can choose $L_j = \Gamma_j
-\Omega_j^{\frac{1}{2}}$. In some cases a more favorable
-decomposition can be found. For instance, for P-splines defined in
-\autoref{psplines} a more favorable choice for $L_j$ is given by
-$L_j = D'$ where $D$ is the first or second order difference
-matrix. Of course, for (the "random effects") prior
-(\ref{randomeff}) of \autoref{random} a decomposition of $K_j=I$
-is not necessary. Also, the unpenalized part vanishes completely.
+In general, the decomposition $K_j=L_jL_j'$ is obtained from the
+spectral decomposition $K_j = \Gamma_j \Omega_j \Gamma_j'$. The
+($k_j \times k_j$)  diagonal matrix $\Omega_j$ contains the positive
+eigenvalues $\omega_{jm}$, $m=1,\dots,k_j$, of $K_j$ in descending
+order, i.e. $\Omega_j = \diag(\omega_{j1},\dots,\omega_{j,k_j})$.
+$\Gamma_j$ is a ($M_j \times k_j$) orthogonal matrix of the
+corresponding eigenvectors. From the spectral decomposition we can
+choose $L_j = \Gamma_j \Omega_j^{\frac{1}{2}}$. In some cases a more
+favorable decomposition can be found. For instance, for P-splines a
+simpler choice for $L_j$ is given by $L_j = D'$ where $D$ is the
+first or second order difference matrix. Of course, for  prior
+(\ref{randomeff}) of \autoref{random} and in general for proper
+priors a decomposition of $K_j$ is not necessary. In this case the
+unpenalized part vanishes completely.
 
-The matrix $X_j^{unp}$ is the identity vector {\bf 1} for
-P-splines with first order random walk penalty and Markov random
-fields. For P-splines with second order random walk penalty
-$X_j^{unp}$ is a two column matrix whose first column is again the
-identity vector and the second column is composed of the
-(equidistant) knots of the spline.
+The matrix $X_j^{unp}$ is the identity vector {\bf 1} for P-splines
+with first order random walk penalty and Markov random fields. For
+P-splines with second order random walk penalty $X_j^{unp}$ is a two
+column matrix where the first column again equals the identity
+vector while the second column is composed of the (equidistant)
+knots of the spline.
 
 From the decomposition (\ref{decompbeta}) we get
 $$
 \frac{1}{\tau^2_j} \beta_j' K_j \beta_j = \frac{1}{\tau^2_j}
-(\beta_j^{pen})' \beta_j^{pen}.
+(\beta_j^{pen})' \beta_j^{pen}
 $$
-From the general prior (\ref{genform}) for $\beta_j$ it follows
+and from the general prior (\ref{genform}) for $\beta_j$ it follows
 that
 $$
-p(\beta_{jm}^{unp}) \propto const , \qquad m=1,\dots, M_j-rk_j
+p(\beta_{jm}^{unp}) \propto const , \qquad m=1,\dots, M_j-k_j
 $$
 and
 \begin{equation}
@@ -883,48 +923,48 @@ and
 Finally, by defining the matrices $\tilde{U}_j = X_j X_j^{unp}$
 and $\tilde{X}_j = X_j X_j^{pen}$, we can rewrite the predictor
 (\ref{gampredmatrix}) as
-$$
-\eta = \sum_{j=1}^{p} X_j \beta_j  + U \gamma
-     = \displaystyle \sum_{j=1}^{p}  (\tilde{U}_j \beta_j^{unp} + \tilde{X}_j
-     \beta_j^{pen}) +  U \gamma
-= \displaystyle \tilde{U} \beta^{unp} + \tilde{X} \beta^{pen}.
-$$
+\begin{eqnarray*}
+\eta &=& \sum_{j=1}^{p} X_j \beta_j  + U \gamma\\
+     &=& \displaystyle \sum_{j=1}^{p}  (\tilde{U}_j \beta_j^{unp} + \tilde{X}_j
+     \beta_j^{pen}) +  U \gamma\\
+&=& \displaystyle \tilde{U} \beta^{unp} + \tilde{X} \beta^{pen}.
+\end{eqnarray*}
 The design matrix $\tilde{X}$ and the vector $\beta^{pen}$ are
 composed of the matrices $\tilde{X}_j$ and the vectors
 $\beta_j^{pen}$, respectively. More specifically, we obtain
-$\tilde{X} = (\tilde{X}_1 \,\, \tilde{X}_2 \,\, \cdots \,\,
+$\tilde{X} = (\tilde{X}_1 \,\, \tilde{X}_2 \,\, \ldots \,\,
 \tilde{X}_p) $ and the stacked vector $\beta^{pen} =
 ((\beta_1^{pen})',\dots,(\beta_p^{pen})')'$. Similarly the matrix
 $\tilde{U}$ and the vector $\beta^{unp}$ are given by $\tilde{U} =
-(\tilde{U}_1 \,\, \tilde{U}_2 \,\, \cdots \,\, \tilde{U}_p \, U)$
+(\tilde{U}_1 \,\, \tilde{U}_2 \,\, \ldots \,\, \tilde{U}_p \, U)$
 and $\beta^{unp} =
 ((\beta_1^{unp})',\dots,(\beta_p^{unp})',\gamma')'$.
 
 Finally, we obtain a GLMM with fixed effects $\beta^{unp}$ and
 random effects $\beta^{pen} \sim N(0,\Lambda)$ where $\Lambda =
-diag(\tau^2_1,\dots,\tau^2_1,\dots,\tau^2_p,\dots,\tau^2_p)$.
+\diag(\tau^2_1,\dots,\tau^2_1,\dots,\tau^2_p,\dots,\tau^2_p)$.
 Hence, we can utilize GLMM methodology for simultaneous estimation
-of smooth functions and the variance parameters $\tau^2_j$, see
-the next section.
+of smooth functions and the variance parameters $\tau^2_j$, see the
+next section.
 
 The mixed model representation also enables us to examine the
 identification problem inherent to nonparametric regression from a
-different angle. Except for i.i.d. Gaussian effects
-(\ref{randomeff}), the design matrices $\tilde{U}_j$ for the
-unpenalized parts contain the identity vector.  Provided that
-there is at least one nonlinear effect and that $\gamma$ contains
-an intercept, the matrix $\tilde{U}$ has not full column rank.
-Hence, all identity vectors in $\tilde{U}$ except for the
-intercept must be deleted to guarantee identifiability.
+different perspective. For most types of nonparametric effects the
+design matrix $\tilde{U}_j$ for the unpenalized part contains the
+identity vector. Provided that there is at least one such nonlinear
+effect and that $\gamma$ contains an intercept, the matrix
+$\tilde{U}$ has not full column rank. Hence, all identity vectors in
+$\tilde{U}$ except for the intercept have to be deleted to guarantee
+identifiability.
 
 
 \section{Inference}
 \label{inference}
 
 {\em BayesX} provides two alternative approaches for Bayesian
-inference. {\em bayesreg objects} (chapter \ref*{bayesreg} of the
+inference. {\em Bayesreg objects} (chapter \ref*{bayesreg} of the
 reference manual) estimate STAR models using MCMC simulation
-techniques described in \autoref{fullbayes}. {\em remlreg objects}
+techniques described in \autoref{fullbayes}. {\em Remlreg objects}
 (chapter \ref*{remlreg} of the reference manual) use mixed model
 representations of STAR models for empirical Bayesian inference, see
 \autoref{glmmmeth}.
@@ -932,41 +972,39 @@ representations of STAR models for empirical Bayesian inference, see
 
 
 \subsection{Full Bayesian inference based on MCMC techniques}
-\label{fullbayes}\index{full Bayesian inference}\index{MCMC}
+\label{fullbayes}\index{Full Bayesian inference}\index{MCMC}
+\index{Bayesreg objects}
 
-This section may be skipped if you are not interested in using the
-regression tool for full Bayesian inference based on MCMC techniques
-({\em bayesreg objects}).
+This subsection may be skipped if you are not interested in using
+the regression tool for full Bayesian inference based on MCMC
+simulation techniques ({\em bayesreg objects}).
 
 For full Bayesian inference, the unknown variance parameters
-$\tau_j^2$ are also considered as random and estimated
-simultaneously with the unknown regression parameters $\beta_j$.
-Therefore, hyperpriors are assigned to the variances $\tau^2_j$
-in a further stage of the hierarchy by highly dispersed (but
-proper) inverse Gamma priors $p(\tau^2_j) \sim IG(a_j,b_j)$. The
-probability density is given by
+$\tau_j^2$ are also considered as random variables supplemented with
+suitable hyperprior assumptions. In {\em BayesX}, highly dispersed
+(but proper) inverse Gamma priors $p(\tau^2_j) \sim IG(a_j,b_j)$ are
+assigned to the variances. The corresponding probability density
+function is given by
 $$
-\tau_j^2 \propto (\tau^2_j)^{-a_j-1}
-\exp\left(-\frac{b_j}{\tau^2_j}\right).
+ \tau_j^2 \propto (\tau^2_j)^{-a_j-1}\exp\left(-\frac{b_j}{\tau^2_j}\right).
 $$
-The prior for $\tau_j^2$ must not be diffuse in order to obtain a
-proper posterior for $\beta_j$. A common choice for the
+Using proper priors for $\tau_j^2$ (with $a_j>0$ and $b_j>0$)
+ensures propriety of the joint posterior despite the partial
+impropriety of the priors for the $\beta_j$. A common choice for the
 hyperparameters are small values for $a_j$ and $b_j$, e.g.
 $a_j=b_j=0.001$ which is also the default in {\em BayesX}.
 
 In some situations, the estimated nonlinear functions $f_j$ may
 considerably depend on the particular choice of hyperparameters
 $a_j$ and $b_j$. This may be the case for very low signal to noise
-ratios or/and small sample sizes. It is therefore highly
-recommended to estimate all models under consideration using a
-(small) number of {\em different} choices for $a_j$ and $b_j$ to
-assess the dependence of results on minor changes in the model
-assumptions. In that sense, the variation of hyperparameters can
-be used as a tool for model diagnostics.
+ratio and/or small sample size. It is therefore highly recommended
+to estimate all models under consideration using a (small) number of
+{\em different} choices for $a_j$ and $b_j$ to assess the dependence
+of results on minor changes in the model assumptions. In that sense,
+the variation of hyperparameters can be used as a tool for model
+diagnostics.
 
-
-Bayesian inference is based on the posterior of the model which is
-given by
+Bayesian inference is based on the posterior of the model given by
 \begin{equation}
 \label{posterior}
 \begin{array}{lll}
@@ -975,103 +1013,98 @@ given by
 \right)
  \end{array}
 \end{equation}
-where  $L(\cdot)$ denotes the likelihood which is the product of
-individual likelihood contributions.
+where  $L(\cdot)$ denotes the likelihood which, under the assumption
+of conditional independence, is the product of individual likelihood
+contributions.
 
-
-In many practical situations (as is the case here) the posterior
-distribution is numerically intractable. A common technique to
-overcome  these problems are Markov Chain Monte Carlo (MCMC)
-simulation methods that have become very popular recently. MCMC
-methods allow the drawing of random numbers from the numerically
-intractable posterior distribution and in this way the estimation of
-characteristics of the posterior like means, standard deviations or
-quantiles via their empirical analogues. The main idea is very
-simple. Instead of drawing directly from the posterior (which is
-impossible in most cases anyway) a Markov chain is created, whose
-iterations of the transition kernel converge to the posterior. In
-this way a sample of dependent random numbers of the posterior is
-obtained. As a rule, the first part of the sample is discarded to
-take into account the time the algorithm needs for convergence to
-the posterior. This part is known as burn-in period. In {\em BayesX}
-the user has some control over the MCMC simulations to fit a certain
-model by specifying certain options. Among others, there are options
-for specifying the number of burn-in iterations and the total number
-of iterations, see chapter \ref*{bayesreg} of the reference manual
-for more details.
+In many practical situations (and in particular for most structured
+additive regression models) the posterior distribution is
+numerically intractable. A technique that overcomes this problem are
+Markov Chain Monte Carlo (MCMC) simulation methods that allow to
+draw random samples from the posterior. From these random samples,
+characteristics of the posterior such as posterior means, standard
+deviations or quantiles can be estimated by their empirical
+analogues. Instead of drawing samples directly from the posterior
+(which is impossible in most cases anyway) MCMC devices a way to
+construct a Markov chain with the posterior as stationary
+distribution. Hence, the iterations of the transition kernel of this
+Markov chain converge to the posterior yielding a sample of
+dependent random numbers. Usually the first part of the sample (the
+burn-in phase) is discarded since the algorithm needs some time to
+converge. In addition, some thinning is typically applied to the
+Markov chain to reduce autocorrelations. In {\em BayesX} the user
+can specify options for the number of burn-in iterations, the
+thinning parameter and the total number of iterations, see chapter
+\ref*{bayesreg} of the reference manual for more details.
 
 {\em BayesX} provides a number of different sampling schemes,
-which depend mainly on the distribution of the response. The first
-sampling scheme is for Gaussian responses. The second sampling
-scheme is particularly useful for (multi)categorical responses
-and uses the sampling scheme for Gaussian responses as a building
-block. The third sampling scheme is based on IWLS proposals and is
-used for general responses from an exponential family. A last
-sampling scheme is based on conditional prior proposals. We start
-with the sampling scheme for Gaussian responses.
+specifically tailored to the distribution of the response. The first
+sampling scheme is suitable for Gaussian responses. The second
+sampling scheme is particularly useful for categorical responses and
+uses the sampling scheme for Gaussian responses as a building block.
+The third sampling scheme is based on iteratively weighted least
+squares proposals and is used for general responses from an
+exponential family. A further sampling scheme, not described in this
+manual, is based on conditional prior proposals.
 
 \subsubsection{Gaussian responses}
 \index{MCMC!Gaussian Response}
 
 Suppose first that the distribution of the response variable is
-Gaussian, i.e. $y_i | \eta_i, \sigma^2 \sim
-N(\eta_i,\sigma^2/c_i)$, $i=1,\dots,n$ or $y | \eta, \sigma^2 \sim
-N(\eta,\sigma^2 C^{-1})$ where $C = diag(c_1,\dots,c_n)$ is a
-known weight matrix.
- In this case full conditionals for fixed effects
-as well as nonlinear functions $f_j$ are multivariate Gaussian.
-Thus a Gibbs sampler can be used where posterior samples are drawn
-directly from the multivariate Gaussian distributions. The full
-conditional $\gamma | \cdot$ for fixed effects  with diffuse
-priors is Gaussian with mean
-\begin{equation}
-\label{meanfixed} E(\gamma | \cdot) = (U'C
-U)^{-1}U'C(y-\tilde{\eta} )
+Gaussian, i.e. $y_i | \eta_i, \sigma^2 \sim N(\eta_i,\sigma^2/c_i)$,
+$i=1,\dots,n$ or $y | \eta, \sigma^2 \sim N(\eta,\sigma^2 C^{-1})$
+where $C = \diag(c_1,\dots,c_n)$ is a known weight matrix. In this
+case, full conditionals for fixed effects as well as nonlinear
+functions $f_j$ are multivariate Gaussian and, as a consequence, a
+Gibbs sampler can be employed. To be more specific, the full
+conditional $\gamma | \cdot$ for fixed effects with diffuse priors
+is Gaussian with mean
+\begin{equation}\label{meanfixed}
+ E(\gamma | \cdot) = (U'C U)^{-1}U'C(y-\tilde{\eta})
 \end{equation}
 and covariance matrix
 \begin{equation}
 \label{covfixed} Cov(\gamma | \cdot ) = \sigma^2 (U'CU)^{-1}
 \end{equation}
-where $U$ is the design matrix of fixed effects and $\tilde{\eta}$
-is the part of the additive predictor associated with the other
-effects in the model (for example nonparametric terms). Similarly,
-the full conditional for the regression coefficients $\beta_j$ of
-a function $f_j$ is Gaussian with mean
+where $U$ is the design matrix of fixed effects and
+$\tilde{\eta}=\eta-U\gamma$ is the part of the additive predictor
+associated with the remaining effects in the model. Similarly, the
+full conditional for the regression coefficients $\beta_j$ of a
+function $f_j$ is Gaussian with mean
 \begin{equation}
 \label{meangaussian} m_j = E(\beta_j | \cdot) = \left(
-\frac{1}{\sigma^2} X_j' C X_j + \frac{1}{\tau_j^2} K_j
-\right)^{-1} \frac{1}{\sigma^2}X_j'C(y-\tilde{\eta})
+\frac{1}{\sigma^2} X_j' C X_j + \frac{1}{\tau_j^2} K_j \right)^{-1}
+\frac{1}{\sigma^2}X_j'C(y-\eta_{-j}),
 \end{equation}
-and covariance matrix
+where $\eta_j=\eta-X_j\beta_j$, and covariance matrix
 \begin{equation}
 \label{covgaussian} Cov(\beta_j | \cdot) = P_j^{-1} = \left(
 \frac{1}{\sigma^2} X_j'CX_j + \frac{1}{\tau_j^2} K_j \right)^{-1}.
 \end{equation}
-Although the full conditional is Gaussian, drawing random samples
-in an efficient way is not trivial, since linear equation systems
-with a high dimensional precision matrix $P_j$ must be solved in
-every iteration of the MCMC scheme. Following Rue (2001), drawing
-random numbers from $p(\beta_j | \cdot)$ is as follows: We first
-compute the Cholesky decomposition $P_j = L L'$. We proceed by
-solving $L' \beta_j = z$, where $z$ is a vector of independent
-standard Gaussians. It follows that $\beta_j \sim N(0,P_j^{-1})$.
-We then compute the mean $m_j$ by solving $P_j m_j =
-\frac{1}{\sigma^2} X_j'C(y-\tilde{\eta})$. This is achieved by
-first solving $L \nu = \frac{1}{\sigma^2} X_j'C(y-\tilde{\eta})$
-by forward substitution followed by backward substitution $L' m_j
-= \nu$. Finally, adding $m_j$ to the previously simulated
-$\beta_j$ yields $\beta_j \sim N(m_j,P_j^{-1})$.
+Although the full conditional is Gaussian, drawing random samples in
+an efficient way is not trivial, since linear equation systems with
+a high dimensional precision matrix $P_j$ must be solved in every
+iteration of the MCMC scheme. Following Rue (2001), random numbers
+from $p(\beta_j | \cdot)$ can be obtained as follows: Compute the
+Cholesky decomposition $P_j = L L'$ and solve $L' \beta_j = z$,
+where $z$ is a vector of independent standard Gaussians. It follows
+that $\beta_j \sim N(0,P_j^{-1})$. Afterwards compute the mean $m_j$
+by solving $P_j m_j = \frac{1}{\sigma^2} X_j'C(y-\eta_{-j})$. This
+is achieved by first solving $L \nu = \frac{1}{\sigma^2}
+X_j'C(y-\tilde{\eta})$ by forward substitution followed by backward
+substitution $L' m_j = \nu$. Finally, adding $m_j$ to the previously
+simulated $\beta_j$ yields $\beta_j \sim N(m_j,P_j^{-1})$.
 
-In all cases, the posterior precision matrices $P_j$ can be
-brought into a band matrix like structure with bandsize depending
-on the prior. If $f_j$ corresponds to a spatially correlated
-effect, the posterior precision matrix is usually a sparse matrix
-but not a band matrix. In this case the regions of a geographical
-map must be {\em reordered}, using the {\em reverse Cuthill-McKee
-algorithm}, to obtain a band matrix like precision matrix. Random
-samples from the full conditional can now be drawn in a very
-efficient way using Cholesky decompositions for band matrices or
-band matrix like matrices. In our implementation we use the {\em
+In most cases, the posterior precision matrices $P_j$ can be brought
+into a band matrix like structure with bandsize depending on the
+prior. If $f_j$ corresponds to a spatially correlated effect for
+regional data, the posterior precision matrix is usually a sparse
+matrix but not a band matrix. In this case, the regions of a
+geographical map must be {\em reordered}, using the {\em reverse
+Cuthill-McKee algorithm}, to obtain a band matrix like precision
+matrix. Random samples from the full conditional can now be drawn in
+a very efficient way using Cholesky decompositions for band matrices
+or band matrix like matrices. In our implementation, we use the {\em
 envelope method} for band matrix like matrices as described in
 George and Liu (1981).
 
@@ -1079,8 +1112,8 @@ The full conditionals for the variance parameters $\tau^2_j$,
 $j=1,\dots,p$, and $\sigma^2$ are all inverse Gamma distributions
 with parameters
 \begin{equation}
-\label{hypab} a_j' = a_j + \frac{rank(K_j)}{2} \quad \mbox{and}
-\quad b_j' = b_j + \frac{1}{2} \beta_j'K_j \beta_j
+\label{hypab} a_j' = a_j + \frac{\mathrm{rank}(K_j)}{2} \quad
+\mbox{and} \quad b_j' = b_j + \frac{1}{2} \beta_j'K_j \beta_j
 \end{equation}
 for $\tau^2_j$. For $\sigma^2$ we obtain
 \begin{equation}
@@ -1090,28 +1123,27 @@ for $\tau^2_j$. For $\sigma^2$ we obtain
 \end{equation}
 where $\epsilon$ is the usual vector of residuals.
 
-We note that in {\em BayesX} the response variable is standardized
-prior to estimation in order to avoid numerical problems with too
-large or too small values of the response. All results are,
-however, retransformed into the original scale.
+Note that prior to estimation the response variable is standardized
+in {\em BayesX} to avoid numerical problems with too large or too
+small values of the response. All results are, however,
+retransformed into the original scale.
 
-We finally summarize the sampling scheme for Gaussian responses:
+The sampling scheme for Gaussian responses can be summarized as
+follows:
 
 {\bf Sampling scheme 1:}
-
 \begin{enumerate}
 \item {\em Initialization:} \\
-Compute the posterior mode for $\beta_1,\dots,\beta_p$ and
-$\gamma$ given fixed (usually small) smoothing parameters
-$\lambda_j = \sigma^2/\tau^2_j$, by default {\em BayesX} uses
-$\lambda_j = 0.1$. This value may be changed by the user. The mode
-is computed via backfitting. Use the posterior mode estimates as
-the current state $\beta_j^c$, $(\tau_j^2)^c$, $\gamma^c$ of the
-chain.
+Compute the posterior mode for $\beta_1,\dots,\beta_p$ and $\gamma$
+given fixed (usually small) smoothing parameters $\lambda_j =
+\sigma^2/\tau^2_j$, by default {\em BayesX} uses $\lambda_j = 0.1$.
+This value may be changed by the user. The mode is computed via
+backfitting. Use the posterior mode estimates as the initial state
+$\beta_j^c$, $(\tau_j^2)^c$, $\gamma^c$ of the chain.
 \item {\em Update regression parameters $\gamma$} \\
 Update regression parameters $\gamma$ by drawing from the Gaussian
-full conditional with mean and covariance in (\ref{meanfixed}) and
-(\ref{covfixed}).
+full conditional with mean and covariance matrix specified in
+(\ref{meanfixed}) and (\ref{covfixed}).
 \item {\em Update regression parameters $\beta_j$} \\
 Update $\beta_j$ for $j=1,\dots,p$ by drawing from the Gaussian
 full conditionals with mean and covariance matrix given in
@@ -1122,41 +1154,40 @@ conditionals with parameters given in (\ref{hypab}) and
 (\ref{hypabsigma}).
 \end{enumerate}
 
-\subsubsection{(Multi)categorical Response}
-\label{mulitcategoricalresp} \index{MCMC!categorical Response}
+\subsubsection{Categorical Response}
+\label{mulitcategoricalresp} \index{MCMC!Gategorical Response}
 
-For most models with categorical responses efficient sampling
-schemes based on latent utility representations can be developed.
-The seminal paper by Albert and Chib (1993) develops algorithms for
-probit models  with  ordered categorical responses. The case of
-probit models with unordered multicategorical responses is dealt
-with e.g. in Fahrmeir and Lang (2001b). Recently, another important
-data augmentation approach for binary logit models has been
-presented by Holmes and Knorr-Held (2006). The adaption of these
-sampling schemes to STAR models used in {\em BayesX} is more or less
-straightforward. We briefly illustrate the concept for binary data,
-i.e. $y_i$ takes only the values 0 or 1. We first assume a probit
-model. Conditional on the covariates and the parameters, $y_i$
-follows a Bernoulli distribution $y_i \sim B(1,\mu_i)$ with
-conditional mean $\mu_i = \Phi(\eta_i)$ where $\Phi$ is the
-cumulative distribution function of a standard normal distribution.
-Introducing latent variables
+For most models with categorical responses, efficient sampling
+schemes can be developed based on latent utility representations.
+The seminal paper by Albert and Chib (1993) describes algorithms for
+probit models with ordered categorical responses. The case of probit
+models with unordered categorical responses is dealt with e.g. in
+Fahrmeir and Lang (2001b). Recently, a similar data augmentation
+approach for logit models has been presented by Holmes and
+Knorr-Held (2006). The adaption of these sampling schemes to STAR
+models used in {\em BayesX} is more or less straightforward. We
+briefly illustrate the concept for binary data, i.e. $y_i$ takes
+only the values 0 or 1. We first assume a probit model. Conditional
+on the covariates and the parameters, $y_i$ follows a Bernoulli
+distribution, i.e. $y_i \sim B(1,\mu_i)$ with conditional mean
+$\mu_i = \Phi(\eta_i)$ where $\Phi$ is the cumulative distribution
+function of a standard normal distribution. Introducing latent
+variables
 \begin{equation}
 \label{latut} L_i = \eta_i + \epsilon_i,
 \end{equation}
-with $\epsilon_i \sim N(0,1)$, we define $y_i = 1$ if $L_i > 0$
-and $y_i=0$ if $L_i < 0$. It is easy to show that this corresponds
-to a binary probit model for the $y_i$'s. The posterior of the
-model augmented by the latent variables depends now on the
-additional parameters $L_i$. Thus, an additional sampling step for
-updating the $L_i$'s is required. Fortunately, sampling the
-$L_i$'s is relatively easy and fast because the full conditionals
-are truncated normal distributions. More specifically, $L_i |
-\cdot \sim N(\eta_i,1)$ truncated at the left by 0 if $y_i=1$ and
-truncated at the right if $y_i=0$. The advantage of defining a
-probit model through the latent variables $L_i$ is that the full
-conditionals for the regression parameters $\beta_j$ (and
-$\gamma$) are Gaussian with precision matrix and mean given by
+with $\epsilon_i \sim N(0,1)$, we can equivalently define the binary
+probit model by $y_i = 1$ if $L_i > 0$ and $y_i=0$ if $L_i < 0$. The
+latent variables are augmented as additional parameters and, as a
+consequence, an additional sampling step for updating the $L_i$s is
+required. Fortunately, sampling the $L_i$s is relatively easy and
+fast because the full conditionals are truncated normal
+distributions. More specifically, $L_i | \cdot \sim N(\eta_i,1)$
+truncated at the left by zero if $y_i=1$ and truncated by zero at
+the right if $y_i=0$. The advantage of defining a probit model
+through the latent variables $L_i$ is that the full conditionals for
+the regression parameters $\beta_j$ (and $\gamma$) are again
+Gaussian with precision matrix and mean given by
 \begin{equation}
 \label{prec2} P_j = X_j'X_j + \frac{1}{\tau^2_j}K_j, \quad m_j =
 P_j^{-1}X_j'(L-\tilde{\eta}).
@@ -1174,35 +1205,31 @@ utilities by assuming $\epsilon_i \sim N(0,\lambda_i)$ in
 Kolmogorov-Smirnov distribution (Devroye, 1986). Hence, $\epsilon_i$
 is  a scale mixture of normal form with a marginal logistic
 distribution (Andrews and Mallows, 1974). The full conditionals for
-the $L_i's$ are still truncated normals with $L_i | \cdot \sim
+the $L_i$s are still truncated normals with $L_i | \cdot \sim
 N(\eta_i,\lambda_i)$ but additional drawings from the conditional
-distributions of $\lambda_i$ are necessary. Drawing random numbers
-from the $\lambda_i$'s is quite complicated, see Holmes and
+distributions of $\lambda_i$ are necessary, see Holmes and
 Knorr-Held (2006) for details.
 
 Similar updating schemes may be developed for multinomial probit
-models with unordered categories and cumulative threshold models
-for ordered categories of the response, see Fahrmeir and Lang
-(2001b) for details. {\em BayesX} supports both models. The
-cumulative threshold model is, however, restricted to three
-response categories. For multinomial logit models updating schemes
-based on latent utilities are not available.
+models with unordered categories and cumulative threshold models for
+ordered categories of the response, see Fahrmeir and Lang (2001b)
+for details. {\em BayesX} supports both types of models. The
+cumulative threshold model is, however, restricted to three response
+categories. For multinomial logit models updating schemes based on
+latent utilities are not available in {\em BayesX}.
 
 \subsubsection{General uni- or multivariate response from an exponential family}
-\label{IWLS}\index{MCMC!exponential families}
-
+\label{IWLS}\index{MCMC!Exponential families} \index{IWLS proposal}
 
 Let us now turn our attention to general responses from an
-exponential family (\ref{likel}). In this case the full
-conditionals are no longer Gaussian, so that more refined
-algorithms are needed.
+exponential family. In this case the full conditionals are no longer
+Gaussian, so that more refined algorithms are needed.
 
-{\em BayesX} supports several updating schemes based on {\em IWLS
-(iteratively weighted least squares) proposals} as proposed by
+{\em BayesX} supports several updating schemes based on {\em
+iteratively weighted least squares (IWLS) proposals} as proposed by
 Gamerman (1997) in the context of generalized linear mixed models.
 As an alternative {\em conditional prior proposals} as proposed by
-Knorr-Held (1999) for estimating dynamic models may be used.
-
+Knorr-Held (1999) for estimating dynamic models are also available.
 
 The basic idea behind IWLS proposals is to combine Fisher scoring
 or IWLS (e.g. Fahrmeir and Tutz, 2001) for estimating regression
@@ -1220,29 +1247,27 @@ matrix and mean
 \begin{equation}
 \label{prec} P_j = X_j'W(\beta^c_j)X_j + \frac{1}{\tau^2_j}K_j,
 \quad m_j = P_j^{-1}X_j'W(\beta^c_j)(\tilde{y}(\beta^c_j) -
-\tilde{\eta}).
+\eta_{-j}).
 \end{equation}
-Here, $W(\beta^c_j) = diag(w_1,\dots,w_n)$ is the usual weight
+Here, $W(\beta^c_j) = \diag(w_1,\dots,w_n)$ is the usual weight
 matrix for IWLS with weights $w^{-1}_i(\beta^c_j) =
-b"(\theta_i)\{g'(\mu_i)\}^2$ obtained from the current state
-$\beta^c_j$. The vector $\tilde{\eta}$ is the part of the
-predictor associated with all remaining effects in the model. The
-working observations $\tilde{y}_i$ are defined as
+b''(\theta_i)(g'(\mu_i))^2$ obtained from the current state
+$\beta^c_j$. The vector $\eta_{-j}=\eta-X_j\beta_j$ is the part of
+the predictor associated with all remaining effects in the model.
+The working observations $\tilde{y}_i$ are defined as
 $$\tilde{y}_i(\beta^c_j) = \eta_i + (y_i - \mu_i)g'(\mu_i).$$
 
-The sampling scheme may be summarized as follows:
+The sampling scheme can be summarized as follows:
 
 {\bf Sampling scheme 2 (IWLS-proposals):}
-
 \begin{enumerate}
 \item {\em Initialization} \\
-Compute the posterior mode for $\beta_1,\dots,\beta_p$ and
-$\gamma$ given fixed smoothing parameters $\lambda_j =
-1/\tau^2_j$. By default, {\em BayesX} uses $\lambda_j = 0.1$ but
-the value may be changed by the user. The mode is computed via
-backfitting within Fisher scoring. Use the posterior mode
-estimates as the current state $\beta_j^c$, $(\tau_j^2)^c$,
-$\gamma^c$ of the chain.
+Compute the posterior mode for $\beta_1,\dots,\beta_p$ and $\gamma$
+given fixed smoothing parameters $\lambda_j = 1/\tau^2_j$. By
+default, {\em BayesX} uses $\lambda_j = 0.1$ but the value may be
+changed by the user. The mode is computed via backfitting within
+Fisher scoring. Use the posterior mode estimates as the initial
+state $\beta_j^c$, $(\tau_j^2)^c$, $\gamma^c$ of the chain.
 \item {\em Update $\gamma$} \\
 Draw a proposed new value $\gamma^p$ from the Gaussian proposal
 density $q(\gamma^c,\gamma^p)$ with mean
@@ -1286,8 +1311,7 @@ posterior mode $m_j^c$ (from the last iteration) rather than the
 current $\beta_j^c$, i.e. (\ref{prec}) is replaced by
 \begin{equation}
 \label{precmode} P_j = X_j'W(m_j^c)X_j + \frac{1}{\tau^2_j}K_j,
-\quad m_j = P_j^{-1}X_j'W(m_j^c)(\tilde{y}(\beta^c_j) -
-\tilde{\eta}).
+\quad m_j = P_j^{-1}X_j'W(m_j^c)(\tilde{y}(\beta^c_j) - \eta_{-j}).
 \end{equation}
 The difference of using $m_j^c$ rather than $\beta_j^c$ is that
 the proposal is {\em independent} of the current state of the
@@ -1296,23 +1320,22 @@ not required to recompute $P_j$ and $m_j$ when computing the
 proposal density $q(\beta_j^p,\beta_j^c)$.
 
 Usually acceptance rates are significantly higher compared to
-sampling scheme 2. This is particularly useful for updating
-spatial effects based on Markov random fields because in many
-cases sampling scheme 2 yields quite low acceptance rates. We
-summarize the sampling scheme as follows:
+sampling scheme 2. This is particularly useful for updating spatial
+effects based on Markov random fields where, in many cases, sampling
+scheme 2 yields quite low acceptance rates.
+
+The sampling scheme can be summarized as follows:
 
 {\bf Sampling scheme 3 (IWLS-proposals based on current mode):}
-
 \begin{enumerate}
 \item {\em Initialization} \\
-Compute the posterior mode for $\beta_1,\dots,\beta_p$ and
-$\gamma$ given fixed smoothing parameters $\lambda_j =
-1/\tau^2_j$. By default, {\em BayesX} uses $\lambda_j = 0.1$ but
-the value may be changed by the user. The mode is computed via
-backfitting within Fisher scoring. Use the posterior mode
-estimates as the current state $\beta_j^c$, $(\tau_j^2)^c$,
-$\gamma^c$ of the chain. Define $m_j^c$ and $m_{\gamma}^c$ as the
-current mode.
+Compute the posterior mode for $\beta_1,\dots,\beta_p$ and $\gamma$
+given fixed smoothing parameters $\lambda_j = 1/\tau^2_j$. By
+default, {\em BayesX} uses $\lambda_j = 0.1$ but the value may be
+changed by the user. The mode is computed via backfitting within
+Fisher scoring. Use the posterior mode estimates as the initial
+state $\beta_j^c$, $(\tau_j^2)^c$, $\gamma^c$ of the chain. Define
+$m_j^c$ and $m_{\gamma}^c$ as the current mode.
 \item {\em Update $\gamma$} \\
 Draw a proposed new value $\gamma^p$ from the Gaussian proposal
 density $q(\gamma^c,\gamma^p)$ with mean
@@ -1351,17 +1374,18 @@ conditionals with parameters given in (\ref{hypab}).
 \end{enumerate}
 
 
-\subsection{Empirical Bayesian inference based on GLMM methodology}
-\label{glmmmeth}\index{empirical Bayes inference}
+\subsection{Empirical Bayes inference based on mixed model methodology}
+\label{glmmmeth}\index{Empirical Bayes inference}\index{Mixed model
+based inference}\index{Remlreg objects}
 
 This section may be skipped if you are not interested in using the
 regression tool based on mixed model methodology ({\em remlreg
 objects}).
 
-
-For empirical Bayes inference variances $\tau^2_j$ are considered
-as constants. In terms of the GLMM representation outlined in
-\autoref{glmmrep} the posterior is given by
+For empirical Bayes inference, the variances $\tau^2_j$ are
+considered as unknown constants to be estimated from their marginal
+likelihood. In terms of the GLMM representation outlined in
+\autoref{glmmrep}, the posterior is given by
 \begin{equation}
 \label{posterior2}
 \begin{array}{lll}
@@ -1371,15 +1395,15 @@ as constants. In terms of the GLMM representation outlined in
 \end{equation}
 where $p(\beta_j^{pen}|\tau_j^2)$ is defined in (\ref{priorunp}).
 
-Based on the GLMM representation, regression and variance
-parameters can be estimated using iteratively weighted least
-squares (IWLS) and (approximate) restricted maximum likelihood
-(REML) developed for GLMM's. Estimation is carried out iteratively
-in two steps. The two steps for updating estimates are:
+Based on the GLMM representation, regression and variance parameters
+can be estimated using iteratively weighted least squares (IWLS) and
+(approximate) marginal or restricted maximum likelihood (REML)
+developed for GLMMs. Estimation is carried out iteratively in two
+steps:
 
 \begin{enumerate}
 \item Obtain updated estimates $\hat{\beta}^{unp}$ and $\hat{\beta}^{pen}$ given the current variance parameters
-as the solutions of the linear equation system
+as the solutions of the system of equations
 \begin{equation}
 \label{equsystem} \left(
 \begin{array}{ll}
@@ -1399,12 +1423,11 @@ as the solutions of the linear equation system
 \end{array}
 \right).
 \end{equation}
-The $(n \times 1)$ vector $\tilde{y}$ and the $n \times n$
-diagonal matrix $W = diag(w_1,\dots,w_n)$ are the usual working
-observations and weights in generalized linear models, see
-Fahrmeir and Tutz (2001), Chapter 2.2.1.
+The $(n \times 1)$ vector $\tilde{y}$ and the $n \times n$ diagonal
+matrix $W = \diag(w_1,\dots,w_n)$ are the usual working observations
+and weights in generalized linear models, see \autoref{IWLS}.
 \item Updated estimates for the variance parameters $\hat{\tau}_j^2$ are obtained by maximizing
-the (approximate) restricted log likelihood
+the (approximate) marginal / restricted log likelihood
 \begin{equation}
 \label{restrl}
 \begin{array}{lll}
@@ -1421,85 +1444,89 @@ approximation to the marginal covariance matrix of $\tilde{y} |
 \beta^{pen}$.
 \end{enumerate}
 
-The two estimation steps are iterated until convergence. We maximize
-(\ref{restrl}) through a computationally efficient alternative to
-the usual Fisher scoring iterations as described e.g. in Harville
-(1977), see Fahrmeir, Kneib and Lang (2004) for details.
+The two estimation steps are iterated until convergence. In {\em
+BayesX}, the marginal likelihood (\ref{restrl}) is maximized by a
+computationally efficient alternative to the usual Fisher scoring
+iterations as described e.g. in Harville (1977), see Fahrmeir, Kneib
+and Lang (2004) for details.
 
-Note, that convergence problems may occur, if one of the
+Convergence problems of the above algorithm may occur, if one of the
 parameters $\tau_j^2$ is small. In this case the maximum of the
-restricted likelihood may be on the boundary of the parameter
-space so that Fisher scoring is no appropriate way to find the
-REML-estimates $\hat{\tau}^2$. Therefore, the estimation of small
-variances $\tau_j^2$ is stopped in the current implementation, if
-the criterion
+marginal likelihood may be on the boundary of the parameter space so
+that Fisher scoring fails in finding the marginal likelihood
+estimates $\hat{\tau}^2$. Therefore, the estimation of small
+variances $\tau_j^2$ is stopped if the criterion
 \begin{equation}\label{remlstopcrit}
  c(\tau_j^2)=\frac{||\tilde{X}_j\hat{\beta}_j^{pen}||}{||\hat{\eta}||}
 \end{equation}
 is smaller than the user-specified value #lowerlim# (see section
-8.1.2). This usually corresponds to small values of the variances
-$\tau_j^2$ but defines "small" in a data driven way.
+8.1.2 of the reference manual). This usually corresponds to small
+values of the variances $\tau_j^2$ but defines "small" in a data
+driven way.
 
 Models for categorical responses are in principle estimated in the
 same way as presented above but have to be embedded into the
 framework of multivariate generalized linear models, see Kneib and
 Fahrmeir (2006) for details.
 
-\section{Survival analysis and competing risks models}
-\label{survivalAnalysis}\index{survival analysis}
+\section{Survival analysis and multi-state models}
+\label{survivalAnalysis}\index{Survival analysis}
 
-Discrete time duration and competing risks models can be estimated
-by expressing such models as categorical regression models. This is
-sketched in \autoref{discretetime} while \autoref{continuoustime}
-deals with continuous time survival analysis. \textit{BayesX} offers
-two possibilities of estimating continuous time hazard rate models,
-the piecewise exponential model and nonparametric as well as spatial
-extensions of the well known Cox model. For the latter, extensions
-allowing for interval censored survival times are described in
-\autoref{intervalcensoring}. Estimation of models for continuous
-survival times based on MCMC is described in more detail in
-Hennerfeind, Brezger and Fahrmeir (2006). Kneib and Fahrmeir (2006)
-and Kneib (2005) present inference based on mixed model methodology.
+We will now describe some of the capabilities of {\em BayesX} for
+the estimation of survival time and multi-state models. Discrete
+time duration and multi-state models can be estimated by categorical
+regression models after some data augmentation as outlined in
+\autoref{discretetime}. Continuous time survival models can
+estimated using either the piecewise exponential model or structured
+hazard regression, an extension of the well known Cox model
+(\autoref{continuoustime}). For the latter, extensions allowing for
+interval censored survival times are described in
+\autoref{intervalcensoring}. Finally, \autoref{msmodels} contains
+information on continuous time multi-state models.
+
+More details on estimating continuous time survival models based on
+MCMC can be found in Hennerfeind, Brezger and Fahrmeir (2006). Kneib
+and Fahrmeir (2007) and Kneib (2006) present inference based on
+mixed model methodology. Kneib and Hennerfeind (2006) present both
+MCMC and mixed model based inference in multi-state models.
 
 
 \subsection{Discrete time duration data}
-\label{discretetime}\index{discrete time survival models}
+\label{discretetime}\index{Discrete time survival models}
 
-In applications, duration data are often measured on a discrete
-time scale or are grouped in intervals. In this section we show
-how data of this kind can be written as categorical regression
-models.  Estimation is then based on methodology for categorical
-regression models as described in the previous sections. We start
-by assuming that there is only one type of failure event.
-
+In applications, duration data are often measured on a discrete time
+scale or can be grouped in suitable intervals. In this section we
+show how data of this kind can be written as categorical regression
+models. Estimation is then based on methodology for categorical
+regression models as described in the previous sections. We start by
+assuming that there is only one type of failure event, i.e. we
+consider the case of survival times.
 
 Let the duration time scale be divided into intervals $\lbrack
 a_{0},a_{1}),\lbrack a_{1},a_{2}),\ldots, \lbrack a_{q-1},a_{q}),
-\lbrack a_{q},a_{\infty}).$ Usually $a_{0}=0$ is assumed and
-$a_{q}$ denotes the final follow up. Identifying the discrete time
-index $t$ with interval $\lbrack a_{t-1},a_{t}),$ duration time
-$T$ is considered as discrete, where $T=t\in \{1,\ldots,q+1\}$
-denotes end of duration within the interval $t=\lbrack
-a_{t-1},a_{t}).$ In addition to duration $T$, a sequence of
-possibly time-varying covariate vectors $u_t$ is observed. Let
-$u_t^*=(u_{1},\ldots,u_{t})$ denote the history of covariates up
-to interval $t$. Then the discrete hazard function is given by
+\lbrack a_{q},a_{\infty}).$ Usually $a_{0}=0$ is assumed and $a_{q}$
+denotes the final follow up time. Identifying the discrete time
+index $t$ with interval $\lbrack a_{t-1},a_{t}),$ duration time $T$
+is considered as discrete, where $T=t\in \{1,\ldots,q+1\}$ denotes
+end of duration within the interval $t=\lbrack a_{t-1},a_{t}).$ In
+addition to duration $T$, a sequence of possibly time-varying
+covariate vectors $u_t$ is observed. Let
+$u_t^*=(u_{1},\ldots,u_{t})$ denote the history of covariates up to
+interval $t$. Then the discrete hazard function is given by
 \begin{eqnarray*}
-\lambda(t;u_t^*)=\mbox{pr}(T=t\mid T \geq t,u_t^*), \quad
-t=1,\ldots,q,
+\lambda(t;u_t^*)=P(T=t\mid T \geq t,u_t^*), \quad t=1,\ldots,q,
 \end{eqnarray*}
 that is the conditional probability for the end of duration in
-interval $t$, given that the interval is reached and the history
-of the covariates. Hazard functions are usually specified by
-binary response models. Common choices are binary logit, probit or
-grouped Cox models. So far {\em BayesX} supports only logit and
-probit models.
+interval $t$, given that the interval is reached and the history of
+the covariates. Discrete time hazard functions can be specified in
+terms of binary response models. Common choices are binary logit,
+probit or grouped Cox models.
 
-For a sample of individuals $i$, $i=1,\ldots,n$, let $T_{i}$
-denote duration times and $C_{i}$ right censoring times. Duration
-data are usually given by $(t_{i},\delta_{i},u_{it_{i}}^*)$, $i =
+For a sample of individuals $i$, $i=1,\ldots,n$, let $T_{i}$ denote
+duration times and $C_{i}$ right censoring times. Duration data are
+usually given by $(t_{i},\delta_{i},u_{it_{i}}^*)$, $i =
 1,\ldots,n$, where $t_{i}=\mbox{min}(T_{i},C_{i})$ is the observed
-discrete duration time, $\delta_{i}=1$ if $T_{i}<C_{i}$,
+discrete duration time, $\delta_{i}=1$ if $T_{i}\le C_{i}$,
 $\delta_{i}=0$ else is the censoring indicator, and
 $u_{it_{i}}^*=(u_{it}$, $t=1,\ldots,t_{i})$ is the observed
 covariate sequence. We assume that censoring is noninformative and
@@ -1522,32 +1549,30 @@ i.e. end of duration at $t$. For $i \in R_{t}$, the hazard
 function for individual $i$ can be modelled by binary response
 models
 \begin{eqnarray} \label{gleichung1}
-\mbox{pr}(y_{it}=1\mid u_{it}^*)=h(\eta_{it}),
+ P(y_{it}=1\mid u_{it}^*)=h(\eta_{it}),
 \end{eqnarray}
-with appropriate predictor $\eta_{it}$ and response function $h:
-\re \rightarrow (0,1)$. {\em BayesX} supports the response
-functions $h(\cdot)= \exp(\cdot)/ \{1+\exp(\cdot) \}$ for the
-logit model and $h(\cdot )= \Phi(\cdot)$ for the probit model.
-Traditionally a linear predictor is assumed, i.e.
+with appropriate predictor $\eta_{it}$ and response function $h: \re
+\rightarrow [0,1]$. Traditionally, a linear predictor is assumed,
+i.e.
 \begin{eqnarray} \label{gleichung2}
-\eta_{it}= \gamma_{0}(t)+u_{it}' \gamma.
+\eta_{it}= \gamma_{0}(t)+u_{it}' \gamma,
 \end{eqnarray}
-The sequence ${\gamma_{0}(t),\, t=1,\ldots,q}$, of parameters
-represents the baseline effect. In {\em BayesX} we may assume a
-structured additive predictor
+where the sequence ${\gamma_{0}(t),\, t=1,\ldots,q}$, represents the
+baseline effect. In {\em BayesX} the linear predictor can be
+replaced by a structured additive predictor
 \begin{equation}
 \label{gampred2} \eta_{it}=f_0(t) +
-f_{1}(x_{it1})+\dots+f_{p}(x_{itp})+u_{it}'\gamma.
+f_{1}(x_{it1})+\dots+f_{p}(x_{itp})+u_{it}'\gamma,
 \end{equation}
-Again, the $x_j$ denote generic covariates of different types and
-dimension, and $f_j$ are (not necessarily smooth) functions of the
-covariates. The baseline effect $f_0(t)$ may be modelled by random
-walk priors or P-splines.
+where, again, the $x_j$ denote generic covariates of different types
+and dimension, and $f_j$ are (not necessarily smooth) functions of
+the covariates. The baseline effect $f_0(t)$ may be modelled by
+random walk priors or P-splines.
 
-We demonstrate with an example how discrete time survival data
-must be manipulated such that  binary logit or probit models may
-be used for estimation. Suppose the first few observations of a
-data set are given as follows:
+To fix ideas, we describe the necessary manipulations that yield a
+data set suitable for binary regression models with an example.
+Suppose the first few observations of a data set are given as
+follows:
 \vspace{0.5cm}\\
 \begin{tabular}{c|c|c|c}
 t & $\delta$ & x1 & x2\\\hline\hline
@@ -1572,28 +1597,28 @@ y & indnr & t &$\delta$ & x1 & x2\\\hline\hline
  $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$& $\vdots$& $\vdots$\\
 \end{tabular}
 \vspace{0.5cm}\\
-For the first individual we have now 4 observations (because the
-observed duration time is 4). The event indicator y is always 0
-because of the censoring. For the second individual we obtain 3
-observations and the event indicator jumps at time t=3 from 0 to
-1. Now we can estimate a logit or probit model with y as the
-response and covariates t, x1, x2.
+The first individual is now represented by 4 observations because
+the observed duration time is 4. The event indicator y always equals
+0 because the corresponding observations is censored. For the second
+individual we obtain 3 observations and the event indicator jumps at
+time t=3 from 0 to 1. Now we can estimate a logit or probit model
+with y as the response and covariates t, x1, x2.
 
-So far we have only considered situations with one type of
-failure. Suppose now that we may distinguish several types of
-failure. E.g.~in a study on unemployment durations Fahrmeir and
-Lang (2001b) distinguished between full- and part time jobs that
-end unemployment duration. Models of this kind are often referred
-to as competing risks models.
+So far we have only considered situations with one type of failure.
+Suppose now that we may distinguish several types of failure. For
+example, Fahrmeir and Lang (2001b) distinguished between full- and
+part time jobs as events ending the duration of unemployment. Models
+of this kind are often referred to as competing risks models.
 
 Let $R \in \{1,\dots,m\}$ denote distinct events of failure. Then
-the cause specific discrete hazard function resulting from cause
-or risk $r$ is given by
+the cause-specific discrete hazard function resulting from cause or
+risk $r$ is given by
 $$
 \lambda_{r}(t|u_t,x_t) = P(T=t,R=r|T \geq t, u_t,x_t).
 $$
 Modelling $\lambda_{r}(t|u_t,x_t)$ may be based on multicategorial
-regression models. E.g. assuming a multinomial logit model yields
+regression models. For example, assuming a multinomial logit model
+yields
 $$
 \lambda_{r}(t|u_t) = \frac{\exp(\eta_{r})}{1+\sum_{s=1}^m
 \exp(\eta_s)}
@@ -1603,13 +1628,11 @@ with structured additive predictors
 \label{gampred3} \eta_{r}=f_{0r}(t) +
 f_{1r}(x_{t1})+\dots+f_{pr}(x_{tp})+u_{t}'\gamma_r.
 \end{equation}
-An alternative is the multinomial probit model.
+An alternative would be the multinomial probit model.
 
-The following example demonstrates how data with several types of
-failure must be manipulated such that multicategorical regression
-models may be used for estimation. Suppose we have data with 2
-terminating events R=1 and R=2. The first few observations of a
-data set are given as follows:
+Again, we demonstrate the necessary data manipulations with an
+example. Suppose we have data with 2 terminating events R=1 and R=2.
+The first few observations of a data set are given as follows:
 \vspace{0.5cm}\\
 \begin{tabular}{c|c|c|c|c}
 t & $\delta$ & R & x1 & x2\\\hline\hline 4 & 0    &  1 & 0  &
@@ -1641,34 +1664,32 @@ y & indnr & t & $\delta$ &  x1 & x2\\\hline\hline
 $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$\\
 \end{tabular}
 \vspace{0.5cm}\\
-For the first individual we create 4 observations (because the
-observed duration time is 4). The event indicator y is always 0
-because of the censoring. For the second individual we obtain 3
-observations and the event indicator jumps at time t=3 from 0 to
-2. For the third individual the event indicator jumps at time 5
-from 0 to 1. Now we can estimate a multinomial logit or probit
-model with y as the response, reference category 0, and covariates
-t, x1, x2.
+For the first individual we create 4 observations because the
+observed duration time is 4. The event indicator y always equals 0
+because the observation is censored. For the second individual we
+obtain 3 observations and the event indicator jumps at time t=3 from
+0 to 2. For the third individual the event indicator jumps at time 5
+from 0 to 1. Now we can estimate a multinomial logit or probit model
+with y as the response, reference category 0, and covariates t, x1,
+x2.
 
 
 \subsection{Continuous time survival analysis for right censored survival times}
-\label{continuoustime}\index{continuous time survival
-models}\index{Cox model}
+\label{continuoustime}\index{Continuous time survival models}
 
-In applications, where duration time $t$ is measured on a
+In applications where the duration time $t$ is measured on a
 continuous time scale, grouping the data for a discrete time
 analysis is possible, but causes a loss of information. In this
-section we will shortly introduce the continuous time Cox model
-and describe the two alternatives \textit{BayesX} offers for the
-estimation of such models. The first alternative is to assume that
-all time-dependent values are piecewise constant, which leads to
-the so called piecewise exponential model (p.e.m.). Data
-augmentation is needed here, but estimation is then based on
-methodology for Poisson regression, and the inclusion of
-time-varying effects does not imply any difficulties. The second
-alternative is to estimate the log-baseline effect by a P-spline
-of arbitrary degree. This approach is less restrictive and does
-not demand data augmentation.
+section we introduce the continuous time Cox model and describe the
+two alternatives \textit{BayesX} offers for the estimation of such
+models. The first alternative is to assume that all time-dependent
+values are piecewise constant, which leads to the so called
+piecewise exponential model (p.e.m.). Data augmentation is needed
+here, but estimation is then based on methodology for Poisson
+regression, and the inclusion of time-varying effects does not imply
+any difficulties. The second alternative is to estimate the
+log-baseline effect by a P-spline of arbitrary degree. This approach
+is less restrictive and does not demand data augmentation.
 
 Let $u_t^{*}=\{u_s,0 \le s \le t\}$ denote the history of possibly
 time-varying covariates up to time $t$. Then the continuous hazard
@@ -1676,28 +1697,28 @@ function is given by
 \[
 \lambda(t;u_t^{*})=\begin{array}{c}\\\mbox{lim}\\{\Delta t
 \downarrow 0}\end{array}\frac{P(t \le T< t+\Delta t | T\ge t,
-u_t^{*})}{\Delta t}
+u_t^{*})}{\Delta t},
 \]
-that is the conditional instantaneous rate of end of duration at
+i.e. by the conditional instantaneous rate of end of duration at
 time $t$, given that time $t$ is reached and the history of the
-covariates. In the Cox model the individual hazard rate is
-modelled by
+covariates. In the Cox model the individual hazard rate is modelled
+by
 \begin{equation}\label{CoxModel}
 \lambda_i(t)=\lambda_0(t)\cdot
 \exp(\eta_{it})=\exp(f_0(t)+\eta_{it})
 \end{equation}
 where $\lambda_0(t)$ is the baseline hazard,
 ($f_0(t)=\log(\lambda_0(t))$ is the log-baseline hazard) and
-$\eta_{it}$ is an appropriate predictor. Traditionally the
-predictor is linear and the baseline hazard is unspecified. In
-\textit{BayesX} however, a structured additive predictor may be
-assumed and the baseline effect is estimated nonparametrically
-either by a piecewise constant function (i.e.~assuming a p.e.m.)
-or by a P-spline.
+$\eta_{it}$ is an appropriate predictor. Traditionally the predictor
+is linear and the baseline hazard is unspecified. In
+\textit{BayesX}, however, a structured additive predictor may be
+assumed and the baseline effect is estimated jointly with the
+covariate effects either by a piecewise constant function (in case
+of a p.e.m.) or by a P-spline.
 
 
 \subsubsection{Piecewise exponential model (p.e.m.)}
-\index{piecewise exponential model}
+\index{Piecewise exponential model}
 
 The basic idea of the p.e.m.~is to assume that all values that
 depend on time $t$ are piecewise constant on a grid
@@ -1706,10 +1727,10 @@ depend on time $t$ are piecewise constant on a grid
 \]
 where $a_t$ is the largest of all observed duration times
 $t_i,i=1,\ldots,n$. This grid may be equidistant or, for example,
-according to quantiles. The assumption of a p.e.m.~is a quite
-convenient one as estimation can be based on methodology for
-Poisson regression models. For this purpose the data set has to be
-modified as described below.
+constructed according to quantiles of the observed survival times.
+The assumption of a p.e.m.~is quite convenient since estimation can
+be based on methodology for Poisson regression models. For this
+purpose the data set has to be modified as described below.
 
 Let $\delta_i$ be an indicator of non-censoring (i.e.~$\delta_i=1$
 if observation $i$ is uncensored, 0 else) and
@@ -1739,22 +1760,22 @@ $(a_{s-1},a_s]$ is
 L_{is}=\exp\left(y_{is}(\gamma_{0s}+\eta_{is})-\exp(\Delta_{is}+\gamma_{0s}+\eta_{is})\right).
 \]
 As this likelihood is proportional to a Poisson likelihood with
-offset, estimation can be executed using Poisson regression with
-response variable $y$, (log-)offset $\Delta$ and $a$ as a
-continuous covariate. Due to the assumption of a piecewise
+offset $\delta_{is}$, estimation can be performed using Poisson
+regression with response variable $y$, (log-)offset $\Delta$ and $a$
+as a continuous covariate. Due to the assumption of a piecewise
 constant hazard rate the estimated log-baseline is a step function
-on the defined grid. To get a ''smooth step function'' a random
-walk prior is specified
-for the parameters $\gamma_{0s}$.\\
-In practice this means that the data set has to be modified in
-such a way that for every individual $i$ there is an observation
-row for each interval $(a_{s-1},a_s]$ beginning with the first one
-up to the interval in that duration time $t_i$ ends. Instead of
-the indicator of non-censoring $\delta_i$ the modified data set
-contains the indicator $y_{is}$, instead of duration time $t_i$
-the variable $a_s$ as well as the offset $\Delta_{is}$ (covariates
-are duplicated). To give a short example, if we have an
-equidistant grid with length 0.1 the observations
+on the defined grid. To obtain a smooth step function, a random walk
+prior is specified for the parameters $\gamma_{0s}$.
+
+In practice this means that the data set has to be modified in such
+a way that for every individual $i$ there is an observation row for
+each interval $(a_{s-1},a_s]$ between $a_0$ and the final duration
+time $t_i$. Instead of the indicator of non-censoring $\delta_i$ the
+modified data set contains the indicator $y_{is}$ and instead of
+duration time $t_i$ the variable $a_s$ as well as the offset
+$\Delta_{is}$ (covariates are duplicated). To give a short example,
+consider an equidistant grid with interval width 0.1 and
+observations
 \vspace{0.5cm}\\
 \begin{tabular}{c|c|c|c}
   $t$ &   $\delta$ &  x1 &  x2\\\hline\hline
@@ -1766,7 +1787,7 @@ $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
 %$t$ & $c$ & $sex$ & $age$\\\hline\hline 0.25 & 1 & 0 & 35\\\hline
 %0.12 & 0&1 &52\\\hline $\vdots$&$\vdots$&$\vdots$&$\vdots$
 %\end{tabular}
-have to be modified to
+Then the data set has to be augmented to
 \vspace{0.5cm}\\
 \begin{tabular}{c|c|c|c|c|c|c}
 $y$ & indnr & $a$& $\delta$ &  $\Delta$ &   x1 & x2\\\hline\hline
@@ -1784,43 +1805,43 @@ $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$& $\vdots$\\
 %0&0.1&log(0.1)&1&52\\0&0.2&log(0.02)&1&52\\\hline $\vdots$ &
 %$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$\\
 %\end{tabular}
-We could now estimate a Poisson model with offset $\Delta$, $y$ as
-the response, $a$ as a covariate with random walk prior and x1 and
-x2 as covariates with appropriate priors.
-
+Now a Poisson model with offset $\Delta$, response $y$, random walk
+prior for covariate $a$, and appropriate priors for x1 and x2 can be
+estimated.
 
 \subsubsection{Specifying a P-spline prior for the log-baseline}
+\index{Cox model}
 
-The p.e.m.~can be seen as a model where the log-baseline $f_0(t)$
-in (\ref{CoxModel}) is modelled by a P-spline (see
-(\ref{psplines})) of degree 0, which is quite convenient as it
-simplifies the calculation of the likelihood, but may be too
-restrictive since the baseline effect is estimated by a
-step-function that may not be appropriate for continuous data. A
-more general way of estimating the nonlinear shape of the baseline
-effect is to assume a P-spline prior of arbitrary degree instead.
-Unlike the p.e.m.~such a model can not be estimated within the
-context of GAMs, but specific methods for extended Cox models are
-also implemented in {\it BayesX}. The individual likelihood for
-continuous survival data is given by
+The p.e.m.~can be seen as a model where the log-baseline $f_0(t)$ in
+(\ref{CoxModel}) is modelled by a P-spline (see (\ref{psplines})) of
+degree 0, which is quite convenient as it simplifies the calculation
+of the likelihood, but may be too restrictive since the baseline
+effect is estimated by a step-function. A more general way of
+estimating the nonlinear shape of the baseline effect is to assume a
+P-spline prior of arbitrary degree instead. Unlike the p.e.m.~such a
+model can not be estimated within the context of GAMs, but specific
+methods for extended Cox models are also implemented in {\it
+BayesX}. The individual likelihood for continuous survival data is
+given by
 \begin{eqnarray}\nonumber
 L_i &=&\lambda_i(t_i)^{\delta_i}\cdot
 \exp\left(-\int_{0}^{t_i}\lambda_i(u)du\right).
 \end{eqnarray}
-Inserting (\ref{CoxModel}) we get
+Inserting (\ref{CoxModel}) yields
 \begin{eqnarray}\nonumber
 L_i &=&\exp(f_0(t_i)+\eta_{i t_i})^{\delta_i}\cdot
 \exp\left(-\int_{0}^{t_i}\exp(f_0(u)+\eta_{iu})du\right).
 \end{eqnarray}
 If the degree of the P-spline prior for $f_0(t)$ is greater than
-one the integral can not be calculated analytically anymore. For
-linear P-splines the integral can still be solved but the
-computational effort is quite high. Therefore {\it BayesX} makes
-use of the trapezoidal rule for a numerical approximation.
+one, the integral can no longer be calculated analytically. For
+linear P-splines the integral can still be solved but the formula
+become quite cumbersome. Therefore {\it BayesX} makes use of the
+trapezoidal rule for a numerical approximation.
 
 \subsection{Continuous time survival analysis for interval censored survival times}
-\label{intervalcensoring}\index{interval
-censoring}\index{time-varying covariates}\index{left truncation}
+\label{intervalcensoring}\index{Interval
+censoring}\index{Time-varying covariates}\index{Left
+truncation}\index{Left censoring}
 
 Usually, the Cox model and extensions are developed for
 right-censored observations. More formally spoken, if the true
@@ -1839,10 +1860,10 @@ some survival times are not observable and the likelihood has to be
 adjusted appropriately. Figure \ref{censoringschemes} illustrates
 the different censoring schemes we will consider in the following:
 The true survival time is given by $T$ which is observed for
-individual 1 and 2. While individual 1 is not truncated, individual
+individuals 1 and 2. While individual 1 is not truncated, individual
 2 is left truncated at time $T_{tr}$. Similarly, individuals 3 and 4
 are right-censored at time $C$ and individuals 5 and 6 are interval
-censored with interval $[T_{lo},T_{up}]$ with the same pattern for
+censored with interval $[T_{lo},T_{up}]$ and the same pattern for
 left truncation.
 
 \begin{figure}[htb]
@@ -1853,8 +1874,8 @@ schemes.\label{censoringschemes}}}
 \end{center}
 \end{figure}
 
-In a general framework an observation can now be described
-completely by the quadruple $(T_{tr},T_{lo},T_{up},\delta)$, with
+In a general framework an observation can now be uniquely described
+ by the quadruple $(T_{tr},T_{lo},T_{up},\delta)$, with
 \begin{center}
 \begin{tabular}{ll}
 $T_{lo}=T_{up}=T$, $\delta=1$ & if the observation is uncensored,\\
@@ -1862,12 +1883,12 @@ $T_{lo}=T_{up}=C$, $\delta=0$ & if the observation is right censored,\\
 $T_{lo}<T_{up}$, $\delta=0$ & if the observation is interval censored.\\
 \end{tabular}
 \end{center}
-For left truncated observations we have $T_{tr}>0$ and $T_{tr}=0$
+For left truncated observations we have $T_{tr}>0$ while $T_{tr}=0$
 for observations which are not truncated.
 
 Based on these definitions we can now construct the likelihood
 contributions for the different censoring schemes in terms of the
-hazard rate $\lambda_i(t_i)$ and the survivor function
+hazard rate $\lambda(t)$ and the survivor function
 $S(t)=\exp(\int_0^t\lambda(u)du)$. Under the common assumption of
 noninformative censoring and conditional independence, the
 likelihood is given by
@@ -1921,6 +1942,122 @@ covariates.\label{timevaryingcovs}}}
 Currently, interval censored survival times can only be handled with
 {\em remlreg objects}.
 
+\subsection{Continuous-time multi-state models}\label{msmodels}
+\index{Multi-state models}\index{Recurrent Events}\index{Disease
+progression}\index{Competing risks}
+
+Multi-state models are a flexible tool for the analysis of
+time-continuous phenomena that can be characterized by a discrete
+set of states. Such data structures naturally arise when observing a
+discrete response variable for several individuals or objects over
+time. Some common examples are depicted in Figure~\ref{some_msms} in
+terms of their reachability graph for illustration. For recurrent
+events (Figure~\ref{some_msms} (a)), the observations evolve through
+time moving repeatedly between a fixed set of states. Other model
+classes involve absorbing states, for example disease progression
+models (Figure~\ref{some_msms} (b)), that are used to describe the
+chronological development of a certain disease. If the severity of
+this disease can be grouped into $q-1$ ordered stages of increasing
+severity, a reasonable model might look like this: Starting from
+disease state '$j$', an individual can only move to contiguous
+states, i.e. either the disease gets worse and the individual moves
+to state '$j+1$', or the disease attenuates and the individual moves
+to state '$j-1$'. In addition, death is included as a further,
+absorbing state '$q$', which can be reached from any of the disease
+states. A model with several absorbing states is the competing risks
+model (Figure~\ref{some_msms} (c)) where, for example, different
+causes of death are analysed simultaneously.
+
+\begin{figure}
+\begin{center}
+ \input{grafiken/msm_examples.tex}
+ \caption{Reachability graphs of some common multi-state
+ models.\label{some_msms}}
+\end{center}
+\end{figure}
+
+A multi-state model is fully described by a set of hazard rates
+$\lambda_{hi}(t)$ where $h$, $h=1,\ldots,k$, indexes the type of the
+transition and $i$, $i=1,\ldots,n$, indexes the individuals. Since
+the hazard rates describe durations between transitions, we specify
+them in analogy to hazard rate models for continuous time survival
+analysis. To be more specific, $\lambda_{hi}(t)$ is modelled in a
+multiplicative Cox-type way as
+\[
+ \lambda_{hi}(t) = \exp(\eta_{hi}(t)),
+\]
+where
+\begin{equation}\label{addpred}
+ \eta_{hi}(t) = g_{h0}(t) + \sum_{l=1}^Lg_{hl}(t)u_{il}(t) +
+ \sum_{j=1}^Jf_{hj}(x_{ij}(t)) + v_i(t)'\gamma_h +  b_{hi}
+\end{equation}
+is an additive predictor consisting of the following components:
+\begin{itemize}
+ \item A time-varying, nonparametric baseline effect $g_{h0}(t)$ common for all
+ observations.
+ \item Covariates $u_{il}(t)$ with time-varying effects $g_{hl}(t)$.
+ \item Nonparametric effects $f_{hj}(x_{ij}(t))$ of continuous covariates
+ $x_{ij}(t)$.
+ \item Parametric effects $\gamma_h$ of covariates $v_i(t)$.
+ \item Frailty terms $b_{hi}$ to account for unobserved
+ heterogeneity.
+\end{itemize}
+
+For each individual $i$, $i=1,\ldots,n,$ the likelihood contribution
+in a multi-state model can be derived from a counting process
+representation of the multi-state model. Let $N_{hi}(t)$,
+$h=1,\ldots,k$ be a set of counting processes counting transitions
+of type $h$ for individual $i$. Consequently, $h=1,\ldots,k$ indexes
+the observable transitions in the model under consideration and the
+jumps of the counting processes $N_{hi}(t)$ are defined by the
+transition times of the corresponding multi-state process for
+individual $i$.
+
+From classical counting process theory (see e.g. Andersen et al.,
+1993, Ch.~VII.2), the intensity processes $\alpha_{hi}(t)$ of the
+counting processes $N_{hi}(t)$ are defined as the product of the
+hazard rate for type $h$ transitions $ \lambda_{hi}(t)$ and a
+predictable at-risk indicator process $Y_{hi}(t)$, i.e.
+\[
+ \alpha_{hi}(t) = Y_{hi}(t) \lambda_{hi}(t),
+\]
+where the hazard rates are constructed in terms of covariates as in
+(\ref{addpred}). The at-risk indicator $Y_{hi}(t)$ takes the value
+one if individual $i$ is at risk for a type $h$ transition at time
+$t$ and zero otherwise. For example, in the multi-state model of
+Figure~\ref{some_msms}a), an individual in state 2 is at risk for
+both transitions to state 1 and state 3. Hence, the at-risk
+indicators for both the transitions '2 to 1' and '2 to 3' will be
+equal to one as long as the individual remains in state 2.
+
+Under mild regularity conditions, the individual log-likelihood
+contributions can now be obtained from counting process theory as
+\begin{equation}\label{loglike1}
+ l_i = \sum_{h=1}^k\left[ \int_0^{T_i}\log(\lambda_{hi}(t))dN_{hi}(t) -
+ \int_0^{T_i}\lambda_{hi}(t)Y_{hi}(t)dt\right],
+\end{equation}
+where $T_i$ denotes the time until which individual $i$ has been
+observed. The likelihood contributions can be interpreted similarly
+as with hazard rate models for survival times (and in fact coincide
+with these in the case of a multi-state process with only one
+transition to an absorbing state). The first term corresponds to
+contributions at the transition times since the integral with
+respect to the counting process in fact equals a simple sum over the
+transition times. Each of the summands is then given by the
+log-intensity for the observed transition evaluated at this
+particular time point. In survival models this term simply equals
+the log-hazard evaluated at the survival time for uncensored
+observations. The second term reflects cumulative intensities
+integrated over accordant waiting periods between two successive
+transitions. The integral is evaluated for all transitions the
+corresponding person is at risk at during the current period. In
+survival models there is only one such transition (the transition
+from 'alive' to 'dead') and the integral is evaluated from the time
+of entrance to the study to the survival or censoring time.
+
+More details on multi-state models, including an exemplary analysis
+on human sleep, can be found in Kneib and Hennerfeind (2006)
+
 \section{References}
 \label{bayesregref}
 
@@ -1929,11 +2066,12 @@ Currently, interval censored survival times can only be handled with
 Bayesian analysis of binary and polychotomous response data. {\it
 Journal of the American Statistical Association},  88, 669-679.
 
+\item[Andersen, P. K., Borgan, {\O}, Gill, R. D. and Keiding, N. (1993):]
+{\it Statistical Models Based on Counting Processes,} Springer.
 
 \item[Andrews, D.F. and Mallows, C.L. (1974):]
 Scale mixtures of normal distributions. {\it Journal of the Royal
 Statistical Society B}, 36, 99-102.
-
 
 \item[Brezger, A. and Lang, S., (2006):]
 Generalized additive regression based on Bayesian P-splines. {\it
@@ -1942,11 +2080,6 @@ Computational Statistics and Data Analysis}, 50, 967-991.
 \item[Devroye, L. (1986):]
 {\it Non-Uniform Random Variate Generation.} Springer-Verlag, New
 York.
-
-
-\item[Fahrmeir, L. and Hennerfeind, A., (2003):]
-Nonparametric Bayesian hazard rate models based on penalized
-splines. SFB 386 Discussion paper 361, University of Munich.
 
 \item[Fahrmeir, L., Kneib, T. and Lang, S., (2004):] Penalized
 structured additive regression for space-time data: a Bayesian
@@ -1961,8 +2094,9 @@ Priors. {\em Journal of the Royal Statistical Society C}, 50,
 Time-Space Data. {\em Annals of the  Institute of Statistical
 Mathematics}, 53, 10-30.
 
-\item[Fahrmeir, L. and Osuna, L. (2003):] Structured count data regression.
-SFB 386 Discussion paper 334, University of Munich.
+\item[Fahrmeir, L. and Osuna, L. (2006):] Structured additive regression for
+overdispersed and zero-inflated count data. {\em Applied Stochastic
+Models in Business and Industry}, 22, 351-369.
 
 \item[Fahrmeir, L. and Tutz, G. (2001):] {\em Multivariate Statistical
 Modelling based on Generalized Linear Models.} New York:
@@ -1971,7 +2105,6 @@ Springer--Verlag.
 \item[Fotheringham, A.S., Brunsdon, C., and Charlton, M.E., 2002:]
 {\it Geographically Weighted Regression: The Analysis of Spatially
 Varying Relationships.} Wiley, Chichester.
-
 
 \item[Gamerman, D. (1997):] Efficient Sampling from the posterior distribution
 in generalized linear models. {\em Statistics and Computing}, 7,
@@ -2002,7 +2135,6 @@ Maximum Likelihood approaches to variance component estimation and
 to related problems. {\it Journal of the American Statistical
 Association}, 72, 320--338.
 
-
 \item[Hastie, T. and Tibshirani, R. (1990):] {\em Generalized additive models.} Chapman and
 Hall, London.
 
@@ -2016,30 +2148,34 @@ Inference and Prediction.} New York: Springer--Verlag.
 
 \item[Hennerfeind, A., Brezger, A., Fahrmeir, L. (2006):]
 Geoadditive Survival models. {\em Journal of the American
-Statistical Association}, to appear.
+Statistical Association}, 101, 1065-1075.
 
 \item[Holmes, C., Held, L. (2006):]
 Bayesian auxiliary variable models for binary and multinomial
 regression. {\em Bayesian Analysis}, 1, 145-168.
 
 \item[Johnson, M.E., Moore, L.M. and
-Ylvisaker, D., (1990):] Minimax and maximin designs. {\it Journal of Statistical Planning and Inference}
-, 26, 131--148.
+Ylvisaker, D., (1990):] Minimax and maximin designs. {\it Journal of
+Statistical Planning and Inference} , 26, 131-148.
 
 \item[Kammann, E. E. and Wand, M. P., (2003):] Geoadditive Models. {\it Journal of the Royal
 Statistical Society C}, 52, 1-18.
 
-\item[Kneib, T. and Fahrmeir, L., (2006):] A mixed model approach
-to structured hazard regression. {\em Scandinavian Journal of
-Statistics}, to appear.
+\item[Kneib, T. (2006):] Geoadditive hazard regression for interval
+censored survival times. {\em Computational Statistics and Data
+Analysis}, 51, 777-792
 
-\item[Kneib, T. and Fahrmeir, L., (2006):] Structured additive
+\item[Kneib, T. and Hennerfeind, A. (2006):] Bayesian Semiparametric
+Multi-State Models. Under revision for {\em Statistical Modelling}.
+A preliminary version is available as SFB 386 Discussion Paper 502.
+
+\item[Kneib, T. and Fahrmeir, L. (2006):] Structured additive
 regression for categorical space-time data: A mixed model approach.
-{\it Biometrics}, to appear.
+{\it Biometrics}, 62, 109-118.
 
-\item[Kneib, T. (2005):] Geoadditive hazard regression for interval
-censored survival times. SFB 386 Discussion paper 447, University of
-Munich.
+\item[Kneib, T. and Fahrmeir, L. (2007):] A mixed model approach
+to structured hazard regression. {\em Scandinavian Journal of
+Statistics}, 34, 207-228..
 
 \item[Knorr-Held, L. (1999):] Conditional Prior Proposals in
 Dynamic Models. {\em Scandinavian Journal of Statistics}, 26,
@@ -2049,14 +2185,13 @@ Dynamic Models. {\em Scandinavian Journal of Statistics}, 26,
 {Statistische Analyse von Schadensf\"allen privater
 Krankenversicherungen.} Master thesis, University of Munich.
 
-
 \item[Lang, S. and Brezger, A. (2004):] Bayesian P-splines. {\it
 Journal of Computational and Graphical Statistics}, 13, 183-212.
 
 \item[Lin, X. and Zhang, D., (1999):]
 Inference in generalized additive mixed models by using smoothing
 splines. {\it Journal of the Royal Statistical Society B}, 61,
-381--400.
+381-400.
 
 \item[McCullagh, P. and Nelder, J.A. (1989):] {\em Generalized Linear Models.} Chapman and Hall, London.
 
@@ -2069,10 +2204,6 @@ Models}, Dr. Hut Verlag, M\"{u}nchen.
 
 \item[Rue, H. (2001):] Fast Sampling of Gaussian Markov Random Fields with Applications.
 {\em Journal of the Royal Statistical Society B}, 63, 325-338.
-
-\item[Rue, H. and Tjelmeland, H., (2002):]
-Fitting Gaussian Markov Random Fields to Gaussian Fields. {\it
-Scandinavian Journal of Statistics}, 29, 31-49.
 
 \item[Spiegelhalter, D.J., Best, N.G., Carlin, B.P. and van der Linde, A. (2002):]
 Bayesian measures of model complexity and fit. {\em Journal of the

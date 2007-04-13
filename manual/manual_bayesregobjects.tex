@@ -1,15 +1,6 @@
 \chapter{bayesreg objects}
 \label{bayesreg} \index{bayesreg object}
 
-{\em Authors: Andreas Brezger, Stefan Lang and Thomas Kneib} \\
-{\em email:
-\href{mailto:andib@stat.uni-muenchen.de}{andib@stat.uni-muenchen.de},
-\href{mailto:lang@stat.uni-muenchen.de}{lang@stat.uni-muenchen.de}}
-and
-{\em\href{mailto:kneib@stat.uni-muenchen.de}{kneib@stat.uni-muenchen.de}} \\
-\vspace{0.3cm}
-
-
 {\em bayesreg objects} are used to fit (multivariate) generalized
 linear models or hazard rate models with a {\em Structured Additive
 Predictor (STAR)}, see Fahrmeir, Kneib, and Lang (2004). Inference
@@ -270,30 +261,30 @@ obtain a band matrix like precision matrix. This is achieved using
 method #reorder# of {\em map objects}, see \autoref{mapreorder}
 for details.
 
-\item[]{\bf\sffamily 2 dimensional P-spline with first order
+\item[]{\bf\sffamily Twodimensional P-spline with first order
 random walk penalty}
 
 \item[] {\em Description}:
 
-Defines a 2 dimensional P-spline for the spatial covariate
-#region# based on the tensor product of 1 dimensional P-splines
-with a 2 dimensional first order random walk penalty for the
-parameters of the spline. Estimation is based on the coordinates
-of the centroids of the regions an observation pertains to. The
-centroids are computed using the geographical information stored
-in the {\em map object} specified through the option #map#.
+Defines a twodimensional P-spline for the spatial covariate #region#
+based on the tensor product of onedimensional P-splines with a
+twodimensional first order random walk penalty for the parameters of
+the spline. Estimation is based on the coordinates of the centroids
+of the regions an observation pertains to. The centroids are
+computed using the geographical information stored in the {\em map
+object} specified through the option #map#.
 \item[] {\em Predictor}: $\eta= \cdots + f(centroids) + \cdots$
 \item[] {\em Syntax}:
 
 #region(geospline,map=#{\em characterstring}#[, #{\em options}]#) #
 \item[] {\em Example}:
 
-The specification of a 2 dimensional P-spline ({\em geospline})
-for spatial data has #map# as a required argument which must be
-the name of a {\em map object} (see \autoref{map}) that contains
-all necessary spatial information about the geographical map,
-i.e.~the neighbors of each region and the weights associated with
-the neighbors. The model term
+The specification of a twodimensional P-spline ({\em geospline}) for
+spatial data has #map# as a required argument which must be the name
+of a {\em map object} (see \autoref{map}) that contains all
+necessary spatial information about the geographical map, i.e.~the
+neighbors of each region and the weights associated with the
+neighbors. The model term
 
 #Y = region(geospline,map=germany)#
 
@@ -332,7 +323,7 @@ have only limited experience with multilevel models so that it is
 not clear how well these models can be estimated in {\em BayesX}.
 \end{itemize}
 
-\subsubsection*{Nonlinear baseline effect in Cox models}
+\subsubsection*{Nonlinear baseline effect in Cox or multi-state models}
 
 \begin{itemize}
 \item[]{\bf\sffamily P-spline with second order random walk
@@ -363,7 +354,8 @@ is estimated by the model statement
 
 #delta = time(baseline) + W1 + X1(psplinerw2)#
 
-Note that a baseline term has to be specified in the model.
+Similarly, baseline effects on the transition intensities can be
+specified in multi-state models.
 \end{itemize}
 
 \subsubsection*{Varying coefficients with continuous covariates as
@@ -436,7 +428,7 @@ additional seasonal effects for each category of #X1# by
 
 \end{itemize}
 
-\subsubsection*{Time-varying effects in Cox models}
+\subsubsection*{Time-varying effects in Cox or multi-state models}
 
 \begin{itemize}
 \item[]{\bf\sffamily P-spline with second order random walk
@@ -467,6 +459,8 @@ is estimated by the model statement
 
 #delta = time(baseline) + X1*time(baseline)#
 
+Similarly, time-varying effects on the transition intensities can be
+specified in multi-state models.
 \end{itemize}
 
 
@@ -501,14 +495,14 @@ map object} #germany# (see \autoref{mapinfile}).
 \end{itemize}
 
 
-%{\em 2 dimensional P-spline with first order random walk penalty}
+%{\em Twodimensional P-spline with first order random walk penalty}
 %\begin{itemize}
 %\item[] {\em Description}:
 
 %Defines a varying coefficients term where the effect of X1 varies
 %smoothly over the range of the spatial covariate X2. A 2
-%dimensional P-spline based on the tensor product of 1 dimensional
-%P-splines with a 2 dimensional first order random walk penalty for
+%dimensional P-spline based on the tensor product of onedimensional
+%P-splines with a twodimensional first order random walk penalty for
 %the parameters of the spline is estimated for $f$. The centroids
 %are computed using the geographical information stored in the map
 %object specified through the option #map#.
@@ -562,14 +556,14 @@ If the linear effect of #X1# should be omitted, the option
 \subsubsection*{Surface estimators}
 
 \begin{itemize}
-\item[] {\bf\sffamily 2 dimensional P-spline with first order
+\item[] {\bf\sffamily Twodimensional P-spline with first order
 random walk penalty}
 
 \item[] {\em Description}:
 
-Defines a 2 dimensional P-spline based on the tensor product of 1
-dimensional P-splines with a 2 dimensional first order random walk
-penalty for the parameters of the spline.
+Defines a twodimensional P-spline based on the tensor product of
+onedimensional P-splines with a twodimensional first order random
+walk penalty for the parameters of the spline.
 \item[] {\em Predictor}: $\eta= \cdots + f(X1,X2) + \cdots$
 \item[] {\em Syntax}:
 
@@ -583,12 +577,12 @@ The model term
 specifies a tensor product cubic P-spline with first order random
 walk penalty.
 
-In many applications it is favorable to additionally incorporate
-the 1 dimensional main effects of #X1# and #X2# into the models.
-In this case the 2 dimensional surface can be seen as the
-deviation from the main effects. Note, that the number of inner
-knots has to be the same for the main effects and the interaction
-effect. For example, splines with 10 inner knots are estimated by
+In many applications it is favorable to additionally incorporate the
+onedimensional main effects of #X1# and #X2# into the models. In
+this case the twodimensional surface can be seen as the deviation
+from the main effects. Note, that the number of inner knots has to
+be the same for the main effects and the interaction effect. For
+example, splines with 10 inner knots are estimated by
 
 
  #Y = X1(psplinerw2,nrknots=10) + X2(psplinerw2,nrknots=10)#\\
@@ -648,8 +642,8 @@ based on the centroids of the regions. The centroids are stored in the {\em map 
 \hline random intercept &  #grvar(random)# & I.i.d.~(random)
 Gaussian effect of the group indicator #grvar#,
 e.g.~#grvar# may be an individuum indicator when analyzing longitudinal data.  \\
-\hline baseline in Cox \newline models & #time(baseline)# &
-Nonlinear shape
+\hline baseline in Cox \newline or multi-state models &
+#time(baseline)# & Nonlinear shape
 of the baseline effect $\lambda_0(time)$ of a Cox model. $\log(\lambda_0(time))$ is modelled by a P-spline with second order penalty. \\
 \hline
 \end{tabular}
@@ -678,7 +672,8 @@ geographically. Covariate
 \hline Two dimensional \newline surface &  #X1*X2(pspline2dimrw1)#
 & Two dimensional surface for the continuous
 covariates #X1# and #X2#. \\
-\hline Time-varying effect in Cox Models & #X1*time(baseline)# &
+\hline Time-varying effect in Cox or multi-state models &
+#X1*time(baseline)# &
  Nonlinear, time-varying effect of #X1#.\\
  \hline
 
@@ -1214,6 +1209,136 @@ estimated by adding the term
 
 to the model statement.
 
+\subsubsection{Continuous time multi-state models}
+
+Multi-state models describe the temporal development of discrete
+phenomena based on transition intensities for each of the observable
+transition types. Consider for example a multi-state model for human
+sleep as depicted in \autoref{msmsleep_illustration} and that the
+transition intensities for the four possible transitions are
+specified as
+\begin{center}
+\begin{tabular}{rcl}
+ $\lambda_{AS,i}(t)$ & $=$ & $\exp\left[g_0^{(AS)}(t) + b_i^{(AS)}\right],$\\[2mm]
+ $\lambda_{SA,i}(t)$ & $=$ & $\exp\left[g_0^{(SA)}(t) + b_i^{(SA)}\right],$\\[2mm]
+ $\lambda_{NR,i}(t)$ & $=$ & $\exp\left[g_0^{(NR)}(t) + c_i(t)g_1^{(NR)}(t) + b_i^{(NR)}\right]$\\[2mm]
+ $\lambda_{RN,i}(t)$ & $=$ & $\exp\left[g_0^{(RN)}(t) + c_i(t)g_1^{(RN)}(t) + b_i^{(RN)}\right]$
+\end{tabular}
+\end{center}
+Each of the transitions is described in terms of a baseline effect
+$g_0^{(h)}(t)$ and a transition specific frailty term (random
+effect) $b_i^{(h)}$. In addition, time-varying effects
+$g_1^{(h)}(t)$ of binary indicators $c_i(t)$ for a high level of
+cortisol in the blood are introduced.
+
+\begin{figure}
+\begin{center}
+\setlength{\unitlength}{0.7cm}
+\begin{picture}(15,7)
+ \put(0,0) {\framebox(15,7){ }}
+ \put(0.5,0.5) {\framebox(14,3){ }}
+
+ \put(5.5,5.5) {\framebox(4,1){\sf Awake}}
+ \put(1.5,1.5) {\framebox(4,1){\sf Non-REM}}
+ \put(9.5,1.5) {\framebox(4,1){\sf REM}}
+
+ \put(0.7,2.8) {\makebox(2,0.5)[lt]{\sf Sleep}}
+
+ \put(7,5.25) {\vector(0,-1){1.5}}
+ \put(8,3.75) {\vector(0,1){1.5}}
+
+ \put(6.25,2.25) {\vector(1,0){2.5}}
+ \put(8.75,1.75) {\vector(-1,0){2.5}}
+
+ \put(6.5,0.9) {\makebox(2,0.75){\small$\lambda_{RN}(t)$}}
+ \put(6.5,2.35) {\makebox(2,0.75){\small$\lambda_{NR}(t)$}}
+
+ \put(5,4) {\makebox(1.5,1){\small$\lambda_{AS}(t)$}}
+ \put(8.5,4) {\makebox(1.5,1){\small$\lambda_{SA}(t)$}}
+
+\end{picture}
+\caption{Schematic representation of sleep stages and transitions of
+interest.\label{msmsleep_illustration}}
+\end{center}
+\end{figure}
+
+The corresponding data set should be arranged as follows:
+
+\begin{verbatim}
+ id  st  beg    end  tas tsa trn tnr cort corthigh
+ 1   2   0      1    0   1   0   0   52.6  0
+ 1   1   1      5    1   0   0   0   52.6  0
+ 1   2   5      8    0   1   0   0   52.6  0
+ 1   1   8      10   1   0   0   0   52.6  0
+ 1   2   10     36   0   0   0   0   52.6  0
+ 1   2   36     76   0   0   0   0   46.9  0
+ 1   2   76     108  0   0   0   1   47.5  0
+ 1   3   108    109  0   0   1   0   47.5  0
+ 1   2   109    110  0   0   0   1   47.5  0
+ 1   3   110    111  0   0   1   0   47.5  0
+ 1   2   111    115  0   0   0   1   47.5  0
+ 1   3   115    116  0   0   0   0   47.5  0
+ 1   3   116    126  0   0   1   0   37.4  0
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+ 2   2   0      12    0   1   0   0   22.5  0
+ 2   1   12     15    1   0   0   0   22.5  0
+ 2   1   15     28    0   1   0   0   88.6  1
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+\end{verbatim}
+
+Each path observed for the multi-state model is transformed into
+several lines in the data set, where #id# identifies the original
+paths. In the above example, parts of the first two observations are
+displayed. Each line of the data set represents a time interval
+identified by the variables #beg# and #end#. Variable #st# indicates
+the current state of the process. Note that the states have to be
+numbered consecutively from 1 to $H$, at which numbers are
+exchangeable. Since we are considering continuous time scales, an
+observation should start at $t=0$ (unless the observation is left
+truncated) and the variables #beg# and #end# should be generated so
+that within each observation process #beg# equals the value of #end#
+in the previous row (unless observations are fragmentary only).
+
+The variables #tas#, #tsa#, #trn# and #tnr# are binary indicators
+for the four transition sleep $\rightarrow$ awake (#tsa#), awake
+$\rightarrow$ sleep (#tas#), Non-REM $\rightarrow$ REM (#tnr#) and
+REM $\rightarrow$ Non-REM (#trn#), where such an indicator equals
+one if the corresponding transition is observed at the end of the
+interval and zero otherwise. Note that there are lines in the data
+set, where none of the transitions is observed. These correspond to
+intervals where the value of the time-varying #cort#
+(cortisol-level) changes. The variable #corthigh# is a dichotomized
+version of #cort# which indicates a high level of cortisol.
+
+The model specified above is estimated by entering the following
+command
+
+\begin{verbatim}
+> bayesreg msm
+> msm.mregress tas = end(baseline) + id(random):
+               tsa = end(baseline) + id(random):
+               trn = end(baseline) + corthigh*end(baseline) + id(random):
+               tnr = end(baseline) + corthigh*end(baseline) + id(random),
+ family=multistate begin=beg state=st iterations=30000 burnin=10000
+ step=20 using sleep
+\end{verbatim}
+
+Note that for each transition a separate model equation has to
+specified with the binary transition indicator as response. Instead
+of method #regress#, method #mregress# has to called since multiple
+model equations are combined. The right and the left boundary have
+to specified with the baseline effect and as global option #begin#,
+respectively. Similarly,the state variable has to specified via the
+global option #state#.
+
+More details about Bayesian semiparametric multi-state models
+including a detailed description of the human sleep data application
+can be found in Kneib and Hennerfeind (2006).
+
 \subsection{Options}
 \label{regressoptions}
 
@@ -1353,7 +1478,8 @@ value of #family# & response distribution & link & additional options \\
 \hline
 #family=cox#                 & continuous-time survival data & &#begin# \\
 \hline
-
+#family=multistate#                 & continuous-time multi-state data & &#begin#, #state# \\
+\hline
 \end{tabular}
 {\em\caption {\label{familyopt} Summary of supported response
 distributions.}}
@@ -1507,41 +1633,40 @@ of the response $y$ has been observed.}}
 
 \subsection{Estimation output}
 
-The way the estimation output is presented depends on the
-estimated model. Estimation results of fixed effects are displayed
-in a tabular form in the {\em output window} and/or in a log file
-(if created before). Shown will be the posterior mean, the
-standard deviation, the 2.5\% and the 97.5\% quantiles. Other
-quantiles may be obtained by specifying the #level1# and/or
-#level2# option, see \autoref{regressoptions} for details.
-Additionally a file is created where estimation results for fixed
-effects are replicated. The name of the file is given in the {\em
-output window} and/or in a log file. Estimation effects of
-nonlinear effects of continuous and spatial covariates as well as
-unstructured random effects are presented in a different way.
-Results are stored in an external ASCII-file whose contents can be
-read into any general purpose statistics program (e.g.~STATA,
-S-plus) to further analyze and/or visualize the results. The
-structure of the files is as follows: There will be one file for
-every nonparametric effect in the model. The name of the files and
-the storing directory are displayed in the {\em output window}
-and/or a log file. The files contain ten or eleven columns
-depending on whether the corresponding model term is an
-interaction effect. The first column contains a parameter index
-(starting with one), the second column (and the third column if
-the estimated effect is a 2 dimensional P-spline) contain the
-values of the covariate(s) whose effect is estimated. In the
-following columns the estimation results are given in form of the
-posterior means and the 2.5\%, 10\%, 50\%, 90\% and 97.5\%
-quantiles. The last two columns contain posterior probabilities
-based on nominal levels of 95\% and 80\%. A value of 1 corresponds
-to a strictly positive 95\% or 80\% credible interval and a value of
--1 to a strictly negative credible interval. A value of 0
-indicates that the corresponding credible interval contains zero.
-Other quantiles may be obtained by specifying the #level1# and/or
-#level2# option, see \autoref{regressoptions} for details. As an
-example compare the following few lines, that are the beginning of
-a file containing the results for a particular covariate, #x# say:
+The way the estimation output is presented depends on the estimated
+model. Estimation results of fixed effects are displayed in a
+tabular form in the {\em output window} and/or in a log file (if
+created before). Shown will be the posterior mean, the standard
+deviation, the 2.5\% and the 97.5\% quantiles. Other quantiles may
+be obtained by specifying the #level1# and/or #level2# option, see
+\autoref{regressoptions} for details. Additionally a file is created
+where estimation results for fixed effects are replicated. The name
+of the file is given in the {\em output window} and/or in a log
+file. Estimation effects of nonlinear effects of continuous and
+spatial covariates as well as unstructured random effects are
+presented in a different way. Results are stored in an external
+ASCII-file whose contents can be read into any general purpose
+statistics program (e.g.~STATA, R, S-plus) to further analyze and/or
+visualize the results. The structure of the files is as follows:
+There will be one file for every nonparametric effect in the model.
+The name of the files and the storing directory are displayed in the
+{\em output window} and/or a log file. The files contain ten or
+eleven columns depending on whether the corresponding model term is
+an interaction effect. The first column contains a parameter index
+(starting with one), the second column (and the third column if the
+estimated effect is a twodimensional P-spline) contain the values of
+the covariate(s) whose effect is estimated. In the following columns
+the estimation results are given in form of the posterior means and
+the 2.5\%, 10\%, 50\%, 90\% and 97.5\% quantiles. The last two
+columns contain posterior probabilities based on nominal levels of
+95\% and 80\%. A value of 1 corresponds to a strictly positive 95\%
+or 80\% credible interval and a value of -1 to a strictly negative
+credible interval. A value of 0 indicates that the corresponding
+credible interval contains zero. Other quantiles may be obtained by
+specifying the #level1# and/or #level2# option, see
+\autoref{regressoptions} for details. As an example compare the
+following few lines, that are the beginning of a file containing the
+results for a particular covariate, #x# say:
 
 
 \footnotesize
@@ -1562,8 +1687,8 @@ Note that the first row always contains the names of the variables
 in the ten columns.
 
 The estimated nonlinear effects can be visualized by using either
-the graphics capabilities of {\em BayesX} or a couple of S-plus
-functions, see \autoref{bayesxplot} and \autoref{splus},
+the graphics capabilities of {\em BayesX} or a couple of R and
+S-plus functions, see \autoref{bayesxplot} and \autoref{splus},
 respectively. Of course, any other (statistics) software package
 with plotting facilities may be used as well.
 
@@ -1700,7 +1825,7 @@ external file whose name and storing path is printed in the {\em
 output window} and/or an additional log file. The computed
 autocorrelations can be visualized by using either
 \hyperref[graphplotautocor]{method #plotautocor#} of {\em graph
-objects} or the \hyperref[splusplotautocor]{S-plus function
+objects} or the \hyperref[splusplotautocor]{R / S-plus function
 #plotautocor#}.
 \end{stanza}
 
@@ -1742,7 +1867,7 @@ the file contains the column names.
 
 The computed autocorrelations can be visualized by using either
 \hyperref[graphplotautocor]{method #plotautocor#} of {\em graph
-objects} or the \hyperref[splusplotautocor]{S-plus function
+objects} or the \hyperref[splusplotautocor]{R / S-plus function
 #plotautocor#}. However, since the structure of the file is very
 simple, the visualization of the functions can be done with every
 software package which has graphics capabilities.
@@ -1796,7 +1921,7 @@ Now the autocorrelation functions will be stored under
 #c:#$\backslash$#data#$\backslash$#estimate1_autocor.raw#.
 
 The computed autocorrelation functions may now be visualized using
-the \hyperref[splusplotautocor]{S-plus function #plotautocor#}.
+the \hyperref[splusplotautocor]{R / S-plus function #plotautocor#}.
 The function plots the autocorrelation functions for all estimated
 parameters (in our example only three) against the lag number. If
 the option #mean.autocor=T# is specified, only minimum, mean and
@@ -1805,16 +1930,15 @@ against the lag number. Obviously, this is much faster than the
 first alternative, where the autocorrelation functions of all
 parameters are plotted.
 
-The following statement in S-plus plots and stores the
-autocorrelations in the postscript file
-#c:\data\estimate1_autocor.ps#:
+The following statement in plots and stores the autocorrelations in
+the postscript file #c:\data\estimate1_autocor.ps#:
 
  #> plotautocor("c:\\data\\estimate1_autocor.raw",#\\
  #  "c:\\data\\estimate1_autocor.ps")#
 
-Note that double backslashes are required in S-plus to specify the
-directory of a file correctly. For more details about the function
-#plotautocor# compare \autoref{splusplotautocor}.
+Note that double backslashes are required in R / S-plus to specify
+the directory of a file correctly. For more details about the
+function #plotautocor# compare \autoref{splusplotautocor}.
 
 The autocorrelation functions can be plotted directly in {\em
 BayesX} using \hyperref[graphplotautocor]{method #plotautocor#} of
@@ -1851,8 +1975,9 @@ all sampled parameters will be stored in (one or more) ASCII
 file(s). Afterwards, sampling paths can be plotted and stored in a
 postscript file either by using \hyperref[graphplotsample]{method
 #plotsample#} of {\em graph objects} or by using the
-\hyperref[splusplotsample]{S-plus function #plotsample#}. Of course,
-any other program with graphics capacities could be used as well.
+\hyperref[splusplotsample]{R / S-plus function #plotsample#}. Of
+course, any other program with graphics capacities could be used as
+well.
 \end{stanza}
 
 \begin{stanza}{Syntax}
@@ -1957,9 +2082,9 @@ method #plotsample#:
 #> graph g #\\
 #> g.plotsample using s1#
 
-Alternatively we could use \hyperref[splusplotsample]{S-plus and the
-function #plotsample#} for visualizing sampling paths. We type, for
-instance, in S-plus:
+Alternatively we could use \hyperref[splusplotsample]{R / S-plus and
+the function #plotsample#} for visualizing sampling paths. We type,
+for instance
 
 #> plotsample("c:\\data\\estimate1_FixedEffects1_sample.raw")#
 
@@ -2593,6 +2718,10 @@ Hall, London.
 \item[Hastie, T., Tisbshirani, R. and Friedman, J. (2001):] {\em The Elements of Statistical Learning: Data Mining,
 Inference and Prediction.} New York: Sprigner-Verlag.
 
+\item[Kneib, T. and Hennerfeind, A.] (2006) Bayesian Semiparametric
+Multi-State Models. Under revision for {\em Statistical Modelling}.
+A preliminary version is available as SFB 386 Discussion Paper 502.
+
 \item[Knorr-Held, L. (1999):]
 Conditional Prior Proposals in Dynamic Models. {\em Scandinavian
 Journal of Statistics}, 26, 129-144.
@@ -2601,11 +2730,10 @@ Journal of Statistics}, 26, 129-144.
 {Statistische Analyse von Schadensf\"allen privater
 Krankenversicherungen.} Master thesis, University of Munich.
 
-
 \item[Lang, S. (1996):]
-\href{mailto:lang@stat.uni-muenchen.de} {Bayesianische Inferenz in
-Modellen mit variierenden Koeffizienten}. Master thesis, University of Munich.
-
+\href{mailto:stefan.lang@uibk.ac.at} {Bayesianische Inferenz in
+Modellen mit variierenden Koeffizienten}. Master thesis, University
+of Munich.
 
 \item[Lang, S. and Brezger, A. (2004):]
 Bayesian P-splines. {\em Journal of Computational and Graphical Statistics}, 13, 183-212.

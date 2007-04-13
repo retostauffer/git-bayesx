@@ -1,14 +1,6 @@
 \chapter{remlreg objects}\normalsize
 \label{remlreg} \index{remlreg object}
 
-{\em Authors: Andreas Brezger, Thomas Kneib and Stefan Lang} \\
-{\em email:
-\href{mailto:andib@stat.uni-muenchen.de}{andib@stat.uni-muenchen.de},
-\href{mailto:thomas.kneib@stat.uni-muenchen.de}{thomas.kneib@stat.uni-muenchen.de},
-and\newline
-\href{mailto:stefan.lang@stat.uni-muenchen.de}{stefan.lang@stat.uni-muenchen.de}} \\
-\vspace{0.3cm}
-
 {\em Remlreg objects} are used to fit generalized linear models with
 a {\em structured additive predictor (STAR)}, see Fahrmeir, Kneib
 and Lang (2004). Inference is based on mixed model representations
@@ -19,8 +11,8 @@ models for univariate responses can be found in Fahrmeir, Kneib and
 Lang (2004), Kneib and Fahrmeir (2006) deals with models for
 multicategorical responses. A description of models for continuous
 time survival analysis based on the Cox model can be found in Kneib
-and Fahrmeir (2006). Interval censoring and some further extensions
-are discussed in Kneib (2005) Good introductions into generalized
+and Fahrmeir (2007). Interval censoring and some further extensions
+are discussed in Kneib (2006) Good introductions into generalized
 linear models are the monographs of Fahrmeir and Tutz (2001) and
 McCullagh and Nelder (1989). Introductions to semi- and
 nonparametric models are given in Green and Silverman (1994), Hastie
@@ -134,7 +126,7 @@ based on the centroids of the regions. The centroids are stored in the {\em map 
  random intercept &  #grvar(random)# & I.i.d.~(random) Gaussian effect of the group indicator #grvar#,
  e.g.~#grvar# may be an individuum indicator when analyzing longitudinal data.  \\
 \hline
- baseline in Cox models & #time(baseline)# & Nonlinear shape
+ baseline in Cox or multi-state models & #time(baseline)# & Nonlinear shape
 of the baseline effect $\lambda_0(time)$ of a Cox model. $\log(\lambda_0(time))$ is modelled by a P-spline with second order penalty. \\
  \hline
 \end{tabular}
@@ -169,7 +161,7 @@ covariates #X1# and #X2#. \\
  \hline
  Stationary Gaussian random field &  #X1*X2(kriging)# & Stationary Gaussian random field for coordinates #X1# and #X2#. \\
  \hline
- Time-varying effect in Cox Models & #X1*time(baseline)# &
+ Time-varying effect in Cox or multi-state models & #X1*time(baseline)# &
  Nonlinear, time-varying effect of #X1#.\\
  \hline
 \end{tabular}
@@ -304,7 +296,7 @@ effect. In the example above the period is 12, corresponding to
 monthly data.
 \end{itemize}
 
-\subsubsection*{Nonlinear baseline effect in Cox models}
+\subsubsection*{Nonlinear baseline effect in Cox or multi-state models}
 
 \begin{itemize}
 \item[]{\bf\sffamily P-spline with second order random walk
@@ -333,6 +325,8 @@ is estimated by the model statement
 
 #delta = time(baseline) + W1 + X1(psplinerw2)#
 
+Similarly, baseline effects on the transition intensities can be
+specified in multi-state models.
 \end{itemize}
 
 \subsubsection*{Spatial Covariates}
@@ -365,27 +359,27 @@ defines a Markov random field prior for #region# where the
 geographical information is stored in the {\em map object}
 #germany#. An error will be raised if #germany# is not existing.
 
-\item[]{\bf\sffamily 2 dimensional P-spline with first order
+\item[]{\bf\sffamily Twodimensional P-spline with first order
 random walk penalty}
 
 \item[] {\em Description}:
 
-Defines a 2 dimensional P-spline for the spatial covariate
-#region# based on the tensor product of 1 dimensional P-splines
-with a 2 dimensional first order random walk penalty for the
-parameters of the spline. Estimation is based on the coordinates
-of the centroids of the regions an observation pertains to. The
-centroids are computed using the geographical information stored
-in the {\em map object} specified through the option #map#.
+Defines a twodimensional P-spline for the spatial covariate #region#
+based on the tensor product of onedimensional P-splines with a
+twodimensional first order random walk penalty for the parameters of
+the spline. Estimation is based on the coordinates of the centroids
+of the regions an observation pertains to. The centroids are
+computed using the geographical information stored in the {\em map
+object} specified through the option #map#.
 \item[] {\em Predictor}: $\eta= \cdots + f(centroids) + \cdots$
 \item[] {\em Syntax}:
 
 #region(geospline,map=#{\em characterstring}[, {\em options}]#)#
 \item[] {\em Example}:
 
-The specification of a 2 dimensional P-spline  (#geospline#) for
-spatial data has #map# as a required argument which must be the
-name of a {\em map object} (see \autoref{map}) that contains all
+The specification of a twodimensional P-spline  (#geospline#) for
+spatial data has #map# as a required argument which must be the name
+of a {\em map object} (see \autoref{map}) that contains all
 necessary spatial information about the geographical map, i.e.~the
 neighbors of each region and the weights associated with the
 neighbors. The model term
@@ -501,6 +495,36 @@ walk smoothness prior is defined as follows:
 
 #Y = X1*X2(psplinerw2)#
 
+If the effect of a covariate should vary according to different
+types of effect modifiers, this leads to similar identification
+problems as in additive models. To avoid such problems, option
+#center# can be specified to request the estimation of centered
+effects. For example, if both #X2# and #Z2# are assumed to modify
+the effect of #X1#, the specification of
+
+#Y = X1*X2(psplinerw2) + X1*Z2(psplinerw2)#
+
+yields a non-identifiable model. In contrast
+
+#Y = X1 + X1*X2(psplinerw2, center) + X1*Z2(psplinerw2, center)#
+
+is well-identified. Note that the main effect of #X1# has to be
+included separately. Equivalently, we could absorb the main effect
+back into the first term, yielding
+
+#Y = X1*X2(psplinerw2) + X1*Z2(psplinerw2, center)#
+
+However, the former specification has the advantage that the model
+terms are clearly separated.
+
+Models of the type just discussed arise for example if #X1# is a
+binary dummy-variable indicating two different time points where the
+data have been observed. In this case the model
+
+ #Y = X1 + X2(psplinerw2) + X1*X2(psplinerw2, center) + Z2(psplinerw2) + X1*Z2(psplinerw2, center)#
+
+assumes different effects of both #X2# and #Z2# in two years.
+
 \item[]{\bf\sffamily Seasonal prior}
 
 \item[] {\em Description}:
@@ -523,7 +547,7 @@ additional seasonal effects for each category of #X1# by
 
 \end{itemize}
 
-\subsubsection*{Time-varying effects in Cox models}
+\subsubsection*{Time-varying effects in Cox or multi-state models}
 
 \begin{itemize}
 \item[]{\bf\sffamily P-spline with second order random walk
@@ -554,6 +578,8 @@ is estimated by the model statement
 
 #delta = time(baseline) + X1*time(baseline)#
 
+Similarly, time-varying effects on the transition intensities can be
+specified in multi-state models.
 \end{itemize}
 
 \subsubsection*{ Varying coefficients with spatial covariates as
@@ -584,6 +610,13 @@ defines a varying coefficient term with the spatial covariate
 smoothness prior. Weighted Markov random fields can be estimated by
 including an appropriate weight definition when creating the {\em
 map object} #germany# (see \autoref{mapinfile}).
+
+Similarly as for varying coefficient terms with continuous effect
+modifiers, varying coefficients with spatial effect modifier can be
+centered to avoid identifiability problems:
+
+#Y = X1*region(spatial, map=germany, center)#
+
 \end{itemize}
 
 \subsubsection*{Varying coefficients with unordered group indicators
@@ -626,14 +659,14 @@ would be
 \subsubsection*{Surface estimators}
 
 \begin{itemize}
-\item[]{\bf\sffamily 2 dimensional P-spline with first order
+\item[]{\bf\sffamily Twodimensional P-spline with first order
 random walk penalty}
 
 \item[] {\em Description}:
 
-Defines a 2 dimensional P-spline based on the tensor product of 1
-dimensional P-splines with a 2 dimensional first order random walk
-penalty for the parameters of the spline.
+Defines a twodimensional P-spline based on the tensor product of
+onedimensional P-splines with a twodimensional first order random
+walk penalty for the parameters of the spline.
 \item[] {\em Predictor}: $\eta= \cdots + f(X1,X2) + \cdots$
 \item[] {\em Syntax}:
 
@@ -648,13 +681,13 @@ specifies a tensor product cubic P-spline with first order random
 walk penalty.
 
 In many applications it is favorable to additionally incorporate the
-1 dimensional main effects of #X1# and #X2# into the models. In this
-case the 2 dimensional surface can be seen as the deviation from the
-main effects. Note, that in contrast to {\em bayesreg objects} the
-number of inner knots and the degree of the spline may be different
-for the main effects and for the interaction. For example, a model
-with 20 inner knots for the main effects and 10 inner knots for the
-2 dimensional P-spline is estimated by
+onedimensional main effects of #X1# and #X2# into the models. In
+this case the twodimensional surface can be seen as the deviation
+from the main effects. Note, that in contrast to {\em bayesreg
+objects} the number of inner knots and the degree of the spline may
+be different for the main effects and for the interaction. For
+example, a model with 20 inner knots for the main effects and 10
+inner knots for the twodimensional P-spline is estimated by
 
  #Y = X1(psplinerw2,nrknots=20) + X2(psplinerw2,nrknots=20)#\\
  #    + X1*X2(pspline2dimrw1,nrknots=10)#
@@ -750,19 +783,21 @@ terms and options can be found.
  \hline
  #maxsteps# & Specifies the maximum number of steps to be performed by the space filling algorithm. & #maxsteps=300#\\
  \hline
- #gridchoice# & How to choose grid points for numerical integration in Cox models. May be either '#quantiles#' or '#equidistant#'. & #gridchoice=quantiles# \\
+ #gridchoice# & How to choose grid points for numerical integration in Cox and multi-state models. May be either '#quantiles#', '#equidistant#' or '#all#'. & #gridchoice=quantiles# \\
  \hline
- #tgrid# & Number of equidistant time points to be used for numerical integration in Cox models. Only meaningful if #gridchoice=equidistant#. & #tgrid=100#\\
+ #tgrid# & Number of equidistant time points to be used for numerical integration in Cox and multi-state models. Only meaningful if #gridchoice=equidistant#. & #tgrid=100#\\
  \hline
- #nrquantiles# & Number of quantiles that are used to define the grid points for numerical integration in Cox models. First a grid of #nrquantiles# quantiles is computed, then the grid for integration is defined by #nrbetween# equidistant points between each quantile. Only meaningful if #gridchoice=quantiles#. & #nrquantiles=50#\\
+ #nrquantiles# & Number of quantiles that are used to define the grid points for numerical integration in Cox and multi-state models. First a grid of #nrquantiles# quantiles is computed, then the grid for integration is defined by #nrbetween# equidistant points between each quantile. Only meaningful if #gridchoice=quantiles#. & #nrquantiles=50#\\
  \hline
- #nrbetween# & Number of points between quantiles that are used to define the grid points for numerical integration in Cox models. First a grid of #nrquantiles# quantiles is computed, then the grid for integration is defined by #nrbetween# equidistant points between each quantile. Only meaningful if #gridchoice=quantiles#.& #nrbetween=5#\\
+ #nrbetween# & Number of points between quantiles that are used to define the grid points for numerical integration in Cox and multi-state models. First a grid of #nrquantiles# quantiles is computed, then the grid for integration is defined by #nrbetween# equidistant points between each quantile. Only meaningful if #gridchoice=quantiles#.& #nrbetween=5#\\
  \hline
  #map# & {\em Map object} for spatial effects. & no default\\
  \hline
  #period# & The period of the seasonal effect can be specified with the option #period#. The default is #period=12# which corresponds to monthly data. & #period=12# \\
  \hline
  #catspecific# & Requests that the corresponding effect should be modelled category-specific. Can only be used in cumulative and sequential models for categorical responses, i.e. with response families #cumlogit#, #cumprobit#, #seqlogit# and #seqprobit#. & - \\
+ \hline
+ #center# & For varying coefficient terms this option requests that the effect should be centered & - \\
  \hline
 \end{tabular}
 {\em \caption{\label{remlregoptions} Optional arguments for {\em
@@ -808,6 +843,8 @@ remlreg object} terms}}
  #map#      & $\times$   & $\times$     & $\times$  & {\em map object}  & $\times$  & {\em map object} & $\times$ & $\times$ & {\em map object} & $\times$ \\
  \hline
  #catspecific#      & $\triangle$   & $\triangle$     & $\triangle$  & $\triangle$ & $\triangle$  & $\triangle$ & $\triangle$ & $\triangle$ & $\triangle$ & $\times$ \\
+ \hline
+ #center#      & $\triangle$   & $\triangle$     & $\triangle$  & $\triangle$ & $\times$  & $\triangle$ & $\times$ & $\times$ & $\triangle$ & $\times$ \\
  \hline \hline
  $^*$ & \multicolumn{10}{l|}{positive values only}\\
  \hline
@@ -854,6 +891,7 @@ the different models:
  #family=binomialcomploglog#      & binomial              & complementary log-log & \\
  \hline
  #family=multinomial#         & unordered multinomial & logit & #reference#\\
+ #family=multinomialcatsp#    & unordered multinomial (with category-specific covariates) & logit & #reference#\\
  \hline
  #family=cumprobit#           & cumulative multinomial   & probit & \\
  #family=cumlogit#            & cumulative multinomial   & logit & \\
@@ -866,6 +904,8 @@ the different models:
  #family=gamma#               & gamma                 & log & \\
  \hline
  #family=cox#                 & continuous-time survival data & & #leftint#, #lefttrunc#\\
+ \hline
+ #family=multistate#                 & continuous-time multi-state data & & #state#, #lefttrunc#\\
  \hline
 \end{tabular}
 {\em \caption {\label{remlregfamilyopt} Summary of supported
@@ -925,24 +965,74 @@ must be either zero or one.
 
 \subsubsection*{Multinomial logit models}
 
-So far {\em remlreg objects} support only multinomial logit
-models. A multinomial logit model is specified by adding the
-option
+So far {\em remlreg objects} support only multinomial logit models.
+A multinomial logit model without category-specific covariates is
+specified by adding the option
 
 #family=multinomial#
 
 to the options list.
 
-Usually a second option must be added to the options list to
-define the reference category. This is achieved by specifying the
-#reference# option. Suppose that the response variable has three
-categories 1,2 and 3. To define, for instance, the reference
-category to be 2, simply add
+If there are catspecific covariates, the option has to be altered to
+
+#family=multinomialcatsp#
+
+Category-specific covariates are included as follows: Suppose that
+covariate #x# has been observed for a response variable with the
+three categories 1, 2 and 3. Then you have to include the three
+variable #x1#, #x2# and #x3# into your dataset. Within the
+regression syntax, you have to specify
+
+#x_catspecific#
+
+to request a parametric effect of #x#
+
+#x_catspecific(psplinerw2)#
+
+for a nonparametric effect of #x# and
+
+#x_catspecific*id(psplinerw2)#
+
+to obtain a random effect of #x# with respect to the grouping
+variable #id#. Currently BayesX only supports these three term types
+for effects of category-specific effects.
+
+For both #family=multinomial# and #family=multinomialcatsp# a second
+option must be added to the options list to define the reference
+category. This is achieved by specifying the #reference# option.
+Suppose that the response variable has three categories 1,2 and 3.
+To define, for instance, the reference category to be 2, simply add
 
 #reference=2 #
 
 to the options list. If this option is omitted, the {\em smallest}
 number will be used as the reference category.
+
+If some categories are not available for some observations, BayesX
+can account for this by including either category-specific offsets
+of non-availability indicators. Suppose again that the response has
+the three categories 1, 2 and 3. Then offset terms #o1#, #o2# and
+#o3# can be used to account for varying choice sets. If a category
+is available, the offsets are simply set to zero, while a large
+negative value (i.e. -1000) has to be assigned to the offset term of
+categories which are not available. To account for the offset term,
+
+#o_catspecific(offset)#
+
+has to be added to the model specification. Of course, you can also
+assign different values to the offsets, e.g. to account for a priori
+differences in the availability of some categories.
+
+The usage of offset terms to account for non-availability may in
+some cases be numerically unstable. Therefore an alternative
+possibility is to include non-availability indicators #na1#, #na2#
+and #na3#. Each of the indicators is assigned the value one if the
+corresponding category is not available and zero otherwise. Within
+the regression syntax, the non-availability indicator has to be
+specified as a global option, i.e.
+
+# ... , family=multinomialcatsp naindicator=na_catspecific#
+
 
 \subsubsection*{Cumulative logit and probit models}
 
@@ -1169,6 +1259,136 @@ truncation and interval censoring is given by
  #> r.regress delta = tup(baseline)+ x1 + x2(psplinerw2), family=cox#\\
  #  lefttrunc=ttr leftint=tlo# \ldots
 
+\subsubsection{Continuous time multi-state models}
+
+Multi-state models describe the temporal development of discrete
+phenomena based on transition intensities for each of the observable
+transition types. Consider for example a multi-state model for human
+sleep as depicted in \autoref{msmsleep_illustration} and that the
+transition intensities for the four possible transitions are
+specified as
+\begin{center}
+\begin{tabular}{rcl}
+ $\lambda_{AS,i}(t)$ & $=$ & $\exp\left[g_0^{(AS)}(t) + b_i^{(AS)}\right],$\\[2mm]
+ $\lambda_{SA,i}(t)$ & $=$ & $\exp\left[g_0^{(SA)}(t) + b_i^{(SA)}\right],$\\[2mm]
+ $\lambda_{NR,i}(t)$ & $=$ & $\exp\left[g_0^{(NR)}(t) + c_i(t)g_1^{(NR)}(t) + b_i^{(NR)}\right]$\\[2mm]
+ $\lambda_{RN,i}(t)$ & $=$ & $\exp\left[g_0^{(RN)}(t) + c_i(t)g_1^{(RN)}(t) + b_i^{(RN)}\right]$
+\end{tabular}
+\end{center}
+Each of the transitions is described in terms of a baseline effect
+$g_0^{(h)}(t)$ and a transition specific frailty term (random
+effect) $b_i^{(h)}$. In addition, time-varying effects
+$g_1^{(h)}(t)$ of binary indicators $c_i(t)$ for a high level of
+cortisol in the blood are introduced.
+
+\begin{figure}
+\begin{center}
+\setlength{\unitlength}{0.7cm}
+\begin{picture}(15,7)
+ \put(0,0) {\framebox(15,7){ }}
+ \put(0.5,0.5) {\framebox(14,3){ }}
+
+ \put(5.5,5.5) {\framebox(4,1){\sf Awake}}
+ \put(1.5,1.5) {\framebox(4,1){\sf Non-REM}}
+ \put(9.5,1.5) {\framebox(4,1){\sf REM}}
+
+ \put(0.7,2.8) {\makebox(2,0.5)[lt]{\sf Sleep}}
+
+ \put(7,5.25) {\vector(0,-1){1.5}}
+ \put(8,3.75) {\vector(0,1){1.5}}
+
+ \put(6.25,2.25) {\vector(1,0){2.5}}
+ \put(8.75,1.75) {\vector(-1,0){2.5}}
+
+ \put(6.5,0.9) {\makebox(2,0.75){\small$\lambda_{RN}(t)$}}
+ \put(6.5,2.35) {\makebox(2,0.75){\small$\lambda_{NR}(t)$}}
+
+ \put(5,4) {\makebox(1.5,1){\small$\lambda_{AS}(t)$}}
+ \put(8.5,4) {\makebox(1.5,1){\small$\lambda_{SA}(t)$}}
+
+\end{picture}
+\caption{Schematic representation of sleep stages and transitions of
+interest.\label{msmsleep_illustration}}
+\end{center}
+\end{figure}
+
+The corresponding data set should be arranged as follows:
+
+\begin{verbatim}
+ id  st  beg    end  tas tsa trn tnr cort corthigh
+ 1   2   0      1    0   1   0   0   52.6  0
+ 1   1   1      5    1   0   0   0   52.6  0
+ 1   2   5      8    0   1   0   0   52.6  0
+ 1   1   8      10   1   0   0   0   52.6  0
+ 1   2   10     36   0   0   0   0   52.6  0
+ 1   2   36     76   0   0   0   0   46.9  0
+ 1   2   76     108  0   0   0   1   47.5  0
+ 1   3   108    109  0   0   1   0   47.5  0
+ 1   2   109    110  0   0   0   1   47.5  0
+ 1   3   110    111  0   0   1   0   47.5  0
+ 1   2   111    115  0   0   0   1   47.5  0
+ 1   3   115    116  0   0   0   0   47.5  0
+ 1   3   116    126  0   0   1   0   37.4  0
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+ 2   2   0      12    0   1   0   0   22.5  0
+ 2   1   12     15    1   0   0   0   22.5  0
+ 2   1   15     28    0   1   0   0   88.6  1
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+\end{verbatim}
+
+Each path observed for the multi-state model is transformed into
+several lines in the data set, where #id# identifies the original
+paths. In the above example, parts of the first two observations are
+displayed. Each line of the data set represents a time interval
+identified by the variables #beg# and #end#. Variable #st# indicates
+the current state of the process. Note that the states have to be
+numbered consecutively from 1 to $H$, at which numbers are
+exchangeable. Since we are considering continuous time scales, an
+observation should start at $t=0$ (unless the observation is left
+truncated) and the variables #beg# and #end# should be generated so
+that within each observation process #beg# equals the value of #end#
+in the previous row (unless observations are fragmentary only).
+
+The variables #tas#, #tsa#, #trn# and #tnr# are binary indicators
+for the four transition sleep $\rightarrow$ awake (#tsa#), awake
+$\rightarrow$ sleep (#tas#), Non-REM $\rightarrow$ REM (#tnr#) and
+REM $\rightarrow$ Non-REM (#trn#), where such an indicator equals
+one if the corresponding transition is observed at the end of the
+interval and zero otherwise. Note that there are lines in the data
+set, where none of the transitions is observed. These correspond to
+intervals where the value of the time-varying #cort#
+(cortisol-level) changes. The variable #corthigh# is a dichotomized
+version of #cort# which indicates a high level of cortisol.
+
+The model specified above is estimated by entering the following
+command
+
+\label{msm_code}
+\begin{verbatim}
+> remlreg msm
+> msm.mregress tas = end(baseline) + id(random):
+               tsa = end(baseline) + id(random):
+               trn = end(baseline) + corthigh*end(baseline) + id(random):
+               tnr = end(baseline) + corthigh*end(baseline) + id(random),
+ family=multistate lefttrunc=beg state=st using sleep
+\end{verbatim}
+
+Note that for each transition a separate model equation has to
+specified with the binary transition indicator as response. Instead
+of method #regress#, method #mregress# has to called since multiple
+model equations are combined. The right and the left boundary have
+to specified with the baseline effect and as global option
+#lefttrunc#, respectively. Similarly,the state variable has to
+specified via the global option #state#.
+
+More details about Bayesian semiparametric multi-state models
+including a detailed description of the human sleep data application
+can be found in Kneib and Hennerfeind (2006).
+
 
 \subsection{Options}
 \label{remlregregressoptions}
@@ -1217,7 +1437,7 @@ error message will be printed in the {\it output window}.\\
 DEFAULT: #maxchange=1000000#
 \end{itemize}
 
-\subsubsection*{Options for the analysis of survival times}
+\subsubsection*{Options for the analysis of survival times and multi-state models}
 \label{remlest_survival_options}
 
 \begin{itemize}
@@ -1230,10 +1450,16 @@ observations are assumed to be right censored or uncensored,
 depending on the corresponding value of the censoring indicator.
 
 \item #lefttrunc = #{\em variablename}\\
-Gives the name of the variable containing the left truncation time
-$T_{tr}$. For observations that are not truncated we have to specify
-$T_{tr}=0$. If #lefttrunc# is missing, all obeservations are assumed
-to be not truncated.
+For survival data, #lefttrunc# specifies the name of the variable
+containing the left truncation time $T_{tr}$. For observations that
+are not truncated we have to specify $T_{tr}=0$. If #lefttrunc# is
+missing, all observations are assumed to be not truncated. For
+multi-state models variable #lefttrunc# specifies the left endpoint
+of the corresponding interval (compare page~\pageref{msm_code}).
+
+\item #state = #{\em variablename}\\
+For multi-state models, #state# specified the current state of the
+process (compare page~\pageref{msm_code}).
 \end{itemize}
 
 \subsubsection*{Further options} \label{remlreg_further_options}
@@ -1282,17 +1508,17 @@ output window} and/or in a log file.
 Estimation effects for nonparametric effects are presented in a
 different way. Here, results are stored in external ASCII-files
 whose contents can be read into any general purpose statistics
-program (e.g. STATA, S-plus) to further analyze and/or visualize the
-results. The structure of these files is as follows: There will be
-one file for every nonparametric effect in the model. The names of
-the files and the storing directory are displayed in the {\em output
-window} and/or a log file. The files contain ten or eleven columns,
-depending on whether the corresponding model term is an interaction
-effect. The first column contains a parameter index (starting with
-one), the second column (and the third column if the estimated
-effect is a 2 dimensional P-spline) contain the values of the
-covariate(s) whose effect is estimated. In the following columns the
-estimation results are given in form of the posterior mode, the
+program (e.g. STATA, R, S-plus) to further analyze and/or visualize
+the results. The structure of these files is as follows: There will
+be one file for every nonparametric effect in the model. The names
+of the files and the storing directory are displayed in the {\em
+output window} and/or a log file. The files contain ten or eleven
+columns, depending on whether the corresponding model term is an
+interaction effect. The first column contains a parameter index
+(starting with one), the second column (and the third column if the
+estimated effect is a twodimensional P-spline) contain the values of
+the covariate(s) whose effect is estimated. In the following columns
+the estimation results are given in form of the posterior mode, the
 lower boundaries of the (approximate) 95\% and 80\% credible
 intervals, the standard deviation and the upper boundaries of the
 80\% and 95\% credible intervals. The last two columns contain
@@ -1325,7 +1551,7 @@ Note that the first row of the files always contains the names of
 the columns.
 
 The estimated nonlinear effects can be visualized using either the
-graphics capabilities of {\em BayesX} or a couple of S-plus
+graphics capabilities of {\em BayesX} or a couple of R and S-plus
 functions,  see \autoref{bayesxplot} and \autoref{splus},
 respectively. Of course, any other (statistics) software package
 with plotting facilities may be used as well.
@@ -1524,16 +1750,21 @@ Hall, London.
 \item[Hastie, T., Tisbshirani, R. and Friedman, J. (2001):] {\em The Elements of Statistical Learning: Data Mining,
 Inference and Prediction.} New York: Springer--Verlag.
 
-\item[Kneib, T. (2005):] Geoadditive hazard regression for interval censored survival times. SFB 386 discussion Paper 447,
-University of Munich.
+\item[Kneib, T. (2006):] Geoadditive hazard regression for interval
+censored survival times. {\em Computational Statistics and Data
+Analysis}, 51, 777-792
 
-\item[Kneib, T. and Fahrmeir, L. (2006):] A mixed model approach
-for geoadditive hazard regression. {\em Scandinavian Journal of
-Statistics}, to appear.
+\item[Kneib, T. and Hennerfeind, A.] (2006) Bayesian Semiparametric
+Multi-State Models. Under revision for {\em Statistical Modelling}.
+A preliminary version is available as SFB 386 Discussion Paper 502.
 
-\item[Kneib, T. and Fahrmeir, L. (2006):] Structured additive
-regression for multicategorical space-time data: A mixed model
-approach. {\it Biometrics}, to appear.
+\item[Kneib, T. and Fahrmeir, L., (2006):] Structured additive
+regression for categorical space-time data: A mixed model approach.
+{\it Biometrics}, 62, 109-118.
+
+\item[Kneib, T. and Fahrmeir, L., (2007):] A mixed model approach
+to structured hazard regression. {\em Scandinavian Journal of
+Statistics}, 34, 207-228..
 
 \item[Brezger, A. (2000):]
 \href{http://www.stat.uni-muenchen.de/~andib} {\em Bayesianische
