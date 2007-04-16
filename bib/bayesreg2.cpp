@@ -2735,9 +2735,11 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
         "f_"+terms[i].varnames[0]+"_random",
                  "_rw_mult1.raw","_rw_mult1.res","_rw_mult1");
 
+        datamatrix eins(D.rows(),1,1);
+
         fcnonpgaussian.push_back(
         FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
-        distr[distr.size()-1],D.getCol(j2),D.getCol(j1),fcconst_intercept,
+        distr[distr.size()-1],D.getCol(j2),eins,fcconst_intercept,
         unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,
         lambda));
 
@@ -2745,6 +2747,7 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
         terms[i].varnames[1]);
 
         fcnonpgaussian[fcnonpgaussian.size()-1].set_changingweight();
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_center(true);        
 
 
         if (constlambda.getvalue() == true)
