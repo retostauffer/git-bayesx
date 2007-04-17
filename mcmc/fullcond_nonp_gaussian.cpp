@@ -3400,7 +3400,9 @@ bool FULLCOND_nonp_gaussian::posteriormode(void)
 
   precenv.solve(beta);
 
+
   update_linpred(true);
+
 
   if (center)
     {
