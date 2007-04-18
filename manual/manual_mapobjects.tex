@@ -1,28 +1,29 @@
 \chapter{map objects}
 \label{map} \index{map object}
 
-{\em Map objects} are used to handle and store geographical maps.
-For the moment {\em map objects} serve more or less as auxiliary
-objects for {\em bayesreg objects} and {\em remlreg objects}, where
-the effect of spatial covariates on a dependent variable can be
-modelled via spatial priors, especially Markov random field priors.
-The main purpose of {\em map objects} in this context is to provide
-the neighborhood structure of the map and to compute weights
-associated with this neighborhood structure. The typical approach is
-as follows: A {\em map object} is created and the boundary
-information of a geographical map is read from an external file and
-stored in the {\em map object}. This can be achieved using the
-#infile# command, see \autoref{mapinfile} below. Based on the
-boundary information, the {\em map object} automatically computes
-the neighborhood structure of the map and the weights associated
-with the neighborhood structure. Since there are several proposals
-in the spatial statistics literature for defining the weights, the
-user is given the choice between a couple of alternative weight
-definitions. After the correct initialization, the {\em map object}
-can be passed to the #regress# function of a {\em bayesreg object}
-in order to estimate regression models with spatial covariates, see
-\autoref{bayesreg} and \autoref{remlreg}, and the subsections about
-spatial covariates therein.
+The purpose of {\em map objects} is to provide functionality for
+handling and storing geographical maps. In addition, {\em map
+objects} serve as auxiliary objects for regression models with
+spatial effects, where the effect of a location variable is to be
+included via a spatially correlated prior. In this context, {\em
+map objects} store the neighborhood structure of a map and provide
+functionality to compute weights associated with this neighborhood
+structure.
+
+The typical approach will be as follows: A {\em map object} is
+created, the boundary information of a geographical map is read
+from an external file and stored in the {\em map object}. This can
+be achieved using the #infile# command, see \autoref{mapinfile}
+below. Based on the boundary information, the {\em map object}
+automatically computes the neighborhood structure of the map and
+the weights associated with the neighborhood structure. Since
+there are several proposals in the spatial statistics literature
+for defining weights, the user is given the choice between a
+couple of alternatives. Afterwards the {\em map object} can be
+passed to the #regress# function of a regression object to
+estimate regression models with spatial covariates, see
+\autoref{bayesreg} and \autoref{remlreg}, and in particular the
+subsections about spatial covariates therein.
 
 \clearpage
 
@@ -37,32 +38,32 @@ object!boundary files} \index{boundary files} \index{graph files}
 
 
 Method #infile# is used to read the boundary information of a
-geographical map stored in an external file. This file is called a
-{\em boundary file}, since it must contain the information about
-the boundaries of the different regions of the map. It is assumed
-that the boundary of each region is stored in form of a closed
-polygon, that is the boundary is represented by a set of connected
+geographical map stored in an external file. Currently, two file
+formats are supported: {\em boundary files} and {\em graph files}.
+A {\em boundary file} contains information about the boundaries of
+the different regions of a map in terms of closed polygons, i.e.
+the boundary of each region is represented by a set of connected
 straight lines. A detailed description of the structure of
 boundary files is given below.
 
-As a second choice method #infile# allows to read  so called {\em
-graph files}. In {\em graph files} the nodes and edges of a
-certain graph are stored. In addition, weights associated with the
-edges of the graph may be specified in the file. In terms of
-geographical maps the nodes of a graph correspond to the regions
-of a map and the edges specify the neighborhood structure of the
-map. The main advantage of {\em graph files} is that the
-neighborhood structure of a particular geographical map is already
-available. With {\em boundary files} the neighborhood structure
-must be computed first; a task which is relatively computer
-intensive. Therefore an advisable strategy might be to read a {\em
-boundary files} only once to compute the neighborhood structure
-and to store it as a {\em graph file} afterwards using the
-#outfile# command (see \autoref{mapoutfile}), especially for
+A {\em graph file} stores the nodes and edges of a graph
+representing the neighborhood structure of a map. In addition,
+weights associated with the edges of the graph can be specified.
+In terms of geographical maps, the nodes of the graph correspond
+to the regions of the map while the edges specify the neighborhood
+structure. As a consequence, the neighborhood structure of a
+geographical map is immediately available in a {\em graph file}
+while it has to be computed from the polygons in case of a {\em
+boundary file} (a task which may be time-consuming). Therefore an
+advisable strategy is to read a {\em boundary files} only once to
+compute the neighborhood structure and to store it as a {\em graph
+file} afterwards (using the #outfile# command, see
+\autoref{mapoutfile}). This is particularly the case for
 geographical maps with a lot of regions. However, using {\em graph
 files} also has a disadvantage: Visualization of geographical
 information is only possible with boundary files since only these
-contain the required information on the boundaries.
+contain the information on the boundaries required for visual
+representation.
 
 \subsection{Syntax}
 
@@ -71,27 +72,27 @@ contain the required information on the boundaries.
 Method #infile# reads the map information stored in the {\em
 boundary} or {\em graph file} {\em filename}. If option #graph# is
 specified, {\em BayesX} expects a {\em graph file}, otherwise a
-{\em boundary file}
-is expected. The structures of {\em boundary} and {\em graph files} are described below.
+{\em boundary file} is expected.
 
 \subsubsection*{Structure of a boundary file}
 
 A {\em boundary file} provides the boundary information of a
-geographical map. For each region of the map the {\em boundary
-file} must contain the identifying name of the region, the
-polygons that form the boundary of the region, and the number of
-lines the polygon consists of. The first line always contains the
-region code surrounded by quotation marks and the number of lines
-the polygon of the region consists of. The code and the number of
-lines must be separated by a comma. The subsequent lines contain
-the coordinates of the straight lines that form the boundary of
-the region. The straight lines are represented by the coordinates
-of their end points. Coordinates must be separated by a comma.
+geographical map in terms of closed polygons. For each region of
+the map, the boundary files contains a block of lines defining the
+name of the region, the number of lines the polygon consists of,
+and the polygons themselves. The first line of such a block
+contains the region code surrounded by quotation marks and the
+number of lines the polygon of the region consists of. The region
+code and the number of lines must be separated by a comma. The
+subsequent lines contain the coordinates of the straight lines
+that form the boundary of the region. The straight lines are
+represented by the coordinates of their end points. Coordinates
+must be separated by a comma.
 
 To give an example we print a (small) part of the {\em boundary
 file} of Germany:
 
-
+\begin{multicols}{3}
 \footnotesize
 
 \hspace{1cm}  $\vdots$
@@ -131,14 +132,15 @@ file} of Germany:
 
 \hspace{1cm} $\vdots$
 
+\end{multicols}
 \normalsize
 
 \vspace{0.3cm}
 
-The  map corresponding to the section of the {\em boundary file}
-above can be found in \autoref{partgermany}. Note that the first
-and the last point must be identical (see the example above) to
-obtain a closed polygon.
+The  map corresponding to this part of the {\em boundary file} can
+be found in \autoref{partgermany}. Note that the first and the
+last point of a polygon must be identical (see the example above)
+to obtain a closed polygon.
 
 
 \begin{figure}[ht]
@@ -148,24 +150,22 @@ obtain a closed polygon.
 section of the boundary file}}
 \end{figure}
 
-In some cases it might happen that a region is separated into
-subregions that are not connected. As an illustrative example
-compare \autoref{westsub} showing a region of Germany that is
-separated into 8 subregions. In this case the {\em boundary file}
-must contain the polygons of all subregions. The first row for
-each of these subregions must contain the region code and the
-number of lines the polygon of the respective subregion consists
-of. Note that it is not necessary that the polygons of the
-subregions are stored in subsequent order in the {\em boundary
-file}.
+In some cases a region may be divided into a number of subregions
+that are not connected. As an example, \autoref{westsub} shows a
+region within Germany that is separated into 8 subregions. In such
+a case each subregion has to be included separately in the {\em
+boundary file} but all subregions should share the same region
+code. Note that the subregions can be placed anywhere in the {\em
+boundary file} and, in particular, do not have to follow each
+other.
 
-Another special case that might occur is illustrated in
-\autoref{westin}. Here a region is completely surrounded by
-another region. In this case an additional line must be added to
-the boundary description of the {\em surrounded} region. The
-additional line must be placed  after the first line and must
-contain the
-region code of the {\em surrounding} region. The syntax is:
+Another special case that requires additional attention is
+illustrated in \autoref{westin}: A region is completely surrounded
+by another region. In this case an additional line has to be added
+to the boundary description of the {\em surrounded} region. This
+additional line is placed between the first line and the polygons
+and has to contain the region code of the {\em surrounding}
+region. The full syntax is:
 
 #is.in#,"{\em region code}"
 
@@ -195,55 +195,49 @@ is.in,"9371" \\
 \centering
 \includegraphics [scale=0.3]{grafiken/reg1054.eps}
 {\em\caption{\label{westsub} Example for a region that is divided
-into subregions}}
+into subregions.}}
 \end{figure}
 
 \begin{figure}[hb]
 \centering
 \includegraphics [scale=0.3]{grafiken/westin.eps}
 {\em\caption{\label{westin} Example for a region that is totally
-surrounded by another region}}
+surrounded by another region.}}
 \end{figure}
 
-
-
-Finally, we want to draw attention to an important limitation in
+Finally, we want to draw attention to an important limitation of
 the current version of {\em BayesX}. In most cases {\em map
 objects} serve as auxiliary objects to estimate spatial effects
-with {\em bayesreg objects} or {\em remlreg objects}. In this case the names of the regions
-of the map and the values of the spatial covariate, whose effect
-is estimated, must match. Since there are only numerical variables
-allowed in {\em dataset objects} (and no string valued variables),
-the names of the regions in the corresponding {\em map object}
-must necessarily be numbers, although there is in principle no
-limitation for the names of regions in {\em map objects}.
+with {\em bayesreg objects} or {\em remlreg objects}. In this case
+the names of the regions of the map and the values of the
+corresponding spatial covariate have to match. Since only
+numerical variables allowed in {\em dataset objects}, the names of
+the regions in the {\em map object} have to be numbers, although,
+in principle, there is no limitation for the names of regions in
+{\em map objects}.
 
 \subsubsection*{Structure of a graph file}
 
 A graph file stores the nodes and the edges of a graph $G =
-(N,E)$, see for example George and Liu (1981, Ch. 3) for a first
-introduction into graph theory. A graph is a convenient way of
-representing the neighborhood structure of a geographical map. The
-nodes of the graph correspond to the region codes. The
+(N,E)$, see for example George and Liu (1981, Ch. 3) for a brief
+introduction to graph theory. A graph is a convenient way to
+represent the neighborhood structure of a geographical map, where
+the nodes of the graph correspond to the region codes while the
 neighborhood structure is represented by the edges of the graph.
-In some situations it may be useful to define weights associated
+In some situations it can be useful to define weights associated
 with the edges of a graph which can be stored in the {\em graph
 file} as well.
 
-We now describe the structure of a {\em graph file} as it is expected by
-{\em BayesX}. The first line of a {\em graph file} must contain
-the total number of nodes of the graph. In the remaining lines,
-the nodes of the graph together with their edges and associated
-weights are specified. One node corresponds to three consecutive
-lines. The first of the three lines must contain the name of the
-node, which may simply be the name of a geographical region. In
-the second line the number of edges of that particular node is
-given. The third line contains the corresponding edges of the
-node, where an edge is given by the index of a neighboring node.
-The index starts with zero. For example, if the fourth and the
-seventh node/region in the {\em graph file} are
-connected/neighbors, the edge index for the fourth node/region is
-6 and for the seventh node/region 3.
+In {\em BayesX}, the first line of a {\em graph file} has to
+contain the total number of nodes of the graph. Afterwards, each
+region (or node) is represented by a block of three lines. The
+first of these lines contains the name of the node (typically the
+name of the geographical region). The second line states the
+number of edges for that particular node. The third line contains
+the corresponding edges of the node, represented by the index of a
+neighboring node. Note that the index starts with zero, i.e. the
+first node is represented by the index 0, the second node by the
+index 1, and so on.
 
 We illustrate the structure of a {\em graph file} with an example. The
 following few lines are the beginning
@@ -268,23 +262,23 @@ of the {\em graph file} corresponding to the map of (former) West Germany:
 
 \vspace{0.5cm}
 
-The first line specifies the total number of nodes, in the present
-example 327 nodes. The subsequent three lines correspond to the
-node with name '9162', which is the first region in the map of
-West Germany. Region '9162' has 3 neighbors, namely the second,
-third and fourth node appearing in the graph file. Once again,
-note that the index starts with zero, i.e. 0 corresponds to the
-first node, 1 corresponds to the second node and so on. Lines 5 to
-7 in the example correspond to node '9174' and its neighbors and
-lines 8 to 10 correspond to node '9179'.
+The first line specifies the total number of nodes, 327 in the
+present example. The subsequent three lines correspond to the node
+with name '9162', which is the first region in the map of West
+Germany. Region '9162' has 3 neighbors, namely the second, third
+and fourth node appearing in the graph file. Once again, note that
+the index starts with zero, i.e. 0 corresponds to the first node,
+1 corresponds to the second node and so on. Lines 5 to 7 in the
+example correspond to node '9174' and its neighbors and lines 8 to
+10 correspond to node '9179'.
 
-In a {\em graph file} it is also possible to specify weights associated
-with the edges of the nodes. Since in the preceding example no
-weights are explicitly specified, all weights are automatically
-defined to be equal to one. Nonequal weights are specified in the
-{\em graph file} by simply adding them following the edges of a
-particular node.
-An example of the beginning of a {\em graph file} with weights is given below:
+{\em Graph files} also allow to specify weights associated with
+the edges of the nodes. Since no weights have been explicitly
+specified in the preceding example, all weights are automatically
+defined to be equal to one. Nonequal weights can specified in the
+{\em graph file} by adding them following the edges of a
+particular node. An example of the beginning of a {\em graph file}
+with weights is given below:
 
 \footnotesize
 
@@ -305,9 +299,8 @@ An example of the beginning of a {\em graph file} with weights is given below:
 
 \vspace{0.5cm}
 
-Here the edges of the first node '9162' have weights 0.4, 1.2 and
-0.7.\bigskip
-
+In this case, the edges of the first node '9162' have weights 0.4,
+1.2 and 0.7.\bigskip
 
 
 \subheader{Options}
@@ -315,34 +308,36 @@ Here the edges of the first node '9162' have weights 0.4, 1.2 and
 \begin{itemize}
 \item #graph# \\
 If #graph# is specified as an additional option, {\em BayesX}
-expects a {\em graph file} to be read in rather than a {\em
-boundary file}.
+expects a {\em graph file} rather than a {\em boundary file}.
 \item #weightdef=adjacency# $|$ #centroid#  $|$ #combnd# \\
-\label{weightsmap} Option #weightdef# allows to specify how the
-weights associated with each pair of neighbors are computed.
-Currently there are three weight specifications available,
+\label{weightsmap} Option #weightdef# allows to request the
+computation of weights associated with each pair of neighbors.
+Currently there are three weight specifications available:
 #weightdef=adjacency#, #weightdef=centroid# and
-#weightdef=combnd#. If #weightdef=adjacency# is specified, for
-each pair of neighbors the weights are set equal to one. The so
-called adjacency weights are the most common ones in spatial
-statistics. Specifying #weightdef=centroid# results in weights
-proportional to the distance of the centroids of neighboring
-regions. More specifically, the weight $w_{us}$ of two neighboring
-regions $u$ and $s$ is set to $w_{us} = c \cdot \exp(-d(u,s))$,
-where $d$ is the Euclidian distance between the centroids of the
-two sites and $c$ is a normalizing constant. The constant $c$ is
-chosen in such a way that the total sum of weights is equal to the
-total number of neighbors, which is in analogy to adjacency
-weights. The third choice #weightdef=combnd# results in weights
-proportional to the length of the common boundary. Similarly to
-#weightdef=centroid#, the weights are normalized, i.e. the total
-sum of weights is equal to the number of neighbors.
+#weightdef=combnd#. For #weightdef=adjacency# all weights are set
+equal to one. This is the most common choice in spatial statistics
+and also the default weight method.
+
+Specifying #weightdef=centroid# results in weights which are
+inverse proportional to the distance of the centroids of
+neighboring regions. More specifically, the weight $w_{us}$ of two
+neighboring regions $u$ and $s$ is set to $w_{us} = c \cdot
+\exp(-d(u,s))$, where $d$ is the Euclidian distance between the
+centroids of the two sites and $c$ is a normalizing constant. In
+analogy to adjacency weights, the constant $c$ is chosen in such a
+way that the total sum of weights is equal to the total number of
+neighbors.
+
+The third choice #weightdef=combnd# results in weights
+proportional to the length of the common boundary of two regions.
+Similarly to #weightdef=centroid#, the weights are normalized,
+i.e. the total sum of weights is equal to the number of neighbors.
 
 Note that the specification of the #weightdef# option is only
-meaningful if a {\em boundary file} is read. If a {\em graph file}
-is read  instead, the option has no effect because the boundary
-information of regions is missing and  the computation of weights
-is therefore impossible.
+meaningful if a {\em boundary file} is read. For {\em graph files}
+the option has no effect since the boundary information of regions
+is missing and the computation of weights is therefore not
+possible.
 \end{itemize}
 
 
@@ -356,22 +351,21 @@ is therefore impossible.
 
 \begin{stanza}{Description}
 
-{Method #outfile# performs the reverse of the #infile# command.
-Using method #outfile#, the map information currently in memory is
-written to an external file. The map information can be written
-either in {\em boundary file} or in {\em graph file} format.}
+Method #outfile# performs the reverse of the #infile# command,
+i.e. the current map information is written to an external file.
+The map information can be written either in {\em boundary file}
+or in {\em graph file} format.
 \end{stanza}
 
 \begin{stanza}{Syntax}
 
-{#># {\em objectname}.#outfile# [{\em , options}] #using# {\em
+#># {\em objectname}.#outfile# [{\em , options}] #using# {\em
 filename}
 
 #outfile# writes the map information to the external file
-specified in {\em filename}. The file format can be either a {\em
-boundary file} or a {\em graph file}. If #graph# is specified as
-an additional option, the file format will be a {\em graph file},
-otherwise a {\em boundary file}.}
+specified in {\em filename}. If #graph# is specified as an
+additional option, the file format will be a {\em graph file} and
+a {\em boundary file} otherwise.
 \end{stanza}
 
 \subheader{Options}
@@ -379,18 +373,17 @@ otherwise a {\em boundary file}.}
 \begin{itemize}
 \item #graph# \\
 Forces the program to store the map information in {\em graph
-file} format rather than {\em boundary file} format.
+file} format rather than in {\em boundary file} format.
 \item #includeweights# \\
 Option #includeweights# is meaningful only if the storing format
-is a {\em graph file}, i.e. option #graph# is additionally
-specified. In that case the weights associated with the edges
-(neighbors) of the nodes (regions) are additionally stored.
+is a {\em graph file}, i.e. if option #graph# is specified. In
+this case, the weights associated with the edges (neighbors) of
+the nodes (regions) are stored in addition to the graph structure.
 \item #replace# \\
 The #replace# option allows {\em BayesX} to overwrite an already
-existing file. If #replace# is omitted in the optionlist and the
-file specified in {\em filename} already exists, an error will be
-raised. This prevents you from overwriting an existing file
-unintentionally.
+existing file. If #replace# is omitted in the optionlist an error
+will be raised if you attempt to overwrite an existing file. This
+prevents you from overwriting an existing file unintentionally.
 \end{itemize}
 
 
@@ -405,36 +398,34 @@ object!reorder command}
 
 \begin{stanza}{Description}
 
-{Method #reorder# reorders the regions of a map in the sense that
-the adjacency matrix of the reordered map has the smallest
-envelope when compared to all other possible orderings. A new map
-should always be reordered before using it with {\em bayesreg
-objects} because MCMC updates for spatial covariates will be much
-faster if the envelope of the posterior precision matrix is small.
-For reordering of the regions of the map the reverse Cuthill
-Mc-Kee algorithm is used, see George and Liu (1981) p. 58 ff.}
+Method #reorder# reorders the regions of a map to obtain an
+adjacency matrix with minimal envelope. A new map should always be
+reordered before using it with {\em bayesreg objects} since MCMC
+updates for spatial covariates will be much faster with an
+optimised envelope. {\em BayesX} uses the reverse Cuthill Mc-Kee
+algorithm to reorder maps, see George and Liu (1981) p. 58 ff.
 \end{stanza}
 
 \begin{stanza}{Syntax}
 
 {#># {\em objectname}.#reorder#
 
-#reorder# reorders the regions of a map in order to obtain
+#reorder# reorders the regions of a map in order to obtain the
 smallest envelope of the corresponding adjacency matrix.}
 \end{stanza}
 
 \begin{stanza}{Options}
 
-{Not allowed.}
+not allowed.
 \end{stanza}
 
 \begin{stanza}{Reference}
 
 {\begin{description}
 
-\item[George, A., Liu, J. W. (1981).] {\em Computer Solution of Large
-Sparse Positive Definite Systems.} Series in computational
-mathematics, Prentice--Hall.
+\item[George, A., Liu, J. W. (1981).] {\em Computer Solution of
+Large Sparse Positive Definite Systems.} Series in computational
+mathematics, Prentice-Hall.
 
 \end{description}}
 \end{stanza}

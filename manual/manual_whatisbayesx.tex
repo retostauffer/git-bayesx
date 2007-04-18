@@ -1,124 +1,220 @@
 \chapter{What is BayesX?}
 
-{\em BayesX} is a software tool for performing complex Bayesian
-inference. The main features of {\em BayesX} are:
-
-\begin{stanza}{Bayesian semiparametric regression based on MCMC simulation techniques}
-
-{\em BayesX} provides a powerful regression tool for analyzing
-regression and survival models with {\em structured additive
-predictor} (STAR). STAR models cover a number of well known model
-classes as special cases, e.g. {\em generalized additive models},
-{\em generalized additive mixed models}, {\em geoadditive models},
-{\em dynamic models}, {\em varying coefficient models}, and {\em
-geographically weighted regression}. {\em BayesX} is able to
-estimate nonlinear effects of continuous covariates, trends and
-flexible seasonal patterns of time scales, correlated and/or
-uncorrelated spatial effects (of geographical data) and
-unstructured i.i.d. Gaussian effects of unordered group
-indicators. The regression tool  supports the most common
-distributions for the response variable. Supported distributions
-for univariate responses are Gaussian, binomial, Poisson, negative
-binomial, gamma, zero inflated Poisson and zero inflated negative
-binomial. For multicategorial responses, both multinomial logit or
-probit models for unordered categories of the responses as well as
-cumulative threshold models for ordered categories may be
-estimated. Recently complex models for continuous time survival
-analysis based on the Cox model have been added. At least some
-basic knowledge about Bayesian inference with MCMC techniques is
-strongly recommended if you are interested in using this tool.
-Details can be found in \autoref{bayesreg} and the methodology
-manual.
+\begin{stanza}{General scope}
+{\em BayesX} is a software tool for estimating structured additive
+regression models. Structured additive regression embrasses
+several well-known regression models such as generalized additive
+models (GAM), generalized additive mixed models (GAMM),
+generalized geoadditive mixed models (GGAMM), dynamic models,
+varying coefficient models, and geographically weighted regression
+within a unifying framework. Besides exponential family
+regression, {\em BayesX} also supports non-standard regression
+situations such as regression for categorical responses, hazard
+regression for continuous survival times, and continuous time
+multi-state models.
 \end{stanza}
 
-\begin{stanza}{Inference for STAR models based on methodology for mixed models}
+\begin{stanza}{Inferential procedures}
 
-{\em BayesX} provides a second regression tool for estimating STAR
-models with comparable functionality as the first tool based on
-MCMC. This tool represents STAR models as {\em variance components
-mixed models}. Inference is then based on estimation procedures
-for mixed models, particularly {\em restricted maximum likelihood}
-(REML). From a Bayesian perspective this yields empirical Bayes or
-posterior mode estimates. Supported distributions for univariate
-responses are Gaussian, binomial, Poisson and gamma. For
-categorial responses, multinomial logit models for unordered
-categories of the responses as well as cumulative and sequential
-models for ordered categories can be estimated. Recently complex
-models for continuous time survival analysis based on the Cox
-model, allowing for arbitrary combinations of left- interval- and
-right-censoring as well as left-truncation have been added.
-Details can be found in \autoref{remlreg} and the methodology
-manual.
+Estimation of regression models can be achieved based on two
+different inferential concepts: Markov chain Monte Carlo
+simulation techniques corresponding to full Bayesian inference and
+mixed model methodology corresponding to penalised likelihood or
+empirical Bayes inference. Both concepts have been implemented in
+separate regression objects:
+
+\begin{itemize}
+\item {\bf\sffamily MCMC simulation techniques (bayesreg
+objects):} A fully Bayesian interpretation of structured additive
+regression models is obtained by specifying prior distributions
+for all unknown parameters. Estimation can be facilitated using
+Markov chain Monte Carlo simulation techniques, a general and
+versatile concept for Bayesian inference. Bayesreg objects provide
+numerically efficient implementations of MCMC schemes for
+structured additive regression models. Suitable proposal densities
+have been developed to obtain rapidly mixing, well-behaved
+sampling schemes without the need for manual tuning.
+\item{\bf\sffamily Mixed model based estimation (remlreg
+objects):} An increasingly popular way to estimate semiparametric
+regression models is the representation of penalisation approaches
+as mixed models. Within {\em BayesX} this concept has been
+extended to structured additive regression models and several
+types of non-standard regression situations. The general idea is
+to take advantage of the close connection between penalty concepts
+and corresponding random effects distributions. The smoothing
+parameters of the penalties then transform to variance components
+in the random effects (mixed) model. While the selection of
+smoothing parameters has been a difficult task for a long time,
+several estimation procedures for variance components in mixed
+models are already available since the 1970's. The most popular
+one is restricted maximum likelihood in Gaussian mixed models with
+marginal likelihood as the non-Gaussian counterpart.<br> Remlreg
+objects employ mixed model methodology for the estimation of
+structured additive regression models. While regression
+coefficients are estimated based on penalised likelihood,
+restricted maximum likelihood or marginal likelihood estimation
+forms the basis for the determination of smoothing parameters.
+From a Bayesian perspective, this yields empirical Bayes /
+posterior mode estimates for the structured additive regression
+models. However, estimates can also merely be interpreted as
+penalised likelihood estimates from a frequentist perspective.
+\end{itemize}
 \end{stanza}
 
-\newpage
 
-\begin{stanza}{Model selection for Gaussian and non-Gaussian dag's}
-This tool estimates Gaussian and non-Gaussian directed acyclical
-graphs (dag) via reversible jump MCMC. Details are given in
-\autoref{dag}
+\begin{stanza}{Model classes and model terms}
+
+{\em BayesX} provides functionality for the following types of
+responses:
+
+\begin{itemize}
+\item{\bf\sffamily Univariate exponential family:} Supported
+response distributions are Gaussian, Poisson, Binomial, Gamma,
+negative binomial, zero-inflated Poisson, and zero-inflated
+negative binomial.
+
+\item{\bf\sffamily Categorical responses with unordered
+responses:} For categorical responses with unordered categories,
+{\em BayesX} supports multinomial logit and multinomial probit
+models. Both effects of category-specific and globally-defined
+covariates can be estimated. Category-specific offsets or
+non-availability indicators can be defined to account for varying
+choice sets.
+
+\item{\bf\sffamily Categorical responses with ordered responses:}
+For ordered categorical responses, ordinal as well as sequential
+models can be specified. Effects can be requested to be
+category-specific or to be constant over the categories. Supported
+response functions include the logit and the probit
+transformation.
+
+\item{\bf\sffamily Continuous time survival models:} {\em BayesX}
+supports Cox-type hazard regression models with structured
+additive predictor for continuous time survival analysis. In
+contrast to the Cox model, the baseline hazard rate is estimated
+jointly with the remaining effects based on penalized splines.
+Furthermore, both time-varying effects and time-varying covariates
+can be included in the predictor. Arbitrary combinations of right,
+left and interval censored as well as left truncated obserations
+can be analysed.
+
+\item{\bf\sffamily Continuous time multi-state models:} In {\em
+BayesX} version 1.5 multi-state models have been added to the
+model class. Multi-state models form a general class for the
+analysis of the evolution of discrete phenomena in continuous
+time. Transition intensities between the discrete states are
+specified in analogy to the hazard rate in continuous time
+survival models.
+\end{itemize}
+
+Structured additive regression models can be build from arbitrary
+combinations of the following model terms:
+
+\begin{itemize}
+\item{\bf\sffamily Nonlinear effects:} Nonlinear effects can be
+estimated based on either penalised spline or random walk
+models.
+
+\item{\bf\sffamily Seasonal effects:} Specific autoregressive
+priors allow for the estimation of flexible, time-varying seasonal
+effects.
+
+\item{\bf\sffamily Spatial effects:} Spatial effects can be
+specified based on Markov random fields, stationary Gaussian
+random fields (kriging) or bivariate penalised splines. Both
+georeferenced regional data as well as point-referenced data based
+on coordinates are supported.
+
+\item{\bf\sffamily Interaction surfaces:} Bivariate extensions of
+penalised splines allow to estimate flexible interactions between
+continuous covariates. Stationary Gaussian random fields can also
+be considered a radial basis function approach and, hence, form a
+second possibility for the specification of interaction surfaces.
+
+\item{\bf\sffamily Varying coefficients:} Varying coefficient
+models with both continuous and spatial effect modifiers can be
+estimated. The latter case is also known as geograhpcially
+weighted regression.
+
+\item{\bf\sffamily Cluster-specific random effects:} {\em BayesX}
+supports i.i.d. Gaussian random intercepts and random slopes.
+\end{itemize}
+
+Note that parts of the functionality may be available for one of
+the regression objects only. For example, bayesreg objects do not
+support interval censored survival times while multinomial probit
+models can not be estimated with remlreg objects. Details can be
+found in the reference manual.
 \end{stanza}
 
-\begin{stanza}{Handling and manipulation of data sets}
+\begin{stanza}{Further functionality}
 
-{\em BayesX} provides a growing number of functions for handling
-and manipulating data sets, e.g. for reading ASCII data sets,
-creating new variables, obtaining summary statistics etc. Details
-are given in \autoref{datasetobj}.
-\end{stanza}
+\begin{itemize}
+\item{\bf\sffamily Handling and manipulation of data sets:} {\em
+BayesX} provides a growing number of functions for handling and
+manipulating data sets, e.g. for reading ASCII data sets, creating
+new variables, obtaining summary statistics etc. Compare
+\autoref{datasetobj} for details.
 
-\begin{stanza}{Handling and manipulation of geographical maps}
+\item{\bf\sffamily Handling and manipulation of geographical
+maps:} {\em BayesX} is able to manipulate and draw geographical
+maps. The regions of the map may be colored according to some
+numerical characteristics. In {\em BayesX} version 1.5, a new
+color scheme based on HCL colors has been added to obtain a better
+representation of colored maps independent of the display device.
+Details can be found in \autoref{map} and \autoref{graphobj}.
 
-{\em BayesX} is able to manipulate and draw geographical maps. The
-regions of the map may be colored according to some numerical
-characteristics. For details compare \autoref{map} and
-\autoref{graphobj}.
-\end{stanza}
+\item{\bf\sffamily Visualizing data:} {\em BayesX} provides
+functions for drawing scatter plots and geographical maps. A
+number of additional options are provided to customize the graphs
+according to the personal needs of the user. Details can be found
+in \autoref{graphobj}.
 
-\begin{stanza}{Visualizing data}
-
-{\em BayesX} provides functions for drawing scatter and line plots
-and geographical maps. A number of additional options are provided
-to customize the graphs according to the personal needs of the
-user. Details can be found in \autoref{graphobj}.
+\item{\bf\sffamily Model selection for Gaussian and non-Gaussian
+dags:} This tool estimates Gaussian and non-Gaussian directed
+acyclical graphs (dag) via reversible jump MCMC. Details can be
+found in \autoref{dag}.
+\end{itemize}
 \end{stanza}
 
 \begin{stanza}{Recommendations for further reading}
-If you are interested in using {\em BayesX} it is not necessary to
-read the complete manual. \autoref{recomm} provides a guideline
-for reading this manual and other sources depending on your
-purpose and background. In any case, you should read
-\autoref{availableversions}-\autoref{generalusage} of
-\autoref{gettingstarted} to make yourself familiar with {\em
-BayesX}.
+If you are interested in using {\em BayesX}, it is of course not
+necessary to read the complete manual. \autoref{recomm} provides a
+rough guideline for reading this manual and other sources,
+depending on the features of {\em BayesX} you are interested in
+and your statistical background. In any case, you should read
+sections \ref{availableversions} -- \ref{generalusage} to make
+yourself familiar with the general usage of {\em BayesX}.
 
 \begin{table}[ht] \footnotesize
-\hspace{1cm}\begin{tabular}{ |p{7cm}|p{7.7cm}|} \hline
-{\bf Intended use and background} & {\bf Guideline} \\
-\hline\hline Bayesian semiparametric regression based on MCMC
-simulation techniques. No experience with MCMC techniques. & Read
-first an introductory text about MCMC. A nice introduction is given
-e.g. in Green (2001). Read the methodology manual to make yourself
-familiar with STAR regression models.
-Proceed then with chapter \ref*{zambiaanalysis} of the tutorial manual. \\
-\hline Bayesian semiparametric regression based on MCMC simulation
-techniques. At least a basic knowledge about MCMC techniques exists.
-& Read the methodology manual to make yourself familiar with STAR
-regression models. Proceed then with chapter  \ref*{zambiaanalysis} of the tutorial manual. \\
-\hline Semiparametric regression based on mixed model methodology. &
-Read the methodology manual to make yourself familiar with STAR
-regression models. Proceed then with chapter  \ref*{remlregzambiaanalysis}  of the tutorial manual. \\
-\hline Model selection for dag's. No experience with reversible jump
-MCMC. & Read first an introductory text about reversible jump MCMC.
-A nice introduction is
-given e.g. in Green (2001). Proceed with \autoref{dag}. \\
-\hline
-Draw and color geographical maps & Read \autoref{map} and \autoref{graphdrawmap} of \autoref{graphobj}. \\
-\hline
+\hspace{1cm}\begin{tabular}{ |p{7cm}|p{7.7cm}|}
+ \hline
+ {\bf Intended use and background} & {\bf Guideline} \\
+ \hline\hline
+ Bayesian semiparametric regression based on MCMC
+ simulation techniques. No experience with MCMC.
+ & Read an introductory text about MCMC first. A brief introduction is given
+ for example in Green (2001). Read the methodology manual to make yourself
+ familiar with STAR models.
+ Proceed with chapter \ref*{zambiaanalysis} of the tutorial manual. \\
+ \hline Bayesian semiparametric regression based on MCMC simulation
+ techniques. At least basic knowledge about MCMC.
+ & Read the methodology manual to make yourself familiar with STAR
+ models. Proceed with chapter \ref*{zambiaanalysis} of the tutorial manual. \\
+ \hline
+ Semiparametric regression based on mixed model methodology. &
+ Read the methodology manual to make yourself familiar with STAR
+ models. Proceed with chapter \ref*{remlregzambiaanalysis} of the tutorial manual. \\
+ \hline Model selection for DAGs. No experience with reversible jump
+ MCMC. & Read an introductory text about reversible jump MCMC first.
+ A brief introduction is given for example in Green (2001). Proceed with \autoref{dag}. \\
+ \hline
+ Draw and color geographical maps & Read \autoref{map} and \autoref{graphdrawmap} of the reference manual. \\
+ \hline
 \end{tabular}
 \begin{center}
 {\em \caption {\label{recomm} Recommendations for further
-reading}}
+reading.}}
 \end{center}
 \end{table}
 \end{stanza}
