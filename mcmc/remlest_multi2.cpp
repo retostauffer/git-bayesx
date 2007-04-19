@@ -2689,15 +2689,18 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
     ofstream outsplus(path_splus.strtochar());
 
     outtex << "\n\\newpage" << "\n\\noindent {\\bf \\large Plots:}" << endl;
-    outsplus << "# NOTE: 'directory' must be substituted by the directory"
-             << " where the sfunctions are stored \n"
+    outsplus << "# NOTE: 'directory' has to be substituted by the directory"
+             << " where the functions are stored \n"
+             << endl
+             << "# In S-PLUS the file extension in the source command has to be changed"
+             << " to '.s' \n"
              << endl
     // einlesen der Source-Files für S-Plus
-             << "source(\"'directory'\\\\sfunctions\\\\plotsample.s\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\plotnonp.s\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\plotsurf.s\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\drawmap.s\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.s\")\n" << endl;
+             << "source(\"'directory'\\\\sfunctions\\\\plotsample.r\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\plotnonp.r\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\plotsurf.r\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\drawmap.r\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.r\")\n" << endl;
 
 #if defined(JAVA_OUTPUT_WINDOW)
     out("  --------------------------------------------------------------------------- \n");
@@ -2720,7 +2723,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
       out("  --------------------------------------------------------------------------- \n");
       out("\n");
       out("  Batch file for visualizing effects of nonlinear functions ");
-      out("  in S-Plus is stored in file \n");
+      out("  in R / S-Plus is stored in file \n");
       out("  " + path_splus + "\n");
       out("\n");
       }
@@ -2732,7 +2735,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
       out("  --------------------------------------------------------------------------- \n");
       out("\n");
       out("  Batch file for visualizing effects of nonlinear functions ");
-      out("  in S-Plus is stored in file \n");
+      out("  in R / S-Plus is stored in file \n");
       out("  " + path_splus + "\n");
       out("\n");
       out("  NOTE: 'input filename' must be substituted by the filename of the boundary-file \n");

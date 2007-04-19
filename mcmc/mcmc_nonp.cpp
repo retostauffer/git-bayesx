@@ -1277,7 +1277,7 @@ void FULLCOND_nonp::outresults(void)
   if (Pmatrix->get_type() == MCMC::mrf)
     {
     #if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the S-Plus function");
+    optionsp->out("  Results may be visualized using the R / S-Plus function");
     optionsp->out(" 'drawmap'\n");
     optionsp->out("\n");
     #elif defined(JAVA_OUTPUT_WINDOW)
@@ -1302,7 +1302,7 @@ void FULLCOND_nonp::outresults(void)
     ST::string pathresultsplus = pathcurrent.insert_string_char('\\',"\\\\");
     ST::string psfile = pathresultsplus.substr(0,pathresultsplus.length()-4)
     + ".ps";
-    optionsp->out("  Results may be visualized using the S-Plus function 'plotnonp'");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotnonp'");
     optionsp->out("\n");
     optionsp->out("  Type for example:\n");
     optionsp->out("\n");

@@ -521,6 +521,8 @@ bool bayesreg::create_varcoeffpspline(const unsigned & collinpred)
 void mregressrun(bayesreg & b)
   {
 
+  vector<ST::string> header;
+
   b.resultsyesno = false;
   if (b.modeonly.getvalue() == true)
     b.posteriormode = true;
@@ -541,10 +543,7 @@ void mregressrun(bayesreg & b)
 
   bool failure = false;
 
-  if ((b.family.getvalue() != "multgaussian") &&
-      (b.family.getvalue() != "multistate") &&
-      (b.family.getvalue() != "gaussianh")       
-     )
+  if ((b.family.getvalue() != "multgaussian") && (b.family.getvalue() != "multistate"))
     {
     failure = true;
     b.out("ERROR: family " + b.family.getvalue() + " is not allowed for method mregress\n");
@@ -613,7 +612,7 @@ void mregressrun(bayesreg & b)
 
     if (b.modeonly.getvalue())
       {
-      vector<ST::string> header;
+//      vector<ST::string> header;
       header.push_back("BAYESREG OBJECT " + b.name.to_bstr() +
                                     ": regression procedure");
 
@@ -621,7 +620,7 @@ void mregressrun(bayesreg & b)
       }
     else
       {
-      vector<ST::string> header;
+//      vector<ST::string> header;
       header.push_back("BAYESREG OBJECT " + b.name.to_bstr() +
                                     ": regression procedure");
       failure = b.simobj.simulate(header,b.setseed.getvalue(),!b.noposteriormode.getvalue());
@@ -640,6 +639,25 @@ void mregressrun(bayesreg & b)
     b.resultsyesno = false;
     }
 
+  if (!failure && (b.missingreg.getvalue()==false))
+    {
+
+    vector<ST::string> path;
+    vector<ST::string> path2;
+    vector<ST::string> path3;
+    vector<ST::string> path4;
+
+    for (i=0;i<b.outfiles.size();i++)
+      {
+      path.push_back(b.outfiles[i] + "_graphics.prg");
+      path2.push_back(b.outfiles[i] + "_model_summary.tex");
+      path3.push_back(b.outfiles[i] +  "_r_splus.txt");
+      path4.push_back(b.outfiles[i] +  "_stata.do");
+      }
+
+
+
+    b.simobj.make_graphics(header,path,path2,path3,path4);
 
 #if defined(JAVA_OUTPUT_WINDOW)
     if(b.nographs.getvalue() == false)
@@ -679,13 +697,12 @@ void mregressrun(bayesreg & b)
          }
        }
 
-//usefile c:\temp\temp.prg    b.newcommands.push_back(b.name + ".texsummary");
+    b.newcommands.push_back(b.name + ".texsummary");
     }
 #endif
-
+    }
 
   }
-
 
 
 
@@ -2486,7 +2503,7 @@ void regressrun(bayesreg & b)
       {
       path.push_back(b.outfiles[i] + "_graphics.prg");
       path2.push_back(b.outfiles[i] + "_model_summary.tex");
-      path3.push_back(b.outfiles[i] +  "_splus.txt");
+      path3.push_back(b.outfiles[i] +  "_r_splus.txt");
       path4.push_back(b.outfiles[i] +  "_stata.do");
       path5.push_back(b.outfiles[i] +  "_effects.res");      
       }

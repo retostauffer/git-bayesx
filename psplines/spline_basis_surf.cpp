@@ -1165,7 +1165,7 @@ void spline_basis_surf::outresults(void)
 if(mapexisting)
   {
   #if defined(BORLAND_OUTPUT_WINDOW)
-  optionsp->out("  Results may be visualized using the S-Plus function 'drawmap' \n");
+  optionsp->out("  Results may be visualized using the R / S-Plus function 'drawmap' \n");
   #elif defined(JAVA_OUTPUT_WINDOW)
   optionsp->out("  Postscript files are stored in files\n");
   ST::string psfile;
@@ -1184,7 +1184,7 @@ if(mapexisting)
   }
 else
   {
-  optionsp->out(ST::string("  Results may be visualized using the S-Plus function 'plotsurf' \n"));
+  optionsp->out(ST::string("  Results may be visualized using the R / S-Plus function 'plotsurf' \n"));
   ST::string doublebackslash = "\\\\";
   ST::string spluspath = pathcurrent.insert_string_char('\\',doublebackslash);
   optionsp->out("  Type for example:\n");
@@ -2896,7 +2896,7 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
   if(mapexisting)
     {
 #if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the S-Plus function 'drawmap' \n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'drawmap' \n");
 #elif defined(JAVA_OUTPUT_WINDOW)
     optionsp->out("  Postscript files are stored in files\n");
     ST::string psfile;
@@ -2915,7 +2915,7 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
     }
   else
     {
-    optionsp->out("  Results may be visualized using the S-Plus function 'plotsurf'\n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotsurf'\n");
     ST::string doublebackslash = "\\\\";
     ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
     optionsp->out("  Type for example:\n");
@@ -3049,7 +3049,7 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
     optionsp->out("  " + outest + "\n");
     optionsp->out("\n");
 
-    optionsp->out("  Results may be visualized using the S-Plus function 'plotsurf'\n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotsurf'\n");
     ST::string doublebackslash = "\\\\";
     ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
     optionsp->out("  Type for example:\n");

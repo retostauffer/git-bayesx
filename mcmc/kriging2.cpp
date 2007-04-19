@@ -1289,7 +1289,7 @@ void FULLCOND_kriging2::outresults()
   if(mapexisting)
     {
 #if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the S-Plus function 'drawmap' \n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'drawmap' \n");
 #elif defined(JAVA_OUTPUT_WINDOW)
     optionsp->out("  Postscript files are stored in files\n");
     ST::string psfile;
@@ -1308,7 +1308,7 @@ void FULLCOND_kriging2::outresults()
     }
   else
     {
-    optionsp->out("  Results may be visualized using the S-Plus function 'plotsurf'\n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotsurf'\n");
     ST::string doublebackslash = "\\\\";
     ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
     optionsp->out("  Type for example:\n");

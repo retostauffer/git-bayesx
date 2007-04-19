@@ -1,5 +1,5 @@
 \chapter{bayesreg objects}
-\label{bayesreg} \index{bayesreg object}
+\label{bayesreg} \index{Bayesreg object}
 
 {\em bayesreg objects} are used to fit (multivariate) exponential
 family, hazard rate or multi-state models with {\em structured
@@ -31,19 +31,19 @@ example.
 \clearpage
 
 \section{Method regress}
-\label{bayesregress} \index{bayesreg object!regress command}
+\label{bayesregress} \index{Bayesreg object!Regress
+function}\index{Regress function}
 
 \subsection{Description}
 \label{bayesregregressdescr}
 
 Method #regress# estimates a structured additive regression model.
 
-\index{generalized linear models} \index{generalized additive
-models} \index{varying coefficients models} \index{Bayesian
-semiparametric regression} \index{MCMC} \index{Markov chain Monte
-Carlo}
+\index{Generalized linear models} \index{Generalized additive
+models} \index{Varying coefficients} \index{Bayesian semiparametric
+regression} \index{MCMC} \index{Markov chain Monte Carlo}
 
-\subsection{Syntax}
+\subsection{Syntax}\index{Regression syntax}\index{Bayesreg object!Regression syntax}
 \label{bayesregregresssyntax}
 
  #> #{\em objectname}.#regress# {\em model} [#weight# {\em weightvar}] [#if# {\em expression}] [{\em , options}] #using# {\em dataset}
@@ -64,7 +64,7 @@ with a logit link. An #if# statement may be specified to analyze
 only parts of the data set, i.e.~the observations where {\em
 expression} is true.
 
-\subsubsection{Optional weight variable }
+\subsubsection{Optional weight variable}\index{Weighted regression}
 \label{weightspecification}
 
 An optional weight variable {\em weightvar} may be specified to
@@ -98,7 +98,8 @@ binomial models as well as hazard regression and multi-state
 models, weighted regression is not implemented yet.
 
 \subsubsection{Syntax of possible model terms}
-\label{modelsyntax}
+\label{modelsyntax}\index{Model terms}\index{Bayesreg object!Model
+terms}
 
 The general syntax of models is:
 
@@ -120,7 +121,7 @@ are given in \autoref{localoptions}.
 
 Throughout this section #Y# will denote the dependent variable.
 
-\subsubsection*{Offset}
+\subsubsection*{Offset}\index{Offset}
 
 \begin{itemize}
 \item[] {\em Description}: Adds an offset term to the predictor.
@@ -136,7 +137,7 @@ effects (if #family=poisson# is specified in addition):
 
 \end{itemize}
 
-\subsubsection*{Fixed effects}
+\subsubsection*{Fixed effects}\index{Fixed effects}
 
 \begin{itemize}
 \item[] {\em Description}: Incorporates covariate #W1# as a fixed effect into the model.
@@ -151,7 +152,9 @@ The following model statement specified a model with $q$ fixed
 \end{itemize}
 
 \subsubsection*{Nonlinear effects of continuous covariates and time
-scales}
+scales}\index{Nonlinear effects}\index{Random
+walks}\index{P-splines}
+
 
 \begin{itemize}
  \item[]{\bf\sffamily First or second order random walk}
@@ -226,7 +229,8 @@ monthly data.
 \end{itemize}
 
 
-\subsubsection*{Spatial Covariates}
+\subsubsection*{Spatial Covariates}\index{Spatial
+effects}\index{Markov random fields}\index{Two-dimensional P-spline}
 
 \begin{itemize}
 \item[]{\bf\sffamily Markov random field}
@@ -296,7 +300,8 @@ walk penalty where the geographical information is stored in the
 {\em map object} #germany#.
 \end{itemize}
 
-\subsubsection*{Unordered group indicators}
+\subsubsection*{Unordered group indicators}\index{Unordered group
+indicators}\index{Random effects}\index{Random intercept}
 
 \begin{itemize}
 \item[]{\bf\sffamily Unit- or cluster-specific unstructured
@@ -327,6 +332,7 @@ BayesX}.
 \end{itemize}
 
 \subsubsection*{Nonlinear baseline effect in hazard regression or multi-state models}
+\index{Baseline}\index{Cox model}\index{Multi-state model}
 
 \begin{itemize}
 \item[]{\bf\sffamily P-spline with second order random walk
@@ -362,8 +368,7 @@ specified in multi-state models.
 \end{itemize}
 
 \subsubsection*{Varying coefficients with continuous covariates as
-effect modifier}
-\medskip
+effect modifier}\index{Varying coefficients}
 
 \begin{itemize}
 \item[]{\bf\sffamily First or second order random walk}
@@ -433,6 +438,7 @@ additional seasonal effects for observations with #X1#=1 by
 \end{itemize}
 
 \subsubsection*{Time-varying effects in hazard regression or multi-state models}
+\index{Time-varying effects}
 
 \begin{itemize}
 \item[]{\bf\sffamily P-spline with second order random walk
@@ -522,7 +528,7 @@ map object} #germany# (see \autoref{mapinfile}).
 
 
 \subsubsection*{Varying coefficients with unordered group indicators as effect modifiers
-(random slopes)}
+(random slopes)}\index{Random effects}\index{Random slope}
 
 \begin{itemize}
 \item[]{\bf\sffamily Unit- or cluster-specific unstructured
@@ -559,7 +565,8 @@ If the linear effect of #X1# should be omitted, the option
 \end{itemize}
 
 
-\subsubsection*{Surface estimators}
+\subsubsection*{Surface estimators}\index{Surface
+estimators}\index{Two-dimensional P-spline}\index{Kriging}
 
 \begin{itemize}
 \item[] {\bf\sffamily Two-dimensional P-spline with first order
@@ -825,8 +832,8 @@ bayesreg objects.}}
 
 \clearpage
 
-\subsubsection{Specifying the response distribution}
-\label{familysyntax}
+\subsubsection{Specifying the response distribution}\index{Response
+distribution} \label{familysyntax}
 
 Supported univariate distributions are Gaussian, binomial (with
 logit or probit link), Poisson, negative binomial, gamma, zero
@@ -981,7 +988,9 @@ must be either zero or one. For probit models the specification of
 a weight variable is not allowed.
 
 
-\subsubsection*{Multinomial logit and probit models}
+\subsubsection*{Multinomial logit and probit
+models}\index{Multinomial logit model}\index{Multinomial probit
+model}
 
 A multinomial logit model is specified by adding the option
 
@@ -1002,7 +1011,8 @@ adding
 to the options list. If the option is omitted, the {\em smallest}
 number will be used as the reference category.
 
-\subsubsection*{Cumulative threshold models}
+\subsubsection*{Cumulative threshold models}\index{Cumulative probit
+model}
 
 So far, {\em bayesreg objects} support only cumulative probit
 models. Such a model is specified by adding
@@ -1067,7 +1077,8 @@ The prior for the scale parameter $\delta$ is $G(a,b)$ in both
 formulations, where #a=1# is fixed and #b# is estimated. Its prior
 is again a gamma distribution with fixed parameters 1 and 0.005.
 
-\subsubsection*{Zero inflated count data models}
+\subsubsection*{Zero inflated count data models}\index{Zero
+inflation}
 
 A zero inflated regression model for count data is specified by
 adding
@@ -1115,7 +1126,7 @@ alternative is to estimate the log-baseline effect
 $\log(\lambda_0(t))=f_0(t)$ based on a P-spline with second order
 random walk penalty.
 
-\subsubsection*{Piecewise exponential model (p.e.m.)}
+\subsubsection*{Piecewise exponential model (p.e.m.)}\index{Piecewise exponential model}
 
 In subsection \ref*{continuoustime} of the methodology manual we
 demonstrated how continuous time survival data has to be
@@ -1155,7 +1166,8 @@ be estimated by simply adding the term
 
 to the model statement.
 
-\subsubsection*{Specifying a P-spline prior for the log-baseline}
+\subsubsection*{Specifying a P-spline prior for the log-baseline}\index{Cox model}\index{Continuous time survival
+analysis}\index{Survival analysis}\index{Baseline}
 
 For a continuous time survival model with a P-spline prior with
 second order random walk penalty for the baseline effect,
@@ -1198,7 +1210,7 @@ simply adding the term
 to the model statement.
 
 \subsubsection{Continuous time multi-state models}
-\label{cont_msms_mcmc}
+\label{cont_msms_mcmc}\index{Multi-state Model}
 
 Multi-state models describe the temporal development of discrete
 phenomena in continuous time based on transition intensities for
@@ -1482,8 +1494,8 @@ distributions.}}
 
 Options are listed in alphabetical order:
 
-\index{credible intervals} \index{credible intervals!changing the
-nominal level} \index{changing the nominal level of credible
+\index{Credible intervals} \index{Credible intervals!Changing the
+nominal level} \index{Changing the nominal level of credible
 intervals}
 \begin{itemize}
 \item #begin = #{\em variablename} \\
@@ -1525,47 +1537,46 @@ to the options list computes credible intervals for a nominal
 level of 70\% rather than 80\%.
 
 \item \label{predict} #predict# \\
-\index{DIC} \index{deviance} \index{saturated deviance}
-\index{deviance information criteria} \index{effective number of
-parameters} \index{predicted values} \index{leverage statistics}
-Option #predict# may be specified to compute samples of the
-deviance $D$, the effective number of parameters $p_D$ and the
-deviance information criteria $DIC$ of the model, see
-Spiegelhalter et al.~(2002). The computation of these quantities
-is based on the unstandardized deviance which is defined as
-$D(\theta) = -2\log(p(y|\theta))$ where $\theta = (\mu,\sigma^2)$
-for Gaussian responses, $\theta = (\mu,\delta)$ for negative
-binomial responses  and $\theta = \mu$ for the rest of non-Gaussian
-responses. The effective number of parameters is defined by $p_D =
-\overline{D(\theta)} - D(\bar{\theta})$ where
-$\overline{D(\theta)}$ is the posterior mean deviance and
-$D(\bar{\theta})$ is the deviance of the posterior mean of
-$\theta$. The deviance information criteria is defined as $DIC =
-\overline{D(\theta)} + p_D$. {\em BayesX} prints sample properties
-of the deviance, the effective number of parameters $p_D$ and the
-DIC in the {\em output window} or in an open log file. The
-complete sample of the deviance is stored in a file with ending
-#deviance.raw#. The complete filename including the storage
-folder is given in the {\em output window} or the log file. The
-last two entries of that file contain again the effective number
-of parameters $p_D$ and the DIC. Additionally, a file with ending
-#predictmean.raw# is created that contains for every observation
-the posterior mean of the predictor $\eta_i$ and the expectation
-$E(y_i | \eta_i) = \mu_i$ as well as the saturated deviance
-$D^{sat}_i$ and leverage statistics $p_{D_i}$. The saturated
-deviance is defined as $D(\mu,\sigma^2) =
+\index{DIC} \index{Deviance} \index{Saturated deviance}
+\index{Deviance information criterion} \index{Effective number of
+parameters} \index{Predicted values} \index{Leverage statistics}
+Option #predict# may be specified to compute samples of the deviance
+$D$, the effective number of parameters $p_D$ and the deviance
+information criterion $DIC$ of the model, see Spiegelhalter et
+al.~(2002). The computation of these quantities is based on the
+unstandardized deviance which is defined as $D(\theta) =
+-2\log(p(y|\theta))$ where $\theta = (\mu,\sigma^2)$ for Gaussian
+responses, $\theta = (\mu,\delta)$ for negative binomial responses
+and $\theta = \mu$ for the rest of non-Gaussian responses. The
+effective number of parameters is defined by $p_D =
+\overline{D(\theta)} - D(\bar{\theta})$ where $\overline{D(\theta)}$
+is the posterior mean deviance and $D(\bar{\theta})$ is the deviance
+of the posterior mean of $\theta$. The deviance information
+criterion is defined as $DIC = \overline{D(\theta)} + p_D$. {\em
+BayesX} prints sample properties of the deviance, the effective
+number of parameters $p_D$ and the DIC in the {\em output window} or
+in an open log file. The complete sample of the deviance is stored
+in a file with ending #deviance.raw#. The complete filename
+including the storage folder is given in the {\em output window} or
+the log file. The last two entries of that file contain again the
+effective number of parameters $p_D$ and the DIC. Additionally, a
+file with ending #predictmean.raw# is created that contains for
+every observation the posterior mean of the predictor $\eta_i$ and
+the expectation $E(y_i | \eta_i) = \mu_i$ as well as the saturated
+deviance $D^{sat}_i$ and leverage statistics $p_{D_i}$. The
+saturated deviance is defined as $D(\mu,\sigma^2) =
 -2\log(p(y|\mu,\sigma^2))+2\log(p(y|\mu=y,\sigma^2))$. For
 non-Gaussian responses the variance $\sigma^2$ disappears and for
-negative binomial responses we have $\delta$ instead. The
-individual saturated deviance $D^{sat}_i$ can be used to compute
-deviance residuals. The deviance residuals are given by $r_i =
-sign(y_i-\mu_i) \sqrt{D^{sat}_i}$. The leverage statistics
-$p_{D_i}$ is defined as the contribution of the $i$th observation
-to $p_D$. More details about the quantities discussed above can be
-found in Spiegelhalter et al.~(2002). To clarify the computation
-of $D$, $p_D$, $DIC$ etc. \autoref{deviancetable} provides
-formulas of the p.d.f.~and the (unstandardized) deviance $D$ for
-the different response distributions provided in {\em BayesX}.
+negative binomial responses we have $\delta$ instead. The individual
+saturated deviance $D^{sat}_i$ can be used to compute deviance
+residuals. The deviance residuals are given by $r_i =
+sign(y_i-\mu_i) \sqrt{D^{sat}_i}$. The leverage statistics $p_{D_i}$
+is defined as the contribution of the $i$th observation to $p_D$.
+More details about the quantities discussed above can be found in
+Spiegelhalter et al.~(2002). To clarify the computation of $D$,
+$p_D$, $DIC$ etc. \autoref{deviancetable} provides formulas of the
+p.d.f.~and the (unstandardized) deviance $D$ for the different
+response distributions provided in {\em BayesX}.
 \end{itemize}
 
 \begin{table}[ht]
@@ -1804,9 +1815,9 @@ unstructured component. This is done by typing
 #  burnin=2000 step=10 family=binomial using test#
 
 \section{Method autocor}
-\label{bayesautocorr} \index{bayesreg object!autocor command}
-\index{autocorrelation functions} \index{autocorrelation
-functions!computing of}
+\label{bayesautocorr} \index{Bayesreg object!Autocor command}
+\index{Autocorrelation functions} \index{Autocorrelation
+functions!Computing of}
 
 \begin{stanza}{Description}
 
@@ -1957,8 +1968,8 @@ one step.
 \clearpage
 
 \section{Method getsample}
-\label{bayesgetsample} \index{bayesreg object!getsample command}
-\index{sampled parameters}
+\label{bayesgetsample} \index{Bayesreg object!Getsample command}
+\index{Sampled parameters}
 
 \begin{stanza}{Description}
 
@@ -2084,7 +2095,7 @@ for instance
 \end{stanza}
 
 \section{Global options}
-\label{bayesregglobopt} \index{bayesreg object!global options}
+\label{bayesregglobopt} \index{Bayesreg object!Global options}
 
 The purpose of global options is to affect the global behavior of
 a {\em bayesreg object}. The main characteristic of global options
@@ -2247,7 +2258,7 @@ iterations and a thinning parameter of 5, i.e.~every 5th sampled
 parameter will be stored and used for estimation. The additional
 option \hyperref[predict]{#predict#} is used to compute samples of
 the deviance, the effective number of parameters, the deviance
-information criteria (DIC), predicted means etc.
+information criterion (DIC), predicted means etc.
 
 Executing the command yields the following output (simulation output
 omitted):

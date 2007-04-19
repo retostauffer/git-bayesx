@@ -13,9 +13,9 @@ three data sets that will be used for demonstrating purposes in
 the later chapters.
 
 \section{Available versions of BayesX}
-\label{availableversions} \index{Java based version} \index{non-Java
-based version} \index{versions} \index{versions!Java based}
-\index{versions!non-Java based}
+\label{availableversions} \index{Java based version} \index{Non-Java
+based version} \index{Versions} \index{Versions!Java based}
+\index{Versions!Non-Java based}
 
 In its current form, {\em BayesX} runs only under the various
 versions of the Windows operating system (e.g. Windows 95, 98,
@@ -33,7 +33,7 @@ Since the Java based version has additional features, the non-Java
 based version is no longer supported.
 
 \section{Installing BayesX}\label{installbayesx}
-\index{installation} \index{installation directories}
+\index{Installation} \index{Installation directories}
 
 After you have downloaded the file #installBayesX.exe# from the
 {\em BayesX} homepage, proceed by executing this file. The
@@ -108,7 +108,7 @@ in the #doc# directory (a subdirectory of the installation
 directory).
 
 \section{Windows and buttons in BayesX}\label{bayesxwindows}
-\index{windows}
+\index{Windows}
 
 After starting {\em BayesX} you will see a main window with a menu
 bar and four additional subwindows. The four windows are the {\em
@@ -120,7 +120,7 @@ SUPPRESS OUTPUT, and the priority menu. Their functionality is
 described in subsection \ref{buttons} and \ref{prioritymenu}.
 
 \subsection{The command window}
-\index{command window} \index{windows!command}
+\index{Command window} \index{Windows!Command}
 
 Allmost all {\em BayesX} commands are entered and executed in the
 {\em command window}. By default, a command will be executed if
@@ -128,21 +128,21 @@ you press the return key. You can change this default delimiter
 using the #delimiter# command, see \autoref{delimiter}.
 
 \subsection{The output window}
-\index{output window} \index{windows!output}
+\index{Output window} \index{Windows!Output}
 
 In the {\em output window}, all commands entered in the {\em
 command window} or executed through a batch file (see
 \autoref{batch}) are printed together with the program output.
 
-\index{saving the output} The content of the {\em output window}
-can be saved and processed with your favorite text editor. For
-saving the output, enter the {\em file menu} and click on {\em
-Save output} or {\em Save output as}. The file save dialog will
-allow you to choose between two different file formats. The
-default is the rich-text format but it is also possible to store
-the {\em output window} in plain ASCII format. This, however, has
-the disadvantage that all text highlights (for example bold
-letters) will disappear in the saved file.
+\index{Saving the output} The content of the {\em output window} can
+be saved and processed with your favorite text editor. For saving
+the output, enter the {\em file menu} and click on {\em Save output}
+or {\em Save output as}. The file save dialog will allow you to
+choose between two different file formats. The default is the
+rich-text format but it is also possible to store the {\em output
+window} in plain ASCII format. This, however, has the disadvantage
+that all text highlights (for example bold letters) will disappear
+in the saved file.
 
 The {\em file menu} also allows to clear the {\em output window}
 (i.e. delete the content of the window) or to open an already
@@ -153,7 +153,7 @@ appearing in the {\em output window} may be very small or too
 large. The font size can be varied in the {\em preferences menu}.
 
 \subsection{The review window}
-\index{review window} \index{windows!review}
+\index{Review window} \index{Windows!Review}
 
 In many cases, subsequent commands change only slightly. The {\em
 review window} gives you convenient access to the last 100 past
@@ -162,7 +162,7 @@ past commands and it is automatically copied to the {\em command
 window}, where it can be modified and / or executed again.
 
 \subsection{The object browser}
-\index{object browser}
+\index{Object browser}
 
 {\em BayesX} is object oriented, i.e. different types of objects
 are used to store data, estimate regression models, etc. The {\em
@@ -184,9 +184,8 @@ representation of the map.
 
 \subsection{BREAK, PAUSE and SUPPRESS OUTPUT button}
 \label{buttons} \index{PAUSE button} \index{BREAK button}
-\index{SUPPRESS OUTPUT button} \index{buttons}
-\index{buttons!PAUSE} \index{buttons!BREAK}
-\index{buttons!SUPPRESS OUTPUT}
+\index{SUPPRESS OUTPUT button} \index{Buttons} \index{Buttons!PAUSE}
+\index{Buttons!BREAK} \index{Buttons!SUPPRESS OUTPUT}
 
 The {\em BayesX} button panel contains the BREAK button, the PAUSE
 button and the SUPPRESS OUTPUT button. The purpose of the BREAK
@@ -220,7 +219,7 @@ possible). To pause the current computations use the PAUSE button.
 \label{generalusage}
 
 \subsection{Creating objects}
-\label{createobject} \index{objects} \index{objects!create}
+\label{createobject} \index{Objects} \index{Objects!Create}
 
 {\em BayesX} is implemented in an object oriented way, although
 the object oriented concept does not go too far, i.e. inheritance
@@ -266,14 +265,14 @@ the same rules apply also to object names.
 
 \subsection{Applying methods to previously defined objects}
 
-When an object has been created successfully, you can apply
-methods to that particular object. For instance, {\em dataset
-objects} may be used to read data stored in an ASCII file using
-method #infile#, to create new variables using method #generate#,
-to modify existing variables using method #replace# and so on. The
-syntax for applying methods to the objects is similar for all
-methods and independent of the particular object type. The general
-syntax is: \index{general syntax} \index{syntax}
+When an object has been created successfully, you can apply methods
+to that particular object. For instance, {\em dataset objects} may
+be used to read data stored in an ASCII file using method #infile#,
+to create new variables using method #generate#, to modify existing
+variables using method #replace# and so on. The syntax for applying
+methods to the objects is similar for all methods and independent of
+the particular object type. The general syntax is: \index{General
+syntax} \index{Syntax}
 
 #># {\em objectname.methodname} [{\em model}] [#weight# {\em varname}] [#if# {\em boolean expression}] [, {\em options}] \\
 \hspace*{4.8cm} [#using# {\em usingtext}]
@@ -351,7 +350,7 @@ Obviously, the #if# statement is meaningful and is therefore
 allowed, but not required.
 
 \section{Description of data set examples}
-\label{datadescription} \index{data set examples}
+\label{datadescription} \index{Data set examples}
 
 This section describes three data sets used to illustrate many of
 the features of {\em BayesX} in the following chapters as well as
@@ -361,8 +360,8 @@ variable names separated by blanks. Subsequent rows contain the
 observations, one observation per row.
 
 \subsection{Rents for flats}
-\label{rentdata} \index{rents for flats} \index{data set
-examples!rents for flats}
+\label{rentdata} \index{Rents for flats} \index{Data set
+examples!Rents for flats}
 
 According to the German rental law, owners of apartments or flats
 can base an increase in the amount that they charge for rent on
@@ -415,8 +414,8 @@ Statistics}, 13, 183-212.
 
 
 \subsection{Credit scoring}
-\label{creditdata} \index{credit scoring} \index{data set
-examples!credit scoring}
+\label{creditdata} \index{Credit scoring} \index{Data set
+examples!Credit scoring}
 
 The aim of credit scoring is to model and / or predict the
 probability that a client with certain covariates ('risk factors')
@@ -469,8 +468,8 @@ Springer--Verlag.
 \end{description}
 
 \subsection{Childhood undernutrition in Zambia}
-\label{zambia} \index{childhood undernutrition} \index{data set
-examples!childhood undernutrition}
+\label{zambia} \index{Childhood undernutrition} \index{Data set
+examples!Childhood undernutrition}
 
 Acute and chronic undernutrition is considered to be one of the
 worst health problems in developing countries. Undernutrition

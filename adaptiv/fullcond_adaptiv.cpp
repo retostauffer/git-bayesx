@@ -249,7 +249,7 @@ void FULLCOND_adaptiv::outresults(void)
   optionsp->out("  Results are stored in file\n");
   optionsp->out("  " +   pathresults + "\n");
   optionsp->out("\n");
-  optionsp->out("  Results may be visualized using the S-Plus function 'plotnonp'\n");
+  optionsp->out("  Results may be visualized using the R / S-Plus function 'plotnonp'\n");
   optionsp->out("\n");
 
   optionsp->out("  Type for example:\n");

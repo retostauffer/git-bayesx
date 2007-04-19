@@ -937,7 +937,7 @@ void MCMCsimulate::autocorr(const unsigned & lag,const ST::string & path)
         }
 
     #if !defined(JAVA_OUTPUT_WINDOW)
-      genoptions_mult[0]->out("They may be visualized using the S-Plus function 'plotautocor'.\n");
+      genoptions_mult[0]->out("They may be visualized using the R / S-Plus function 'plotautocor'.\n");
       genoptions_mult[0]->out("\n");
     #endif
       } // end: if (!Frame->stop)
@@ -1329,15 +1329,18 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
        outstata.open(path_stata.strtochar());
 
     outtex << "\n\\newpage" << "\n\\noindent {\\bf \\large Plots:}" << endl;
-    outsplus << "# NOTE: 'directory' must be substituted by the directory"
-             << " where the sfunctions are stored \n"
+    outsplus << "# NOTE: 'directory' has to be substituted by the directory"
+             << " where the functions are stored \n"
+             << endl
+             << "# In S-PLUS the file extension in the source command has to be changed"
+             << " to '.s' \n"
              << endl
     // einlesen der Source-Files für S-Plus
-             << "source(\"'directory'\\\\sfunctions\\\\plotsample.s\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\plotnonp.s\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\plotsurf.s\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\drawmap.s\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.s\")\n" << endl;
+             << "source(\"'directory'\\\\sfunctions\\\\plotsample.r\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\plotnonp.r\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\plotsurf.r\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\drawmap.r\")" << endl
+             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.r\")\n" << endl;
 
     genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
     genoptions_mult[0]->out("\n");
@@ -1358,7 +1361,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
       genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
       genoptions_mult[0]->out("\n");
       genoptions_mult[0]->out("  Batch file for visualizing effects of nonlinear functions ");
-      genoptions_mult[0]->out("  in S-Plus is stored in file \n");
+      genoptions_mult[0]->out("  in R / S-Plus is stored in file \n");
       genoptions_mult[0]->out("  " + path_splus + "\n");
       genoptions_mult[0]->out("\n");
       genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
@@ -1376,7 +1379,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
       genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
       genoptions_mult[0]->out("\n");
       genoptions_mult[0]->out("  Batch file for visualizing effects of nonlinear functions ");
-      genoptions_mult[0]->out("  in S-Plus is stored in file \n");
+      genoptions_mult[0]->out("  in R / S-Plus is stored in file \n");
       genoptions_mult[0]->out("  " + path_splus + "\n");
       genoptions_mult[0]->out("\n");
       genoptions_mult[0]->out("  NOTE: 'input filename' must be substituted by the filename of the boundary-file \n");
@@ -1640,7 +1643,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
  void MCMCsimulate::out_effects(const vector<ST::string> & paths)
    {
 
-   unsigned i,j,k;
+/*   unsigned i,j,k;
 
    unsigned nrmodels = genoptions_mult.size();
 
@@ -1687,7 +1690,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
        oute << endl;
        }
 
-     }
+     }  */
 
    }
 
@@ -1834,7 +1837,7 @@ const ST::string & path,const unsigned & step)
   genoptions_mult[0]->out("\n");
   #if defined(BORLAND_OUTPUT_WINDOW)
   genoptions_mult[0]->out(
-  "Sampled parameters may be visualized using the S-plus\n");
+  "Sampled parameters may be visualized using the R / S-plus\n");
   genoptions_mult[0]->out("function 'plotsample'.\n");
   genoptions_mult[0]->out("\n");
   #endif

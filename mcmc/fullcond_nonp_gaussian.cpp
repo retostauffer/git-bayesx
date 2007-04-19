@@ -896,7 +896,7 @@ double FULLCOND_nonp_gaussian::outresultsreml(datamatrix & X,datamatrix & Z,
   if (fctype == MCMC::spatial)
     {
     #if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the S-Plus function");
+    optionsp->out("  Results may be visualized using the R / S-Plus function");
     optionsp->out(" 'drawmap'\n");
     optionsp->out("\n");
     #elif defined(JAVA_OUTPUT_WINDOW)
@@ -923,7 +923,7 @@ double FULLCOND_nonp_gaussian::outresultsreml(datamatrix & X,datamatrix & Z,
     ST::string pathresultsplus = outest.insert_string_char(hchar,hstring);
     ST::string psfile = pathresultsplus.substr(0,pathresultsplus.length()-4)
     + ".ps";
-    optionsp->out("  Results may be visualized using the S-Plus function 'plotnonp'");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotnonp'");
     optionsp->out("\n");
     optionsp->out("  Type for example:\n");
     optionsp->out("\n");
@@ -3540,7 +3540,7 @@ void FULLCOND_nonp_gaussian::outresults(void)
     pathgraph = pathgraph + "gra";
     optionsp->out("  Corresponding graph-file is stored in " + pathgraph + "\n");
     #if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the S-Plus function 'drawmap'\n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'drawmap'\n");
     #elif defined(JAVA_OUTPUT_WINDOW)
     optionsp->out("  Results may be visualized using method 'drawmap'\n");
     optionsp->out("  Type for example: objectname.drawmap " +

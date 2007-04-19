@@ -2002,7 +2002,7 @@ void spline_basis::outresults(void)
     optionsp->out("  " + pathcurrent + "\n");
     optionsp->out("\n");
     #if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the S-Plus function 'plotnonp'\n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotnonp'\n");
     ST::string doublebackslash = "\\\\";
     ST::string spluspath = pathcurrent.insert_string_char('\\',doublebackslash);
     optionsp->out("  Type for example:\n");
@@ -2110,7 +2110,7 @@ void spline_basis::outresults(void)
     optionsp->out("  " + pathderiv + "\n");
     optionsp->out("\n");
     #if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the S-Plus function 'plotnonp'\n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotnonp'\n");
     ST::string doublebackslash = "\\\\";
     ST::string spluspath = pathderiv.insert_string_char('\\',doublebackslash);
     optionsp->out("  Type for example:\n");
@@ -3656,7 +3656,7 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
   optionsp->out("  " + outest + "\n");
   optionsp->out("\n");
   #if defined(BORLAND_OUTPUT_WINDOW)
-  optionsp->out("  Results may be visualized using the S-Plus function 'plotnonp'\n");
+  optionsp->out("  Results may be visualized using the R / S-Plus function 'plotnonp'\n");
   ST::string doublebackslash = "\\\\";
   ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
   optionsp->out("  Type for example:\n");

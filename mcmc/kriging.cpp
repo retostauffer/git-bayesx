@@ -1246,7 +1246,7 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
   if(mapexisting)
     {
 #if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the S-Plus function 'drawmap' \n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'drawmap' \n");
 #elif defined(JAVA_OUTPUT_WINDOW)
     optionsp->out("  Postscript files are stored in files\n");
     ST::string psfile;
@@ -1266,7 +1266,7 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
   else if(onedim)
     {
     #if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the S-Plus function 'plotnonp'\n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotnonp'\n");
     ST::string doublebackslash = "\\\\";
     ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
     optionsp->out("  Type for example:\n");
@@ -1284,7 +1284,7 @@ double FULLCOND_kriging::outresultsreml(datamatrix & X,datamatrix & Z,
     }
   else
     {
-    optionsp->out("  Results may be visualized using the S-Plus function 'plotsurf'\n");
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotsurf'\n");
     ST::string doublebackslash = "\\\\";
     ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
     optionsp->out("  Type for example:\n");

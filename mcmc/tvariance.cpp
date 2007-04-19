@@ -58,7 +58,7 @@ void FULLCOND_tvariance::outresults(void)
 
   optionsp->out("  Results are stored in file " + pathresult + "\n");
   #if defined(BORLAND_OUTPUT_WINDOW)
-  optionsp->out("  Results may be visualized using the S-Plus function");
+  optionsp->out("  Results may be visualized using the R / S-Plus function");
   optionsp->out(" 'plotnonp'\n");
   #elif defined(JAVA_OUTPUT_WINDOW)
   optionsp->out("  Results may be visualized using method 'plotnonp'\n");

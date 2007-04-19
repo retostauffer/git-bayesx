@@ -1,5 +1,5 @@
 \chapter{DAG Objects}
-\index{model selection} \index{dag objects} \label{dag}
+\index{Model selection} \index{Dag objects} \label{dag}
 
 {\em Author: Eva--Maria Fronk} \\
 \vspace{0.3cm}
@@ -46,7 +46,7 @@ variables, too, which is reduced to the Gaussian case by
 introducing latent variables.
 
 \subsubsection*{Model Assumptions }
-\index{dag object!assumptions}
+\index{Dag object!Assumptions}
 
 A Gaussian dag $d$ can be represented as a regression model for
 each variable $X_i, \, i=0, \dots, p-1$, given the parents of
@@ -146,7 +146,7 @@ pa(i)}, \sigma^2_{i \mid pa(i)})
 \newpage
 
 \subsubsection*{Representation of DAGs }
-\index{dag object!representation}
+\index{Dag object!Representation}
 
 To represent dags we rely on the concept of adjacency matrices.
 For a given graph ${\cal G} =(V,E)$ with $|V|=p$, the adjacency
@@ -202,7 +202,7 @@ containing and the corresponding adjacency matrix $A$.}}}
 \end{figure}
 
 \subsubsection*{Reversible Jump Algorithm for Continuous Variables}
-\index{model selection! Gaussian variables}
+\index{Model selection!Gaussian variables}
 
 We are not only interested in estimating the parameters for a
 given dag $d$ but also want to learn about the structure of $d$
@@ -238,7 +238,7 @@ simplification of the oftentimes crucial switch step, see Fronk
 \newpage
 
 \subsubsection*{Reversible Jump Algorithm for Binary Variables}
-\index{model selection! Binary variables}
+\index{Model selection!Binary variables}
 
 Now we consider the situation of $p$ binary variables of which the
 joint distribution is assumed to be multinomial. The influence to
@@ -277,7 +277,7 @@ seem sufficient for most situations in practice. For details, see
 Fronk (2002).
 
 \subsubsection*{Reversible Jump Algorithm for Mixed Case}
-\index{model selection! Mixed case}
+\index{Model selection!Mixed case}
 
 For the mixed case, we assume the considered continuous and binary
 variables to follow a conditional Gaussian (CG) distribution. For
@@ -338,7 +338,7 @@ we refer to papers of Andersson et al. (1997a, b) and Chickering
 
 \subsection{Syntax}
 %
-\index{dag object!estimate command} \index{dag object!create}
+\index{Dag object!Estimate command} \index{Dag object!Create}
 %
 The creation of objects has been described in general in
 \autoref{createobject}; in the context of dag models the

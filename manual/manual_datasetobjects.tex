@@ -1,5 +1,5 @@
 \chapter{dataset objects} \label{chap_data}
-\label{datasetobj} \index{dataset objects} \index{dataset}
+\label{datasetobj} \index{Dataset objects} \index{Dataset}
 
 
 {\em Dataset objects} are used to store, manage, and manipulate
@@ -18,9 +18,8 @@ variables will raise an error message.
 
 \clearpage
 
-\section{Method descriptive} \label{descriptive} \index{summary
-statistics} \index{descriptives} \index{dataset!descriptive
-command}
+\section{Method descriptive} \label{descriptive} \index{Summary
+statistics} \index{Descriptives} \index{Dataset!Descriptive command}
 
 \begin{stanza}{Description}
 
@@ -62,8 +61,8 @@ restricts the analysis to observations with #x>0#.}
 \clearpage
 
 \section{Method drop}
-\label{drop} \index{dropping variables} \index{dropping
-observations} \index{dataset!drop command}
+\label{drop} \index{Dropping variables} \index{Dropping
+observations} \index{Dataset!Drop command}
 
 \begin{stanza}{Description}
 
@@ -116,7 +115,7 @@ single command.
 \clearpage
 
 \section{Functions and Expressions}
-\label{expression} \index{expressions}
+\label{expression} \index{Expressions}
 
 The primary use of expressions is to generate new variables or
 change existing variables, see \autoref{generate} and
@@ -134,13 +133,13 @@ true. The following statements are all examples of expressions:
 
 
 \subsection{Operators}
-\index{expressions!operators} \index{operators}
+\index{Expressions!Operators} \index{Operators}
 
 Three different types of operators can be included in expressions:
 arithmetic, relational and logical operators.
 
 \subsubsection{Arithmetic operators}
-\index{operators!arithmetic}
+\index{Operators!Arithmetic}
 
 The arithmetic operators are #+# (addition), #-# (subtraction),
 #*# (multiplication), #/# (division), #^# (raise to a power) and
@@ -162,7 +161,7 @@ and evaluates to missing if #x# or #y# is missing or zero.
 \end{stanza}
 
 \subsubsection{Relational operators}
-\index{operators!relational}
+\index{Operators!Relational}
 
 The relational operators are #># (greater than), #<# (less than),
 #>=# (greater than or equal), #<=# (less than or equal), #=#
@@ -188,7 +187,7 @@ This sets all observations missing where #amount<=0#.
 \end{stanza}
 
 \subsubsection{Logical operators}
-\index{operators!logical}
+\index{Operators!Logical}
 
 The logical operators are #&# (and) and #|# (or).
 
@@ -201,7 +200,7 @@ This can be achieved by typing
 #> credit.generate amountind = 1*(marstat=1 & amount>10)#
 
 \subsubsection{Order of evaluation of the operators}
-\index{operators!order of evaluation}
+\index{Operators!Order of evaluation}
 
 The order of evaluation (from first to last) of operators is
 
@@ -215,7 +214,7 @@ Brackets can be used to change the order of evaluation.
 
 
 \subsection{Functions}
-\index{functions}
+\index{Functions}
 
 Functions are a further component of expressions. Any function is
 indicated by the function name followed by an opening and a
@@ -230,19 +229,18 @@ All mathematical function currently available in {\em BayesX} are
 referenced in \autoref{mathfunc}. Statistical functions can be
 found in \autoref{statfunc}.
 
-\index{functions!abs} \index{functions!cos} \index{functions!sin}
-\index{functions!exp} \index{functions!floor}
-\index{functions!lag} \index{functions!logarithm}
-\index{functions!square root} \index{functions!bernoulli
-distributed random numbers} \index{functions!binomial distributed
-random numbers} \index{functions!cumulative distribution function}
-\index{Functions!gamma distributed random numbers}
-\index{functions!exponential distributed random numbers}
-\index{functions!normally distributed random numbers}
-\index{functions!uniformly distributed random numbers}
-\index{functions!poisson distributed random numbers}
-\index{functions!weibull distributed random numbers}
-
+\index{Functions!abs} \index{Functions!cos} \index{Functions!sin}
+\index{Functions!exp} \index{Functions!floor} \index{Functions!lag}
+\index{Functions!logarithm} \index{Functions!square root}
+\index{Functions!Bernoulli distributed random numbers}
+\index{Functions!Binomial distributed random numbers}
+\index{Functions!Cumulative distribution function}
+\index{Functions!Gamma distributed random numbers}
+\index{Functions!Exponential distributed random numbers}
+\index{Functions!Normally distributed random numbers}
+\index{Functions!Uniformly distributed random numbers}
+\index{Functions!Poisson distributed random numbers}
+\index{Functions!Weibull distributed random numbers}
 
 \begin{table}[ht]
 \begin{center}
@@ -321,8 +319,8 @@ random numbers} \index{functions!cumulative distribution function}
 
 
 \subsection{Constants}
-\index{expressions!constants} \index{number of observations}
-\index{missing values} \index{$\pi$} \index{current observation}
+\index{Expressions!Constants} \index{Number of observations}
+\index{Missing values} \index{$\pi$} \index{Current observation}
 
 \autoref{constant} lists all constants that can be used in
 expressions.
@@ -362,7 +360,7 @@ generates a new variable {\em nrobs} whose values are all equal to
 the total number of observations, say 1000, for all observations.
 
 \subsection{Explicit subscribing}
-\index{expressions!explicit subscribing} \index{subscribing}
+\index{Expressions!Explicit subscribing} \index{Subscribing}
 
 Individual observations on variables can be referenced by
 subscribing the variables. Explicit subscripts are specified by
@@ -390,8 +388,8 @@ Note that #xlag# can also be generated using the #lag# function
 \clearpage
 
 \section{Method generate}
-\label{generate} \index{generating new variables}
-\index{dataset!generate command}
+\label{generate} \index{Generating new variables}
+\index{Dataset!Generate command}
 
 \begin{stanza}{Description}
 
@@ -448,8 +446,8 @@ than 3.5 and 0 otherwise.
 \clearpage
 
 \section{Method infile}
-\label{infile} \index{reading data from ASCII files}
-\index{dataset!infile command}
+\label{infile} \index{Reading data from ASCII files}
+\index{Dataset!Infile command}
 
 \begin{stanza}{Description}
 
@@ -554,8 +552,8 @@ will be much faster than the command without option #maxobs#.
 
 
 \section{Method outfile}
-\label{outfile} \index{writing data to a file} \index{saving data
-in an ASCII file} \index{dataset!outfile command}
+\label{outfile} \index{Writing data to a file} \index{Saving data in
+an ASCII file} \index{Dataset!Outfile command}
 
 \begin{stanza}{Description}
 
@@ -630,8 +628,8 @@ overwrite the file using the #replace# option
 
 
 \section{Method pctile}
-\label{pcitle} \index{percentiles of variables}
-\index{dataset!pctile command}
+\label{pcitle} \index{Percentiles of variables}
+\index{Dataset!Pctile command}
 
 \begin{stanza}{Description}
 
@@ -677,7 +675,7 @@ restricts the analysis to observations with x$>$0.
 
 
 \section{Method rename}
-\index{renaming variables} \index{dataset!rename command}
+\index{Renaming variables} \index{Dataset!Rename command}
 
 
 \label{rename}
@@ -709,8 +707,8 @@ not allowed
 
 
 \section{Method replace}
-\label{replace} \index{changing existing variables}
-\index{dataset!replace command}
+\label{replace} \index{Changing existing variables}
+\index{Dataset!Replace command}
 
 
 
@@ -784,8 +782,7 @@ set to the missing value.
 
 
 \section{Method sort}
-\label{sort} \index{sorting variables} \index{dataset!sort
-command}
+\label{sort} \index{Sorting variables} \index{Dataset!Sort command}
 
 
 \begin{stanza}{Description}
@@ -819,8 +816,8 @@ descending order. The default is ascending order.
 
 
 \section{Method tabulate}
-\label{tabulate} \index{tabulate} \index{table of frequencies}
-\index{one way table of frequencies} \index{dataset!tabulate
+\label{tabulate} \index{Tabulate} \index{Table of frequencies}
+\index{One way table of frequencies} \index{Dataset!Tabulate
 command}
 
 \begin{stanza}{Description}
@@ -864,7 +861,7 @@ restricts the analysis to observations with #x>0#.
 
 
 \section{Variable names}
-\label{varnames} \index{variables names}
+\label{varnames} \index{Variables names}
 
 
 A valid variable name is a sequence of letters (#A#-#Z# and
@@ -917,7 +914,7 @@ following program code:
 
 
 \subsection{Simulating complex statistical models}
-\index{dataset!simulation of} \index{simulation of artificial data
+\index{Dataset!Simulation of} \index{Simulation of artificial data
 sets}
 
 In this section we demonstrate how to simulate complex regression

@@ -4101,7 +4101,7 @@ void remlrun(remlreg & b)
     {
     ST::string path = b.outfile.getvalue() + "_graphics.prg";
     ST::string path2 = b.outfile.getvalue() + "_model_summary.tex";
-    ST::string path3 = b.outfile.getvalue() +  "_splus.txt";
+    ST::string path3 = b.outfile.getvalue() +  "_r_splus.txt";
 
     if(b.family.getvalue()=="multinomial")
       {
@@ -4735,7 +4735,7 @@ void mremlrun(remlreg & b)
     {
     ST::string path = b.outfile.getvalue() + "_graphics.prg";
     ST::string path2 = b.outfile.getvalue() + "_model_summary.tex";
-    ST::string path3 = b.outfile.getvalue() +  "_splus.txt";
+    ST::string path3 = b.outfile.getvalue() +  "_r_splus.txt";
     vector<ST::string> rnames;
     vector<unsigned> rescol  = b.modregmult.getresponsecol();
     for(i=0; i<b.nrtransitions; i++)

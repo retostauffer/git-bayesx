@@ -20,6 +20,8 @@ DISTRIBUTION_multistatemodel::DISTRIBUTION_multistatemodel(MCMCoptions * o,
    : DISTRIBUTION(o,r,w)
      {
 
+     init_names("Transition indicators");
+
      unsigned i,j,k;
 
      nrtransition = response.cols();
@@ -291,7 +293,7 @@ void DISTRIBUTION_multistatemodel::update_predict(void)
 
 void DISTRIBUTION_multistatemodel::outresults(void)
   {
-  DISTRIBUTION::outresults();
+  /*DISTRIBUTION::outresults();*/
   }
 
 void DISTRIBUTION_multistatemodel::compute_deviance(const double * response, const double * weight,
