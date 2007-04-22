@@ -160,7 +160,7 @@ FULLCOND_nonp_gaussian_stepwise::FULLCOND_nonp_gaussian_stepwise(MCMCoptions * o
                         const ST::string & ti,
                         const ST::string & fp, const ST::string & pres,
                         const unsigned & c, const double & l, const bool & vccent)
-  : FULLCOND_nonp_gaussian(o,dp,fcc,m,mn,d,d2,ti,fp,pres,c,l)
+  : FULLCOND_nonp_gaussian(o,dp,fcc,m,mn,d,d2,ti,fp,pres,c,l,vccent)
 
   {
 
