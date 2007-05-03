@@ -12,7 +12,10 @@
 #include<data.h>
 #include<statobj.h>
 #include<dataobj.h>
+
+#if defined(INCLUDE_MCMC)
 #include<bayesreg.h>
+#endif
 
 #if defined(INCLUDE_REML)
 #include<remlreg.h>
@@ -79,7 +82,9 @@ private:        // Benutzerdeklarationen
 
   // 'bayesregobjects' contains current bayesreg objects
 
+#if defined(INCLUDE_MCMC)
   vector<bayesreg> bayesregobjects;
+#endif
 
   // 'remlregobjects' contains current remlreg objects
 

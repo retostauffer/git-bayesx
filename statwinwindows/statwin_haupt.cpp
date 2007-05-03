@@ -92,7 +92,9 @@ __fastcall Thauptformular::Thauptformular(TComponent* Owner)
   objecttyps.reserve(10);
 
   objecttyps.push_back("dataset");
+#if defined(INCLUDE_MCMC)
   objecttyps.push_back("bayesreg");
+#endif
   objecttyps.push_back("map");
 //  objecttyps.push_back("dag");
 #if defined(INCLUDE_REML)
@@ -152,6 +154,7 @@ void Thauptformular::dropobjects(ST::string name, ST::string type)
 		i++;
 		}
 	 } // end: type dataset
+#if defined(INCLUDE_MCMC)
   else if (type == "bayesreg")
 	 {
 	 while ( (i < bayesregobjects.size()) && (recognized == 0) )
@@ -166,6 +169,7 @@ void Thauptformular::dropobjects(ST::string name, ST::string type)
 		i++;
 		}
 	 }  // end: type bayesreg
+#endif
 #if defined(INCLUDE_REML)
   else if (type == "remlreg")
 	 {
@@ -299,11 +303,13 @@ ST::string Thauptformular::create(const ST::string & in)
 			 dataobject newobject(token[1],&logout,input);
 			 dataobjects.push_back(newobject);
 			 }
+#if defined(INCLUDE_MCMC)
 		  else if (token[0] == "bayesreg")
 			 {
 			 bayesreg newobject(token[1],&logout,input,defaultpath,&objects);
 			 bayesregobjects.push_back(newobject);
 			 }
+#endif
 #if defined(INCLUDE_REML)
 		  else if (token[0] == "remlreg")
 			 {
@@ -379,8 +385,10 @@ void Thauptformular::adjustobjects(void)
   for (i=0;i<dataobjects.size();i++)
 	 objects.push_back(&dataobjects[i]);
 
+#if defined(INCLUDE_MCMC)
   for (i=0;i<bayesregobjects.size();i++)
 	 objects.push_back(&bayesregobjects[i]);
+#endif
 
 #if defined(INCLUDE_REML)
   for (i=0;i<remlregobjects.size();i++)
