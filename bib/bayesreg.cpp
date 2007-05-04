@@ -2554,6 +2554,7 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
   ST::string proposal;
   int f;
   bool varcoeff;
+  bool center;
 
   unsigned i;
   int j1,j2;
@@ -2616,6 +2617,11 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
 
       f = (terms[i].options[17]).strtodouble(alpha);
 
+      if (terms[i].options[19] == "true")
+        center=true;
+      else
+        center=false;
+
       if (f==1)
         return true;
 
@@ -2662,7 +2668,7 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
             FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
             distr[distr.size()-1],D.getCol(j2),D.getCol(j1),fcconst_intercept,
             unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,
-            lambda));
+            lambda,center));
 
             vector<ST::string> na;
             na.push_back(terms[i].varnames[1]);

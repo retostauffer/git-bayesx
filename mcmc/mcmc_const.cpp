@@ -663,6 +663,7 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
   lambda=-1;
 
   interceptadd=0;
+  effectsadd = datamatrix(data.cols(),1,0);
 
   fctype = MCMC::fixed;
 
@@ -725,6 +726,7 @@ FULLCOND_const::FULLCOND_const(const FULLCOND_const & m) : FULLCOND(FULLCOND(m))
   cats = m.cats;
   catspecific_effects = m.catspecific_effects;
   ismultinomialcatsp = m.ismultinomialcatsp;
+  effectsadd = m.effectsadd;
   // BEGIN: Ridge
   ridge = m.ridge;
   variances = m.variances;
@@ -755,12 +757,52 @@ const FULLCOND_const & FULLCOND_const::operator=(const FULLCOND_const & m)
   cats = m.cats;
   catspecific_effects = m.catspecific_effects;
   ismultinomialcatsp = m.ismultinomialcatsp;
+  effectsadd = m.effectsadd;
   // BEGIN: Ridge
   ridge = m.ridge;
   variances = m.variances;
   // END: Ridge
   return *this;
   }
+
+
+void FULLCOND_const::update_fix_varcoeff(double & value,ST::string & name)
+   {
+   int pos=-1;
+   unsigned j=0;
+   while (pos==-1 && j<datanames.size())
+     {
+     if (datanames[j] == name)
+       pos=j;
+     j++;
+     }
+   if (pos>=0)
+     {
+     beta(pos,0) +=value;
+     effectsadd(pos,0) += value;
+     }
+
+   }
+
+
+void FULLCOND_const::posteriormode_fix_varcoeff(double & value,ST::string & name)
+   {
+   int pos=-1;
+   unsigned j=0;
+   while (pos==-1 && j<datanames.size())
+     {
+     if (datanames[j] == name)
+       pos=j;
+     j++;
+     }
+   if (pos>=0)
+     {
+     beta(pos,0) +=value;
+     betameanold(pos,0) += value;
+     effectsadd(pos,0) += value;     
+     }
+
+   }
 
 
 void FULLCOND_const::update(void)
@@ -1000,7 +1042,7 @@ void FULLCOND_const_gaussian::update_intercept(double & m)
 void FULLCOND_const_gaussian::update(void)
   {
 
-  FULLCOND_const::update();  
+  FULLCOND_const::update();
 
   if (changingweight || optionsp->get_nriter()==1 || ridge)
     {
@@ -1012,6 +1054,22 @@ void FULLCOND_const_gaussian::update(void)
   for(i=0;i<linold.rows();i++,worklinold++)
     *worklinold += interceptadd;
   interceptadd=0;
+
+  for(i=1;i<nrconst;i++)
+    {
+    if (effectsadd(i,0) !=0)
+      {
+      double v = effectsadd(i,0);
+      unsigned j;
+      double * worklinold=linold.getV();
+      double * datap = data.getV()+i;
+      for(j=0;j<linold.rows();j++,worklinold++,datap+=nrconst)
+        *worklinold += v* (*datap);
+
+      effectsadd(i,0) = 0;
+      }
+
+    }
 
   likep->substr_linearpred_m(linold,column);
 
@@ -1048,6 +1106,23 @@ bool FULLCOND_const_gaussian::posteriormode(void)
     *worklinold += interceptadd;            // interceptadd contains numbers
                                             // from centering other terms
   interceptadd=0;
+
+  for(i=1;i<nrconst;i++)
+    {
+    if (effectsadd(i,0) !=0)
+      {
+      double v = effectsadd(i,0);
+      unsigned j;
+      double * worklinold=linold.getV();
+      double * datap = data.getV()+i;
+      for(j=0;j<linold.rows();j++,worklinold++,datap+=nrconst)
+        *worklinold += v* (*datap);
+
+      effectsadd(i,0) = 0;
+      }
+
+    }
+
   likep->fisher(X1,data,column);            // recomputes X1 = (data' W data)^{-1}
 
   // BEGIN: Ridge

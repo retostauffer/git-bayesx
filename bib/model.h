@@ -486,7 +486,7 @@ class __EXPORT_TYPE term_ridge : public basic_termtype
   // FUNCTION: check
 
   bool check(term & t);
-  
+
 
   // FUNCTION: checkvector
   // TASK: returns true if term 'i' is a category-specific fixed effect
@@ -503,13 +503,13 @@ class __EXPORT_TYPE term_ridge : public basic_termtype
 //-------------------------- class term_autoreg  -------------------------------
 //------------------------------------------------------------------------------
 
-
+/*
 class __EXPORT_TYPE term_varcoeff : public basic_termtype
   {
 
 
   };
-
+*/
 
 class __EXPORT_TYPE term_autoreg : public basic_termtype
   {
@@ -534,6 +534,7 @@ class __EXPORT_TYPE term_autoreg : public basic_termtype
   simpleoption stationary;
   doubleoption alpha;
   simpleoption alphafix;
+  simpleoption center;
 
   void setdefault(void);
 
@@ -577,10 +578,12 @@ class __EXPORT_TYPE term_autoreg : public basic_termtype
 //--------------------------- class term_season --------------------------------
 //------------------------------------------------------------------------------
 
+/*
 class __EXPORT_TYPE term_varcoeffseason : public basic_termtype
   {
 
   };
+*/
 
 class __EXPORT_TYPE term_season : public basic_termtype
   {
@@ -602,6 +605,7 @@ class __EXPORT_TYPE term_season : public basic_termtype
   doubleoption lambdamax;
   doubleoption lambdastart;
   simpleoption uniformprior;
+  simpleoption center;
 
   void setdefault(void);
 
@@ -678,11 +682,9 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
   doubleoption alpha;
   simpleoption alphafix;
   stroption knots;
-//  doubleoption lambdamin;
-//  doubleoption lambdamax;
-//  doubleoption lambdastart;
   doubleoption lowerknot;
   doubleoption upperknot;
+
 
 
   void setdefault(void);
@@ -726,10 +728,12 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
 //--------------------------- class term_spatial -------------------------------
 //------------------------------------------------------------------------------
 
+/*
 class __EXPORT_TYPE term_varcoeff_spatial : public basic_termtype
   {
 
   };
+*/
 
 class __EXPORT_TYPE term_spatial : public basic_termtype
   {
@@ -756,6 +760,7 @@ class __EXPORT_TYPE term_spatial : public basic_termtype
   simpleoption stationary;
   doubleoption alpha;
   simpleoption alphafix;
+  simpleoption center;
 
   void setdefault(void);
 
@@ -924,6 +929,7 @@ class __EXPORT_TYPE term_randomslope : public basic_termtype
   simpleoption updatetau;
   simpleoption uniformprior;
   simpleoption constlambda;
+  simpleoption center;
 
   void setdefault(void);
 
@@ -1341,6 +1347,7 @@ class __EXPORT_TYPE term_varcoeff_pspline : public basic_termtype
   simpleoption uniformprior;
   stroption beta_0;
   stroption knots;
+  simpleoption center;
 
   void setdefault(void);
 

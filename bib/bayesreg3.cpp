@@ -203,6 +203,7 @@ bool bayesreg::create_varcoeffpspline(const unsigned & collinpred)
   int gridsize,contourprob;
   int f;
   bool diagtransform,derivative;
+  bool center;
 
   unsigned i;
   int j1,j2;
@@ -264,6 +265,12 @@ bool bayesreg::create_varcoeffpspline(const unsigned & collinpred)
       f = (terms[i].options[16]).strtolong(h);
       contourprob = unsigned(h);
 
+      if (terms[i].options[20] == "false")
+        center = false;
+      else
+        center = true;
+
+
       if (f==1)
         return true;
 
@@ -290,6 +297,7 @@ bool bayesreg::create_varcoeffpspline(const unsigned & collinpred)
                                               derivative,
                                               lambda,
                                               gridsize,
+                                              center,
                                               collinpred
                                              )
                            );

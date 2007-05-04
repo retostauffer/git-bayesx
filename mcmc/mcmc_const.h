@@ -38,6 +38,7 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   bool interceptyes;
   int interceptpos;
   double interceptadd;
+  datamatrix effectsadd; 
 
   // Ridge
   bool ridge;
@@ -159,6 +160,11 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   virtual void update_fix_effect(const unsigned & pos, double & value, datamatrix fix)
     {
     }
+
+  virtual void update_fix_varcoeff(double & value,ST::string & name);  
+
+  virtual void posteriormode_fix_varcoeff(double & value,ST::string & name);  
+
 
   virtual void posteriormode_const_varcoeff(datamatrix newx)
     {

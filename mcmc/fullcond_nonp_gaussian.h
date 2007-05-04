@@ -189,7 +189,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                          FULLCOND_const * fcc,const unsigned & maxint,
                          const fieldtype & ft, const ST::string & ti,
                          const ST::string & fp, const ST::string & pres,
-                         const unsigned & c,const double & l,
+                         const unsigned & c,const double & l,bool  ce=false,
                          const unsigned & per=12);
 
   // CONSTRUCTOR 4  (spatial effect with x and y)
@@ -224,7 +224,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                          const datamatrix & d2, // interacting variable
                          const ST::string & ti,
                          const ST::string & fp, const ST::string & pres,
-                         const unsigned & c,const double & l);
+                         const unsigned & c,const double & l,bool ce);
 
 
 #if defined(INCLUDE_REML)

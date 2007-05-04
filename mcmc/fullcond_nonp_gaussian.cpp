@@ -1239,7 +1239,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,DISTRIBUTION * dp
                                      const unsigned & maxint,
                                      const fieldtype & ft,const ST::string & ti,
                                const ST::string & fp, const ST::string & pres,
-                               const unsigned & c,const double & l,
+                               const unsigned & c,const double & l,bool ce,
                                const unsigned & per)
   : FULLCOND_nonp_basis(o,dp,ft,ti,fp,pres,c,per)
 
@@ -1273,7 +1273,10 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,DISTRIBUTION * dp
   if (errors.size() == 0)
     {
 
-    identifiable = true;
+    if (ce==false)
+      identifiable = true;
+    else
+      identifiable = false;  
 
     if (type == RW1)
       {
@@ -1423,7 +1426,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
                         const datamatrix & d2,
                         const ST::string & ti,
                         const ST::string & fp, const ST::string & pres,
-                        const unsigned & c,const double & l)
+                        const unsigned & c,const double & l,bool ce)
   : FULLCOND_nonp_basis(o,dp,mrf,ti,fp,pres,c)
 
   {
@@ -1478,7 +1481,11 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
     setbeta(Kenv.getDim(),1,0);
 
-    identifiable = true;
+    if (ce==false)
+      identifiable = true;
+    else
+      identifiable = false;  
+
     varcoeff = true;
 
     XXenv = envmatdouble(0,nrpar);
@@ -2422,7 +2429,10 @@ void FULLCOND_nonp_gaussian::update_IWLS_hyperblock(void)
     if (center)
       {
       double m = centerbeta();
-      fcconst->update_intercept(m);
+      if (varcoeff)
+        fcconst->update_fix_varcoeff(m,datanames[1]);
+      else
+        fcconst->update_intercept(m);
       }
 
     }
@@ -2555,11 +2565,16 @@ void FULLCOND_nonp_gaussian::update_IWLS_hyperblock_mode(void)
     lambda = lambdaprop;
     sigma2 = 1.0/lambda;
 
-    if (center)
-      {
-      double m = centerbeta();
+
+  if (center)
+    {
+    double m = centerbeta();
+    if (varcoeff)
+      fcconst->update_fix_varcoeff(m,datanames[1]);
+    else
       fcconst->update_intercept(m);
-      }
+    }
+
 
     betaKbeta=Kenv.compute_quadform(beta,0);
     betaold.assign(beta);
@@ -2672,11 +2687,16 @@ void FULLCOND_nonp_gaussian::update_IWLS_mode(void)
     {
     acceptance++;
 
+
     if (center)
       {
       double m = centerbeta();
-      fcconst->update_intercept(m);
+      if (varcoeff)
+        fcconst->update_fix_varcoeff(m,datanames[1]);
+      else
+        fcconst->update_intercept(m);
       }
+
 
     if(!adaptiv)
       betaKbeta=Kenv.compute_quadform(beta,0);
@@ -2817,11 +2837,15 @@ void FULLCOND_nonp_gaussian::update_IWLS(void)
     {
     acceptance++;
 
-    if (center)
-      {
-      double m = centerbeta();
+
+  if (center)
+    {
+    double m = centerbeta();
+    if (varcoeff)
+      fcconst->update_fix_varcoeff(m,datanames[1]);
+    else
       fcconst->update_intercept(m);
-      }
+    }
 
     betaold.assign(beta);
 
@@ -2910,7 +2934,10 @@ void FULLCOND_nonp_gaussian::update_lambdaconst(void)
   if (center)
     {
     double m = centerbeta();
-    fcconst->update_intercept(m);
+    if (varcoeff)
+      fcconst->update_fix_varcoeff(m,datanames[1]);
+    else
+      fcconst->update_intercept(m);
     }
 
   acceptance++;
@@ -3023,10 +3050,14 @@ void FULLCOND_nonp_gaussian::update(void)
 
     update_linpred(true);
 
+
     if (center)
       {
       double m = centerbeta();
-      fcconst->update_intercept(m);
+      if (varcoeff)
+        fcconst->update_fix_varcoeff(m,datanames[1]);
+      else
+        fcconst->update_intercept(m);
       }
 
     acceptance++;
@@ -3119,11 +3150,16 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
 
     }
 
+
   if (center)
     {
     double m = centerbeta();
-    fcconst->update_intercept(m);
+    if (varcoeff)
+      fcconst->update_fix_varcoeff(m,datanames[1]);
+    else
+      fcconst->update_intercept(m);
     }
+
 
   transform = likep->get_trmult(column);
 
@@ -3328,11 +3364,16 @@ void FULLCOND_nonp_gaussian::update_gaussian_gemanreynolds(void)
 
     }
 
+
   if (center)
     {
     double m = centerbeta();
-    fcconst->update_intercept(m);
+    if (varcoeff)
+      fcconst->update_fix_varcoeff(m,datanames[1]);
+    else
+      fcconst->update_intercept(m);
     }
+
 
   transform = likep->get_trmult(column);
 
@@ -3403,13 +3444,14 @@ bool FULLCOND_nonp_gaussian::posteriormode(void)
 
   update_linpred(true);
 
-
   if (center)
     {
     double m = centerbeta();
+    if (varcoeff)
+      fcconst->posteriormode_fix_varcoeff(m,datanames[1]);
+    else
     fcconst->posteriormode_intercept(m);
     }
-
 
   transform = likep->get_trmult(column);
 

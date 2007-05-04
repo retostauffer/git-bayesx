@@ -396,6 +396,7 @@ term_autoreg::term_autoreg(void)
   stationary = simpleoption("stationary",false);
   alpha = doubleoption("alpha",0.9,-1.0,1.0);
   alphafix = simpleoption("alphafix",false);
+  center=simpleoption("center",false);
   }
 
 void term_autoreg::setdefault(void)
@@ -418,6 +419,7 @@ void term_autoreg::setdefault(void)
   alpha.setdefault();
   stationary.setdefault();
   alphafix.setdefault();
+  center.setdefault();
   }
 
 
@@ -425,7 +427,7 @@ bool term_autoreg::check(term & t)
   {
 
   if ( (t.varnames.size() <= 2) && (t.varnames.size() >= 1) &&
-       (t.options.size()<=18) && (t.options.size() >= 1) )
+       (t.options.size()<=20) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "rw1" && t.varnames.size() == 1)
@@ -477,6 +479,8 @@ bool term_autoreg::check(term & t)
     optlist.push_back(&stationary);
     optlist.push_back(&alpha);
     optlist.push_back(&alphafix);
+    optlist.push_back(&center);
+
 
     unsigned i;
     bool rec = true;
@@ -501,7 +505,7 @@ bool term_autoreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(19);
+    t.options = vector<ST::string>(20);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(min.getvalue());
     t.options[2] = ST::inttostring(max.getvalue());
@@ -530,6 +534,12 @@ bool term_autoreg::check(term & t)
       t.options[18] = "false";
     else
       t.options[18] = "true";
+
+    if(center.getvalue() == false)
+      t.options[19] = "false";
+    else
+      t.options[19] = "true";
+
 
     if (t.options[1].strtolong(minim) == 1)
       {
@@ -1168,6 +1178,7 @@ term_spatial::term_spatial(void)
   stationary = simpleoption("stationary",false);
   alpha = doubleoption("alpha",0.9,-1.0,1.0);
   alphafix = simpleoption("alphafix",false);
+  center = simpleoption("center",false);
   }
 
 void term_spatial::setdefault(void)
@@ -1191,6 +1202,7 @@ void term_spatial::setdefault(void)
   alpha.setdefault();
   stationary.setdefault();
   alphafix.setdefault();
+  center.setdefault();
   }
 
 
@@ -1198,7 +1210,7 @@ bool term_spatial::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size()>=1) &&
-       (t.options.size()<=18) && (t.options.size() >= 1) )
+       (t.options.size()<=21) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "spatial" && t.varnames.size()==1)
@@ -1239,6 +1251,7 @@ bool term_spatial::check(term & t)
     optlist.push_back(&stationary);
     optlist.push_back(&alpha);
     optlist.push_back(&alphafix);
+    optlist.push_back(&center);    
 
     unsigned i;
     bool rec = true;
@@ -1263,7 +1276,7 @@ bool term_spatial::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(20);
+    t.options = vector<ST::string>(21);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::inttostring(min.getvalue());
@@ -1299,6 +1312,10 @@ bool term_spatial::check(term & t)
       t.options[19] = "false";
     else
       t.options[19] = "true";
+    if(center.getvalue() == false)
+      t.options[20] = "false";
+    else
+      t.options[20] = "true";
 
     if (t.options[2].strtolong(minim) == 1)
       {
@@ -2407,6 +2424,7 @@ term_varcoeff_pspline::term_varcoeff_pspline(void)
   knotsdef.push_back("equidistant");
   knotsdef.push_back("quantiles");
   knots = stroption("knots",knotsdef,"equidistant");
+  center = simpleoption("center",false);
   }
 
 
@@ -2431,6 +2449,7 @@ void term_varcoeff_pspline::setdefault(void)
   uniformprior.setdefault();
   beta_0.setdefault();
   knots.setdefault();
+  center.setdefault();
   }
 
 
@@ -2438,7 +2457,7 @@ bool term_varcoeff_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-        && (t.options.size() <= 20) )
+        && (t.options.size() <= 21) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -2471,6 +2490,7 @@ bool term_varcoeff_pspline::check(term & t)
     optlist.push_back(&uniformprior);
     optlist.push_back(&beta_0);
     optlist.push_back(&knots);
+    optlist.push_back(&center);
 
     unsigned i;
     bool rec = true;
@@ -2495,7 +2515,7 @@ bool term_varcoeff_pspline::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(20);
+    t.options = vector<ST::string>(21);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(min.getvalue());
     t.options[2] = ST::inttostring(max.getvalue());
@@ -2528,6 +2548,11 @@ bool term_varcoeff_pspline::check(term & t)
       t.options[17] = "true";
     t.options[18] = beta_0.getvalue();
     t.options[19] = knots.getvalue();
+    if (center.getvalue() == false)
+      t.options[20] = "false";
+    else
+      t.options[20] = "true";
+
 
     if ( contourprob.getvalue()-1 > degree.getvalue())
       {

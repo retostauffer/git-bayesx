@@ -278,6 +278,7 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
   double ftune;
   ST::string proposal;
   vector<ST::string> na;
+  bool center;
 
   for(i=0;i<terms.size();i++)
     {
@@ -358,6 +359,12 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
       if (f==1)
         return true;
 
+      if (terms[i].options[20] == "true")
+        center=true;
+      else
+        center=false;
+
+
       ST::string titlev;
 
       if (varcoeff == true)
@@ -391,7 +398,8 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
           fcnonpgaussian.push_back(
           FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
           distr[distr.size()-1],fcconst_intercept,m,terms[i].options[1],
-          D.getCol(j2),D.getCol(j1),title,pathnonp,pathres,collinpred,lambda));
+          D.getCol(j2),D.getCol(j1),title,pathnonp,pathres,collinpred,lambda,
+          center));
 
           na.push_back(terms[i].varnames[1]);
           na.push_back(terms[i].varnames[0]);
