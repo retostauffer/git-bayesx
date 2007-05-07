@@ -434,6 +434,9 @@ spline_basis_surf::spline_basis_surf(MCMCoptions * o, const datamatrix & intact,
 spline_basis_surf::spline_basis_surf(const spline_basis_surf & sp)
   : FULLCOND_nonp_basis(FULLCOND_nonp_basis(sp))
   {
+
+  interactvar = sp.interactvar;  
+
   fcconst = sp.fcconst;
 
   lambdaconst = sp.lambdaconst;
@@ -519,6 +522,8 @@ const spline_basis_surf & spline_basis_surf::operator=(const spline_basis_surf &
   if(&sp==this)
     return *this;
   FULLCOND_nonp_basis::operator=(FULLCOND_nonp_basis(sp));
+
+  interactvar = sp.interactvar;
 
   fcconst = sp.fcconst;
 

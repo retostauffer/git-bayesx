@@ -65,6 +65,8 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
   vector<double> effectvaluesx;      // bildet zusammen mit effectvaluesy die Daten-Paare
   vector<double> effectvaluesy;      // für die Ausgabe
 
+  datamatrix interactvar;
+
   datamatrix beta1;
   datamatrix beta2;
 

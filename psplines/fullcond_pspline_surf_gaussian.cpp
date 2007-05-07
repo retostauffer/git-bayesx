@@ -251,7 +251,10 @@ void FULLCOND_pspline_surf_gaussian::create(const datamatrix & v1, const datamat
   compute_betaweightxy();
 
   if(varcoeff)
+    {
     identifiable = true;
+    interactvar=intact;
+    }
   else
     identifiable = false;
 
@@ -1722,8 +1725,17 @@ void FULLCOND_pspline_surf_gaussian::update(void)
           {
           for(i=0;i<nrpar;i++)
             beta(i,0) -= intercept;
-          for(i=0;i<likep->get_nrobs();i++)
-            spline(i,0) -= intercept;
+
+          if (center)
+            {
+            for(i=0;i<likep->get_nrobs();i++)
+              spline(i,0) -= intercept*interactvar(i,0);
+            }
+          else
+            {
+            for(i=0;i<likep->get_nrobs();i++)
+              spline(i,0) -= intercept;
+            }
 
           fcconst->update_fix_varcoeff(intercept,datanames[1]);
 
@@ -1930,13 +1942,29 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
       compute_intercept();
       for(i=0;i<nrpar;i++)
         beta(i,0) -= intercept;
-      for(i=0;i<likep->get_nrobs();i++)
-        spline(i,0) -= intercept;
+
 
       if (varcoeff)
+        {
+        if (center)
+          {
+          for(i=0;i<likep->get_nrobs();i++)
+            spline(i,0) -= intercept*interactvar(i,0);
+          }
+        else
+          {
+          for(i=0;i<likep->get_nrobs();i++)
+            spline(i,0) -= intercept;
+          }
+
         fcconst->update_fix_varcoeff(intercept,datanames[1]);
+        }
       else
+        {
+        for(i=0;i<likep->get_nrobs();i++)
+          spline(i,0) -= intercept;
         fcconst->posteriormode_intercept(intercept);
+        }
 
       intercept = 0.0;
       }

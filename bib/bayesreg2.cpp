@@ -1203,6 +1203,7 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
   double lambda;
   bool reduced, singleblock;
   unsigned min,max,nrknots,degree,blocksize;
+  bool center;
   double a1,b1;
   int gridsize;
   int f;
@@ -1220,7 +1221,7 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
       if (terms[i].varnames.size()==2)
         varcoeff=false;
       else
-        varcoeff=true;  
+        varcoeff=true;
 
       if ((terms[i].options[0] == "pspline2dimrw1")   ||
           (terms[i].options[0] == "tpspline2dimrw1") ||
@@ -1285,6 +1286,12 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
       gridsize = unsigned(h);
 
       proposal = terms[i].options[11];
+
+      if (terms[i].options[17] == "false")
+        center = false;
+      else
+        center = true;
+
 
       MCMC::knotpos po;
 
@@ -1413,6 +1420,7 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
                                           pathres,
                                           outfile.getvalue(),
                                           singleblock,
+                                          center,
                                           collinpred
                                           ));
 
@@ -1642,6 +1650,7 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
                                            outfile.getvalue(),
                                            true,
                                            singleblock,
+                                           center,
                                            collinpred
                                           )
                           );

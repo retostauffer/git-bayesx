@@ -1662,6 +1662,7 @@ term_interactpspline::term_interactpspline(void)
   f = doubleoption("f",2,0,10000000);
   uniformprior = simpleoption("uniformprior",false);
   blocksize=intoption("blocksize",6,2,100);
+  center=simpleoption("center",false);
   }
 
 
@@ -1683,6 +1684,7 @@ void term_interactpspline::setdefault(void)
   f.setdefault();
   uniformprior.setdefault();
   blocksize.setdefault();
+  center.setdefault();
   }
 
 bool term_interactpspline::check(term & t)
@@ -1705,9 +1707,11 @@ bool term_interactpspline::check(term & t)
   optlist.push_back(&f);
   optlist.push_back(&uniformprior);
   optlist.push_back(&blocksize);
+  optlist.push_back(&center);
+
 
   if ( (t.varnames.size()<=3)  && (t.options.size() >= 1)
-        && (t.options.size() <= 17) )
+        && (t.options.size() <= 18) )
     {
 
     if (t.options[0] == "pspline2dimrw1" && t.varnames.size()==2)
@@ -1766,7 +1770,7 @@ bool term_interactpspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(17);
+   t.options = vector<ST::string>(18);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -1796,6 +1800,12 @@ bool term_interactpspline::check(term & t)
    else
      t.options[15] = "true";
    t.options[16] = ST::inttostring(blocksize.getvalue());
+   if (center.getvalue() == false)
+     t.options[17] = "false";
+   else
+     t.options[17] = "true";
+
+
 
    if (t.options[1].strtolong(minim) == 1)
      {
@@ -2328,7 +2338,7 @@ bool term_varcoeff_geospline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(16);
+   t.options = vector<ST::string>(17);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());

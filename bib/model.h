@@ -1144,6 +1144,7 @@ class __EXPORT_TYPE term_interactpspline : public basic_termtype
   doubleoption f;
   simpleoption uniformprior;
   intoption blocksize;
+  simpleoption center;
 
   void setdefault(void);
 
