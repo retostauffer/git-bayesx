@@ -1934,6 +1934,8 @@ bool term_geospline::check(term & t)
     optlist.push_back(&f);
     optlist.push_back(&uniformprior);
 
+
+
     unsigned i;
 
     bool rec = true;
@@ -1987,6 +1989,7 @@ bool term_geospline::check(term & t)
      t.options[15] = "false";
    else
      t.options[15] = "true";
+
 
    t.options[1].strtolong(minim);
    t.options[2].strtolong(maxim);
@@ -2242,6 +2245,7 @@ term_varcoeff_geospline::term_varcoeff_geospline(void)
   updatetau = simpleoption("updatetau",false);
   f = doubleoption("f",2,0,10000000);
   uniformprior = simpleoption("uniformprior",false);
+  center = simpleoption("center",false);
   }
 
 
@@ -2262,13 +2266,14 @@ void term_varcoeff_geospline::setdefault(void)
   updatetau.setdefault();
   f.setdefault();
   uniformprior.setdefault();
+  center.setdefault();
   }
 
 bool term_varcoeff_geospline::check(term & t)
   {
 
   if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 16) )
+        && (t.options.size() <= 17) )
     {
 
     if (t.options[0] == "geospline")
@@ -2297,6 +2302,7 @@ bool term_varcoeff_geospline::check(term & t)
     optlist.push_back(&updatetau);
     optlist.push_back(&f);
     optlist.push_back(&uniformprior);
+    optlist.push_back(&center);
 
     unsigned i;
 
@@ -2351,6 +2357,11 @@ bool term_varcoeff_geospline::check(term & t)
      t.options[15] = "false";
    else
      t.options[15] = "true";
+
+   if (center.getvalue() == false)
+     t.options[16] = "false";
+   else
+     t.options[16] = "true";
 
    t.options[1].strtolong(minim);
    t.options[2].strtolong(maxim);

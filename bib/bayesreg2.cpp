@@ -2196,6 +2196,7 @@ bool bayesreg::create_varcoeff_geospline(const unsigned & collinpred)
   bool reduced,singleblock;
   unsigned min,max,nrknots,degree;
   int gridsize;
+  bool center;
   int f;
 
   unsigned i;
@@ -2260,6 +2261,11 @@ bool bayesreg::create_varcoeff_geospline(const unsigned & collinpred)
       else
         singleblock = true;
 
+      if (terms[i].options[16] == "false")
+        center = false;
+      else
+        center = true;
+
       f = (terms[i].options[9]).strtodouble(a1);
       f = (terms[i].options[10]).strtodouble(b1);
 
@@ -2295,6 +2301,7 @@ bool bayesreg::create_varcoeff_geospline(const unsigned & collinpred)
                                       pathnonp,
                                       pathres,
                                       singleblock,
+                                      center,
                                       collinpred
                                       ));
 
@@ -2371,6 +2378,7 @@ bool bayesreg::create_varcoeff_geospline(const unsigned & collinpred)
                                       pathres,
                                       iwlsmode,
                                       singleblock,
+                                      center,
                                       collinpred
                                       ));
 
@@ -2668,7 +2676,6 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
   ST::string proposal_r;
 
   long h;
-  double hd;
   double lambda,a1,b1,alpha;
   bool updatetau;
   double ftune;

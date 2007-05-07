@@ -293,9 +293,10 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
                       const double & fstart, const double & a, const double & b,
                       const int & gs, const fieldtype & ft,
                       const ST::string & fp, const ST::string & pres, const ST::string & of,
-                      const bool & iw, const bool & sb, const unsigned & c)
+                      const bool & iw, const bool & sb,const unsigned & c)
   : spline_basis_surf(o,dp,fcc,ft,ti,nrk,degr,kp,l,gs,gs,fp,pres,c)
   {
+
 
   if(mode)
     {
@@ -476,9 +477,15 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
                       const ST::string & ti, const unsigned & nrk, const unsigned & degr,
                       const knotpos & kp, const double & l, const int & gs,
                       const fieldtype & ft, const ST::string & fp,
-                      const ST::string & pres, const ST::string & of, const bool & sb, const unsigned & c)
+                      const ST::string & pres, const ST::string & of,
+                      const bool & sb,const bool & ce, const unsigned & c)
   : spline_basis_surf(o,dp,fcc,ft,ti,nrk,degr,kp,l,gs,gs,fp,pres,c)
   {
+
+  if (ce==false)
+    identifiable = true;
+  else
+    identifiable = false;
 
   utype = gaussian;
 
@@ -502,8 +509,10 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
                       const double & l, const unsigned & upW, const bool & updatetau,
                       const double & fstart, const double & a, const double & b,
                       const int & gs, const fieldtype & ft,
-                      const ST::string & fp, const ST::string & pres, const ST::string & of,
-                      const bool & iw, const bool & sb, const unsigned & c)
+                      const ST::string & fp, const ST::string & pres,
+                      const ST::string & of,
+                      const bool & iw, const bool & sb,
+                      const bool & ce, const unsigned & c)
   : spline_basis_surf(o,dp,fcc,ft,ti,nrk,degr,kp,l,gs,gs,fp,pres,c)
   {
 
@@ -540,6 +549,12 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
 
   create(v1,v2,intact);
 
+  if (ce==false)
+    identifiable = true;
+  else
+    identifiable = false;
+
+
   }
 
   // CONSTRUCTOR 7: geosplines varying coefficients
@@ -551,9 +566,11 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
                       const ST::string & ti, const unsigned & nrk,
                       const unsigned & degr, const knotpos & kp, const double & l,
                       const int & gs, const fieldtype & ft, const ST::string & fp,
-                      const ST::string & pres, const bool & sb, const unsigned & c)
+                      const ST::string & pres, const bool & sb,
+                      const bool & ce, const unsigned & c)
   : spline_basis_surf(o,dp,fcc,ft,ti,nrk,degr,kp,l,gs,gs,fp,pres,c)
   {
+
 
   utype = gaussian;
 
@@ -585,6 +602,11 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
 
   create(v1,v2,intact);
 
+  if (ce==false)
+    identifiable = true;
+  else
+    identifiable = false;
+
   }
 
   // CONSTRUCTOR 8: IWLS geosplines varying coefficients
@@ -597,9 +619,11 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
                       const unsigned & degr, const knotpos & kp, const double & l, const unsigned & upW,
                       const bool & updatetau, const double & fstart, const double & a, const double & b,
                       const int & gs, const fieldtype & ft, const ST::string & fp,
-                      const ST::string & pres, const bool & iw, const bool & sb, const unsigned & c)
+                      const ST::string & pres, const bool & iw, const bool & sb,
+                      const bool & ce, const unsigned & c)
   : spline_basis_surf(o,dp,fcc,ft,ti,nrk,degr,kp,l,gs,gs,fp,pres,c)
   {
+
 
 /*  if(mode)
     {
@@ -649,6 +673,12 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(
     }
 
   create(v1,v2,intact);
+
+  if (ce==false)
+    identifiable = true;
+  else
+    identifiable = false;
+
 
   }
 
@@ -1688,12 +1718,26 @@ void FULLCOND_pspline_surf_gaussian::update(void)
       if(!samplecentered)
         {
         compute_intercept();
-        for(i=0;i<nrpar;i++)
-          beta(i,0) -= intercept;
-        for(i=0;i<likep->get_nrobs();i++)
-          spline(i,0) -= intercept;
-        fcconst->update_intercept(intercept);
-        intercept = 0.0;
+        if (varcoeff)
+          {
+          for(i=0;i<nrpar;i++)
+            beta(i,0) -= intercept;
+          for(i=0;i<likep->get_nrobs();i++)
+            spline(i,0) -= intercept;
+
+          fcconst->update_fix_varcoeff(intercept,datanames[1]);
+
+          intercept = 0.0;
+          }
+        else
+          {
+          for(i=0;i<nrpar;i++)
+            beta(i,0) -= intercept;
+          for(i=0;i<likep->get_nrobs();i++)
+            spline(i,0) -= intercept;
+          fcconst->update_intercept(intercept);
+          intercept = 0.0;
+          }
         }
       }
     else
@@ -1888,7 +1932,12 @@ bool FULLCOND_pspline_surf_gaussian::posteriormode(void)
         beta(i,0) -= intercept;
       for(i=0;i<likep->get_nrobs();i++)
         spline(i,0) -= intercept;
-      fcconst->posteriormode_intercept(intercept);
+
+      if (varcoeff)
+        fcconst->update_fix_varcoeff(intercept,datanames[1]);
+      else
+        fcconst->posteriormode_intercept(intercept);
+
       intercept = 0.0;
       }
     else

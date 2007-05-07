@@ -398,6 +398,8 @@ spline_basis::spline_basis(const spline_basis & sp)
   increasing = sp.increasing;
   decreasing = sp.decreasing;
 
+  interactvar = sp.interactvar;
+
   W = sp.W;
   betaold = sp.betaold;
   betaprop = sp.betaprop;
@@ -487,6 +489,7 @@ const spline_basis & spline_basis::operator=(const spline_basis & sp)
   derivative = sp.derivative;
   index2 = sp.index2;
 
+  interactvar = sp.interactvar;
   W = sp.W;
   betaold = sp.betaold;
   betaprop = sp.betaprop;
@@ -1211,8 +1214,18 @@ void spline_basis::subtr_spline(void)
 */
   unsigned col = (likep->get_linearpred(true)).cols();
   double *lp = (likep->get_linearpred(true)).getV() + column;
-  for(i=0;i<likep->get_nrobs();i++,workspline++,lp+=col)
-    *lp -= (*workspline - intercept);
+  if ((varcoeff==true) && (center==true))
+    {
+    double * workint = interactvar.getV();
+    for(i=0;i<likep->get_nrobs();i++,workspline++,lp+=col,workint++)
+      *lp -= (*workspline - intercept*(*workint));
+
+    }
+  else
+    {
+    for(i=0;i<likep->get_nrobs();i++,workspline++,lp+=col)
+      *lp -= (*workspline - intercept);
+    }
 
   }
 

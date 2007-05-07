@@ -142,13 +142,15 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o, DISTRIBUTI
                       const unsigned & nrk, const unsigned & degr, const knotpos & kp,
                       const fieldtype & ft, const ST::string & monotone, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const bool & deriv,
-                      const double & l, const int & gs, const unsigned & c)
+                      const double & l, const int & gs,bool  ce, const unsigned & c)
   : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,false,0.0,0.0,c)
   {
 
   assert(effmod.rows() == intact.rows());
 
   data_forfixed = intact;
+
+  interactvar=intact;
 
   if(monotone == "increasing")
     increasing = true;
@@ -239,7 +241,10 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o, DISTRIBUTI
       gamma(i,0) = gamma0 + i*h;
     }
 
-  identifiable = true;
+  if (ce==false)
+    identifiable = true;
+  else
+    identifiable = false;  
 
   }
 
@@ -377,10 +382,15 @@ void FULLCOND_pspline_gaussian::update(void)
         compute_intercept(betaprop);
       else
         compute_intercept();
-//       likep->add_linearpred_m(-intercept,column);
-      fcconst->update_intercept(intercept);
+
+      if (varcoeff)
+        fcconst->update_fix_varcoeff(intercept,datanames[1]);
+      else
+        fcconst->update_intercept(intercept);
+
       }
     }
+
 
   if(contourprob >= 0)                                // für contour probabilities
     {
@@ -426,7 +436,12 @@ void FULLCOND_pspline_gaussian::update(void)
             if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
               {
               if(varcoeff)
-                *fchelpbetap = splinehelp(i,0) - intercept;
+                {
+                if (center)
+                  *fchelpbetap = splinehelp(i,0) - intercept*interactvar(i,0);
+                else
+                  *fchelpbetap = splinehelp(i,0) - intercept;
+                }
               else
                 *fchelpbetap = spline(*workindex,0) - intercept;
               fchelpbetap++;
@@ -437,8 +452,17 @@ void FULLCOND_pspline_gaussian::update(void)
           {
           multDG(splinehelp,beta);
           splinep = splinehelp.getV();
-          for(i=0;i<gridsize;i++,fchelpbetap++,splinep++)
-            *fchelpbetap = *splinep - intercept;
+          double * workinteractvar = interactvar.getV();
+          if (varcoeff && center)
+            {
+            for(i=0;i<gridsize;i++,fchelpbetap++,splinep++,workinteractvar++)
+              *fchelpbetap = *splinep - intercept*(*workinteractvar);
+            }
+          else
+            {
+            for(i=0;i<gridsize;i++,fchelpbetap++,splinep++)
+              *fchelpbetap = *splinep - intercept;
+            }
           }
 
         write_derivative();                           // 1. Ableitung rausschreiben
@@ -679,7 +703,11 @@ bool FULLCOND_pspline_gaussian::posteriormode(void)
     else
       {
       compute_intercept();
-      fcconst->posteriormode_intercept(intercept);
+
+      if (varcoeff)
+        fcconst->posteriormode_fix_varcoeff(intercept,datanames[1]);
+      else
+        fcconst->posteriormode_intercept(intercept);
       }
     }
 
@@ -707,7 +735,10 @@ bool FULLCOND_pspline_gaussian::posteriormode(void)
           if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
             {
             if(varcoeff)
-              *fchelpbetap = splinehelp(i,0) - intercept;
+              if (center)
+                *fchelpbetap = splinehelp(i,0) - intercept*interactvar(i,0);
+              else
+                *fchelpbetap = splinehelp(i,0) - intercept;
             else
               *fchelpbetap = spline(*workindex,0) - intercept;
             fchelpbetap++;
@@ -717,8 +748,16 @@ bool FULLCOND_pspline_gaussian::posteriormode(void)
       else
         {
         multDG(splinehelp,beta);
-        for(i=0;i<gridsize;i++,fchelpbetap++)
-          *fchelpbetap = splinehelp(i,0) - intercept;
+        if (varcoeff && center)
+          {
+          for(i=0;i<gridsize;i++,fchelpbetap++)
+            *fchelpbetap = splinehelp(i,0) - intercept*interactvar(i,0);
+          }
+        else
+          {
+          for(i=0;i<gridsize;i++,fchelpbetap++)
+            *fchelpbetap = splinehelp(i,0) - intercept;
+          }
         }
 
       write_derivative();

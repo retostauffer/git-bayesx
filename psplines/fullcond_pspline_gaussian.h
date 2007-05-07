@@ -96,7 +96,7 @@ class __EXPORT_TYPE FULLCOND_pspline_gaussian : public spline_basis
                          const unsigned & nrk, const unsigned & degr, const knotpos & kp,
                          const fieldtype & ft, const ST::string & monotone, const ST::string & ti,
                          const ST::string & fp, const ST::string & pres, const bool & deriv,
-                         const double & l, const int & gs, const unsigned & c=0);
+                         const double & l, const int & gs, bool  ce, const unsigned & c=0);
 
 
   // COPY CONSTRUCTOR

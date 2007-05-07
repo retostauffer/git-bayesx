@@ -929,7 +929,7 @@ class __EXPORT_TYPE term_randomslope : public basic_termtype
   simpleoption updatetau;
   simpleoption uniformprior;
   simpleoption constlambda;
-  simpleoption center;
+
 
   void setdefault(void);
 
@@ -1292,6 +1292,7 @@ class __EXPORT_TYPE term_varcoeff_geospline : public basic_termtype
   simpleoption updatetau;
   doubleoption f;
   simpleoption uniformprior;
+  simpleoption center;
 
   void setdefault(void);
 

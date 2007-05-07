@@ -55,6 +55,9 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
   bool increasing;                      // für monotone Regression: monoton steigender Effekt
   bool decreasing;                      // für monotone Regression: monoton fallender Effekt
 
+  datamatrix interactvar;               // speichert bei variierden Koeffizienten
+                                        // die Werte der Interaktionsvariable
+
   datamatrix W;                         // Gewichtsmatrix
   datamatrix betaold;                   // altes beta (aus der letzten Iteration)
   datamatrix betaprop;                  // Vorgeschlagenes beta

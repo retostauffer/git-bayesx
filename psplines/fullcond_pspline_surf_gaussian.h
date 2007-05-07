@@ -217,7 +217,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
                          const unsigned & nrk, const unsigned & degr, const knotpos & kp,
                          const double & l, const int & gs,
                          const fieldtype & ft, const ST::string & fp, const ST::string & pres,
-                         const ST::string & of, const bool & sb, const unsigned & c=0);
+                         const ST::string & of, const bool & sb,
+                         const bool & ce, const unsigned & c=0);
 
   // CONSTRUCTOR 6: IWLS varying coefficients
 
@@ -228,7 +229,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
                          const double & l, const unsigned & upW, const bool & updatetau,
                          const double & fstart, const double & a, const double & b, const int & gs,
                          const fieldtype & ft, const ST::string & fp, const ST::string & pres,
-                         const ST::string & of, const bool & iw, const bool & sb, const unsigned & c=0);
+                         const ST::string & of, const bool & iw, const bool & sb,
+                         const bool & ce, const unsigned & c=0);
 
   // CONSTRUCTOR 7: geosplines varying coefficients
 
@@ -237,7 +239,7 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
                          const datamatrix & region,const MAP::map & mp, const ST::string & mn,
                          const ST::string & ti, const unsigned & nrk, const unsigned & degr, const knotpos & kp,
                          const double & l, const int & gs, const fieldtype & ft, const ST::string & fp,
-                         const ST::string & pres, const bool & sb, const unsigned & c=0);
+                         const ST::string & pres, const bool & sb,const bool & ce, const unsigned & c=0);
 
   // CONSTRUCTOR 8: IWLS geosplines varying coefficients
 
@@ -248,7 +250,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
                          const double & l, const unsigned & upW, const bool & updatetau,
                          const double & fstart, const double & a, const double & b,
                          const int & gs, const fieldtype & ft, const ST::string & fp,
-                         const ST::string & pres, const bool & iw, const bool & sb, const unsigned & c=0);
+                         const ST::string & pres, const bool & iw, const bool & sb,
+                         const bool & ce, const unsigned & c=0);
 
 
   void init_maineffects(spline_basis * mp1,spline_basis * mp2,
