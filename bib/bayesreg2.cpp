@@ -1453,11 +1453,17 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
           }
 
         vector<ST::string> na;
-        na.push_back(terms[i].varnames[0]);
-        na.push_back(terms[i].varnames[1]);
-
-        if (varcoeff==true)
+        if(varcoeff==false)
+          {
+          na.push_back(terms[i].varnames[0]);
+          na.push_back(terms[i].varnames[1]);
+          }
+        else if (varcoeff==true)
+          {
+          na.push_back(terms[i].varnames[1]);
+          na.push_back(terms[i].varnames[0]);
           na.push_back(terms[i].varnames[2]);
+          }
 
         fcpsplinesurfgaussian[fcpsplinesurfgaussian.size()-1].init_names(na);
 

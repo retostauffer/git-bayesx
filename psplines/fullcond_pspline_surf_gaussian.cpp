@@ -485,11 +485,6 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
   : spline_basis_surf(o,dp,fcc,ft,ti,nrk,degr,kp,l,gs,gs,fp,pres,c)
   {
 
-  if (ce==false)
-    identifiable = true;
-  else
-    identifiable = false;
-
   utype = gaussian;
 
   varcoeff = true;
@@ -501,6 +496,10 @@ FULLCOND_pspline_surf_gaussian::FULLCOND_pspline_surf_gaussian(MCMCoptions * o,
 
   create(v1,v2,intact);
 
+  if (ce==false)
+    identifiable = true;
+  else
+    identifiable = false;
   }
 
   // CONSTRUCTOR 6: IWLS varying coefficients
