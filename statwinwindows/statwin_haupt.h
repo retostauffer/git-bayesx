@@ -23,7 +23,9 @@
 
 #include<stepwisereg.h>
 #include<mapobject.h>
-//#include<dagobject.h>
+#if defined(INCLUDE_DAG)
+#include<dagobject.h>
+#endif
 //#include<diseaseobj.h>
 #include <ComCtrls.hpp>
 //---------------------------------------------------------------------------
@@ -103,7 +105,9 @@ private:        // Benutzerdeklarationen
 
   // 'dagobjects' contains current dag objects
 
-//  vector<dagobject> dagobjects;
+#if defined(INCLUDE_DAG)
+  vector<dagobject> dagobjects;
+#endif
 
   // 'diseasemapobjects' contains current diseasemap objects
 
