@@ -16,8 +16,9 @@
 #include"distribution.h"
 #include"mcmc_const.h"
 #include"bandmat.h"
+#include "bandmat_penalty.h"
 #include"envmatrix.h"
-
+#include"envmatrix_penalty.h"
 
 namespace MCMC
 {

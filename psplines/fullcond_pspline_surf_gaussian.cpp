@@ -2752,10 +2752,4 @@ double FULLCOND_pspline_surf_gaussian::compute_df(void)
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 
-#ifdef __BUILDING_GNU
-int main()
-{
-	return(0);
-}
-#endif
 

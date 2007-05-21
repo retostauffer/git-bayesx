@@ -104,53 +104,21 @@ class __EXPORT_TYPE realvar : public vectorrealobs
 //  | lag function                     | lag
 
 
-realvar __EXPORT_TYPE sqrt(const realvar & v)
-  {
-  return v.applied(realob::sqrt);
-  }
+realvar __EXPORT_TYPE sqrt(const realvar & v);
 
+realvar __EXPORT_TYPE abs(const realvar & v);
 
-realvar __EXPORT_TYPE abs(const realvar & v)
-  {
-  return v.applied(realob::abs);
-  }
+realvar __EXPORT_TYPE exp(const realvar & v);
 
+realvar __EXPORT_TYPE cos(const realvar & v);
 
-realvar __EXPORT_TYPE exp(const realvar & v)
-  {
-  return v.applied(realob::exp);
-  }
+realvar __EXPORT_TYPE sin(const realvar & v);
 
+realvar __EXPORT_TYPE log(const realvar & v);
 
-realvar __EXPORT_TYPE cos(const realvar & v)
-  {
-  return v.applied(realob::cos);
-  }
+realvar __EXPORT_TYPE log10(const realvar & v);
 
-
-realvar __EXPORT_TYPE sin(const realvar & v)
-  {
-  return v.applied(realob::sin);
-  }
-
-
-realvar __EXPORT_TYPE log(const realvar & v)
-  {
-  return v.applied(realob::log);
-  }
-
-
-realvar __EXPORT_TYPE log10(const realvar & v)
-  {
-  return v.applied(realob::log10);
-  }
-
-
-realvar __EXPORT_TYPE floor(const realvar & v)
-  {
-  return v.applied(realob::floor);
-  }
-
+realvar __EXPORT_TYPE floor(const realvar & v);
 
 // FUNCTION: lag
 // TASK: computes the lagged vector of 'v' and returns the result

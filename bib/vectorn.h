@@ -182,7 +182,7 @@ class vectornum : public vector<T>
   // TASK: adds to vectornum objects (element by element)
 
   #if defined (__BUILDING_GNU)
-  friend vectornum<T> operator+ <>(const vectornum<T> & v1,const vectornum<T> & v2);
+  friend vectornum<T> operator+<>(const vectornum<T> & v1,const vectornum<T> & v2);
   #else
   friend vectornum<T> operator+(const vectornum<T> & v1,const vectornum<T> & v2);
   #endif
@@ -584,7 +584,8 @@ typedef vectornum<float> vectorf;
 typedef vectornum<int> vectori;
 typedef vectornum<realob::realobs> vectorrealobs; 
 
-#if !defined (__BUILDING_GNU)
+//#if !defined (__BUILDING_GNU)
+#if !defined (VECTORN_CPP_INCLUDED)
 #include "vectorn.cpp"
 #endif
 

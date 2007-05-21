@@ -12,6 +12,7 @@
 
 #include "sparsemat.h"
 #include "bandmat.h"
+#include "bandmat_penalty.h"
 #include<deque>
 #include "mcmc_nonpbasis.h"
 #include "FULLCOND_pspline_gaussian.h"

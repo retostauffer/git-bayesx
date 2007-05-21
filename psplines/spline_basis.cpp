@@ -3943,13 +3943,6 @@ void spline_basis::update_merror(datamatrix & newdata)
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 
-#ifdef __BUILDING_GNU
-int main()
-{
-	return(0);
-}
-#endif
-
 
 
 

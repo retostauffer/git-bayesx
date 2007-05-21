@@ -12,9 +12,9 @@
 #define __BUILDING_GNU
 #endif
 
-#if !defined (JAVA_OUTPUT_WINDOW)
-#define JAVA_OUTPUT_WINDOW
-#endif
+//#if !defined (JAVA_OUTPUT_WINDOW)
+//#define JAVA_OUTPUT_WINDOW
+//#endif
 
 #if !defined (TEMPL_INCL_DEF)
 #define TEMPL_INCL_DEF
@@ -26,6 +26,14 @@
 
 #if !defined (NO_TEMPLATE_FRIENDS)
 #define NO_TEMPLATE_FRIENDS
+#endif
+
+#if !defined (INCLUDE_REML)
+#define INCLUDE_REML
+#endif
+
+#if !defined (INCLUDE_MCMC)
+#define INCLUDE_MCMC
 #endif
 
 #endif

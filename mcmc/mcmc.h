@@ -12,6 +12,7 @@
 #define MCMC_INCLUDED
 
 #include"statmat.h"
+#include"statmat_penalty.h"
 #include"sparsemat.h"
 #include"random.h"
 #include<fstream.h>

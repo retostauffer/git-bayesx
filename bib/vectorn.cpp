@@ -2,7 +2,7 @@
 #include "first.h"
 
 #if !defined (VECTORN_CPP_INCLUDED)
-#define VECTORN_CPP_INCLUDE
+#define VECTORN_CPP_INCLUDED
 #endif
 
 #if !defined (VECTORN_INCLUDED)

@@ -40,6 +40,10 @@ namespace MAP
  const double NA = MAXDOUBLE;
  #endif
 #endif
+#if defined(__BUILDING_GNU)
+ const double NA = MAXDOUBLE;
+#endif
+
 
 enum order {names, xvalues, yvalues};
 enum metric {adjacent, centroid, combnd};

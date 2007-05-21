@@ -97,7 +97,46 @@ realvar realvar::applied(realobs (*func)(realobs &))
   }
 */
 
+realvar sqrt(const realvar & v)
+  {
+  return v.applied(realob::sqrt);
+  }
 
+realvar abs(const realvar & v)
+  {
+  return v.applied(realob::abs);
+  }
+
+realvar exp(const realvar & v)
+  {
+  return v.applied(realob::exp);
+  }
+
+realvar cos(const realvar & v)
+  {
+  return v.applied(realob::cos);
+  }
+
+realvar sin(const realvar & v)
+  {
+  return v.applied(realob::sin);
+  }
+
+realvar log(const realvar & v)
+  {
+  return v.applied(realob::log);
+  }
+
+realvar log10(const realvar & v)
+  {
+  return v.applied(realob::log10);
+  }
+
+realvar floor(const realvar & v)
+  {
+  return v.applied(realob::floor);
+  }
+  
 realvar cumul(realvar & v,vector<int> & index)
   {
   int j;

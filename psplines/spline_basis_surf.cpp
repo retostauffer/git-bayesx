@@ -3170,13 +3170,6 @@ void spline_basis_surf::outoptionsreml()
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 
-#ifdef __BUILDING_GNU
-int main()
-{
-	return(0);
-}
-#endif
-
 
 
 

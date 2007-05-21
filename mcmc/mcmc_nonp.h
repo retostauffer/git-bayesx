@@ -16,6 +16,7 @@
 #include"distribution.h"
 #include"map.h"
 #include"bandmat.h"
+#include"bandmat_penalty.h"
 #include"mcmc_nonpbasis.h"
 
 namespace MCMC

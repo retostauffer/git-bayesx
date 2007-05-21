@@ -18,6 +18,7 @@
 #include "sparsemat.h"
 #include "mcmc_pspline.h"
 #include "bandmat.h"
+#include "bandmat_penalty.h"
 #include "spline_basis_surf.h"
 
 namespace MCMC

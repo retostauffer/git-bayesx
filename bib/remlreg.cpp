@@ -3624,10 +3624,10 @@ void remlrun(remlreg & b)
 
   b.clear();
 
-  #if defined(BORLAND_OUTPUT_WINDOW)
-    bool failure = false;
-  #elif defined(JAVA_OUTPUT_WINDOW)
+  #if defined(JAVA_OUTPUT_WINDOW)
     bool failure = b.adminb_p->breakcommand();
+  #else
+    bool failure = false;
   #endif
 
   b.generaloptions = MCMCoptions(
@@ -4511,11 +4511,10 @@ void mremlrun(remlreg & b)
 
   b.clear();
 
-//  bool failure = false;
-  #if defined(BORLAND_OUTPUT_WINDOW)
-    bool failure = false;
-  #elif defined(JAVA_OUTPUT_WINDOW)
+  #if defined(JAVA_OUTPUT_WINDOW)
     bool failure = b.adminb_p->breakcommand();
+  #else
+    bool failure = false;
   #endif
 
   if ((b.family.getvalue() != "multistate"))

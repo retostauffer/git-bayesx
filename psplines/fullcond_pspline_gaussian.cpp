@@ -1445,10 +1445,4 @@ void FULLCOND_pspline_gaussian::compute_pseudocontourprob(const int & diff)
 } // end: namespace MCMC
 
 
-#ifdef __BUILDING_GNU
-int main()
-{
-	return(0);
-}
-#endif
 

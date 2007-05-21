@@ -7,6 +7,56 @@
 namespace randnumbers
 {
 
+double Phi(const double & x)
+{
+if (x==0)
+    return 0.5;
+  else
+    {
+    double a,b;
+    if (x > 0)
+      {
+      a = 0;
+      b = x;
+      }
+    else if (x<0)
+      {
+      a=x;
+      b=0;
+      }
+
+    double h = (b-a)/50.0;
+    double x2 = -0.5*a*a;
+    double sum= exp(x2);
+    double xhelp = a+h;
+    unsigned i;
+    for (i=1;i<=25;i++)
+      {
+      x2 = -0.5*xhelp*xhelp;
+      sum+=4*exp(x2);
+      xhelp+=h;
+
+      x2 = -0.5*xhelp*xhelp;
+      if (i == 25)
+        sum+=exp(x2);
+      else
+        sum+=2*exp(x2);
+      xhelp+=h;
+
+      }
+
+    double c = 0.13298076*h;
+
+    sum *= c;
+
+    if (x > 0)
+      return sum+0.5;
+    else
+      return 0.5-sum;
+    }
+
+}
+
 
 double Phi2(const double & x)
   {
@@ -277,6 +327,12 @@ double kssample(void)
 
   }
 
+double rand_normal(void)
+  {
+  double u1 = uniform();
+  double u2 = uniform();
+  return sqrt(-2*log(u1))*sin(6.2831853*u2);
+  }
 
 double trunc_normal(const double & a,const double & b,const double & mu,
                    const double & s)

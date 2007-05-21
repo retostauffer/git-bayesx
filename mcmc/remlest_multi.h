@@ -3,6 +3,7 @@
 #define remlest_multi_INCLUDED
 
 #include "statmat.h"
+#include "statmat_penalty.h"
 #include "fullcond.h">
 
 #if defined(JAVA_OUTPUT_WINDOW)

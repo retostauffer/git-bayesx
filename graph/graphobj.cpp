@@ -6,6 +6,7 @@
 #pragma hdrstop
 #endif
 
+
 #include"graphobj.h"
 #include"mapobject.h"
 
