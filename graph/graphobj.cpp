@@ -413,6 +413,7 @@ if(drawonlyboundaries)
         error = true;
         }
 
+#if defined(JAVA_OUTPUT_WINDOW)
     o.adminp_p->set_Dp(&o.D);
     o.adminp_p->set_mapinfo(&o.mapinfo);
 
@@ -430,8 +431,8 @@ if(drawonlyboundaries)
                                o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()),
                                o.adminb_p->Java->NewStringUTF(o.title.getvalue().strtochar()));
       }
-
     bool stop=o.adminb_p->breakcommand();
+#endif
 
 /*
     admin.set_mapinfo(&o.mapinfo);
@@ -582,6 +583,7 @@ else
         o.out("NOTE: 'upperlimit' is below maximum value (maximum value is " + ST::doubletostring(o.D.max(0)) + ")\n");
         }
 
+#if defined(JAVA_OUTPUT_WINDOW)
     o.adminp_p->set_Dp(&o.D);
     o.adminp_p->set_mapinfo(&o.mapinfo);
 
@@ -602,7 +604,7 @@ else
                                o.titlescale.getvalue());
 
     bool stop=o.adminb_p->breakcommand();
-
+#endif
     }
 
   } // END: if(drawonlyboundaries)
@@ -754,6 +756,7 @@ void plotnonprun(graphobj & o)
   if (error == false)
     {
 
+#if defined(JAVA_OUTPUT_WINDOW)
     o.adminp_p->set_Dp(&o.D);
 
     jmethodID javaplotnonp = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javaplotnonp",
@@ -776,7 +779,7 @@ void plotnonprun(graphobj & o)
                                );
 
     bool stop=o.adminb_p->breakcommand();
-
+#endif
     }
 
   }
@@ -856,6 +859,7 @@ void plotsamplerun(graphobj & o)
   if (error == false)
     {
 
+#if defined(JAVA_OUTPUT_WINDOW)
     o.adminp_p->set_Dp(&o.D);
 
     jmethodID javaplotsample = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javaplotsample",
@@ -866,7 +870,7 @@ void plotsamplerun(graphobj & o)
                                );
 
     bool stop=o.adminb_p->breakcommand();
-
+#endif
     }
 
   }
@@ -977,6 +981,7 @@ void plotautocorrun(graphobj & o)
   if (error == false)
     {
 
+#if defined(JAVA_OUTPUT_WINDOW)
     o.adminp_p->set_Dp(&o.D);
     o.adminp_p->set_varnamesp(&o.varnames);
 
@@ -989,7 +994,7 @@ void plotautocorrun(graphobj & o)
                                );
 
     bool stop=o.adminb_p->breakcommand();
-
+#endif
     }
 
   }
@@ -1095,6 +1100,7 @@ void plotsurfrun(graphobj & o)
   if (error == false)
     {
 
+#if defined(JAVA_OUTPUT_WINDOW)
     o.adminp_p->set_Dp(&o.D);
 
     jmethodID javaplotsurf = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "Javaplotsurf",
@@ -1120,7 +1126,7 @@ void plotsurfrun(graphobj & o)
                                );
 
     bool stop=o.adminb_p->breakcommand();
-
+#endif
     }
 
   }
