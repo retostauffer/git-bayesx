@@ -96,7 +96,9 @@ __fastcall Thauptformular::Thauptformular(TComponent* Owner)
   objecttyps.push_back("bayesreg");
 #endif
   objecttyps.push_back("map");
-//  objecttyps.push_back("dag");
+#if defined(INCLUDE_DAG)
+  objecttyps.push_back("dag");
+#endif
 #if defined(INCLUDE_REML)
   objecttyps.push_back("remlreg");
 #endif
