@@ -1552,7 +1552,11 @@ effective number of parameters is defined by $p_D =
 \overline{D(\theta)} - D(\bar{\theta})$ where $\overline{D(\theta)}$
 is the posterior mean deviance and $D(\bar{\theta})$ is the deviance
 of the posterior mean of $\theta$. The deviance information
-criterion is defined as $DIC = \overline{D(\theta)} + p_D$. {\em
+criterion is defined as
+$$
+DIC = \overline{D(\theta)} + p_D = D(\bar{\theta}) + 2 p_D
+$$.
+{\em
 BayesX} prints sample properties of the deviance, the effective
 number of parameters $p_D$ and the DIC in the {\em output window} or
 in an open log file. The complete sample of the deviance is stored
