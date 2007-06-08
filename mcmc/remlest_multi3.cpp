@@ -35,6 +35,7 @@ vector<MCMC::FULLCOND*> & fc,datamatrix & re,
 
   nrobs=re.rows();
   nrobspos=nrobs;
+
   for(int i=0; i<nrobs; i++)
     {
     if(weight(i,0)==0)

@@ -648,13 +648,6 @@ bool remlreg::create_data(datamatrix & weight)
     {
     modelvarnamesv = modreg.getModelVarnamesAsVector();
     rname = modelvarnamesv[0].to_bstr();
-    wn = methods[0].get_weight_variable().to_bstr();
-
-    if (wn.length() != 0)
-      {
-      modelvarnamesv.push_back(wn);
-      wpos = modelvarnamesv.size()-1;
-      }
 
     ifexpression = methods[0].getexpression();
 
@@ -763,6 +756,15 @@ bool remlreg::create_data(datamatrix & weight)
         }
       modelvarnamesv = modelvarnamesvhelp;
       }
+
+    wn = methods[0].get_weight_variable().to_bstr();
+
+    if (wn.length() != 0)
+      {
+      modelvarnamesv.push_back(wn);
+      wpos = modelvarnamesv.size()-1;
+      }
+
     }
 
   // testing, wether all variables specified are already existing
