@@ -1555,10 +1555,76 @@ void FULLCOND::update_bootstrap(const bool & uncond)
     }  // end: if (it % nrbetween == 0)
   }
 
+
+void FULLCOND::save_betamean(void)
+  {
+  register unsigned i;
+  double* workbeta = beta.getV();
+  betaright = datamatrix(nrpar,1,0);
+  double* workbetamean = betaright.getV();
+  double betatransform;
+  for(i=0;i<nrpar;i++,workbeta++,workbetamean++)
+    {
+    betatransform = transform * (*workbeta)+addon;
+    *workbetamean = betatransform;
+    }
+  }
+
+
 void FULLCOND::update_bootstrap_betamean(void)
   {
   betamean = betaright;
   samplestream.close();
+  }
+
+
+void FULLCOND::update_bootstrap_df(void)
+  {
+  register unsigned i;
+  double* workbeta = beta.getV();
+
+  unsigned samplesize = optionsp->get_nriter();
+  if(samplesize<=1)
+    betaright = datamatrix(nrpar,1,0);
+  double* workbetamean = betaright.getV();
+
+  if ((flags[0] != 1) && (samplesize <= 1))
+    {
+    samplestream.open(samplepath.strtochar(),ios::binary);
+    if (samplestream.fail())
+      flags[0] = 1;
+    }
+
+  for(i=0;i<nrpar;i++,workbeta++,workbetamean++)
+    {
+    // storing sampled parameters in binary mode
+    if (flags[0] != 1)
+      samplestream.write((char *) workbeta,sizeof *workbeta);
+
+    // updating betamean
+    if (samplesize<=1)
+      *workbetamean = *workbeta;
+     }  // end: for i=0; ...
+  }
+
+
+void FULLCOND::readsample_df(datamatrix & sample,const unsigned & nr,
+                          const unsigned & col) const
+  {
+  assert(nr < nrpar);
+  unsigned size = sizeof(double);
+  ifstream in;
+  in.open(samplepath.strtochar(),ios::binary);
+  unsigned i;
+  double* work=sample.getV()+col;
+  unsigned s = sample.cols();
+  in.seekg(size*nr);
+  for (i=0;i<sample.rows();i++,work+=s)
+    {
+//    in.seekg(size*nr+i*nrpar*size);
+    in.read((char*) work,size);
+    in.seekg(size*(nrpar-1),ios::cur);
+    }
   }
 
 // ---------------------------------------------------------------------------

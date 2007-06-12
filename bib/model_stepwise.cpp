@@ -520,6 +520,7 @@ term_pspline_stepwise::term_pspline_stepwise(void)
   knotsdef.push_back("quantiles");
   knots = stroption("knots",knotsdef,"equidistant");
   nofixed = simpleoption("nofixed",false);
+  spmonotone = doubleoption("spmonotone",100000,0.000001,1000000000);
   }
 
 void term_pspline_stepwise::setdefault(void)
@@ -545,13 +546,14 @@ void term_pspline_stepwise::setdefault(void)
   center.setdefault();
   knots.setdefault();
   nofixed.setdefault();
+  spmonotone.setdefault();
   }
 
 bool term_pspline_stepwise::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size() >= 1)
-       && (t.options.size() >= 1) && (t.options.size() <= 22) )
+       && (t.options.size() >= 1) && (t.options.size() <= 23) )
     {
 
     if (t.options[0] == "psplinerw1" && t.varnames.size() == 1)
@@ -592,6 +594,7 @@ bool term_pspline_stepwise::check(term & t)
     optlist.push_back(&center);
     optlist.push_back(&knots);
     optlist.push_back(&nofixed);
+    optlist.push_back(&spmonotone);
 
     unsigned i;
     bool rec = true;
@@ -616,7 +619,7 @@ bool term_pspline_stepwise::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(22);
+   t.options = vector<ST::string>(23);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(degree.getvalue());
    t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -660,7 +663,7 @@ bool term_pspline_stepwise::check(term & t)
        t.options[21] = "false";
     else
        t.options[21] = "true";
-
+    t.options[22] = ST::doubletostring(spmonotone.getvalue());
       
    if (lambda.getvalue() < 0)
      {

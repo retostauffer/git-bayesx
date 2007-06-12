@@ -313,7 +313,7 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
          const bool & fineloc, const int & boot, const bool & uncond, 
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
-         const bool & CI, bool & hier, const double & prop, const bool & minib);
+         const ST::string & CI, bool & hier, const double & prop, const bool & minib);
 
   double compute_criterion(void);
 

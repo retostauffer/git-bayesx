@@ -111,11 +111,32 @@ bool STEPWISErun::posteriormode(const vector<ST::string> & header,
         if(likep_mult[0]->posteriormode() == false)
            allconverged = false;
 
-      for(j=begin[0];j<=end[0];j++)
+      if(!isboot)
         {
-        if (fullcondp[j]->posteriormode() == false)
-          allconverged = false;
-        } // end: for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+        for(j=begin[0];j<=end[0];j++)
+          {
+          if (fullcondp[j]->posteriormode() == false)
+            allconverged = false;
+          } // end: for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+        }
+      else
+        {
+        double start = begin[0];
+        if(start==0)
+          {
+          if (fullcondp[start]->posteriormode() == false)
+            allconverged = false;
+          start += 1;
+          }
+        for(j=start;j<=end[0];j++)
+          {
+          if(fullcondp[j]->get_lambda()!=0)
+            {
+            if (fullcondp[j]->posteriormode() == false)
+              allconverged = false;
+            }
+          } // end: for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+        }
 
       if (allconverged && it>1)         // stellt sicher, dass nicht zufällig das "betaold" vom
         converged = true;               // Auswählen der Lambdas zu einer fälschlichen Konvergenz führt
@@ -251,7 +272,7 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
         const bool & fineloc, const int & boot, const bool & uncond,
         const datamatrix & Da, const vector<ST::string> & modelvar,
         const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
-        const bool & CI, bool & hier, bool & gm, const double & prop, const bool & minib)
+        const ST::string & CI, bool & hier, bool & gm, const double & prop, const bool & minib)
   {
 
   D = Da;
@@ -397,197 +418,38 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
   if(abbruch==true)
     return true;
 
-  // Bootstrap
-  if(bootstrap > 0)
+  if(criterion == "MSEP" || criterion == "AUC")
     {
-    if(unconditional == true)
-     {
-     steps = 0;
-     }
-
-    //CI = false;
-    isboot = true;
-    outcriterium.close();
-    outmodels.close();
-//    outtrace.close();
-    trace = "trace_off";
-    vector<double> modell_boot = modell_final;
-    //vector<double> modell_boot = modellematrix[0][0];
-    double kriterium_boot = kriterium_final;
-    modell_alt = modell_final;
-    kriterium_alt = kriterium_final;
-    fix_ganz_komplett(modell_alt);
-    fullcond_komplett(modell_alt);
-    schaetzen(0,kriterium_alt,true,"backfitting");
-    update_bootstrap();
-
-    genoptions_mult[0]->out("\n");
-    genoptions_mult[0]->out("BEGINNING OF BOOTSTRAP:\n",true);
-    genoptions_mult[0]->out("\n");
-
-/*ofstream out("c:\\cprog\\test\\results\\modelle.txt");
-for(unsigned a=0;a<modell_alt.size();a++)
-  out << ST::doubletostring(modell_alt[a],6) << "   ";
-out << endl; */
-
-    while(bootstrap > 0)
-      {
-      bootstrap -= 1;
-      minim = minim2;
-      fertig = false;
-
-      likep_mult[0]->create_bootstrap_weights();
-
-      modellematrix.erase(modellematrix.begin(),modellematrix.end());
-      vector<vector<double> > startiteration;
-      startiteration.push_back(modell_boot);
-      modellematrix.push_back(startiteration);
-      fix_ganz_komplett(modell_boot);
-      fullcond_komplett(modell_boot);
-      modell_alt = modell_boot;
-      modell_neu = modell_boot;
-      schaetzen(0,kriterium_alt,true,"backfitting");
-      kriterium_neu = kriterium_alt;
-      steps_aktuell = 0;
-
-      if(algorithm != "coorddescent")
-        abbruch = stepfunctions();
-      else
-        abbruch = koordabstieg();
-      if(abbruch==true)
-        return true;
-
-      fix_ganz_komplett(modell_alt);
-      fullcond_komplett(modell_alt);
-      schaetzen(0,kriterium_alt,true,"backfitting");
-      update_bootstrap();
-      }
-
-    modell_alt = modell_boot;
-    kriterium_alt = kriterium_boot;
-    likep_mult[0]->set_original_response();
-    if(unconditional)
-      {
-      fullcond_z = fullcondp;
-      for(unsigned f=0;f<fullcond_z.size();f++)
-        fullcond_z[f]->set_fcnumber(f);
-      }
-    else
-      fullcond_z = fullcond_alle;
-
-    genoptions_mult[0]->out("\n");
-    genoptions_mult[0]->out("ESTIMATION RESULTS:\n",true);
-    genoptions_mult[0]->out("\n");
-//    likep_mult[0]->outresults();
-    if(unconditional)
-      {
-      for(unsigned f=0;f<fullcondp.size();f++)
-        {
-        fullcondp[f]->update_bootstrap_betamean();
-        fullcondp[f]->outresults();
-        }
-      }
-    else
-      {
-      for(unsigned f=0;f<fullcond_alle.size();f++)
-        {
-        fullcond_alle[f]->update_bootstrap_betamean();
-        fullcond_alle[f]->outresults();
-        }
-      }
+    likep_mult[0]->weight_for_all();
+    for(unsigned y=0;y<fullcond_alle.size();y++)
+      fullcond_alle[y]->set_calculate_xwx();
     }
 
-/*  if(modelaveraging == true)
+  // Files werden nicht mehr gebraucht und müssen wieder geschlossen werden!!!
+  outcriterium.close();
+  outmodels.close();
+
+  if(CI == "none")
     {
-   ST::string hilf = path + "_weights.raw";
-    ofstream outweight(hilf.strtochar());
-    fullcond_z = fullcond_alle;
-    modell_alt = modell_final;
-    compute_average(outweight);
     fullcond_z = fullcondp;
     for(i=0;i<fullcond_z.size();i++)
       fullcond_z[i]->set_fcnumber(i);
-    }    */
+    posteriormode(posttitle,false); // Problem: linearer Prädiktor bei "true" standardisiert! Hier wird zurückgerechnet!
+                                      // danach nicht mehr compute_criterion() aufrufen!!!
+    }
   else
     {
-    fullcond_z = fullcondp;
-    for(i=0;i<fullcond_z.size();i++)
-      fullcond_z[i]->set_fcnumber(i);
-//posteriormode(posttitle,true);
-//double mse = likep_mult[0]->compute_msep();
-//genoptions_mult[0]->out("MSE(absatz) = " + ST::doubletostring(mse) + "\n");
-//ST::string hilf = path + "_mse.res";
-//ofstream out(hilf.strtochar());
-//out << "MSE(absatz) = " << ST::doubletostring(mse) << endl;
-
-    if(CI == false || finelocal == true)  // bei lokalem Glättungsparameter erst mal keine Konfidenzintervalle!!!
-      {
-      if(criterion == "MSEP" || criterion == "AUC")
-        {
-        likep_mult[0]->weight_for_all();
-        for(unsigned y=0;y<fullcond_alle.size();y++)
-          fullcond_alle[y]->set_calculate_xwx();
-        }
-      posteriormode(posttitle,false); // Problem: linearer Prädiktor bei "true" standardisiert! Hier wird zurückgerechnet!
-                                      // danach nicht mehr compute_criterion() aufrufen!!!
-      }
-    else
-      {
-/*  #if defined(BORLAND_OUTPUT_WINDOW)
-      genoptions_mult[0]->out("  Calculating of confidence intervals by MCMC-techniques is not possible with this version!");
-      posteriormode(posttitle,false);
-  #elif defined(JAVA_OUTPUT_WINDOW)
-      ST::string befehl = name + ".regress " + likep_mult[0]->get_responsename() + " = ";
-      ST::string textfix = fullcond_alle[0]->get_befehl();
-      if(textfix != "" && fullcondp.size()>1)
-        befehl = befehl + textfix + " + ";
-      for(i=1;i<fullcondp.size()-1;i++)
-        befehl = befehl + fullcondp[i]->get_befehl() + " + ";
-      befehl = befehl + fullcondp[fullcondp.size()-1]->get_befehl();
-      befehl = befehl + ", constlambda ";
-      ST::string family;
-      if(likep_mult[0]->get_family() == "Gaussian")
-        {
-        double scale = likep_mult[0]->get_scale();
-        double transform = likep_mult[0]->get_trmult(0);
-        scale *= transform*transform;
-        befehl = befehl + "constscale scale=" + ST::doubletostring(scale,6);
-        family = "gaussian";
-        }
-      else if(likep_mult[0]->get_family() == "Binomial (logit link)")
-        family = "binomial";
-      else if(likep_mult[0]->get_family() == "Binomial (probit link)")
-        family = "binomialprobit";
-      else if(likep_mult[0]->get_family() == "Poisson")
-        family = "poisson";
-      befehl = befehl + " burnin=2000 step=10 iterations=12000 predict family=" + family;
-      path = befehl;
-  #endif       */
-      if(likep_mult[0]->get_scaleexisting()==true)
-        {
-        double scale = likep_mult[0]->get_scale();
-        double transform = likep_mult[0]->get_trmult(0);
-        scale *= transform*transform;
-        likep_mult[0]->set_constscale(scale);
-        }
-      for(i=1;i<fullcond_alle.size();i++)
-        fullcond_alle[i]->set_lambdaconst(modell_final[names_fixed.size()-2+i]);
-      simulate(posttitle,likep_mult[0]->get_seed(),false);
-      }
+    if(criterion == "MSEP" || criterion == "AUC")
+      posteriormode(posttitle,true);
+    abbruch = confidence_intervals(CI,modell_final,kriterium_final,fullcond_z);
+    if(abbruch == true)
+      return true;
     }
 
 //  make_tex_end(path,modell_final);
-
-  // Files müssen wieder geschlossen werden!!!
 //  outtex.close();
 
-  if(isboot == false)
-    {
-    outcriterium.close();
-    outmodels.close();
-//    outtrace.close();
-    }
-
+  // nur für mich!!!!
   // gibt Lambdas aus, damit man die richtig bestimmten Variablen zählen kann!
   ST::string zaehlername = path + "_lambdas_" + likep_mult[0]->get_responsename() + ".ascii";
   ofstream out(zaehlername.strtochar());
@@ -983,11 +845,16 @@ void STEPWISErun::schaetzen(int z, double & kriterium, bool neu, ST::string vari
   
     if(criterion != "CV5" && criterion != "CV10")
       {
-      if(possible != "valles" && possible != "vrfix" && possible != "vraus")
+      if((possible != "valles" && possible != "vrfix" && possible != "vraus")
+          || fullcond_alle[z]->is_identifiable() == true)
         fullcond_alle[0]->posteriormode_const();
       else // if(possible == "valles")  // bei Rauslassen von VC muß zugehöriger fixer Effekt upgedatet werden!
-        fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
+        {
+        vector<ST::string> help;
+        help.push_back(fullcond_alle[z]->get_datanames()[1]);
+        fullcond_alle[0]->posteriormode_single(help,
                                fullcond_alle[z]->get_data_forfixedeffects(),false);
+        }
       kriterium = compute_criterion();
       }
     else
@@ -1003,11 +870,16 @@ void STEPWISErun::schaetzen(int z, double & kriterium, bool neu, ST::string vari
         {
         likep_mult[0]->compute_cvweights(c);
         fullcond_alle[0]->set_calculate_xwx();
-        if(possible != "valles" && possible != "vrfix" && possible != "vraus")
+        if((possible != "valles" && possible != "vrfix" && possible != "vraus")
+            || fullcond_alle[z]->is_identifiable() == true)
           fullcond_alle[0]->posteriormode_const();
-        else //if(possible == "valles")  // bei Rauslassen von VC muß zugehöriger fixer Effekt upgedatet werden!
-          fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
-                                fullcond_alle[z]->get_data_forfixedeffects(),false);
+        else // if(possible == "valles")  // bei Rauslassen von VC muß zugehöriger fixer Effekt upgedatet werden!
+          {
+          vector<ST::string> help;
+          help.push_back(fullcond_alle[z]->get_datanames()[1]);
+          fullcond_alle[0]->posteriormode_single(help,
+                               fullcond_alle[z]->get_data_forfixedeffects(),false);
+          }
         kriterium += compute_criterion();
         likep_mult[0]->compute_cvweights(-1);
         fullcond_alle[0]->set_calculate_xwx();
@@ -1115,6 +987,9 @@ bool STEPWISErun::stepfunctions(void)
              modell_alt = modell_neu;
              text_alt = text_neu;
              }
+           genoptions_mult[0]->out("\n\n");
+           genoptions_mult[0]->out("\n\n");
+           genoptions_mult[0]->out("  Attention: Maximum number " + ST::inttostring(steps) + " of iterations was reached! \n");
            }
          }
        else
@@ -1895,6 +1770,8 @@ for(i=0;i<fullcondp.size();i++)
   ST::string possible = "alles";
   if(hierarchical == true)
     fullcond_alle[z]->hierarchical(possible);
+  if(possible == "valles")
+    possible = "alles";
 
   vector<FULLCOND*> fullcond_ori = fullcondp;
   unsigned pos;
@@ -2337,6 +2214,8 @@ void STEPWISErun::minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
   ST::string possible = "alles";
   if(hierarchical == true)
     fullcond_alle[z]->hierarchical(possible);
+  if(possible == "valles")
+    possible = "alles";
 
   unsigned i;
   vector<FULLCOND*> fullcond_begin = fullcondp;
@@ -2611,9 +2490,9 @@ bool STEPWISErun::koordabstieg(void)
               fertig = true;
            }
          else if(isboot == true && (minim == "adaptiv" || minim == "adap_exact" || minim == "adaptiv_golden")
-                                     && modellematrix.size()>=1 && ganze_matrix == false)
+                                     && modellematrix.size()>=2 && ganze_matrix == false)
            {
-           unsigned hilfe = modellematrix.size()-1;
+           unsigned hilfe = modellematrix.size()-2;
            if(modell_alt == modellematrix[hilfe][modellematrix[hilfe].size()-1])
               fertig = true;
            }
@@ -2819,15 +2698,14 @@ void STEPWISErun::koord_fix_leer(vector<double> & kriteriumiteration2,
       kriterium_aktuell = kriterium_neu;
     else //if(kriterium_neu > kriterium_aktuell)
       {
-      kriterium_neu = kriterium_adaptiv;
-      kriterium_aktuell = kriterium_adaptiv;
+      kriterium_neu = kriterium_aktuell;
       int c = column_for_fix(names_fixed[i]);
       vector<ST::string> name_help;
       name_help.push_back(names_fixed[i]);
       fullcond_alle[0]->posteriormode_single(name_help,datamatrix(D.getCol(c)),true);
       modell_neu[i-1] = -1;
       }
-      
+
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
       fertig = false;
     if(modell_alt[i-1] != modell_neu[i-1] && (trace == "trace_on" || trace == "trace_minim"))
@@ -2927,6 +2805,7 @@ void STEPWISErun::koord_leer_fix(vector<double> & kriteriumiteration2,
       {
       reset_fix(names_fixed[i]);
       modell_neu[i-1] = 0;
+      fullcond_alle[0]->posteriormode_const();
       }
 
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
@@ -3103,7 +2982,6 @@ void STEPWISErun::koord_factor_leer(vector<double> & kriteriumiteration2,
         kriterium_aktuell = kriterium_neu;
       else //if(kriterium_neu >= kriterium_aktuell)
         {
-        kriterium_aktuell = kriterium_adaptiv;
         fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
                                      fullcond_alle[z]->get_data_forfixedeffects(),true);
         modell_neu[z+names_fixed.size()-2] = -1;
@@ -3255,7 +3133,8 @@ void STEPWISErun::koord_leer_factor(vector<double> & kriteriumiteration2,
       for(i=0;i<names_nonp[z-1].size();i++)
         reset_fix(names_nonp[z-1][i]);
       modell_neu[z+names_fixed.size()-2] = 0;
-      fullcond_alle[z]->set_inthemodel(0);      
+      fullcond_alle[z]->set_inthemodel(0);
+      fullcond_alle[0]->posteriormode_const();
       }
 
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
@@ -3372,15 +3251,20 @@ void STEPWISErun::koord_minnonp(vector<double> & kriteriumiteration2,
           if(modell_neu[names_fixed.size()-2+i] == 0)      // noch mal überprüfen!!!
             {
             //fullcond_alle[i]->reset_effect(0);   // Nicht nötig, wegen "fullcond_einzeln"-> fullcond_alle[i] nicht in fullcondp!!!
-            if(modell_alt[names_fixed.size()-2+i] > 0)
+            if(modell_alt[names_fixed.size()-2+i] != 0)
               {
               if(hierarchical)                        // neu für VCM!  Versuch!!!
                 {
                 ST::string possible = "alles";
                 fullcond_alle[i]->hierarchical(possible);
-                if(possible == "valles" || possible == "vrfix" || possible == "vraus")
-                  fullcond_alle[i]->posteriormode_single(names_nonp[i-1],
+                if((possible == "valles" || possible == "vrfix" || possible == "vraus")
+                     && fullcond_alle[i]->is_identifiable() == false)
+                  {
+                  vector<ST::string> help;
+                  help.push_back(fullcond_alle[i]->get_datanames()[1]);
+                  fullcond_alle[i]->posteriormode_single(help,
                                    fullcond_alle[i]->get_data_forfixedeffects(),false);
+                  }
                 }
               }
             fullcond_alle[0]->posteriormode_const();
@@ -3418,7 +3302,7 @@ void STEPWISErun::koord_minnonp(vector<double> & kriteriumiteration2,
           ST::string text;
           maketext("  Trial:",modell_neu,kriterium_min,text,true,trace,false);
           }
-          
+
         kriterium_aktuell = kriterium_min;
         }
       //else
@@ -5973,13 +5857,409 @@ unsigned STEPWISErun::golden_section(unsigned & z, double & kriterium)
 // ------------- Model Averaging -----------------------------------------------
 // -----------------------------------------------------------------------------
 
+bool STEPWISErun::confidence_intervals(const ST::string & CI, const vector<double> & modell_final,
+              const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
+  {
+  bool abbruch;
+  if(CI=="MCMCselect")
+    {
+    abbruch = confidence_MCMCselect(modell_final,kriterium_final,fullcond_z);
+    }
+  else if(CI=="MCMCvariable")
+    {
+    }
+  else if(CI=="MCMCbootstrap")
+    {
+    abbruch = confidence_MCMCbootstrap(modell_final,kriterium_final,fullcond_z);
+    }
+  else if(CI=="bootstrap")
+    {
+    abbruch = confidence_bootstrap(modell_final,kriterium_final,fullcond_z);
+    }
+
+  return abbruch;
+  }
+
+
+bool STEPWISErun::confidence_MCMCselect(const vector<double> & modell_final,
+              const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
+  {
+  bool abbruch;
+  unsigned i;
+  fullcond_z = fullcondp;
+  for(i=0;i<fullcond_z.size();i++)
+    fullcond_z[i]->set_fcnumber(i);
+
+  genoptions_mult[0]->out("\n");
+  genoptions_mult[0]->out("CALCULATION OF CONFIDENCE INTERVALS STARTED:\n",true);
+  genoptions_mult[0]->out("\n");
+
+  if(likep_mult[0]->get_scaleexisting()==true)
+    {
+    double scale = likep_mult[0]->get_scale();
+    double transform = likep_mult[0]->get_trmult(0);
+    scale *= transform*transform;
+    likep_mult[0]->set_constscale(scale);
+    }
+  for(i=1;i<fullcond_alle.size();i++)
+    {
+    if(modell_final[names_fixed.size()-2+i] == -2)
+      fullcond_alle[i]->change_Korder(modell_final[names_fixed.size()-2+i]);
+    else
+      fullcond_alle[i]->set_lambdaconst(modell_final[names_fixed.size()-2+i]);
+    }
+  unsigned iterations = genoptions_mult[0]->get_iterations();
+  unsigned start = 1;
+  int seed = likep_mult[0]->get_seed();
+  abbruch = simulate(posttitle,seed,start,iterations);
+  if(abbruch == true)
+    return true;
+
+  genoptions_mult[0]->out("\n");
+  genoptions_mult[0]->out("ESTIMATION RESULTS:\n",true);
+  genoptions_mult[0]->out("\n");
+  likep_mult[0]->outresults();
+  for(unsigned f=0;f<fullcondp.size();f++)
+    {
+    fullcondp[f]->outresults();
+    }
+  return abbruch;
+  }
+
+
+bool STEPWISErun::confidence_bootstrap(const vector<double> & modell_final,
+              const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
+  {
+  unsigned samplesize_df = bootstrap + 1;
+  bool abbruch;
+  if(unconditional == true)
+   {
+   steps = 0;
+   }
+
+  isboot = true;
+  trace = "trace_off";
+  vector<double> modell_boot = modell_final;
+  double kriterium_boot = kriterium_final;
+  modell_alt = modell_final;
+  kriterium_alt = kriterium_final;
+  fix_ganz_komplett(modell_alt);
+  fullcond_komplett(modell_alt);
+  schaetzen(0,kriterium_alt,true,"backfitting");
+  update_bootstrap();
+
+  genoptions_mult[0]->out("\n");
+  genoptions_mult[0]->out("BEGINNING OF BOOTSTRAP:\n",true);
+  genoptions_mult[0]->out("\n");
+
+  while(bootstrap > 0)
+    {
+    bootstrap -= 1;
+    minim = minim2;
+    fertig = false;
+
+    likep_mult[0]->create_bootstrap_weights();
+
+    modellematrix.erase(modellematrix.begin(),modellematrix.end());
+    vector<vector<double> > startiteration;
+    startiteration.push_back(modell_boot);
+    modellematrix.push_back(startiteration);
+    fix_ganz_komplett(modell_boot);
+    fullcond_komplett(modell_boot);
+    modell_alt = modell_boot;
+    modell_neu = modell_boot;
+    schaetzen(0,kriterium_alt,true,"backfitting");
+    kriterium_neu = kriterium_alt;
+    steps_aktuell = 0;
+
+    if(algorithm != "coorddescent")
+      abbruch = stepfunctions();
+    else
+      abbruch = koordabstieg();
+    if(abbruch==true)
+      return true;
+
+    fix_ganz_komplett(modell_alt);
+    fullcond_komplett(modell_alt);
+    schaetzen(0,kriterium_alt,true,"backfitting");
+    update_bootstrap();
+    }
+
+  modell_alt = modell_boot;
+  kriterium_alt = kriterium_boot;
+
+   genoptions_mult[0]->out("\n");
+   genoptions_mult[0]->out("ESTIMATION RESULTS:\n",true);
+   genoptions_mult[0]->out("\n");
+
+   likep_mult[0]->set_original_response();
+   likep_mult[0]->update_bootstrap_betamean();
+   likep_mult[0]->outresults();
+
+  if(unconditional)
+    {
+    fullcond_z = fullcondp;
+    for(unsigned f=0;f<fullcondp.size();f++)
+      {
+      fullcondp[f]->set_fcnumber(f);
+      fullcondp[f]->update_bootstrap_betamean();
+      fullcondp[f]->outresults_df(samplesize_df);
+      fullcondp[f]->outresults();
+      }
+    }
+  else
+    {
+    fullcond_z = fullcond_alle;
+    fullcondp = fullcond_alle;
+    for(unsigned f=0;f<fullcond_alle.size();f++)
+      {
+      fullcond_alle[f]->update_bootstrap_betamean();
+      fullcond_alle[f]->outresults_df(samplesize_df);
+      fullcond_alle[f]->outresults();
+      }
+    }
+  return abbruch;
+  }
+
+
+bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
+              const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
+  {
+  unsigned samplesize_df = bootstrap + 1;
+  bool abbruch;
+  unsigned i;
+  isboot = true;
+  trace = "trace_off";
+  vector<double> modell_boot = modell_final;
+  double kriterium_boot = kriterium_final;
+  modell_alt = modell_final;
+  kriterium_alt = kriterium_final;
+  fix_ganz_komplett(modell_alt);
+  fullcond_komplett(modell_alt);
+  schaetzen(0,kriterium_alt,true,"backfitting");
+  likep_mult[0]->save_betamean();
+  for(i=1;i<fullcond_alle.size();i++)
+    {
+    fullcond_alle[i]->update_bootstrap_df();
+    fullcond_alle[i]->save_betamean();
+    }
+  fullcond_alle[0]->update_bootstrap_df();
+  fullcond_alle[0]->save_betamean();
+
+  genoptions_mult[0]->out("\n");
+  genoptions_mult[0]->out("CALCULATION OF CONFIDENCE BANDS STARTED:\n",true);
+  genoptions_mult[0]->out("\n");
+
+  // MCMC-Teil
+  int seed = likep_mult[0]->get_seed();
+  if(likep_mult[0]->get_scaleexisting()==true)
+    {
+    double scale = likep_mult[0]->get_scale();
+    double transform = likep_mult[0]->get_trmult(0);
+    scale *= transform*transform;
+    likep_mult[0]->set_constscale(scale);
+    }
+
+  vector<double> modell_mcmc = modell_alt;
+  for(i=1;i<fullcond_alle.size();i++)
+    {
+    if((modell_alt[names_fixed.size()-2+i] == -1 || modell_alt[names_fixed.size()-2+i] == -2)
+                      && fullcond_alle[i]->get_fctype() != MCMC::factor)
+      {
+      fullcond_alle[i]->change_Korder(modell_alt[names_fixed.size()-2+i]);
+      modell_mcmc[names_fixed.size()-2+i] = 100000000;
+      }
+    else if(modell_alt[names_fixed.size()-2+i] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
+      modell_mcmc[names_fixed.size()-2+i] = 100000000;
+    else
+      fullcond_alle[i]->set_lambdaconst(modell_alt[names_fixed.size()-2+i]);
+    }
+
+  fix_ganz_komplett(modell_mcmc);        // stellt "fullcondp" neu auf (für Funktionen mit lambda=-1 -> lambda=10^8)
+  fullcond_komplett(modell_mcmc);        // fullcond-Objekte für leere Funktionen sind auch enthalten.
+
+  for(i=1;i<fullcond_alle.size();i++)
+    {
+    if(modell_alt[names_fixed.size()-2+i] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
+      fullcond_alle[i]->set_lambdaconst(modell_alt[names_fixed.size()-2+i]);
+      fullcond_alle[i]->set_inthemodel(0);
+    }
+
+  unsigned iterations = genoptions_mult[0]->get_iterations();
+  unsigned startit = 1;
+  unsigned endit = double(iterations) / double(bootstrap+1);
+  unsigned itpmod = endit;
+  schaetzen(0,kriterium_alt,true,"backfitting");  // nötig, da fixe Effekte in "fix_ganz_komplett" gleich Null gesetzt werden.
+  abbruch = simulate(posttitle,seed,startit,endit);
+  fullcond_alle[0]->update_linold();
+  fullcond_alle[0]->update_linold_vc();
+  if(abbruch==true)
+    return true;
+
+  for(i=1;i<fullcond_alle.size();i++)
+    {
+    if((modell_final[names_fixed.size()-2+i] == -1 || modell_final[names_fixed.size()-2+i] == -2)
+                   && fullcond_alle[i]->get_fctype() != MCMC::factor)
+      {
+      fullcond_alle[i]->undo_Korder();
+      fullcond_alle[i]->set_lambdaconst(modell_final[names_fixed.size()-2+i]);
+      }
+    }
+
+  endit += itpmod;
+  startit += itpmod;
+
+  while(bootstrap > 0)
+    {
+    bootstrap -= 1;
+    minim = minim2;
+    fertig = false;
+
+    // neues Modell selektieren
+    likep_mult[0]->create_bootstrap_weights();
+
+    modellematrix.erase(modellematrix.begin(),modellematrix.end());
+    vector<vector<double> > startiteration;
+    startiteration.push_back(modell_boot);
+    modellematrix.push_back(startiteration);
+    fix_ganz_komplett(modell_boot);
+    fullcond_komplett(modell_boot);
+    modell_alt = modell_boot;
+    modell_neu = modell_boot;
+    likep_mult[0]->undo_constscale();
+
+    /*if(likep_mult[0]->get_family() != "Gaussian")
+      {
+      ////likep_mult[0]->set_scale(0.1);
+      //fullcondp[0]->set_effect_zero();
+      likep_mult[0]->reset();
+      for(i=0;i<fullcond_alle.size();i++)
+        fullcond_alle[i]->reset();
+      fullcond_alle[0]->setbeta(fullcond_alle[0]->get_nrpar(),1,0);
+      }  */
+
+    schaetzen(0,kriterium_alt,true,"backfitting");
+    kriterium_neu = kriterium_alt;
+    steps_aktuell = 0;
+
+    if(algorithm != "coorddescent")
+      abbruch = stepfunctions();
+    else
+      abbruch = koordabstieg();
+    if(abbruch==true)
+      return true;
+
+    fix_ganz_komplett(modell_alt);
+    fullcond_komplett(modell_alt);
+    likep_mult[0]->set_original_response();
+    schaetzen(0,kriterium_alt,true,"backfitting");
+    for(i=0;i<fullcond_alle.size();i++)
+      {
+      fullcond_alle[i]->update_bootstrap_df();
+      }
+
+  // MCMC-Teil
+    seed += 1;
+    if(likep_mult[0]->get_scaleexisting()==true)
+      {
+      double scale = likep_mult[0]->get_scale();
+      double transform = likep_mult[0]->get_trmult(0);
+      scale *= transform*transform;
+      likep_mult[0]->set_constscale(scale);
+      }
+
+    vector<double> modell_mcmc = modell_alt;
+
+    for(i=1;i<fullcond_alle.size();i++)
+      {
+      if((modell_alt[names_fixed.size()-2+i] == -1 || modell_alt[names_fixed.size()-2+i] == -2)
+                             && fullcond_alle[i]->get_fctype() != MCMC::factor)
+        {
+        fullcond_alle[i]->change_Korder(modell_alt[names_fixed.size()-2+i]);
+        modell_mcmc[names_fixed.size()-2+i] = 100000000;
+        }
+      else if(modell_alt[names_fixed.size()-2+i] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
+        modell_mcmc[names_fixed.size()-2+i] = 100000000;
+      else
+        fullcond_alle[i]->set_lambdaconst(modell_alt[names_fixed.size()-2+i]);
+      }
+
+    fix_ganz_komplett(modell_mcmc);
+    fullcond_komplett(modell_mcmc);
+
+    for(i=1;i<fullcond_alle.size();i++)
+      {
+      if(modell_alt[names_fixed.size()-2+i] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
+        {
+        fullcond_alle[i]->set_lambdaconst(modell_alt[names_fixed.size()-2+i]);
+        fullcond_alle[i]->set_inthemodel(0);
+        }
+      }
+
+    // neu schätzen, da fixe Effekte in "fix_ganz_komplett" gleich Null gesetzt werden.
+    schaetzen(0,kriterium_alt,true,"backfitting");
+    // MCMC-Simulation
+    abbruch = simulate(posttitle,seed,startit,endit);
+    if(abbruch==true)
+      return true;
+    // rechnet die Zentrierungskonstanten zum linearen Prädiktor
+    fullcond_alle[0]->update_linold();
+    fullcond_alle[0]->update_linold_vc();
+
+    for(i=1;i<fullcond_alle.size();i++)
+      {
+      if((modell_alt[names_fixed.size()-2+i] == -1 || modell_alt[names_fixed.size()-2+i] == -2)
+                   && fullcond_alle[i]->get_fctype() != MCMC::factor)
+        {
+        fullcond_alle[i]->undo_Korder();
+        fullcond_alle[i]->set_lambdaconst(modell_alt[names_fixed.size()-2+i]);
+        }
+      }
+
+    endit += itpmod;
+    startit += itpmod;
+    }
+
+  modell_alt = modell_boot;
+  kriterium_alt = kriterium_boot;
+  fix_ganz_komplett(modell_alt);
+  fullcond_komplett(modell_alt);
+  likep_mult[0]->set_original_response();
+  //schaetzen(0,kriterium_alt,true,"backfitting");
+
+  fullcondp = fullcond_alle;
+  for(i=1;i<fullcond_alle.size();i++)
+    {
+    if(fullcond_alle[i]->get_fctype() == MCMC::factor)
+      fullcondp.erase(fullcondp.begin()+1,fullcondp.begin()+2);
+    }
+  fullcond_z = fullcondp;
+  for(i=0;i<fullcond_z.size();i++)
+    fullcond_z[i]->set_fcnumber(i);
+
+  genoptions_mult[0]->out("\n");
+  genoptions_mult[0]->out("ESTIMATION RESULTS:\n",true);
+  genoptions_mult[0]->out("\n");
+  likep_mult[0]->update_bootstrap_betamean();
+  likep_mult[0]->outresults();
+  for(unsigned f=0;f<fullcond_alle.size();f++)
+    {
+    fullcond_alle[f]->update_bootstrap_betamean();
+    fullcond_alle[f]->outresults_df(samplesize_df);
+    fullcond_alle[f]->outresults();
+    }
+
+  return abbruch;
+  }
+
+
 void STEPWISErun::update_bootstrap(void)
   {
   unsigned i;
   genoptions_mult[0]->update_bootstrap();
 
   if(likepexisting)
-    likep_mult[0]->update_bootstrap();        // DO NOT CHANGE ORDER !!!!
+    likep_mult[0]->update_bootstrap();
 
   if(unconditional)
     {
@@ -5993,11 +6273,159 @@ void STEPWISErun::update_bootstrap(void)
     }
   fullcond_alle[0]->update_bootstrap(unconditional);
 
-  //if(likepexisting)
-  //  likep_mult[0]->update_predict_bootstrap();
+  if(likepexisting)
+    likep_mult[0]->update_predict_bootstrap(bootstrap);    //likep_mult[0]->update_predict_bootstrap();
   }
 
+
+bool STEPWISErun::simulate(const vector<ST::string> & header, const int & seed,
+                           const unsigned & startit, const unsigned & endit)
+  {
+  unsigned i,j;
+  unsigned nrmodels = genoptions_mult.size();
+  bool errors=false;
+  i=0;
+  while( (i<nrmodels) && (errors==false) )
+    {
+    errors = checkerrors(likep_mult[i],fullcondp,begin[i],end[i]);
+    i++;
+    }
+
+  if (errors==false)
+  {
+  unsigned it;
+  //unsigned iterations = genoptions_mult[0]->get_iterations();
+
+  #if defined(MICROSOFT_VISUAL)
+    {
+
+    }
+  #elif!defined(__BUILDING_GNU)
+    {
+    randomize();
+    }
+  #else
+    {
+    srand(1);
+    }
+  #endif
+
+  if(seed >= 0)
+    srand(seed);
+
+  for (it=startit;it<=endit;it++)
+    {
+
+    for(i=0;i<nrmodels;i++)
+      {
+      genoptions_mult[nrmodels-1-i]->update();
+
+      if (likepexisting)
+        likep_mult[nrmodels-1-i]->update();        // DO NOT CHANGE ORDER !!!!
+
+      for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+        {
+        fullcondp[j]->update();
+        } // end: for(j=0;j<nrfullcond;j++)
+
+      if (likepexisting)
+        likep_mult[nrmodels-1-i]->update_predict();
+      }
+
+
+#if defined(BORLAND_OUTPUT_WINDOW)
+    Application->ProcessMessages();
+
+    if (Frame->stop)
+      {
+//      genoptions->out("USER BREAK\n");
+      break;
+      }
+
+    if (Frame->pause)
+      {
+      genoptions_mult[0]->out("\n");
+      genoptions_mult[0]->out("SIMULATION PAUSED\n");
+      genoptions_mult[0]->out("Click CONTINUE to proceed\n");
+      genoptions_mult[0]->out("\n");
+
+      while (Frame->pause)
+        {
+        Application->ProcessMessages();
+        }
+
+      genoptions_mult[0]->out("SIMULATION CONTINUED\n");
+      genoptions_mult[0]->out("\n");
+      }
+#elif defined(JAVA_OUTPUT_WINDOW)
+      bool stop = genoptions_mult[0]->adminb_p->breakcommand();
+      if(stop)
+        break;
+#endif
+
+    } // end: for (i=1;i<=genoptions->iterations;i++)
+
+
+#if defined(BORLAND_OUTPUT_WINDOW)
+    if (!Frame->stop)
+#elif defined(JAVA_OUTPUT_WINDOW)
+    if (!genoptions_mult[0]->adminb_p->get_stop())
+#endif
+      {
+      return false;
+      } // end: if Frame->stop
+
+#if defined(BORLAND_OUTPUT_WINDOW)
+    else
+      {
+      genoptions_mult[0]->out("\n");
+      genoptions_mult[0]->out("SIMULATION TERMINATED BY USER BREAK\n");
+      genoptions_mult[0]->out("\n");
+      genoptions_mult[0]->out("Estimation results: none\n");
+      genoptions_mult[0]->out("\n");
+
+      for(i=0;i<nrmodels;i++)
+        {
+        if (likepexisting)
+          likep_mult[i]->reset();
+        }
+
+      for(j=0;j<fullcondp.size();j++)
+        fullcondp[j]->reset();
+
+      return true;
+      }
+#elif defined(JAVA_OUTPUT_WINDOW)
+    else
+      {
+      genoptions_mult[0]->out("\n");
+      genoptions_mult[0]->out("Estimation results: none\n");
+      genoptions_mult[0]->out("\n");
+
+
+      for(i=0;i<nrmodels;i++)
+        {
+        if (likepexisting)
+          likep_mult[i]->reset();
+        }
+
+      for(j=0;j<fullcondp.size();j++)
+        fullcondp[j]->reset();
+
+      return true;
+      }
+#endif
+
+  } // end: no errors
+
+  return true;
+
+  }
+
+
 }
+
+
 
 
 

@@ -35,6 +35,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   datamatrix linold_rest;
   vector<ST::string> names_rest;
   vector<ST::string> datanames_fixed_only;
+  bool conditional;
 
   vector<double> diff_categories;
   double reference;
@@ -45,12 +46,24 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   bool changed_data;
   bool changingweight;
 
-  datamatrix X1;                   // (X'WX)^-0.5
+  datamatrix X1;
   datamatrix X2;
+
+  datamatrix X1root;     // für MCMC: (X'WX)^-0.5
+  datamatrix X1X;        // für MCMC: Gauss: (X'WX)^-1X'W; Nicht-Gauss: (X'WX)
 
   datamatrix help;
 
-  datamatrix mu1;
+  datamatrix mu1;       // für MCMC: Gauss: y-eta; Nicht-Gauss: X'Wytilde
+
+  ST::string utype;    // gauss oder nongauss
+
+  datamatrix proposal;       // für MCMC - nongauss
+  datamatrix weightiwls;
+  datamatrix diff;
+  datamatrix tildey;
+  datamatrix mode;
+  datamatrix linmode;
 
   vector<vector<double> > beta_average;
   vector<double> betas_aktuell;
@@ -121,6 +134,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void update_linold(void); 
 
+  void update_linold_vc(void); 
+
   void posteriormode_intercept(double & m);
 
   bool posteriormode(void);
@@ -188,7 +203,27 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void update_bootstrap(const bool & uncond=false);
 
+  void update_bootstrap_df(void);
+
+  void save_betamean(void);
+    
   void update_bootstrap_betamean(void);
+
+  void outresults_df(unsigned & size);
+
+  void update(void);
+
+  void update_gauss(void);
+
+  void update_nongauss(void);
+
+  void compute_XWtildey(datamatrix * linb);
+
+  void set_utype(void)
+    {
+    utype = "nongauss";
+    }
+
 
 // Für ganze Hatmatrix (REML)
 

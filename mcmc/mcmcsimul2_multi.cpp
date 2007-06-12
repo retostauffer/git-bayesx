@@ -250,7 +250,7 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
         const bool & fineloc, const int & boot, const bool & uncond,
         const datamatrix & Da, const vector<ST::string> & modelvar,
         const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
-        const bool & CI, bool & hier, const double & prop, const bool & minib)
+        const ST::string & CI, bool & hier, const double & prop, const bool & minib)
   {
 
   D = Da;
@@ -330,8 +330,8 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
   options_text(number,startfix,startindex,name);
 
   ST::string path_tex = path + "_model_summary.tex";
-  //outtex.open(path_tex.strtochar());
-  //make_graphics(name,startindex);
+  outtex.open(path_tex.strtochar());
+  make_graphics(name,startindex);
 
   bool first = true;
   bool abbruch = false;
@@ -399,7 +399,7 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
   if(bootstrap > 0)
      genoptions_mult[0]->out("  NOTE: This option is not yet available for this response distribution!");
 
-  if(CI == true)
+  if(CI != "none")
      genoptions_mult[0]->out("  NOTE: This option is not available with this response distribution!");
 
   fullcond_z = fullcondp;
@@ -415,10 +415,10 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
   posteriormode(posttitle,false); // Problem: linearer Pr?diktor bei "true" standardisiert! Hier wird zur?ckgerechnet!
                                     // danach nicht mehr compute_criterion() aufrufen!!!
 
-  //make_tex_end(path,modell_final);
+  make_tex_end(path,modell_final);
 
   // Files m?ssen wieder geschlossen werden!!!
-  //outtex.close();
+  outtex.close();
   outcriterium.close();
   outmodels.close();
 
@@ -460,7 +460,7 @@ bool STEPMULTIrun::single_stepwise(const vector<unsigned> & start,
 
     for(i=0;i<anz_fullcond-1;i++)
        {
-       double lambda = lambdavec[i][start[katje*(anz_fullcond-1)+i]];
+       double lambda = lambdavec[katje*(anz_fullcond-1) + i][start[katje*(anz_fullcond-1)+i]];
        modell_neu.push_back(lambda);
        }
     }
@@ -906,11 +906,16 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
   
     if(criterion != "CV5" && criterion != "CV10")
       {
-      if(possible != "valles" && possible != "vrfix" && possible != "vraus")
+      if((possible != "valles" && possible != "vrfix" && possible != "vraus")
+          || fullcond_alle[z]->is_identifiable() == true)
         fullcond_alle[ind_fullc]->posteriormode_const();
-      else //if(possible == "valles")  // bei Rauslassen von VC mu? zugeh?riger fixer Effekt upgedatet werden!
-        fullcond_alle[ind_fullc]->posteriormode_single(names_nonp[ind_name],
+      else // if(possible == "valles")  // bei Rauslassen von VC muß zugehöriger fixer Effekt upgedatet werden!
+        {
+        vector<ST::string> help;
+        help.push_back(fullcond_alle[z]->get_datanames()[1]);
+        fullcond_alle[ind_fullc]->posteriormode_single(help,
                                fullcond_alle[z]->get_data_forfixedeffects(),false);
+        }
       kriterium = compute_criterion();
       }
     else
@@ -926,11 +931,16 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
         {
         likep_mult[0]->compute_cvweights(c);
         fullcond_alle[0]->set_calculate_xwx();
-        if(possible != "valles" && possible != "vrfix" && possible != "vraus")
+        if((possible != "valles" && possible != "vrfix" && possible != "vraus")
+            || fullcond_alle[z]->is_identifiable() == true)
           fullcond_alle[ind_fullc]->posteriormode_const();
-        else //if(possible == "valles")  // bei Rauslassen von VC mu? zugeh?riger fixer Effekt upgedatet werden!
-          fullcond_alle[ind_fullc]->posteriormode_single(names_nonp[ind_name],
+        else // if(possible == "valles")  // bei Rauslassen von VC muß zugehöriger fixer Effekt upgedatet werden!
+          {
+          vector<ST::string> help;
+          help.push_back(fullcond_alle[z]->get_datanames()[1]);
+          fullcond_alle[ind_fullc]->posteriormode_single(help,
                                 fullcond_alle[z]->get_data_forfixedeffects(),false);
+          }
         kriterium += compute_criterion();
         likep_mult[0]->compute_cvweights(-1);
         fullcond_alle[0]->set_calculate_xwx();
@@ -1893,6 +1903,8 @@ void STEPMULTIrun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, dou
   ST::string possible = "alles";
   if(hierarchical == true)
     fullcond_alle[z]->hierarchical(possible);
+  if(possible == "valles")
+    possible = "alles";
 
   vector<FULLCOND*> fullcond_ori = fullcondp;
   unsigned pos;
@@ -2317,6 +2329,8 @@ void STEPMULTIrun::minexact_nonp_fix(unsigned & z, vector<double> & krit_fkt,
   ST::string possible = "alles";
   if(hierarchical == true)
     fullcond_alle[z]->hierarchical(possible);
+  if(possible == "valles")
+    possible = "alles";
 
   unsigned ind_name = z - katje*anz_fullcond - 1;
   unsigned ind_fullc = katje*anz_fullcond;
@@ -2613,6 +2627,9 @@ bool STEPMULTIrun::koordabstieg(void)
              modell_alt = modell_neu;
              text_alt = text_neu;
              }
+           genoptions_mult[0]->out("\n\n");
+           genoptions_mult[0]->out("\n\n");
+           genoptions_mult[0]->out("  Attention: Maximum number " + ST::inttostring(steps) + " of iterations was reached! \n");
            }
          }
        else
@@ -2784,8 +2801,6 @@ void STEPMULTIrun::koord_fix_leer(vector<double> & kriteriumiteration2,
       kriterium_aktuell = kriterium_neu;
     else //if(kriterium_neu > kriterium_aktuell)
       {
-      kriterium_neu = kriterium_adaptiv;
-      kriterium_aktuell = kriterium_adaptiv;
       int c = column_for_fix(names_fixed[ind_name]);
       vector<ST::string> name_help;
       name_help.push_back(names_fixed[ind_name]);
@@ -2896,6 +2911,7 @@ void STEPMULTIrun::koord_leer_fix(vector<double> & kriteriumiteration2,
       {
       reset_fix(names_fixed[ind_name]);
       modell_neu[i-1] = 0;
+      fullcond_alle[ind_fullc]->posteriormode_const();      
       }
 
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
@@ -3079,7 +3095,6 @@ void STEPMULTIrun::koord_factor_leer(vector<double> & kriteriumiteration2,
         kriterium_aktuell = kriterium_neu;
       else //if(kriterium_neu >= kriterium_aktuell)
         {
-        kriterium_aktuell = kriterium_adaptiv;
         fullcond_alle[ind_fullc]->posteriormode_single(names_nonp[ind_name],
                                      fullcond_alle[z]->get_data_forfixedeffects(),true);
         modell_neu[ind_mod] = -1;
@@ -3234,7 +3249,8 @@ void STEPMULTIrun::koord_leer_factor(vector<double> & kriteriumiteration2,
       for(i=0;i<names_nonp[ind_name].size();i++)
         reset_fix(names_nonp[ind_name][i]);
       modell_neu[ind_mod] = 0;
-      fullcond_alle[z]->set_inthemodel(0);      
+      fullcond_alle[z]->set_inthemodel(0);
+      fullcond_alle[ind_fullc]->posteriormode_const();      
       }
 
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
@@ -3345,15 +3361,20 @@ void STEPMULTIrun::koord_minnonp(vector<double> & kriteriumiteration2,
           if(modell_neu[ind_mod] == 0)      // noch mal ?berpr?fen!!!
             {
             //fullcond_alle[i]->reset_effect(0);   // Nicht n?tig, wegen "fullcond_einzeln"-> fullcond_alle[i] nicht in fullcondp!!!
-            if(modell_alt[ind_mod] > 0)
+            if(modell_alt[ind_mod] != 0)
               {
               if(hierarchical)                        // neu f?r VCM!  Versuch!!!
                 {
                 ST::string possible = "alles";
                 fullcond_alle[i]->hierarchical(possible);
-                if(possible == "valles" || possible == "vrfix" || possible == "vraus")
-                  fullcond_alle[i]->posteriormode_single(names_nonp[i-1],
+                if((possible == "valles" || possible == "vrfix" || possible == "vraus")
+                     && fullcond_alle[i]->is_identifiable() == false)
+                  {
+                  vector<ST::string> help;
+                  help.push_back(fullcond_alle[i]->get_datanames()[1]);
+                  fullcond_alle[ind_fullc]->posteriormode_single(help,
                                    fullcond_alle[i]->get_data_forfixedeffects(),false);
+                  }
                 }
               }
             fullcond_alle[ind_fullc]->posteriormode_const();

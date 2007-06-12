@@ -89,9 +89,25 @@ const FULLCOND_random_stepwise & FULLCOND_random_stepwise::
   }
 
 
+void FULLCOND_random_stepwise::set_nofixed(bool fix)
+  {
+  FULLCOND::set_nofixed(fix);
+
+  if(!nofixed && identifiable)
+    {
+    includefixed = true;
+    setbeta(beta.rows()+1,1,0);
+    }
+
+  nrpar = beta.rows();
+  }
+
+
 bool FULLCOND_random_stepwise::posteriormode(void)
   {
   unsigned n = nrpar;
+  if (includefixed)
+    n = nrpar-1;
 
   update_linpred(false);
 
@@ -126,12 +142,28 @@ bool FULLCOND_random_stepwise::posteriormode(void)
   else
     {
     double * datap = data.getV();
-    for(i=0;i<n;i++,workmuy++,++itbeg,++itend)
+    if(includefixed)
       {
-      *workmuy = 0;
-      for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
+      double ms = beta(nrpar-1,0);
+      likep->set_linpredp_current(column);
+      for (i=0;i<n;i++,workmuy++,++itbeg,++itend)
         {
-        *workmuy+= likep->get_workingres(*workindex2)* (*datap);
+        *workmuy = 0;
+        for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
+          *workmuy += likep->get_workingres(*workindex2)* (*datap);
+
+        *workmuy+= lambda* ms;
+        }
+      }
+    else
+      {
+      for(i=0;i<n;i++,workmuy++,++itbeg,++itend)
+        {
+        *workmuy = 0;
+        for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
+          {
+          *workmuy+= likep->get_workingres(*workindex2)* (*datap);
+          }
         }
       }
     }
@@ -147,7 +179,7 @@ bool FULLCOND_random_stepwise::posteriormode(void)
     *workbeta = (*workmuy)/(*workXX+lambda);
     }
 
-  if (randomslope && center)
+  if (randomslope && (center || includefixed))
     {
     double * workbeta = beta.getV();
     double sum=0;
@@ -162,7 +194,10 @@ bool FULLCOND_random_stepwise::posteriormode(void)
     for (i=0;i<n;i++,workbeta++)
       *workbeta -= intercept;
 
-    update_fix_effect(intercept);
+    if(includefixed)
+      beta(nrpar-1,0) = intercept;
+    else
+      update_fix_effect(intercept);
     intercept = 0.0;
     }
 
@@ -181,17 +216,17 @@ void FULLCOND_random_stepwise::update_fix_effect(double & intercept)
   {
   bool raus = false;
   unsigned j = 1;
-  ST::string name_richtig = datanames[0];
+  ST::string name_richtig = datanames[1];  // (VC alt) 0
   while(j<fcconst->get_datanames().size() && raus==false)
      {
-     if(fcconst->get_datanames()[j] == datanames[0])
+     if(fcconst->get_datanames()[j] == datanames[1])  // (VC alt) 0
         {
         raus = true;
         }
-     if(fcconst->get_datanames()[j] == (datanames[0]+"_1"))
+     if(fcconst->get_datanames()[j] == (datanames[1]+"_1"))   // (VC alt) 0
         {
         raus = true;
-        name_richtig = datanames[0] + "_1";
+        name_richtig = datanames[1] + "_1";     // (VC alt) 0
         }
      j = j + 1;
      }
@@ -247,13 +282,16 @@ void FULLCOND_random_stepwise::create_weight(datamatrix & w)
   {
   if(!spatialtotal)
     {
+    unsigned n = nrpar;
+    if (includefixed)
+      n = nrpar-1;
+
     vector<unsigned>::iterator itbeg = posbeg.begin();
     vector<unsigned>::iterator itend = posend.begin();
     int * workindex = index.getV();
     unsigned i;
-
     unsigned j;
-    for(i=0;i<nrpar;i++,++itbeg,++itend)
+    for(i=0;i<n;i++,++itbeg,++itend)
       {
       if(*itbeg != -1)
         {
@@ -413,6 +451,8 @@ double FULLCOND_random_stepwise::compute_df(void)
           }
         double * workXX=XX.getV();
         unsigned n = nrpar;
+        if(includefixed)
+          n = nrpar - 1;
 
         if(!identifiable)
           {
@@ -436,6 +476,8 @@ double FULLCOND_random_stepwise::compute_df(void)
           {
           for(i=0;i<n;i++,workXX++)
             df += (*workXX)/(*workXX+lambda);
+          if(includefixed)
+            df += 1;
           }
 
         df_lambdaold1 = df;
@@ -471,7 +513,7 @@ ST::string FULLCOND_random_stepwise::get_effect(void)
   ST::string h;
 
   if(randomslope)
-    h = datanames[0] + "*" + datanames[1];
+    h = datanames[1] + "*" + datanames[0];   // (VC alt) 0 - 1
   else
     h = datanames[0];
 
@@ -495,8 +537,8 @@ void FULLCOND_random_stepwise::init_names(const vector<ST::string> & na)
       }
     else
       {
-      ST::string helpname1 = na[1].insert_string_char(charh,stringh);
-      ST::string helpname2 = na[0].insert_string_char(charh,stringh);
+      ST::string helpname1 = na[0].insert_string_char(charh,stringh);     // (VC alt) 1
+      ST::string helpname2 = na[1].insert_string_char(charh,stringh);     // (VC alt) 0
       term_symbolic = "f_{" +  helpname1 + "}("+helpname1+") \\cdot "
                         + helpname2;
       }
@@ -530,12 +572,7 @@ void FULLCOND_random_stepwise::reset_effect(const unsigned & pos)
 
 void FULLCOND_random_stepwise::update_bootstrap(const bool & uncond)
   {
-  if(optionsp->get_samplesize()==1)
-    {
-    ST::string path = samplepath.substr(0,samplepath.length()-4)+"_df.raw";
-    fc_df = FULLCOND(optionsp,datamatrix(1,1),"title?",1,1,path);
-    fc_df.setflags(MCMC::norelchange | MCMC::nooutput);
-    }
+  update_bootstrap_df();
 
   datamatrix betaold = beta;
 
@@ -543,10 +580,14 @@ void FULLCOND_random_stepwise::update_bootstrap(const bool & uncond)
     {
     bool raus = false;
     unsigned j = 1;
-    ST::string name_richtig = datanames[0];
+    ST::string name_richtig;
+    if(!randomslope)
+      name_richtig = datanames[0];
+    else
+      name_richtig = datanames[1]; // (VC alt) 0
     while(j<fcconst->get_datanames().size() && raus==false)
       {
-      if(fcconst->get_datanames()[j] == datanames[0])
+      if(fcconst->get_datanames()[j] == name_richtig)
         raus = true;
       j = j + 1;
       }
@@ -570,31 +611,106 @@ void FULLCOND_random_stepwise::update_bootstrap(const bool & uncond)
     workbeta = beta.getV();
 
     FULLCOND::update_bootstrap();
-    fc_df.setbetavalue(0,0,-1);
-    fc_df.update_bootstrap();
     }
   else if(inthemodel==false && fixornot==false)
     {
     beta = datamatrix(nrpar,1,0);
     FULLCOND::update_bootstrap();
-    fc_df.setbetavalue(0,0,0);
-    fc_df.update_bootstrap();
     }
   else
     {
     FULLCOND::update_bootstrap();
-    fc_df.setbetavalue(0,0,lambda);
-    fc_df.update_bootstrap();
     }
   beta = betaold;
   }
 
 
+void FULLCOND_random_stepwise::update_bootstrap_df(void)
+  {
+  if(optionsp->get_samplesize()<=1)
+    {
+    ST::string path = samplepath.substr(0,samplepath.length()-4)+"_df.raw";
+    fc_df = FULLCOND(optionsp,datamatrix(1,1),"title?",1,1,path);
+    fc_df.setflags(MCMC::norelchange | MCMC::nooutput);
+    }
+  if(fixornot==true)
+    {
+    fc_df.setbetavalue(0,0,-1);
+    fc_df.update_bootstrap_df();
+    }
+  else if(inthemodel==false && fixornot==false)
+    {
+    fc_df.setbetavalue(0,0,0);
+    fc_df.update_bootstrap_df();
+    }
+  else
+    {
+    fc_df.setbetavalue(0,0,lambda);
+    fc_df.update_bootstrap_df();
+    }
+  }
+
+
+void FULLCOND_random_stepwise::save_betamean(void)
+  {
+  datamatrix betaold = beta;
+
+  if(fixornot==true)
+    {
+    bool raus = false;
+    unsigned j = 1;
+    ST::string name_richtig;
+    if(!randomslope)
+      name_richtig = datanames[0];
+    else
+      name_richtig = datanames[1];  // (VC alt) 0
+    while(j<fcconst->get_datanames().size() && raus==false)
+      {
+      if(fcconst->get_datanames()[j] == name_richtig)
+        raus = true;
+      j = j + 1;
+      }
+    unsigned index_fix = j-1;
+    double fix = fcconst->getbeta(index_fix,0);
+    unsigned i;
+    double * workbeta = beta.getV();
+    vector<unsigned>::iterator itbeg = posbeg.begin();
+    vector<unsigned>::iterator itend = posend.begin();
+    //int * workindex = index2.getV();
+    //int k;
+    for(i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
+      {
+      if(*itbeg != -1)
+        {
+        *workbeta = fix;
+        //for(k=*itbeg;k<=*itend;k++)
+        //  workindex++;
+        }
+      }
+    workbeta = beta.getV();
+
+    FULLCOND::save_betamean();
+    }
+  else if(inthemodel==false && fixornot==false)
+    {
+    beta = datamatrix(nrpar,1,0);
+    FULLCOND::save_betamean();
+    }
+  else
+    {
+    FULLCOND::save_betamean();
+    }
+  beta = betaold;
+  }
+
 void FULLCOND_random_stepwise::update_bootstrap_betamean(void)
   {
   FULLCOND::update_bootstrap_betamean();
   FULLCOND::setflags(MCMC::norelchange);
+  }
 
+void FULLCOND_random_stepwise::outresults_df(unsigned & size)
+  {
   fc_df.update_bootstrap_betamean();
   //fc_df.outresults();
   double * workmean = fc_df.get_betameanp();
@@ -609,8 +725,8 @@ void FULLCOND_random_stepwise::update_bootstrap_betamean(void)
 // Häufigkeitstabelle:
 
   //samplestream.close();
-  datamatrix sample(optionsp->get_samplesize(),1);
-  fc_df.readsample(sample,0);
+  datamatrix sample(size,1);
+  fc_df.readsample_df(sample,0);
   unsigned i;
 
   vector<unsigned> number;
@@ -680,6 +796,225 @@ void FULLCOND_random_stepwise::update_bootstrap_betamean(void)
   }
 
 
+void FULLCOND_random_stepwise::update(void)
+  {
+  if(lambda==0)
+    {
+    beta = datamatrix(beta.rows(),beta.cols(),0);
+    FULLCOND_random::update();
+    }
+  else if(lambda==1000000000 && randomslope && identifiable && !includefixed)
+    {
+    update_linpred(false);
+    unsigned i;
+    double slope = 0;
+    double xwx = 0;
+    double xwy = 0;
+    double * wresp = likep->get_tildey().getV();
+    double * wlin = likep->get_linearpred().getV();
+    double * wdat = data_forfixed.getV();
+    double * workw = likep->get_weightiwls().getV();
+    for(i=0;i<data_forfixed.rows();i++,wresp++,wlin++,wdat++,workw++)
+      {
+      xwx += *wdat * *wdat * *workw;
+      xwy += *wdat * *workw * (*wresp - *wlin);
+      }
+    xwx = 1/xwx;
+    slope = sqrt(likep->get_scale(column)) * sqrt(xwx) * rand_normal();
+    slope += xwx * xwy;
+    double * workbeta = beta.getV();
+    vector<unsigned>::iterator itbeg = posbeg.begin();
+    vector<unsigned>::iterator itend = posend.begin();
+    for(i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
+      {
+      if(*itbeg != -1)
+        {
+        *workbeta = slope;
+        }
+      }
+    update_linpred(true);
+    FULLCOND_random::update();
+    }
+  else
+    {
+    update_gauss();
+    }
+  }
+
+
+void FULLCOND_random_stepwise::update_gauss(void)
+  {
+  double var;
+  double m;
+  unsigned i,j;
+  unsigned n = nrpar;
+  if(randomslope && includefixed)
+    n = nrpar-1;
+/*  if(randomslope && !identifiable)
+    {
+    includefixed = true;
+    n = nrpar;
+    nrpar += 1;
+    datamatrix betaold = beta;
+    beta = datamatrix(nrpar,1,0);
+    double * wold = betaold.getV();
+    double * wnew = beta.getV();
+    for(i=0;i<n;i++,wold++,wnew++)
+      *wnew = *wold;
+
+  //bool raus = false;
+  //unsigned j = 1;
+  //ST::string name_richtig = datanames[1];  // (VC alt) 0
+  //while(j<fcconst->get_datanames().size() && raus==false)
+  //   {
+  //   if(fcconst->get_datanames()[j] == datanames[1] || fcconst->get_datanames()[j] == (datanames[1]+"_1"))  // (VC alt) 0
+  //      raus = true;
+  //   j = j + 1;
+  //   }
+  //*wnew = fcconst->getbeta(j-1,0);
+
+    } */
+
+  if (optionsp->get_nriter()==1 || changingweight)
+    compute_XWX(likep->get_weight(),0);
+
+  sigma2 = likep->get_scale(column)/lambda;  // nur kontantes Lambda
+  double sqrtscale = sqrt(likep->get_scale(column));
+  update_linpred(false);
+
+  datamatrix mu = datamatrix(index.rows(),1,0);
+  // nicht verändern wegen SUR-Modellen
+  likep->compute_respminuslinpred(mu,column);
+
+  vector<unsigned>::iterator itbeg = posbeg.begin();
+  vector<unsigned>::iterator itend = posend.begin();
+  double * workbeta = beta.getV();
+
+  int * workindex2 = index2.getV();
+  double * workmuy = muy.getV();
+  double * mup = mu.getV();
+  likep->set_weightp();
+
+  if (!randomslope)
+    {
+    for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
+      {
+      *workmuy = 0;
+      for(j=*itbeg;j<=*itend;j++,workindex2++)
+        {
+        mup += *workindex2;
+        *workmuy+= likep->get_weight(*workindex2)* *mup;
+        }
+      }
+    }
+  else
+    {
+    double * datap = data.getV();
+    for(i=0;i<n;i++,workmuy++,++itbeg,++itend)
+      {
+      *workmuy = 0;
+      for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
+        {
+        mup += *workindex2;
+        *workmuy+= likep->get_weight(*workindex2)* (*mup) * (*datap);
+        }
+      if (includefixed)
+        *workmuy += beta(n,0)*lambda;
+      }
+    }
+
+  workbeta = beta.getV();
+  workmuy = muy.getV();
+  double * workXX = XX.getV();
+  for(i=0;i<n;i++,workbeta++,workmuy++,workXX++)
+    {
+    var = 1.0/(*workXX  + lambda);
+    m = var * *workmuy;
+    *workbeta = m + sqrtscale*sqrt(var)*rand_normal();
+    }
+
+  if(randomslope && (includefixed || center))
+    {
+    workbeta = beta.getV();
+    double s=0;
+    for (i=0;i<n;i++,workbeta++)
+      s += *workbeta;
+    s /= double(n);
+
+    if(includefixed)
+      {
+      double v = sigma2/double(nrpar-1);
+      beta(nrpar-1,0) = s+sqrt(v)*rand_normal();
+      s = beta(nrpar-1,0);
+      }
+    else
+      {
+      update_linpred(true);
+      fcconst->update_fix_varcoeff(s,datanames[1]);
+      }
+
+    workbeta = beta.getV();
+    for (i=0;i<n;i++,workbeta++)
+      *workbeta -= s;
+
+    if(includefixed)
+      update_linpred(true);
+    }
+  else
+    update_linpred(true);
+
+/*  if(randomslope && includefixed)
+    {
+    fcconst->update_fix_varcoeff(beta(nrpar-1,0),datanames[1]);
+    //update_fix_effect(beta(nrpar-1,0));
+    datamatrix betaold = beta;
+    includefixed = false;
+    nrpar = n;
+    beta = datamatrix(nrpar,1,0);
+    double * wold = betaold.getV();
+    double * wnew = beta.getV();
+    for(i=0;i<n;i++,wold++,wnew++)
+      *wnew = *wold;
+    } */
+
+  /*if (center)
+    {
+    double m = centerbeta();
+    fcconst->update_intercept(m);
+    }*/
+
+  acceptance++;
+  transform = likep->get_trmult(column);
+
+  FULLCOND_random::update();
+
+  if (spatialtotal)
+    {
+    double * ftotal_bp = ftotal.getbetapointer();
+    workbeta=beta.getV();
+    double * workbetaspat = fbasisp->getbetapointer();
+    int * indexp = indextotal.getV();
+    for (i=0;i<nrpar;i++,workbeta++,ftotal_bp++,indexp++)
+      {
+      workbetaspat+= *indexp;
+      *ftotal_bp = *workbeta + *workbetaspat;
+      }
+    ftotal.set_transform(likep->get_trmult(column));
+    ftotal.update();
+    }
+  }
+
+
+void FULLCOND_random_stepwise::change_Korder(double lamb)
+  {
+  set_lambdaconst(1000000000);
+  }
+
+void FULLCOND_random_stepwise::undo_Korder(void)
+  {
+  }
+
+
 void FULLCOND_random_stepwise::init_spatialtotal(FULLCOND_nonp_basis * sp,
                                         const ST::string & pnt,
                                         const ST::string & prt)
@@ -698,7 +1033,7 @@ ST::string FULLCOND_random_stepwise::get_befehl(void)
   ST::string h;
 
   if(randomslope)
-    h = datanames[0] + "*" + datanames[1];
+    h = datanames[1] + "*" + datanames[0];  // (VC alt) 0 - 1
   else
     h = datanames[0];
 

@@ -706,7 +706,7 @@ class __EXPORT_TYPE FULLCOND
   // FUNCTION: get_samples
   // TASK: stores the sampled parameters in ASCII format
 
-  void get_samples(const ST::string & filename, const unsigned & step = 1) const;
+  virtual void get_samples(const ST::string & filename, const unsigned & step = 1) const;
 
   // FUNCTION: get_covmatrix
   // TASK: computes the covariance matrix of the sampled parameters
@@ -812,7 +812,7 @@ class __EXPORT_TYPE FULLCOND
     calculate_xwx_vc = true;
     }
 
-  void set_nofixed(bool fix)
+  virtual void set_nofixed(bool fix)
     {
     nofixed = fix;
     }
@@ -867,6 +867,10 @@ class __EXPORT_TYPE FULLCOND
     }
 
   virtual void update_linold(void)
+    {
+    }
+
+  virtual void update_linold_vc(void)
     {
     }
 
@@ -1098,6 +1102,25 @@ class __EXPORT_TYPE FULLCOND
   virtual void update_bootstrap(const bool & uncond=false);
 
   virtual void update_bootstrap_betamean(void);
+
+  virtual void save_betamean(void);
+
+  virtual void update_bootstrap_df(void);
+
+  virtual void outresults_df(unsigned & size)
+    {
+    }
+
+  void readsample_df(datamatrix & sample,const unsigned & nr,
+                          const unsigned & col=0) const;
+
+  virtual void change_Korder(double lam)
+    {
+    }
+
+  virtual void undo_Korder(void)
+    {
+    }
 
   // ---------------------------------------------------------------------------
   // ------------------------------- FOR REML ----------------------------------

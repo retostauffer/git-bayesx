@@ -2318,8 +2318,8 @@ void spline_basis_surf::init_names(const vector<ST::string> & na)
     else
       {
       ST::string helpname0 = na[0].insert_string_char('_',underscore);
-      ST::string helpname1 = na[1].insert_string_char('_',underscore);
-      ST::string helpname2 = na[2].insert_string_char('_',underscore);
+      ST::string helpname1 = na[2].insert_string_char('_',underscore);
+      ST::string helpname2 = na[1].insert_string_char('_',underscore);
       term_symbolic = "f_{" +  helpname0 + "," + helpname1 + "}(" + helpname0 + "," + helpname1 + ")" + " \\cdot " + helpname2;
       }
 

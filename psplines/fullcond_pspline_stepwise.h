@@ -11,6 +11,7 @@
 #define fullcond_pspline_stepwiseH
 
 #include"fullcond_pspline_gaussian.h"
+#include "fullcond_nonp_gaussian.h"
 
 namespace MCMC
 {
@@ -18,7 +19,6 @@ namespace MCMC
 //------------------------------------------------------------------------------
 //----------------------- class: FULLCOND_pspline_stepwise ---------------------
 //------------------------------------------------------------------------------
-
 
 class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
   {
@@ -43,8 +43,12 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
   envmatdouble Menv;
   bool concave;
   bool convex;
+  double lambdamono;
 
   FULLCOND fc_df;
+
+  updatetype utype;   // gaussian || iwlsmode 
+
 
   public:
 
@@ -105,9 +109,9 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   bool posteriormode(void);
 
-  bool changeposterior3(const datamatrix & main, const double & inter);
+  bool changeposterior3(const datamatrix & betamain, const datamatrix & main, const double & inter);
 
-  bool changeposterior_varcoeff(const datamatrix & main, const double & inter);
+  bool changeposterior_varcoeff(const datamatrix & betamain, const datamatrix & main, const double & inter);
 
   /*void hilfeee(void)        // nur für Kontrolle!!!
     {
@@ -247,11 +251,37 @@ if(likep->iwlsweights_constant() == true)
 
   void updateMenv(void);
 
+  void set_spmonotone(double & spmono)
+    {
+    lambdamono = spmono;
+    }
+
   void update_bootstrap(const bool & uncond=false);
+
+  void save_betamean(void);
 
   void update_bootstrap_betamean(void);
 
-  void get_samples(const ST::string & filename,const unsigned & step) const;  
+  void update(void);
+
+  void update_bootstrap_df(void);
+
+  void outresults_df(unsigned & size);
+
+  void change_Korder(double lam);
+
+  void undo_Korder(void);
+
+  void get_samples(const ST::string & filename,const unsigned & step) const;
+
+  void change_varcoeff(const datamatrix & main,const double & inter);
+
+  void update_IWLS_mode(void);
+
+  void set_utype(void)
+    {
+    utype = iwlsmode;
+    }
 
   vector<int>::iterator get_freqoutputit(void)
     {

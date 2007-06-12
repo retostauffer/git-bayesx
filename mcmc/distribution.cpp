@@ -185,11 +185,12 @@ for(unsigned s=0;s<linearpred.rows();s++)
    out << ST::doubletostring(linearpred(s,0),6) << "   ";
 out << endl;   */
 
-  if(optionsp->get_nriter()==1)
+  if(response_ori.rows()==1)
     {
     srand(seed);
     response_ori = response;  // speichert Response vom Original-Datensatz
-    linearpred_ori = linearpred;     // speichert Residuen vom Original-Datensatz
+    linearpred_ori = linearpred;     // speichert Prädiktor vom Original-Datensatz
+    isbootstrap = true;
     }
 
   double * workresp = response.getV();
@@ -200,9 +201,8 @@ out << endl;   */
   double u;
   for(i=0;i<nrobs;i++,workresp++,worklin++,workw++)
     {
-    u = uniform()*nrobs;
-    u = floor(u);
-    *workresp = *worklin + (sqrt(weight(u,0)) * (response_ori(u,0) - linearpred_ori(u,0))) / sqrt(*workw);
+    *workresp = compute_bootstrap_data(worklin,workw);
+    //*worklin + sqrt(scale(0,0) / *workw) * rand_normal();
     }
   }
 
@@ -210,7 +210,19 @@ out << endl;   */
 void DISTRIBUTION::set_original_response(void)
   {
   response = response_ori;
+  }
+
+
+void DISTRIBUTION::update_bootstrap_betamean(void)
+  {
   linearpred = linearpred_ori;
+  }
+
+void DISTRIBUTION::save_betamean(void)
+  {
+  srand(seed);
+  response_ori = response;  // speichert Response vom Original-Datensatz
+  linearpred_ori = linearpred;     // speichert Residuen vom Original-Datensatz
   }
 
 
@@ -404,6 +416,7 @@ void DISTRIBUTION::create(MCMCoptions * o, const datamatrix & r,
   constant_iwlsweights=false;
   iwlsweights_notchanged_df = false;
   nrobs_wpw = -1;
+  isbootstrap = false;
   }
 
 
@@ -550,6 +563,7 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   weightiwls2 = d.weightiwls2;
   nrobs_wpw = d.nrobs_wpw;
 
+  isbootstrap = d.isbootstrap;
   linearpred_ori = d.linearpred_ori;
   response_ori = d.response_ori;
   gcvfactor = d.gcvfactor;
@@ -644,6 +658,7 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   weightiwls2 = d.weightiwls2;
 
   nrobs_wpw = d.nrobs_wpw;
+  isbootstrap = d.isbootstrap;
   linearpred_ori = d.linearpred_ori;
   response_ori = d.response_ori;
   gcvfactor = d.gcvfactor;
@@ -2148,74 +2163,21 @@ void DISTRIBUTION::update_bootstrap(void)
   {
   if (scaleexisting)
     {
-    ST::string test = "Fehlt noch!";
+    DISTRIBUTION::update();
     } // end: if (scaleexisting)
   }
 
 
-void DISTRIBUTION::update_predict_bootstrap(void)
+void DISTRIBUTION::update_predict_bootstrap(int & bootstrapsamples)
   {
   if (predict)
     {
     unsigned samplesize = optionsp->get_samplesize();
-    register unsigned i,j;
-    double * worklin = (*linpred_current).getV();
-    double * workmean = linpredmean.getV();
-    double * workmumean = mumean.getV();
-    datamatrix muhelp(mumean.cols(),1,0);
-    double * workresponse = response.getV();
-    double * workw = weight.getV();
+    if(samplesize == 1)
+       deviance = datamatrix((bootstrapsamples + 1),2,0);
 
-    unsigned size = linearpred.cols();
-    unsigned size2 = mumean.cols();
-    unsigned respsize = response.cols();
-
-    double * mumeanhelp;
-    double * musavep = musave.getbetapointer();
-
-    if (samplesize==1)
-      {
-      for (i=0;i<nrobs;i++,workmumean+=size2,workresponse+=respsize,workw++)
-        {
-        mumeanhelp = workmumean;
-        compute_mu(worklin,mumeanhelp);
-        for(j=0;j<size;j++,worklin++,workmean++)
-          *workmean = trmult(j,0) * *worklin;
-
-//        if ((predictfull) && 
-        if(i<firstobs)
-          {
-          mumeanhelp = workmumean;
-          for(j=0;j<size2;j++,musavep++,mumeanhelp++)
-            {
-            *musavep = *mumeanhelp;
-            }
-          }
-        }
-       }  // end: (samplesize==1)
-    else
-      {
-      for (i=0;i<nrobs;i++,workresponse+=respsize,workw++)
-        {
-        mumeanhelp = muhelp.getV();
-        compute_mu(worklin,mumeanhelp);
-        mumeanhelp = muhelp.getV();
-
-//        if ((predictfull) && 
-        if(i<firstobs)
-          {
-          mumeanhelp = muhelp.getV();
-          for(j=0;j<size2;j++,musavep++,mumeanhelp++)
-            {
-            *musavep = *mumeanhelp;
-            }
-          }  // end: if (predictfull)
-        }
-      }
-
-//    if (predictfull)
-      //musave.update_bootstrap();  // stürzt ab! Soll wieder rein!
-    } // end: if predict
+    DISTRIBUTION::update_predict();
+    }
   }
 
 
@@ -2401,7 +2363,7 @@ void DISTRIBUTION::outresults(void)
     }
 
 
-  if ( (predict) && (optionsp->get_samplesize() > 0) )
+  if ( (predict) && (optionsp->get_samplesize() > 0) && (!isbootstrap) )
     {
 
 
@@ -2929,6 +2891,131 @@ void DISTRIBUTION::outresults(void)
 
 
     } // end: if ( (predict) && (optionsp->get_samplesize() > 0) )
+
+  else if ( (predict) && (optionsp->get_samplesize() > 0) && (isbootstrap) )
+    {
+
+    register unsigned i,j;
+
+    optionsp->out("  Predicted values:\n",true);
+    optionsp->out("\n");
+    optionsp->out("  Estimated mean of predictors, expectation of response and\n");
+    optionsp->out("  individual deviances are stored in file\n");
+    optionsp->out("  " + predictpath + "\n");
+    optionsp->out("\n");
+
+    ofstream out(predictpath.strtochar());
+    ofstream out2(deviancepath.strtochar());
+
+    for(i=0;i<Dnames.size();i++)
+      out << Dnames[i] << "   ";
+
+    unsigned size1 = linearpred.cols();
+    unsigned size2 = mumean.cols();
+
+    if (size1 > 1)
+      {
+      for (i=0;i<size1;i++)
+        {
+        out << "linpred_" << (i+1) << "   ";
+        out << "average_linpred_" << (i+1) << "   ";
+        }
+      }
+    else
+      {
+      out << "linpred" << "   ";
+      out << "average_linpred" << "   ";
+      }
+
+    if (size2 > 1)
+      {
+      for (i=0;i<size2;i++)
+        {
+        out << "mu_" << (i+1) << "   ";
+        out << "average_mu_" << (i+1) << "   ";
+        }
+      }
+    else
+      {
+      out << "mu" << "   ";
+      out << "average_mu" << "   ";
+      }
+
+    out << "saturated_deviance" << "   ";
+
+    out << endl;
+
+    double * workmeanave = linpredmean.getV();
+    double * workmean = linearpred.getV();
+    double * workmuave = mumean.getV();
+    double * workdevmean = deviancemean.getV();
+
+    double deviance2=0;
+    double deviance2_sat=0;
+
+    double * datap = Dp->getV();
+    unsigned sD = Dp->cols();
+
+    // used for computing DIC
+    datamatrix scalehelp;
+    if (scaleexisting)
+      {
+      scalehelp = Scalesave.get_betamean();
+
+      for(i=0;i<scalehelp.rows();i++)
+        for (j=0;j<scalehelp.cols();j++)
+          scalehelp(i,j) = (1.0/(trmult(i,0)*trmult(j,0)))*scalehelp(i,j);
+      }
+
+    double reshelp;
+    double devhelp;
+    double * workmean_firstcol;
+    datamatrix mu_meanlinpred(1,size2);
+
+    for (i=0;i<nrobs;i++,workdevmean++)
+      {
+
+      for(j=0;j<sD;j++,datap++)
+        out << *datap << "   ";
+
+      workmean_firstcol = workmean;
+      for (j=0;j<size1;j++,workmean++,workmeanave++)
+        {
+        *workmean = trmult(j,0)* (*workmean) + addinterceptsample;
+        out << *workmean << "   ";
+        out << *workmeanave << "   ";
+        }
+
+      compute_mu_notransform(workmean_firstcol,&mu_meanlinpred(0,0));
+
+      for (j=0;j<size2;j++,workmuave++)
+        {
+        out << mu_meanlinpred(0,j) << "   ";
+        out << *workmuave << "   ";  
+        }
+
+      compute_deviance(&response(i,0),&weight(i,0),&mu_meanlinpred(0,0),
+      &reshelp,&devhelp,scalehelp,i);
+
+//      compute_deviance(&response(i,0),&weight(i,0),&mumean(i,0),
+//      &reshelp,&devhelp,scalehelp,i);
+
+      deviance2 += reshelp;
+      deviance2_sat += devhelp;
+
+      if (weight(i,0) != 0)
+        {
+        out << devhelp  << "   ";
+        }
+      else
+        {
+        out << ".   ";
+        }
+
+      out << endl;
+      }
+    } // end: if ( (predict) && stepwise)
+
   else if ( (predict) && (optionsp->get_samplesize() == 0) )
     {
 
@@ -4202,6 +4289,10 @@ void DISTRIBUTION_gamma2::set_constscale(double s)
   scalefixed=true;
   }
 
+void DISTRIBUTION_gamma2::undo_constscale(void)
+  {
+  scalefixed = false;
+  }
 
 double DISTRIBUTION_gamma2::compute_weight(double * worklin,double * weight,
                                           const int & i,const unsigned & col)
@@ -4378,7 +4469,6 @@ void DISTRIBUTION_gamma2::check(void)
     }
 
   }
-
 
 
 void DISTRIBUTION_gamma2::standardize(void)
@@ -4567,9 +4657,24 @@ double DISTRIBUTION_gamma2::phi_hat() const
      }
 
   return phi / sumweight;    // ohne p!
-
   }
 
+
+double DISTRIBUTION_gamma2::compute_bootstrap_data(const double * linpred,const double * weight)
+  {
+  double mu = exp(*linpred);
+  double pres = 0;
+  if(*weight>0)
+    {
+    mu *= *weight;
+    double nu = *weight/scale(0,0);
+    double a = nu;
+    double b = nu/mu;
+    pres = rand_gamma(a,b);
+    pres /= *weight;
+    }
+  return pres;
+  }
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_vargaussian -----------------------
@@ -4897,6 +5002,11 @@ void DISTRIBUTION_gaussian::set_constscale(double s)
   constscale=true;
   }
 
+void DISTRIBUTION_gaussian::undo_constscale(void)
+  {
+  constscale = false;
+  }
+
 void DISTRIBUTION_gaussian::set_uniformprior(void)
   {
   uniformprior=true;
@@ -5197,6 +5307,17 @@ double DISTRIBUTION_gaussian::compute_bic(const double & df)
                + log(get_nrobs_wpw())*df;
   return bic;
   }
+
+
+double DISTRIBUTION_gaussian::compute_bootstrap_data(const double * linpred,const double * weight)
+  {
+  double pres = 0;
+  if(*weight > 0)
+    pres = *linpred + sqrt(scale(0,0) / *weight) * rand_normal();
+  return pres;
+  }
+
+// ------------- END: stepwise -------------------------------------------------
 
 
 bool DISTRIBUTION_gaussian::posteriormode(void)
@@ -5878,6 +5999,28 @@ double DISTRIBUTION_binomial::compute_auc(void)
   }
 
 
+double DISTRIBUTION_binomial::compute_bootstrap_data(const double * linpred,const double * weight)
+  {
+  double el = exp(*linpred);
+  double mu = el/(1+el);
+  double pres = 0;
+  unsigned i = 1;
+  double u;
+  if(*weight>0)
+    {
+    while(i<=*weight)
+      {
+      u = uniform();
+      if(u <= mu) 
+        pres += 1;
+      i += 1;
+      } 
+    pres /= *weight; 
+    }
+
+  return pres;
+  }
+
 //------------------------------------------------------------------------------
 //-------------------- CLASS DISTRIBUTION_binomial_latent ----------------------
 //------------------------------------------------------------------------------
@@ -6222,6 +6365,27 @@ bool DISTRIBUTION_binomial_latent::posteriormode_converged(const unsigned & itnr
   return true;
   }
 
+
+double DISTRIBUTION_binomial_latent::compute_bootstrap_data(const double * linpred,const double * weight)
+  {
+  double mu = randnumbers::Phi2(*linpred);
+  double pres = 0;
+  unsigned i = 1;
+  double u;
+  if(*weight>0)
+    {
+    while(i<=*weight)
+      {
+      u = uniform();
+      if(u <= mu) 
+        pres += 1;
+      i += 1;
+      } 
+    pres /= *weight; 
+    }
+ 
+  return pres;
+  }  
 
 //------------------------------------------------------------------------------
 //----------------- CLASS DISTRIBUTION_binomial_logit_latent -------------------
@@ -6744,6 +6908,27 @@ void DISTRIBUTION_poisson::tr_nonlinear(vector<double *> b,vector<double *> br,
     }
 
   }
+
+
+double DISTRIBUTION_poisson::compute_bootstrap_data(const double * linpred,const double * weight)
+  {
+  double mu = exp(*linpred);
+  double pres = 0;
+  if(*weight>0)
+    {
+    mu *= *weight;
+    double zeit = 0;
+    while(zeit<=1)
+      {
+      zeit += randnumbers::rand_expo(mu);
+      pres += 1; 
+      }
+    pres -= 1;
+    pres / *weight;
+    }
+  return pres;
+  }
+
 
 //------------------------------------------------------------------------------
 //------------------------ CLASS DISTRIBUTION_multinom -------------------------
@@ -8303,5 +8488,6 @@ void DISTRIBUTION_cumulative_latent3::outresults(void)
   }
 
 } // end: namespace MCMC
+
 
 

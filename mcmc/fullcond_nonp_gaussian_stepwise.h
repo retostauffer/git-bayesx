@@ -167,8 +167,19 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   void update_bootstrap(const bool & uncond=false);
 
+  void save_betamean(void);
+
   void update_bootstrap_betamean(void);
   
+  void update(void);
+
+  void update_bootstrap_df(void);
+
+  void outresults_df(unsigned & size);
+
+  void change_Korder(double lam);
+
+  void undo_Korder(void);
 
   //void save_betas(vector<double> & modell, int & anzahl);
 

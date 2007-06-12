@@ -52,12 +52,19 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
   envmatdouble Kxenv;
   envmatdouble Kyenv;
 
+  bandmatdouble KH;
+  bandmatdouble Kx;
+  bandmatdouble Ky;
+  bandmatdouble Kgrenz;
+  bandmatdouble Kalt;
+
   vector<envmatdouble> all_precenv;      // vector of all possible (X'X + lambda_i P)
   vector<double> lambdavec;
 
   void create(const datamatrix & v1, const datamatrix & v2, const datamatrix & intact=datamatrix(1,1));
 
   FULLCOND fc_df;
+  datamatrix betaold;
 
   public:
 
@@ -162,6 +169,8 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   void hierarchical(ST::string & possible);
 
+  void set_pointer_to_interaction(FULLCOND * inter);  
+
   void get_interactionspointer(vector<FULLCOND*> & inter);
 
   void hierarchie_rw1(vector<double> & untervector, int dfo);
@@ -195,8 +204,27 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   void update_bootstrap(const bool & uncond=false);
 
-  void update_bootstrap_betamean(void);
+  void set_utype(void)
+    {
+    utype = iwlsmode;
+    }
+
+  void update(void);
+
+  void update_vc_anova(void);
+
+  void save_betamean(void);
   
+  void update_bootstrap_betamean(void);
+
+  void update_bootstrap_df(void);
+
+  void outresults_df(unsigned & size);
+
+  void change_Korder(double lam);
+
+  void undo_Korder(void);
+
   void get_samples(const ST::string & filename,const unsigned & step) const;
 
   void compute_main(void);

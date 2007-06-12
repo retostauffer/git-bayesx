@@ -145,7 +145,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
   //intoption window;
   intoption setseed;
 
-  simpleoption ci;
+  stroption CI;
   intoption iterations;                // Number of iterations
   intoption burnin;                    // Number of burnin iterations
   intoption step;                      // Thinning parameter

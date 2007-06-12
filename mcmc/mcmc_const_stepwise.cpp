@@ -17,7 +17,6 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(
                           const unsigned & c)
   : FULLCOND_const(o,dp,d,t,constant,fs,fr,c)
   {
-
   transform = likep->get_trmult(c);
 
   changingweight = likep->get_changingweight();
@@ -29,7 +28,7 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(
 
   help = datamatrix(nrconst,likep->get_nrobs(),0);
 
-  compute_matrices();
+//  compute_matrices();
 
   beta_average.erase(beta_average.begin(),beta_average.end());
   betas_aktuell.erase(betas_aktuell.begin(),betas_aktuell.end());
@@ -39,6 +38,9 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(
 
   if (X1.rows() < nrconst)
     errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
+
+  conditional = true;
+  utype = "gauss";
   }
 
   // COPY CONSTRUCTOR
@@ -53,6 +55,8 @@ const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   coding=m.coding;
 
   X1 = m.X1;
+  X1root = m.X1root;
+  X1X = m.X1X;
   mu1 = m.mu1;
   help = m.help;
   changingweight = m.changingweight;
@@ -68,6 +72,15 @@ const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   names_rest = m.names_rest;
   datanames_fixed_only = m.datanames_fixed_only;
   fc_df = m.fc_df;
+  conditional = m.conditional;
+
+  utype = m.utype;
+  proposal = m.proposal;
+  weightiwls = m.weightiwls;
+  diff = m.diff;
+  tildey = m.tildey;
+  mode = m.mode;
+  linmode = m.linmode;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -85,6 +98,8 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
   coding=m.coding;
 
   X1 = m.X1;
+  X1root = m.X1root;
+  X1X = m.X1X;
   mu1 = m.mu1;
   help = m.help;
   changingweight = m.changingweight;
@@ -99,36 +114,70 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
   names_rest = m.names_rest;
   datanames_fixed_only = m.datanames_fixed_only;
   fc_df = m.fc_df;  
+  conditional = m.conditional;
+
+  utype = m.utype;
+  proposal = m.proposal;
+  weightiwls = m.weightiwls;
+  diff = m.diff;
+  tildey = m.tildey;
+  mode = m.mode;
+  linmode = m.linmode;
 
   return *this;
   }
 
 void FULLCOND_const_stepwise::compute_matrices(void)
   {
-  // computing X1
+  // nur für MCMC
 
-  unsigned i,j,k;
-  double * workweight;
-  double * workdata_i_j;
-  double * workdata_i_k;
-
-  for (j=0;j<nrconst;j++)
-    for(k=0;k<=j;k++)
+  if(utype == "gauss")
+    {
+    unsigned i,j;
+    double * workweight;
+    double * workdata_i_j;
+    // computing X1X
+    X1X = datamatrix(nrconst,likep->get_nrobs());
+    X1root = datamatrix(nrconst,nrconst);
+    help = datamatrix(nrconst,likep->get_nrobs(),0);
+    double * workhelp = help.getV();
+    for (j=0;j<nrconst;j++)
       {
-      X1(j,k) = 0;
       workweight = likep->get_weightp();
       workdata_i_j = data.getV()+j;
-      workdata_i_k = data.getV()+k;
-      for (i=0;i<likep->get_nrobs();i++,workweight++,workdata_i_j+=nrconst
-                         ,workdata_i_k+=nrconst)
-        X1(j,k) += *workweight * (*workdata_i_j) * (*workdata_i_k);
-      if (k!=j)
-        X1(k,j) = X1(j,k);
+      for(i=0;i<likep->get_nrobs();i++,workweight++,workhelp++,
+                      workdata_i_j+=nrconst)
+        *workhelp = *workweight * (*workdata_i_j);
       }
-
-  X1 = X1.cinverse();
-  if (X1.rows() == nrconst)
-    X1 = X1.root();
+    if (X1.rows() == nrconst)
+      {
+      X1X.mult(X1,help);
+      X1root.assign(X1.root());
+      }
+    }
+  else
+    {
+    unsigned p,k,i;
+    double * workw = weightiwls.getV();
+    double * workXp;
+    double * workXk;
+    if(X1X.rows() != nrconst)
+      {
+      X1X = datamatrix(nrconst,nrconst);
+      X1root = datamatrix(nrconst,nrconst);
+      }
+    for (p=0;p<nrconst;p++)
+      for (k=p;k<nrconst;k++)
+        {
+        X1X(p,k)=0;
+        workw = weightiwls.getV();
+        workXp = data.getV()+p;
+        workXk = data.getV()+k;
+        for(i=0;i<weightiwls.rows();i++,workw++,workXp+=nrconst,workXk+=nrconst)
+          X1X(p,k)+= *workw  *  *workXp * *workXk;
+        X1X(k,p) = X1X(p,k);
+        }
+    }
   }
 
 
@@ -165,6 +214,26 @@ void FULLCOND_const_stepwise::update_linold(void)
     double * workbetamean = betamean.getV();
     double * workbeta = beta.getV();
     *workbetamean = *workbeta * transform;
+    }
+  }
+
+
+void FULLCOND_const_stepwise::update_linold_vc(void)
+  {
+  unsigned i;
+  for(i=1;i<nrconst;i++)
+    {
+    if (effectsadd(i,0) !=0)
+      {
+      double v = effectsadd(i,0);
+      unsigned j;
+      double * worklinold=linold.getV();
+      double * datap = data.getV()+i;
+      for(j=0;j<linold.rows();j++,worklinold++,datap+=nrconst)
+        *worklinold += v* (*datap);
+
+      effectsadd(i,0) = 0;
+      }
     }
   }
 
@@ -442,7 +511,23 @@ void FULLCOND_const_stepwise::outresults(void)
   if(fctype != MCMC::factor)
     {
     if(betamean.rows() == datanames_fixed_only.size())
+      {
       datanames = datanames_fixed_only;
+      nrpar = datanames.size();
+      nrconst = nrpar;
+      }
+    if (optionsp->get_samplesize() > 0 && flags[0] != 1)
+      {
+      setbeta(betamean);
+      samplestream.close();
+      datamatrix sample(optionsp->get_samplesize(),1);
+      unsigned i;
+      for(i=0;i<nrpar;i++)
+        {
+        readsample(sample,i);
+        betavar(i,0) = sample.var(0);
+        } 
+      }
     FULLCOND_const::outresults();
     }
   }
@@ -851,7 +936,7 @@ void FULLCOND_const_stepwise::save_betas(vector<double> & modell, int & anzahl)
         betas_aktuell.push_back(0);
       }
     }
-  else     
+  else
     {
     if(anzahl >= 1)
       {
@@ -943,16 +1028,19 @@ void FULLCOND_const_stepwise::update_bootstrap(const bool & uncond)
     else
       datanames_fixed_only = datanames;
 
-    if(optionsp->get_samplesize()==1)
+    if(optionsp->get_nriter()<=1)
       {
       ST::string path = samplepath.substr(0,samplepath.length()-4)+"_df.raw";
       fc_df = FULLCOND(optionsp,datamatrix(1,1),"title?",nrconst,1,path);
       fc_df.setflags(MCMC::norelchange | MCMC::nooutput);
       }
-
+      
     if(!uncond)
       {
-      setbeta(nrconst,1,0);
+      if(optionsp->get_nriter()<=1)
+        setbeta(nrconst,1,0);
+      else
+        beta = datamatrix(nrconst,1,0);
       unsigned i,j;
       for(i=0;i<datanames_fixed_only.size();i++)
         {
@@ -975,13 +1063,92 @@ void FULLCOND_const_stepwise::update_bootstrap(const bool & uncond)
       }
 
     FULLCOND::update_bootstrap();
-    fc_df.update_bootstrap();
+    fc_df.update_bootstrap_df();
     beta = betaold;
     nrpar = beta.rows();
     nrconst = nrpar;
     }
   }
 
+
+void FULLCOND_const_stepwise::update_bootstrap_df(void)
+  {
+  if(fctype != factor)
+    {
+    conditional = false;  // wird bei MCMCbootstrap aufgerufen, nicht bei MCMCselect
+    effectsadd = datamatrix(nrpar,1,0);
+
+    if(X1root.rows()>1)     // nötig oder nicht?
+      {
+      X1root = datamatrix(1,1,0);
+      X1X = datamatrix(1,1,0);
+      }
+      
+    nrconst = datanames_fixed_only.size();
+    nrpar = nrconst;
+
+    if(optionsp->get_nriter()<=1)
+      {
+      ST::string path = samplepath.substr(0,samplepath.length()-4)+"_df.raw";
+      fc_df = FULLCOND(optionsp,datamatrix(1,1),"title?",nrconst,1,path);
+      fc_df.setflags(MCMC::norelchange | MCMC::nooutput);
+      }
+
+    unsigned i,j;
+    for(i=0;i<datanames_fixed_only.size();i++)
+      {
+      bool gefunden = false;
+      j = 0;
+      while(j<datanames.size() && gefunden==false)
+        {
+        if(datanames_fixed_only[i] == datanames[j])
+          gefunden = true;
+        j += 1;
+        }
+      if(gefunden==true)
+        fc_df.setbetavalue(i,0,1);
+      else
+        fc_df.setbetavalue(i,0,0);
+      }
+
+    fc_df.update_bootstrap_df();
+    nrpar = beta.rows();
+    nrconst = nrpar;
+    }
+  }
+
+
+void FULLCOND_const_stepwise::save_betamean(void)
+  {
+  interceptadd = 0;
+  if(fctype != factor)
+    {
+    datamatrix betaold = beta;
+    nrconst = datanames_fixed_only.size();
+    nrpar = nrconst;
+    beta = datamatrix(nrconst,1,0);
+
+    unsigned i,j;
+    for(i=0;i<datanames_fixed_only.size();i++)
+      {
+      bool gefunden = false;
+      j = 0;
+      while(j<datanames.size() && gefunden==false)
+        {
+        if(datanames_fixed_only[i] == datanames[j])
+          gefunden = true;
+        j += 1;
+        }
+      if(gefunden==true)
+        beta(i,0) = betaold(j-1,0);
+      }
+
+    FULLCOND::save_betamean();
+    beta = betaold;
+    nrpar = beta.rows();
+    nrconst = nrpar;
+    }
+  }
 
 void FULLCOND_const_stepwise::update_bootstrap_betamean(void)
   {
@@ -990,9 +1157,17 @@ void FULLCOND_const_stepwise::update_bootstrap_betamean(void)
     FULLCOND::update_bootstrap_betamean();
     nrpar = betamean.rows();
     nrconst = nrpar;
+    beta = datamatrix(nrpar,beta.cols(),1);
+    }
+  }
 
+void FULLCOND_const_stepwise::outresults_df(unsigned & size)
+  {
+  if(fctype != MCMC::factor)
+    {
     fc_df.update_bootstrap_betamean();
-    //fc_df.outresults();
+    nrpar = betamean.rows();
+    nrconst = nrpar;
     double * workmean;
 
     ST::string pathdf = pathcurrent.substr(0,pathcurrent.length()-4)+"_df.res";
@@ -1004,12 +1179,12 @@ void FULLCOND_const_stepwise::update_bootstrap_betamean(void)
     outres << "pmean   " << endl;
 
     //samplestream.close();
-    datamatrix sample(optionsp->get_samplesize(),1);
+    datamatrix sample(size,1);
 
     unsigned v,i;
     for(v=1;v<nrconst;v++)
       {
-      fc_df.readsample(sample,v);
+      fc_df.readsample_df(sample,v);
       workmean = fc_df.get_betameanp() + v;
       unsigned anz1 = 0;
       unsigned anz0 = 0;
@@ -1038,6 +1213,247 @@ void FULLCOND_const_stepwise::update_bootstrap_betamean(void)
       outres << endl << endl;
       }
     }  // END: if(fctype != MCMC::factor)
+  }
+
+
+void FULLCOND_const_stepwise::update(void)
+  {
+  if(utype == "gauss")
+    update_gauss();
+  else
+    update_nongauss();
+  }
+
+
+void FULLCOND_const_stepwise::update_gauss(void)
+  {
+  if(optionsp->get_nriter()<=1 && conditional)   // nur bei MCMCselect
+    effectsadd = datamatrix(nrpar,1,0);
+
+  if(!conditional)
+    {
+    nrconst = datanames_fixed_only.size();
+    nrpar = nrconst;
+    datamatrix betaold = beta;
+    setbeta(nrconst,1,0);
+
+    unsigned i,j;
+    for(i=0;i<datanames_fixed_only.size();i++)
+      {
+      bool gefunden = false;
+      j = 0;
+      while(j<datanames.size() && gefunden==false)
+        {
+        if(datanames_fixed_only[i] == datanames[j])
+          gefunden = true;
+        j += 1;
+        }
+      if(gefunden==true)
+        {
+        beta(i,0) = betaold(j-1,0);
+        }
+      }
+    FULLCOND_const::update();
+    nrpar = betaold.rows();
+    nrconst = nrpar;
+    setbeta(nrconst,1,0);
+    beta = betaold;
+    }
+  else
+    {
+    datamatrix betaold = beta;
+    if(optionsp->get_nriter()<=1)
+      setbeta(nrconst,1,0);
+    beta = betaold;
+    FULLCOND_const::update();
+    }
+              // FEHLT: Wann neu berechnen???
+  if (X1root.rows()==1 || changingweight || optionsp->get_nriter()==1)
+    {
+    likep->fisher(X1,data,column);            // recomputes X1 = (data' W data)^{-1}
+    X1.assign((X1.cinverse()));               // continued
+    compute_matrices();
+    }
+
+  unsigned i;
+  double * worklinold=linold.getV();
+  for(i=0;i<linold.rows();i++,worklinold++)
+    *worklinold += interceptadd;
+  interceptadd=0;
+
+  for(i=1;i<nrconst;i++)
+    {
+    if (effectsadd(i,0) !=0)
+      {
+      double v = effectsadd(i,0);
+      unsigned j;
+      double * worklinold=linold.getV();
+      double * datap = data.getV()+i;
+      for(j=0;j<linold.rows();j++,worklinold++,datap+=nrconst)
+        *worklinold += v* (*datap);
+
+      effectsadd(i,0) = 0;
+      }
+    }
+
+  likep->substr_linearpred_m(linold,column);
+
+  likep->compute_respminuslinpred(mu1,column);
+
+  beta.mult(X1X,mu1);
+  beta+= sqrt(likep->get_scale(column))*X1root*rand_normvek(nrconst);
+
+  linold.mult(data,beta);
+  likep->add_linearpred_m(linold,column);
+  acceptance++;
+  transform = likep->get_trmult(column);
+  }
+
+  
+void FULLCOND_const_stepwise::update_nongauss(void)
+  {
+  if(optionsp->get_nriter()==1 && conditional)   // nur bei MCMCselect
+    effectsadd = datamatrix(nrpar,1,0);
+
+  if(!conditional)
+    {
+    nrconst = datanames_fixed_only.size();
+    nrpar = nrconst;
+    datamatrix betaold = beta;
+    setbeta(nrconst,1,0);
+
+    unsigned i,j;
+    for(i=0;i<datanames_fixed_only.size();i++)
+      {
+      bool gefunden = false;
+      j = 0;
+      while(j<datanames.size() && gefunden==false)
+        {
+        if(datanames_fixed_only[i] == datanames[j])
+          gefunden = true;
+        j += 1;
+        }
+      if(gefunden==true)
+        {
+        beta(i,0) = betaold(j-1,0);
+        }
+      }
+    FULLCOND_const::update();
+    nrpar = betaold.rows();
+    nrconst = nrpar;
+    setbeta(nrconst,1,0);
+    beta = betaold;
+    }
+  else
+    {
+    datamatrix betaold = beta;
+    if(optionsp->get_nriter()<=1)
+      setbeta(nrconst,1,0);
+    beta = betaold;
+    FULLCOND_const::update();
+    }
+
+  double qoldbeta;
+  double qnewbeta;
+
+  if (optionsp->get_nriter() == 1)
+    {
+    diff = linnew;
+    weightiwls = datamatrix(likep->get_nrobs(),1,1);
+    tildey = weightiwls;
+    proposal = beta;
+    help = beta;
+    mu1=datamatrix(nrconst,1);
+    linoldp = &linold;
+    linnewp = &linnew;
+    linold.mult(data,beta);
+    linmode = datamatrix(data.rows(),1);
+    //mode = beta;
+    }
+
+  unsigned i;
+  if (interceptyes && interceptadd!=0)
+    {
+    double * work = linoldp->getV();
+    for (i=0;i<linoldp->rows();i++,work++)
+      *work += interceptadd;
+    interceptadd=0;
+    }
+
+  for(i=1;i<nrconst;i++)
+    {
+    if(effectsadd(i,0) !=0)
+      {
+      double v = effectsadd(i,0);
+      unsigned j;
+      double * worklinold=linold.getV();
+      double * datap = data.getV()+i;
+      for(j=0;j<linold.rows();j++,worklinold++,datap+=nrconst)
+        *worklinold += v* (*datap);
+
+      effectsadd(i,0) = 0;
+      }
+    }
+
+  double logold = likep->loglikelihood();
+
+  linmode.mult(data,beta_mode);  // linmode.mult(data,mode);
+  diff.minus(linmode,*linoldp);
+  likep->add_linearpred_m(diff,column);
+
+  likep->compute_IWLS_weight_tildey(weightiwls,tildey,column);
+  compute_matrices();
+  X1root.assign((X1X.cinverse()).root());
+
+  compute_XWtildey(&linmode);
+
+  beta_mode = X1X.solve(mu1);  // mode = X1X.solve(mu1);
+
+  help.minus(beta,beta_mode);  // help.minus(beta,mode);
+  qoldbeta = -0.5*X1X.compute_quadform(help);
+
+  proposal.plus(beta_mode,X1root*rand_normvek(nrconst));  // proposal.plus(mode,X1root*rand_normvek(nrconst));
+  help.minus(proposal,beta_mode);  // help.minus(proposal,mode);
+  qnewbeta = -0.5*X1X.compute_quadform(help);
+  linnewp->mult(data,proposal);
+  diff.minus(*linnewp,linmode);
+  likep->add_linearpred_m(diff,column);          // (mit proposed)
+  double logprop = likep->loglikelihood();     // mit proposed
+  double u = log(uniform());
+
+  if (u <= (logprop + qoldbeta - logold - qnewbeta) )
+    {
+    //datamatrix * mp = linoldp;
+    //linoldp = linnewp;
+    //linnewp = mp;
+    beta.assign(proposal);
+    linold.assign(linnew);
+    acceptance++;
+    }
+  else
+    {
+    diff.minus(*linoldp,*linnewp);
+    likep->add_linearpred_m(diff,column);
+    }
+  }
+
+
+void FULLCOND_const_stepwise::compute_XWtildey(datamatrix * linb)
+  {
+  unsigned i,j;
+  double * worktildey=tildey.getV();
+  double * worklinb = linb->getV();
+  double * workw = weightiwls.getV();
+  double * workdata = data.getV();
+  double h;
+  mu1 = datamatrix(nrconst,1,0);
+
+  for(i=0;i<tildey.rows();i++,worktildey++,worklinb++,workw++)
+    {
+    h = *workw * (*worktildey + *worklinb);
+    for (j=0;j<nrconst;j++,workdata++)
+      mu1(j,0) += *workdata * h;
+    }
   }
 
 // END: MODEL-AVERAGING --------------------------------------------------------
@@ -1119,22 +1535,26 @@ void FULLCOND_const_stepwise::make_design(const datamatrix & d)
      errors.push_back("ERROR: There are too many different categories!\n");
 
   bool gefunden = false;
+  unsigned ref;
   for(i=0;i<diff_categories.size();i++)
      {
      if(diff_categories[i]==reference)
+        {
         gefunden = true;
+        ref = i;
+        }
      }
   if(gefunden==false)
      {
      optionsp->out("WARNING: The value for the reference category does not exist\n");
      optionsp->out("Category " + ST::doubletostring(diff_categories[0]) + " used instead\n");
      reference = diff_categories[0];
+     ref = 0;
      }
 
   data = datamatrix(d.rows(),diff_categories.size()-1);
   unsigned spalte = 0;
   unsigned zeile = 0;
-  unsigned ref;
   for(i=0;i<diff_categories.size();i++)
      {
      if(diff_categories[i]!=reference)
@@ -1145,7 +1565,9 @@ void FULLCOND_const_stepwise::make_design(const datamatrix & d)
        q = index.getV() + zeile;
        double wert = 1;
        if(coding=="userdef")
-         wert = double(d.rows())/double(zaehlen[i]);
+         //wert = double(d.rows())/double(zaehlen[i]);
+         //wert = double(zaehlen[i])/double(d.rows());
+         wert = double(zaehlen[ref])/double(d.rows());
        for(j=zeile;j<zeile+zaehlen[i];j++,q++)
           data(*q,spalte) = wert;
        q = index.getV() + zeile + zaehlen[i];
@@ -1154,8 +1576,8 @@ void FULLCOND_const_stepwise::make_design(const datamatrix & d)
        spalte = spalte + 1;
        }
 
-     else if(diff_categories[i]==reference && (coding=="effect" || coding=="userdef"))
-       ref = i;
+     //else if(diff_categories[i]==reference && (coding=="effect" || coding=="userdef"))
+      //ref = i;
 
      zeile = zeile + zaehlen[i];
      }
@@ -1164,15 +1586,29 @@ void FULLCOND_const_stepwise::make_design(const datamatrix & d)
      {
      zeile = 0;
      double wert = -1;
+     vector<double> werte;
      if(coding=="userdef")
-       wert = wert* double(d.rows())/double(zaehlen[ref]);
+       {
+       for(i=0;i<diff_categories.size();i++)
+         {
+         if(diff_categories[i]!=reference)
+           werte.push_back(-1* double(zaehlen[i])/double(d.rows()));
+         }
+       }
+     //if(coding=="userdef")
+       //wert = wert* double(d.rows())/double(zaehlen[ref]);
+       //wert = wert* double(zaehlen[ref])/double(d.rows());
      for(i=0;i<ref;i++)
         zeile = zeile + zaehlen[i];
      int* q = index.getV() + zeile;
      for(i=zeile;i<zeile+zaehlen[ref];i++,q++)
         {
         for(j=0;j<data.cols();j++)
+          {
+          if(coding=="userdef")
+            wert = werte[j];
           data(*q,j) = wert;
+          }
         }
      }
   }

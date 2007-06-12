@@ -324,6 +324,22 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
   void update_bootstrap(void);
 
+  bool confidence_intervals(const ST::string & CI,
+          const vector<double> & modell_final,const double & kriterium_final,
+          vector<FULLCOND*> & fullcond_z);
+
+  bool confidence_bootstrap(const vector<double> & modell_final,const double & kriterium_final,
+                                          vector<FULLCOND*> & fullcond_z);
+
+  bool confidence_MCMCbootstrap(const vector<double> & modell_final,const double & kriterium_final,
+                                          vector<FULLCOND*> & fullcond_z);
+
+  bool confidence_MCMCselect(const vector<double> & modell_final,const double & kriterium_final,
+                                          vector<FULLCOND*> & fullcond_z);
+
+  bool simulate(const vector<ST::string> & header, const int & seed,
+                           const unsigned & startit, const unsigned & endit);
+
 //  void compute_average(ofstream & outweight);
 
 //  void save_alle_betas(vector<double> modell);
@@ -377,7 +393,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
          const bool & fineloc, const int & boot, const bool & uncond, 
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
-         const bool & CI, bool & hier, bool & gm, const double & prop, const bool & minib);
+         const ST::string & CI, bool & hier, bool & gm, const double & prop, const bool & minib);
 
   double compute_criterion(void);
 

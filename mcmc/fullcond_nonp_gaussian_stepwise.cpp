@@ -632,7 +632,7 @@ ST::string FULLCOND_nonp_gaussian_stepwise::get_effect(void)
     t = "spatial";
 
   if(varcoeff)
-    h = datanames[0] + "*" + datanames[1];
+    h = datanames[1] + "*" + datanames[0];   // (VC alt) 0 - 1
   else
     h = datanames[0];
 
@@ -657,7 +657,7 @@ ST::string FULLCOND_nonp_gaussian_stepwise::get_befehl(void)
     t = "spatial,map=" + mapname;
 
   if(varcoeff)
-    h = datanames[0] + "*" + datanames[1];
+    h = datanames[1] + "*" + datanames[0];      // (VC alt) 0 - 1
   else
     h = datanames[0];
 
@@ -684,8 +684,8 @@ void FULLCOND_nonp_gaussian_stepwise::init_names(const vector<ST::string> & na)
       }
     else
       {
-      ST::string helpname1 = na[1].insert_string_char(hchar,hstring);
-      ST::string helpname2 = na[0].insert_string_char(hchar,hstring);
+      ST::string helpname1 = na[0].insert_string_char(hchar,hstring);   // (VC alt) 1
+      ST::string helpname2 = na[1].insert_string_char(hchar,hstring);   // (VC alt) 0
       if (type==MCMC::seasonal)
         term_symbolic = "f^{Season}_{" +  helpname1 + "}("+helpname1+") \\cdot "
                         + helpname2;
@@ -882,17 +882,17 @@ void FULLCOND_nonp_gaussian_stepwise::update_fix_effect(double & intercept)
   {
   bool raus = false;
   unsigned j = 1;
-  ST::string name_richtig = datanames[0];
+  ST::string name_richtig = datanames[1];  // (VC alt) 0
   while(j<fcconst->get_datanames().size() && raus==false)
      {
-     if(fcconst->get_datanames()[j] == datanames[0])
+     if(fcconst->get_datanames()[j] == datanames[1])   // (VC alt) 0
         {
         raus = true;
         }
-     if(fcconst->get_datanames()[j] == (datanames[0]+"_1"))
+     if(fcconst->get_datanames()[j] == (datanames[1]+"_1"))  // (VC alt) 0
         {
         raus = true;
-        name_richtig = datanames[0] + "_1";
+        name_richtig = datanames[1] + "_1";            // (VC alt) 0
         }
      j = j + 1;
      }
@@ -979,12 +979,7 @@ void FULLCOND_nonp_gaussian_stepwise::create_weight(datamatrix & w)
 
 void FULLCOND_nonp_gaussian_stepwise::update_bootstrap(const bool & uncond)
   {
-  if(optionsp->get_samplesize()==1)
-    {
-    ST::string path = samplepath.substr(0,samplepath.length()-4)+"_df.raw";
-    fc_df = FULLCOND(optionsp,datamatrix(1,1),"title?",1,1,path);
-    fc_df.setflags(MCMC::norelchange | MCMC::nooutput);
-    }
+  update_bootstrap_df();
 
   datamatrix betaold = beta;
 
@@ -992,10 +987,14 @@ void FULLCOND_nonp_gaussian_stepwise::update_bootstrap(const bool & uncond)
     {
     bool raus = false;
     unsigned j = 1;
-    ST::string name_richtig = datanames[0];
+    ST::string name_richtig;
+    if(!varcoeff)
+      name_richtig = datanames[0];
+    else
+      name_richtig = datanames[1];       // (VC alt) 0
     while(j<fcconst->get_datanames().size() && raus==false)
       {
-      if(fcconst->get_datanames()[j] == datanames[0])
+      if(fcconst->get_datanames()[j] == name_richtig)
         raus = true;
       j = j + 1;
       }
@@ -1034,32 +1033,122 @@ void FULLCOND_nonp_gaussian_stepwise::update_bootstrap(const bool & uncond)
 
     FULLCOND::update_bootstrap();
     //fc_df.setbetavalue(0,0,1);
-    fc_df.setbetavalue(0,0,-1);
-    fc_df.update_bootstrap();
     }
   else if(inthemodel==false && fixornot==false)
     {
     beta = datamatrix(nrpar,1,0);
     FULLCOND::update_bootstrap();
-    fc_df.setbetavalue(0,0,0);
-    fc_df.update_bootstrap();
     }
   else
     {
     FULLCOND::update_bootstrap();
-    //fc_df.setbetavalue(0,0,compute_df());
-    fc_df.setbetavalue(0,0,lambda);
-    fc_df.update_bootstrap();
     }
   beta = betaold;
   }
 
+void FULLCOND_nonp_gaussian_stepwise::update_bootstrap_df(void)
+  {
+  if(optionsp->get_nriter()<=1)
+    {
+    ST::string path = samplepath.substr(0,samplepath.length()-4)+"_df.raw";
+    fc_df = FULLCOND(optionsp,datamatrix(1,1),"title?",1,1,path);
+    fc_df.setflags(MCMC::norelchange | MCMC::nooutput);
+    }
+
+  if(fixornot==true)
+    {
+    fc_df.setbetavalue(0,0,-1.0);
+    fc_df.update_bootstrap_df();
+    }
+  else if(inthemodel==false && fixornot==false)
+    {
+    fc_df.setbetavalue(0,0,0.0);
+    fc_df.update_bootstrap_df();
+    }
+  else // if(inthemodel==true && fixornot==false)
+    {
+    fc_df.setbetavalue(0,0,lambda);
+    fc_df.update_bootstrap_df();
+    }
+  }
+
+
+void FULLCOND_nonp_gaussian_stepwise::save_betamean(void)
+  {
+  datamatrix betaold = beta;
+
+  if(fixornot==true)
+    {
+    bool raus = false;
+    unsigned j = 1;
+    ST::string name_richtig;
+    if(!varcoeff)
+      name_richtig = datanames[0];
+    else
+      name_richtig = datanames[1];       // (VC alt) 0
+    while(j<fcconst->get_datanames().size() && raus==false)
+      {
+      if(fcconst->get_datanames()[j] == name_richtig)
+        raus = true;
+      j = j + 1;
+      }
+    unsigned index_fix = j-1;
+    double fix = fcconst->getbeta(index_fix,0);
+    unsigned i;
+    double * workbeta = beta.getV();
+    vector<int>::iterator itbeg = posbeg.begin();
+    vector<int>::iterator itend = posend.begin();
+    int * workindex = index.getV();
+    double sum = 0;
+    int k;
+    for(i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
+      {
+      if(*itbeg != -1)
+        {
+        if(!varcoeff)
+          {
+          *workbeta = data_forfixed(*workindex,0)*fix;
+          sum += *workbeta;
+          }
+        else
+          *workbeta = fix;
+        for(k=*itbeg;k<=*itend;k++)
+          workindex++;
+        }
+      }
+    workbeta = beta.getV();
+    sum /= double(nrpar);
+    if(!center)
+      sum = 0;
+    for(i=0;i<nrpar;i++,workbeta++)
+      *workbeta -= sum;
+    double chelp = sum*double(nrpar);
+    fcconst->update_intercept(chelp);
+
+    FULLCOND::save_betamean();
+    //fc_df.setbetavalue(0,0,1);
+    }
+  else if(inthemodel==false && fixornot==false)
+    {
+    beta = datamatrix(nrpar,1,0);
+    FULLCOND::save_betamean();
+    }
+  else
+    {
+    FULLCOND::save_betamean();
+    }
+  beta = betaold;
+  }
 
 void FULLCOND_nonp_gaussian_stepwise::update_bootstrap_betamean(void)
   {
   FULLCOND::update_bootstrap_betamean();
   FULLCOND::setflags(MCMC::norelchange);
+  }
 
+
+void FULLCOND_nonp_gaussian_stepwise::outresults_df(unsigned & size)
+  {
   fc_df.update_bootstrap_betamean();
   //fc_df.outresults();
   double * workmean = fc_df.get_betameanp();
@@ -1074,8 +1163,8 @@ void FULLCOND_nonp_gaussian_stepwise::update_bootstrap_betamean(void)
 // Häufigkeitstabelle:
 
   //samplestream.close();
-  datamatrix sample(optionsp->get_samplesize(),1);
-  fc_df.readsample(sample,0);
+  datamatrix sample(size,1);
+  fc_df.readsample_df(sample,0);
   unsigned i;
 
   vector<unsigned> number;
@@ -1141,6 +1230,72 @@ void FULLCOND_nonp_gaussian_stepwise::update_bootstrap_betamean(void)
     else
       outres << "-";
     outres << endl;
+    }
+  }
+
+
+void FULLCOND_nonp_gaussian_stepwise::update(void)
+  {
+  if(lambda==0)
+    {
+    beta = datamatrix(beta.rows(),beta.cols(),0);
+    FULLCOND::update();
+    }
+  else 
+    FULLCOND_nonp_gaussian::update();
+  }
+
+
+void FULLCOND_nonp_gaussian_stepwise::change_Korder(double lamb)
+  {
+  set_lambdaconst(1000000000);
+  if(lamb==-1)
+    {
+    if(!varcoeff)
+      {
+      if(type==RW1)
+        {
+        Kenv = Krw2env(weight);
+        rankK = nrpar-2;
+        }
+      }
+    else
+      {
+      if(type==RW2)
+        {
+        Kenv = Krw1env(weight);
+        rankK = nrpar-1;
+        }
+      }
+    }
+  else if(lamb==-2)
+    {
+    if(!varcoeff)
+      {
+      // MONOTON: fehlt noch!!!
+      }
+    else
+      {
+      if(type==RW1)
+        {
+        Kenv = Krw2env(weight);
+        rankK = nrpar-2;
+        }
+      }
+    }
+  }
+
+void FULLCOND_nonp_gaussian_stepwise::undo_Korder(void)
+  {
+  if(type==RW1 && rankK==nrpar-2)
+    {
+    Kenv = Krw1env(weight);
+    rankK = nrpar-1;
+    }
+  else if(type==RW2 && rankK==nrpar-1)
+    {
+    Kenv = Krw2env(weight);
+    rankK = nrpar-2;
     }
   }
 

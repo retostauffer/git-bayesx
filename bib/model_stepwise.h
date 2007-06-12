@@ -190,6 +190,7 @@ class __EXPORT_TYPE term_pspline_stepwise : public basic_termtype
   simpleoption center;
   stroption knots;  
   simpleoption nofixed;
+  doubleoption spmonotone;
 
   void setdefault(void);
 

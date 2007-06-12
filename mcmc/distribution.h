@@ -42,6 +42,7 @@ class __EXPORT_TYPE DISTRIBUTION
 
   datamatrix linearpred_ori;
   datamatrix response_ori;
+  bool isbootstrap;
 
   bool nosamples;                 // true if samples should not be stored
                                   //
@@ -348,7 +349,7 @@ class __EXPORT_TYPE DISTRIBUTION
 
   virtual void update_predict(void);
 
-  virtual void update_predict_bootstrap(void);
+  virtual void update_predict_bootstrap(int & bootstrapsamples);
 
   void set_predictresponse(const datamatrix & pr);
 
@@ -422,6 +423,10 @@ class __EXPORT_TYPE DISTRIBUTION
     }
 
   virtual void set_constscale(double s)
+    {
+    }
+
+  virtual void undo_constscale(void)
     {
     }
 
@@ -542,6 +547,10 @@ class __EXPORT_TYPE DISTRIBUTION
 
   void set_original_response(void);
 
+  void update_bootstrap_betamean(void);
+
+  void save_betamean(void);
+
   // FUNCTION: create_weight
   // TASK: Splits the dataset in two parts: one for estimation and one for validation
   //       or
@@ -603,6 +612,13 @@ class __EXPORT_TYPE DISTRIBUTION
   // TASK: computes the BIC
 
   virtual double compute_bic(const double & df);
+
+  // FUNCTION: compute_bootstrap_data
+  // TASK: computes individual bootstrap observations by drawing random numbers
+
+  virtual double compute_bootstrap_data(const double * linpred,const double * weight)
+    {
+    }
 
   //----------------------------------------------------------------------------
   //--------------- functions for maximizing the loglikelihood -----------------
@@ -1857,6 +1873,8 @@ class __EXPORT_TYPE DISTRIBUTION_gamma2 : public DISTRIBUTION
 
   void set_constscale(double s);
 
+  void undo_constscale(void);
+
   double phi_hat() const;
 
   void check(void);
@@ -1940,6 +1958,8 @@ class __EXPORT_TYPE DISTRIBUTION_gamma2 : public DISTRIBUTION
                         const int & i,const unsigned & col=0) const;
 
   double compute_gmu(double * linpred,const unsigned & col=0) const;
+
+  double compute_bootstrap_data(const double * linpred,const double * weight);
   };
 
 
@@ -2230,6 +2250,8 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
 
   void set_constscale(double s);
 
+  void undo_constscale(void);
+
   void set_uniformprior(void);
 
   void update_missings(void);
@@ -2247,6 +2269,7 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
 
   double compute_bic(const double & df);
 
+  double compute_bootstrap_data(const double * linpred,const double * weight);                            
   };
 
 
@@ -2435,6 +2458,9 @@ class __EXPORT_TYPE DISTRIBUTION_binomial : public DISTRIBUTION
 
   double compute_auc(void);
 
+  double compute_bootstrap_data(const double * linpred,const double * weight);
+
+
   void outoptions(void);
 
   // FUNCTION: update
@@ -2580,6 +2606,7 @@ class __EXPORT_TYPE DISTRIBUTION_binomial_latent : public DISTRIBUTION
                     vector<FULLCOND*> & fcp,unsigned & nr,
                     unsigned & it,ST::string & trtype);
 
+  double compute_bootstrap_data(const double * linpred,const double * weight);                            
   };
 
 
@@ -2800,6 +2827,7 @@ class __EXPORT_TYPE DISTRIBUTION_poisson : public DISTRIBUTION
                     vector<FULLCOND*> & fcp,unsigned & nr,
                     unsigned & it,ST::string & trtype);
 
+  double compute_bootstrap_data(const double * linpred,const double * weight);
 
   };  // end: class DISTRIBUTION_poisson
 
@@ -3196,7 +3224,7 @@ class __EXPORT_TYPE DISTRIBUTION_cumulative_latent3 : public DISTRIBUTION
 
   void compute_mu(const double * linpred,double * mu) const;
 
-  void compute_mu_notransform(const double * linpred,double * mu) const;  
+  void compute_mu_notransform(const double * linpred,double * mu) const;
 
   // FUNCTION: compute_devresidual
   // TASK: computes the deviance residual

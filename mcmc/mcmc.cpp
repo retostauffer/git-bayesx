@@ -174,6 +174,11 @@ void MCMCoptions::update(void)
 
 void MCMCoptions::update_bootstrap(void)
   {
+  if(nriter==0)
+    {
+    burnin=0;
+    step=1;
+    }
   nriter++;
   //if(nriter > burnin+1 || nriter==1)
     samplesize++;

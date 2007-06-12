@@ -27,13 +27,12 @@
 bool stepwisereg::check_gaussian(void)
   {
 
-  if ( (family.getvalue() == "gaussian") ||
-       (family.getvalue() == "multgaussian") ||
-     (family.getvalue() == "binomialprobit") ||
-     (family.getvalue() == "bernoullilogit") ||
-     (family.getvalue() == "binomialtlink") ||
-     (family.getvalue() == "multinomialprobit") ||
-     (family.getvalue() == "cumprobit")
+  if ( (family.getvalue() == "gaussian") || (family.getvalue() == "multgaussian")
+//      || (family.getvalue() == "binomialprobit") ||
+//     (family.getvalue() == "bernoullilogit") ||
+//     (family.getvalue() == "binomialtlink") ||
+//     (family.getvalue() == "multinomialprobit") ||
+//     (family.getvalue() == "cumprobit")
      )
      return true;
   else
@@ -237,13 +236,19 @@ void stepwisereg::create(void)
   fine_tuning = simpleoption("fine_tuning",false);
   fine_local = simpleoption("fine_local",false);
 
-  bootstrap = intoption("bootstrap",0,0,20000);
+  bootstrap = intoption("bootstrapsamples",0,0,20000);
   unconditional = simpleoption("conditional",false);
   //maveraging = simpleoption("model_averaging",false);
   //window = intoption("window",10,1,30);
   setseed = intoption("setseed",-1,0,MAXINT);
 
-  ci = simpleoption("ci",false);
+  vector<ST::string> ci;
+  ci.push_back("none");
+  ci.push_back("MCMCselect");
+  ci.push_back("MCMCbootstrap");
+  ci.push_back("bootstrap");
+  CI = stroption("CI",ci,"none");
+
   iterations = intoption("iterations",52000,1,10000000);
   burnin = intoption("burnin",2000,0,500000);
   step = intoption("step",50,1,1000);
@@ -340,7 +345,7 @@ void stepwisereg::create(void)
   regressoptions.push_back(&unconditional);
   //regressoptions.push_back(&window);
   regressoptions.push_back(&setseed);
-  regressoptions.push_back(&ci);
+  regressoptions.push_back(&CI);
   regressoptions.push_back(&burnin);
   regressoptions.push_back(&step);
   regressoptions.push_back(&iterations);
@@ -1777,6 +1782,9 @@ bool stepwisereg::create_const(const unsigned & collinpred)
           if (constincl == true)
             fcconst_intercept = &normalconst[normalconst.size()-1];
           fullcond.push_back(&normalconst[normalconst.size()-1]);
+          if(!check_gaussian())
+            normalconst[normalconst.size()-1].set_utype();
+
 
 /*        else if (family.getvalue() == "gamma")
           {
@@ -1950,7 +1958,7 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
           for (j=0;j<fcpsplinestep.size();j++)
             {
             if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
-                (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&
+                (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&   
                 fcpsplinestep[j].get_col() == collinpred )
                 {
                 mainp1 = &fcpsplinestep[j];
@@ -2007,8 +2015,8 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
           }
 
         vector<ST::string> na;
-        na.push_back(terms[i].varnames[0]);
-        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[1]);  // (VC alt) 0
+        na.push_back(terms[i].varnames[0]);  // (VC alt) 1
         if(center == true)
           na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
         else
@@ -2062,6 +2070,7 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
   bool df_equidist;
   double df_accuracy;
   ST::string monotone;
+  double spmonotone;
   bool center;
   bool nofixed;
 
@@ -2142,6 +2151,7 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
       else
          nofixed = false;
 
+      f = (terms[i].options[22]).strtodouble(spmonotone);
 
       MCMC::knotpos po;
 
@@ -2287,8 +2297,8 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
           }
 
         vector<ST::string> na;
-        na.push_back(terms[i].varnames[0]);
-        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[1]);  // (VC alt) 0
+        na.push_back(terms[i].varnames[0]);  // (VC alt) 1
         if(center == true)
           na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
         else
@@ -2302,10 +2312,12 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
       fcpsplinestep[fcpsplinestep.size()-1].set_dfstart(dfstart);
       fcpsplinestep[fcpsplinestep.size()-1].set_nofixed(nofixed);
       fcpsplinestep[fcpsplinestep.size()-1].set_stepwise_accuracy(df_accuracy);
+      fcpsplinestep[fcpsplinestep.size()-1].set_spmonotone(spmonotone);
 
       fcpsplinestep[fcpsplinestep.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcpsplinestep[fcpsplinestep.size()-1]);
-
+      if(!check_gaussian())
+        fcpsplinestep[fcpsplinestep.size()-1].set_utype();
       }
 
     }
@@ -2540,8 +2552,8 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
           }
 
         vector<ST::string> na;
-        na.push_back(terms[i].varnames[0]);
-        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[1]);   // (VC alt) 0
+        na.push_back(terms[i].varnames[0]);   // (VC alt) 1
         if(center == true)
           na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
         else
@@ -2743,8 +2755,8 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
           }
 
       vector<ST::string> na;
-      na.push_back(terms[i].varnames[0]);
-      na.push_back(terms[i].varnames[1]);
+      na.push_back(terms[i].varnames[1]);   // (VC alt) 0
+      na.push_back(terms[i].varnames[0]);   // (VC alt) 1
       if(inclf == false)
         na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
       else
@@ -3337,7 +3349,7 @@ void regressrun(stepwisereg & b)
     //int window = b.window.getvalue();
     int boot = b.bootstrap.getvalue();
     bool uncond = b.unconditional.getvalue();
-    bool CI = b.ci.getvalue();
+    ST::string CI = b.CI.getvalue();
     //bool hier = b.hier.getvalue();
     bool hier = b.hierarchical_model_yesno;
     bool gm = b.ganzematrix.getvalue();
@@ -3350,7 +3362,7 @@ void regressrun(stepwisereg & b)
 
     ST::string path = b.outfiles[0];
     ST::string path2 = path;
-    if(boot > 0)
+    if(CI!="none")
       b.bootyesno = true;
     else
       b.bootyesno = false;
@@ -3375,19 +3387,19 @@ void regressrun(stepwisereg & b)
 
 #if defined(JAVA_OUTPUT_WINDOW)
 
-      if(CI == true && b.nrcategories == 1)
-        {
-        b.newcommands.push_back("drop " + b.name);
-        b.newcommands.push_back("bayesreg " + b.name);
-        b.newcommands.push_back(b.name + ".outfile = " + path);
-        double level1 = b.level1.getvalue();
-        double level2 = b.level2.getvalue();
-        ST::string data = " level1=" + ST::doubletostring(int(level1))
-             + " level2=" + ST::doubletostring(int(level2)) + " using " + b.udata.getusingtext();
-        b.newcommands.push_back(path2 + data);  
-        }
-      else
-        {
+      //if(CI == true && b.nrcategories == 1)
+      //  {
+      //  b.newcommands.push_back("drop " + b.name);
+      //  b.newcommands.push_back("bayesreg " + b.name);
+      //  b.newcommands.push_back(b.name + ".outfile = " + path);
+      //  double level1 = b.level1.getvalue();
+      //  double level2 = b.level2.getvalue();
+      //  ST::string data = " level1=" + ST::doubletostring(int(level1))
+      //       + " level2=" + ST::doubletostring(int(level2)) + " using " + b.udata.getusingtext();
+      //  b.newcommands.push_back(path2 + data);
+      //  }
+      //else
+      //  {
         b.fullcond = fullcond_z;
         for(unsigned j=0;j<b.fullcond.size();j++)
            {
@@ -3407,21 +3419,24 @@ void regressrun(stepwisereg & b)
 
              if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
                {
-               // double u = b.fullcond[j]->get_level1();
-               // double o = b.fullcond[j]->get_level2();
-               // ST::string u_str = ST::doubletostring(u,0);
-               // ST::string o_str = ST::doubletostring(o,0);
                b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
                + ", color outfile = " + pathps + "_pmean.ps replace");
-               // b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-               // + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
-               // + "_pcat" + u_str + ".ps replace");
-               // b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-               // + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
-               // + "_pcat" + o_str + ".ps replace");
+               if(CI != "none")
+                 {
+                 double u = b.fullcond[j]->get_level1();
+                 double o = b.fullcond[j]->get_level2();
+                 ST::string u_str = ST::doubletostring(u,0);
+                 ST::string o_str = ST::doubletostring(o,0);
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+                 + "_pcat" + u_str + ".ps replace");
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+                 + "_pcat" + o_str + ".ps replace");
+                 }
                }
              }
-           }
+        //   }
 
         b.newcommands.push_back(b.name + ".texsummary");
        }
@@ -3548,7 +3563,7 @@ void mregressrun(stepwisereg & b)
     //int window = b.window.getvalue();
     int boot = b.bootstrap.getvalue();
     bool uncond = b.unconditional.getvalue();
-    bool CI = b.ci.getvalue();
+    ST::string CI = b.CI.getvalue();
     //bool hier = b.hier.getvalue();
     bool hier = b.hierarchical_model_yesno;
     bool gm = b.ganzematrix.getvalue();
@@ -3559,7 +3574,7 @@ void mregressrun(stepwisereg & b)
 
     ST::string path = b.outfiles[0];
     ST::string path2 = path;
-    if(boot > 0)
+    if(CI!="none")
       b.bootyesno = true;
     else
       b.bootyesno = false;
@@ -3584,50 +3599,39 @@ void mregressrun(stepwisereg & b)
 
 #if defined(JAVA_OUTPUT_WINDOW)
 
-      if(CI == true && b.nrcategories == 1)
-        {
-        b.newcommands.push_back("drop " + b.name);
-        b.newcommands.push_back("bayesreg " + b.name);
-        b.newcommands.push_back(b.name + ".outfile = " + path);
-        double level1 = b.level1.getvalue();
-        double level2 = b.level2.getvalue();
-        ST::string data = " level1=" + ST::doubletostring(int(level1))
-             + " level2=" + ST::doubletostring(int(level2)) + " using " + b.udata.getusingtext();
-        b.newcommands.push_back(path2 + data);  
-        }
-      else
-        {
-        b.fullcond = fullcond_z;
-        for(unsigned j=0;j<b.fullcond.size();j++)
+      b.fullcond = fullcond_z;
+      for(unsigned j=0;j<b.fullcond.size();j++)
+         {
+         MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
+         if(plst != MCMC::noplot)
            {
-           MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
-           if(plst != MCMC::noplot)
+           vector<ST::string> varnames = b.fullcond[j]->get_datanames();
+           ST::string xvar = varnames[0];
+           ST::string pathresult = b.fullcond[j]->get_pathresult();
+           ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+           if(plst == MCMC::plotnonp)
              {
-             vector<ST::string> varnames = b.fullcond[j]->get_datanames();
-             ST::string xvar = varnames[0];
-             ST::string pathresult = b.fullcond[j]->get_pathresult();
-             ST::string pathps = pathresult.substr(0, pathresult.length()-4);
-             if(plst == MCMC::plotnonp)
-               {
-               b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
-               + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
-               + " ylab = \" \" outfile = " + pathps + ".ps replace");
-               }
+             b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
+             + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
+             + " ylab = \" \" outfile = " + pathps + ".ps replace");
+             }
 
-             if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
+           if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
+             {
+             b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+             + ", color outfile = " + pathps + "_pmean.ps replace");
+             if(CI != "none")
                {
-               // double u = b.fullcond[j]->get_level1();
-               // double o = b.fullcond[j]->get_level2();
-               // ST::string u_str = ST::doubletostring(u,0);
-               // ST::string o_str = ST::doubletostring(o,0);
+               double u = b.fullcond[j]->get_level1();
+               double o = b.fullcond[j]->get_level2();
+               ST::string u_str = ST::doubletostring(u,0);
+               ST::string o_str = ST::doubletostring(o,0);
                b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-               + ", color outfile = " + pathps + "_pmean.ps replace");
-               // b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-               // + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
-               // + "_pcat" + u_str + ".ps replace");
-               // b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-               // + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
-               // + "_pcat" + o_str + ".ps replace");
+               + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+               + "_pcat" + u_str + ".ps replace");
+               b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+               + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+               + "_pcat" + o_str + ".ps replace");
                }
              }
            }
@@ -3984,7 +3988,8 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         ST::string path = outfile.getvalue() + add_name + "_predictmean.raw";
         ST::string pathdev = outfile.getvalue() + add_name + "_deviance_sample.raw";
         if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
-          distr_gaussian[distr_gaussian.size()-1].set_predict(path,pathdev,&D,modelvarnamesv);
+          //distr_gaussian[distr_gaussian.size()-1].set_predict(path,pathdev,&D,modelvarnamesv);
+          distr[distr.size()-1]->set_predict(path,pathdev,&D,modelvarnamesv);
 
         //  }
 
@@ -4062,6 +4067,8 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
 
         fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcpsplinesurfstep[fcpsplinesurfstep.size()-1]);
+        if(!check_gaussian())
+          fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_utype();
         }
       else // if(varcoeff == true)
         {
@@ -4077,7 +4084,7 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         for (j=0;j<fcpsplinestep.size();j++)
           {
           if  ( ((fcpsplinestep[j].get_datanames()).size() >= 2) &&
-               (fcpsplinestep[j].get_datanames()[1] == terms[i].varnames[1]) &&
+               (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[1]) &&  // (VC alt) 1
                 fcpsplinestep[j].get_col() == collinpred
               )
             {
@@ -4102,7 +4109,7 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
 
 
           if  ( ((fcpsplinestep[j].get_datanames()).size() >= 2) &&
-              (fcpsplinestep[j].get_datanames()[1] == terms[i].varnames[2]) &&
+              (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[2]) &&   // (VC alt) 1
               fcpsplinestep[j].get_col() == collinpred
               )
             {
@@ -4151,7 +4158,8 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         ST::string path = outfile.getvalue() + add_name + "_predictmean.raw";
         ST::string pathdev = outfile.getvalue() + add_name + "_deviance_sample.raw";
         if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
-          distr_gaussian[distr_gaussian.size()-1].set_predict(path,pathdev,&D,modelvarnamesv);
+          //distr_gaussian[distr_gaussian.size()-1].set_predict(path,pathdev,&D,modelvarnamesv);
+          distr[distr.size()-1]->set_predict(path,pathdev,&D,modelvarnamesv);
 
         fcpsplinesurfstep.push_back(
         FULLCOND_pspline_surf_stepwise(&generaloptions[generaloptions.size()-1],distr[distr.size()-1],
@@ -4222,7 +4230,7 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
           {
           if(type == MCMC::mrflinear || type == MCMC::mrfquadratic8)
             outerror("ERROR: Use 'psplineinteract' for interaction terms!\n");
-            
+
           hierarchical_model_yesno = true;
 
           ST::string pathnonpt;
@@ -4254,7 +4262,9 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
           }
 
         vector<ST::string> na;
+        na.push_back(terms[i].varnames[1]);  // (VC alt) Zeile weg!
         na.push_back(terms[i].varnames[0]);
+        na.push_back(terms[i].varnames[2]);  // (VC alt) Zeile weg!
         na.push_back("(" + terms[i].varnames[1] + "_c*" + terms[i].varnames[2] + "_c)");
         if(center == true)
           na.push_back(terms[i].varnames[0] + "*(" + terms[i].varnames[1] + "_c*" + terms[i].varnames[2] + "_c)");
@@ -4271,6 +4281,8 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
 
         fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&fcpsplinesurfstep[fcpsplinesurfstep.size()-1]);
+        if(!check_gaussian())
+          fcpsplinesurfstep[fcpsplinesurfstep.size()-1].set_utype();
         }
       }
     }
@@ -4505,8 +4517,8 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
           }
 
         vector<ST::string> na;
-        na.push_back(terms[i].varnames[0]);
-        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[1]);   // (VC alt) 0
+        na.push_back(terms[i].varnames[0]);   // (VC alt) 1
         if(center == true)
           na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
         else
@@ -4723,6 +4735,7 @@ void stepwisereg::describe(optionlist & globaloptions)
 //------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
+
 
 
 
