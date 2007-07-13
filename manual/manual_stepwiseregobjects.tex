@@ -1,0 +1,1919 @@
+\chapter{stepwisereg objects}
+\normalsize
+\label{stepwisereg} \index{Stepwisereg object}
+
+{\em stepwisereg objects} are used to fit models with {\em structured
+additive predictor} subsumed in the class of {\em structured
+additive regression (STAR)} models, see Belitz and Lang (2007),
+Fahrmeir, Kneib, and Lang (2004, 2007). In contrary to {\em bayesreg} and
+{\em remlreg} objects described in the previous two chapters, {\em stepwisereg}
+objects are able perform simultaneous selection of relevant covariates, choice of the
+smoothing parameters and  estimation of the parameters. The algorithms are able to
+\begin{itemize}
+\item decide whether a particular covariate enters the model,
+\item decide whether a continuous covariate enters the model linearly or nonlinearly,
+\item decide whether a spatial effect enters the model,
+\item decide whether a unit- or cluster specific heterogeneity effect enters the model,
+\item select complex interaction effects (two dimensional surfaces, varying coefficient terms),
+\item select the degree of smoothness of  nonlinear covariate, spatial or cluster specific heterogeneity effects.
+\end{itemize}
+Inference is based on penalized likelihood in combination with fast algorithms for selection relevant covariates
+and model terms. Different models are compared via various goodness of fit criteria., e.g. $AIC$, $BIC$, $GCV$ and 5 or 10 fold cross
+validation. Models with structured additive predictor are described in considerable detail in
+the methodology manual. Details on the algorithms for model choice and variable selection are given in Belitz and Lang (2007) and Belitz (2007).
+
+\index{Generalized linear models} \index{Generalized additive
+models} \index{Varying coefficients} \index{Bayesian semiparametric
+regression} \index{model choice} \index{variable selection}
+
+%First steps with {\em remlreg objects} can be done with the example
+%in chapter \ref*{remlregzambiaanalysis} of the tutorial manual which
+%provides a self-contained demonstrating example.
+
+\section{Method regress}
+\index{Regress function}\index{Stepwisereg object!Regress
+function}  \label{stepwiseregregress}
+
+\subsection{Syntax}
+\index{Regression syntax}\index{Stepwisereg object!Regression syntax}
+\label{stepwiseregregresssyntax}
+
+#># {\em objectname}.#regress# {\em model} [#weight# {\em weightvar}] [#if# {\em expression}] [{\em , options}] #using# {\em dataset}
+
+Method #regress# estimates the regression model specified in {\em
+model} using the data specified in {\em dataset}. {\em dataset} has
+to be the name of a {\em dataset object} created before. The details
+of correct model specification are covered in
+\autoref{stepwiseregmodelsyntax}. The distribution of the response
+variable can be either Gaussian, binomial, multinomial or Poisson.
+The response distribution is specified using
+option #family#, see \autoref{stepwiseregfamilysyntax} below. The
+default is #family=binomial# with a logit link. An #if# statement
+can be specified to analyze only parts of the data set, i.e. the
+observations where {\em expression} is true.
+
+\subsubsection{Optional weight variable}
+\index{Weighted regression}
+\label{stepwiseregweightspecification}
+
+An optional weight variable {\em weightvar} can be specified to
+estimate weighted regression models. For Gaussian responses, {\em
+BayesX} assumes that $y_i|\eta_i,\sigma^2 \sim
+N(\eta_i,\sigma^2/weightvar_i)$. Thus, for grouped Gaussian
+responses the weights represent the number of observations in the
+groups if the $y_i$'s are the average of individual responses. If
+the $y_i$s are the sum of responses in every group, the weights have
+to be the reciprocal of the number of observations in the groups. Of
+course, estimation of usual weighted regression models with
+heteroscedastic errors is also possible. In this case, the weights
+should be proportional to the reciprocal of the heteroscedastic
+variances. If the response distribution is binomial, the weight
+variable should correspond to the number of replications while the
+values of the response variable should represent the number of
+successes. If weight is omitted, {\em BayesX} assumes that the
+number of replications is one, i.e. the values of the response must
+be either zero or one. For grouped Poisson data, the weights have to
+specify the number of observations in a group while the $y_i$s are
+assumed to be the average of individual responses. Weights are not
+allowed for models with multicategorical responses.
+
+\subsubsection{Syntax of possible model terms}
+\label{stepwiseregmodelsyntax}
+\index{Model terms}
+\index{Stepwisereg object!Model terms}
+
+The general syntax of models for {\em stepwisereg objects} is:
+
+$depvar = term_1 + term_2 + \cdots + term_r$
+
+{\em depvar} specifies the dependent variable whereas
+$term_1$,\dots,$term_r$ define the form of covariate influences. The
+different terms must be separated by '+' signs. A constant intercept
+is automatically included in the model and has not to be
+specified by the user.
+
+This section reviews all possible model terms supported in the
+current version of {\em stepwisereg objects} and provides some specific
+examples. Note that all terms may be combined in arbitrary
+order. An overview about the capabilities of {\em stepwisereg objects}
+is given in \autoref{stepwiseregterms}. \autoref{stepwisereginteractions}
+shows how interactions between covariates are specified. Full
+details about all available options are given in
+\autoref{stepwisereglocaloptions}.
+
+Throughout this section Y denotes the dependent variable.
+
+
+\begin{longtable}{p{2.2cm} p{13.3cm}}
+{\tt algorithm} & specifies the selection procedure that is to be used. \\
+            & \\
+{\tt steps}     & defines the maximum number of iterations that can be used during the selection process. If the value {\tt steps}
+                   is reached before the selection process is finished, the process stops and the results of the current model
+                   are written to the results files. If that happens, a warning is written to the output window.
+                   By setting {\tt steps=0} it is possible to estimate a certain model
+                   without performing any selection. \\
+            & \\
+{\tt criterion} & specifies the selection criterion that is to be used. \\
+            & \\
+{\tt proportion} & If the selection is based on a criterion using a training and a validation data set,
+                  i.e.~on {\tt MSEP}, {\tt proportion} defines the fraction of the original data used as training data. \\
+            & \\
+{\tt startmodel} & defines the model that is used as starting model. \\
+%{\tt hierarchcal} \> hoffentlich \"{u}berfl\"{u}ssig
+            & \\
+{\tt number} & defines the number of different smoothing parameters to be used for the nonlinear terms. This number can be
+overwritten using the local option {\tt number}. \\
+            & \\
+{\tt trace} & specifies how detailed the output in the {\it output window} will be. \\
+            & \\
+{\tt CI} & specifies if confidence intervals are to be calculated. The default value is {\tt CI=none}
+so that no confidence intervals are obtained. {\tt CI=MCMCselect} yields confidence intervals which are
+estimated by MCMC techniques conditional on the selected model, i.e.~scale parameter
+and smoothing parameters are fixed on the values chosen by the preceding selection procedure.
+Unconditional confidence intervals can be obtained by {\tt CI=MCMCbootstrap} where several models
+are selected on the basis of bootstrap samples. For each of the selected models
+samples are drawn by MCMC techniques conditional on the respective model and based on the original data set.
+{\tt CI=bootstrap} yields unconditional confidence intervals by selecting many models
+on the basis of bootstrap samples. \\
+            & \\
+{\tt bootstrap-} \newline {\tt samples} & defines the number of bootstrap samples used for {\tt CI=bootstrap} or {\tt CI=MCMCbootstrap}. \\
+            & \\
+{\tt iterations} & defines the number of MCMC iterations used for {\tt CI=MCMCselect} or
+{\tt CI=MCMCbootstrap}. With {\tt CI=MCMCbootstrap}, option {\tt iterations} specifies the total number
+of iterations, i.e.~the sum of iterations used for the individual conditional MCMC estimations.
+Here, {\tt iterations} is divided equally between the individual conditional estimations so that the number of iterations
+used for one model is {\tt iterations / (bootstrap + 1)}. Hence, {\tt iterations} should be chosen appropriately.  \\
+            & \\
+{\tt step} & is a thinning parameter and specifies that only every {\tt step}--th MCMC--sample is used for the calculation of credible intervals
+with {\tt CI=MCMCselect} or {\tt CI=MCMCbootstrap}.
+Since the samples are correlated, the thinning out of MCMC samples is used to obtain
+approximately independent samples. \\
+            & \\
+{\tt burnin} & defines the number of MCMC iterations used for the burn--in phase
+at the beginning of each conditional MCMC estimation.
+Hence it is meaningful for {\tt CI=MCMCbootstrap} and {\tt CI=MCMCselect}. The burn--in phase usually
+is needed to achieve convergence of the Markov chain regarding its stationary (i.e.~the posterior) distribution.
+In our case, the initial estimates for each conditional MCMC estimation are the posterior mode estimates. That
+means, the Markov chain already starts in its stationary distribution.
+Hence, the burn--in phase usually is not needed here and it is possible to define {\tt burnin=0} what
+saves a lot of computing time. \\
+            & \\
+{\tt level1} & defines the first significance level for confidence intervals. \\
+            & \\
+{\tt level2} & defines the second significance level for confidence intervals. \\
+            & \\
+{\tt predict} & By specifying {\tt predict} an additional results file is created containing estimates for the predictor and
+                for the conditional expectation of the response variable. \\
+            & \\
+{\tt family} & specifies response distribution and link function. \\
+            & \\
+{\tt reference} & specifies the reference category for multinomial logit models.
+\end{longtable}
+
+
+\begin{table}[ht] \footnotesize
+\begin{center}
+\begin{tabular}{|p{2.5cm}|p{1.5cm}|p{1.5cm}|p{2.5cm}|p{6cm}|}
+\hline
+{\bf global option} & {\bf type} & {\bf default} & {\bf values} & {\bf meaning} \\
+\hline \hline
+{\tt algorithm}  & string  & cdescent1 & cdescent1 & adaptive search \\
+                 &         &           & cdescent2 & exact search \\
+                 &         &           & cdescent3 & adaptive/exact search \\
+                 &         &           & stepwise  & stepwise algorithm \\
+\hline
+{\tt steps}      & numeric \newline (integer) & 1000 & $\{0;10000\}$ & maximum number of iterations \\
+\hline
+{\tt criterion}  & string  & GCV       & GCV      & GCV (for non--Gaussian response (\ref{GCV_general2})
+                                                      based on deviance residuals)\\
+                 &         &           & GCVrss   & only meaningful for non--Gaussian response:
+                                                    GCV (\ref{GCV_general}) based on residual sum of squares \\
+                 &         &           & AIC      & AIC \\
+                 &         &           & AIC\_imp & improved AIC \\
+                 &         &           & BIC      & BIC \\
+                 &         &           & MSEP     & MSEP \\
+                 &         &           & CV5      & 5--fold cross validation \\
+                 &         &           & CV10     & 10--fold cross validation \\
+                 &         &           & AUC      & area under the ROC curve \newline
+                                                    (only for binary response) \\
+\hline
+{\tt proportion} & numeric \newline (real)    & 0.75 & $(0;1)$ & for MSEP (see description above) \\
+\hline
+{\tt startmodel} & string  & linear    & linear      & base model with degrees of freedom equal to one \\
+                 &         &           & empty       & empty model containing the intercept term only \\
+                 &         &           & full        & most complex possible model \\
+                 &         &           & userdefined & base model specified by the user; \newline
+                                                       otherwise the linear one \\
+\hline
+{\tt number}     & numeric \newline (integer) & 20   & $\{1;50\}$ & number of smoothing parameters \\
+\hline
+{\tt trace}      & string  & trace\_on & trace\_on   & output shows every new model during iterations \\
+                 &         &           & trace\_half & output shows the starting models of all iterations \\
+                 &         &           & trace\_off  & no output except starting and final model \\
+\hline
+{\tt CI}         & string  & none      & none          & no confidance intervals \\
+                 &         &           & MCMCselect    & conditional MCMC confidance bands \\
+                 &         &           & MCMCbootstrap & unconditional confidance bands based on bootstrap and MCMC \\
+                 &         &           & bootstrap     & unconditional MCMC confidance intervals based on bootstrap \\
+\hline
+{\tt bootstrap-} \newline {\tt samples}  & numeric \newline (integer) & 0 & $\{100;10000\}$ & number of bootstrap samples \\
+\hline
+\end{tabular}
+{\em\caption {\label{stewpisereg_globaloptions} Possible global options
+for stepwisereg objects.}}
+\end{center}
+\end{table}
+%
+\begin{table}[ht] \footnotesize
+\begin{center}
+\begin{tabular}{|p{2.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|p{6cm}|}
+\hline
+{\bf global option} & {\bf type} & {\bf default} & {\bf values} & {\bf meaning} \\
+\hline \hline
+{\tt iterations}  & numeric \newline (integer) & 52000 & $\{1;10000000\}$ & total number of MCMC iterations \\
+\hline
+{\tt step}  & numeric \newline (integer) & 50 & $\{1;1000\}$ & thinning parameter for MCMC samples \\
+\hline
+{\tt burnin}  & numeric \newline (integer) & 2000 & $\{0;500000\}$ & number of MCMC iterations used for each burnin phase \\
+\hline
+{\tt level1}  & numeric \newline (real) & 95 & $[40;99]$ & first significance level \\
+\hline
+{\tt level2}  & numeric \newline (real) & 80 & $[40;99]$ & second significance level \\
+\hline
+{\tt predict}  & boolean  & false & false & no estimates for predictor / expectation of response \\
+               &          &       & true  & estimates for the predictor and expectation are obtained \\
+\hline
+{\tt family}     & string  & logit     & gaussian    & Gaussian distribution with identity link \\
+                 &         &           & binomial    & Binomial distribution with logit link \\
+                 &         &           & binomialprobit & Binomial distribution with probit link \\
+                 &         &           & poisson     & Poisson distribution with log link \\
+                 &         &           & gamma       & Gamma distribution with log link \\
+                 &         &           & multinomial & Multinomial distribution with logit link \\
+\hline
+{\tt reference}  & numeric \newline (real)  & 0     & $[-10000;10000]$    & reference category for multinomial logit models \\
+\hline
+\end{tabular}
+{\em\caption {\label{stewpisereg_globaloptions2} Possible global options
+for stepwisereg objects.}}
+\end{center}
+\end{table}
+
+
+\begin{longtable}{p{2.2cm} p{13.3cm}}
+{\tt dfmin} & Option {\tt dfmin} defines the smallest possible degree of freedom
+              for a nonlinear function (besides the linear effect).
+              The largest smoothing parameter is calculated according to {\tt dfmin}.
+              Possible values depend on the number of regression parameters
+              and on the prior distribution
+              (compare section \ref{section_df}). In order to avoid numerical problems
+              the smoothing parameter may not become larger than $10^9$. In this
+              case, {\tt dfmin} is enlarged by ({\tt dfmax} - {\tt dfmin}) / {\tt number}
+              (and {\tt number} is reduced by one).
+              Additionally, this ascertains that {\tt dfmin} is redefined to
+              a possible value. \\
+            & \\
+{\tt dfmax} & Option {\tt dfmax} defines the largest possible degree of freedom for a
+              nonlinear function. The smallest smoothing parameter is calculated
+              according to {\tt dfmax}. Possible values depend on the number of regression
+              parameters and on the prior distribution
+              (compare section \ref{section_df}). In order to avoid numerical problems
+              the smoothing parameter may not become smaller than $10^{-9}$. In this
+              case, {\tt dfmax} is reduced by ({\tt dfmax} - {\tt dfmin}) / {\tt number}
+              (and {\tt number} is reduced by one).
+              Additionally, this ascertains that {\tt dfmax} is redefined to
+              a possible value. \\
+            & \\
+{\tt dfstart} & Option {\tt dfstart} defines the complexity of the function used in
+                the base model. This option is only meaningful if
+                {\tt startmodel=userdefined} is specified. In this case, the default value for
+                {\tt dfstart} is either the fixed effect, if possible, or otherwise the degree of freedom nearest to one. \\
+            & \\
+{\tt logscale} & This option causes the smoothing parameters to lie on a logarithmic
+                 scale instead of being specified according to equidistant
+                 degrees of freedom. In this case, only the smallest and largest smoothing parameters
+                 are calculated according to {\tt dfmin} and {\tt dfmax}. This option is only meaningful
+                 if option {\tt sp} is not specified (see below). \\
+            & \\
+{\tt df\_accuracy} & This option specifies the maximal absolute difference in terms of
+                     degrees of freedom that is allowed when calculating smoothing parameters
+                     according to user--specified degrees of freedom. \\
+            & \\
+{\tt sp} & Option {\tt sp} causes the smoothing parameters to be chosen directly according
+           to values specified by options {\tt spmin}, {\tt spmax} and {\tt spstart}.
+           All other values are chosen according to a logarithmic scale. \\
+            & \\
+{\tt spmin} & This option defines the smallest smoothing parameter but is only valid if
+              {\tt sp} is specified. \\
+            & \\
+{\tt spmax} & Option {\tt spmax} defines the largest smoothing parameter but is only valid if
+              {\tt sp} is specified. \\
+            & \\
+{\tt spstart} & This option is only meaningful if {\tt startmodel=userdefined} and {\tt sp}
+                are specified. It defines the smoothing parameter used for the base model. Note, that {\tt spstart}
+                can not only take positive values but can also take the values {\tt spstart=0} for
+                excluding the function in the base model and {\tt spstart=-1} for using the fixed effect. \\
+            & \\
+{\tt number} & {\tt number} specifies the number of different smoothing parameters
+               (besides the linear effect and exclusion from the model). For {\tt number=0} the
+               global option {\tt number} is used. \\
+            & \\
+{\tt forced\_into} & This option drops the possibility to exclude the function from the model. That means the respective function
+                     is always included in the model. \\
+            & \\
+{\tt nofixed} & This option drops the possibility to use a linear fit. Hence, only possibilities
+for a nonlinear effect and for the removal from the model remain. \\
+            & \\
+{\tt center} & {\tt center} has to be specified with varying coefficients if the
+               coefficients must get centered with regard to the interacting variable, i.e., if
+               there are several varying coefficients modifying the same interacting variable.
+               Hence, {\tt center} is only meaningful for varying coefficients and random slopes. \\
+            & \\
+{\tt coding} & Option {\tt coding} is only meaningful for factor variables. It determines wether
+               dummy variables ({\tt coding=dummy}) or effect variables ({\tt coding=effect})
+               are used to represent the factor. \\
+            & \\
+{\tt reference} & Option {\tt reference} is again only meaningful for factor variables. It defines
+                  the value for the reference category. \\
+            & \\
+{\tt degree} & Specifies the degree of B-spline basis functions. \\
+            & \\
+{\tt nrknots} & Specifies the number of inner knots for a P-spline term. \\
+            & \\
+{\tt monotone} & Option {\tt monotone} specifies additional constraints for univariate
+                 P--spline terms. Possible are the estimation of an unrestricted function,
+                 a monotonically increasing or decreasing function (i.e. positive/negative first derivative)
+                 or a convex or concave function (i.e. positive/negative second derivative).
+                 Note, that both type and direction of the constraint have to be defined by the user and are
+                 not determined by the selection procedure. \\
+            & \\
+{\tt gridsize} & The option {\tt gridsize} can be used to restrict the
+                 number of points (at the x-axis) for which estimates are computed.
+                 By default, estimates are computed at every distinct covariate
+                 value in the data set (indicated by {\tt gridsize=-1}). This may be
+                 relatively time consuming in situations where the number of
+                 distinct covariate values is large. If {\tt gridsize=nrpoints} is
+                 specified, estimates are computed
+                 on an equidistant grid with {\tt nrpoints} knots. \\
+            & \\
+{\tt period} & The period of the seasonal effect can be specified with
+               option {\tt period}. The default is {\tt period=12} which corresponds
+               to monthly data. \\
+            & \\
+{\tt map} & The map object for a spatial function is defined by option {\tt map}.
+\end{longtable}
+
+\begin{table}[ht] \footnotesize
+\begin{center}
+\begin{tabular}{|p{2.8cm}|p{5cm}|p{7cm}|}
+\hline
+{\bf Type}     & {\bf Syntax example} & {\bf Description} \\
+\hline \hline
+offset         & {\tt offs(offset)}  & Variable {\tt offs} is an offset term. \\
+\hline
+linear effect  & {\tt W1}  & Linear effect for {\tt W1}. \\
+\hline
+factor         & {\tt F1(factor)} & Effect of categorical variable {\tt F1} \\
+\hline
+first or second order random walk &   {\tt X1(rw1)} \newline {\tt X1(rw2)}  & Nonlinear effect of {\tt X1}. \\
+\hline
+P-spline       &  {\tt X1(psplinerw1)} \newline {\tt X1(psplinerw2)}  & Nonlinear effect of {\tt X1}.  \\
+\hline
+seasonal prior & {\tt time(season)} & Varying seasonal effect of {\tt time}. \\
+\hline
+Markov random \newline field &  {\tt region(spatial,map=m)}  & Spatial effect of {\tt region} where {\tt region} indicates the region an
+observation pertains to. The boundary information and the
+neighborhood structure are stored in the {\em map object}
+{\tt m} . \\
+\hline
+Two dimensional \newline P-spline & {\tt region(geosplinerw1,map=m)} \newline {\tt region(geosplinerw2,map=m)}
+& Spatial effect of {\tt region}. Estimates a two dimensional P-spline
+based on the centroids of the regions. The centroids are stored in the {\em map object} {\tt m}. \\
+\hline
+random intercept &  {\tt grvar(random)}  & I.i.d.~Gaussian random effect of the group indicator {\tt grvar} ,
+e.g.~{\tt grvar}  may be an individuum indicator when analyzing longitudinal data.  \\
+\hline
+\end{tabular}
+{\em\caption {\label{stepwisereg_terms} Overview over different model terms
+for stepwisereg objects.}}
+\end{center}
+\end{table}
+
+
+\begin{table}[ht] \footnotesize
+\begin{center}
+\begin{tabular}{|p{3.6cm}|p{4.5cm}|p{6.7cm}|}
+\hline
+{\bf Type of interaction} & {\bf Syntax example} & {\bf Description} \\
+\hline \hline
+Varying coefficient term & {\tt X1*X2(rw1)} \newline {\tt X1*X2(rw2)} \newline {\tt X1*X2(psplinerw1)} \newline {\tt X1*X2(psplinerw2)}
+%\newline {\tt X1*time(season)}
+& Effect of {\tt X1} varies smoothly over the range of the continuous covariate {\tt X2}. \\
+\hline
+random slope & {\tt X1*grvar(random)}  &  The regression
+coefficient of {\tt X1} varies with respect
+to the unit- or cluster-index variable {\tt grvar}. \\
+\hline
+Geographically weighted regression & {\tt X1*region(spatial,map=m)}  & Effect of {\tt X1} varies
+geographically. Covariate
+{\tt region} indicates the region an observation pertains to. \\
+\hline
+Two dimensional surface &  {\tt X1*X2(pspline2dimrw1)} \newline {\tt X1*X2(pspline2dimrw2)}
+& Two dimensional surface for the continuous
+covariates {\tt X1} and {\tt X2}. \\
+\hline
+ANOVA type interaction &  {\tt X1*X2(psplineinteract) + } \newline {\tt X1(psplinerw?) + X2(psplinerw?)}
+& ANOVA type interaction for the continuous
+covariates {\tt X1} and {\tt X2}. \\
+\hline
+
+\end{tabular}
+{\em\caption {\label{stepwisereg_interactions} Possible interaction
+terms for stepwisereg objects.}}
+\end{center}
+\end{table}
+
+ \begin{sidewaystable}[ht] \footnotesize
+ \begin{center}
+ \begin{tabular}{|l|l|l|l|l|}%{|p{2.5cm}|p{1.5cm}|p{2cm}|p{2cm}|p{7cm}|}
+ \hline
+ {\bf local option} & {\bf type} & {\bf default} & {\bf values} & {\bf meaning} \\
+ \hline \hline
+ {\tt dfmin}     & numeric (real) & --    & compare section \ref{section_df} & minimal degree of freedom \\
+\hline
+ {\tt dfmax}     & numeric (real) & --    & compare section \ref{section_df} & maximal degree of freedom \\
+\hline
+ {\tt dfstart}   & numeric (real) & 1     & $\{0,1\} \cup [dfmin;dfmax]$ & degree of freedom used in the base model \\
+\hline
+ {\tt logscale}  & boolean                 & false & false & equidistant degrees of freedom \\
+                 &                         &       & true  & smoothing parameters on a logarithmic scale \\
+\hline
+ {\tt sp}        & boolean                 & false & false & smoothing parameters are specified in terms of $df$ \\
+                 &                         &       & true  & smoothing parameters are directly specified \\
+\hline
+ {\tt spmin}     & numeric (real) & $10^{-4}$ & $[10^{-6};10^{8}]$ & minimal smoothing parameter \\
+\hline
+ {\tt spmax}     & numeric (real) & $10^4$    & $[10^{-6};10^{8}]$ & maximal smoothing parameter \\
+\hline
+ {\tt spstart}   & numeric (real) & --    & $\{-1,0\} \cup [10^{-6};10^{8}]$ & smoothing parameter for the base model \\
+\hline
+ {\tt number}    & numeric (integer) & 0  & $\{0;100\}$ & number of different smoothing parameters \\
+\hline
+ {\tt forced\_into} & boolean              & false & false & term may be excluded from the model \\
+                 &                         &       & true  & term may not be excluded from the model \\
+\hline
+ {\tt nofixed}   & boolean                 & false & false & Possibility of linear fit \\
+                 &                         &       & true  & A linear fit is not possible \\
+\hline
+ {\tt center}    & boolean                 & false & false & no centering of varying coefficient terms \\
+                 &                         &       & true  &  \\
+\hline
+ {\tt coding}    & string                  & dummy & dummy & dummy coding of categorical variables \\
+                 &                         &       & effect & effect coding of categorical variables \\
+\hline
+ {\tt reference} & numeric (real)    & 1  & $(-100;100)$ & reference category \\
+\hline
+ {\tt degree}    & numeric (integer) & 3  & $\{0;\ldots;5\}$ & degree of B--spline basis functions \\
+\hline
+ {\tt nrknots}   & numeric (integer) & 20 & $\{5;\ldots;500\}$ & number of inner knots for a P--spline term \\
+\hline
+ {\tt monotone}  & string                  & unrestricted & unrestricted & no constraint on the spline function \\
+                 &                         &              & increasing   & monotonically increasing function \\
+                 &                         &              & decreasing   & monotonically increasing function \\
+                 &                         &              & convex       & convex function, i.e. positive second derivative \\
+                 &                         &              & concave      & concave function, i.e. negative second derivative \\
+\hline
+ {\tt gridsize}  & numeric (integer) & -1 & $\{-1;10;\ldots;500\}$ & \\
+\hline
+ {\tt period}    & numeric (integer) & 12 & $\{2;\ldots;72\}$ & period for a seasonal effect \\
+\hline
+ {\tt map}       & {\it map object}        & --    & --                & specifies the map object used \\
+ \hline
+ \end{tabular}
+ {\em\caption {\label{stepwisereg_localoptions} Possible local options
+ for stepwisereg objects. Note, that boolean options are specified without supplying a value.}}
+ \end{center}
+ \end{sidewaystable}
+
+%\begin{table}[ht] \footnotesize \centering
+%\begin{tabular}{|l|p{0.6\linewidth}|c|}
+%
+%\hline
+%optionname & description & default \\
+%\hline
+%\hline
+%
+%{\tt dfmin} & Option {\tt dfmin} defines the smallest possible degree of freedom for a nonlinear function
+%(besides the linear effect). The largest smoothing parameter is then calculated according to {\tt dfmin}. & \\
+%\hline
+%
+%{\tt dfmax} & Option {\tt dfmax} defines the largest possible degree of freedom for a nonlinear function.
+%The smallest smoothing parameter is then calculated according to {\tt dfmax}. & \\
+%\hline
+%
+%{\tt dfstart} & Option {\tt dfstart} defines the complexity of the function used in the base model.
+%This option is only meaningful if {\tt startmodel=userdefined} is specified. &  \\
+%\hline
+%
+%{\tt logscale} & This option causes the smoothing parameters to lie on a logarithmic scale instead of
+%being specified according to equidistant degrees of freedom. Only the smallest and largest smoothing
+%parameters are calculated according to {\tt dfmin} and {\tt dfmax}. & \\
+%\hline
+%
+%{\tt df\_accuracy} & This option specifies the maximal absolute difference in terms of degrees of freedom allowed when
+%calculating smoothing parameters according to user--specified degrees of freedom. & \\
+%\hline
+%
+%{\tt sp} & Option {\tt sp} causes the smoothing parameters to be chosen directly according
+%to values specified by options {\tt spmin}, {\tt spmax} and {\tt spstart}. All other values
+%are chosen according to a logarithmic scale. & -- \\
+%\hline
+%
+%{\tt spmin} & This option specifies the smallest smoothing parameter. & \\
+%\hline
+%
+%{\tt spmax} & Option {\tt spmax} specifies the largest smoothing parameter. & \\
+%\hline
+%
+%{\tt spstart} & This option is only meaningful if {\tt startmodel=userdefined} is specified. It defines
+%the smoothing parameter used for the base model. & \\
+%\hline
+%
+%{\tt number} & {\tt number} specifies the number of different smoothing parameters
+%(besides the linear effect and exclusion from the model). For {\tt number=0} the
+%global option {\tt number} is used. & {\tt number=20} \\
+%\hline
+%
+%{\tt forced\_into} & This option drops the possibility to exclude the function from the model. & -- \\
+%\hline
+%
+%{\tt nofixed} & {\tt nofixed} has to be specified with varying coefficients if the coefficients must get centered
+%with regard to the interacting variable. & -- \\
+%\hline
+%
+%{\tt coding} & Option {\tt coding} is only meaningful for factor variables. It determines wether
+%dummy variables ({\tt coding=dummy}) or effect variables ({\tt coding=effect})
+%are used to represent the factor. & {\tt coding=dummy} \\
+%\hline
+%
+%{\tt reference} & Option {\tt reference} is again only meaningful for factor variables. It defines
+%the value for the reference category. & \\
+%\hline
+%
+%{\tt degree} & Specifies the degree of the B-spline basis functions. & {\tt degree=3} \\
+%\hline
+%
+%{\tt nrknots} & Specifies the number of inner knots for a P-spline term. & {\tt nrknots=20} \\
+%\hline
+%
+%{\tt gridsize} & The option {\tt gridsize} can be used to restrict the
+%number of points (at the x-axis) for which estimates are computed.
+%By default, estimates are computed at every distinct covariate
+%value in the data set (indicated by {\tt gridsize=-1}). This may be
+%relatively time consuming in situations where the number of
+%distinct covariate values is large. If {\tt gridsize=nrpoints} is
+%specified, estimates are computed
+%on an equidistant grid with {\tt nrpoints} knots. & {\tt gridsize=-1} \\
+%\hline
+%
+%%#derivative# & The option #derivative# causes that first order
+%%derivatives of the estimation are computed. & - \\ \hline
+%
+%{\tt period} & The period of the seasonal effect can be specified with
+%the option {\tt period}. The default is {\tt period=12} which corresponds
+%to monthly data. & {\tt period=12} \\
+%\hline
+%
+%\end{tabular}
+%{\em\caption{\label{options} Optional arguments for stepwisereg
+%object terms}}
+%\end{table}
+
+
+\begin{sidewaystable} \footnotesize
+\begin{tabular}{|l||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|p{1.5cm}|p{2cm}|p{2.5cm}|}
+
+\hline
+                     & factor & rw1 \newline rw2 & season & psplinerw1 \newline psplinerw2 & spatial & random & geosplinerw1 \newline geosplinerw2
+                     & pspline2dimrw1 \newline pspline2dimrw2 \newline psplineinteract \\
+\hline\hline
+ {\tt dfmin}        & -----   & real             & real   & real                           & real    & real   & real
+                    & real \\
+\hline
+ {\tt dfmax}        & -----   & real             & real   & real                           & real    & real   & real
+                    & real \\
+\hline
+ {\tt dfstart}      & integer & real             & real   & real                           & real    & real   & real
+                    & real \\
+\hline
+ {\tt logscale}     & -----   & boolean          & boolean & boolean                       & boolean & boolean & boolean
+                    & boolean \\
+\hline
+ {\tt sp}           & boolean & boolean          & boolean & boolean                       & boolean & boolean & boolean
+                    & boolean \\
+\hline
+ {\tt spmin}        & -----   & real             & real   & real                           & real    & real   & real
+                    & real \\
+\hline
+ {\tt spmax}        & -----   & real             & real   & real                           & real    & real   & real
+                    & real \\
+\hline
+ {\tt spstart}      & integer & real             & real   & real                           & real    & real   & real
+                    & real \\
+\hline
+ {\tt number}       & -----   & integer          & integer & integer                       & integer & integer & integer
+                    & integer \\
+\hline
+ {\tt forced\_into} & boolean & boolean          & boolean & boolean                       & boolean & boolean & boolean
+                    & boolean \\
+\hline
+ {\tt nofixed}      & boolean & boolean          & boolean?? & boolean                       & boolean & boolean & boolean
+                    & boolean \\
+\hline
+ {\tt center}       & -----   & boolean          & -----?? & boolean                       & boolean & boolean & -----
+                    & ----- \\
+\hline
+ {\tt coding}       & string  & -----            & -----   & -----                         & -----   & -----   & -----
+                    & ----- \\
+\hline
+ {\tt reference}    & real    & -----            & -----   & -----                         & -----   & -----   & -----
+                    & ----- \\
+\hline
+ {\tt degree}       & -----   & -----            & -----   & integer                       & -----   & -----   & integer
+                    & integer \\
+\hline
+ {\tt nrknots}      & -----   & -----            & -----   & integer                       & -----   & -----   & integer
+                    & integer \\
+\hline
+ {\tt monotone}     & -----   & -----            & -----   & string                        & -----   & -----   & -----
+                    & ----- \\
+\hline
+ {\tt gridsize}     & -----   & -----            & -----   & integer                       & -----   & -----   & -----
+                    & integer \\
+\hline
+ {\tt period}       & -----   & -----            & integer & -----                         & -----   & -----   & -----
+                    & ----- \\
+\hline
+ {\tt map}          & -----   & -----            & -----   & -----                         & {\it map object} & -----   & {\it map object}
+                    & ----- \\
+\hline
+\end{tabular}
+{\em\centering \caption{\label{termsoptions} Terms and options for
+stepwisereg objects. For possible values to each of the local options compare table \ref{stepwisereg_localoptions}.
+Note, that boolean options are specified without supplying a value.}}
+\end{sidewaystable}
+
+
+
+%
+%
+%\section{Commands for variable and smoothing parameter selection} %---------------------------------------
+%
+%In order to perform a variable and smoothing parameter selection in {\it BayesX}, we
+%start with creating a {\it stepwisereg object} which we simply call {\tt s}:
+%
+%\begin{verbatim}
+%> stepwisereg s
+%\end{verbatim}
+%
+%The next step is to specify the output directory and a base filename
+%for the files containing the estimation results.
+%This is done via the {\tt outfile} command of {\it stepwisereg objects}:
+%
+%\begin{verbatim}
+%> s.outfile = c:\results\car
+%\end{verbatim}
+%
+%Now, all results files created by {\it BayesX} after the selection procedure are stored in the directory
+%'{\tt c:/results}' and their names begin with the characters '{\tt car}'. If the user does not specify
+%an output directory, the results files are written to the subdirectory '{\tt output}' of the
+%installation directory. In this case, the name of the {\it stepwisereg object}, i.e.~'{\tt s}' in our example,
+%is used as base filename. \\
+%The selection is performed using the {\tt regress} command for {\it stepwisereg objects}. Its general structure is
+%
+%{\tt > s.regress} {\it depvar = term$_1$ + term$_2$ +} $\ldots$ {\it + term$_r$} [{\tt weight} {\it weightvar}]
+%$[${\tt if} {\it expression}$]$ \\
+%$[$, {\it options}$]$ {\tt using d}
+%
+%where {\it depvar} is the dependent variable, i.e.~the logarithmic claim size in our example, and
+%term$_1$, etc.~specifies the type of function for the respective covariate.
+%An intercept term is automatically included in the model and is not specified by the user.
+%The part {\tt using d}
+%indicates that data stored in {\it dataset object} {\tt d} is used for the selection.
+%In the Belgian car insurance example we want to perform a variable and smoothing parameter selection
+%using the dependent variable {\it logs}, weight variable {\it nclaims} and independent variables
+%{\it ageph}, {\it bm} and {\it sex}. A simple linear model based on these variables can be selected and
+%estimated by command
+%
+%\begin{verbatim}
+%> s.regress logs = sex + ageph + bm weight nclaims,
+%  criterion=AIC_imp family=gaussian using d
+%\end{verbatim}
+%
+%But as we want to investigate wether the continuous variables
+%{\it ageph} and {\it bm} possess nonlinear effects, we have to specify the semiparametric predictor
+%%
+%$$
+%\eta = \gamma_0 + \gamma_{sex} sex + f_{ageph}(ageph) + f_{bm}(bm),
+%$$
+%%
+%where the two nonlinear functions are represented by P--splines.
+%The selection for this semiparametric predictor can be performed using the command
+%
+%\begin{verbatim}
+%> s.regress logs = sex + ageph(psplinerw2,dfmin=2,dfmax=16,number=15) +
+%                   bm(psplinerw2,dfmin=2,dfmax=16,number=15) weight nclaims,
+%  criterion=AIC_imp family=gaussian using d
+%\end{verbatim}
+%
+%For the selection, there are several global options available whose meanings are described in the following list.
+%Possible values and default values are given in tables \ref{stewpisereg_globaloptions} and \ref{stewpisereg_globaloptions2}.
+%
+%\begin{longtable}{p{2.2cm} p{13.3cm}}
+%{\tt algorithm} & specifies the selection procedure that is to be used. \\
+%            & \\
+%{\tt steps}     & defines the maximum number of iterations that can be used during the selection process. If the value {\tt steps}
+%                   is reached before the selection process is finished, the process stops and the results of the current model
+%                   are written to the results files. If that happens, a warning is written to the output window.
+%                   By setting {\tt steps=0} it is possible to estimate a certain model
+%                   without performing any selection. \\
+%            & \\
+%{\tt criterion} & specifies the selection criterion that is to be used. \\
+%            & \\
+%{\tt proportion} & If the selection is based on a criterion using a training and a validation data set,
+%                  i.e.~on {\tt MSEP}, {\tt proportion} defines the fraction of the original data used as training data. \\
+%            & \\
+%{\tt startmodel} & defines the model that is used as starting model. \\
+%%{\tt hierarchcal} \> hoffentlich \"{u}berfl\"{u}ssig
+%            & \\
+%{\tt number} & defines the number of different smoothing parameters to be used for the nonlinear terms. This number can be
+%overwritten using the local option {\tt number}. \\
+%            & \\
+%{\tt trace} & specifies how detailed the output in the {\it output window} will be. \\
+%            & \\
+%{\tt CI} & specifies if confidence intervals are to be calculated. The default value is {\tt CI=none}
+%so that no confidence intervals are obtained. {\tt CI=MCMCselect} yields confidence intervals which are
+%estimated by MCMC techniques conditional on the selected model, i.e.~scale parameter
+%and smoothing parameters are fixed on the values chosen by the preceding selection procedure.
+%Unconditional confidence intervals can be obtained by {\tt CI=MCMCbootstrap} where several models
+%are selected on the basis of bootstrap samples. For each of the selected models
+%samples are drawn by MCMC techniques conditional on the respective model and based on the original data set.
+%{\tt CI=bootstrap} yields unconditional confidence intervals by selecting many models
+%on the basis of bootstrap samples. \\
+%            & \\
+%{\tt bootstrap-} \newline {\tt samples} & defines the number of bootstrap samples used for {\tt CI=bootstrap} or {\tt CI=MCMCbootstrap}. \\
+%            & \\
+%{\tt iterations} & defines the number of MCMC iterations used for {\tt CI=MCMCselect} or
+%{\tt CI=MCMCbootstrap}. With {\tt CI=MCMCbootstrap}, option {\tt iterations} specifies the total number
+%of iterations, i.e.~the sum of iterations used for the individual conditional MCMC estimations.
+%Here, {\tt iterations} is divided equally between the individual conditional estimations so that the number of iterations
+%used for one model is {\tt iterations / (bootstrap + 1)}. Hence, {\tt iterations} should be chosen appropriately.  \\
+%            & \\
+%{\tt step} & is a thinning parameter and specifies that only every {\tt step}--th MCMC--sample is used for the calculation of credible intervals
+%with {\tt CI=MCMCselect} or {\tt CI=MCMCbootstrap}.
+%Since the samples are correlated, the thinning out of MCMC samples is used to obtain
+%approximately independent samples. \\
+%            & \\
+%{\tt burnin} & defines the number of MCMC iterations used for the burn--in phase
+%at the beginning of each conditional MCMC estimation.
+%Hence it is meaningful for {\tt CI=MCMCbootstrap} and {\tt CI=MCMCselect}. The burn--in phase usually
+%is needed to achieve convergence of the Markov chain regarding its stationary (i.e.~the posterior) distribution.
+%In our case, the initial estimates for each conditional MCMC estimation are the posterior mode estimates. That
+%means, the Markov chain already starts in its stationary distribution.
+%Hence, the burn--in phase usually is not needed here and it is possible to define {\tt burnin=0} what
+%saves a lot of computing time. \\
+%            & \\
+%{\tt level1} & defines the first significance level for confidence intervals. \\
+%            & \\
+%{\tt level2} & defines the second significance level for confidence intervals. \\
+%            & \\
+%{\tt predict} & By specifying {\tt predict} an additional results file is created containing estimates for the predictor and
+%                for the conditional expectation of the response variable. \\
+%            & \\
+%{\tt family} & specifies response distribution and link function. \\
+%            & \\
+%{\tt reference} & specifies the reference category for multinomial logit models.
+%\end{longtable}
+%
+%\begin{table}[ht] \footnotesize
+%\begin{center}
+%\begin{tabular}{|p{2.5cm}|p{1.5cm}|p{1.5cm}|p{2.5cm}|p{6cm}|}
+%\hline
+%{\bf global option} & {\bf type} & {\bf default} & {\bf values} & {\bf meaning} \\
+%\hline \hline
+%{\tt algorithm}  & string  & cdescent1 & cdescent1 & adaptive search \\
+%                 &         &           & cdescent2 & exact search \\
+%                 &         &           & cdescent3 & adaptive/exact search \\
+%                 &         &           & stepwise  & stepwise algorithm \\
+%\hline
+%{\tt steps}      & numeric \newline (integer) & 1000 & $\{0;10000\}$ & maximum number of iterations \\
+%\hline
+%{\tt criterion}  & string  & GCV       & GCV      & GCV (for non--Gaussian response (\ref{GCV_general2})
+%                                                      based on deviance residuals)\\
+%                 &         &           & GCVrss   & only meaningful for non--Gaussian response:
+%                                                    GCV (\ref{GCV_general}) based on residual sum of squares \\
+%                 &         &           & AIC      & AIC \\
+%                 &         &           & AIC\_imp & improved AIC \\
+%                 &         &           & BIC      & BIC \\
+%                 &         &           & MSEP     & MSEP \\
+%                 &         &           & CV5      & 5--fold cross validation \\
+%                 &         &           & CV10     & 10--fold cross validation \\
+%                 &         &           & AUC      & area under the ROC curve \newline
+%                                                    (only for binary response) \\
+%\hline
+%{\tt proportion} & numeric \newline (real)    & 0.75 & $(0;1)$ & for MSEP (see description above) \\
+%\hline
+%{\tt startmodel} & string  & linear    & linear      & base model with degrees of freedom equal to one \\
+%                 &         &           & empty       & empty model containing the intercept term only \\
+%                 &         &           & full        & most complex possible model \\
+%                 &         &           & userdefined & base model specified by the user; \newline
+%                                                       otherwise the linear one \\
+%\hline
+%{\tt number}     & numeric \newline (integer) & 20   & $\{1;50\}$ & number of smoothing parameters \\
+%\hline
+%{\tt trace}      & string  & trace\_on & trace\_on   & output shows every new model during iterations \\
+%                 &         &           & trace\_half & output shows the starting models of all iterations \\
+%                 &         &           & trace\_off  & no output except starting and final model \\
+%\hline
+%{\tt CI}         & string  & none      & none          & no confidance intervals \\
+%                 &         &           & MCMCselect    & conditional MCMC confidance bands \\
+%                 &         &           & MCMCbootstrap & unconditional confidance bands based on bootstrap and MCMC \\
+%                 &         &           & bootstrap     & unconditional MCMC confidance intervals based on bootstrap \\
+%\hline
+%{\tt bootstrap-} \newline {\tt samples}  & numeric \newline (integer) & 0 & $\{100;10000\}$ & number of bootstrap samples \\
+%\hline
+%\end{tabular}
+%{\em\caption {\label{stewpisereg_globaloptions} Possible global options
+%for stepwisereg objects.}}
+%\end{center}
+%\end{table}
+%%
+%\begin{table}[ht] \footnotesize
+%\begin{center}
+%\begin{tabular}{|p{2.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|p{6cm}|}
+%\hline
+%{\bf global option} & {\bf type} & {\bf default} & {\bf values} & {\bf meaning} \\
+%\hline \hline
+%{\tt iterations}  & numeric \newline (integer) & 52000 & $\{1;10000000\}$ & total number of MCMC iterations \\
+%\hline
+%{\tt step}  & numeric \newline (integer) & 50 & $\{1;1000\}$ & thinning parameter for MCMC samples \\
+%\hline
+%{\tt burnin}  & numeric \newline (integer) & 2000 & $\{0;500000\}$ & number of MCMC iterations used for each burnin phase \\
+%\hline
+%{\tt level1}  & numeric \newline (real) & 95 & $[40;99]$ & first significance level \\
+%\hline
+%{\tt level2}  & numeric \newline (real) & 80 & $[40;99]$ & second significance level \\
+%\hline
+%{\tt predict}  & boolean  & false & false & no estimates for predictor / expectation of response \\
+%               &          &       & true  & estimates for the predictor and expectation are obtained \\
+%\hline
+%{\tt family}     & string  & logit     & gaussian    & Gaussian distribution with identity link \\
+%                 &         &           & binomial    & Binomial distribution with logit link \\
+%                 &         &           & binomialprobit & Binomial distribution with probit link \\
+%                 &         &           & poisson     & Poisson distribution with log link \\
+%                 &         &           & gamma       & Gamma distribution with log link \\
+%                 &         &           & multinomial & Multinomial distribution with logit link \\
+%\hline
+%{\tt reference}  & numeric \newline (real)  & 0     & $[-10000;10000]$    & reference category for multinomial logit models \\
+%\hline
+%\end{tabular}
+%{\em\caption {\label{stewpisereg_globaloptions2} Possible global options
+%for stepwisereg objects.}}
+%\end{center}
+%\end{table}
+%
+%The commands for specifying different term types for univariate covariates are listed in table
+%\ref{stepwisereg_terms}. Possibilities for interactions and the respective
+%commands are shown in table \ref{stepwisereg_interactions}. For all term types
+%apart from fixed effects, there are various options which are described below.
+%In the following, we will refer to these options as local options (in constrast to the
+%global options affecting the whole selection procedure). Possible values for the local options
+%are described in table \ref{stepwisereg_localoptions} whereas table \ref{termsoptions} gives
+%a short overview of possible combinations of function terms and local options.
+%
+%\begin{longtable}{p{2.2cm} p{13.3cm}}
+%{\tt dfmin} & Option {\tt dfmin} defines the smallest possible degree of freedom
+%              for a nonlinear function (besides the linear effect).
+%              The largest smoothing parameter is calculated according to {\tt dfmin}.
+%              Possible values depend on the number of regression parameters
+%              and on the prior distribution
+%              (compare section \ref{section_df}). In order to avoid numerical problems
+%              the smoothing parameter may not become larger than $10^9$. In this
+%              case, {\tt dfmin} is enlarged by ({\tt dfmax} - {\tt dfmin}) / {\tt number}
+%              (and {\tt number} is reduced by one).
+%              Additionally, this ascertains that {\tt dfmin} is redefined to
+%              a possible value. \\
+%            & \\
+%{\tt dfmax} & Option {\tt dfmax} defines the largest possible degree of freedom for a
+%              nonlinear function. The smallest smoothing parameter is calculated
+%              according to {\tt dfmax}. Possible values depend on the number of regression
+%              parameters and on the prior distribution
+%              (compare section \ref{section_df}). In order to avoid numerical problems
+%              the smoothing parameter may not become smaller than $10^{-9}$. In this
+%              case, {\tt dfmax} is reduced by ({\tt dfmax} - {\tt dfmin}) / {\tt number}
+%              (and {\tt number} is reduced by one).
+%              Additionally, this ascertains that {\tt dfmax} is redefined to
+%              a possible value. \\
+%            & \\
+%{\tt dfstart} & Option {\tt dfstart} defines the complexity of the function used in
+%                the base model. This option is only meaningful if
+%                {\tt startmodel=userdefined} is specified. In this case, the default value for
+%                {\tt dfstart} is either the fixed effect, if possible, or otherwise the degree of freedom nearest to one. \\
+%            & \\
+%{\tt logscale} & This option causes the smoothing parameters to lie on a logarithmic
+%                 scale instead of being specified according to equidistant
+%                 degrees of freedom. In this case, only the smallest and largest smoothing parameters
+%                 are calculated according to {\tt dfmin} and {\tt dfmax}. This option is only meaningful
+%                 if option {\tt sp} is not specified (see below). \\
+%            & \\
+%{\tt df\_accuracy} & This option specifies the maximal absolute difference in terms of
+%                     degrees of freedom that is allowed when calculating smoothing parameters
+%                     according to user--specified degrees of freedom. \\
+%            & \\
+%{\tt sp} & Option {\tt sp} causes the smoothing parameters to be chosen directly according
+%           to values specified by options {\tt spmin}, {\tt spmax} and {\tt spstart}.
+%           All other values are chosen according to a logarithmic scale. \\
+%            & \\
+%{\tt spmin} & This option defines the smallest smoothing parameter but is only valid if
+%              {\tt sp} is specified. \\
+%            & \\
+%{\tt spmax} & Option {\tt spmax} defines the largest smoothing parameter but is only valid if
+%              {\tt sp} is specified. \\
+%            & \\
+%{\tt spstart} & This option is only meaningful if {\tt startmodel=userdefined} and {\tt sp}
+%                are specified. It defines the smoothing parameter used for the base model. Note, that {\tt spstart}
+%                can not only take positive values but can also take the values {\tt spstart=0} for
+%                excluding the function in the base model and {\tt spstart=-1} for using the fixed effect. \\
+%            & \\
+%{\tt number} & {\tt number} specifies the number of different smoothing parameters
+%               (besides the linear effect and exclusion from the model). For {\tt number=0} the
+%               global option {\tt number} is used. \\
+%            & \\
+%{\tt forced\_into} & This option drops the possibility to exclude the function from the model. That means the respective function
+%                     is always included in the model. \\
+%            & \\
+%{\tt nofixed} & This option drops the possibility to use a linear fit. Hence, only possibilities
+%for a nonlinear effect and for the removal from the model remain. \\
+%            & \\
+%{\tt center} & {\tt center} has to be specified with varying coefficients if the
+%               coefficients must get centered with regard to the interacting variable, i.e., if
+%               there are several varying coefficients modifying the same interacting variable.
+%               Hence, {\tt center} is only meaningful for varying coefficients and random slopes. \\
+%            & \\
+%{\tt coding} & Option {\tt coding} is only meaningful for factor variables. It determines wether
+%               dummy variables ({\tt coding=dummy}) or effect variables ({\tt coding=effect})
+%               are used to represent the factor. \\
+%            & \\
+%{\tt reference} & Option {\tt reference} is again only meaningful for factor variables. It defines
+%                  the value for the reference category. \\
+%            & \\
+%{\tt degree} & Specifies the degree of B-spline basis functions. \\
+%            & \\
+%{\tt nrknots} & Specifies the number of inner knots for a P-spline term. \\
+%            & \\
+%{\tt monotone} & Option {\tt monotone} specifies additional constraints for univariate
+%                 P--spline terms. Possible are the estimation of an unrestricted function,
+%                 a monotonically increasing or decreasing function (i.e. positive/negative first derivative)
+%                 or a convex or concave function (i.e. positive/negative second derivative).
+%                 Note, that both type and direction of the constraint have to be defined by the user and are
+%                 not determined by the selection procedure. \\
+%            & \\
+%{\tt gridsize} & The option {\tt gridsize} can be used to restrict the
+%                 number of points (at the x-axis) for which estimates are computed.
+%                 By default, estimates are computed at every distinct covariate
+%                 value in the data set (indicated by {\tt gridsize=-1}). This may be
+%                 relatively time consuming in situations where the number of
+%                 distinct covariate values is large. If {\tt gridsize=nrpoints} is
+%                 specified, estimates are computed
+%                 on an equidistant grid with {\tt nrpoints} knots. \\
+%            & \\
+%{\tt period} & The period of the seasonal effect can be specified with
+%               option {\tt period}. The default is {\tt period=12} which corresponds
+%               to monthly data. \\
+%            & \\
+%{\tt map} & The map object for a spatial function is defined by option {\tt map}.
+%\end{longtable}
+%
+%\begin{table}[ht] \footnotesize
+%\begin{center}
+%\begin{tabular}{|p{2.8cm}|p{5cm}|p{7cm}|}
+%\hline
+%{\bf Type}     & {\bf Syntax example} & {\bf Description} \\
+%\hline \hline
+%offset         & {\tt offs(offset)}  & Variable {\tt offs} is an offset term. \\
+%\hline
+%linear effect  & {\tt W1}  & Linear effect for {\tt W1}. \\
+%\hline
+%factor         & {\tt F1(factor)} & Effect of categorical variable {\tt F1} \\
+%\hline
+%first or second order random walk &   {\tt X1(rw1)} \newline {\tt X1(rw2)}  & Nonlinear effect of {\tt X1}. \\
+%\hline
+%P-spline       &  {\tt X1(psplinerw1)} \newline {\tt X1(psplinerw2)}  & Nonlinear effect of {\tt X1}.  \\
+%\hline
+%seasonal prior & {\tt time(season)} & Varying seasonal effect of {\tt time}. \\
+%\hline
+%Markov random \newline field &  {\tt region(spatial,map=m)}  & Spatial effect of {\tt region} where {\tt region} indicates the region an
+%observation pertains to. The boundary information and the
+%neighborhood structure are stored in the {\em map object}
+%{\tt m} . \\
+%\hline
+%Two dimensional \newline P-spline & {\tt region(geosplinerw1,map=m)} \newline {\tt region(geosplinerw2,map=m)}
+%& Spatial effect of {\tt region}. Estimates a two dimensional P-spline
+%based on the centroids of the regions. The centroids are stored in the {\em map object} {\tt m}. \\
+%\hline
+%random intercept &  {\tt grvar(random)}  & I.i.d.~Gaussian random effect of the group indicator {\tt grvar} ,
+%e.g.~{\tt grvar}  may be an individuum indicator when analyzing longitudinal data.  \\
+%\hline
+%\end{tabular}
+%{\em\caption {\label{stepwisereg_terms} Overview over different model terms
+%for stepwisereg objects.}}
+%\end{center}
+%\end{table}
+%
+%
+%\begin{table}[ht] \footnotesize
+%\begin{center}
+%\begin{tabular}{|p{3.6cm}|p{4.5cm}|p{6.7cm}|}
+%\hline
+%{\bf Type of interaction} & {\bf Syntax example} & {\bf Description} \\
+%\hline \hline
+%Varying coefficient term & {\tt X1*X2(rw1)} \newline {\tt X1*X2(rw2)} \newline {\tt X1*X2(psplinerw1)} \newline {\tt X1*X2(psplinerw2)}
+%%\newline {\tt X1*time(season)}
+%& Effect of {\tt X1} varies smoothly over the range of the continuous covariate {\tt X2}. \\
+%\hline
+%random slope & {\tt X1*grvar(random)}  &  The regression
+%coefficient of {\tt X1} varies with respect
+%to the unit- or cluster-index variable {\tt grvar}. \\
+%\hline
+%Geographically weighted regression & {\tt X1*region(spatial,map=m)}  & Effect of {\tt X1} varies
+%geographically. Covariate
+%{\tt region} indicates the region an observation pertains to. \\
+%\hline
+%Two dimensional surface &  {\tt X1*X2(pspline2dimrw1)} \newline {\tt X1*X2(pspline2dimrw2)}
+%& Two dimensional surface for the continuous
+%covariates {\tt X1} and {\tt X2}. \\
+%\hline
+%ANOVA type interaction &  {\tt X1*X2(psplineinteract) + } \newline {\tt X1(psplinerw?) + X2(psplinerw?)}
+%& ANOVA type interaction for the continuous
+%covariates {\tt X1} and {\tt X2}. \\
+%\hline
+%
+%\end{tabular}
+%{\em\caption {\label{stepwisereg_interactions} Possible interaction
+%terms for stepwisereg objects.}}
+%\end{center}
+%\end{table}
+%
+% \begin{sidewaystable}[ht] \footnotesize
+% \begin{center}
+% \begin{tabular}{|l|l|l|l|l|}%{|p{2.5cm}|p{1.5cm}|p{2cm}|p{2cm}|p{7cm}|}
+% \hline
+% {\bf local option} & {\bf type} & {\bf default} & {\bf values} & {\bf meaning} \\
+% \hline \hline
+% {\tt dfmin}     & numeric (real) & --    & compare section \ref{section_df} & minimal degree of freedom \\
+%\hline
+% {\tt dfmax}     & numeric (real) & --    & compare section \ref{section_df} & maximal degree of freedom \\
+%\hline
+% {\tt dfstart}   & numeric (real) & 1     & $\{0,1\} \cup [dfmin;dfmax]$ & degree of freedom used in the base model \\
+%\hline
+% {\tt logscale}  & boolean                 & false & false & equidistant degrees of freedom \\
+%                 &                         &       & true  & smoothing parameters on a logarithmic scale \\
+%\hline
+% {\tt sp}        & boolean                 & false & false & smoothing parameters are specified in terms of $df$ \\
+%                 &                         &       & true  & smoothing parameters are directly specified \\
+%\hline
+% {\tt spmin}     & numeric (real) & $10^{-4}$ & $[10^{-6};10^{8}]$ & minimal smoothing parameter \\
+%\hline
+% {\tt spmax}     & numeric (real) & $10^4$    & $[10^{-6};10^{8}]$ & maximal smoothing parameter \\
+%\hline
+% {\tt spstart}   & numeric (real) & --    & $\{-1,0\} \cup [10^{-6};10^{8}]$ & smoothing parameter for the base model \\
+%\hline
+% {\tt number}    & numeric (integer) & 0  & $\{0;100\}$ & number of different smoothing parameters \\
+%\hline
+% {\tt forced\_into} & boolean              & false & false & term may be excluded from the model \\
+%                 &                         &       & true  & term may not be excluded from the model \\
+%\hline
+% {\tt nofixed}   & boolean                 & false & false & Possibility of linear fit \\
+%                 &                         &       & true  & A linear fit is not possible \\
+%\hline
+% {\tt center}    & boolean                 & false & false & no centering of varying coefficient terms \\
+%                 &                         &       & true  &  \\
+%\hline
+% {\tt coding}    & string                  & dummy & dummy & dummy coding of categorical variables \\
+%                 &                         &       & effect & effect coding of categorical variables \\
+%\hline
+% {\tt reference} & numeric (real)    & 1  & $(-100;100)$ & reference category \\
+%\hline
+% {\tt degree}    & numeric (integer) & 3  & $\{0;\ldots;5\}$ & degree of B--spline basis functions \\
+%\hline
+% {\tt nrknots}   & numeric (integer) & 20 & $\{5;\ldots;500\}$ & number of inner knots for a P--spline term \\
+%\hline
+% {\tt monotone}  & string                  & unrestricted & unrestricted & no constraint on the spline function \\
+%                 &                         &              & increasing   & monotonically increasing function \\
+%                 &                         &              & decreasing   & monotonically increasing function \\
+%                 &                         &              & convex       & convex function, i.e. positive second derivative \\
+%                 &                         &              & concave      & concave function, i.e. negative second derivative \\
+%\hline
+% {\tt gridsize}  & numeric (integer) & -1 & $\{-1;10;\ldots;500\}$ & \\
+%\hline
+% {\tt period}    & numeric (integer) & 12 & $\{2;\ldots;72\}$ & period for a seasonal effect \\
+%\hline
+% {\tt map}       & {\it map object}        & --    & --                & specifies the map object used \\
+% \hline
+% \end{tabular}
+% {\em\caption {\label{stepwisereg_localoptions} Possible local options
+% for stepwisereg objects. Note, that boolean options are specified without supplying a value.}}
+% \end{center}
+% \end{sidewaystable}
+%
+%%\begin{table}[ht] \footnotesize \centering
+%%\begin{tabular}{|l|p{0.6\linewidth}|c|}
+%%
+%%\hline
+%%optionname & description & default \\
+%%\hline
+%%\hline
+%%
+%%{\tt dfmin} & Option {\tt dfmin} defines the smallest possible degree of freedom for a nonlinear function
+%%(besides the linear effect). The largest smoothing parameter is then calculated according to {\tt dfmin}. & \\
+%%\hline
+%%
+%%{\tt dfmax} & Option {\tt dfmax} defines the largest possible degree of freedom for a nonlinear function.
+%%The smallest smoothing parameter is then calculated according to {\tt dfmax}. & \\
+%%\hline
+%%
+%%{\tt dfstart} & Option {\tt dfstart} defines the complexity of the function used in the base model.
+%%This option is only meaningful if {\tt startmodel=userdefined} is specified. &  \\
+%%\hline
+%%
+%%{\tt logscale} & This option causes the smoothing parameters to lie on a logarithmic scale instead of
+%%being specified according to equidistant degrees of freedom. Only the smallest and largest smoothing
+%%parameters are calculated according to {\tt dfmin} and {\tt dfmax}. & \\
+%%\hline
+%%
+%%{\tt df\_accuracy} & This option specifies the maximal absolute difference in terms of degrees of freedom allowed when
+%%calculating smoothing parameters according to user--specified degrees of freedom. & \\
+%%\hline
+%%
+%%{\tt sp} & Option {\tt sp} causes the smoothing parameters to be chosen directly according
+%%to values specified by options {\tt spmin}, {\tt spmax} and {\tt spstart}. All other values
+%%are chosen according to a logarithmic scale. & -- \\
+%%\hline
+%%
+%%{\tt spmin} & This option specifies the smallest smoothing parameter. & \\
+%%\hline
+%%
+%%{\tt spmax} & Option {\tt spmax} specifies the largest smoothing parameter. & \\
+%%\hline
+%%
+%%{\tt spstart} & This option is only meaningful if {\tt startmodel=userdefined} is specified. It defines
+%%the smoothing parameter used for the base model. & \\
+%%\hline
+%%
+%%{\tt number} & {\tt number} specifies the number of different smoothing parameters
+%%(besides the linear effect and exclusion from the model). For {\tt number=0} the
+%%global option {\tt number} is used. & {\tt number=20} \\
+%%\hline
+%%
+%%{\tt forced\_into} & This option drops the possibility to exclude the function from the model. & -- \\
+%%\hline
+%%
+%%{\tt nofixed} & {\tt nofixed} has to be specified with varying coefficients if the coefficients must get centered
+%%with regard to the interacting variable. & -- \\
+%%\hline
+%%
+%%{\tt coding} & Option {\tt coding} is only meaningful for factor variables. It determines wether
+%%dummy variables ({\tt coding=dummy}) or effect variables ({\tt coding=effect})
+%%are used to represent the factor. & {\tt coding=dummy} \\
+%%\hline
+%%
+%%{\tt reference} & Option {\tt reference} is again only meaningful for factor variables. It defines
+%%the value for the reference category. & \\
+%%\hline
+%%
+%%{\tt degree} & Specifies the degree of the B-spline basis functions. & {\tt degree=3} \\
+%%\hline
+%%
+%%{\tt nrknots} & Specifies the number of inner knots for a P-spline term. & {\tt nrknots=20} \\
+%%\hline
+%%
+%%{\tt gridsize} & The option {\tt gridsize} can be used to restrict the
+%%number of points (at the x-axis) for which estimates are computed.
+%%By default, estimates are computed at every distinct covariate
+%%value in the data set (indicated by {\tt gridsize=-1}). This may be
+%%relatively time consuming in situations where the number of
+%%distinct covariate values is large. If {\tt gridsize=nrpoints} is
+%%specified, estimates are computed
+%%on an equidistant grid with {\tt nrpoints} knots. & {\tt gridsize=-1} \\
+%%\hline
+%%
+%%%#derivative# & The option #derivative# causes that first order
+%%%derivatives of the estimation are computed. & - \\ \hline
+%%
+%%{\tt period} & The period of the seasonal effect can be specified with
+%%the option {\tt period}. The default is {\tt period=12} which corresponds
+%%to monthly data. & {\tt period=12} \\
+%%\hline
+%%
+%%\end{tabular}
+%%{\em\caption{\label{options} Optional arguments for stepwisereg
+%%object terms}}
+%%\end{table}
+%
+%
+%\begin{sidewaystable} \footnotesize
+%\begin{tabular}{|l||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|p{1.5cm}|p{2cm}|p{2.5cm}|}
+%
+%\hline
+%                     & factor & rw1 \newline rw2 & season & psplinerw1 \newline psplinerw2 & spatial & random & geosplinerw1 \newline geosplinerw2
+%                     & pspline2dimrw1 \newline pspline2dimrw2 \newline psplineinteract \\
+%\hline\hline
+% {\tt dfmin}        & -----   & real             & real   & real                           & real    & real   & real
+%                    & real \\
+%\hline
+% {\tt dfmax}        & -----   & real             & real   & real                           & real    & real   & real
+%                    & real \\
+%\hline
+% {\tt dfstart}      & integer & real             & real   & real                           & real    & real   & real
+%                    & real \\
+%\hline
+% {\tt logscale}     & -----   & boolean          & boolean & boolean                       & boolean & boolean & boolean
+%                    & boolean \\
+%\hline
+% {\tt sp}           & boolean & boolean          & boolean & boolean                       & boolean & boolean & boolean
+%                    & boolean \\
+%\hline
+% {\tt spmin}        & -----   & real             & real   & real                           & real    & real   & real
+%                    & real \\
+%\hline
+% {\tt spmax}        & -----   & real             & real   & real                           & real    & real   & real
+%                    & real \\
+%\hline
+% {\tt spstart}      & integer & real             & real   & real                           & real    & real   & real
+%                    & real \\
+%\hline
+% {\tt number}       & -----   & integer          & integer & integer                       & integer & integer & integer
+%                    & integer \\
+%\hline
+% {\tt forced\_into} & boolean & boolean          & boolean & boolean                       & boolean & boolean & boolean
+%                    & boolean \\
+%\hline
+% {\tt nofixed}      & boolean & boolean          & boolean?? & boolean                       & boolean & boolean & boolean
+%                    & boolean \\
+%\hline
+% {\tt center}       & -----   & boolean          & -----?? & boolean                       & boolean & boolean & -----
+%                    & ----- \\
+%\hline
+% {\tt coding}       & string  & -----            & -----   & -----                         & -----   & -----   & -----
+%                    & ----- \\
+%\hline
+% {\tt reference}    & real    & -----            & -----   & -----                         & -----   & -----   & -----
+%                    & ----- \\
+%\hline
+% {\tt degree}       & -----   & -----            & -----   & integer                       & -----   & -----   & integer
+%                    & integer \\
+%\hline
+% {\tt nrknots}      & -----   & -----            & -----   & integer                       & -----   & -----   & integer
+%                    & integer \\
+%\hline
+% {\tt monotone}     & -----   & -----            & -----   & string                        & -----   & -----   & -----
+%                    & ----- \\
+%\hline
+% {\tt gridsize}     & -----   & -----            & -----   & integer                       & -----   & -----   & -----
+%                    & integer \\
+%\hline
+% {\tt period}       & -----   & -----            & integer & -----                         & -----   & -----   & -----
+%                    & ----- \\
+%\hline
+% {\tt map}          & -----   & -----            & -----   & -----                         & {\it map object} & -----   & {\it map object}
+%                    & ----- \\
+%\hline
+%\end{tabular}
+%{\em\centering \caption{\label{termsoptions} Terms and options for
+%stepwisereg objects. For possible values to each of the local options compare table \ref{stepwisereg_localoptions}.
+%Note, that boolean options are specified without supplying a value.}}
+%\end{sidewaystable}
+%
+%Some information about the progression of the selection algorithm and some results are shown in the
+%{\it output window} whereas other results are only available from external ASCII--files.
+%%
+%%s.regress LOGS = SEX2 +  AGEPH(psplinerw2,dfmin=2,dfmax=16,number=15) +    BM(psplinerw2,dfmin=2,dfmax=16,number=15) weight NCLAIMS,  procedure=coorddescent minimum=adaptiv startmodel=userdefined criterion=AIC_imp trace=trace_minim family=gaussian predict using d
+%%
+%%STEPWISE OBJECT s: stepwise procedure
+%%
+%%GENERAL OPTIONS:
+%%
+%%  Performance criterion: AIC_imp
+%%  Maximal number of iterations: 1000
+%%
+%%  RESPONSE DISTRIBUTION:
+%%
+%%  Family: Gaussian
+%%  Number of observations: 18139
+%%
+%%OPTIONS FOR STEPWISE PROCEDURE:
+%%
+%%  OPTIONS FOR FIXED EFFECTS TERM: SEX2
+%%
+%%  Prior: diffuse prior
+%%  Startvalue of the 1. startmodel is the fixed effect
+%%
+%%  OPTIONS FOR NONPARAMETRIC TERM: AGEPH
+%%
+%%  Minimal value for the smoothing parameter: 2.0480375
+%%  This is equivalent to degrees of freedom: approximately 16, exact 16.0369
+%%  Maximal value for the smoothing parameter: 62500
+%%  This is equivalent to degrees of freedom: approximately 2, exact 1.95119
+%%  Number of different smoothing parameters with equidistant degrees of freedom: 15
+%%  Startvalue of the 1. startmodel is the fixed effect
+%%
+%%  OPTIONS FOR NONPARAMETRIC TERM: BM
+%%
+%%  Minimal value for the smoothing parameter: 1.0240375
+%%  This is equivalent to degrees of freedom: approximately 16, exact 16.0487
+%%  Maximal value for the smoothing parameter: 45000
+%%  This is equivalent to degrees of freedom: approximately 2, exact 2.02502
+%%  Number of different smoothing parameters with equidistant degrees of freedom: 15
+%%  Startvalue of the 1. startmodel is the fixed effect
+%%
+%%
+%%STEPWISE PROCEDURE STARTED
+%%
+%%
+%%  Startmodel:
+%%
+%%  LOGS = const + SEX2 + AGEPH + BM
+%%  AIC_imp = 14821.315
+%%
+%%  SEX2
+%%
+%%  Lambda   Testvalue (approx):
+%%       -1   14821.3
+%%        0   14820.6
+%%
+%%
+%%  Trial:
+%%
+%%  LOGS = const + AGEPH + BM
+%%  AIC_imp = 14820.56
+%%
+%%  AGEPH
+%%
+%%  Lambda   Testvalue (approx):
+%%  2.04804   14780.4
+%%  4.01452   14778.6
+%%  6.99482   14777.1
+%%  11.5539   14775.7
+%%  19.3413   14774.4
+%%  32.8874   14773.2
+%%  54.1414   14772.2
+%%  93.4288   14771.3
+%%   171.57   14770.7
+%%   318.55   14770.2
+%%  666.043   14770.1
+%%   1392.6   14770.9
+%%  3733.38   14774.5
+%%  12012.3   14782.2
+%%    62500   14792.9
+%%       -1   14820.5
+%%        0   14865.8
+%%
+%%
+%%  Trial:
+%%
+%%  LOGS = const + BM + AGEPH(psplinerw2,df=5.96466,(lambda=666.043))
+%%  AIC_imp = 14770.105
+%%
+%%  BM
+%%
+%%  Lambda   Testvalue (approx):
+%%  1.02404   14770.1
+%%  2.19761   14768.7
+%%  4.12662   14767.4
+%%  7.35352   14766.1
+%%  12.8113   14765
+%%  22.1905   14763.8
+%%  38.0606   14762.6
+%%  67.9218   14761.4
+%%  131.282   14760.1
+%%  246.389   14759
+%%  503.474   14758
+%%  1188.99   14757.6
+%%  3091.62   14759.2
+%%  9603.95   14762.8
+%%    45000   14766.4
+%%       -1   14768
+%%        0   14853
+%%
+%%
+%%  Trial:
+%%
+%%  LOGS = const + AGEPH(psplinerw2,df=5.96466,(lambda=666.043)) + BM(psplinerw2,df=4.96696,(lambda=1188.99))
+%%  AIC_imp = 14757.645
+%%
+%%  ------------------------------------------------------------------------
+%%  ------------------------------------------------------------------------
+%%
+%%  Startmodel:
+%%
+%%  LOGS = const + AGEPH(psplinerw2,df=5.96466,(lambda=666.043)) + BM(psplinerw2,df=4.96696,(lambda=1188.99))
+%%  AIC_imp = 14757.645
+%%
+%%  SEX2
+%%
+%%  Lambda   Testvalue (approx):
+%%       -1   14758.6
+%%        0   14757.6
+%%
+%%
+%%  AGEPH
+%%
+%%  Lambda   Testvalue (approx):
+%%  2.04804   14768.3333106
+%%  4.01452   14766.5095849
+%%  6.99482   14764.9238302
+%%  11.5539   14763.5164049
+%%  19.3413   14762.155637
+%%  32.8874   14760.8830989
+%%  54.1414   14759.842513
+%%  93.4288   14758.908342
+%%   171.57   14758.1286187
+%%   318.55   14757.6137573
+%%  666.043   14757.4846875
+%%   1392.6   14758.2899702
+%%  3733.38   14761.9155524
+%%  12012.3   14769.5821669
+%%    62500   14780.4506147
+%%       -1   14810.2710016
+%%        0   14851.9085539
+%%
+%%
+%%  BM
+%%
+%%  Lambda   Testvalue (approx):
+%%  1.02404   14769.979268
+%%  2.19761   14768.5680298
+%%  4.12662   14767.2727716
+%%  7.35352   14766.0405477
+%%  12.8113   14764.8471118
+%%  22.1905   14763.6699765
+%%  38.0606   14762.5277055
+%%  67.9218   14761.3278293
+%%  131.282   14760.012711
+%%  246.389   14758.8535965
+%%  503.474   14757.8212049
+%%  1188.99   14757.4848975
+%%  3091.62   14758.9815463
+%%  9603.95   14762.5502326
+%%    45000   14766.1142236
+%%       -1   14767.5920845
+%%        0   14849.3012707
+%%
+%%
+%%  ------------------------------------------------------------------------
+%%  ------------------------------------------------------------------------
+%%
+%%  Startmodel:
+%%
+%%  LOGS = const + AGEPH(psplinerw2,df=5.96466,(lambda=666.043)) + BM(psplinerw2,df=4.96696,(lambda=1188.99))
+%%  AIC_imp = 14757.485
+%%
+%%  SEX2
+%%
+%%  Lambda   Testvalue (approx):
+%%       -1   14758.5
+%%        0   14757.5
+%%
+%%
+%%  AGEPH
+%%
+%%  Lambda   Testvalue (approx):
+%%  2.04804   14768.3117913
+%%  4.01452   14766.4878015
+%%  6.99482   14764.9017027
+%%  11.5539   14763.4938744
+%%  19.3413   14762.132582
+%%  32.8874   14760.8593192
+%%  54.1414   14759.8178341
+%%  93.4288   14758.8825054
+%%   171.57   14758.1016164
+%%   318.55   14757.586302
+%%  666.043   14757.4586799
+%%   1392.6   14758.2695722
+%%  3733.38   14761.9155247
+%%  12012.3   14769.625298
+%%    62500   14780.5847697
+%%       -1   14810.8412796
+%%        0   14851.4457103
+%%
+%%
+%%  BM
+%%
+%%  Lambda   Testvalue (approx):
+%%  1.02404   14769.9792694
+%%  2.19761   14768.5677484
+%%  4.12662   14767.272393
+%%  7.35352   14766.0400104
+%%  12.8113   14764.8461721
+%%  22.1905   14763.668301
+%%  38.0606   14762.5249636
+%%  67.9218   14761.3236143
+%%  131.282   14760.0065583
+%%  246.389   14758.8453927
+%%  503.474   14757.8099719
+%%  1188.99   14757.4676549
+%%  3091.62   14758.954133
+%%  9603.95   14762.5085125
+%%    45000   14766.0512995
+%%       -1   14767.50008
+%%        0   14848.3747078
+%%
+%%
+%%  ------------------------------------------------------------------------
+%%  ------------------------------------------------------------------------
+%%
+%%  Startmodel:
+%%
+%%  LOGS = const + AGEPH(psplinerw2,df=5.96466,(lambda=666.043)) + BM(psplinerw2,df=4.96696,(lambda=1188.99))
+%%  AIC_imp = 14757.468
+%%
+%%  SEX2
+%%
+%%  Lambda   Testvalue (approx):
+%%       -1   14758.5
+%%        0   14757.5
+%%
+%%
+%%  AGEPH
+%%
+%%  Lambda   Testvalue (approx):
+%%  2.04804   14768.3164709
+%%  4.01452   14766.4924112
+%%  6.99482   14764.9062226
+%%  11.5539   14763.498292
+%%  19.3413   14762.1368726
+%%  32.8874   14760.8634425
+%%  54.1414   14759.8217557
+%%  93.4288   14758.8861705
+%%   171.57   14758.1050229
+%%   318.55   14757.5896092
+%%  666.043   14757.4623533
+%%   1392.6   14758.2747345
+%%  3733.38   14761.9262653
+%%  12012.3   14769.647904
+%%    62500   14780.6317888
+%%       -1   14811.0025959
+%%        0   14851.3413183
+%%
+%%
+%%  BM
+%%
+%%  Lambda   Testvalue (approx):
+%%  1.02404   14769.9812004
+%%  2.19761   14768.5696078
+%%  4.12662   14767.2742295
+%%  7.35352   14766.0418079
+%%  12.8113   14764.8478663
+%%  22.1905   14763.6698039
+%%  38.0606   14762.5261883
+%%  67.9218   14761.3244548
+%%  131.282   14760.006895
+%%  246.389   14758.8451982
+%%  503.474   14757.808995
+%%  1188.99   14757.4651245
+%%  3091.62   14758.9489668
+%%  9603.95   14762.4996258
+%%    45000   14766.0368818
+%%       -1   14767.4781304
+%%        0   14848.1364689
+%%
+%%
+%%
+%%  There are no new models for this iteration!
+%%
+%%  ------------------------------------------------------------------------
+%%  ------------------------------------------------------------------------
+%%
+%%  Final Model:
+%%
+%%  LOGS = const + AGEPH(psplinerw2,df=5.96466,(lambda=666.043)) + BM(psplinerw2,df=4.96696,(lambda=1188.99))
+%%  AIC_imp = 14757.465
+%%
+%%  Used number of iterations: 4
+%%
+%%  ------------------------------------------------------------------------
+%%  ------------------------------------------------------------------------
+%%
+%%  Final Model:
+%%
+%%  LOGS = const + AGEPH(psplinerw2,df=5.96466,(lambda=666.043)) + BM(psplinerw2,df=4.96696,(lambda=1188.99))
+%%  AIC_imp = 14757.464
+%%
+%%RESPONSE DISTRIBUTION:
+%%
+%%  Gaussian
+%%  Number of observations: 18139
+%%
+%%
+%%ESTIMATION RESULTS:
+%%
+%%
+%%  Predicted values:
+%%
+%%  Estimated mean of predictors, expectation of response and
+%%  individual deviances are stored in file
+%%  C:\bayesx\output\s_predictmean.raw
+%%
+%%
+%%  Saturated deviance: 20058
+%%
+%%  Estimation results for the scale parameter:
+%%
+%%  sigma2:         2.03744
+%%
+%%
+%%
+%%  FixedEffects1
+%%
+%%
+%%
+%%  Variable  mean           Std. Dev.      2.5% quant.    median         97.5% quant.
+%%  const     10.0619        0              0              0              0
+%%
+%%  Results for fixed effects are also stored in file
+%%  C:\bayesx\output\s_FixedEffects1.res
+%%
+%%
+%%  f_AGEPH
+%%
+%%
+%%  Results are stored in file
+%%  C:\bayesx\output\s_f_AGEPH_pspline.res
+%%
+%%  Results may be visualized using the R / S-Plus function 'plotnonp'
+%%  Type for example:
+%%  plotnonp("C:\\bayesx\\output\\s_f_AGEPH_pspline.res")
+%%
+%%
+%%
+%%  f_BM
+%%
+%%
+%%  Results are stored in file
+%%  C:\bayesx\output\s_f_BM_pspline.res
+%%
+%%  Results may be visualized using the R / S-Plus function 'plotnonp'
+%%  Type for example:
+%%  plotnonp("C:\\bayesx\\output\\s_f_BM_pspline.res")
+%%
+%%
+%The {\it output window} shows all specified covariates and terms together with the respective
+%number of different smoothing parameters and the way in which they were specified. Furthermore,
+%even by specifying option {\tt trace=trace\_off},
+%starting model and final model are shown together with the respective values of the selection criterion.
+%The total number of iterations is also given in the output.
+%By using the default value {\tt trace=trace\_on}, the {\it output window} additionally shows
+%every model that was tried during iterations. Option {\tt trace=trace\_half} reduces the output to the starting
+%models of the individual iterations. With {\tt trace=trace\_off}, the information
+%given in the {\it output window} is
+%
+%\begin{small}
+%\begin{verbatim}
+%STEPWISE OBJECT s: stepwise procedure
+%
+%GENERAL OPTIONS:
+%
+% Performance criterion: AIC_imp
+% Maximal number of iterations: 1000
+%
+% RESPONSE DISTRIBUTION:
+%
+% Family: Gaussian
+% Number of observations: 18139
+%
+%OPTIONS FOR STEPWISE PROCEDURE:
+%
+% OPTIONS FOR FIXED EFFECTS TERM: sex
+%
+% Prior: diffuse prior
+% Startvalue of the 1. startmodel is the fixed effect
+%
+% OPTIONS FOR NONPARAMETRIC TERM: ageph
+%
+% Minimal value for the smoothing parameter: 2.0480375
+% This is equivalent to degrees of freedom: approximately 16, exact 16.0369
+% Maximal value for the smoothing parameter: 62500
+% This is equivalent to degrees of freedom: approximately 2, exact 1.95119
+% Number of different smoothing parameters with equidistant degrees of freedom: 15
+% Startvalue of the 1. startmodel is the fixed effect
+%
+% OPTIONS FOR NONPARAMETRIC TERM: bm
+%
+% Minimal value for the smoothing parameter: 1.0240375
+% This is equivalent to degrees of freedom: approximately 16, exact 16.0487
+% Maximal value for the smoothing parameter: 45000
+% This is equivalent to degrees of freedom: approximately 2, exact 2.02502
+% Number of different smoothing parameters with equidistant degrees of freedom: 15
+% Startvalue of the 1. startmodel is the fixed effect
+%
+%
+%STEPWISE PROCEDURE STARTED
+%
+% Startmodel:
+%
+% LOGS = const + sex + ageph + bm
+% AIC_imp = 14821.315
+%
+% ------------------------------------------------------------------------
+% ------------------------------------------------------------------------
+%
+% Final Model:
+%
+% LOGS = const + ageph(psplinerw2,df=5.96466,(lambda=666.043)) +
+%        bm(psplinerw2,df=4.96696,(lambda=1188.99))
+% AIC_imp = 14757.465
+%
+% Used number of iterations: 4
+%\end{verbatim}
+%\end{small}
+%
+%The estimation results are stored in several external ASCII-files whose names start with the base filename {\tt car\_}. The file
+%{\tt car\_FixedEffects1.res} contains the estimated coefficients for the linear effects in tabular form, including the estimated intercept term and
+%coefficients of factor variables.
+%The results for linear effects are additionally shown in the {\it output window}.
+%For each nonlinear function, e.g.~for $f_{ageph}(ageph)$, there exists one file in form of a data frame,
+%here called {\tt car\_f\_ageph\_pspline.res},
+%containing the function estimates at all distinct covariate values. The first lines of the file are:
+%
+%\begin{small}
+%\begin{verbatim}
+%intnr  ageph    pmean   pqu2p5  pqu10  pmed  pqu90  pqu97p5  pcat95  pcat80
+%1       18   -0.0003835   0       0     0      0      0        0       0
+%2       19   -0.0226083   0       0     0      0      0        0       0
+%3       20   -0.0445334   0       0     0      0      0        0       0
+%4       21   -0.0659971   0       0     0      0      0        0       0
+%\end{verbatim}
+%\end{small}
+%
+%Column {\it pmean} contains the function estimates. Columns {\it pqu2p5} to {\it pcat80} are only meaningful if
+%credible intervals are constructed. In this case, columns {\it pqu2p5} and {\it pqu97p5} build the credible interval
+%corresponding to {\tt level1=95}, whereas {\it pqu10} and {\it pqu90} belong to the credible interval with {\tt level2=80}. Columns
+%{\it pcat95} and {\it pcat80} indicate wether the credible interval is strictly negative (-1), contains zero (0) or is strictly positive (1)
+%with (posterior) probabilities of nominal levels 95\% and 80\%. The first column {\it intnr} is merely a parameter index.
+%These results files can be read into any general purpose statistics program
+%(e.g.~STATA, R, S-plus) to further analyse and/or visualise the results.
+%The names of the respective files are shown in the {\it output window}.
+%BayesX has also some facilities for the plotting of nonlinear and spatial functions. The respective
+%commands {\tt plotnonp} and {\tt drwamap} are described in the manuals . \\
+%Additional to the files containing estimated effects, there are two files containing information about
+%the progression of the selection: the file {\tt car\_models.raw} displays the models chosen after every iteration (i.e.~after having passed
+%once through all variables and terms). It looks like this:
+%
+%\begin{small}
+%\begin{verbatim}
+%step   AIC_imp   model
+%
+%0   14821.315     LOGS = const + sex + ageph + bm
+%
+%1   14757.645     LOGS = const + ageph(psplinerw2,df=5.96466,(lambda=666.043)) +
+%                         bm(psplinerw2,df=4.96696,(lambda=1188.99))
+%...
+%3   14757.468     LOGS = const + ageph(psplinerw2,df=5.96466,(lambda=666.043)) +
+%                         bm(psplinerw2,df=4.96696,(lambda=1188.99))
+%
+%4   14757.465
+%B   14757.464
+%\end{verbatim}
+%\end{small}
+%%
+%%2   14757.485     LOGS = const + AGEPH(psplinerw2,df=5.96466,(lambda=666.043)) + BM(psplinerw2,df=4.96696,(lambda=1188.99))
+%%
+%In this example, variable {\it sex} has been removed from the model during the first iteration, whereas the effects of {\it ageph}
+%and of {\it bm} are modelled by nonlinear effects.
+%Column {\it step} shows the number of the current iteration with {\it step=0} indicating the starting model.
+%The information {\it step=B} is peculiar to the adaptive search where the final model is estimated by backfitting after the
+%selection process is finished what usually changes the value of the selection criterion once more.
+%The largest number of {\it steps} indicates the total number of iterations.
+%Using this file, it is possible to detect changes in the model that were made during an iteration. Furthermore, it is possible to
+%observe changes in the selection criterion. Changes in the selection criterion can also be observed using
+%file {\tt car\_criterium.raw}:
+%
+%\begin{small}
+%\begin{verbatim}
+%step  var   AIC_imp
+%0      0   14821.315
+%0      1   14820.56
+%0      2   14770.105
+%0      3   14757.645
+%1      0   14757.645
+%1      1   14757.645
+%1      2   14757.485
+%1      3   14757.485
+%...
+%4      0   14757.465
+%B      0   14757.464
+%\end{verbatim}
+%\end{small}
+%
+%This file displays the current value of the selection criterion after the respective covariate or term was updated. Variable {\it step}
+%indicates the number of iterations again whereas column {\it var} gives the number of the covariates / terms. In each iteration,
+%{\it var=0} indicates the starting model. \\
+%If the global option {\tt predict} is specified, BayesX creates a file {\tt car\_predictmean.raw} containing estimates
+%for the predictor $\eta_i$ in column {\it linpred}
+%and for the conditional expectations of the response $\mu_i$ in column {\it mu}.
+%If {\tt CI=MCMCbootstrap} is specified the
+%file contains the estimates for the original data in columns {\it linpred} and {\it mu}
+%and, additionally, contains average estimates for $\eta_i$ and $\mu_i$ calculated from
+%the samples of all selected models (columns {\it average\_linpred} and {\it average\_mu}).
+%In this case the first few lines of {\tt car\_predictmean.raw} are given by
+%
+%\begin{small}
+%\begin{verbatim}
+%logs    sex ageph bm nclaims linpred average_linpred   mu   average_mu  sat_dev
+%11.086   1   50    5   1      9.8551    9.85614      9.8551   9.8561    0.74395
+%8.7470  -1   28    9   1      9.9052    9.90306      9.9052   9.9031    0.65828
+%8.7470   1   26   11   1      10.016    10.0125      10.016   10.013    0.79044
+%\end{verbatim}
+%\end{small}
+%
+%If unconditional confidence bands were constructed by using one of the options {\tt CI=MCMCboostrap}
+%or {\tt CI=bootstrap}, BayesX creates one additional results file for each nonlinear term and
+%for the linear effects. Those files contain the possible degrees of freedom for the term
+%together with the frequency distribution, i.e.~the number of bootstrap samples
+%in which the individual degrees of freedom were selected plus the degree of freedom selected for the original data.
+%For the P--spline effect of {\it agph} the file is called {\tt car\_f\_ageph\_pspline\_df.res}
+%and looks like
+%
+%\begin{small}
+%\begin{verbatim}
+%df_value  sp_value  frequency  pmean
+%4.04862    3447.83     3        -
+%4.99322    1438.86    26        -
+%6.03377    632.898    48     selected
+%6.98883    325.333    14        -
+%7.97817    173.922     1        -
+%9.96079    56.4291     2        -
+%11.033     32.1334     2        -
+%11.9617    19.9828     2        -
+%13.0304    11.5881     1        -
+%\end{verbatim}
+%\end{small}
+%
+%{\it BayesX} automatically creates a file {\tt car\_model\_summary.tex} summarising the most important results which can be compiled
+%using \LaTeX. Among the displayed results are graphics for the nonparametric and spatial effects. These graphics are also created
+%automatically and stored in postscript format.
+%The effect of {\it ageph}, for example, is contained in file {\tt car\_f\_ageph\_pspline.ps}. \\
+%When credible intervals are constructed by using one of the hybrid MCMC methods ({\tt CI=MCMCselect}
+%or {\tt CI=MCMCbootstrap}), {\it BayesX} stores the MCMC samples for the regression parameters of linear effects
+%and for the nonlinear function evaluations. These samples can be obtained using the post estimation command
+%
+%{\tt s.getsample}
+%
+%and used for an analysis of the sampling paths. For further information regarding the
+%command {\tt getsample} and the analysis of MCMC output compare the BayesX manuals.
+%
+%
+%\subsection{Specific commands for multinomial logit models}
+%
+%Finally, we explain the specifics of the commands for multinomial logit models:
+%For multinomial logit models, there are two different commands in order to perform a variable and smoothing parameter selection.
+%If the data consists of observations with merely one trial per observation, the dependent variable $Y$ is supposed to specify the
+%chosen category, e.g. $Y \in \{1,\ldots,k+1\}$. In this case, a selection can be performed using the {\tt regress} command
+%like for univariate response variables:
+%
+%{\tt > s.regress} {\it Y = term$_1$ + term$_2$ +} $\ldots$ {\it + term$_r$}
+%$[${\tt if} {\it expression}$]$ $[$, {\it options}$]$ {\tt using d}
+%
+%Here, an important option is {\tt reference} specifying the category that is to be chosen as reference category.
+%A weight variable is not allowed with {\tt regress}. \\
+%The second possibility is given by the command {\tt mregress}. Here, it is possible to deal with grouped data with several trials
+%per observation. In this case, the command needs $k$ response variables, e.g. $Y_1,\ldots,Y_k$, each specifying the numbers of cases
+%in which the respective category was chosen. One category, here $k+1$ serves as reference. The command is
+%
+%\begin{tabbing}
+%{\tt > s.mregress} \= {\it $Y_1$ = term$_{11}$ + term$_{12}$ +} $\ldots$ {\it + term$_{1r}$}: \\
+%                   \> {\it $Y_2$ = term$_{21}$ + term$_{22}$ +} $\ldots$ {\it + term$_{2r}$}: \\
+%                   \> $\vdots$ \\
+%                   \> {\it $Y_k$ = term$_{k1}$ + term$_{k2}$ +} $\ldots$ {\it + term$_{kr}$} \\
+%$[${\tt weight} {\it weightvar}$]$ $[${\tt if} {\it expression}$]$ $[$, {\it options}$]$ {\tt using d}
+%\end{tabbing}
+%
+%The weight variable defines the number of trials per observation. The command {\tt mregress} assumes the same fixed effects
+%for each of the categories and, regarding all other effects, it requires the same number of terms for all categories but not
+%necessarily the same terms.
+%The global and local options are the same as for the {\tt regress} command and local options can be individually specified
+%for each term and category. \\
+%With both commands, BayesX creates one results file for each nonlinear term (in every category) containing the estimated
+%effects like in the univariate case. For the linear effects, there exists one results file per category containing all
+%respective parameter estimates. The names of results files for the first category
+%are identical to the names used for univariate response models, e.g.~{\tt s\_f\_varname\_pspline.res}
+%for the P--sline effect of variable {\it varname}. For the $j$--th category with $j=2,\ldots,k$ the
+%names additionally contain number $j$ and, thus, the P--spline effect of
+%variable {\it varname} is stored in {\tt s\_f\_varname\_j\_pspline.res}.
+%
+%
+%
+%
+%
+%
+%
+%%
