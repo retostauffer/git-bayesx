@@ -5,9 +5,10 @@
 {\em stepwisereg objects} are used to fit models with {\em structured
 additive predictor} subsumed in the class of {\em structured
 additive regression (STAR)} models, see Belitz and Lang (2007) and
-Fahrmeir, Kneib, and Lang (2004, 2007). In contrary to {\em bayesreg} and
-{\em remlreg} objects described in the previous two chapters, {\em stepwisereg}
-objects are also able perform model choice and variable selection. The algorithms are able to
+Fahrmeir, Kneib, and Lang (2004, 2007). In addition to {\em bayesreg} and
+{\em remlreg objects} described in the previous two chapters, {\em stepwisereg
+objects} are also able to perform model choice and variable selection. Model
+choice and estimation of the parameters is done simultaneously. The algorithms of {\em stepwisereg objects} are able to
 \begin{itemize}
 \item decide whether a particular covariate enters the model,
 \item decide whether a continuous covariate enters the model linearly or nonlinearly,
@@ -17,9 +18,10 @@ objects are also able perform model choice and variable selection. The algorithm
 \item select the degree of smoothness of  nonlinear covariate, spatial or cluster specific heterogeneity effects.
 \end{itemize}
 Inference is based on penalized likelihood in combination with fast algorithms for selection relevant covariates
-and model terms. Different models are compared via various goodness of fit criteria., e.g. AIC, BIC, GCV and 5 or 10 fold cross
-validation. Models with structured additive predictor are described in considerable detail in
-the methodology manual. Details on the algorithms for model choice and variable selection are given in Belitz and Lang (2007) and Belitz (2007).
+and model terms. Different models are compared via various goodness of fit criteria., e.g. AIC, BIC,
+GCV and 5 or 10 fold cross validation. Models with structured additive predictor and the algorithms for model
+choice and variable selection are described in considerable detail in the methodology manual. More details on the
+algorithms for model choice and variable selection are given in Belitz and Lang (2007) and Belitz (2007).
 
 \index{Generalized linear models} \index{Generalized additive
 models} \index{Varying coefficients} \index{Bayesian semiparametric
@@ -44,7 +46,7 @@ model} using the data specified in {\em dataset}. {\em dataset} is
 the name of a {\em dataset object} created before. The details
 of correct model specification are covered in
 \autoref{stepwiseregmodelsyntax}. The distribution of the response
-variable can be either Gaussian, binomial, multinomial or Poisson.
+variable can be either Gaussian, binomial, multinomial, gamma or Poisson.
 The response distribution is specified using
 option #family#, see \autoref{stepwiseregfamilysyntax} below. The
 default is #family=binomial# with a logit link. An #if# statement
@@ -71,7 +73,7 @@ variable should correspond to the number of replications while the
 values of the response variable should represent the number of
 successes. If weight is omitted, {\em BayesX} assumes that the
 number of replications is one, i.e. the values of the response must
-be either zero or one. For grouped Poisson data, the weights have to
+be either zero or one. For grouped Poisson data, the weights
 specify the number of observations in a group while the $y_i$s are
 assumed to be the average of individual responses. Weights are not
 allowed for models with multicategorical responses.
@@ -88,8 +90,7 @@ $depvar = term_1 + term_2 + \cdots + term_r$
 {\em depvar} specifies the dependent variable whereas
 $term_1$,\dots,$term_r$ define the form of covariate influences. The
 different terms must be separated by '+' signs. A constant intercept
-is automatically included in the model and has not to be
-specified by the user.
+is automatically included in the model.
 
 This section reviews all possible model terms supported in the
 current version of {\em stepwisereg objects} and provides some specific
@@ -97,7 +98,7 @@ examples. Note that all terms may be combined in arbitrary
 order. An overview about the capabilities of {\em stepwisereg objects}
 is given in \autoref{stepwiseregterms}. \autoref{stepwisereginteractions}
 shows how interactions between covariates are specified. Full
-details about all available options are given in
+details about all available options for the different term types are given in
 \autoref{stepwisereglocaloptions}.
 
 Throughout this section Y denotes the dependent variable.
@@ -105,7 +106,7 @@ Throughout this section Y denotes the dependent variable.
 \subsubsection*{Offset}\index{Offset}
 
 \begin{itemize}
-\item[] {\em Description}: Adds an offset term to the predictor.
+\item[] {\em Description}: Adds an offset to the predictor.
 \item[] {\em Predictor}: $\eta =  \cdots + offs + \cdots$
 \item[] {\em Syntax}:
 
@@ -138,6 +139,42 @@ with $q$ linear effects:
 \subsubsection*{Effects of categorical covariates}
 \index{Categorical covariates}
 
+\begin{itemize}
+\item[] {\em Description}: Creates dummy (or effect coded) variables of the categorical covariate #W# and incorporates the dummies into the model.
+Since {\em stepwisereg objects} perform variable selection the dummies for #W# are either completely included in the model or completely excluded.
+Hence it is not possible that only a subset of the dummies enter the model.
+Usually interpretation of results is difficult
+if only a subset of a categorical covariate is included by the variable selection algorithm.
+\item[] {\em Predictor}: $\eta =  \cdots + \gamma_1 W1 + \gamma_2 W2 + \dots + \gamma_q Wq + \cdots$ \\
+where $W1,\dots,Wq$ are the dummies for $W$.
+\item[] {\em Syntax}:
+
+#W(factor#[, {\em options}]#)#
+
+#W(factor#[, {\em options}]#)#
+\item[] {\em Example}:
+
+The following model statement causes #regress# to estimate a model
+with categorical covariate $W$:
+
+\texttt{Y = W(factor)}
+
+By default the category with value 1 (if existing or not) is assumed to be the reference. Usually
+the reference category is different from 1 and must be explicitly specified. This is achieved with option #reference#.
+For instance,
+
+\texttt{Y = W(factor,reference=3)}
+
+assumes the category with value 3 as the reference.
+
+Effect coding rather than dummy coding  is obtained by
+
+\texttt{Y = W(factor,reference=3,coding=effect)}
+
+While both coding schemes produce equivalent models effect coding is favorable from a technical point of view. In particular, convergence of the algorithms
+for model choice and variable selection is considerably improved with effect coding. Hence, effect coding is strongly recommended.
+\end{itemize}
+
 
 
 \subsubsection*{Nonlinear effects of continuous covariates and time
@@ -156,9 +193,9 @@ order difference penalty for the parameters of the spline.
 #X1(psplinerw1#[, {\em options}]#)#
 
 #X1(psplinerw2#[, {\em options}]#)#
-\item[] {\em Example}:
+\item[] {\em Examples}:
 
-For example, a P-spline with second order random walk penalty is
+A P-spline with second order random walk penalty is
 obtained using the following model statement:
 
 #Y = X1(psplinerw2)#
@@ -169,45 +206,65 @@ with 30 knots:
 
 #Y = X1(psplinerw2,degree=2,nrknots=30)#
 
-{\em stepwisereg objects} provide three alternatives for specifying the ordered list of
-smoothing parameters of a model term:
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters. However, in some situations it may be favorable to
+define the list of smoothing parameters manually. {\em stepwisereg objects} provide three alternative ways for
+manually specifying the ordered list of smoothing parameters of a model term. They are specified via option
+{\tt sp} and - depending on its value - a couple of accompanying options.
 
 \begin{itemize}
-\item {\em Degrees of freedom:} The default is to define the list of  smoothing parameters via the concept of
+\item {\em Degrees of freedom:} The first alternative is to define the list of  smoothing parameters via the concept of
 equivalent degrees of freedom of a model term. Zero (covariate excluded from the model) and one (linear fit)
-degrees of freedom are always included in the list. The remaining smoothing parameters in the list are chosen such that they
+degrees of freedom are always included in the list. The remaining smoothing parameters  are chosen such that they
 correspond to an equidistant grid of degrees of freedom between {\tt dfmin} and {\tt dfmax}. The total
-number of smoothing parameters respectively degrees of freedom (except 0 and 1) is supplied via the option {\tt number}.
+number of smoothing parameters, respectively degrees of freedom (except 0 and 1), is supplied via the option {\tt number}.
 For instance,
 
-#Y = X1(psplinerw2,dfmin=2,dfmax=5,number=4)#
+#Y = X1(psplinerw2,sp=df,dfmin=2,dfmax=5,number=4,dfstart)#
 
 defines the smoothing parameters such that they correspond to 0,1,2,3,4 and 5 degrees of freedom. Specifying
 
-#Y = X1(psplinerw2,dfmin=2,dfmax=5,number=8)#
+#Y = X1(psplinerw2,sp=df,dfmin=2,dfmax=5,number=8)#
 
 results in $0,1,2,2.5,3,3.5,\dots,5$ possible degrees of freedom.
 
-The default for P-splines is {\tt dfmin=2}, {\tt dfmax=10} and {\tt number=20}. However, we strongly recommend not to rely on
-the default values because reasonable values may change from application to application.
-Instead, the values for {\tt dfmin} ,{\tt dfmax} and {\tt number} should always be specified by the user. In particular if the
+In general, it is advisable to compare the list of degrees of freedom with the degrees of freedom of the selected model. In particular if the
 degree of freedom of the selected best model is close to or even equal to {\tt dfmax} the selection should be rerun with an increased
 value for {\tt dfmax}.
+
+It is also possible to define the smoothing parameters of the start model.
+This is done in two steps. First, the global option #startmodel=userdefined # must be set. Second, the smoothing parameter
+of the  start model is defined via option #dfstart#. For instance,
+
+#Y = X1(psplinerw2,sp=df,dfmin=2,dfmax=5,number=4,dfstart=2) # \\
+#, startmodel=userdefined #
+
+defines a P-spline with 2 degrees of freedom for $X1$ as the start model. Note, however, that the model selection algorithms are
+typically not sensitive to the choice of the start model. Hence, option #dfstart# will be rarely used.
+
 \item {\em Degrees of freedom, smoothing parameters on a log-scale:}
 This alternative  also defines the list of smoothing parameters via the equivalent degrees of freedom. The difference to the
 first alternative is that the corresponding smoothing parameters between {\tt dfmin} and {\tt dfmax}  are chosen on a log-scale resulting
-in non-equidistant degrees of freedom. A log-scale is specified using the option {\tt logscale}. An example is the term
+in non-equidistant degrees of freedom. A log-scale is specified using the additional option {\tt logscale}. An example is the term
 
-#Y = X1(psplinerw2,dfmin=2,dfmax=5,number=4,logscale)#
+#Y = X1(psplinerw2,sp=df,dfmin=2,dfmax=5,number=4,logscale)#
 
 \item {\em Smoothing parameters on a log-scale:}
-The third alternative allows to specify the smoothing parameters directly using the options {\tt sp}, {\tt spmin}, {\tt spmax}
+The third alternative allows to specify the smoothing parameters directly using the options {\tt sp}, {\tt spmin}, {\tt spmax}, {\tt spstart}
 and {\tt number}. The smoothing parameters are chosen between {\tt spmin} and {\tt spmax} on a log-scale. Again exclusion of the covariate from the
-model as well as a linear fit is additionally included in the list of modeling alternatives. As an example consider the term
+model as well as a linear fit is always included in the list of modeling alternatives. As an example consider the term
 
-#Y = X1(psplinerw2,sp,spmin=10,spmax=10000,number=10)#
+#Y = X1(psplinerw2,sp=direct,spmin=10,spmax=10000,number=10)#
 
 which defines a list of 10 smoothing parameters on a log-scale between 10 and 10000.
+
+The smoothing parameters of the start model are specified by setting the global option #startmodel=userdefined# and the local option #spstart#.
+
+
+
+
+
 \end{itemize}
 \item[]{\bf\sffamily First or second order random walk}
 
@@ -231,7 +288,11 @@ The term #X1(rw2)# indicates, that the effect of
 random walk prior. A first order random walk can be requested by
 specifying #X1(rw1)# instead.
 
-The list of smoothing parameters is specified in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
+see the entry above (page \pageref{psplines_stepwise}).
 
 %default 20 verschiedene parameter
 %
@@ -268,7 +329,11 @@ where the second argument indicates the period of the seasonal
 effect. In the example above, the period is 12 corresponding to
 monthly data.
 
-The list of smoothing parameters is specified in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
+see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
 
 \subsubsection*{Spatial Covariates}\index{Spatial effects}\index{Markov random fields}
@@ -302,15 +367,20 @@ defines a Markov random field prior for #region# where the
 geographical information is stored in the {\em map object}
 #germany#. An error will be raised if #germany# is not existing.
 
-The list of smoothing parameters is specified in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
+see the entry above (page \pageref{psplines_stepwise}).
 
-\item[]{\bf\sffamily Two-dimensional P-spline with first order
+
+\item[]{\bf\sffamily Two-dimensional P-spline with first or second order
 random walk penalty}
 
 \item[] {\em Description}:
 
 Defines a two-dimensional P-spline for the spatial covariate
-#region# with a two-dimensional first order random walk penalty
+#region# with a two-dimensional first or second order random walk penalty
 for the parameters of the spline. Estimation is based on the
 coordinates of the centroids of the regions. The centroids are
 computed using the geographical information stored in the {\em map
@@ -318,7 +388,8 @@ object} specified in the option #map#.
 \item[] {\em Predictor}:
 $\eta= \cdots + f(centroids) + \cdots$ \item[] {\em Syntax}:
 
-#region(geospline,map=#{\em characterstring}[, {\em options}]#)#
+#region(geosplinerw1,map=#{\em characterstring}[, {\em options}]#)# \\
+#region(geosplinerw2,map=#{\em characterstring}[, {\em options}]#)#
 \item[] {\em Example}:
 
 For the specification of a two-dimensional P-spline ({\em
@@ -328,13 +399,17 @@ spatial information about the geographical map, i.e.~the neighbors
 of each region and the weights associated with the neighbors. The
 model term
 
-#Y = region(geospline,map=germany)#
+#Y = region(geosplinerw1,map=germany)#
 
 specifies a two-dimensional cubic P-spline with first order random
 walk penalty where the geographical information is stored in the
 {\em map object} #germany#.
 
-The list of smoothing parameters is specified in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
+see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
 
 \subsubsection*{Unordered group indicators}\index{Unordered group
@@ -367,7 +442,12 @@ we have only limited experience with multilevel models so that it
 is not clear how well these models can be estimated using {\em
 stepwisereg objects}.
 
-The list of smoothing parameters is specified in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
+
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
+see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
 
 \subsubsection*{Varying coefficients with continuous covariates as
@@ -380,8 +460,8 @@ walk penalty}
 \item[] {\em Description}:
 
 Defines a varying coefficient term, where the effect of #X1#
-varies smoothly over the range of #X2#. The smoothness prior for
-$f$ is a P-spline with first or second order random walk penalty.
+varies smoothly over the range of #X2#.  For
+$f$ a P-spline with first or second order difference  penalty is assumed.
 \item[] {\em Predictor}: $\eta= \cdots + f(X2)X1 + \cdots$ \item[]
 {\em Syntax}:
 
@@ -390,8 +470,8 @@ $f$ is a P-spline with first or second order random walk penalty.
 #X1*X2(psplinerw2#[, {\em options}]#)#
 \item[] {\em Example}:
 
-For example, a varying coefficient term with a second order random
-walk smoothness prior is defined as follows:
+For example, a varying coefficient term with a second order difference penalty
+is defined as follows:
 
 #Y = X1*X2(psplinerw2)#
 
@@ -426,9 +506,11 @@ this case the model
 
 assumes different effects of both #X2# and #Z2# in the groups.
 
-The list of smoothing parameters is specified in the same way as for P-splines,
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
 see the entry above (page \pageref{psplines_stepwise}).
-
 \item[]{\bf\sffamily First or second order random walk}
 
 \item[] {\em Description}:
@@ -450,9 +532,12 @@ walk smoothness prior is defined as follows:
 
 #Y = X1*X2(rw2)#
 
-The list of smoothing parameters is specified in the same way as for P-splines,
-see the entry above (page \pageref{psplines_stepwise}).
 
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
+see the entry above (page \pageref{psplines_stepwise}).
 \item[]{\bf\sffamily Seasonal prior}
 
 \item[] {\em Description}:
@@ -474,7 +559,10 @@ additional seasonal effects for observations with #X1#=1 by
 
 #Y = X1*time(season) #
 
-The list of smoothing parameters is specified in the same way as for P-splines,
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
 see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
 
@@ -513,8 +601,53 @@ centered to avoid identifiability problems:
 
 #Y = X1*region(spatial, map=germany, center)#
 
-The list of smoothing parameters is specified in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
+
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
+see the entry above (page \pageref{psplines_stepwise}).
+\item[]{\bf\sffamily Two-dimensional P-spline with first or second order
+random walk penalty}
+
+\item[] {\em Description}:
+
+Defines a varying coefficient term where the effect of #X1# varies
+smoothly over the range of the spatial covariate #region#.
+A two-dimensional P-spline for the spatial covariate
+#region# with a two-dimensional first order random walk penalty
+for the parameters of the spline are defined. Estimation is based on the
+coordinates of the centroids of the regions. The centroids are
+computed using the geographical information stored in the {\em map
+object} specified in the option #map#.
+\item[] {\em Predictor}:
+$\eta= \cdots + f(centroids) X1 + \cdots$ \item[] {\em Syntax}:
+
+#X1*region(geosplinerw1,map=#{\em characterstring}[, {\em options}]#)#
+#X1*region(geosplinerw2,map=#{\em characterstring}[, {\em options}]#)#
+\item[] {\em Example}:
+
+For the specification of a two-dimensional P-spline ({\em
+geospline}) #map# is an obligatory argument indicating the name of
+a {\em map object} (see \autoref{map}) that contains all necessary
+spatial information about the geographical map, i.e.~the neighbors
+of each region and the weights associated with the neighbors. The
+model term
+
+#Y = X1*region(geosplinerw1,map=germany)#
+
+specifies a two-dimensional cubic P-spline with first order random
+walk penalty where the geographical information is stored in the
+{\em map object} #germany#.
+
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
+see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
+
+
 
 \subsubsection*{Varying coefficients with unordered group indicators
 as effect modifiers (random slopes)}\index{Random
@@ -550,27 +683,33 @@ $\eta = \cdots + \gamma X1 + f(grvar)X1 + \cdots$
 
 would be
 
-#X1 + X1*grvar(random#[, {\em options}]#)#
+#X1(linear) + X1*grvar(random#[, {\em options}]#)#
 
-The list of smoothing parameters is specified in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
+see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
 
 \subsubsection*{Surface estimators}\index{Surface
 estimators}\index{Two-dimensional P-spline}\index{Kriging}
 
 \begin{itemize}
-\item[]{\bf\sffamily Two-dimensional P-spline with first order
+\item[]{\bf\sffamily Two-dimensional P-spline with first or second order
 random walk penalty}
 
 \item[] {\em Description}:
 
 Defines a two-dimensional P-spline based on the tensor product of
-one-dimensional P-splines with a two-dimensional first order
-random walk penalty for the parameters of the spline. \item[] {\em
+one-dimensional P-splines with a two-dimensional first or second order
+random walk penalty for the parameters of the spline.
+\item[] {\em
 Predictor}: $\eta= \cdots + f(X1,X2) + \cdots$ \item[] {\em
 Syntax}:
 
-#X1*X2(pspline2dimrw1#[, {\em options}]#)#
+#X1*X2(pspline2dimrw1#[, {\em options}]#)# \\
+#X1*X2(pspline2dimrw2#[, {\em options}]#)#
 \item[] {\em Example}:
 
 The model term
@@ -579,19 +718,37 @@ The model term
 
 specifies a tensor product cubic P-spline with first order random
 walk penalty.
+\item[]{\bf\sffamily ANOVA type interaction}
 
-In many applications it is favorable to additionally incorporate
-the one-dimensional main effects of #X1# and #X2# into the models.
-In this case the two-dimensional surface can be seen as the
-deviation from the main effects. Note, that in contrast to {\em
-bayesreg objects} the number of inner knots and the degree of the
-spline may be different for the main effects and for the
-interaction. For example, a model with 20 inner knots for the main
-effects and 10 inner knots for the two-dimensional P-spline is
-estimated by
+\item[] {\em Description}:
+In some applications it is desirable to decompose the effect of the two covariates
+$X1$ and $X2$ into two main effects modeled by one dimensional functions and a two dimensional interaction effect, i.e.
+\begin{equation}
+\label{gampspline_2dimtermmain}
+f \left(X1,X2\right) = f_1\left(X1 \right) +
+f_2 \left(X2\right) + f_{1|2}\left(X1,X2 \right).
+\end{equation}
+{\em stepwisereg objects} allow such decompositions using the approach described in ??.
+\item[] {\em
+Predictor}: $\eta= \cdots + f_1(X1) + f_2(X2) + f_{1 | 2}(X1,X2) +  \cdots$
+\item[] {\em Syntax}:
 
- #Y = X1(psplinerw2,nrknots=20) + X2(psplinerw2,nrknots=20)#\\
- #    + X1*X2(pspline2dimrw1,nrknots=10)#
+#X1(psplinerw2#[, {\em options}]#)# + #X2(psplinerw2#[, {\em options}]#)# + \\
+#X1*X2(psplineinteract#[, {\em options}]#)#
+
+\item[] {\em Example}:
+
+The model term
+
+#Y = X1(psplinerw2) + X2(psplinerw2) + X1*X2(psplineinteract)#
+
+specifies an ANOVA type interaction effect with  second order difference penalty for the main effects.
+
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see ??
+in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing parameters, i.e. it
+is usually not necessary to  specify the smoothing parameters.
+The list of smoothing parameters is specified manually in the same way as for P-splines,
+see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
 
 
@@ -656,7 +813,7 @@ covariates {\tt X1} and {\tt X2}. \\
 \hline
 ANOVA type interaction &  {\tt X1*X2(psplineinteract) + } \newline {\tt X1(psplinerw2) + X2(psplinerw2)}
 & ANOVA type interaction for the continuous covariates {\tt X1} and {\tt X2}. Note that P-splines with first order difference
-penalty for the main effects are possible.  \\
+penalty for the main effects are possible as well.  \\
 \hline
 
 \end{tabular}
@@ -678,37 +835,49 @@ default values of all possible options. All reasonable combinations
 of model terms and options can be found in
 \autoref{stepwiseregtermsoptions}.
 
+%{\tt df\_accuracy} & This option specifies the maximal absolute difference in terms of
+%                     degrees of freedom that is allowed when calculating smoothing parameters
+%                     according to user--specified degrees of freedom. \\
+%            & \\
+
 \begin{sidewaystable}[ht] \footnotesize
  \begin{center}
  \begin{tabular}{|l|l|l|l|l|}%{|p{2.5cm}|p{1.5cm}|p{2cm}|p{2cm}|p{7cm}|}
  \hline
  {\bf local option} & {\bf type} & {\bf default} & {\bf values} & {\bf description} \\
  \hline \hline
- {\tt dfmin}     & numeric (real) & --    & compare section \ref{section_df} & minimum degree of freedom \\
+ {\tt sp}        & string                 & automatic & automatic & list of smoothing parameters are automatically specified  \\
+                 &                         &       & df  & smoothing parameters are directly specified by the user in terms of  degrees of freedom \\
+                 &                         &       &   & use options #dfmin#, #dfmax#, #number#, #dfstart#, #logscale# for specification  \\
+                 &                         &       & direct  & smoothing parameters are directly specified by the user  \\
+                 &                         &       &   & use options #spmin#, #spmax#, #number#, #spstart#, #logscale# for specification  \\
+
 \hline
- {\tt dfmax}     & numeric (real) & --    & compare section \ref{section_df} & maximum degree of freedom \\
+ {\tt dfmin}     & numeric (real) & --    & see page \pageref{psplines_stepwise} & minimum degree of freedom,
+ see also the entry on P-splines at page \pageref{psplines_stepwise} \\
+\hline
+ {\tt dfmax}     & numeric (real) & --    & see page \pageref{psplines_stepwise} & maximum degree of freedom \\
 \hline
  {\tt dfstart}   & numeric (real) & 1     & $\{0,1\} \cup [dfmin;dfmax]$ & degree of freedom used in the start model \\
 \hline
  {\tt logscale}  & boolean                 & false & false & equidistant degrees of freedom \\
                  &                         &       & true  & smoothing parameters on a logarithmic scale \\
 \hline
- {\tt sp}        & boolean                 & false & false & smoothing parameters are specified in terms of $df$ \\
-                 &                         &       & true  & smoothing parameters are directly specified \\
-\hline
  {\tt spmin}     & numeric (real) & $10^{-4}$ & $[10^{-6};10^{8}]$ & minimum smoothing parameter \\
 \hline
  {\tt spmax}     & numeric (real) & $10^4$    & $[10^{-6};10^{8}]$ & maximum smoothing parameter \\
 \hline
  {\tt spstart}   & numeric (real) & --    & $\{-1,0\} \cup [10^{-6};10^{8}]$ & smoothing parameter for the start model \\
+& & &  & #spstart=0# excludes the term from the start model \\
+& & & &  #spstart=-1# includes a linear effect \\
 \hline
  {\tt number}    & numeric (integer) & 0  & $\{0;100\}$ & number of different smoothing parameters \\
 \hline
  {\tt forced\_into} & boolean              & false & false & term may be excluded from the model \\
                  &                         &       & true  & term may not be excluded from the model \\
 \hline
- {\tt nofixed}   & boolean                 & false & false & Possibility of linear fit \\
-                 &                         &       & true  & A linear fit is not possible \\
+ {\tt nofixed}   & boolean                 & false & false & linear fit is allowed \\
+                 &                         &       & true  & linear fit is not allowed \\
 \hline
  {\tt center}    & boolean                 & false & false & varying coefficient term is not centered  \\
                  &                         &       & true  & varying coefficient term is centered \\
@@ -716,7 +885,7 @@ of model terms and options can be found in
  {\tt coding}    & string                  & dummy & dummy & dummy coding of categorical variables \\
                  &                         &       & effect & effect coding of categorical variables \\
 \hline
- {\tt reference} & numeric (real)    & 1  & $(-100;100)$ & reference category \\
+ {\tt reference} & numeric (real)    & 1  & $(-100;100)$ & specifies the reference category (for categorical covariates) \\
 \hline
  {\tt degree}    & numeric (integer) & 3  & $\{0;\ldots;5\}$ & degree of B--spline basis functions \\
 \hline
@@ -724,15 +893,22 @@ of model terms and options can be found in
 \hline
  {\tt monotone}  & string                  & unrestricted & unrestricted & no constraint on the spline function \\
                  &                         &              & increasing   & monotonically increasing function \\
-                 &                         &              & decreasing   & monotonically increasing function \\
+                 &                         &              & decreasing   & monotonically decreasing function \\
                  &                         &              & convex       & convex function, i.e. positive second derivative \\
                  &                         &              & concave      & concave function, i.e. negative second derivative \\
 \hline
- {\tt gridsize}  & numeric (integer) & -1 & $\{-1;10;\ldots;500\}$ & \\
+ {\tt gridsize}  & numeric (integer) & -1 & $\{-1;10;\ldots;500\}$ & May be used to restrict the
+number of points (on the x-axis) for which estimates are \\
+& & & &  computed. By default, estimates are computed at every distinct covariate
+value in the  \\
+& & & & data set (indicated by #gridsize=-1#). This may be
+relatively time consuming in situations  \\
+& & & & where the number of
+distinct covariate values is large. If #gridsize=nrpoints# is
+specified,  \\
+& & & & estimates are computed on an equidistant grid with #nrpoints# knots.\\
 \hline
  {\tt period}    & numeric (integer) & 12 & $\{2;\ldots;72\}$ & period for a seasonal effect \\
-\hline
- {\tt map}       & {\it map object}        & --    & --                & specifies the map object used for a spatial effect \\
  \hline
  \end{tabular}
  {\em\caption {\label{stepwisereg_localoptions} Possible local options
@@ -759,8 +935,8 @@ of model terms and options can be found in
  {\tt logscale}     & -----   & boolean          & boolean & boolean                       & boolean & boolean & boolean
                     & boolean \\
 \hline
- {\tt sp}           & boolean & boolean          & boolean & boolean                       & boolean & boolean & boolean
-                    & boolean \\
+ {\tt sp}           & string & string          & string & string                       & string & string  & string
+                    & string \\
 \hline
  {\tt spmin}        & -----   & real             & real   & real                           & real    & real   & real
                     & real \\
@@ -819,7 +995,7 @@ stepwisereg objects. Note, that boolean options are specified without supplying 
 \index{Response distribution} \label{stepwiseregfamilysyntax}
 
 Supported univariate distributions are Gaussian, binomial (with
-logit or probit link) and Poisson. For
+logit or probit link), Poisson and gamma. For
 multivariate responses, {\em stepwisereg} objects currently support only
 multinomial logit models for categorical responses with unordered categories.
 Continuous time survival models may be estimated by assuming a piecewise exponential model which
@@ -850,6 +1026,7 @@ give details on how to specify the models.
  #family=multinomial#         & unordered multinomial & logit & #reference#\\
  \hline
  #family=poisson#             & Poisson               & log & \\
+ #family=gamma#               & gamma               & log & \\
 \hline
 \end{tabular}
 {\em \caption {\label{stepwiseregfamilyopt} Summary of supported response distributions.}}
@@ -880,6 +1057,60 @@ heteroscedastic errors is also possible. In this case, the weights
 should be proportional to the reciprocal of the heteroscedastic
 variances. If no weight variable is specified, {\em BayesX} assumes
 $weightvar_i = 1$, $i=1,\dots,n$.
+
+\subsubsection*{Gamma distributed responses}
+
+In the literature, the density function of the gamma distribution
+is parameterized in various ways. In the context of regression
+analysis, the density is usually parameterized in terms of the
+mean $\mu$ and the scale parameter $s$. Then, the density of a
+gamma distributed random variable $y$ is given by
+\begin{equation}
+\label{gammapar1} p(y) \propto y^{s-1}\exp \left( -\frac{s}{\mu} y \right)
+\end{equation}
+for $y > 0$. For the mean and the variance we obtain $E(y) = \mu$
+and $Var(y) = \mu^2/s$. We write $y \sim G(\mu,s)$.
+
+A second parametrization is typically employed for
+hyperparameters #a# and #b# of priors for variance parameters in
+the context of Bayesian hierarchical models. In this case, the
+density is given by
+\begin{equation}
+\label{gammapar2} p(y) \propto y^{a-1}\exp(-b y)
+\end{equation}
+for $y>0$. In this parametrization we obtain $E(y) = a/b$ and
+$Var(y) = a/b^2$ for the mean and the variance, respectively. We
+write $y \sim G(a,b)$
+
+In {\em BayesX} a gamma distributed response variable is
+parameterized in the first form (\ref{gammapar1}). For the $r$th
+observation {\em BayesX} assumes  $y_r | \eta_r,\nu \sim
+G(\exp(\eta_r),\nu/weightvar_r)$ where $\mu_r = \exp(\eta_r)$ is
+the mean and $s=\nu/weightvar_r$ is the scale parameter. A gamma
+distributed response is specified by adding
+
+#family=gamma#
+
+to the options list. An optional weight variable {\em weightvar}
+can be specified to estimate weighted regression models, see
+\autoref{weightspecification} for details.
+
+It is possible to assume a fixed  scale
+parameter. The scale parameter is defined to be fixed by adding
+
+{\tt scalegamma = fixed}
+
+to the options list. The (fixed) value of the scale parameter is
+specified by adding:
+
+{\tt scale = realvalue}
+
+Typing e.g.
+
+{\tt scale = 1}
+
+defines the scale parameter to be fixed at the value $\nu=1$.
+
 
 \subsubsection*{Binomial logit and probit models}
 
@@ -983,28 +1214,28 @@ Specifies the selection algorithm. Possible values are {\tt cdescent1} (adaptive
 {\tt cdescent2} (adaptive algorithms  1 and 2 with backfitting, see remark ?? in the methodology manual), {\tt cdescent3} (search according to
 {\tt cdescent1}  followed by {\tt cdescent2}  using the selected model in the first step as the start model) and {\tt stepwise}
 (stepwise algorithm implemented in the gam routine of S-plus, see Chambers and Hastie, 1991).
-This option will be rarely specified by the user. \\
+This option will rarely be specified by the user. \\
 DEFAULT: {\tt algorithm = cdescent1}
 \item {\tt criterion = stringvalue} \\
 Specifies the goodness of  fit criterion. Possible values are listed in table \ref{stewpisereg_globaloptions}. If {\tt criterion = MSEP} is specified
 the data are randomly divided into a test- and validation data set. The test data set is used to estimate the models and the validation data set is used to
 estimate the mean squared prediction error (MSEP) which serves as the goodness of fit criterion to compare different models. The proportion of data used for
 the test and validation sample can be specified using option {\tt proportion}, see below. The default is to use 75\% of the data for the training sample. \\
-DEFAULT: {\tt criterion = GCV}
+DEFAULT: {\tt criterion = AIC\_imp}
 \item {\tt proportion = realvalue} \\
 This option may be used in combination with option {\tt criterion=MSEP}, see above. In this case the data are randomly divided into
 a training and a validation sample. {\tt proportion} defines the fraction (between 0 and 1)  of the original data used as training sample. \\
 DEFAULT: {\tt proportion = 0.75}
 \item {\tt startmodel = stringvalue} \\
-Defines the start model for variable selection. Possible values are listed in table \ref{stewpisereg_globaloptions}.
+Defines the start model for variable selection. Possible values are listed in table \ref{stewpisereg_globaloptions}. \\
 DEFAULT: {\tt startmodel = empty}
 \item {\tt trace=stringvalue} \\
 Specifies how detailed the output in the {\it output window} will be. Possible values are given in table \ref{stewpisereg_globaloptions}. \\
-DEFAULT: {\tt trace = trace\_on}
+DEFAULT: {\tt trace = trace\_half}
 \item {\tt steps=integervalue}   \\
-Defines the maximum number of iterations.  If the selection process  has not converged after after {\tt steps} iterations the algorithm terminates and a warning is
+Defines the maximum number of iterations.  If the selection process  has not converged after {\tt steps} iterations the algorithm terminates and a warning is
 raised. Setting {\tt steps=0} allows the user to estimate a certain model without any model choice. This option will rarely be specified by the user.\\
-DEFAULT: {\tt steps = 1000}
+DEFAULT: {\tt steps = 100}
 \end{itemize}
 
 
@@ -1060,7 +1291,7 @@ By default confidence intervals for linear and nonlinear terms are not computed.
 provide two alternatives for confidence interval estimation. These are
 \begin{itemize}
 \item confidence intervals conditional on the selected model, i.e. model uncertainty is not taken into account. The confidence intervals are
-based on MCMC simulations from the posterior and pointwise (Bayesian) confidence intervals are simply obtained by computing the respective
+based on MCMC simulations from the posterior. Pointwise (Bayesian) confidence intervals are simply obtained by computing the respective
 quantiles of simulated parameters and function evaluations. Conditional confidence intervals are specified by {\tt CI = MCMCselect}.
 \item unconditional confidence intervals where model uncertainty is taken into account. The computation is based on bootstrap confidence intervals
 proposed by Wood (2006b), see page ?? of the methodology manual for details. Unconditional confidence intervals are specified by {\tt CI = MCMCbootstrap}.
@@ -1151,86 +1382,7 @@ DEFAULT: #reference = # 1
 
 
 
-\begin{longtable}{p{2.2cm} p{13.3cm}}
-{\tt dfmin} & Option {\tt dfmin} defines the smallest possible degree of freedom
-              for a nonlinear function (besides the linear effect).
-              The largest smoothing parameter is calculated according to {\tt dfmin}.
-              Possible values depend on the number of regression parameters
-              and on the prior distribution
-              (compare section \ref{section_df}). In order to avoid numerical problems
-              the smoothing parameter may not become larger than $10^9$. In this
-              case, {\tt dfmin} is enlarged by ({\tt dfmax} - {\tt dfmin}) / {\tt number}
-              (and {\tt number} is reduced by one).
-              Additionally, this ascertains that {\tt dfmin} is redefined to
-              a possible value. \\
-            & \\
-{\tt dfmax} & Option {\tt dfmax} defines the largest possible degree of freedom for a
-              nonlinear function. The smallest smoothing parameter is calculated
-              according to {\tt dfmax}. Possible values depend on the number of regression
-              parameters and on the prior distribution
-              (compare section \ref{section_df}). In order to avoid numerical problems
-              the smoothing parameter may not become smaller than $10^{-9}$. In this
-              case, {\tt dfmax} is reduced by ({\tt dfmax} - {\tt dfmin}) / {\tt number}
-              (and {\tt number} is reduced by one).
-              Additionally, this ascertains that {\tt dfmax} is redefined to
-              a possible value. \\
-{\tt df\_accuracy} & This option specifies the maximal absolute difference in terms of
-                     degrees of freedom that is allowed when calculating smoothing parameters
-                     according to user--specified degrees of freedom. \\
-            & \\
-{\tt spstart} & This option is only meaningful if {\tt startmodel=userdefined} and {\tt sp}
-                are specified. It defines the smoothing parameter used for the base model. Note, that {\tt spstart}
-                can not only take positive values but can also take the values {\tt spstart=0} for
-                excluding the function in the base model and {\tt spstart=-1} for using the fixed effect. \\
-            & \\
-{\tt number} & {\tt number} specifies the number of different smoothing parameters
-               (besides the linear effect and exclusion from the model). For {\tt number=0} the
-               global option {\tt number} is used. \\
-            & \\
-{\tt forced\_into} & This option drops the possibility to exclude the function from the model. That means the respective function
-                     is always included in the model. \\
-            & \\
-{\tt nofixed} & This option drops the possibility to use a linear fit. Hence, only possibilities
-for a nonlinear effect and for the removal from the model remain. \\
-            & \\
-{\tt center} & {\tt center} has to be specified with varying coefficients if the
-               coefficients must get centered with regard to the interacting variable, i.e., if
-               there are several varying coefficients modifying the same interacting variable.
-               Hence, {\tt center} is only meaningful for varying coefficients and random slopes. \\
-            & \\
-{\tt coding} & Option {\tt coding} is only meaningful for factor variables. It determines wether
-               dummy variables ({\tt coding=dummy}) or effect variables ({\tt coding=effect})
-               are used to represent the factor. \\
-            & \\
-{\tt reference} & Option {\tt reference} is again only meaningful for factor variables. It defines
-                  the value for the reference category. \\
-            & \\
-{\tt degree} & Specifies the degree of B-spline basis functions. \\
-            & \\
-{\tt nrknots} & Specifies the number of inner knots for a P-spline term. \\
-            & \\
-{\tt monotone} & Option {\tt monotone} specifies additional constraints for univariate
-                 P--spline terms. Possible are the estimation of an unrestricted function,
-                 a monotonically increasing or decreasing function (i.e. positive/negative first derivative)
-                 or a convex or concave function (i.e. positive/negative second derivative).
-                 Note, that both type and direction of the constraint have to be defined by the user and are
-                 not determined by the selection procedure. \\
-            & \\
-{\tt gridsize} & The option {\tt gridsize} can be used to restrict the
-                 number of points (at the x-axis) for which estimates are computed.
-                 By default, estimates are computed at every distinct covariate
-                 value in the data set (indicated by {\tt gridsize=-1}). This may be
-                 relatively time consuming in situations where the number of
-                 distinct covariate values is large. If {\tt gridsize=nrpoints} is
-                 specified, estimates are computed
-                 on an equidistant grid with {\tt nrpoints} knots. \\
-            & \\
-{\tt period} & The period of the seasonal effect can be specified with
-               option {\tt period}. The default is {\tt period=12} which corresponds
-               to monthly data. \\
-            & \\
-{\tt map} & The map object for a spatial function is defined by option {\tt map}.
-\end{longtable}
+
 
 
 \subsection{Estimation output}
@@ -1437,7 +1589,7 @@ is
 
 {\em$<$INSTALLDIRECTORY$>$}#\output#
 
-The default file name is composed of the name of the {\em remlreg
+The default file name is composed of the name of the {\em stepwisereg
 object} and the type of the file. For example, if you estimated a
 nonparametric effect for a covariate #X#, say, using a P-spline,
 then the estimation output will be written to
@@ -1471,10 +1623,10 @@ Visualization of estimation results is described in
 \label{stepwiseregreferences}
 
 \begin{description}
-\item[Belitz, C. (2007):] {\tt Model Selection in Generalized Structured Additive Regression Models.} PhD Thesis, University of Munich.
+\item[Belitz, C. (2007):] {\it Model Selection in Generalized Structured Additive Regression Models.} PhD Thesis, University of Munich.
 
 \item [Belitz, C. and Lang, S. (2007):] Simultaneous selection of variables and smoothing
-parameters in structured additive regression models. {\it Technical Report} University of Innsbruck.
+parameters in structured additive regression models. {\it Technical Report}, University of Innsbruck.
 
 \item[Burnham, K.P. and Anderson, D.R., (1998):] {\it Model Selection and Multimodel Inference.} Springer, New York.
 
@@ -1486,11 +1638,11 @@ perspective. {\it Statistica Sinica}, 14, 715-745.
 
 \item[Fahrmeir, L., Kneib, T. and Lang, S. (2007):] {\it Regression. Modelle, Methoden und Anwendungen.} Springer Verlag, Berlin.
 
-\item[Hastie, T.J. and Tibshirani, R.J. and Friedman, J. (2001):] The Elements of Statistical Learning. Springer, New York.
+\item[Hastie, T.J. and Tibshirani, R.J. and Friedman, J. (2001):] {\it The Elements of Statistical Learning.} Springer, New York.
 
 \item[Wood, S.N. (2006a):] {\it Generalized Additive Models: An Introduction with R.} Chapman and Hall.
 
-\item[Wood, S.N. (2006b):] {\it On confidence intervals for GAMs based on penalized regression splines.}
+\item[Wood, S.N. (2006b):] On confidence intervals for GAMs based on penalized regression splines.
 {\it Australian and New Zealand Journal of Statistics}, 48, 445-464.
 \end{description}
 
