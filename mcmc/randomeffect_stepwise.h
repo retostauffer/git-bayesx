@@ -42,8 +42,8 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 //  bool gleichwertig;
 
   FULLCOND fc_df;
-
-
+  ST::string utype;   // gaussian || iwlsmode
+ 
   public:
 
   // DEFAULT CONSTRUCTOR:
@@ -140,7 +140,16 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 
   void update(void);
 
+  void set_utype(void)
+    {
+    utype = "iwlsmode";
+    }
+
   void update_gauss(void);
+
+  void update_nongauss(void);
+
+  void update_spatialtotal(void);
 
   void update_bootstrap(const bool & uncond=false);
 

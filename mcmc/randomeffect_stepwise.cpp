@@ -18,6 +18,8 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(MCMCoptions * o,DISTRIBUTION 
                               const double & la, const unsigned & c)
                             : FULLCOND_random(o,dp,fcc,d,t,fp,pr,la,c)
   {
+  utype = "gaussian";
+
   identifiable = false;
   grenzfall = 0;
   intercept = 0.0;
@@ -39,6 +41,8 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(MCMCoptions * o,DISTRIBUTION 
                   const bool & inclfixed,const unsigned & c)
                   : FULLCOND_random(o,dp,fcc,intvar,effmod,t,fp,pr,prf,la,false,c)
   {
+  utype = "gaussian";
+
   grenzfall = 0;
   dimX = 0;
   dimZ = nrpar;
@@ -51,6 +55,7 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(MCMCoptions * o,DISTRIBUTION 
   includefixed = false;
   intercept = 0.0;
   //gleichwertig = true;
+  get_data_forfixedeffects();
   }
 
 
@@ -64,6 +69,7 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(const FULLCOND_random_stepwis
   fbasisp = fc.fbasisp;
   df_unstruct = fc.df_unstruct;
   fc_df = fc.fc_df;
+  utype = fc.utype;
   //gleichwertig = fc.gleichwertig;
   }
 
@@ -82,7 +88,8 @@ const FULLCOND_random_stepwise & FULLCOND_random_stepwise::
   effmodi = fc.effmodi;
   fbasisp = fc.fbasisp;
   df_unstruct = fc.df_unstruct;
-  fc_df = fc.fc_df;  
+  fc_df = fc.fc_df;
+  utype = fc.utype;
   //gleichwertig = fc.gleichwertig;
 
   return *this;
@@ -187,21 +194,26 @@ bool FULLCOND_random_stepwise::posteriormode(void)
       {
       sum += *workbeta;
       }
-
     intercept = sum/double(n);
-
-    workbeta = beta.getV();
-    for (i=0;i<n;i++,workbeta++)
-      *workbeta -= intercept;
 
     if(includefixed)
       beta(nrpar-1,0) = intercept;
     else
+      {
+      update_linpred(true);
       update_fix_effect(intercept);
-    intercept = 0.0;
-    }
+      }
 
-  update_linpred(true);
+    workbeta = beta.getV();
+    for (i=0;i<n;i++,workbeta++)
+      *workbeta -= intercept;
+    intercept = 0.0;
+
+    if(includefixed)
+      update_linpred(true);
+    }
+  else
+    update_linpred(true);
 
   transform = likep->get_trmult(column);
 
@@ -837,7 +849,10 @@ void FULLCOND_random_stepwise::update(void)
     }
   else
     {
-    update_gauss();
+    if(utype == "gaussian")
+      update_gauss();
+    else
+      update_nongauss();
     }
   }
 
@@ -850,30 +865,6 @@ void FULLCOND_random_stepwise::update_gauss(void)
   unsigned n = nrpar;
   if(randomslope && includefixed)
     n = nrpar-1;
-/*  if(randomslope && !identifiable)
-    {
-    includefixed = true;
-    n = nrpar;
-    nrpar += 1;
-    datamatrix betaold = beta;
-    beta = datamatrix(nrpar,1,0);
-    double * wold = betaold.getV();
-    double * wnew = beta.getV();
-    for(i=0;i<n;i++,wold++,wnew++)
-      *wnew = *wold;
-
-  //bool raus = false;
-  //unsigned j = 1;
-  //ST::string name_richtig = datanames[1];  // (VC alt) 0
-  //while(j<fcconst->get_datanames().size() && raus==false)
-  //   {
-  //   if(fcconst->get_datanames()[j] == datanames[1] || fcconst->get_datanames()[j] == (datanames[1]+"_1"))  // (VC alt) 0
-  //      raus = true;
-  //   j = j + 1;
-  //   }
-  //*wnew = fcconst->getbeta(j-1,0);
-
-    } */
 
   if (optionsp->get_nriter()==1 || changingweight)
     compute_XWX(likep->get_weight(),0);
@@ -963,42 +954,189 @@ void FULLCOND_random_stepwise::update_gauss(void)
   else
     update_linpred(true);
 
-/*  if(randomslope && includefixed)
+  acceptance++;
+  transform = likep->get_trmult(column);
+
+  FULLCOND_random::update();
+  update_spatialtotal();
+  }
+
+
+void FULLCOND_random_stepwise::update_nongauss(void)  // entspricht "update_random_intercept_iwls_singleblock"
+  {                                                   //            "update_random_slope_includefixed_iwls_singleblock"
+  unsigned n = nrpar;                                 //            "update_random_slope_iwls_singleblock"
+  if(randomslope && includefixed)
+    n = nrpar-1;
+  double ms = 0;
+  if(randomslope && includefixed)
+    ms = beta(nrpar-1,0);
+
+  unsigned i;
+  double sumw;
+  double sumy;
+  double var;
+  double proposal;
+  double u;
+
+  double logold;
+  double lognew;
+  double qnew;
+  double qold;
+
+  double diff;
+  double mode;
+
+  double * workbeta = beta.getV();
+  vector<unsigned>::iterator itbeg = posbeg.begin();
+  vector<unsigned>::iterator itend = posend.begin();
+
+  if (lambdaconst == false)
+    lambda=1.0/sigma2;
+  else
+    sigma2 = 1.0/lambda;  // ist nicht "sigma2 = phi/lambda" richtig???
+
+  for (i=0;i<n;i++,workbeta++,++itbeg,++itend)
     {
-    fcconst->update_fix_varcoeff(beta(nrpar-1,0),datanames[1]);
-    //update_fix_effect(beta(nrpar-1,0));
-    datamatrix betaold = beta;
-    includefixed = false;
-    nrpar = n;
-    beta = datamatrix(nrpar,1,0);
-    double * wold = betaold.getV();
-    double * wnew = beta.getV();
-    for(i=0;i<n;i++,wold++,wnew++)
-      *wnew = *wold;
-    } */
+    nrtrials++;
+
+    // Compute loglikelihood based on current beta
+    // compute sum weightiwls  (corresponds to X'WX) and sum tildey
+    double help = *workbeta;
+    if(randomslope && includefixed)
+      help += ms;
+    if(!randomslope)
+      logold = likep->compute_loglikelihood_sumweight_sumy(help,sumw,sumy,
+                                             *itbeg,*itend,index,index2,column);
+    else
+      logold = likep->compute_loglikelihood_sumweight_sumy(help,sumw,sumy,
+                                        *itbeg,*itend,data,index,index2,column);
+
+    // log-prior densities
+    logold -= 0.5*(*workbeta)*(*workbeta)*lambda;
+
+    if(randomslope && includefixed)
+      sumy += ms*lambda;
+      
+    // compute proposal
+    var = 1.0/(sumw + lambda);
+    mode = var*sumy;
+    proposal = mode + sqrt(var)*rand_normal();
+
+    // log q(beta_c,proposal)
+    diff = proposal-mode;
+    diff = diff*diff;
+    qold = -(1.0/(2*var))*diff-0.5*log(var);
+
+    // add proposed beta and substract current beta from linear predictor
+    diff = proposal-*workbeta;
+    if(randomslope && includefixed)
+      diff -= ms;
+    if(!randomslope)
+      likep->add_linearpred2(diff,*itbeg,*itend,index,index2,column);
+    else
+      likep->add_linearpred2(diff,*itbeg,*itend,data,index,index2,column);
+
+    // Compute log-likelihood based on proposed beta
+    // compute sum weightiwls  (corresponds to X'WX) and sum
+    // tildey based on proposed beta
+    if(!randomslope)
+      lognew = likep->compute_loglikelihood_sumweight_sumy(proposal,sumw,sumy,
+                                             *itbeg,*itend,index,index2,column);
+    else
+      lognew = likep->compute_loglikelihood_sumweight_sumy(proposal,sumw,sumy,
+                                        *itbeg,*itend,data,index,index2,column);
+
+    // log-prior densities
+    if(randomslope && includefixed)
+      {
+      lognew -= 0.5*(proposal-ms)*(proposal-ms)*lambda;
+      sumy += ms*lambda;
+      }
+    else
+      lognew -= 0.5*(proposal)*(proposal)*lambda;
+
+    // log q(proposal,beta_c)
+    var = 1.0/(sumw + lambda);
+    mode = var*sumy;
+    diff = *workbeta-mode;
+    if(randomslope && includefixed)
+      diff += ms;
+    diff = diff*diff;
+    qnew = -(1.0/(2*var))*diff-0.5*log(var);
+
+    // accept/reject proposal
+    u = log(uniform());
+    if (u <= (lognew + qnew - logold - qold) )
+      {
+      acceptance++;
+      *workbeta = proposal;
+      }
+    else
+      {
+      if(randomslope && includefixed)
+        *workbeta += ms;
+        
+      if(!randomslope)
+        likep->add_linearpred2(*workbeta-proposal,*itbeg,*itend,index,index2,column);
+      else
+        likep->add_linearpred2(*workbeta-proposal,*itbeg,*itend,data,index,index2,column);
+      }
+    } // end:   for (i=0;i<nrpar;i++,workbeta++)
 
   /*if (center)
     {
     double m = centerbeta();
     fcconst->update_intercept(m);
     }*/
+  if(randomslope && (includefixed || center))
+    {
+    workbeta = beta.getV();
+    double s=0;
+    for (i=0;i<n;i++,workbeta++)
+      s += *workbeta;
+    s /= double(n);
 
-  acceptance++;
-  transform = likep->get_trmult(column);
+    if(includefixed)
+      {
+      double v = sigma2/double(nrpar-1);
+      beta(nrpar-1,0) = s+sqrt(v)*rand_normal();
+      s = beta(nrpar-1,0);
+      }
+    else
+      {
+      fcconst->update_fix_varcoeff(s,datanames[1]);
+      }
+
+    workbeta = beta.getV();
+    for (i=0;i<n;i++,workbeta++)
+      *workbeta -= s;
+    }
 
   FULLCOND_random::update();
+  update_spatialtotal();
+  }
 
+
+void FULLCOND_random_stepwise::update_spatialtotal(void)
+  {
   if (spatialtotal)
     {
     double * ftotal_bp = ftotal.getbetapointer();
-    workbeta=beta.getV();
-    double * workbetaspat = fbasisp->getbetapointer();
+    double * workbeta=beta.getV();
+    double * workbetaspat;
+    //if (nongaussian)
+    //  workbetaspat = fnonp->getbetapointer();
+    //else
+      workbetaspat = fbasisp->getbetapointer();
+
     int * indexp = indextotal.getV();
+    unsigned i;
     for (i=0;i<nrpar;i++,workbeta++,ftotal_bp++,indexp++)
       {
       workbetaspat+= *indexp;
       *ftotal_bp = *workbeta + *workbetaspat;
       }
+
     ftotal.set_transform(likep->get_trmult(column));
     ftotal.update();
     }
