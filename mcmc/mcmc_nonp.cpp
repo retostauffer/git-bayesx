@@ -1395,6 +1395,28 @@ void FULLCOND_nonp::outresults(void)
 
   }
 
+void FULLCOND_nonp::get_effectmatrix(datamatrix & e,
+                                        vector<ST::string> & enames,unsigned be,
+                                        unsigned en, effecttype t)
+  {
+
+  statmatrix<int> ind = Pmatrix->get_index();
+
+  unsigned i;
+  unsigned k=0;
+  unsigned anf, end, j;
+  for(i=0; i<beta.rows(); i++)
+    {
+    anf = Pmatrix->get_posbeg(i);
+    end = Pmatrix->get_posend(i);
+    for(j=anf; j<=end; j++)
+      {
+      e(j,0) = beta(ind(i,0),0);
+      k++;
+      }
+    }
+
+  }
 
 void FULLCOND_nonp::get_acceptance(const ST::string & filename)
   {

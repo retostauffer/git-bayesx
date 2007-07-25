@@ -1411,6 +1411,9 @@ class __EXPORT_TYPE term_varcoeff_merror : public basic_termtype
   doubleoption alpha;
   simpleoption alphafix;
 
+  //SUSI: add new option
+  doubleoption merrorvar;
+
   void setdefault(void);
 
   public:

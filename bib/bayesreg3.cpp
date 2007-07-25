@@ -22,7 +22,8 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
   {
   long h;
   unsigned min, max, updateW, i, j, k;
-  double lambda, a1, b1, alpha, hd, ftune;
+  // SUSI: add variable for new option
+  double lambda, a1, b1, alpha, hd, ftune, mvar;
   bool updatetau, iwls, varcoeff;
   ST::string proposal;
   int f, j1, j2;
@@ -88,6 +89,10 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
       f = (terms[i].options[12]).strtodouble(ftune);
 
       f = (terms[i].options[17]).strtodouble(alpha);
+
+      // SUSI: read new opttion form the options list
+
+      f = (terms[i].options[19]).strtodouble(mvar);
 
       if (f==1)
         return true;
@@ -177,12 +182,16 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
                  "_merror.res","_merror");
 
       fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
-                         &fcnonpgaussian[fcnonpgaussian.size()-1],
+//                         &fcnonpgaussian[fcnonpgaussian.size()-1],
+                         &fcnonp[fcnonp.size()-1],
                          distr[distr.size()-1],
                                    medata,
                                    title,
                                    pathres)
                          );
+
+      //SUSI: add value to the merror fullcond
+      fcmerror[fcmerror.size()-1].setmerroroptions(mvar);
       fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcmerror[fcmerror.size()-1]);
       }

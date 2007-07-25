@@ -2623,6 +2623,11 @@ term_varcoeff_merror::term_varcoeff_merror(void)
   stationary = simpleoption("stationary",false);
   alpha = doubleoption("alpha",0.9,-1.0,1.0);
   alphafix = simpleoption("alphafix",false);
+
+  // SUSI: initialize new option
+  // Syntax : doubleoption("name", default, lower limit, upper limit)
+  merrorvar = doubleoption("merrorvar",0.5,0.0,10000000);
+
   }
 
 void term_varcoeff_merror::setdefault(void)
@@ -2645,6 +2650,9 @@ void term_varcoeff_merror::setdefault(void)
   alpha.setdefault();
   stationary.setdefault();
   alphafix.setdefault();
+
+  // SUSI: call setdefault() for new option
+  merrorvar.setdefault();
   }
 
 
@@ -2652,7 +2660,8 @@ bool term_varcoeff_merror::check(term & t)
   {
 
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-        && (t.options.size() <= 18) )
+// SUSI: Adjust options.size()
+        && (t.options.size() <= 19) )
     {
 
     if (t.options[0] == "merrorrw1")
@@ -2689,6 +2698,9 @@ bool term_varcoeff_merror::check(term & t)
     optlist.push_back(&alpha);
     optlist.push_back(&alphafix);
 
+    // SUSI: add option to options list
+    optlist.push_back(&merrorvar);
+
     unsigned i;
     bool rec = true;
     for (i=1;i<t.options.size();i++)
@@ -2707,7 +2719,8 @@ bool term_varcoeff_merror::check(term & t)
       return false;
       }
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(19);
+    // SUSI: Adjust length of options
+    t.options = vector<ST::string>(20);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(min.getvalue());
     t.options[2] = ST::inttostring(max.getvalue());
@@ -2736,6 +2749,10 @@ bool term_varcoeff_merror::check(term & t)
       t.options[18] = "false";
     else
       t.options[18] = "true";
+
+    // SUSI: Add new option
+    t.options[19] = ST::doubletostring(merrorvar.getvalue());
+
 
     if (t.options[1].strtolong(minim) == 1)
       {

@@ -542,6 +542,9 @@ class __EXPORT_TYPE FULLCOND_nonp : public FULLCOND
 
   void outresults(void);
 
+  void get_effectmatrix(datamatrix & e,vector<ST::string> & enames,
+                        unsigned be, unsigned en,effecttype t);
+
   void outoptions(void);
 
   // FUNCTION: reset
@@ -572,6 +575,10 @@ class __EXPORT_TYPE FULLCOND_nonp : public FULLCOND
     centerm = m;
     }
 
+  void set_effectmod(datamatrix v)
+    {
+    effectmod = v;
+    }
 
   const vector<ST::string> & get_effectvalues(void)
     {

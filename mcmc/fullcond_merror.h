@@ -15,6 +15,8 @@
 #include "mcmc_nonpbasis.h"
 #include "fullcond_nonp_gaussian.h"
 #include "spline_basis.h"
+#include "mcmc_nonp.h"
+#include "mcmc.h"
 
 namespace MCMC
 {
@@ -23,7 +25,8 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
 
   protected:
 
-  FULLCOND_nonp_gaussian * designp;
+//  FULLCOND_nonp_basis * designp;  // Pointer wird für IWLS-proposal benötigt
+  FULLCOND_nonp * designp;          // Pointer wird für Conditional prior proposal benötigt
   DISTRIBUTION * likep;
 
 // BEGIN: merror
@@ -55,6 +58,51 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   ST::string pathresults;
 // END: merror
 
+// BEGIN: Susi
+
+  // SUSI: Add help fullcond object
+
+//  FULLCOND whatsoever;
+
+  unsigned drows;
+  unsigned dcols;
+
+  datamatrix P;                     // Präzisionsmatrix der wahren Werte
+  //envmatdouble precenv;           // envmatrix zum Speichern der Präzisionsmatrixx der wahren Werte
+                                    // wird nur für IWLS-proposal benötigt
+
+  datamatrix rhs;                   // datamatrix zum Speichern von Z'Sigma^{-1}X + Omega^{-1}mu_xi
+ //datamatrix betahelp1;            // wird nur für IWLS-proposal benötigt
+
+  datamatrix mmu;                   // P^{-1}*rhs = Erwartungswert der wahren Werte;
+
+  datamatrix linold;
+  datamatrix linnew;
+  datamatrix diff;
+
+  datamatrix proposalold;
+  datamatrix proposal;
+
+  datamatrix PABn;                  // sqrt(P_ab^-1)
+
+  datamatrix PABl;                  // P_left matrices
+  datamatrix PABr;                  // P_right matrices
+
+  unsigned minmerror;               // Minimum Blocksize
+  unsigned maxmerror;               // Maximum Blocksize
+
+  vector<unsigned> matquant;         // matquant[size-min] gives the number of
+                                     // blocks for blocksize 'size'
+
+  datamatrix merror_random;
+  datamatrix randnorm;
+
+  datamatrix randnormal;
+
+  datamatrix xi;
+
+// END: Susi
+
   public:
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
@@ -71,10 +119,10 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   //        (i.e. number of categories of the response variable)
   // fp   : file path for storing sampled parameters
 
-  fullcond_merror(MCMCoptions * o, FULLCOND_nonp_gaussian * p, DISTRIBUTION * dp,
+  fullcond_merror(MCMCoptions * o, FULLCOND_nonp * p, DISTRIBUTION * dp,// FULLCOND_nonp_basis * p,
            const datamatrix & d, const ST::string & t, const ST::string & fp);
 
-// BEGIN: merror
+  // BEGIN: merror
   // CONSTRUCTOR : Thomas (Measurement error in a nonparametric effect)
   fullcond_merror(MCMCoptions * o, spline_basis * p, DISTRIBUTION * dp,
            const datamatrix & d, const ST::string & t, const ST::string & fp,
@@ -100,6 +148,18 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   //         storing order: first row, second row, ...
 
   void update(void);
+
+  void compute_mu(datamatrix & muexi,
+      const unsigned & blocks,const unsigned & a,const unsigned & b);
+
+  void compute_proposal(const datamatrix & xi, const unsigned & blocks,
+                               const unsigned & a,const unsigned b);
+
+  // SUSI: add additonal options                               
+  void setmerroroptions(const double & mvar)
+    {
+    // sigma1 = mvar;
+    }
 
   // FUNCTION: posteriormode
   // TASK: computes the posterior mode
