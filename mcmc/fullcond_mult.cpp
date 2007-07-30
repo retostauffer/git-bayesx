@@ -72,11 +72,11 @@ bool FULLCOND_mult::posteriormode(void)
   else
     {
     reffectp->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
-/*    unsigned i=0;
+    unsigned i=0;
     for(i=0;i<data.rows();i++)
       {
       data(i,0)=data(i,0)+1;
-      } */
+      } 
     basis1p->init_data_varcoeff(data);
     }
 
