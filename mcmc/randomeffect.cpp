@@ -228,6 +228,7 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * o,
                   const bool & catsp)
                   : FULLCOND(o,t)
   {
+  notransform=false;
   catspecific = catsp;
   if(intvar.cols()>1)
     {
@@ -295,6 +296,7 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * op,const datamatrix & d,
                                  const double & las, const bool & catsp)
                             : FULLCOND(op,t)
   {
+  notransform=false;
   catspecific = catsp;
 
   fctype = randomeffects;
@@ -620,6 +622,8 @@ FULLCOND_random::FULLCOND_random (MCMCoptions * o,DISTRIBUTION * dp,
                             : FULLCOND(o,datamatrix(1,1),t,1,1,fp)
   {
 
+  notransform=false;
+
   fcconst = fcc;
 
   fctype = randomeffects;
@@ -712,6 +716,7 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * o,DISTRIBUTION * dp,
                   : FULLCOND(o,datamatrix(1,1),t,1,1,fp)
   {
 
+  notransform=false;
 
   fcconst = fcc;
 
@@ -810,6 +815,7 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * o,DISTRIBUTION * dp,
 FULLCOND_random::FULLCOND_random(const FULLCOND_random & fc)
                             : FULLCOND(FULLCOND(fc))
   {
+  notransform = fc.notransform;
   muy = fc.muy;
   fcconst = fc.fcconst;
   randomslope = fc.randomslope;
@@ -843,6 +849,7 @@ const FULLCOND_random & FULLCOND_random::
 
   FULLCOND::operator=(FULLCOND(fc));
 
+  notransform = fc.notransform;
   muy = fc.muy;
   fcconst = fc.fcconst;
   randomslope = fc.randomslope;
@@ -873,7 +880,10 @@ const FULLCOND_random & FULLCOND_random::
 void FULLCOND_random::update(void)
   {
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform = 1;  
 
   FULLCOND::update();
 
@@ -1335,7 +1345,7 @@ void FULLCOND_random::update_linpred(const bool & add)
   }
 
 
-void FULLCOND_random::init_data_varcoeff(const datamatrix & intvar)
+void FULLCOND_random::init_data_varcoeff(const datamatrix & intvar,double add)
   {
 
   double * datap = data.getV();
@@ -1345,7 +1355,7 @@ void FULLCOND_random::init_data_varcoeff(const datamatrix & intvar)
 
   for(j=0;j<data.rows();j++,datap++,datap2++,workindex++)
     {
-    *datap = intvar(*workindex,0);
+    *datap = intvar(*workindex,0)+add;
     *datap2 = (*datap) * (*datap);
     }
 
@@ -1446,7 +1456,7 @@ void FULLCOND_random::get_effectmatrix(datamatrix & e,
       }
 
  */
- 
+
     }
 
   }
@@ -1456,7 +1466,7 @@ void FULLCOND_random::get_effectmatrix(datamatrix & e,
 bool FULLCOND_random::posteriormode(void)
   {
 
-
+  lambda=1;
   unsigned n = nrpar;
   if (includefixed)
     n = nrpar-1;
@@ -1551,7 +1561,10 @@ bool FULLCOND_random::posteriormode(void)
 
   update_linpred(true);
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform=1;
 
   return FULLCOND::posteriormode();
 
@@ -1694,7 +1707,10 @@ void FULLCOND_random_gaussian::update(void)
 
   acceptance++;
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform=1;  
 
 
   FULLCOND_random::update();
@@ -1711,7 +1727,10 @@ void FULLCOND_random_gaussian::update(void)
       *ftotal_bp = *workbeta + *workbetaspat;
       }
 
-    ftotal.set_transform(likep->get_trmult(column));
+    if (notransform==false)
+      ftotal.set_transform(likep->get_trmult(column));
+    else
+      ftotal.set_transform(1);
 
     ftotal.update();
     }
@@ -1850,7 +1869,10 @@ void FULLCOND_random_nongaussian::update_spatialtotal(void)
       *ftotal_bp = *workbeta + *workbetaspat;
       }
 
-    ftotal.set_transform(likep->get_trmult(column));
+    if (notransform==false)
+      ftotal.set_transform(likep->get_trmult(column));
+    else
+      ftotal.set_transform(1);
 
     ftotal.update();
     }

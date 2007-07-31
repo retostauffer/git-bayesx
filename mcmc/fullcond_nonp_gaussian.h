@@ -405,7 +405,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   // FUNCTION: init_data_varcoeff
   // TASK: initializes data and data2 (data^2) for varying coefficient model
 
-  void init_data_varcoeff(const datamatrix & intvar);
+  void init_data_varcoeff(const datamatrix & intvar, double add=0);
 
 
   void update(void);

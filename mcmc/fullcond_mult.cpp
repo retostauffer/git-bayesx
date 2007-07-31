@@ -52,6 +52,17 @@ const FULLCOND_mult & FULLCOND_mult::operator=(const FULLCOND_mult & fc)
 void FULLCOND_mult::update(void)
   {
 
+  vector<ST::string> enames;
+  if (first)
+    {
+    basis1p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+    reffectp->init_data_varcoeff(data,0);
+    }
+  else
+    {
+    reffectp->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+    basis1p->init_data_varcoeff(data,1);
+    }
 
   }
 
@@ -67,17 +78,12 @@ bool FULLCOND_mult::posteriormode(void)
   if (first)
     {
     basis1p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
-    reffectp->init_data_varcoeff(data);
+    reffectp->init_data_varcoeff(data,0);
     }
   else
     {
     reffectp->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
-    unsigned i=0;
-    for(i=0;i<data.rows();i++)
-      {
-      data(i,0)=data(i,0)+1;
-      } 
-    basis1p->init_data_varcoeff(data);
+    basis1p->init_data_varcoeff(data,1);
     }
 
   return true;

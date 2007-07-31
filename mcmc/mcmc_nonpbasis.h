@@ -152,7 +152,7 @@ class __EXPORT_TYPE FULLCOND_nonp_basis : public FULLCOND
   // FUNCTION: init_data_varcoeff
   // TASK: initializes data and data2 (data^2) for varying coefficient model
 
-  virtual void init_data_varcoeff(const datamatrix & intvar)
+  virtual void init_data_varcoeff(const datamatrix & intvar, double add=0)
     {
 
     }

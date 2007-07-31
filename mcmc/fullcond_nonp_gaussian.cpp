@@ -1211,7 +1211,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   }
 
 
-void FULLCOND_nonp_gaussian::init_data_varcoeff(const datamatrix & intvar)
+void FULLCOND_nonp_gaussian::init_data_varcoeff(const datamatrix & intvar,
+   double add)
   {
 
   data = datamatrix(intvar.rows(),1);
@@ -1223,7 +1224,7 @@ void FULLCOND_nonp_gaussian::init_data_varcoeff(const datamatrix & intvar)
   int * workindex = index.getV();
   for (i=0;i<data.rows();i++,workdata++,workdata2++,workindex++)
     {
-    *workdata = intvar(*workindex,0);
+    *workdata = intvar(*workindex,0)+add;
     *workdata2 = (*workdata) * (*workdata);
     }
 
