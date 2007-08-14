@@ -102,6 +102,8 @@ FULLCOND::FULLCOND(MCMCoptions * o,const ST::string & t)
   upper1 = 100.0 - lower2;
   upper2 = 100.0 - lower1;
 
+  baseline=false;
+
   }
 
 FULLCOND::FULLCOND(const FULLCOND & m)
