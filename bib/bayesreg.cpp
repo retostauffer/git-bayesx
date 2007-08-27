@@ -191,6 +191,7 @@ void bayesreg::create(void)
   nonpvarcoeffmerror = term_varcoeff_merror();
   ridge = term_ridge();
   randomrw = term_random_autoreg();
+  randompspline = term_random_pspline();
 
   termtypes.push_back(&offset);
   termtypes.push_back(&fixedeffects);
@@ -212,6 +213,7 @@ void bayesreg::create(void)
   termtypes.push_back(&nonpvarcoeffmerror);
   termtypes.push_back(&ridge);
   termtypes.push_back(&randomrw);
+  termtypes.push_back(&randompspline);
 
 
   modreg = modelterm(&termtypes);

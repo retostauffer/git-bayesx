@@ -176,6 +176,8 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o, DISTRIBUTI
   make_Bspline(effmod);
   make_BS(intact);
 
+  data = effmod;
+
   compute_Kweights();
 
   if(predictright || predictleft)

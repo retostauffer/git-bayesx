@@ -514,6 +514,17 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
 
   double compute_df_eigen(void);
 
+  void get_effectmatrix(datamatrix & e,vector<ST::string> & enames,
+                        unsigned be, unsigned en,effecttype t);
+
+
+  unsigned get_nreffects(effecttype t);
+
+  // FUNCTION: init_data_varcoeff
+  // TASK: initializes data and data2 (data^2) for varying coefficient model
+
+  void init_data_varcoeff(const datamatrix & intvar, double add=0);
+
   // ------------------------- FOR MERROR --------------------------------------
 
   void update_merror(datamatrix & newdata);

@@ -564,10 +564,12 @@ class __EXPORT_TYPE bayesreg : public statobject
   //-------------------- for multiplicative effects ----------------------------
 
   term_random_autoreg randomrw;
+  term_random_pspline randompspline;  
 
   vector<FULLCOND_mult> fcmult; 
 
   bool create_random_rw1rw2(const unsigned & collinpred=0);
+  bool create_random_pspline(const unsigned & collinpred=0);
 
   //------------------ end: for multiplicative effects -------------------------
 

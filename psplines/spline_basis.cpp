@@ -100,6 +100,149 @@ void spline_basis::make_index2(void)
     index2.push_back(index(i,0)-index(i-1,0));
   }
 
+
+void spline_basis::init_data_varcoeff(const datamatrix & intvar,
+   double add)
+  {
+
+  // HIER GEHTS WEITER
+
+  unsigned i;
+  datamatrix ivar(intvar.rows(),1);
+  for (i=0;i<intvar.rows();i++)
+    {
+    ivar(i,0) = intvar(i,0)+add;
+    }
+
+
+  make_index(data,ivar);
+  make_Bspline(data);
+  make_BS(ivar);
+
+
+/*
+
+  data = datamatrix(intvar.rows(),1);
+  data2 = datamatrix(intvar.rows(),1);
+
+  unsigned i;
+  double * workdata = data.getV();
+  double * workdata2 = data2.getV();
+  int * workindex = index.getV();
+  for (i=0;i<data.rows();i++,workdata++,workdata2++,workindex++)
+    {
+    *workdata = intvar(*workindex,0)+add;
+    *workdata2 = (*workdata) * (*workdata);
+    }
+
+  */
+  }
+
+
+unsigned spline_basis::get_nreffects(effecttype t)
+  {
+  if (varcoeff)
+    {
+    if (t==MCMC::fvar_current || t==MCMC::fvar_mean  || t==MCMC::fvar_median)
+      return 1;
+    else
+      return 3;
+    }
+  else
+    return 2;
+  }
+
+
+void spline_basis::get_effectmatrix(datamatrix & e, vector<ST::string> & enames,
+                                    unsigned be, unsigned en, effecttype t)
+  {
+
+  int * workindex = index.getV();
+
+  double * worksplinehelp;
+  double * worke = e.getV()+be;
+  int cole = e.cols();
+  if (t==MCMC::current || t==MCMC::fvar_current)
+    worksplinehelp = splinehelp.getV();
+//  else if (t==MCMC::mean || t==MCMC::fvar_mean)
+//    workbeta = betamean.getV();
+//  else
+//    workbeta = betaqu50.getV();
+
+  vector<int>::iterator itbeg = posbeg.begin();
+  vector<int>::iterator itend = posend.begin();
+
+  int j;
+  unsigned i,k;
+
+  if (varcoeff)
+    {
+
+    if (t==MCMC::fvar_current || t==MCMC::fvar_mean  || t==MCMC::fvar_median)
+      {
+
+      for (i=0;i<spline.rows();i++,workindex++,worke+=cole)
+        {
+        e(i,be) = spline(i,0)-intercept;
+        }
+
+      }
+    else
+      {
+
+      /*
+      double * workdata=data.getV();
+
+      vector<ST::string>::iterator effit = effectvalues.begin();
+      int t;
+      enames.push_back("f_"+datanames[0]+"_"+datanames[1]);
+      enames.push_back(datanames[0]);
+      enames.push_back(datanames[1]);
+
+      for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend,++effit)
+        {
+        if (*itbeg != -1)
+          {
+          for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
+            {
+            e(*workindex,be) = *workbeta*(*workdata);
+            t = (*effit).strtodouble(e(*workindex,be+1));
+            e(*workindex,be+2) = *workdata;
+            }
+          }
+        }
+
+      */
+      }
+    }
+  else
+    {
+    /*
+    vector<ST::string>::iterator effit = effectvalues.begin();
+    int t;
+
+    enames.push_back("f_"+datanames[0]);
+    enames.push_back(datanames[0]);
+
+
+    for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend,++effit)
+      {
+      if (*itbeg != -1)
+        {
+        for (k=(*itbeg);k<=(*itend);k++,workindex++)
+          {
+          e(*workindex,be) = *workbeta;
+          t = (*effit).strtodouble(e(*workindex,be+1));
+          }
+        }
+      }
+
+    */
+    }
+
+  }
+
+
   // CONSTRUCTOR
 
 spline_basis::spline_basis(MCMCoptions * o, DISTRIBUTION * dp,
@@ -3003,7 +3146,7 @@ void spline_basis::write_spline(void)
 double spline_basis::compute_df(void)
   {
   if(prec_env.getDim()==0)
-    return -1.0;  
+    return -1.0;
   if(lambda != lambda_prec || likep->iwlsweights_constant() == false)
     prec_env.addto(XX_env,Kenv,1.0,lambda);
   invprec = envmatdouble(0,nrpar,prec_env.getBandwidth());
