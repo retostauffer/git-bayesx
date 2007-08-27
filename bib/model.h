@@ -464,14 +464,14 @@ class __EXPORT_TYPE term_ridge : public basic_termtype
   doubleoption a_lasso;
   doubleoption b_lasso;
 
-  // Feste Werte für den Lassoparameter
-  simpleoption lassofix;
+  // Feste Werte für den Shrinkage-Parameter
+  simpleoption shrinkagefix;
   
   // Untere und obere Intervallgrenze für die festen Werte des Lassoparameters
-  doubleoption lassomin;
-  doubleoption lassomax;
+//  doubleoption lassomin;
+//  doubleoption lassomax;
   //Anzahl der Punkte für das Intervall [lassomin,lassomax]
-  intoption lassogrid;
+//  intoption lassogrid;
   
   // FUNCTION: setdefault
   void setdefault(void);

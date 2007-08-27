@@ -2070,10 +2070,10 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   double lassostart;
   double a_lassogamma;
   double b_lassogamma;
-  bool lassofix;
-  double lassomin;
-  double lassomax;
-  int lassogrid;
+  bool shrinkagefix;
+//  double lassomin;
+//  double lassomax;
+//  int lassogrid;
   
   datamatrix variances;
 
@@ -2084,35 +2084,39 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   
   vector<ST::string> varnames;
   vector<double> varhelp;
-
-
-  bool ridgecheck=false;
+  bool check=false;
+  vector<bool> isridge;
 
   for(i=0;i<terms.size();i++)
     {
     if ( ridge.checkvector(terms,i) == true )
       {
-      ridgecheck=true;
+      check=true;
+      if(terms[i].options[0] == "ridge")
+        isridge.push_back(true);
+      else
+        isridge.push_back(false);
+
       varnames.push_back(terms[i].varnames[0]);
       f = terms[i].options[1].strtodouble(helpvar);
       varhelp.push_back(1/helpvar);
-      
+
       // letzter Term enthält die verwendeten Werte
       f = (terms[i].options[2]).strtodouble(lassostart);
       f = (terms[i].options[3]).strtodouble(a_lassogamma);
       f = (terms[i].options[4]).strtodouble(b_lassogamma);
       if (terms[i].options[5] == "true")
-        lassofix = true;
+        shrinkagefix = true;
       else
-        lassofix = false;
-      f = (terms[i].options[6]).strtodouble(lassomin);
-      f = (terms[i].options[7]).strtodouble(lassomax);
-      f = (terms[i].options[8]).strtolong(h);
-      lassogrid = unsigned(h);
+        shrinkagefix = false;
+//      f = (terms[i].options[6]).strtodouble(lassomin);
+//      f = (terms[i].options[7]).strtodouble(lassomax);
+//      f = (terms[i].options[8]).strtolong(h);
+//      lassogrid = unsigned(h);
       }
     }
 
-  if(ridgecheck)
+  if(check)
     {
 
     // Varianzen
@@ -2137,10 +2141,11 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
     ST::string title;
     ST::string pathconst;
     ST::string pathconstres;
-    title = "Ridge";
+    title = "shrinkage";
+
     pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                       + add_name + "_ridge" + ".raw";
-    pathconstres = outfile.getvalue() + add_name + "_ridge" + ".res";
+                       + add_name + "_" + title + ".raw";
+    pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
 
     if (pathconst.isvalidfile() == 1)
       {
@@ -2167,15 +2172,15 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       normalconst[normalconst.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&normalconst[normalconst.size()-1]);
 
-      make_paths(collinpred,pathnonp,pathres,title,"ridge","",
+      make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
 
       // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],
           &normalconst[normalconst.size()-1],distr[distr.size()-1],
-          a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,lassofix,
-          lassomin,lassomax,lassogrid,collinpred));
+          a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,
+          shrinkagefix,isridge,collinpred));
 
       distr[distr.size()-1]->set_ridge(data.cols());
       distr[distr.size()-1]->update_ridge(0.0);
@@ -2197,15 +2202,15 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       nongaussianconst[nongaussianconst.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&nongaussianconst[nongaussianconst.size()-1]);
 
-      make_paths(collinpred,pathnonp,pathres,title,"ridge","",
+      make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
 
      // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],
           &nongaussianconst[nongaussianconst.size()-1],distr[distr.size()-1],
-          a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,lassofix,
-          lassomin,lassomax,lassogrid,collinpred));
+          a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,
+          shrinkagefix,isridge,collinpred));
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
 //      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_lassopointer());
       }

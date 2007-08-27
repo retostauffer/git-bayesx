@@ -70,9 +70,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
                          const vector<double> & b, const ST::string & ti,
                          const ST::string & fp, const ST::string & fr,
                          const double & lasso_start, const double & a_lasso_gamma,
-                         const double & b_lasso_gamma, const bool & lasso_fix,
-                         const double & lasso_min, const double & lasso_max,
-                         const int lasso_grid, const unsigned & c);
+                         const double & b_lasso_gamma, const bool & shrinkage_fix,
+                         const vector<bool> & isridge, const unsigned & c);
                          
   //____________________________________________________________________________
   //

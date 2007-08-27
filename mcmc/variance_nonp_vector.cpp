@@ -37,8 +37,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
                          const ST::string & ti, const ST::string & fp,
                          const ST::string & fr, const double & lasso_start,
                          const double & a_lasso_gamma, const double & b_lasso_gamma,
-                         const bool & lasso_fix, const double & lasso_min,
-                         const double & lasso_max, const int lasso_grid,
+                         const bool & shrinkage_fix, const vector<bool> & isridge, 
                          const unsigned & c)
                          : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
     {
@@ -72,12 +71,12 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
 
     // Startwerte setzen aus Option
     * lassop = lasso_start;
-    lassofix = lasso_fix;
+    lassofix = shrinkage_fix;
     a_lassogamma = a_lasso_gamma;
     b_lassogamma = b_lasso_gamma;
-    lassomin = lasso_min;
-    lassomax = lasso_max;
-    lassogrid = lasso_grid;
+//    lassomin = lasso_min;
+//    lassomax = lasso_max;
+//    lassogrid = lasso_grid;
     ridgesum = 0;
 
     setbeta(Cp->get_variances());   //Initialisieren der Betamatrizen für die
