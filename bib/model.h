@@ -1728,6 +1728,89 @@ class __EXPORT_TYPE modeltermmult : public model
   };
 
 
+class __EXPORT_TYPE term_random_pspline : public basic_termtype
+  {
+
+  protected:
+
+  doubleoption lambda_r;
+  doubleoption a_r;
+  doubleoption b_r;
+  stroption proposal_r;
+  simpleoption updatetau_r;
+  simpleoption uniformprior_r;
+  simpleoption constlambda_r;
+
+  intoption min;
+  intoption max;
+  intoption degree;
+  intoption numberknots;
+  doubleoption lambda;
+  doubleoption a;
+  doubleoption b;
+  simpleoption uniformb;
+  intoption gridsize;
+  intoption minvar;
+  intoption maxvar;
+  doubleoption startv;
+  stroption proposal;
+  stroption monotone;
+  intoption updateW;
+  simpleoption updatetau;
+  doubleoption f;
+  simpleoption diagtransform;
+  simpleoption derivative;
+  simpleoption bsplinebasis;
+  intoption contourprob;
+  simpleoption uniformprior;
+  stroption beta_0;
+  simpleoption discrete;
+  intoption df;
+  simpleoption stationary;
+  doubleoption alpha;
+  simpleoption alphafix;
+  stroption knots;
+  doubleoption lowerknot;
+  doubleoption upperknot;
+
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_random_pspline(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a psline with rw1 oder rw2 Penalty
+
+  bool checkvector(const vector<term> & terms,const unsigned & i)
+    {
+
+    assert(i< terms.size());
+
+    if ( (terms[i].type == "random_psplinerw1") || (terms[i].type == "random_psplinerw2") ||
+         (terms[i].type == "random_tpsplinerw1") || (terms[i].type == "random_tpsplinerw2") ||
+         (terms[i].type == "random_psplinerw1vrw1") || (terms[i].type == "random_psplinerw1vrw2") ||
+         (terms[i].type == "random_psplinerw2vrw1") || (terms[i].type == "random_psplinerw2vrw2") )
+      return true;
+
+    return false;
+    }
+
+  // DESTRUCTOR
+
+  ~term_random_pspline() {}
+
+  };
+
+
+
 class __EXPORT_TYPE term_random_autoreg : public basic_termtype
   {
 

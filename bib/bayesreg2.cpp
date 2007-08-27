@@ -1201,7 +1201,8 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
 
   long h;
   double lambda;
-  bool reduced, singleblock;
+//  bool reduced, singleblock;
+  bool  singleblock;
   unsigned min,max,nrknots,degree,blocksize;
   bool center;
   double a1,b1;
@@ -1268,10 +1269,10 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
 
       f = (terms[i].options[5]).strtodouble(lambda);
 
-      if (terms[i].options[6] == "false")
-        reduced = false;
-      else
-        reduced = true;
+//      if (terms[i].options[6] == "false")
+//        reduced = false;
+//      else
+//        reduced = true;
 
       f = (terms[i].options[7]).strtodouble(a1);
 
@@ -1925,7 +1926,8 @@ bool bayesreg::create_geospline(const unsigned & collinpred)
   long h;
   double lambda;
   double a1,b1;
-  bool reduced,singleblock;
+//  bool reduced,singleblock;
+  bool singleblock;
   unsigned min,max,nrknots,degree;
   int gridsize;
   int f;
@@ -1959,10 +1961,10 @@ bool bayesreg::create_geospline(const unsigned & collinpred)
 
       f = (terms[i].options[5]).strtodouble(lambda);
 
-      if (terms[i].options[6] == "false")
-        reduced = false;
-      else
-        reduced = true;
+//      if (terms[i].options[6] == "false")
+//        reduced = false;
+//      else
+//        reduced = true;
 
       mapobject * mapp;                           // pointer to mapobject
 
@@ -2208,7 +2210,8 @@ bool bayesreg::create_varcoeff_geospline(const unsigned & collinpred)
   long h;
   double lambda;
   double a1,b1;
-  bool reduced,singleblock;
+//  bool reduced,singleblock;
+  bool singleblock;
   unsigned min,max,nrknots,degree;
   int gridsize;
   bool center;
@@ -2240,10 +2243,10 @@ bool bayesreg::create_varcoeff_geospline(const unsigned & collinpred)
 
       f = (terms[i].options[5]).strtodouble(lambda);
 
-      if (terms[i].options[6] == "false")
-        reduced = false;
-      else
-        reduced = true;
+//      if (terms[i].options[6] == "false")
+//        reduced = false;
+//      else
+//        reduced = true;
 
       mapobject * mapp;                           // pointer to mapobject
 
@@ -2682,6 +2685,7 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
   }
 
 
+
 bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
   {
 
@@ -2772,7 +2776,7 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
         FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
         distr[distr.size()-1],D.getCol(j2),eins,fcconst_intercept,
         unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,
-        lambda));
+        lambda,false));
 
         fcnonpgaussian[fcnonpgaussian.size()-1].init_name(
         terms[i].varnames[1]);
@@ -2824,7 +2828,7 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
         fcrandomgaussian[fcrandomgaussian.size()-1].init_names(na);
 
 
-        fcrandomgaussian[fcrandomgaussian.size()-1].set_notransform();        
+        fcrandomgaussian[fcrandomgaussian.size()-1].set_notransform();
 
        // Include first fcmult
 
@@ -2890,5 +2894,558 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
 
   return false;
 
+  }
+
+
+bool bayesreg::create_random_pspline(const unsigned & collinpred)
+  {
+
+  double lambda_r;
+  double a_r,b_r;
+  bool updatetau_r;
+  ST::string proposal_r;
+
+  ST::string monotone;
+  ST::string proposal;
+
+  long h;
+  unsigned min,max,degree,nrknots;
+  double lambda,a1,b1,alpha;
+  bool ub,diagtransform,derivative,bsplinebasis;
+  int gridsize,contourprob;
+  int f;
+  ST::string test ="test";
+  double lowerknot=0;
+  double upperknot=0;
+
+  unsigned i;
+  int j1,j2;
+
+  for(i=0;i<terms.size();i++)
+    {
+    if ( randompspline.checkvector(terms,i) == true )
+      {
+
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv);  // random effect
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);  // nonlinear function
+
+      // --------------- reading options, term information ---------------------
+      MCMC::fieldtype type;
+      if ( (terms[i].options[0] == "random_psplinerw1") ||
+           (terms[i].options[0] == "random_tpsplinerw1") ||
+           (terms[i].options[0] == "random_psplinerw1vrw1") ||
+           (terms[i].options[0] == "random_psplinerw1vrw2") )
+        type = MCMC::RW1;
+      else
+        type = MCMC::RW2;
+
+      f = (terms[i].options[1]).strtodouble(lambda_r);
+
+      f = (terms[i].options[2]).strtodouble(a_r);
+
+      f = (terms[i].options[3]).strtodouble(b_r);
+
+      proposal_r = terms[i].options[4];
+
+
+      f = (terms[i].options[8]).strtolong(h);
+      min = unsigned(h);
+
+      f = (terms[i].options[9]).strtolong(h);
+      max = unsigned(h);
+
+      f = (terms[i].options[10]).strtolong(h);
+      degree = unsigned(h);
+
+      f = (terms[i].options[11]).strtolong(h);
+      nrknots = unsigned(h);
+
+      f = (terms[i].options[12]).strtodouble(lambda);
+
+      f = (terms[i].options[13]).strtodouble(a1);
+
+      f = (terms[i].options[14]).strtodouble(b1);
+
+      if (terms[i].options[15] == "false")
+        ub = false;
+      else
+        ub = true;
+
+      f = (terms[i].options[16]).strtolong(h);
+      gridsize = unsigned(h);
+
+      if (f==1)
+        return true;
+
+      MCMC::knotpos po;
+
+      if (knots.getvalue() == "equidistant" && terms[i].options[36] == "equidistant")
+        po = MCMC::equidistant;
+      else
+        po = MCMC::quantiles;
+
+      proposal = terms[i].options[20];
+      monotone = terms[i].options[21];
+
+      if (terms[i].options[25] == "false")
+        diagtransform = false;
+      else
+        diagtransform = true;
+
+      if (terms[i].options[26] == "false")
+        derivative = false;
+      else
+        derivative = true;
+
+      if (terms[i].options[27] == "false")
+        bsplinebasis = false;
+      else
+        bsplinebasis = true;
+
+      f = (terms[i].options[28]).strtolong(h);
+      contourprob = unsigned(h);
+
+      f = (terms[i].options[34]).strtodouble(alpha);
+
+
+      // -------------end: reading options, term information -------------------
+
+
+      // ---------------------- gaussian response, etc. ------------------------
+      if (check_gaussian(collinpred))
+        {
+
+        // Include nonlinear f
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+        "f_"+terms[i].varnames[0]+"_random",
+                 "_pspline_mult1.raw","_pspline_mult1.res","_pspline_mult1");
+
+        datamatrix eins(D.rows(),1,1);
+        datamatrix null(D.rows(),1,0);
+
+        fcpsplinegaussian.push_back(
+        FULLCOND_pspline_gaussian(&generaloptions[generaloptions.size()-1],
+        distr[distr.size()-1],fcconst_intercept,D.getCol(j2),eins,nrknots,degree,po,
+        type,monotone,title,pathnonp,pathres,derivative,lambda,gridsize,false,
+        collinpred));
+
+        //
+        datamatrix beta_0;
+        if(terms[i].options[30]!="")
+          {
+          dataobject * datap;                           // pointer to datasetobject
+          int objpos = findstatobject(*statobj,terms[i].options[23],"dataset");
+          if (objpos >= 0)
+            {
+            statobject * s = statobj->at(objpos);
+            datap = dynamic_cast<dataobject*>(s);
+            if (datap->obs()==0 || datap->getVarnames().size()==0)
+              {
+              outerror("ERROR: dataset object " + terms[i].options[23] + " does not contain any data\n");
+              return true;
+              }
+            else if (datap->getVarnames().size()>1)
+              {
+              outerror("ERROR: dataset object " + terms[i].options[23] + " contains more than one variable\n");
+              return true;
+              }
+            }
+          else
+            {
+            outerror("ERROR: dataset object " + terms[i].options[23] + " is not existing\n");
+            return true;
+            }
+          list<ST::string> names = datap->getVarnames();
+          ST::string expr = "";
+          datap->makematrix(names,beta_0,expr);
+          }
+        else
+          {
+          beta_0 = datamatrix(1,1,0);
+          }
+        //
+
+        fcpsplinegaussian[fcpsplinegaussian.size()-1].set_contour(contourprob,
+            pseudocontourprob.getvalue(),approx.getvalue(),lengthstart.getvalue(),beta_0);
+
+        if (constlambda.getvalue() == true)
+          fcpsplinegaussian[fcpsplinegaussian.size()-1].set_lambdaconst(lambda);
+
+        if (bsplinebasis == true)
+          fcpsplinegaussian[fcpsplinegaussian.size()-1].set_outbsplines();
+
+        if (terms[i].options[33] == "true")
+          fcpsplinegaussian[fcpsplinegaussian.size()-1].set_stationary(alpha);
+
+        fcpsplinegaussian[fcnonpgaussian.size()-1].set_changingweight();
+
+        fcpsplinegaussian[fcpsplinegaussian.size()-1].init_name(terms[i].varnames[0]);
+        fcpsplinegaussian[fcpsplinegaussian.size()-1].set_fcnumber(fullcond.size());
+
+        // Include variance of nonlinear f
+
+        if(terms[i].options[0] != "psplinerw1vrw1" && terms[i].options[0]
+           != "psplinerw1vrw2" && terms[i].options[0] != "psplinerw2vrw1"
+           && terms[i].options[0] != "psplinerw2vrw2")
+          {
+
+
+          make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+          "f_"+terms[i].varnames[0]+"_random",
+                 "_pspline_mult1_var.raw","_pspline_mult1_var.res",
+                 "_pspline_mult1_var");
+
+
+          fcvarnonp.push_back(FULLCOND_variance_nonp(
+          &generaloptions[generaloptions.size()-1],
+          &fcpsplinegaussian[fcpsplinegaussian.size()-1],distr[distr.size()-1],
+          a1,b1,title,pathnonp,pathres,ub,collinpred));
+
+          if (constlambda.getvalue() == false)
+            {
+
+            if(terms[i].options[29]=="true")
+               fcvarnonp[fcvarnonp.size()-1].set_uniformprior();
+            if(terms[i].options[31]=="true")
+              {
+              f = terms[i].options[32].strtolong(h);
+              fcvarnonp[fcvarnonp.size()-1].set_discrete(unsigned(h));
+              }
+            bool alphafix = false;
+            if (terms[i].options[35] == "true")
+              alphafix = true;
+            if (terms[i].options[36] == "true")
+              fcvarnonp[fcvarnonp.size()-1].set_stationary(alpha,alphafix);
+
+            }
+
+          }
+
+
+
+        /*
+        if (terms[i].options[0] == "tpsplinerw1" || terms[i].options[0] == "tpsplinerw2")
+          {
+          fcpsplinegaussian[fcpsplinegaussian.size()-1].set_adaptiv();
+
+          make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_pspline_tvar.raw","_pspline_tvar.res","_pspline_tvariance");
+
+          unsigned v = nu.getvalue();
+
+          fctvariance.push_back(FULLCOND_tvariance(&generaloptions[generaloptions.size()-1],
+                                &fcpsplinegaussian[fcpsplinegaussian.size()-1],
+                                v,title,pathnonp,pathres));
+
+          fctvariance[fctvariance.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fctvariance[fctvariance.size()-1]);
+
+          } // end: if (terms[i].options[0] == "tpsplinerw1" ...
+
+        if ( terms[i].options[0] == "psplinerw1vrw1" || terms[i].options[0] == "psplinerw1vrw2" ||
+             terms[i].options[0] == "psplinerw2vrw1" || terms[i].options[0] == "psplinerw2vrw2" )
+          {
+          fcpsplinegaussian[fcpsplinegaussian.size()-1].set_adaptiv();
+
+          make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_pspline_vvar.raw","_pspline_vvar.res","_pspline_vvariance");
+
+
+          f = (terms[i].options[10]).strtolong(h);
+          unsigned minvar = unsigned(h);
+          f = (terms[i].options[11]).strtolong(h);
+          unsigned maxvar = unsigned(h);
+          double startv;
+          f = (terms[i].options[12]).strtodouble(startv);
+          MCMC::fieldtype typevar;
+          if (terms[i].options[0] == "psplinerw1vrw1" ||
+          terms[i].options[0] == "psplinerw2vrw1")
+            typevar = MCMC::RW1;
+          else
+            typevar = MCMC::RW2;
+
+          fcadaptiv.push_back(FULLCOND_adaptiv(&generaloptions[generaloptions.size()-1],
+                              &fcpsplinegaussian[fcpsplinegaussian.size()-1],
+                              typevar,title,a1,b1,ub,startv,minvar,maxvar,pathnonp,pathres));
+
+          fcadaptiv[fcadaptiv.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fcadaptiv[fcadaptiv.size()-1]);
+
+          } // end: if (terms[i].options[0] == "psplinerw1vrw1" ...
+          */
+
+
+      // Include random effect
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+        "f_"+terms[i].varnames[0]+"_random",
+                 "_pspline_mult2.raw","_pspline_mult2.res","_pspline_mult2");
+
+        fcrandomgaussian.push_back(
+        FULLCOND_random_gaussian(&generaloptions[generaloptions.size()-1],
+                                                        distr[distr.size()-1],
+                                                        fcconst_intercept,
+                                                        null,
+                                                        D.getCol(j1),
+                                                        title,
+                                                        pathnonp,
+                                                        pathres,"",
+                                                        lambda_r,
+                                                        false,collinpred
+                                                        )
+                          );
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[0]);
+        na.push_back(terms[i].varnames[1]);
+        fcrandomgaussian[fcrandomgaussian.size()-1].init_names(na);
+
+        fcrandomgaussian[fcrandomgaussian.size()-1].set_notransform();
+
+       // Include first fcmult
+
+       fcmult.push_back(FULLCOND_mult(&generaloptions[generaloptions.size()-1],
+       distr[distr.size()-1],&fcrandomgaussian[fcrandomgaussian.size()-1],
+       &fcpsplinegaussian[fcpsplinegaussian.size()-1],true,"","","",collinpred));
+
+       // Include second fcmult
+
+       fcmult.push_back(FULLCOND_mult(&generaloptions[generaloptions.size()-1],
+       distr[distr.size()-1],&fcrandomgaussian[fcrandomgaussian.size()-1],
+       &fcpsplinegaussian[fcpsplinegaussian.size()-1],false,"","","",collinpred));
+
+
+        // Reinhängen in fullcond
+
+        fcpsplinegaussian[fcpsplinegaussian.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcpsplinegaussian[fcpsplinegaussian.size()-1]);
+
+        if (constlambda.getvalue() == false)
+          {
+          fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+          }
+
+        fcmult[fcmult.size()-2].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcmult[fcmult.size()-2]);
+
+
+        fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
+
+        if (constlambda.getvalue() == true)
+          {
+          fcrandomgaussian[fcrandomgaussian.size()-1].set_lambdaconst(lambda_r);
+          fullcond.push_back(&fcrandomgaussian[fcrandomgaussian.size()-1]);
+          }
+        else
+          {
+          fullcond.push_back(&fcrandomgaussian[fcrandomgaussian.size()-1]);
+
+          make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+          "f_"+terms[i].varnames[0]+"_random",
+                   "_pspline_mult2_var.raw","_pspline_mult2_var.res",
+                   "_pspline_mult2_var");
+
+          fcvarnonp.push_back(
+          FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+                            &fcrandomgaussian[fcrandomgaussian.size()-1],
+                            distr[distr.size()-1],a_r,b_r,title,pathnonp,
+                            pathres,false,collinpred));
+
+          fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+          }
+
+        fcmult[fcmult.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcmult[fcmult.size()-1]);
+
+
+
+        // ---------------------- end: gaussian response, etc. -----------------
+        }
+      else
+        {
+        // -------------------- non-gaussian response, etc. --------------------
+
+        /*
+
+        if (proposal == "cp")
+          {
+
+          if (terms[i].options[26] == "true")
+            {
+            outerror("ERROR: option 'alpha' not available\n");
+            return true;
+            }
+
+          if (terms[i].options[0] == "tpsplinerw1" || terms[i].options[0] == "tpsplinerw2" ||
+              terms[i].options[0] == "psplinerw1vrw1" || terms[i].options[0] == "psplinerw1vrw2" ||
+              terms[i].options[0] == "psplinerw2vrw1" || terms[i].options[0] == "psplinerw2vrw2" )
+            {
+            outerror("ERROR: '" + terms[i].options[0] + "' not available\n");
+            return true;
+            }
+
+          fcpspline.push_back( FULLCOND_pspline(&generaloptions[generaloptions.size()-1],
+          distr[distr.size()-1],fcconst_intercept,meandata,nrknots,degree,po,
+          lambda,min,max,type,title,pathnonp,pathres,derivative,lowerknot,
+          upperknot,gridsize,
+          collinpred));
+
+          if (constlambda.getvalue() == true)
+            fcpspline[fcpspline.size()-1].set_lambdaconst(lambda);
+
+          fcpspline[fcpspline.size()-1].init_name(terms[i].varnames[0]);
+          fcpspline[fcpspline.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fcpspline[fcpspline.size()-1]);
+
+          make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_pspline_var.raw","_pspline_var.res","_pspline_variance");
+
+
+          fcvarnonp.push_back(
+          FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+          &fcpspline[fcpspline.size()-1],distr[distr.size()-1],a1,b1,title,
+          pathnonp,pathres,ub,collinpred));
+
+          if (constlambda.getvalue() == false)
+            {
+
+            if(terms[i].options[22]=="true")
+                fcvarnonp[fcvarnonp.size()-1].set_uniformprior();
+
+            fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+            fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+            }
+
+          }
+        else // iwls
+          {
+
+          bool iwlsmode;
+          if(proposal == "iwlsmode")
+            iwlsmode = true;
+          else
+            iwlsmode = false;
+          f = (terms[i].options[15]).strtolong(h);
+          unsigned updateW;
+          updateW = unsigned(h);
+          bool updatetau;
+          if(terms[i].options[16] == "false" || constlambda.getvalue() == true)
+            updatetau = false;
+          else
+            updatetau = true;
+
+          double fstart;
+            f = (terms[i].options[17]).strtodouble(fstart);
+
+          fciwlspspline.push_back(
+          IWLS_pspline(&generaloptions[generaloptions.size()-1],
+          distr[distr.size()-1],fcconst_intercept,meandata,iwlsmode,nrknots,degree,po,
+          lambda,type,monotone,updateW,updatetau,fstart,a1,b1,title,pathnonp,
+          pathres,derivative,gridsize,diagtransform,lowerknot,upperknot,
+          collinpred));
+
+          if (constlambda.getvalue() == true)
+            fciwlspspline[fciwlspspline.size()-1].set_lambdaconst(lambda);
+
+          if (terms[i].options[26] == "true")
+            fciwlspspline[fciwlspspline.size()-1].set_stationary(alpha);
+
+          fciwlspspline[fciwlspspline.size()-1].init_name(terms[i].varnames[0]);
+          fciwlspspline[fciwlspspline.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fciwlspspline[fciwlspspline.size()-1]);
+
+          if(terms[i].options[0] != "psplinerw1vrw1" && terms[i].options[0] != "psplinerw1vrw2" &&
+             terms[i].options[0] != "psplinerw2vrw1" && terms[i].options[0] != "psplinerw2vrw2")
+            {
+
+            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_pspline_var.raw","_pspline_var.res","_pspline_variance");
+
+            fcvarnonp.push_back(
+            FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+            &fciwlspspline[fciwlspspline.size()-1],distr[distr.size()-1],a1,b1,
+            title,pathnonp,pathres,ub,collinpred));
+
+            bool alphafix = false;
+            if (terms[i].options[28] == "true")
+              alphafix = true;
+            if (terms[i].options[26] == "true")
+              fcvarnonp[fcvarnonp.size()-1].set_stationary(alpha,alphafix);
+
+            if (constlambda.getvalue() == false)
+              {
+
+              if(terms[i].options[22]=="true")
+                fcvarnonp[fcvarnonp.size()-1].set_uniformprior();
+              if(updatetau)
+                fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
+              fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+              fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+              }
+
+            }
+
+          if (terms[i].options[0] == "tpsplinerw1" || terms[i].options[0] == "tpsplinerw2")
+            {
+            fciwlspspline[fciwlspspline.size()-1].set_adaptiv();
+
+            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_pspline_tvar.raw","_pspline_tvar.res","_pspline_tvariance");
+
+            unsigned v = nu.getvalue();
+
+            fctvariance.push_back(FULLCOND_tvariance(&generaloptions[generaloptions.size()-1],
+            &fciwlspspline[fciwlspspline.size()-1],v,title,pathnonp,pathres)
+                                );
+
+            fctvariance[fctvariance.size()-1].set_fcnumber(fullcond.size());
+            fullcond.push_back(&fctvariance[fctvariance.size()-1]);
+
+            } // end: if (terms[i].options[0] == "tpsplinerw1" ...
+
+          if (terms[i].options[0] == "psplinerw1vrw1" || terms[i].options[0] == "psplinerw1vrw2" ||
+              terms[i].options[0] == "psplinerw2vrw1" || terms[i].options[0] == "psplinerw2vrw2")
+            {
+            fciwlspspline[fciwlspspline.size()-1].set_adaptiv();
+
+            make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                 "_pspline_vvar.raw","_pspline_vvar.res","_pspline_vvariance");
+
+            f = (terms[i].options[10]).strtolong(h);
+            unsigned minvar = unsigned(h);
+            f = (terms[i].options[11]).strtolong(h);
+            unsigned maxvar = unsigned(h);
+            double startv;
+            f = (terms[i].options[12]).strtodouble(startv);
+            MCMC::fieldtype typevar;
+            if (terms[i].options[0] == "psplinerw1vrw1" || terms[i].options[0] == "psplinerw2vrw1")
+              typevar = MCMC::RW1;
+            else
+              typevar = MCMC::RW2;
+
+            fcadaptiv.push_back(FULLCOND_adaptiv(&generaloptions[generaloptions.size()-1],
+                                &fciwlspspline[fciwlspspline.size()-1],
+                                typevar,title,a1,b1,ub,startv,minvar,maxvar,pathnonp,pathres));
+
+            fcadaptiv[fcadaptiv.size()-1].set_fcnumber(fullcond.size());
+            fullcond.push_back(&fcadaptiv[fcadaptiv.size()-1]);
+
+            } // end: if (terms[i].options[0] == "psplinerw1vrw1" ...
+
+          }
+
+        */
+
+        // ----------------- end:  non-gaussian response, etc. -----------------
+        }
+
+      }
+
+    }
+
+  return false;
   }
 

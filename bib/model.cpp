@@ -3901,5 +3901,327 @@ bool term_random_autoreg::check(term & t)
   }
 
 
+//------------------------------------------------------------------------------
+//-------- class term_random_pspline: implementation of member functions -------
+//------------------------------------------------------------------------------
+
+term_random_pspline::term_random_pspline(void)
+  {
+  type = "term_random_pspline";
+
+  lambda_r = doubleoption("lambda_r",100000,0,10000000);
+  a_r = doubleoption("a_r",0.001,-1.0,500);
+  b_r = doubleoption("b_r",0.001,0,500);
+  vector<ST::string> adm_prop;
+  adm_prop.push_back("iwls");
+  adm_prop.push_back("iwlsmode");
+  proposal_r = stroption("proposal_r",adm_prop,"iwls");
+  updatetau_r = simpleoption("updatetau_r",false);
+  uniformprior_r = simpleoption("uniformprior_r",false);
+  constlambda_r = simpleoption("constlambda_r",false);
+
+
+  min=intoption("min",0,1,100);
+  max=intoption("max",0,1,100);
+  degree=intoption("degree",3,0,5);
+  numberknots=intoption("nrknots",20,5,500);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  a = doubleoption("a",0.001,-1.0,500);
+  b = doubleoption("b",0.001,0,500);
+  uniformb = simpleoption("uniformb",false);
+  gridsize = intoption("gridsize",-1,10,500);
+  minvar=intoption("minvar",1,1,500);
+  maxvar=intoption("maxvar",1,1,500);
+  startv = doubleoption("startv",0.05,0.00001,1000);
+  proposal = stroption("proposal",adm_prop,"iwls");
+  vector<ST::string> adm;
+  adm.push_back("unrestricted");
+  adm.push_back("increasing");
+  adm.push_back("decreasing");
+  monotone = stroption("monotone",adm,"unrestricted");
+  updateW = intoption("updateW",1,0,100);
+  updatetau = simpleoption("updatetau",false);
+  f = doubleoption("f",2,0,10000000);
+  diagtransform = simpleoption("diagtransform",false);
+  derivative = simpleoption("derivative",false);
+  bsplinebasis = simpleoption("bsplinebasis",false);
+  contourprob = intoption("contourprob",-1,0,6);
+  uniformprior = simpleoption("uniformprior",false);
+  beta_0 = stroption("beta_0");
+  discrete = simpleoption("discrete",false);
+  df = intoption("df",20,3,50);
+  stationary = simpleoption("stationary",false);
+  alpha = doubleoption("alpha",0.9,-1.0,1.0);
+  alphafix = simpleoption("alphafix",false);
+  vector<ST::string> knotsdef;
+  knotsdef.push_back("equidistant");
+  knotsdef.push_back("quantiles");
+  knots = stroption("knots",knotsdef,"equidistant");
+  lowerknot = doubleoption("lowerknot",0,-10000000,10000000);
+  upperknot = doubleoption("upperknot",0,-10000000,10000000);
+  }
+
+void term_random_pspline::setdefault(void)
+  {
+
+  lambda_r.setdefault();
+  a_r.setdefault();
+  b_r.setdefault();
+  proposal_r.setdefault();
+  updatetau_r.setdefault();
+  uniformprior_r.setdefault();
+  constlambda_r.setdefault();  // 7
+
+  min.setdefault();
+  max.setdefault();
+  degree.setdefault();
+  numberknots.setdefault();
+  lambda.setdefault();
+  a.setdefault();
+  b.setdefault();
+  uniformb.setdefault();
+  gridsize.setdefault();
+  minvar.setdefault();
+  maxvar.setdefault();
+  startv.setdefault();
+  proposal.setdefault();
+  monotone.setdefault();
+  updateW.setdefault();
+  updatetau.setdefault();
+  f.setdefault();
+  diagtransform.setdefault();
+  derivative.setdefault();
+  bsplinebasis.setdefault();
+  contourprob.setdefault();
+  uniformprior.setdefault();
+  beta_0.setdefault();
+  discrete.setdefault();
+  df.setdefault();
+  alpha.setdefault();
+  stationary.setdefault();
+  alphafix.setdefault();
+  knots.setdefault();
+  lowerknot.setdefault();
+  upperknot.setdefault();   // 31 (31+7=38)
+  }
+
+bool term_random_pspline::check(term & t)
+  {
+
+  if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
+        && (t.options.size() <= 39) )
+    {
+
+    if (t.options[0] == "random_psplinerw1")
+      t.type = "random_psplinerw1";
+    else if (t.options[0] == "random_psplinerw2")
+      t.type = "random_psplinerw2";
+    else if (t.options[0] == "random_tpsplinerw1")
+      t.type = "random_tpsplinerw1";
+    else if (t.options[0] == "random_tpsplinerw2")
+      t.type = "random_tpsplinerw2";
+    else if (t.options[0] == "random_psplinerw1vrw1")
+      t.type = "random_psplinerw1vrw1";
+    else if (t.options[0] == "random_psplinerw1vrw2")
+      t.type = "random_psplinerw1vrw2";
+    else if (t.options[0] == "random_psplinerw2vrw1")
+      t.type = "random_psplinerw2vrw1";
+    else if (t.options[0] == "random_psplinerw2vrw2")
+      t.type = "random_psplinerw2vrw2";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    long minim,maxim;
+
+    optionlist optlist;
+
+    optlist.push_back(&lambda_r);
+    optlist.push_back(&a_r);
+    optlist.push_back(&b_r);
+    optlist.push_back(&proposal_r);
+    optlist.push_back(&updatetau_r);
+    optlist.push_back(&uniformprior_r);
+    optlist.push_back(&constlambda_r);
+
+    optlist.push_back(&min);
+    optlist.push_back(&max);
+    optlist.push_back(&degree);
+    optlist.push_back(&numberknots);
+    optlist.push_back(&lambda);
+    optlist.push_back(&a);
+    optlist.push_back(&b);
+    optlist.push_back(&uniformb);
+    optlist.push_back(&gridsize);
+    optlist.push_back(&minvar);
+    optlist.push_back(&maxvar);
+    optlist.push_back(&startv);
+    optlist.push_back(&proposal);
+    optlist.push_back(&monotone);
+    optlist.push_back(&updateW);
+    optlist.push_back(&updatetau);
+    optlist.push_back(&f);
+    optlist.push_back(&diagtransform);
+    optlist.push_back(&derivative);
+    optlist.push_back(&bsplinebasis);
+    optlist.push_back(&contourprob);
+    optlist.push_back(&uniformprior);
+    optlist.push_back(&beta_0);
+    optlist.push_back(&discrete);
+    optlist.push_back(&df);
+    optlist.push_back(&stationary);
+    optlist.push_back(&alpha);
+    optlist.push_back(&alphafix);
+    optlist.push_back(&knots);
+    optlist.push_back(&lowerknot);
+    optlist.push_back(&upperknot);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+   t.options.erase(t.options.begin(),t.options.end());
+   t.options = vector<ST::string>(39);
+   t.options[0] = t.type;
+
+    t.options[1] = ST::doubletostring(lambda_r.getvalue());
+    t.options[2] = ST::doubletostring(a_r.getvalue());
+    t.options[3] = ST::doubletostring(b_r.getvalue());
+    t.options[4] = proposal_r.getvalue();
+    if (updatetau_r.getvalue() == false)
+      t.options[5] = "false";
+    else
+      t.options[5] = "true";
+    if (uniformprior_r.getvalue() == false)
+      t.options[6] = "false";
+    else
+      t.options[6] = "true";
+    if (constlambda_r.getvalue() == false)
+      t.options[7] = "false";
+    else
+      t.options[7] = "true";
+
+   t.options[8] = ST::inttostring(min.getvalue());
+   t.options[9] = ST::inttostring(max.getvalue());
+   t.options[10] = ST::inttostring(degree.getvalue());
+   t.options[11] = ST::inttostring(numberknots.getvalue());
+   t.options[12] = ST::doubletostring(lambda.getvalue());
+   t.options[13] = ST::doubletostring(a.getvalue());
+   t.options[14] = ST::doubletostring(b.getvalue());
+   if (uniformb.getvalue() == false)
+     t.options[15] = "false";
+   else
+     t.options[15] = "true";
+   t.options[16] = ST::inttostring(gridsize.getvalue());
+   t.options[17] = ST::inttostring(minvar.getvalue());
+   t.options[18] = ST::inttostring(maxvar.getvalue());
+   t.options[19] = ST::doubletostring(startv.getvalue());
+   t.options[20] = proposal.getvalue();
+   t.options[21] = monotone.getvalue();
+   t.options[22] = ST::inttostring(updateW.getvalue());
+   if (updatetau.getvalue() == false)
+     t.options[23] = "false";
+   else
+     t.options[23] = "true";
+   t.options[24] = ST::doubletostring(f.getvalue());
+   if (diagtransform.getvalue() == false)
+     t.options[25] = "false";
+   else
+     t.options[25] = "true";
+   if (derivative.getvalue() == false)
+     t.options[26] = "false";
+   else
+     t.options[26] = "true";
+   if (bsplinebasis.getvalue() == false)
+     t.options[27] = "false";
+   else
+     t.options[27] = "true";
+   t.options[28] = ST::inttostring(contourprob.getvalue());
+   if(uniformprior.getvalue() == false)
+     t.options[29] = "false";
+   else
+     t.options[29] = "true";
+   t.options[30] = beta_0.getvalue();
+   if(discrete.getvalue() == false)
+     t.options[31] = "false";
+   else
+     t.options[31] = "true";
+   t.options[32] = ST::inttostring(df.getvalue());
+   if(stationary.getvalue() == false)
+     t.options[33] = "false";
+   else
+     t.options[33] = "true";
+   t.options[34] = ST::doubletostring(alpha.getvalue());
+   if(alphafix.getvalue() == false)
+     t.options[35] = "false";
+   else
+     t.options[35] = "true";
+   t.options[36] = knots.getvalue();
+   t.options[37] = ST::doubletostring(lowerknot.getvalue());
+   t.options[38] = ST::doubletostring(upperknot.getvalue());
+
+   if (t.options[8].strtolong(minim) == 1)
+     {
+     setdefault();
+     return false;
+     }
+
+   if (t.options[9].strtolong(maxim) == 1)
+     {
+     setdefault();
+     return false;
+     }
+
+   if (maxim < minim)
+     {
+     setdefault();
+     return false;
+     }
+
+   if (lambda.getvalue() < 0)
+     {
+     setdefault();
+     return false;
+     }
+
+   if ( contourprob.getvalue()-1 > degree.getvalue())
+     {
+     setdefault();
+     return false;
+     }
+
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
 
 
