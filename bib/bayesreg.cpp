@@ -237,6 +237,8 @@ void bayesreg::create(void)
   modeonly = simpleoption("modeonly",false);
   noposteriormode = simpleoption("noposteriormode",false);
 
+  blocksize = intoption("blocksize",20,5,500);
+
   setseed = intoption("setseed",-1,0,MAXINT);
   nographs = simpleoption("nographs",false);
 
@@ -395,6 +397,8 @@ void bayesreg::create(void)
   regressoptions.push_back(&nosort);
 
   regressoptions.push_back(&hierarchical);
+
+  regressoptions.push_back(&blocksize);
 
   // methods 0
   methods.push_back(command("regress",&modreg,&regressoptions,&udata,required,

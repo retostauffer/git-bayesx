@@ -2078,12 +2078,12 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   unsigned i;
   double helpvar;
   long h;
-  
+
   vector<ST::string> varnames;
   vector<double> varhelp;
   bool check=false;
   vector<bool> isridge;
-  vector<FULLCOND_const *> fc;
+  vector<FULLCOND_const*> fc;
 
   for(i=0;i<terms.size();i++)
     {
@@ -2113,15 +2113,15 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   if(check)
     {
     unsigned nr = varnames.size();
-    unsigned blocksize = 10;
+    unsigned bs = blocksize.getvalue();
     unsigned nrblocks = 1;
     vector<unsigned> cut;
     cut.push_back(0);
-    i = blocksize;
+    i = bs;
     while(i<nr)
       {
       cut.push_back(i);
-      i += blocksize;
+      i += bs;
       nrblocks++;
       }
     cut.push_back(nr);
@@ -2145,7 +2145,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
     vector<double> b1(data.cols(),0.1);
 
     // Titel und Pfade zur Datenspeicherung
-    ST::string title;
+    ST::string title, titlehelp;
     ST::string pathconst;
     ST::string pathconstres;
 
@@ -2165,7 +2165,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage" + i;
+        title = "shrinkage" + ST::inttostring(i+1);
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
@@ -2187,6 +2187,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         fc.push_back(&normalridge[normalridge.size()-1]);
         }
 
+      title = "shrinkage";
       make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
 
@@ -2215,7 +2216,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage" + i;
+        title = "shrinkage" + ST::inttostring(i+1);
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
@@ -2233,9 +2234,10 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         nongaussianridge[nongaussianridge.size()-1].init_names(varnameshelp);
         nongaussianridge[nongaussianridge.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&nongaussianridge[nongaussianridge.size()-1]);
-        fc.push_back(&normalridge[normalridge.size()-1]);
+        fc.push_back(&nongaussianridge[nongaussianridge.size()-1]);
         }
 
+      title = "shrinkage";
       make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
 

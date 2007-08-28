@@ -32,7 +32,7 @@ using randnumbers::rand_inv_gaussian;
 //______________________________________________________________________________
 
 FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
-                         vector<FULLCOND_const*> p,DISTRIBUTION * d,
+                         vector<FULLCOND_const*> & p,DISTRIBUTION * d,
                          const vector<double> & a, const vector<double> & b,
                          const ST::string & ti, const ST::string & fp,
                          const ST::string & fr, const double & lasso_start,
@@ -199,7 +199,7 @@ void FULLCOND_variance_nonp_vector::update(void)
   for(j=0; j<cut.size()-1; j++)
     {
     workbeta = Cp[j]->getbetapointer();           // current value of first regressionparameter
-    for(k=cut[i]; k<cut[i+1]; k++, i++, workbeta++)
+    for(k=cut[j]; k<cut[j+1]; k++, i++, workbeta++)
       {
       if (*workbeta>0 && *lassop>0)
         {

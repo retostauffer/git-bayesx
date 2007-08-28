@@ -67,7 +67,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   // CONSTRUCTOR
   //____________________________________________________________________________
 
-  FULLCOND_variance_nonp_vector(MCMCoptions * o, vector<FULLCOND_const*> p,
+  FULLCOND_variance_nonp_vector(MCMCoptions * o, vector<FULLCOND_const*> & p,
                          DISTRIBUTION * d, const vector<double> & a,
                          const vector<double> & b, const ST::string & ti,
                          const ST::string & fp, const ST::string & fr,

@@ -473,6 +473,7 @@ class __EXPORT_TYPE bayesreg : public statobject
 
 // ------------------------ for ridge regression -------------------------------
 
+  intoption blocksize;
   term_ridge ridge;
   bool create_ridge(const unsigned & collinpred=0);
   vector<FULLCOND_const_gaussian> normalridge;
