@@ -239,8 +239,12 @@ void FULLCOND_variance_nonp_vector::update(void)
 
 
   // Ergebnisse zu den Regressionskoeffizienten zurueckschreiben
+  datamatrix temp;
   for(i=0; i<cut.size()-1; i++)
-    Cp[i]->update_variances(beta.getRowBlock(cut[i],cut[i+1]));
+    {
+    temp = beta.getRowBlock(cut[i],cut[i+1]);
+    Cp[i]->update_variances(temp);
+    }
 
   // Ergebnisse zu ridgesum in Distributionobjekt zurückschreiben
   distrp->update_ridge(ridgesum);
