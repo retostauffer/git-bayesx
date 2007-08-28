@@ -30,7 +30,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
 
   ST::string pathresults;       //  file path for storing sampled parameters
   
-  FULLCOND_const * Cp;
+  vector<FULLCOND_const *> Cp;
   
   DISTRIBUTION * distrp;
 
@@ -45,7 +45,9 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   double lassomax;              //  Upper interval limit
   int lassogrid;                //  Interval gridpoints
   double ridgesum;               //  sum(beta^2/variances^2)
-  
+
+  vector<unsigned> cut;         // blocks of regression coefficients
+
   void outresults_lasso(void);  //  Function to write results to output window and files
 
   public:
@@ -65,13 +67,14 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   // CONSTRUCTOR
   //____________________________________________________________________________
 
-  FULLCOND_variance_nonp_vector(MCMCoptions * o, FULLCOND_const * p,
+  FULLCOND_variance_nonp_vector(MCMCoptions * o, vector<FULLCOND_const*> p,
                          DISTRIBUTION * d, const vector<double> & a,
                          const vector<double> & b, const ST::string & ti,
                          const ST::string & fp, const ST::string & fr,
                          const double & lasso_start, const double & a_lasso_gamma,
                          const double & b_lasso_gamma, const bool & shrinkage_fix,
-                         const vector<bool> & isridge, const unsigned & c);
+                         const vector<bool> & isridge, const vector<unsigned> & ct,
+                         const unsigned & c);
                          
   //____________________________________________________________________________
   //

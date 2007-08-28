@@ -734,8 +734,12 @@ void bayesreg::initpointers(void)
   for(i=0;i<fcmerror.size();i++)
     fullcond.push_back(&fcmerror[i]);
 
-//  for(i=0;i<fcridge.size();i++)
-//    fullcond.push_back(&fcridge[i]);
+  for(i=0;i<normalridge.size();i++)
+    fullcond.push_back(&normalridge[i]);
+
+  for(i=0;i<nongaussianridge.size();i++)
+    fullcond.push_back(&nongaussianridge[i]);
+
   }
 
 
@@ -840,8 +844,12 @@ void bayesreg::clear(void)
   fcmerror.erase(fcmerror.begin(),fcmerror.end());
   fcmerror.reserve(2);
 
-//  fcridge.erase(fcridge.begin(),fcridge.end());
-//  fcridge.reserve(2);
+  normalridge.erase(normalridge.begin(),normalridge.end());
+  normalridge.reserve(20);
+
+  nongaussianridge.erase(nongaussianridge.begin(),nongaussianridge.end());
+  nongaussianridge.reserve(20);
+
   }
 
 
@@ -904,6 +912,8 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   fcbaseline = b.fcbaseline;
 //  fcbaselineiwls = b.fcbaselineiwls;
   fcmultibaseline = b.fcmultibaseline;
+  normalridge = b.normalridge;
+  nongaussianridge = b.nongaussianridge;
   resultsyesno = b.resultsyesno;
   posteriormode = b.posteriormode;
 //  initpointers();
@@ -944,6 +954,8 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   fcbaseline = b.fcbaseline;
 //  fcbaselineiwls = b.fcbaselineiwls;
   fcmultibaseline = b.fcmultibaseline;
+  normalridge = b.normalridge;
+  nongaussianridge = b.nongaussianridge;
   resultsyesno = b.resultsyesno;
   posteriormode = b.posteriormode;
 //  initpointers();

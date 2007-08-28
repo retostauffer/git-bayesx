@@ -2071,9 +2071,6 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   double a_lassogamma;
   double b_lassogamma;
   bool shrinkagefix;
-//  double lassomin;
-//  double lassomax;
-//  int lassogrid;
   
   datamatrix variances;
 
@@ -2086,6 +2083,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   vector<double> varhelp;
   bool check=false;
   vector<bool> isridge;
+  vector<FULLCOND_const *> fc;
 
   for(i=0;i<terms.size();i++)
     {
@@ -2109,15 +2107,24 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         shrinkagefix = true;
       else
         shrinkagefix = false;
-//      f = (terms[i].options[6]).strtodouble(lassomin);
-//      f = (terms[i].options[7]).strtodouble(lassomax);
-//      f = (terms[i].options[8]).strtolong(h);
-//      lassogrid = unsigned(h);
       }
     }
 
   if(check)
     {
+    unsigned nr = varnames.size();
+    unsigned blocksize = 10;
+    unsigned nrblocks = 1;
+    vector<unsigned> cut;
+    cut.push_back(0);
+    i = blocksize;
+    while(i<nr)
+      {
+      cut.push_back(i);
+      i += blocksize;
+      nrblocks++;
+      }
+    cut.push_back(nr);
 
     // Varianzen
     variances = datamatrix(varhelp.size(),1,0);
@@ -2141,36 +2148,44 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
     ST::string title;
     ST::string pathconst;
     ST::string pathconstres;
-    title = "shrinkage";
-
-    pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                       + add_name + "_" + title + ".raw";
-    pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
-
-    if (pathconst.isvalidfile() == 1)
-      {
-      errormessages.push_back("ERROR: unable to open file " + pathconst +
-                               " for writing\n");
-      return true;
-      }
 
     // keine Intercept
     int constpos=-1;
 
+    vector<ST::string> varnameshelp;
 
     // Case: Gaussian
     if ( check_gaussian(collinpred))
       {
+      for(i=0; i<nrblocks; i++)
+        {
+        // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
 
-      // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
-      normalconst.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
-                              distr[distr.size()-1], data, title, constpos,
-                              pathconst, pathconstres, true,
-                              variances, collinpred));
+        varnameshelp = vector<ST::string>();
+        for(j=cut[i]; j<cut[i+1]; j++)
+          varnameshelp.push_back(varnames[j]);
 
-      normalconst[normalconst.size()-1].init_names(varnames);
-      normalconst[normalconst.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&normalconst[normalconst.size()-1]);
+        title = "shrinkage" + i;
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+        if (pathconst.isvalidfile() == 1)
+          {
+          errormessages.push_back("ERROR: unable to open file " + pathconst +
+                                 " for writing\n");
+          return true;
+          }
+
+        normalridge.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
+                                distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
+                                pathconst, pathconstres, true,
+                                variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+
+        normalridge[normalridge.size()-1].init_names(varnameshelp);
+        normalridge[normalridge.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&normalridge[normalridge.size()-1]);
+        fc.push_back(&normalridge[normalridge.size()-1]);
+        }
 
       make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
@@ -2178,9 +2193,9 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],
-          &normalconst[normalconst.size()-1],distr[distr.size()-1],
+          fc,distr[distr.size()-1],
           a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,
-          shrinkagefix,isridge,collinpred));
+          shrinkagefix,isridge,cut,collinpred));
 
       distr[distr.size()-1]->set_ridge(data.cols());
       distr[distr.size()-1]->update_ridge(0.0);
@@ -2194,13 +2209,32 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       {
 
       // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
-      nongaussianconst.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
-                              distr[distr.size()-1], data, title, constpos,
+      for(i=0; i<nrblocks; i++)
+        {
+        varnameshelp = vector<ST::string>();
+        for(j=cut[i]; j<cut[i+1]; j++)
+          varnameshelp.push_back(varnames[j]);
+
+        title = "shrinkage" + i;
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+        if (pathconst.isvalidfile() == 1)
+          {
+          errormessages.push_back("ERROR: unable to open file " + pathconst +
+                                 " for writing\n");
+          return true;
+          }
+
+        nongaussianridge.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
+                              distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
                               pathconst, pathconstres, true,
-                              variances, collinpred));
-      nongaussianconst[nongaussianconst.size()-1].init_names(varnames);
-      nongaussianconst[nongaussianconst.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&nongaussianconst[nongaussianconst.size()-1]);
+                              variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+        nongaussianridge[nongaussianridge.size()-1].init_names(varnameshelp);
+        nongaussianridge[nongaussianridge.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&nongaussianridge[nongaussianridge.size()-1]);
+        fc.push_back(&normalridge[normalridge.size()-1]);
+        }
 
       make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
@@ -2208,9 +2242,9 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
      // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],
-          &nongaussianconst[nongaussianconst.size()-1],distr[distr.size()-1],
+          fc,distr[distr.size()-1],
           a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,
-          shrinkagefix,isridge,collinpred));
+          shrinkagefix,isridge,cut,collinpred));
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
 //      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_lassopointer());
       }

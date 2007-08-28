@@ -32,13 +32,13 @@ using randnumbers::rand_inv_gaussian;
 //______________________________________________________________________________
 
 FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
-                         FULLCOND_const * p,DISTRIBUTION * d,
+                         vector<FULLCOND_const*> p,DISTRIBUTION * d,
                          const vector<double> & a, const vector<double> & b,
                          const ST::string & ti, const ST::string & fp,
                          const ST::string & fr, const double & lasso_start,
                          const double & a_lasso_gamma, const double & b_lasso_gamma,
                          const bool & shrinkage_fix, const vector<bool> & isridge, 
-                         const unsigned & c)
+                         const vector<unsigned> & ct, const unsigned & c)
                          : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
     {
     fctype = MCMC::variance;
@@ -56,6 +56,8 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
     a_invgamma = a;       // dezeit nicht in Gebrauch
     b_invgamma = b;       // derzeit nicht in Gebrauch
 
+    cut = ct;
+    
 //    priorassumptions.push_back("Inverse gamma prior for variance component with hyperparameters a="
 //    +ST::doubletostring(a,6)+ " and b=" + ST::doubletostring(b,6) );
 
@@ -63,7 +65,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
 
     ST::string path = pathresults.substr(0,pathresults.length()-4)+"_lasso.raw";
 
-    fc_lasso = FULLCOND(o,datamatrix(1,1),Cp->get_title()+"_lasso",1,1,path);
+    fc_lasso = FULLCOND(o,datamatrix(1,1),Cp[0]->get_title()+"_lasso",1,1,path);
     fc_lasso.setflags(MCMC::norelchange | MCMC::nooutput);
 
     // current value of lassoparameter
@@ -79,7 +81,11 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
 //    lassogrid = lasso_grid;
     ridgesum = 0;
 
-    setbeta(Cp->get_variances());   //Initialisieren der Betamatrizen für die
+    unsigned i;
+    datamatrix help = datamatrix(isridge.size(),1,0);
+    for(i=0; i<cut.size()-1; i++)
+      help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
+    setbeta(help);   //Initialisieren der Betamatrizen für die
                                     //Varianzan + Übergabe der Startwerte
 //TEMP:BEGIN--------------------------------------------------------------------
 // Pruefen der uebergebenen Optionen
@@ -117,6 +123,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(const FULLCOND_vari
   lassomax = t.lassomax;
   lassogrid = t.lassogrid;
   ridgesum = t.ridgesum;
+  cut = t.cut;
   }
 
 
@@ -146,6 +153,7 @@ const FULLCOND_variance_nonp_vector & FULLCOND_variance_nonp_vector::operator=(
   lassomax = t.lassomax;
   lassogrid = t.lassogrid;
   ridgesum = t.ridgesum;
+  cut = t.cut;
   return *this;
   }
 
@@ -166,14 +174,17 @@ FULLCOND * FULLCOND_variance_nonp_vector::get_lassopointer()
 void FULLCOND_variance_nonp_vector::update(void)
   {
   acceptance++;
-  
+
+  unsigned i, j, k;
   double * lassop = fc_lasso.getbetapointer();        // current value of lassoparameter
-  datamatrix variances = Cp->get_variances();          // current variances
+  datamatrix variances = datamatrix(beta.rows(),1,0);
+  for(i=0; i<cut.size()-1; i++)
+    variances.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());          // current variances
   
   // Gibbs-Update of varianceparameters 1/tau^2 with Inverse Normaldistribution
   //--------------------------------------------------------------------
-  double * workbeta = Cp->getbetapointer();           // current value of first regressionparameter
-  double help = sqrt(distrp->get_scale(column));      // current value of sqrt(scale) parameter      
+  double * workbeta;           // current value of first regressionparameter
+  double help = sqrt(distrp->get_scale(column));      // current value of sqrt(scale) parameter
   ridgesum=0;
 
 //TEMP:BEGIN--------------------------------------------------------------------
@@ -184,47 +195,53 @@ void FULLCOND_variance_nonp_vector::update(void)
 //         << lassomin << " " << lassomax << " " << lassogrid << "\n" ;
 //TEMP:END----------------------------------------------------------------------
 
-  for(unsigned int i=0; i<nrpar; i++, workbeta++)
+  i=0;
+  for(j=0; j<cut.size()-1; j++)
     {
-    if (*workbeta>0 && *lassop>0)
+    workbeta = Cp[j]->getbetapointer();           // current value of first regressionparameter
+    for(k=cut[i]; k<cut[i+1]; k++, i++, workbeta++)
       {
-      double rand_invgaussian = rand_inv_gaussian(help*(*lassop)/(*workbeta), (*lassop)*(*lassop));
+      if (*workbeta>0 && *lassop>0)
+        {
+        double rand_invgaussian = rand_inv_gaussian(help*(*lassop)/(*workbeta), (*lassop)*(*lassop));
 
 //TEMP:BEGIN--------------------------------------------------------------------
 //      output << "*workbeta>0 && *lassop>0 " << i << " " << rand_invgaussian << " " << beta(i,0) << " " << *lassop << "\n" ;
 //TEMP:END----------------------------------------------------------------------
 
-      beta(i,0) = 1.0/rand_invgaussian;
-      }
-    if (*workbeta<0 && *lassop>0)
-      {
-      double rand_invgaussian = rand_inv_gaussian(-1.0*help*(*lassop)/(*workbeta), (*lassop)*(*lassop));
+        beta(i,0) = 1.0/rand_invgaussian;
+        }
+      if (*workbeta<0 && *lassop>0)
+        {
+        double rand_invgaussian = rand_inv_gaussian(-1.0*help*(*lassop)/(*workbeta), (*lassop)*(*lassop));
 
 //TEMP:BEGIN--------------------------------------------------------------------
 //      output << "*workbeta<0 && *lassop>0 " << i << " " << rand_invgaussian << " " << beta(i,0) << " " << *lassop << "\n" ;
 //TEMP:END----------------------------------------------------------------------
 
-      beta(i,0) = 1.0/(rand_invgaussian);
-      }
-    if (*workbeta==0 || *lassop<=0)
-      {
+        beta(i,0) = 1.0/(rand_invgaussian);
+        }
+      if (*workbeta==0 || *lassop<=0)
+        {
 //TEMP:BEGIN--------------------------------------------------------------------
 //      output <<"else" << i << " " << beta(i,0) << " " << *lassop << "\n" ;
 //TEMP:END----------------------------------------------------------------------
-      beta(i,0) = 1E-6;
-      }
-    
-    ridgesum = ridgesum + ((*workbeta)*(*workbeta))/variances(i,0);   
+        beta(i,0) = 1E-6;
+        }
+
+      ridgesum = ridgesum + ((*workbeta)*(*workbeta))/variances(i,0);
 //TEMP:BEGIN--------------------------------------------------------------------
 //    ofstream output("c:/bayesx/test/ridgesum.txt", ios::out|ios::app);
-//    output << ridgesum <<"\n"; 
-//TEMP:END----------------------------------------------------------------------         
+//    output << ridgesum <<"\n";
+//TEMP:END----------------------------------------------------------------------
+      }
     }
-    
-    
+
+
   // Ergebnisse zu den Regressionskoeffizienten zurueckschreiben
-  Cp->update_variances(beta);
-  
+  for(i=0; i<cut.size()-1; i++)
+    Cp[i]->update_variances(beta.getRowBlock(cut[i],cut[i+1]));
+
   // Ergebnisse zu ridgesum in Distributionobjekt zurückschreiben
   distrp->update_ridge(ridgesum);
 
@@ -233,7 +250,7 @@ void FULLCOND_variance_nonp_vector::update(void)
   if(lassofix==false)
     {
     double sumvariances = 0;
-    for(unsigned int i=0; i<nrpar; i++)
+    for(i=0; i<nrpar; i++)
       {
       sumvariances = sumvariances + variances(i,0);      // sum of current variances
       }
