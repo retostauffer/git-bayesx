@@ -254,6 +254,7 @@ void infilerun(dataobject & o)
   list<ST::string> names = o.m.getModelVarnames();
   ifstream fin;
   ST::open(fin,path);
+
   #if defined(JAVA_OUTPUT_WINDOW)
   o.d.read(o.adminb_p,fin,missingvalue,o.maxobs.getvalue(),names);
   #else

@@ -42,7 +42,9 @@ g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/nbinomial.o leyre/nbinomial.cpp
 
 g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -o gnuobj/mcmc_const.o mcmc/mcmc_const.cpp
 g++ -w -Wno-deprecated -c -o gnuobj/bandmat.o bib/bandmat.cpp
+g++ -w -Wno-deprecated -c -o gnuobj/bandmat_penalty.o bib/bandmat_penalty.cpp
 g++ -w -Wno-deprecated -c -o gnuobj/envmatrix.o bib/envmatrix.cpp
+g++ -w -Wno-deprecated -c -o gnuobj/envmatrix_penalty.o bib/envmatrix_penalty.cpp
 
 g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -o gnuobj/mcmc_nonpbasis.o mcmc/mcmc_nonpbasis.cpp
 g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -o gnuobj/mcmc_nonp.o mcmc/mcmc_nonp.cpp
@@ -73,6 +75,11 @@ g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -Ipsplines -o gnuobj/baseline.o a
 g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -Ipsplines -o gnuobj/multibaseline.o andrea/multibaseline.cpp
 
 g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -Ipsplines -Iandrea -o gnuobj/mcmcsimul.o mcmc/mcmcsimul.cpp
+
+g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -Ipsplines -Iandrea -o gnuobj/gaussian_heteroskedastic.o mcmc/gaussian_heteroskedastic.cpp
+g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -Ipsplines -Iandrea -o gnuobj/variance_nonp_vector.o mcmc/variance_nonp_vector.cpp
+g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -Ipsplines -Iandrea -o gnuobj/fullcond_merror.o mcmc/fullcond_merror.cpp
+g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -Ipsplines -Iandrea -o gnuobj/fullcond_mult.o mcmc/fullcond_mult.cpp
 
 g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -Ipsplines -Iandrea -Isamson -Ialex -Iadaptiv -o gnuobj/bayesreg.o bib/bayesreg.cpp
 g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -Ipsplines -Iandrea -Isamson -Ialex -Iadaptiv -o gnuobj/bayesreg2.o bib/bayesreg2.cpp
@@ -106,12 +113,12 @@ g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/adjacency.o dag/adjacency.cpp
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/fullcond_dag.o dag/fullcond_dag.cpp
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/fullcond_dag_d.o dag/fullcond_dag_d.cpp
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/func_dag.o dag/func_dag.cpp
+//g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/functions.o dag/functions.cpp
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/ia.o dag/ia.cpp
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/fullcond_dag_ia.o dag/fullcond_dag_ia.cpp
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/fullcond_dag_ia_mixed.o dag/fullcond_dag_ia_mixed.cpp
-g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/ia_ok.o dag/ia_ok.cpp
+//g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/ia_ok.o dag/ia_ok.cpp
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/ia_mixed.o dag/ia_mixed.cpp
-g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/functions.o dag/functions.cpp
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/fullcond_rj_mix.o dag/fullcond_rj_mix.cpp
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/fullcond_rj.o dag/fullcond_rj.cpp
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/fullcond_rj_int.o dag/fullcond_rj_int.cpp
@@ -119,5 +126,15 @@ g++ -w -Wno-deprecated -c -Ibib -Imcmc -o gnuobj/fullcond_rj_int.o dag/fullcond_
 
 g++ -w -Wno-deprecated -c -Ibib -Imcmc -Iandrea -Ipsplines -Ileyre -o gnuobj/dagobject.o dag/dagobject.cpp
 
-g++ -w -Wno-deprecated -c -Ibib -Imcmc -Igraph -Iandrea -Ipsplines -Ialex -Isamson -Iadaptiv -Idag -Ileyre -o gnuobj/adminparse.o bib/adminparse.cpp
+g++ -w -Wno-deprecated -c -Ibib -Ileyre -Imcmc -Ipsplines -Iandrea -Isamson -Ialex -Iadaptiv -Idag -Igraph -o gnuobj/adminparse_gnu.o bib/adminparse_gnu.cpp
+
+//dlltool -z gnuobj/bayesx.def -e gnuobj/bayesx.o -l gnuobj/BayesXdll.lib gnuobj/*.o
+//g++ -shared -Lgnuobj -o BayesXdll.dll gnuobj/BayesXdll.lib gnuobj/*.o
+
+
+g++ -w -Wno-deprecated  -Ibib -Ileyre -Imcmc -Ipsplines -Iandrea -Isamson -Ialex -Iadaptiv -Idag -Igraph bayesxprompt.cpp gnuobj/*.o -o bayesxprompt.exe
+
+
+
+
 

@@ -1,15 +1,15 @@
 
 #include "first.h"
 
-#include "adminparse.h"
+#include "adminparse_gnu.h"
 
-administrator::administrator(void)
+admin_gnu::admin_gnu(void)
   {
 
-  adminb = administrator_basic();
-  adminp = administrator_pointer();
+//  adminb = administrator_basic();
+//  adminp = administrator_pointer();
 
-  #if !defined(__BUILDING_GNU)
+/*  #if !defined(__BUILDING_GNU)
   char path[100];
   getcurdir(0,path);
   char disk = 'A'+getdisk();
@@ -73,7 +73,7 @@ administrator::administrator(void)
     out("  Specify a new default directory using the defaultpath command\n");
     out("  Type for example: defaultpath=c:\\temp");
     }
-  #endif
+  #endif*/
 
   logfileopen = false;
   input = &cin;
@@ -82,18 +82,18 @@ administrator::administrator(void)
 
   objecttyps.push_back("dataset");
   objecttyps.push_back("bayesreg");
-  objecttyps.push_back("stepwisereg");
+/*  objecttyps.push_back("stepwisereg");
   objecttyps.push_back("remlreg");
   objecttyps.push_back("map");
   objecttyps.push_back("dag");
-  objecttyps.push_back("graph");
+  objecttyps.push_back("graph");*/
 
   delim = '\r';
 
   }
 //------------------------------------------------------------------------------
 
-void administrator::out(const ST::string & c,
+void admin_gnu::out(const ST::string & c,
                         bool thick,bool italic,
                         unsigned size,int r,int g, int b)
   {
@@ -101,19 +101,13 @@ void administrator::out(const ST::string & c,
   sh = sh.replaceallsigns('\n',' ');
   sh = sh+"\n";
 
-  #if defined(__BUILDING_GNU)
-    std::cout << c << flush;
-  #elif
-  if (!adminb.suppressoutput)
-    adminb.Java->CallVoidMethod(adminb.BayesX_obj, adminb.javaoutput, adminb.Java->NewStringUTF(sh.strtochar()),
-    thick, italic, size,r,g,b);
-  #endif
+  std::cout << c << flush;
   if (logout.is_open())
     logout << c << flush;
   }
 
 
-void administrator::out(const vector<ST::string> & m,bool thick,bool italic,
+void admin_gnu::out(const vector<ST::string> & m,bool thick,bool italic,
                         unsigned size,int r,int g, int b)
   {
   unsigned i;
@@ -122,19 +116,19 @@ void administrator::out(const vector<ST::string> & m,bool thick,bool italic,
   }
 
 
-void administrator::outerror(const ST::string & c)
+void admin_gnu::outerror(const ST::string & c)
   {
   out(c,true,true,12,255,0,0);
   }
 
-void administrator::outerror(const vector<ST::string> & m)
+void admin_gnu::outerror(const vector<ST::string> & m)
   {
   out(m,true,true,12,255,0,0);
   }
 
 
 
-void administrator::dropobjects(ST::string name, ST::string type)
+void admin_gnu::dropobjects(ST::string name, ST::string type)
   {
 
   int recognized = 0;
@@ -168,7 +162,7 @@ void administrator::dropobjects(ST::string name, ST::string type)
 		i++;
 		}
 	 }  // end: type bayesreg
-  else if (type == "stepwisereg")
+/*  else if (type == "stepwisereg")
 	 {
 	 while ( (i < stepwiseregobjects.size()) && (recognized == 0) )
 		{
@@ -243,14 +237,14 @@ void administrator::dropobjects(ST::string name, ST::string type)
 		i++;
 		}
 
-     }
+     }*/
 
   adjustobjects();
 
   }
 
 
-bool administrator::alreadyexisting(const ST::string & name)
+bool admin_gnu::alreadyexisting(const ST::string & name)
   {
 
   unsigned i = 0;
@@ -265,7 +259,7 @@ bool administrator::alreadyexisting(const ST::string & name)
   }
 
 
-ST::string administrator::create(const ST::string & in)
+ST::string admin_gnu::create(const ST::string & in)
   {
 
   ST::string name;
@@ -294,18 +288,17 @@ ST::string administrator::create(const ST::string & in)
 
 		  if (token[0] == "dataset")
 			 {
-			 dataobject newobject(&adminb,&adminp,token[1],&logout,input);
+			 dataobject newobject(token[1],&logout,input);
 			 dataobjects.push_back(newobject);
 			 }
 
 		  else if (token[0] == "bayesreg")
 			 {
-			 bayesreg newobject(&adminb,&adminp,
-             token[1],&logout,input,defaultpath,&objects);
+			 bayesreg newobject(token[1],&logout,input,defaultpath,&objects);
 			 bayesregobjects.push_back(newobject);
 			 }
 
-		  else if (token[0] == "stepwisereg")
+/*		  else if (token[0] == "stepwisereg")
 			 {
 			 stepwisereg newobject(&adminb,&adminp,
              token[1],&logout,input,defaultpath,&objects);
@@ -335,7 +328,7 @@ ST::string administrator::create(const ST::string & in)
              {
              graphobj newobject(&adminb,&adminp,token[1],&logout,input,&objects);
              graphobjects.push_back(newobject);
-             }
+             }*/
 
 		  adjustobjects();
 
@@ -346,12 +339,11 @@ ST::string administrator::create(const ST::string & in)
   }
 
 
-void administrator::parseexisting(const ST::string & objectname,const ST::string & com)
+void admin_gnu::parseexisting(const ST::string & objectname,const ST::string & com)
   {
 
   int recognized = 0;
   unsigned i=0;
-
 
   while ( (i < objects.size()) && (recognized == 0) )
 	 {
@@ -380,7 +372,7 @@ void administrator::parseexisting(const ST::string & objectname,const ST::string
   }
 
 
-void administrator::adjustobjects(void)
+void admin_gnu::adjustobjects(void)
   {
   objects.erase(objects.begin(),objects.end());
   unsigned i;
@@ -391,7 +383,7 @@ void administrator::adjustobjects(void)
   for (i=0;i<bayesregobjects.size();i++)
 	 objects.push_back(&bayesregobjects[i]);
 
-  for (i=0;i<stepwiseregobjects.size();i++)
+/*  for (i=0;i<stepwiseregobjects.size();i++)
 	 objects.push_back(&stepwiseregobjects[i]);
 
   for (i=0;i<remlregobjects.size();i++)
@@ -404,12 +396,12 @@ void administrator::adjustobjects(void)
 	 objects.push_back(&dagobjects[i]);
 
   for (i=0;i<graphobjects.size();i++)
-    objects.push_back(&graphobjects[i]);
+    objects.push_back(&graphobjects[i]);*/
 
   }
 
 
-bool administrator::parse(ST::string & in)
+bool admin_gnu::parse(ST::string & in)
   {
 
   bool stop;
@@ -436,14 +428,10 @@ bool administrator::parse(ST::string & in)
 		  if (token[2] == "return")
             {
 			delim = '\r';
-            jmethodID setdelim = adminb.Java->GetMethodID(adminb.BayesX_cls, "setDelim", "(Ljava/lang/String;)V");
-            adminb.Java->CallVoidMethod(adminb.BayesX_obj, setdelim, adminb.Java->NewStringUTF("return"));
             }
 		  else if (token[2] == ";")
             {
             delim = token[2][0];
-            jmethodID setdelim = adminb.Java->GetMethodID(adminb.BayesX_cls, "setDelim", "(Ljava/lang/String;)V");
-            adminb.Java->CallVoidMethod(adminb.BayesX_obj, setdelim, adminb.Java->NewStringUTF("semicolon"));
             }
 		  else
             {
@@ -476,10 +464,10 @@ bool administrator::parse(ST::string & in)
 			 while (! infile.eof())
 				{
 
-                stop = adminb.breakcommand();
+/*                stop = adminb.breakcommand();
 
                 if(stop)
-                  break;
+                  break;*/
 
 				if (delim != '\r')
                   {
@@ -514,11 +502,6 @@ bool administrator::parse(ST::string & in)
                 if (in.length() > 0 && in[0] != '%')
                   {
 				  out("> " + in + "\n");
-
-                  jmethodID javareview = adminb.Java->GetMethodID(
-                  adminb.BayesX_cls, "JavaReview", "(Ljava/lang/String;)V");
-                  adminb.Java->CallVoidMethod(adminb.BayesX_obj, javareview,
-                  adminb.Java->NewStringUTF(in.strtochar()));
                   }
 				parse(in);
 				} // end: while (! infile.eof())
@@ -529,18 +512,13 @@ bool administrator::parse(ST::string & in)
 
 		input = &cin;
 
-#if defined(BORLAND_OUTPUT_WINDOW)
-        if (!Frame->stop)
-		  outerror(errormessages);
-#elif defined (JAVA_OUTPUT_WINDOW)
-        if(!adminb.get_stop())
-          outerror(errormessages);
-#endif
+        outerror(errormessages);
+
         errormessages.clear();
 		return false;
 
 		}
-     else if (firsttoken == "saveoutput")
+/*     else if (firsttoken == "saveoutput")
         {
 
 		model m;
@@ -593,8 +571,8 @@ bool administrator::parse(ST::string & in)
           errormessages.clear();
           }
         return false;
-        }
-     else if (firsttoken == "clearoutput")
+        }*/
+/*     else if (firsttoken == "clearoutput")
        {
 #if defined(BORLAND_OUTPUT_WINDOW)
        Results->ResultsRichEdit->Clear();
@@ -602,7 +580,7 @@ bool administrator::parse(ST::string & in)
        jmethodID clearoutput = adminb.Java->GetMethodID(adminb.BayesX_cls, "ClearOutput", "()V");
        adminb.Java->CallVoidMethod(adminb.BayesX_obj, clearoutput);
 #endif
-       }
+       }*/
 	 else if (firsttoken == "logopen")
 		{
 		model m;
@@ -654,7 +632,7 @@ bool administrator::parse(ST::string & in)
 		  }
 		return false;
 		}  // end: logclose
-     else if (firsttoken == "defaultpath")
+/*     else if (firsttoken == "defaultpath")
         {
          vector<ST::string> token = in.strtoken(" =");
          if (token.size() != 3)
@@ -730,7 +708,7 @@ bool administrator::parse(ST::string & in)
 	    outerror(errormessages);
         errormessages.clear();
         return false;
-        }
+        }*/
 	 else if (firsttoken == "drop")
 		{
 
