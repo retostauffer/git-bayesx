@@ -14,7 +14,7 @@
 #include"mcmc.h"
 #include"fullcond.h"
 #include"distribution.h"
-#include"map.h"
+//#include"map.h"
 #include"bandmat.h"
 #include"bandmat_penalty.h"
 #include"mcmc_nonpbasis.h"
