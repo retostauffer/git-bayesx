@@ -388,7 +388,9 @@ void dataset::checkvarnames(void)
   while ((i != datarep.varnames.end()) && (errormessages.empty()))
 	 {
 	 if ((*i).isvarname() == 1)
+        {
 		errormessages.push_back("ERROR: " + (*i) + " invalid variable name\n");
+        }
 	 i++;
 	 }
   }
