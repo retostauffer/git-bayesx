@@ -21,34 +21,31 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
 
   protected:
 
-  vector<double> tau;           //  Wozu sind diese Vektoren (löschen veursacht Probleme in BayesX)!!!!!!!!!!!!!
-  vector<double> lambda;        //  Wozu sind diese Vektoren (löschen veursacht Probleme in BayesX)!!!!!!!!!!!!!!
+  vector<double> tau;               // Varianceparameters
+  vector<double> lambda;            // Inverse Varianceparameter: lambda=1/tau^2
 
   bool update_sigma2;
 
-  unsigned column;              //
+  unsigned column;                  //  Category for for fullcond if multivariate response
 
-  ST::string pathresults;       //  file path for storing sampled parameters
+  ST::string pathresults;           //  File path for storing sampled parameters
   
   vector<FULLCOND_const *> Cp;
   
   DISTRIBUTION * distrp;
 
-  vector<double> a_invgamma;    //  Hyperparameters, not used yet
-  vector<double> b_invgamma;    //  Hyperparameters, not used yet
+  FULLCOND fc_shrinkage;
+  bool shrinkagefix;                //  Shrinkageparameter fix
+  double a_shrinkagegamma;          //  Hyperparameter for Shrinkageparameter
+  double b_shrinkagegamma;          //  Hyperparameter for Shrinkageparameter
 
-  FULLCOND fc_lasso;
-  bool lassofix;                //  Lassoparameter fix
-  double a_lassogamma;          //  Hyperparameter for lasso
-  double b_lassogamma;          //  Hyperparameter for lasso
-  double lassomin;              //  Lower interval limit
-  double lassomax;              //  Upper interval limit
-  int lassogrid;                //  Interval gridpoints
-  double ridgesum;               //  sum(beta^2/variances^2)
+  double ridgesum;                  //  sum(beta^2/tau^2)
 
-  vector<unsigned> cut;         // blocks of regression coefficients
-
-  void outresults_lasso(void);  //  Function to write results to output window and files
+  vector<unsigned> cut;             //  Blocks of regression coefficients
+  vector<bool> is_ridge;            //  The Components indicates if "true" the L2-penalty
+                                    //  and if "false" the L1-penalty is used
+                                    
+  void outresults_shrinkage(void);  //  Function to write results to output window and files
 
   public:
 
@@ -68,14 +65,14 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   //____________________________________________________________________________
 
   FULLCOND_variance_nonp_vector(MCMCoptions * o, vector<FULLCOND_const*> & p,
-                         DISTRIBUTION * d, const vector<double> & a,
-                         const vector<double> & b, const ST::string & ti,
+                         DISTRIBUTION * d,const ST::string & ti,
                          const ST::string & fp, const ST::string & fr,
-                         const double & lasso_start, const double & a_lasso_gamma,
-                         const double & b_lasso_gamma, const bool & shrinkage_fix,
+                         const double & shrinkage_start, const double & a_shrinkage_gamma,
+                         const double & b_shrinkage_gamma, const bool & shrinkage_fix,
                          const vector<bool> & isridge, const vector<unsigned> & ct,
                          const unsigned & c);
-                         
+
+  
   //____________________________________________________________________________
   //
   // COPY CONSTRUCTOR
@@ -92,8 +89,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   const FULLCOND_variance_nonp_vector & operator=(const FULLCOND_variance_nonp_vector & t);
 
 
-  // Pointer auf das lasso-Parameter Fullcond-Objekt
-  FULLCOND * get_lassopointer();
+  // Pointer auf das shrinkage-Parameter Fullcond-Objekt
+  FULLCOND * get_shrinkagepointer();
 
   //____________________________________________________________________________
   //
@@ -111,7 +108,6 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   //____________________________________________________________________________
 
   void outresults(void);
-  
   
   //____________________________________________________________________________
   //

@@ -230,33 +230,27 @@ vector<ST::string> basic_termtype::get_constvariables(vector<term> & terms)
 //------------------------------------------------------------------------------
 //------------ class term_ridge: implementation of member functions ------------
 //------------------------------------------------------------------------------
+
 // DEFAULT CONSTRUCTOR
 //---------------------
 term_ridge::term_ridge(void)
   {
   type = "term_ridge";
 
-  // Startwert für Varianz
+  // Startwert fuer inverse varianzparameter lambda=1/tau^2
   lambda = doubleoption("lambda",0.1,0,10000000);
-  // Alternativ:
+  // Alternativ Varianzparameter tau^2:
   // taustart = doubleoption("taustart",0.1,0,10000000);
 
-  // Startwert für den Lassoparameter lasso
-  lassostart = doubleoption("lassostart",1,0,10000000);
+  // Startwert für den Shrinkageparameter
+  shrinkagestart = doubleoption("shrinkagestart",1,0,10000000);
   
-  // Hyperparameter der Lassopriori
-  a_lasso = doubleoption("a_lasso",0.001,0,500);
-  b_lasso = doubleoption("b_lasso",0.001,0,500);
+  // Hyperparameter der Priori fuer Shrinkageparameter
+  a_shrinkage = doubleoption("a_shrinkage",0.001,0,500);
+  b_shrinkage = doubleoption("b_shrinkage",0.001,0,500);
   
-  // Feste Werte für den Lassoparameter
+  // Feste Werte für den Shrinkageparameter
   shrinkagefix = simpleoption("shrinkagefix",false);
-  
-  // Untere und obere Intervallgrenze für die festen Werte des Lassoparameters
-//  lassomin = doubleoption("lassomin",0.01,0,10000000);
-//  lassomax = doubleoption("lassomax",10,0,10000000);
-
-  // Anzahl der Punkte für das Intervall [lassomin,lassomax]
-//  lassogrid = intoption("lassogrid",-1,5,500);
 
   }
 
@@ -267,14 +261,11 @@ void term_ridge::setdefault(void)
   {
   // call setdefault-methods of the options
   lambda.setdefault();
-  lassostart.setdefault();
+  shrinkagestart.setdefault();
   //taustart.setdefault();
-  a_lasso.setdefault();
-  b_lasso.setdefault();
+  a_shrinkage.setdefault();
+  b_shrinkage.setdefault();
   shrinkagefix.setdefault();
-//  lassomin.setdefault();
-//  lassomax.setdefault();
-//  lassogrid.setdefault();
   }
 
 
@@ -285,9 +276,11 @@ bool term_ridge::check(term & t)
   if ( (t.varnames.size() == 1) && (t.options.size()<=6) && (t.options.size()>=1))   // SET: Anzahl Optionen
     {
     // extract options
-
+    // prior coorespponds to L2-Norm df coefficients
     if (t.options[0] == "ridge")
       t.type = "ridge";
+    
+    // prior coorespponds to L1-Norm df coefficients  
     else if (t.options[0] == "lasso")
       t.type = "lasso";
     else
@@ -300,13 +293,11 @@ bool term_ridge::check(term & t)
     optionlist optlist;
     optlist.push_back(&lambda);
     //optlist.push_back(&taustart);
-    optlist.push_back(&lassostart);
-    optlist.push_back(&a_lasso);
-    optlist.push_back(&b_lasso);
+    optlist.push_back(&shrinkagestart);
+    optlist.push_back(&a_shrinkage);
+    optlist.push_back(&b_shrinkage);
     optlist.push_back(&shrinkagefix);
-//    optlist.push_back(&lassomin);
-//    optlist.push_back(&lassomax);
-//    optlist.push_back(&lassogrid);
+
 
     unsigned i;
     bool rec = true;
@@ -335,20 +326,18 @@ bool term_ridge::check(term & t)
     t.options[0] = t.type;
     t.options[1] = ST::doubletostring(lambda.getvalue());
     //t.options[] = ST::doubletostring(taustart.getvalue());
-    t.options[2] = ST::doubletostring(lassostart.getvalue());
-    t.options[3] = ST::doubletostring(a_lasso.getvalue());
-    t.options[4] = ST::doubletostring(b_lasso.getvalue());
+    t.options[2] = ST::doubletostring(shrinkagestart.getvalue());
+    t.options[3] = ST::doubletostring(a_shrinkage.getvalue());
+    t.options[4] = ST::doubletostring(b_shrinkage.getvalue());
     if (shrinkagefix.getvalue()==false)
        t.options[5] = "false";
      else
        t.options[5] = "true";
-//    t.options[6] = ST::doubletostring(lassomin.getvalue());
-//    t.options[7] = ST::doubletostring(lassomax.getvalue());
-//    t.options[8] = ST::inttostring(lassogrid.getvalue());
 
     setdefault();
     return true;
     }
+
   else
     {
     setdefault();

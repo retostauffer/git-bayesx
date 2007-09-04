@@ -452,50 +452,42 @@ class __EXPORT_TYPE term_ridge : public basic_termtype
   {
   protected:
 
-  // Startwert für Varianz
+  // Startwert für lambda=1/tau^2=1/Varianzparameter
   doubleoption lambda;
-  // // Alternativ: Startwert für die Varianzparameter
+
+  // Alternativ: Startwert für tau^2=Varianzparameter
   // doubleoption taustart;
   
-  // Startwert für den Lassoparameter lasso
-  doubleoption lassostart;
+  // Startwert fuer den Shrinkageparameter 
+  doubleoption shrinkagestart;
   
-  // Hyperparameter der Lassopriori
-  doubleoption a_lasso;
-  doubleoption b_lasso;
+  // Hyperparameter der Priori fuer Shrinkageparameter
+  doubleoption a_shrinkage;
+  doubleoption b_shrinkage;
 
-  // Feste Werte für den Shrinkage-Parameter
+  // Feste Werte für den Shrinkageparameter
   simpleoption shrinkagefix;
   
-  // Untere und obere Intervallgrenze für die festen Werte des Lassoparameters
-//  doubleoption lassomin;
-//  doubleoption lassomax;
-  //Anzahl der Punkte für das Intervall [lassomin,lassomax]
-//  intoption lassogrid;
-  
+
   // FUNCTION: setdefault
   void setdefault(void);
 
   public:
 
   // DEFAULT CONSTRUCTOR
-
   term_ridge(void);
   
 
   // FUNCTION: check
-
   bool check(term & t);
 
 
   // FUNCTION: checkvector
   // TASK: returns true if term 'i' is a category-specific fixed effect
-
   bool checkvector(const vector<term>  & terms,const unsigned & i);
 
 
   // DESTRUCTOR
-
   ~term_ridge() {}
   };
 

@@ -2067,16 +2067,16 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   {
 
   // options
-  double lassostart;
-  double a_lassogamma;
-  double b_lassogamma;
+  double shrinkagestart;
+  double a_shrinkagegamma;
+  double b_shrinkagegamma;
   bool shrinkagefix;
   
   datamatrix variances;
 
   int j, f;
   unsigned i;
-  double helpvar;
+  double helpvar;               // fuer Starewerte der inversen Varianzparameter helpvar=lambda=1/tau^2
   long h;
 
   vector<ST::string> varnames;
@@ -2100,9 +2100,9 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       varhelp.push_back(1/helpvar);
 
       // letzter Term enthält die verwendeten Werte
-      f = (terms[i].options[2]).strtodouble(lassostart);
-      f = (terms[i].options[3]).strtodouble(a_lassogamma);
-      f = (terms[i].options[4]).strtodouble(b_lassogamma);
+      f = (terms[i].options[2]).strtodouble(shrinkagestart);
+      f = (terms[i].options[3]).strtodouble(a_shrinkagegamma);
+      f = (terms[i].options[4]).strtodouble(b_shrinkagegamma);
       if (terms[i].options[5] == "true")
         shrinkagefix = true;
       else
@@ -2126,7 +2126,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       }
     cut.push_back(nr);
 
-    // Varianzen
+    // Varianzparameter
     variances = datamatrix(varhelp.size(),1,0);
     for(i=0; i<varhelp.size(); i++)
       variances(i,0) = varhelp[i];
@@ -2140,11 +2140,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       data.putCol(i, D.getCol(j));
       }
 
-    // Werte für inverse Gammaverteilung (Derzeit nicht in Gebrauch)
-    vector<double> a1(data.cols(),0.1);
-    vector<double> b1(data.cols(),0.1);
-
-    // Titel und Pfade zur Datenspeicherung
+     // Titel und Pfade zur Datenspeicherung
     ST::string title, titlehelp;
     ST::string pathconst;
     ST::string pathconstres;
@@ -2159,8 +2155,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       {
       for(i=0; i<nrblocks; i++)
         {
-        // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
-
+        // Erstellen der Dateien fuer die Ergebnisse der Koeffizientenschaetzung
         varnameshelp = vector<ST::string>();
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
@@ -2169,6 +2164,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
@@ -2176,6 +2172,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
           return true;
           }
 
+        // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
         normalridge.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
                                 distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
                                 pathconst, pathconstres, true,
@@ -2187,15 +2184,15 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         fc.push_back(&normalridge[normalridge.size()-1]);
         }
 
+      // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
       title = "shrinkage";
       make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
 
       // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
-          &generaloptions[generaloptions.size()-1],
-          fc,distr[distr.size()-1],
-          a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,
+          &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],
+          title,pathnonp,pathres,shrinkagestart,a_shrinkagegamma,b_shrinkagegamma,
           shrinkagefix,isridge,cut,collinpred));
 
       distr[distr.size()-1]->set_ridge(data.cols());
@@ -2209,7 +2206,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
     else
       {
 
-      // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
+      // Erstellen der Dateien fuer die Ergebnisse der Koeffizientenschaetzung
       for(i=0; i<nrblocks; i++)
         {
         varnameshelp = vector<ST::string>();
@@ -2227,6 +2224,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
           return true;
           }
 
+        // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
         nongaussianridge.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
                               distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
                               pathconst, pathconstres, true,
@@ -2237,6 +2235,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         fc.push_back(&nongaussianridge[nongaussianridge.size()-1]);
         }
 
+      // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
       title = "shrinkage";
       make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
@@ -2244,11 +2243,10 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
      // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],
-          fc,distr[distr.size()-1],
-          a1,b1,title,pathnonp,pathres,lassostart,a_lassogamma,b_lassogamma,
-          shrinkagefix,isridge,cut,collinpred));
+          fc,distr[distr.size()-1],title,pathnonp,pathres,
+          shrinkagestart,a_shrinkagegamma,b_shrinkagegamma,shrinkagefix,isridge,cut,collinpred));
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
-//      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_lassopointer());
+//      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_shrinkagepointer());
       }
     }
 
