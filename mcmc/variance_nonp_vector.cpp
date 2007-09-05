@@ -93,16 +93,6 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
     for(i=0; i<cut.size()-1; i++)
       help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
     setbeta(help);
-
-//TEMP:BEGIN--------------------------------------------------------------------
-// Pruefen der uebergebenen Optionen
-    ofstream output("c:/bayesx/test/startwerte.txt", ios::out|ios::app);
-    for(unsigned int i=0; i<nrpar; i++)
-      {
-      output << is_ridge << " " << *shrinkagep << " " << shrinkagefix << " "
-             << a_shrinkagegamma << " " << b_shrinkagegamma << ridgesum << "\n" ;
-      }
-//TEMP:END----------------------------------------------------------------------
     }
 
 
