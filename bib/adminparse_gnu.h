@@ -15,17 +15,15 @@
 #endif
 
 #include<fstream.h>
-//#include"adminparse_basic.h"
-//#include"adminparse_pointers.h"
 #include"data.h"
 #include"statobj.h"
 #include"dataobj.h"
 #include"bayesreg.h"
-//#include"remlreg.h"
-//#include"mapobject.h"
-//#include"dagobject.h"
+#include"remlreg.h"
+#include"mapobject.h"
+#include"dagobject.h"
 //#include"graphobj.h"
-//#include"stepwisereg.h"
+#include"stepwisereg.h"
 
 
 class __EXPORT_TYPE admin_gnu
@@ -81,19 +79,19 @@ class __EXPORT_TYPE admin_gnu
 
   // 'stepwiseregobjects' contains current stepwisereg objects
 
-//  vector<stepwisereg> stepwiseregobjects;
+  vector<stepwisereg> stepwiseregobjects;
 
   // 'remlregobjects' contains current remlreg objects
 
-//  vector<remlreg> remlregobjects;
+  vector<remlreg> remlregobjects;
 
   // 'mapobjects' contains current map objects
 
-//  vector<mapobject> mapobjects;
+  vector<mapobject> mapobjects;
 
   // 'dagobjects' contains current dag objects
 
-//  vector<dagobject> dagobjects;
+  vector<dagobject> dagobjects;
 
   // 'graphobj' contains current graph objects
 
@@ -172,10 +170,10 @@ class __EXPORT_TYPE admin_gnu
     return objects;
     }
 
-/*  vector<mapobject> & get_mapobjects(void)
+  vector<mapobject> & get_mapobjects(void)
     {
     return mapobjects;
-    }*/
+    }
 
   vector<dataobject> & get_dataobjects(void)
     {

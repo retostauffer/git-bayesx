@@ -1446,6 +1446,8 @@ bool remlest_multinomial::check_pause()
   return false;
 #elif defined(JAVA_OUTPUT_WINDOW)
   return adminb_p->breakcommand();
+#else
+  return false; 
 #endif
   }
 
@@ -1469,7 +1471,9 @@ void remlest_multinomial::out(const ST::string & s,bool thick,bool italic,
   if (!(logout->fail()))
     (*logout) << s << flush;
 #else
-  (*logout) << s << flush;
+  cout << s << flush;
+  if ((logout->fail()))
+    (*logout) << s << flush;
 #endif
   }
 
@@ -4010,6 +4014,8 @@ bool remlest_multistate::check_pause()
   return false;
 #elif defined(JAVA_OUTPUT_WINDOW)
   return adminb_p->breakcommand();
+#else
+  return false; 
 #endif
   }
 
@@ -4033,7 +4039,9 @@ void remlest_multistate::out(const ST::string & s,bool thick,bool italic,
   if (!(logout->fail()))
     (*logout) << s << flush;
 #else
-  (*logout) << s << flush;
+  cout << s << flush;
+  if ((logout->fail()))
+    (*logout) << s << flush;
 #endif
   }
 

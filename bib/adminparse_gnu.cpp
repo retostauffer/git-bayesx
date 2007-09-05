@@ -82,11 +82,11 @@ admin_gnu::admin_gnu(void)
 
   objecttyps.push_back("dataset");
   objecttyps.push_back("bayesreg");
-/*  objecttyps.push_back("stepwisereg");
+  objecttyps.push_back("stepwisereg");
   objecttyps.push_back("remlreg");
   objecttyps.push_back("map");
   objecttyps.push_back("dag");
-  objecttyps.push_back("graph");*/
+//  objecttyps.push_back("graph");
 
   delim = '\r';
 
@@ -162,7 +162,7 @@ void admin_gnu::dropobjects(ST::string name, ST::string type)
 		i++;
 		}
 	 }  // end: type bayesreg
-/*  else if (type == "stepwisereg")
+  else if (type == "stepwisereg")
 	 {
 	 while ( (i < stepwiseregobjects.size()) && (recognized == 0) )
 		{
@@ -222,7 +222,7 @@ void admin_gnu::dropobjects(ST::string name, ST::string type)
 
      }
 
-   else if (type == "graph")
+/*   else if (type == "graph")
      {
 
 	 while ( (i < graphobjects.size()) && (recognized == 0) )
@@ -298,35 +298,33 @@ ST::string admin_gnu::create(const ST::string & in)
 			 bayesregobjects.push_back(newobject);
 			 }
 
-/*		  else if (token[0] == "stepwisereg")
+		  else if (token[0] == "stepwisereg")
 			 {
-			 stepwisereg newobject(&adminb,&adminp,
-             token[1],&logout,input,defaultpath,&objects);
+			 stepwisereg newobject(token[1],&logout,input,defaultpath,&objects);
 			 stepwiseregobjects.push_back(newobject);
 			 }
 
 		  else if (token[0] == "remlreg")
 			 {
-			 remlreg newobject(&adminb,
-             token[1],&logout,input,defaultpath,&objects);
+			 remlreg newobject(token[1],&logout,input,defaultpath,&objects);
 			 remlregobjects.push_back(newobject);
 			 }
 
 		  else if (token[0] == "map")
 			 {
-			 mapobject newobject(&adminb,&adminp,token[1],&logout,input,defaultpath,&objects);
+			 mapobject newobject(token[1],&logout,input,defaultpath,&objects);
 			 mapobjects.push_back(newobject);
 			 }
 
            else if (token[0] == "dag")
              {
-             dagobject newobject(&adminb,token[1],&logout,input,defaultpath,&objects);
+             dagobject newobject(token[1],&logout,input,defaultpath,&objects);
              dagobjects.push_back(newobject);
              }
 
-           else if (token[0] == "graph")
+/*           else if (token[0] == "graph")
              {
-             graphobj newobject(&adminb,&adminp,token[1],&logout,input,&objects);
+             graphobj newobject(token[1],&logout,input,&objects);
              graphobjects.push_back(newobject);
              }*/
 
@@ -383,7 +381,7 @@ void admin_gnu::adjustobjects(void)
   for (i=0;i<bayesregobjects.size();i++)
 	 objects.push_back(&bayesregobjects[i]);
 
-/*  for (i=0;i<stepwiseregobjects.size();i++)
+  for (i=0;i<stepwiseregobjects.size();i++)
 	 objects.push_back(&stepwiseregobjects[i]);
 
   for (i=0;i<remlregobjects.size();i++)
@@ -395,7 +393,7 @@ void admin_gnu::adjustobjects(void)
   for (i=0;i<dagobjects.size();i++)
 	 objects.push_back(&dagobjects[i]);
 
-  for (i=0;i<graphobjects.size();i++)
+/*  for (i=0;i<graphobjects.size();i++)
     objects.push_back(&graphobjects[i]);*/
 
   }

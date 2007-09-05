@@ -2186,6 +2186,8 @@ bool remlest_multinomial_catsp::check_pause()
   return false;
 #elif defined(JAVA_OUTPUT_WINDOW)
   return adminb_p->breakcommand();
+#else
+  return false; 
 #endif
   }
 
@@ -2209,7 +2211,9 @@ void remlest_multinomial_catsp::out(const ST::string & s,bool thick,bool italic,
   if (!(logout->fail()))
     (*logout) << s << flush;
 #else
-  (*logout) << s << flush;
+  cout << s << flush;
+  if ((logout->fail()))
+    (*logout) << s << flush;
 #endif
   }
 
