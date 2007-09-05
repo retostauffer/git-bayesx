@@ -2082,31 +2082,29 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   vector<ST::string> varnames;
   vector<double> varhelp;
   bool check=false;
-  vector<bool> isridge;
+  bool isridge=true;
   vector<FULLCOND_const*> fc;
 
   for(i=0;i<terms.size();i++)
     {
     if ( ridge.checkvector(terms,i) == true )
       {
-      check=true;
       if(terms[i].options[0] == "ridge")
-        isridge.push_back(true);
-      else
-        isridge.push_back(false);
+        {
+        check=true;
+        varnames.push_back(terms[i].varnames[0]);
+        f = terms[i].options[1].strtodouble(helpvar);
+        varhelp.push_back(1/helpvar);
 
-      varnames.push_back(terms[i].varnames[0]);
-      f = terms[i].options[1].strtodouble(helpvar);
-      varhelp.push_back(1/helpvar);
-
-      // letzter Term enthält die verwendeten Werte
-      f = (terms[i].options[2]).strtodouble(shrinkagestart);
-      f = (terms[i].options[3]).strtodouble(a_shrinkagegamma);
-      f = (terms[i].options[4]).strtodouble(b_shrinkagegamma);
-      if (terms[i].options[5] == "true")
-        shrinkagefix = true;
-      else
-        shrinkagefix = false;
+        // letzter Term enthält die verwendeten Werte
+        f = (terms[i].options[2]).strtodouble(shrinkagestart);
+        f = (terms[i].options[3]).strtodouble(a_shrinkagegamma);
+        f = (terms[i].options[4]).strtodouble(b_shrinkagegamma);
+        if (terms[i].options[5] == "true")
+          shrinkagefix = true;
+        else
+          shrinkagefix = false;
+        }
       }
     }
 
@@ -2160,7 +2158,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage" + ST::inttostring(i+1);
+        title = "shrinkage_ridge" + ST::inttostring(i+1);
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
@@ -2185,7 +2183,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
-      title = "shrinkage";
+      title = "shrinkage_ridge";
       make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
 
@@ -2213,7 +2211,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage" + ST::inttostring(i+1);
+        title = "shrinkage_ridge" + ST::inttostring(i+1);
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
@@ -2236,7 +2234,195 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
-      title = "shrinkage";
+      title = "shrinkage_ridge";
+      make_paths(collinpred,pathnonp,pathres,title,title,"",
+             "_var.raw","_var.res","_variance");
+
+     // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
+      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
+          &generaloptions[generaloptions.size()-1],
+          fc,distr[distr.size()-1],title,pathnonp,pathres,
+          shrinkagestart,a_shrinkagegamma,b_shrinkagegamma,shrinkagefix,isridge,cut,collinpred));
+      fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
+//      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_shrinkagepointer());
+      }
+    }
+
+  return false;
+  }
+
+bool bayesreg::create_lasso(const unsigned & collinpred)
+  {
+
+  // options
+  double shrinkagestart;
+  double a_shrinkagegamma;
+  double b_shrinkagegamma;
+  bool shrinkagefix;
+
+  datamatrix variances;
+
+  int j, f;
+  unsigned i;
+  double helpvar;               // fuer Starewerte der inversen Varianzparameter helpvar=lambda=1/tau^2
+  long h;
+
+  vector<ST::string> varnames;
+  vector<double> varhelp;
+  bool check=false;
+  bool isridge=false;
+  vector<FULLCOND_const*> fc;
+
+  for(i=0;i<terms.size();i++)
+    {
+    if ( ridge.checkvector(terms,i) == true )
+      {
+      if(terms[i].options[0] == "lasso")
+        {
+        check=true;
+        varnames.push_back(terms[i].varnames[0]);
+        f = terms[i].options[1].strtodouble(helpvar);
+        varhelp.push_back(1/helpvar);
+
+        // letzter Term enthält die verwendeten Werte
+        f = (terms[i].options[2]).strtodouble(shrinkagestart);
+        f = (terms[i].options[3]).strtodouble(a_shrinkagegamma);
+        f = (terms[i].options[4]).strtodouble(b_shrinkagegamma);
+        if (terms[i].options[5] == "true")
+          shrinkagefix = true;
+        else
+          shrinkagefix = false;
+        }
+      }
+    }
+
+  if(check)
+    {
+    unsigned nr = varnames.size();
+    unsigned bs = blocksize.getvalue();
+    unsigned nrblocks = 1;
+    vector<unsigned> cut;
+    cut.push_back(0);
+    i = bs;
+    while(i<nr)
+      {
+      cut.push_back(i);
+      i += bs;
+      nrblocks++;
+      }
+    cut.push_back(nr);
+
+    // Varianzparameter
+    variances = datamatrix(varhelp.size(),1,0);
+    for(i=0; i<varhelp.size(); i++)
+      variances(i,0) = varhelp[i];
+
+    // Daten
+    datamatrix data(D.rows(),varnames.size(),0);
+
+    for(i=0; i<varnames.size(); i++)
+      {
+      j = varnames[i].isinlist(modelvarnamesv);
+      data.putCol(i, D.getCol(j));
+      }
+
+     // Titel und Pfade zur Datenspeicherung
+    ST::string title, titlehelp;
+    ST::string pathconst;
+    ST::string pathconstres;
+
+    // keine Intercept
+    int constpos=-1;
+
+    vector<ST::string> varnameshelp;
+
+    // Case: Gaussian
+    if ( check_gaussian(collinpred))
+      {
+      for(i=0; i<nrblocks; i++)
+        {
+        // Erstellen der Dateien fuer die Ergebnisse der Koeffizientenschaetzung
+        varnameshelp = vector<ST::string>();
+        for(j=cut[i]; j<cut[i+1]; j++)
+          varnameshelp.push_back(varnames[j]);
+
+        title = "shrinkage_lasso" + ST::inttostring(i+1);
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+
+        if (pathconst.isvalidfile() == 1)
+          {
+          errormessages.push_back("ERROR: unable to open file " + pathconst +
+                                 " for writing\n");
+          return true;
+          }
+
+        // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
+        normalridge.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
+                                distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
+                                pathconst, pathconstres, true,
+                                variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+
+        normalridge[normalridge.size()-1].init_names(varnameshelp);
+        normalridge[normalridge.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&normalridge[normalridge.size()-1]);
+        fc.push_back(&normalridge[normalridge.size()-1]);
+        }
+
+      // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
+      title = "shrinkage_lasso";
+      make_paths(collinpred,pathnonp,pathres,title,title,"",
+             "_var.raw","_var.res","_variance");
+
+      // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
+      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
+          &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],
+          title,pathnonp,pathres,shrinkagestart,a_shrinkagegamma,b_shrinkagegamma,
+          shrinkagefix,isridge,cut,collinpred));
+
+      distr[distr.size()-1]->set_lasso(data.cols());
+      distr[distr.size()-1]->update_lasso(0.0);
+
+      fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
+      }
+
+
+    // Case: NonGaussian
+    else
+      {
+
+      // Erstellen der Dateien fuer die Ergebnisse der Koeffizientenschaetzung
+      for(i=0; i<nrblocks; i++)
+        {
+        varnameshelp = vector<ST::string>();
+        for(j=cut[i]; j<cut[i+1]; j++)
+          varnameshelp.push_back(varnames[j]);
+
+        title = "shrinkage_lasso" + ST::inttostring(i+1);
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+        if (pathconst.isvalidfile() == 1)
+          {
+          errormessages.push_back("ERROR: unable to open file " + pathconst +
+                                 " for writing\n");
+          return true;
+          }
+
+        // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
+        nongaussianridge.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
+                              distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
+                              pathconst, pathconstres, true,
+                              variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+        nongaussianridge[nongaussianridge.size()-1].init_names(varnameshelp);
+        nongaussianridge[nongaussianridge.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&nongaussianridge[nongaussianridge.size()-1]);
+        fc.push_back(&nongaussianridge[nongaussianridge.size()-1]);
+        }
+
+      // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
+      title = "shrinkage_lasso";
       make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
 
@@ -2387,6 +2573,9 @@ void regressrun(bayesreg & b)
 
      if(!failure)
         failure = b.create_ridge(i);
+
+     if(!failure)
+        failure = b.create_lasso(i);
 
       if (!failure)
         failure = b.create_random_rw1rw2(i);

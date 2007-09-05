@@ -42,7 +42,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   double ridgesum;                  //  sum(beta^2/tau^2)
 
   vector<unsigned> cut;             //  Blocks of regression coefficients
-  vector<bool> is_ridge;            //  The Components indicates if "true" the L2-penalty
+  bool is_ridge;                    //  The Components indicates if "true" the L2-penalty
                                     //  and if "false" the L1-penalty is used
                                     
   void outresults_shrinkage(void);  //  Function to write results to output window and files
@@ -69,7 +69,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
                          const ST::string & fp, const ST::string & fr,
                          const double & shrinkage_start, const double & a_shrinkage_gamma,
                          const double & b_shrinkage_gamma, const bool & shrinkage_fix,
-                         const vector<bool> & isridge, const vector<unsigned> & ct,
+                         const bool & isridge, const vector<unsigned> & ct,
                          const unsigned & c);
 
   

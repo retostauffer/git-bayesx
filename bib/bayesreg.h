@@ -476,6 +476,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   intoption blocksize;
   term_ridge ridge;
   bool create_ridge(const unsigned & collinpred=0);
+  bool create_lasso(const unsigned & collinpred=0);
   vector<FULLCOND_const_gaussian> normalridge;
   vector<FULLCOND_const_nongaussian> nongaussianridge;
   vector<FULLCOND_variance_nonp_vector> fcvarnonpvec;

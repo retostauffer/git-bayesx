@@ -184,12 +184,14 @@ class __EXPORT_TYPE DISTRIBUTION
 
 
 //------------------------------------------------------------------------------
-//----------------------------- FOR Ridge Regression ---------------------------
+//-------------------------- FOR Shrinkage Regression --------------------------
 //------------------------------------------------------------------------------
 
-  bool ridge;
+  bool shrinkage;
   unsigned nrridge;
+  unsigned nrlasso;
   double ridgesum;
+  double lassosum;
 
 //------------------------------------------------------------------------------
 //--------------------------- ERRORMESSAGES ------------------------------------
@@ -218,9 +220,11 @@ class __EXPORT_TYPE DISTRIBUTION
     scaleexisting = true;
     scale = datamatrix(1,1,0.1);
 
-    ridge=false;
+    shrinkage=false;
     nrridge=0;
     ridgesum=0.0;
+    nrlasso=0;
+    lassosum=0.0;
     }
 
   // CONSTRUCTOR1
@@ -1357,13 +1361,18 @@ class __EXPORT_TYPE DISTRIBUTION
     }
 
 //------------------------------------------------------------------------------
-//----------------------------- FOR Ridge Regression ---------------------------
+//-------------------------- FOR Shrinkage Regression --------------------------
 //------------------------------------------------------------------------------
 
   void set_ridge(const unsigned & nr)
     {
-    ridge=true;
+    shrinkage=true;
     nrridge=nr;
+    }
+
+  unsigned get_ridge(void)
+    {
+    return nrridge;
     }
 
   void update_ridge(const double & sum)
@@ -1371,6 +1380,21 @@ class __EXPORT_TYPE DISTRIBUTION
     ridgesum=sum;
     }
 
+  void set_lasso(const unsigned & nr)
+    {
+    shrinkage=true;
+    nrlasso=nr;
+    }
+
+  void update_lasso(const double & sum)
+    {
+    lassosum=sum;
+    }
+
+  unsigned get_lasso(void)
+    {
+    return nrlasso;
+    }
 
   }; // end: class DISTRIBUTION
 

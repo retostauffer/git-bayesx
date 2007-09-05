@@ -429,7 +429,7 @@ DISTRIBUTION::DISTRIBUTION(MCMCoptions * o, const datamatrix & r,
   Scalesave = FULLCOND(o,datamatrix(1,1),"Scaleparameter",1,1,ps);
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
 
-  ridge=false;
+  shrinkage=false;
   create(o,r,w);
   }
 
@@ -443,7 +443,7 @@ DISTRIBUTION::DISTRIBUTION(const datamatrix & offset,MCMCoptions * o,
   Scalesave = FULLCOND(o,datamatrix(1,1),"Scaleparameter",1,1,ps);
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
 
-  ridge=false;
+  shrinkage=false;
 
   create(o,r,w);
   add_linearpred(offset);
@@ -617,9 +617,11 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   interceptold = d.interceptold;
   addinterceptsample = d.addinterceptsample;
 
-  ridge = d.ridge;
+  shrinkage = d.shrinkage;
   nrridge = d.nrridge;
   ridgesum = d.ridgesum;
+  nrlasso = d.nrlasso;
+  lassosum = d.lassosum;
   }
 
 
@@ -710,9 +712,11 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   interceptold = d.interceptold;
   addinterceptsample = d.addinterceptsample;
 
-  ridge = d.ridge;
+  shrinkage = d.shrinkage;
   nrridge = d.nrridge;
   ridgesum = d.ridgesum;
+  nrlasso = d.nrlasso;
+  lassosum = d.lassosum;
 
   return *this;
   }
@@ -5144,10 +5148,10 @@ void DISTRIBUTION_gaussian::update(void)
       }
     else
       {
-      if(ridge)
+      if(shrinkage)
         {
-        scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero + 0.5*nrridge,
-                     b_invgamma+0.5*sum + 0.5*ridgesum);
+        scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero + 0.5*nrridge + 0.5*nrlasso,
+                     b_invgamma+0.5*sum + 0.5*ridgesum + 0.5*lassosum);
         }
       else
         {

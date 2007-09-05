@@ -37,7 +37,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
                          const ST::string & ti, const ST::string & fp,
                          const ST::string & fr, const double & shrinkage_start,
                          const double & a_shrinkage_gamma, const double & b_shrinkage_gamma,
-                         const bool & shrinkage_fix, const vector<bool> & isridge, 
+                         const bool & shrinkage_fix, const bool & isridge, 
                          const vector<unsigned> & ct, const unsigned & c)
                          : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
     {
@@ -78,7 +78,8 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
 
     //Initialisieren der Betamatrizen für die Varianzan + Übergabe der Startwerte
     unsigned i;
-    datamatrix help = datamatrix(isridge.size(),1,0);
+    datamatrix help = datamatrix(d->get_ridge(),1,0);
+//    datamatrix help = datamatrix(d->get_lasso(),1,0);
     for(i=0; i<cut.size()-1; i++)
       help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
     setbeta(help);   
@@ -88,7 +89,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
     ofstream output("c:/bayesx/test/startwerte.txt", ios::out|ios::app);
     for(unsigned int i=0; i<nrpar; i++)
       {
-      output << is_ridge[i] << " " << *shrinkagep << " " << shrinkagefix << " "
+      output << is_ridge << " " << *shrinkagep << " " << shrinkagefix << " "
              << a_shrinkagegamma << " " << b_shrinkagegamma << ridgesum << "\n" ;
       }
 //TEMP:END----------------------------------------------------------------------
@@ -192,7 +193,7 @@ void FULLCOND_variance_nonp_vector::update(void)
     workbeta = Cp[j]->getbetapointer();               // current value of first regressionparameter
     for(k=cut[j]; k<cut[j+1]; k++, i++, workbeta++)
       {
-      if (is_ridge[1] == 0)                           // L1-penalty
+      if (is_ridge == 0)                           // L1-penalty
         {
         if (*workbeta>0 && *shrinkagep>0)
           {
@@ -209,7 +210,7 @@ void FULLCOND_variance_nonp_vector::update(void)
           beta(i,0) = 1E-6;
           }
        }
-      if (is_ridge[1] == 1)                           // L2-penalty
+      if (is_ridge == 1)                           // L2-penalty
         {
          beta(i,0) = 1/(2*(*shrinkagep));
         }
@@ -230,11 +231,12 @@ void FULLCOND_variance_nonp_vector::update(void)
 
   // Ergebnisse zu ridgesum in Distributionobjekt zurückschreiben
   distrp->update_ridge(ridgesum);
+//  distrp->update_lasso(lassosum);
 
- 
+
   // Gibbs-Update of Shrinkageparameter with Gammadistribution
   //----------------------------------------------------------
-  if(shrinkagefix==false && is_ridge[1] == 0)            // L1-penalty
+  if(shrinkagefix==false && is_ridge == 0)            // L1-penalty
     {
     for(i=0; i<nrpar; i++)
       {
@@ -243,7 +245,7 @@ void FULLCOND_variance_nonp_vector::update(void)
     *shrinkagep = sqrt(rand_gamma(nrpar + a_shrinkagegamma, b_shrinkagegamma + 0.5*sumvariances));
     }
 
-  if(shrinkagefix==false && is_ridge[1] == 1)            // L2-penalty
+  if(shrinkagefix==false && is_ridge == 1)            // L2-penalty
     {
     *shrinkagep = rand_gamma(0.5*nrpar + a_shrinkagegamma, b_shrinkagegamma + sumregcoeff/(help*help));
     }
