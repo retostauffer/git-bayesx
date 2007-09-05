@@ -39,6 +39,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   double a_shrinkagegamma;          //  Hyperparameter for Shrinkageparameter
   double b_shrinkagegamma;          //  Hyperparameter for Shrinkageparameter
 
+  double lassosum;                  //  sum(beta^2/tau^2)
   double ridgesum;                  //  sum(beta^2/tau^2)
 
   vector<unsigned> cut;             //  Blocks of regression coefficients

@@ -27,31 +27,31 @@ using randnumbers::rand_inv_gaussian;
 // a_shrinkage_gamma : Hyperparameter for gammaprior of shrinkageparameter
 // b_shrinkagegamma  : Hyperparameter for gammaprior of shrinkageparameter
 // shrinkage_fix     : Should the shrinkageparameter be fixed at the value "shrinkage_start"
-// is.ridge          : vector that indicates if L2- or L1- penalty for regressioncoefficients is uesd
+// is.ridge          : variable that indicates if L2- or L1- penalty for regressioncoefficients is uesd
 // ct                : blocks of regression coefficients
 // c                 : reference to responsecategory (important in the case of multivariate response)
 //______________________________________________________________________________
- 
+
 FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
                          vector<FULLCOND_const*> & p,DISTRIBUTION * d,
                          const ST::string & ti, const ST::string & fp,
                          const ST::string & fr, const double & shrinkage_start,
                          const double & a_shrinkage_gamma, const double & b_shrinkage_gamma,
-                         const bool & shrinkage_fix, const bool & isridge, 
+                         const bool & shrinkage_fix, const bool & isridge,
                          const vector<unsigned> & ct, const unsigned & c)
                          : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
     {
- 
+
     fctype = MCMC::variance;
 
     update_sigma2 = true;
-    
+
     column = c;
-    
+
     pathresults = fr;
-    
+
     Cp = p;
-    
+
     distrp = d;
 
     cut = ct;
@@ -74,16 +74,25 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
     shrinkagefix = shrinkage_fix;
     a_shrinkagegamma = a_shrinkage_gamma;
     b_shrinkagegamma = b_shrinkage_gamma;
-    ridgesum = 0;
+
 
     //Initialisieren der Betamatrizen für die Varianzan + Übergabe der Startwerte
     unsigned i;
-    datamatrix help = datamatrix(d->get_ridge(),1,0);
-//    datamatrix help = datamatrix(d->get_lasso(),1,0);
+    if (is_ridge == 0)                                       // L1-penalty
+      {
+      lassosum = 0;
+      datamatrix help = datamatrix(d->get_lasso(),1,0);
+      }
+    if (is_ridge == 1)                                       // L2-penalty
+      {
+      ridgesum = 0;
+      datamatrix help = datamatrix(d->get_ridge(),1,0);
+      }
+
     for(i=0; i<cut.size()-1; i++)
       help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
-    setbeta(help);   
-                     
+    setbeta(help);
+
 //TEMP:BEGIN--------------------------------------------------------------------
 // Pruefen der uebergebenen Optionen
     ofstream output("c:/bayesx/test/startwerte.txt", ios::out|ios::app);
@@ -113,6 +122,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(const FULLCOND_vari
   shrinkagefix = t.shrinkagefix;
   a_shrinkagegamma = t.a_shrinkagegamma;
   b_shrinkagegamma = t.b_shrinkagegamma;
+  lassosum = t.lassosum;
   ridgesum = t.ridgesum;
   cut = t.cut;
   is_ridge = t.is_ridge;
@@ -139,6 +149,7 @@ const FULLCOND_variance_nonp_vector & FULLCOND_variance_nonp_vector::operator=(
   shrinkagefix = t.shrinkagefix;
   a_shrinkagegamma = t.a_shrinkagegamma;
   b_shrinkagegamma = t.b_shrinkagegamma;
+  lassosum = t.lassosum;
   ridgesum = t.ridgesum;
   cut = t.cut;
   is_ridge = t.is_ridge;
@@ -164,15 +175,15 @@ void FULLCOND_variance_nonp_vector::update(void)
   acceptance++;
   unsigned i, j, k;
 
-  // current value of shrinkagearameter
+  // get current value of shrinkagearameter
   double * shrinkagep = fc_shrinkage.getbetapointer();
 
-  // current varianceparameters
+  // get current varianceparameters
   datamatrix variances = datamatrix(beta.rows(),1,0);
   for(i=0; i<cut.size()-1; i++)
     variances.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
 
-  // current value of sqrt(scale) parameter
+  // getcurrent value of sqrt(scale) parameter
   double help = sqrt(distrp->get_scale(column));
 
   // variable for current value regressionparameters
@@ -181,6 +192,7 @@ void FULLCOND_variance_nonp_vector::update(void)
   // Vaeiables for summs
   double sumvariances = 0;
   double sumregcoeff = 0;
+  lassosum=0;
   ridgesum=0;
 
 
@@ -193,7 +205,7 @@ void FULLCOND_variance_nonp_vector::update(void)
     workbeta = Cp[j]->getbetapointer();               // current value of first regressionparameter
     for(k=cut[j]; k<cut[j+1]; k++, i++, workbeta++)
       {
-      if (is_ridge == 0)                           // L1-penalty
+      if (is_ridge == 0)                              // L1-penalty
         {
         if (*workbeta>0 && *shrinkagep>0)
           {
@@ -210,13 +222,15 @@ void FULLCOND_variance_nonp_vector::update(void)
           beta(i,0) = 1E-6;
           }
        }
-      if (is_ridge == 1)                           // L2-penalty
+
+      if (is_ridge == 1)                              // L2-penalty
         {
          beta(i,0) = 1/(2*(*shrinkagep));
         }
 
       sumregcoeff = sumregcoeff + (*workbeta)*(*workbeta);
       ridgesum = ridgesum + ((*workbeta)*(*workbeta))/variances(i,0);  // sum(beta^2/tau^2)
+      lassosum = ridgesum;
       }
     }
 
@@ -230,8 +244,15 @@ void FULLCOND_variance_nonp_vector::update(void)
     }
 
   // Ergebnisse zu ridgesum in Distributionobjekt zurückschreiben
-  distrp->update_ridge(ridgesum);
-//  distrp->update_lasso(lassosum);
+  if (is_ridge == 0)                              // L1-penalty
+    {
+    distrp->update_lasso(lassosum);
+    }
+  if (is_ridge == 1)                              // L2-penalty
+    {
+    distrp->update_ridge(ridgesum);
+    }
+
 
 
   // Gibbs-Update of Shrinkageparameter with Gammadistribution
@@ -417,10 +438,6 @@ void FULLCOND_variance_nonp_vector::outresults_shrinkage(void)
 
 void FULLCOND_variance_nonp_vector::outoptions(void)
   {
-  //optionsp->out("  Hyperprior a for variance parameter: " +
-  //                 ST::doubletostring(a_invgamma[0]) + "\n" );
-  //optionsp->out("  Hyperprior b for variance parameter: " +
-  //                 ST::doubletostring(b_invgamma[0]) + "\n" );
   optionsp->out("  Hyperparameter a for gamma-shrinkagepriori: " +
                    ST::doubletostring(a_shrinkagegamma) + "\n" );
   optionsp->out("  Hyperparameter b for gamma-shrinkagepriori: " +
