@@ -2158,7 +2158,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage_ridge" + ST::inttostring(i+1);
+        title = "shrinkage_ridge_Effects" + ST::inttostring(i+1);
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
@@ -2211,7 +2211,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage_ridge" + ST::inttostring(i+1);
+        title = "shrinkage_ridge_Effects" + ST::inttostring(i+1);
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
@@ -2346,7 +2346,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage_lasso" + ST::inttostring(i+1);
+        title = "shrinkage_lasso_Effects" + ST::inttostring(i+1);
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
@@ -2399,7 +2399,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage_lasso" + ST::inttostring(i+1);
+        title = "shrinkage_lasso_Effects" + ST::inttostring(i+1);
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
