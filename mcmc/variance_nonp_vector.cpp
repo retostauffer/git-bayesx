@@ -81,12 +81,12 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
     if (is_ridge == 0)                                       // L1-penalty
       {
       lassosum = 0;
-      datamatrix help = datamatrix(d->get_lasso(),1,0);
+      help = datamatrix(cut[cut.size()-1],1,0);
       }
     if (is_ridge == 1)                                       // L2-penalty
       {
       ridgesum = 0;
-      datamatrix help = datamatrix(d->get_ridge(),1,0);
+      help = datamatrix(cut[cut.size()-1],1,0);
       }
 
     unsigned i;

@@ -2187,14 +2187,14 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
 
+      distr[distr.size()-1]->set_ridge(data.cols());
+      distr[distr.size()-1]->update_ridge(0.0);
+
       // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],
           title,pathnonp,pathres,shrinkagestart,a_shrinkagegamma,b_shrinkagegamma,
           shrinkagefix,isridge,cut,collinpred));
-
-      distr[distr.size()-1]->set_ridge(data.cols());
-      distr[distr.size()-1]->update_ridge(0.0);
 
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
       }
@@ -2375,14 +2375,14 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,title,"",
              "_var.raw","_var.res","_variance");
 
+      distr[distr.size()-1]->set_lasso(data.cols());
+      distr[distr.size()-1]->update_lasso(0.0);
+
       // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],
           title,pathnonp,pathres,shrinkagestart,a_shrinkagegamma,b_shrinkagegamma,
           shrinkagefix,isridge,cut,collinpred));
-
-      distr[distr.size()-1]->set_lasso(data.cols());
-      distr[distr.size()-1]->update_lasso(0.0);
 
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
       }
