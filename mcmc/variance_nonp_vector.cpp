@@ -77,7 +77,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
 
 
     //Initialisieren der Betamatrizen für die Varianzan + Übergabe der Startwerte
-    unsigned i;
+    datamatrix help;
     if (is_ridge == 0)                                       // L1-penalty
       {
       lassosum = 0;
@@ -89,6 +89,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
       datamatrix help = datamatrix(d->get_ridge(),1,0);
       }
 
+    unsigned i;
     for(i=0; i<cut.size()-1; i++)
       help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
     setbeta(help);
