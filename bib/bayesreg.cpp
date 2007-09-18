@@ -1,5 +1,5 @@
 
-#include "first.h"
+
 
 
 #if defined(BORLAND_OUTPUT_WINDOW)

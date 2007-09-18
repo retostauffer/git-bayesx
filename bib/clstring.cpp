@@ -1,5 +1,5 @@
 
-#include "first.h"
+
 
 #if !defined (CLSTRING_INCLUDED)
 #include "clstring.h"

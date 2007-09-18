@@ -1,6 +1,6 @@
 // Modul zur Erzeugung von Zufallszahlen
 
-#include "first.h"
+
 
 #include "random.h"
 
