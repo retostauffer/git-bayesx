@@ -17,6 +17,10 @@ latex manual
 latex manual_star
 latex manual_tutorials
 
+latex manual
+latex manual_star
+latex manual_tutorials
+
 dvips manual
 dvips manual_star
 dvips manual_tutorials

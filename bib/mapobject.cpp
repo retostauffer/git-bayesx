@@ -10,7 +10,6 @@
 
 
 #include"mapobject.h"
-#include"graph.h"
 
 
 void mapobject::create(void)
@@ -138,7 +137,7 @@ mapobject::mapobject(const ST::string & n,ofstream * lo,istream * in,ST::string 
   {
   statobj = st;
   create();
-  mapinfo = map();
+  mapinfo = MAP::map();
   mapexisting = false;
   describetext.push_back("Number of polygones currently in memory: none \n");
   }
@@ -210,9 +209,9 @@ void infilerun(mapobject & m)
     else
       {
       #if defined(JAVA_OUTPUT_WINDOW)
-      m.mapinfo = map(m.adminb_p,g);
+      m.mapinfo = MAP::map(m.adminb_p,g);
       #else
-      m.mapinfo = map(g);
+      m.mapinfo = MAP::map(g);
       #endif
 
       if (g.get_nrgraphs() > 1)
@@ -223,17 +222,17 @@ void infilerun(mapobject & m)
   else if (m.centroids.getvalue() == true)
     {
     #if defined(JAVA_OUTPUT_WINDOW)
-    m.mapinfo = map(m.adminb_p,path);
+    m.mapinfo = MAP::map(m.adminb_p,path);
     #else
-    m.mapinfo = map(path);
+    m.mapinfo = MAP::map(path);
     #endif
     }
   else
     {
     #if defined(JAVA_OUTPUT_WINDOW)
-    m.mapinfo = map(m.adminb_p,path,weightmode);
+    m.mapinfo = MAP::map(m.adminb_p,path,weightmode);
     #else
-    m.mapinfo = map(path,weightmode);
+    m.mapinfo = MAP::map(path,weightmode);
     #endif
     }
 
@@ -349,9 +348,9 @@ void createmaprun(mapobject & m)
   if (failure == false)
     {
     #if defined(JAVA_OUTPUT_WINDOW)
-    m.mapinfo = map(m.adminb_p,X,m.maxdif.getvalue(),weightmode);
+    m.mapinfo = MAP::map(m.adminb_p,X,m.maxdif.getvalue(),weightmode);
     #else
-    m.mapinfo = map(X,m.maxdif.getvalue(),weightmode);
+    m.mapinfo = MAP::map(X,m.maxdif.getvalue(),weightmode);
     #endif
 //    m.errormessages = m.mapinfo.get_errormessages();
 //    if (!m.errormessages.empty())

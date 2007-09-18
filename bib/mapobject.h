@@ -18,7 +18,7 @@
 #include"map.h"
 #include"statobj.h"
 #include"dataobj.h"
-
+#include"graph.h"
 
 
 //------------------------------------------------------------------------------
@@ -38,7 +38,7 @@
 // 3. run funktion schreiben
 
 
-using MAP::map;
+//using MAP::map;
 
 
 class __EXPORT_TYPE mapobject : public statobject
@@ -60,7 +60,7 @@ class __EXPORT_TYPE mapobject : public statobject
 
   // map object
 
-  map mapinfo;
+  MAP::map mapinfo;
 
   // pointer to functions
 
@@ -192,7 +192,7 @@ class __EXPORT_TYPE mapobject : public statobject
 
   int parse(const ST::string & c);
 
-  map getmap(void) const
+  MAP::map getmap(void) const
     {
     return mapinfo;
     }

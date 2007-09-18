@@ -8,7 +8,6 @@
 
 
 #include"graphobj.h"
-#include"mapobject.h"
 
 void graphobj::create (void)
   {

@@ -101,12 +101,12 @@ void administrator::out(const ST::string & c,
   sh = sh.replaceallsigns('\n',' ');
   sh = sh+"\n";
 
-  #if defined(__BUILDING_GNU)
-    std::cout << c << flush;
-  #elif
+  #if defined(JAVA_OUTPUT_WINDOW)
   if (!adminb.suppressoutput)
     adminb.Java->CallVoidMethod(adminb.BayesX_obj, adminb.javaoutput, adminb.Java->NewStringUTF(sh.strtochar()),
     thick, italic, size,r,g,b);
+  #else
+    std::cout << c << flush;
   #endif
   if (logout.is_open())
     logout << c << flush;

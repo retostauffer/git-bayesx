@@ -2735,7 +2735,7 @@ public void saveOutput()
    
 static
 	{
-	System.loadLibrary("BayesXdll");
+	System.loadLibrary("BayesXdll_gnu");
 	}        
         
 

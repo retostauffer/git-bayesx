@@ -14,6 +14,8 @@
 
 #include"statobj.h"
 #include"map.h"
+#include"mapobject.h"
+
 
 #if defined(JAVA_OUTPUT_WINDOW)
 #include"adminparse_pointers.h"

@@ -1,5 +1,5 @@
  
-#include "first.h"
+//#include "first.h"
 
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
@@ -294,6 +294,12 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
   clock_t endsim;
   bool runtime=false;
 
+  #if defined(__BUILDING_GNU)
+    double clk = (double)CLOCKS_PER_SEC;
+  #else
+    double clk = (double)CLK_TCK;
+  #endif
+
   for (it=1;it<=iterations;it++)
     {
 
@@ -301,7 +307,7 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
       {
       runtime = true;
       it1per = clock();
-      double sec = (it1per-beginsim)/CLK_TCK;
+      double sec = (it1per-beginsim)/clk;
       long timeleft = long(double(iterations-it)*(double(sec)/double(it)));
       long min = timeleft/60;
       sec = timeleft-min*60;
@@ -309,7 +315,7 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
         {
         genoptions_mult[0]->out("\n");
         genoptions_mult[0]->out
-         ("  APPROXIMATE RUN TIME: " + ST::doubletostring(sec) +
+         ("  APPROXIMATE RUN TIME: " + ST::inttostring(long(sec)) +
                         " seconds\n");
         genoptions_mult[0]->out("\n");
         }
@@ -319,7 +325,7 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
         genoptions_mult[0]->out("\n");
         genoptions_mult[0]->out
                  ("  APPROXIMATE RUN TIME: " + ST::inttostring(min) +
-                        " minute " + ST::doubletostring(sec) + " seconds\n");
+                        " minute " + ST::inttostring(long(sec)) + " seconds\n");
         genoptions_mult[0]->out("\n");
         }
       else
@@ -328,7 +334,7 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
         genoptions_mult[0]->out
                      ("  APPROXIMATE RUN TIME: " + ST::inttostring(min)
                           + " minutes "
-                          + ST::doubletostring(sec) + " seconds\n");
+                          + ST::inttostring(long(sec)) + " seconds\n");
         genoptions_mult[0]->out("\n");
         }
       }  // end: if ( (runtime ==false) && (iterations/it == 100) )
@@ -397,13 +403,13 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
       genoptions_mult[0]->out("SIMULATION TERMINATED\n",true);
       genoptions_mult[0]->out("\n");
       endsim = clock();
-      long sec = (endsim-beginsim)/CLK_TCK;
+      long sec = (endsim-beginsim)/clk;
       long min = sec/60;
       sec = sec-min*60;
       if (min == 0)
         {
         genoptions_mult[0]->out("SIMULATION RUN TIME: "
-                                + ST::doubletostring(sec) +
+                                + ST::inttostring(sec) +
                                 " seconds\n");
         genoptions_mult[0]->out("\n");
         }
@@ -411,14 +417,14 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
         {
         genoptions_mult[0]->out("SIMULATION RUN TIME: "
                                 + ST::inttostring(min) + " minute "
-                                +  ST::doubletostring(sec) + " seconds\n");
+                                +  ST::inttostring(sec) + " seconds\n");
         genoptions_mult[0]->out("\n");
         }
       else
         {
         genoptions_mult[0]->out("SIMULATION RUN TIME: " +
                                 ST::inttostring(min) +  " minutes "
-        + ST::doubletostring(sec) + " seconds\n");
+        + ST::inttostring(sec) + " seconds\n");
         genoptions_mult[0]->out("\n");
         }
 
