@@ -1,5 +1,4 @@
 
-#include "first.h"
 #include "mcmc_ridge.h"
 
 

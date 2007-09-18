@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "remlest_multi2.h"
 
 #if defined(BORLAND_OUTPUT_WINDOW)

@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "fullcond_nonp_gaussian_stepwise.h"
 
 namespace MCMC

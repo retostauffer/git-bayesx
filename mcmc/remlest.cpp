@@ -1,7 +1,5 @@
 
-#include "first.h"
-
-#include <remlest.h>
+#include "remlest.h"
 
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include "StatResults.h"

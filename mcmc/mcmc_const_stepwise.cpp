@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "mcmc_const.h"
 #include "mcmc_const_stepwise.h"
 

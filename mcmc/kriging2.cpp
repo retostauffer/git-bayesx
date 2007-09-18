@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "kriging2.h"
 
 namespace MCMC

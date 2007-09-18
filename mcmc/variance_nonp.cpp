@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include"variance_nonp.h"
 
 namespace MCMC

@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "multgaussian.h"
 
 namespace MCMC

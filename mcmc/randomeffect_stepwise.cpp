@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "randomeffect_stepwise.h"
 
 namespace MCMC

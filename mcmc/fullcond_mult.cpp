@@ -1,4 +1,3 @@
-#include "first.h"
 
 #include "fullcond_mult.h"
 

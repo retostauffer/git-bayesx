@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "gaussian_heteroskedastic.h"
 
 namespace MCMC

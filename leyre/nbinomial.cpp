@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "nbinomial.h"
 
 #if defined(BORLAND_OUTPUT_WINDOW)

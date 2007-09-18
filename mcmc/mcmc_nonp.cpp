@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "mcmc_nonp.h"
 
 namespace MCMC

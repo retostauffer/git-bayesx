@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "fullcond_pspline_gaussian.h"
 
 namespace MCMC

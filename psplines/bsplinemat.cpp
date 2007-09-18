@@ -1,4 +1,3 @@
-#include "first.h"
 
 #ifdef BORLAND_OUTPUT_WINDOW
 #include <vcl.h>

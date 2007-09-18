@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include "fullcond.h"
 #include "clstring.h"
 

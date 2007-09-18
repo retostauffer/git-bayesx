@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #include"tvariance.h"
 
 namespace MCMC

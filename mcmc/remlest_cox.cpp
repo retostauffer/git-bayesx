@@ -1,6 +1,4 @@
 
-#include "first.h"
-
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include "StatResults.h"
 #include "statwinframe.h"
