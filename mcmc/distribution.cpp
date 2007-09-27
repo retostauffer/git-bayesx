@@ -5159,12 +5159,14 @@ void DISTRIBUTION_gaussian::update(void)
                      b_invgamma+0.5*sum + 0.5*ridgesum + 0.5*lassosum);
 //TEMP:BEGIN--------------------------------------------------------------------
 // Pruefen der uebergebenen Optionen
+/*
 int iteration = optionsp->get_nriter();
 ofstream output("c:/bayesx/test/scale.txt", ios::out|ios::app);
 if (iteration ==1)
 {output <<"iter " << "a_ig " << "b_ig " << "obswzero " << "sum " << "scale "<< "nrridge "<< "nrlasso " << "ridgesum " << "lassosum " << "\n" ;
 }
 output << iteration << " " << a_invgamma << " " << b_invgamma << " " << nrobsmweightzero << " " << sum << " " << scale(0,0) << " " << nrridge << " " << nrlasso << " " << ridgesum << " " << lassosum << "\n" ;
+*/
 //TEMP:END----------------------------------------------------------------------
         }
       else
