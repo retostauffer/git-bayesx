@@ -428,6 +428,10 @@ DISTRIBUTION::DISTRIBUTION(MCMCoptions * o, const datamatrix & r,
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
 
   shrinkage=false;
+  nrridge=0;      //new
+  ridgesum=0.0;   //new
+  nrlasso=0;      //new
+  lassosum=0.0;   //new
   create(o,r,w);
   }
 
@@ -442,7 +446,10 @@ DISTRIBUTION::DISTRIBUTION(const datamatrix & offset,MCMCoptions * o,
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
 
   shrinkage=false;
-
+  nrridge=0;      //new
+  ridgesum=0.0;   //new
+  nrlasso=0;      //new
+  lassosum=0.0;   //new
   create(o,r,w);
   add_linearpred(offset);
 
@@ -5150,6 +5157,15 @@ void DISTRIBUTION_gaussian::update(void)
         {
         scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero + 0.5*nrridge + 0.5*nrlasso,
                      b_invgamma+0.5*sum + 0.5*ridgesum + 0.5*lassosum);
+//TEMP:BEGIN--------------------------------------------------------------------
+// Pruefen der uebergebenen Optionen
+int iteration = optionsp->get_nriter();
+ofstream output("c:/bayesx/test/scale.txt", ios::out|ios::app);
+if (iteration ==1)
+{output <<"iter " << "a_ig " << "b_ig " << "obswzero " << "sum " << "scale "<< "nrridge "<< "nrlasso " << "ridgesum " << "lassosum " << "\n" ;
+}
+output << iteration << " " << a_invgamma << " " << b_invgamma << " " << nrobsmweightzero << " " << sum << " " << scale(0,0) << " " << nrridge << " " << nrlasso << " " << ridgesum << " " << lassosum << "\n" ;
+//TEMP:END----------------------------------------------------------------------
         }
       else
         {
