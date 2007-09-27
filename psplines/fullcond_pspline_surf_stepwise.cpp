@@ -513,7 +513,7 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
 
   else  // if(lambda!=-2)
     {
-    if(type == mrfkr1)
+    if(type == mrfkr1 && rankK==(nrpar1dim-1)*(nrpar1dim-1))
       {
       mainpoi1->reset_effect(0);
       mainpoi2->reset_effect(0);
@@ -567,10 +567,19 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
 
     prec_env.solve(muy,beta);
 
+    if((lambda-1000000000)==0)   // MCMCbootstrap: entspricht fixem Effekt
+      {
+      compute_intercept();
+      compute_beta();
+      for(i=0;i<nrpar;i++)
+        beta(i,0) += intercept;
+      intercept = 0.0;
+      }
+
     add_linearpred_multBS(beta);
 
     double intercept_save = 0.0;
-    if(type == mrfkr1)
+    if(type == mrfkr1 && rankK==(nrpar1dim-1)*(nrpar1dim-1))
       {
       compute_intercept();
       if(!varcoeff)
@@ -578,9 +587,10 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
         compute_main();
         if(utype != gaussian)
           {
-          betaold = beta;
-          for(i=0;i<nrpar;i++)
-            betaold(i,0) -= intercept;
+          beta_uncentered = beta;
+          //betaold = beta;
+          //for(i=0;i<nrpar;i++)
+          //  betaold(i,0) -= intercept;
           }
         compute_beta();
         if(center)
@@ -602,6 +612,10 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
         {
         multBS_index(splinehelp,beta);
         compute_main_varcoeff();
+        if(utype != gaussian)
+          {
+          beta_uncentered = beta;
+          }        
         compute_beta();
         if(center)
           update_fix_effect();
@@ -619,9 +633,10 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
 
     if(center)
       {
-      if(centertotal)
+      if(centertotal || (lambda-1000000000)==0)  //(type==mrfkr1 && rankK!=(nrpar1dim-1)*(nrpar1dim-1)) )
         {
         compute_intercept();
+//intercept = spline(mean,0);
         if(!varcoeff)
           {
           for(i=0;i<nrpar;i++)
@@ -644,7 +659,7 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
         intercept = 0.0;
         converged = FULLCOND_nonp_basis::posteriormode();
         }
-      else
+      if(!centertotal)
         {
         // Gesamteffekt in fctotal schreiben
         converged = FULLCOND_nonp_basis::posteriormode();
@@ -689,6 +704,8 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
           }
         } // END: interaction
       } // END: if(center)
+    else
+      converged = FULLCOND_nonp_basis::posteriormode();
 
   // Interaktionseffekt in fchelp schreiben
       if(converged && converged1 && converged2)
@@ -696,7 +713,7 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
         double * fchelpbetap = fchelp.getbetapointer();
         if(gridsize < 0)
           {
-          if(varcoeff && type!=mrfkr1)
+          if(varcoeff && (type!=mrfkr1 || rankK!=(nrpar1dim-1)*(nrpar1dim-1)))
             {
             multBout(splinehelp,beta);
               if(center)
@@ -903,7 +920,7 @@ vector<double> & lvec, int & number)
   {
   if(number>0)
     {
-    if (df_equidist==true && spfromdf==true)
+    if (df_equidist==true && spfromdf==true && number>1)
        FULLCOND::compute_lambdavec_equi(lvec,number);
     else
        FULLCOND::compute_lambdavec(lvec,number);
@@ -1022,7 +1039,7 @@ double FULLCOND_pspline_surf_stepwise::compute_df(void)
       else
         df = df + 1;
       }
-    else if(type == mrfkr1)
+    else if(type == mrfkr1 && rankK==(nrpar1dim-1)*(nrpar1dim-1))
       {
       double lambdax = 0;
       double lambday = 0;
@@ -1346,9 +1363,25 @@ void FULLCOND_pspline_surf_stepwise::update_bootstrap_df(void)
   if(optionsp->get_nriter()<=1)
     {
     ST::string path = samplepath.substr(0,samplepath.length()-4)+"_df.raw";
+if(centertotal == false)
+  fc_df = FULLCOND(optionsp,datamatrix(1,1),"title?",2,1,path);
+else
     fc_df = FULLCOND(optionsp,datamatrix(1,1),"title?",1,1,path);
     fc_df.setflags(MCMC::norelchange | MCMC::nooutput);
+
+    //if(centertotal == false)
+    //  {
+    //  path = samplepath.substr(0,samplepath.length()-4)+"_total_df.raw";
+    //  fctotal_df = FULLCOND(optionsp,datamatrix(1,1),"title?",3,1,path);
+    //  fctotal_df.setflags(MCMC::norelchange | MCMC::nooutput);
+    //  }
     }
+
+if(centertotal == false)
+  {
+  double df = compute_df() + mainpoi1->compute_df() + mainpoi2->compute_df();
+  fc_df.setbetavalue(1,0,df);
+  }
 
   if(fixornot==true)
     {
@@ -1364,12 +1397,14 @@ void FULLCOND_pspline_surf_stepwise::update_bootstrap_df(void)
     {
     fc_df.setbetavalue(0,0,lambda);
     fc_df.update_bootstrap_df();
-    if(type == mrfkr1)
-      {
-      beta_mode.assign(betaold);
-      beta_uncentered.assign(betaold);
-      }
     }
+
+  //if(centertotal == false)
+  //  {
+  //  double df = compute_df() + mainpoi1->compute_df() + mainpoi2->compute_df();
+  //  fctotal_df.setbetavalue(0,0,df);
+  //  fctotal_df.update_bootstrap_df();
+  //  }
   }
 
 
@@ -1462,7 +1497,7 @@ void FULLCOND_pspline_surf_stepwise::outresults_df(unsigned & size)
   outres << "df_value   ";
   outres << "sp_value  ";
   outres << "frequency  ";
-  outres << "pmean   " << endl;
+  outres << "selected  " << endl;
 
 // Häufigkeitstabelle:
 
@@ -1534,24 +1569,34 @@ void FULLCOND_pspline_surf_stepwise::outresults_df(unsigned & size)
       }
     outres << ST::doubletostring(dfs,6) << "   " << ST::doubletostring(help,6) << "   " << ST::inttostring(number[i]) << "   ";
     if(*workmean == help)
-      outres << "selected"; // ST::doubletostring(*workmean,6);
+      outres << "+"; // ST::doubletostring(*workmean,6);
     else
       outres << "-";
     outres << endl;
     }
+
+if(centertotal == false)
+  {
+  fc_df.readsample_df(sample,1);
+  pathdf = pathcurrent.substr(0,pathcurrent.length()-4)+"_total_df.raw";
+  ofstream out(pathdf.strtochar());
+  sample.prettyPrint(out);
+  }
+
   }
 
 
 void FULLCOND_pspline_surf_stepwise::update(void)
   {
+  if(type==mrfkr1 && optionsp->get_nriter()==1)
+    {
+    mainp1 = mainpoi1;
+    mainp2 = mainpoi2;
+    }
   if(utype != gaussian && optionsp->get_nriter()==1)
     {
-    proposal = beta;
-    if(type==mrfkr1)
-      {
-      beta_mode.assign(betaold);
-      beta_uncentered.assign(betaold);
-      }
+    updateW = 1;
+    proposal = datamatrix(nrpar,1,0);
     }
 
   if(lambda==0)
@@ -1601,6 +1646,10 @@ void FULLCOND_pspline_surf_stepwise::update(void)
       fctotal.update();
       }
     }
+  else if((lambda-1000000000)==0)    
+    {
+    update_linear_function();
+    }
   else
     {
     if(type==mrfkr1 && rankK==(nrpar1dim-1)*(nrpar1dim-1))
@@ -1640,28 +1689,115 @@ void FULLCOND_pspline_surf_stepwise::update(void)
         compute_intercept();
         for(unsigned i=0;i<nrpar;i++)
           beta(i,0) -= intercept;
+        intercept = 0.0;
         }
 
       set_lambdaconst(1);
       mainpoi1->reset_effect(0);  // Haupteffekte werden hier mitgeschätzt
       mainpoi2->reset_effect(0);
-      mainp1 = mainpoi1;
-      mainp2 = mainpoi2;
       }
-    else
+    /*else
       {
-      if(center && !centertotal)
-        {
-        mainp1 = mainpoi1;
-        mainp2 = mainpoi2;
-        }
-      }
+      if(type==mrfkr1 && rankK!=(nrpar1dim-1)*(nrpar1dim-1))
+        centertotal = true;
+      }   */
 
     if(!varcoeff || centertotal)
+      {
+      if(utype == gaussian)
         FULLCOND_pspline_surf_gaussian::update();
+      else
+        update_IWLS();
+      }
     else
       update_vc_anova();
+
+    /*if(type==mrfkr1 && rankK!=(nrpar1dim-1)*(nrpar1dim-1))
+      centertotal = false; */
     }
+  }
+
+
+void FULLCOND_pspline_surf_stepwise::update_IWLS(void)
+  {
+  double invscale = 1.0/likep->get_scale(column);
+  sigma2 = likep->get_scale(column)/lambda;
+
+  double logold = - 0.5*Kenv.compute_quadform(beta,0)/sigma2;
+
+  if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+      ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+    {
+    logold += likep->compute_IWLS(W,mu,true,column,true);
+    mu.plus(spline,mu);
+    compute_XWXenv(W,column);
+    }
+  else
+    {
+    logold += likep->compute_IWLS(W,mu,false,column,true);
+    mu.plus(mu,spline);
+    }
+
+  compute_XWtildey(W,invscale);
+
+  prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
+
+  double * work = proposal.getV();
+  for(unsigned i=0;i<nrpar;i++,work++)
+    *work = rand_normal();
+
+  prec_env.solve(muy,betahelp);
+  prec_env.solveU(proposal,betahelp);
+
+  add_linearpred_multBS2(proposal);
+
+  betahelp.minus(proposal,betahelp);
+  double qold = - 0.5*prec_env.compute_quadform(betahelp,0);
+
+  double lognew = - 0.5*Kenv.compute_quadform(proposal,0)/sigma2;
+
+  if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+      ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+    {
+    qold += 0.5*prec_env.getLogDet();
+
+    lognew += likep->compute_IWLS(W,mu,true,column,true);
+    mu.plus(spline,mu);
+    compute_XWXenv(W,column);
+    prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
+    }
+  else
+    {
+    lognew += likep->compute_IWLS(W,mu,false,column,true);
+    mu.plus(mu,spline);
+    }
+
+  compute_XWtildey(W,invscale);
+
+  prec_env.solve(muy,betahelp);
+
+  betahelp.minus(beta,betahelp);
+  double qnew = - 0.5*prec_env.compute_quadform(betahelp,0);
+
+  if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+      ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+    {
+    qnew += 0.5*prec_env.getLogDet();
+    }
+
+  double alpha = lognew + qnew - logold - qold;
+  double u = log(uniform());
+
+  if(u<=alpha)
+    {
+    acceptance++;
+    beta.assign(proposal);
+    }
+  else
+    {
+    add_linearpred_multBS2(beta);
+    }
+
   }
 
 
@@ -1707,8 +1843,11 @@ void FULLCOND_pspline_surf_stepwise::update_vc_anova(void)
     add_linearpred_multBS(beta);
 
     acceptance++;
-
     }  // end: gauss
+  else  // IWLS
+    {
+    update_vc_anova_nongauss();
+    }
 
   if(center)
     {
@@ -1721,8 +1860,8 @@ void FULLCOND_pspline_surf_stepwise::update_vc_anova(void)
       compute_main_varcoeff();
       compute_beta();
       fcconst->update_fix_varcoeff(intercept,datanames[1]);
-      mainpoi1->change_varcoeff(he1,intercept);
-      mainpoi2->change_varcoeff(he2,intercept);
+      mainpoi1->change_varcoeff(beta1,he1,intercept);
+      mainpoi2->change_varcoeff(beta2,he2,intercept);
       intercept = 0.0;
 
 // Gesamteffekt in fctotal schreiben
@@ -1779,6 +1918,332 @@ void FULLCOND_pspline_surf_stepwise::update_vc_anova(void)
         if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
           {
           *fchelpbetap = splinehelp(i,0);
+          fchelpbetap++;
+          }
+        }
+      }
+    else
+      {
+      multDG(splinehelp,beta);
+      for(i=0;i<unsigned(gridsize);i++,fchelpbetap++)
+        *fchelpbetap = splinehelp(i,0);
+      }
+    }
+
+  fchelp.update();
+  FULLCOND::update();
+  }
+  
+
+void FULLCOND_pspline_surf_stepwise::update_vc_anova_nongauss(void)
+  {
+  sigma2 = likep->get_scale(column)/lambda;
+  double invscale = 1.0/likep->get_scale(column);
+
+  double logold = - 0.5*Kenv.compute_quadform(beta,0)/sigma2;
+
+  if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+        ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+    {
+    logold += likep->compute_IWLS(W,mu,true,column,true);
+    mu.plus(spline,mu);
+    compute_XWXenv(W,column);
+    }
+  else
+    {
+    logold += likep->compute_IWLS(W,mu,false,column,true);
+    mu.plus(mu,spline);
+    }
+
+  compute_XWtildey(W,invscale);
+  //prec_env.addto(XX_env,Kenv,iwlsscale,iwlsscale/sigma2);
+  prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
+
+  double * work = proposal.getV();
+  for(unsigned i=0;i<nrpar;i++,work++)
+    *work = rand_normal();
+
+  prec_env.solve(muy,betahelp);
+  prec_env.solveU(proposal,betahelp);
+
+  add_linearpred_multBS2(proposal);
+
+  betahelp.minus(proposal,betahelp);
+  double qold = - 0.5*prec_env.compute_quadform(betahelp,0);
+
+  double lognew = - 0.5*Kenv.compute_quadform(proposal,0)/sigma2;
+
+  if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+      ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+    {
+    qold += 0.5*prec_env.getLogDet();
+
+    lognew += likep->compute_IWLS(W,mu,true,column,true);
+    mu.plus(spline,mu);
+    compute_XWXenv(W,column);
+    //prec_env.addto(XX_env,Kenv,iwlsscale,iwlsscale/sigma2);
+    prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
+    }
+  else
+    {
+    lognew += likep->compute_IWLS(W,mu,false,column,true);
+    mu.plus(mu,spline);
+    }
+
+  compute_XWtildey(W,invscale);
+  prec_env.solve(muy,betahelp);
+
+  betahelp.minus(beta,betahelp);
+  double qnew = - 0.5*prec_env.compute_quadform(betahelp,0);
+
+  if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+        ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+    {
+    qnew += 0.5*prec_env.getLogDet();
+    }
+
+  double alpha = lognew + qnew - logold - qold;
+  double u = log(uniform());
+  if(u<=alpha)
+    {
+    acceptance++;
+    beta.assign(proposal);
+    }
+  else
+    {
+    add_linearpred_multBS2(beta);
+    }
+  }
+
+
+void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
+  {
+  if(lambdaconst == true)
+    sigma2 = likep->get_scale(column)/lambda;
+
+  transform = likep->get_trmult(column);
+  fchelp.set_transform(transform);
+  fctotal.set_transform(transform);
+
+  unsigned i;
+
+  if(utype == iwls)
+    {
+    double invscale = 1.0/likep->get_scale(column);
+
+    double logold = - 0.5*Kenv.compute_quadform(beta,0)/sigma2;
+
+    if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+        ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+      {
+      logold += likep->compute_IWLS(W,mu,true,column,true);
+      mu.plus(spline,mu);
+      compute_XWXenv(W,column);
+      }
+    else
+      {
+      logold += likep->compute_IWLS(W,mu,false,column,true);
+      mu.plus(mu,spline);
+      }
+
+    compute_XWtildey(W,invscale);
+
+    prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
+
+    double * work = proposal.getV();
+    for(unsigned i=0;i<nrpar;i++,work++)
+      *work = rand_normal();
+
+    prec_env.solve(muy,betahelp);
+    prec_env.solveU(proposal,betahelp);
+
+    // hier bezüglich Haupteffekten zentrieren und diese "wegschmeißen"!
+    datamatrix betasave = beta;
+    beta.assign(proposal);
+    compute_intercept();
+    compute_beta();
+    for(i=0;i<nrpar;i++)
+      beta(i,0) += intercept;
+    intercept = 0.0;
+    proposal.assign(beta);
+    beta.assign(betahelp);
+    compute_intercept();
+    compute_beta();
+    for(i=0;i<nrpar;i++)
+      beta(i,0) += intercept;
+    intercept = 0.0;
+    betahelp.assign(beta);
+    beta.assign(betasave);
+
+    add_linearpred_multBS2(proposal);
+
+    betahelp.minus(proposal,betahelp);
+    double qold = - 0.5*prec_env.compute_quadform(betahelp,0);
+
+    double lognew = - 0.5*Kenv.compute_quadform(proposal,0)/sigma2;
+
+    if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+        ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+      {
+      qold += 0.5*prec_env.getLogDet();
+
+      lognew += likep->compute_IWLS(W,mu,true,column,true);
+      mu.plus(spline,mu);
+      compute_XWXenv(W,column);
+      prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
+      }
+    else
+      {
+      lognew += likep->compute_IWLS(W,mu,false,column,true);
+      mu.plus(mu,spline);
+      }
+
+    compute_XWtildey(W,invscale);
+
+    prec_env.solve(muy,betahelp);
+
+    // hier bezüglich Haupteffekten zentrieren und diese "wegschmeißen"!
+    betasave.assign(beta);
+    beta.assign(betahelp);
+    compute_intercept();
+    compute_beta();
+    for(i=0;i<nrpar;i++)
+      beta(i,0) += intercept;
+    intercept = 0.0;
+    betahelp.assign(beta);
+    beta.assign(betasave);
+
+    betahelp.minus(beta,betahelp);
+    double qnew = - 0.5*prec_env.compute_quadform(betahelp,0);
+
+    if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+        ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+      {
+      qnew += 0.5*prec_env.getLogDet();
+      }
+
+    double alpha = lognew + qnew - logold - qold;
+    double u = log(uniform());
+
+    if(u<=alpha)
+      {
+      acceptance++;
+      beta.assign(proposal);
+      compute_intercept();
+      fcconst->update_intercept(intercept);
+      for(i=0;i<nrpar;i++)
+        beta(i,0) -= intercept;
+      for(i=0;i<likep->get_nrobs();i++)
+         spline(i,0) -= intercept;
+      intercept = 0.0;
+      }
+    else
+      {
+      add_linearpred_multBS2(beta);
+      }
+    }
+
+  else if(utype == gaussian)
+    {
+    double scaleinv = 1.0/likep->get_scale(column);
+
+    if(changingweight || optionsp->get_nriter()==1)
+      compute_XWX(likep->get_weight());
+
+    likep->substr_linearpred_m(spline,column,true);
+
+    if(XX.bandsize()<=K.bandsize())
+      prec.addto2(XX,K,scaleinv,1.0/sigma2);
+    else
+      prec.addto2(K,XX,1.0/sigma2,scaleinv);
+
+    double * work = standnormal.getV();
+    for(i=0;i<nrpar;i++,work++)
+      *work = rand_normal();
+
+    prec.solveL(standnormal,beta);
+    likep->compute_respminuslinpred(mu,column);   // nicht ändern wegen multgaussian
+    compute_XWtildey(likep->get_weight(),scaleinv);
+    prec.solve(muy,betahelp,0,0);
+    beta.plus(beta,betahelp);
+     
+    // hier bezüglich Haupteffekten zentrieren und diese "wegschmeißen"!
+    compute_intercept();
+    compute_beta();
+    fcconst->update_intercept(intercept);
+    for(i=0;i<nrpar;i++)
+      beta(i,0) = beta(i,0) + intercept;
+
+    add_linearpred_multBS(beta);
+
+    for(i=0;i<nrpar;i++)
+      beta(i,0) -= intercept;
+    for(i=0;i<spline.rows();i++)
+      spline(i,0) -= intercept;
+    intercept = 0.0;
+
+    acceptance++;
+    }  // end: gauss
+
+  if(center && !centertotal)   // Gesamteffekt in fctotal schreiben
+      {
+      if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
+          ((optionsp->get_nriter()-optionsp->get_burnin()-1) % (optionsp->get_step()) == 0) )
+        {
+
+        double * fctotalbetap = fctotal.getbetapointer();
+
+        if(gridsize < 0)
+          {
+          vector<int>::iterator freqwork = freqoutput.begin();
+          int * workindex = index.getV();
+          for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+            {
+            if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+              {
+              *fctotalbetap = spline(*workindex,0)
+                            + mainp1->get_spline()(*workindex,0)
+                            + mainp2->get_spline()(*workindex,0);
+              fctotalbetap++;
+              }
+            }
+          }
+        else
+          {
+          multDG(splinehelp,beta);
+          unsigned k,l;
+          for(k=0;k<unsigned(gridsizex);k++)
+            for(l=0;l<unsigned(gridsizey);l++,fctotalbetap++)
+              *fctotalbetap = splinehelp(k*gridsizey + l,0)
+                            + mainp1->get_splinehelp()(k,0)
+                            + mainp2->get_splinehelp()(l,0);
+          }
+        }   // ENDE: Gesamteffekt in fctotal schreiben
+
+      fctotal.update();
+      } // END: interaction
+
+// Interaktionseffekt in fchelp schreiben
+  if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
+      ((optionsp->get_nriter()-optionsp->get_burnin()-1) % (optionsp->get_step()) == 0) )
+    {
+    double * fchelpbetap = fchelp.getbetapointer();
+
+    if(gridsize < 0)
+      {
+      if(varcoeff)
+        multBout(splinehelp,beta);
+
+      vector<int>::iterator freqwork = freqoutput.begin();
+      int * workindex = index.getV();
+      for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+        {
+        if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+          {
+          if(varcoeff)
+            *fchelpbetap = splinehelp(i,0);
+          else
+            *fchelpbetap = spline(*workindex,0);
           fchelpbetap++;
           }
         }
@@ -1913,8 +2378,17 @@ void FULLCOND_pspline_surf_stepwise::undo_Korder(void)
     bandmatdouble Khelp = K;
     K = Kalt;
     Kalt = Khelp;
-    if(utype!=gaussian)
+    if(utype!=gaussian && type==mrflinear)
       Kenv = envmatdouble(K);
+    else if(utype!=gaussian && type==mrfkr1)
+      {
+      double bandw = KHenv.getBandwidth();
+      if(Kxenv.getBandwidth() > bandw)
+        bandw = Kxenv.getBandwidth();
+      if(Kyenv.getBandwidth() > bandw)
+        bandw = Kyenv.getBandwidth();
+      Kenv = envmatdouble(0.0,nrpar,bandw);
+      }
 
     if(type==mrflinear)
       rankK = nrpar-1;
@@ -1926,8 +2400,17 @@ void FULLCOND_pspline_surf_stepwise::undo_Korder(void)
     bandmatdouble Khelp = K;
     K = Kalt;
     Kalt = Khelp;
-    if(utype!=gaussian)
+    if(utype!=gaussian && type==mrfquadratic8)
       Kenv = envmatdouble(K);
+    else if(utype!=gaussian && type==mrfkr1)
+      {
+      double bandw = KHenv.getBandwidth();
+      if(Kxenv.getBandwidth() > bandw)
+        bandw = Kxenv.getBandwidth();
+      if(Kyenv.getBandwidth() > bandw)
+        bandw = Kyenv.getBandwidth();
+      Kenv = envmatdouble(0.0,nrpar,bandw);
+      }
 
     if(type==mrfquadratic8)
       rankK = nrpar-2;
@@ -1972,7 +2455,7 @@ void FULLCOND_pspline_surf_stepwise::compute_main(void)
 
 void FULLCOND_pspline_surf_stepwise::safe_splines(bool & interact)
   {
-  if(type==mrfkr1)
+  if(type==mrfkr1 && rankK==(nrpar1dim-1)*(nrpar1dim-1))
     {
     if(splineo1.rows()<spline.rows())
       {

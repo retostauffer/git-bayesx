@@ -164,6 +164,7 @@ void FULLCOND_const_stepwise::compute_matrices(void)
       X1X = datamatrix(nrconst,nrconst);
       X1root = datamatrix(nrconst,nrconst);
       }
+    double scale = likep->get_scale(column);
     for (p=0;p<nrconst;p++)
       for (k=p;k<nrconst;k++)
         {
@@ -172,7 +173,7 @@ void FULLCOND_const_stepwise::compute_matrices(void)
         workXp = data.getV()+p;
         workXk = data.getV()+k;
         for(i=0;i<weightiwls.rows();i++,workw++,workXp+=nrconst,workXk+=nrconst)
-          X1X(p,k)+= *workw  *  *workXp * *workXk;
+          X1X(p,k)+= *workw  *  *workXp * *workXk / scale;
         X1X(k,p) = X1X(p,k);
         }
     }
@@ -1074,7 +1075,7 @@ void FULLCOND_const_stepwise::update_bootstrap_df(void)
   if(fctype != factor)
     {
     conditional = false;  // wird bei MCMCbootstrap aufgerufen, nicht bei MCMCselect
-    effectsadd = datamatrix(nrpar,1,0);
+    //effectsadd = datamatrix(nrpar,1,0);
 
     if(X1root.rows()>1)     // nötig oder nicht?
       {
@@ -1216,6 +1217,9 @@ void FULLCOND_const_stepwise::outresults_df(unsigned & size)
 
 void FULLCOND_const_stepwise::update(void)
   {
+  if(effectsadd.rows()!=nrpar)
+    effectsadd = datamatrix(nrpar,1,0);
+
   if(utype == "gauss")
     update_gauss();
   else
@@ -1259,10 +1263,12 @@ void FULLCOND_const_stepwise::update_gauss(void)
     }
   else
     {
-    datamatrix betaold = beta;
     if(optionsp->get_nriter()<=1)
+      {
+      datamatrix betaold = beta;
       setbeta(nrconst,1,0);
-    beta = betaold;
+      beta = betaold;
+      }
     FULLCOND_const::update();
     }
               // FEHLT: Wann neu berechnen???
@@ -1318,6 +1324,7 @@ void FULLCOND_const_stepwise::update_nongauss(void)
     nrconst = datanames_fixed_only.size();
     nrpar = nrconst;
     datamatrix betaold = beta;
+    datamatrix betamodeold = beta_mode;
     setbeta(nrconst,1,0);
 
     unsigned i,j;
@@ -1341,6 +1348,7 @@ void FULLCOND_const_stepwise::update_nongauss(void)
     nrconst = nrpar;
     setbeta(nrconst,1,0);
     beta = betaold;
+    beta_mode = betamodeold;
     }
   else
     {
@@ -1368,6 +1376,11 @@ void FULLCOND_const_stepwise::update_nongauss(void)
     linmode = datamatrix(data.rows(),1);
     //mode = beta;
     }
+  if(proposal.rows()!=beta.rows() || help.rows()!=beta.rows())
+    {
+    proposal = datamatrix(beta.rows(),1);
+    help = datamatrix(beta.rows(),1);
+    }
 
   unsigned i;
   if (interceptyes && interceptadd!=0)
@@ -1393,6 +1406,7 @@ void FULLCOND_const_stepwise::update_nongauss(void)
       }
     }
 
+  double invscale = 1.0/likep->get_scale(column);
   double logold = likep->loglikelihood();
 
   linmode.mult(data,beta_mode);  // linmode.mult(data,mode);
@@ -1403,7 +1417,7 @@ void FULLCOND_const_stepwise::update_nongauss(void)
   compute_matrices();
   X1root.assign((X1X.cinverse()).root());
 
-  compute_XWtildey(&linmode);
+  compute_XWtildey(&linmode,invscale);
 
   beta_mode = X1X.solve(mu1);  // mode = X1X.solve(mu1);
 
@@ -1436,7 +1450,7 @@ void FULLCOND_const_stepwise::update_nongauss(void)
   }
 
 
-void FULLCOND_const_stepwise::compute_XWtildey(datamatrix * linb)
+void FULLCOND_const_stepwise::compute_XWtildey(datamatrix * linb,double & invscale)
   {
   unsigned i,j;
   double * worktildey=tildey.getV();
@@ -1450,7 +1464,7 @@ void FULLCOND_const_stepwise::compute_XWtildey(datamatrix * linb)
     {
     h = *workw * (*worktildey + *worklinb);
     for (j=0;j<nrconst;j++,workdata++)
-      mu1(j,0) += *workdata * h;
+      mu1(j,0) += *workdata * h * invscale;
     }
   }
 

@@ -46,8 +46,8 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
   double lambdamono;
 
   FULLCOND fc_df;
-
-  updatetype utype;   // gaussian || iwlsmode 
+  bool isbootstrap;
+  updatetype utype;   // gaussian || iwls 
 
 
   public:
@@ -258,6 +258,8 @@ if(likep->iwlsweights_constant() == true)
 
   void update_bootstrap(const bool & uncond=false);
 
+  void update_beta_average(unsigned & samplesize);
+
   void save_betamean(void);
 
   void update_bootstrap_betamean(void);
@@ -274,14 +276,18 @@ if(likep->iwlsweights_constant() == true)
 
   void get_samples(const ST::string & filename,const unsigned & step) const;
 
-  void change_varcoeff(const datamatrix & main,const double & inter);
+  void change_varcoeff(const datamatrix & betamain,const datamatrix & main,const double & inter);
 
-  void update_IWLS_mode(void);
+  void update_gauss(void);
+
+  void update_IWLS(void);
 
   void set_utype(void)
     {
-    utype = iwlsmode;
+    utype = iwls;
     }
+
+  void outresults(void);
 
   vector<int>::iterator get_freqoutputit(void)
     {

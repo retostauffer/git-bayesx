@@ -169,17 +169,41 @@ bool STEPWISErun::posteriormode(const vector<ST::string> & header,
 
       } // end:   while ((!converged) && (it <= 100))
 
+//if(it==101 && !converged)
+//  genoptions_mult[0]->out("BACKFITTING ALGORITHM DID NOT CONVERGE\n",true,true,12,255,0,0);
+
     allconverged = true;
 
     if (likepexisting)
       if (likep_mult[0]->posteriormode_converged(k) == false)
         allconverged = false;
 
-    for(j=begin[0];j<=end[0];j++)
+    if(!isboot)
       {
-      if (fullcondp[j]->posteriormode_converged(k) == false)
-        allconverged = false;
-      } // end: for(j=0;j<nrfullcond;j++)
+      for(j=begin[0];j<=end[0];j++)
+        {
+        if (fullcondp[j]->posteriormode_converged(k) == false)
+          allconverged = false;
+        } // end: for(j=0;j<nrfullcond;j++)
+      }
+    else
+      {
+      double start = begin[0];
+      if(start==0)
+        {
+        if (fullcondp[start]->posteriormode_converged(k) == false)
+          allconverged = false;
+        start += 1;
+        }
+      for(j=start;j<=end[0];j++)
+        {
+        if(fullcondp[j]->get_lambda()!=0)
+          {
+          if (fullcondp[j]->posteriormode_converged(k) == false)
+            allconverged = false;
+          }
+        } // end: for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+      }
 
     if (allconverged)
       convergedouterloop = true;
@@ -191,6 +215,9 @@ bool STEPWISErun::posteriormode(const vector<ST::string> & header,
        fullcondp[j]->posteriormode_set_beta_mode();
 
     } // end: while ( (!convergedouterloop) && (k< 100) )
+
+//if(k==100 && !convergedouterloop)
+//  genoptions_mult[0]->out("LOCAL SCORING PROCEDURE DID NOT CONVERGE\n",true,true,12,255,0,0);
 
   if (!presim)
     {
@@ -349,8 +376,8 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
   options_text(number,startfix,startindex,name);
 
   ST::string path_tex = path + "_model_summary.tex";
-//  outtex.open(path_tex.strtochar());
-//  make_graphics(name,startindex);
+  outtex.open(path_tex.strtochar());
+  make_graphics(name,startindex);
 
   bool first = true;
   bool abbruch = false;
@@ -444,8 +471,8 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
       return true;
     }
 
-//  make_tex_end(path,modell_final);
-//  outtex.close();
+  make_tex_end(path,modell_final);
+  outtex.close();
 
   // nur für mich!!!!
   // gibt Lambdas aus, damit man die richtig bestimmten Variablen zählen kann!
@@ -1564,7 +1591,7 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
 
   unsigned i;
   ST::string possible = "alles";
-  if(hierarchical == true)
+  //if(hierarchical == true)
     fullcond_alle[z]->hierarchical(possible);
 
   vector<FULLCOND*> fullcond_ori = fullcondp;
@@ -1579,10 +1606,17 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
     {
     fullcond_alle[z]->update_stepwise(modell_alt[z+names_fixed.size()-2]);
     if(miniback == false)
+      {
       schaetzen(z,kriterium,true,"nonpnonp");
+      if(possible == "valles" || possible == "vrfix")
+        fullcond_alle[0]->posteriormode_const();
+      }
     else
       schaetzen(z,kriterium,true,"minibackfitting");
     }
+
+  if(hierarchical == false)
+    possible == "alles";
 
   fullcondp[0]->safe_const();
   bool interact = false;
@@ -1712,8 +1746,8 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
     }
   else
     {
-    if(fullcond_alle[z]->is_identifiable() == false)
-      fullcond_alle[z]->set_center(true);
+    if(possible != "spline" && fullcond_alle[z]->is_identifiable() == false)   // bei Haupteffekten der ANOVA Zerlegung muß center=false bleiben
+      fullcond_alle[z]->set_center(true);                                    // sonst wird Interaktion nicht geschätzt.
     fullcond_alle[z]->posteriormode();
     fullcond_alle[0]->update_linold();
     }
@@ -1957,7 +1991,8 @@ versuch = 3;*/                                       // bis hier
 
   // if(minim == "adaptiv" || minim == "adap_exact")
            // ---> hier nicht nötig (siehe koordmin_leer_fix)
-  if((criterion == "CV5" || criterion == "CV10") && possible != "vfix")
+  if( ((criterion == "CV5" || criterion == "CV10") && possible != "vfix")
+     || ((minim == "adaptiv" || minim == "adap_exact") && likep_mult[0]->get_family()=="Gamma") )
     {
     if(miniback == false)
       schaetzen(i,kriterium,true,"leer");
@@ -2723,8 +2758,10 @@ void STEPWISErun::koord_leer_fix(vector<double> & kriteriumiteration2,
   {
   double kriterium_adaptiv = kriterium_aktuell;
   // if(minim == "adaptiv" || minim == "adap_exact")
-     // ---> hier nicht nötig, weil Intercept immer erneuert wird!
-  if(criterion == "CV5" || criterion == "CV10")
+     // --> hier nicht nötig, weil Intercept immer erneuert wird!
+     // --> bei 1. Koeffizienten und "Gamma" doch nötig, weil Phi neu geschätzt wurde!
+  if(criterion == "CV5" || criterion == "CV10"
+      || (minim == "adaptiv" || minim == "adap_exact") && likep_mult[0]->get_family()=="Gamma")
     {
     schaetzen(i,kriterium_aktuell,true,"leer");
     }
@@ -3034,7 +3071,8 @@ void STEPWISErun::koord_leer_factor(vector<double> & kriteriumiteration2,
   double kriterium_adaptiv = kriterium_aktuell;
   // if(minim == "adaptiv" || minim == "adap_exact")
       // ---> hier überflüssig (siehe oben)!
-  if(criterion == "CV5" || criterion == "CV10")
+  if(criterion == "CV5" || criterion == "CV10"
+     || (minim == "adaptiv" || minim == "adap_exact") && likep_mult[0]->get_family()=="Gamma")
     {
     if(miniback==false)
       schaetzen(z,kriterium_aktuell,true,"leer");
@@ -3964,12 +4002,16 @@ void STEPWISErun::initialise_lambdas(vector<vector<ST::string> > & namen_nonp,
     for(i=1;i<fullcond_alle.size();i++)
       {
       if(fullcond_alle[i]->get_fctype() != MCMC::factor)
+         {
          fullcond_alle[i]->update_stepwise(100);
+         fullcond_alle[i]->set_inthemodel(1);
+         }
       else if(fullcond_alle[i]->get_fctype() == MCMC::factor)
          {
          fullcondp.erase(fullcondp.begin() + 1);   //löscht das Element an Pos.1 aus fullcondp-Vektor
          fullcondp[0]->include_effect(fullcond_alle[i]->get_datanames(),
                                    fullcond_alle[i]->get_data_forfixedeffects());
+         fullcond_alle[i]->set_inthemodel(-1);
          }
       }
     end[0] = fullcondp.size()-1;
@@ -4602,15 +4644,8 @@ int STEPWISErun::column_for_fix(const ST::string & name)
 
 void STEPWISErun::korrektur(void)
   {
-  //if(likep_mult[0]->get_family() == "Gamma")
-  //  fullcond_alle[0]->set_effect_zero();
-  //else
-  //if(likep_mult[0]->get_family() != "Gaussian")
-    fullcond_alle[0]->posteriormode_const();
-
-/*unsigned i;
-for(i=0;i<fullcondp.size();i++)
-  fullcondp[i]->setbeta(0);*/
+  //fullcond_alle[0]->posteriormode_const();
+fullcond_alle[0]->posteriormode();
   }
 
 // -----------------------------------------------------------------------------
@@ -5899,13 +5934,22 @@ bool STEPWISErun::confidence_MCMCselect(const vector<double> & modell_final,
     scale *= transform*transform;
     likep_mult[0]->set_constscale(scale);
     }
+
+  //bool neuschaetzen = false;
   for(i=1;i<fullcond_alle.size();i++)
     {
     if(modell_final[names_fixed.size()-2+i] == -2)
+      {
       fullcond_alle[i]->change_Korder(modell_final[names_fixed.size()-2+i]);
+      //neuschaetzen = true;
+      }
     else
       fullcond_alle[i]->set_lambdaconst(modell_final[names_fixed.size()-2+i]);
     }
+
+  //if(neuschaetzen == true)
+    schaetzen(0,kriterium_alt,true,"backfitting");  // nötig für Startwerte, wenn mind. ein lambda=-2
+
   unsigned iterations = genoptions_mult[0]->get_iterations();
   unsigned start = 1;
   int seed = likep_mult[0]->get_seed();
@@ -5929,6 +5973,7 @@ bool STEPWISErun::confidence_bootstrap(const vector<double> & modell_final,
               const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
   {
   unsigned samplesize_df = bootstrap + 1;
+  unsigned zaehler = 1;
   bool abbruch;
   if(unconditional == true)
    {
@@ -5944,7 +5989,7 @@ bool STEPWISErun::confidence_bootstrap(const vector<double> & modell_final,
   fix_ganz_komplett(modell_alt);
   fullcond_komplett(modell_alt);
   schaetzen(0,kriterium_alt,true,"backfitting");
-  update_bootstrap();
+  update_bootstrap(zaehler);
 
   genoptions_mult[0]->out("\n");
   genoptions_mult[0]->out("BEGINNING OF BOOTSTRAP:\n",true);
@@ -5952,6 +5997,7 @@ bool STEPWISErun::confidence_bootstrap(const vector<double> & modell_final,
 
   while(bootstrap > 0)
     {
+    zaehler += 1;
     bootstrap -= 1;
     minim = minim2;
     fertig = false;
@@ -5966,6 +6012,13 @@ bool STEPWISErun::confidence_bootstrap(const vector<double> & modell_final,
     fullcond_komplett(modell_boot);
     modell_alt = modell_boot;
     modell_neu = modell_boot;
+    
+    if(criterion == "MSEP" || criterion == "AUC")
+      {
+      likep_mult[0]->weight_for_all();   // macht hier das Gegenteil und setzt "weight" für MSEP ein!
+      for(unsigned y=0;y<fullcond_alle.size();y++)
+        fullcond_alle[y]->set_calculate_xwx();
+      }
     schaetzen(0,kriterium_alt,true,"backfitting");
     kriterium_neu = kriterium_alt;
     steps_aktuell = 0;
@@ -5979,8 +6032,14 @@ bool STEPWISErun::confidence_bootstrap(const vector<double> & modell_final,
 
     fix_ganz_komplett(modell_alt);
     fullcond_komplett(modell_alt);
+    if(criterion == "MSEP" || criterion == "AUC")
+      {
+      likep_mult[0]->weight_for_all();
+      for(unsigned y=0;y<fullcond_alle.size();y++)
+        fullcond_alle[y]->set_calculate_xwx();
+      }
     schaetzen(0,kriterium_alt,true,"backfitting");
-    update_bootstrap();
+    update_bootstrap(zaehler);
     }
 
   modell_alt = modell_boot;
@@ -6024,6 +6083,7 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
               const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
   {
   unsigned samplesize_df = bootstrap + 1;
+  unsigned zaehler = 1;
   bool abbruch;
   unsigned i;
   isboot = true;
@@ -6040,9 +6100,11 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
     {
     fullcond_alle[i]->update_bootstrap_df();
     fullcond_alle[i]->save_betamean();
+    //fullcond_alle[i]->update_beta_average(zaehler);
     }
   fullcond_alle[0]->update_bootstrap_df();
   fullcond_alle[0]->save_betamean();
+  //fullcond_alle[0]->update_beta_average(zaehler);
 
   genoptions_mult[0]->out("\n");
   genoptions_mult[0]->out("CALCULATION OF CONFIDENCE BANDS STARTED:\n",true);
@@ -6065,10 +6127,10 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
                       && fullcond_alle[i]->get_fctype() != MCMC::factor)
       {
       fullcond_alle[i]->change_Korder(modell_alt[names_fixed.size()-2+i]);
-      modell_mcmc[names_fixed.size()-2+i] = 100000000;
+      modell_mcmc[names_fixed.size()-2+i] = 1000000000;
       }
     else if(modell_alt[names_fixed.size()-2+i] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
-      modell_mcmc[names_fixed.size()-2+i] = 100000000;
+      modell_mcmc[names_fixed.size()-2+i] = 1000000000;
     else
       fullcond_alle[i]->set_lambdaconst(modell_alt[names_fixed.size()-2+i]);
     }
@@ -6079,8 +6141,15 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
   for(i=1;i<fullcond_alle.size();i++)
     {
     if(modell_alt[names_fixed.size()-2+i] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
+      {
       fullcond_alle[i]->set_lambdaconst(modell_alt[names_fixed.size()-2+i]);
       fullcond_alle[i]->set_inthemodel(0);
+      }
+    else if((modell_alt[names_fixed.size()-2+i] == -1 || modell_alt[names_fixed.size()-2+i] == -2)
+                             && fullcond_alle[i]->get_fctype() != MCMC::factor)
+        {
+        fullcond_alle[i]->set_inthemodel(0);
+        }
     }
 
   unsigned iterations = genoptions_mult[0]->get_iterations();
@@ -6088,6 +6157,10 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
   unsigned endit = double(iterations) / double(bootstrap+1);
   unsigned itpmod = endit;
   schaetzen(0,kriterium_alt,true,"backfitting");  // nötig, da fixe Effekte in "fix_ganz_komplett" gleich Null gesetzt werden.
+  for(i=1;i<fullcond_alle.size();i++)             // speichert MA-Schätzer für Funktionen
+    fullcond_alle[i]->update_beta_average(zaehler);
+  fullcond_alle[0]->update_beta_average(zaehler);
+
   abbruch = simulate(posttitle,seed,startit,endit);
   fullcond_alle[0]->update_linold();
   fullcond_alle[0]->update_linold_vc();
@@ -6109,6 +6182,9 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
 
   while(bootstrap > 0)
     {
+    genoptions_mult[0]->out("BOOTSTRAPSAMPLE " + ST::inttostring(bootstrap) + "\n",true);
+
+    zaehler += 1;
     bootstrap -= 1;
     minim = minim2;
     fertig = false;
@@ -6136,6 +6212,12 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
       fullcond_alle[0]->setbeta(fullcond_alle[0]->get_nrpar(),1,0);
       }  */
 
+    if(criterion == "MSEP" || criterion == "AUC")
+      {
+      likep_mult[0]->weight_for_all();   // macht hier das Gegenteil und setzt "weight" für MSEP ein!
+      for(unsigned y=0;y<fullcond_alle.size();y++)
+        fullcond_alle[y]->set_calculate_xwx();
+      }
     schaetzen(0,kriterium_alt,true,"backfitting");
     kriterium_neu = kriterium_alt;
     steps_aktuell = 0;
@@ -6150,10 +6232,17 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
     fix_ganz_komplett(modell_alt);
     fullcond_komplett(modell_alt);
     likep_mult[0]->set_original_response();
+    if(criterion == "MSEP" || criterion == "AUC")
+      {
+      likep_mult[0]->weight_for_all();
+      for(unsigned y=0;y<fullcond_alle.size();y++)
+        fullcond_alle[y]->set_calculate_xwx();
+      }
     schaetzen(0,kriterium_alt,true,"backfitting");
     for(i=0;i<fullcond_alle.size();i++)
       {
       fullcond_alle[i]->update_bootstrap_df();
+      //fullcond_alle[i]->update_beta_average(zaehler);
       }
 
   // MCMC-Teil
@@ -6174,10 +6263,10 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
                              && fullcond_alle[i]->get_fctype() != MCMC::factor)
         {
         fullcond_alle[i]->change_Korder(modell_alt[names_fixed.size()-2+i]);
-        modell_mcmc[names_fixed.size()-2+i] = 100000000;
+        modell_mcmc[names_fixed.size()-2+i] = 1000000000;
         }
       else if(modell_alt[names_fixed.size()-2+i] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
-        modell_mcmc[names_fixed.size()-2+i] = 100000000;
+        modell_mcmc[names_fixed.size()-2+i] = 1000000000;
       else
         fullcond_alle[i]->set_lambdaconst(modell_alt[names_fixed.size()-2+i]);
       }
@@ -6192,10 +6281,19 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
         fullcond_alle[i]->set_lambdaconst(modell_alt[names_fixed.size()-2+i]);
         fullcond_alle[i]->set_inthemodel(0);
         }
+      else if((modell_alt[names_fixed.size()-2+i] == -1 || modell_alt[names_fixed.size()-2+i] == -2)
+                             && fullcond_alle[i]->get_fctype() != MCMC::factor)
+        {
+        fullcond_alle[i]->set_inthemodel(0);
+        }
       }
 
     // neu schätzen, da fixe Effekte in "fix_ganz_komplett" gleich Null gesetzt werden.
     schaetzen(0,kriterium_alt,true,"backfitting");
+    for(i=1;i<fullcond_alle.size();i++)   // speichert MA-Schätzer für Funktionen
+      fullcond_alle[i]->update_beta_average(zaehler);
+    fullcond_alle[0]->update_beta_average(zaehler);
+
     // MCMC-Simulation
     abbruch = simulate(posttitle,seed,startit,endit);
     if(abbruch==true)
@@ -6251,7 +6349,7 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
   }
 
 
-void STEPWISErun::update_bootstrap(void)
+void STEPWISErun::update_bootstrap(unsigned & zaehler)
   {
   unsigned i;
   genoptions_mult[0]->update_bootstrap();
@@ -6267,7 +6365,11 @@ void STEPWISErun::update_bootstrap(void)
   else
     {
     for(i=1;i<fullcond_alle.size();i++)
+      {
       fullcond_alle[i]->update_bootstrap();
+      fullcond_alle[i]->update_beta_average(zaehler);
+      }
+    fullcond_alle[0]->update_beta_average(zaehler);
     }
   fullcond_alle[0]->update_bootstrap(unconditional);
 

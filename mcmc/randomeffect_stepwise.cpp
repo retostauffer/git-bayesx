@@ -316,7 +316,7 @@ void FULLCOND_random_stepwise::create_weight(datamatrix & w)
 
 void FULLCOND_random_stepwise::compute_lambdavec(vector<double> & lvec, int & number)
   {
-  if (df_equidist==true && spfromdf==true)
+  if (df_equidist==true && spfromdf==true && number>1)
      FULLCOND::compute_lambdavec_equi(lvec,number);
   else
      FULLCOND::compute_lambdavec(lvec,number);
@@ -730,7 +730,7 @@ void FULLCOND_random_stepwise::outresults_df(unsigned & size)
 
   outres << "value   ";
   outres << "frequency  ";
-  outres << "pmean   " << endl;
+  outres << "selected  " << endl;
 
 // Häufigkeitstabelle:
 
@@ -798,7 +798,7 @@ void FULLCOND_random_stepwise::outresults_df(unsigned & size)
       }
     outres << ST::doubletostring(dfs,6) << "   " << ST::inttostring(number[i]) << "   ";
     if(*workmean == help)
-      outres << "selected"; // ST::doubletostring(*workmean,6);
+      outres << "+"; // ST::doubletostring(*workmean,6);
     else
       outres << "-";
     outres << endl;
@@ -991,7 +991,7 @@ void FULLCOND_random_stepwise::update_nongauss(void)  // entspricht "update_rand
   if (lambdaconst == false)
     lambda=1.0/sigma2;
   else
-    sigma2 = 1.0/lambda;  // ist nicht "sigma2 = phi/lambda" richtig???
+    sigma2 = likep->get_scale(column)/lambda;  // ist nicht "sigma2 = phi/lambda" richtig???
 
   for (i=0;i<n;i++,workbeta++,++itbeg,++itend)
     {
@@ -1009,14 +1009,16 @@ void FULLCOND_random_stepwise::update_nongauss(void)  // entspricht "update_rand
       logold = likep->compute_loglikelihood_sumweight_sumy(help,sumw,sumy,
                                         *itbeg,*itend,data,index,index2,column);
 
+    sumw = sumw/likep->get_scale(column);
+    sumy = sumy/likep->get_scale(column);
     // log-prior densities
-    logold -= 0.5*(*workbeta)*(*workbeta)*lambda;
+    logold -= 0.5*(*workbeta)*(*workbeta)/sigma2;
 
     if(randomslope && includefixed)
-      sumy += ms*lambda;
+      sumy += ms/sigma2;
       
     // compute proposal
-    var = 1.0/(sumw + lambda);
+    var = 1.0/(sumw + 1.0/sigma2);
     mode = var*sumy;
     proposal = mode + sqrt(var)*rand_normal();
 
@@ -1044,17 +1046,19 @@ void FULLCOND_random_stepwise::update_nongauss(void)  // entspricht "update_rand
       lognew = likep->compute_loglikelihood_sumweight_sumy(proposal,sumw,sumy,
                                         *itbeg,*itend,data,index,index2,column);
 
+    sumw = sumw/likep->get_scale(column);
+    sumy = sumy/likep->get_scale(column);
     // log-prior densities
     if(randomslope && includefixed)
       {
-      lognew -= 0.5*(proposal-ms)*(proposal-ms)*lambda;
-      sumy += ms*lambda;
+      lognew -= 0.5*(proposal-ms)*(proposal-ms)/sigma2;
+      sumy += ms/sigma2;
       }
     else
-      lognew -= 0.5*(proposal)*(proposal)*lambda;
+      lognew -= 0.5*(proposal)*(proposal)/sigma2;
 
     // log q(proposal,beta_c)
-    var = 1.0/(sumw + lambda);
+    var = 1.0/(sumw + 1.0/sigma2);
     mode = var*sumy;
     diff = *workbeta-mode;
     if(randomslope && includefixed)

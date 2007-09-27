@@ -206,12 +206,18 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   void set_utype(void)
     {
-    utype = iwlsmode;
+    utype = iwls;
     }
 
   void update(void);
 
+  void update_IWLS(void);
+
   void update_vc_anova(void);
+
+  void update_vc_anova_nongauss(void);
+
+  void update_linear_function(void);  
 
   void save_betamean(void);
   

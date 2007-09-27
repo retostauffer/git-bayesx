@@ -32,6 +32,7 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   vector<FULLCOND*> fullcond_alle;
   ST::string algorithm;
   ST::string minim;
+  ST::string minim2;
   ST::string criterion;
   int increment;
   int steps;
@@ -235,6 +236,8 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
 
   void fullcond_komplett(const vector<double> & m);
 
+  void fix_ganz_komplett(const vector<double> &  modell);
+  
   void fix_komplett(const vector<double> & modell);
 
   void reset_fix(const ST::string & name);
@@ -276,6 +279,29 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
 
   void make_plots(ST::string & path_batch,ST::string & path_splus);
                  // ST::string & path_stata);
+
+
+// -----------------------------------------------------------------------------
+// ------------- Model Averaging -----------------------------------------------
+// -----------------------------------------------------------------------------
+
+  void update_bootstrap(unsigned & zaehler);
+
+  bool confidence_intervals(const ST::string & CI,
+          const vector<double> & modell_final,const double & kriterium_final,
+          vector<FULLCOND*> & fullcond_z);
+
+  bool confidence_bootstrap(const vector<double> & modell_final,const double & kriterium_final,
+                                          vector<FULLCOND*> & fullcond_z);
+
+  bool confidence_MCMCbootstrap(const vector<double> & modell_final,const double & kriterium_final,
+                                          vector<FULLCOND*> & fullcond_z);
+
+  bool confidence_MCMCselect(const vector<double> & modell_final,const double & kriterium_final,
+                                          vector<FULLCOND*> & fullcond_z);
+
+  bool simulate(const vector<ST::string> & header, const int & seed,
+                           const unsigned & startit, const unsigned & endit);
 
 
 

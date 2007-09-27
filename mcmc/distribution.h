@@ -184,7 +184,7 @@ class __EXPORT_TYPE DISTRIBUTION
 
 
 //------------------------------------------------------------------------------
-//-------------------------- FOR Shrinkage Regression --------------------------
+//----------------------------- FOR Shrinkage Regression -----------------------
 //------------------------------------------------------------------------------
 
   bool shrinkage;
@@ -620,7 +620,7 @@ class __EXPORT_TYPE DISTRIBUTION
   // FUNCTION: compute_bootstrap_data
   // TASK: computes individual bootstrap observations by drawing random numbers
 
-  virtual double compute_bootstrap_data(const double * linpred,const double * weight)
+  virtual void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp)
     {
     }
 
@@ -1361,7 +1361,7 @@ class __EXPORT_TYPE DISTRIBUTION
     }
 
 //------------------------------------------------------------------------------
-//-------------------------- FOR Shrinkage Regression --------------------------
+//----------------------------- FOR Shrinkage Regression -----------------------
 //------------------------------------------------------------------------------
 
   void set_ridge(const unsigned & nr)
@@ -1395,6 +1395,7 @@ class __EXPORT_TYPE DISTRIBUTION
     {
     return nrlasso;
     }
+
 
   }; // end: class DISTRIBUTION
 
@@ -1962,7 +1963,7 @@ class __EXPORT_TYPE DISTRIBUTION_gamma2 : public DISTRIBUTION
 
   // FUNCTION: compute_devresidual
   // TASK: computes the deviance residual
-  // weight NICHT berücksichtigt
+  // weight IST berücksichtigt
 
   void compute_deviance(const double * response,const double * weight,
                         const double * mu,double * deviance,
@@ -1983,7 +1984,20 @@ class __EXPORT_TYPE DISTRIBUTION_gamma2 : public DISTRIBUTION
 
   double compute_gmu(double * linpred,const unsigned & col=0) const;
 
-  double compute_bootstrap_data(const double * linpred,const double * weight);
+  double compute_IWLS(double * response,double * linpred, double * weight,
+                       const int & i,double * weightiwls,double * tildey,
+                       bool weightyes, const unsigned & col=0);
+
+  double loglikelihood(double * res,double * lin,double * w,const int & i) const;
+
+  void compute_IWLS_weight_tildey(double * response,double * linpred,
+                               double * weight,const int & i,
+                              double * weightiwls,double * tildey,
+                              const unsigned & col=0);
+
+  void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp);
+
+  void update_predict(void);
   };
 
 
@@ -2293,7 +2307,7 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
 
   double compute_bic(const double & df);
 
-  double compute_bootstrap_data(const double * linpred,const double * weight);                            
+  void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp);                            
   };
 
 
@@ -2482,7 +2496,7 @@ class __EXPORT_TYPE DISTRIBUTION_binomial : public DISTRIBUTION
 
   double compute_auc(void);
 
-  double compute_bootstrap_data(const double * linpred,const double * weight);
+  void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp);
 
 
   void outoptions(void);
@@ -2630,7 +2644,7 @@ class __EXPORT_TYPE DISTRIBUTION_binomial_latent : public DISTRIBUTION
                     vector<FULLCOND*> & fcp,unsigned & nr,
                     unsigned & it,ST::string & trtype);
 
-  double compute_bootstrap_data(const double * linpred,const double * weight);                            
+  void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp);                            
   };
 
 
@@ -2851,7 +2865,7 @@ class __EXPORT_TYPE DISTRIBUTION_poisson : public DISTRIBUTION
                     vector<FULLCOND*> & fcp,unsigned & nr,
                     unsigned & it,ST::string & trtype);
 
-  double compute_bootstrap_data(const double * linpred,const double * weight);
+  void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp);
 
   };  // end: class DISTRIBUTION_poisson
 
@@ -2910,7 +2924,7 @@ class __EXPORT_TYPE DISTRIBUTION_multinom : public DISTRIBUTION
 
   void compute_mu(const double * linpred,double * mu) const;
 
-  void compute_mu_notransform(const double * linpred,double * mu) const;  
+  void compute_mu_notransform(const double * linpred,double * mu) const;
 
   void compute_deviance(const double * response,const double * weight,
                            const double * mu,double * deviance,
@@ -3059,6 +3073,7 @@ class __EXPORT_TYPE DISTRIBUTION_multinom2 : public DISTRIBUTION
     DISTRIBUTION::update_predict();
     }
 
+  void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp);
 
   };
 

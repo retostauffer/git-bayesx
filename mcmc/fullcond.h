@@ -183,6 +183,7 @@ class __EXPORT_TYPE FULLCOND
   ST::string smoothing;
   vector<FULLCOND*> interactions_pointer;
   datamatrix betaright;
+  datamatrix beta_average;
   bool calculate_xwx;
   bool calculate_xwx_vc;
   bool nofixed;
@@ -446,6 +447,12 @@ class __EXPORT_TYPE FULLCOND
   const double & get_betavar(const unsigned & row,const unsigned & col) const
     {
     return betavar(row,col);
+    }
+
+
+  double * get_betaavep(void)
+    {
+    return beta_average.getV();
     }
 
 
@@ -1100,6 +1107,8 @@ class __EXPORT_TYPE FULLCOND
     }
 
   virtual void update_bootstrap(const bool & uncond=false);
+
+  virtual void update_beta_average(unsigned & samplesize);
 
   virtual void update_bootstrap_betamean(void);
 

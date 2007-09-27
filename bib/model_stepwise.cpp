@@ -489,7 +489,7 @@ bool term_season_stepwise::check(term & t)
 
 term_pspline_stepwise::term_pspline_stepwise(void)
   {
-  type = "term_psline";
+  type = "term_pspline";
   degree=intoption("degree",3,0,5);
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
@@ -564,6 +564,8 @@ bool term_pspline_stepwise::check(term & t)
       t.type = "varpsplinerw1";
     else if (t.options[0] == "psplinerw2" && t.varnames.size() == 2)
       t.type = "varpsplinerw2";
+    else if(t.options[0] == "linear")
+      t.type = "linear";
     else
       {
       setdefault();
@@ -648,6 +650,15 @@ bool term_pspline_stepwise::check(term & t)
     else
         t.options[14] = "true";
     t.options[15] = ST::inttostring(number.getvalue());
+    if(t.options[0] == "linear")
+      {
+      t.options[15] = "-1";
+      if(t.varnames.size()==1)
+        t.type = "psplinerw2";
+      else
+        t.type = "varpsplinerw2";
+      }
+
     if (logscale.getvalue()==false)
        t.options[16] = "false";
     else

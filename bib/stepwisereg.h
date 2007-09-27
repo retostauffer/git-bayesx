@@ -113,6 +113,8 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   // for stepwise
 
+  stroption algorithm;
+
   stroption procedure;
 
   stroption minimum;

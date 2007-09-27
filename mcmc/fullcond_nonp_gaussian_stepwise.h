@@ -33,7 +33,6 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   double lambdaold_unstr;
   double df_lambdaold_unstr;
 
-  vector< vector<double> > beta_average;
   vector<FULLCOND*> interactions_pointer;
   //int lambda_nr;
   //datamatrix lambdas_local;
@@ -50,6 +49,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   vector<double> lambdavec;
 
   FULLCOND fc_df;
+  bool isbootstrap;
 
   public:
 
@@ -173,6 +173,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   
   void update(void);
 
+  void update_IWLS(void);
+
   void update_bootstrap_df(void);
 
   void outresults_df(unsigned & size);
@@ -180,6 +182,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   void change_Korder(double lam);
 
   void undo_Korder(void);
+
+  void outresults(void);
 
   //void save_betas(vector<double> & modell, int & anzahl);
 

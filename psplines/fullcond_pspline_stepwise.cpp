@@ -17,6 +17,7 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o,
   {
 
   utype = gaussian;
+  isbootstrap = false;
   data_forfixed = d;
 
   beta_average.erase(beta_average.begin(),beta_average.end());
@@ -102,7 +103,8 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o, DISTRIBUTI
   : FULLCOND_pspline_gaussian(o,dp,fcc,effmod,intact,nrk,degr,kp,ft,monotone,ti,fp,pres,false,l,gs,c)
   {
 
-  utype = gaussian;  
+  utype = gaussian;
+  isbootstrap = false;
   beta_average.erase(beta_average.begin(),beta_average.end());
   lambda_nr = 0;
 
@@ -195,6 +197,7 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(const FULLCOND_pspline_step
   lambdamono = fc.lambdamono;
   fc_df = fc.fc_df;
   utype = fc.utype;
+  isbootstrap = fc.isbootstrap;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -222,6 +225,7 @@ const FULLCOND_pspline_stepwise & FULLCOND_pspline_stepwise::operator=(
   lambdamono = fc.lambdamono;
   fc_df = fc.fc_df;
   utype = fc.utype;
+  isbootstrap = fc.isbootstrap;
 
   return *this;
   }
@@ -308,7 +312,10 @@ bool FULLCOND_pspline_stepwise::posteriormode(void)
             *fchelpbetap = betas(0,0) + data_forfixed(*workindex,0)*betas(1,0);
           while(j<beta.rows())
             {
-            help(j,0) = *fchelpbetap;
+            if(*fchelpbetap != 0)
+              help(j,0) = *fchelpbetap;
+            else
+              help(j,0) = 0.000001;
             j += 1;
             }
           fchelpbetap++;
@@ -323,14 +330,20 @@ bool FULLCOND_pspline_stepwise::posteriormode(void)
         *fchelpbetap = betas(0,0) + xvalues(i,0)*betas(1,0);   // keine Fallunterscheidung VC / nicht VC nötig!
         while(j<beta.rows())
           {
-          help(j,0) = *fchelpbetap;
+          if(*fchelpbetap != 0)
+            help(j,0) = *fchelpbetap;
+          else
+            help(j,0) = 0.000001;
           j += 1;
           }
         }
       }
 
     beta.assign(help);
-    return fchelp.posteriormode();
+    bool converged = true;
+    if(varcoeff || spline.var(0)!=0)
+      converged = fchelp.posteriormode();
+    return converged;
     //return FULLCOND_nonp_basis::posteriormode();
     }
   else // if(lambda != -2)
@@ -499,6 +512,8 @@ bool FULLCOND_pspline_stepwise::posteriormode(void)
       }  // end: if(interaction == false)
     else if(!center && interaction && interaction2)  // Zum Bestimmen der Lambdas (es gilt: "!center")
       {                                              // sonst überflüssig!
+      if(interactions_pointer[interactions_pointer.size()-1]->is_identifiable() == false)
+        interactions_pointer[interactions_pointer.size()-1]->set_center(true);
       return interactions_pointer[interactions_pointer.size()-1]->posteriormode();
       }
     else
@@ -659,7 +674,7 @@ bool FULLCOND_pspline_stepwise::changeposterior_varcoeff(const datamatrix & beta
         fchelpbetap++;
         }
       }
-    fchelp.posteriormode();      
+    fchelp.posteriormode();
     }
 
   return converged;
@@ -1131,7 +1146,7 @@ vector<double> & lvec, int & number)
   lambdaold = -1;
   if(number>0)
     {
-    if (df_equidist==true && spfromdf==true)
+    if (df_equidist==true && spfromdf==true && number>1)
        FULLCOND::compute_lambdavec_equi(lvec,number);
     else
        FULLCOND::compute_lambdavec(lvec,number);
@@ -1249,13 +1264,15 @@ ST::string FULLCOND_pspline_stepwise::get_effect(void)
   ST::string h;
 
   if(varcoeff)
-    h = datanames[1] + "*" + datanames[0] + "(psplinerw";   // (VC alt) 0 - 1
+    h = datanames[1] + "*" + datanames[0];   // (VC alt) 0 - 1
   else
-    h = datanames[0] + "(psplinerw";
+    h = datanames[0];
   if (type== MCMC::RW1)
-    h = h + "1,df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
+    h = h + "(psplinerw1,df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
+  else if(type== MCMC::RW2 && number!=-1)
+    h = h + "(psplinerw2,df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
   else
-    h = h + "2,df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
+    h = h + "(linear,df=" + ST::doubletostring(compute_df(),6) + ")";
 
   return h;
   }
@@ -1630,6 +1647,18 @@ void FULLCOND_pspline_stepwise::update_bootstrap(const bool & uncond)
   }
 
 
+void FULLCOND_pspline_stepwise::update_beta_average(unsigned & samplesize)
+  {
+  if(inthemodel==false && fixornot==false)
+    {
+    double * fchelpbetap = fchelp.getbetapointer();
+    for(unsigned i=0;i<fchelp.getbeta().rows();i++,fchelpbetap++)
+      *fchelpbetap = 0;
+    }
+  fchelp.update_beta_average(samplesize);
+  }
+
+
 void FULLCOND_pspline_stepwise::update_bootstrap_df(void)
   {
   if(optionsp->get_nriter()<=1)
@@ -1637,6 +1666,7 @@ void FULLCOND_pspline_stepwise::update_bootstrap_df(void)
     ST::string path = samplepath.substr(0,samplepath.length()-4)+"_df.raw";
     fc_df = FULLCOND(optionsp,datamatrix(1,1),"title?",1,1,path);
     fc_df.setflags(MCMC::norelchange | MCMC::nooutput);
+    isbootstrap = true;
     }
 
   if(fixornot==true)
@@ -1743,7 +1773,7 @@ void FULLCOND_pspline_stepwise::outresults_df(unsigned & size)
   outres << "df_value   ";
   outres << "sp_value  ";
   outres << "frequency  ";
-  outres << "pmean   " << endl;
+  outres << "selected  " << endl;
 
 // Häufigkeitstabelle:
 
@@ -1803,23 +1833,31 @@ void FULLCOND_pspline_stepwise::outresults_df(unsigned & size)
     number.push_back(number2[k]);
     }
 
+  double merken = 0;
   for(i=0;i<number.size();i++)
     {
     double help = sample.get(index(cumnumber[i]-1,0),0);
     double dfs = -1*help;
     if(help!=0 && help!=-1)
       {
+      if(merken==0 && help!=-2)
+        merken = i;
       update_stepwise(help);
       set_inthemodel(help);
       dfs = compute_df();
       }
     outres << ST::doubletostring(dfs,6) << "   " << ST::doubletostring(help,6) << "   " << ST::inttostring(number[i]) << "   ";
     if(*workmean == help)
-      outres << "selected"; // ST::doubletostring(*workmean,6);
+      outres << "+"; // ST::doubletostring(*workmean,6);
     else
       outres << "-";
     outres << endl;
     }
+
+  if(*workmean > 0)    // für ANOVA, damit wieder richtiges lambda eingesetzt ist.
+    update_stepwise(*workmean);
+  else
+    update_stepwise(sample.get(index(cumnumber[merken]-1,0),0));
   }
 
 
@@ -1867,9 +1905,9 @@ void FULLCOND_pspline_stepwise::update(void)
     if(update==true) //(!interaction || !interaction2))  // nur, wenn nicht Teil einer Interaktion
       {
       if(utype == gaussian)
-        FULLCOND_pspline_gaussian::update();
+        update_gauss();
       else if(utype != gaussian)
-        update_IWLS_mode();
+        update_IWLS();
 
       if(center && intercept!=0.0)
         {
@@ -1918,9 +1956,13 @@ void FULLCOND_pspline_stepwise::change_Korder(double lamb)
     }
   else if(lamb==-2)
     {
-    if(!varcoeff)
+    if(!varcoeff)      // Monoton "decreasing" oder "increasing": fixer Effekt
       {
-      // MONOTON: fehlt noch!!!
+      g = datamatrix(nrpar,1,0.0);
+      updateMenv();    // setzt Menv auf 0
+      if((decreasing || increasing) && type==RW2 && spline.var(0)==0)
+        Kenv = Krw1env(weight);    // falls falsches Vorzeichen (spline=const von posteriormode), dann hier auch beta=const.
+        rankK = nrpar-1;
       }
     else
       {
@@ -1948,21 +1990,24 @@ void FULLCOND_pspline_stepwise::undo_Korder(void)
   }
 
 
-void FULLCOND_pspline_stepwise::change_varcoeff(const datamatrix & main,const double & inter)
+void FULLCOND_pspline_stepwise::change_varcoeff(const datamatrix & betamain,
+                                const datamatrix & main,const double & inter)
   {
   unsigned i;
 
-  multBS(splinehelp,beta);
+  beta.assign(betamain);
+  for(i=0;i<nrpar;i++)
+    beta(i,0) -= inter;
 
   vector<int>::iterator freqwork = freqoutput.begin();
   int * workindex = index.getV();
 
 // splinehelp ändern
   for(i=0;i<splinehelp.rows();i++,freqwork++,workindex++)
-    splinehelp(*workindex,0) += main(*freqwork,0);
+    splinehelp(*workindex,0) = main(*freqwork,0) - inter;
 
 // Intercept ändern
-  intercept += inter;
+//  intercept += inter;
 
   double * worksp = spline.getV();
   double * worksph = splinehelp.getV();
@@ -1984,7 +2029,7 @@ void FULLCOND_pspline_stepwise::change_varcoeff(const datamatrix & main,const do
       {
       if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
         {
-        *fchelpbetap = splinehelp(*workindex,0) - intercept;
+        *fchelpbetap = splinehelp(*workindex,0);
         fchelpbetap++;
         }
       }
@@ -1996,12 +2041,134 @@ void FULLCOND_pspline_stepwise::change_varcoeff(const datamatrix & main,const do
   }
 
 
-void FULLCOND_pspline_stepwise::update_IWLS_mode(void)
+void FULLCOND_pspline_stepwise::update_gauss(void)
   {
+// XWX initialisieren
+  if (optionsp->get_nriter()==1)
+    compute_XWXenv(likep->get_weight());
+// sigma2 so setzen, dass scale/sigma2 = const
+  if(lambdaconst == true)
+    sigma2 = likep->get_scale(column)/lambda;
 
-unsigned updateW = optionsp->get_iterations();
+  transform = likep->get_trmult(column);
+  fchelp.set_transform(transform);
+
   unsigned i;
 
+  if(samplecentered)
+    likep->substr_linearpred(spline);               // eta = eta - spline
+  else
+    subtr_spline();                                 // eta = eta - spline + intercept
+
+  if(changingweight)                                // für t-link
+    compute_XWXenv(likep->get_weight());
+
+  double scaleinv = 1.0/likep->get_scale(column);   // scaleinv = 1/scale
+
+  prec_env.addto(XX_env,Kenv,scaleinv,1.0/sigma2);  // prec_env = (scaleinv*XX_env + 1.0/sigma*Kenv)
+  if(increasing || decreasing || convex || concave)
+    prec_env.addto(prec_env,Menv,1.0,lambdamono*scaleinv);
+
+  double * work = standnormal.getV();               // standnormal ~ N(0,I)
+  for(i=0;i<nrpar;i++,work++)
+    *work = rand_normal();
+
+  likep->compute_respminuslinpred(mu,column);       // nicht ändern wegen multgaussian
+  compute_XWtildey(likep->get_weight(),scaleinv);   // muy = scaleinv * X'W*mu
+
+  beta.assign(standnormal);
+  prec_env.solve(muy,betahelp);
+  prec_env.solveU(beta,betahelp);                   // betahelp = P^(-1) * muy
+                                                      // beta ~ N(betahelp,P^(-1))
+  if(predictright || predictleft)
+    update_prediction();
+
+  add_linearpred_multBS();
+
+  if(center)                                          // zentrieren
+    {
+    if(samplecentered)
+      {
+      sample_centered_env(beta);
+      }
+    else
+      {
+      compute_intercept();
+      if (varcoeff)
+        fcconst->update_fix_varcoeff(intercept,datanames[1]);
+      else
+        fcconst->update_intercept(intercept);
+      }
+    }
+
+  acceptance++;
+
+  if(interaction == false)
+    {
+// wird bei interaction==true in der full conditional des Interaktionseffekts gemacht
+// spline in fchelp schreiben
+    if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
+        ((optionsp->get_nriter()-optionsp->get_burnin()-1) % optionsp->get_step() == 0) )
+      {
+      if(samplecentered)
+        {
+        write_spline();
+        write_derivative();
+        }
+      else
+        {
+        double * splinep;
+        double * fchelpbetap = fchelp.getbetapointer();
+
+        if(gridsize < 0)                              // alle verschiedene Beobachtungen
+          {
+          if(varcoeff)
+            multBS(splinehelp,beta);
+
+          vector<int>::iterator freqwork = freqoutput.begin();
+          int * workindex = index.getV();
+          for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+            {
+            if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+              {
+              if(varcoeff)
+                {
+                *fchelpbetap = splinehelp(i,0) - intercept;
+                }
+              else
+                *fchelpbetap = spline(*workindex,0) - intercept;
+              fchelpbetap++;
+              }
+            }
+          }
+        else                                          // Gitterpunkte
+          {
+          multDG(splinehelp,beta);
+          splinep = splinehelp.getV();
+          for(i=0;i<gridsize;i++,fchelpbetap++,splinep++)
+            *fchelpbetap = *splinep - intercept;
+          }
+
+        write_derivative();                           // 1. Ableitung rausschreiben
+        }
+      }
+
+    if(derivative)
+      fcderivative.update();
+
+    fchelp.update();
+    FULLCOND::update();
+
+    }  // end: if(interaction == false)
+  }
+
+
+void FULLCOND_pspline_stepwise::update_IWLS(void)
+  {
+  unsigned i;
+  unsigned updateW = 1;
+
+  double invscale = 1.0/likep->get_scale(column);
   if(lambdaconst == true)
     sigma2 = likep->get_scale(column)/lambda;
 
@@ -2009,28 +2176,37 @@ unsigned updateW = optionsp->get_iterations();
     {
     betaold = datamatrix(nrpar,1,0);
     W = datamatrix(likep->get_nrobs(),1,0);
+    //betaold.assign(beta);
+    //updateW = 1;
     }
+  if(betaold.rows() != beta.rows())
+    {
+    betaold = datamatrix(nrpar,1,0);
+    W = datamatrix(likep->get_nrobs(),1,0);
+    }
+    
   betaold.assign(beta);
 
-  double logold = likep->loglikelihood(true)
-                - 0.5*Kenv.compute_quadformblock(betaold,0,0,nrpar-1)/sigma2;
-
-  add_linearpred_multBS(beta_mode,betaold,true);
+  double logold = - 0.5*Kenv.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
 
   if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
       ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
     {
-    likep->compute_IWLS_weight_tildey(W,mu,column,true);
+    logold += likep->compute_IWLS(W,mu,true,column,true);
     mu.plus(spline,mu);
-    compute_XWXenv_XWtildey(W,1.0);
+    compute_XWXenv_XWtildey(W,invscale);
     }
   else
     {
-    likep->tilde_y(mu,spline,column,true,W);
-    compute_XWtildey(W,1.0);
+    logold += likep->compute_IWLS(W,mu,false,column,true);
+    mu.plus(mu,spline);
+    compute_XWtildey(W,invscale);
     }
 
-  prec_env.addto(XX_env,Kenv,1.0,1.0/sigma2);
+  prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
+  if(decreasing || increasing || convex || concave)
+    prec_env.addto(prec_env,Menv,1.0,lambdamono*invscale);
+
   prec_env.solve(muy,betahelp);
 
   double * work = beta.getV();
@@ -2039,27 +2215,42 @@ unsigned updateW = optionsp->get_iterations();
 
   prec_env.solveU(beta,betahelp);
 
-  add_linearpred_multBS(beta,beta_mode,true);
-  beta_mode.assign(betahelp);
+  add_linearpred_multBS(beta,betaold,true);
+  betahelp.minus(beta,betahelp);
 
-  betahelp.minus(beta,beta_mode);
-  double qold = - 0.5*prec_env.compute_quadformblock(betahelp,0,0,nrpar-1);
+  double qold = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
 
-  betahelp.minus(betaold,beta_mode);
-  double lognew = likep->loglikelihood(true)
-                - 0.5*Kenv.compute_quadformblock(beta,0,0,nrpar-1)/sigma2;
-  double qnew = - 0.5*prec_env.compute_quadformblock(betahelp,0,0,nrpar-1);
+  double lognew = - 0.5*Kenv.compute_quadformblock(beta,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
+
+  if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+      ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+    {
+    qold += 0.5*prec_env.getLogDet();
+    lognew += likep->compute_IWLS(W,mu,true,column,true);
+    mu.plus(spline,mu);
+    compute_XWXenv_XWtildey(W,invscale);
+    prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
+    }
+  else
+    {
+    lognew += likep->compute_IWLS(W,mu,false,column,true);
+    mu.plus(mu,spline);
+    compute_XWtildey(W,invscale);
+    }
+
+  prec_env.solve(muy,betahelp);
+
+  betahelp.minus(betaold,betahelp);
+  double qnew = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
+
+  if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
+      ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
+    {
+    qnew += 0.5*prec_env.getLogDet();
+    }
 
   double alpha = lognew + qnew - logold - qold;
   double u = log(uniform());
-
-  if(center)
-    {
-    compute_intercept();
-    for(i=0;i<nrpar;i++)
-      beta_mode(i,0) -= intercept;
-    intercept = 0.0;
-    }
 
   if(u<=alpha)
     {
@@ -2069,14 +2260,18 @@ unsigned updateW = optionsp->get_iterations();
       compute_intercept();
       for(i=0;i<nrpar;i++)
         beta(i,0) -= intercept;
-        
-      if (varcoeff)
-        fcconst->update_fix_varcoeff(intercept,datanames[1]);
-      else
+      if(!varcoeff)
+        {
         fcconst->update_intercept(intercept);
-
-      for(i=0;i<likep->get_nrobs();i++)
-        spline(i,0) -= intercept;
+        for(i=0;i<likep->get_nrobs();i++)
+          spline(i,0) -= intercept;
+        }
+      else
+        {
+        fcconst->update_fix_varcoeff(intercept,datanames[1]);
+        for(i=0;i<likep->get_nrobs();i++)
+          spline(i,0) -= intercept*data_forfixed(i,0);
+        }
       intercept = 0.0;
       }
     betaold.assign(beta);
@@ -2086,9 +2281,112 @@ unsigned updateW = optionsp->get_iterations();
     add_linearpred_multBS(betaold,beta,true);
     beta.assign(betaold);
     }
+
   write_spline();
   fchelp.update();
   FULLCOND::update();
+  }
+
+
+void FULLCOND_pspline_stepwise::outresults(void)
+  {
+  if(!isbootstrap)
+    FULLCOND_pspline_gaussian::outresults();
+  else
+    {
+    FULLCOND::outresults();
+
+    ST::string l1 = ST::doubletostring(lower1,4);
+    ST::string l2 = ST::doubletostring(lower2,4);
+    ST::string u1 = ST::doubletostring(upper1,4);
+    ST::string u2 = ST::doubletostring(upper2,4);
+    l1 = l1.replaceallsigns('.','p');
+    l2 = l2.replaceallsigns('.','p');
+    u1 = u1.replaceallsigns('.','p');
+    u2 = u2.replaceallsigns('.','p');
+
+    optionsp->out("  Results are stored in file\n");
+    optionsp->out("  " + pathcurrent + "\n");
+    optionsp->out("\n");
+    #if defined(BORLAND_OUTPUT_WINDOW)
+    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotnonp'\n");
+    ST::string doublebackslash = "\\\\";
+    ST::string spluspath = pathcurrent.insert_string_char('\\',doublebackslash);
+    optionsp->out("  Type for example:\n");
+    optionsp->out("  plotnonp(\"" + spluspath + "\")");
+    optionsp->out("\n");
+    #elif defined(JAVA_OUTPUT_WINDOW)
+    optionsp->out("  Postscript file is stored in file\n");
+    ST::string psfile = pathcurrent.substr(0,pathcurrent.length()-4) + ".ps";
+    optionsp->out("  " + psfile + "\n");
+    optionsp->out("\n");
+    optionsp->out("  Results may be visualized using method 'plotnonp'\n");
+    optionsp->out("  Type for example: objectname.plotnonp " + ST::inttostring(fcnumber) + "\n");
+    #endif
+    optionsp->out("\n");
+
+    fchelp.outresults();
+
+    unsigned i;
+
+    ofstream outres(pathcurrent.strtochar());
+
+    outres << "intnr" << "   ";
+    outres << datanames[0] << "   ";
+    outres << "pmean   ";
+    outres << "paverage   ";
+    outres << "pqu"  << l1  << "   ";
+    outres << "pqu"  << l2  << "   ";
+    outres << "pmed   ";
+    outres << "pqu"  << u1  << "   ";
+    outres << "pqu"  << u2  << "   ";
+    outres << "pcat" << level1 << "   ";
+    outres << "pcat" << level2 << "   ";
+
+    outres << endl;
+
+    double * workmean = fchelp.get_betameanp();
+    double * workave = fchelp.get_betaavep();
+    double * workbetaqu_l1_lower_p = fchelp.get_beta_lower1_p();
+    double * workbetaqu_l2_lower_p = fchelp.get_beta_lower2_p();
+    double * workbetaqu50 = fchelp.get_betaqu50p();
+    double * workbetaqu_l1_upper_p = fchelp.get_beta_upper1_p();
+    double * workbetaqu_l2_upper_p = fchelp.get_beta_upper2_p();
+    double * workxvalues = xvalues.getV();
+
+    for(i=0;i<xvalues.rows();i++,workmean++,workave++,
+                     workbetaqu_l1_lower_p++,workbetaqu_l2_lower_p++,
+                     workbetaqu50++,
+                     workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++,
+                     workxvalues++)
+      {
+      outres << (i+1) << "   ";
+      outres << *workxvalues << "   ";
+      outres << *workmean << "   ";
+      outres << *workave << "   ";
+      outres << *workbetaqu_l1_lower_p << "   ";
+      outres << *workbetaqu_l2_lower_p << "   ";
+      outres << *workbetaqu50 << "   ";
+      outres << *workbetaqu_l2_upper_p << "   ";
+      outres << *workbetaqu_l1_upper_p << "   ";
+
+      if (*workbetaqu_l1_lower_p > 0)
+        outres << 1 << "   ";
+      else if (*workbetaqu_l1_upper_p < 0)
+        outres << -1 << "   ";
+      else
+        outres << 0 << "   ";
+
+      if (*workbetaqu_l2_lower_p > 0)
+        outres << 1 << "   ";
+      else if (*workbetaqu_l2_upper_p < 0)
+        outres << -1 << "   ";
+      else
+        outres << 0 << "   ";
+
+      outres << endl;
+      }
+    }
   }
 
 

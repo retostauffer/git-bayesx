@@ -217,7 +217,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void update_nongauss(void);
 
-  void compute_XWtildey(datamatrix * linb);
+  void compute_XWtildey(datamatrix * linb, double & invscale);
 
   void set_utype(void)
     {

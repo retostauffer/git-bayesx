@@ -109,11 +109,30 @@ bool STEPMULTIrun::posteriormode(const vector<ST::string> & header,
         if(likep_mult[0]->posteriormode() == false)
            allconverged = false;
 
-      for(j=begin[0];j<=end[0];j++)
+      if(!isboot)
         {
-        if (fullcondp[j]->posteriormode() == false)
-          allconverged = false;
-        } // end: for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+        for(j=begin[0];j<=end[0];j++)
+          {
+          if (fullcondp[j]->posteriormode() == false)
+            allconverged = false;
+          } // end: for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+        }
+      else
+        {
+        for(j=begin[0];j<=end[0];j++)
+          {
+          if(fullcondp[j]->get_datanames()[0]=="const")
+            {
+            if(fullcondp[j]->posteriormode() == false)
+              allconverged = false;
+            }
+          else if(fullcondp[j]->get_lambda()!=0)
+            {
+            if(fullcondp[j]->posteriormode() == false)
+              allconverged = false;
+            }
+          } // end: for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+        }
 
       if (allconverged && it>1)
         converged = true;
@@ -154,11 +173,30 @@ bool STEPMULTIrun::posteriormode(const vector<ST::string> & header,
       if (likep_mult[0]->posteriormode_converged(k) == false)
         allconverged = false;
 
-    for(j=begin[0];j<=end[0];j++)
+    if(!isboot)
       {
-      if (fullcondp[j]->posteriormode_converged(k) == false)
-        allconverged = false;
-      } // end: for(j=0;j<nrfullcond;j++)
+      for(j=begin[0];j<=end[0];j++)
+        {
+        if (fullcondp[j]->posteriormode_converged(k) == false)
+          allconverged = false;
+        } // end: for(j=0;j<nrfullcond;j++)
+      }
+    else
+      {
+      for(j=begin[0];j<=end[0];j++)
+        {
+        if(fullcondp[j]->get_datanames()[0]=="const")
+          {
+          if(fullcondp[j]->posteriormode() == false)
+            allconverged = false;
+          }
+        else if(fullcondp[j]->get_lambda()!=0)
+          {
+          if(fullcondp[j]->posteriormode() == false)
+            allconverged = false;
+          }
+        } // end: for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+      }
 
     if (allconverged)
       convergedouterloop = true;
@@ -256,6 +294,7 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
   modelv = modelvar;
   algorithm = procedure;
   minim = minimum;
+  minim2 = minimum;
   miniback_off = minib;
   criterion = crit;
   increment = inc;
@@ -298,7 +337,7 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
     gewichte = true;
   initialise_lambdas(names_nonp,names_fixed,lambdavec,number,gewichte);
 
-  if(criterion == "MSEP" || criterion == "AUC" ||criterion == "CV5" || criterion == "CV10")
+  if(criterion == "MSEP" || criterion == "AUC" || criterion == "CV5" || criterion == "CV10")
     {
     initialise_weights(prop);
     for(unsigned y=0;y<fullcond_alle.size();y++)
@@ -337,6 +376,7 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
 
   ST::string pathmodels = path + "_models.raw";
   ST::string pathcrit = path + "_criterium.raw";
+  ST::string pathtrace = path + "_criterium_trace.raw";
   outcriterium.open(pathcrit.strtochar());
   outcriterium << "step   " << criterion << endl;
   outmodels.open(pathmodels.strtochar());
@@ -385,7 +425,10 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
   fix_komplett(modell_final);
   fullcond_komplett(modell_final);
   tr_akt = "trace_on";
-  maketext(header,modell_final,kriterium_final,text_final,false,tr_akt,false);
+  if(steps==0)
+    maketext(header,modell_final,kriterium_final,text_final,true,tr_akt,true);
+  else
+    maketext(header,modell_final,kriterium_final,text_final,false,tr_akt,false);
   genoptions_mult[0]->out("\n\n");
   kriterium_tex = kriterium_final;
 
@@ -394,34 +437,42 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
   if(finelocal == true)
      genoptions_mult[0]->out("  NOTE: This option is not available with this response distribution!");
 
-  //if(modelaveraging == true)
-  if(bootstrap > 0)
-     genoptions_mult[0]->out("  NOTE: This option is not yet available for this response distribution!");
-
-  if(CI != "none")
-     genoptions_mult[0]->out("  NOTE: This option is not available with this response distribution!");
-
-  fullcond_z = fullcondp;
-  for(i=0;i<fullcond_z.size();i++)
-    fullcond_z[i]->set_fcnumber(i);
+  if(abbruch==true)
+    return true;
 
   if(criterion == "MSEP" || criterion == "AUC")
     {
     likep_mult[0]->weight_for_all();
     for(unsigned y=0;y<fullcond_alle.size();y++)
-    fullcond_alle[y]->set_calculate_xwx();
+      fullcond_alle[y]->set_calculate_xwx();
     }
-  posteriormode(posttitle,false); // Problem: linearer Pr?diktor bei "true" standardisiert! Hier wird zur?ckgerechnet!
-                                    // danach nicht mehr compute_criterion() aufrufen!!!
 
-  make_tex_end(path,modell_final);
-
-  // Files m?ssen wieder geschlossen werden!!!
-  outtex.close();
+  // Files werden nicht mehr gebraucht und müssen wieder geschlossen werden!!!
   outcriterium.close();
   outmodels.close();
 
+  if(CI == "none")
+    {
+    fullcond_z = fullcondp;
+    for(i=0;i<fullcond_z.size();i++)
+      fullcond_z[i]->set_fcnumber(i);
+    posteriormode(posttitle,false); // Problem: linearer Prädiktor bei "true" standardisiert! Hier wird zurückgerechnet!
+                                      // danach nicht mehr compute_criterion() aufrufen!!!
+    }
+  else
+    {
+    //genoptions_mult[0]->out("  NOTE: This option is not available with this response distribution!");
+    if(criterion == "MSEP" || criterion == "AUC")
+      posteriormode(posttitle,true);
+    abbruch = confidence_intervals(CI,modell_final,kriterium_final,fullcond_z);
+    if(abbruch == true)
+      return true;
+    }
 
+  make_tex_end(path,modell_final);
+  outtex.close();
+
+  /*
   // gibt Lambdas aus, damit man die richtig bestimmten Variablen z?hlen kann!
   ST::string zaehlername = path + "_lambdas_" + likep_mult[0]->get_responsename() + ".ascii";
   //zaehlername = zaehlername + "_" + ST::inttostring(increment) + ".ascii";
@@ -436,7 +487,7 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
      eintrag = eintrag + ST::doubletostring(modell_final[i]) + "   ";
   out << beschriftung << endl;
   out << eintrag << endl;
-
+  */
 
   return false;
   }
@@ -667,6 +718,7 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
       }
     else
       {
+      unsigned ind_fullc = katje*anz_fullcond;
       kriterium = 0;
       likep_mult[0]->save_weightiwls();
       unsigned pcv;
@@ -677,14 +729,14 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
       for(unsigned c=0;c<pcv;c++)
         {
         likep_mult[0]->compute_cvweights(c);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         fullcond_alle[z]->set_calculate_xwx();
 //        if(neu)
 //          fullcond_alle[z]->const_varcoeff();
         fullcond_alle[z]->posteriormode();
         kriterium += compute_criterion();
         likep_mult[0]->compute_cvweights(-1);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         fullcond_alle[z]->set_calculate_xwx();
         }
       }
@@ -748,12 +800,12 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
       for(unsigned c=0;c<pcv;c++)
         {
         likep_mult[0]->compute_cvweights(c);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         fullcond_alle[ind_fullc]->posteriormode_single(names_nonp[ind_name],
                                fullcond_alle[z]->get_data_forfixedeffects(),false);
         kriterium += compute_criterion();
         likep_mult[0]->compute_cvweights(-1);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         }
       }
     }
@@ -789,11 +841,11 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
       for(unsigned c=0;c<pcv;c++)
         {
         likep_mult[0]->compute_cvweights(c);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         fullcond_alle[ind_fullc]->posteriormode_single(name_help,datamatrix(D.getCol(col)),false);
         kriterium += compute_criterion();
         likep_mult[0]->compute_cvweights(-1);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         }
       }
     }
@@ -823,12 +875,12 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
       for(unsigned c=0;c<pcv;c++)
         {
         likep_mult[0]->compute_cvweights(c);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         fullcond_alle[ind_fullc]->posteriormode_single(names_nonp[ind_name],
                                fullcond_alle[z]->get_data_forfixedeffects(),false);
         kriterium += compute_criterion();
         likep_mult[0]->compute_cvweights(-1);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         }
       }
     }
@@ -856,12 +908,12 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
       for(unsigned c=0;c<pcv;c++)
         {
         likep_mult[0]->compute_cvweights(c);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         fullcond_alle[ind_fullc]->posteriormode_single(names_nonp[ind_name],
                                fullcond_alle[z]->get_data_forfixedeffects(),false);
         kriterium += compute_criterion();
         likep_mult[0]->compute_cvweights(-1);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         }
       }
     }
@@ -885,11 +937,11 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
       for(unsigned c=0;c<pcv;c++)
         {
         likep_mult[0]->compute_cvweights(c);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[z]->set_calculate_xwx();
         fullcond_alle[z]->posteriormode_const();
         kriterium += compute_criterion();
         likep_mult[0]->compute_cvweights(-1);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[z]->set_calculate_xwx();
         }
       }
     }
@@ -897,7 +949,7 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
   else if(variante == "nonpleer")
     {
     unsigned ind_fullc = katje*anz_fullcond;
-    unsigned ind_name = z - katje*anz_fullcond - 1;
+    //unsigned ind_name = z - katje*anz_fullcond - 1;
 
     ST::string possible = "alles";
     if(hierarchical == true)
@@ -929,7 +981,7 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
       for(unsigned c=0;c<pcv;c++)
         {
         likep_mult[0]->compute_cvweights(c);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         if((possible != "valles" && possible != "vrfix" && possible != "vraus")
             || fullcond_alle[z]->is_identifiable() == true)
           fullcond_alle[ind_fullc]->posteriormode_const();
@@ -942,7 +994,7 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
           }
         kriterium += compute_criterion();
         likep_mult[0]->compute_cvweights(-1);
-        fullcond_alle[0]->set_calculate_xwx();
+        fullcond_alle[ind_fullc]->set_calculate_xwx();
         }
       }
     }
@@ -1729,7 +1781,7 @@ void STEPMULTIrun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,dou
   unsigned ind_lamb = z - (katje+1)*1;
 
   ST::string possible = "alles";
-  if(hierarchical == true)
+  //if(hierarchical == true)
     fullcond_alle[z]->hierarchical(possible);
 
   vector<FULLCOND*> fullcond_ori = fullcondp;
@@ -1744,11 +1796,18 @@ void STEPMULTIrun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,dou
     {
     fullcond_alle[z]->update_stepwise(modell_alt[ind_mod]);
     if(miniback == false)
+      {
       schaetzen(z,kriterium,true,"nonpnonp");
+      if(possible == "valles" || possible == "vrfix")
+        fullcond_alle[ind_fullc]->posteriormode_const();
+      }      
     else
       schaetzen(z,kriterium,true,"minibackfitting");
     }
 
+  if(hierarchical == false)
+    possible == "alles";
+    
   fullcond_alle[ind_fullc]->safe_const();
   bool interact = false;
   fullcond_alle[z]->safe_splines(interact);
@@ -1843,8 +1902,8 @@ void STEPMULTIrun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,dou
     }
   else
     {
-    if(fullcond_alle[z]->is_identifiable() == false)
-      fullcond_alle[z]->set_center(true);
+    if(possible != "spline" && fullcond_alle[z]->is_identifiable() == false)   // bei Haupteffekten der ANOVA Zerlegung muß center=false bleiben
+      fullcond_alle[z]->set_center(true);                                      // sonst wird Interaktion nicht geschätzt. 
     fullcond_alle[z]->posteriormode();
     fullcond_alle[ind_fullc]->update_linold();
     }
@@ -3819,6 +3878,7 @@ void STEPMULTIrun::initialise_lambdas(vector<vector<ST::string> > & namen_nonp,
   if(gewichte == true)
     {
     //unsigned zaehlen = 0;
+    unsigned deleted = 0;
     for(katje=0;katje<kategorien;katje++)
       {
       vector<double> modell_init;
@@ -3833,12 +3893,18 @@ void STEPMULTIrun::initialise_lambdas(vector<vector<ST::string> > & namen_nonp,
       for(i=oben;i<unten;i++)
         {
         if(fullcond_alle[i]->get_fctype() != MCMC::factor)
+           {
            fullcond_alle[i]->update_stepwise(100);
+           fullcond_alle[i]->set_inthemodel(1);
+           }
         else if(fullcond_alle[i]->get_fctype() == MCMC::factor)
            {
-           fullcondp.erase(fullcondp.begin() + katje*anz_fullcond + 1 - katje);   //l?scht das Element an Pos.1 aus fullcondp-Vektor
+           fullcondp.erase(fullcondp.begin() + katje*anz_fullcond + 1 - katje * deleted);   //l?scht das Element an Pos.1 aus fullcondp-Vektor
+           if(katje==0)
+             deleted += 1;
            fullcond_alle[katje*anz_fullcond]->include_effect(fullcond_alle[i]->get_datanames(),
                                      fullcond_alle[i]->get_data_forfixedeffects());
+           fullcond_alle[i]->set_inthemodel(-1);
            }
         }
       }
@@ -4289,6 +4355,71 @@ void STEPMULTIrun::fullcond_komplett(const vector<double> & m)
   }
 
 
+void STEPMULTIrun::fix_ganz_komplett(const vector<double> &  modell)
+  {
+  if(smoothing == "global")
+    {
+    unsigned kat_alt = katje;
+    unsigned z,k,unten,oben, ind_name;
+    for(k=0;k<kategorien;k++)
+      {
+      katje = k;
+      unten = k * (anz_fullcond + names_fixed.size()-2);
+      oben = k * (anz_fullcond + names_fixed.size()-2) + names_fixed.size()-1;
+      for(z=unten;z<oben;z++)
+        {
+        ind_name = z - k*(anz_fullcond + names_fixed.size()-2) + 1;
+        reset_fix(names_fixed[z+1]);
+        }
+
+      for(z=unten;z<oben;z++)
+         {
+         ind_name = z - k*(anz_fullcond + names_fixed.size()-2) + 1;
+         //if(modell[z]==0)
+         //   reset_fix(names_fixed[z+1]);
+         if(modell[z]==-1)
+           {
+           /*unsigned i = 1;
+           bool rein = false;
+           while(i<fullcondp[0]->get_datanames().size() && rein==false)
+                {
+                if(fullcondp[0]->get_datanames()[i]==names_fixed[z+1])
+                  rein = true;
+                i = i + 1;
+                }
+           if(rein==false)*/
+           include_fix(names_fixed[ind_name]);
+           }
+         }
+
+      unten = (k+1) * (anz_fullcond + names_fixed.size()-2);
+      for(z=oben;z<unten;z++)
+        {
+        ind_name = z - k*(anz_fullcond + names_fixed.size()-2) - (names_fixed.size()-1);
+        bool gefunden = false;
+        unsigned i = 1;
+        while(i<fullcond_alle[k*anz_fullcond]->get_datanames().size() && gefunden==false)
+          {
+          if(fullcond_alle[k*anz_fullcond]->get_datanames()[i]==names_nonp[ind_name][0])    // ersetzen durch reset_fix?
+             {
+             gefunden = true;
+             fullcond_alle[k*anz_fullcond]->reset_effect(i);
+             }
+          i = i + 1;
+          }
+        if(gefunden==true && names_nonp[ind_name].size()>1)
+          {
+          unsigned j;
+          for(j=1;j<names_nonp[ind_name].size();j++)
+             reset_fix(names_nonp[ind_name][j]);
+          }
+        }
+      }
+    katje = kat_alt;
+    }  // END: if(smoothing == "global")
+  }
+
+
 void STEPMULTIrun::fix_komplett(const vector<double> &  modell)
   {
 
@@ -4346,7 +4477,7 @@ void STEPMULTIrun::fix_komplett(const vector<double> &  modell)
           }
         }
       }
-    katje = kat_alt;    
+    katje = kat_alt;
     }  // END: if(smoothing == "global")
   }
 
@@ -4448,6 +4579,8 @@ void STEPMULTIrun::maketext(const ST::string & h, const vector<double> & m,
                           const bool & neutext, const ST::string & tr,
                           const bool & datei)
   {
+if(isboot==false)
+  {
   if(tr == "trace_on" || trace == "trace_minim")
     {
     genoptions_mult[0]->out("\n\n");
@@ -4485,6 +4618,7 @@ void STEPMULTIrun::maketext(const ST::string & h, const vector<double> & m,
     }
   if(datei==true)
     outmodels << modeltext << endl << endl;
+  }
   }
 
 
@@ -5181,9 +5315,708 @@ void STEPMULTIrun::make_plots(ST::string & path_batch,
     }
   }
 
+
+// -----------------------------------------------------------------------------
+// ------------- Model Averaging -----------------------------------------------
+// -----------------------------------------------------------------------------
+
+bool STEPMULTIrun::confidence_intervals(const ST::string & CI, const vector<double> & modell_final,
+              const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
+  {
+  bool abbruch;
+  if(CI=="MCMCselect")
+    {
+    abbruch = confidence_MCMCselect(modell_final,kriterium_final,fullcond_z);
+    }
+  else if(CI=="MCMCbootstrap")
+    {
+    abbruch = confidence_MCMCbootstrap(modell_final,kriterium_final,fullcond_z);
+    }
+  else if(CI=="bootstrap")
+    {
+    abbruch = confidence_bootstrap(modell_final,kriterium_final,fullcond_z);
+    }
+
+  return abbruch;
+  }
+
+
+bool STEPMULTIrun::confidence_MCMCselect(const vector<double> & modell_final,
+              const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
+  {
+  bool abbruch;
+  unsigned i;
+  fullcond_z = fullcondp;
+  for(i=0;i<fullcond_z.size();i++)
+    fullcond_z[i]->set_fcnumber(i);
+
+  genoptions_mult[0]->out("\n");
+  genoptions_mult[0]->out("CALCULATION OF CONFIDENCE INTERVALS STARTED:\n",true);
+  genoptions_mult[0]->out("\n");
+
+  if(likep_mult[0]->get_scaleexisting()==true)
+    {
+    double scale = likep_mult[0]->get_scale();
+    double transform = likep_mult[0]->get_trmult(0);
+    scale *= transform*transform;
+    likep_mult[0]->set_constscale(scale);
+    }
+
+  //bool neuschaetzen = false;
+  for(katje=0;katje<kategorien;katje++)
+    {
+    unsigned unten = (katje+1)*anz_fullcond;
+    unsigned oben = 1 + katje*anz_fullcond;
+    for(i=oben;i<unten;i++)
+      {
+      unsigned ind_mod = i + (katje+1)*(names_fixed.size()-2);
+      if(modell_final[ind_mod] == -2)  //*****
+        {
+        fullcond_alle[i]->change_Korder(modell_final[ind_mod]);
+        //neuschaetzen = true;
+        }
+      else
+        fullcond_alle[i]->set_lambdaconst(modell_final[ind_mod]);
+      }
+    }
+  katje = 0;
+
+  //if(neuschaetzen == true)
+    schaetzen(0,kriterium_alt,true,"backfitting");  // nötig für Startwerte, wenn mind. ein lambda=-2
+
+  unsigned iterations = genoptions_mult[0]->get_iterations();
+  unsigned start = 1;
+  int seed = likep_mult[0]->get_seed();
+  abbruch = simulate(posttitle,seed,start,iterations);
+  if(abbruch == true)
+    return true;
+
+  genoptions_mult[0]->out("\n");
+  genoptions_mult[0]->out("ESTIMATION RESULTS:\n",true);
+  genoptions_mult[0]->out("\n");
+  likep_mult[0]->outresults();
+  for(unsigned f=0;f<fullcondp.size();f++)
+    {
+    fullcondp[f]->outresults();
+    }
+  return abbruch;
+  }
+
+
+bool STEPMULTIrun::confidence_bootstrap(const vector<double> & modell_final,
+              const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
+  {
+  unsigned samplesize_df = bootstrap + 1;
+  unsigned zaehler = 1;
+  bool abbruch;
+  if(unconditional == true)
+   {
+   steps = 0;
+   }
+
+  isboot = true;
+  trace = "trace_off";
+  vector<double> modell_boot = modell_final;
+  double kriterium_boot = kriterium_final;
+  modell_alt = modell_final;
+  kriterium_alt = kriterium_final;
+  fix_ganz_komplett(modell_alt);
+  fullcond_komplett(modell_alt);
+  schaetzen(0,kriterium_alt,true,"backfitting");
+  update_bootstrap(zaehler);
+
+  genoptions_mult[0]->out("\n");
+  genoptions_mult[0]->out("BEGINNING OF BOOTSTRAP:\n",true);
+  genoptions_mult[0]->out("\n");
+
+  while(bootstrap > 0)
+    {
+    zaehler += 1;
+    bootstrap -= 1;
+    minim = minim2;
+    fertig = false;
+
+    likep_mult[0]->create_bootstrap_weights();
+
+    modellematrix.erase(modellematrix.begin(),modellematrix.end());
+    vector<vector<double> > startiteration;
+    startiteration.push_back(modell_boot);
+    modellematrix.push_back(startiteration);
+    fix_ganz_komplett(modell_boot);
+    fullcond_komplett(modell_boot);
+    modell_alt = modell_boot;
+    modell_neu = modell_boot;
+
+    if(criterion == "MSEP" || criterion == "AUC")
+      {
+      likep_mult[0]->weight_for_all();   // macht hier das Gegenteil und setzt "weight" für MSEP ein!
+      for(unsigned y=0;y<fullcond_alle.size();y++)
+        fullcond_alle[y]->set_calculate_xwx();
+      }
+    schaetzen(0,kriterium_alt,true,"backfitting");
+    kriterium_neu = kriterium_alt;
+    steps_aktuell = 0;
+
+    if(algorithm != "coorddescent")
+      abbruch = stepfunctions();
+    else
+      abbruch = koordabstieg();
+    if(abbruch==true)
+      return true;
+
+    fix_ganz_komplett(modell_alt);
+    fullcond_komplett(modell_alt);
+    if(criterion == "MSEP" || criterion == "AUC")
+      {
+      likep_mult[0]->weight_for_all();
+      for(unsigned y=0;y<fullcond_alle.size();y++)
+        fullcond_alle[y]->set_calculate_xwx();
+      }
+    schaetzen(0,kriterium_alt,true,"backfitting");
+    update_bootstrap(zaehler);
+    }
+
+  modell_alt = modell_boot;
+  kriterium_alt = kriterium_boot;
+
+   genoptions_mult[0]->out("\n");
+   genoptions_mult[0]->out("ESTIMATION RESULTS:\n",true);
+   genoptions_mult[0]->out("\n");
+
+   likep_mult[0]->set_original_response();
+   likep_mult[0]->update_bootstrap_betamean();
+   likep_mult[0]->outresults();
+
+  if(unconditional)
+    {
+    fullcond_z = fullcondp;
+    for(unsigned f=0;f<fullcondp.size();f++)
+      {
+      fullcondp[f]->set_fcnumber(f);
+      fullcondp[f]->update_bootstrap_betamean();
+      fullcondp[f]->outresults_df(samplesize_df);
+      fullcondp[f]->outresults();
+      }
+    }
+  else
+    {
+    fullcond_z = fullcond_alle;
+    fullcondp = fullcond_alle;
+    for(unsigned f=0;f<fullcond_alle.size();f++)
+      {
+      fullcond_alle[f]->update_bootstrap_betamean();
+      fullcond_alle[f]->outresults_df(samplesize_df);
+      fullcond_alle[f]->outresults();
+      }
+    }
+  return abbruch;
+  }
+
+
+bool STEPMULTIrun::confidence_MCMCbootstrap(const vector<double> & modell_final,
+              const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
+  {
+  unsigned samplesize_df = bootstrap + 1;
+  unsigned zaehler = 1;
+  bool abbruch;
+  unsigned i;
+  isboot = true;
+  trace = "trace_off";
+  vector<double> modell_boot = modell_final;
+  double kriterium_boot = kriterium_final;
+  modell_alt = modell_final;
+  kriterium_alt = kriterium_final;
+  fix_ganz_komplett(modell_alt);
+  fullcond_komplett(modell_alt);
+  schaetzen(0,kriterium_alt,true,"backfitting");
+  likep_mult[0]->save_betamean();
+  for(i=1;i<fullcond_alle.size();i++)
+    {
+    fullcond_alle[i]->update_bootstrap_df();
+    fullcond_alle[i]->save_betamean();
+    }
+  fullcond_alle[0]->update_bootstrap_df();
+  fullcond_alle[0]->save_betamean();
+
+  genoptions_mult[0]->out("\n");
+  genoptions_mult[0]->out("CALCULATION OF CONFIDENCE BANDS STARTED:\n",true);
+  genoptions_mult[0]->out("\n");
+
+  // MCMC-Teil
+  int seed = likep_mult[0]->get_seed();
+  if(likep_mult[0]->get_scaleexisting()==true)
+    {
+    double scale = likep_mult[0]->get_scale();
+    double transform = likep_mult[0]->get_trmult(0);
+    scale *= transform*transform;
+    likep_mult[0]->set_constscale(scale);
+    }
+
+  vector<double> modell_mcmc = modell_alt;
+  for(i=1;i<fullcond_alle.size();i++)
+    {
+    if((modell_alt[names_fixed.size()-2+i] == -1 || modell_alt[names_fixed.size()-2+i] == -2)
+                      && fullcond_alle[i]->get_fctype() != MCMC::factor)
+      {
+      fullcond_alle[i]->change_Korder(modell_alt[names_fixed.size()-2+i]);
+      modell_mcmc[names_fixed.size()-2+i] = 1000000000;
+      }
+    else if(modell_alt[names_fixed.size()-2+i] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
+      modell_mcmc[names_fixed.size()-2+i] = 1000000000;
+    else
+      fullcond_alle[i]->set_lambdaconst(modell_alt[names_fixed.size()-2+i]);
+    }
+
+  fix_ganz_komplett(modell_mcmc);        // stellt "fullcondp" neu auf (für Funktionen mit lambda=-1 -> lambda=10^8)
+  fullcond_komplett(modell_mcmc);        // fullcond-Objekte für leere Funktionen sind auch enthalten.
+
+  for(katje=0;katje<kategorien;katje++)
+    {
+    unsigned unten = (katje+1)*anz_fullcond;
+    unsigned oben = 1 + katje*anz_fullcond;
+    for(i=oben;i<unten;i++)
+      {
+      unsigned ind_mod = i + (katje+1)*(names_fixed.size()-2);
+      if(modell_alt[ind_mod] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
+        {
+        fullcond_alle[i]->set_lambdaconst(modell_alt[ind_mod]);
+        fullcond_alle[i]->set_inthemodel(0);
+        }
+      else if((modell_alt[ind_mod] == -1 || modell_alt[ind_mod] == -2)
+                               && fullcond_alle[i]->get_fctype() != MCMC::factor)
+          {
+          fullcond_alle[i]->set_inthemodel(0);
+          }
+      }
+    }
+  katje = 0;
+
+  unsigned iterations = genoptions_mult[0]->get_iterations();
+  unsigned startit = 1;
+  unsigned endit = double(iterations) / double(bootstrap+1);
+  unsigned itpmod = endit;
+  schaetzen(0,kriterium_alt,true,"backfitting");  // nötig, da fixe Effekte in "fix_ganz_komplett" gleich Null gesetzt werden.
+  for(katje=0;katje<kategorien;katje++)
+    {
+    unsigned unten = (katje+1)*anz_fullcond;
+    unsigned oben = 1 + katje*anz_fullcond;
+    for(i=oben;i<unten;i++)
+      fullcond_alle[i]->update_beta_average(zaehler);     // speichert MA-Schätzer der Funktionen
+    fullcond_alle[oben-1]->update_beta_average(zaehler);
+    }
+  katje = 0;
+
+  abbruch = simulate(posttitle,seed,startit,endit);
+  fullcond_alle[0]->update_linold();
+  fullcond_alle[0]->update_linold_vc();
+  if(abbruch==true)
+    return true;
+
+  for(katje=0;katje<kategorien;katje++)
+    {
+    unsigned unten = (katje+1)*anz_fullcond;
+    unsigned oben = 1 + katje*anz_fullcond;
+    for(i=oben;i<unten;i++)
+      {
+      unsigned ind_mod = i + (katje+1)*(names_fixed.size()-2);
+      if((modell_final[ind_mod] == -1 || modell_final[ind_mod] == -2)
+                   && fullcond_alle[i]->get_fctype() != MCMC::factor)
+        {
+        fullcond_alle[i]->undo_Korder();
+        fullcond_alle[i]->set_lambdaconst(modell_final[ind_mod]);
+        }
+      }
+    }
+  katje = 0;
+
+  endit += itpmod;
+  startit += itpmod;
+
+  while(bootstrap > 0)
+    {
+    genoptions_mult[0]->out("BOOTSTRAPSAMPLE " + ST::inttostring(bootstrap) + "\n",true);
+
+    zaehler += 1;
+    bootstrap -= 1;
+    minim = minim2;
+    fertig = false;
+
+    // neues Modell selektieren
+    likep_mult[0]->create_bootstrap_weights();
+
+    modellematrix.erase(modellematrix.begin(),modellematrix.end());
+    vector<vector<double> > startiteration;
+    startiteration.push_back(modell_boot);
+    modellematrix.push_back(startiteration);
+    fix_ganz_komplett(modell_boot);
+    fullcond_komplett(modell_boot);
+    modell_alt = modell_boot;
+    modell_neu = modell_boot;
+    likep_mult[0]->undo_constscale();
+
+    if(criterion == "MSEP" || criterion == "AUC")
+      {
+      likep_mult[0]->weight_for_all();   // macht hier das Gegenteil und setzt "weight" für MSEP ein!
+      for(unsigned y=0;y<fullcond_alle.size();y++)
+        fullcond_alle[y]->set_calculate_xwx();
+      }
+    schaetzen(0,kriterium_alt,true,"backfitting");
+    kriterium_neu = kriterium_alt;
+    steps_aktuell = 0;
+
+    if(algorithm != "coorddescent")
+      abbruch = stepfunctions();
+    else
+      abbruch = koordabstieg();
+    if(abbruch==true)
+      return true;
+
+    fix_ganz_komplett(modell_alt);
+    fullcond_komplett(modell_alt);
+    likep_mult[0]->set_original_response();
+    if(criterion == "MSEP" || criterion == "AUC")
+      {
+      likep_mult[0]->weight_for_all();
+      for(unsigned y=0;y<fullcond_alle.size();y++)
+        fullcond_alle[y]->set_calculate_xwx();
+      }
+    schaetzen(0,kriterium_alt,true,"backfitting");
+    for(i=0;i<fullcond_alle.size();i++)
+      {
+      fullcond_alle[i]->update_bootstrap_df();
+      }
+
+  // MCMC-Teil
+    seed += 1;
+    if(likep_mult[0]->get_scaleexisting()==true)
+      {
+      double scale = likep_mult[0]->get_scale();
+      double transform = likep_mult[0]->get_trmult(0);
+      scale *= transform*transform;
+      likep_mult[0]->set_constscale(scale);
+      }
+
+    vector<double> modell_mcmc = modell_alt;
+
+    for(katje=0;katje<kategorien;katje++)
+      {
+      unsigned unten = (katje+1)*anz_fullcond;
+      unsigned oben = 1 + katje*anz_fullcond;
+      for(i=oben;i<unten;i++)
+        {
+        unsigned ind_mod = i + (katje+1)*(names_fixed.size()-2);
+        if((modell_alt[ind_mod] == -1 || modell_alt[ind_mod] == -2)
+                              && fullcond_alle[i]->get_fctype() != MCMC::factor)
+          {
+          fullcond_alle[i]->change_Korder(modell_alt[ind_mod]);
+          modell_mcmc[ind_mod] = 1000000000;
+          }
+        else if(modell_alt[ind_mod] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
+          modell_mcmc[ind_mod] = 1000000000;
+        else
+          fullcond_alle[i]->set_lambdaconst(modell_alt[ind_mod]);
+        }
+      }
+    katje = 0;
+
+    fix_ganz_komplett(modell_mcmc);
+    fullcond_komplett(modell_mcmc);
+
+    for(katje=0;katje<kategorien;katje++)
+      {
+      unsigned unten = (katje+1)*anz_fullcond;
+      unsigned oben = 1 + katje*anz_fullcond;
+      for(i=oben;i<unten;i++)
+        {
+        unsigned ind_mod = i + (katje+1)*(names_fixed.size()-2);
+        if(modell_alt[ind_mod] == 0 && fullcond_alle[i]->get_fctype() != MCMC::factor)
+          {
+          fullcond_alle[i]->set_lambdaconst(modell_alt[ind_mod]);
+          fullcond_alle[i]->set_inthemodel(0);
+          }
+        else if((modell_alt[ind_mod] == -1 || modell_alt[ind_mod] == -2)
+                             && fullcond_alle[i]->get_fctype() != MCMC::factor)
+          {
+          fullcond_alle[i]->set_inthemodel(0);
+          }
+        }
+      }
+    katje = 0;
+
+    // neu schätzen, da fixe Effekte in "fix_ganz_komplett" gleich Null gesetzt werden.
+    schaetzen(0,kriterium_alt,true,"backfitting");
+    for(katje=0;katje<kategorien;katje++)
+      {
+      unsigned unten = (katje+1)*anz_fullcond;
+      unsigned oben = 1 + katje*anz_fullcond;
+      for(i=oben;i<unten;i++)
+        fullcond_alle[i]->update_beta_average(zaehler);     // speichert MA-Schätzer der Funktionen
+      fullcond_alle[oben-1]->update_beta_average(zaehler);
+      }
+    katje = 0;
+
+    // MCMC-Simulation
+    abbruch = simulate(posttitle,seed,startit,endit);
+    if(abbruch==true)
+      return true;
+    // rechnet die Zentrierungskonstanten zum linearen Prädiktor
+    fullcond_alle[0]->update_linold();
+    fullcond_alle[0]->update_linold_vc();
+
+    for(katje=0;katje<kategorien;katje++)
+      {
+      unsigned unten = (katje+1)*anz_fullcond;
+      unsigned oben = 1 + katje*anz_fullcond;
+      for(i=oben;i<unten;i++)
+        {
+        unsigned ind_mod = i + (katje+1)*(names_fixed.size()-2);
+        if((modell_alt[ind_mod] == -1 || modell_alt[ind_mod] == -2)
+                   && fullcond_alle[i]->get_fctype() != MCMC::factor)
+          {
+          fullcond_alle[i]->undo_Korder();
+          fullcond_alle[i]->set_lambdaconst(modell_alt[ind_mod]);
+          }
+        }
+      }
+    katje = 0;
+
+    endit += itpmod;
+    startit += itpmod;
+    }
+
+  modell_alt = modell_boot;
+  kriterium_alt = kriterium_boot;
+  fix_ganz_komplett(modell_alt);
+  fullcond_komplett(modell_alt);
+  likep_mult[0]->set_original_response();
+  //schaetzen(0,kriterium_alt,true,"backfitting");
+
+  fullcondp = fullcond_alle;
+  for(i=1;i<fullcond_alle.size();i++)
+    {
+    if(fullcond_alle[i]->get_fctype() == MCMC::factor)
+      {
+      unsigned j = 1;
+      bool gefunden = false;
+      while(j<=i && j<fullcondp.size() && !gefunden)
+        {
+        if(fullcond_alle[i] == fullcondp[j])
+          {
+          fullcondp.erase(fullcondp.begin()+j,fullcondp.begin()+j+1);
+          gefunden = true;
+          }
+        j++;
+        }
+      }
+    }
+  fullcond_z = fullcondp;
+  for(i=0;i<fullcond_z.size();i++)
+    fullcond_z[i]->set_fcnumber(i);
+
+  genoptions_mult[0]->out("\n");
+  genoptions_mult[0]->out("ESTIMATION RESULTS:\n",true);
+  genoptions_mult[0]->out("\n");
+  likep_mult[0]->update_bootstrap_betamean();
+  likep_mult[0]->outresults();
+  for(unsigned f=0;f<fullcond_alle.size();f++)
+    {
+    fullcond_alle[f]->update_bootstrap_betamean();
+    fullcond_alle[f]->outresults_df(samplesize_df);
+    fullcond_alle[f]->outresults();
+    }
+
+  return abbruch;
+  }
+
+
+void STEPMULTIrun::update_bootstrap(unsigned & zaehler)
+  {
+  unsigned i;
+  genoptions_mult[0]->update_bootstrap();
+
+  if(likepexisting)
+    likep_mult[0]->update_bootstrap();
+
+  if(unconditional)
+    {
+    unsigned con = 0;
+    for(i=1;i<fullcondp.size();i++)
+      {
+      if(fullcondp[i]->get_datanames()[0]=="const")
+        {
+        fullcondp[con]->update_bootstrap();
+        con = i;
+        }
+      else
+        fullcondp[i]->update_bootstrap();
+      }
+    fullcondp[con]->update_bootstrap();
+    }
+  else
+    {
+    for(katje=0;katje<kategorien;katje++)
+      {
+      unsigned ind_fullc = katje*anz_fullcond;
+      unsigned unten = (katje+1)*anz_fullcond;
+      unsigned oben = 1 + katje*anz_fullcond;
+      for(i=oben;i<unten;i++)
+        {
+        fullcond_alle[i]->update_bootstrap();
+        fullcond_alle[i]->update_beta_average(zaehler);
+        }
+      fullcond_alle[ind_fullc]->update_bootstrap(unconditional);
+      fullcond_alle[ind_fullc]->update_beta_average(zaehler);
+      }
+    katje = 0;
+    }
+
+  if(likepexisting)
+    likep_mult[0]->update_predict_bootstrap(bootstrap);    //likep_mult[0]->update_predict_bootstrap();
+  }
+
+
+bool STEPMULTIrun::simulate(const vector<ST::string> & header, const int & seed,
+                           const unsigned & startit, const unsigned & endit)
+  {
+  unsigned i,j;
+  unsigned nrmodels = genoptions_mult.size();
+  bool errors=false;
+  i=0;
+  while( (i<nrmodels) && (errors==false) )
+    {
+    errors = checkerrors(likep_mult[i],fullcondp,begin[i],end[i]);
+    i++;
+    }
+
+  if (errors==false)
+  {
+  unsigned it;
+  //unsigned iterations = genoptions_mult[0]->get_iterations();
+
+  #if defined(MICROSOFT_VISUAL)
+    {
+
+    }
+  #elif!defined(__BUILDING_GNU)
+    {
+    randomize();
+    }
+  #else
+    {
+    srand(1);
+    }
+  #endif
+
+  if(seed >= 0)
+    srand(seed);
+
+  for (it=startit;it<=endit;it++)
+    {
+
+    for(i=0;i<nrmodels;i++)
+      {
+      genoptions_mult[nrmodels-1-i]->update();
+
+      if (likepexisting)
+        likep_mult[nrmodels-1-i]->update();        // DO NOT CHANGE ORDER !!!!
+
+      for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
+        {
+        fullcondp[j]->update();
+        } // end: for(j=0;j<nrfullcond;j++)
+
+      if (likepexisting)
+        likep_mult[nrmodels-1-i]->update_predict();
+      }
+
+
+#if defined(BORLAND_OUTPUT_WINDOW)
+    Application->ProcessMessages();
+
+    if (Frame->stop)
+      {
+//      genoptions->out("USER BREAK\n");
+      break;
+      }
+
+    if (Frame->pause)
+      {
+      genoptions_mult[0]->out("\n");
+      genoptions_mult[0]->out("SIMULATION PAUSED\n");
+      genoptions_mult[0]->out("Click CONTINUE to proceed\n");
+      genoptions_mult[0]->out("\n");
+
+      while (Frame->pause)
+        {
+        Application->ProcessMessages();
+        }
+
+      genoptions_mult[0]->out("SIMULATION CONTINUED\n");
+      genoptions_mult[0]->out("\n");
+      }
+#elif defined(JAVA_OUTPUT_WINDOW)
+      bool stop = genoptions_mult[0]->adminb_p->breakcommand();
+      if(stop)
+        break;
+#endif
+
+    } // end: for (i=1;i<=genoptions->iterations;i++)
+
+
+#if defined(BORLAND_OUTPUT_WINDOW)
+    if (!Frame->stop)
+#elif defined(JAVA_OUTPUT_WINDOW)
+    if (!genoptions_mult[0]->adminb_p->get_stop())
+#endif
+      {
+      return false;
+      } // end: if Frame->stop
+
+#if defined(BORLAND_OUTPUT_WINDOW)
+    else
+      {
+      genoptions_mult[0]->out("\n");
+      genoptions_mult[0]->out("SIMULATION TERMINATED BY USER BREAK\n");
+      genoptions_mult[0]->out("\n");
+      genoptions_mult[0]->out("Estimation results: none\n");
+      genoptions_mult[0]->out("\n");
+
+      for(i=0;i<nrmodels;i++)
+        {
+        if (likepexisting)
+          likep_mult[i]->reset();
+        }
+
+      for(j=0;j<fullcondp.size();j++)
+        fullcondp[j]->reset();
+
+      return true;
+      }
+#elif defined(JAVA_OUTPUT_WINDOW)
+    else
+      {
+      genoptions_mult[0]->out("\n");
+      genoptions_mult[0]->out("Estimation results: none\n");
+      genoptions_mult[0]->out("\n");
+
+
+      for(i=0;i<nrmodels;i++)
+        {
+        if (likepexisting)
+          likep_mult[i]->reset();
+        }
+
+      for(j=0;j<fullcondp.size();j++)
+        fullcondp[j]->reset();
+
+      return true;
+      }
+#endif
+
+  } // end: no errors
+
+  return true;
+  }
+
+
 }
-
-
-
-
-

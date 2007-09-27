@@ -322,7 +322,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 // ------------- Model Averaging -----------------------------------------------
 // -----------------------------------------------------------------------------
 
-  void update_bootstrap(void);
+  void update_bootstrap(unsigned & zaehler);
 
   bool confidence_intervals(const ST::string & CI,
           const vector<double> & modell_final,const double & kriterium_final,

@@ -183,12 +183,13 @@ for(unsigned s=0;s<linearpred.rows();s++)
    out << ST::doubletostring(linearpred(s,0),6) << "   ";
 out << endl;   */
 
+  if(isbootstrap==false)
+    isbootstrap = true;
   if(response_ori.rows()==1)
     {
     srand(seed);
     response_ori = response;  // speichert Response vom Original-Datensatz
     linearpred_ori = linearpred;     // speichert Prädiktor vom Original-Datensatz
-    isbootstrap = true;
     }
 
   double * workresp = response.getV();
@@ -199,7 +200,8 @@ out << endl;   */
   double u;
   for(i=0;i<nrobs;i++,workresp++,worklin++,workw++)
     {
-    *workresp = compute_bootstrap_data(worklin,workw);
+    compute_bootstrap_data(worklin,workw,workresp);
+    //*workresp = compute_bootstrap_data(worklin,workw);
     //*worklin + sqrt(scale(0,0) / *workw) * rand_normal();
     }
   }
@@ -304,9 +306,16 @@ void DISTRIBUTION::weight_for_all(void)
   {
   constant_iwlsweights = false;
   iwlsweights_notchanged_df = false;
+  datamatrix save = datamatrix(weight.rows(),1,0);
+  save.assign(weight);
   weight = weight2;
+  weight2 = save;
   if(weightiwls2.rows()>1)
+    {
+    save.assign(weightiwls);
     weightiwls = weightiwls2;
+    weightiwls2 = save;
+    }
   }
 
 
@@ -450,6 +459,7 @@ DISTRIBUTION::DISTRIBUTION(const datamatrix & offset,MCMCoptions * o,
   ridgesum=0.0;   //new
   nrlasso=0;      //new
   lassosum=0.0;   //new
+
   create(o,r,w);
   add_linearpred(offset);
 
@@ -4307,7 +4317,8 @@ double DISTRIBUTION_gamma2::compute_weight(double * worklin,double * weight,
                                           const int & i,const unsigned & col)
                                           const
   {
-  return 1/scale(0,0) * *weight;
+  //return 1/scale(0,0) * *weight;
+  return *weight;
   }
 
 
@@ -4617,13 +4628,13 @@ void DISTRIBUTION_gamma2::compute_deviance(const double * response,
       {
       *deviance   = 2*(nu*log(*mu)
                   -(nu-1)*log(rtr)+ help*(rtr));
-      *deviancesat = 2*(-log(help2) + help2 - 1);
+      *deviancesat = 2* *weight *(-log(help2) + help2 - 1);
       }
     else
       {
       *deviance   = 2*(lgammafunc(nu)-nu*log(help)
                   -(nu-1)*log(rtr)+ help*(rtr));
-      *deviancesat = 2*(-log(help2) + help2 - 1);
+      *deviancesat = 2* *weight *(-log(help2) + help2 - 1);
       }
     *deviance -= 2*addinterceptsample;
     }
@@ -4669,7 +4680,36 @@ double DISTRIBUTION_gamma2::phi_hat() const
   }
 
 
-double DISTRIBUTION_gamma2::compute_bootstrap_data(const double * linpred,const double * weight)
+double DISTRIBUTION_gamma2::compute_IWLS(double * response,
+                       double * linpred, double * weight,
+                       const int & i,double * weightiwls,double * tildey,
+                       bool weightyes, const unsigned & col)
+  {
+  double m = exp(*linpred);
+  if (weightyes)
+    *weightiwls = *weight;
+    //*weightiwls = 1/scale(0,0) * *weight;
+
+  *tildey = (*response - m)/m;
+
+  if (*weight != 0)
+    return  - *weight * (*response / m + *linpred) / (scale(0,0));
+  else
+    return 0;
+  }
+
+
+double DISTRIBUTION_gamma2::loglikelihood(double * res, double * lin,
+                                         double * w,const int & i) const
+  {
+  if (*w != 0)
+    return  - *w * (*res / exp(*lin) + *lin) / (scale(0,0));
+  else
+    return 0;
+  }
+
+
+void DISTRIBUTION_gamma2::compute_bootstrap_data(const double * linpred,const double * weight,double * wresp)
   {
   double mu = exp(*linpred);
   double pres = 0;
@@ -4682,7 +4722,46 @@ double DISTRIBUTION_gamma2::compute_bootstrap_data(const double * linpred,const 
     pres = rand_gamma(a,b);
     pres /= *weight;
     }
-  return pres;
+  *wresp = pres;
+  }
+
+
+void DISTRIBUTION_gamma2::update_predict(void)
+  {
+    if(
+      (optionsp->get_nriter() > optionsp->get_burnin())
+      &&
+      ((optionsp->get_nriter()-optionsp->get_burnin()-1)
+       % (optionsp->get_step()) == 0)
+      )
+      {
+      add_linearpred(addinterceptsample);
+      }
+
+  DISTRIBUTION::update_predict();
+
+  if(
+    (optionsp->get_nriter() > optionsp->get_burnin())
+    &&
+    ((optionsp->get_nriter()-optionsp->get_burnin()-1)
+    % (optionsp->get_step()) == 0)
+    )
+    {
+    add_linearpred(-addinterceptsample);
+    }
+  }
+
+
+void DISTRIBUTION_gamma2::compute_IWLS_weight_tildey(
+                               double * response,double * linpred,
+                               double * weight,const int & i,
+                              double * weightiwls,double * tildey,
+                              const unsigned & col)
+  {
+  double m = exp(*linpred);
+  //*weightiwls = 1/scale(0,0) * *weight;
+  *weightiwls = *weight;
+  *tildey = (*response - m)/m;
   }
 
 //------------------------------------------------------------------------------
@@ -5329,12 +5408,12 @@ double DISTRIBUTION_gaussian::compute_bic(const double & df)
   }
 
 
-double DISTRIBUTION_gaussian::compute_bootstrap_data(const double * linpred,const double * weight)
+void DISTRIBUTION_gaussian::compute_bootstrap_data(const double * linpred,const double * weight,double * wresp)
   {
   double pres = 0;
   if(*weight > 0)
     pres = *linpred + sqrt(scale(0,0) / *weight) * rand_normal();
-  return pres;
+  *wresp = pres;
   }
 
 // ------------- END: stepwise -------------------------------------------------
@@ -6019,7 +6098,7 @@ double DISTRIBUTION_binomial::compute_auc(void)
   }
 
 
-double DISTRIBUTION_binomial::compute_bootstrap_data(const double * linpred,const double * weight)
+void DISTRIBUTION_binomial::compute_bootstrap_data(const double * linpred,const double * weight,double * wresp)
   {
   double el = exp(*linpred);
   double mu = el/(1+el);
@@ -6031,14 +6110,14 @@ double DISTRIBUTION_binomial::compute_bootstrap_data(const double * linpred,cons
     while(i<=*weight)
       {
       u = uniform();
-      if(u <= mu) 
+      if(u <= mu)
         pres += 1;
       i += 1;
-      } 
-    pres /= *weight; 
+      }
+    pres /= *weight;
     }
 
-  return pres;
+  *wresp = pres;
   }
 
 //------------------------------------------------------------------------------
@@ -6386,7 +6465,7 @@ bool DISTRIBUTION_binomial_latent::posteriormode_converged(const unsigned & itnr
   }
 
 
-double DISTRIBUTION_binomial_latent::compute_bootstrap_data(const double * linpred,const double * weight)
+void DISTRIBUTION_binomial_latent::compute_bootstrap_data(const double * linpred,const double * weight,double * wresp)
   {
   double mu = randnumbers::Phi2(*linpred);
   double pres = 0;
@@ -6401,10 +6480,10 @@ double DISTRIBUTION_binomial_latent::compute_bootstrap_data(const double * linpr
         pres += 1;
       i += 1;
       } 
-    pres /= *weight; 
+    pres /= *weight;
     }
  
-  return pres;
+  *wresp = pres;
   }  
 
 //------------------------------------------------------------------------------
@@ -6930,7 +7009,7 @@ void DISTRIBUTION_poisson::tr_nonlinear(vector<double *> b,vector<double *> br,
   }
 
 
-double DISTRIBUTION_poisson::compute_bootstrap_data(const double * linpred,const double * weight)
+void DISTRIBUTION_poisson::compute_bootstrap_data(const double * linpred,const double * weight,double * wresp)
   {
   double mu = exp(*linpred);
   double pres = 0;
@@ -6946,7 +7025,7 @@ double DISTRIBUTION_poisson::compute_bootstrap_data(const double * linpred,const
     pres -= 1;
     pres / *weight;
     }
-  return pres;
+  *wresp = pres;
   }
 
 
@@ -7523,12 +7602,12 @@ void DISTRIBUTION_multinom2::compute_IWLS_weight_tildey(double * response,
   if(mu < 0.001)
     mu = 0.001;
 
-  *weightiwls = mu*(1-mu) * *weight;
+  *weightiwls = mu*(1-mu);
 
   double *respc = response+col;
 
   *tildey = (*respc - mu)/(*weightiwls);
-
+  *weightiwls = *weightiwls * *weight;
   }
 
 
@@ -7568,7 +7647,7 @@ double DISTRIBUTION_multinom2::compute_IWLS(double * resp,double * linpred,
    double v = mu*(1-mu);
 
   if (weightyes)
-    *weightiwls = v;
+    *weightiwls = v * *weight;
 
   double * respc = resp+col;
 
@@ -7583,19 +7662,16 @@ double DISTRIBUTION_multinom2::compute_IWLS(double * resp,double * linpred,
 
   for (j=0;j<dim;j++,workresp++,worklin++)
     {
-    if ((*workresp) == 1)
+    if ((*workresp) > 0)
       {
       sum2+= *workresp;
-      logl +=  *worklin - log(1+sumexp);
+      logl +=  *workresp * *worklin;
       }
     }
 
-  if (1-sum2 > 0)                                       // reference category
-    {
-    logl -= log(1+sumexp);
-    }
+  logl -= log(1+sumexp);
 
-  return logl;
+  return logl * *weight;
   }
 
 
@@ -7693,23 +7769,18 @@ double DISTRIBUTION_multinom2::loglikelihood(double * resp,double * linpred,
   worklin = linpred;
 
   double logl = 0;
-  double sum2=0;
 
   for (j=0;j<dim;j++,resp++,worklin++)
     {
-    if ((*resp) == 1)
+    if ((*resp) > 1)
       {
-      sum2+= 1;
-      logl += *worklin - log(1+sum);
+      logl += *resp * *worklin;
       }
     }
 
-  if (sum2 == 0)                 // reference category
-    {
-    logl -= log(1+sum);
-    }
+  logl -= log(1+sum);
 
-  return logl;
+  return logl * *weight;
   }
 
 
@@ -7768,6 +7839,50 @@ bool DISTRIBUTION_multinom2::posteriormode_converged(const unsigned & itnr)
   return true;
   }
 
+
+void DISTRIBUTION_multinom2::compute_bootstrap_data(const double * linpred,const double * weight,double * wresp)
+  {
+  datamatrix mu = datamatrix(linearpred.cols(),1,0);
+  double * wmu = mu.getV();
+  double sum = 1;
+  const double * linpredstart = linpred;
+
+  unsigned i,j;
+  for(i=0;i<linearpred.cols();i++,linpred++)
+    sum+= exp(*linpred);
+  for(i=0;i<linearpred.cols();i++,linpredstart++,wmu++)
+    *wmu = exp(*linpredstart)/sum;
+
+  double * wrespstart = wresp;
+  for(i=0;i<linearpred.cols();i++,wresp++)
+    *wresp = 0;
+  wresp = wrespstart;
+  wmu = mu.getV();
+
+  double u;
+  i = 0;
+  if(*weight>0)
+    {
+    while(i<=*weight)
+      {
+      sum = 0;
+      u = uniform();
+      wresp = wrespstart;
+      wmu = mu.getV();
+      for(j=0;j<linearpred.cols();j++,wresp++,wmu++)
+        {  
+        sum += *wmu;
+        if(u <= sum)
+          *wresp = *wresp + 1;
+        }
+      i += 1;
+      }
+    wresp = wrespstart;
+    for(j=0;j<linearpred.cols();j++,wresp++)
+      *wresp = *wresp / *weight;
+    }
+  wresp = wrespstart + linearpred.cols() - 1;
+  }
 
 //------------------------------------------------------------------------------
 //------------------ CLASS DISTRIBUTION_multinomial_latent ---------------------

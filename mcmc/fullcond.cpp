@@ -126,6 +126,7 @@ FULLCOND::FULLCOND(const FULLCOND & m)
   smoothing = m.smoothing;
   interactions_pointer = m.interactions_pointer;  
   betaright = m.betaright;
+  beta_average = m.beta_average;
   calculate_xwx = m.calculate_xwx;
   calculate_xwx_vc = m.calculate_xwx_vc;
   nofixed = m.nofixed;
@@ -244,6 +245,7 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
   smoothing = m.smoothing;
   interactions_pointer = m.interactions_pointer;  
   betaright = m.betaright;
+  beta_average = m.beta_average;
   calculate_xwx = m.calculate_xwx;
   calculate_xwx_vc = m.calculate_xwx_vc;
   nofixed = m.nofixed;
@@ -1477,10 +1479,6 @@ void FULLCOND::update_bootstrap(const bool & uncond)
   {
   register unsigned i;
   double* workbeta = beta.getV();
-//  double* workbetas2 = betas2.getV();
-//  double* workbetavar = betavar.getV();
-//  double* workbetamin = betamin.getV();
-//  double* workbetamax = betamax.getV();
 
   unsigned samplesize = optionsp->get_nriter();
   if(samplesize==1)
@@ -1496,55 +1494,18 @@ void FULLCOND::update_bootstrap(const bool & uncond)
 
   double betatransform;
 
-//ofstream out;
-//ST::string pathdf = samplepath.substr(0,samplepath.length()-4)+".txt";
-//out.open(pathdf.strtochar(),ios::app);
-
   for(i=0;i<nrpar;i++,workbeta++,workbetamean++)
     {
     betatransform = transform * (*workbeta)+addon;
-
-//out << ST::doubletostring(betatransform,6) << "   ";
-
     // storing sampled parameters in binary mode
     if (flags[0] != 1)
       samplestream.write((char *) &betatransform,sizeof betatransform);
-
     // updating betamean
     if (samplesize==1)
       *workbetamean = betatransform;
 //    else
 //      *workbetamean = (1.0/(samplesize))*((samplesize-1)*(*workbetamean) + betatransform);
-
-    // updating betavar
-//    *workbetas2 += betatransform*betatransform;
-//    *workbetavar = (1.0/samplesize)*(*workbetas2)-(*workbetamean)*(*workbetamean);
-
-    // updating betamin, betamax
-//    if (samplesize==1)
-//      {
-//      *workbetamin = betatransform;
-//      *workbetamax = betatransform;
-//      }
-//    else
-//      {
-//      if (betatransform < *workbetamin)
-//        *workbetamin = betatransform;
-//      if (betatransform > *workbetamax)
-//        *workbetamax = betatransform;
-//      }
-
-    // initializing betameanold,betavarold,betaminold and betamaxold
-//    if (samplesize==1)
-//      {
-//      betameanold = betamean;
-//      betavarold = betavar;
-//      betaminold = betamin;
-//      betamaxold = betamax;
-//      }
      }  // end: for i=0; ...
-
-//out << endl;
 
   if(flags[1]!= 1 && samplesize % optionsp->get_nrbetween() == 0)
     {
@@ -1552,6 +1513,25 @@ void FULLCOND::update_bootstrap(const bool & uncond)
     optionsp->out("  Selection is completed for " + ST::inttostring(samplesize) + " boostrap datasets \n");
     optionsp->out("\n");
     }  // end: if (it % nrbetween == 0)
+  }
+
+
+void FULLCOND::update_beta_average(unsigned & samplesize)
+  {
+  if(beta_average.rows()<beta.rows())
+    beta_average = datamatrix(beta.rows(),1,0);
+
+  double * workbeta = beta.getV();
+  double * workbetamean = beta_average.getV();
+  double betatransform;
+  for(unsigned i=0;i<nrpar;i++,workbeta++,workbetamean++)
+    {
+    betatransform = transform * (*workbeta)+addon;
+   if (samplesize==1)
+     *workbetamean = betatransform;
+   else
+     *workbetamean = (1.0/(samplesize))*((samplesize-1)*(*workbetamean) + betatransform);
+   }
   }
 
 

@@ -172,12 +172,21 @@ void stepwisereg::create(void)
 
   //------------STEPWISE ---------------------------------------
 
+  vector<ST::string> algo;
+  algo.push_back("stepwise");
+  algo.push_back("cdescent1");
+  algo.push_back("cdescent2");
+  algo.push_back("cdescent3");
+
+  algorithm = stroption("algorithm",algo,"cdescent1");
+
   vector<ST::string> proc;
+  proc.push_back("overwrite");
   proc.push_back("stepwise");
   proc.push_back("stepmin");
   proc.push_back("coorddescent");
 
-  procedure = stroption("procedure",proc,"stepwise");
+  procedure = stroption("procedure",proc,"overwrite");
 
   vector<ST::string> minim;
   minim.push_back("approx");
@@ -207,19 +216,19 @@ void stepwisereg::create(void)
   cr.push_back("CV10");
   cr.push_back("AUC");
 
-  criterion = stroption("criterion",cr,"GCV");
+  criterion = stroption("criterion",cr,"AIC_imp");
   gcvfactor = doubleoption("gcvfactor",1,1,2);
 
   proportion = doubleoption("proportion",0.75,0,1);
 
-  steps = intoption("steps",1000,0,10000);
+  steps = intoption("steps",100,0,10000);
 
   vector<ST::string> tr;
   tr.push_back("trace_on");
   tr.push_back("trace_off");
   tr.push_back("trace_half");
   tr.push_back("trace_minim");
-  trace = stroption("trace",tr,"trace_on");
+  trace = stroption("trace",tr,"trace_half");
 
   number = intoption("number",20,1,50);
 
@@ -236,7 +245,7 @@ void stepwisereg::create(void)
   fine_tuning = simpleoption("fine_tuning",false);
   fine_local = simpleoption("fine_local",false);
 
-  bootstrap = intoption("bootstrapsamples",0,0,20000);
+  bootstrap = intoption("bootstrapsamples",99,0,20000);
   unconditional = simpleoption("conditional",false);
   //maveraging = simpleoption("model_averaging",false);
   //window = intoption("window",10,1,30);
@@ -249,9 +258,9 @@ void stepwisereg::create(void)
   ci.push_back("bootstrap");
   CI = stroption("CI",ci,"none");
 
-  iterations = intoption("iterations",52000,1,10000000);
-  burnin = intoption("burnin",2000,0,500000);
-  step = intoption("step",50,1,1000);
+  iterations = intoption("iterations",20000,1,10000000);
+  burnin = intoption("burnin",0,0,500000);
+  step = intoption("step",20,1,1000);
   level1 = doubleoption("level1",95,40,99);
   level2 = doubleoption("level2",80,40,99);
 
@@ -326,6 +335,7 @@ void stepwisereg::create(void)
   regressoptions.push_back(&propopt);
   regressoptions.push_back(&distopt);
 
+  regressoptions.push_back(&algorithm);
   regressoptions.push_back(&procedure);
   regressoptions.push_back(&minimum);
   regressoptions.push_back(&minibackfitting_off);
@@ -1943,8 +1953,8 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
         fcnonpgaussian.push_back(
         FULLCOND_nonp_gaussian_stepwise(&generaloptions[generaloptions.size()-1],
         distr[distr.size()-1],D.getCol(j2),D.getCol(j1),fcconst_intercept,
-        unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,center,
-        lambda));
+        unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,lambda,
+        center));
 
         FULLCOND * inter;
 
@@ -2033,8 +2043,8 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
       fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
 
 
-      if (check_nongaussian())
-        fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(1);
+      if (!check_gaussian())
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(1,false);
 
       fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
 
@@ -2578,10 +2588,8 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
         return true;
         }
 
-
-
-      if (check_nongaussian())
-        fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(1);
+      if (!check_gaussian())
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(1,false);
 
       fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
@@ -2772,6 +2780,8 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
 
       fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcrandomgaussian[fcrandomgaussian.size()-1]);
+      if(!check_gaussian())
+        fcrandomgaussian[fcrandomgaussian.size()-1].set_utype();
       }
 
     }
@@ -2913,6 +2923,8 @@ bool stepwisereg::create_random(const unsigned & collinpred)
       fcrandomgaussian[fcrandomgaussian.size()-1].init_name(terms[i].varnames[0]);
       fcrandomgaussian[fcrandomgaussian.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcrandomgaussian[fcrandomgaussian.size()-1]);
+      if(!check_gaussian())
+        fcrandomgaussian[fcrandomgaussian.size()-1].set_utype();
       }
 
     }
@@ -3336,8 +3348,25 @@ void regressrun(stepwisereg & b)
       cr = "GCV2";
     double gcvfac = b.gcvfactor.getvalue();
     double prop = b.proportion.getvalue();
+    ST::string algo = b.algorithm.getvalue();
     ST::string proc = b.procedure.getvalue();
     ST::string minim = b.minimum.getvalue();
+    if(proc == "overwrite")
+      {
+      if(algo != "stepwise")
+        proc = "coorddescent";
+      else
+        {
+        proc = "stepwise";
+        if(algo == "cdescent1")
+          minim = "adaptiv";
+        else if(algo == "cdescent2")
+          minim = "exact";
+        else
+         minim = "adap_exact";
+        }
+      }
+
     int steps = b.steps.getvalue();
     ST::string tr = b.trace.getvalue();
     int number = b.number.getvalue();
@@ -3550,8 +3579,25 @@ void mregressrun(stepwisereg & b)
       cr = "GCV2";
     double gcvfac = b.gcvfactor.getvalue();
     double prop = b.proportion.getvalue();
+    ST::string algo = b.algorithm.getvalue();
     ST::string proc = b.procedure.getvalue();
     ST::string minim = b.minimum.getvalue();
+    if(proc == "overwrite")
+      {
+      if(algo != "stepwise")
+        proc = "coorddescent";
+      else
+        {
+        proc = "stepwise";
+        if(algo == "cdescent1")
+          minim = "adaptiv";
+        else if(algo == "cdescent2")
+          minim = "exact";
+        else
+         minim = "adap_exact";
+        }
+      }
+
     int steps = b.steps.getvalue();
     ST::string tr = b.trace.getvalue();
     int number = b.number.getvalue();
@@ -3588,10 +3634,12 @@ void mregressrun(stepwisereg & b)
    //   }
    //else
    //  {
+
      b.runobjm = STEPMULTIrun(&b.generaloptions[0],b.distr[0],b.fullcond);
      failure = b.runobjm.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
                        fine_tuning,fine_local,boot,uncond,
                        b.D,b.modelvarnamesv,name,fullcond_z,path2,CI,hier,prop,minib);
+
    //  }
 
     if(!failure)
@@ -3759,9 +3807,8 @@ bool stepwisereg::create_nonpseason(const unsigned & collinpred)
       fcnonpgaussian[fcnonpgaussian.size()-1].set_dfstart(dfstart);
       fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
 
-
-      if (check_nongaussian())
-        fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(1);
+      if (!check_gaussian())
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(1,false);
 
       fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
