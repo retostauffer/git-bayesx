@@ -94,8 +94,6 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
       help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
     setbeta(help);
     }
-
-
 //______________________________________________________________________________
 //
 // COPY CONSTRUCTOR
@@ -176,15 +174,42 @@ void FULLCOND_variance_nonp_vector::update(void)
 
   // getcurrent value of sqrt(scale) parameter
   double help = sqrt(distrp->get_scale(column));
+  int iteration = optionsp->get_nriter();
 
   // variable for current value regressionparameters
   double * workbeta;
 
   // Vaeiables for summs
+  double rand_invgaussian = 0;
   double sumvariances = 0;
   double sumregcoeff = 0;
   lassosum=0;
   ridgesum=0;
+
+//TEMP:BEGIN--------------------------------------------------------------------
+ofstream outputl("c:/bayesx/test/test_lasso.txt", ios::out|ios::app);
+ofstream outputr("c:/bayesx/test/test_ridge.txt", ios::out|ios::app);
+if (is_ridge == 0)
+{ if (iteration ==1)
+  { int nrlasso = distrp->get_lasso();
+    int nrridge = distrp->get_ridge();
+    outputl << "fall " << "index " << "iter " << "rinvg " << "variances "  << "beta " << "shrp "  << "a " << "b " << "shrfix " << "sigma2 " << "nrridge " << "nrlasso " << "ridgesum " << "lassosum " << "\n";
+    for(unsigned int i=0; i<nrpar; i++)
+    {outputl << "start " << i << " " << 0 << " " << 0 << " " << variances(i,0) << " " << 0 << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge  << " " << nrlasso  << " " << ridgesum  << " " << lassosum  << "\n" ;
+    }
+  }
+}
+if (is_ridge == 1)
+{ if (iteration ==1)
+  { int nrlasso = distrp->get_lasso();
+    int nrridge = distrp->get_ridge();
+    outputr << "fall " << "index " << "iter " << "rinvg " << "variances "  << "beta " << "shrp "  << "a " << "b " << "shrfix " << "sigma2 " << "nrridge " << "nrlasso " << "ridgesum " << "lassosum " << "\n";
+    for(unsigned int i=0; i<nrpar; i++)
+    {outputr << "start " << i << " " << 0 << " " << 0 << " " << variances(i,0) << " " << 0 << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge  << " " << nrlasso  << " " << ridgesum  << " " << lassosum  << "\n" ;
+    }
+  }
+}
+//TEMP:END----------------------------------------------------------------------
 
 
   // Gibbs-Update of varianceparameters 1/tau^2 with Inverse Normaldistribution
@@ -200,28 +225,42 @@ void FULLCOND_variance_nonp_vector::update(void)
         {
         if (*workbeta>0 && *shrinkagep>0)
           {
-          double rand_invgaussian = rand_inv_gaussian(help*(*shrinkagep)/(*workbeta), (*shrinkagep)*(*shrinkagep));
+          rand_invgaussian = rand_inv_gaussian(help*(*shrinkagep)/(*workbeta), (*shrinkagep)*(*shrinkagep));
           beta(i,0) = 1.0/rand_invgaussian;
           }
         if (*workbeta<0 && *shrinkagep>0)
           {
-          double rand_invgaussian = rand_inv_gaussian(-1.0*help*(*shrinkagep)/(*workbeta), (*shrinkagep)*(*shrinkagep));
+          rand_invgaussian = rand_inv_gaussian(-1.0*help*(*shrinkagep)/(*workbeta), (*shrinkagep)*(*shrinkagep));
           beta(i,0) = 1.0/(rand_invgaussian);
           }
         if (*workbeta==0 || *shrinkagep<=0)
           {
           beta(i,0) = 1E-6;
+          rand_invgaussian = -1;    // wieder rausnehmen, nur zum testen
           }
+        lassosum = lassosum + ((*workbeta)*(*workbeta))/variances(i,0);  // sum(beta^2/tau^2)
+        int nrlasso = distrp->get_lasso();
+        int nrridge = distrp->get_ridge();
+//TEMP:BEGIN--------------------------------------------------------------------
+outputl << "lasso " << i << " " << iteration << " " << rand_invgaussian << " " << beta(i,0) << " " << *workbeta << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge << " " << nrlasso << " " << ridgesum << " " << lassosum << "\n" ;
+//TEMP:END----------------------------------------------------------------------
+
        }
 
       if (is_ridge == 1)                              // L2-penalty
         {
          beta(i,0) = 1/(2*(*shrinkagep));
+         ridgesum = ridgesum + ((*workbeta)*(*workbeta))/variances(i,0);  // sum(beta^2/tau^2)
+         rand_invgaussian = -1;      // wieder rausnehmen, nur zum testen
+         int nrlasso = distrp->get_lasso();
+         int nrridge = distrp->get_ridge();
+//TEMP:BEGIN--------------------------------------------------------------------
+outputr << "ridge " << i << " " << iteration << " " << rand_invgaussian << " " << beta(i,0) << " " << *workbeta << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge << " " << nrlasso << " " << ridgesum << " " << lassosum << "\n" ;
+//TEMP:END----------------------------------------------------------------------
+
         }
 
       sumregcoeff = sumregcoeff + (*workbeta)*(*workbeta);
-      ridgesum = ridgesum + ((*workbeta)*(*workbeta))/variances(i,0);  // sum(beta^2/tau^2)
-      lassosum = ridgesum;
       }
     }
 
@@ -429,16 +468,33 @@ void FULLCOND_variance_nonp_vector::outresults_shrinkage(void)
 
 void FULLCOND_variance_nonp_vector::outoptions(void)
   {
-  optionsp->out("  Hyperparameter a for gamma-shrinkagepriori: " +
-                   ST::doubletostring(a_shrinkagegamma) + "\n" );
-  optionsp->out("  Hyperparameter b for gamma-shrinkagepriori: " +
-                   ST::doubletostring(b_shrinkagegamma) + "\n" );
-  if(shrinkagefix==true)
-  {
-  optionsp->out("  shrinkageparameter is fixed at value shrinkage = " +
-                   ST::doubletostring(fc_shrinkage.getbeta(0,0)) + "\n" );
-  }
-  optionsp->out("\n");
+  if(is_ridge == 0)
+    {
+    optionsp->out("  Hyperparameter a for lassoshrinkage-gammapriori: " +
+                     ST::doubletostring(a_shrinkagegamma) + "\n" );
+    optionsp->out("  Hyperparameter b for lassoshrinkage-gammapriori: " +
+                     ST::doubletostring(b_shrinkagegamma) + "\n" );
+    if(shrinkagefix==true)
+    {
+    optionsp->out("  lassoshrinkageparameter is fixed at value shrinkage_start = " +
+                     ST::doubletostring(fc_shrinkage.getbeta(0,0)) + "\n" );
+    }
+    optionsp->out("\n");
+    }
+    
+  if(is_ridge == 1)
+    {
+    optionsp->out("  Hyperparameter a for ridgeshrinkage-gammapriori: " +
+                     ST::doubletostring(a_shrinkagegamma) + "\n" );
+    optionsp->out("  Hyperparameter b for ridgeshrinkage-gammapriori: " +
+                     ST::doubletostring(b_shrinkagegamma) + "\n" );
+    if(shrinkagefix==true)
+    {
+    optionsp->out("  ridgeshrinkageparameter is fixed at value shrinkage_start = " +
+                     ST::doubletostring(fc_shrinkage.getbeta(0,0)) + "\n" );
+    }
+    optionsp->out("\n");
+    }
   }
 
 
