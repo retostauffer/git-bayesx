@@ -2190,6 +2190,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       distr[distr.size()-1]->set_ridge(data.cols());
       distr[distr.size()-1]->update_ridge(0.0);
 
+
       // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
       fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
           &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],
