@@ -185,7 +185,7 @@ void FULLCOND_variance_nonp_vector::update(void)
   double sumregcoeff = 0;
   lassosum=0;
   ridgesum=0;
-
+/*
 //TEMP:BEGIN--------------------------------------------------------------------
 ofstream outputl("c:/bayesx/test/test_lasso.txt", ios::out|ios::app);
 ofstream outputr("c:/bayesx/test/test_ridge.txt", ios::out|ios::app);
@@ -210,7 +210,7 @@ if (is_ridge == 1)
   }
 }
 //TEMP:END----------------------------------------------------------------------
-
+*/
 
   // Gibbs-Update of varianceparameters 1/tau^2 with Inverse Normaldistribution
   // if L1-penalty is used
@@ -241,10 +241,11 @@ if (is_ridge == 1)
         lassosum = lassosum + ((*workbeta)*(*workbeta))/variances(i,0);  // sum(beta^2/tau^2)
         int nrlasso = distrp->get_lasso();
         int nrridge = distrp->get_ridge();
+/*
 //TEMP:BEGIN--------------------------------------------------------------------
 outputl << "lasso " << i << " " << iteration << " " << rand_invgaussian << " " << beta(i,0) << " " << *workbeta << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge << " " << nrlasso << " " << ridgesum << " " << lassosum << "\n" ;
 //TEMP:END----------------------------------------------------------------------
-
+*/
        }
 
       if (is_ridge == 1)                              // L2-penalty
@@ -254,10 +255,11 @@ outputl << "lasso " << i << " " << iteration << " " << rand_invgaussian << " " <
          rand_invgaussian = -1;      // wieder rausnehmen, nur zum testen
          int nrlasso = distrp->get_lasso();
          int nrridge = distrp->get_ridge();
+/*
 //TEMP:BEGIN--------------------------------------------------------------------
 outputr << "ridge " << i << " " << iteration << " " << rand_invgaussian << " " << beta(i,0) << " " << *workbeta << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge << " " << nrlasso << " " << ridgesum << " " << lassosum << "\n" ;
 //TEMP:END----------------------------------------------------------------------
-
+*/
         }
 
       sumregcoeff = sumregcoeff + (*workbeta)*(*workbeta);
