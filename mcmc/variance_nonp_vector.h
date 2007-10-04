@@ -45,6 +45,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   vector<unsigned> cut;             //  Blocks of regression coefficients
   bool is_ridge;                    //  The Components indicates if "true" the L2-penalty
                                     //  and if "false" the L1-penalty is used
+
+  datamatrix variance;              // current values of the variances
                                     
   void outresults_shrinkage(void);  //  Function to write results to output window and files
 

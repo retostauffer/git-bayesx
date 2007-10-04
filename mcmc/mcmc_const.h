@@ -115,6 +115,11 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   // Ridge
   void update_variances(datamatrix & v);
   datamatrix get_variances(void);
+
+   double * getvariancespointer(void)
+     {
+     return variances.getV();
+     }
   // Ridge
 
   void update(void);

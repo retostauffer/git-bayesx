@@ -93,6 +93,8 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
     for(i=0; i<cut.size()-1; i++)
       help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
     setbeta(help);
+
+    variances = datamatrix(beta.rows(), 1, 0);
     }
 //______________________________________________________________________________
 //
@@ -115,6 +117,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(const FULLCOND_vari
   ridgesum = t.ridgesum;
   cut = t.cut;
   is_ridge = t.is_ridge;
+  variances = t.variances;
   }
 
 
@@ -142,6 +145,7 @@ const FULLCOND_variance_nonp_vector & FULLCOND_variance_nonp_vector::operator=(
   ridgesum = t.ridgesum;
   cut = t.cut;
   is_ridge = t.is_ridge;
+  variances = t.variances;
   return *this;
   }
 
@@ -168,9 +172,10 @@ void FULLCOND_variance_nonp_vector::update(void)
   double * shrinkagep = fc_shrinkage.getbetapointer();
 
   // get current varianceparameters
-  datamatrix variances = datamatrix(beta.rows(),1,0);
-  for(i=0; i<cut.size()-1; i++)
-    variances.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
+//  datamatrix variances = datamatrix(beta.rows(),1,0);
+//  for(i=0; i<cut.size()-1; i++)
+//    variances.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
+  variances = beta;
 
   // getcurrent value of sqrt(scale) parameter
   double help = sqrt(distrp->get_scale(column));
@@ -268,11 +273,21 @@ outputr << "ridge " << i << " " << iteration << " " << rand_invgaussian << " " <
 
 
   // Update varianceparameter tau^2
-  datamatrix temp;
-  for(i=0; i<cut.size()-1; i++)
+//  datamatrix temp;
+//  for(i=0; i<cut.size()-1; i++)
+//    {
+//    temp = beta.getRowBlock(cut[i],cut[i+1]);
+//    Cp[i]->update_variances(temp);
+//    }
+  double * varp;
+  k=0;
+  for(i=0; i<cut.size(); i++)
     {
-    temp = beta.getRowBlock(cut[i],cut[i+1]);
-    Cp[i]->update_variances(temp);
+    varp = Cp[i]->getvariancespointer();
+    for(j=cut[i]; j<cut[i+1]; j++, varp++, k++)
+      {
+      *varp = beta(k,0);
+      }
     }
 
   // Ergebnisse zu ridgesum in Distributionobjekt zurückschreiben
