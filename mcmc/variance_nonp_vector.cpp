@@ -181,11 +181,6 @@ void FULLCOND_variance_nonp_vector::update(void)
   double help = sqrt(distrp->get_scale(column));
 
 
-//TEMP:BEGIN--------------------------------------------------------------------
-  int iteration = optionsp->get_nriter();
-//TEMP:END----------------------------------------------------------------------
-
-
   // variable for current value regressionparameters
   double * workbeta;
 
@@ -197,6 +192,7 @@ void FULLCOND_variance_nonp_vector::update(void)
   ridgesum=0;
 /*
 //TEMP:BEGIN--------------------------------------------------------------------
+int iteration = optionsp->get_nriter();
 ofstream outputl("c:/bayesx/test/test_lasso.txt", ios::out|ios::app);
 ofstream outputr("c:/bayesx/test/test_ridge.txt", ios::out|ios::app);
 if (is_ridge == 0)
