@@ -94,7 +94,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(MCMCoptions * o,
       help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
     setbeta(help);
 
-    variances = datamatrix(beta.rows(), 1, 0);
+//    variances = datamatrix(beta.rows(), 1, 0);
     }
 //______________________________________________________________________________
 //
@@ -117,7 +117,7 @@ FULLCOND_variance_nonp_vector::FULLCOND_variance_nonp_vector(const FULLCOND_vari
   ridgesum = t.ridgesum;
   cut = t.cut;
   is_ridge = t.is_ridge;
-  variances = t.variances;
+//  variances = t.variances;
   }
 
 
@@ -145,7 +145,7 @@ const FULLCOND_variance_nonp_vector & FULLCOND_variance_nonp_vector::operator=(
   ridgesum = t.ridgesum;
   cut = t.cut;
   is_ridge = t.is_ridge;
-  variances = t.variances;
+//  variances = t.variances;
   return *this;
   }
 
@@ -171,15 +171,20 @@ void FULLCOND_variance_nonp_vector::update(void)
   // get current value of shrinkagearameter
   double * shrinkagep = fc_shrinkage.getbetapointer();
 
-  // get current varianceparameters
+// get current varianceparameters
 //  datamatrix variances = datamatrix(beta.rows(),1,0);
 //  for(i=0; i<cut.size()-1; i++)
 //    variances.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
-  variances = beta;
+//  variances = beta;
 
   // getcurrent value of sqrt(scale) parameter
   double help = sqrt(distrp->get_scale(column));
+
+
+//TEMP:BEGIN--------------------------------------------------------------------
   int iteration = optionsp->get_nriter();
+//TEMP:END----------------------------------------------------------------------
+
 
   // variable for current value regressionparameters
   double * workbeta;
@@ -200,7 +205,7 @@ if (is_ridge == 0)
     int nrridge = distrp->get_ridge();
     outputl << "fall " << "index " << "iter " << "rinvg " << "variances "  << "beta " << "shrp "  << "a " << "b " << "shrfix " << "sigma2 " << "nrridge " << "nrlasso " << "ridgesum " << "lassosum " << "\n";
     for(unsigned int i=0; i<nrpar; i++)
-    {outputl << "start " << i << " " << 0 << " " << 0 << " " << variances(i,0) << " " << 0 << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge  << " " << nrlasso  << " " << ridgesum  << " " << lassosum  << "\n" ;
+    {outputl << "start " << i << " " << 0 << " " << 0 << " " << beta(i,0) << " " << 0 << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge  << " " << nrlasso  << " " << ridgesum  << " " << lassosum  << "\n" ;
     }
   }
 }
@@ -210,7 +215,7 @@ if (is_ridge == 1)
     int nrridge = distrp->get_ridge();
     outputr << "fall " << "index " << "iter " << "rinvg " << "variances "  << "beta " << "shrp "  << "a " << "b " << "shrfix " << "sigma2 " << "nrridge " << "nrlasso " << "ridgesum " << "lassosum " << "\n";
     for(unsigned int i=0; i<nrpar; i++)
-    {outputr << "start " << i << " " << 0 << " " << 0 << " " << variances(i,0) << " " << 0 << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge  << " " << nrlasso  << " " << ridgesum  << " " << lassosum  << "\n" ;
+    {outputr << "start " << i << " " << 0 << " " << 0 << " " << beta(i,0) << " " << 0 << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge  << " " << nrlasso  << " " << ridgesum  << " " << lassosum  << "\n" ;
     }
   }
 }
@@ -241,13 +246,12 @@ if (is_ridge == 1)
         if (*workbeta==0 || *shrinkagep<=0)
           {
           beta(i,0) = 1E-6;
-          rand_invgaussian = -1;    // wieder rausnehmen, nur zum testen
           }
-        lassosum = lassosum + ((*workbeta)*(*workbeta))/variances(i,0);  // sum(beta^2/tau^2)
-        int nrlasso = distrp->get_lasso();
-        int nrridge = distrp->get_ridge();
+        lassosum = lassosum + ((*workbeta)*(*workbeta))/beta(i,0);  // sum(beta^2/tau^2)
 /*
 //TEMP:BEGIN--------------------------------------------------------------------
+int nrlasso = distrp->get_lasso();
+int nrridge = distrp->get_ridge();
 outputl << "lasso " << i << " " << iteration << " " << rand_invgaussian << " " << beta(i,0) << " " << *workbeta << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge << " " << nrlasso << " " << ridgesum << " " << lassosum << "\n" ;
 //TEMP:END----------------------------------------------------------------------
 */
@@ -256,12 +260,13 @@ outputl << "lasso " << i << " " << iteration << " " << rand_invgaussian << " " <
       if (is_ridge == 1)                              // L2-penalty
         {
          beta(i,0) = 1/(2*(*shrinkagep));
-         ridgesum = ridgesum + ((*workbeta)*(*workbeta))/variances(i,0);  // sum(beta^2/tau^2)
-         rand_invgaussian = -1;      // wieder rausnehmen, nur zum testen
-         int nrlasso = distrp->get_lasso();
-         int nrridge = distrp->get_ridge();
+         ridgesum = ridgesum + ((*workbeta)*(*workbeta))/beta(i,0);  // sum(beta^2/tau^2)
+
 /*
 //TEMP:BEGIN--------------------------------------------------------------------
+rand_invgaussian = -1;
+int nrlasso = distrp->get_lasso();
+int nrridge = distrp->get_ridge();
 outputr << "ridge " << i << " " << iteration << " " << rand_invgaussian << " " << beta(i,0) << " " << *workbeta << " " << *shrinkagep << " " << a_shrinkagegamma << " " << b_shrinkagegamma << " " << shrinkagefix << " " << help*help << " " << nrridge << " " << nrlasso << " " << ridgesum << " " << lassosum << "\n" ;
 //TEMP:END----------------------------------------------------------------------
 */
@@ -272,16 +277,17 @@ outputr << "ridge " << i << " " << iteration << " " << rand_invgaussian << " " <
     }
 
 
-  // Update varianceparameter tau^2
+// Update varianceparameter tau^2
 //  datamatrix temp;
 //  for(i=0; i<cut.size()-1; i++)
 //    {
 //    temp = beta.getRowBlock(cut[i],cut[i+1]);
 //    Cp[i]->update_variances(temp);
 //    }
+
   double * varp;
   k=0;
-  for(i=0; i<cut.size(); i++)
+  for(i=0; i<cut.size()-1; i++)
     {
     varp = Cp[i]->getvariancespointer();
     for(j=cut[i]; j<cut[i+1]; j++, varp++, k++)
@@ -308,7 +314,7 @@ outputr << "ridge " << i << " " << iteration << " " << rand_invgaussian << " " <
     {
     for(i=0; i<nrpar; i++)
       {
-      sumvariances = sumvariances + variances(i,0);      // sum(tau^2) of current variances
+      sumvariances = sumvariances + beta(i,0);      // sum(tau^2) of current variances
       }
     *shrinkagep = sqrt(rand_gamma(nrpar + a_shrinkagegamma, b_shrinkagegamma + 0.5*sumvariances));
     }
