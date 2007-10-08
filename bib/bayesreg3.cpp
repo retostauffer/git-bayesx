@@ -2087,7 +2087,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
 
   for(i=0;i<terms.size();i++)
     {
-    if ( ridge.checkvector(terms,i) == true )
+    if ( shrinkage.checkvector(terms,i) == true )
       {
       if(terms[i].options[0] == "ridge")
         {
@@ -2171,15 +2171,15 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
           }
 
         // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
-        normalridge.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
+        normalshrinkage.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
                                 distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
                                 pathconst, pathconstres, true,
                                 variances.getRowBlock(cut[i], cut[i+1]), collinpred));
 
-        normalridge[normalridge.size()-1].init_names(varnameshelp);
-        normalridge[normalridge.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&normalridge[normalridge.size()-1]);
-        fc.push_back(&normalridge[normalridge.size()-1]);
+        normalshrinkage[normalshrinkage.size()-1].init_names(varnameshelp);
+        normalshrinkage[normalshrinkage.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&normalshrinkage[normalshrinkage.size()-1]);
+        fc.push_back(&normalshrinkage[normalshrinkage.size()-1]);
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
@@ -2224,14 +2224,14 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
           }
 
         // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
-        nongaussianridge.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
+        nongaussianshrinkage.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
                               distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
                               pathconst, pathconstres, true,
                               variances.getRowBlock(cut[i], cut[i+1]), collinpred));
-        nongaussianridge[nongaussianridge.size()-1].init_names(varnameshelp);
-        nongaussianridge[nongaussianridge.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&nongaussianridge[nongaussianridge.size()-1]);
-        fc.push_back(&nongaussianridge[nongaussianridge.size()-1]);
+        nongaussianshrinkage[nongaussianshrinkage.size()-1].init_names(varnameshelp);
+        nongaussianshrinkage[nongaussianshrinkage.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&nongaussianshrinkage[nongaussianshrinkage.size()-1]);
+        fc.push_back(&nongaussianshrinkage[nongaussianshrinkage.size()-1]);
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
@@ -2276,7 +2276,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
 
   for(i=0;i<terms.size();i++)
     {
-    if ( ridge.checkvector(terms,i) == true )
+    if ( shrinkage.checkvector(terms,i) == true )
       {
       if(terms[i].options[0] == "lasso")
         {
@@ -2360,15 +2360,15 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
           }
 
         // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
-        normalridge.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
+        normalshrinkage.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
                                 distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
                                 pathconst, pathconstres, true,
                                 variances.getRowBlock(cut[i], cut[i+1]), collinpred));
 
-        normalridge[normalridge.size()-1].init_names(varnameshelp);
-        normalridge[normalridge.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&normalridge[normalridge.size()-1]);
-        fc.push_back(&normalridge[normalridge.size()-1]);
+        normalshrinkage[normalshrinkage.size()-1].init_names(varnameshelp);
+        normalshrinkage[normalshrinkage.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&normalshrinkage[normalshrinkage.size()-1]);
+        fc.push_back(&normalshrinkage[normalshrinkage.size()-1]);
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
@@ -2412,14 +2412,14 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
           }
 
         // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
-        nongaussianridge.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
+        nongaussianshrinkage.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
                               distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
                               pathconst, pathconstres, true,
                               variances.getRowBlock(cut[i], cut[i+1]), collinpred));
-        nongaussianridge[nongaussianridge.size()-1].init_names(varnameshelp);
-        nongaussianridge[nongaussianridge.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&nongaussianridge[nongaussianridge.size()-1]);
-        fc.push_back(&nongaussianridge[nongaussianridge.size()-1]);
+        nongaussianshrinkage[nongaussianshrinkage.size()-1].init_names(varnameshelp);
+        nongaussianshrinkage[nongaussianshrinkage.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&nongaussianshrinkage[nongaussianshrinkage.size()-1]);
+        fc.push_back(&nongaussianshrinkage[nongaussianshrinkage.size()-1]);
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung

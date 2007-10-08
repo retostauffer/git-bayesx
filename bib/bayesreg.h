@@ -471,17 +471,17 @@ class __EXPORT_TYPE bayesreg : public statobject
 
 // ----------------------- end: for fixed effects ------------------------------
 
-// ------------------------ for ridge regression -------------------------------
+// ---------------------- for shrinkage regression -----------------------------
 
   intoption blocksize;
-  term_ridge ridge;
+  term_shrinkage shrinkage;
   bool create_ridge(const unsigned & collinpred=0);
   bool create_lasso(const unsigned & collinpred=0);
-  vector<FULLCOND_const_gaussian> normalridge;
-  vector<FULLCOND_const_nongaussian> nongaussianridge;
+  vector<FULLCOND_const_gaussian> normalshrinkage;
+  vector<FULLCOND_const_nongaussian> nongaussianshrinkage;
   vector<FULLCOND_variance_nonp_vector> fcvarnonpvec;
 
-// ---------------------- end: for ridge regression ----------------------------
+// -------------------- end: for shrinkage regression --------------------------
 
 //------------------------ for nonparametric terms -----------------------------
 

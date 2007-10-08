@@ -126,7 +126,8 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   // CONSTRUCTOR : Thomas (Measurement error in a nonparametric effect)
   fullcond_merror(MCMCoptions * o, spline_basis * p, DISTRIBUTION * dp,
            const datamatrix & d, const ST::string & t, const ST::string & fp,
-           const ST::string & pres, const double & lk, const double & uk);
+           const ST::string & pres, const double & lk, const double & uk,
+           const double & mvar);
 // END: merror
 
   // COPY CONSTRUCTOR

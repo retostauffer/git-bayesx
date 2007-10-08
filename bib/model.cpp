@@ -228,14 +228,14 @@ vector<ST::string> basic_termtype::get_constvariables(vector<term> & terms)
   }
 
 //------------------------------------------------------------------------------
-//------------ class term_ridge: implementation of member functions ------------
+//---------- class term_shrinkage: implementation of member functions ----------
 //------------------------------------------------------------------------------
 
 // DEFAULT CONSTRUCTOR
 //---------------------
-term_ridge::term_ridge(void)
+term_shrinkage::term_shrinkage(void)
   {
-  type = "term_ridge";
+  type = "term_shrinkage";
 
   // Startwert fuer inverse varianzparameter lambda=1/tau^2
   lambda = doubleoption("lambda",0.1,0,10000000);
@@ -257,7 +257,7 @@ term_ridge::term_ridge(void)
 
 // FUNCTION: setdefault
 //---------------------
-void term_ridge::setdefault(void)
+void term_shrinkage::setdefault(void)
   {
   // call setdefault-methods of the options
   lambda.setdefault();
@@ -271,7 +271,7 @@ void term_ridge::setdefault(void)
 
 // FUNCTION: check
 //-----------------
-bool term_ridge::check(term & t)
+bool term_shrinkage::check(term & t)
   {
   if ( (t.varnames.size() == 1) && (t.options.size()<=6) && (t.options.size()>=1))   // SET: Anzahl Optionen
     {
@@ -348,7 +348,7 @@ bool term_ridge::check(term & t)
 
 // FUNCTION: checkvector
 //----------------------
-bool term_ridge::checkvector(const vector<term> & terms, const unsigned & i)
+bool term_shrinkage::checkvector(const vector<term> & terms, const unsigned & i)
   {
   assert(i< terms.size());
   if (terms[i].type == "ridge" || terms[i].type == "lasso")
@@ -874,6 +874,7 @@ term_pspline::term_pspline(void)
 //  lambdastart = doubleoption("lambdastart",-1,-1,10000000);
   lowerknot = doubleoption("lowerknot",0,-10000000,10000000);
   upperknot = doubleoption("upperknot",0,-10000000,10000000);
+  merrorvar = doubleoption("merrorvar",0,0,10000000);
   }
 
 void term_pspline::setdefault(void)
@@ -912,13 +913,14 @@ void term_pspline::setdefault(void)
 //  lambdastart.setdefault();
   lowerknot.setdefault();
   upperknot.setdefault();
+  merrorvar.setdefault();
   }
 
 bool term_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 32) )
+        && (t.options.size() <= 33) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -981,6 +983,7 @@ bool term_pspline::check(term & t)
 //    optlist.push_back(&lambdastart);
     optlist.push_back(&lowerknot);
     optlist.push_back(&upperknot);
+    optlist.push_back(&merrorvar);
 
     unsigned i;
     bool rec = true;
@@ -1005,7 +1008,7 @@ bool term_pspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(32);
+   t.options = vector<ST::string>(33);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -1068,6 +1071,7 @@ bool term_pspline::check(term & t)
 //    t.options[22] = ST::doubletostring(lambdastart.getvalue());
     t.options[30] = ST::doubletostring(lowerknot.getvalue());
     t.options[31] = ST::doubletostring(upperknot.getvalue());
+    t.options[32] = ST::doubletostring(merrorvar.getvalue());
 
    if (t.options[1].strtolong(minim) == 1)
      {

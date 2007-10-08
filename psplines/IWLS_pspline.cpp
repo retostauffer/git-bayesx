@@ -123,6 +123,19 @@ IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fc
 
   compute_betaweight();
 
+//  datamatrix xdata = d;
+//  datamatrix grid = discretise(xdata);
+  // computes a grid of x-avlues
+  // rounds the x-values to the grid mid-points
+  // and returns the vector of x-values corresponding to the grid mid-points
+//  make_index_discrete(xdata,grid);
+//  make_index(xdata);
+//  make_index2();
+//  make_Bspline(xdata);
+
+//  create_iwls();
+//  init_fchelp(xdata, grid);
+
   make_index(d);
   make_index2();
   make_Bspline(d);
@@ -1151,7 +1164,10 @@ void IWLS_pspline::update_isotonic(void)
       help += prec_env(nrpar-1,j)*(beta(j,0)-betahelp(j,0));
     m = betahelp(nrpar-1,0) - help/prec_env(nrpar-1,nrpar-1);
 //    if(increasing)
-//      beta(nrpar-1,0) = trunc_normal2(beta(nrpar-2,0),20,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));//    else//      beta(nrpar-1,0) = trunc_normal2(-20,beta(nrpar-2,0),m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
+//      beta(nrpar-1,0) = trunc_normal2(beta(nrpar-2,0),20,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
+//    else
+//      beta(nrpar-1,0) = trunc_normal2(-20,beta(nrpar-2,0),m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
+
     beta(nrpar-1,0) = sample_monotonic(nrpar-1,m,sqrt(1.0/prec_env(nrpar-1,nrpar-1)));
 
     count++;

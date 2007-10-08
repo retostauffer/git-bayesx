@@ -40,10 +40,10 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   double interceptadd;
   datamatrix effectsadd; 
 
-  // Ridge
-  bool ridge;
+  // Shrinkage
+  bool shrinkage;
   datamatrix variances;
-  // Ridge
+  // Shrinkage
 
   unsigned nrconst;                // number of fixed effects paramters
 
@@ -112,7 +112,7 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
 
   const FULLCOND_const & operator=(const FULLCOND_const & m);
 
-  // Ridge
+  // shrinkage
   void update_variances(datamatrix & v);
   datamatrix get_variances(void);
 
@@ -120,7 +120,7 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
      {
      return variances.getV();
      }
-  // Ridge
+  // shrinkage
 
   void update(void);
 

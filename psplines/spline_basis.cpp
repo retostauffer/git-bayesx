@@ -724,7 +724,6 @@ void spline_basis::make_index(const datamatrix & moddata)
 
   }
 
-
 void spline_basis::make_index(const datamatrix & em,const datamatrix & ia)
   {
 // index berechnen
@@ -2831,7 +2830,8 @@ void spline_basis::change(const datamatrix & main,const double & inter)
   intercept += inter;
 
 // fchelp ändern
-  if( (optionsp->get_nriter() > optionsp->get_burnin()) &&      ((optionsp->get_nriter()-optionsp->get_burnin()-1) % (optionsp->get_step()) == 0) )
+  if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
+      ((optionsp->get_nriter()-optionsp->get_burnin()-1) % (optionsp->get_step()) == 0) )
     {
 
     double * fchelpbetap = fchelp.getbetapointer();
@@ -2907,6 +2907,7 @@ bool spline_basis::changeposterior(const datamatrix & main,const double & inter)
 
 // fchelp ändern
   double * fchelpbetap = fchelp.getbetapointer();
+
   freqwork = freq.begin();
   workindex = index.getV();
   for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
@@ -4074,6 +4075,122 @@ void spline_basis::update_merror(datamatrix & newdata)
     for(i=0; i<spline.rows(); i++)
       spline(i,0) -= intercept;
 //    }
+
+  }
+  
+void spline_basis::make_index_discrete(const datamatrix & moddata,
+                              const datamatrix & grid)
+  {
+// index berechnen
+  index = statmatrix<int>(moddata.rows(),1);
+  index.indexinit();
+  moddata.indexsort(index,0,moddata.rows()-1,0,0);
+// freq berechnen
+  unsigned i,j,k;
+  int *workindex = index.getV();
+  freq.reserve(moddata.rows());
+
+  workindex++;
+  freq.push_back(0);
+  i = 0;
+  k = 1;
+  for(j=1;j<moddata.rows();j++,workindex++)
+    {
+    if ( moddata(*workindex,0) != moddata(*(workindex-1),0))
+      {
+      while(moddata(*workindex,0) != grid(k,0))
+        {
+        i++;
+        k++;
+        }
+      }
+    freq.push_back(i);
+    }
+// freqoutput, nrdiffobs
+  freqoutput = freq;
+  nrdiffobs = i+1;
+
+  }
+  
+datamatrix spline_basis::discretise(datamatrix & moddata)
+  {
+  unsigned i,k;
+  double minx = moddata.min(0);
+  double maxx = moddata.max(0);
+  unsigned ngrid = 500;
+  double width = (maxx-minx)/(ngrid+1);
+  
+  minx = minx - 10*width;
+  maxx = maxx + 10*width;
+  ngrid = ngrid + 20;
+  datamatrix grid = datamatrix(ngrid,1,maxx);
+  for(i=0; i<ngrid; i++)
+    {
+    grid(i,0) = minx + i*width;
+    }
+    
+  for(i=0; i<moddata.rows(); i++)
+    {
+    k=0;
+    while(grid(k,0) < moddata(i,0))  
+      {
+      k++;
+      }
+    moddata(i,0) = grid(k,0);
+    }
+  return grid;
+  }
+      
+void spline_basis::init_fchelp(const datamatrix & d, datamatrix & grid)
+  {
+
+  int i;
+  unsigned j;
+// fchelp und xvalues initialisieren
+  ST::string path = samplepath.substr(0,samplepath.length()-4)+"_fchelp.raw";
+  vector<int>::iterator freqwork = freqoutput.begin();
+  int * workindex = index.getV();
+  if(gridsize < 0)
+    {
+    xvalues = datamatrix(nrdiffobs,1,0);
+    for(j=0;j<d.rows();j++,freqwork++,workindex++)
+      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+        xvalues(*freqwork,0) = d(*workindex,0);
+    fchelp = FULLCOND(optionsp,xvalues,title+"fchelp",nrdiffobs,1,path);
+    splinehelp = datamatrix(d.rows(),1,0);
+    }
+  else
+    {
+    double xmin = d.min(0);
+    double xmax = d.max(0);
+    xvalues = datamatrix(gridsize,1);
+    for(i=0;i<gridsize;i++)
+      xvalues(i,0) = xmin + i*(xmax-xmin)/double(xvalues.rows()-1);
+    fchelp = FULLCOND(optionsp,xvalues,title+"fchelp",gridsize,1,path);
+    splinehelp = datamatrix(gridsize,1,0);
+    make_DG();
+    }
+  fchelp.setflags(MCMC::norelchange | MCMC::nooutput);
+  fchelp.set_transform(transform);
+// fcderivative initialisieren
+  if(derivative)
+    {
+    ST::string pnt = path.substr(0,path.length()-11)+"_fcderivate.raw";
+    if(gridsize < 0)
+      {
+      fcderivative = FULLCOND(optionsp,datamatrix(1,1,0),title+"fcderivative",nrdiffobs,1,pnt);
+      splinederivative = datamatrix(nrdiffobs,1,0);
+      }
+    else
+      {
+      fcderivative = FULLCOND(optionsp,datamatrix(1,1,0),title+"fcderivative",gridsize,1,pnt);
+      splinederivative = datamatrix(gridsize,1,0);
+      }
+    Bderivative = bsplinemat(derivative,xvalues,nrknots,degree,knpos);
+    fcderivative.setflags(MCMC::norelchange | MCMC::nooutput);
+    fcderivative.set_transform(transform);
+    }
+
 
   }
 // -------------------------END: FOR MERROR ------------------------------------

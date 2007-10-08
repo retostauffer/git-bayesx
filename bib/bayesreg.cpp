@@ -189,7 +189,7 @@ void bayesreg::create(void)
   baseline = term_baseline();
   varcoeffbaseline = term_varcoeff_baseline();
   nonpvarcoeffmerror = term_varcoeff_merror();
-  ridge = term_ridge();
+  shrinkage = term_shrinkage();
   randomrw = term_random_autoreg();
   randompspline = term_random_pspline();
 
@@ -211,7 +211,7 @@ void bayesreg::create(void)
   termtypes.push_back(&baseline);
   termtypes.push_back(&varcoeffbaseline);
   termtypes.push_back(&nonpvarcoeffmerror);
-  termtypes.push_back(&ridge);
+  termtypes.push_back(&shrinkage);
   termtypes.push_back(&randomrw);
   termtypes.push_back(&randompspline);
 
@@ -738,11 +738,11 @@ void bayesreg::initpointers(void)
   for(i=0;i<fcmerror.size();i++)
     fullcond.push_back(&fcmerror[i]);
 
-  for(i=0;i<normalridge.size();i++)
-    fullcond.push_back(&normalridge[i]);
+  for(i=0;i<normalshrinkage.size();i++)
+    fullcond.push_back(&normalshrinkage[i]);
 
-  for(i=0;i<nongaussianridge.size();i++)
-    fullcond.push_back(&nongaussianridge[i]);
+  for(i=0;i<nongaussianshrinkage.size();i++)
+    fullcond.push_back(&nongaussianshrinkage[i]);
 
   }
 
@@ -848,11 +848,11 @@ void bayesreg::clear(void)
   fcmerror.erase(fcmerror.begin(),fcmerror.end());
   fcmerror.reserve(2);
 
-  normalridge.erase(normalridge.begin(),normalridge.end());
-  normalridge.reserve(20);
+  normalshrinkage.erase(normalshrinkage.begin(),normalshrinkage.end());
+  normalshrinkage.reserve(20);
 
-  nongaussianridge.erase(nongaussianridge.begin(),nongaussianridge.end());
-  nongaussianridge.reserve(20);
+  nongaussianshrinkage.erase(nongaussianshrinkage.begin(),nongaussianshrinkage.end());
+  nongaussianshrinkage.reserve(20);
 
   }
 
@@ -916,8 +916,8 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   fcbaseline = b.fcbaseline;
 //  fcbaselineiwls = b.fcbaselineiwls;
   fcmultibaseline = b.fcmultibaseline;
-  normalridge = b.normalridge;
-  nongaussianridge = b.nongaussianridge;
+  normalshrinkage = b.normalshrinkage;
+  nongaussianshrinkage = b.nongaussianshrinkage;
   resultsyesno = b.resultsyesno;
   posteriormode = b.posteriormode;
 //  initpointers();
@@ -958,8 +958,8 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   fcbaseline = b.fcbaseline;
 //  fcbaselineiwls = b.fcbaselineiwls;
   fcmultibaseline = b.fcmultibaseline;
-  normalridge = b.normalridge;
-  nongaussianridge = b.nongaussianridge;
+  normalshrinkage = b.normalshrinkage;
+  nongaussianshrinkage = b.nongaussianshrinkage;
   resultsyesno = b.resultsyesno;
   posteriormode = b.posteriormode;
 //  initpointers();
@@ -2381,7 +2381,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
   unsigned nr = varnames.size();
   unsigned blocksize = 10;
 
-  bool ridge = false;
+  bool shrinkage = false;
   vector<double> variances;
 
   if (nr > 0)
@@ -2482,7 +2482,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
           normalconst.push_back(FULLCOND_const_gaussian(
           &generaloptions[generaloptions.size()-1],distr[distr.size()-1],X,
                                 title,constpos,pathconst,pathconstres,
-                                ridge, variances, collinpred));
+                                shrinkage, variances, collinpred));
           normalconst[normalconst.size()-1].init_names(varnamesvec[k]);
 
           normalconst[normalconst.size()-1].set_fcnumber(fullcond.size());
@@ -2511,7 +2511,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
           {
             nbinomialconst.push_back(FULLCOND_const_nbinomial(&generaloptions[generaloptions.size()-1],
                                 distr[distr.size()-1],&distr_nbinomial,X,title,constpos,pathconst,
-                                pathconstres, ridge, variances, collinpred));
+                                pathconstres, shrinkage, variances, collinpred));
 
             nbinomialconst[nbinomialconst.size()-1].init_names(varnamesvec[k]);
 
@@ -2528,7 +2528,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
           {
             nongaussianconst.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
                                    distr[distr.size()-1],X,title,constpos,pathconst,pathconstres,
-                                   ridge, variances, collinpred));
+                                   shrinkage, variances, collinpred));
             nongaussianconst[nongaussianconst.size()-1].init_names(varnamesvec[k]);
 
             nongaussianconst[nongaussianconst.size()-1].set_fcnumber(fullcond.size());
@@ -2907,7 +2907,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 
   long h;
   unsigned min,max,degree,nrknots;
-  double lambda,a1,b1,alpha;
+  double lambda,a1,b1,alpha,merrorvar;
   bool ub,diagtransform,derivative,bsplinebasis;
   int gridsize,contourprob;
   int f;
@@ -3044,6 +3044,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 
        f = (terms[i].options[30]).strtodouble(lowerknot);
        f = (terms[i].options[31]).strtodouble(upperknot);
+
+       f = (terms[i].options[32]).strtodouble(merrorvar);
        }
 // END: merror
 
@@ -3217,7 +3219,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    title,
                                    pathnonp,
                                    pathres,
-                                   lowerknot, upperknot)
+                                   lowerknot, upperknot,
+                                   merrorvar)
                          );
           fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fcmerror[fcmerror.size()-1]);
@@ -3293,7 +3296,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    title,
                                    pathnonp,
                                    pathres,
-                                   lowerknot, upperknot)
+                                   lowerknot, upperknot,
+                                   merrorvar)
                            );
             fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcmerror[fcmerror.size()-1]);
@@ -3431,7 +3435,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    title,
                                    pathnonp,
                                    pathres,
-                                   lowerknot, upperknot)
+                                   lowerknot, upperknot,
+                                   merrorvar)
                            );
             fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcmerror[fcmerror.size()-1]);

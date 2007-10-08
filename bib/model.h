@@ -444,11 +444,11 @@ class __EXPORT_TYPE basic_termtype
   };
 
 //------------------------------------------------------------------------------
-//------------------------------- class term_ridge -----------------------------
+//------------------------------- class term_shrinkage -------------------------
 //------------------------------------------------------------------------------
 // Category-specific fixed effects in cumulative or sequential models
 
-class __EXPORT_TYPE term_ridge : public basic_termtype
+class __EXPORT_TYPE term_shrinkage : public basic_termtype
   {
   protected:
 
@@ -475,7 +475,7 @@ class __EXPORT_TYPE term_ridge : public basic_termtype
   public:
 
   // DEFAULT CONSTRUCTOR
-  term_ridge(void);
+  term_shrinkage(void);
   
 
   // FUNCTION: check
@@ -488,7 +488,7 @@ class __EXPORT_TYPE term_ridge : public basic_termtype
 
 
   // DESTRUCTOR
-  ~term_ridge() {}
+  ~term_shrinkage() {}
   };
 
 //------------------------------------------------------------------------------
@@ -676,7 +676,7 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
   stroption knots;
   doubleoption lowerknot;
   doubleoption upperknot;
-
+  doubleoption merrorvar;
 
 
   void setdefault(void);

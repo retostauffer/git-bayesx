@@ -229,7 +229,7 @@ namespace MCMC
   fullcond_merror::fullcond_merror(MCMCoptions * o, spline_basis * p,
            DISTRIBUTION * dp, const datamatrix & d, const ST::string & t,
            const ST::string & fp, const ST::string & pres, const double & lk,
-           const double & uk)
+           const double & uk, const double & mvar)
            : FULLCOND(o,d,t,d.rows(),1,fp)
   {
   splinep = p;
@@ -260,19 +260,19 @@ namespace MCMC
   pathresults = pres;
   ST::string path = pathresults.substr(0,pathresults.length()-4);
 
-  fc_merrorvar = FULLCOND(o,datamatrix(1,1,1.0),title+"_merror_var",1,1,path+"_merror_var.res");
+  fc_merrorvar = FULLCOND(o,datamatrix(1,1,mvar),title+"_merror_var",1,1,path+"_merror_var.res");
   fc_merrorvar.setflags(MCMC::norelchange | MCMC::nooutput);
-//  double * merrorvarp = fc_merrorvar.getbetapointer()
-//  *merrorvarp = 1.0;
+  double * merrorvarp = fc_merrorvar.getbetapointer();
+  *merrorvarp = mvar;
 
   fc_ximu = FULLCOND(o,datamatrix(1,1,0.0),title+"_truecov_expectation",1,1,path+"_truecov_expectation.res");
   fc_ximu.setflags(MCMC::norelchange | MCMC::nooutput);
-//  double * ximup = fc_ximu.getbetapointer()
+//  double * ximup = fc_ximu.getbetapointer();
 //  *ximup = 0.0;
 
   fc_xivar = FULLCOND(o,datamatrix(1,1,1.0),title+"_truecov_var",1,1,path+"truecov_var.res");
   fc_xivar.setflags(MCMC::norelchange | MCMC::nooutput);
-//  double * xivarp = fc_xivar.getbetapointer()
+//  double * xivarp = fc_xivar.getbetapointer();
 //  *xivarp = 1;
 
   index = statmatrix<int>(beta.rows(),1,0);
@@ -522,13 +522,14 @@ namespace MCMC
       // standard deviation of measurement error
       double * merrorvarp = fc_merrorvar.getbetapointer();
       double anew, bnew;
+/*    currently disabled: measurement error variance is treated as fixed
       anew = 0.001 + 0.5*beta.rows()*data.cols();
       bnew = 0.0;
       for(i=0; i<beta.rows(); i++)
         for(j=0; j<data.cols(); j++)
           bnew += (data(i,j)-beta(i,0))*(data(i,j)-beta(i,0));
       bnew = 0.001 + 0.5*bnew;
-      *merrorvarp = rand_invgamma(anew,bnew);
+      *merrorvarp = rand_invgamma(anew,bnew);*/
       double mesd = sqrt(*merrorvarp);
       fc_merrorvar.update();
 
@@ -799,8 +800,8 @@ namespace MCMC
 // Variance of the measurement error
 
     fc_merrorvar.outresults();
-    ST::string pathhelp = pathresults.substr(0,pathresults.length()-7)+"merrorvar_sample.raw";
-    fc_merrorvar.get_samples(pathhelp);
+//    ST::string pathhelp = pathresults.substr(0,pathresults.length()-7)+"merrorvar_sample.raw";
+//    fc_merrorvar.get_samples(pathhelp);
 
     optionsp->out("\n");
     optionsp->out("  "+fc_merrorvar.get_title()+"\n");
@@ -864,11 +865,11 @@ namespace MCMC
 
     optionsp->out("\n");
 
-// mean of the true covariate values    
+// mean of the true covariate values
 
     fc_ximu.outresults();
-    pathhelp = pathresults.substr(0,pathresults.length()-7)+"ximu_sample.raw";
-    fc_ximu.get_samples(pathhelp);
+//    pathhelp = pathresults.substr(0,pathresults.length()-7)+"ximu_sample.raw";
+//    fc_ximu.get_samples(pathhelp);
 
     optionsp->out("\n");
     optionsp->out("  "+fc_ximu.get_title()+"\n");
@@ -932,11 +933,11 @@ namespace MCMC
 
     optionsp->out("\n");
 
-// variance of the true covariate values    
+// variance of the true covariate values
 
     fc_xivar.outresults();
-    pathhelp = pathresults.substr(0,pathresults.length()-7)+"xivar_sample.raw";
-    fc_xivar.get_samples(pathhelp);
+//    pathhelp = pathresults.substr(0,pathresults.length()-7)+"xivar_sample.raw";
+//    fc_xivar.get_samples(pathhelp);
 
     optionsp->out("\n");
     optionsp->out("  "+fc_xivar.get_title()+"\n");

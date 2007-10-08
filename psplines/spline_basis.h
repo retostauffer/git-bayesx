@@ -529,6 +529,12 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
 
   void update_merror(datamatrix & newdata);
 
+  void make_index_discrete(const datamatrix & moddata, const datamatrix & grid);
+
+  datamatrix discretise(datamatrix & moddata);
+
+  void init_fchelp(const datamatrix & d, datamatrix & grid);
+  
   // -------------------------END: FOR MERROR ----------------------------------
 
   // ------------------------- FOR REML ----------------------------------------
