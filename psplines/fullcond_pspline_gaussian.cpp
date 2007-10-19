@@ -12,8 +12,9 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o,
                       const fieldtype & ft, const ST::string & monotone, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const bool & deriv,
                       const double & l, const int & gs, const bool & diag,
-                      const double & lk, const double & uk, const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,lk,uk,c)
+                      const double & lk, const double & uk, const double & lg,
+                      const double & ug, const unsigned & c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,lk,uk,lg,ug,c)
   {
 
   diagtransform = diag;
@@ -141,7 +142,7 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o, DISTRIBUTI
                       const fieldtype & ft, const ST::string & monotone, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const bool & deriv,
                       const double & l, const int & gs,bool  ce, const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,false,0.0,0.0,c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,false,0.0,0.0,0.0,0.0,c)
   {
 
   assert(effmod.rows() == intact.rows());

@@ -137,8 +137,9 @@ FULLCOND_pspline::FULLCOND_pspline(MCMCoptions * o,DISTRIBUTION * dp,
                     const fieldtype & ft,const ST::string & ti,
                     const ST::string & fp, const ST::string & pres, const bool & deriv,
                     const int & gs, const double & lk, const double & uk,
+                    const double & lg, const double & ug,
                     const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,lk,uk,c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,lk,uk,lg,ug,c)
   {
 
   oldacceptance = 0;
@@ -245,7 +246,7 @@ FULLCOND_pspline::FULLCOND_pspline(MCMCoptions * o,DISTRIBUTION * dp,
                     const fieldtype & ft,const ST::string & ti,
                     const ST::string & fp, const ST::string & pres, const bool & deriv,
                     const int & gs, const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,0.0,0.0,c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,0.0,0.0,0.0,0.0,c)
   {
 
   oldacceptance = 0;
@@ -347,7 +348,7 @@ FULLCOND_pspline::FULLCOND_pspline(MCMCoptions * o,DISTRIBUTION * dp,
                     const unsigned & nrk,const unsigned & degr,const knotpos & kp,
                     const ST::string & fp, const ST::string & pres, const bool & deriv,
                     const int & gs, const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,0.0,0.0,c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,0.0,0.0,0.0,0.0,c)
   {
   }
 

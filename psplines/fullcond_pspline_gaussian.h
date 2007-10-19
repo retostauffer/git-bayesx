@@ -84,7 +84,8 @@ class __EXPORT_TYPE FULLCOND_pspline_gaussian : public spline_basis
                          const fieldtype & ft, const ST::string & monotone, const ST::string & ti,
                          const ST::string & fp, const ST::string & pres, const bool & deriv,
                          const double & l, const int & gs, const bool & diag,
-                         const double & lk, const double & uk, const unsigned & c=0);
+                         const double & lk, const double & uk, const double & lg,
+                         const double & ug, const unsigned & c=0);
 
   // CONSTRUCTOR 2  (for  varying coefficients term)
   // effmod: values of the effect modifier

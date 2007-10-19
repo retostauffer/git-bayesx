@@ -258,19 +258,19 @@ namespace MCMC
   generrtrial=0;
 
   pathresults = pres;
-  ST::string path = pathresults.substr(0,pathresults.length()-4);
+  ST::string path = samplepath.substr(0,samplepath.length()-4);
 
-  fc_merrorvar = FULLCOND(o,datamatrix(1,1,mvar),title+"_merror_var",1,1,path+"_merror_var.res");
+  fc_merrorvar = FULLCOND(o,datamatrix(1,1,mvar),title+"_merror_var",1,1,path+"_merror_var.raw");
   fc_merrorvar.setflags(MCMC::norelchange | MCMC::nooutput);
   double * merrorvarp = fc_merrorvar.getbetapointer();
   *merrorvarp = mvar;
 
-  fc_ximu = FULLCOND(o,datamatrix(1,1,0.0),title+"_truecov_expectation",1,1,path+"_truecov_expectation.res");
+  fc_ximu = FULLCOND(o,datamatrix(1,1,0.0),title+"_truecov_expectation",1,1,path+"_truecov_expectation.raw");
   fc_ximu.setflags(MCMC::norelchange | MCMC::nooutput);
 //  double * ximup = fc_ximu.getbetapointer();
 //  *ximup = 0.0;
 
-  fc_xivar = FULLCOND(o,datamatrix(1,1,1.0),title+"_truecov_var",1,1,path+"truecov_var.res");
+  fc_xivar = FULLCOND(o,datamatrix(1,1,1.0),title+"_truecov_var",1,1,path+"truecov_var.raw");
   fc_xivar.setflags(MCMC::norelchange | MCMC::nooutput);
 //  double * xivarp = fc_xivar.getbetapointer();
 //  *xivarp = 1;
@@ -844,7 +844,7 @@ namespace MCMC
 
     optionsp->out("\n");
 
-    ST::string merrorvar_pathresults = pathresults.substr(0,pathresults.length()-7) + "merror_var.res";
+    ST::string merrorvar_pathresults = pathresults.substr(0,pathresults.length()-4) + "_merror_var.res";
 
     ofstream ou1(merrorvar_pathresults.strtochar());
 
@@ -912,7 +912,7 @@ namespace MCMC
 
     optionsp->out("\n");
 
-    ST::string ximu_pathresults = pathresults.substr(0,pathresults.length()-7) + "truecov_expectation.res";
+    ST::string ximu_pathresults = pathresults.substr(0,pathresults.length()-4) + "_truecov_expectation.res";
 
     ofstream ou2(ximu_pathresults.strtochar());
 
@@ -980,7 +980,7 @@ namespace MCMC
 
     optionsp->out("\n");
 
-    ST::string xivar_pathresults = pathresults.substr(0,pathresults.length()-7) + "truecov_var.res";
+    ST::string xivar_pathresults = pathresults.substr(0,pathresults.length()-4) + "_truecov_var.res";
 
     ofstream ou3(xivar_pathresults.strtochar());
 

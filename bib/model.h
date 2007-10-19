@@ -677,6 +677,8 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
   doubleoption lowerknot;
   doubleoption upperknot;
   doubleoption merrorvar;
+  doubleoption lowergrid;
+  doubleoption uppergrid;
 
 
   void setdefault(void);

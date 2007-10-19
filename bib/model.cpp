@@ -837,7 +837,7 @@ term_pspline::term_pspline(void)
   a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   uniformb = simpleoption("uniformb",false);
-  gridsize = intoption("gridsize",-1,10,500);
+  gridsize = intoption("gridsize",-1,10,1000);
   minvar=intoption("minvar",1,1,500);
   maxvar=intoption("maxvar",1,1,500);
   startv = doubleoption("startv",0.05,0.00001,1000);
@@ -875,6 +875,8 @@ term_pspline::term_pspline(void)
   lowerknot = doubleoption("lowerknot",0,-10000000,10000000);
   upperknot = doubleoption("upperknot",0,-10000000,10000000);
   merrorvar = doubleoption("merrorvar",0,0,10000000);
+  lowergrid = doubleoption("lowergrid",0,-10000000,10000000);
+  uppergrid = doubleoption("uppergrid",0,-10000000,10000000);
   }
 
 void term_pspline::setdefault(void)
@@ -914,13 +916,15 @@ void term_pspline::setdefault(void)
   lowerknot.setdefault();
   upperknot.setdefault();
   merrorvar.setdefault();
+  lowergrid.setdefault();
+  uppergrid.setdefault();
   }
 
 bool term_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 33) )
+        && (t.options.size() <= 35) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -984,6 +988,8 @@ bool term_pspline::check(term & t)
     optlist.push_back(&lowerknot);
     optlist.push_back(&upperknot);
     optlist.push_back(&merrorvar);
+    optlist.push_back(&lowergrid);
+    optlist.push_back(&uppergrid);
 
     unsigned i;
     bool rec = true;
@@ -1008,7 +1014,7 @@ bool term_pspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(33);
+   t.options = vector<ST::string>(35);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -1072,6 +1078,8 @@ bool term_pspline::check(term & t)
     t.options[30] = ST::doubletostring(lowerknot.getvalue());
     t.options[31] = ST::doubletostring(upperknot.getvalue());
     t.options[32] = ST::doubletostring(merrorvar.getvalue());
+    t.options[33] = ST::doubletostring(lowergrid.getvalue());
+    t.options[34] = ST::doubletostring(uppergrid.getvalue());
 
    if (t.options[1].strtolong(minim) == 1)
      {

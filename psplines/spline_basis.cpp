@@ -248,7 +248,8 @@ spline_basis::spline_basis(MCMCoptions * o, DISTRIBUTION * dp,
                 const ST::string & ti, const unsigned & nrk, const unsigned & degr,
                 const MCMC::knotpos & kp, const int & gs, const ST::string & fp,
                 const ST::string & pres, const bool & deriv, const double & lk,
-                const double & uk, const unsigned & c)
+                const double & uk, const double & lg, const double & ug,
+                const unsigned & c)
   : FULLCOND_nonp_basis(o,dp,ft,ti,fp,pres,c)
   {
 
@@ -260,6 +261,9 @@ spline_basis::spline_basis(MCMCoptions * o, DISTRIBUTION * dp,
 
   lowerknot = lk;
   upperknot = uk;
+
+  lowergrid = lg;
+  uppergrid = ug;
 
   fctype = nonparametric;
 
@@ -1214,8 +1218,18 @@ void spline_basis::init_fchelp(const datamatrix & d)
     }
   else
     {
-    double xmin = d.min(0);
-    double xmax = d.max(0);
+    double xmin, xmax;
+    if(lowergrid<uppergrid)
+      {
+      xmin = lowergrid;
+      xmax = uppergrid;
+      }
+    else
+      {
+      xmin = d.min(0);
+      xmax = d.max(0);
+      }
+
     xvalues = datamatrix(gridsize,1);
     for(i=0;i<gridsize;i++)
       xvalues(i,0) = xmin + i*(xmax-xmin)/double(xvalues.rows()-1);

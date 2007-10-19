@@ -80,8 +80,9 @@ IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fc
                     const double & a, const double & b, const ST::string & ti,
                     const ST::string & fp, const ST::string & pres, const bool & deriv,
                     const int & gs, const bool & diag, const double & lk,
-                    const double & uk, const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,lk,uk,c)
+                    const double & uk, const double & lg, const double & ug,
+                    const unsigned & c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,lk,uk,lg,ug,c)
   {
 
   a_invgamma = a;
@@ -155,7 +156,7 @@ IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fc
                     const double & a, const double & b, const ST::string & ti,
                     const ST::string & fp, const ST::string & pres, const bool & deriv,
                     const int & gs, const bool & diag, const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,0.0,0.0,c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,0.0,0.0,0.0,0.0,c)
   {
 
   diagtransform = false;
@@ -219,7 +220,7 @@ IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fc
                     const ST::string & ti,
                     const ST::string & fp, const ST::string & pres, const bool & deriv,
                     const int & gs, const bool & diag, const unsigned & c)
-  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,0.0,0.0,c)
+  : spline_basis(o,dp,fcc,ft,ti,nrk,degr,kp,gs,fp,pres,deriv,0.0,0.0,0.0,0.0,c)
   {
 
   varcoeff = false;

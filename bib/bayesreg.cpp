@@ -2914,6 +2914,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
   ST::string test ="test";
   double lowerknot=0;
   double upperknot=0;
+  double lowergrid=0;
+  double uppergrid=0;
 
   unsigned i;
   int j;
@@ -3040,13 +3042,17 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
         {
 //        derivative=true;               // for IWLS-proposal
         if(gridsize<5)
-          gridsize = 100;              // evaluate the function on a grid
+          gridsize = 500;              // evaluate the function on a grid
 
        f = (terms[i].options[30]).strtodouble(lowerknot);
        f = (terms[i].options[31]).strtodouble(upperknot);
 
        f = (terms[i].options[32]).strtodouble(merrorvar);
        }
+
+     f = (terms[i].options[33]).strtodouble(lowergrid);
+     f = (terms[i].options[34]).strtodouble(uppergrid);
+
 // END: merror
 
       // -------------end: reading options, term information -------------------
@@ -3066,7 +3072,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
         FULLCOND_pspline_gaussian(&generaloptions[generaloptions.size()-1],
         distr[distr.size()-1],fcconst_intercept,meandata,nrknots,degree,po,
         type,monotone,title,pathnonp,pathres,derivative,lambda,gridsize,
-        diagtransform,lowerknot,upperknot,collinpred));
+        diagtransform,lowerknot,upperknot,lowergrid,uppergrid,collinpred));
 
         //
         datamatrix beta_0;
@@ -3253,7 +3259,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           fcpspline.push_back( FULLCOND_pspline(&generaloptions[generaloptions.size()-1],
           distr[distr.size()-1],fcconst_intercept,meandata,nrknots,degree,po,
           lambda,min,max,type,title,pathnonp,pathres,derivative,lowerknot,
-          upperknot,gridsize,
+          upperknot,lowergrid,uppergrid,gridsize,
           collinpred));
 
           if (constlambda.getvalue() == true)
@@ -3329,6 +3335,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           distr[distr.size()-1],fcconst_intercept,meandata,iwlsmode,nrknots,degree,po,
           lambda,type,monotone,updateW,updatetau,fstart,a1,b1,title,pathnonp,
           pathres,derivative,gridsize,diagtransform,lowerknot,upperknot,
+          lowergrid,uppergrid,
           collinpred));
 
           if (constlambda.getvalue() == true)
