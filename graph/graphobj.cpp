@@ -417,8 +417,10 @@ if(drawonlyboundaries)
 
     if(drawonlyboundaries)
       {
-      jmethodID javashowmap = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "JavaShowMap", "(Z)V");
-      o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javashowmap, o.drawnames.getvalue());
+      jmethodID javashowmap = o.adminb_p->Java->GetMethodID(o.adminb_p->BayesX_cls, "JavaShowMap", "(ZILjava/lang/String;)V");
+      o.adminb_p->Java->CallVoidMethod(o.adminb_p->BayesX_obj, javashowmap, o.drawnames.getvalue(),
+                                       o.fontsize.getvalue(),
+                                       o.adminb_p->Java->NewStringUTF(o.psname.getvalue().strtochar()));
       }
     else
       {

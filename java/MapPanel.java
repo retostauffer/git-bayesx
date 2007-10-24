@@ -173,7 +173,6 @@ private void showmap(Graphics2D g)
                         }
                 g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));
                 }
-
         }
 
 private void drawmap(Graphics g)
@@ -201,6 +200,7 @@ public void SaveMap(PrintWriter out)              // Zum Speichern als PostScrip
 	{
 
 	double[] d2 = new double[4];
+        double[] centroid = new double[2];
 
         b.getboundaries(d2);
 	maxX = d2[2];
@@ -243,6 +243,21 @@ public void SaveMap(PrintWriter out)              // Zum Speichern als PostScrip
        					   (int)Math.round((d2[1]-minX)*0.9*width/(maxX-minX)+0.05*width),(int)Math.round(-(d2[3]-minY)*0.9*height/(maxY-minY)+0.95*height));
 			        }
 		        }
+                }
+
+
+        if(b.drawnames)
+                {
+                g.setFont(new Font("TimesRoman", Font.BOLD, b.fontsize));
+                for(int i=0; i<b.getnrregions(); i++)
+                        {
+                        b.getcentroid(centroid,i);
+                        g.drawString(b.getregionname(i),
+                                     (int)((centroid[0]-minX)*0.9*width/(maxX-minX)+0.05*width),
+                                     (int)(-(centroid[1]-minY)*0.9*height/(maxY-minY)+0.95*height)
+                                    );
+                        }
+                g.setFont(new Font("TimesRoman", Font.PLAIN, b.fontsize));
                 }
 
         out.println("showpage");

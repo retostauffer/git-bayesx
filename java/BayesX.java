@@ -1815,7 +1815,7 @@ public void JavaShowData()
 
 //Funktionen zum Zeichen von Karten
 
-public void JavaShowMap(boolean opt)
+public void JavaShowMap(boolean opt, int jfontsize, String joutfile)
 	{
             
         int width;
@@ -1824,6 +1824,8 @@ public void JavaShowMap(boolean opt)
         function = 1;
 
         drawnames = opt;
+	fontsize = jfontsize;
+        outfile = joutfile;
         
         setEnabled(false);
 	fileChooser2 = new JFileChooser(defaultDirectory);
@@ -1850,10 +1852,30 @@ public void JavaShowMap(boolean opt)
                 }
         
         mapFrame.setSize(width + 8,height + 27);
-	mapFrame.show();
-//	parseThread.suspend();
-	setPause(true);
-	parseThread.setPriority(Thread.MIN_PRIORITY);
+
+
+        if(outfile.equals(""))        
+                {    
+		mapFrame.show();
+//		parseThread.suspend();
+		setPause(true);
+		parseThread.setPriority(Thread.MIN_PRIORITY);
+		}
+        else
+                {
+                try
+                        {
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));        
+                        mapPanel.SaveMap(out);   
+                        setEnabled(true);
+                        mapFrame.dispose();
+                        }
+                catch(IOException ioe)
+        	        {
+	        	System.err.println(ioe.getMessage());
+		        }
+                }
+ 
 	}
 
 public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4, boolean opt5,
@@ -2735,7 +2757,7 @@ public void saveOutput()
    
 static
 	{
-	System.loadLibrary("BayesXdll_gnu");
+	System.loadLibrary("BayesXdll");
 	}        
         
 
