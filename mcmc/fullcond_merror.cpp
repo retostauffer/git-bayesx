@@ -229,7 +229,8 @@ namespace MCMC
   fullcond_merror::fullcond_merror(MCMCoptions * o, spline_basis * p,
            DISTRIBUTION * dp, const datamatrix & d, const ST::string & t,
            const ST::string & fp, const ST::string & pres, const double & lk,
-           const double & uk, const double & mvar)
+           const double & uk, const double & mvar, const bool & disc,
+           const int & dig)
            : FULLCOND(o,d,t,d.rows(),1,fp)
   {
   splinep = p;
@@ -247,9 +248,16 @@ namespace MCMC
       }
     meandata(i,0) /= merror;
     }
-  minx = lk;
-  maxx = uk;
-  setbeta(meandata);
+  discretize = disc;
+  digits = dig;
+
+  minx = lk+1/pow(10,digits);
+  maxx = uk-1/pow(10,digits);
+
+  old = meandata;
+  if(discretize)
+    old.round(digits);
+  setbeta(old);
 
   logfcold = datamatrix(d.rows(),1,0);
   logfcnew = datamatrix(d.rows(),1,0);
@@ -307,6 +315,8 @@ namespace MCMC
     fc_xivar = m.fc_xivar;
     generrcount = m.generrcount;
     pathresults = m.pathresults;
+    discretize = m.discretize;
+    digits = m.digits;
 // END: merror
 
 // BEGIN: Susi
@@ -357,6 +367,8 @@ namespace MCMC
     fc_xivar = m.fc_xivar;
     generrcount = m.generrcount;
     pathresults = m.pathresults;
+    discretize = m.discretize;
+    digits = m.digits;
 // END: merror
 
 // BEGIN: Susi
@@ -518,6 +530,9 @@ namespace MCMC
       // store results from previous iteration in old
       old = beta;
 
+      // test version: known number of "true" observations (with weight=1)
+      unsigned nbeta = 750;
+
       // sampling step:
       // standard deviation of measurement error
       double * merrorvarp = fc_merrorvar.getbetapointer();
@@ -540,17 +555,17 @@ namespace MCMC
       double * xivarp = fc_xivar.getbetapointer();
       double * ximup = fc_ximu.getbetapointer();
 
-      anew = 0.001 + 0.5*beta.rows();
+      anew = 0.001 + 0.5*nbeta;
       bnew = 0.0;
-      for(i=0; i<beta.rows(); i++)
+      for(i=0; i<nbeta; i++)
         bnew += (beta(i,0)-*ximup)*(beta(i,0)-*ximup);
       bnew = 0.001 + 0.5*bnew;
       *xivarp = rand_invgamma(anew,bnew);
       double priorsd = sqrt(*xivarp);
       fc_xivar.update();
 
-      double muhelp = beta.sum(0)*1000/(beta.rows()*1000*1000 + *xivarp);
-      double sdhelp = *xivarp *1000*1000 / (beta.rows()*1000*1000 + *xivarp);
+      double muhelp = beta.sum(0)*1000/(nbeta*1000*1000 + *xivarp);
+      double sdhelp = *xivarp *1000*1000 / (nbeta*1000*1000 + *xivarp);
       *ximup = muhelp + sdhelp*rand_normal();
       double priormean = *ximup;
       fc_ximu.update();
@@ -558,7 +573,7 @@ namespace MCMC
       // generate proposed values (random walk proposal according to Berry et al.)
       double * work = beta.getV();
       double * workold = old.getV();
-      for(i=0;i<beta.rows();i++,work++,workold++)
+      for(i=0;i<nbeta;i++,work++,workold++)
         {
         *work = *workold + 2*mesd*rand_normal()/(double)merror;
         generrtrial++;
@@ -572,15 +587,22 @@ namespace MCMC
           }
         }
 
+      if(discretize)
+        beta.round(digits);
+
       // extract current f(x) from spline_basis
       currentspline = splinep->get_spline();
 
       // call update_merror and compute new values for f(x).
-      splinep->update_merror(beta);
+      if(discretize)
+        splinep->update_merror_discrete(beta);
+      else
+        splinep->update_merror(beta);
+
       diffspline = splinep->get_spline()-currentspline;
 
       // full conditional for old values
-      for(i=0; i<beta.rows(); i++)
+      for(i=0; i<nbeta; i++)
         {
         logfcold(i,0) = likep->loglikelihood(i,i,index) - 0.5*((old(i,0)-priormean)/priorsd)*((old(i,0)-priormean)/priorsd);
         for(j=0; j<merror; j++)
@@ -591,7 +613,7 @@ namespace MCMC
 
       // full conditional for proposed values
       likep->addtocurrent(diffspline);
-      for(i=0; i<beta.rows(); i++)
+      for(i=0; i<nbeta; i++)
         {
         logfcnew(i,0) = likep->loglikelihood(i,i,index,false) - 0.5*((beta(i,0)-priormean)/priorsd)*((beta(i,0)-priormean)/priorsd);
         for(j=0; j<merror; j++)
@@ -620,7 +642,7 @@ namespace MCMC
       out6.close();*/
 
       // compute acceptance probabilities; overwrite non-accepted values with old values
-      for(i=0; i<beta.rows(); i++)
+      for(i=0; i<nbeta; i++)
         {
         u = log(uniform());
         nrtrials++;
@@ -636,7 +658,10 @@ namespace MCMC
         }
 
       // update spline_basis with the final information
-      splinep->update_merror(beta);
+      if(discretize)
+        splinep->update_merror_discrete(beta);
+      else
+        splinep->update_merror(beta);
 
       // Update the linear predictor
       diffspline = splinep->get_spline()-currentspline;
@@ -1015,5 +1040,6 @@ namespace MCMC
     }
 
 } // end: namespace MCMC
+
 
 

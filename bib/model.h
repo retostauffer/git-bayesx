@@ -679,7 +679,8 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
   doubleoption merrorvar;
   doubleoption lowergrid;
   doubleoption uppergrid;
-
+  simpleoption discretize;
+  intoption digits;
 
   void setdefault(void);
 

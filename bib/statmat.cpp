@@ -1187,7 +1187,7 @@ statmatrix<T> statmatrix<T>::strike (unsigned int k)
 		}
 	}
 
-	return matrix_new;				
+	return matrix_new;
 }
 
 template<class T>
@@ -1335,6 +1335,24 @@ statmatrix<T> statmatrix<T>::partial_var(void)
 
 	return par_var;
 }
+
+template<class T>
+void statmatrix<T>::round(const int digits)
+{
+unsigned cols = this->cols();
+unsigned rows = this->rows();
+unsigned i,j;
+double mult = pow(10,digits);
+T* p = this->getV();
+for(i=0; i<rows; i++)
+  {
+  for(j=0; j<cols; j++, p++)
+    {
+    *p = floor(*p * mult + 0.5) / mult;
+    }
+  }
+}
+
 
 /*
 template<class T>

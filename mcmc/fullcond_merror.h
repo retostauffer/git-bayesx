@@ -55,6 +55,9 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   unsigned generrcount;      // counts the number of generated values out of range
   unsigned generrtrial;
 
+  bool discretize;           // generation of rounded covariate values
+  unsigned digits;           // no. of digits for rounding    
+
   ST::string pathresults;
 // END: merror
 
@@ -127,7 +130,7 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   fullcond_merror(MCMCoptions * o, spline_basis * p, DISTRIBUTION * dp,
            const datamatrix & d, const ST::string & t, const ST::string & fp,
            const ST::string & pres, const double & lk, const double & uk,
-           const double & mvar);
+           const double & mvar, const bool & disc, const int & dig);
 // END: merror
 
   // COPY CONSTRUCTOR

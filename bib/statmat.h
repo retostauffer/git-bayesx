@@ -4,6 +4,7 @@
 #define STATMATRIX_INCLUDED
 
 #include "tmatrix.h"
+#include <math.h>
 #include <vector>
 #include "clstring.h"
 
@@ -373,6 +374,11 @@ class adja;
    statmatrix<T> get_cov_iX (int i, int j);
 
    statmatrix<T> partial_var(void);
+
+   // FUNCTION: round
+   // TASK: rounds the elements of the calling matrix to the precision specified
+   //       in digits
+   void round(const int digits);
 
   };
 

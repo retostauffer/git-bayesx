@@ -4042,15 +4042,11 @@ void spline_basis::update_merror(datamatrix & newdata)
   double value;
 
   freq = vector<int>();
-//  firstnonzero = deque<int>();
-//  lastnonzero = deque<int>();
-//  knot = deque<double>();
   begcol = vector<int>();
   index2 = vector<int>();
 
   make_index(newdata);
   make_index2();
-//  make_Bspline(newdata);
 
   datamatrix help(nrpar,1,0.0);
   Bcolmean = datamatrix(nrpar,1,0.0);
@@ -4084,15 +4080,29 @@ void spline_basis::update_merror(datamatrix & newdata)
   multBS_index(spline, beta);
 
   // Zentrierung
-//  if(!changingweight)
-//    {
     for(i=0; i<spline.rows(); i++)
       spline(i,0) -= intercept;
-//    }
 
   }
+
+void spline_basis::update_merror_discrete(datamatrix & newdata)
+  {
+  unsigned i;
+  freq = vector<int>();
+  index2 = vector<int>();
+
+  make_index(newdata);
+  make_index2();
   
-void spline_basis::make_index_discrete(const datamatrix & moddata,
+  // neuen Spline ausrechnen
+  multBS_index(spline, beta);
+
+  for(i=0; i<spline.rows(); i++)
+    spline(i,0) -= intercept;
+  }
+
+
+/*void spline_basis::make_index_discrete(const datamatrix & moddata,
                               const datamatrix & grid)
   {
 // index berechnen
@@ -4204,9 +4214,8 @@ void spline_basis::init_fchelp(const datamatrix & d, datamatrix & grid)
     fcderivative.setflags(MCMC::norelchange | MCMC::nooutput);
     fcderivative.set_transform(transform);
     }
+  }*/
 
-
-  }
 // -------------------------END: FOR MERROR ------------------------------------
 
 

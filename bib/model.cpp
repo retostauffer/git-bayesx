@@ -877,6 +877,8 @@ term_pspline::term_pspline(void)
   merrorvar = doubleoption("merrorvar",0,0,10000000);
   lowergrid = doubleoption("lowergrid",0,-10000000,10000000);
   uppergrid = doubleoption("uppergrid",0,-10000000,10000000);
+  discretize = simpleoption("discretize", false);
+  digits = intoption("digits",2,0,5);
   }
 
 void term_pspline::setdefault(void)
@@ -918,13 +920,15 @@ void term_pspline::setdefault(void)
   merrorvar.setdefault();
   lowergrid.setdefault();
   uppergrid.setdefault();
+  discretize.setdefault();
+  digits.setdefault();
   }
 
 bool term_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 35) )
+        && (t.options.size() <= 37) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -990,6 +994,8 @@ bool term_pspline::check(term & t)
     optlist.push_back(&merrorvar);
     optlist.push_back(&lowergrid);
     optlist.push_back(&uppergrid);
+    optlist.push_back(&discretize);
+    optlist.push_back(&digits);
 
     unsigned i;
     bool rec = true;
@@ -1014,7 +1020,7 @@ bool term_pspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(35);
+   t.options = vector<ST::string>(37);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -1080,6 +1086,11 @@ bool term_pspline::check(term & t)
     t.options[32] = ST::doubletostring(merrorvar.getvalue());
     t.options[33] = ST::doubletostring(lowergrid.getvalue());
     t.options[34] = ST::doubletostring(uppergrid.getvalue());
+   if (discretize.getvalue() == false)
+     t.options[35] = "false";
+   else
+     t.options[35] = "true";
+   t.options[36] = ST::inttostring(digits.getvalue());
 
    if (t.options[1].strtolong(minim) == 1)
      {

@@ -124,19 +124,6 @@ IWLS_pspline::IWLS_pspline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_const * fc
 
   compute_betaweight();
 
-//  datamatrix xdata = d;
-//  datamatrix grid = discretise(xdata);
-  // computes a grid of x-avlues
-  // rounds the x-values to the grid mid-points
-  // and returns the vector of x-values corresponding to the grid mid-points
-//  make_index_discrete(xdata,grid);
-//  make_index(xdata);
-//  make_index2();
-//  make_Bspline(xdata);
-
-//  create_iwls();
-//  init_fchelp(xdata, grid);
-
   make_index(d);
   make_index2();
   make_Bspline(d);
