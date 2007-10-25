@@ -376,6 +376,12 @@ class adja;
    statmatrix<T> partial_var(void);
 
    // FUNCTION: round
+   // TASK: rounds the elements of the calling matrix between min and max to the
+   //       precision specified in digits
+   void round(const int digits, const unsigned mincol, const unsigned maxcol,
+              const unsigned minrow, const unsigned maxrow);
+
+   // FUNCTION: round
    // TASK: rounds the elements of the calling matrix to the precision specified
    //       in digits
    void round(const int digits);

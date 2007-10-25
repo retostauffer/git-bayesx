@@ -256,7 +256,7 @@ namespace MCMC
 
   old = meandata;
   if(discretize)
-    old.round(digits);
+    old.round(digits,0,1,0,750);
   setbeta(old);
 
   logfcold = datamatrix(d.rows(),1,0);
@@ -588,7 +588,7 @@ namespace MCMC
         }
 
       if(discretize)
-        beta.round(digits);
+        beta.round(digits,0,1,0,nbeta);
 
       // extract current f(x) from spline_basis
       currentspline = splinep->get_spline();

@@ -1337,9 +1337,30 @@ statmatrix<T> statmatrix<T>::partial_var(void)
 }
 
 template<class T>
+void statmatrix<T>::round(const int digits, const unsigned mincol,
+                          const unsigned maxcol, const unsigned minrow,
+                          const unsigned maxrow)
+{
+unsigned cols = maxcol-mincol;
+unsigned colinc = this->cols()-cols;
+unsigned rows = maxrow-minrow;
+unsigned i,j;
+double mult = pow(10,digits);
+T* p = this->getV() + mincol + minrow*this->cols();
+
+for(i=0; i<rows; i++, p+=colinc)
+  {
+  for(j=0; j<cols; j++, p++)
+    {
+    *p = floor(*p * mult + 0.5) / mult;
+    }
+  }
+}
+
+template<class T>
 void statmatrix<T>::round(const int digits)
 {
-unsigned cols = this->cols();
+/*unsigned cols = this->cols();
 unsigned rows = this->rows();
 unsigned i,j;
 double mult = pow(10,digits);
@@ -1350,7 +1371,8 @@ for(i=0; i<rows; i++)
     {
     *p = floor(*p * mult + 0.5) / mult;
     }
-  }
+  }*/
+this->round(digits, 0, this->cols(), 0, this->rows());
 }
 
 
