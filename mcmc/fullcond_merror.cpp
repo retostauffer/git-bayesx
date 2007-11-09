@@ -259,6 +259,10 @@ namespace MCMC
     old.round(digits,0,1,0,750);
   setbeta(old);
 
+/*  ofstream out0("c:\\temp\\beta.raw");
+  beta.prettyPrint(out0);
+  out0.close();*/
+
   logfcold = datamatrix(d.rows(),1,0);
   logfcnew = datamatrix(d.rows(),1,0);
 
@@ -531,7 +535,7 @@ namespace MCMC
       old = beta;
 
       // test version: known number of "true" observations (with weight=1)
-      unsigned nbeta = 750;
+      unsigned nbeta = 500;
 
       // sampling step:
       // standard deviation of measurement error
@@ -639,7 +643,7 @@ namespace MCMC
       out5.close();
       ofstream out6("c:\\temp\\currentspline.raw");
       currentspline.prettyPrint(out6);
-      out6.close();*/
+      out6.close(); */
 
       // compute acceptance probabilities; overwrite non-accepted values with old values
       for(i=0; i<nbeta; i++)
