@@ -2976,8 +2976,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
         f = terms[i].options[36].strtolong(h);
         digits = unsigned(h);
 
-        if(discretize)
-          meandata.round(digits);
+//        if(discretize)
+//          meandata.round(digits);
 
         }
       else
@@ -3055,11 +3055,11 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
         if(gridsize<5)
           gridsize = 500;              // evaluate the function on a grid
 
-       f = (terms[i].options[30]).strtodouble(lowerknot);
-       f = (terms[i].options[31]).strtodouble(upperknot);
-
        f = (terms[i].options[32]).strtodouble(merrorvar);
        }
+
+     f = (terms[i].options[30]).strtodouble(lowerknot);
+     f = (terms[i].options[31]).strtodouble(upperknot);
 
      f = (terms[i].options[33]).strtodouble(lowergrid);
      f = (terms[i].options[34]).strtodouble(uppergrid);

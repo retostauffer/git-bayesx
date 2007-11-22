@@ -256,7 +256,7 @@ namespace MCMC
 
   old = meandata;
   if(discretize)
-    old.round(digits,0,1,0,750);
+    old.round(digits,0,1,0,500);
   setbeta(old);
 
 /*  ofstream out0("c:\\temp\\beta.raw");
@@ -598,9 +598,9 @@ namespace MCMC
       currentspline = splinep->get_spline();
 
       // call update_merror and compute new values for f(x).
-      if(discretize)
-        splinep->update_merror_discrete(beta);
-      else
+//      if(discretize)
+//        splinep->update_merror_discrete(beta);
+//      else
         splinep->update_merror(beta);
 
       diffspline = splinep->get_spline()-currentspline;
@@ -662,9 +662,9 @@ namespace MCMC
         }
 
       // update spline_basis with the final information
-      if(discretize)
-        splinep->update_merror_discrete(beta);
-      else
+//      if(discretize)
+//        splinep->update_merror_discrete(beta);
+//      else
         splinep->update_merror(beta);
 
       // Update the linear predictor

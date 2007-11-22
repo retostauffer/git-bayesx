@@ -837,7 +837,7 @@ term_pspline::term_pspline(void)
   a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   uniformb = simpleoption("uniformb",false);
-  gridsize = intoption("gridsize",-1,10,1000);
+  gridsize = intoption("gridsize",-1,10,2000);
   minvar=intoption("minvar",1,1,500);
   maxvar=intoption("maxvar",1,1,500);
   startv = doubleoption("startv",0.05,0.00001,1000);
