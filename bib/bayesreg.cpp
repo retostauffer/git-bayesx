@@ -2909,7 +2909,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
   unsigned min,max,degree,nrknots;
   double lambda,a1,b1,alpha,merrorvar;
   bool ub,diagtransform,derivative,bsplinebasis,discretize;
-  int gridsize,contourprob,digits;
+  int gridsize,contourprob,digits,nobs;
   int f;
   ST::string test ="test";
   double lowerknot=0;
@@ -2975,10 +2975,15 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 
         f = terms[i].options[36].strtolong(h);
         digits = unsigned(h);
-
-//        if(discretize)
-//          meandata.round(digits);
-
+        f = terms[i].options[37].strtolong(h);
+        nobs = unsigned(h);
+        if(discretize && nobs==0)
+          {
+          outerror("ERROR: Option nobs has to be specified if discretize is true\n");
+          return true;
+          }
+        if(nobs==0)
+          nobs=D.rows();
         }
       else
         {
@@ -3238,7 +3243,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    pathres,
                                    lowerknot, upperknot,
                                    merrorvar,
-                                   discretize, digits)
+                                   discretize, digits, nobs)
                          );
           fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
           fullcond.push_back(&fcmerror[fcmerror.size()-1]);
@@ -3316,7 +3321,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    pathres,
                                    lowerknot, upperknot,
                                    merrorvar,
-                                   discretize, digits)
+                                   discretize, digits, nobs)
                            );
             fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcmerror[fcmerror.size()-1]);
@@ -3457,7 +3462,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    pathres,
                                    lowerknot, upperknot,
                                    merrorvar,
-                                   discretize, digits)
+                                   discretize, digits, nobs)
                            );
             fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
             fullcond.push_back(&fcmerror[fcmerror.size()-1]);

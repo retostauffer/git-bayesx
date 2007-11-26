@@ -879,6 +879,7 @@ term_pspline::term_pspline(void)
   uppergrid = doubleoption("uppergrid",0,-10000000,10000000);
   discretize = simpleoption("discretize", false);
   digits = intoption("digits",2,0,5);
+  nobs = intoption("nobs",0,0,10000000);
   }
 
 void term_pspline::setdefault(void)
@@ -922,13 +923,14 @@ void term_pspline::setdefault(void)
   uppergrid.setdefault();
   discretize.setdefault();
   digits.setdefault();
+  nobs.setdefault();
   }
 
 bool term_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 37) )
+        && (t.options.size() <= 38) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -996,6 +998,7 @@ bool term_pspline::check(term & t)
     optlist.push_back(&uppergrid);
     optlist.push_back(&discretize);
     optlist.push_back(&digits);
+    optlist.push_back(&nobs);
 
     unsigned i;
     bool rec = true;
@@ -1020,7 +1023,7 @@ bool term_pspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(37);
+   t.options = vector<ST::string>(38);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -1091,6 +1094,7 @@ bool term_pspline::check(term & t)
    else
      t.options[35] = "true";
    t.options[36] = ST::inttostring(digits.getvalue());
+   t.options[37] = ST::inttostring(nobs.getvalue());
 
    if (t.options[1].strtolong(minim) == 1)
      {

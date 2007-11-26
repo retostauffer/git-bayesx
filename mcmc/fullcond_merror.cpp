@@ -230,7 +230,7 @@ namespace MCMC
            DISTRIBUTION * dp, const datamatrix & d, const ST::string & t,
            const ST::string & fp, const ST::string & pres, const double & lk,
            const double & uk, const double & mvar, const bool & disc,
-           const int & dig)
+           const int & dig, const unsigned & nb)
            : FULLCOND(o,d,t,d.rows(),1,fp)
   {
   splinep = p;
@@ -250,12 +250,13 @@ namespace MCMC
     }
   discretize = disc;
   digits = dig;
+  nbeta = nb;
 
   minx = lk+1/pow(10,digits);
   maxx = uk-1/pow(10,digits);
 
   old = meandata;
-  if(discretize)
+//  if(discretize)
     old.round(digits,0,1,0,500);
   setbeta(old);
 
@@ -321,6 +322,7 @@ namespace MCMC
     pathresults = m.pathresults;
     discretize = m.discretize;
     digits = m.digits;
+    nbeta = m.nbeta;
 // END: merror
 
 // BEGIN: Susi
@@ -373,6 +375,7 @@ namespace MCMC
     pathresults = m.pathresults;
     discretize = m.discretize;
     digits = m.digits;
+    nbeta = m.nbeta;
 // END: merror
 
 // BEGIN: Susi
@@ -534,17 +537,14 @@ namespace MCMC
       // store results from previous iteration in old
       old = beta;
 
-      // test version: known number of "true" observations (with weight=1)
-      unsigned nbeta = 500;
-
       // sampling step:
       // standard deviation of measurement error
       double * merrorvarp = fc_merrorvar.getbetapointer();
       double anew, bnew;
 /*    currently disabled: measurement error variance is treated as fixed
-      anew = 0.001 + 0.5*beta.rows()*data.cols();
+      anew = 0.001 + 0.5*nbeta*data.cols();
       bnew = 0.0;
-      for(i=0; i<beta.rows(); i++)
+      for(i=0; i<nbeta; i++)
         for(j=0; j<data.cols(); j++)
           bnew += (data(i,j)-beta(i,0))*(data(i,j)-beta(i,0));
       bnew = 0.001 + 0.5*bnew;
@@ -553,7 +553,7 @@ namespace MCMC
       fc_merrorvar.update();
 
       // sampling step:
-      // standard deviation of true covariate values
+      // expectation of true covariate values
       // sampling step:
       // standard deviation of true covariate values
       double * xivarp = fc_xivar.getbetapointer();
@@ -569,7 +569,7 @@ namespace MCMC
       fc_xivar.update();
 
       double muhelp = beta.sum(0)*1000/(nbeta*1000*1000 + *xivarp);
-      double sdhelp = *xivarp *1000*1000 / (nbeta*1000*1000 + *xivarp);
+      double sdhelp = sqrt(*xivarp *1000*1000 / (nbeta*1000*1000 + *xivarp));
       *ximup = muhelp + sdhelp*rand_normal();
       double priormean = *ximup;
       fc_ximu.update();
@@ -591,16 +591,16 @@ namespace MCMC
           }
         }
 
-      if(discretize)
+//      if(discretize)
         beta.round(digits,0,1,0,nbeta);
 
       // extract current f(x) from spline_basis
       currentspline = splinep->get_spline();
 
       // call update_merror and compute new values for f(x).
-//      if(discretize)
-//        splinep->update_merror_discrete(beta);
-//      else
+      if(discretize)
+        splinep->update_merror_discrete(beta);
+      else
         splinep->update_merror(beta);
 
       diffspline = splinep->get_spline()-currentspline;
@@ -650,7 +650,7 @@ namespace MCMC
         {
         u = log(uniform());
         nrtrials++;
-        double test = (logfcnew(i,0)-logfcold(i,0));
+//        double test = (logfcnew(i,0)-logfcold(i,0));
         if(u <= (logfcnew(i,0)-logfcold(i,0)))
           {
           acceptance += 1.0;
@@ -662,9 +662,9 @@ namespace MCMC
         }
 
       // update spline_basis with the final information
-//      if(discretize)
-//        splinep->update_merror_discrete(beta);
-//      else
+      if(discretize)
+        splinep->update_merror_discrete(beta);
+      else
         splinep->update_merror(beta);
 
       // Update the linear predictor

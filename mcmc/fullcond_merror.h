@@ -56,7 +56,8 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   unsigned generrtrial;
 
   bool discretize;           // generation of rounded covariate values
-  unsigned digits;           // no. of digits for rounding    
+  unsigned digits;           // no. of digits for rounding
+  unsigned nbeta;            // no of observations with nonzero weight
 
   ST::string pathresults;
 // END: merror
@@ -130,7 +131,8 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   fullcond_merror(MCMCoptions * o, spline_basis * p, DISTRIBUTION * dp,
            const datamatrix & d, const ST::string & t, const ST::string & fp,
            const ST::string & pres, const double & lk, const double & uk,
-           const double & mvar, const bool & disc, const int & dig);
+           const double & mvar, const bool & disc, const int & dig,
+           const unsigned & nb);
 // END: merror
 
   // COPY CONSTRUCTOR
