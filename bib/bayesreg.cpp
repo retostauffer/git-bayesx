@@ -772,7 +772,7 @@ void bayesreg::clear(void)
   distr_gaussian.reserve(5);
 
   fullcond.erase(fullcond.begin(),fullcond.end());
-  fullcond.reserve(50);
+  fullcond.reserve(200);
 
   normalconst.erase(normalconst.begin(),normalconst.end());
   normalconst.reserve(20);
@@ -854,6 +854,10 @@ void bayesreg::clear(void)
   nongaussianshrinkage.erase(nongaussianshrinkage.begin(),nongaussianshrinkage.end());
   nongaussianshrinkage.reserve(20);
 
+  fcmult.erase(fcmult.begin(),fcmult.end());
+  fcmult.reserve(20);
+
+
   }
 
 
@@ -918,6 +922,7 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   fcmultibaseline = b.fcmultibaseline;
   normalshrinkage = b.normalshrinkage;
   nongaussianshrinkage = b.nongaussianshrinkage;
+  fcmult = b.fcmult;
   resultsyesno = b.resultsyesno;
   posteriormode = b.posteriormode;
 //  initpointers();
@@ -960,6 +965,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   fcmultibaseline = b.fcmultibaseline;
   normalshrinkage = b.normalshrinkage;
   nongaussianshrinkage = b.nongaussianshrinkage;
+  fcmult = b.fcmult;
   resultsyesno = b.resultsyesno;
   posteriormode = b.posteriormode;
 //  initpointers();

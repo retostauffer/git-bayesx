@@ -194,6 +194,11 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
     notransform=true;
     }
 
+  void set_changingweight(void)
+    {
+    changingweight=true;
+    }
+
   void init_data_varcoeff(const datamatrix & intvar,double add=0);
 
   void get_effectmatrix(datamatrix & e,vector<ST::string> & enames,

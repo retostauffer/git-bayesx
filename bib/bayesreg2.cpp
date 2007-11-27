@@ -2830,6 +2830,8 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
 
         fcrandomgaussian[fcrandomgaussian.size()-1].set_notransform();
 
+        fcrandomgaussian[fcrandomgaussian.size()-1].set_changingweight();        
+
        // Include first fcmult
 
        fcmult.push_back(FULLCOND_mult(&generaloptions[generaloptions.size()-1],

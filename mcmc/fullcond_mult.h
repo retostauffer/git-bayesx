@@ -22,6 +22,8 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
 
+enum multtype {re_rw,mrf_rw,re_pspline,mrf_pspline}; 
+
 class __EXPORT_TYPE FULLCOND_mult : public FULLCOND
   {
 
@@ -30,6 +32,8 @@ class __EXPORT_TYPE FULLCOND_mult : public FULLCOND
   FULLCOND_nonp_basis * basis1p;
   FULLCOND_nonp_basis * basis2p;
   FULLCOND_random * reffectp;
+
+
 
   bool first;
 
