@@ -492,7 +492,7 @@ class __EXPORT_TYPE term_shrinkage : public basic_termtype
   };
 
 //------------------------------------------------------------------------------
-//-------------------------- class term_autoreg  -------------------------------
+//-------------------------- class term_shrinkage  -----------------------------
 //------------------------------------------------------------------------------
 
 /*
@@ -1870,6 +1870,78 @@ class __EXPORT_TYPE term_random_autoreg : public basic_termtype
   ~term_random_autoreg() {}
 
   };
+
+
+
+class __EXPORT_TYPE term_spatial_autoreg : public basic_termtype
+  {
+
+  protected:
+
+  // OPTIONEN von term_spatial
+
+  stroption map_s;
+  doubleoption lambda_s;
+  doubleoption a_s;
+  doubleoption b_s;
+  stroption proposal_s;
+  intoption updateW_s;
+  simpleoption updatetau_s;
+  doubleoption f_s;
+  simpleoption uniformprior_s;
+  intoption nrrows_s;
+  simpleoption Laplace_s;
+  simpleoption stationary_s;
+  doubleoption alpha_s;
+  simpleoption alphafix_s;
+  simpleoption center_s;
+
+  doubleoption lambda;
+  doubleoption a;
+  doubleoption b;
+  stroption proposal;
+  intoption updateW;
+  simpleoption updatetau;
+  doubleoption f;
+  doubleoption lambdamin;
+  doubleoption lambdamax;
+  doubleoption lambdastart;
+  simpleoption stationary;
+  doubleoption alpha;
+  simpleoption alphafix;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_spatial_autoreg(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a first or second order random walk
+
+  bool checkvector(const vector<term>  & terms,const unsigned & i)
+    {
+
+    assert(i< terms.size());
+
+    if ( (terms[i].type == "spatial_rw1") ||  (terms[i].type == "spatial_rw2") )
+      return true;
+
+    return false;
+    }
+
+  // DESTRUCTOR
+
+  ~term_spatial_autoreg() {}
+
+  };
+
 
 
 #endif

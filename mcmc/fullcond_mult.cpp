@@ -16,12 +16,28 @@ FULLCOND_mult::FULLCOND_mult(MCMCoptions * o,DISTRIBUTION * dp,
   : FULLCOND(o,datamatrix(dp->get_nrobs(),1),ti,1,1,fp)
   {
 
-  basis1p = ba;
   reffectp = rp;
+  basis1p = ba;
   first = fi;
-
+  ttype = re_rw;
   }
 
+
+FULLCOND_mult::FULLCOND_mult(MCMCoptions * o,DISTRIBUTION * dp,
+                         FULLCOND_nonp_basis * ba1,
+                         FULLCOND_nonp_basis * ba2,
+                         bool fi,
+                         const ST::string & ti,
+                         const ST::string & fp, const ST::string & pres,
+                         const unsigned & c)
+  : FULLCOND(o,datamatrix(dp->get_nrobs(),1),ti,1,1,fp)
+  {
+
+  basis1p = ba1;
+  basis2p = ba2;
+  first = fi;
+  ttype = mrf_rw;
+  }
 
   // COPY CONSTRUCTOR
 
@@ -32,6 +48,7 @@ FULLCOND_mult::FULLCOND_mult(const FULLCOND_mult & fc)
   basis2p = fc.basis2p;
   reffectp = fc.reffectp;
   first = fc.first;
+  ttype = fc.ttype;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -45,6 +62,7 @@ const FULLCOND_mult & FULLCOND_mult::operator=(const FULLCOND_mult & fc)
   basis2p = fc.basis2p;
   reffectp = fc.reffectp;
   first = fc.first;
+  ttype = fc.ttype;
   return *this;
   }
 
@@ -52,15 +70,32 @@ void FULLCOND_mult::update(void)
   {
 
   vector<ST::string> enames;
-  if (first)
+
+  if (ttype==re_rw)
     {
-    basis1p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
-    reffectp->init_data_varcoeff(data,0);
+    if (first)
+      {
+      basis1p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+      reffectp->init_data_varcoeff(data,0);
+      }
+    else
+      {
+      reffectp->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+      basis1p->init_data_varcoeff(data,1);
+      }
     }
-  else
+  else if (ttype == mrf_rw)
     {
-    reffectp->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
-    basis1p->init_data_varcoeff(data,1);
+    if (first)
+      {
+      basis2p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+      basis1p->init_data_varcoeff(data,0);
+      }
+    else
+      {
+      basis1p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+      basis2p->init_data_varcoeff(data,1);
+      }
     }
 
   }
@@ -74,15 +109,32 @@ void FULLCOND_mult::update(void)
 bool FULLCOND_mult::posteriormode(void)
   {
   vector<ST::string> enames;
-  if (first)
+
+  if (ttype==re_rw)
     {
-    basis1p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
-    reffectp->init_data_varcoeff(data,0);
+    if (first)
+      {
+      basis1p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+      reffectp->init_data_varcoeff(data,0);
+      }
+    else
+      {
+      reffectp->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+      basis1p->init_data_varcoeff(data,1);
+      }
     }
-  else
+  else if (ttype=mrf_rw)
     {
-    reffectp->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
-    basis1p->init_data_varcoeff(data,1);
+    if (first)
+      {
+      basis2p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+      basis1p->init_data_varcoeff(data,0);
+      }
+    else
+      {
+      basis1p->get_effectmatrix(data,enames,0,0,MCMC::fvar_current);
+      basis2p->init_data_varcoeff(data,1);
+      }
     }
 
   return true;

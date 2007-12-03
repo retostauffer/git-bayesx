@@ -17,6 +17,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   : FULLCOND_nonp_basis(o,ti)
 
   {
+
+  notransform=false;
   catspecific = catsp;
 
   pathcurrent = pres;
@@ -106,6 +108,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   : FULLCOND_nonp_basis(o,ti)
 
   {
+  notransform=false;
   catspecific = catsp;
   centervcm=ctr;
 
@@ -202,6 +205,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
                         const unsigned & per)
   : FULLCOND_nonp_basis(o,ti)
   {
+  notransform=false;
   catspecific = catsp;
 
   fctype = nonparametric;
@@ -262,6 +266,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
                         const unsigned & per)
   : FULLCOND_nonp_basis(o,ti)
   {
+  notransform=false;
   catspecific = catsp;
   centervcm = ctr;
 
@@ -1140,6 +1145,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   : FULLCOND_nonp_basis(o,dp,ft,ti,fp,pres,c,per)
   {
 
+  notransform=false;
+
   lambdaconst=false;
   Laplace=false;
 
@@ -1244,6 +1251,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,DISTRIBUTION * dp
 
   {
 
+  notransform=false;
+
   lambdaconst=false;
   Laplace=false;
 
@@ -1275,7 +1284,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,DISTRIBUTION * dp
     if (ce==false)
       identifiable = true;
     else
-      identifiable = false;  
+      identifiable = false;
 
     if (type == RW1)
       {
@@ -1325,6 +1334,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   : FULLCOND_nonp_basis(o,dp,mrf,ti,fp,pres,c)
 
   {
+
+  notransform=false;
 
   lambdaconst=false;
   Laplace=false;
@@ -1430,6 +1441,9 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 
   {
 
+
+
+  notransform=false;
   lambdaconst=false;
   Laplace=false;
 
@@ -1536,6 +1550,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
                          const unsigned & c)
   : FULLCOND_nonp_basis(o,dp,mrf,ti,fp,pres,c)
   {
+
+  notransform=false;
 
   lambdaconst=false;
   Laplace=false;
@@ -1676,6 +1692,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
 FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(const FULLCOND_nonp_gaussian & fc)
   : FULLCOND_nonp_basis(FULLCOND_nonp_basis(fc))
   {
+  notransform = fc.notransform;
   lambdaconst = fc.lambdaconst;
   Laplace=fc.Laplace;
   delta=fc.delta;
@@ -1722,6 +1739,7 @@ const FULLCOND_nonp_gaussian & FULLCOND_nonp_gaussian::operator=(
   if (this == &fc)
     return *this;
   FULLCOND_nonp_basis::operator=(FULLCOND_nonp_basis(fc));
+  notransform = fc.notransform;
   lambdaconst = fc.lambdaconst;
   Laplace=fc.Laplace;
   delta=fc.delta;
@@ -2444,7 +2462,11 @@ void FULLCOND_nonp_gaussian::update_IWLS_hyperblock(void)
     }
 
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform = 1;
+
 
   FULLCOND::update();
 
@@ -2584,7 +2606,10 @@ void FULLCOND_nonp_gaussian::update_IWLS_hyperblock_mode(void)
     beta.assign(betaold);
     }
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform = 1;
 
   FULLCOND::update();
 
@@ -2708,7 +2733,11 @@ void FULLCOND_nonp_gaussian::update_IWLS_mode(void)
     beta.assign(betaold);
     }
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform = 1;  
+
 
   FULLCOND::update();
 
@@ -2858,7 +2887,10 @@ void FULLCOND_nonp_gaussian::update_IWLS(void)
     beta.assign(betaold);
     }
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform = 1;
 
   FULLCOND::update();
 
@@ -2941,7 +2973,11 @@ void FULLCOND_nonp_gaussian::update_lambdaconst(void)
 
   acceptance++;
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform = 1;  
+
 
   FULLCOND::update();
 
@@ -3061,7 +3097,11 @@ void FULLCOND_nonp_gaussian::update(void)
 
     acceptance++;
 
-    transform = likep->get_trmult(column);
+    if (notransform==false)
+      transform = likep->get_trmult(column);
+    else
+      transform = 1;
+
 
     FULLCOND::update();
 
@@ -3160,7 +3200,11 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
     }
 
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform = 1;
+
 
   FULLCOND::update();
 
@@ -3269,7 +3313,12 @@ void FULLCOND_nonp_gaussian::update_gaussian_laplace(void)
     beta.assign(betaold);
     }
 
-  transform = likep->get_trmult(column);
+
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform = 1;
+
 
   FULLCOND::update();
 */
@@ -3374,7 +3423,11 @@ void FULLCOND_nonp_gaussian::update_gaussian_gemanreynolds(void)
     }
 
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform = 1;
+
 
   FULLCOND::update();
 
@@ -3452,7 +3505,11 @@ bool FULLCOND_nonp_gaussian::posteriormode(void)
     fcconst->posteriormode_intercept(m);
     }
 
-  transform = likep->get_trmult(column);
+  if (notransform==false)
+    transform = likep->get_trmult(column);
+  else
+    transform = 1;  
+
 
   return FULLCOND_nonp_basis::posteriormode();
 
@@ -3508,7 +3565,7 @@ void FULLCOND_nonp_gaussian::get_effectmatrix(datamatrix & e,
       double * workdata=data.getV();
 
       vector<ST::string>::iterator effit = effectvalues.begin();
-      int t;
+//      int t;
       enames.push_back("f_"+datanames[0]+"_"+datanames[1]);
       enames.push_back(datanames[0]);
       enames.push_back(datanames[1]);
@@ -3531,7 +3588,7 @@ void FULLCOND_nonp_gaussian::get_effectmatrix(datamatrix & e,
   else
     {
     vector<ST::string>::iterator effit = effectvalues.begin();
-    int t;
+//    int t;
 
     enames.push_back("f_"+datanames[0]);
     enames.push_back(datanames[0]);

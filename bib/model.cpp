@@ -3920,6 +3920,231 @@ bool term_random_autoreg::check(term & t)
 
 
 //------------------------------------------------------------------------------
+//--------- class term_spatial_autoreg: implementation of member functions -----
+//------------------------------------------------------------------------------
+
+term_spatial_autoreg::term_spatial_autoreg(void)
+  {
+  type = "term_spatial_autoreg";
+
+  map_s=stroption("map_s");
+  lambda_s = doubleoption("lambda_s",0.1,0,10000000);
+  a_s = doubleoption("a_s",0.001,-1.0,500);
+  b_s = doubleoption("b_s",0.001,0,500);
+  vector<ST::string> adm_prop_s;
+  adm_prop_s.push_back("cp");
+  adm_prop_s.push_back("iwls");
+  adm_prop_s.push_back("iwlsmode");
+  proposal_s = stroption("proposal_s",adm_prop_s,"iwls");
+  updateW_s = intoption("updateW_s",1,0,100);
+  updatetau_s = simpleoption("updatetau_s",false);
+  f_s = doubleoption("f_s",2,0,10000000);
+  uniformprior_s = simpleoption("uniformprior_s",false);
+  nrrows_s = intoption("nrrows_s",2,0,100);
+  Laplace_s = simpleoption("Laplace_s",false);
+  stationary_s = simpleoption("stationary_s",false);
+  alpha_s = doubleoption("alpha_s",0.9,-1.0,1.0);
+  alphafix_s = simpleoption("alphafix_s",false);
+  center_s = simpleoption("center_s",false);
+
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  a = doubleoption("a",0.001,-1.0,500);
+  b = doubleoption("b",0.001,0,500);
+  proposal = stroption("proposal",adm_prop_s,"iwls");
+  updateW = intoption("updateW",1,0,100);
+  updatetau = simpleoption("updatetau",false);
+  f = doubleoption("f",2,0,10000000);
+  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
+  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
+  lambdastart = doubleoption("lambdastart",-1,-1,10000000);
+  stationary = simpleoption("stationary",false);
+  alpha = doubleoption("alpha",0.9,-1.0,1.0);
+  alphafix = simpleoption("alphafix",false);
+
+  }
+
+
+void term_spatial_autoreg::setdefault(void)
+  {
+
+  map_s.setdefault();
+  lambda_s.setdefault();
+  a_s.setdefault();
+  b_s.setdefault();
+  proposal_s.setdefault();
+  updateW_s.setdefault();
+  updatetau_s.setdefault();
+  f_s.setdefault();
+  uniformprior_s.setdefault();
+  nrrows_s.setdefault();
+  Laplace_s.setdefault();
+  stationary_s.setdefault();
+  alpha_s.setdefault();
+  alphafix_s.setdefault();
+  center_s.setdefault();   // 15
+
+  lambda.setdefault();
+  a.setdefault();
+  b.setdefault();
+  proposal.setdefault();
+  updateW.setdefault();
+  updatetau.setdefault();
+  f.setdefault();
+  lambdamin.setdefault();
+  lambdamax.setdefault();
+  lambdastart.setdefault();
+  stationary.setdefault();
+  alpha.setdefault();
+  alphafix.setdefault();     // 13 (total 15+13=28)
+  }
+
+
+bool term_spatial_autoreg::check(term & t)
+  {
+
+  if ( (t.varnames.size()==2)  && (t.options.size()<=29) )
+    {
+
+    if (t.options[0] == "spatial_rw1")
+      t.type = "spatial_rw1";
+    else if   (t.options[0] == "spatial_rw2")
+      t.type = "spatial_rw2";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    vector<ST::string> opt;
+    optionlist optlist;
+
+    optlist.push_back(&map_s);
+    optlist.push_back(&lambda_s);
+    optlist.push_back(&a_s);
+    optlist.push_back(&b_s);
+    optlist.push_back(&proposal_s);
+    optlist.push_back(&updateW_s);
+    optlist.push_back(&updatetau_s);
+    optlist.push_back(&f_s);
+    optlist.push_back(&uniformprior_s);
+    optlist.push_back(&nrrows_s);
+    optlist.push_back(&Laplace_s);
+    optlist.push_back(&stationary_s);
+    optlist.push_back(&alpha_s);
+    optlist.push_back(&alphafix_s);
+    optlist.push_back(&center_s);
+
+    optlist.push_back(&lambda);
+    optlist.push_back(&a);
+    optlist.push_back(&b);
+    optlist.push_back(&proposal);
+    optlist.push_back(&updateW);
+    optlist.push_back(&updatetau);
+    optlist.push_back(&f);
+    optlist.push_back(&lambdamin);
+    optlist.push_back(&lambdamax);
+    optlist.push_back(&lambdastart);
+    optlist.push_back(&stationary);
+    optlist.push_back(&alpha);
+    optlist.push_back(&alphafix);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(29);
+    t.options[0] = t.type;
+
+    t.options[1] = map_s.getvalue();
+    t.options[2] = ST::doubletostring(lambda_s.getvalue());
+    t.options[3] = ST::doubletostring(a_s.getvalue());
+    t.options[4] = ST::doubletostring(b_s.getvalue());
+    t.options[5] = proposal_s.getvalue();
+    t.options[6] = ST::inttostring(updateW_s.getvalue());
+    if (updatetau_s.getvalue()==false)
+      t.options[7] = "false";
+    else
+      t.options[7] = "true";
+    t.options[8] = ST::doubletostring(f_s.getvalue());
+    if (uniformprior_s.getvalue() == false)
+      t.options[9] = "false";
+    else
+      t.options[9] = "true";
+    t.options[10] = ST::inttostring(nrrows_s.getvalue());
+    if (Laplace_s.getvalue()==false)
+      t.options[11] = "false";
+    else
+      t.options[11] = "true";
+    if(stationary_s.getvalue() == false)
+      t.options[12] = "false";
+    else
+      t.options[12] = "true";
+    t.options[13] = ST::doubletostring(alpha_s.getvalue());
+    if(alphafix_s.getvalue() == false)
+      t.options[14] = "false";
+    else
+      t.options[14] = "true";
+    if(center_s.getvalue() == false)
+      t.options[15] = "false";
+    else
+      t.options[15] = "true";
+
+    t.options[16] = ST::doubletostring(lambda.getvalue());
+    t.options[17] = ST::doubletostring(a.getvalue());
+    t.options[18] = ST::doubletostring(b.getvalue());
+    t.options[19] = proposal.getvalue();
+    t.options[20] = ST::inttostring(updateW.getvalue());
+    if (updatetau.getvalue()==false)
+      t.options[21] = "false";
+    else
+      t.options[21] = "true";
+    t.options[22] = ST::doubletostring(f.getvalue());
+    t.options[23] = ST::doubletostring(lambdamin.getvalue());
+    t.options[24] = ST::doubletostring(lambdamax.getvalue());
+    t.options[25] = ST::doubletostring(lambdastart.getvalue());
+    if(stationary.getvalue() == false)
+      t.options[26] = "false";
+    else
+      t.options[26] = "true";
+    t.options[27] = ST::doubletostring(alpha.getvalue());
+    if(alphafix.getvalue() == false)
+      t.options[28] = "false";
+    else
+      t.options[28] = "true";
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
 //-------- class term_random_pspline: implementation of member functions -------
 //------------------------------------------------------------------------------
 

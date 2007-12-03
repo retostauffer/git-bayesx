@@ -2691,12 +2691,12 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
 
   double lambda_r;
   double a_r,b_r;
-  bool updatetau_r;
+//  bool updatetau_r;
   ST::string proposal_r;
 
   long h;
   double lambda,a1,b1,alpha;
-  bool updatetau;
+//  bool updatetau;
   double ftune;
   unsigned updateW;
   ST::string proposal;
@@ -2742,10 +2742,10 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
       f = (terms[i].options[12]).strtolong(h);
       updateW = unsigned(h);
 
-      if (terms[i].options[13] == "true")
-        updatetau=true;
-      else
-        updatetau=false;
+ //     if (terms[i].options[13] == "true")
+ //       updatetau=true;
+ //     else
+ //       updatetau=false;
 
       f = (terms[i].options[14]).strtodouble(ftune);
 
@@ -2899,6 +2899,273 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
   }
 
 
+bool bayesreg::create_spatial_rw1rw2(const unsigned & collinpred)
+  {
+
+  double lambda_s;
+  double a_s,b_s;
+  double alpha_s;
+  bool center_s;
+//  bool updatetau_s;
+//  bool Laplace_s;
+//  unsigned updateW_s;
+  double ftune_s;
+  ST::string proposal_s;
+
+  long h;
+  double lambda,a1,b1,alpha;
+//  bool updatetau;
+  double ftune;
+//  unsigned updateW;
+  ST::string proposal;
+  int f;
+
+  unsigned i;
+  int j1,j2;
+
+  for(i=0;i<terms.size();i++)
+    {
+    if ( spatialrw.checkvector(terms,i) == true)
+      {
+
+      // -------------- reading options, term information ----------------------
+
+      j1 = terms[i].varnames[0].isinlist(modelvarnamesv);  // spatial effect
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);  // nonlinear function
+
+      MCMC::fieldtype type;
+
+      if (terms[i].options[0] == "spatial_rw1")
+        type = MCMC::RW1;
+      else
+        type = MCMC::RW2;
+
+      mapobject * mapp;                           // pointer to mapobject
+
+      int objpos = findstatobject(*statobj,terms[i].options[1],"map");
+
+      if (objpos >= 0)
+        {
+        statobject * s = statobj->at(objpos);
+        mapp = dynamic_cast<mapobject*>(s);
+        }
+      else
+        {
+        if (objpos == -1)
+          {
+          if ((terms[i].options[1] == "") || (terms[i].options[1] == " "))
+            outerror("ERROR: map object must be specified to estimate a spatial effect\n");
+          else
+            outerror("ERROR: map object " + terms[i].options[1] + " is not existing\n");
+          }
+        else
+          outerror("ERROR: " + terms[i].options[1] + " is not a map object\n");
+        return true;
+        }
+
+      MAP::map m = mapp->getmap();
+      bool isconnected = m.isconnected();
+      if (isconnected==false)
+        {
+        outerror("ERROR: map is disconnected, spatial effect cannot be estimated\n");
+        return true;
+        }
+
+      f = (terms[i].options[2]).strtodouble(lambda_s);
+
+      f = (terms[i].options[3]).strtodouble(a_s);
+
+      f = (terms[i].options[4]).strtodouble(b_s);
+
+      proposal_s = terms[i].options[5];
+
+
+//      f = (terms[i].options[6]).strtolong(h);
+//      updateW_s = unsigned(h);
+
+//      if (terms[i].options[7] == "true")
+//        updatetau_s=true;
+//      else
+//        updatetau_s=false;
+
+      f = (terms[i].options[8]).strtodouble(ftune_s);
+
+//      if (terms[i].options[11] == "true")
+//        Laplace_s=true;
+//      else
+//        Laplace_s=false;
+
+      f = (terms[i].options[13]).strtodouble(alpha_s);
+
+      if (f==1)
+        return true;
+
+      if (terms[i].options[15] == "true")
+        center_s=true;
+      else
+        center_s=false;
+
+
+      f = (terms[i].options[16]).strtodouble(lambda);
+
+      f = (terms[i].options[17]).strtodouble(a1);
+
+      f = (terms[i].options[18]).strtodouble(b1);
+
+      proposal = terms[i].options[19];
+
+ //     f = (terms[i].options[20]).strtolong(h);
+ //     updateW = unsigned(h);
+
+//      if (terms[i].options[21] == "true")
+//        updatetau=true;
+//      else
+//        updatetau=false;
+
+      f = (terms[i].options[22]).strtodouble(ftune);
+
+      f = (terms[i].options[27]).strtodouble(alpha);
+
+      // -------------- reading options, term information ----------------------
+
+      // -------- creating paths for samples and results, titles ---------------
+
+
+      // -------- end: creating paths for samples and results, titles ----------
+
+
+      //-------------------- gaussian response, etc. ---------------------------
+      if ( (check_gaussian(collinpred)) || (check_iwls(true,collinpred)) )
+        {
+
+        // Include nonlinear function f
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+        "f_"+terms[i].varnames[0]+"_spatial",
+                 "_rw_mult1.raw","_rw_mult1.res","_rw_mult1");
+
+        datamatrix eins(D.rows(),1,1);
+        datamatrix null(D.rows(),1,0);
+
+        fcnonpgaussian.push_back(
+        FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
+        distr[distr.size()-1],D.getCol(j2),eins,fcconst_intercept,
+        unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,
+        lambda,false));
+
+        fcnonpgaussian[fcnonpgaussian.size()-1].init_name(
+        terms[i].varnames[1]);
+
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_changingweight();
+//        fcnonpgaussian[fcnonpgaussian.size()-1].set_center(true);
+
+
+        if (constlambda.getvalue() == true)
+          {
+          fcnonpgaussian[fcnonpgaussian.size()-1].set_lambdaconst(lambda);
+          }
+
+
+        // Include variance of nonlinear f
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+        "f_"+terms[i].varnames[0]+"_spatial",
+                 "_rw_mult1_var.raw","_rw_mult1_var.res","_rw_mult1_var");
+
+        fcvarnonp.push_back(
+        FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+        &fcnonpgaussian[fcnonpgaussian.size()-1],distr[distr.size()-1],
+        a1,b1,title,pathnonp,pathres,false,collinpred));
+
+      // Include spatial effect
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+        "f_"+terms[i].varnames[0]+"_spatial",
+                 "_rw_mult2.raw","_rw_mult2.res","_rw_mult2");
+
+        fcnonpgaussian.push_back(
+        FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
+        distr[distr.size()-1],fcconst_intercept,m,terms[i].options[1],
+        D.getCol(j1),null,title,pathnonp,pathres,collinpred,lambda_s,
+        center_s));
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[0]);
+        fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
+
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_notransform();
+
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_changingweight();
+
+       // Include first fcmult
+
+       fcmult.push_back(FULLCOND_mult(&generaloptions[generaloptions.size()-1],
+       distr[distr.size()-1],&fcnonpgaussian[fcnonpgaussian.size()-1],
+       &fcnonpgaussian[fcnonpgaussian.size()-2],true,"","","",collinpred));
+
+       // Include second fcmult
+
+       fcmult.push_back(FULLCOND_mult(&generaloptions[generaloptions.size()-1],
+       distr[distr.size()-1],&fcnonpgaussian[fcnonpgaussian.size()-1],
+       &fcnonpgaussian[fcnonpgaussian.size()-2],false,"","","",collinpred));
+
+
+        // Reinhängen in fullcond
+
+        fcnonpgaussian[fcnonpgaussian.size()-2].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-2]);
+
+        fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+
+        fcmult[fcmult.size()-2].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcmult[fcmult.size()-2]);
+
+
+
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
+
+        if (constlambda.getvalue() == true)
+          {
+          fcnonpgaussian[fcnonpgaussian.size()-1].set_lambdaconst(lambda_s);
+          fullcond.push_back(&fcnonpgaussian[fcrandomgaussian.size()-1]);
+          }
+        else
+          {
+          fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
+
+          make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+          "f_"+terms[i].varnames[0]+"_spatial",
+                   "_rw_mult2_var.raw","_rw_mult2_var.res","_rw_mult2_var");
+
+          fcvarnonp.push_back(
+          FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+                            &fcnonpgaussian[fcnonpgaussian.size()-1],
+                            distr[distr.size()-1],a_s,b_s,title,pathnonp,
+                            pathres,false,collinpred));
+
+          fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+          }
+
+        fcmult[fcmult.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcmult[fcmult.size()-1]);
+
+          //------------------- end: gaussian response, etc. -------------------
+        }
+
+
+      } // end: if ( nonprw1rw2.checkvector(terms,i) == true )
+
+    }
+
+  return false;
+
+  }
+
+
+
 bool bayesreg::create_random_pspline(const unsigned & collinpred)
   {
 
@@ -2911,14 +3178,16 @@ bool bayesreg::create_random_pspline(const unsigned & collinpred)
   ST::string proposal;
 
   long h;
-  unsigned min,max,degree,nrknots;
+  unsigned degree,nrknots;
+//  unsigned min, max;
   double lambda,a1,b1,alpha;
-  bool ub,diagtransform,derivative,bsplinebasis;
+  bool ub,derivative,bsplinebasis;
+//  bool diagtransform;
   int gridsize,contourprob;
   int f;
   ST::string test ="test";
-  double lowerknot=0;
-  double upperknot=0;
+//  double lowerknot=0;
+//  double upperknot=0;
 
   unsigned i;
   int j1,j2;
@@ -2950,11 +3219,11 @@ bool bayesreg::create_random_pspline(const unsigned & collinpred)
       proposal_r = terms[i].options[4];
 
 
-      f = (terms[i].options[8]).strtolong(h);
-      min = unsigned(h);
+//      f = (terms[i].options[8]).strtolong(h);
+//      min = unsigned(h);
 
-      f = (terms[i].options[9]).strtolong(h);
-      max = unsigned(h);
+//      f = (terms[i].options[9]).strtolong(h);
+//      max = unsigned(h);
 
       f = (terms[i].options[10]).strtolong(h);
       degree = unsigned(h);
@@ -2989,10 +3258,10 @@ bool bayesreg::create_random_pspline(const unsigned & collinpred)
       proposal = terms[i].options[20];
       monotone = terms[i].options[21];
 
-      if (terms[i].options[25] == "false")
-        diagtransform = false;
-      else
-        diagtransform = true;
+//      if (terms[i].options[25] == "false")
+//        diagtransform = false;
+//      else
+//        diagtransform = true;
 
       if (terms[i].options[26] == "false")
         derivative = false;

@@ -33,7 +33,7 @@ class __EXPORT_TYPE FULLCOND_mult : public FULLCOND
   FULLCOND_nonp_basis * basis2p;
   FULLCOND_random * reffectp;
 
-
+  multtype ttype;
 
   bool first;
 
@@ -49,14 +49,26 @@ class __EXPORT_TYPE FULLCOND_mult : public FULLCOND
   // CONSTRUCTOR 1  (for i.i.d. RE * nonlinear)
   // o    : pointer to MCMCoptions object
   // dp   : pointer to distribution object
-  // minb : Minimum blocksize (minblock)
-  // maxb : Maximum blocksize (maxblock)
   // fp   : file where sampled parameters are stored
   // pres : file where results are stored
 
   FULLCOND_mult(MCMCoptions * o,DISTRIBUTION * dp,
                          FULLCOND_random * rp,
                          FULLCOND_nonp_basis * ba,
+                         bool fi,
+                         const ST::string & ti,
+                         const ST::string & fp, const ST::string & pres,
+                         const unsigned & c);
+
+  // CONSTRUCTOR 2  (for i.i.d. mrf * nonlinear)
+  // o    : pointer to MCMCoptions object
+  // dp   : pointer to distribution object
+  // fp   : file where sampled parameters are stored
+  // pres : file where results are stored
+
+  FULLCOND_mult(MCMCoptions * o,DISTRIBUTION * dp,
+                         FULLCOND_nonp_basis * ba1,
+                         FULLCOND_nonp_basis * ba2,
                          bool fi,
                          const ST::string & ti,
                          const ST::string & fp, const ST::string & pres,

@@ -2582,6 +2582,9 @@ void regressrun(bayesreg & b)
         failure = b.create_random_rw1rw2(i);
 
       if (!failure)
+        failure = b.create_spatial_rw1rw2(i);
+
+      if (!failure)
         failure = b.create_random_pspline(i);
 
       } // end: for (i=0;i<b.nrcategories;i++)

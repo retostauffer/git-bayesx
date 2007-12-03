@@ -191,6 +191,7 @@ void bayesreg::create(void)
   nonpvarcoeffmerror = term_varcoeff_merror();
   shrinkage = term_shrinkage();
   randomrw = term_random_autoreg();
+  spatialrw = term_spatial_autoreg();
   randompspline = term_random_pspline();
 
   termtypes.push_back(&offset);
@@ -213,8 +214,8 @@ void bayesreg::create(void)
   termtypes.push_back(&nonpvarcoeffmerror);
   termtypes.push_back(&shrinkage);
   termtypes.push_back(&randomrw);
+  termtypes.push_back(&spatialrw);  
   termtypes.push_back(&randompspline);
-
 
   modreg = modelterm(&termtypes);
 

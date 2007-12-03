@@ -37,6 +37,10 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   bool lambdaconst;
   bool Laplace;
 
+  bool notransform;                         // Results will not be transformed
+                                            // for multiplicative random effects
+
+
   datamatrix delta;
   vector< vector<unsigned> > neighbors;
 
@@ -452,6 +456,12 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
   void init_names(const vector<ST::string> & na);
 
   void init_priorassumptions(const ST::string & na);
+
+  void set_notransform(void)
+    {
+    notransform=true;
+    }
+  
 
   // FUNCTION: reset
   // TASK: resets all parameters
