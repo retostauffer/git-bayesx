@@ -2976,7 +2976,7 @@ void FULLCOND_nonp_gaussian::update_lambdaconst(void)
   if (notransform==false)
     transform = likep->get_trmult(column);
   else
-    transform = 1;  
+    transform = 1;
 
 
   FULLCOND::update();
@@ -3083,8 +3083,11 @@ void FULLCOND_nonp_gaussian::update(void)
 
     precenv.solve(muy,betahelp,beta);
 
-    update_linpred(true);
+// Multiplikative Effekte: Zentrieren des Effekts
+    if (notransform)
+      double m = centerbeta();
 
+    update_linpred(true);
 
     if (center)
       {
@@ -3493,6 +3496,9 @@ bool FULLCOND_nonp_gaussian::posteriormode(void)
 
   precenv.solve(beta);
 
+// Multiplikative Effekte: Zentrieren des Effekts
+  if (notransform)
+    double m = centerbeta();
 
   update_linpred(true);
 
@@ -3508,7 +3514,7 @@ bool FULLCOND_nonp_gaussian::posteriormode(void)
   if (notransform==false)
     transform = likep->get_trmult(column);
   else
-    transform = 1;  
+    transform = 1;
 
 
   return FULLCOND_nonp_basis::posteriormode();

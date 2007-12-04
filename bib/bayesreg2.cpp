@@ -3098,6 +3098,8 @@ bool bayesreg::create_spatial_rw1rw2(const unsigned & collinpred)
 
         fcnonpgaussian[fcnonpgaussian.size()-1].set_changingweight();
 
+//        fcnonpgaussian[fcnonpgaussian.size()-1].set_center(true);
+
        // Include first fcmult
 
        fcmult.push_back(FULLCOND_mult(&generaloptions[generaloptions.size()-1],
