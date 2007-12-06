@@ -28,12 +28,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   protected:
 
   FULLCOND_const_stepwise * fcconst;
-  vector<FULLCOND*> interactions_pointer;
+//  vector<FULLCOND*> interactions_pointer;
 
-  datamatrix data_rest;
-  datamatrix beta_rest;
-  datamatrix linold_rest;
-  vector<ST::string> names_rest;
   vector<ST::string> datanames_fixed_only;
   bool conditional;
 
@@ -64,12 +60,6 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   datamatrix tildey;
   datamatrix mode;
   datamatrix linmode;
-
-  vector<vector<double> > beta_average;
-  vector<double> betas_aktuell;
-
-  double intercept_for_center;
-  // datamatrix beta_average;
 
   // FUNCTION: compute_matrices
   // TASK: computes X1 = (X'WX)^-0.5
@@ -121,15 +111,6 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   const FULLCOND_const_stepwise & operator=(const FULLCOND_const_stepwise & m);
 
-  /*void hilfeee(void)        // nur für Kontrolle!!!
-    {
-    ofstream out("c:\\cprog\\test\\results\\linold.txt");
-    linold.prettyPrint(out);
-    ofstream outc("c:\\cprog\\test\\results\\const.txt");
-    double * zeiger = beta.getV();
-    outc << *zeiger << endl;
-    } */
-
   void update_intercept(double & m);
 
   void update_linold(void); 
@@ -165,8 +146,6 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   ST::string get_effect(void);
 
-  ST::string get_befehl(void);
-
   void include_effect(const vector<ST::string> & names, const datamatrix & newx);
 
   void posteriormode_single(const vector<ST::string> & names, datamatrix newx, const bool include);
@@ -189,19 +168,9 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   double compute_df(void);
 
-  void save_betas(vector<double> & modell, int & anzahl);
-
-  void save_betas2(void);
-
-  void average_posteriormode(vector<double> & crit_weights);
-
-//  double get_betafix(unsigned & welches);
-
-  void set_intercept_for_center(double & dazu);
-
-  void beta_to_fix(const vector<double> & betas);
-
   void update_bootstrap(const bool & uncond=false);
+
+  void update_beta_average(unsigned & samplesize);
 
   void update_bootstrap_df(void);
 
@@ -223,20 +192,6 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
     {
     utype = "nongauss";
     }
-
-
-// Für ganze Hatmatrix (REML)
-
-  void createreml(datamatrix & X,datamatrix & Z,
-                                const unsigned & Xpos, const unsigned & Zpos);
-
-  unsigned get_nrvar(void);
-
-// Für Mini-Backfitting
-
-  void split_data(const vector<ST::string> & names);
-
-  void merge_data(void);
 
   };
 

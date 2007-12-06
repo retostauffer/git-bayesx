@@ -32,14 +32,9 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 
   double intercept;
 
-  vector< vector<double> > beta_average;
-  //int lambda_nr;
-  //datamatrix lambdas_local;
-
   datamatrix data_varcoeff_fix;
   datamatrix effmodi;
   double df_unstruct;
-//  bool gleichwertig;
 
   FULLCOND fc_df;
   ST::string utype;   // gaussian || iwlsmode
@@ -95,8 +90,6 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
   // FUNCTION: get_effect
   // TASK: returns a string of the estimated effect
   ST::string get_effect(void);
-
-  ST::string get_befehl(void);
 
   void init_names(const vector<ST::string> & na);
 
@@ -164,17 +157,6 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
   void change_Korder(double lamb);
 
   void undo_Korder(void);
-
-//  void save_betas(vector<double> & modell, int & anzahl);
-
-//  void average_posteriormode(vector<double> & crit_weights);
-
-//  void effect_sort(datamatrix & effect, const double & m, const unsigned & beg,
-//                   const unsigned & end,const statmatrix<int> & index);
-
-// Vorschlag:
-//  void effect_sort(datamatrix & effect, const double & m, unsigned & row);
-//  void effect_sort(datamatrix & effect, double m, unsigned row);
 
   void init_spatialtotal(FULLCOND_nonp_basis * sp,const ST::string & pnt,
                          const ST::string & prt);

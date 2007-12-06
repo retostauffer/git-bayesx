@@ -18,14 +18,31 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o,
 
   utype = gaussian;
   isbootstrap = false;
-  data_forfixed = d;
 
-  beta_average.erase(beta_average.begin(),beta_average.end());
-  lambda_nr = -1;
-  //lambdas_local = datamatrix(rankK,1,1);
+  kombimatrix = false;
+  matrixnumber = 1;
+
+  data_forfixed = d;
 
   all_precenv.erase(all_precenv.begin(),all_precenv.end());
   lambdavec.erase(lambdavec.begin(),lambdavec.end());
+
+  if(type == RW1RW2)
+    {
+    nofixed = true;
+    forced_into = true;
+    kombimatrix = true;
+    numberofmatrices = 2;
+    kappa = 1;
+    kappaold = -2;
+    kappa_prec = -1;
+    K = Krw1band(weight);
+    Kenv = Krw1env(weight);
+    rankK = nrpar-1;
+    K = Krw2band(weight);
+    Kenv2 = Krw2env(weight);
+    prec_env = envmatdouble(0.0,nrpar,degree>2?degree:2);
+    }
 
   if(increasing || decreasing)
     {
@@ -81,14 +98,6 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o,
       }
     XVX = datamatrix(2,2,0);
     }
-
-  if (type==RW1)
-    grenzfall = 0;
-  else if (type == RW2)
-    grenzfall = 1;
-
-  dimX = nrpar - rankK - 1;
-  dimZ = rankK;
   }
 
 
@@ -100,13 +109,14 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o, DISTRIBUTI
                       const fieldtype & ft, const ST::string & monotone, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const bool & deriv,
                       const double & l, const int & gs, const bool & vccent, const unsigned & c)
-  : FULLCOND_pspline_gaussian(o,dp,fcc,effmod,intact,nrk,degr,kp,ft,monotone,ti,fp,pres,false,l,gs,c)
+  : FULLCOND_pspline_gaussian(o,dp,fcc,effmod,intact,nrk,degr,kp,ft,monotone,ti,fp,pres,false,l,gs,vccent,c)
   {
 
   utype = gaussian;
   isbootstrap = false;
-  beta_average.erase(beta_average.begin(),beta_average.end());
-  lambda_nr = 0;
+
+  kombimatrix = false;
+  matrixnumber = 1;
 
   all_precenv.erase(all_precenv.begin(),all_precenv.end());
   lambdavec.erase(lambdavec.begin(),lambdavec.end());
@@ -166,11 +176,6 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o, DISTRIBUTI
 
   XVX = datamatrix(2,2,0);
 
-  if (type==RW1)
-    grenzfall = 1;
-  else if (type == RW2)
-    grenzfall = 2;
-
   //VCM_neu
   if(vccent == true)
     identifiable = false;
@@ -181,9 +186,6 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o, DISTRIBUTI
 FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(const FULLCOND_pspline_stepwise & fc)
   : FULLCOND_pspline_gaussian(FULLCOND_pspline_gaussian(fc))
   {
-  beta_average = fc.beta_average;
-  lambda_nr = fc.lambda_nr;
-  lambdas_local = fc.lambdas_local;
   data_varcoeff_fix = fc.data_varcoeff_fix;
   effmodi = fc.effmodi;
   XVX = fc.XVX;
@@ -195,6 +197,11 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(const FULLCOND_pspline_step
   convex = fc.convex;
   concave = fc.concave;
   lambdamono = fc.lambdamono;
+  Kenv2 = fc.Kenv2;
+  kappa = fc.kappa;
+  kappaold = fc.kappaold;
+  kappa_prec = fc.kappa_prec;
+  otherfullcond = fc.otherfullcond;
   fc_df = fc.fc_df;
   utype = fc.utype;
   isbootstrap = fc.isbootstrap;
@@ -209,9 +216,6 @@ const FULLCOND_pspline_stepwise & FULLCOND_pspline_stepwise::operator=(
     return *this;
   FULLCOND_pspline_gaussian::operator=(FULLCOND_pspline_gaussian(fc));
 
-  beta_average = fc.beta_average;
-  lambda_nr = fc.lambda_nr;
-  lambdas_local = fc.lambdas_local;
   data_varcoeff_fix = fc.data_varcoeff_fix;
   effmodi = fc.effmodi;
   XVX = fc.XVX;
@@ -223,6 +227,11 @@ const FULLCOND_pspline_stepwise & FULLCOND_pspline_stepwise::operator=(
   convex = fc.convex;
   concave = fc.concave;
   lambdamono = fc.lambdamono;
+  Kenv2 = fc.Kenv2;
+  kappa = fc.kappa;
+  kappaold = fc.kappaold;
+  kappa_prec = fc.kappa_prec;
+  otherfullcond = fc.otherfullcond;
   fc_df = fc.fc_df;
   utype = fc.utype;
   isbootstrap = fc.isbootstrap;
@@ -232,6 +241,12 @@ const FULLCOND_pspline_stepwise & FULLCOND_pspline_stepwise::operator=(
 
 
 bool FULLCOND_pspline_stepwise::posteriormode(void)
+  {
+if(kombimatrix == true)
+  {
+  return posteriormode_kombi();
+  }
+else
   {
 
   unsigned i;
@@ -423,14 +438,8 @@ bool FULLCOND_pspline_stepwise::posteriormode(void)
                 diff = (beta(i,0) - beta(i-1,0))/weight[i] - (beta(i-1,0) - beta(i-2,0))/weight[i-1];
               if(convex && diff < 0.0)
                  g(i,0) = 1/(weight[i]*weight[i]);
-                 //g(i,0) = weight[i] * (1+weight[i]/weight[i-1]);
-                 //g(i,0) = weight[i];
-                 //g(i,0) = 1.0;
               if(concave && diff > 0.0)
                  g(i,0) = 1/(weight[i]*weight[i]);
-                 //g(i,0) = weight[i] * (1+weight[i]/weight[i-1]);
-                 //g(i,0) = weight[i];
-                 //g(i,0) = 1.0;
               }
             }
 
@@ -521,6 +530,16 @@ bool FULLCOND_pspline_stepwise::posteriormode(void)
       return true;
       }
     }  // END: else if(lambda != 2)
+  }
+  }
+
+
+bool FULLCOND_pspline_stepwise::posteriormode_converged(const unsigned & itnr)
+  {
+  if(kombimatrix == false || matrixnumber == 1)
+    return FULLCOND_pspline_gaussian::posteriormode_converged(itnr);
+  else
+    return true;
   }
 
 
@@ -760,174 +779,6 @@ void FULLCOND_pspline_stepwise::hierarchical(ST::string & possible)
   }
 
 
-// BEGIN: MODEL-AVERAGING ------------------------------------------------------
-
-/*void FULLCOND_pspline_stepwise::save_betas(vector<double> & modell, int & anzahl)
-  {
-  vector<double> beta_neu;
-  unsigned i;
-
-  if(anzahl == -1)
-    {
-    double * workbeta = beta.getV();
-    for(i=0;i<beta.rows();i++,workbeta++)
-      beta_neu.push_back(*workbeta);
-    }
-  else if(anzahl >= 1)
-    {
-    double fix = fcconst->get_betafix(anzahl);
-    beta_neu.push_back(fix);
-    }
-  // else
-  // Vektor "beta_neu" bleibt leer!
-
-  beta_average.push_back(beta_neu);
-  } */
-
-
-/*void FULLCOND_pspline_stepwise::average_posteriormode(vector<double> & crit_weights)
-  {
-  unsigned i;
-  unsigned j;
-  vector<double> beta_spline;
-  for(j=0;j<nrpar;j++)
-    beta_spline.push_back(0);
-  double beta_fix = 0;
-  double alpha_fix = 0;
-  for(i=0;i<crit_weights.size();i++)
-    {
-    if(beta_average[i].size()>1)
-      {
-      for(j=0;j<beta_average[i].size();j++)
-        beta_spline[j] += beta_average[i][j] * crit_weights[i];
-      }
-    else if(beta_average[i].size()==1)
-      {
-      beta_fix += beta_average[i][0] * crit_weights[i];
-      if(!varcoeff)          // Gerade so zentrieren, daß Integral=0, d.h. G((x_max-x_min)/2) = 0!
-        alpha_fix += - beta_average[i][0] * crit_weights[i] * (data_forfixed.max(0)+data_forfixed.min(0))/2;
-      }
-    }
-  double helpdouble = -alpha_fix;
-  fcconst->set_intercept_for_center(helpdouble);
-
-  setbeta(beta_spline.size(),1,0);
-  double * workbeta = beta.getV();
-  for(i=0;i<beta_spline.size();i++,workbeta++)
-    *workbeta = beta_spline[i];
-  datamatrix pmean_spline = datamatrix(likep->get_nrobs(),1,0);
-  if(gridsize < 0)
-    multBS_sort(pmean_spline,beta);
-  else    // Vorsicht: hier passt es wahrscheinlich überhaupt nicht mehr, weil nicht alle x_1,...,x_n verwendet werden!!!
-    multDG(pmean_spline,beta);        // FEHLT NOCH!!!
-  if(varcoeff)
-    {
-    double * splinep = pmean_spline.getV();
-    double * workdata = data_forfixed.getV();
-    for(i=0;i<likep->get_nrobs();i++,splinep++,workdata++)
-      *splinep *= *workdata;
-    }
-  else
-    {
-    compute_intercept(beta);
-    datamatrix inter = datamatrix(likep->get_nrobs(),1,-intercept);
-    pmean_spline.plus(pmean_spline,inter);         // zentrierter durchschnittlicher Spline, Einträge in Reihenfolge x_1,...,x_n
-    // fcconst->set_intercept_for_center(intercept);  // beta_0 wurde vorher nicht an zentrierten Spline angepsst, deshalb hier!
-    intercept = 0.0;
-    }
-  datamatrix pmean_fix = datamatrix(likep->get_nrobs(),1,0);
-  datamatrix beta_fixx = datamatrix(1,1,beta_fix);
-  datamatrix intercept_fix = datamatrix(likep->get_nrobs(),1,alpha_fix);
-  if(beta_fix != 0)
-    {
-    pmean_fix.mult(data_forfixed,beta_fixx);     // berechnet den Anteil der fixen Effekte
-    pmean_fix.plus(pmean_fix,intercept_fix);     // zentrierter linearer Effekt; Einträge in Reihenfolge x_1,...,x_n
-    }
-
-  subtr_spline();
-  spline.plus(pmean_spline,pmean_fix);         //zentrierte durchschnittliche Funktion
-  likep->add_linearpred_m(spline,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor
-
-  // für Ausgabe: Vektor "spline" muß für Ausgabe sortiert werden!
-  double * splinep;
-  double * fchelpbetap = fchelp.get_betameanp();
-
-  if(gridsize < 0)
-    {
-    vector<int>::iterator freqwork = freqoutput.begin();
-    int * workindex = index.getV();
-    for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
-      {
-      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
-        {
-        if(!varcoeff)
-          *fchelpbetap = spline(*workindex,0) * transform;
-        else
-          *fchelpbetap = spline(*workindex,0) * transform / data_forfixed(*workindex,0);
-        fchelpbetap++;
-        }
-      }
-    }
-  else      //???
-    {
-    for(i=0;i<gridsize;i++,fchelpbetap++,splinep++)
-      *fchelpbetap = *splinep;
-    }
-  }     */
-
-
-/*void FULLCOND_pspline_stepwise::multBS_sort(datamatrix & res, const datamatrix & beta)      // soll f_dach berechnen in Reihenfolge wie Daten für fixen Effekt
-  {
-
-  double *workres;
-  double *workbeta;
-  double *workBS;
-
-  vector<int>::iterator freqwork = freq.begin();
-  vector<int>::iterator workindex2 = index2.begin();
-
-  if(varcoeff)
-    workBS = B.getV();
-  else
-    workBS = BS.getV();
-
-  unsigned col = degree+1;
-  unsigned j,k;
-  int i,stop;
-
-  workres = res.getV();
-  for(j=0;j<res.rows()*res.cols();j++,workres++)
-    *workres = 0.0;
-
-  i = 0;
-  k = 0;
-  workres = res.getV() + *workindex2;
-  while (k<nrpar)
-    {
-    stop = lastnonzero[k];
-    while (i <= stop)
-      {
-      workbeta = beta.getV() + k;
-      for(j=0;j<col;j++,workBS++,workbeta++)
-        *workres += *workBS * *workbeta;
-      if((freqwork+1)!=freq.end() && *freqwork==*(freqwork+1))
-        {
-        workBS -= col;
-        workbeta -= col;
-        }
-      i++;
-      freqwork++;
-      workindex2++;
-      workres += *workindex2;
-      }
-    k++;
-    }
-
-  }
-           */
-// END: MODEL-AVERAGING --------------------------------------------------------
-
-
 void FULLCOND_pspline_stepwise::reset_effect(const unsigned & pos)
   {
   subtr_spline();
@@ -950,13 +801,13 @@ void FULLCOND_pspline_stepwise::reset(void)
   FULLCOND::reset();
   }
 
-void FULLCOND_pspline_stepwise::update_stepwise(double la)         // neu!!!
+void FULLCOND_pspline_stepwise::update_stepwise(double la)         
   {
-  if(smoothing == "global")
+  if(matrixnumber == 1)
     {
     lambda=la;
 
-    if(likep->iwlsweights_constant() == true)
+    if(likep->iwlsweights_constant() == true && kombimatrix == false)
       {
       bool gefunden = false;
       unsigned i = 0;
@@ -973,31 +824,23 @@ void FULLCOND_pspline_stepwise::update_stepwise(double la)         // neu!!!
         }
       } 
     }
-  else
+  else if(matrixnumber == 2)
     {
-    lambda_prec = -1;
-    lambdaold = -1;
-    lambda = 1;
-    lambdas_local(lambda_nr+nrpar-rankK,0) = 1/la;
-// lineare Interpolation der log. Lambdas für dazwischenliegende Lambdas:
-/*if( (lambda_nr+nrpar-rankK) < rankK )
-  {
-  double lambda0 = log10(1/lambdas_local(lambda_nr+nrpar-rankK+2,0));
-  lambdas_local(lambda_nr+nrpar-rankK+1,0) = 1/(pow(10,0.5*(lambda0+log10(la))));
-  }
-if( (lambda_nr+nrpar-rankK) > (nrpar-rankK))
-  {
-  double lambda0 = log10(1/lambdas_local(lambda_nr+nrpar-rankK-2,0));
-  lambdas_local(lambda_nr+nrpar-rankK-1,0) = 1/(pow(10,0.5*(lambda0+log10(la))));
-  }
-*/
-    updateK(lambdas_local);
+    //kappa = la;
+    lambda = la;
     }
   }
 
 
 double FULLCOND_pspline_stepwise::compute_df(void)
   {
+if(kombimatrix == true)
+  {
+  return compute_df_kombi();
+  }
+else
+  {
+
   double df = 0;
   //if(inthemodel == false && fixornot == true)
   //  df = 1;
@@ -1058,9 +901,6 @@ double FULLCOND_pspline_stepwise::compute_df(void)
         if(!identifiable)
           df -= 1;
 
-if(smoothing == "local")
-  df = df/rankK;
-
         df_lambdaold = df;
         lambdaold = lambda;
         }
@@ -1068,6 +908,7 @@ if(smoothing == "local")
     }
 
   return df;
+  }
   }
 
 
@@ -1144,15 +985,71 @@ void FULLCOND_pspline_stepwise::compute_lambdavec(
 vector<double> & lvec, int & number)
   {
   lambdaold = -1;
+
+//ST::string sp = "automatic";
+//ST::string sp = "nonautomatic";
+  if(spfromdf=="automatic")
+    {
+    df_equidist = true;
+    double maxi = floor(nrpar/4*3);
+
+    if(maxi <= 30)
+      {
+      df_for_lambdamin = maxi;
+      if(!varcoeff || !identifiable)
+        {
+        df_for_lambdamax = 2;
+        number = maxi - 1;
+        }
+      else
+        {
+        df_for_lambdamax = 3;
+        number = maxi - 2;
+        }
+      }
+    else if(maxi > 30 && maxi<=60)
+      {
+      number = floor(maxi/2);
+      if(!varcoeff || !identifiable)
+        {
+        df_for_lambdamax = 2;
+        df_for_lambdamin = number*2;
+        }
+      else
+        {
+        df_for_lambdamax = 3;
+        df_for_lambdamin = number*2+1;
+        }
+      }
+    else if(maxi > 60 && maxi<=100)
+      {
+      df_for_lambdamax = 3;
+      number = floor(maxi/3); 
+      df_for_lambdamin = number*3;
+      }
+    else if(maxi > 100 && maxi<=180)
+      {
+      df_for_lambdamax = 5;
+      number = floor(maxi/5);
+      df_for_lambdamin = number*5;
+      }
+    else if(maxi > 180)
+      {
+      df_for_lambdamax = 10;
+      number = floor(maxi/10);
+      df_for_lambdamin = number*10;
+      }
+    }
+
   if(number>0)
     {
-    if (df_equidist==true && spfromdf==true && number>1)
+    if (df_equidist==true && spfromdf!="direct" && number>1)
        FULLCOND::compute_lambdavec_equi(lvec,number);
     else
        FULLCOND::compute_lambdavec(lvec,number);
     }
 
-  if(likep->iwlsweights_constant() == true)
+  if(likep->iwlsweights_constant() == true && kombimatrix == false)
     {
     lambdavec = lvec;
     compute_XWXenv(likep->get_weightiwls(),column);
@@ -1202,7 +1099,7 @@ vector<double> & lvec, int & number)
      lvec.push_back(0);
 
   // Startwert für lambda aus df:
-  if(spfromdf==true)
+  if(spfromdf!="direct")
     {
     double lambdavorg = 1000;
     if(!nofixed && !varcoeff && !increasing && !decreasing)
@@ -1261,8 +1158,10 @@ const datamatrix & FULLCOND_pspline_stepwise::get_data_forfixedeffects(void)
 
 ST::string FULLCOND_pspline_stepwise::get_effect(void)
   {
-  ST::string h;
+  ST::string h = "";
 
+if(matrixnumber == 1)
+  {
   if(varcoeff)
     h = datanames[1] + "*" + datanames[0];   // (VC alt) 0 - 1
   else
@@ -1271,32 +1170,12 @@ ST::string FULLCOND_pspline_stepwise::get_effect(void)
     h = h + "(psplinerw1,df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
   else if(type== MCMC::RW2 && number!=-1)
     h = h + "(psplinerw2,df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
-  else
+  else if(type== MCMC::RW1RW2)
+    h = h + "(psplinerw1rw2,df=" + ST::doubletostring(compute_df(),6) +
+        ",(lambda1=" + ST::doubletostring(lambda,6) + "),(lambda2=" + ST::doubletostring(otherfullcond->get_lambda(),6) + "))";
+  else if(type== MCMC::RW2 && number==-1)
     h = h + "(linear,df=" + ST::doubletostring(compute_df(),6) + ")";
-
-  return h;
   }
-
-
-ST::string FULLCOND_pspline_stepwise::get_befehl(void)
-  {
-  ST::string h;
-
-  if(varcoeff)
-    h = datanames[1] + "*" + datanames[0] + "(psplinerw";    // (VC alt) 0 - 1
-  else
-    h = datanames[0] + "(psplinerw";
-  if (type== MCMC::RW1)
-    h = h + "1";
-  else
-    h = h + "2";
-
-  h = h + ", lambda=" + ST::doubletostring(lambda,6);
-  if(degree!=3)
-    h = h + ", degree=" + ST::inttostring(degree);
-  if(nrknots!=20)
-    h = h + ",nrknots=" + ST::inttostring(nrknots);
-  h = h + ")";
 
   return h;
   }
@@ -1331,160 +1210,6 @@ void FULLCOND_pspline_stepwise::init_names(const vector<ST::string> & na)
   priorassumptions.push_back("Number of knots: " + ST::inttostring(nrknots));
   priorassumptions.push_back("Knot choice: " + knotstr);
   priorassumptions.push_back("Degree of Splines: " + ST::inttostring(degree));
-  }
-
-
-void FULLCOND_pspline_stepwise::createreml(datamatrix & X,datamatrix & Z,
-                                const unsigned & Xpos, const unsigned & Zpos)
-  {
-  unsigned i,j,k;
-
-  double * workdata;
-  double * workZ;
-  datamatrix spline1 = datamatrix(spline.rows(),1,0);
-
-// X berechen
-
-  if(type == RW1)
-    {
-    if(varcoeff)
-      {
-      double * workX;
-      unsigned Xcols = X.cols();
-
-      workX = X.getV()+Xpos;
-
-      double * workintact = data_forfixed.getV();
-      for (i=0;i<spline1.rows();i++,workintact++,workX+=Xcols)
-        {
-        *workX = *workintact;
-        }
-      }
-    }
-  else if(type == RW2)
-    {
-    double * workX;
-    unsigned Xcols = X.cols();
-
-    datamatrix knoten = datamatrix(nrpar,1,0.0);
-    for(i=0;i<nrpar;i++)
-      knoten(i,0) = knot[i];
-
-    multBS_index(spline1,knoten);
-
-    if(!varcoeff)
-      {
-      double splinemean=spline1.mean(0);
-      for(i=0; i<spline1.rows(); i++)
-        {
-        spline1(i,0)=spline1(i,0)-splinemean;
-        }
-      }
-
-    if(X.rows()<spline1.rows())
-    // category specific covariates
-      {
-      X_VCM = spline1;
-
-      unsigned nrcat2 = spline1.rows()/X.rows()-1;
-      unsigned nrobs=X.rows();
-      for(i=0; i<X.rows(); i++)
-        {
-        for(j=0; j<nrcat2; j++)
-          {
-          X(i,Xpos+j) = spline1(j*nrobs+i,0) - spline1(nrcat2*nrobs+i,0);
-          }
-        }
-      }
-    else
-    // no category specific covariates
-      {
-      workdata = spline1.getV();
-      workX = X.getV()+Xpos;
-
-      if(varcoeff)
-        {
-        double * workintact = data_forfixed.getV();
-        double * workX_VCM = X_VCM.getV()+1;
-        for (i=0;i<spline1.rows();i++,workdata++,workintact++,workX+=Xcols,workX_VCM+=2)
-          {
-          *workX = *workintact;
-          *(workX+1) = *workdata**workintact;
-          *workX_VCM = *workdata;
-          }
-        }
-      else
-        {
-        for (i=0;i<spline1.rows();i++,workdata++,workX+=Xcols)
-          {
-          *workX = *workdata;
-          }
-        }
-      }
-    }
-
-// Z berechnen
-
-  compute_Kweights();
-//  datamatrix diffmatrix = diffmat(dimX+1,nrpar);
-  datamatrix diffmatrix = weighteddiffmat(type==RW1?1:2,weight);
-  diffmatrix = diffmatrix.transposed()*diffmatrix.transposed().sscp().inverse();
-
-  unsigned Zcols = Z.cols();
-
-  if(Z.rows()<spline1.rows())
-    // category specific covariates
-    {
-    Z_VCM = datamatrix(spline1.rows(), dimZ, 0);
-    }
-
-  for(j=0;j<dimZ;j++)
-    {
-    multBS_index(spline1,diffmatrix.getCol(j));
-
-    if(Z.rows()<spline1.rows())
-      // category specific covariates
-      {
-      unsigned nrcat2 = spline1.rows()/Z.rows()-1;
-      unsigned nrobs=Z.rows();
-      for(i=0; i<nrobs; i++)
-        {
-        for(k=0; k<nrcat2; k++)
-          {
-          Z(i, Zpos + k*dimZ + j) = spline1(k*nrobs+i,0) - spline1(nrcat2*nrobs+i,0);
-          }
-        }
-      for(i=0; i<spline1.rows(); i++)
-        {
-        Z_VCM(i,j) = spline1(i,0);
-        }
-      }
-    else
-      // no category specific covariates
-      {
-      workdata = spline1.getV();
-      workZ = Z.getV()+Zpos+j;
-
-      if(varcoeff)
-        {
-        double * workintact = data_forfixed.getV();
-        double * workZ_VCM = Z_VCM.getV()+j;
-        for (i=0;i<spline1.rows();i++,workdata++,workintact++,workZ+=Zcols,workZ_VCM+=dimZ)
-          {
-          *workZ = *workdata**workintact;
-          *workZ_VCM = *workdata;
-          }
-        }
-      else
-        {
-        for (i=0;i<spline1.rows();i++,workdata++,workZ+=Zcols)
-          {
-          *workZ = *workdata;
-          }
-        }
-      }
-    } 
-
   }
 
 
@@ -1578,6 +1303,8 @@ out1.close(); */
 
 void FULLCOND_pspline_stepwise::update_bootstrap(const bool & uncond)
   {
+if(kombimatrix == false || matrixnumber==1)
+  {
   update_bootstrap_df();
 
   if(fixornot==true)
@@ -1645,9 +1372,12 @@ void FULLCOND_pspline_stepwise::update_bootstrap(const bool & uncond)
     }
   // FULLCOND::update_bootstrap();     // wie bei Gerade???
   }
+  }
 
 
 void FULLCOND_pspline_stepwise::update_beta_average(unsigned & samplesize)
+  {
+if(kombimatrix == false || matrixnumber==1)
   {
   if(inthemodel==false && fixornot==false)
     {
@@ -1657,10 +1387,14 @@ void FULLCOND_pspline_stepwise::update_beta_average(unsigned & samplesize)
     }
   fchelp.update_beta_average(samplesize);
   }
+  }
 
 
 void FULLCOND_pspline_stepwise::update_bootstrap_df(void)
   {
+if(kombimatrix == false || matrixnumber==1)
+  {
+
   if(optionsp->get_nriter()<=1)
     {
     ST::string path = samplepath.substr(0,samplepath.length()-4)+"_df.raw";
@@ -1685,9 +1419,12 @@ void FULLCOND_pspline_stepwise::update_bootstrap_df(void)
     fc_df.update_bootstrap_df();
     }
   }
+  }
 
 
 void FULLCOND_pspline_stepwise::save_betamean(void)
+  {
+if(kombimatrix == false || matrixnumber==1)
   {
   if(fixornot==true)
     {
@@ -1753,15 +1490,21 @@ void FULLCOND_pspline_stepwise::save_betamean(void)
     fchelp.save_betamean();
     }
   }
+  }
 
 
 void FULLCOND_pspline_stepwise::update_bootstrap_betamean(void)
   {
+if(kombimatrix == false || matrixnumber==1)
+  {
   fchelp.update_bootstrap_betamean();
   FULLCOND::setflags(MCMC::norelchange);
   }
+  }
 
 void FULLCOND_pspline_stepwise::outresults_df(unsigned & size)
+  {
+if(kombimatrix == false || matrixnumber==1)
   {
   fc_df.update_bootstrap_betamean();
   //fc_df.outresults();
@@ -1859,6 +1602,7 @@ void FULLCOND_pspline_stepwise::outresults_df(unsigned & size)
   else
     update_stepwise(sample.get(index(cumnumber[merken]-1,0),0));
   }
+  }
 
 
 void FULLCOND_pspline_stepwise::get_samples(const ST::string & filename,const unsigned & step) const
@@ -1869,6 +1613,9 @@ void FULLCOND_pspline_stepwise::get_samples(const ST::string & filename,const un
 
 void FULLCOND_pspline_stepwise::update(void)
   {
+if(kombimatrix == false || matrixnumber==1)
+  {
+
   if(utype != gaussian && optionsp->get_nriter()==1 && interaction==true)
    betaold = beta;
 
@@ -1929,6 +1676,7 @@ void FULLCOND_pspline_stepwise::update(void)
       }
     interaction = interaction_save;
     }
+  }
   }
 
 
@@ -2068,6 +1816,8 @@ void FULLCOND_pspline_stepwise::update_gauss(void)
   prec_env.addto(XX_env,Kenv,scaleinv,1.0/sigma2);  // prec_env = (scaleinv*XX_env + 1.0/sigma*Kenv)
   if(increasing || decreasing || convex || concave)
     prec_env.addto(prec_env,Menv,1.0,lambdamono*scaleinv);
+  if(kombimatrix==true)
+    prec_env.addto(prec_env,Kenv2,1.0,otherfullcond->get_lambda()*scaleinv);
 
   double * work = standnormal.getV();               // standnormal ~ N(0,I)
   for(i=0;i<nrpar;i++,work++)
@@ -2179,7 +1929,7 @@ void FULLCOND_pspline_stepwise::update_IWLS(void)
     //betaold.assign(beta);
     //updateW = 1;
     }
-  if(betaold.rows() != beta.rows())
+  if(betaold.rows() != beta.rows() || W.rows() != likep->get_nrobs())
     {
     betaold = datamatrix(nrpar,1,0);
     W = datamatrix(likep->get_nrobs(),1,0);
@@ -2187,7 +1937,16 @@ void FULLCOND_pspline_stepwise::update_IWLS(void)
     
   betaold.assign(beta);
 
-  double logold = - 0.5*Kenv.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
+  double logold;
+  envmatdouble Ksum;
+  if(kombimatrix==true)
+    {
+    Ksum = envmatdouble(0.0,nrpar,Kenv2.getBandwidth());
+    Ksum.addto(Kenv2,Kenv,otherfullcond->get_lambda()*invscale,1.0/sigma2);
+    logold = - 0.5*Ksum.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1);
+    }
+  else
+    logold = - 0.5*Kenv.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
 
   if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
       ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
@@ -2206,6 +1965,8 @@ void FULLCOND_pspline_stepwise::update_IWLS(void)
   prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
   if(decreasing || increasing || convex || concave)
     prec_env.addto(prec_env,Menv,1.0,lambdamono*invscale);
+  if(kombimatrix==true)
+    prec_env.addto(prec_env,Kenv2,1.0,otherfullcond->get_lambda()*invscale);
 
   prec_env.solve(muy,betahelp);
 
@@ -2220,7 +1981,13 @@ void FULLCOND_pspline_stepwise::update_IWLS(void)
 
   double qold = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
 
-  double lognew = - 0.5*Kenv.compute_quadformblock(beta,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
+  double lognew;
+  if(kombimatrix==true)
+    {
+    lognew = - 0.5*Ksum.compute_quadformblock(beta,0,nrparpredictleft,nrpar-nrparpredictright-1);
+    }
+  else
+    lognew = - 0.5*Kenv.compute_quadformblock(beta,0,nrparpredictleft,nrpar-nrparpredictright-1)/sigma2;
 
   if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
       ( (updateW != 0) && ((optionsp->get_nriter()-1) % updateW == 0) ) )
@@ -2289,6 +2056,8 @@ void FULLCOND_pspline_stepwise::update_IWLS(void)
 
 
 void FULLCOND_pspline_stepwise::outresults(void)
+  {
+if(matrixnumber == 1 || kombimatrix == false)
   {
   if(!isbootstrap)
     FULLCOND_pspline_gaussian::outresults();
@@ -2388,6 +2157,153 @@ void FULLCOND_pspline_stepwise::outresults(void)
       }
     }
   }
+  }
+
+
+
+bool FULLCOND_pspline_stepwise::posteriormode_kombi(void)
+  {
+if(matrixnumber==2)
+  return otherfullcond->posteriormode();
+else
+  {
+  unsigned i;
+  transform = likep->get_trmult(column);
+  fchelp.set_transform(transform);
+
+  bool interaction2 = false;
+  if(interactions_pointer.size()>0)
+    interaction2 = search_for_interaction();
+
+  likep->substr_linearpred_m(spline,column,true);
+
+  kappa = otherfullcond->get_lambda();
+  if ( (lambda_prec != lambda) || (kappa_prec != kappa) || (calculate_xwx == true))
+    {
+    if(calculate_xwx == true)
+      {
+      calculate_xwx = false;
+      compute_XWXenv(likep->get_weightiwls(),column);
+      }
+    prec_env.addto(XX_env,Kenv,1.0,lambda);
+    prec_env.addto(prec_env,Kenv2,1.0,kappa);
+    lambda_prec = lambda;
+    kappa_prec = kappa;
+    }
+  likep->compute_workingresiduals(column);
+  compute_XWtildey(likep->get_weightiwls(),likep->get_workingresiduals(),1.0,column);
+
+  prec_env.solve(muy,beta);
+  add_linearpred_multBS();
+
+  if(center)
+    {
+    compute_intercept();
+    if(!varcoeff)
+      fcconst->posteriormode_intercept(intercept);
+    else
+      update_fix_effect();
+
+    if(!varcoeff)
+      {
+      int * workindex = index.getV();
+      for(i=0;i<spline.rows();i++,workindex++)
+        spline(*workindex,0) -= intercept;
+      }
+    else
+      {
+      int * workindex = index.getV();
+      for(i=0;i<spline.rows();i++,workindex++)
+        spline(*workindex,0) -= intercept*data_forfixed(*workindex,0);
+      }
+    }
+
+  bool converged = FULLCOND_nonp_basis::posteriormode();
+  if(converged)
+    {
+    double * fchelpbetap = fchelp.getbetapointer();
+    if(gridsize < 0)
+      {
+      if(varcoeff)
+        {
+        multBS(splinehelp,beta);
+        if(center)
+          {
+          int * workindex = index.getV();
+          for(i=0;i<splinehelp.rows();i++,workindex++)
+            splinehelp(i,0) -= intercept;
+          }
+        }
+
+      vector<int>::iterator freqwork = freqoutput.begin();
+      int * workindex = index.getV();
+      for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+        {
+        if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+          {
+          if(varcoeff)
+            *fchelpbetap = splinehelp(i,0);
+          else
+            *fchelpbetap = spline(*workindex,0);
+          fchelpbetap++;
+          }
+        }
+      }
+    else
+      {
+      multDG(splinehelp,beta);
+      for(i=0;i<unsigned(gridsize);i++,fchelpbetap++)
+        *fchelpbetap = splinehelp(i,0) - intercept;
+      }
+    fchelp.posteriormode();
+    }
+
+  intercept = 0.0;
+  return converged;
+  }
+  }
+
+
+double FULLCOND_pspline_stepwise::compute_df_kombi(void)
+  {
+  double df = 0;
+if(matrixnumber==1)
+  {
+  kappa = otherfullcond->get_lambda();
+  if(inthemodel == true)
+    {
+    if (lambdaold == lambda && kappaold == kappa && likep->get_iwlsweights_notchanged() == true)
+      {
+      df = df_lambdaold;
+      }
+    else if (lambdaold != lambda || kappa != kappaold || likep->get_iwlsweights_notchanged() == false)
+      {
+      if (calculate_xwx == true)
+        compute_XWXenv(likep->get_weightiwls(),column);
+      if(lambda != lambda_prec || kappa != kappaold || calculate_xwx == true)
+        {
+        calculate_xwx = false;
+        prec_env.addto(XX_env,Kenv,1.0,lambda);
+        prec_env.addto(prec_env,Kenv2,1.0,kappa);
+        lambda_prec = lambda;
+        kappa_prec = kappa;
+        }
+      invprec = envmatdouble(0,nrpar,prec_env.getBandwidth());
+      prec_env.inverse_envelope(invprec);
+      df = df + invprec.traceOfProduct(XX_env);
+      if(!identifiable)
+        df -= 1;
+
+      df_lambdaold = df;
+      lambdaold = lambda;
+      kappaold = kappa;
+      }
+    }
+
+  }
+  return df;
+  }
+
 
 
 } // end: namespace MCMC

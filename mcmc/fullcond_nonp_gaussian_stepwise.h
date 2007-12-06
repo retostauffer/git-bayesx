@@ -33,9 +33,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   double lambdaold_unstr;
   double df_lambdaold_unstr;
 
-  vector<FULLCOND*> interactions_pointer;
-  //int lambda_nr;
-  //datamatrix lambdas_local;
+  //vector<FULLCOND*> interactions_pointer;
 
   datamatrix data_varcoeff_fix;
   datamatrix effmodi;
@@ -43,13 +41,19 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   FULLCOND * fcunstruct;
   bool spatialtotal;
-  //bool gleichwertig;
 
   vector<envmatdouble> all_precenv;      // vector of all possible (X'X + lambda_i P)
   vector<double> lambdavec;
 
   FULLCOND fc_df;
   bool isbootstrap;
+
+  envmatdouble Kenv2;
+  double kappa;
+  double kappaold;
+  double kappa_prec;
+  FULLCOND * otherfullcond;
+  
 
   public:
 
@@ -92,7 +96,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
                         const MAP::map & m, const ST::string & mn,
                         const ST::string & ti,
                         const ST::string & fp, const ST::string & pres,
-                        const unsigned & c,const double & l);
+                        const unsigned & c,const double & l,
+                        const fieldtype & ft);
 
   // varying coefficients , spatial covariates as effect modifier
 
@@ -105,7 +110,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
                         const datamatrix & d2,
                         const ST::string & ti,
                         const ST::string & fp, const ST::string & pres,
-                        const unsigned & c, const double & l, const bool & vccent);
+                        const unsigned & c, const double & l, const bool & vccent,
+                        const fieldtype & ft);
 
   // COPY CONSTRUCTOR
 
@@ -120,14 +126,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   double compute_df(void);
 
-  //double compute_df_andererteil(void);
-
-  //void set_gleichwertig(const bool & gleich, bool weiter);  // für spatialtotal
-
   void update_stepwise(double la);
-    /*{
-    lambda=la;
-    } */
 
   double get_lambda(void)
     {
@@ -138,8 +137,6 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   // TASK: returns a string of the estimated effect
 
   ST::string get_effect(void);
-
-  ST::string get_befehl(void);
 
   void init_names(const vector<ST::string> & na);
 
@@ -173,6 +170,8 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   
   void update(void);
 
+  void update_gauss(void);
+
   void update_IWLS(void);
 
   void update_bootstrap_df(void);
@@ -185,22 +184,20 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   void outresults(void);
 
-  //void save_betas(vector<double> & modell, int & anzahl);
-
-  //void average_posteriormode(vector<double> & crit_weights);
-
-  //void effect_sort(datamatrix & effect, const double & m, const unsigned & beg,
-  //                 const unsigned & end,const statmatrix<int> & index);
-
-// Vorschlag:
-//  void effect_sort(datamatrix & effect, const double & m, unsigned & row);
-  //void effect_sort(datamatrix & effect, double m, unsigned row);
-
-  void createreml(datamatrix & X,datamatrix & Z, const unsigned & Xpos, const unsigned & Zpos);
-
 // ------------------------- END: FOR STEPWISE ---------------------------------
 
   bool posteriormode(void);
+
+  bool posteriormode_converged(const unsigned & itnr);
+
+  bool posteriormode_kombi(void);
+
+  double compute_df_kombi(void);
+
+  void set_otherfullcond(FULLCOND * ofullc)
+    {
+    otherfullcond = ofullc;
+    }
 
   //void search_for_interaction(void);
 

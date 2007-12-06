@@ -37,16 +37,12 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   int increment;
   int steps;
   ST::string startmodel;
-  bool fine_tuning;
-  bool finelocal;
   ST::string trace;
   double kriterium_tex;
   ofstream outmodels;
   ofstream outcriterium;
   ofstream outtex;
-  ST::string smoothing;    // für Unterscheidung globaler / lokaler Glättungsparameter
   bool hierarchical;
-  bool miniback_off;
   int bootstrap;
   bool isboot;
   bool unconditional;
@@ -173,17 +169,6 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   void koordexact_nonp(vector<double> & kriteriumiteration2,
       vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
       unsigned & z, double & kriterium_aktuell);
-
-
-// -----------------------------------------------------------------------------
-// --------------------------- Mini-Backfitting --------------------------------
-// -----------------------------------------------------------------------------
-
-  bool blockbilden(vector<FULLCOND*> & fullcond_block, unsigned & z, unsigned & pos);
-
-  void minifullcond_aendern(FULLCOND* & fullcondz, vector<FULLCOND*> & fullcond, unsigned & pos);
-
-  void minibackfitting(vector<FULLCOND*> & fullcond);
 
 // -----------------------------------------------------------------------------
 // ------- Funktionen für die Erstellung des Startmodels -----------------------
@@ -335,11 +320,11 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
 
   bool stepwise(const ST::string & procedure, const ST::string & minimum,
          const ST::string & crit, const int & stp, const ST::string & trac,
-         const int & number, const ST::string & stam, const int & inc, const bool & finet,
-         const bool & fineloc, const int & boot, const bool & uncond, 
+         const int & number, const ST::string & stam, const int & inc,
+         const int & boot, const bool & uncond, 
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
-         const ST::string & CI, bool & hier, const double & prop, const bool & minib);
+         const ST::string & CI, bool & hier, const double & prop);
 
   double compute_criterion(void);
 

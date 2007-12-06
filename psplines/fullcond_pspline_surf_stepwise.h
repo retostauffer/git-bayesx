@@ -194,8 +194,6 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   ST::string  get_effect(void);
 
-  ST::string get_befehl(void);
-
   const datamatrix & get_data_forfixedeffects(void);
 
   void update_fix_effect(void);

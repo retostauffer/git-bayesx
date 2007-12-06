@@ -26,10 +26,6 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   protected:
 
-  vector< vector<double> > beta_average; 
-  int lambda_nr;
-  datamatrix lambdas_local;
-
   datamatrix data_varcoeff_fix;
   datamatrix effmodi;
   datamatrix XVX;
@@ -44,6 +40,12 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
   bool concave;
   bool convex;
   double lambdamono;
+
+  envmatdouble Kenv2;
+  double kappa;
+  double kappaold;
+  double kappa_prec;
+  FULLCOND * otherfullcond;
 
   FULLCOND fc_df;
   bool isbootstrap;
@@ -109,15 +111,11 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   bool posteriormode(void);
 
+  bool posteriormode_converged(const unsigned & itnr);
+
   bool changeposterior3(const datamatrix & betamain, const datamatrix & main, const double & inter);
 
   bool changeposterior_varcoeff(const datamatrix & betamain, const datamatrix & main, const double & inter);
-
-  /*void hilfeee(void)        // nur für Kontrolle!!!
-    {
-    ofstream out(("c:\\cprog\\test\\results\\spline_" + datanames[0] + ".txt").strtochar());
-    spline.prettyPrint(out);
-    } */
 
   void reset_effect(const unsigned & pos);
 
@@ -129,93 +127,12 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   double compute_df(void);
 
-  //double compute_df_eigen(void);
-
-  void update_stepwise(double la);         // neu!!!
-/*    {
-    if(smoothing == "global")
-      {
-      lambda=la;
-
-if(likep->iwlsweights_constant() == true)
-  {
-  bool gefunden = false;
-  unsigned i = 0;
-  while(i<lambdavec.size() && gefunden == false)
-    {
-    if(lambda == lambdavec[i])
-      gefunden = true;
-    i++;
-    }
-  if(gefunden == true)
-    {
-    prec_env = all_precenv[i-1];
-    lambda_prec = lambda;
-    }
-  }
-
-      }
-    else
-      {
-      lambda_prec = -1;
-      lambdaold = -1;
-      lambda = 1;
-      lambdas_local(lambda_nr+nrpar-rankK,0) = 1/la;
-      updateK(lambdas_local);
-      }
-    }*/
-
-  void set_lambdas_vector(double & la)       // neu!!!
-    {
-    lambdas_local = datamatrix(nrpar,1,1/la);
-    g = datamatrix(nrpar,1,1);
-    if(type==RW2)
-      {
-      F1 = datamatrix(nrpar,1,-2);
-      F2 = datamatrix(nrpar,1,1);
-      }
-    }
-
-  void set_lambda_nr(void)
-    {
-    lambda_nr += 1;
-    if(lambda_nr >= rankK)  
-      lambda_nr = 0;
-    }
+  void update_stepwise(double la);
 
   double get_lambda(void)
     {
     return lambda;
     }
-
-  /*double compute_penal_lambda(void) //Versuch!!!
-    {
-    double penal = 0;
-    unsigned i;
-    double lambda1,lambda2;
-
-    // Bestrafung von Differenzen 1. Ordnung:
-    /*for(i=1;i<rankK;i++)
-      {
-      lambda1 = log10(lambdas_local(i+nrpar-rankK,0));
-      lambda2 = log10(lambdas_local(i-1+nrpar-rankK,0));
-      penal += (lambda1-lambda2) * (lambda1-lambda2);
-      }*/
-    /*
-    // Bestrafung von Differenzen 2. Ordnung:
-    double lambda3;
-    for(i=2;i<rankK;i++)
-      {
-      lambda1 = log10(lambdas_local(i+nrpar-rankK,0));
-      lambda2 = log10(lambdas_local(i-1+nrpar-rankK,0));
-      lambda3 = log10(lambdas_local(i-2+nrpar-rankK,0));
-      penal += (lambda1-2*lambda2+lambda3) * (lambda1-2*lambda2+lambda3);
-      }
-
-    return 0.25 * penal;
-    }*/
-
-  //void multBS_sort(datamatrix & res, const datamatrix & beta);
 
   void create_weight(datamatrix & w);
 
@@ -223,8 +140,6 @@ if(likep->iwlsweights_constant() == true)
   // TASK: returns a string of the estimated effect
 
   ST::string get_effect(void);
-
-  ST::string get_befehl(void);
 
   void init_names(const vector<ST::string> & na);
 
@@ -234,10 +149,6 @@ if(likep->iwlsweights_constant() == true)
 
   void const_varcoeff(void);
 
-  //void save_betas(vector<double> & modell, int & anzahl);
-
-  //void average_posteriormode(vector<double> & crit_weights);
-
   void set_pointer_to_interaction(FULLCOND * inter);
 
   void get_interactionspointer(vector<FULLCOND*> & inter);
@@ -245,9 +156,6 @@ if(likep->iwlsweights_constant() == true)
   bool search_for_interaction(void);
 
   void hierarchical(ST::string & possible);
-
-  void createreml(datamatrix & X,datamatrix & Z,
-                           const unsigned & Xpos, const unsigned & Zpos);
 
   void updateMenv(void);
 
@@ -297,6 +205,15 @@ if(likep->iwlsweights_constant() == true)
   void set_spline(datamatrix & sp)
     {
     spline.assign(sp);
+    }
+
+  bool posteriormode_kombi(void);
+
+  double compute_df_kombi(void);
+
+  void set_otherfullcond(FULLCOND * ofullc)
+    {
+    otherfullcond = ofullc;
     }
 
   // DESTRUCTOR

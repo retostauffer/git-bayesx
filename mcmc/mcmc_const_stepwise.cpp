@@ -28,10 +28,6 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(
 
 //  compute_matrices();
 
-  beta_average.erase(beta_average.begin(),beta_average.end());
-  betas_aktuell.erase(betas_aktuell.begin(),betas_aktuell.end());
-
-  intercept_for_center = 0;
   datanames_fixed_only.erase(datanames_fixed_only.begin(),datanames_fixed_only.end());
 
   if (X1.rows() < nrconst)
@@ -59,15 +55,8 @@ const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   help = m.help;
   changingweight = m.changingweight;
   changed_data = m.changed_data;
-  beta_average = m.beta_average;
-  betas_aktuell = m.betas_aktuell;
-  intercept_for_center = m.intercept_for_center;
-  interactions_pointer = m.interactions_pointer;
+//  interactions_pointer = m.interactions_pointer;
 
-  data_rest = m.data_rest;
-  beta_rest = m.beta_rest;
-  linold_rest = m.linold_rest;
-  names_rest = m.names_rest;
   datanames_fixed_only = m.datanames_fixed_only;
   fc_df = m.fc_df;
   conditional = m.conditional;
@@ -102,14 +91,7 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
   help = m.help;
   changingweight = m.changingweight;
   changed_data = m.changed_data;
-  beta_average = m.beta_average;
-  betas_aktuell = m.betas_aktuell;
-  intercept_for_center = m.intercept_for_center;
-  interactions_pointer = m.interactions_pointer;
-  data_rest = m.data_rest;
-  beta_rest = m.beta_rest;
-  linold_rest = m.linold_rest;
-  names_rest = m.names_rest;
+//  interactions_pointer = m.interactions_pointer;
   datanames_fixed_only = m.datanames_fixed_only;
   fc_df = m.fc_df;  
   conditional = m.conditional;
@@ -249,7 +231,7 @@ bool FULLCOND_const_stepwise::posteriormode(void)
     {
     calculate_xwx = false;
     likep->fisher(X1,data,column);            // recomputes X1 = (data' W data)^{-1}
-    X1.assign((X1.cinverse()));               // continued
+    X1.assign(X1.cinverse());               // continued
     changed_data = false;
     }
   likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
@@ -509,7 +491,7 @@ void FULLCOND_const_stepwise::outresults(void)
   {
   if(fctype != MCMC::factor)
     {
-    if(betamean.rows() == datanames_fixed_only.size())
+    if(!conditional) // nur bei bootstrap
       {
       datanames = datanames_fixed_only;
       nrpar = datanames.size();
@@ -527,7 +509,147 @@ void FULLCOND_const_stepwise::outresults(void)
         betavar(i,0) = sample.var(0);
         } 
       }
-    FULLCOND_const::outresults();
+
+    if(!conditional)
+      {
+      FULLCOND::outresults();
+
+      ofstream outp(pathcurrent.strtochar());
+
+      ST::string l1 = ST::doubletostring(lower1,4);
+      ST::string l2 = ST::doubletostring(lower2,4);
+      ST::string u1 = ST::doubletostring(upper1,4);
+      ST::string u2 = ST::doubletostring(upper2,4);
+      l1 = l1.replaceallsigns('.','p');
+      l2 = l2.replaceallsigns('.','p');
+      u1 = u1.replaceallsigns('.','p');
+      u2 = u2.replaceallsigns('.','p');
+
+      vector<ST::string> resultstable(7);
+
+      outp << "paramnr varname pmean paverage pstd pqu" << l1 << " pqu" << l2 <<
+            " pmed pqu" << u1 << " pqu" << u2 << " pcat" << level1
+           << " pcat" << level2 << endl;
+
+      unsigned i;
+
+      optionsp->out("\n");
+
+      ST::string l;
+      int maxvarnamelength = 0;
+      int len;
+
+      for(i=0;i<nrconst;i++)
+        {
+        len = datanames[i].length();
+        if (len > maxvarnamelength)
+          maxvarnamelength = len;
+        }
+
+      if (maxvarnamelength>10)
+        l = ST::string(' ',maxvarnamelength-6);
+      else
+        l = "  ";
+
+      ST::string help =  ST::doubletostring(lower1,4) + "% quant.";
+      ST::string levell = help + ST::string(' ',15-help.length());
+      help = ST::doubletostring(upper2,4) + "% quant.";
+      ST::string levelu = help + ST::string(' ',15-help.length());
+
+      optionsp->out("  Variable" + l +
+                    "mean           " +
+                    //"average        " +
+                    "Std. Dev.      " +
+                     levell +
+                    "median         " +
+                    levelu + "\n");
+
+      ST::string mean;
+      ST::string std;
+      ST::string qu10;
+      ST::string qu50;
+      ST::string qu90;
+
+      double m,stddouble;
+
+      unsigned nsp;
+
+      for (i=0;i<nrconst;i++)
+         {
+
+         if (maxvarnamelength  > 10)
+           nsp = 2+maxvarnamelength-datanames[i].length();
+         else
+           nsp = 10-datanames[i].length();
+
+         if ((optionsp->get_samplesize() == 0) &&
+             (interceptyes) && (i==interceptpos) )
+           {
+           m = betamean(i,0)+likep->get_addinterceptsample();
+           }
+         else
+           {
+           m= betamean(i,0);
+           }
+
+         if (betavar(i,0) == 0)
+           stddouble = 0;
+         else
+           stddouble = sqrt(betavar(i,0));
+
+         outp << (i+1) << "   ";
+         outp << datanames[i] << "   ";
+         outp << m << "   ";
+         outp << beta_average(i,0) << "   ";
+         outp << stddouble << "   ";
+         outp << betaqu_l1_lower(i,0) << "   ";
+         outp << betaqu_l2_lower(i,0) << "   ";
+         outp << betaqu50(i,0) << "   ";
+         outp << betaqu_l2_upper(i,0) << "   ";
+         outp << betaqu_l1_upper(i,0) << "   ";
+         if (betaqu_l1_lower(i,0) > 0)
+           outp << "1   ";
+         else if (betaqu_l1_upper(i,0) < 0)
+           outp << "-1   ";
+         else
+           outp << "0   ";
+
+         if (betaqu_l2_lower(i,0) > 0)
+           outp << "1   ";
+         else if (betaqu_l2_upper(i,0) < 0)
+           outp << "-1   ";
+         else
+           outp << "0   ";
+
+         outp << endl;
+
+         optionsp->out(ST::outresults(nsp,datanames[i],m,//beta_average(i,0),
+                         stddouble,betaqu_l1_lower(i,0),
+                         betaqu50(i,0),betaqu_l1_upper(i,0)) + "\n");
+
+
+         char hchar = '_';
+         ST::string hstring = "\\_";
+         resultstable[0] = datanames[i].insert_string_char(hchar,hstring);
+         resultstable[1] = ST::doubletostring(m,6);
+         resultstable[2] = ST::doubletostring(beta_average(i,0),6);
+         resultstable[3] = ST::doubletostring(stddouble,6);
+         resultstable[4] = ST::doubletostring(betaqu_l1_lower(i,0),6);
+         resultstable[5] = ST::doubletostring(betaqu50(i,0),6);
+         resultstable[6] = ST::doubletostring(betaqu_l1_upper(i,0),6);
+
+         results_latex.push_back(ST::make_latextable(resultstable));
+         }
+
+      optionsp->out("\n");
+
+      optionsp->out("  Results for fixed effects are also stored in file\n");
+      optionsp->out("  " + pathcurrent + "\n");
+
+      optionsp->out("\n");
+      }
+    else
+      FULLCOND_const::outresults();
     }
   }
 
@@ -552,28 +674,6 @@ ST::string FULLCOND_const_stepwise::get_effect(void)
     h = datanames[0];
     for(i=1;i<datanames.size();i++)
       h = h + " + " + datanames[i];
-    }
-  return h;
-  }
-
-
-ST::string FULLCOND_const_stepwise::get_befehl(void)
-  {
-  ST::string h="";
-  unsigned i;
-  if (fctype==MCMC::factor)
-    {
-    for(i=0;i<datanames.size();i++)
-      h = h + " + " + datanames[i];
-    }
-  else
-    {
-    if(datanames.size()>1)
-      {
-      h = datanames[1];
-      for(i=2;i<datanames.size();i++)
-        h = h + " + " + datanames[i];
-      }
     }
   return h;
   }
@@ -767,251 +867,12 @@ double FULLCOND_const_stepwise::compute_df(void)
   double df = 0;
   if(fctype != factor)
     {
-    if(data_rest.rows()>1)
-      df = df + data_rest.cols();
     df += FULLCOND_const::compute_df();
     }
   return df;
   }
 
-
-// -----------------------------------------------------------------------------
-// --------------------------- Mini-Backfitting --------------------------------
-// -----------------------------------------------------------------------------
-
-void FULLCOND_const_stepwise::split_data(const vector<ST::string> & names)
-  {
-  if(fctype != factor && data.cols() != names.size()+1)
-    {
-    unsigned i,j;
-
-    nrconst = names.size()+1;  // +1 wegen Intercept
-    nrpar = nrconst;
-    datamatrix dataold = data;
-
-    data = datamatrix(data.rows(),nrconst);
-    datamatrix betao = beta;
-    setbeta(nrconst,1,0);
-
-    data_rest = datamatrix(data.rows(),dataold.cols()-nrconst);
-    beta_rest = datamatrix(dataold.cols()-nrconst,1,0);
-    linold_rest = datamatrix(data.rows(),1,0);
-
-    double * workold = dataold.getV();
-    double * workdata = data.getV();
-    double * workrest = data_rest.getV();
-    double * workbr = beta_rest.getV();
-    double * workbeta = beta.getV();
-    double * workbetao = betao.getV();
-//    double * workbetameanold = betameanold.getV();
-
-
-    vector<ST::string> dnames;
-    vector<unsigned> reihenfolge;
-
-    for(j=0;j<dataold.cols();j++,workbetao++)
-      {
-      unsigned z = 0;
-      bool gefunden = false;
-      while(z<names.size() && gefunden == false)
-        {
-        if(datanames[j] == names[z])
-          gefunden = true;
-        z++;
-        }
-      if(gefunden == true || j==0)
-        {
-        reihenfolge.push_back(1);
-        dnames.push_back(datanames[j]);
-        *workbeta = *workbetao;
-        workbeta++;
-        }
-      else
-        {
-        reihenfolge.push_back(0);
-        names_rest.push_back(datanames[j]);
-        *workbr = *workbetao;
-        workbr++;
-        }
-      }
-
-
-    for(i=0;i<dataold.rows();i++)
-      {
-      for (j=0;j<dataold.cols();j++,workold++)
-        {
-        if(reihenfolge[j] == 1)
-          {
-          *workdata = *workold;
-          workdata++;
-          }
-        else
-          {
-          *workrest = *workold;
-          workrest++;
-          }
-        }
-      }
-
-    datanames = dnames;
-    X1 = datamatrix(nrconst,nrconst,0);
-    changed_data = true;    
-    linold_rest.mult(data_rest,beta_rest);
-    linold -= linold_rest;
-    }
-  }
-
-
-
-void FULLCOND_const_stepwise::merge_data(void)
-  {
-  if(fctype != factor && names_rest.size()>0)
-    {
-    unsigned i,j;
-
-    nrconst = names_rest.size() + datanames.size();
-    nrpar = nrconst;
-    datamatrix dataold = data;
-
-    data = datamatrix(data.rows(),nrconst);
-    datamatrix betao = beta;
-    setbeta(nrconst,1,0);
-
-    double * workold = dataold.getV();
-    double * workdata = data.getV();
-    double * workrest = data_rest.getV();
-    double * workbr = beta_rest.getV();
-    double * workbeta = beta.getV();
-    double * workbetao = betao.getV();
-//    double * workbetameanold = betameanold.getV();
-
-    for(j=0;j<dataold.cols();j++,workbeta++,workbetao++)
-      *workbeta = *workbetao;
-    for(j=0;j<data_rest.cols();j++,workbeta++,workbr++)
-      *workbeta = *workbr;
-
-    for(i=0;i<data.rows();i++)
-      {
-      for (j=0;j<dataold.cols();j++,workold++,workdata++)
-        *workdata = *workold;
-
-      for (j=0;j<data_rest.cols();j++,workdata++,workrest++)
-        *workdata = *workrest;
-      }
-
-    for(i=0;i<names_rest.size();i++)
-      {
-      datanames.push_back(names_rest[i]);
-      }
-
-    X1 = datamatrix(nrconst,nrconst,0);
-    changed_data = true;    
-    linold += linold_rest;
-    names_rest.erase(names_rest.begin(),names_rest.end());
-    data_rest = datamatrix(1,1,0);
-    }
-  }
-
-
 // BEGIN: MODEL-AVERAGING ------------------------------------------------------
-
-void FULLCOND_const_stepwise::save_betas(vector<double> & modell, int & anzahl)
-  {
-  betas_aktuell.erase(betas_aktuell.begin(),betas_aktuell.end());
-  double * workbeta = beta.getV();
-  unsigned i;
-  if(fctype != MCMC::factor)
-    {
-    betas_aktuell.push_back(*workbeta);
-    workbeta++;
-    for(i=1;i<anzahl;i++)
-      {
-      if(modell[i-1]!=0)
-        {
-        betas_aktuell.push_back(*workbeta);
-        workbeta++;
-        }
-      else
-        betas_aktuell.push_back(0);
-      }
-    }
-  else
-    {
-    if(anzahl >= 1)
-      {
-      workbeta = fcconst->getbeta().getV() + anzahl;
-      betas_aktuell.push_back(*workbeta);
-      workbeta++;
-      for(i=1;i<data.cols();i++,workbeta++)
-        betas_aktuell.push_back(*workbeta);
-      }
-    else
-      {
-      for(i=0;i<data.cols();i++)
-        betas_aktuell.push_back(0);
-      }
-    fcconst->beta_to_fix(betas_aktuell);
-    }
-  }
-
-void FULLCOND_const_stepwise::save_betas2(void)
-  {
-  beta_average.push_back(betas_aktuell);
-  }
-
-void FULLCOND_const_stepwise::beta_to_fix(const vector<double> & betas)
-  {
-  unsigned i;
-  for(i=0;i<betas.size();i++)
-    betas_aktuell.push_back(betas[i]);
-  }
-
-
-void FULLCOND_const_stepwise::average_posteriormode(vector<double> & crit_weights)
-  {
-  if(fctype != MCMC::factor)
-    {
-    unsigned i;
-    unsigned j;
-    vector<double> beta_sum;
-    for(j=0;j<beta_average[0].size();j++)
-      beta_sum.push_back(0);
-    for(i=0;i<crit_weights.size();i++)
-      {
-      for(j=0;j<beta_average[i].size();j++)
-        beta_sum[j] += beta_average[i][j] * crit_weights[i];
-      }
-    setbeta(beta_sum.size(),1,0);
-    double * workbeta = beta.getV();
-    double * workbetamean = betamean.getV();
-    *workbeta = beta_sum[0] + intercept_for_center;
-    *workbetamean = *workbeta * transform;
-    workbeta++;
-    workbetamean++;
-    for(i=1;i<beta_sum.size();i++,workbetamean++,workbeta++)
-      {
-      *workbeta = beta_sum[i];
-      *workbetamean = beta_sum[i] * transform;    //(hier fehlt der Term "+addon" aus fullcond.cpp, posteriormode; "addon" wird aber nie !=0)
-      }
-    likep->substr_linearpred_m(linold,column);   // zieht den Anteil der fixen Effekte von Gesamtprädiktor ab
-    linold.mult(data,beta);                      // berechnet den Anteil der fixen Effekte neu
-    likep->add_linearpred_m(linold,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor
-    }
-  }
-
-
-/*double FULLCOND_const_stepwise::get_betafix(unsigned & welches)
-  {
-  double * workbeta = beta.getV() + welches;
-  return *workbeta;
-  }    */
-
-
-void FULLCOND_const_stepwise::set_intercept_for_center(double & dazu)
-  {
-  intercept_for_center += dazu;
-  }
-
 
 void FULLCOND_const_stepwise::update_bootstrap(const bool & uncond)
   {
@@ -1212,6 +1073,43 @@ void FULLCOND_const_stepwise::outresults_df(unsigned & size)
       outres << endl << endl;
       }
     }  // END: if(fctype != MCMC::factor)
+  }
+
+
+void FULLCOND_const_stepwise::update_beta_average(unsigned & samplesize)
+  {
+  if(fctype != factor)
+    {
+    datamatrix betaold = beta;
+
+    nrconst = datanames_fixed_only.size();
+    nrpar = nrconst;
+    beta = datamatrix(nrconst,1,0);
+
+    if(beta_average.rows() != nrconst)
+      beta_average = datamatrix(nrconst,1,0);
+ 
+    unsigned i,j;
+    for(i=0;i<datanames_fixed_only.size();i++)
+      {
+      bool gefunden = false;
+      j = 0;
+      while(j<datanames.size() && gefunden==false)
+        {
+        if(datanames_fixed_only[i] == datanames[j])
+          gefunden = true;
+        j += 1;
+        }
+      if(gefunden==true)
+        beta(i,0) = betaold(j-1,0);
+      }
+
+    FULLCOND::update_beta_average(samplesize);
+
+    beta = betaold;
+    nrpar = beta.rows();
+    nrconst = nrpar;
+    }
   }
 
 
@@ -1626,32 +1524,6 @@ void FULLCOND_const_stepwise::make_design(const datamatrix & d)
   }
 
 
-// ------------ Funktionen für gesamte Hatmatrix: ------------------------------
-
-
-unsigned FULLCOND_const_stepwise::get_nrvar(void)
-  {
-  return data.cols();
-  }
-
-
-void FULLCOND_const_stepwise::createreml(datamatrix & X,datamatrix & Z,
-                                const unsigned & Xpos, const unsigned & Zpos)
-  {
-  unsigned i,j;
-
-  double * workdata= data.getV();
-  double * workX = X.getV()+Xpos;
-  unsigned s = X.cols()-data.cols();
-
-  for (i=0;i<data.rows();i++,workX+=s)
-    for(j=0;j<data.cols();j++,workdata++,workX++)
-      {
-      *workX = *workdata;
-      }
-
-  }
-
 
 // -----------------------------------------------------------------------------
 // ------------------- STEPWISE-FACTOR -----------------------------------------
@@ -1666,7 +1538,7 @@ void FULLCOND_const_stepwise::compute_lambdavec(vector<double> & lvec, int & num
      lvec.push_back(0);
 
   // Startwert für lambda aus df:
-  if(spfromdf==true && fctype == MCMC::factor)
+  if(spfromdf=="direct" && fctype == MCMC::factor)
     {
     if(dfstart!=0)
       lambdastart = -1;
@@ -1717,7 +1589,7 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * 
   {
 
   fcconst = fcc;
-  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
+//  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
 
   optionsp = o;
   pathresult = fr;
@@ -1746,25 +1618,7 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * 
 
   interceptyes = false;
 
-
   results_type="fixed";
-
-  beta_average.erase(beta_average.begin(),beta_average.end());
-
-  /*           braucht man hier nicht!!!
-  transform = likep->get_trmult(c);
-
-  changingweight = likep->get_changingweight();
-
-  X1 = datamatrix(nrconst,nrconst,0);
-
-  help = datamatrix(nrconst,likep->get_nrobs(),0);
-
-  compute_matrices();
-
-  if (X1.rows() < nrconst)
-    errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
-  */
   }
 
 //------------------------------------------------------------------------------

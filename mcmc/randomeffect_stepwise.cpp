@@ -19,13 +19,7 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(MCMCoptions * o,DISTRIBUTION 
   utype = "gaussian";
 
   identifiable = false;
-  grenzfall = 0;
   intercept = 0.0;
-
-  dimX = 0;
-  dimZ = nrpar;
-
-  //gleichwertig = true;
   }
 
 // randomslope
@@ -41,10 +35,6 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(MCMCoptions * o,DISTRIBUTION 
   {
   utype = "gaussian";
 
-  grenzfall = 0;
-  dimX = 0;
-  dimZ = nrpar;
-
   if(inclfixed == false)
     {
     identifiable = false;
@@ -52,7 +42,6 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(MCMCoptions * o,DISTRIBUTION 
 
   includefixed = false;
   intercept = 0.0;
-  //gleichwertig = true;
   get_data_forfixedeffects();
   }
 
@@ -61,7 +50,6 @@ FULLCOND_random_stepwise::FULLCOND_random_stepwise(const FULLCOND_random_stepwis
                             : FULLCOND_random(FULLCOND_random(fc))
   {
   intercept = fc.intercept;
-  beta_average = fc.beta_average;
   data_varcoeff_fix = fc.data_varcoeff_fix;
   effmodi = fc.effmodi;
   fbasisp = fc.fbasisp;
@@ -81,7 +69,6 @@ const FULLCOND_random_stepwise & FULLCOND_random_stepwise::
   FULLCOND_random::operator=(FULLCOND_random(fc));
 
   intercept = fc.intercept;
-  beta_average = fc.beta_average;
   data_varcoeff_fix = fc.data_varcoeff_fix;
   effmodi = fc.effmodi;
   fbasisp = fc.fbasisp;
@@ -316,7 +303,54 @@ void FULLCOND_random_stepwise::create_weight(datamatrix & w)
 
 void FULLCOND_random_stepwise::compute_lambdavec(vector<double> & lvec, int & number)
   {
-  if (df_equidist==true && spfromdf==true && number>1)
+//ST::string sp = "automatic";
+//ST::string sp = "nonautomatic";
+  if(spfromdf=="automatic")
+    {
+    df_equidist = true;
+    double maxi = floor(nrpar/4*3);
+
+    if(maxi <= 30)
+      {
+      df_for_lambdamin = maxi;
+      if(!varcoeff || !identifiable)
+        {
+        df_for_lambdamax = 1;
+        number = maxi;
+        }
+      else
+        {
+        df_for_lambdamax = 2;
+        number = maxi - 1;
+        }
+      }
+    else if(maxi > 30 && maxi<=60)
+      {
+      number = floor(maxi/2);
+      df_for_lambdamax = 2;
+      df_for_lambdamin = number*2;
+      }
+    else if(maxi > 60 && maxi<=100)
+      {
+      df_for_lambdamax = 3;
+      number = floor(maxi/3); 
+      df_for_lambdamin = number*3;
+      }
+    else if(maxi > 100 && maxi<=180)
+      {
+      df_for_lambdamax = 5;
+      number = floor(maxi/5);
+      df_for_lambdamin = number*5;
+      }
+    else if(maxi > 180)
+      {
+      df_for_lambdamax = 10;
+      number = floor(maxi/10);
+      df_for_lambdamin = number*10;
+      }
+    }
+
+  if (df_equidist==true && spfromdf!="direct" && number>1)
      FULLCOND::compute_lambdavec_equi(lvec,number);
   else
      FULLCOND::compute_lambdavec(lvec,number);
@@ -326,7 +360,7 @@ void FULLCOND_random_stepwise::compute_lambdavec(vector<double> & lvec, int & nu
      lvec.push_back(0);
 
   // Startwert für lambda aus df:
-  if(spfromdf==true)
+  if(spfromdf!="direct")
     {
     double lambdavorg = 1000;
     if(!randomslope)
@@ -1165,20 +1199,6 @@ void FULLCOND_random_stepwise::init_spatialtotal(FULLCOND_nonp_basis * sp,
 
   FULLCOND_random::init_spatialtotal(ev,pnt,prt);
 
-  }
-
-
-ST::string FULLCOND_random_stepwise::get_befehl(void)
-  {
-  ST::string h;
-
-  if(randomslope)
-    h = datanames[1] + "*" + datanames[0];  // (VC alt) 0 - 1
-  else
-    h = datanames[0];
-
-  h = h + "(random,lambda=" + ST::doubletostring(lambda,6) + ")";
-  return h;
   }
 
 

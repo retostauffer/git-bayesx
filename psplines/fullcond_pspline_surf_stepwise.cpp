@@ -160,17 +160,12 @@ FULLCOND_pspline_surf_stepwise::FULLCOND_pspline_surf_stepwise(MCMCoptions * o,
   : FULLCOND_pspline_surf_gaussian(o,dp,fcc,v1,v2,ti,nrk,degr,kp,l,gs,ft,fp,pres,of,true,c)
   {
 
+  fctype = nonparametric;
+
   if(gauss==false)
     utype = iwls;
 
   create(v1,v2);
-
-  if(type == mrflinear)
-    grenzfall = 0;
-  else if(type == mrfquadratic8)
-    grenzfall = 3;
-  else if(type == mrfkr1)
-    grenzfall = 2*nrpar1dim - 1;  // bezieht sich auf KHenv, da Rg(KHenv) = (nrpar1dim-1)^2!!!
 
   maineffectsexisting = 0;
 
@@ -198,6 +193,8 @@ FULLCOND_pspline_surf_stepwise::FULLCOND_pspline_surf_stepwise(MCMCoptions * o,
   : FULLCOND_pspline_surf_gaussian(o,dp,fcc,intact,v1,v2,ti,nrk,degr,kp,l,gs,ft,fp,pres,of,sb,c)
   {
 
+  fctype = nonparametric;
+
   centertotal = true;
   //VCM_neu
   if(vccent == true)
@@ -222,11 +219,6 @@ FULLCOND_pspline_surf_stepwise::FULLCOND_pspline_surf_stepwise(MCMCoptions * o,
   centervalue = (v1.max(0) + v1.min(0)) * (v2.max(0) + v2.min(0));
   XVX = datamatrix(2,2,0);
 
-  if(type == mrflinear)
-    grenzfall = 1;
-  else if(type == mrfquadratic8)
-    grenzfall = 4;
-    
   all_precenv.erase(all_precenv.begin(),all_precenv.end());
   lambdavec.erase(lambdavec.begin(),lambdavec.end());
 
@@ -245,6 +237,8 @@ FULLCOND_pspline_surf_stepwise::FULLCOND_pspline_surf_stepwise(
                       const ST::string & pres, const bool & gauss, const unsigned & c)
   : FULLCOND_pspline_surf_gaussian(o,dp,fcc,region,mp,mn,ti,nrk,degr,kp,l,gs,ft,fp,pres,true,c)
   {
+
+  fctype = nonparametric;
 
   if(gauss==false)
     utype = iwls;
@@ -273,11 +267,6 @@ FULLCOND_pspline_surf_stepwise::FULLCOND_pspline_surf_stepwise(
 
   create(v1,v2);
 
-  if(type == mrflinear)
-    grenzfall = 0;
-  else if(type == mrfquadratic8)
-    grenzfall = 3;
-
   all_precenv.erase(all_precenv.begin(),all_precenv.end());
   lambdavec.erase(lambdavec.begin(),lambdavec.end());
 
@@ -297,6 +286,8 @@ FULLCOND_pspline_surf_stepwise::FULLCOND_pspline_surf_stepwise(
                       const ST::string & pres, const bool & gauss, const bool & vccent, const unsigned & c)
   : FULLCOND_pspline_surf_gaussian(o,dp,fcc,intact,region,mp,mn,ti,nrk,degr,kp,l,gs,ft,fp,pres,true,c)
   {
+
+  fctype = nonparametric;  
 
   if(gauss==false)
     utype = iwls;
@@ -346,11 +337,6 @@ FULLCOND_pspline_surf_stepwise::FULLCOND_pspline_surf_stepwise(
 
   centervalue = (v1.max(0) + v1.min(0)) * (v2.max(0) + v2.min(0));
   XVX = datamatrix(2,2,0);
-
-  if(type == mrflinear)
-    grenzfall = 1;
-  else if(type == mrfquadratic8)
-    grenzfall = 4;
 
   lambdaold = -1;    
   }
@@ -918,9 +904,42 @@ void FULLCOND_pspline_surf_stepwise::hierarchie_rw1(vector<double> & untervector
 void FULLCOND_pspline_surf_stepwise::compute_lambdavec(
 vector<double> & lvec, int & number)
   {
+//ST::string sp = "automatic";
+//ST::string sp = "nonautomatic";
+  if(spfromdf=="automatic")
+    {
+    df_equidist = true;
+    double maxi = floor(nrpar/4*3);
+
+    if(maxi<=60)
+      {
+      number = floor(maxi/2);
+      df_for_lambdamax = 4;
+      df_for_lambdamin = number*2+2;
+      }
+    else if(maxi > 60 && maxi<=100)
+      {
+      df_for_lambdamax = 4;
+      number = floor(maxi/3); 
+      df_for_lambdamin = number*3+1;
+      }
+    else if(maxi > 100 && maxi<=180)
+      {
+      df_for_lambdamax = 5;
+      number = floor(maxi/5);
+      df_for_lambdamin = number*5;
+      }
+    else if(maxi > 180)
+      {
+      df_for_lambdamax = 10;
+      number = floor(maxi/10);
+      df_for_lambdamin = number*10;
+      }
+    }
+  
   if(number>0)
     {
-    if (df_equidist==true && spfromdf==true && number>1)
+    if (df_equidist==true && spfromdf!="direct" && number>1)
        FULLCOND::compute_lambdavec_equi(lvec,number);
     else
        FULLCOND::compute_lambdavec(lvec,number);
@@ -969,7 +988,7 @@ vector<double> & lvec, int & number)
      lvec.push_back(0);
 
   // Startwert für lambda aus df:
-  if(spfromdf==true)
+  if(spfromdf!="direct")
     {
     double lambdavorg = 1000;
     if(!nofixed && !varcoeff)
@@ -1039,7 +1058,7 @@ double FULLCOND_pspline_surf_stepwise::compute_df(void)
       else
         df = df + 1;
       }
-    else if(type == mrfkr1 && rankK==(nrpar1dim-1)*(nrpar1dim-1))
+    else if(type == mrfkr1 && rankK==(nrpar1dim-1)*(nrpar1dim-1))   // d.h. Typ und Rang passen zusammen --> kein Spezialfall für Bootstrap 
       {
       double lambdax = 0;
       double lambday = 0;
@@ -1181,60 +1200,6 @@ ST::string FULLCOND_pspline_surf_stepwise::get_effect(void)
     }
 
   h = h + ",df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
-
-  return h;
-  }
-
-
-ST::string FULLCOND_pspline_surf_stepwise::get_befehl(void)
-  {
-  ST::string h;
-
-  if(varcoeff)
-    {
-    if(datanames.size()==5)
-      {
-      if(type==mrflinear)
-        h = datanames[1] + "*" + datanames[3] + "(pspline2dimrw1";        // (VC alt) 0 - 1
-      else if(type==mrfquadratic8)
-        h = datanames[1] + "*" + datanames[3] + "(pspline2dimrw2";        // (VC alt) 0 - 1
-      else if(type==mrfkr1)
-        h = datanames[1] + "*" + datanames[3] + "(psplinekrrw1";       // (VC alt) 2 - 1
-      }
-    else
-      {
-      if(type==mrflinear)
-        h = datanames[1] + "*" + datanames[0] + "(geosplinerw1";             // (VC alt) 0 - 1
-      else if(type==mrfquadratic8)
-        h = datanames[1] + "*" + datanames[0] + "(geosplinerw2";             // (VC alt) 0 - 1
-      }
-    }
-  else
-    {
-    if(type==mrflinear)
-      {
-      if(datanames.size()>1)
-        h = datanames[2] + "(pspline2dimrw1";
-      else
-        h = datanames[0] + "(geosplinerw1";
-      }
-    else if(type==mrfquadratic8)
-      {
-      if(datanames.size()>1)
-        h = datanames[2] + "(pspline2dimrw2";
-      else
-        h = datanames[0] + "(geosplinerw2";
-      }
-    else
-      h = datanames[2] + "(psplinekrrw1";
-    }
-
-  h = h + ", lambda=" + ST::doubletostring(lambda,6);
-  if(degree!=3)
-    h = h + ", degree=" + ST::inttostring(degree);
-  if(nrknots!=20)
-    h = h + ",nrknots=" + ST::inttostring(nrknots);
-  h = h + ")";
 
   return h;
   }
@@ -1723,6 +1688,12 @@ void FULLCOND_pspline_surf_stepwise::update_IWLS(void)
   double invscale = 1.0/likep->get_scale(column);
   sigma2 = likep->get_scale(column)/lambda;
 
+  if(betahelp.rows() != beta.rows() || W.rows() != likep->get_nrobs())
+    {
+    betahelp = datamatrix(nrpar,1,0);
+    W = datamatrix(likep->get_nrobs(),1,0);
+    }
+
   double logold = - 0.5*Kenv.compute_quadform(beta,0)/sigma2;
 
   if( (optionsp->get_nriter() < optionsp->get_burnin()) ||
@@ -1730,7 +1701,7 @@ void FULLCOND_pspline_surf_stepwise::update_IWLS(void)
     {
     logold += likep->compute_IWLS(W,mu,true,column,true);
     mu.plus(spline,mu);
-    compute_XWXenv(W,column);
+    compute_XWXenv(W,0);  // W hat nur eine Spalte!!!
     }
   else
     {
@@ -1763,7 +1734,7 @@ void FULLCOND_pspline_surf_stepwise::update_IWLS(void)
 
     lognew += likep->compute_IWLS(W,mu,true,column,true);
     mu.plus(spline,mu);
-    compute_XWXenv(W,column);
+    compute_XWXenv(W,0);  // W hat nur eine Spalte!!!
     prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
     }
   else
@@ -1798,6 +1769,82 @@ void FULLCOND_pspline_surf_stepwise::update_IWLS(void)
     add_linearpred_multBS2(beta);
     }
 
+  if(center)
+    {
+    if(!centertotal)
+      {
+// Gesamteffekt in fctotal schreiben
+      if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
+          ((optionsp->get_nriter()-optionsp->get_burnin()-1) % (optionsp->get_step()) == 0) )
+        {
+        unsigned i;
+        double * fctotalbetap = fctotal.getbetapointer();
+
+        if(gridsize < 0)
+          {
+          vector<int>::iterator freqwork = freqoutput.begin();
+          int * workindex = index.getV();
+          for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+            {
+            if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+              {
+              *fctotalbetap = spline(*workindex,0)
+                            + mainp1->get_spline()(*workindex,0)
+                            + mainp2->get_spline()(*workindex,0);
+              fctotalbetap++;
+              }
+            }
+          }
+        else
+          {
+          multDG(splinehelp,beta);
+          unsigned k,l;
+          for(k=0;k<gridsizex;k++)
+            for(l=0;l<gridsizey;l++,fctotalbetap++)
+              *fctotalbetap = splinehelp(k*gridsizey + l,0)
+                            + mainp1->get_splinehelp()(k,0)
+                            + mainp2->get_splinehelp()(l,0);
+          }
+        }   // ENDE: Gesamteffekt in fctotal schreiben
+      fctotal.update();
+      } // END: interaction
+    } // END: if(center)
+
+// Interaktionseffekt in fchelp schreiben
+  if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
+      ((optionsp->get_nriter()-optionsp->get_burnin()-1) % (optionsp->get_step()) == 0) )
+    {
+    double * fchelpbetap = fchelp.getbetapointer();
+    unsigned i;
+    if(gridsize < 0)
+      {
+      if(varcoeff)
+        multBout(splinehelp,beta);
+
+      vector<int>::iterator freqwork = freqoutput.begin();
+      int * workindex = index.getV();
+      for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+        {
+        if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+          {
+          if(varcoeff)
+            *fchelpbetap = splinehelp(i,0);
+          else
+            *fchelpbetap = spline(*workindex,0);
+          fchelpbetap++;
+          }
+        }
+      }
+    else
+      {
+      multDG(splinehelp,beta);
+      for(i=0;i<gridsize;i++,fchelpbetap++)
+        *fchelpbetap = splinehelp(i,0);
+      }
+    }
+
+  fchelp.update();
+  FULLCOND::update();
   }
 
 
@@ -1817,7 +1864,7 @@ void FULLCOND_pspline_surf_stepwise::update_vc_anova(void)
     double scaleinv = 1.0/likep->get_scale(column);
 
     if(changingweight || optionsp->get_nriter()==1)
-      compute_XWX(likep->get_weight());
+      compute_XWXenv(likep->get_weight());
 
     likep->substr_linearpred_m(spline,column,true);
 
@@ -1947,7 +1994,7 @@ void FULLCOND_pspline_surf_stepwise::update_vc_anova_nongauss(void)
     {
     logold += likep->compute_IWLS(W,mu,true,column,true);
     mu.plus(spline,mu);
-    compute_XWXenv(W,column);
+    compute_XWXenv(W,0);    // W hat nur eine Spalte!!!
     }
   else
     {
@@ -1980,8 +2027,7 @@ void FULLCOND_pspline_surf_stepwise::update_vc_anova_nongauss(void)
 
     lognew += likep->compute_IWLS(W,mu,true,column,true);
     mu.plus(spline,mu);
-    compute_XWXenv(W,column);
-    //prec_env.addto(XX_env,Kenv,iwlsscale,iwlsscale/sigma2);
+    compute_XWXenv(W,0);     // W hat nur eine Spalte!!!
     prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
     }
   else
@@ -2038,7 +2084,7 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
       {
       logold += likep->compute_IWLS(W,mu,true,column,true);
       mu.plus(spline,mu);
-      compute_XWXenv(W,column);
+      compute_XWXenv(W,0);    // W hat nur eine Spalte!!!
       }
     else
       {
@@ -2089,7 +2135,7 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
 
       lognew += likep->compute_IWLS(W,mu,true,column,true);
       mu.plus(spline,mu);
-      compute_XWXenv(W,column);
+      compute_XWXenv(W,0);    // W hat nur eine Spalte!!!
       prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
       }
     else
@@ -2148,7 +2194,7 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
     double scaleinv = 1.0/likep->get_scale(column);
 
     if(changingweight || optionsp->get_nriter()==1)
-      compute_XWX(likep->get_weight());
+      compute_XWXenv(likep->get_weight());
 
     likep->substr_linearpred_m(spline,column,true);
 

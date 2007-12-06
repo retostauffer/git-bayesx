@@ -108,12 +108,15 @@ term_autoreg_stepwise::term_autoreg_stepwise(void)
   dfmin = doubleoption("dfmin",2,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
   dfmax = doubleoption("dfmax",10,0,200);
   dfstart = doubleoption("dfstart",1,0,200);
-  //lambdamax_opt = simpleoption("lambdamax_opt",false);
-  sp = simpleoption("sp",false);
+  //sp = simpleoption("sp",false);
+  vector<ST::string> spwahl;
+  spwahl.push_back("automatic");
+  spwahl.push_back("df");
+  spwahl.push_back("direct");
+  sp = stroption("sp",spwahl,"automatic");
   number = intoption("number",0,0,100);
   logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
-  // df_start =  = doubleoption("df_start",-1,-1,100);
   center = simpleoption("center",false);
   nofixed = simpleoption("nofixed",false);
   }
@@ -175,7 +178,6 @@ bool term_autoreg_stepwise::check(term & t)
     optlist.push_back(&number);
     optlist.push_back(&logscale);
     optlist.push_back(&df_accuracy);
-    // optlist.push_back(&df_start);
     optlist.push_back(&center);
     optlist.push_back(&nofixed);
 
@@ -201,21 +203,6 @@ bool term_autoreg_stepwise::check(term & t)
       return false;
       }
 
-    /*optlist.push_back(&lambda);
-    optlist.push_back(&lambdamin);
-    optlist.push_back(&lambdamax);
-    optlist.push_back(&lambdastart);
-    optlist.push_back(&forced_into);
-    optlist.push_back(&df_for_lambdamax);
-    optlist.push_back(&df_for_lambdamin);
-    optlist.push_back(&lambdamax_opt);
-    optlist.push_back(&lambdamin_opt);
-    optlist.push_back(&number);
-    optlist.push_back(&df_equidist);
-    optlist.push_back(&df_accuracy);
-    // optlist.push_back(&df_start);
-    optlist.push_back(&center);*/
-
 
     t.options.erase(t.options.begin(),t.options.end());
     t.options = vector<ST::string>(15);
@@ -231,10 +218,11 @@ bool term_autoreg_stepwise::check(term & t)
     t.options[6] = ST::doubletostring(dfmin.getvalue());
     t.options[7] = ST::doubletostring(dfmax.getvalue());
     t.options[8] = ST::doubletostring(dfstart.getvalue());
-    if (sp.getvalue()==false)
+    /*if (sp.getvalue()==false)
         t.options[9] = "false";
     else
-        t.options[9] = "true";
+        t.options[9] = "true"; */
+    t.options[9] = sp.getvalue();
     t.options[10] = ST::inttostring(number.getvalue());
     if (logscale.getvalue()==false)
         t.options[11] = "false";
@@ -323,7 +311,12 @@ term_season_stepwise::term_season_stepwise(void)
   dfmin = doubleoption("dfmin",11,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
   dfmax = doubleoption("dfmax",15,0,200);
   dfstart = doubleoption("dfstart",12,0,200);
-  sp = simpleoption("sp",false);
+  //sp = simpleoption("sp",false);
+  vector<ST::string> spwahl;
+  spwahl.push_back("automatic");
+  spwahl.push_back("df");
+  spwahl.push_back("direct");
+  sp = stroption("sp",spwahl,"automatic");
   number = intoption("number",0,0,100);
   logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
@@ -421,10 +414,11 @@ bool term_season_stepwise::check(term & t)
     t.options[7] = ST::doubletostring(dfmin.getvalue());
     t.options[8] = ST::doubletostring(dfmax.getvalue());
     t.options[9] = ST::doubletostring(dfstart.getvalue());
-    if (sp.getvalue()==false)
+    /*if (sp.getvalue()==false)
         t.options[10] = "false";
     else
-        t.options[10] = "true";
+        t.options[10] = "true"; */
+    t.options[10] = sp.getvalue();
     t.options[11] = ST::inttostring(number.getvalue());
     if(logscale.getvalue()==false)
         t.options[12] = "false";
@@ -496,14 +490,19 @@ term_pspline_stepwise::term_pspline_stepwise(void)
   gridsize = intoption("gridsize",-1,10,500);
   diagtransform = simpleoption("diagtransform",false);
   derivative = simpleoption("derivative",false);
-  spmin = doubleoption("spmin",0.0001,0.000001,100000000);
-  spmax = doubleoption("spmax",10000,0.000001,100000000);
+  spmin = doubleoption("spmin",0.0001,0.00000001,100000000);
+  spmax = doubleoption("spmax",10000,0.00000001,100000000);
   spstart = doubleoption("spstart",-1,-1,100000000);
   forced_into = simpleoption("forced_into",false);
   dfmin = doubleoption("dfmin",2,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
   dfmax = doubleoption("dfmax",10,0,200);
   dfstart = doubleoption("dfstart",1,0,200);
-  sp = simpleoption("sp",false);
+  //sp = simpleoption("sp",false);
+  vector<ST::string> spwahl;
+  spwahl.push_back("automatic");
+  spwahl.push_back("df");
+  spwahl.push_back("direct");
+  sp = stroption("sp",spwahl,"automatic");
   number = intoption("number",0,-1,100);
   logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
@@ -560,10 +559,14 @@ bool term_pspline_stepwise::check(term & t)
       t.type = "psplinerw1";
     else if (t.options[0] == "psplinerw2" && t.varnames.size() == 1)
       t.type = "psplinerw2";
+    else if (t.options[0] == "psplinerw1rw2" && t.varnames.size() == 1)
+      t.type = "psplinerw1rw2";
     else if (t.options[0] == "psplinerw1" && t.varnames.size() == 2)
       t.type = "varpsplinerw1";
     else if (t.options[0] == "psplinerw2" && t.varnames.size() == 2)
       t.type = "varpsplinerw2";
+    else if (t.options[0] == "psplinerw1rw2" && t.varnames.size() == 2)
+      t.type = "varpsplinerw1rw2";
     else if(t.options[0] == "linear")
       t.type = "linear";
     else
@@ -645,10 +648,11 @@ bool term_pspline_stepwise::check(term & t)
     t.options[11] = ST::doubletostring(dfmin.getvalue());
     t.options[12] = ST::doubletostring(dfmax.getvalue());
     t.options[13] = ST::doubletostring(dfstart.getvalue());
-    if (sp.getvalue()==false)
+    /*if (sp.getvalue()==false)
         t.options[14] = "false";
     else
-        t.options[14] = "true";
+        t.options[14] = "true";  */
+    t.options[14] = sp.getvalue();
     t.options[15] = ST::inttostring(number.getvalue());
     if(t.options[0] == "linear")
       {
@@ -749,14 +753,19 @@ term_spatial_stepwise::term_spatial_stepwise(void)
   type = "term_spatial";
   map=stroption("map");
   lambda = doubleoption("lambda",0.1,0,10000000);
-  spmin = doubleoption("spmin",0.0001,0.000001,10000000);
-  spmax = doubleoption("spmax",10000,0.000001,10000000);
-  spstart = doubleoption("spstart",10000,-1,10000000);
+  spmin = doubleoption("spmin",0.0001,0.00000001,100000000);
+  spmax = doubleoption("spmax",10000,0.00000001,100000000);
+  spstart = doubleoption("spstart",10000,-1,100000000);
   forced_into = simpleoption("forced_into",false);
   dfmin = doubleoption("dfmin",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
   dfmax = doubleoption("dfmax",10,0,500);
   dfstart = doubleoption("dfstart",1,0,500);
-  sp = simpleoption("sp",false);
+  //sp = simpleoption("sp",false);
+  vector<ST::string> spwahl;
+  spwahl.push_back("automatic");
+  spwahl.push_back("df");
+  spwahl.push_back("direct");
+  sp = stroption("sp",spwahl,"automatic");
   number = intoption("number",0,0,100);
   logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
@@ -795,6 +804,8 @@ bool term_spatial_stepwise::check(term & t)
       t.type = "spatial";
     else  if (t.options[0] == "spatial" && t.varnames.size()==2)
       t.type = "varcoeffspatial";
+    else if(t.options[0] == "spatialrandom")
+      t.type = "spatialrandom";
     else
       {
       setdefault();
@@ -858,10 +869,11 @@ bool term_spatial_stepwise::check(term & t)
     t.options[7] = ST::doubletostring(dfmin.getvalue());
     t.options[8] = ST::doubletostring(dfmax.getvalue());
     t.options[9] = ST::doubletostring(dfstart.getvalue());
-    if (sp.getvalue()==false)
+    /*if (sp.getvalue()==false)
         t.options[10] = "false";
     else
-        t.options[10] = "true";
+        t.options[10] = "true";    */
+    t.options[10] = sp.getvalue();
     t.options[11] = ST::inttostring(number.getvalue());
     if (logscale.getvalue()==false)
         t.options[12] = "false";
@@ -937,7 +949,12 @@ term_randomslope_stepwise::term_randomslope_stepwise(void)
   dfmin = doubleoption("dfmin",2,0,500);
   dfmax = doubleoption("dfmax",10,0,500);
   dfstart = doubleoption("dfstart",1,0,500);
-  sp = simpleoption("sp",false);
+  //sp = simpleoption("sp",false);
+  vector<ST::string> spwahl;
+  spwahl.push_back("automatic");
+  spwahl.push_back("df");
+  spwahl.push_back("direct");
+  sp = stroption("sp",spwahl,"automatic");
   number = intoption("number",0,0,100);
   logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
@@ -1034,10 +1051,11 @@ bool term_randomslope_stepwise::check(term & t)
     t.options[7] = ST::doubletostring(dfmin.getvalue());
     t.options[8] = ST::doubletostring(dfmax.getvalue());
     t.options[9] = ST::doubletostring(dfstart.getvalue());
-    if (sp.getvalue()==false)
+    /*if (sp.getvalue()==false)
         t.options[10] = "false";
     else
-        t.options[10] = "true";
+        t.options[10] = "true";      */
+    t.options[10] = sp.getvalue();
     t.options[11] = ST::inttostring(number.getvalue());
     if (logscale.getvalue()==false)
         t.options[12] = "false";
@@ -1103,15 +1121,20 @@ bool term_randomslope_stepwise::check(term & t)
 term_random_stepwise::term_random_stepwise(void)
   {
   type = "term_random";
-  lambda = doubleoption("lambda",0.1,0,10000000);
-  spmin = doubleoption("spmin",0.0001,0.000001,10000000);
-  spmax = doubleoption("spmax",10000,0.000001,10000000);
-  spstart = doubleoption("spstart",10000,0,10000000);
+  lambda = doubleoption("lambda",0.1,0,100000000);
+  spmin = doubleoption("spmin",0.0001,0.00000001,100000000);
+  spmax = doubleoption("spmax",10000,0.00000001,100000000);
+  spstart = doubleoption("spstart",10000,0,100000000);
   forced_into = simpleoption("forced_into",false);
   dfmin = doubleoption("dfmin",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
   dfmax = doubleoption("dfmax",10,0,500);
   dfstart = doubleoption("dfstart",1,0,500);
-  sp = simpleoption("sp",false);
+  //sp = simpleoption("sp",false);
+  vector<ST::string> spwahl;
+  spwahl.push_back("automatic");
+  spwahl.push_back("df");
+  spwahl.push_back("direct");
+  sp = stroption("sp",spwahl,"automatic");
   number = intoption("number",0,0,100);
   logscale = simpleoption("logsale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
@@ -1204,10 +1227,11 @@ bool term_random_stepwise::check(term & t)
     t.options[6] = ST::doubletostring(dfmin.getvalue());
     t.options[7] = ST::doubletostring(dfmax.getvalue());
     t.options[8] = ST::doubletostring(dfstart.getvalue());
-    if (sp.getvalue()==false)
+    /*if (sp.getvalue()==false)
         t.options[9] = "false";
     else
-        t.options[9] = "true";
+        t.options[9] = "true"; */
+    t.options[9] = sp.getvalue();
     t.options[10] = ST::inttostring(number.getvalue());
     if (logscale.getvalue()==false)
         t.options[11] = "false";
@@ -1387,7 +1411,12 @@ term_interactpspline_stepwise::term_interactpspline_stepwise(void)
   dfmin = doubleoption("dfmin",2,0,400);         // Unterscheidung rw1/rw2 bei default-Wert!!!
   dfmax = doubleoption("dfmax",10,0,400);
   dfstart = doubleoption("dfstart",0,0,400);
-  sp = simpleoption("sp",false);
+  //sp = simpleoption("sp",false);
+  vector<ST::string> spwahl;
+  spwahl.push_back("automatic");
+  spwahl.push_back("df");
+  spwahl.push_back("direct");
+  sp = stroption("sp",spwahl,"automatic");
   number = intoption("number",0,-1,100);
   logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,1);
@@ -1507,10 +1536,11 @@ bool term_interactpspline_stepwise::check(term & t)
    t.options[9] = ST::doubletostring(dfmin.getvalue());
    t.options[10] = ST::doubletostring(dfmax.getvalue());
    t.options[11] = ST::doubletostring(dfstart.getvalue());
-   if (sp.getvalue()==false)
+   /*if (sp.getvalue()==false)
        t.options[12] = "false";
    else
-       t.options[12] = "true";
+       t.options[12] = "true";   */
+   t.options[12] = sp.getvalue();
    t.options[13] = ST::inttostring(number.getvalue());
    if (logscale.getvalue()==false)
       t.options[14] = "false";
@@ -1619,7 +1649,12 @@ term_geospline_stepwise::term_geospline_stepwise(void)
   dfmin = doubleoption("dfmin",1,0,500);         // Unterscheidung rw1/rw2 bei default-Wert!!!
   dfmax = doubleoption("dfmax",10,0,500);
   dfstart = doubleoption("dfstart",1,0,500);
-  sp = simpleoption("sp",false);
+  //sp = simpleoption("sp",false);
+  vector<ST::string> spwahl;
+  spwahl.push_back("automatic");
+  spwahl.push_back("df");
+  spwahl.push_back("direct");
+  sp = stroption("sp",spwahl,"automatic");
   number = intoption("number",0,0,100);
   logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
@@ -1729,10 +1764,11 @@ bool term_geospline_stepwise::check(term & t)
     t.options[9] = ST::doubletostring(dfmin.getvalue());
     t.options[10] = ST::doubletostring(dfmax.getvalue());
     t.options[11] = ST::doubletostring(dfstart.getvalue());
-    if (sp.getvalue()==false)
+    /*if (sp.getvalue()==false)
         t.options[12] = "false";
     else
-        t.options[12] = "true";
+        t.options[12] = "true";      */
+    t.options[12] = sp.getvalue();
     t.options[13] = ST::inttostring(number.getvalue());
     if (logscale.getvalue()==false)
        t.options[14] = "false";
@@ -1826,7 +1862,12 @@ term_projection_stepwise::term_projection_stepwise(void)
   dfmin = doubleoption("dfmin",2,0,200);         // Unterscheidung rw1/rw2 bei default-Wert!!!
   dfmax = doubleoption("dfmax",10,0,200);
   dfstart = doubleoption("dfstart",1,0,200);
-  sp = simpleoption("sp",false);
+  //sp = simpleoption("sp",false);
+  vector<ST::string> spwahl;
+  spwahl.push_back("automatic");
+  spwahl.push_back("df");
+  spwahl.push_back("direct");
+  sp = stroption("sp",spwahl,"automatic");
   number = intoption("number",0,-1,100);
   logscale = simpleoption("logscale",false);
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
@@ -1951,10 +1992,11 @@ bool term_projection_stepwise::check(term & t)
     t.options[11] = ST::doubletostring(dfmin.getvalue());
     t.options[12] = ST::doubletostring(dfmax.getvalue());
     t.options[13] = ST::doubletostring(dfstart.getvalue());
-    if (sp.getvalue()==false)
+    /*if (sp.getvalue()==false)
         t.options[14] = "false";
     else
-        t.options[14] = "true";
+        t.options[14] = "true";  */
+    t.options[14] = sp.getvalue();
     t.options[15] = ST::inttostring(number.getvalue());
     if (logscale.getvalue()==false)
        t.options[16] = "false";

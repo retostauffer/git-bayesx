@@ -36,8 +36,6 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   int increment;
   int steps;
   ST::string startmodel;
-  bool fine_tuning;
-  bool finelocal;
   ST::string trace;
   double kriterium_tex;
   ofstream outmodels;
@@ -45,19 +43,9 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   ofstream outtex;
   ST::string smoothing;    // für Unterscheidung globaler / lokaler Glättungsparameter
   bool hierarchical;
-  bool miniback_off;
   int bootstrap;
   bool isboot;
   bool unconditional;
-
-  bool df_exact;
-  bool ganze_matrix;
-  vector<unsigned> xcut;
-  vector<unsigned> zcut;
-  datamatrix X;
-  datamatrix Z;
-
-  //unsigned BIC_min;
 
   vector<vector<double> > lambdavec;
   vector<ST::string> names_fixed;
@@ -72,9 +60,6 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   int steps_aktuell;
   //int window;
   vector<ST::string> posttitle;
-
-  bool finetuning(vector<double> & modell);
-  bool fine_local(vector<double> & modell);  // für Wahl lokaler Glättungsparameter
 
   void schaetzen(int z, double & kriterium, bool neu, ST::string variante);
 
@@ -181,17 +166,6 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
       vector<vector<double> > & modeliteration, vector<ST::string> & textiteration,
       unsigned & z, double & kriterium_aktuell);
 
-
-// -----------------------------------------------------------------------------
-// --------------------------- Mini-Backfitting --------------------------------
-// -----------------------------------------------------------------------------
-
-  bool blockbilden(vector<FULLCOND*> & fullcond_block, unsigned & z, unsigned & pos);
-
-  void minifullcond_aendern(FULLCOND* & fullcondz, vector<FULLCOND*> & fullcond, unsigned & pos);
-
-  void minibackfitting(vector<FULLCOND*> & fullcond);
-
 // -----------------------------------------------------------------------------
 // ------- Funktionen für die Erstellung des Startmodels -----------------------
 // -----------------------------------------------------------------------------
@@ -293,32 +267,6 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
 
 // -----------------------------------------------------------------------------
-// ------- Funktionen für Golden Section Search --------------------------------
-// -----------------------------------------------------------------------------
-
-  unsigned golden_section(unsigned & z, double & kriterium);
-
-//  double startbedingungen(unsigned & z, double & kriterium);
-
-//  void approx_zurueck(unsigned & z);
-
-//  void exact_zurueck(unsigned & z);
-
-//  double wert_einzeln(unsigned & z, unsigned i, double & df);
-
-//  double approx_einzeln(unsigned & z, unsigned & i, double & df);
-
-//  double exact_einzeln(unsigned & z, unsigned & i, double & df);
-
-//  int index_suchen(const unsigned & index, const vector<unsigned> & index_vec);
-
-//  int start_b_suchen(vector<unsigned> & index_vec, vector<double> & krit_vec,
-//                   double & df, unsigned & b, unsigned & z);
-
-//  double compute_findex(vector<unsigned> & index_vec, vector<double> & krit_vec,
-//                  unsigned & index, unsigned & z, double & df);
-
-// -----------------------------------------------------------------------------
 // ------------- Model Averaging -----------------------------------------------
 // -----------------------------------------------------------------------------
 
@@ -340,23 +288,6 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
   bool simulate(const vector<ST::string> & header, const int & seed,
                            const unsigned & startit, const unsigned & endit);
 
-//  void compute_average(ofstream & outweight);
-
-//  void save_alle_betas(vector<double> modell);
-
-/*  void alle_modelle_berechnen(double z, vector<double> & hilf,
-                      const vector<double> & best,
-                      const vector<double> & unten, const vector<double> & oben,
-                      vector<double> & kriterien_alle, vector<double> & priori,
-                      vector<vector<double> > & modelle, vector<ST::string> & ausgabe);   */
-
-/*  void occam(vector<double> & kriterien_alle, vector<double> & priori,
-           vector<vector<double> > & modelle, vector<ST::string> & ausgabe,
-           ofstream & outweight, vector<int> & vorgekommen);   */
-
-/*  void mc3(vector<double> & kriterien_alle, vector<double> & priori,
-           vector<vector<double> > & modelle, vector<ST::string> & ausgabe,
-           ofstream & outweight, vector<int> & vorgekommen);     */
 
 
   public:
@@ -389,11 +320,11 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
   bool stepwise(const ST::string & procedure, const ST::string & minimum,
          const ST::string & crit, const int & stp, const ST::string & trac,
-         const int & number, const ST::string & stam, const int & inc, const bool & finet,
-         const bool & fineloc, const int & boot, const bool & uncond, 
+         const int & number, const ST::string & stam, const int & inc,
+         const int & boot, const bool & uncond, 
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
-         const ST::string & CI, bool & hier, bool & gm, const double & prop, const bool & minib);
+         const ST::string & CI, bool & hier, const double & prop);
 
   double compute_criterion(void);
 

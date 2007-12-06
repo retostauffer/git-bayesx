@@ -229,3 +229,12 @@ envmatrix<double> Kseasonenv(const unsigned & per,const unsigned & s)
   return envmatrix<double>(env, diag, xenv, per-1);
   }
 
+
+envmatrix<double> Krw0env(const unsigned & nrpar)
+  {
+  vector<double> diag(nrpar,1);
+  vector<double> env;
+  vector<unsigned> xenv(nrpar+1,0);
+
+  return envmatrix<double>(env, diag, xenv, 0);
+  }

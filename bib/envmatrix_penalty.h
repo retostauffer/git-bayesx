@@ -36,4 +36,10 @@
 
   envmatrix<double> Kseasonenv(const unsigned & per,const unsigned & s);
 
+  // FUNCTION: Krw0env
+  // TASK: returns the identity matrix (penalty for a random effect)
+
+  envmatrix<double> Krw0env(const unsigned & nrpar);
+
+
 #endif

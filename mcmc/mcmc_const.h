@@ -158,10 +158,6 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
     negbin=true;
     }
 
-  virtual void beta_to_fix(const vector<double> & betas)
-    {
-    }
-
   virtual void update_fix_effect(const unsigned & pos, double & value, datamatrix fix)
     {
     }

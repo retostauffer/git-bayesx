@@ -67,8 +67,8 @@ class __EXPORT_TYPE term_autoreg_stepwise : public basic_termtype
   doubleoption dfmax;
   doubleoption dfmin;
   doubleoption dfstart;
-  simpleoption sp;
-  //simpleoption lambdamin_opt;
+  //impleoption sp;
+  stroption sp;
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -124,7 +124,8 @@ class __EXPORT_TYPE term_season_stepwise : public basic_termtype
   doubleoption dfmin;
   doubleoption dfmax;
   doubleoption dfstart;
-  simpleoption sp;
+  //simpleoption sp;
+  stroption sp;
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -182,7 +183,8 @@ class __EXPORT_TYPE term_pspline_stepwise : public basic_termtype
   doubleoption dfmin;
   doubleoption dfmax;
   doubleoption dfstart;
-  simpleoption sp;
+  //simpleoption sp;
+  stroption sp;  
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -213,7 +215,8 @@ class __EXPORT_TYPE term_pspline_stepwise : public basic_termtype
     assert(i< terms.size());
 
     if ( (terms[i].type == "psplinerw1") || (terms[i].type == "psplinerw2") ||
-         (terms[i].type == "varpsplinerw1") || (terms[i].type == "varpsplinerw2") )
+         (terms[i].type == "varpsplinerw1") || (terms[i].type == "varpsplinerw2") ||
+         (terms[i].type == "psplinerw1rw2") || (terms[i].type == "varpsplinerw1rw2"))
       return true;
 
     return false;
@@ -240,7 +243,8 @@ class __EXPORT_TYPE term_spatial_stepwise : public basic_termtype
   doubleoption dfmin;
   doubleoption dfmax;
   doubleoption dfstart;
-  simpleoption sp;
+  //simpleoption sp;
+  stroption sp;  
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -267,7 +271,8 @@ class __EXPORT_TYPE term_spatial_stepwise : public basic_termtype
 
     assert(i< terms.size());
 
-    if ( (terms[i].type == "spatial") ||  (terms[i].type == "varcoeffspatial"))
+    if ( (terms[i].type == "spatial") ||  (terms[i].type == "varcoeffspatial")
+         || (terms[i].type == "spatialrandom") )
       return true;
 
     return false;
@@ -294,7 +299,8 @@ class __EXPORT_TYPE term_randomslope_stepwise : public basic_termtype
   doubleoption dfmin;
   doubleoption dfmax;
   doubleoption dfstart;
-  simpleoption sp;
+  //impleoption sp;
+  stroption sp;  
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -346,7 +352,8 @@ class __EXPORT_TYPE term_random_stepwise : public basic_termtype
   doubleoption dfmin;
   doubleoption dfmax;
   doubleoption dfstart;
-  simpleoption sp;
+  //simpleoption sp;
+  stroption sp;  
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -449,7 +456,8 @@ class __EXPORT_TYPE term_interactpspline_stepwise : public basic_termtype
   doubleoption dfmin;
   doubleoption dfmax;
   doubleoption dfstart;
-  simpleoption sp;
+  //simpleoption sp;
+  stroption sp;  
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -500,7 +508,8 @@ class __EXPORT_TYPE term_geospline_stepwise : public basic_termtype
   doubleoption dfmin;
   doubleoption dfmax;
   doubleoption dfstart;
-  simpleoption sp;
+  //simpleoption sp;
+  stroption sp;
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -549,7 +558,8 @@ class __EXPORT_TYPE term_projection_stepwise : public basic_termtype
   doubleoption dfmin;
   doubleoption dfmax;
   doubleoption dfstart;
-  simpleoption sp;
+  //simpleoption sp;
+  stroption sp;  
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;

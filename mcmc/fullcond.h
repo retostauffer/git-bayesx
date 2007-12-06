@@ -173,20 +173,22 @@ class __EXPORT_TYPE FULLCOND
   double df_for_lambdamax;
   double df_for_lambdamin;
   double dfstart;
-  bool spfromdf;
+  //bool spfromdf;
+  ST::string spfromdf;
   int number;
   bool df_equidist;
   double df_accuracy;
   bool inthemodel;    //gibt an, ob Fullc-Obj. im aktuellen Modell enthalten ist
   bool fixornot;      // gibt an, ob statt Fullc-Obj. fixer Effekt da ist
-  int grenzfall;      // gibt den FG für lambda -> unendlich an!
-  ST::string smoothing;
   vector<FULLCOND*> interactions_pointer;
   datamatrix betaright;
   datamatrix beta_average;
   bool calculate_xwx;
   bool calculate_xwx_vc;
   bool nofixed;
+  bool kombimatrix;
+  unsigned numberofmatrices;
+  unsigned matrixnumber;
 
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
@@ -851,16 +853,6 @@ class __EXPORT_TYPE FULLCOND
     {
     }
 
-  const int & get_grenzfall(void)
-    {
-    return grenzfall;
-    }
-
-  void set_smoothing(ST::string & wert)
-    {
-    smoothing = wert;
-    }
-
   virtual void hierarchical(ST::string & possible)  // neu! für hierarchisches Modell
     {
     }
@@ -886,19 +878,6 @@ class __EXPORT_TYPE FULLCOND
      return 0;
      }
 
-  virtual void set_lambdas_vector(double & la)
-    {
-    }
-
-  virtual void set_lambda_nr(void)
-    {
-    }
-
-  //virtual double compute_penalterm(void)
-  //  {
-  //  return 0;
-  //  }
-
     // FUNCTION: compute_df
     // TASK: returns the approximate degrees of freedom of a smoother
 
@@ -915,7 +894,7 @@ class __EXPORT_TYPE FULLCOND
     // TASK: übergibt die Optionen der einzelnen Funktionen
 
   void set_stepwise_options(double lstart, double lmax, double lmin, bool forced,
-                            double df_lmax, double df_lmin, bool spdf, //bool lmax_opt, bool lmin_opt,
+                            double df_lmax, double df_lmin, ST::string spdf,
                             double numb, bool df_equi)
      {
      lambdamin=lmin;
@@ -984,7 +963,7 @@ class __EXPORT_TYPE FULLCOND
      return df_for_lambdamin;
      }
 
-  bool get_spfromdf(void)
+  ST::string get_spfromdf(void)
      {
      return spfromdf;
      }
@@ -1009,6 +988,26 @@ class __EXPORT_TYPE FULLCOND
      return df_accuracy;
      }
 
+  bool get_kombimatrix(void)
+    {
+    return kombimatrix;
+    }
+
+  unsigned get_numberofmatrices(void)
+    {
+    return numberofmatrices;
+    }
+
+  unsigned get_matrixnumber(void)
+    {
+    return matrixnumber;
+    }
+
+  void set_matrixnumber(unsigned mno)    // gibt an, für welche Strafmatrix das fullcond-Objekt zuständig ist
+    {
+    matrixnumber = mno;
+    }
+    
   // FUNCTION: update_stepwise
   // TASK: returns (usually) the current smoothing parameter
 
@@ -1020,14 +1019,6 @@ class __EXPORT_TYPE FULLCOND
   // TASK: returns a string of the estimated effect
 
   virtual ST::string get_effect(void)
-    {
-    return "";
-    }
-
-  // FUNCTION: get_befehl
-  // TASK: returns a string of the estimated effect to call a new command
-
-  virtual ST::string get_befehl(void)
     {
     return "";
     }
@@ -1089,22 +1080,6 @@ class __EXPORT_TYPE FULLCOND
   void compute_lambdavec_equi(vector<double> & lvec, int & number);
 
   double lambda_from_df(double & df_wunsch, double & lambda_vorg);
-
-  virtual void save_betas(vector<double> & modell, int & anzahl)
-    {
-    }
-
-  virtual void save_betas2(void)
-    {
-    }
-
-  virtual void average_posteriormode(vector<double> & crit_weights)
-    {
-    }
-
-  virtual void set_intercept_for_center(double & dazu)
-    {
-    }
 
   virtual void update_bootstrap(const bool & uncond=false);
 

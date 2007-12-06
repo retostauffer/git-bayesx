@@ -48,6 +48,7 @@ using MCMC::DISTRIBUTION_binomial;
 using MCMC::DISTRIBUTION_binomial_latent;
 using MCMC::DISTRIBUTION_poisson;
 using MCMC::DISTRIBUTION_gamma2;
+using MCMC::DISTRIBUTION_vargaussian;
 //using MCMC::DISTRIBUTION_nbinomial;
 using MCMC::DISTRIBUTION_multinom2;
 //using MCMC::DISTRIBUTION_multinomial_latent;
@@ -119,10 +120,6 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   stroption minimum;
 
-  simpleoption minibackfitting_off;
-
-  simpleoption ganzematrix;
-
   stroption criterion;
   doubleoption gcvfactor;
 
@@ -138,13 +135,8 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   intoption increment;
 
-  simpleoption fine_tuning;
-  simpleoption fine_local;
-
   intoption bootstrap;
   simpleoption unconditional;
-  //simpleoption maveraging;
-  //intoption window;
   intoption setseed;
 
   stroption CI;
@@ -170,6 +162,8 @@ class __EXPORT_TYPE stepwisereg : public statobject
   // OPTIONS for method regress
 
   ST::string add_name;
+
+  bool varianceest;
 
   simpleoption constscale;
 
@@ -310,6 +304,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
   DISTRIBUTION_binomial_latent distr_binomlat;
   DISTRIBUTION_poisson distr_poisson;
   DISTRIBUTION_gamma2 distr_gamma;
+  DISTRIBUTION_vargaussian distr_vargaussian;  
 //  DISTRIBUTION_nbinomial distr_nbinomial;
   //DISTRIBUTION_multgaussian distr_multgaussian;
   DISTRIBUTION_multinom2 distr_multinom;

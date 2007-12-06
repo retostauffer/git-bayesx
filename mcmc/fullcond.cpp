@@ -24,12 +24,13 @@ FULLCOND::FULLCOND(MCMCoptions * o,const datamatrix & d,
   df_accuracy = 0.05;
   inthemodel = false;
   fixornot = false;
-  grenzfall = 0;
-  smoothing = "global";
   interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
   calculate_xwx = true;
   calculate_xwx_vc = true;
   nofixed = false;
+  kombimatrix = false;
+  numberofmatrices = 1;
+  matrixnumber = 1;
 
   transformnonlinear = false;
   transformed =  false;
@@ -122,14 +123,15 @@ FULLCOND::FULLCOND(const FULLCOND & m)
   df_accuracy = m.df_accuracy;
   inthemodel = m.inthemodel;
   fixornot = m.fixornot;
-  grenzfall = m.grenzfall;
-  smoothing = m.smoothing;
-  interactions_pointer = m.interactions_pointer;  
+  interactions_pointer = m.interactions_pointer;
   betaright = m.betaright;
   beta_average = m.beta_average;
   calculate_xwx = m.calculate_xwx;
   calculate_xwx_vc = m.calculate_xwx_vc;
   nofixed = m.nofixed;
+  kombimatrix = m.kombimatrix;
+  numberofmatrices = m.numberofmatrices;
+  matrixnumber = m.matrixnumber;
 
   //---------------------------- end: for stepwise -----------------------------
 
@@ -241,14 +243,15 @@ const FULLCOND & FULLCOND::operator=(const FULLCOND & m)
   df_accuracy = m.df_accuracy;
   inthemodel = m.inthemodel;
   fixornot = m.fixornot;
-  grenzfall = m.grenzfall;
-  smoothing = m.smoothing;
-  interactions_pointer = m.interactions_pointer;  
+  interactions_pointer = m.interactions_pointer;
   betaright = m.betaright;
   beta_average = m.beta_average;
   calculate_xwx = m.calculate_xwx;
   calculate_xwx_vc = m.calculate_xwx_vc;
   nofixed = m.nofixed;
+  kombimatrix = m.kombimatrix;
+  numberofmatrices = m.numberofmatrices;
+  matrixnumber = m.matrixnumber;
 
   //------------------------------ end: stepwise -------------------------------
 
@@ -1262,7 +1265,8 @@ void FULLCOND::get_inthemodel(bool & drin, bool & fix)
 void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
   {
   double lambda_df, df_wunsch;
-  if(spfromdf==true)
+  if(spfromdf=="df" || spfromdf=="automatic")
+  //if(spfromdf==true)
     {
     df_wunsch = df_for_lambdamax;
     lambda_df = lambda_from_df(df_wunsch,lambdamax);
@@ -1276,7 +1280,8 @@ void FULLCOND::compute_lambdavec(vector<double> & lvec, int & number)
       + ST::doubletostring(lambdamax) + "\n\n");
       }
     }
-  if(spfromdf==true)
+  if(spfromdf=="df" || spfromdf=="automatic")
+  //if(spfromdf==true)
     {
     df_wunsch = df_for_lambdamin;
     lambda_df = lambda_from_df(df_wunsch,lambdamin);
@@ -1531,7 +1536,7 @@ void FULLCOND::update_beta_average(unsigned & samplesize)
      *workbetamean = betatransform;
    else
      *workbetamean = (1.0/(samplesize))*((samplesize-1)*(*workbetamean) + betatransform);
-   }
+   }     
   }
 
 

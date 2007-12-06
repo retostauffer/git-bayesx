@@ -198,11 +198,9 @@ out << endl;   */
 
   unsigned i;
   double u;
-  for(i=0;i<nrobs;i++,workresp++,worklin++,workw++)
+  for(i=0;i<nrobs;i++,workresp+=linearpred.cols(),worklin+=linearpred.cols(),workw++)
     {
     compute_bootstrap_data(worklin,workw,workresp);
-    //*workresp = compute_bootstrap_data(worklin,workw);
-    //*worklin + sqrt(scale(0,0) / *workw) * rand_normal();
     }
   }
 
@@ -5349,6 +5347,36 @@ double DISTRIBUTION_gaussian::compute_rss(void)
   }
 
 
+/*double DISTRIBUTION_gaussian::compute_logmsep(void)
+  {
+  unsigned i;
+
+  double * worklin = (*linpred_current).getV();
+  double * workresp = response.getV();
+  double * workweight = weight.getV();
+  double * work2 = weight2.getV();
+
+  double sum = 0;
+  double help;
+  double nr = 0;
+  double sigma2_halbe = trmult(0,0) * compute_rss()/(2 * get_nrobs_wpw());
+
+  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++,work2++)
+    {
+    if (*workweight == 0)
+      {
+      help = exp(trmult(0,0) * *workresp) - exp(trmult(0,0) * *worklin + sigma2_halbe);
+      //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
+                                          // Gewichten != 0, die andere 0/1 Variable
+      sum += help*help * *work2;
+      nr += 1;
+      }
+    }
+
+  return  sum;     // /nr;
+  } */
+
+
 double DISTRIBUTION_gaussian::compute_msep(void)
   {
   unsigned i;
@@ -7710,7 +7738,6 @@ void DISTRIBUTION_multinom2::compute_deviance(const double * response,
                                      const datamatrix & scale,const int & i)
                                      const
   {
-
   *deviance = 0;
   *deviancesat = 0;
   if(*weight > 0)
@@ -7720,14 +7747,23 @@ void DISTRIBUTION_multinom2::compute_deviance(const double * response,
     double summu = 0;
     for(j=0;j<linearpred.cols();j++,response++,mu++)
       {
+      double muv = *mu;
+      if(muv > 0.999)
+        muv = 0.999;
+      if(muv < 0.001)
+        muv = 0.001;
+
       if (*response > 0)
         {
         sumy += *response;
-        *deviance += *response * log(*mu);
+        *deviance += *response * log(muv);
         *deviancesat += *response * log(*response);
         }
-      summu += *mu;
+      summu += muv;
       }
+
+    if(summu > 0.999)
+      summu = 0.999;
 
     if ( 1-sumy > 0)
       {
@@ -7850,8 +7886,9 @@ void DISTRIBUTION_multinom2::compute_bootstrap_data(const double * linpred,const
   unsigned i,j;
   for(i=0;i<linearpred.cols();i++,linpred++)
     sum+= exp(*linpred);
-  for(i=0;i<linearpred.cols();i++,linpredstart++,wmu++)
-    *wmu = exp(*linpredstart)/sum;
+  linpred = linpredstart;
+  for(i=0;i<linearpred.cols();i++,linpred++,wmu++)
+    *wmu = exp(*linpred)/sum;
 
   double * wrespstart = wresp;
   for(i=0;i<linearpred.cols();i++,wresp++)
@@ -7860,7 +7897,7 @@ void DISTRIBUTION_multinom2::compute_bootstrap_data(const double * linpred,const
   wmu = mu.getV();
 
   double u;
-  i = 0;
+  i = 1;
   if(*weight>0)
     {
     while(i<=*weight)
@@ -7869,11 +7906,15 @@ void DISTRIBUTION_multinom2::compute_bootstrap_data(const double * linpred,const
       u = uniform();
       wresp = wrespstart;
       wmu = mu.getV();
+      bool erledigt = false;
       for(j=0;j<linearpred.cols();j++,wresp++,wmu++)
-        {  
+        {
         sum += *wmu;
-        if(u <= sum)
+        if(u <= sum && !erledigt)
+          {
           *wresp = *wresp + 1;
+          erledigt = true;
+          }
         }
       i += 1;
       }
@@ -7881,7 +7922,8 @@ void DISTRIBUTION_multinom2::compute_bootstrap_data(const double * linpred,const
     for(j=0;j<linearpred.cols();j++,wresp++)
       *wresp = *wresp / *weight;
     }
-  wresp = wrespstart + linearpred.cols() - 1;
+  wresp = wrespstart; // + linearpred.cols() - 1;
+  linpred = linpredstart;
   }
 
 //------------------------------------------------------------------------------
