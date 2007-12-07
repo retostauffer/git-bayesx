@@ -31,6 +31,11 @@
 
   envmatrix<double> Krw2env(const vector<double> & weight);
 
+  // FUNCTION: Krw3env
+  // TASK: returns the penalty matrix for a third order random walk
+
+  envmatrix<double> Krw3env(const unsigned & nrpar);
+
   // FUNCTION: Kseasonenv
   // TASK: returns the penalty matrix for a sesonal component with period 'per'
 

@@ -171,6 +171,40 @@ envmatrix<double> Krw2env(const vector<double> & weight)
   }
 
 
+
+envmatrix<double> Krw3env(const unsigned & nrpar)
+  {
+
+  unsigned i;
+
+  datamatrix D1(nrpar-3,nrpar-2,0);
+
+  for (i=0;i<D1.rows();i++)
+    {
+    D1(i,i) = -1;
+    D1(i,i+1) = 1;
+    }
+
+  datamatrix D2(nrpar-2,nrpar,0);
+
+  for (i=0;i<D2.rows();i++)
+    {
+    D2(i,i) = 1;
+    D2(i,i+1) = -2;
+    D2(i,i+2) = 1;
+    }
+
+  datamatrix D3;
+
+  D3 = D1*D2;
+
+  datamatrix K3 = D3.transposed()*D3;
+
+  return envmatrix<double>(K3);
+
+  }
+
+
 envmatrix<double> Kseasonenv(const unsigned & per,const unsigned & s)
   {
   assert(s > 2*(per-1));
