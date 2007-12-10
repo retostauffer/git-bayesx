@@ -568,8 +568,9 @@ namespace MCMC
       double priorsd = sqrt(*xivarp);
       fc_xivar.update();
 
-      double muhelp = beta.sum(0)*1000/(nbeta*1000*1000 + *xivarp);
-      double sdhelp = sqrt(*xivarp *1000*1000 / (nbeta*1000*1000 + *xivarp));
+      double hypersd = 1000;
+      double muhelp = beta.sum(0)*hypersd*hypersd/(nbeta*hypersd*hypersd + *xivarp);
+      double sdhelp = sqrt(*xivarp *hypersd*hypersd / (nbeta*hypersd*hypersd + *xivarp));
       *ximup = muhelp + sdhelp*rand_normal();
       double priormean = *ximup;
       fc_ximu.update();
