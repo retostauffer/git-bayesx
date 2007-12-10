@@ -2991,6 +2991,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           }
         if(nobs==0)
           nobs=D.rows();
+        meandata.round(digits,0,1,0,nobs);
         }
       else
         {

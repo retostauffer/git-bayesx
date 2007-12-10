@@ -257,7 +257,7 @@ namespace MCMC
 
   old = meandata;
 //  if(discretize)
-    old.round(digits,0,1,0,500);
+    old.round(digits,0,1,0,nbeta);
   setbeta(old);
 
 /*  ofstream out0("c:\\temp\\beta.raw");
@@ -569,7 +569,10 @@ namespace MCMC
       fc_xivar.update();
 
       double hypersd = 1000;
-      double muhelp = beta.sum(0)*hypersd*hypersd/(nbeta*hypersd*hypersd + *xivarp);
+      double betasum = 0;
+      for(i=0; i<nbeta; i++)
+        betasum += beta(i,0);
+      double muhelp = betasum*hypersd*hypersd/(nbeta*hypersd*hypersd + *xivarp);
       double sdhelp = sqrt(*xivarp *hypersd*hypersd / (nbeta*hypersd*hypersd + *xivarp));
       *ximup = muhelp + sdhelp*rand_normal();
       double priormean = *ximup;
@@ -596,7 +599,7 @@ namespace MCMC
         beta.round(digits,0,1,0,nbeta);
 
       // extract current f(x) from spline_basis
-      currentspline = splinep->get_spline();
+      currentspline = splinep->get_spline_merror();
 
       // call update_merror and compute new values for f(x).
       if(discretize)
@@ -604,12 +607,12 @@ namespace MCMC
       else
         splinep->update_merror(beta);
 
-      diffspline = splinep->get_spline()-currentspline;
+      diffspline = splinep->get_spline_merror()-currentspline;
 
       // full conditional for old values
       for(i=0; i<nbeta; i++)
         {
-        logfcold(i,0) = likep->loglikelihood(i,i,index) - 0.5*((old(i,0)-priormean)/priorsd)*((old(i,0)-priormean)/priorsd);
+        logfcold(i,0) = likep->loglikelihood(i,i,index,true) - 0.5*((old(i,0)-priormean)/priorsd)*((old(i,0)-priormean)/priorsd);
         for(j=0; j<merror; j++)
           {
           logfcold(i,0) -= 0.5*((data(i,j)-old(i,0))/mesd)*((data(i,j)-old(i,0))/mesd);
@@ -646,6 +649,8 @@ namespace MCMC
       currentspline.prettyPrint(out6);
       out6.close(); */
 
+      datamatrix accmat(nbeta,1,0);
+
       // compute acceptance probabilities; overwrite non-accepted values with old values
       for(i=0; i<nbeta; i++)
         {
@@ -655,6 +660,7 @@ namespace MCMC
         if(u <= (logfcnew(i,0)-logfcold(i,0)))
           {
           acceptance += 1.0;
+          accmat(i,0) = 1;
           }
         else
           {
@@ -669,9 +675,22 @@ namespace MCMC
         splinep->update_merror(beta);
 
       // Update the linear predictor
-      diffspline = splinep->get_spline()-currentspline;
+      diffspline = splinep->get_spline_merror()-currentspline;
       likep->addtocurrent(diffspline);
       likep->swap_linearpred();
+
+/*      ofstream out1("c:\\temp\\beta.raw");
+      beta.prettyPrint(out1);
+      out1.close();
+      ofstream out2("c:\\temp\\old.raw");
+      old.prettyPrint(out2);
+      out2.close();
+      ofstream out7("c:\\temp\\diffspline2.raw");
+      diffspline.prettyPrint(out7);
+      out7.close();
+      ofstream out8("c:\\temp\\accmat.raw");
+      accmat.prettyPrint(out8);
+      out8.close();*/
 
       FULLCOND::update();
       }

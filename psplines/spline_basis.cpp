@@ -4045,6 +4045,14 @@ void spline_basis::update_merror(datamatrix & newdata)
   begcol = vector<int>();
   index2 = vector<int>();
 
+  firstnonzero = deque<int>();
+  lastnonzero = deque<int>();
+  for(i=0;i<nrpar;i++)
+    {
+    lastnonzero.push_back(-1);
+    firstnonzero.push_back(0);
+    }
+
   make_index(newdata);
   make_index2();
 
@@ -4071,13 +4079,17 @@ void spline_basis::update_merror(datamatrix & newdata)
         Bcolmean(k+j,0) += *work;
         }
       }
+    for(k=j;k<nrpar;k++)
+      lastnonzero[k] += 1;
+    for(k=j+degree+1;k<nrpar;k++)
+      firstnonzero[k] += 1;
     }
 
   for(i=0;i<nrpar;i++)
     Bcolmean(i,0) /= double(nrdiffobs);
 
   // neuen Spline ausrechnen
-  multBS_index(spline, beta);
+//  multBS_index(spline, beta);
 
   // Zentrierung
 //    for(i=0; i<spline.rows(); i++)
@@ -4101,6 +4113,12 @@ void spline_basis::update_merror_discrete(datamatrix & newdata)
     spline(i,0) -= intercept;
   }
 
+datamatrix spline_basis::get_spline_merror(void)
+  {
+  datamatrix help(spline.rows(),1,0);
+  multBS_index(help, beta);
+  return help;
+  }
 
 
 // -------------------------END: FOR MERROR ------------------------------------
