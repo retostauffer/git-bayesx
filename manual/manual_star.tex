@@ -7,8 +7,10 @@
 \usepackage{dsfont}
 \usepackage{amsmath}
 \usepackage{dsfont}
+\usepackage{amssymb}
 
-%\usepackage{showkeys}
+
+% \usepackage{showkeys}
 %\usepackage{showidx}
 
 \usepackage{rotating}
@@ -27,8 +29,8 @@
 %    pdffitwindow=true,
     pdfstartview=FitB,
     pdftitle={BayesX Reference Manual},
-    pdfauthor={Andreas Brezger, Thomas Kneib and Stefan Lang with contributions
-    by Christiane Belitz, Eva-Maria Fronk, Andrea Hennerfeind,
+    pdfauthor={Christiane Belitz, Andreas Brezger, Thomas Kneib and Stefan Lang with contributions
+    by Eva-Maria Fronk, Andrea Hennerfeind,
     Petra Kragler, Manuela Hummel and Leyre Osuna Echavarr\'{\i}a},
     colorlinks=true,
     linkcolor=blue,
@@ -67,6 +69,102 @@
  \newcommand{\Var}{\mbox{Var}}
  \newcommand{\diag}{\mbox{diag}}
 
+
+\def \Mvec {\vec{M}}
+\def \Kvec {\vec{K}}
+\def \mM {\vec{M}}
+\def \Pvec {\vec{P}}
+\def \Svec {\vec{S}}
+\def \deltavec {\vec{\delta}}
+\def \lambdavec {\boldsymbol{\lambda}}
+\def \Lambdavec {\boldsymbol{\Lambda}}
+\def \betavec {\boldsymbol{\beta}}
+\def \etavec {\boldsymbol{\eta}}
+\def \gammavec {\boldsymbol{\gamma}}
+\def \Gammavec {\boldsymbol{\Gamma}}
+\def \Omegavec {\boldsymbol{\Omega}}
+\def \muvec {\boldsymbol{\mu}}
+\def \nuvec {\boldsymbol{\nu}}
+\def \pivec {\vec{\pi}}
+\def \thetavec {\vec{\theta}}
+\def \varthetavec{\vec{\vartheta}}
+\def \varepsilonvec {\boldsymbol{\varepsilon}}
+\def \zetavec {\vec{\zeta}}
+\def \Sigmavec {\boldsymbol{\Sigma}}
+\def \Thetavec {\boldsymbol{\theta}}
+
+\def \dvec {\mathbf{d}}
+\def \fvec {\mathbf{f}}
+\def \fhatvec {\mathbf{\hat{f}}}
+\def \svec {\mathbf{s}}
+\def \wvec {\mathbf{w}}
+\def \xvec {\mathbf{x}}
+\def \yvec {\mathbf{y}}
+\def \uvec {\mathbf{u}}
+\def \avec {\mathbf{a}}
+\def \zvec {\mathbf{z}}
+\def \bvec {\mathbf{b}}
+\def \tvec {\mathbf{t}}
+\def \mvec {\mathbf{m}}
+\def \cvec {\mathbf{c}}
+
+\def \ds {\displaystyle}
+
+\def \Gvec {\mathbf{G}}
+\def \Rvec {\mathbf{R}}
+\def \Avec {\mathbf{A}}
+\def \Bvec {\mathbf{B}}
+\def \Cvec {\mathbf{C}}
+\def \Dvec {\mathbf{D}}
+\def \Fvec {\mathbf{F}}
+\def \Kvec {\mathbf{K}}
+\def \Hvec {\mathbf{H}}
+\def \Ivec {\mathbf{I}}
+\def \Lvec {\mathbf{L}}
+\def \Uvec {\mathbf{U}}
+\def \Wvec {\mathbf{W}}
+\def \Yvec {\mathbf{Y}}
+\def \Zvec {\mathbf{Z}}
+\def \svec {\mathbf{s}}
+\def \Cvec {\mathbf{C}}
+\def \dvec {\mathbf{d}}
+\def \Avec {\mathbf{A}}
+\def \Pvec {\mathbf{P}}
+\def \Vvec {\mathbf{V}}
+\def \xivec {\mathbf{x_i}}
+\def \xjvec {\mathbf{x_j}}
+\def \betavecr {\vec{\beta_r}}
+\def \betadach {\hat{\vec{\beta}}}
+\def \betadachr {\vec{\hat{\beta}_r}}
+\def \betaschl {\vec{\tilde{\beta}}}
+\def \betaschlr {\vec{\tilde{\beta}_r}}
+\def \sschlr {\vec{\tilde{s}_r}}
+\def \Aschlr {\vec{\tilde{A}_r}}
+\def \Adach {\vec{\hat{A}}}
+\def \Avecr {\vec{A}_r}
+\def \Adachr {\vec{\hat{A}_r}}
+\def \Fdach {\vec{\hat{F}}}
+\def \Vdach {\vec{\hat{V}}}
+\def \Aschl {\vec{\tilde{A}}}
+\def \Xvec {\mathbf{X}}
+
+\def \nullvec {\boldsymbol{0}}
+
+\def \hvec {\vec{h}}
+\def \vvec {\vec{v}}
+\def \wvec {\vec{w}}
+\def \x1vec {\vec{x_1}}
+\def \xnvec {\vec{x_n}}
+
+\def \Kmat {\mathbf{K}}
+\def \Kmatj {\mathbf{K}_j}
+\def \Xmat {\mathbf{X}}
+\def \Vmat {\mathbf{V}}
+\def \Smat {\mathbf{S}}
+
+\def \einsvec {\boldsymbol{1}}
+
+
  \externaldocument{manual}
  \externaldocument{manual_tutorials}
 
@@ -86,7 +184,7 @@
 
 \vspace{0.5cm}
 
- {\em Version 1.50}
+ {\em Version 2.00}
 
 \vspace{0.5cm}
 
@@ -106,13 +204,14 @@
 
 {\em Developed by}
 
-Andreas Brezger\\
+Christiane Belitz \\
+Andreas Brezger (HypoVereinsbank Munich) \\
 Thomas Kneib (Ludwig-Maximilians-University Munich)\\
-Stefan Lang (Leopold-Franzens-University Innsbruck)\\
+Stefan Lang (University of Innsbruck)\\
 
 {\em With contributions by}
 
-Christiane Belitz\\
+
 Eva-Maria Fronk\\
 Andrea Hennerfeind\\
 Manuela Hummel\\
@@ -173,14 +272,18 @@ user, assume all risks when using it.
 \section{Introduction}
 
 In this manual we provide a brief overview of the methodological
-background for the two regression tools currently implemented in
+background for the three regression tools currently implemented in
 BayesX. The first regression tool ({\em bayesreg objects}) relies on
 Markov chain Monte Carlo simulation techniques and yields fully
 Bayesian posterior mean estimates. The second regression tool ({\em
 remlreg objects}) is based on the mixed model representation of
 penalised regression models with inference being based on penalised
 maximum likelihood and marginal likelihood (a generalisation of
-restricted maximum likelihood) estimation. Both regression tools
+restricted maximum likelihood) estimation. The third regression tool
+{\em stepwisereg objects} simultaneously  performs model choice and estimation.
+Inference is based on a penalized likelihood point of view of STAR models. MCMC techniques are
+partly used for computing interval estimates.
+All regression tools
 allow to estimate structured additive regression (STAR) models
 (Fahrmeir, Kneib and Lang, 2004) with complex semiparametric
 predictors. STAR models cover a number of well known model classes
@@ -202,7 +305,7 @@ times and multi-state data. Full details on STAR methodology can be
 found in the following references:
 
 \subsubsection*{Structured additive regression based on MCMC
-simulation:}
+simulation}
 
 \begin{itemize}
 \item Brezger, A., Lang, S. (2006)
@@ -229,8 +332,10 @@ simulation:}
       Journal of Computational and Graphical Statistics, 13, 183-212.
 \end{itemize}
 
+Presumably the best starting point is the paper by Brezger and Lang (2006).
+
 \subsubsection*{Structured additive regression based on mixed model
-methodology:}
+methodology}
 
 \begin{itemize}
 \item Fahrmeir, L., Kneib, T., Lang, S. (2004)
@@ -251,30 +356,87 @@ methodology:}
       Biometrics, 62, 109-118.\vspace{-0.25cm}
 \item Kneib, T., Hennerfeind, A. (2006)
       Bayesian Semiparametric Multi-State Models.
-      SFB 386 Discussion Paper 502.
+      Statistical Modeling, to appear.
 \end{itemize}
 
+Presumably the best starting point is the paper by Fahrmeir, Kneib and Lang (2004) or the monograph by Kneib (2006).
+
+\subsubsection*{Structured additive regression including model selection}
+
+\begin{itemize}
+\item Belitz, C. (2007) Model selection in Generalised Structured Additive Regression Models. Dr. Hut Verlag, M\"{u}nchen.
+\item Belitz, C.  and Lang, S. (2007) Simultaneous selection of variables and smoothing parameters
+in structured additive regression models. Revised for Computational Statistics and Data Analysis.
+\end{itemize}
+
+Presumably the best starting point is the paper by Belitz and Lang (2007).
+
+\subsubsection*{Guideline for the reader}
 
 
-\section{Observation model}\label{obsmodel}
+The rest of this manual is organized as follows:
 
-\index{Generalized linear model}\index{Exponential family} Bayesian
-generalized linear models assume that, given covariates $u$ and
-unknown parameters $\gamma$, the distribution of the response
+The next section describes the general structure of STAR models for distributions
+of the response variable belonging to an exponential family. The following
+sections \ref{penalizedleastsquares} - \ref{inference}
+discuss alternative approaches for specifying and estimating the different model terms
+in STAR models.
+Section \ref{penalizedleastsquares} describes the models from a more classical penalized
+least squares respectively likelihood perspective. A Bayesian point of view is taken in
+section \ref{priorassumptions}. The close connection to mixed models is highlighted in
+section \ref{glmmrep}.
+Section \ref{inference} gives a brief outline of the various inference techniques
+for STAR models. Fully Bayesian inference via MCMC simulation techniques is the topic of subsection
+\ref{fullbayes}. Inference based on mixed model technology is sketched in subsection  \ref{glmmmeth}.
+Simultaneous selection of relevant model terms and estimation of the parameters is described in subsection
+\ref{stepwiseest}.
+
+For most users of BayesX it is sufficient to read only parts of this manual. Some recommendations
+are given in the following Table \ref{guideline}.
+
+\begin{table}[ht]
+\footnotesize
+\begin{center}
+\begin{tabular}{|p{8cm}|p{5cm}|}
+\hline
+{\bf Intended use} & {\bf recommended sections } \\
+\hline
+semiparametric regression, fully Bayesian approach  & sections \ref{obsmodel}, \ref{priorassumptions} , \ref{fullbayes} \\
+\hline
+semiparametric regression, inference based on mixed model technology, classical perspective &
+sections \ref{obsmodel}, \ref{penalizedleastsquares}, \ref{glmmrep}, \ref{glmmmeth} \\
+\hline
+semiparametric regression, inference based on mixed model technology, Bayesian point of view & sections \ref{obsmodel}, \ref{priorassumptions},
+\ref{glmmrep}, \ref{glmmmeth} \\
+\hline
+semiparametric regression including model choice & sections \ref{obsmodel}, \ref{penalizedleastsquares}, \ref{stepwiseest} \\
+\hline
+\end{tabular}
+{\em \caption {\label{guideline} Guidelines for reading this manual.}}
+\end{center}
+\end{table}
+
+
+\section{Generalized regression models}
+\label{obsmodel}
+
+\index{Generalized linear model}\index{Exponential family}
+Generalized linear models assume that, given covariates $\uvec$ and
+unknown parameters $\gammavec$, the distribution of the response
 variable $y$ belongs to an exponential family, i.e.
 \begin{equation}
-\label{likel} p(y \, | \, u) = \exp \left( \frac{y \theta -
+\label{likel} p(y \, | \, \uvec) = \exp \left( \frac{y \theta -
 b(\theta)}{\phi} \right) c(y,\phi)
 \end{equation}
 where $b(\cdot)$, $c(\cdot)$, $\theta$ and $\phi$ determine the
 specific response distribution. A list of the most common
 distributions and their parameters can be found for example in
-Fahrmeir and Tutz (2001), page 21. The mean $\mu=E(y|u,\gamma)$ is
+Fahrmeir and Tutz (2001), page 21. The mean $\mu=E(y|\uvec,\gammavec)$ is
 linked to a linear predictor $\eta$ by
 \begin{equation}
-\label{glm} \mu=h(\eta) \qquad \eta= u'\gamma,
+\label{glm} \mu=h(\eta) \qquad \eta= \uvec'\gammavec,
 \end{equation}
-where $h$ is a known response function and $\gamma$ are unknown
+where $h$ is a known response function and $\gammavec$ are unknown
 regression parameters.
 
 In most practical regression situations, however, we are facing at
@@ -296,125 +458,420 @@ To overcome these difficulties, we replace the strictly linear
 predictor in (\ref{glm}) by a structured additive predictor
 \begin{equation}
 \label{gampred}
-\eta_{r}=f_{1}(x_{r1})+\dots+f_{p}(x_{rp})+u_r'\gamma,
+\eta=f_{1}(x_{1})+\ldots+f_{p}(x_{p})+\uvec'\gammavec,
 \end{equation}
-where $r$ is a generic observation index, the $x_j$ denote generic
+where $x_j$ denote
 covariates of different type and dimension, and $f_j$ are (not
 necessarily smooth) functions of the covariates. The functions $f_j$
 comprise usual nonlinear effects of continuous covariates, time
 trends and seasonal effects, two-dimensional surfaces, varying
 coefficient models, i.i.d. random intercepts and slopes as well as
-spatial effects. In order to demonstrate the generality of the
-approach we point out some special cases of (\ref{gampred}) well
-known from the literature:
+spatial effects. STAR-models cover a number of special cases
+well known from the literature, in particular {\em Generalized additive models (GAM)},
+{\em Generalized additive mixed models (GAM)}, {\em Geoadditive models}, {\em Multilevel models},
+{\em Varying coefficient models (VCM)}, {\em ANOVA type interaction models} and {\em geographically weighted regression}.
 
-\begin{itemize}
-\item {\em Generalized additive model (GAM) for cross-sectional data} \\
-A GAM is obtained if  the $x_j$, $j=1,\dots,p$, are univariate and
-continuous and $f_j$ are smooth functions. In {\em BayesX} the
-functions $f_j$ are modelled either by random walk priors or
-P-splines, see \autoref{psplines}.\index{Generalized additive model}
+%\begin{itemize}
+%\item } \\
+%A GAM is obtained if  the $x_j$, $j=1,\dots,p$, are univariate and
+%continuous and $f_j$ are smooth functions.
+%\index{Generalized additive model}
+%\item {\em Generalized additive mixed model (GAMM)} \\
+%A GAMM is included
+%
+%Consider longitudinal data for individuals $i=1,\dots,n,$ observed
+%at time points $t \in \{ t_1,t_2,\dots \}$. For notational
+%simplicity we assume the same time points for every individual,
+%but generalizations to individual specific time points are
+%obvious. A GAMM extends a GAM by introducing individual specific
+%random effects, i.e.
+%$$
+%\eta_{it} = f_1(x_{it1})+\dots+f_k(x_{itk}) + b_{1i} w_{it1}  +
+%\cdots + b_{qi} w_{itq}  + u_{it}'\gamma
+%$$
+%where $\eta_{it},x_{it1},\dots,x_{itk},w_{it1},\dots,w_{itq},u_{it}$
+%are predictor and covariate values for individual $i$ at time $t$
+%and $b_i=(b_{1i},\dots,b_{qi})$ is a vector of $q$ i.i.d.~random
+%intercepts (if $w_{itj} = 1$) or random slopes. The random effects
+%components are modelled by i.i.d.~Gaussian priors, see
+%\autoref{random}. GAMM's can be subsumed into (\ref{gampred}) by
+%defining $r=(i,t)$, $x_{rj} = x_{itj}$, $j=1,\dots,k$, $x_{r,k+h} =
+%w_{ith}$, and $f_{k+h}(x_{r,k+h}) = b_{hi} w_{ith}$, $h=1,\dots,q$.
+%Similarly, GAMM's for cluster data can be written in the general
+%form (\ref{gampred}).\index{Generalized additive mixed model}
+%
+%\item {\em Geoadditive Models} \\
+%In many situations additional geographic information is available
+%for the observations in the data set. As an example, compare the
+%demonstrating example on determinants of childhood undernutrition in
+%Zambia in the tutorial manual. The district where the mother of a
+%child lives is given as a covariate and may be used as an indicator
+%for regional differences in the health status of children. A
+%reasonable predictor for such data is given by
+%\begin{equation}
+%\eta_{r} = f_1(x_{r1})+\dots+f_k(x_{rk}) + f_{spat}(s_{r}) + u_r'
+%\gamma
+%\end{equation}
+%where $f_{spat}$ is an additional spatially correlated effect of the
+%location $s_{r}$ an observation pertains to. Models with a predictor
+%that contains a spatial effect are also called geoadditive models,
+%see Kammann and Wand (2003). In {\em BayesX}, spatial effects can be
+%modeled by Markov random fields (Besag, York and Mollie (2003)),
+%stationary Gaussian random fields (Kriging, Kamman and Wand, 2003),
+%or two-dimensional P-splines (Lang and Brezger, 2006).\index{Geoadditive model}
+%
+%\item {\em Varying coefficient model (VCM) - Geographically weighted regression} \\
+%A VCM as proposed by Hastie and Tibshirani (1993) is defined by
+%$$
+%\eta_{r} = g_1(w_{r1}) z_{r1} + \cdots + g_p(w_{rp}) z_{rp},
+%$$
+%where the effect modifiers $w_{rj}$ are continuous covariates or
+%time scales and the interacting variables $z_{rj}$ are either
+%continuous or categorical. A VCM can be cast into the general form
+%(\ref{gampred}) with $x_{rj} = (w_{rj},z_{rj})$ and by defining the
+%special function $f_j(x_{rj}) = f_j(w_{rj},z_{rj}) =
+%g_j(w_{rj})z_{rj}$. Note that in {\em BayesX} the effect modifiers
+%are not necessarily restricted to be continuous variables as in
+%Hastie and Tibshirani (1993). For example, the geographical location
+%may be used as effect modifier as well. VCMs with spatially varying
+%regression coefficients are well known in the geography literature
+%as {\em geographically weighted regression}, see e.g.~Fotheringham,
+%Brunsdon, and Charlton (2002).\index{Varying coefficient
+%models}\index{Geographically weighted regression}
+%\item {\em ANOVA type interaction model} \\
+%Suppose $w_{r}$ and $z_{r}$ are two continuous covariates. Then,
+%the effect of $w_{r}$ and $z_{r}$ may be modelled by a predictor
+%of the form
+%$$
+%\eta_r = f_{1}(w_{r})+f_{2}(z_{r})+f_{1|2}(w_{r},z_{r}) + \dots,
+%$$
+%see e.g. Chen (1993). The functions $f_1$ and $f_2$ are the main
+%effects of the two covariates and $f_{1|2}$ is a two-dimensional
+%interaction surface which can be modelled e.g. by two-dimensional
+%P-splines, see \autoref{interactions}. The interaction can be cast
+%into the form (\ref{gampred}) by defining $x_{r1}=w_r$, $x_{r2}=z_r$
+%and  $x_{r3} = (w_{r},z_{r})$.
+%\end{itemize}
+%
+%%At first sight it may look strange to use one general notation for
+%%nonlinear functions of continuous covariates, i.i.d. random
+%%intercepts and slopes, and spatially correlated effects as in
+%%$(\ref{gampred})$. However, the unified treatment of the different
+%%components in the model has several advantages:
+%%\begin{itemize}
+%%\item Since we adopt a Bayesian perspective it is generally not necessary to distinguish between
+%%fixed and random effects because in a Bayesian approach all
+%%unknown parameters are assumed to be random. \vspace{-0.2cm}
+%%\item As we will see below in \autoref{priorassumptions}  the priors for smooth functions, two-dimensional
+%%surfaces, i.i.d., serially and spatially correlated effects can be
+%%cast into a general form as well. \vspace{-0.2cm}
+%%\item The general form of both predictors and priors allows for rather general and unified estimation procedures,
+%%see \autoref{inference}. As a  side effect the implementation and
+%%description of these procedures is considerably facilitated.
+%%\end{itemize}
+%
+\section{Penalized least squares and likelihood}
+\label{penalizedleastsquares}
 
-\item {\em Generalized additive mixed model (GAMM) for longitudinal data} \\
-Consider longitudinal data for individuals $i=1,\dots,n,$ observed
-at time points $t \in \{ t_1,t_2,\dots \}$. For notational
-simplicity we assume the same time points for every individual,
-but generalizations to individual specific time points are
-obvious. A GAMM extends a GAM by introducing individual specific
-random effects, i.e.
+In BayesX the nonlinear functions $f_j$ are modeled by a basis functions approach, i.e. a particular nonlinear function $f$ is approximated by
+a linear combination of basis functions:
 $$
-\eta_{it} = f_1(x_{it1})+\dots+f_k(x_{itk}) + b_{1i} w_{it1}  +
-\cdots + b_{qi} w_{itq}  + u_{it}'\gamma
+f(x) = \sum_{k=1}^{K} \beta_k B_k(x)
 $$
-where $\eta_{it},x_{it1},\dots,x_{itk},w_{it1},\dots,w_{itq},u_{it}$
-are predictor and covariate values for individual $i$ at time $t$
-and $b_i=(b_{1i},\dots,b_{qi})$ is a vector of $q$ i.i.d.~random
-intercepts (if $w_{itj} = 1$) or random slopes. The random effects
-components are modelled by i.i.d.~Gaussian priors, see
-\autoref{random}. GAMM's can be subsumed into (\ref{gampred}) by
-defining $r=(i,t)$, $x_{rj} = x_{itj}$, $j=1,\dots,k$, $x_{r,k+h} =
-w_{ith}$, and $f_{k+h}(x_{r,k+h}) = b_{hi} w_{ith}$, $h=1,\dots,q$.
-Similarly, GAMM's for cluster data can be written in the general
-form (\ref{gampred}).\index{Generalized additive mixed model}
+The $B_k$ are known basis functions and $\betavec = (\beta_1,\dots,\beta_K)'$ is a vector of unknown regression coefficients to be estimated.
+To ensure enough flexibility, typically a large number of basis functions is defined. To avoid overfitting a roughness penalty on the
+regression coefficients
+is additionally specified. We use quadratic penalties of the form $\betavec' \Pvec(\lambdavec) \betavec$ where $\Pvec(\lambdavec)$
+is a penalty matrix. The penalty depends on one or multiple smoothing parameters $\lambdavec$ that govern the
+amount of smoothness imposed on the function $f$. Most penalty matrices are of the particular simple form
+$\Pvec(\lambdavec) = \lambda \Kvec$ where $\lambda$ is a scalar smoothing parameter. For {\em stepwisereg objects} more complicated
+penalties are sometimes possible. They are an additive combination of penalty matrices. An example is
+$\Pvec(\lambdavec) = \lambda_1 \Kvec_1+\lambda_2 \Kvec_2$ where $\lambda_1$ and $\lambda_2$ are smoothing parameters and $\Kvec_1$ and $\Kvec_2$
+are penalty matrices.
 
-\item {\em Geoadditive Models} \\
-In many situations additional geographic information is available
-for the observations in the data set. As an example, compare the
-demonstrating example on determinants of childhood undernutrition in
-Zambia in the tutorial manual. The district where the mother of a
-child lives is given as a covariate and may be used as an indicator
-for regional differences in the health status of children. A
-reasonable predictor for such data is given by
+The choice of basis functions $B_1,\dots,B_K$ and penalty  $\Pvec(\lambdavec)$ depends on our prior assumptions about the smoothness
+of $f$ as well as
+the type and dimension of $x$. We will give specific examples below. Defining the $n \times K$ design matrix $\Xvec$ with elements
+$X[i,k] = B_k(x_i)$ the
+vector $\fvec = (f(x_1),\dots,f(x_n))'$ of function evaluations can be written in matrix notation as $\fvec = \Xvec \betavec$.
+Accordingly,  for model (\ref{gampred}) we obtain
+$$
+\etavec = \Xvec_1 \betavec_1 + \ldots + \Xvec_p \betavec_p + \Uvec \gammavec +  \varepsilonvec,
+$$
+where $\Uvec$ is the design matrix for linear effects, $\gammavec$ is the vector of regression coefficients for linear effects, and
+$\varepsilonvec$
+are the vectors of observations and errors.
+In the next subsections we will give specific examples for modeling the unknown functions $f_j$ or in other words for the choice of basis functions and
+penalty matrices.
+We start with modeling the effect of continuous covariates using splines.
+
+\subsection{Continuous covariates}
+\subsubsection{P(enalized)-splines}
+Suppose first that a particular component $x$ of the covariate  is univariate and continuous. There is a considerable
+amount of literature on basis functions approaches
+in combination with a (quadratic) roughness penalty for continuous covariates.
+BayesX applies the P-splines approach introduced by Eilers and Marx (1996).
+The approach assumes that the unknown functions can be approximated
+by a polynomial spline of degree $l$
+and with equally spaced knots
+$$
+x_{min} = \zeta_{0}  < \zeta_{1} < \dots < \zeta_{m-1} < \zeta_{m} = x_{max}
+$$
+over the domain of
+$x$.
+The spline can be written in terms of a linear combination of $K=m+l$
+B-spline basis functions.
+The columns of the design matrix $\Xvec$ are given by the B-spline basis functions
+evaluated at the observations $x_i$. To overcome the well known difficulties involved with regression
+splines, Eilers and Marx (1996)  suggest a relatively large
+number of knots (usually between 20 to 40) to ensure enough
+flexibility, and to introduce a roughness
+penalty on adjacent regression coefficients based on
+squared $r$-th order differences, i.e.
+$$
+\betavec' \lambda \Kvec \betavec = \lambda \sum_{k=r+1}^K (\Delta^r \beta_k)^2.
+$$
+The penalty matrix is given by $\Kvec =  \Dvec_r' \Dvec_r$ where $\Dvec_r$ is a $r$-th order difference matrix.
+Typically, second or third order differences are used. The limiting behavior $\lambda \rightarrow \infty$ depends both on the
+order of the spline
+and the order of the penalty. If the order of the spline is equal to or
+higher than the order of  the penalty, which is typically the case, then a polynomial
+fit of degree $r-1$ is obtained in the limit.
+
+The approach can be extended to impose monotonicity or more general shape constraints.
+We follow an approach proposed by Bollaerts, Eilers, and Van Mechelen (2006).
+A sufficient condition for a decreasing
+spline is given by $\beta_{k} \leq \beta_{k-1}$, i.e.  a parameter $\beta_{k}$ is less than its predecessor $\beta_{k-1}$.
+The simple but powerful idea  is to impose the
+required constraint by expanding the penalty by an additional  term. More specifically they propose
+the composed penalty
+$$
+\Pvec(\lambdavec) =  \betavec' \left( \lambda_1 \Kvec_1 + \lambda_2 \Kvec_2 \right) \betavec
+$$
+where $\lambda_1$ and $\Kvec_1$ are the usual smoothing parameter and penalty matrix for P-splines.
+The additional penalty matrix $\Kvec_2$ is a diagonal matrix with entries 1 whenever the
+condition $\beta_{k} \leq \beta_{k-1}$ fails and 0 otherwise.
+For increasing functions $\Kvec_2$ has to be adapted accordingly. The parameter $\lambda_2$ is not estimated but set large enough to
+produce monotonic functions.
+
+
+
+
+
+\subsubsection{Tensor product P-splines}
+\label{tensorproductpsplines}
+Assume now that $x$ is two dimensional, i.e.
+$x = \left(x^{(1)},x^{(2)}\right)'$ with continuous components
+$x^{(1)}$ and $x^{(2)}$. The aim is to extend the univariate
+P-spline from the preceding section to two dimensions.
+A common approach is to approximate the unknown surface $f(x)$ by the tensor product of one
+dimensional B-splines, i.e.
 \begin{equation}
-\eta_{r} = f_1(x_{r1})+\dots+f_k(x_{rk}) + f_{spat}(s_{r}) + u_r'
-\gamma
+\label{gampspline_2dimterm} f\left(x^{(1)},x^{(2)}\right) = \sum_{k=1}^{K_1}
+\sum_{s=1}^{K_2} \beta_{ks} B_{1,k}(x^{(1)})
+B_{2,s} (x^{(2)}),
 \end{equation}
-where $f_{spat}$ is an additional spatially correlated effect of the
-location $s_{r}$ an observation pertains to. Models with a predictor
-that contains a spatial effect are also called geoadditive models,
-see Kammann and Wand (2003). In {\em BayesX}, spatial effects can be
-modelled by Markov random fields (Besag, York and Mollie (2003)),
-stationary Gaussian random fields (Kriging, Kamman and Wand, 2003),
-or two-dimensional P-splines (Lang and Brezger, 2006), compare
-\autoref{spatial}.\index{Geoadditive model}
+where $B_{11},\dots,B_{1K_1}$ are the basis functions in $x^{(1)}$ direction and
+$B_{21},\dots,B_{2K_2}$ in $x^{(2)}$ direction.
+The $n \times K = n \times K_1 K_2$ design matrix $\Xvec$ now consists of
+products of basis functions.
 
-\item {\em Varying coefficient model (VCM) - Geographically weighted regression} \\
-A VCM as proposed by Hastie and Tibshirani (1993) is defined by
+Several alternatives are available for the penalty matrix $\Pvec(\lambdavec)$:
+\begin{enumerate}
+\item[a)] {\em Penalty based on first differences:} The
+two dimensional generalization of a penalty based on first differences is given by combining row- and column wise quadratic differences
 $$
-\eta_{r} = g_1(w_{r1}) z_{r1} + \cdots + g_p(w_{rp}) z_{rp},
+\begin{array}{l}
+\displaystyle \sum_{k=2}^{K_1}\sum_{s=1}^{K_2}(\beta_{ks}-\beta_{k-1,s})^2 =
+\betavec'(\Ivec_{K_2}\otimes \Dvec_1)'(\Ivec_{K_2}\otimes \Dvec_1)\betavec \\[0.4cm]
+\displaystyle  \sum_{k=1}^{K_1}\sum_{s=2}^{K_2}(\beta_{ks}-\beta_{k,s-1})^2 =
+\betavec'(\Dvec_2\otimes \Ivec_{K_1})'(\Dvec_2\otimes \Ivec_{K_1})\betavec \\
+\end{array}
 $$
-where the effect modifiers $w_{rj}$ are continuous covariates or
-time scales and the interacting variables $z_{rj}$ are either
-continuous or categorical. A VCM can be cast into the general form
-(\ref{gampred}) with $x_{rj} = (w_{rj},z_{rj})$ and by defining the
-special function $f_j(x_{rj}) = f_j(w_{rj},z_{rj}) =
-g_j(w_{rj})z_{rj}$. Note that in {\em BayesX} the effect modifiers
-are not necessarily restricted to be continuous variables as in
-Hastie and Tibshirani (1993). For example, the geographical location
-may be used as effect modifier as well. VCMs with spatially varying
-regression coefficients are well known in the geography literature
-as {\em geographically weighted regression}, see e.g.~Fotheringham,
-Brunsdon, and Charlton (2002).\index{Varying coefficient
-models}\index{Geographically weighted regression}
-\item {\em ANOVA type interaction model} \\
-Suppose $w_{r}$ and $z_{r}$ are two continuous covariates. Then,
-the effect of $w_{r}$ and $z_{r}$ may be modelled by a predictor
-of the form
+to the penalty
 $$
-\eta_r = f_{1}(w_{r})+f_{2}(z_{r})+f_{1|2}(w_{r},z_{r}) + \dots,
+\betavec'\Pvec(\lambdavec) \betavec =  \betavec' \lambda \left[ (\Ivec_{K_2}\otimes \Dvec_1)'(\Ivec_{K_2}\otimes \Dvec_1) + (\Dvec_2\otimes \Ivec_{K_1})'
+(\Dvec_2\otimes \Ivec_{K_1})\right]\betavec.
 $$
-see e.g. Chen (1993). The functions $f_1$ and $f_2$ are the main
-effects of the two covariates and $f_{1|2}$ is a two-dimensional
-interaction surface which can be modelled e.g. by two-dimensional
-P-splines, see \autoref{interactions}. The interaction can be cast
-into the form (\ref{gampred}) by defining $x_{r1}=w_r$, $x_{r2}=z_r$
-and  $x_{r3} = (w_{r},z_{r})$.
-\end{itemize}
-
-At first sight it may look strange to use one general notation for
-nonlinear functions of continuous covariates, i.i.d. random
-intercepts and slopes, and spatially correlated effects as in
-$(\ref{gampred})$. However, the unified treatment of the different
-components in the model has several advantages:
+Another way of expressing the penalty is given by
+\begin{equation}
+\label{2dpenalty}
+ \betavec'\Pvec(\lambda)\betavec = \betavec'\lambda \left[\Ivec_{K_2}\otimes\Kvec_1 + \Kvec_2\otimes \Ivec_{K_1}\right]\betavec,
+\end{equation}
+where $\Kvec_1$ and $\Kvec_2$ are the respective one dimensional penalty matrices.
+In the limit  $\lambda \rightarrow \infty$ a constant fit is obtained.
+\item[b)] {\em Penalty based on second differences:} In a similar way two dimensional penalties based on higher order differences
+are constructed. A second order difference penalty is obtained if  $\Kvec_1$ and $\Kvec_2$ in (\ref{2dpenalty}) correspond to
+penalty matrices based on second rather than first differences.
+Similar to one dimensional P-splines the limit $\lambda \rightarrow \infty$ results in a linear fit, i.e.
+$$
+f\left(z^{(1)},z^{(2)}\right) = c_0 + c_1 \, z^{(1)} + c_2 \, z^{(2)} + c_3 \, z^{(1)} z^{(2)}.
+$$
+\item[c)] {\em Anisotropic penalty:} The two penalties considered so far are not capable of
+different penalization in $z^{(1)}$ and $z^{(2)}$ direction, respectively. Anisotropic penalties are obtained by assuming
+separate smoothing parameters $\lambda_1$ and $\lambda_2$ in $z^{(1)}$ and $z^{(2)}$ direction. The penalty is then given by
+\begin{equation}
+\label{penalty_eilmar}
+ \betavec'\Pvec(\lambdavec) \betavec = \betavec'\left[\lambda_1 \Ivec_{K_2}\otimes\Kvec_1 + \lambda_2 \Kvec_2\otimes \Ivec_{K_1}\right]\betavec.
+\end{equation}
+The resulting fit in the limit $\lambda_1 \rightarrow \infty$ and $\lambda_2 \rightarrow \infty$ depends on the penalty used to construct
+$\Kvec_1$ and $\Kvec_2$. If $\Kvec_1$ and $\Kvec_2$ correspond to a first order difference penalty a constant fit is obtained in the limit.
+Second order difference penalties result in a linear fit for $f\left(z^{(1)},z^{(2)}\right)$.
+\item[d)] {\em Penalties with main effects in the limit:} Sometimes it is desirable to decompose the effect of the two covariates
+$z^{(1)}$ and $z^{(2)}$ into two main effects modeled by one dimensional functions
+and a two dimensional interaction effect, i.e.
+\begin{equation}
+\label{gampspline_2dimtermmain}
+f \left(z^{(1)},z^{(2)}\right) = f_1\left(z^{(1)} \right) +
+f_2 \left(z^{(2)}\right) + f_{1|2}\left( z^{(1)},z^{(2)} \right).
+\end{equation}
+Usually a two dimensional surface smoother  together with two additional  one dimensional P-splines
+(or other smoothers) are estimated. This approach is possible with {\em bayesreg objects} and {\em remlreg objects}.
+{\em stepwisereg objects} take, however, a different approach. We specify a two dimensional surface based on tensor product P-splines and
+compute the decomposition of the
+resulting surface
+into main effects and the interaction effect {\em after} estimation. Moreover, we specify a penalty that allows for a main effects only
+model as a special
+case. This allows to discriminate between a simple  main effects model and a more complicated two way interactions model.
+A penalty that guarantees  a main effects model in the limit is defined by the Kronecker product of the two penalty matrices for one dimensional P-splines, i.e.
+\begin{equation}
+\label{penalty_kronecker}
+\betavec'\Pvec(\lambda)\betavec = \betavec' \lambda \Kvec_1 \otimes \Kvec_2 \betavec.
+\end{equation}
+The drawback of this penalty is that the limit $\lambda \rightarrow \infty $ yields {\em unpenalized} main effects, i.e. wiggly functions.
+We therefore use a modified penalty which is effectively a combination of the two  penalties  (\ref{penalty_eilmar}) and
+(\ref{penalty_kronecker}). More specifically
+we define
+\begin{equation}
+\label{penalty_comb}
+\betavec'\Pvec(\lambdavec)\betavec = \betavec' \left[\frac{\lambda_1}{K_1}
+\Ivec_{K_2}\otimes\Kvec_1 + \frac{\lambda_2}{K_2} \Kvec_2\otimes \Ivec_{K_1}+\lambda_3 \Kvec_1 \otimes \Kvec_2   \right] \betavec,
+\end{equation}
+where $\Kvec_1$ and $\Kvec_2$ are penalty matrices corresponding to one dimensional P-splines based on first or second order differences.
+This penalty has the following nice properties:
 \begin{itemize}
-\item Since we adopt a Bayesian perspective it is generally not necessary to distinguish between
-fixed and random effects because in a Bayesian approach all
-unknown parameters are assumed to be random. \vspace{-0.2cm}
-\item As we will see below in \autoref{priorassumptions}  the priors for smooth functions, two-dimensional
-surfaces, i.i.d., serially and spatially correlated effects can be
-cast into a general form as well. \vspace{-0.2cm}
-\item The general form of both predictors and priors allows for rather general and unified estimation procedures,
-see \autoref{inference}. As a  side effect the implementation and
-description of these procedures is considerably facilitated.
+\item The limit $\lambda_3 \rightarrow \infty$ results in a mere main effects model. The main effects  are one dimensional P-splines with smoothing
+parameters $\lambda_1$ and $\lambda_2$.
+\item The limit $\lambda_3 \rightarrow 0$ yields the anisotropic penalty (\ref{penalty_eilmar}) as a special case.
+\item The limit $\lambda_1 \rightarrow 0$ and $\lambda_2 \rightarrow 0$  yields the Kronecker product penalty
+(\ref{penalty_kronecker}) as a special case.
+\item The limit $\lambda_1 \rightarrow \infty$, $\lambda_2 \rightarrow \infty$ and $\lambda_3 \rightarrow \infty$ results in a main effects model with
+linear or constant main effects depending on the difference order used to construct $\Kvec_1$ and $\Kvec_2$.
 \end{itemize}
+\end{enumerate}
 
 
-\section{Prior assumptions}
+
+
+
+\subsection{Spatial heterogeneity}
+In this subsection we assume that $x$ represents the location a particular observation pertains to.
+The location is typically given in two ways. If exact locations
+are available $x=(x^{(1)},x^{(2)})'$ is two dimensional and the components  $x^{(1)}$ and $x^{(2)}$ correspond to the coordinates of the location.
+In this case the spatial effect $f(x^{(1)},x^{(2)})$ could be modeled by
+two dimensional surface estimators as described in the preceding section.
+
+In many applications, however, exact locations are not available. Typically, a geographical map is available and $x \in \{1,\dots,K\}$ is an
+index that denotes the region (e.g. district) an observation pertains to. A common approach is to assume $f(x) = \beta_x$,
+i.e. separate parameters $\beta_1,\ldots,\beta_K$  for each region are estimated.
+The $n \times K$ design matrix $\Xvec$ is an incidence matrix whose entry in
+the $i$-th row and $k$-th column is equal to one if observation $i$ has been observed at
+location $k$ and zero otherwise. To prevent overfitting a penalty based on squared differences is defined that
+guarantees that parameters of neighboring regions are similar. Typically two regions are assumed to be neighbors if they share a common
+boundary although other neighborhood definitions are possible. The penalty is defined as
+$$
+\betavec' \lambda \Kvec \betavec = \lambda\sum_{k=2}^{K}\sum_{s \in N(k), s < k}(\beta_k-\beta_s)^2,
+$$
+where $N(k)$ denotes all sites that are neighbors of site $k$.
+The elements of the penalty matrix are given by
+\begin{equation}
+\label{K_mrf}
+ \Kvec[s,r] = \lambda \left\{
+ \begin{array}{ll}
+-1 & k\neq s, k\sim s,\\
+ 0 & k\neq s, k \nsim s,\\
+ |N(k)| & k=s.
+\end{array}
+\right.
+\end{equation}
+
+Depending on the prior belief on smoothness of the spatial effect several alternatives to penalty (\ref{K_mrf}) are available.
+If a very smooth effect is assumed the two dimensional smoothers discussed in the preceding section could be used as an alternative.
+Since exact locations are not available the centroids of the regions could be used instead.
+In some situations a smooth spatial effect is not justified because of local, spatial heterogeneity. In this case,
+the assumption of spatial dependence of neighboring parameters is not meaningful. Instead, a simple ridge type penalty
+$$
+\betavec' \lambda \Kvec \betavec = \lambda \betavec'  \betavec = \lambda \sum_{k=1}^{K} \beta_k^2
+$$
+with penalty matrix $\Kvec = \Ivec$ may be defined. This penalty does not assume any spatial dependence but prevents highly variable
+estimates induced by small samples for some regions or sites.
+
+\subsection{Unit- or cluster specific heterogeneity}
+Typically, unit- or cluster specific random effects are introduced to account
+for heterogeneity. In its simplest form a random intercept $\beta_x$ with $\beta_x \sim N(0,\tau^2)$ is introduced.
+Here, $x \in \{1,\dots,K\}$ is an index variable that denotes the cluster a particular observation pertains to.
+This is equivalent to a penalized least squares approach with function $f(x) = \beta_x$, penalty matrix $\Ivec$ and smoothing parameter
+$\lambda = \sigma^2/\tau^2$. The $n \times K$ design matrix $\Xvec$ is a 0/1 incidence matrix whose entry in
+the $i$-th row and $k$-th column is equal to one if observation $i$ belongs to the $k$-th cluster and zero otherwise.
+Random slopes could be treated in the same way, see the next subsection.
+
+Note that more than one random intercept with respect to different cluster variables are possible. In many cases there exists a hierarchical ordering
+of clusters. Models with such hierarchical clusters are also called multilevel models.
+
+
+\subsection{Varying coefficients}
+\label{varcoeff_terms}
+
+Suppose now that the effect of a continuous covariate $x^{(2)}$ is assumed to vary with
+respect to a categorical covariate $x^{(1)}$. For notational convenience, we restrict the discussion to binary covariates $x^{(1)}$.
+The generalization to (multi)categorical covariates is straightforward.
+The interaction between $x^{(2)}$ and
+$x^{(1)}$ can be modeled by a predictor of the form
+$$
+\eta = \ldots + f_1(x^{(2)}) + g(x^{(2)}) x^{(1)} + \ldots,
+$$
+where $f_1$ and $g$ are smooth functions (modeled by P-splines).
+The interpretation of the two functions $f_1$ and $g$ depends on the coding of the binary variable $x^{(1)}$.
+If $x^{(1)}$ is in dummy-coding, the function $f_1$ corresponds to the effect of $x^{(2)}$ subject to  $x^{(1)}=0$, and
+$g$ is the difference effect for observations with $x^{(1)}=1$. If $x^{(1)}$ is in effect-coding, the function $f_1$ can be interpreted as an
+average effect of  $x^{(2)}$, and $g$ respectively $-g$ is now the deviation from $f_1$ for $x^{(1)} = 1$ and $x^{(1)} = -1$, respectively.
+It turns out that the coding of $x^{(2)}$ is not only important  for interpretation but sometimes also crucial for inference
+(in {\em bayesreg objects} and {\em remlreg objects}). Estimation for {\em bayesreg and stepwisereg objects} described
+in the next section is based on an iterative backfitting type procedure. Hence dependence between $f_1$ and $g$ should be minimized to avoid
+convergence problems. Hence, effect coding for $x^{(2)}$ is an effective yet simple device to avoid convergence problems.
+
+Models with interaction effects of the form $g(x^{(2)}) \, x^{(1)}$ are  known as varying coefficient models  because
+the effect of $x^{(1)}$ varies smoothly with respect to the continuous covariate $x^{(2)}$. Covariate $x^{(2)}$ is called the effect modifier of
+$x^{(1)}$. The approach can be easily extended to a two dimensional effect modifier with components $x^{(2)}$ and $x^{(3)}$.
+The interaction effect is then given by $g(x^{(2)},x^{(3)}) \, x^{(1)}$ where $g(x^{(2)},x^{(3)})$ is a two dimensional surface which is  modeled
+by the tensor product P-splines discussed in section \ref{tensorproductpsplines}.
+Another modification arises if the
+effect modifier is the location either given as the coordinates or as a spatial index. In this case we have a space varying effect of $x^{(1)}$.
+Models of this kind are also known as geographically weighted regression, see Fotheringham, Brunsdon and Charlton (2002).
+A final modification is obtained for a unit- or
+cluster index as the effect modifier. The effect of $x^{(1)}$ is now assumed to be unit- or cluster specific and typically referred to as a random slope.
+
+Independent of the specific type of the effect modifier, the interaction term $g\left(x^{(2)}\right) \, x^{(1)}$
+(or $g\left(x^{(2)},x^{(3)}\right) \, x^{(1)}$) can be cast into our
+general framework by defining
+\begin{equation}
+\label{gampspline_varcoeffterm}
+f\left(x^{(1)},x^{(2)}\right) = g\left(x^{(2)}\right) \, x^{(1)} \quad \mbox{or} \quad  f\left(x^{(1)},x^{(2)},x^{(3)}\right) =
+g\left(x^{(2)},x^{(3)}\right) \, x^{(1)}.
+\end{equation}
+The overall design matrix $\Xvec$ is given by
+$diag(x_{1}^{(1)},\dots,x_{n}^{(1)}) \, \Xvec^{(1)}$ where
+$\Xvec^{(1)}$ is the usual design matrix for P-Splines,
+tensor product P-splines, spatial- or cluster specific effects.
+
+
+
+\section{Bayesian point of view}
 \label{priorassumptions}\index{Prior assumptions}
 
 For Bayesian inference, the unknown functions $f_{1},\dots ,f_{p}$
 in predictor (\ref{gampred}), more exactly corresponding vectors of
-function evaluations, and the fixed effects parameters $\gamma$ are
+function evaluations, and the fixed effects parameters $\gammavec$ are
 considered as random variables and must be supplemented by
 appropriate prior assumptions.
 
@@ -424,44 +881,42 @@ $$
  p(\gamma_j) \propto const
 $$
 Another common choice, not yet supported by {\em BayesX}, are
-informative multivariate Gaussian priors with mean $\mu_0$ and
-covariance matrix $\Sigma_0$.\index{Prior assumptions!Fixed effects}
+informative multivariate Gaussian priors with mean $\muvec_0$ and
+covariance matrix $\Sigmavec_0$.\index{Prior assumptions!Fixed effects}
 
 
 Priors for the unknown functions $f_{1},\dots,f_{p}$ depend on the
 {\em type of the covariates} and on {\em prior beliefs about the
 smoothness of $f_j$.} In the following we express the vector of
-function evaluations $f_j=(f_j(x_{1j}),\dots,f_j(x_{nj}))'$ of a
-function $f_j$ as the matrix product of a design matrix $X_j$ and a
-vector of unknown parameters $\beta_j$, i.e.
+function evaluations $\fvec_j=(f_j(x_{1j}),\dots,f_j(x_{nj}))'$ of a
+function $f_j$ as the matrix product of a design matrix $\Xvec_j$ and a
+vector of unknown parameters $\betavec_j$, i.e.
 \begin{equation}
-\label{matproduct} f_j=X_j \beta_j.
+\label{matproduct} \fvec_j=\Xvec_j \betavec_j.
 \end{equation}
 Then, we obtain the predictor (\ref{gampred}) in matrix notation
 as
 \begin{equation}
-\label{gampredmatrix} \eta = X_1 \beta_1 + \cdots + X_p \beta_p +
-U \gamma,
+\label{gampredmatrix} \etavec = \Xvec_1 \betavec_1 + \cdots + \Xvec_p \betavec_p +
+\Uvec \gammavec,
 \end{equation}
-where $U$ corresponds to the usual design matrix for fixed
+where $\Uvec$ corresponds to the usual design matrix for fixed
 effects.
 
 A prior for a function $f_j$ is defined by specifying a suitable
-design matrix $X_j$ and a prior distribution for the vector
-$\beta_j$ of unknown parameters. The general form of the prior for
-$\beta_j$ is given by
+design matrix $\Xvec_j$ and a prior distribution for the vector
+$\betavec_j$ of unknown parameters. The general form of the prior for
+$\betavec_j$ is given by
 \begin{equation}
-\label{genform} p(\beta_j | \tau_j^2) \propto
-\frac{1}{(\tau^2_j)^{rank(K_j)/2}} \exp\left(-\frac{1}{2\tau_j^2}
-\beta_j' K_j \beta_j\right),
+\label{genform} p(\betavec_j | \tau_j^2) \propto
+\frac{1}{(\tau^2_j)^{rank(\Kvec_j)/2}} \exp\left(-\frac{1}{2\tau_j^2}
+\betavec_j' \Kvec_j \betavec_j\right),
 \end{equation}
-where $K_j$ is a {\em penalty matrix} that shrinks parameters
-towards zero or penalizes too abrupt jumps between neighboring
-parameters. In most cases $K_j$ will be rank deficient and
-therefore the prior for $\beta_j$ is partially improper.
+where $\Kvec_j$ is a {\em penalty matrix}. In most cases $\Kvec_j$ will be
+rank deficient and therefore the prior for $\betavec_j$ is partially improper.
 
 The variance parameter $\tau_j^2$ is  equivalent to the inverse
-smoothing parameter in a frequentist approach and controls the
+smoothing parameter in a penalized likelihood approach and controls the
 trade off between flexibility and smoothness.
 
 In the following we will describe specific priors for different
@@ -482,38 +937,38 @@ supports random walk priors and P-splines.
 
 \subsubsection{Random walks}\index{Random walk priors}
 
-Suppose first that $x_j$ is a time scale or continuous covariate
+Suppose first that $x$ is a time scale or continuous covariate
 with equally spaced ordered observations
 $$
-x_j^{(1)} < x_j^{(2)} < \cdots < x_j^{(M_j)}.
+x^{(1)} < x^{(2)} < \cdots < x^{(K)}.
 $$
-Here $M_j \leq n$ denotes the number of {\em different} observed
-values for $x_j$ in the data set. A common approach in dynamic or
-state space models is to estimate one parameter $\beta_{jm}$ for
-each distinct $x_j^{(m)}$, i.e. $f_j(x_j^{(m)}) = \beta_{jm}$, and
+Here $K \leq n$ denotes the number of {\em different} observed
+values for $x$ in the data set. A common approach in dynamic or
+state space models is to estimate one parameter $\beta_{k}$ for
+each distinct $x^{(k)}$, i.e. $f(x^{(k)}) = \beta_{k}$, and
 penalize too abrupt jumps between successive parameters using random
 walk priors. For example, first and second order random walk models
 are given by
 \begin{equation}
 \label{rwpriors}
-\beta_{jm}=\beta_{j,m-1}+u_{jm}\,\,\,\,\mbox{and}\,\,\,\,\beta_{jm}=2\beta_{j,m-1}-\beta_{j,m-2}+u_{jm}
+\beta_{k}=\beta_{k-1}+u_{k}\,\,\,\,\mbox{and}\,\,\,\,\beta_{k}=2\beta_{k-1}-\beta_{k-2}+u_{k}
 \end{equation}
-with Gaussian errors $u_{jm}\sim N(0,\tau_j^{2})$ and diffuse priors
-$p(\beta_{j1})\propto const$, and $p(\beta_{j1})$ and
-$p(\beta_{j2})\propto const$, for initial values, respectively. Both
+with Gaussian errors $u_{k}\sim N(0,\tau^{2})$ and diffuse priors
+$p(\beta_{1})\propto const$, and $p(\beta_{1})$ and
+$p(\beta_{2})\propto const$, for initial values, respectively. Both
 specifications act as smoothness priors that penalize too rough
-functions $f_j$. A first order random walk penalizes abrupt jumps
-$\beta_{jm}-\beta_{j,m-1}$ between successive states while a second
+functions $f$. A first order random walk penalizes abrupt jumps
+$\beta_{k}-\beta_{k-1}$ between successive states while a second
 order random walk penalizes deviations from the linear trend $2
-\beta_{j,m-1}-\beta_{j,m-2}$. The joint distribution of the
-regression parameters $\beta_j$ is easily computed as the product of
+\beta_{k-1}-\beta_{k-2}$. The joint distribution of the
+regression parameters $\betavec$ is easily computed as the product of
 conditional densities defined by (\ref{rwpriors}) and can be brought
 into the general form (\ref{genform}). The penalty matrix is of the
-form $K_j=D'D$ where $D$ is a first or second order difference
+form $\Kvec=\Dvec'\Dvec$ where $\Dvec$ is a first or second order difference
 matrix. For example, for a random walk of first order the penalty
 matrix is given by:
 $$
-K_j = {\footnotesize \left(
+\Kvec = {\footnotesize \left(
 \begin{array}{rrrrr}
  1 & -1 & & &  \\
 -1 & 2 & -1 & & \\
@@ -523,24 +978,24 @@ K_j = {\footnotesize \left(
 \end{array}
 \right) }.
 $$
-The design matrix $X_j$ is a simple 0/1 matrix where the number of
+The design matrix $\Xvec$ is a simple 0/1 matrix where the number of
 columns equals the number of parameters, i.e. the number of distinct
-covariate values. If for the $r$-th observation $x_{rj}=x_j^{(l)}$
-the element in the $r$-th row and $l$-th column of $X_j$ is one and
+covariate values. If for the $i$-th observation $x_{i}=x^{(k)}$
+the element in the $i$-th row and $k$-th column of $\Xvec$ is one and
 zero otherwise.
 
 In case of non-equally spaced observations slight modifications of
 the priors defined in (\ref{rwpriors}) are necessary, see Fahrmeir
 and Lang (2001a) for details.
 
-If $x_j$ is a time  scale we may introduce an additional seasonal
-effect of $x_j$. A common smoothness prior for a seasonal
-component $f_j(x_j^{(m)}) = \beta_{jm}$ is given by
+If $x$ is a time  scale we may introduce an additional seasonal
+effect of $x$. A common smoothness prior for a seasonal
+component $f(x^{(k)}) = \beta_{k}$ is given by
 \begin{equation}
-\beta_{jm} = -\beta_{j,m-1} - \cdots -
-\beta_{j,m-per-1}+u_{jm}\label{seasonal}
+\beta_{k} = -\beta_{k-1} - \cdots -
+\beta_{k-per-1}+u_{k}\label{seasonal}
 \end{equation}
-where $u_{jm}\sim N(0,\tau_j^{2})$ and $per$ is the period of the
+where $u_{k} \sim N(0,\tau_j^{2})$ and $per$ is the period of the
 seasonal effect (e.g. $per = 12$ for monthly data). Compared to a
 dummy variable approach this specification has the advantage that it
 allows for a time varying rather than a time constant seasonal
@@ -552,20 +1007,20 @@ effect.
 A second approach for effects of continuous covariates, that is
 closely related to random walk models, is based on P-splines
 introduced by Eilers and Marx (1996). The approach assumes that an
-unknown smooth function $f_j$ of a covariate $x_j$ can be
+unknown smooth function $f$ of a covariate $x$ can be
 approximated by a polynomial spline of degree $l$ defined by a set
-of equally spaced knots $x_j^{min} = \zeta_{0}  < \zeta_{1} < \dots
-< \zeta_{d-1} < \zeta_{d} = x_j^{max}$ within the domain of $x_j$.
+of equally spaced knots $x^{min} = \zeta_{0}  < \zeta_{1} < \dots
+< \zeta_{m-1} < \zeta_{m} = x^{max}$ within the domain of $x$.
 Such a spline can be written in terms of a linear combination of
-$M_j = d+l$ B-spline basis functions $B_{m}$, i.e.
+$K = m+l$ B-spline basis functions $B_{k}$, i.e.
 $$
-f_j(x_j) = \sum_{m=1}^{M_j} \beta_{jm} B_{m}(x_j).
+f(x) = \sum_{k=1}^{K} \beta_{k} B_{k}(x).
 $$
-In this case, $\beta_j = (\beta_{j1},\dots,\beta_{jM_j})'$
+In this case, $\betavec = (\beta_{1},\dots,\beta_{K})'$
 corresponds to the vector of unknown regression coefficients and the
-$n \times M_j$ design matrix $X_j$ consists of the basis functions
-evaluated at the observations $x_{rj}$, i.e. $X_j[r,m] =
-B_m(x_{rj})$. The crucial point is the choice of the number of
+$n \times K$ design matrix $\Xvec$ consists of the basis functions
+evaluated at the observations $x_{i}$, i.e. $\Xvec[i,k] =
+B_k(x_{i})$. The crucial point is the choice of the number of
 knots. For a small number of knots, the resulting spline may not be
 flexible enough to capture the variability of the data. For a large
 number of knots, estimated curves tend to overfit the data and, as a
@@ -577,13 +1032,13 @@ differences of adjacent B-Spline coefficients to guarantee
 sufficient smoothness of the fitted curves. This leads to penalized
 likelihood estimation with penalty terms
 \begin{equation}
-\label{diffpenalty} P(\lambda_j) = \lambda_j \sum_{m=k+1}^{M_j}
-(\Delta^k \beta_{jm})^2 , \quad k=1,2
+\label{diffpenalty} \lambda \sum_{k=r+1}^{K}
+(\Delta^r \beta_{k})^2 , \quad r=1,2
 \end{equation}
-where $\lambda_j$ is the smoothing parameter. First order
-differences penalize abrupt jumps $\beta_{jm}-\beta_{j,m-1}$ between
+where $\lambda$ is the smoothing parameter. First order
+differences penalize abrupt jumps $\beta_{k}-\beta_{k-1}$ between
 successive parameters while second order differences penalize
-deviations from the linear trend $2 \beta_{j,m-1}-\beta_{j,m-2}$. In
+deviations from the linear trend $2 \beta_{k-1}-\beta_{k-2}$. In
 a Bayesian approach we use the stochastic analogue of difference
 penalties, i.e. first or second order random walks, as priors for
 the regression coefficients. Note that simple first or second order
@@ -608,15 +1063,15 @@ defined. For geographical data one usually assumes that two sites
 $s$ and $s'$ are neighbors if they share a common boundary.
 
 The simplest (but most frequently used) spatial smoothness prior for
-the function evaluations $f_j(s)=\beta_{js}$ is given by
+the function evaluations $f(s)=\beta_{s}$ is given by
 \begin{equation}
-\label{adjacency} \beta_{js} | \beta_{js'}, \, {s \neq
-s'},\tau_j^2 \sim N \left( \frac{1}{N_s} \sum_{s' \in \partial_s}
-\beta_{js'} , \frac{\tau_j^2}{N_s} \right),
+\label{adjacency} \beta_{s} | \beta_{s'}, \, {s \neq
+s'},\tau^2 \sim N \left( \frac{1}{N_s} \sum_{s' \in \partial_s}
+\beta_{s'} , \frac{\tau^2}{N_s} \right),
 \end{equation}
 where $N_s$ is the number of adjacent sites and $s' \in
 \partial_s$ denotes that site $s'$ is a neighbor of site $s$. Hence,
-the (conditional) mean of $\beta_{js}$ is an unweighted average of
+the (conditional) mean of $\beta_{s}$ is an unweighted average of
 function evaluations of neighboring sites. The prior is a direct
 generalization of a first order random walk to two-dimensions and is
 called a Markov random field (MRF).
@@ -624,9 +1079,9 @@ called a Markov random field (MRF).
 A more general prior including (\ref{adjacency}) as a special case
 is given by
 \begin{equation}
-\label{intrinsic} \beta_{js} | \beta_{js'} \, \, {s \neq
-s'},\tau_j^2 \sim N \left( \sum_{s' \in \partial_s}
-\frac{w_{ss'}}{w_{s+}} \beta_{js'}, \frac{\tau_j^2}{w_{s+}} \right),
+\label{intrinsic} \beta_{s} | \beta_{s'} \, \, {s \neq
+s'},\tau^2 \sim N \left( \sum_{s' \in \partial_s}
+\frac{w_{ss'}}{w_{s+}} \beta_{s'}, \frac{\tau^2}{w_{s+}} \right),
 \end{equation}
 where $w_{ss'}$ are known weights and $+$ denotes summation over the
 missing subscript. Such a prior is called a Gaussian intrinsic
@@ -637,10 +1092,10 @@ neighboring sites, or on the distance of the centroids of two sites.
 All these spatial priors are supported by {\em BayesX}, see chapter
 \ref*{map} of the reference manual for more details.
 
-The $n \times S$ design matrix $X$ is a 0/1 incidence matrix. Its
+The $n \times S$ design matrix $\Xvec$ is a 0/1 incidence matrix. Its
 value in the $i$-th row and the $s$-th column is 1 if the $i$-th
 observation is located in site or region $s$, and zero otherwise.
-The $S \times S$ penalty matrix $K$ has the form of an adjacency
+The $S \times S$ penalty matrix $\Kvec$ has the form of an adjacency
 matrix.
 
 If exact locations $s=(s_x,s_y)$ are available, we can use
@@ -651,16 +1106,16 @@ from geostatistics. These can also be interpreted as two-dimensional
 surface smoothers based on radial basis functions and have been
 employed by Kammann and Wand (2003) to model the spatial component
 in Gaussian regression models. The spatial component
-$f_{j}(s)=\beta_s$ is assumed to follow a zero mean stationary
+$f(s)=\beta_s$ is assumed to follow a zero mean stationary
 Gaussian random field $\{\beta_s:s\in\mathbb{R}^2\}$ with variance
-$\tau_{j}^2$ and isotropic correlation function
+$\tau^2$ and isotropic correlation function
 $cov(\beta_s,\beta_{s+h})=C(||h||)$. This means that correlations
 between sites that are $||h||$ units apart are the same, regardless
 of direction and the sites location. For a finite array
 $s\in\{1,\ldots,S\}$ of sites as in image analysis, the prior for
-$\beta_j=(\beta_1,\ldots,\beta_S)'$ is of the general form
-(\ref{genform}) with $K=C^{-1}$ and
-\[C(i,j)=C(||s_i-s_j||), 1\le i,j\le S.\]
+$\betavec=(\beta_1,\ldots,\beta_S)'$ is of the general form
+(\ref{genform}) with $\Kvec=\Cvec^{-1}$ and
+\[\Cvec(i,j)=C(||s_i-s_j||), 1\le i,j\le S.\]
 The design matrix $X$ is again a 0/1 incidence matrix.
 
 Several proposals for the choice of the correlation function
@@ -713,8 +1168,8 @@ therefore the estimation of GRFs is computationally much more
 expensive. To overcome this difficulty Kammann and Wand (2003)
 propose low-rank kriging to approximate stationary Gaussian random
 fields. Note first, that we can define GRFs equivalently based on a
-design matrix $X$ with entries $X[i,j]=C(||s_i-s_j||)$ and penalty
-matrix $K=C$. To reduce the dimensionality of the estimation problem
+design matrix $\Xvec$ with entries $\Xvec[i,j]=C(||s_i-s_j||)$ and penalty
+matrix $\Kvec=\Cvec$. To reduce the dimensionality of the estimation problem
 we define a subset of knots
 $\mathcal{D}=\{\kappa_1,\ldots,\kappa_M\}$ of the set of distinct
 locations $\mathcal{C}$. These knots can be chosen to be
@@ -729,9 +1184,9 @@ the overall coverage criterion
 \[\left(\sum_{s\in\mathcal{C}}d(s,\mathcal{D})^q\right)^{\frac{1}{q}}\]
 with $q>0$ (compare Johnson et al. (1990) and Nychka and Saltzman
 (1998) for details) yields an optimal set of knots $\mathcal{D}$.
-Based on these knots we define the approximation $f_{j}=X\beta_j$
+Based on these knots we define the approximation $f=\Xvec\betavec$
 with the $n\times M$ design matrix $X[i,j]=C(||s_i-\kappa_j||)$,
-penalty matrix $K=C$, and $C[i,j]=C(||\kappa_i-\kappa_j||)$. The
+penalty matrix $\Kvec=\Cvec$, and $\Cvec[i,j]=C(||\kappa_i-\kappa_j||)$. The
 number of knots $M$ allows to control the trade-off between accuracy
 of the approximation ($M$ close to the sample size) and numerical
 simplification ($M$ small).
@@ -744,19 +1199,19 @@ In many situations we observe the problem of heterogeneity among
 clusters of observations caused by unobserved covariates. Neglecting
 unobserved heterogeneity may lead to considerably biased estimates
 for the remaining effects as well as false standard error estimates.
-Suppose $c \in \{1,\dots,C\}$ is a cluster variable indicating the
+Suppose now $x \in \{1,\dots,K\}$ is a cluster variable indicating the
 cluster a particular observation belongs to. A common approach to
 overcome the difficulties of unobserved heterogeneity is to
-introduce additional Gaussian i.i.d. effects $f_j(c) = \beta_{jc}$
+introduce additional Gaussian i.i.d. effects $f(x) = \beta_{x}$
 with
 \begin{equation}
-\label{randomeff} \beta_{jc} \sim N(0,\tau_j^2), \quad
-c=1,\dots,C.
+\label{randomeff} \beta_{x} \sim N(0,\tau^2), \quad
+x=1,\dots,K.
 \end{equation}
-The design matrix $X_j$ is again a $n \times C$-dimensional 0/1
+The design matrix $\Xvec$ is again a $n \times K$-dimensional 0/1
 incidence matrix that represents the grouping structure of the data,
 while the penalty matrix is simply the identity matrix, i.e.
-$K_j=I$. From a classical perspective, (\ref{randomeff}) defines
+$\Kvec=\Ivec$. From a classical perspective, (\ref{randomeff}) defines
 i.i.d. {\em random effects}. However, from a Bayesian point of view
 all unknown parameters are assumed to be random and hence the
 notation "random effects" in this context is misleading. Hence, one
@@ -788,63 +1243,45 @@ assumptions!Interactions}
 The models considered so far are not appropriate for modelling
 interactions between covariates. A common approach is based on
 varying coefficient models introduced by Hastie and Tibshirani
-(1993) in the context of smoothing splines. Here, the effect of
-covariate $z_{rj}$, $j=1,\dots,p$ is assumed to vary smoothly over
-the range of a second covariate $w_{rj}$, i.e.
-\begin{equation}
-\label{varcoeffterm} f_j(w_{rj},z_{rj}) = g_j(w_{rj}) z_{rj}.
-\end{equation}
-In most cases the interacting covariate $z_{rj}$ is categorical
-whereas the effect modifier may be either continuous, spatial or an
-unordered group indicator. For the nonlinear function $g_j$ we can
-assume any of the priors already defined in \autoref{psplines} for
-continuous effect modifiers, \autoref{spatial} for spatial effect
-modifiers, and \autoref{random} for unordered group indicators as
-effect modifiers. In Hastie and Tibshirani (1993) continuous effect
-modifiers have been considered exclusively. Models with spatial
-effect modifiers are used in Fahrmeir, Lang, Wolff and Bender (2003)
-and Gamerman, Moreira and Rue (2003). From a frequentist point of
-view, models with unordered group indicators as effect modifiers are
-called models with {\em random slopes}.
+(1993) in the context of smoothing splines. Varying coefficient terms are already discussed in the pervious
+chapter, see section \ref{varcoeff_terms}.
 
-In matrix notation we obtain
-$$
-f_j = \diag(z_{1j},\dots,z_{nj})  X_j^* \beta_j
-$$
-for the vector of function evaluations, where $X_j^*$ is the design
-matrix corresponding to the prior for $g_j$. Hence the overall
-design matrix is given by $X_j = \diag(z_{1j},\dots,z_{nj})  X_j^*$.
 
 Suppose now that both interacting covariates are continuous. In this
 case, a flexible approach for modelling interactions can be based on
 (nonparametric) two-dimensional surface fitting. In {\em BayesX}
-surface fitting is based on two-dimensional P-splines described in
+Bayesian surface fitting is based on two-dimensional P-splines described in
 more detail in Lang and Brezger (2004) and Brezger and Lang (2006).
-The unknown surface $f_j(w_{rj},z_{rj})$ is approximated by the
+The unknown surface $f(x^{(1)},x^{(2)})$ is approximated by the
 tensor product of two one-dimensional B-splines, i.e.
 $$
-f_{j}(w_{rj},z_{rj}) = \sum_{m_1=1}^{M_j} \sum_{m_2=1}^{M_j}
-\beta_{j,m_1 m_2} B_{j, m_1}(w_{rj}) B_{j,m_2} (z_{rj}).
+f\left(x^{(1)},x^{(2)}\right) = \sum_{k=1}^{K_1}
+\sum_{s=1}^{K_2} \beta_{ks} B_{1,k}(x^{(1)})
+B_{2,s} (x^{(2)}),
 $$
-In analogy to one-dimensional P-splines, the $n \times M_j^2$ design
-matrix $X_j$ is composed of products of basis functions. Priors for
-$\beta_{j} = (\beta_{j,11},\dots,\beta_{j,M_jM_j})'$ can be based on
+where $B_{11},\dots,B_{1K_1}$ are the basis functions in $x^{(1)}$ direction and
+$B_{21},\dots,B_{2K_2}$ in $x^{(2)}$ direction.
+The $n \times K = n \times K_1 K_2$ design matrix $\Xvec$ now consists of
+products of basis functions.
+
+Priors for
+$\betavec = (\beta_{11},\dots,\beta_{K_1,K_2})'$ can be based on
 spatial smoothness priors common in spatial statistics, e.g.
 two-dimensional first order random walks. The most commonly used
 prior specification based on the four nearest neighbors is defined
 by
 \begin{equation}
-\label{2dimrw1} \beta_{j, m_1 m_2} | \cdot \sim N \left(
-\frac{1}{4} ( \beta_{j, m_1-1,m_2}+ \beta_{j, m_1+1,m_2} +
-\beta_{j, m_1,m_2-1} +\beta_{j, m_1,m_2+1}),\frac{\tau^2_{j}}{4}
+\label{2dimrw1} \beta_{ks} | \cdot \sim N \left(
+\frac{1}{4} ( \beta_{k-1,s}+ \beta_{k+1,s} +
+\beta_{k,s-1} +\beta_{k,s+1}),\frac{\tau^2}{4}
 \right)
 \end{equation}
-for $m_1,m_2=2,\dots,M_j-1$ and appropriate edge corrections. This
+and appropriate edge corrections. This
 prior as well as higher order bivariate random walks can be easily
 brought into the general form (\ref{genform}).
 
 
-\subsection{Mixed Model representation}
+\section{Mixed Model representation}
 \label{glmmrep}\index{Mixed model representation}\index{Marginal
 likelihood}\index{Restricted maximum likelihood}
 
@@ -864,84 +1301,84 @@ parameters $\tau^2_j$ in the empirical Bayes approach described in
 To rewrite the model as a GLMM, the general model formulation again
 proves to be useful. We proceed as follows:
 
-The  vectors of regression coefficients $\beta_j$, $j=1,\dots,p$,
+The  vectors of regression coefficients $\betavec_j$, $j=1,\dots,p$,
 are decomposed into an {\em unpenalized} and a {\em penalized part}.
-Suppose that the $j$-th coefficient vector has dimension $M_j \times
-1$ and the corresponding penalty matrix $K_j$ has rank $k_j$. Then
+Suppose that the $j$-th coefficient vector has dimension $K_j \times
+1$ and the corresponding penalty matrix $\Kvec_j$ has rank $k_j$. Then
 we define the decomposition
 \begin{equation}
-\label{decompbeta} \beta_j = X_j^{unp} \beta_j^{unp} + X_j^{pen}
-\beta_j^{pen},
+\label{decompbeta} \betavec_j = \Xvec_j^{unp} \betavec_j^{unp} + \Xvec_j^{pen}
+\betavec_j^{pen},
 \end{equation}
-where the columns of the $M_j \times (M_j - k_j)$ matrix $X_j^{unp}$
-contain a basis of the nullspace of $K_j$. The  $M_j \times k_j$
-matrix $X_j^{pen}$ is given by $X_j^{pen} = L_j(L_j'L_j)^{-1}$ where
-the $M_j \times k_j$ matrix $L_j$ is determined by the decomposition
-of the penalty matrix $K_j$ into $K_j = L_jL_j'$. A requirement for
-the decomposition is that $L_j'X_j^{unp} = 0$ and $X_j^{unp}L_j' =
-0$ hold. Hence the parameter vector $\beta_j^{unp}$ represents the
-part of $\beta_j$ which is not penalized by $K_j$ whereas the vector
-$\beta_j^{pen}$ represents the deviation of $\beta_j$ from the
-nullspace of $K_j$.
+where the columns of the $K_j \times (K_j - k_j)$ matrix $\Xvec_j^{unp}$
+contain a basis of the nullspace of $\Kvec_j$. The  $K_j \times k_j$
+matrix $\Xvec_j^{pen}$ is given by $\Xvec_j^{pen} = \Lvec_j(\Lvec_j'\Lvec_j)^{-1}$ where
+the $K_j \times k_j$ matrix $\Lvec_j$ is determined by the decomposition
+of the penalty matrix $\Kvec_j$ into $\Kvec_j = \Lvec_j \Lvec_j'$. A requirement for
+the decomposition is that $\Lvec_j' \Xvec_j^{unp} = \nullvec$ and $\Xvec_j^{unp} \Lvec_j' =
+\nullvec$ hold. Hence the parameter vector $\betavec_j^{unp}$ represents the
+part of $\betavec_j$ which is not penalized by $\Kvec_j$ whereas the vector
+$\betavec_j^{pen}$ represents the deviation of $\betavec_j$ from the
+nullspace of $\Kvec_j$.
 
-In general, the decomposition $K_j=L_jL_j'$ is obtained from the
-spectral decomposition $K_j = \Gamma_j \Omega_j \Gamma_j'$. The
-($k_j \times k_j$)  diagonal matrix $\Omega_j$ contains the positive
+In general, the decomposition $\Kvec_j=\Lvec_j\Lvec_j'$ is obtained from the
+spectral decomposition $\Kvec_j = \Gammavec_j \Omegavec_j \Gammavec_j'$. The
+($k_j \times k_j$)  diagonal matrix $\Omegavec_j$ contains the positive
 eigenvalues $\omega_{jm}$, $m=1,\dots,k_j$, of $K_j$ in descending
 order, i.e. $\Omega_j = \diag(\omega_{j1},\dots,\omega_{j,k_j})$.
-$\Gamma_j$ is a ($M_j \times k_j$) orthogonal matrix of the
+$\Gammavec_j$ is a ($K_j \times k_j$) orthogonal matrix of the
 corresponding eigenvectors. From the spectral decomposition we can
-choose $L_j = \Gamma_j \Omega_j^{\frac{1}{2}}$. In some cases a more
+choose $\Lvec_j = \Gammavec_j \Omegavec_j^{\frac{1}{2}}$. In some cases a more
 favorable decomposition can be found. For instance, for P-splines a
-simpler choice for $L_j$ is given by $L_j = D'$ where $D$ is the
+simpler choice for $\Lvec_j$ is given by $\Lvec_j = \Dvec'$ where $\Dvec$ is the
 first or second order difference matrix. Of course, for  prior
 (\ref{randomeff}) of \autoref{random} and in general for proper
-priors a decomposition of $K_j$ is not necessary. In this case the
+priors a decomposition of $\Kvec_j$ is not necessary. In this case the
 unpenalized part vanishes completely.
 
-The matrix $X_j^{unp}$ is the identity vector {\bf 1} for P-splines
+The matrix $\Xvec_j^{unp}$ is the identity vector {\bf 1} for P-splines
 with first order random walk penalty and Markov random fields. For
-P-splines with second order random walk penalty $X_j^{unp}$ is a two
+P-splines with second order random walk penalty $\Xvec_j^{unp}$ is a two
 column matrix where the first column again equals the identity
 vector while the second column is composed of the (equidistant)
 knots of the spline.
 
 From the decomposition (\ref{decompbeta}) we get
 $$
-\frac{1}{\tau^2_j} \beta_j' K_j \beta_j = \frac{1}{\tau^2_j}
-(\beta_j^{pen})' \beta_j^{pen}
+\frac{1}{\tau^2_j} \betavec_j' \Kvec_j \betavec_j = \frac{1}{\tau^2_j}
+(\betavec_j^{pen})' \betavec_j^{pen}
 $$
-and from the general prior (\ref{genform}) for $\beta_j$ it follows
+and from the general prior (\ref{genform}) for $\betavec_j$ it follows
 that
 $$
-p(\beta_{jm}^{unp}) \propto const , \qquad m=1,\dots, M_j-k_j
+p(\beta_{jm}^{unp}) \propto const , \qquad m=1,\dots, K_j-k_j
 $$
 and
 \begin{equation}
-\label{priorunp} \beta_j^{pen} \sim N(0,\tau_j^2 I).
+\label{priorunp} \betavec_j^{pen} \sim N(\nullvec,\tau_j^2 \Ivec).
 \end{equation}
-Finally, by defining the matrices $\tilde{U}_j = X_j X_j^{unp}$
-and $\tilde{X}_j = X_j X_j^{pen}$, we can rewrite the predictor
+Finally, by defining the matrices $\tilde{\Uvec}_j = \Xvec_j \Xvec_j^{unp}$
+and $\tilde{\Xvec}_j = \Xvec_j \Xvec_j^{pen}$, we can rewrite the predictor
 (\ref{gampredmatrix}) as
 \begin{eqnarray*}
-\eta &=& \sum_{j=1}^{p} X_j \beta_j  + U \gamma\\
-     &=& \displaystyle \sum_{j=1}^{p}  (\tilde{U}_j \beta_j^{unp} + \tilde{X}_j
-     \beta_j^{pen}) +  U \gamma\\
-&=& \displaystyle \tilde{U} \beta^{unp} + \tilde{X} \beta^{pen}.
+\etavec &=& \sum_{j=1}^{p} \Xvec_j \betavec_j  + \Uvec \gammavec\\
+     &=& \displaystyle \sum_{j=1}^{p}  (\tilde{\Uvec}_j \betavec_j^{unp} + \tilde{\Xvec}_j
+     \betavec_j^{pen}) +  \Uvec \gammavec\\
+&=& \displaystyle \tilde{\Uvec} \betavec^{unp} + \tilde{\Xvec} \betavec^{pen}.
 \end{eqnarray*}
-The design matrix $\tilde{X}$ and the vector $\beta^{pen}$ are
-composed of the matrices $\tilde{X}_j$ and the vectors
-$\beta_j^{pen}$, respectively. More specifically, we obtain
-$\tilde{X} = (\tilde{X}_1 \,\, \tilde{X}_2 \,\, \ldots \,\,
-\tilde{X}_p) $ and the stacked vector $\beta^{pen} =
-((\beta_1^{pen})',\dots,(\beta_p^{pen})')'$. Similarly the matrix
-$\tilde{U}$ and the vector $\beta^{unp}$ are given by $\tilde{U} =
-(\tilde{U}_1 \,\, \tilde{U}_2 \,\, \ldots \,\, \tilde{U}_p \, U)$
-and $\beta^{unp} =
-((\beta_1^{unp})',\dots,(\beta_p^{unp})',\gamma')'$.
+The design matrix $\tilde{\Xvec}$ and the vector $\betavec^{pen}$ are
+composed of the matrices $\tilde{\Xvec}_j$ and the vectors
+$\betavec_j^{pen}$, respectively. More specifically, we obtain
+$\tilde{\Xvec} = (\tilde{\Xvec}_1 \,\, \tilde{\Xvec}_2 \,\, \ldots \,\,
+\tilde{\Xvec}_p) $ and the stacked vector $\betavec^{pen} =
+((\betavec_1^{pen})',\dots,(\betavec_p^{pen})')'$. Similarly the matrix
+$\tilde{\Uvec}$ and the vector $\betavec^{unp}$ are given by $\tilde{\Uvec} =
+(\tilde{\Uvec}_1 \,\, \tilde{\Uvec}_2 \,\, \ldots \,\, \tilde{\Uvec}_p \, \Uvec)$
+and $\betavec^{unp} =
+((\betavec_1^{unp})',\dots,(\betavec_p^{unp})',\gammavec')'$.
 
-Finally, we obtain a GLMM with fixed effects $\beta^{unp}$ and
-random effects $\beta^{pen} \sim N(0,\Lambda)$ where $\Lambda =
+Finally, we obtain a GLMM with fixed effects $\betavec^{unp}$ and
+random effects $\betavec^{pen} \sim N(\nullvec,\Lambdavec)$ where $\Lambdavec =
 \diag(\tau^2_1,\dots,\tau^2_1,\dots,\tau^2_p,\dots,\tau^2_p)$.
 Hence, we can utilize GLMM methodology for simultaneous estimation
 of smooth functions and the variance parameters $\tau^2_j$, see the
@@ -950,24 +1387,27 @@ next section.
 The mixed model representation also enables us to examine the
 identification problem inherent to nonparametric regression from a
 different perspective. For most types of nonparametric effects the
-design matrix $\tilde{U}_j$ for the unpenalized part contains the
+design matrix $\tilde{\Uvec}_j$ for the unpenalized part contains the
 identity vector. Provided that there is at least one such nonlinear
-effect and that $\gamma$ contains an intercept, the matrix
-$\tilde{U}$ has not full column rank. Hence, all identity vectors in
-$\tilde{U}$ except for the intercept have to be deleted to guarantee
+effect and that $\gammavec$ contains an intercept, the matrix
+$\tilde{\Uvec}$ has not full column rank. Hence, all identity vectors in
+$\tilde{\Uvec}$ except for the intercept have to be deleted to guarantee
 identifiability.
 
 
 \section{Inference}
 \label{inference}
 
-{\em BayesX} provides two alternative approaches for Bayesian
+{\em BayesX} provides three alternative approaches for Bayesian
 inference. {\em Bayesreg objects} (chapter \ref*{bayesreg} of the
 reference manual) estimate STAR models using MCMC simulation
 techniques described in \autoref{fullbayes}. {\em Remlreg objects}
 (chapter \ref*{remlreg} of the reference manual) use mixed model
 representations of STAR models for empirical Bayesian inference, see
-\autoref{glmmmeth}.
+\autoref{glmmmeth}. {\em Stepwisereg objects} (chapter \ref*{stepwisereg}
+of the reference manual)
+simultaneously perform model selection and
+estimation of parameters, see section \autoref{stepwiseest}.
 
 
 
@@ -1008,8 +1448,8 @@ Bayesian inference is based on the posterior of the model given by
 \begin{equation}
 \label{posterior}
 \begin{array}{lll}
- p(\beta_1,\dots,\beta_p,\tau^2_1,\dots,\tau^2_p,\gamma|y) & \propto & L(y,\beta_1,\dots,\beta_p, \gamma)
-\displaystyle \prod_{j=1}^p \left( p(\beta_j|\tau_j^2) p(\tau^2_j)
+ p(\betavec_1,\dots,\betavec_p,\tau^2_1,\dots,\tau^2_p,\gammavec \, | \, \yvec) & \propto & L(\yvec,\betavec_1,\dots,\betavec_p, \gammavec )
+\displaystyle \prod_{j=1}^p \left( p(\betavec_j|\tau_j^2) p(\tau^2_j)
 \right)
  \end{array}
 \end{equation}
@@ -1052,50 +1492,50 @@ manual, is based on conditional prior proposals.
 
 Suppose first that the distribution of the response variable is
 Gaussian, i.e. $y_i | \eta_i, \sigma^2 \sim N(\eta_i,\sigma^2/c_i)$,
-$i=1,\dots,n$ or $y | \eta, \sigma^2 \sim N(\eta,\sigma^2 C^{-1})$
-where $C = \diag(c_1,\dots,c_n)$ is a known weight matrix. In this
+$i=1,\dots,n$ or $\yvec | \etavec, \sigma^2 \sim N(\etavec,\sigma^2 \Cvec^{-1})$
+where $\Cvec = \diag(c_1,\dots,c_n)$ is a known weight matrix. In this
 case, full conditionals for fixed effects as well as nonlinear
 functions $f_j$ are multivariate Gaussian and, as a consequence, a
 Gibbs sampler can be employed. To be more specific, the full
-conditional $\gamma | \cdot$ for fixed effects with diffuse priors
+conditional $\gammavec | \cdot$ for fixed effects with diffuse priors
 is Gaussian with mean
 \begin{equation}\label{meanfixed}
- E(\gamma | \cdot) = (U'C U)^{-1}U'C(y-\tilde{\eta})
+ E(\gammavec | \cdot) = (\Uvec'\Cvec  \Uvec)^{-1}\Uvec'\Cvec(\yvec-\tilde{\etavec})
 \end{equation}
 and covariance matrix
 \begin{equation}
-\label{covfixed} Cov(\gamma | \cdot ) = \sigma^2 (U'CU)^{-1}
+\label{covfixed} Cov(\gammavec | \cdot ) = \sigma^2 (\Uvec'\Cvec \Uvec)^{-1}
 \end{equation}
-where $U$ is the design matrix of fixed effects and
-$\tilde{\eta}=\eta-U\gamma$ is the part of the additive predictor
+where $\Uvec$ is the design matrix of fixed effects and
+$\tilde{\etavec}=\etavec-\Uvec \gammavec$ is the part of the additive predictor
 associated with the remaining effects in the model. Similarly, the
-full conditional for the regression coefficients $\beta_j$ of a
+full conditional for the regression coefficients $\betavec_j$ of a
 function $f_j$ is Gaussian with mean
 \begin{equation}
-\label{meangaussian} m_j = E(\beta_j | \cdot) = \left(
-\frac{1}{\sigma^2} X_j' C X_j + \frac{1}{\tau_j^2} K_j \right)^{-1}
-\frac{1}{\sigma^2}X_j'C(y-\eta_{-j}),
+\label{meangaussian} \mvec_j = E(\betavec_j | \cdot) = \left(
+\frac{1}{\sigma^2} \Xvec_j' \Cvec \Xvec_j + \frac{1}{\tau_j^2} \Kvec_j \right)^{-1}
+\frac{1}{\sigma^2}\Xvec_j' \Cvec(\yvec-\etavec_{-j}),
 \end{equation}
-where $\eta_j=\eta-X_j\beta_j$, and covariance matrix
+where $\etavec_j=\etavec-\Xvec_j\betavec_j$, and covariance matrix
 \begin{equation}
-\label{covgaussian} Cov(\beta_j | \cdot) = P_j^{-1} = \left(
-\frac{1}{\sigma^2} X_j'CX_j + \frac{1}{\tau_j^2} K_j \right)^{-1}.
+\label{covgaussian} Cov(\betavec_j | \cdot) = \Pvec_j^{-1} = \left(
+\frac{1}{\sigma^2} \Xvec_j' \Cvec \Xvec_j + \frac{1}{\tau_j^2} \Kvec_j \right)^{-1}.
 \end{equation}
 Although the full conditional is Gaussian, drawing random samples in
 an efficient way is not trivial, since linear equation systems with
-a high dimensional precision matrix $P_j$ must be solved in every
+a high dimensional precision matrix $\Pvec_j$ must be solved in every
 iteration of the MCMC scheme. Following Rue (2001), random numbers
-from $p(\beta_j | \cdot)$ can be obtained as follows: Compute the
-Cholesky decomposition $P_j = L L'$ and solve $L' \beta_j = z$,
-where $z$ is a vector of independent standard Gaussians. It follows
-that $\beta_j \sim N(0,P_j^{-1})$. Afterwards compute the mean $m_j$
-by solving $P_j m_j = \frac{1}{\sigma^2} X_j'C(y-\eta_{-j})$. This
-is achieved by first solving $L \nu = \frac{1}{\sigma^2}
-X_j'C(y-\tilde{\eta})$ by forward substitution followed by backward
-substitution $L' m_j = \nu$. Finally, adding $m_j$ to the previously
-simulated $\beta_j$ yields $\beta_j \sim N(m_j,P_j^{-1})$.
+from $p(\betavec_j | \cdot)$ can be obtained as follows: Compute the
+Cholesky decomposition $\Pvec_j = \Lvec \Lvec'$ and solve $\Lvec' \betavec_j = \zvec$,
+where $\zvec$ is a vector of independent standard Gaussians. It follows
+that $\betavec_j \sim N(\nullvec,\Pvec_j^{-1})$. Afterwards compute the mean $\mvec_j$
+by solving $\Pvec_j \mvec_j = \frac{1}{\sigma^2} \Xvec_j'\Cvec(\yvec-\etavec_{-j})$. This
+is achieved by first solving $\Lvec \nuvec = \frac{1}{\sigma^2}
+\Xvec_j'\Cvec(\yvec-\tilde{\etavec})$ by forward substitution followed by backward
+substitution $\Lvec' \mvec_j = \nuvec$. Finally, adding $\mvec_j$ to the previously
+simulated $\betavec_j$ yields $\betavec_j \sim N(\mvec_j,\Pvec_j^{-1})$.
 
-In most cases, the posterior precision matrices $P_j$ can be brought
+In most cases, the posterior precision matrices $\Pvec_j$ can be brought
 into a band matrix like structure with bandsize depending on the
 prior. If $f_j$ corresponds to a spatially correlated effect for
 regional data, the posterior precision matrix is usually a sparse
@@ -1112,16 +1552,16 @@ The full conditionals for the variance parameters $\tau^2_j$,
 $j=1,\dots,p$, and $\sigma^2$ are all inverse Gamma distributions
 with parameters
 \begin{equation}
-\label{hypab} a_j' = a_j + \frac{\mathrm{rank}(K_j)}{2} \quad
-\mbox{and} \quad b_j' = b_j + \frac{1}{2} \beta_j'K_j \beta_j
+\label{hypab} a_j' = a_j + \frac{\mathrm{rank}(\Kvec_j)}{2} \quad
+\mbox{and} \quad b_j' = b_j + \frac{1}{2} \betavec_j'\Kvec_j \betavec_j
 \end{equation}
 for $\tau^2_j$. For $\sigma^2$ we obtain
 \begin{equation}
 \label{hypabsigma} a_{\sigma}' = a_{\sigma}+\frac{n}{2} \quad
 \mbox{and} \quad b_{\sigma}' = b_{\sigma} + \frac{1}{2}
-\epsilon'\epsilon
+\varepsilonvec'\varepsilonvec
 \end{equation}
-where $\epsilon$ is the usual vector of residuals.
+where $\varepsilonvec$ is the usual vector of residuals.
 
 Note that prior to estimation the response variable is standardized
 in {\em BayesX} to avoid numerical problems with too large or too
@@ -1134,18 +1574,18 @@ follows:
 {\bf Sampling scheme 1:}
 \begin{enumerate}
 \item {\em Initialization:} \\
-Compute the posterior mode for $\beta_1,\dots,\beta_p$ and $\gamma$
+Compute the posterior mode for $\betavec_1,\dots,\betavec_p$ and $\gammavec$
 given fixed (usually small) smoothing parameters $\lambda_j =
 \sigma^2/\tau^2_j$, by default {\em BayesX} uses $\lambda_j = 0.1$.
 This value may be changed by the user. The mode is computed via
 backfitting. Use the posterior mode estimates as the initial state
-$\beta_j^c$, $(\tau_j^2)^c$, $\gamma^c$ of the chain.
-\item {\em Update regression parameters $\gamma$} \\
-Update regression parameters $\gamma$ by drawing from the Gaussian
+$\betavec_j^c$, $(\tau_j^2)^c$, $\gammavec^c$ of the chain.
+\item {\em Update regression parameters $\gammavec$} \\
+Update regression parameters $\gammavec$ by drawing from the Gaussian
 full conditional with mean and covariance matrix specified in
 (\ref{meanfixed}) and (\ref{covfixed}).
-\item {\em Update regression parameters $\beta_j$} \\
-Update $\beta_j$ for $j=1,\dots,p$ by drawing from the Gaussian
+\item {\em Update regression parameters $\betavec_j$} \\
+Update $\betavec_j$ for $j=1,\dots,p$ by drawing from the Gaussian
 full conditionals with mean and covariance matrix given in
 (\ref{meangaussian}) and (\ref{covgaussian}).
 \item {\em Update variance parameters $\tau^2_j$ and $\sigma^2$} \\
@@ -1186,17 +1626,17 @@ distributions. More specifically, $L_i | \cdot \sim N(\eta_i,1)$
 truncated at the left by zero if $y_i=1$ and truncated by zero at
 the right if $y_i=0$. The advantage of defining a probit model
 through the latent variables $L_i$ is that the full conditionals for
-the regression parameters $\beta_j$ (and $\gamma$) are again
+the regression parameters $\betavec_j$ (and $\gammavec$) are again
 Gaussian with precision matrix and mean given by
 \begin{equation}
-\label{prec2} P_j = X_j'X_j + \frac{1}{\tau^2_j}K_j, \quad m_j =
-P_j^{-1}X_j'(L-\tilde{\eta}).
+\label{prec2} \Pvec_j = \Xvec_j'\Xvec_j + \frac{1}{\tau^2_j}\Kvec_j, \quad \mvec_j =
+\Pvec_j^{-1} \Xvec_j'(\Lvec-\tilde{\etavec}).
 \end{equation}
 Hence, the efficient and fast sampling schemes for Gaussian
 responses can be used with slight modifications. Updating of
-$\beta_j$ and $\gamma$ can be done exactly as described in
-sampling scheme 1  using the current values $L^c$ of the latent
-utilities as (pseudo) responses and setting $\sigma^2=1$, $C=I$.
+$\betavec_j$ and $\gammavec$ can be done exactly as described in
+sampling scheme 1  using the current values $\Lvec^c$ of the latent
+utilities as (pseudo) responses and setting $\sigma^2=1$, $\Cvec=\Ivec$.
 
 For binary logit models, the sampling schemes become slightly more
 complicated. A logit model can be expressed in terms of latent
@@ -1236,70 +1676,70 @@ or IWLS (e.g. Fahrmeir and Tutz, 2001) for estimating regression
 parameters in generalized linear models, and the
 Metropolis-Hastings algorithm. More precisely, the goal is to
 approximate the full conditionals of regression parameters
-$\beta_j$ and $\gamma$ by a Gaussian distribution, obtained by
+$\betavec_j$ and $\gammavec$ by a Gaussian distribution, obtained by
 accomplishing {\em one} Fisher scoring step in every iteration of
 the sampler. Suppose we want to update the regression coefficients
-$\beta_j$ of the  function $f_j$ with current state $\beta_j^c$ of
-the chain. Then, according to IWLS, a new value $\beta_j^p$ is
+$\betavec_j$ of the  function $f_j$ with current state $\betavec_j^c$ of
+the chain. Then, according to IWLS, a new value $\betavec_j^p$ is
 proposed by drawing a random number from the multivariate Gaussian
-proposal distribution $q(\beta_j^c,\beta_j^p)$ with precision
+proposal distribution $q(\betavec_j^c,\betavec_j^p)$ with precision
 matrix and mean
 \begin{equation}
-\label{prec} P_j = X_j'W(\beta^c_j)X_j + \frac{1}{\tau^2_j}K_j,
-\quad m_j = P_j^{-1}X_j'W(\beta^c_j)(\tilde{y}(\beta^c_j) -
-\eta_{-j}).
+\label{prec} \Pvec_j = \Xvec_j'\Wvec(\betavec^c_j)\Xvec_j + \frac{1}{\tau^2_j} \Kvec_j,
+\quad \mvec_j = \Pvec_j^{-1}\Xvec_j'\Wvec(\betavec^c_j)(\tilde{\yvec}(\betavec^c_j) -
+\etavec_{-j}).
 \end{equation}
-Here, $W(\beta^c_j) = \diag(w_1,\dots,w_n)$ is the usual weight
-matrix for IWLS with weights $w^{-1}_i(\beta^c_j) =
+Here, $\Wvec(\betavec^c_j) = \diag(w_1,\dots,w_n)$ is the usual weight
+matrix for IWLS with weights $w^{-1}_i(\betavec^c_j) =
 b''(\theta_i)(g'(\mu_i))^2$ obtained from the current state
-$\beta^c_j$. The vector $\eta_{-j}=\eta-X_j\beta_j$ is the part of
+$\betavec^c_j$. The vector $\etavec_{-j}=\etavec-\Xvec_j\betavec_j$ is the part of
 the predictor associated with all remaining effects in the model.
 The working observations $\tilde{y}_i$ are defined as
-$$\tilde{y}_i(\beta^c_j) = \eta_i + (y_i - \mu_i)g'(\mu_i).$$
+$$\tilde{y}_i(\betavec^c_j) = \eta_i + (y_i - \mu_i)g'(\mu_i).$$
 
 The sampling scheme can be summarized as follows:
 
 {\bf Sampling scheme 2 (IWLS-proposals):}
 \begin{enumerate}
 \item {\em Initialization} \\
-Compute the posterior mode for $\beta_1,\dots,\beta_p$ and $\gamma$
+Compute the posterior mode for $\betavec_1,\dots,\betavec_p$ and $\gammavec$
 given fixed smoothing parameters $\lambda_j = 1/\tau^2_j$. By
 default, {\em BayesX} uses $\lambda_j = 0.1$ but the value may be
 changed by the user. The mode is computed via backfitting within
 Fisher scoring. Use the posterior mode estimates as the initial
-state $\beta_j^c$, $(\tau_j^2)^c$, $\gamma^c$ of the chain.
-\item {\em Update $\gamma$} \\
-Draw a proposed new value $\gamma^p$ from the Gaussian proposal
-density $q(\gamma^c,\gamma^p)$ with mean
+state $\betavec_j^c$, $(\tau_j^2)^c$, $\gammavec^c$ of the chain.
+\item {\em Update $\gammavec$} \\
+Draw a proposed new value $\gammavec^p$ from the Gaussian proposal
+density $q(\gammavec^c,\gammavec^p)$ with mean
 $$
-m_{\gamma} = (U' W(\gamma^c) U)^{-1}U' W(\gamma^c) (y-\tilde{\eta}
+\mvec_{\gammavec} = (\Uvec' \Wvec(\gammavec^c) \Uvec)^{-1}\Uvec' \Wvec(\gammavec^c) (\yvec-\tilde{\etavec}
 )
 $$
 and precision matrix
 $$
-P_{\gamma} = U' W(\gamma^c) U.
+P_{\gammavec} = \Uvec' \Wvec(\gammavec^c) \Uvec.
 $$
-Accept $\gamma^p$ as the new state of the chain $\gamma^c$ with
+Accept $\gammavec^p$ as the new state of the chain $\gammavec^c$ with
 acceptance probability
 $$
-\alpha = \frac{ L(y,\dots,\gamma^p)} {L(y,\dots,\gamma^c)} \frac{
-q(\gamma^p,\gamma^c)}{q(\gamma^c,\gamma^p)},
+\alpha = \frac{ L(\yvec,\dots,\gammavec^p)} {L(\yvec,\dots,\gammavec^c)} \frac{
+q(\gammavec^p,\gammavec^c)}{q(\gammavec^c,\gammavec^p)},
 $$
-otherwise keep $\gamma^c$ as the current state.
-\item {\em Update $\beta_j$} \\
-Draw for $j=1,\dots,p$ a proposed new value $\beta_j^p$ from the
-Gaussian proposal density $q(\gamma^c,\gamma^p)$ with mean and
-precision matrix given in (\ref{prec}). Accept $\beta_j$ as the
-new state of the chain $\beta_j^c$ with probability
+otherwise keep $\gammavec^c$ as the current state.
+\item {\em Update $\betavec_j$} \\
+Draw for $j=1,\dots,p$ a proposed new value $\betavec_j^p$ from the
+Gaussian proposal density $q(\gammavec^c,\gammavec^p)$ with mean and
+precision matrix given in (\ref{prec}). Accept $\betavec_j$ as the
+new state of the chain $\betavec_j^c$ with probability
 $$
 \alpha = \frac{
-L(y,\dots,\beta^{p}_j,(\tau_j^2)^{c},\dots,\gamma^c)}
-{L(y,\dots,\beta^{c}_j,(\tau_j^2)^{c},\dots,\gamma^c)}
-\frac{p(\beta_j^p \, | \, (\tau_j^2)^c)}{p(\beta_j^c \, | \,
+L(\yvec,\dots,\betavec^{p}_j,(\tau_j^2)^{c},\dots,\gammavec^c)}
+{L(\yvec,\dots,\betavec^{c}_j,(\tau_j^2)^{c},\dots,\gammavec^c)}
+\frac{p(\betavec_j^p \, | \, (\tau_j^2)^c)}{p(\betavec_j^c \, | \,
 (\tau_j^2)^c)} \frac{
-q(\beta_j^p,\beta_j^c)}{q(\beta_j^c,\beta_j^p)},
+q(\betavec_j^p,\betavec_j^c)}{q(\betavec_j^c,\betavec_j^p)},
 $$
-otherwise keep $\beta_j^c$ as the current state.
+otherwise keep $\betavec_j^c$ as the current state.
 \item {\em Update $\tau^2_j$} \\
 Update variance parameters by drawing from inverse gamma full
 conditionals with parameters given in (\ref{hypab}).
@@ -1307,17 +1747,17 @@ conditionals with parameters given in (\ref{hypab}).
 
 A slightly different updating scheme computes the mean and the
 precision matrix of the proposal distribution based on the current
-posterior mode $m_j^c$ (from the last iteration) rather than the
-current $\beta_j^c$, i.e. (\ref{prec}) is replaced by
+posterior mode $\mvec_j^c$ (from the last iteration) rather than the
+current $\betavec_j^c$, i.e. (\ref{prec}) is replaced by
 \begin{equation}
-\label{precmode} P_j = X_j'W(m_j^c)X_j + \frac{1}{\tau^2_j}K_j,
-\quad m_j = P_j^{-1}X_j'W(m_j^c)(\tilde{y}(\beta^c_j) - \eta_{-j}).
+\label{precmode} \Pvec_j = \Xvec_j'\Wvec(\mvec_j^c)\Xvec_j + \frac{1}{\tau^2_j}\Kvec_j,
+\quad \mvec_j = \Pvec_j^{-1}\Xvec_j'\Wvec(\mvec_j^c)(\tilde{\yvec}(\betavec^c_j) - \etavec_{-j}).
 \end{equation}
-The difference of using $m_j^c$ rather than $\beta_j^c$ is that
+The difference of using $\mvec_j^c$ rather than $\betavec_j^c$ is that
 the proposal is {\em independent} of the current state of the
-chain, i.e. $q(\beta_j^c,\beta_j^p) = q(\beta_j^p)$. Hence, it is
-not required to recompute $P_j$ and $m_j$ when computing the
-proposal density $q(\beta_j^p,\beta_j^c)$.
+chain, i.e. $q(\betavec_j^c,\betavec_j^p) = q(\betavec_j^p)$. Hence, it is
+not required to recompute $\Pvec_j$ and $\mvec_j$ when computing the
+proposal density $q(\betavec_j^p,\betavec_j^c)$.
 
 Usually acceptance rates are significantly higher compared to
 sampling scheme 2. This is particularly useful for updating spatial
@@ -1329,45 +1769,45 @@ The sampling scheme can be summarized as follows:
 {\bf Sampling scheme 3 (IWLS-proposals based on current mode):}
 \begin{enumerate}
 \item {\em Initialization} \\
-Compute the posterior mode for $\beta_1,\dots,\beta_p$ and $\gamma$
+Compute the posterior mode for $\betavec_1,\dots,\betavec_p$ and $\gammavec$
 given fixed smoothing parameters $\lambda_j = 1/\tau^2_j$. By
 default, {\em BayesX} uses $\lambda_j = 0.1$ but the value may be
 changed by the user. The mode is computed via backfitting within
 Fisher scoring. Use the posterior mode estimates as the initial
-state $\beta_j^c$, $(\tau_j^2)^c$, $\gamma^c$ of the chain. Define
-$m_j^c$ and $m_{\gamma}^c$ as the current mode.
-\item {\em Update $\gamma$} \\
-Draw a proposed new value $\gamma^p$ from the Gaussian proposal
-density $q(\gamma^c,\gamma^p)$ with mean
+state $\betavec_j^c$, $(\tau_j^2)^c$, $\gammavec^c$ of the chain. Define
+$\mvec_j^c$ and $\mvec_{\gammavec}^c$ as the current mode.
+\item {\em Update $\gammavec$} \\
+Draw a proposed new value $\gammavec^p$ from the Gaussian proposal
+density $q(\gammavec^c,\gammavec^p)$ with mean
 $$
-m_{\gamma} = (U' W(m_{\gamma}^c) U)^{-1}U' W(m_{\gamma}^c)
-(y-\tilde{\eta} )
+\mvec_{\gammavec} = (\Uvec' \Wvec(\mvec_{\gammavec}^c) \Uvec)^{-1}\Uvec' \Wvec(\mvec_{\gammavec}^c)
+(\yvec-\tilde{\etavec} )
 $$
 and precision matrix
 $$
-P_{\gamma} = U' W(m_{\gamma}^c) U.
+P_{\gammavec} = \Uvec' \Wvec(\mvec_{\gammavec}^c) \Uvec.
 $$
-Accept $\gamma^p$ as the new state of the chain $\gamma^c$ with
+Accept $\gammavec^p$ as the new state of the chain $\gammavec^c$ with
 acceptance probability
 $$
-\alpha = \frac{ L(y,\dots,\gamma^p)} {L(y,\dots,\gamma^c)} \frac{
-q(\gamma^p,\gamma^c)}{q(\gamma^c,\gamma^p)},
+\alpha = \frac{ L(\yvec,\dots,\gammavec^p)} {L(y,\dots,\gammavec^c)} \frac{
+q(\gammavec^p,\gammavec^c)}{q(\gammavec^c,\gammavec^p)},
 $$
-otherwise keep $\gamma^c$ as the current state.
-\item {\em Update $\beta_j$} \\
-Draw for $j=1,\dots,p$ a proposed new value $\beta_j^p$ from the
-Gaussian proposal density $q(\beta_j^c,\beta_j^p)$ with mean and
-precision matrix given in (\ref{precmode}). Accept $\beta^p_j$ as
-the new state of the chain $\beta_j^c$ with probability
+otherwise keep $\gammavec^c$ as the current state.
+\item {\em Update $\betavec_j$} \\
+Draw for $j=1,\dots,p$ a proposed new value $\betavec_j^p$ from the
+Gaussian proposal density $q(\betavec_j^c,\betavec_j^p)$ with mean and
+precision matrix given in (\ref{precmode}). Accept $\betavec^p_j$ as
+the new state of the chain $\betavec_j^c$ with probability
 $$
 \alpha = \frac{
-L(y,\dots,\beta^{p}_j,(\tau_j^2)^{c},\dots,\gamma^c)}
-{L(y,\dots,\beta^{c}_j,(\tau_j^2)^{c},\dots,\gamma^c)}
-\frac{p(\beta_j^p \, | \, (\tau_j^2)^c)}{p(\beta_j^c \, | \,
+L(y,\dots,\betavec^{p}_j,(\tau_j^2)^{c},\dots,\gammavec^c)}
+{L(y,\dots,\betavec^{c}_j,(\tau_j^2)^{c},\dots,\gammavec^c)}
+\frac{p(\betavec_j^p \, | \, (\tau_j^2)^c)}{p(\betavec_j^c \, | \,
 (\tau_j^2)^c)} \frac{
-q(\beta_j^p,\beta_j^c)}{q(\beta_j^c,\beta_j^p)},
+q(\betavec_j^p,\betavec_j^c)}{q(\betavec_j^c,\betavec_j^p)},
 $$
-otherwise keep $\beta_j^c$ as the current state.
+otherwise keep $\betavec_j^c$ as the current state.
 \item {\em Update $\tau^2_j$} \\
 Update variance parameters by drawing from inverse gamma full
 conditionals with parameters given in (\ref{hypab}).
@@ -1389,11 +1829,11 @@ likelihood. In terms of the GLMM representation outlined in
 \begin{equation}
 \label{posterior2}
 \begin{array}{lll}
- p(\beta^{unp},\beta^{pen}|y) & \propto & L(y,\beta^{unp},\beta^{pen})
-\displaystyle \prod_{j=1}^p \left( p(\beta_j^{pen}|\tau_j^2)  \right) \\
+ p(\betavec^{unp},\betavec^{pen}\, | \, \yvec) & \propto & L( \yvec,\betavec^{unp},\betavec^{pen})
+\displaystyle \prod_{j=1}^p \left( p(\betavec_j^{pen}|\tau_j^2)  \right) \\
  \end{array}
 \end{equation}
-where $p(\beta_j^{pen}|\tau_j^2)$ is defined in (\ref{priorunp}).
+where $p(\betavec_j^{pen}|\tau_j^2)$ is defined in (\ref{priorunp}).
 
 Based on the GLMM representation, regression and variance parameters
 can be estimated using iteratively weighted least squares (IWLS) and
@@ -1402,29 +1842,29 @@ developed for GLMMs. Estimation is carried out iteratively in two
 steps:
 
 \begin{enumerate}
-\item Obtain updated estimates $\hat{\beta}^{unp}$ and $\hat{\beta}^{pen}$ given the current variance parameters
+\item Obtain updated estimates $\hat{\betavec}^{unp}$ and $\hat{\betavec}^{pen}$ given the current variance parameters
 as the solutions of the system of equations
 \begin{equation}
 \label{equsystem} \left(
 \begin{array}{ll}
-\tilde{U}' W  \tilde{U} & \tilde{U}' W  \tilde{X} \\
-\tilde{X}' W  \tilde{U} & \tilde{X}' W  \tilde{X} +
-\tilde{\Lambda}^{-1}
+\tilde{\Uvec}' \Wvec  \tilde{\Uvec} & \tilde{\Uvec}' \Wvec  \tilde{\Xvec} \\
+\tilde{\Xvec}' \Wvec  \tilde{\Uvec} & \tilde{\Xvec}' \Wvec  \tilde{\Xvec} +
+\tilde{\Lambdavec}^{-1}
 \end{array}
 \right) \left(
 \begin{array}{l}
-\beta^{unp} \\
-\beta^{pen}
+\betavec^{unp} \\
+\betavec^{pen}
 \end{array}
 \right) = \left(
 \begin{array}{l}
-\tilde{U}'W \tilde{y} \\
-\tilde{X}'W \tilde{y}
+\tilde{\Uvec}' \Wvec \tilde{\yvec} \\
+\tilde{\Xvec}'\Wvec \tilde{\yvec}
 \end{array}
 \right).
 \end{equation}
-The $(n \times 1)$ vector $\tilde{y}$ and the $n \times n$ diagonal
-matrix $W = \diag(w_1,\dots,w_n)$ are the usual working observations
+The $(n \times 1)$ vector $\tilde{\yvec}$ and the $n \times n$ diagonal
+matrix $\Wvec = \diag(w_1,\dots,w_n)$ are the usual working observations
 and weights in generalized linear models, see \autoref{IWLS}.
 \item Updated estimates for the variance parameters $\hat{\tau}_j^2$ are obtained by maximizing
 the (approximate) marginal / restricted log likelihood
@@ -1432,16 +1872,16 @@ the (approximate) marginal / restricted log likelihood
 \label{restrl}
 \begin{array}{lll}
 l^{\ast}(\tau^2_1,\dots,\tau^2_p) & = & -\frac{1}{2}
-\log(|\Sigma|) - \frac{1}{2} \log(|\tilde{U} \Sigma^{-1}
-\tilde{U}|) \\ [0.3cm] & & - \frac{1}{2} (\tilde{y} - \tilde{U}
-\hat{\beta}^{unp})' \Sigma^{-1} (\tilde{y} - \tilde{U}
-\hat{\beta}^{unp})
+\log(|\Sigmavec|) - \frac{1}{2} \log(|\tilde{\Uvec} \Sigmavec^{-1}
+\tilde{\Uvec}|) \\ [0.3cm] & & - \frac{1}{2} (\tilde{\yvec} - \tilde{\Uvec}
+\hat{\betavec}^{unp})' \Sigmavec^{-1} (\tilde{\yvec} - \tilde{\Uvec}
+\hat{\betavec}^{unp})
 \end{array}
 \end{equation}
 with respect to the variance parameters $\tau^2_1,\dots,\tau^2_p$.
-Here, $\Sigma = W^{-1} + \tilde{X} \Lambda \tilde{X}'$ is an
-approximation to the marginal covariance matrix of $\tilde{y} |
-\beta^{pen}$.
+Here, $\Sigmavec = \Wvec^{-1} + \tilde{\Xvec} \Lambdavec \tilde{\Xvec}'$ is an
+approximation to the marginal covariance matrix of $\tilde{\yvec} |
+\betavec^{pen}$.
 \end{enumerate}
 
 The two estimation steps are iterated until convergence. In {\em
@@ -1457,7 +1897,7 @@ that Fisher scoring fails in finding the marginal likelihood
 estimates $\hat{\tau}^2$. Therefore, the estimation of small
 variances $\tau_j^2$ is stopped if the criterion
 \begin{equation}\label{remlstopcrit}
- c(\tau_j^2)=\frac{||\tilde{X}_j\hat{\beta}_j^{pen}||}{||\hat{\eta}||}
+ c(\tau_j^2)=\frac{||\tilde{\Xvec}_j\hat{\betavec}_j^{pen}||}{||\hat{\etavec}||}
 \end{equation}
 is smaller than the user-specified value #lowerlim# (see section
 8.1.2 of the reference manual). This usually corresponds to small
@@ -1468,6 +1908,136 @@ Models for categorical responses are in principle estimated in the
 same way as presented above but have to be embedded into the
 framework of multivariate generalized linear models, see Kneib and
 Fahrmeir (2006) for details.
+
+\subsection{Simultaneous selection of model terms and estimation of unknown parameters}
+\label{stepwiseest}
+\index{model choice} \index{variable selection}
+\index{Stepwisereg objects}
+
+This section may be skipped if you are not interested in using ({\em stepwisereg objects}).
+
+
+A main building block of the algorithms of {\em stepwisereg objects} are  smoothers of the form
+$$
+S(\yvec,\lambdavec) = \Xvec \hat{\betavec} \qquad \hat{\betavec} = (\Xvec'\Xvec + \Pvec(\lambdavec))^{-1}\Xvec' \yvec,
+$$
+where $\Xvec$ and $\Pvec(\lambdavec)$ are design and penalty matrices corresponding to
+the smooth covariate effects discussed in the preceding section.
+For fixed smoothing parameter(s) $\hat{\betavec}$ is the minimizer of the penalized least squares criterion
+$$
+PLS(\betavec) = (\yvec-\Xvec \betavec)' (\yvec-\Xvec \betavec) + \betavec' \Pvec(\lambdavec) \betavec.
+$$
+Consecutively applying smoothers $S_j$ corresponding to the $j$-th function $f_j$ in (\ref{gampred}) to
+the current partial residual reveals the well known backfitting
+algorithm to minimize the overall PLS-criterion
+$$
+PLS = \left(\yvec-\sum_{j=1}^{p}\Xvec_j \betavec_j  - \Uvec \gammavec \right)'
+\left(\yvec-\sum_{j=1}^{p}\Xvec_j \betavec_j - \Uvec \gammavec  \right) +
+\sum_{j=1}^{p} \betavec_j' \Pvec_j(\lambdavec_j) \betavec_j.
+$$
+The complexity of the fit may be determined by the equivalent degrees of freedom $df$ as a measure of the effective number of parameters.
+In concordance with linear models the degrees of freedom of the fit are defined as
+$$
+df = trace (\Hvec),
+$$
+where $\Hvec$ is the prediction matrix that projects the observations $\yvec$ on their fitted values $\hat{\yvec}$, i.e.
+$\hat \yvec = \Hvec \yvec$. In complex models with many effects the trace of $\Hvec$ is difficult and computationally intensive to compute.
+Therefore $df$ is typically approximated by the sum of the degrees of freedom of individual smoothers, i.e.
+$$
+df = \sum_{j=1}^{p} df_j + q,
+$$
+where $q$ is the number of linear effects in the model and  $df_j$ is in most cases computed as
+\begin{equation}
+\label{df_approx}
+df_j = trace (\Xvec_j (\Xvec_j'\Xvec_j + \Pvec_j(\lambdavec_j))^{-1}\Xvec_j')-1.
+\end{equation}
+The substraction of one from the trace is necessary because terms are usually centered around zero to guarantee identifiability and as a consequence
+one degree of freedom is lost. For two dimensional P-splines as well as unit- or cluster specific effects the approximation is not valid and modifications
+are necessary, see Belitz and Lang (2007).
+
+Our variable selection procedure described below aims at minimizing a goodness of fit criterion. The following
+options are available:
+\begin{itemize}
+\item {\bf Test- and validation sample} \\
+Provided that enough data are available the best strategy is to divide the data into a test- and validation
+sample. The test data set is used to estimate the parameters of the models. The fit of different models
+is assessed via the validation data set. In the case of a continuous response, typically the mean squared prediction
+error is minimized.
+\item {\bf Goodness of fit criteria}  $AIC$, $AIC_{c}$, $BIC$ where $AIC_c$ is the bias corrected version of the $AIC$ as
+proposed by Hurvich, Simonoff and Tsai (1998).
+\item {\bf 5 or 10 fold cross validation} \\
+Cross validation is recommended
+if the approximation to the degrees of freedom is likely to be erroneous e.g. because of strong correlations among covariates.
+\end{itemize}
+
+The basic algorithm for simultaneous selection of model terms and estimation of parameters works as follows:  \\
+
+
+\begin{enumerate}
+\item {\bf Initialization} \\
+Define for every possible nonlinear term $f_j$, $j=1,\dots,p$, a discrete number $M_j$ of decreasing smoothing parameters
+$\lambda_{j1} > \dots >\lambda_{jM_j}$. The smoothing parameters are chosen such that they correspond to certain
+equivalent degrees of freedom.
+\item {\bf Start model} \\
+Choose a start model with current predictor
+$$
+\hat{\etavec} = \fhatvec_1 + \ldots + \fhatvec_p.
+$$
+where $\fhatvec_j$ is the vector of function evaluations at the observations.
+Choose a goodness of fit criteria $C$.
+
+\item {\bf Iteration}
+\begin{itemize}
+\item[a)] For $j=1,\dots,p$: \\
+\begin{enumerate}
+\item[]
+For $m=0,\dots,M_j$: \\
+Compute the fits
+$$
+\begin{array}{lll}
+\fhatvec_{jm} & := &
+\left\{
+\begin{array}{ll}
+\nullvec & m=0 \\
+\Smat_j(\yvec-\hat{\etavec}_{[j]},\lambda_{jm})  & m=1,\dots,M_j \\
+\end{array}
+\right. \\[0.4cm]
+& = &
+\left\{
+\begin{array}{ll}
+\nullvec & m=0 \\
+(\Xvec_j'\Xvec_j + \Pvec(\lambda_{jm}))^{-1} \Xvec_j' (\yvec-\hat{\etavec}_{[j]})  & m=1,\dots,M_j \\
+\end{array}
+\right. \\
+\end{array}
+$$
+and the corresponding predictors $\hat{\etavec}_{jm} :=
+\hat{\etavec}_{[j]}+\fhatvec_{jm}$. Here,  $\hat{\etavec}_{[j]}$ is
+the current predictor with the $j$-th fit  $\fhatvec_j$  removed. \\
+\end{enumerate}
+
+Compute the updated estimate
+$$
+\fhatvec_j = \mbox{argmin} \, \,  C(\fhatvec_{jm}),
+$$
+i.e. among the fits $\fhatvec_{jm}$ for the $j$-th component, choose the one that minimizes
+the goodness of fit criteria $C$.
+
+\item[b)] The linear effects part $\uvec'\gammavec$  typically consists of the intercept $\gamma_0$ and
+dummy variables for the categorical covariates. For the moment suppose that $\uvec$ contains
+dummies representing only one categorical variable. Then we compare the fits
+$\hat{\gamma}_0 = \overline{y-\eta_{[lin]}}, \gamma_1=0,\dots,\gamma_q=0$ (covariate removed from the model) and
+$\hat{\gammavec} = (\Uvec'\Uvec)^{-1} \Uvec' (\yvec - \hat{\etavec}_{[lin]})$ where
+$\hat{\etavec}_{[lin]}$ is the current predictor with the linear effects removed and
+$\overline{y-\eta_{[lin]}}$ is the mean of the elements of the partial residual vector
+$\yvec - \hat{\etavec}_{[lin]}$. If more than one categorical covariate is available
+the procedure is repeated for every variable.
+\end{itemize}
+\item {\bf Termination} \\
+The iteration cycle in 3. is repeated until the model, regression and smoothing parameters do not change anymore.
+\end{enumerate}
+If a two dimensional surface with penalty (\ref{penalty_comb}) is specified the basic algorithm 1 must be adapted, see Belitz and Lang (2007) for details.
+
 
 \section{Survival analysis and multi-state models}
 \label{survivalAnalysis}\index{Survival analysis}
@@ -2073,6 +2643,17 @@ Journal of the American Statistical Association},  88, 669-679.
 Scale mixtures of normal distributions. {\it Journal of the Royal
 Statistical Society B}, 36, 99-102.
 
+\item[Bollaerts, K. and Eilers, P. and Van Mechelen, I. (2006):]
+Simple and Multiple P-Spline Regression with Shape Constraints.
+{\it British Journal of Mathematical and Statistical Psychology},
+59, 451--469.
+
+\item[Belitz, C. (2007):] {\it Model selection in Generalised Structured Additive Regression Models.} Dr. Hut Verlag, M\"{u}nchen.
+
+\item[Belitz, C.  and Lang, S. (2007):] Simultaneous selection of variables and smoothing parameters
+in structured additive regression models. Revised for {\em Computational Statistics and Data Analysis}.
+
+
 \item[Brezger, A. and Lang, S., (2006):]
 Generalized additive regression based on Bayesian P-splines. {\it
 Computational Statistics and Data Analysis}, 50, 967-991.
@@ -2080,6 +2661,10 @@ Computational Statistics and Data Analysis}, 50, 967-991.
 \item[Devroye, L. (1986):]
 {\it Non-Uniform Random Variate Generation.} Springer-Verlag, New
 York.
+
+\item[Eilers, P. H. C. and Marx, B. D. (1996):]
+Flexible smoothing using B-splines and penalized likelihood.
+{\it Statistical Science}, 11, 89--121.
 
 \item[Fahrmeir, L., Kneib, T. and Lang, S., (2004):] Penalized
 structured additive regression for space-time data: a Bayesian
@@ -2153,6 +2738,13 @@ Statistical Association}, 101, 1065-1075.
 \item[Holmes, C., Held, L. (2006):]
 Bayesian auxiliary variable models for binary and multinomial
 regression. {\em Bayesian Analysis}, 1, 145-168.
+
+\item[Hurvich, C. M., Simonoff, J.S. and Tsai, C.L. (1998):]
+Smoothing parameter selection in nonparametric regression using an
+                    improved {A}kaike information criterion,
+{\it Journal of the Royal Statistical Society B}, 60, 271--293.
+
+
 
 \item[Johnson, M.E., Moore, L.M. and
 Ylvisaker, D., (1990):] Minimax and maximin designs. {\it Journal of
