@@ -761,9 +761,6 @@ linear or constant main effects depending on the difference order used to constr
 \end{enumerate}
 
 
-
-
-
 \subsection{Spatial heterogeneity}
 In this subsection we assume that $x$ represents the location a particular observation pertains to.
 The location is typically given in two ways. If exact locations
@@ -798,13 +795,6 @@ The elements of the penalty matrix are given by
 Depending on the prior belief on smoothness of the spatial effect several alternatives to penalty (\ref{K_mrf}) are available.
 If a very smooth effect is assumed the two dimensional smoothers discussed in the preceding section could be used as an alternative.
 Since exact locations are not available the centroids of the regions could be used instead.
-In some situations a smooth spatial effect is not justified because of local, spatial heterogeneity. In this case,
-the assumption of spatial dependence of neighboring parameters is not meaningful. Instead, a simple ridge type penalty
-$$
-\betavec' \lambda \Kvec \betavec = \lambda \betavec'  \betavec = \lambda \sum_{k=1}^{K} \beta_k^2
-$$
-with penalty matrix $\Kvec = \Ivec$ may be defined. This penalty does not assume any spatial dependence but prevents highly variable
-estimates induced by small samples for some regions or sites.
 
 \subsection{Unit- or cluster specific heterogeneity}
 Typically, unit- or cluster specific random effects are introduced to account
@@ -814,6 +804,17 @@ This is equivalent to a penalized least squares approach with function $f(x) = \
 $\lambda = \sigma^2/\tau^2$. The $n \times K$ design matrix $\Xvec$ is a 0/1 incidence matrix whose entry in
 the $i$-th row and $k$-th column is equal to one if observation $i$ belongs to the $k$-th cluster and zero otherwise.
 Random slopes could be treated in the same way, see the next subsection.
+
+A particular cluster variable is a spatial index that indicates the region an observation pertains to. Usually a spatially correlated effect
+as described in the preceding subsection is specified.
+However, in some situations a smooth spatial effect is not justified because of local, spatial heterogeneity. In this case,
+the assumption of spatial dependence of neighboring parameters is not meaningful. Instead, the simple (ridge type) penalty
+$$
+\betavec' \lambda \Kvec \betavec = \lambda \betavec'  \betavec = \lambda \sum_{k=1}^{K} \beta_k^2
+$$
+with penalty matrix $\Kvec = \Ivec$ may be defined. This penalty does not assume any spatial dependence but prevents highly variable
+estimates induced by small samples for some regions or sites.
+
 
 Note that more than one random intercept with respect to different cluster variables are possible. In many cases there exists a hierarchical ordering
 of clusters. Models with such hierarchical clusters are also called multilevel models.
@@ -1047,6 +1048,46 @@ therefore included as a special case. More details about Bayesian
 P-splines can be found in Lang and Brezger (2004) and Brezger and
 Lang (2006).
 
+\subsubsection{Tensor product P-splines}
+\label{tensorproductpsplines_bayes}
+
+Assume now that $x$ is two dimensional, i.e.
+$x = \left(x^{(1)},x^{(2)}\right)'$ with continuous components
+$x^{(1)}$ and $x^{(2)}$. Similar to section
+\ref{tensorproductpsplines}
+the aim is to extend the univariate
+P-spline to two dimensions.
+In {\em BayesX}
+Bayesian surface fitting is based on two-dimensional P-splines described in
+more detail in Lang and Brezger (2004) and Brezger and Lang (2006).
+The unknown surface $f(x^{(1)},x^{(2)})$ is approximated by the
+tensor product of two one-dimensional B-splines, i.e.
+$$
+f\left(x^{(1)},x^{(2)}\right) = \sum_{k=1}^{K_1}
+\sum_{s=1}^{K_2} \beta_{ks} B_{1,k}(x^{(1)})
+B_{2,s} (x^{(2)}),
+$$
+where $B_{11},\dots,B_{1K_1}$ are the basis functions in $x^{(1)}$ direction and
+$B_{21},\dots,B_{2K_2}$ in $x^{(2)}$ direction.
+The $n \times K = n \times K_1 K_2$ design matrix $\Xvec$ now consists of
+products of basis functions.
+
+Priors for
+$\betavec = (\beta_{11},\dots,\beta_{K_1,K_2})'$ can be based on
+spatial smoothness priors common in spatial statistics, e.g.
+two-dimensional first order random walks. The most commonly used
+prior specification based on the four nearest neighbors is defined
+by
+\begin{equation}
+\label{2dimrw1} \beta_{ks} | \cdot \sim N \left(
+\frac{1}{4} ( \beta_{k-1,s}+ \beta_{k+1,s} +
+\beta_{k,s-1} +\beta_{k,s+1}),\frac{\tau^2}{4}
+\right)
+\end{equation}
+and appropriate edge corrections. This
+prior as well as higher order bivariate random walks can be easily
+brought into the general form (\ref{genform}).
+
 
 \subsection{Priors for spatial effects}\index{Spatial
 priors}\index{Markov random fields}\index{Kriging}\index{Gaussian
@@ -1247,38 +1288,6 @@ varying coefficient models introduced by Hastie and Tibshirani
 chapter, see section \ref{varcoeff_terms}.
 
 
-Suppose now that both interacting covariates are continuous. In this
-case, a flexible approach for modelling interactions can be based on
-(nonparametric) two-dimensional surface fitting. In {\em BayesX}
-Bayesian surface fitting is based on two-dimensional P-splines described in
-more detail in Lang and Brezger (2004) and Brezger and Lang (2006).
-The unknown surface $f(x^{(1)},x^{(2)})$ is approximated by the
-tensor product of two one-dimensional B-splines, i.e.
-$$
-f\left(x^{(1)},x^{(2)}\right) = \sum_{k=1}^{K_1}
-\sum_{s=1}^{K_2} \beta_{ks} B_{1,k}(x^{(1)})
-B_{2,s} (x^{(2)}),
-$$
-where $B_{11},\dots,B_{1K_1}$ are the basis functions in $x^{(1)}$ direction and
-$B_{21},\dots,B_{2K_2}$ in $x^{(2)}$ direction.
-The $n \times K = n \times K_1 K_2$ design matrix $\Xvec$ now consists of
-products of basis functions.
-
-Priors for
-$\betavec = (\beta_{11},\dots,\beta_{K_1,K_2})'$ can be based on
-spatial smoothness priors common in spatial statistics, e.g.
-two-dimensional first order random walks. The most commonly used
-prior specification based on the four nearest neighbors is defined
-by
-\begin{equation}
-\label{2dimrw1} \beta_{ks} | \cdot \sim N \left(
-\frac{1}{4} ( \beta_{k-1,s}+ \beta_{k+1,s} +
-\beta_{k,s-1} +\beta_{k,s+1}),\frac{\tau^2}{4}
-\right)
-\end{equation}
-and appropriate edge corrections. This
-prior as well as higher order bivariate random walks can be easily
-brought into the general form (\ref{genform}).
 
 
 \section{Mixed Model representation}
