@@ -55,7 +55,6 @@ const FULLCOND_const_stepwise & m) : FULLCOND_const(FULLCOND_const(m))
   help = m.help;
   changingweight = m.changingweight;
   changed_data = m.changed_data;
-//  interactions_pointer = m.interactions_pointer;
 
   datanames_fixed_only = m.datanames_fixed_only;
   fc_df = m.fc_df;
@@ -91,7 +90,6 @@ const FULLCOND_const_stepwise & FULLCOND_const_stepwise::
   help = m.help;
   changingweight = m.changingweight;
   changed_data = m.changed_data;
-//  interactions_pointer = m.interactions_pointer;
   datanames_fixed_only = m.datanames_fixed_only;
   fc_df = m.fc_df;  
   conditional = m.conditional;
@@ -819,49 +817,6 @@ void FULLCOND_const_stepwise::reset(void)
   }
 
 
-void FULLCOND_const_stepwise::set_effect_zero(void)
-  {
-  /*double * workbeta = beta.getV();
-  double * workbetameanold = betameanold.getV();
-  unsigned i;
-  for(i=0;i<beta.rows();i++,workbeta++,workbetameanold++)
-    {
-    //if(i==pos)
-    //  {
-      *workbeta = 0;
-      *workbetameanold = 0;
-    //  }
-    }
-  likep->substr_linearpred_m(linold,column);   // zieht den Anteil der fixen Effekte von Gesamtprädiktor ab
-  linold.mult(data,beta);                      // berechnet den Anteil der fixen Effekte neu
-  likep->add_linearpred_m(linold,column);      // addiert den Anteil der fixen Effekte zum Gesamtprädiktor */
-
-  unsigned i;    
-  if(interceptadd !=0 )
-    {
-    double * worklinold=linold.getV();        // linold = data * beta
-    for(i=0;i<linold.rows();i++,worklinold++) // add interceptadd to linold
-      *worklinold += interceptadd;            // interceptadd contains numbers
-    interceptadd=0;                           // from centering other terms
-    }
-  
-  double * workbeta = beta.getV();
-  datamatrix linold_const = datamatrix(linold.rows(),1,*workbeta);
-  likep->substr_linearpred_m(linold_const,column);  // substracts linold from linpred
-  *workbeta = 0;
-  linold = linold - linold_const;            // updates linold (subtracts the constant)
-
-  *workbeta -= likep->get_linearpred().mean(0);
-
-  double mean = likep->get_response().mean(0);
-  *workbeta += log(mean);  // speziell für Log-Link, sonst anders!
-
-  linold_const = datamatrix(linold.rows(),1,*workbeta);
-  linold = linold + linold_const;            // updates linold (subtracts the constant)
-  likep->add_linearpred_m(linold_const,column);     // updates linpred
-  }
-
-
 double FULLCOND_const_stepwise::compute_df(void)
   {
   double df = 0;
@@ -1371,7 +1326,7 @@ void FULLCOND_const_stepwise::compute_XWtildey(datamatrix * linb,double & invsca
 // For Varying Coefficient Model -----------------------------------------------
 
 void FULLCOND_const_stepwise::posteriormode_const_varcoeff(datamatrix newx)
-  {  // Diese Funktion schätzt b0 und b1, damit b0 zum Variierenden Koeffizienten passt! (D.h., es wird nur b0 verwendet)
+  {  // Funktion schätzt b0 und b1, damit b0 annähernd zum VC passt! (D.h., es wird nur b0 verwendet)
   unsigned i;
   if(interceptadd != 0)
     {
@@ -1589,7 +1544,9 @@ FULLCOND_const_stepwise::FULLCOND_const_stepwise(MCMCoptions * o,DISTRIBUTION * 
   {
 
   fcconst = fcc;
-//  interactions_pointer.erase(interactions_pointer.begin(),interactions_pointer.end());
+
+  numberofmatrices = 1;
+  matrixnumber = 1;
 
   optionsp = o;
   pathresult = fr;

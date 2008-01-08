@@ -27,21 +27,44 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o,
   all_precenv.erase(all_precenv.begin(),all_precenv.end());
   lambdavec.erase(lambdavec.begin(),lambdavec.end());
 
-  if(type == RW1RW2)
+  if(type == RW3)
+    {
+    rankK = nrpar-3;
+    Kenv = Krw3env(nrpar);
+    prec_env = envmatdouble(0.0,nrpar,degree>3?degree:3);
+    }
+  else if(type == RW1RW2)
     {
     nofixed = true;
     forced_into = true;
     kombimatrix = true;
     numberofmatrices = 2;
-    kappa = 1;
-    kappaold = -2;
-    kappa_prec = -1;
+    kappa = vector<double>(1,1);
+    kappaold = vector<double>(1,-2);
+    kappa_prec = vector<double>(1,-1);
     K = Krw1band(weight);
     Kenv = Krw1env(weight);
     rankK = nrpar-1;
     K = Krw2band(weight);
     Kenv2 = Krw2env(weight);
     prec_env = envmatdouble(0.0,nrpar,degree>2?degree:2);
+    }
+  else if(type == RW1RW2RW3)
+    {
+    nofixed = true;
+    forced_into = true;
+    kombimatrix = true;
+    numberofmatrices = 3;
+    kappa = vector<double>(2,1);
+    kappaold = vector<double>(2,-2);
+    kappa_prec = vector<double>(2,-1);
+    K = Krw1band(weight);
+    Kenv = Krw1env(weight);
+    rankK = nrpar-1;
+    K = Krw2band(weight);
+    Kenv2 = Krw2env(weight);
+    Kenv3 = Krw3env(nrpar);
+    prec_env = envmatdouble(0.0,nrpar,degree>3?degree:3);
     }
 
   if(increasing || decreasing)
@@ -198,6 +221,7 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(const FULLCOND_pspline_step
   concave = fc.concave;
   lambdamono = fc.lambdamono;
   Kenv2 = fc.Kenv2;
+  Kenv3 = fc.Kenv3;
   kappa = fc.kappa;
   kappaold = fc.kappaold;
   kappa_prec = fc.kappa_prec;
@@ -228,6 +252,7 @@ const FULLCOND_pspline_stepwise & FULLCOND_pspline_stepwise::operator=(
   concave = fc.concave;
   lambdamono = fc.lambdamono;
   Kenv2 = fc.Kenv2;
+  Kenv3 = fc.Kenv3;
   kappa = fc.kappa;
   kappaold = fc.kappaold;
   kappa_prec = fc.kappa_prec;
@@ -824,7 +849,7 @@ void FULLCOND_pspline_stepwise::update_stepwise(double la)
         }
       } 
     }
-  else if(matrixnumber == 2)
+  else if(matrixnumber > 1)
     {
     //kappa = la;
     lambda = la;
@@ -984,10 +1009,16 @@ void FULLCOND_pspline_stepwise::hierarchie_rw1(vector<double> & untervector, int
 void FULLCOND_pspline_stepwise::compute_lambdavec(
 vector<double> & lvec, int & number)
   {
+  unsigned i;
   lambdaold = -1;
+  if(kombimatrix==true)
+    {
+    nofixed = true;
+    forced_into = true;
+    for(i=0;i<otherfullcond.size();i++)
+      otherfullcond[i]->update_stepwise(0.0000001);
+    }
 
-//ST::string sp = "automatic";
-//ST::string sp = "nonautomatic";
   if(spfromdf=="automatic")
     {
     df_equidist = true;
@@ -1163,17 +1194,25 @@ ST::string FULLCOND_pspline_stepwise::get_effect(void)
 if(matrixnumber == 1)
   {
   if(varcoeff)
-    h = datanames[1] + "*" + datanames[0];   // (VC alt) 0 - 1
+    h = datanames[1] + "*" + datanames[0];   
   else
     h = datanames[0];
   if (type== MCMC::RW1)
     h = h + "(psplinerw1,df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
-  else if(type== MCMC::RW2 && number!=-1)
+  else if(type == MCMC::RW2 && number!=-1)
     h = h + "(psplinerw2,df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
-  else if(type== MCMC::RW1RW2)
+  else if(type == MCMC::RW3 && number!=-1)
+    h = h + "(psplinerw3,df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
+  else if(type == MCMC::RW1RW2)
     h = h + "(psplinerw1rw2,df=" + ST::doubletostring(compute_df(),6) +
-        ",(lambda1=" + ST::doubletostring(lambda,6) + "),(lambda2=" + ST::doubletostring(otherfullcond->get_lambda(),6) + "))";
-  else if(type== MCMC::RW2 && number==-1)
+        ",(lambda1=" + ST::doubletostring(lambda,6) + "),(lambda2=" + ST::doubletostring(otherfullcond[0]->get_lambda(),6) + "))";
+  else if(type == MCMC::RW1RW2RW3)
+    {
+    h = h + "(psplinerw1rw2rw3,df=" + ST::doubletostring(compute_df(),6) +
+        ",(lambda1=" + ST::doubletostring(lambda,6) + "),(lambda2=" + ST::doubletostring(otherfullcond[0]->get_lambda(),6) +
+        "),(lambda3=" + ST::doubletostring(otherfullcond[1]->get_lambda(),6) + "))";
+    }
+  else if(type == MCMC::RW2 && number==-1)
     h = h + "(linear,df=" + ST::doubletostring(compute_df(),6) + ")";
   }
 
@@ -1817,7 +1856,11 @@ void FULLCOND_pspline_stepwise::update_gauss(void)
   if(increasing || decreasing || convex || concave)
     prec_env.addto(prec_env,Menv,1.0,lambdamono*scaleinv);
   if(kombimatrix==true)
-    prec_env.addto(prec_env,Kenv2,1.0,otherfullcond->get_lambda()*scaleinv);
+    {
+    prec_env.addto(prec_env,Kenv2,1.0,otherfullcond[0]->get_lambda()*scaleinv);
+    if(numberofmatrices==3)
+      prec_env.addto(prec_env,Kenv3,1.0,otherfullcond[1]->get_lambda()*scaleinv);
+    }
 
   double * work = standnormal.getV();               // standnormal ~ N(0,I)
   for(i=0;i<nrpar;i++,work++)
@@ -1941,8 +1984,17 @@ void FULLCOND_pspline_stepwise::update_IWLS(void)
   envmatdouble Ksum;
   if(kombimatrix==true)
     {
-    Ksum = envmatdouble(0.0,nrpar,Kenv2.getBandwidth());
-    Ksum.addto(Kenv2,Kenv,otherfullcond->get_lambda()*invscale,1.0/sigma2);
+    if(numberofmatrices==2)
+      {
+      Ksum = envmatdouble(0.0,nrpar,Kenv2.getBandwidth());
+      Ksum.addto(Kenv2,Kenv,otherfullcond[0]->get_lambda()*invscale,1.0/sigma2);
+      }
+    else if(numberofmatrices==3)
+      {
+      Ksum = envmatdouble(0.0,nrpar,Kenv2.getBandwidth());
+      Ksum.addto(Kenv3,Kenv,otherfullcond[1]->get_lambda()*invscale,1.0/sigma2);
+      Ksum.addto(Ksum,Kenv2,1.0,otherfullcond[0]->get_lambda()*invscale);
+      }
     logold = - 0.5*Ksum.compute_quadformblock(betaold,0,nrparpredictleft,nrpar-nrparpredictright-1);
     }
   else
@@ -1966,8 +2018,11 @@ void FULLCOND_pspline_stepwise::update_IWLS(void)
   if(decreasing || increasing || convex || concave)
     prec_env.addto(prec_env,Menv,1.0,lambdamono*invscale);
   if(kombimatrix==true)
-    prec_env.addto(prec_env,Kenv2,1.0,otherfullcond->get_lambda()*invscale);
-
+    {
+    prec_env.addto(prec_env,Kenv2,1.0,otherfullcond[0]->get_lambda()*invscale);
+    if(numberofmatrices==3)
+      prec_env.addto(prec_env,Kenv3,1.0,otherfullcond[1]->get_lambda()*invscale);
+    }
   prec_env.solve(muy,betahelp);
 
   double * work = beta.getV();
@@ -2163,8 +2218,8 @@ if(matrixnumber == 1 || kombimatrix == false)
 
 bool FULLCOND_pspline_stepwise::posteriormode_kombi(void)
   {
-if(matrixnumber==2)
-  return otherfullcond->posteriormode();
+if(matrixnumber > 1)
+  return otherfullcond[0]->posteriormode();
 else
   {
   unsigned i;
@@ -2177,7 +2232,11 @@ else
 
   likep->substr_linearpred_m(spline,column,true);
 
-  kappa = otherfullcond->get_lambda();
+  kappa.erase(kappa.begin(),kappa.end());
+  kappa.push_back(otherfullcond[0]->get_lambda());
+  if(numberofmatrices==3)
+      kappa.push_back(otherfullcond[1]->get_lambda());
+
   if ( (lambda_prec != lambda) || (kappa_prec != kappa) || (calculate_xwx == true))
     {
     if(calculate_xwx == true)
@@ -2186,7 +2245,9 @@ else
       compute_XWXenv(likep->get_weightiwls(),column);
       }
     prec_env.addto(XX_env,Kenv,1.0,lambda);
-    prec_env.addto(prec_env,Kenv2,1.0,kappa);
+    prec_env.addto(prec_env,Kenv2,1.0,kappa[0]);
+    if(numberofmatrices==3)
+      prec_env.addto(prec_env,Kenv3,1.0,kappa[1]);
     lambda_prec = lambda;
     kappa_prec = kappa;
     }
@@ -2269,7 +2330,11 @@ double FULLCOND_pspline_stepwise::compute_df_kombi(void)
   double df = 0;
 if(matrixnumber==1)
   {
-  kappa = otherfullcond->get_lambda();
+  kappa.erase(kappa.begin(),kappa.end());
+  kappa.push_back(otherfullcond[0]->get_lambda());
+  if(numberofmatrices==3)
+      kappa.push_back(otherfullcond[1]->get_lambda());
+
   if(inthemodel == true)
     {
     if (lambdaold == lambda && kappaold == kappa && likep->get_iwlsweights_notchanged() == true)
@@ -2284,7 +2349,9 @@ if(matrixnumber==1)
         {
         calculate_xwx = false;
         prec_env.addto(XX_env,Kenv,1.0,lambda);
-        prec_env.addto(prec_env,Kenv2,1.0,kappa);
+        prec_env.addto(prec_env,Kenv2,1.0,kappa[0]);
+        if(numberofmatrices==3)
+          prec_env.addto(prec_env,Kenv3,1.0,kappa[1]);
         lambda_prec = lambda;
         kappa_prec = kappa;
         }

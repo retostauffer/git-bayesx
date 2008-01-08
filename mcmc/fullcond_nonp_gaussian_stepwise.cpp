@@ -526,7 +526,7 @@ else
 
           if(type!=MCMC::seasonal)
             {
-            if (type==MCMC::mrf)
+            if (type==MCMC::mrf || type==MCMC::mrfI)
               invprec = envmatdouble(precenv.getXenv(),0,precenv.getDim());
             else
               invprec = envmatdouble(0,nrpar,Kenv.getBandwidth());
@@ -538,7 +538,7 @@ else
             else
               df = df + invprec.traceOfProduct(XXenv)-1;
             }
-          else
+          else    // Kombination: MRF + I
             {
             datamatrix Z = datamatrix(nrpar,nrpar,0);
             vector<double>::iterator d = XXenv.getDiagIterator();
@@ -786,6 +786,15 @@ void FULLCOND_nonp_gaussian_stepwise::compute_lambdavec(
 vector<double> & lvec, int & number)
   {
   lambdaold = -1;
+  bool kchanged = false;
+  if(kombimatrix==true)
+    {
+    nofixed = true;
+    forced_into = true;
+    otherfullcond->update_stepwise(0.0000001);
+    kchanged = true;
+    kombimatrix = false;    // damit das Auswählen der Lambdas schneller geht
+    }
 
   if(spfromdf=="automatic")
     {
@@ -963,6 +972,8 @@ vector<double> & lvec, int & number)
       lambdastart = 0;
     }
 
+  if(kchanged == true)
+    kombimatrix = true;
   }
 
 

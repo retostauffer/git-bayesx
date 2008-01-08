@@ -226,11 +226,11 @@ void DISTRIBUTION::save_betamean(void)
 
 void DISTRIBUTION::create_weight(datamatrix & w, const double & p1, const bool & fertig, const bool & CV)
   {
-  weight2 = weight;
+  weight2 = weight;          // speichert die alten Gewichte ab
 
   srand(seed);
 
-  if(fertig == true)
+  if(fertig == true)        // erstellt neue Gewichte für MSEP / AUC
     {
     constant_iwlsweights = false;
     iwlsweights_notchanged_df = false;
@@ -267,6 +267,18 @@ void DISTRIBUTION::create_weight(datamatrix & w, const double & p1, const bool &
     constant_iwlsweights = false;
     iwlsweights_notchanged_df = false;
     weightcv = datamatrix(nrobs,p1,1);
+
+    if(weight.max(0) != 1 || weight.max(0) != 1)  // falls Gewichte im Befehl angegeben wurden, werden diese berücksuchtigt
+      {
+      double * workw = weight.getV();
+      double * workcv = weightcv.getV();
+      for(i=0;i<nrobs;i++,workw++)
+        {
+        for(unsigned j=0;j<p1;j++,workcv++)
+          *workcv = *workw;
+        }
+      }
+
     datamatrix u = datamatrix(nrobs,1,0);
     for(i=0;i<nrobs;i++)
       u(i,0) = uniform();

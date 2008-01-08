@@ -461,12 +461,12 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
   make_tex_end(path,modell_final);
   outtex.close();
 
-// FÜR SIMULATIONEN:  
+// FÜR SIMULATIONEN:
+/*
   // gibt Lambdas aus, damit man die richtig bestimmten Variablen zählen kann!
-/*  ST::string zaehlername = path + "_lambdas_" + likep_mult[0]->get_responsename() + ".ascii";
+  ST::string zaehlername = path + "_lambdas_" + likep_mult[0]->get_responsename() + ".ascii";
   ofstream out(zaehlername.strtochar());
   ST::string beschriftung = "  krit   ";
-//  ST::string beschriftung = " ";
   ST::string eintrag = "  " + ST::doubletostring(kriterium_final) + "   ";
   for(i=1;i<names_fixed.size();i++)
      beschriftung = beschriftung + names_fixed[i] + "   ";
@@ -475,8 +475,22 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
   for(i=0;i<modell_final.size();i++)
      eintrag = eintrag + ST::doubletostring(modell_final[i]) + "   ";
   out << beschriftung << endl;
-  out << eintrag << endl;    */
-// ENDE: FÜR SIMULATIONEN 
+  out << eintrag << endl;
+  out.close();         */
+
+  // gibt df für nichtlineare Funktionen aus!
+/*  zaehlername = path + "_df_" + likep_mult[0]->get_responsename() + ".ascii";
+  ofstream out2(zaehlername.strtochar());
+  beschriftung = " ";
+  eintrag = " ";
+  for(i=0;i<names_nonp.size();i++)
+     beschriftung = beschriftung + names_nonp[i][0] + "   ";
+  for(i=(names_fixed.size()-1);i<modell_final.size();i++)
+     eintrag = eintrag + ST::doubletostring(fullcond_alle[i+1]->compute_df()) + "   ";
+  out2 << beschriftung << endl;
+  out2 << eintrag << endl;
+  out2.close();           */
+// ENDE: FÜR SIMULATIONEN
 
   return false;
   }
@@ -507,8 +521,6 @@ bool STEPWISErun::single_stepwise(const vector<unsigned> & start,
   fullcond_komplett(modell_alt);
   if(likep_mult[0]->get_family() == "Gamma")
     {
-    ////likep_mult[0]->set_scale(0.1);
-    //fullcondp[0]->set_effect_zero();
     likep_mult[0]->reset();
     for(i=0;i<fullcond_alle.size();i++)
       fullcond_alle[i]->reset();  
@@ -3234,7 +3246,10 @@ void STEPWISErun::initialise_lambdas(vector<vector<ST::string> > & namen_nonp,
         }
      vector<double> untervector;
      fullcond_alle[i]->set_inthemodel(1);
-     fullcond_alle[i]->compute_lambdavec(untervector,nummer);
+     if(fullcond_alle[i]->get_matrixnumber() == 1)
+       fullcond_alle[i]->compute_lambdavec(untervector,nummer);
+     else
+       untervector = lambdavector[lambdavector.size()-1];
      fullcond_alle[i]->set_inthemodel(0);
      lambdavector.push_back(untervector);
      }
@@ -3247,8 +3262,8 @@ void STEPWISErun::initialise_weights(double prop)
     {
     datamatrix weight = likep_mult[0]->get_weight();
     bool gewicht = false;
-    if(weight.min(0) > 0)
-      {
+    if(weight.min(0) > 0)     // wenn Gewichtsmatrix 0er enthält, werden diese 0er für die Aufteilung verwendet.
+      {                       // sonst: bestimmte Werte sollen im Testdatensatz enthalten sein (z.B. Min., Max. bei P-Splines)
       weight = datamatrix(weight.rows(),1,0);
       unsigned i;
       for(i=1;i<fullcond_alle.size();i++)
@@ -4799,16 +4814,6 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
     modell_neu = modell_boot;
     likep_mult[0]->undo_constscale();
 
-    /*if(likep_mult[0]->get_family() != "Gaussian")
-      {
-      ////likep_mult[0]->set_scale(0.1);
-      //fullcondp[0]->set_effect_zero();
-      likep_mult[0]->reset();
-      for(i=0;i<fullcond_alle.size();i++)
-        fullcond_alle[i]->reset();
-      fullcond_alle[0]->setbeta(fullcond_alle[0]->get_nrpar(),1,0);
-      }  */
-
     if(criterion == "MSEP" || criterion == "AUC")
       {
       likep_mult[0]->weight_for_all();   // macht hier das Gegenteil und setzt "weight" für MSEP ein!
@@ -4829,11 +4834,11 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
     fix_ganz_komplett(modell_alt);
     fullcond_komplett(modell_alt);
 
-for(unsigned c=0;c<modell_alt.size();c++)
+/*for(unsigned c=0;c<modell_alt.size();c++)
   {
   genoptions_mult[0]->out(ST::doubletostring(modell_alt[c],6) + "   ");
   }
-genoptions_mult[0]->out("\n");
+genoptions_mult[0]->out("\n");*/
 
     likep_mult[0]->set_original_response();
     if(criterion == "MSEP" || criterion == "AUC")

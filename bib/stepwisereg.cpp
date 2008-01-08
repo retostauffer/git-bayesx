@@ -614,11 +614,11 @@ void stepwisereg::clear(void)
   fcnonpgaussian.erase(fcnonpgaussian.begin(),fcnonpgaussian.end());
   fcnonpgaussian.reserve(40);
 
-  fcpspline.erase(fcpspline.begin(),fcpspline.end());
-  fcpspline.reserve(80);
+//  fcpspline.erase(fcpspline.begin(),fcpspline.end());
+//  fcpspline.reserve(80);
 
   fcpsplinestep.erase(fcpsplinestep.begin(),fcpsplinestep.end());
-  fcpsplinestep.reserve(80);
+  fcpsplinestep.reserve(90);
 
 //  fcprojection.erase(fcprojection.begin(),fcprojection.end());
 //  fcprojection.reserve(20);
@@ -2153,8 +2153,14 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
       else if ( (terms[i].options[0] == "psplinerw2") ||
            (terms[i].options[0] == "varpsplinerw2") )
         type = MCMC::RW2;
-      else
+      else if ( (terms[i].options[0] == "psplinerw3") ||
+           (terms[i].options[0] == "varpsplinerw3") )
+        type = MCMC::RW3;
+      else if ( (terms[i].options[0] == "psplinerw1rw2") ||
+           (terms[i].options[0] == "varpsplinerw1rw2") )
         type = MCMC::RW1RW2;
+      else
+        type = MCMC::RW1RW2RW3;
 
       j1 = terms[i].varnames[0].isinlist(modelvarnamesv);
 
@@ -2245,20 +2251,27 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
 
       //----- end: creating path for samples and and results, creating title ---
 
-unsigned z;
-unsigned oben = 1;
-bool rw1rw2 = false;
-if(type == MCMC::RW1RW2)
-  {
-  oben = 2;
-  rw1rw2 = true;
-  }
-for(z=1;z<=oben;z++)
-  {
-      if(varcoeff==false)
+      unsigned z;
+      unsigned oben = 1;
+      bool rw1rw2 = false;
+      bool rw1rw2rw3 = false;
+      if(type == MCMC::RW1RW2)
         {
-        fcpsplinestep.push_back(
-        FULLCOND_pspline_stepwise(&generaloptions[generaloptions.size()-1],
+        oben = 2;
+        rw1rw2 = true;
+        }
+      else if(type == MCMC::RW1RW2RW3)
+        {
+        oben = 3;
+        rw1rw2rw3 = true;
+        }
+
+      for(z=1;z<=oben;z++)
+        {
+        if(varcoeff==false)
+          {
+          fcpsplinestep.push_back(
+          FULLCOND_pspline_stepwise(&generaloptions[generaloptions.size()-1],
                                               distr[distr.size()-1],
                                               fcconst_intercept,
                                               D.getCol(j1),
@@ -2278,13 +2291,12 @@ for(z=1;z<=oben;z++)
                                              )
                          );
 
-        fcpsplinestep[fcpsplinestep.size()-1].init_name(terms[i].varnames[0]);
-        }
-      else
-        {
-
-        fcpsplinestep.push_back(
-        FULLCOND_pspline_stepwise(&generaloptions[generaloptions.size()-1],
+          fcpsplinestep[fcpsplinestep.size()-1].init_name(terms[i].varnames[0]);
+          }
+        else
+          {
+          fcpsplinestep.push_back(
+          FULLCOND_pspline_stepwise(&generaloptions[generaloptions.size()-1],
                                             distr[distr.size()-1],
                                             fcconst_intercept,
                                             D.getCol(j2),
@@ -2305,113 +2317,118 @@ for(z=1;z<=oben;z++)
                                            )
                          );
 
-        FULLCOND * inter;
+          FULLCOND * inter;
 
-        if(center == true)
-          {
-          hierarchical_model_yesno = true;
-          FULLCOND * mainp1;
-          unsigned main1=0;
-
-          unsigned j;
-          for (j=0;j<fcpsplinestep.size();j++)
+          if(center == true)
             {
-            if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+            hierarchical_model_yesno = true;
+            FULLCOND * mainp1;
+            unsigned main1=0;
+
+            unsigned j;
+            for (j=0;j<fcpsplinestep.size();j++)
+              {
+              if( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
                 (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&
                 fcpsplinestep[j].get_col() == collinpred )
                 {
                 mainp1 = &fcpsplinestep[j];
                 main1 ++;
                 }
-            }
-          if(main1 == 0)
-            {
-            for (j=0;j<factor.size();j++)
+              }
+            if(main1 == 0)
               {
-              if  ( ((factor[j].get_datanames()).size() == 1) &&
+              for (j=0;j<factor.size();j++)
+                {
+                if( ((factor[j].get_datanames()).size() == 1) &&
                   (factor[j].get_datanames()[0] == terms[i].varnames[0]) &&
                   factor[j].get_col() == collinpred )
                   {
                   mainp1 = &factor[j];
                   main1 ++;
                   }
+                }
+              }
+
+            if(main1 == 0)
+              {
+              outerror("ERROR: Variable " + terms[i].varnames[0] + " must be included in the regress command! \n");
+              return true;
+              }
+            else
+              {
+              inter = &fcpsplinestep[fcpsplinestep.size()-1];
+              mainp1->set_pointer_to_interaction(inter);
+              fcpsplinestep[fcpsplinestep.size()-1].set_pointer_to_interaction(mainp1);
               }
             }
 
-          if(main1 == 0)
+          // Zeiger auf Haupteffekt
+          FULLCOND * mainp2;
+          unsigned main2=0;
+
+          unsigned j;
+          for (j=0;j<fcpsplinestep.size();j++)
             {
-            outerror("ERROR: Variable " + terms[i].varnames[0] + " must be included in the regress command! \n");
-            return true;
+            if( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+              (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[1]) &&
+              fcpsplinestep[j].get_col() == collinpred )
+              {
+              mainp2 = &fcpsplinestep[j];
+              main2 ++;
+              }
             }
-          else
+          if(main2 == 1)
             {
             inter = &fcpsplinestep[fcpsplinestep.size()-1];
-            mainp1->set_pointer_to_interaction(inter);
-            fcpsplinestep[fcpsplinestep.size()-1].set_pointer_to_interaction(mainp1);
+            mainp2->set_pointer_to_interaction(inter);
+            fcpsplinestep[fcpsplinestep.size()-1].set_pointer_to_interaction(mainp2);
             }
+
+          vector<ST::string> na;
+          na.push_back(terms[i].varnames[1]);  // (VC alt) 0
+          na.push_back(terms[i].varnames[0]);  // (VC alt) 1
+          if(center == true)
+            na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+          else
+            na.push_back(terms[i].varnames[0]);
+          fcpsplinestep[fcpsplinestep.size()-1].init_names(na);
           }
 
-        // Zeiger auf Haupteffekt
-        FULLCOND * mainp2;
-        unsigned main2=0;
-
-        unsigned j;
-        for (j=0;j<fcpsplinestep.size();j++)
-          {
-          if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
-                (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[1]) &&
-                fcpsplinestep[j].get_col() == collinpred )
-                {
-                mainp2 = &fcpsplinestep[j];
-                main2 ++;
-                }
-            }
-        if(main2 == 1)
-          {
-          inter = &fcpsplinestep[fcpsplinestep.size()-1];
-          mainp2->set_pointer_to_interaction(inter);
-          fcpsplinestep[fcpsplinestep.size()-1].set_pointer_to_interaction(mainp2);
-          }
-
-        vector<ST::string> na;
-        na.push_back(terms[i].varnames[1]);  // (VC alt) 0
-        na.push_back(terms[i].varnames[0]);  // (VC alt) 1
-        if(center == true)
-          na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-        else
-          na.push_back(terms[i].varnames[0]);
-        fcpsplinestep[fcpsplinestep.size()-1].init_names(na);
-        }
-
-      fcpsplinestep[fcpsplinestep.size()-1].set_stepwise_options(
+        fcpsplinestep[fcpsplinestep.size()-1].set_stepwise_options(
              lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
              numb,df_equidist);
-      fcpsplinestep[fcpsplinestep.size()-1].set_dfstart(dfstart);
-      fcpsplinestep[fcpsplinestep.size()-1].set_nofixed(nofixed);
-      fcpsplinestep[fcpsplinestep.size()-1].set_stepwise_accuracy(df_accuracy);
-      fcpsplinestep[fcpsplinestep.size()-1].set_spmonotone(spmonotone);
+        fcpsplinestep[fcpsplinestep.size()-1].set_dfstart(dfstart);
+        fcpsplinestep[fcpsplinestep.size()-1].set_nofixed(nofixed);
+        fcpsplinestep[fcpsplinestep.size()-1].set_stepwise_accuracy(df_accuracy);
+        fcpsplinestep[fcpsplinestep.size()-1].set_spmonotone(spmonotone);
 
-      fcpsplinestep[fcpsplinestep.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcpsplinestep[fcpsplinestep.size()-1]);
-      if(!check_gaussian())
-        fcpsplinestep[fcpsplinestep.size()-1].set_utype();
+        fcpsplinestep[fcpsplinestep.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcpsplinestep[fcpsplinestep.size()-1]);
+        if(!check_gaussian())
+          fcpsplinestep[fcpsplinestep.size()-1].set_utype();
 
-      //if(type == MCMC::RW1RW2)   // für kombinierte Strafmatrix
-      //  {
-      //  fcpsplinestep.push_back(fcpsplinestep[fcpsplinestep.size()-1]);
-      //  fcpsplinestep[fcpsplinestep.size()-1].set_matrixnumber(2);
-      //  }
+        fcpsplinestep[fcpsplinestep.size()-1].set_matrixnumber(z);
+        }
 
-  fcpsplinestep[fcpsplinestep.size()-1].set_matrixnumber(z);
-  }
-if(rw1rw2 == true)
-  {
-  FULLCOND * other = &fcpsplinestep[fcpsplinestep.size()-2];
-  fcpsplinestep[fcpsplinestep.size()-1].set_otherfullcond(other);
-  other = &fcpsplinestep[fcpsplinestep.size()-1];
-  fcpsplinestep[fcpsplinestep.size()-2].set_otherfullcond(other);
-  }
+      if(rw1rw2 == true)
+        {
+        FULLCOND * other = &fcpsplinestep[fcpsplinestep.size()-2];
+        fcpsplinestep[fcpsplinestep.size()-1].set_otherfullcond(other);
+        other = &fcpsplinestep[fcpsplinestep.size()-1];
+        fcpsplinestep[fcpsplinestep.size()-2].set_otherfullcond(other);
+        }
+      if(rw1rw2rw3 == true)
+        {
+        FULLCOND * other = &fcpsplinestep[fcpsplinestep.size()-3];
+        fcpsplinestep[fcpsplinestep.size()-2].set_otherfullcond(other);
+        fcpsplinestep[fcpsplinestep.size()-1].set_otherfullcond(other);
 
+        other = &fcpsplinestep[fcpsplinestep.size()-2];
+        fcpsplinestep[fcpsplinestep.size()-3].set_otherfullcond(other);
+        other = &fcpsplinestep[fcpsplinestep.size()-1];
+        fcpsplinestep[fcpsplinestep.size()-3].set_otherfullcond(other);
+        }
       }
     }
 
@@ -2563,20 +2580,20 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
 
         }
 
-unsigned z;
-unsigned oben = 1;
-bool mrfrw0 = false;
-if(type == MCMC::mrfI)
-  {
-  oben = 2;
-  mrfrw0 = true;
-  }
-for(z=1;z<=oben;z++)
-  {
-       if ( varcoeff==false)
+      unsigned z;
+      unsigned oben = 1;
+      bool mrfrw0 = false;
+      if(type == MCMC::mrfI)
         {
-        fcnonpgaussian.push_back(
-        FULLCOND_nonp_gaussian_stepwise(&generaloptions[generaloptions.size()-1],
+        oben = 2;
+        mrfrw0 = true;
+        }
+      for(z=1;z<=oben;z++)
+        {
+        if(varcoeff==false)
+          {
+          fcnonpgaussian.push_back(
+          FULLCOND_nonp_gaussian_stepwise(&generaloptions[generaloptions.size()-1],
                                           distr[distr.size()-1],
                                           D.getCol(j1),
                                           fcconst_intercept,
@@ -2588,127 +2605,126 @@ for(z=1;z<=oben;z++)
                                           )
                              );
 
-        fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
-        }
-      else
-        {
-        fcnonpgaussian.push_back(
-        FULLCOND_nonp_gaussian_stepwise(&generaloptions[generaloptions.size()-1],
-        distr[distr.size()-1],fcconst_intercept,m,terms[i].options[1],
-        D.getCol(j2),D.getCol(j1),title,pathnonp,pathres,collinpred,lambda,center,type));
-
-        FULLCOND * inter;
-
-        if(center == true)
+          fcnonpgaussian[fcnonpgaussian.size()-1].init_name(terms[i].varnames[0]);
+          }
+        else
           {
-          hierarchical_model_yesno = true;
-          FULLCOND * mainp1;
-          unsigned main1=0;
+          fcnonpgaussian.push_back(
+          FULLCOND_nonp_gaussian_stepwise(&generaloptions[generaloptions.size()-1],
+          distr[distr.size()-1],fcconst_intercept,m,terms[i].options[1],
+          D.getCol(j2),D.getCol(j1),title,pathnonp,pathres,collinpred,lambda,center,type));
 
-          unsigned j;
-          for (j=0;j<fcpsplinestep.size();j++)
+          FULLCOND * inter;
+
+          if(center == true)
             {
-            if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
+            hierarchical_model_yesno = true;
+            FULLCOND * mainp1;
+            unsigned main1=0;
+
+            unsigned j;
+            for (j=0;j<fcpsplinestep.size();j++)
+              {
+              if( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
                 (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&
                 fcpsplinestep[j].get_col() == collinpred )
                 {
                 mainp1 = &fcpsplinestep[j];
                 main1 ++;
                 }
-            }
-          if(main1 == 0)
-            {
-            for (j=0;j<factor.size();j++)
+              }
+            if(main1 == 0)
               {
-              if  ( ((factor[j].get_datanames()).size() == 1) &&
+              for (j=0;j<factor.size();j++)
+                {
+                if( ((factor[j].get_datanames()).size() == 1) &&
                   (factor[j].get_datanames()[0] == terms[i].varnames[0]) &&
                   factor[j].get_col() == collinpred )
                   {
                   mainp1 = &factor[j];
                   main1 ++;
                   }
+                }
+              }
+
+            if(main1 == 0)
+              {
+              outerror("ERROR: Variable " + terms[i].varnames[0] + " must be included in the regress command! \n");
+              return true;
+              }
+            else
+              {
+              inter = &fcnonpgaussian[fcnonpgaussian.size()-1];
+              mainp1->set_pointer_to_interaction(inter);
+              fcnonpgaussian[fcnonpgaussian.size()-1].set_pointer_to_interaction(mainp1);
               }
             }
 
-          if(main1 == 0)
+          // Zeiger auf Haupteffekt
+          FULLCOND * mainp2;
+          unsigned main2=0;
+
+          unsigned j;
+          for (j=0;j<fcnonpgaussian.size();j++)
             {
-            outerror("ERROR: Variable " + terms[i].varnames[0] + " must be included in the regress command! \n");
-            return true;
+            if( ((fcnonpgaussian[j].get_datanames()).size() == 1) &&
+              (fcnonpgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
+              fcnonpgaussian[j].get_col() == collinpred )
+              {
+              mainp2 = &fcnonpgaussian[j];
+              main2 ++;
+              }
             }
-          else
+          if(main2 == 1)
             {
             inter = &fcnonpgaussian[fcnonpgaussian.size()-1];
-            mainp1->set_pointer_to_interaction(inter);
-            fcnonpgaussian[fcnonpgaussian.size()-1].set_pointer_to_interaction(mainp1);
+            mainp2->set_pointer_to_interaction(inter);
+            fcnonpgaussian[fcnonpgaussian.size()-1].set_pointer_to_interaction(mainp2);
             }
+
+          vector<ST::string> na;
+          na.push_back(terms[i].varnames[1]);   // (VC alt) 0
+          na.push_back(terms[i].varnames[0]);   // (VC alt) 1
+          if(center == true)
+            na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
+          else
+            na.push_back(terms[i].varnames[0]);
+          fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
+
           }
 
-        // Zeiger auf Haupteffekt
-        FULLCOND * mainp2;
-        unsigned main2=0;
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_options(
+          lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
+          numb,df_equidist);
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_dfstart(dfstart);
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_nofixed(nofixed);
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
 
-        unsigned j;
-        for (j=0;j<fcnonpgaussian.size();j++)
+        if(fcnonpgaussian[fcnonpgaussian.size()-1].get_errors().size() > 0)
           {
-          if  ( ((fcnonpgaussian[j].get_datanames()).size() == 1) &&
-                (fcnonpgaussian[j].get_datanames()[0] == terms[i].varnames[1]) &&
-                fcnonpgaussian[j].get_col() == collinpred )
-                {
-                mainp2 = &fcnonpgaussian[j];
-                main2 ++;
-                }
-            }
-        if(main2 == 1)
-          {
-          inter = &fcnonpgaussian[fcnonpgaussian.size()-1];
-          mainp2->set_pointer_to_interaction(inter);
-          fcnonpgaussian[fcnonpgaussian.size()-1].set_pointer_to_interaction(mainp2);
+          unsigned i;
+          for(i=0;i<fcnonpgaussian[fcnonpgaussian.size()-1].get_errors().size();i++)
+            errormessages.push_back(fcnonpgaussian[fcnonpgaussian.size()-1].get_errors()[i]);
+          return true;
           }
 
-        vector<ST::string> na;
-        na.push_back(terms[i].varnames[1]);   // (VC alt) 0
-        na.push_back(terms[i].varnames[0]);   // (VC alt) 1
-        if(center == true)
-          na.push_back(terms[i].varnames[0] + "*" + terms[i].varnames[1]);
-        else
-          na.push_back(terms[i].varnames[0]);
-        fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
+        if(!check_gaussian())
+          fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(1,false);
 
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
+
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_matrixnumber(z);
         }
 
-      fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_options(
-      lambdastart,lambdamax,lambdamin,forced_into,df_lambdamax,df_lambdamin,spnot,
-      numb,df_equidist);
-      fcnonpgaussian[fcnonpgaussian.size()-1].set_dfstart(dfstart);
-      fcnonpgaussian[fcnonpgaussian.size()-1].set_nofixed(nofixed);
-      fcnonpgaussian[fcnonpgaussian.size()-1].set_stepwise_accuracy(df_accuracy);
-
-
-      if (fcnonpgaussian[fcnonpgaussian.size()-1].get_errors().size() > 0)
+      if(mrfrw0 == true)
         {
-        unsigned i;
-        for(i=0;i<fcnonpgaussian[fcnonpgaussian.size()-1].get_errors().size();i++)
-          errormessages.push_back(fcnonpgaussian[fcnonpgaussian.size()-1].get_errors()[i]);
-        return true;
+        FULLCOND * other = &fcnonpgaussian[fcnonpgaussian.size()-2];
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_otherfullcond(other);
+        other = &fcnonpgaussian[fcnonpgaussian.size()-1];
+        fcnonpgaussian[fcnonpgaussian.size()-2].set_otherfullcond(other);
         }
-
-      if (!check_gaussian())
-        fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(1,false);
-
-      fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
-
-  fcnonpgaussian[fcnonpgaussian.size()-1].set_matrixnumber(z);
-  }
-if(mrfrw0 == true)
-  {
-  FULLCOND * other = &fcnonpgaussian[fcnonpgaussian.size()-2];
-  fcnonpgaussian[fcnonpgaussian.size()-1].set_otherfullcond(other);
-  other = &fcnonpgaussian[fcnonpgaussian.size()-1];
-  fcnonpgaussian[fcnonpgaussian.size()-2].set_otherfullcond(other);
-  }
       }   // end: if ( nonpspatial.checkvector(terms,i) == true )
-
     } //  end:  for(i=0;i<terms.size();i++)
 
   return false;

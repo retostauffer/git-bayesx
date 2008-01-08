@@ -434,7 +434,7 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
 
   likep->substr_linearpred_m(spline,column,true);
 
-  if(varcoeff && lambda == -2)
+  if(varcoeff && lambda == -2)      // Gerade beim VC
     {
     datamatrix betas = datamatrix(2,1,0);
     if(calculate_xwx_vc == true || (XVX(1,1)==0 && XVX(0,0)==0))
@@ -499,8 +499,8 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
 
   else  // if(lambda!=-2)
     {
-    if(type == mrfkr1 && rankK==(nrpar1dim-1)*(nrpar1dim-1))
-      {
+    if(type == mrfkr1 && rankK==(nrpar1dim-1)*(nrpar1dim-1))   // hier passen "type" und "rankK" zusammen, d.h. kein Spezialfall für Bootstrap
+      {                                                        // außerdem nicht für "rw2" oder "rw1"
       mainpoi1->reset_effect(0);
       mainpoi2->reset_effect(0);
 
@@ -553,7 +553,7 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
 
     prec_env.solve(muy,beta);
 
-    if((lambda-1000000000)==0)   // MCMCbootstrap: entspricht fixem Effekt
+    if((lambda-1000000000)==0)   // MCMCbootstrap: entspricht fixem Effekt  (lambda -> unendlich und rw2)
       {
       compute_intercept();
       compute_beta();
@@ -619,10 +619,9 @@ bool FULLCOND_pspline_surf_stepwise::posteriormode(void)
 
     if(center)
       {
-      if(centertotal || (lambda-1000000000)==0)  //(type==mrfkr1 && rankK!=(nrpar1dim-1)*(nrpar1dim-1)) )
+      if(centertotal || (lambda-1000000000)==0)  // Grenzfall bei Bootstrap oder "rw1" / "rw2"
         {
         compute_intercept();
-//intercept = spline(mean,0);
         if(!varcoeff)
           {
           for(i=0;i<nrpar;i++)
@@ -904,8 +903,6 @@ void FULLCOND_pspline_surf_stepwise::hierarchie_rw1(vector<double> & untervector
 void FULLCOND_pspline_surf_stepwise::compute_lambdavec(
 vector<double> & lvec, int & number)
   {
-//ST::string sp = "automatic";
-//ST::string sp = "nonautomatic";
   if(spfromdf=="automatic")
     {
     df_equidist = true;
@@ -976,10 +973,10 @@ vector<double> & lvec, int & number)
       else
         hierarchie_rw1(lvec,1);
       }
-    else if(!nofixed)  // if(type==mrfquadratic8 || (type==RW1 && number==-1))
+    else if(!nofixed)  
       {
       lvec.push_back(-2);
-      if(identifiable)    //VCM_neu
+      if(identifiable)    
         lvec.push_back(-1);
       }
     }
@@ -1165,18 +1162,18 @@ ST::string FULLCOND_pspline_surf_stepwise::get_effect(void)
     if(datanames.size()==5)
       {
       if(type==mrflinear)
-        h = datanames[1] + "*" + datanames[3] + "(pspline2dimrw1";        // (VC alt) 0 - 1
+        h = datanames[1] + "*" + datanames[3] + "(pspline2dimrw1";
       else if(type==mrfquadratic8)
-        h = datanames[1] + "*" + datanames[3] + "(pspline2dimrw2";        // (VC alt) 0 - 1
+        h = datanames[1] + "*" + datanames[3] + "(pspline2dimrw2";
       else if(type==mrfkr1)
-        h = datanames[1] + "*" + datanames[3] + "(psplineinteract";       // (VC alt) 2 - 1
+        h = datanames[1] + "*" + datanames[3] + "(psplineinteract";
       }
     else
       {
       if(type==mrflinear)
-        h = datanames[1] + "*" + datanames[0] + "(geosplinerw1";             // (VC alt) 0 - 1
+        h = datanames[1] + "*" + datanames[0] + "(geosplinerw1";
       else if(type==mrfquadratic8)
-        h = datanames[1] + "*" + datanames[0] + "(geosplinerw2";             // (VC alt) 0 - 1
+        h = datanames[1] + "*" + datanames[0] + "(geosplinerw2";             
       }
     }
   else
@@ -1211,17 +1208,17 @@ void FULLCOND_pspline_surf_stepwise::update_fix_effect(void)
   {
   bool raus = false;
   unsigned j = 1;
-  ST::string name_richtig = datanames[1];  // (VC alt) 0
+  ST::string name_richtig = datanames[1];
   while(j<fcconst->get_datanames().size() && raus==false)
      {
-     if(fcconst->get_datanames()[j] == datanames[1])  // (VC alt) 0
+     if(fcconst->get_datanames()[j] == datanames[1])
         {
         raus = true;
         }
-     if(fcconst->get_datanames()[j] == (datanames[1]+"_1"))   // (VC alt) 0
+     if(fcconst->get_datanames()[j] == (datanames[1]+"_1"))
         {
         raus = true;
-        name_richtig = datanames[1] + "_1";        // (VC alt) 0
+        name_richtig = datanames[1] + "_1";        
         }
      j = j + 1;
      }
@@ -1261,7 +1258,7 @@ void FULLCOND_pspline_surf_stepwise::update_bootstrap(const bool & uncond)
     if(!varcoeff)
       name_richtig = datanames[datanames.size()-1];
     else
-      name_richtig = datanames[1]; // (VC alt) wie oben
+      name_richtig = datanames[1];
     while(j<fcconst->get_datanames().size() && raus==false)
       {
       if(fcconst->get_datanames()[j] == name_richtig)
@@ -1319,7 +1316,6 @@ void FULLCOND_pspline_surf_stepwise::update_bootstrap(const bool & uncond)
     {
     fchelp.update_bootstrap();
     }
-  // FULLCOND::update_bootstrap();     // wie bei Gerade???
   }
 
 
@@ -1383,7 +1379,7 @@ void FULLCOND_pspline_surf_stepwise::save_betamean(void)
     if(!varcoeff)
       name_richtig = datanames[datanames.size()-1];
     else
-      name_richtig = datanames[1]; // (VC alt) wie oben
+      name_richtig = datanames[1]; 
     while(j<fcconst->get_datanames().size() && raus==false)
       {
       if(fcconst->get_datanames()[j] == name_richtig)
@@ -1564,7 +1560,7 @@ void FULLCOND_pspline_surf_stepwise::update(void)
     proposal = datamatrix(nrpar,1,0);
     }
 
-  if(lambda==0)
+  if(lambda==0)     // Nullfunktion rausschreiben
     {
     beta = datamatrix(beta.rows(),beta.cols(),0);
     FULLCOND::update();
@@ -1611,7 +1607,7 @@ void FULLCOND_pspline_surf_stepwise::update(void)
       fctotal.update();
       }
     }
-  else if((lambda-1000000000)==0)    
+  else if((lambda-1000000000)==0)     // lineare Interaktion wird erreicht durch Grenzfall (lambda = 1000000000 und "rw2") 
     {
     update_linear_function();
     }
@@ -2103,7 +2099,7 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
     prec_env.solve(muy,betahelp);
     prec_env.solveU(proposal,betahelp);
 
-    // hier bezüglich Haupteffekten zentrieren und diese "wegschmeißen"!
+    // hier bezüglich Haupteffekten zentrieren und diese "wegschmeißen"! (damit nur Anteil "x1*x2" bleibt)
     datamatrix betasave = beta;
     beta.assign(proposal);
     compute_intercept();

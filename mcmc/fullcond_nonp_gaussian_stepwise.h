@@ -33,8 +33,6 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   double lambdaold_unstr;
   double df_lambdaold_unstr;
 
-  //vector<FULLCOND*> interactions_pointer;
-
   datamatrix data_varcoeff_fix;
   datamatrix effmodi;
   datamatrix XVX;

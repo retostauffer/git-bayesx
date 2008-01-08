@@ -42,10 +42,11 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
   double lambdamono;
 
   envmatdouble Kenv2;
-  double kappa;
-  double kappaold;
-  double kappa_prec;
-  FULLCOND * otherfullcond;
+  vector<double> kappa;
+  vector<double> kappaold;
+  vector<double> kappa_prec;
+  vector<FULLCOND *> otherfullcond;
+  envmatdouble Kenv3;
 
   FULLCOND fc_df;
   bool isbootstrap;
@@ -213,7 +214,7 @@ class __EXPORT_TYPE FULLCOND_pspline_stepwise : public FULLCOND_pspline_gaussian
 
   void set_otherfullcond(FULLCOND * ofullc)
     {
-    otherfullcond = ofullc;
+    otherfullcond.push_back(ofullc);
     }
 
   // DESTRUCTOR

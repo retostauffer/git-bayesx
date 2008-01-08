@@ -3535,14 +3535,13 @@ void STEPMULTIrun::initialise_lambdas(vector<vector<ST::string> > & namen_nonp,
       }
     katje=0;
 
-//likep_mult[0]->compute_iwls();
     end[0] = fullcondp.size()-1;
     posteriormode(posttitle,true);
     fullcondp = fullcond_alle;
     end[0] = fullcondp.size()-1;
     }
 
-  for(i=1;i<fullcond_alle.size();i++)   //for(i=1;i<fullcond_alle.size();i++)
+  for(i=1;i<fullcond_alle.size();i++)
      {
      if(i%anz_fullcond != 0)   // 'i modulo anz_fullcond' -> Abfrage, ob fixe Effekte!
        {
@@ -3571,7 +3570,10 @@ void STEPMULTIrun::initialise_lambdas(vector<vector<ST::string> > & namen_nonp,
           }
        vector<double> untervector;
        fullcond_alle[i]->set_inthemodel(1);
-       fullcond_alle[i]->compute_lambdavec(untervector,nummer);
+       if(fullcond_alle[i]->get_matrixnumber() == 1)
+         fullcond_alle[i]->compute_lambdavec(untervector,nummer);
+       else
+         untervector = lambdavector[lambdavector.size()-1];
        fullcond_alle[i]->set_inthemodel(0);
        lambdavector.push_back(untervector);
        }
@@ -5279,11 +5281,11 @@ bool STEPMULTIrun::confidence_MCMCbootstrap(const vector<double> & modell_final,
     fix_ganz_komplett(modell_alt);
     fullcond_komplett(modell_alt);
 
-for(unsigned c=0;c<modell_alt.size();c++)
+/*for(unsigned c=0;c<modell_alt.size();c++)
   {
   genoptions_mult[0]->out(ST::doubletostring(modell_alt[c],6) + "   ");
   }
-genoptions_mult[0]->out("\n");
+genoptions_mult[0]->out("\n");  */
 
     likep_mult[0]->set_original_response();
     if(criterion == "MSEP" || criterion == "AUC")

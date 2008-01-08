@@ -215,8 +215,11 @@ class __EXPORT_TYPE term_pspline_stepwise : public basic_termtype
     assert(i< terms.size());
 
     if ( (terms[i].type == "psplinerw1") || (terms[i].type == "psplinerw2") ||
+         (terms[i].type == "psplinerw3") ||
          (terms[i].type == "varpsplinerw1") || (terms[i].type == "varpsplinerw2") ||
-         (terms[i].type == "psplinerw1rw2") || (terms[i].type == "varpsplinerw1rw2"))
+         (terms[i].type == "varpsplinerw3") ||
+         (terms[i].type == "psplinerw1rw2") || (terms[i].type == "varpsplinerw1rw2") ||
+         (terms[i].type == "psplinerw1rw2rw3") || (terms[i].type == "varpsplinerw1rw2rw3") )
       return true;
 
     return false;

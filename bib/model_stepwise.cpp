@@ -559,14 +559,22 @@ bool term_pspline_stepwise::check(term & t)
       t.type = "psplinerw1";
     else if (t.options[0] == "psplinerw2" && t.varnames.size() == 1)
       t.type = "psplinerw2";
+    else if (t.options[0] == "psplinerw3" && t.varnames.size() == 1)
+      t.type = "psplinerw3";
     else if (t.options[0] == "psplinerw1rw2" && t.varnames.size() == 1)
       t.type = "psplinerw1rw2";
+    else if (t.options[0] == "psplinerw1rw2rw3" && t.varnames.size() == 1)
+      t.type = "psplinerw1rw2rw3";
     else if (t.options[0] == "psplinerw1" && t.varnames.size() == 2)
       t.type = "varpsplinerw1";
     else if (t.options[0] == "psplinerw2" && t.varnames.size() == 2)
       t.type = "varpsplinerw2";
+    else if (t.options[0] == "psplinerw3" && t.varnames.size() == 2)
+      t.type = "varpsplinerw3";
     else if (t.options[0] == "psplinerw1rw2" && t.varnames.size() == 2)
       t.type = "varpsplinerw1rw2";
+    else if (t.options[0] == "psplinerw1rw2rw3" && t.varnames.size() == 2)
+      t.type = "varpsplinerw1rw2rw3";
     else if(t.options[0] == "linear")
       t.type = "linear";
     else

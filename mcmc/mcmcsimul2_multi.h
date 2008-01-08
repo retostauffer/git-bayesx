@@ -18,6 +18,8 @@
 namespace MCMC
 {
 
+// Datei "mcmcsimul2_multi" ist für Modelle mit >2 Prädiktoren (sonst analog zu "mcmcsimul2")
+
 class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   {
 
@@ -47,9 +49,10 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   bool isboot;
   bool unconditional;
 
-  unsigned kategorien;
-  unsigned katje;
-  unsigned anz_fullcond;
+  unsigned kategorien;     // Anzahl Prädiktoren
+  unsigned katje;          // welcher Prädiktor ist gerade an der Reihe
+  unsigned anz_fullcond;   // Anzahl Fullcond-Objekte pro Prädiktor
+                           // (Variablen müssen in den Prädiktoren beim Aufruf übereinstimmen)
 
   vector<vector<double> > lambdavec;
   vector<ST::string> names_fixed;
@@ -62,7 +65,6 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   vector<vector<vector<double> > > modellematrix;
   bool fertig;
   int steps_aktuell;
-  //int window;
   vector<ST::string> posttitle;
 
   void schaetzen(int z, double & kriterium, bool neu, ST::string variante);

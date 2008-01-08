@@ -148,23 +148,27 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void include_effect(const vector<ST::string> & names, const datamatrix & newx);
 
+  // Funktion für die Anpassung eines einzelnen, bestimmten fixen Effekts
   void posteriormode_single(const vector<ST::string> & names, datamatrix newx, const bool include);
 
+  // speichert Intercept
   void safe_const(void);
 
+  // setzt alten Intercept-Wert wieder ein
   void set_const_old(void);
 
+  // Funktion für die Anpassung des Intercepts 
   void posteriormode_const(void);
 
+  // führt Zentrierung bei VCs durch  
   void update_fix_effect(const unsigned & pos, double & value, datamatrix fix);
 
   void posteriormode_const_varcoeff(datamatrix newx);
 
+  // löscht einen bestimmten fixen Effekt 
   void reset_effect(const unsigned & pos);
 
   void reset(void);
-
-  void set_effect_zero(void);
 
   double compute_df(void);
 
