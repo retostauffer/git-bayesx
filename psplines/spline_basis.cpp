@@ -1023,11 +1023,13 @@ void spline_basis::make_Bspline(const datamatrix & md, const bool & minnull)
     knot.push_back(max);
 */
 
+    datamatrix mdhelp = md;//.getRowBlock(0,500);
+
     knot.push_back(min);
     for(i=1;i<nrknots-1;i++)
       {
-      double q1 = md.quantile((i*100)/double(nrknots-1),0);
-      double q2 = md.quantile(((i-1)*100)/double(nrknots-1),0);
+      double q1 = mdhelp.quantile((i*100)/double(nrknots-1),0);
+      double q2 = mdhelp.quantile(((i-1)*100)/double(nrknots-1),0);
       if(q1 != q2)
         knot.push_back(q1);
       }
@@ -4088,13 +4090,6 @@ void spline_basis::update_merror(datamatrix & newdata)
   for(i=0;i<nrpar;i++)
     Bcolmean(i,0) /= double(nrdiffobs);
 
-  // neuen Spline ausrechnen
-//  multBS_index(spline, beta);
-
-  // Zentrierung
-//    for(i=0; i<spline.rows(); i++)
-//      spline(i,0) -= intercept;
-
   }
 
 void spline_basis::update_merror_discrete(datamatrix & newdata)
@@ -4105,9 +4100,6 @@ void spline_basis::update_merror_discrete(datamatrix & newdata)
 
   make_index(newdata);
   make_index2();
-
-  // neuen Spline ausrechnen
-  multBS_index(spline, beta);
 
   for(i=0; i<spline.rows(); i++)
     spline(i,0) -= intercept;

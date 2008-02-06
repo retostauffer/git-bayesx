@@ -822,7 +822,7 @@ namespace MCMC
     unsigned i;
     ou << "pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
     nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
-    for(i=0; i<beta.rows(); i++)
+    for(i=0; i<nbeta; i++)
       {
       ou << betamean(i,0) << "  ";
       ou << (betavar(i,0)<0.0?0.0:sqrt(betavar(i,0))) << "  ";

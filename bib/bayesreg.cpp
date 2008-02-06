@@ -2923,6 +2923,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
   double upperknot=0;
   double lowergrid=0;
   double uppergrid=0;
+  bool testmerror=false;
 
   unsigned i;
   int j;
@@ -2951,6 +2952,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
       if(test=="_merror")
         // covariates measured with measurement error
         {
+        testmerror=true;
         if(merror.getvalue()==0)
           {
           outerror("ERROR: Option merror has not been specified\n");
@@ -3060,7 +3062,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
       f = (terms[i].options[27]).strtodouble(alpha);
 
 // BEGIN: merror
-      if(merror.getvalue()>0)
+      if(testmerror)
         // covariates measured with measurement error
         // Overwrite some of the options
         {
@@ -3234,7 +3236,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           } // end: if (terms[i].options[0] == "psplinerw1vrw1" ...
 
 //BEGIN: merror
-        if(merror.getvalue()>0)
+        if(testmerror)
         // Fullcond-Objekt zur Generierung der wahren Kovariablenwerte
           {
           fcpsplinegaussian[fcpsplinegaussian.size()-1].set_changingweight();
@@ -3314,7 +3316,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
             }
 
 //BEGIN: merror
-          if(merror.getvalue()>0)
+          if(testmerror)
           // Fullcond-Objekt zur Generierung der wahren Kovariablenwerte
             {
             make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
@@ -3455,7 +3457,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           }
 
 //BEGIN: merror
-          if(merror.getvalue()>0)
+          if(testmerror)
           // Fullcond-Objekt zur Generierung der wahren Kovariablenwerte
             {
             make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",

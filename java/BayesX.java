@@ -1815,6 +1815,69 @@ public void JavaShowData()
 
 //Funktionen zum Zeichen von Karten
 
+public void JavaDescribeMap(boolean opt)
+	{
+            
+        int width;
+        int height;
+        
+        function = 1;
+
+        drawnames = opt;
+	fontsize = 0;
+        outfile = "";
+        
+        setEnabled(false);
+	fileChooser2 = new JFileChooser(defaultDirectory);
+	fileChooser2.addChoosableFileFilter(new MapFilter());
+	mapFrame = new JFrame("Object-Viewer");
+	double[] d = new double[4];
+	getboundaries(d);
+        mapPanel = new MapPanel(this);
+        
+//        mapPanel.setfunction((short)1);
+        
+	mapFrame.getContentPane().add(mapPanel,BorderLayout.CENTER);        
+	mapFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
+ 	mapFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+ 	mapFrame.addWindowListener(this);
+        
+        width = 500;
+        height = (int)(width*(d[3]-d[1])/(d[2]-d[0]));
+        
+        if(height>700)
+                {
+                width = (int)(width*700/height);
+                height = 700;
+                }
+        
+        mapFrame.setSize(width + 8,height + 27);
+
+
+        if(outfile.equals(""))        
+                {    
+		mapFrame.show();
+//		parseThread.suspend();
+		setPause(true);
+		parseThread.setPriority(Thread.MIN_PRIORITY);
+		}
+        else
+                {
+                try
+                        {
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));        
+                        mapPanel.SaveMap(out);   
+                        setEnabled(true);
+                        mapFrame.dispose();
+                        }
+                catch(IOException ioe)
+        	        {
+	        	System.err.println(ioe.getMessage());
+		        }
+                }
+ 
+	}
+
 public void JavaShowMap(boolean opt, int jfontsize, String joutfile)
 	{
             
