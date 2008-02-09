@@ -17,6 +17,7 @@
 #include <time.h>
 #include <math.h>
 #include "tmatrix.h"
+#include<vector>
 
 namespace randnumbers
 {
@@ -178,6 +179,24 @@ double __EXPORT_TYPE f2old(double x, int j);
 
 
 double __EXPORT_TYPE lambda_fc(double chi);
+
+// Erzeugen einer betaverteilten Zufallszahl mit Parametern a und b
+// (vgl. Devroye (1986) S.430)
+// Dichte der Betaverteilung:
+// f(x) = Gamma(a+b)/Gamma(a)*Gamma(b) * x^a-1 * (1-x)^b-1
+// E(X) = a/a+b     Var(X) = a*b/(b+b)^2*(a+b+1)
+
+double __EXPORT_TYPE rand_beta(double a, double b);
+
+// Erzeugen einer dirichletverteilten Zufallszahl mit Parameternvektor
+// alpha=(a_1,....,a_nrpar)
+// (vgl. Devroye (1986) S.594)
+// Dichte der Dirichletverteilung:
+// f(x) = Gamma(a_1+...+a_nrpar)/Gamma(a_1)*...*Gamma(a_nrpar) * x_1^a_1-1 * ... * x_nrpar^a_nrpar-1
+// mit x_nrpar = 1-x_1-...-x_nrpar-1
+
+vector<double> __EXPORT_TYPE rand_dirichlet(double nrpar, vector<double> alpha);
+
 
 }
 

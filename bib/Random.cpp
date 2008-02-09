@@ -708,6 +708,40 @@ double lambda_fc(double chi)
    return fn_val;
 }
 
+double rand_beta(double a, double b)
+  {
+  double randgamma_a;
+  double randgamma_b;
+  double randbeta;
+
+  randgamma_a = rand_gamma(a,1);
+  randgamma_b = rand_gamma(b,1);
+
+  randbeta = randgamma_a/(randgamma_a+randgamma_b);
+  return randbeta;
+  }
+
+vector<double> rand_dirichlet(double nrpar, vector<double> alpha)
+  {
+  vector<double> randgamma(nrpar);
+  vector<double> randdirichlet(nrpar);
+  double randgammasum = 0;
+  double randdirichletsum = 0;
+
+  for(int i=0; i<nrpar-1; i++)
+    {
+     randgamma[i] = rand_gamma(alpha[i],1);
+     randgammasum += randgamma[i];
+    }
+  for(int i=0; i<nrpar-2; i++)
+    {
+    randdirichlet[i] = randgamma[i]/randgammasum;
+    randdirichletsum = randdirichletsum + randdirichlet[i];
+    }
+   randdirichlet[nrpar-1] = 1-randdirichletsum;
+
+   return randdirichlet;
+  }
 
 
 } // end: namespace randnumbers
