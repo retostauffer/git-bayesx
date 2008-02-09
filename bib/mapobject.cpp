@@ -516,9 +516,15 @@ void mapobject::describe(optionlist & globaloptions)
 #if defined (BORLAND_OUTPUT_WINDOW)
       mapform->ShowModal();
 #elif defined (JAVA_OUTPUT_WINDOW)
-      jmethodID javashowmap = adminb_p->Java->GetMethodID(
-      adminb_p->BayesX_cls, "JavaShowMap", "(Z)V");
+
+      int fontsize = 0;
+      ST::string psname="";
+      jmethodID javashowmap = adminb_p->Java->GetMethodID(adminb_p->BayesX_cls, "JavaDescribeMap", "(Z)V");
       adminb_p->Java->CallVoidMethod(adminb_p->BayesX_obj, javashowmap, false);
+      
+//      jmethodID javashowmap = adminb_p->Java->GetMethodID(
+//      adminb_p->BayesX_cls, "JavaShowMap", "(Z)V");
+//      adminb_p->Java->CallVoidMethod(adminb_p->BayesX_obj, javashowmap, false);
 #endif
       }
     else
