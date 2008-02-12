@@ -1407,6 +1407,23 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
         optionsp->out("NOTE: no observations for region " + effectvalues[i] + "\n");
       }
 
+
+    // NIKI
+
+/*    datamatrix Kstat=STATMAT_PENALTY::Kmrf(ma);
+    datamatrix vals(Kstat.rows(),1,0);
+
+    bool eigentest=eigen2(Kstat,vals);
+
+    ofstream out("d:\\temp\\Kstat.raw");
+    Kstat.prettyPrint(out);
+
+    ofstream out2("d:\\temp\\vals.raw");
+    vals.prettyPrint(out2);
+*/
+    // NIKI
+
+
     } // end: if (error==false)
 
   unsigned j;
