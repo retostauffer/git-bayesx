@@ -17,12 +17,14 @@ baseline_reml::baseline_reml(MCMCoptions * o,
               const ST::string & ti, const ST::string & fp,
               const ST::string & pres, const double & l, const double & sl,
               const knotpos & gp, const bool & catsp)
-  : spline_basis(o,d,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp,0.0,0.0,0.0,0.0,0)
+  : spline_basis(o,d,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp,0.0,0.0,0.0,0.0,0,-9999)
   {
   unsigned i,j,k;
 
   baseline=true;
   varcoeff=false;
+
+  refcheck=false;
 
   gridpos = gp;
   double tmax=d.max(0);

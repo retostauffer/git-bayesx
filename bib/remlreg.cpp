@@ -1905,7 +1905,7 @@ bool remlreg::create_pspline(const unsigned & collinpred)
   ST::string title;
   long h;
   unsigned degree,nrknots;
-  double lambda, startlambda, lowergrid, uppergrid, lowerknot, upperknot;
+  double lambda, startlambda, lowergrid, uppergrid, lowerknot, upperknot, refval;
   bool catsp;
   int f, gridsize;
 
@@ -1969,6 +1969,7 @@ bool remlreg::create_pspline(const unsigned & collinpred)
       f = (terms[i].options[10]).strtodouble(uppergrid);
       f = (terms[i].options[11]).strtodouble(lowerknot);
       f = (terms[i].options[12]).strtodouble(upperknot);
+      f = (terms[i].options[13]).strtodouble(refval);
 
       if (f==1)
         return true;
@@ -1998,7 +1999,8 @@ bool remlreg::create_pspline(const unsigned & collinpred)
                                               uppergrid,
                                               lowerknot,
                                               upperknot,
-                                              gridsize
+                                              gridsize,
+                                              refval
                                              )
                            );
       fcpspline[fcpspline.size()-1].init_name(terms[i].varnames[0]);

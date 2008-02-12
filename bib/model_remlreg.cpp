@@ -498,6 +498,7 @@ term_pspline_remlreg::term_pspline_remlreg(void)
   uppergrid = doubleoption("uppergrid",0,-10000000,10000000);
   lowerknot = doubleoption("lowerknot",0,-10000000,10000000);
   upperknot = doubleoption("upperknot",0,-10000000,10000000);
+  reference = doubleoption("reference",-9999,-10000000,10000000);
   }
 
 void term_pspline_remlreg::setdefault(void)
@@ -514,12 +515,13 @@ void term_pspline_remlreg::setdefault(void)
   uppergrid.setdefault();
   lowerknot.setdefault();
   upperknot.setdefault();
+  reference.setdefault();
   }
 
 bool term_pspline_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 13) )
+        && (t.options.size() <= 14) )
     {
     if (t.options[0] == "psplinerw1")
       t.type = "psplinerw1";
@@ -546,6 +548,7 @@ bool term_pspline_remlreg::check(term & t)
     optlist.push_back(&uppergrid);
     optlist.push_back(&lowerknot);
     optlist.push_back(&upperknot);
+    optlist.push_back(&reference);
 
     unsigned i;
     bool rec = true;
@@ -568,7 +571,7 @@ bool term_pspline_remlreg::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(13);
+   t.options = vector<ST::string>(14);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(degree.getvalue());
    t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -609,6 +612,7 @@ bool term_pspline_remlreg::check(term & t)
     t.options[10] = ST::doubletostring(uppergrid.getvalue());
     t.options[11] = ST::doubletostring(lowerknot.getvalue());
     t.options[12] = ST::doubletostring(upperknot.getvalue());
+    t.options[13] = ST::doubletostring(reference.getvalue());
 
     setdefault();
     return true;

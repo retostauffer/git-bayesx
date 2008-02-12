@@ -139,6 +139,11 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
   double lowerknot;
   double upperknot;
 
+  double reference;                     // Relative effect with respect to a reference value
+  bool refcheck;
+  datamatrix X_ref;
+  datamatrix Z_ref;
+
   vector<int> begcol;                   // Gibt pro Zeile die Position des ersten Elements
                                         // der B-Spline-Designmatrix an das ungleich Null ist
 
@@ -355,7 +360,7 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
                const ST::string & fp, const ST::string & pres, const double & l,
                const double & sl, const bool & catsp, const double & lg,
                const double & ug, const double & lk, const double & uk,
-               const int & gs);
+               const int & gs, const double & rv);
 
   // CONSTRUCTOR für REML VCM
 

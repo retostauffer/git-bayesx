@@ -221,6 +221,7 @@ class __EXPORT_TYPE term_pspline_remlreg : public basic_termtype
   doubleoption uppergrid;
   doubleoption lowerknot;
   doubleoption upperknot;
+  doubleoption reference;
 
   void setdefault(void);
 

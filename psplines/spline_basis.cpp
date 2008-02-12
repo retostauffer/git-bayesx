@@ -307,7 +307,7 @@ spline_basis::spline_basis(MCMCoptions * o,
                       const ST::string & fp, const ST::string & pres, const double & l,
                       const double & sl, const bool & catsp, const double & lg,
                       const double & ug, const double & lk, const double & uk,
-                      const int & gs)
+                      const int & gs, const double & rv)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
@@ -320,6 +320,12 @@ spline_basis::spline_basis(MCMCoptions * o,
   uppergrid = ug;
   lowerknot = lk;
   upperknot = uk;
+
+  reference = rv;
+  if(reference == -9999)
+    refcheck=false;
+  else
+    refcheck = true;
 
   fctype = nonparametric;
 
@@ -427,6 +433,8 @@ spline_basis::spline_basis(MCMCoptions * o,const datamatrix & d1,
 
   lowerknot=0.0;
   upperknot=0.0;
+
+  refcheck=false;
 
   pseudocontourprob = false;
 
@@ -606,6 +614,10 @@ spline_basis::spline_basis(const spline_basis & sp)
 
   xvaluesgrid = sp.xvaluesgrid;
 
+  reference = sp.reference;
+  refcheck = sp.refcheck;
+  X_ref = sp.X_ref;
+  Z_ref = sp.Z_ref;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -695,6 +707,12 @@ const spline_basis & spline_basis::operator=(const spline_basis & sp)
   Z_grid = sp.Z_grid;
 
   xvaluesgrid = sp.xvaluesgrid;
+
+  reference = sp.reference;
+  refcheck = sp.refcheck;
+  X_ref = sp.X_ref;
+  Z_ref = sp.Z_ref;
+
 
   return *this;
   }
@@ -3360,6 +3378,10 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
   double * workdata;
   double * workZ;
 
+  datamatrix refhelp;
+  if(refcheck)
+    refhelp = bspline(reference);
+
 // X berechen
 
   datamatrix spline2;
@@ -3426,6 +3448,13 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
           {
           X_grid(i,0) = spline2(i,0)-splinemean;
           }
+        }
+      if(refcheck)
+        {
+        X_ref = datamatrix(1,1);
+        for(i=0; i<knoten.rows(); i++)
+          X_ref(0,0) += knoten(i,0)*refhelp(i,0);
+        X_ref(0,0) -= splinemean;
         }
       }
 
@@ -3514,6 +3543,9 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
     Z_VCM = datamatrix(spline.rows(), dimZ, 0);
     }
 
+  if(refcheck)
+    Z_ref = datamatrix(1,dimZ);
+
   for(j=0;j<dimZ;j++)
     {
     multBS_index(spline,diffmatrix.getCol(j));
@@ -3555,6 +3587,11 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
     else
       // no category specific covariates
       {
+      if(refcheck)
+        {
+        Z_ref(0,j) = (refhelp.transposed()*diffmatrix.getCol(j))(0,0);
+        }
+
       workdata = spline.getV();
       workZ = Z.getV()+Zpos+j;
 
@@ -3626,6 +3663,23 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
   betaqu_l1_upper=datamatrix(nr,1,0);
   betaqu_l2_lower=datamatrix(nr,1,0);
   betaqu_l2_upper=datamatrix(nr,1,0);
+
+  datamatrix betarefmean;
+  datamatrix betarefstd;
+  datamatrix betarefqu_l1_lower;
+  datamatrix betarefqu_l1_upper;
+  datamatrix betarefqu_l2_lower;
+  datamatrix betarefqu_l2_upper;
+
+  if(refcheck)
+    {
+    betarefmean=datamatrix(nr,1,0);
+    betarefstd=datamatrix(nr,1,0);
+    betarefqu_l1_lower=datamatrix(nr,1,0);
+    betarefqu_l1_upper=datamatrix(nr,1,0);
+    betarefqu_l2_lower=datamatrix(nr,1,0);
+    betarefqu_l2_upper=datamatrix(nr,1,0);
+    }
 
   vector<int>::iterator indexit = index2.begin();
   unsigned k = *indexit;
@@ -3751,6 +3805,55 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
       }
     }
 
+  indexit = index2.begin();
+  k = *indexit;
+  freqwork = freqoutput.begin();
+
+  if(refcheck)
+    {
+    for(i=0,j=0;i<X.rows();i++,indexit++,freqwork++,k+=*indexit)
+      {
+      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+        {
+        if(type == RW1)
+          {
+          betarefmean(j,0) = ((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)-Z_ref)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
+          betarefstd(j,0) = sqrt(((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)-Z_ref)*
+                   betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar-1,betaZpos+nrpar-1)*
+                   (Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)-Z_ref).transposed())(0,0));
+          }
+        else
+          {
+          betarefmean(j,0) = betareml(betaXpos,0)*(X(k,Xpos)-X_ref(0,0)) + ((Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref)*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1))(0,0);
+          betarefstd(j,0) = sqrt(
+                              (
+                               (X(k,Xpos)-X_ref(0,0))*betacov(betaXpos,betaXpos)
+                               +
+                               ((Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
+                              )*(X(k,Xpos)-X_ref(0,0))
+                              +
+                              (
+                               (
+                                (X(k,Xpos)-X_ref(0,0))*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+                                +
+                                (Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                               )*((Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref).transposed())
+                              )(0,0)
+                             );
+          }
+        j++;
+        }
+      }
+    for(j=0; j<nr; j++)
+      {
+      betarefmean(j,0)=betarefmean(j,0)-mean;
+      betarefqu_l1_lower(j,0) = betarefmean(j,0)+randnumbers::invPhi2(lower1/100)*betarefstd(j,0);
+      betarefqu_l1_upper(j,0) = betarefmean(j,0)+randnumbers::invPhi2(upper2/100)*betarefstd(j,0);
+      betarefqu_l2_lower(j,0) = betarefmean(j,0)+randnumbers::invPhi2(lower2/100)*betarefstd(j,0);
+      betarefqu_l2_upper(j,0) = betarefmean(j,0)+randnumbers::invPhi2(upper1/100)*betarefstd(j,0);
+      }
+    }
+
   optionsp->out("\n");
   if(ismultinomial)
     {
@@ -3853,6 +3956,17 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
   outres << "ci"  << level1  << "upper   ";
   outres << "pcat" << level1 << "   ";
   outres << "pcat" << level2 << "   ";
+
+  if(refcheck)
+    {
+    outres << "pmoderef   ";
+    outres << "ci"  << level1  << "lowerref   ";
+    outres << "ci"  << level2  << "lowerref   ";
+    outres << "stdref   ";
+    outres << "ci"  << level2  << "upperref   ";
+    outres << "ci"  << level1  << "upperref   ";
+    }
+
   outres << endl;
 
   double * workmean = betamean.getV();
@@ -3862,6 +3976,13 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
   double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
   double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
   double * workxvalues = xvalues.getV();
+
+  double * workrefmean = betarefmean.getV();
+  double * workrefstd = betarefstd.getV();
+  double * workrefbetaqu_l1_lower_p = betarefqu_l1_lower.getV();
+  double * workrefbetaqu_l2_lower_p = betarefqu_l2_lower.getV();
+  double * workrefbetaqu_l1_upper_p = betarefqu_l1_upper.getV();
+  double * workrefbetaqu_l2_upper_p = betarefqu_l2_upper.getV();
 
   for(i=0;i<xvalues.rows();i++,workmean++,workstd++,
                      workbetaqu_l1_lower_p++,workbetaqu_l2_lower_p++,
@@ -3890,6 +4011,23 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
       outres << "-1   ";
     else
       outres << "0   ";
+
+    if(refcheck)
+      {
+      outres << *workrefmean << "   ";
+      outres << *workrefbetaqu_l1_lower_p << "   ";
+      outres << *workrefbetaqu_l2_lower_p << "   ";
+      outres << *workrefstd << "   ";
+      outres << *workrefbetaqu_l2_upper_p << "   ";
+      outres << *workrefbetaqu_l1_upper_p << "   ";
+
+      workrefmean++;
+      workrefstd++;
+      workrefbetaqu_l1_lower_p++;
+      workrefbetaqu_l2_lower_p++;
+      workrefbetaqu_l1_upper_p++;
+      workrefbetaqu_l2_upper_p++;
+      }
 
     outres << endl;
     }
