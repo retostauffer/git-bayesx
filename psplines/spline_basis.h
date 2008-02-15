@@ -533,6 +533,8 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
 
   // ------------------------- FOR MERROR --------------------------------------
 
+  void update_merror_varcoef(datamatrix & effmod, datamatrix & newintact);
+
   void update_merror(datamatrix & newdata);
   void update_merror_discrete(datamatrix & newdata);
   datamatrix get_spline_merror(void);

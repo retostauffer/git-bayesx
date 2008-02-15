@@ -3357,7 +3357,7 @@ void texsummaryrun(stepwisereg & b)
     bool gefunden = false;
     while(i>=0 && gefunden == false)
       {
-      if(path2[i] == '\\')
+      if(path2[i] == '\\' || path2[i]=='/')
         gefunden = true;
       path2 = path2.substr(0,i);
       i--;

@@ -1112,6 +1112,37 @@ bool bayesreg::create_distribution(void)
   else
     {
     modelvarnamesv = modreg.getModelVarnamesAsVector();
+
+  // add variables for measurement error terms
+
+  unsigned j;
+  ST::string test;
+  vector<ST::string> modelvarnamesvhelp;
+  for(i=0; i<modelvarnamesv.size(); i++)
+    {
+    if(modelvarnamesv[i].length()>7)
+      {
+      test = modelvarnamesv[i].substr(modelvarnamesv[i].length()-7,7);
+      if(test=="_merror")
+        {
+        test = modelvarnamesv[i].substr(0,modelvarnamesv[i].length()-7);
+        for(j=0; j<merror.getvalue(); j++)
+          {
+          modelvarnamesvhelp.push_back(test + ST::inttostring(j+1));
+          }
+        }
+      else
+        {
+        modelvarnamesvhelp.push_back(modelvarnamesv[i]);
+        }
+      }
+    else
+      {
+      modelvarnamesvhelp.push_back(modelvarnamesv[i]);
+      }
+    }
+  modelvarnamesv = modelvarnamesvhelp;
+
     rname = modelvarnamesv[0].to_bstr();
     wn = methods[0].get_weight_variable().to_bstr();
     if (predictind.changed())
@@ -1150,36 +1181,6 @@ bool bayesreg::create_distribution(void)
     modelvarnamesv.push_back(state.getvalue());
     statepos = modelvarnamesv.size()-1;
     }
-
-  // add variables for measurement error terms
-
-  unsigned j;
-  ST::string test;
-  vector<ST::string> modelvarnamesvhelp;
-  for(i=0; i<modelvarnamesv.size(); i++)
-    {
-    if(modelvarnamesv[i].length()>7)
-      {
-      test = modelvarnamesv[i].substr(modelvarnamesv[i].length()-7,7);
-      if(test=="_merror")
-        {
-        test = modelvarnamesv[i].substr(0,modelvarnamesv[i].length()-7);
-        for(j=0; j<merror.getvalue(); j++)
-          {
-          modelvarnamesvhelp.push_back(test + ST::inttostring(j+1));
-          }
-        }
-      else
-        {
-        modelvarnamesvhelp.push_back(modelvarnamesv[i]);
-        }
-      }
-    else
-      {
-      modelvarnamesvhelp.push_back(modelvarnamesv[i]);
-      }
-    }
-  modelvarnamesv = modelvarnamesvhelp;
 
   // testing, wether all variables specified are already existing
   vector<ST::string> notex;

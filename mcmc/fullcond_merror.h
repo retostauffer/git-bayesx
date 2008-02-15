@@ -25,8 +25,8 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
 
   protected:
 
-//  FULLCOND_nonp_basis * designp;  // Pointer wird für IWLS-proposal benötigt
-  FULLCOND_nonp * designp;          // Pointer wird für Conditional prior proposal benötigt
+  FULLCOND_nonp_basis * designp;  // Pointer wird für IWLS-proposal benötigt
+//  FULLCOND_nonp * designp;          // Pointer wird für Conditional prior proposal benötigt
   DISTRIBUTION * likep;
 
 // BEGIN: merror
@@ -70,6 +70,8 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
 
   unsigned drows;
   unsigned dcols;
+
+  datamatrix effmod;
 
   datamatrix P;                     // Präzisionsmatrix der wahren Werte
   //envmatdouble precenv;           // envmatrix zum Speichern der Präzisionsmatrixx der wahren Werte
@@ -123,8 +125,8 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   //        (i.e. number of categories of the response variable)
   // fp   : file path for storing sampled parameters
 
-  fullcond_merror(MCMCoptions * o, FULLCOND_nonp * p, DISTRIBUTION * dp,// FULLCOND_nonp_basis * p,
-           const datamatrix & d, const ST::string & t, const ST::string & fp);
+  fullcond_merror(MCMCoptions * o, /*FULLCOND_nonp * p,*/ FULLCOND_nonp_basis * p, DISTRIBUTION * dp, 
+           const datamatrix & d, const datamatrix & em, const ST::string & t, const ST::string & fp);
 
   // BEGIN: merror
   // CONSTRUCTOR : Thomas (Measurement error in a nonparametric effect)

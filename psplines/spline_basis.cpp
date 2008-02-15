@@ -3846,7 +3846,7 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
       }
     for(j=0; j<nr; j++)
       {
-      betarefmean(j,0)=betarefmean(j,0)-mean;
+//      betarefmean(j,0)=betarefmean(j,0)-mean;
       betarefqu_l1_lower(j,0) = betarefmean(j,0)+randnumbers::invPhi2(lower1/100)*betarefstd(j,0);
       betarefqu_l1_upper(j,0) = betarefmean(j,0)+randnumbers::invPhi2(upper2/100)*betarefstd(j,0);
       betarefqu_l2_lower(j,0) = betarefmean(j,0)+randnumbers::invPhi2(lower2/100)*betarefstd(j,0);
@@ -4175,6 +4175,24 @@ void spline_basis::outoptionsreml()
   }
 
 // ------------------------- FOR MERROR ----------------------------------------
+
+void spline_basis::update_merror_varcoef(datamatrix & effmod, datamatrix & newintact)
+  {
+  unsigned i,j,k;
+  double value;
+
+  freq = vector<int>();
+  begcol = vector<int>();
+  index2 = vector<int>();
+
+  firstnonzero = deque<int>();
+  lastnonzero = deque<int>();
+
+  make_index(effmod,newintact);
+  make_index2();
+  make_Bspline(effmod);
+  make_BS(newintact);
+  }
 
 void spline_basis::update_merror(datamatrix & newdata)
   {

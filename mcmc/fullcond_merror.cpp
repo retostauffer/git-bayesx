@@ -19,12 +19,14 @@ namespace MCMC
 
   fullcond_merror::fullcond_merror(MCMCoptions * o,
 //               FULLCOND_nonp_basis * p, const datamatrix & d,        //wird bei IWLS-propsal benötigt
-               FULLCOND_nonp * p, DISTRIBUTION * dp, const datamatrix & d,               //wird bei Conditional prior propsal benötigt
-               const ST::string & t, const ST::string & fp)
+               /*FULLCOND_nonp * p,*/ FULLCOND_nonp_basis * p, DISTRIBUTION * dp, const datamatrix & d,               //wird bei Conditional prior propsal benötigt
+               const datamatrix & em, const ST::string & t, const ST::string & fp)
                          : FULLCOND(o,d,t,d.rows(),1,fp)
     {
 
     designp = p;
+
+    effmod = em;
 
     likep = dp;
 
@@ -346,6 +348,7 @@ namespace MCMC
     diff = m.diff;
     mmu = m.mmu;
     xi = m.xi;
+    effmod = m.effmod;
 // END: Susi
 
     }
@@ -399,6 +402,7 @@ namespace MCMC
     diff = m.diff;
     mmu = m.mmu;
     xi = m.xi;
+    effmod = m.effmod;
  // END: Susi
 
     return *this;
@@ -413,8 +417,9 @@ namespace MCMC
     if(varcoeff)
       {
       datamatrix e = datamatrix(drows,1,0);
-      vector<ST::string> enames;
-      designp->get_effectmatrix(e,enames,0,1,MCMC::fvar_current);
+//      vector<ST::string> enames;
+//      designp->get_effectmatrix(e,enames,0,1,MCMC::fvar_current);
+      e = (dynamic_cast <spline_basis*> (designp) )->get_spline();
 
       // Conditional prior proposal
 
@@ -512,7 +517,8 @@ namespace MCMC
 
       likep->addtocurrent(proposalmat);
       likep->swap_linearpred();
-      (dynamic_cast <FULLCOND_nonp*> (designp) )->set_effectmod(xi);
+//      (dynamic_cast <FULLCOND_nonp*> (designp) )->set_effectmod(xi);
+      (dynamic_cast <spline_basis*> (designp) )->update_merror_varcoef(effmod, xi);
       beta.assign(xi);
 
       FULLCOND::update();
