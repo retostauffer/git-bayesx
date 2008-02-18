@@ -193,6 +193,11 @@ class __EXPORT_TYPE DISTRIBUTION
   double ridgesum;
   double lassosum;
 
+//nigselection  
+//---------------
+  unsigned nrnigmix;
+  double nigmixsum;
+
 //------------------------------------------------------------------------------
 //--------------------------- ERRORMESSAGES ------------------------------------
 //------------------------------------------------------------------------------
@@ -225,6 +230,10 @@ class __EXPORT_TYPE DISTRIBUTION
     ridgesum=0.0;
     nrlasso=0;
     lassosum=0.0;
+
+    //nigselection
+    nrnigmix = 0;
+    nigmixsum = 0.0;
     }
 
   // CONSTRUCTOR1
@@ -1396,6 +1405,21 @@ class __EXPORT_TYPE DISTRIBUTION
     return nrlasso;
     }
 
+  void set_nigmix(const unsigned & nr)
+    {
+    shrinkage=true;
+    nrnigmix=nr;
+    }
+
+  void update_nigmix(const double & sum)
+    {
+    nigmixsum=sum;
+    }
+
+  unsigned get_nigmix(void)
+    {
+    return nrnigmix;
+    }
 
   }; // end: class DISTRIBUTION
 

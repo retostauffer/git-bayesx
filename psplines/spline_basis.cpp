@@ -4182,11 +4182,15 @@ void spline_basis::update_merror_varcoef(datamatrix & effmod, datamatrix & newin
   double value;
 
   freq = vector<int>();
+  freqoutput = vector<int>();
   begcol = vector<int>();
   index2 = vector<int>();
 
   firstnonzero = deque<int>();
   lastnonzero = deque<int>();
+  knot = deque<double>();
+
+  nrdiffobs=0;
 
   make_index(effmod,newintact);
   make_index2();

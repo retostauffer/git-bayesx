@@ -357,6 +357,146 @@ bool term_shrinkage::checkvector(const vector<term> & terms, const unsigned & i)
   }
 
 //------------------------------------------------------------------------------
+//---------- class term_nigmix: implementation of member functions -------------
+//------------------------------------------------------------------------------
+
+// DEFAULT CONSTRUCTOR
+//---------------------
+term_nigmix::term_nigmix(void)
+  {
+  type = "term_nigmix";
+
+  // Startwert für Indicator (1. Komponente des Varianzparameters)
+  indicatorstart = doubleoption("indicatorstart",0.1,0,10000000);
+  
+  // Lage der Punktmassen des Indikators
+  v0 = doubleoption("v0",0.005,0,10000000);
+  v1 = doubleoption("v1",1,0,10000000);
+
+  // Startwert für t^2 (2. Komponente des Varianzparameters)
+  t2start = doubleoption("t2start",11,0,10000000);
+  
+  // Hyperparameter der Priori fuer Shrinkageparameter
+  a_t2 = doubleoption("a_t2",5,0,500);
+  b_t2 = doubleoption("b_t2",50,0,500);
+
+  // Startwert fuer die Mischungskomponente 
+  omegastart = doubleoption("omegastart",0.5,0,1);;  
+
+  // Feste Werte für die Komponenten
+  omegafix = simpleoption("omegafix",false);
+
+  }
+
+
+// FUNCTION: setdefault
+//---------------------
+void term_nigmix::setdefault(void)
+  {
+  // call setdefault-methods of the options
+  indicatorstart.setdefault();
+  v0.setdefault();
+  v1.setdefault();
+  t2start.setdefault();
+  a_t2.setdefault();
+  b_t2.setdefault();
+  omegastart.setdefault();
+  omegafix.setdefault();
+  }
+
+
+// FUNCTION: check
+//-----------------
+bool term_nigmix::check(term & t)
+  {
+  if ( (t.varnames.size() == 1) && (t.options.size()<=9) && (t.options.size()>=1))   // SET: Anzahl Optionen
+    {
+    // extract options
+    // prior coorespponds to Normal-Indicator-Mixing
+    if (t.options[0] == "nigmix")
+      t.type = "nigmix";
+    
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    vector<ST::string> opt;
+    optionlist optlist;
+
+    optlist.push_back(&indicatorstart);
+    optlist.push_back(&v0);
+    optlist.push_back(&v1);
+    optlist.push_back(&t2start);
+    optlist.push_back(&a_t2);
+    optlist.push_back(&b_t2);
+    optlist.push_back(&omegastart);
+    optlist.push_back(&omegafix);
+    
+
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(9);                        // SET: Anzahl Optionen
+    t.options[0] = t.type;
+    t.options[1] = ST::doubletostring(indicatorstart.getvalue());
+    t.options[2] = ST::doubletostring(v0.getvalue());
+    t.options[3] = ST::doubletostring(v1.getvalue());
+    t.options[4] = ST::doubletostring(t2start.getvalue());
+    t.options[5] = ST::doubletostring(a_t2.getvalue());
+    t.options[6] = ST::doubletostring(b_t2.getvalue());
+    t.options[7] = ST::doubletostring(omegastart.getvalue());    
+    if (omegafix.getvalue()==false)
+       t.options[8] = "false";
+     else
+       t.options[8] = "true";
+
+
+    setdefault();
+    return true;
+    }
+
+  else
+    {
+    setdefault();
+    return false;
+    }
+  }
+
+
+// FUNCTION: checkvector
+//----------------------
+bool term_nigmix::checkvector(const vector<term> & terms, const unsigned & i)
+  {
+  assert(i< terms.size());
+  if (terms[i].type == "nigmix")
+    return true;
+  return false;
+  }
+
+//------------------------------------------------------------------------------
 //---------- class term_autoreg: implementation of member functions ------------
 //------------------------------------------------------------------------------
 
@@ -2619,6 +2759,202 @@ bool term_varcoeff_pspline::check(term & t)
 term_varcoeff_merror::term_varcoeff_merror(void)
   {
   type = "term_varcoeff_merror";
+  min=intoption("min",0,1,100);
+  max=intoption("max",0,1,100);
+  degree=intoption("degree",3,0,5);
+  numberknots=intoption("nrknots",20,5,500);
+  lambda = doubleoption("lambda",0.1,0,10000000);
+  gridsize = intoption("gridsize",-1,10,500);
+  a = doubleoption("a",0.001,-1.0,500);
+  b = doubleoption("b",0.001,0,500);
+  vector<ST::string> adm_prop;
+  adm_prop.push_back("cp");
+  adm_prop.push_back("iwls");
+  adm_prop.push_back("iwlsmode");
+  proposal = stroption("proposal",adm_prop,"iwls");
+  vector<ST::string> adm;
+  adm.push_back("unrestricted");
+  adm.push_back("increasing");
+  adm.push_back("decreasing");
+  monotone = stroption("monotone",adm,"unrestricted");
+  updateW = intoption("updateW",1,0,100);
+  updatetau = simpleoption("updatetau",false);
+  f = doubleoption("f",2,0,10000000);
+  diagtransform = simpleoption("diagtransform",false);
+  derivative = simpleoption("derivative",false);
+  contourprob = intoption("contourprob",-1,0,6);
+  uniformprior = simpleoption("uniformprior",false);
+  beta_0 = stroption("beta_0");
+  vector<ST::string> knotsdef;
+  knotsdef.push_back("equidistant");
+  knotsdef.push_back("quantiles");
+  knots = stroption("knots",knotsdef,"equidistant");
+  center = simpleoption("center",false);
+
+  // SUSI: initialize new option
+  // Syntax : doubleoption("name", default, lower limit, upper limit)
+  merrorvar = doubleoption("merrorvar",0.5,0.0,10000000);
+  }
+
+
+void term_varcoeff_merror::setdefault(void)
+  {
+  min.setdefault();
+  max.setdefault();
+  degree.setdefault();
+  numberknots.setdefault();
+  lambda.setdefault();
+  gridsize.setdefault();
+  a.setdefault();
+  b.setdefault();
+  proposal.setdefault();
+  monotone.setdefault();
+  updateW.setdefault();
+  updatetau.setdefault();
+  f.setdefault();
+  diagtransform.setdefault();
+  derivative.setdefault();
+  contourprob.setdefault();
+  uniformprior.setdefault();
+  beta_0.setdefault();
+  knots.setdefault();
+  center.setdefault();
+
+  // SUSI: call setdefault() for new option
+  merrorvar.setdefault();
+  }
+
+
+bool term_varcoeff_merror::check(term & t)
+  {
+
+  if ( (t.varnames.size()==2)  && (t.options.size() >=1)
+// SUSI: Adjust options.size()
+        && (t.options.size() <= 22) )
+    {
+
+    if (t.options[0] == "merrorrw1")
+      t.type = "varcoeffmerrorrw1";
+    else if (t.options[0] == "merrorrw2")
+      t.type = "varcoeffmerrorrw2";
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+    optionlist optlist;
+    optlist.push_back(&min);
+    optlist.push_back(&max);
+    optlist.push_back(&degree);
+    optlist.push_back(&numberknots);
+    optlist.push_back(&lambda);
+    optlist.push_back(&gridsize);
+    optlist.push_back(&a);
+    optlist.push_back(&b);
+    optlist.push_back(&proposal);
+    optlist.push_back(&monotone);
+    optlist.push_back(&updateW);
+    optlist.push_back(&updatetau);
+    optlist.push_back(&f);
+    optlist.push_back(&diagtransform);
+    optlist.push_back(&derivative);
+    optlist.push_back(&contourprob);
+    optlist.push_back(&uniformprior);
+    optlist.push_back(&beta_0);
+    optlist.push_back(&knots);
+    optlist.push_back(&center);
+
+    // SUSI: add option to options list
+    optlist.push_back(&merrorvar);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    // SUSI: Adjust length of options
+    t.options = vector<ST::string>(22);
+    t.options[0] = t.type;
+    t.options[1] = ST::inttostring(min.getvalue());
+    t.options[2] = ST::inttostring(max.getvalue());
+    t.options[3] = ST::inttostring(degree.getvalue());
+    t.options[4] = ST::inttostring(numberknots.getvalue());
+    t.options[5] = ST::doubletostring(lambda.getvalue());
+    t.options[6] = ST::inttostring(gridsize.getvalue());
+    t.options[7] = ST::doubletostring(a.getvalue());
+    t.options[8] = ST::doubletostring(b.getvalue());
+    t.options[9] = proposal.getvalue();
+    t.options[10] = monotone.getvalue();
+    t.options[11] = ST::inttostring(updateW.getvalue());
+    if (updatetau.getvalue() == false)
+      t.options[12] = "false";
+    else
+      t.options[12] = "true";
+    t.options[13] = ST::doubletostring(f.getvalue());
+    if (diagtransform.getvalue() == false)
+      t.options[14] = "false";
+    else
+      t.options[14] = "true";
+    if (derivative.getvalue() == false)
+      t.options[15] = "false";
+    else
+      t.options[15] = "true";
+    t.options[16] = ST::inttostring(contourprob.getvalue());
+    if (uniformprior.getvalue() == false)
+      t.options[17] = "false";
+    else
+      t.options[17] = "true";
+    t.options[18] = beta_0.getvalue();
+    t.options[19] = knots.getvalue();
+    if (center.getvalue() == false)
+      t.options[20] = "false";
+    else
+      t.options[20] = "true";
+
+    // SUSI: Add new option
+    t.options[21] = ST::doubletostring(merrorvar.getvalue());
+
+    if ( contourprob.getvalue()-1 > degree.getvalue())
+      {
+      setdefault();
+      return false;
+      }
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
+
+/*term_varcoeff_merror::term_varcoeff_merror(void)
+  {
+  type = "term_varcoeff_merror";
   min=intoption("min",1,1,500);
   max=intoption("max",1,1,500);
   minvar=intoption("minvar",1,1,500);
@@ -2842,7 +3178,7 @@ bool term_varcoeff_merror::check(term & t)
     setdefault();
     return false;
     }
-  }
+  }*/
 
 //------------------------------------------------------------------------------
 //--------- class term_randomslope: implementation of member functions ---------

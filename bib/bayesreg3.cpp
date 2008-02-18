@@ -118,6 +118,7 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
       else
         center = true;
 
+      f = (terms[i].options[21]).strtodouble(mvar);
 
       if (f==1)
         return true;
@@ -2704,6 +2705,204 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
   return false;
   }
 
+bool bayesreg::create_nigmix(const unsigned & collinpred)
+  {
+
+  // options
+  vector<unsigned> indicatorstart;
+  double v0;
+  double v1;  
+  vector<unsigned> t2start;
+  double a_t2;
+  double b_t2;
+  double omegastart;
+  bool omegafix;   
+
+
+  datamatrix variances;
+
+  int j, f;
+  unsigned i;
+  double helpvar1;               // fuer Starewerte der inversen Varianzparameter tau2=1/(indicator*t2), helpvar1=t2
+  double helpvar2;               // fuer Starewerte der inversen Varianzparameter tau2=1/(indicator*t2), helpvar2=indicator
+  long h;
+
+  vector<ST::string> varnames;
+  vector<double> varhelp;
+
+  bool check=false;
+  vector<FULLCOND_const*> fc;
+
+  for(i=0;i<terms.size();i++)
+    {
+    if ( shrinkage.checkvector(terms,i) == true )
+      {
+      if(terms[i].options[0] == "nigmix")
+        {
+        check=true;
+        varnames.push_back(terms[i].varnames[0]);
+
+        f = (terms[i].options[1]).strtodouble(helpvar1);
+        f = (terms[i].options[4]).strtodouble(helpvar2);        
+        varhelp.push_back(1/(helpvar1*helpvar2));
+
+        // letzter Term enthält die verwendeten Werte
+        f = (terms[i].options[2]).strtodouble(v0);
+        f = (terms[i].options[3]).strtodouble(v1);
+        f = (terms[i].options[5]).strtodouble(a_t2);
+        f = (terms[i].options[6]).strtodouble(b_t2);
+        f = (terms[i].options[7]).strtodouble(omegastart);          
+        if (terms[i].options[8] == "true")
+          omegafix = true;
+        else
+          omegafix = false;               
+        }
+      }
+    }
+
+  if(check)
+    {
+    unsigned nr = varnames.size();
+    unsigned bs = blocksize.getvalue();
+    unsigned nrblocks = 1;
+    vector<unsigned> cut;
+    cut.push_back(0);
+    i = bs;
+    while(i<nr)
+      {
+      cut.push_back(i);
+      i += bs;
+      nrblocks++;
+      }
+    cut.push_back(nr);
+
+    // Varianzparameter
+    variances = datamatrix(varhelp.size(),1,0);
+    for(i=0; i<varhelp.size(); i++)
+      variances(i,0) = varhelp[i];
+
+    // Daten
+    datamatrix data(D.rows(),varnames.size(),0);
+
+    for(i=0; i<varnames.size(); i++)
+      {
+      j = varnames[i].isinlist(modelvarnamesv);
+      data.putCol(i, D.getCol(j));
+      }
+
+     // Titel und Pfade zur Datenspeicherung
+    ST::string title, titlehelp;
+    ST::string pathconst;
+    ST::string pathconstres;
+
+    // keine Intercept
+    int constpos=-1;
+
+    vector<ST::string> varnameshelp;
+
+    // Case: Gaussian
+    if ( check_gaussian(collinpred))
+      {
+      for(i=0; i<nrblocks; i++)
+        {
+        // Erstellen der Dateien fuer die Ergebnisse der Koeffizientenschaetzung
+        varnameshelp = vector<ST::string>();
+        for(j=cut[i]; j<cut[i+1]; j++)
+          varnameshelp.push_back(varnames[j]);
+
+        title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1);
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+
+        if (pathconst.isvalidfile() == 1)
+          {
+          errormessages.push_back("ERROR: unable to open file " + pathconst +
+                                 " for writing\n");
+          return true;
+          }
+
+        // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
+        normalshrinkage.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
+                                  distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
+                                  pathconst, pathconstres, true,
+                                  variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+
+        normalshrinkage[normalshrinkage.size()-1].init_names(varnameshelp);
+        normalshrinkage[normalshrinkage.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&normalshrinkage[normalshrinkage.size()-1]);
+        fc.push_back(&normalshrinkage[normalshrinkage.size()-1]);
+        }
+
+      // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
+      title = "shrinkage_nigmix";
+      make_paths(collinpred,pathnonp,pathres,title,title,"",
+             "_var.raw","_var.res","_variance");
+
+      distr[distr.size()-1]->set_nigmix(data.cols());
+      distr[distr.size()-1]->update_nigmix(0.0);
+
+
+      // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector_nigmix
+      fcvarnonpvecnigmix.push_back(FULLCOND_variance_nonp_vector_nigmix(
+          &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],
+          title,pathnonp,pathres,indicatorstart,v0,v1,t2start,a_t2,b_t2,omegastart,omegafix,
+          cut,collinpred));
+
+      fullcond.push_back(&fcvarnonpvecnigmix[fcvarnonpvecnigmix.size()-1]);
+      }
+
+
+    // Case: NonGaussian
+    else
+      {
+
+      // Erstellen der Dateien fuer die Ergebnisse der Koeffizientenschaetzung
+      for(i=0; i<nrblocks; i++)
+        {
+        varnameshelp = vector<ST::string>();
+        for(j=cut[i]; j<cut[i+1]; j++)
+          varnameshelp.push_back(varnames[j]);
+
+        title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1);
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+        if (pathconst.isvalidfile() == 1)
+          {
+          errormessages.push_back("ERROR: unable to open file " + pathconst +
+                                 " for writing\n");
+          return true;
+          }
+
+        // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
+        nongaussianshrinkage.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
+                              distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
+                              pathconst, pathconstres, true,
+                              variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+        nongaussianshrinkage[nongaussianshrinkage.size()-1].init_names(varnameshelp);
+        nongaussianshrinkage[nongaussianshrinkage.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&nongaussianshrinkage[nongaussianshrinkage.size()-1]);
+        fc.push_back(&nongaussianshrinkage[nongaussianshrinkage.size()-1]);
+        }
+
+      // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
+      title = "shrinkage_nigmix";
+      make_paths(collinpred,pathnonp,pathres,title,title,"",
+             "_var.raw","_var.res","_variance");
+
+     // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector_nigmix
+      fcvarnonpvecnigmix.push_back(FULLCOND_variance_nonp_vector_nigmix(
+          &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],title,pathnonp,pathres,
+          indicatorstart,v0,v1,t2start,a_t2,b_t2,omegastart,omegafix,cut,collinpred));
+      fullcond.push_back(&fcvarnonpvecnigmix[fcvarnonpvecnigmix.size()-1]);
+//      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_shrinkagepointer());
+      }
+    }
+
+  return false;
+  }
+  
 void regressrun(bayesreg & b)
   {
 

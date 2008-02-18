@@ -28,6 +28,8 @@ namespace MCMC
 
     effmod = em;
 
+    varcoeff = true;
+
     likep = dp;
 
     drows = d.rows();
@@ -305,6 +307,7 @@ namespace MCMC
     {
     designp = m.designp;
     likep = m.likep;
+    varcoeff = m.varcoeff;
 // BEGIN: merror
     splinep = m.splinep;
     minx = m.minx;
@@ -363,6 +366,7 @@ namespace MCMC
 
     designp = m.designp;
     likep = m.likep;
+    varcoeff = m.varcoeff;
 // BEGIN: merror
     splinep = m.splinep;
     minx = m.minx;
@@ -807,6 +811,8 @@ namespace MCMC
     {
     FULLCOND::outresults();
 
+    if(!varcoeff)
+      {
     ST::string l1 = ST::doubletostring(lower1,4);
     ST::string l2 = ST::doubletostring(lower2,4);
     ST::string u1 = ST::doubletostring(upper1,4);
@@ -1055,7 +1061,7 @@ namespace MCMC
     optionsp->out("  " + xivar_pathresults + "\n");
 
     optionsp->out("\n");
-
+      }
     }
 
   // FUNCTION: reset

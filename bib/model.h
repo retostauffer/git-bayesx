@@ -492,16 +492,57 @@ class __EXPORT_TYPE term_shrinkage : public basic_termtype
   };
 
 //------------------------------------------------------------------------------
-//-------------------------- class term_shrinkage  -----------------------------
+//------------------------------- class term_nigmix -------------------------
 //------------------------------------------------------------------------------
+// Category-specific fixed effects in cumulative or sequential models
 
-/*
-class __EXPORT_TYPE term_varcoeff : public basic_termtype
+class __EXPORT_TYPE term_nigmix : public basic_termtype
   {
+  protected:
+
+  // Startwert für Indicator (1. Komponente des Varianzparameters)
+  doubleoption indicatorstart;
+
+  // Lage der Punktmassen des Indikators
+  doubleoption v0;
+  doubleoption v1;
+
+  // Startwert für t^2 (2. Komponente des Varianzparameters)
+  doubleoption t2start;
+    
+  // Hyperparameter der Priori fuer Varianzparameterkomponente t2
+  doubleoption a_t2;
+  doubleoption b_t2;
+  
+  // Startwert fuer die Mischungskomponente 
+  doubleoption omegastart;
+
+  // Feste Werte für die Komponenten
+  simpleoption omegafix;
+  
+
+  // FUNCTION: setdefault
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+  term_nigmix(void);
+  
+
+  // FUNCTION: check
+  bool check(term & t);
 
 
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a category-specific fixed effect
+  bool checkvector(const vector<term>  & terms,const unsigned & i);
+
+
+  // DESTRUCTOR
+  ~term_nigmix() {}
   };
-*/
+
 
 class __EXPORT_TYPE term_autoreg : public basic_termtype
   {
@@ -641,8 +682,6 @@ class __EXPORT_TYPE term_season : public basic_termtype
 
 class __EXPORT_TYPE term_pspline : public basic_termtype
   {
-
-
   protected:
 
   intoption min;
@@ -1386,6 +1425,71 @@ class __EXPORT_TYPE term_varcoeff_pspline : public basic_termtype
 
 class __EXPORT_TYPE term_varcoeff_merror : public basic_termtype
   {
+
+
+  protected:
+
+  intoption min;
+  intoption max;
+  intoption degree;
+  intoption numberknots;
+  doubleoption lambda;
+  intoption gridsize;
+  doubleoption a;
+  doubleoption b;
+  stroption proposal;
+  stroption monotone;
+  intoption updateW;
+  simpleoption updatetau;
+  doubleoption f;
+  simpleoption diagtransform;
+  simpleoption derivative;
+  intoption contourprob;
+  simpleoption uniformprior;
+  stroption beta_0;
+  stroption knots;
+  simpleoption center;
+
+  //SUSI: add new option
+  doubleoption merrorvar;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_varcoeff_merror(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is an interaction term
+
+  bool checkvector(const vector<term>  & terms,const unsigned & i)
+    {
+
+    assert(i< terms.size());
+
+    if ((terms[i].type == "varcoeffmerrorrw1") ||
+        (terms[i].type == "varcoeffmerrorrw2")
+       )
+      return true;
+
+    return false;
+    }
+
+  // DESTRUCTOR
+
+  ~term_varcoeff_merror() {}
+
+  };
+
+
+/*class __EXPORT_TYPE term_varcoeff_merror : public basic_termtype
+  {
   protected:
 
   intoption min;
@@ -1442,7 +1546,7 @@ class __EXPORT_TYPE term_varcoeff_merror : public basic_termtype
 
   ~term_varcoeff_merror() {}
 
-  };
+  };*/
 
 //------------------------------------------------------------------------------
 //------------------------- class term_baseline -------------------------------

@@ -743,5 +743,14 @@ vector<double> rand_dirichlet(double nrpar, vector<double> alpha)
    return randdirichlet;
   }
 
+unsigned bernoulli(double & prob)
+  {
+  unsigned res = 0;
+  double u = uniform();
+  if(u<=prob)
+    res=1;
+
+  return res;
+  }
 
 } // end: namespace randnumbers

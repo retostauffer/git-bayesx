@@ -35,6 +35,7 @@
 #include"fullcond_adaptiv.h"
 #include"variance_nonp.h"
 #include"variance_nonp_vector.h"
+#include"variance_nonp_vector_nigmix.h"
 #include"fullcond_surf_gaussian.h"
 
 #include"fullcond_pspline_gaussian.h"
@@ -100,6 +101,7 @@ using MCMC::FULLCOND_tvariance2dim;
 using MCMC::FULLCOND_adaptiv;
 using MCMC::FULLCOND_variance_nonp;
 using MCMC::FULLCOND_variance_nonp_vector;
+using MCMC::FULLCOND_variance_nonp_vector_nigmix;
 using MCMC::FULLCOND_pspline;
 using MCMC::FULLCOND_pspline_gaussian;
 using MCMC::IWLS_pspline;
@@ -480,6 +482,10 @@ class __EXPORT_TYPE bayesreg : public statobject
   vector<FULLCOND_const_gaussian> normalshrinkage;
   vector<FULLCOND_const_nongaussian> nongaussianshrinkage;
   vector<FULLCOND_variance_nonp_vector> fcvarnonpvec;
+  vector<FULLCOND_variance_nonp_vector_nigmix> fcvarnonpvecnigmix;
+
+  term_nigmix nigmix;
+  bool create_nigmix(const unsigned & collinpred=0);
 
 // -------------------- end: for shrinkage regression --------------------------
 

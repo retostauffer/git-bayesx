@@ -197,6 +197,7 @@ double __EXPORT_TYPE rand_beta(double a, double b);
 
 vector<double> __EXPORT_TYPE rand_dirichlet(double nrpar, vector<double> alpha);
 
+unsigned __EXPORT_TYPE bernoulli(double & prob);
 
 }
 

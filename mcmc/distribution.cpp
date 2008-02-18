@@ -451,6 +451,8 @@ DISTRIBUTION::DISTRIBUTION(MCMCoptions * o, const datamatrix & r,
   ridgesum=0.0;   //new
   nrlasso=0;      //new
   lassosum=0.0;   //new
+  nrnigmix=0;     //new
+  nigmixsum=0.0;  //new
   create(o,r,w);
   }
 
@@ -469,6 +471,8 @@ DISTRIBUTION::DISTRIBUTION(const datamatrix & offset,MCMCoptions * o,
   ridgesum=0.0;   //new
   nrlasso=0;      //new
   lassosum=0.0;   //new
+  nrnigmix=0;     //new
+  nigmixsum=0.0;  //new
 
   create(o,r,w);
   add_linearpred(offset);
@@ -647,6 +651,8 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   ridgesum = d.ridgesum;
   nrlasso = d.nrlasso;
   lassosum = d.lassosum;
+  nrnigmix = d.nrnigmix;
+  nigmixsum = d.nigmixsum;
   }
 
 
@@ -742,6 +748,8 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   ridgesum = d.ridgesum;
   nrlasso = d.nrlasso;
   lassosum = d.lassosum;
+  nrnigmix = d.nrnigmix;
+  nigmixsum = d.nigmixsum;
 
   return *this;
   }
@@ -5244,8 +5252,8 @@ void DISTRIBUTION_gaussian::update(void)
       {
       if(shrinkage)
         {
-        scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero + 0.5*nrridge + 0.5*nrlasso,
-                     b_invgamma+0.5*sum + 0.5*ridgesum + 0.5*lassosum);
+        scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero + 0.5*nrridge + 0.5*nrlasso + 0.5*nrnigmix,
+                     b_invgamma+0.5*sum + 0.5*ridgesum + 0.5*lassosum + 0.5*nigmixsum);
 //TEMP:BEGIN--------------------------------------------------------------------
 // Pruefen der uebergebenen Optionen
 /*
