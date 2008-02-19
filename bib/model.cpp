@@ -367,7 +367,7 @@ term_nigmix::term_nigmix(void)
   type = "term_nigmix";
 
   // Startwert für Indicator (1. Komponente des Varianzparameters)
-  indicatorstart = doubleoption("indicatorstart",0.1,0,10000000);
+  indicatorstart = doubleoption("indicatorstart",1,0,10000000);
   
   // Lage der Punktmassen des Indikators
   v0 = doubleoption("v0",0.005,0,10000000);
@@ -381,11 +381,11 @@ term_nigmix::term_nigmix(void)
   b_t2 = doubleoption("b_t2",50,0,500);
 
   // Startwert fuer die Mischungskomponente 
-  omegastart = doubleoption("omegastart",0.5,0,1);;  
+  omegastart = doubleoption("omegastart",0.5,0,1);  
 
   // Feste Werte für die Komponenten
   omegafix = simpleoption("omegafix",false);
-
+ 
   }
 
 
