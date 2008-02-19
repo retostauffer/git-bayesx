@@ -477,15 +477,15 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   intoption blocksize;
   term_shrinkage shrinkage;
+  term_nigmix nigmix;
   bool create_ridge(const unsigned & collinpred=0);
   bool create_lasso(const unsigned & collinpred=0);
+  bool create_nigmix(const unsigned & collinpred=0);
   vector<FULLCOND_const_gaussian> normalshrinkage;
   vector<FULLCOND_const_nongaussian> nongaussianshrinkage;
   vector<FULLCOND_variance_nonp_vector> fcvarnonpvec;
   vector<FULLCOND_variance_nonp_vector_nigmix> fcvarnonpvecnigmix;
 
-  term_nigmix nigmix;
-  bool create_nigmix(const unsigned & collinpred=0);
 
 // -------------------- end: for shrinkage regression --------------------------
 

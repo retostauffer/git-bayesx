@@ -39,8 +39,8 @@ using randnumbers::rand_beta;
 FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCoptions * o,
                          vector<FULLCOND_const*> & p,DISTRIBUTION * d,
                          const ST::string & ti, const ST::string & fp,const ST::string & fr, 
-                         const vector<unsigned> & ins, const double & vv0, const double & vv1,
-                         const vector<unsigned> & t2s, const double & at2, const double & bt2,
+                         const vector<double> & ins, const double & vv0, const double & vv1,
+                         const vector<double> & t2s, const double & at2, const double & bt2,
                          const double & omegastart, const bool & omf,
                          const vector<unsigned> & ct, const unsigned & c)
                          : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
@@ -79,6 +79,8 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
     v0 = vv0;
     v1 = vv1;
     t2start = t2s;
+    double test1 = t2start[0];
+    double test2 = indicatorstart[0];
     a_t2 = at2;
     b_t2 = bt2;
 
@@ -111,6 +113,13 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
       *workind = indicatorstart[i];
       *workt2 = t2start[i];
       }
+  fc_indicator.update();
+  fc_t2.update();
+
+  double * workind1 = fc_indicator.getbetapointer();
+  double * workt21 = fc_t2.getbetapointer();
+  double test3 = * workind1;
+  double test4 = * workt21;
 
     for(i=0; i<cut.size()-1; i++)
       {
@@ -227,7 +236,7 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
 //    for(k=cut[j]; k<cut[j+1]; k++, i++, workbeta++)
     for(k=cut[j]; k<cut[j+1]; k++, i++, workbeta++, workind++, workt2++)
       {
-      probv1 = 1/(1+((1-(*shrinkagep))/(*shrinkagep)*sqrt(v1/v0)*exp(-(1/v0-1/v1)*(*workbeta)*(*workbeta)/(2*help*help*t2(i,0)))));
+      probv1 = 0.5;//1/(1+((1-(*shrinkagep))/(*shrinkagep)*sqrt(v1/v0)*exp(-(1/v0-1/v1)*(*workbeta)*(*workbeta)/(2*help*help*t2(i,0)))));
       rand_bernoulli = bernoulli(probv1);
       if(rand_bernoulli==0)
         {

@@ -38,10 +38,10 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   FULLCOND fc_indicator;
   FULLCOND fc_t2;
 
-  vector<unsigned> indicatorstart;  //  Blocks of regression coefficients
+  vector<double> indicatorstart;    //  Blocks of regression coefficients
   double v0;                        //  Hyperparameter for Shrinkageparameter
   double v1;                        //  Hyperparameter for Shrinkageparameter
-  vector<unsigned> t2start;         //  Blocks of regression coefficients
+  vector<double> t2start;           //  Blocks of regression coefficients
   double a_t2;                      //  Hyperparameter for Shrinkageparameter
   double b_t2;                      //  Hyperparameter for Shrinkageparameter
   bool omegafix;                    //  Mixingparameter fix
@@ -75,8 +75,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   FULLCOND_variance_nonp_vector_nigmix(MCMCoptions * o, vector<FULLCOND_const*> & p,
                          DISTRIBUTION * d,const ST::string & ti,
                          const ST::string & fp, const ST::string & fr,
-                         const vector<unsigned> & ins, const double & vv0, const double & vv1,
-                         const vector<unsigned> & t2s, const double & at2, const double & bt2,
+                         const vector<double> & ins, const double & vv0, const double & vv1,
+                         const vector<double> & t2s, const double & at2, const double & bt2,
                          const double & omegastart, const bool & omf,
                          const vector<unsigned> & ct,
                          const unsigned & c);

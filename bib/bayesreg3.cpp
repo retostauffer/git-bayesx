@@ -2709,10 +2709,10 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
   {
 
   // options
-  vector<unsigned> indicatorstart;
+  vector<double> indicatorstart;
   double v0;
   double v1;  
-  vector<unsigned> t2start;
+  vector<double> t2start;
   double a_t2;
   double b_t2;
   double omegastart;
@@ -2735,7 +2735,7 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
 
   for(i=0;i<terms.size();i++)
     {
-    if ( shrinkage.checkvector(terms,i) == true )
+    if ( nigmix.checkvector(terms,i) == true )
       {
       if(terms[i].options[0] == "nigmix")
         {
@@ -2745,6 +2745,11 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         f = (terms[i].options[1]).strtodouble(helpvar1);
         f = (terms[i].options[4]).strtodouble(helpvar2);        
         varhelp.push_back(1/(helpvar1*helpvar2));
+        indicatorstart.push_back(helpvar1);
+        t2start.push_back(helpvar2);
+
+    double test1 = t2start[i];
+    double test2 = indicatorstart[i];
 
         // letzter Term enthält die verwendeten Werte
         f = (terms[i].options[2]).strtodouble(v0);
@@ -3040,6 +3045,9 @@ void regressrun(bayesreg & b)
 
      if(!failure)
         failure = b.create_lasso(i);
+
+     if(!failure)
+        failure = b.create_nigmix(i);
 
       if (!failure)
         failure = b.create_random_rw1rw2(i);

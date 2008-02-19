@@ -536,7 +536,7 @@ class __EXPORT_TYPE term_nigmix : public basic_termtype
 
   // FUNCTION: checkvector
   // TASK: returns true if term 'i' is a category-specific fixed effect
-  bool checkvector(const vector<term>  & terms,const unsigned & i);
+  bool checkvector(const vector<term> & terms,const unsigned & i);
 
 
   // DESTRUCTOR
