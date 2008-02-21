@@ -3308,3 +3308,316 @@ void regressrun(bayesreg & b)
   }
 
 
+void hregressrun(bayesreg & b)
+  {
+
+  vector<ST::string> header;
+
+  b.resultsyesno = false;
+  if (b.modeonly.getvalue() == true)
+    b.posteriormode = true;
+  else
+    b.posteriormode = false;
+
+  b.terms = b.modreg.getterms();
+
+  b.describetext.erase(b.describetext.begin(),b.describetext.end());
+  b.describetext.push_back("LAST ESTIMATED MODEL: \n");
+  b.describetext.push_back("\n");
+  b.describetext.push_back(b.modreg.getModelText());
+  b.describetext.push_back("\n");
+
+  if (b.RE_est==false)
+    b.clear();
+
+  if (b.family.getvalue()=="gaussian_re")
+    {
+    b.RE_est=true;
+    b.add_name="_gaussian_re";
+    }
+  else
+    b.add_name="";
+
+  b.outfiles.push_back(b.outfile.getvalue()+b.add_name);
+
+  bool failure = false;
+
+  if (b.family.getvalue() == "multgaussian")
+    {
+    failure = true;
+    b.out("ERROR: family multivariate gaussian is not allowed for method hregress\n");
+    }
+
+  if (b.family.getvalue() == "multistate")
+    {
+    failure = true;
+    b.out("ERROR: family multistate is not allowed for method hregress\n");
+    }
+
+  if (!failure)
+    failure = b.create_generaloptions();
+
+  if (!failure)
+    failure = b.create_distribution();
+
+// Speicherplatz für normalconst/nongaussianconst/nbinomialconst reservieren
+/*
+  unsigned nrfcfixed = b.fixedeffects.get_constvariables(b.terms).size()+1;
+  unsigned blocksize_fixed = 10;
+  unsigned reserved = 20;
+  if ( nrfcfixed*b.nrcategories > reserved*blocksize_fixed )
+    {
+    nrfcfixed = ceil(nrfcfixed/double(blocksize_fixed));
+    b.normalconst.reserve(nrfcfixed*b.nrcategories);
+    b.nongaussianconst.reserve(nrfcfixed*b.nrcategories);
+    b.nbinomialconst.reserve(nrfcfixed*b.nrcategories);
+    }
+*/
+
+  unsigned i;
+
+  if (!failure)
+    {
+    for (i=0;i<b.nrcategories;i++)
+      {
+
+      if (!failure)
+        failure = b.create_const(i);
+
+      if (!failure)
+        failure = b.create_baseline(i);
+
+      if (!failure)
+        failure = b.create_varcoeffbaseline(i);
+
+      if (!failure)
+        failure = b.create_nonprw1rw2(i);
+
+      if (!failure)
+        failure = b.create_pspline(i);
+
+      if (!failure)
+        failure = b.create_nonpseason(i);
+
+      if (!failure)
+        failure = b.create_spatial(i);
+
+      if (!failure)
+        failure = b.create_geospline(i);
+
+      if (!failure)
+        failure = b.create_varcoeff_geospline(i);
+
+      if (!failure)
+        failure = b.create_spatialxy(i);
+
+      if (!failure)
+        failure = b.create_varcoeffpspline(i);
+
+      if (!failure)
+        failure = b.create_random(i);
+
+      if (!failure)
+        failure = b.create_randomslope(i);
+
+      if (!failure)
+        failure = b.create_mixture(i);
+
+      if (!failure)
+        failure = b.create_interactionspspline(i);
+
+      if (!failure)
+        failure = b.create_geokriging(i);
+
+      if(!failure)
+        failure = b.create_varcoeffmerror(i);
+
+     if(!failure)
+        failure = b.create_ridge(i);
+
+     if(!failure)
+        failure = b.create_lasso(i);
+
+      if (!failure)
+        failure = b.create_random_rw1rw2(i);
+
+      if (!failure)
+        failure = b.create_spatial_rw1rw2(i);
+
+      if (!failure)
+        failure = b.create_random_pspline(i);
+
+      } // end: for (i=0;i<b.nrcategories;i++)
+    } // end: if (!failure)
+
+
+  if (!failure    &&
+      (b.family.getvalue() != "gaussian_re")
+     )
+    {
+
+    if (b.RE_est==true)
+      {
+
+      vector<unsigned> begin;
+      vector<unsigned> end;
+      vector<MCMCoptions*> mo;
+
+      begin.push_back(0);
+
+
+      unsigned j;
+      for (j=0;j<b.REest_end_fc.size();j++)
+        {
+        end.push_back(b.REest_end_fc[j]);
+        begin.push_back(b.REest_end_fc[j]);
+
+        mo.push_back(&(b.generaloptions[j]));
+
+      header.push_back("BAYESREG OBJECT " + b.name.to_bstr() +
+                       ": Random_Effect_" + ST::inttostring(j+1) + " regression");
+        }
+
+      end.push_back(b.fullcond.size()-1);
+
+//      b.generaloptions[0].set_nrout(b.generaloptions[0].get_iterations()+1);
+
+      mo.push_back(&(b.generaloptions[b.generaloptions.size()-1]));
+
+      header.push_back("BAYESREG OBJECT " + b.name.to_bstr() +
+                       ": regression procedure" );
+
+      b.simobj = MCMCsimulate(mo,b.distr,b.fullcond,begin,end);
+
+      if (b.modeonly.getvalue())
+        {
+        failure = b.simobj.posteriormode(header,false);
+        }
+      else
+        failure = b.simobj.simulate(header,b.setseed.getvalue(),!b.noposteriormode.getvalue());
+
+      b.RE_est=false;
+      }
+    else
+      {
+
+      header.push_back("BAYESREG OBJECT " + b.name.to_bstr() +
+                       ": regression procedure" );
+
+      b.simobj = MCMCsimulate(&b.generaloptions[0],b.distr[0],b.fullcond);
+      if (b.modeonly.getvalue())
+        {
+        failure = b.simobj.posteriormode(header);
+        }
+      else
+        {
+        if (b.nosamples.getvalue() == true)
+          b.simobj.setflags(MCMC::nosamples);
+        if ( (b.family.getvalue() == "cumprobit") ||
+             (b.family.getvalue() == "multinomialprobit") ||
+             (b.family.getvalue() == "binomialtlink")
+           )
+           {
+           failure = b.simobj.simulate(header,b.setseed.getvalue(),false);
+           }
+        else
+          {
+          failure = b.simobj.simulate(header,b.setseed.getvalue(),!b.noposteriormode.getvalue());
+          }
+
+        }
+
+      }
+
+    }
+
+
+  if (!failure && (b.family.getvalue() != "gaussian_re"))
+    {
+
+    vector<ST::string> path;
+    vector<ST::string> path2;
+    vector<ST::string> path3;
+    vector<ST::string> path4;
+    vector<ST::string> path5;
+
+
+    for (i=0;i<b.outfiles.size();i++)
+      {
+      path.push_back(b.outfiles[i] + "_graphics.prg");
+      path2.push_back(b.outfiles[i] + "_model_summary.tex");
+      path3.push_back(b.outfiles[i] +  "_r_splus.txt");
+      path4.push_back(b.outfiles[i] +  "_stata.do");
+      path5.push_back(b.outfiles[i] +  "_effects.res");
+      }
+
+    b.simobj.out_effects(path5);
+
+    b.simobj.make_graphics(header,path,path2,path3,path4);
+
+#if defined(JAVA_OUTPUT_WINDOW)
+    if(b.nographs.getvalue() == false)
+    {
+    for(unsigned j=0;j<b.fullcond.size();j++)
+       {
+       MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
+       if(plst != MCMC::noplot)
+         {
+         vector<ST::string> varnames = b.fullcond[j]->get_datanames();
+         ST::string xvar = varnames[0];
+         ST::string pathresult = b.fullcond[j]->get_pathresult();
+         ST::string pathps = pathresult.substr(0, pathresult.length()-4);
+         if(plst == MCMC::plotnonp)
+                 {
+                 b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
+                 + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
+                 + " ylab = \" \" outfile = " + pathps + ".ps replace");
+                 }
+
+         if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
+                 {
+                 double u = b.fullcond[j]->get_level1();
+                 double o = b.fullcond[j]->get_level2();
+                 ST::string u_str = ST::doubletostring(u,0);
+                 ST::string o_str = ST::doubletostring(o,0);
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", color outfile = " + pathps + "_pmean.ps replace");
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
+                 + "_pcat" + u_str + ".ps replace");
+                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
+                 + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
+                 + "_pcat" + o_str + ".ps replace");
+
+                 }
+         }
+       }
+
+    b.newcommands.push_back(b.name + ".texsummary");
+    }
+#endif
+
+    }
+
+  if (!failure && (b.family.getvalue() != "gaussian_re"))
+    {
+    b.resultsyesno = true;
+    }
+  else
+    {
+    b.describetext.erase(b.describetext.begin(),b.describetext.end());
+    b.describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
+    b.resultsyesno = false;
+    }
+
+  if (b.family.getvalue() == "gaussian_re")
+    b.REest_end_fc.push_back(b.fullcond.size()-1);
+
+  }
+
+
+
+
+
+
+

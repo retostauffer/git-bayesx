@@ -161,6 +161,48 @@ FULLCOND_pspline_stepwise::FULLCOND_pspline_stepwise(MCMCoptions * o, DISTRIBUTI
       }
     }
 
+
+  if(type == RW3)
+    {
+    rankK = nrpar-3;
+    Kenv = Krw3env(nrpar);
+    prec_env = envmatdouble(0.0,nrpar,degree>3?degree:3);
+    }
+  else if(type == RW1RW2)
+    {
+    nofixed = true;
+    forced_into = true;
+    kombimatrix = true;
+    numberofmatrices = 2;
+    kappa = vector<double>(1,1);
+    kappaold = vector<double>(1,-2);
+    kappa_prec = vector<double>(1,-1);
+    K = Krw1band(weight);
+    Kenv = Krw1env(weight);
+    rankK = nrpar-1;
+    K = Krw2band(weight);
+    Kenv2 = Krw2env(weight);
+    prec_env = envmatdouble(0.0,nrpar,degree>2?degree:2);
+    }
+  else if(type == RW1RW2RW3)
+    {
+    nofixed = true;
+    forced_into = true;
+    kombimatrix = true;
+    numberofmatrices = 3;
+    kappa = vector<double>(2,1);
+    kappaold = vector<double>(2,-2);
+    kappa_prec = vector<double>(2,-1);
+    K = Krw1band(weight);
+    Kenv = Krw1env(weight);
+    rankK = nrpar-1;
+    K = Krw2band(weight);
+    Kenv2 = Krw2env(weight);
+    Kenv3 = Krw3env(nrpar);
+    prec_env = envmatdouble(0.0,nrpar,degree>3?degree:3);
+    }
+
+
   if(increasing || decreasing)
     {
     Menv = Krw1env(weight);
@@ -1554,7 +1596,8 @@ if(kombimatrix == false || matrixnumber==1)
 
   outres << "df_value   ";
   outres << "sp_value  ";
-  outres << "frequency  ";
+  if (kombimatrix == false)
+    outres << "frequency  ";
   outres << "selected  " << endl;
 
 // Häufigkeitstabelle:
@@ -1628,7 +1671,11 @@ if(kombimatrix == false || matrixnumber==1)
       set_inthemodel(help);
       dfs = compute_df();
       }
-    outres << ST::doubletostring(dfs,6) << "   " << ST::doubletostring(help,6) << "   " << ST::inttostring(number[i]) << "   ";
+
+    if (kombimatrix == false)
+      outres << ST::doubletostring(dfs,6) << "   " << ST::doubletostring(help,6) << "   " << ST::inttostring(number[i]) << "   ";
+    else
+      outres << ST::doubletostring(dfs,6) << "   " << ST::inttostring(number[i]) << "   ";
     if(*workmean == help)
       outres << "+"; // ST::doubletostring(*workmean,6);
     else

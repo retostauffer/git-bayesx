@@ -47,6 +47,7 @@ bool bayesreg::check_gaussian(const unsigned & collinpred)
   {
 
   if ( (family.getvalue() == "gaussian") ||
+       (family.getvalue() == "gaussian_re") ||
      (family.getvalue() == "multgaussian") ||
      (family.getvalue() == "lognormal") ||
      (family.getvalue() == "binomialprobit") ||
@@ -151,6 +152,7 @@ void bayesreg::create(void)
   {
 
   varianceest=false;
+  RE_est==false;
   missingest=false;
   add_name="";
 
@@ -261,6 +263,7 @@ void bayesreg::create(void)
 // END: merror
   families.reserve(20);
   families.push_back("gaussian");
+  families.push_back("gaussian_re");  
   families.push_back("multgaussian");
   families.push_back("lognormal");
   families.push_back("binomial");
@@ -625,6 +628,14 @@ void bayesreg::create(void)
 
   functions[8] = texsummaryrun;
 
+  // --------------------------- method hregress -------------------------------
+
+  // methods 9
+  methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
+			 optional,optional,optional,optional,required));
+
+  functions[9] = hregressrun;
+
   }
 
 
@@ -639,6 +650,8 @@ void bayesreg::initpointers(void)
     {
     if (distrstring[i] == "gaussian")
       distr.push_back(&distr_gaussian[distrposition[i]]);
+    else if (distrstring[i] == "gaussian_RE")
+      distr.push_back(&distr_gaussian_re[distrposition[i]]);
     else if (distrstring[i] == "gaussianh")
       distr.push_back(&distr_gaussianh);
     else if (distrstring[i] == "multgaussian")
@@ -774,6 +787,10 @@ void bayesreg::clear(void)
   distr_gaussian.erase(distr_gaussian.begin(),distr_gaussian.end());
   distr_gaussian.reserve(5);
 
+  distr_gaussian_re.erase(distr_gaussian_re.begin(),distr_gaussian_re.end());
+  distr_gaussian_re.reserve(5);
+
+
   fullcond.erase(fullcond.begin(),fullcond.end());
   fullcond.reserve(200);
 
@@ -904,6 +921,7 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   modelvarnamesv = b.modelvarnamesv;
   simobj = b.simobj;
   distr_gaussian = b.distr_gaussian;
+  distr_gaussian_re = b.distr_gaussian_re;  
   distr_binomial = b.distr_binomial;
   distr_poisson = b.distr_poisson;
   distr_gamma = b.distr_gamma;
@@ -947,6 +965,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   modelvarnamesv = b.modelvarnamesv;
   simobj = b.simobj;
   distr_gaussian = b.distr_gaussian;
+  distr_gaussian_re = b.distr_gaussian_re;  
   distr_binomial = b.distr_binomial;
   distr_poisson = b.distr_poisson;
   distr_gamma = b.distr_gamma;
@@ -1334,6 +1353,68 @@ bool bayesreg::create_distribution(void)
     nrcategories = 1;
     }
 //-------------------------- END: Gaussian response ----------------------------
+
+//---------------------------- Gaussian response RE  ---------------------------
+  else if (family.getvalue() == "gaussian_re")
+    {
+
+    ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+    ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+
+    if (offs.rows() == 1)
+      distr_gaussian_re.push_back(DISTRIBUTION_gaussian_re(aresp.getvalue(),bresp.getvalue(),
+                                             &generaloptions[generaloptions.size()-1],
+                                             D.getCol(0),path2,
+                                             path3,w));
+    else
+      distr_gaussian_re.push_back(DISTRIBUTION_gaussian_re(offs,aresp.getvalue(),
+                                             bresp.getvalue(),&generaloptions[generaloptions.size()-1],
+                                             D.getCol(0),path2,path3,
+                                             w));
+
+    if (uniformprior.getvalue()==true)
+      {
+      distr_gaussian_re[distr_gaussian_re.size()-1].set_uniformprior();
+      }
+
+    if (constscale.getvalue()==true)
+      {
+      distr_gaussian[distr_gaussian.size()-1].set_constscale(scalevalue.getvalue());
+      }
+
+
+    distr_gaussian_re[distr_gaussian_re.size()-1].init_names(rname,wn);
+
+    // prediction stuff
+
+    if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+      distr_gaussian_re[distr_gaussian_re.size()-1].set_predict(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_gaussian_re[distr_gaussian_re.size()-1].set_predictfull(pathfullsample,pathfull,n);
+      }
+
+    if (pind.rows() > 1)
+      distr_gaussian_re[distr_gaussian_re.size()-1].set_predictresponse(pind);
+
+    // end: prediction stuff
+
+    distr.push_back(&distr_gaussian_re[distr_gaussian_re.size()-1]);
+    distrstring.push_back("gaussian_re");
+    distrposition.push_back(distr_gaussian_re.size()-1);
+    nrcategories = 1;
+    }
+//-------------------------- END: Gaussian_RE response -------------------------
 
 //---------------------- Gaussian with heteroscedastic variances ---------------
   else if (family.getvalue() == "gaussianh")

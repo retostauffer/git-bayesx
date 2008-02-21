@@ -2331,7 +2331,162 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
 
   double compute_bic(const double & df);
 
-  void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp);                            
+  void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp);
+  };
+
+
+//------------------------------------------------------------------------------
+//-------------------- CLASS: DISTRIBUTION_gaussian_re -------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTRIBUTION_gaussian_re : public DISTRIBUTION
+  {
+
+  protected:
+
+  double a_invgamma;                   // hyperparameter a (for the inverse
+                                        // gamma distribution of the scale
+                                        // parameter, i.e. sigma^2
+  double b_invgamma;                   // hyperparameter b
+
+  bool constscale;
+  bool uniformprior;
+
+  public:
+
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTRIBUTION_gaussian_re(void) : DISTRIBUTION()
+     {
+     family = "gaussian";
+     a_invgamma = 1;
+     b_invgamma = 0.005;
+     constscale = false;
+     uniformprior = false;
+     }
+
+   // CONSTRUCTOR1
+   // a_invgamma = a
+   // b_invgamma = b
+
+   DISTRIBUTION_gaussian_re(const double & a,
+                         const double & b,
+                         MCMCoptions * o,
+                         const datamatrix & r,const ST::string & p,
+                         const ST::string & ps,
+                         const datamatrix & w=datamatrix());
+
+   // CONSTRUCTOR2
+   // a_invgamma = a
+   // b_invgamma = b
+
+   DISTRIBUTION_gaussian_re(const datamatrix & offset, const double & a,
+                         const double & b,
+                         MCMCoptions * o,
+                         const datamatrix & r,
+                         const ST::string & p,const ST::string & ps,
+                         const datamatrix & w=datamatrix());
+
+
+
+   // COPY CONSTRUCTOR
+
+   DISTRIBUTION_gaussian_re(const DISTRIBUTION_gaussian_re & nd)
+   : DISTRIBUTION(DISTRIBUTION(nd))
+     {
+     a_invgamma = nd.a_invgamma;
+     b_invgamma = nd.b_invgamma;
+     constscale = nd.constscale;
+     uniformprior = nd.uniformprior;
+     }
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTRIBUTION_gaussian_re & operator=(const DISTRIBUTION_gaussian_re & nd);
+
+   // DESTRUCTOR
+
+   ~DISTRIBUTION_gaussian_re() {}
+
+   // FUNCTION: loglikelihood
+   // TASK: computes the loglikelihood for a single observation
+
+  double loglikelihood(double * res,
+                       double * lin,
+                       double * w,
+                       const int & i) const;
+
+
+  // FUNCTION: compute_mu
+  // TASK: computes mu for a new linear predictor 'linpred'
+
+  void compute_mu(const double * linpred,double * mu) const;
+
+  void compute_mu_notransform(const double * linpred,double * mu) const;
+
+  // FUNCTION: compute_deviance
+  // TASK: computes the retransformed individual deviance
+  //       scale and response is assumed to be NOT RETRANSFORMED
+  //       but will be retransformed when computing the residual
+  //       mu is assumed to be already restransformed
+
+  void compute_deviance(const double * response,const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           const datamatrix & scale,const int & i) const;
+
+  double compute_weight(double * linpred, double * weight,
+                        const int & i, const unsigned & col=0) const;
+
+  void compute_iwls(void)
+    {
+    tildey.assign(response);
+    DISTRIBUTION::compute_weight(weightiwls,0);
+    }
+
+  void outoptions(void);
+
+  // FUNCTION: update
+  // TASK: updates the scale parameter
+
+  void update(void);
+
+  void update_predict(void)
+    {
+    DISTRIBUTION::update_predict();
+    }
+
+  bool posteriormode(void);
+
+  bool posteriormode_converged_fc(const datamatrix & beta,
+                                  const datamatrix & beta_mode,
+                                  const unsigned & itnr)
+    {
+    return true;
+    }
+
+  void outresults(void)
+    {
+    DISTRIBUTION::outresults();
+    }
+
+
+
+
+  void get_residuals(datamatrix & r);
+
+  void tr_nonlinear(vector<double *> b,vector<double *> br,
+                    vector<FULLCOND*> & fcp,unsigned & nr,
+                    unsigned & it,ST::string & trtype);
+
+  void set_constscale(double s);
+
+  void undo_constscale(void);
+
+  void set_uniformprior(void);
+
+
   };
 
 

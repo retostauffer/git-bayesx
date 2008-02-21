@@ -72,6 +72,7 @@ using randnumbers::rand_invgamma;
 using MCMC::MCMCoptions;
 using MCMC::DISTRIBUTION;
 using MCMC::DISTRIBUTION_gaussian;
+using MCMC::DISTRIBUTION_gaussian_re;
 using MCMC::DISTRIBUTION_lognormal;
 using MCMC::DISTRIBUTION_multgaussian;
 using MCMC::DISTRIBUTION_gaussianh;
@@ -306,6 +307,10 @@ class __EXPORT_TYPE bayesreg : public statobject
   bool varianceest;
   unsigned varianceend_fc;
 
+  bool RE_est;
+  vector<unsigned> REest_end_fc;
+
+
   simpleoption modeonly;               // Computes the posterior mode only
   simpleoption noposteriormode;
   intoption setseed;
@@ -415,6 +420,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   unsigned nrcategories;           // number of categories of the response
 
   vector<DISTRIBUTION_gaussian> distr_gaussian;
+  vector<DISTRIBUTION_gaussian_re> distr_gaussian_re;  
   DISTRIBUTION_multgaussian distr_multgaussian;
   DISTRIBUTION_lognormal distr_lognormal;  
   DISTRIBUTION_binomial distr_binomial;
@@ -588,6 +594,8 @@ class __EXPORT_TYPE bayesreg : public statobject
   friend void __EXPORT_TYPE regressrun(bayesreg & b);
 
   friend void __EXPORT_TYPE mregressrun(bayesreg & b);
+
+  friend void __EXPORT_TYPE hregressrun(bayesreg & b);
 
   //------------------------ end: for method regress ---------------------------
 

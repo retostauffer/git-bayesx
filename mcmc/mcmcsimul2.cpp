@@ -476,10 +476,10 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
      eintrag = eintrag + ST::doubletostring(modell_final[i]) + "   ";
   out << beschriftung << endl;
   out << eintrag << endl;
-  out.close();         */
+  out.close();
 
   // gibt df für nichtlineare Funktionen aus!
-/*  zaehlername = path + "_df_" + likep_mult[0]->get_responsename() + ".ascii";
+  zaehlername = path + "_df_" + likep_mult[0]->get_responsename() + ".ascii";
   ofstream out2(zaehlername.strtochar());
   beschriftung = " ";
   eintrag = " ";
@@ -489,8 +489,9 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
      eintrag = eintrag + ST::doubletostring(fullcond_alle[i+1]->compute_df()) + "   ";
   out2 << beschriftung << endl;
   out2 << eintrag << endl;
-  out2.close();           */
+  out2.close();
 // ENDE: FÜR SIMULATIONEN
+*/
 
   return false;
   }
@@ -4337,18 +4338,18 @@ void STEPWISErun::make_plots(ST::string & path_batch,
     outbatch << "% usefile " << path_batch << endl;
 
     // falls andere Quantile gewünscht werden
-    //double u = fullcondp[begin[0]]->get_level1();
-    //double o = fullcondp[begin[0]]->get_level2();
+    double u = fullcondp[begin[0]]->get_level1();
+    double o = fullcondp[begin[0]]->get_level2();
     double u1 = fullcondp[begin[0]]->get_lower1();
-    //double u2 = fullcondp[begin[0]]->get_upper2();
-    //double o1 = fullcondp[begin[0]]->get_lower2();
-    //double o2 = fullcondp[begin[0]]->get_upper1();
-    //ST::string u_str = ST::doubletostring(u,0);
-    //ST::string o_str = ST::doubletostring(o,0);
+    double u2 = fullcondp[begin[0]]->get_upper2();
+    double o1 = fullcondp[begin[0]]->get_lower2();
+    double o2 = fullcondp[begin[0]]->get_upper1();
+    ST::string u_str = ST::doubletostring(u,0);
+    ST::string o_str = ST::doubletostring(o,0);
     ST::string u1_str = ST::doubletostring(u1,5);
-    //ST::string u2_str = ST::doubletostring(u2,5);
-    //ST::string o1_str = ST::doubletostring(o1,5);
-    //ST::string o2_str = ST::doubletostring(o2,5);
+    ST::string u2_str = ST::doubletostring(u2,5);
+    ST::string o1_str = ST::doubletostring(o1,5);
+    ST::string o2_str = ST::doubletostring(o2,5);
 
     // durchlaufen der Fullconditionals
     for(j=0;j<fullcondp.size();j++)
@@ -4380,10 +4381,10 @@ void STEPWISErun::make_plots(ST::string & path_batch,
            ST::string xvar = varnames[0];
            outbatch << "_g.plot " << xvar
                     << " pmean pqu" << u1_str.replaceallsigns('.','p')
-                    // << " pqu"
-                    // << o1_str.replaceallsigns('.','p') << " pqu"
-                    // << o2_str.replaceallsigns('.','p') << " pqu"
-                    // << u2_str.replaceallsigns('.','p')
+                    << " pqu"
+                    << o1_str.replaceallsigns('.','p') << " pqu"
+                    << o2_str.replaceallsigns('.','p') << " pqu"
+                    << u2_str.replaceallsigns('.','p')
                     << ", " << "title = \"Effect of " << xvar << "\" xlab = " << xvar
                     << " ylab = \" \" " << "outfile = " << pathps
                     << ".ps replace using _dat" << endl;
