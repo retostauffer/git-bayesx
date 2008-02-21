@@ -24,14 +24,14 @@ using randnumbers::rand_beta;
 // ti                : reference to title of the full conditional(for example "fixed effects")
 // fp                : reference to file path for storing sampled parameters
 // fr                : reference to filename for storing results
-// indicatorstart    : Starting value for varianceparametercomponent indicator
-// v0                : Point for Indicatorfunction
-// v1                : Point for Indicatorfunction
-// t2start           : Starting value for varianceparametercomponent t2
-// a_t2              : Hyperparameter for inverse gammaprior of vainaceparametercomponent t2
-// b_t2              : Hyperparameter for inverse gammaprior of vainaceparametercomponent t2
+// ins               : Starting value for varianceparametercomponent indicator
+// vv0               : Point for Indicatorfunction
+// vv1               : Point for Indicatorfunction
+// t2s               : Starting value for varianceparametercomponent t2
+// at2               : Hyperparameter for inverse gammaprior of vainaceparametercomponent t2
+// bt2               : Hyperparameter for inverse gammaprior of vainaceparametercomponent t2
 // omegastart        : starting value for omega
-// omegafix          : Should the omega be fixed at the value "omegastart"    
+// omf               : Should the omega be fixed at the value "omegastart"    
 // ct                : blocks of regression coefficients
 // c                 : reference to responsecategory (important in the case of multivariate response)
 //______________________________________________________________________________
@@ -60,17 +60,17 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
 
     cut = ct;
 
-
     priorassumptions.push_back("\\\\");
 
     ST::string path = pathresults.substr(0,pathresults.length()-4)+"_shrinkage.raw";
 
+    // Fullcondobject for shrinkageparameter omege
     fc_shrinkage = FULLCOND(o,datamatrix(1,1),Cp[0]->get_title()+"_shrinkage",1,1,path);
     fc_shrinkage.setflags(MCMC::norelchange | MCMC::nooutput);
 
     vector<ST::string> varnames = fc_shrinkage.get_datanames();
 
-    // current value of shrinkageparameter lambda
+    // current value of shrinkageparameter omega
     double * shrinkagep = fc_shrinkage.getbetapointer();
 
     // Startwerte setzen aus Option
@@ -88,38 +88,28 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
 
     nigmixsum = 0;
 
-    // Initialisieren der Matrizen für die Varianzkomponenten tau=indicator*t2    
+    // Fullcondobject for Variancekomponents tau=indicator*t2
     fc_indicator = FULLCOND(o,datamatrix(nrpar,1),Cp[0]->get_title()+"_indicator",1,1,path);
     fc_indicator.setflags(MCMC::norelchange | MCMC::nooutput);
     fc_t2 = FULLCOND(o,datamatrix(nrpar,1),Cp[0]->get_title()+"_t2",1,1,path);
     fc_t2.setflags(MCMC::norelchange | MCMC::nooutput);
-//    indicator = datamatrix(nriteration, nrpar, 0);
-//    t2 = datamatrix(nriteration,nrpar, 0); 
+
     
-    
-    // Initialisieren der Betamatrizen für die Varianzen 
+    // Initialisieren der Matrizen für die Varianzen
     datamatrix help;
     help = datamatrix(cut[cut.size()-1],1,0);
 
     double * workind = fc_indicator.getbetapointer();
     double * workt2 = fc_t2.getbetapointer();
-   // Uebergabe der Startwerte fuer 1. Iteration
+
     unsigned i;
-//    for(i=0; i<nrpar; i++)
     for(i=0; i<nrpar; i++, workind++, workt2++)
       {
-//      indicator(0,i) = indicatorstart[i];
-//      t2(0,i) = t2start[i];
       *workind = indicatorstart[i];
       *workt2 = t2start[i];
       }
-  fc_indicator.update();
-  fc_t2.update();
-
-  double * workind1 = fc_indicator.getbetapointer();
-  double * workt21 = fc_t2.getbetapointer();
-  double test3 = * workind1;
-  double test4 = * workt21;
+    fc_indicator.update();
+    fc_t2.update();
 
     for(i=0; i<cut.size()-1; i++)
       {
@@ -233,30 +223,25 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
   for(j=0; j<cut.size()-1; j++)
     {
     workbeta = Cp[j]->getbetapointer();               // current value of first regressionparameter
-//    for(k=cut[j]; k<cut[j+1]; k++, i++, workbeta++)
     for(k=cut[j]; k<cut[j+1]; k++, i++, workbeta++, workind++, workt2++)
       {
-      probv1 = 0.5;//1/(1+((1-(*shrinkagep))/(*shrinkagep)*sqrt(v1/v0)*exp(-(1/v0-1/v1)*(*workbeta)*(*workbeta)/(2*help*help*t2(i,0)))));
+      probv1 = 1/(1+((1-(*shrinkagep))/(*shrinkagep)*sqrt(v1/v0)*exp(-(1/v0-1/v1)*(*workbeta)*(*workbeta)/(2*help*help*(*workt2)))));
       rand_bernoulli = bernoulli(probv1);
       if(rand_bernoulli==0)
         {
-//        indicator(iteration,i) = v0;
         *workind = v0;
         }
       if(rand_bernoulli==1)
         {
-//        indicator(iteration,i) = v1;
         *workind = v1;
         }
-      }
-//      t2(iteration,i) = rand_invgamma(0.5*a_t2,b_t2+(*workbeta)*(*workbeta)/(2*help*help*indicator(iteration,i)));
+
       *workt2 = rand_invgamma(0.5*a_t2,b_t2+(*workbeta)*(*workbeta)/(2*help*help* *workind));
 
-//      beta(i,0) = indicator(iteration,i)*t2(iteration,i);
       beta(i,0) = *workind * *workt2;
 
-
       nigmixsum = nigmixsum + ((*workbeta)*(*workbeta))/beta(i,0);  // sum(beta^2/tau^2)
+      }
     }
   fc_indicator.update();
   fc_t2.update();
@@ -287,10 +272,8 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
   unsigned int sumindicatorv1 = 0;
 
   workind = fc_indicator.getbetapointer();
-  if(omegafix==false)            
-//    { for(unsigned int i=0; i<nrpar; i++)
+  if(omegafix==false)
     { for(unsigned int i=0; i<nrpar; i++, workind++)
-//        { if(indicator(iteration,i)==v1)
         { if(*workind==v1)
           { sumindicatorv1 = sumindicatorv1 + 1;
           }
@@ -361,7 +344,7 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults(void)
   bool shrinkagesamples=true;
   if(shrinkagesamples)
     {
-    ST::string pathhelp = pathresults.substr(0,pathresults.length()-7)+"shrinkage_nigmix_sample.raw";
+    ST::string pathhelp = pathresults.substr(0,pathresults.length()-7)+"shrinkage_sample.raw";
     fc_shrinkage.get_samples(pathhelp);
     }
 
