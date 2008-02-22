@@ -866,6 +866,7 @@ bool bayesreg::create_randomslope(const unsigned & collinpred)
 
   }
 
+
 bool bayesreg::create_random(const unsigned & collinpred)
   {
 
@@ -1108,6 +1109,151 @@ bool bayesreg::create_random(const unsigned & collinpred)
   return false;
 
   }
+
+
+bool bayesreg::create_hrandom(const unsigned & collinpred)
+  {
+
+  ST::string pathnonp2;
+  ST::string pathres2;
+  ST::string title2;
+  double a1,b1,lambda;
+  int f;
+//  long h;
+  bool iwlsmode=false;
+
+  unsigned i;
+  int j;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( hrandomeff.checkvector(terms,i) == true )
+      {
+
+      j = terms[i].varnames[0].isinlist(modelvarnamesv);
+
+      f = (terms[i].options[1]).strtodouble(lambda);
+
+      f = (terms[i].options[2]).strtodouble(a1);
+
+      f = (terms[i].options[3]).strtodouble(b1);
+
+      if (terms[i].options[4]=="iwlsmode")
+        iwlsmode=true;
+
+
+      if (f==1)
+        return true;
+
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
+                   "_hrandom.raw","_hrandom.res","_hrandom");
+
+      make_paths(collinpred,pathnonp2,pathres2,title2,terms[i].varnames[0],"",
+                   "_hrandom_var.raw","_hrandom_var.res","_hrandom_variance");
+
+
+      if (check_gaussian(collinpred))
+        {
+
+        fchrandom.push_back(
+        FULLCOND_hrandom(&generaloptions[generaloptions.size()-1],
+                                                        distr[distr.size()-1],
+                                                        fcconst_intercept,
+                                                        D.getCol(j),
+                                                        title,
+                                                        pathnonp,pathres,
+                                                        lambda,collinpred
+                                                        )
+                          );
+
+        fchrandom[fchrandom.size()-1].init_name(terms[i].varnames[0]);
+        fchrandom[fchrandom.size()-1].set_fcnumber(fullcond.size());
+
+        fchrandom[fchrandom.size()-1].set_REdistr(&distr_gaussian_re[0]);
+
+        if (constlambda.getvalue() == true || terms[i].options[7]=="true")
+          {
+          fchrandom[fchrandom.size()-1].set_lambdaconst(lambda);
+          fullcond.push_back(&fchrandom[fchrandom.size()-1]);
+          }
+        else
+          {
+          fullcond.push_back(&fchrandom[fchrandom.size()-1]);
+          fcvarnonp.push_back(
+          FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+                            &fchrandom[fchrandom.size()-1],
+                            distr[distr.size()-1],a1,b1,title2,
+                            pathnonp2,pathres2,false,collinpred)
+                            );
+          if(terms[i].options[6]=="true")
+            fcvarnonp[fcvarnonp.size()-1].set_uniformprior();
+
+          fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+
+          }
+
+        } // end: gaussian, probit, etc. ...
+
+      else
+        {
+
+        /*
+
+        fcrandom.push_back( FULLCOND_random_nongaussian(
+        &generaloptions[generaloptions.size()-1], distr[distr.size()-1],
+                                                        fcconst_intercept,
+                                                        D.getCol(j),
+                                                        title,
+                                                        pathnonp,
+                                                        pathres,
+                                                        lambda,
+                                                        iwlsmode,
+                                                        collinpred
+                                                        )
+                          );
+
+
+
+        fcrandom[fcrandom.size()-1].init_name(terms[i].varnames[0]);
+        fcrandom[fcrandom.size()-1].set_fcnumber(fullcond.size());
+
+        if (constlambda.getvalue() == true || terms[i].options[7]=="true")
+          {
+          fcrandom[fcrandom.size()-1].set_lambdaconst(lambda);
+          fullcond.push_back(&fcrandom[fcrandom.size()-1]);
+          }
+        else
+          {
+
+          fullcond.push_back(&fcrandom[fcrandom.size()-1]);
+
+          fcvarnonp.push_back(
+          FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+                            &fcrandom[fcrandom.size()-1],
+                            distr[distr.size()-1],a1,b1,title2,
+                            pathnonp2,pathres2,false,collinpred)
+                            );
+          if(terms[i].options[6]=="true")
+            fcvarnonp[fcvarnonp.size()-1].set_uniformprior();
+
+          fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+
+          }
+
+         */
+
+        }
+
+      }
+
+    }
+
+  return false;
+
+  }
+
 
 
 bool bayesreg::create_mixture(const unsigned & collinpred)

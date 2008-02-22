@@ -856,7 +856,7 @@ class __EXPORT_TYPE DISTRIBUTION
   void update_intercept(double m,unsigned c)
     {
     }
- 
+
 
   void set_responsep(const unsigned & r, const unsigned & c)
     {
@@ -872,6 +872,7 @@ class __EXPORT_TYPE DISTRIBUTION
     return response(i,j);
     }
 
+
   // FUNCTION: get_response
   // TASK: returns the response matrix
 
@@ -879,6 +880,14 @@ class __EXPORT_TYPE DISTRIBUTION
     {
     return response;
     }
+
+
+  // FUNCTION: set_response
+  // TASK: sets the response matrix
+
+  const set_response(datamatrix & newresponse);
+
+
 
   // FUNCTION: get_responsedim
   // TASK: returns the dimension of the response variable

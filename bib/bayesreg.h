@@ -49,6 +49,7 @@
 //#include<isotonic.h>
 
 #include"randomeffect.h"
+#include"hrandom.h"
 #include"mixture.h"
 
 #include"kriging2.h"
@@ -112,6 +113,7 @@ using MCMC::FULLCOND_mult;
 using MCMC::FULLCOND_pspline_surf;
 using MCMC::FULLCOND_pspline_surf_gaussian;
 using MCMC::FULLCOND_random_nongaussian;
+using MCMC::FULLCOND_hrandom;
 using MCMC::FULLCOND_random_gaussian;
 using MCMC::FULLCOND_mixture;
 using MCMC::FULLCOND_kriging2;
@@ -562,14 +564,17 @@ class __EXPORT_TYPE bayesreg : public statobject
   //------------------------- for random effects -------------------------------
 
   term_random randomeff;
+  term_hrandom hrandomeff;
   term_randomslope randomeffslope;
   term_mixture mixtureeff;
 
   vector<FULLCOND_random_nongaussian> fcrandom;
   vector<FULLCOND_random_gaussian> fcrandomgaussian;
+  vector<FULLCOND_hrandom> fchrandom;
   vector<FULLCOND_mixture> fcmixture;
 
   bool create_random(const unsigned & collinpred=0);
+  bool create_hrandom(const unsigned & collinpred=0);  
   bool create_randomslope(const unsigned & collinpred=0);
   bool create_mixture(const unsigned & collinpred=0);
 

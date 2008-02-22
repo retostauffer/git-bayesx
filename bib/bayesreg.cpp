@@ -181,6 +181,7 @@ void bayesreg::create(void)
   nonpspatial = term_spatial();
   nonpspatialxy = term_spatialxy();
   randomeff = term_random();
+  hrandomeff = term_hrandom();  
   randomeffslope = term_randomslope();
   mixtureeff = term_mixture();
   nonpvarcoeffpspline = term_varcoeff_pspline();
@@ -204,6 +205,7 @@ void bayesreg::create(void)
   termtypes.push_back(&nonppspline);
   termtypes.push_back(&nonpspatial);
   termtypes.push_back(&randomeff);
+  termtypes.push_back(&hrandomeff);  
   termtypes.push_back(&randomeffslope);
   termtypes.push_back(&mixtureeff);
   termtypes.push_back(&nonpvarcoeffpspline);
@@ -727,6 +729,9 @@ void bayesreg::initpointers(void)
   for(i=0;i<fcrandom.size();i++)
     fullcond.push_back(&fcrandom[i]);
 
+  for(i=0;i<fchrandom.size();i++)
+    fullcond.push_back(&fchrandom[i]);
+
   for(i=0;i<fcrandomgaussian.size();i++)
     fullcond.push_back(&fcrandomgaussian[i]);
 
@@ -837,6 +842,9 @@ void bayesreg::clear(void)
 
   fcrandom.erase(fcrandom.begin(),fcrandom.end());
   fcrandom.reserve(20);
+
+  fchrandom.erase(fchrandom.begin(),fchrandom.end());
+  fchrandom.reserve(20);
 
   fcrandomgaussian.erase(fcrandomgaussian.begin(),fcrandomgaussian.end());
   fcrandomgaussian.reserve(20);

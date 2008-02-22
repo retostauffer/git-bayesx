@@ -22,6 +22,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     discrete=false;
     update_sigma2 = true;
     randomeffect=false;
+    hrandom=false;
     fullcondnonp = false;
     average = av;
     column = c;
@@ -62,10 +63,11 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     uniformprior=false;
     Laplace=false;
     stationary=false;
-    alphafix=false;    
+    alphafix=false;
     discrete=false;
     update_sigma2 = true;
     randomeffect=false;
+    hrandom=false;
     fullcondnonp = true;
     average = av;
     column = c;
@@ -99,10 +101,11 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     uniformprior=false;
     Laplace=false;
     stationary=false;
-    alphafix=false;    
+    alphafix=false;
     discrete=false;
     update_sigma2 = true;
     randomeffect = true;
+    hrandom=false;
     fullcondnonp = false;
     average = av;
     column = c;
@@ -124,6 +127,46 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     }
 
 
+FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
+                         FULLCOND_hrandom * p,DISTRIBUTION * d,
+                         const double & a, const double & b,
+                         const ST::string & ti, const ST::string & fp,
+                         const ST::string & fr,const bool & av,
+                         const unsigned & c)
+                         : FULLCOND(o,datamatrix(1,1),ti,1,1,fp)
+    {
+    fctype = MCMC::variance;
+    constlambda=false;
+    uniformprior=false;
+    Laplace=false;
+    stationary=false;
+    alphafix=false;
+    discrete=false;
+    update_sigma2 = true;
+    randomeffect = false;
+    hrandom=true;
+    fullcondnonp = false;
+    average = av;
+    column = c;
+    pathresults = fr;
+    hREp = p;
+    distrp = d;
+    rankK= REp->get_rankK();
+    a_invgamma = a;
+    b_invgamma = b;
+    priorassumptions.push_back("Inverse gamma prior for variance component with hyperparameters a="
+    +ST::doubletostring(a,6)+ " and b=" + ST::doubletostring(b,6) );
+    priorassumptions.push_back("\\\\");
+
+    if (average==true)
+      setbeta(2,1,distrp->get_scale(column,column)/REp->getlambda());
+    else
+      setbeta(1,1,distrp->get_scale(column,column)/REp->getlambda());
+    hREp->update_sigma2(distrp->get_scale(column,column)/REp->getlambda());
+    }
+
+
+
 FULLCOND_variance_nonp::FULLCOND_variance_nonp(const FULLCOND_variance_nonp & t)
     : FULLCOND(FULLCOND(t))
   {
@@ -140,6 +183,8 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(const FULLCOND_variance_nonp & t)
   pathresults = t.pathresults;
   Kp = t.Kp;
   REp = t.REp;
+  hREp = t.hREp;
+  hrandom = t.hrandom;
   Fnp = t.Fnp;
   distrp = t.distrp;
   a_invgamma = t.a_invgamma;
@@ -164,7 +209,7 @@ const FULLCOND_variance_nonp & FULLCOND_variance_nonp::operator=(
   uniformprior=t.uniformprior;
   Laplace=t.Laplace;
   stationary=t.stationary;
-  alphafix=t.alphafix;      
+  alphafix=t.alphafix;
   randomeffect = t.randomeffect;
   fullcondnonp = t.fullcondnonp;
   average = t.average;
@@ -173,6 +218,8 @@ const FULLCOND_variance_nonp & FULLCOND_variance_nonp::operator=(
   pathresults = t.pathresults;
   Kp = t.Kp;
   REp = t.REp;
+  hREp = t.hREp;
+  hrandom = t.hrandom;
   Fnp = t.Fnp;
   distrp = t.distrp;
   a_invgamma = t.a_invgamma;
@@ -180,7 +227,7 @@ const FULLCOND_variance_nonp & FULLCOND_variance_nonp::operator=(
   rankK = t.rankK;
   scale = t.scale;
   discrete = t.discrete;
-  df = t.df;  
+  df = t.df;
   tau = t.tau;
   lambda = t.lambda;
   fc_lambda = t.fc_lambda;
@@ -237,6 +284,34 @@ void FULLCOND_variance_nonp::update(void)
     else
       {
       beta(0,0) = REp->get_sigma2();
+      }
+
+    }
+  else if (hrandom)
+    {
+
+    if (update_sigma2)
+      {
+
+      if (constlambda==false)
+        {
+        if(uniformprior==false)
+          beta(0,0) = rand_invgamma(a_invgamma+0.5*rankK,
+                                    b_invgamma+0.5*hREp->compute_quadform());
+        else
+          beta(0,0) = rand_invgamma(-0.5+0.5*rankK,0.5*hREp->compute_quadform());
+        }
+      else
+        {
+        beta(0,0) = distrp->get_scale(column,column)/hREp->getlambda();
+        }
+
+      hREp->update_sigma2(beta(0,0));
+
+      }
+    else
+      {
+      beta(0,0) = hREp->get_sigma2();
       }
 
     }
@@ -560,6 +635,11 @@ bool FULLCOND_variance_nonp::posteriormode(void)
     {
     beta(0,0) = distrp->get_scale(column,column)/REp->getlambda();
     REp->update_sigma2(beta(0,0));
+    }
+  else if (hrandom)
+    {
+    beta(0,0) = distrp->get_scale(column,column)/hREp->getlambda();
+    hREp->update_sigma2(beta(0,0));
     }
   else
     {

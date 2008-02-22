@@ -3413,6 +3413,122 @@ bool term_random::check(term & t)
   }
 
 
+
+//------------------------------------------------------------------------------
+//----------- class term_hrandom: implementation of member functions ------------
+//------------------------------------------------------------------------------
+
+term_hrandom::term_hrandom(void)
+  {
+  type = "term_hrandom";
+  lambda = doubleoption("lambda",100000,0,10000000);
+  a = doubleoption("a",0.001,-1.0,500);
+  b = doubleoption("b",0.001,0,500);
+  vector<ST::string> adm_prop;
+  adm_prop.push_back("iwls");
+  adm_prop.push_back("iwlsmode");
+  proposal = stroption("proposal",adm_prop,"iwls");
+  updatetau = simpleoption("updatetau",false);
+  uniformprior = simpleoption("uniformprior",false);
+  constlambda = simpleoption("constlambda",false);
+  }
+
+
+void term_hrandom::setdefault(void)
+  {
+  lambda.setdefault();
+  a.setdefault();
+  b.setdefault();
+  proposal.setdefault();
+  updatetau.setdefault();
+  uniformprior.setdefault();
+  constlambda.setdefault();
+  }
+
+
+bool term_hrandom::check(term & t)
+  {
+
+  if ( (t.varnames.size()==1)  && (t.options.size()<=8) )
+    {
+
+    if (t.options[0] == "hrandom")
+      t.type = "hrandom";
+
+    else
+      {
+      setdefault();
+      return false;
+      }
+
+
+    vector<ST::string> opt;
+    optionlist optlist;
+    optlist.push_back(&lambda);
+    optlist.push_back(&a);
+    optlist.push_back(&b);
+    optlist.push_back(&proposal);
+    optlist.push_back(&updatetau);
+    optlist.push_back(&uniformprior);
+    optlist.push_back(&constlambda);
+
+    unsigned i;
+    bool rec = true;
+    for (i=1;i<t.options.size();i++)
+      {
+
+      if (optlist.parse(t.options[i],true) == 0)
+        rec = false;
+
+      if (optlist.geterrormessages().size() > 0)
+        {
+        setdefault();
+        return false;
+        }
+
+      }
+
+    if (rec == false)
+      {
+      setdefault();
+      return false;
+      }
+
+    t.options.erase(t.options.begin(),t.options.end());
+    t.options = vector<ST::string>(8);
+    t.options[0] = t.type;
+    t.options[1] = ST::doubletostring(lambda.getvalue());
+    t.options[2] = ST::doubletostring(a.getvalue());
+    t.options[3] = ST::doubletostring(b.getvalue());
+    t.options[4] = proposal.getvalue();
+    if (updatetau.getvalue() == false)
+      t.options[5] = "false";
+    else
+      t.options[5] = "true";
+    if (uniformprior.getvalue() == false)
+      t.options[6] = "false";
+    else
+      t.options[6] = "true";
+    if (constlambda.getvalue() == false)
+      t.options[7] = "false";
+    else
+      t.options[7] = "true";
+
+
+    setdefault();
+    return true;
+
+    }
+  else
+    {
+    setdefault();
+    return false;
+    }
+
+  }
+
+
+
 //------------------------------------------------------------------------------
 //----------- class term_mixture: implementation of member functions ------------
 //------------------------------------------------------------------------------

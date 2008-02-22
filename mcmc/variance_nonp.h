@@ -12,6 +12,7 @@
 
 #include"mcmc_nonpbasis.h"
 #include"randomeffect.h"
+#include"hrandom.h"
 #include"mcmc_nonp.h"
 
 namespace MCMC
@@ -33,6 +34,11 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
 
   FULLCOND_random * REp;
   bool randomeffect;
+
+
+  FULLCOND_hrandom * hREp;
+  bool hrandom;
+
 
   FULLCOND_nonp * Fnp;
   bool fullcondnonp;
@@ -91,6 +97,15 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
   // CONSTRUCTOR3
 
   FULLCOND_variance_nonp(MCMCoptions * o,FULLCOND_nonp * p,
+                         DISTRIBUTION * d,
+                         const double & a,const double & b,
+                         const ST::string & ti, const ST::string & fp,
+                         const ST::string & fr,const bool & av,
+                         const unsigned & c);
+
+  // CONSTRUCTOR4
+
+  FULLCOND_variance_nonp(MCMCoptions * o,FULLCOND_hrandom * p,
                          DISTRIBUTION * d,
                          const double & a,const double & b,
                          const ST::string & ti, const ST::string & fp,

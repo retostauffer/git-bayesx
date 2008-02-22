@@ -1054,6 +1054,58 @@ class __EXPORT_TYPE term_random : public basic_termtype
 
 
 //------------------------------------------------------------------------------
+//--------------------------- class term_hrandom  -------------------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE term_hrandom : public basic_termtype
+  {
+
+
+  protected:
+
+  doubleoption lambda;
+  doubleoption a;
+  doubleoption b;
+  stroption proposal;
+  simpleoption updatetau;
+  simpleoption uniformprior;
+  simpleoption constlambda;
+
+  void setdefault(void);
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  term_hrandom(void);
+
+  // FUNCTION: check
+
+  bool check(term & t);
+
+  // FUNCTION: checkvector
+  // TASK: returns true if term 'i' is a random effect
+
+  bool checkvector(const vector<term> & terms,const unsigned & i)
+    {
+
+    assert(i< terms.size());
+
+    if ( terms[i].type == "hrandom" )
+      return true;
+
+    return false;
+    }
+
+  // DESTRUCTOR
+
+  ~term_hrandom() {}
+
+  };
+
+
+//------------------------------------------------------------------------------
 //--------------------------- class term_mixture  -------------------------------
 //------------------------------------------------------------------------------
 

@@ -29,6 +29,7 @@ class __EXPORT_TYPE FULLCOND_hrandom : public FULLCOND
   protected:
 
   datamatrix muy;
+  datamatrix mu;
 
   DISTRIBUTION * likep;
   DISTRIBUTION * likep_RE;
@@ -49,9 +50,6 @@ class __EXPORT_TYPE FULLCOND_hrandom : public FULLCOND
   double df_lambdaold2;
   bool lambdaconst;
 
-  bool notransform;                         // Results will not be transformed
-                                            // for multiplicative random effects
-
   datamatrix data2;
 
   bool changingweight;
@@ -60,7 +58,7 @@ class __EXPORT_TYPE FULLCOND_hrandom : public FULLCOND
 
   void update_linpred(const bool & add);
 
-  void update_linpred_diff(datamatrix & b1,datamatrix & b2);
+//  void update_linpred_diff(datamatrix & b1,datamatrix & b2);
 
   public:
 
@@ -146,10 +144,6 @@ class __EXPORT_TYPE FULLCOND_hrandom : public FULLCOND
 
   void set_lambdaconst(double la);
 
-  void set_notransform(void)
-    {
-    notransform=true;
-    }
 
   void set_changingweight(void)
     {
@@ -160,7 +154,10 @@ class __EXPORT_TYPE FULLCOND_hrandom : public FULLCOND
                                 unsigned be,unsigned en, effecttype t);
 
 
-
+  void set_REdistr(DISTRIBUTION * lik_RE)
+    {
+    likep_RE = lik_RE;
+    }
 
   };     // end: class FULLCOND_random
 

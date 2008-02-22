@@ -509,6 +509,9 @@ void DISTRIBUTION::set_predictresponse(const datamatrix & pr)
   predictresponse = true;
   }
 
+
+
+
 void DISTRIBUTION::init_names(const ST::string & rn, const ST::string & wn,const ST::string & on)
   {
   responsename = rn;
@@ -831,6 +834,12 @@ double DISTRIBUTION::compute_IWLS(datamatrix & weightiwls,datamatrix & tildey,
 
   return help;
 
+  }
+
+
+const DISTRIBUTION::set_response(datamatrix & newresponse)
+  {
+  response.assign(newresponse);
   }
 
 

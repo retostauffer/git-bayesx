@@ -6,7 +6,7 @@ namespace MCMC
 
 
 //------------------------------------------------------------------------------
-//----------------- class FULLCOND_hrandom --------------------------------------
+//----------------- class FULLCOND_hrandom -------------------------------------
 //------------------------------------------------------------------------------
 
 void FULLCOND_hrandom::init_name(const ST::string & na)
@@ -25,7 +25,7 @@ void FULLCOND_hrandom::init_name(const ST::string & na)
     else
       priorassumptions.push_back("$" + term_symbolic + "$");
 
-    priorassumptions.push_back("i.i.d. Gaussian random effects");
+    priorassumptions.push_back("structured Gaussian random effect");
     }
 
 
@@ -54,7 +54,7 @@ void FULLCOND_hrandom::init_names(const vector<ST::string> & na)
     else
       priorassumptions.push_back("$" + term_symbolic + "$");
 
-    priorassumptions.push_back("i.i.d. Gaussian random effects");
+    priorassumptions.push_back("structured Gaussian random effects");
     }
 
 
@@ -100,27 +100,11 @@ void FULLCOND_hrandom::compute_XWX(const datamatrix & weightmat,
   vector<unsigned>::iterator itend = posend.begin();
   unsigned n = posbeg.size();
 
-  if (!randomslope)
+  for(j=0;j<n;j++,workXX++,++itbeg,++itend)
     {
-    for(j=0;j<n;j++,workXX++,++itbeg,++itend)
-      {
-      *workXX = 0;
-      for (i=*itbeg;i<=*itend;i++,workindex++)
-        *workXX += weightmat(*workindex,col);
-      }
-    }
-  else
-    {
-
-    double * datap = data.getV();
-    for(j=0;j<n;j++,workXX++,++itbeg,++itend)
-      {
-      *workXX = 0;
-      for (i=*itbeg;i<=*itend;i++,workindex++,datap++)
-        {
-        *workXX += weightmat(*workindex,col) * (*datap) * (*datap);
-        }
-      }
+    *workXX = 0;
+    for (i=*itbeg;i<=*itend;i++,workindex++)
+      *workXX += weightmat(*workindex,col);
     }
 
   }
@@ -134,10 +118,7 @@ double FULLCOND_hrandom::compute_quadform(void)
   double * workbeta = beta.getV();
   register unsigned i;
 
-  if (randomslope && includefixed)
-    n = nrpar-1;
-  else
-    n = nrpar;
+  n = nrpar;
 
   for(i=0;i<n;i++,workbeta++)
     sum += *workbeta * *workbeta;
@@ -149,10 +130,7 @@ double FULLCOND_hrandom::compute_quadform(void)
 
 unsigned FULLCOND_hrandom::get_rankK(void)
   {
-  if (randomslope && includefixed)
-    return nrpar-1;
-  else
-    return nrpar;
+  return nrpar;
   }
 
 unsigned FULLCOND_hrandom::get_rankK2(void)
@@ -168,8 +146,6 @@ void FULLCOND_hrandom::set_lambdaconst(double la)
   }
 
 
-
-
 FULLCOND_hrandom::FULLCOND_hrandom (MCMCoptions * o,DISTRIBUTION * dp,
                               FULLCOND_const * fcc,
                               const datamatrix & d, const ST::string & t,
@@ -178,14 +154,7 @@ FULLCOND_hrandom::FULLCOND_hrandom (MCMCoptions * o,DISTRIBUTION * dp,
                             : FULLCOND(o,datamatrix(1,1),t,1,1,fp)
   {
 
-  notransform=false;
-
-
-
   fctype = randomeffects;
-
-  randomslope = false;
-  includefixed = false;
 
   changingweight = dp->get_changingweight();
 
@@ -247,26 +216,22 @@ FULLCOND_hrandom::FULLCOND_hrandom (MCMCoptions * o,DISTRIBUTION * dp,
   XX = datamatrix(posbeg.size());
   compute_XWX(likep->get_weight(),0);
 
-
   setbeta(posbeg.size(),1,0);
-
-  identifiable = false;
 
   muy = datamatrix(nrpar,1);
 
-//  identifiable =true;
+  mu = datamatrix(index.rows(),1);
+
+  identifiable =true;
 
   }
-
 
 
 FULLCOND_hrandom::FULLCOND_hrandom(const FULLCOND_hrandom & fc)
                             : FULLCOND(FULLCOND(fc))
   {
-  notransform = fc.notransform;
+  mu = fc.mu;
   muy = fc.muy;
-  randomslope = fc.randomslope;
-  includefixed = fc.includefixed;
   XX = fc.XX;
   likep = fc.likep;
   likep_RE = fc.likep_RE;
@@ -294,10 +259,8 @@ const FULLCOND_hrandom & FULLCOND_hrandom::
 
   FULLCOND::operator=(FULLCOND(fc));
 
-  notransform = fc.notransform;
+  mu = fc.mu;  
   muy = fc.muy;
-  randomslope = fc.randomslope;
-  includefixed = fc.includefixed;
   XX = fc.XX;
   likep = fc.likep;
   likep_RE = fc.likep_RE;
@@ -322,10 +285,79 @@ const FULLCOND_hrandom & FULLCOND_hrandom::
 void FULLCOND_hrandom::update(void)
   {
 
-  if (notransform==false)
-    transform = likep->get_trmult(column);
+  double var;
+  double m;
+  unsigned i,j;
+  unsigned n = nrpar;
+
+  if (optionsp->get_nriter()==1 || changingweight)
+    compute_XWX(likep->get_weight(),0);
+
+  double scale = likep->get_scale(column);
+
+  if (lambdaconst == false)
+    lambda = scale/sigma2;
   else
-    transform = 1;
+    sigma2 = scale/lambda;
+
+
+//  double sqrtscale = sqrt(scale);
+
+
+  update_linpred(false);
+
+
+  // nicht verändern wegen SUR-Modellen
+  likep->compute_respminuslinpred(mu,column);
+
+
+  vector<unsigned>::iterator itbeg = posbeg.begin();
+  vector<unsigned>::iterator itend = posend.begin();
+  double * workbeta = beta.getV();
+
+  int * workindex2 = index2.getV();
+  double * workmuy = muy.getV();
+  double * mup = mu.getV();
+  likep->set_weightp();
+
+
+  // speichert in muy X'W (y-tilde(eta))
+
+  for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
+    {
+    *workmuy = 0;
+    for(j=*itbeg;j<=*itend;j++,workindex2++)
+      {
+      mup += *workindex2;
+      *workmuy+= likep->get_weight(*workindex2)* *mup;
+      }
+
+    }
+
+
+  workbeta = beta.getV();
+  workmuy = muy.getV();
+  double * workXX = XX.getV();
+  for (i=0;i<n;i++,workbeta++,workmuy++,workXX++)
+    {
+
+    var = 1.0/(*workXX/scale  + 1/sigma2);
+
+    m = var * (*workmuy/scale+ likep_RE->get_linearpred(i,column)/sigma2);
+
+    *workbeta = m + sqrt(var)*rand_normal();
+
+    }
+
+  update_linpred(true);
+
+
+  acceptance++;
+
+
+  transform = likep->get_trmult(column);
+
+  likep_RE->set_response(beta);
 
   FULLCOND::update();
 
@@ -352,79 +384,8 @@ void FULLCOND_hrandom::outresults(void)
   nu1 = nu1.replaceallsigns('.','p');
   nu2 = nu2.replaceallsigns('.','p');
 
-  if (randomslope && includefixed)
-    {
-    optionsp->out("  Fixed effect:\n");
-    optionsp->out("\n");
-
-    ST::string help =  ST::doubletostring(lower1,4) + "% quant.";
-    ST::string levell = help + ST::string(' ',15-help.length());
-    help = ST::doubletostring(upper2,4) + "% quant.";
-    ST::string levelu = help + ST::string(' ',15-help.length());
-    help = ST::string(' ',+2);
-
-    optionsp->out(help +
-                    "mean           " +
-                    "Std. Dev.      " +
-                    levell +
-                    "median         " +
-                    levelu + "\n");
-
-    optionsp->out(ST::outresults(0,"",betamean(nrpar-1,0),
-                  sqrt(betavar(nrpar-1,0)),betaqu_l1_lower(nrpar-1,0),
-                  betaqu50(nrpar-1,0),betaqu_l1_upper(nrpar-1,0)));
-
-    optionsp->out("\n");
-
-    optionsp->out("  Results for the fixed effect are also stored in file \n");
-    optionsp->out("  " + pathcurrent2 + "\n");
-
-    optionsp->out("\n");
-
-    ofstream outfixed(pathcurrent2.strtochar());
-
-    outfixed << "pmean   ";
-    outfixed << "pqu"  << nl1  << "   ";
-    outfixed << "pqu"  << nl2  << "   ";
-    outfixed << "pmed   ";
-    outfixed << "pqu"  << nu1  << "   ";
-    outfixed << "pqu"  << nu2  << "   ";
-    outfixed << "pcat" << level1 << "   ";
-    outfixed << "pcat" << level2 << "   ";
-    outfixed << endl;
-
-    outfixed << betamean(nrpar-1,0) << "   ";
-    outfixed << betaqu_l1_lower(nrpar-1,0) << "   ";
-    outfixed << betaqu_l2_lower(nrpar-1,0) << "   ";
-    outfixed << betaqu50(nrpar-1,0) << "   ";
-    outfixed << betaqu_l2_upper(nrpar-1,0) << "   ";
-    outfixed << betaqu_l1_upper(nrpar-1,0) << "   ";
-    if (betaqu_l1_lower(nrpar-1,0) > 0)
-      outfixed << "1   ";
-    else if (betaqu_l1_upper(nrpar-1,0) < 0)
-      outfixed << "-1   ";
-    else
-      outfixed << "0   ";
-    if (betaqu_l2_lower(nrpar-1,0) > 0)
-      outfixed << "1   ";
-    else if (betaqu_l2_upper(nrpar-1,0) < 0)
-      outfixed << "-1   ";
-    else
-      outfixed << "0   ";
-
-    outfixed << endl;
-    }
-
-  if (randomslope)
-    {
-    optionsp->out("  Results for random slopes are stored in file\n");
-    optionsp->out("  " + pathcurrent + "\n");
-    }
-  else
-    {
-    optionsp->out("  Results for random effects are stored in file\n");
-    optionsp->out("  " + pathcurrent + "\n");
-    }
+  optionsp->out("  Results for random effects are stored in file\n");
+  optionsp->out("  " + pathcurrent + "\n");
 
   if (lambdaconst==true)
     {
@@ -474,36 +435,31 @@ void FULLCOND_hrandom::outresults(void)
       workbetaqu_l2_lower_p++,workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++,
       workbetaqu50++)
     {
-    if (randomslope && includefixed && i == nrpar-1)
-      {
-      }
+    outres << (i+1) << "   ";
+    outres << effvalues(i,0) << "   ";
+    outres << *workmean << "   ";
+    outres << *workbetaqu_l1_lower_p << "   ";
+    outres << *workbetaqu_l2_lower_p << "   ";
+    outres << *workbetaqu50 << "   ";
+    outres << *workbetaqu_l2_upper_p << "   ";
+    outres << *workbetaqu_l1_upper_p << "   ";
+
+    if (*workbetaqu_l1_lower_p > 0)
+      outres << "1   ";
+    else if (*workbetaqu_l1_upper_p < 0)
+      outres << "-1   ";
     else
-      {
-      outres << (i+1) << "   ";
-      outres << effvalues(i,0) << "   ";
-      outres << *workmean << "   ";
-      outres << *workbetaqu_l1_lower_p << "   ";
-      outres << *workbetaqu_l2_lower_p << "   ";
-      outres << *workbetaqu50 << "   ";
-      outres << *workbetaqu_l2_upper_p << "   ";
-      outres << *workbetaqu_l1_upper_p << "   ";
+      outres << "0   ";
 
-      if (*workbetaqu_l1_lower_p > 0)
-        outres << "1   ";
-      else if (*workbetaqu_l1_upper_p < 0)
-        outres << "-1   ";
-      else
-        outres << "0   ";
+    if (*workbetaqu_l2_lower_p > 0)
+      outres << "1   ";
+    else if (*workbetaqu_l2_upper_p < 0)
+      outres << "-1   ";
+    else
+      outres << "0   ";
 
-      if (*workbetaqu_l2_lower_p > 0)
-        outres << "1   ";
-      else if (*workbetaqu_l2_upper_p < 0)
-        outres << "-1   ";
-      else
-        outres << "0   ";
+    outres << endl;
 
-      outres << endl;
-      }
     }
 
   }
@@ -524,195 +480,32 @@ void FULLCOND_hrandom::outoptions(void)
   }
 
 
-void FULLCOND_hrandom::update_linpred_diff(datamatrix & b1,datamatrix & b2)
-  {
-
-  unsigned n=nrpar;
-  if (includefixed)
-    n = nrpar-1;
-
-  int * workindex;
-  double * workb1 = b1.getV();
-  double * workb2 = b2.getV();
-  vector<unsigned>::iterator itbeg = posbeg.begin();
-  vector<unsigned>::iterator itend = posend.begin();
-
-  unsigned i,j;
-
-  if (randomslope)
-    {
-
-    workindex = index.getV();
-    double * workdata=data.getV();
-
-    if (includefixed)
-      {
-
-      n = nrpar-1;
-      double ms1 = b1(nrpar-1,0);
-      double ms2 = b2(nrpar-1,0);
-      double h;
-
-      for (i=0;i<n;i++,workb1++,workb2++,++itbeg,++itend)
-        {
-        if (*itbeg != -1)
-          {
-          h =*workb1+ms1-*workb2-ms2;
-          for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
-            {
-            likep->add_linearpred(h * (*workdata),
-                                  unsigned(*workindex),column);
-            }
-          }
-        }
-
-      }
-    else
-      {
-      for (i=0;i<n;i++,workb1++,workb2++,++itbeg,++itend)
-        {
-        if (*itbeg != -1)
-          {
-          for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
-            {
-            likep->add_linearpred((*workb1-*workb2) * (*workdata),
-                                  unsigned(*workindex),column);
-            }
-
-          }
-
-        }
-
-      }
-
-    }
-  else
-    {
-    for (i=0;i<n;i++,workb1++,workb2++,++itbeg,++itend)
-      {
-      if (*itbeg != -1)
-        likep->add_linearpred(*workb1-*workb2,*itbeg,*itend,index,column);
-      }
-    }
-
-  }
-
-
-
 void FULLCOND_hrandom::update_linpred(const bool & add)
   {
-  unsigned i,j;
-
-  unsigned n = nrpar;
+  unsigned i;
 
   vector<unsigned>::iterator itbeg = posbeg.begin();
   vector<unsigned>::iterator itend = posend.begin();
   double * workbeta = beta.getV();
 
-  int * workindex2;
-
   if (add==false)
     {
-    if (!randomslope)
-      {
-//      likep->set_linpredp_current(column);
-      for (i=0;i<nrpar;i++,++itbeg,++itend,workbeta++)
-        if (*itbeg != -1)
-          likep->add_linearpred2(-(*workbeta),*itbeg,*itend,index,index2,column);
-      }
-    else
-      {
-      workindex2 = index2.getV();
-      double * datap = data.getV();
-      if (includefixed)
-        {
-        n = nrpar-1;
-        double ms = beta(nrpar-1,0);
-        double h;
-        likep->set_linpredp_current(column);
-        for (i=0;i<n;i++,++itbeg,++itend,workbeta++)
-          {
-          if (*itbeg != -1)
-            {
-            h = *workbeta+ms;
-            for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-              likep->add_linearpred2(-h*(*datap),*workindex2);
-            }
-          }
-        }
-      else
-        {
-        n = nrpar;
-        likep->set_linpredp_current(column);
-        for (i=0;i<n;i++,++itbeg,++itend,workbeta++)
-          {
-          if (*itbeg != -1)
-            {
-            for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-              {
-              likep->add_linearpred2(-*workbeta*(*datap),*workindex2);
-              }
-            }
-
-          }
-        }
-
-      }
-
-
+//  likep->set_linpredp_current(column);
+    for (i=0;i<nrpar;i++,++itbeg,++itend,workbeta++)
+      if (*itbeg != -1)
+        likep->add_linearpred2(-(*workbeta),*itbeg,*itend,index,index2,column);
     } // end: if (add == false)
   else
     {
 
-    if (!randomslope)
-      {
 //      likep->set_linpredp_current(column);
-      for (i=0;i<nrpar;i++,++itbeg,++itend,workbeta++)
-        if (*itbeg != -1)
-          likep->add_linearpred2(*workbeta,*itbeg,*itend,index,index2,column);
-      }
-    else
-      {
-      workindex2 = index2.getV();
-      double * datap = data.getV();
-      if (includefixed)
-        {
-        n = nrpar-1;
-        double ms = beta(nrpar-1,0);
-        double h;
-        likep->set_linpredp_current(column);
-        for (i=0;i<n;i++,++itbeg,++itend,workbeta++)
-          {
-          if (*itbeg != -1)
-            {
-            h = *workbeta+ms;
-            for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-              likep->add_linearpred2(h*(*datap),*workindex2);
-            }
-          }
-        }
-      else
-        {
-        n = nrpar;
-        likep->set_linpredp_current(column);
-        for (i=0;i<n;i++,++itbeg,++itend,workbeta++)
-          {
-          if (*itbeg != -1)
-            {
-            for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-              {
-              likep->add_linearpred2(*workbeta*(*datap),*workindex2);
-              }
-            }
-          }
-        }
-
-      }
+    for (i=0;i<nrpar;i++,++itbeg,++itend,workbeta++)
+      if (*itbeg != -1)
+        likep->add_linearpred2(*workbeta,*itbeg,*itend,index,index2,column);
 
     }
 
   }
-
 
 
 void FULLCOND_hrandom::get_effectmatrix(datamatrix & e,
@@ -720,97 +513,6 @@ void FULLCOND_hrandom::get_effectmatrix(datamatrix & e,
                                 unsigned be,unsigned en, effecttype t)
   {
 
-  int * workindex = index.getV();
-
-  double * workbeta;
-  if (t==MCMC::current || t==MCMC::fvar_current)
-    workbeta = beta.getV();
-  else if (t==MCMC::mean || t==MCMC::fvar_mean)
-    workbeta = betamean.getV();
-  else
-    workbeta = betaqu50.getV();
-
-  vector<unsigned>::iterator itbeg = posbeg.begin();
-  vector<unsigned>::iterator itend = posend.begin();
-
-  int j;
-  unsigned i,k;
-
-  if (randomslope)
-    {
-
-    if (t==MCMC::fvar_current || t==MCMC::fvar_mean  || t==MCMC::fvar_median)
-      {
-
-      unsigned n;
-      if (includefixed)
-        n= nrpar-1;
-      else
-         n=nrpar;
-
-      for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend)
-        {
-        for(j=*itbeg;j<=*itend;j++,workindex++)
-          e(*workindex,be) = *workbeta;
-        }
-
-      }
-/*
-    else
-      {
-
-      double * workdata=data.getV();
-
-      vector<ST::string>::iterator effit = effectvalues.begin();
-      int t;
-      enames.push_back("f_"+datanames[0]+"_"+datanames[1]);
-      enames.push_back(datanames[0]);
-      enames.push_back(datanames[1]);
-
-      for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend,++effit)
-        {
-        if (*itbeg != -1)
-          {
-          for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
-            {
-            e(*workindex,be) = *workbeta*(*workdata);
-            t = (*effit).strtodouble(e(*workindex,be+1));
-            e(*workindex,be+2) = *workdata;
-            }
-          }
-        }
-
-      }
-
-      */
-    }
-  else
-    {
-
-/*
-
-    vector<ST::string>::iterator effit = effectvalues.begin();
-    int t;
-
-    enames.push_back("f_"+datanames[0]);
-    enames.push_back(datanames[0]);
-
-
-    for (i=0;i<nrpar;i++,workbeta++,++itbeg,++itend,++effit)
-      {
-      if (*itbeg != -1)
-        {
-        for (k=(*itbeg);k<=(*itend);k++,workindex++)
-          {
-          e(*workindex,be) = *workbeta;
-          t = (*effit).strtodouble(e(*workindex,be+1));
-          }
-        }
-      }
-
- */
-
-    }
 
   }
 
@@ -819,10 +521,8 @@ void FULLCOND_hrandom::get_effectmatrix(datamatrix & e,
 bool FULLCOND_hrandom::posteriormode(void)
   {
 
-  lambda=1;
+  sigma2=0.1;
   unsigned n = nrpar;
-  if (includefixed)
-    n = nrpar-1;
 
   update_linpred(false);
 
@@ -839,46 +539,14 @@ bool FULLCOND_hrandom::posteriormode(void)
   double * workmuy = muy.getV();
   likep->set_workingresp();
 
-  if (!randomslope)
+
+  for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
     {
-    for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
+    *workmuy = 0;
+    for(j=*itbeg;j<=*itend;j++,workindex2++)
       {
-      *workmuy = 0;
-      for(j=*itbeg;j<=*itend;j++,workindex2++)
-        {
-        *workmuy+= likep->get_workingres(*workindex2);
-        }
+      *workmuy+= likep->get_workingres(*workindex2);
       }
-    }
-  else
-    {
-    double * datap = data.getV();
-    if (includefixed)
-      {
-      double ms = beta(nrpar-1,0);
-      likep->set_linpredp_current(column);
-      for (i=0;i<n;i++,workmuy++,++itbeg,++itend)
-        {
-        *workmuy = 0;
-        for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-          *workmuy += likep->get_workingres(*workindex2)* (*datap);
-
-        *workmuy+= lambda* ms;
-        }
-      }
-    else
-      {
-      for(i=0;i<n;i++,workmuy++,++itbeg,++itend)
-        {
-        *workmuy = 0;
-        for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-          {
-          *workmuy+= likep->get_workingres(*workindex2)* (*datap);
-          }
-
-        }
-      }
-
     }
 
 
@@ -888,211 +556,33 @@ bool FULLCOND_hrandom::posteriormode(void)
   double * workbeta = beta.getV();
   double * workXX = XX.getV();
 
+  double var;
+
+  double scale = likep->get_scale(column);
+
   for(i=0;i<n;i++,workmuy++,++itbeg,++itend,workbeta++,workXX++)
     {
-    *workbeta = (*workmuy)/(*workXX+lambda);
+    var = 1.0/(*workXX/scale  + 1/sigma2);
+    *workbeta =  var*( (*workmuy)/scale  + likep_RE->get_linearpred(i,column)/sigma2);
     }
 
-
-  if (randomslope && includefixed)
-    {
-    double * workbeta = beta.getV();
-    double sum=0;
-    for (i=0;i<n;i++,workbeta++)
-      {
-      sum += *workbeta;
-      }
-
-    beta(nrpar-1,0) = sum/double(n);
-
-    workbeta = beta.getV();
-    double ms = beta(nrpar-1,0);
-    for (i=0;i<n;i++,workbeta++)
-      *workbeta -= ms;
-
-    }
 
   update_linpred(true);
 
-  if (notransform==false)
-    transform = likep->get_trmult(column);
-  else
-    transform=1;
+  transform = likep->get_trmult(column);
+
+  likep_RE->set_response(beta);
 
   return FULLCOND::posteriormode();
 
   }
 
 
-//------------------------------------------------------------------------------
-//------------------- class FULLCOND_random_gaussian ---------------------------
-//------------------------------------------------------------------------------
-/*
-void FULLCOND_random_gaussian::init_spatialtotal(FULLCOND_nonp_basis * sp,
-                                        const ST::string & pnt,
-                                        const ST::string & prt)
-{
 
-fbasisp = sp;
-vector<ST::string> ev = sp->get_effectvalues();
-
-FULLCOND_random::init_spatialtotal(ev,pnt,prt);
-
-}
-
-
-void FULLCOND_random_gaussian::update(void)
-  {
-
-  double var;
-  double m;
-  unsigned i,j;
-  unsigned n = nrpar;
-  if (randomslope && includefixed)
-  n = nrpar-1;
-
-
-  if (optionsp->get_nriter()==1 || changingweight)
-    compute_XWX(likep->get_weight(),0);
-
-
-  if (lambdaconst == false)
-    lambda = likep->get_scale(column)/sigma2;
-  else
-    sigma2 = likep->get_scale(column)/lambda;
-
-  double sqrtscale = sqrt(likep->get_scale(column));
-
-
-  update_linpred(false);
-
-
-  // nicht verändern wegen SUR-Modellen
-  likep->compute_respminuslinpred(mu,column);
-
-
-  vector<unsigned>::iterator itbeg = posbeg.begin();
-  vector<unsigned>::iterator itend = posend.begin();
-  double * workbeta = beta.getV();
-
-  int * workindex2 = index2.getV();
-  double * workmuy = muy.getV();
-  double * mup = mu.getV();
-  likep->set_weightp();
-
-  if (!randomslope)
-    {
-    for(i=0;i<nrpar;i++,workmuy++,++itbeg,++itend)
-      {
-      *workmuy = 0;
-      for(j=*itbeg;j<=*itend;j++,workindex2++)
-        {
-        mup += *workindex2;
-        *workmuy+= likep->get_weight(*workindex2)* *mup;
-        }
-
-      }
-    }
-  else
-    {
-    double * datap = data.getV();
-    for(i=0;i<n;i++,workmuy++,++itbeg,++itend)
-      {
-      *workmuy = 0;
-      for(j=*itbeg;j<=*itend;j++,workindex2++,datap++)
-        {
-        mup += *workindex2;
-        *workmuy+= likep->get_weight(*workindex2)* (*mup) * (*datap);
-        }
-
-      if (includefixed)
-        *workmuy += beta(n,0)*lambda;
-
-      }
-    }
-
-
-  workbeta = beta.getV();
-  workmuy = muy.getV();
-  double * workXX = XX.getV();
-  for (i=0;i<n;i++,workbeta++,workmuy++,workXX++)
-    {
-
-    var = 1.0/(*workXX  + lambda);
-
-    m = var * *workmuy;
-
-    *workbeta = m + sqrtscale*sqrt(var)*rand_normal();
-
-    }
-
-
-  if (randomslope && includefixed)
-    {
-
-    workbeta = beta.getV();
-    double s=0;
-    for (i=0;i<nrpar-1;i++,workbeta++)
-      s += *workbeta;
-    s /= double(nrpar-1);
-
-    double v = sigma2/double(nrpar-1);
-
-    beta(nrpar-1,0) = s+sqrt(v)*rand_normal();
-
-    workbeta = beta.getV();
-    double ms = beta(nrpar-1,0);
-    for (i=0;i<nrpar-1;i++,workbeta++)
-      *workbeta -= ms;
-
-    }
-
-
-  update_linpred(true);
-
-
-  if (center)
-    {
-    double m = centerbeta();
-    fcconst->update_intercept(m);
-    }
-
-
-  acceptance++;
-
-  if (notransform==false)
-    transform = likep->get_trmult(column);
-  else
-    transform=1;
-
-
-  FULLCOND_random::update();
-
-  if (spatialtotal)
-    {
-    double * ftotal_bp = ftotal.getbetapointer();
-    workbeta=beta.getV();
-    double * workbetaspat = fbasisp->getbetapointer();
-    int * indexp = indextotal.getV();
-    for (i=0;i<nrpar;i++,workbeta++,ftotal_bp++,indexp++)
-      {
-      workbetaspat+= *indexp;
-      *ftotal_bp = *workbeta + *workbetaspat;
-      }
-
-    if (notransform==false)
-      ftotal.set_transform(likep->get_trmult(column));
-    else
-      ftotal.set_transform(1);
-
-    ftotal.update();
-    }
-
-  }
-*/
 
 
 } // end: namespace MCMC
+
 
 
 
