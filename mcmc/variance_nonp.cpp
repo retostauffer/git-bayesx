@@ -151,7 +151,7 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     pathresults = fr;
     hREp = p;
     distrp = d;
-    rankK= REp->get_rankK();
+    rankK= hREp->get_rankK();
     a_invgamma = a;
     b_invgamma = b;
     priorassumptions.push_back("Inverse gamma prior for variance component with hyperparameters a="
@@ -159,10 +159,10 @@ FULLCOND_variance_nonp::FULLCOND_variance_nonp(MCMCoptions * o,
     priorassumptions.push_back("\\\\");
 
     if (average==true)
-      setbeta(2,1,distrp->get_scale(column,column)/REp->getlambda());
+      setbeta(2,1,distrp->get_scale(column,column)/hREp->getlambda());
     else
-      setbeta(1,1,distrp->get_scale(column,column)/REp->getlambda());
-    hREp->update_sigma2(distrp->get_scale(column,column)/REp->getlambda());
+      setbeta(1,1,distrp->get_scale(column,column)/hREp->getlambda());
+    hREp->update_sigma2(distrp->get_scale(column,column)/hREp->getlambda());
     }
 
 
@@ -456,7 +456,7 @@ void FULLCOND_variance_nonp::update(void)
 
   FULLCOND::update();
 
-  if(!fullcondnonp && !randomeffect)
+  if(!fullcondnonp && !randomeffect && !hrandom)
     {
     double * lambdap = fc_lambda.getbetapointer();
     *lambdap = distrp->get_scale(column)/beta(0,0);
@@ -770,7 +770,7 @@ void FULLCOND_variance_nonp::outresults(void)
     optionsp->out("\n");
     }
 
-  if(!fullcondnonp && !randomeffect)
+  if(!fullcondnonp && !randomeffect && !hrandom)
     outresults_lambda();
 
   }

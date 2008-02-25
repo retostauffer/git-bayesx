@@ -702,6 +702,9 @@ void bayesreg::initpointers(void)
   for(i=0;i<normalconst.size();i++)
     fullcond.push_back(&normalconst[i]);
 
+  for(i=0;i<normalconst_re.size();i++)
+    fullcond.push_back(&normalconst_re[i]);
+
   for(i=0;i<nongaussianconst.size();i++)
     fullcond.push_back(&nongaussianconst[i]);
 
@@ -801,6 +804,9 @@ void bayesreg::clear(void)
 
   normalconst.erase(normalconst.begin(),normalconst.end());
   normalconst.reserve(20);
+
+  normalconst_re.erase(normalconst_re.begin(),normalconst_re.end());
+  normalconst_re.reserve(20);
 
   nongaussianconst.erase(nongaussianconst.begin(),nongaussianconst.end());
   nongaussianconst.reserve(20);
@@ -940,6 +946,7 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
+  normalconst_re = b.normalconst_re;  
   nongaussianconst = b.nongaussianconst;
   nbinomialconst = b.nbinomialconst;
   Pmatrices = b.Pmatrices;
@@ -984,6 +991,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
+  normalconst_re = b.normalconst_re;  
   nongaussianconst = b.nongaussianconst;
   nbinomialconst = b.nbinomialconst;
   Pmatrices = b.Pmatrices;
@@ -2578,29 +2586,59 @@ bool bayesreg::create_const(const unsigned & collinpred)
         if ( check_gaussian(collinpred))
           {
 
-          normalconst.push_back(FULLCOND_const_gaussian(
-          &generaloptions[generaloptions.size()-1],distr[distr.size()-1],X,
-                                title,constpos,pathconst,pathconstres,
-                                shrinkage, variances, collinpred));
-          normalconst[normalconst.size()-1].init_names(varnamesvec[k]);
-
-          normalconst[normalconst.size()-1].set_fcnumber(fullcond.size());
-
-
-          if (normalconst[normalconst.size()-1].get_errors().size() > 0)
+          if (family.getvalue() == "gaussian_re")
             {
 
-            unsigned i;
-            for(i=0;i<normalconst[normalconst.size()-1].get_errors().size();i++)
-            errormessages.push_back(
-            normalconst[normalconst.size()-1].get_errors()[i]);
-            return true;
+            normalconst_re.push_back(FULLCOND_const_gaussian_re(
+            &generaloptions[generaloptions.size()-1],distr[distr.size()-1],X,
+                                  title,constpos,pathconst,pathconstres,
+                                  shrinkage, variances, collinpred));
+            normalconst_re[normalconst_re.size()-1].init_names(varnamesvec[k]);
+
+            normalconst_re[normalconst_re.size()-1].set_fcnumber(fullcond.size());
+
+
+            if (normalconst_re[normalconst_re.size()-1].get_errors().size() > 0)
+              {
+
+              unsigned i;
+              for(i=0;i<normalconst_re[normalconst_re.size()-1].get_errors().size();i++)
+              errormessages.push_back(
+              normalconst_re[normalconst_re.size()-1].get_errors()[i]);
+              return true;
+              }
+
+            if (constincl == true)
+              fcconst_intercept = &normalconst_re[normalconst_re.size()-1];
+            fullcond.push_back(&normalconst_re[normalconst_re.size()-1]);
+
             }
+          else
+            {
+            normalconst.push_back(FULLCOND_const_gaussian(
+            &generaloptions[generaloptions.size()-1],distr[distr.size()-1],X,
+                                  title,constpos,pathconst,pathconstres,
+                                  shrinkage, variances, collinpred));
+            normalconst[normalconst.size()-1].init_names(varnamesvec[k]);
+
+            normalconst[normalconst.size()-1].set_fcnumber(fullcond.size());
 
 
-          if (constincl == true)
-            fcconst_intercept = &normalconst[normalconst.size()-1];
-          fullcond.push_back(&normalconst[normalconst.size()-1]);
+            if (normalconst[normalconst.size()-1].get_errors().size() > 0)
+              {
+
+              unsigned i;
+              for(i=0;i<normalconst[normalconst.size()-1].get_errors().size();i++)
+              errormessages.push_back(
+              normalconst[normalconst.size()-1].get_errors()[i]);
+              return true;
+              }
+
+
+            if (constincl == true)
+              fcconst_intercept = &normalconst[normalconst.size()-1];
+            fullcond.push_back(&normalconst[normalconst.size()-1]);
+            }
 
           } // end: if (family.getvalue() == "gaussian")
         else

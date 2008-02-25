@@ -285,6 +285,70 @@ class __EXPORT_TYPE FULLCOND_const_gaussian : public FULLCOND_const
   };
 
 
+
+//------------------------------------------------------------------------------
+//---------------------- CLASS: FULLCOND_const_gaussian_re ---------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE FULLCOND_const_gaussian_re : public FULLCOND_const_gaussian
+  {
+
+  protected:
+
+  FULLCOND_const * fc_intercept;
+
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  FULLCOND_const_gaussian_re(void) : FULLCOND_const_gaussian()
+    {
+    }
+
+  //CONSTRUCTOR1
+
+  FULLCOND_const_gaussian_re(MCMCoptions * o,DISTRIBUTION * dp,
+                             const datamatrix & d,
+                          const ST::string & t,const int & constant,
+                          const ST::string & fs,const ST::string & fr,
+                          const bool & r, const datamatrix vars,
+                          const unsigned & c=0);
+
+
+  // COPY CONSTRUCTOR
+
+  FULLCOND_const_gaussian_re(const FULLCOND_const_gaussian_re & m);
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const FULLCOND_const_gaussian_re & operator=(const FULLCOND_const_gaussian_re & m);
+
+  void update_intercept(double & m);
+
+  void posteriormode_intercept(double & m);
+
+
+  bool posteriormode_converged(const unsigned & itnr);
+
+  void set_fcintercept(FULLCOND_const * fci)
+    {
+    fc_intercept= fci;
+    }
+
+  void update(void);    
+
+  bool posteriormode(void);
+
+  void outresults(void);  
+
+  void outoptions(void);
+
+  };
+
+
+
 //------------------------------------------------------------------------------
 //------------------- CLASS: FULLCOND_const_nongaussian ------------------------
 //------------------------------------------------------------------------------

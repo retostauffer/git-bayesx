@@ -1157,6 +1157,166 @@ void FULLCOND_const_gaussian::outresults(void)
 
 
 //------------------------------------------------------------------------------
+//------------------ CLASS: FULLCOND_const_gaussian_re -------------------------
+//------------------------------------------------------------------------------
+
+
+
+FULLCOND_const_gaussian_re::FULLCOND_const_gaussian_re(MCMCoptions * o,
+                         DISTRIBUTION* dp, const datamatrix & d,
+                         const ST::string & t, const int & constant,
+                         const ST::string & fs,const ST::string & fr,
+                         const bool & r, const datamatrix vars,
+                         const unsigned & c)
+
+  {
+
+
+  if (constant >=0)
+    {
+    if (d.cols()>1)
+      {
+      datamatrix newd(d.rows(),d.cols()-1);
+      unsigned k=0;
+
+      unsigned j,i;
+      for(j=0;j<d.cols();j++)
+        {
+        if (j!=constant)
+          {
+          for (i=0;i<d.rows();i++)
+            newd(i,k) = d(i,j);
+          k++;
+          }
+
+        }
+
+      ofstream out("d:\\temp\\d.raw");
+      d.prettyPrint(out);
+
+      ofstream out2("d:\\temp\\dnew.raw");
+      newd.prettyPrint(out2);
+
+      FULLCOND_const_gaussian::FULLCOND_const_gaussian(o,dp,newd,t,-1,fs,fr,r,vars,c);
+      }
+    else
+      {
+      nrconst =0;
+      }
+
+    }
+  else
+    FULLCOND_const_gaussian::FULLCOND_const_gaussian(o,dp,d,t,constant,fs,fr,r,vars,c);
+
+
+
+
+
+/*
+  // BEGIN: shrinkage
+  shrinkage=r;
+  variances = vars;
+  // END: shrinkage
+
+  transform = likep->get_trmult(c);
+
+  changingweight = likep->get_changingweight();
+
+  mu1 = datamatrix(likep->get_nrobs(),1);
+
+  X1 = datamatrix(nrconst,nrconst,0);
+
+  help = datamatrix(nrconst,likep->get_nrobs(),0);
+
+  X2 = datamatrix(nrconst,likep->get_nrobs());
+
+  compute_matrices();
+
+  if (X1.rows() < nrconst)
+    errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
+*/
+
+  }
+
+
+FULLCOND_const_gaussian_re::FULLCOND_const_gaussian_re(
+  const FULLCOND_const_gaussian_re & m)
+  : FULLCOND_const_gaussian(FULLCOND_const_gaussian(m))
+  {
+  fc_intercept = m.fc_intercept;
+  }
+
+
+const FULLCOND_const_gaussian_re & FULLCOND_const_gaussian_re::operator=
+(const FULLCOND_const_gaussian_re & m)
+  {
+  if (this==&m)
+	 return *this;
+  FULLCOND_const_gaussian::operator=(FULLCOND_const_gaussian(m));
+  fc_intercept = m.fc_intercept;
+  return *this;
+  }
+
+
+
+void FULLCOND_const_gaussian_re::update_intercept(double & m)
+  {
+  fc_intercept->update_intercept(m);
+  }
+
+
+
+
+void FULLCOND_const_gaussian_re::posteriormode_intercept(double & m)
+  {
+  fc_intercept->posteriormode_intercept(m);
+  }
+
+
+bool FULLCOND_const_gaussian_re::posteriormode_converged(const unsigned & itnr)
+  {
+  if (nrconst > 0)
+    return likep->posteriormode_converged_fc(beta,beta_mode,itnr);
+  else
+    return true;  
+  }
+
+
+bool FULLCOND_const_gaussian_re::posteriormode(void)
+  {
+
+  if (nrconst > 0)
+    return FULLCOND_const_gaussian::posteriormode();
+  else
+    return true;  
+  }
+
+
+void FULLCOND_const_gaussian_re::update(void)
+  {
+
+  if (nrconst > 0)
+    FULLCOND_const_gaussian::update();
+
+  }
+
+
+void FULLCOND_const_gaussian_re::outresults(void)
+  {
+
+  if (nrconst > 0)
+    FULLCOND_const_gaussian::outresults();
+  }
+
+
+void FULLCOND_const_gaussian_re::outoptions(void)
+  {
+  if (nrconst > 0)
+    FULLCOND_const_gaussian::outoptions();
+  }
+
+
+//------------------------------------------------------------------------------
 //---- CLASS FULLCOND_const_nongaussian: implementation of member functions ----
 //------------------------------------------------------------------------------
 

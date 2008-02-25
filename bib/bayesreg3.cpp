@@ -3003,7 +3003,7 @@ void hregressrun(bayesreg & b)
       for (j=0;j<b.REest_end_fc.size();j++)
         {
         end.push_back(b.REest_end_fc[j]);
-        begin.push_back(b.REest_end_fc[j]);
+        begin.push_back(b.REest_end_fc[j]+1);
 
         mo.push_back(&(b.generaloptions[j]));
 
@@ -3019,6 +3019,11 @@ void hregressrun(bayesreg & b)
 
       header.push_back("BAYESREG OBJECT " + b.name.to_bstr() +
                        ": regression procedure" );
+
+
+      for (j=0;j<b.normalconst_re.size();j++)
+        b.normalconst_re[j].set_fcintercept(b.fcconst_intercept);
+
 
       b.simobj = MCMCsimulate(mo,b.distr,b.fullcond,begin,end);
 

@@ -93,6 +93,7 @@ using MCMC::DISTRIBUTION_multistatemodel;
 using MCMC::FULLCOND;
 using MCMC::FULLCOND_const;
 using MCMC::FULLCOND_const_gaussian;
+using MCMC::FULLCOND_const_gaussian_re;
 using MCMC::FULLCOND_const_nongaussian;
 using MCMC::FULLCOND_const_nbinomial;
 using MCMC::PenaltyMatrix;
@@ -471,6 +472,7 @@ class __EXPORT_TYPE bayesreg : public statobject
 //-------------------------  for fixed effects ---------------------------------
 
   vector<FULLCOND_const_gaussian> normalconst;
+  vector<FULLCOND_const_gaussian_re> normalconst_re;
   vector<FULLCOND_const_nongaussian> nongaussianconst;
   vector<FULLCOND_const_nbinomial> nbinomialconst;
   FULLCOND_const * fcconst_intercept;
