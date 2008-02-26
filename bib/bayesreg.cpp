@@ -747,6 +747,9 @@ void bayesreg::initpointers(void)
   for(i=0;i<fcvarnonpvec.size();i++)
     fullcond.push_back(&fcvarnonpvec[i]);
 
+  for(i=0;i<fcvarnonpvecnigmix.size();i++)
+    fullcond.push_back(&fcvarnonpvecnigmix[i]);
+
   for(i=0;i<fctvariance.size();i++)
     fullcond.push_back(&fctvariance[i]);
 
@@ -822,6 +825,9 @@ void bayesreg::clear(void)
 
   fcvarnonpvec.erase(fcvarnonpvec.begin(),fcvarnonpvec.end());
   fcvarnonpvec.reserve(5);
+
+  fcvarnonpvecnigmix.erase(fcvarnonpvecnigmix.begin(),fcvarnonpvecnigmix.end());
+  fcvarnonpvecnigmix.reserve(5);
 
   fcnonp.erase(fcnonp.begin(),fcnonp.end());
   fcnonp.reserve(20);
