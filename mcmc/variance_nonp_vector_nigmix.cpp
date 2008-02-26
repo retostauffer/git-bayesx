@@ -60,6 +60,8 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
 
     cut = ct;
 
+    double nrpar = ins.size();
+
     priorassumptions.push_back("\\\\");
 
     ST::string path = pathresults.substr(0,pathresults.length()-4)+"_shrinkage.raw";
@@ -108,15 +110,16 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
       *workind = indicatorstart[i];
       *workt2 = t2start[i];
       }
-    fc_indicator.update();
-    fc_t2.update();
+
 
     for(i=0; i<cut.size()-1; i++)
       {
       help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
       }
     setbeta(help);
+    double test3 = beta.rows();
 
+    double test4 = test3;
     }
 //______________________________________________________________________________
 //
@@ -226,6 +229,7 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
     for(k=cut[j]; k<cut[j+1]; k++, i++, workbeta++, workind++, workt2++)
       {
       double test3 = *workt2;
+      *workt2 = *workt2+1;
       probv1 = 1/(1+((1-(*shrinkagep))/(*shrinkagep)*sqrt(v1/v0)*exp(-(1/v0-1/v1)*(*workbeta)*(*workbeta)/(2*help*help*(*workt2)))));
       rand_bernoulli = bernoulli(probv1);
       if(rand_bernoulli==0)
