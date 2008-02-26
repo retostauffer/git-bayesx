@@ -225,6 +225,7 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
     workbeta = Cp[j]->getbetapointer();               // current value of first regressionparameter
     for(k=cut[j]; k<cut[j+1]; k++, i++, workbeta++, workind++, workt2++)
       {
+      double test3 = *workt2;
       probv1 = 1/(1+((1-(*shrinkagep))/(*shrinkagep)*sqrt(v1/v0)*exp(-(1/v0-1/v1)*(*workbeta)*(*workbeta)/(2*help*help*(*workt2)))));
       rand_bernoulli = bernoulli(probv1);
       if(rand_bernoulli==0)
@@ -284,9 +285,16 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
 
   // Transfer of the updated Shrinkageparameter omega
   //--------------------------------------------------
+  int iteration = optionsp->get_nriter();
+  if(iteration == 99)
+  { double tierat = iteration;
+  }
+
   fc_shrinkage.update();
 
   FULLCOND::update();
+  double help22 = iteration;
+
   }
 
 
