@@ -2441,6 +2441,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
   return false;
   }
 
+
 bool bayesreg::create_nigmix(const unsigned & collinpred)
   {
 
@@ -2484,8 +2485,8 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         indicatorstart.push_back(helpvar1);
         t2start.push_back(helpvar2);
 
-    double test1 = t2start[i];
-    double test2 = indicatorstart[i];
+//    double test1 = t2start[i];
+//    double test2 = indicatorstart[i];
 
         // letzter Term enthält die verwendeten Werte
         f = (terms[i].options[2]).strtodouble(v0);
@@ -2643,6 +2644,8 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
 
   return false;
   }
+
+  
 void regressrun(bayesreg & b)
   {
 
@@ -2783,6 +2786,7 @@ void regressrun(bayesreg & b)
 
      if(!failure)
         failure = b.create_nigmix(i);
+
       if (!failure)
         failure = b.create_random_rw1rw2(i);
 
@@ -3177,6 +3181,7 @@ void hregressrun(bayesreg & b)
 
      if(!failure)
         failure = b.create_nigmix(i);
+
       if (!failure)
         failure = b.create_random_rw1rw2(i);
 
