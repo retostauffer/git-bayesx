@@ -1,4 +1,5 @@
 
+
 #include"variance_nonp_vector_nigmix.h"
 
 
@@ -60,7 +61,15 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
 
     cut = ct;
 
-    double nrpar = ins.size();
+    // Initialisieren der Matrizen für die Varianzen
+    datamatrix help;
+    help = datamatrix(cut[cut.size()-1],1,0);
+
+    for(unsigned i=0; i<cut.size()-1; i++)
+      {
+      help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
+      }
+    setbeta(help);
 
     priorassumptions.push_back("\\\\");
 
@@ -81,8 +90,6 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
     v0 = vv0;
     v1 = vv1;
     t2start = t2s;
-    double test1 = t2start[0];
-    double test2 = indicatorstart[0];
     a_t2 = at2;
     b_t2 = bt2;
 
@@ -91,35 +98,32 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
     nigmixsum = 0;
 
     // Fullcondobject for Variancekomponents tau=indicator*t2
-    fc_indicator = FULLCOND(o,datamatrix(nrpar,1),Cp[0]->get_title()+"_indicator",1,1,path);
+    fc_indicator = FULLCOND(o,datamatrix(nrpar,1),Cp[0]->get_title()+"_indicator",nrpar,1,path);
     fc_indicator.setflags(MCMC::norelchange | MCMC::nooutput);
-    fc_t2 = FULLCOND(o,datamatrix(nrpar,1),Cp[0]->get_title()+"_t2",1,1,path);
+    fc_t2 = FULLCOND(o,datamatrix(nrpar,1),Cp[0]->get_title()+"_t2",nrpar,1,path);
     fc_t2.setflags(MCMC::norelchange | MCMC::nooutput);
 
     
-    // Initialisieren der Matrizen für die Varianzen
-    datamatrix help;
-    help = datamatrix(cut[cut.size()-1],1,0);
+    // Uebergabe der Werte die für die Varianzparameterkomponenten
+
 
     double * workind = fc_indicator.getbetapointer();
     double * workt2 = fc_t2.getbetapointer();
 
-    unsigned i;
-    for(i=0; i<nrpar; i++, workind++, workt2++)
+    double test1 = 0.0;
+    double test2 = 0.0;
+
+    for(unsigned i=0; i<nrpar; i++, workind++, workt2++)
       {
       *workind = indicatorstart[i];
       *workt2 = t2start[i];
+      test1= *workind;
+      test2=*workt2;
       }
+//    fc_indicator.update();
+//    fc_t2.update();
 
 
-    for(i=0; i<cut.size()-1; i++)
-      {
-      help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
-      }
-    setbeta(help);
-    double test3 = beta.rows();
-
-    double test4 = test3;
     }
 //______________________________________________________________________________
 //
@@ -228,8 +232,6 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
     workbeta = Cp[j]->getbetapointer();               // current value of first regressionparameter
     for(k=cut[j]; k<cut[j+1]; k++, i++, workbeta++, workind++, workt2++)
       {
-      double test3 = *workt2;
-      *workt2 = *workt2+1;
       probv1 = 1/(1+((1-(*shrinkagep))/(*shrinkagep)*sqrt(v1/v0)*exp(-(1/v0-1/v1)*(*workbeta)*(*workbeta)/(2*help*help*(*workt2)))));
       rand_bernoulli = bernoulli(probv1);
       if(rand_bernoulli==0)
@@ -289,16 +291,9 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
 
   // Transfer of the updated Shrinkageparameter omega
   //--------------------------------------------------
-  int iteration = optionsp->get_nriter();
-  if(iteration == 99)
-  { double tierat = iteration;
-  }
-
   fc_shrinkage.update();
 
   FULLCOND::update();
-  double help22 = iteration;
-
   }
 
 
