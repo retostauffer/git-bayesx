@@ -53,7 +53,9 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
 
   vector<unsigned> cut;             //  Blocks of regression coefficients
                                     
-  void outresults_shrinkage(void);  //  Function to write results to output window and files
+  void outresults_shrinkage(void);  //  Function to write results of omega to output window and files
+  void outresults_indicator(void);  //  Function to write results of indicator to output window and files
+  void outresults_t2(void);         //  Function to write results of t2 to output window and files
 
   public:
 

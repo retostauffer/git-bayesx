@@ -61,6 +61,10 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
 
     cut = ct;
 
+    priorassumptions.push_back("\\\\");
+
+    ST::string path = pathresults.substr(0,pathresults.length()-4)+"_shrinkage.raw";
+
     // Initialisieren der Matrizen für die Varianzen
     datamatrix help;
     help = datamatrix(cut[cut.size()-1],1,0);
@@ -71,11 +75,8 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
       }
     setbeta(help);
 
-    priorassumptions.push_back("\\\\");
 
-    ST::string path = pathresults.substr(0,pathresults.length()-4)+"_shrinkage.raw";
-
-    // Fullcondobject for shrinkageparameter omege
+    // Fullcondobject for shrinkageparameter omega
     fc_shrinkage = FULLCOND(o,datamatrix(1,1),Cp[0]->get_title()+"_shrinkage",1,1,path);
     fc_shrinkage.setflags(MCMC::norelchange | MCMC::nooutput);
 
@@ -110,15 +111,15 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
     double * workind = fc_indicator.getbetapointer();
     double * workt2 = fc_t2.getbetapointer();
 
-    double test1 = 0.0;
-    double test2 = 0.0;
+//    double test1 = 0.0;
+//    double test2 = 0.0;
 
     for(unsigned i=0; i<nrpar; i++, workind++, workt2++)
       {
       *workind = indicatorstart[i];
       *workt2 = t2start[i];
-      test1= *workind;
-      test2=*workt2;
+//      test1= *workind;
+//      test2=*workt2;
       }
 //    fc_indicator.update();
 //    fc_t2.update();
@@ -216,8 +217,7 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
   // Variables for summs
   double probv1 = 0;
   unsigned int rand_bernoulli = 0;
-  double sumvariances = 0;
-  double sumregcoeff = 0;
+
   nigmixsum=0;
 
   double * workind = fc_indicator.getbetapointer();
@@ -226,6 +226,12 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
   // Gibbs-Update of varianceparameters t2 with Inverse Gammadistribution and
   // indicator with Binomialdistribution
   //---------------------------------------------------------------------------
+
+//TEMP:BEGIN--------------------------------------------------------------------
+ofstream output("c:/bayesx/test/test_nigmix.txt", ios::out|ios::app);
+//TEMP:END----------------------------------------------------------------------
+
+
   i=0;
   for(j=0; j<cut.size()-1; j++)
     {
@@ -248,6 +254,13 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
       beta(i,0) = *workind * *workt2;
 
       nigmixsum = nigmixsum + ((*workbeta)*(*workbeta))/beta(i,0);  // sum(beta^2/tau^2)
+
+//TEMP:BEGIN--------------------------------------------------------------------
+output << "indikator " << *workind << " t2 " << *workt2 
+       << " var " << beta(i,0) << "\n" ;
+//TEMP:END----------------------------------------------------------------------
+
+
       }
     }
   fc_indicator.update();
@@ -285,8 +298,18 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
           { sumindicatorv1 = sumindicatorv1 + 1;
           }
         }
-    sumindicatorv0 = distrp->get_nrobs()-sumindicatorv1;
+    sumindicatorv0 = nrpar-sumindicatorv1;
     *shrinkagep = rand_beta(1+sumindicatorv1,1+sumindicatorv0);
+
+//TEMP:BEGIN--------------------------------------------------------------------
+ofstream outputv1("c:/bayesx/test/w_nigmix.txt", ios::out|ios::app);
+for(unsigned int i=0; i<nrpar; i++)
+{outputv1 << "sumv1 " << sumindicatorv1 << " sumv0 " << sumindicatorv0 
+          << " w " << *shrinkagep << "\n" ;
+}
+//TEMP:END----------------------------------------------------------------------
+
+
     }
 
   // Transfer of the updated Shrinkageparameter omega
@@ -301,7 +324,8 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
 //______________________________________________________________________________
 //
 // FUNCTION: outresults
-// TASK: - write results for varianceparameters to output window and files
+// TASK: - write results for varianceparameters=idicator*t2 
+//         to output window and files
 //______________________________________________________________________________
 
 void FULLCOND_variance_nonp_vector_nigmix::outresults(void)
@@ -322,15 +346,50 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults(void)
   nu1 = nu1.replaceallsigns('.','p');
   nu2 = nu2.replaceallsigns('.','p');
 
+  // Bildschirm-Ausgabe
   ST::string vstr;
+  ST::string vmstr;
+  ST::string vsdstr;
+  ST::string v025str;
+  ST::string v500str;
+  ST::string v975str;
+
+  optionsp->out("\n");
+  optionsp->out("  f_shrinkage_variances \n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+
+  unsigned i;
+  optionsp->out("  Variable     mean           Std. Dev.      " + l1 +"% quant.    median         "+ u2 +"% quant.");
+  for(i=0; i<beta.rows(); i++)
+    {
+    vstr = "  var." + ST::inttostring(i+1) + " ";
+    vmstr = ST::doubletostring(betamean(i,0),6);
+    vsdstr = ST::doubletostring((betavar(i,0)<0.0?0.0:sqrt(betavar(i,0))),6);
+    v025str = ST::doubletostring(betaqu_l1_lower(i,0),6);
+    v500str = ST::doubletostring(betaqu50(i,0),6);
+    v975str = ST::doubletostring(betaqu_l1_upper(i,0),6);
+
+    optionsp->out(vstr + ST::string(' ',15-vstr.length())
+                  + vmstr + ST::string(' ',15-vmstr.length())
+                  + vsdstr + ST::string(' ',15-vsdstr.length())
+                  + v025str + ST::string(' ',15-v025str.length())
+                  + v500str + ST::string(' ',15-v500str.length())
+                  + v975str + ST::string(' ',15-v975str.length()) + "\n");
+    }
+
+  optionsp->out("\n");
+
 
   ofstream ou(pathresults.strtochar());
 
-  unsigned i;
-  ou << "pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+
+  // Datei-Ausgabe Ergebnisse
+  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
   nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
   for(i=0; i<beta.rows(); i++)
     {
+    ou << "var." << (i+1) << "   ";
     ou << betamean(i,0) << "  ";
     ou << (betavar(i,0)<0.0?0.0:sqrt(betavar(i,0))) << "  ";
     ou << betaqu_l1_lower(i,0) << "  ";
@@ -347,21 +406,229 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults(void)
 
   optionsp->out("\n");
 
+
+  outresults_indicator();
+  outresults_t2();
   outresults_shrinkage();
-  bool shrinkagesamples=true;
+
+  // Samples-Ausgebepfad
+  bool indicatorsamples = true;
+  bool t2samples = true;
+  bool shrinkagesamples = true;
+
+
+  if(indicatorsamples)
+    {
+    ST::string pathhelp = pathresults.substr(0,pathresults.length()-7)+"indicator_sample.raw";
+    fc_indicator.get_samples(pathhelp);
+    optionsp->out("  Sampled indicator parameters are stored in file\n");
+    optionsp->out("  " + pathhelp + "\n");
+    optionsp->out("\n");
+    }
+  if(t2samples)
+    {
+    ST::string pathhelp = pathresults.substr(0,pathresults.length()-7)+"t2_sample.raw";
+    fc_t2.get_samples(pathhelp);
+    optionsp->out("  Sampled t2 parameters are stored in file\n");
+    optionsp->out("  " + pathhelp + "\n");
+    optionsp->out("\n");
+    optionsp->out("\n");
+    }
   if(shrinkagesamples)
     {
     ST::string pathhelp = pathresults.substr(0,pathresults.length()-7)+"shrinkage_sample.raw";
     fc_shrinkage.get_samples(pathhelp);
+    optionsp->out("  Sampled omega parameters are stored in file\n");
+    optionsp->out("  " + pathhelp + "\n");
+    optionsp->out("\n");
+    }
+  }
+
+
+//______________________________________________________________________________
+//
+// FUNCTION: outresults_indicator
+// TASK: - write results for indicator to output window and files
+//______________________________________________________________________________
+
+void FULLCOND_variance_nonp_vector_nigmix::outresults_indicator(void)
+  {
+
+  fc_indicator.outresults();
+
+  ST::string l1 = ST::doubletostring(lower1,4);
+  ST::string l2 = ST::doubletostring(lower2,4);
+  ST::string u1 = ST::doubletostring(upper1,4);
+  ST::string u2 = ST::doubletostring(upper2,4);
+
+  ST::string nl1 = ST::doubletostring(lower1,4);
+  ST::string nl2 = ST::doubletostring(lower2,4);
+  ST::string nu1 = ST::doubletostring(upper1,4);
+  ST::string nu2 = ST::doubletostring(upper2,4);
+  nl1 = nl1.replaceallsigns('.','p');
+  nl2 = nl2.replaceallsigns('.','p');
+  nu1 = nu1.replaceallsigns('.','p');
+  nu2 = nu2.replaceallsigns('.','p');
+
+
+  // Bildschirm-Ausgabe
+  ST::string vstr;
+  ST::string vmstr;
+  ST::string vsdstr;
+  ST::string v025str;
+  ST::string v500str;
+  ST::string v975str;
+
+  optionsp->out("\n");
+  optionsp->out("  f_shrinkage_indicator \n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+
+  unsigned i;
+  optionsp->out("  Variable     mean           Std. Dev.      " + l1 +"% quant.    median         "+ u2 +"% quant.");
+  for(i=0; i<beta.rows(); i++)
+    {
+    vstr = "  I." + ST::inttostring(i+1) + " ";
+    vmstr = ST::doubletostring(fc_indicator.get_betamean(i,0),6);
+    vsdstr = ST::doubletostring((fc_indicator.get_betavar(i,0)<0.0?0.0:sqrt(fc_indicator.get_betavar(i,0))),6);
+    v025str = ST::doubletostring(fc_indicator.get_beta_lower1(i,0),6);
+    v500str = ST::doubletostring(fc_indicator.get_betaqu50(i,0),6);
+    v975str = ST::doubletostring(fc_indicator.get_beta_upper1(i,0),6);
+
+    optionsp->out(vstr + ST::string(' ',15-vstr.length())
+                  + vmstr + ST::string(' ',15-vmstr.length())
+                  + vsdstr + ST::string(' ',15-vsdstr.length())
+                  + v025str + ST::string(' ',15-v025str.length())
+                  + v500str + ST::string(' ',15-v500str.length())
+                  + v975str + ST::string(' ',15-v975str.length()) + "\n");
     }
 
+  optionsp->out("\n");
+
+
+  // Datei-Ausgabe Ergebnisse
+  ST::string indicator_pathresults = pathresults.substr(0,pathresults.length()-7) + "indicator.res";
+
+  ofstream ou(indicator_pathresults.strtochar());
+
+
+  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+  nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
+  for(i=0; i<beta.rows(); i++)
+    {
+    ou << "I." << (i+1) << "   ";
+    ou << fc_indicator.get_betamean(i,0) << "  ";
+    ou << (fc_indicator.get_betavar(i,0)<0.0?0.0:sqrt(fc_indicator.get_betavar(i,0))) << "  ";
+    ou << fc_indicator.get_beta_lower1(i,0) << "  ";
+    ou << fc_indicator.get_beta_lower2(i,0) << "  ";
+    ou << fc_indicator.get_betaqu50(i,0) << "  ";
+    ou << fc_indicator.get_beta_upper2(i,0) << "  ";
+    ou << fc_indicator.get_beta_upper1(i,0) << "  ";
+    ou << fc_indicator.get_betamin(i,0) << "  ";
+    ou << fc_indicator.get_betamax(i,0) << "  " << endl;
+    }
+  
+  optionsp->out("  Results for the indicator parameter are also stored in file\n");
+  optionsp->out("  " + indicator_pathresults + "\n");
+
+  optionsp->out("\n");
   }
 
 
 //______________________________________________________________________________
 //
 // FUNCTION: outresults_shrinkage
-// TASK: - write results for shrinkaageparameter to output window and files
+// TASK: - write results for t2 to output window and files
+//______________________________________________________________________________
+
+void FULLCOND_variance_nonp_vector_nigmix::outresults_t2(void)
+  {
+
+  fc_t2.outresults();
+
+  ST::string l1 = ST::doubletostring(lower1,4);
+  ST::string l2 = ST::doubletostring(lower2,4);
+  ST::string u1 = ST::doubletostring(upper1,4);
+  ST::string u2 = ST::doubletostring(upper2,4);
+
+  ST::string nl1 = ST::doubletostring(lower1,4);
+  ST::string nl2 = ST::doubletostring(lower2,4);
+  ST::string nu1 = ST::doubletostring(upper1,4);
+  ST::string nu2 = ST::doubletostring(upper2,4);
+  nl1 = nl1.replaceallsigns('.','p');
+  nl2 = nl2.replaceallsigns('.','p');
+  nu1 = nu1.replaceallsigns('.','p');
+  nu2 = nu2.replaceallsigns('.','p');
+
+
+  // Bildschirm-Ausgabe
+  ST::string vstr;
+  ST::string vmstr;
+  ST::string vsdstr;
+  ST::string v025str;
+  ST::string v500str;
+  ST::string v975str;
+
+  optionsp->out("\n");
+  optionsp->out("  f_shrinkage_t2 \n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+
+  unsigned i;
+  optionsp->out("  Variable     mean           Std. Dev.      " + l1 +"% quant.    median         "+ u2 +"% quant.");
+  for(i=0; i<beta.rows(); i++)
+    {
+    vstr = "  t2." + ST::inttostring(i+1) + " ";
+    vmstr = ST::doubletostring(fc_t2.get_betamean(i,0),6);
+    vsdstr = ST::doubletostring((fc_t2.get_betavar(i,0)<0.0?0.0:sqrt(fc_t2.get_betavar(i,0))),6);
+    v025str = ST::doubletostring(fc_t2.get_beta_lower1(i,0),6);
+    v500str = ST::doubletostring(fc_t2.get_betaqu50(i,0),6);
+    v975str = ST::doubletostring(fc_t2.get_beta_upper1(i,0),6);
+
+    optionsp->out(vstr + ST::string(' ',15-vstr.length())
+                  + vmstr + ST::string(' ',15-vmstr.length())
+                  + vsdstr + ST::string(' ',15-vsdstr.length())
+                  + v025str + ST::string(' ',15-v025str.length())
+                  + v500str + ST::string(' ',15-v500str.length())
+                  + v975str + ST::string(' ',15-v975str.length()) + "\n");
+    }
+
+  optionsp->out("\n");
+
+
+  // Datei-Ausgabe Ergebnisse
+  ST::string t2_pathresults = pathresults.substr(0,pathresults.length()-7) + "t2.res";
+
+  ofstream ou(t2_pathresults.strtochar());
+
+
+  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+  nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
+  for(i=0; i<beta.rows(); i++)
+    {
+    ou << "t2." << (i+1) << "   ";
+    ou << fc_t2.get_betamean(i,0) << "  ";
+    ou << (fc_t2.get_betavar(i,0)<0.0?0.0:sqrt(fc_t2.get_betavar(i,0))) << "  ";
+    ou << fc_t2.get_beta_lower1(i,0) << "  ";
+    ou << fc_t2.get_beta_lower2(i,0) << "  ";
+    ou << fc_t2.get_betaqu50(i,0) << "  ";
+    ou << fc_t2.get_beta_upper2(i,0) << "  ";
+    ou << fc_t2.get_beta_upper1(i,0) << "  ";
+    ou << fc_t2.get_betamin(i,0) << "  ";
+    ou << fc_t2.get_betamax(i,0) << "  " << endl;
+    }
+  
+  optionsp->out("  Results for the t2 parameter are also stored in file\n");
+  optionsp->out("  " + t2_pathresults + "\n");
+
+  optionsp->out("\n");
+  }
+
+
+//______________________________________________________________________________
+//
+// FUNCTION: outresults_shrinkage
+// TASK: - write results for shrinkaageparameter omega to output window and files
 //______________________________________________________________________________
 
 void FULLCOND_variance_nonp_vector_nigmix::outresults_shrinkage(void)
@@ -383,6 +650,7 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults_shrinkage(void)
   nu1 = nu1.replaceallsigns('.','p');
   nu2 = nu2.replaceallsigns('.','p');
 
+  // Bildschirm-Ausgabe
   ST::string vstr;
 
   optionsp->out("\n");
@@ -426,12 +694,15 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults_shrinkage(void)
 
   optionsp->out("\n");
 
+
+  // Datei-Ausgabe Ergebnisse
   ST::string shrinkage_pathresults = pathresults.substr(0,pathresults.length()-7) + "shrinkage.res";
 
   ofstream ou(shrinkage_pathresults.strtochar());
 
-  ou << "pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
   nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
+  ou << "w" << "  ";
   ou << fc_shrinkage.get_betamean(0,0) << "  ";
   ou << (fc_shrinkage.get_betavar(0,0)<0.0?0.0:sqrt(fc_shrinkage.get_betavar(0,0))) << "  ";
   ou << fc_shrinkage.get_beta_lower1(0,0) << "  ";
