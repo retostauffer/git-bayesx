@@ -1429,6 +1429,11 @@ class __EXPORT_TYPE DISTRIBUTION
     {
     return nrnigmix;
     }
+    
+  bool get_nosamples(void)
+    {
+    return nosamples;
+    }  
 
   }; // end: class DISTRIBUTION
 
