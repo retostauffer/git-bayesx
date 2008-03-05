@@ -3507,6 +3507,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
 
           if (terms[i].options[26] == "true")
             fciwlspspline[fciwlspspline.size()-1].set_stationary(alpha);
+          if (bsplinebasis == true)
+            fciwlspspline[fciwlspspline.size()-1].set_outbsplines();
 
           fciwlspspline[fciwlspspline.size()-1].init_name(terms[i].varnames[0]);
           fciwlspspline[fciwlspspline.size()-1].set_fcnumber(fullcond.size());
