@@ -438,12 +438,12 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults(void)
   // Samples-Ausgebepfad
   bool nosamples = distrp->get_nosamples();
 
-  if(!nosamples)
+/*  if(!nosamples)
     {
     ST::string pathhelp1 = pathresults.substr(0,pathresults.length()-7)+"indicator_sample.raw";
     ST::string pathhelp2 = pathresults.substr(0,pathresults.length()-7)+"t2_sample.raw";
     ST::string pathhelp3 = pathresults.substr(0,pathresults.length()-7)+"shrinkage_sample.raw";
-    
+
     fc_indicator.get_samples(pathhelp1);
     fc_t2.get_samples(pathhelp2);
     fc_shrinkage.get_samples(pathhelp3);
@@ -457,12 +457,32 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults(void)
     optionsp->out("\n");
     optionsp->out("  Sampled w parameters are stored in file\n");
     optionsp->out("  " + pathhelp3 + "\n");
-    optionsp->out("\n"); 
-    optionsp->out("\n");   
-    }
+    optionsp->out("\n");
+    optionsp->out("\n");
+    }*/
 
   }
 
+void FULLCOND_variance_nonp_vector_nigmix::get_samples(const ST::string & filename,const unsigned & step) const
+  {
+  FULLCOND::get_samples(filename, step);
+
+  ST::string pathhelp1 = pathresults.substr(0,pathresults.length()-7)+"indicator_sample.raw";
+  ST::string pathhelp2 = pathresults.substr(0,pathresults.length()-7)+"t2_sample.raw";
+  ST::string pathhelp3 = pathresults.substr(0,pathresults.length()-7)+"shrinkage_sample.raw";
+
+  optionsp->out(pathhelp1 + "\n");
+  optionsp->out("\n");
+  fc_indicator.get_samples(pathhelp1);
+
+  optionsp->out(pathhelp2 + "\n");
+  optionsp->out("\n");
+  fc_t2.get_samples(pathhelp2);
+
+  optionsp->out(pathhelp3 + "\n");
+  optionsp->out("\n");
+  fc_shrinkage.get_samples(pathhelp3);
+  }
 
 //______________________________________________________________________________
 //

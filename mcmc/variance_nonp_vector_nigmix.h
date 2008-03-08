@@ -102,6 +102,9 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   // Pointer auf das shrinkage-Parameter Fullcond-Objekt
   FULLCOND * get_shrinkagepointer();
 
+
+  void get_samples(const ST::string & filename, const unsigned & step = 1) const;
+
   //____________________________________________________________________________
   //
   // FUNCTION: update
