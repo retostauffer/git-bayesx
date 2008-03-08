@@ -246,7 +246,7 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
 
 
 //TEMP:BEGIN--------------------------------------------------------------------
-ofstream output("c:/bayesx/test/test_nigmix.txt", ios::out|ios::app);
+//ofstream output("c:/bayesx/test/test_nigmix.txt", ios::out|ios::app);
 //TEMP:END----------------------------------------------------------------------
 
 

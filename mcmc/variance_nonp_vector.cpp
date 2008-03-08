@@ -388,6 +388,18 @@ void FULLCOND_variance_nonp_vector::outresults(void)
   }
 
 
+void FULLCOND_variance_nonp_vector::get_samples(const ST::string & filename,const unsigned & step) const
+  {
+  FULLCOND::get_samples(filename, step);
+
+
+  ST::string pathhelp = pathresults.substr(0,pathresults.length()-7)+"shrinkage_sample.raw";
+
+  optionsp->out(pathhelp + "\n");
+  optionsp->out("\n");
+  fc_shrinkage.get_samples(pathhelp);
+  }
+
 //______________________________________________________________________________
 //
 // FUNCTION: outresults_shrinkage
