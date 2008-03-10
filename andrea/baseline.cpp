@@ -34,7 +34,9 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   vc_dummy1 = false;
   baselinep = vector<pspline_baseline*>(0);
   Weibull = false;
-
+// NEW FOR PARTIALLIKELIHOOD
+  PartialLikelihood = false;
+  
   lambda = l;
   sigma2 = 1.0/l;
 
@@ -273,7 +275,8 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
                     const double & l,const unsigned & minb,const unsigned & maxb,
                     const fieldtype & ft,const ST::string & ti,
                     const ST::string & fp, const ST::string & pres,
-                    const int & gs, const unsigned & c,const datamatrix & anfang, const bool & wb)
+                    const int & gs, const unsigned & c,const datamatrix & anfang, const bool & wb,
+                    const bool & partlik)    // NEW FOR PARTIALLIKELIHOOD
   : FULLCOND_pspline(o,dp,fcc,ft,ti,nrk,degr,kp,fp,pres,false,gs,c)
   {
   unsigned i,j;
@@ -288,7 +291,6 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   zi = d;
 
   Weibull = wb;
-
 
 //-----------------linkstrunkiert oder zeitl. variierende Kovariablen?--------
   if(anfang.rows()==1)
@@ -513,6 +515,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
     sum_logti = sum_logti + log(zi(i,0))*likep->get_response(i,0);
     }
 
+// For the weibull-model
   if(a>0) weibullprior_alpha = a;
   else weibullprior_alpha = 0.001;
   weibullproposal_a1 = weibullprior_alpha + (likep->get_response()).sum(0);
@@ -522,7 +525,27 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   acceptance_between = 0.0;
 
 
+// NEW FOR PARTIALLIKELIHOOD
+//---------------------------
+  PartialLikelihood = partlik;
 
+  // compute the Riskset
+  PartialLikelihood_Riskset = datamatrix(likep->get_nrobs(), likep->get_nrobs(), 0);
+  for(unsigned int i=0;i<likep->get_nrobs();i++)
+    {  
+    for(unsigned int j=0;j<likep->get_nrobs();j++)
+      {
+       if(zi(i,0)<=zi(j,0))
+         {
+         PartialLikelihood_Riskset(i,j) = 1;     //upper triangle matrix if the timepoints zi are orderd
+         }
+      }
+    }
+
+  // matrix for the baseline 
+  breslowbaseline = datamatrix(likep->get_nrobs(),1,0);
+  breslowcumbaseline = datamatrix(likep->get_nrobs(),1,0);
+  
   }
 
 
@@ -556,6 +579,12 @@ pspline_baseline::pspline_baseline(const pspline_baseline & fc)
   Weibull = fc.Weibull;
   b_prop = fc.b_prop;
   acceptance_between = fc.acceptance_between;
+  
+  // NEW FOR PARTIALLIKELIHOOD
+  PartialLikelihood = fc.PartialLikelihood;
+  PartialLikelihood_Riskset = fc.PartialLikelihood_Riskset;
+  breslowbaseline = fc.breslowbaseline; 
+  breslowcumbaseline = fc.breslowcumbaseline;
   }
 
 
@@ -592,6 +621,12 @@ const pspline_baseline & pspline_baseline::operator=(const pspline_baseline & fc
   b_prop = fc.b_prop;
   acceptance_between = fc.acceptance_between;
 
+  // NEW FOR PARTIALLIKELIHOOD
+  PartialLikelihood = fc.PartialLikelihood;
+  PartialLikelihood_Riskset = fc.PartialLikelihood_Riskset; 
+  breslowbaseline = fc.breslowbaseline;   
+  breslowcumbaseline = fc.breslowcumbaseline;
+
   return *this;
   }
 
@@ -604,8 +639,15 @@ void pspline_baseline::outoptions(void)
     optionsp->out("  OPTIONS FOR Weibull-BASELINE: " + title + " (log(baseline))\n",true);
     optionsp->out("\n");
     }
+  
+  // NEW FOR PARTIALLIKELIHOOD
+  if(PartialLikelihood)
+    {
+    optionsp->out("  Partial Likelihood is used for estimation\n",true);
+    optionsp->out("\n");
+    } 
 
-  else
+  if(!Weibull && !PartialLikelihood)
     {
     if(varcoeff)
       optionsp->out("  OPTIONS FOR P-SPLINE TERM: " + title + "\n",true);
@@ -646,7 +688,7 @@ void pspline_baseline::outoptions(void)
 
   spline_basis::outresults();
 
-  unsigned i,j;
+  unsigned i(),j;
 
   ST::string pnt = pathresult.substr(0,pathresult.length()-15)+"baseline.res";
   ofstream outres(pnt.strtochar());
@@ -726,10 +768,14 @@ void pspline_baseline::update(void)
 
 if(Weibull)
 {
-unsigned i;
+// "...f_time_logbaseline_sample.raw" enthält in der 1. Spalte das Sample der
+// alpha-Werte aus der baseline=alpha*t^(alpha-1)
+// als priori für alpha wird eine Gamma(a,a)-Verteilung gewählt
+// als proposal für alpha wird eine Gamma(alpha_current*b,b)-Verteilung gewählt
+  unsigned i;
   if(optionsp->get_nriter()==1)
     {
-    beta(0,0) = 1.0;
+    beta(0,0) = 1.0;   // startwert alpha=1
     for(i=0;i<zi.rows();i++)
       {
       spline(i,0)=log(beta(0,0))+(beta(0,0)-1.0)*log(zi(i,0));
@@ -773,7 +819,7 @@ unsigned i;
 
 
 //  beta(0,0) = rand_gamma(weibullproposal_a1,weibullproposal_a2);
-  beta(0,0) = rand_gamma(betaold(0,0)*b_prop,b_prop);
+  beta(0,0) = rand_gamma(betaold(0,0)*b_prop,b_prop);         //=1.0 for linear model
 
 //  beta(0,0) = betaold(0,0) + sqrt(0.01)*rand_normal();      //random-walk proposal
 //  while(beta(0,0)<0.0)
@@ -859,6 +905,9 @@ unsigned i;
     optionsp->out("\n");
     }
 
+// Übergabe der Baselinehazardfunktion alpha*t^(alpha-1) an das fullcondobjekt fchelp.
+// Die Ausgabe erfolgt in die Datei "...f_time_logbaseline.res" zu den
+// entsprechenden Zeitpunkten
   if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
       (optionsp->get_nriter() % (optionsp->get_step()) == 0) )
     {
@@ -876,10 +925,110 @@ unsigned i;
         }
       }
     }
+    
 }//-------------------------Ende Weibull-baseline-----------------------------------/
 
+//##############################################################################
+// NEW FOR PARTIALLIKELIHOOD
+//##############################################################################
+if(PartialLikelihood)
+{
+  // Hilfsvariablen
+  unsigned i, j;
+  double worklinpred;
+  double workresponse;
+  double riskset_linpred;
+  double sumbaseline = 0.0;
+    
+  // Startwerte fuer 1. Iteration + Initialisieren der baseline-Matrizen
+  if(optionsp->get_nriter()==1)
+    {
+    beta(0,0) = 1.0;
+    for(i=0;i<zi.rows();i++)
+      {
+      spline(i,0)=0.0;      
+      breslowbaseline(i,0) = 1.0;
+      breslowcumbaseline(i,0) = 1.0;
+      }
+    likep->add_linearpred_m(spline,column,true);
+    }
 
 
+  // compute current values of the log-baselinehazard
+  for(i=0;i<zi.rows();i++)
+  {
+  spline(i,0) = log(breslowbaseline(i,0));
+  }
+  
+  // subtraction of the current log-baelinnehazard from the predictor
+  likep->substr_linearpred_m(spline,column,true);
+
+  // compute new value of the Breslows log-baselinehazard
+  for(i=0;i<zi.rows();i++)
+  {    
+  workresponse = likep->get_response(i,0);                   // value of the response delta_i {0,1}
+  riskset_linpred = 0.0;
+
+  for(j=0;j<zi.rows();j++)
+    {
+    worklinpred = likep->get_linearpred(j,0);
+    riskset_linpred = riskset_linpred + PartialLikelihood_Riskset(i,j) * exp(worklinpred);
+    }
+    
+  breslowbaseline(i,0) = workresponse/riskset_linpred;
+//breslowbaseline(i,0) = 1;//fuer wibull mit alpha=1
+  sumbaseline = sumbaseline + breslowbaseline(i,0);
+  breslowcumbaseline(i,0) = sumbaseline;  
+//breslowcumbaseline(i,0) = zi(i,0);//fuer wibull mit alpha=1    
+
+  if(workresponse==1.0)
+    {
+    spline(i,0) = log(breslowbaseline(i,0));
+    }
+  if(workresponse==0.0)
+    {
+    breslowbaseline(i,0) = 1.0; 
+    spline(i,0) = log(breslowbaseline(i,0));
+    }
+  }
+    
+  // compute the new ratio log-cumbaseline(zi)/logbaseline(zi) to enter the likelihood
+  compute_int_ti_partiallikelihood(breslowcumbaseline, breslowbaseline);
+//  compute_int_ti_weibull(beta(0,0));
+
+  // ddition of the new log-baelinnehazard from the predictor
+  likep->add_linearpred_m(spline,column,true);    //neuen Spline addieren
+
+ //-------------------------------------
+
+  double u = log(uniform());
+  acceptance++;
+
+
+// übergabe der baselinehazardfunktion an das fullcondobjekt fchelp
+// die Ausgabe erfolgt in die Datei "...f_time_logbaseline.res" zu den
+// entsprechenden zeitpunkten
+  if( (optionsp->get_nriter() > optionsp->get_burnin()) &&
+      (optionsp->get_nriter() % (optionsp->get_step()) == 0) )
+    {
+
+    double * fchelpbetap = fchelp.getbetapointer();
+
+    vector<int>::iterator freqwork = freqoutput.begin();
+    int * workindex = index.getV();
+    for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+      {
+      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+        {
+        *fchelpbetap = spline(*workindex,0);
+        fchelpbetap++;
+        }
+      }
+    }
+    
+}
+// END FOR PARTIALLIKELIHOOD
+//##############################################################################
 
 
 /*/ ---------------- linearer baseline Effekt --------------------------------//
@@ -980,7 +1129,8 @@ unsigned i;
 
 //-handelt es sich bei der Kov. mit zeitl. var. Effekt um eine dummykodierte
 //-und liegt keine Linkstrunkierung bzw. zeitl. var. Kov. vor?-//
-else
+//else
+if(!Weibull && !PartialLikelihood)
 {
   if(optionsp->get_nriter()==1 && baselinep.size()>1 && begin0==true)
     {
@@ -1241,7 +1391,11 @@ void pspline_baseline::compute_int_ti_mean(void)
       {
       if(Weibull)
         compute_int_ti_weibull(betamean(0,0));  //für Weibull baseline
-      else
+      // NEW FOR PARTIALLIKELIHOOD  
+      if(PartialLikelihood)
+        compute_int_ti_weibull(betamean(0,0));  //für Breslowbaseline
+      //else
+      if(!Weibull && !PartialLikelihood)
         {
         multBS(spline,betamean);
         compute_int_ti(betamean);
@@ -1282,7 +1436,19 @@ void pspline_baseline::compute_int_ti_weibull(const double & r)
     }
   }
 
-
+// NEW FOR PARTIALLIKELIHOOD
+void pspline_baseline::compute_int_ti_partiallikelihood(const datamatrix & cumbaseline, const datamatrix & baseline)
+  {
+  double * int_ti_p=likep->get_integral_ti();
+  for(unsigned i=0;i<zi.rows();i++,int_ti_p++)
+    {
+    if(begin0==true)
+      {
+      *int_ti_p = cumbaseline(i,0)/baseline(i,0);
+      }
+      
+    }
+  }
 
 //--------berechnet int_0^{t_i}/exp(logbaseline(t_i))---------------------------
 //--------mit Hilfe von geordneten t_i und Knoten-------------------------------

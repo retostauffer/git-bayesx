@@ -1625,7 +1625,8 @@ class __EXPORT_TYPE term_baseline : public basic_termtype
   simpleoption weibull;
   stroption begin;
   stroption knots;
-
+// NEW FOR PARTIALLIKELIHOOD
+  simpleoption partialLikelihood;
 
   void setdefault(void);
 

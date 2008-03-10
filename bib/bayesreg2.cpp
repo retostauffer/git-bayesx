@@ -2641,6 +2641,7 @@ bool bayesreg::create_varcoeff_geospline(const unsigned & collinpred)
   }
 
 
+
 bool bayesreg::create_baseline(const unsigned & collinpred)
   {
 
@@ -2652,6 +2653,8 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
   bool ub, wb;
   int gridsize;
   int f;
+  // NEW FOR PARTIALLIKELIHOOD
+  bool partlik;  
 
   unsigned i;
   int j;
@@ -2707,6 +2710,15 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
       else
         wb = true;
 
+     // NEW FOR PARTIALLIKELIHOOD
+     if (terms[i].options[15] == "false")
+       {
+       partlik = false;
+       }
+     else
+       {
+       partlik = true;
+       }
       if (f==1)
         return true;
 
@@ -2747,7 +2759,8 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
                                                 gridsize,
                                                 collinpred,
                                                 beg,
-                                                wb
+                                                wb,
+                                                partlik    // NEW FOR PARTIALLIKELIHOOD
                                                )
                              );
 

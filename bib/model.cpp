@@ -3697,7 +3697,7 @@ term_baseline::term_baseline(void)
   numberknots=intoption("nrknots",20,5,500);
   lambda = doubleoption("lambda",0.1,0,10000000);
   a = doubleoption("a",0.001,-1.0,500);
-  b = doubleoption("b",0.001,0,500);
+  b = doubleoption("b",0.01,0,500);
   uniformb = simpleoption("uniformb",false);
   gridsize = intoption("gridsize",-1,10,500);
   uniformprior = simpleoption("uniformprior",false);
@@ -3712,6 +3712,8 @@ term_baseline::term_baseline(void)
   knotsdef.push_back("equidistant");
   knotsdef.push_back("quantiles");
   knots = stroption("knots",knotsdef,"equidistant");
+  // NEW FOR PARTIALLIKELIHOOD
+  partialLikelihood = simpleoption("partialLikelihood",false);
   }
 
 void term_baseline::setdefault(void)
@@ -3730,13 +3732,15 @@ void term_baseline::setdefault(void)
   weibull.setdefault();
   begin.setdefault();
   knots.setdefault();
+  // NEW FOR PARTIALLIKELIHOOD
+  partialLikelihood.setdefault();
   }
 
 bool term_baseline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 15) )
+        && (t.options.size() <= 16) )
     {
 
     if (t.options[0] == "baseline")
@@ -3764,6 +3768,8 @@ bool term_baseline::check(term & t)
     optlist.push_back(&weibull);
     optlist.push_back(&begin);
     optlist.push_back(&knots);
+    // NEW FOR PARTIALLIKELIHOOD
+    optlist.push_back(&partialLikelihood);
 
     unsigned i;
     bool rec = true;
@@ -3788,7 +3794,7 @@ bool term_baseline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(15);
+   t.options = vector<ST::string>(16);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -3814,6 +3820,11 @@ bool term_baseline::check(term & t)
 
    t.options[13] = begin.getvalue();
    t.options[14] = knots.getvalue();
+   // NEW FOR PARTIALLIKELIHOOD
+   if (partialLikelihood.getvalue() == false)
+     t.options[15] = "false";
+   else
+     t.options[15] = "true";
 
    if (t.options[1].strtolong(minim) == 1)
      {

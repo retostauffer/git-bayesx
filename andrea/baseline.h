@@ -55,6 +55,14 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
    double weibullproposal_a2;
    double b_prop;
    double acceptance_between;
+   
+   // NEW FOR PARTIALLIKELIHOOD
+   bool PartialLikelihood;                // If 'True' Partial Likelihood is used
+                                          // is implemented for time indepentent effects!
+   datamatrix PartialLikelihood_Riskset;  // Matrix for the Riskset of the partial Likelihood
+   datamatrix breslowbaseline;            // Matrix that contains the current values of Breslows baseline
+   datamatrix breslowcumbaseline;         // Matrix that contains the current values of Breslows cumulative baseline
+   
 
   public:
 
@@ -73,7 +81,8 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
                     const double & l,const unsigned & minb,const unsigned & maxb,
                     const fieldtype & ft,const ST::string & ti,
                     const ST::string & fp, const ST::string & pres,
-                    const int & gs,const unsigned & c,const datamatrix & anfang,const bool & wb);
+                    const int & gs,const unsigned & c,const datamatrix & anfang,const bool & wb,
+                    const bool & partlik);          // NEW FOR PARTIALLIKELIHOOD);
 
 
 // CONSTRUCTOR 2 (für zeitabhängige Effekte)
@@ -115,6 +124,9 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
     {
     baselinep=bp;
     }
+ 
+  // NEW FOR PARTIALLIKELIHOOD
+  void compute_int_ti_partiallikelihood(const datamatrix & cumbaseline, const datamatrix & baseline);
 
   double * get_int_D(void)
     {
