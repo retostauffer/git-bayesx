@@ -12,6 +12,8 @@
 #define FCINCLUDED
 
 #include"statmat.h"
+#include"sparsemat.h"
+
 #include"random.h"
 #include"../values.h"
 #include<fstream.h>
@@ -44,9 +46,6 @@ class __EXPORT_TYPE FC
   ST::string samplepath;         // filename for storing sampled parameters
   ofstream samplestream;         // stream object for storing sampled parameters
 
-  ST::string pathresult;         // filename for storing results;
-  ST::string pathresult2;
-  ST::string pathresult3;
 
   vector<ST::string> priorassumptions;
 
@@ -186,10 +185,6 @@ class __EXPORT_TYPE FC
   // TASK: computes the posterior mode
 
   virtual bool posteriormode(void);
-
-  virtual bool posteriormode_converged(const unsigned & itnr);
-
-  void posteriormode_set_beta_mode(void);
 
   // FUNCTION: outoptions
   // TASK: writes estimation options (hyperparameters, etc.) to outputstream

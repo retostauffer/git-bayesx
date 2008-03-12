@@ -49,12 +49,8 @@ FC::FC(const FC & m)
   title = m.title;
 
   samplepath = m.samplepath;
-  pathresult = m.pathresult;
-  pathresult2 = m.pathresult2;
-  pathresult3 = m.pathresult3;
 
   priorassumptions = m.priorassumptions;
-
 
   beta = m.beta;
   beta_mode = m.beta_mode;
@@ -99,9 +95,6 @@ const FC & FC::operator=(const FC & m)
   title = m.title;
 
   samplepath = m.samplepath;
-  pathresult = m.pathresult;
-  pathresult2 = m.pathresult2;
-  pathresult3 = m.pathresult3;
 
   priorassumptions = m.priorassumptions;
 
@@ -381,16 +374,6 @@ void FC::update(void)
           *workbetamax = betatransform;
         }
 
-
-      // initializing betameanold,betavarold,betaminold and betamaxold
-      if (samplesize==1)
-        {
-        betameanold = betamean;
-        betavarold = betavar;
-        betaminold = betamin;
-        betamaxold = betamax;
-        }
-
       }  // end: for i=0; ...
 
 
@@ -416,43 +399,28 @@ void FC::update(void)
                   + " %\n");
     optionsp->out("\n");
 
+
     normold = norm(betameanold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffmean = DBL_MAX;
-#else
 	  diffmean = MAXDOUBLE;
-#endif
     else
       diffmean = norm(betamean-betameanold)/normold;
 
     normold = norm(betavarold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffvar = DBL_MAX;
-#else
 	  diffvar = MAXDOUBLE;
-#endif
 	else
       diffvar = norm(betavar-betavarold)/normold;
 
     normold = norm(betaminold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffmin = DBL_MAX;
-#else
 	  diffmin = MAXDOUBLE;
-#endif
     else
       diffmin = norm(betamin-betaminold)/normold;
 
     normold = norm(betamaxold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffmax = DBL_MAX;
-#else
 	  diffmax = MAXDOUBLE;
-#endif
     else
       diffmax = norm(betamax-betamaxold)/normold;
 
@@ -472,15 +440,16 @@ void FC::update(void)
     betaminold.assign(betamin);
     betamaxold.assign(betamax);
 
+
     }  // end: if ((it > burnin) && ((it-burnin) % nrbetween == 0))
 
   }
 
 
-
-
 bool FC::posteriormode(void)
   {
+
+  unsigned nrpar= beta.cols()*beta.rows();
 
   double diffmean;
   double normold;
@@ -488,11 +457,7 @@ bool FC::posteriormode(void)
   normold = norm(betameanold);
 
   if (normold==0)
-    #if defined(MICROSOFT_VISUAL)
-      diffmean = DBL_MAX;
-    #else
       diffmean = MAXDOUBLE;
-    #endif
   else
     diffmean = norm(beta-betameanold)/normold;
 
@@ -517,20 +482,11 @@ bool FC::posteriormode(void)
   }
 
 
-void FULLCOND::posteriormode_set_beta_mode(void)
-  {
-  beta_mode.assign(beta);
-  }
-
-
-bool FC::posteriormode_converged(const unsigned & itnr)
-  {
-  return true;
-  }
-
 
 void FC::outresults(void)
   {
+
+  unsigned nrpar=beta.rows()*beta.cols();
 
   double rate;
 
@@ -541,55 +497,38 @@ void FC::outresults(void)
 
 
   // computing acceptance rate
-  if (optionsp->get_samplesize() > 0)
+  if (optionsp->samplesize > 0)
     {
 
-    if (flags[2] != 1)
+
+    if (nrtrials == 0)
+      rate = (double(acceptance)/double(optionsp->nriter))*100;
+    else
+      rate = (double(acceptance)/double(nrtrials))*100;
+    optionsp->out("  Acceptance rate:    "  + ST::doubletostring(rate,4) + " %\n");
+    optionsp->out("\n");
+
+
+    samplestream.close();
+    datamatrix sample(optionsp->samplesize,1);
+    unsigned i;
+
+    double* wqu1l = betaqu_l1_lower.getV();
+    double* wqu2l = betaqu_l2_lower.getV();
+    double* wqu50 = betaqu50.getV();
+    double* wqu1u = betaqu_l2_upper.getV();
+    double* wqu2u = betaqu_l1_upper.getV();
+
+    for(i=0;i<nrpar;i++,wqu1l++,wqu2l++,wqu50++,wqu1u++,wqu2u++)
       {
-      if (nrtrials == 0)
-        rate = (double(acceptance)/double(optionsp->get_nriter()) )*100;
-      else
-        rate = (double(acceptance)/double(nrtrials))*100;
-      optionsp->out("  Acceptance rate:    "  + ST::doubletostring(rate,4) + " %\n");
-      optionsp->out("\n");
+      readsample(sample,i);
+      *wqu1l = sample.quantile(optionsp->lower1,0);
+      *wqu2l = sample.quantile(optionsp->lower2,0);
+      *wqu50 = sample.quantile(50,0);
+      *wqu1u = sample.quantile(optionsp->upper1,0);
+      *wqu2u = sample.quantile(optionsp->upper2,0);
       }
 
-    if (( (transformnonlinear== true) || (transformed==true) ) && (flags[0] != 1))
-      {
-
-      transformed = true;
-
-      }
-    else if (flags[0] != 1)
-      {
-
-      samplestream.close();
-      datamatrix sample(optionsp->get_samplesize(),1);
-      unsigned i;
-
-      double* wqu1l = betaqu_l1_lower.getV();
-      double* wqu2l = betaqu_l2_lower.getV();
-      double* wqu50 = betaqu50.getV();
-      double* wqu1u = betaqu_l2_upper.getV();
-      double* wqu2u = betaqu_l1_upper.getV();
-
-      for(i=0;i<nrpar;i++,wqu1l++,wqu2l++,wqu50++,wqu1u++,wqu2u++)
-        {
-        readsample(sample,i);
-        *wqu1l = sample.quantile(lower1,0);
-        *wqu2l = sample.quantile(lower2,0);
-        *wqu50 = sample.quantile(50,0);
-        *wqu1u = sample.quantile(upper1,0);
-        *wqu2u = sample.quantile(upper2,0);
-        }
-
-      } // end: if (flags[0] != 1)
-
-    if (flags[0] == 1)
-      {
-      optionsp->out("  NOTE: Sampled parameters have not been stored, i.e. posterior quantiles are not available!\n");
-      optionsp->out("\n");
-      }
 
     }  // if (optionsp->get_samplesize() > 0)
   }
