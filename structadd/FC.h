@@ -52,6 +52,8 @@ class __EXPORT_TYPE FC
 
   public:
 
+  bool changingdesign;
+
   datamatrix beta;               // Matrix of current parameters
   datamatrix beta_mode;          // for posteriormode, the parameters
                                  // of the last iteration of iwls

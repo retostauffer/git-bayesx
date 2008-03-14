@@ -29,6 +29,10 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
     {
     weight = w;
     }
+
+  workingweight = weight;
+  changingweight = false;
+
   weightname = "W";
 
   linearpred = datamatrix(nrobs,1,0);
@@ -55,6 +59,9 @@ DISTR::DISTR(const DISTR & d)
   weight = d.weight;
   weightname = d.weightname;
 
+  workingweight = d.workingweight;
+  changingweight = d.changingweight;
+
   linearpred = d.linearpred;
   linearpredprop = d.linearpredprop;
   linpred_current = d.linpred_current;
@@ -79,6 +86,9 @@ const DISTR & DISTR::operator=(const DISTR & d)
 
   weight = d.weight;
   weightname = d.weightname;
+
+  workingweight = d.workingweight;
+  changingweight = d.changingweight;
 
   linearpred = d.linearpred;
   linearpredprop = d.linearpredprop;

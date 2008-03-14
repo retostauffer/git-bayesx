@@ -52,6 +52,8 @@ class __EXPORT_TYPE DISTR
   datamatrix weight;              // Weightvariable for weighted regression
   ST::string weightname;          // Name of the weightvariable
 
+  datamatrix workingweight;       // Working weight
+  bool changingweight;
 
 
   datamatrix linearpred;          // Linear predictor

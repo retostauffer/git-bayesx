@@ -22,6 +22,7 @@
 #include<bitset>
 #include"GENERAL_OPTIONS.h"
 #include"clstring.h"
+#include"distr.h"
 #include<cmath>
 
 
@@ -62,25 +63,44 @@ class __EXPORT_TYPE DESIGN
   protected:
 
 
+  DISTR * likep;                             // Pointer to DISTR obejct
+
   public:
 
-  datamatrix data;
-  statmatrix<int> index_data;
+  datamatrix data;                           // data matrix
+  datamatrix data2;                          // vor varying coefficients 
+  statmatrix<int> index_data;                // index for index sort
 
   datamatrix Z;
-  
-  datamatrix Zout;
-  statmatrix<int> index_Zout;
 
-  // Penalty Matrix
+  datamatrix Zout;                           // Design matrix (only non null
+                                             // elements for output of results
+  statmatrix<int> index_Zout;                // stores the columns of the
+                                             // non null elements of Zout
+  vector<int> posbeg;
+  vector<int> posend;
 
-  envmatdouble K;
+
+
+  unsigned nrpar;                            // number of parameters                                    
+
+
+
+  envmatdouble K;                            // Penalty Matrix
   double rankK;
 
-  // X'WX
+  envmatdouble XWX;                          // X'WX
+  bool XWXdeclared;                          // is true if X'WX is already
+                                             // defined (i.e. memory allocated
+                                             // etc.)
 
-  envmatdouble XWX;
 
+  envmatdouble precision;                    // precision matrix
+  bool precisiondeclared;                    // true if precision is already
+                                             // defined                         
+
+  datamatrix XWres;                          // X'W(y-eta)
+  bool XWresdeclared;
 
   ttype type;
 
@@ -94,7 +114,7 @@ class __EXPORT_TYPE DESIGN
 
   // CONSTRUCTOR
 
-  DESIGN(const datamatrix & dm);
+  DESIGN(const datamatrix & dm, DISTR * dp);
 
   // COPY CONSTRUCTOR
 
@@ -104,15 +124,27 @@ class __EXPORT_TYPE DESIGN
 
   const DESIGN & operator=(const DESIGN & m);
 
+
+  // FUNCTION: compute_design
+  // TASK:
+  //       nrpar = number of parameters is defined
+
   virtual void compute_design(void);
+
+  // FUNCTION: compute_penalty
+  // TASK: computes the penalty matrix and determines rankK
 
   virtual void compute_penalty(void);
 
-  virtual void compute_XtransposedWX(void);
+  virtual void compute_XtransposedWX_XtransposedWres(const datamatrix & res);
 
-  void compute_precision(double l);
+  virtual void compute_XtransposedWres(const datamatrix & res);
 
-  void compute_XtransposedW(void);
+  void compute_precision(double l);  
+
+  void compute_f(datamatrix & beta,datamatrix & f);
+
+  void update_linpred(datamatrix & f,bool add);
 
   // DESTRUCTOR
 
@@ -131,9 +163,8 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   {
 
   MAP::map ma;
-  vector<int> posbeg;
-  vector<int> posend;
   vector<ST::string> effectvalues;
+
 
   protected:
 
@@ -151,7 +182,7 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   // CONSTRUCTOR 1
   // Spatial covariates
 
-  DESIGN_mrf(const datamatrix & dm,const MAP::map & m);
+  DESIGN_mrf(const datamatrix & dm, DISTR * dp, const MAP::map & m);
 
   // COPY CONSTRUCTOR
 
@@ -164,6 +195,10 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   void compute_design(void);
 
   void compute_penalty(void);
+
+  void compute_XtransposedWX_XtransposedWres(const datamatrix & res);
+
+  void compute_XtransposedWres(const datamatrix & res);  
 
   // DESTRUCTOR
 
