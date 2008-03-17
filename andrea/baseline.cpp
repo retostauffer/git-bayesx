@@ -935,10 +935,12 @@ if(PartialLikelihood)
 {
   // Hilfsvariablen
   unsigned i, j;
+  double workintercept;
   double worklinpred;
   double workresponse;
   double riskset_linpred;
   double sumbaseline = 0.0;
+  double helpcumbaseline;
     
   // Startwerte fuer 1. Iteration + Initialisieren der baseline-Matrizen
   if(optionsp->get_nriter()==1)
@@ -953,6 +955,13 @@ if(PartialLikelihood)
     likep->add_linearpred_m(spline,column,true);
     }
 
+
+  workintercept = fcconst->getbeta(0,0);
+
+//TEMP:BEGIN--------------------------------------------------------------------
+//ofstream output_1("c:/bayesx/test/test_intercept.txt", ios::out|ios::app);
+//output_1 << workintercept << "\n";
+//TEMP:END----------------------------------------------------------------------
 
   // compute current values of the log-baselinehazard
   for(i=0;i<zi.rows();i++)
@@ -971,26 +980,28 @@ if(PartialLikelihood)
 
   for(j=0;j<zi.rows();j++)
     {
-    worklinpred = likep->get_linearpred(j,0);
+    worklinpred = likep->get_linearpred(j,0) - workintercept;
     riskset_linpred = riskset_linpred + PartialLikelihood_Riskset(i,j) * exp(worklinpred);
     }
-    
-  breslowbaseline(i,0) = workresponse/riskset_linpred;
-//breslowbaseline(i,0) = 1;//fuer wibull mit alpha=1
-  sumbaseline = sumbaseline + breslowbaseline(i,0);
+  
+  helpcumbaseline = workresponse/riskset_linpred;  
+  sumbaseline = sumbaseline + helpcumbaseline;
   breslowcumbaseline(i,0) = sumbaseline;  
-//breslowcumbaseline(i,0) = zi(i,0);//fuer wibull mit alpha=1    
+  
 
   if(workresponse==1.0)
     {
-    spline(i,0) = log(breslowbaseline(i,0));
+    breslowbaseline(i,0) = workresponse/riskset_linpred;
     }
   if(workresponse==0.0)
     {
-    breslowbaseline(i,0) = 1.0; 
-    spline(i,0) = log(breslowbaseline(i,0));
+    breslowbaseline(i,0) = breslowbaseline(i-1,0);     
     }
-  }
+
+  //breslowbaseline(i,0) = 1;//fuer weibull mit alpha=1
+  //breslowcumbaseline(i,0) = zi(i,0);//fuer weibull mit alpha=1  
+  spline(i,0) = log(breslowbaseline(i,0));
+}
     
   // compute the new ratio log-cumbaseline(zi)/logbaseline(zi) to enter the likelihood
   compute_int_ti_partiallikelihood(breslowcumbaseline, breslowbaseline);
@@ -1001,9 +1012,7 @@ if(PartialLikelihood)
 
  //-------------------------------------
 
-  double u = log(uniform());
   acceptance++;
-
 
 // übergabe der baselinehazardfunktion an das fullcondobjekt fchelp
 // die Ausgabe erfolgt in die Datei "...f_time_logbaseline.res" zu den
