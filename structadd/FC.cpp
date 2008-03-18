@@ -35,7 +35,7 @@ FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
 
   column = 0;
 
-  transform = 1;
+  transform = datamatrix(cols,1,1);
 
   addon = 0;
 
@@ -101,7 +101,6 @@ const FC & FC::operator=(const FC & m)
   samplepath = m.samplepath;
 
   priorassumptions = m.priorassumptions;
-
 
   beta = m.beta;
   beta_mode = m.beta_mode;
@@ -322,7 +321,7 @@ void FC::update(void)
     )
     {
 
-    register unsigned i;
+    register unsigned i,j;
     double* workbeta = beta.getV();
     double* workbetamean = betamean.getV();
     double* workbetas2 = betas2.getV();
@@ -330,52 +329,55 @@ void FC::update(void)
     double* workbetamin = betamin.getV();
     double* workbetamax = betamax.getV();
 
+
     unsigned samplesize = optionsp->samplesize;
 
-    samplestream.open(samplepath.strtochar(),ios::binary);
+    if (samplesize==1)
+      samplestream.open(samplepath.strtochar(),ios::binary);
 
     double betatransform;
 
-    unsigned nrpar=beta.cols()*beta.rows();
-
-
-    for(i=0;i<nrpar;i++,workbeta++,workbetamean++,workbetas2++,workbetavar++,
-        workbetamin++,workbetamax++)
-
+    for(i=0;i<beta.rows();i++)
       {
+      for (j=0;j<beta.cols();j++,workbeta++,workbetamean++,workbetas2++,
+           workbetavar++,workbetamin++,workbetamax++)
 
-      betatransform = transform * (*workbeta)+addon;
-
-
-      // storing sampled parameters in binary mode
-
-
-      samplestream.write((char *) &betatransform,sizeof betatransform);
-
-      // updating betamean
-      if (samplesize==1)
-        *workbetamean = betatransform;
-      else
-        *workbetamean = (1.0/(samplesize))*
-                     ((samplesize-1)*(*workbetamean) + betatransform);
-
-      // updating betavar
-      *workbetas2 += betatransform*betatransform;
-      *workbetavar = (1.0/samplesize)*
-                     (*workbetas2)-(*workbetamean)*(*workbetamean);
-
-      // updating betamin, betamax
-      if (samplesize==1)
         {
-        *workbetamin = betatransform;
-        *workbetamax = betatransform;
-        }
-      else
-        {
-        if (betatransform < *workbetamin)
+
+        betatransform = transform(j,0) * (*workbeta)+addon;
+
+
+        // storing sampled parameters in binary mode
+
+
+        samplestream.write((char *) &betatransform,sizeof betatransform);
+
+        // updating betamean
+        if (samplesize==1)
+          *workbetamean = betatransform;
+        else
+          *workbetamean = (1.0/(samplesize))*
+                       ((samplesize-1)*(*workbetamean) + betatransform);
+
+        // updating betavar
+        *workbetas2 += betatransform*betatransform;
+        *workbetavar = (1.0/samplesize)*
+                       (*workbetas2)-(*workbetamean)*(*workbetamean);
+
+        // updating betamin, betamax
+        if (samplesize==1)
+          {
           *workbetamin = betatransform;
-        if (betatransform > *workbetamax)
           *workbetamax = betatransform;
+          }
+        else
+          {
+          if (betatransform < *workbetamin)
+            *workbetamin = betatransform;
+          if (betatransform > *workbetamax)
+            *workbetamax = betatransform;
+          }
+
         }
 
       }  // end: for i=0; ...
@@ -453,8 +455,6 @@ void FC::update(void)
 bool FC::posteriormode(void)
   {
 
-  unsigned nrpar= beta.cols()*beta.rows();
-
   double diffmean;
   double normold;
 
@@ -467,14 +467,16 @@ bool FC::posteriormode(void)
 
   betameanold.assign(beta);
 
-  unsigned i;
+  unsigned i,j;
   double* workbetamean = betamean.getV();
   double* workbeta = beta.getV();
 
-  for(i=0;i<nrpar;i++,workbetamean++,workbeta++)
-    {
-    *workbetamean = transform * (*workbeta)+addon;
-    }
+  for(i=0;i<beta.rows();i++)
+    for (j=0;j<beta.cols();j++,workbetamean++,workbeta++)
+      {
+//      *workbetamean = transform(j,0) * (*workbeta)+addon;
+      betamean(i,0) = transform(j,0) * beta(i,0)+addon;
+      }
 
   if (diffmean <= 0.00001)
     {
@@ -487,7 +489,7 @@ bool FC::posteriormode(void)
 
 
 
-void FC::outresults(void)
+void FC::outresults(const ST::string & pathresults)
   {
 
   unsigned nrpar=beta.rows()*beta.cols();

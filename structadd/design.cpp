@@ -24,6 +24,10 @@ DESIGN::DESIGN(const datamatrix & dm, DISTR * lp)
   data = dm;
   likep = lp;
 
+  unsigned i;
+  for (i=0;i<dm.cols();i++)
+    datanames.push_back("X_"+ST::inttostring(i));
+
   index_data = statmatrix<int>(data.rows(),1);
   index_data.indexinit();
   dm.indexsort(index_data,0,dm.rows()-1,0,0);
@@ -55,6 +59,8 @@ DESIGN::DESIGN(const DESIGN & m)
   XWresdeclared = m.XWresdeclared;
   posbeg = m.posbeg;
   posend = m.posend;
+  datanames = m.datanames;
+  effectvalues = m.effectvalues;
   }
 
 // OVERLOADED ASSIGNMENT OPERATOR
@@ -64,7 +70,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   if (this == &m)
     return *this;
   data = m.data;
-  data2 = m.data2;  
+  data2 = m.data2;
   index_data = m.index_data;
   Z=m.Z;
   Zout = m.Zout;
@@ -81,6 +87,8 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   XWresdeclared = m.XWresdeclared;
   posbeg = m.posbeg;
   posend = m.posend;
+  datanames = m.datanames;
+  effectvalues = m.effectvalues;  
   return *this;
   }
 
@@ -127,9 +135,6 @@ void DESIGN::compute_f(datamatrix & beta,datamatrix & f)
   double * workf = f.getV();
   int * workindex = index_Zout.getV();
 
-  ofstream out("c:\\temp\\index.raw");
-  index_Zout.prettyPrint(out);
-
   double * workZout = Zout.getV();
 
   unsigned i,j;
@@ -159,7 +164,7 @@ void DESIGN::update_linpred(datamatrix & f,bool add)
     {
     for (i=0;i<posbeg.size();i++,++itbeg,++itend,workf++)
       {
-      for (j=*itbeg;j<*itend;j++,workindex++)
+      for (j=*itbeg;j<=*itend;j++,workindex++)
         if (*itbeg != -1)
           (*linpredp)(*workindex,0) += *workf;
       }
@@ -168,14 +173,19 @@ void DESIGN::update_linpred(datamatrix & f,bool add)
     {
     for (i=0;i<posbeg.size();i++,++itbeg,++itend,workf++)
       {
-      for (j=*itbeg;j<*itend;j++,workindex++)
+      for (j=*itbeg;j<=*itend;j++,workindex++)
         if (*itbeg != -1)
           (*linpredp)(*workindex,0) -= *workf;
       }
     }
 
-
   }
+
+
+double DESIGN::compute_quadform(const datamatrix & beta)
+  {
+
+  }  
 
 //------------------------------------------------------------------------------
 //-------------- CLASS: DESIGN_mrf implementation of member functions ----------
@@ -211,14 +221,6 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,DISTR * dp, const MAP::map & m)
   datamatrix help(dm.rows(),1,1);
   compute_XtransposedWX_XtransposedWres(help);
 
-/*
-  ofstream out("c:\\temp\\XWX.raw");
-  XWX.print1(out);
-
-  ofstream out2("c:\\temp\\XWres.raw");
-  XWres.prettyPrint(out2);
-*/
-
   compute_precision(1.0);
 
   }
@@ -229,7 +231,6 @@ DESIGN_mrf::DESIGN_mrf(const DESIGN_mrf & m)
     : DESIGN(DESIGN(m))
   {
   ma = m.ma;
-  effectvalues = m.effectvalues;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -240,7 +241,6 @@ const DESIGN_mrf & DESIGN_mrf::operator=(const DESIGN_mrf & m)
     return *this;
   DESIGN::operator=(DESIGN(m));
   ma = m.ma;
-  effectvalues = m.effectvalues;
   return *this;
   }
 
@@ -252,7 +252,16 @@ void DESIGN_mrf::compute_design(void)
   index_Zout = statmatrix<int>(Zout.rows(),1);
   index_Zout.indexinit();
 
+  if (ma.get_bandsize() > 40)
+    ma.reorderopt();
+
   ma.compute_reg(data,posbeg,posend,effectvalues,index_data);
+
+  if (ma.get_errormessages().size() > 0)
+    {
+    double t =0;
+    }
+
   nrpar = ma.get_nrregions();
 
   }
@@ -278,7 +287,7 @@ void DESIGN_mrf::compute_XtransposedWX_XtransposedWres(const datamatrix & res)
   if (XWresdeclared == false)
     {
     XWres = datamatrix(nrpar,1);
-    XWresdeclared == true;
+    XWresdeclared = true;
     }
 
   unsigned i;
@@ -337,7 +346,7 @@ void DESIGN_mrf::compute_XtransposedWres(const datamatrix & res)
   if (XWresdeclared == false)
     {
     XWres = datamatrix(nrpar,1);
-    XWresdeclared == true;
+    XWresdeclared = true;
     }
 
   int * workindex = index_data.getV();
@@ -352,7 +361,11 @@ void DESIGN_mrf::compute_XtransposedWres(const datamatrix & res)
       *workXWres = 0;
       if (posbeg[i] != -1)
         for(j=posbeg[i];j<=posend[i];j++,workindex++)
+          {
+          int h = *workindex;
           *workXWres+= likep->workingweight(*workindex,0)*res(*workindex,0);
+
+          }
       }
     }
   else

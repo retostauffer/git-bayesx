@@ -68,8 +68,13 @@ class __EXPORT_TYPE DESIGN
   public:
 
   datamatrix data;                           // data matrix
-  datamatrix data2;                          // vor varying coefficients 
-  statmatrix<int> index_data;                // index for index sort
+  datamatrix data2;                          // vor varying coefficients
+                                             //
+  statmatrix<int> index_data;                // index for index sort of data
+  vector<ST::string> datanames;              // names of covariates
+
+  vector<ST::string> effectvalues;           // values of the different
+                                             // covariates
 
   datamatrix Z;
 
@@ -77,8 +82,10 @@ class __EXPORT_TYPE DESIGN
                                              // elements for output of results
   statmatrix<int> index_Zout;                // stores the columns of the
                                              // non null elements of Zout
-  vector<int> posbeg;
-  vector<int> posend;
+
+  vector<int> posbeg;                        // begin and end of equal covariate 
+                                             // values in data
+  vector<int> posend;                        
 
 
 
@@ -146,6 +153,8 @@ class __EXPORT_TYPE DESIGN
 
   void update_linpred(datamatrix & f,bool add);
 
+  double compute_quadform(const datamatrix & beta);
+
   // DESTRUCTOR
 
   ~DESIGN() {}
@@ -163,8 +172,6 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   {
 
   MAP::map ma;
-  vector<ST::string> effectvalues;
-
 
   protected:
 

@@ -77,7 +77,7 @@ class __EXPORT_TYPE FC
   datamatrix betaminold;
   datamatrix betamaxold;
 
-  double transform;              // The factor with which all beta's will be
+  datamatrix transform;          // The factor with which all beta's will be
                                  // multiplied before storing them and computing
                                  // means, std, etc.
                                  // DEFAULT: transform = 1
@@ -198,7 +198,7 @@ class __EXPORT_TYPE FC
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  virtual void outresults(void);
+  virtual void outresults(const ST::string & pathresults);
 
   // FUNCTION: reset
   // TASK: resets all parameters

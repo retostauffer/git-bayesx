@@ -33,13 +33,19 @@ class __EXPORT_TYPE FC_nonp  : public FC
   protected:
 
   DISTR * likep;                             // Pointer to DISTR obejct
-  DESIGN * designp;
-  datamatrix param;
-  datamatrix partres;
+  DESIGN * designp;                          // Pointer to design object
+  datamatrix param;                          // 
+  datamatrix partres;                        // stores partial residuals
+
+  datamatrix betahelp;
 
   void centerparam(void);
 
   public:
+
+  double lambda;
+  double tau2;
+
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
@@ -91,7 +97,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(void);
+  void outresults(const ST::string & pathresults);
 
   // FUNCTION: reset
   // TASK: resets all parameters

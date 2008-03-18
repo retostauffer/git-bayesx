@@ -25,6 +25,9 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
   designp = Dp;
   partres = datamatrix(likep->nrobs,1,0);
   param = datamatrix(designp->nrpar,1,0);
+  lambda=1;
+  tau2 = likep->get_scale()/lambda;
+  betahelp = beta;  
   }
 
 
@@ -34,6 +37,9 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   partres = m.partres;
   designp = m.designp;
   param = m.param;
+  lambda=m.lambda;
+  tau2 = m.tau2;
+  betahelp = m.betahelp;
   }
 
 
@@ -43,32 +49,25 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   if (this==&m)
 	 return *this;
   likep = m.likep;
-  partres = m.partres;  
+  partres = m.partres;
   designp = m.designp;
   param = m.param;
+  lambda=m.lambda;
+  tau2 = m.tau2;
+  betahelp = m.betahelp;
   return *this;
-
   }
 
 
 void FC_nonp::update(void)
   {
 
-  FC::update();
-  }
-
-
-bool FC_nonp::posteriormode(void)
-  {
-
-  double lambda = 1;
   bool lambdaconst = false;
-  datamatrix * linp = likep->linpred_current;
 
+  datamatrix * linp = likep->linpred_current;
 
   designp->update_linpred(beta,false);
   partres.minus(likep->response,*linp);
-
 
   if ((likep->changingweight) || (changingdesign))
     designp->compute_XtransposedWX_XtransposedWres(partres);
@@ -79,7 +78,17 @@ bool FC_nonp::posteriormode(void)
     designp->compute_precision(lambda);
 
 
-  designp->precision.solve(designp->XWres,param);
+  double sigmaresp = sqrt(likep->get_scale());
+
+  double * work = betahelp.getV();
+  unsigned i;
+  unsigned nrpar = beta.rows();
+  for(i=0;i<nrpar;i++,work++)
+    *work = sigmaresp*rand_normal();
+
+  designp->precision.solveU(betahelp);
+
+  designp->precision.solve(designp->XWres,betahelp,param);
 
 //  if(center)
 //    centerparam();
@@ -89,14 +98,139 @@ bool FC_nonp::posteriormode(void)
   designp->update_linpred(beta,true);
 
 
+  acceptance++;
+
+  transform(0,0) = likep->trmult;
+
+  FC::update();
+  }
+
+
+bool FC_nonp::posteriormode(void)
+  {
+
+  bool lambdaconst = false;
+
+  datamatrix * linp = likep->linpred_current;
+
+  designp->update_linpred(beta,false);
+  partres.minus(likep->response,*linp);
+
+  if ((likep->changingweight) || (changingdesign))
+    designp->compute_XtransposedWX_XtransposedWres(partres);
+  else
+    designp->compute_XtransposedWres(partres);
+
+  if ((likep->changingweight) || (changingdesign) || (!lambdaconst))
+    designp->compute_precision(lambda);
+
+  designp->precision.solve(designp->XWres,param);
+
+//  if(center)
+//    centerparam();
+
+  designp->compute_f(param,beta);
+
+  designp->update_linpred(beta,true);
+
+  transform(0,0) = likep->trmult;
   return FC::posteriormode();
+
   }
 
 
 
-void FC_nonp::outresults(void)
+void FC_nonp::outresults(const ST::string & pathresults)
   {
-  FC::outresults();
+
+  if (pathresults.isvalidfile() != 1)
+    {
+
+    FC::outresults(pathresults);
+
+    optionsp->out("  Results are stored in file\n");
+    optionsp->out("  " +  pathresults + "\n");
+    optionsp->out("\n");
+
+    ofstream outres(pathresults.strtochar());
+
+    optionsp->out("\n");
+
+    unsigned i;
+
+    ST::string l1 = ST::doubletostring(optionsp->lower1,4);
+    ST::string l2 = ST::doubletostring(optionsp->lower2,4);
+    ST::string u1 = ST::doubletostring(optionsp->upper1,4);
+    ST::string u2 = ST::doubletostring(optionsp->upper2,4);
+    l1 = l1.replaceallsigns('.','p');
+    l2 = l2.replaceallsigns('.','p');
+    u1 = u1.replaceallsigns('.','p');
+    u2 = u2.replaceallsigns('.','p');
+
+    outres << "intnr" << "   ";
+    for (i=0;i<designp->datanames.size();i++)
+      outres << designp->datanames[i] << "   ";
+    outres << "pmean   ";
+
+    if (optionsp->samplesize > 1)
+      {
+      outres << "pqu"  << l1  << "   ";
+      outres << "pqu"  << l2  << "   ";
+      outres << "pmed   ";
+      outres << "pqu"  << u1  << "   ";
+      outres << "pqu"  << u2  << "   ";
+      outres << "pcat" << optionsp->level1 << "   ";
+      outres << "pcat" << optionsp->level2 << "   ";
+      }
+
+    outres << endl;
+
+    double * workmean = betamean.getV();
+    double * workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
+    double * workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
+    double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
+    double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
+    double * workbetaqu50 = betaqu50.getV();
+
+
+//    unsigned j;
+    unsigned nrpar = beta.rows();
+    for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
+                              workbetaqu_l2_lower_p++,workbetaqu50++,
+                              workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++)
+      {
+      outres << (i+1) << "   ";
+      outres << designp->effectvalues[i] << "   ";
+      outres << *workmean << "   ";
+
+      if (optionsp->samplesize > 1)
+        {
+        outres << *workbetaqu_l1_lower_p << "   ";
+        outres << *workbetaqu_l2_lower_p << "   ";
+        outres << *workbetaqu50 << "   ";
+        outres << *workbetaqu_l2_upper_p << "   ";
+        outres << *workbetaqu_l1_upper_p << "   ";
+
+        if (*workbetaqu_l1_lower_p > 0)
+          outres << 1 << "   ";
+        else if (*workbetaqu_l1_upper_p < 0)
+          outres << -1 << "   ";
+        else
+          outres << 0 << "   ";
+
+        if (*workbetaqu_l2_lower_p > 0)
+          outres << 1 << "   ";
+        else if (*workbetaqu_l2_upper_p < 0)
+          outres << -1 << "   ";
+        else
+          outres << 0 << "   ";
+        }
+
+      outres << endl;
+      }
+
+    }
+
   }
 
 

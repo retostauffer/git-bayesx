@@ -141,6 +141,11 @@ class __EXPORT_TYPE DISTR
                        const statmatrix<int> & index,
                        const bool & current=true) ;
 
+  //----------------------------------------------------------------------------
+  //----------------------- ACCESS TO SCALE PARAMETER --------------------------
+  //----------------------------------------------------------------------------
+
+  virtual double get_scale(void);
 
   //----------------------------------------------------------------------------
   //----------------------- POSTERIORMODE FUNCTIONS ----------------------------
@@ -174,7 +179,7 @@ class __EXPORT_TYPE DISTR
   // TASK: writes estimation results for the scale parameter
   //       estimated mean and variance
 
-  virtual void outresults(void);
+  virtual void outresults(ST::string pathresults="");
 
   // FUNCTION: reset
   // TASK: resets linpred (all values to 0)
@@ -250,6 +255,8 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
                        double * w) const;
 
 
+  virtual double get_scale(void);
+
   void outoptions(void);
 
   // FUNCTION: update
@@ -259,7 +266,7 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
   bool posteriormode(void);
 
-  void outresults(void);
+  void outresults(ST::string pathresults="");
 
 
   };

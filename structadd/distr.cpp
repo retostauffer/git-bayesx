@@ -179,7 +179,7 @@ void DISTR::update(void)
 
 
 
-void DISTR::outresults(void)
+void DISTR::outresults(ST::string pathresults)
   {
   optionsp->out("\n");
   }
@@ -194,6 +194,10 @@ void DISTR::reset(void)
   }
 
 
+double DISTR::get_scale(void)
+  {
+  return 1;
+  }
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian --------------------------
@@ -217,7 +221,9 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
   standardise();
 
   FCsigma2 = FC(o,"Gaussian variance parameter",1,1,ps);
-  FCsigma2.transform = pow(trmult,2);
+  FCsigma2.transform(0,0) = pow(trmult,2);
+
+  sigma2 = 1;
 
   }
 
@@ -231,6 +237,7 @@ const DISTR_gaussian & DISTR_gaussian::operator=(
   a_invgamma = nd.a_invgamma;
   b_invgamma = nd.b_invgamma;
   FCsigma2 = nd.FCsigma2;
+  sigma2=nd.sigma2;
   return *this;
   }
 
@@ -242,6 +249,7 @@ DISTR_gaussian::DISTR_gaussian(const DISTR_gaussian & nd)
   a_invgamma = nd.a_invgamma;
   b_invgamma = nd.b_invgamma;
   FCsigma2 = nd.FCsigma2;
+  sigma2 = nd.sigma2;
   }
 
 
@@ -301,7 +309,6 @@ void DISTR_gaussian::update(void)
     sum += *workweight*pow(help,2);
     }
 
-
   sigma2  = rand_invgamma(a_invgamma+0.5*nrobs,
                           b_invgamma+0.5*sum);
 
@@ -319,6 +326,12 @@ double DISTR_gaussian::loglikelihood(double * res, double * lin,
   {
   double help = *res-*lin;
   return  - *w * (pow(help,2))/(2* sigma2);
+  }
+
+
+double DISTR_gaussian::get_scale(void)
+  {
+  return sigma2;
   }
 
 
@@ -348,9 +361,147 @@ bool DISTR_gaussian::posteriormode(void)
   }
 
 
-void DISTR_gaussian::outresults(void)
+void DISTR_gaussian::outresults(ST::string pathresults)
   {
   DISTR::outresults();
+
+  FCsigma2.outresults("");
+
+
+  ST::string l1 = ST::doubletostring(optionsp->lower1,4);
+  ST::string l2 = ST::doubletostring(optionsp->lower2,4);
+  ST::string u1 = ST::doubletostring(optionsp->upper1,4);
+  ST::string u2 = ST::doubletostring(optionsp->upper2,4);
+
+  ST::string nl1 = ST::doubletostring(optionsp->lower1,4);
+  ST::string nl2 = ST::doubletostring(optionsp->lower2,4);
+  ST::string nu1 = ST::doubletostring(optionsp->upper1,4);
+  ST::string nu2 = ST::doubletostring(optionsp->upper2,4);
+  nl1 = nl1.replaceallsigns('.','p');
+  nl2 = nl2.replaceallsigns('.','p');
+  nu1 = nu1.replaceallsigns('.','p');
+  nu2 = nu2.replaceallsigns('.','p');
+
+  double help;
+
+  optionsp->out("  Estimation results for the scale parameter:\n",true);
+  optionsp->out("\n");
+
+
+  ST::string vstr;
+
+  vstr = "  Mean:         ";
+  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+        ST::doubletostring(FCsigma2.betamean(0,0),6) + "\n");
+
+  vstr = "  Std. dev.:    ";
+  if (FCsigma2.betavar(0,0) < 0)
+    help = 0;
+  else
+    help = sqrt(FCsigma2.betavar(0,0));
+  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+  ST::doubletostring(help,6) + "\n");
+
+  vstr = "  " + l1 + "% Quantile: ";
+  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+  ST::doubletostring(FCsigma2.betaqu_l1_lower(0,0),6) + "\n");
+
+  vstr = "  " + l2 + "% Quantile: ";
+  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+  ST::doubletostring(FCsigma2.betaqu_l2_lower(0,0),6) + "\n");
+
+  vstr = "  50% Quantile: ";
+  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+  ST::doubletostring(FCsigma2.betaqu50(0,0),6) + "\n");
+
+  vstr = "  " + u1 + "% Quantile: ";
+  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+  ST::doubletostring(FCsigma2.betaqu_l2_upper(0,0),6) + "\n");
+
+  vstr = "  " + u2 + "% Quantile: ";
+  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+  ST::doubletostring(FCsigma2.betaqu_l1_upper(0,0),6) + "\n");
+
+
+
+
+
+/*
+  outscale << "pmean   pstddev   pqu" << nl1 << "   pqu" << nl2 <<
+              "   pqu50   pqu" << nu1 << "   pqu" << nu2 << endl;
+
+        ST::string vstr;
+
+        vstr = "  Mean:         ";
+        help = Scalesave.get_betamean(0,0);
+        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+        ST::doubletostring(help,6) + "\n");
+        outscale << help << "  ";
+        results_latex.push_back("Mean  \\> " +
+                            ST::doubletostring(help,6) + " \\\\");
+
+
+        vstr = "  Std. dev.:    ";
+        if (Scalesave.get_betavar(0,0) < 0)
+          help = 0;
+        else
+          help = sqrt(Scalesave.get_betavar(0,0));
+        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+        ST::doubletostring(help,6) + "\n");
+        outscale << help << "  ";
+        results_latex.push_back("Std. dev.:  \\> " +
+                            ST::doubletostring(help,6) + " \\\\");
+
+        vstr = "  " + l1 + "% Quantile: ";
+        help = Scalesave.get_beta_lower1(0,0);
+        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+        ST::doubletostring(help,6) + "\n");
+        outscale << help << "  ";
+        results_latex.push_back(vstr.insert_string_char(hchar,helpstring) + " \\>" +
+                            ST::doubletostring(help,6) + " \\\\");
+
+
+        vstr = "  " + l2 + "% Quantile: ";
+        help = Scalesave.get_beta_lower2(0,0);
+        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+        ST::doubletostring(help,6) + "\n");
+        outscale << help << "  ";
+        results_latex.push_back(vstr.insert_string_char(hchar,helpstring) + " \\>" +
+                            ST::doubletostring(help,6) + " \\\\");
+
+        vstr = "  50% Quantile: ";
+        help = Scalesave.get_betaqu50(0,0);
+        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+        ST::doubletostring(help,6) + "\n");
+        outscale << help << "  ";
+        results_latex.push_back(vstr.insert_string_char(hchar,helpstring) + " \\>" +
+                            ST::doubletostring(help,6) + " \\\\");
+
+        vstr = "  " + u1 + "% Quantile: ";
+        help = Scalesave.get_beta_upper2(0,0);
+        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+        ST::doubletostring(help,6) + "\n");
+        outscale << help << "  ";
+        results_latex.push_back(vstr.insert_string_char(hchar,helpstring) + " \\>" +
+                            ST::doubletostring(help,6) + " \\\\");
+
+        vstr = "  " + u2 + "% Quantile: ";
+        help = Scalesave.get_beta_upper1(0,0);
+        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+        ST::doubletostring(help,6) + "\n");
+        outscale << help << "  ";
+        results_latex.push_back(vstr.insert_string_char(hchar,helpstring) + " \\>" +
+                            ST::doubletostring(help,6) + " \\\\");
+
+        outscale << endl;
+
+        optionsp->out("\n");
+*/
+
+  optionsp->out("\n");
+
+
+
   }
 
 

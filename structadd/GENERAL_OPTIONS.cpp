@@ -23,7 +23,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(void)
   burnin = 2000;
   step = 20;
   nrbetween = 1000;
-  nrout = 100;
+  nrout = 1000;
   nriter = 0;
   samplesize = 0;
   logout = &cout;
@@ -49,7 +49,7 @@ const unsigned & it,const unsigned & bu,
   nrbetween = (iterations-burnin)/3;
   if (nrbetween < 1000)
     nrbetween = 1000;
-  nrout = 100;
+  nrout = 1000;
   nriter = 0;
   samplesize = 0;
   logout = lo;
