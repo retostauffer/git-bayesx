@@ -77,15 +77,22 @@ class __EXPORT_TYPE DESIGN
                                              // covariates
 
   datamatrix Z;
+  statmatrix<int> index_Z;
+  vector<int> posbeg_Z;                      // begin and end of equal covariate
+                                             // values in data
+  vector<int> posend_Z;
+
+
+
 
   datamatrix Zout;                           // Design matrix (only non null
                                              // elements for output of results
   statmatrix<int> index_Zout;                // stores the columns of the
                                              // non null elements of Zout
 
-  vector<int> posbeg;                        // begin and end of equal covariate 
+  vector<int> posbeg;                        // begin and end of equal covariate
                                              // values in data
-  vector<int> posend;                        
+  vector<int> posend;
 
 
 
@@ -153,8 +160,6 @@ class __EXPORT_TYPE DESIGN
 
   void update_linpred(datamatrix & f,bool add);
 
-  double compute_quadform(const datamatrix & beta);
-
   // DESTRUCTOR
 
   ~DESIGN() {}
@@ -200,6 +205,8 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   const DESIGN_mrf & operator=(const DESIGN_mrf & m);
 
   void compute_design(void);
+
+  void compute_Z(void);
 
   void compute_penalty(void);
 

@@ -45,6 +45,7 @@ DESIGN::DESIGN(const DESIGN & m)
   data2 = m.data2;
   index_data = m.index_data;
   Z=m.Z;
+  index_Z = m.index_Z;
   Zout = m.Zout;
   index_Zout=m.index_Zout;
   type=m.type;
@@ -73,6 +74,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   data2 = m.data2;
   index_data = m.index_data;
   Z=m.Z;
+  index_Z = m.index_Z;
   Zout = m.Zout;
   index_Zout=m.index_Zout;
   type=m.type;
@@ -88,7 +90,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   posbeg = m.posbeg;
   posend = m.posend;
   datanames = m.datanames;
-  effectvalues = m.effectvalues;  
+  effectvalues = m.effectvalues;
   return *this;
   }
 
@@ -182,10 +184,6 @@ void DESIGN::update_linpred(datamatrix & f,bool add)
   }
 
 
-double DESIGN::compute_quadform(const datamatrix & beta)
-  {
-
-  }  
 
 //------------------------------------------------------------------------------
 //-------------- CLASS: DESIGN_mrf implementation of member functions ----------
@@ -206,7 +204,7 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,DISTR * dp, const MAP::map & m)
   ma = m;
   type = mrf;
 
-  if (data.cols() == 2)
+  if (data.cols() == 2)                    // interaction variable in second col
     {
     data2 = datamatrix(data.rows(),1);
     unsigned i;
@@ -259,10 +257,91 @@ void DESIGN_mrf::compute_design(void)
 
   if (ma.get_errormessages().size() > 0)
     {
-    double t =0;
+//  FEHLT!!
     }
 
   nrpar = ma.get_nrregions();
+
+  compute_Z();
+
+  }
+
+
+void DESIGN_mrf::compute_Z(void)
+  {
+
+  if (data.cols() > 1)
+    {
+    unsigned i,j;
+    double vorher;
+    double help;
+
+    for (i=0;i<posbeg.size();i++)
+      {
+
+      data.indexsort(index_data,posbeg[i],posend[i],1,0);
+
+      vorher = data(index_data(posbeg[i],0),1);
+      j= posbeg[i]+1;
+      posbeg_Z.push_back(posbeg[i]);
+      while (j<=posend[i])
+        {
+        help =  data(index_data(j,0),1);
+        if (help != vorher)
+          {
+          posend_Z.push_back(j);
+          if (j !=posend[i])
+            posbeg_Z.push_back(j+1);
+          }
+
+        if ((j==posend[i]) && (help == vorher))
+          posend_Z.push_back(j);
+
+        vorher = help;
+        j++;
+
+        }
+
+      }
+
+    Z = datamatrix(posbeg_Z.size(),1);
+    index_Z = statmatrix<int>(Z.rows(),1);
+
+    ofstream out0("c:\\bayesx\\test\\results\\posbeg_Z.res");
+
+    int t1 = posbeg_Z.size();
+    int t2 = posend_Z.size();
+
+    for (i=0;i<posbeg_Z.size();i++)
+      {
+      out0 << posbeg_Z[i] << "   " << posend_Z[i] << endl;
+      Z(i,0) = data(index_data(posbeg_Z[i],0),1);
+      }
+
+
+
+    int posc = 0;
+    for (i=0;i<posbeg_Z.size();i++)
+      {
+      for (j=posbeg_Z[i];j<=posend_Z[i];j++)
+        {
+        if ((posc < posbeg.size()) && (j==posbeg[posc+1]))
+          posc++;
+        index_Z(i,0) = posc;
+        }
+      }
+
+    ofstream out("c:\\bayesx\\test\\results\\index_Z.res");
+    index_Z.prettyPrint(out);
+
+    }
+  else
+    {
+    Z = Zout;
+    index_Z = index_Zout;
+    posbeg_Z = posbeg;
+    posend_Z = posend;
+    }
 
   }
 

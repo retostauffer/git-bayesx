@@ -313,6 +313,7 @@ void DISTR_gaussian::update(void)
                           b_invgamma+0.5*sum);
 
   FCsigma2.beta(0,0) = sigma2;
+  FCsigma2.acceptance++;
   FCsigma2.update();
 
   DISTR::update();
@@ -423,80 +424,40 @@ void DISTR_gaussian::outresults(ST::string pathresults)
   ST::doubletostring(FCsigma2.betaqu_l1_upper(0,0),6) + "\n");
 
 
+  if (pathresults.isvalidfile() != 1)
+    {
 
+    optionsp->out("\n");    
 
+    optionsp->out("  Results for variance parameter are also stored in file\n");
+    optionsp->out("  " +  pathresults + "\n");
+    optionsp->out("\n");
 
-/*
-  outscale << "pmean   pstddev   pqu" << nl1 << "   pqu" << nl2 <<
+    ofstream outscale(pathresults.strtochar());
+
+    outscale << "pmean   pstddev   pqu" << nl1 << "   pqu" << nl2 <<
               "   pqu50   pqu" << nu1 << "   pqu" << nu2 << endl;
 
-        ST::string vstr;
+    outscale << FCsigma2.betamean(0,0) << "  ";
 
-        vstr = "  Mean:         ";
-        help = Scalesave.get_betamean(0,0);
-        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-        ST::doubletostring(help,6) + "\n");
-        outscale << help << "  ";
-        results_latex.push_back("Mean  \\> " +
-                            ST::doubletostring(help,6) + " \\\\");
+    if (FCsigma2.betavar(0,0) < 0)
+      help = 0;
+    else
+      help = sqrt(FCsigma2.betavar(0,0));
+    outscale << help << "  ";
 
+    outscale << FCsigma2.betaqu_l1_lower(0,0) << "  ";
 
-        vstr = "  Std. dev.:    ";
-        if (Scalesave.get_betavar(0,0) < 0)
-          help = 0;
-        else
-          help = sqrt(Scalesave.get_betavar(0,0));
-        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-        ST::doubletostring(help,6) + "\n");
-        outscale << help << "  ";
-        results_latex.push_back("Std. dev.:  \\> " +
-                            ST::doubletostring(help,6) + " \\\\");
+    outscale << FCsigma2.betaqu_l2_lower(0,0) << "  ";
 
-        vstr = "  " + l1 + "% Quantile: ";
-        help = Scalesave.get_beta_lower1(0,0);
-        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-        ST::doubletostring(help,6) + "\n");
-        outscale << help << "  ";
-        results_latex.push_back(vstr.insert_string_char(hchar,helpstring) + " \\>" +
-                            ST::doubletostring(help,6) + " \\\\");
+    outscale << FCsigma2.betaqu50(0,0) << "  ";
 
+    outscale << FCsigma2.betaqu_l2_upper(0,0) << "  ";
 
-        vstr = "  " + l2 + "% Quantile: ";
-        help = Scalesave.get_beta_lower2(0,0);
-        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-        ST::doubletostring(help,6) + "\n");
-        outscale << help << "  ";
-        results_latex.push_back(vstr.insert_string_char(hchar,helpstring) + " \\>" +
-                            ST::doubletostring(help,6) + " \\\\");
+    outscale << FCsigma2.betaqu_l1_upper(0,0) << "  ";
 
-        vstr = "  50% Quantile: ";
-        help = Scalesave.get_betaqu50(0,0);
-        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-        ST::doubletostring(help,6) + "\n");
-        outscale << help << "  ";
-        results_latex.push_back(vstr.insert_string_char(hchar,helpstring) + " \\>" +
-                            ST::doubletostring(help,6) + " \\\\");
-
-        vstr = "  " + u1 + "% Quantile: ";
-        help = Scalesave.get_beta_upper2(0,0);
-        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-        ST::doubletostring(help,6) + "\n");
-        outscale << help << "  ";
-        results_latex.push_back(vstr.insert_string_char(hchar,helpstring) + " \\>" +
-                            ST::doubletostring(help,6) + " \\\\");
-
-        vstr = "  " + u2 + "% Quantile: ";
-        help = Scalesave.get_beta_upper1(0,0);
-        optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-        ST::doubletostring(help,6) + "\n");
-        outscale << help << "  ";
-        results_latex.push_back(vstr.insert_string_char(hchar,helpstring) + " \\>" +
-                            ST::doubletostring(help,6) + " \\\\");
-
-        outscale << endl;
-
-        optionsp->out("\n");
-*/
+    outscale << endl;
+    }
 
   optionsp->out("\n");
 
