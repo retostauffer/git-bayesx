@@ -542,7 +542,9 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
       }
     }
 
-  // matrix for the baseline 
+  // matrix for the baselinecomponents 
+  firstevent = 0;
+  breslowdeltatime = datamatrix(likep->get_nrobs(),1,0);
   breslowbaseline = datamatrix(likep->get_nrobs(),1,0);
   breslowcumbaseline = datamatrix(likep->get_nrobs(),1,0);
   
@@ -583,6 +585,8 @@ pspline_baseline::pspline_baseline(const pspline_baseline & fc)
   // NEW FOR PARTIALLIKELIHOOD
   PartialLikelihood = fc.PartialLikelihood;
   PartialLikelihood_Riskset = fc.PartialLikelihood_Riskset;
+  firstevent = fc.firstevent;
+  breslowdeltatime = fc.breslowdeltatime;
   breslowbaseline = fc.breslowbaseline; 
   breslowcumbaseline = fc.breslowcumbaseline;
   }
@@ -624,6 +628,8 @@ const pspline_baseline & pspline_baseline::operator=(const pspline_baseline & fc
   // NEW FOR PARTIALLIKELIHOOD
   PartialLikelihood = fc.PartialLikelihood;
   PartialLikelihood_Riskset = fc.PartialLikelihood_Riskset; 
+  firstevent =fc.firstevent;
+  breslowdeltatime =  fc.breslowdeltatime;
   breslowbaseline = fc.breslowbaseline;   
   breslowcumbaseline = fc.breslowcumbaseline;
 
@@ -935,6 +941,7 @@ if(PartialLikelihood)
 {
   // Hilfsvariablen
   unsigned i, j;
+  int helpindex = -1; 
   double workintercept;
   double worklinpred;
   double workresponse;
@@ -953,8 +960,45 @@ if(PartialLikelihood)
       breslowcumbaseline(i,0) = 1.0;
       }
     likep->add_linearpred_m(spline,column,true);
+
+    i = 0;
+    while(helpindex<0)
+      {
+       breslowdeltatime(i,0) = zi(i,0);
+       workresponse = likep->get_response(i,0);
+       if(workresponse==1)
+         {
+         helpindex = i;
+         }
+       i = i+1;  
+      }
+ 
+    firstevent = helpindex;    
+
+    for(i =(helpindex+1); i<zi.rows();i++)
+      {
+      breslowdeltatime(i,0) = zi(i,0) - zi(helpindex,0);
+      workresponse = likep->get_response(i,0);  
+      if(workresponse==1)
+        {
+        helpindex = i;
+        }
+      }  
+
+//TEMP:BEGIN--------------------------------------------------------------------
+ofstream output_dt("c:/bayesx/test/test_deltatime.txt", ios::out|ios::app);
+output_dt << firstevent <<"\n";
+for(i =0; i<zi.rows();i++)
+{
+output_dt << i << " " << likep->get_response(i,0) << " " << zi(i,0) << " " << breslowdeltatime(i,0) << "\n";
+}
+//TEMP:END----------------------------------------------------------------------
+
+
     }
 
+ofstream output_fe("c:/bayesx/test/test_fe.txt", ios::out|ios::app);
+output_fe << firstevent <<"\n";
 
   workintercept = fcconst->getbeta(0,0);
 
@@ -974,34 +1018,44 @@ if(PartialLikelihood)
 
   // compute new value of the Breslows log-baselinehazard
   for(i=0;i<zi.rows();i++)
-  {    
-  workresponse = likep->get_response(i,0);                   // value of the response delta_i {0,1}
-  riskset_linpred = 0.0;
-
-  for(j=0;j<zi.rows();j++)
-    {
-    worklinpred = likep->get_linearpred(j,0) - workintercept;
-    riskset_linpred = riskset_linpred + PartialLikelihood_Riskset(i,j) * exp(worklinpred);
-    }
+    {    
+    workresponse = likep->get_response(i,0);                   // value of the response delta_i {0,1}
+    riskset_linpred = 0.0;
   
-  helpcumbaseline = workresponse/riskset_linpred;  
-  sumbaseline = sumbaseline + helpcumbaseline;
-  breslowcumbaseline(i,0) = sumbaseline;  
+    for(j=0;j<zi.rows();j++)
+      {
+      worklinpred = likep->get_linearpred(j,0) - workintercept;
+      riskset_linpred = riskset_linpred + PartialLikelihood_Riskset(i,j) * exp(worklinpred);
+      }
+    
+    helpcumbaseline = workresponse/riskset_linpred;  
+    sumbaseline = sumbaseline + helpcumbaseline;
+    breslowcumbaseline(i,0) = sumbaseline;  
+    
   
-
-  if(workresponse==1.0)
-    {
-    breslowbaseline(i,0) = workresponse/riskset_linpred;
+    if(workresponse==1.0)
+      {
+      breslowbaseline(i,0) = workresponse/(breslowdeltatime(i,0)*riskset_linpred);
+      }
+    if(workresponse==0.0 && i>firstevent)
+      {
+      breslowbaseline(i,0) = breslowbaseline(i-1,0);     
+      }  
+    //breslowbaseline(i,0) = 1;//fuer weibull mit alpha=1
+    //breslowcumbaseline(i,0) = zi(i,0);//fuer weibull mit alpha=1  
     }
-  if(workresponse==0.0)
+    if(firstevent>0)
     {
-    breslowbaseline(i,0) = breslowbaseline(i-1,0);     
+      for(i=0;i<firstevent;i++)
+       {
+       breslowbaseline(i,0) = breslowbaseline(firstevent,0);
+       breslowcumbaseline(i,0) = breslowcumbaseline(firstevent,0);
+       }
     }
-
-  //breslowbaseline(i,0) = 1;//fuer weibull mit alpha=1
-  //breslowcumbaseline(i,0) = zi(i,0);//fuer weibull mit alpha=1  
-  spline(i,0) = log(breslowbaseline(i,0));
-}
+    for(i=0;i<zi.rows();i++)
+    {
+    spline(i,0) = log(breslowbaseline(i,0));
+    }
     
   // compute the new ratio log-cumbaseline(zi)/logbaseline(zi) to enter the likelihood
   compute_int_ti_partiallikelihood(breslowcumbaseline, breslowbaseline);

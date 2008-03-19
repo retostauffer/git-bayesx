@@ -59,9 +59,11 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
    // NEW FOR PARTIALLIKELIHOOD
    bool PartialLikelihood;                // If 'True' Partial Likelihood is used
                                           // is implemented for time indepentent effects!
+   unsigned firstevent;                   // Index of the first event
    datamatrix PartialLikelihood_Riskset;  // Matrix for the Riskset of the partial Likelihood
-   datamatrix breslowbaseline;            // Matrix that contains the current values of Breslows baseline
-   datamatrix breslowcumbaseline;         // Matrix that contains the current values of Breslows cumulative baseline
+   datamatrix breslowdeltatime;           // Matrix for Timeintervals between successive events
+   datamatrix breslowbaseline;            // Matrix for current values of Breslows baseline
+   datamatrix breslowcumbaseline;         // Matrix for current values of Breslows cumulative baseline
    
 
   public:
