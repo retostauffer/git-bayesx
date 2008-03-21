@@ -27,7 +27,7 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
   param = datamatrix(designp->nrpar,1,0);
   lambda=1;
   tau2 = likep->get_scale()/lambda;
-  betahelp = beta;  
+  betahelp = beta;
   }
 
 
@@ -96,7 +96,6 @@ void FC_nonp::update(void)
   designp->compute_f(param,beta);
 
   designp->update_linpred(beta,true);
-
 
   acceptance++;
 

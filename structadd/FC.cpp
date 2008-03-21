@@ -474,8 +474,8 @@ bool FC::posteriormode(void)
   for(i=0;i<beta.rows();i++)
     for (j=0;j<beta.cols();j++,workbetamean++,workbeta++)
       {
-//      *workbetamean = transform(j,0) * (*workbeta)+addon;
-      betamean(i,0) = transform(j,0) * beta(i,0)+addon;
+      *workbetamean = transform(j,0) * (*workbeta)+addon;
+//      betamean(i,j) = transform(j,0) * beta(i,j)+addon;
       }
 
   if (diffmean <= 0.00001)

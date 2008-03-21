@@ -357,7 +357,9 @@ bool DISTR_gaussian::posteriormode(void)
 
   sigma2 = (1.0/nrobs)*sum;
 
-  return true;
+  FCsigma2.beta(0,0) = sigma2;
+
+  return FCsigma2.posteriormode();
 
   }
 
@@ -395,33 +397,36 @@ void DISTR_gaussian::outresults(ST::string pathresults)
   optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
         ST::doubletostring(FCsigma2.betamean(0,0),6) + "\n");
 
-  vstr = "  Std. dev.:    ";
-  if (FCsigma2.betavar(0,0) < 0)
-    help = 0;
-  else
-    help = sqrt(FCsigma2.betavar(0,0));
-  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-  ST::doubletostring(help,6) + "\n");
+  if (optionsp->samplesize > 1)
+    {
+    vstr = "  Std. dev.:    ";
+    if (FCsigma2.betavar(0,0) < 0)
+      help = 0;
+    else
+      help = sqrt(FCsigma2.betavar(0,0));
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(help,6) + "\n");
 
-  vstr = "  " + l1 + "% Quantile: ";
-  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-  ST::doubletostring(FCsigma2.betaqu_l1_lower(0,0),6) + "\n");
+    vstr = "  " + l1 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(FCsigma2.betaqu_l1_lower(0,0),6) + "\n");
 
-  vstr = "  " + l2 + "% Quantile: ";
-  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-  ST::doubletostring(FCsigma2.betaqu_l2_lower(0,0),6) + "\n");
+    vstr = "  " + l2 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(FCsigma2.betaqu_l2_lower(0,0),6) + "\n");
 
-  vstr = "  50% Quantile: ";
-  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-  ST::doubletostring(FCsigma2.betaqu50(0,0),6) + "\n");
+    vstr = "  50% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(FCsigma2.betaqu50(0,0),6) + "\n");
 
-  vstr = "  " + u1 + "% Quantile: ";
-  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-  ST::doubletostring(FCsigma2.betaqu_l2_upper(0,0),6) + "\n");
+    vstr = "  " + u1 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(FCsigma2.betaqu_l2_upper(0,0),6) + "\n");
 
-  vstr = "  " + u2 + "% Quantile: ";
-  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-  ST::doubletostring(FCsigma2.betaqu_l1_upper(0,0),6) + "\n");
+    vstr = "  " + u2 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(FCsigma2.betaqu_l1_upper(0,0),6) + "\n");
+    }
 
 
   if (pathresults.isvalidfile() != 1)
@@ -435,26 +440,36 @@ void DISTR_gaussian::outresults(ST::string pathresults)
 
     ofstream outscale(pathresults.strtochar());
 
-    outscale << "pmean   pstddev   pqu" << nl1 << "   pqu" << nl2 <<
-              "   pqu50   pqu" << nu1 << "   pqu" << nu2 << endl;
+    if (optionsp->samplesize > 1)
+      {
+      outscale << "pmean   pstddev   pqu" << nl1 << "   pqu" << nl2 <<
+                "   pqu50   pqu" << nu1 << "   pqu" << nu2 << endl;
+      }
+    else
+      {
+      outscale << "pmean" << endl;
+      }
 
     outscale << FCsigma2.betamean(0,0) << "  ";
 
-    if (FCsigma2.betavar(0,0) < 0)
-      help = 0;
-    else
-      help = sqrt(FCsigma2.betavar(0,0));
-    outscale << help << "  ";
+    if (optionsp->samplesize > 1)
+      {
+      if (FCsigma2.betavar(0,0) < 0)
+        help = 0;
+      else
+        help = sqrt(FCsigma2.betavar(0,0));
+      outscale << help << "  ";
 
-    outscale << FCsigma2.betaqu_l1_lower(0,0) << "  ";
+      outscale << FCsigma2.betaqu_l1_lower(0,0) << "  ";
 
-    outscale << FCsigma2.betaqu_l2_lower(0,0) << "  ";
+      outscale << FCsigma2.betaqu_l2_lower(0,0) << "  ";
 
-    outscale << FCsigma2.betaqu50(0,0) << "  ";
+      outscale << FCsigma2.betaqu50(0,0) << "  ";
 
-    outscale << FCsigma2.betaqu_l2_upper(0,0) << "  ";
+      outscale << FCsigma2.betaqu_l2_upper(0,0) << "  ";
 
-    outscale << FCsigma2.betaqu_l1_upper(0,0) << "  ";
+      outscale << FCsigma2.betaqu_l1_upper(0,0) << "  ";
+      }
 
     outscale << endl;
     }

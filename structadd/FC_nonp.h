@@ -34,7 +34,10 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   DISTR * likep;                             // Pointer to DISTR obejct
   DESIGN * designp;                          // Pointer to design object
-  datamatrix param;                          // 
+
+  datamatrix param;                          // Parameters
+
+
   datamatrix partres;                        // stores partial residuals
 
   datamatrix betahelp;

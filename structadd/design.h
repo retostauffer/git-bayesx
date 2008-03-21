@@ -67,21 +67,18 @@ class __EXPORT_TYPE DESIGN
 
   public:
 
+  // Variables determined by function init_data
+
   datamatrix data;                           // data matrix
-  datamatrix data2;                          // vor varying coefficients
+  datamatrix intvar;                         // interaction variable for
+                                             // varying coefficients
+
                                              //
-  statmatrix<int> index_data;                // index for index sort of data
+  statmatrix<int> index_data;                // index for sort of data
   vector<ST::string> datanames;              // names of covariates
 
   vector<ST::string> effectvalues;           // values of the different
                                              // covariates
-
-  datamatrix Z;
-  statmatrix<int> index_Z;
-  vector<int> posbeg_Z;                      // begin and end of equal covariate
-                                             // values in data
-  vector<int> posend_Z;
-
 
 
 
@@ -94,33 +91,42 @@ class __EXPORT_TYPE DESIGN
                                              // values in data
   vector<int> posend;
 
+  unsigned nrpar;                            // number of parameters
 
+  // ---------------------------------------------------------------------------
 
-  unsigned nrpar;                            // number of parameters                                    
-
-
+  // Variables determined by function compute_penalty
 
   envmatdouble K;                            // Penalty Matrix
   double rankK;
+
+  // ---------------------------------------------------------------------------
+
+  // Variables determined by function compute_precision
+
+  envmatdouble precision;                    // precision matrix
+  bool precisiondeclared;                    // true if precision is already
+                                             // defined
+
+  // ---------------------------------------------------------------------------
+
+  // Variables determined by function  compute_XtransposedWX_XtransposedWres
+  // and compute_XtransposedWres
 
   envmatdouble XWX;                          // X'WX
   bool XWXdeclared;                          // is true if X'WX is already
                                              // defined (i.e. memory allocated
                                              // etc.)
 
-
-  envmatdouble precision;                    // precision matrix
-  bool precisiondeclared;                    // true if precision is already
-                                             // defined                         
-
   datamatrix XWres;                          // X'W(y-eta)
   bool XWresdeclared;
+
+  // ---------------------------------------------------------------------------
 
   ttype type;
 
 
-
-//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
+  //----------------------- CONSTRUCTORS, DESTRUCTOR ---------------------------
 
   // DEFAULT CONSTRUCTOR
 
@@ -128,7 +134,7 @@ class __EXPORT_TYPE DESIGN
 
   // CONSTRUCTOR
 
-  DESIGN(const datamatrix & dm, DISTR * dp);
+  DESIGN(DISTR * dp);
 
   // COPY CONSTRUCTOR
 
@@ -138,27 +144,43 @@ class __EXPORT_TYPE DESIGN
 
   const DESIGN & operator=(const DESIGN & m);
 
+  //----------------------------------------------------------------------------
 
-  // FUNCTION: compute_design
-  // TASK:
-  //       nrpar = number of parameters is defined
 
-  virtual void compute_design(void);
+  void compute_precision(double l);
+
+  void compute_f(datamatrix & beta,datamatrix & f);
+
+  void update_linpred(datamatrix & f,bool add);
+
+
+  // ------------------------- VIRTUAL FUNCTIONS -------------------------------
+
+  // FUNCTION: init_data
+  // TASK: sorts the data such that the precision has minimum envelope
+  //       computes index_data
+  //       computes Zout, posbeg, posend
+  //       computes nrpar
+  //       computes effectvalues
+
+  virtual void init_data(datamatrix & dm, datamatrix & iv);
 
   // FUNCTION: compute_penalty
   // TASK: computes the penalty matrix and determines rankK
 
   virtual void compute_penalty(void);
 
+  // FUNCTION: compute_XtransposedWX_XtransposedWres
+  // TASK: computes XWX and XWres, res is the partial residual
+
   virtual void compute_XtransposedWX_XtransposedWres(const datamatrix & res);
+
+  // FUNCTION: computes XWres
+  // TASK: computes XWres, res is the partial residual
 
   virtual void compute_XtransposedWres(const datamatrix & res);
 
-  void compute_precision(double l);  
-
-  void compute_f(datamatrix & beta,datamatrix & f);
-
-  void update_linpred(datamatrix & f,bool add);
+  // --------------------- END: VIRTUAL FUNCTIONS ------------------------------
 
   // DESTRUCTOR
 
@@ -177,6 +199,7 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   {
 
   MAP::map ma;
+  datamatrix data2;                          // vor varying coefficients
 
   protected:
 
@@ -194,7 +217,8 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   // CONSTRUCTOR 1
   // Spatial covariates
 
-  DESIGN_mrf(const datamatrix & dm, DISTR * dp, const MAP::map & m);
+  DESIGN_mrf(const datamatrix & dm, const datamatrix & iv,
+             DISTR * dp, const MAP::map & m);
 
   // COPY CONSTRUCTOR
 
@@ -204,15 +228,15 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
 
   const DESIGN_mrf & operator=(const DESIGN_mrf & m);
 
-  void compute_design(void);
+  // virtual functions
 
-  void compute_Z(void);
+  void init_data(datamatrix & dm, datamatrix & iv);
 
   void compute_penalty(void);
 
   void compute_XtransposedWX_XtransposedWres(const datamatrix & res);
 
-  void compute_XtransposedWres(const datamatrix & res);  
+  void compute_XtransposedWres(const datamatrix & res);
 
   // DESTRUCTOR
 
