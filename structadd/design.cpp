@@ -241,7 +241,6 @@ void DESIGN::update_linpred(datamatrix & f,bool add)
   }
 
 
-
 //------------------------------------------------------------------------------
 //-------------- CLASS: DESIGN_mrf implementation of member functions ----------
 //------------------------------------------------------------------------------
@@ -461,6 +460,134 @@ void DESIGN_mrf::compute_XtransposedWres(const datamatrix & res)
     }
 
   }
+
+
+//------------------------------------------------------------------------------
+//------------ CLASS: DESIGN_hrandom implementation of member functions --------
+//------------------------------------------------------------------------------
+
+
+DESIGN_hrandom::DESIGN_hrandom(void)
+  {
+
+  }
+
+
+DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
+                               DISTR * dp, DISTR * dp_RE)
+      : DESIGN(dp)
+  {
+  likep_RE = dp_RE;
+
+  type = hrandom;
+
+  init_data(dm,iv);
+
+  compute_penalty();
+
+  datamatrix help(dm.rows(),1,1);
+  compute_XtransposedWX_XtransposedWres(help);
+
+  compute_precision(1.0);
+
+  }
+
+
+DESIGN_hrandom::DESIGN_hrandom(const DESIGN_hrandom & m)
+  {
+  likep_RE = m.likep_RE;
+  }
+
+
+const DESIGN_hrandom & DESIGN_hrandom::operator=(const DESIGN_hrandom & m)
+  {
+  if (this == &m)
+    return *this;
+  DESIGN::operator=(DESIGN(m));
+  likep_RE = m.likep_RE;
+  return *this;
+
+  }
+
+
+void DESIGN_hrandom::init_data(datamatrix & dm, datamatrix & iv)
+  {
+
+  // TASK: sorts the data such that the precision has minimum envelope
+  //       computes index_data
+  //       computes Zout, posbeg, posend
+  //       computes nrpar
+  //       computes effectvalues
+  //       initializes datanames
+
+
+  unsigned j;
+
+  index_data = statmatrix<int>(dm.rows(),1);
+  index_data.indexinit();
+  dm.indexsort(index_data,0,dm.rows()-1,0,0);
+
+  data = datamatrix(dm.rows(),1);
+  double * workdata = data.getV();
+  int * workindex = index_data.getV();
+  for (j=0;j<dm.rows();j++,workdata++,workindex++)
+    *workdata = dm(*workindex,1);
+
+  posbeg.push_back(0);
+  workdata = data.getV()+1;
+  double help = data(0,0);
+  for(j=1;j<data.rows();j++,workdata++)
+    {
+    if (  *workdata != help)
+      {
+      posend.push_back(j-1);
+      if (j < data.rows()-1)
+        posbeg.push_back(j);
+      }
+
+    help = *workdata;
+
+    }
+
+  if (posend.size() < posbeg.size())
+    posend.push_back(data.rows()-1);
+
+  nrpar = posbeg.size();
+
+  for(j=0;j<posbeg.size();j++)
+    effectvalues.push_back(ST::doubletostring(data(posbeg[j],1)));
+
+  datanames.push_back("X_1");
+
+  Zout = datamatrix(posbeg.size(),1,1);
+  index_Zout = statmatrix<int>(Zout.rows(),1);
+  index_Zout.indexinit();
+
+  }
+
+
+
+
+void DESIGN_hrandom::compute_penalty(void)
+  {
+
+  }
+
+
+void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(const datamatrix & res)
+  {
+
+
+  }
+
+
+void DESIGN_hrandom::compute_XtransposedWres(const datamatrix & res)
+  {
+
+
+  }
+
+
 
 
 } // end: namespace MCMC

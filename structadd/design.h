@@ -49,7 +49,8 @@ enum ttype {
                 mrfkr2,
                 npspline,
                 smoothspline,
-                kriging
+                kriging,
+                hrandom
                 };
 
 
@@ -162,6 +163,7 @@ class __EXPORT_TYPE DESIGN
   //       computes Zout, posbeg, posend
   //       computes nrpar
   //       computes effectvalues
+  //       initializes datanames 
 
   virtual void init_data(datamatrix & dm, datamatrix & iv);
 
@@ -241,6 +243,59 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   // DESTRUCTOR
 
   ~DESIGN_mrf() {}
+
+  };
+
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DESIGN_hrandom ----------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
+  {
+
+
+  protected:
+
+  DISTR * likep_RE;
+
+  public:
+
+
+//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
+
+  // DEFAULT CONSTRUCTOR
+
+  DESIGN_hrandom(void);
+
+  // CONSTRUCTOR 1
+  // Spatial covariates
+
+  DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
+             DISTR * dp,DISTR * dp_RE);
+
+  // COPY CONSTRUCTOR
+
+  DESIGN_hrandom(const DESIGN_hrandom & m);
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DESIGN_hrandom & operator=(const DESIGN_hrandom & m);
+
+  // virtual functions
+
+  void init_data(datamatrix & dm, datamatrix & iv);
+
+  void compute_penalty(void);
+
+  void compute_XtransposedWX_XtransposedWres(const datamatrix & res);
+
+  void compute_XtransposedWres(const datamatrix & res);
+
+  // DESTRUCTOR
+
+  ~DESIGN_hrandom() {}
 
   };
 
