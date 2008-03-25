@@ -5404,7 +5404,7 @@ for(i=0; i<nrobs; i++)
         }
       }*/
 
-    if(!aicstop)
+    if(!aicstop && !constlambda)
       {
       // transform theta
       for(i=0; i<theta.rows(); i++)
@@ -5516,7 +5516,7 @@ for(i=0; i<nrobs; i++)
         }
       }
 
-   if(!aicstop)
+   if(!aicstop && ! constlambda)
      {
      // test whether to stop estimation of theta[i]
      help=eta.norm(0);
