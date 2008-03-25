@@ -544,6 +544,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
 
   // matrix for the baselinecomponents 
   firstevent = 0;
+  lastevent = likep->get_nrobs();
   breslowdeltatime = datamatrix(likep->get_nrobs(),1,0);
   breslowbaseline = datamatrix(likep->get_nrobs(),1,0);
   breslowcumbaseline = datamatrix(likep->get_nrobs(),1,0);
@@ -586,6 +587,7 @@ pspline_baseline::pspline_baseline(const pspline_baseline & fc)
   PartialLikelihood = fc.PartialLikelihood;
   PartialLikelihood_Riskset = fc.PartialLikelihood_Riskset;
   firstevent = fc.firstevent;
+  lastevent =fc.lastevent;
   breslowdeltatime = fc.breslowdeltatime;
   breslowbaseline = fc.breslowbaseline; 
   breslowcumbaseline = fc.breslowcumbaseline;
@@ -628,7 +630,8 @@ const pspline_baseline & pspline_baseline::operator=(const pspline_baseline & fc
   // NEW FOR PARTIALLIKELIHOOD
   PartialLikelihood = fc.PartialLikelihood;
   PartialLikelihood_Riskset = fc.PartialLikelihood_Riskset; 
-  firstevent =fc.firstevent;
+  firstevent = fc.firstevent;
+  lastevent = fc.lastevent;
   breslowdeltatime =  fc.breslowdeltatime;
   breslowbaseline = fc.breslowbaseline;   
   breslowcumbaseline = fc.breslowcumbaseline;
@@ -982,29 +985,29 @@ if(PartialLikelihood)
       if(workresponse==1)
         {
         helpindex = i;
+        lastevent = helpindex;
         }
       }  
 
 //TEMP:BEGIN--------------------------------------------------------------------
-ofstream output_dt("c:/bayesx/test/test_deltatime.txt", ios::out|ios::app);
-output_dt << firstevent <<"\n";
-for(i =0; i<zi.rows();i++)
-{
-output_dt << i << " " << likep->get_response(i,0) << " " << zi(i,0) << " " << breslowdeltatime(i,0) << "\n";
-}
+//ofstream output_dt("c:/bayesx/test/test_deltatime.txt", ios::out|ios::app);
+//output_dt << firstevent <<"\n";
+//output_dt << lastevent <<"\n";
+//output_dt << helpindex <<"\n";
+//for(i =0; i<zi.rows();i++)
+//{
+//output_dt << i << " " << likep->get_response(i,0) << " " << zi(i,0) << " " << breslowdeltatime(i,0) << "\n";
+//}
 //TEMP:END----------------------------------------------------------------------
 
 
     }
 
-ofstream output_fe("c:/bayesx/test/test_fe.txt", ios::out|ios::app);
-output_fe << firstevent <<"\n";
-
   workintercept = fcconst->getbeta(0,0);
 
 //TEMP:BEGIN--------------------------------------------------------------------
-//ofstream output_1("c:/bayesx/test/test_intercept.txt", ios::out|ios::app);
-//output_1 << workintercept << "\n";
+//ofstream output_1("c:/bayesx/test/test_cbh.txt", ios::out|ios::app);
+
 //TEMP:END----------------------------------------------------------------------
 
   // compute current values of the log-baselinehazard
@@ -1037,10 +1040,7 @@ output_fe << firstevent <<"\n";
       {
       breslowbaseline(i,0) = workresponse/(breslowdeltatime(i,0)*riskset_linpred);
       }
-    if(workresponse==0.0 && i>firstevent)
-      {
-      breslowbaseline(i,0) = breslowbaseline(i-1,0);     
-      }  
+
     //breslowbaseline(i,0) = 1;//fuer weibull mit alpha=1
     //breslowcumbaseline(i,0) = zi(i,0);//fuer weibull mit alpha=1  
     }
@@ -1052,6 +1052,23 @@ output_fe << firstevent <<"\n";
        breslowcumbaseline(i,0) = breslowcumbaseline(firstevent,0);
        }
     }
+    for(i=(lastevent-1);i>firstevent;i--)
+    {
+      workresponse = likep->get_response(i,0);
+      if(workresponse==0.0)
+        {
+        breslowbaseline(i,0) = breslowbaseline(i+1,0);
+//        output_1 << i << "\n";
+        }
+    }
+    if(lastevent<(zi.rows()-1))
+    {
+      for(i=(lastevent+1);i<zi.rows();i++)
+       {
+       breslowbaseline(i,0) = breslowbaseline(lastevent,0);
+       }
+    }
+
     for(i=0;i<zi.rows();i++)
     {
     spline(i,0) = log(breslowbaseline(i,0));
