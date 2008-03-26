@@ -549,6 +549,9 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   breslowbaseline = datamatrix(likep->get_nrobs(),1,0);
   breslowcumbaseline = datamatrix(likep->get_nrobs(),1,0);
   
+  ST::string path = fp.substr(0,fp.length()-4)+"_breslowcumbaseline.raw";
+  fc_breslowcumbaseline = FULLCOND(o,datamatrix(likep->get_nrobs(),1),title+"_breslow",likep->get_nrobs(),1,path);
+  fc_breslowcumbaseline.setflags(MCMC::norelchange | MCMC::nooutput);  
   }
 
 
@@ -591,6 +594,7 @@ pspline_baseline::pspline_baseline(const pspline_baseline & fc)
   breslowdeltatime = fc.breslowdeltatime;
   breslowbaseline = fc.breslowbaseline; 
   breslowcumbaseline = fc.breslowcumbaseline;
+  fc_breslowcumbaseline = fc.fc_breslowcumbaseline;
   }
 
 
@@ -635,6 +639,7 @@ const pspline_baseline & pspline_baseline::operator=(const pspline_baseline & fc
   breslowdeltatime =  fc.breslowdeltatime;
   breslowbaseline = fc.breslowbaseline;   
   breslowcumbaseline = fc.breslowcumbaseline;
+  fc_breslowcumbaseline = fc.fc_breslowcumbaseline;
 
   return *this;
   }
@@ -951,19 +956,25 @@ if(PartialLikelihood)
   double riskset_linpred;
   double sumbaseline = 0.0;
   double helpcumbaseline;
+  double * workbcb = fc_breslowcumbaseline.getbetapointer();
+  
     
   // Startwerte fuer 1. Iteration + Initialisieren der baseline-Matrizen
   if(optionsp->get_nriter()==1)
     {
     beta(0,0) = 1.0;
-    for(i=0;i<zi.rows();i++)
+    for(i=0;i<zi.rows();i++,workbcb++)
       {
       spline(i,0)=0.0;      
       breslowbaseline(i,0) = 1.0;
       breslowcumbaseline(i,0) = 1.0;
+      *workbcb = 0.0;
       }
     likep->add_linearpred_m(spline,column,true);
-
+    fc_breslowcumbaseline.update();
+    workbcb = fc_breslowcumbaseline.getbetapointer();
+    
+    // Get index of first event
     i = 0;
     while(helpindex<0)
       {
@@ -978,6 +989,7 @@ if(PartialLikelihood)
  
     firstevent = helpindex;    
 
+    // Get index of last event
     for(i =(helpindex+1); i<zi.rows();i++)
       {
       breslowdeltatime(i,0) = zi(i,0) - zi(helpindex,0);
@@ -1020,7 +1032,7 @@ if(PartialLikelihood)
   likep->substr_linearpred_m(spline,column,true);
 
   // compute new value of the Breslows log-baselinehazard
-  for(i=0;i<zi.rows();i++)
+  for(i=0;i<zi.rows();i++,workbcb++)
     {    
     workresponse = likep->get_response(i,0);                   // value of the response delta_i {0,1}
     riskset_linpred = 0.0;
@@ -1034,7 +1046,7 @@ if(PartialLikelihood)
     helpcumbaseline = workresponse/riskset_linpred;  
     sumbaseline = sumbaseline + helpcumbaseline;
     breslowcumbaseline(i,0) = sumbaseline;  
-    
+    *workbcb = sumbaseline;
   
     if(workresponse==1.0)
       {
@@ -1044,6 +1056,7 @@ if(PartialLikelihood)
     //breslowbaseline(i,0) = 1;//fuer weibull mit alpha=1
     //breslowcumbaseline(i,0) = zi(i,0);//fuer weibull mit alpha=1  
     }
+    
     if(firstevent>0)
     {
       for(i=0;i<firstevent;i++)
@@ -1052,6 +1065,7 @@ if(PartialLikelihood)
        breslowcumbaseline(i,0) = breslowcumbaseline(firstevent,0);
        }
     }
+    
     for(i=(lastevent-1);i>firstevent;i--)
     {
       workresponse = likep->get_response(i,0);
@@ -1073,6 +1087,8 @@ if(PartialLikelihood)
     {
     spline(i,0) = log(breslowbaseline(i,0));
     }
+    
+    fc_breslowcumbaseline.update();
     
   // compute the new ratio log-cumbaseline(zi)/logbaseline(zi) to enter the likelihood
   compute_int_ti_partiallikelihood(breslowcumbaseline, breslowbaseline);
@@ -1105,8 +1121,86 @@ if(PartialLikelihood)
         }
       }
     }
+
+  if(optionsp->get_nriter()==optionsp->get_iterations())
+    {
+      fc_breslowcumbaseline.outresults();
+    
+      ST::string l1 = ST::doubletostring(lower1,4);
+      ST::string l2 = ST::doubletostring(lower2,4);
+      ST::string u1 = ST::doubletostring(upper1,4);
+      ST::string u2 = ST::doubletostring(upper2,4);
+    
+      ST::string nl1 = ST::doubletostring(lower1,4);
+      ST::string nl2 = ST::doubletostring(lower2,4);
+      ST::string nu1 = ST::doubletostring(upper1,4);
+      ST::string nu2 = ST::doubletostring(upper2,4);
+      nl1 = nl1.replaceallsigns('.','p');
+      nl2 = nl2.replaceallsigns('.','p');
+      nu1 = nu1.replaceallsigns('.','p');
+      nu2 = nu2.replaceallsigns('.','p');
+    
+    
+      // Datei-Ausgabe Ergebnisse
+      ST::string breslowcumbaseline_pathresults = pathresult.substr(0,pathresult.length()-15) + "breslowcumbaseline.res";
+      ofstream ou(breslowcumbaseline_pathresults.strtochar());
+    
+    //  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+    //  nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
+      ou << "time  delta  cumbaseline" << endl;  
+      for(unsigned i=0; i<zi.rows(); i++)
+        {
+        ou << zi(i,0) << "  " << likep->get_response(i,0) << "  "<< fc_breslowcumbaseline.get_betamean(i,0) << "  "<< endl;
+        }
+      
+      optionsp->out("  Results for the breslowcumbaseline parameter are also stored in file\n");
+      optionsp->out("  " + breslowcumbaseline_pathresults + "\n");
+    
+      optionsp->out("\n");
+    }
     
 }
+
+
+/*void pspline_baseline::outresults_breslowcumbaseline(void)
+  {
+
+  fc_breslowcumbaseline.outresults();
+
+  ST::string l1 = ST::doubletostring(lower1,4);
+  ST::string l2 = ST::doubletostring(lower2,4);
+  ST::string u1 = ST::doubletostring(upper1,4);
+  ST::string u2 = ST::doubletostring(upper2,4);
+
+  ST::string nl1 = ST::doubletostring(lower1,4);
+  ST::string nl2 = ST::doubletostring(lower2,4);
+  ST::string nu1 = ST::doubletostring(upper1,4);
+  ST::string nu2 = ST::doubletostring(upper2,4);
+  nl1 = nl1.replaceallsigns('.','p');
+  nl2 = nl2.replaceallsigns('.','p');
+  nu1 = nu1.replaceallsigns('.','p');
+  nu2 = nu2.replaceallsigns('.','p');
+
+
+  // Datei-Ausgabe Ergebnisse
+  ST::string breslowcumbaseline_pathresults = fp.substr(0,fp.length()-7) + "breslowcumbaseline.res";
+  ofstream ou(breslowcumbaseline_pathresults.strtochar());
+
+//  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+//  nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
+  ou << "varname" << endl;  
+  for(unsigned i=0; i<beta.rows(); i++)
+    {
+    ou << fc_breslowcumbaseline.get_betamean(i,0) << "  "<< endl;
+    }
+  
+  optionsp->out("  Results for the breslowcumbaseline parameter are also stored in file\n");
+  optionsp->out("  " + breslowcumbaseline_pathresults + "\n");
+
+  optionsp->out("\n");
+  } 
+*/
+  
 // END FOR PARTIALLIKELIHOOD
 //##############################################################################
 

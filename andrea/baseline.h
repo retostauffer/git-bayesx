@@ -65,6 +65,7 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
    datamatrix breslowdeltatime;           // Matrix for Timeintervals between successive events
    datamatrix breslowbaseline;            // Matrix for current values of Breslows baseline
    datamatrix breslowcumbaseline;         // Matrix for current values of Breslows cumulative baseline
+   FULLCOND fc_breslowcumbaseline;        // Fullcond for Breslows cumulative baseline
    
 
   public:
