@@ -1618,7 +1618,14 @@ void pspline_baseline::compute_int_ti_partiallikelihood(const datamatrix & cumba
     {
     if(begin0==true)
       {
-      *int_ti_p = cumbaseline(i,0)/baseline(i,0);
+      if(cumbaseline(i,0)==0.0)
+        {
+        *int_ti_p = 1/baseline(i,0);
+        }
+      if(cumbaseline(i,0)!=0.0)
+        {
+        *int_ti_p = cumbaseline(i,0)/baseline(i,0);
+        }
       }
       
     }
