@@ -118,6 +118,8 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
       else
         center = true;
 
+      // SUSI: read new opttion form the options list
+
       f = (terms[i].options[21]).strtodouble(mvar);
 
       if (f==1)
