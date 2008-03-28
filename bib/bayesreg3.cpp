@@ -20,7 +20,272 @@
 
 bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
   {
+
+  ST::string monotone;
+  ST::string proposal;
+
   long h;
+  unsigned min,max,degree,nrknots;
+  double lambda, mvar;
+  double a1,b1;
+  int gridsize, contourprob;
+  int f;
+  bool diagtransform,derivative,center;
+
+  unsigned i,j,k;
+  int j1,j2;
+  for(i=0;i<terms.size();i++)
+    {
+    if ( nonpvarcoeffmerror.checkvector(terms,i) == true )
+      {
+
+      MCMC::fieldtype type;
+      if (terms[i].options[0] == "merrorrw1")
+        type = MCMC::RW1;
+      else
+        type = MCMC::RW2;
+
+      // extract interaction variables
+      ST::string test = terms[i].varnames[0].substr(0,terms[i].varnames[0].length()-7);
+      datamatrix medata = datamatrix(D.rows(),2,0);
+      for(k=0; k<2; k++)
+        {
+        j1 = (test+ST::inttostring(k+1)).isinlist(modelvarnamesv);
+        medata.putCol(k, D.getCol(j1));
+        }
+      terms[i].varnames[0] = test;
+
+      datamatrix meandata = datamatrix(D.rows(),1,0);
+      unsigned mecols = medata.cols();
+      for(k=0; k<D.rows(); k++)
+        {
+        for(j=0; j<mecols; j++)
+          {
+          meandata(k,0) = medata(k,j);
+          }
+        meandata(k,0) /= mecols;
+        }
+
+      // extract effect modifier
+      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
+
+      f = (terms[i].options[1]).strtolong(h);
+      min = unsigned(h);
+
+      f = (terms[i].options[2]).strtolong(h);
+      max = unsigned(h);
+
+      f = (terms[i].options[3]).strtolong(h);
+      degree = unsigned(h);
+
+      f = (terms[i].options[4]).strtolong(h);
+      nrknots = unsigned(h);
+
+      f = (terms[i].options[5]).strtodouble(lambda);
+
+      f = (terms[i].options[6]).strtolong(h);
+      gridsize = unsigned(h);
+
+      f = (terms[i].options[7]).strtodouble(a1);
+
+      f = (terms[i].options[8]).strtodouble(b1);
+
+      proposal = terms[i].options[9];
+      monotone = terms[i].options[10];
+
+      MCMC::knotpos po;
+
+      if (knots.getvalue() == "equidistant" && terms[i].options[19] == "equidistant")
+        po = MCMC::equidistant;
+      else
+        po = MCMC::quantiles;
+
+      if (terms[i].options[14] == "false")
+        diagtransform = false;
+      else
+        diagtransform = true;
+
+      if (terms[i].options[15] == "false")
+        derivative = false;
+      else
+        derivative = true;
+
+      f = (terms[i].options[16]).strtolong(h);
+      contourprob = unsigned(h);
+
+      if (terms[i].options[20] == "false")
+        center = false;
+      else
+        center = true;
+
+      f = (terms[i].options[21]).strtodouble(mvar);
+
+      if (f==1)
+        return true;
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                 terms[i].varnames[0],
+                 "_pspline.raw","_pspline.res","_pspline");
+
+      if(proposal == "cp")
+        {
+
+        fcpspline.push_back( FULLCOND_pspline(&generaloptions[generaloptions.size()-1],
+                                              distr[distr.size()-1],
+                                              fcconst_intercept,
+                                              D.getCol(j2),
+                                              medata,
+                                              nrknots,
+                                              degree,
+                                              po,
+                                              lambda,
+                                              min,
+                                              max,
+                                              type,
+                                              title,
+                                              pathnonp,
+                                              pathres,
+                                              derivative,
+                                              gridsize,
+                                              collinpred
+                                             )
+                           );
+
+        if (constlambda.getvalue() == true)
+          fcpspline[fcpspline.size()-1].set_lambdaconst(lambda);
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[0]);
+        fcpspline[fcpspline.size()-1].init_names(na);
+        fcpspline[fcpspline.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fcpspline[fcpspline.size()-1]);
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                   terms[i].varnames[0],"_pspline_var.raw",
+                   "_pspline_var.res","_pspline_variance");
+
+        fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+                                     &fcpspline[fcpspline.size()-1],
+                                     distr[distr.size()-1],
+                                     a1,
+                                     b1,
+                                     title,pathnonp,pathres,
+                                     false,collinpred)
+                           );
+         if (constlambda.getvalue() == false)
+          {
+          if(terms[i].options[17]=="true")
+              fcvarnonp[fcvarnonp.size()-1].set_uniformprior();
+          fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+          }
+        }
+      else
+        {
+
+        bool iwlsmode;
+        if(proposal == "iwlsmode")
+          iwlsmode = true;
+        else
+          iwlsmode = false;
+        f = (terms[i].options[11]).strtolong(h);
+        unsigned updateW;
+        updateW = unsigned(h);
+        bool updatetau;
+        if(terms[i].options[12] == "false" || constlambda.getvalue() == true)
+          updatetau = false;
+        else
+          updatetau = true;
+        double fstart;
+          f = (terms[i].options[13]).strtodouble(fstart);
+
+        fciwlspspline.push_back( IWLS_pspline(&generaloptions[generaloptions.size()-1],
+                                              distr[distr.size()-1],
+                                              fcconst_intercept,
+                                              D.getCol(j2),
+                                              medata,
+                                              iwlsmode,
+                                              nrknots,
+                                              degree,
+                                              po,
+                                              lambda,
+                                              type,
+                                              monotone,
+                                              updateW,
+                                              updatetau,
+                                              fstart,
+                                              a1,b1,
+                                              title,
+                                              pathnonp,
+                                              pathres,
+                                              derivative,
+                                              gridsize,
+                                              diagtransform,
+                                              collinpred
+                                             )
+                             );
+
+        if (constlambda.getvalue() == true)
+          fciwlspspline[fciwlspspline.size()-1].set_lambdaconst(lambda);
+
+        vector<ST::string> na;
+        na.push_back(terms[i].varnames[1]);
+        na.push_back(terms[i].varnames[0]);
+        fciwlspspline[fciwlspspline.size()-1].init_names(na);
+        fciwlspspline[fciwlspspline.size()-1].set_fcnumber(fullcond.size());
+        fullcond.push_back(&fciwlspspline[fciwlspspline.size()-1]);
+
+        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                     terms[i].varnames[0],"_pspline_var.raw",
+                     "_pspline_var.res","_pspline_variance");
+
+        fcvarnonp.push_back(FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
+                                       &fciwlspspline[fciwlspspline.size()-1],
+                                       distr[distr.size()-1],
+                                       a1,
+                                       b1,
+                                       title,pathnonp,pathres,
+                                       false,collinpred)
+                             );
+
+        if (constlambda.getvalue() == false)
+          {
+          if(updatetau)
+            fcvarnonp[fcvarnonp.size()-1].set_update_sigma2();
+          if(terms[i].options[17]=="true")
+            fcvarnonp[fcvarnonp.size()-1].set_uniformprior();
+          fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
+          fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
+          }
+
+        }
+
+        // Fullcond-Objekt zur Generierung der wahren Kovariablenwerte
+
+      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
+                 terms[i].varnames[0],"_merror.raw",
+                 "_merror.res","_merror");
+
+      fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
+                         &fciwlspspline[fciwlspspline.size()-1],
+                         distr[distr.size()-1],
+                                   medata,
+                                   D.getCol(j2),
+                                   title,
+                                   pathres)
+                         );
+
+      //SUSI: add value to the merror fullcond
+      fcmerror[fcmerror.size()-1].setmerroroptions(mvar);
+      fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
+      fullcond.push_back(&fcmerror[fcmerror.size()-1]);
+      }
+
+    }
+
+
+/*  long h;
   unsigned min, max, updateW, i, j, k;
   // SUSI: add variable for new option
   double lambda, a1, b1, alpha, hd, ftune, mvar;
@@ -181,7 +446,6 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
                  terms[i].varnames[0],"_merror.raw",
                  "_merror.res","_merror");
 
-/*
       fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
 //                         &fcnonpgaussian[fcnonpgaussian.size()-1],
                          &fcnonp[fcnonp.size()-1],
@@ -190,16 +454,16 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
                                    title,
                                    pathres)
                          );
-*/
+
       //SUSI: add value to the merror fullcond
       fcmerror[fcmerror.size()-1].setmerroroptions(mvar);
       fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcmerror[fcmerror.size()-1]);
       }
-    }
+    }*/
   return false;
   }
-
+  
 bool bayesreg::create_varcoeffpspline(const unsigned & collinpred)
   {
 

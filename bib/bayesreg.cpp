@@ -3198,6 +3198,12 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
       f = (terms[i].options[27]).strtodouble(alpha);
 
 // BEGIN: merror
+     f = (terms[i].options[30]).strtodouble(lowerknot);
+     f = (terms[i].options[31]).strtodouble(upperknot);
+
+     f = (terms[i].options[33]).strtodouble(lowergrid);
+     f = (terms[i].options[34]).strtodouble(uppergrid);
+
       if(testmerror)
         // covariates measured with measurement error
         // Overwrite some of the options
@@ -3207,13 +3213,15 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           gridsize = 500;              // evaluate the function on a grid
 
        f = (terms[i].options[32]).strtodouble(merrorvar);
+
+       if(lowerknot==upperknot)
+         {
+         double xmin = meandata.min(0);
+         double xmax = meandata.max(0);
+         lowerknot = xmin - 3*sqrt(merrorvar);
+         upperknot = xmax + 3*sqrt(merrorvar);
+         }
        }
-
-     f = (terms[i].options[30]).strtodouble(lowerknot);
-     f = (terms[i].options[31]).strtodouble(upperknot);
-
-     f = (terms[i].options[33]).strtodouble(lowergrid);
-     f = (terms[i].options[34]).strtodouble(uppergrid);
 
 // END: merror
 
