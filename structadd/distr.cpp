@@ -218,7 +218,8 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
   b_invgamma = b;
   family = "Gaussian";
 
-  standardise();
+//  standardise();
+//  trmult=1;
 
   FCsigma2 = FC(o,"Gaussian variance parameter",1,1,ps);
   FCsigma2.transform(0,0) = pow(trmult,2);
@@ -485,346 +486,59 @@ void DISTR_gaussian::outresults(ST::string pathresults)
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian_re -----------------------
 //------------------------------------------------------------------------------
-/*
-void DISTRIBUTION_gaussian_re::set_constscale(double s)
-  {
-  scale(0,0) = s/(trmult(0,0)*trmult(0,0));
-  constscale=true;
-  }
-
-void DISTRIBUTION_gaussian_re::undo_constscale(void)
-  {
-  constscale = false;
-  }
-
-void DISTRIBUTION_gaussian_re::set_uniformprior(void)
-  {
-  uniformprior=true;
-  }
 
 
-
-void DISTRIBUTION_gaussian_re::outoptions(void)
-  {
-  DISTRIBUTION::outoptions();
-  optionsp->out("  Response function: identity\n");
-  if(uniformprior)
-    {
-    optionsp->out("  Uniform prior on sigma\n");
-    }
-  else
-    {
-    optionsp->out("  Hyperparameter a: " + ST::doubletostring(a_invgamma,6) + "\n");
-    optionsp->out("  Hyperparameter b: " + ST::doubletostring(b_invgamma,6) + "\n");
-    }
-  optionsp->out("\n");
-  optionsp->out("\n");
-  }
-
-
-void DISTRIBUTION_gaussian_re::update(void)
-  {
-
-  register unsigned i;
-
-  double help;
-
-  double * worklin;
-  double * workresp;
-  double * workweight;
-
-
-  // scaleparameter
-
-  double sum = 0;
-
-  worklin = (*linpred_current).getV();
-  workresp = response.getV();
-  workweight = weight.getV();
-
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
-    {
-
-    help = *workresp - *worklin;
-    sum += *workweight*help*help;
-    }
-
-  if(uniformprior==true)
-    {
-    double help = 1000000;
-    while (help > 200000)
-      help = rand_invgamma(-0.5+0.5*nrobsmweightzero,0.5*sum);
-    scale(0,0) = help;
-    }
-  else
-    {
-    if(shrinkage)
-      {
-      scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero + 0.5*nrridge + 0.5*nrlasso,
-                     b_invgamma+0.5*sum + 0.5*ridgesum + 0.5*lassosum);
-      }
-    else
-      {
-      scale(0,0) = rand_invgamma(a_invgamma+0.5*nrobsmweightzero,
-                     b_invgamma+0.5*sum);
-      }
-    }
-
-  // Prediction
-
-  if (predictresponse==true)
-    {
-    worklin = (*linpred_current).getV();
-    workresp = response.getV();
-    workweight = weight.getV();
-    double * workpredictind = predictindicator.getV();
-    double sscale = sqrt(scale(0,0));
-
-    for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++,workpredictind++)
-      {
-      if (*workpredictind == 0)
-        {
-        *workresp = *worklin + (sscale/(*workweight))*rand_normal();
-        }
-
-      }
-    }
-
-
-  DISTRIBUTION::update();
-
-  }
-
-
-double DISTRIBUTION_gaussian_re::loglikelihood(double * res,
-                       double * lin,
-                       double * w,
-                       const int & i) const
-  {
-  double help = *res-*lin;
-  return  - *w * ( help * help )/(2* scale(0,0));
-  }
-
-
-bool DISTRIBUTION_gaussian_re::posteriormode(void)
-  {
-
-  unsigned i;
-
-  double * worklin = (*linpred_current).getV();
-  double * workresp = response.getV();
-  double * workweight = weight.getV();
-
-  double sum = 0;
-  double help;
-  double sumweight=0;
-
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
-    {
-    help = *workresp - *worklin;
-    sum += *workweight*help*help;
-    sumweight += *workweight;
-    }
-
-
-  if (constscale==false)
-    scale(0,0) = (1.0/sumweight)*sum;
-
-
-  return true;
-
-  }
-
-
-// constructor without offset
-DISTRIBUTION_gaussian_re::DISTRIBUTION_gaussian_re(const double & a,
-                                             const double & b,
-                                             MCMCoptions * o,
-                                             const datamatrix & r,
-                                             const ST::string & p,
-                                             const ST::string & ps,
-                                             const datamatrix & w)
-  : DISTRIBUTION(o,r,w,p,ps)
-
-  {
-// auskommentiert um nichtinformative Prioris zu erlauben
-//  assert (a > 0);
-//  assert (b > 0);
-
-  constscale=false;
-  uniformprior=false;
-
-  a_invgamma = a;
-  b_invgamma = b;
-  family = "Gaussian_re";
-
-  acceptancescale=100;
-
-  constant_iwlsweights=true;
-  iwlsweights_notchanged_df = true;
-
-  }
-
-
-// constructor with offset
-DISTRIBUTION_gaussian_re::DISTRIBUTION_gaussian_re(const datamatrix & offset,
-                      const double & a, const double & b, MCMCoptions * o,
-                      const datamatrix & r,const ST::string & p,
-                      const ST::string & ps,const datamatrix & w)
-  : DISTRIBUTION(offset,o,r,w,p,ps)
+DISTR_gaussian_re::DISTR_gaussian_re(GENERAL_OPTIONS * o, DISTR * dp,
+                                     const datamatrix & r, const datamatrix & w)
+  : DISTR_gaussian(1,1,o,r,"",w)
 
   {
 
-// auskommentiert um nichtinformative Prioris zu erlauben
-//  assert (a > 0);
-//  assert (b > 0);
-
-  constscale=false;
-  uniformprior=false;
-
-  a_invgamma = a;
-  b_invgamma = b;
-  family = "Gaussian_re";
-
-  acceptancescale=100;
-
-  constant_iwlsweights=true;
-  iwlsweights_notchanged_df = true;
-
-  }
-
-
-void DISTRIBUTION_gaussian_re::set_distrpointer(DISTRIBUTION * dp)
-  {
   distrp = dp;
-  trmult = distrp->get_trmultmat();
+  trmult = dp->trmult;
 
-  datamatrix tr(1,1,trmult(0,0)*trmult(0,0));
-  Scalesave.set_transformmult(tr);
+  family = "Gaussian_random_effect";
 
   }
 
-const DISTRIBUTION_gaussian_re & DISTRIBUTION_gaussian_re::operator=(
-                                      const DISTRIBUTION_gaussian_re & nd)
+
+const DISTR_gaussian_re & DISTR_gaussian_re::operator=(
+                                      const DISTR_gaussian_re & nd)
   {
   if (this==&nd)
     return *this;
-  DISTRIBUTION::operator=(DISTRIBUTION(nd));
-  a_invgamma = nd.a_invgamma;
-  b_invgamma = nd.b_invgamma;
-  constscale = nd.constscale;
-  uniformprior = nd.uniformprior;
+  DISTR_gaussian::operator=(DISTR_gaussian(nd));
   distrp = nd.distrp;
   return *this;
   }
 
 
-DISTRIBUTION_gaussian_re::DISTRIBUTION_gaussian_re(const DISTRIBUTION_gaussian_re & nd)
-   : DISTRIBUTION(DISTRIBUTION(nd))
-     {
-     a_invgamma = nd.a_invgamma;
-     b_invgamma = nd.b_invgamma;
-     constscale = nd.constscale;
-     uniformprior = nd.uniformprior;
-     distrp = nd.distrp;
-     }
 
-
-void DISTRIBUTION_gaussian_re::compute_deviance(const double * response,
-                           const double * weight,
-                           const double * mu, double * deviance,
-                           double * deviancesat,
-                           const datamatrix & scale,const int & i) const
+DISTR_gaussian_re::DISTR_gaussian_re(const DISTR_gaussian_re & nd)
+   : DISTR_gaussian(DISTR_gaussian(nd))
   {
-  if ((*weight != 0))
-    {
-    double s = scale(0,0)*pow(trmult(0,0),2);
-    double r = *response*trmult(0,0)-*mu;
-    *deviance =  (*weight/s)*r*r+log(2*M_PI*s/(*weight));
-    *deviancesat = (*weight/s)*r*r;
-    }
-  else
-    {
-    *deviance = 0;
-    *deviancesat = 0;
-    }
+  distrp = nd.distrp;
   }
 
 
-double DISTRIBUTION_gaussian_re::compute_weight(double * linpred, double * weight,
-                        const int & i, const unsigned & col) const
+
+void DISTR_gaussian_re::update(void)
   {
-  return *weight;
+
+  trmult = distrp->trmult;
+
   }
 
 
-void DISTRIBUTION_gaussian_re::compute_mu(const double * linpred,double * mu) const
+
+bool DISTR_gaussian_re::posteriormode(void)
   {
-  *mu = trmult(0,0)* *linpred;
+  trmult = distrp->trmult;
+
+  return true;
+
   }
 
-
-void DISTRIBUTION_gaussian_re::compute_mu_notransform(
-const double * linpred,double * mu) const
-  {
-  *mu = *linpred;
-  }
-
-
-void  DISTRIBUTION_gaussian_re::tr_nonlinear(vector<double *> b,
-                                          vector<double *> br,
-                                          vector<FULLCOND*> & fcp,
-                                          unsigned & nr,
-                                          unsigned & it,ST::string & trtype)
-  {
-  if (trtype == "exp")
-    DISTRIBUTION::tr_nonlinear(b,br,fcp,nr,it,trtype);
-  else if(trtype == "lognormal")
-    {
-    datamatrix help(1,1);
-    Scalesave.readsample2(help,it);
-    unsigned i;
-    for (i=0;i<b.size();i++)
-      {
-      *br[i] = exp(interceptsample(it,0)+*b[i]+help(0,0)/2.0);
-      }
-    }
-  else if (trtype == "elasticity")
-    {
-    if (b.size() == 2)
-      {
-      *br[1] = *b[1] * fcp[0]->get_data(nr,0) /(interceptsample(it,0)+ *b[0]);
-      }
-    }
-  else if (trtype=="marginal")
-    {
-    unsigned i;
-    for (i=0;i<b.size();i++)
-      {
-      *br[i] = interceptsample(it,0)+ *b[i];
-      }
-    }
-  else if (trtype=="marginalintercept")
-    {
-    unsigned i;
-    for (i=0;i<b.size();i++)
-      {
-      *br[i] = interceptsample(it,0);
-      }
-    }
-  else if (trtype == "lognormalintercept")
-    {
-    datamatrix help(1,1);
-    Scalesave.readsample2(help,it);
-    unsigned i;
-    for (i=0;i<b.size();i++)
-      {
-      *br[i] = exp(interceptsample(it,0)+help(0,0)/2.0);
-      }
-    }
-
-  }
-*/
 
 
 } // end: namespace MCMC

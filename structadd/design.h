@@ -66,6 +66,17 @@ class __EXPORT_TYPE DESIGN
 
   DISTR * likep;                             // Pointer to DISTR obejct
 
+  vector< vector<double> > ZoutT;
+  vector< vector<int> > index_ZoutT;
+
+  void compute_Zout_transposed(void);
+
+  // FUNCTION: make_index
+  // TASK: sorts the data,
+  //       initializes index_data, posbeg, posend effectvalues
+
+  void make_index(const datamatrix & dm);
+
   public:
 
   // Variables determined by function init_data
@@ -148,8 +159,6 @@ class __EXPORT_TYPE DESIGN
   //----------------------------------------------------------------------------
 
 
-  void compute_precision(double l);
-
   void compute_f(datamatrix & beta,datamatrix & f);
 
   void update_linpred(datamatrix & f,bool add);
@@ -163,9 +172,9 @@ class __EXPORT_TYPE DESIGN
   //       computes Zout, posbeg, posend
   //       computes nrpar
   //       computes effectvalues
-  //       initializes datanames 
+  //       initializes datanames
 
-  virtual void init_data(datamatrix & dm, datamatrix & iv);
+  virtual void init_data(const datamatrix & dm, const datamatrix & iv);
 
   // FUNCTION: compute_penalty
   // TASK: computes the penalty matrix and determines rankK
@@ -175,12 +184,16 @@ class __EXPORT_TYPE DESIGN
   // FUNCTION: compute_XtransposedWX_XtransposedWres
   // TASK: computes XWX and XWres, res is the partial residual
 
-  virtual void compute_XtransposedWX_XtransposedWres(const datamatrix & res);
+  virtual void compute_XtransposedWX_XtransposedWres(const datamatrix & res,double l);
+
+  double compute_ZtZ(unsigned & i, unsigned & j);
 
   // FUNCTION: computes XWres
   // TASK: computes XWres, res is the partial residual
 
-  virtual void compute_XtransposedWres(const datamatrix & res);
+  virtual void compute_XtransposedWres(const datamatrix & res,double l);
+
+  virtual void compute_precision(double l);
 
   // --------------------- END: VIRTUAL FUNCTIONS ------------------------------
 
@@ -232,13 +245,15 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
 
   // virtual functions
 
-  void init_data(datamatrix & dm, datamatrix & iv);
+  void init_data(const datamatrix & dm,const datamatrix & iv);
 
   void compute_penalty(void);
 
-  void compute_XtransposedWX_XtransposedWres(const datamatrix & res);
+  void compute_XtransposedWX_XtransposedWres(const datamatrix & res,double l);
 
-  void compute_XtransposedWres(const datamatrix & res);
+  void compute_XtransposedWres(const datamatrix & res,double l);
+
+  void compute_precision(double l);
 
   // DESTRUCTOR
 
@@ -285,13 +300,15 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   // virtual functions
 
-  void init_data(datamatrix & dm, datamatrix & iv);
+  void init_data(const datamatrix & dm,const datamatrix & iv);
 
   void compute_penalty(void);
 
-  void compute_XtransposedWX_XtransposedWres(const datamatrix & res);
+  void compute_XtransposedWX_XtransposedWres(const datamatrix & res,double l);
 
-  void compute_XtransposedWres(const datamatrix & res);
+  void compute_XtransposedWres(const datamatrix & res,double l);
+
+  void compute_precision(double l);
 
   // DESTRUCTOR
 

@@ -32,7 +32,9 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
 
 
 FC_nonp::FC_nonp(const FC_nonp & m)
+  : FC(FC(m))
   {
+
   likep = m.likep;
   partres = m.partres;
   designp = m.designp;
@@ -48,6 +50,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
 
   if (this==&m)
 	 return *this;
+  FC::operator=(FC(m));
   likep = m.likep;
   partres = m.partres;
   designp = m.designp;
@@ -70,9 +73,9 @@ void FC_nonp::update(void)
   partres.minus(likep->response,*linp);
 
   if ((likep->changingweight) || (changingdesign))
-    designp->compute_XtransposedWX_XtransposedWres(partres);
+    designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
   else
-    designp->compute_XtransposedWres(partres);
+    designp->compute_XtransposedWres(partres,lambda);
 
   if ((likep->changingweight) || (changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
@@ -115,15 +118,33 @@ bool FC_nonp::posteriormode(void)
   designp->update_linpred(beta,false);
   partres.minus(likep->response,*linp);
 
+  /*
+  // TEST
+  ofstream out("c:\\bayesx\\test\\results\\partres.res");
+  partres.prettyPrint(out);
+  // TEST
+  */
+
   if ((likep->changingweight) || (changingdesign))
-    designp->compute_XtransposedWX_XtransposedWres(partres);
+    designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
   else
-    designp->compute_XtransposedWres(partres);
+    designp->compute_XtransposedWres(partres,lambda);
 
   if ((likep->changingweight) || (changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
 
+  // TEST
+  // ofstream out1("c:\\bayesx\\test\\results\\precision.res");
+  // designp->precision.print1(out1);
+  // TEST
+
+
   designp->precision.solve(designp->XWres,param);
+
+  // TEST
+  // ofstream out2("c:\\bayesx\\test\\results\\param.res");
+  // param.prettyPrint(out2);
+  // TEST
 
 //  if(center)
 //    centerparam();
