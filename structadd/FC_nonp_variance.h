@@ -7,15 +7,15 @@
 #define __EXPORT_TYPE __import
 #endif
 
-#if !defined (FCNONPINCLUDED)
+#if !defined (FCNONPVARIANCEINCLUDED)
 
-#define FCNONPINCLUDED
+#define FCNONPVARIANCEINCLUDED
 
 #include"../values.h"
 #include<fstream.h>
 #include"GENERAL_OPTIONS.h"
 #include"clstring.h"
-#include"FC.h"
+#include"FC_nonp.h"
 #include"design.h"
 #include<cmath>
 
@@ -23,58 +23,51 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: FC_nonp -----------------------------------
+//--------------------------- CLASS: FC_nonp_variance --------------------------
 //------------------------------------------------------------------------------
 
 
-class __EXPORT_TYPE FC_nonp  : public FC
+class __EXPORT_TYPE FC_nonp_variance  : public FC
   {
 
   protected:
 
+  FC_nonp * FCnonpp;                         // Pointer to corresponding
+                                             // FC_nonp object  
   DISTR * likep;                             // Pointer to DISTR obejct
   DESIGN * designp;                          // Pointer to design object
 
-  datamatrix betahelp;
-
-  void centerparam(void);
+  double a_invgamma;
+  double b_invgamma;
 
   public:
-
-  datamatrix param;                          // Parameters
-
-  datamatrix partres;
-
-  double lambda;
-  double tau2;
-
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
   // DEFAULT CONSTRUCTOR
 
-  FC_nonp(void);
+  FC_nonp_variance(void);
 
   // CONSTRUCTOR
   // o    : pointer to GENERAL_OPTIONS object
   // t    : title of the full conditional (for example "fixed effects")
   // fp   : file path for storing sampled parameters
 
-  FC_nonp(GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
-           const ST::string & fp,DESIGN * dp);
+  FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
+           const ST::string & fp,DESIGN * dp,FC_nonp * FCn,double la);
 
   // COPY CONSTRUCTOR
 
-  FC_nonp(const FC_nonp & m);
+  FC_nonp_variance(const FC_nonp_variance & m);
 
 
   // OVERLOADED ASSIGNMENT OPERATOR
 
-  const FC_nonp & operator=(const FC_nonp & m);
+  const FC_nonp_variance & operator=(const FC_nonp_variance & m);
 
   // DESTRUCTOR
 
-  ~FC_nonp()
+  ~FC_nonp_variance()
     {
     }
 
@@ -92,9 +85,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // FUNCTION: outoptions
   // TASK: writes estimation options (hyperparameters, etc.) to outputstream
 
-  void outoptions(void)
-    {
-    }
+  void outoptions(void);
 
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file

@@ -85,9 +85,12 @@ class __EXPORT_TYPE DESIGN
   datamatrix intvar;                         // interaction variable for
                                              // varying coefficients
 
-                                             //
+
   statmatrix<int> index_data;                // index for sort of data
   vector<ST::string> datanames;              // names of covariates
+
+
+  statmatrix<double*> partres_pindex;        // 
 
   vector<ST::string> effectvalues;           // values of the different
                                              // covariates
@@ -163,12 +166,18 @@ class __EXPORT_TYPE DESIGN
 
   void update_linpred(datamatrix & f,bool add);
 
+  void compute_partres(datamatrix & res,datamatrix & f);
+
+
+
+  void make_partresindex(void);  
 
   // ------------------------- VIRTUAL FUNCTIONS -------------------------------
 
   // FUNCTION: init_data
   // TASK: sorts the data such that the precision has minimum envelope
   //       computes index_data
+  //       computes partres_pindex
   //       computes Zout, posbeg, posend
   //       computes nrpar
   //       computes effectvalues
@@ -184,14 +193,14 @@ class __EXPORT_TYPE DESIGN
   // FUNCTION: compute_XtransposedWX_XtransposedWres
   // TASK: computes XWX and XWres, res is the partial residual
 
-  virtual void compute_XtransposedWX_XtransposedWres(const datamatrix & res,double l);
+  virtual void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
 
   double compute_ZtZ(unsigned & i, unsigned & j);
 
   // FUNCTION: computes XWres
   // TASK: computes XWres, res is the partial residual
 
-  virtual void compute_XtransposedWres(const datamatrix & res,double l);
+  virtual void compute_XtransposedWres(datamatrix & partres, double l);
 
   virtual void compute_precision(double l);
 
@@ -206,115 +215,6 @@ class __EXPORT_TYPE DESIGN
 
 
 
-//------------------------------------------------------------------------------
-//--------------------------- CLASS: DESIGN_mrf --------------------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE DESIGN_mrf : public DESIGN
-  {
-
-  MAP::map ma;
-  datamatrix data2;                          // vor varying coefficients
-
-  protected:
-
-
-
-  public:
-
-
-//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
-
-  // DEFAULT CONSTRUCTOR
-
-  DESIGN_mrf(void);
-
-  // CONSTRUCTOR 1
-  // Spatial covariates
-
-  DESIGN_mrf(const datamatrix & dm, const datamatrix & iv,
-             DISTR * dp, const MAP::map & m);
-
-  // COPY CONSTRUCTOR
-
-  DESIGN_mrf(const DESIGN_mrf & m);
-
-  // OVERLOADED ASSIGNMENT OPERATOR
-
-  const DESIGN_mrf & operator=(const DESIGN_mrf & m);
-
-  // virtual functions
-
-  void init_data(const datamatrix & dm,const datamatrix & iv);
-
-  void compute_penalty(void);
-
-  void compute_XtransposedWX_XtransposedWres(const datamatrix & res,double l);
-
-  void compute_XtransposedWres(const datamatrix & res,double l);
-
-  void compute_precision(double l);
-
-  // DESTRUCTOR
-
-  ~DESIGN_mrf() {}
-
-  };
-
-
-
-//------------------------------------------------------------------------------
-//--------------------------- CLASS: DESIGN_hrandom ----------------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
-  {
-
-
-  protected:
-
-  DISTR * likep_RE;
-
-  public:
-
-
-//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
-
-  // DEFAULT CONSTRUCTOR
-
-  DESIGN_hrandom(void);
-
-  // CONSTRUCTOR 1
-  // Spatial covariates
-
-  DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
-             DISTR * dp,DISTR * dp_RE);
-
-  // COPY CONSTRUCTOR
-
-  DESIGN_hrandom(const DESIGN_hrandom & m);
-
-  // OVERLOADED ASSIGNMENT OPERATOR
-
-  const DESIGN_hrandom & operator=(const DESIGN_hrandom & m);
-
-  // virtual functions
-
-  void init_data(const datamatrix & dm,const datamatrix & iv);
-
-  void compute_penalty(void);
-
-  void compute_XtransposedWX_XtransposedWres(const datamatrix & res,double l);
-
-  void compute_XtransposedWres(const datamatrix & res,double l);
-
-  void compute_precision(double l);
-
-  // DESTRUCTOR
-
-  ~DESIGN_hrandom() {}
-
-  };
 
 
 

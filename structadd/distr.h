@@ -55,6 +55,8 @@ class __EXPORT_TYPE DISTR
   datamatrix workingweight;       // Working weight
   bool changingweight;
 
+  datamatrix partres;             // partial residual
+
 
   datamatrix linearpred;          // Linear predictor
   datamatrix linearpredprop;      // Proposed linear predictor

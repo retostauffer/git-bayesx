@@ -7,15 +7,15 @@
 #define __EXPORT_TYPE __import
 #endif
 
-#if !defined (FCNONPINCLUDED)
+#if !defined (FChrandomVARIANCEINCLUDED)
 
-#define FCNONPINCLUDED
+#define FChrandomVARIANCEINCLUDED
 
 #include"../values.h"
 #include<fstream.h>
 #include"GENERAL_OPTIONS.h"
 #include"clstring.h"
-#include"FC.h"
+#include"FC_nonp_variance.h"
 #include"design.h"
 #include<cmath>
 
@@ -23,58 +23,48 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: FC_nonp -----------------------------------
+//--------------------------- CLASS: FC_hrandom_variance -----------------------
 //------------------------------------------------------------------------------
 
 
-class __EXPORT_TYPE FC_nonp  : public FC
+class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
   {
 
   protected:
 
-  DISTR * likep;                             // Pointer to DISTR obejct
-  DESIGN * designp;                          // Pointer to design object
+  DISTR_gaussian_re * likepRE;
 
-  datamatrix betahelp;
-
-  void centerparam(void);
+  double compute_quadform(void); 
 
   public:
-
-  datamatrix param;                          // Parameters
-
-  datamatrix partres;
-
-  double lambda;
-  double tau2;
-
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
   // DEFAULT CONSTRUCTOR
 
-  FC_nonp(void);
+  FC_hrandom_variance(void);
 
   // CONSTRUCTOR
   // o    : pointer to GENERAL_OPTIONS object
   // t    : title of the full conditional (for example "fixed effects")
   // fp   : file path for storing sampled parameters
 
-  FC_nonp(GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
-           const ST::string & fp,DESIGN * dp);
+  FC_hrandom_variance(GENERAL_OPTIONS * o,DISTR * lp, DISTR_gaussian_re * lpRE,
+                      const ST::string & t, const ST::string & fp,DESIGN * dp,
+                      FC_nonp * FCn,double la);
 
   // COPY CONSTRUCTOR
 
-  FC_nonp(const FC_nonp & m);
+  FC_hrandom_variance(const FC_hrandom_variance & m);
 
 
   // OVERLOADED ASSIGNMENT OPERATOR
 
-  const FC_nonp & operator=(const FC_nonp & m);
+  const FC_hrandom_variance & operator=(const FC_hrandom_variance & m);
 
   // DESTRUCTOR
 
-  ~FC_nonp()
+  ~FC_hrandom_variance()
     {
     }
 
@@ -88,23 +78,6 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // TASK: computes the posterior mode
 
   bool posteriormode(void);
-
-  // FUNCTION: outoptions
-  // TASK: writes estimation options (hyperparameters, etc.) to outputstream
-
-  void outoptions(void)
-    {
-    }
-
-  // FUNCTION: outresults
-  // TASK: writes estimation results to logout or into a file
-
-  void outresults(const ST::string & pathresults);
-
-  // FUNCTION: reset
-  // TASK: resets all parameters
-
-  void reset(void);
 
   };
 

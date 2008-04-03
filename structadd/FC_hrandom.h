@@ -7,15 +7,15 @@
 #define __EXPORT_TYPE __import
 #endif
 
-#if !defined (FCNONPINCLUDED)
+#if !defined (FChrandomINCLUDED)
 
-#define FCNONPINCLUDED
+#define FChrandomINCLUDED
 
 #include"../values.h"
 #include<fstream.h>
 #include"GENERAL_OPTIONS.h"
 #include"clstring.h"
-#include"FC.h"
+#include"FC_nonp.h"
 #include"design.h"
 #include<cmath>
 
@@ -23,58 +23,53 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: FC_nonp -----------------------------------
+//--------------------------- CLASS: FC_hrandom --------------------------------
 //------------------------------------------------------------------------------
 
 
-class __EXPORT_TYPE FC_nonp  : public FC
+class __EXPORT_TYPE FC_hrandom  : public FC_nonp
   {
 
   protected:
 
-  DISTR * likep;                             // Pointer to DISTR obejct
-  DESIGN * designp;                          // Pointer to design object
+  DISTR * likep_RE;
 
-  datamatrix betahelp;
+  FC FCrcoeff;
 
-  void centerparam(void);
+  void set_response(void);
+
+  void set_rcoeff(void);
 
   public:
 
-  datamatrix param;                          // Parameters
-
-  datamatrix partres;
-
-  double lambda;
-  double tau2;
 
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
   // DEFAULT CONSTRUCTOR
 
-  FC_nonp(void);
+  FC_hrandom(void);
 
   // CONSTRUCTOR
   // o    : pointer to GENERAL_OPTIONS object
   // t    : title of the full conditional (for example "fixed effects")
   // fp   : file path for storing sampled parameters
 
-  FC_nonp(GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
-           const ST::string & fp,DESIGN * dp);
+  FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp, DISTR * lp_RE,const ST::string & t,
+           const ST::string & fp, const ST::string & fp2, DESIGN * dp);
 
   // COPY CONSTRUCTOR
 
-  FC_nonp(const FC_nonp & m);
+  FC_hrandom(const FC_hrandom & m);
 
 
   // OVERLOADED ASSIGNMENT OPERATOR
 
-  const FC_nonp & operator=(const FC_nonp & m);
+  const FC_hrandom & operator=(const FC_hrandom & m);
 
   // DESTRUCTOR
 
-  ~FC_nonp()
+  ~FC_hrandom()
     {
     }
 
@@ -89,22 +84,11 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   bool posteriormode(void);
 
-  // FUNCTION: outoptions
-  // TASK: writes estimation options (hyperparameters, etc.) to outputstream
-
-  void outoptions(void)
-    {
-    }
-
-  // FUNCTION: outresults
+    // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
   void outresults(const ST::string & pathresults);
 
-  // FUNCTION: reset
-  // TASK: resets all parameters
-
-  void reset(void);
 
   };
 

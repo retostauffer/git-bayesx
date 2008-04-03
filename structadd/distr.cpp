@@ -19,6 +19,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   response = r;
   responsename = "Y";
 
+  partres = r;
+
   nrobs = response.rows();
 
   if (w.rows() == 1)
@@ -56,6 +58,8 @@ DISTR::DISTR(const DISTR & d)
   response = d.response;
   responsename = d.responsename;
 
+  partres = d.partres;
+
   weight = d.weight;
   weightname = d.weightname;
 
@@ -83,6 +87,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
 
   response = d.response;
   responsename = d.responsename;
+
+  partres = d.partres;
 
   weight = d.weight;
   weightname = d.weightname;
@@ -218,7 +224,7 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
   b_invgamma = b;
   family = "Gaussian";
 
-//  standardise();
+  standardise();
 //  trmult=1;
 
   FCsigma2 = FC(o,"Gaussian variance parameter",1,1,ps);

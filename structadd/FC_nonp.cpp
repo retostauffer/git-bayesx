@@ -23,8 +23,8 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
   {
   likep = lp;
   designp = Dp;
-  partres = datamatrix(likep->nrobs,1,0);
   param = datamatrix(designp->nrpar,1,0);
+  partres = datamatrix(designp->posbeg.size(),1,0);
   lambda=1;
   tau2 = likep->get_scale()/lambda;
   betahelp = beta;
@@ -36,9 +36,9 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   {
 
   likep = m.likep;
-  partres = m.partres;
   designp = m.designp;
   param = m.param;
+  partres = m.partres;
   lambda=m.lambda;
   tau2 = m.tau2;
   betahelp = m.betahelp;
@@ -52,14 +52,15 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
 	 return *this;
   FC::operator=(FC(m));
   likep = m.likep;
-  partres = m.partres;
   designp = m.designp;
   param = m.param;
+  partres = m.partres;
   lambda=m.lambda;
   tau2 = m.tau2;
   betahelp = m.betahelp;
   return *this;
   }
+
 
 
 void FC_nonp::update(void)
@@ -70,12 +71,12 @@ void FC_nonp::update(void)
   datamatrix * linp = likep->linpred_current;
 
   designp->update_linpred(beta,false);
-  partres.minus(likep->response,*linp);
+  likep->partres.minus(likep->response,*linp);
 
   if ((likep->changingweight) || (changingdesign))
-    designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
+    designp->compute_XtransposedWX_XtransposedWres(lambda);
   else
-    designp->compute_XtransposedWres(partres,lambda);
+    designp->compute_XtransposedWres(lambda);
 
   if ((likep->changingweight) || (changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
@@ -113,10 +114,7 @@ bool FC_nonp::posteriormode(void)
 
   bool lambdaconst = false;
 
-  datamatrix * linp = likep->linpred_current;
-
-  designp->update_linpred(beta,false);
-  partres.minus(likep->response,*linp);
+  designp->compute_partres(partres,beta);
 
   /*
   // TEST
@@ -126,9 +124,9 @@ bool FC_nonp::posteriormode(void)
   */
 
   if ((likep->changingweight) || (changingdesign))
-    designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
+    designp->compute_XtransposedWX_XtransposedWres(lambda);
   else
-    designp->compute_XtransposedWres(partres,lambda);
+    designp->compute_XtransposedWres(lambda);
 
   if ((likep->changingweight) || (changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
