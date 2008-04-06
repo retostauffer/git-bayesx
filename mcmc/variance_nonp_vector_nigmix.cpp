@@ -244,9 +244,10 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
   // indicator with Binomialdistribution
   //---------------------------------------------------------------------------
 
-
 //TEMP:BEGIN--------------------------------------------------------------------
-//ofstream output("c:/bayesx/test/test_nigmix.txt", ios::out|ios::app);
+//ofstream output_beta("c:/bayesx/test/nigmix_beta.txt", ios::out|ios::app);
+//ofstream output_scale("c:/bayesx/test/nigmix_scale.txt", ios::out|ios::app);
+//ofstream output_var("c:/bayesx/test/nigmix_var.txt", ios::out|ios::app);
 //TEMP:END----------------------------------------------------------------------
 
 
@@ -267,13 +268,15 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
         *workind = v1;
         }
 
-      *workt2 = rand_invgamma(0.5*a_t2,b_t2+(*workbeta)*(*workbeta)/(2*help*help* *workind));
+      *workt2 = rand_invgamma(0.5+a_t2,b_t2+(*workbeta)*(*workbeta)/(2*help*help* *workind));
 
       beta(i,0) = *workind * *workt2;
 
       nigmixsum = nigmixsum + ((*workbeta)*(*workbeta))/beta(i,0);  // sum(beta^2/tau^2)
 
 //TEMP:BEGIN--------------------------------------------------------------------
+//output_beta << *workbeta/* *distrp->get_trmult(column)*/ << " "; 
+//output_var << *workt2 << " "; 
 //output << "indikator " << *workind << " t2 " << *workt2 
 //       << " var " << beta(i,0) << "\n" ;
 //TEMP:END----------------------------------------------------------------------
@@ -288,6 +291,12 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
 
       }
     }
+//TEMP:BEGIN-------------------------------------------------------------------- 
+//output_beta << distrp->get_trmult(column)<< "\n" ;
+//output_var << "\n" ;
+//output_scale << help*help <<   "\n" ; 
+//TEMP:END----------------------------------------------------------------------
+
   fc_indicator.update();
   fc_t2.update();
 

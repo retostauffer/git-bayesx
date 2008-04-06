@@ -1062,7 +1062,7 @@ if(PartialLikelihood)
       for(i=0;i<firstevent;i++)
        {
        breslowbaseline(i,0) = breslowbaseline(firstevent,0);
-       breslowcumbaseline(i,0) = breslowcumbaseline(firstevent,0);
+       breslowcumbaseline(i,0) = 0.0;//breslowcumbaseline(firstevent,0);
        }
     }
     
