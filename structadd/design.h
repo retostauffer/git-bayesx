@@ -63,19 +63,33 @@ class __EXPORT_TYPE DESIGN
 
   protected:
 
+  // FUNCTION: make_index
+  // TASK: sorts the data,
+  //       initializes index_data,
+  //       posbeg, posend, effectvalues
+
+  void make_index(const datamatrix & dm, const datamatrix & iv);
+
+
 
   DISTR * likep;                             // Pointer to DISTR obejct
 
-  vector< vector<double> > ZoutT;
-  vector< vector<int> > index_ZoutT;
+  //----------------------------------------------------------------------------
 
-  void compute_Zout_transposed(void);
+  vector< vector<double> > ZoutT;            // Nonzero Elements of Z'
+  vector< vector<int> > index_ZoutT;         // Columns of nonzero elements of
+                                             // Z'
 
-  // FUNCTION: make_index
-  // TASK: sorts the data,
-  //       initializes index_data, posbeg, posend effectvalues
+  void compute_Zout_transposed(void);        // Computes Z', i.e. ZoutT from
+                                             // Zout
 
-  void make_index(const datamatrix & dm);
+  int consecutive_ZoutT;                     // -1 = not tested
+                                             //  0 = not consecutive
+                                             //  1 = consecutive
+
+  bool check_ZoutT_consecutive(void);
+
+  //----------------------------------------------------------------------------
 
   public:
 
@@ -90,13 +104,10 @@ class __EXPORT_TYPE DESIGN
   vector<ST::string> datanames;              // names of covariates
 
 
-  statmatrix<double*> partres_pindex;        // 
-
   vector<ST::string> effectvalues;           // values of the different
                                              // covariates
 
-
-
+//------------------------------------------------------------------------------
   datamatrix Zout;                           // Design matrix (only non null
                                              // elements for output of results
   statmatrix<int> index_Zout;                // stores the columns of the
@@ -105,6 +116,22 @@ class __EXPORT_TYPE DESIGN
   vector<int> posbeg;                        // begin and end of equal covariate
                                              // values in data
   vector<int> posend;
+
+  int consecutive;                           // -1 = not tested
+                                             //  0 = not consecutive
+                                             //  1 = consecutive
+
+  bool check_Zout_consecutive(void);
+
+//------------------------------------------------------------------------------
+
+
+  statmatrix<double *> responsep;            // matrix of pointers to response
+                                             // observations
+  statmatrix<double *> workingweightp;
+
+  statmatrix<double *> linpredp1;
+  statmatrix<double *> linpredp2;    
 
   unsigned nrpar;                            // number of parameters
 
@@ -127,6 +154,8 @@ class __EXPORT_TYPE DESIGN
 
   // Variables determined by function  compute_XtransposedWX_XtransposedWres
   // and compute_XtransposedWres
+
+  datamatrix Wsum;
 
   envmatdouble XWX;                          // X'WX
   bool XWXdeclared;                          // is true if X'WX is already
@@ -169,8 +198,7 @@ class __EXPORT_TYPE DESIGN
   void compute_partres(datamatrix & res,datamatrix & f);
 
 
-
-  void make_partresindex(void);  
+  void make_pointerindex(void);
 
   // ------------------------- VIRTUAL FUNCTIONS -------------------------------
 

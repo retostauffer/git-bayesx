@@ -36,14 +36,19 @@ class __EXPORT_TYPE FC_nonp  : public FC
   DESIGN * designp;                          // Pointer to design object
 
   datamatrix betahelp;
+  datamatrix betaold; 
+  datamatrix betadiff;
 
   void centerparam(void);
 
   public:
 
-  datamatrix param;                          // Parameters
+  datamatrix param;                          // Parameters, beta stores hatf
 
-  datamatrix partres;
+
+
+
+  datamatrix partres;                        // sum of partial residuals 
 
   double lambda;
   double tau2;

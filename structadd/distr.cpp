@@ -5,6 +5,20 @@ namespace MCMC
 {
 
 
+bool DISTR::check_workingweights_one(void)
+  {
+  unsigned i=0;
+  double * work_workingweight = workingweight.getV();
+  bool one = true;
+  while (i<nrobs && one == true)
+    {
+    if (*work_workingweight != 1)
+      one = false;
+    work_workingweight++;
+    i++;
+    }
+  return one;  
+  }
 
 
 DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
@@ -26,6 +40,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   if (w.rows() == 1)
     {
     weight = datamatrix(r.rows(),1,1);
+    weights_one=true;
     }
   else
     {
@@ -33,15 +48,16 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
     }
 
   workingweight = weight;
+  weights_one = check_workingweights_one();
+
   changingweight = false;
 
   weightname = "W";
 
-  linearpred = datamatrix(nrobs,1,0);
-  linearpredprop = datamatrix(nrobs,1,0);
+  linearpred1 = datamatrix(nrobs,1,0);
+  linearpred2 = datamatrix(nrobs,1,0);
 
-  linpred_current = &linearpred;
-  linpred_proposed = &linearpredprop;
+  linpred_current = 1;
 
   trmult=1;
 
@@ -65,11 +81,11 @@ DISTR::DISTR(const DISTR & d)
 
   workingweight = d.workingweight;
   changingweight = d.changingweight;
+  weights_one = d.weights_one;
 
-  linearpred = d.linearpred;
-  linearpredprop = d.linearpredprop;
+  linearpred1 = d.linearpred1;
+  linearpred2 = d.linearpred2;
   linpred_current = d.linpred_current;
-  linpred_proposed = d.linpred_proposed;
 
   family = d.family;
 
@@ -95,11 +111,11 @@ const DISTR & DISTR::operator=(const DISTR & d)
 
   workingweight = d.workingweight;
   changingweight = d.changingweight;
+  weights_one = d.weights_one;  
 
-  linearpred = d.linearpred;
-  linearpredprop = d.linearpredprop;
+  linearpred1 = d.linearpred1;
+  linearpred2 = d.linearpred2;
   linpred_current = d.linpred_current;
-  linpred_proposed = d.linpred_proposed;
 
   family = d.family;
 
@@ -130,9 +146,19 @@ double DISTR::loglikelihood(const bool & current) const
 
   double* worklin;
   if (current)
-    worklin = (*linpred_current).getV();
+    {
+    if (linpred_current==1)
+      worklin = linearpred1.getV();
+    else
+      worklin = linearpred2.getV();
+    }
   else
-    worklin = (*linpred_proposed).getV();
+    {
+    if (linpred_current==1)
+      worklin = linearpred2.getV();
+    else
+      worklin = linearpred1.getV();
+    }
 
   for (i=0;i<nrobs;i++,workweight++,worklin++,workres++)
     help += loglikelihood(workres,worklin,workweight);
@@ -152,17 +178,38 @@ double DISTR::loglikelihood(const unsigned & beg,const unsigned & end,
 
   int* workind = index.getV()+beg;
 
+  datamatrix * linp;
+
   if (current)
     {
-    for (i=beg;i<=end;i++,workind++)
-      help+=loglikelihood(&response(*workind,0),&((*linpred_current)(*workind,0)),
-                          &weight(*workind,0));
+    if (linpred_current==1)
+      {
+      linp = &linearpred1;
+      }
+    else
+      {
+      linp = &linearpred2;
+      }
 
+    for (i=beg;i<=end;i++,workind++)
+      help+=loglikelihood(&response(*workind,0),&(*linp)(*workind,0),
+                          &weight(*workind,0));
     }
   else
     {
+
+    if (linpred_current==1)
+      {
+      linp = &linearpred2;
+      }
+    else
+      {
+      linp = &linearpred1;
+      }
+
+
     for (i=beg;i<=end;i++,workind++)
-      help+=loglikelihood(&response(*workind,0),&((*linpred_proposed)(*workind,0)),
+      help+=loglikelihood(&response(*workind,0),&(*linp)(*workind,0),
                           &weight(*workind,0));
     }
 
@@ -173,9 +220,11 @@ double DISTR::loglikelihood(const unsigned & beg,const unsigned & end,
 
 void DISTR::swap_linearpred(void)
   {
-  datamatrix * help = linpred_current;
-  linpred_current = linpred_proposed;
-  linpred_proposed = help;
+
+  if (linpred_current==1)
+    linpred_current=2;
+  else
+    linpred_current=1;
   }
 
 
@@ -193,10 +242,9 @@ void DISTR::outresults(ST::string pathresults)
 
 void DISTR::reset(void)
   {
-  linearpred = datamatrix(nrobs,linearpred.cols(),0);
-  linearpredprop = linearpred;
-  linpred_current = &linearpred;
-  linpred_proposed = &linearpredprop;
+  linearpred1 = datamatrix(nrobs,1,0);
+  linearpred2 = datamatrix(nrobs,1,0);
+  linpred_current = 1;
   }
 
 
@@ -268,7 +316,7 @@ void DISTR_gaussian::standardise(void)
 
   unsigned i;
   double * workresp = response.getV();
-  double * worklin = (*linpred_current).getV();
+  double * worklin = linearpred1.getV();
   for (i=0;i<nrobs;i++,workresp++,worklin++)
    {
    *workresp = *workresp/trmult;
@@ -306,7 +354,11 @@ void DISTR_gaussian::update(void)
 
   double sum = 0;
 
-  worklin = (*linpred_current).getV();
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+      
   workresp = response.getV();
   workweight = weight.getV();
 
@@ -349,7 +401,12 @@ bool DISTR_gaussian::posteriormode(void)
 
   unsigned i;
 
-  double * worklin = (*linpred_current).getV();
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
   double * workresp = response.getV();
   double * workweight = weight.getV();
 

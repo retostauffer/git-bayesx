@@ -74,9 +74,9 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   void compute_penalty(void);
 
-  void compute_XtransposedWX_XtransposedWres(double l);
+  void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
 
-  void compute_XtransposedWres(double l);
+  void compute_XtransposedWres(datamatrix & partres, double l);
 
   void compute_precision(double l);
 

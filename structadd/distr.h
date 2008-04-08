@@ -33,6 +33,8 @@ using randnumbers::rand_gamma;
 class __EXPORT_TYPE DISTR
   {
 
+  bool check_workingweights_one(void);
+
   protected:
 
 
@@ -54,21 +56,14 @@ class __EXPORT_TYPE DISTR
 
   datamatrix workingweight;       // Working weight
   bool changingweight;
+  bool weights_one;
 
   datamatrix partres;             // partial residual
 
 
-  datamatrix linearpred;          // Linear predictor
-  datamatrix linearpredprop;      // Proposed linear predictor
-  datamatrix * linpred_current;   // Pointer that contains adress of current
-                                  // predictor
-  datamatrix * linpred_proposed;  // Pointer that contains adress of proposed
-                                  // predictor
-
-
-  // FUNCTION: swap_linearpred
-  // TASK: swaps the pointers linpred_current and linpred_proposed, that is
-  //       the proposed new predictor will be the current
+  datamatrix linearpred1;          // Linear predictor
+  datamatrix linearpred2;          // Proposed linear predictor
+  int linpred_current;
 
   void swap_linearpred(void);
 
