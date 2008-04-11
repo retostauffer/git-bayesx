@@ -65,6 +65,7 @@ class __EXPORT_TYPE DESIGN
 
   // FUNCTION: make_index
   // TASK: sorts the data,
+  //       creates sorted intvar, data2
   //       initializes index_data,
   //       posbeg, posend, effectvalues
 
@@ -79,15 +80,15 @@ class __EXPORT_TYPE DESIGN
   vector< vector<double> > ZoutT;            // Nonzero Elements of Z'
   vector< vector<int> > index_ZoutT;         // Columns of nonzero elements of
                                              // Z'
-
-  void compute_Zout_transposed(void);        // Computes Z', i.e. ZoutT from
-                                             // Zout
-
   int consecutive_ZoutT;                     // -1 = not tested
                                              //  0 = not consecutive
                                              //  1 = consecutive
 
-  bool check_ZoutT_consecutive(void);
+  void compute_Zout_transposed(void);        // Computes Z', i.e. ZoutT from
+                                             // Zout
+
+  bool check_ZoutT_consecutive(void);        // checks if non zero elements are
+                                             // consecutive
 
   //----------------------------------------------------------------------------
 
@@ -98,7 +99,7 @@ class __EXPORT_TYPE DESIGN
   datamatrix data;                           // data matrix
   datamatrix intvar;                         // interaction variable for
                                              // varying coefficients
-
+  datamatrix intvar2;                        // intvar^2 for varying coefficients
 
   statmatrix<int> index_data;                // index for sort of data
   vector<ST::string> datanames;              // names of covariates
@@ -123,15 +124,22 @@ class __EXPORT_TYPE DESIGN
 
   bool check_Zout_consecutive(void);
 
-//------------------------------------------------------------------------------
-
+  //----------------------------------------------------------------------------
 
   statmatrix<double *> responsep;            // matrix of pointers to response
                                              // observations
   statmatrix<double *> workingweightp;
 
   statmatrix<double *> linpredp1;
-  statmatrix<double *> linpredp2;    
+  statmatrix<double *> linpredp2;
+
+  // FUNCTION: make_pointerindex
+  // TASK: computes pointer matrices responsep, workingweightp,linpredp1,
+  //       linpredp2
+
+  void make_pointerindex(void);
+
+  //----------------------------------------------------------------------------
 
   unsigned nrpar;                            // number of parameters
 
@@ -163,11 +171,13 @@ class __EXPORT_TYPE DESIGN
                                              // etc.)
 
   datamatrix XWres;                          // X'W(y-eta)
-  bool XWresdeclared;
+  bool XWresdeclared;                        // is true if X'Wres is already
+                                             // defined
+
 
   // ---------------------------------------------------------------------------
 
-  ttype type;
+  ttype type;                                // Term type
 
 
   //----------------------- CONSTRUCTORS, DESTRUCTOR ---------------------------
@@ -190,15 +200,24 @@ class __EXPORT_TYPE DESIGN
 
   //----------------------------------------------------------------------------
 
+  // FUNCTION: compute_f
+  // TASK: compute Zout*beta, i.e. the estimated/current function evaluated at
+  //       the different observations in data
 
   void compute_f(datamatrix & beta,datamatrix & f);
 
+  // FUNCTION: update_linpred
+  // TASK: updates the predictor based on the current function f
+
   void update_linpred(datamatrix & f,bool add);
+
+  // FUNCTION: compute_partres
+  // TASK: computes
 
   void compute_partres(datamatrix & res,datamatrix & f);
 
 
-  void make_pointerindex(void);
+  double compute_ZtZ(unsigned & i, unsigned & j);
 
   // ------------------------- VIRTUAL FUNCTIONS -------------------------------
 
@@ -218,17 +237,24 @@ class __EXPORT_TYPE DESIGN
 
   virtual void compute_penalty(void);
 
+  // FUNCTION: computes XWres
+  // TASK: computes XWres, res is the partial residual
+
+  virtual void compute_XtransposedWres(datamatrix & partres, double l);
+
+  // FUNCTION: compute_XtransposedWX_XtransposedWres
+  // TASK: computes XWX and XWres, res is the partial residual
+
+  virtual void compute_XtransposedWX(datamatrix & partres);
+
   // FUNCTION: compute_XtransposedWX_XtransposedWres
   // TASK: computes XWX and XWres, res is the partial residual
 
   virtual void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
 
-  double compute_ZtZ(unsigned & i, unsigned & j);
 
-  // FUNCTION: computes XWres
-  // TASK: computes XWres, res is the partial residual
 
-  virtual void compute_XtransposedWres(datamatrix & partres, double l);
+
 
   virtual void compute_precision(double l);
 

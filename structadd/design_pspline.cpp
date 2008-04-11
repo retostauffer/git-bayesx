@@ -78,8 +78,6 @@ void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
 
   make_index(dm,iv);
 
-//  make_partresindex();
-
   nrpar = nrknots-1+degree;
 
   datanames.push_back("X_1");
@@ -148,9 +146,9 @@ void DESIGN_pspline::make_Bspline(void)
 
   consecutive = 1;
 
-  /*
-  // TEST
 
+  // TEST
+  /*
   bool t = check_Zout_consecutive();
 
   ofstream out("c:\\bayesx\\test\\results\\Zout.res");
@@ -165,7 +163,7 @@ void DESIGN_pspline::make_Bspline(void)
     for (j=posbeg[i];j<=posend[i];j++)
       {
       for(k=0;k<Zout.cols();k++)
-        Zoutm(j,index_Zout(i,k)) = Zout(i,k);
+        Zoutm(j,index_Zout(i,k)) = sqrt(likep->workingweight(index_data(j,0),0))*Zout(i,k)*intvar(j,0);
       }
 
     }
@@ -180,8 +178,9 @@ void DESIGN_pspline::make_Bspline(void)
 
   ofstream out4("c:\\bayesx\\test\\results\\ZtZ.res");
   ZtZ.prettyPrint(out4);
-  // TEST
   */
+  // TEST
+
 
   }
 
@@ -261,16 +260,19 @@ datamatrix & partres, double l)
 
   DESIGN::compute_XtransposedWX_XtransposedWres(partres, l);
 
-  compute_XtransposedWres(partres, l);
 
+  }
+
+
+void DESIGN_pspline::compute_XtransposedWX(datamatrix & partres)
+  {
+  DESIGN::compute_XtransposedWX(partres);
   }
 
 
 void DESIGN_pspline::compute_XtransposedWres(datamatrix & partres, double l)
   {
-
   DESIGN::compute_XtransposedWres(partres, l);
-
   }
 
 

@@ -101,11 +101,14 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   if (iv.rows() == dm.rows())
     {
     intvar = datamatrix(iv.rows(),1);
+    intvar2 = datamatrix(iv.rows(),1);
     double * workintvar = intvar.getV();
+    double * workintvar2 = intvar2.getV();
     workindex = index_data.getV();
-    for (j=0;j<iv.rows();j++,workintvar++,workindex++)
+    for (j=0;j<iv.rows();j++,workintvar++,workindex++,workintvar2++)
       {
       *workintvar = iv(*workindex,0);
+      *workintvar2 = pow(*workintvar,2);
       }
     }
 
@@ -177,19 +180,18 @@ DESIGN::DESIGN(const DESIGN & m)
   likep = m.likep;
 
   data = m.data;
+  intvar2=m.intvar2;
   intvar = m.intvar;
   index_data = m.index_data;
   datanames = m.datanames;
   effectvalues = m.effectvalues;
-
-//  partres_pindex = m.partres_pindex;
 
   Zout = m.Zout;
   index_Zout=m.index_Zout;
   posbeg = m.posbeg;
   posend = m.posend;
   consecutive = m.consecutive;
-  consecutive_ZoutT = m.consecutive_ZoutT;  
+  consecutive_ZoutT = m.consecutive_ZoutT;
 
   ZoutT = m.ZoutT;
   index_ZoutT = m.index_ZoutT;
@@ -227,6 +229,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   likep = m.likep;
 
   data = m.data;
+  intvar2=m.intvar2;
   intvar = m.intvar;
   index_data = m.index_data;
   datanames = m.datanames;
@@ -256,7 +259,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   XWXdeclared = m.XWXdeclared;
   precision = m.precision;
   precisiondeclared = m.precisiondeclared;
-  Wsum = m.Wsum;  
+  Wsum = m.Wsum;
 
   XWres = m.XWres;
   XWresdeclared = m.XWresdeclared;
@@ -324,12 +327,21 @@ void DESIGN::compute_Zout_transposed(void)
 void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l)
   {
 
+  compute_XtransposedWX(partres);
+  compute_XtransposedWres(partres, l);
+
+  }
+
+
+void DESIGN::compute_XtransposedWX(datamatrix & partres)
+  {
+
   if (responsep.rows() != data.rows())
     {
     make_pointerindex();
     }
 
-  unsigned i,j,k;
+  unsigned i,j;
 
   int size = posbeg.size();
 
@@ -339,13 +351,29 @@ void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres, double 
 
   double * * work_workingweightp = workingweightp.getV();
 
-  for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
+  if (intvar.rows() == data.rows())
     {
-    *work_Wsum=0;
-    if (*itbeg != -1)
+    double * work_intvar2=intvar2.getV();
+    for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
       {
-      for (j=*itbeg;j<=*itend;j++,work_workingweightp++)
-        *work_Wsum += *(*work_workingweightp);
+      *work_Wsum=0;
+      if (*itbeg != -1)
+        {
+        for (j=*itbeg;j<=*itend;j++,work_workingweightp++,work_intvar2++)
+          *work_Wsum +=  (*work_intvar2) * (**work_workingweightp);
+        }
+      }
+    }
+  else
+    {
+    for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
+      {
+      *work_Wsum=0;
+      if (*itbeg != -1)
+        {
+        for (j=*itbeg;j<=*itend;j++,work_workingweightp++)
+          *work_Wsum += *(*work_workingweightp);
+        }
       }
     }
 
@@ -373,7 +401,7 @@ void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres, double 
   unsigned nrnnull;
   xenv++;
 
-  unsigned envs = XWX.getXenv(nrpar);
+//  unsigned envs = XWX.getXenv(nrpar);
   for(i=0;i<nrpar;i++,++xenv)
     {
     nrnnull = *xenv-start;
@@ -390,10 +418,9 @@ void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres, double 
 
   XWX.setDecomposed(false);
 
-  compute_XtransposedWres(partres, l);
 
-  /*
   // TEST
+/*
   vector<double> env = XWX.getEnv();
 
   ofstream out2("c:\\bayesx\\test\\results\\XWXenv.res");
@@ -409,24 +436,22 @@ void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres, double 
 
   ofstream out("c:\\bayesx\\test\\results\\XWX.res");
   XWX.print2(out);
+ */
   // TEST
-  */
+
 
   }
 
 
 double DESIGN::compute_ZtZ(unsigned & i, unsigned & j)
   {
-  unsigned l;
+
   unsigned k_i=0;
   unsigned k_j=0;
   int pos_i;
   int pos_j;
 
-  int beg;
-  int end;
   double result = 0;
-  double sumw;
 
   while (k_i<ZoutT[i].size() && k_j < ZoutT[j].size())
     {
@@ -458,152 +483,6 @@ double DESIGN::compute_ZtZ(unsigned & i, unsigned & j)
   }
 
 
-/*
-void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l)
-  {
-
-  unsigned i,j,k;
-
-  vector<double>::iterator diag = XWX.getDiagIterator();
-  double help;
-  int ip;
-  double wsum;
-
-  for (i=0;i<nrpar;i++,++diag)
-    {
-    *diag=0;
-
-    for (j=0;j<ZoutT[i].size();j++)
-      {
-      help=pow(ZoutT[i][j],2);
-      ip = index_ZoutT[i][j];
-      wsum=0;
-      for (k=posbeg[ip];k<=posend[ip];k++)
-        wsum+= likep->workingweight(index_data(k,0),0);
-
-      *diag += help*wsum;
-      }
-
-    }
-
-  vector<double>::iterator env = XWX.getEnvIterator();
-  vector<unsigned>::iterator xenv = XWX.getXenvIterator();
-  unsigned start = *xenv;
-  unsigned nrnnull;
-  xenv++;
-
-  unsigned envs = XWX.getXenv(nrpar);
-  for(i=0;i<nrpar;i++,++xenv)
-    {
-    nrnnull = *xenv-start;
-    if (nrnnull > 0)
-      {
-      for (j=i-nrnnull;j<i;j++,++env)
-        {
-        *env = compute_ZtZ(i,j);
-        }
-
-      }
-    start = *xenv;
-    }
-
-
-  XWX.setDecomposed(false);
-
-  compute_XtransposedWres(partres, l);
-
-  
-  // TEST
-  vector<double> env = XWX.getEnv();
-
-  ofstream out2("c:\\bayesx\\test\\results\\XWXenv.res");
-  for (j=0;j<env.size();j++)
-    out2 << env[j] << endl;
-
-
-  vector<unsigned> Xenv = XWX.getXenv();
-
-  ofstream out3("c:\\bayesx\\test\\results\\XWX_Xenv.res");
-  for (j=0;j<Xenv.size();j++)
-    out3 << Xenv[j] << endl;
-
-  ofstream out("c:\\bayesx\\test\\results\\XWX.res");
-  XWX.print2(out);
-  // TEST
-
-
-  }
-*/
-
-/*
-double DESIGN::compute_ZtZ(unsigned & i, unsigned & j)
-  {
-  unsigned l;
-  unsigned k_i=0;
-  unsigned k_j=0;
-  int beg_i;
-  int end_i;
-  int beg_j;
-  int end_j;
-  int beg;
-  int end;
-  double result = 0;
-  double sumw;
-
-  while (k_i<ZoutT[i].size() && k_j < ZoutT[j].size())
-    {
-
-    beg_i = posbeg[index_ZoutT[i][k_i]];
-    end_i = posend[index_ZoutT[i][k_i]];
-    beg_j = posbeg[index_ZoutT[j][k_j]];
-    end_j = posend[index_ZoutT[j][k_j]];
-
-    if (beg_j > end_i)
-      {
-      k_i++;
-      }
-    else if (end_j < beg_i)
-      {
-      k_j++;
-      }
-    else  // overlapp
-      {
-      sumw=0;
-      if (beg_j >= beg_i)
-        {
-        beg = beg_j;
-        }
-      else
-        {
-        beg = beg_i;
-        }
-
-      if (end_j >= end_i)
-        {
-        end = end_i;
-        }
-      else
-        {
-        end = end_j;
-        }
-
-
-      for (l=beg;l<=end;l++)
-        sumw += likep->workingweight(index_data(l,0),0);
-
-      result += sumw * ZoutT[i][k_i]* ZoutT[j][k_j];
-      if (end_i <= end_j)
-        k_i++;
-      else
-        k_j++;
-      }
-
-
-    }
-
-  return result;
-  }
-*/
 
 void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
   {
@@ -789,7 +668,6 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
   vector<int>::iterator itend = posend.begin();
 //  int * workindex = index_data.getV();
   double * workf = f.getV();
-  double * workintvar = intvar.getV();
 
   double * workres = res.getV();
 
@@ -810,19 +688,21 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
   if (intvar.rows()==data.rows())   // varying coefficient
     {
 
+    double * workintvar = intvar.getV();
+
     if ((likep->changingweight==true) ||
     ((likep->changingweight==false) && (likep->weights_one==false)))
       {
-      for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++,workintvar++)
+      for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
         {
         *workres = 0;
         if (*itbeg != -1)
           {
           for (j=*itbeg;j<=*itend;j++,work_responsep++,
-               work_workingweightp,worklinp++)
+               work_workingweightp,worklinp++,workintvar++)
             {
             *workres += *(*work_workingweightp) * (*workintvar) *
-            (*(*work_responsep) - (*(*worklinp)) + *workf);
+            (*(*work_responsep) - (*(*worklinp)) + (*workintvar) * (*workf));
             }
           }
         }
@@ -836,8 +716,8 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
           {
           for (j=*itbeg;j<=*itend;j++,work_responsep++,worklinp++,workintvar++)
             {
-            *workres += (*workintvar) *
-                        (*(*work_responsep) - (*(*worklinp)) + *workf);
+            *workres += (*workintvar) * (*(*work_responsep) - (*(*worklinp)) +
+            (*workintvar) * (*workf));
             }
           }
         }

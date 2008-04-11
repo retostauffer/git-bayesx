@@ -130,12 +130,14 @@ bool FC_nonp::posteriormode(void)
 
   designp->compute_partres(partres,beta);
 
-  /*
+
   // TEST
+  /*
   ofstream out("c:\\bayesx\\test\\results\\partres.res");
   partres.prettyPrint(out);
-  // TEST
   */
+  // TEST
+
 
   if ((likep->changingweight) || (changingdesign))
     designp->compute_XtransposedWX_XtransposedWres(partres, lambda);
