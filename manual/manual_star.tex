@@ -28,7 +28,7 @@
 \hypersetup{
 %    pdffitwindow=true,
     pdfstartview=FitB,
-    pdftitle={BayesX Reference Manual},
+    pdftitle={BayesX Methodology Manual},
     pdfauthor={Christiane Belitz, Andreas Brezger, Thomas Kneib and Stefan Lang with contributions
     by Eva-Maria Fronk, Andrea Hennerfeind,
     Petra Kragler, Manuela Hummel and Leyre Osuna Echavarr\'{\i}a},
@@ -67,8 +67,10 @@
 
  \def \re {\mathds{R}}
  \newcommand{\Var}{\mbox{Var}}
+ \newcommand{\Cov}{\mbox{Cov}}
  \newcommand{\diag}{\mbox{diag}}
-
+ \newcommand{\trace}{\mbox{trace}}
+ \newcommand{\df}{\mbox{df}}
 
 \def \Mvec {\vec{M}}
 \def \Kvec {\vec{K}}
@@ -84,6 +86,7 @@
 \def \Gammavec {\boldsymbol{\Gamma}}
 \def \Omegavec {\boldsymbol{\Omega}}
 \def \muvec {\boldsymbol{\mu}}
+\def \kappavec {\boldsymbol{\kappa}}
 \def \nuvec {\boldsymbol{\nu}}
 \def \pivec {\vec{\pi}}
 \def \thetavec {\vec{\theta}}
@@ -205,19 +208,18 @@
 {\em Developed by}
 
 Christiane Belitz \\
-Andreas Brezger (HypoVereinsbank Munich) \\
+Andreas Brezger\\
 Thomas Kneib (Ludwig-Maximilians-University Munich)\\
-Stefan Lang (University of Innsbruck)\\
+Stefan Lang (University of Innsbruck)
 
 {\em With contributions by}
-
 
 Eva-Maria Fronk\\
 Andrea Hennerfeind\\
 Manuela Hummel\\
 Alexander Jerak\\
 Petra Kragler\\
-Leyre Osuna Echavarr\'{\i}a\\
+Leyre Osuna Echavarr\'{\i}a
 
 {\em Supported by}
 
@@ -271,38 +273,38 @@ user, assume all risks when using it.
 
 \section{Introduction}
 
-In this manual we provide a brief overview of the methodological
+In this manual we provide a brief review of the methodological
 background for the three regression tools currently implemented in
-BayesX. The first regression tool ({\em bayesreg objects}) relies on
-Markov chain Monte Carlo simulation techniques and yields fully
-Bayesian posterior mean estimates. The second regression tool ({\em
-remlreg objects}) is based on the mixed model representation of
-penalised regression models with inference being based on penalised
-maximum likelihood and marginal likelihood (a generalisation of
-restricted maximum likelihood) estimation. The third regression tool
-{\em stepwisereg objects} simultaneously  performs model choice and estimation.
-Inference is based on a penalized likelihood point of view of STAR models. MCMC techniques are
-partly used for computing interval estimates.
-All regression tools
-allow to estimate structured additive regression (STAR) models
-(Fahrmeir, Kneib and Lang, 2004) with complex semiparametric
-predictors. STAR models cover a number of well known model classes
-as special cases, including {\em generalized additive models}
-(Hastie and Tibshirani, 1990), {\em generalized additive mixed
-models} (Lin and Zhang, 1999), {\em geoadditive models} (Kammann and
-Wand, 2003), {\em varying coefficient models} (Hastie and
-Tibshirani, 1993), and {\em geographically weighted regression}
-(Fotheringham, Brunsdon, and Charlton, 2002). Besides models for
-responses from univariate exponential families, BayesX also supports
-non-standard regression situations such as models for categorical
-responses with either ordered and unordered categories, continuous
-time survival data, or continuous time multi-state models. To
-provide a first impression of structured additive regression,
-Sections~\ref{obsmodel} to \ref{inference} describe STAR models for
-exponential family regression. Section~\ref{survivalAnalysis}
-extends structured additive regression to the analysis of survival
-times and multi-state data. Full details on STAR methodology can be
-found in the following references:
+{\em BayesX}. The first regression tool ({\em bayesreg objects})
+relies on Markov chain Monte Carlo (MCMC) simulation techniques and
+yields fully Bayesian posterior mean or posterior mode estimates.
+The second regression tool ({\em remlreg objects}) is based on the
+mixed model representation of penalised regression models with
+inference being based on penalised maximum likelihood and marginal
+likelihood (a generalisation of restricted maximum likelihood)
+estimation. The third regression tool ({\em stepwisereg objects})
+simultaneously performs model choice and estimation with inference
+being based on penalised likelihood. MCMC techniques are partly used
+for computing interval estimates. All regression tools allow to
+estimate structured additive regression (STAR) models (Fahrmeir,
+Kneib and Lang, 2004) with complex semiparametric predictors. STAR
+models cover a number of well known model classes as special cases,
+including {\em generalized additive models} (Hastie and Tibshirani,
+1990), {\em generalized additive mixed models} (Lin and Zhang,
+1999), {\em geoadditive models} (Kammann and Wand, 2003), {\em
+varying coefficient models} (Hastie and Tibshirani, 1993), and {\em
+geographically weighted regression} (Fotheringham, Brunsdon, and
+Charlton, 2002). Besides models for responses from univariate
+exponential families, BayesX also supports non-standard regression
+situations such as models for categorical responses with either
+ordered or unordered categories, continuous time survival data, or
+continuous time multi-state models. To provide a first impression of
+structured additive regression, Sections~\ref{obsmodel} to
+\ref{inference} describe STAR models for exponential family
+regression. Section~\ref{survivalAnalysis} extends structured
+additive regression to the analysis of survival times and
+multi-state data. Full details on STAR methodology can be found in
+the following references:
 
 \subsubsection*{Structured additive regression based on MCMC
 simulation}
@@ -310,29 +312,99 @@ simulation}
 \begin{itemize}
 \item Brezger, A., Lang, S. (2006)
       Generalized structured additive regression based on Bayesian P-Splines.
-      Computational Statistics and Data Analysis, 50,
-      967-991.\vspace{-0.25cm}
+      {\it Computational Statistics and Data Analysis}, {\bf 50},
+      967--991.\vspace{-0.25cm}
 \item Fahrmeir, L., Lang, S. (2001)
       Bayesian Inference for Generalized Additive Mixed Models Based on Markov Random Field Priors.
-      Journal of the Royal Statistical Society C (Applied Statistics), 50, 201-220.\vspace{-0.25cm}
+      {\it Journal of the Royal Statistical Society C (Applied Statistics)}, {\bf 50}, 201--220.\vspace{-0.25cm}
 \item Fahrmeir, L., Lang, S. (2001)
       Bayesian Semiparametric Regression Analysis of Multicategorical Time-Space Data.
-      Annals of the Institute of Statistical Mathematics, 53, 10-30.\vspace{-0.25cm}
+      {\it Annals of the Institute of Statistical Mathematics}, {\bf 53}, 10--30.\vspace{-0.25cm}
 \item Fahrmeir, L., Osuna, L.. (2006)
       Structured additive regression for overdispersed and zero-inflated count data.
-      Applied Stochastic Models in Business and Industry, 22, 351-369.\vspace{-0.25cm}
+      {\it Applied Stochastic Models in Business and Industry}, {\bf 22}, 351--369.\vspace{-0.25cm}
 \item Hennerfeind, A., Brezger, A., Fahrmeir, L. (2006)
       Geoadditive survival models.
-      Journal of the American Statistical Association, 101, 1065-1075.\vspace{-0.25cm}
+      {\it Journal of the American Statistical Association}, {\bf 101}, 1065--1075.\vspace{-0.25cm}
 \item Kneib, T., Hennerfeind, A. (2006)
       Bayesian Semiparametric Multi-State Models.
-      SFB 386 Discussion Paper 502.\vspace{-0.25cm}
+      {\it Statistical Modelling}, to appear.\vspace{-0.25cm}
 \item Lang, S., Brezger, A. (2004)
       Bayesian P-Splines
-      Journal of Computational and Graphical Statistics, 13, 183-212.
+      {\it Journal of Computational and Graphical Statistics}, {\bf 13}, 183--212.
 \end{itemize}
 
 Presumably the best starting point is the paper by Brezger and Lang (2006).
+
+\begin{figure}[ht]
+\footnotesize
+\begin{center}
+%\begin{tabular}{|p{8cm}|p{5cm}|}
+%\hline
+%{\bf Intended use} & {\bf recommended sections } \\
+%\hline
+%semiparametric regression, fully Bayesian approach  & sections \ref{obsmodel}, \ref{priorassumptions} , \ref{fullbayes} \\
+%\hline
+%semiparametric regression, inference based on mixed model technology, classical perspective &
+%sections \ref{obsmodel}, \ref{penalizedleastsquares}, \ref{glmmrep}, \ref{glmmmeth} \\
+%\hline
+%semiparametric regression, inference based on mixed model technology, Bayesian point of view & sections \ref{obsmodel}, \ref{priorassumptions},
+%\ref{glmmrep}, \ref{glmmmeth} \\
+%\hline
+%semiparametric regression including model choice & sections \ref{obsmodel}, \ref{penalizedleastsquares}, \ref{stepwiseest} \\
+%\hline
+%\end{tabular}
+% \vspace{3mm}
+\[\mbox{
+ \beginpicture
+ \setcoordinatesystem units <1.1cm,1.1cm> point at 0 0
+ \setlength{\unitlength}{1.1cm}
+
+ \put {\framebox(5.5,0.7){\sffamily\bfseries 2 Generalized regression models}} at 0 0
+
+ \put {Bayesian perspective} at -4 -1.2
+ \put {frequentist perspective} at 4 -1.2
+
+ \arrow <4mm> [0.25,0.75] <0pt,5mm> from 0 -1 to -5 -2.9
+ \arrow <4mm> [0.25,0.75] <0pt,5mm> from 0 -1 to 5 -2.9
+
+ \put {\framebox(4.5,0.7){\sffamily\bfseries 4 Bayesian point of view}} at -5 -3
+
+ \put {\framebox(4.5,0.7){\sffamily\bfseries 3 Penalised likelihood}} at 5 -3
+
+ \arrow <4mm> [0.25,0.75] <0pt,5mm> from -5 -4 to 0 -6
+ \arrow <4mm> [0.25,0.75] <0pt,5mm> from 5 -4 to 0 -6
+
+ \put {relation to mixed models} at 0 -4.5
+
+ \put {\framebox(5.5,0.7){\sffamily\bfseries 5 Mixed model representation}} at 0 -6
+
+ \arrow <4mm> [0.25,0.75] <0pt,5mm> from -5 -4 to -5 -9
+ \arrow <4mm> [0.25,0.75] <0pt,5mm> from 5 -4 to 5 -9
+
+ \put {\framebox(3.5,0.7){\sffamily\bfseries 6.1 bayesreg objects}} at -5 -9
+ \put {\framebox(3.5,0.7){\sffamily\bfseries 6.3 stepwisereg objects}} at 5 -9
+
+ \put {MCMC (full Bayes)} at -6.5 -6
+ \put {penalised likelihood} at 6.5 -5.75
+ \put {(model choice)} at 6.5 -6.15
+
+ \arrow <4mm> [0.25,0.75] <0pt,5mm> from 0 -7 to 0 -9
+
+ \put {penalised likelihood} at -1.5 -7.5
+ \put {(empirical Bayes)} at 1.3 -7.5
+
+ \put {\framebox(3.5,0.7){\sffamily\bfseries 6.2 remlreg objects}} at 0 -9
+
+
+ \endpicture
+}\]
+ \vspace{3mm}
+
+{\em \caption {\label{guideline} Guidelines for reading this
+manual.}}
+\end{center}
+\end{figure}
 
 \subsubsection*{Structured additive regression based on mixed model
 methodology}
@@ -340,23 +412,23 @@ methodology}
 \begin{itemize}
 \item Fahrmeir, L., Kneib, T., Lang, S. (2004)
       Penalized structured additive regression for space-time data: a Bayesian perspective.
-      Statistica Sinica, 14, 715-745.\vspace{-0.25cm}
+      {\it Statistica Sinica}, {\bf 14}, 715--745.\vspace{-0.25cm}
 \item Kneib, T. (2006):
       Mixed model based inference in structured additive regression.
       Dr. Hut Verlag, M\"{u}nchen.
-      Available online from {\tt http://edoc.ub.uni-muenchen.de/archive/ 00005011/}\vspace{-0.25cm}
+      Available online from \href{http://edoc.ub.uni-muenchen.de/archive/00005011/}{http://edoc.ub.uni-muenchen.de/archive/00005011/}\vspace{-0.25cm}
 \item Kneib, T. (2006):
       Geoadditive hazard regression for interval censored survival times.
-      Computational Statistics and Data Analysis, 51, 777-792.\vspace{-0.25cm}
+      {\it Computational Statistics and Data Analysis}, {\bf 51}, 777--792.\vspace{-0.25cm}
 \item Kneib, T., Fahrmeir, L. (2007):
       A mixed model approach for geoadditive hazard regression.
-      Scandinavian Journal of Statistics, 34, 207-228.\vspace{-0.25cm}
+      {\it Scandinavian Journal of Statistics}, {\bf 34}, 207--228.\vspace{-0.25cm}
 \item Kneib, T., Fahrmeir, L. (2006):
       Structured additive regression for multicategorical space-time data: A mixed model approach.
-      Biometrics, 62, 109-118.\vspace{-0.25cm}
+      {\it Biometrics}, {\bf 62}, 109--118.\vspace{-0.25cm}
 \item Kneib, T., Hennerfeind, A. (2006)
       Bayesian Semiparametric Multi-State Models.
-      Statistical Modeling, to appear.
+      {\it Statistical Modelling}, to appear.
 \end{itemize}
 
 Presumably the best starting point is the paper by Fahrmeir, Kneib and Lang (2004) or the monograph by Kneib (2006).
@@ -365,8 +437,9 @@ Presumably the best starting point is the paper by Fahrmeir, Kneib and Lang (200
 
 \begin{itemize}
 \item Belitz, C. (2007) Model selection in Generalised Structured Additive Regression Models. Dr. Hut Verlag, M\"{u}nchen.
-\item Belitz, C.  and Lang, S. (2007) Simultaneous selection of variables and smoothing parameters
-in structured additive regression models. Revised for Computational Statistics and Data Analysis.
+\item Belitz, C., Lang, S. (2007) Simultaneous selection of variables and smoothing parameters
+in structured additive regression models. Revised for {\it
+Computational Statistics and Data Analysis}.
 \end{itemize}
 
 Presumably the best starting point is the paper by Belitz and Lang (2007).
@@ -376,45 +449,25 @@ Presumably the best starting point is the paper by Belitz and Lang (2007).
 
 The rest of this manual is organized as follows:
 
-The next section describes the general structure of STAR models for distributions
-of the response variable belonging to an exponential family. The following
-sections \ref{penalizedleastsquares} - \ref{inference}
-discuss alternative approaches for specifying and estimating the different model terms
-in STAR models.
-Section \ref{penalizedleastsquares} describes the models from a more classical penalized
-least squares respectively likelihood perspective. A Bayesian point of view is taken in
-section \ref{priorassumptions}. The close connection to mixed models is highlighted in
-section \ref{glmmrep}.
-Section \ref{inference} gives a brief outline of the various inference techniques
-for STAR models. Fully Bayesian inference via MCMC simulation techniques is the topic of subsection
-\ref{fullbayes}. Inference based on mixed model technology is sketched in subsection  \ref{glmmmeth}.
-Simultaneous selection of relevant model terms and estimation of the parameters is described in subsection
+The next section describes the general structure of STAR models for
+distributions of the response variable belonging to an exponential
+family. The following Sections \ref{penalizedleastsquares} -
+\ref{inference} discuss alternative approaches for specifying and
+estimating the different model terms in STAR models. Section
+\ref{penalizedleastsquares} describes the models from a more
+classical penalized least squares perspectives. A Bayesian point of
+view is taken in Section \ref{priorassumptions}. The close
+connection to mixed models is highlighted in Section \ref{glmmrep}.
+Section \ref{inference} gives a brief outline of the various
+inference techniques for STAR models. Fully Bayesian inference via
+MCMC simulation techniques is the topic of Section \ref{fullbayes}.
+Inference based on mixed model technology is sketched in Section
+\ref{glmmmeth}. Simultaneous selection of relevant model terms and
+estimation of the parameters is described in Section
 \ref{stepwiseest}.
 
-For most users of BayesX it is sufficient to read only parts of this manual. Some recommendations
-are given in the following Table \ref{guideline}.
-
-\begin{table}[ht]
-\footnotesize
-\begin{center}
-\begin{tabular}{|p{8cm}|p{5cm}|}
-\hline
-{\bf Intended use} & {\bf recommended sections } \\
-\hline
-semiparametric regression, fully Bayesian approach  & sections \ref{obsmodel}, \ref{priorassumptions} , \ref{fullbayes} \\
-\hline
-semiparametric regression, inference based on mixed model technology, classical perspective &
-sections \ref{obsmodel}, \ref{penalizedleastsquares}, \ref{glmmrep}, \ref{glmmmeth} \\
-\hline
-semiparametric regression, inference based on mixed model technology, Bayesian point of view & sections \ref{obsmodel}, \ref{priorassumptions},
-\ref{glmmrep}, \ref{glmmmeth} \\
-\hline
-semiparametric regression including model choice & sections \ref{obsmodel}, \ref{penalizedleastsquares}, \ref{stepwiseest} \\
-\hline
-\end{tabular}
-{\em \caption {\label{guideline} Guidelines for reading this manual.}}
-\end{center}
-\end{table}
+For most users of BayesX it is sufficient to read only parts of this
+manual. Some recommendations are given in Figure \ref{guideline}.
 
 
 \section{Generalized regression models}
@@ -451,14 +504,14 @@ effect on the predictor may be not appropriate. \vspace{-0.2cm}
 \item Complex interactions may be required to model the joint effect
 of some of the covariates adequately. \vspace{-0.2cm}
 \item  Heterogeneity among individuals or units may be not sufficiently described by covariates. Hence,
-unobserved {\em unit or cluster specific heterogeneity} must be
+unobserved {\em unit or cluster specific heterogeneity} has to be
 considered appropriately.
 \end{itemize}
 To overcome these difficulties, we replace the strictly linear
 predictor in (\ref{glm}) by a structured additive predictor
 \begin{equation}
-\label{gampred}
-\eta=f_{1}(x_{1})+\ldots+f_{p}(x_{p})+\uvec'\gammavec,
+\label{gampred} \eta=f_{1}(x_{1})+\ldots+f_j(x_j) +
+\ldots+f_{p}(x_{p})+\uvec'\gammavec,
 \end{equation}
 where $x_j$ denote
 covariates of different type and dimension, and $f_j$ are (not
@@ -570,24 +623,36 @@ well known from the literature, in particular {\em Generalized additive models (
 %%description of these procedures is considerably facilitated.
 %%\end{itemize}
 %
-\section{Penalized least squares and likelihood}
+\section{Penalized least squares}
 \label{penalizedleastsquares}
 
-In BayesX the nonlinear functions $f_j$ are modeled by a basis functions approach, i.e. a particular nonlinear function $f$ is approximated by
-a linear combination of basis functions:
+In BayesX, the nonlinear functions $f_j$ are modeled by a basis
+functions approach, i.e. a particular nonlinear function $f$ is
+approximated by a linear combination of basis functions:
 $$
 f(x) = \sum_{k=1}^{K} \beta_k B_k(x)
 $$
-The $B_k$ are known basis functions and $\betavec = (\beta_1,\dots,\beta_K)'$ is a vector of unknown regression coefficients to be estimated.
-To ensure enough flexibility, typically a large number of basis functions is defined. To avoid overfitting a roughness penalty on the
-regression coefficients
-is additionally specified. We use quadratic penalties of the form $\betavec' \Pvec(\lambdavec) \betavec$ where $\Pvec(\lambdavec)$
-is a penalty matrix. The penalty depends on one or multiple smoothing parameters $\lambdavec$ that govern the
-amount of smoothness imposed on the function $f$. Most penalty matrices are of the particular simple form
-$\Pvec(\lambdavec) = \lambda \Kvec$ where $\lambda$ is a scalar smoothing parameter. For {\em stepwisereg objects} more complicated
-penalties are sometimes possible. They are an additive combination of penalty matrices. An example is
-$\Pvec(\lambdavec) = \lambda_1 \Kvec_1+\lambda_2 \Kvec_2$ where $\lambda_1$ and $\lambda_2$ are smoothing parameters and $\Kvec_1$ and $\Kvec_2$
-are penalty matrices.
+The $B_k$ are known basis functions and $\betavec =
+(\beta_1,\dots,\beta_K)'$ is a vector of unknown regression
+coefficients to be estimated. Note that the term basis function in
+our understanding is not limited to basis functions known from
+nonparametric smoothing such as B-splines but also refers to
+non-standard basis functions such as indicator functions for regions
+or clusters. To ensure enough flexibility, typically a large number
+of basis functions is defined. To avoid overfitting, a roughness
+penalty on the regression coefficients is additionally specified. We
+use quadratic penalties of the form $\betavec' \Pvec(\lambdavec)
+\betavec$ where $\Pvec(\lambdavec)$ is a penalty matrix. The penalty
+depends on one or multiple smoothing parameters $\lambdavec$ that
+govern the amount of smoothness imposed on the function $f$. Most
+penalty matrices are of the particular simple form
+$\Pvec(\lambdavec) = \lambda \Kvec$ where $\lambda$ is a scalar
+smoothing parameter. For {\em stepwisereg objects} more complicated
+penalties are sometimes possible. They are an additive combination
+of penalty matrices. An example is $\Pvec(\lambdavec) = \lambda_1
+\Kvec_1+\lambda_2 \Kvec_2$ where $\lambda_1$ and $\lambda_2$ are
+smoothing parameters and $\Kvec_1$ and $\Kvec_2$ are penalty
+matrices.
 
 The choice of basis functions $B_1,\dots,B_K$ and penalty  $\Pvec(\lambdavec)$ depends on our prior assumptions about the smoothness
 of $f$ as well as
@@ -648,24 +713,25 @@ the composed penalty
 $$
 \Pvec(\lambdavec) =  \betavec' \left( \lambda_1 \Kvec_1 + \lambda_2 \Kvec_2 \right) \betavec
 $$
-where $\lambda_1$ and $\Kvec_1$ are the usual smoothing parameter and penalty matrix for P-splines.
-The additional penalty matrix $\Kvec_2$ is a diagonal matrix with entries 1 whenever the
-condition $\beta_{k} \leq \beta_{k-1}$ fails and 0 otherwise.
-For increasing functions $\Kvec_2$ has to be adapted accordingly. The parameter $\lambda_2$ is not estimated but set large enough to
-produce monotonic functions.
+where $\lambda_1$ and $\Kvec_1$ are the usual smoothing parameter
+and penalty matrix for P-splines. The additional penalty matrix
+$\Kvec_2$ is a diagonal matrix with entries 1 whenever the condition
+$\beta_{k} \leq \beta_{k-1}$ fails and 0 otherwise. For increasing
+functions, $\Kvec_2$ has to be adapted accordingly. The parameter
+$\lambda_2$ is not estimated but set large enough to enforce
+monotonic functions.
 
 
 
 
 
 \subsubsection{Tensor product P-splines}
-\label{tensorproductpsplines}
-Assume now that $x$ is two dimensional, i.e.
-$x = \left(x^{(1)},x^{(2)}\right)'$ with continuous components
-$x^{(1)}$ and $x^{(2)}$. The aim is to extend the univariate
-P-spline from the preceding section to two dimensions.
-A common approach is to approximate the unknown surface $f(x)$ by the tensor product of one
-dimensional B-splines, i.e.
+\label{tensorproductpsplines} Assume now that $\xvec$ is
+two-dimensional, i.e. $\xvec = \left(x^{(1)},x^{(2)}\right)'$ with
+continuous components $x^{(1)}$ and $x^{(2)}$. The aim is to extend
+the univariate P-spline from the preceding section to two
+dimensions. A common approach is to approximate the unknown surface
+$f(x)$ by the tensor product of one dimensional B-splines, i.e.
 \begin{equation}
 \label{gampspline_2dimterm} f\left(x^{(1)},x^{(2)}\right) = \sum_{k=1}^{K_1}
 \sum_{s=1}^{K_2} \beta_{ks} B_{1,k}(x^{(1)})
@@ -679,7 +745,9 @@ products of basis functions.
 Several alternatives are available for the penalty matrix $\Pvec(\lambdavec)$:
 \begin{enumerate}
 \item[a)] {\em Penalty based on first differences:} The
-two dimensional generalization of a penalty based on first differences is given by combining row- and column wise quadratic differences
+two-dimensional generalization of a penalty based on first
+differences is given by combining row- and column wise quadratic
+differences
 $$
 \begin{array}{l}
 \displaystyle \sum_{k=2}^{K_1}\sum_{s=1}^{K_2}(\beta_{ks}-\beta_{k-1,s})^2 =
@@ -700,40 +768,53 @@ Another way of expressing the penalty is given by
 \end{equation}
 where $\Kvec_1$ and $\Kvec_2$ are the respective one dimensional penalty matrices.
 In the limit  $\lambda \rightarrow \infty$ a constant fit is obtained.
-\item[b)] {\em Penalty based on second differences:} In a similar way two dimensional penalties based on higher order differences
-are constructed. A second order difference penalty is obtained if  $\Kvec_1$ and $\Kvec_2$ in (\ref{2dpenalty}) correspond to
-penalty matrices based on second rather than first differences.
-Similar to one dimensional P-splines the limit $\lambda \rightarrow \infty$ results in a linear fit, i.e.
+\item[b)] {\em Penalty based on second differences:} In a similar way two-dimensional penalties based on higher order differences
+are constructed. A second order difference penalty is obtained if
+$\Kvec_1$ and $\Kvec_2$ in (\ref{2dpenalty}) correspond to penalty
+matrices based on second rather than first differences. Similar to
+one dimensional P-splines the limit $\lambda \rightarrow \infty$
+results in linear effects in $x^{(1)}$ and $x^{(2)}$ with an
+additional interaction effect, i.e.
 $$
-f\left(z^{(1)},z^{(2)}\right) = c_0 + c_1 \, z^{(1)} + c_2 \, z^{(2)} + c_3 \, z^{(1)} z^{(2)}.
+f\left(z^{(1)},z^{(2)}\right) = c_0 + c_1 \, x^{(1)} + c_2 \,
+x^{(2)} + c_3 \, x^{(1)} x^{(2)}.
 $$
 \item[c)] {\em Anisotropic penalty:} The two penalties considered so far are not capable of
-different penalization in $z^{(1)}$ and $z^{(2)}$ direction, respectively. Anisotropic penalties are obtained by assuming
-separate smoothing parameters $\lambda_1$ and $\lambda_2$ in $z^{(1)}$ and $z^{(2)}$ direction. The penalty is then given by
+different penalization in $x^{(1)}$ and $x^{(2)}$ direction,
+respectively. Anisotropic penalties are obtained by assuming
+separate smoothing parameters $\lambda_1$ and $\lambda_2$ in
+$x^{(1)}$ and $x^{(2)}$ direction. The penalty is then given by
 \begin{equation}
 \label{penalty_eilmar}
  \betavec'\Pvec(\lambdavec) \betavec = \betavec'\left[\lambda_1 \Ivec_{K_2}\otimes\Kvec_1 + \lambda_2 \Kvec_2\otimes \Ivec_{K_1}\right]\betavec.
 \end{equation}
-The resulting fit in the limit $\lambda_1 \rightarrow \infty$ and $\lambda_2 \rightarrow \infty$ depends on the penalty used to construct
-$\Kvec_1$ and $\Kvec_2$. If $\Kvec_1$ and $\Kvec_2$ correspond to a first order difference penalty a constant fit is obtained in the limit.
-Second order difference penalties result in a linear fit for $f\left(z^{(1)},z^{(2)}\right)$.
+The resulting fit in the limit $\lambda_1 \rightarrow \infty$ and
+$\lambda_2 \rightarrow \infty$ depends on the penalty used to
+construct $\Kvec_1$ and $\Kvec_2$. If $\Kvec_1$ and $\Kvec_2$
+correspond to a first order difference penalty a constant fit is
+obtained in the limit. Second order difference penalties result in a
+linear fit for $f\left(x^{(1)},x^{(2)}\right)$.
 \item[d)] {\em Penalties with main effects in the limit:} Sometimes it is desirable to decompose the effect of the two covariates
-$z^{(1)}$ and $z^{(2)}$ into two main effects modeled by one dimensional functions
-and a two dimensional interaction effect, i.e.
+$x^{(1)}$ and $x^{(2)}$ into two main effects modeled by one
+dimensional functions and a two-dimensional interaction effect, i.e.
 \begin{equation}
-\label{gampspline_2dimtermmain}
-f \left(z^{(1)},z^{(2)}\right) = f_1\left(z^{(1)} \right) +
-f_2 \left(z^{(2)}\right) + f_{1|2}\left( z^{(1)},z^{(2)} \right).
+\label{pspline_2dimtermmain} f \left(x^{(1)},x^{(2)}\right) =
+f_1\left(x^{(1)} \right) + f_2 \left(x^{(2)}\right) + f_{1|2}\left(
+x^{(1)},x^{(2)} \right).
 \end{equation}
-Usually a two dimensional surface smoother  together with two additional  one dimensional P-splines
-(or other smoothers) are estimated. This approach is possible with {\em bayesreg objects} and {\em remlreg objects}.
-{\em stepwisereg objects} take, however, a different approach. We specify a two dimensional surface based on tensor product P-splines and
-compute the decomposition of the
-resulting surface
-into main effects and the interaction effect {\em after} estimation. Moreover, we specify a penalty that allows for a main effects only
-model as a special
-case. This allows to discriminate between a simple  main effects model and a more complicated two way interactions model.
-A penalty that guarantees  a main effects model in the limit is defined by the Kronecker product of the two penalty matrices for one dimensional P-splines, i.e.
+Usually a two-dimensional surface smoother  together with two
+additional  one dimensional P-splines (or other smoothers) are
+estimated. This approach is possible with {\em bayesreg objects} and
+{\em remlreg objects}. {\em stepwisereg objects} take, however, a
+different approach. We specify a two-dimensional surface based on
+tensor product P-splines and compute the decomposition of the
+resulting surface into main effects and the interaction effect {\em
+after} estimation. Moreover, we specify a penalty that allows for a
+main effects only model as a special case. This allows to
+discriminate between a simple  main effects model and a more
+complicated two way interactions model. A penalty that guarantees  a
+main effects model in the limit is defined by the Kronecker product
+of the two penalty matrices for one dimensional P-splines, i.e.
 \begin{equation}
 \label{penalty_kronecker}
 \betavec'\Pvec(\lambda)\betavec = \betavec' \lambda \Kvec_1 \otimes \Kvec_2 \betavec.
@@ -761,12 +842,16 @@ linear or constant main effects depending on the difference order used to constr
 \end{enumerate}
 
 
-\subsection{Spatial heterogeneity}
-In this subsection we assume that $x$ represents the location a particular observation pertains to.
-The location is typically given in two ways. If exact locations
-are available $x=(x^{(1)},x^{(2)})'$ is two dimensional and the components  $x^{(1)}$ and $x^{(2)}$ correspond to the coordinates of the location.
-In this case the spatial effect $f(x^{(1)},x^{(2)})$ could be modeled by
-two dimensional surface estimators as described in the preceding section.
+\subsection{Spatial effects}
+
+In this subsection we assume that $x$ represents the location a
+particular observation pertains to. The location is typically given
+in two ways. If exact locations are available $x=(x^{(1)},x^{(2)})'$
+is two-dimensional and the components  $x^{(1)}$ and $x^{(2)}$
+correspond to the coordinates of the location. In this case, the
+spatial effect $f(x^{(1)},x^{(2)})$ could be modeled by
+two-dimensional surface estimators as described in the preceding
+section.
 
 In many applications, however, exact locations are not available. Typically, a geographical map is available and $x \in \{1,\dots,K\}$ is an
 index that denotes the region (e.g. district) an observation pertains to. A common approach is to assume $f(x) = \beta_x$,
@@ -792,18 +877,26 @@ The elements of the penalty matrix are given by
 \right.
 \end{equation}
 
-Depending on the prior belief on smoothness of the spatial effect several alternatives to penalty (\ref{K_mrf}) are available.
-If a very smooth effect is assumed the two dimensional smoothers discussed in the preceding section could be used as an alternative.
-Since exact locations are not available the centroids of the regions could be used instead.
+Depending on the prior belief on smoothness of the spatial effect
+several alternatives to penalty (\ref{K_mrf}) are available. If a
+very smooth effect is assumed, the two-dimensional smoothers
+discussed in the preceding section could be used as an alternative.
+Since exact locations are not available the centroids of the regions
+could be used instead.
 
 \subsection{Unit- or cluster specific heterogeneity}
-Typically, unit- or cluster specific random effects are introduced to account
-for heterogeneity. In its simplest form a random intercept $\beta_x$ with $\beta_x \sim N(0,\tau^2)$ is introduced.
-Here, $x \in \{1,\dots,K\}$ is an index variable that denotes the cluster a particular observation pertains to.
-This is equivalent to a penalized least squares approach with function $f(x) = \beta_x$, penalty matrix $\Ivec$ and smoothing parameter
-$\lambda = \sigma^2/\tau^2$. The $n \times K$ design matrix $\Xvec$ is a 0/1 incidence matrix whose entry in
-the $i$-th row and $k$-th column is equal to one if observation $i$ belongs to the $k$-th cluster and zero otherwise.
-Random slopes could be treated in the same way, see the next subsection.
+Typically, unit- or cluster specific random effects are introduced
+to account for unobserved heterogeneity. In its simplest form, a
+random intercept $\beta_x$ with $\beta_x \sim N(0,\tau^2)$ is
+introduced. Here, $x \in \{1,\dots,K\}$ is an index variable that
+denotes the cluster a particular observation pertains to. This is
+equivalent to a penalized least squares approach with function $f(x)
+= \beta_x$, penalty matrix $\Ivec$ and smoothing parameter $\lambda
+= \sigma^2/\tau^2$. The $n \times K$ design matrix $\Xvec$ is a 0/1
+incidence matrix whose entry in the $i$-th row and $k$-th column is
+equal to one if observation $i$ belongs to the $k$-th cluster and
+zero otherwise. Random slopes could be treated in the same way, see
+the next subsection.
 
 A particular cluster variable is a spatial index that indicates the region an observation pertains to. Usually a spatially correlated effect
 as described in the preceding subsection is specified.
@@ -815,9 +908,10 @@ $$
 with penalty matrix $\Kvec = \Ivec$ may be defined. This penalty does not assume any spatial dependence but prevents highly variable
 estimates induced by small samples for some regions or sites.
 
-
-Note that more than one random intercept with respect to different cluster variables are possible. In many cases there exists a hierarchical ordering
-of clusters. Models with such hierarchical clusters are also called multilevel models.
+Note that more than one random intercept with respect to different
+cluster variables are possible. In many cases there exists a
+hierarchical ordering of clusters. Models with such hierarchical
+clusters are also called multilevel models.
 
 
 \subsection{Varying coefficients}
@@ -831,26 +925,41 @@ $x^{(1)}$ can be modeled by a predictor of the form
 $$
 \eta = \ldots + f_1(x^{(2)}) + g(x^{(2)}) x^{(1)} + \ldots,
 $$
-where $f_1$ and $g$ are smooth functions (modeled by P-splines).
-The interpretation of the two functions $f_1$ and $g$ depends on the coding of the binary variable $x^{(1)}$.
-If $x^{(1)}$ is in dummy-coding, the function $f_1$ corresponds to the effect of $x^{(2)}$ subject to  $x^{(1)}=0$, and
-$g$ is the difference effect for observations with $x^{(1)}=1$. If $x^{(1)}$ is in effect-coding, the function $f_1$ can be interpreted as an
-average effect of  $x^{(2)}$, and $g$ respectively $-g$ is now the deviation from $f_1$ for $x^{(1)} = 1$ and $x^{(1)} = -1$, respectively.
-It turns out that the coding of $x^{(2)}$ is not only important  for interpretation but sometimes also crucial for inference
-(in {\em bayesreg objects} and {\em remlreg objects}). Estimation for {\em bayesreg and stepwisereg objects} described
-in the next section is based on an iterative backfitting type procedure. Hence dependence between $f_1$ and $g$ should be minimized to avoid
-convergence problems. Hence, effect coding for $x^{(2)}$ is an effective yet simple device to avoid convergence problems.
+where $f_1$ and $g$ are smooth functions (modeled by P-splines). The
+interpretation of the two functions $f_1$ and $g$ depends on the
+coding of the binary variable $x^{(1)}$. If $x^{(1)}$ is in
+dummy-coding, the function $f_1$ corresponds to the effect of
+$x^{(2)}$ subject to  $x^{(1)}=0$, and $g$ is the difference effect
+for observations with $x^{(1)}=1$. If $x^{(1)}$ is in effect-coding,
+the function $f_1$ can be interpreted as an average effect of
+$x^{(2)}$, where $g$ and $-g$ represent the deviation from $f_1$ for
+$x^{(1)} = 1$ and $x^{(1)} = -1$, respectively. It turns out that
+the coding of $x^{(2)}$ is not only important  for interpretation
+but sometimes also crucial for inference (in {\em bayesreg objects}
+and {\em stepwisereg objects}). Estimation for {\em bayesreg and
+stepwisereg objects} described in the next section is based on an
+iterative backfitting type procedure. Hence dependence between $f_1$
+and $g$ should be minimized to avoid convergence problems. Hence,
+effect coding for $x^{(2)}$ is an effective yet simple device to
+avoid convergence problems.
 
-Models with interaction effects of the form $g(x^{(2)}) \, x^{(1)}$ are  known as varying coefficient models  because
-the effect of $x^{(1)}$ varies smoothly with respect to the continuous covariate $x^{(2)}$. Covariate $x^{(2)}$ is called the effect modifier of
-$x^{(1)}$. The approach can be easily extended to a two dimensional effect modifier with components $x^{(2)}$ and $x^{(3)}$.
-The interaction effect is then given by $g(x^{(2)},x^{(3)}) \, x^{(1)}$ where $g(x^{(2)},x^{(3)})$ is a two dimensional surface which is  modeled
-by the tensor product P-splines discussed in section \ref{tensorproductpsplines}.
-Another modification arises if the
-effect modifier is the location either given as the coordinates or as a spatial index. In this case we have a space varying effect of $x^{(1)}$.
-Models of this kind are also known as geographically weighted regression, see Fotheringham, Brunsdon and Charlton (2002).
-A final modification is obtained for a unit- or
-cluster index as the effect modifier. The effect of $x^{(1)}$ is now assumed to be unit- or cluster specific and typically referred to as a random slope.
+Models with interaction effects of the form $g(x^{(2)}) \, x^{(1)}$
+are  known as varying coefficient models  because the effect of
+$x^{(1)}$ varies smoothly with respect to the continuous covariate
+$x^{(2)}$. Covariate $x^{(2)}$ is called the effect modifier of
+$x^{(1)}$. The approach can be easily extended to a two-dimensional
+effect modifier with components $x^{(2)}$ and $x^{(3)}$. The
+interaction effect is then given by $g(x^{(2)},x^{(3)}) \, x^{(1)}$
+where $g(x^{(2)},x^{(3)})$ is a two-dimensional surface which is
+modeled by the tensor product P-splines discussed in section
+\ref{tensorproductpsplines}. Another modification arises if the
+effect modifier is the location either given as the coordinates or
+as a spatial index. In this case we have a space varying effect of
+$x^{(1)}$. Models of this kind are also known as geographically
+weighted regression, see Fotheringham, Brunsdon and Charlton (2002).
+A final modification is obtained for a unit or cluster index as
+effect modifier. The effect of $x^{(1)}$ is now assumed to be unit-
+or cluster-specific and typically referred to as a random slope.
 
 Independent of the specific type of the effect modifier, the interaction term $g\left(x^{(2)}\right) \, x^{(1)}$
 (or $g\left(x^{(2)},x^{(3)}\right) \, x^{(1)}$) can be cast into our
@@ -861,9 +970,9 @@ f\left(x^{(1)},x^{(2)}\right) = g\left(x^{(2)}\right) \, x^{(1)} \quad \mbox{or}
 g\left(x^{(2)},x^{(3)}\right) \, x^{(1)}.
 \end{equation}
 The overall design matrix $\Xvec$ is given by
-$diag(x_{1}^{(1)},\dots,x_{n}^{(1)}) \, \Xvec^{(1)}$ where
-$\Xvec^{(1)}$ is the usual design matrix for P-Splines,
-tensor product P-splines, spatial- or cluster specific effects.
+$\diag(x_{1}^{(1)},\dots,x_{n}^{(1)}) \, \Xvec^{(1)}$ where
+$\Xvec^{(1)}$ is the usual design matrix for P-Splines, tensor
+product P-splines, spatial-, or cluster-specific effects.
 
 
 
@@ -924,7 +1033,7 @@ In the following we will describe specific priors for different
 types of covariates and functions $f_j$.
 
 
-\subsection{Priors for continuous covariates and time scales}
+\subsection{Continuous covariates}
 \label{psplines}\index{Continuous covariates}\index{Time scales}
 \index{Prior assumptions!Continuous covariates}
 
@@ -989,18 +1098,18 @@ In case of non-equally spaced observations slight modifications of
 the priors defined in (\ref{rwpriors}) are necessary, see Fahrmeir
 and Lang (2001a) for details.
 
-If $x$ is a time  scale we may introduce an additional seasonal
-effect of $x$. A common smoothness prior for a seasonal
-component $f(x^{(k)}) = \beta_{k}$ is given by
-\begin{equation}
-\beta_{k} = -\beta_{k-1} - \cdots -
-\beta_{k-per-1}+u_{k}\label{seasonal}
-\end{equation}
-where $u_{k} \sim N(0,\tau_j^{2})$ and $per$ is the period of the
-seasonal effect (e.g. $per = 12$ for monthly data). Compared to a
-dummy variable approach this specification has the advantage that it
-allows for a time varying rather than a time constant seasonal
-effect.
+%If $x$ is a time  scale we may introduce an additional seasonal
+%effect of $x$. A common smoothness prior for a seasonal
+%component $f(x^{(k)}) = \beta_{k}$ is given by
+%\begin{equation}
+%\beta_{k} = -\beta_{k-1} - \cdots -
+%\beta_{k-per-1}+u_{k}\label{seasonal}
+%\end{equation}
+%where $u_{k} \sim N(0,\tau_j^{2})$ and $per$ is the period of the
+%seasonal effect (e.g. $per = 12$ for monthly data). Compared to a
+%dummy variable approach this specification has the advantage that it
+%allows for a time varying rather than a time constant seasonal
+%effect.
 
 
 \subsubsection{P-splines}\index{P-splines}
@@ -1008,12 +1117,12 @@ effect.
 A second approach for effects of continuous covariates, that is
 closely related to random walk models, is based on P-splines
 introduced by Eilers and Marx (1996). The approach assumes that an
-unknown smooth function $f$ of a covariate $x$ can be
-approximated by a polynomial spline of degree $l$ defined by a set
-of equally spaced knots $x^{min} = \zeta_{0}  < \zeta_{1} < \dots
-< \zeta_{m-1} < \zeta_{m} = x^{max}$ within the domain of $x$.
-Such a spline can be written in terms of a linear combination of
-$K = m+l$ B-spline basis functions $B_{k}$, i.e.
+unknown smooth function $f$ of a covariate $x$ can be approximated
+by a polynomial spline of degree $l$ defined by a set of equally
+spaced knots $x_{min} = \zeta_{0}  < \zeta_{1} < \dots < \zeta_{m-1}
+< \zeta_{m} = x_{max}$ within the domain of $x$. Such a spline can
+be written in terms of a linear combination of $K = m+l$ B-spline
+basis functions $B_{k}$, i.e.
 $$
 f(x) = \sum_{k=1}^{K} \beta_{k} B_{k}(x).
 $$
@@ -1051,17 +1160,15 @@ Lang (2006).
 \subsubsection{Tensor product P-splines}
 \label{tensorproductpsplines_bayes}
 
-Assume now that $x$ is two dimensional, i.e.
-$x = \left(x^{(1)},x^{(2)}\right)'$ with continuous components
-$x^{(1)}$ and $x^{(2)}$. Similar to section
-\ref{tensorproductpsplines}
-the aim is to extend the univariate
-P-spline to two dimensions.
-In {\em BayesX}
-Bayesian surface fitting is based on two-dimensional P-splines described in
-more detail in Lang and Brezger (2004) and Brezger and Lang (2006).
-The unknown surface $f(x^{(1)},x^{(2)})$ is approximated by the
-tensor product of two one-dimensional B-splines, i.e.
+Assume now that $x$ is two-dimensional, i.e. $x =
+\left(x^{(1)},x^{(2)}\right)'$ with continuous components $x^{(1)}$
+and $x^{(2)}$. Similar to section \ref{tensorproductpsplines} the
+aim is to extend the univariate P-spline to two dimensions. In {\em
+BayesX} Bayesian surface fitting is based on two-dimensional
+P-splines described in more detail in Lang and Brezger (2004) and
+Brezger and Lang (2006). The unknown surface $f(x^{(1)},x^{(2)})$ is
+approximated by the tensor product of two one-dimensional B-splines,
+i.e.
 $$
 f\left(x^{(1)},x^{(2)}\right) = \sum_{k=1}^{K_1}
 \sum_{s=1}^{K_2} \beta_{ks} B_{1,k}(x^{(1)})
@@ -1089,10 +1196,12 @@ prior as well as higher order bivariate random walks can be easily
 brought into the general form (\ref{genform}).
 
 
-\subsection{Priors for spatial effects}\index{Spatial
+\subsection{Spatial effects}\index{Spatial
 priors}\index{Markov random fields}\index{Kriging}\index{Gaussian
 random fields} \label{spatial}\index{Prior assumptions!Spatial
 effects}
+
+\subsubsection{Markov random fields}
 
 Suppose that the index $s \in \{ 1,\dots,S \}$ represents the
 location or site in connected geographical regions. For simplicity
@@ -1117,21 +1226,21 @@ function evaluations of neighboring sites. The prior is a direct
 generalization of a first order random walk to two-dimensions and is
 called a Markov random field (MRF).
 
-A more general prior including (\ref{adjacency}) as a special case
-is given by
-\begin{equation}
-\label{intrinsic} \beta_{s} | \beta_{s'} \, \, {s \neq
-s'},\tau^2 \sim N \left( \sum_{s' \in \partial_s}
-\frac{w_{ss'}}{w_{s+}} \beta_{s'}, \frac{\tau^2}{w_{s+}} \right),
-\end{equation}
-where $w_{ss'}$ are known weights and $+$ denotes summation over the
-missing subscript. Such a prior is called a Gaussian intrinsic
-autoregression, see Besag, York and Mollie (1991) and Besag and
-Kooperberg (1995). Other weights than $w_{ss'} = 1$ as in
-(\ref{adjacency}) are based on the common boundary length of
-neighboring sites, or on the distance of the centroids of two sites.
-All these spatial priors are supported by {\em BayesX}, see chapter
-\ref*{map} of the reference manual for more details.
+%A more general prior including (\ref{adjacency}) as a special case
+%is given by
+%\begin{equation}
+%\label{intrinsic} \beta_{s} | \beta_{s'} \, \, {s \neq
+%s'},\tau^2 \sim N \left( \sum_{s' \in \partial_s}
+%\frac{w_{ss'}}{w_{s+}} \beta_{s'}, \frac{\tau^2}{w_{s+}} \right),
+%\end{equation}
+%where $w_{ss'}$ are known weights and $+$ denotes summation over the
+%missing subscript. Such a prior is called a Gaussian intrinsic
+%autoregression, see Besag, York and Mollie (1991) and Besag and
+%Kooperberg (1995). Other weights than $w_{ss'} = 1$ as in
+%(\ref{adjacency}) are based on the common boundary length of
+%neighboring sites, or on the distance of the centroids of two sites.
+%All these spatial priors are supported by {\em BayesX}, see chapter
+%\ref*{map} of the reference manual for more details.
 
 The $n \times S$ design matrix $\Xvec$ is a 0/1 incidence matrix. Its
 value in the $i$-th row and the $s$-th column is 1 if the $i$-th
@@ -1139,24 +1248,27 @@ observation is located in site or region $s$, and zero otherwise.
 The $S \times S$ penalty matrix $\Kvec$ has the form of an adjacency
 matrix.
 
-If exact locations $s=(s_x,s_y)$ are available, we can use
+\subsubsection{Kriging}
+
+If exact locations $\svec=(s_x,s_y)$ are available, we can use
 two-dimensional surface estimators to model spatial effects. One
-option are two-dimensional P-splines, see \autoref{interactions}.
-Another option are Gaussian random field (GRF) priors, originating
-from geostatistics. These can also be interpreted as two-dimensional
-surface smoothers based on radial basis functions and have been
-employed by Kammann and Wand (2003) to model the spatial component
-in Gaussian regression models. The spatial component
-$f(s)=\beta_s$ is assumed to follow a zero mean stationary
-Gaussian random field $\{\beta_s:s\in\mathbb{R}^2\}$ with variance
-$\tau^2$ and isotropic correlation function
-$cov(\beta_s,\beta_{s+h})=C(||h||)$. This means that correlations
-between sites that are $||h||$ units apart are the same, regardless
-of direction and the sites location. For a finite array
-$s\in\{1,\ldots,S\}$ of sites as in image analysis, the prior for
-$\betavec=(\beta_1,\ldots,\beta_S)'$ is of the general form
-(\ref{genform}) with $\Kvec=\Cvec^{-1}$ and
-\[\Cvec(i,j)=C(||s_i-s_j||), 1\le i,j\le S.\]
+option are two-dimensional P-splines, described in
+\autoref{tensorproductpsplines}. Another option are Gaussian random
+field (GRF) priors, originating from geostatistics. These can also
+be interpreted as two-dimensional surface smoothers based on radial
+basis functions and have been employed by Kammann and Wand (2003) to
+model the spatial component in Gaussian regression models. The
+spatial component $f(\svec)=\beta_\svec$ is assumed to follow a zero
+mean stationary Gaussian random field
+$\{\beta_\svec:\svec\in\mathbb{R}^2\}$ with variance $\tau^2$ and
+isotropic correlation function
+$\Cov(\beta_\svec,\beta_{\svec+\hvec})=C(||\hvec||)$. This means
+that correlations between sites that are $||\hvec||$ units apart are
+the same, regardless of direction and the sites location. For a
+finite array $\svec\in\{\svec_1,\ldots,\svec_S\}$ of sites as in
+image analysis, the prior for $\betavec=(\beta_1,\ldots,\beta_S)'$
+is of the general form (\ref{genform}) with $\Kvec=\Cvec^{-1}$ and
+\[\Cvec(i,j)=C(||\svec_i-\svec_j||), 1\le i,j\le S.\]
 The design matrix $X$ is again a 0/1 incidence matrix.
 
 Several proposals for the choice of the correlation function
@@ -1171,12 +1283,14 @@ preprocessing step or may be estimated jointly with the variance
 components by restricted maximum likelihood. A simple rule, that
 also ensures scale invariance of the estimates, is to choose $\rho$
 as
-\[\hat{\rho}=\max_{i,j}||s_i-s_j||/c.\]
+\[\hat{\rho}=\max_{i,j}||\svec_i-\svec_j||/c.\]
 The constant $c>0$ is chosen in such a way, that $C(c)$ is small,
 e.g. 0.001. Therefore the different values of
-$||s_i-s_j||/\hat{\rho}$ are spread out over the $r$-axis of the
-correlation function. This choice of $\rho$ has proved to work well
-in our experience.
+$||\svec_i-\svec_j||/\hat{\rho}$ are spread out over the $r$-axis of
+the correlation function. This choice of $\rho$ has proved to work
+well in our experience.
+
+\subsubsection{Discrete vs. continuous spatial smoothing}
 
 Although we described them separately, approaches for exact
 locations can also be used in the case of connected geographical
@@ -1209,30 +1323,32 @@ therefore the estimation of GRFs is computationally much more
 expensive. To overcome this difficulty Kammann and Wand (2003)
 propose low-rank kriging to approximate stationary Gaussian random
 fields. Note first, that we can define GRFs equivalently based on a
-design matrix $\Xvec$ with entries $\Xvec[i,j]=C(||s_i-s_j||)$ and penalty
-matrix $\Kvec=\Cvec$. To reduce the dimensionality of the estimation problem
-we define a subset of knots
-$\mathcal{D}=\{\kappa_1,\ldots,\kappa_M\}$ of the set of distinct
-locations $\mathcal{C}$. These knots can be chosen to be
+design matrix $\Xvec$ with entries
+$\Xvec[i,j]=C(||\svec_i-\svec_j||)$ and penalty matrix
+$\Kvec=\Cvec$. To reduce the dimensionality of the estimation
+problem we define a subset of knots
+$\mathcal{D}=\{\kappavec_1,\ldots,\kappavec_M\}$ of the set of
+distinct locations $\mathcal{C}$. These knots can be chosen to be
 ''representative'' for the set of distinct locations $\mathcal{C}$
 based on a space filling algorithm. Therefore consider the distance
 measure
-\[d(s,\mathcal{D})=\left(\sum_{\kappa\in\mathcal{D}}||s-\kappa||^p\right)^{\frac{1}{p}},\]
-with $p<0$, between any location $s\in\mathcal{D}$ and a possible
-set of knots $\mathcal{C}$. Obviously this distance measure is
-zero for all knots. Using a simple swapping algorithm to minimize
+\[d(\svec,\mathcal{D})=\left(\sum_{\kappavec\in\mathcal{D}}||\svec-\kappavec||^p\right)^{\frac{1}{p}},\]
+with $p<0$, between any location $\svec\in\mathcal{D}$ and a
+possible set of knots $\mathcal{C}$. Obviously this distance measure
+is zero for all knots. Using a simple swapping algorithm to minimize
 the overall coverage criterion
-\[\left(\sum_{s\in\mathcal{C}}d(s,\mathcal{D})^q\right)^{\frac{1}{q}}\]
+\[\left(\sum_{\svec\in\mathcal{C}}d(\svec,\mathcal{D})^q\right)^{\frac{1}{q}}\]
 with $q>0$ (compare Johnson et al. (1990) and Nychka and Saltzman
 (1998) for details) yields an optimal set of knots $\mathcal{D}$.
-Based on these knots we define the approximation $f=\Xvec\betavec$
-with the $n\times M$ design matrix $X[i,j]=C(||s_i-\kappa_j||)$,
-penalty matrix $\Kvec=\Cvec$, and $\Cvec[i,j]=C(||\kappa_i-\kappa_j||)$. The
+Based on these knots we define the approximation
+$\fvec=\Xvec\betavec$ with the $n\times M$ design matrix
+$\Xvec[i,j]=C(||\svec_i-\kappavec_j||)$, penalty matrix
+$\Kvec=\Cvec$, and $\Cvec[i,j]=C(||\kappavec_i-\kappavec_j||)$. The
 number of knots $M$ allows to control the trade-off between accuracy
 of the approximation ($M$ close to the sample size) and numerical
 simplification ($M$ small).
 
-\subsection{Unordered group indicators and unstructured spatial effects}
+\subsection{Unit- or cluster-specific heterogeneity}
 \label{random}\index{Random effects}\index{Group
 indicators}\index{Unstructured spatial effects}
 
@@ -1276,59 +1392,61 @@ also Besag, York and Mollie (1991). For the smooth spatial part we
 can assume any of the spatial priors discussed in \autoref{spatial}.
 For the uncorrelated part we may assume prior (\ref{randomeff}).
 
-\subsection{Modelling interactions}
-\label{interactions}\index{Interactions}\index{Varying coefficient
-models}\index{Two-dimensional p-splines}\index{Prior
-assumptions!Interactions}
+\subsection{Varying coefficients}
+\index{Varying coefficient models}
 
 The models considered so far are not appropriate for modelling
 interactions between covariates. A common approach is based on
 varying coefficient models introduced by Hastie and Tibshirani
-(1993) in the context of smoothing splines. Varying coefficient terms are already discussed in the pervious
-chapter, see section \ref{varcoeff_terms}.
-
-
-
+(1993) in the context of smoothing splines. Varying coefficient
+terms have already been discussed in the previous chapter, see
+section \ref{varcoeff_terms}.
 
 \section{Mixed Model representation}
 \label{glmmrep}\index{Mixed model representation}\index{Marginal
 likelihood}\index{Restricted maximum likelihood}
 
-You may skip this section if you are not interested in using the
-regression tool based on mixed model methodology ({\em remlreg
-objects}).
-
 In this section we show how STAR models can be represented as
 generalized linear mixed models (GLMM) after appropriate
-reparametrization, see also Lin and Zhang (1999) or Green (1987) in
-the context of smoothing splines. In fact, model (\ref{glm}) with
-the structured additive predictor (\ref{gampredmatrix}) can always
-be expressed as a GLMM. This provides the key for simultaneous
-estimation of the functions $f_j$, $j=1,\dots,p$ and the variance
-parameters $\tau^2_j$ in the empirical Bayes approach described in
-\autoref{glmmmeth} and used for estimation by {\em remlreg objects}.
-To rewrite the model as a GLMM, the general model formulation again
-proves to be useful. We proceed as follows:
+reparametrization, an idea dating back to Green (1987) in the
+context of smoothing splines. A broader overview is given in the
+book by Ruppert, Wand and Carroll (2003), while Fahrmeir, Kneib and
+Lang (2004) specifically discuss the mixed model representation of
+structured additive regression models. In fact, model (\ref{glm})
+with the structured additive predictor (\ref{gampredmatrix}) can
+always be expressed as a GLMM. This provides the key for
+simultaneous estimation of the functions $f_j$, $j=1,\dots,p$ and
+the variance parameters $\tau^2_j$ in the empirical Bayes approach
+described in \autoref{glmmmeth} and used for estimation by {\em
+remlreg objects}. To rewrite the model as a GLMM, the general model
+formulation again proves to be useful. We proceed as follows:
 
 The  vectors of regression coefficients $\betavec_j$, $j=1,\dots,p$,
 are decomposed into an {\em unpenalized} and a {\em penalized part}.
 Suppose that the $j$-th coefficient vector has dimension $K_j \times
 1$ and the corresponding penalty matrix $\Kvec_j$ has rank $k_j$. Then
 we define the decomposition
-\begin{equation}
-\label{decompbeta} \betavec_j = \Xvec_j^{unp} \betavec_j^{unp} + \Xvec_j^{pen}
-\betavec_j^{pen},
+\begin{equation}\label{decompbeta}
+ \betavec_j = \Xvec_j^{unp} \betavec_j^{unp} + \Xvec_j^{pen}\betavec_j^{pen},
 \end{equation}
-where the columns of the $K_j \times (K_j - k_j)$ matrix $\Xvec_j^{unp}$
-contain a basis of the nullspace of $\Kvec_j$. The  $K_j \times k_j$
-matrix $\Xvec_j^{pen}$ is given by $\Xvec_j^{pen} = \Lvec_j(\Lvec_j'\Lvec_j)^{-1}$ where
-the $K_j \times k_j$ matrix $\Lvec_j$ is determined by the decomposition
-of the penalty matrix $\Kvec_j$ into $\Kvec_j = \Lvec_j \Lvec_j'$. A requirement for
-the decomposition is that $\Lvec_j' \Xvec_j^{unp} = \nullvec$ and $\Xvec_j^{unp} \Lvec_j' =
-\nullvec$ hold. Hence the parameter vector $\betavec_j^{unp}$ represents the
-part of $\betavec_j$ which is not penalized by $\Kvec_j$ whereas the vector
-$\betavec_j^{pen}$ represents the deviation of $\betavec_j$ from the
-nullspace of $\Kvec_j$.
+where the columns of the $K_j \times (K_j - k_j)$ matrix
+$\Xvec_j^{unp}$ contain a basis of the nullspace of $\Kvec_j$ and
+$\Xvec_j^{pen}$ contains the orthogonal deviation form this
+nullspace. Therefore, decomposition (\ref{decompbeta}) effectively
+separates the unpenalised part in $\betavec_j$ from the penalised
+part. For example, for penalised splines with $k_j$-th order
+difference penalty, a polynomial of order $k_j-1$ forms the null
+space and is therefore captured in $\betavec_j^{unp}$. The  $K_j
+\times k_j$ matrix $\Xvec_j^{pen}$ can be derived as $\Xvec_j^{pen}
+= \Lvec_j(\Lvec_j'\Lvec_j)^{-1}$ where the $K_j \times k_j$ matrix
+$\Lvec_j$ is determined by the decomposition of the penalty matrix
+$\Kvec_j$ into $\Kvec_j = \Lvec_j \Lvec_j'$. A requirement for the
+decomposition is that $\Lvec_j' \Xvec_j^{unp} = \nullvec$ and
+$\Xvec_j^{unp} \Lvec_j' = \nullvec$ hold. Hence the parameter vector
+$\betavec_j^{unp}$ represents the part of $\betavec_j$ which is not
+penalized by $\Kvec_j$ whereas the vector $\betavec_j^{pen}$
+represents the deviation of $\betavec_j$ from the nullspace of
+$\Kvec_j$.
 
 In general, the decomposition $\Kvec_j=\Lvec_j\Lvec_j'$ is obtained from the
 spectral decomposition $\Kvec_j = \Gammavec_j \Omegavec_j \Gammavec_j'$. The
@@ -1444,7 +1562,7 @@ hyperparameters are small values for $a_j$ and $b_j$, e.g.
 $a_j=b_j=0.001$ which is also the default in {\em BayesX}.
 
 In some situations, the estimated nonlinear functions $f_j$ may
-considerably depend on the particular choice of hyperparameters
+depend considerably on the particular choice of hyperparameters
 $a_j$ and $b_j$. This may be the case for very low signal to noise
 ratio and/or small sample size. It is therefore highly recommended
 to estimate all models under consideration using a (small) number of
@@ -1947,22 +2065,25 @@ $$
 The complexity of the fit may be determined by the equivalent degrees of freedom $df$ as a measure of the effective number of parameters.
 In concordance with linear models the degrees of freedom of the fit are defined as
 $$
-df = trace (\Hvec),
+\df = \trace (\Hvec),
 $$
 where $\Hvec$ is the prediction matrix that projects the observations $\yvec$ on their fitted values $\hat{\yvec}$, i.e.
 $\hat \yvec = \Hvec \yvec$. In complex models with many effects the trace of $\Hvec$ is difficult and computationally intensive to compute.
 Therefore $df$ is typically approximated by the sum of the degrees of freedom of individual smoothers, i.e.
 $$
-df = \sum_{j=1}^{p} df_j + q,
+\df = \sum_{j=1}^{p} df_j + q,
 $$
 where $q$ is the number of linear effects in the model and  $df_j$ is in most cases computed as
 \begin{equation}
 \label{df_approx}
 df_j = trace (\Xvec_j (\Xvec_j'\Xvec_j + \Pvec_j(\lambdavec_j))^{-1}\Xvec_j')-1.
 \end{equation}
-The substraction of one from the trace is necessary because terms are usually centered around zero to guarantee identifiability and as a consequence
-one degree of freedom is lost. For two dimensional P-splines as well as unit- or cluster specific effects the approximation is not valid and modifications
-are necessary, see Belitz and Lang (2007).
+The substraction of one from the trace is necessary because terms
+are usually centered around zero to guarantee identifiability and as
+a consequence one degree of freedom is lost. For two-dimensional
+P-splines as well as unit- or cluster specific effects the
+approximation is not valid and modifications are necessary, see
+Belitz and Lang (2007).
 
 Our variable selection procedure described below aims at minimizing a goodness of fit criterion. The following
 options are available:
@@ -1979,25 +2100,27 @@ Cross validation is recommended
 if the approximation to the degrees of freedom is likely to be erroneous e.g. because of strong correlations among covariates.
 \end{itemize}
 
-The basic algorithm for simultaneous selection of model terms and estimation of parameters works as follows:  \\
-
+The basic algorithm for simultaneous selection of model terms and
+estimation of parameters works as follows:
 
 \begin{enumerate}
 \item {\bf Initialization} \\
-Define for every possible nonlinear term $f_j$, $j=1,\dots,p$, a discrete number $M_j$ of decreasing smoothing parameters
-$\lambda_{j1} > \dots >\lambda_{jM_j}$. The smoothing parameters are chosen such that they correspond to certain
-equivalent degrees of freedom.
+Define for every possible nonlinear term $f_j$, $j=1,\dots,p$, a
+discrete number $M_j$ of decreasing smoothing parameters
+$\lambda_{j1} > \ldots >\lambda_{jM_j}$. The smoothing parameters
+are chosen such that they correspond to certain equivalent degrees
+of freedom.
 \item {\bf Start model} \\
 Choose a start model with current predictor
 $$
 \hat{\etavec} = \fhatvec_1 + \ldots + \fhatvec_p.
 $$
-where $\fhatvec_j$ is the vector of function evaluations at the observations.
-Choose a goodness of fit criteria $C$.
+where $\fhatvec_j$ is the vector of function evaluations at the
+observations. Choose a goodness of fit criterion $C$.
 
 \item {\bf Iteration}
 \begin{itemize}
-\item[a)] For $j=1,\dots,p$: \\
+\item[a)] For $j=1,\dots,p$:
 \begin{enumerate}
 \item[]
 For $m=0,\dots,M_j$: \\
@@ -2022,7 +2145,7 @@ $$
 $$
 and the corresponding predictors $\hat{\etavec}_{jm} :=
 \hat{\etavec}_{[j]}+\fhatvec_{jm}$. Here,  $\hat{\etavec}_{[j]}$ is
-the current predictor with the $j$-th fit  $\fhatvec_j$  removed. \\
+the current predictor with the $j$-th fit  $\fhatvec_j$  removed.
 \end{enumerate}
 
 Compute the updated estimate
@@ -2045,7 +2168,9 @@ the procedure is repeated for every variable.
 \item {\bf Termination} \\
 The iteration cycle in 3. is repeated until the model, regression and smoothing parameters do not change anymore.
 \end{enumerate}
-If a two dimensional surface with penalty (\ref{penalty_comb}) is specified the basic algorithm 1 must be adapted, see Belitz and Lang (2007) for details.
+If a two-dimensional surface with penalty (\ref{penalty_comb}) is
+specified the basic algorithm 1 must be adapted, see Belitz and Lang
+(2007) for details.
 
 
 \section{Survival analysis and multi-state models}
@@ -2063,11 +2188,15 @@ interval censored survival times are described in
 \autoref{intervalcensoring}. Finally, \autoref{msmodels} contains
 information on continuous time multi-state models.
 
-More details on estimating continuous time survival models based on
-MCMC can be found in Hennerfeind, Brezger and Fahrmeir (2006). Kneib
-and Fahrmeir (2007) and Kneib (2006) present inference based on
-mixed model methodology. Kneib and Hennerfeind (2006) present both
-MCMC and mixed model based inference in multi-state models.
+While discrete time models and the piecewise exponential models can
+be estimated with all three regression objects available in {\em
+BayesX}, continuous time survival and multi-state models are only
+supported by {\em bayesreg} and {\em remlreg objects}. More details
+on estimating continuous time survival models based on MCMC can be
+found in Hennerfeind, Brezger and Fahrmeir (2006). Kneib and
+Fahrmeir (2007) and Kneib (2006) present inference based on mixed
+model methodology. Kneib and Hennerfeind (2006) introduce both MCMC
+and mixed model based inference in multi-state models.
 
 
 \subsection{Discrete time duration data}
@@ -2145,25 +2274,28 @@ f_{1}(x_{it1})+\dots+f_{p}(x_{itp})+u_{it}'\gamma,
 \end{equation}
 where, again, the $x_j$ denote generic covariates of different types
 and dimension, and $f_j$ are (not necessarily smooth) functions of
-the covariates. The baseline effect $f_0(t)$ may be modelled by
-random walk priors or P-splines.
+the covariates. The baseline effect $f_0(t)$ can be modelled as a
+penalised spline or a random walk.
 
 To fix ideas, we describe the necessary manipulations that yield a
 data set suitable for binary regression models with an example.
 Suppose the first few observations of a data set are given as
 follows:
-\vspace{0.5cm}\\
+
+\begin{center}
 \begin{tabular}{c|c|c|c}
-t & $\delta$ & x1 & x2\\\hline\hline
+ t & $\delta$ & x1 & x2\\\hline\hline
  4 & 0& 0 &2\\\hline
  3 & 1 &1 &0\\\hline
- $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$\\
+ $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$
 \end{tabular}
-\vspace{0.5cm}\\
+\end{center}
+
 The first individual is censored ($\delta=0$) and the observed
 duration time is 4. The second individual is uncensored with
 duration time 3. Now we augment the data set as follows:
-\vspace{0.5cm}\\
+
+\begin{center}
 \begin{tabular}{c|c|c|c|c|c}
 y & indnr & t &$\delta$ & x1 & x2\\\hline\hline
 0 &  1 &   1 & 0  &    0  & 2\\
@@ -2173,9 +2305,10 @@ y & indnr & t &$\delta$ & x1 & x2\\\hline\hline
 0 &  2  &  1 & 1   &   1 &  0\\
 0  & 2  &  2 & 1  &    1  & 0\\
 1 &  2 &  3 & 1  &  1  & 0\\\hline
- $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$& $\vdots$& $\vdots$\\
+ $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$& $\vdots$& $\vdots$
 \end{tabular}
-\vspace{0.5cm}\\
+\end{center}
+
 The first individual is now represented by 4 observations because
 the observed duration time is 4. The event indicator y always equals
 0 because the corresponding observations is censored. For the second
@@ -2212,20 +2345,28 @@ An alternative would be the multinomial probit model.
 Again, we demonstrate the necessary data manipulations with an
 example. Suppose we have data with 2 terminating events R=1 and R=2.
 The first few observations of a data set are given as follows:
-\vspace{0.5cm}\\
+
+\begin{center}
 \begin{tabular}{c|c|c|c|c}
-t & $\delta$ & R & x1 & x2\\\hline\hline 4 & 0    &  1 & 0  &
-2\\\hline 3 & 1    &  2 & 1  & 0\\\hline 5 & 1    &  1 & 0  &
-3\\\hline
-$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$\\
+ t & $\delta$ & R & x1 & x2\\
+ \hline\hline
+ 4 & 0    &  1 & 0  & 2\\
+ \hline
+ 3 & 1    &  2 & 1  & 0\\
+ \hline
+ 5 & 1    &  1 & 0  & 3\\
+ \hline
+ $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$\
 \end{tabular}
-\vspace{0.5cm}\\
+\end{center}
+
 The first individual is censored ($\delta=0$) and the observed
 duration time is 4. The second individual is uncensored with
 duration time 3 and terminating event R=2. The third individual is
 uncensored with duration time 5 and terminating event R=1. We
 augment the data set as follows:
-\vspace{0.5cm}\\
+
+\begin{center}
 \begin{tabular}{c|c|c|c|c|c}
 y & indnr & t & $\delta$ &  x1 & x2\\\hline\hline
 0 &  1  &  1 & 0  &  0 &  2\\
@@ -2239,10 +2380,11 @@ y & indnr & t & $\delta$ &  x1 & x2\\\hline\hline
 0 &  3  &  2 & 1  &  0 &  3\\
 0 &  3  &  3 & 1  &  0 &  3\\
 0 &  3  &  4 & 1  &  0 &  3\\
-1 &  3  &  5 & 1  &  0 & 3\\\hline
-$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$\\
+1 &  3  &  5 & 1  &  0 & 3\\\hline $\vdots$ & $\vdots$ & $\vdots$ &
+$\vdots$ & $\vdots$ & $\vdots$
 \end{tabular}
-\vspace{0.5cm}\\
+\end{center}
+
 For the first individual we create 4 observations because the
 observed duration time is 4. The event indicator y always equals 0
 because the observation is censored. For the second individual we
@@ -2344,7 +2486,8 @@ regression with response variable $y$, (log-)offset $\Delta$ and $a$
 as a continuous covariate. Due to the assumption of a piecewise
 constant hazard rate the estimated log-baseline is a step function
 on the defined grid. To obtain a smooth step function, a random walk
-prior is specified for the parameters $\gamma_{0s}$.
+(corresponding to a zero degree P-spline) is specified for the
+parameters $\gamma_{0s}$.
 
 In practice this means that the data set has to be modified in such
 a way that for every individual $i$ there is an observation row for
@@ -2399,9 +2542,9 @@ effect is estimated by a step-function. A more general way of
 estimating the nonlinear shape of the baseline effect is to assume a
 P-spline prior of arbitrary degree instead. Unlike the p.e.m.~such a
 model can not be estimated within the context of GAMs, but specific
-methods for extended Cox models are also implemented in {\it
-BayesX}. The individual likelihood for continuous survival data is
-given by
+methods for extended Cox models are also implemented in {\it BayesX}
+(for {\it bayesreg} and {\it remlreg objects}. The individual
+likelihood for continuous survival data is given by
 \begin{eqnarray}\nonumber
 L_i &=&\lambda_i(t_i)^{\delta_i}\cdot
 \exp\left(-\int_{0}^{t_i}\lambda_i(u)du\right).
@@ -2413,7 +2556,7 @@ L_i &=&\exp(f_0(t_i)+\eta_{i t_i})^{\delta_i}\cdot
 \end{eqnarray}
 If the degree of the P-spline prior for $f_0(t)$ is greater than
 one, the integral can no longer be calculated analytically. For
-linear P-splines the integral can still be solved but the formula
+linear P-splines the integral can still be solved but the formulae
 become quite cumbersome. Therefore {\it BayesX} makes use of the
 trapezoidal rule for a numerical approximation.
 
@@ -2753,11 +2896,9 @@ Smoothing parameter selection in nonparametric regression using an
                     improved {A}kaike information criterion,
 {\it Journal of the Royal Statistical Society B}, 60, 271--293.
 
-
-
 \item[Johnson, M.E., Moore, L.M. and
 Ylvisaker, D., (1990):] Minimax and maximin designs. {\it Journal of
-Statistical Planning and Inference} , 26, 131-148.
+Statistical Planning and Inference}, 26, 131-148.
 
 \item[Kammann, E. E. and Wand, M. P., (2003):] Geoadditive Models. {\it Journal of the Royal
 Statistical Society C}, 52, 1-18.
@@ -2767,8 +2908,8 @@ censored survival times. {\em Computational Statistics and Data
 Analysis}, 51, 777-792
 
 \item[Kneib, T. and Hennerfeind, A. (2006):] Bayesian Semiparametric
-Multi-State Models. Under revision for {\em Statistical Modelling}.
-A preliminary version is available as SFB 386 Discussion Paper 502.
+Multi-State Models. {\em Statistical Modelling,} to appear.
+
 
 \item[Kneib, T. and Fahrmeir, L. (2006):] Structured additive
 regression for categorical space-time data: A mixed model approach.
@@ -2776,7 +2917,7 @@ regression for categorical space-time data: A mixed model approach.
 
 \item[Kneib, T. and Fahrmeir, L. (2007):] A mixed model approach
 to structured hazard regression. {\em Scandinavian Journal of
-Statistics}, 34, 207-228..
+Statistics}, 34, 207-228.
 
 \item[Knorr-Held, L. (1999):] Conditional Prior Proposals in
 Dynamic Models. {\em Scandinavian Journal of Statistics}, 26,
@@ -2805,6 +2946,9 @@ Models}, Dr. Hut Verlag, M\"{u}nchen.
 
 \item[Rue, H. (2001):] Fast Sampling of Gaussian Markov Random Fields with Applications.
 {\em Journal of the Royal Statistical Society B}, 63, 325-338.
+
+\item[Ruppert, D., Wand, M. P. and Carroll, R. J. (2003):] {\em Semiparametric Regression}.
+Cambridge University Press.
 
 \item[Spiegelhalter, D.J., Best, N.G., Carlin, B.P. and van der Linde, A. (2002):]
 Bayesian measures of model complexity and fit. {\em Journal of the

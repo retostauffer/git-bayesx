@@ -1066,7 +1066,8 @@ analysis, the density is usually parameterized in terms of the
 mean $\mu$ and the scale parameter $s$. Then, the density of a
 gamma distributed random variable $y$ is given by
 \begin{equation}
-\label{gammapar1} p(y) \propto y^{s-1}\exp \left( -\frac{s}{\mu} y \right)
+\label{gammapar1_stepwise} p(y) \propto y^{s-1}\exp \left(
+-\frac{s}{\mu} y \right)
 \end{equation}
 for $y > 0$. For the mean and the variance we obtain $E(y) = \mu$
 and $Var(y) = \mu^2/s$. We write $y \sim G(\mu,s)$.
@@ -1076,17 +1077,17 @@ hyperparameters #a# and #b# of priors for variance parameters in
 the context of Bayesian hierarchical models. In this case, the
 density is given by
 \begin{equation}
-\label{gammapar2} p(y) \propto y^{a-1}\exp(-b y)
+\label{gammapar2_stepwise} p(y) \propto y^{a-1}\exp(-b y)
 \end{equation}
 for $y>0$. In this parametrization we obtain $E(y) = a/b$ and
 $Var(y) = a/b^2$ for the mean and the variance, respectively. We
 write $y \sim G(a,b)$
 
 In {\em BayesX} a gamma distributed response variable is
-parameterized in the first form (\ref{gammapar1}). For the $r$th
-observation {\em BayesX} assumes  $y_r | \eta_r,\nu \sim
-G(\exp(\eta_r),\nu/weightvar_r)$ where $\mu_r = \exp(\eta_r)$ is
-the mean and $s=\nu/weightvar_r$ is the scale parameter. A gamma
+parameterized in the first form (\ref{gammapar1_stepwise}). For the
+$r$th observation {\em BayesX} assumes  $y_r | \eta_r,\nu \sim
+G(\exp(\eta_r),\nu/weightvar_r)$ where $\mu_r = \exp(\eta_r)$ is the
+mean and $s=\nu/weightvar_r$ is the scale parameter. A gamma
 distributed response is specified by adding
 
 #family=gamma#
@@ -1340,7 +1341,7 @@ redefine one of the nominal levels (95\%). Adding, for instance,
 to the options list leads to the computation of confidence intervals
 for a nominal level of 99\% rather than 95\%. \\
 DEFAULT: #level1 = #{\em 95}
-\item \label{remlreglevel2} #level2 = #{\em integer} \\
+\item \label{stepwisereglevel2} #level2 = #{\em integer} \\
 By default, {\em BayesX} computes credible intervals for
 nominal levels of 80\% and 95\%. The option #level2# allows to
 redefine one of the nominal levels (80\%). Adding, for instance,
@@ -1461,7 +1462,7 @@ same information.
 
 Here we give only a few examples about the usage of method
 #regress#. A more detailed, tutorial like example can be found in
-chapter \ref*{stepwiseregzambiaanalysis} of the tutorial manual.
+chapter \ref*{zambia_step_analysis} of the tutorial manual.
 
 Suppose that we have a data set #test# with a continuous response
 variable #y#, and covariates #x1#, #x2#, #x3#, and #region#,
