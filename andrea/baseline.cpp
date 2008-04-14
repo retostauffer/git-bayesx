@@ -1147,10 +1147,13 @@ if(PartialLikelihood)
     
     //  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
     //  nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
-      ou << "time  delta  cumbaseline" << endl;  
+      ou << "time  delta  pmean   pqu"  << nl1 << "   pqu" << nu2 << endl;  
       for(unsigned i=0; i<zi.rows(); i++)
         {
-        ou << zi(i,0) << "  " << likep->get_response(i,0) << "  "<< fc_breslowcumbaseline.get_betamean(i,0) << "  "<< endl;
+        ou << zi(i,0) << "  " << likep->get_response(i,0) << "  " << fc_breslowcumbaseline.get_betamean(i,0) << "  " 
+           << fc_breslowcumbaseline.get_beta_lower1(i,0) << "  "
+           << fc_breslowcumbaseline.get_beta_upper1(i,0) << "  "
+           << endl;
         }
       
       optionsp->out("  Results for the breslowcumbaseline parameter are also stored in file\n");
