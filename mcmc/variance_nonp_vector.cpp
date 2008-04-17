@@ -357,10 +357,11 @@ void FULLCOND_variance_nonp_vector::outresults(void)
   ofstream ou(pathresults.strtochar());
 
   unsigned i;
-  ou << "pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+  ou << "varname  pmean  pstd  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
   nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
   for(i=0; i<beta.rows(); i++)
     {
+    ou << "var." << (i+1) << "   ";
     ou << betamean(i,0) << "  ";
     ou << (betavar(i,0)<0.0?0.0:sqrt(betavar(i,0))) << "  ";
     ou << betaqu_l1_lower(i,0) << "  ";
@@ -472,8 +473,9 @@ void FULLCOND_variance_nonp_vector::outresults_shrinkage(void)
 
   ofstream ou(shrinkage_pathresults.strtochar());
 
-  ou << "pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+  ou << "varname  pmean  pstd  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
   nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
+  ou << "lambda" << "  ";
   ou << fc_shrinkage.get_betamean(0,0) << "  ";
   ou << (fc_shrinkage.get_betavar(0,0)<0.0?0.0:sqrt(fc_shrinkage.get_betavar(0,0))) << "  ";
   ou << fc_shrinkage.get_beta_lower1(0,0) << "  ";

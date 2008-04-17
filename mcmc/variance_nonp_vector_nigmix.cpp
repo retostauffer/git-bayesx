@@ -418,7 +418,7 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults(void)
 
   // Datei-Ausgabe Ergebnisse
   ofstream ou(pathresults.strtochar());
-  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+  ou << "varname  pmean  pstd  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
   nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
   for(i=0; i<beta.rows(); i++)
     {
@@ -562,21 +562,21 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults_indicator(void)
   ofstream ou(indicator_pathresults.strtochar());
 
 
-//  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
-//  nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
-  ou << "varname  frequency" << endl;  
+  ou << "varname  pmean  pstd  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+  nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
+//  ou << "varname  pmean" << endl;  
   for(i=0; i<beta.rows(); i++)
     {
     ou << varnames_indicator[i] << "   ";
-    ou << fc_indicator.get_betamean(i,0) << "  "<< endl;
-//    ou << (fc_indicator.get_betavar(i,0)<0.0?0.0:sqrt(fc_indicator.get_betavar(i,0))) << "  ";
-//    ou << fc_indicator.get_beta_lower1(i,0) << "  ";
-//    ou << fc_indicator.get_beta_lower2(i,0) << "  ";
-//    ou << fc_indicator.get_betaqu50(i,0) << "  ";
-//    ou << fc_indicator.get_beta_upper2(i,0) << "  ";
-//    ou << fc_indicator.get_beta_upper1(i,0) << "  ";
-//    ou << fc_indicator.get_betamin(i,0) << "  ";
-//    ou << fc_indicator.get_betamax(i,0) << "  " << endl;
+    ou << fc_indicator.get_betamean(i,0) << "  ";
+    ou << (fc_indicator.get_betavar(i,0)<0.0?0.0:sqrt(fc_indicator.get_betavar(i,0))) << "  ";
+    ou << fc_indicator.get_beta_lower1(i,0) << "  ";
+    ou << fc_indicator.get_beta_lower2(i,0) << "  ";
+    ou << fc_indicator.get_betaqu50(i,0) << "  ";
+    ou << fc_indicator.get_beta_upper2(i,0) << "  ";
+    ou << fc_indicator.get_beta_upper1(i,0) << "  ";
+    ou << fc_indicator.get_betamin(i,0) << "  ";
+    ou << fc_indicator.get_betamax(i,0) << "  " << endl;
     }
   
   optionsp->out("  Results for the indicator parameter are also stored in file\n");
@@ -655,7 +655,7 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults_t2(void)
   ofstream ou(t2_pathresults.strtochar());
 
 
-  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+  ou << "varname  pmean  pstd  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
   nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
   for(i=0; i<beta.rows(); i++)
     {
@@ -754,7 +754,7 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults_shrinkage(void)
 
   ofstream ou(shrinkage_pathresults.strtochar());
 
-  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+  ou << "varname  pmean  pstd  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
   nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
   ou << varname_shrinkage[0] << "  ";
   ou << fc_shrinkage.get_betamean(0,0) << "  ";
