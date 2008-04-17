@@ -120,6 +120,11 @@ class __EXPORT_TYPE MCMCsim
 
   void autocorr(const unsigned & lag,const ST::string & path);
 
+  // FUNCTION: compute_nrpar
+  // TASK: computes the total number of parameters
+
+  unsigned MCMCsim::compute_nrpar(void);
+
   // FUNCTION: get_samples
   // TASK: stores sampled parameters of all full conditionals in ASCII format
   //       for each full conditional one file will be created with filename

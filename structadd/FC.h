@@ -41,8 +41,6 @@ class __EXPORT_TYPE FC
 
   GENERAL_OPTIONS * optionsp;    // Pointer to general MCMC options
 
-  ST::string title;              // Title/name of the full conditional
-
   ST::string samplepath;         // filename for storing sampled parameters
   ofstream samplestream;         // stream object for storing sampled parameters
 
@@ -51,6 +49,8 @@ class __EXPORT_TYPE FC
 
 
   public:
+
+  ST::string title;              // Title/name of the full conditional
 
   bool changingdesign;
 

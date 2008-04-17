@@ -564,6 +564,26 @@ void MCMCsim::out_effects(const vector<ST::string> & paths)
 
   }
 
+
+unsigned MCMCsim::compute_nrpar(void)
+  {
+  unsigned j,l;
+  unsigned nrpar=0;
+  unsigned nrmodels = equations.size();
+
+  for (l=0;l<nrmodels;l++)
+    {
+    for(j=0;j<equations[l].FCpointer.size();j++)
+      {
+      nrpar += equations[l].FCpointer[j]->beta.rows()*
+               equations[l].FCpointer[j]->beta.cols();
+      }
+    }
+
+  return nrpar;
+  }
+
+
   // FUNCTION: autocorr
   // TASK: computes autocorrelations for all samples parameters
   //      (i.e. for all beta matrices) and stores the result in datamatrix
@@ -571,6 +591,78 @@ void MCMCsim::out_effects(const vector<ST::string> & paths)
 
 void MCMCsim::autocorr(const unsigned & lag,datamatrix & cmat)
   {
+
+  unsigned p = compute_nrpar();
+
+  cmat = datamatrix(lag,p);
+
+  unsigned j,i,k,l;
+  unsigned col =0;
+
+  unsigned nrmodels = equations.size();
+
+
+  for (l=0;l<nrmodels;l++)
+    {
+
+    for(j=0;j<equations[l].FCpointer.size();j++)
+      {
+      for (k=0;k<equations[l].FCpointer[j]->beta.cols();k++)
+        for(i=0;i<equations[l].FCpointer[j]->beta.rows();i++)
+          {
+          cmat.putCol(col,equations[l].FCpointer[j]->compute_autocorr(lag,i,k));
+          col++;
+
+          #if defined(BORLAND_OUTPUT_WINDOW)
+          Application->ProcessMessages();
+
+          if (Frame->stop)
+            {
+            break;
+            }
+
+          if (Frame->pause)
+            {
+            genoptions->out("\n");
+            genoptions->out("SIMULATION PAUSED\n");
+            genoptions->out("Click CONTINUE to proceed\n");
+            genoptions->out("\n");
+
+            while (Frame->pause)
+              {
+              Application->ProcessMessages();
+              }
+
+            genoptions->out("SIMULATION CONTINUED\n");
+            genoptions->out("\n");
+            }
+          #elif defined(JAVA_OUTPUT_WINDOW)
+          bool stop = genoptions->adminb_p->breakcommand();
+          if(stop)
+            break;
+          #endif
+
+          }
+
+      #if defined(BORLAND_OUTPUT_WINDOW)
+      Application->ProcessMessages();
+      if (Frame->stop)
+        {
+        cmat = datamatrix(1,1);
+        break;
+        }
+      #elif defined(JAVA_OUTPUT_WINDOW)
+
+      if (genoptions->adminb_p->get_stop())
+        {
+        cmat = datamatrix(1,1);
+        break;
+        }
+      #endif
+
+      } // end:  for(j=0;j<fullcondp.size();j++)
+
+    } // for (l=0;l<nrmodels;l++)
 
   }
 
@@ -581,7 +673,141 @@ void MCMCsim::autocorr(const unsigned & lag,datamatrix & cmat)
 void MCMCsim::autocorr(const unsigned & lag,const ST::string & path)
   {
 
-  }
+  unsigned nrmodels = equations.size();
+
+  ofstream out(path.strtochar());
+  assert(!out.fail());
+  assert(!out.bad());
+
+  ST::string name;
+  datamatrix cmat;
+  unsigned i,j,k,l,nr,s;
+  double min,mean,max,n;
+  bool miss,misstot;
+  misstot = false;
+  genoptions->out("Computing autocorrelation functions...\n");
+  autocorr(lag,cmat);
+
+  #if defined(BORLAND_OUTPUT_WINDOW)
+  if (!Frame->stop)
+  #elif defined(JAVA_OUTPUT_WINDOW)
+  if (!genoptions->adminb_p->get_stop())
+  #endif
+    {
+    out << "lag ";
+
+    for (s=0;s<equations.size();s++)
+      {
+
+      for(j=0;j<equations[s].FCpointer.size();j++)
+        {
+
+        name = equations[s].FCpointer[j]->title;
+
+        for (k=0;k<equations[s].FCpointer[j]->beta.cols();k++)
+          for(i=0;i<equations[s].FCpointer[j]->beta.rows();i++)
+            {
+            if (equations[s].FCpointer[j]->beta.cols() == 1)
+              out << name << "_" << (i+1) << " ";
+            else
+              out << name << (i+1) << "_" << (k+1) << " ";
+            }
+
+        out << name << "_min " << name << "_mean " << name << "_max ";
+
+        }  // end: for(j=0;j<fullcondp.size();j++)
+      }
+
+      out << endl;
+
+    for(l=0;l<lag;l++)
+      {
+      nr = 0;
+      out << (l+1) << " ";
+
+      for (s=0;s<equations.size();s++)
+        {
+
+        for(j=0;j<equations[s].FCpointer.size();j++)
+          {
+          min = 1;
+          max = -1;
+          mean = 0;
+          miss = true;
+
+          for (k=0;k<equations[s].FCpointer[j]->beta.cols();k++)
+            for(i=0;i<equations[s].FCpointer[j]->beta.rows();i++)
+              {
+              if (cmat(l,nr) <= 1)
+                {
+                miss = false;
+                if (cmat(l,nr) > max)
+                  max = cmat(l,nr);
+                if (cmat(l,nr) < min)
+                  min = cmat(l,nr);
+                mean+=cmat(l,nr);
+                out << cmat(l,nr) << " ";
+                }
+              else
+                {
+                misstot = true;
+                out << "NA ";
+                }
+
+              nr++;
+              }
+
+          if (miss)
+            out << "NA NA NA ";
+          else
+            {
+            n = equations[s].FCpointer[j]->beta.cols() * equations[s].FCpointer[j]->beta.rows();
+            out << min << " " << (mean/n) << " " << max << " ";
+            }
+
+          }  // end: for(j=0;j<equations[s].FCpointer.size();j++)
+        } // for (s=0;s<equations.size();s++)
+        out << endl;
+      } // end: for(l=0;l<lag;l++)
+
+      genoptions->out("Autocorrelation functions computed and stored in file\n");
+      genoptions->out(path + ".\n");
+      genoptions->out("\n");
+      if (misstot)
+        {
+        genoptions->out("WARNING: There were undefined autocorrelations\n",true,true);
+        genoptions->out("\n");
+        }
+
+    #if !defined(JAVA_OUTPUT_WINDOW)
+      genoptions->out("They may be visualized using the R / S-Plus function 'plotautocor'.\n");
+      genoptions->out("\n");
+    #endif
+      } // end: if (!Frame->stop)
+    #if defined(BORLAND_OUTPUT_WINDOW)
+    else
+      {
+      genoptions->out("USER BREAK\n");
+      genoptions->out("No autocorrelation functions computed\n");
+      genoptions->out("\n");
+      out.close();
+      remove(path.strtochar());
+      }
+    #elif defined(JAVA_OUTPUT_WINDOW)
+    else
+      {
+//      genoptions->out("SIMULATION TERMINATED BY USER BREAK\n");
+      genoptions->out("No autocorrelation functions computed\n");
+      genoptions->out("\n");
+      out.close();
+      remove(path.strtochar());
+      }
+    #endif
+
+  }   // end: autocorr
+
+
+
 
   // FUNCTION: get_samples
   // TASK: stores sampled parameters of all full conditionals in ASCII format
@@ -594,6 +820,80 @@ void MCMCsim::get_samples(
   #endif
   const ST::string & path,const unsigned & step)
   {
+
+  unsigned i,j;
+  ST::string filename;
+  ST::string help;
+  ST::string psname;
+
+  genoptions->out("Storing sampled parameters...\n");
+  genoptions->out("Sampled parameters are stored in file(s):\n");
+  genoptions->out("\n");
+
+  for(j=0;j<equations.size();j++)
+    {
+    for(i=0;i<equations[j].FCpointer.size();i++)
+      {
+
+      filename = path + equations[j].FCpointer[i]->title + "_sample.raw";
+      equations[j].FCpointer[i]->get_samples(filename,step);
+      genoptions->out(filename + "\n");
+      #if defined(JAVA_OUTPUT_WINDOW)
+
+      psname = path + equations[j].FCpointer[i]->get_title() + "_sample.ps";
+      newc.push_back("dataset _dat");
+      newc.push_back("_dat.infile , nonote using " + filename);
+      newc.push_back("graph _g");
+      newc.push_back("_g.plotsample , replace outfile=" +
+                    psname  + " using _dat");
+      genoptions->out(psname + " (graphs)\n");
+      newc.push_back("drop _dat _g");
+
+      #endif
+      genoptions->out("\n");
+
+      }
+    }
+
+  /*
+  if (likepexisting)
+    {
+    for(i=0;i<likep_mult.size();i++)
+      {
+
+      if (likep_mult[i]->get_scaleexisting())
+        {
+        genoptions->out("\n");
+        filename = likep_mult[i]->get_scale_sample();
+        genoptions->out(filename+"\n");
+        genoptions->out("\n");
+        #if defined(JAVA_OUTPUT_WINDOW)
+
+        psname = filename.substr(0,filename.length()-4) +   + ".ps";
+        newc.push_back("dataset _dat");
+        newc.push_back("_dat.infile , nonote using " + filename);
+        newc.push_back("graph _g");
+        newc.push_back("_g.plotsample , replace outfile=" +
+                      psname  + " using _dat");
+        genoptions->out(psname + " (graphs)\n");
+        newc.push_back("drop _dat _g");
+
+        #endif
+
+        }
+      }
+    }
+   */
+
+  genoptions->out("\n");
+  genoptions->out("Storing completed\n");
+  genoptions->out("\n");
+  #if defined(BORLAND_OUTPUT_WINDOW)
+  genoptions->out(
+  "Sampled parameters may be visualized using the R / S-plus\n");
+  genoptions->out("function 'plotsample'.\n");
+  genoptions->out("\n");
+  #endif
 
   }
 
