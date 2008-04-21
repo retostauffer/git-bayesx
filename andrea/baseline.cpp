@@ -529,29 +529,32 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
 //---------------------------
   PartialLikelihood = partlik;
 
-  // compute the Riskset
-  PartialLikelihood_Riskset = datamatrix(likep->get_nrobs(), likep->get_nrobs(), 0);
-  for(unsigned int i=0;i<likep->get_nrobs();i++)
-    {  
-    for(unsigned int j=0;j<likep->get_nrobs();j++)
+  if(partlik)
+    {
+    // compute the Riskset
+    PartialLikelihood_Riskset = datamatrix(likep->get_nrobs(), likep->get_nrobs(), 0);
+    for(unsigned int i=0;i<likep->get_nrobs();i++)
       {
-       if(zi(i,0)<=zi(j,0))
-         {
-         PartialLikelihood_Riskset(i,j) = 1;     //upper triangle matrix if the timepoints zi are orderd
-         }
+      for(unsigned int j=0;j<likep->get_nrobs();j++)
+        {
+         if(zi(i,0)<=zi(j,0))
+           {
+           PartialLikelihood_Riskset(i,j) = 1;     //upper triangle matrix if the timepoints zi are orderd
+           }
+        }
       }
-    }
 
-  // matrix for the baselinecomponents 
-  firstevent = 0;
-  lastevent = likep->get_nrobs();
-  breslowdeltatime = datamatrix(likep->get_nrobs(),1,0);
-  breslowbaseline = datamatrix(likep->get_nrobs(),1,0);
-  breslowcumbaseline = datamatrix(likep->get_nrobs(),1,0);
-  
-  ST::string path = fp.substr(0,fp.length()-4)+"_breslowcumbaseline.raw";
-  fc_breslowcumbaseline = FULLCOND(o,datamatrix(likep->get_nrobs(),1),title+"_breslow",likep->get_nrobs(),1,path);
-  fc_breslowcumbaseline.setflags(MCMC::norelchange | MCMC::nooutput);  
+    // matrix for the baselinecomponents
+    firstevent = 0;
+    lastevent = likep->get_nrobs();
+    breslowdeltatime = datamatrix(likep->get_nrobs(),1,0);
+    breslowbaseline = datamatrix(likep->get_nrobs(),1,0);
+    breslowcumbaseline = datamatrix(likep->get_nrobs(),1,0);
+
+    ST::string path = fp.substr(0,fp.length()-4)+"_breslowcumbaseline.raw";
+    fc_breslowcumbaseline = FULLCOND(o,datamatrix(likep->get_nrobs(),1),title+"_breslow",likep->get_nrobs(),1,path);
+    fc_breslowcumbaseline.setflags(MCMC::norelchange | MCMC::nooutput);
+    }
   }
 
 
