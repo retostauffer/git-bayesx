@@ -41,6 +41,10 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
 
   // DEFAULT CONSTRUCTOR
 
+  term_nonp(void) {}
+
+  // CONSTRUCTOR
+
   term_nonp(vector<ST::string> & na);
 
   // FUNCTION: check

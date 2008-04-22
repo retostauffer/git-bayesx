@@ -856,6 +856,10 @@ void DESIGN::update_linpred(datamatrix & f,bool add)
   }
 
 
+void DESIGN::read_options(vector<ST::string> & op)
+  {
+
+  }
 
 
 } // end: namespace MCMC

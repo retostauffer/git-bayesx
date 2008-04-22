@@ -46,7 +46,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   unsigned nrknots;                     // Anzahl der (sichtbaren) Knoten
   unsigned degree;                      // Grad des Splines
-
+  unsigned difforder;                   // Differenzenordnung (1,2,3)
 
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
@@ -58,7 +58,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
   // CONSTRUCTOR
 
   DESIGN_pspline(const datamatrix & dm, const datamatrix & iv,
-             DISTR * dp);
+             DISTR * dp,vector<ST::string> & op);
 
   // COPY CONSTRUCTOR
 
@@ -81,6 +81,8 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
   void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
 
   void compute_precision(double l);
+
+  void read_options(vector<ST::string> & op);
 
   // DESTRUCTOR
 

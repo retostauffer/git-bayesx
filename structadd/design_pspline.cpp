@@ -10,6 +10,33 @@ namespace MCMC
 //-------------- CLASS: DESIGN_mrf implementation of member functions ----------
 //------------------------------------------------------------------------------
 
+void DESIGN_pspline::read_options(vector<ST::string> & op)
+  {
+
+  /*
+  1       degree
+  2       numberknots
+  3       difforder
+  4       lambda
+  5       a
+  6       b
+  */
+
+  int f;
+
+  f = op[1].strtolong(degree);
+  f = op[2].strtolong(nrknots);
+
+  f = op[3].strtolong(difforder);
+  if (difforder == 1)
+    type = RW1;
+ else if (difforder==2)
+   type = RW2;
+ else
+   type = RW3;
+
+  }
+
 
 DESIGN_pspline::DESIGN_pspline(void) : DESIGN()
   {
@@ -19,13 +46,11 @@ DESIGN_pspline::DESIGN_pspline(void) : DESIGN()
   // CONSTRUCTOR
 
 DESIGN_pspline::DESIGN_pspline(const datamatrix & dm,const datamatrix & iv,
-                       DISTR * dp)
+                       DISTR * dp,vector<ST::string> & op)
                       : DESIGN(dp)
   {
 
-  degree = 3;
-  nrknots=20;
-  type=RW2;
+  read_options(op);
 
   init_data(dm,iv);
 
@@ -48,6 +73,7 @@ DESIGN_pspline::DESIGN_pspline(const DESIGN_pspline & m)
   knot = m.knot;
   nrknots = m.nrknots;
   degree = m.degree;
+  difforder = m.difforder;
   weightK = m.weightK;
   }
 
@@ -61,6 +87,7 @@ const DESIGN_pspline & DESIGN_pspline::operator=(const DESIGN_pspline & m)
   knot = m.knot;
   nrknots = m.nrknots;
   degree = m.degree;
+  difforder = m.difforder;
   weightK = m.weightK;
   return *this;
   }

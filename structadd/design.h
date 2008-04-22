@@ -254,9 +254,9 @@ class __EXPORT_TYPE DESIGN
 
 
 
-
-
   virtual void compute_precision(double l);
+
+  virtual void read_options(vector<ST::string> & op);
 
   // --------------------- END: VIRTUAL FUNCTIONS ------------------------------
 
