@@ -39,6 +39,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   double a_invgamma;
   double b_invgamma;
+  double lambdastart;
 
   public:
 
@@ -54,7 +55,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   // fp   : file path for storing sampled parameters
 
   FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
-           const ST::string & fp,DESIGN * dp,FC_nonp * FCn,double la);
+           const ST::string & fp,DESIGN * dp,FC_nonp * FCn,
+           vector<ST::string> & op);
 
   // COPY CONSTRUCTOR
 
@@ -96,6 +98,9 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   // TASK: resets all parameters
 
   void reset(void);
+
+  void read_options(vector<ST::string> & op);
+
 
   };
 

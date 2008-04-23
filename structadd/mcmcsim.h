@@ -29,6 +29,7 @@ class __EXPORT_TYPE equation
   unsigned nrfc;
 
   ST::string header;
+  ST::string paths;
 
   DISTR * distrp;
   ST::string pathd;
@@ -38,14 +39,12 @@ class __EXPORT_TYPE equation
 
   // DEFAULT CONSTRUCTOR
 
-  equation(void)
-    {
-    }
+  equation(void);
 
   // CONSTRUCTOR
 
   equation(const ST::string & h, DISTR * dp, const vector<FC*> fcp,
-           const ST::string & pd, const vector<ST::string> & paths);
+           const ST::string & pd, const vector<ST::string> & ps);
 
   // COPY CONSTRUCTOR
 

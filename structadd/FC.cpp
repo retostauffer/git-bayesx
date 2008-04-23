@@ -10,6 +10,10 @@
 namespace MCMC
 {
 
+void FC::read_options(vector<ST::string> & op)
+  {
+
+  }
 
 FC::FC(void)
   {

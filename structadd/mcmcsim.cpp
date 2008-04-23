@@ -21,15 +21,23 @@ namespace MCMC
 //---------------------------- class equation  ---------------------------------
 //------------------------------------------------------------------------------
 
+equation::equation(void)
+  {
+  nrfc=0;
+  header="";
+  paths ="";
+  }
+
 
 equation::equation(const ST::string & h, DISTR * dp, const vector<FC*> fcp,
-                   const ST::string & pd, const vector<ST::string> & paths)
+                   const ST::string & pd, const vector<ST::string> & ps)
   {
   header = h;
+  paths="";
   distrp = dp;
   FCpointer = fcp;
   nrfc = FCpointer.size();
-  FCpaths = paths;
+  FCpaths = ps;
   pathd = pd;
   }
 
@@ -37,6 +45,7 @@ equation::equation(const ST::string & h, DISTR * dp, const vector<FC*> fcp,
 equation::equation(const equation & s)
   {
   header = s.header;
+  paths = s.paths;
   distrp = s.distrp;
   FCpointer = s.FCpointer;
   nrfc = s.nrfc;
@@ -50,6 +59,7 @@ const equation & equation::operator=(const equation & s)
   if (this == &s)
     return *this;
   header = s.header;
+  paths = s.paths;
   distrp = s.distrp;
   FCpointer = s.FCpointer;
   nrfc = s.nrfc;
@@ -342,7 +352,7 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
 
         for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
           {
-          equations[nrmodels-1-i].FCpointer[j]->reset())
+          equations[nrmodels-1-i].FCpointer[j]->reset();
           } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
 
         }
@@ -532,7 +542,7 @@ bool MCMCsim::posteriormode(const bool & presim)
 
           for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
             {
-            equations[nrmodels-1-i].FCpointer[j]->reset())
+            equations[nrmodels-1-i].FCpointer[j]->reset();
             } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
 
           }

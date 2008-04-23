@@ -57,11 +57,13 @@ bool term_nonp::check(term & t)
 
     bool f = false;
     unsigned j=0;
+    unsigned namespos;
 
     while ( (j<termnames.size()) && (f == false) )
       {
       if (t.options[0] == termnames[j])
         {
+        namespos=j;
         f = true;
         }
       j ++;
@@ -105,7 +107,7 @@ bool term_nonp::check(term & t)
 
     t.options.erase(t.options.begin(),t.options.end());
     t.options = vector<ST::string>(50);
-    t.options[0] = t.type;
+    t.options[0] = termnames[namespos];
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
     t.options[3] = ST::inttostring(difforder.getvalue());

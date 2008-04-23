@@ -11,6 +11,27 @@ namespace MCMC
 {
 
 
+void FC_nonp_variance::read_options(vector<ST::string> & op)
+  {
+
+  /*
+  1       degree
+  2       numberknots
+  3       difforder
+  4       lambda
+  5       a
+  6       b
+  */
+
+  int f;
+
+  f = op[4].strtodouble(lambdastart);
+  f = op[5].strtodouble(a_invgamma);
+  f = op[6].strtodouble(b_invgamma);
+
+  }
+
+
 FC_nonp_variance::FC_nonp_variance(void)
   {
 
@@ -19,23 +40,23 @@ FC_nonp_variance::FC_nonp_variance(void)
 
 FC_nonp_variance::FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t,const ST::string & fp,
-                 DESIGN * Dp,FC_nonp * FCn,double la)
+                 DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op)
      : FC(o,t,1,2,fp)
   {
   FCnonpp = FCn;
   likep = lp;
   designp = Dp;
+
+  read_options(op);
+
   datamatrix betanew(1,2);
-  betanew(0,0) = likep->get_scale()/la;
-  betanew(0,1) = la;
+  betanew(0,0) = likep->get_scale()/lambdastart;
+  betanew(0,1) = lambdastart;
   setbeta(betanew);
 
   FCnonpp->tau2 = beta(0,0);
   FCnonpp->lambda = beta(0,1);
   transform(1,0) = 1;
-
-  a_invgamma=0.001;
-  b_invgamma=0.001;  
 
   }
 
@@ -48,6 +69,7 @@ FC_nonp_variance::FC_nonp_variance(const FC_nonp_variance & m)
   designp = m.designp;
   a_invgamma = m.a_invgamma;
   b_invgamma = m.b_invgamma;
+  lambdastart = m.lambdastart;
   }
 
 
@@ -62,6 +84,7 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   designp = m.designp;
   a_invgamma = m.a_invgamma;
   b_invgamma = m.b_invgamma;
+  lambdastart = m.lambdastart;  
   return *this;
   }
 
@@ -69,9 +92,7 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
 void FC_nonp_variance::update(void)
   {
 
-  double d = designp->K.compute_quadform(FCnonpp->param,0);
-
-  datamatrix Kd = 
+  datamatrix Kd =
   beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
                                   b_invgamma+0.5*designp->K.compute_quadform(FCnonpp->param,0));
 
