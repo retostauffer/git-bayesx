@@ -129,8 +129,8 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
     i = 0;   
     for(k=cut[j]; k<cut[j+1]; k++, i++)
       { 
-      varnames_t2[k] = "t2." + helpvarnames[i]; 
-      varnames_indicator[k] = "I." + helpvarnames[i];
+      varnames_t2[k] = helpvarnames[i];
+      varnames_indicator[k] = helpvarnames[i];
       helpfi[k] = 0; 
       }
     }
@@ -365,6 +365,7 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
 void FULLCOND_variance_nonp_vector_nigmix::outresults(void)
   {
   FULLCOND::outresults();
+  vector<ST::string> varnames = fc_indicator.get_datanames();
 
   ST::string l1 = ST::doubletostring(lower1,4);
   ST::string l2 = ST::doubletostring(lower2,4);
@@ -422,7 +423,7 @@ void FULLCOND_variance_nonp_vector_nigmix::outresults(void)
   nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
   for(i=0; i<beta.rows(); i++)
     {
-    ou << "var." << (i+1) << "   ";
+    ou << varnames[i] << "   ";
     ou << betamean(i,0) << "  ";
     ou << (betavar(i,0)<0.0?0.0:sqrt(betavar(i,0))) << "  ";
     ou << betaqu_l1_lower(i,0) << "  ";

@@ -337,6 +337,20 @@ outputr << "ridge " << i << " " << iteration << " " << rand_invgaussian << " " <
 void FULLCOND_variance_nonp_vector::outresults(void)
   {
   FULLCOND::outresults();
+  
+  unsigned int i,j,k  = 0;
+  vector<ST::string> varnames(nrpar);
+  vector<ST::string> helpvarnames;
+
+  for(j=0; j<cut.size()-1; j++)
+    {
+    helpvarnames = Cp[j]->get_datanames();
+    i = 0;
+    for(k=cut[j]; k<cut[j+1]; k++, i++)
+      {
+      varnames[k] = helpvarnames[i];
+      }
+    }
 
   ST::string l1 = ST::doubletostring(lower1,4);
   ST::string l2 = ST::doubletostring(lower2,4);
@@ -356,12 +370,12 @@ void FULLCOND_variance_nonp_vector::outresults(void)
 
   ofstream ou(pathresults.strtochar());
 
-  unsigned i;
+//  unsigned i;
   ou << "varname  pmean  pstd  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
   nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
   for(i=0; i<beta.rows(); i++)
     {
-    ou << "var." << (i+1) << "   ";
+    ou << varnames[i] << "   ";
     ou << betamean(i,0) << "  ";
     ou << (betavar(i,0)<0.0?0.0:sqrt(betavar(i,0))) << "  ";
     ou << betaqu_l1_lower(i,0) << "  ";
