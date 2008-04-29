@@ -202,6 +202,7 @@ DESIGN::DESIGN(const DESIGN & m)
   linpredp2 = m.linpredp2;
 
   nrpar = m.nrpar;
+  center = m.center;  
 
   K = m.K;
   rankK = m.rankK;
@@ -251,6 +252,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   linpredp2 = m.linpredp2;
 
   nrpar = m.nrpar;
+  center = m.center;
 
   K = m.K;
   rankK = m.rankK;
@@ -268,6 +270,8 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
 
   return *this;
   }
+
+
 
 
 void DESIGN::init_data(const datamatrix & dm, const datamatrix & iv)
@@ -761,12 +765,12 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
     }
 
 
-  /*
+
   // TEST
-  ofstream out("c:\\bayesx\\test\\results\\lin.res");
-  (*linpredp).prettyPrint(out);
+  //  ofstream out("c:\\bayesx\\test\\results\\lin.res");
+  //  (likep->linearpred1).prettyPrint(out);
   // TEST
-  */
+  
 
   }
 
@@ -858,6 +862,11 @@ void DESIGN::update_linpred(datamatrix & f,bool add)
 
 void DESIGN::read_options(vector<ST::string> & op)
   {
+
+  if (op[7] == "false")
+    center = true;
+  else
+    center = false;
 
   }
 

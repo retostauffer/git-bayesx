@@ -145,6 +145,10 @@ class __EXPORT_TYPE DESIGN
 
   // ---------------------------------------------------------------------------
 
+  bool center;
+
+  // ---------------------------------------------------------------------------
+
   // Variables determined by function compute_penalty
 
   envmatdouble K;                            // Penalty Matrix

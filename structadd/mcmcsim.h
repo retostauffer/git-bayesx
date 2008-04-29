@@ -26,6 +26,10 @@ class __EXPORT_TYPE equation
 
   public:
 
+  int hlevel;
+  int equationnr;
+  ST::string equationtype;
+
   unsigned nrfc;
 
   ST::string header;
@@ -41,7 +45,11 @@ class __EXPORT_TYPE equation
 
   equation(void);
 
-  // CONSTRUCTOR
+  // CONSTRUCTOR1
+
+  equation(int & enr, int & hl,ST::string & t);
+
+  // CONSTRUCTOR2
 
   equation(const ST::string & h, DISTR * dp, const vector<FC*> fcp,
            const ST::string & pd, const vector<ST::string> & ps);
@@ -53,6 +61,8 @@ class __EXPORT_TYPE equation
   // OVERLOADED ASSIGNMENT CONSTRUCTOR
 
   const equation & operator=(const equation & s);
+
+  void add_FC(FC * FCp,ST::string & p);
 
   // DESTRUCTOR
 

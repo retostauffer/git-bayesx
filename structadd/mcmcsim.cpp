@@ -26,12 +26,33 @@ equation::equation(void)
   nrfc=0;
   header="";
   paths ="";
+  FCpointer.reserve(30);
+  FCpaths.reserve(30);
+  equationnr = 1;
+  equationtype = "mean";
+  hlevel = 1;
+  }
+
+
+equation::equation(int & enr, int & hl,ST::string & t)
+  {
+  nrfc=0;
+  header="";
+  paths ="";
+  FCpointer.reserve(30);
+  FCpaths.reserve(30);
+  equationnr = enr;
+  equationtype = t;
+  hlevel = hl;
   }
 
 
 equation::equation(const ST::string & h, DISTR * dp, const vector<FC*> fcp,
                    const ST::string & pd, const vector<ST::string> & ps)
   {
+  equationnr = 1;
+  equationtype = "mean";
+  hlevel = 1;
   header = h;
   paths="";
   distrp = dp;
@@ -39,11 +60,15 @@ equation::equation(const ST::string & h, DISTR * dp, const vector<FC*> fcp,
   nrfc = FCpointer.size();
   FCpaths = ps;
   pathd = pd;
+
   }
 
 
 equation::equation(const equation & s)
   {
+  equationnr = s.equationnr;
+  equationtype = s.equationtype;
+  hlevel = s.hlevel;
   header = s.header;
   paths = s.paths;
   distrp = s.distrp;
@@ -64,10 +89,17 @@ const equation & equation::operator=(const equation & s)
   FCpointer = s.FCpointer;
   nrfc = s.nrfc;
   FCpaths = s.FCpaths;
-  pathd = s.pathd;  
+  pathd = s.pathd;
   return *this;
   }
 
+
+void equation::add_FC(FC * FCp,ST::string & p)
+  {
+  FCpointer.push_back(FCp);
+  FCpaths.push_back(p);
+  nrfc++;
+  }
 
 //------------------------------------------------------------------------------
 //------------------------- end: class equation  -------------------------------
@@ -140,7 +172,9 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
     genoptions->out("OPTIONS FOR ESTIMATION:\n",true);
     genoptions->out("\n");
     for(j=0;j<equations[nrmodels-1-i].FCpointer.size();j++)
+      {
       equations[nrmodels-1-i].FCpointer[j]->outoptions();
+      }
     genoptions->out("\n");
     genoptions->out("MCMC SIMULATION STARTED\n",true);
     genoptions->out("\n");
@@ -706,7 +740,7 @@ void MCMCsim::autocorr(const unsigned & lag,const ST::string & path)
     {
     out << "lag ";
 
-    for (s=0;s<equations.size();s++)
+    for (s=0;s<nrmodels;s++)
       {
 
       for(j=0;j<equations[s].FCpointer.size();j++)

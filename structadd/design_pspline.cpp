@@ -20,6 +20,7 @@ void DESIGN_pspline::read_options(vector<ST::string> & op)
   4       lambda
   5       a
   6       b
+  7       center
   */
 
   int f;
@@ -34,6 +35,11 @@ void DESIGN_pspline::read_options(vector<ST::string> & op)
    type = RW2;
  else
    type = RW3;
+
+  if (op[7] == "false")   //nocenter==false, i.e. center
+    center = true;
+  else
+    center = false;
 
   }
 
@@ -76,6 +82,7 @@ DESIGN_pspline::DESIGN_pspline(const DESIGN_pspline & m)
   difforder = m.difforder;
   weightK = m.weightK;
   }
+
 
   // OVERLOADED ASSIGNMENT OPERATOR
 

@@ -92,9 +92,13 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
 void FC_nonp_variance::update(void)
   {
 
-  datamatrix Kd =
+  // TEST
+  //  ofstream out("c:\\bayesx\\test\\results\\param.res");
+  //  (FCnonpp->param).prettyPrint(out);
+  // END: TEST
+
   beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
-                                  b_invgamma+0.5*designp->K.compute_quadform(FCnonpp->param,0));
+              b_invgamma+0.5*designp->K.compute_quadform(FCnonpp->param,0));
 
   beta(0,1) = likep->get_scale()/beta(0,0);
 
@@ -179,7 +183,7 @@ void FC_nonp_variance::outresults(const ST::string & pathresults)
 
     optionsp->out("\n");
 
-  optionsp->out("Smoothing parameter\n");
+  optionsp->out("  Smoothing parameter\n");
 
   optionsp->out("\n");
 

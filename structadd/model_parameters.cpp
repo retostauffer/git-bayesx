@@ -16,6 +16,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   lambda = doubleoption("lambda",0.1,0,10000000);
   a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
+  nocenter = simpleoption("nocenter",false);
   }
 
 void term_nonp::setdefault(void)
@@ -26,6 +27,7 @@ void term_nonp::setdefault(void)
   lambda.setdefault();
   a.setdefault();
   b.setdefault();
+  nocenter.setdefault();
   }
 
 
@@ -82,6 +84,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&lambda);
     optlist.push_back(&a);
     optlist.push_back(&b);
+    optlist.push_back(&nocenter);
 
     unsigned i;
     bool rec = true;
@@ -114,6 +117,11 @@ bool term_nonp::check(term & t)
     t.options[4] = ST::doubletostring(lambda.getvalue());
     t.options[5] = ST::doubletostring(a.getvalue());
     t.options[6] = ST::doubletostring(b.getvalue());
+
+    if(nocenter.getvalue() == false)
+      t.options[7] = "false";
+    else
+      t.options[7] = "true";
 
     setdefault();
     return true;

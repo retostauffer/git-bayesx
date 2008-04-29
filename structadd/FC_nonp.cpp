@@ -49,6 +49,7 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   }
 
 
+
 const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   {
 
@@ -66,6 +67,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   betahelp = m.betahelp;
   return *this;
   }
+
 
 
 
@@ -101,10 +103,8 @@ void FC_nonp::update(void)
 
   designp->precision.solve(designp->XWres,betahelp,param);
 
-
-
-//  if(center)
-//    centerparam();
+  if(designp->center)
+    centerparam();
 
   designp->compute_f(param,beta);
 
@@ -160,8 +160,8 @@ bool FC_nonp::posteriormode(void)
   // param.prettyPrint(out2);
   // TEST
 
-//  if(center)
-//    centerparam();
+  if(designp->center)
+    centerparam();
 
   designp->compute_f(param,beta);
 
