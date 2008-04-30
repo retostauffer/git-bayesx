@@ -58,7 +58,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
   // CONSTRUCTOR
 
   DESIGN_pspline(const datamatrix & dm, const datamatrix & iv,
-             DISTR * dp,vector<ST::string> & op);
+             DISTR * dp,vector<ST::string> & op,vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR
 
@@ -74,7 +74,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   void compute_penalty(void);
 
-  void compute_XtransposedWX(datamatrix & partres);
+  void compute_XtransposedWX(void);
 
   void compute_XtransposedWres(datamatrix & partres, double l);
 
@@ -82,7 +82,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   void compute_precision(double l);
 
-  void read_options(vector<ST::string> & op);
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
   // DESTRUCTOR
 

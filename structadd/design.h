@@ -109,6 +109,7 @@ class __EXPORT_TYPE DESIGN
                                              // covariates
 
 //------------------------------------------------------------------------------
+
   datamatrix Zout;                           // Design matrix (only non null
                                              // elements for output of results
   statmatrix<int> index_Zout;                // stores the columns of the
@@ -249,7 +250,7 @@ class __EXPORT_TYPE DESIGN
   // FUNCTION: compute_XtransposedWX_XtransposedWres
   // TASK: computes XWX and XWres, res is the partial residual
 
-  virtual void compute_XtransposedWX(datamatrix & partres);
+  virtual void compute_XtransposedWX(void);
 
   // FUNCTION: compute_XtransposedWX_XtransposedWres
   // TASK: computes XWX and XWres, res is the partial residual
@@ -257,10 +258,12 @@ class __EXPORT_TYPE DESIGN
   virtual void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
 
 
-
   virtual void compute_precision(double l);
 
-  virtual void read_options(vector<ST::string> & op);
+  // FUNCTION: read_options
+  // TASK: reads options and initializes varnames stored in datanames
+
+  virtual void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
   // --------------------- END: VIRTUAL FUNCTIONS ------------------------------
 

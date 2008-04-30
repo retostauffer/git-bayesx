@@ -381,7 +381,6 @@ void DISTR_gaussian::update(void)
   }
 
 
-
 double DISTR_gaussian::loglikelihood(double * res, double * lin,
                                      double * w) const
   {
@@ -394,7 +393,6 @@ double DISTR_gaussian::get_scale(void)
   {
   return sigma2;
   }
-
 
 
 bool DISTR_gaussian::posteriormode(void)
@@ -546,20 +544,16 @@ void DISTR_gaussian::outresults(ST::string pathresults)
   }
 
 
-
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian_re -----------------------
 //------------------------------------------------------------------------------
 
 
-DISTR_gaussian_re::DISTR_gaussian_re(GENERAL_OPTIONS * o, DISTR * dp,
-                                     const datamatrix & r, const datamatrix & w)
+DISTR_gaussian_re::DISTR_gaussian_re(GENERAL_OPTIONS * o,const datamatrix & r,
+                                     const datamatrix & w)
   : DISTR_gaussian(1,1,o,r,"",w)
 
   {
-
-  distrp = dp;
-  trmult = dp->trmult;
 
   family = "Gaussian_random_effect";
 
@@ -572,7 +566,6 @@ const DISTR_gaussian_re & DISTR_gaussian_re::operator=(
   if (this==&nd)
     return *this;
   DISTR_gaussian::operator=(DISTR_gaussian(nd));
-  distrp = nd.distrp;
   return *this;
   }
 
@@ -581,29 +574,19 @@ const DISTR_gaussian_re & DISTR_gaussian_re::operator=(
 DISTR_gaussian_re::DISTR_gaussian_re(const DISTR_gaussian_re & nd)
    : DISTR_gaussian(DISTR_gaussian(nd))
   {
-  distrp = nd.distrp;
   }
 
 
 
 void DISTR_gaussian_re::update(void)
   {
-
-  trmult = distrp->trmult;
-
   }
-
 
 
 bool DISTR_gaussian_re::posteriormode(void)
   {
-  trmult = distrp->trmult;
-
   return true;
-
   }
-
-
 
 } // end: namespace MCMC
 

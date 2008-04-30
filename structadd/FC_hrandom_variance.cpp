@@ -18,10 +18,10 @@ FC_hrandom_variance::FC_hrandom_variance(void)
 
 
 FC_hrandom_variance::FC_hrandom_variance(GENERAL_OPTIONS * o,DISTR * lp,
-                  DISTR_gaussian_re * lpRE,
+                  DISTR * lpRE,
                  const ST::string & t,const ST::string & fp,
-                 DESIGN * Dp,FC_nonp * FCn,double la)
-     : FC_nonp_variance(o,lp,t,fp,Dp,FCn,la)
+                 DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op)
+     : FC_nonp_variance(o,lp,t,fp,Dp,FCn,op)
   {
   likepRE = lpRE;
   }
@@ -34,7 +34,8 @@ FC_hrandom_variance::FC_hrandom_variance(const FC_hrandom_variance & m)
   }
 
 
-const FC_hrandom_variance & FC_hrandom_variance::operator=(const FC_hrandom_variance & m)
+const FC_hrandom_variance & FC_hrandom_variance::operator=(
+const FC_hrandom_variance & m)
   {
 
   if (this==&m)
@@ -55,9 +56,12 @@ double FC_hrandom_variance::compute_quadform(void)
 
   n = FCnonpp->beta.rows();
 
-  datamatrix * linpredRE = likepRE->linpred_current;
-  double * linpredREp = (*linpredRE).getV();
 
+  double * linpredREp;
+  if (likepRE->linpred_current==1)
+    linpredREp = likepRE->linearpred1.getV();
+  else
+    linpredREp = likepRE->linearpred2.getV();
 
   for(i=0;i<n;i++,workbeta++,linpredREp++)
     {
@@ -84,16 +88,12 @@ void FC_hrandom_variance::update(void)
   acceptance++;
   FC::update();
 
-  likepRE->sigma2 = beta(0,0);
   }
 
 
 bool FC_hrandom_variance::posteriormode(void)
   {
-
-  bool conv = FC::posteriormode();
-  likepRE->sigma2 = beta(0,0);
-  return conv;
+  return  FC::posteriormode();
   }
 
 

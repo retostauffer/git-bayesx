@@ -32,7 +32,7 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
 
   protected:
 
-  DISTR_gaussian_re * likepRE;
+  DISTR * likepRE;
 
   double compute_quadform(void); 
 
@@ -49,9 +49,9 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
   // t    : title of the full conditional (for example "fixed effects")
   // fp   : file path for storing sampled parameters
 
-  FC_hrandom_variance(GENERAL_OPTIONS * o,DISTR * lp, DISTR_gaussian_re * lpRE,
+  FC_hrandom_variance(GENERAL_OPTIONS * o,DISTR * lp, DISTR * lpRE,
                       const ST::string & t, const ST::string & fp,DESIGN * dp,
-                      FC_nonp * FCn,double la);
+                      FC_nonp * FCn,vector<ST::string> & op);
 
   // COPY CONSTRUCTOR
 

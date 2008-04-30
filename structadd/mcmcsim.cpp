@@ -34,7 +34,7 @@ equation::equation(void)
   }
 
 
-equation::equation(int & enr, int & hl,ST::string & t)
+equation::equation(int enr, int hl,ST::string t)
   {
   nrfc=0;
   header="";

@@ -277,8 +277,6 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
 
   protected:
 
-  DISTR * distrp;
-
   public:
 
    // DEFAULT CONSTRUCTOR
@@ -289,7 +287,7 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
 
    // CONSTRUCTOR1
 
-   DISTR_gaussian_re(GENERAL_OPTIONS * o,DISTR * dp,
+   DISTR_gaussian_re(GENERAL_OPTIONS * o,
                   const datamatrix & r,const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR

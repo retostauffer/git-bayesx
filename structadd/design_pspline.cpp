@@ -10,7 +10,8 @@ namespace MCMC
 //-------------- CLASS: DESIGN_mrf implementation of member functions ----------
 //------------------------------------------------------------------------------
 
-void DESIGN_pspline::read_options(vector<ST::string> & op)
+void DESIGN_pspline::read_options(vector<ST::string> & op,
+                                 vector<ST::string> & vn)
   {
 
   /*
@@ -41,6 +42,8 @@ void DESIGN_pspline::read_options(vector<ST::string> & op)
   else
     center = false;
 
+  datanames = vn;
+
   }
 
 
@@ -52,11 +55,12 @@ DESIGN_pspline::DESIGN_pspline(void) : DESIGN()
   // CONSTRUCTOR
 
 DESIGN_pspline::DESIGN_pspline(const datamatrix & dm,const datamatrix & iv,
-                       DISTR * dp,vector<ST::string> & op)
+                       DISTR * dp,vector<ST::string> & op,
+                       vector<ST::string> & vn)
                       : DESIGN(dp)
   {
 
-  read_options(op);
+  read_options(op,vn);
 
   init_data(dm,iv);
 
@@ -113,8 +117,6 @@ void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
   make_index(dm,iv);
 
   nrpar = nrknots-1+degree;
-
-  datanames.push_back("X_1");
 
   make_Bspline();
 
@@ -298,9 +300,9 @@ datamatrix & partres, double l)
   }
 
 
-void DESIGN_pspline::compute_XtransposedWX(datamatrix & partres)
+void DESIGN_pspline::compute_XtransposedWX(void)
   {
-  DESIGN::compute_XtransposedWX(partres);
+  DESIGN::compute_XtransposedWX();
   }
 
 

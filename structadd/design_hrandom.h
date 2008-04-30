@@ -7,9 +7,9 @@
 #define __EXPORT_TYPE __import
 #endif
 
-#if !defined (DESIGNINCLUDED)
+#if !defined (DESIGNhrandomINCLUDED)
 
-#define DESIGNINCLUDED
+#define DESIGNhrandomINCLUDED
 
 #include"statmat.h"
 #include"sparsemat.h"
@@ -23,35 +23,12 @@
 #include"GENERAL_OPTIONS.h"
 #include"clstring.h"
 #include"distr.h"
+#include"design.h" 
 #include<cmath>
 
 
 namespace MCMC
 {
-
-
-enum ttype {
-                RE,
-                RW1,
-                RW2,
-                RW3,
-                RW1RW2,
-                RW1RW2RW3,
-                seasonal,
-                mrf,
-                mrfI,
-                mrfkronecker,
-                mrflinear,
-                mrflinearband,
-                mrfquadratic8,
-                mrfquadratic12,
-                mrfkr1,
-                mrfkr2,
-                npspline,
-                smoothspline,
-                kriging,
-                hrandom
-                };
 
 
 //------------------------------------------------------------------------------
@@ -79,7 +56,8 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
   // Spatial covariates
 
   DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
-             DISTR * dp,DISTR * dp_RE);
+             DISTR * dp,DISTR * dp_RE,vector<ST::string> & op,
+             vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR
 
@@ -95,11 +73,16 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   void compute_penalty(void);
 
-  void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
-
   void compute_XtransposedWres(datamatrix & partres, double l);
 
+  void compute_XtransposedWX(void);
+
+  void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
+
+
   void compute_precision(double l);
+
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);  
 
   // DESTRUCTOR
 

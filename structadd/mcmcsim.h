@@ -47,7 +47,7 @@ class __EXPORT_TYPE equation
 
   // CONSTRUCTOR1
 
-  equation(int & enr, int & hl,ST::string & t);
+  equation(int enr, int hl,ST::string t);
 
   // CONSTRUCTOR2
 

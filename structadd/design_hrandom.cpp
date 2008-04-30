@@ -11,6 +11,26 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
 
+void DESIGN_hrandom::read_options(vector<ST::string> & op,
+vector<ST::string> & vn)
+  {
+
+    /*
+  1       degree
+  2       numberknots
+  3       difforder
+  4       lambda
+  5       a
+  6       b
+  7       center
+  */
+
+  int f;
+
+  datanames = vn;
+
+  }
+
 DESIGN_hrandom::DESIGN_hrandom(void)
   {
 
@@ -18,7 +38,8 @@ DESIGN_hrandom::DESIGN_hrandom(void)
 
 
 DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
-                               DISTR * dp, DISTR * dp_RE)
+                               DISTR * dp, DISTR * dp_RE,
+                               vector<ST::string> & op,vector<ST::string> & vn)
       : DESIGN(dp)
   {
 
@@ -31,7 +52,8 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
 
   compute_penalty();
 
-  compute_XtransposedWX_XtransposedWres(1);
+  datamatrix  help(Zout.rows(),1,1);
+  compute_XtransposedWX_XtransposedWres(help,1);
 
   compute_precision(1.0);
 
@@ -66,19 +88,24 @@ void DESIGN_hrandom::init_data(const datamatrix & dm, const datamatrix & iv)
   //       computes effectvalues
   //       initializes datanames
 
-  make_index(dm);
+  // TASK of make_index: sorts the data,
+  //                     creates sorted intvar, data2
+  //                     initializes index_data,
+  //                     posbeg, posend, effectvalues
+
+  make_index(dm,iv);
 
   nrpar = posbeg.size();
-
-
-  datanames.push_back("X_1");
 
   Zout = datamatrix(posbeg.size(),1,1);
   index_Zout = statmatrix<int>(Zout.rows(),1);
   index_Zout.indexinit();
 
-  }
+  consecutive = 1;
 
+  compute_Zout_transposed();
+
+  }
 
 
 
@@ -89,7 +116,8 @@ void DESIGN_hrandom::compute_penalty(void)
   }
 
 
-void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(double l)
+
+void DESIGN_hrandom::compute_XtransposedWX(void)
   {
 
   if (XWXdeclared == false)
@@ -99,64 +127,93 @@ void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(double l)
     }
 
 
+  unsigned i;
+  int j;
+
+  double * * workingweightpp = workingweightp.getV();
+  vector<double>::iterator d = XWX.getDiagIterator();
+
+
+  if (intvar.rows() != data.rows())   // additive
+    {
+    for(i=0;i<nrpar;i++,++d)
+      {
+      *d=0;
+      if (posbeg[i] != -1)
+        {
+        for (j=posbeg[i];j<=posend[i];j++,workingweightpp++)
+          {
+          *d += *(*workingweightpp);
+          }
+
+        }
+      }
+
+    }
+  else                    // varying coefficients
+    {
+
+    }
+
+  }
+
+
+void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(
+                                                         datamatrix & partres,
+                                                         double l)
+  {
+
+  if (XWXdeclared == false)
+    {
+    XWX = envmatdouble(0,nrpar);
+    XWXdeclared = true;
+    }
+
   if (XWresdeclared == false)
     {
     XWres = datamatrix(nrpar,1);
     XWresdeclared = true;
     }
 
-
   unsigned i;
   int j;
-  int *  workindex = index_data.getV();
-  double * workXWres = XWres.getV();
-  double w;
 
+  double * * workingweightpp = workingweightp.getV();
   vector<double>::iterator d = XWX.getDiagIterator();
 
-  datamatrix * linpredRE = likep_RE->linpred_current;
-  double * linpredREp = (*linpredRE).getV();
+  double * workXWres = XWres.getV();
+
+  double * linpredREp;
+  if (likep_RE->linpred_current==1)
+    linpredREp = likep_RE->linearpred1.getV();
+  else
+    linpredREp = likep_RE->linearpred2.getV();
+
+  double * partresp = partres.getV();
+
 
   if (intvar.rows() != data.rows())   // additive
     {
-    for(i=0;i<posbeg.size();i++,++d,workXWres++,linpredREp++)
+    for(i=0;i<nrpar;i++,++d,workXWres++,linpredREp++,partresp++)
       {
       *d=0;
-      *workXWres =  l*(*linpredREp);
+      *workXWres =  l*(*linpredREp)+(*partresp);
       if (posbeg[i] != -1)
         {
-        for (j=posbeg[i];j<=posend[i];j++,workindex++)
+        for (j=posbeg[i];j<=posend[i];j++,workingweightpp++)
           {
-          w = likep->workingweight(*workindex,0);
-          *d += w;
-          *workXWres+= w*likep->partres(*workindex,0);
+          *d += *(*workingweightpp);
           }
 
         }
       }
+
     }
   else                    // varying coefficients
     {
-    /*
-    double * workdata2 = data2.getV();
-    double * workintvar = intvar.getV();
-    for(i=0;i<posbeg.size();i++,++d,workXWres++)
-      {
-      *d=0;
-      *workXWres = 0;
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workindex++,workdata2++,
-             workintvar++)
-          {
-          w = likep->workingweight(*workindex,0);
-          *d += w * (*workdata2);
-          *workXWres+= w*(*workintvar)*res(*workindex,0);
-          }
-        }
-      }
-    */
+
     }
+
 
   }
 
@@ -170,44 +227,31 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
     XWresdeclared = true;
     }
 
-
-  int * workindex = index_data.getV();
   double * workXWres = XWres.getV();
 
-  datamatrix * linpredRE = likep_RE->linpred_current;
-  double * linpredREp = (*linpredRE).getV();
+
+  double * linpredREp;
+  if (likep_RE->linpred_current==1)
+    linpredREp = likep_RE->linearpred1.getV();
+  else
+    linpredREp = likep_RE->linearpred2.getV();
+
+  double * partresp = partres.getV();
 
   unsigned i,j;
 
   if (intvar.rows()!= data.rows())   // additive
     {
-    for(i=0;i<nrpar;i++,workXWres++,linpredREp++)
-      {
-      *workXWres =  l*(*linpredREp);
-      if (posbeg[i] != -1)
-        {
-        for(j=posbeg[i];j<=posend[i];j++,workindex++)
-          {
-          *workXWres+= likep->workingweight(*workindex,0)*likep->partres(*workindex,0);
-          }
-        }
-      }
+    for(i=0;i<nrpar;i++,workXWres++,linpredREp++,partresp++)
+      *workXWres =  l*(*linpredREp)+(*partresp);
     }
   else                              // varying coefficient
     {
-/*
-    double * workintvar = intvar.getV();
-    for(i=0;i<nrpar;i++,workXWres++)
-      {
-      *workXWres = 0;
-      if (posbeg[i] != -1)
-        for(j=posbeg[i];j<=posend[i];j++,workindex++,workintvar++)
-          *workXWres+= likep->workingweight(*workindex,0)*(*workintvar)*res(*workindex,0);
-      }
-*/
+
     }
 
   }
+
 
 void DESIGN_hrandom::compute_precision(double l)
   {

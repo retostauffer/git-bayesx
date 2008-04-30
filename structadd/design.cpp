@@ -331,13 +331,13 @@ void DESIGN::compute_Zout_transposed(void)
 void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l)
   {
 
-  compute_XtransposedWX(partres);
+  compute_XtransposedWX();
   compute_XtransposedWres(partres, l);
 
   }
 
 
-void DESIGN::compute_XtransposedWX(datamatrix & partres)
+void DESIGN::compute_XtransposedWX(void)
   {
 
   if (responsep.rows() != data.rows())
@@ -860,13 +860,15 @@ void DESIGN::update_linpred(datamatrix & f,bool add)
   }
 
 
-void DESIGN::read_options(vector<ST::string> & op)
+void DESIGN::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   {
 
   if (op[7] == "false")
     center = true;
   else
     center = false;
+
+  datanames = vn;
 
   }
 
