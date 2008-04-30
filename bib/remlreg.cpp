@@ -3253,7 +3253,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
   unsigned degree,nrknots,tgrid,nrquant,nrbetween;
   double lambda, startlambda;
   bool catsp;
-  int f;
+  int f, gridsize;
   MCMC::knotpos gridpo;
 
   unsigned i;
@@ -3362,6 +3362,8 @@ bool remlreg::create_baseline(const unsigned & collinpred)
         {
         catsp=false;
         }
+      f = (terms[i].options[11]).strtolong(h);
+      gridsize = int(h);
 
       if (f==1)
         return true;
@@ -3388,6 +3390,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
                                               lambda,
                                               startlambda,
                                               gridpo,
+                                              gridsize,
                                               catsp
                                              )
                            );
@@ -3412,7 +3415,8 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
   double lambda, startlambda;
   unsigned degree,nrknots,tgrid;
   bool catsp;
-  int f;
+  int f, gridsize;
+  long h;
 
   unsigned i;
   int j1,j2;
@@ -3441,6 +3445,8 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
         {
         catsp=false;
         }
+      f = (terms[i].options[4]).strtolong(h);
+      gridsize = int(h);
 
       if (f==1)
         return true;
@@ -3470,6 +3476,7 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
                                               pathres,
                                               lambda,
                                               startlambda,
+                                              gridsize,
                                               catsp
                                              )
                            );

@@ -17,7 +17,9 @@
 #include <time.h>
 #include <math.h>
 #include "tmatrix.h"
-#include<vector>
+#include <vector>
+
+using std::vector;
 
 namespace randnumbers
 {

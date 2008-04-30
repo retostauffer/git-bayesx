@@ -769,6 +769,7 @@ term_baseline_remlreg::term_baseline_remlreg(void)
   lambdastart = doubleoption("lambdastart",1000,0,10000000);
   lower = stroption("lower");
   catspecific = simpleoption("catspecific",false);
+  gridsize = intoption("gridsize",-1,10,500);
   }
 
 void term_baseline_remlreg::setdefault(void)
@@ -782,12 +783,13 @@ void term_baseline_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   catspecific.setdefault();
+  gridsize.setdefault();
   }
 
 bool term_baseline_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 11) )
+        && (t.options.size() <= 12) )
     {
     if (t.options[0] == "baseline")
       t.type = "baseline";
@@ -810,6 +812,7 @@ bool term_baseline_remlreg::check(term & t)
     optlist.push_back(&lambdastart);
     optlist.push_back(&lower);
     optlist.push_back(&catspecific);
+    optlist.push_back(&gridsize);
 
     unsigned i;
     bool rec = true;
@@ -832,7 +835,7 @@ bool term_baseline_remlreg::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(11);
+   t.options = vector<ST::string>(12);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(degree.getvalue());
    t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -851,6 +854,7 @@ bool term_baseline_remlreg::check(term & t)
      {
      t.options[10] = "false";
      }
+   t.options[11] = ST::inttostring(gridsize.getvalue());
 
    if (lambda.getvalue() < 0)
      {
@@ -897,6 +901,7 @@ term_baseline_varcoeff_remlreg::term_baseline_varcoeff_remlreg(void)
   lambda = doubleoption("lambda",0.1,0,10000000);
   lambdastart = doubleoption("lambdastart",1000,0,10000000);
   catspecific = simpleoption("catspecific",false);
+  gridsize = intoption("gridsize",-1,10,500);
   }
 
 void term_baseline_varcoeff_remlreg::setdefault(void)
@@ -904,12 +909,13 @@ void term_baseline_varcoeff_remlreg::setdefault(void)
   lambda.setdefault();
   lambdastart.setdefault();
   catspecific.setdefault();
+  gridsize = intoption("gridsize",-1,10,500);
   }
 
 bool term_baseline_varcoeff_remlreg::check(term & t)
   {
   if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 4) )
+        && (t.options.size() <= 5) )
     {
     if (t.options[0] == "baseline")
       t.type = "baseline_varcoeff";
@@ -924,6 +930,7 @@ bool term_baseline_varcoeff_remlreg::check(term & t)
     optionlist optlist;
     optlist.push_back(&lambda);
     optlist.push_back(&lambdastart);
+    optlist.push_back(&catspecific);
     optlist.push_back(&catspecific);
 
     unsigned i;
@@ -947,7 +954,7 @@ bool term_baseline_varcoeff_remlreg::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(4);
+   t.options = vector<ST::string>(5);
    t.options[0] = t.type;
    t.options[1] = ST::doubletostring(lambda.getvalue());
    t.options[2] = ST::doubletostring(lambdastart.getvalue());
@@ -959,6 +966,7 @@ bool term_baseline_varcoeff_remlreg::check(term & t)
      {
      t.options[3] = "false";
      }
+   t.options[4] = ST::inttostring(gridsize.getvalue());
 
    if (lambda.getvalue() < 0)
      {

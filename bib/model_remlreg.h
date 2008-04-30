@@ -309,6 +309,7 @@ class __EXPORT_TYPE term_baseline_remlreg : public basic_termtype
   stroption lower;            // lower boundary of the interval for interval
                               // censored data
   simpleoption catspecific;
+  intoption gridsize;
 
   void setdefault(void);
 
@@ -346,6 +347,7 @@ class __EXPORT_TYPE term_baseline_varcoeff_remlreg : public basic_termtype
   doubleoption lambda;
   doubleoption lambdastart;
   simpleoption catspecific;
+  intoption gridsize;
 
   void setdefault(void);
 

@@ -885,7 +885,7 @@ class __EXPORT_TYPE DISTRIBUTION
   // FUNCTION: set_response
   // TASK: sets the response matrix
 
-  const set_response(datamatrix & newresponse);
+  void set_response(datamatrix & newresponse);
 
 
 

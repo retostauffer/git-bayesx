@@ -16,8 +16,8 @@ baseline_reml::baseline_reml(MCMCoptions * o,
               const unsigned & nrb, const knotpos & kp, const fieldtype & ft,
               const ST::string & ti, const ST::string & fp,
               const ST::string & pres, const double & l, const double & sl,
-              const knotpos & gp, const bool & catsp)
-  : spline_basis(o,d,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp,0.0,0.0,0.0,0.0,0,-9999)
+              const knotpos & gp, const int & gs, const bool & catsp)
+  : spline_basis(o,d,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp,0.0,0.0,0.0,0.0,gs,-9999)
   {
   unsigned i,j,k;
 
@@ -162,7 +162,7 @@ baseline_reml::baseline_reml(MCMCoptions * o,const datamatrix & d1,
                       const unsigned & degr, const unsigned & tgr,
                       const knotpos & kp, const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl, const bool & catsp)
+                      const double & sl, const int & gs, const bool & catsp)
   : spline_basis(o,d1,d2,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp,false)
   {
   baseline=true;
@@ -311,6 +311,14 @@ void baseline_reml::createreml(datamatrix & X,datamatrix & Z,
         }
       }
     }
+
+  if(gridsize>0)
+    {
+    X_grid=t_X.getCol(1);
+    Z_grid=t_Z;
+    }
+
+
   }
 
 void baseline_reml::multDG(datamatrix & res, const datamatrix & b)

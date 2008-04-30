@@ -3600,7 +3600,7 @@ void FULLCOND_nonp_gaussian::get_effectmatrix(datamatrix & e,
           for(j=*itbeg;j<=*itend;j++,workindex++,workdata++)
             {
             e(*workindex,be) = *workbeta*(*workdata);
-            t = (*effit).strtodouble(e(*workindex,be+1));
+            t = (MCMC::effecttype)((*effit).strtodouble(e(*workindex,be+1)));
             e(*workindex,be+2) = *workdata;
             }
           }
@@ -3624,7 +3624,7 @@ void FULLCOND_nonp_gaussian::get_effectmatrix(datamatrix & e,
         for (k=(*itbeg);k<=(*itend);k++,workindex++)
           {
           e(*workindex,be) = *workbeta;
-          t = (*effit).strtodouble(e(*workindex,be+1));
+          t = (MCMC::effecttype)((*effit).strtodouble(e(*workindex,be+1)));
           }
         }
       }

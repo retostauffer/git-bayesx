@@ -837,7 +837,7 @@ double DISTRIBUTION::compute_IWLS(datamatrix & weightiwls,datamatrix & tildey,
   }
 
 
-const DISTRIBUTION::set_response(datamatrix & newresponse)
+void DISTRIBUTION::set_response(datamatrix & newresponse)
   {
   response.assign(newresponse);
   }

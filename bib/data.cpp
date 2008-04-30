@@ -329,10 +329,10 @@ istream & in,ST::string & m,const unsigned & maxobs)
 	 missing = m;
   double v;
 
-  while ((! in.eof()) && (errormessages.empty()))
+  while ((!in.eof()) && (errormessages.empty()))
 	 {
 	 i = datarep.variables.begin();
-	 while ((! in.eof()) && (i != datarep.variables.end())
+	 while ((!in.eof()) && (i != datarep.variables.end())
 				  && (errormessages.empty()))
 		{
 		in >> obs;
@@ -409,7 +409,7 @@ ifstream & in,ST::string & missing,
   if (names.empty())
 	 {
 	 ST::string h;
-	 ST::getline(in,50000,h);
+	 ST::getline(in,50000,h,'\n');
 	 datarep.varnames = h.strtokenlist(" \t",false);
 	 }
   else
