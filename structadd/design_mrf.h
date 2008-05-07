@@ -7,51 +7,26 @@
 #define __EXPORT_TYPE __import
 #endif
 
-#if !defined (DESIGNINCLUDED)
+#if !defined (DESIGNmrfINCLUDED)
 
-#define DESIGNINCLUDED
+#define DESIGNmrfINCLUDED
 
 #include"statmat.h"
-#include"sparsemat.h"
+//#include"sparsemat.h"
 
+#include"design.h"
 #include"random.h"
 #include"envmatrix_penalty.h"
 #include"../values.h"
 #include<fstream.h>
 #include<vector>
 #include<bitset>
-#include"GENERAL_OPTIONS.h"
 #include"clstring.h"
-#include"distr.h"
 #include<cmath>
 
 
 namespace MCMC
 {
-
-
-enum ttype {
-                RE,
-                RW1,
-                RW2,
-                RW3,
-                RW1RW2,
-                RW1RW2RW3,
-                seasonal,
-                mrf,
-                mrfI,
-                mrfkronecker,
-                mrflinear,
-                mrflinearband,
-                mrfquadratic8,
-                mrfquadratic12,
-                mrfkr1,
-                mrfkr2,
-                npspline,
-                smoothspline,
-                kriging,
-                hrandom
-                };
 
 
 //------------------------------------------------------------------------------
@@ -61,15 +36,13 @@ enum ttype {
 class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   {
 
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
+
   MAP::map ma;
-  datamatrix data2;                          // vor varying coefficients
 
   protected:
 
-
-
   public:
-
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
@@ -81,7 +54,8 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   // Spatial covariates
 
   DESIGN_mrf(const datamatrix & dm, const datamatrix & iv,
-             DISTR * dp, const MAP::map & m);
+             DISTR * dp, const MAP::map & m,vector<ST::string> & op,
+             vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR
 
@@ -91,7 +65,7 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
 
   const DESIGN_mrf & operator=(const DESIGN_mrf & m);
 
-  // virtual functions
+  // VIRTUAL FUNCTIONS
 
   void init_data(const datamatrix & dm,const datamatrix & iv);
 
@@ -100,6 +74,8 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
 
   void compute_XtransposedWres(datamatrix & partres, double l);
+
+  void compute_XtransposedWX(void);
 
   void compute_precision(double l);
 

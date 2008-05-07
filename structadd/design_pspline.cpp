@@ -22,6 +22,7 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   5       a
   6       b
   7       center
+  8       map
   */
 
   int f;

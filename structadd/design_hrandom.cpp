@@ -43,6 +43,7 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
       : DESIGN(dp)
   {
 
+  read_options(op,vn);
 
   likep_RE = dp_RE;
 
@@ -56,6 +57,8 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
   compute_XtransposedWX_XtransposedWres(help,1);
 
   compute_precision(1.0);
+
+  center = false;
 
   }
 
@@ -126,6 +129,10 @@ void DESIGN_hrandom::compute_XtransposedWX(void)
     XWXdeclared = true;
     }
 
+  if (responsep.rows() != data.rows())
+    {
+    make_pointerindex();
+    }
 
   unsigned i;
   int j;
@@ -175,6 +182,11 @@ void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(
     XWresdeclared = true;
     }
 
+  if (responsep.rows() != data.rows())
+    {
+    make_pointerindex();
+    }
+
   unsigned i;
   int j;
 
@@ -190,7 +202,6 @@ void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(
     linpredREp = likep_RE->linearpred2.getV();
 
   double * partresp = partres.getV();
-
 
   if (intvar.rows() != data.rows())   // additive
     {
@@ -214,6 +225,12 @@ void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(
 
     }
 
+// TEST
+
+  ofstream out("c:\\bayesx\\test\\results\\XWX.res");
+  XWX.print2(out);
+
+// TEST
 
   }
 
@@ -225,6 +242,11 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
     {
     XWres = datamatrix(nrpar,1);
     XWresdeclared = true;
+    }
+
+  if (responsep.rows() != data.rows())
+    {
+    make_pointerindex();
     }
 
   double * workXWres = XWres.getV();

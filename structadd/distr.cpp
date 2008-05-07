@@ -26,6 +26,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
              const datamatrix & w)
   {
 
+  sigma2=1;
 
   optionsp = o;
 
@@ -69,6 +70,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 DISTR::DISTR(const DISTR & d)
   {
 
+  sigma2 = d.sigma2;
+
   optionsp = d.optionsp;
   nrobs = d.nrobs;
 
@@ -98,6 +101,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
   {
   if (this == &d)
     return *this;
+
+  sigma2 = d.sigma2;    
 
   optionsp = d.optionsp;
   nrobs = d.nrobs;
@@ -251,7 +256,7 @@ void DISTR::reset(void)
 
 double DISTR::get_scale(void)
   {
-  return 1;
+  return sigma2;
   }
 
 //------------------------------------------------------------------------------
@@ -279,8 +284,6 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
   FCsigma2 = FC(o,"Gaussian variance parameter",1,1,ps);
   FCsigma2.transform(0,0) = pow(trmult,2);
 
-  sigma2 = 1;
-
   }
 
 
@@ -293,7 +296,6 @@ const DISTR_gaussian & DISTR_gaussian::operator=(
   a_invgamma = nd.a_invgamma;
   b_invgamma = nd.b_invgamma;
   FCsigma2 = nd.FCsigma2;
-  sigma2=nd.sigma2;
   return *this;
   }
 
@@ -305,7 +307,6 @@ DISTR_gaussian::DISTR_gaussian(const DISTR_gaussian & nd)
   a_invgamma = nd.a_invgamma;
   b_invgamma = nd.b_invgamma;
   FCsigma2 = nd.FCsigma2;
-  sigma2 = nd.sigma2;
   }
 
 
@@ -359,7 +360,7 @@ void DISTR_gaussian::update(void)
     worklin = linearpred1.getV();
   else
     worklin = linearpred2.getV();
-      
+
   workresp = response.getV();
   workweight = weight.getV();
 
@@ -386,12 +387,6 @@ double DISTR_gaussian::loglikelihood(double * res, double * lin,
   {
   double help = *res-*lin;
   return  - *w * (pow(help,2))/(2* sigma2);
-  }
-
-
-double DISTR_gaussian::get_scale(void)
-  {
-  return sigma2;
   }
 
 
@@ -580,12 +575,29 @@ DISTR_gaussian_re::DISTR_gaussian_re(const DISTR_gaussian_re & nd)
 
 void DISTR_gaussian_re::update(void)
   {
+
+  // TEST
+  //  ofstream out("c:\\bayesx\\test\\results\\response_RE.res");
+  //  response.prettyPrint(out);
+  // ENDE TEST
+
   }
 
 
 bool DISTR_gaussian_re::posteriormode(void)
   {
+
+  // TEST
+    ofstream out("c:\\bayesx\\test\\results\\response_RE.res");
+    response.prettyPrint(out);
+  // ENDE TEST
+
   return true;
+  }
+
+
+void DISTR_gaussian_re::outresults(ST::string pathresults)
+  {
   }
 
 } // end: namespace MCMC

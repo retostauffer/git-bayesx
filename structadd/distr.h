@@ -44,6 +44,8 @@ class __EXPORT_TYPE DISTR
 
   public:
 
+  double sigma2;
+
   ST::string family;              // name of the distribution
 
   unsigned nrobs;                 // Number of observations
@@ -214,9 +216,6 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
   public:
 
-  double sigma2;
-
-
    // DEFAULT CONSTRUCTOR
 
    DISTR_gaussian(void) : DISTR()
@@ -249,9 +248,6 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
   double loglikelihood(double * res,
                        double * lin,
                        double * w) const;
-
-
-  virtual double get_scale(void);
 
   void outoptions(void);
 
@@ -288,7 +284,8 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
    // CONSTRUCTOR1
 
    DISTR_gaussian_re(GENERAL_OPTIONS * o,
-                  const datamatrix & r,const datamatrix & w=datamatrix());
+                  const datamatrix & r,
+                  const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
 
@@ -309,6 +306,7 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
 
   bool posteriormode(void);
 
+  void outresults(ST::string pathresults="");  
 
   };
 

@@ -10,6 +10,32 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
 
+void DESIGN_mrf::read_options(vector<ST::string> & op,vector<ST::string> & vn)
+  {
+
+  /*
+  1       degree
+  2       numberknots
+  3       difforder
+  4       lambda
+  5       a
+  6       b
+  7       center
+  8       map
+  */
+
+  int f;
+
+  if (op[7] == "false")   //nocenter==false, i.e. center
+    center = true;
+  else
+    center = false;
+
+  datanames = vn;
+
+  }
+
+
 DESIGN_mrf::DESIGN_mrf(void) : DESIGN()
   {
 
@@ -19,9 +45,13 @@ DESIGN_mrf::DESIGN_mrf(void) : DESIGN()
   // Spatial covariates
 
 DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
-                       DISTR * dp, const MAP::map & m)
+                       DISTR * dp, const MAP::map & m,vector<ST::string> & op,
+                       vector<ST::string> & vn)
                       : DESIGN(dp)
   {
+
+  read_options(op,vn);
+
   ma = m;
   type = mrf;
 
@@ -29,12 +59,12 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
 
   compute_penalty();
 
-  compute_XtransposedWX_XtransposedWres(1);
+  datamatrix  help(Zout.rows(),1,1);
+  compute_XtransposedWX_XtransposedWres(help,1);
 
   compute_precision(1.0);
 
   }
-
 
 
   // COPY CONSTRUCTOR
@@ -43,7 +73,6 @@ DESIGN_mrf::DESIGN_mrf(const DESIGN_mrf & m)
     : DESIGN(DESIGN(m))
   {
   ma = m.ma;
-  data2 = m.data2;
   }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -54,7 +83,6 @@ const DESIGN_mrf & DESIGN_mrf::operator=(const DESIGN_mrf & m)
     return *this;
   DESIGN::operator=(DESIGN(m));
   ma = m.ma;
-  data2 = m.data2;
   return *this;
   }
 
@@ -62,10 +90,19 @@ const DESIGN_mrf & DESIGN_mrf::operator=(const DESIGN_mrf & m)
 void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
   {
 
-  datanames.push_back("X_1");
+  // FUNCTION: init_data
+  // TASK: sorts the data such that the precision has minimum envelope
+  //       computes index_data
+  //       computes Zout, posbeg, posend
+  //       computes nrpar
+  //       computes effectvalues
+  //       computes consecutive
+  //       computes ZoutT, index_ZoutT
 
+  nrpar = ma.get_nrregions();
+  consecutive=true;
 
-  Zout = datamatrix(ma.get_nrregions(),1,1);
+  Zout = datamatrix(nrpar,1,1);
   index_Zout = statmatrix<int>(Zout.rows(),1);
   index_Zout.indexinit();
 
@@ -74,41 +111,14 @@ void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
 
   ma.compute_reg(dm,posbeg,posend,effectvalues,index_data);
 
-  unsigned i;
-  data = datamatrix(dm.rows(),dm.cols());
-  intvar = datamatrix(iv.rows(),iv.cols());
-  int * workindex = index_data.getV();
-  double * workdata = data.getV();
-  for (i=0;i<data.rows();i++,workindex++,workdata++)
-    *workdata = dm(*workindex,0);
-
-  if (intvar.rows() == data.rows())
-    {
-    int * workindex = index_data.getV();
-    double * workintvar = intvar.getV();
-    data2 = datamatrix(dm.rows(),1);
-    double * workdata2 = data2.getV();
-    double h;
-    for (i=0;i<intvar.rows();i++,workindex++,workdata2++,workintvar++)
-      {
-      h = iv(*workindex,0);
-      *workintvar = h;
-      *workdata2 = pow(h,2);
-      }
-    }
-
-  make_partresindex();
+  make_data(dm,iv);
 
   if (ma.get_errormessages().size() > 0)
     {
 //  FEHLT!!
     }
 
-  nrpar = ma.get_nrregions();
-
   }
-
-
 
 
 void DESIGN_mrf::compute_penalty(void)
@@ -119,7 +129,8 @@ void DESIGN_mrf::compute_penalty(void)
   }
 
 
-void DESIGN_mrf::compute_XtransposedWX_XtransposedWres(double l)
+void DESIGN_mrf::compute_XtransposedWX_XtransposedWres(datamatrix & partres,
+                                                        double l)
   {
   if (XWXdeclared == false)
     {
@@ -127,61 +138,57 @@ void DESIGN_mrf::compute_XtransposedWX_XtransposedWres(double l)
     XWXdeclared = true;
     }
 
-
   if (XWresdeclared == false)
     {
     XWres = datamatrix(nrpar,1);
     XWresdeclared = true;
     }
 
+  if (responsep.rows() != data.rows())
+    {
+    make_pointerindex();
+    }
+
+
   unsigned i;
   int j;
-  int *  workindex = index_data.getV();
+
   double * workXWres = XWres.getV();
-  double w;
-
-
+  double * * workingweightpp = workingweightp.getV();
   vector<double>::iterator d = XWX.getDiagIterator();
+  double * workpartres = partres.getV();
 
   if (intvar.rows() != data.rows())   // additive
     {
-    for(i=0;i<posbeg.size();i++,++d,workXWres++)
+    for(i=0;i<posbeg.size();i++,++d,workXWres++,workpartres++)
       {
       *d=0;
-      *workXWres = 0;
+      *workXWres = *workpartres;
       if (posbeg[i] != -1)
         {
-        for (j=posbeg[i];j<=posend[i];j++,workindex++)
+        for (j=posbeg[i];j<=posend[i];j++,workingweightpp++)
           {
-          w = likep->workingweight(*workindex,0);
-          *d += w;
-          *workXWres+= w*likep->partres(*workindex,0);
+          *d += *(*workingweightpp);
           }
-
         }
       }
     }
   else                    // varying coefficients
     {
-    double * workdata2 = data2.getV();
-    double * workintvar = intvar.getV();
-    for(i=0;i<posbeg.size();i++,++d,workXWres++)
+    double * workdata2 = intvar2.getV();
+    for(i=0;i<posbeg.size();i++,++d,workXWres++,workpartres++)
       {
       *d=0;
-      *workXWres = 0;
+      *workXWres = *workpartres;
       if (posbeg[i] != -1)
         {
-        for (j=posbeg[i];j<=posend[i];j++,workindex++,workdata2++,
-             workintvar++)
+        for (j=posbeg[i];j<=posend[i];j++,workdata2++,workingweightpp++)
           {
-          w = likep->workingweight(*workindex,0);
-          *d += w * (*workdata2);
-          *workXWres+= w*(*workintvar)*likep->partres(*workindex,0);
+          *d += *(*workingweightpp) * (*workdata2);
           }
         }
       }
     }
-
   }
 
 
@@ -193,37 +200,73 @@ void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l)
     XWresdeclared = true;
     }
 
-  int * workindex = index_data.getV();
+  if (responsep.rows() != data.rows())
+    {
+    make_pointerindex();
+    }
+
   double * workXWres = XWres.getV();
+  double * workpartres = partres.getV();
 
   unsigned i,j;
 
-  if (intvar.rows()!= data.rows())   // additive
+  for(i=0;i<nrpar;i++,workXWres++,workpartres++)
     {
-    for(i=0;i<nrpar;i++,workXWres++)
+    *workXWres = *workpartres;
+    }
+
+  }
+
+
+void DESIGN_mrf::compute_XtransposedWX(void)
+  {
+
+  if (XWXdeclared == false)
+    {
+    XWX = envmatdouble(0,nrpar);
+    XWXdeclared = true;
+    }
+
+  if (responsep.rows() != data.rows())
+    {
+    make_pointerindex();
+    }
+
+  unsigned i;
+  int j;
+
+  double * * workingweightpp = workingweightp.getV();
+  vector<double>::iterator d = XWX.getDiagIterator();
+
+  if (intvar.rows() != data.rows())   // additive
+    {
+    for(i=0;i<posbeg.size();i++,++d)
       {
-      *workXWres = 0;
+      *d=0;
       if (posbeg[i] != -1)
         {
-        for(j=posbeg[i];j<=posend[i];j++,workindex++)
+        for (j=posbeg[i];j<=posend[i];j++,workingweightpp++)
           {
-          *workXWres+= likep->workingweight(*workindex,0)*likep->partres(*workindex,0);
+          *d += *(*workingweightpp);
           }
         }
       }
     }
-  else                              // varying coefficient
+  else                    // varying coefficients
     {
-    double * workintvar = intvar.getV();
-    for(i=0;i<nrpar;i++,workXWres++)
+    double * workdata2 = intvar2.getV();
+    for(i=0;i<posbeg.size();i++,++d)
       {
-      *workXWres = 0;
+      *d=0;
       if (posbeg[i] != -1)
-        for(j=posbeg[i];j<=posend[i];j++,workindex++,workintvar++)
-          *workXWres+= likep->workingweight(*workindex,0)*(*workintvar)*likep->partres(*workindex,0);
+        {
+        for (j=posbeg[i];j<=posend[i];j++,workdata2++,workingweightpp++)
+          {
+          *d += *(*workingweightpp) * (*workdata2);
+          }
+        }
       }
     }
-
   }
 
 
@@ -235,6 +278,7 @@ void DESIGN_mrf::compute_precision(double l)
     precision = envmatdouble(K.getXenv(),0,nrpar);
     precisiondeclared = true;
     }
+
 
   precision.addtodiag(XWX,K,1.0,l);
 

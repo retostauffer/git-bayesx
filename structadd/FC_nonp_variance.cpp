@@ -149,12 +149,14 @@ void FC_nonp_variance::outresults(const ST::string & pathresults)
 
   ST::string vstr;
 
-  vstr = "  Mean:         ";
-  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-  ST::doubletostring(betamean(0,0),6) + "\n");
 
   if (optionsp->samplesize > 1)
     {
+
+    vstr = "  Mean:         ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(betamean(0,0),6) + "\n");
+
     vstr = "  Std. dev.:    ";
 
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
@@ -179,20 +181,17 @@ void FC_nonp_variance::outresults(const ST::string & pathresults)
     vstr = "  " + u2 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu_l1_upper(0,0),6) + "\n");
-    }
 
     optionsp->out("\n");
 
-  optionsp->out("  Smoothing parameter\n");
+    optionsp->out("  Smoothing parameter\n");
 
-  optionsp->out("\n");
+    optionsp->out("\n");
 
-  vstr = "  Mean:         ";
-  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-  ST::doubletostring(betamean(0,1),6) + "\n");
+    vstr = "  Mean:         ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(betamean(0,1),6) + "\n");
 
-  if (optionsp->samplesize > 1)
-    {
     vstr = "  Std. dev.:    ";
 
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
@@ -217,9 +216,16 @@ void FC_nonp_variance::outresults(const ST::string & pathresults)
     vstr = "  " + u2 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu_l1_upper(0,1),6) + "\n");
-    }
 
-  optionsp->out("\n");
+    optionsp->out("\n");
+    }
+  else
+    {
+    optionsp->out("  Smoothing parameter: " +
+    ST::doubletostring(betamean(0,1),6) + "\n");
+
+    optionsp->out("\n");
+    }
 
 
   if (pathresults.isvalidfile() != 1)

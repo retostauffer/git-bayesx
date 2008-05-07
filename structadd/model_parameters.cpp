@@ -17,6 +17,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   nocenter = simpleoption("nocenter",false);
+  map=stroption("map");
   }
 
 void term_nonp::setdefault(void)
@@ -28,6 +29,7 @@ void term_nonp::setdefault(void)
   a.setdefault();
   b.setdefault();
   nocenter.setdefault();
+  map.setdefault();
   }
 
 
@@ -85,6 +87,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&a);
     optlist.push_back(&b);
     optlist.push_back(&nocenter);
+    optlist.push_back(&map);    
 
     unsigned i;
     bool rec = true;
@@ -122,6 +125,8 @@ bool term_nonp::check(term & t)
       t.options[7] = "false";
     else
       t.options[7] = "true";
+
+    t.options[8] = map.getvalue();
 
     setdefault();
     return true;

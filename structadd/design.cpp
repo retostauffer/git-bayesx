@@ -78,18 +78,9 @@ bool DESIGN::check_ZoutT_consecutive(void)
   }
 
 
-
-
-
-void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
+void DESIGN::make_data(const datamatrix & dm,const datamatrix & iv)
   {
-
   unsigned j;
-
-  index_data = statmatrix<int>(dm.rows(),1);
-  index_data.indexinit();
-  dm.indexsort(index_data,0,dm.rows()-1,0,0);
-
   data = datamatrix(dm.rows(),1);
   double * workdata = data.getV();
   int * workindex = index_data.getV();
@@ -112,7 +103,20 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
       }
     }
 
+  }
 
+void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
+  {
+
+  unsigned j;
+
+  index_data = statmatrix<int>(dm.rows(),1);
+  index_data.indexinit();
+  dm.indexsort(index_data,0,dm.rows()-1,0,0);
+
+  make_data(dm,iv);
+
+  double * workdata;
   posbeg.push_back(0);
   workdata = data.getV()+1;
   double help = data(0,0);

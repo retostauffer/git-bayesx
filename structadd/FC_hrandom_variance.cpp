@@ -93,7 +93,7 @@ void FC_hrandom_variance::update(void)
 
 bool FC_hrandom_variance::posteriormode(void)
   {
-  return  FC::posteriormode();
+  return  FC_nonp_variance::posteriormode();
   }
 
 

@@ -36,8 +36,6 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   FC FCrcoeff;
 
-  void set_response(void);
-
   void set_rcoeff(void);
 
   public:
@@ -51,9 +49,6 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
   FC_hrandom(void);
 
   // CONSTRUCTOR
-  // o    : pointer to GENERAL_OPTIONS object
-  // t    : title of the full conditional (for example "fixed effects")
-  // fp   : file path for storing sampled parameters
 
   FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp, DISTR * lp_RE,const ST::string & t,
            const ST::string & fp, const ST::string & fp2, DESIGN * dp);

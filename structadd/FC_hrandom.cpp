@@ -22,6 +22,7 @@ FC_hrandom::FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
      : FC_nonp(o,lp,t,fp,Dp)
   {
   likep_RE = lp_RE;
+  likep_RE->trmult = likep->trmult;
   FCrcoeff = FC(o,t + "_random coefficients",beta.rows(),beta.cols(),fp2);
   }
 
@@ -46,14 +47,6 @@ const FC_hrandom & FC_hrandom::operator=(const FC_hrandom & m)
   }
 
 
-void FC_hrandom::set_response(void)
-  {
-  unsigned i;
-  double * likepRE_responsep = likep_RE->response.getV();
-  double * betap = beta.getV();
-  for(i=0;i<beta.rows();i++,likepRE_responsep++,betap++)
-    *likepRE_responsep =  *betap;
-  }
 
 
 void FC_hrandom::set_rcoeff(void)
@@ -62,8 +55,12 @@ void FC_hrandom::set_rcoeff(void)
   double * betap = beta.getV();
   double * betarcoeffp = FCrcoeff.beta.getV();
 
-  datamatrix * linpredRE = likep_RE->linpred_current;
-  double * linpredREp = (*linpredRE).getV();
+
+  double * linpredREp;
+  if (likep_RE->linpred_current==1)
+    linpredREp = likep_RE->linearpred1.getV();
+  else
+    linpredREp = likep_RE->linearpred2.getV();
 
   for (i=0;i<beta.rows();i++,betap++,betarcoeffp++,linpredREp++)
     *betarcoeffp = *betap - *linpredREp;
@@ -79,7 +76,9 @@ void FC_hrandom::update(void)
 
   FCrcoeff.update();
 
-  set_response();
+  likep_RE->response.assign(beta);
+  likep_RE->trmult = likep->trmult;
+  likep_RE->sigma2 = likep->get_scale();
   }
 
 
@@ -93,7 +92,8 @@ bool FC_hrandom::posteriormode(void)
 
   bool conv2 = FCrcoeff.posteriormode();
 
-  set_response();
+  likep_RE->response.assign(beta);
+  likep_RE->trmult = likep->trmult;  
 
   return conv;
   }

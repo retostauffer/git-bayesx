@@ -64,6 +64,12 @@ class __EXPORT_TYPE DESIGN
   protected:
 
   // FUNCTION: make_index
+  // TASK: takes index_data (computed elsewhere)
+  //       creates sorted data ntvar, data2
+
+  void DESIGN::make_data(const datamatrix & dm,const datamatrix & iv);
+
+  // FUNCTION: make_index
   // TASK: sorts the data,
   //       creates sorted intvar, data2
   //       initializes index_data,
