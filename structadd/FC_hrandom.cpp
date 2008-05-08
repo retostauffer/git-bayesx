@@ -74,6 +74,7 @@ void FC_hrandom::update(void)
 
   set_rcoeff();
 
+  FCrcoeff.acceptance++;
   FCrcoeff.update();
 
   likep_RE->response.assign(beta);
@@ -106,7 +107,7 @@ void FC_hrandom::outresults(const ST::string & pathresults)
     {
 
     FC::outresults(pathresults);
-    FCrcoeff.outresults(pathresults);
+    FCrcoeff.outresults("");
 
     optionsp->out("  Results are stored in file\n");
     optionsp->out("  " +  pathresults + "\n");

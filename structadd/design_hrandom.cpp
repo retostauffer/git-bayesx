@@ -160,6 +160,19 @@ void DESIGN_hrandom::compute_XtransposedWX(void)
   else                    // varying coefficients
     {
 
+    double * workdata2 = intvar2.getV();
+    for(i=0;i<nrpar;i++,++d)
+      {
+      *d=0;
+      if (posbeg[i] != -1)
+        {
+        for (j=posbeg[i];j<=posend[i];j++,workdata2++,workingweightpp++)
+          {
+          *d += *(*workingweightpp) * (*workdata2);
+          }
+        }
+      }
+
     }
 
   }
