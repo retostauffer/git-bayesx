@@ -236,13 +236,27 @@ void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(
   else                    // varying coefficients
     {
 
+    double * workdata2 = intvar2.getV();
+    for(i=0;i<nrpar;i++,++d,workXWres++,linpredREp++,partresp++)
+      {
+      *d=0;
+      *workXWres =  l*(*linpredREp)+(*partresp);
+      if (posbeg[i] != -1)
+        {
+        for (j=posbeg[i];j<=posend[i];j++,workdata2++,workingweightpp++)
+          {
+          *d += *(*workingweightpp) * (*workdata2);
+          }
+        }
+      }
+
     }
 
 // TEST
-
+/*
   ofstream out("c:\\bayesx\\test\\results\\XWX.res");
   XWX.print2(out);
-
+*/
 // TEST
 
   }
@@ -275,15 +289,8 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
 
   unsigned i,j;
 
-  if (intvar.rows()!= data.rows())   // additive
-    {
-    for(i=0;i<nrpar;i++,workXWres++,linpredREp++,partresp++)
-      *workXWres =  l*(*linpredREp)+(*partresp);
-    }
-  else                              // varying coefficient
-    {
-
-    }
+  for(i=0;i<nrpar;i++,workXWres++,linpredREp++,partresp++)
+    *workXWres =  l*(*linpredREp)+(*partresp);
 
   }
 

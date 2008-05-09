@@ -54,6 +54,11 @@ enum ttype {
                 };
 
 
+enum effecttype {
+                Function,
+                Varcoefftotal
+   };
+
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: DESIGN ------------------------------------
 //------------------------------------------------------------------------------
@@ -216,6 +221,14 @@ class __EXPORT_TYPE DESIGN
   //       the different observations in data
 
   void compute_f(datamatrix & beta,datamatrix & f);
+
+  // FUNCTION: compute_effect
+  // TASK: computes the effect vector 
+
+  void compute_effect(datamatrix & effect,datamatrix & f,
+                      effecttype et = Function);
+
+  void set_intvar(datamatrix & iv, double add=0);
 
   // FUNCTION: update_linpred
   // TASK: updates the predictor based on the current function f

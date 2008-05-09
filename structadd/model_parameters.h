@@ -34,6 +34,10 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption b;
   simpleoption nocenter;
   stroption map;
+  doubleoption lambda_re;
+  doubleoption a_re;
+  doubleoption b_re;
+
 
   vector<ST::string> termnames;
 

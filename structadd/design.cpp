@@ -277,9 +277,18 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
 
 
 
-
 void DESIGN::init_data(const datamatrix & dm, const datamatrix & iv)
   {
+  unsigned j;
+
+  double * workintvar = intvar.getV();
+  double * workintvar2 = intvar2.getV();
+  int * workindex = index_data.getV();
+  for (j=0;j<iv.rows();j++,workintvar++,workindex++,workintvar2++)
+    {
+    *workintvar = iv(*workindex,0);
+    *workintvar2 = pow(*workintvar,2);
+    }
 
   }
 
@@ -584,6 +593,53 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
   }
 
 
+void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
+                      effecttype et)
+  {
+  unsigned i,j;
+
+  double * effectp = effect.getV();
+
+  vector<int>::iterator itbeg = posbeg.begin();
+  vector<int>::iterator itend = posend.begin();
+
+  double * workf = f.getV();
+  double * workintvar = intvar.getV();
+
+  int size = posbeg.size();
+
+  if (et==Function)
+    {
+    for (i=0;i<size;i++,++itbeg,++itend,workf++)
+      {
+      if (*itbeg != -1)
+        {
+        for (j=*itbeg;j<=*itend;j++,effectp++)
+          *effectp = *workf;
+        }
+      }
+    }
+  else if (et==Varcoefftotal)
+    {
+    for (i=0;i<size;i++,++itbeg,++itend,workf++)
+      {
+      if (*itbeg != -1)
+        {
+        for (j=*itbeg;j<=*itend;j++,effectp++,workintvar++)
+          *effectp = *workintvar * (*workf);
+        }
+      }
+    }
+  }
+
+
+void DESIGN::set_intvar(datamatrix & iv,double add)
+  {
+
+
+  }
+
+
 void DESIGN::compute_f(datamatrix & beta,datamatrix & f)
   {
 
@@ -774,7 +830,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
   //  ofstream out("c:\\bayesx\\test\\results\\lin.res");
   //  (likep->linearpred1).prettyPrint(out);
   // TEST
-  
+
 
   }
 

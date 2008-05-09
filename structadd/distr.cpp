@@ -588,8 +588,10 @@ bool DISTR_gaussian_re::posteriormode(void)
   {
 
   // TEST
+  /*
     ofstream out("c:\\bayesx\\test\\results\\response_RE.res");
     response.prettyPrint(out);
+  */  
   // ENDE TEST
 
   return true;
