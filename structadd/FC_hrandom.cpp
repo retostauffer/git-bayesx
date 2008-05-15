@@ -70,6 +70,7 @@ void FC_hrandom::set_rcoeff(void)
 
 void FC_hrandom::update(void)
   {
+
   FC_nonp::update();
 
   set_rcoeff();
@@ -94,7 +95,14 @@ bool FC_hrandom::posteriormode(void)
   bool conv2 = FCrcoeff.posteriormode();
 
   likep_RE->response.assign(beta);
-  likep_RE->trmult = likep->trmult;  
+  likep_RE->trmult = likep->trmult;
+
+  // TEST
+  /*
+  ofstream out5("c:\\bayesx\\test\\results\\fhrandom.res");
+  beta.prettyPrint(out5);
+  */
+  // TEST
 
   return conv;
   }
@@ -129,8 +137,7 @@ void FC_hrandom::outresults(const ST::string & pathresults)
     u2 = u2.replaceallsigns('.','p');
 
     outres << "intnr" << "   ";
-    for (i=0;i<designp->datanames.size();i++)
-      outres << designp->datanames[i] << "   ";
+    outres << designp->datanames[designp->datanames.size()-1] << "   ";
     outres << "pmean_tot   ";
 
     if (optionsp->samplesize > 1)

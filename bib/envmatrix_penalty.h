@@ -31,6 +31,8 @@
 
   envmatrix<double> Krw2env(const vector<double> & weight);
 
+  envmatrix<double> Krw2env(const unsigned & nrpar);
+
   // FUNCTION: Krw3env
   // TASK: returns the penalty matrix for a third order random walk
 

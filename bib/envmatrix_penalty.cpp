@@ -171,6 +171,28 @@ envmatrix<double> Krw2env(const vector<double> & weight)
   }
 
 
+envmatrix<double> Krw2env(const unsigned & nrpar)
+  {
+
+  unsigned i;
+
+
+  datamatrix D2(nrpar-2,nrpar,0);
+
+  for (i=0;i<D2.rows();i++)
+    {
+    D2(i,i) = 1;
+    D2(i,i+1) = -2;
+    D2(i,i+2) = 1;
+    }
+
+
+  datamatrix K2 = D2.transposed()*D2;
+
+  return envmatrix<double>(K2);
+
+  }
+
 
 envmatrix<double> Krw3env(const unsigned & nrpar)
   {

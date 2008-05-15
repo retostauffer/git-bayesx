@@ -167,6 +167,8 @@ DESIGN::DESIGN(void)
 DESIGN::DESIGN(DISTR * lp)
   {
 
+  changingdesign = false;
+
   likep = lp;
 
   XWXdeclared = false;
@@ -181,6 +183,7 @@ DESIGN::DESIGN(DISTR * lp)
 
 DESIGN::DESIGN(const DESIGN & m)
   {
+  changingdesign = m.changingdesign;
   likep = m.likep;
 
   data = m.data;
@@ -206,7 +209,7 @@ DESIGN::DESIGN(const DESIGN & m)
   linpredp2 = m.linpredp2;
 
   nrpar = m.nrpar;
-  center = m.center;  
+  center = m.center;
 
   K = m.K;
   rankK = m.rankK;
@@ -231,6 +234,9 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   {
   if (this == &m)
     return *this;
+
+  changingdesign = m.changingdesign;    
+
   likep = m.likep;
 
   data = m.data;
@@ -596,15 +602,26 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
 void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
                       effecttype et)
   {
+
+  // TEST
+  /*
+  ofstream out0("c:\\bayesx\\test\\results\\fueb.res");
+  f.prettyPrint(out0);
+  */
+  // TEST
+
   unsigned i,j;
 
-  double * effectp = effect.getV();
+  if (effect.rows() != data.rows())
+    effect = datamatrix(data.rows(),1,0);
 
   vector<int>::iterator itbeg = posbeg.begin();
   vector<int>::iterator itend = posend.begin();
 
   double * workf = f.getV();
   double * workintvar = intvar.getV();
+
+  int * workindex = index_data.getV();
 
   int size = posbeg.size();
 
@@ -614,8 +631,8 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
       {
       if (*itbeg != -1)
         {
-        for (j=*itbeg;j<=*itend;j++,effectp++)
-          *effectp = *workf;
+        for (j=*itbeg;j<=*itend;j++,workindex++)
+          effect(*workindex,0) = *workf;
         }
       }
     }
@@ -625,17 +642,43 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
       {
       if (*itbeg != -1)
         {
-        for (j=*itbeg;j<=*itend;j++,effectp++,workintvar++)
-          *effectp = *workintvar * (*workf);
+        for (j=*itbeg;j<=*itend;j++,workindex++,workintvar++)
+          effect(*workindex,0) = *workintvar * (*workf);
         }
       }
     }
+
+  // TEST
+  /*
+  ofstream out("c:\\bayesx\\test\\results\\effect.res");
+  for (i=0;i<effect.rows();i++)
+    out << effect(i,0) << "  " << endl;
+
+  ofstream out2("c:\\bayesx\\test\\results\\data.res");
+  data.prettyPrint(out2);
+
+  ofstream out3("c:\\bayesx\\test\\results\\index.res");
+  index_data.prettyPrint(out3);
+  */
+  // TEST
+
+
   }
 
 
 void DESIGN::set_intvar(datamatrix & iv,double add)
   {
 
+  unsigned j;
+
+  double * workintvar = intvar.getV();
+  double * workintvar2 = intvar2.getV();
+  int * workindex = index_data.getV();
+  for (j=0;j<iv.rows();j++,workintvar++,workindex++,workintvar2++)
+    {
+    *workintvar = iv(*workindex,0)+add;
+    *workintvar2 = pow(*workintvar,2);
+    }
 
   }
 

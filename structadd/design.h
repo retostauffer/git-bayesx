@@ -105,6 +105,8 @@ class __EXPORT_TYPE DESIGN
 
   public:
 
+  bool changingdesign;
+
   // Variables determined by function init_data
 
   datamatrix data;                           // data matrix

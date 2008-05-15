@@ -111,6 +111,7 @@ MCMCsim::MCMCsim(GENERAL_OPTIONS * go,vector<equation> & equ)
   genoptions = go;
   equations = equ;
   maxiterations = 1000;
+//  maxiterations = 1;
   }
 
 

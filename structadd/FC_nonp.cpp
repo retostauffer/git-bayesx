@@ -82,12 +82,12 @@ void FC_nonp::update(void)
   designp->compute_partres(partres,beta);
 
 
-  if ((likep->changingweight) || (changingdesign))
+  if ((likep->changingweight) || (designp->changingdesign))
     designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
   else
     designp->compute_XtransposedWres(partres, lambda);
 
-  if ((likep->changingweight) || (changingdesign) || (!lambdaconst))
+  if ((likep->changingweight) || (designp->changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
 
 
@@ -124,6 +124,19 @@ void FC_nonp::update(void)
 bool FC_nonp::posteriormode(void)
   {
 
+  // TEST
+  /*
+  ofstream out("c:\\bayesx\\test\\results\\data.res");
+  designp->data.prettyPrint(out);
+
+  ofstream out2("c:\\bayesx\\test\\results\\intvar.res");
+  designp->intvar.prettyPrint(out2);
+
+  ofstream out3("c:\\bayesx\\test\\results\\index.res");
+  designp->index_data.prettyPrint(out3);
+  */
+  // TEST
+
   betaold.assign(beta);
 
   bool lambdaconst = false;
@@ -133,18 +146,18 @@ bool FC_nonp::posteriormode(void)
 
   // TEST
   /*
-  ofstream out("c:\\bayesx\\test\\results\\partres.res");
-  partres.prettyPrint(out);
+  ofstream out4("c:\\bayesx\\test\\results\\partres.res");
+  partres.prettyPrint(out4);
   */
   // TEST
 
 
-  if ((likep->changingweight) || (changingdesign))
+  if ((likep->changingweight) || (designp->changingdesign))
     designp->compute_XtransposedWX_XtransposedWres(partres, lambda);
   else
     designp->compute_XtransposedWres(partres, lambda);
 
-  if ((likep->changingweight) || (changingdesign) || (!lambdaconst))
+  if ((likep->changingweight) || (designp->changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
 
   // TEST
@@ -164,6 +177,13 @@ bool FC_nonp::posteriormode(void)
     centerparam();
 
   designp->compute_f(param,beta);
+
+  // TEST
+  /*
+  ofstream out5("c:\\bayesx\\test\\results\\f.res");
+  beta.prettyPrint(out5);
+  */
+  // TEST
 
   betadiff.minus(beta,betaold);
 
@@ -204,8 +224,8 @@ void FC_nonp::outresults(const ST::string & pathresults)
     u2 = u2.replaceallsigns('.','p');
 
     outres << "intnr" << "   ";
-    for (i=0;i<designp->datanames.size();i++)
-      outres << designp->datanames[i] << "   ";
+//    for (i=0;i<designp->datanames.size();i++)
+      outres << designp->datanames[designp->datanames.size()-1] << "   ";
     outres << "pmean   ";
 
     if (optionsp->samplesize > 1)

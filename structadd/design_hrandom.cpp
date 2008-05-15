@@ -253,10 +253,10 @@ void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(
     }
 
 // TEST
-/*
+  /*
   ofstream out("c:\\bayesx\\test\\results\\XWX.res");
   XWX.print2(out);
-*/
+  */
 // TEST
 
   }

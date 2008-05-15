@@ -24,7 +24,6 @@ FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
                    const unsigned & cols,const ST::string & fp)
   {
 
-  changingdesign = false;
 
   optionsp = o;
 
@@ -49,7 +48,6 @@ FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
 FC::FC(const FC & m)
   {
 
-  changingdesign = m.changingdesign;
   optionsp = m.optionsp;
 
   title = m.title;
@@ -95,8 +93,6 @@ const FC & FC::operator=(const FC & m)
 
   if (this==&m)
 	 return *this;
-
-  changingdesign = m.changingdesign;
 
   optionsp = m.optionsp;
 
