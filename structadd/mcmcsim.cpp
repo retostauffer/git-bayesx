@@ -620,8 +620,9 @@ unsigned MCMCsim::compute_nrpar(void)
     {
     for(j=0;j<equations[l].FCpointer.size();j++)
       {
-      nrpar += equations[l].FCpointer[j]->beta.rows()*
-               equations[l].FCpointer[j]->beta.cols();
+      if (equations[l].FCpointer[j]->nosamples == false)
+        nrpar += equations[l].FCpointer[j]->beta.rows()*
+                 equations[l].FCpointer[j]->beta.cols();
       }
     }
 
@@ -652,59 +653,61 @@ void MCMCsim::autocorr(const unsigned & lag,datamatrix & cmat)
 
     for(j=0;j<equations[l].FCpointer.size();j++)
       {
-      for (k=0;k<equations[l].FCpointer[j]->beta.cols();k++)
-        for(i=0;i<equations[l].FCpointer[j]->beta.rows();i++)
-          {
-          cmat.putCol(col,equations[l].FCpointer[j]->compute_autocorr(lag,i,k));
-          col++;
-
-          #if defined(BORLAND_OUTPUT_WINDOW)
-          Application->ProcessMessages();
-
-          if (Frame->stop)
+      if (equations[l].FCpointer[j]->nosamples==false)
+        {
+        for (k=0;k<equations[l].FCpointer[j]->beta.cols();k++)
+          for(i=0;i<equations[l].FCpointer[j]->beta.rows();i++)
             {
-            break;
-            }
+            cmat.putCol(col,equations[l].FCpointer[j]->compute_autocorr(lag,i,k));
+            col++;
 
-          if (Frame->pause)
-            {
-            genoptions->out("\n");
-            genoptions->out("SIMULATION PAUSED\n");
-            genoptions->out("Click CONTINUE to proceed\n");
-            genoptions->out("\n");
+            #if defined(BORLAND_OUTPUT_WINDOW)
+            Application->ProcessMessages();
 
-            while (Frame->pause)
+            if (Frame->stop)
               {
-              Application->ProcessMessages();
+              break;
               }
 
-            genoptions->out("SIMULATION CONTINUED\n");
-            genoptions->out("\n");
+            if (Frame->pause)
+              {
+              genoptions->out("\n");
+              genoptions->out("SIMULATION PAUSED\n");
+              genoptions->out("Click CONTINUE to proceed\n");
+              genoptions->out("\n");
+
+              while (Frame->pause)
+                {
+                Application->ProcessMessages();
+                }
+
+              genoptions->out("SIMULATION CONTINUED\n");
+              genoptions->out("\n");
+              }
+            #elif defined(JAVA_OUTPUT_WINDOW)
+            bool stop = genoptions->adminb_p->breakcommand();
+            if(stop)
+              break;
+            #endif
+
             }
-          #elif defined(JAVA_OUTPUT_WINDOW)
-          bool stop = genoptions->adminb_p->breakcommand();
-          if(stop)
-            break;
-          #endif
 
+        #if defined(BORLAND_OUTPUT_WINDOW)
+        Application->ProcessMessages();
+        if (Frame->stop)
+          {
+          cmat = datamatrix(1,1);
+          break;
           }
+        #elif defined(JAVA_OUTPUT_WINDOW)
 
-      #if defined(BORLAND_OUTPUT_WINDOW)
-      Application->ProcessMessages();
-      if (Frame->stop)
-        {
-        cmat = datamatrix(1,1);
-        break;
+        if (genoptions->adminb_p->get_stop())
+          {
+          cmat = datamatrix(1,1);
+          break;
+          }
+        #endif
         }
-      #elif defined(JAVA_OUTPUT_WINDOW)
-
-      if (genoptions->adminb_p->get_stop())
-        {
-        cmat = datamatrix(1,1);
-        break;
-        }
-      #endif
-
       } // end:  for(j=0;j<fullcondp.size();j++)
 
     } // for (l=0;l<nrmodels;l++)
@@ -746,19 +749,21 @@ void MCMCsim::autocorr(const unsigned & lag,const ST::string & path)
 
       for(j=0;j<equations[s].FCpointer.size();j++)
         {
+        if (equations[s].FCpointer[j]->nosamples == false)
+          {
+          name = equations[s].FCpointer[j]->title;
 
-        name = equations[s].FCpointer[j]->title;
+          for (k=0;k<equations[s].FCpointer[j]->beta.cols();k++)
+            for(i=0;i<equations[s].FCpointer[j]->beta.rows();i++)
+              {
+              if (equations[s].FCpointer[j]->beta.cols() == 1)
+                out << name << "_" << (i+1) << " ";
+              else
+                out << name << (i+1) << "_" << (k+1) << " ";
+              }
 
-        for (k=0;k<equations[s].FCpointer[j]->beta.cols();k++)
-          for(i=0;i<equations[s].FCpointer[j]->beta.rows();i++)
-            {
-            if (equations[s].FCpointer[j]->beta.cols() == 1)
-              out << name << "_" << (i+1) << " ";
-            else
-              out << name << (i+1) << "_" << (k+1) << " ";
-            }
-
-        out << name << "_min " << name << "_mean " << name << "_max ";
+          out << name << "_min " << name << "_mean " << name << "_max ";
+          }
 
         }  // end: for(j=0;j<fullcondp.size();j++)
       }
@@ -775,41 +780,43 @@ void MCMCsim::autocorr(const unsigned & lag,const ST::string & path)
 
         for(j=0;j<equations[s].FCpointer.size();j++)
           {
-          min = 1;
-          max = -1;
-          mean = 0;
-          miss = true;
-
-          for (k=0;k<equations[s].FCpointer[j]->beta.cols();k++)
-            for(i=0;i<equations[s].FCpointer[j]->beta.rows();i++)
-              {
-              if (cmat(l,nr) <= 1)
-                {
-                miss = false;
-                if (cmat(l,nr) > max)
-                  max = cmat(l,nr);
-                if (cmat(l,nr) < min)
-                  min = cmat(l,nr);
-                mean+=cmat(l,nr);
-                out << cmat(l,nr) << " ";
-                }
-              else
-                {
-                misstot = true;
-                out << "NA ";
-                }
-
-              nr++;
-              }
-
-          if (miss)
-            out << "NA NA NA ";
-          else
+          if (equations[s].FCpointer[j]->nosamples == false)
             {
-            n = equations[s].FCpointer[j]->beta.cols() * equations[s].FCpointer[j]->beta.rows();
-            out << min << " " << (mean/n) << " " << max << " ";
-            }
+            min = 1;
+            max = -1;
+            mean = 0;
+            miss = true;
 
+            for (k=0;k<equations[s].FCpointer[j]->beta.cols();k++)
+              for(i=0;i<equations[s].FCpointer[j]->beta.rows();i++)
+                {
+                if (cmat(l,nr) <= 1)
+                  {
+                  miss = false;
+                  if (cmat(l,nr) > max)
+                    max = cmat(l,nr);
+                  if (cmat(l,nr) < min)
+                    min = cmat(l,nr);
+                  mean+=cmat(l,nr);
+                  out << cmat(l,nr) << " ";
+                  }
+                else
+                  {
+                  misstot = true;
+                  out << "NA ";
+                  }
+
+                nr++;
+                }
+
+            if (miss)
+              out << "NA NA NA ";
+            else
+              {
+              n = equations[s].FCpointer[j]->beta.cols() * equations[s].FCpointer[j]->beta.rows();
+              out << min << " " << (mean/n) << " " << max << " ";
+              }
+            } // end: if (equations[s].FCpointer[j]->nosamples == false)
           }  // end: for(j=0;j<equations[s].FCpointer.size();j++)
         } // for (s=0;s<equations.size();s++)
         out << endl;
@@ -879,24 +886,25 @@ void MCMCsim::get_samples(
     {
     for(i=0;i<equations[j].FCpointer.size();i++)
       {
+      if (equations[j].FCpointer[i]->nosamples == false)
+        {
+        filename = path + equations[j].FCpointer[i]->title + "_sample.raw";
+        equations[j].FCpointer[i]->get_samples(filename,step);
+        genoptions->out(filename + "\n");
+        #if defined(JAVA_OUTPUT_WINDOW)
 
-      filename = path + equations[j].FCpointer[i]->title + "_sample.raw";
-      equations[j].FCpointer[i]->get_samples(filename,step);
-      genoptions->out(filename + "\n");
-      #if defined(JAVA_OUTPUT_WINDOW)
+        psname = path + equations[j].FCpointer[i]->get_title() + "_sample.ps";
+        newc.push_back("dataset _dat");
+        newc.push_back("_dat.infile , nonote using " + filename);
+        newc.push_back("graph _g");
+        newc.push_back("_g.plotsample , replace outfile=" +
+                      psname  + " using _dat");
+        genoptions->out(psname + " (graphs)\n");
+        newc.push_back("drop _dat _g");
 
-      psname = path + equations[j].FCpointer[i]->get_title() + "_sample.ps";
-      newc.push_back("dataset _dat");
-      newc.push_back("_dat.infile , nonote using " + filename);
-      newc.push_back("graph _g");
-      newc.push_back("_g.plotsample , replace outfile=" +
-                    psname  + " using _dat");
-      genoptions->out(psname + " (graphs)\n");
-      newc.push_back("drop _dat _g");
-
-      #endif
-      genoptions->out("\n");
-
+        #endif
+        genoptions->out("\n");
+        }
       }
     }
 

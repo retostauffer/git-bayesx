@@ -24,7 +24,7 @@ FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
                    const unsigned & cols,const ST::string & fp)
   {
 
-
+  nosamples = false;
   optionsp = o;
 
   title = t;
@@ -47,6 +47,8 @@ FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
 
 FC::FC(const FC & m)
   {
+
+  nosamples = m.nosamples;
 
   optionsp = m.optionsp;
 
@@ -93,6 +95,8 @@ const FC & FC::operator=(const FC & m)
 
   if (this==&m)
 	 return *this;
+
+  nosamples = m.nosamples;
 
   optionsp = m.optionsp;
 
@@ -256,6 +260,7 @@ void FC::readsample3(datamatrix & b) const
 datamatrix FC::compute_autocorr(const unsigned & lag,const unsigned & row,
                                       const unsigned & col) const
   {
+  unsigned o = optionsp->samplesize;
   datamatrix sample(optionsp->samplesize,1);
   unsigned nr = row*(beta.cols())+col;
   readsample(sample,nr);
@@ -265,41 +270,45 @@ datamatrix FC::compute_autocorr(const unsigned & lag,const unsigned & row,
 
 void FC::get_samples(const ST::string & filename,const unsigned & step) const
   {
-  ofstream out(filename.strtochar());
-  assert(!out.fail());
-
-  unsigned i,j,k;
-  unsigned nrpar = beta.cols()*beta.rows();
-
-  datamatrix betac(beta.rows(),beta.cols());
-
-  out << "intnr " << " ";
-  if (beta.cols() > 1)
+  if (nosamples == false)
     {
-    for (j=0;j<beta.rows();j+=step)
-      for(k=0;k<beta.cols();k++)
-        out << "b_" << (j+1) << "_" << (k+1) << " ";
-    }
-  else
-    {
-    for (j=0;j<nrpar;j+=step)
-      out << "b_" << (j+1) << " ";
-    }
+    ofstream out(filename.strtochar());
+    assert(!out.fail());
 
-  out << endl;
+    unsigned i,j,k;
 
-  for(i=0;i<optionsp->samplesize;i++)
-    {
-    readsample2(betac,i);
-    out << (i+1) << " ";
-    for (j=0;j<beta.rows();j+=step)
-      for(k=0;k<betac.cols();k++)
-        out << betac(j,k) << " ";
+    unsigned nrpar = beta.rows()*beta.cols();
+
+    datamatrix betac(beta.rows(),beta.cols());
+
+    out << "intnr " << " ";
+    if (beta.cols() > 1)
+      {
+      for (j=0;j<beta.rows();j+=step)
+        for(k=0;k<beta.cols();k++)
+          out << "b_" << (j+1) << "_" << (k+1) << " ";
+      }
+    else
+      {
+      for (j=0;j<nrpar;j+=step)
+        out << "b_" << (j+1) << " ";
+      }
 
     out << endl;
-    }
 
-  out.close();
+    for(i=0;i<optionsp->samplesize;i++)
+      {
+      readsample2(betac,i);
+      out << (i+1) << " ";
+      for (j=0;j<beta.rows();j+=step)
+        for(k=0;k<betac.cols();k++)
+          out << betac(j,k) << " ";
+
+      out << endl;
+      }
+
+    out.close();
+    }
 
   }
 

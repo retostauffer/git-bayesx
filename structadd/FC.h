@@ -39,16 +39,18 @@ class __EXPORT_TYPE FC
 
   protected:
 
-  GENERAL_OPTIONS * optionsp;    // Pointer to general MCMC options
-
   ST::string samplepath;         // filename for storing sampled parameters
   ofstream samplestream;         // stream object for storing sampled parameters
-
 
   vector<ST::string> priorassumptions;
 
 
   public:
+
+  GENERAL_OPTIONS * optionsp;    // Pointer to general MCMC options
+
+
+  bool nosamples;  
 
   ST::string title;              // Title/name of the full conditional
 
