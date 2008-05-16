@@ -111,6 +111,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void reset(void);
 
+  virtual void transform_beta(void);
+
   };
 
 

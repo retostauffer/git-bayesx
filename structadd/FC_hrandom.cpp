@@ -18,9 +18,10 @@ FC_hrandom::FC_hrandom(void)
 
 FC_hrandom::FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
                  const ST::string & t,const ST::string & fp,
-                 const ST::string & fp2, DESIGN * Dp)
+                 const ST::string & fp2, DESIGN * Dp,bool m)
      : FC_nonp(o,lp,t,fp,Dp)
   {
+  mult = m;
   likep_RE = lp_RE;
   likep_RE->trmult = likep->trmult;
   FCrcoeff = FC(o,t + "_random coefficients",beta.rows(),beta.cols(),fp2);
@@ -30,6 +31,7 @@ FC_hrandom::FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
 FC_hrandom::FC_hrandom(const FC_hrandom & m)
   : FC_nonp(FC_nonp(m))
   {
+  mult = m.mult;
   likep_RE = m.likep_RE;
   FCrcoeff = m.FCrcoeff;
   }
@@ -41,12 +43,11 @@ const FC_hrandom & FC_hrandom::operator=(const FC_hrandom & m)
   if (this==&m)
 	 return *this;
   FC_nonp::operator=(FC_nonp(m));
+  mult = m.mult;
   likep_RE = m.likep_RE;
   FCrcoeff = m.FCrcoeff;
   return *this;
   }
-
-
 
 
 void FC_hrandom::set_rcoeff(void)
@@ -66,6 +67,15 @@ void FC_hrandom::set_rcoeff(void)
     *betarcoeffp = *betap - *linpredREp;
 
   FCrcoeff.transform(0,0) = transform(0,0);
+  }
+
+
+void FC_hrandom::transform_beta(void)
+  {
+  if (mult)
+    transform(0,0) = 1.0;
+  else
+    FC_nonp::transform_beta();  
   }
 
 void FC_hrandom::update(void)

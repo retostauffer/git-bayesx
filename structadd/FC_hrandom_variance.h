@@ -34,6 +34,8 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
 
   DISTR * likepRE;
 
+  bool mult;
+
   double compute_quadform(void); 
 
   public:
@@ -78,6 +80,10 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
   // TASK: computes the posterior mode
 
   bool posteriormode(void);
+
+  void transform_beta(void);
+
+  void read_options(vector<ST::string> & op);
 
   };
 

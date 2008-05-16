@@ -36,6 +36,8 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   FC FCrcoeff;
 
+  bool mult;
+
   void set_rcoeff(void);
 
   public:
@@ -51,7 +53,7 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
   // CONSTRUCTOR
 
   FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp, DISTR * lp_RE,const ST::string & t,
-           const ST::string & fp, const ST::string & fp2, DESIGN * dp);
+           const ST::string & fp, const ST::string & fp2, DESIGN * dp,bool m);
 
   // COPY CONSTRUCTOR
 
@@ -78,6 +80,8 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
   // TASK: computes the posterior mode
 
   bool posteriormode(void);
+
+  void transform_beta(void);
 
     // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file

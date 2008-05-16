@@ -15,7 +15,7 @@ void DESIGN_hrandom::read_options(vector<ST::string> & op,
 vector<ST::string> & vn)
   {
 
-    /*
+  /*
   1       degree
   2       numberknots
   3       difforder
@@ -23,6 +23,11 @@ vector<ST::string> & vn)
   5       a
   6       b
   7       center
+  8       map
+  9       lambda_re
+  10      a_re
+  11      b_re
+  12      internal_mult
   */
 
   int f;
@@ -30,6 +35,7 @@ vector<ST::string> & vn)
   datanames = vn;
 
   }
+
 
 DESIGN_hrandom::DESIGN_hrandom(void)
   {

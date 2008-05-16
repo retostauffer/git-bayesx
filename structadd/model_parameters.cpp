@@ -21,7 +21,9 @@ term_nonp::term_nonp(vector<ST::string> & na)
   lambda_re = doubleoption("lambda_re",0.1,0,10000000);
   a_re = doubleoption("a_re",0.001,-1.0,500);
   b_re = doubleoption("b_re",0.001,0,500);
+  internal_mult = simpleoption("internal_mult",false);
   }
+
 
 void term_nonp::setdefault(void)
   {
@@ -36,6 +38,7 @@ void term_nonp::setdefault(void)
   lambda_re.setdefault();
   a_re.setdefault();
   b_re.setdefault();
+  internal_mult.setdefault();
   }
 
 
@@ -97,6 +100,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&lambda_re);
     optlist.push_back(&a_re);
     optlist.push_back(&b_re);
+    optlist.push_back(&internal_mult);
 
 
     unsigned i;
@@ -143,6 +147,12 @@ bool term_nonp::check(term & t)
     t.options[10] = ST::doubletostring(a_re.getvalue());
 
     t.options[11] = ST::doubletostring(b_re.getvalue());
+
+    if(internal_mult.getvalue() == false)
+      t.options[12] = "false";
+    else
+      t.options[12] = "true";
+
 
     setdefault();
     return true;

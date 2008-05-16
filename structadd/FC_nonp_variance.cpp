@@ -84,10 +84,15 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   designp = m.designp;
   a_invgamma = m.a_invgamma;
   b_invgamma = m.b_invgamma;
-  lambdastart = m.lambdastart;  
+  lambdastart = m.lambdastart;
   return *this;
   }
 
+  
+void FC_nonp_variance::transform_beta(void)
+  {
+  transform(0,0) = pow(likep->trmult,2);
+  }
 
 void FC_nonp_variance::update(void)
   {
@@ -106,7 +111,7 @@ void FC_nonp_variance::update(void)
   FCnonpp->tau2 = beta(0,0);
   FCnonpp->lambda = beta(0,1);
 
-  transform(0,0) = pow(likep->trmult,2);
+  transform_beta();
   acceptance++;
   FC::update();
   }
@@ -120,7 +125,7 @@ bool FC_nonp_variance::posteriormode(void)
   FCnonpp->tau2 = beta(0,0);
   FCnonpp->lambda = beta(0,1);
 
-  transform(0,0) = pow(likep->trmult,2);
+  transform_beta();
   return FC::posteriormode();
   }
 

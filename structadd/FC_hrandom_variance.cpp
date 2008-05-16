@@ -11,6 +11,43 @@ namespace MCMC
 {
 
 
+void FC_hrandom_variance::read_options(vector<ST::string> & op)
+  {
+
+  int f;
+
+  /*
+  1       degree
+  2       numberknots
+  3       difforder
+  4       lambda
+  5       a
+  6       b
+  7       center
+  8       map
+  9       lambda_re
+  10      a_re
+  11      b_re
+  12      internal_mult
+  */
+
+  FC_nonp_variance::read_options(op);
+
+  if (op[12] == "true")
+    {
+    mult =true;
+    f = op[9].strtodouble(lambdastart);
+    f = op[10].strtodouble(a_invgamma);
+    f = op[11].strtodouble(b_invgamma);
+    }
+  else
+    {
+    mult = false;
+    }
+
+  }
+
+
 FC_hrandom_variance::FC_hrandom_variance(void)
   {
 
@@ -23,6 +60,7 @@ FC_hrandom_variance::FC_hrandom_variance(GENERAL_OPTIONS * o,DISTR * lp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op)
      : FC_nonp_variance(o,lp,t,fp,Dp,FCn,op)
   {
+  read_options(op);
   likepRE = lpRE;
   }
 
@@ -31,6 +69,7 @@ FC_hrandom_variance::FC_hrandom_variance(const FC_hrandom_variance & m)
   : FC_nonp_variance(FC_nonp_variance(m))
   {
   likepRE = m.likepRE;
+  mult = m.mult;
   }
 
 
@@ -42,6 +81,7 @@ const FC_hrandom_variance & m)
 	 return *this;
   FC_nonp_variance::operator=(FC_nonp_variance(m));
   likepRE = m.likepRE;
+  mult = m.mult;
   return *this;
   }
 
@@ -73,6 +113,15 @@ double FC_hrandom_variance::compute_quadform(void)
   }
 
 
+void FC_hrandom_variance::transform_beta(void)
+  {
+  if (mult)
+    transform(0,0) = 1;
+  else
+    FC_nonp_variance::transform_beta();  
+  }
+
+
 void FC_hrandom_variance::update(void)
   {
 
@@ -84,7 +133,7 @@ void FC_hrandom_variance::update(void)
   FCnonpp->tau2 = beta(0,0);
   FCnonpp->lambda = beta(0,1);
 
-  transform(0,0) = pow(likep->trmult,2);
+  transform_beta();
   acceptance++;
   FC::update();
 

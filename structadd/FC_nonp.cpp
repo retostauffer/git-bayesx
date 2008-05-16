@@ -110,16 +110,20 @@ void FC_nonp::update(void)
 
   betadiff.minus(beta,betaold);
 
-
   designp->update_linpred(betadiff,true);
 
   acceptance++;
 
-  transform(0,0) = likep->trmult;
+  transform_beta();
 
   FC::update();
   }
 
+
+void FC_nonp::transform_beta(void)
+  {
+  transform(0,0) = likep->trmult;
+  }
 
 bool FC_nonp::posteriormode(void)
   {
@@ -189,7 +193,8 @@ bool FC_nonp::posteriormode(void)
 
   designp->update_linpred(betadiff,true);
 
-  transform(0,0) = likep->trmult;
+  transform_beta();
+
   return FC::posteriormode();
 
   }
