@@ -199,7 +199,12 @@ bool FC_nonp::posteriormode(void)
 
   }
 
-
+void FC_nonp::outoptions(void)
+  {
+  optionsp->out("  OPTIONS FOR TERM: " + title + "\n",true);
+  optionsp->out("\n");
+  designp->outoptions(optionsp);
+  }
 
 void FC_nonp::outresults(const ST::string & pathresults)
   {

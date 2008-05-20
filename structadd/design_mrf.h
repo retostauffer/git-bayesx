@@ -79,6 +79,8 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
 
   void compute_precision(double l);
 
+  void outoptions(GENERAL_OPTIONS * op);  
+
   // DESTRUCTOR
 
   ~DESIGN_mrf() {}

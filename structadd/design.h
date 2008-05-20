@@ -286,6 +286,8 @@ class __EXPORT_TYPE DESIGN
 
   virtual void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
+  virtual void outoptions(GENERAL_OPTIONS * op);  
+
   // --------------------- END: VIRTUAL FUNCTIONS ------------------------------
 
   // DESTRUCTOR

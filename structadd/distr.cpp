@@ -597,6 +597,15 @@ bool DISTR_gaussian_re::posteriormode(void)
   return true;
   }
 
+void DISTR_gaussian_re::outoptions(void)
+  {
+  optionsp->out("RANDOM EFFECTS DISTRIBUTION:\n",true);
+  optionsp->out("\n");
+  optionsp->out("  Family: " + family + "\n");
+  optionsp->out("  Number of clusters: " + ST::inttostring(nrobs) + "\n");
+  optionsp->out("\n");  
+  }
+
 
 void DISTR_gaussian_re::outresults(ST::string pathresults)
   {

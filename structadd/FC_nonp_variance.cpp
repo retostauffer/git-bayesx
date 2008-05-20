@@ -273,7 +273,11 @@ void FC_nonp_variance::outresults(const ST::string & pathresults)
 
 void FC_nonp_variance::outoptions(void)
   {
-
+  optionsp->out("  Hyperprior a for variance parameter: " +
+                ST::doubletostring(a_invgamma) + "\n" );
+  optionsp->out("  Hyperprior b for variance parameter: " +
+                ST::doubletostring(b_invgamma) + "\n" );
+  optionsp->out("\n");
   }
 
 

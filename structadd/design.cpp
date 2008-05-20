@@ -976,6 +976,12 @@ void DESIGN::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   }
 
 
+void DESIGN::outoptions(GENERAL_OPTIONS * op)
+  {
+
+  }
+
+
 } // end: namespace MCMC
 
 

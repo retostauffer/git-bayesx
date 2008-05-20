@@ -298,6 +298,11 @@ void DESIGN_mrf::compute_precision(double l)
 
   }
 
+  
+void DESIGN_mrf::outoptions(GENERAL_OPTIONS * op)
+  {
+
+  }
 
 } // end: namespace MCMC
 

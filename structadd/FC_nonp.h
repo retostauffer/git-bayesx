@@ -97,9 +97,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // FUNCTION: outoptions
   // TASK: writes estimation options (hyperparameters, etc.) to outputstream
 
-  void outoptions(void)
-    {
-    }
+  void outoptions(void);
 
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file

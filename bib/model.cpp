@@ -528,6 +528,11 @@ term_autoreg::term_autoreg(void)
   alpha = doubleoption("alpha",0.9,-1.0,1.0);
   alphafix = simpleoption("alphafix",false);
   center=simpleoption("center",false);
+  vector<ST::string> adm_centerm;
+  adm_centerm.push_back("mean");
+  adm_centerm.push_back("samplecentered");
+  adm_centerm.push_back("meanintercept");
+  centermethod = stroption("centermethod",adm_centerm,"mean");
   }
 
 void term_autoreg::setdefault(void)
@@ -551,6 +556,7 @@ void term_autoreg::setdefault(void)
   stationary.setdefault();
   alphafix.setdefault();
   center.setdefault();
+  centermethod.setdefault();
   }
 
 
@@ -558,7 +564,7 @@ bool term_autoreg::check(term & t)
   {
 
   if ( (t.varnames.size() <= 2) && (t.varnames.size() >= 1) &&
-       (t.options.size()<=20) && (t.options.size() >= 1) )
+       (t.options.size()<=21) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "rw1" && t.varnames.size() == 1)
@@ -611,7 +617,7 @@ bool term_autoreg::check(term & t)
     optlist.push_back(&alpha);
     optlist.push_back(&alphafix);
     optlist.push_back(&center);
-
+    optlist.push_back(&centermethod);
 
     unsigned i;
     bool rec = true;
@@ -636,7 +642,7 @@ bool term_autoreg::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(20);
+    t.options = vector<ST::string>(21);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(min.getvalue());
     t.options[2] = ST::inttostring(max.getvalue());
@@ -671,6 +677,7 @@ bool term_autoreg::check(term & t)
     else
       t.options[19] = "true";
 
+    t.options[20] = centermethod.getvalue();
 
     if (t.options[1].strtolong(minim) == 1)
       {
@@ -1020,6 +1027,11 @@ term_pspline::term_pspline(void)
   discretize = simpleoption("discretize", false);
   digits = intoption("digits",2,0,5);
   nobs = intoption("nobs",0,0,10000000);
+  vector<ST::string> adm_centerm;
+  adm_centerm.push_back("mean");
+  adm_centerm.push_back("samplecentered");
+  adm_centerm.push_back("meanintercept");
+  centermethod = stroption("centermethod",adm_centerm,"mean");
   }
 
 void term_pspline::setdefault(void)
@@ -1053,9 +1065,6 @@ void term_pspline::setdefault(void)
   stationary.setdefault();
   alphafix.setdefault();
   knots.setdefault();
-//  lambdamin.setdefault();
-//  lambdamax.setdefault();
-//  lambdastart.setdefault();
   lowerknot.setdefault();
   upperknot.setdefault();
   merrorvar.setdefault();
@@ -1064,13 +1073,14 @@ void term_pspline::setdefault(void)
   discretize.setdefault();
   digits.setdefault();
   nobs.setdefault();
+  centermethod.setdefault();
   }
 
 bool term_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 38) )
+        && (t.options.size() <= 39) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -1128,9 +1138,6 @@ bool term_pspline::check(term & t)
     optlist.push_back(&alpha);
     optlist.push_back(&alphafix);
     optlist.push_back(&knots);
-//    optlist.push_back(&lambdamin);
-//    optlist.push_back(&lambdamax);
-//    optlist.push_back(&lambdastart);
     optlist.push_back(&lowerknot);
     optlist.push_back(&upperknot);
     optlist.push_back(&merrorvar);
@@ -1139,6 +1146,8 @@ bool term_pspline::check(term & t)
     optlist.push_back(&discretize);
     optlist.push_back(&digits);
     optlist.push_back(&nobs);
+    optlist.push_back(&centermethod);    
+
 
     unsigned i;
     bool rec = true;
@@ -1163,7 +1172,7 @@ bool term_pspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(38);
+   t.options = vector<ST::string>(39);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -1221,9 +1230,6 @@ bool term_pspline::check(term & t)
    else
      t.options[28] = "true";
    t.options[29] = knots.getvalue();
-//    t.options[40] = ST::doubletostring(lambdamin.getvalue());
-//    t.options[21] = ST::doubletostring(lambdamax.getvalue());
-//    t.options[22] = ST::doubletostring(lambdastart.getvalue());
     t.options[30] = ST::doubletostring(lowerknot.getvalue());
     t.options[31] = ST::doubletostring(upperknot.getvalue());
     t.options[32] = ST::doubletostring(merrorvar.getvalue());
@@ -1235,6 +1241,8 @@ bool term_pspline::check(term & t)
      t.options[35] = "true";
    t.options[36] = ST::inttostring(digits.getvalue());
    t.options[37] = ST::inttostring(nobs.getvalue());
+
+   t.options[38] = centermethod.getvalue();
 
    if (t.options[1].strtolong(minim) == 1)
      {
@@ -1266,32 +1274,6 @@ bool term_pspline::check(term & t)
      return false;
      }
 
-    // stepwise
-/*
-    int b = t.options[20].strtodouble(minl);
-    b = t.options[21].strtodouble(maxl);
-    b = t.options[22].strtodouble(startl);
-
-    if (b==1)
-      {
-      setdefault();
-      return false;
-      }
-
-
-    if (minl >= maxl)
-      {
-      setdefault();
-      return false;
-      }
-
-    if (maxl < startl)
-      {
-      setdefault();
-      return false;
-      }
-*/
-    // END: stepwise
 
     setdefault();
     return true;
@@ -1337,6 +1319,11 @@ term_spatial::term_spatial(void)
   alpha = doubleoption("alpha",0.9,-1.0,1.0);
   alphafix = simpleoption("alphafix",false);
   center = simpleoption("center",false);
+  vector<ST::string> adm_centerm;
+  adm_centerm.push_back("mean");
+  adm_centerm.push_back("samplecentered");
+  adm_centerm.push_back("meanintercept");
+  centermethod = stroption("centermethod",adm_centerm,"mean");
   }
 
 void term_spatial::setdefault(void)
@@ -1361,6 +1348,7 @@ void term_spatial::setdefault(void)
   stationary.setdefault();
   alphafix.setdefault();
   center.setdefault();
+  centermethod.setdefault();
   }
 
 
@@ -1368,7 +1356,7 @@ bool term_spatial::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size()>=1) &&
-       (t.options.size()<=21) && (t.options.size() >= 1) )
+       (t.options.size()<=22) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "spatial" && t.varnames.size()==1)
@@ -1409,7 +1397,8 @@ bool term_spatial::check(term & t)
     optlist.push_back(&stationary);
     optlist.push_back(&alpha);
     optlist.push_back(&alphafix);
-    optlist.push_back(&center);    
+    optlist.push_back(&center);
+    optlist.push_back(&centermethod);
 
     unsigned i;
     bool rec = true;
@@ -1434,7 +1423,7 @@ bool term_spatial::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(21);
+    t.options = vector<ST::string>(22);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::inttostring(min.getvalue());
@@ -1474,6 +1463,8 @@ bool term_spatial::check(term & t)
       t.options[20] = "false";
     else
       t.options[20] = "true";
+
+    t.options[21] = centermethod.getvalue();
 
     if (t.options[2].strtolong(minim) == 1)
       {
@@ -1538,6 +1529,11 @@ term_spatialxy::term_spatialxy(void)
   a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   maxdist = doubleoption("maxdist",1,0,100000000);
+  vector<ST::string> adm_centerm;
+  adm_centerm.push_back("mean");
+  adm_centerm.push_back("samplecentered");
+  adm_centerm.push_back("meanintercept");
+  centermethod = stroption("centermethod",adm_centerm,"mean");
   }
 
 void term_spatialxy::setdefault(void)
@@ -1548,12 +1544,13 @@ void term_spatialxy::setdefault(void)
   a.setdefault();
   b.setdefault();
   maxdist.setdefault();
+  centermethod.setdefault();
   }
 
 bool term_spatialxy::check(term & t)
   {
 
-  if ( (t.varnames.size()==2)  && (t.options.size()<=7) &&
+  if ( (t.varnames.size()==2)  && (t.options.size()<=8) &&
        (t.options.size() >= 1) )
     {
 
@@ -1575,6 +1572,7 @@ bool term_spatialxy::check(term & t)
     optlist.push_back(&a);
     optlist.push_back(&b);
     optlist.push_back(&maxdist);
+    optlist.push_back(&centermethod);
 
     unsigned i;
     bool rec = true;
@@ -1607,6 +1605,7 @@ bool term_spatialxy::check(term & t)
     t.options[4] = ST::doubletostring(a.getvalue());
     t.options[5] = ST::doubletostring(b.getvalue());
     t.options[6] = ST::doubletostring(maxdist.getvalue());
+    t.options[7] = centermethod.getvalue();
 
     maxim=max.getvalue();
     minim=min.getvalue();
@@ -1778,7 +1777,7 @@ bool term_geokriging::check(term & t)
     if (uniformprior.getvalue() == false)
       t.options[18] = "false";
     else
-      t.options[18] = "true";  
+      t.options[18] = "true";
 
     setdefault();
     return true;
@@ -1821,6 +1820,12 @@ term_interactpspline::term_interactpspline(void)
   uniformprior = simpleoption("uniformprior",false);
   blocksize=intoption("blocksize",6,2,100);
   center=simpleoption("center",false);
+  vector<ST::string> adm_centerm;
+  adm_centerm.push_back("mean");
+  adm_centerm.push_back("samplecentered");
+  adm_centerm.push_back("meanintercept");
+  centermethod = stroption("centermethod",adm_centerm,"mean");
+
   }
 
 
@@ -1843,6 +1848,7 @@ void term_interactpspline::setdefault(void)
   uniformprior.setdefault();
   blocksize.setdefault();
   center.setdefault();
+  centermethod.setdefault();
   }
 
 bool term_interactpspline::check(term & t)
@@ -1866,10 +1872,11 @@ bool term_interactpspline::check(term & t)
   optlist.push_back(&uniformprior);
   optlist.push_back(&blocksize);
   optlist.push_back(&center);
+  optlist.push_back(&centermethod);
 
 
   if ( (t.varnames.size()<=3)  && (t.options.size() >= 1)
-        && (t.options.size() <= 18) )
+        && (t.options.size() <= 19) )
     {
 
     if (t.options[0] == "pspline2dimrw1" && t.varnames.size()==2)
@@ -1928,7 +1935,7 @@ bool term_interactpspline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(18);
+   t.options = vector<ST::string>(19);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -1963,7 +1970,7 @@ bool term_interactpspline::check(term & t)
    else
      t.options[17] = "true";
 
-
+   t.options[18] = centermethod.getvalue();
 
    if (t.options[1].strtolong(minim) == 1)
      {
@@ -2042,6 +2049,11 @@ term_geospline::term_geospline(void)
   updatetau = simpleoption("updatetau",false);
   f = doubleoption("f",2,0,10000000);
   uniformprior = simpleoption("uniformprior",false);
+  vector<ST::string> adm_centerm;
+  adm_centerm.push_back("mean");
+  adm_centerm.push_back("samplecentered");
+  adm_centerm.push_back("meanintercept");
+  centermethod = stroption("centermethod",adm_centerm,"mean");
   }
 
 
@@ -2062,13 +2074,14 @@ void term_geospline::setdefault(void)
   updatetau.setdefault();
   f.setdefault();
   uniformprior.setdefault();
+  centermethod.setdefault();
   }
 
 bool term_geospline::check(term & t)
   {
 
   if ( (t.varnames.size()==1)  && (t.options.size() >= 1)
-        && (t.options.size() <= 16) )
+        && (t.options.size() <= 17) )
     {
 
     if (t.options[0] == "geospline")
@@ -2101,8 +2114,7 @@ bool term_geospline::check(term & t)
     optlist.push_back(&updatetau);
     optlist.push_back(&f);
     optlist.push_back(&uniformprior);
-
-
+    optlist.push_back(&centermethod);
 
     unsigned i;
 
@@ -2128,7 +2140,7 @@ bool term_geospline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(16);
+   t.options = vector<ST::string>(17);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -2158,6 +2170,7 @@ bool term_geospline::check(term & t)
    else
      t.options[15] = "true";
 
+   t.options[20] = centermethod.getvalue();
 
    t.options[1].strtolong(minim);
    t.options[2].strtolong(maxim);
@@ -2414,6 +2427,11 @@ term_varcoeff_geospline::term_varcoeff_geospline(void)
   f = doubleoption("f",2,0,10000000);
   uniformprior = simpleoption("uniformprior",false);
   center = simpleoption("center",false);
+  vector<ST::string> adm_centerm;
+  adm_centerm.push_back("mean");
+  adm_centerm.push_back("samplecentered");
+  adm_centerm.push_back("meanintercept");
+  centermethod = stroption("centermethod",adm_centerm,"mean");
   }
 
 
@@ -2435,13 +2453,14 @@ void term_varcoeff_geospline::setdefault(void)
   f.setdefault();
   uniformprior.setdefault();
   center.setdefault();
+  centermethod.setdefault();
   }
 
 bool term_varcoeff_geospline::check(term & t)
   {
 
   if ( (t.varnames.size()==2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 17) )
+        && (t.options.size() <= 18) )
     {
 
     if (t.options[0] == "geospline")
@@ -2471,6 +2490,7 @@ bool term_varcoeff_geospline::check(term & t)
     optlist.push_back(&f);
     optlist.push_back(&uniformprior);
     optlist.push_back(&center);
+    optlist.push_back(&centermethod);
 
     unsigned i;
 
@@ -2496,7 +2516,7 @@ bool term_varcoeff_geospline::check(term & t)
       }
 
    t.options.erase(t.options.begin(),t.options.end());
-   t.options = vector<ST::string>(17);
+   t.options = vector<ST::string>(18);
    t.options[0] = t.type;
    t.options[1] = ST::inttostring(min.getvalue());
    t.options[2] = ST::inttostring(max.getvalue());
@@ -2530,6 +2550,8 @@ bool term_varcoeff_geospline::check(term & t)
      t.options[16] = "false";
    else
      t.options[16] = "true";
+
+    t.options[17] = centermethod.getvalue();     
 
    t.options[1].strtolong(minim);
    t.options[2].strtolong(maxim);
@@ -2604,6 +2626,12 @@ term_varcoeff_pspline::term_varcoeff_pspline(void)
   knotsdef.push_back("quantiles");
   knots = stroption("knots",knotsdef,"equidistant");
   center = simpleoption("center",false);
+  vector<ST::string> adm_centerm;
+  adm_centerm.push_back("mean");
+  adm_centerm.push_back("samplecentered");
+  adm_centerm.push_back("meanintercept");
+  centermethod = stroption("centermethod",adm_centerm,"mean");
+
   }
 
 
@@ -2629,6 +2657,7 @@ void term_varcoeff_pspline::setdefault(void)
   beta_0.setdefault();
   knots.setdefault();
   center.setdefault();
+  centermethod.setdefault();
   }
 
 
@@ -2636,7 +2665,7 @@ bool term_varcoeff_pspline::check(term & t)
   {
 
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-        && (t.options.size() <= 21) )
+        && (t.options.size() <= 22) )
     {
 
     if (t.options[0] == "psplinerw1")
@@ -2670,6 +2699,7 @@ bool term_varcoeff_pspline::check(term & t)
     optlist.push_back(&beta_0);
     optlist.push_back(&knots);
     optlist.push_back(&center);
+    optlist.push_back(&centermethod);
 
     unsigned i;
     bool rec = true;
@@ -2694,7 +2724,7 @@ bool term_varcoeff_pspline::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(21);
+    t.options = vector<ST::string>(22);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(min.getvalue());
     t.options[2] = ST::inttostring(max.getvalue());
@@ -2732,6 +2762,7 @@ bool term_varcoeff_pspline::check(term & t)
     else
       t.options[20] = "true";
 
+    t.options[21] = centermethod.getvalue();      
 
     if ( contourprob.getvalue()-1 > degree.getvalue())
       {
@@ -2790,10 +2821,18 @@ term_varcoeff_merror::term_varcoeff_merror(void)
   knotsdef.push_back("quantiles");
   knots = stroption("knots",knotsdef,"equidistant");
   center = simpleoption("center",false);
+  vector<ST::string> adm_centerm;
+  adm_centerm.push_back("mean");
+  adm_centerm.push_back("samplecentered");
+  adm_centerm.push_back("meanintercept");
+  centermethod = stroption("centermethod",adm_centerm,"mean");
+  
 
   // SUSI: initialize new option
   // Syntax : doubleoption("name", default, lower limit, upper limit)
   merrorvar = doubleoption("merrorvar",0.5,0.0,10000000);
+
+
   }
 
 
@@ -2819,6 +2858,7 @@ void term_varcoeff_merror::setdefault(void)
   beta_0.setdefault();
   knots.setdefault();
   center.setdefault();
+  centermethod.setdefault();
 
   // SUSI: call setdefault() for new option
   merrorvar.setdefault();
@@ -2830,7 +2870,7 @@ bool term_varcoeff_merror::check(term & t)
 
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
 // SUSI: Adjust options.size()
-        && (t.options.size() <= 22) )
+        && (t.options.size() <= 23) )
     {
 
     if (t.options[0] == "merrorrw1")
@@ -2865,8 +2905,11 @@ bool term_varcoeff_merror::check(term & t)
     optlist.push_back(&knots);
     optlist.push_back(&center);
 
+
     // SUSI: add option to options list
     optlist.push_back(&merrorvar);
+
+    optlist.push_back(&centermethod);
 
     unsigned i;
     bool rec = true;
@@ -2892,7 +2935,7 @@ bool term_varcoeff_merror::check(term & t)
 
     t.options.erase(t.options.begin(),t.options.end());
     // SUSI: Adjust length of options
-    t.options = vector<ST::string>(22);
+    t.options = vector<ST::string>(23);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(min.getvalue());
     t.options[2] = ST::inttostring(max.getvalue());
@@ -2932,6 +2975,8 @@ bool term_varcoeff_merror::check(term & t)
 
     // SUSI: Add new option
     t.options[21] = ST::doubletostring(merrorvar.getvalue());
+
+    t.options[22] = centermethod.getvalue();
 
     if ( contourprob.getvalue()-1 > degree.getvalue())
       {
@@ -3306,7 +3351,7 @@ bool term_randomslope::check(term & t)
 term_random::term_random(void)
   {
   type = "term_random";
-  lambda = doubleoption("lambda",100000,0,10000000);
+  lambda = doubleoption("lambda",100,0,10000000);
   a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
@@ -3421,7 +3466,7 @@ bool term_random::check(term & t)
 term_hrandom::term_hrandom(void)
   {
   type = "term_hrandom";
-  lambda = doubleoption("lambda",100000,0,10000000);
+  lambda = doubleoption("lambda",100,0,10000000);
   a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   vector<ST::string> adm_prop;
@@ -4003,6 +4048,8 @@ const modelterm & modelterm::operator=(const modelterm & m)
 void modelterm::parse(const ST::string & m)
   {
 
+  terms.erase(terms.begin(),terms.end());
+
   model::parse(m);
   ST::string mod;
   mod = m.eatallwhitespace();
@@ -4011,7 +4058,7 @@ void modelterm::parse(const ST::string & m)
   vector<ST::string> token = mod.strtoken2("=",bracketmiss);
   if (bracketmiss==true)
     errormessages.push_back("ERROR: missing brackets\n");
-  else if (token.size() != 2)
+  else if (token.size() > 2 || token.size() < 1)
     errormessages.push_back("ERROR: invalid model specification\n");
   else
     {
@@ -4025,7 +4072,7 @@ void modelterm::parse(const ST::string & m)
     }
 
 
-  if (errormessages.empty())
+  if (errormessages.empty() && token.size()==2)
     {
     token = token[1].strtoken("+",false);
     terms = vector<term>(token.size());

@@ -338,6 +338,31 @@ void DESIGN_pspline::compute_precision(double l)
   */
   }
 
+void DESIGN_pspline::outoptions(GENERAL_OPTIONS * op)
+  {
+
+  ST::string typestr;
+
+ if (type == RW1)
+    typestr = "first order random walk";
+  else if (type == RW2)
+    typestr = "second order random walk";
+  else if (type == RW3)
+    typestr = "third order random walk";
+
+  ST::string centerm;
+
+  if (center==false)
+    centerm = "uncentered sampling";
+  else
+    centerm = "centered sampling";
+
+  op->out("  Prior: " + typestr + "\n");
+  op->out("  Number of knots: " + ST::inttostring(nrknots) + "\n" );
+  op->out("  Degree of Splines: " + ST::inttostring(degree) + "\n" );
+  op->out("  " + centerm + "\n" );
+  op->out("\n");
+  }
 
 } // end: namespace MCMC
 

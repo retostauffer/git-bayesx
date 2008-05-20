@@ -329,6 +329,11 @@ void DESIGN_hrandom::compute_precision(double l)
   }
 
 
+void DESIGN_hrandom::outoptions(GENERAL_OPTIONS * op)
+  {
+
+  }
+
 
 } // end: namespace MCMC
 

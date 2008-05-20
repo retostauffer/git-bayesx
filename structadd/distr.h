@@ -308,6 +308,8 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
 
   void outresults(ST::string pathresults="");  
 
+  void outoptions(void);
+
   };
 
 

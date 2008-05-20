@@ -568,6 +568,7 @@ class __EXPORT_TYPE term_autoreg : public basic_termtype
   doubleoption alpha;
   simpleoption alphafix;
   simpleoption center;
+  stroption centermethod;
 
   void setdefault(void);
 
@@ -639,6 +640,7 @@ class __EXPORT_TYPE term_season : public basic_termtype
   doubleoption lambdastart;
   simpleoption uniformprior;
   simpleoption center;
+  stroption centermode;
 
   void setdefault(void);
 
@@ -721,6 +723,7 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
   simpleoption discretize;
   intoption digits;
   intoption nobs;
+  stroption centermethod;
 
   void setdefault(void);
 
@@ -763,12 +766,6 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
 //--------------------------- class term_spatial -------------------------------
 //------------------------------------------------------------------------------
 
-/*
-class __EXPORT_TYPE term_varcoeff_spatial : public basic_termtype
-  {
-
-  };
-*/
 
 class __EXPORT_TYPE term_spatial : public basic_termtype
   {
@@ -796,6 +793,7 @@ class __EXPORT_TYPE term_spatial : public basic_termtype
   doubleoption alpha;
   simpleoption alphafix;
   simpleoption center;
+  stroption centermethod;
 
   void setdefault(void);
 
@@ -848,6 +846,7 @@ class __EXPORT_TYPE term_spatialxy : public basic_termtype
   doubleoption a;
   doubleoption b;
   doubleoption maxdist;
+  stroption centermethod;
 
   void setdefault(void);
 
@@ -912,6 +911,7 @@ class __EXPORT_TYPE term_geokriging : public basic_termtype
   simpleoption updatetau;
   doubleoption f;
   simpleoption uniformprior;
+  stroption centermethod;
 
   void setdefault(void);
 
@@ -964,7 +964,6 @@ class __EXPORT_TYPE term_randomslope : public basic_termtype
   simpleoption updatetau;
   simpleoption uniformprior;
   simpleoption constlambda;
-
 
   void setdefault(void);
 
@@ -1124,7 +1123,7 @@ class __EXPORT_TYPE term_mixture : public basic_termtype
   doubleoption vpriorb;
   simpleoption nosamples;
   intoption aclag;
-  stroption order;  
+  stroption order;
   simpleoption vpriorbunif;
   simpleoption vpriorbgamma;
 
@@ -1232,6 +1231,7 @@ class __EXPORT_TYPE term_interactpspline : public basic_termtype
   simpleoption uniformprior;
   intoption blocksize;
   simpleoption center;
+  stroption centermethod;
 
   void setdefault(void);
 
@@ -1281,6 +1281,7 @@ class __EXPORT_TYPE term_geospline : public basic_termtype
   simpleoption updatetau;
   doubleoption f;
   simpleoption uniformprior;
+  stroption centermethod;
 
   void setdefault(void);
 
@@ -1381,6 +1382,7 @@ class __EXPORT_TYPE term_varcoeff_geospline : public basic_termtype
   doubleoption f;
   simpleoption uniformprior;
   simpleoption center;
+  stroption centermethod;
 
   void setdefault(void);
 
@@ -1437,6 +1439,7 @@ class __EXPORT_TYPE term_varcoeff_pspline : public basic_termtype
   stroption beta_0;
   stroption knots;
   simpleoption center;
+  stroption centermethod;
 
   void setdefault(void);
 
@@ -1501,6 +1504,7 @@ class __EXPORT_TYPE term_varcoeff_merror : public basic_termtype
   stroption beta_0;
   stroption knots;
   simpleoption center;
+  stroption centermethod;
 
   //SUSI: add new option
   doubleoption merrorvar;

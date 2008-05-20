@@ -88,7 +88,6 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   void outresults(const ST::string & pathresults);
 
-
   };
 
 

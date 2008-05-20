@@ -153,11 +153,9 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
   unsigned it;
   unsigned iterations = genoptions->iterations;
 
-
   for (i=0;i<nrmodels;i++)
     {
 
-    genoptions->out("\n");
     genoptions->out("\n");
     genoptions->out(equations[nrmodels-1-i].header +
     "\n",true,false,16);
@@ -170,25 +168,29 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
 
     equations[nrmodels-1-i].distrp->outoptions();
 
-    genoptions->out("OPTIONS FOR ESTIMATION:\n",true);
-    genoptions->out("\n");
-    for(j=0;j<equations[nrmodels-1-i].FCpointer.size();j++)
+    if (equations[nrmodels-1-i].FCpointer.size() > 0)
       {
-      equations[nrmodels-1-i].FCpointer[j]->outoptions();
-      }
-    genoptions->out("\n");
-    genoptions->out("MCMC SIMULATION STARTED\n",true);
-    genoptions->out("\n");
+      genoptions->out("OPTIONS FOR ESTIMATION:\n",true);
+      genoptions->out("\n");
 
+      for(j=0;j<equations[nrmodels-1-i].FCpointer.size();j++)
+        {
+        equations[nrmodels-1-i].FCpointer[j]->outoptions();
+        }
+      genoptions->out("\n");
+      }
     }
+    
+  genoptions->out("MCMC SIMULATION STARTED\n",true);
+  genoptions->out("\n");
 
   //--------------- Compute posterior mode as starting value -------------------
-
 
   if (computemode)
     {
 
-    genoptions->out("Computing starting values (may take some time)");
+    genoptions->out("  COMPUTING STARTING VALUES (MAY TAKE SOME TIME)");
+    genoptions->out("\n");
 
     bool c = posteriormode(true);
     }
@@ -281,7 +283,7 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
 
     if (Frame->stop)
       {
-//      genoptions->out("USER BREAK\n");
+      genoptions->out("USER BREAK\n");
       break;
       }
 
@@ -380,6 +382,7 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
       genoptions->out("Estimation results: none\n");
       genoptions->out("\n");
 
+/*
       for(i=0;i<nrmodels;i++)
         {
 
@@ -391,7 +394,7 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
           } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
 
         }
-
+*/
       return true;
       }
 #elif defined(JAVA_OUTPUT_WINDOW)
@@ -438,18 +441,17 @@ bool MCMCsim::posteriormode(const bool & presim)
   for (i=0;i<nrmodels;i++)
     {
 
-    if (equations[nrmodels-1-i].header !="")
-      {
-      genoptions->out("\n");
-      genoptions->out("\n");
-      genoptions->out(equations[nrmodels-1-i].header + "\n",true,false,16);
-
-      genoptions->out("\n");
-      }
-
-
     if (!presim)
       {
+
+      if (equations[nrmodels-1-i].header !="")
+        {
+        genoptions->out("\n");
+        genoptions->out("\n");
+        genoptions->out(equations[nrmodels-1-i].header + "\n",true,false,16);
+
+        genoptions->out("\n");
+        }
 
       genoptions->out("RESPONSE DISTRIBUTION:\n",true);
       genoptions->out("\n");
