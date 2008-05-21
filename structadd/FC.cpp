@@ -192,13 +192,6 @@ void FC::setbeta(const datamatrix & betanew)
 
 
 
-void FC::reset(void)
-  {
-
-  setbeta(beta.rows(),beta.cols(),0);
-  acceptance = 0;
-  nrtrials = 0;
-  }
 
 
 
@@ -548,6 +541,20 @@ void FC::outresults(const ST::string & pathresults)
     }  // if (optionsp->get_samplesize() > 0)
   }
 
+
+void FC::reset(void)
+  {
+
+  setbeta(beta.rows(),beta.cols(),0);
+  acceptance = 0;
+  nrtrials = 0;
+  if (nosamples==false)
+    {
+    samplestream.close();
+    remove(samplepath.strtochar());
+    }
+
+  }
 
 
 } // end: namespace MCMC

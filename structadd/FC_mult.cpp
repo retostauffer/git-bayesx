@@ -24,12 +24,15 @@ void FC_mult::set_intp(DESIGN * d,FC_nonp * fp)
 
 
 void FC_mult::set_multeffects(GENERAL_OPTIONS * o,const ST::string & t,
-           const ST::string & fp)
+           const ST::string & fp,bool sm)
   {
 
   unsigned rows = dp1->Zout.rows()*dp2->Zout.rows();
 
-  FCmulteffect = FC(o,t,rows,1,fp);
+  samplemult = sm;
+
+  if (samplemult)
+    FCmulteffect = FC(o,t,rows,1,fp);
 
   }
 
@@ -38,12 +41,15 @@ void FC_mult::set_multeffects(GENERAL_OPTIONS * o,const ST::string & t,
 FC_mult::FC_mult(void)
   {
   nosamples = true;
+  samplemult = false;
   }
 
 
 FC_mult::FC_mult(bool reu)
      : FC()
   {
+  nosamples = true;
+  samplemult = false;
   RE_update = reu;
   }
 
@@ -52,7 +58,7 @@ FC_mult::FC_mult(const FC_mult & m)
   : FC(FC(m))
   {
   FCmulteffect = m.FCmulteffect;
-  nosamples = true;
+  samplemult = m.samplemult;
   dp1 = m.dp1;
   dp2 = m.dp2;
   FCnp = m.FCnp;
@@ -70,6 +76,7 @@ const FC_mult & FC_mult::operator=(const FC_mult & m)
 	 return *this;
   FC::operator=(FC(m));
   FCmulteffect = m.FCmulteffect;
+  samplemult = m.samplemult;
   dp1 = m.dp1;
   dp2 = m.dp2;
   FCnp = m.FCnp;
@@ -96,7 +103,7 @@ void FC_mult::update(void)
   dp2->compute_effect(effect,FCnp->beta,MCMC::Function);
   dp1->set_intvar(effect,add);
 
-  if (RE_update==false)
+  if ((RE_update==false) && (samplemult))
     {
     update_multeffect();
     FCmulteffect.acceptance++;
@@ -147,7 +154,7 @@ bool FC_mult::posteriormode(void)
   dp2->compute_effect(effect,FCnp->beta,MCMC::Function);
   dp1->set_intvar(effect,add);
 
-  if (RE_update==false)
+  if ((RE_update==false) && (samplemult))
     {
     update_multeffect();
     bool h = FCmulteffect.posteriormode();
@@ -159,7 +166,7 @@ bool FC_mult::posteriormode(void)
 
 void FC_mult::outresults(const ST::string & pathresults)
   {
-  if (RE_update==false)
+  if ((RE_update==false) && (samplemult))
     {
     FCmulteffect.outresults("");
 

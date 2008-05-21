@@ -38,7 +38,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption a_re;
   doubleoption b_re;
   simpleoption internal_mult;
-
+  simpleoption samplemult;
 
   vector<ST::string> termnames;
 

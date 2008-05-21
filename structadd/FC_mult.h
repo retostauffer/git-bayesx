@@ -31,6 +31,7 @@ class __EXPORT_TYPE FC_mult  : public FC
   protected:
 
   FC FCmulteffect;
+  bool samplemult;
 
   DESIGN * dp1;
   DESIGN * dp2;
@@ -80,7 +81,7 @@ class __EXPORT_TYPE FC_mult  : public FC
   void set_intp(DESIGN * d,FC_nonp * fp);
 
   void set_multeffects(GENERAL_OPTIONS * o,const ST::string & t,
-           const ST::string & fp);
+           const ST::string & fp,bool sm);
 
   void update_multeffect(void);           
 

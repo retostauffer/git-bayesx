@@ -150,6 +150,10 @@ class __EXPORT_TYPE FC
 
   ~FC()
     {
+    if (nosamples==false)
+      {
+      remove(samplepath.strtochar());
+      }
     }
 
 

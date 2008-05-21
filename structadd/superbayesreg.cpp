@@ -815,7 +815,14 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
              "_mult.raw","_mult.res","_mult");
 
-  FC_mults[FC_mults.size()-1].set_multeffects(&generaloptions,title,pathnonp);
+  bool samplem;
+  if (terms[i].options[13] == "false")
+    samplem = false;
+  else
+    samplem = true;
+
+  FC_mults[FC_mults.size()-1].set_multeffects(&generaloptions,title,pathnonp,
+         samplem);
 
   equations[modnr].add_FC(&FC_mults[FC_mults.size()-1],pathres);
 
@@ -902,7 +909,7 @@ bool superbayesreg::create_nonp(void)
     if (terms[i].options[0] == "pspline")
       create_pspline(i);
     if (terms[i].options[0] == "hrandom")
-      create_hrandom(i);
+      error = create_hrandom(i);
     if (terms[i].options[0] == "spatial")
       error = create_mrf(i);
     if (terms[i].options[0] == "hrandom_pspline")
