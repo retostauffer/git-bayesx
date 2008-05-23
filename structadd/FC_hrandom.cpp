@@ -16,12 +16,47 @@ FC_hrandom::FC_hrandom(void)
   }
 
 
+void FC_hrandom::read_options(vector<ST::string> & op,vector<ST::string> & vn)
+  {
+
+  /*
+  1       degree
+  2       numberknots
+  3       difforder
+  4       lambda
+  5       a
+  6       b
+  7       center
+  8       map
+  9       lambda_re
+  10      a_re
+  11      b_re
+  12      internal_mult
+  13      samplemult
+  14      constraints
+  */
+
+  if (op[14] == "increasing")
+    stype = increasing;
+  else if (op[14] == "decreasing")
+    stype = decreasing;
+  else
+    stype = unconstrained;
+
+  if (op[12] == "true")
+    mult = true;
+  else
+    mult = false;  
+
+  }
+
 FC_hrandom::FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
                  const ST::string & t,const ST::string & fp,
-                 const ST::string & fp2, DESIGN * Dp,bool m)
-     : FC_nonp(o,lp,t,fp,Dp)
+                 const ST::string & fp2, DESIGN * Dp,
+                 vector<ST::string> & op, vector<ST::string> & vn)
+     : FC_nonp(o,lp,t,fp,Dp,op,vn)
   {
-  mult = m;
+  read_options(op,vn);
   likep_RE = lp_RE;
   likep_RE->trmult = likep->trmult;
   FCrcoeff = FC(o,t + "_random coefficients",beta.rows(),beta.cols(),fp2);

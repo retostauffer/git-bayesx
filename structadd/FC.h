@@ -209,7 +209,7 @@ class __EXPORT_TYPE FC
 
   virtual void reset(void);
 
-  virtual void read_options(vector<ST::string> & op);
+  virtual void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
   };
 

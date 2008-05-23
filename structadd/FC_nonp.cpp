@@ -11,6 +11,36 @@ namespace MCMC
 {
 
 
+void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
+  {
+
+  /*
+  1       degree
+  2       numberknots
+  3       difforder
+  4       lambda
+  5       a
+  6       b
+  7       center
+  8       map
+  9       lambda_re
+  10      a_re
+  11      b_re
+  12      internal_mult
+  13      samplemult
+  14      constraints
+  */
+
+  if (op[14] == "increasing")
+    stype = increasing;
+  else if (op[14] == "decreasing")
+    stype = decreasing;
+  else
+    stype = unconstrained;
+
+  }
+
+
 FC_nonp::FC_nonp(void)
   {
   }
@@ -18,9 +48,11 @@ FC_nonp::FC_nonp(void)
 
 FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t,const ST::string & fp,
-                 DESIGN * Dp)
+                 DESIGN * Dp,vector<ST::string> & op,
+                 vector<ST::string> & vn)
      : FC(o,t,Dp->Zout.rows(),1,fp)
   {
+  read_options(op,vn);
   likep = lp;
   designp = Dp;
   param = datamatrix(designp->nrpar,1,0);
@@ -37,6 +69,7 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   : FC(FC(m))
   {
 
+  stype = m.stype;
   likep = m.likep;
   designp = m.designp;
   param = m.param;
@@ -49,13 +82,13 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   }
 
 
-
 const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   {
 
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+  stype = m.stype;
   likep = m.likep;
   designp = m.designp;
   param = m.param;
@@ -69,9 +102,19 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   }
 
 
-
-
 void FC_nonp::update(void)
+  {
+  if ((stype == increasing) || (stype==decreasing))
+    {
+    update_isotonic();
+    }
+  else
+    {
+    update_gaussian();
+    }
+  }
+
+void FC_nonp::update_gaussian(void)
   {
 
   bool lambdaconst = false;
@@ -117,6 +160,167 @@ void FC_nonp::update(void)
   transform_beta();
 
   FC::update();
+
+  }
+
+void FC_nonp::update_isotonic(void)
+  {
+
+  unsigned i,j;
+
+  bool lambdaconst = false;
+
+  betaold.assign(beta);
+
+  designp->compute_partres(partres,beta);
+
+
+  if ((likep->changingweight) || (designp->changingdesign))
+    designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
+  else
+    designp->compute_XtransposedWres(partres, lambda);
+
+  if ((likep->changingweight) || (designp->changingdesign) || (!lambdaconst))
+    designp->compute_precision(lambda);
+
+  double sigma2resp = likep->get_scale();
+
+
+  int count = 0;
+  int maxit = 20;
+  double mu;
+  double s;
+
+
+  while(count < maxit)
+    {
+
+    for (i=0;i<param.rows();i++)
+      {
+
+      mu = 0;
+      for (j=0;j<i;j++)    // links
+        {
+        mu+= param(j,0)*designp->precision(i,j);
+        }
+
+      for (j=i+1;j<param.rows();j++)  // rechts
+        {
+        mu+= param(j,0)*designp->precision(i,j);
+        }
+
+      mu = (designp->XWres(i,0) -mu)/designp->precision(i,i);
+
+      s = sqrt(sigma2resp/designp->precision(i,i));
+
+      if(i==0)
+        {
+        if(stype==increasing)
+          param(i,0) = trunc_normal2(-20,param(1,0),mu,s);
+        else
+          param(i,0) = trunc_normal2(param(1,0),20,mu,s);
+        }
+      else if(i==param.rows()-1)
+        {
+        if(stype==increasing)
+          param(i,0) = trunc_normal2(param(param.rows()-2,0),20,mu,s);
+        else
+          param(i,0) = trunc_normal2(-20,param(param.rows()-2,0),mu,s);
+        }
+      else
+        {
+        if(stype==increasing)
+          {
+          param(i,0) = trunc_normal2(param(i-1,0),param(i+1,0),mu,s);
+          }
+        else
+          param(i,0) = trunc_normal2(param(i+1,0),param(i-1,0),mu,s);
+        }
+
+      }
+
+    count++;
+    }
+
+
+
+/*
+  while(count < maxit)
+    {
+
+    for (i=0;i<param.rows();i++)
+      {
+
+      mu = 0;
+      for (j=0;j<i;j++)    // links
+        {
+        mu+= (param(j,0)-paramhelp(j,0))*designp->precision(i,j);
+        }
+
+      for (j=i+1;j<param.rows();j++)  // rechts
+        {
+        mu+= (param(j,0)-paramhelp(j,0))*designp->precision(i,j);
+        }
+
+      mu = mu/designp->precision(i,i);
+
+      s = sqrt(sigma2resp/designp->precision(i,i));
+
+      if(i==0)
+        {
+        if(stype==increasing)
+          param(i,0) = trunc_normal2(-20,param(1,0),mu,s);
+        else
+          param(i,0) = trunc_normal2(param(1,0),20,mu,s);
+        }
+      else if(i==param.rows()-1)
+        {
+        if(stype==increasing)
+          param(i,0) = trunc_normal2(param(param.rows()-2,0),20,mu,s);
+        else
+          param(i,0) = trunc_normal2(-20,param(param.rows()-2,0),mu,s);
+        }
+      else
+        {
+        if(stype==increasing)
+          {
+          param(i,0) = trunc_normal2(param(i-1,0),param(i+1,0),mu,s);
+          }
+        else
+          param(i,0) = trunc_normal2(param(i+1,0),param(i-1,0),mu,s);
+        }
+
+      }
+
+    count++;
+    }
+*/
+
+  /*
+  TEST
+  ofstream out("c:\\bayesx\\test\\results\\paramhelp.res");
+  paramhelp.prettyPrint(out);
+
+  ofstream out2("c:\\bayesx\\test\\results\\param.res");
+  param.prettyPrint(out2);
+  TEST
+  */
+
+  if(designp->center)
+    centerparam();
+
+  designp->compute_f(param,beta);
+
+  betadiff.minus(beta,betaold);
+
+  designp->update_linpred(betadiff,true);
+
+  acceptance++;
+
+  transform_beta();
+
+  FC::update();
+
   }
 
 

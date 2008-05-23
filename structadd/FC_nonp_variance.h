@@ -56,7 +56,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
            const ST::string & fp,DESIGN * dp,FC_nonp * FCn,
-           vector<ST::string> & op);
+           vector<ST::string> & op,vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR
 
@@ -99,7 +99,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   void reset(void);
 
-  void read_options(vector<ST::string> & op);
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
   virtual void transform_beta(void);
 

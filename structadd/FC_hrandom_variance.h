@@ -53,7 +53,7 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
 
   FC_hrandom_variance(GENERAL_OPTIONS * o,DISTR * lp, DISTR * lpRE,
                       const ST::string & t, const ST::string & fp,DESIGN * dp,
-                      FC_nonp * FCn,vector<ST::string> & op);
+                      FC_nonp * FCn,vector<ST::string> & op,vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR
 
@@ -83,7 +83,7 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
 
   void transform_beta(void);
 
-  void read_options(vector<ST::string> & op);
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
   };
 

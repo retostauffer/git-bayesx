@@ -11,7 +11,8 @@ namespace MCMC
 {
 
 
-void FC_nonp_variance::read_options(vector<ST::string> & op)
+void FC_nonp_variance::read_options(vector<ST::string> & op,
+                                   vector<ST::string> & vn)
   {
 
   /*
@@ -40,14 +41,15 @@ FC_nonp_variance::FC_nonp_variance(void)
 
 FC_nonp_variance::FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t,const ST::string & fp,
-                 DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op)
+                 DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
+                 vector<ST::string> & vn)
      : FC(o,t,1,2,fp)
   {
   FCnonpp = FCn;
   likep = lp;
   designp = Dp;
 
-  read_options(op);
+  read_options(op,vn);
 
   datamatrix betanew(1,2);
   betanew(0,0) = likep->get_scale()/lambdastart;

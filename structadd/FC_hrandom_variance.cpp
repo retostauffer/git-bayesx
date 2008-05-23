@@ -11,7 +11,8 @@ namespace MCMC
 {
 
 
-void FC_hrandom_variance::read_options(vector<ST::string> & op)
+void FC_hrandom_variance::read_options(vector<ST::string> & op,
+vector<ST::string> & vn)
   {
 
   int f;
@@ -31,7 +32,7 @@ void FC_hrandom_variance::read_options(vector<ST::string> & op)
   12      internal_mult
   */
 
-  FC_nonp_variance::read_options(op);
+  FC_nonp_variance::read_options(op,vn);
 
   if (op[12] == "true")
     {
@@ -57,10 +58,11 @@ FC_hrandom_variance::FC_hrandom_variance(void)
 FC_hrandom_variance::FC_hrandom_variance(GENERAL_OPTIONS * o,DISTR * lp,
                   DISTR * lpRE,
                  const ST::string & t,const ST::string & fp,
-                 DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op)
-     : FC_nonp_variance(o,lp,t,fp,Dp,FCn,op)
+                 DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
+                 vector<ST::string> & vn)
+     : FC_nonp_variance(o,lp,t,fp,Dp,FCn,op,vn)
   {
-  read_options(op);
+  read_options(op,vn);
   likepRE = lpRE;
   }
 

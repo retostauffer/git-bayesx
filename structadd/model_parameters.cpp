@@ -23,8 +23,12 @@ term_nonp::term_nonp(vector<ST::string> & na)
   b_re = doubleoption("b_re",0.001,0,500);
   internal_mult = simpleoption("internal_mult",false);
   samplemult = simpleoption("samplemult",false);
+  vector<ST::string> ctypes;
+  ctypes.push_back("unconstrained");
+  ctypes.push_back("increasing");
+  ctypes.push_back("decreasing");
+  constraints = stroption("constraints",ctypes,"unconstrained");
   }
-
 
 void term_nonp::setdefault(void)
   {
@@ -41,6 +45,7 @@ void term_nonp::setdefault(void)
   b_re.setdefault();
   internal_mult.setdefault();
   samplemult.setdefault();
+  constraints.setdefault();
   }
 
 
@@ -104,7 +109,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&b_re);
     optlist.push_back(&internal_mult);
     optlist.push_back(&samplemult);
-
+    optlist.push_back(&constraints);
 
     unsigned i;
     bool rec = true;
@@ -161,6 +166,7 @@ bool term_nonp::check(term & t)
     else
       t.options[13] = "true";
 
+    t.options[14] = constraints.getvalue();
 
     setdefault();
     return true;

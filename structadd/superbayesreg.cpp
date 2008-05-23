@@ -675,7 +675,8 @@ void superbayesreg::create_pspline(unsigned i)
 
 
   FC_nonps.push_back(FC_nonp(&generaloptions,equations[modnr].distrp,title,
-                     pathnonp,&design_psplines[design_psplines.size()-1]));
+                     pathnonp,&design_psplines[design_psplines.size()-1],
+                     terms[i].options,terms[i].varnames));
 
 
   equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
@@ -688,7 +689,8 @@ void superbayesreg::create_pspline(unsigned i)
 
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_psplines[design_psplines.size()-1],
-                                &FC_nonps[FC_nonps.size()-1],terms[i].options));
+                                &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                                terms[i].varnames));
 
   equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
 
@@ -726,10 +728,6 @@ bool superbayesreg::findREdistr(ST::string & na,equation & maine,unsigned & fnr)
 bool superbayesreg::create_hrandom(unsigned i)
   {
 
-  bool mult=false;
-  if (terms[i].options[12] == "true")
-    mult = true;
-
   unsigned modnr = equations.size()-1;
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
@@ -757,7 +755,8 @@ bool superbayesreg::create_hrandom(unsigned i)
 
   FC_hrandoms.push_back(FC_hrandom(&generaloptions,equations[modnr].distrp,
                         equations[fnr].distrp, title,pathnonp,pathnonp2,
-                        &design_hrandoms[design_hrandoms.size()-1],mult));
+                        &design_hrandoms[design_hrandoms.size()-1],
+                        terms[i].options,terms[i].varnames));
 
   equations[modnr].add_FC(&FC_hrandoms[FC_hrandoms.size()-1],pathres);
 
@@ -769,7 +768,8 @@ bool superbayesreg::create_hrandom(unsigned i)
   FC_hrandom_variances.push_back(FC_hrandom_variance(&generaloptions,equations[modnr].distrp,
                                  equations[fnr].distrp,
                                 title,pathnonp,&design_hrandoms[design_hrandoms.size()-1],
-                                &FC_hrandoms[FC_hrandoms.size()-1],terms[i].options));
+                                &FC_hrandoms[FC_hrandoms.size()-1],terms[i].options,
+                                terms[i].varnames));
 
   equations[modnr].add_FC(&FC_hrandom_variances[FC_hrandom_variances.size()-1],pathres);
 
@@ -879,7 +879,8 @@ bool superbayesreg::create_mrf(unsigned i)
 
 
   FC_nonps.push_back(FC_nonp(&generaloptions,equations[modnr].distrp,title,
-                     pathnonp,&design_mrfs[design_mrfs.size()-1]));
+                     pathnonp,&design_mrfs[design_mrfs.size()-1],
+                     terms[i].options,terms[i].varnames));
 
   equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
 
@@ -890,7 +891,8 @@ bool superbayesreg::create_mrf(unsigned i)
 
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_mrfs[design_mrfs.size()-1],
-                                &FC_nonps[FC_nonps.size()-1],terms[i].options));
+                                &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                                terms[i].varnames));
 
   equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
 

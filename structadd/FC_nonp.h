@@ -26,17 +26,22 @@ namespace MCMC
 //--------------------------- CLASS: FC_nonp -----------------------------------
 //------------------------------------------------------------------------------
 
+enum sampletype {unconstrained,increasing,decreasing};
 
 class __EXPORT_TYPE FC_nonp  : public FC
   {
 
+
+
   protected:
+
+  sampletype stype;  
 
   DISTR * likep;                             // Pointer to DISTR obejct
   DESIGN * designp;                          // Pointer to design object
 
   datamatrix betahelp;
-  datamatrix betaold; 
+  datamatrix betaold;
   datamatrix betadiff;
 
   void centerparam(void);
@@ -45,10 +50,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   datamatrix param;                          // Parameters, beta stores hatf
 
-
-
-
-  datamatrix partres;                        // sum of partial residuals 
+  datamatrix partres;                        // sum of partial residuals
 
   double lambda;
   double tau2;
@@ -66,7 +68,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // fp   : file path for storing sampled parameters
 
   FC_nonp(GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
-           const ST::string & fp,DESIGN * dp);
+           const ST::string & fp,DESIGN * dp,vector<ST::string> & op,
+             vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR
 
@@ -89,6 +92,9 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void update(void);
 
+  void update_gaussian(void);  
+  void update_isotonic(void);
+
   // FUNCTION: posteriormode
   // TASK: computes the posterior mode
 
@@ -103,6 +109,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // TASK: writes estimation results to logout or into a file
 
   void outresults(const ST::string & pathresults);
+
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);  
 
   // FUNCTION: reset
   // TASK: resets all parameters
