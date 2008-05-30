@@ -40,6 +40,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   simpleoption internal_mult;
   simpleoption samplemult;
   stroption constraints;
+  doubleoption round;
 
 
   vector<ST::string> termnames;

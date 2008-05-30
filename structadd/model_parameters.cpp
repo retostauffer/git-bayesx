@@ -28,6 +28,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   ctypes.push_back("increasing");
   ctypes.push_back("decreasing");
   constraints = stroption("constraints",ctypes,"unconstrained");
+  round = doubleoption("round",-1,0,500);  
   }
 
 void term_nonp::setdefault(void)
@@ -46,6 +47,7 @@ void term_nonp::setdefault(void)
   internal_mult.setdefault();
   samplemult.setdefault();
   constraints.setdefault();
+  round.setdefault();
   }
 
 
@@ -110,6 +112,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&internal_mult);
     optlist.push_back(&samplemult);
     optlist.push_back(&constraints);
+    optlist.push_back(&round);    
 
     unsigned i;
     bool rec = true;
@@ -167,6 +170,8 @@ bool term_nonp::check(term & t)
       t.options[13] = "true";
 
     t.options[14] = constraints.getvalue();
+
+    t.options[15] = ST::doubletostring(round.getvalue());
 
     setdefault();
     return true;

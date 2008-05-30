@@ -23,7 +23,15 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   6       b
   7       center
   8       map
+  9       lambda_re
+  10      a_re
+  11      b_re
+  12      internal_mult
+  13      samplemult
+  14      constraints
+  15      round
   */
+
 
   int f;
 
@@ -42,6 +50,8 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
     center = true;
   else
     center = false;
+
+  f = op[15].strtodouble(round);
 
   datanames = vn;
 
@@ -63,7 +73,22 @@ DESIGN_pspline::DESIGN_pspline(const datamatrix & dm,const datamatrix & iv,
 
   read_options(op,vn);
 
-  init_data(dm,iv);
+  if (round == -1)
+    init_data(dm,iv);
+  else
+    {
+    datamatrix dmr = dm;
+    unsigned i;
+    for(i=0;i<dmr.rows();i++)
+      dmr(i,0) =  floor(dm(i,0) * pow( 10, round) + 0.5) * pow(10, -round);
+
+    // TEST
+    // ofstream out("c:\\bayesx\\test\\results\\dmr.res");
+    // dmr.prettyPrint(out);
+    // TEST
+
+    init_data(dmr,iv);
+    }
 
   weightK = vector<double>(nrpar,1);
   compute_penalty();

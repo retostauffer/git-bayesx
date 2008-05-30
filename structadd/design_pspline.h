@@ -47,6 +47,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
   long nrknots;                     // Anzahl der (sichtbaren) Knoten
   long degree;                      // Grad des Splines
   long difforder;                   // Differenzenordnung (1,2,3)
+  double round;
 
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
