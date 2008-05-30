@@ -103,6 +103,7 @@ void superbayesreg::create_hregress(void)
   families.reserve(20);
   families.push_back("gaussian");
   families.push_back("gaussian_re");
+  families.push_back("binomial_logit");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -217,6 +218,9 @@ void superbayesreg::clear(void)
   distr_gaussian_res.erase(distr_gaussian_res.begin(),distr_gaussian_res.end());
   distr_gaussian_res.reserve(10);
 
+  distr_binomials.erase(distr_binomials.begin(),distr_binomials.end());
+  distr_binomials.reserve(10);
+
   design_psplines.erase(design_psplines.begin(),design_psplines.end());
   design_psplines.reserve(30);
 
@@ -301,6 +305,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
 
   distr_gaussians = b.distr_gaussians;
   distr_gaussian_res = b.distr_gaussian_res;
+  distr_binomials = b.distr_binomials;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -343,9 +348,10 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 
   distr_gaussians = b.distr_gaussians;
   distr_gaussian_res = b.distr_gaussian_res;
+  distr_binomials = b.distr_binomials;
 
   resultsyesno = b.resultsyesno;
-  run_yes = b.run_yes;  
+  run_yes = b.run_yes;
   posteriormode = b.posteriormode;
 
   design_psplines = b.design_psplines;
@@ -635,6 +641,18 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].pathd = "";
     }
 //------------------------- END: Gaussian random effect ------------------------
+//---------------------------- Binomial response -------------------------------
+  else if (family.getvalue() == "binomial_logit")
+    {
+
+    distr_binomials.push_back(DISTR_binomial(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_binomials[distr_binomials.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//-------------------------- END: Binomial response ----------------------------
+
 
   equations[modnr].distrp->responsename=rname;
   equations[modnr].distrp->weightname=wn;

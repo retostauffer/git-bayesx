@@ -111,7 +111,7 @@ MCMCsim::MCMCsim(GENERAL_OPTIONS * go,vector<equation> & equ)
   genoptions = go;
   equations = equ;
   maxiterations = 1000;
-//  maxiterations = 1;
+//  maxiterations = 10;
   }
 
 
@@ -495,6 +495,8 @@ bool MCMCsim::posteriormode(const bool & presim)
 
       if (allconverged)
         converged = true;
+      else
+        it++;
 
       #if defined(BORLAND_OUTPUT_WINDOW)
 
@@ -525,8 +527,6 @@ bool MCMCsim::posteriormode(const bool & presim)
       if(stop)
         break;
       #endif
-
-      it++;
 
       } // end: while ((!converged) && (it <= maxiterations))
 

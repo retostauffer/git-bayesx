@@ -18,7 +18,7 @@
 #include"model_parameters.h"
 
 #include"distr.h"
-
+#include"distr_categorical.h"
 
 #include"design.h"
 #include"design_pspline.h"
@@ -44,6 +44,7 @@ using MCMC::GENERAL_OPTIONS;
 using MCMC::DISTR;
 using MCMC::DISTR_gaussian;
 using MCMC::DISTR_gaussian_re;
+using MCMC::DISTR_binomial;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -151,6 +152,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   vector<DISTR_gaussian> distr_gaussians;
   vector<DISTR_gaussian_re> distr_gaussian_res;
+  vector<DISTR_binomial> distr_binomials;
 
   bool create_distribution(void);
 
@@ -172,20 +174,20 @@ class __EXPORT_TYPE superbayesreg : public statobject
   //----------------------- for nonparametric terms ----------------------------
 
   vector<DESIGN_pspline> design_psplines;
-  vector<DESIGN_mrf> design_mrfs;  
+  vector<DESIGN_mrf> design_mrfs;
   vector<FC_nonp> FC_nonps;
   vector<FC_nonp_variance> FC_nonp_variances;
 
   bool create_nonp(void);
   void create_pspline(unsigned i);
-  bool create_mrf(unsigned i);  
+  bool create_mrf(unsigned i);
 
 //------------------------ end for nonparametric terms -------------------------
 
 //----------------------- hierarchical random effects --------------------------
 
   vector<DESIGN_hrandom>  design_hrandoms;
-  vector<FC_hrandom> FC_hrandoms;  
+  vector<FC_hrandom> FC_hrandoms;
   vector<FC_hrandom_variance> FC_hrandom_variances;
 
   bool create_hrandom(unsigned i);
@@ -196,7 +198,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   vector<FC_mult> FC_mults;
 
-  bool create_random_pspline(unsigned i); 
+  bool create_random_pspline(unsigned i);
 
 //-------------------- end: multiplicative random effects ----------------------
 
@@ -235,7 +237,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   void create(void);
   void create_hregress(void);
   void create_autocorr(void);
-  void create_getsample(void);  
+  void create_getsample(void);
 
   #if defined(JAVA_OUTPUT_WINDOW)
   administrator_pointer * adminp_p;

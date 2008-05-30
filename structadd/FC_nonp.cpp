@@ -56,29 +56,33 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
   likep = lp;
   designp = Dp;
   param = datamatrix(designp->nrpar,1,0);
+  paramold = param;
+  paramhelp = param;
   betaold = beta;
   betadiff = beta;
   partres = datamatrix(designp->posbeg.size(),1,0);
   lambda=1;
   tau2 = likep->get_scale()/lambda;
-  betahelp = beta;
+  IWLS = likep->updateIWLS;
   }
 
 
 FC_nonp::FC_nonp(const FC_nonp & m)
   : FC(FC(m))
   {
-
   stype = m.stype;
   likep = m.likep;
   designp = m.designp;
   param = m.param;
+  paramold = m.paramold;
+  paramhelp = m.paramhelp;
+  paramKparam = paramKparam;
   betaold = m.betaold;
   betadiff = m.betadiff;
   partres = m.partres;
   lambda=m.lambda;
   tau2 = m.tau2;
-  betahelp = m.betahelp;
+  IWLS = m.IWLS;
   }
 
 
@@ -92,25 +96,140 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   likep = m.likep;
   designp = m.designp;
   param = m.param;
+  paramKparam = paramKparam;
+  paramold = m.paramold;
+  paramhelp = m.paramhelp;
   betaold = m.betaold;
   betadiff = m.betadiff;
   partres = m.partres;
   lambda=m.lambda;
   tau2 = m.tau2;
-  betahelp = m.betahelp;
+  IWLS = m.IWLS;
   return *this;
+  }
+
+
+void FC_nonp::update_IWLS(void)
+  {
+
+  unsigned i;
+  double * workparam;
+
+  if (optionsp->nriter == 1)
+    {
+    paramold.assign(param);
+    betaold.assign(beta);
+    paramKparam=designp->K.compute_quadform(param,0);
+    }
+
+
+
+  // Compute log-likelihood with old param, computes workingweight and
+  // workingresponse
+  double logold = likep->compute_iwls(true,true);
+  logold -= 0.5*paramKparam*lambda;
+
+  designp->compute_partres(partres,beta);
+  designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
+
+  designp->compute_precision(lambda);
+
+  designp->precision.solve(designp->XWres,paramhelp);
+
+  workparam = param.getV();
+  unsigned nrpar = param.rows();
+  for(i=0;i<nrpar;i++,workparam++)
+    *workparam = rand_normal();
+
+  designp->precision.solveU(param,paramhelp); // param contains now the proposed
+                                              // new parametervector
+
+  if(designp->center)
+    centerparam();
+
+  paramhelp.minus(param,paramhelp);
+
+  double qold = 0.5*designp->precision.getLogDet()-
+                0.5*designp->precision.compute_quadform(paramhelp,0);
+
+  designp->compute_f(param,beta);            // beta contains now the
+                                             // proposed new f
+  betadiff.minus(beta,betaold);
+  designp->update_linpred(betadiff,true);
+
+
+  // Compute new log-likelihood
+
+  double lognew = likep->compute_iwls(true,true);
+  lognew  -= 0.5*designp->K.compute_quadform(param,0)*lambda;
+
+  designp->compute_partres(partres,beta);
+  designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
+
+  designp->compute_precision(lambda);
+
+  designp->precision.solve(designp->XWres,paramhelp);
+
+  paramhelp.minus(paramold,paramhelp);
+  double qnew = 0.5*designp->precision.getLogDet() -
+                0.5*designp->precision.compute_quadform(paramhelp,0);
+
+
+  double u = log(uniform());
+  if (u <= (lognew - logold  + qnew - qold) )
+    {
+    acceptance++;
+
+    paramKparam=designp->K.compute_quadform(param,0);
+
+    betaold.assign(beta);
+    paramold.assign(param);
+    }
+  else
+    {
+
+    betadiff.minus(betaold,beta);
+    designp->update_linpred(betadiff,true);
+
+
+    param.assign(paramold);
+    beta.assign(betaold);
+    }
+
+  // TEST
+  /*
+  ofstream out("c:\\bayesx\\test\\results\\param.res");
+  param.prettyPrint(out);
+
+  ofstream out2("c:\\bayesx\\test\\results\\beta.res");
+  beta.prettyPrint(out2);
+  */
+  // TEST
+
+
+  transform_beta();
+
+  FC::update();
+
   }
 
 
 void FC_nonp::update(void)
   {
-  if ((stype == increasing) || (stype==decreasing))
+  if (IWLS)
     {
-    update_isotonic();
+    update_IWLS();
     }
   else
     {
-    update_gaussian();
+    if ((stype == increasing) || (stype==decreasing))
+      {
+      update_isotonic();
+      }
+    else
+      {
+      update_gaussian();
+      }
     }
   }
 
@@ -136,15 +255,15 @@ void FC_nonp::update_gaussian(void)
 
   double sigmaresp = sqrt(likep->get_scale());
 
-  double * work = betahelp.getV();
+  double * work = paramhelp.getV();
   unsigned i;
-  unsigned nrpar = beta.rows();
+  unsigned nrpar = param.rows();
   for(i=0;i<nrpar;i++,work++)
     *work = sigmaresp*rand_normal();
 
-  designp->precision.solveU(betahelp);
+  designp->precision.solveU(paramhelp);
 
-  designp->precision.solve(designp->XWres,betahelp,param);
+  designp->precision.solve(designp->XWres,paramhelp,param);
 
   if(designp->center)
     centerparam();
@@ -353,10 +472,10 @@ bool FC_nonp::posteriormode(void)
 
 
   // TEST
-  /*
-  ofstream out4("c:\\bayesx\\test\\results\\partres.res");
-  partres.prettyPrint(out4);
-  */
+
+//  ofstream out4("c:\\bayesx\\test\\results\\partres.res");
+//  partres.prettyPrint(out4);
+  
   // TEST
 
 
@@ -387,10 +506,8 @@ bool FC_nonp::posteriormode(void)
   designp->compute_f(param,beta);
 
   // TEST
-  /*
-  ofstream out5("c:\\bayesx\\test\\results\\f.res");
-  beta.prettyPrint(out5);
-  */
+  //  ofstream out5("c:\\bayesx\\test\\results\\f.res");
+  //  beta.prettyPrint(out5);
   // TEST
 
   betadiff.minus(beta,betaold);

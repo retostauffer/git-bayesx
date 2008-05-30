@@ -192,6 +192,11 @@ class __EXPORT_TYPE FC
 
   virtual bool posteriormode(void);
 
+  // FUNCTION: psoteriormode_betamean
+  // TASK: computes the retransformed current betamean 
+
+  void posteriormode_betamean(void);
+
   // FUNCTION: outoptions
   // TASK: writes estimation options (hyperparameters, etc.) to outputstream
 

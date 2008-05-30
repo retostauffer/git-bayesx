@@ -254,7 +254,7 @@ datamatrix FC::compute_autocorr(const unsigned & lag,const unsigned & row,
                                       const unsigned & col) const
   {
   unsigned o = optionsp->samplesize;
-  datamatrix sample(optionsp->samplesize,1);
+  datamatrix sample(o,1);
   unsigned nr = row*(beta.cols())+col;
   readsample(sample,nr);
   return sample.autocorr (1,lag,0);
@@ -469,16 +469,7 @@ bool FC::posteriormode(void)
 
   betameanold.assign(beta);
 
-  unsigned i,j;
-  double* workbetamean = betamean.getV();
-  double* workbeta = beta.getV();
-
-  for(i=0;i<beta.rows();i++)
-    for (j=0;j<beta.cols();j++,workbetamean++,workbeta++)
-      {
-      *workbetamean = transform(j,0) * (*workbeta)+addon;
-//      betamean(i,j) = transform(j,0) * beta(i,j)+addon;
-      }
+  posteriormode_betamean();
 
   if (diffmean <= 0.00001)
     {
@@ -489,6 +480,20 @@ bool FC::posteriormode(void)
 
   }
 
+
+void FC::posteriormode_betamean(void)
+  {
+
+  unsigned i,j;
+  double* workbetamean = betamean.getV();
+  double* workbeta = beta.getV();
+
+  for(i=0;i<beta.rows();i++)
+    for (j=0;j<beta.cols();j++,workbetamean++,workbeta++)
+      {
+      *workbetamean = transform(j,0) * (*workbeta)+addon;
+      }
+  }
 
 
 void FC::outresults(const ST::string & pathresults)

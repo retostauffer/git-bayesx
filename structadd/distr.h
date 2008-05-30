@@ -44,13 +44,17 @@ class __EXPORT_TYPE DISTR
 
   public:
 
+
+
   double sigma2;
 
+  bool updateIWLS;
   ST::string family;              // name of the distribution
 
   unsigned nrobs;                 // Number of observations
 
   datamatrix response;            // Response
+  datamatrix workingresponse;      // Working response, tilde y
   ST::string responsename;        // Name of the response
 
 
@@ -61,7 +65,7 @@ class __EXPORT_TYPE DISTR
   bool changingweight;
   bool weights_one;
 
-  datamatrix partres;             // partial residual
+//  datamatrix partres;             // partial residual
 
 
   datamatrix linearpred1;          // Linear predictor
@@ -116,7 +120,6 @@ class __EXPORT_TYPE DISTR
 
   virtual void outoptions(void);
 
-
   //----------------------------------------------------------------------------
   //----------------------- COMPUTING THE LOGLIKELIHOOD ------------------------
   //----------------------------------------------------------------------------
@@ -134,12 +137,25 @@ class __EXPORT_TYPE DISTR
 
   double loglikelihood(const bool & current=true) const;
 
-  // FUNCTION: loglikelihood
-  // TASK: computes the loglikelihood for observations between 'beg' and 'end'
+  //----------------------------------------------------------------------------
+  //----------------------------- IWLS Algorithm -------------------------------
+  //----------------------------------------------------------------------------
 
-  double loglikelihood(const unsigned & beg,const unsigned & end,
-                       const statmatrix<int> & index,
-                       const bool & current=true) ;
+  // FUNCTION: compute_IWLS (for one observation)
+  // TASK: computes the iwls weights (will be stored in workingweight),
+  //       tildey=(y-mu)g'(mu) (stored in workingresponse) and
+  //       the loglikelihood (will be returned)
+  //       if weightyes = false then the iwls weights are not computed
+
+  virtual double compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse,const bool & like)
+    {
+    return 0;
+    }
+
+
+  double compute_iwls(const bool & current,const bool & like);
 
   //----------------------------------------------------------------------------
   //----------------------- ACCESS TO SCALE PARAMETER --------------------------
@@ -154,10 +170,8 @@ class __EXPORT_TYPE DISTR
   // FUNCTION: posteriormode
   // TASK: computes the posterior mode
 
-  virtual bool posteriormode(void)
-    {
-    return true;
-    }
+  virtual bool posteriormode(void);
+    
 
   //----------------------------------------------------------------------------
   //--------------------------- UPDATE FUNCTIONS -------------------------------
@@ -248,6 +262,10 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
   double loglikelihood(double * res,
                        double * lin,
                        double * w) const;
+
+  double compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse, const bool & like);
 
   void outoptions(void);
 

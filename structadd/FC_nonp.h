@@ -31,16 +31,15 @@ enum sampletype {unconstrained,increasing,decreasing};
 class __EXPORT_TYPE FC_nonp  : public FC
   {
 
-
-
   protected:
 
-  sampletype stype;  
+  bool IWLS;
+
+  sampletype stype;
 
   DISTR * likep;                             // Pointer to DISTR obejct
   DESIGN * designp;                          // Pointer to design object
 
-  datamatrix betahelp;
   datamatrix betaold;
   datamatrix betadiff;
 
@@ -49,6 +48,9 @@ class __EXPORT_TYPE FC_nonp  : public FC
   public:
 
   datamatrix param;                          // Parameters, beta stores hatf
+  datamatrix paramold;
+  datamatrix paramhelp;  
+  double paramKparam;
 
   datamatrix partres;                        // sum of partial residuals
 
@@ -92,7 +94,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void update(void);
 
-  void update_gaussian(void);  
+  void update_gaussian(void);
+  void update_IWLS(void);    
   void update_isotonic(void);
 
   // FUNCTION: posteriormode

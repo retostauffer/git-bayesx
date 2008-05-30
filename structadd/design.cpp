@@ -15,7 +15,7 @@ void DESIGN::make_pointerindex(void)
   unsigned i;
   responsep = statmatrix<double*> (data.rows(),1);
   for(i=0;i<data.rows();i++)
-    responsep(i,0) = &(likep->response(index_data(i,0),0));
+    responsep(i,0) = &(likep->workingresponse(index_data(i,0),0));
 
   workingweightp = statmatrix<double*> (data.rows(),1);
   for(i=0;i<data.rows();i++)
@@ -359,6 +359,11 @@ void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres, double 
 void DESIGN::compute_XtransposedWX(void)
   {
 
+  // TEST
+//  ofstream out("c:\\bayesx\\test\\results\\workingweight.res");
+//  likep->workingweight.prettyPrint(out);
+  // TEST
+
   if (responsep.rows() != data.rows())
     {
     make_pointerindex();
@@ -399,6 +404,11 @@ void DESIGN::compute_XtransposedWX(void)
         }
       }
     }
+
+  // TEST
+//  ofstream out2("c:\\bayesx\\test\\results\\Wsum.res");
+//  Wsum.prettyPrint(out2);
+  // TEST
 
 
   vector<double>::iterator diag = XWX.getDiagIterator();
@@ -441,9 +451,8 @@ void DESIGN::compute_XtransposedWX(void)
 
   XWX.setDecomposed(false);
 
-
   // TEST
-/*
+  /*
   vector<double> env = XWX.getEnv();
 
   ofstream out2("c:\\bayesx\\test\\results\\XWXenv.res");
@@ -457,11 +466,47 @@ void DESIGN::compute_XtransposedWX(void)
   for (j=0;j<Xenv.size();j++)
     out3 << Xenv[j] << endl;
 
-  ofstream out("c:\\bayesx\\test\\results\\XWX.res");
-  XWX.print2(out);
- */
-  // TEST
 
+
+  ofstream out3("c:\\bayesx\\test\\results\\XWX.res");
+  XWX.print2(out3);
+
+  unsigned k;
+  datamatrix Zoutm(data.rows(),nrpar,0);
+  for (i=0;i<posbeg.size();i++)
+    {
+    for (j=posbeg[i];j<=posend[i];j++)
+      {
+      for(k=0;k<Zout.cols();k++)
+        Zoutm(j,index_Zout(i,k)) =
+        sqrt(likep->workingweight(index_data(j,0),0))*Zout(i,k);
+      }
+
+    }
+
+  datamatrix ZtZ = Zoutm.transposed()*Zoutm;
+  ofstream out5("c:\\bayesx\\test\\results\\XWXmat.res");
+  ZtZ.prettyPrint(out5);
+
+
+  Zoutm = datamatrix(data.rows(),nrpar,0);
+  for (i=0;i<posbeg.size();i++)
+    {
+    for (j=posbeg[i];j<=posend[i];j++)
+      {
+      for(k=0;k<Zout.cols();k++)
+        Zoutm(j,index_Zout(i,k)) =
+        Zout(i,k);
+      }
+
+    }
+
+
+//  ofstream out7("c:\\bayesx\\test\\results\\Zoutm.res");
+//  Zoutm.prettyPrint(out7);
+  */
+
+  // TEST
 
   }
 
@@ -528,8 +573,10 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
     consecutive_ZoutT = c;
     }
 
-  /*
+
   // TEST
+  /*
+  unsigned k;
   datamatrix Zoutm(Zout.rows(),nrpar,0);
   for (i=0;i<posbeg.size();i++)
     {
@@ -545,8 +592,9 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
 
   ofstream out3("c:\\bayesx\\test\\results\\XWres_alt.res");
   Ztres.prettyPrint(out3);
-  // END TEST
   */
+  // END TEST
+
 
   double * workXWres = XWres.getV();
   unsigned size;
@@ -589,12 +637,12 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
 
     }
 
-  /*
+
   // TEST
-  ofstream out("c:\\bayesx\\test\\results\\XWres.res");
-  XWres.prettyPrint(out);
+//  ofstream out("c:\\bayesx\\test\\results\\XWres.res");
+//  XWres.prettyPrint(out);
   // TEST
-  */
+
 
   }
 
@@ -842,7 +890,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
         if (*itbeg != -1)
           {
           for (j=*itbeg;j<=*itend;j++,work_responsep++,
-               work_workingweightp,worklinp++)
+               work_workingweightp++,worklinp++)
             {
             *workres += *(*work_workingweightp) *
             (*(*work_responsep) - (*(*worklinp)) + *workf);
@@ -870,8 +918,8 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
 
 
   // TEST
-  //  ofstream out("c:\\bayesx\\test\\results\\lin.res");
-  //  (likep->linearpred1).prettyPrint(out);
+//    ofstream out("c:\\bayesx\\test\\results\\tildey.res");
+//    (likep->workingresponse).prettyPrint(out);
   // TEST
 
 
@@ -953,10 +1001,10 @@ void DESIGN::update_linpred(datamatrix & f,bool add)
 
 
   // TEST
-/*
-  ofstream out("c:\\bayesx\\test\\results\\lin.res");
-  (*linpredp).prettyPrint(out);
-*/
+  /*
+  ofstream out3("c:\\bayesx\\test\\results\\lin.res");
+  likep->linearpred1.prettyPrint(out3);
+  */
   // TEST
 
 

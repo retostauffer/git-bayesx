@@ -128,7 +128,10 @@ bool FC_nonp_variance::posteriormode(void)
   FCnonpp->lambda = beta(0,1);
 
   transform_beta();
-  return FC::posteriormode();
+
+  posteriormode_betamean();
+
+  return true;
   }
 
 

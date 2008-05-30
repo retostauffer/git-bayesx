@@ -31,11 +31,11 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   optionsp = o;
 
   family = "unknown";
+  updateIWLS = false;
 
   response = r;
+  workingresponse = r;
   responsename = "Y";
-
-  partres = r;
 
   nrobs = response.rows();
 
@@ -76,9 +76,8 @@ DISTR::DISTR(const DISTR & d)
   nrobs = d.nrobs;
 
   response = d.response;
+  workingresponse = d.workingresponse;
   responsename = d.responsename;
-
-  partres = d.partres;
 
   weight = d.weight;
   weightname = d.weightname;
@@ -91,6 +90,7 @@ DISTR::DISTR(const DISTR & d)
   linearpred2 = d.linearpred2;
   linpred_current = d.linpred_current;
 
+  updateIWLS = d.updateIWLS;
   family = d.family;
 
   trmult=d.trmult;
@@ -102,30 +102,30 @@ const DISTR & DISTR::operator=(const DISTR & d)
   if (this == &d)
     return *this;
 
-  sigma2 = d.sigma2;    
+  sigma2 = d.sigma2;
 
   optionsp = d.optionsp;
   nrobs = d.nrobs;
 
   response = d.response;
+  workingresponse = d.workingresponse;
   responsename = d.responsename;
-
-  partres = d.partres;
 
   weight = d.weight;
   weightname = d.weightname;
 
   workingweight = d.workingweight;
   changingweight = d.changingweight;
-  weights_one = d.weights_one;  
+  weights_one = d.weights_one;
 
   linearpred1 = d.linearpred1;
   linearpred2 = d.linearpred2;
   linpred_current = d.linpred_current;
 
+  updateIWLS = d.updateIWLS;  
   family = d.family;
 
-  trmult=d.trmult;  
+  trmult=d.trmult;
 
   return *this;
   }
@@ -174,54 +174,6 @@ double DISTR::loglikelihood(const bool & current) const
   }
 
 
-double DISTR::loglikelihood(const unsigned & beg,const unsigned & end,
-                                   const statmatrix<int> & index,
-                                   const bool & current)
-  {
-
-  unsigned i;
-  double help = 0;
-
-  int* workind = index.getV()+beg;
-
-  datamatrix * linp;
-
-  if (current)
-    {
-    if (linpred_current==1)
-      {
-      linp = &linearpred1;
-      }
-    else
-      {
-      linp = &linearpred2;
-      }
-
-    for (i=beg;i<=end;i++,workind++)
-      help+=loglikelihood(&response(*workind,0),&(*linp)(*workind,0),
-                          &weight(*workind,0));
-    }
-  else
-    {
-
-    if (linpred_current==1)
-      {
-      linp = &linearpred2;
-      }
-    else
-      {
-      linp = &linearpred1;
-      }
-
-
-    for (i=beg;i<=end;i++,workind++)
-      help+=loglikelihood(&response(*workind,0),&(*linp)(*workind,0),
-                          &weight(*workind,0));
-    }
-
-  return help;
-
-  }
 
 
 void DISTR::swap_linearpred(void)
@@ -238,6 +190,64 @@ void DISTR::update(void)
   {
   } // end: update
 
+
+bool DISTR::posteriormode(void)
+  {
+  double h = compute_iwls(true,false);
+  return true;
+  }
+
+
+double DISTR::compute_iwls(const bool & current, const bool & like)
+  {
+
+  register unsigned  i;
+
+  double * workweight = weight.getV();
+  double * workresponse = response.getV();
+
+  double * worklin;
+  if (current)
+    {
+    if (linpred_current == 1)
+      worklin = linearpred1.getV();
+    else
+      worklin = linearpred2.getV();
+    }
+  else  // use porposed
+    {
+    if (linpred_current == 1)
+      worklin = linearpred2.getV();
+    else
+      worklin = linearpred1.getV();
+    }
+
+  double * work_workingresponse=workingresponse.getV();
+  double * work_workingweight = workingweight.getV();
+
+  double likelihood = 0;
+
+  for (i=0;i<nrobs;i++,workweight++,work_workingweight++,workresponse++,
+          work_workingresponse++,worklin++)
+    {
+
+    likelihood += compute_iwls(workresponse,worklin,
+                               workweight,work_workingweight,
+                               work_workingresponse,like);
+    }
+
+  // TEST
+  /*
+  ofstream out("c:\\bayesx\\test\\results\\workresponse.res");
+  workingresponse.prettyPrint(out);
+
+  ofstream out2("c:\\bayesx\\test\\results\\workweight.res");
+  workingweight.prettyPrint(out2);
+  */
+  // TEST
+
+  return likelihood;
+  }
 
 
 void DISTR::outresults(ST::string pathresults)
@@ -317,7 +327,7 @@ void DISTR_gaussian::standardise(void)
   trmult = sqrt(response.var(0,weight));
 
   unsigned i;
-  double * workresp = response.getV();
+  double * workresp = workingresponse.getV();
   double * worklin = linearpred1.getV();
   for (i=0;i<nrobs;i++,workresp++,worklin++)
    {
@@ -361,7 +371,7 @@ void DISTR_gaussian::update(void)
   else
     worklin = linearpred2.getV();
 
-  workresp = response.getV();
+  workresp = workingresponse.getV();
   workweight = weight.getV();
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
@@ -390,6 +400,14 @@ double DISTR_gaussian::loglikelihood(double * res, double * lin,
   }
 
 
+double DISTR_gaussian::compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse, const bool & like)
+  {
+  *workingweight=*weight;
+  *workingresponse = *response;
+  }
+
 bool DISTR_gaussian::posteriormode(void)
   {
 
@@ -401,23 +419,27 @@ bool DISTR_gaussian::posteriormode(void)
   else
     worklin = linearpred2.getV();
 
-  double * workresp = response.getV();
+  double * workresp = workingresponse.getV();
   double * workweight = weight.getV();
 
   double sum = 0;
+  double sumweight=0;
   double help;
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
     help = *workresp - *worklin;
     sum += *workweight*pow(help,2);
+    sumweight+=*workweight;
     }
 
-  sigma2 = (1.0/nrobs)*sum;
+  sigma2 = (1.0/sumweight)*sum;
 
   FCsigma2.beta(0,0) = sigma2;
 
-  return FCsigma2.posteriormode();
+  FCsigma2.posteriormode_betamean();
+
+  return true;
 
   }
 
@@ -490,7 +512,7 @@ void DISTR_gaussian::outresults(ST::string pathresults)
   if (pathresults.isvalidfile() != 1)
     {
 
-    optionsp->out("\n");    
+    optionsp->out("\n");
 
     optionsp->out("  Results for variance parameter are also stored in file\n");
     optionsp->out("  " +  pathresults + "\n");
@@ -533,7 +555,6 @@ void DISTR_gaussian::outresults(ST::string pathresults)
     }
 
   optionsp->out("\n");
-
 
 
   }
