@@ -26,11 +26,14 @@
 #include"design_mrf.h"
 
 #include"FC.h"
+#include"FC_predict.h"
 #include"FC_nonp.h"
 #include"FC_hrandom.h"
 #include"FC_mult.h"
 #include"FC_nonp_variance.h"
 #include"FC_hrandom_variance.h"
+
+
 
 #include"mcmcsim.h"
 
@@ -52,6 +55,7 @@ using MCMC::DESIGN_mrf;
 using MCMC::equation;
 
 using MCMC::FC;
+using MCMC::FC_predict;
 using MCMC::FC_nonp;
 using MCMC::FC_mult;
 using MCMC::FC_hrandom;
@@ -143,6 +147,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<ST::string> equationtypes;
   stroption equationtype;               // type of equation, e.g. mean, variance
 
+  vector<ST::string> predictop; 
+  stroption predict;
 
   optionlist regressoptions;
 
@@ -170,6 +176,14 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<term> terms;
 
   term_nonp tnonp;
+
+  //---------------------------- for predict -----------------------------------
+
+  vector<FC_predict> FC_predicts;
+
+  void create_predict(void);
+
+  //----------------------------------------------------------------------------
 
   //----------------------- for nonparametric terms ----------------------------
 

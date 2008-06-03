@@ -174,6 +174,10 @@ double DISTR::loglikelihood(const bool & current) const
   }
 
 
+void DISTR::compute_mu(const double * linpred,double * mu)
+  {
+
+  }
 
 
 void DISTR::swap_linearpred(void)
@@ -389,6 +393,13 @@ void DISTR_gaussian::update(void)
 
   DISTR::update();
 
+  }
+
+
+void DISTR_gaussian::compute_mu(const double * linpred,double * mu)
+  {
+
+    *mu = trmult * (*linpred);
   }
 
 

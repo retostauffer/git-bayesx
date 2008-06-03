@@ -58,6 +58,13 @@ double DISTR_binomial::loglikelihood(double * response, double * linpred,
   }
 
 
+void DISTR_binomial::compute_mu(const double * linpred,double * mu)
+  {
+  double el = exp(*linpred);
+  *mu = el/(1+el);
+  }
+
+
 double DISTR_binomial::compute_iwls(double * response, double * linpred,
                            double * weight, double * workingweight,
                            double * workingresponse, const bool & like)

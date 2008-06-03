@@ -115,6 +115,13 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("variance");
   equationtype = stroption("equationtype",equationtypes,"mean");
 
+  predictop.reserve(20);
+  predictop.push_back("no");
+  predictop.push_back("nosamples");
+  predictop.push_back("full");
+  predict = stroption("predict",predictop,"no");
+
+
   regressoptions.reserve(100);
 
   regressoptions.push_back(&modeonly);
@@ -130,6 +137,8 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&hlevel);
   regressoptions.push_back(&equationnr);
   regressoptions.push_back(&equationtype);
+  regressoptions.push_back(&predict);  
+
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -246,6 +255,9 @@ void superbayesreg::clear(void)
   FC_hrandom_variances.end());
   FC_hrandom_variances.reserve(30);
 
+  FC_predicts.erase(FC_predicts.begin(),FC_predicts.end());
+  FC_predicts.reserve(10);
+
   }
 
 
@@ -314,6 +326,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   design_psplines = b.design_psplines;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
+  FC_predicts = b.FC_predicts;
 
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
@@ -357,6 +370,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   design_psplines = b.design_psplines;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
+  FC_predicts = b.FC_predicts;
 
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
@@ -500,6 +514,10 @@ void hregressrun(superbayesreg & b)
 //    failure = b.create_const();
   if (!failure && b.terms.size() >= 1)
     failure = b.create_nonp();
+
+  if (!failure)
+    b.create_predict();
+
 
   if ((! failure) && (b.hlevel.getvalue() == 1) &&
       (b.equationtype.getvalue()=="mean"))
@@ -657,6 +675,7 @@ bool superbayesreg::create_distribution(void)
   equations[modnr].distrp->responsename=rname;
   equations[modnr].distrp->weightname=wn;
 
+
   return false;
 
   }
@@ -675,6 +694,36 @@ void superbayesreg::extract_data(unsigned i, datamatrix & d,datamatrix & iv)
     iv = D.getCol(j2);
     }
   }
+
+
+void superbayesreg::create_predict(void)
+  {
+  if (predict.getvalue() != "no")
+    {
+
+    unsigned modnr = equations.size()-1;
+
+    ST::string h = equations[modnr].paths;
+
+    ST::string pathnonp = defaultpath + "\\temp\\" + name + "_" + h +
+                            "_predict.raw";
+
+    ST::string pathres = outfile.getvalue() +  "_" + h + "_predict.res";
+
+    datamatrix f(D.rows(),1,1);
+
+    FC_predicts.push_back(FC_predict(&generaloptions,
+                         equations[modnr].distrp,"",pathnonp,D,f,modelvarnamesv));
+
+    equations[modnr].add_FC(&FC_predicts[FC_predicts.size()-1],pathres);
+
+
+    }
+
+
+  }
+
+
 
 
 void superbayesreg::create_pspline(unsigned i)

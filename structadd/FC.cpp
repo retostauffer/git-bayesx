@@ -38,8 +38,6 @@ FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
 
   column = 0;
 
-  transform = datamatrix(cols,1,1);
-
   addon = 0;
 
   }
@@ -160,6 +158,8 @@ void FC::setbeta(const unsigned & rows,const unsigned & cols,
   betavarold = datamatrix(rows,cols,0);
   betaminold = datamatrix(rows,cols,0);
   betamaxold = datamatrix(rows,cols,0);
+  transform = datamatrix(cols,1,1);
+
   }
 
 
@@ -188,6 +188,8 @@ void FC::setbeta(const datamatrix & betanew)
   betavarold = beta;
   betaminold = beta;
   betamaxold = beta;
+  transform = datamatrix(beta.cols(),1,1);
+
   }
 
 

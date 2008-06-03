@@ -137,6 +137,14 @@ class __EXPORT_TYPE DISTR
 
   double loglikelihood(const bool & current=true) const;
 
+
+  //----------------------------------------------------------------------------
+  //------------------------------- COMPUTE mu ---------------------------------
+  //----------------------------------------------------------------------------
+
+  virtual void compute_mu(const double * linpred,double * mu);
+
+
   //----------------------------------------------------------------------------
   //----------------------------- IWLS Algorithm -------------------------------
   //----------------------------------------------------------------------------
@@ -256,8 +264,7 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
    ~DISTR_gaussian() {}
 
-   // FUNCTION: loglikelihood
-   // TASK: computes the loglikelihood for a single observation
+  void compute_mu(const double * linpred,double * mu);
 
   double loglikelihood(double * res,
                        double * lin,

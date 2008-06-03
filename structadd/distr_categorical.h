@@ -57,6 +57,8 @@ class __EXPORT_TYPE DISTR_binomial : public DISTR
 
    ~DISTR_binomial() {}
 
+  void compute_mu(const double * linpred,double * mu);
+
   double loglikelihood(double * response, double * linpred,
                        double * weight) const;
 
