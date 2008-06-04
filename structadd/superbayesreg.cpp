@@ -708,12 +708,16 @@ void superbayesreg::create_predict(void)
     ST::string pathnonp = defaultpath + "\\temp\\" + name + "_" + h +
                             "_predict.raw";
 
+    ST::string pathnonp2 = defaultpath + "\\temp\\" + name + "_" + h +
+                            "_deviance.raw";
+
+
     ST::string pathres = outfile.getvalue() +  "_" + h + "_predict.res";
 
     datamatrix f(D.rows(),1,1);
 
     FC_predicts.push_back(FC_predict(&generaloptions,
-                         equations[modnr].distrp,"",pathnonp,D,f,modelvarnamesv));
+                         equations[modnr].distrp,"",pathnonp,pathnonp2,D,f,modelvarnamesv));
 
     equations[modnr].add_FC(&FC_predicts[FC_predicts.size()-1],pathres);
 

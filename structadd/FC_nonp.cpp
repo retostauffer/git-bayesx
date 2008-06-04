@@ -535,6 +535,8 @@ void FC_nonp::outresults(const ST::string & pathresults)
 
     FC::outresults(pathresults);
 
+    outresults_acceptance();
+
     optionsp->out("  Results are stored in file\n");
     optionsp->out("  " +  pathresults + "\n");
     optionsp->out("\n");

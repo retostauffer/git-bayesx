@@ -498,31 +498,33 @@ void FC::posteriormode_betamean(void)
   }
 
 
+void FC::outresults_acceptance(void)
+  {
+  double rate;
+  if (nrtrials == 0)
+    rate = (double(acceptance)/double(optionsp->nriter))*100;
+  else
+    rate = (double(acceptance)/double(nrtrials))*100;
+  optionsp->out("  Acceptance rate:    "  + ST::doubletostring(rate,4) + " %\n");
+  optionsp->out("\n");
+  }
+
+  
 void FC::outresults(const ST::string & pathresults)
   {
 
   unsigned nrpar=beta.rows()*beta.cols();
 
-  double rate;
+  if (title != "")
+    {
+    optionsp->out("\n");
+    optionsp->out("  " + title + "\n",true);
+    optionsp->out("\n");
+    optionsp->out("\n");
+    }
 
-  optionsp->out("\n");
-  optionsp->out("  " + title + "\n",true);
-  optionsp->out("\n");
-  optionsp->out("\n");
-
-
-  // computing acceptance rate
   if (optionsp->samplesize > 0)
     {
-
-
-    if (nrtrials == 0)
-      rate = (double(acceptance)/double(optionsp->nriter))*100;
-    else
-      rate = (double(acceptance)/double(nrtrials))*100;
-    optionsp->out("  Acceptance rate:    "  + ST::doubletostring(rate,4) + " %\n");
-    optionsp->out("\n");
-
 
     samplestream.close();
     datamatrix sample(optionsp->samplesize,1);

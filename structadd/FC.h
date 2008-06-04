@@ -204,10 +204,13 @@ class __EXPORT_TYPE FC
     {
     }
 
+
+
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
   virtual void outresults(const ST::string & pathresults);
+  void outresults_acceptance(void);
 
   // FUNCTION: reset
   // TASK: resets all parameters

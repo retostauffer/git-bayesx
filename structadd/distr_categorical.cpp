@@ -65,6 +65,31 @@ void DISTR_binomial::compute_mu(const double * linpred,double * mu)
   }
 
 
+void DISTR_binomial::compute_deviance(const double * response,
+                   const double * weight,const double * mu,double * deviance,
+                   double * deviancesat, double * scale) const
+  {
+
+  if (*response==0)
+    {
+    *deviance = -2* *weight * log(1-*mu);
+    *deviancesat = *deviance;
+    }
+  else if (*response == 1)
+    {
+    *deviance = -2* *weight*log(*mu);
+    *deviancesat = *deviance;
+    }
+  else
+    {
+    *deviance = -2* *weight*( *response*log(*mu)+(1-*response)*log(1-*mu) );
+    *deviancesat = *deviance +
+    2* *weight*( *response*log(*response)+(1-*response)*log(1-*response) );
+    }
+
+  }
+
+
 double DISTR_binomial::compute_iwls(double * response, double * linpred,
                            double * weight, double * workingweight,
                            double * workingresponse, const bool & like)

@@ -144,6 +144,12 @@ class __EXPORT_TYPE DISTR
 
   virtual void compute_mu(const double * linpred,double * mu);
 
+  virtual void compute_deviance(const double * response,
+                           const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           double * scale) const;
+
 
   //----------------------------------------------------------------------------
   //----------------------------- IWLS Algorithm -------------------------------
@@ -170,6 +176,7 @@ class __EXPORT_TYPE DISTR
   //----------------------------------------------------------------------------
 
   virtual double get_scale(void);
+  virtual double get_scalemean(void);  
 
   //----------------------------------------------------------------------------
   //----------------------- POSTERIORMODE FUNCTIONS ----------------------------
@@ -265,6 +272,12 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
    ~DISTR_gaussian() {}
 
   void compute_mu(const double * linpred,double * mu);
+
+  void compute_deviance(const double * response,
+                           const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           double * scale) const;
 
   double loglikelihood(double * res,
                        double * lin,

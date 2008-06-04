@@ -174,6 +174,17 @@ double DISTR::loglikelihood(const bool & current) const
   }
 
 
+void DISTR::compute_deviance(const double * response,
+                           const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           double * scale) const
+  {
+
+  }
+
+
+
 void DISTR::compute_mu(const double * linpred,double * mu)
   {
 
@@ -272,6 +283,13 @@ double DISTR::get_scale(void)
   {
   return sigma2;
   }
+
+
+double DISTR::get_scalemean(void)
+  {
+  return sigma2;
+  }
+
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian --------------------------
@@ -401,6 +419,20 @@ void DISTR_gaussian::compute_mu(const double * linpred,double * mu)
 
     *mu = trmult * (*linpred);
   }
+
+
+void DISTR_gaussian::compute_deviance(const double * response,
+                                 const double * weight, const double * mu,
+                                 double * deviance, double * deviancesat,
+                                 double * scale) const
+  {
+
+  double s = *scale*pow(trmult,2);
+  double r = *response*trmult-*mu;
+  *deviance =  (*weight/s)*r*r+log(2*M_PI*s/(*weight));
+  *deviancesat = (*weight/s)*r*r;
+  }
+
 
 
 double DISTR_gaussian::loglikelihood(double * res, double * lin,
