@@ -142,7 +142,8 @@ class __EXPORT_TYPE DISTR
   //------------------------------- COMPUTE mu ---------------------------------
   //----------------------------------------------------------------------------
 
-  virtual void compute_mu(const double * linpred,double * mu);
+  virtual void compute_mu(const double * linpred,double * mu,
+                          bool notransform=false);
 
   virtual void compute_deviance(const double * response,
                            const double * weight,
@@ -175,7 +176,7 @@ class __EXPORT_TYPE DISTR
   //----------------------- ACCESS TO SCALE PARAMETER --------------------------
   //----------------------------------------------------------------------------
 
-  virtual double get_scale(void);
+  virtual double get_scale(bool tranform=false);
   virtual double get_scalemean(void);  
 
   //----------------------------------------------------------------------------
@@ -271,7 +272,7 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
    ~DISTR_gaussian() {}
 
-  void compute_mu(const double * linpred,double * mu);
+  void compute_mu(const double * linpred,double * mu, bool notransform);
 
   void compute_deviance(const double * response,
                            const double * weight,
@@ -297,6 +298,8 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
   bool posteriormode(void);
 
   void outresults(ST::string pathresults="");
+
+  double get_scalemean(void);  
 
 
   };

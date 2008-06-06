@@ -185,7 +185,8 @@ void DISTR::compute_deviance(const double * response,
 
 
 
-void DISTR::compute_mu(const double * linpred,double * mu)
+void DISTR::compute_mu(const double * linpred,double * mu,
+                       bool notransform)
   {
 
   }
@@ -279,9 +280,12 @@ void DISTR::reset(void)
   }
 
 
-double DISTR::get_scale(void)
+double DISTR::get_scale(bool transform)
   {
-  return sigma2;
+  if (!transform)
+    return sigma2;
+  else
+    return sigma2*pow(trmult,2);  
   }
 
 
@@ -414,10 +418,13 @@ void DISTR_gaussian::update(void)
   }
 
 
-void DISTR_gaussian::compute_mu(const double * linpred,double * mu)
+void DISTR_gaussian::compute_mu(const double * linpred,double * mu,
+                                bool notransform)
   {
-
-    *mu = trmult * (*linpred);
+    if (!notransform)
+      *mu = trmult * (*linpred);
+    else
+      *mu = (*linpred);
   }
 
 
@@ -426,11 +433,9 @@ void DISTR_gaussian::compute_deviance(const double * response,
                                  double * deviance, double * deviancesat,
                                  double * scale) const
   {
-
-  double s = *scale*pow(trmult,2);
-  double r = *response*trmult-*mu;
-  *deviance =  (*weight/s)*r*r+log(2*M_PI*s/(*weight));
-  *deviancesat = (*weight/s)*r*r;
+  double r = *response-*mu;
+  *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
+  *deviancesat = (*weight/(*scale))*r*r;
   }
 
 
@@ -602,6 +607,11 @@ void DISTR_gaussian::outresults(ST::string pathresults)
 
   }
 
+
+double DISTR_gaussian::get_scalemean(void)
+  {
+  return FCsigma2.betamean(0,0);
+  }
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian_re -----------------------

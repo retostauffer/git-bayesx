@@ -57,7 +57,7 @@ class __EXPORT_TYPE DISTR_binomial : public DISTR
 
    ~DISTR_binomial() {}
 
-  void compute_mu(const double * linpred,double * mu);
+  void compute_mu(const double * linpred,double * mu, bool notransform=false);
 
   void compute_deviance(const double * response, const double * weight,
                         const double * mu,double * deviance,
