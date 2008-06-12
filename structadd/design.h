@@ -30,31 +30,15 @@ namespace MCMC
 {
 
 
-enum ttype {
-                RE,
-                RW1,
-                RW2,
-                RW3,
-                RW1RW2,
-                RW1RW2RW3,
-                seasonal,
-                mrf,
-                mrfI,
-                mrfkronecker,
-                mrflinear,
-                mrflinearband,
-                mrfquadratic8,
-                mrfquadratic12,
-                mrfkr1,
-                mrfkr2,
-                npspline,
-                smoothspline,
-                kriging,
-                hrandom
+enum ttype2 {   Rw1,
+                Rw2,
+                Rw3,
+                Mrf,
+                Hrandom
                 };
 
 
-enum effecttype {
+enum effecttype2 {
                 Function,
                 Varcoefftotal
    };
@@ -195,7 +179,7 @@ class __EXPORT_TYPE DESIGN
 
   // ---------------------------------------------------------------------------
 
-  ttype type;                                // Term type
+  ttype2 type;                                // Term type
 
 
   //----------------------- CONSTRUCTORS, DESTRUCTOR ---------------------------
@@ -228,7 +212,7 @@ class __EXPORT_TYPE DESIGN
   // TASK: computes the effect vector 
 
   void compute_effect(datamatrix & effect,datamatrix & f,
-                      effecttype et = Function);
+                      effecttype2 et = Function);
 
   void set_intvar(datamatrix & iv, double add=0);
 

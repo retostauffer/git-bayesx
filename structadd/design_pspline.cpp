@@ -40,11 +40,11 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
 
   f = op[3].strtolong(difforder);
   if (difforder == 1)
-    type = RW1;
+    type = Rw1;
  else if (difforder==2)
-   type = RW2;
+   type = Rw2;
  else
-   type = RW3;
+   type = Rw3;
 
   if (op[7] == "false")   //nocenter==false, i.e. center
     center = true;
@@ -289,19 +289,19 @@ datamatrix DESIGN_pspline::bspline(const double & x)
 
 void DESIGN_pspline::compute_penalty(void)
   {
-  if (type==RW1)
+  if (type==Rw1)
     {
     K = Krw1env(weightK);
     rankK = nrpar-1;
     }
-  else if (type==RW2)
+  else if (type==Rw2)
     {
     K = Krw2env(nrpar);
 //    ofstream out("c:\\bayesx\\test\\results\\K.res");
 //    K.print2(out);
     rankK = nrpar-2;
     }
-  else if (type==RW3)
+  else if (type==Rw3)
     {
     K = Krw3env(nrpar);
     rankK = nrpar-3;
@@ -368,11 +368,11 @@ void DESIGN_pspline::outoptions(GENERAL_OPTIONS * op)
 
   ST::string typestr;
 
- if (type == RW1)
+ if (type == Rw1)
     typestr = "first order random walk";
-  else if (type == RW2)
+  else if (type == Rw2)
     typestr = "second order random walk";
-  else if (type == RW3)
+  else if (type == Rw3)
     typestr = "third order random walk";
 
   ST::string centerm;

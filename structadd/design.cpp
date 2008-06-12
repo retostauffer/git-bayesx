@@ -648,7 +648,7 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
 
 
 void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
-                      effecttype et)
+                      effecttype2 et)
   {
 
   // TEST
@@ -1031,6 +1031,7 @@ void DESIGN::outoptions(GENERAL_OPTIONS * op)
 
 
 } // end: namespace MCMC
+
 
 
 

@@ -53,7 +53,7 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
   read_options(op,vn);
 
   ma = m;
-  type = mrf;
+  type = Mrf;
 
   init_data(dm,iv);
 
@@ -123,7 +123,7 @@ void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
 
 void DESIGN_mrf::compute_penalty(void)
   {
-  if (type==mrf)
+  if (type==Mrf)
     K = Kmrfenv(ma);
   rankK = ma.get_nrregions()-1;
   }
