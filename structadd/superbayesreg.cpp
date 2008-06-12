@@ -85,7 +85,9 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("hrandom_pspline");
 
   tnonp = term_nonp(tnames);
+  lineareffects = basic_termtype();
   termtypes.push_back(&tnonp);
+  termtypes.push_back(&lineareffects);
 
   modreg = modelterm(&termtypes);
 
@@ -230,6 +232,9 @@ void superbayesreg::clear(void)
   distr_binomials.erase(distr_binomials.begin(),distr_binomials.end());
   distr_binomials.reserve(10);
 
+  FC_linears.erase(FC_linears.begin(),FC_linears.end());
+  FC_linears.reserve(30);
+
   design_psplines.erase(design_psplines.begin(),design_psplines.end());
   design_psplines.reserve(30);
 
@@ -323,6 +328,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   run_yes = b.run_yes;
   posteriormode = b.posteriormode;
 
+  FC_linears = b.FC_linears;
   design_psplines = b.design_psplines;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
@@ -367,6 +373,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   run_yes = b.run_yes;
   posteriormode = b.posteriormode;
 
+  FC_linears = b.FC_linears;  
   design_psplines = b.design_psplines;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
@@ -510,8 +517,8 @@ void hregressrun(superbayesreg & b)
 
   if (!failure)
     failure = b.create_distribution();
-//  if (!failure)
-//    failure = b.create_const();
+  if (!failure)
+    failure = b.create_linear();
   if (!failure && b.terms.size() >= 1)
     failure = b.create_nonp();
 
@@ -726,6 +733,75 @@ void superbayesreg::create_predict(void)
   }
 
 
+bool superbayesreg::create_linear(void)
+  {
+
+  unsigned modnr = equations.size()-1;
+
+  unsigned i;
+  int j;
+
+  vector<ST::string> varnames;
+  vector<ST::string> varnamesh =  lineareffects.get_constvariables(terms);
+
+  varnames.push_back("const");
+
+  for(i=0;i<varnamesh.size();i++)
+    varnames.push_back(varnamesh[i]);
+
+  unsigned nr = varnames.size();
+
+  if (nr > 0)
+    {
+
+    ST::string title;
+    ST::string pathconst;
+    ST::string pathconstres;
+
+    ST::string h = equations[modnr].paths;
+
+    title = "FixedEffects_" + h;
+
+    pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + "_FixedEffects"  +
+                           "_" + h + ".raw";
+
+    pathconstres = outfile.getvalue() +  "_FixedEffects" + "_" + h +
+                    ".res";
+
+    if (pathconst.isvalidfile() == 1)
+      {
+      errormessages.push_back("ERROR: unable to open file " + pathconst +
+                                 " for writing\n");
+      return true;
+      }
+
+    datamatrix X(D.rows(),nr,1);
+
+    for (i=0;i<varnames.size();i++)
+      {
+
+      j = varnames[i].isinlist(modelvarnamesv);
+
+      if (j != -1)
+        {
+        unsigned l;
+        double * workX=X.getV()+i;
+        double * workD=D.getV()+j;
+        for (l=0;l<X.rows();l++,workX+=X.cols(),workD+=D.cols())
+          *workX = *workD;
+        }
+
+      }
+
+    FC_linears.push_back(FC_linear(&generaloptions,equations[modnr].distrp,X,
+                         title,pathconst,terms[i].options, terms[i].varnames));
+
+    } // end: if (nr > 0)
+
+  return false;
+
+  }
 
 
 void superbayesreg::create_pspline(unsigned i)

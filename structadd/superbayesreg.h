@@ -28,12 +28,11 @@
 #include"FC.h"
 #include"FC_predict.h"
 #include"FC_nonp.h"
+#include"FC_linear.h"
 #include"FC_hrandom.h"
 #include"FC_mult.h"
 #include"FC_nonp_variance.h"
 #include"FC_hrandom_variance.h"
-
-
 
 #include"mcmcsim.h"
 
@@ -57,6 +56,7 @@ using MCMC::equation;
 using MCMC::FC;
 using MCMC::FC_predict;
 using MCMC::FC_nonp;
+using MCMC::FC_linear;
 using MCMC::FC_mult;
 using MCMC::FC_hrandom;
 
@@ -182,6 +182,16 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_predict> FC_predicts;
 
   void create_predict(void);
+
+  //----------------------------------------------------------------------------
+
+  //---------------------------- for linear terms ------------------------------
+
+  basic_termtype lineareffects;
+
+  vector<FC_linear> FC_linears;
+
+  bool create_linear(void);
 
   //----------------------------------------------------------------------------
 
