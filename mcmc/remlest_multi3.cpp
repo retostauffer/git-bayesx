@@ -760,12 +760,14 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
   outit << it-1;
   outit.close();*/
 
-  datamatrix thetareml(theta.rows(),3,0);
+  datamatrix thetareml(theta.rows(),4,0);
   thetareml.putCol(0,theta);
+  datamatrix Hhelp = (H*Hinv);
   for(i=0; i<theta.rows(); i++)
     {
     thetareml(i,1)=thetastop[i];
     thetareml(i,2)=its[i];
+    thetareml(i,3)=xcutbeta[i+2]-xcutbeta[i+1]+(Hhelp.getBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1],totalnrfixed+zcutbeta[i+1])).trace();
     }
 
 // -----------------------------------------------------------------------------

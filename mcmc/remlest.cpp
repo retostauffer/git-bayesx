@@ -428,12 +428,14 @@
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
-  datamatrix thetareml(theta.rows(),3,0);
+  datamatrix thetareml(theta.rows(),4,0);
   thetareml.putCol(0,theta);
+  datamatrix Hhelp = (H*Hinv);
   for(i=0; i<theta.rows(); i++)
     {
     thetareml(i,1)=thetastop[i];
     thetareml(i,2)=its[i];
+    thetareml(i,3)=xcut[i+2]-xcut[i+1]+(Hhelp.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])).trace();
     }
 
   for(i=1;i<fullcond.size();i++)
@@ -1236,8 +1238,9 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
-  datamatrix thetareml(theta.rows(),3,0);
+  datamatrix thetareml(theta.rows(),4,0);
   thetareml.putCol(0,theta);
+  datamatrix Hhelp = (H*Hinv);
   for(i=0; i<theta.rows()-1; i++)
     {
     if(stopcrit[i]<lowerlim)
@@ -1249,6 +1252,7 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
       thetareml(i,1)=-1;
       }
     thetareml(i,2)=its[i];
+    thetareml(i,3)=xcut[i+2]-xcut[i+1]+(Hhelp.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])).trace();
     }
 
   out("\n");
@@ -5597,7 +5601,12 @@ for(i=0; i<nrobs; i++)
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
-  datamatrix thetareml(theta.rows(),3,0);
+  if(aicstop || !aiccontrol)
+    {
+    H.addtodiag(-Qinv,X.cols(),beta.rows());
+    }
+  datamatrix Hhelp = (H*Hinv);
+  datamatrix thetareml(theta.rows(),4,0);
   thetareml.putCol(0,theta);
   for(i=0; i<theta.rows(); i++)
     {
@@ -5610,6 +5619,7 @@ for(i=0; i<nrobs; i++)
       thetareml(i,1)=-1;
       }
     thetareml(i,2)=its[i];
+    thetareml(i,3)=xcut[i+2]-xcut[i+1]+(Hhelp.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])).trace();
     }
 
   for(i=1;i<fullcond.size();i++)
@@ -5622,10 +5632,6 @@ for(i=0; i<nrobs; i++)
   thetahist.prettyPrint(out_thetahist);
   out_thetahist.close();*/
 
-  if(aicstop || !aiccontrol)
-    {
-    H.addtodiag(-Qinv,X.cols(),beta.rows());
-    }
   loglike=0;
   aic=0;
   bic=0;

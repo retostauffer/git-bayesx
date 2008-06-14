@@ -1173,12 +1173,14 @@ out21.close();*/
   outit << it-1;
   outit.close();*/
 
-  datamatrix thetareml(theta.rows(),3,0);
+  datamatrix thetareml(theta.rows(),4,0);
   thetareml.putCol(0,theta);
+  datamatrix Hhelp = (H*Hinv);
   for(i=0; i<theta.rows(); i++)
     {
     thetareml(i,1)=thetastop[i];
     thetareml(i,2)=its[i];
+    thetareml(i,3)=xcutbeta[i+2]-xcutbeta[i+1]+(Hhelp.getBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1],totalnrfixed+zcutbeta[i+1])).trace();
     }
 
   for(i=nrcat2; i<beta.rows(); i++)
@@ -1572,8 +1574,9 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
   outit << it-1;
   outit.close();*/
 
-  datamatrix thetareml(theta.rows(),3,0);
+  datamatrix thetareml(theta.rows(),4,0);
   thetareml.putCol(0,theta);
+  datamatrix Hhelp = (H*Hinv);
   for(i=0; i<theta.rows(); i++)
     {
     if(stopcrit[i]<lowerlim)
@@ -1585,6 +1588,7 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
       thetareml(i,1)=-1;
       }
     thetareml(i,2)=its[i];
+    thetareml(i,3)=xcut[i+2]-xcut[i+1]+(Hhelp.getBlock(totalnrfixed+zcut[i],totalnrfixed+zcut[i],totalnrfixed+zcut[i+1],totalnrfixed+zcut[i+1])).trace();
     }
 
   for(i=nrcat2; i<beta.rows(); i++)

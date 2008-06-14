@@ -3884,6 +3884,8 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
     optionsp->out("  Smoothing parameter: "
                 + ST::doubletostring(smoothpar,6) + "\n");
     optionsp->out("  (Smoothing parameter = 1 / variance)\n");
+    optionsp->out("  Degrees of freedom: "
+                + ST::doubletostring(thetareml(thetapos,3),6) + "\n");
     }
   if(thetareml(thetapos,1)==1)
     {
@@ -3909,10 +3911,12 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
   ofstream outvarres(varpath.strtochar());
   outvarres << "variance  ";
   outvarres << "smoothpar  ";
+  outvarres << "df  ";
   outvarres << "stopped  " <<endl;
 
   outvarres << thetareml(thetapos,0) <<"  ";
   outvarres << smoothpar <<"  ";
+  outvarres << thetareml(thetapos,3) <<"  ";
   outvarres << (thetareml(thetapos,1)==1);
   outvarres << endl;
   outvarres.close();
