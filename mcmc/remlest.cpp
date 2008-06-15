@@ -430,6 +430,7 @@
 
   datamatrix thetareml(theta.rows(),4,0);
   thetareml.putCol(0,theta);
+  H.addtodiag(-Qinv,X.cols(),beta.rows());
   datamatrix Hhelp = (H*Hinv);
   for(i=0; i<theta.rows(); i++)
     {
@@ -459,7 +460,6 @@
     }
 
   loglike=aic=bic=gcv=0;
-  H.addtodiag(-Qinv,X.cols(),beta.rows());
   df=(H*Hinv).trace();
   if(respfamily=="poisson")
     {
@@ -1240,6 +1240,7 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
 
   datamatrix thetareml(theta.rows(),4,0);
   thetareml.putCol(0,theta);
+  H.addtodiag(-Qinv,X.cols(),beta.rows());
   datamatrix Hhelp = (H*Hinv);
   for(i=0; i<theta.rows()-1; i++)
     {
@@ -1289,7 +1290,7 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
 
   if(respfamily=="gaussian")// || respfamily=="gamma")
     {
-    H.addtodiag(-Qinv,X.cols(),beta.rows());
+//    H.addtodiag(-Qinv,X.cols(),beta.rows());
     loglike=aic=bic=gcv=0;
     double s;
     df=(H*Hinv).trace();

@@ -3877,6 +3877,8 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
     optionsp->out("  Smoothing parameter: "
                 + ST::doubletostring(smoothpar,6) + "\n");
     optionsp->out("  (Smoothing parameter = scale / variance)\n");
+    optionsp->out("  Degrees of freedom: "
+                + ST::doubletostring(thetareml(thetapos,3),6) + "\n");
     }
   else
     {

@@ -3421,6 +3421,7 @@ out1.close();*/
 
   datamatrix thetareml(theta.rows(),4,0);
   thetareml.putCol(0,theta);
+  H.addtodiag(-Qinv,xcols,beta.rows());
   datamatrix Hhelp = (H*Hinv);
   for(i=0; i<theta.rows(); i++)
     {
