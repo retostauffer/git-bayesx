@@ -149,25 +149,33 @@ void DISTRIBUTION_coxmodel::compute_iwls(void)
   double * workweightiwls = weightiwls.getV();
   double * ywork = tildey.getV();
   double * int_ti_work = int_ti.getV();
+  double * workweight = weight.getV();
 
   if(offsetexisting == false)
     {
-    for (i=0;i<nrobs;i++,linpred++,ywork++,workresponse++,workweightiwls++,int_ti_work++)
+    for (i=0;i<nrobs;i++,linpred++,ywork++,workresponse++,workweightiwls++,int_ti_work++,workweight++)
       {
-      *workweightiwls = exp(*linpred)* *int_ti_work;
-      *ywork = *linpred + *workresponse/(*workweightiwls)-1.0;
+      *workweightiwls = *workweight * exp(*linpred)* *int_ti_work;
+      if (*workweightiwls==0.0)
+        *ywork = 0.0;
+      else
+        *ywork = *linpred + *workresponse/(*workweightiwls)-1.0;
       }
     }
   else
     {
     double * relrisk_work = relrisk.getV();
-    for (i=0;i<nrobs;i++,linpred++,ywork++,workresponse++,workweightiwls++,int_ti_work++,relrisk_work++)
+    for (i=0;i<nrobs;i++,linpred++,ywork++,workresponse++,workweightiwls++,int_ti_work++,relrisk_work++,workweight++)
       {
       double weighthelp = exp(*linpred)* *int_ti_work;
       double deltastar = *workresponse*exp(*linpred)/(*relrisk_work + exp(*linpred));
-      *workweightiwls = weighthelp - (*relrisk_work* *workresponse*exp(*linpred))/((*relrisk_work+exp(*linpred))*(*relrisk_work+exp(*linpred)));
+      *workweightiwls = *workweight * (weighthelp - (*relrisk_work* *workresponse*exp(*linpred))/
+                                        ((*relrisk_work+exp(*linpred))*(*relrisk_work+exp(*linpred))));
       if (*workweightiwls<0.0) *workweightiwls = 0.000001;
-      *ywork = *linpred + (deltastar - weighthelp)/(*workweightiwls);
+      if (*workweightiwls==0.0)
+          *ywork = 0.0;
+      else
+          *ywork = *linpred + (deltastar - weighthelp)/(*workweightiwls);
       }
     }
   }
@@ -181,15 +189,22 @@ void DISTRIBUTION_coxmodel::compute_IWLS_weight_tildey(double * response,double 
   double weighthelp = exp(*linpred)* *(int_ti.getV() + i);
   if(offsetexisting==false)
     {
-    *weightiwls = weighthelp;
-    *tildey = *response/(*weightiwls)-1.0;
+    *weightiwls = *weight * weighthelp;
+    if (*weightiwls==0.0)
+        *tildey = 0.0;
+    else
+        *tildey = *response/(*weightiwls)-1.0;
     }
   else
     {
-    *weightiwls = weighthelp - relrisk(i,0)* *response *exp(*linpred)/((relrisk(i,0)+exp(*linpred))*(relrisk(i,0)+exp(*linpred)));
+    *weightiwls = *weight * (weighthelp - relrisk(i,0)* *response *exp(*linpred)/
+                            ((relrisk(i,0)+exp(*linpred))*(relrisk(i,0)+exp(*linpred))));
     if(*weightiwls<0.0) *weightiwls=0.000001;
     double deltastern = *response * exp(*linpred)/(relrisk(i,0)+exp(*linpred));
-    *tildey = (deltastern - weighthelp)/(*weightiwls);
+    if (*weightiwls==0.0)
+        *tildey = 0.0;
+    else
+        *tildey = (deltastern - weighthelp)/(*weightiwls);
     }
   }
 
@@ -203,19 +218,26 @@ double DISTRIBUTION_coxmodel::compute_IWLS(double * response,double * linpred,do
   if(offsetexisting == false)
     {
     if(weightyes)
-      *weightiwls = weighthelp;
-    *tildey = *response/(*weightiwls)-1.0;
+      *weightiwls = *weight * weighthelp;
+    if (*weightiwls==0.0)
+       *tildey = 0.0;
+    else
+       *tildey = *response/(*weightiwls)-1.0;
     return *weight * (*response * (*linpred) - *weightiwls);
     }
   else
     {
     if(weightyes)
       {
-      *weightiwls = weighthelp- relrisk(i,0)* *response*exp(*linpred)/((relrisk(i,0)+exp(*linpred))*(relrisk(i,0)+exp(*linpred)));
+      *weightiwls = *weight * (weighthelp- relrisk(i,0)* *response*exp(*linpred)/
+                                ((relrisk(i,0)+exp(*linpred))*(relrisk(i,0)+exp(*linpred))));
       if (*weightiwls<0.0) *weightiwls = 0.000001;
       }
     double deltastern = *response * exp(*linpred)/(relrisk(i,0)+exp(*linpred));
-    *tildey = (deltastern - weighthelp)/(*weightiwls);
+    if (*weightiwls==0.0)
+        *tildey = 0.0;
+    else
+        *tildey = (deltastern - weighthelp)/(*weightiwls);
     return *weight * (*response * log(relrisk(i,0) + exp(*linpred)) - weighthelp);
     }
   }
