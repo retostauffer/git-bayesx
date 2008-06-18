@@ -102,8 +102,11 @@ __fastcall Thauptformular::Thauptformular(TComponent* Owner)
 #if defined(INCLUDE_REML)
   objecttyps.push_back("remlreg");
 #endif
+#if defined(INCLUDE_STEP)
   objecttyps.push_back("stepwisereg");
-//  objecttyps.push_back("diseasemap");
+#endif
+  objecttyps.push_back("mcmcreg");  
+
 
   delim = '\r';
   commandedit->Tag = false;
@@ -172,6 +175,20 @@ void Thauptformular::dropobjects(ST::string name, ST::string type)
 		}
 	 }  // end: type bayesreg
 #endif
+  else if (type == "mcmcreg")
+	 {
+	 while ( (i < mcmcregobjects.size()) && (recognized == 0) )
+		{
+
+		if ( name == mcmcregobjects[i].getname())
+		  {
+
+		  mcmcregobjects.erase(mcmcregobjects.begin()+i,mcmcregobjects.begin()+i+1);
+		  recognized = 1;
+		  }
+		i++;
+		}
+	 }  // end: type bayesreg
 #if defined(INCLUDE_REML)
   else if (type == "remlreg")
 	 {
@@ -188,6 +205,7 @@ void Thauptformular::dropobjects(ST::string name, ST::string type)
 		}
 	 }  // end: type remlreg
 #endif
+#if defined(INCLUDE_STEP)
   else if (type == "stepwisereg")
 	 {
 	 while ( (i < stepwiseregobjects.size()) && (recognized == 0) )
@@ -203,6 +221,7 @@ void Thauptformular::dropobjects(ST::string name, ST::string type)
 		i++;
 		}
 	 }  // end: type stepwisereg
+#endif
   else if (type == "map")
 	 {
 	 while ( (i < mapobjects.size()) && (recognized == 0) )
@@ -314,6 +333,11 @@ ST::string Thauptformular::create(const ST::string & in)
 			 bayesregobjects.push_back(newobject);
 			 }
 #endif
+		  else if (token[0] == "mcmcreg")
+			 {
+			 superbayesreg newobject(token[1],&logout,input,defaultpath,&objects);
+			 mcmcregobjects.push_back(newobject);
+			 }
 #if defined(INCLUDE_REML)
 		  else if (token[0] == "remlreg")
 			 {
@@ -321,11 +345,13 @@ ST::string Thauptformular::create(const ST::string & in)
 			 remlregobjects.push_back(newobject);
 			 }
 #endif             
+#if defined(INCLUDE_STEP)
 		  else if (token[0] == "stepwisereg")
 			 {
 			 stepwisereg newobject(token[1],&logout,input,defaultpath,&objects);
 			 stepwiseregobjects.push_back(newobject);
 			 }
+#endif			 
 		  else if (token[0] == "map")
 			 {
 			 mapobject newobject(token[1],&logout,input,defaultpath,&objects);
@@ -396,13 +422,18 @@ void Thauptformular::adjustobjects(void)
 	 objects.push_back(&bayesregobjects[i]);
 #endif
 
+  for (i=0;i<mcmcregobjects.size();i++)
+	 objects.push_back(&mcmcregobjects[i]);
+
 #if defined(INCLUDE_REML)
   for (i=0;i<remlregobjects.size();i++)
 	 objects.push_back(&remlregobjects[i]);
 #endif     
 
+#if defined(INCLUDE_STEP)
   for (i=0;i<stepwiseregobjects.size();i++)
 	 objects.push_back(&stepwiseregobjects[i]);
+#endif
 
   for (i=0;i<mapobjects.size();i++)
 	 objects.push_back(&mapobjects[i]);

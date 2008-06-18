@@ -32,13 +32,27 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   protected:
 
+  bool initialize;
   bool IWLS;
 
   DISTR * likep;                             // Pointer to DISTR obejct
-  datamatrix design;
+  datamatrix design;                         // Designmatrix
+  vector<ST::string> datanames;              // names of covariates  
 
   datamatrix Xt;                             // transposed designmatrix
   datamatrix XWX;
+  datamatrix XWXroot;
+  datamatrix residual;
+  datamatrix Xtresidual;
+
+  datamatrix betaold;
+  datamatrix betadiff;
+
+  datamatrix linold;
+
+  void create_matrices(void);  
+  void compute_XWX(void);
+  void compute_Wpartres(datamatrix & linpred);  
 
   public:
 
@@ -50,9 +64,9 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   // CONSTRUCTOR
 
-  FC_linear(GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,const ST::string & t,
-           const ST::string & fp,vector<ST::string> & op,
-             vector<ST::string> & vn);
+  FC_linear(GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
+            vector<ST::string> & vn, const ST::string & t,
+           const ST::string & fp);
 
   // COPY CONSTRUCTOR
 

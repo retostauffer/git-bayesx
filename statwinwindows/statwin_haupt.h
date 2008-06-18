@@ -21,7 +21,12 @@
 #include<remlreg.h>
 #endif
 
+#if defined(INCLUDE_STEP)
 #include<stepwisereg.h>
+#endif
+
+#include<superbayesreg.h>
+
 #include<mapobject.h>
 #if defined(INCLUDE_DAG)
 #include<dagobject.h>
@@ -63,6 +68,7 @@ private:        // Benutzerdeklarationen
   // valid types:
   // - dataset
   // - bayesreg
+  // - mcmcreg
   // - map
   // - dag
   // - diseasemap
@@ -88,16 +94,21 @@ private:        // Benutzerdeklarationen
   vector<bayesreg> bayesregobjects;
 #endif
 
+  // 'mcmcregobjects' contains current bayesreg objects
+
+  vector<superbayesreg> mcmcregobjects;
+
   // 'remlregobjects' contains current remlreg objects
 
 #if defined(INCLUDE_REML)
   vector<remlreg> remlregobjects;
-#endif  
+#endif
 
   // 'stepwiseregobjects' contains current stepwisereg objects
 
+#if defined(INCLUDE_STEP)
   vector<stepwisereg> stepwiseregobjects;
-
+#endif
 
   // 'mapobjects' contains current map objects
 

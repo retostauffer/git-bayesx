@@ -63,6 +63,30 @@ const statmatrix<T> & statmatrix<T>::operator=(const SparseMatrix & m)
 		return res;
 	}
 
+template<class T>
+void statmatrix<T>::solveroot(const statmatrix & b, const statmatrix & help,
+                              const statmatrix & x)
+  {
+  int i,j;
+  T h;
+
+  for (i=0;i<rows();i++)
+    {
+    h=0;
+    for (j=0;j<i-1;j++)
+      h+= (*this)(i,j)* help(j,0);
+    help(i,0) = (b(i,0)-h)/((*this)(i,i));
+    }
+
+  for (i=rows()-1;i>0;i--)
+    {
+    h=0;
+    for (j=i+1;j<rows();j++)
+      h+= (*this)(j,i)*x(j,0);
+    x(i,0) = (help(i,0)-h)/((*this)(i,i))
+    }
+
+  }
 
 template<class T>
 void statmatrix<T>::assign(const statmatrix & A)

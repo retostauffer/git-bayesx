@@ -795,7 +795,9 @@ bool superbayesreg::create_linear(void)
       }
 
     FC_linears.push_back(FC_linear(&generaloptions,equations[modnr].distrp,X,
-                         title,pathconst,terms[i].options, terms[i].varnames));
+                         varnames,title,pathconst));
+
+    equations[modnr].add_FC(&FC_linears[FC_linears.size()-1],pathconstres);
 
     } // end: if (nr > 0)
 
@@ -1053,14 +1055,17 @@ bool superbayesreg::create_nonp(void)
 
   for(i=0;i<terms.size();i++)
     {
-    if (terms[i].options[0] == "pspline")
-      create_pspline(i);
-    if (terms[i].options[0] == "hrandom")
-      error = create_hrandom(i);
-    if (terms[i].options[0] == "spatial")
-      error = create_mrf(i);
-    if (terms[i].options[0] == "hrandom_pspline")
-      error = create_random_pspline(i);
+    if (terms[i].options.size() > 0)
+      {
+      if (terms[i].options[0] == "pspline")
+        create_pspline(i);
+      if (terms[i].options[0] == "hrandom")
+        error = create_hrandom(i);
+      if (terms[i].options[0] == "spatial")
+        error = create_mrf(i);
+      if (terms[i].options[0] == "hrandom_pspline")
+        error = create_random_pspline(i);
+      }
 
     if (error)
       return error;

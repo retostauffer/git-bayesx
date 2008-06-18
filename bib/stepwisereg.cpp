@@ -2473,6 +2473,8 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
 
       if (terms[i].options[0] == "spatialrandom")
         type = MCMC::mrfI;
+      else if (terms[i].options[0] == "twospatialrandom")
+        type = MCMC::twomrfI;
       else
         type = MCMC::mrf;
 
@@ -2513,6 +2515,37 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
         }
 
       MAP::map m = mapp->getmap();
+      
+      MAP::map m2;
+      if (terms[i].options[0] == "twospatialrandom")
+        {
+                              
+        mapobject * mapp;                           // pointer to mapobject
+
+        int objpos = findstatobject(*statobj,terms[i].options[16],"map");
+
+        if (objpos >= 0)
+          {
+          statobject * s = statobj->at(objpos);
+          mapp = dynamic_cast<mapobject*>(s);
+          }
+        else
+          {
+          if (objpos == -1)
+            {
+            if ((terms[i].options[16] == "") || (terms[i].options[16] == " "))
+              outerror("ERROR: map object must be specified to estimate a spatial effect\n");
+            else
+              outerror("ERROR: map object " + terms[i].options[16] + " is not existing\n");
+            }
+          else
+            outerror("ERROR: " + terms[i].options[16] + " is not a map object\n");
+          return true;
+          }
+
+        m2 = mapp->getmap();
+                              
+        }                      
 
       f = (terms[i].options[2]).strtodouble(hd);
       lambda = hd;
@@ -2582,11 +2615,13 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
 
       unsigned z;
       unsigned oben = 1;
-      bool mrfrw0 = false;
       if(type == MCMC::mrfI)
         {
         oben = 2;
-        mrfrw0 = true;
+        }
+      else if(type == MCMC::twomrfI)
+        {
+        oben = 3;
         }
       for(z=1;z<=oben;z++)
         {
@@ -2601,7 +2636,7 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
                                           title,
                                           pathnonp,
                                           pathres,collinpred,lambda,
-                                          type
+                                          type,m2
                                           )
                              );
 
@@ -2717,12 +2752,24 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
         fcnonpgaussian[fcnonpgaussian.size()-1].set_matrixnumber(z);
         }
 
-      if(mrfrw0 == true)
+      if(type == MCMC::mrfI)
         {
         FULLCOND * other = &fcnonpgaussian[fcnonpgaussian.size()-2];
         fcnonpgaussian[fcnonpgaussian.size()-1].set_otherfullcond(other);
         other = &fcnonpgaussian[fcnonpgaussian.size()-1];
         fcnonpgaussian[fcnonpgaussian.size()-2].set_otherfullcond(other);
+        // hier gegenseitige ZEIGER für twomrfI setzen!!!!!!!!!!!!!!!!
+        }
+      else if(type == MCMC::twomrfI)
+        {
+        FULLCOND * other = &fcnonpgaussian[fcnonpgaussian.size()-3];
+        fcnonpgaussian[fcnonpgaussian.size()-2].set_otherfullcond(other);
+        fcnonpgaussian[fcnonpgaussian.size()-1].set_otherfullcond(other);
+
+        other = &fcnonpgaussian[fcnonpgaussian.size()-2];
+        fcnonpgaussian[fcnonpgaussian.size()-3].set_otherfullcond(other);
+        other = &fcnonpgaussian[fcnonpgaussian.size()-1];
+        fcnonpgaussian[fcnonpgaussian.size()-3].set_otherfullcond(other);
         }
       }   // end: if ( nonpspatial.checkvector(terms,i) == true )
     } //  end:  for(i=0;i<terms.size();i++)

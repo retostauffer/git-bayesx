@@ -559,22 +559,14 @@ bool term_pspline_stepwise::check(term & t)
       t.type = "psplinerw1";
     else if (t.options[0] == "psplinerw2" && t.varnames.size() == 1)
       t.type = "psplinerw2";
-    else if (t.options[0] == "psplinerw3" && t.varnames.size() == 1)
-      t.type = "psplinerw3";
     else if (t.options[0] == "psplinerw1rw2" && t.varnames.size() == 1)
       t.type = "psplinerw1rw2";
-    else if (t.options[0] == "psplinerw1rw2rw3" && t.varnames.size() == 1)
-      t.type = "psplinerw1rw2rw3";
     else if (t.options[0] == "psplinerw1" && t.varnames.size() == 2)
       t.type = "varpsplinerw1";
     else if (t.options[0] == "psplinerw2" && t.varnames.size() == 2)
       t.type = "varpsplinerw2";
-    else if (t.options[0] == "psplinerw3" && t.varnames.size() == 2)
-      t.type = "varpsplinerw3";
     else if (t.options[0] == "psplinerw1rw2" && t.varnames.size() == 2)
       t.type = "varpsplinerw1rw2";
-    else if (t.options[0] == "psplinerw1rw2rw3" && t.varnames.size() == 2)
-      t.type = "varpsplinerw1rw2rw3";
     else if(t.options[0] == "linear")
       t.type = "linear";
     else
@@ -779,6 +771,7 @@ term_spatial_stepwise::term_spatial_stepwise(void)
   df_accuracy = doubleoption("df_accuracy",0.05,0.01,0.5);
   center = simpleoption("center",false);
   nofixed = simpleoption("nofixed",false);
+  map2=stroption("map2");  
   }
 
 void term_spatial_stepwise::setdefault(void)
@@ -798,6 +791,7 @@ void term_spatial_stepwise::setdefault(void)
   df_accuracy.setdefault();
   center.setdefault();
   nofixed.setdefault();
+  map2.setdefault();  
   }
 
 
@@ -805,7 +799,7 @@ bool term_spatial_stepwise::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.varnames.size()>=1) &&
-       (t.options.size()<=16) && (t.options.size() >= 1) )
+       (t.options.size()<=17) && (t.options.size() >= 1) )
     {
 
     if (t.options[0] == "spatial" && t.varnames.size()==1)
@@ -814,6 +808,8 @@ bool term_spatial_stepwise::check(term & t)
       t.type = "varcoeffspatial";
     else if(t.options[0] == "spatialrandom")
       t.type = "spatialrandom";
+    else if(t.options[0] == "twospatialrandom")
+      t.type = "twospatialrandom";
     else
       {
       setdefault();
@@ -839,6 +835,7 @@ bool term_spatial_stepwise::check(term & t)
     optlist.push_back(&df_accuracy);
     optlist.push_back(&center);
     optlist.push_back(&nofixed);
+    optlist.push_back(&map2);    
 
     unsigned i;
     bool rec = true;
@@ -863,7 +860,7 @@ bool term_spatial_stepwise::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(16);
+    t.options = vector<ST::string>(17);
     t.options[0] = t.type;
     t.options[1] = map.getvalue();
     t.options[2] = ST::doubletostring(lambda.getvalue());
@@ -897,6 +894,7 @@ bool term_spatial_stepwise::check(term & t)
     else
         t.options[15] = "true";
 
+    t.options[16] = map2.getvalue();
 
     int b = t.options[3].strtodouble(minl);
     b = t.options[4].strtodouble(maxl);
@@ -2091,6 +2089,5 @@ bool term_projection_stepwise::checkvector(const vector<term> & terms, const uns
 
   return false;
   }
-
 
 

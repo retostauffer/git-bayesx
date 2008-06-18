@@ -215,11 +215,8 @@ class __EXPORT_TYPE term_pspline_stepwise : public basic_termtype
     assert(i< terms.size());
 
     if ( (terms[i].type == "psplinerw1") || (terms[i].type == "psplinerw2") ||
-         (terms[i].type == "psplinerw3") ||
          (terms[i].type == "varpsplinerw1") || (terms[i].type == "varpsplinerw2") ||
-         (terms[i].type == "varpsplinerw3") ||
-         (terms[i].type == "psplinerw1rw2") || (terms[i].type == "varpsplinerw1rw2") ||
-         (terms[i].type == "psplinerw1rw2rw3") || (terms[i].type == "varpsplinerw1rw2rw3") )
+         (terms[i].type == "psplinerw1rw2") || (terms[i].type == "varpsplinerw1rw2"))
       return true;
 
     return false;
@@ -253,6 +250,7 @@ class __EXPORT_TYPE term_spatial_stepwise : public basic_termtype
   doubleoption df_accuracy;
   simpleoption center;
   simpleoption nofixed;
+  stroption map2;
 
   void setdefault(void);
 
@@ -275,7 +273,7 @@ class __EXPORT_TYPE term_spatial_stepwise : public basic_termtype
     assert(i< terms.size());
 
     if ( (terms[i].type == "spatial") ||  (terms[i].type == "varcoeffspatial")
-         || (terms[i].type == "spatialrandom") )
+         || (terms[i].type == "spatialrandom") || (terms[i].type == "twospatialrandom") )
       return true;
 
     return false;
