@@ -70,7 +70,7 @@ void statmatrix<T>::solveroot(const statmatrix & b, const statmatrix & help,
   int i,j;
   T h;
 
-  for (i=0;i<rows();i++)
+  for (i=0;i<this->rows();i++)
     {
     h=0;
     for (j=0;j<i-1;j++)
@@ -78,12 +78,12 @@ void statmatrix<T>::solveroot(const statmatrix & b, const statmatrix & help,
     help(i,0) = (b(i,0)-h)/((*this)(i,i));
     }
 
-  for (i=rows()-1;i>0;i--)
+  for (i=this->rows()-1;i>0;i--)
     {
     h=0;
-    for (j=i+1;j<rows();j++)
+    for (j=i+1;j<this->rows();j++)
       h+= (*this)(j,i)*x(j,0);
-    x(i,0) = (help(i,0)-h)/((*this)(i,i))
+    x(i,0) = (help(i,0)-h)/((*this)(i,i));
     }
 
   }
@@ -764,7 +764,7 @@ void statmatrix<T>::rank(statmatrix<double> & rang,statmatrix<int> & index,
   unsigned anzahl = 0;
   double neurang;
 
-  while(i<=ende-start)  
+  while(i<=ende-start)
     {
     unten = i-1;
     while( (i<=ende-start) && (this->get(index(i,0),col)-this->get(index(i-1,0),col))<pow(10,-10) )
@@ -1232,8 +1232,8 @@ statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 			res(0,l) = this->get(i,k);
 		l++;
 	}
-	
-	
+
+
 
 
 /*	if(i<j)
@@ -1252,7 +1252,7 @@ statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 			else if(k>j-1)
 				res(0,k) = get(i,k+2);
 
-			else 
+			else
 				res(0,k) = get(i,k+2);
 		}
 	}
@@ -1272,11 +1272,11 @@ statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 			else if(k>i-1)
 				res(0,k) = get(i,k+2);
 
-			else 
+			else
 				res(0,k) = get(i,k+2);
 		}
 	} */
-	
+
 
 	return res;
 }

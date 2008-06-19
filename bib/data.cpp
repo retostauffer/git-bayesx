@@ -65,7 +65,7 @@ data::data(list <ST::string> & vn,list<realvar> & va)
 
 
 int data::findvar(const ST::string & name,list<ST::string>::iterator & stit,
-				  list<realvar>::iterator & varit) 
+				  list<realvar>::iterator & varit)
   {
   if (empty)
    return 1;
@@ -336,7 +336,7 @@ istream & in,ST::string & m,const unsigned & maxobs)
 				  && (errormessages.empty()))
 		{
 		in >> obs;
-		if (obs.length() > 0)
+		if (obs.length() > 0 && !in.eof())
 		  {
 		  if ((obs == ".") || (obs == "NA") || (obs == missing) )
 			 (*i).push_back(NA);
@@ -732,7 +732,7 @@ realvar dataset::eval_exp(ST::string  expression, bool clearerrors)
 
           for (i=0;i<nrobs;i++,++it)
         	 *it = adminb_p->Java->CallDoubleMethod(adminb_p->BayesX_obj, javauniform);
-          return h;   
+          return h;
 #else
 		  return realob::uniform(nrobs);
 #endif
@@ -1566,7 +1566,7 @@ void dataset::marketing(vector<ST::string> & names, ST::string & defs, int & lak
   for(i=0;i<nrobs;i++)    //Schleife, die Werte zum "Weiterhüpfen" liefert
     {
     if(getvalue(i,varitm) != ma)
-       {                           
+       {
        anzpreis.push_back(w);
        ma = getvalue(i,varitm);
        }
@@ -1587,9 +1587,9 @@ void dataset::marketing(vector<ST::string> & names, ST::string & defs, int & lak
   ST::string minpreis = "minpreis";
   addvariable(minpreis, wert); //fügt neue Variable hinzu
   found = datarep.findvar(minpreis,stit,varitmp);  //Zeiger auf "minpreis"
-  
+
   double sum = 0;
-  for(i=0;i<anzpreis.size();i++)    //berechnet Anzahl der letzten Marke pro Geschäft und Woche 
+  for(i=0;i<anzpreis.size();i++)    //berechnet Anzahl der letzten Marke pro Geschäft und Woche
     {
     sum = sum + nrwoche*nrout*anzpreis[i];
     }
@@ -1873,7 +1873,7 @@ void dataset::marketing(vector<ST::string> & names, ST::string & defs, int & lak
             }
         y = y - anzpreis[zma];
         akt1 = akt2;
-        }  
+        }
       jalt = jalt + nrwoche*anzpreis[zma];
       wo = wo + anzpreis[zma]*nrwoche;
       if(wo>=nrwoche*nrout*anzpreis[zma])
