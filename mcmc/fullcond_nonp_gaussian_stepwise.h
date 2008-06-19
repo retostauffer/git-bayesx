@@ -47,11 +47,12 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   bool isbootstrap;
 
   envmatdouble Kenv2;
-  double kappa;
-  double kappaold;
-  double kappa_prec;
-  FULLCOND * otherfullcond;
-  
+  envmatdouble Kenv3;
+  vector<double> kappa;
+  vector<double> kappaold;
+  vector<double> kappa_prec;
+  vector<FULLCOND *> otherfullcond;
+
 
   public:
 
@@ -95,7 +96,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
                         const ST::string & ti,
                         const ST::string & fp, const ST::string & pres,
                         const unsigned & c,const double & l,
-                        const fieldtype & ft);
+                        const fieldtype & ft, const MAP::map & m2 = MAP::map());
 
   // varying coefficients , spatial covariates as effect modifier
 
@@ -194,7 +195,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
 
   void set_otherfullcond(FULLCOND * ofullc)
     {
-    otherfullcond = ofullc;
+    otherfullcond.push_back(ofullc);
     }
 
   //void search_for_interaction(void);

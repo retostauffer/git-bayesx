@@ -79,7 +79,7 @@ FULLCOND_nonp_gaussian_stepwise::FULLCOND_nonp_gaussian_stepwise(MCMCoptions * o
                         const ST::string & ti,
                         const ST::string & fp, const ST::string & pres,
                         const unsigned & c,const double & l,
-                        const fieldtype & ft)
+                        const fieldtype & ft, const MAP::map & m2)
   : FULLCOND_nonp_gaussian(o,dp,d,fcc,m,mn,ti,fp,pres,c,l)
 
   {
@@ -97,10 +97,23 @@ FULLCOND_nonp_gaussian_stepwise::FULLCOND_nonp_gaussian_stepwise(MCMCoptions * o
     forced_into = true;
     kombimatrix = true;
     numberofmatrices = 2;
-    kappa = 1;
-    kappaold = -2;
-    kappa_prec = -1;
+    kappa = vector<double>(1,1);
+    kappaold = vector<double>(1,-2);
+    kappa_prec = vector<double>(1,-1);
     Kenv2 = Krw0env(nrpar);
+    }
+
+  if(type == twomrfI)
+    {
+    nofixed = true;
+    forced_into = true;
+    kombimatrix = true;
+    numberofmatrices = 3;
+    kappa = vector<double>(1,1);
+    kappaold = vector<double>(1,-2);
+    kappa_prec = vector<double>(1,-1);
+    Kenv2 = Kmrfenv(m2);
+    Kenv3 = Krw0env(nrpar);
     }
 
   all_precenv.erase(all_precenv.begin(),all_precenv.end());
@@ -141,9 +154,9 @@ FULLCOND_nonp_gaussian_stepwise::FULLCOND_nonp_gaussian_stepwise(MCMCoptions * o
     forced_into = true;
     kombimatrix = true;
     numberofmatrices = 2;
-    kappa = 1;
-    kappaold = -2;
-    kappa_prec = -1;
+    kappa = vector<double>(1,1);
+    kappaold = vector<double>(1,-2);
+    kappa_prec = vector<double>(1,-1);
     Kenv2 = Krw0env(nrpar);
     }
 
@@ -180,6 +193,7 @@ FULLCOND_nonp_gaussian_stepwise::FULLCOND_nonp_gaussian_stepwise(const FULLCOND_
   fc_df = fc.fc_df;
   isbootstrap = fc.isbootstrap;
   Kenv2 = fc.Kenv2;
+  Kenv3 = fc.Kenv3;
   kappa = fc.kappa;
   kappaold = fc.kappaold;
   kappa_prec = fc.kappa_prec;
@@ -210,6 +224,7 @@ const FULLCOND_nonp_gaussian_stepwise & FULLCOND_nonp_gaussian_stepwise::operato
   fc_df = fc.fc_df;  
   isbootstrap = fc.isbootstrap;
   Kenv2 = fc.Kenv2;
+  Kenv3 = fc.Kenv3;
   kappa = fc.kappa;
   kappaold = fc.kappaold;
   kappa_prec = fc.kappa_prec;
@@ -526,7 +541,7 @@ else
 
           if(type!=MCMC::seasonal)
             {
-            if (type==MCMC::mrf || type==MCMC::mrfI)
+            if (type==MCMC::mrf || type==MCMC::mrfI || type==MCMC::twomrfI)
               invprec = envmatdouble(precenv.getXenv(),0,precenv.getDim());
             else
               invprec = envmatdouble(0,nrpar,Kenv.getBandwidth());
@@ -644,17 +659,24 @@ if(matrixnumber == 1)
     t = "spatial";
   else if (type==MCMC::mrfI)
     t = "spatialrandom";
+  else if (type==MCMC::twomrfI)
+    t = "twospatialrandom";
 
   if(varcoeff)
     h = datanames[1] + "*" + datanames[0];   // (VC alt) 0 - 1
   else
     h = datanames[0];
 
-  if(type != mrfI)
+  if(type != mrfI && type != twomrfI && type != twomrfI)
     h = h + "(" + t + ",df=" + ST::doubletostring(compute_df(),6) + ",(lambda=" + ST::doubletostring(lambda,6) + "))";
+  else if(type == mrfI)
+    h = h + "(" + t + ",df=" + ST::doubletostring(compute_df(),6) +
+        ",(lambda1=" + ST::doubletostring(lambda,6) + "),(lambda2=" + ST::doubletostring(otherfullcond[0]->get_lambda(),6) + "))";
   else
     h = h + "(" + t + ",df=" + ST::doubletostring(compute_df(),6) +
-        ",(lambda1=" + ST::doubletostring(lambda,6) + "),(lambda2=" + ST::doubletostring(otherfullcond->get_lambda(),6) + "))";
+        ",(lambda1=" + ST::doubletostring(lambda,6) + "),(lambda2=" +
+        ST::doubletostring(otherfullcond[0]->get_lambda(),6) + "),(lambda3=" +
+        ST::doubletostring(otherfullcond[1]->get_lambda(),6) + "))";
   }
 
   return h;
@@ -786,12 +808,14 @@ void FULLCOND_nonp_gaussian_stepwise::compute_lambdavec(
 vector<double> & lvec, int & number)
   {
   lambdaold = -1;
+  unsigned i;
   bool kchanged = false;
   if(kombimatrix==true)
     {
     nofixed = true;
     forced_into = true;
-    otherfullcond->update_stepwise(0.0000001);
+    for(i=0;i<otherfullcond.size();i++)
+      otherfullcond[i]->update_stepwise(0.0000001);
     kchanged = true;
     kombimatrix = false;    // damit das Auswählen der Lambdas schneller geht
     }
@@ -1404,7 +1428,9 @@ void FULLCOND_nonp_gaussian_stepwise::update_gauss(void)
 
   precenv.addtodiag(XXenv,Kenv,1.0,lambda);
   if(kombimatrix==true)
-    precenv.addto(precenv,Kenv2,1.0,otherfullcond->get_lambda());
+    precenv.addto(precenv,Kenv2,1.0,otherfullcond[0]->get_lambda());
+    if(numberofmatrices==3)
+      precenv.addto(precenv,Kenv3,1.0,otherfullcond[1]->get_lambda());
 
   double sigmaresp = sqrt(likep->get_scale(column));
 
@@ -1478,9 +1504,19 @@ void FULLCOND_nonp_gaussian_stepwise::update_IWLS(void)
   envmatdouble Ksum;
   if(kombimatrix==true)
     {
-    Ksum = envmatdouble(0.0,nrpar,Kenv.getBandwidth());
-    Ksum.addto(Kenv,Kenv2,1.0/sigma2,otherfullcond->get_lambda()*invscale);
-    betaKbeta = Ksum.compute_quadform(beta,0);
+    if(numberofmatrices==2)
+      {
+      Ksum = envmatdouble(0.0,nrpar,Kenv.getBandwidth());
+      Ksum.addto(Kenv,Kenv2,1.0/sigma2,otherfullcond[0]->get_lambda()*invscale);
+      betaKbeta = Ksum.compute_quadform(beta,0);
+      }
+    else if(numberofmatrices==3)
+      {
+      Ksum = envmatdouble(0.0,nrpar,Kenv2.getBandwidth());
+      Ksum.addto(Kenv3,Kenv,otherfullcond[1]->get_lambda()*invscale,1.0/sigma2);
+      Ksum.addto(Ksum,Kenv2,1.0,otherfullcond[0]->get_lambda()*invscale);
+      betaKbeta = Ksum.compute_quadform(beta,0);
+      }
     }
   else
     betaKbeta = Kenv.compute_quadform(beta,0);
@@ -1519,7 +1555,7 @@ void FULLCOND_nonp_gaussian_stepwise::update_IWLS(void)
     precenv.addtodiag(XXenv,Kenv,invscale,1.0/sigma2);
     if(kombimatrix==true)
       {
-      precenv.addto(precenv,Kenv2,1.0,otherfullcond->get_lambda()*invscale);
+      precenv.addto(precenv,Kenv2,1.0,otherfullcond[0]->get_lambda()*invscale);
       }
     }
   else
@@ -1581,7 +1617,7 @@ void FULLCOND_nonp_gaussian_stepwise::update_IWLS(void)
     precenv.addtodiag(XXenv,Kenv,invscale,1.0/sigma2);
     if(kombimatrix==true)
       {
-      precenv.addto(precenv,Kenv2,1.0,otherfullcond->get_lambda()*invscale);
+      precenv.addto(precenv,Kenv2,1.0,otherfullcond[0]->get_lambda()*invscale);
       }
     }
   else
@@ -1944,8 +1980,8 @@ envmatrix<double> Krw0env(const unsigned & nrpar)
 
 bool FULLCOND_nonp_gaussian_stepwise::posteriormode_kombi(void)
   {
-if(matrixnumber==2)
-  return otherfullcond->posteriormode();
+if(matrixnumber>1)
+  return otherfullcond[0]->posteriormode();
 else
   {
   unsigned i;
@@ -1954,7 +1990,10 @@ else
 
   update_linpred(false);
 
-  kappa = otherfullcond->get_lambda();
+  kappa.erase(kappa.begin(),kappa.end());
+  kappa.push_back(otherfullcond[0]->get_lambda());
+  if(numberofmatrices==3)
+      kappa.push_back(otherfullcond[1]->get_lambda());
   if ( (lambda_prec != lambda) || (kappa_prec != kappa) || (calculate_xwx == true))
     {
     if(calculate_xwx == true)
@@ -1966,7 +2005,9 @@ else
         compute_XWX_env(likep->get_weightiwls(),column);
       }
     precenv.addto(XXenv,Kenv,1.0,lambda);       // hier gehört lambda zu "MRF" und kappa zu "I"
-    precenv.addto(precenv,Kenv2,1.0,kappa);
+    precenv.addto(precenv,Kenv2,1.0,kappa[0]);
+    if(type == twomrfI)
+      precenv.addto(precenv,Kenv3,1.0,kappa[1]);
 //precenv.addto(XXenv,Kenv,1.0,kappa);
 //precenv.addto(precenv,Kenv2,1.0,lambda);
     lambda_prec = lambda;
@@ -2028,7 +2069,10 @@ double FULLCOND_nonp_gaussian_stepwise::compute_df_kombi(void)
   double df = 0;
 if(matrixnumber==1)
   {
-  kappa = otherfullcond->get_lambda();
+  kappa.erase(kappa.begin(),kappa.end());
+  kappa.push_back(otherfullcond[0]->get_lambda());
+  if(type == twomrfI)
+    kappa.push_back(otherfullcond[1]->get_lambda());
   if(inthemodel == true)
     {
     if (lambdaold == lambda && kappaold == kappa && likep->get_iwlsweights_notchanged() == true)
@@ -2050,6 +2094,9 @@ if(matrixnumber==1)
       vector<double>::iterator d2 = XXenv.getDiagIterator();
       vector<double>::iterator p = Kenv.getDiagIterator();
       vector<double>::iterator p2 = Kenv2.getDiagIterator();
+      vector<double>::iterator p3;
+      if(type == twomrfI)
+        p3 = Kenv3.getDiagIterator();
       double sumn = 0; // enthält Summe der Elemente von XXenv
       unsigned i,j;
 
@@ -2060,35 +2107,78 @@ if(matrixnumber==1)
 
       d = XXenv.getDiagIterator();
       double * workz = Z.getV();
-      for(i=0;i<nrpar;i++,d++,p++,p2++,workz++)
+      if(type != twomrfI)
         {
-        *workz = *d - 1/sumn * *d * *d + lambda * *p + kappa * *p2;
-        d2 = XXenv.getDiagIterator() + i+1;
-        workz++;
-        for(j=i+1;j<nrpar;j++,workz++,d2++)
+        for(i=0;i<nrpar;i++,d++,p++,p2++,workz++)
           {
-          *workz = -1/sumn * *d * *d2;
+          *workz = *d - 1/sumn * *d * *d + lambda * *p + kappa[0] * *p2;
+          d2 = XXenv.getDiagIterator() + i+1;
+          workz++;
+          for(j=i+1;j<nrpar;j++,workz++,d2++)
+            {
+            *workz = -1/sumn * *d * *d2;
+            }
+          workz += i;
           }
-        workz += i;
-        }
-
+        }  
+      else
+        {
+        for(i=0;i<nrpar;i++,d++,p++,p2++,p3++,workz++)
+          {
+          *workz = *d - 1/sumn * *d * *d + lambda * *p + kappa[0] * *p2 + kappa[1] * *p3;
+          d2 = XXenv.getDiagIterator() + i+1;
+          workz++;
+          for(j=i+1;j<nrpar;j++,workz++,d2++)
+            {
+            *workz = -1/sumn * *d * *d2;
+            }
+          workz += i;
+          }
+                
+        }       
+          
+        
       int kl,ku,k;
       vector<unsigned>::iterator a;
-      for(i=0;i<nrpar;i++)
+      if(type != twomrfI)
         {
-        a = Kenv.getXenvIterator() + i;
-        kl = *a;
-//          kl=xenv[i];
-        a = Kenv.getXenvIterator() + i + 1;
-        ku = *a;
-//          ku=xenv[i+1];
-        for(k=kl; k<ku; k++)
+        for(i=0;i<nrpar;i++)
           {
-          d = Kenv.getEnvIterator() + k;
-          Z(i-ku+k,i) = Z(i-ku+k,i) + lambda * *d;
+          a = Kenv.getXenvIterator() + i;
+          kl = *a;
+//          kl=xenv[i];
+          a = Kenv.getXenvIterator() + i + 1;
+          ku = *a;
+//          ku=xenv[i+1];
+          for(k=kl; k<ku; k++)
+            {
+            d = Kenv.getEnvIterator() + k;
+            Z(i-ku+k,i) = Z(i-ku+k,i) + lambda * *d;
           //Z(i,i-ku+k) = Z(i-ku+k,i);
+            }
           }
-        }
+        }  
+      else
+        {
+        vector<double>::iterator b;
+        for(i=0;i<nrpar;i++)
+          {
+          a = Kenv.getXenvIterator() + i;
+          kl = *a;
+//          kl=xenv[i];
+          a = Kenv.getXenvIterator() + i + 1;
+          ku = *a;
+//          ku=xenv[i+1];
+          for(k=kl; k<ku; k++)
+            {
+            d = Kenv.getEnvIterator() + k;
+            b = Kenv2.getEnvIterator() + k;
+            Z(i-ku+k,i) = Z(i-ku+k,i) + lambda * *d + kappa[0] * *b;
+          //Z(i,i-ku+k) = Z(i-ku+k,i);
+            }
+          }
+        }   
+          
       for(i=0;i<nrpar;i++)    // schreibt untere Hälfte von Z voll
         {
         for(j=i+1;j<nrpar;j++)

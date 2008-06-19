@@ -33,6 +33,8 @@ enum fieldtype {
                 seasonal,
                 mrf,
                 mrfI,
+                twomrfI,
+                twomrf,
                 mrfkronecker,
                 mrflinear,
                 mrflinearband,
