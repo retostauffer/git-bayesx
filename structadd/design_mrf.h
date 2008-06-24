@@ -54,7 +54,8 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
   // Spatial covariates
 
   DESIGN_mrf(const datamatrix & dm, const datamatrix & iv,
-             DISTR * dp, const MAP::map & m,vector<ST::string> & op,
+             DISTR * dp,FC_linear * fcl,
+             const MAP::map & m,vector<ST::string> & op,
              vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR

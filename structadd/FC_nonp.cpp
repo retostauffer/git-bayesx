@@ -83,6 +83,13 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   lambda=m.lambda;
   tau2 = m.tau2;
   IWLS = m.IWLS;
+
+  Vcenter = m.Vcenter;
+  Wcenter = m.Wcenter;
+  Ucenter = m.Ucenter;
+  Utc = m.Utc;
+  ccenter = m.ccenter;
+
   }
 
 
@@ -105,6 +112,13 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   lambda=m.lambda;
   tau2 = m.tau2;
   IWLS = m.IWLS;
+
+  Vcenter = m.Vcenter;
+  Wcenter = m.Wcenter;
+  Ucenter = m.Ucenter;
+  Utc = m.Utc;
+  ccenter = m.ccenter;
+
   return *this;
   }
 
@@ -121,7 +135,6 @@ void FC_nonp::update_IWLS(void)
     betaold.assign(beta);
     paramKparam=designp->K.compute_quadform(param,0);
     }
-
 
 
   // Compute log-likelihood with old param, computes workingweight and
@@ -266,7 +279,7 @@ void FC_nonp::update_gaussian(void)
   designp->precision.solve(designp->XWres,paramhelp,param);
 
   if(designp->center)
-    centerparam();
+    centerparam_sample();
 
   designp->compute_f(param,beta);
 
@@ -426,7 +439,7 @@ void FC_nonp::update_isotonic(void)
   */
 
   if(designp->center)
-    centerparam();
+    centerparam_sample();
 
   designp->compute_f(param,beta);
 
@@ -623,6 +636,47 @@ void FC_nonp::outresults(const ST::string & pathresults)
   }
 
 
+void FC_nonp::initialize_center(void)
+  {
+  int nrrest = designp->basisNull.rows();
+  int nrpar = param.rows();
+  Vcenter = datamatrix(nrpar,nrrest);
+  Wcenter = datamatrix(nrrest,nrrest);
+  Ucenter = datamatrix(nrrest,nrpar);
+  ccenter = datamatrix(nrrest,1);
+  Utc = datamatrix(nrpar,1);
+  }
+
+
+void FC_nonp::centerparam_sample(void)
+  {
+
+  int nrrest = designp->basisNull.rows();
+  int nrpar = param.rows();
+
+  if ((Vcenter.rows() != nrpar) ||
+      (Vcenter.cols() != designp->basisNull.rows()))
+    initialize_center();
+
+  datamatrix help(nrpar,1);
+
+  int i,j;
+//  double sigma2 = likep->get_scale());
+  for (i=0;i<nrrest;i++)
+    {
+    designp->precision.solve(designp->basisNullt[i],help);
+    for (j=0;j<help.rows();j++)
+      Vcenter(j,i) = help(j,0);
+    }
+
+  Wcenter.mult(designp->basisNull,Vcenter);
+  Ucenter = Wcenter.inverse()*Vcenter.transposed();
+  ccenter.mult(designp->basisNull,param);
+  Utc = Ucenter.transposed()*ccenter;
+  param.minus(param,Utc);
+  }
+
+
 void FC_nonp::centerparam(void)
   {
 
@@ -645,7 +699,7 @@ void FC_nonp::centerparam(void)
 
   }
 
-  
+
 void FC_nonp::reset(void)
   {
 

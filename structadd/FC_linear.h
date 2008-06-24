@@ -37,6 +37,8 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   DISTR * likep;                             // Pointer to DISTR obejct
   datamatrix design;                         // Designmatrix
+  vector<datamatrix> designhelp;             // help vector for constructing the
+                                             // designmatrix
   vector<ST::string> datanames;              // names of covariates  
 
   datamatrix Xt;                             // transposed designmatrix
@@ -45,6 +47,8 @@ class __EXPORT_TYPE FC_linear  : public FC
   datamatrix residual;
   datamatrix Xtresidual;
 
+  datamatrix betam;
+  datamatrix help;
   datamatrix betaold;
   datamatrix betadiff;
 
@@ -109,6 +113,10 @@ class __EXPORT_TYPE FC_linear  : public FC
   // FUNCTION: reset
 
   void reset(void);
+
+  // FUNCTION: add_variable
+
+  int add_variable(datamatrix & d,ST::string & name);
 
   };
 

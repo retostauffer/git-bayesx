@@ -164,12 +164,13 @@ DESIGN::DESIGN(void)
 
 // CONSTRUCTOR
 
-DESIGN::DESIGN(DISTR * lp)
+DESIGN::DESIGN(DISTR * lp,FC_linear * fcp)
   {
 
   changingdesign = false;
 
   likep = lp;
+  FClinearp = fcp;
 
   XWXdeclared = false;
   XWresdeclared = false;
@@ -209,7 +210,11 @@ DESIGN::DESIGN(const DESIGN & m)
   linpredp2 = m.linpredp2;
 
   nrpar = m.nrpar;
+
   center = m.center;
+  basisNull = m.basisNull;
+  basisNullt = m.basisNullt;
+  FClinearp = m.FClinearp;
 
   K = m.K;
   rankK = m.rankK;
@@ -235,7 +240,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   if (this == &m)
     return *this;
 
-  changingdesign = m.changingdesign;    
+  changingdesign = m.changingdesign;
 
   likep = m.likep;
 
@@ -262,7 +267,11 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   linpredp2 = m.linpredp2;
 
   nrpar = m.nrpar;
+
   center = m.center;
+  basisNull = m.basisNull;
+  basisNullt = m.basisNullt;
+  FClinearp = m.FClinearp;
 
   K = m.K;
   rankK = m.rankK;
@@ -301,6 +310,13 @@ void DESIGN::init_data(const datamatrix & dm, const datamatrix & iv)
 
 void DESIGN::compute_penalty(void)
   {
+
+  }
+
+
+void DESIGN::compute_basisNull(void)
+  {
+
 
   }
 

@@ -44,6 +44,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   datamatrix betadiff;
 
   void centerparam(void);
+  void centerparam_sample(void);
 
   public:
 
@@ -57,6 +58,15 @@ class __EXPORT_TYPE FC_nonp  : public FC
   double lambda;
   double tau2;
 
+  //---------------------------- centering -------------------------------------
+
+  datamatrix Vcenter;
+  datamatrix Wcenter;
+  datamatrix Ucenter;
+  datamatrix Utc;
+  datamatrix ccenter;
+  
+  void initialize_center(void);
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 

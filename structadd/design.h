@@ -21,6 +21,7 @@
 #include<vector>
 #include<bitset>
 #include"GENERAL_OPTIONS.h"
+#include"FC_linear.h"
 #include"clstring.h"
 #include"distr.h"
 #include<cmath>
@@ -141,9 +142,15 @@ class __EXPORT_TYPE DESIGN
 
   unsigned nrpar;                            // number of parameters
 
-  // ---------------------------------------------------------------------------
+  // --------------------------- for center ------------------------------------
 
   bool center;
+  datamatrix basisNull;                     // contains a basis of the null
+                                            // space of the penalty K
+  vector<datamatrix> basisNullt;            // contains the transposed of
+                                            // basisNull
+
+  FC_linear * FClinearp;                    // Pointer to linear effects                        
 
   // ---------------------------------------------------------------------------
 
@@ -190,7 +197,7 @@ class __EXPORT_TYPE DESIGN
 
   // CONSTRUCTOR
 
-  DESIGN(DISTR * dp);
+  DESIGN(DISTR * dp,FC_linear * fcl);
 
   // COPY CONSTRUCTOR
 
@@ -246,6 +253,11 @@ class __EXPORT_TYPE DESIGN
   // TASK: computes the penalty matrix and determines rankK
 
   virtual void compute_penalty(void);
+
+  // FUNCTION: compute_basisNull
+  // TASK: computes the basis of the null space of the penalty matrix
+
+  virtual void compute_basisNull(void);
 
   // FUNCTION: computes XWres
   // TASK: computes XWres, res is the partial residual

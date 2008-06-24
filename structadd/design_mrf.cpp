@@ -45,9 +45,10 @@ DESIGN_mrf::DESIGN_mrf(void) : DESIGN()
   // Spatial covariates
 
 DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
-                       DISTR * dp, const MAP::map & m,vector<ST::string> & op,
+                       DISTR * dp,FC_linear * fcl,
+                       const MAP::map & m,vector<ST::string> & op,
                        vector<ST::string> & vn)
-                      : DESIGN(dp)
+                      : DESIGN(dp,fcl)
   {
 
   read_options(op,vn);

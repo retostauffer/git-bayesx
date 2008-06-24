@@ -39,6 +39,14 @@ FC_linear::FC_linear(void)
   }
 
 
+int FC_linear::add_variable(datamatrix & d,ST::string & name)
+  {
+  datanames.push_back(name);
+  designhelp.push_back(d);
+  return designhelp.size()-1;
+  }
+
+
 FC_linear::FC_linear(GENERAL_OPTIONS * o,DISTR * lp,datamatrix & d,
                  vector<ST::string> & vn, const ST::string & t,
                  const ST::string & fp)
@@ -46,7 +54,9 @@ FC_linear::FC_linear(GENERAL_OPTIONS * o,DISTR * lp,datamatrix & d,
   {
 
   likep = lp;
-  design = d;
+  int i;
+  for (i=0;i<d.cols();i++)
+    designhelp.push_back(d.getCol(i));
   datanames = vn;
   initialize = false;
   IWLS = likep->updateIWLS;
@@ -59,6 +69,7 @@ FC_linear::FC_linear(const FC_linear & m)
   IWLS = m.IWLS;
   likep = m.likep;
   design = m.design;
+  designhelp = m.designhelp;
   XWX = m.XWX;
   XWXroot = m.XWXroot;
   Xt = m.Xt;
@@ -67,6 +78,8 @@ FC_linear::FC_linear(const FC_linear & m)
   Xtresidual = m.Xtresidual;
   betaold = m.betaold;
   betadiff = m.betadiff;
+  betam = m.betam;
+  help = m.help;
   linold = m.linold;
   datanames = m.datanames;
   }
@@ -81,16 +94,19 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   IWLS = m.IWLS;
   likep = m.likep;
   design = m.design;
+  designhelp = m.designhelp;
   XWX = m.XWX;
-  XWXroot = m.XWXroot;  
+  XWXroot = m.XWXroot;
   Xt = m.Xt;
   initialize = m.initialize;
   residual = m.residual;
   Xtresidual = m.Xtresidual;
   betaold = m.betaold;
   betadiff = m.betadiff;
+  betam = m.betam;
+  help = m.help;
   linold = m.linold;
-  datanames = m.datanames;  
+  datanames = m.datanames;
   return *this;
   }
 
@@ -119,19 +135,22 @@ void FC_linear::update_gaussian(void)
     {
     compute_XWX();
     XWXroot = XWX.root();
-    ofstream out("c:\\bayesx\\test\\results\\XWXW.root.res");
-    XWXroot.prettyPrint(out);
-
     }
 
   linold.mult(design,beta);
   compute_Wpartres(linold);
-
   Xtresidual.mult(Xt,residual);
 
-  beta = XWX.solve(Xtresidual);
+  XWXroot.solveroot(Xtresidual,help,betam);
 
+  double sigmaresp = sqrt(likep->get_scale());
+  unsigned i;
+  double * workh = help.getV();
+  for(i=0;i<help.rows();i++,workh++)
+    *workh = sigmaresp*rand_normal();
 
+  XWXroot.solveroot_t(help,beta);
+  beta.plus(betam);
 
   betadiff.minus(beta,betaold);
 
@@ -143,6 +162,7 @@ void FC_linear::update_gaussian(void)
   betaold.assign(beta);
 
   transform(0,0) = likep->trmult;
+  acceptance++;
 
   FC::update();
   }
@@ -178,6 +198,12 @@ void FC_linear::compute_XWX(void)
 
 void FC_linear::create_matrices(void)
   {
+
+  int i;
+  design = datamatrix(designhelp[0].rows(),designhelp.size());
+  for(i=0;i<designhelp.size();i++)
+    design.putCol(i,designhelp[i]); 
+
   Xt = design.transposed();
   XWX = datamatrix(design.cols(),design.cols(),0);
   
@@ -188,6 +214,8 @@ void FC_linear::create_matrices(void)
   setbeta(design.cols(),1,0);
   betaold=datamatrix(beta.rows(),1,0);
   betadiff = betaold;
+  betam = beta;
+  help = beta;
   linold = datamatrix(design.rows(),1,0);
   initialize=true;
   }

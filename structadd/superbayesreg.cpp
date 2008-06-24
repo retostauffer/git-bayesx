@@ -818,6 +818,7 @@ void superbayesreg::create_pspline(unsigned i)
   extract_data(i,d,iv);
 
   design_psplines.push_back(DESIGN_pspline(d,iv,equations[modnr].distrp,
+                            &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));
 
 
@@ -897,6 +898,7 @@ bool superbayesreg::create_hrandom(unsigned i)
     }
 
   design_hrandoms.push_back(DESIGN_hrandom(d,iv,equations[modnr].distrp,
+                            &FC_linears[FC_linears.size()-1],
                              equations[fnr].distrp,
                             terms[i].options,terms[i].varnames));
 
@@ -1020,7 +1022,8 @@ bool superbayesreg::create_mrf(unsigned i)
     return true;
     }
 
-  design_mrfs.push_back(DESIGN_mrf(d,iv,equations[modnr].distrp,m,
+  design_mrfs.push_back(DESIGN_mrf(d,iv,equations[modnr].distrp,
+                           &FC_linears[FC_linears.size()-1],m,
                             terms[i].options,terms[i].varnames));
 
 

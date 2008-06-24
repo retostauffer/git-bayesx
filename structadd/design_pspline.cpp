@@ -66,9 +66,9 @@ DESIGN_pspline::DESIGN_pspline(void) : DESIGN()
   // CONSTRUCTOR
 
 DESIGN_pspline::DESIGN_pspline(const datamatrix & dm,const datamatrix & iv,
-                       DISTR * dp,vector<ST::string> & op,
+                       DISTR * dp,FC_linear * fcl, vector<ST::string> & op,
                        vector<ST::string> & vn)
-                      : DESIGN(dp)
+                      : DESIGN(dp,fcl)
   {
 
   read_options(op,vn);
@@ -97,6 +97,8 @@ DESIGN_pspline::DESIGN_pspline(const datamatrix & dm,const datamatrix & iv,
   compute_XtransposedWX_XtransposedWres(help, 1);
 
   compute_precision(1.0);
+
+  compute_basisNull();
 
   }
 
@@ -306,6 +308,43 @@ void DESIGN_pspline::compute_penalty(void)
     K = Krw3env(nrpar);
     rankK = nrpar-3;
     }
+  }
+
+
+void DESIGN_pspline::compute_basisNull(void)
+  {
+  int i,j;
+
+  if (type==Rw1)
+    {
+    basisNull = datamatrix(1,nrpar,1);
+    }
+  else if (type==Rw2)
+    {
+    basisNull = datamatrix(2,nrpar,1);
+    deque<double>::iterator it = knot.begin();
+    for (i=0;i<nrpar;i++,++it)
+      basisNull(1,i) = *it;
+    }
+  else if (type==Rw3)
+    {
+    basisNull = datamatrix(3,nrpar,1);
+    int i;
+    deque<double>::iterator it = knot.begin();
+    for (i=0;i<nrpar;i++,++it)
+      {
+      basisNull(1,i) = *it;
+      basisNull(1,i) = pow(*it,2);
+      }
+    }
+
+  for(i=0;i<basisNull.rows();i++)
+    {
+    basisNullt.push_back(datamatrix(basisNull.cols(),1));
+    for(j=0;j<basisNull.cols();j++)
+      basisNullt[i](j,0) = basisNull(i,j);
+    }
+
   }
 
 

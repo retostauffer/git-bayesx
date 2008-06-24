@@ -63,30 +63,63 @@ const statmatrix<T> & statmatrix<T>::operator=(const SparseMatrix & m)
 		return res;
 	}
 
+
+    
 template<class T>
-void statmatrix<T>::solveroot(const statmatrix & b, const statmatrix & help,
-                              const statmatrix & x)
+void statmatrix<T>::solveroot_t(const statmatrix & b,statmatrix & x)
   {
   int i,j;
   T h;
+  T * xp;
+  T * xrp = &x(rows()-1,0);
+  T * bp = b.getV()+rows()-1;
 
-  for (i=0;i<this->rows();i++)
+  for (i=rows()-1;i>=0;i--,xrp--,bp--)
     {
     h=0;
-    for (j=0;j<i-1;j++)
-      h+= (*this)(i,j)* help(j,0);
-    help(i,0) = (b(i,0)-h)/((*this)(i,i));
-    }
-
-  for (i=this->rows()-1;i>0;i--)
-    {
-    h=0;
-    for (j=i+1;j<this->rows();j++)
-      h+= (*this)(j,i)*x(j,0);
-    x(i,0) = (help(i,0)-h)/((*this)(i,i));
+    if (i < rows()-1)
+      {
+      xp = &x(i+1,0);
+      for (j=i+1;j<rows();j++,xp++)
+        h+= (*this)(j,i)* (*xp);
+      }
+    *xrp = (*bp-h)/((*this)(i,i));
     }
 
   }
+
+
+template<class T>
+void statmatrix<T>::solveroot(const statmatrix & b,statmatrix & help,
+                              statmatrix & x)
+  {
+  int i,j;
+  T h;
+  T * mr;
+  T * hp;
+  T * hrp = help.getV();
+  T * bp = b.getV();
+
+  for (i=0;i<rows();i++,hrp++,bp++)
+    {
+    h=0;
+    mr = &(*this)(i,0);
+    hp = help.getV();
+    for (j=0;j<i;j++,mr++,hp++)
+      h+= (*mr) * (*hp);
+    *hrp = (*bp-h)/((*this)(i,i));
+
+/*
+    for (j=0;j<i;j++)
+      h+= (*this)(i,j)* help(j,0);
+    help(i,0) = (b(i,0)-h)/((*this)(i,i));
+*/
+    }
+
+  solveroot_t(help,x);
+
+  }
+
 
 template<class T>
 void statmatrix<T>::assign(const statmatrix & A)
@@ -764,7 +797,7 @@ void statmatrix<T>::rank(statmatrix<double> & rang,statmatrix<int> & index,
   unsigned anzahl = 0;
   double neurang;
 
-  while(i<=ende-start)
+  while(i<=ende-start)  
     {
     unten = i-1;
     while( (i<=ende-start) && (this->get(index(i,0),col)-this->get(index(i-1,0),col))<pow(10,-10) )
@@ -1232,8 +1265,8 @@ statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 			res(0,l) = this->get(i,k);
 		l++;
 	}
-
-
+	
+	
 
 
 /*	if(i<j)
@@ -1252,7 +1285,7 @@ statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 			else if(k>j-1)
 				res(0,k) = get(i,k+2);
 
-			else
+			else 
 				res(0,k) = get(i,k+2);
 		}
 	}
@@ -1272,11 +1305,11 @@ statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 			else if(k>i-1)
 				res(0,k) = get(i,k+2);
 
-			else
+			else 
 				res(0,k) = get(i,k+2);
 		}
 	} */
-
+	
 
 	return res;
 }

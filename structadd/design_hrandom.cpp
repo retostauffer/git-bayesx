@@ -44,9 +44,9 @@ DESIGN_hrandom::DESIGN_hrandom(void)
 
 
 DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
-                               DISTR * dp, DISTR * dp_RE,
+                               DISTR * dp, FC_linear * fcl, DISTR * dp_RE,
                                vector<ST::string> & op,vector<ST::string> & vn)
-      : DESIGN(dp)
+      : DESIGN(dp,fcl)
   {
 
   read_options(op,vn);
