@@ -535,8 +535,13 @@ ST::string DISTRIBUTION::get_scale_sample(void) const
     {
 
     file = pathresultsscale.substr(0,pathresultsscale.length()-4) + "_sample.raw";
-
     Scalesave.get_samples(file);
+
+/*    file = pathresultsscale.substr(0,pathresultsscale.length()-9) + "_mean_sample.raw";
+    musave.get_samples(file);
+
+    file = pathresultsscale.substr(0,pathresultsscale.length()-9) + "_predictor_sample.raw";
+    responsesave.get_samples(file);*/
 
     }
 

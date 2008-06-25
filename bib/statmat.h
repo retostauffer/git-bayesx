@@ -77,10 +77,12 @@ class adja;
   // FUNCTION: solveroot
   // TASK: solves Ax=b where A is the calling matrix, A is supposed to be a 
   //       choleksy root      
-          
 
-  void solveroot(const statmatrix & b, const statmatrix & help,
-                              const statmatrix & x);
+  void solveroot_t(const statmatrix & b,statmatrix & x);
+
+
+  void solveroot(const statmatrix & b,statmatrix & help,
+                              statmatrix & x);
 
 
   // FUNCTION: assign

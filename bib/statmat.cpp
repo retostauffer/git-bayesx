@@ -64,7 +64,7 @@ const statmatrix<T> & statmatrix<T>::operator=(const SparseMatrix & m)
 	}
 
 
-    
+
 template<class T>
 void statmatrix<T>::solveroot_t(const statmatrix & b,statmatrix & x)
   {
@@ -74,18 +74,17 @@ void statmatrix<T>::solveroot_t(const statmatrix & b,statmatrix & x)
   T * xrp = &x(rows()-1,0);
   T * bp = b.getV()+rows()-1;
 
-  for (i=rows()-1;i>=0;i--,xrp--,bp--)
+  for (i=this->rows()-1;i>=0;i--,xrp--,bp--)
     {
     h=0;
     if (i < rows()-1)
       {
       xp = &x(i+1,0);
-      for (j=i+1;j<rows();j++,xp++)
+      for (j=i+1;j<this->rows();j++,xp++)
         h+= (*this)(j,i)* (*xp);
       }
     *xrp = (*bp-h)/((*this)(i,i));
     }
-
   }
 
 
@@ -100,7 +99,7 @@ void statmatrix<T>::solveroot(const statmatrix & b,statmatrix & help,
   T * hrp = help.getV();
   T * bp = b.getV();
 
-  for (i=0;i<rows();i++,hrp++,bp++)
+  for (i=0;i<this->rows();i++,hrp++,bp++)
     {
     h=0;
     mr = &(*this)(i,0);
@@ -797,7 +796,7 @@ void statmatrix<T>::rank(statmatrix<double> & rang,statmatrix<int> & index,
   unsigned anzahl = 0;
   double neurang;
 
-  while(i<=ende-start)  
+  while(i<=ende-start)
     {
     unten = i-1;
     while( (i<=ende-start) && (this->get(index(i,0),col)-this->get(index(i-1,0),col))<pow(10,-10) )
@@ -1265,8 +1264,8 @@ statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 			res(0,l) = this->get(i,k);
 		l++;
 	}
-	
-	
+
+
 
 
 /*	if(i<j)
@@ -1285,7 +1284,7 @@ statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 			else if(k>j-1)
 				res(0,k) = get(i,k+2);
 
-			else 
+			else
 				res(0,k) = get(i,k+2);
 		}
 	}
@@ -1305,11 +1304,11 @@ statmatrix<T> statmatrix<T>::get_cov_iX (int i, int j)
 			else if(k>i-1)
 				res(0,k) = get(i,k+2);
 
-			else 
+			else
 				res(0,k) = get(i,k+2);
 		}
 	} */
-	
+
 
 	return res;
 }
