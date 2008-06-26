@@ -151,6 +151,9 @@ class __EXPORT_TYPE DESIGN
                                             // basisNull
 
   FC_linear * FClinearp;                    // Pointer to linear effects                        
+  int position_lin;                         // position in the designmatrix
+                                            // of linear effects
+  datamatrix designlinear;                  // designmatrix linear effects
 
   // ---------------------------------------------------------------------------
 

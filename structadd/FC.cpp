@@ -500,13 +500,16 @@ void FC::posteriormode_betamean(void)
 
 void FC::outresults_acceptance(void)
   {
-  double rate;
-  if (nrtrials == 0)
-    rate = (double(acceptance)/double(optionsp->nriter))*100;
-  else
-    rate = (double(acceptance)/double(nrtrials))*100;
-  optionsp->out("  Acceptance rate:    "  + ST::doubletostring(rate,4) + " %\n");
-  optionsp->out("\n");
+  if (optionsp->samplesize > 0)
+    {
+    double rate;
+    if (nrtrials == 0)
+      rate = (double(acceptance)/double(optionsp->nriter))*100;
+    else
+      rate = (double(acceptance)/double(nrtrials))*100;
+    optionsp->out("  Acceptance rate:    "  + ST::doubletostring(rate,4) + " %\n");
+    optionsp->out("\n");
+    }
   }
 
   

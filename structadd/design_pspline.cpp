@@ -142,6 +142,14 @@ void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
   //       computes nrpar
   //       initializes datanames
 
+  if (type==Rw2)
+    FClinearp->add_variable(dm,datanames[0]);
+  else if (type==Rw3)
+    {
+    // fehlt
+    }
+
+
   make_index(dm,iv);
 
   nrpar = nrknots-1+degree;
@@ -318,6 +326,7 @@ void DESIGN_pspline::compute_basisNull(void)
   if (type==Rw1)
     {
     basisNull = datamatrix(1,nrpar,1);
+    position_lin = -1;
     }
   else if (type==Rw2)
     {
@@ -325,6 +334,7 @@ void DESIGN_pspline::compute_basisNull(void)
     deque<double>::iterator it = knot.begin();
     for (i=0;i<nrpar;i++,++it)
       basisNull(1,i) = *it;
+
     }
   else if (type==Rw3)
     {
@@ -344,6 +354,30 @@ void DESIGN_pspline::compute_basisNull(void)
     for(j=0;j<basisNull.cols();j++)
       basisNullt[i](j,0) = basisNull(i,j);
     }
+
+  if (basisNull.rows() > 1)
+    {
+    designlinear = datamatrix(posbeg.size(),basisNull.rows()-1);
+
+    double * workdl = designlinear.getV();
+    double h;
+    for(i=0;i<posbeg.size();i++)
+      for(j=0;j<designlinear.cols();j++,workdl++)
+        {
+        h = data(posbeg[i],0);
+        *workdl =  pow(h,j+1);
+        }
+    }
+
+  // TEST
+  /*
+    ofstream out("c:\\bayesx\\test\\results\\data.res");
+    data.prettyPrint(out);
+
+    ofstream out2("c:\\bayesx\\test\\results\\designlin.res");
+    designlinear.prettyPrint(out2);
+   */ 
+  // TEST
 
   }
 

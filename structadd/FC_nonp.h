@@ -33,6 +33,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   protected:
 
+  FC fsample;
+
   bool IWLS;
 
   sampletype stype;

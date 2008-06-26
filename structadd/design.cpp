@@ -177,6 +177,8 @@ DESIGN::DESIGN(DISTR * lp,FC_linear * fcp)
   precisiondeclared=false;
   consecutive = -1;
   consecutive_ZoutT = -1;
+
+  position_lin = -1;
   }
 
 
@@ -215,6 +217,8 @@ DESIGN::DESIGN(const DESIGN & m)
   basisNull = m.basisNull;
   basisNullt = m.basisNullt;
   FClinearp = m.FClinearp;
+  position_lin = m.position_lin;
+  designlinear = m.designlinear;
 
   K = m.K;
   rankK = m.rankK;
@@ -272,6 +276,8 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   basisNull = m.basisNull;
   basisNullt = m.basisNullt;
   FClinearp = m.FClinearp;
+  position_lin = m.position_lin;
+  designlinear = m.designlinear;  
 
   K = m.K;
   rankK = m.rankK;

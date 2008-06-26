@@ -70,6 +70,9 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
 FC_nonp::FC_nonp(const FC_nonp & m)
   : FC(FC(m))
   {
+
+  fsample = m.fsample;
+
   stype = m.stype;
   likep = m.likep;
   designp = m.designp;
@@ -99,6 +102,9 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+
+  fsample = m.fsample;  
+
   stype = m.stype;
   likep = m.likep;
   designp = m.designp;
@@ -279,6 +285,7 @@ void FC_nonp::update_gaussian(void)
   designp->precision.solve(designp->XWres,paramhelp,param);
 
   if(designp->center)
+//    centerparam();
     centerparam_sample();
 
   designp->compute_f(param,beta);
@@ -439,6 +446,7 @@ void FC_nonp::update_isotonic(void)
   */
 
   if(designp->center)
+//    centerparam();
     centerparam_sample();
 
   designp->compute_f(param,beta);
@@ -488,7 +496,7 @@ bool FC_nonp::posteriormode(void)
 
 //  ofstream out4("c:\\bayesx\\test\\results\\partres.res");
 //  partres.prettyPrint(out4);
-  
+
   // TEST
 
 
@@ -514,7 +522,8 @@ bool FC_nonp::posteriormode(void)
   // TEST
 
   if(designp->center)
-    centerparam();
+//    centerparam();
+    centerparam_sample();
 
   designp->compute_f(param,beta);
 
@@ -673,6 +682,12 @@ void FC_nonp::centerparam_sample(void)
   Ucenter = Wcenter.inverse()*Vcenter.transposed();
   ccenter.mult(designp->basisNull,param);
   Utc = Ucenter.transposed()*ccenter;
+
+  // TEST
+  //  ofstream out("c:\\bayesx\\test\\results\\Utc.res");
+  //  Utc.prettyPrint(out);
+  // TEST
+
   param.minus(param,Utc);
   }
 
