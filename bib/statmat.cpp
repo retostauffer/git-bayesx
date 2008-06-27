@@ -71,13 +71,13 @@ void statmatrix<T>::solveroot_t(const statmatrix & b,statmatrix & x)
   int i,j;
   T h;
   T * xp;
-  T * xrp = &x(rows()-1,0);
-  T * bp = b.getV()+rows()-1;
+  T * xrp = &x(this->rows()-1,0);
+  T * bp = b.getV()+this->rows()-1;
 
   for (i=this->rows()-1;i>=0;i--,xrp--,bp--)
     {
     h=0;
-    if (i < rows()-1)
+    if (i < this->rows()-1)
       {
       xp = &x(i+1,0);
       for (j=i+1;j<this->rows();j++,xp++)

@@ -75,15 +75,14 @@ class adja;
   // ------------------------- PUBLIC FUNCTIONS --------------------------------
 
   // FUNCTION: solveroot
-  // TASK: solves Ax=b where A is the calling matrix, A is supposed to be a 
-  //       choleksy root      
+  // TASK: solves Ax=b where A is the calling matrix, A is supposed to be a
+  //       choleksy root
 
   void solveroot_t(const statmatrix & b,statmatrix & x);
 
 
   void solveroot(const statmatrix & b,statmatrix & help,
                               statmatrix & x);
-
 
   // FUNCTION: assign
   // TASK: assigns the elements of A to the elements of the calling matrix
