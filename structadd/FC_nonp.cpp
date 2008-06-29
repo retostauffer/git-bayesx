@@ -64,7 +64,16 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
   lambda=1;
   tau2 = likep->get_scale()/lambda;
   IWLS = likep->updateIWLS;
+
+  if (Dp->position_lin != -1)
+    {
+    fsample = FC(o,"",beta.rows(),beta.cols(),fp + ".lin");
+    paramlin = datamatrix(Dp->designlinear.cols(),1,0);
+    }
+
   }
+
+
 
 
 FC_nonp::FC_nonp(const FC_nonp & m)
@@ -77,6 +86,7 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   likep = m.likep;
   designp = m.designp;
   param = m.param;
+  paramlin = m.paramlin;  
   paramold = m.paramold;
   paramhelp = m.paramhelp;
   paramKparam = paramKparam;
@@ -109,6 +119,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   likep = m.likep;
   designp = m.designp;
   param = m.param;
+  paramlin = m.paramlin;
   paramKparam = paramKparam;
   paramold = m.paramold;
   paramhelp = m.paramhelp;
@@ -128,6 +139,14 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   return *this;
   }
 
+
+void FC_nonp::get_linparam(void)
+  {
+  int pos = designp->position_lin;
+  int i;
+  for (i=0;i<paramlin.rows();i++)
+    paramlin(i,0) = designp->FClinearp->beta(pos+i,0);
+  }  
 
 void FC_nonp::update_IWLS(void)
   {
@@ -171,8 +190,13 @@ void FC_nonp::update_IWLS(void)
   double qold = 0.5*designp->precision.getLogDet()-
                 0.5*designp->precision.compute_quadform(paramhelp,0);
 
-  designp->compute_f(param,beta);            // beta contains now the
-                                             // proposed new f
+  if (designp->position_lin!=-1)
+    {
+    get_linparam();
+    }
+
+  designp->compute_f(param,paramlin,beta,fsample.beta);
+
   betadiff.minus(beta,betaold);
   designp->update_linpred(betadiff,true);
 
@@ -225,8 +249,12 @@ void FC_nonp::update_IWLS(void)
   */
   // TEST
 
-
   transform_beta();
+
+  if (designp->position_lin!=-1)
+    {
+    fsample.update();
+    }
 
   FC::update();
 
@@ -288,7 +316,12 @@ void FC_nonp::update_gaussian(void)
 //    centerparam();
     centerparam_sample();
 
-  designp->compute_f(param,beta);
+  if (designp->position_lin!=-1)
+    {
+    get_linparam();
+    }
+
+  designp->compute_f(param,paramlin,beta,fsample.beta);
 
   betadiff.minus(beta,betaold);
 
@@ -297,6 +330,11 @@ void FC_nonp::update_gaussian(void)
   acceptance++;
 
   transform_beta();
+
+  if (designp->position_lin!=-1)
+    {
+    fsample.update();
+    }
 
   FC::update();
 
@@ -449,7 +487,12 @@ void FC_nonp::update_isotonic(void)
 //    centerparam();
     centerparam_sample();
 
-  designp->compute_f(param,beta);
+  if (designp->position_lin!=-1)
+    {
+    get_linparam();
+    }
+
+  designp->compute_f(param,paramlin,beta,fsample.beta);
 
   betadiff.minus(beta,betaold);
 
@@ -459,6 +502,11 @@ void FC_nonp::update_isotonic(void)
 
   transform_beta();
 
+  if (designp->position_lin!=-1)
+    {
+    fsample.update();
+    }
+
   FC::update();
 
   }
@@ -467,6 +515,8 @@ void FC_nonp::update_isotonic(void)
 void FC_nonp::transform_beta(void)
   {
   transform(0,0) = likep->trmult;
+  if (designp->position_lin != -1)
+  fsample.transform(0,0) = likep->trmult;
   }
 
 bool FC_nonp::posteriormode(void)
@@ -525,7 +575,12 @@ bool FC_nonp::posteriormode(void)
 //    centerparam();
     centerparam_sample();
 
-  designp->compute_f(param,beta);
+  if (designp->position_lin!=-1)
+    {
+    get_linparam();
+    }
+
+  designp->compute_f(param,paramlin,beta,fsample.beta);
 
   // TEST
   //  ofstream out5("c:\\bayesx\\test\\results\\f.res");
@@ -537,6 +592,11 @@ bool FC_nonp::posteriormode(void)
   designp->update_linpred(betadiff,true);
 
   transform_beta();
+
+  if (designp->position_lin!=-1)
+    {
+    fsample.posteriormode_betamean();
+    }
 
   return FC::posteriormode();
 
@@ -556,6 +616,8 @@ void FC_nonp::outresults(const ST::string & pathresults)
     {
 
     FC::outresults(pathresults);
+    if (designp->position_lin != -1)
+      fsample.outresults(pathresults);
 
     outresults_acceptance();
 
@@ -594,15 +656,69 @@ void FC_nonp::outresults(const ST::string & pathresults)
       outres << "pcat" << optionsp->level2 << "   ";
       }
 
+
+    if (designp->position_lin!=-1)
+      {
+
+      outres << "pmean_d   ";
+
+      if (optionsp->samplesize > 1)
+        {
+        outres << "pqu"  << l1  << "_d   ";
+        outres << "pqu"  << l2  << "_d   ";
+        outres << "pmed_d   ";
+        outres << "pqu"  << u1  << "_d   ";
+        outres << "pqu"  << u2  << "_d   ";
+        outres << "pcat" << optionsp->level1 << "_d   ";
+        outres << "pcat" << optionsp->level2 << "_d   ";
+        }
+
+      }
+
     outres << endl;
 
-    double * workmean = betamean.getV();
-    double * workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
-    double * workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
-    double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
-    double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
-    double * workbetaqu50 = betaqu50.getV();
 
+    double * workmean;
+    double * workbetaqu_l1_lower_p;
+    double * workbetaqu_l2_lower_p;
+    double * workbetaqu_l1_upper_p;
+    double * workbetaqu_l2_upper_p;
+    double * workbetaqu50;
+
+    double * dworkmean;
+    double * dworkbetaqu_l1_lower_p;
+    double * dworkbetaqu_l2_lower_p;
+    double * dworkbetaqu_l1_upper_p;
+    double * dworkbetaqu_l2_upper_p;
+    double * dworkbetaqu50;
+
+
+    if (designp->position_lin!=-1)
+      {
+      workmean = fsample.betamean.getV();
+      workbetaqu_l1_lower_p = fsample.betaqu_l1_lower.getV();
+      workbetaqu_l2_lower_p = fsample.betaqu_l2_lower.getV();
+      workbetaqu_l1_upper_p = fsample.betaqu_l1_upper.getV();
+      workbetaqu_l2_upper_p = fsample.betaqu_l2_upper.getV();
+      workbetaqu50 = fsample.betaqu50.getV();
+
+      dworkmean = betamean.getV();
+      dworkbetaqu_l1_lower_p = betaqu_l1_lower.getV();
+      dworkbetaqu_l2_lower_p = betaqu_l2_lower.getV();
+      dworkbetaqu_l1_upper_p = betaqu_l1_upper.getV();
+      dworkbetaqu_l2_upper_p = betaqu_l2_upper.getV();
+      dworkbetaqu50 = betaqu50.getV();
+
+      }
+    else
+      {
+      workmean = betamean.getV();
+      workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
+      workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
+      workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
+      workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
+      workbetaqu50 = betaqu50.getV();
+      }
 
 //    unsigned j;
     unsigned nrpar = beta.rows();
@@ -635,6 +751,48 @@ void FC_nonp::outresults(const ST::string & pathresults)
           outres << -1 << "   ";
         else
           outres << 0 << "   ";
+        }
+
+
+      if (designp->position_lin!=-1)
+        {
+
+        outres << *dworkmean << "   ";
+
+        if (optionsp->samplesize > 1)
+          {
+          outres << *dworkbetaqu_l1_lower_p << "   ";
+          outres << *dworkbetaqu_l2_lower_p << "   ";
+          outres << *dworkbetaqu50 << "   ";
+          outres << *dworkbetaqu_l2_upper_p << "   ";
+          outres << *dworkbetaqu_l1_upper_p << "   ";
+
+          if (*dworkbetaqu_l1_lower_p > 0)
+            outres << 1 << "   ";
+          else if (*dworkbetaqu_l1_upper_p < 0)
+            outres << -1 << "   ";
+          else
+            outres << 0 << "   ";
+
+          if (*dworkbetaqu_l2_lower_p > 0)
+            outres << 1 << "   ";
+          else if (*dworkbetaqu_l2_upper_p < 0)
+            outres << -1 << "   ";
+          else
+            outres << 0 << "   ";
+
+          }
+
+        if (i <nrpar-1)
+          {
+          dworkmean++;
+          dworkbetaqu_l1_lower_p++;
+          dworkbetaqu_l2_lower_p++;
+          dworkbetaqu50++;
+          dworkbetaqu_l1_upper_p++;
+          dworkbetaqu_l2_upper_p++;
+          }
+
         }
 
       outres << endl;

@@ -143,7 +143,7 @@ void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
   //       initializes datanames
 
   if (type==Rw2)
-    FClinearp->add_variable(dm,datanames[0]);
+    position_lin = FClinearp->add_variable(dm,datanames[0]);
   else if (type==Rw3)
     {
     // fehlt

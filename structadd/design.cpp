@@ -753,7 +753,8 @@ void DESIGN::set_intvar(datamatrix & iv,double add)
   }
 
 
-void DESIGN::compute_f(datamatrix & beta,datamatrix & f)
+void DESIGN::compute_f(datamatrix & beta,datamatrix & betalin,
+                       datamatrix & f, datamatrix & ftot)
   {
 
   if (consecutive == -1)
@@ -827,6 +828,13 @@ void DESIGN::compute_f(datamatrix & beta,datamatrix & f)
   falt.prettyPrint(out2);
   // TEST
   */
+
+  if (designlinear.rows() == ftot.rows())
+    {
+    ftot.mult(designlinear,betalin);
+    ftot.plus(f);
+    }
+
 
   }
 

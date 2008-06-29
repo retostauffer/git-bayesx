@@ -35,6 +35,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   FC fsample;
 
+
   bool IWLS;
 
   sampletype stype;
@@ -51,6 +52,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   public:
 
   datamatrix param;                          // Parameters, beta stores hatf
+  datamatrix paramlin;
   datamatrix paramold;
   datamatrix paramhelp;  
   double paramKparam;
@@ -67,7 +69,9 @@ class __EXPORT_TYPE FC_nonp  : public FC
   datamatrix Ucenter;
   datamatrix Utc;
   datamatrix ccenter;
-  
+
+  void get_linparam(void);
+
   void initialize_center(void);
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
@@ -107,7 +111,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void update(void);
 
   void update_gaussian(void);
-  void update_IWLS(void);    
+  void update_IWLS(void);
   void update_isotonic(void);
 
   // FUNCTION: posteriormode
