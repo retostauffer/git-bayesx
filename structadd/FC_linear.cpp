@@ -55,9 +55,12 @@ FC_linear::FC_linear(GENERAL_OPTIONS * o,DISTR * lp,datamatrix & d,
 
   likep = lp;
   int i;
-  for (i=0;i<d.cols();i++)
-    designhelp.push_back(d.getCol(i));
   datanames = vn;
+  if (datanames.size() > 0)
+    {
+    for (i=0;i<d.cols();i++)
+      designhelp.push_back(d.getCol(i));
+    }
   initialize = false;
   IWLS = likep->updateIWLS;
   }
@@ -127,44 +130,46 @@ void FC_linear::update(void)
 
 void FC_linear::update_gaussian(void)
   {
-
-  if (!initialize)
-    create_matrices();
-
-  if (likep->changingweight || optionsp->nriter==1)
+  if (datanames.size() > 0)
     {
-    compute_XWX();
-    XWXroot = XWX.root();
+    if (!initialize)
+      create_matrices();
+
+    if (likep->changingweight || optionsp->nriter==1)
+      {
+      compute_XWX();
+      XWXroot = XWX.root();
+      }
+
+    linold.mult(design,beta);
+    compute_Wpartres(linold);
+    Xtresidual.mult(Xt,residual);
+
+    XWXroot.solveroot(Xtresidual,help,betam);
+
+    double sigmaresp = sqrt(likep->get_scale());
+    unsigned i;
+    double * workh = help.getV();
+    for(i=0;i<help.rows();i++,workh++)
+      *workh = sigmaresp*rand_normal();
+
+    XWXroot.solveroot_t(help,beta);
+    beta.plus(betam);
+
+    betadiff.minus(beta,betaold);
+
+    if (likep->linpred_current==1)
+      likep->linearpred1.addmult(design,betadiff);
+    else
+      likep->linearpred2.addmult(design,betadiff);
+
+    betaold.assign(beta);
+
+    transform(0,0) = likep->trmult;
+    acceptance++;
+
+    FC::update();
     }
-
-  linold.mult(design,beta);
-  compute_Wpartres(linold);
-  Xtresidual.mult(Xt,residual);
-
-  XWXroot.solveroot(Xtresidual,help,betam);
-
-  double sigmaresp = sqrt(likep->get_scale());
-  unsigned i;
-  double * workh = help.getV();
-  for(i=0;i<help.rows();i++,workh++)
-    *workh = sigmaresp*rand_normal();
-
-  XWXroot.solveroot_t(help,beta);
-  beta.plus(betam);
-
-  betadiff.minus(beta,betaold);
-
-  if (likep->linpred_current==1)
-    likep->linearpred1.addmult(design,betadiff);
-  else
-    likep->linearpred2.addmult(design,betadiff);
-
-  betaold.assign(beta);
-
-  transform(0,0) = likep->trmult;
-  acceptance++;
-
-  FC::update();
   }
 
 
@@ -202,11 +207,11 @@ void FC_linear::create_matrices(void)
   int i;
   design = datamatrix(designhelp[0].rows(),designhelp.size());
   for(i=0;i<designhelp.size();i++)
-    design.putCol(i,designhelp[i]); 
+    design.putCol(i,designhelp[i]);
 
   Xt = design.transposed();
   XWX = datamatrix(design.cols(),design.cols(),0);
-  
+
 
   residual = datamatrix(design.rows(),1,0);
   Xtresidual = datamatrix(design.cols(),1,0);
@@ -244,32 +249,36 @@ void FC_linear::compute_Wpartres(datamatrix & linpred)
 
 bool FC_linear::posteriormode(void)
   {
+  
+  if (datanames.size() > 0)
+    {
+    if (!initialize)
+      create_matrices();
 
-  if (!initialize)
-    create_matrices();
+    compute_XWX();
 
-  compute_XWX();
+    linold.mult(design,beta);
+    compute_Wpartres(linold);
 
-  linold.mult(design,beta);
-  compute_Wpartres(linold);
+    Xtresidual.mult(Xt,residual);
 
-  Xtresidual.mult(Xt,residual);
+    beta = XWX.solve(Xtresidual);
 
-  beta = XWX.solve(Xtresidual);
+    betadiff.minus(beta,betaold);
 
-  betadiff.minus(beta,betaold);
+    if (likep->linpred_current==1)
+      likep->linearpred1.addmult(design,betadiff);
+    else
+      likep->linearpred2.addmult(design,betadiff);
 
-  if (likep->linpred_current==1)
-    likep->linearpred1.addmult(design,betadiff);
-  else
-    likep->linearpred2.addmult(design,betadiff);
+    betaold.assign(beta);
 
-  betaold.assign(beta);
+    transform(0,0) = likep->trmult;
 
-  transform(0,0) = likep->trmult;
+    return FC::posteriormode();
+    }
 
-  return FC::posteriormode();
-
+  return true;
   }
 
 
@@ -281,124 +290,125 @@ void FC_linear::outoptions(void)
 
 void FC_linear::outresults(const ST::string & pathresults)
   {
-
-  unsigned i;
-  unsigned nrconst = design.cols();
-
-  FC::outresults(pathresults);
-
-  ST::string l1 = ST::doubletostring(optionsp->lower1,4);
-  ST::string l2 = ST::doubletostring(optionsp->lower2,4);
-  ST::string u1 = ST::doubletostring(optionsp->upper1,4);
-  ST::string u2 = ST::doubletostring(optionsp->upper2,4);
-  l1 = l1.replaceallsigns('.','p');
-  l2 = l2.replaceallsigns('.','p');
-  u1 = u1.replaceallsigns('.','p');
-  u2 = u2.replaceallsigns('.','p');
-
-  ofstream outp(pathresults.strtochar());
-
-  if (pathresults.isvalidfile() != 1)
-    outp << "paramnr varname pmean pstd pqu" << l1 << " pqu" << l2 <<
-            " pmed pqu" << u1 << " pqu" << u2 << " pcat" << optionsp->level1
-             << " pcat" << optionsp->level2 << endl;
-
-
-  optionsp->out("\n");
-
-  ST::string l;
-  int maxvarnamelength = 0;
-  int len;
-
-  for(i=0;i<nrconst;i++)
+  if (datanames.size() > 0)
     {
-    len = datanames[i].length();
-    if (len > maxvarnamelength)
-      maxvarnamelength = len;
-    }
+    unsigned i;
+    unsigned nrconst = design.cols();
 
-  if (maxvarnamelength>10)
-    l = ST::string(' ',maxvarnamelength-6);
-  else
-    l = "  ";
+    FC::outresults(pathresults);
 
-    ST::string help =  ST::doubletostring(optionsp->lower1,4) + "% quant.";
-    ST::string levell = help + ST::string(' ',15-help.length());
-    help = ST::doubletostring(optionsp->upper2,4) + "% quant.";
-    ST::string levelu = help + ST::string(' ',15-help.length());
+    ST::string l1 = ST::doubletostring(optionsp->lower1,4);
+    ST::string l2 = ST::doubletostring(optionsp->lower2,4);
+    ST::string u1 = ST::doubletostring(optionsp->upper1,4);
+    ST::string u2 = ST::doubletostring(optionsp->upper2,4);
+    l1 = l1.replaceallsigns('.','p');
+    l2 = l2.replaceallsigns('.','p');
+    u1 = u1.replaceallsigns('.','p');
+    u2 = u2.replaceallsigns('.','p');
 
-    optionsp->out("  Variable" + l +
-                  "mean           " +
-                  "Std. Dev.      " +
-                  levell +
-                  "median         " +
-                  levelu + "\n");
+    ofstream outp(pathresults.strtochar());
 
-    ST::string mean;
-    ST::string std;
-    ST::string qu10;
-    ST::string qu50;
-    ST::string qu90;
+    if (pathresults.isvalidfile() != 1)
+      outp << "paramnr varname pmean pstd pqu" << l1 << " pqu" << l2 <<
+              " pmed pqu" << u1 << " pqu" << u2 << " pcat" << optionsp->level1
+               << " pcat" << optionsp->level2 << endl;
 
-    double m,stddouble;
+    optionsp->out("\n");
 
-    unsigned nsp;
+    ST::string l;
+    int maxvarnamelength = 0;
+    int len;
 
-    for (i=0;i<nrconst;i++)
+    for(i=0;i<nrconst;i++)
       {
-
-      if (maxvarnamelength  > 10)
-        nsp = 2+maxvarnamelength-datanames[i].length();
-      else
-        nsp = 10-datanames[i].length();
-
-      m= betamean(i,0);
-
-      if (betavar(i,0) == 0)
-        stddouble = 0;
-      else
-        stddouble = sqrt(betavar(i,0));
-
-      if (pathresults.isvalidfile() != 1)
-        {
-        outp << (i+1) << "   ";
-        outp << datanames[i] << "   ";
-        outp << m << "   ";
-        outp << stddouble << "   ";
-        outp << betaqu_l1_lower(i,0) << "   ";
-        outp << betaqu_l2_lower(i,0) << "   ";
-        outp << betaqu50(i,0) << "   ";
-        outp << betaqu_l2_upper(i,0) << "   ";
-        outp << betaqu_l1_upper(i,0) << "   ";
-        if (betaqu_l1_lower(i,0) > 0)
-          outp << "1   ";
-        else if (betaqu_l1_upper(i,0) < 0)
-          outp << "-1   ";
-        else
-          outp << "0   ";
-
-        if (betaqu_l2_lower(i,0) > 0)
-          outp << "1   ";
-        else if (betaqu_l2_upper(i,0) < 0)
-          outp << "-1   ";
-        else
-          outp << "0   ";
-
-        outp << endl;
-        }
-
-      optionsp->out(ST::outresults(nsp,datanames[i],m,
-                      stddouble,betaqu_l1_lower(i,0),
-                      betaqu50(i,0),betaqu_l1_upper(i,0)) + "\n");
-
+      len = datanames[i].length();
+      if (len > maxvarnamelength)
+        maxvarnamelength = len;
       }
 
-    optionsp->out("\n");
+    if (maxvarnamelength>10)
+      l = ST::string(' ',maxvarnamelength-6);
+    else
+      l = "  ";
 
-    optionsp->out("  Results for fixed effects are also stored in file\n");
-    optionsp->out("  " + pathresults + "\n");
+      ST::string help =  ST::doubletostring(optionsp->lower1,4) + "% quant.";
+      ST::string levell = help + ST::string(' ',15-help.length());
+      help = ST::doubletostring(optionsp->upper2,4) + "% quant.";
+      ST::string levelu = help + ST::string(' ',15-help.length());
 
-    optionsp->out("\n");
+      optionsp->out("  Variable" + l +
+                    "mean           " +
+                    "Std. Dev.      " +
+                    levell +
+                    "median         " +
+                    levelu + "\n");
+
+      ST::string mean;
+      ST::string std;
+      ST::string qu10;
+      ST::string qu50;
+      ST::string qu90;
+
+      double m,stddouble;
+
+      unsigned nsp;
+
+      for (i=0;i<nrconst;i++)
+        {
+
+        if (maxvarnamelength  > 10)
+          nsp = 2+maxvarnamelength-datanames[i].length();
+        else
+          nsp = 10-datanames[i].length();
+
+        m= betamean(i,0);
+
+        if (betavar(i,0) == 0)
+          stddouble = 0;
+        else
+          stddouble = sqrt(betavar(i,0));
+
+        if (pathresults.isvalidfile() != 1)
+          {
+          outp << (i+1) << "   ";
+          outp << datanames[i] << "   ";
+          outp << m << "   ";
+          outp << stddouble << "   ";
+          outp << betaqu_l1_lower(i,0) << "   ";
+          outp << betaqu_l2_lower(i,0) << "   ";
+          outp << betaqu50(i,0) << "   ";
+          outp << betaqu_l2_upper(i,0) << "   ";
+          outp << betaqu_l1_upper(i,0) << "   ";
+          if (betaqu_l1_lower(i,0) > 0)
+            outp << "1   ";
+          else if (betaqu_l1_upper(i,0) < 0)
+            outp << "-1   ";
+          else
+            outp << "0   ";
+
+          if (betaqu_l2_lower(i,0) > 0)
+            outp << "1   ";
+          else if (betaqu_l2_upper(i,0) < 0)
+            outp << "-1   ";
+          else
+            outp << "0   ";
+
+          outp << endl;
+          }
+
+        optionsp->out(ST::outresults(nsp,datanames[i],m,
+                        stddouble,betaqu_l1_lower(i,0),
+                        betaqu50(i,0),betaqu_l1_upper(i,0)) + "\n");
+
+        }
+
+      optionsp->out("\n");
+
+      optionsp->out("  Results for fixed effects are also stored in file\n");
+      optionsp->out("  " + pathresults + "\n");
+
+      optionsp->out("\n");
+    }
 
   }
 

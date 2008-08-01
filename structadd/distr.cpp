@@ -315,7 +315,7 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
   family = "Gaussian";
 
   standardise();
-//  trmult=1;
+  // trmult=1;
 
   FCsigma2 = FC(o,"Gaussian variance parameter",1,1,ps);
   FCsigma2.transform(0,0) = pow(trmult,2);

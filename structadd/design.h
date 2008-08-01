@@ -44,6 +44,8 @@ enum effecttype2 {
                 Varcoefftotal
    };
 
+enum centerm {mean,nullspace};
+
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: DESIGN ------------------------------------
 //------------------------------------------------------------------------------
@@ -145,17 +147,21 @@ class __EXPORT_TYPE DESIGN
   // --------------------------- for center ------------------------------------
 
   bool center;
+  centerm centermethod;
+
+
+  // for nullspace centering
   datamatrix basisNull;                     // contains a basis of the null
                                             // space of the penalty K
   vector<datamatrix> basisNullt;            // contains the transposed of
                                             // basisNull
 
-  FC_linear * FClinearp;                    // Pointer to linear effects                        
+  FC_linear * FClinearp;                    // Pointer to linear effects
   int position_lin;                         // position in the designmatrix
                                             // of linear effects
   datamatrix designlinear;                  // designmatrix linear effects
+  // end for nullpsace centering
 
-  
 
   // ---------------------------------------------------------------------------
 

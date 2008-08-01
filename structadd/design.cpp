@@ -214,6 +214,7 @@ DESIGN::DESIGN(const DESIGN & m)
   nrpar = m.nrpar;
 
   center = m.center;
+  centermethod=m.centermethod;
   basisNull = m.basisNull;
   basisNullt = m.basisNullt;
   FClinearp = m.FClinearp;
@@ -273,6 +274,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   nrpar = m.nrpar;
 
   center = m.center;
+  centermethod=m.centermethod;  
   basisNull = m.basisNull;
   basisNullt = m.basisNullt;
   FClinearp = m.FClinearp;
@@ -829,7 +831,7 @@ void DESIGN::compute_f(datamatrix & beta,datamatrix & betalin,
   // TEST
   */
 
-  if (designlinear.rows() == ftot.rows())
+  if (position_lin!=-1)
     {
     ftot.mult(designlinear,betalin);
     ftot.plus(f);

@@ -110,7 +110,7 @@ void FC_hrandom::transform_beta(void)
   if (mult)
     transform(0,0) = 1.0;
   else
-    FC_nonp::transform_beta();  
+    FC_nonp::transform_beta();
   }
 
 void FC_hrandom::update(void)
@@ -123,7 +123,7 @@ void FC_hrandom::update(void)
   FCrcoeff.acceptance++;
   FCrcoeff.update();
 
-  likep_RE->response.assign(beta);
+  likep_RE->workingresponse.assign(beta);
   likep_RE->trmult = likep->trmult;
   likep_RE->sigma2 = likep->get_scale();
   }
@@ -139,7 +139,7 @@ bool FC_hrandom::posteriormode(void)
 
   bool conv2 = FCrcoeff.posteriormode();
 
-  likep_RE->response.assign(beta);
+  likep_RE->workingresponse.assign(beta);
   likep_RE->trmult = likep->trmult;
 
   // TEST

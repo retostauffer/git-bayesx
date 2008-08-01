@@ -30,6 +30,7 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   13      samplemult
   14      constraints
   15      round
+  16      centermethod
   */
 
 
@@ -52,6 +53,11 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
     center = false;
 
   f = op[15].strtodouble(round);
+
+  if (op[16]=="mean")
+    centermethod = mean;
+  else if (op[16] == "nullpsace")
+    centermethod = nullspace;
 
   datanames = vn;
 
@@ -142,9 +148,9 @@ void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
   //       computes nrpar
   //       initializes datanames
 
-  if (type==Rw2)
+  if (type==Rw2 && centermethod == nullspace)
     position_lin = FClinearp->add_variable(dm,datanames[0]);
-  else if (type==Rw3)
+  else if (type==Rw3 && centermethod==nullspace)
     {
     // fehlt
     }
@@ -160,7 +166,6 @@ void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
 
 
   }
-
 
 
 void DESIGN_pspline::make_Bspline(void)
@@ -323,12 +328,12 @@ void DESIGN_pspline::compute_basisNull(void)
   {
   int i,j;
 
-  if (type==Rw1)
+  if ((centermethod == mean) || (type==Rw1))
     {
     basisNull = datamatrix(1,nrpar,1);
     position_lin = -1;
     }
-  else if (type==Rw2)
+  else if ((type==Rw2) && (centermethod == nullspace))
     {
     basisNull = datamatrix(2,nrpar,1);
     deque<double>::iterator it = knot.begin();
@@ -336,7 +341,7 @@ void DESIGN_pspline::compute_basisNull(void)
       basisNull(1,i) = *it;
 
     }
-  else if (type==Rw3)
+  else if ((type==Rw3) && (centermethod == nullspace))
     {
     basisNull = datamatrix(3,nrpar,1);
     int i;
@@ -376,7 +381,7 @@ void DESIGN_pspline::compute_basisNull(void)
 
     ofstream out2("c:\\bayesx\\test\\results\\designlin.res");
     designlinear.prettyPrint(out2);
-   */ 
+   */
   // TEST
 
   }

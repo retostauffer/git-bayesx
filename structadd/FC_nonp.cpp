@@ -523,7 +523,7 @@ bool FC_nonp::posteriormode(void)
   {
 
   // TEST
-  /*
+
   ofstream out("c:\\bayesx\\test\\results\\data.res");
   designp->data.prettyPrint(out);
 
@@ -532,7 +532,7 @@ bool FC_nonp::posteriormode(void)
 
   ofstream out3("c:\\bayesx\\test\\results\\index.res");
   designp->index_data.prettyPrint(out3);
-  */
+
   // TEST
 
   betaold.assign(beta);
@@ -544,8 +544,8 @@ bool FC_nonp::posteriormode(void)
 
   // TEST
 
-//  ofstream out4("c:\\bayesx\\test\\results\\partres.res");
-//  partres.prettyPrint(out4);
+  ofstream out4("c:\\bayesx\\test\\results\\partres.res");
+  partres.prettyPrint(out4);
 
   // TEST
 
@@ -559,21 +559,21 @@ bool FC_nonp::posteriormode(void)
     designp->compute_precision(lambda);
 
   // TEST
-  // ofstream out1("c:\\bayesx\\test\\results\\precision.res");
-  // designp->precision.print1(out1);
+//   ofstream out1("c:\\bayesx\\test\\results\\precision.res");
+//   designp->precision.print1(out1);
   // TEST
 
 
   designp->precision.solve(designp->XWres,param);
 
   // TEST
-  // ofstream out2("c:\\bayesx\\test\\results\\param.res");
-  // param.prettyPrint(out2);
+   ofstream out8("c:\\bayesx\\test\\results\\param.res");
+   param.prettyPrint(out8);
   // TEST
 
   if(designp->center)
-//    centerparam();
-    centerparam_sample();
+    centerparam();
+//    centerparam_sample();
 
   if (designp->position_lin!=-1)
     {
@@ -583,8 +583,8 @@ bool FC_nonp::posteriormode(void)
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
   // TEST
-  //  ofstream out5("c:\\bayesx\\test\\results\\f.res");
-  //  beta.prettyPrint(out5);
+    ofstream out5("c:\\bayesx\\test\\results\\f.res");
+    beta.prettyPrint(out5);
   // TEST
 
   betadiff.minus(beta,betaold);
@@ -841,12 +841,17 @@ void FC_nonp::centerparam_sample(void)
   ccenter.mult(designp->basisNull,param);
   Utc = Ucenter.transposed()*ccenter;
 
-  // TEST
-  //  ofstream out("c:\\bayesx\\test\\results\\Utc.res");
-  //  Utc.prettyPrint(out);
-  // TEST
+//  TEST
+//  ofstream out("c:\\bayesx\\test\\results\\Utc.res");
+//  Utc.prettyPrint(out);
+//  TEST
 
   param.minus(param,Utc);
+
+//  TEST
+//  ofstream out2("c:\\bayesx\\test\\results\\param.res");
+//  param.prettyPrint(out2);
+//  TEST
   }
 
 

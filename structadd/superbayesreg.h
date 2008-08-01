@@ -88,7 +88,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   bool findREdistr(ST::string & na,equation & maine,unsigned & fnr);
 
   void clear(void);
-  void initpointers(void);
+//  void initpointers(void);
 
   //------------------------- PRIVATE VARIABLES --------------------------------
 

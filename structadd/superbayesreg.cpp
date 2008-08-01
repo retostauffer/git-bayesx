@@ -202,7 +202,7 @@ void superbayesreg::create(void)
 
   }
 
-
+/*
 void superbayesreg::initpointers(void)
   {
 
@@ -215,7 +215,7 @@ void superbayesreg::initpointers(void)
     }
 
   }
-
+*/
 
 void superbayesreg::clear(void)
   {
@@ -744,62 +744,61 @@ bool superbayesreg::create_linear(void)
   vector<ST::string> varnames;
   vector<ST::string> varnamesh =  lineareffects.get_constvariables(terms);
 
-  varnames.push_back("const");
+  if (equations[modnr].hlevel == 1)
+    varnames.push_back("const");
 
   for(i=0;i<varnamesh.size();i++)
     varnames.push_back(varnamesh[i]);
 
   unsigned nr = varnames.size();
 
-  if (nr > 0)
-    {
 
-    ST::string title;
-    ST::string pathconst;
-    ST::string pathconstres;
+  ST::string title;
+  ST::string pathconst;
+  ST::string pathconstres;
 
-    ST::string h = equations[modnr].paths;
+  ST::string h = equations[modnr].paths;
 
-    title = "FixedEffects_" + h;
+  title = "FixedEffects_" + h;
 
-    pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+  pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                            + "_FixedEffects"  +
                            "_" + h + ".raw";
 
-    pathconstres = outfile.getvalue() +  "_FixedEffects" + "_" + h +
+  pathconstres = outfile.getvalue() +  "_FixedEffects" + "_" + h +
                     ".res";
 
-    if (pathconst.isvalidfile() == 1)
-      {
-      errormessages.push_back("ERROR: unable to open file " + pathconst +
+  if (pathconst.isvalidfile() == 1)
+    {
+    errormessages.push_back("ERROR: unable to open file " + pathconst +
                                  " for writing\n");
-      return true;
-      }
+    return true;
+    }
 
-    datamatrix X(D.rows(),nr,1);
+  datamatrix X;
+  if (nr > 0)
+    X = datamatrix(D.rows(),nr,1);
 
-    for (i=0;i<varnames.size();i++)
+  for (i=0;i<varnames.size();i++)
+    {
+
+    j = varnames[i].isinlist(modelvarnamesv);
+
+    if (j != -1)
       {
-
-      j = varnames[i].isinlist(modelvarnamesv);
-
-      if (j != -1)
-        {
-        unsigned l;
-        double * workX=X.getV()+i;
-        double * workD=D.getV()+j;
-        for (l=0;l<X.rows();l++,workX+=X.cols(),workD+=D.cols())
-          *workX = *workD;
-        }
-
+      unsigned l;
+      double * workX=X.getV()+i;
+      double * workD=D.getV()+j;
+      for (l=0;l<X.rows();l++,workX+=X.cols(),workD+=D.cols())
+        *workX = *workD;
       }
 
-    FC_linears.push_back(FC_linear(&generaloptions,equations[modnr].distrp,X,
+    }
+
+  FC_linears.push_back(FC_linear(&generaloptions,equations[modnr].distrp,X,
                          varnames,title,pathconst));
 
-    equations[modnr].add_FC(&FC_linears[FC_linears.size()-1],pathconstres);
-
-    } // end: if (nr > 0)
+  equations[modnr].add_FC(&FC_linears[FC_linears.size()-1],pathconstres);
 
   return false;
 
@@ -897,10 +896,13 @@ bool superbayesreg::create_hrandom(unsigned i)
     return true;
     }
 
+
   design_hrandoms.push_back(DESIGN_hrandom(d,iv,equations[modnr].distrp,
                             &FC_linears[FC_linears.size()-1],
                              equations[fnr].distrp,
                             terms[i].options,terms[i].varnames));
+
+
 
   FC_hrandoms.push_back(FC_hrandom(&generaloptions,equations[modnr].distrp,
                         equations[fnr].distrp, title,pathnonp,pathnonp2,
