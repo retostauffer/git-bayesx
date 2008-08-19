@@ -452,6 +452,9 @@ class __EXPORT_TYPE term_shrinkage : public basic_termtype
   {
   protected:
 
+  // Einlesen der Starwerte aus externer Datei
+  simpleoption external;
+  
   // Startwert für lambda=1/tau^2=1/Varianzparameter
   doubleoption lambda;
 

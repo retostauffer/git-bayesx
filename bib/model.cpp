@@ -236,6 +236,9 @@ vector<ST::string> basic_termtype::get_constvariables(vector<term> & terms)
 term_shrinkage::term_shrinkage(void)
   {
   type = "term_shrinkage";
+  
+  // Einlesen der Starwerte aus externer Datei
+  external = simpleoption("external",false);
 
   // Startwert fuer inverse varianzparameter lambda=1/tau^2
   lambda = doubleoption("lambda",0.1,0,10000000);
@@ -260,6 +263,7 @@ term_shrinkage::term_shrinkage(void)
 void term_shrinkage::setdefault(void)
   {
   // call setdefault-methods of the options
+  external.setdefault();
   lambda.setdefault();
   shrinkagestart.setdefault();
   //taustart.setdefault();
@@ -273,7 +277,7 @@ void term_shrinkage::setdefault(void)
 //-----------------
 bool term_shrinkage::check(term & t)
   {
-  if ( (t.varnames.size() == 1) && (t.options.size()<=6) && (t.options.size()>=1))   // SET: Anzahl Optionen
+  if ( (t.varnames.size() == 1) && (t.options.size()<=7) && (t.options.size()>=1))   // SET: Anzahl Optionen
     {
     // extract options
     // prior coorespponds to L2-Norm df coefficients
@@ -291,6 +295,7 @@ bool term_shrinkage::check(term & t)
 
     vector<ST::string> opt;
     optionlist optlist;
+    optlist.push_back(&external);
     optlist.push_back(&lambda);
     //optlist.push_back(&taustart);
     optlist.push_back(&shrinkagestart);
@@ -322,17 +327,22 @@ bool term_shrinkage::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(6);                        // SET: Anzahl Optionen
+    t.options = vector<ST::string>(7);                        // SET: Anzahl Optionen
     t.options[0] = t.type;
-    t.options[1] = ST::doubletostring(lambda.getvalue());
+    if (external.getvalue()==false)
+       t.options[1] = "false";
+    else
+       t.options[1] = "true";    
+    
+    t.options[2] = ST::doubletostring(lambda.getvalue());
     //t.options[] = ST::doubletostring(taustart.getvalue());
-    t.options[2] = ST::doubletostring(shrinkagestart.getvalue());
-    t.options[3] = ST::doubletostring(a_shrinkage.getvalue());
-    t.options[4] = ST::doubletostring(b_shrinkage.getvalue());
+    t.options[3] = ST::doubletostring(shrinkagestart.getvalue());
+    t.options[4] = ST::doubletostring(a_shrinkage.getvalue());
+    t.options[5] = ST::doubletostring(b_shrinkage.getvalue());
     if (shrinkagefix.getvalue()==false)
-       t.options[5] = "false";
-     else
-       t.options[5] = "true";
+       t.options[6] = "false";
+    else
+       t.options[6] = "true";
 
     setdefault();
     return true;

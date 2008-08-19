@@ -2338,7 +2338,11 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   double a_shrinkagegamma;
   double b_shrinkagegamma;
   bool shrinkagefix;
-  
+
+  bool external;
+  matrix start;
+  int readline=0;
+    
   datamatrix variances;
 
   int j, f;
@@ -2351,26 +2355,63 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   bool check=false;
   bool isridge=true;
   vector<FULLCOND_const*> fc;
+            
+  ofstream output_start("c:/bayesx/test/teststart.txt", ios::out|ios::app);     // --> outfilestream
 
   for(i=0;i<terms.size();i++)
     {
+
     if ( shrinkage.checkvector(terms,i) == true )
       {
       if(terms[i].options[0] == "ridge")
         {
         check=true;
         varnames.push_back(terms[i].varnames[0]);
-        f = terms[i].options[1].strtodouble(helpvar);
-        varhelp.push_back(1/helpvar);
 
-        // letzter Term enthält die verwendeten Werte
-        f = (terms[i].options[2]).strtodouble(shrinkagestart);
-        f = (terms[i].options[3]).strtodouble(a_shrinkagegamma);
-        f = (terms[i].options[4]).strtodouble(b_shrinkagegamma);
-        if (terms[i].options[5] == "true")
-          shrinkagefix = true;
-        else
-          shrinkagefix = false;
+        if (terms[i].options[1] == "true")
+          {
+           // read starting values from external file
+           // column arrangement in matrix start:
+           // beta | lambda | shrinkagestart | a_shrinkage | b_shrinkage | shrinkagefix
+           ifstream instart("c:\\bayesx\\temp\\lasso_start.raw");
+           start.prettyScan(instart);
+           instart.close();
+           
+           // assign the values 
+           varhelp.push_back(1/start.get(readline,1));
+           shrinkagestart=start.get(readline,2);
+           a_shrinkagegamma=start.get(readline,3);
+           b_shrinkagegamma=start.get(readline,4);
+           if (start.get(readline,5)==0.0)
+             shrinkagefix = false;
+           if (start.get(readline,5)==1.0)
+             shrinkagefix = true;
+           
+           output_start << readline                                             // --> outfilestream
+           << " " << start.get(readline,0)
+           << " " << start.get(readline,1) 
+           << " " << start.get(readline,2)
+           << " " << start.get(readline,3)
+           << " " << start.get(readline,4)
+           << " " << start.get(readline,5)            
+           << " " << "\n";
+           
+           readline=readline+1;
+          }
+        if (terms[i].options[1] == "false")
+          {                
+          f = terms[i].options[2].strtodouble(helpvar);
+          varhelp.push_back(1/helpvar);
+  
+          // letzter Term enthält die verwendeten Werte
+          f = (terms[i].options[3]).strtodouble(shrinkagestart);
+          f = (terms[i].options[4]).strtodouble(a_shrinkagegamma);
+          f = (terms[i].options[5]).strtodouble(b_shrinkagegamma);
+          if (terms[i].options[6] == "true")
+            shrinkagefix = true;
+          else
+            shrinkagefix = false;
+          }  
         }
       }
     }
@@ -2527,6 +2568,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
   double a_shrinkagegamma;
   double b_shrinkagegamma;
   bool shrinkagefix;
+  bool external;
 
   datamatrix variances;
 
@@ -2549,14 +2591,14 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         {
         check=true;
         varnames.push_back(terms[i].varnames[0]);
-        f = terms[i].options[1].strtodouble(helpvar);
+        f = terms[i].options[2].strtodouble(helpvar);
         varhelp.push_back(1/helpvar);
 
         // letzter Term enthält die verwendeten Werte
-        f = (terms[i].options[2]).strtodouble(shrinkagestart);
-        f = (terms[i].options[3]).strtodouble(a_shrinkagegamma);
-        f = (terms[i].options[4]).strtodouble(b_shrinkagegamma);
-        if (terms[i].options[5] == "true")
+        f = (terms[i].options[3]).strtodouble(shrinkagestart);
+        f = (terms[i].options[4]).strtodouble(a_shrinkagegamma);
+        f = (terms[i].options[5]).strtodouble(b_shrinkagegamma);
+        if (terms[i].options[6] == "true")
           shrinkagefix = true;
         else
           shrinkagefix = false;
