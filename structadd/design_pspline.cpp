@@ -55,7 +55,7 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   f = op[15].strtodouble(round);
 
   if (op[16]=="mean")
-    centermethod = mean;
+    centermethod = cmean;
   else if (op[16] == "nullpsace")
     centermethod = nullspace;
 
@@ -328,7 +328,7 @@ void DESIGN_pspline::compute_basisNull(void)
   {
   int i,j;
 
-  if ((centermethod == mean) || (type==Rw1))
+  if ((centermethod == cmean) || (type==Rw1))
     {
     basisNull = datamatrix(1,nrpar,1);
     position_lin = -1;
