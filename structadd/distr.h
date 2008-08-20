@@ -169,6 +169,8 @@ class __EXPORT_TYPE DISTR
     return 0;
     }
 
+  // FUNCTION: compute_IWLS (for the whole dataset
+  // TASK: 
 
   double compute_iwls(const bool & current,const bool & like);
 

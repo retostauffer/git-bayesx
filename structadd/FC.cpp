@@ -394,6 +394,7 @@ void FC::update(void)
      &&
         ((optionsp->nriter-optionsp->burnin) %
           optionsp->nrbetween == 0)
+     && (title!="")     
     )
     {
 

@@ -523,7 +523,7 @@ bool FC_nonp::posteriormode(void)
   {
 
   // TEST
-
+  /*
   ofstream out("c:\\bayesx\\test\\results\\data.res");
   designp->data.prettyPrint(out);
 
@@ -532,7 +532,7 @@ bool FC_nonp::posteriormode(void)
 
   ofstream out3("c:\\bayesx\\test\\results\\index.res");
   designp->index_data.prettyPrint(out3);
-
+  */
   // TEST
 
   betaold.assign(beta);
@@ -543,10 +543,10 @@ bool FC_nonp::posteriormode(void)
 
 
   // TEST
-
+  /*
   ofstream out4("c:\\bayesx\\test\\results\\partres.res");
   partres.prettyPrint(out4);
-
+  */
   // TEST
 
 
@@ -567,8 +567,10 @@ bool FC_nonp::posteriormode(void)
   designp->precision.solve(designp->XWres,param);
 
   // TEST
+  /*
    ofstream out8("c:\\bayesx\\test\\results\\param.res");
    param.prettyPrint(out8);
+  */
   // TEST
 
   if(designp->center)
@@ -583,8 +585,10 @@ bool FC_nonp::posteriormode(void)
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
   // TEST
+   /*
     ofstream out5("c:\\bayesx\\test\\results\\f.res");
     beta.prettyPrint(out5);
+    */
   // TEST
 
   betadiff.minus(beta,betaold);

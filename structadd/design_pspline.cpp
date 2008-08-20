@@ -56,7 +56,7 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
 
   if (op[16]=="mean")
     centermethod = cmean;
-  else if (op[16] == "nullpsace")
+  else if (op[16] == "nullspace")
     centermethod = nullspace;
 
   datanames = vn;

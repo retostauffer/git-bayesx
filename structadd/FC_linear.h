@@ -43,6 +43,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   datamatrix Xt;                             // transposed designmatrix
   datamatrix XWX;
+  datamatrix XWXold;
   datamatrix XWXroot;
   datamatrix residual;
   datamatrix Xtresidual;
@@ -51,12 +52,26 @@ class __EXPORT_TYPE FC_linear  : public FC
   datamatrix help;
   datamatrix betaold;
   datamatrix betadiff;
+  datamatrix mode;
+  datamatrix proposal;
 
   datamatrix linold;
+  datamatrix linnew;
+  datamatrix linmode;
+  datamatrix diff;
+  datamatrix * linoldp;
+  datamatrix * linnewp;   
 
-  void create_matrices(void);  
-  void compute_XWX(void);
+  void create_matrices(void);
+
+  // FUNCTION: compute_XWX
+  // TASK: computes XWX on the basis of the current working weight and stores
+  //       the result in r 
+
+  void compute_XWX(datamatrix & r);
   void compute_Wpartres(datamatrix & linpred);  
+
+  void add_linpred(datamatrix & l);
 
   public:
 

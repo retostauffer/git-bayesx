@@ -74,6 +74,7 @@ FC_linear::FC_linear(const FC_linear & m)
   design = m.design;
   designhelp = m.designhelp;
   XWX = m.XWX;
+  XWXold = m.XWXold;
   XWXroot = m.XWXroot;
   Xt = m.Xt;
   initialize = m.initialize;
@@ -82,8 +83,15 @@ FC_linear::FC_linear(const FC_linear & m)
   betaold = m.betaold;
   betadiff = m.betadiff;
   betam = m.betam;
+  mode = m.mode;
   help = m.help;
   linold = m.linold;
+  linnew = m.linnew;
+  linmode = m.linmode;
+  proposal=m.proposal;  
+  diff = m.diff;
+  linoldp = m.linoldp;
+  linnewp = m.linnewp;
   datanames = m.datanames;
   }
 
@@ -99,6 +107,7 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   design = m.design;
   designhelp = m.designhelp;
   XWX = m.XWX;
+  XWXold = m.XWXold;
   XWXroot = m.XWXroot;
   Xt = m.Xt;
   initialize = m.initialize;
@@ -107,24 +116,120 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   betaold = m.betaold;
   betadiff = m.betadiff;
   betam = m.betam;
+  mode = m.mode;
+  proposal=m.proposal;
   help = m.help;
   linold = m.linold;
+  linnew = m.linnew;
+  linmode = m.linmode;
+  diff = m.diff;
+  linoldp = m.linoldp;
+  linnewp = m.linnewp;
+
   datanames = m.datanames;
   return *this;
   }
 
 
+void FC_linear::add_linpred(datamatrix & l)
+  {
+
+  if (likep->linpred_current==1)
+    likep->linearpred1.plus(l);
+  else
+    likep->linearpred2.plus(l);
+  }
+
+
 void FC_linear::update_IWLS(void)
   {
+
+  if (!initialize)
+    create_matrices();
+
+  double qoldbeta;
+  double qnewbeta;
+
+  if (optionsp->nriter == 1)
+    {
+    linold.mult(design,beta);
+    mode.assign(beta);
+    }
+
+  double logold = likep->loglikelihood(true);
+
+  linmode.mult(design,mode);
+  diff.minus(linmode,*linoldp);
+  add_linpred(diff);
+
+  double h = likep->compute_iwls(true,false);
+
+  compute_XWX(XWXold);
+  XWXroot = XWXold.root();
+
+  compute_Wpartres(linmode);
+  Xtresidual.mult(Xt,residual);
+
+  XWXroot.solveroot(Xtresidual,help,mode);
+
+  help.minus(beta,mode);
+  qoldbeta = -0.5*XWXold.compute_quadform(help);
+
+
+  unsigned i;
+  double * workh = help.getV();
+  for(i=0;i<help.rows();i++,workh++)
+    *workh = rand_normal();
+
+  XWXroot.solveroot_t(help,proposal);
+
+  proposal.plus(mode);
+
+
+  help.minus(proposal,mode);
+
+  qnewbeta = -0.5*XWXold.compute_quadform(help);
+
+
+  linnewp->mult(design,proposal);
+
+  diff.minus(*linnewp,linmode);
+
+  add_linpred(diff);                           // (mit proposed)
+
+  double logprop = likep->loglikelihood();     // mit proposed
+
+
+  double u = log(uniform());
+
+  if (u <= (logprop + qoldbeta - logold - qnewbeta) )
+    {
+    datamatrix * mp = linoldp;
+    linoldp = linnewp;
+    linnewp = mp;
+
+    beta.assign(proposal);
+
+    acceptance++;
+    }
+  else
+    {
+    diff.minus(*linoldp,*linnewp);
+    add_linpred(diff);
+    }
+
   FC::update();
   }
 
 void FC_linear::update(void)
   {
-  if (IWLS)
-    update_IWLS();
-  else
-    update_gaussian();
+  if (datanames.size() > 0)
+    {
+    if (IWLS)
+      update_IWLS();
+    else
+      update_gaussian();
+    }
   }
 
 
@@ -137,7 +242,7 @@ void FC_linear::update_gaussian(void)
 
     if (likep->changingweight || optionsp->nriter==1)
       {
-      compute_XWX();
+      compute_XWX(XWX);
       XWXroot = XWX.root();
       }
 
@@ -173,7 +278,7 @@ void FC_linear::update_gaussian(void)
   }
 
 
-void FC_linear::compute_XWX(void)
+void FC_linear::compute_XWX(datamatrix & r)
   {
   unsigned i,j,k;
   unsigned nrconst = beta.rows();
@@ -193,9 +298,9 @@ void FC_linear::compute_XWX(void)
       for (k=0;k<nrobs;k++,Xt_ip++,Xt_jp++,workingweightp++)
         help += (*workingweightp) * (*Xt_ip)*(*Xt_jp);
 
-      XWX(i,j) = help;
+      r(i,j) = help;
       if (i!=j)
-        XWX(j,i) = help;
+        r(j,i) = help;
       }
 
   }
@@ -223,6 +328,16 @@ void FC_linear::create_matrices(void)
   help = beta;
   linold = datamatrix(design.rows(),1,0);
   initialize=true;
+
+  // For IWLS
+  linnew = datamatrix(design.rows(),1,0);
+  linmode = datamatrix(design.rows(),1,0);
+  diff = datamatrix(design.rows(),1,0);
+  linnewp = &linnew;
+  linoldp = &linold;
+  mode = beta;
+  proposal = beta;
+  XWXold = datamatrix(design.cols(),design.cols(),0);
   }
 
 
@@ -249,13 +364,13 @@ void FC_linear::compute_Wpartres(datamatrix & linpred)
 
 bool FC_linear::posteriormode(void)
   {
-  
+
   if (datanames.size() > 0)
     {
     if (!initialize)
       create_matrices();
 
-    compute_XWX();
+    compute_XWX(XWX);
 
     linold.mult(design,beta);
     compute_Wpartres(linold);

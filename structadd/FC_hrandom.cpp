@@ -124,6 +124,7 @@ void FC_hrandom::update(void)
   FCrcoeff.update();
 
   likep_RE->workingresponse.assign(beta);
+  likep_RE->response.assign(beta);
   likep_RE->trmult = likep->trmult;
   likep_RE->sigma2 = likep->get_scale();
   }
@@ -140,6 +141,7 @@ bool FC_hrandom::posteriormode(void)
   bool conv2 = FCrcoeff.posteriormode();
 
   likep_RE->workingresponse.assign(beta);
+  likep_RE->response.assign(beta);
   likep_RE->trmult = likep->trmult;
 
   // TEST
