@@ -146,7 +146,7 @@ void FC_nonp::get_linparam(void)
   int i;
   for (i=0;i<paramlin.rows();i++)
     paramlin(i,0) = designp->FClinearp->beta(pos+i,0);
-  }  
+  }
 
 void FC_nonp::update_IWLS(void)
   {
@@ -183,7 +183,8 @@ void FC_nonp::update_IWLS(void)
                                               // new parametervector
 
   if(designp->center)
-    centerparam();
+    centerparam_sample();
+//    centerparam();
 
   paramhelp.minus(param,paramhelp);
 

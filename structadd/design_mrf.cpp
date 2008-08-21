@@ -22,14 +22,23 @@ void DESIGN_mrf::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   6       b
   7       center
   8       map
+  9       lambda_re
+  10      a_re
+  11      b_re
+  12      internal_mult
+  13      samplemult
+  14      constraints
+  15      round
+  16      centermethod
   */
 
-  int f;
 
   if (op[7] == "false")   //nocenter==false, i.e. center
     center = true;
   else
     center = false;
+
+  centermethod = cmean;
 
   datanames = vn;
 
@@ -64,6 +73,8 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
   compute_XtransposedWX_XtransposedWres(help,1);
 
   compute_precision(1.0);
+
+  compute_basisNull();  
 
   }
 
@@ -127,6 +138,36 @@ void DESIGN_mrf::compute_penalty(void)
   if (type==Mrf)
     K = Kmrfenv(ma);
   rankK = ma.get_nrregions()-1;
+  }
+
+
+
+void DESIGN_mrf::compute_basisNull(void)
+  {
+  int i,j;
+
+  basisNull = datamatrix(1,nrpar,1);
+  position_lin = -1;
+
+
+  for(i=0;i<basisNull.rows();i++)
+    {
+    basisNullt.push_back(datamatrix(basisNull.cols(),1));
+    for(j=0;j<basisNull.cols();j++)
+      basisNullt[i](j,0) = basisNull(i,j);
+    }
+
+
+  // TEST
+  /*
+    ofstream out("c:\\bayesx\\test\\results\\data.res");
+    data.prettyPrint(out);
+
+    ofstream out2("c:\\bayesx\\test\\results\\designlin.res");
+    designlinear.prettyPrint(out2);
+   */
+  // TEST
+
   }
 
 
@@ -209,7 +250,7 @@ void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l)
   double * workXWres = XWres.getV();
   double * workpartres = partres.getV();
 
-  unsigned i,j;
+  unsigned i;
 
   for(i=0;i<nrpar;i++,workXWres++,workpartres++)
     {

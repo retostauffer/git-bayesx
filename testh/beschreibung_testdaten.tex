@@ -1,0 +1,62 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[dvips]{graphicx}
+\usepackage{rawfonts}
+\usepackage{german}
+\sloppy
+\parindent0em
+\parskip0.2em
+\topmargin-1.5cm \textheight24cm \textwidth15cm
+\oddsidemargin0.5cm
+%\pagestyle{empty}
+
+\renewcommand{\baselinestretch}{2}
+
+
+
+\def \re {{\bf R}}
+\def \beq {\begin{equation}}
+\def \eeq {\end{equation}}
+\def \bdis {\begin{displaymath}}
+\def \edis {\end{displaymath}}
+\def \ds {\displaystyle}
+
+\newcommand{\reell}{{I\hspace{-0.18cm} R}}
+
+
+\begin{document}
+
+
+
+{\bf \Huge TESTDATENS\"{A}TZE}
+
+\tableofcontents
+
+\section{Gaussian response}
+
+\subsection{Eine r\"{a}umliche Funktion, nicht hierarchisch}
+
+{\bf Simulationsfile}
+
+gaussian\_spatial\_1fkt.do
+
+{\bf Datensatz}
+
+gaussian\_spatial\_1fkt.raw
+
+{\bf Modell}
+
+$y1  \sim N(0.4(xcenter+ycenter),0.3^2)$
+
+wobei $xcenter$ und $ycenter$ die (zentrierten) Zentroide der
+Regionen sind. Die Zentroide findet man in der Datei
+kreisecentroid.raw, das bnd-file unter kreisesim.bnd.
+
+{\bf mcmcreg: batch-file}
+
+gaussian\_spatial\_1fkt\_work.prg
+
+{\bf bayesreg: batch-file}
+
+gaussian\_spatial\_1fkt\_alt.prg
+
+\end{document}

@@ -230,6 +230,8 @@ void FC_linear::update(void)
     else
       update_gaussian();
     }
+  else
+    nosamples = true;  
   }
 
 

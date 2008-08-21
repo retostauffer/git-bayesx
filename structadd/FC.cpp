@@ -173,21 +173,21 @@ void FC::setbetavalue(const unsigned & row,const unsigned & col,
 void FC::setbeta(const datamatrix & betanew)
   {
   beta = betanew;
-  betamean = beta;
-  beta_mode = beta;
-  betas2 = beta;
-  betavar = beta;
-  betamin = beta;
-  betamax = beta;
-  betaqu_l1_lower = beta;
-  betaqu_l2_lower = beta;
-  betaqu_l1_upper = beta;
-  betaqu_l2_upper = beta;
-  betaqu50 = beta;
-  betameanold = beta;
-  betavarold = beta;
-  betaminold = beta;
-  betamaxold = beta;
+  betamean = datamatrix(beta.rows(),beta.cols(),0);
+  beta_mode = datamatrix(beta.rows(),beta.cols(),0);
+  betas2 = datamatrix(beta.rows(),beta.cols(),0);
+  betavar = datamatrix(beta.rows(),beta.cols(),0);
+  betamin = datamatrix(beta.rows(),beta.cols(),0);
+  betamax = datamatrix(beta.rows(),beta.cols(),0);
+  betaqu_l1_lower = datamatrix(beta.rows(),beta.cols(),0);
+  betaqu_l2_lower = datamatrix(beta.rows(),beta.cols(),0);
+  betaqu_l1_upper = datamatrix(beta.rows(),beta.cols(),0);
+  betaqu_l2_upper = datamatrix(beta.rows(),beta.cols(),0);
+  betaqu50 = datamatrix(beta.rows(),beta.cols(),0);
+  betameanold = datamatrix(beta.rows(),beta.cols(),0);
+  betavarold = datamatrix(beta.rows(),beta.cols(),0);
+  betaminold = datamatrix(beta.rows(),beta.cols(),0);
+  betamaxold = datamatrix(beta.rows(),beta.cols(),0);
   transform = datamatrix(beta.cols(),1,1);
 
   }
@@ -364,7 +364,10 @@ void FC::update(void)
                        ((samplesize-1)*(*workbetamean) + betatransform);
 
         // updating betavar
-        *workbetas2 += betatransform*betatransform;
+        if (samplesize==1)
+          *workbetas2 = betatransform*betatransform;
+        else
+          *workbetas2 += betatransform*betatransform;
         *workbetavar = (1.0/samplesize)*
                        (*workbetas2)-(*workbetamean)*(*workbetamean);
 
@@ -394,7 +397,7 @@ void FC::update(void)
      &&
         ((optionsp->nriter-optionsp->burnin) %
           optionsp->nrbetween == 0)
-     && (title!="")     
+     && (title!="")
     )
     {
 
