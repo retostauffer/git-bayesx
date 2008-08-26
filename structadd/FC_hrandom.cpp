@@ -81,6 +81,8 @@ const FC_hrandom & FC_hrandom::operator=(const FC_hrandom & m)
   mult = m.mult;
   likep_RE = m.likep_RE;
   FCrcoeff = m.FCrcoeff;
+  logold = m.logold;
+  lognew = m.lognew;
   return *this;
   }
 
@@ -113,10 +115,76 @@ void FC_hrandom::transform_beta(void)
     FC_nonp::transform_beta();
   }
 
+
+
+void FC_hrandom::update_linpred(int & begin, int & end, double  & value)
+  {
+
+  unsigned i;
+
+  double * * linpredp;
+
+  if (likep->linpred_current==1)
+    linpredp = designp->linpredp1.getV()+begin;
+  else
+    linpredp = designp->linpredp2.getV()+begin;
+
+  for (i=begin;i<=end;i++,linpredp++)
+    *(*linpredp) += value;
+
+  }
+
+
+
+
+void FC_hrandom::update_IWLS(void)
+  {
+  unsigned i;
+  double logold;
+
+  vector<int>::iterator itbeg = designp->posbeg.begin();
+  vector<int>::iterator itend = designp->posend.begin();
+
+  statmatrix<double *> * linpredp;
+
+  if (likep->linpred_current==1)
+    linpredp = &(designp->linpredp1);
+  else
+    linpredp = &(designp->linpredp2);
+
+  if (optionsp->nriter == 1)
+    {
+    paramold.assign(param);
+    betaold.assign(beta);
+    lognew = datamatrix(beta.rows(),1);
+    logold = datamatrix(beta.rows(),1);    
+    }
+
+  double h = likep->compute_iwls(true,false);
+
+  for (i=0;i<beta.rows();i++,++itbeg,++itend)
+    {
+    logold = likep->loglikelihood(*itbeg,*itend,designp->responsep,
+                                  designp->weightp,*linpredp);
+
+
+    update_linpred( );
+    }
+
+  }
+
+
 void FC_hrandom::update(void)
   {
 
-  FC_nonp::update();
+  if (IWLS)
+    {
+    update_IWLS();
+    }
+  else
+    {
+    FC_nonp::update();
+    }
 
   set_rcoeff();
 

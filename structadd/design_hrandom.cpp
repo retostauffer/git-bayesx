@@ -135,7 +135,7 @@ void DESIGN_hrandom::compute_XtransposedWX(void)
     XWXdeclared = true;
     }
 
-  if (responsep.rows() != data.rows())
+  if (workingresponsep.rows() != data.rows())
     {
     make_pointerindex();
     }
@@ -201,7 +201,7 @@ void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(
     XWresdeclared = true;
     }
 
-  if (responsep.rows() != data.rows())
+  if (workingresponsep.rows() != data.rows())
     {
     make_pointerindex();
     }
@@ -277,7 +277,7 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
     XWresdeclared = true;
     }
 
-  if (responsep.rows() != data.rows())
+  if (workingresponsep.rows() != data.rows())
     {
     make_pointerindex();
     }
@@ -327,6 +327,8 @@ void DESIGN_hrandom::compute_precision(double l)
   */
 
   }
+
+
 
 
 void DESIGN_hrandom::outoptions(GENERAL_OPTIONS * op)

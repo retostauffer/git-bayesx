@@ -186,7 +186,7 @@ void DESIGN_mrf::compute_XtransposedWX_XtransposedWres(datamatrix & partres,
     XWresdeclared = true;
     }
 
-  if (responsep.rows() != data.rows())
+  if (workingresponsep.rows() != data.rows())
     {
     make_pointerindex();
     }
@@ -242,7 +242,7 @@ void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l)
     XWresdeclared = true;
     }
 
-  if (responsep.rows() != data.rows())
+  if (workingresponsep.rows() != data.rows())
     {
     make_pointerindex();
     }
@@ -269,7 +269,7 @@ void DESIGN_mrf::compute_XtransposedWX(void)
     XWXdeclared = true;
     }
 
-  if (responsep.rows() != data.rows())
+  if (workingresponsep.rows() != data.rows())
     {
     make_pointerindex();
     }

@@ -137,6 +137,16 @@ class __EXPORT_TYPE DISTR
 
   double loglikelihood(const bool & current=true) const;
 
+  // FUNCTION: loglikelihood
+  // TASK: computes the loglikelihood for observations between begin and end
+  //       response, weights, predicor stored in responsep,workingweightp,
+  //       linpredp  
+
+  double loglikelihood(int & begin,
+                       int & end, statmatrix<double *> & responsep,
+                       statmatrix<double *> & workingweightp,
+                       statmatrix<double *> & linpredp) const;
+
 
   //----------------------------------------------------------------------------
   //------------------------------- COMPUTE mu ---------------------------------

@@ -13,13 +13,21 @@ namespace MCMC
 void DESIGN::make_pointerindex(void)
   {
   unsigned i;
-  responsep = statmatrix<double*> (data.rows(),1);
+  workingresponsep = statmatrix<double*> (data.rows(),1);
   for(i=0;i<data.rows();i++)
-    responsep(i,0) = &(likep->workingresponse(index_data(i,0),0));
+    workingresponsep(i,0) = &(likep->workingresponse(index_data(i,0),0));
 
   workingweightp = statmatrix<double*> (data.rows(),1);
   for(i=0;i<data.rows();i++)
     workingweightp(i,0) = &(likep->workingweight(index_data(i,0),0));
+
+  responsep = statmatrix<double*> (data.rows(),1);
+  for(i=0;i<data.rows();i++)
+    responsep(i,0) = &(likep->response(index_data(i,0),0));
+
+  weightp = statmatrix<double*> (data.rows(),1);
+  for(i=0;i<data.rows();i++)
+    weightp(i,0) = &(likep->weight(index_data(i,0),0));
 
   linpredp1 = statmatrix<double*> (data.rows(),1);
   linpredp2 = statmatrix<double*> (data.rows(),1);
@@ -207,6 +215,8 @@ DESIGN::DESIGN(const DESIGN & m)
   index_ZoutT = m.index_ZoutT;
 
   responsep = m.responsep;
+  weightp = m.weightp;
+  workingresponsep = m.workingresponsep;
   workingweightp = m.workingweightp;
   linpredp1 = m.linpredp1;
   linpredp2 = m.linpredp2;
@@ -267,6 +277,8 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   index_ZoutT = m.index_ZoutT;
 
   responsep = m.responsep;
+  weightp = m.weightp;
+  workingresponsep = m.workingresponsep;
   workingweightp = m.workingweightp;
   linpredp1 = m.linpredp1;
   linpredp2 = m.linpredp2;
@@ -274,12 +286,12 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   nrpar = m.nrpar;
 
   center = m.center;
-  centermethod=m.centermethod;  
+  centermethod=m.centermethod;
   basisNull = m.basisNull;
   basisNullt = m.basisNullt;
   FClinearp = m.FClinearp;
   position_lin = m.position_lin;
-  designlinear = m.designlinear;  
+  designlinear = m.designlinear;
 
   K = m.K;
   rankK = m.rankK;
@@ -388,7 +400,7 @@ void DESIGN::compute_XtransposedWX(void)
 //  likep->workingweight.prettyPrint(out);
   // TEST
 
-  if (responsep.rows() != data.rows())
+  if (workingresponsep.rows() != data.rows())
     {
     make_pointerindex();
     }
@@ -858,12 +870,12 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
 
   double * workres = res.getV();
 
-  if (responsep.rows() != data.rows())
+  if (workingresponsep.rows() != data.rows())
     {
     make_pointerindex();
     }
 
-  double * * work_responsep = responsep.getV();
+  double * * work_responsep = workingresponsep.getV();
   double * * work_workingweightp = workingweightp.getV();
 
   double * * worklinp;

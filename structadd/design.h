@@ -127,12 +127,18 @@ class __EXPORT_TYPE DESIGN
 
   //----------------------------------------------------------------------------
 
-  statmatrix<double *> responsep;            // matrix of pointers to response
-                                             // observations
-  statmatrix<double *> workingweightp;
+  statmatrix<double *> responsep;            // matrix of pointers to
+                                             // response observations
+  statmatrix<double *> weightp;              // matrix of pointers to
+                                             // weights
 
-  statmatrix<double *> linpredp1;
-  statmatrix<double *> linpredp2;
+  statmatrix<double *> workingresponsep;     // matrix of pointers to working
+                                             // response observations
+  statmatrix<double *> workingweightp;       // matrix of pointers to working
+                                             // weights
+
+  statmatrix<double *> linpredp1;            // matrix of pointers to linpred1
+  statmatrix<double *> linpredp2;            // matrix of pointers to linpred2
 
   // FUNCTION: make_pointerindex
   // TASK: computes pointer matrices responsep, workingweightp,linpredp1,

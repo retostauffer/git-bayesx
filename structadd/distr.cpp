@@ -174,6 +174,26 @@ double DISTR::loglikelihood(const bool & current) const
   }
 
 
+double DISTR::loglikelihood(int & begin,
+int & end, statmatrix<double *> & responsep,
+statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp) const
+  {
+  double help=0;
+  unsigned i;
+
+  double * * workresponsep = responsep.getV()+begin;
+  double * * work_workingweightp = workingweightp.getV()+begin;
+  double * * work_linpredp  = linpredp.getV()+begin;
+
+  for (i=begin;i<=end;i++,work_workingweightp++,work_linpredp++,workresponsep++)
+    help += loglikelihood(*workresponsep,*work_linpredp,*work_workingweightp);
+
+  return help;
+
+
+  }
+
+
 void DISTR::compute_deviance(const double * response,
                            const double * weight,
                            const double * mu, double * deviance,

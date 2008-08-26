@@ -38,6 +38,9 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   bool mult;
 
+  datamatrix logold;
+  datamatrix lognew;
+
   void set_rcoeff(void);
 
   public:
@@ -71,11 +74,15 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
     {
     }
 
+  void update_linpred(int & begin, int & end, double  & value);    
+
   // FUNCTION: update
   // TASK: - stores sampled parameters in file 'samplepath'
   //         storing order: first row, second row, ...
 
   void update(void);
+
+  void update_IWLS(void);
 
   // FUNCTION: posteriormode
   // TASK: computes the posterior mode
