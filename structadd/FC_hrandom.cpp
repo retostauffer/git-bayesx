@@ -253,23 +253,17 @@ void FC_hrandom::update_IWLS(void)
   designp->compute_partres(partres,beta);
   designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
 
-  designp->compute_precision(lambda);
 
-  designp->precision.solve(designp->XWres,paramhelp);
-
+  double * XWresp = designp->XWres.getV();
+  double * paramhelpp = paramhelp.getV();
+  double * XWXp = designp->XWX.getDiagIterator();
 
   double * qnewp = qnew.getV();
-  betadiff.minus(betaold,paramhelp);
-  betadiffp = betadiff.getV();
+//  betadiff.minus(betaold,paramhelp);
+///  betadiffp = betadiff.getV();
 
-  dit = designp->precision.getDiagIterator();
-
-  for (i=0;i<beta.rows();i++,qnewp++,betadiffp++,++dit)
-    {
-    var = 1/(*dit);
-    *qnewp = -1.0/(2*var)* pow((*betadiffp),2)-0.5*log(var);
-    }
-
+  double * betaoldp = betaold.getV();
+  double diff;
 
   double * lognewp = lognew.getV();
   betap = beta.getV();
@@ -281,18 +275,66 @@ void FC_hrandom::update_IWLS(void)
   else
     linpredREp = likep_RE->linearpred2.getV();
 
-  for (i=0;i<beta.rows();i++,++itbeg,++itend,lognewp++,betap++,linpredREp++)
+  logoldp = logold.getV();
+  double u;
+
+  qoldp = qold.getV();
+
+  for (i=0;i<beta.rows();i++,XWresp++,paramhelpp++,XWXp++,qnewp++,betadiffp++,
+  betaoldp++,lognewp++,++itbeg,++itend,betap++,logoldp++,qoldp++)
     {
+
     *lognewp = likep->loglikelihood(*itbeg,*itend,designp->responsep,
                                   designp->weightp,*linpredp);
 
     *lognewp -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
 
+    var = 1/(*XWXp+lambda);
+    *paramhelpp =  var* (*XWresp);
+    diff = *betaoldp - *paramhelpp;
+    *qnewp = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
+
+
+    nrtrials++;
+    u = log(uniform());
+    if (u <= (*lognewp) - (*logoldp) + (*qnewp) -(*qoldp))
+      {
+      acceptance++;
+      *betaoldp = *betap;
+      }
+    else
+      {
+
+      // TEST
+      // ofstream out("c:\\bayesx\\testh\\results\\linpred.res");
+      // likep->linearpred1.prettyPrint(out);
+      // TEST
+
+      update_linpred(*itbeg,*itend,*betaoldp-*betap);
+      *betap = *betaoldp;
+
+      // TEST
+      // ofstream out2("c:\\bayesx\\testh\\results\\linpredn.res");
+      // likep->linearpred1.prettyPrint(out2);
+      // TEST
+
+      }
+
+
     }
 
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\paramhelp.res");
+  // paramhelp.prettyPrint(out);
+  // TEST
 
+
+
+
+
+/*
   betap = beta.getV();
-  double * betaoldp = betaold.getV();
+  betaoldp = betaold.getV();
 
   lognewp = lognew.getV();
   logoldp = logold.getV();
@@ -330,6 +372,7 @@ void FC_hrandom::update_IWLS(void)
 
       }
     }
+ */
 
   // TEST
   // ofstream out("c:\\bayesx\\testh\\results\\linpred.res");
