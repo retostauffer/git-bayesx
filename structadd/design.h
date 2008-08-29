@@ -252,6 +252,7 @@ class __EXPORT_TYPE DESIGN
 
   void compute_partres(datamatrix & res,datamatrix & f);
 
+  void compute_partres(int begin,int end,double & res, double & f);  
 
   double compute_ZtZ(unsigned & i, unsigned & j);
 

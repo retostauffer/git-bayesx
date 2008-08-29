@@ -71,7 +71,7 @@ bool DESIGN::check_ZoutT_consecutive(void)
   int size;
   int i,j;
 
-  for(i=0;i<nrpar;i++)
+  for(i=0;i<int(nrpar);i++)
     {
     size = ZoutT[i].size();
     for (j=1;j<size;j++)
@@ -405,7 +405,7 @@ void DESIGN::compute_XtransposedWX(void)
     make_pointerindex();
     }
 
-  unsigned i,j;
+  int i,j;
 
   int size = posbeg.size();
 
@@ -451,7 +451,7 @@ void DESIGN::compute_XtransposedWX(void)
   double help;
   int ip;
 
-  for (i=0;i<nrpar;i++,++diag)
+  for (i=0;i<int(nrpar);i++,++diag)
     {
     *diag=0;
 
@@ -471,7 +471,7 @@ void DESIGN::compute_XtransposedWX(void)
   xenv++;
 
 //  unsigned envs = XWX.getXenv(nrpar);
-  for(i=0;i<nrpar;i++,++xenv)
+  for(i=0;i<int(nrpar);i++,++xenv)
     {
     nrnnull = *xenv-start;
     if (nrnnull > 0)
@@ -587,7 +587,6 @@ double DESIGN::compute_ZtZ(unsigned & i, unsigned & j)
   }
 
 
-
 void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
   {
 
@@ -694,7 +693,7 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
   */
   // TEST
 
-  unsigned i,j;
+  int i,j;
 
   if (effect.rows() != data.rows())
     effect = datamatrix(data.rows(),1,0);
@@ -898,7 +897,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
         if (*itbeg != -1)
           {
           for (j=*itbeg;j<=*itend;j++,work_responsep++,
-               work_workingweightp,worklinp++,workintvar++)
+               work_workingweightp++,worklinp++,workintvar++)
             {
             *workres += *(*work_workingweightp) * (*workintvar) *
             (*(*work_responsep) - (*(*worklinp)) + (*workintvar) * (*workf));
@@ -959,15 +958,106 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
       }
     }
 
-
-
   // TEST
-//    ofstream out("c:\\bayesx\\test\\results\\tildey.res");
-//    (likep->workingresponse).prettyPrint(out);
+  // ofstream out("c:\\bayesx\\test\\results\\tildey.res");
+  // (likep->workingresponse).prettyPrint(out);
   // TEST
-
 
   }
+
+
+
+void DESIGN::compute_partres(int begin,int end,double & res, double & f)
+  {
+
+  int j;
+
+  if (workingresponsep.rows() != data.rows())
+    {
+    make_pointerindex();
+    }
+
+  double * * work_responsep = workingresponsep.getV()+begin;
+  double * * work_workingweightp = workingweightp.getV()+begin;
+
+  double * * worklinp;
+  if (likep->linpred_current==1)
+    worklinp = linpredp1.getV()+begin;
+  else
+    worklinp = linpredp2.getV()+begin;
+
+  if (intvar.rows()==data.rows())   // varying coefficient
+    {
+
+    double * workintvar = intvar.getV()+begin;
+
+    if ((likep->changingweight==true) ||
+    ((likep->changingweight==false) && (likep->weights_one==false)))
+      {
+      res = 0;
+      if (begin != -1)
+        {
+        for (j=begin;j<=end;j++,work_responsep++,
+             work_workingweightp++,worklinp++,workintvar++)
+          {
+          res += *(*work_workingweightp) * (*workintvar) *
+          (*(*work_responsep) - (*(*worklinp)) + (*workintvar) * f);
+          }
+        }
+
+      }
+    else
+      {
+      res = 0;
+      if (begin != -1)
+        {
+        for (j=begin;j<=end;j++,work_responsep++,worklinp++,workintvar++)
+          {
+          res += (*workintvar) * (*(*work_responsep) - (*(*worklinp)) +
+          (*workintvar) * f);
+          }
+        }
+
+      }
+    }
+  else                              // additive
+    {
+
+    if ((likep->changingweight==true) ||
+    ((likep->changingweight==false) && (likep->weights_one==false)))
+      {
+      res = 0;
+      if (begin != -1)
+        {
+        for (j=begin;j<=end;j++,work_responsep++,
+               work_workingweightp++,worklinp++)
+          {
+          res += *(*work_workingweightp) *
+          (*(*work_responsep) - (*(*worklinp)) + f);
+          }
+        }
+      }
+    else
+      {
+      res = 0;
+      if (begin != -1)
+        {
+        for (j=begin;j<=end;j++,work_responsep++,worklinp++)
+          {
+          res += *(*work_responsep) - (*(*worklinp)) + f;
+          }
+        }
+      }
+
+    }
+
+  // TEST
+  //    ofstream out("c:\\bayesx\\test\\results\\tildey.res");
+  //    (likep->workingresponse).prettyPrint(out);
+  // TEST
+
+  }
+
 
 
 void DESIGN::update_linpred(datamatrix & f,bool add)

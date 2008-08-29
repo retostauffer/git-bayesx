@@ -38,11 +38,6 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   bool mult;
 
-  datamatrix logold;
-  datamatrix lognew;
-  datamatrix qold;
-  datamatrix qnew;
-
   void set_rcoeff(void);
 
   public:

@@ -79,7 +79,6 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
 
-
   void compute_precision(double l);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);  

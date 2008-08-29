@@ -69,10 +69,6 @@ FC_hrandom::FC_hrandom(const FC_hrandom & m)
   mult = m.mult;
   likep_RE = m.likep_RE;
   FCrcoeff = m.FCrcoeff;
-  logold = m.logold;
-  lognew = m.lognew;
-  qnew = m.qnew;
-  qold = m.qold;
   }
 
 
@@ -85,10 +81,6 @@ const FC_hrandom & FC_hrandom::operator=(const FC_hrandom & m)
   mult = m.mult;
   likep_RE = m.likep_RE;
   FCrcoeff = m.FCrcoeff;
-  logold = m.logold;
-  lognew = m.lognew;
-  qnew = m.qnew;
-  qold = m.qold;
   return *this;
   }
 
@@ -143,15 +135,11 @@ void FC_hrandom::update_linpred(int & begin, int & end, double  & value)
 
 
 
+
+
 void FC_hrandom::update_IWLS(void)
   {
   unsigned i;
-
-  // TEST
-  //  ofstream out0("c:\\bayesx\\testh\\results\\linpredv.res");
-  //  likep->linearpred1.prettyPrint(out0);
-  // TEST
-
 
   statmatrix<double *> * linpredp;
 
@@ -163,27 +151,12 @@ void FC_hrandom::update_IWLS(void)
   if (optionsp->nriter == 1)
     {
     betaold.assign(beta);
-    lognew = datamatrix(beta.rows(),1);
-    logold = datamatrix(beta.rows(),1);
-    qnew = datamatrix(beta.rows(),1);
-    qold = datamatrix(beta.rows(),1);
     }
 
-  // TEST
-  //  ofstream out0("c:\\bayesx\\testh\\results\\betaold.res");
-  //  betaold.prettyPrint(out0);
-
-  //  ofstream out1("c:\\bayesx\\testh\\results\\beta.res");
-  //  beta.prettyPrint(out1);
-  // TEST
-
-
-  // compute loglikelihood based on current predictor
-  double * logoldp = logold.getV();
   double * betap = beta.getV();
+  double * betaoldp = betaold.getV();
   vector<int>::iterator itbeg = designp->posbeg.begin();
   vector<int>::iterator itend = designp->posend.begin();
-
 
   double * linpredREp;
   if (likep_RE->linpred_current==1)
@@ -191,193 +164,81 @@ void FC_hrandom::update_IWLS(void)
   else
     linpredREp = likep_RE->linearpred2.getV();
 
-  // TEST
-  // ofstream out0("c:\\bayesx\\testh\\results\\linpredRE.res");
-  // likep_RE->linearpred1.prettyPrint(out0);
-  // TEST
+//  double * workpartres = partres.getV();
+//  double * XWresp = designp->XWres.getV();
+//  double * XWXp = designp->XWX.getDiagIterator();
 
-  for (i=0;i<beta.rows();i++,++itbeg,++itend,betap++,logoldp++,linpredREp++)
-    {
-    *logoldp = likep->loglikelihood(*itbeg,*itend,designp->responsep,
-                                  designp->weightp,*linpredp);
-
-    *logoldp -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
-    }
-
-
-  // compute workingweights and tildey based on current predictor
-  double h = likep->compute_iwls(true,false);
-
-  designp->compute_partres(partres,beta);
-
-  designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
-
-  designp->compute_precision(lambda);
-
-  // TEST
-  // ofstream out("c:\\bayesx\\testh\\results\\precision.res");
-  // designp->precision.print1(out);
-  // TEST
-
-  designp->precision.solve(designp->XWres,paramhelp);
-
-  betap = beta.getV();
-  unsigned nrpar = beta.rows();
-  for(i=0;i<nrpar;i++,betap++)
-    *betap = rand_normal();
-
-  designp->precision.solveU(beta,paramhelp); // beta contains now the proposed
-                                              // new parametervector
-                                              // paramhelp contains the mean of
-                                              // the proposal
-
-  double * qoldp = qold.getV();
-  betadiff.minus(beta,paramhelp);
-  double * betadiffp = betadiff.getV();
-
-  vector<double>::iterator dit = designp->precision.getDiagIterator();
-  double var;
-
-  for (i=0;i<beta.rows();i++,qoldp++,betadiffp++,++dit)
-    {
-    var = 1/(*dit);
-    *qoldp = -1.0/(2*var)* pow((*betadiffp),2)-0.5*log(var);
-    }
-
-
-  betadiff.minus(beta,betaold);
-  designp->update_linpred(betadiff,true);
-
-  h = likep->compute_iwls(true,false);
-
-  designp->compute_partres(partres,beta);
-  designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
-
-
-  double * XWresp = designp->XWres.getV();
-  double * paramhelpp = paramhelp.getV();
-  double * XWXp = designp->XWX.getDiagIterator();
-
-  double * qnewp = qnew.getV();
-//  betadiff.minus(betaold,paramhelp);
-///  betadiffp = betadiff.getV();
-
-  double * betaoldp = betaold.getV();
+  double postmode;
   double diff;
-
-  double * lognewp = lognew.getV();
-  betap = beta.getV();
-  itbeg = designp->posbeg.begin();
-  itend = designp->posend.begin();
-
-  if (likep_RE->linpred_current==1)
-    linpredREp = likep_RE->linearpred1.getV();
-  else
-    linpredREp = likep_RE->linearpred2.getV();
-
-  logoldp = logold.getV();
+  double var;
+  double lnew,lold;
   double u;
+  double qold;
+  double qnew;
+  double xwx,xwres;
+  double pres;
 
-  qoldp = qold.getV();
+//  for (i=0;i<beta.rows();i++,++itbeg,++itend,betap++,linpredREp++,
+//       workpartres++,XWXp++,XWresp++,betaoldp++)
+  for (i=0;i<beta.rows();i++,++itbeg,++itend,betap++,linpredREp++,
+       betaoldp++)
 
-  for (i=0;i<beta.rows();i++,XWresp++,paramhelpp++,XWXp++,qnewp++,betadiffp++,
-  betaoldp++,lognewp++,++itbeg,++itend,betap++,logoldp++,qoldp++)
     {
+    lold = likep->compute_iwls_loglikelihood_sumworkingweight(
+                                  *itbeg,*itend,designp->responsep,
+                                  designp->workingresponsep,
+                                  designp->weightp,designp->workingweightp,
+                                  *linpredp,designp->intvar2,xwx);
 
-    *lognewp = likep->loglikelihood(*itbeg,*itend,designp->responsep,
-                                  designp->weightp,*linpredp);
+    lold -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
 
-    *lognewp -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
+    designp->compute_partres(*itbeg,*itend,pres,*betap);
 
-    var = 1/(*XWXp+lambda);
-    *paramhelpp =  var* (*XWresp);
-    diff = *betaoldp - *paramhelpp;
-    *qnewp = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
+    xwres =  lambda*(*linpredREp)+pres;
+
+
+    var = 1/(xwx+lambda);
+    postmode =  var * xwres;
+//    *paramhelpp =  var * (*XWresp);
+    *betap = postmode + sqrt(var)*rand_normal();
+    diff = *betap - postmode;
+    qold = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
+
+    update_linpred(*itbeg,*itend,*betap-*betaoldp);
+
+
+    lnew = likep->compute_iwls_loglikelihood_sumworkingweight(
+                                  *itbeg,*itend,designp->responsep,
+                                  designp->workingresponsep,
+                                  designp->weightp,designp->workingweightp,
+                                  *linpredp,designp->intvar2,xwx);
+
+    lnew -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
+
+    designp->compute_partres(*itbeg,*itend,pres,*betap);
+
+    xwres =  lambda*(*linpredREp)+pres;
+
+
+    var = 1/(xwx+lambda);
+    diff = *betaoldp - var * xwres;
+    qnew = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
 
 
     nrtrials++;
     u = log(uniform());
-    if (u <= (*lognewp) - (*logoldp) + (*qnewp) -(*qoldp))
+    if (u <= lnew - lold + qnew -qold)
       {
       acceptance++;
       *betaoldp = *betap;
       }
     else
       {
-
-      // TEST
-      // ofstream out("c:\\bayesx\\testh\\results\\linpred.res");
-      // likep->linearpred1.prettyPrint(out);
-      // TEST
-
       update_linpred(*itbeg,*itend,*betaoldp-*betap);
       *betap = *betaoldp;
-
-      // TEST
-      // ofstream out2("c:\\bayesx\\testh\\results\\linpredn.res");
-      // likep->linearpred1.prettyPrint(out2);
-      // TEST
-
       }
-
 
     }
-
-  // TEST
-  // ofstream out("c:\\bayesx\\testh\\results\\paramhelp.res");
-  // paramhelp.prettyPrint(out);
-  // TEST
-
-
-
-
-
-/*
-  betap = beta.getV();
-  betaoldp = betaold.getV();
-
-  lognewp = lognew.getV();
-  logoldp = logold.getV();
-  double u;
-  itbeg = designp->posbeg.begin();
-  itend = designp->posend.begin();
-  qnewp = qnew.getV();
-  qoldp = qold.getV();
-
-  for (i=0;i<beta.rows();i++,++itbeg,++itend,lognewp++,logoldp++,betap++,
-       betaoldp++,qnewp++,qoldp++)
-    {
-    nrtrials++;
-    u = log(uniform());
-    if (u <= (*lognewp) - (*logoldp) + (*qnewp) -(*qoldp))
-      {
-      acceptance++;
-      *betaoldp = *betap;
-      }
-    else
-      {
-
-      // TEST
-      // ofstream out("c:\\bayesx\\testh\\results\\linpred.res");
-      // likep->linearpred1.prettyPrint(out);
-      // TEST
-
-      update_linpred(*itbeg,*itend,*betaoldp-*betap);
-      *betap = *betaoldp;
-
-      // TEST
-      // ofstream out2("c:\\bayesx\\testh\\results\\linpredn.res");
-      // likep->linearpred1.prettyPrint(out2);
-      // TEST
-
-      }
-    }
- */
-
-  // TEST
-  // ofstream out("c:\\bayesx\\testh\\results\\linpred.res");
-  // likep->linearpred1.prettyPrint(out);
-  // TEST
 
   transform_beta();
 

@@ -170,7 +170,6 @@ class __EXPORT_TYPE DISTR
   // TASK: computes the iwls weights (will be stored in workingweight),
   //       tildey=(y-mu)g'(mu) (stored in workingresponse) and
   //       the loglikelihood (will be returned)
-  //       if weightyes = false then the iwls weights are not computed
 
   virtual double compute_iwls(double * response, double * linpred,
                               double * weight, double * workingweight,
@@ -180,16 +179,38 @@ class __EXPORT_TYPE DISTR
     }
 
   // FUNCTION: compute_IWLS (for the whole dataset
-  // TASK: 
+  // TASK:
 
   double compute_iwls(const bool & current,const bool & like);
+
+
+  // FUNCTION: compute_IWLS (
+  // TASK: computes the iwls weights (will be stored in workingweight),
+  //       tildey=(y-mu)g'(mu) (stored in workingresponse) and
+  //       the loglikelihood (will be returned) for the begin - end observation
+  //       in the pointer vectors
+
+  double DISTR::compute_iwls_loglikelihood(int & begin,
+                                 int & end, statmatrix<double *> & responsep,
+                                 statmatrix<double *> & workingresponsep,
+                                 statmatrix<double *> & weightp,
+                                 statmatrix<double *> & workingweightp,
+                                 statmatrix<double *> & linpredp);
+
+
+  double DISTR::compute_iwls_loglikelihood_sumworkingweight(
+         int & begin,int & end, statmatrix<double *> & responsep,
+         statmatrix<double *> & workingresponsep,statmatrix<double *> & weightp,
+         statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp,
+         datamatrix & intvar2,double & sumworkingweight);
+
 
   //----------------------------------------------------------------------------
   //----------------------- ACCESS TO SCALE PARAMETER --------------------------
   //----------------------------------------------------------------------------
 
   virtual double get_scale(bool tranform=false);
-  virtual double get_scalemean(void);  
+  virtual double get_scalemean(void);
 
   //----------------------------------------------------------------------------
   //----------------------- POSTERIORMODE FUNCTIONS ----------------------------

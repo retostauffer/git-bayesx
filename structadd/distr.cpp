@@ -179,7 +179,7 @@ int & end, statmatrix<double *> & responsep,
 statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp) const
   {
   double help=0;
-  unsigned i;
+  int i;
 
   double * * workresponsep = responsep.getV()+begin;
   double * * work_workingweightp = workingweightp.getV()+begin;
@@ -187,6 +187,74 @@ statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp) const
 
   for (i=begin;i<=end;i++,work_workingweightp++,work_linpredp++,workresponsep++)
     help += loglikelihood(*workresponsep,*work_linpredp,*work_workingweightp);
+
+  return help;
+
+
+  }
+
+
+double DISTR::compute_iwls_loglikelihood(int & begin,
+int & end, statmatrix<double *> & responsep,
+statmatrix<double *> & workingresponsep,
+statmatrix<double *> & weightp,
+statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp
+)
+  {
+  double help=0;
+  int i;
+
+  double * * workresponsep = responsep.getV()+begin;
+  double * * work_workingresponsep = workingresponsep.getV()+begin;
+  double * * work_weightp = weightp.getV()+begin;
+  double * * work_workingweightp = workingweightp.getV()+begin;
+  double * * work_linpredp  = linpredp.getV()+begin;
+
+  for (i=begin;i<=end;i++,work_workingweightp++,work_linpredp++,
+       workresponsep++,work_weightp++,work_workingresponsep++)
+    {
+
+    help += compute_iwls(*workresponsep,*work_linpredp,*work_weightp,
+                         *work_workingweightp,*work_workingresponsep,true);
+    }
+
+  return help;
+
+
+  }
+
+
+
+double DISTR::compute_iwls_loglikelihood_sumworkingweight(int & begin,
+int & end, statmatrix<double *> & responsep,
+statmatrix<double *> & workingresponsep,
+statmatrix<double *> & weightp,
+statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp,
+datamatrix & intvar2,
+double & sumworkingweight)
+  {
+  double help=0;
+  int i;
+
+  double * * workresponsep = responsep.getV()+begin;
+  double * * work_workingresponsep = workingresponsep.getV()+begin;
+  double * * work_weightp = weightp.getV()+begin;
+  double * * work_workingweightp = workingweightp.getV()+begin;
+  double * * work_linpredp  = linpredp.getV()+begin;
+
+  sumworkingweight = 0;
+
+  for (i=begin;i<=end;i++,work_workingweightp++,work_linpredp++,
+       workresponsep++,work_weightp++,work_workingresponsep++)
+    {
+
+    help += compute_iwls(*workresponsep,*work_linpredp,*work_weightp,
+                         *work_workingweightp,*work_workingresponsep,true);
+
+    sumworkingweight+= *(*work_workingweightp);
+    // sumworkingweight+= *work_workingweightp * (*workintvar2);
+
+    }
 
   return help;
 
