@@ -148,11 +148,44 @@ void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
   //       computes nrpar
   //       initializes datanames
 
-  if (type==Rw2 && centermethod == nullspace)
-    position_lin = FClinearp->add_variable(dm,datanames[0]);
-  else if (type==Rw3 && centermethod==nullspace)
+  if (iv.rows()==dm.rows())
     {
-    // fehlt
+    int h;
+    if (centermethod==cmean)
+      {
+      h = FClinearp->add_variable(iv,datanames[0]);
+      }
+    else if (centermethod==nullspace)
+      {
+      h = FClinearp->add_variable(iv,datanames[0]);
+      if (type==Rw1)
+        {
+
+        }
+      else if (type==Rw2)
+        {
+        ST::string n = datanames[0] + "_" + datanames[1];
+        datamatrix m(iv.rows(),1);
+        unsigned i;
+        for(i=0;i<m.rows();i++)
+          m(i,0) = iv(i,0)*dm(i,0);
+        position_lin = FClinearp->add_variable(m,n);
+        }
+      else if (type==Rw3)
+        {
+
+        }
+
+      }
+    }
+  else
+    {
+    if (type==Rw2 && centermethod == nullspace)
+      position_lin = FClinearp->add_variable(dm,datanames[0]);
+    else if (type==Rw3 && centermethod==nullspace)
+      {
+      // fehlt
+      }
     }
 
 
@@ -328,51 +361,108 @@ void DESIGN_pspline::compute_basisNull(void)
   {
   int i,j;
 
-  if ((centermethod == cmean) || (type==Rw1))
+  if (intvar.rows() == data.rows())
     {
-    basisNull = datamatrix(1,nrpar,1);
-    position_lin = -1;
-    }
-  else if ((type==Rw2) && (centermethod == nullspace))
-    {
-    basisNull = datamatrix(2,nrpar,1);
-    deque<double>::iterator it = knot.begin();
-    for (i=0;i<nrpar;i++,++it)
-      basisNull(1,i) = *it;
 
-    }
-  else if ((type==Rw3) && (centermethod == nullspace))
-    {
-    basisNull = datamatrix(3,nrpar,1);
-    int i;
-    deque<double>::iterator it = knot.begin();
-    for (i=0;i<nrpar;i++,++it)
+    if (centermethod==cmean)
       {
-      basisNull(1,i) = *it;
-      basisNull(1,i) = pow(*it,2);
+      basisNull = datamatrix(1,nrpar,1);
+      position_lin = -1;
       }
-    }
-
-  for(i=0;i<basisNull.rows();i++)
-    {
-    basisNullt.push_back(datamatrix(basisNull.cols(),1));
-    for(j=0;j<basisNull.cols();j++)
-      basisNullt[i](j,0) = basisNull(i,j);
-    }
-
-  if (basisNull.rows() > 1)
-    {
-    designlinear = datamatrix(posbeg.size(),basisNull.rows()-1);
-
-    double * workdl = designlinear.getV();
-    double h;
-    for(i=0;i<posbeg.size();i++)
-      for(j=0;j<designlinear.cols();j++,workdl++)
+    else if (centermethod=nullspace)
+      {
+      if (type==Rw1)
         {
-        h = data(posbeg[i],0);
-        *workdl =  pow(h,j+1);
+        basisNull = datamatrix(1,nrpar,1);
+        position_lin = -1;
         }
+      else if (type==Rw2)
+        {
+        basisNull = datamatrix(2,nrpar,1);
+        deque<double>::iterator it = knot.begin();
+        for (i=0;i<nrpar;i++,++it)
+          basisNull(1,i) = *it;
+
+        designlinear = datamatrix(posbeg.size(),basisNull.rows()-1);
+
+        double * workdl = designlinear.getV();
+        double h;
+        for(i=0;i<posbeg.size();i++)
+          for(j=0;j<designlinear.cols();j++,workdl++)
+            {
+            h = data(posbeg[i],0);
+            *workdl =  pow(h,j+1);
+            }
+
+        }
+      else if (type==Rw3)
+        {
+
+        }
+
+      }
+
+    for(i=0;i<basisNull.rows();i++)
+      {
+      basisNullt.push_back(datamatrix(basisNull.cols(),1));
+      for(j=0;j<basisNull.cols();j++)
+        basisNullt[i](j,0) = basisNull(i,j);
+      }
+
+    } // end: if (intvar.rows() == data.rows())
+  else
+    {
+
+    if ((centermethod == cmean) || (type==Rw1))
+      {
+      basisNull = datamatrix(1,nrpar,1);
+      position_lin = -1;
+      }
+    else if ((type==Rw2) && (centermethod == nullspace))
+      {
+      basisNull = datamatrix(2,nrpar,1);
+      deque<double>::iterator it = knot.begin();
+      for (i=0;i<nrpar;i++,++it)
+        basisNull(1,i) = *it;
+
+      }
+    else if ((type==Rw3) && (centermethod == nullspace))
+      {
+      basisNull = datamatrix(3,nrpar,1);
+      int i;
+      deque<double>::iterator it = knot.begin();
+      for (i=0;i<nrpar;i++,++it)
+        {
+        basisNull(1,i) = *it;
+        basisNull(1,i) = pow(*it,2);
+        }
+      }
+
+    for(i=0;i<basisNull.rows();i++)
+      {
+      basisNullt.push_back(datamatrix(basisNull.cols(),1));
+      for(j=0;j<basisNull.cols();j++)
+        basisNullt[i](j,0) = basisNull(i,j);
+      }
+
+
+    if (basisNull.rows() > 1)
+      {
+      designlinear = datamatrix(posbeg.size(),basisNull.rows()-1);
+
+      double * workdl = designlinear.getV();
+      double h;
+      for(i=0;i<posbeg.size();i++)
+        for(j=0;j<designlinear.cols();j++,workdl++)
+          {
+          h = data(posbeg[i],0);
+          *workdl =  pow(h,j+1);
+          }
+      }
+
     }
+
+
 
   // TEST
   /*

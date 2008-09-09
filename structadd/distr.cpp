@@ -745,6 +745,7 @@ void DISTR_gaussian_re::update(void)
 
   }
 
+  
 
 bool DISTR_gaussian_re::posteriormode(void)
   {
