@@ -134,14 +134,13 @@ void FC_hrandom::update_linpred(int & begin, int & end, double  & value)
 
 
 
-
-
-
 void FC_hrandom::update_IWLS(void)
   {
   unsigned i;
 
   statmatrix<double *> * linpredp;
+
+  lambda = likep->get_scale()/tau2;
 
   if (likep->linpred_current==1)
     linpredp = &(designp->linpredp1);
@@ -164,9 +163,6 @@ void FC_hrandom::update_IWLS(void)
   else
     linpredREp = likep_RE->linearpred2.getV();
 
-//  double * workpartres = partres.getV();
-//  double * XWresp = designp->XWres.getV();
-//  double * XWXp = designp->XWX.getDiagIterator();
 
   double postmode;
   double diff;
@@ -178,8 +174,6 @@ void FC_hrandom::update_IWLS(void)
   double xwx,xwres;
   double pres;
 
-//  for (i=0;i<beta.rows();i++,++itbeg,++itend,betap++,linpredREp++,
-//       workpartres++,XWXp++,XWresp++,betaoldp++)
   for (i=0;i<beta.rows();i++,++itbeg,++itend,betap++,linpredREp++,
        betaoldp++)
 
@@ -199,7 +193,6 @@ void FC_hrandom::update_IWLS(void)
 
     var = 1/(xwx+lambda);
     postmode =  var * xwres;
-//    *paramhelpp =  var * (*XWresp);
     *betap = postmode + sqrt(var)*rand_normal();
     diff = *betap - postmode;
     qold = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
@@ -267,7 +260,10 @@ void FC_hrandom::update(void)
   likep_RE->workingresponse.assign(beta);
   likep_RE->response.assign(beta);
   likep_RE->trmult = likep->trmult;
-  likep_RE->sigma2 = likep->get_scale();
+
+//  ofstream out("c:\\bayesx\\testh\\results\\response_h.res");
+//  beta.prettyPrint(out);
+
   }
 
 

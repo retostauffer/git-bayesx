@@ -120,7 +120,7 @@ void FC_hrandom_variance::transform_beta(void)
   if (mult)
     transform(0,0) = 1;
   else
-    FC_nonp_variance::transform_beta();  
+    FC_nonp_variance::transform_beta();
   }
 
 
@@ -133,7 +133,7 @@ void FC_hrandom_variance::update(void)
   beta(0,1) = likep->get_scale()/beta(0,0);
 
   FCnonpp->tau2 = beta(0,0);
-  FCnonpp->lambda = beta(0,1);
+  likepRE->sigma2=beta(0,0);
 
   transform_beta();
   acceptance++;

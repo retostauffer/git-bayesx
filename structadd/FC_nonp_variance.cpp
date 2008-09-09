@@ -111,7 +111,6 @@ void FC_nonp_variance::update(void)
 
 
   FCnonpp->tau2 = beta(0,0);
-  FCnonpp->lambda = beta(0,1);
 
   transform_beta();
   acceptance++;
@@ -125,7 +124,6 @@ bool FC_nonp_variance::posteriormode(void)
   beta(0,0) = likep->get_scale()/beta(0,1);
 
   FCnonpp->tau2 = beta(0,0);
-  FCnonpp->lambda = beta(0,1);
 
   transform_beta();
 

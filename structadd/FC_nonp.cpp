@@ -113,7 +113,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
 	 return *this;
   FC::operator=(FC(m));
 
-  fsample = m.fsample;  
+  fsample = m.fsample;
 
   stype = m.stype;
   likep = m.likep;
@@ -154,6 +154,8 @@ void FC_nonp::update_IWLS(void)
   unsigned i;
   double * workparam;
 
+  lambda = likep->get_scale()/tau2;
+
   if (optionsp->nriter == 1)
     {
     paramold.assign(param);
@@ -174,6 +176,11 @@ void FC_nonp::update_IWLS(void)
 
   designp->precision.solve(designp->XWres,paramhelp);
 
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\paramhelp_v.res");
+  // paramhelp.prettyPrint(out);
+  // TEST
+
   workparam = param.getV();
   unsigned nrpar = param.rows();
   for(i=0;i<nrpar;i++,workparam++)
@@ -182,9 +189,11 @@ void FC_nonp::update_IWLS(void)
   designp->precision.solveU(param,paramhelp); // param contains now the proposed
                                               // new parametervector
 
+
   if(designp->center)
-    centerparam_sample();
-//    centerparam();
+//    centerparam_sample();
+    centerparam();
+
 
   paramhelp.minus(param,paramhelp);
 
@@ -213,6 +222,12 @@ void FC_nonp::update_IWLS(void)
   designp->compute_precision(lambda);
 
   designp->precision.solve(designp->XWres,paramhelp);
+
+  // TEST
+  // ofstream out2("c:\\bayesx\\testh\\results\\paramhelp_n.res");
+  // paramhelp.prettyPrint(out2);
+  // TEST
+
 
   paramhelp.minus(paramold,paramhelp);
   double qnew = 0.5*designp->precision.getLogDet() -
@@ -281,6 +296,7 @@ void FC_nonp::update(void)
     }
   }
 
+  
 void FC_nonp::update_gaussian(void)
   {
 
@@ -288,6 +304,15 @@ void FC_nonp::update_gaussian(void)
 
   betaold.assign(beta);
 
+  double sigmaresp = sqrt(likep->get_scale());
+  lambda = likep->get_scale()/tau2;
+
+  // TEST
+
+//  ofstream out("c:\\bayesx\\testh\\results\\responseRE.res");
+//  likep->response.prettyPrint(out);
+
+  // TEST
 
   designp->compute_partres(partres,beta);
 
@@ -300,8 +325,6 @@ void FC_nonp::update_gaussian(void)
   if ((likep->changingweight) || (designp->changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
 
-
-  double sigmaresp = sqrt(likep->get_scale());
 
   double * work = paramhelp.getV();
   unsigned i;
@@ -348,6 +371,9 @@ void FC_nonp::update_isotonic(void)
 
   bool lambdaconst = false;
 
+  double sigma2resp = likep->get_scale();
+  lambda = likep->get_scale()/tau2;
+
   betaold.assign(beta);
 
   designp->compute_partres(partres,beta);
@@ -360,9 +386,6 @@ void FC_nonp::update_isotonic(void)
 
   if ((likep->changingweight) || (designp->changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
-
-  double sigma2resp = likep->get_scale();
-
 
   int count = 0;
   int maxit = 20;
@@ -537,6 +560,8 @@ bool FC_nonp::posteriormode(void)
   // TEST
 
   betaold.assign(beta);
+
+  lambda = likep->get_scale()/tau2;
 
   bool lambdaconst = false;
 

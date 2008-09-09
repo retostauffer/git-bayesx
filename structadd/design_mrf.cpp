@@ -76,6 +76,7 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
 
   compute_basisNull();  
 
+  identity=true;
   }
 
 

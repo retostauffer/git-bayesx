@@ -141,84 +141,143 @@ void FC_linear::add_linpred(datamatrix & l)
   }
 
 
+
+
 void FC_linear::update_IWLS(void)
   {
-
-  if (!initialize)
-    create_matrices();
 
   double qoldbeta;
   double qnewbeta;
 
-  if (optionsp->nriter == 1)
+  if (!initialize)
+    create_matrices();
+
+
+  if (design.cols() == 1)
     {
-    linold.mult(design,beta);
-    mode.assign(beta);
-    }
+    double moold;
 
-  double logold = likep->loglikelihood(true);
+    if (optionsp->nriter == 1)
+      {
+      mode(0,0) = beta(0,0);
+      }
 
-  linmode.mult(design,mode);
-  diff.minus(linmode,*linoldp);
-  add_linpred(diff);
+    double logold = likep->loglikelihood(true);
 
-  double h = likep->compute_iwls(true,false);
+    diff.mult_scalar(design,mode(0,0)-beta(0,0));
+    add_linpred(diff);
 
-  compute_XWX(XWXold);
-  XWXroot = XWXold.root();
+    double h = likep->compute_iwls(true,false);
 
-  compute_Wpartres(linmode);
-  Xtresidual.mult(Xt,residual);
+    compute_XWX(XWXold);
 
-  XWXroot.solveroot(Xtresidual,help,mode);
+    Xtresidual(0,0) = compute_XtWpartres(mode(0,0));
 
-  help.minus(beta,mode);
-  qoldbeta = -0.5*XWXold.compute_quadform(help);
+    moold = mode(0,0);
+    mode(0,0) = Xtresidual(0,0)/XWXold(0,0);
+
+    qoldbeta = -0.5*pow(beta(0,0)-mode(0,0),2)*XWXold(0,0);
+
+    proposal(0,0) = mode(0,0) + sqrt(1/XWXold(0,0)) *rand_normal();
+
+    qnewbeta = -0.5* pow(proposal(0,0)-mode(0,0),2)*XWXold(0,0);
+
+    diff.mult_scalar(design,proposal(0,0)-moold);
+    add_linpred(diff);                           // (mit proposed)
+
+    double logprop = likep->loglikelihood();     // mit proposed
+
+    double u = log(uniform());
+
+    if (u <= (logprop + qoldbeta - logold - qnewbeta) )
+      {
+      beta.assign(proposal);
+      acceptance++;
+      }
+    else
+      {
+      diff.mult_scalar(design,beta(0,0)-proposal(0,0));
+      add_linpred(diff);
+      }
+
+    FC::update();
 
 
-  unsigned i;
-  double * workh = help.getV();
-  for(i=0;i<help.rows();i++,workh++)
-    *workh = rand_normal();
-
-  XWXroot.solveroot_t(help,proposal);
-
-  proposal.plus(mode);
-
-
-  help.minus(proposal,mode);
-
-  qnewbeta = -0.5*XWXold.compute_quadform(help);
-
-
-  linnewp->mult(design,proposal);
-
-  diff.minus(*linnewp,linmode);
-
-  add_linpred(diff);                           // (mit proposed)
-
-  double logprop = likep->loglikelihood();     // mit proposed
-
-
-  double u = log(uniform());
-
-  if (u <= (logprop + qoldbeta - logold - qnewbeta) )
-    {
-    datamatrix * mp = linoldp;
-    linoldp = linnewp;
-    linnewp = mp;
-
-    beta.assign(proposal);
-
-    acceptance++;
     }
   else
     {
-    diff.minus(*linoldp,*linnewp);
-    add_linpred(diff);
-    }
 
-  FC::update();
+    if (optionsp->nriter == 1)
+      {
+      linold.mult(design,beta);
+      mode.assign(beta);
+      }
+
+    double logold = likep->loglikelihood(true);
+
+    linmode.mult(design,mode);
+    diff.minus(linmode,*linoldp);
+    add_linpred(diff);
+
+    double h = likep->compute_iwls(true,false);
+
+    compute_XWX(XWXold);
+
+    XWXroot = XWXold.root();
+
+    compute_Wpartres(linmode);
+    Xtresidual.mult(Xt,residual);
+
+    XWXroot.solveroot(Xtresidual,help,mode);
+
+    help.minus(beta,mode);
+    qoldbeta = -0.5*XWXold.compute_quadform(help);
+
+
+    unsigned i;
+    double * workh = help.getV();
+    for(i=0;i<help.rows();i++,workh++)
+      *workh = rand_normal();
+
+    XWXroot.solveroot_t(help,proposal);
+
+    proposal.plus(mode);
+
+
+    help.minus(proposal,mode);
+
+    qnewbeta = -0.5*XWXold.compute_quadform(help);
+
+
+    linnewp->mult(design,proposal);
+
+    diff.minus(*linnewp,linmode);
+
+    add_linpred(diff);                           // (mit proposed)
+
+    double logprop = likep->loglikelihood();     // mit proposed
+
+
+    double u = log(uniform());
+
+    if (u <= (logprop + qoldbeta - logold - qnewbeta) )
+      {
+      datamatrix * mp = linoldp;
+      linoldp = linnewp;
+      linnewp = mp;
+
+      beta.assign(proposal);
+
+      acceptance++;
+      }
+    else
+      {
+      diff.minus(*linoldp,*linnewp);
+      add_linpred(diff);
+      }
+
+    FC::update();
+    }
   }
 
 void FC_linear::update(void)
@@ -231,7 +290,7 @@ void FC_linear::update(void)
       update_gaussian();
     }
   else
-    nosamples = true;  
+    nosamples = true;
   }
 
 
@@ -362,6 +421,34 @@ void FC_linear::compute_Wpartres(datamatrix & linpred)
     *residualp = *workingweightp * ((*workingresponsep)  - (*predictorp)
                  + (*linpredp));
   }
+
+
+
+double FC_linear::compute_XtWpartres(double & mo)
+  {
+
+  unsigned i;
+  double * workingweightp = likep->workingweight.getV();
+  double * workingresponsep = likep->workingresponse.getV();
+  double res=0;
+
+
+  double * predictorp;
+  if (likep->linpred_current==1)
+    predictorp = likep->linearpred1.getV();
+  else
+    predictorp = likep->linearpred2.getV();
+
+  double * workdesign = design.getV();
+
+  for (i=0;i<likep->nrobs;i++,workingweightp++,workingresponsep++,
+                              predictorp++,workdesign++)
+    res += *workdesign * (*workingweightp) *
+           ((*workingresponsep)  - (*predictorp) + *workdesign*mo);
+
+  return res;
+  }
+
 
 
 bool FC_linear::posteriormode(void)

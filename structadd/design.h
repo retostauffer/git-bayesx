@@ -123,6 +123,8 @@ class __EXPORT_TYPE DESIGN
                                              //  0 = not consecutive
                                              //  1 = consecutive
 
+  bool identity;                             // true if identity matrix                                             
+
   bool check_Zout_consecutive(void);
 
   //----------------------------------------------------------------------------

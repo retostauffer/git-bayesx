@@ -185,6 +185,7 @@ DESIGN::DESIGN(DISTR * lp,FC_linear * fcp)
   precisiondeclared=false;
   consecutive = -1;
   consecutive_ZoutT = -1;
+  identity = false;
 
   position_lin = -1;
   }
@@ -210,6 +211,7 @@ DESIGN::DESIGN(const DESIGN & m)
   posend = m.posend;
   consecutive = m.consecutive;
   consecutive_ZoutT = m.consecutive_ZoutT;
+  identity = m.identity;
 
   ZoutT = m.ZoutT;
   index_ZoutT = m.index_ZoutT;
@@ -272,6 +274,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   posend = m.posend;
   consecutive = m.consecutive;
   consecutive_ZoutT = m.consecutive_ZoutT;
+  identity = m.identity;
 
   ZoutT = m.ZoutT;
   index_ZoutT = m.index_ZoutT;
@@ -770,58 +773,71 @@ void DESIGN::compute_f(datamatrix & beta,datamatrix & betalin,
                        datamatrix & f, datamatrix & ftot)
   {
 
-  if (consecutive == -1)
+  if (identity)
     {
-    bool c = check_Zout_consecutive();
-    consecutive = c;
-    }
-
-  unsigned i,j;
-
-  unsigned rows;
-  unsigned cols;
-  rows = Zout.rows();
-  cols = Zout.cols();
-
-  double * workZ = Zout.getV();
-
-  double * workf = f.getV();
-
-  if (consecutive == 0)
-    {
-
-    int * workindex = index_Zout.getV();
-
-    for(i=0;i<rows;i++,workf++)
-      {
-      *workf = 0;
-      for(j=0;j<cols;j++,workindex++,workZ++)
-        {
-        *workf += (*workZ) * beta(*workindex,0);
-        }
-      }
+    f.assign(beta);
     }
   else
     {
 
-    double * workbeta;
-    for(i=0;i<rows;i++,workf++)
+    if (consecutive == -1)
       {
-      *workf = 0;
-      workbeta = beta.getV()+index_Zout(i,0);
-      for(j=0;j<cols;j++,workZ++,workbeta++)
+      bool c = check_Zout_consecutive();
+      consecutive = c;
+      }
+
+    unsigned i,j;
+
+    unsigned rows;
+    unsigned cols;
+    rows = Zout.rows();
+    cols = Zout.cols();
+
+    double * workZ = Zout.getV();
+
+    double * workf = f.getV();
+
+    if (consecutive == 0)
+      {
+
+      int * workindex = index_Zout.getV();
+
+      for(i=0;i<rows;i++,workf++)
         {
-        *workf += (*workZ) * (*workbeta);
+        *workf = 0;
+        for(j=0;j<cols;j++,workindex++,workZ++)
+          {
+          *workf += (*workZ) * beta(*workindex,0);
+          }
         }
+      }
+    else
+      {
+
+      double * workbeta;
+      for(i=0;i<rows;i++,workf++)
+        {
+        *workf = 0;
+        workbeta = beta.getV()+index_Zout(i,0);
+        for(j=0;j<cols;j++,workZ++,workbeta++)
+          {
+          *workf += (*workZ) * (*workbeta);
+          }
+        }
+
       }
 
     }
 
-  /*
   // TEST
-  ofstream out("c:\\bayesx\\test\\results\\f.res");
+  /*
+  ofstream out("c:\\bayesx\\testh\\results\\f.res");
   f.prettyPrint(out);
 
+  ofstream out2("c:\\bayesx\\testh\\results\\beta.res");
+  beta.prettyPrint(out2);
+  */
+  /*
   datamatrix Zoutm(data.rows(),nrpar,0);
   unsigned k;
   for (i=0;i<posbeg.size();i++)
