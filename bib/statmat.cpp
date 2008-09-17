@@ -227,6 +227,26 @@ void statmatrix<T>::mult(const statmatrix & A,const statmatrix & B)
   }
 
 
+template<class T>
+void statmatrix<T>::mult_scalar(const statmatrix & A, const T & b)
+  {
+
+  assert(this->rows() == A.rows());
+  assert(this->cols() == A.cols());
+
+  unsigned size = A.rows()*A.cols();
+
+  register unsigned i;
+
+  T * workA = A.getV();
+  T * workR = this->getV();
+
+  for (i=0;i<size;i++,workR++,workA++)
+    *workR = b*(*workA);
+
+  }
+
+
 
 template<class T>
 void statmatrix<T>::addmult(const statmatrix & A,const statmatrix & B)

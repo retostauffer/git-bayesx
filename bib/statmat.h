@@ -119,6 +119,11 @@ class adja;
 
   void mult(const statmatrix & A,const statmatrix & B);
 
+  // FUNCTION: mult_scalar
+  // TASK: multiplies b*A and assigns the result to the calling matrix
+
+  void mult_scalar(const statmatrix & A, const T & b);
+
   // FUNCTION: addmult
   // TASK: computes A*B and adds the result to the calling matrix
 

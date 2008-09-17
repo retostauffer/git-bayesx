@@ -296,9 +296,21 @@ void FC_nonp::update(void)
     }
   }
 
-  
+
 void FC_nonp::update_gaussian(void)
   {
+
+//  if (optionsp->nriter<=2)
+  {
+
+  // TEST
+   //ofstream out0("c:\\bayesx\\testh\\results\\beta_re.res");
+   //beta.prettyPrint(out0);
+
+   //ofstream out00("c:\\bayesx\\testh\\results\\intvar_re.res");
+   //designp->intvar.prettyPrint(out00);
+  // TEST
+
 
   bool lambdaconst = false;
 
@@ -351,6 +363,12 @@ void FC_nonp::update_gaussian(void)
 
   designp->update_linpred(betadiff,true);
 
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\beta_re.res");
+  // beta.prettyPrint(out);
+  // TEST
+
+
   acceptance++;
 
   transform_beta();
@@ -360,12 +378,25 @@ void FC_nonp::update_gaussian(void)
     fsample.update();
     }
 
+  }
+
   FC::update();
 
   }
 
 void FC_nonp::update_isotonic(void)
   {
+
+//  if (optionsp->nriter==1)
+  {
+
+  // TEST
+   // ofstream out0("c:\\bayesx\\testh\\results\\beta_f.res");
+   // beta.prettyPrint(out0);
+
+   // ofstream out00("c:\\bayesx\\testh\\results\\intvar_f.res");
+   // designp->intvar.prettyPrint(out00);
+  // TEST
 
   unsigned i,j;
 
@@ -443,60 +474,6 @@ void FC_nonp::update_isotonic(void)
     count++;
     }
 
-
-
-/*
-  while(count < maxit)
-    {
-
-    for (i=0;i<param.rows();i++)
-      {
-
-      mu = 0;
-      for (j=0;j<i;j++)    // links
-        {
-        mu+= (param(j,0)-paramhelp(j,0))*designp->precision(i,j);
-        }
-
-      for (j=i+1;j<param.rows();j++)  // rechts
-        {
-        mu+= (param(j,0)-paramhelp(j,0))*designp->precision(i,j);
-        }
-
-      mu = mu/designp->precision(i,i);
-
-      s = sqrt(sigma2resp/designp->precision(i,i));
-
-      if(i==0)
-        {
-        if(stype==increasing)
-          param(i,0) = trunc_normal2(-20,param(1,0),mu,s);
-        else
-          param(i,0) = trunc_normal2(param(1,0),20,mu,s);
-        }
-      else if(i==param.rows()-1)
-        {
-        if(stype==increasing)
-          param(i,0) = trunc_normal2(param(param.rows()-2,0),20,mu,s);
-        else
-          param(i,0) = trunc_normal2(-20,param(param.rows()-2,0),mu,s);
-        }
-      else
-        {
-        if(stype==increasing)
-          {
-          param(i,0) = trunc_normal2(param(i-1,0),param(i+1,0),mu,s);
-          }
-        else
-          param(i,0) = trunc_normal2(param(i+1,0),param(i-1,0),mu,s);
-        }
-
-      }
-
-    count++;
-    }
-*/
-
   /*
   TEST
   ofstream out("c:\\bayesx\\test\\results\\paramhelp.res");
@@ -508,8 +485,8 @@ void FC_nonp::update_isotonic(void)
   */
 
   if(designp->center)
-//    centerparam();
-    centerparam_sample();
+    centerparam();
+//    centerparam_sample();
 
   if (designp->position_lin!=-1)
     {
@@ -517,6 +494,7 @@ void FC_nonp::update_isotonic(void)
     }
 
   designp->compute_f(param,paramlin,beta,fsample.beta);
+
 
   betadiff.minus(beta,betaold);
 
@@ -530,6 +508,14 @@ void FC_nonp::update_isotonic(void)
     {
     fsample.update();
     }
+
+  } //samplesize
+
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\beta_f.res");
+  // beta.prettyPrint(out);
+  // TEST
+
 
   FC::update();
 
@@ -545,6 +531,7 @@ void FC_nonp::transform_beta(void)
 
 bool FC_nonp::posteriormode(void)
   {
+  return true;
 
   // TEST
   /*
@@ -558,7 +545,7 @@ bool FC_nonp::posteriormode(void)
   designp->index_data.prettyPrint(out3);
   */
   // TEST
-
+  /*
   betaold.assign(beta);
 
   lambda = likep->get_scale()/tau2;
@@ -569,10 +556,10 @@ bool FC_nonp::posteriormode(void)
 
 
   // TEST
-  /*
-  ofstream out4("c:\\bayesx\\test\\results\\partres.res");
-  partres.prettyPrint(out4);
-  */
+
+  // ofstream out4("c:\\bayesx\\test\\results\\partres.res");
+  // partres.prettyPrint(out4);
+
   // TEST
 
 
@@ -593,10 +580,10 @@ bool FC_nonp::posteriormode(void)
   designp->precision.solve(designp->XWres,param);
 
   // TEST
-  /*
-   ofstream out8("c:\\bayesx\\test\\results\\param.res");
-   param.prettyPrint(out8);
-  */
+
+  // ofstream out8("c:\\bayesx\\test\\results\\param.res");
+  // param.prettyPrint(out8);
+
   // TEST
 
   if(designp->center)
@@ -611,10 +598,10 @@ bool FC_nonp::posteriormode(void)
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
   // TEST
-   /*
+
     ofstream out5("c:\\bayesx\\test\\results\\f.res");
     beta.prettyPrint(out5);
-    */
+
   // TEST
 
   betadiff.minus(beta,betaold);
@@ -629,7 +616,7 @@ bool FC_nonp::posteriormode(void)
     }
 
   return FC::posteriormode();
-
+  */
   }
 
 void FC_nonp::outoptions(void)

@@ -249,7 +249,7 @@ void FC_hrandom::update(void)
     }
   else
     {
-    FC_nonp::update();
+    FC_nonp::update_gaussian();
     }
 
   set_rcoeff();

@@ -59,6 +59,11 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   else if (op[16] == "nullspace")
     centermethod = nullspace;
 
+  if (op[12] == "true")
+    multeffect=true;
+  else
+    multeffect=false;
+
   datanames = vn;
 
   }
@@ -114,6 +119,7 @@ DESIGN_pspline::DESIGN_pspline(const datamatrix & dm,const datamatrix & iv,
 DESIGN_pspline::DESIGN_pspline(const DESIGN_pspline & m)
     : DESIGN(DESIGN(m))
   {
+  multeffect=m.multeffect;
   knot = m.knot;
   nrknots = m.nrknots;
   degree = m.degree;
@@ -129,6 +135,7 @@ const DESIGN_pspline & DESIGN_pspline::operator=(const DESIGN_pspline & m)
   if (this == &m)
     return *this;
   DESIGN::operator=(DESIGN(m));
+  multeffect=m.multeffect;  
   knot = m.knot;
   nrknots = m.nrknots;
   degree = m.degree;
@@ -148,43 +155,46 @@ void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
   //       computes nrpar
   //       initializes datanames
 
-  if (iv.rows()==dm.rows())
+  if (center == true)
     {
-    int h;
-    if (centermethod==cmean)
+    if (iv.rows()==dm.rows())
       {
-      h = FClinearp->add_variable(iv,datanames[0]);
+      int h;
+      if ((centermethod==cmean) && (multeffect==false))
+        {
+        h = FClinearp->add_variable(iv,datanames[0]);
+        }
+      else if (centermethod==nullspace)
+        {
+        h = FClinearp->add_variable(iv,datanames[0]);
+        if (type==Rw1)
+          {
+
+          }
+        else if (type==Rw2)
+          {
+          ST::string n = datanames[0] + "_" + datanames[1];
+          datamatrix m(iv.rows(),1);
+          unsigned i;
+          for(i=0;i<m.rows();i++)
+            m(i,0) = iv(i,0)*dm(i,0);
+          position_lin = FClinearp->add_variable(m,n);
+          }
+        else if (type==Rw3)
+          {
+
+          }
+
+        }
       }
-    else if (centermethod==nullspace)
+    else
       {
-      h = FClinearp->add_variable(iv,datanames[0]);
-      if (type==Rw1)
+      if (type==Rw2 && centermethod == nullspace)
+        position_lin = FClinearp->add_variable(dm,datanames[0]);
+      else if (type==Rw3 && centermethod==nullspace)
         {
-
+        // fehlt
         }
-      else if (type==Rw2)
-        {
-        ST::string n = datanames[0] + "_" + datanames[1];
-        datamatrix m(iv.rows(),1);
-        unsigned i;
-        for(i=0;i<m.rows();i++)
-          m(i,0) = iv(i,0)*dm(i,0);
-        position_lin = FClinearp->add_variable(m,n);
-        }
-      else if (type==Rw3)
-        {
-
-        }
-
-      }
-    }
-  else
-    {
-    if (type==Rw2 && centermethod == nullspace)
-      position_lin = FClinearp->add_variable(dm,datanames[0]);
-    else if (type==Rw3 && centermethod==nullspace)
-      {
-      // fehlt
       }
     }
 
@@ -311,7 +321,7 @@ datamatrix DESIGN_pspline::bspline(const double & x)
     if( knot[j]<=x && x<knot[j+1])
       b(j,0) = 1.0;
 
-  for(unsigned l=1;l<=degree;l++)
+  for(int l=1;l<=degree;l++)
     {
     bwork = b.getV();
     helpwork = help.getV();
@@ -359,7 +369,10 @@ void DESIGN_pspline::compute_penalty(void)
 
 void DESIGN_pspline::compute_basisNull(void)
   {
-  int i,j;
+
+  if (center==true)
+  {
+  unsigned i,j;
 
   if (intvar.rows() == data.rows())
     {
@@ -369,7 +382,7 @@ void DESIGN_pspline::compute_basisNull(void)
       basisNull = datamatrix(1,nrpar,1);
       position_lin = -1;
       }
-    else if (centermethod=nullspace)
+    else if (centermethod==nullspace)
       {
       if (type==Rw1)
         {
@@ -429,7 +442,6 @@ void DESIGN_pspline::compute_basisNull(void)
     else if ((type==Rw3) && (centermethod == nullspace))
       {
       basisNull = datamatrix(3,nrpar,1);
-      int i;
       deque<double>::iterator it = knot.begin();
       for (i=0;i<nrpar;i++,++it)
         {
@@ -462,7 +474,7 @@ void DESIGN_pspline::compute_basisNull(void)
 
     }
 
-
+  }
 
   // TEST
   /*

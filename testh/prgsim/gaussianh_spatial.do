@@ -14,14 +14,23 @@ gen fx = 0.4*(x+y)
 
 sum fx
 
+gen x1=-3+6*uniform()
+gen fx1 = cos(x1)
+sum fx1
+replace fx1 = fx1-_result(3)
+
+
 outsheet using c:\bayesx\testh\testdata\gaussianh_spatial_cl.raw  , replace
 save c:\bayesx\testh\testdata\gaussianh_spatial_cl.dta , replace
 
 
 expand 4
-gen x1=-3+6*uniform()
+gen x2=-3+6*uniform()
+gen fx2 = sin(x2)
+sum fx2
+replace fx2 = fx2-_result(3)
 
-gen y1 = fx + re + 0.5*invnorm(uniform())
+gen y1 = 1+fx1+fx2+fx + re + 0.5*invnorm(uniform())
 
 
 outsheet using c:\bayesx\testh\testdata\gaussianh_spatial.raw  , replace

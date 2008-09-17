@@ -585,7 +585,12 @@ bool superbayesreg::create_distribution(void)
   ST::string ifexpression;
   unsigned weightpos;
 
-  modelvarnamesv = modreg.getModelVarnamesAsVector();
+  vector<ST::string> modelvarnamesh;
+  modelvarnamesh = modreg.getModelVarnamesAsVector();
+  modelvarnamesv.erase(modelvarnamesv.begin(),modelvarnamesv.end());
+  for(i=0;i<modelvarnamesh.size();i++)
+    if (modelvarnamesh[i] != "noconst")
+      modelvarnamesv.push_back(modelvarnamesh[i]);
 
   rname = modelvarnamesv[0].to_bstr();
   wn = methods[0].get_weight_variable().to_bstr();
@@ -603,7 +608,7 @@ bool superbayesreg::create_distribution(void)
   if ((datap->allexisting(modelvarnamesv,notex)) == false)
     {
     for (i=0;i<notex.size();i++)
-      if (notex[i] != "const")
+      if (notex[i] != "const" && notex[i] != "noconst")
         {
         outerror("ERROR: variable " + notex[i] + " is not existing\n");
         failure = true;
@@ -744,11 +749,18 @@ bool superbayesreg::create_linear(void)
   vector<ST::string> varnames;
   vector<ST::string> varnamesh =  lineareffects.get_constvariables(terms);
 
-  if (equations[modnr].hlevel == 1)
+  bool noconst=false;
+
+  for(i=0;i<varnamesh.size();i++)
+    if (varnamesh[i] == "noconst")
+      noconst=true;
+
+  if (equations[modnr].hlevel == 1 && (noconst==false))
     varnames.push_back("const");
 
   for(i=0;i<varnamesh.size();i++)
-    varnames.push_back(varnamesh[i]);
+    if (varnamesh[i] != "noconst")
+      varnames.push_back(varnamesh[i]);
 
   unsigned nr = varnames.size();
 
@@ -815,6 +827,11 @@ void superbayesreg::create_pspline(unsigned i)
 
   datamatrix d,iv;
   extract_data(i,d,iv);
+
+  // TEST
+  //  ofstream out("c:\\bayesx\\testh\\results\\d.res");
+  //  d.prettyPrint(out);
+  // TEST
 
   design_psplines.push_back(DESIGN_pspline(d,iv,equations[modnr].distrp,
                             &FC_linears[FC_linears.size()-1],
@@ -934,6 +951,7 @@ bool  superbayesreg::create_random_pspline(unsigned i)
 
   unsigned modnr = equations.size()-1;
 
+  terms[i].options[12] = "true";  
   create_pspline(i);
   FC_nonp * fcnp_pspline = &FC_nonps[FC_nonps.size()-1];
   MCMC::DESIGN * dp_pspline = &design_psplines[design_psplines.size()-1];

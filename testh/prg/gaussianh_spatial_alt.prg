@@ -13,7 +13,7 @@ delimiter = ;
 bayesreg b;
 b.outfile = c:\bayesx\testh\results\gaussianh_spatial_alt;
 b.regress y1 =  region(random,lambda=10)+
-region(spatial,map=m,lambda=10) , iterations=12000 
+region(spatial,map=m,lambda=10) +x1(psplinerw2)+x2(psplinerw2), iterations=12000 
 step=10 burnin=2000 family=gaussian using d;
 
 

@@ -27,6 +27,8 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   protected:
 
+  bool multeffect;
+
   deque<double> knot;          // Vektor der Knoten (sichtbare und unsichtbare)
 
   vector<double> weightK;      // weights to compute penalty matrix K

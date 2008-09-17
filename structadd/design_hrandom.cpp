@@ -222,7 +222,11 @@ void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(
 
   double * partresp = partres.getV();
 
-  
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\linpredRE.res");
+  // likep_RE->linearpred1.prettyPrint(out);
+  // TEST
+
   if (intvar.rows() != data.rows())   // additive
     {
     for(i=0;i<nrpar;i++,++d,workXWres++,linpredREp++,partresp++)

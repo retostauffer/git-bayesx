@@ -14,8 +14,8 @@ m.reorder
 
 mcmcreg b
 b.outfile = c:\bayesx\testh\results\gaussianh_spatial
-b.hregress region = region2(spatial,map=m) , hlevel=2 iterations=12000 step=10 burnin=2000 family=gaussian_re using d
-b.hregress y1 =  region(hrandom)  , hlevel=1 iterations=12000 step=10 burnin=2000 family=gaussian using d2
+b.hregress region = x1(pspline,centermethod=nullspace)+region2(spatial,map=m) , hlevel=2 iterations=12000 step=10 burnin=2000 family=gaussian_re using d
+b.hregress y1 =  x2(pspline,centermethod=nullspace)+region(hrandom)  , hlevel=1 iterations=12000 step=10 burnin=2000 family=gaussian using d2
 
 
 % bayesreg b

@@ -128,18 +128,29 @@ void FC_mult::update_multeffect(void)
   double * FCnpbetap = FCnp->beta.getV();
   double * FCnp2betap;
 
+  // TEST
+  //  ofstream out("c:\\bayesx\\testh\\results\\beta_RE.res");
+  //  FCnp->beta.prettyPrint(out);
+  // TEST
+
+  // TEST
+  // ofstream out2("c:\\bayesx\\testh\\results\\betaspline.res");
+  // FCnp2->beta.prettyPrint(out2);
+  // TEST
+
+
   for (i=0;i<FCnp->beta.rows();i++,FCnpbetap++)
     {
     FCnp2betap = FCnp2->beta.getV();
     for (j=0;j<FCnp2->beta.rows();j++,mebetap++,FCnp2betap++)
-      *mebetap = (*FCnpbetap)*(*FCnp2betap);
+      *mebetap = (*FCnpbetap+1)*(*FCnp2betap);
     }
   }
 
 
 bool FC_mult::posteriormode(void)
   {
-
+  /*
   double add;
 
   if (RE_update)
@@ -159,7 +170,7 @@ bool FC_mult::posteriormode(void)
     update_multeffect();
     bool h = FCmulteffect.posteriormode();
     }
-
+  */
   return true;
   }
 
@@ -203,8 +214,9 @@ void FC_mult::outresults(const ST::string & pathresults)
      */
 
 
+      outres << dp1->datanames[0] << "   ";     
       outres << dp2->datanames[0] << "   ";
-      outres << dp1->datanames[0] << "   ";
+
 
       outres << "pmean   ";
 
