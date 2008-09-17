@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -22,11 +22,11 @@ namespace MCMC
 {
 
 
-class __EXPORT_TYPE FULLCOND_dag_d : public FULLCOND_dag 
+class __EXPORT_TYPE FULLCOND_dag_d : public FULLCOND_dag
 {
 
 	protected:
-		
+
 		datamatrix y_true;			// the real response
 		//vector <interact> * pia;	// pointer to the vector which stores all interaction terms
 
@@ -42,7 +42,7 @@ class __EXPORT_TYPE FULLCOND_dag_d : public FULLCOND_dag
 
   // CONSTRUCTOR
 
-  
+
   // CONSTRUCTOR
   // o    : pointer to MCMCoptions object
   // dp   : pointer to DISTRIBUTION object
@@ -57,17 +57,17 @@ class __EXPORT_TYPE FULLCOND_dag_d : public FULLCOND_dag
 
 
 
-  // CONSTRUCTOR 1	
+  // CONSTRUCTOR 1
   FULLCOND_dag_d (double s_i, unsigned int num,
-							MCMCoptions * o, 
-							const datamatrix & d, const ST::string & t, 
-							const unsigned & r, const unsigned & c, 
+							MCMCoptions * o,
+							const datamatrix & d, const ST::string & t,
+							const unsigned & r, const unsigned & c,
 							const ST::string & fp);
 
   // CONSTRUCTOR 2
   FULLCOND_dag_d (double value_a, double value_b, ST::string prio_sig, bool dags_all,
                   const datamatrix & res, double s_i, unsigned int num,
-				  MCMCoptions * o, const datamatrix & d, const ST::string & t, 
+				  MCMCoptions * o, const datamatrix & d, const ST::string & t,
 				  const unsigned & r, const unsigned & c,  const ST::string & fp);
 
 
@@ -89,7 +89,7 @@ class __EXPORT_TYPE FULLCOND_dag_d : public FULLCOND_dag
 		  return *this;
 
 	  y_true = fc.y_true;
-	  
+
 	  return *this;
   }
 
@@ -106,7 +106,7 @@ class __EXPORT_TYPE FULLCOND_dag_d : public FULLCOND_dag
 
 
   // FUNCTION ini_dag_d
-  // TASK: initializes y_true 
+  // TASK: initializes y_true
   void ini_dag_d(void);
 
 
@@ -120,8 +120,8 @@ class __EXPORT_TYPE FULLCOND_dag_d : public FULLCOND_dag
   void update(void);
 
 
-  
-  
+
+
 
   };
 

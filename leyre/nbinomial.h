@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -12,7 +12,7 @@
 #define DISTRIBUTION_nbinomial_INCLUDED
 
 #include "distribution.h"
-#include "random.h"
+#include "Random.h"
 
 
 
@@ -58,7 +58,7 @@ namespace MCMC
 //
 //      * Osuna, Leyre (2004), "Semiparametric Bayesian count data models"
 //        Dissertation an der LMU, München.
-//  
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -121,19 +121,19 @@ class __EXPORT_TYPE DISTRIBUTION_nbinomial : public DISTRIBUTION
                             // model.
 
    FULLCOND b_pri_save;     // Fullconditional object to store the samples of the
-                            // hyperparameter b for the Gamma Priori of the scale 
+                            // hyperparameter b for the Gamma Priori of the scale
                             // parameter.
-                            
+
    double prop_var;         // Option. Start value for the proposal
                             // window/variance of the scale parameter. Not
-                            // used... 
+                            // used...
 
    vertopt ver;             // Option. It stores the distributional assumption
                             // for the response variable. Possible values:
                             //          nb = negative binomial
                             //          poga = poisson-gamma
                             //          poig = poisson-inverse gauss
-                              
+
    propscale pscale;        // Option. It stores the proposal assumption for
                             // the scale parameter. Possible values:
                             //          gam = gamma proposal
@@ -264,7 +264,7 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
                       bool weightyes, const unsigned & col=0);
 
   // FUNCTION: compute_IWLS_weight_tildey
-  // the two first blocks of the function compute_IWLS!!                      
+  // the two first blocks of the function compute_IWLS!!
 
   void compute_IWLS_weight_tildey(double * response,double * linpred,
                               double * weight,const int & i,double * weightiwls,
@@ -311,13 +311,13 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
   double update_scale(void) const;
 
   // Updates the hyperparameter b of the prior for the scale parameter.
-  // The update step is independent of the model chosen!  
+  // The update step is independent of the model chosen!
 
   double update_b_pri(void);
 
   // This function samples a new value for the scale parameter, depending on the
   // proposal, that we have chosen, and calculates the proposal_ratio for this
-  // new value. 
+  // new value.
 
   double proposal_scale(void) const;
 
@@ -393,7 +393,7 @@ void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
 
   const double & get_pvar(void) const
     {
-    return pvar(nrobs+1, 0); 
+    return pvar(nrobs+1, 0);
     }
 
   void initialize_hierint(double & inter)

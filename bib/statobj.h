@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -180,7 +180,7 @@ class __EXPORT_TYPE statobject
   // VIRTUAL FUNCTION: parse
   // TASK: base function for inherited classes
 
-  virtual int parse(const ST::string & c); 
+  virtual int parse(const ST::string & c);
 
   // FUNCTION: describe
   // TASK: gives a description of the current state of the statobject
@@ -193,7 +193,7 @@ class __EXPORT_TYPE statobject
   const vector<ST::string> & get_newcommands(void) const
     {
     return newcommands;
-    } 
+    }
 
   friend int operator<(statobject & s1, statobject & s2)
 	 {

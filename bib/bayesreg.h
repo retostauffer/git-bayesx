@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -209,7 +209,7 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   stroption xlab;
   stroption ylab;
-  stroption connect;  
+  stroption connect;
   intoption height;
   intoption width;
   doubleoption ylimtop;
@@ -423,18 +423,18 @@ class __EXPORT_TYPE bayesreg : public statobject
   unsigned nrcategories;           // number of categories of the response
 
   vector<DISTRIBUTION_gaussian> distr_gaussian;
-  vector<DISTRIBUTION_gaussian_re> distr_gaussian_re;  
+  vector<DISTRIBUTION_gaussian_re> distr_gaussian_re;
   DISTRIBUTION_multgaussian distr_multgaussian;
-  DISTRIBUTION_lognormal distr_lognormal;  
+  DISTRIBUTION_lognormal distr_lognormal;
   DISTRIBUTION_binomial distr_binomial;
   DISTRIBUTION_binomial_latent distr_binomlat;
   DISTRIBUTION_binomial_logit_latent distr_binomlogitlat;
   DISTRIBUTION_poisson distr_poisson;
   DISTRIBUTION_gamma distr_gamma;
-  DISTRIBUTION_vargaussian distr_vargaussian;  
+  DISTRIBUTION_vargaussian distr_vargaussian;
   DISTRIBUTION_cumulative_latent3 distr_cumlat3;
   DISTRIBUTION_nbinomial distr_nbinomial;
-  DISTRIBUTION_zip distr_zip;  
+  DISTRIBUTION_zip distr_zip;
   DISTRIBUTION_multinom distr_multinom;
   DISTRIBUTION_multinomial_latent distr_multinom_latent;
   DISTRIBUTION_coxmodel distr_cox;
@@ -537,7 +537,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   bool create_pspline(const unsigned & collinpred=0);
   bool create_varcoeffpspline(const unsigned & collinpred=0);
   bool create_interactionspspline(const unsigned & collinpred=0);
-  bool create_varcoeff_interactionspspline(const unsigned & collinpred=0);  
+  bool create_varcoeff_interactionspspline(const unsigned & collinpred=0);
   bool create_geospline(const unsigned & collinpred=0);
   bool create_varcoeff_geospline(const unsigned & collinpred=0);
 
@@ -576,7 +576,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   vector<FULLCOND_mixture> fcmixture;
 
   bool create_random(const unsigned & collinpred=0);
-  bool create_hrandom(const unsigned & collinpred=0);  
+  bool create_hrandom(const unsigned & collinpred=0);
   bool create_randomslope(const unsigned & collinpred=0);
   bool create_mixture(const unsigned & collinpred=0);
 

@@ -2820,7 +2820,7 @@ public void saveOutput()
    
 static
 	{
-	System.loadLibrary("BayesXdll");
+	System.loadLibrary("bayesxdll");
 	}        
         
 

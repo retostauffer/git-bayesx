@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -103,7 +103,7 @@ class __EXPORT_TYPE PenaltyMatrix
   datamatrix randnormal;
 
 
-  vector<ST::string> errormessages; 
+  vector<ST::string> errormessages;
 
   bool polex;
 
@@ -428,7 +428,7 @@ double compute_quadform_prec(const datamatrix & beta,const datamatrix & prop,
   const vector<ST::string> & get_errormessages(void)
     {
     return errormessages;
-    } 
+    }
 
   // DESTRUCTOR
 

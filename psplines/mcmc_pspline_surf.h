@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -183,7 +183,7 @@ class __EXPORT_TYPE FULLCOND_pspline_surf : public spline_basis_surf
     if(centertotal)
       return Ksp.compute_quadform(beta,0);
     else
-      return Ksp.compute_quadform(beta_uncentered,0);    
+      return Ksp.compute_quadform(beta_uncentered,0);
     }
 
 

@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -24,14 +24,14 @@ struct interact
 
 	vector<unsigned> ia_term;
 	datamatrix ia_dat;
-	
+
 
 	interact(void)
 	{
 		vector<unsigned> help;
 		ia_term = help ;
 	}
-	
+
 	interact(vector<unsigned> & inter)
 	{
 		ia_term = inter;
@@ -42,7 +42,7 @@ struct interact
 		ia_term = inter;
 		ia_dat = ia;
 	}
-	
+
 //	interact(const ST::string &  inter, datamatrix * pointer_ia)
 //	{
 //		interaction= inter ;
@@ -64,7 +64,7 @@ struct interact
 		ia_term= ia.ia_term ;
 		ia_dat = ia.ia_dat;
 
-		return *this; 
+		return *this;
 	}
 
 
@@ -74,7 +74,7 @@ struct interact
 
 /*		// the following holds true for interactions with order >2
 
-		unsigned i; 
+		unsigned i;
 
 		if(interaction.size()<(ia.interaction).size())
 			return 1;
@@ -93,7 +93,7 @@ struct interact
 			}
 			return 0;
 		}
-*/	
+*/
 
 
 		// the following holds true for interactions with order equal to 2
@@ -125,29 +125,29 @@ struct interact
 
 
 
-class __EXPORT_TYPE IA 
+class __EXPORT_TYPE IA
 
 {
 	protected:
 
 		unsigned nobs;
-		unsigned nvar; 
+		unsigned nvar;
 
 		unsigned max_ia_order;		// maximal order of interaction terms
 		unsigned max_num;			// maximal number of interaction terms
 
-		
+
 		unsigned number_of_continuous;
 		unsigned number_of_discrete;
 
 
 		datamatrix data;
 
-		vector <interact> ia_var;	// contains the vectors of ALL possible interactions 
-									// but the corresponding variable ONLY 
+		vector <interact> ia_var;	// contains the vectors of ALL possible interactions
+									// but the corresponding variable ONLY
 									// if it has already occured
 
-		vector<int> occurred;	// contains 1 if interactionvariable of this position 
+		vector<int> occurred;	// contains 1 if interactionvariable of this position
 									// has already been constructed, otherwise 0
 
 		vector <char> var_type;
@@ -155,9 +155,9 @@ class __EXPORT_TYPE IA
 		bool mixed_case;
 
 		/*
-		unsigned max_nia;			// maximal number of interaction 
+		unsigned max_nia;			// maximal number of interaction
 									// terms in one regression model
-		
+
 		double prob_ia;				// probability of one interaction term
 		vector <interact>  ia;		// vector of structures interact
 	   */
@@ -175,7 +175,7 @@ class __EXPORT_TYPE IA
 
 
 		// CONSTRUCTOR_2
-		// for interactions of order>2 (some day in future....) 
+		// for interactions of order>2 (some day in future....)
 		IA(unsigned order, const datamatrix & d);
 
 		// COPY CONSTRUCTOR
@@ -186,11 +186,11 @@ class __EXPORT_TYPE IA
 
 
 		// DESTRUCTOR
-		~IA() {}  
+		~IA() {}
 
 
 		// FUNCTION: make_list
-		// TASK: represents adja-matrix m as a list 
+		// TASK: represents adja-matrix m as a list
 		// vector < list <unsigned int> > make_list (const adja & m) const;
 
 
@@ -198,35 +198,35 @@ class __EXPORT_TYPE IA
 		// TASK: creates a new interaction term
 		void make_ia (vector<unsigned> terms);
 
-		
+
 	  // FUNCTION: choose_ia_term
-      // TASK: chooses a new interaction term of order ord 
+      // TASK: chooses a new interaction term of order ord
       // which is NOT already in current_ia
-		vector<unsigned> IA::choose_ia (const Matrix<unsigned> & col, 
+		vector<unsigned> IA::choose_ia (const Matrix<unsigned> & col,
 									 vector <vector <unsigned> > & current_ia);
 
 	  // FUNCTION: choose_ia_term
-      // TASK: chooses a new interaction term of order ord 
+      // TASK: chooses a new interaction term of order ord
       // regardless if it is already in current_ia or not
 		vector<unsigned> IA::choose_ia ( const  Matrix<unsigned>  & col);
 
 
 
 	  // FUNCTION: choose_ia_term
-      // TASK: chooses a new interaction term of an orderorder ord 
+      // TASK: chooses a new interaction term of an orderorder ord
       // which is NOT already in current_ia
-	//	vector<unsigned> IA::choose_ia ( unsigned ord, const datamatrix & col, 
+	//	vector<unsigned> IA::choose_ia ( unsigned ord, const datamatrix & col,
 	//								 const vector <vector <unsigned> > & current_ia);
 
 
 	   // FUNCTION: already_there (vec_ia, current_ia)
-       // TASK: returns true if the interaction vec_ia is already in the current model 
-		bool already_there ( const vector<unsigned> & vec_ia, 
+       // TASK: returns true if the interaction vec_ia is already in the current model
+		bool already_there ( const vector<unsigned> & vec_ia,
 						vector <vector <unsigned> > & current_ia);
 
 
 		// FUNCTION: already_there (vec_ia)
-       // TASK: returns true if the interaction vec_ia is already in ia_var 
+       // TASK: returns true if the interaction vec_ia is already in ia_var
 		bool already_there ( const vector<unsigned> & vec_ia);
 
 
@@ -243,7 +243,7 @@ class __EXPORT_TYPE IA
 		void add_ia(interact ia) ;
 
 
-		
+
 
 		// FUNCTION: add_ia
 		// TASK: adds datamatix ia.ia_dat to interaction at ia_var[pos]
@@ -273,7 +273,7 @@ class __EXPORT_TYPE IA
 		// TASK: returns pointer to the first element of the matrix of interaction ia
 		// regardless if it has already existed before or not
 		double * get_ia(vector<unsigned> ia);
-		
+
 
 
 
@@ -289,8 +289,8 @@ class __EXPORT_TYPE IA
 
 
 		// FUNCTION: get_pos
-		// TASK: gives position of ia if all possible interactions of order 2 
-		// of nvar variables are stored in an ordered vector 
+		// TASK: gives position of ia if all possible interactions of order 2
+		// of nvar variables are stored in an ordered vector
 		unsigned get_pos(vector<unsigned> ia);
 
 
@@ -318,7 +318,7 @@ class __EXPORT_TYPE IA
 
 		// FUNCTION: give_var_kind
 		// TASK: gives back the right values for num_cont and num_disc
-		void give_var_kind (const Matrix<unsigned> & adc, 
+		void give_var_kind (const Matrix<unsigned> & adc,
 						unsigned & num_cont, unsigned & num_disc);
 
 
@@ -326,13 +326,13 @@ class __EXPORT_TYPE IA
 		// FUNCTION: update
 		// TASK: updates regression model by reversible jump mcmc
 		//void update(void);
-  
 
 
 
-	
 
-  
+
+
+
 
 };    // class
 

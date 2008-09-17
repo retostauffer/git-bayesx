@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -12,7 +12,7 @@
 #define DISTRIBUTION_zip_INCLUDED
 
 #include "distribution.h"
-#include "random.h"
+#include "Random.h"
 
 namespace MCMC
 {
@@ -64,7 +64,7 @@ namespace MCMC
 //
 //      * Osuna, Leyre (2004), "Semiparametric Bayesian count data models"
 //        Dissertation an der LMU, München.
-//  
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 enum zipvertopt {zip, zinb,zipga,zipig};
@@ -117,7 +117,7 @@ class __EXPORT_TYPE DISTRIBUTION_zip : public DISTRIBUTION
                             // ZIPIG models. The nrobs+2 entry is reserved for
                             // the hierarchical intercept, when present. And the
                             // last entry is reserved for the zero inflation parameter.
-                            
+
    double a_pri;            // Stores the hyperparameter a for the Gamma Priori
                             // of the scale parameter. It is no sampled in the model.
 
@@ -126,13 +126,13 @@ class __EXPORT_TYPE DISTRIBUTION_zip : public DISTRIBUTION
                             // model.
 
    FULLCOND b_pri_save;     // Fullconditional object to store the samples of the
-                            // hyperparameter b for the Gamma Priori of the scale 
+                            // hyperparameter b for the Gamma Priori of the scale
                             // parameter.
 
    double prop_var;         // Option. Start value for the proposal
                             // window/variance of the scale parameter. Not
-                            // used... 
-   
+                            // used...
+
    zipvertopt ver;          // Option. It stores the distributional assumption
                             // for the response variable. Possible values:
                             //          zip = zero inflated Poisson
@@ -158,7 +158,7 @@ class __EXPORT_TYPE DISTRIBUTION_zip : public DISTRIBUTION
 
    FULLCOND theta_save;     // Fullconditional object to store the samples
                             // of the zero inflation parameter.
-   
+
    datamatrix m;            // Stores the number of zero-observations in the
                             // data for later calculations data. Helpvariable.
 
@@ -237,7 +237,7 @@ void DISTRIBUTION_zip::create(MCMCoptions * o, const double & a,
 
   // FUNCTION: compute_deviance
   // TASK: computes the individual deviance
-  
+
 
   void compute_deviance(const double * response,const double * weight,
                            const double * mu, double * deviance,
@@ -250,7 +250,7 @@ void DISTRIBUTION_zip::create(MCMCoptions * o, const double & a,
   // See diss, Appendix B!!!
 
   void  tilde_y(datamatrix & tildey,datamatrix & m,const unsigned & col,
-                           const bool & current,const datamatrix & w);                           
+                           const bool & current,const datamatrix & w);
 
 
    // FUNCTION: compute_weight
@@ -320,7 +320,7 @@ void DISTRIBUTION_zip::create(MCMCoptions * o, const double & a,
 
   bool posteriormode_converged(const unsigned & itnr);
 
-  // Updates the multiplicative random effects, depending on the model chosen.  
+  // Updates the multiplicative random effects, depending on the model chosen.
 
   double update_nu(void);
 
@@ -328,7 +328,7 @@ void DISTRIBUTION_zip::create(MCMCoptions * o, const double & a,
   // it only stores the current value in the current place. The true atuallisation
   // happens in the file "mcmc_const.cpp", in the function
   // "FULLCOND_const_nbinomial::update_hierint(void)".
-  
+
 
   double update_hierint(void);
 
@@ -363,13 +363,13 @@ void DISTRIBUTION_zip::create(MCMCoptions * o, const double & a,
 
   // Tuning function for the acceptance rates of the M-H algorithms.
   // It will be called only in the burnin phase and each 100 iterations.
-  // It tries to achive acdeptance rates between 0.3 and 0.6.  
+  // It tries to achive acdeptance rates between 0.3 and 0.6.
 
   double pwork_tunin(unsigned i) const;
 
   // Vector of multiplicative random effects: nu
   // nu ~ product from 1 to nrobs of G(s, s) (s=scale)
-  // Function calculates log(g(nu|s_neu))-log(g(nu|s))  
+  // Function calculates log(g(nu|s_neu))-log(g(nu|s))
 
   double log_gamma_likelihood(double &s, double &s_neu) const;
 
@@ -379,7 +379,7 @@ void DISTRIBUTION_zip::create(MCMCoptions * o, const double & a,
 
   double log_gamma_likelihood_hier(double &s, double &s_neu) const;
 
-  // loggamma-function  
+  // loggamma-function
 
   double lgamma(const double & xx) const;
 
@@ -396,7 +396,7 @@ void DISTRIBUTION_zip::create(MCMCoptions * o, const double & a,
   //Loglikelihood-Differenz einer ZIP:
   //log(ZIP(lambda, t)/ZIP(lambda, t_neu))
 
-  double likelihood_zirest(const double & t) const;  
+  double likelihood_zirest(const double & t) const;
 
   // The following functions are needed for the hierarchical versions of the models,
   // in order to "conect" this subclass with the file "mcmc_const.cpp".
@@ -424,7 +424,7 @@ void DISTRIBUTION_zip::create(MCMCoptions * o, const double & a,
 
   const double & get_pvar(void) const
     {
-    return pvar(nrobs+1, 0); 
+    return pvar(nrobs+1, 0);
     }
 
   void initialize_hierint(double & inter)
@@ -445,7 +445,7 @@ void DISTRIBUTION_zip::create(MCMCoptions * o, const double & a,
 
     }
 
-  void add_nu(double m) const;    
+  void add_nu(double m) const;
 
 
 

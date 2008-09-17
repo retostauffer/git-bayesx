@@ -65,8 +65,13 @@ void stepwisereg::make_paths(unsigned  collinpred,ST::string & pathnonp,
 
     if (varname2=="")
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_f_" +
+                 varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_f_" +
                  varname1 + endingraw;
+#endif
 
       pathres = outfile.getvalue() + add_name + "_f_" + varname1 + endingres;
 
@@ -74,8 +79,13 @@ void stepwisereg::make_paths(unsigned  collinpred,ST::string & pathnonp,
       }
     else
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_" +
+                 varname2 +  "_f_" + varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_" +
                  varname2 +  "_f_" + varname1 + endingraw;
+#endif
 
       pathres = outfile.getvalue() + add_name + "_" + varname2 +
                 "_f_" + varname1 + endingres;
@@ -88,10 +98,15 @@ void stepwisereg::make_paths(unsigned  collinpred,ST::string & pathnonp,
     {
     if (varname2=="")
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_f_" +
+                 ST::inttostring(collinpred+1) + "_" +
+                     varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_f_" +
                  ST::inttostring(collinpred+1) + "_" +
                      varname1 + endingraw;
-
+#endif
       pathres = outfile.getvalue() + add_name + "_f_" +
                 ST::inttostring(collinpred+1) + "_" +
                 varname1 + endingres;
@@ -102,9 +117,15 @@ void stepwisereg::make_paths(unsigned  collinpred,ST::string & pathnonp,
       }
     else
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_" + varname2
+                 + "_f_" + ST::inttostring(collinpred+1) + "_" +
+                     varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_" + varname2
                  + "_f_" + ST::inttostring(collinpred+1) + "_" +
                      varname1 + endingraw;
+#endif
 
       pathres = outfile.getvalue() + add_name + "_" + varname2 + "_f_" +
                 ST::inttostring(collinpred+1) + "_" +
@@ -127,7 +148,11 @@ void stepwisereg::create(void)
   varianceest=false;
   add_name="";
 
+#if defined(__BUILDING_LINUX)
+  ST::string h = defaultpath+"/output/"+name;
+#else
   ST::string h = defaultpath+"\\output\\"+name;
+#endif
 
   outfile = fileoption("outfile",h,false);
 
@@ -164,7 +189,7 @@ void stepwisereg::create(void)
   termtypes.push_back(&termfactor);
   termtypes.push_back(&termnonlinearf);
   termtypes.push_back(&nonpinteractpspline);
-  termtypes.push_back(&nonpgeospline);                                 
+  termtypes.push_back(&nonpgeospline);
 //  termtypes.push_back(&termprojection);
 
   modreg = modelterm(&termtypes);
@@ -715,7 +740,7 @@ const stepwisereg & stepwisereg::operator=(const stepwisereg & b)
 int stepwisereg::parse(const ST::string & c)
   {
 
-  int u = statobject::parse(c);  
+  int u = statobject::parse(c);
 
   int pos = statobject::parsecom(c,methods,globaloptions);
 
@@ -739,7 +764,7 @@ bool stepwisereg::create_generaloptions(void)
     outerror("ERROR: thinning parameter too large\n");
     return true;
     }
-  
+
   generaloptions.push_back(MCMCoptions(
   #if defined(JAVA_OUTPUT_WINDOW)
   adminb_p,
@@ -804,7 +829,7 @@ else if(method == "mregress")
   }
 
   rname = modelvarnamesv[0].to_bstr();
-  
+
   if (wn.length() != 0)
     {
     modelvarnamesv.push_back(wn);
@@ -863,8 +888,13 @@ else if(method == "mregress")
 
   ST::string path = outfile.getvalue() + add_name + "_predictmean.raw";
   ST::string pathfull = outfile.getvalue() + add_name + "_predictmu.raw";
+#if defined(__BUILDING_LINUX)
+  ST::string pathfullsample = defaultpath + "/temp/" + name + add_name +
+                              "_predictmu.raw";
+#else
   ST::string pathfullsample = defaultpath + "\\temp\\" + name + add_name +
                               "_predictmu.raw";
+#endif
   ST::string pathdev = outfile.getvalue() + add_name + "_deviance_sample.raw";
 
 
@@ -873,7 +903,11 @@ else if(method == "mregress")
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     if (offs.rows() == 1)
       distr_gaussian.push_back(DISTRIBUTION_gaussian(1.0,0.005,
@@ -1030,7 +1064,11 @@ else if(method == "mregress")
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
-    ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
+   ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     int st = cit.getvalue();
     double v1 = gamvar.getvalue();
@@ -1125,7 +1163,11 @@ else if(method == "mregress")
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     int st = cit.getvalue();
     double v1 = gamvar.getvalue();
@@ -1626,7 +1668,7 @@ bool stepwisereg::create_factor(const unsigned & collinpred)
                  "_factor.raw","_factor.res","");
 
 
-// Vorschlag:                  
+// Vorschlag:
 /*      factor.push_back(
       FULLCOND_const_stepwise(&generaloptions[generaloptions.size()-1],
                                 distr[distr.size()-1],
@@ -1774,8 +1816,13 @@ bool stepwisereg::create_const(const unsigned & collinpred)
       if (collinpred == 0)
         {
         title = "FixedEffects" + ST::inttostring(k+1) + add_name;
+#if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_FixedEffects" + ST::inttostring(k+1) + ".raw";
+#else
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                            + add_name + "_FixedEffects" + ST::inttostring(k+1) + ".raw";
+#endif
 
         pathconstres = outfile.getvalue() + add_name + "_FixedEffects" + ST::inttostring(k+1)
                        + ".res";
@@ -1785,9 +1832,15 @@ bool stepwisereg::create_const(const unsigned & collinpred)
         {
         title = "FixedEffects" + ST::inttostring(k+1) + "_" +
                             ST::inttostring(collinpred+1) + add_name;
+#if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_FixedEffects" + ST::inttostring(k+1) +
+                           "_" + ST::inttostring(collinpred+1) + ".raw";
+#else
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                            + add_name + "_FixedEffects" + ST::inttostring(k+1) +
                            "_" + ST::inttostring(collinpred+1) + ".raw";
+#endif
 
         pathconstres = outfile.getvalue() + add_name + "_FixedEffects" + ST::inttostring(k+1)
                         + "_" + ST::inttostring(collinpred+1) + ".res";
@@ -2020,7 +2073,7 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
           for (j=0;j<fcpsplinestep.size();j++)
             {
             if  ( ((fcpsplinestep[j].get_datanames()).size() == 1) &&
-                (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&   
+                (fcpsplinestep[j].get_datanames()[0] == terms[i].varnames[0]) &&
                 fcpsplinestep[j].get_col() == collinpred )
                 {
                 mainp1 = &fcpsplinestep[j];
@@ -2515,11 +2568,11 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
         }
 
       MAP::map m = mapp->getmap();
-      
+
       MAP::map m2;
       if (terms[i].options[0] == "twospatialrandom")
         {
-                              
+
         mapobject * mapp;                           // pointer to mapobject
 
         int objpos = findstatobject(*statobj,terms[i].options[16],"map");
@@ -2544,8 +2597,8 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
           }
 
         m2 = mapp->getmap();
-                              
-        }                      
+
+        }
 
       f = (terms[i].options[2]).strtodouble(hd);
       lambda = hd;
@@ -2776,7 +2829,7 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
 
   return false;
   }
-  
+
 
 bool stepwisereg::create_randomslope(const unsigned & collinpred)
   {
@@ -3080,10 +3133,15 @@ bool stepwisereg::create_random(const unsigned & collinpred)
         structuredp->set_pointer_to_interaction(inter);
         fcrandomgaussian[fcrandomgaussian.size()-1].set_pointer_to_interaction(structuredp);
 
+#if defined(__BUILDING_LINUX)
+        ST::string pathnonpt = defaultpath + "/temp/" + name + add_name +
+               terms[i].varnames[0] +
+               "_spatialtotal.raw";
+#else
         ST::string pathnonpt = defaultpath + "\\temp\\" + name + add_name +
                terms[i].varnames[0] +
                "_spatialtotal.raw";
-
+#endif
         ST::string pathrest =
         outfile.getvalue() + add_name + "_" + terms[i].varnames[0] +
                               "_spatialtotal.res";
@@ -3591,7 +3649,7 @@ void regressrun(stepwisereg & b)
      b.runobjm = STEPMULTIrun(&b.generaloptions[0],b.distr[0],b.fullcond);
      failure = b.runobjm.stepwise(proc,minim,cr,steps,tr,number,stmodel,increment,
                        boot,uncond,b.D,b.modelvarnamesv,name,fullcond_z,path2,CI,
-                       hier,prop); 
+                       hier,prop);
      }
 
     if(!failure)
@@ -3652,7 +3710,7 @@ void regressrun(stepwisereg & b)
 
         b.newcommands.push_back(b.name + ".texsummary");
        }
-          
+
 #endif
 
      }
@@ -3862,7 +3920,7 @@ void mregressrun(stepwisereg & b)
 
         b.newcommands.push_back(b.name + ".texsummary");
        }
-          
+
 #endif
 
      }
@@ -4245,7 +4303,7 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
           {
           if(type == MCMC::mrflinear || type == MCMC::mrfquadratic8)
             outerror("ERROR: Use 'psplineinteract' for interaction terms!\n");
-            
+
           hierarchical_model_yesno = true;
 
           ST::string pathnonpt;

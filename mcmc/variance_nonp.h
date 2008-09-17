@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -64,7 +64,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
   vector<double> lambda;
 
   FULLCOND fc_lambda;
-  void outresults_lambda(void);  
+  void outresults_lambda(void);
 
   public:
 
@@ -177,7 +177,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp : public FULLCOND
     {
     discrete=true;
     df=dof;
-    setbeta(2,1,distrp->get_scale(column,column)/Kp->getlambda());    
+    setbeta(2,1,distrp->get_scale(column,column)/Kp->getlambda());
     }
 
   // DESTRUCTOR

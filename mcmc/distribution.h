@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -11,7 +11,7 @@
 #define DISTRIBUTION_INCLUDED
 
 #include"statmat.h"
-#include"random.h"
+#include"Random.h"
 #include"mcmc.h"
 #include"fullcond.h"
 
@@ -193,7 +193,7 @@ class __EXPORT_TYPE DISTRIBUTION
   double ridgesum;
   double lassosum;
 
-//nigselection  
+//nigselection
 //---------------
   unsigned nrnigmix;
   double nigmixsum;
@@ -1429,11 +1429,11 @@ class __EXPORT_TYPE DISTRIBUTION
     {
     return nrnigmix;
     }
-    
+
   bool get_nosamples(void)
     {
     return nosamples;
-    }  
+    }
 
   }; // end: class DISTRIBUTION
 
@@ -2154,7 +2154,7 @@ class __EXPORT_TYPE DISTRIBUTION_vargaussian : public DISTRIBUTION_gamma
 
   double compute_gmu(double * linpred,const unsigned & col=0) const;
 
-  void compute_iwls(void);  
+  void compute_iwls(void);
 
   void set_gaussian(DISTRIBUTION * g);
 
@@ -2267,7 +2267,7 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
 
   void compute_mu(const double * linpred,double * mu) const;
 
-  void compute_mu_notransform(const double * linpred,double * mu) const;  
+  void compute_mu_notransform(const double * linpred,double * mu) const;
 
   // FUNCTION: compute_deviance
   // TASK: computes the retransformed individual deviance
@@ -2798,7 +2798,7 @@ class __EXPORT_TYPE DISTRIBUTION_binomial_latent : public DISTRIBUTION
 
   void compute_mu(const double * linpred,double * mu) const;
 
-  void compute_mu_notransform(const double * linpred,double * mu) const;  
+  void compute_mu_notransform(const double * linpred,double * mu) const;
 
   // FUNCTION: compute_deviance
   // TASK: computes the indiviudal deviance
@@ -2837,7 +2837,7 @@ class __EXPORT_TYPE DISTRIBUTION_binomial_latent : public DISTRIBUTION
                     vector<FULLCOND*> & fcp,unsigned & nr,
                     unsigned & it,ST::string & trtype);
 
-  void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp);                            
+  void compute_bootstrap_data(const double * linpred,const double * weight,double * wresp);
   };
 
 
@@ -3008,7 +3008,7 @@ class __EXPORT_TYPE DISTRIBUTION_poisson : public DISTRIBUTION
 
   void compute_mu(const double * linpred,double * mu) const;
 
-  void compute_mu_notransform(const double * linpred,double * mu) const;  
+  void compute_mu_notransform(const double * linpred,double * mu) const;
 
   double compute_IWLS(double * response,double * linpred, double * weight,
                       const int & i,double * weightiwls,double * tildey,
@@ -3220,7 +3220,7 @@ class __EXPORT_TYPE DISTRIBUTION_multinom2 : public DISTRIBUTION
 
   void compute_mu(const double * linpred,double * mu) const;
 
-  void compute_mu_notransform(const double * linpred,double * mu) const;  
+  void compute_mu_notransform(const double * linpred,double * mu) const;
 
   void compute_overall_deviance(double & deviance,double & deviancesat);
 
@@ -3333,7 +3333,7 @@ class __EXPORT_TYPE DISTRIBUTION_multinomial_latent : public DISTRIBUTION
 
   void compute_mu(const double * linpred,double * mu) const;
 
-  void compute_mu_notransform(const double * linpred,double * mu) const;  
+  void compute_mu_notransform(const double * linpred,double * mu) const;
 
   // FUNCTION: compute_deviance
   // TASK: computes the individual deviance

@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -100,7 +100,7 @@ class __EXPORT_TYPE DISTRIBUTION_coxmodel : public DISTRIBUTION
      ti=nd.ti;
 
      int_ti= nd.int_ti;
-     mean_int_ti = nd.mean_int_ti;     
+     mean_int_ti = nd.mean_int_ti;
      offsetexisting = nd.offsetexisting;
      relrisk = nd.relrisk;
      return *this;
@@ -189,7 +189,7 @@ class __EXPORT_TYPE DISTRIBUTION_coxmodel : public DISTRIBUTION
     return int_ti;
     }
 
-  
+
 
   unsigned get_nrcat(void)
     {

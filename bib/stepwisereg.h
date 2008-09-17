@@ -3,7 +3,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -305,7 +305,7 @@ class __EXPORT_TYPE stepwisereg : public statobject
   DISTRIBUTION_binomial_latent distr_binomlat;
   DISTRIBUTION_poisson distr_poisson;
   DISTRIBUTION_gamma2 distr_gamma;
-  DISTRIBUTION_vargaussian distr_vargaussian;  
+  DISTRIBUTION_vargaussian distr_vargaussian;
 //  DISTRIBUTION_nbinomial distr_nbinomial;
   //DISTRIBUTION_multgaussian distr_multgaussian;
   DISTRIBUTION_multinom2 distr_multinom;

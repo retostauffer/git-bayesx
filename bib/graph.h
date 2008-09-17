@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -44,7 +44,7 @@ class __EXPORT_TYPE graph
   // TASK: tests if the graph is symmetric, function stops and returns false
   //       if the first incorrect pair of nodes is detected
   //       in that case 'node' has an edge 'edge' but 'edge' has not an edge
-  //       'node' 
+  //       'node'
 
   bool graph::issymmetric(unsigned & node,unsigned & edge);
 

@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -37,8 +37,8 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   double reference;
   ST::string coding;
 
-  double const_alt; 
-  
+  double const_alt;
+
   bool changed_data;
   bool changingweight;
 
@@ -102,7 +102,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   void get_interactionspointer(vector<FULLCOND*> & inter);
 
   void hierarchical(ST::string & possible);
-  
+
   // COPY CONSTRUCTOR
 
   FULLCOND_const_stepwise(const FULLCOND_const_stepwise & m);
@@ -113,9 +113,9 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
 
   void update_intercept(double & m);
 
-  void update_linold(void); 
+  void update_linold(void);
 
-  void update_linold_vc(void); 
+  void update_linold_vc(void);
 
   void posteriormode_intercept(double & m);
 
@@ -157,15 +157,15 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   // setzt alten Intercept-Wert wieder ein
   void set_const_old(void);
 
-  // Funktion für die Anpassung des Intercepts 
+  // Funktion für die Anpassung des Intercepts
   void posteriormode_const(void);
 
-  // führt Zentrierung bei VCs durch  
+  // führt Zentrierung bei VCs durch
   void update_fix_effect(const unsigned & pos, double & value, datamatrix fix);
 
   void posteriormode_const_varcoeff(datamatrix newx);
 
-  // löscht einen bestimmten fixen Effekt 
+  // löscht einen bestimmten fixen Effekt
   void reset_effect(const unsigned & pos);
 
   void reset(void);
@@ -179,7 +179,7 @@ class __EXPORT_TYPE FULLCOND_const_stepwise : public FULLCOND_const
   void update_bootstrap_df(void);
 
   void save_betamean(void);
-    
+
   void update_bootstrap_betamean(void);
 
   void outresults_df(unsigned & size);

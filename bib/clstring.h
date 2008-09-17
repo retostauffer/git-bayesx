@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -15,7 +15,7 @@
 #include<iostream.h>
 #include<fstream.h>
 #include<assert.h>
-#include<sys\stat.h>
+#include<sys/stat.h>
 #include<list>
 #include<vector>
 
@@ -72,7 +72,7 @@ class __EXPORT_TYPE string
   string();
 
   // CONSTRUCTOR
-  // TASK: creates a string that consists of 'len' signs 'sign'; 
+  // TASK: creates a string that consists of 'len' signs 'sign';
 
   string(const char & sign,const unsigned & len);
 

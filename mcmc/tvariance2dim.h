@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -33,7 +33,7 @@ class __EXPORT_TYPE FULLCOND_tvariance2dim : public FULLCOND
   bool spatial;
 
   bool Laplace;
-  statmatrix<int> indexmat; 
+  statmatrix<int> indexmat;
 
   double * Kmatdiag;                    //
   double * Kmatupper;
@@ -91,7 +91,7 @@ class __EXPORT_TYPE FULLCOND_tvariance2dim : public FULLCOND
 
   void update(void);
 
-  void update_2dim(void); 
+  void update_2dim(void);
 
   void update_spat(void);
 

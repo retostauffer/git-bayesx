@@ -239,8 +239,11 @@ void estimaterun(dagobject & d)
     for(i=0,cc=0,dd=0;i<D.cols();i++)
     {
        title = "dag_" + modelvarnamesv[i];
+#if defined(__BUILDING_LINUX)
+       path = d.defaultpath.to_bstr() + "/temp/" + d.name.to_bstr() + ST::inttostring(i) + ".raw";
+#else
        path = d.defaultpath.to_bstr() + "\\temp\\" + d.name.to_bstr() + ST::inttostring(i) + ".raw";
-
+#endif
        if (family == "continuous")       // continuous
        {
             dags.push_back(FULLCOND_dag( value_a, value_b, prior_sig, print_dags, D.getCol(i),
@@ -318,8 +321,11 @@ void estimaterun(dagobject & d)
 
    // datamatrix res(D.rows(),1,1);			// wozu? altes relikt?
 
+#if defined(__BUILDING_LINUX)
+   path = d.defaultpath.to_bstr() + "/temp/" + d.name.to_bstr() + "rj.raw";
+#else
    path = d.defaultpath.to_bstr() + "\\temp\\" + d.name.to_bstr() + "rj.raw";
-
+#endif
 
 
 
@@ -329,7 +335,7 @@ void estimaterun(dagobject & d)
     FULLCOND_rj RJ;
     FULLCOND_rj_int RJ_ia;
     FULLCOND_rj_mix RJ_mix;
-	
+
 	vector<FULLCOND *> fc;
 
     if (family != "discrete_ia" && mixed_case==false)        // no interactions, discrete or continuous

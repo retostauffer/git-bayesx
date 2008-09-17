@@ -30,8 +30,13 @@ void remlreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
     {
     if (varname2=="")
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_f_" +
+                 varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_f_" +
                  varname1 + endingraw;
+#endif
 
       pathres = outfile.getvalue() + add_name + "_f_" + varname1 + endingres;
 
@@ -39,9 +44,13 @@ void remlreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
       }
     else
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_" +
+                 varname2 +  "_f_" + varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_" +
                  varname2 +  "_f_" + varname1 + endingraw;
-
+#endif
       pathres = outfile.getvalue() + add_name + "_" + varname2 +
                 "_f_" + varname1 + endingres;
 
@@ -52,10 +61,15 @@ void remlreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
     {
     if (varname2=="")
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_f_" +
+                 ST::inttostring(collinpred+1) + "_" +
+                     varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_f_" +
                  ST::inttostring(collinpred+1) + "_" +
                      varname1 + endingraw;
-
+#endif
       pathres = outfile.getvalue() + add_name + "_f_" +
                 ST::inttostring(collinpred+1) + "_" +
                 varname1 + endingres;
@@ -65,10 +79,15 @@ void remlreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
       }
     else
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_" + varname2
+                 + "_f_" + ST::inttostring(collinpred+1) + "_" +
+                     varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_" + varname2
                  + "_f_" + ST::inttostring(collinpred+1) + "_" +
                      varname1 + endingraw;
-
+#endif
       pathres = outfile.getvalue() + add_name + "_" + varname2 + "_f_" +
                 ST::inttostring(collinpred+1) + "_" +
                 varname1 + endingres;
@@ -130,7 +149,11 @@ void remlreg::create(void)
   //      [, options] [using usingtext]
 
   add_name="";
+#if defined(__BUILDING_LINUX)
+  ST::string h = defaultpath+"/output/"+name;
+#else
   ST::string h = defaultpath+"\\output\\"+name;
+#endif
 
   outfile = fileoption("outfile",h,false);
 
@@ -291,7 +314,7 @@ void remlreg::create(void)
 
   aiccontrol = simpleoption("aiccontrol",false);
   fisher = simpleoption("fisher",false);
-  
+
   constlambda = simpleoption("constlambda",false);
   constscale = simpleoption("constscale",false);
 
@@ -1349,9 +1372,13 @@ bool remlreg::create_const(const unsigned & collinpred)
   if (collinpred == 0)
     {
     title = "FixedEffects" + add_name;
+#if defined(__BUILDING_LINUX)
+    pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_FixedEffects" + ".raw";
+#else
     pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                            + add_name + "_FixedEffects" + ".raw";
-
+#endif
     pathconstres = outfile.getvalue() + add_name +
                      "_FixedEffects"  + ".res";
     }
@@ -1359,10 +1386,15 @@ bool remlreg::create_const(const unsigned & collinpred)
     {
     title = "FixedEffects"  "_" +
                             ST::inttostring(collinpred+1) + add_name;
+#if defined(__BUILDING_LINUX)
+    pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_FixedEffects"  +
+                           "_" + ST::inttostring(collinpred+1) + ".raw";
+#else
     pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                            + add_name + "_FixedEffects"  +
                            "_" + ST::inttostring(collinpred+1) + ".raw";
-
+#endif
     pathconstres = outfile.getvalue() + add_name + "_FixedEffects" + "_" +
                    ST::inttostring(collinpred+1) + ".res";
     }

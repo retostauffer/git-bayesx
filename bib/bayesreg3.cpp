@@ -465,7 +465,7 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
     }*/
   return false;
   }
-  
+
 bool bayesreg::create_varcoeffpspline(const unsigned & collinpred)
   {
 
@@ -1769,7 +1769,7 @@ bool bayesreg::create_nonpseason(const unsigned & collinpred)
           fcnonp[fcnonp.size()-1].init_name(terms[i].varnames[0]);
         else
           {
-          vector<ST::string> na;          
+          vector<ST::string> na;
           na.push_back(terms[i].varnames[1]);
           na.push_back(terms[i].varnames[0]);
           fcnonp[fcnonp.size()-1].init_names(na);
@@ -1886,7 +1886,7 @@ void getsamplerun(bayesreg & b)
     b.outerror("ERROR: no regression results\n");
 
   }
-  
+
 
 void bayesreg::describe(optionlist & globaloptions)
   {
@@ -2342,7 +2342,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   bool external;
   matrix start;
   int readline=0;
-    
+
   datamatrix variances;
 
   int j, f;
@@ -2355,7 +2355,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   bool check=false;
   bool isridge=true;
   vector<FULLCOND_const*> fc;
-            
+
   ofstream output_start("c:/bayesx/test/teststart.txt", ios::out|ios::app);     // --> outfilestream
 
   for(i=0;i<terms.size();i++)
@@ -2376,8 +2376,8 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
            ifstream instart("c:\\bayesx\\temp\\lasso_start.raw");
            start.prettyScan(instart);
            instart.close();
-           
-           // assign the values 
+
+           // assign the values
            varhelp.push_back(1/start.get(readline,1));
            shrinkagestart=start.get(readline,2);
            a_shrinkagegamma=start.get(readline,3);
@@ -2386,23 +2386,23 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
              shrinkagefix = false;
            if (start.get(readline,5)==1.0)
              shrinkagefix = true;
-           
+
            output_start << readline                                             // --> outfilestream
            << " " << start.get(readline,0)
-           << " " << start.get(readline,1) 
+           << " " << start.get(readline,1)
            << " " << start.get(readline,2)
            << " " << start.get(readline,3)
            << " " << start.get(readline,4)
-           << " " << start.get(readline,5)            
+           << " " << start.get(readline,5)
            << " " << "\n";
-           
+
            readline=readline+1;
           }
         if (terms[i].options[1] == "false")
-          {                
+          {
           f = terms[i].options[2].strtodouble(helpvar);
           varhelp.push_back(1/helpvar);
-  
+
           // letzter Term enthält die verwendeten Werte
           f = (terms[i].options[3]).strtodouble(shrinkagestart);
           f = (terms[i].options[4]).strtodouble(a_shrinkagegamma);
@@ -2411,7 +2411,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
             shrinkagefix = true;
           else
             shrinkagefix = false;
-          }  
+          }
         }
       }
     }
@@ -2467,8 +2467,13 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
           varnameshelp.push_back(varnames[j]);
 
         title = "shrinkage_ridge_Effects" + ST::inttostring(i+1);
+#if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+#else
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
+#endif
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
 
         if (pathconst.isvalidfile() == 1)
@@ -2521,8 +2526,13 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
           varnameshelp.push_back(varnames[j]);
 
         title = "shrinkage_ridge_Effects" + ST::inttostring(i+1);
+#if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+#else
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
+#endif
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
         if (pathconst.isvalidfile() == 1)
           {
@@ -2657,8 +2667,13 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
           varnameshelp.push_back(varnames[j]);
 
         title = "shrinkage_lasso_Effects" + ST::inttostring(i+1);
+#if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+#else
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
+#endif
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
 
         if (pathconst.isvalidfile() == 1)
@@ -2710,8 +2725,13 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
           varnameshelp.push_back(varnames[j]);
 
         title = "shrinkage_lasso_Effects" + ST::inttostring(i+1);
+#if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+#else
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
+#endif
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
         if (pathconst.isvalidfile() == 1)
           {
@@ -2756,12 +2776,12 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
   // options
   vector<double> indicatorstart;
   double v0;
-  double v1;  
+  double v1;
   vector<double> t2start;
   double a_t2;
   double b_t2;
   double omegastart;
-  bool omegafix;   
+  bool omegafix;
 
 
   datamatrix variances;
@@ -2788,7 +2808,7 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         varnames.push_back(terms[i].varnames[0]);
 
         f = (terms[i].options[1]).strtodouble(helpvar1);
-        f = (terms[i].options[4]).strtodouble(helpvar2);        
+        f = (terms[i].options[4]).strtodouble(helpvar2);
         varhelp.push_back(1/(helpvar1*helpvar2));
         indicatorstart.push_back(helpvar1);
         t2start.push_back(helpvar2);
@@ -2801,11 +2821,11 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         f = (terms[i].options[3]).strtodouble(v1);
         f = (terms[i].options[5]).strtodouble(a_t2);
         f = (terms[i].options[6]).strtodouble(b_t2);
-        f = (terms[i].options[7]).strtodouble(omegastart);          
+        f = (terms[i].options[7]).strtodouble(omegastart);
         if (terms[i].options[8] == "true")
           omegafix = true;
         else
-          omegafix = false;               
+          omegafix = false;
         }
       }
     }
@@ -2861,8 +2881,13 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
           varnameshelp.push_back(varnames[j]);
 
         title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1);
+#if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+#else
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
+#endif
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
 
         if (pathconst.isvalidfile() == 1)
@@ -2915,8 +2940,13 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
           varnameshelp.push_back(varnames[j]);
 
         title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1);
+#if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+#else
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                          + add_name + "_" + title + ".raw";
+#endif
         pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
         if (pathconst.isvalidfile() == 1)
           {
@@ -2953,7 +2983,7 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
   return false;
   }
 
-  
+
 void regressrun(bayesreg & b)
   {
 
@@ -3191,9 +3221,13 @@ void regressrun(bayesreg & b)
       for (i=0;i<b.generaloptions.size()-1;i++)
         {
 
+#if defined(__BUILDING_LINUX)
+        ST::string pathtemp = b.defaultpath + "/temp/" + b.name + "_missingreg_"
+                              + b.distr[i]->get_responsename() + ".raw";
+#else
         ST::string pathtemp = b.defaultpath + "\\temp\\" + b.name + "_missingreg_"
                               + b.distr[i]->get_responsename() + ".raw";
-
+#endif
         ST::string pathres = b.outfiles[i] + "_missing_" +
                            b.distr[i]->get_responsename() + ".res";
 
@@ -3273,7 +3307,7 @@ void regressrun(bayesreg & b)
       path2.push_back(b.outfiles[i] + "_model_summary.tex");
       path3.push_back(b.outfiles[i] +  "_r_splus.txt");
       path4.push_back(b.outfiles[i] +  "_stata.do");
-      path5.push_back(b.outfiles[i] +  "_effects.res");      
+      path5.push_back(b.outfiles[i] +  "_effects.res");
       }
 
     b.simobj.out_effects(path5);

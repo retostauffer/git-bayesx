@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -184,13 +184,13 @@ class __EXPORT_TYPE term_pspline_stepwise : public basic_termtype
   doubleoption dfmax;
   doubleoption dfstart;
   //simpleoption sp;
-  stroption sp;  
+  stroption sp;
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
   stroption monotone;
   simpleoption center;
-  stroption knots;  
+  stroption knots;
   simpleoption nofixed;
   doubleoption spmonotone;
 
@@ -244,7 +244,7 @@ class __EXPORT_TYPE term_spatial_stepwise : public basic_termtype
   doubleoption dfmax;
   doubleoption dfstart;
   //simpleoption sp;
-  stroption sp;  
+  stroption sp;
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -301,7 +301,7 @@ class __EXPORT_TYPE term_randomslope_stepwise : public basic_termtype
   doubleoption dfmax;
   doubleoption dfstart;
   //impleoption sp;
-  stroption sp;  
+  stroption sp;
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -354,7 +354,7 @@ class __EXPORT_TYPE term_random_stepwise : public basic_termtype
   doubleoption dfmax;
   doubleoption dfstart;
   //simpleoption sp;
-  stroption sp;  
+  stroption sp;
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -458,7 +458,7 @@ class __EXPORT_TYPE term_interactpspline_stepwise : public basic_termtype
   doubleoption dfmax;
   doubleoption dfstart;
   //simpleoption sp;
-  stroption sp;  
+  stroption sp;
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;
@@ -560,7 +560,7 @@ class __EXPORT_TYPE term_projection_stepwise : public basic_termtype
   doubleoption dfmax;
   doubleoption dfstart;
   //simpleoption sp;
-  stroption sp;  
+  stroption sp;
   intoption number;
   simpleoption logscale;
   doubleoption df_accuracy;

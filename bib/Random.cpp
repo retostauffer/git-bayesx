@@ -2,7 +2,7 @@
 
 
 
-#include "random.h"
+#include "Random.h"
 
 namespace randnumbers
 {
@@ -555,7 +555,7 @@ double trunc_logistic(double mean, int left)
 
   if(left == 1)
     return trunc_logistic_left(mean);
-  else 
+  else
     return -trunc_logistic_left(-mean);
   }
 

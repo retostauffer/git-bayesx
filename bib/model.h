@@ -1,7 +1,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -454,23 +454,23 @@ class __EXPORT_TYPE term_shrinkage : public basic_termtype
 
   // Einlesen der Starwerte aus externer Datei
   simpleoption external;
-  
+
   // Startwert für lambda=1/tau^2=1/Varianzparameter
   doubleoption lambda;
 
   // Alternativ: Startwert für tau^2=Varianzparameter
   // doubleoption taustart;
-  
-  // Startwert fuer den Shrinkageparameter 
+
+  // Startwert fuer den Shrinkageparameter
   doubleoption shrinkagestart;
-  
+
   // Hyperparameter der Priori fuer Shrinkageparameter
   doubleoption a_shrinkage;
   doubleoption b_shrinkage;
 
   // Feste Werte für den Shrinkageparameter
   simpleoption shrinkagefix;
-  
+
 
   // FUNCTION: setdefault
   void setdefault(void);
@@ -479,7 +479,7 @@ class __EXPORT_TYPE term_shrinkage : public basic_termtype
 
   // DEFAULT CONSTRUCTOR
   term_shrinkage(void);
-  
+
 
   // FUNCTION: check
   bool check(term & t);
@@ -512,17 +512,17 @@ class __EXPORT_TYPE term_nigmix : public basic_termtype
 
   // Startwert für t^2 (2. Komponente des Varianzparameters)
   doubleoption t2start;
-    
+
   // Hyperparameter der Priori fuer Varianzparameterkomponente t2
   doubleoption a_t2;
   doubleoption b_t2;
-  
-  // Startwert fuer die Mischungskomponente 
+
+  // Startwert fuer die Mischungskomponente
   doubleoption omegastart;
 
   // Feste Werte für die Komponenten
   simpleoption omegafix;
-  
+
 
   // FUNCTION: setdefault
   void setdefault(void);
@@ -531,7 +531,7 @@ class __EXPORT_TYPE term_nigmix : public basic_termtype
 
   // DEFAULT CONSTRUCTOR
   term_nigmix(void);
-  
+
 
   // FUNCTION: check
   bool check(term & t);

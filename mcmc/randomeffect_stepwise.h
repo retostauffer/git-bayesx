@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -38,7 +38,7 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 
   FULLCOND fc_df;
   ST::string utype;   // gaussian || iwlsmode
- 
+
   public:
 
   // DEFAULT CONSTRUCTOR:
@@ -99,7 +99,7 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 
   void compute_lambdavec(vector<double> & lvec, int & number);
 
-  void create_weight(datamatrix & w);  
+  void create_weight(datamatrix & w);
 
   void hierarchie_fix(vector<double> & untervector, int dfo);
 
@@ -146,10 +146,10 @@ class __EXPORT_TYPE FULLCOND_random_stepwise : public FULLCOND_random
 
   void update_bootstrap(const bool & uncond=false);
 
-  void save_betamean(void);  
+  void save_betamean(void);
 
   void update_bootstrap_betamean(void);
-  
+
   void update_bootstrap_df(void);
 
   void outresults_df(unsigned & size);

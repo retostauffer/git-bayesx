@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -125,7 +125,7 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   //        (i.e. number of categories of the response variable)
   // fp   : file path for storing sampled parameters
 
-  fullcond_merror(MCMCoptions * o, /*FULLCOND_nonp * p,*/ FULLCOND_nonp_basis * p, DISTRIBUTION * dp, 
+  fullcond_merror(MCMCoptions * o, /*FULLCOND_nonp * p,*/ FULLCOND_nonp_basis * p, DISTRIBUTION * dp,
            const datamatrix & d, const datamatrix & em, const ST::string & t, const ST::string & fp);
 
   // BEGIN: merror
@@ -163,7 +163,7 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   void compute_proposal(const datamatrix & xi, const unsigned & blocks,
                                const unsigned & a,const unsigned b);
 
-  // SUSI: add additonal options                               
+  // SUSI: add additonal options
   void setmerroroptions(const double & mvar)
     {
     // sigma1 = mvar;

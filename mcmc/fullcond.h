@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -12,7 +12,7 @@
 #define FULLCOND_INCLUDED
 
 #include"statmat.h"
-#include"random.h"
+#include"Random.h"
 #if defined(MICROSOFT_VISUAL)
 #include<limits>
 #else
@@ -243,7 +243,7 @@ class __EXPORT_TYPE FULLCOND
 
   void readsample3(datamatrix & b) const;
 
-//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------  
+//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
   // DEFAULT CONSTRUCTOR
 
@@ -605,7 +605,7 @@ class __EXPORT_TYPE FULLCOND
     {
     addon = ao;
     }
-       
+
 
   // FUNCTION: set_transformmult
   // TASK: sets transformmult
@@ -702,7 +702,7 @@ class __EXPORT_TYPE FULLCOND
   const vector<ST::string> & get_priorassumptions(void)
     {
     return priorassumptions;
-    }    
+    }
 
   // FUNCTION: compute_autocorr
   // TASK: computes autocorrelation function for lags 1 - 'lag' for parameter
@@ -809,7 +809,7 @@ class __EXPORT_TYPE FULLCOND
     {
     return samplepath;
     }
-    
+
 
   // ---------------------------------------------------------------------------
   // ------------------------ FOR STEPWISE SELECTION ---------------------------
@@ -1007,7 +1007,7 @@ class __EXPORT_TYPE FULLCOND
     {
     matrixnumber = mno;
     }
-    
+
   // FUNCTION: update_stepwise
   // TASK: returns (usually) the current smoothing parameter
 

@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -224,7 +224,7 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   void fullcond_komplett(const vector<double> & m);
 
   void fix_ganz_komplett(const vector<double> &  modell);
-  
+
   void fix_komplett(const vector<double> & modell);
 
   void reset_fix(const ST::string & name);
@@ -323,7 +323,7 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
   bool stepwise(const ST::string & procedure, const ST::string & minimum,
          const ST::string & crit, const int & stp, const ST::string & trac,
          const int & number, const ST::string & stam, const int & inc,
-         const int & boot, const bool & uncond, 
+         const int & boot, const bool & uncond,
          const datamatrix & D,const vector<ST::string> & modelv,
          const ST::string & name, vector<FULLCOND*> & fullcond_z, ST::string & path,
          const ST::string & CI, bool & hier, const double & prop);
@@ -350,4 +350,3 @@ class __EXPORT_TYPE STEPMULTIrun : public MCMCsimulate
 
 
 
- 

@@ -11,7 +11,7 @@
 #include <math.h>
 #include <tmatrix.h>
 */
-#include "random.h"
+#include "Random.h"
 
 namespace func
 {

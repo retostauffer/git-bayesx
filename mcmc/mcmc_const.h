@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -38,7 +38,7 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   bool interceptyes;
   int interceptpos;
   double interceptadd;
-  datamatrix effectsadd; 
+  datamatrix effectsadd;
 
   // Shrinkage
   bool shrinkage;
@@ -145,7 +145,7 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   void get_effectmatrix(datamatrix & e,vector<ST::string> & enames,
                         unsigned be, unsigned en, effecttype t);
 
-  unsigned get_nreffects(effecttype t);  
+  unsigned get_nreffects(effecttype t);
 
   void outresults(void);
 
@@ -162,9 +162,9 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
     {
     }
 
-  virtual void update_fix_varcoeff(double & value,ST::string & name);  
+  virtual void update_fix_varcoeff(double & value,ST::string & name);
 
-  virtual void posteriormode_fix_varcoeff(double & value,ST::string & name);  
+  virtual void posteriormode_fix_varcoeff(double & value,ST::string & name);
 
 
   virtual void posteriormode_const_varcoeff(datamatrix newx)
@@ -337,11 +337,11 @@ class __EXPORT_TYPE FULLCOND_const_gaussian_re : public FULLCOND_const_gaussian
     fc_intercept= fci;
     }
 
-  void update(void);    
+  void update(void);
 
   bool posteriormode(void);
 
-  void outresults(void);  
+  void outresults(void);
 
   void outoptions(void);
 
@@ -441,7 +441,7 @@ class __EXPORT_TYPE FULLCOND_const_nongaussian : public FULLCOND_const
 
 class FULLCOND_const_gamma : public FULLCOND_const
   {
-  };  
+  };
 
 
 //------------------------------------------------------------------------------
@@ -479,7 +479,7 @@ class __EXPORT_TYPE FULLCOND_const_nbinomial : public FULLCOND_const_nongaussian
   const FULLCOND_const_nbinomial & operator=(
                            const FULLCOND_const_nbinomial & m);
 
-  bool posteriormode_converged(const unsigned & itnr);                           
+  bool posteriormode_converged(const unsigned & itnr);
 
   void update_intercept(double & m);
 

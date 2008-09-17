@@ -746,7 +746,7 @@ bool bayesreg::create_randomslope(const unsigned & collinpred)
                  terms[i].varnames[0],
                  "_random.raw","_random.res","_random");
 
-      pathresfixed = pathres.substr(0,pathres.length()-4) + "_fixed.res";           
+      pathresfixed = pathres.substr(0,pathres.length()-4) + "_fixed.res";
 
       make_paths(collinpred,pathnonp2,pathres2,title2,terms[i].varnames[1],
                  terms[i].varnames[0],"_random_var.raw",
@@ -755,7 +755,7 @@ bool bayesreg::create_randomslope(const unsigned & collinpred)
 
 
 
-                 
+
 
       if (check_gaussian(collinpred))
         {
@@ -941,11 +941,15 @@ bool bayesreg::create_random(const unsigned & collinpred)
 
         if (structured==1)
           {
-
+#if defined(__BUILDING_LINUX)
+          ST::string pathnonpt = defaultpath + "/temp/" + name + add_name +
+                 terms[i].varnames[0] +
+                 "_spatialtotal.raw";
+#else
           ST::string pathnonpt = defaultpath + "\\temp\\" + name + add_name +
                  terms[i].varnames[0] +
                  "_spatialtotal.raw";
-
+#endif
           ST::string pathrest = outfile.getvalue() + add_name + "_" + terms[i].varnames[0] +
                                 "_spatialtotal.res";
 
@@ -1046,11 +1050,15 @@ bool bayesreg::create_random(const unsigned & collinpred)
              ( (structured1==0) && (structured2==1) )
            )
           {
-
+#if defined(__BUILDING_LINUX)
+          ST::string pathnonpt = defaultpath + "/temp/" + name + add_name +
+                 terms[i].varnames[0] +
+                 "_spatialtotal.raw";
+#else
           ST::string pathnonpt = defaultpath + "\\temp\\" + name + add_name +
                  terms[i].varnames[0] +
                  "_spatialtotal.raw";
-
+#endif
           ST::string pathrest = outfile.getvalue()
                                 + add_name + "_" + terms[i].varnames[0] +
                                 "_spatialtotal.res";
@@ -2654,7 +2662,7 @@ bool bayesreg::create_baseline(const unsigned & collinpred)
   int gridsize;
   int f;
   // NEW FOR PARTIALLIKELIHOOD
-  bool partlik;  
+  bool partlik;
 
   unsigned i;
   int j;
@@ -2989,7 +2997,7 @@ bool bayesreg::create_random_rw1rw2(const unsigned & collinpred)
 
         fcrandomgaussian[fcrandomgaussian.size()-1].set_notransform();
 
-        fcrandomgaussian[fcrandomgaussian.size()-1].set_changingweight();        
+        fcrandomgaussian[fcrandomgaussian.size()-1].set_changingweight();
 
        // Include first fcmult
 

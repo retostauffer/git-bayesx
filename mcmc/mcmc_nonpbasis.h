@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -133,7 +133,7 @@ class __EXPORT_TYPE FULLCOND_nonp_basis : public FULLCOND
                       const unsigned & per=12);
 
   // CONSTRUCTOR für REML
-  
+
   FULLCOND_nonp_basis(MCMCoptions * o, const ST::string & ti) : FULLCOND(o,ti){}
 
   // COPY CONSTRUCTOR

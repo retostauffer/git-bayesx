@@ -9,71 +9,12 @@ admin_gnu::admin_gnu(void)
 //  adminb = administrator_basic();
 //  adminp = administrator_pointer();
 
-/*  #if !defined(__BUILDING_GNU)
   char path[100];
-  getcurdir(0,path);
-  char disk = 'A'+getdisk();
-  ST::string d(disk,1);
+  getcwd(path, 100);
 
-  defaultpath = d + ":\\" + path;
+  defaultpath = ST::string(path);
 
   bool error = false;
-
-  if(DirectoryExists((defaultpath+"\\temp").strtochar()))
-    {
-    AnsiString temp = (defaultpath+"\\temp\\test").strtochar();
-    ForceDirectories(temp);
-    if(DirectoryExists(temp))
-      {
-      rmdir((defaultpath+"\\temp\\test").strtochar());
-      }
-    else
-      {
-      outerror("ERROR: No permission to write to " + defaultpath + "\\temp\n");
-      error = true;
-      }
-    }
-  else
-    {
-    AnsiString temp = (defaultpath+"\\temp").strtochar();
-    ForceDirectories(temp);
-    if(!DirectoryExists(temp))
-      {
-      error = true;
-      }
-    }
-
-  if(DirectoryExists((defaultpath+"\\output").strtochar()))
-    {
-    AnsiString output = (defaultpath+"\\output\\test").strtochar();
-    ForceDirectories(output);
-    if(DirectoryExists(output))
-      {
-      rmdir((defaultpath+"\\output\\test").strtochar());
-      }
-    else
-      {
-      outerror("ERROR: No permission to write to " + defaultpath + "\\output\n");
-      error = true;
-      }
-    }
-  else
-    {
-    AnsiString output = (defaultpath+"\\output").strtochar();
-    ForceDirectories(output);
-    if(!DirectoryExists(output))
-      {
-      error = true;
-      }
-    }
-
-  if(error==true)
-    {
-    outerror("ERROR: No permission to write to " + defaultpath + "\n");
-    out("  Specify a new default directory using the defaultpath command\n");
-    out("  Type for example: defaultpath=c:\\temp");
-    }
-  #endif*/
 
   logfileopen = false;
   input = &cin;
@@ -630,83 +571,85 @@ bool admin_gnu::parse(ST::string & in)
 		  }
 		return false;
 		}  // end: logclose
-/*     else if (firsttoken == "defaultpath")
+     else if (firsttoken == "defaultpath")
         {
          vector<ST::string> token = in.strtoken(" =");
          if (token.size() != 3)
            errormessages.push_back("ERROR: invalid syntax\n");
          else if (token[1] != "=")
            errormessages.push_back("ERROR: \"=\" expected\n");
-#if !defined(__BUILDING_GNU)
-         else if (!DirectoryExists(token[2].strtochar()))
-           errormessages.push_back("ERROR: path " + token[2] + " does not exist\n");
          else
            {
-
-           defaultpath = token[2];
-
-           bool error = false;
-
-           if(DirectoryExists((defaultpath+"\\temp").strtochar()))
+           int test = access(token[2].strtochar(), 06);
+           if(test==-1)
              {
-             AnsiString temp = (defaultpath+"\\temp\\test").strtochar();
-             ForceDirectories(temp);
-             if(DirectoryExists(temp))
-               {
-               rmdir((defaultpath+"\\temp\\test").strtochar());
-               }
-             else
-               {
-               outerror("ERROR: No permission to write to " + defaultpath + "\\temp\n");
-               error = true;
-               }
+             if(errno==ENOENT)
+               errormessages.push_back("ERROR: " + token[2] + " does not exist\n");
+             else if(errno==EACCES)
+               errormessages.push_back("ERROR: no write access to " + token[2] + "\n");
              }
            else
              {
-             AnsiString temp = (defaultpath+"\\temp").strtochar();
-             ForceDirectories(temp);
-             if(!DirectoryExists(temp))
-               {
-               error = true;
-               }
-             }
+             defaultpath = token[2];
+             bool error = false;
 
-           if(DirectoryExists((defaultpath+"\\output").strtochar()))
-             {
-             AnsiString output = (defaultpath+"\\output\\test").strtochar();
-             ForceDirectories(output);
-             if(DirectoryExists(output))
-               {
-               rmdir((defaultpath+"\\output\\test").strtochar());
-               }
-             else
-               {
-               outerror("ERROR: No permission to write to " + defaultpath + "\\output\n");
-               error = true;
-               }
-             }
-           else
-             {
-             AnsiString output = (defaultpath+"\\output").strtochar();
-             ForceDirectories(output);
-             if(!DirectoryExists(output))
-               {
-               error = true;
-               }
-             }
+             #if defined(__BUILDING_LINUX)
+               ST::string tempstring = defaultpath + "/temp";
+             #else
+               ST::string tempstring = defaultpath + "\\temp";
+             #endif
+               char* pathtemp = tempstring.strtochar();
+               int testtemp = access(pathtemp, 06);
+               if(testtemp==-1)
+                 {
+                 if(errno==ENOENT)
+                   {
+             #if defined(__BUILDING_LINUX)
+                   mkdir(pathtemp, 700);
+             #else
+                   mkdir(pathtemp);
+             #endif
+                   errormessages.push_back("NOTE: created directory " + tempstring + "\n");
+                   error=true;
+                   }
+                 else if(errno==EACCES)
+                   {
+                   errormessages.push_back("ERROR: no write access to " + tempstring + "\n");
+                   error=true;
+                   }
+                 }
 
-           if(error==true)
-             {
-             outerror("ERROR: No permission to write to " + defaultpath + "\n");
-         	 out("  Specify a new default directory using the defaultpath command\n");
-         	 out("  Type for example: defaultpath=c:\\temp");
-             }
-           }
-#endif
+             #if defined(__BUILDING_LINUX)
+               ST::string outputstring = defaultpath + "/output";
+             #else
+               ST::string outputstring = defaultpath + "\\output";
+             #endif
+               char* pathoutput = outputstring.strtochar();
+               int testoutput = access(pathoutput, 00);
+               if(testoutput==-1)
+                 {
+                 if(errno==ENOENT)
+                   {
+             #if defined(__BUILDING_LINUX)
+                   mkdir(pathoutput, 700);
+             #else
+                   mkdir(pathoutput);
+             #endif
+                   errormessages.push_back("NOTE: created directory " + outputstring + "\n");
+                   error=true;
+                   }
+                 else if(errno==EACCES)
+                   {
+                   errormessages.push_back("ERROR: no write access to " + outputstring + "\n");
+                   error=true;
+                   }
+                 }
+            }
+          }
 	    outerror(errormessages);
         errormessages.clear();
         return false;
-        }*/
+        }
 	 else if (firsttoken == "drop")
 		{
 

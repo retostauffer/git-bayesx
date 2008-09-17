@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -402,7 +402,7 @@ class __EXPORT_TYPE FULLCOND_random_nongaussian : public FULLCOND_random
   void update_random_slope_includefixed_iwls_singleblock(void);
 
 
-  double scale_proposal();  
+  double scale_proposal();
 
   void tune_updatetau(const rate & r);
 

@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -161,7 +161,7 @@ class __EXPORT_TYPE MCMCsimulate
 // FUNCTION: compare
 // TASK: compares estimation results stored in 'files'
 //       assumes that each file in 'files' has the same structure
-//       assumes that the first line contains variable names 
+//       assumes that the first line contains variable names
 //       computes for each column the relative differences compared to the
 //       first file in 'files' and writes the result to 'out'
 

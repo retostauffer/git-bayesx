@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -10,8 +10,8 @@
 #ifndef fullcond_pspline_surf_stepwiseH
 #define fullcond_pspline_surf_stepwiseH
 
-#include"FULLCOND_pspline_surf_gaussian.h"
-#include"FULLCOND_pspline_stepwise.h"
+#include"fullcond_pspline_surf_gaussian.h"
+#include"fullcond_pspline_stepwise.h"
 
 
 namespace MCMC
@@ -169,7 +169,7 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   void hierarchical(ST::string & possible);
 
-  void set_pointer_to_interaction(FULLCOND * inter);  
+  void set_pointer_to_interaction(FULLCOND * inter);
 
   void get_interactionspointer(vector<FULLCOND*> & inter);
 
@@ -177,7 +177,7 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   void compute_lambdavec(vector<double> & lvec, int & number);
 
-  double compute_df(void);  
+  double compute_df(void);
 
   void update_stepwise(double la);
     /*{
@@ -215,10 +215,10 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_stepwise : public FULLCOND_pspline_sur
 
   void update_vc_anova_nongauss(void);
 
-  void update_linear_function(void);  
+  void update_linear_function(void);
 
   void save_betamean(void);
-  
+
   void update_bootstrap_betamean(void);
 
   void update_bootstrap_df(void);

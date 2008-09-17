@@ -1,7 +1,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -22,7 +22,7 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
 
-enum multtype {re_rw,mrf_rw,re_pspline,mrf_pspline}; 
+enum multtype {re_rw,mrf_rw,re_pspline,mrf_pspline};
 
 class __EXPORT_TYPE FULLCOND_mult : public FULLCOND
   {
@@ -130,4 +130,3 @@ class __EXPORT_TYPE FULLCOND_mult : public FULLCOND
 
 #endif
 
- 

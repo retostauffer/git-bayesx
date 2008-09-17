@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -29,9 +29,9 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   unsigned column;                  //  Category for for fullcond if multivariate response
 
   ST::string pathresults;           //  File path for storing sampled parameters
-  
+
   vector<FULLCOND_const *> Cp;
-  
+
   DISTRIBUTION * distrp;
 
   FULLCOND fc_shrinkage;
@@ -48,11 +48,11 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
 
   datamatrix indicator;             // Matrix for 1. Varianceparameterkomponent: Indicators
   datamatrix t2;                    // Matrix for 1. Varianceparameterkomponent: t2
- 
+
   double nigmixsum;                 //  sum(beta^2/tau^2) for update of scaleparameter
 
   vector<unsigned> cut;             //  Blocks of regression coefficients
-                                  
+
   void outresults_shrinkage(void);  //  Function to write results of omega to output window and files
   void outresults_indicator(void);  //  Function to write results of indicator to output window and files
   void outresults_t2(void);         //  Function to write results of t2 to output window and files
@@ -67,7 +67,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   FULLCOND_variance_nonp_vector_nigmix(void) : FULLCOND()
     {
     }
-    
+
 
   //____________________________________________________________________________
   //
@@ -89,8 +89,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   //____________________________________________________________________________
 
   FULLCOND_variance_nonp_vector_nigmix(const FULLCOND_variance_nonp_vector_nigmix & t);
-  
-  
+
+
   //____________________________________________________________________________
   //
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -112,8 +112,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   //____________________________________________________________________________
 
   void update(void);
-  
-  
+
+
   //____________________________________________________________________________
   //
   // FUNCTION: outresults
@@ -121,7 +121,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   //____________________________________________________________________________
 
   void outresults(void);
-  
+
   //____________________________________________________________________________
   //
   // FUNCTION: outoptions
@@ -129,8 +129,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   //____________________________________________________________________________
 
   void outoptions(void);
-  
-  
+
+
   //____________________________________________________________________________
   //
   // FUNCTION: reset
@@ -142,8 +142,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
     FULLCOND::reset();
     setbeta(beta.rows(),1,0.1);
     }
-    
-    
+
+
   //____________________________________________________________________________
   //
   // DESTRUCTOR

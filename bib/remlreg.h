@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -252,7 +252,7 @@ class __EXPORT_TYPE remlreg : public statobject
   modeltermmult modregmult;
   vector < vector <term> > termsmult;
 
-  unsigned nrtransitions;             // no. of possible transitions 
+  unsigned nrtransitions;             // no. of possible transitions
   vector<unsigned> nrfullconds;       // no. of fullconds per transition
 
 //------------------------------------------------------------------------------

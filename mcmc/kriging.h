@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -63,7 +63,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
   vector<double> effectvaluesygrid;      // für die Ausgabe auf einem Gitter
   datamatrix xvaluesgrid;                // geordnete, äquidistante Werte zwischen Min(x/y) und Max(x/y)
   datamatrix yvaluesgrid;                // falls gridsize > 0
-  
+
   vector<int> index2;
 
   vector<int>freq;
@@ -152,7 +152,7 @@ class __EXPORT_TYPE FULLCOND_kriging : public FULLCOND_nonp_basis
 
   void createreml(datamatrix & X,datamatrix & Z,const unsigned & Xpos,
                   const unsigned & Zpos);
-                  
+
   double outresultsreml(datamatrix & X,datamatrix & Z,
                                      datamatrix & betareml,
                                      datamatrix & betacov,

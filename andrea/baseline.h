@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -55,7 +55,7 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
    double weibullproposal_a2;
    double b_prop;
    double acceptance_between;
-   
+
    // NEW FOR PARTIALLIKELIHOOD
    bool PartialLikelihood;                // If 'True' Partial Likelihood is used
                                           // is implemented for time indepentent effects!
@@ -66,7 +66,7 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
    datamatrix breslowbaseline;            // Matrix for current values of Breslows baseline
    datamatrix breslowcumbaseline;         // Matrix for current values of Breslows cumulative baseline
    FULLCOND fc_breslowcumbaseline;        // Fullcond for Breslows cumulative baseline
-   
+
 
   public:
 
@@ -128,7 +128,7 @@ class __EXPORT_TYPE pspline_baseline : public FULLCOND_pspline
     {
     baselinep=bp;
     }
- 
+
   // NEW FOR PARTIALLIKELIHOOD
   void compute_int_ti_partiallikelihood(const datamatrix & cumbaseline, const datamatrix & baseline);
 

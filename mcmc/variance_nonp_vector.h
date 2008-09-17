@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -29,9 +29,9 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   unsigned column;                  //  Category for for fullcond if multivariate response
 
   ST::string pathresults;           //  File path for storing sampled parameters
-  
+
   vector<FULLCOND_const *> Cp;
-  
+
   DISTRIBUTION * distrp;
 
   FULLCOND fc_shrinkage;
@@ -47,7 +47,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
                                     //  and if "false" the L1-penalty is used
 
 //  datamatrix variances;              // current values of the variances
-                                    
+
   void outresults_shrinkage(void);  //  Function to write results to output window and files
 
   public:
@@ -60,7 +60,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   FULLCOND_variance_nonp_vector(void) : FULLCOND()
     {
     }
-    
+
 
   //____________________________________________________________________________
   //
@@ -75,15 +75,15 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
                          const bool & isridge, const vector<unsigned> & ct,
                          const unsigned & c);
 
-  
+
   //____________________________________________________________________________
   //
   // COPY CONSTRUCTOR
   //____________________________________________________________________________
 
   FULLCOND_variance_nonp_vector(const FULLCOND_variance_nonp_vector & t);
-  
-  
+
+
   //____________________________________________________________________________
   //
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -104,8 +104,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   //____________________________________________________________________________
 
   void update(void);
-  
-  
+
+
   //____________________________________________________________________________
   //
   // FUNCTION: outresults
@@ -113,7 +113,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   //____________________________________________________________________________
 
   void outresults(void);
-  
+
   //____________________________________________________________________________
   //
   // FUNCTION: outoptions
@@ -121,8 +121,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   //____________________________________________________________________________
 
   void outoptions(void);
-  
-  
+
+
   //____________________________________________________________________________
   //
   // FUNCTION: reset
@@ -134,8 +134,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
     FULLCOND::reset();
     setbeta(beta.rows(),1,0.1);
     }
-    
-    
+
+
   //____________________________________________________________________________
   //
   // DESTRUCTOR

@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -31,14 +31,14 @@ struct modfreq
 	ST::string model;
 	unsigned nedges;
 	unsigned freq;    // absolute frequency
-	
+
 
 	modfreq(void)
 	{
 		model="";
 		nedges=0;
 		freq=0;
-	}	
+	}
 
 
 	modfreq(const ST::string &  m, const unsigned & n, const unsigned & f)
@@ -46,7 +46,7 @@ struct modfreq
 		model=m;
 		nedges=n;
 		freq=f;
-	}	
+	}
 
 	modfreq(const modfreq & m)
 	{
@@ -65,7 +65,7 @@ struct modfreq
 		nedges = m.nedges;
 		freq=m.freq;
 
-		return *this; 
+		return *this;
 	}
 
 
@@ -119,7 +119,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 
 	  adja zeta;					// represents the graph
 	  adja zeta_fix;				// represents conditions that have been made on the graph
-	  
+
 	  vector <FULLCOND_dag *> preg_mods;	// vector of the regression models
 	  vector < modfreq > freq;				// vector, that stores the chosen models and their frequencies
 	  vector < essfreq > list_ess;			// vector, with the essential models of freq
@@ -135,14 +135,14 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 	  unsigned long nrtrials_d;			// number of trialsf for death-step
 	  unsigned long nrtrials_s;			// number of trials for switch-step
 
-	  double alpha_sig_i;		// parameter alpha of the IG-distribution from 
+	  double alpha_sig_i;		// parameter alpha of the IG-distribution from
 								// which the new variance sigma_new_i is sampled in the switch step
-	  double beta_sig_i;		// parameter beta of the IG-distribution from 
+	  double beta_sig_i;		// parameter beta of the IG-distribution from
 								// which the proposed variance sigma_new_i is sampled in the switch step
 
-	  double alpha_sig_j;		// parameter alpha of the IG-distribution from 
+	  double alpha_sig_j;		// parameter alpha of the IG-distribution from
 								// which the new variance sigma_new_j is sampled in the switch step
-	  double beta_sig_j;		// parameter beta of the IG-distribution from 
+	  double beta_sig_j;		// parameter beta of the IG-distribution from
 								// which the proposed variance sigma_new_j is sampled in the switch step
 
 	  double gamma_nobs1;		// log(gamma(0.5*nobs))
@@ -150,7 +150,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 
 	  bool step_aborted;		// equal to TRUE if cycles detected
 
-	  datamatrix zetamean;		
+	  datamatrix zetamean;
 	  datamatrix zetameanold;
 
 	  unsigned int limit_number;// maximal number of models which are written out
@@ -164,7 +164,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 	  ST::string print_models;  // determines how many dags are printed in the output
 								// possible options: "normal", "limit", "prob", "all"
 
-	  bool mixed_case; 
+	  bool mixed_case;
 	  bool file_of_results;
 	  bool conditions;
 
@@ -173,17 +173,17 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
       ST::string family;       // continuous, binary with(out) interaction or mixed
 
 
-	  
+
 
 
 
   public:
-  
+
 
   // DEFAULT CONSTRUCTOR:
   FULLCOND_rj(void) : FULLCOND() {}
 
-  
+
   // CONSTRUCTOR_1
   FULLCOND_rj( MCMCoptions * o, const datamatrix & d,
                const ST::string & t, const unsigned & r, const unsigned & c,
@@ -196,9 +196,9 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
                const ST::string & t, const unsigned & r, const unsigned & c,
                const ST::string & fp);
 
-  
+
   // CONSTRUCTOR_3
-  FULLCOND_rj (ST::string fix, const ST::string & rp, unsigned int lim, double alph,  
+  FULLCOND_rj (ST::string fix, const ST::string & rp, unsigned int lim, double alph,
 				ST::string switch_t, ST::string print_modc, unsigned & type,
 				vector < FULLCOND_dag * > dagp,
 				MCMCoptions * o, const datamatrix & d, const ST::string & t,
@@ -206,7 +206,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 
 
   // COPY CONSTRUCTOR
-  FULLCOND_rj(const FULLCOND_rj & fc); 
+  FULLCOND_rj(const FULLCOND_rj & fc);
 
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -232,7 +232,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
   //virtual void death_step(unsigned int i, unsigned int j)
   //{
   //}
-  
+
   // FUNCTION: death_step
   // makes death step, tries to delete edge i->j
   virtual void death_step(unsigned int i, unsigned int j);
@@ -261,21 +261,21 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 
 	 // FUNCTION: ratio_s
 	// TARGET: computes acceptance ratio in the switch step
-	 double ratio_s(unsigned int i,unsigned int j, 
-							const datamatrix & b_new_i, const datamatrix & b_new_j, 
+	 double ratio_s(unsigned int i,unsigned int j,
+							const datamatrix & b_new_i, const datamatrix & b_new_j,
 							const datamatrix & x_new_i, const datamatrix & x_new_j,
 							const datamatrix & mean_i, const datamatrix & mean_j,
 							const datamatrix & sig_mean_i, const datamatrix & sig_mean_j,
 							const datamatrix & xx_new_i, const datamatrix & xx_new_j,
 							double sigma_new_i, double sigma_new_j);
-	
-							
-							
+
+
+
 
 	// FUNCTION: ratio_s
 	// TARGET: computes acceptance ratio in the switch step with interactions ;
-	 virtual double ratio_s_int (unsigned int i,unsigned int j, 
-							const datamatrix & b_new_i, const datamatrix & b_new_j, 
+	 virtual double ratio_s_int (unsigned int i,unsigned int j,
+							const datamatrix & b_new_i, const datamatrix & b_new_j,
 							const datamatrix & x_new_i, const datamatrix & x_new_j)
 	 {
 		 return 0;
@@ -283,24 +283,24 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 
 
 
-  // FUNCTION: make_new_b 
+  // FUNCTION: make_new_b
   // TASK: computes the new values for a birth-step
-  void FULLCOND_rj::make_new_b (ST::string step, unsigned int i, unsigned int j, double beta_new, 
+  void FULLCOND_rj::make_new_b (ST::string step, unsigned int i, unsigned int j, double beta_new,
 				datamatrix & xx_new, datamatrix & b_new, datamatrix & x_new);
-  
-  
 
 
-  // FUNCTION: make_new_d 
+
+
+  // FUNCTION: make_new_d
   // TASK: computes the new values for a death-step
-  void make_new_d (ST::string step, unsigned int i, unsigned int j,datamatrix & xx_new, 
+  void make_new_d (ST::string step, unsigned int i, unsigned int j,datamatrix & xx_new,
 				double & beta_old, datamatrix & b_new, datamatrix & x_new);
 
 
 
   // FUNCTION: sample_sigma
   // TARGET: samples the new variance of the regression model i in the switch step
-  double FULLCOND_rj::sample_sigma(char vertex, unsigned int i, unsigned int ncoef_new_i, 
+  double FULLCOND_rj::sample_sigma(char vertex, unsigned int i, unsigned int ncoef_new_i,
 							const datamatrix & mean_i, const datamatrix & x_new_i);
 
 
@@ -309,27 +309,27 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
   // TARGET: calculates the ratio of a birth-step
   double ratio_b(unsigned int j,  double u,
 							const datamatrix & b_new, const datamatrix & x_new);
-  
+
 
   // FUNCTION: ratio_d()
   // TARGET: calculates the ratio of a death-step
-  double ratio_d(unsigned int j, double u, 
+  double ratio_d(unsigned int j, double u,
 					const datamatrix & b_new, const datamatrix & x_new);
 
 
- 
+
   // FUNCTION: ratio_s
   // TARGET: computes acceptance ratio in the switch step
-  //double ratio_s(unsigned int i,unsigned int j, 
-//							const datamatrix & b_new_i, const datamatrix & b_new_j, 
+  //double ratio_s(unsigned int i,unsigned int j,
+//							const datamatrix & b_new_i, const datamatrix & b_new_j,
 //							const datamatrix & x_new_i, const datamatrix & x_new_j,
 //							const datamatrix & mean_i, const datamatrix & mean_j,
 //							double sigma_new_i, double sigma_new_j);
 
 
 
- 
-  
+
+
   // FUNCTION: log_gamma
   // TASK: returns the logarithm of the gammafunction when value=0.5*(unsigned)
   double log_gamma(double value) const;
@@ -340,7 +340,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
   double FULLCOND_rj::log_gamma1(double x) const;
 
 
- 
+
   // FUNCTION: p_prop()
   // TARGET: returns the density of the proposal u, which is normaldistributed
 	double p_prop(double prop);
@@ -349,11 +349,11 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 
 
 	// FUNCTION: p_prop()
-  // TARGET: returns the density of the proposal vector u, which is normal and independent 
+  // TARGET: returns the density of the proposal vector u, which is normal and independent
 	double p_prop(const datamatrix & prop);
 
 
- 
+
   // FUNCTION: accept
   // TASK: returns true with probability ratio
   //bool accept (double ratio);
@@ -430,7 +430,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
   // FUNCTION: ini_ratio
   // TASK: initializes ratios.
   void ini_ratio(void);
-  
+
 
   // FUNCTION: ini_hyperpar
   // TASK: initializes hyperparamaters etc
@@ -460,7 +460,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 	// FUNCTION: conditions_okay_s
 	// TASK: returns true if conditions are fullfilled
 	bool conditions_okay_s (unsigned int i, unsigned int j);
-	
+
 
   // FUNCTION: set_options
   // TASK: sets the options
@@ -484,13 +484,13 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
    }
 
      void outoptions(void) ;
-      
+
 
 
 
  /**************
- 
-   
+
+
 	 void predict(const datamatrix & newX, datamatrix & linpred)
     {
 

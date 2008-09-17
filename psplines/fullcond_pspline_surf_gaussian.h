@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -15,7 +15,7 @@
 #include "bandmat_penalty.h"
 #include<deque>
 #include "mcmc_nonpbasis.h"
-#include "FULLCOND_pspline_gaussian.h"
+#include "fullcond_pspline_gaussian.h"
 #include "spline_basis_surf.h"
 #include "fullcond_nonp_gaussian.h"
 
@@ -61,7 +61,7 @@ class __EXPORT_TYPE FULLCOND_pspline_surf_gaussian : public spline_basis_surf
 
   bandmatdouble XX;             // X'X (für Gauss und zeilenweises updaten)
   bandmatdouble prec;           // Präzisionsmatrix (X'WX + 1/sigma2*K) als Band-Matrix (für Gauss und zeilenweises updaten)
-  
+
   envmatdouble XX_env;          // X'X als Envelope-Matrix (für IWLS)
   envmatdouble prec_env;        // Präzisionsmatrix (X'WX + 1/sigma2*K) als Envelope-Matrix (für IWLS)
 

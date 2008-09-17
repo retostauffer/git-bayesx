@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -277,7 +277,7 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
 
   void set_lambdaconst(double la);
 
-  
+
   // REML
 
   void createreml(datamatrix & X,datamatrix & Z,const unsigned & Xpos,

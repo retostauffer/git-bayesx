@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -461,7 +461,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
     {
     notransform=true;
     }
-  
+
 
   // FUNCTION: reset
   // TASK: resets all parameters
@@ -499,7 +499,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian : public FULLCOND_nonp_basis
                                      const unsigned plotpos);
 
   void outoptionsreml();
-#endif  
+#endif
 
   };
 

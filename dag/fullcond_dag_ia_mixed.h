@@ -19,15 +19,15 @@ The corresponding main-file is test_rj_ia.cpp
 
 IMPORTANT: This procedure is NOT reversible.
 
-For the future: The program could be also used, when the general model (=the edges) 
-is already given and one is only interested in the interactions. 
+For the future: The program could be also used, when the general model (=the edges)
+is already given and one is only interested in the interactions.
 
 ****************************************************************************/
 
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -49,7 +49,7 @@ namespace MCMC
 {
 
 
-	class __EXPORT_TYPE FULLCOND_dag_ia_mixed : public FULLCOND_dag_ia 
+	class __EXPORT_TYPE FULLCOND_dag_ia_mixed : public FULLCOND_dag_ia
 {
 
 	protected:
@@ -57,9 +57,9 @@ namespace MCMC
 		unsigned num_continuous_pa;				// number of continuous parents
 		unsigned num_discrete_pa;				// number of discrete parents
 												// true, when mixed (= discrete and continuous variable)
-								
-		
-		
+
+
+
 
   public:
 
@@ -72,7 +72,7 @@ namespace MCMC
 
   // CONSTRUCTOR
 
-  
+
   // CONSTRUCTOR
   // o    : pointer to MCMCoptions object
   // dp   : pointer to DISTRIBUTION object
@@ -86,17 +86,17 @@ namespace MCMC
 
 
 
-// CONSTRUCTOR 1	
+// CONSTRUCTOR 1
   FULLCOND_dag_ia_mixed  ( IA * iap , double s_i, unsigned int number,
-							MCMCoptions * o, 
-							const datamatrix & d, const ST::string & t, 
-							const unsigned & r, const unsigned & c, 
+							MCMCoptions * o,
+							const datamatrix & d, const ST::string & t,
+							const unsigned & r, const unsigned & c,
 							const ST::string & fp);
 
   // CONSTRUCTOR 2
   FULLCOND_dag_ia_mixed  (bool detail_ia, IA * iap, double value_a, double value_b, ST::string prio_sig, bool dags_all,
                   const datamatrix & res, double s_i, unsigned int number,
-				  MCMCoptions * o, const datamatrix & d, const ST::string & t, 
+				  MCMCoptions * o, const datamatrix & d, const ST::string & t,
 				  const unsigned & r, const unsigned & c,  const ST::string & fp);
 
 
@@ -105,7 +105,7 @@ namespace MCMC
 
   FULLCOND_dag_ia_mixed(const FULLCOND_dag_ia_mixed & fc) : FULLCOND_dag_ia(FULLCOND_dag_ia(fc))
   {
-	  num_continuous_pa = fc.num_continuous_pa;			
+	  num_continuous_pa = fc.num_continuous_pa;
 	  num_discrete_pa = fc.num_discrete_pa;
   }
 
@@ -118,9 +118,9 @@ namespace MCMC
 	  if (this==&fc)
 		  return *this;
 
-	  num_continuous_pa = fc.num_continuous_pa;			
+	  num_continuous_pa = fc.num_continuous_pa;
 	  num_discrete_pa = fc.num_discrete_pa;
-	  
+
 	  return *this;
   }
 
@@ -156,34 +156,34 @@ namespace MCMC
 	// when i IS NOT already a main effect
 	void new_ia_of_i( unsigned i, vector <vector <unsigned > > & v);
 
-	
+
 	// FUNCTION: num_ia_of_i
 	// TASK: returns the number of allowed interactions of the existing main effect i
 	unsigned num_ia_of_i(unsigned i);
 
-	
+
 	// FUNCTION: num_ia_new
    // TASK: returns the number of allowed new interactions of the new main effect i
    unsigned num_ia_new(unsigned i);
 
-   
+
 
    // FUNCTION: change
    // TASK: changes the values after step has been accepted
-   void change(unsigned i, const datamatrix & beta_help_new, const datamatrix & x_new, 
+   void change(unsigned i, const datamatrix & beta_help_new, const datamatrix & x_new,
 								const datamatrix & xx_new, unsigned int ncoef_new);
 
 
 /*
 
-	// FUNCTION: create_matrices 
+	// FUNCTION: create_matrices
 	// TASK: makes nothing, is called by fullcond_dag
 	void create_matrices (void);
 
 
 
-	
-	
+
+
 
 
 

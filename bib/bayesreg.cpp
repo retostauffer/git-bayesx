@@ -92,18 +92,26 @@ void bayesreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
 
     if (varname2=="")
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_f_" +
+                 varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_f_" +
                  varname1 + endingraw;
-
+#endif
       pathres = outfile.getvalue() + add_name + "_f_" + varname1 + endingres;
 
       title = "f_"+ varname1 + endingtitle +  add_name;
       }
     else
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_" +
+                 varname2 +  "_f_" + varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_" +
                  varname2 +  "_f_" + varname1 + endingraw;
-
+#endif
       pathres = outfile.getvalue() + add_name + "_" + varname2 +
                 "_f_" + varname1 + endingres;
 
@@ -115,10 +123,15 @@ void bayesreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
     {
     if (varname2=="")
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_f_" +
+                 ST::inttostring(collinpred+1) + "_" +
+                     varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_f_" +
                  ST::inttostring(collinpred+1) + "_" +
                      varname1 + endingraw;
-
+#endif
       pathres = outfile.getvalue() + add_name + "_f_" +
                 ST::inttostring(collinpred+1) + "_" +
                 varname1 + endingres;
@@ -129,10 +142,15 @@ void bayesreg::make_paths(unsigned  collinpred,ST::string & pathnonp,
       }
     else
       {
+#if defined(__BUILDING_LINUX)
+      pathnonp = defaultpath + "/temp/" + name +  add_name + "_" + varname2
+                 + "_f_" + ST::inttostring(collinpred+1) + "_" +
+                     varname1 + endingraw;
+#else
       pathnonp = defaultpath + "\\temp\\" + name +  add_name + "_" + varname2
                  + "_f_" + ST::inttostring(collinpred+1) + "_" +
                      varname1 + endingraw;
-
+#endif
       pathres = outfile.getvalue() + add_name + "_" + varname2 + "_f_" +
                 ST::inttostring(collinpred+1) + "_" +
                 varname1 + endingres;
@@ -156,7 +174,11 @@ void bayesreg::create(void)
   missingest=false;
   add_name="";
 
+#if defined(__BUILDING_LINUX)
+  ST::string h = defaultpath+"/output/"+name;
+#else
   ST::string h = defaultpath+"\\output\\"+name;
+#endif
 
   outfile = fileoption("outfile",h,false);
 
@@ -181,7 +203,7 @@ void bayesreg::create(void)
   nonpspatial = term_spatial();
   nonpspatialxy = term_spatialxy();
   randomeff = term_random();
-  hrandomeff = term_hrandom();  
+  hrandomeff = term_hrandom();
   randomeffslope = term_randomslope();
   mixtureeff = term_mixture();
   nonpvarcoeffpspline = term_varcoeff_pspline();
@@ -205,7 +227,7 @@ void bayesreg::create(void)
   termtypes.push_back(&nonppspline);
   termtypes.push_back(&nonpspatial);
   termtypes.push_back(&randomeff);
-  termtypes.push_back(&hrandomeff);  
+  termtypes.push_back(&hrandomeff);
   termtypes.push_back(&randomeffslope);
   termtypes.push_back(&mixtureeff);
   termtypes.push_back(&nonpvarcoeffpspline);
@@ -265,7 +287,7 @@ void bayesreg::create(void)
 // END: merror
   families.reserve(20);
   families.push_back("gaussian");
-  families.push_back("gaussian_re");  
+  families.push_back("gaussian_re");
   families.push_back("multgaussian");
   families.push_back("lognormal");
   families.push_back("binomial");
@@ -941,7 +963,7 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   modelvarnamesv = b.modelvarnamesv;
   simobj = b.simobj;
   distr_gaussian = b.distr_gaussian;
-  distr_gaussian_re = b.distr_gaussian_re;  
+  distr_gaussian_re = b.distr_gaussian_re;
   distr_binomial = b.distr_binomial;
   distr_poisson = b.distr_poisson;
   distr_gamma = b.distr_gamma;
@@ -952,7 +974,7 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
-  normalconst_re = b.normalconst_re;  
+  normalconst_re = b.normalconst_re;
   nongaussianconst = b.nongaussianconst;
   nbinomialconst = b.nbinomialconst;
   Pmatrices = b.Pmatrices;
@@ -986,7 +1008,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   modelvarnamesv = b.modelvarnamesv;
   simobj = b.simobj;
   distr_gaussian = b.distr_gaussian;
-  distr_gaussian_re = b.distr_gaussian_re;  
+  distr_gaussian_re = b.distr_gaussian_re;
   distr_binomial = b.distr_binomial;
   distr_poisson = b.distr_poisson;
   distr_gamma = b.distr_gamma;
@@ -997,7 +1019,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
-  normalconst_re = b.normalconst_re;  
+  normalconst_re = b.normalconst_re;
   nongaussianconst = b.nongaussianconst;
   nbinomialconst = b.nbinomialconst;
   Pmatrices = b.Pmatrices;
@@ -1300,7 +1322,11 @@ bool bayesreg::create_distribution(void)
 
   ST::string path = outfile.getvalue() + add_name + "_predictmean.raw";
   ST::string pathfull = outfile.getvalue() + add_name + "_predictmu.raw";
+#if defined(__BUILDING_LINUX)
+  ST::string pathfullsample = defaultpath + "/temp/" + name + add_name + "_predictmu.raw";
+#else
   ST::string pathfullsample = defaultpath + "\\temp\\" + name + add_name + "_predictmu.raw";
+#endif
 
   ST::string pathdev = outfile.getvalue() + add_name + "_deviance_sample.raw";
 
@@ -1310,7 +1336,11 @@ bool bayesreg::create_distribution(void)
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     if (offs.rows() == 1)
       distr_gaussian.push_back(DISTRIBUTION_gaussian(aresp.getvalue(),bresp.getvalue(),
@@ -1381,7 +1411,11 @@ bool bayesreg::create_distribution(void)
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     if (offs.rows() == 1)
       distr_gaussian_re.push_back(DISTRIBUTION_gaussian_re(aresp.getvalue(),bresp.getvalue(),
@@ -1496,7 +1530,11 @@ bool bayesreg::create_distribution(void)
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     if (offs.rows() == 1)
       distr_lognormal = DISTRIBUTION_lognormal(aresp.getvalue(),bresp.getvalue(),
@@ -1565,7 +1603,11 @@ bool bayesreg::create_distribution(void)
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     vector<unsigned> rescol  = modregmult.getresponsecol();
 
@@ -1772,7 +1814,11 @@ bool bayesreg::create_distribution(void)
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     int st = cit.getvalue();
     double v1 = gamvar.getvalue();
@@ -1836,7 +1882,11 @@ bool bayesreg::create_distribution(void)
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     int st = cit.getvalue();
     double v1 = gamvar.getvalue();
@@ -2116,7 +2166,11 @@ bool bayesreg::create_distribution(void)
       w = D.getCol(D.cols()-1);
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     distr_cumlat3 = DISTRIBUTION_cumulative_latent3(
     &generaloptions[generaloptions.size()-1],D.getCol(0),
@@ -2327,7 +2381,11 @@ bool bayesreg::create_distribution(void)
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     MCMC::vertopt vo;
 
@@ -2386,7 +2444,11 @@ bool bayesreg::create_distribution(void)
     {
 
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
     ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
 
     MCMC::zipvertopt vo;
 
@@ -2531,9 +2593,13 @@ bool bayesreg::create_const(const unsigned & collinpred)
       if (collinpred == 0)
         {
         title = "FixedEffects" + ST::inttostring(k+1) + add_name;
+#if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_FixedEffects" + ST::inttostring(k+1) + ".raw";
+#else
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                            + add_name + "_FixedEffects" + ST::inttostring(k+1) + ".raw";
-
+#endif
         pathconstres = outfile.getvalue() + add_name + "_FixedEffects" + ST::inttostring(k+1)
                        + ".res";
 
@@ -2542,10 +2608,15 @@ bool bayesreg::create_const(const unsigned & collinpred)
         {
         title = "FixedEffects" + ST::inttostring(k+1) + "_" +
                             ST::inttostring(collinpred+1) + add_name;
+#if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_FixedEffects" + ST::inttostring(k+1) +
+                           "_" + ST::inttostring(collinpred+1) + ".raw";
+#else
         pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                            + add_name + "_FixedEffects" + ST::inttostring(k+1) +
                            "_" + ST::inttostring(collinpred+1) + ".raw";
-
+#endif
         pathconstres = outfile.getvalue() + add_name + "_FixedEffects" + ST::inttostring(k+1)
                         + "_" + ST::inttostring(collinpred+1) + ".res";
 

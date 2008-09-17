@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -544,7 +544,7 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
 //  datamatrix discretise(datamatrix & moddata);
 
 //  void init_fchelp(const datamatrix & d, datamatrix & grid);
-  
+
   // -------------------------END: FOR MERROR ----------------------------------
 
   // ------------------------- FOR REML ----------------------------------------
