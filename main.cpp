@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     if(errno==ENOENT)
       {
 #if defined(__BUILDING_LINUX)
-      mkdir(pathtemp, 700);
+      mkdir(pathtemp, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #else
       mkdir(pathtemp);
 #endif
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     if(errno==ENOENT)
       {
 #if defined(__BUILDING_LINUX)
-      mkdir(pathoutput, 700);
+      mkdir(pathoutput, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #else
       mkdir(pathoutput);
 #endif
