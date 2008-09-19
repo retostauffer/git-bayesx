@@ -605,7 +605,7 @@ bool admin_gnu::parse(ST::string & in)
                  if(errno==ENOENT)
                    {
              #if defined(__BUILDING_LINUX)
-                   mkdir(pathtemp, 700);
+                   mkdir(pathtemp, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
              #else
                    mkdir(pathtemp);
              #endif
@@ -631,7 +631,7 @@ bool admin_gnu::parse(ST::string & in)
                  if(errno==ENOENT)
                    {
              #if defined(__BUILDING_LINUX)
-                   mkdir(pathoutput, 700);
+                   mkdir(pathoutput, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
              #else
                    mkdir(pathoutput);
              #endif
