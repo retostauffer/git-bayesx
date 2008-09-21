@@ -5,7 +5,7 @@
 #include "StatResults.h"
 #include "statwinframe.h"
 
-#endif                                                                           
+#endif
 
 //------------------------------------------------------------------------------
 //------------------------ CLASS: remlest_multinomial --------------------------
@@ -2187,7 +2187,7 @@ bool remlest_multinomial_catsp::check_pause()
 #elif defined(JAVA_OUTPUT_WINDOW)
   return adminb_p->breakcommand();
 #else
-  return false; 
+  return false;
 #endif
   }
 
@@ -2212,7 +2212,7 @@ void remlest_multinomial_catsp::out(const ST::string & s,bool thick,bool italic,
     (*logout) << s << flush;
 #else
   cout << s << flush;
-  if ((logout->fail()))
+  if (!(logout->fail()))
     (*logout) << s << flush;
 #endif
   }

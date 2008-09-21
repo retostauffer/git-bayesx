@@ -594,7 +594,7 @@ datamatrix Zneu (nrobs*nrcat2,zcutbeta[zcutbeta.size()-1],0);
                for(k=0; k<nrcat2; k++)                                           // k durchläuft nrcat2
                {
                   for(l=0; l<zcutlength[j-1]; l++)                               // l durchläuft zcutbetalength[j-1]
-                  {    
+                  {
                   Zneu(i*nrcat2+k, ZneuSpalte+(k*zcutlength[j-1]) +l)= Z (i, ZaltSpalte+l );
                   }
                }
@@ -3223,7 +3223,7 @@ bool remlest_ordinal::check_pause()
 #elif defined(JAVA_OUTPUT_WINDOW)
   return adminb_p->breakcommand();
 #else
-  return false; 
+  return false;
 #endif
   }
 
@@ -3248,7 +3248,7 @@ void remlest_ordinal::out(const ST::string & s,bool thick,bool italic,
     (*logout) << s << flush;
 #else
   cout << s << flush;
-  if ((logout->fail()))
+  if (!(logout->fail()))
     (*logout) << s << flush;
 #endif
   }

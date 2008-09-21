@@ -131,7 +131,7 @@ void MCMCoptions::out(const ST::string & s,bool thick,bool italic,
     (*logout) << s << flush;
 #else
   cout << s << flush;
-  if ((logout->fail()))
+  if (!(logout->fail()))
     (*logout) << s << flush;
 #endif
   }

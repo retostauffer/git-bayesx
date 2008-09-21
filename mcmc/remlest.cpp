@@ -6150,9 +6150,9 @@ void remlest::make_model(ofstream & outtex, const ST::string & rname)
     {
     outtex << "Number of observations with positive weight: \\= \\kill" << endl;
     outtex << "Number of observations: \\> " << obs << "\\\\" << endl;
-    outtex << "Number of observations with positive weight: \\> " << nrobspos << "\\\\" << endl; 
+    outtex << "Number of observations with positive weight: \\> " << nrobspos << "\\\\" << endl;
     }
-    
+
   outtex << "Response Variable: \\> " << helprname << "\\\\" << endl
          << "Family: \\> " << familyname << "\\\\" << endl;
 
@@ -6406,7 +6406,7 @@ void remlest::out(const ST::string & s,bool thick,bool italic,
     (*logout) << s << flush;
 #else
   cout << s << flush;
-  if ((logout->fail()))
+  if (!(logout->fail()))
     (*logout) << s << flush;
 #endif
   }
