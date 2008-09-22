@@ -205,6 +205,7 @@ void FC_linear::update_IWLS(void)
 
     }
   else
+  
     {
 
     if (optionsp->nriter == 1)
@@ -458,6 +459,8 @@ bool FC_linear::posteriormode(void)
     {
     if (!initialize)
       create_matrices();
+
+    double h = likep->compute_iwls(true,false);
 
     compute_XWX(XWX);
 

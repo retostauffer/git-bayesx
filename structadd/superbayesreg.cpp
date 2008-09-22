@@ -105,6 +105,7 @@ void superbayesreg::create_hregress(void)
   families.reserve(20);
   families.push_back("gaussian");
   families.push_back("gaussian_re");
+  families.push_back("gaussian_exp");
   families.push_back("binomial_logit");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
@@ -139,7 +140,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&hlevel);
   regressoptions.push_back(&equationnr);
   regressoptions.push_back(&equationtype);
-  regressoptions.push_back(&predict);  
+  regressoptions.push_back(&predict);
 
 
   // methods 0
@@ -228,6 +229,9 @@ void superbayesreg::clear(void)
 
   distr_gaussian_res.erase(distr_gaussian_res.begin(),distr_gaussian_res.end());
   distr_gaussian_res.reserve(10);
+
+  distr_gaussian_exps.erase(distr_gaussian_exps.begin(),distr_gaussian_exps.end());
+  distr_gaussian_exps.reserve(10);
 
   distr_binomials.erase(distr_binomials.begin(),distr_binomials.end());
   distr_binomials.reserve(10);
@@ -322,6 +326,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
 
   distr_gaussians = b.distr_gaussians;
   distr_gaussian_res = b.distr_gaussian_res;
+  distr_gaussian_exps = b.distr_gaussian_exps;
   distr_binomials = b.distr_binomials;
 
   resultsyesno = b.resultsyesno;
@@ -367,13 +372,14 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 
   distr_gaussians = b.distr_gaussians;
   distr_gaussian_res = b.distr_gaussian_res;
+  distr_gaussian_exps = b.distr_gaussian_exps;
   distr_binomials = b.distr_binomials;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
   posteriormode = b.posteriormode;
 
-  FC_linears = b.FC_linears;  
+  FC_linears = b.FC_linears;
   design_psplines = b.design_psplines;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
@@ -660,6 +666,21 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: Gaussian response ----------------------------
+//--------------- Gaussian response, exponential response function -------------
+  else if (family.getvalue() == "gaussian_exp")
+    {
+
+    ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+
+    distr_gaussian_exps.push_back(DISTR_gaussian_exp(
+                                  aresp.getvalue(),bresp.getvalue(),
+                                  &generaloptions,D.getCol(0),path,w) );
+
+    equations[modnr].distrp = &distr_gaussian_exps[distr_gaussian_exps.size()-1];
+    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+
+    }
+//------------- END: Gaussian response, exponential response function ----------
 //-------------------------- Gaussian random effect ----------------------------
   else if (family.getvalue() == "gaussian_re")
     {

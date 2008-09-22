@@ -46,6 +46,7 @@ using MCMC::GENERAL_OPTIONS;
 using MCMC::DISTR;
 using MCMC::DISTR_gaussian;
 using MCMC::DISTR_gaussian_re;
+using MCMC::DISTR_gaussian_exp;
 using MCMC::DISTR_binomial;
 
 using MCMC::DESIGN_pspline;
@@ -147,7 +148,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<ST::string> equationtypes;
   stroption equationtype;               // type of equation, e.g. mean, variance
 
-  vector<ST::string> predictop; 
+  vector<ST::string> predictop;
   stroption predict;
 
   optionlist regressoptions;
@@ -158,6 +159,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   vector<DISTR_gaussian> distr_gaussians;
   vector<DISTR_gaussian_re> distr_gaussian_res;
+  vector<DISTR_gaussian_exp> distr_gaussian_exps;
   vector<DISTR_binomial> distr_binomials;
 
   bool create_distribution(void);

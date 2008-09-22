@@ -373,7 +373,7 @@ double DISTR::get_scale(bool transform)
   if (!transform)
     return sigma2;
   else
-    return sigma2*pow(trmult,2);  
+    return sigma2*pow(trmult,2);
   }
 
 
@@ -692,7 +692,6 @@ void DISTR_gaussian::outresults(ST::string pathresults)
 
   optionsp->out("\n");
 
-
   }
 
 
@@ -700,6 +699,196 @@ double DISTR_gaussian::get_scalemean(void)
   {
   return FCsigma2.betamean(0,0);
   }
+
+
+//------------------------------------------------------------------------------
+//--------------------- CLASS DISTRIBUTION_gaussian_exp ------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_gaussian_exp::DISTR_gaussian_exp(const double & a,
+                                             const double & b,
+                                             GENERAL_OPTIONS * o,
+                                             const datamatrix & r,
+                                             const ST::string & ps,
+                                             const datamatrix & w)
+  : DISTR_gaussian(a,b,o,r,ps,w)
+
+  {
+  standardise();
+  changingweight = true;
+  updateIWLS = true;
+  }
+
+
+
+const DISTR_gaussian_exp & DISTR_gaussian_exp::operator=(
+                                      const DISTR_gaussian_exp & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gaussian::operator=(DISTR_gaussian(nd));
+  return *this;
+  }
+
+
+DISTR_gaussian_exp::DISTR_gaussian_exp(const DISTR_gaussian_exp & nd)
+   : DISTR_gaussian(DISTR_gaussian(nd))
+  {
+  }
+
+
+
+void DISTR_gaussian_exp::standardise(void)
+  {
+
+  trmult = 1;
+
+  unsigned i;
+  double * workresp = workingresponse.getV();
+  double * worklin = linearpred1.getV();
+  for (i=0;i<nrobs;i++,workresp++,worklin++)
+    {
+    *workresp = response(i,0);
+    *worklin = 0;
+    }
+
+  FCsigma2.transform(0,0) = pow(trmult,2);    
+
+  }
+
+
+
+void DISTR_gaussian_exp::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function: exponential\n");
+
+  optionsp->out("  Hyperparameter a: " + ST::doubletostring(a_invgamma,6) + "\n");
+  optionsp->out("  Hyperparameter b: " + ST::doubletostring(b_invgamma,6) + "\n");
+
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_gaussian_exp::update(void)
+  {
+
+  register unsigned i;
+
+  double help;
+
+  double * worklin;
+  double * workresp;
+  double * workweight;
+
+
+  // scaleparameter
+
+  double sum = 0;
+
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  workresp = response.getV();
+  workweight = weight.getV();
+
+  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
+    {
+    help = *workresp - exp(*worklin);
+    sum += *workweight*pow(help,2);
+    }
+
+  sigma2  = rand_invgamma(a_invgamma+0.5*nrobs,
+                          b_invgamma+0.5*sum);
+
+  FCsigma2.beta(0,0) = sigma2;
+  FCsigma2.acceptance++;
+  FCsigma2.update();
+
+  DISTR::update();
+
+  }
+
+
+void DISTR_gaussian_exp::compute_mu(const double * linpred,double * mu,
+                                    bool notransform)
+  {
+    if (!notransform)
+      *mu = trmult * exp(*linpred);
+    else
+      *mu = exp(*linpred);
+  }
+
+
+double DISTR_gaussian_exp::loglikelihood(double * res, double * lin,
+                                         double * w) const
+  {
+  double help = *res-exp(*lin);
+  return  - *w * (pow(help,2))/(2* sigma2);
+  }
+
+
+double DISTR_gaussian_exp::compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse, const bool & like)
+  {
+  double mu = exp(*linpred);
+  double mu2 = pow(mu,2);
+  *workingweight=mu2 * (*weight)/sigma2;
+
+  *workingresponse = (*response-mu)/mu + (*linpred);
+
+  if (like==true)
+    {
+    double h = *response-mu;
+    return  - (*weight) * pow(h,2)/(2* sigma2);
+    }
+  else
+    return 0;  
+  }
+
+
+bool DISTR_gaussian_exp::posteriormode(void)
+  {
+
+  unsigned i;
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * workresp = response.getV();
+  double * workweight = weight.getV();
+
+  double sum = 0;
+  double sumweight=0;
+  double help;
+
+  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
+    {
+    help = *workresp - exp(*worklin);
+    sum += *workweight*pow(help,2);
+    sumweight+=*workweight;
+    }
+
+  sigma2 = (1.0/sumweight)*sum;
+
+  FCsigma2.beta(0,0) = sigma2;
+
+  FCsigma2.posteriormode_betamean();
+
+  return true;
+
+  }
+
+
+
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian_re -----------------------

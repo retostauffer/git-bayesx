@@ -151,10 +151,17 @@ void FC_nonp::get_linparam(void)
 void FC_nonp::update_IWLS(void)
   {
 
+  // TEST
+//  ofstream out("c:\\bayesx\\testh\\results\\beta.res");
+//  beta.prettyPrint(out);
+  // TEST
+
+
   unsigned i;
   double * workparam;
 
-  lambda = likep->get_scale()/tau2;
+//  lambda = likep->get_scale()/tau2;
+  lambda = 1/tau2;
 
   if (optionsp->nriter == 1)
     {
@@ -191,8 +198,8 @@ void FC_nonp::update_IWLS(void)
 
 
   if(designp->center)
-//    centerparam_sample();
-    centerparam();
+    centerparam_sample();
+//    centerparam();
 
 
   paramhelp.minus(param,paramhelp);
@@ -529,9 +536,9 @@ void FC_nonp::transform_beta(void)
   fsample.transform(0,0) = likep->trmult;
   }
 
+
 bool FC_nonp::posteriormode(void)
   {
-  return true;
 
   // TEST
   /*
@@ -545,10 +552,12 @@ bool FC_nonp::posteriormode(void)
   designp->index_data.prettyPrint(out3);
   */
   // TEST
-  /*
+
+  double h = likep->compute_iwls(true,false);
+
   betaold.assign(beta);
 
-  lambda = likep->get_scale()/tau2;
+//  lambda = likep->get_scale()/tau2;
 
   bool lambdaconst = false;
 
@@ -580,10 +589,8 @@ bool FC_nonp::posteriormode(void)
   designp->precision.solve(designp->XWres,param);
 
   // TEST
-
   // ofstream out8("c:\\bayesx\\test\\results\\param.res");
   // param.prettyPrint(out8);
-
   // TEST
 
   if(designp->center)
@@ -598,10 +605,8 @@ bool FC_nonp::posteriormode(void)
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
   // TEST
-
-    ofstream out5("c:\\bayesx\\test\\results\\f.res");
-    beta.prettyPrint(out5);
-
+  //  ofstream out5("c:\\bayesx\\test\\results\\f.res");
+  //  beta.prettyPrint(out5);
   // TEST
 
   betadiff.minus(beta,betaold);
@@ -616,7 +621,7 @@ bool FC_nonp::posteriormode(void)
     }
 
   return FC::posteriormode();
-  */
+
   }
 
 void FC_nonp::outoptions(void)
