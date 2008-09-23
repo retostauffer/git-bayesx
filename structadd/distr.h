@@ -406,6 +406,77 @@ class __EXPORT_TYPE DISTR_gaussian_exp : public DISTR_gaussian
 
 
 //------------------------------------------------------------------------------
+//-------------------- CLASS: DISTRIBUTION_gaussian_mult -----------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gaussian_mult : public DISTR_gaussian_exp
+  {
+
+  protected:
+
+  // FUNCTION: standardise
+  // TASK: standardises the response and the offset
+  //       sets scalesave.transform = trmult*trmult (!!!)
+
+  void standardise(void);
+
+
+  public:
+
+  bool mult;
+
+  void set_mult(bool & m);
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTR_gaussian_mult(void) : DISTR_gaussian_exp()
+     {
+     }
+
+   // CONSTRUCTOR1
+   // a_invgamma = a
+   // b_invgamma = b
+
+   DISTR_gaussian_mult(const double & a,const double & b,GENERAL_OPTIONS * o,
+                  const datamatrix & r,const ST::string & ps,
+                         const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+   DISTR_gaussian_mult(const DISTR_gaussian_mult & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTR_gaussian_mult & operator=(const DISTR_gaussian_mult & nd);
+
+   // DESTRUCTOR
+
+   ~DISTR_gaussian_mult() {}
+
+  void compute_mu(const double * linpred,double * mu, bool notransform);
+
+
+  double loglikelihood(double * res,
+                       double * lin,
+                       double * w) const;
+
+  double compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse, const bool & like);
+
+  void outoptions(void);
+
+  // FUNCTION: update
+  // TASK: updates the scale parameter
+
+  void update(void);
+
+  bool posteriormode(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
 //-------------------- CLASS: DISTRIBUTION_gaussian_re -------------------------
 //------------------------------------------------------------------------------
 

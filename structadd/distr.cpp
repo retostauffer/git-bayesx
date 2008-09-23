@@ -848,7 +848,7 @@ double DISTR_gaussian_exp::compute_iwls(double * response, double * linpred,
     return  - (*weight) * pow(h,2)/(2* sigma2);
     }
   else
-    return 0;  
+    return 0;
   }
 
 
@@ -888,6 +888,165 @@ bool DISTR_gaussian_exp::posteriormode(void)
   }
 
 
+//------------------------------------------------------------------------------
+//--------------------- CLASS DISTRIBUTION_gaussian_mult -----------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_gaussian_mult::DISTR_gaussian_mult(const double & a,
+                                             const double & b,
+                                             GENERAL_OPTIONS * o,
+                                             const datamatrix & r,
+                                             const ST::string & ps,
+                                             const datamatrix & w)
+  : DISTR_gaussian_exp(a,b,o,r,ps,w)
+
+  {
+  standardise();
+  }
+
+
+void DISTR_gaussian_mult::set_mult(bool & m)
+  {
+
+  if (m==true)
+    {
+    mult = true;
+    changingweight = true;
+    updateIWLS = true;
+
+    }
+  else
+    {
+    mult = false;
+    changingweight = false;
+    updateIWLS = false;
+    }
+
+
+  }
+
+  
+const DISTR_gaussian_mult & DISTR_gaussian_mult::operator=(
+                                      const DISTR_gaussian_mult & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gaussian_exp::operator=(DISTR_gaussian_exp(nd));
+  mult = nd.mult;
+  return *this;
+  }
+
+
+DISTR_gaussian_mult::DISTR_gaussian_mult(const DISTR_gaussian_mult & nd)
+   : DISTR_gaussian_exp(DISTR_gaussian_exp(nd))
+  {
+  mult = nd.mult;
+  }
+
+
+
+void DISTR_gaussian_mult::standardise(void)
+  {
+
+  trmult = 1;
+
+  unsigned i;
+  double * workresp = workingresponse.getV();
+  double * worklin = linearpred1.getV();
+  for (i=0;i<nrobs;i++,workresp++,worklin++)
+    {
+    *workresp = response(i,0);
+    *worklin = 0;
+    }
+
+  FCsigma2.transform(0,0) = pow(trmult,2);
+
+  }
+
+
+
+void DISTR_gaussian_mult::outoptions(void)
+  {
+  DISTR_gaussian::outoptions();
+  }
+
+
+void DISTR_gaussian_mult::update(void)
+  {
+  if (mult==true)
+    DISTR_gaussian_exp::update();
+  else
+    DISTR_gaussian::update();
+  }
+
+
+void DISTR_gaussian_mult::compute_mu(const double * linpred,double * mu,
+                                    bool notransform)
+  {
+  if (!mult)
+    {
+    DISTR_gaussian::compute_mu(linpred,mu,notransform);
+    }
+ else
+   {
+   DISTR_gaussian_exp::compute_mu(linpred,mu,notransform);
+   }
+
+  }
+
+
+double DISTR_gaussian_mult::loglikelihood(double * res, double * lin,
+                                         double * w) const
+  {
+
+  if (!mult)
+    {
+    return DISTR_gaussian::loglikelihood(res,lin,w);
+    }
+ else
+   {
+   return DISTR_gaussian_exp::loglikelihood(res,lin,w);
+   }
+
+  }
+
+
+double DISTR_gaussian_mult::compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse, const bool & like)
+  {
+
+
+  if (!mult)
+    {
+    return DISTR_gaussian::compute_iwls(response,linpred,weight,workingweight,
+                                         workingresponse,like);
+    }
+ else
+   {
+    return DISTR_gaussian_exp::compute_iwls(response,linpred,weight,workingweight,
+                                         workingresponse,like);
+   }
+
+  }
+
+
+bool DISTR_gaussian_mult::posteriormode(void)
+  {
+
+  if (!mult)
+    {
+    return DISTR_gaussian::posteriormode();
+
+    }
+ else
+   {
+    return DISTR_gaussian_exp::posteriormode();
+   }
+
+
+  }
 
 
 //------------------------------------------------------------------------------

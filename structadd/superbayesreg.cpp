@@ -83,6 +83,8 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("hrandom");
   tnames.push_back("spatial");
   tnames.push_back("hrandom_pspline");
+  tnames.push_back("hrandomexp_pspline");
+
 
   tnonp = term_nonp(tnames);
   lineareffects = basic_termtype();
@@ -106,6 +108,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussian");
   families.push_back("gaussian_re");
   families.push_back("gaussian_exp");
+  families.push_back("gaussian_mult");
   families.push_back("binomial_logit");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
@@ -233,6 +236,10 @@ void superbayesreg::clear(void)
   distr_gaussian_exps.erase(distr_gaussian_exps.begin(),distr_gaussian_exps.end());
   distr_gaussian_exps.reserve(10);
 
+  distr_gaussian_mults.erase(distr_gaussian_mults.begin(),
+  distr_gaussian_mults.end());
+  distr_gaussian_mults.reserve(10);
+
   distr_binomials.erase(distr_binomials.begin(),distr_binomials.end());
   distr_binomials.reserve(10);
 
@@ -327,6 +334,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gaussians = b.distr_gaussians;
   distr_gaussian_res = b.distr_gaussian_res;
   distr_gaussian_exps = b.distr_gaussian_exps;
+  distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
 
   resultsyesno = b.resultsyesno;
@@ -373,6 +381,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gaussians = b.distr_gaussians;
   distr_gaussian_res = b.distr_gaussian_res;
   distr_gaussian_exps = b.distr_gaussian_exps;
+  distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
 
   resultsyesno = b.resultsyesno;
@@ -681,6 +690,21 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------- END: Gaussian response, exponential response function ----------
+//------------- Gaussian response, multiplicative random effects allowed -------
+  else if (family.getvalue() == "gaussian_mult")
+    {
+
+    ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+
+    distr_gaussian_mults.push_back(DISTR_gaussian_mult(
+                                  aresp.getvalue(),bresp.getvalue(),
+                                  &generaloptions,D.getCol(0),path,w) );
+
+    equations[modnr].distrp = &distr_gaussian_mults[distr_gaussian_mults.size()-1];
+    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+
+    }
+//---------- END: Gaussian response, multiplicative random effects allowed -----
 //-------------------------- Gaussian random effect ----------------------------
   else if (family.getvalue() == "gaussian_re")
     {
