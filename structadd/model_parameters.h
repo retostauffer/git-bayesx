@@ -42,6 +42,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   stroption constraints;
   doubleoption round;
   stroption centermethod;
+  simpleoption internal_multexp;  
 
 
   vector<ST::string> termnames;

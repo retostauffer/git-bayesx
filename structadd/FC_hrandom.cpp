@@ -34,6 +34,8 @@ void FC_hrandom::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   12      internal_mult
   13      samplemult
   14      constraints
+
+  17     internal_multexp
   */
 
   if (op[14] == "increasing")
@@ -43,10 +45,13 @@ void FC_hrandom::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else
     stype = unconstrained;
 
+  rtype = additive;
   if (op[12] == "true")
-    mult = true;
-  else
-    mult = false;  
+    rtype = mult;
+
+  if (op[17] == "true")
+    rtype = multexp;
+
 
   }
 
@@ -66,9 +71,11 @@ FC_hrandom::FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
 FC_hrandom::FC_hrandom(const FC_hrandom & m)
   : FC_nonp(FC_nonp(m))
   {
-  mult = m.mult;
+  rtype = m.rtype;
   likep_RE = m.likep_RE;
   FCrcoeff = m.FCrcoeff;
+  response_o = m.response_o;
+  linpred_o = m.linpred_o;
   }
 
 
@@ -78,9 +85,11 @@ const FC_hrandom & FC_hrandom::operator=(const FC_hrandom & m)
   if (this==&m)
 	 return *this;
   FC_nonp::operator=(FC_nonp(m));
-  mult = m.mult;
+  rtype = m.rtype;
   likep_RE = m.likep_RE;
   FCrcoeff = m.FCrcoeff;
+  response_o = m.response_o;
+  linpred_o = m.linpred_o;
   return *this;
   }
 
@@ -107,7 +116,9 @@ void FC_hrandom::set_rcoeff(void)
 
 void FC_hrandom::transform_beta(void)
   {
-  if (mult)
+  if (rtype == mult)
+    transform(0,0) = 1.0;
+  else if (rtype== multexp)
     transform(0,0) = 1.0;
   else
     FC_nonp::transform_beta();
@@ -267,7 +278,78 @@ void FC_hrandom::update(void)
   }
 
 
-bool FC_hrandom::posteriormode(void)
+void FC_hrandom::update_response_multexp(void)
+  {
+
+  unsigned i,j;
+
+  int size = designp->posbeg.size();
+
+  vector<int>::iterator itbeg = designp->posbeg.begin();
+  vector<int>::iterator itend = designp->posend.begin();
+
+  double * * linpredp;
+
+  if (likep->linpred_current==1)
+    {
+    linpredp = designp->linpredp1.getV();
+    linpred_o.assign(likep->linearpred1);
+    }
+  else
+    {
+    linpredp = designp->linpredp2.getV();
+    linpred_o.assign(likep->linearpred2);
+    }
+
+
+  double ** responsepp = designp->responsep.getV();
+
+  double * workintvar = designp->intvar.getV();
+
+  double * betap = beta.getV();
+
+  for (j=0;j<size;j++,++itbeg,++itend,betap++)
+    {
+    for (i=*itbeg;i<=*itend;i++,linpredp++,responsepp++,workintvar++)
+      {
+      *(*responsepp) = *(*responsepp) - *(*linpredp) + exp((*betap)  * (*workintvar));
+      *(*linpredp) = *betap * (*workintvar);
+      }
+    }
+
+  }
+
+
+bool FC_hrandom::posteriormode_multexp(void)
+  {
+
+  if (response_o.rows()==1)
+    {
+    response_o = likep->response;
+    linpred_o = datamatrix(response_o.rows(),1);
+    }
+  // intvar = log(f)
+  // linpred = etarest + exp(random_effect*intvar)
+
+  likep->optionbool1 = true;
+  likep->changingweight = true;
+  likep->updateIWLS = true;
+
+  update_response_multexp();     // linpred = random_effect*intvar
+
+  bool h = posteriormode_additive();
+
+
+  likep->optionbool1 = false;
+  likep->changingweight = false;
+  likep->updateIWLS = false;
+
+  likep->response.assign(response_o);
+
+  }
+
+
+bool FC_hrandom::posteriormode_additive(void)
   {
 
   bool conv;
@@ -289,6 +371,14 @@ bool FC_hrandom::posteriormode(void)
   // TEST
 
   return conv;
+  }
+
+
+bool FC_hrandom::posteriormode(void)
+  {
+
+
+
   }
 
 

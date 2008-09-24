@@ -27,6 +27,8 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
 
+enum hrandomtype {additive,mult,multexp};
+
 class __EXPORT_TYPE FC_hrandom  : public FC_nonp
   {
 
@@ -36,13 +38,18 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   FC FCrcoeff;
 
-  bool mult;
+  hrandomtype rtype;
+
+  datamatrix response_o;
+  datamatrix linpred_o;
 
   void set_rcoeff(void);
 
+  void update_response_multexp(void);
+
+  bool posteriormode_multexp(void);  
+
   public:
-
-
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
@@ -71,7 +78,7 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
     {
     }
 
-  void update_linpred(int & begin, int & end, double  & value);    
+  void update_linpred(int & begin, int & end, double  & value);
 
   // FUNCTION: update
   // TASK: - stores sampled parameters in file 'samplepath'
@@ -93,7 +100,7 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   void outresults(const ST::string & pathresults);
 
-  
+
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
   };

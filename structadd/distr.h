@@ -44,6 +44,8 @@ class __EXPORT_TYPE DISTR
 
   public:
 
+  bool optionbool1;
+  ST::string option1;
 
 
   double sigma2;
@@ -422,8 +424,6 @@ class __EXPORT_TYPE DISTR_gaussian_mult : public DISTR_gaussian_exp
 
 
   public:
-
-  bool mult;
 
   void set_mult(bool & m);
 

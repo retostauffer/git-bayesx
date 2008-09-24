@@ -996,7 +996,10 @@ bool  superbayesreg::create_random_pspline(unsigned i)
 
   unsigned modnr = equations.size()-1;
 
-  terms[i].options[12] = "true";  
+  terms[i].options[12] = "true";
+  if (terms[i].options[0] == "hrandomexp_pspline")
+    terms[i].options[17] = "true";
+
   create_pspline(i);
   FC_nonp * fcnp_pspline = &FC_nonps[FC_nonps.size()-1];
   MCMC::DESIGN * dp_pspline = &design_psplines[design_psplines.size()-1];
@@ -1131,7 +1134,8 @@ bool superbayesreg::create_nonp(void)
         error = create_hrandom(i);
       if (terms[i].options[0] == "spatial")
         error = create_mrf(i);
-      if (terms[i].options[0] == "hrandom_pspline")
+      if ((terms[i].options[0] == "hrandom_pspline") ||
+          (terms[i].options[0] == "hrandomexp_pspline"))
         error = create_random_pspline(i);
       }
 

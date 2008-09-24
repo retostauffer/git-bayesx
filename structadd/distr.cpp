@@ -26,6 +26,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
              const datamatrix & w)
   {
 
+  option1 = "";
+
   sigma2=1;
 
   optionsp = o;
@@ -70,6 +72,9 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 DISTR::DISTR(const DISTR & d)
   {
 
+  option1 = d.option1;
+  optionbool1 = d.optionbool1;
+
   sigma2 = d.sigma2;
 
   optionsp = d.optionsp;
@@ -102,6 +107,9 @@ const DISTR & DISTR::operator=(const DISTR & d)
   if (this == &d)
     return *this;
 
+  option1 = d.option1;
+  optionbool1 = d.optionbool1;
+
   sigma2 = d.sigma2;
 
   optionsp = d.optionsp;
@@ -122,7 +130,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   linearpred2 = d.linearpred2;
   linpred_current = d.linpred_current;
 
-  updateIWLS = d.updateIWLS;  
+  updateIWLS = d.updateIWLS;
   family = d.family;
 
   trmult=d.trmult;
@@ -903,6 +911,9 @@ DISTR_gaussian_mult::DISTR_gaussian_mult(const double & a,
 
   {
   standardise();
+  optionbool1 = false;
+  changingweight = false;
+  updateIWLS = false;  
   }
 
 
@@ -911,29 +922,27 @@ void DISTR_gaussian_mult::set_mult(bool & m)
 
   if (m==true)
     {
-    mult = true;
+    optionbool1 = true;
     changingweight = true;
     updateIWLS = true;
 
     }
   else
     {
-    mult = false;
+    optionbool1 = false;
     changingweight = false;
     updateIWLS = false;
     }
 
-
   }
 
-  
+
 const DISTR_gaussian_mult & DISTR_gaussian_mult::operator=(
                                       const DISTR_gaussian_mult & nd)
   {
   if (this==&nd)
     return *this;
   DISTR_gaussian_exp::operator=(DISTR_gaussian_exp(nd));
-  mult = nd.mult;
   return *this;
   }
 
@@ -941,7 +950,6 @@ const DISTR_gaussian_mult & DISTR_gaussian_mult::operator=(
 DISTR_gaussian_mult::DISTR_gaussian_mult(const DISTR_gaussian_mult & nd)
    : DISTR_gaussian_exp(DISTR_gaussian_exp(nd))
   {
-  mult = nd.mult;
   }
 
 
@@ -974,7 +982,7 @@ void DISTR_gaussian_mult::outoptions(void)
 
 void DISTR_gaussian_mult::update(void)
   {
-  if (mult==true)
+  if (optionbool1==true)
     DISTR_gaussian_exp::update();
   else
     DISTR_gaussian::update();
@@ -984,7 +992,7 @@ void DISTR_gaussian_mult::update(void)
 void DISTR_gaussian_mult::compute_mu(const double * linpred,double * mu,
                                     bool notransform)
   {
-  if (!mult)
+  if (!optionbool1)
     {
     DISTR_gaussian::compute_mu(linpred,mu,notransform);
     }
@@ -1000,7 +1008,7 @@ double DISTR_gaussian_mult::loglikelihood(double * res, double * lin,
                                          double * w) const
   {
 
-  if (!mult)
+  if (!optionbool1)
     {
     return DISTR_gaussian::loglikelihood(res,lin,w);
     }
@@ -1018,7 +1026,7 @@ double DISTR_gaussian_mult::compute_iwls(double * response, double * linpred,
   {
 
 
-  if (!mult)
+  if (!optionbool1)
     {
     return DISTR_gaussian::compute_iwls(response,linpred,weight,workingweight,
                                          workingresponse,like);
@@ -1035,7 +1043,7 @@ double DISTR_gaussian_mult::compute_iwls(double * response, double * linpred,
 bool DISTR_gaussian_mult::posteriormode(void)
   {
 
-  if (!mult)
+  if (!optionbool1)
     {
     return DISTR_gaussian::posteriormode();
 
