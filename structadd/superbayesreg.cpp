@@ -532,8 +532,8 @@ void hregressrun(superbayesreg & b)
 
   if (!failure)
     failure = b.create_distribution();
-  if (!failure)
-    failure = b.create_linear();
+//  if (!failure)
+//    failure = b.create_linear();
   if (!failure && b.terms.size() >= 1)
     failure = b.create_nonp();
 
@@ -997,8 +997,12 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   unsigned modnr = equations.size()-1;
 
   terms[i].options[12] = "true";
+  bool multexp = false;
   if (terms[i].options[0] == "hrandomexp_pspline")
+    {
     terms[i].options[17] = "true";
+    multexp=true;
+    }
 
   create_pspline(i);
   FC_nonp * fcnp_pspline = &FC_nonps[FC_nonps.size()-1];
@@ -1007,7 +1011,7 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   datamatrix effect(D.rows(),1,1);
   dp_pspline->set_intvar(effect,0);
 
-  FC_mults.push_back(FC_mult(true));
+  FC_mults.push_back(FC_mult(true,multexp));
   equations[modnr].add_FC(&FC_mults[FC_mults.size()-1],"");
 
   term helpt = terms[i];
@@ -1021,7 +1025,7 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   MCMC::DESIGN * dp_hrandom = &design_hrandoms[design_hrandoms.size()-1];
   dp_hrandom->changingdesign=true;
 
-  FC_mults.push_back(FC_mult(false));
+  FC_mults.push_back(FC_mult(false,multexp));
 
   FC_mults[FC_mults.size()-2].set_effectp(dp_pspline,fcnp_pspline);
   FC_mults[FC_mults.size()-2].set_intp(dp_hrandom,fcnp_hrandom);

@@ -42,12 +42,14 @@ FC_mult::FC_mult(void)
   {
   nosamples = true;
   samplemult = false;
+  multexp=false;
   }
 
 
-FC_mult::FC_mult(bool reu)
+FC_mult::FC_mult(bool reu,bool mexp)
      : FC()
   {
+  multexp = mexp;
   nosamples = true;
   samplemult = false;
   RE_update = reu;
@@ -57,6 +59,7 @@ FC_mult::FC_mult(bool reu)
 FC_mult::FC_mult(const FC_mult & m)
   : FC(FC(m))
   {
+  multexp = m.multexp;
   FCmulteffect = m.FCmulteffect;
   samplemult = m.samplemult;
   dp1 = m.dp1;
@@ -75,6 +78,7 @@ const FC_mult & FC_mult::operator=(const FC_mult & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+  multexp = m.multexp;
   FCmulteffect = m.FCmulteffect;
   samplemult = m.samplemult;
   dp1 = m.dp1;
@@ -150,27 +154,73 @@ void FC_mult::update_multeffect(void)
 
 bool FC_mult::posteriormode(void)
   {
-  /*
-  double add;
 
-  if (RE_update)
+  if (multexp==false)
     {
-    add=0;
+    double add;
+
+    if (RE_update)
+      {
+      add=0;
+      }
+    else
+      {
+      add=1;
+      }
+
+    dp2->compute_effect(effect,FCnp->beta,MCMC::Function);
+    dp1->set_intvar(effect,add);
+
+    if ((RE_update==false) && (samplemult))
+      {
+      update_multeffect();
+      bool h = FCmulteffect.posteriormode();
+      }
     }
   else
     {
-    add=1;
+
+    /*
+    FCnp RE
+    dp2 RE
+
+    FCnp2 nonl
+    dp1 nonl
+    */
+
+
+    double add=0;
+
+
+    dp2->compute_effect(effect,FCnp->beta,MCMC::Function);
+
+    if (RE_update)
+      {
+      unsigned i;
+      double * effectp = effect.getV();
+      for (i=0;i<effect.rows();i++,effectp++)
+        *effectp = log(*effectp);
+      }
+    else
+      {
+      unsigned i;
+      double * effectp = effect.getV();
+      for (i=0;i<effect.rows();i++,effectp++)
+        *effectp = exp(*effectp);
+      }
+
+
+    dp1->set_intvar(effect,add);
+
+    if ((RE_update==false) && (samplemult))
+      {
+      update_multeffect();
+      bool h = FCmulteffect.posteriormode();
+      }
+
+
     }
 
-  dp2->compute_effect(effect,FCnp->beta,MCMC::Function);
-  dp1->set_intvar(effect,add);
-
-  if ((RE_update==false) && (samplemult))
-    {
-    update_multeffect();
-    bool h = FCmulteffect.posteriormode();
-    }
-  */
   return true;
   }
 

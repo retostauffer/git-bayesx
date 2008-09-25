@@ -541,6 +541,8 @@ double DISTR_gaussian::loglikelihood(double * res, double * lin,
   {
   double help = *res-*lin;
   return  - *w * (pow(help,2))/(2* sigma2);
+
+
   }
 
 
@@ -550,6 +552,11 @@ double DISTR_gaussian::compute_iwls(double * response, double * linpred,
   {
   *workingweight=*weight;
   *workingresponse = *response;
+  if (like)
+    return  - *weight * (pow(*response-(*linpred),2))/(2* sigma2);
+  else
+    return 0;  
+  
   }
 
 bool DISTR_gaussian::posteriormode(void)

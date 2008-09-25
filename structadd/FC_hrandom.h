@@ -45,9 +45,11 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   void set_rcoeff(void);
 
+  void update_linpred_multexp(void);  
   void update_response_multexp(void);
 
-  bool posteriormode_multexp(void);  
+  bool posteriormode_multexp(void);
+  bool posteriormode_additive(void);    
 
   public:
 

@@ -30,6 +30,8 @@ class __EXPORT_TYPE FC_mult  : public FC
 
   protected:
 
+  bool multexp;
+
   FC FCmulteffect;
   bool samplemult;
 
@@ -52,7 +54,7 @@ class __EXPORT_TYPE FC_mult  : public FC
 
   // CONSTRUCTOR
 
-  FC_mult(bool reu);
+  FC_mult(bool reu,bool mexp=false);
 
   // COPY CONSTRUCTOR
 

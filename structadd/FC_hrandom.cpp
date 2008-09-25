@@ -320,6 +320,45 @@ void FC_hrandom::update_response_multexp(void)
   }
 
 
+void FC_hrandom::update_linpred_multexp(void)
+  {
+
+  unsigned i,j;
+
+  int size = designp->posbeg.size();
+
+  vector<int>::iterator itbeg = designp->posbeg.begin();
+  vector<int>::iterator itend = designp->posend.begin();
+
+  double * * linpredp;
+
+  if (likep->linpred_current==1)
+    {
+    linpredp = designp->linpredp1.getV();
+    }
+  else
+    {
+    linpredp = designp->linpredp2.getV();
+    }
+
+  double * workintvar = designp->intvar.getV();
+
+  double * betap = beta.getV();
+  double * betaoldp = betaold.getV();
+
+  for (j=0;j<size;j++,++itbeg,++itend,betap++,betaoldp++)
+    {
+    for (i=*itbeg;i<=*itend;i++,linpredp++,workintvar++)
+      {
+      *(*linpredp) =  linpred_o(designp->index_data(i,0),0) + exp((*betap)  * (*workintvar))
+                      - exp(*(betaoldp)  * (*workintvar));
+
+      }
+    }
+
+  }
+
+
 bool FC_hrandom::posteriormode_multexp(void)
   {
 
@@ -339,6 +378,7 @@ bool FC_hrandom::posteriormode_multexp(void)
 
   bool h = posteriormode_additive();
 
+  update_linpred_multexp();
 
   likep->optionbool1 = false;
   likep->changingweight = false;
@@ -376,9 +416,14 @@ bool FC_hrandom::posteriormode_additive(void)
 
 bool FC_hrandom::posteriormode(void)
   {
-
-
-
+  if (rtype==multexp)
+    {
+    return posteriormode_multexp();
+    }
+  else
+    {
+    return posteriormode_additive();
+    }
   }
 
 

@@ -541,13 +541,14 @@ bool FC_nonp::posteriormode(void)
   {
 
   // TEST
-  /*
-  ofstream out("c:\\bayesx\\test\\results\\data.res");
-  designp->data.prettyPrint(out);
 
-  ofstream out2("c:\\bayesx\\test\\results\\intvar.res");
+  // ofstream out("c:\\bayesx\\test\\results\\data.res");
+  // designp->data.prettyPrint(out);
+
+  ofstream out2("c:\\bayesx\\testh\\results\\intvar.res");
   designp->intvar.prettyPrint(out2);
 
+  /*
   ofstream out3("c:\\bayesx\\test\\results\\index.res");
   designp->index_data.prettyPrint(out3);
   */
@@ -605,8 +606,8 @@ bool FC_nonp::posteriormode(void)
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
   // TEST
-  //  ofstream out5("c:\\bayesx\\test\\results\\f.res");
-  //  beta.prettyPrint(out5);
+    ofstream out5("c:\\bayesx\\testh\\results\\f.res");
+    beta.prettyPrint(out5);
   // TEST
 
   betadiff.minus(beta,betaold);
