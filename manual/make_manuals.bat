@@ -21,13 +21,9 @@ latex manual
 latex manual_star
 latex manual_tutorials
 
-dvips manual
-dvips manual_star
-dvips manual_tutorials
-
-ps2pdf manual.ps
-ps2pdf manual_star.ps
-ps2pdf manual_tutorials.ps
+dvipdfm manual
+dvipdfm manual_star
+dvipdfm manual_tutorials
 
 copy manual.pdf ..\internet\bayesx\manual\reference_manual.pdf
 copy manual_star.pdf ..\internet\bayesx\manual\methodology_manual.pdf
