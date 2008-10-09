@@ -1115,7 +1115,7 @@ public void actionPerformed(ActionEvent ae)
 			{
 			String[] comms = new String[2];
 			comms[0]="ShellExec";
-			comms[1]="doc/reference_manual.pdf";
+			comms[1]="doc\\reference_manual.pdf";
 			Process p = r.exec(comms);
 			}
 		catch(IOException ioe)
@@ -1130,7 +1130,7 @@ public void actionPerformed(ActionEvent ae)
 			{
 			String[] comms = new String[2];
 			comms[0]="ShellExec";
-			comms[1]="doc/methodology_manual.pdf";
+			comms[1]="doc\\methodology_manual.pdf";
 			Process p = r.exec(comms);
 			}
 		catch(IOException ioe)
@@ -1145,7 +1145,7 @@ public void actionPerformed(ActionEvent ae)
 			{
 			String[] comms = new String[2];
 			comms[0]="ShellExec";
-			comms[1]="doc/tutorials_manual.pdf";
+			comms[1]="doc\\tutorials_manual.pdf";
 			Process p = r.exec(comms);
 			}
 		catch(IOException ioe)
