@@ -26,6 +26,13 @@
 #include <unistd.h>
 #include <errno.h>
 
+#if defined(__BUILDING_LINUX)
+#include <stdio.h>
+#include <stdlib.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
+
 int main(int argc, char *argv[])
   {
   // terminating commands
@@ -139,47 +146,29 @@ int main(int argc, char *argv[])
     {
     while(!run)
       {
-      std::cout <<"BayesX>";
+      #if defined(__BUILDING_LINUX)
+      rl_bind_key('\t',rl_abort);
 
-      // read from the command line
+      char *buf;
+      buf = readline("BayesX>");
+      ST::string* s=new ST::string(buf);
+      run = a.parse(*s);
+
+      if (buf[0]!=0)
+         add_history(buf);
+     free(buf);
+
+     #else
+      std::cout << "BayesX>";
+
       char array[256];
       std::cin.getline(array, sizeof(array), '\n');
       const char* p=array;
-      ST::string* s=new ST::string(p) ;
+      ST::string* s=new ST::string(p);
 
       run = a.parse(*s);
+      #endif
 
-/*    int e= s->firstpos('e');
-    std::cout << "  Erstes e in '" << array << "' an Position " << e << "\n";
-    std::cout << "  pi = " << ST::doubletostring(3.14) << "\n";
-
-    std::cout << "  phi(0)=" << randnumbers::phi(0.0) << "\n";
-
-    std::cout << "  Sample from IG(0.01,0.01): " << randnumbers::rand_gamma(0.01,0.01) << "\n";
-
-    graph g = graph();
-    std::cout << "  g.getlinenr(): " << g.getlinenr() << "\n";
-
-    MAP::map m = MAP::map();
-    std::cout << "  m.get_maxn(): " << m.get_maxn() << "\n";
-
-    datamatrix d = datamatrix(2,2,1);
-    datamatrix d2 = datamatrix(2,1,3);
-
-    datamatrix d3 = multdiagback(d,d2);
-    std::cout << "  d3: " << d3 << "\n";
-
-    modelStandard mod = modelStandard();
-    std::cout << "  mod.getModelText(): " << mod.getModelText() << "\n";
-
-    symbandmatrix<double> sym = symbandmatrix<double>();
-
-    envmatrix<double> env = Kseasonenv(2,5);
-    std::cout << "  env.getBandwidth(): " << env.getBandwidth() << "\n";*/
-
-    // check for terminating condition
-//    if(*s==*stop1 || *s==*stop2)
-//      run=-1;
       }
     } //end while run
 
