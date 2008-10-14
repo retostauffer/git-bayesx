@@ -806,6 +806,9 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
 // store inverse Fisher-Info and design matrices
   if(fisher)
     {
+    ofstream outbeta((outfile+"_coef.raw").strtochar());
+    beta.prettyPrint(outbeta);
+    outbeta.close();
     ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
     Hinv.prettyPrint(outfisher);
     outfisher.close();
@@ -1274,6 +1277,9 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
 // store inverse Fisher-Info and design matrices
   if(fisher)
     {
+    ofstream outbeta((outfile+"_coef.raw").strtochar());
+    beta.prettyPrint(outbeta);
+    outbeta.close();
     ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
     H.prettyPrint(outfisher);
     outfisher.close();
