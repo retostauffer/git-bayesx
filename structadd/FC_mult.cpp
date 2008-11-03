@@ -196,10 +196,6 @@ bool FC_mult::posteriormode(void)
 
     if (RE_update)
       {
-      unsigned i;
-      double * effectp = effect.getV();
-      for (i=0;i<effect.rows();i++,effectp++)
-        *effectp = log(*effectp);
       }
     else
       {

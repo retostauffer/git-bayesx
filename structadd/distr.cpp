@@ -411,7 +411,7 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
   family = "Gaussian";
 
   standardise();
-  // trmult=1;
+//   trmult=1;
 
   FCsigma2 = FC(o,"Gaussian variance parameter",1,1,ps);
   FCsigma2.transform(0,0) = pow(trmult,2);
@@ -450,10 +450,12 @@ void DISTR_gaussian::standardise(void)
 
   unsigned i;
   double * workresp = workingresponse.getV();
+  double * resp_p = response.getV();
   double * worklin = linearpred1.getV();
-  for (i=0;i<nrobs;i++,workresp++,worklin++)
+  for (i=0;i<nrobs;i++,workresp++,worklin++,resp_p++)
    {
    *workresp = *workresp/trmult;
+   *resp_p = (*resp_p)/trmult;   
    *worklin = *worklin/trmult;
    }
 

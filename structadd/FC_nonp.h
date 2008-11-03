@@ -35,6 +35,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   FC fsample;
 
+  FC pvalue_sample;
+  bool pvalue;
 
   bool IWLS;
 
@@ -49,12 +51,15 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void centerparam(void);
   void centerparam_sample(void);
 
+  void update_pvalue(void);
+
   public:
 
   datamatrix param;                          // Parameters, beta stores hatf
   datamatrix paramlin;
   datamatrix paramold;
-  datamatrix paramhelp;  
+  datamatrix paramhelp;
+  datamatrix parammode;
   double paramKparam;
 
   datamatrix partres;                        // sum of partial residuals

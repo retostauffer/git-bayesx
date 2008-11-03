@@ -29,6 +29,10 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   12      internal_mult
   13      samplemult
   14      constraints
+  15      round
+  16      centermethod
+  17      internal_mult
+  18      pvalue
   */
 
   if (op[14] == "increasing")
@@ -38,6 +42,10 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else
     stype = unconstrained;
 
+  if (op[18] == "true")
+    pvalue = true;
+  else
+    pvalue = false;
   }
 
 
@@ -57,6 +65,7 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
   designp = Dp;
   param = datamatrix(designp->nrpar,1,0);
   paramold = param;
+  parammode = param;
   paramhelp = param;
   betaold = beta;
   betadiff = beta;
@@ -71,8 +80,173 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
     paramlin = datamatrix(Dp->designlinear.cols(),1,0);
     }
 
+
+  if (pvalue==true)
+    {
+    pvalue_sample = FC(o,"",beta.rows()*2+6,1,fp + ".pvalue");
+    }
+
   }
 
+
+void FC_nonp::update_pvalue(void)
+  {
+
+  if( (optionsp->nriter > optionsp->burnin) &&
+      ((optionsp->nriter-optionsp->burnin-1) % (optionsp->step) == 0) )
+    {
+    unsigned i,j;
+    unsigned nrpar = param.rows();
+
+    double * contourp = pvalue_sample.beta.getV();
+    double * parammodep = parammode.getV();
+
+    for(i=0;i<nrpar;i++,contourp++,parammodep++)
+      *contourp = *parammodep;
+
+    *contourp = 1/likep->get_scale();                          // contour(,nrpar)
+    contourp++;
+    *contourp = 1/tau2;                                        // contour(,nrpar+1)
+
+    contourp++;
+    *contourp =                                                // contour(,nrpar+2)
+    designp->XWX.compute_quadform(param,0);
+    contourp++;
+    *contourp = designp->K.compute_quadform(param,0);          // contour(,nrpar+3)
+    contourp++;
+    *contourp = designp->precision.compute_quadform(param,0);  // contour(,nrpar+4)
+    contourp++;
+    *contourp = designp->precision.getLogDet();                 // contour(,nrpar+5)
+
+
+    datamatrix mPhelp = datamatrix(nrpar,1,0);
+    for(i=0;i<nrpar;i++)
+      {
+      parammodep = parammode.getV();
+      for(j=0;j<nrpar;j++,parammodep++)
+        mPhelp(i,0) += (*parammodep)*(designp->precision)(j,i);
+      }
+
+    contourp++;
+    for(i=0;i<nrpar;i++,contourp++)
+      *contourp = mPhelp(i,0);
+
+    }
+
+  pvalue_sample.update();
+
+  }
+
+
+
+void FULLCOND_pspline_gaussian::compute_pvalue(void)
+  {
+
+  unsigned nrpar = param.rows();
+//  double LIMIT = log(MAXDOUBLE);
+  double LIMIT = 700;
+
+  unsigned i,j,k;
+
+  datamatrix mPhelp;
+
+  datamatrix contour(optionsp->samplesize,pvalue_sample.beta.rows(),0);
+  pvalue_sample.readsample3(contour);
+
+  mPhelp = datamatrix(nrpar,1,0);
+
+  // ?
+  datamatrix beta_0(nrpar,1,0);
+  for(i=0;i<nrpar;i++)
+    beta_0(i,0) = fc_contour.get_data(i,0);
+  // ?
+
+  double exponent,mPbeta;
+
+  datamatrix pbeta_0(1,3,0);
+
+  datamatrix pbeta_j(optionsp->samplesize,3,0);
+
+  unsigned step = optionsp->samplesize/1000;
+  datamatrix RB(optionsp->samplesize/step,1,0);
+
+  datamatrix beta(optionsp->samplesize,nrpar,0);
+  readsample3(beta);
+  beta = beta.transposed();
+
+  datamatrix m(optionsp->samplesize,nrpar,0);
+  m = contour.getColBlock(0,nrpar);
+  m = m.transposed();
+
+  for(j=0;j<optionsp->samplesize;j++)
+    {
+// compute p(beta_j)
+    for(i=0;i<optionsp->samplesize;i+=step)
+      {
+      mPbeta = 0.0;
+      for(k=0;k<nrpar;k++)
+        mPbeta += contour(i,nrpar+6+k)*beta(k,j);
+
+      exponent = contour(i,nrpar)   * contour(j,nrpar+2)
+               + contour(i,nrpar+1) * contour(j,nrpar+3)
+               + contour(i,nrpar+4) - 2*mPbeta/transform;
+      RB(i/step,0) = 0.5*contour(i,nrpar+5) - 0.5*(exponent);
+      }
+
+    pbeta_j(j,0) = RB.quantile(50,0);
+    pbeta_j(j,1) = RB.mean(0);
+
+    double help = 0.0;
+    for(i=0;i<RB.rows();i++)
+      help += RB(i,0)<LIMIT?exp( RB(i,0) ):exp(LIMIT);
+    pbeta_j(j,2) = help/RB.rows();
+
+    }
+
+// compute p(beta_0)
+  for(i=0;i<optionsp->get_samplesize();i+=step)
+    {
+    prec_env.addto(XX_env,Kenv,contour(i,nrpar),contour(i,nrpar+1));
+
+    mPbeta = 0.0;
+    for(k=0;k<nrpar;k++)
+      mPbeta += contour(i,nrpar+6+k)*beta_0(k,0);
+
+    exponent = prec_env.compute_quadform(beta_0,0)/(transform*transform)
+             + contour(i,nrpar+4) - 2*mPbeta/transform;
+    RB(i/step,0) = 0.5*contour(i,nrpar+5) - 0.5*(exponent);
+    }
+
+  pbeta_0(0,0) = RB.quantile(50,0);
+  pbeta_0(0,1) = RB.mean(0);
+
+  double help = 0.0;
+  for(i=0;i<RB.rows();i++)
+    help += RB(i,0)<LIMIT?exp( RB(i,0) ):exp(LIMIT);
+  pbeta_0(0,2) = help/RB.rows();
+
+//------------------------------------------------------------------------------
+
+  datamatrix contourprob(1,3,0.0);
+  for(i=0;i<contourprob.cols();i++)
+    {
+    for(j=0;j<optionsp->get_samplesize();j++)
+      if(pbeta_j(j,i) < pbeta_0(0,i))
+        contourprob(0,i)++;
+    contourprob(0,i) = contourprob(0,i)/optionsp->get_samplesize();
+    }
+
+  optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob(0,0),2) + "\n");
+
+  ST::string path = pathresult.substr(0,pathresult.length()-4)+"_contour.res";
+
+  ofstream out(path.strtochar());
+  out << "difforder   contourprob   mean(log)  mean" << endl;
+  out << (ST::inttostring(0) + "   " + ST::doubletostring(contourprob(0,0)) + "   ");
+  out << (ST::doubletostring(contourprob(0,1)) + "   " + ST::doubletostring(contourprob(0,2))) << endl;
+  out.close();
+
+  }
 
 
 
@@ -82,11 +256,15 @@ FC_nonp::FC_nonp(const FC_nonp & m)
 
   fsample = m.fsample;
 
+  pvalue_sample = m.pvalue_sample;
+  pvalue = m.pvalue;
+
   stype = m.stype;
   likep = m.likep;
   designp = m.designp;
   param = m.param;
-  paramlin = m.paramlin;  
+  paramlin = m.paramlin;
+  parammode = m.parammode;
   paramold = m.paramold;
   paramhelp = m.paramhelp;
   paramKparam = paramKparam;
@@ -115,12 +293,16 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
 
   fsample = m.fsample;
 
+  pvalue_sample = m.pvalue_sample;
+  pvalue = m.pvalue;
+
   stype = m.stype;
   likep = m.likep;
   designp = m.designp;
   param = m.param;
   paramlin = m.paramlin;
   paramKparam = paramKparam;
+  parammode = m.parammode;
   paramold = m.paramold;
   paramhelp = m.paramhelp;
   betaold = m.betaold;
@@ -307,9 +489,6 @@ void FC_nonp::update(void)
 void FC_nonp::update_gaussian(void)
   {
 
-//  if (optionsp->nriter<=2)
-  {
-
   // TEST
    //ofstream out0("c:\\bayesx\\testh\\results\\beta_re.res");
    //beta.prettyPrint(out0);
@@ -355,6 +534,9 @@ void FC_nonp::update_gaussian(void)
 
   designp->precision.solve(designp->XWres,paramhelp,param);
 
+  if (pvalue)
+    designp->precision.solve(designp->XWres,parammode);
+
   if(designp->center)
 //    centerparam();
     centerparam_sample();
@@ -385,7 +567,9 @@ void FC_nonp::update_gaussian(void)
     fsample.update();
     }
 
-  }
+
+  if (pvalue)
+    update_pvalue();
 
   FC::update();
 
@@ -545,8 +729,8 @@ bool FC_nonp::posteriormode(void)
   // ofstream out("c:\\bayesx\\test\\results\\data.res");
   // designp->data.prettyPrint(out);
 
-  ofstream out2("c:\\bayesx\\testh\\results\\intvar.res");
-  designp->intvar.prettyPrint(out2);
+//  ofstream out2("c:\\bayesx\\testh\\results\\intvar.res");
+//  designp->intvar.prettyPrint(out2);
 
   /*
   ofstream out3("c:\\bayesx\\test\\results\\index.res");
@@ -558,7 +742,7 @@ bool FC_nonp::posteriormode(void)
 
   betaold.assign(beta);
 
-//  lambda = likep->get_scale()/tau2;
+  lambda = likep->get_scale()/tau2;
 
   bool lambdaconst = false;
 
@@ -606,8 +790,8 @@ bool FC_nonp::posteriormode(void)
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
   // TEST
-    ofstream out5("c:\\bayesx\\testh\\results\\f.res");
-    beta.prettyPrint(out5);
+//    ofstream out5("c:\\bayesx\\testh\\results\\f.res");
+//    beta.prettyPrint(out5);
   // TEST
 
   betadiff.minus(beta,betaold);
@@ -844,7 +1028,7 @@ void FC_nonp::centerparam_sample(void)
   int nrrest = designp->basisNull.rows();
   int nrpar = param.rows();
 
-  if ((Vcenter.rows() != nrpar) ||
+  if ((int(Vcenter.rows()) != nrpar) ||
       (Vcenter.cols() != designp->basisNull.rows()))
     initialize_center();
 
@@ -855,7 +1039,7 @@ void FC_nonp::centerparam_sample(void)
   for (i=0;i<nrrest;i++)
     {
     designp->precision.solve(designp->basisNullt[i],help);
-    for (j=0;j<help.rows();j++)
+    for (j=0;j<int(help.rows());j++)
       Vcenter(j,i) = help(j,0);
     }
 

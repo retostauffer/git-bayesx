@@ -368,7 +368,7 @@ bool FC_hrandom::posteriormode_multexp(void)
     linpred_o = datamatrix(response_o.rows(),1);
     }
   // intvar = log(f)
-  // linpred = etarest + exp(random_effect*intvar)
+  // linpred = etarest + exp(random_effect)* intvar
 
   likep->optionbool1 = true;
   likep->changingweight = true;

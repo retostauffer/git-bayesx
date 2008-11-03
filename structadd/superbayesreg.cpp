@@ -532,8 +532,8 @@ void hregressrun(superbayesreg & b)
 
   if (!failure)
     failure = b.create_distribution();
-//  if (!failure)
-//    failure = b.create_linear();
+  if (!failure)
+    failure = b.create_linear();
   if (!failure && b.terms.size() >= 1)
     failure = b.create_nonp();
 
