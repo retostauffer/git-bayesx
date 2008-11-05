@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="4.1.4" transformSequenceNumber="2">
   <directoryPresets config="C:/bayesx/java/vcl35.bpl" />
-  <application name="BayesX" distributionSourceDir="" applicationId="2916-3818-7425-2636" mediaDir="c:/temp" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="false" shortName="BayesX" publisher="BayesX Group" publisherWeb="http://www.stat.uni-muenchen.de/~bayesx" version="2.0" allPathsRelative="false" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.4.2" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
+  <application name="BayesX" distributionSourceDir="" applicationId="2916-3818-7425-2636" mediaDir="c:/bayesx/installjava/bayesxjava" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="false" shortName="BayesX" publisher="BayesX Group" publisherWeb="http://www.stat.uni-muenchen.de/~bayesx" version="2.0" allPathsRelative="false" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.4.2" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
