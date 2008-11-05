@@ -297,6 +297,8 @@ class __EXPORT_TYPE spline_basis_surf : public FULLCOND_nonp_basis
                                      const bool & ismultinomial,
                                      const unsigned plotpos);
 
+  void outresultsgrid();
+
   void outoptionsreml();
 
 

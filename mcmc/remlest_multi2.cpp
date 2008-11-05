@@ -1188,6 +1188,28 @@ out21.close();*/
     beta(i,0) = -beta(i,0);
     }
 
+// store inverse Fisher-Info and design matrices
+  if(fisher)
+    {
+    ofstream outbeta((outfile+"_coef.raw").strtochar());
+    beta.prettyPrint(outbeta);
+    outbeta.close();
+    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
+    Hinv.prettyPrint(outfisher);
+    outfisher.close();
+    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
+    X.prettyPrint(outx);
+    outx.close();
+    ofstream outz((outfile+"_randomdesign.raw").strtochar());
+    Z.prettyPrint(outz);
+    outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
+    }
+
   k=1;
   for(i=1; i<fullcond.size(); i++)
     {
@@ -1215,23 +1237,6 @@ out21.close();*/
 // anpassen:
   ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,Hinv,nrcat2);
 // -----------------------------------------------------------------------------
-
-// store inverse Fisher-Info and design matrices
-  if(fisher)
-    {
-    ofstream outbeta((outfile+"_coef.raw").strtochar());
-    beta.prettyPrint(outbeta);
-    outbeta.close();
-    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
-    Hinv.prettyPrint(outfisher);
-    outfisher.close();
-    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
-    X.prettyPrint(outx);
-    outx.close();
-    ofstream outz((outfile+"_randomdesign.raw").strtochar());
-    Z.prettyPrint(outz);
-    outz.close();
-    }
 
   loglike=0;
   aic=0;
@@ -1599,16 +1604,6 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
     beta(i,0) = -beta(i,0);
     }
 
-  for(i=1; i<fullcond.size(); i++)
-    {
-    help = fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,false,xcut[i]+nrcat2-1,totalnrfixed+zcut[i-1],0,false,i);
-    for(j=0; j<nrcat2; j++)
-      {
-      beta(j,0) -= help;
-      }
-    }
-  ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,Hinv,nrcat2);
-
 // store inverse Fisher-Info and design matrices
   if(fisher)
     {
@@ -1624,7 +1619,22 @@ bool remlest_ordinal::estimate(const datamatrix resp, const datamatrix & offset,
     ofstream outz((outfile+"_randomdesign.raw").strtochar());
     Z.prettyPrint(outz);
     outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
     }
+
+  for(i=1; i<fullcond.size(); i++)
+    {
+    help = fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,false,xcut[i]+nrcat2-1,totalnrfixed+zcut[i-1],0,false,i);
+    for(j=0; j<nrcat2; j++)
+      {
+      beta(j,0) -= help;
+      }
+    }
+  ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,Hinv,nrcat2);
 
 // log-likelihood, AIC, BIC, etc.
   loglike=0;
@@ -1835,8 +1845,6 @@ bool remlest_ordinal::estimate_glm(const datamatrix resp,
     beta(i,0) = -beta(i,0);
     }
 
-  ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,H,nrcat2);
-
 // store inverse Fisher-Info and design matrices
   if(fisher)
     {
@@ -1852,7 +1860,14 @@ bool remlest_ordinal::estimate_glm(const datamatrix resp,
     ofstream outz((outfile+"_randomdesign.raw").strtochar());
     Z.prettyPrint(outz);
     outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
     }
+
+  ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,H,nrcat2);
 
   loglike=0;
   aic=0;
@@ -2202,8 +2217,6 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
     beta(i,0) = -beta(i,0);
     }
 
-  ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,H,nrcat2);
-
 // store inverse Fisher-Info and design matrices
   if(fisher)
     {
@@ -2219,7 +2232,14 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
     ofstream outz((outfile+"_randomdesign.raw").strtochar());
     Z.prettyPrint(outz);
     outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
     }
+
+  ( dynamic_cast <MCMC::FULLCOND_const*> (fullcond[0]) )->outresultsreml_ordinal(X,Z,beta,H,nrcat2);
 
   loglike=0;
   aic=0;

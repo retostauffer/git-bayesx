@@ -4154,12 +4154,34 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
   return mean;
   }
 
+
+void spline_basis::outresultsgrid()
+  {
+  if(gridsize>0)
+    {
+    ST::string outest = pathcurrent;
+    outest = outest.substr(0,outest.length()-4) + "_randomdesign.raw";
+
+    ofstream outresZ(outest.strtochar());
+    Z_grid.prettyPrint(outresZ);
+    outresZ.close();
+
+    outest = pathcurrent;
+    outest = outest.substr(0,outest.length()-4) + "_fixeddesign.raw";
+
+    ofstream outresX(outest.strtochar());
+    X_grid.prettyPrint(outresX);
+    outresX.close();
+    }
+  }
+
+
 void spline_basis::outoptionsreml()
   {
   optionsp->out("OPTIONS FOR P-SPLINE TERM: " + title + "\n",true);
   optionsp->out("\n");
 
-  ST::string typestr;                                                                                             
+  ST::string typestr;
   ST::string knotstr;
 
   if (type == RW1)

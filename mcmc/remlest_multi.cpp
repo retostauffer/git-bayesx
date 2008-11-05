@@ -401,18 +401,6 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
     thetareml(i,3)=xcutbeta[i+2]-xcutbeta[i+1]+(Hhelp.getBlock(totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i],totalnrfixed+zcutbeta[i+1],totalnrfixed+zcutbeta[i+1])).trace();
     }
 
-  for(j=0; j<nrcat2; j++)
-    {
-//    out("\n");
-//    out("RESULTS FOR CATEGORY "+ST::doubletostring(cats(j,0),6)+":\n",true);
-    out("\n");
-    for(i=1; i<fullcond.size(); i++)
-      {
-      beta(j*partialnrfixed,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],j*partialvar+i-1,false,xcutbeta[j*fullcond.size()+i],totalnrfixed+zcutbeta[j*partialvar+i-1],cats(j,0),true,j*fullcond.size()+i);
-      }
-    beta(j*partialnrfixed,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcutbeta[j*fullcond.size()],0,cats(j,0),true,0);
-    }
-
 // store inverse Fisher-Info and design matrices
   if(fisher)
     {
@@ -428,6 +416,23 @@ bool remlest_multinomial::estimate(const datamatrix resp, const datamatrix & off
     ofstream outz((outfile+"_randomdesign.raw").strtochar());
     Z.prettyPrint(outz);
     outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
+    }
+
+  for(j=0; j<nrcat2; j++)
+    {
+//    out("\n");
+//    out("RESULTS FOR CATEGORY "+ST::doubletostring(cats(j,0),6)+":\n",true);
+    out("\n");
+    for(i=1; i<fullcond.size(); i++)
+      {
+      beta(j*partialnrfixed,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],j*partialvar+i-1,false,xcutbeta[j*fullcond.size()+i],totalnrfixed+zcutbeta[j*partialvar+i-1],cats(j,0),true,j*fullcond.size()+i);
+      }
+    beta(j*partialnrfixed,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcutbeta[j*fullcond.size()],0,cats(j,0),true,0);
     }
 
   loglike=0;
@@ -635,17 +640,6 @@ bool remlest_multinomial::estimate_glm(const datamatrix resp,
   H=H.inverse();
 
   datamatrix helpmat = datamatrix(1,1,0);
-  for(j=0; j<nrcat2; j++)
-    {
-//    out("\n");
-//    out("RESULTS FOR CATEGORY "+ST::doubletostring(cats(j,0),6)+":\n",true);
-    out("\n");
-    for(i=1; i<fullcond.size(); i++)
-      {
-      beta(j*partialnrfixed,0) += fullcond[i]->outresultsreml(X,Z,beta,H,helpmat,xcut[i],zcut[i-1],j*partialvar+i-1,false,xcutbeta[j*fullcond.size()+i],totalnrfixed+zcutbeta[j*partialvar+i-1],cats(j,0),true,j*fullcond.size()+i);
-      }
-    beta(j*partialnrfixed,0) += fullcond[0]->outresultsreml(X,Z,beta,H,helpmat,xcut[0],0,0,false,xcutbeta[j*fullcond.size()],0,cats(j,0),true,0);
-    }
 
 // store inverse Fisher-Info and design matrices
   if(fisher)
@@ -662,6 +656,23 @@ bool remlest_multinomial::estimate_glm(const datamatrix resp,
     ofstream outz((outfile+"_randomdesign.raw").strtochar());
     Z.prettyPrint(outz);
     outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
+    }
+
+  for(j=0; j<nrcat2; j++)
+    {
+//    out("\n");
+//    out("RESULTS FOR CATEGORY "+ST::doubletostring(cats(j,0),6)+":\n",true);
+    out("\n");
+    for(i=1; i<fullcond.size(); i++)
+      {
+      beta(j*partialnrfixed,0) += fullcond[i]->outresultsreml(X,Z,beta,H,helpmat,xcut[i],zcut[i-1],j*partialvar+i-1,false,xcutbeta[j*fullcond.size()+i],totalnrfixed+zcutbeta[j*partialvar+i-1],cats(j,0),true,j*fullcond.size()+i);
+      }
+    beta(j*partialnrfixed,0) += fullcond[0]->outresultsreml(X,Z,beta,H,helpmat,xcut[0],0,0,false,xcutbeta[j*fullcond.size()],0,cats(j,0),true,0);
     }
 
   loglike=0;

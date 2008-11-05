@@ -566,6 +566,8 @@ class __EXPORT_TYPE spline_basis : public FULLCOND_nonp_basis
                                      const bool & ismultinomial,
                                      const unsigned plotpos);
 
+  void outresultsgrid();
+
   void outoptionsreml();
 
   // DESTRUCTOR

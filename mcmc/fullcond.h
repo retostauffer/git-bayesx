@@ -1163,6 +1163,10 @@ class __EXPORT_TYPE FULLCOND
     {
     }
 
+  virtual void outresultsgrid()
+    {
+    }    
+
     virtual void outoptionsreml()
     {
     }

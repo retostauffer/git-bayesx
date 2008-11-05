@@ -439,12 +439,6 @@
     thetareml(i,3)=xcut[i+2]-xcut[i+1]+(Hhelp.getBlock(X.cols()+zcut[i],X.cols()+zcut[i],X.cols()+zcut[i+1],X.cols()+zcut[i+1])).trace();
     }
 
-  for(i=1;i<fullcond.size();i++)
-    {
-    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,false,xcut[i],X.cols()+zcut[i-1],0,false,i);
-    }
-  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcut[0],0,0,false,0);
-
 // store inverse Fisher-Info and design matrices
   if(fisher)
     {
@@ -460,7 +454,18 @@
     ofstream outz((outfile+"_randomdesign.raw").strtochar());
     Z.prettyPrint(outz);
     outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
     }
+
+  for(i=1;i<fullcond.size();i++)
+    {
+    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,false,xcut[i],X.cols()+zcut[i-1],0,false,i);
+    }
+  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcut[0],0,0,false,0);
 
   loglike=aic=bic=gcv=0;
   df=(H*Hinv).trace();
@@ -737,13 +742,6 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
   out("ESTIMATION RESULTS:\n",true);
   out("\n");
 
-  datamatrix helpmat = datamatrix(1,1,0);
-  for(i=1;i<fullcond.size();i++)
-    {
-    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,H,helpmat,xcut[i],zcut[i-1],i-1,false,xcut[i],X.cols()+zcut[i-1],0,false,i);
-    }
-  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,helpmat,xcut[0],0,0,false,xcut[0],0,0,false,0);
-
   // store inverse Fisher-Info and design matrices
   if(fisher)
     {
@@ -759,7 +757,19 @@ bool remlest::estimate_glm(const datamatrix resp, const datamatrix & offset,
     ofstream outz((outfile+"_randomdesign.raw").strtochar());
     Z.prettyPrint(outz);
     outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
     }
+
+  datamatrix helpmat = datamatrix(1,1,0);
+  for(i=1;i<fullcond.size();i++)
+    {
+    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,H,helpmat,xcut[i],zcut[i-1],i-1,false,xcut[i],X.cols()+zcut[i-1],0,false,i);
+    }
+  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,helpmat,xcut[0],0,0,false,xcut[0],0,0,false,0);
 
   loglike=aic=bic=gcv=0;
   df=X.cols();
@@ -1274,12 +1284,6 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
   outscale << theta(theta.rows()-1,0) << endl;
   outscale.close();
 
-  for(i=1;i<fullcond.size();i++)
-    {
-    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,true,xcut[i],X.cols()+zcut[i-1],0,false,i);
-    }
-  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,true,xcut[0],0,0,false,0);
-
 // store inverse Fisher-Info and design matrices
   if(fisher)
     {
@@ -1295,7 +1299,18 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
     ofstream outz((outfile+"_randomdesign.raw").strtochar());
     Z.prettyPrint(outz);
     outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
     }
+
+  for(i=1;i<fullcond.size();i++)
+    {
+    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[i],zcut[i-1],i-1,true,xcut[i],X.cols()+zcut[i-1],0,false,i);
+    }
+  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,true,xcut[0],0,0,false,0);
 
   if(respfamily=="gaussian")// || respfamily=="gamma")
     {
@@ -1668,12 +1683,6 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
   outscale << theta(theta.rows()-1,0) << endl;
   outscale.close();
 
-  for(i=1;i<fullcond.size();i++)
-    {
-    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,H,theta,xcut[i],zcut[i-1],i-1,true,xcut[i],X.cols()+zcut[i-1],0,false,i);
-    }
-  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,theta,xcut[0],0,0,true,xcut[0],0,0,false,0);
-
 // store inverse Fisher-Info and design matrices
   if(fisher)
     {
@@ -1689,7 +1698,18 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
     ofstream outz((outfile+"_randomdesign.raw").strtochar());
     Z.prettyPrint(outz);
     outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
     }
+
+  for(i=1;i<fullcond.size();i++)
+    {
+    beta(0,0) += fullcond[i]->outresultsreml(X,Z,beta,H,theta,xcut[i],zcut[i-1],i-1,true,xcut[i],X.cols()+zcut[i-1],0,false,i);
+    }
+  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,theta,xcut[0],0,0,true,xcut[0],0,0,false,0);
 
   if(respfamily=="gaussian")// || respfamily=="gamma")
     {

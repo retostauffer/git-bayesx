@@ -3139,6 +3139,26 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
   return mean;
   }
 
+void spline_basis_surf::outresultsgrid()
+  {
+  if(gridsize>0)
+    {
+    ST::string outest = pathcurrent;
+    outest = outest.substr(0,outest.length()-4) + "_randomdesign.raw";
+
+    ofstream outresZ(outest.strtochar());
+    Z_grid.prettyPrint(outresZ);
+    outresZ.close();
+
+    outest = pathcurrent;
+    outest = outest.substr(0,outest.length()-4) + "_fixeddesign.raw";
+
+    ofstream outresX(outest.strtochar());
+    X_grid.prettyPrint(outresX);
+    outresX.close();
+    }
+  }
+
 void spline_basis_surf::outoptionsreml()
   {
   optionsp->out("OPTIONS FOR P-SPLINE TERM:: " + title + "\n",true);

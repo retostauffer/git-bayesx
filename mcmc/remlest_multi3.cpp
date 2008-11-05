@@ -778,6 +778,28 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
   eta = offset + Xneu*beta.getRowBlock(0,totalnrfixed)+Zneu*beta.getRowBlock(totalnrfixed,totalnrpar);
   compute_weights(mu,workweight,worky,eta,respind,weight,naindicator,nasum);
 
+// store inverse Fisher-Info and design matrices
+  if(fisher)
+    {
+    ofstream outbeta((outfile+"_coef.raw").strtochar());
+    beta.prettyPrint(outbeta);
+    outbeta.close();
+    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
+    Hinv.prettyPrint(outfisher);
+    outfisher.close();
+    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
+    X.prettyPrint(outx);
+    outx.close();
+    ofstream outz((outfile+"_randomdesign.raw").strtochar());
+    Z.prettyPrint(outz);
+    outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
+    }
+
   double mean=0;
   k=0;
   for(i=1; i<fullcond.size(); i++)
@@ -802,23 +824,6 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
       }
     }
   beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,Hinv,thetareml,xcut[0],0,0,false,xcutbeta[0],0,0,false,0);
-
-// store inverse Fisher-Info and design matrices
-  if(fisher)
-    {
-    ofstream outbeta((outfile+"_coef.raw").strtochar());
-    beta.prettyPrint(outbeta);
-    outbeta.close();
-    ofstream outfisher((outfile+"_inversefisher.raw").strtochar());
-    Hinv.prettyPrint(outfisher);
-    outfisher.close();
-    ofstream outx((outfile+"_fixeddesign.raw").strtochar());
-    X.prettyPrint(outx);
-    outx.close();
-    ofstream outz((outfile+"_randomdesign.raw").strtochar());
-    Z.prettyPrint(outz);
-    outz.close();
-    }
 
 // compute log-likelihood, AIC, BIC, GCV etc.
 
@@ -1272,7 +1277,6 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
 
   out("\n");
   datamatrix helpmat = datamatrix(1,1,0);
-  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,helpmat,xcut[0],0,0,false,xcutbeta[0],0,0,false,0);
 
 // store inverse Fisher-Info and design matrices
   if(fisher)
@@ -1289,7 +1293,14 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
     ofstream outz((outfile+"_randomdesign.raw").strtochar());
     Z.prettyPrint(outz);
     outz.close();
+
+    for(i=1;i<fullcond.size();i++)
+      {
+      fullcond[i]->outresultsgrid();
+      }
     }
+
+  beta(0,0) += fullcond[0]->outresultsreml(X,Z,beta,H,helpmat,xcut[0],0,0,false,xcutbeta[0],0,0,false,0);
 
   // update eta and working weights
   eta = offset + Xneu*beta;
