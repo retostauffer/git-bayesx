@@ -1,0 +1,30 @@
+BayesX Distributionen
+
+1. Manuals:
+
+   - manual\make_manuals.bat aufrufen
+
+   die drei Manuals werden erstellt und in die Verzeichnisse internet\bayesx und \java\doc kopiert
+
+2. Windows-Installer
+
+   - in bayesx_project.bpg alle Projekte aktualisieren
+   - java\make_bayesx.bat aufrufen
+   - Installationsroutine mit install4j erstellen
+
+   die Installationsroutine befindet sich in installjava\bayesxjava
+
+3. Windows-Kommandozeilenversion
+
+   - in CodeBlocks bayesx-cbp erstellen
+   - Dabei build target auf `Release' stellen
+
+   bayesx.exe befindet sich in bin\Release
+
+4. Source-Code Distribution
+
+   - make_sourcecode.bat aufrufen
+
+   bayesxsource.zip befindet sich im Ordner sourcecode
+
+5. Vorkompilierte Linux-Versionen
