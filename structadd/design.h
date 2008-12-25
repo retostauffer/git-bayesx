@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE  __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -14,10 +14,10 @@
 #include"statmat.h"
 #include"sparsemat.h"
 
-#include"random.h"
+#include"Random.h"
 #include"envmatrix_penalty.h"
 #include"../values.h"
-#include<fstream.h>
+#include<fstream>
 #include<vector>
 #include<bitset>
 #include"GENERAL_OPTIONS.h"
@@ -59,7 +59,7 @@ class __EXPORT_TYPE DESIGN
   // TASK: takes index_data (computed elsewhere)
   //       creates sorted data ntvar, data2
 
-  void DESIGN::make_data(const datamatrix & dm,const datamatrix & iv);
+  void make_data(const datamatrix & dm,const datamatrix & iv);
 
   // FUNCTION: make_index
   // TASK: sorts the data,
@@ -123,7 +123,7 @@ class __EXPORT_TYPE DESIGN
                                              //  0 = not consecutive
                                              //  1 = consecutive
 
-  bool identity;                             // true if identity matrix                                             
+  bool identity;                             // true if identity matrix
 
   bool check_Zout_consecutive(void);
 
@@ -237,7 +237,7 @@ class __EXPORT_TYPE DESIGN
 
 
   // FUNCTION: compute_effect
-  // TASK: computes the effect vector 
+  // TASK: computes the effect vector
 
   void compute_effect(datamatrix & effect,datamatrix & f,
                       effecttype2 et = Function);
@@ -254,7 +254,7 @@ class __EXPORT_TYPE DESIGN
 
   void compute_partres(datamatrix & res,datamatrix & f);
 
-  void compute_partres(int begin,int end,double & res, double & f);  
+  void compute_partres(int begin,int end,double & res, double & f);
 
   double compute_ZtZ(unsigned & i, unsigned & j);
 
@@ -304,7 +304,7 @@ class __EXPORT_TYPE DESIGN
 
   virtual void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
-  virtual void outoptions(GENERAL_OPTIONS * op);  
+  virtual void outoptions(GENERAL_OPTIONS * op);
 
   // --------------------- END: VIRTUAL FUNCTIONS ------------------------------
 

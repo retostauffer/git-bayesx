@@ -5013,7 +5013,7 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
   }       */
 
 
-void stepwisereg::describe(optionlist & globaloptions)
+void stepwisereg::describe(const optionlist & globaloptions)
   {
   statobject::describe(globaloptions);
   }

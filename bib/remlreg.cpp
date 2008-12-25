@@ -587,7 +587,7 @@ int remlreg::parse(const ST::string & c)
 	 (*functions[pos])(*this);
   }
 
-void remlreg::describe(optionlist & globaloptions)
+void remlreg::describe(const optionlist & globaloptions)
   {
   statobject::describe(globaloptions);
   }

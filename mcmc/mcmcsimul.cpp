@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include<math.h>
 
+using std::ifstream;
 
 namespace MCMC
 {
@@ -1813,9 +1814,27 @@ const ST::string & path,const unsigned & step)
     for(i=0;i<likep_mult.size();i++)
       {
 
+      if (likep_mult[i]->get_predictfull())
+        {
+        filename = likep_mult[i]->get_mean_sample();
+        genoptions_mult[0]->out(filename+"\n");
+        genoptions_mult[0]->out("\n");
+        #if defined(JAVA_OUTPUT_WINDOW)
+
+        psname = filename.substr(0,filename.length()-4) +   + ".ps";
+        newc.push_back("dataset _dat");
+        newc.push_back("_dat.infile , nonote using " + filename);
+        newc.push_back("graph _g");
+        newc.push_back("_g.plotsample , replace outfile=" +
+                      psname  + " using _dat");
+        genoptions_mult[0]->out(psname + " (graphs)\n");
+        newc.push_back("drop _dat _g");
+
+        #endif
+        }
+
       if (likep_mult[i]->get_scaleexisting())
         {
-        genoptions_mult[0]->out("\n");
         filename = likep_mult[i]->get_scale_sample();
         genoptions_mult[0]->out(filename+"\n");
         genoptions_mult[0]->out("\n");

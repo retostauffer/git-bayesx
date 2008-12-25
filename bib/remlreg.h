@@ -418,10 +418,19 @@ class __EXPORT_TYPE remlreg : public statobject
 
   int parse(const ST::string & c);
 
-  void describe(optionlist & globaloptions = optionlist());
+  void describe(const optionlist & globaloptions = optionlist());
 
   };
 
+#if defined (__BUILDING_GNU)
+// ------------------ forward friend decls --------------------------
+
+void drawmaprun(remlreg & b);
+void plotnonprun(remlreg & b);
+void mremlrun(remlreg & b);
+void remlrun(remlreg & b);
+void texsummaryrun(remlreg & b);
+#endif
 
 #endif
 

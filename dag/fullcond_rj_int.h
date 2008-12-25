@@ -89,7 +89,7 @@ class __EXPORT_TYPE FULLCOND_rj_int : public FULLCOND_rj
 				const unsigned & r, const unsigned & c, const ST::string & fp);
 
   // CONSTRUCTOR_2a
-  FULLCOND_rj_int::FULLCOND_rj_int (ST::string fix, const ST::string & rp, unsigned int lim,
+  FULLCOND_rj_int (ST::string fix, const ST::string & rp, unsigned int lim,
 									double alph , ST::string switch_t, ST::string print_mod,
 								  unsigned & ty, vector < FULLCOND_dag_ia_mixed* > dagp,
 								  MCMCoptions * o, const datamatrix & d, const ST::string & t,

@@ -6,6 +6,8 @@
 namespace MCMC
 {
 
+using std::ios;
+
   // CONSTRUCTOR 1  (for additive models)
 
 FULLCOND_projection::FULLCOND_projection(MCMCoptions * o,
@@ -19,7 +21,7 @@ FULLCOND_projection::FULLCOND_projection(MCMCoptions * o,
   {
 
   lambda = 100;                                   // noch verbessern!!!
-  
+
   nrterms = nterms;
   nrvar = d.cols();  // + 1;
 //  double ppw = 1/sqrt(double(nrvar));
@@ -188,7 +190,7 @@ outw << "lambda   w1   w2" << endl;
     double * fdwork = splinederivative.getV();
     likep->compute_workingresiduals(column);                             // berechnet (y-spline)
     double * works = likep->get_workingresiduals().getV();
-    double * workweight = likep->get_weightiwls().getV();                // für gewichtete KQ-Schätzung   
+    double * workweight = likep->get_weightiwls().getV();                // für gewichtete KQ-Schätzung
     for(i=0;i<data_forfixed.rows();i++,zielwork++,squarework++,rd++,fdwork++,works++,workweight++)
       {
       *squarework = *fdwork * *fdwork * *workweight;
@@ -724,7 +726,7 @@ void FULLCOND_projection::reset_effect(const unsigned & pos)
   }
 
 
-void FULLCOND_projection::update_stepwise(double la)         
+void FULLCOND_projection::update_stepwise(double la)
   {
   if(smoothing == "global")
     {
@@ -913,7 +915,7 @@ vector<double> & lvec, int & number)
     if(lambdastart==-9 || lambdastart==1000000000)    // falls dfstart nicht erreicht werden kann
       lambdastart = 0;
     }
-     
+
   }
 
 

@@ -6,6 +6,7 @@
 #include "map.h"
 #include "bandmat.h"
 
+using std::cout;
 
 //------------------------------------------------------------------------------
 //------------------------------ CLASS: envmatrix ------------------------------
@@ -235,7 +236,7 @@ class envmatrix
   // FUNCTION: getL
   // TASK:     returns the (i,j) element of the cholesky-factor of the calling
   //           matrix
-  
+
   T getL(const unsigned & i, const unsigned & j) const;
 
   // FUNCTION: getBandwidth
@@ -370,7 +371,7 @@ class envmatrix
 
   void addto(envmatrix &X, envmatrix &K, const T &f1,
                  const T &f2);
-             
+
   // FUNCTION compute_quadform
   // TASK: computes x'Kx
   //       column 'c' of x ist used to compute the quadratic form

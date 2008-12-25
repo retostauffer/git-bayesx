@@ -1,5 +1,5 @@
 
-// Muster fuer die outline-Funktionen der template-Klasse 
+// Muster fuer die outline-Funktionen der template-Klasse
 // PreMatrix
 //
 // SCHALTER :
@@ -27,6 +27,9 @@
 #include <strstream>
 
 #include <string.h>
+
+using std::ends;
+using std::ws;
 
 // PreMatrix operator+( const PreMatrix &m ) const
 //
@@ -330,9 +333,9 @@ PreMatrix<T> PreMatrix<T>::operator*( const T v ) const
    else if ( v == T( 0 ) )
 		return PreMatrix<T>( this->rows( ), this->cols( ), T( 0 ) );
 
-	//	PreMatrix uninitialisiert anlgen und mit der PreMatrix, deren 
-	//	Methode aufgerufen wurde und dem Argument der Methode 
-	//	besetzten (spart die initialisierung mit Werten, die 
+	//	PreMatrix uninitialisiert anlgen und mit der PreMatrix, deren
+	//	Methode aufgerufen wurde und dem Argument der Methode
+	//	besetzten (spart die initialisierung mit Werten, die
 	//	im naechsten Schritt ueberschrieben werden.
 
 	PreMatrix<T> result( this->rows( ), this->cols( ) );
@@ -383,7 +386,7 @@ PreMatrix<T> PreMatrix<T>::operator*( const T v ) const
 template <class T>
 PreMatrix<T> PreMatrix<T>::operator/( const T v ) const
 {
-	assert(!this->operator!());	
+	assert(!this->operator!());
 	assert(!(v == T(0)));
 
 	if ( this->operator!( ) || v == T( 0 ) )
@@ -400,7 +403,7 @@ PreMatrix<T> PreMatrix<T>::operator/( const T v ) const
 #if defined( SAVE_ALGORITHMS )
 
 	// A - PreMatrix an die die Botschaft gerichtet ist (*this) (m x n)
-	// v - Parameter der Botschaft 
+	// v - Parameter der Botschaft
 	// R - Ergebnis von (*this) * v^-1  (m x n)
 	//
 	// r_{ij} = a_{ik} * v
@@ -450,7 +453,7 @@ const PreMatrix<T> &PreMatrix<T>::operator+=( const PreMatrix<T> &m )
 			this->operator()( i, j ) += m.get( i, j );
 
 #else
-	
+
 	unsigned size = this->rows( ) * this->cols( );
 	register unsigned i;
 	T * work = this->getV( );
@@ -687,16 +690,16 @@ void PreMatrix<T>::prettyPrint( ostream &out)
 //
 // X.prettyScan(cin);
 //
-// ist zulaessig und richtig. 
+// ist zulaessig und richtig.
 
 
 template <class T>
-int 
+int
 PreMatrix<T>::
 prettyScan( istream &in )
 {
 	in >> ws;
-	
+
 	// Die gelesenen Daten werden zeilenweise, innerhalb der
 	// gelesenen Zeilen spaltenweise abgekellert, die so
 	// zwischengespeicherte Matrix wird dann Zeilenweise von
@@ -723,7 +726,7 @@ prettyScan( istream &in )
 			break;
 
 		//	Die Datenelemente in der Zeile werden ebenfalls erst in
-		//	einem Stack von Elementen (dataRow) gesammelt  
+		//	einem Stack von Elementen (dataRow) gesammelt
 
 		std::istrstream line( lineBuffer, buffSize );
 
@@ -757,9 +760,9 @@ prettyScan( istream &in )
 		} while ( !done && !line.eof( ) && !line.bad( ) );
 
 		//	Wenn noch keine Zeile mit Mehr als 0 Spalten gelesen wurde,
-		//	legt die erste Zeile mit mehr als 0 Spalten die Spaltendimension 
+		//	legt die erste Zeile mit mehr als 0 Spalten die Spaltendimension
 		//	der eingelesenen PreMatrix fest. (Die PreMatrix wird als beeendet
-		//	angesehen, wenn eine Zeile mit einer von dieser Zahl abweichenden 
+		//	angesehen, wenn eine Zeile mit einer von dieser Zahl abweichenden
 		//	Zahl von Spalten gelesen wird.)
 
 		if ( !cols )
@@ -812,23 +815,23 @@ prettyScan( istream &in )
 // Ausgabe mit einem bestimmten Delimiter
 template <class T>
 void PreMatrix<T>::print( ostream& out, char delimiter ) const
-{  
-  for ( register unsigned i=0; i<this->rows(); i++ ) 
+{
+  for ( register unsigned i=0; i<this->rows(); i++ )
   {
     for ( register unsigned j=0; j<this->cols()-1; j++ )
       out << this->get(i,j) << delimiter;
-    out << this->get(i, this->cols()-1) << endl;	
+    out << this->get(i, this->cols()-1) << endl;
   }
 }
 
 template <class T>
 void PreMatrix<T>::print( ostream& out, char* delimiter ) const
-{  
-  for ( register unsigned i=0; i<this->rows(); i++ ) 
+{
+  for ( register unsigned i=0; i<this->rows(); i++ )
   {
     for ( register unsigned j=0; j<this->cols()-1; j++ )
       out << this->get(i,j) << delimiter;
-    out << get(i, this->cols()-1) << endl;	
+    out << get(i, this->cols()-1) << endl;
   }
 }
 
@@ -838,10 +841,10 @@ PreMatrix<T>::
 zero(const T epsilon) const
 {
 	register unsigned int i, j;
-	
+
    assert(!this->operator!());
    assert(epsilon >= T(0));
-	
+
 	for (i = 0; i < this->rows(); ++i)
 		for (j = 0; j < this->cols(); ++j)
 		   {
@@ -853,7 +856,7 @@ zero(const T epsilon) const
 }
 
 template <class T>
-bool 
+bool
 PreMatrix<T>::
 symmetric(const T epsilon) const
 {
@@ -862,7 +865,7 @@ symmetric(const T epsilon) const
   assert(!this->operator!());
   assert(this->rows() == this->cols());
   assert(epsilon >= T(0));
-  
+
   for (i = 0; i < this->rows(); i++)
      {
      for (j = i + 1; j < this->rows(); j++)
@@ -877,9 +880,9 @@ symmetric(const T epsilon) const
   return true;
 }
 
-template 
+template
 <class T>
-PreMatrix<T> 
+PreMatrix<T>
 PreMatrix<T>::
 diag() const
 {
@@ -894,15 +897,15 @@ diag() const
 	return res;
 }
 
-template <class T>	
-PreMatrix<T> 
+template <class T>
+PreMatrix<T>
 PreMatrix<T>::
 diag(unsigned int dim, const T v)
 {
 	assert(dim > 0);
-	
+
 	PreMatrix<T> res(dim, dim, T(0));
-		
+
 	if (res)
 	{
 		for (register unsigned i = 0; i < dim; ++i)
@@ -913,7 +916,7 @@ diag(unsigned int dim, const T v)
 
 
 template <class T>
-PreMatrix<T> 
+PreMatrix<T>
 PreMatrix<T>::
 diag(const PreMatrix<T> &v)
 {
@@ -946,7 +949,7 @@ diag(const PreMatrix<T> &v)
 
 
 template <class T>
-PreMatrix<T> 
+PreMatrix<T>
 PreMatrix<T>::
 tridiag(const PreMatrix<T> &m, const PreMatrix<T> &lm, const PreMatrix<T> &um)
 {
@@ -983,7 +986,7 @@ tridiag(const PreMatrix<T> &m, const PreMatrix<T> &lm, const PreMatrix<T> &um)
 
 template <class T>
 PreMatrix<T>
-PreMatrix<T>:: 
+PreMatrix<T>::
 operator&(const PreMatrix<T> &m) const
 {
   PreMatrix<T> res;
@@ -995,10 +998,10 @@ operator&(const PreMatrix<T> &m) const
 // operator|
 //
 // Nebeneinanderhaengen in Operatorschreibweise
-	
+
 template <class T>
 PreMatrix<T>
-PreMatrix<T>:: 
+PreMatrix<T>::
 operator|(const PreMatrix<T> &m) const
 {
   PreMatrix<T> res;
@@ -1019,7 +1022,7 @@ operator|(const PreMatrix<T> &m) const
 
 template <class T>
 const PreMatrix<T> &
-PreMatrix<T>:: 
+PreMatrix<T>::
 operator&=(const PreMatrix<T> &m)
 {
   PreMatrix<T> res;
@@ -1027,7 +1030,7 @@ operator&=(const PreMatrix<T> &m)
   Array2D<T>::vcat(m).purge(res);
   return operator=(res);
 }
-	
+
 //
 //
 //
@@ -1040,7 +1043,7 @@ operator&=(const PreMatrix<T> &m)
 
 template <class T>
 const PreMatrix<T> &
-PreMatrix<T>:: 
+PreMatrix<T>::
 operator|=(const PreMatrix<T> &m)
 {
   PreMatrix<T> res;
@@ -1079,8 +1082,8 @@ operator=(const PreMatrix<T> &from)
 //
 
 template <class T>
-PreMatrix<T> 
-PreMatrix<T>:: 
+PreMatrix<T>
+PreMatrix<T>::
 blockdiag(const PreMatrix<T> &m)
 {
   PreMatrix<T> res(this->rows() + m.rows(), this->cols() + m.cols(), T(0));
@@ -1101,7 +1104,7 @@ blockdiag(const PreMatrix<T> &m)
 //
 
 template <class T>
-PreMatrix<T> 
+PreMatrix<T>
 PreMatrix<T>::
 decompLU( int *Index, int *IsEven, int unique )  const
 {
@@ -1199,7 +1202,7 @@ decompLU( int *Index, int *IsEven, int unique )  const
       else
 	Dest(j, j) = T(1) / T(32000);
       }
-    if ( j != n - 1 )              
+    if ( j != n - 1 )
       {
       Temp = T( 1 ) / Dest( j, j );
       for ( i = j + 1; i < n; i++ )
@@ -1220,7 +1223,7 @@ decompLU( int *Index, int *IsEven, int unique )  const
 //
 
 template <class T>
-PreMatrix<T> 
+PreMatrix<T>
 PreMatrix<T>::
 backsubstLU(const PreMatrix<T> &LU, const PreMatrix<T> &bIn, int *Index)
 {
@@ -1277,7 +1280,7 @@ backsubstLU(const PreMatrix<T> &LU, const PreMatrix<T> &bIn, int *Index)
 //
 
 template <class T>
-PreMatrix<T> 
+PreMatrix<T>
 PreMatrix<T>::
 luinverse() const
 {
@@ -1345,7 +1348,7 @@ luinverse() const
 //
 
 template <class T>
-PreMatrix<T> 
+PreMatrix<T>
 PreMatrix<T>::
 solve ( const PreMatrix<T> &bIn ) const
 {
@@ -1497,7 +1500,7 @@ PreMatrix<T>::trace() const
 }
 
 
-	
+
 
 
 

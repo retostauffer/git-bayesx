@@ -1,7 +1,9 @@
 
-
-
 #include "adminparse_gnu.h"
+
+using std::cin;
+using std::flush;
+using std::ios;
 
 admin_gnu::admin_gnu(void)
   {
@@ -43,7 +45,7 @@ void admin_gnu::out(const ST::string & c,
   sh = sh+"\n";
 
   std::cout << c << flush;
-  if (logout.is_open())
+  if (logfileopen)
     logout << c << flush;
   }
 

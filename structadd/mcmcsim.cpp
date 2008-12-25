@@ -94,7 +94,7 @@ const equation & equation::operator=(const equation & s)
   }
 
 
-void equation::add_FC(FC * FCp,ST::string & p)
+void equation::add_FC(FC * FCp,const ST::string & p)
   {
   FCpointer.push_back(FCp);
   FCpaths.push_back(p);
@@ -180,7 +180,7 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
       genoptions->out("\n");
       }
     }
-    
+
   genoptions->out("MCMC SIMULATION STARTED\n",true);
   genoptions->out("\n");
 

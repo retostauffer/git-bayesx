@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -62,7 +62,7 @@ class __EXPORT_TYPE equation
 
   const equation & operator=(const equation & s);
 
-  void add_FC(FC * FCp,ST::string & p);
+  void add_FC(FC * FCp,const ST::string & p);
 
   // DESTRUCTOR
 
@@ -81,7 +81,7 @@ class __EXPORT_TYPE MCMCsim
   vector<equation> equations;
 
   unsigned maxiterations;             // for posteriormode, maximum number of
-                                      // iterations, default = 1000 
+                                      // iterations, default = 1000
 
   public:
 

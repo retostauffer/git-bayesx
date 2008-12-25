@@ -11,11 +11,11 @@ has to be used together with
 	* fullcond_dag_d
 	* fullcond_dag_d_ia
 
-fullcond_rj_ia allows a death-step where all corresponding 
-ia-terms are deleted, too. The birth-step is only for main 
-effects. There is no switch step (to complicate). 
+fullcond_rj_ia allows a death-step where all corresponding
+ia-terms are deleted, too. The birth-step is only for main
+effects. There is no switch step (to complicate).
 
-The intake of interactions (and also the deletion) takes 
+The intake of interactions (and also the deletion) takes
 place in fullcond_dag_d_ia.
 
 The corresponding main-file is test_rj_ia.cpp
@@ -27,7 +27,7 @@ IMPORTANT: This procedure is NOT reversible.
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -63,7 +63,7 @@ class __EXPORT_TYPE FULLCOND_rj_ia : public FULLCOND_rj
 
 
   public:
-  
+
 
   // DEFAULT CONSTRUCTOR:
   FULLCOND_rj_ia(void) : FULLCOND_rj() {}
@@ -75,9 +75,9 @@ class __EXPORT_TYPE FULLCOND_rj_ia : public FULLCOND_rj
                const ST::string & t, const unsigned & r, const unsigned & c,
                const ST::string & fp);
 
-  
+
   // CONSTRUCTOR_2
-  FULLCOND_rj_ia (unsigned int lim, double alph, ST::string swi, 
+  FULLCOND_rj_ia (unsigned int lim, double alph, ST::string swi,
 					ST::string print_mod, unsigned & type,
 					vector < FULLCOND_dag * > dagp,
 				MCMCoptions * o, const datamatrix & d, const ST::string & t,
@@ -85,12 +85,12 @@ class __EXPORT_TYPE FULLCOND_rj_ia : public FULLCOND_rj
 
 
   // COPY CONSTRUCTOR
-  FULLCOND_rj_ia(const FULLCOND_rj_ia & fc); 
+  FULLCOND_rj_ia(const FULLCOND_rj_ia & fc);
 
 
   // OVERLOADED ASSIGNMENT OPERATOR
   const FULLCOND_rj_ia & operator=(const FULLCOND_rj_ia & fc);
-  
+
 
   // DESTRUCTOR
   ~FULLCOND_rj_ia() {}
@@ -109,10 +109,10 @@ class __EXPORT_TYPE FULLCOND_rj_ia : public FULLCOND_rj
 
 
 
-   // FUNCTION: make_new_d_ia 
+   // FUNCTION: make_new_d_ia
    // TASK: computes the new values for a death-step
-   void make_new_d_ia (ST::string step, unsigned i, unsigned j, unsigned ia_del, 
-						datamatrix & beta_old, vector <vector <unsigned > > & current_ia_n, 
+   void make_new_d_ia (ST::string step, unsigned i, unsigned j, unsigned ia_del,
+						datamatrix & beta_old, vector <vector <unsigned > > & current_ia_n,
 						datamatrix & xx_new, datamatrix & b_new, datamatrix & x_new);
 
 
@@ -138,21 +138,21 @@ class __EXPORT_TYPE FULLCOND_rj_ia : public FULLCOND_rj
 
 
 
-  // FUNCTION: make_new_b 
+  // FUNCTION: make_new_b
   // TASK: computes the new values for a birth-step
-  void FULLCOND_rj::make_new_b (ST::string step, unsigned int i, unsigned int j, double beta_new, 
+  void FULLCOND_rj::make_new_b (ST::string step, unsigned int i, unsigned int j, double beta_new,
 				datamatrix & xx_new, datamatrix & b_new, datamatrix & x_new);
 
 
-  // FUNCTION: make_new_d 
+  // FUNCTION: make_new_d
   // TASK: computes the new values for a death-step
-  void make_new_d (ST::string step, unsigned int i, unsigned int j,datamatrix & xx_new, 
+  void make_new_d (ST::string step, unsigned int i, unsigned int j,datamatrix & xx_new,
 				double & beta_old, datamatrix & b_new, datamatrix & x_new);
 
 
   // FUNCTION: sample_sigma
   // TARGET: samples the new variance of the regression model i in the switch step
-  double FULLCOND_rj::sample_sigma(char vertex, unsigned int i, unsigned int ncoef_new_i, 
+  double FULLCOND_rj::sample_sigma(char vertex, unsigned int i, unsigned int ncoef_new_i,
 							const datamatrix & mean_i, const datamatrix & x_new_i);
 
 
@@ -161,27 +161,27 @@ class __EXPORT_TYPE FULLCOND_rj_ia : public FULLCOND_rj
   // TARGET: calculates the ratio of a birth-step
   double ratio_b(unsigned int j,  double u,
 							const datamatrix & b_new, const datamatrix & x_new);
-  
+
 
   // FUNCTION: ratio_d()
   // TARGET: calculates the ratio of a death-step
-  double ratio_d(unsigned int j, double u, 
+  double ratio_d(unsigned int j, double u,
 					const datamatrix & b_new, const datamatrix & x_new);
 
 
- 
+
   // FUNCTION: ratio_s
   // TARGET: computes acceptance ratio in the switch step
-  double ratio_s(unsigned int i,unsigned int j, 
-							const datamatrix & b_new_i, const datamatrix & b_new_j, 
+  double ratio_s(unsigned int i,unsigned int j,
+							const datamatrix & b_new_i, const datamatrix & b_new_j,
 							const datamatrix & x_new_i, const datamatrix & x_new_j,
 							const datamatrix & mean_i, const datamatrix & mean_j,
 							double sigma_new_i, double sigma_new_j);
 
 
 
- 
-  
+
+
   // FUNCTION: log_gamma
   // TASK: returns the logarithm of the gammafunction when value=0.5*(unsigned)
   double log_gamma(double value) const;
@@ -192,12 +192,12 @@ class __EXPORT_TYPE FULLCOND_rj_ia : public FULLCOND_rj
   double FULLCOND_rj::log_gamma1(double x) const;
 
 
- 
+
   // FUNCTION: p_prop()
   // TARGET: returns the density of the proposal u, which is normaldistributed
 	double p_prop(double prop);
 
- 
+
   // FUNCTION: accept
   // TASK: returns true with probability ratio
   //bool accept (double ratio);
@@ -225,7 +225,7 @@ class __EXPORT_TYPE FULLCOND_rj_ia : public FULLCOND_rj
   // FUNCTION: setzeta
   // TASK: initializes zeatmean etc.
   void setzeta(const adja & zetanew);
-  
+
 
   // FUNCTION: reset
   // TASK: resets all parameters for a new simulation
@@ -243,13 +243,13 @@ class __EXPORT_TYPE FULLCOND_rj_ia : public FULLCOND_rj
    }
 
 
-  
+
 */
 
 
  /**************
- 
-   
+
+
 	 void predict(const datamatrix & newX, datamatrix & linpred)
     {
 

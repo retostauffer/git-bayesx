@@ -8,7 +8,7 @@
 #include<describe_dataset.h>
 #endif
 
-#include"dataobj.h"
+#include "dataobj.h"
 
 
 void dataobject::create(void)
@@ -712,7 +712,7 @@ void pctilerun(dataobject & o)
 
  }
 
- 
+
 void marketingrun(dataobject & o)    //Reihenfolge zum Einlesen: outlet, wochenin, markenin, preis!!!
   {
 
@@ -747,7 +747,7 @@ void marketingrun(dataobject & o)    //Reihenfolge zum Einlesen: outlet, wocheni
     }
   }
 
-void dataobject::describe(optionlist & globaloptions)
+void dataobject::describe(const optionlist & globaloptions)
   {
   if(d.getVarnames().size()>0 && d.obs() > 0)
   {
@@ -763,7 +763,7 @@ void dataobject::describe(optionlist & globaloptions)
 #endif
   }
   else
-    out("NOTE: dataset does not contain any data\n");  
+    out("NOTE: dataset does not contain any data\n");
   }
 
 

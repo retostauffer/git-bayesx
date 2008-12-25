@@ -1,4 +1,4 @@
-  
+
 
 
 #include "realobs.h"
@@ -107,6 +107,24 @@ realobs floor(realobs & o)
   else
 	 return std::floor(o.value);
   }
+
+// --------------------- forward friends decls ------------------
+
+#if defined (__BUILDING_GNU)
+__EXPORT_TYPE realobs _uniform(void);
+
+realobs __EXPORT_TYPE sqrt(realobs & o);
+realobs __EXPORT_TYPE abs(realobs & o);
+realobs __EXPORT_TYPE exp(realobs & o);
+realobs __EXPORT_TYPE cos(realobs & o);
+realobs __EXPORT_TYPE sin(realobs & o);
+realobs __EXPORT_TYPE log(realobs & o);
+realobs __EXPORT_TYPE log10(realobs & o);
+realobs __EXPORT_TYPE pow(const realobs & o,const realobs & p);
+realobs __EXPORT_TYPE pow(realobs & o, double & p);
+realobs __EXPORT_TYPE pow(double o,realobs & p);
+realobs __EXPORT_TYPE floor(realobs & o);
+#endif
 
 } // end: namespace realobs
 

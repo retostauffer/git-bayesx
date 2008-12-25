@@ -196,7 +196,7 @@ class __EXPORT_TYPE DISTRIBUTION_zip : public DISTRIBUTION
                           const datamatrix & w=datamatrix());
 
 
-void DISTRIBUTION_zip::create(MCMCoptions * o, const double & a,
+void create(MCMCoptions * o, const double & a,
                                     const double & b, const double & pv,
                                     const zipvertopt & vo, const zippropscale & psc,
                                     bool hie, const ST::string & ps);

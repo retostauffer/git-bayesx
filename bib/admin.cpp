@@ -3,6 +3,8 @@
 
 #include<admin.h>
 
+using std::flush;
+using std::ios;
 
 void administrator::out(const ST::string & c)
   {
@@ -131,7 +133,7 @@ ST::string administrator::create(const ST::string & in)
 			 }
 		  else if (token[0] == "map")
 			 {
-			 map newobject(token[1],&logout,input,defaultpath);
+			 MAP::map newobject(token[1],&logout,input,defaultpath);
 			 mapobjects.push_back(newobject);
 			 }
 

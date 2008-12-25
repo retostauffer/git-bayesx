@@ -19,7 +19,7 @@
 #include "clstring.h"
 #include "adminparse_gnu.h"
 #include <iostream>
-#include <fstream.h>
+#include <fstream>
 #include <string>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
     while(!run)
       {
       #if defined(__BUILDING_LINUX)
-      rl_bind_key('\t',rl_abort);
+//      rl_bind_key('\t',rl_abort);
 
       char *buf;
       buf = readline("BayesX>");

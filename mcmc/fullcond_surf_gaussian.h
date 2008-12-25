@@ -62,7 +62,7 @@ class FULLCOND_surf_gaussian : public FULLCOND_nonp_basis
                           const unsigned & nr2);
 
 
-  void FULLCOND_surf_gaussian::make_moddata(const datamatrix & moddata1,
+  void make_moddata(const datamatrix & moddata1,
                                             const datamatrix & moddata2);
 
 

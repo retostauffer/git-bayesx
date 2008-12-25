@@ -1,7 +1,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -42,7 +42,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   stroption constraints;
   doubleoption round;
   stroption centermethod;
-  simpleoption internal_multexp;  
+  simpleoption internal_multexp;
   simpleoption pvalue;
 
   vector<ST::string> termnames;

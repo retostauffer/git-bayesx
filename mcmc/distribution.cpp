@@ -537,12 +537,33 @@ ST::string DISTRIBUTION::get_scale_sample(void) const
     file = pathresultsscale.substr(0,pathresultsscale.length()-4) + "_sample.raw";
     Scalesave.get_samples(file);
 
-/*    file = pathresultsscale.substr(0,pathresultsscale.length()-9) + "_mean_sample.raw";
+    }
+
+/*
+    file = pathresultsscale.substr(0,pathresultsscale.length()-9) + "mean_sample.raw";
     musave.get_samples(file);
 
     file = pathresultsscale.substr(0,pathresultsscale.length()-9) + "_predictor_sample.raw";
     responsesave.get_samples(file);*/
 
+  return file;
+
+  }
+
+ST::string DISTRIBUTION::get_mean_sample(void) const
+  {
+
+  ST::string file;
+
+  if(predictfull)
+    {
+
+    file = predictfullpath.substr(0,predictfullpath.length()-4) + "_mean_sample.raw";
+    musave.get_samples(file);
+
+/*  file = pathresultsscale.substr(0,pathresultsscale.length()-9) + "_predictor_sample.raw";
+    responsesave.get_samples(file);*/
+    
     }
 
   return file;

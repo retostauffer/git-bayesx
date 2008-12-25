@@ -12,6 +12,7 @@
 #include"data.h"
 #include<time.h>
 
+using std::ios;
 
 //------------------------------------------------------------------------------
 //------------- CLASS data: implementation of member functions -----------------
@@ -190,7 +191,7 @@ const filter & filter::operator=(vector<bool> & v)
   }
 
 
-void filter::filterNA(data & d, list<ST::string> & names)
+void filter::filterNA(::data & d, list<ST::string> & names)
   {
 
   if (size() != d.obs())
@@ -443,7 +444,7 @@ unsigned dataset::write (
 #if defined(JAVA_OUTPUT_WINDOW)
 administrator_basic * adminb_p,
 #endif
-ostream & out,list<ST::string> & names,const bool header,const realvar & v0)
+ostream & out, list<ST::string> & names,const bool header,const realvar & v0)
   {
   errormessages.clear();
 

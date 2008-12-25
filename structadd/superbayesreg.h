@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -161,7 +161,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_gaussian> distr_gaussians;
   vector<DISTR_gaussian_re> distr_gaussian_res;
   vector<DISTR_gaussian_exp> distr_gaussian_exps;
-  vector<DISTR_gaussian_mult> distr_gaussian_mults;  
+  vector<DISTR_gaussian_mult> distr_gaussian_mults;
   vector<DISTR_binomial> distr_binomials;
 
   bool create_distribution(void);
@@ -314,7 +314,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   int parse(const ST::string & c);
 
-  void describe(optionlist & globaloptions = optionlist());
+  void describe(const optionlist & globaloptions = optionlist());
 
   };
 

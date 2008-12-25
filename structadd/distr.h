@@ -3,7 +3,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -12,9 +12,9 @@
 #define DISTR_INCLUDED
 
 #include"statmat.h"
-#include"random.h"
+#include"Random.h"
 #include"GENERAL_OPTIONS.h"
-#include"fc.h"
+#include"FC.h"
 
 
 namespace MCMC
@@ -142,7 +142,7 @@ class __EXPORT_TYPE DISTR
   // FUNCTION: loglikelihood
   // TASK: computes the loglikelihood for observations between begin and end
   //       response, weights, predicor stored in responsep,workingweightp,
-  //       linpredp  
+  //       linpredp
 
   double loglikelihood(int & begin,
                        int & end, statmatrix<double *> & responsep,
@@ -192,7 +192,7 @@ class __EXPORT_TYPE DISTR
   //       the loglikelihood (will be returned) for the begin - end observation
   //       in the pointer vectors
 
-  double DISTR::compute_iwls_loglikelihood(int & begin,
+  double compute_iwls_loglikelihood(int & begin,
                                  int & end, statmatrix<double *> & responsep,
                                  statmatrix<double *> & workingresponsep,
                                  statmatrix<double *> & weightp,
@@ -200,7 +200,7 @@ class __EXPORT_TYPE DISTR
                                  statmatrix<double *> & linpredp);
 
 
-  double DISTR::compute_iwls_loglikelihood_sumworkingweight(
+  double compute_iwls_loglikelihood_sumworkingweight(
          int & begin,int & end, statmatrix<double *> & responsep,
          statmatrix<double *> & workingresponsep,statmatrix<double *> & weightp,
          statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp,
@@ -222,7 +222,7 @@ class __EXPORT_TYPE DISTR
   // TASK: computes the posterior mode
 
   virtual bool posteriormode(void);
-    
+
 
   //----------------------------------------------------------------------------
   //--------------------------- UPDATE FUNCTIONS -------------------------------
@@ -334,7 +334,7 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
   void outresults(ST::string pathresults="");
 
-  double get_scalemean(void);  
+  double get_scalemean(void);
 
 
   };
@@ -518,7 +518,7 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
 
   bool posteriormode(void);
 
-  void outresults(ST::string pathresults="");  
+  void outresults(ST::string pathresults="");
 
   void outoptions(void);
 

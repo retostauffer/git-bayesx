@@ -13,7 +13,7 @@
 #include "fullcond.h"
 #include "mcmc_nonpbasis.h"
 #include "spline_basis.h"
-#include<deque.h>
+#include<deque>
 #include "statmat_penalty.h"
 
 namespace MCMC

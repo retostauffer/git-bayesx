@@ -7,8 +7,11 @@
 #include <limits.h>
 
 #if !defined(NDEBUG)
-#include <iostream.h>
+#include <iostream>
 #endif
+
+using std::cerr;
+using std::endl;
 
 //	Vorwaertssuche in der Speicherliste kann mit FIND_FORWARD
 //	eingeschaltet werden.
@@ -156,7 +159,7 @@ addTail(const T &v)
 //	Die Liste darf nicht ungueltig sein
 
 template <class T>
-int 
+int
 LinkedList<T>::
 addAfter(const T &node, const T &v)
 {
@@ -249,7 +252,7 @@ addAfter(const T &node, const T &v)
 //	Die Liste darf nicht ungueltig sein
 
 template <class T>
-int 
+int
 LinkedList<T>::
 addBefore(const T &node, const T &v)
 {
@@ -359,7 +362,7 @@ void LinkedList<T>::removeHead()
 //	Die Liste darf nicht leer sein
 
 template <class T>
-void 
+void
 LinkedList<T>::
 removeTail()
 {
@@ -403,7 +406,7 @@ removeTail()
 //	1 - Der Knoten wurde erfolgreich entfernt
 
 template <class T>
-int 
+int
 LinkedList<T>::
 remove(const T &node)
 {
@@ -675,7 +678,7 @@ resize()
 }
 
 template <class T>
-void 
+void
 Heap<T>::
 insert(T v)
 {
@@ -688,7 +691,7 @@ insert(T v)
   // GNU:
     ListNode<T> *curr = getNode(this->get_mhead());
 //    ListNode<T> *curr = getNode(m_head);
-  
+
     while(curr && (curr->v < v))
        curr = curr->next ? getNode(curr->next) : 0;
     if (curr)

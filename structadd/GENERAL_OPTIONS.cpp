@@ -7,6 +7,7 @@
 
 #include "GENERAL_OPTIONS.h"
 
+using std::flush;
 
 namespace MCMC
 {

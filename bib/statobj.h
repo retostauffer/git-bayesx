@@ -80,7 +80,7 @@ class __EXPORT_TYPE statobject
   //                'methods'
 
   int parsecom(const ST::string & c, vector<command> & methods,
-					optionlist & globaloptions = optionlist());
+					optionlist & globaloptions);// = optionlist());
 
   // FUNCTIONS: out
   // TASK: writes the string 'c' or strings 'm' to cout and logout
@@ -185,7 +185,7 @@ class __EXPORT_TYPE statobject
   // FUNCTION: describe
   // TASK: gives a description of the current state of the statobject
 
-  virtual void describe(optionlist & globaloptions = optionlist());
+  virtual void describe(const optionlist & globaloptions = optionlist());
 
   // FUNCTION: get_newcommands
   // TASK: returns additional commands to be executed

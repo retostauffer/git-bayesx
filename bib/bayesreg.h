@@ -656,10 +656,23 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   int parse(const ST::string & c);
 
-  void describe(optionlist & globaloptions = optionlist());
+  void describe(const optionlist & globaloptions = optionlist());
 
 
   };
+
+// ----------------- forward declarations of friends ----------------------------------------
+
+void __EXPORT_TYPE drawmaprun(bayesreg & b);
+void __EXPORT_TYPE plotnonprun(bayesreg & b);
+void __EXPORT_TYPE plotautocorrun(bayesreg & b);
+void __EXPORT_TYPE autocorrrun(bayesreg & b);
+void __EXPORT_TYPE getsamplerun(bayesreg & b);
+void __EXPORT_TYPE outresultsrun(bayesreg & b);
+void __EXPORT_TYPE texsummaryrun(bayesreg & b);
+void __EXPORT_TYPE regressrun(bayesreg & b);
+void __EXPORT_TYPE mregressrun(bayesreg & b);
+void __EXPORT_TYPE hregressrun(bayesreg & b);
 
 #endif
 

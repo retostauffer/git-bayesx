@@ -10,6 +10,9 @@
 
 #include "graph.h"
 
+using std::endl;
+using std::ifstream;
+using std::ofstream;
 
 bool graph::isedgeof(unsigned i,unsigned j)
   {
@@ -406,7 +409,7 @@ const graph & graph::operator=(const graph & g)
   linenr = g.linenr;
   errormessage = g.errormessage;
   nrgraphs = g.nrgraphs;
-  connnodes = g.connnodes;  
+  connnodes = g.connnodes;
   return *this;
   }
 

@@ -202,13 +202,13 @@ class __EXPORT_TYPE IA
 	  // FUNCTION: choose_ia_term
       // TASK: chooses a new interaction term of order ord
       // which is NOT already in current_ia
-		vector<unsigned> IA::choose_ia (const Matrix<unsigned> & col,
+		vector<unsigned> choose_ia (const Matrix<unsigned> & col,
 									 vector <vector <unsigned> > & current_ia);
 
 	  // FUNCTION: choose_ia_term
       // TASK: chooses a new interaction term of order ord
       // regardless if it is already in current_ia or not
-		vector<unsigned> IA::choose_ia ( const  Matrix<unsigned>  & col);
+		vector<unsigned> choose_ia ( const  Matrix<unsigned>  & col);
 
 
 
@@ -300,7 +300,7 @@ class __EXPORT_TYPE IA
 
 		// FUNCTION: ia_okay
 		// TASK: returns true if interaction is allowed
-		bool IA::ia_okay (unsigned i);
+		bool ia_okay (unsigned i);
 
 
 		// FUNCTION: tell_var_type

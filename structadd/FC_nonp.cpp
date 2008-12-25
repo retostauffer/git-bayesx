@@ -139,10 +139,10 @@ void FC_nonp::update_pvalue(void)
 
 
 
-void FULLCOND_pspline_gaussian::compute_pvalue(void)
+void FC_nonp::compute_pvalue(void)
   {
 
-  unsigned nrpar = param.rows();
+/*  unsigned nrpar = param.rows();
 //  double LIMIT = log(MAXDOUBLE);
   double LIMIT = 700;
 
@@ -244,7 +244,7 @@ void FULLCOND_pspline_gaussian::compute_pvalue(void)
   out << "difforder   contourprob   mean(log)  mean" << endl;
   out << (ST::inttostring(0) + "   " + ST::doubletostring(contourprob(0,0)) + "   ");
   out << (ST::doubletostring(contourprob(0,1)) + "   " + ST::doubletostring(contourprob(0,2))) << endl;
-  out.close();
+  out.close();    */
 
   }
 

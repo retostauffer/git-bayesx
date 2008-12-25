@@ -5,6 +5,10 @@
 #include "tarray.h"
 #endif
 
+using std::ws;
+using std::istream;
+using std::ostream;
+
 //	Array( unsigned size, const T init )
 //
 //	Konstruktor fuer mit festem Wert initialisiertes Array
@@ -131,16 +135,16 @@ void Array<T>::writeOn( ostream &out ) const
 }
 
 template <class T>
-void Array<T>::readFrom( istream &in ) 
+void Array<T>::readFrom( istream &in )
 {
 	discard( );
 	in >> ws;
 	if ( in.get( ) != '[' )
 		return;
-	
+
 	in >> m_size >> ws;
 	if ( in.get( ) != ']' )
-		return;	
+		return;
 	in >> ws;
 	if ( in.get( ) != '{' )
 		return;
@@ -170,7 +174,7 @@ void Array<T>::readFrom( istream &in )
 //
 //	Die Kopie erfolgt ueber den Zuweisungsoperator des Elementtyps.
 //	Diese Vorgehensweise ist bei "flachen" Datentypen" u.U.
-//	weniger effizient. 
+//	weniger effizient.
 
 template <class T> void Array<T>::copyContents( const Array<T> &from )
 {
@@ -198,7 +202,7 @@ template <class T> void Array<T>::copyContents( const Array<T> &from )
 //	Ergebnis:
 //	true (1) f"ur gleiche Arrays, false (0) f"ur Arrays, die sich
 //	in der Gr"o"se oder in mindestens einem Element unterscheiden.
-	
+
 template <class T> int Array<T>::operator==(const Array<T> &other) const
 {
 	if (m_size != other.m_size)
@@ -213,8 +217,8 @@ template <class T> int Array<T>::operator==(const Array<T> &other) const
 	register T *work;
 	register const T *workOther;
 
-	for (work = m_v, workOther = other.m_v; 
-	     work < m_v + m_size; 
+	for (work = m_v, workOther = other.m_v;
+	     work < m_v + m_size;
 		 ++work, ++workOther)
 		if (*work != *workOther)
 			return 0;
@@ -223,20 +227,20 @@ template <class T> int Array<T>::operator==(const Array<T> &other) const
 }
 
 //	create
-//	
-//	Array im Speicher anlegen. Wenn die Arraygr"o"se nicht 
-//	gr"o"ser als 0 ist, wird kein Array angelegt. 
+//
+//	Array im Speicher anlegen. Wenn die Arraygr"o"se nicht
+//	gr"o"ser als 0 ist, wird kein Array angelegt.
 //
 //	Wenn de Speicher f"ur das Array nicht angelegt werden
 //	kann, wird das Array als ung"ultig erkl"art (d.h.
 //	opeator int lifert 0 (false) und operator! liefert
 //	1 (true)
-	
-template <class T> 
+
+template <class T>
 void Array<T>::
 create()
-{ 
-	assert( m_size > 0 ); 
+{
+	assert( m_size > 0 );
 
 	m_v = new T[ m_size ];
 	if (m_v == 0)

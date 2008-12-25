@@ -1,9 +1,15 @@
 
-
-
 #if !defined (CLSTRING_INCLUDED)
 #include "clstring.h"
 #endif
+
+#include <stdlib.h>
+#include <climits>
+
+
+using std::ifstream;
+using std::ofstream;
+using std::ios;
 
 //------------------------------------------------------------------------------
 //-------------- CLASS STRING: Implementation of member functions --------------
@@ -298,7 +304,7 @@ string string::insert_string_num(unsigned pos, string & str) const
   return result;
   }
 
-  
+
 
 string string::insert_string_char(char p, string & str) const
   {
@@ -1018,7 +1024,7 @@ vector<string> string::strtoken2(const string & parsingsigns,
   }
 
 
-  
+
 vector<string> string::strtoken2_quot(const string & parsingsigns,
                                       bool & bracketmiss,bool & quotmiss) const
   {
@@ -1053,7 +1059,7 @@ vector<string> string::strtoken2_quot(const string & parsingsigns,
           if ( ( i < len) && (str[i] == '"') )
             {
             }
-          else  
+          else
             quotmiss = true;
 
           i++;

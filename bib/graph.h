@@ -46,7 +46,7 @@ class __EXPORT_TYPE graph
   //       in that case 'node' has an edge 'edge' but 'edge' has not an edge
   //       'node'
 
-  bool graph::issymmetric(unsigned & node,unsigned & edge);
+  bool issymmetric(unsigned & node,unsigned & edge);
 
   void take(vector<unsigned> & alreadyvis,unsigned  node);
 

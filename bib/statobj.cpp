@@ -12,6 +12,9 @@
 
 #include"statobj.h"
 
+using std::flush;
+using std::cout;
+
 //------------------------------------------------------------------------------
 //----------- CLASS statobject: implementation of member functions -------------
 //------------------------------------------------------------------------------
@@ -245,7 +248,7 @@ int findstatobject(const vector<statobject*> & stats,const ST::string & name,
   }
 
 
-void statobject::describe(optionlist & globaloptions)
+void statobject::describe(const optionlist & globaloptions)
   {
 
   out("\n");

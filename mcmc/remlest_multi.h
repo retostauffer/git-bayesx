@@ -4,12 +4,13 @@
 
 #include "statmat.h"
 #include "statmat_penalty.h"
-#include "fullcond.h">
+#include "fullcond.h"
 
 #if defined(JAVA_OUTPUT_WINDOW)
 #include"adminparse_basic.h"
 #endif
 
+using std::ofstream;
 
 //------------------------------------------------------------------------------
 //------------------------ CLASS: remlest_multinomial --------------------------
@@ -323,7 +324,7 @@ class remlest_multistate
                      const vector<ST::string> & rnames);
 
   bool check_pause();
-  
+
   // FUNCTION: out
   // TASK: writes results to outputstream or
   //       in Output window if BORLAND_OUTPUT_WINDOW is defined
@@ -342,4 +343,3 @@ class remlest_multistate
 #define remlest_multiH
 //---------------------------------------------------------------------------
 #endif
- 

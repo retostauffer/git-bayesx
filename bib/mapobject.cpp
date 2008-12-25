@@ -14,7 +14,7 @@
 
 void mapobject::create(void)
   {
-                                                                                          
+
   // SYNTAX OF COMMANDS:
   // name [model] [weight varname] [by varname] [if expression]
   //      [, options] [using usingtext]
@@ -493,7 +493,7 @@ void reorderrun(mapobject & m)
 
 
 
-void mapobject::describe(optionlist & globaloptions)
+void mapobject::describe(const optionlist & globaloptions)
   {
   if(mapexisting)
     {
@@ -521,7 +521,7 @@ void mapobject::describe(optionlist & globaloptions)
       ST::string psname="";
       jmethodID javashowmap = adminb_p->Java->GetMethodID(adminb_p->BayesX_cls, "JavaDescribeMap", "(Z)V");
       adminb_p->Java->CallVoidMethod(adminb_p->BayesX_obj, javashowmap, false);
-      
+
 //      jmethodID javashowmap = adminb_p->Java->GetMethodID(
 //      adminb_p->BayesX_cls, "JavaShowMap", "(Z)V");
 //      adminb_p->Java->CallVoidMethod(adminb_p->BayesX_obj, javashowmap, false);

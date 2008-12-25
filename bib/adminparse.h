@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -28,7 +28,7 @@
 #include<dir.h>
 #endif
 
-#include<fstream.h>
+#include<fstream>
 #include"adminparse_basic.h"
 #include"adminparse_pointers.h"
 #include"data.h"

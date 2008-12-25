@@ -360,6 +360,13 @@ class __EXPORT_TYPE DISTRIBUTION
   void set_predictfull(const ST::string & pathsample,
                        const ST::string & path,const unsigned & fo);
 
+  // FUNCTION: get_predictfull
+
+  bool & get_predictfull(void)
+    {
+    return predictfull;
+    }
+
   virtual void update_predict(void);
 
   virtual void update_predict_bootstrap(int & bootstrapsamples);
@@ -425,6 +432,11 @@ class __EXPORT_TYPE DISTRIBUTION
   // TASK: stores the sampled scale parameters in file 'file'
 
   virtual ST::string get_scale_sample(void) const;
+
+  // FUNCTION: get_mean_sample
+  // TASK: stores the sampled mean parameters in file 'file'
+
+  virtual ST::string get_mean_sample(void) const;
 
   // FUNCTION: get_scaleexisting
   // TASK: returns the value of scaleexisting, if scaleexisting == true
@@ -1358,7 +1370,7 @@ class __EXPORT_TYPE DISTRIBUTION
   //-------------------------- FOR MISSING VALUES ------------------------------
   //----------------------------------------------------------------------------
 
-  virtual void DISTRIBUTION::update_missings(void);
+  virtual void update_missings(void);
 
   void set_missings(vector<FULLCOND *> & fcm,unsigned & begin,
                     unsigned & end,datamatrix & mi,

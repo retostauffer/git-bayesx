@@ -4,10 +4,13 @@
 #if !defined(TARRAY2D_H_INCLUDED)
 #define TARRAY2D_H_INCLUDED
 
-#include <iostream.h>
+#include <iostream>
 #include <limits.h>
 #include <assert.h>
 // #include <bool.h>
+
+using std::istream;
+using std::ostream;
 
 //	Array2D - 2-dimensionales Feld fester Groesse
 
@@ -78,7 +81,7 @@ template <class T> class Array2D
 	Array2D vcat(const Array2D &bottom) const;
 	Array2D hcat(const Array2D &right) const;
 	Array2D join(const Array2D &right,
-                     bool (* pred)(const Array2D &, 
+                     bool (* pred)(const Array2D &,
                                    const Array2D &,
                                    unsigned int,
                                     unsigned int)) const;
@@ -87,14 +90,14 @@ template <class T> class Array2D
 	Array2D sel(bool (* pred)(const Array2D<T> &, unsigned int)) const;
 
 	//	Blockweiser Ausschnitt aus einem zweidimensionalen Feld
-	
+
 	Array2D
-	getBlock(unsigned int rl, unsigned int cl, unsigned int ru = UINT_MAX, 
+	getBlock(unsigned int rl, unsigned int cl, unsigned int ru = UINT_MAX,
 				unsigned int cu = UINT_MAX) const;
-	
+
 	//	Blockweises Einf"ugen in ein zweidimensionales Feld
 
-	void putBlock(const Array2D<T> & m, unsigned int rl, unsigned int cl, 
+	void putBlock(const Array2D<T> & m, unsigned int rl, unsigned int cl,
 		          unsigned int ru = UINT_MAX, unsigned int cu = UINT_MAX);
 
 	// getRow - i-te Zeile als Zeilenvektor zurueckliefern
@@ -104,17 +107,17 @@ template <class T> class Array2D
 	{
 		assert(!(operator!()));
 		assert(i < rows());
-		return getBlock(i, 0, i + 1, cols()); 
+		return getBlock(i, 0, i + 1, cols());
 	}
 
 	void putRow (unsigned i, const Array2D<T> &from)
-	{ 
+	{
 		assert(!(operator!()));
 		assert(i < rows());
 		assert(from.rows() == 1);
 		assert(from.cols() == cols() );
 
-		putBlock(from, i, 0, i + 1, cols()); 
+		putBlock(from, i, 0, i + 1, cols());
 	}
 
    // getCol - j-te Spalte als Spaltenvektor zurueckliefern
@@ -135,10 +138,10 @@ template <class T> class Array2D
 		assert(from.cols() == 1);
 		assert(from.rows() == rows() );
 
-		putBlock(from, 0, j, rows(), j + 1); 
+		putBlock(from, 0, j, rows(), j + 1);
    }
 
-	
+
 	Array2D<T> getRowBlock(unsigned int rl, unsigned int ru) const
 	{
 		assert(!(operator!()));
@@ -168,7 +171,7 @@ template <class T> class Array2D
 		return getBlock(0, cl, rows(), cu);
 	}
 
-	void putColBlock(unsigned int cl, unsigned int cu, const Array2D<T> &from) 
+	void putColBlock(unsigned int cl, unsigned int cu, const Array2D<T> &from)
 	{
 	  	assert(!(operator!()));
 		assert(cl < cu);

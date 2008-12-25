@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -12,7 +12,7 @@
 #define FCNONPVARIANCEINCLUDED
 
 #include"../values.h"
-#include<fstream.h>
+#include<fstream>
 #include"GENERAL_OPTIONS.h"
 #include"clstring.h"
 #include"FC_nonp.h"
@@ -33,7 +33,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   protected:
 
   FC_nonp * FCnonpp;                         // Pointer to corresponding
-                                             // FC_nonp object  
+                                             // FC_nonp object
   DISTR * likep;                             // Pointer to DISTR obejct
   DESIGN * designp;                          // Pointer to design object
 

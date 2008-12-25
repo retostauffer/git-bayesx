@@ -10,11 +10,14 @@
 
 #include <stdlib.h>
 
-
+using std::cout;
+using std::ifstream;
+using std::ofstream;
+using std::ios;
 
 essfreq::essfreq(void)
 	{
-		Matrix <unsigned> help1 ; 
+		Matrix <unsigned> help1 ;
 		sceleton = help1;
 
 		vector< vector <unsigned> > help2;
@@ -70,17 +73,17 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 
 
-//namespace std 
+//namespace std
 //{
 
 
 	// CONSTRUCTOR_1
-	adja::adja(unsigned n): Matrix<unsigned > (n, n, 0) 
+	adja::adja(unsigned n): Matrix<unsigned > (n, n, 0)
 	{
 		nvar = n;
 		start_type = 0; //independence
 		nedge = 0;
-		ladja = make_list();		
+		ladja = make_list();
 	}
 
 
@@ -94,7 +97,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		assert(type<5);
 
-		if(start_type == 1)  // complete model; edges always to "higher" variables 
+		if(start_type == 1)  // complete model; edges always to "higher" variables
 		{
 			for(i=0; i<nvar; i++)
 			{
@@ -153,7 +156,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 			}
 		}
 
-		ladja = make_list();		
+		ladja = make_list();
 	}
 
 
@@ -224,7 +227,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		//i is going through nvar components (which are lists) of the vector ladja
 
-		for(i=0; i<nvar; i++) 
+		for(i=0; i<nvar; i++)
 		{
 			list <unsigned > l;
 			for(j=0; j<nvar; j++)
@@ -249,7 +252,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		//i is going through nvar components (which are lists) of the vector ladja
 
-		for(i=0; i<nvar; i++) 
+		for(i=0; i<nvar; i++)
 		{
 			list <unsigned int> l;
 			for(j=0; j<nvar; j++)
@@ -275,7 +278,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		//i is going through nvar components (which are lists) of the vector ladja
 
-		for(i=0; i<nvar; i++) 
+		for(i=0; i<nvar; i++)
 		{
 			list <unsigned int> l;
 			for(j=0; j<nvar; j++)
@@ -287,26 +290,26 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 			}
 			help[i] = l;
 		}
-		
+
 		return help;
 	}
-	
 
 
 
 
 
-	
+
+
 	// FUNCTION: change_list
-		// TASK: changes the existing list ladja_new 
+		// TASK: changes the existing list ladja_new
 		// when there is a birth(0), death(1) or switch(2) step
-	
-	void adja::change_list (unsigned int i, unsigned int j, unsigned int step) 
+
+	void adja::change_list (unsigned int i, unsigned int j, unsigned int step)
 	{
 		unsigned int k;
 		std::list < unsigned int>::iterator pos_j;
 		unsigned int t=0;
-	
+
 
 		if(step==0) // change of list after a birth-step (i has become parent of j)
 		{
@@ -329,14 +332,14 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 		{
 			ladja[j].remove(i);
 		}
-		
+
 		else // change list after a switch-step (now i is parent of j and not viceversa)
 		{
 			ladja[i].remove(j);
 
 			 // there are t variables "in front of" i which are parents of j
 			 // so if i is a parent of j, it should be the (t+1)-th place of the list ladja[j]
-			
+
 			for(k=0; k<i; k++)
 			{
 				 if((k,j)==1)
@@ -375,7 +378,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 			// idea: if the x-th element of the i-th row of the proposed adja
 			// and the x-th element of the j-th column of l2 of the transposed new adja
 			// are both unequal to zero
-			// then the ij-th element of the product is different from zero, too. 
+			// then the ij-th element of the product is different from zero, too.
 			// here the i-th row and the j-th colum are represented by the lists l1 and l2
 
 			while(pos1 != l1.end() && pos2 != l2.end())
@@ -417,7 +420,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		// change of ladja as if ii->jj would be added
 		// last argument=0, because of birth-step
-		change_list(ii,jj,0);  
+		change_list(ii,jj,0);
 
 		// change of beta as if ii_>jj would be added
 		 put(ii,jj,1);
@@ -426,10 +429,10 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 		ladja_pot = make_list();
 
 		ladja_t = make_list(transposed());
-			
+
 		std::vector <list <unsigned > > :: iterator pos_i; // like i-th row of adja_pot
-		std::vector <list <unsigned > > :: iterator pos_j; // like j-th column of adja  
-			
+		std::vector <list <unsigned > > :: iterator pos_j; // like j-th column of adja
+
 		list <unsigned int> new_pot_i;
 
 		#if defined(MICROSOFT_VISUAL)
@@ -446,15 +449,15 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		for(l=0; l<limit; l++)
 		{
-			for(pos_i = ladja_pot.begin(),i=0; i<nvar-l; ++pos_i,i++) 
+			for(pos_i = ladja_pot.begin(),i=0; i<nvar-l; ++pos_i,i++)
 			{
 				for(pos_j = ladja_t.begin(),j=0; j<nvar; ++pos_j,j++)
 				{
-					if ( compare(*pos_i,*pos_j) == true) 
+					if ( compare(*pos_i,*pos_j) == true)
 					{
 						new_pot_i.push_back(j);
-						if(i==j) 
-						{	
+						if(i==j)
+						{
 							// cout<<"Zyklus von "<< i+1<<" nach "<<i+1<<" in "<<l+2<<" Schritten !!!"<<endl;
 							azy=false;
 							i=nvar;
@@ -466,20 +469,20 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 				if(azy==true)
 				{
 					*pos_i = new_pot_i;
-					new_pot_i.clear();				
+					new_pot_i.clear();
 				}
 			}
 		}
-				
+
 		put(ii,jj,0);			// beta is set back to the old value
 		change_list(ii,jj,1);   // the birth-step is set back
-			
+
 		return azy;
 	}
 
 
 
-	
+
 	// FUNCTION: azy_test
 	// TASK: returns true, if no cycles in the calling matrix
 	bool adja::azy_test(void)
@@ -495,10 +498,10 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 	//	help.assign(transposed());
 
 		ladja_t = make_list(transposed());
-			
+
 		std::vector <list <unsigned int> > :: iterator pos_i; // like i-th row of adja_pot
-		std::vector <list <unsigned int> > :: iterator pos_j; // like j-th column of adja 
-			
+		std::vector <list <unsigned int> > :: iterator pos_j; // like j-th column of adja
+
 		list <unsigned int> new_pot_i;
 
 		#if defined(MICROSOFT_VISUAL)
@@ -515,15 +518,15 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		for(l=0; l<limit; l++)
 		{
-			for(pos_i = ladja_pot.begin(),i=0; i<nvar-l; ++pos_i,i++) 
+			for(pos_i = ladja_pot.begin(),i=0; i<nvar-l; ++pos_i,i++)
 			{
 				for(pos_j = ladja_t.begin(),j=0; j<nvar; ++pos_j,j++)
 				{
-					if ( compare(*pos_i,*pos_j) == true) 
+					if ( compare(*pos_i,*pos_j) == true)
 					{
 						new_pot_i.push_back(j);
-						if(i==j) 
-						{	
+						if(i==j)
+						{
 							// cout<<"Zyklus von "<< i+1<<" nach "<<i+1<<" in "<<l+2<<" Schritten !!!"<<endl;
 							azy=false;
 							i=nvar;
@@ -535,17 +538,17 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 				if(azy==true)
 				{
 					*pos_i = new_pot_i;
-					new_pot_i.clear();				
+					new_pot_i.clear();
 				}
 			}
 		}
-			
+
 		return azy;
 	}
 
 
 	// FUNCTION: equi_test
-	// TASK: tests if i->j is covered, 
+	// TASK: tests if i->j is covered,
 	// e.g. if by changing i->j into j->i an equivalent graph is got
 	bool adja::equi_test(unsigned i, unsigned j)
 	{
@@ -553,7 +556,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 		bool equi=true;
 
 		unsigned pa_j = num_pa(j); //number of parents of j
-		
+
 
 		if( num_pa(i)+1  == pa_j)  //
 		{
@@ -565,7 +568,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 			for(k=0; k<nvar; k++)
 			{
-				if(*work_i == *work_j || k == i ) 
+				if(*work_i == *work_j || k == i )
 				{
 					work_i= work_i+nvar;
 					work_j= work_j+nvar;
@@ -588,9 +591,9 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 
 	// FUNCTION: string_to_adja
-	// TASK: changes calling adjacency matix into adjacency 
-	// matrix that corresponds to list of modfreq 
-	void adja::string_to_adja (ST::string model) 
+	// TASK: changes calling adjacency matix into adjacency
+	// matrix that corresponds to list of modfreq
+	void adja::string_to_adja (ST::string model)
 	{
 		unsigned k,l,pos,space,count;
 
@@ -602,7 +605,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 			for(l=0; l<nvar; count++, l++)
 			{
 				pos = count+space;
-				if(model[pos]=='1')	
+				if(model[pos]=='1')
 					put(k,l,1);
 				else
 					put(k,l,0);
@@ -614,10 +617,10 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 
 	// FUNCTION: string_to_adja
-	// TASK: changes calling adjacency matix into adjacency 
+	// TASK: changes calling adjacency matix into adjacency
 	// matrix that corresponds to list of modfreq
 	// and sets num_edges equal to the number of edges
-	void adja::string_to_adja (ST::string model, unsigned & num_edges) 
+	void adja::string_to_adja (ST::string model, unsigned & num_edges)
 	{
 		unsigned k,l,count;
 
@@ -628,7 +631,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 		{
 			for(l=0; l<nvar; count++, l++)
 			{
-				if(model[count]=='1')	
+				if(model[count]=='1')
 				{
 					put(k,l,1);
 					num_edges++;
@@ -643,16 +646,16 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 
 	// FUNCTION: adja_to_ess
-	// TASK: changes calling adjacency matix into adjacency 
-	// matrix that corresponds to list of modfreq 
-	void adja::adja_to_ess ( Matrix <unsigned> & scel, vector< vector <unsigned> > & immoralities) 
-	{ 
+	// TASK: changes calling adjacency matix into adjacency
+	// matrix that corresponds to list of modfreq
+	void adja::adja_to_ess ( Matrix <unsigned> & scel, vector< vector <unsigned> > & immoralities)
+	{
 		unsigned k,l,m;
 
 		assert(nvar==scel.cols());
 		assert(immoralities.size()==0);
 
-	
+
 		for(k=0; k<nvar; k++)
 		{
 			for(l=0; l<nvar; l++)
@@ -688,7 +691,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 								imm.push_back(l);
 								imm.push_back(k);
 								imm.push_back(m);
-								
+
 								immoralities.push_back(imm);
 							}
 						}
@@ -706,7 +709,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 
 
-	void adja::read_ess ( vector< essfreq> & list_ess, datamatrix & mean_all, 
+	void adja::read_ess ( vector< essfreq> & list_ess, datamatrix & mean_all,
 							datamatrix & sum_square, ifstream & fin, unsigned number)
 	{
 
@@ -716,7 +719,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 			cout<<"fin is not open!!!"<<endl; // fin.open();
 
 		unsigned k,l;
-		essfreq ess_new (nvar); 
+		essfreq ess_new (nvar);
 
 		ST::string s;
 		//char c;
@@ -732,7 +735,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 		unsigned num_imm;
 
 		vector <unsigned> help_c, help_int ;
-	
+
 		for(l=0; l<10;l++)
 		{
 			vector< vector <unsigned> > immo_all;
@@ -754,7 +757,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 						fin>>elem_imm;
 						immo.push_back(elem_imm);
 					}
-					
+
 					immo_all.push_back(immo);
 
 					i++;
@@ -774,7 +777,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 			}
 		}
 
-		
+
 
 
 
@@ -841,16 +844,16 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 								list_ess[l].freq = list_ess[l].freq + ess_new.freq;
 						  }
 					 }
-				 } 
+				 }
 				 l++;
-				 
+
 			 }
 			 if( ess_is_there==false)
 					 list_ess.push_back(ess_new);
 
 		 }
 	}
-	
+
 
 
 	// FUNCTION: add_to_mean
@@ -894,7 +897,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 			}
 		}
 	}
-  
+
 
 
 	// FUNCTION: write_out_ess_short
@@ -926,7 +929,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 				fout<<(ess.immoral)[i][0]<<" ";
 				fout<<(ess.immoral)[i][1]<<" ";
 				fout<<(ess.immoral)[i][2]<<"\t";
-				
+
 			}
 		}
 		fout<<endl;
@@ -944,12 +947,12 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 //}  // namespace std
 
 
-	
-	
 
 
 
-	 
+
+
+
 
 
 

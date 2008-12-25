@@ -7,7 +7,7 @@
 
 #define TSEARCHT_H_INCLUDED
 
-#include <iostream.h>
+#include <iostream>
 
 template <class T>
 class TreeNode
@@ -76,11 +76,11 @@ class SearchTree
    virtual ~SearchTree( );
 
    unsigned height( ) const;
-   
+
 
    virtual void insert( const T &elem ) { ins( elem, tree ); }
    virtual void remove( const T &elem ) { rm( elem, tree ); }
-   
+
    T * find(const T &like) const;
    void foreach(void (* f)(void *, void *), void *data = 0);
 

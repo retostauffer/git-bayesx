@@ -138,7 +138,7 @@ namespace MCMC
 
 	// FUNCTION initialize
 	// TASK: initializes x and xx  and y for pred_mod[i] (regression model i)
-	void FULLCOND_dag_ia_mixed::initialize (const adja & zeta, unsigned int j);
+	void initialize (const adja & zeta, unsigned int j);
 
 
 	// FUNCTION: ini_ia

@@ -182,7 +182,7 @@ class __EXPORT_TYPE DISTRIBUTION_nbinomial : public DISTRIBUTION
                           const datamatrix & w=datamatrix());
 
 
-void DISTRIBUTION_nbinomial::create(MCMCoptions * o, const double & a,
+void create(MCMCoptions * o, const double & a,
                                     const double & b, const double & pv,
                                     const vertopt & vo, const propscale & psc,
                                     bool hie, const ST::string & ps);

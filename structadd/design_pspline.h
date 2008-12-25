@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -13,6 +13,8 @@
 
 #include<deque>
 #include<design.h>
+
+using std::deque;
 
 namespace MCMC
 {
@@ -60,7 +62,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   // CONSTRUCTOR
 
-  DESIGN_pspline(const datamatrix & dm, const datamatrix & iv,
+  DESIGN_pspline(datamatrix & dm, datamatrix & iv,
              DISTR * dp,FC_linear * fcl, vector<ST::string> & op,
              vector<ST::string> & vn);
 
@@ -74,7 +76,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   // virtual functions
 
-  void init_data(const datamatrix & dm, const datamatrix & iv);
+  void init_data(datamatrix & dm, datamatrix & iv);
 
   void compute_penalty(void);
 

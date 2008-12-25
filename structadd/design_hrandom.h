@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -14,16 +14,16 @@
 #include"statmat.h"
 #include"sparsemat.h"
 
-#include"random.h"
+#include"Random.h"
 #include"envmatrix_penalty.h"
 #include"../values.h"
-#include<fstream.h>
+#include<fstream>
 #include<vector>
 #include<bitset>
 #include"GENERAL_OPTIONS.h"
 #include"clstring.h"
 #include"distr.h"
-#include"design.h" 
+#include"design.h"
 #include<cmath>
 
 
@@ -81,9 +81,9 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   void compute_precision(double l);
 
-  void read_options(vector<ST::string> & op,vector<ST::string> & vn);  
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
-  void outoptions(GENERAL_OPTIONS * op);  
+  void outoptions(GENERAL_OPTIONS * op);
 
   // DESTRUCTOR
 

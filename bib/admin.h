@@ -5,7 +5,7 @@
 
 #define ADMINISTRATOR_INCLUDED
 
-#include<fstream.h> 
+#include<fstream>
 #include<errorm.h>
 #include<data.h>
 #include<statobj.h>

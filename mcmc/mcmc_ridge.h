@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -17,23 +17,23 @@
 
 namespace MCMC
 {
-using randnumbers::rand_inv_gaussian;          
-          
-          
+using randnumbers::rand_inv_gaussian;
+
+
 class __EXPORT_TYPE FULLCOND_ridge : public FULLCOND
   {
 
-  protected:     
-  
-  vector<double> variances;    // vector of variances for the ridge penalty 
+  protected:
+
+  vector<double> variances;    // vector of variances for the ridge penalty
                                // (tau^2=:variances)
-                                                                                     
-  double lasso;                // lassoparameter (lambda=:lasso) 
-  
+
+  double lasso;                // lassoparameter (lambda=:lasso)
+
   DISTRIBUTION * likep;
-  
+
   datamatrix linold;           // linold=data*beta
-  datamatrix mu1;              // mu1=response-predictorpart  
+  datamatrix mu1;              // mu1=response-predictorpart
   datamatrix XX;               // XX=X'X
   datamatrix X1;               // X1=(X'WX)^-0.5
   datamatrix X2;               // X2=(X'WX)^-1X'W
@@ -58,7 +58,7 @@ class __EXPORT_TYPE FULLCOND_ridge : public FULLCOND
   FULLCOND_ridge(void) : FULLCOND()
     {
     }
-    
+
   //____________________________________________________________________________
   //
   // CONSTRUCTOR

@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -14,9 +14,9 @@
 #include"statmat.h"
 #include"sparsemat.h"
 
-#include"random.h"
+#include"Random.h"
 #include"../values.h"
-#include<fstream.h>
+#include<fstream>
 #include<vector>
 #include<bitset>
 #include"GENERAL_OPTIONS.h"
@@ -28,6 +28,7 @@ namespace MCMC
 
 using std::vector;
 using std::bitset;
+using std::ofstream;
 
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: FC ----------------------------------------
@@ -50,7 +51,7 @@ class __EXPORT_TYPE FC
   GENERAL_OPTIONS * optionsp;    // Pointer to general MCMC options
 
 
-  bool nosamples;  
+  bool nosamples;
 
   ST::string title;              // Title/name of the full conditional
 
@@ -193,7 +194,7 @@ class __EXPORT_TYPE FC
   virtual bool posteriormode(void);
 
   // FUNCTION: psoteriormode_betamean
-  // TASK: computes the retransformed current betamean 
+  // TASK: computes the retransformed current betamean
 
   void posteriormode_betamean(void);
 

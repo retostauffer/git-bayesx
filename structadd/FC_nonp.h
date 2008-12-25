@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -12,7 +12,7 @@
 #define FCNONPINCLUDED
 
 #include"../values.h"
-#include<fstream.h>
+#include<fstream>
 #include"GENERAL_OPTIONS.h"
 #include"clstring.h"
 #include"FC.h"
@@ -52,6 +52,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void centerparam_sample(void);
 
   void update_pvalue(void);
+  void compute_pvalue(void);
 
   public:
 
@@ -134,7 +135,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void outresults(const ST::string & pathresults);
 
-  void read_options(vector<ST::string> & op,vector<ST::string> & vn);  
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
   // FUNCTION: reset
   // TASK: resets all parameters

@@ -1,7 +1,7 @@
 
-
-
 #include "statmat_penalty.h"
+
+using std::ifstream;
 
 namespace STATMAT_PENALTY
 {

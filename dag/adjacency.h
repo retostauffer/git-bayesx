@@ -8,18 +8,18 @@
 #include "clstring.h"
 
 #include "statmat.h"
-#include <list> 
+#include <list>
 
 using std::vector;
 using std::list;
-
+using std::ifstream;
 
 struct essfreq
 {
 	Matrix <unsigned >  sceleton;
 	vector< vector <unsigned> > immoral;
 	unsigned nedges;
-	double freq;  
+	double freq;
 
 	essfreq(void);
 
@@ -107,7 +107,7 @@ class adja : public Matrix<unsigned>
 
 
 		// DEFAULT CONSTRUCTOR:
-		adja(void) 
+		adja(void)
 		{
 			nvar=1;
 		}
@@ -126,29 +126,29 @@ class adja : public Matrix<unsigned>
 
 		 // OVERLOADED ASSIGNMENT OPERATOR
 	//	const datamatrix  & operator= (const adja & a);
-	
+
 
 		//const SparseMatrix & operator=(const SparseMatrix & m);
-		
+
 
 		// DESTRUCTOR
 		~adja() {}
 
 		// FUNCTION: make_list
-		// TASK: represents adja-matrix m as a list 
+		// TASK: represents adja-matrix m as a list
 		 vector < list <unsigned int> > make_list (const adja & m) const;
 
 		 // FUNCTION: make_list
-		// TASK: represents Matrix<int> m as a list 
+		// TASK: represents Matrix<int> m as a list
 		 vector < list <unsigned int> > adja::make_list (const Matrix<unsigned> & m) const;
 
 		 // FUNCTION: make_list
-		// TASK: represents calling matrix as a list 
+		// TASK: represents calling matrix as a list
 		 vector < list <unsigned int> > make_list (void) const;
 
 
 		// FUNCTION: change_list
-		// TASK: changes the existing list ladja 
+		// TASK: changes the existing list ladja
 		// when there is a birth(0), death(1) or switch(2) step
 		void change_list (unsigned int i, unsigned int j, unsigned int step);
 
@@ -158,7 +158,7 @@ class adja : public Matrix<unsigned>
 		// returns true, if the "product is unequal to zero
 		bool compare(list <unsigned int> & l1, list <unsigned int>  & l2) const;
 
-		
+
 		// FUNCTION: azy_test
 		// TASK: returns true, if no cycles when adding (ii,jj)
 		bool azy_test(unsigned int ii, unsigned int jj);
@@ -170,7 +170,7 @@ class adja : public Matrix<unsigned>
 
 
 		// FUNCTION: equi_test
-		// TASK: tests if i->j is covered, 
+		// TASK: tests if i->j is covered,
 		// e.g. if by changing i->j into j->i an equivalent graph is got
 		bool adja::equi_test(unsigned i, unsigned j);
 
@@ -232,14 +232,14 @@ class adja : public Matrix<unsigned>
 
 
 		// FUNCTION: string_to_adja
-		// TASK: changes calling adjacency matix into adjacency 
-		// matrix that corresponds to list of modfreq 
+		// TASK: changes calling adjacency matix into adjacency
+		// matrix that corresponds to list of modfreq
 		void string_to_adja (ST::string model);
 
 
 
 		// FUNCTION: string_to_adja
-		// TASK: changes calling adjacency matix into adjacency 
+		// TASK: changes calling adjacency matix into adjacency
 		// matrix that corresponds to list of modfreq
 		// and sets num_edges equal to the number of edges
 		void string_to_adja (ST::string model, unsigned & num_edges);
@@ -247,10 +247,10 @@ class adja : public Matrix<unsigned>
 
 
 		// FUNCTION: adja_to_ess
-		// TASK: changes calling adjacency matix into 
+		// TASK: changes calling adjacency matix into
 		// sceleton and vector of immoralities
 		void adja_to_ess ( Matrix <unsigned> & scel, vector< vector <unsigned> > & imm)  ;
-  
+
 
 
 		// FUNCTION: assign
@@ -267,9 +267,9 @@ class adja : public Matrix<unsigned>
 
 
 		// FUNCTION: adja_to_ess
-		// TASK: changes calling adjacency matix into 
+		// TASK: changes calling adjacency matix into
 		// sceleton and vector of immoralities
-		void read_ess ( vector< essfreq> & list_ess, datamatrix & mean_all, datamatrix & sum_square, 
+		void read_ess ( vector< essfreq> & list_ess, datamatrix & mean_all, datamatrix & sum_square,
 						ifstream & fin, unsigned number);
 
 
@@ -282,7 +282,7 @@ class adja : public Matrix<unsigned>
 		// FUNCTION: add_to_mean
 		// TASK: takes matrix_new into account for the matrix_mean
 		void add_to_mean(const datamatrix & matrix_new, datamatrix & matrix_mean,  unsigned n);
-  
+
 
 		// FUNCTION: add_to_mean
 		// TASK: takes matrix_new into account for the matrix_mean
@@ -294,16 +294,16 @@ class adja : public Matrix<unsigned>
 		void write_out_ess_short(essfreq & ess, ST::string path_res, unsigned n);
 
 
-  
 
 
 
 
 
 
-	
 
-  
+
+
+
 
 };
 

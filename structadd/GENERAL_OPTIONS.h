@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -11,7 +11,7 @@
 
 #define GENERALOPTIONS
 
-#include<fstream.h>
+#include<fstream>
 #include<vector>
 #include"clstring.h"
 
@@ -19,6 +19,7 @@
 #include"adminparse_basic.h"
 #endif
 
+using std::cout;
 
 namespace MCMC
 {
@@ -134,7 +135,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
 
   void set_level1(double l1);
 
-  void set_level2(double l2);  
+  void set_level2(double l2);
 
   // DESTRUCTOR
 

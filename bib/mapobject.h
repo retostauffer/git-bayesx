@@ -198,7 +198,7 @@ class __EXPORT_TYPE mapobject : public statobject
     }
 
 
-  void describe(optionlist & globaloptions = optionlist());
+  void describe(const optionlist & globaloptions = optionlist());
 
   bool getexisting(void) const
     {
@@ -207,5 +207,15 @@ class __EXPORT_TYPE mapobject : public statobject
 
 
   };
+
+#if defined (__BUILDING_GNU)
+// ----------------------- forward friends decls ---------------------
+
+void infilerun(mapobject & m);
+void createmaprun(mapobject & m);
+void computeneighborsrun(mapobject & m);
+void outfilerun(mapobject & m);
+void reorderrun(mapobject & m);
+#endif
 
 #endif

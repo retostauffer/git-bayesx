@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE  __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -12,7 +12,7 @@
 #define FCmultINCLUDED
 
 #include"../values.h"
-#include<fstream.h>
+#include<fstream>
 #include"clstring.h"
 #include"FC_nonp.h"
 #include"design.h"
@@ -85,7 +85,7 @@ class __EXPORT_TYPE FC_mult  : public FC
   void set_multeffects(GENERAL_OPTIONS * o,const ST::string & t,
            const ST::string & fp,bool sm);
 
-  void update_multeffect(void);           
+  void update_multeffect(void);
 
   };
 

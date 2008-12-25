@@ -2,6 +2,9 @@
 #include "fullcond.h"
 #include "clstring.h"
 
+using std::ifstream;
+using std::ios;
+
 //------------------------------------------------------------------------------
 //--------------- CLASS: FULLCOND implementation of member functions -----------
 //------------------------------------------------------------------------------
@@ -1536,7 +1539,7 @@ void FULLCOND::update_beta_average(unsigned & samplesize)
      *workbetamean = betatransform;
    else
      *workbetamean = (1.0/(samplesize))*((samplesize-1)*(*workbetamean) + betatransform);
-   }     
+   }
   }
 
 

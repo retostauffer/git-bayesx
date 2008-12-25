@@ -6,23 +6,24 @@
 #include <algorithm>
 #include <math.h>
 
+using std::ios;
 
 namespace MCMC
 {
 
 
 
-  FULLCOND_rj::FULLCOND_rj (MCMCoptions * o, const datamatrix & d, 
-						  const ST::string & t,const unsigned & r, 
+  FULLCOND_rj::FULLCOND_rj (MCMCoptions * o, const datamatrix & d,
+						  const ST::string & t,const unsigned & r,
 						  const unsigned & c, const ST::string & fp)
 				: FULLCOND(o,d,t,r,c,fp)
 {
 	nvar=c;
 	nobs=d.rows();
 	assert(c==r);
-	
+
 //	std::vector < MCMC::FULLCOND_dag *> test;
-//	preg_mods = test; 
+//	preg_mods = test;
 
 	//ini_structure();
 	ini_ratio();
@@ -45,8 +46,8 @@ namespace MCMC
 
 
 
-FULLCOND_rj::FULLCOND_rj (vector < FULLCOND_dag * > dagp, MCMCoptions * o, const datamatrix & d, 
-						  const ST::string & t,const unsigned & r, 
+FULLCOND_rj::FULLCOND_rj (vector < FULLCOND_dag * > dagp, MCMCoptions * o, const datamatrix & d,
+						  const ST::string & t,const unsigned & r,
 						  const unsigned & c, const ST::string & fp)
 				: FULLCOND(o,d,t,r,c,fp)
 {
@@ -82,7 +83,7 @@ FULLCOND_rj::FULLCOND_rj (vector < FULLCOND_dag * > dagp, MCMCoptions * o, const
 
 // CONSTRUCTOR_2
 
-FULLCOND_rj::FULLCOND_rj (ST::string fix, const ST::string & rp, unsigned int lim, 
+FULLCOND_rj::FULLCOND_rj (ST::string fix, const ST::string & rp, unsigned int lim,
 						  double alph, ST::string switch_t, ST::string print_mod,
 						  unsigned & type, vector < FULLCOND_dag * > dagp,
 				MCMCoptions * o, const datamatrix & d, const ST::string & t,
@@ -134,7 +135,7 @@ FULLCOND_rj::FULLCOND_rj (ST::string fix, const ST::string & rp, unsigned int li
 	  zeta=fc.zeta;
 	  zeta_fix=fc.zeta_fix;
 
-	  preg_mods = fc.preg_mods; 
+	  preg_mods = fc.preg_mods;
 
 	  freq = fc.freq;
 
@@ -164,10 +165,10 @@ FULLCOND_rj::FULLCOND_rj (ST::string fix, const ST::string & rp, unsigned int li
 	  limit_number = fc.limit_number;
       alpha = fc.alpha;
 
-	  switch_type = fc.switch_type; 
+	  switch_type = fc.switch_type;
 
 	  print_models = fc.print_models;
-	  mixed_case = fc.mixed_case; 
+	  mixed_case = fc.mixed_case;
 	  file_of_results = fc.file_of_results;
 	  conditions = fc.conditions;
 
@@ -242,12 +243,12 @@ FULLCOND_rj::FULLCOND_rj (ST::string fix, const ST::string & rp, unsigned int li
 
 // FUNCTION: rj_step
 // chooses randomly new edge, decides which kind of step and makes it
- 
+
 void FULLCOND_rj::rj_step(void)
 {
 	step_aborted = true;
 
-	unsigned int vertex_i;	
+	unsigned int vertex_i;
 	unsigned int vertex_j;
 
 	while (step_aborted==true)
@@ -258,7 +259,7 @@ void FULLCOND_rj::rj_step(void)
 
 		while(vertex_i==vertex_j)
 			vertex_j= rand() % nvar;
-		
+
 
 
 
@@ -270,7 +271,7 @@ void FULLCOND_rj::rj_step(void)
 			{
 				death_step(vertex_i,vertex_j);
 			}
-			else if (zeta(vertex_j,vertex_i)==1)	
+			else if (zeta(vertex_j,vertex_i)==1)
 			{
 				switch_step(vertex_i,vertex_j);
 			}
@@ -284,19 +285,19 @@ void FULLCOND_rj::rj_step(void)
 			if (zeta(vertex_i,vertex_j) == 1 )
 			{
 				if(conditions_okay_d(vertex_i,vertex_j) == true)
-				{	
+				{
 					//cout<<"try_d: "<<vertex_i<<" -> "<<vertex_j<<endl;
 					death_step(vertex_i,vertex_j);
 				}
 			}
 			else if (zeta(vertex_j,vertex_i) == 1)
 			{
-				if(conditions_okay_s(vertex_i,vertex_j) == true);	
+				if(conditions_okay_s(vertex_i,vertex_j) == true);
 					switch_step(vertex_i,vertex_j);
 			}
-			else 
+			else
 			{
-				if(conditions_okay_b(vertex_i,vertex_j) == true) 
+				if(conditions_okay_b(vertex_i,vertex_j) == true)
 				{
 					//cout<<"try_b: "<<vertex_i<<" -> "<<vertex_j<<endl;
 					birth_step(vertex_i,vertex_j);
@@ -339,18 +340,18 @@ void FULLCOND_rj::birth_step(unsigned int v_i, unsigned int v_j)
 		datamatrix xx_new = preg_mods[v_j]->get_xx_new_b() ;
 
 		assert(ncoef_new==b_new.rows());
-		
+
 		double beta_new = rand_normal(); //coefficient which will be added
 
 		// computing of the new values
 		make_new_b("b", v_i,v_j,beta_new, xx_new,b_new, x_new);
 
-		
+
 		// calculate ratio
 
 		double log_denom;
 		double log_num;
-		double ratio; 
+		double ratio;
 
 		log_num = preg_mods[v_j]->calc_SQT_x(x_new, b_new) + preg_mods[v_j]->calc_SQT_b(b_new);
 		log_denom = preg_mods[v_j]->calc_SQT_x() +  preg_mods[v_j]->calc_SQT_b();
@@ -369,7 +370,7 @@ void FULLCOND_rj::birth_step(unsigned int v_i, unsigned int v_j)
 			acceptance_b ++;
 			zeta.edge_plus();
 
-			zeta(v_i,v_j)=1;			
+			zeta(v_i,v_j)=1;
 			zeta.change_list(v_i,v_j,0);
 
 			/*********************
@@ -389,7 +390,7 @@ void FULLCOND_rj::birth_step(unsigned int v_i, unsigned int v_j)
 		step_aborted = false;
 
 	} // end of "if(azy_test(i,j)== true) ...."
-} 
+}
 
 
 
@@ -403,7 +404,7 @@ void FULLCOND_rj::death_step(unsigned int v_i, unsigned int v_j)
 				preg_mods[v_j]->create_matrices("d", ncoef_new);
 
 	// instead of: datamatrix b_new (ncoef_new,1);
-	datamatrix & b_new = preg_mods[v_j]->get_b_new_d(); 	
+	datamatrix & b_new = preg_mods[v_j]->get_b_new_d();
 	// instead of: datamatrix x_new (nobs,ncoef_new);
 	datamatrix & x_new = preg_mods[v_j]->get_x_new_d();
 	// instead of: datamatrix xx_new (ncoef_new,ncoef_new);
@@ -419,10 +420,10 @@ void FULLCOND_rj::death_step(unsigned int v_i, unsigned int v_j)
 
 
 	double beta_old; //coefficient which will vanish
-		
+
 	// computing of the new values
 	make_new_d("d", v_i,v_j,xx_new, beta_old, b_new, x_new);
-	
+
 
 
 	// calculate ratio
@@ -434,7 +435,7 @@ void FULLCOND_rj::death_step(unsigned int v_i, unsigned int v_j)
 	log_num = preg_mods[v_j]->calc_SQT_x(x_new, b_new) + preg_mods[v_j]->calc_SQT_b(b_new);
 	log_denom = preg_mods[v_j]->calc_SQT_x() + preg_mods[v_j]->calc_SQT_b();
 
-	ratio = -1/(2*preg_mods[v_j]->get_sigma_i()) 
+	ratio = -1/(2*preg_mods[v_j]->get_sigma_i())
 			*(log_num - log_denom) + p_prop(beta_old) ;
 
 
@@ -485,9 +486,9 @@ void FULLCOND_rj::switch_step(unsigned int v_i, unsigned int v_j)
 
 	if(zeta.azy_test(v_i,v_j)==true)
 	{
-		
+
 		zeta(v_j,v_i)=1;
-		zeta.change_list(v_j,v_i,0); 
+		zeta.change_list(v_j,v_i,0);
 
 		if(switch_type=="equi"
 			&& zeta.equi_test(v_j,v_i)==true)
@@ -510,16 +511,16 @@ void FULLCOND_rj::switch_step(unsigned int v_i, unsigned int v_j)
 			}
 		}
 
-		
+
 	} // end of "if(azy_test(i,j)==true)"
-	
+
 	else // azy_test(i,j)==false"
 	{
 		zeta(v_j,v_i)=1;
 		zeta.change_list(v_j,v_i,0);
 	}
 
-	nrtrials_s ++;		
+	nrtrials_s ++;
 }
 
 
@@ -555,7 +556,7 @@ void FULLCOND_rj::switch_version_1(unsigned i, unsigned j)
 	double beta_old_ij; //coefficient which will vanish
 	double sigma_new_i; //coefficient which will vanish
 	double sigma_new_j; //coefficient which will vanish
-	
+
 	// computing of the new values
 	make_new_d("s", j,i,xx_new_i, beta_old_ij, b_new_i, x_new_i);
 
@@ -632,9 +633,9 @@ void FULLCOND_rj::switch_version_1(unsigned i, unsigned j)
 	// **************  calculate ratio and accept or reject *************************************
 
 	double ratio = 	ratio_s( i, j, b_new_i, b_new_j, x_new_i, x_new_j, mean_i, mean_j,
-								     xx_new_i, xx_new_j, sig_mean_i, sig_mean_j, 
+								     xx_new_i, xx_new_j, sig_mean_i, sig_mean_j,
 									 sigma_new_i, sigma_new_j);
-		
+
 	//ratio_s(i, j, ncoef_new_i, ncoef_new_j, b_new_i, b_new_j, x_new_i, x_new_j, beta_old_i, beta_new_j, mean_prop_i, mean_prop_j);
 
 	if(func::accept(ratio) == true)
@@ -762,7 +763,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
   // FUNCTION: ratio_s
  // TARGET: computes acceptance ratio in the switch step
  double FULLCOND_rj::ratio_s(unsigned int i,unsigned int j,
-							const datamatrix & b_new_i, const datamatrix & b_new_j, 
+							const datamatrix & b_new_i, const datamatrix & b_new_j,
 							const datamatrix & x_new_i, const datamatrix & x_new_j,
 							const datamatrix & mean_i, const datamatrix & mean_j,
 							const datamatrix & xx_new_i, const datamatrix & xx_new_j,
@@ -782,8 +783,8 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 	double log_num1 = -0.5* (nobs*log(sigma_new_j)
 						+ preg_mods[j]->calc_yXb(x_new_j, b_new_j) / sigma_new_j);
-	
-	double log_den1 = -0.5* (nobs*log(sigma_old_j) 
+
+	double log_den1 = -0.5* (nobs*log(sigma_old_j)
 						+ preg_mods[j]->get_SQT_x()/ sigma_old_j);
 
 	double log_num2 = -0.5* (nobs*log(sigma_new_i)
@@ -791,15 +792,15 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 	double log_den2 = -0.5* (nobs*log(sigma_old_i)
 						+ preg_mods[i]->get_SQT_x()/ sigma_old_i);
-	
-	double log_num3 = -0.5*(b_new_j.cols()*log(sigma_new_j) 
+
+	double log_num3 = -0.5*(b_new_j.cols()*log(sigma_new_j)
 						+ preg_mods[j]->calc_SQT_b(b_new_j)/sigma_new_j);
 
-	double log_den3 = -0.5*(ncoef_j*log(sigma_old_j) 
+	double log_den3 = -0.5*(ncoef_j*log(sigma_old_j)
 						+ preg_mods[j]->get_SQT_b()/sigma_old_j);
 
 
-	double log_num4 = -0.5*(b_new_i.cols()*log(sigma_new_i) 
+	double log_num4 = -0.5*(b_new_i.cols()*log(sigma_new_i)
 						+ preg_mods[i]->calc_SQT_b(b_new_i)/sigma_new_i);
 
 	double log_den4 = -0.5*(ncoef_i*log(sigma_old_i)
@@ -813,31 +814,31 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 
 	double help_i_old, help_i_new, help_j_old, help_j_new;
-	double a_sig_i, b_sig_i, a_sig_j, b_sig_j; 
+	double a_sig_i, b_sig_i, a_sig_j, b_sig_j;
 
 
 	a_sig_i = 0.5* (nobs - preg_mods[i]->get_ncoef());
 	a_sig_j = 0.5* (nobs - preg_mods[j]->get_ncoef());
 
 	double value;
-	
-	value = preg_mods[i]->get_SQT_x();	
+
+	value = preg_mods[i]->get_SQT_x();
 	b_sig_i =0.5*value;
 
 	value = preg_mods[j]->get_SQT_x();
 	b_sig_j =0.5*value;
 
 	help_i_old = a_sig_i*log(b_sig_i) - log_gamma1(a_sig_i)
-					- (a_sig_i+1)*log (sigma_old_i) 
+					- (a_sig_i+1)*log (sigma_old_i)
 					- b_sig_i/sigma_old_i;
 
 	help_i_new =  alpha_sig_i*log(beta_sig_i) - log_gamma1(alpha_sig_i)
 					- (alpha_sig_i+1)*log (sigma_new_i) - beta_sig_i/sigma_new_i;
 
 	help_j_old = a_sig_j*log(b_sig_j) - log_gamma1(a_sig_j)
-					- (a_sig_j+1)*log (sigma_old_j) 
+					- (a_sig_j+1)*log (sigma_old_j)
 					- b_sig_j/sigma_old_j;
-	
+
 	help_j_new =  alpha_sig_j*log(beta_sig_j) - log_gamma1(alpha_sig_j)
 					- (alpha_sig_j+1)*log (sigma_new_j) - beta_sig_j/sigma_new_j;
 
@@ -852,7 +853,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
     double help3 = -0.5* ( sig_mean_i.det() + preg_mods[i]->p_prop(b_new_i, mean_i, xx_new_i));
     double help4 = -0.5* ( sig_mean_j.det() + preg_mods[i]->p_prop(b_new_j, mean_j, xx_new_j));
 
-    
+
      log_prop_b = help1+help2-help3-help4;
 
 
@@ -874,14 +875,14 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 
 
-    // FUNCTION: make_new_b 
+    // FUNCTION: make_new_b
 	// TASK: computes the new values for a birth-step
-	void FULLCOND_rj::make_new_b (ST::string step, unsigned int i, unsigned int j, double beta_new, 
+	void FULLCOND_rj::make_new_b (ST::string step, unsigned int i, unsigned int j, double beta_new,
 				datamatrix & xx_new, datamatrix & b_new, datamatrix & x_new)
 	{
 		unsigned int ncoef_new = preg_mods[j]->get_ncoef() +1;
 		unsigned int k, kk, l;
-		
+
 
 		// Definition of t:
 		// the variable i is the t-th regression coefficient of j
@@ -893,7 +894,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 				t++;
 		}
 
-		
+
 
 	   //*********************** compute x_new ************************************
 		double * workx_new;
@@ -910,7 +911,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			{
 				if(l != t)
 					*workx_new = *workx;
-				else 
+				else
 				{
 					*workx_new = *workdata;
 					workdata = workdata + nvar;
@@ -929,7 +930,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 		double * workxx_new;
 		double * workxx;
         double * workx1;
-		double * workx2; 
+		double * workx2;
 
 		double value;
 
@@ -956,8 +957,8 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 							workx1 = workx1 + ncoef_new;
 							workx2 = workx2 + ncoef_new;
 						}
-									
-						*workxx_new = value;  
+
+						*workxx_new = value;
 
 						workxx--;
 					}
@@ -1002,7 +1003,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			{
 				if(k!= t)
 					*workb_new = *workbeta;
-				else 
+				else
 				{
 					*workb_new = beta_new;
 					workbeta--;
@@ -1010,20 +1011,20 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			}
 
 			//compute proposed linear predictor
-			preg_mods[j]->calc_lin_prop( x_new, b_new); 
+			preg_mods[j]->calc_lin_prop( x_new, b_new);
 		}
 	}
 
 
-	
 
 
 
-	
-   // FUNCTION: make_new_d 
+
+
+   // FUNCTION: make_new_d
    // TASK: computes the new values for a death-step
 
-   void FULLCOND_rj::make_new_d (ST::string step, unsigned int i, unsigned int j, datamatrix & xx_new, 
+   void FULLCOND_rj::make_new_d (ST::string step, unsigned int i, unsigned int j, datamatrix & xx_new,
 							double & beta_old, datamatrix & b_new, datamatrix & x_new)
 	{
 		unsigned int k,l;
@@ -1041,7 +1042,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 		for(k=0; k<nvar; k++)
 		{
 			if( (k<=i) && (*workzeta==1))
-				t++;	
+				t++;
 			workzeta = workzeta+nvar;
 		}
 
@@ -1062,7 +1063,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			{
 				if(l != t)
 					*workx_new = *workx;
-				else 
+				else
 					workx_new--;
 			}
 		}
@@ -1104,7 +1105,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 		//save the t-th coefficient (which is going to be deleted)
 		beta_old = preg_mods[j]->get_beta_help(t,0);
 
-		
+
 
 		if(step != "s") //if the death-step is NOT part of a switch step
 		{
@@ -1112,14 +1113,14 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			double * workb_new;
 			double * workbeta;
 
-			workb_new = b_new.getV(); 
+			workb_new = b_new.getV();
 			workbeta = preg_mods[j]->getV_beta_help();
 
 			for(k=0; k<ncoef; workb_new++, workbeta++, k++)
 			{
 				if(k!= t)
 					*workb_new = *workbeta;
-				else 
+				else
 					workb_new--;
 
 			}
@@ -1135,11 +1136,11 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 	// FUNCTION: sample_sigma
 	// TARGET: samples the new variance of the regression model i in the switch step
-	
-	double FULLCOND_rj::sample_sigma(char vertex, unsigned int i, unsigned int ncoef_new_i, 
+
+	double FULLCOND_rj::sample_sigma(char vertex, unsigned int i, unsigned int ncoef_new_i,
 							const datamatrix & mean_i, const datamatrix & x_new_i)
 	{
-		double value; 
+		double value;
 
 		if(vertex== 'i')
 		{
@@ -1148,7 +1149,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			alpha_sig_i = 0.5* (nobs - ncoef_new_i);
 			beta_sig_i = 0.5 * value;
 
-			
+
 			return rand_invgamma(alpha_sig_i ,beta_sig_i);
 		}
 		else if(vertex=='j')
@@ -1167,7 +1168,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			value = preg_mods[i]->calc_yXb(preg_mods[i]->get_y(),x_new_i, mean_i);
 
 			a = 0.5* (nobs - ncoef_new_i);
-			b= 0.5 * value; 
+			b= 0.5 * value;
 
 			return rand_invgamma(a, b);
 		}
@@ -1184,11 +1185,11 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 	{
 		assert( (int(value) % 1==0) || (int(value) % 1==0.5));
 
-		if (value==0 || value ==1) 
+		if (value==0 || value ==1)
 			return 0;
-		else if(value==0.5) 
+		else if(value==0.5)
 			return log(3.14159);
-		else 
+		else
 			return log(value) + log_gamma(value-1);
 	}
 
@@ -1209,7 +1210,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 		double k;
 		double sum=0;
 
-		double start; 
+		double start;
 
 		if(nobs % 2 ==0)
 		{
@@ -1262,7 +1263,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 	double FULLCOND_rj::p_prop(const datamatrix & prop)
 	{
-		unsigned t; 
+		unsigned t;
 		double sum;
 		sum=0;
 
@@ -1288,7 +1289,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 		unsigned k, l;
 
-	
+
 //		FULLCOND::outresults();
 
 		std::sort(freq.begin(), freq.end());
@@ -1357,7 +1358,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 		correlation.assign(data.corr());
 		partial_corr.assign(data.partial_var());
 
-		
+
 		for(k=0; k<nvar; k++)
 		{
         help="";
@@ -1367,8 +1368,8 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
             optionsp->out(help + "\n");
 			optionsp->out("\n");
 		}
-		
-		
+
+
 		optionsp->out("\n");
 		optionsp->out("\n");
 		optionsp->out("******** partial correlation ********\n");
@@ -1391,12 +1392,12 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 		optionsp->out("\n");
 
 
-		
-		optionsp->out("acceptance ratio for a birth-step: " 
+
+		optionsp->out("acceptance ratio for a birth-step: "
 			+ ST::doubletostring(double(acceptance_b)/nrtrials,3) + "\n");
-        optionsp->out("acceptance ratio for a death-step: "  
+        optionsp->out("acceptance ratio for a death-step: "
 			+ ST::doubletostring(double(acceptance_d)/nrtrials,3) + "\n");
-        optionsp->out("acceptance ratio for a switch-step: " 
+        optionsp->out("acceptance ratio for a switch-step: "
 			+ ST::doubletostring(double(acceptance_s)/nrtrials,3) + "\n");
 
 		optionsp->out("\n");
@@ -1475,7 +1476,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			}
 		}
 
-	
+
 
 
 
@@ -1511,7 +1512,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 						+ ST::inttostring(freq.size())
 						+ "\n"
 						+ "\n");
-			       
+
 		optionsp->out("******** DIFFERENT MODELS sorted by frequencies  ********\n");
 
 
@@ -1538,7 +1539,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 					+ "	"
 					+ ST::doubletostring(double(freq[k].freq)/total_number,3)
 					+ "\n");
-			}	
+			}
 		}
 		else if (print_mod=="limit")
 		{
@@ -1559,12 +1560,12 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			}
 
 		}
-		else if (print_mod=="prob")	
+		else if (print_mod=="prob")
 		{
 			double rel_freq;
 			double prob_cum = 0;
 
-			optionsp->out("******* at least " + ST::doubletostring(100-alpha*100) 
+			optionsp->out("******* at least " + ST::doubletostring(100-alpha*100)
 											  + " % of posterior probability ******** \n");
 			optionsp->out("\n");
 
@@ -1583,11 +1584,11 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 						+ "\n");
 
 				prob_cum = prob_cum + rel_freq;
-				k--;	
+				k--;
 			}
 		}
 	}
-		
+
 
 
 
@@ -1611,7 +1612,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 	  unsigned list_size;
       int k;
 
-	  
+
 	  double prob_of_limit;		// probability of first n dags, where n=limit_number
 	  double rel_freq;
 	  double prob_cum = 0;
@@ -1625,7 +1626,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 
 	  //************** calculate necessary numbers *************************************
-	  
+
 	  total_number_ess = 0;
       list_size = list_ess.size();
 
@@ -1683,11 +1684,11 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 
 		//********************* start to write output ************************************
-		
+
 		optionsp->out("\n");
 		optionsp->out("\n");
 		optionsp->out("\n");
-		optionsp->out("\n"); 
+		optionsp->out("\n");
 		optionsp->out("\n");
 		optionsp->out("\n");
 		optionsp->out("Number of different equivalent classes visited by the algorithm: "
@@ -1707,7 +1708,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 		//************** different outputs with respect to the option chosen above ************
 
-		if(print_mod=="all")	
+		if(print_mod=="all")
 		{
 			optionsp->out("********************************** all models **********************************\n");
 			optionsp->out("\n");
@@ -1740,7 +1741,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 				write_out_essential(list_ess[k], total_number_ess);
 
 				prob_cum = prob_cum + rel_freq;
-				k--;	
+				k--;
 			}
 		}
 		if( file_of_results == true)
@@ -1834,7 +1835,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 	void FULLCOND_rj::write_out_resfile(void)
 	{
 		int i, j, loop_end;
-	    unsigned size_list; 
+	    unsigned size_list;
 		unsigned total_number_ess=0;
 		adja adja_help (nvar);
 
@@ -1932,7 +1933,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
           /*
 
           // Falls nach jeder 5000. Beobachtung rausgeschrieben werden soll:
-          
+
            if( (optionsp->get_nriter() - optionsp->get_burnin()) % 5000 == 0
                &&
                optionsp->get_nriter() > optionsp->get_burnin())
@@ -1943,7 +1944,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
           */
 
-		 
+
 
 		 // if(print_dags==true)
 			  //FULLCOND::update();    // this command should be included (at the end of the
@@ -1962,7 +1963,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
  {
 	 unsigned k;
 	 unsigned num_edge, frequency;
-	 
+
 	Matrix <unsigned> scel;
 
 	 adja adja_help(nvar);
@@ -2018,7 +2019,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 				  s = s +  " ";
 		  }
 	  }
-		  
+
 	  if(freq.size()==0)
 	  {
 		  freq.push_back( modfreq(s,zeta.get_nedge(), 1));
@@ -2029,7 +2030,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
          std::vector < modfreq>::iterator pos_i;
          pos_i = freq.begin();
-		  
+
 		 for(i=0; i<end; i++,++pos_i)
 		  {
 			  if(s==(*pos_i).model) //if(s==freq[i].model)
@@ -2041,17 +2042,17 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			  }
 		  }
 		  if(found==false)
-			  freq.push_back(modfreq(s,zeta.get_nedge(),1)); 
-	
+			  freq.push_back(modfreq(s,zeta.get_nedge(),1));
+
 	  }
-  } 
+  }
 
 
 
 
  // FUNCTION: update_zeta
  // TASK: updates zetamean and the auxiliary variables like zeta_max etc.
- 
+
  void FULLCOND_rj::update_zeta(void)
  {
 
@@ -2126,8 +2127,8 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 			optionsp->out("IMPROPER CONDITIONS on the adjacency matrix!\n");
 			optionsp->out("\n");
 
-			optionsp->out("The adjacency matrix to start with \n"  
-						  "and the conditions onto the graph \n" 
+			optionsp->out("The adjacency matrix to start with \n"
+						  "and the conditions onto the graph \n"
 						  "do not fit together.\n");
 
 			optionsp->out("\n");
@@ -2231,7 +2232,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 		if(		(zeta_fix(i,j)==0 && zeta(i,j)==1)
 			||	(zeta_fix(i,j)==1 && zeta(i,j)==0))
 			return false;
-		else 
+		else
 			return true;
 	}
 
@@ -2247,7 +2248,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 		if(zeta_fix(i,j) != 1)
 			return true;
-		else 
+		else
 			return false;
 	}
 
@@ -2260,7 +2261,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 		if(zeta_fix(i,j)!=0)
 			return true;
-		else 
+		else
 			return false;
 	}
 
@@ -2273,7 +2274,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 		if(zeta_fix(i,j)!=0 && zeta_fix(j,i)!=1)
 			return true;
-		else 
+		else
 			return false;
 	}
 
@@ -2312,7 +2313,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 				  }
 			  }
 		  }
-		  
+
 		  if(conditions ==false)
 		  {
 			  optionsp->out("Improper conditions on the adjacency matrix!");
@@ -2353,7 +2354,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 	void FULLCOND_rj::outoptions(void)
 	{
-		unsigned k,l, value; 
+		unsigned k,l, value;
 
 		optionsp->out("Type of switch-step: " + switch_type + "\n");
 		optionsp->out("Type of starting dag: " + ST::inttostring(type) + "\n");

@@ -16,7 +16,7 @@
 #else
 #include "../values.h"
 #endif
-#include<fstream.h>
+#include<fstream>
 #include "clstring.h"
 #include<assert.h>
 #include<vector>

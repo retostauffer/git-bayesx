@@ -10,9 +10,11 @@
 #ifndef bsplinematH
 #define bsplinematH
 
-#include<deque.h>
+#include<deque>
 #include "statmat.h"
 #include "mcmc_nonpbasis.h"
+
+using std::deque;
 
 namespace MCMC
 {

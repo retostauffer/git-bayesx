@@ -6,6 +6,8 @@
 #pragma hdrstop
 #endif
 
+using std::ios;
+
 namespace MCMC
 {
 
@@ -133,7 +135,7 @@ DISTRIBUTION_nbinomial::DISTRIBUTION_nbinomial(const DISTRIBUTION_nbinomial &nd)
     accept = nd.accept;
     nu = nd.nu;
     nusave = nd.nusave;
-    nusavekfz = nd.nusavekfz;    
+    nusavekfz = nd.nusavekfz;
     hierint = nd.hierint;
     hierintsave = nd.hierintsave;
     pvar = nd.pvar;
@@ -162,9 +164,9 @@ const DISTRIBUTION_nbinomial &
     accept = nd.accept;
     nu = nd.nu;
     nusave = nd.nusave;
-    nusavekfz = nd.nusavekfz;    
+    nusavekfz = nd.nusavekfz;
     hierint = nd.hierint;
-    hierintsave = nd.hierintsave;    
+    hierintsave = nd.hierintsave;
     pvar = nd.pvar;
     a_pri = nd.a_pri;
     b_pri = nd.b_pri;
@@ -227,7 +229,7 @@ void DISTRIBUTION_nbinomial::compute_deviance(const double * response,
     // Formula: logarithm of the density of a negative binomial distribution
     // NB(mu, d) = G(y+d)/(G(y+1)G(d)) (d/(d+mu))^d (mu/(d+mu))^y
     // DEV = logG(y+d)-logG(y+1)-logG(d) + d*(log(d)-log(mu+d)) + y*(log(mu)-log(mu+d))
-    // DEV_SAT = NB(mu, d) - NB(y, d)  
+    // DEV_SAT = NB(mu, d) - NB(y, d)
 
     if(*response==0)
     {
@@ -261,10 +263,10 @@ double DISTRIBUTION_nbinomial::compute_weight(double * linpred,double *weight,
                         scale(0,0));
     }
 
-// Für MCMC iterations!!!!!!    
+// Für MCMC iterations!!!!!!
     else
     {
-        // Negative binomial  
+        // Negative binomial
 
         if(ver==nb) return *weight * exp(*linpred)*scale(0,0)/(exp(*linpred) +
                         scale(0,0));
@@ -689,7 +691,7 @@ bool DISTRIBUTION_nbinomial::posteriormode(void)
         else
             return false;
      }
-     else 
+     else
         return true;
 }
 
@@ -786,7 +788,7 @@ double DISTRIBUTION_nbinomial::update_nu(void)
         }
     }
     // For the Poisson-Inverse Gaussian Model: M-H-Algorithm.
-    // Formulae: (5.16), (5.31) and (5.32) from diss.  
+    // Formulae: (5.16), (5.31) and (5.32) from diss.
 
     else
     {
@@ -821,7 +823,7 @@ double DISTRIBUTION_nbinomial::update_nu(void)
                     2.0*(*scalework)* mu+ *scalework*(*scalework)))/
                     (2.0*mu+*scalework);
 
-            // (5.32)                    
+            // (5.32)
 
             if(nupost > *pwork)
             {
@@ -956,7 +958,7 @@ double DISTRIBUTION_nbinomial::update_scale(void) const
         else *scalework = scaleaux;
 
         // Tuning function for the acceptance rates of the M-H algorithm
-        // It will be called only in the burnin phase and each 100 iterations.        
+        // It will be called only in the burnin phase and each 100 iterations.
 
         if(optionsp->get_nriter() % 100 == 0 &&
             optionsp->get_nriter() <= optionsp->get_burnin())
@@ -994,7 +996,7 @@ double DISTRIBUTION_nbinomial::update_scale(void) const
 
 
 
-double DISTRIBUTION_nbinomial::update_b_pri(void) 
+double DISTRIBUTION_nbinomial::update_b_pri(void)
 {
     double alpha = 1;
     double beta = 0.005;
@@ -1024,7 +1026,7 @@ double DISTRIBUTION_nbinomial::proposal_scale(void) const
 
         // For a uniform proposal: pwork stores the width of the uniform proposal.
         // The central point is given by the old value of scale.
-        // Formula (5.38) from diss.        
+        // Formula (5.38) from diss.
 
        if(pscale == unif)       // if uniform
         {
@@ -1128,7 +1130,7 @@ double DISTRIBUTION_nbinomial::log_gamma_likelihood_hier(double &s,
     double *sum = sum_nu.getV();
     double *sum2 = sum2_nu.getV();
     double * hierintwork = hierint.getV();
-    
+
     summe = nrobs*(s_neu*log(s_neu)-s*log(s)+(s-s_neu)*(*hierintwork)+
             lgamma(s)-lgamma(s_neu)) +
             (s_neu - s)*(*sum2 - *sum/exp(*hierintwork));
@@ -1172,7 +1174,7 @@ double DISTRIBUTION_nbinomial::lgamma(const double & xx) const
 }
 
 
-  
+
 
 
 double DISTRIBUTION_nbinomial::log_nbin(const double & s_neu,

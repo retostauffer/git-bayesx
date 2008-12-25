@@ -15,14 +15,14 @@
 #include"statmat_penalty.h"
 #include"sparsemat.h"
 #include"Random.h"
-#include<fstream.h>
+#include<fstream>
 #include<vector>
-#include"clstring.h"
 
 #if defined(JAVA_OUTPUT_WINDOW)
 #include"adminparse_basic.h"
 #endif
 
+using std::cout;
 
 namespace MCMC
 {

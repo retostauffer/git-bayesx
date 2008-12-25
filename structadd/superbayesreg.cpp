@@ -12,6 +12,7 @@
 #endif
 
 #include"superbayesreg.h"
+#include <mapobject.h>
 
 // Vorschlag:
 //#include<typeinfo.h>
@@ -68,6 +69,8 @@ void superbayesreg::make_paths(ST::string & pathnonp,
 
   }
 
+// forward declaration
+void hregressrun(superbayesreg & b);
 
 void superbayesreg::create_hregress(void)
   {
@@ -154,6 +157,8 @@ void superbayesreg::create_hregress(void)
 
   }
 
+// forward declaration
+void autocorrrun(superbayesreg & b);
 
 void superbayesreg::create_autocorr(void)
   {
@@ -173,6 +178,8 @@ void superbayesreg::create_autocorr(void)
 
   }
 
+// forward declaration
+void getsamplerun(superbayesreg & b);
 
 void superbayesreg::create_getsample(void)
   {
@@ -1120,7 +1127,7 @@ bool superbayesreg::create_mrf(unsigned i)
 
   return false;
   }
-  
+
 
 bool superbayesreg::create_nonp(void)
   {
@@ -1194,8 +1201,8 @@ void getsamplerun(superbayesreg & b)
 
   }
 
-  
-void superbayesreg::describe(optionlist & globaloptions)
+
+void superbayesreg::describe(const optionlist & globaloptions)
   {
   statobject::describe(globaloptions);
   }

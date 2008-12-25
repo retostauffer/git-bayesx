@@ -37,6 +37,10 @@ using realob::cumul;
 using realob::lagrealvar;
 using realob::gamma;
 
+using std::ifstream;
+using std::ofstream;
+using std::ostream;
+
 //------------------------------------------------------------------------------
 //---------------------------- CLASS: data -------------------------------------
 //------------------------------------------------------------------------------
@@ -131,7 +135,8 @@ class __EXPORT_TYPE data
 
   // DESTRUCTOR
 
-  ~data() {}
+  ~data()
+  {}
 
   // OVERLOADED << OPERATOR
 
@@ -378,8 +383,8 @@ class __EXPORT_TYPE dataset
   #if defined(JAVA_OUTPUT_WINDOW)
   administrator_basic * adminb_p,
   #endif
-  ostream & out,list<ST::string> & names = list<ST::string>(),
-				  const bool header = false,const realvar & v0 = realvar());
+  ostream & out,list<ST::string> & names, // = list<ST::string>(),
+				  const bool header = false, const realvar & v0 = realvar());
 
   // FUNCTION: eval_exp
   // TASK: evaluates an expression and returns the resulting variable

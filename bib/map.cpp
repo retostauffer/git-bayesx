@@ -1,4 +1,4 @@
-   
+
 
 
 #if defined(BORLAND_OUTPUT_WINDOW)
@@ -10,6 +10,9 @@
 #endif
 
 #include"map.h"
+
+using std::ifstream;
+using std::ofstream;
 
 namespace MAP
 {
@@ -936,7 +939,7 @@ void map::outcentroids(const ST::string & path)
     {
     out << regions[i].get_name() << "  ";
     out << regions[i].get_xcenter() << "  ";
-    out << regions[i].get_ycenter() << endl;    
+    out << regions[i].get_ycenter() << endl;
     }
 
 
@@ -1287,7 +1290,7 @@ void map::infile(const ST::string & path)
     minX = DBL_MAX;
     maxX = -DBL_MAX;
     minY = DBL_MAX;
-    maxY = -DBL_MAX;  
+    maxY = -DBL_MAX;
 	}
   #else
 	{
@@ -1314,7 +1317,7 @@ void map::reset(void)
   minX = DBL_MAX;
   maxX = -DBL_MAX;
   minY = DBL_MAX;
-  maxY = -DBL_MAX;  
+  maxY = -DBL_MAX;
   }
 #else
   {
@@ -1325,7 +1328,7 @@ void map::reset(void)
   }
 #endif
 
-  
+
   bandsize = 0;
 
   neighbors.erase(neighbors.begin(),neighbors.end());
@@ -1832,7 +1835,7 @@ void map::compute_reg(const datamatrix & d,vector<int> & posbeg,
 
     }
 
-    
+
   }
 
 

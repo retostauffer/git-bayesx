@@ -7,7 +7,10 @@
 
 
 #include "mcmc.h"
+#include "clstring.h"
 
+#include <iostream>
+using std::flush;
 
 namespace MCMC
 {
@@ -61,8 +64,8 @@ const unsigned & it,const unsigned & bu,
 #elif defined(JAVA_OUTPUT_WINDOW)
 adminb_p = abp;
 #else
-  if (logout->fail())
-    logout = &cout;
+//  if (logout->fail())
+//    logout = &cout;
 #endif
   }
 
@@ -132,7 +135,7 @@ void MCMCoptions::out(const ST::string & s,bool thick,bool italic,
 #else
   cout << s << flush;
   if (!(logout->fail()))
-    (*logout) << s << flush;
+   (*logout) << s << flush;
 #endif
   }
 

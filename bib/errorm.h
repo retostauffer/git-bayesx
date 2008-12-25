@@ -6,8 +6,8 @@
 #define ERRORM_INCLUDED
 
 
-#include<iostream.h>
-#include<clstring.h>
+#include<iostream>
+#include"clstring.h"
 #include<vector>
 
 

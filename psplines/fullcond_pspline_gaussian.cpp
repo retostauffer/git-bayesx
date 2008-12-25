@@ -1,6 +1,10 @@
 
 #include "fullcond_pspline_gaussian.h"
 
+using std::ifstream;
+using std::ios;
+using std::min;
+
 namespace MCMC
 {
 
@@ -245,7 +249,7 @@ FULLCOND_pspline_gaussian::FULLCOND_pspline_gaussian(MCMCoptions * o, DISTRIBUTI
   if (ce==false)
     identifiable = true;
   else
-    identifiable = false;  
+    identifiable = false;
 
   }
 

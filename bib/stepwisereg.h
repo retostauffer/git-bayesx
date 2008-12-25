@@ -454,11 +454,21 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   int parse(const ST::string & c);
 
-  void describe(optionlist & globaloptions = optionlist());
+  void describe(const optionlist & globaloptions = optionlist());
 
 
   };
 
+#if defined (__BUILDING_GNU)
+// ----------------------- forward friend decls ---------------------
+
+void __EXPORT_TYPE getsamplerun(stepwisereg & b);
+void plotnonprun(stepwisereg & b);
+void texsummaryrun(stepwisereg & b);
+void drawmaprun(stepwisereg & b);
+void regressrun(stepwisereg & b);
+void mregressrun(stepwisereg & b);
+#endif
 
 #endif
 

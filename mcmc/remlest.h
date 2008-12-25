@@ -10,6 +10,7 @@
 #include<adminparse_basic.h>
 #endif
 
+using std::ofstream;
 
 //------------------------------------------------------------------------------
 //------------------------------ CLASS: remlest --------------------------------
@@ -68,7 +69,7 @@ class remlest
   double aic;
   double bic;
   double gcv;
-  
+
   public:
 
 //------------------------------------------------------------------------------
@@ -192,7 +193,7 @@ class remlest
                      const bool & dispers);
 
   bool check_pause();
-  
+
   // FUNCTION: out
   // TASK: writes results to outputstream or
   //       in Output window if BORLAND_OUTPUT_WINDOW is defined

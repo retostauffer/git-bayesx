@@ -285,7 +285,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 
   // FUNCTION: make_new_b
   // TASK: computes the new values for a birth-step
-  void FULLCOND_rj::make_new_b (ST::string step, unsigned int i, unsigned int j, double beta_new,
+  void make_new_b (ST::string step, unsigned int i, unsigned int j, double beta_new,
 				datamatrix & xx_new, datamatrix & b_new, datamatrix & x_new);
 
 
@@ -300,7 +300,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 
   // FUNCTION: sample_sigma
   // TARGET: samples the new variance of the regression model i in the switch step
-  double FULLCOND_rj::sample_sigma(char vertex, unsigned int i, unsigned int ncoef_new_i,
+  double sample_sigma(char vertex, unsigned int i, unsigned int ncoef_new_i,
 							const datamatrix & mean_i, const datamatrix & x_new_i);
 
 
@@ -337,7 +337,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 
   // FUNCTION: log_gamma1
   // TASK: returns the logarithm of the gammafunction when value=0.5*(nobs-k)
-  double FULLCOND_rj::log_gamma1(double x) const;
+  double log_gamma1(double x) const;
 
 
 
@@ -392,7 +392,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
   // FUNCTION: write_out_resfile
   // TASK: writes out results (= 10 most important essential graphs and the adjacency matrix)
   // into a separate file which has to be named before; good for simulation studies
-   void FULLCOND_rj::write_out_resfile(void);
+   void write_out_resfile(void);
 
 
   // FUNCTION: make_list_essential
@@ -444,7 +444,7 @@ class __EXPORT_TYPE FULLCOND_rj : public FULLCOND
 
   // FUNCTION: conditions_okay
   // TASK: returns true if conditions are fullfilled
-  bool FULLCOND_rj::conditions_okay(unsigned int i, unsigned int j);
+  bool conditions_okay(unsigned int i, unsigned int j);
 
 
 	// FUNCTION: conditions_okay_d

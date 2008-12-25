@@ -734,10 +734,10 @@ class __EXPORT_TYPE FULLCOND_dag : public FULLCOND
 
 	// FUNCTION: b_distr()
 	// TARGET:
-	double FULLCOND_dag::b_distr(void);
+	double b_distr(void);
 
 
-	double FULLCOND_dag::p_prop(void) ;
+	double p_prop(void) ;
 
 
 
@@ -748,12 +748,12 @@ class __EXPORT_TYPE FULLCOND_dag : public FULLCOND
 
   // FUNCTION: change_adcol
   // TASK: changes adcol after step has been accepted
-  void FULLCOND_dag::change_adcol(unsigned int i, unsigned int value)
+  void change_adcol(unsigned int i, unsigned int value)
   {
 	   adcol(i,0) = value;
   }
 
-  Matrix<unsigned> FULLCOND_dag::get_adcol(void)
+  Matrix<unsigned> get_adcol(void)
   {
 	   return adcol;
   }
@@ -847,7 +847,7 @@ class __EXPORT_TYPE FULLCOND_dag : public FULLCOND
 	// TASK: returns the log-value of the N(beta_mean, Sigma)
 	double log_u(void);
 
-	double FULLCOND_dag::log_u(const datamatrix & mean, const datamatrix & beta,
+	double log_u(const datamatrix & mean, const datamatrix & beta,
 								const datamatrix & Sigma, unsigned int ncoef);
 
 
@@ -871,7 +871,7 @@ class __EXPORT_TYPE FULLCOND_dag : public FULLCOND
 
 	// FUNCTION: write_to_y
 	// TASK: writes utilities to the corresponding y
-	void FULLCOND_dag::write_to_y(const datamatrix & uti);
+	void write_to_y(const datamatrix & uti);
 
 
   // FUNCTION: outresults

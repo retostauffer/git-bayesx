@@ -1,6 +1,7 @@
 
 #include "design_pspline.h"
 
+using std::deque;
 
 namespace MCMC
 {
@@ -76,7 +77,7 @@ DESIGN_pspline::DESIGN_pspline(void) : DESIGN()
 
   // CONSTRUCTOR
 
-DESIGN_pspline::DESIGN_pspline(const datamatrix & dm,const datamatrix & iv,
+DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
                        DISTR * dp,FC_linear * fcl, vector<ST::string> & op,
                        vector<ST::string> & vn)
                       : DESIGN(dp,fcl)
@@ -135,7 +136,7 @@ const DESIGN_pspline & DESIGN_pspline::operator=(const DESIGN_pspline & m)
   if (this == &m)
     return *this;
   DESIGN::operator=(DESIGN(m));
-  multeffect=m.multeffect;  
+  multeffect=m.multeffect;
   knot = m.knot;
   nrknots = m.nrknots;
   degree = m.degree;
@@ -145,7 +146,7 @@ const DESIGN_pspline & DESIGN_pspline::operator=(const DESIGN_pspline & m)
   }
 
 
-void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
+void DESIGN_pspline::init_data(datamatrix & dm, datamatrix & iv)
   {
 
   // TASK: sorts the data such that the precision has minimum envelope

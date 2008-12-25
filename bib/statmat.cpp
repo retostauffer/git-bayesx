@@ -7,7 +7,7 @@
 
 #include "statmat.h"
 
-#include <fstream.h>
+#include <fstream>
 
 //------------------------------------------------------------------------------
 //----------- CLASS statmatrix: implementation of member functions -------------

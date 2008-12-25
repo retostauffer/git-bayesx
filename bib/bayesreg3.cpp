@@ -18,6 +18,8 @@
 
 #include<stddef.h>
 
+using std::ios;
+
 bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
   {
 
@@ -1888,7 +1890,7 @@ void getsamplerun(bayesreg & b)
   }
 
 
-void bayesreg::describe(optionlist & globaloptions)
+void bayesreg::describe(const optionlist & globaloptions)
   {
   statobject::describe(globaloptions);
   }

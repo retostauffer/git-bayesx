@@ -12,8 +12,8 @@
 
 #include<string.h>
 #include<stdio.h>
-#include<iostream.h>
-#include<fstream.h>
+#include<iostream>
+#include<fstream>
 #include<assert.h>
 #include<sys/stat.h>
 #include<list>
@@ -22,6 +22,8 @@
 
 using std::vector;
 using std::list;
+using std::ostream;
+using std::istream;
 
 //------------------------------------------------------------------------------
 //----------------------------- CLASS string -----------------------------------
@@ -145,11 +147,11 @@ class __EXPORT_TYPE string
 //friend void open(std::ifstream & fin,string & s, int mode);
 
   friend void __EXPORT_TYPE open(
-  std::ifstream & fin,string & s,int mode = ios::in);
+  std::ifstream & fin,string & s,int mode = std::ios::in);
 
 //MICRO  friend void open(ofstream & out,string & s,ios_base::openmode mode = ios_base::out);
   friend void __EXPORT_TYPE open(
-  std::ofstream & out,string & s,int mode = ios::out);
+  std::ofstream & out,string & s,int mode = std::ios::out);
 
 
   // OVERLOADED [] OPERATOR
@@ -223,7 +225,7 @@ class __EXPORT_TYPE string
   // TASK: returns the string + the number of whitespaces that
   //       are necessary to complete the wanted width of the output column
 
-  string string::helpfill(unsigned n);
+  string helpfill(unsigned n);
 
   // FUNCTION: substr
   // TASK: returns a substring of the calling string
@@ -504,7 +506,12 @@ string __EXPORT_TYPE outresults(const unsigned & l,const string & name,
 
 string __EXPORT_TYPE make_latextable(vector<string> & v);
 
+//------------ forward declarations of friends ---------------------------------
+istream & getline(istream & i,string & s, char delim);
+istream & getline(istream & i,unsigned int maxlen,string & s,char delim);
 
+void __EXPORT_TYPE open(std::ifstream & fin,string & s,int mode);
+void __EXPORT_TYPE open(std::ofstream & out,string & s,int mode);
 
 //------------ functions, that convert a number into a string ------------------
 

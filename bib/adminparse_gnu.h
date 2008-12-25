@@ -14,7 +14,7 @@
 #include<jni.h>
 #endif
 
-#include<fstream.h>
+#include<fstream>
 #include"data.h"
 #include"statobj.h"
 #include"dataobj.h"

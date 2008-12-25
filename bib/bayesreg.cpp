@@ -12,6 +12,7 @@
 #endif
 
 #include"bayesreg.h"
+#include"dataobj.h"
 
 // Vorschlag:
 //#include<typeinfo.h>

@@ -4,8 +4,11 @@
 #if !defined(TARRAY_H_INCLUDED)
 #define TARRAY_H_INCLUDED
 
-#include <iostream.h>
+#include <iostream>
 #include <assert.h>
+
+using std::istream;
+using std::ostream;
 
 //	Array - Feld fester Groesse
 

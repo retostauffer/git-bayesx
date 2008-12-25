@@ -2,6 +2,10 @@
 #include "FC.h"
 #include "clstring.h"
 
+using std::ofstream;
+using std::ifstream;
+using std::ios;
+
 //------------------------------------------------------------------------------
 //----------------- CLASS: FC implementation of member functions ---------------
 //------------------------------------------------------------------------------
@@ -516,7 +520,7 @@ void FC::outresults_acceptance(void)
     }
   }
 
-  
+
 void FC::outresults(const ST::string & pathresults)
   {
 

@@ -236,7 +236,7 @@ class __EXPORT_TYPE dataobject : public statobject
 
   int parse(const ST::string & c);
 
-  void describe(optionlist & globaloptions = optionlist());
+  void describe(const optionlist & globaloptions = optionlist());
 
 
   // FUNCTION: getVarnames
@@ -285,5 +285,21 @@ class __EXPORT_TYPE dataobject : public statobject
 
   };
 
+// ------------------------ forward friends decls --------------------------
+
+#if defined (__BUILDING_GNU)
+void infilerun(dataobject & o);
+void droprun(dataobject & o);
+void renamerun(dataobject & o);
+void generaterun(dataobject & o);
+void replacerun(dataobject & o);
+void setrun(dataobject & o);
+void outfilerun(dataobject & o);
+void sortrun(dataobject & o);
+void descriptiverun(dataobject & o);
+void tabulaterun(dataobject & o);
+void pctilerun(dataobject & o);
+void marketingrun(dataobject & o);
+#endif
 
 #endif

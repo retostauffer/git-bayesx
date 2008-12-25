@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -15,10 +15,10 @@
 //#include"sparsemat.h"
 
 #include"design.h"
-#include"random.h"
+#include"Random.h"
 #include"envmatrix_penalty.h"
 #include"../values.h"
-#include<fstream.h>
+#include<fstream>
 #include<vector>
 #include<bitset>
 #include"clstring.h"
@@ -82,7 +82,7 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
 
   void compute_precision(double l);
 
-  void outoptions(GENERAL_OPTIONS * op);  
+  void outoptions(GENERAL_OPTIONS * op);
 
   // DESTRUCTOR
 

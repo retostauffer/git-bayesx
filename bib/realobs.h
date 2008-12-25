@@ -17,7 +17,7 @@
 #include"../values.h"
 #endif
 
-#include<iostream.h>
+#include<iostream>
 #include<math.h>
 #include<cmath>
 #include"Random.h"

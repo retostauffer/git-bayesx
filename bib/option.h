@@ -12,12 +12,12 @@
 #define OPTION_INCLUDED
 
 
-#include<fstream.h>
+#include<fstream>
 #include<vector>
 #include"clstring.h"
 //#include<errorm.h>
 #include"../values.h"
-
+#include <climits>
 
 // POSSIBLE OPTIONS:
 

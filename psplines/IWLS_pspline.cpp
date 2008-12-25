@@ -6,7 +6,7 @@
 
 #include "IWLS_pspline.h"
 
-
+using std::ifstream;
 
 namespace MCMC
 {
@@ -430,7 +430,7 @@ bool IWLS_pspline::posteriormode(void)
           }
         ok = ok2;
         }
-      beta.sortcol(0,nrpar-1,0);        
+      beta.sortcol(0,nrpar-1,0);
       }                                                     // ENDE: monotone Regression
 
     add_linearpred_multBS(beta,true);

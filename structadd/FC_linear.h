@@ -2,7 +2,7 @@
 #if defined (__BUILDING_THE_DLL)
 #define __EXPORT_TYPE __export
 #elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __declspec(dllexport)
+#define __EXPORT_TYPE __attribute__((dllexport))
 #else
 #define __EXPORT_TYPE __import
 #endif
@@ -12,7 +12,7 @@
 #define FClinearINCLUDED
 
 #include"../values.h"
-#include<fstream.h>
+#include<fstream>
 #include"GENERAL_OPTIONS.h"
 #include"distr.h"
 #include"clstring.h"
@@ -39,7 +39,7 @@ class __EXPORT_TYPE FC_linear  : public FC
   datamatrix design;                         // Designmatrix
   vector<datamatrix> designhelp;             // help vector for constructing the
                                              // designmatrix
-  vector<ST::string> datanames;              // names of covariates  
+  vector<ST::string> datanames;              // names of covariates
 
   datamatrix Xt;                             // transposed designmatrix
   datamatrix XWX;
@@ -60,17 +60,17 @@ class __EXPORT_TYPE FC_linear  : public FC
   datamatrix linmode;
   datamatrix diff;
   datamatrix * linoldp;
-  datamatrix * linnewp;   
+  datamatrix * linnewp;
 
   void create_matrices(void);
 
   // FUNCTION: compute_XWX
   // TASK: computes XWX on the basis of the current working weight and stores
-  //       the result in r 
+  //       the result in r
 
   void compute_XWX(datamatrix & r);
   void compute_Wpartres(datamatrix & linpred);
-  double compute_XtWpartres(double & mo);  
+  double compute_XtWpartres(double & mo);
 
   void add_linpred(datamatrix & l);
 

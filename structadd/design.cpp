@@ -408,7 +408,7 @@ void DESIGN::compute_XtransposedWX(void)
     make_pointerindex();
     }
 
-  int i,j;
+  unsigned int i,j;
 
   int size = posbeg.size();
 

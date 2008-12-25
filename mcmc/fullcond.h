@@ -18,7 +18,7 @@
 #else
 #include"../values.h"
 #endif
-#include<fstream.h>
+#include<fstream>
 #include<vector>
 #include<bitset>
 #include"mcmc.h"
@@ -34,6 +34,7 @@ using randnumbers::uniform;
 using randnumbers::rand_normal;
 using std::vector;
 using std::bitset;
+using std::ofstream;
 
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: FULLCOND ----------------------------------
@@ -1165,7 +1166,7 @@ class __EXPORT_TYPE FULLCOND
 
   virtual void outresultsgrid()
     {
-    }    
+    }
 
     virtual void outoptionsreml()
     {
