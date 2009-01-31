@@ -62,6 +62,7 @@ bmi(psplinerw2) + agc(psplinerw2) +
 district(spatial, map=m) + district(random), 
 CI=MCMCbootstrap bootstrapsamples=99 step=10 iterations=10000 family=gaussian predict using d;
 
+delimiter=return;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Visualising estimation results %
