@@ -80,7 +80,7 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
     {
     }
 
-  void update_linpred(int & begin, int & end, double  & value);
+  void update_linpred(int & begin, int & end, double value);
 
   // FUNCTION: update
   // TASK: - stores sampled parameters in file 'samplepath'

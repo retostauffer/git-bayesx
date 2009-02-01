@@ -3821,7 +3821,7 @@ void remlest_multistate::make_predictor(ofstream & outtex)
   for(i=0; i<nrtransitions; i++)
     {
     term2 = fullcond[j]->get_term_symbolic();
-    term = "$\\eta\_" + ST::inttostring(i+1) + "$ & $=$ & $" + term2;    //linearer Prädiktor wird erweitert
+    term = "$\\eta_" + ST::inttostring(i+1) + "$ & $=$ & $" + term2;    //linearer Prädiktor wird erweitert
     j++;
     for(k=1; k<nrfullconds[i]; k++, j++)
       {

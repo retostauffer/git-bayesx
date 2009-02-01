@@ -140,7 +140,7 @@ class adja : public Matrix<unsigned>
 
 		 // FUNCTION: make_list
 		// TASK: represents Matrix<int> m as a list
-		 vector < list <unsigned int> > adja::make_list (const Matrix<unsigned> & m) const;
+		 vector < list <unsigned int> > make_list (const Matrix<unsigned> & m) const;
 
 		 // FUNCTION: make_list
 		// TASK: represents calling matrix as a list
@@ -172,7 +172,7 @@ class adja : public Matrix<unsigned>
 		// FUNCTION: equi_test
 		// TASK: tests if i->j is covered,
 		// e.g. if by changing i->j into j->i an equivalent graph is got
-		bool adja::equi_test(unsigned i, unsigned j);
+		bool equi_test(unsigned i, unsigned j);
 
 
 		// FUNCTION: edge_plus

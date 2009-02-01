@@ -4530,7 +4530,7 @@ void DISTRIBUTION_gamma2::check(void)
       {
       error=true;
       errors.push_back(
-    "ERROR: response cannot be gamma distributed\; some values are negative\n");
+    "ERROR: response cannot be gamma distributed; some values are negative\n");
       }
     i++;
     workr++;

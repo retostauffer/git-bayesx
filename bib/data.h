@@ -230,7 +230,7 @@ class __EXPORT_TYPE filter : public vector<bool>
   // ADDITIONAL INFORMATION: filter will not be changed if messages occur
   //                         i.e. 'names' contain unknown variablenames
 
-  void filterNA(data & d, list<ST::string> & names);
+  void filterNA(::data & d, list<ST::string> & names);
 
   // OVERLOADED + OPERATOR
   // TASK: a value of the resulting filter is true if

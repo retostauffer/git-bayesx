@@ -906,19 +906,19 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
         {
         if (response(i,0) != int(response(i,0)))
           {
-          outerror("ERROR: response cannot be binomial\; values must be integer numbers\n");
+          outerror("ERROR: response cannot be binomial; values must be integer numbers\n");
           return true;
           }
 
         if (response(i,0) < 0)
           {
-          outerror("ERROR: response cannot be binomial\; some values are negative\n");
+          outerror("ERROR: response cannot be binomial; some values are negative\n");
           return true;
           }
 
         if (response(i,0) > weight(i,0))
           {
-          outerror("ERROR: response cannot be binomial\;\n");
+          outerror("ERROR: response cannot be binomial;\n");
           outerror("       number of successes larger than number of trials for some values\n");
           return true;
           }
@@ -937,7 +937,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     {
     if(response.min(0)<0)
       {
-      outerror("ERROR: response cannot be gamma distributed\; some values are negative\n");
+      outerror("ERROR: response cannot be gamma distributed; some values are negative\n");
       return true;
       }
     }
@@ -947,7 +947,7 @@ bool remlreg::create_response(datamatrix & response, datamatrix & weight)
     {
     if(response.min(0)<0)
       {
-      outerror("ERROR: response cannot be poisson distributed\; some values are negative\n");
+      outerror("ERROR: response cannot be poisson distributed; some values are negative\n");
       return true;
       }
     }

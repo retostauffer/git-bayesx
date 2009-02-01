@@ -126,7 +126,7 @@ void FC_hrandom::transform_beta(void)
 
 
 
-void FC_hrandom::update_linpred(int & begin, int & end, double  & value)
+void FC_hrandom::update_linpred(int & begin, int & end, double value)
   {
 
   unsigned i;

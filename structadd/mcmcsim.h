@@ -132,7 +132,7 @@ class __EXPORT_TYPE MCMCsim
   // FUNCTION: compute_nrpar
   // TASK: computes the total number of parameters
 
-  unsigned MCMCsim::compute_nrpar(void);
+  unsigned compute_nrpar(void);
 
   // FUNCTION: get_samples
   // TASK: stores sampled parameters of all full conditionals in ASCII format
