@@ -5397,6 +5397,148 @@ double DISTRIBUTION_gaussian::compute_rss(void)
   }
 
 
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTRIBUTION_AFT ----------------------------
+//------------------------------------------------------------------------------
+
+void DISTRIBUTION_AFT::standardise(void)
+  {
+
+  /*
+  double s = sqrt(response.var(0,weight));
+
+  trmult = datamatrix(1,1,s);
+
+  unsigned i;
+  double * workresp = response.getV();
+  double * worklin = (*linpred_current).getV();
+  for (i=0;i<nrobs;i++,workresp++,worklin++)
+   {
+   *workresp = *workresp/trmult(0,0);
+   *worklin = *worklin/trmult(0,0);
+   }
+
+
+  datamatrix tr(1,1,trmult(0,0)*trmult(0,0));
+  Scalesave.set_transformmult(tr);
+  */
+
+  }
+
+
+DISTRIBUTION_AFT::DISTRIBUTION_AFT(void) : DISTRIBUTION_gaussian()
+  {
+  }
+
+
+
+DISTRIBUTION_AFT::DISTRIBUTION_AFT(const double & a,
+                                             const double & b,
+                                             MCMCoptions * o,
+                                             const datamatrix & r,
+                                             const datamatrix & cens,
+                                             const ST::string & p,
+                                             const ST::string & ps,
+                                             const datamatrix & w)
+  : DISTRIBUTION_gaussian(a,b,o,r,p,ps,w)
+
+  {
+  censoring = cens;
+  }
+
+
+// constructor with offset
+DISTRIBUTION_AFT::DISTRIBUTION_AFT(const datamatrix & offset,
+                      const double & a, const double & b, MCMCoptions * o,
+                      const datamatrix & r,const datamatrix & cens,
+                      const ST::string & p,
+                      const ST::string & ps,const datamatrix & w)
+  : DISTRIBUTION_gaussian(offset,a,b,o,r,p,ps,w)
+
+  {
+  censoring = cens;
+  }
+
+
+// COPY CONSTRUCTOR
+
+DISTRIBUTION_AFT::DISTRIBUTION_AFT(const DISTRIBUTION_AFT & nd)
+   : DISTRIBUTION_gaussian(DISTRIBUTION_gaussian(nd))
+  {
+  censoring = nd.censoring;
+  }
+
+
+const DISTRIBUTION_AFT & DISTRIBUTION_AFT::operator=(
+                                      const DISTRIBUTION_AFT & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTRIBUTION_gaussian::operator=(DISTRIBUTION_gaussian(nd));
+  censoring = nd.censoring;
+  return *this;
+  }
+
+
+void DISTRIBUTION_AFT::compute_deviance(const double * response,
+                           const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           const datamatrix & scale,const int & i) const
+    {
+
+    }
+
+
+void DISTRIBUTION_AFT::outoptions(void)
+  {
+
+  }
+
+
+void DISTRIBUTION_AFT::update(void)
+  {
+
+  }
+
+
+bool DISTRIBUTION_AFT::posteriormode(void)
+  {
+
+  return true;
+  }
+
+bool DISTRIBUTION_AFT::posteriormode_converged_fc(const datamatrix & beta,
+                                  const datamatrix & beta_mode,
+                                  const unsigned & itnr)
+  {
+  return true;
+  }
+
+
+void DISTRIBUTION_AFT::outresults(void)
+  {
+  DISTRIBUTION_gaussian::outresults();
+  }
+
+
+  /*
+  void set_constscale(double s);
+
+  void undo_constscale(void);
+
+  void set_uniformprior(void);
+
+  void update_missings(void);
+  */
+
+// -----------------------------------------------------------------------------
+//----------------------------- DISTRIBUTION_AFT -------------------------------
+//------------------------------------------------------------------------------
+
+
+
 /*double DISTRIBUTION_gaussian::compute_logmsep(void)
   {
   unsigned i;
@@ -5595,7 +5737,7 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const datamatrix & offset,
 
   varianceest=false;
 
-  constant_iwlsweights=true;  
+  constant_iwlsweights=true;
   iwlsweights_notchanged_df = true;
 
   }
