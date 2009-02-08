@@ -45,14 +45,17 @@ Allgemeiner Teil der Seite
     <td height=30><a href="bayesxnews.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">New features</span></a></td>
   </tr>
   <tr>
+    <td height=30><a href="bayesxfaq.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">FAQ</span></a></td>
+  </tr>
+  <tr>
     <td height=30><a href="bayesxdownload.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Download</span></a></td>
   </tr>
   <tr>
     <td height=30><a href="bayesxbugs.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Bugs</span></a></td>
   </tr>
-  <tr>
+<!--  <tr>
     <td height=30><a href="bayesxexamples.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Examples</span></a></td>
-  </tr>
+  </tr>-->
   <tr>
     <td height=30><a href="bayesxtutorials.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Tutorials</span></a></td>
   </tr>
@@ -83,13 +86,18 @@ serve as auxiliary objects for regression analyses, where the effect of spatial 
 can be modelled via Markov random field priors or other spatial effects. In addition,
 they allow the visualization of any geographical information associated with the map.</p>
 
-
 <p>Map objects can be created from boundary files or graph files, compare Section 5 of the manual for a
 description of these file formats. </p>
 
-<p style="font-weight:bold">Converting shape files to boundary files</p>
+<p style="font-weight:bold">Creating boundary files and graph files</p>
 
-<p>To convert a shape file into a boundary file, you may use the <a href="http://www.r-project.org">R</a>-function <a href="maps/shp2bnd.r">shp2bnd</a>.
+<p>In principle, boundary and graph files can be created from scratch by applying the structure described in Section 5 of the reference manual, provided
+that the boundary information is available. The BayesX R package provides some functionality to ease this task. For example, function <span  style="font-family:monospace; font-size:medium">shp2bnd</span>
+allows to convert shapefiles to boundary files. There are also functions to convert boundary files to graph files and to manipulate boundary and graph files.
+For example, additional neighbors can be added to an existing graph specification.
+</p>
+
+<!--<p>To convert a shape file into a boundary file, you may use the <a href="http://www.r-project.org">R</a>-function <a href="maps/shp2bnd.r">shp2bnd</a>.
 Shp2bnd uses facilities provided in the packages shapefiles and maptools to extract the required information from a shape file and writes the boundary information into a specified file 
 (Thanks to Frank Sagerer for the reference to the shapefiles-package!).</p>
 
@@ -130,7 +138,7 @@ R> drawmap(map=m, plotvar=col, regionvar=nam)<br>
 <p>To reproduce the example, download the shapefile <a href="maps/gm.zip">gm.zip</a> and extract it to a directory (c:\temp in the example above). 
 Download the function <a href="maps/shp2bnd.r">shp2bnd</a> and store it in the directory 'sfunctions' (a subdirectory of the BayesX installation directory, c:\bayesx in the example above).
 Now you can paste the example code to the R prompt (after changing the paths according to your specifications).
-</p>
+</p>-->
 
 <p style="font-weight:bold">Available boundary and graph files</p>
 

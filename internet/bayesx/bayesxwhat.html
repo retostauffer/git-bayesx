@@ -45,14 +45,17 @@ Allgemeiner Teil der Seite
     <td height=30><a href="bayesxnews.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">New features</span></a></td>
   </tr>
   <tr>
+    <td height=30><a href="bayesxfaq.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">FAQ</span></a></td>
+  </tr>
+  <tr>
     <td height=30><a href="bayesxdownload.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Download</span></a></td>
   </tr>
   <tr>
     <td height=30><a href="bayesxbugs.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Bugs</span></a></td>
   </tr>
-  <tr>
+<!--  <tr>
     <td height=30><a href="bayesxexamples.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Examples</span></a></td>
-  </tr>
+  </tr>-->
   <tr>
     <td height=30><a href="bayesxtutorials.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Tutorials</span></a></td>
   </tr>
@@ -80,7 +83,7 @@ Ende: Allgemeiner Teil der Seite
 
 <p>BayesX is a software tool for estimating structured additive regression models. Structured additive regression 
 embrasses several well-known regression models such as generalized additive models (GAM), generalized additive mixed models (GAMM), 
-generalized geoadditive mixed models (GGAMM), dynamic models, varying coefficient models, and geographically weighted regression
+generalized geoadditive mixed models (GGAMM), dynamic models, varying coefficient models (VCM), and geographically weighted regression
 within a unifying framework. Besides exponential family regression, BayesX also supports non-standard regression situations 
 such as regression for categorical responses, hazard regression for continuous survival times, and continuous time
 multi-state models (see model classes and model terms below).</p>
@@ -127,7 +130,7 @@ Supported response distributions are Gaussian, Poisson, Binomial, Gamma, negativ
 <li><b>Categorical responses with unordered responses</b><br>
 For categorical responses with unordered categories, BayesX supports multinomial logit and multinomial probit models.
 Both effects of category-specific and globally-defined covariates can be estimated. Category-specific offsets or 
-non-availability indicators can be defined to account for varying choice sets.
+non-availability indicators can be defined to account for varying availability and varying choice sets.
 </li>
 <li><b>Categorical responses with ordered responses</b><br>
 For ordered categorical responses, ordinal as well as sequential models can be specified. 
@@ -141,8 +144,7 @@ Furthermore, both time-varying effects and time-varying covariates can be includ
 right, left and interval censored as well as left truncated obserations can be analysed. 
 </li>
 <li><b>Continuous time multi-state models</b><br>
-In BayesX version 1.5 multi-state models have been added to the model class. Multi-state models
-form a general class for the analysis of the evolution of discrete phenomena in continuous time. 
+Multi-state models form a general class for the analysis of the evolution of discrete phenomena in continuous time. 
 Transition intensities between the discrete states are specified in analogy to the hazard rate in continuous time survival models.
 </li>
 </ul>
@@ -172,6 +174,10 @@ known as geograhpcially weighted regression.
 <li><b>Cluster-specific random effects:</b><br>
 BayesX supports i.i.d. Gaussian random intercepts and random slopes.
 </li>
+<li><b>Regularised high-dimensional effects:</b><br>
+High-dimensional vectors of regression coefficients can be assigned Bayesian regularisation priors. Available alternatives are ridge
+regression, lasso regularisation and normal mixture of inverse gamma (spike and slab) priors.
+</li>
 </ul>
 
 <p>Note that parts of the functionality may be available for one of the regression objects only. For example, 
@@ -193,6 +199,11 @@ a better representation of colored maps independent of the display device.</li>
 BayesX provides functions for drawing scatter plots and geographical maps.
 A number of additional options are provided to customize the graphs according to
 the personal needs of the user.</li>
+<li><b>R Package BayesX</b><br>
+In addition to BayesX, there is an R add-on package of the same name that provides additional functionality for manipulating geographical data 
+and additional graphics facilities. In particular, the package includes resources for constructing boundary and graph files from other geographical
+information systems.
+</li>
 <li><b>Model selection for Gaussian and non-Gaussian dags.</b><br>
 This tool estimates Gaussian and non-Gaussian directed acyclical graphs (dag) via reversible jump MCMC.
 </li>
@@ -231,11 +242,18 @@ More details are given in the following sources and the references therein.</p>
     <i>Journal of the American Statistical Association</i>, 101, 1065-1075.
     <a href="publications/paper414.pdf">Preliminary Version</a>.
 </li>
+<li>Kneib, T., Konrath, S., Fahrmeir, L. (2009)<br>
+    High-dimensional Structured Additive Regression Models: Bayesian Regularisation, Smoothing and Predictive Performance<br>
+    Department of Statistics, <a href="http://epub.ub.uni-muenchen.de/9032/">Technical Report No. 46</a>
+</li>
 <li>Kneib, T., Hennerfeind, A. (2006)<br>
     Bayesian Semiparametric Multi-State Models.<br>
-    <i>Statistical Modelling</i>, to appear.
+    <i>Statistical Modelling</i>, 8, 169-198.
     <a href="publications/paper502.pdf">Preliminary Version</a>
 </li>
+<li>Konrath, S., Kneib, T., Fahrmeir, L. (2008)<br>
+    Bayesian Regularisation in Structured Additive Regression Models for Survival Data<br>
+    Department of Statistics, <a href="http://epub.ub.uni-muenchen.de/5732/">Technical Report No. 35</a>
 <li>Lang, S., Brezger, A. (2004)<br>
     Bayesian P-Splines<br>
     <i> Journal of Computational and Graphical Statistics</i>, 13, 183-212.
@@ -275,7 +293,7 @@ More details are given in the following sources and the references therein.</p>
 </li>
 <li>Kneib, T., Hennerfeind, A. (2006)<br>
     Bayesian Semiparametric Multi-State Models.<br>
-    <i>Statistical Modelling</i>, to appear.
+    <i>Statistical Modelling</i>, 8, 169-198.
     <a href="publications/paper502.pdf">Preliminary Version</a>
 </li>
 </ul>

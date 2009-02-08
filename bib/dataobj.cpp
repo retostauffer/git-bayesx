@@ -760,6 +760,8 @@ void dataobject::describe(const optionlist & globaloptions)
     jmethodID javashowdata = adminb_p->Java->GetMethodID(
     adminb_p->BayesX_cls, "JavaShowData", "()V");
     adminb_p->Java->CallVoidMethod(adminb_p->BayesX_obj, javashowdata);
+#elif(__BUILDING_GNU)
+    out("ERROR: method describe is not available in this version\n");
 #endif
   }
   else

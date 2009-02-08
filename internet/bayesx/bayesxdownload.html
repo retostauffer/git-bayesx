@@ -45,14 +45,17 @@ Allgemeiner Teil der Seite
     <td height=30><a href="bayesxnews.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">New features</span></a></td>
   </tr>
   <tr>
+    <td height=30><a href="bayesxfaq.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">FAQ</span></a></td>
+  </tr>
+  <tr>
     <td height=30><a href="bayesxdownload.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Download</span></a></td>
   </tr>
   <tr>
     <td height=30><a href="bayesxbugs.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Bugs</span></a></td>
   </tr>
-  <tr>
+<!--  <tr>
     <td height=30><a href="bayesxexamples.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Examples</span></a></td>
-  </tr>
+  </tr>-->
   <tr>
     <td height=30><a href="bayesxtutorials.html"><span style="color:#ffffff; font-family:serif; font-size:large; margin-left:5">Tutorials</span></a></td>
   </tr>
@@ -76,27 +79,45 @@ Ende: Allgemeiner Teil der Seite
   <tr>
     <td>
 
-<p>Currently BayesX is only available for the various versions of the Windows operating system (95/98/2000/NT/Xp).
-A Linux version and a connection to R are planned for the next generation of BayesX (i.e. version 2.0 of BayesX).</p>
-
-<p>Up to version 1.30, BayesX has been distributed in two different versions, with either a Java-based GUI or a Borland C++ GUI.
-Since the Java-based GUI has additional functionality (i.e. graphics features), the Borland version is no longer supported.
+<p>BayesX is available in two different versions. 
+<ul>
+<li>
+A precompiled binary including installer is available for the various version of the
+Windows operating system. This version consists of a C++ computing kernel with a Java graphical user interface and contains built-in
+graphics facilities. Most of the documentation and the tutorials available on this webpage are written for the Windows version of BayesX.
+</li>
+<li>
+A command line version of BayesX is distributed as a source code bundle. It contains a makefile for the GNU C++ compiler and should work (possibly after minor modifications)
+on all operating systems supporting the GNU compiler. 
+</li>
+<li>
+Up to version 1.30, a third variant with Borland C++ graphical user interface has been distributed. This version of BayesX is no longer supported.
+</li>
+</ul>
 </p>
 
 <p style="font-weight:bold">Download</p>
 
-<p>Last Update: Version 1.51 (6.05.2008)</p> 
+<p>Last Update: Version 2.00 (28.02.2009)
+<ul>
+<li><a href="install/BayesX_windows_2_0.exe">Pre-compiled windows version</a></li>
+<li><a href="install/bayesxsource.zip">Command line version source code</a></li>
+<li><a href="manual/reference_manual.pdf">Reference manual</a>, <a href="manual/methodology_manual.pdf">methodology manual</a>, <a href="manual/tutorials_manual.pdf">tutorials manual</a></li>
+</ul>
+</p> 
 
-<p>Download the complete package (including manuals and tutorials) by clicking on the 'download' button below. Store the file 
+
+
+<!--<p>Download the complete package (including manuals and tutorials) by clicking on the 'download' button below. Store the file 
 installBayesX.exe in a temporary directory. Execute this file and follow the installation 
 instructions on the screen. After a successful installation, BayesX can be executed using the 
 Windows start button or the icon on the desktop (depending on your choice during the installation process).
 The manuals of the program can be found in the 'doc' directory 
-(a subdirectory of the installation directory) and are also available from the BayesX help menu.</p>
+(a subdirectory of the installation directory) and are also available from the BayesX help menu.</p>-->
 
 <!--<p><a href="http://www.statistik.lmu.de/sys/cgi/perl/bayesx-down-new.pl"><input type="submit" value="Download"></a></p>-->
 
-<p><input type="button" value="Download" onClick="self.location.href='http://www.statistik.lmu.de/sys/cgi/perl/bayesx-down-new.pl'"></p>
+<!--<p><input type="button" value="Download" onClick="self.location.href='http://www.statistik.lmu.de/sys/cgi/perl/bayesx-down-new.pl'"></p>-->
 
 <!--<p>Please select the version of BayesX you want to download from the pull down menu below and click on the 'download' button.
 
@@ -119,7 +140,7 @@ The manuals of the program can be found in the 'doc' directory
 
 <p>BayesX is distributed with three manuals: A <a href="manual/reference_manual.pdf">reference manual</a> containing a detailed description of the BayesX commands, a <a href="manual/methodology_manual.pdf">methodology manual</a> containing a short review of the methodological background,
     and a <a href="manual/tutorials_manual.pdf">tutorial manual</a> containing tutorial like sections for new users. All three manuals are part of the standard installation of BayesX
-    and can be found in the 'doc' directory (a subdirectory of the installation directory). They are also available from the BayesX help menu.</p>
+    and can be found in the 'doc' directory (a subdirectory of the installation directory). They are also available from the BayesX help menu (in the windows version).</p>
 
 <p style="font-weight:bold"><a name="register">Registration</a></p>
 
@@ -137,7 +158,7 @@ or if severe bugs have been found in the current version.</p>
 </form></tr>
 </table></p>
 
-<p style="font-weight:bold">Limitations of the current version</p>
+<!--<p style="font-weight:bold">Limitations of the current version</p>
 
 <p>Please take note of the following limitations:</p>
 
@@ -147,7 +168,7 @@ or if severe bugs have been found in the current version.</p>
 For first and second order random walk priors this not implemented yet, but works properly with P-splines.</li>
 </ul>
 
-<p>The <a href=bayesxbugs.html>bug list</a> contains a complete list of (severe) bugs of the different versions of BayesX. </p>
+<p>The <a href=bayesxbugs.html>bug list</a> contains a complete list of (severe) bugs of the different versions of BayesX. </p>-->
 
     </td>
   </tr>

@@ -4144,7 +4144,7 @@ void remlrun(remlreg & b)
     {
     ST::string path = b.outfile.getvalue() + "_graphics.prg";
     ST::string path2 = b.outfile.getvalue() + "_model_summary.tex";
-    ST::string path3 = b.outfile.getvalue() +  "_r_splus.txt";
+    ST::string path3 = b.outfile.getvalue() +  "_r.R";
 
     if(b.family.getvalue()=="multinomial")
       {
@@ -4189,6 +4189,8 @@ void remlrun(remlreg & b)
 void drawmaprun(remlreg & b)
   {
 #if defined(BORLAND_OUTPUT_WINDOW)
+  b.outerror("ERROR: method drawmap is not available in this version\n");
+#elif defined(__BUILDING_GNU)
   b.outerror("ERROR: method drawmap is not available in this version\n");
 #elif defined(JAVA_OUTPUT_WINDOW)
   bool error = false;
@@ -4323,6 +4325,8 @@ void drawmaprun(remlreg & b)
 void plotnonprun(remlreg & b)
   {
 #if defined(BORLAND_OUTPUT_WINDOW)
+  b.outerror("ERROR: method plotnonp is not available in this version\n");
+#elif defined(__BUILDING_GNU)
   b.outerror("ERROR: method plotnonp is not available in this version\n");
 #elif defined(JAVA_OUTPUT_WINDOW)
   bool error = false;
@@ -4777,7 +4781,7 @@ void mremlrun(remlreg & b)
     {
     ST::string path = b.outfile.getvalue() + "_graphics.prg";
     ST::string path2 = b.outfile.getvalue() + "_model_summary.tex";
-    ST::string path3 = b.outfile.getvalue() +  "_r_splus.txt";
+    ST::string path3 = b.outfile.getvalue() +  "_r.R";
     vector<ST::string> rnames;
     vector<unsigned> rescol  = b.modregmult.getresponsecol();
     for(i=0; i<b.nrtransitions; i++)

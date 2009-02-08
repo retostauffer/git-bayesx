@@ -937,7 +937,7 @@ void mregressrun(bayesreg & b)
       {
       path.push_back(b.outfiles[i] + "_graphics.prg");
       path2.push_back(b.outfiles[i] + "_model_summary.tex");
-      path3.push_back(b.outfiles[i] +  "_r_splus.txt");
+      path3.push_back(b.outfiles[i] +  "_r.R");
       path4.push_back(b.outfiles[i] +  "_stata.do");
       }
 
@@ -1239,6 +1239,10 @@ void drawmaprun(bayesreg & b)
 
   b.outerror("ERROR: method drawmap is not available in this version\n");
 
+#elif defined(__BUILDING_GNU)
+
+  b.outerror("ERROR: method drawmap is not available in this version\n");
+
 #elif defined(JAVA_OUTPUT_WINDOW)
 
   bool error = false;
@@ -1350,6 +1354,10 @@ void plotnonprun(bayesreg & b)
 
 
 #if defined(BORLAND_OUTPUT_WINDOW)
+
+  b.outerror("ERROR: method plotnonp is not available in this version\n");
+
+#elif defined(__BUILDING_GNU)
 
   b.outerror("ERROR: method plotnonp is not available in this version\n");
 
@@ -1817,7 +1825,11 @@ void plotautocorrun(bayesreg & b)
 
   b.outerror("ERROR: method plotautocor is not available in this version\n");
 
-#elif defined(JAVA_OUTPUT_WINDOW)
+#elif defined(__BUILDING_GNU)
+
+  b.outerror("ERROR: method plotautocor is not available in this version\n");
+
+  #elif defined(JAVA_OUTPUT_WINDOW)
 
   if (b.resultsyesno==true)
 	 {
@@ -3307,7 +3319,7 @@ void regressrun(bayesreg & b)
       {
       path.push_back(b.outfiles[i] + "_graphics.prg");
       path2.push_back(b.outfiles[i] + "_model_summary.tex");
-      path3.push_back(b.outfiles[i] +  "_r_splus.txt");
+      path3.push_back(b.outfiles[i] +  "_r.R");
       path4.push_back(b.outfiles[i] +  "_stata.do");
       path5.push_back(b.outfiles[i] +  "_effects.res");
       }
@@ -3639,7 +3651,7 @@ void hregressrun(bayesreg & b)
       {
       path.push_back(b.outfiles[i] + "_graphics.prg");
       path2.push_back(b.outfiles[i] + "_model_summary.tex");
-      path3.push_back(b.outfiles[i] +  "_r_splus.txt");
+      path3.push_back(b.outfiles[i] +  "_r.R");
       path4.push_back(b.outfiles[i] +  "_stata.do");
       path5.push_back(b.outfiles[i] +  "_effects.res");
       }

@@ -55,13 +55,13 @@ void FULLCOND_tvariance::outresults(void)
   FULLCOND::outresults();
 
   optionsp->out("  Results are stored in file " + pathresult + "\n");
-  #if defined(BORLAND_OUTPUT_WINDOW)
-  optionsp->out("  Results may be visualized using the R / S-Plus function");
-  optionsp->out(" 'plotnonp'\n");
-  #elif defined(JAVA_OUTPUT_WINDOW)
+  #if defined(JAVA_OUTPUT_WINDOW)
   optionsp->out("  Results may be visualized using method 'plotnonp'\n");
   optionsp->out("  Type for example: objectname.plotnonp " +
                    ST::inttostring(fcnumber) + " , median levels=none\n");
+  #else
+  optionsp->out("  Results may be visualized using the R function");
+  optionsp->out(" 'plotnonp'\n");
   #endif
   optionsp->out("\n");
 

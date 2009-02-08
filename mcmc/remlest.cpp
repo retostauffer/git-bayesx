@@ -5867,7 +5867,9 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
     ofstream outsplus(path_splus.strtochar());
 
     outtex << "\n\\newpage" << "\n\\noindent {\\bf \\large Plots:}" << endl;
-    outsplus << "# NOTE: 'directory' has to be substituted by the directory"
+
+    outsplus << "library(\"BayesX\")\n\n";
+/*    outsplus << "# NOTE: 'directory' has to be substituted by the directory"
              << " where the functions are stored \n"
              << endl
              << "# In S-PLUS the file extension in the source command has to be changed"
@@ -5878,7 +5880,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
              << "source(\"'directory'\\\\sfunctions\\\\plotnonp.r\")" << endl
              << "source(\"'directory'\\\\sfunctions\\\\plotsurf.r\")" << endl
              << "source(\"'directory'\\\\sfunctions\\\\drawmap.r\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.r\")\n" << endl;
+             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.r\")\n" << endl;*/
 
 #if defined(JAVA_OUTPUT_WINDOW)
     out("  --------------------------------------------------------------------------- \n");
@@ -5901,7 +5903,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
       out("  --------------------------------------------------------------------------- \n");
       out("\n");
       out("  Batch file for visualizing effects of nonlinear functions ");
-      out("  in R / S-Plus is stored in file \n");
+      out("  in R is stored in file \n");
       out("  " + path_splus + "\n");
       out("\n");
       }
@@ -5913,7 +5915,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
       out("  --------------------------------------------------------------------------- \n");
       out("\n");
       out("  Batch file for visualizing effects of nonlinear functions ");
-      out("  in R / S-Plus is stored in file \n");
+      out("  in R is stored in file \n");
       out("  " + path_splus + "\n");
       out("\n");
       out("  NOTE: 'input filename' must be substituted by the filename of the boundary-file \n");
@@ -5947,7 +5949,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
         ST::string pathgr = pathps.replaceallsigns('\\', '/');
 
         char hchar = '\\';
-        ST::string hstring = "\\\\";
+        ST::string hstring = "/";
 
         ST::string pathps_spl = pathps.insert_string_char(hchar,hstring);
         ST::string pathres_spl = pathresult.insert_string_char(hchar,hstring);
@@ -5971,8 +5973,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
           outbatch << "drop _dat" << endl;
           outbatch << "drop _g" << endl;
           // Plot-Befehle f. d. SPlus-file
-          outsplus << "plotnonp(\"" << pathres_spl << "\", psname = \""
-                   << pathps_spl << ".ps\")" << endl;
+          outsplus << "plotnonp(\"" << pathres_spl << "\")" << endl;
           // Plot-Befehle f. d. tex-file
           ST::string effect = xvar;
           if(varnames.size()>1)
@@ -6016,18 +6017,12 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
           outsplus << "# NOTE: 'input_filename' must be substituted by the "
                    << "filename of the boundary-file \n"
                    << "# NOTE: choose a 'name' for the map \n" << endl
-                   << "readbndfile(\"'input_filename'\", \"'name'\")" << endl
-                   << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                   <<"_pmode.ps\", dfile = \"" << pathres_spl
-                   << "\" ,plotvar = \"pmode\", regionvar = \""
-                   << regionvar << "\", color = T)" << endl;
-          outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                    <<"_pcat" << u_str << ".ps\", dfile = \"" << pathres_spl
-                    << "\" ,plotvar = \"pcat" << u_str << "\", regionvar = \""
+                     << "'name' <- read.bnd(\"'input_filename'\")" << endl
+                   << "drawmap(map = 'name', plotvar = \"pmode\", regionvar = \""
+                   << regionvar << "\")" << endl;
+          outsplus << "drawmap(map = 'name', plotvar = \"pcat" << u_str << "\", regionvar = \""
                   << regionvar << "\", legend = F, pcat = T)" << endl;
-          outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                    <<"_pcat" << o_str << ".ps\", dfile = \"" << pathres_spl
-                    << "\",plotvar = \"pcat" << o_str << "\", regionvar = \""
+          outsplus << "drawmap(map = 'name', plotvar = \"pcat" << o_str << "\", regionvar = \""
                     << regionvar << "\", legend = F, pcat = T)" << endl;
             // Plot-Befehle f. d. tex-file
           ST::string effect = regionvar;

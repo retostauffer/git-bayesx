@@ -1,20 +1,20 @@
-\documentclass{article}
+\documentclass[a4paper]{article}
 
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage[dvips]{epsfig}
-\usepackage[dcu]{harvard}
 \usepackage{dcolumn}
 \usepackage{shortvrb}
 \usepackage{parskip}
 \usepackage{multicol}
+\usepackage[dcu]{harvard}
 
 \sloppy
 \parindent0em
 \topmargin-1.5cm \textheight23cm \textwidth15cm
 \oddsidemargin0.5cm
 
-\MakeShortVerb{\#}
+\MakeShortVerb{\|}
 
 \begin{document}
 \title{Bayesian semiparametric regression based on mixed model methodology: A tutorial}
@@ -40,8 +40,7 @@ first introduction into the general usage of {\em BayesX}.
 This tutorial demonstrates the usage of {\it BayesX} for analysing
 Bayesian semiparametric regression models based on mixed model
 methodology. As an example we consider data on undernutrition of
-children in Zambia. This data has already been analysed in Kandala
-et al. (2001) \nocite{kanlan01} and we will use the same model
+children in Zambia. This data has already been analysed in \citeasnoun{kanlan01} and we will use the same model
 that has been developed there. Since our focus is on demonstrating
 how regression models can be estimated in {\em BayesX}, we do not
 discuss or interpret the estimation results but simply give the
@@ -74,14 +73,11 @@ The theoretical background of Bayesian semiparametric regression
 will not be described in this tutorial. Chapter 7 of the manual may
 serve as a first introduction, further details about the estimation
 techniques for the empirical Bayes approach can be found in
-Fahrmeir, Kneib and Lang (2004).\nocite{fahkne04} The full Bayesian
-approach is described in full detail in Fahrmeir and Lang
-(2001a,2001b),\nocite{fahlan01a} \nocite{fahlan01b} Lang and Brezger
-(2004) and Brezger and Lang (2005).\nocite{lanbre04} Survival models
-are treated in Hennerfeind, Brezger and Fahrmeir
-(2003)\nocite{henfah03} and Fahrmeir and Hennerfeind
-(2003)\nocite{fahhen03}, Count data regression is covered in
-Fahrmeir and Osuna (2003)\nocite{fahosu03}.
+\citeasnoun{fahkne04}. The full Bayesian
+approach is described in full detail in \citeasnoun{fahlan01a}, \citeasnoun{fahlan01b},
+\citeasnoun{lanbre04} and \citeasnoun{lanbre05}. Survival models are
+treated in \citeasnoun{henfah03} while count data
+regression is covered in \citeasnoun{fahosu03}.
 
 \section{Description of the data set}
 
@@ -173,18 +169,17 @@ corresponding files on your hard disk.
 
 \section{Reading data set information}\label{datasets}
 
-In a first step we read the available data set information into
-{\it BayesX}. Therefore we create a {\it dataset object} named
-#d#:
+In a first step we read the available data set information into {\it BayesX}. Therefore we create a {\it dataset object} named
+|d|:
 
-#> dataset d#
+|> dataset d|
 
-We store the data in #d# using the method #infile#:
+We store the data in |d| using the method |infile|:
 
-#> d.infile, maxobs=5000 using c:\data\zambia.raw#
+|> d.infile, maxobs=5000 using c:\data\zambia.raw|
 
 Note, that we assume the data to be provided in the external file
-#c:\data\zambia.raw#. The first few lines of this file look like
+|c:\data\zambia.raw|. The first few lines of this file look like
 this:
 
 {\footnotesize
@@ -196,18 +191,18 @@ this:
 
 In our example the file contains the variable names in the first
 line. Therefore  it is not necessary to specify them in the
-#infile# command. If the file contained only the data without
+|infile| command. If the file contained only the data without
 variable names, we would have to supply them after the keyword
-#infile#:
+|infile|:
 
- #> d.infile hazstd bmi agc district rcw edu1 edu2 tpr sex, maxobs=5000#
- #  using c:\data\zambia.raw#
+ |> d.infile hazstd bmi agc district rcw edu1 edu2 tpr sex, maxobs=5000|
+ |  using c:\data\zambia.raw|
 
 
-Option #maxobs# can be used to speed up the execution time of the
-#infile# command. If #maxobs# is specified, {\it BayesX} allocates
+Option |maxobs| can be used to speed up the execution time of the
+|infile| command. If |maxobs| is specified, {\it BayesX} allocates
 enough memory to store all the data while the total amount of
-required memory is unknown in advance if #maxobs# remains
+required memory is unknown in advance if |maxobs| remains
 unspecified. For larger data sets this may cause {\it BayesX} to
 start reading the data set information several times because the
 currently allocated memory is exceeded. However, this is only
@@ -225,7 +220,7 @@ missing} option).
 After having read in the dataset information we can inspect the
 data visually. Executing the command
 
-#> d.describe#
+|> d.describe|
 
 opens an {\it Object-Viewer} window containing the data in form of
 a spreadsheet (see Figure \ref{screenshot}). This can also be
@@ -242,10 +237,10 @@ screenshot of the dataset.\label{screenshot}}}
 \end{figure}
 
 Further methods allow to examine the variables in the {\it dataset
-object}. For a categorial variable, e.g. $sex$, the #tabulate#
+object}. For a categorial variable, e.g. $sex$, the |tabulate|
 command may be used to produce a frequency table:
 
-#> d.tabulate sex#
+|> d.tabulate sex|
 
 resulting in
 
@@ -258,10 +253,10 @@ Variable: sex
 \end{verbatim}
 
 being printed in the {\it output window}. For continuous variables
-the #descriptive# command prints several characteristics of the
+the |descriptive| command prints several characteristics of the
 variable in the {output window}. E.g., executing
 
-#> d.descriptive bmi#
+|> d.descriptive bmi|
 
 leads to
 
@@ -278,17 +273,17 @@ boundaries of the districts in Zambia to compute the neighbourhood
 information of the map of Zambia. We therefore create a {\it map
 object}
 
-#> map m#
+|> map m|
 
-and read in the boundaries using the #infile# command of {\it map
+and read in the boundaries using the |infile| command of {\it map
 objects}:
 
-#> m.infile using c:\data\zambia.bnd#
+|> m.infile using c:\data\zambia.bnd|
 
 Having read in the boundary information, {\it BayesX}
 automatically computes the neighbourhood matrix of the map.
 
-The file following the keyword #using# is assumed to contain the
+The file following the keyword |using| is assumed to contain the
 boundaries in form of closed polygons. To give an example we print
 a small part of the boundary file of Zambia. The map corresponding
 to the section of the boundary file can be found in Figure
@@ -376,12 +371,12 @@ cases, e.g. regions divided into subregions.
 the boundary file}
 \end{figure}
 
-{\it Map objects} may be visualised using method #describe#:
+{\it Map objects} may be visualised using method |describe|:
 
-#> m.describe#
+|> m.describe|
 
 resulting in the graph shown in Figure \ref{zambiamap}.
-Additionally, #describe# prints further information about the {\it
+Additionally, |describe| prints further information about the {\it
 map object} in the {\it output window} including the name of the
 object, the number of regions, the minimum and maximum number of
 neighbours and the bandwidth of the corresponding adjacency or
@@ -409,15 +404,15 @@ the polygons are given in great detail. To avoid doing these
 computations every time $BayesX$ is restarted, we may store the
 computed neighbourhood information in a so-called {\it graph file}
 to make it directly available. To do this, we use the method
-#outfile# together with the #graph# option as in the following
+|outfile| together with the |graph| option as in the following
 example:
 
-#> m.outfile, replace graph using c:\data\zambia.gra#\\
+|> m.outfile, replace graph using c:\data\zambia.gra|\\
 
-Note, that specifying the option #replace# allows {\it BayesX} to
+Note, that specifying the option |replace| allows {\it BayesX} to
 overwrite an existing file with the same name. Without this option
 an error message would be raised if the given file is already
-existing. Leaving out the keyword #graph# in the above command
+existing. Leaving out the keyword |graph| in the above command
 leads to storage of the map in boundary format.
 
 A graph file stores the nodes and the edges of a graph $G =
@@ -516,9 +511,9 @@ definition of 3 dimensional Markov random fields representing
 space-time interactions is possible.
 
 To see how storing maps in {\it graph files} affects the
-computation time of the #infile# command, we create a second {\it
+computation time of the |infile| command, we create a second {\it
 map object} and read in the information from the graph file.
-Again, we have to specify the keyword #graph#:
+Again, we have to specify the keyword |graph|:
 
 \begin{verbatim}
 > map m1
@@ -532,36 +527,36 @@ drawback. Since they do no longer contain the full information on
 the polygons forming the map, we can not visualise a {\it map
 object} created from a {\it graph file}. Trying to do so
 
-#> m1.describe#
+|> m1.describe|
 
 raises an error message. This implies, that visualising estimation
 results of spatial effects can only be based on {\it map objects}
 created from {\it boundary files}, although estimation can be
 carried out using {\it graph files}. Since we will work with the
-{\it map object} #m# in the following, we delete #m1#:
+{\it map object} |m| in the following, we delete |m1|:
 
-#> drop m1#
+|> drop m1|
 
 \section{Bayesian semiparametric regression}\label{regression}
 
 To estimate a regression model based on mixed model techniques, we
 first create a {\it remlreg object}:
 
-#> remlreg r#
+|> remlreg r|
 
 By default estimation results are written to the subdirectory
-#output# of the installation directory. In this case the default
+|output| of the installation directory. In this case the default
 filenames are composed of the name of the {\it remlreg object} and
 the type of the specific file. Usually it is more convenient to
 store the results in a user-specified directory. To define this
-directory we use the #outfile# command of {\it remlreg objects}:
+directory we use the |outfile| command of {\it remlreg objects}:
 
-#> r.outfile = c:\data\r#
+|> r.outfile = c:\data\r|
 
-Note, that #outfile# does not only specify a directory but also a
+Note, that |outfile| does not only specify a directory but also a
 base filename (the character 'r' in our example). Therefore
 executing the command above leads to storage of the results in the
-directory '#c:\data#' and all filenames start with the character
+directory '|c:\data|' and all filenames start with the character
 'r'. Of course the base filename may be different from the name of
 the {\it remlreg object}.
 
@@ -571,17 +566,17 @@ parameter estimates this information is not stored automatically
 but is printed in the {\it output window}. Therefore it is useful
 to store the contents of the {\it output window}. This can be
 achieved automatically by opening a {\it log file} using the
-#logopen# command
+|logopen| command
 
-#> logopen, replace using c:\data\logreml.txt#
+|> logopen, replace using c:\data\logreml.txt|
 
 After opening a {\it log file}, every information written to the
-output window is also stored in this file. Option #replace# allows
+output window is also stored in this file. Option |replace| allows
 {\it BayesX} to overwrite an existing file with the same name as the
-specified {\it log file}. Without #replace# results are appended to
+specified {\it log file}. Without |replace| results are appended to
 an existing file.
 
-The model presented in Kandala et al. (2001) is given by the
+The model presented in \citeasnoun{kanlan01} is given by the
 following semiparametric predictor:
 \[\eta=\gamma_0+\gamma_1rcw+\gamma_2edu1+\gamma_3edu2+\gamma_4tpr+\gamma_5sex+f_1(bmi)+f_2(agc)+f^{str}(district)+f^{unstr}(district)\]
 The two continuous covariates {\em bmi} and {\em agc} are assumed to
@@ -589,14 +584,13 @@ have a possibly nonlinear effect on the Z-score and are therefore
 modelled nonparametrically (as P-splines with second order random
 walk prior in our example). The spatial effect of the district is
 split up into a spatially correlated part $ f^{str}(district)$ and
-an uncorrelated part $f^{unstr}(district)$, see Fahrmeir and Lang
-(2001b) \nocite{fahlan01b} for a motivation. The correlated part is
+an uncorrelated part $f^{unstr}(district)$, see \citeasnoun{fahlan01b} for a motivation. The correlated part is
 modelled by a Markov random field prior, where the neighbourhood
 matrix and possible weights associated with the neighbours are
-obtained from the {\it map object} #m#. The uncorrelated part is
+obtained from the {\it map object} |m|. The uncorrelated part is
 modelled by an  i.i.d. Gaussian effect.
 
-To estimate the model we use method #regress# of {\em remlreg
+To estimate the model we use method |regress| of {\em remlreg
 objects}:
 \begin{verbatim}
 > r.regress hazstd = rcw + edu1 + edu2 + tpr + sex + bmi(psplinerw2)
@@ -604,27 +598,27 @@ objects}:
   family=gaussian lowerlim=0.01 eps=0.0005 using d
 \end{verbatim}
 
-Options #lowerlim# and #eps# control the estimation process. Since
+Options |lowerlim| and |eps| control the estimation process. Since
 small variances are near to the boundary of their parameter space,
 the usual Fisher-scoring algorithm for their determination has to
 be modified. If the fraction of the penalised part of an effect
-relative to the total effect is less than #lowerlim#, the
+relative to the total effect is less than |lowerlim|, the
 estimation of the corresponding variance is stopped and the
 estimator is defined to be the current value of the variance (see
-chapter 7 in the manual for details). The option #eps# defines the
+chapter 7 in the manual for details). The option |eps| defines the
 termination criterion for the estimation process. The default
-value for #lowerlim# is 0.001, the default value for #eps# is
+value for |lowerlim| is 0.001, the default value for |eps| is
 0.00001. However, since our analysis is only for explanatory
 purpose we chose somewhat weaker conditions resulting in a faster
 'convergence' of the algorithm. On a 2.4 GHz PC estimation of our
 model took about 2 minutes and 30 seconds with the above
-specifications of #lowerlim# and #eps#.
+specifications of |lowerlim| and |eps|.
 
-A further option of method #regress# is #maxit#, defining the
+A further option of method |regress| is |maxit|, defining the
 maximum number of iterations that should be performed in the
 estimation. Note, that {\it BayesX} produces results based on the
 current values of all parameters even if no convergence could be
-achieved within #maxit# iterations, but a warning message will be
+achieved within |maxit| iterations, but a warning message will be
 printed in the {\it output window}.
 
 In the following we reproduce the content of the {\em output
@@ -773,7 +767,7 @@ standard deviations and the corresponding 95\% and 80\% posterior
 probabilities of the estimated effects. Note, that credible
 intervals and posterior probabilities are based on a normal
 approximation of the posterior. For example, the beginning of the
-file #c:\data\r_f_bmi_pspline.res# for the effect of {\em bmi}
+file |c:\data\r_f_bmi_pspline.res| for the effect of {\em bmi}
 looks like this:
 
 {\footnotesize
@@ -784,30 +778,30 @@ looks like this:
 
 The credible intervals and posterior probabilities that are
 computed for every effect may be changed by the user using the
-options #level1# and #level2#. For example specifying #level1=99#
-and #level2=70# in the option list of the #regress# command leads
+options |level1| and |level2|. For example specifying |level1=99|
+and |level2=70| in the option list of the |regress| command leads
 to the computation of 70\% and 99\% credible intervals and
-posterior probabilities. The defaults are #level1=95# and
-#level2=80#.
+posterior probabilities. The defaults are |level1=95| and
+|level2=80|.
 
 Some nonparametric effects are visualised by {\em BayesX}
 automatically and the resulting graphs are stored in ps format.
 E.g. the effect of $bmi$ is visualised in the file
-#c:\data\b_f_bmi_pspline.ps# (compare the results on the previous
+|c:\data\b_f_bmi_pspline.ps| (compare the results on the previous
 pages for the other filenames). A batch file to reproduce the
 plots is stored in the output directory. In our example the name
-of the file is #c:\data\r_graphics.prg#. The advantage is that
+of the file is |c:\data\r_graphics.prg|. The advantage is that
 additional options may be added by the user to customise the
 graphs (compare the following two sections).
 
-Moreover a file with ending #.tex# is created in the outfile
+Moreover a file with ending |.tex| is created in the outfile
 directory. This file contains a summary of the estimation results
 and may be compiled using \LaTeX.
 
 Having finished the estimation we may close the {\it log file} by
 typing
 
-#> logclose#
+|> logclose|
 
 Note, that the {\it log file} is closed automatically when you
 exit BayesX.
@@ -821,7 +815,7 @@ results:
 automatically visualised by {\em BayesX} and stored in {\it ps
 files}.
 \item Post estimation commands of {\em bayesreg objects} allow to
-visualise results after having executed a #regress# command.
+visualise results after having executed a |regress| command.
 \item {\em Graph objects} may be used to produce graphics using the ASCII files containing the estimation results.
 In principle {\em graph objects} allow the visualisation of any
 content of a {\em dataset object}. {\em Graph files} are also used
@@ -839,23 +833,23 @@ automatically generated plots directly in {\em BayesX}. Section
 
 After having estimated a regression model plots for nonparametric
 effects of metrical covariates can be produced using the post
-estimation command #plotnonp#:
+estimation command |plotnonp|:
 
-#> r.plotnonp 1#
+|> r.plotnonp 1|
 
 and
 
-#> r.plotnonp 2#
+|> r.plotnonp 2|
 
 produce the graphs shown in Figure \ref{bmi1} in an {\it
-object-viewer window}. The numbers following the #plotnonp#
+object-viewer window}. The numbers following the |plotnonp|
 command depend on the order in which the model terms have been
 specified. The numbers are supplied in the {\em output window}
 after estimation, compare the results in the previous section.
 
 By default the plots contain the posterior mode and pointwise
 credible intervals according to the levels specified in the
-#regress# command. So by default the plots include pointwise 80\%
+|regress| command. So by default the plots include pointwise 80\%
 and 95\% credible intervals.
 
 \begin{figure}[ht]
@@ -868,24 +862,24 @@ child together with pointwise 80\% and 95\% credible intervals.
 \end{center}
 \end{figure}
 
-A plot may be stored in ps format using the #outfile# option.
+A plot may be stored in ps format using the |outfile| option.
 Executing
 
-#> r.plotnonp 1, replace outfile = c:\data\f_bmi.ps#
+|> r.plotnonp 1, replace outfile = c:\data\f_bmi.ps|
 
 stores the plot for the estimated effect of $bmi$ in the file
-#c:\data\f_bmi.ps#. Again, specifying #replace# allows {\it
+|c:\data\f_bmi.ps|. Again, specifying |replace| allows {\it
 BayesX} to overwrite an existing file. Note, that {\it BayesX}
-does not display the graph on the screen if the option #outfile#
+does not display the graph on the screen if the option |outfile|
 is specified.
 
 Estimation results for spatial effects are best visualised by
 drawing the respective map and colouring the regions of the map
 according to some characteristic of the posterior, e.g. the
 posterior mode. For the structured spatial effect this can be
-achieved using the post estimation command #drawmap#
+achieved using the post estimation command |drawmap|
 
-#> r.drawmap 3#
+|> r.drawmap 3|
 
 which results in the graph shown in Figure \ref{spat1}.
 
@@ -922,32 +916,32 @@ Now the estimation results (or any content of a {\it dataset
 object}) may be visualised using a {\it graph object} which we
 create by typing
 
-#> graph g#
+|> graph g|
 
-The results stored in the {\em dataset object} #res# are now
-visualised using the #plot# command of {\it graph objects}.
+The results stored in the {\em dataset object} |res| are now
+visualised using the |plot| command of {\it graph objects}.
 Executing
 
- #> g.plot bmi pmode ci95lower ci80lower ci80upper ci95upper using res#
+ |> g.plot bmi pmode ci95lower ci80lower ci80upper ci95upper using res|
 
 reproduces the graph in Figure \ref{bmi1}.
 
-Similar as for #plotnonp#, the direct usage of the #drawmap#
-command is only possible after executing a #regress# command.
+Similar as for |plotnonp|, the direct usage of the |drawmap|
+command is only possible after executing a |regress| command.
 However, using {\it graph objects} again allows us to visualise
 results that have been stored in a file.
 
 First we read the information contained in this file into a {\it
 dataset object}. For example the following command
 
-#> res.infile using c:\data\r_f_district_spatial.res#
+|> res.infile using c:\data\r_f_district_spatial.res|
 
 stores the estimation results for the structured spatial effect in
-the {\em dataset object} #res#. Now we can visualise the posterior
-mode using method #drawmap# of {\it graph objects} leading again
+the {\em dataset object} |res|. Now we can visualise the posterior
+mode using method |drawmap| of {\it graph objects} leading again
 to the graph shown in Figure \ref{spat1}:
 
-#> g.drawmap pmode district, map=m using res#
+|> g.drawmap pmode district, map=m using res|
 
 Since -- in contrast to a {\it remlreg object} -- no {\it map
 object} is associated with a {\it graph object} we explicitly have
@@ -957,7 +951,7 @@ Using {\it graph objects} also allows us to plot other
 characteristics of the posterior than the posterior mode. For
 instance the posterior 95\% probabilities may be visualised by
 
-#> g.drawmap pcat95 district, map=m using res#
+|> g.drawmap pcat95 district, map=m using res|
 
 The result is shown in Figure \ref{spat2}.
 
@@ -1000,14 +994,14 @@ automatically generated graphics.
 
 For the presentation of nonparametric effects it may be desirable to
 include only one of the credible intervals into the plot. This is
-achieved by specifying the #levels# option. Possible values of this
-option are #1# and #2#, corresponding to the levels specified in the
-#regress# command (compare section \ref{regression}). If the default
-values of #level1# and #level2# have been used, specifying #level=2#
-in the #plotnonp# command causes {\it BayesX} to plot the 80\%
+achieved by specifying the |levels| option. Possible values of this
+option are |1| and |2|, corresponding to the levels specified in the
+|regress| command (compare section \ref{regression}). If the default
+values of |level1| and |level2| have been used, specifying |level=2|
+in the |plotnonp| command causes {\it BayesX} to plot the 80\%
 credible interval only (Figure \ref{bmi3}):
 
-#> r.plotnonp 1, levels=2#
+|> r.plotnonp 1, levels=2|
 
 \begin{figure}[ht]
 \begin{center}
@@ -1042,8 +1036,8 @@ examples (compare Figure \ref{bmi4} for the resulting plots):
 By default {\it BayesX} displays x- and y-axis with five
 equidistant ticks according to the range of the data that is to be
 visualised. These defaults may be overwritten using the options
-#xlimbottom#, #xlimtop# and #xstep# for the x-axis and
-#ylimbottom#, #ylimtop# and #ystep# for the y-axis, respectively.
+|xlimbottom|, |xlimtop| and |xstep| for the x-axis and
+|ylimbottom|, |ylimtop| and |ystep| for the y-axis, respectively.
 The usage of these options is more or less self-explanatory and is
 demonstrated in the following commands which lead to the graph
 shown in Figure \ref{bmi6}.
@@ -1070,15 +1064,15 @@ of $bmi$.
 \end{center}
 \end{figure}
 
-Now we turn to the options for method #drawmap#. By default
-#drawmap# uses grey scales to represent different values of the
-posterior mode. Using the option #color# forces {\it BayesX} to
+Now we turn to the options for method |drawmap|. By default
+|drawmap| uses grey scales to represent different values of the
+posterior mode. Using the option |color| forces {\it BayesX} to
 use different colours instead. Here the default would be to
 represent higher values through green colours and smaller values
-through red colours. Specifying #swapcolors# switches this
+through red colours. Specifying |swapcolors| switches this
 definition. Therefore the following command
 
-#> r.drawmap 3, color swapcolors#
+|> r.drawmap 3, color swapcolors|
 
 leads to the graph shown in Figure \ref{spat3} with higher values
 being represented through red colours and smaller values through
@@ -1094,15 +1088,15 @@ colour.\label{spat3}}}
 
 
 Similar options as for the visualisation of nonparametric effects
-exist for method #drawmap#. For example, a title may be included
-by specifying the option #title#
+exist for method |drawmap|. For example, a title may be included
+by specifying the option |title|
 
 \begin{verbatim}
 > r.drawmap 3, color swapcolors title="Structured spatial effect"
 \end{verbatim}
 
 or the range of values to be displayed may be defined using the
-options #lowerlimit# and #upperlimit#:
+options |lowerlimit| and |upperlimit|:
 
 \begin{verbatim}
 > r.drawmap 3, color swapcolors title="Structured spatial effect" lowerlimit=-0.3
@@ -1123,52 +1117,46 @@ spatial effects.\label{spat4}}}
 \addcontentsline{toc}{section}{References}
 
 \begin{thebibliography}{99}
-\harvarditem{Brezger and Lang}{2005}{brelan05} Brezger, A. and Lang,
-S., 2005: Generalized structured additive regression based on
+\harvarditem{Brezger \& Lang}{2006}{brelan05} Brezger, A. \& Lang,
+S., 2006: Generalized structured additive regression based on
 Bayesian P-splines. {\it Computational Statistics and Data
-Analysis}, to appear.
+Analysis}, {\bf 50}, 967--991.
 
-\harvarditem{Fahrmeir and Hennerfeind}{2003}{fahhen03} Fahrmeir,
-L. and Hennerfeind, A., 2003: Nonparametric Bayesian hazard rate
-models based on penalized splines. SFB 386 Discussion paper 361,
-University of Munich.
-
-\harvarditem{Fahrmeir et~al.}{2004}{fahkne04} Fahrmeir, L., Kneib,
-T. and Lang, S., 2004: Penalized structured additive regression for
+\harvarditem{Fahrmeir, Kneib \& Lang}{2004}{fahkne04} Fahrmeir, L., Kneib,
+T. \& Lang, S., 2004: Penalized structured additive regression for
 space-time data: A Bayesian perspective, {\it Statistica Sinica},
-14, 731-761 .
+{\bf 14}, 731--761 .
 
-\harvarditem{Fahrmeir and Lang}{2001a}{fahlan01a} Fahrmeir, L. and
+\harvarditem{Fahrmeir \& Lang}{2001a}{fahlan01a} Fahrmeir, L. \&
 Lang, S., 2001a: Bayesian Inference for Generalized Additive Mixed
 Models Based on Markov Random Field Priors. {\it Journal of the
-Royal Statistical Society C}, 50, 201-220.
+Royal Statistical Society C}, {\bf 50}, 201--220.
 
-\harvarditem{Fahrmeir and Lang}{2001b}{fahlan01b} Fahrmeir, L. and
+\harvarditem{Fahrmeir \& Lang}{2001b}{fahlan01b} Fahrmeir, L. \&
 Lang, S., 2001: Bayesian Semiparametric Regression Analysis of
 Multicategorical Time-Space Data. {\it Annals of the Institute of
-Statistical Mathematics}, 53, 10-30
+Statistical Mathematics}, {\bf 53}, 10--30
 
-\harvarditem{Fahrmeir and Osuna}{2003}{fahosu03} Fahrmeir, L. and
-Osuna, L. (2003), Structured count data regression. SFB 386
-Discussion paper 334, University of Munich.
+\harvarditem{Fahrmeir \& Osuna}{2006}{fahosu03} Fahrmeir, L. \&
+Osuna, L. (2003), Structured additive regression for overdispersed and zero-inflated count data.
+{\it Applied Stochastic Models in Business and Industry}, {\bf 22}, 351--369.
 
-\harvarditem{George and Liu}{1981}{geoliu81} George, A. and Liu,
+\harvarditem{George \& Liu}{1981}{geoliu81} George, A. \& Liu,
 J.W. 1981: {\it Computer Solution of Large Sparse Positive
-Definite Systems}, Prentice--Hall.
+Definite Systems}, Prentice-Hall.
 
-\harvarditem{Hennerfeind et al.}{2003}{henfah03} Hennerfeind, A.,
-Brezger, A. and Fahrmeir, L., 2003: Geoadditive survival models.
-SFB Discussion paper 333, University of Munich.
-
-\harvarditem{Kandala et. al}{2001}{kanlan01} Kandala, N. B., Lang,
-S., Klasen, S. and Fahrmeir, L. (2001): Semiparametric Analysis of
+\harvarditem{Hennerfeind, Brezger \& Fahrmeir}{2006}{henfah03} Hennerfeind, A.,
+Brezger, A. \& Fahrmeir, L., 2003: Geoadditive survival models.
+{\it Journal of the American Statistical Association}, {\bf 101}, 1065--1075
+v\harvarditem{Kandala et~al.}{2001}{kanlan01} Kandala, N. B., Lang,
+S., Klasen, S. \& Fahrmeir, L. (2001): Semiparametric Analysis of
 the Socio-Demographic and Spatial Determinants of Undernutrition
 in Two African Countries. {\it Research in Official Statistics},
-1, 81-100.
+{\bf 1}, 81--100.
 
-\harvarditem{Lang and Brezger}{2004}{lanbre04} Lang, S. and Brezger,
+\harvarditem{Lang \& Brezger}{2004}{lanbre04} Lang, S. \& Brezger,
 A., 2004: Bayesian P-splines. {\it Journal of Computational and
-Graphical Statistics}, 13, 183-212.
+Graphical Statistics}, {\bf 13}, 183--212.
 
 \end{thebibliography}
 

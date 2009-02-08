@@ -242,23 +242,19 @@ void FULLCOND_adaptiv::outresults(void)
   FULLCOND::outresults();
 
   char hchar = '\\';
-  ST::string hstring = "\\\\";
+  ST::string hstring = "/";
   ST::string pathresultsplus = pathresults.insert_string_char(hchar,hstring);
   ST::string psfile = pathresultsplus.substr(0,pathresultsplus.length()-4) + ".ps";
 
   optionsp->out("  Results are stored in file\n");
   optionsp->out("  " +   pathresults + "\n");
   optionsp->out("\n");
-  optionsp->out("  Results may be visualized using the R / S-Plus function 'plotnonp'\n");
+  optionsp->out("  Results may be visualized using the R function 'plotnonp'\n");
   optionsp->out("\n");
 
   optionsp->out("  Type for example:\n");
   optionsp->out("\n");
   optionsp->out("  plotnonp(\""+ pathresultsplus + "\")\n");
-  optionsp->out("\n");
-  optionsp->out("  or \n");
-  optionsp->out("\n");
-  optionsp->out("  plotnonp(\""+ pathresultsplus + "\",\"" + psfile + "\")\n");
   optionsp->out("\n");
   optionsp->out("  Estimated variance parameter for variance random walk (sample mean):\n"
                 + ST::doubletostring(sigma2sum/optionsp->get_samplesize(),6) + "\n");

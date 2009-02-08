@@ -834,7 +834,7 @@ void MCMCsim::autocorr(const unsigned & lag,const ST::string & path)
         }
 
     #if !defined(JAVA_OUTPUT_WINDOW)
-      genoptions->out("They may be visualized using the R / S-Plus function 'plotautocor'.\n");
+      genoptions->out("They may be visualized using the R function 'plotautocor'.\n");
       genoptions->out("\n");
     #endif
       } // end: if (!Frame->stop)
@@ -945,7 +945,7 @@ void MCMCsim::get_samples(
   genoptions->out("\n");
   #if defined(BORLAND_OUTPUT_WINDOW)
   genoptions->out(
-  "Sampled parameters may be visualized using the R / S-plus\n");
+  "Sampled parameters may be visualized using the R\n");
   genoptions->out("function 'plotsample'.\n");
   genoptions->out("\n");
   #endif

@@ -1167,9 +1167,7 @@ void spline_basis_surf::outresults(void)
 
 if(mapexisting)
   {
-  #if defined(BORLAND_OUTPUT_WINDOW)
-  optionsp->out("  Results may be visualized using the R / S-Plus function 'drawmap' \n");
-  #elif defined(JAVA_OUTPUT_WINDOW)
+  #if defined(JAVA_OUTPUT_WINDOW)
   optionsp->out("  Postscript files are stored in files\n");
   ST::string psfile;
   psfile = pathcurrent.substr(0,pathcurrent.length()-4) + ".ps";
@@ -1182,13 +1180,15 @@ if(mapexisting)
   optionsp->out("  Results may be visualized using method 'drawmap'\n");
   optionsp->out("  Type for example:\n");
   optionsp->out("  objectname.drawmap " + ST::inttostring(fcnumber) + "\n");
+  #else
+  optionsp->out("  Results may be visualized using the R function 'drawmap' \n");
   #endif
   optionsp->out("\n");
   }
 else
   {
-  optionsp->out(ST::string("  Results may be visualized using the R / S-Plus function 'plotsurf' \n"));
-  ST::string doublebackslash = "\\\\";
+  optionsp->out(ST::string("  Results may be visualized using the R function 'plotsurf' \n"));
+  ST::string doublebackslash = "/";
   ST::string spluspath = pathcurrent.insert_string_char('\\',doublebackslash);
   optionsp->out("  Type for example:\n");
   optionsp->out("  plotsurf(\"" + spluspath + "\")\n");
@@ -2904,9 +2904,7 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
 
   if(mapexisting)
     {
-#if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the R / S-Plus function 'drawmap' \n");
-#elif defined(JAVA_OUTPUT_WINDOW)
+#if defined(JAVA_OUTPUT_WINDOW)
     optionsp->out("  Postscript files are stored in files\n");
     ST::string psfile;
     psfile = outest.substr(0,outest.length()-4) + ".ps";
@@ -2919,13 +2917,15 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
     optionsp->out("  Results may be visualized using method 'drawmap'\n");
     optionsp->out("  Type for example:\n");
     optionsp->out("  objectname.drawmap " + ST::inttostring(plotpos) + "\n");
+#else
+    optionsp->out("  Results may be visualized using the R function 'drawmap' \n");
 #endif
     optionsp->out("\n");
     }
   else
     {
-    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotsurf'\n");
-    ST::string doublebackslash = "\\\\";
+    optionsp->out("  Results may be visualized using the R function 'plotsurf'\n");
+    ST::string doublebackslash = "/";
     ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
     optionsp->out("  Type for example:\n");
     optionsp->out("  plotsurf(\"" + spluspath + "\")");
@@ -3058,8 +3058,8 @@ double spline_basis_surf::outresultsreml(datamatrix & X,datamatrix & Z,
     optionsp->out("  " + outest + "\n");
     optionsp->out("\n");
 
-    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotsurf'\n");
-    ST::string doublebackslash = "\\\\";
+    optionsp->out("  Results may be visualized using the R function 'plotsurf'\n");
+    ST::string doublebackslash = "/";
     ST::string spluspath = outest.insert_string_char('\\',doublebackslash);
     optionsp->out("  Type for example:\n");
     optionsp->out("  plotsurf(\"" + spluspath + "\")");

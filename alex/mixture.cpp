@@ -894,20 +894,20 @@ void FULLCOND_mixture::outresults(void)
 
   if(nosamples==false && aclag>0)
     {
-    optionsp->out("  Sampled parameters may be visualized using the R / S-plus function 'plotsample'.");
-    optionsp->out("  Autocorrelation functions may be visualized using the R / S-Plus function 'plotautocor'.");
+    optionsp->out("  Sampled parameters may be visualized using the R function 'plotsample'.");
+    optionsp->out("  Autocorrelation functions may be visualized using the R function 'plotautocor'.");
     optionsp->out("\n");
     optionsp->out("\n");
     }
   if(nosamples==false && aclag==0)
     {
-    optionsp->out("  Sampled parameters may be visualized using the R / S-plus function 'plotsample'.");
+    optionsp->out("  Sampled parameters may be visualized using the R function 'plotsample'.");
     optionsp->out("\n");
     optionsp->out("\n");
     }
   if(nosamples==true && aclag>0)
     {
-    optionsp->out("  Autocorrelation functions may be visualized using the R / S-Plus function 'plotautocor'.");
+    optionsp->out("  Autocorrelation functions may be visualized using the R function 'plotautocor'.");
     optionsp->out("\n");
     optionsp->out("\n");
     }

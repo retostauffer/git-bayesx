@@ -942,7 +942,7 @@ void MCMCsimulate::autocorr(const unsigned & lag,const ST::string & path)
         }
 
     #if !defined(JAVA_OUTPUT_WINDOW)
-      genoptions_mult[0]->out("They may be visualized using the R / S-Plus function 'plotautocor'.\n");
+      genoptions_mult[0]->out("They may be visualized using the R function 'plotautocor'.\n");
       genoptions_mult[0]->out("\n");
     #endif
       } // end: if (!Frame->stop)
@@ -1334,7 +1334,9 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
        outstata.open(path_stata.strtochar());
 
     outtex << "\n\\newpage" << "\n\\noindent {\\bf \\large Plots:}" << endl;
-    outsplus << "# NOTE: 'directory' has to be substituted by the directory"
+
+    outsplus << "library(\"BayesX\")\n\n";
+/*    outsplus << "# NOTE: 'directory' has to be substituted by the directory"
              << " where the functions are stored \n"
              << endl
              << "# In S-PLUS the file extension in the source command has to be changed"
@@ -1345,7 +1347,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
              << "source(\"'directory'\\\\sfunctions\\\\plotnonp.r\")" << endl
              << "source(\"'directory'\\\\sfunctions\\\\plotsurf.r\")" << endl
              << "source(\"'directory'\\\\sfunctions\\\\drawmap.r\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.r\")\n" << endl;
+             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.r\")\n" << endl;*/
 
     genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
     genoptions_mult[0]->out("\n");
@@ -1366,7 +1368,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
       genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
       genoptions_mult[0]->out("\n");
       genoptions_mult[0]->out("  Batch file for visualizing effects of nonlinear functions ");
-      genoptions_mult[0]->out("  in R / S-Plus is stored in file \n");
+      genoptions_mult[0]->out("  in R is stored in file \n");
       genoptions_mult[0]->out("  " + path_splus + "\n");
       genoptions_mult[0]->out("\n");
       genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
@@ -1384,11 +1386,11 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
       genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
       genoptions_mult[0]->out("\n");
       genoptions_mult[0]->out("  Batch file for visualizing effects of nonlinear functions ");
-      genoptions_mult[0]->out("  in R / S-Plus is stored in file \n");
+      genoptions_mult[0]->out("  in R is stored in file \n");
       genoptions_mult[0]->out("  " + path_splus + "\n");
       genoptions_mult[0]->out("\n");
-      genoptions_mult[0]->out("  NOTE: 'input filename' must be substituted by the filename of the boundary-file \n");
-      genoptions_mult[0]->out("\n");
+//      genoptions_mult[0]->out("  NOTE: 'input filename' must be substituted by the filename of the boundary-file \n");
+//      genoptions_mult[0]->out("\n");
       }
     /*
     if(stata == true)
@@ -1438,7 +1440,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
         ST::string pathgr = pathps.replaceallsigns('\\', '/');
 
         char hchar = '\\';
-        ST::string hstring = "\\\\";
+        ST::string hstring = "/";
 
         ST::string pathps_spl = pathps.insert_string_char(hchar,hstring);
         ST::string pathres_spl = pathresult.insert_string_char(hchar,hstring);
@@ -1464,8 +1466,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
             outbatch << "drop _dat" << endl;
             outbatch << "drop _g" << endl;
             // Plot-Befehle f. d. SPlus-file
-            outsplus << "plotnonp(\"" << pathres_spl << "\", psname = \""
-                     << pathps_spl << ".ps\")" << endl;
+            outsplus << "plotnonp(\"" << pathres_spl << "\")" << endl;
 
             //Plot-Befehle f. d. Stata-File
             ST::string pu1_str = u1_str.replaceallsigns('.','p');
@@ -1535,18 +1536,12 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
             outsplus << "# NOTE: 'input_filename' must be substituted by the "
                      << "filename of the boundary-file \n"
                      << "# NOTE: choose a 'name' for the map \n" << endl
-                     << "readbndfile(\"'input_filename'\", \"'name'\")" << endl
-                     << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                     <<"_pmean.ps\", dfile = \"" << pathres_spl
-                     << "\" ,plotvar = \"pmean\", regionvar = \""
-                     << regionvar << "\", color = T)" << endl;
-            outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                      <<"_pcat" << u_str << ".ps\", dfile = \"" << pathres_spl
-                      << "\" ,plotvar = \"pcat" << u_str << "\", regionvar = \""
+                     << "'name' <- read.bnd(\"'input_filename'\")" << endl
+                     << "drawmap(map = 'name',plotvar = \"pmean\", regionvar = \""
+                     << regionvar << "\")" << endl;
+            outsplus << "drawmap(map = 'name', plotvar = \"pcat" << u_str << "\", regionvar = \""
                     << regionvar << "\", legend = F, pcat = T)" << endl;
-            outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                      <<"_pcat" << o_str << ".ps\", dfile = \"" << pathres_spl
-                      << "\",plotvar = \"pcat" << o_str << "\", regionvar = \""
+            outsplus << "drawmap(map = 'name', plotvar = \"pcat" << o_str << "\", regionvar = \""
                       << regionvar << "\", legend = F, pcat = T)" << endl;
             // Plot-Befehle f. d. tex-file
             if(plst == MCMC::drawmap)
@@ -1860,7 +1855,7 @@ const ST::string & path,const unsigned & step)
   genoptions_mult[0]->out("\n");
   #if defined(BORLAND_OUTPUT_WINDOW)
   genoptions_mult[0]->out(
-  "Sampled parameters may be visualized using the R / S-plus\n");
+  "Sampled parameters may be visualized using the R\n");
   genoptions_mult[0]->out("function 'plotsample'.\n");
   genoptions_mult[0]->out("\n");
   #endif

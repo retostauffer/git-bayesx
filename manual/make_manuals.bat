@@ -32,3 +32,7 @@ copy manual_tutorials.pdf ..\internet\bayesx\manual\tutorials_manual.pdf
 copy manual.pdf ..\java\doc\reference_manual.pdf
 copy manual_star.pdf ..\java\doc\methodology_manual.pdf
 copy manual_tutorials.pdf ..\java\doc\tutorials_manual.pdf
+
+copy manual.pdf ..\sourcecode\doc\reference_manual.pdf
+copy manual_star.pdf ..\sourcecode\doc\methodology_manual.pdf
+copy manual_tutorials.pdf ..\sourcecode\doc\tutorials_manual.pdf

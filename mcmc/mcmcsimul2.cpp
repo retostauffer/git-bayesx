@@ -3994,7 +3994,7 @@ void STEPWISErun::make_graphics(const ST::string & name,
 void STEPWISErun::make_tex_end(ST::string & path, const vector<double> & modell)
   {
   ST::string path_batch = path + "_graphics.prg";
-  ST::string path_splus = path +  "_splus.txt";
+  ST::string path_splus = path +  "_r.R";
   //ST::string path_stata = path +  "_stata.do";
   ST::string path_tex = path + "_model_summary.tex";
 
@@ -4287,7 +4287,9 @@ void STEPWISErun::make_plots(ST::string & path_batch,
     ofstream outsplus(path_splus.strtochar());
 
     outtex << "\n\\newpage" << "\n\\noindent {\\bf \\large Plots:}" << endl;
-    outsplus << "# NOTE: 'directory' must be substituted by the directory"
+
+    outsplus << "library(\"BayesX\")\n\n";
+/*    outsplus << "# NOTE: 'directory' must be substituted by the directory"
              << " where the sfunctions are stored \n"
              << endl
     // einlesen der Source-Files für S-Plus
@@ -4295,7 +4297,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
              << "source(\"'directory'\\\\sfunctions\\\\plotnonp.s\")" << endl
              << "source(\"'directory'\\\\sfunctions\\\\plotsurf.s\")" << endl
              << "source(\"'directory'\\\\sfunctions\\\\drawmap.s\")" << endl
-             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.s\")\n" << endl;
+             << "source(\"'directory'\\\\sfunctions\\\\readbndfile.s\")\n" << endl;*/
 
     genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
     genoptions_mult[0]->out("\n");
@@ -4316,7 +4318,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
       genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
       genoptions_mult[0]->out("\n");
       genoptions_mult[0]->out("  Batch file for visualizing effects of nonlinear functions ");
-      genoptions_mult[0]->out("  in S-Plus is stored in file \n");
+      genoptions_mult[0]->out("  in R is stored in file \n");
       genoptions_mult[0]->out("  " + path_splus + "\n");
       genoptions_mult[0]->out("\n");
       }
@@ -4328,7 +4330,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
       genoptions_mult[0]->out("  --------------------------------------------------------------------------- \n");
       genoptions_mult[0]->out("\n");
       genoptions_mult[0]->out("  Batch file for visualizing effects of nonlinear functions ");
-      genoptions_mult[0]->out("  in S-Plus is stored in file \n");
+      genoptions_mult[0]->out("  in R is stored in file \n");
       genoptions_mult[0]->out("  " + path_splus + "\n");
       genoptions_mult[0]->out("\n");
       genoptions_mult[0]->out("  NOTE: 'input filename' must be substituted by the filename of the boundary-file \n");
@@ -4367,7 +4369,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
         ST::string pathgr = pathps.replaceallsigns('\\', '/');
 
         char hchar = '\\';
-        ST::string hstring = "\\\\";
+        ST::string hstring = "/";
 
         ST::string pathps_spl = pathps.insert_string_char(hchar,hstring);
         ST::string pathres_spl = pathresult.insert_string_char(hchar,hstring);
@@ -4391,8 +4393,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
            outbatch << "drop _dat" << endl;
            outbatch << "drop _g" << endl;
             // Plot-Befehle f. d. SPlus-file
-           outsplus << "plotnonp(\"" << pathres_spl << "\", psname = \""
-                    << pathps_spl << ".ps\")" << endl;
+           outsplus << "plotnonp(\"" << pathres_spl << "\")" << endl;
             // Plot-Befehle f. d. tex-file
            outtex << "\n\\begin{figure}[h!]" << endl
                   << "\\centering" << endl
@@ -4431,11 +4432,9 @@ void STEPWISErun::make_plots(ST::string & path_batch,
            outsplus << "# NOTE: 'input_filename' must be substituted by the "
                     << "filename of the boundary-file \n"
                     << "# NOTE: choose a 'name' for the map \n" << endl
-                    << "readbndfile(\"'input_filename'\", \"'name'\")" << endl
-                    << "drawmap(map = 'name', outfile = \"" << pathps_spl
-                    <<"_pmean.ps\", dfile = \"" << pathres_spl
-                    << "\" ,plotvar = \"pmean\", regionvar = \""
-                    << regionvar << "\", color = T)" << endl;
+                     << "'name' <- read.bnd(\"'input_filename'\")" << endl
+                    << "drawmap(map = 'name', plotvar = \"pmean\", regionvar = \""
+                    << regionvar << "\")" << endl;
            /*
            outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl
                     <<"_pcat" << u_str << ".ps\", dfile = \"" << pathres_spl

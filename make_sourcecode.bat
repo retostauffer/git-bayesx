@@ -40,6 +40,7 @@ rm -r CVS
 rm *.~*
 rm #*
 rm *.obj
+rm -f *.dfm
 
 cd ..\dag
 rm -r CVS

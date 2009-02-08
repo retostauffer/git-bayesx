@@ -983,7 +983,7 @@ const FULLCOND_nonp & FULLCOND_nonp::operator=(const FULLCOND_nonp & fc)
   if (this == &fc)
     return *this;
   FULLCOND::operator=(FULLCOND(fc));
-  fcconst = fc.fcconst;  
+  fcconst = fc.fcconst;
   likep = fc.likep;
   centerm = fc.centerm;
   Pmatrix = fc.Pmatrix;
@@ -1274,11 +1274,7 @@ void FULLCOND_nonp::outresults(void)
   optionsp->out("\n");
   if (Pmatrix->get_type() == MCMC::mrf)
     {
-    #if defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the R / S-Plus function");
-    optionsp->out(" 'drawmap'\n");
-    optionsp->out("\n");
-    #elif defined(JAVA_OUTPUT_WINDOW)
+    #if defined(JAVA_OUTPUT_WINDOW)
 
     if (Pmatrix->get_polex() == true)
       {
@@ -1292,26 +1288,15 @@ void FULLCOND_nonp::outresults(void)
     optionsp->out("  Type for example: objectname.drawmap " +
     ST::inttostring(fcnumber) + "\n");
     optionsp->out("\n");
+    #else
+    optionsp->out("  Results may be visualized using the R function");
+    optionsp->out(" 'drawmap'\n");
+    optionsp->out("\n");
     #endif
     }
   else
     {
-    #if defined(BORLAND_OUTPUT_WINDOW)
-    ST::string pathresultsplus = pathcurrent.insert_string_char('\\',"\\\\");
-    ST::string psfile = pathresultsplus.substr(0,pathresultsplus.length()-4)
-    + ".ps";
-    optionsp->out("  Results may be visualized using the R / S-Plus function 'plotnonp'");
-    optionsp->out("\n");
-    optionsp->out("  Type for example:\n");
-    optionsp->out("\n");
-    optionsp->out("  plotnonp(\""+ pathresultsplus + "\")\n");
-    optionsp->out("\n");
-    optionsp->out("  or \n");
-    optionsp->out("\n");    
-    optionsp->out("  plotnonp(\""+ pathresultsplus + "\",\"" + psfile
-                  + "\")\n");
-    optionsp->out("\n");
-    #elif defined(JAVA_OUTPUT_WINDOW)
+    #if defined(JAVA_OUTPUT_WINDOW)
     optionsp->out("  Postscript file is stored in file\n");
     ST::string psfile = pathcurrent.substr(0,pathcurrent.length()-4) + ".ps";
     optionsp->out("  " + psfile + "\n");
@@ -1319,6 +1304,15 @@ void FULLCOND_nonp::outresults(void)
     optionsp->out("  Results may be visualized in BayesX using method 'plotnonp'\n");
     optionsp->out("  Type for example: objectname.plotnonp " +
     ST::inttostring(fcnumber) + "\n");
+    optionsp->out("\n");
+    #else
+    ST::string doublebackslash = "/";
+    ST::string pathresultsplus = pathcurrent.insert_string_char('\\',doublebackslash);
+    optionsp->out("  Results may be visualized using the R function 'plotnonp'");
+    optionsp->out("\n");
+    optionsp->out("  Type for example:\n");
+    optionsp->out("\n");
+    optionsp->out("  plotnonp(\""+ pathresultsplus + "\")\n");
     optionsp->out("\n");
     #endif
     }
