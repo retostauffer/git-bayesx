@@ -35,6 +35,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   FC fsample;
 
+  FC paramsample;
+
   FC pvalue_sample;
   bool pvalue;
 
@@ -51,8 +53,10 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void centerparam(void);
   void centerparam_sample(void);
 
+
+  void compute_pvalue(ST::string & pathresults);
   void update_pvalue(void);
-  void compute_pvalue(void);
+
 
   public:
 

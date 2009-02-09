@@ -80,11 +80,12 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
     paramlin = datamatrix(Dp->designlinear.cols(),1,0);
     }
 
-
   if (pvalue==true)
     {
-    pvalue_sample = FC(o,"",beta.rows()*2+6,1,fp + ".pvalue");
+    pvalue_sample = FC(o,"",param.rows()*2+6,1,fp + ".pvalue");
     }
+
+   paramsample = FC(o,"",param.rows(),1,fp + ".param");
 
   }
 
@@ -114,7 +115,7 @@ void FC_nonp::update_pvalue(void)
     contourp++;
     *contourp = designp->K.compute_quadform(param,0);          // contour(,nrpar+3)
     contourp++;
-    *contourp = designp->precision.compute_quadform(param,0);  // contour(,nrpar+4)
+    *contourp = designp->precision.compute_quadform(parammode,0);  // contour(,nrpar+4)
     contourp++;
     *contourp = designp->precision.getLogDet();                 // contour(,nrpar+5)
 
@@ -139,7 +140,8 @@ void FC_nonp::update_pvalue(void)
 
 
 
-void FC_nonp::compute_pvalue(void)
+
+void FC_nonp::compute_pvalue(ST::string & pathresults)
   {
 
 /*  unsigned nrpar = param.rows();
@@ -153,39 +155,46 @@ void FC_nonp::compute_pvalue(void)
   datamatrix contour(optionsp->samplesize,pvalue_sample.beta.rows(),0);
   pvalue_sample.readsample3(contour);
 
+  // TEST
+  // ofstream out2("c:\\bayesx\\testh\\results\\contour.raw");
+  // contour.prettyPrint(out2);
+  // END: TEST
+
   mPhelp = datamatrix(nrpar,1,0);
 
-  // ?
-  datamatrix beta_0(nrpar,1,0);
-  for(i=0;i<nrpar;i++)
-    beta_0(i,0) = fc_contour.get_data(i,0);
-  // ?
 
   double exponent,mPbeta;
 
   datamatrix pbeta_0(1,3,0);
-
   datamatrix pbeta_j(optionsp->samplesize,3,0);
 
   unsigned step = optionsp->samplesize/1000;
   datamatrix RB(optionsp->samplesize/step,1,0);
 
-  datamatrix beta(optionsp->samplesize,nrpar,0);
-  readsample3(beta);
-  beta = beta.transposed();
+  datamatrix parameter(optionsp->samplesize,nrpar,0);
+  paramsample.readsample3(parameter);
+  parameter = parameter.transposed();
 
   datamatrix m(optionsp->samplesize,nrpar,0);
   m = contour.getColBlock(0,nrpar);
   m = m.transposed();
 
+// 0-nrpar-1 : pmode
+// nrpar     : 1/scale
+// nrpar+1   : 1/tau2
+// nrpar+2   : param' XWX param
+// nrpar+3   : param'K param
+// nrpar+4   : parammode' precision parammode
+// nrpar+5   : logdetprecison
+// rest      : mP
+
   for(j=0;j<optionsp->samplesize;j++)
     {
-// compute p(beta_j)
     for(i=0;i<optionsp->samplesize;i+=step)
       {
       mPbeta = 0.0;
       for(k=0;k<nrpar;k++)
-        mPbeta += contour(i,nrpar+6+k)*beta(k,j);
+        mPbeta += contour(i,nrpar+6+k)*parameter(k,j);
 
       exponent = contour(i,nrpar)   * contour(j,nrpar+2)
                + contour(i,nrpar+1) * contour(j,nrpar+3)
@@ -204,16 +213,13 @@ void FC_nonp::compute_pvalue(void)
     }
 
 // compute p(beta_0)
-  for(i=0;i<optionsp->get_samplesize();i+=step)
+  for(i=0;i<optionsp->samplesize;i+=step)
     {
-    prec_env.addto(XX_env,Kenv,contour(i,nrpar),contour(i,nrpar+1));
+
 
     mPbeta = 0.0;
-    for(k=0;k<nrpar;k++)
-      mPbeta += contour(i,nrpar+6+k)*beta_0(k,0);
 
-    exponent = prec_env.compute_quadform(beta_0,0)/(transform*transform)
-             + contour(i,nrpar+4) - 2*mPbeta/transform;
+    exponent = contour(i,nrpar+4);
     RB(i/step,0) = 0.5*contour(i,nrpar+5) - 0.5*(exponent);
     }
 
@@ -230,15 +236,15 @@ void FC_nonp::compute_pvalue(void)
   datamatrix contourprob(1,3,0.0);
   for(i=0;i<contourprob.cols();i++)
     {
-    for(j=0;j<optionsp->get_samplesize();j++)
+    for(j=0;j<optionsp->samplesize;j++)
       if(pbeta_j(j,i) < pbeta_0(0,i))
         contourprob(0,i)++;
-    contourprob(0,i) = contourprob(0,i)/optionsp->get_samplesize();
+    contourprob(0,i) = contourprob(0,i)/optionsp->samplesize;
     }
 
   optionsp->out("  Contour probability                                : " + ST::doubletostring(contourprob(0,0),2) + "\n");
 
-  ST::string path = pathresult.substr(0,pathresult.length()-4)+"_contour.res";
+  ST::string path = pathresults.substr(0,pathresults.length()-4)+"_contour.res";
 
   ofstream out(path.strtochar());
   out << "difforder   contourprob   mean(log)  mean" << endl;
@@ -255,6 +261,8 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   {
 
   fsample = m.fsample;
+
+  paramsample = m.paramsample;
 
   pvalue_sample = m.pvalue_sample;
   pvalue = m.pvalue;
@@ -292,6 +300,8 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   FC::operator=(FC(m));
 
   fsample = m.fsample;
+
+  paramsample = m.paramsample;
 
   pvalue_sample = m.pvalue_sample;
   pvalue = m.pvalue;
@@ -444,6 +454,7 @@ void FC_nonp::update_IWLS(void)
     beta.assign(betaold);
     }
 
+
   // TEST
   /*
   ofstream out("c:\\bayesx\\test\\results\\param.res");
@@ -570,6 +581,10 @@ void FC_nonp::update_gaussian(void)
 
   if (pvalue)
     update_pvalue();
+
+  paramsample.beta.assign(param);
+  paramsample.transform(0,0) = likep->trmult;
+  paramsample.update();
 
   FC::update();
 
@@ -1004,6 +1019,8 @@ void FC_nonp::outresults(const ST::string & pathresults)
 
       outres << endl;
       }
+
+    compute_pvalue(pathresults);
 
     }
 
