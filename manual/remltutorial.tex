@@ -1,0 +1,66 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[dvips]{epsfig}
+\usepackage{dcolumn}
+\usepackage{shortvrb}
+\usepackage{parskip}
+\usepackage{multicol}
+\usepackage[dcu]{harvard}
+
+\sloppy
+\parindent0em
+\topmargin-1.5cm \textheight23cm \textwidth15cm
+\oddsidemargin0.5cm
+
+\MakeShortVerb{\|}
+
+\begin{document}
+
+\title{Bayesian Semiparametric Regression Based on Mixed Model Methodology: A Tutorial}
+\author{Thomas Kneib, Stefan Lang and Andreas Brezger\\ [.25cm]
+\normalsize Department of Statistics, University of Munich. } \maketitle
+
+\begin{abstract}
+This tutorial demonstrates the usage of {\it BayesX} for analysing Bayesian semiparametric regression models based on mixed
+model methodology. As an example, we consider data on undernutrition of children in Zambia. The tutorial is designed to be
+self-contained and describes all features of {\it BayesX} in detail, that will be needed throughout the tutorial. Therefore it
+may also serve as a first introduction into the general usage of {\it BayesX}. Note that the tutorial is written for the
+version of {\it BayesX} including a graphical user interface and graphics facilities. While all regression-related commands can
+be executed in the command line version as well, the graphics facilities will not be available.
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+\input{reml.tex}
+
+\addcontentsline{toc}{section}{References}
+
+\begin{thebibliography}{99}
+\harvarditem{Fahrmeir, Kneib \& Lang}{2004}{fahkne04} Fahrmeir, L., Kneib, T. \& Lang, S., 2004: Penalized structured additive
+regression for space-time data: A Bayesian perspective, {\it Statistica Sinica}, {\bf 14}, 731--761 .
+
+\harvarditem{Fahrmeir \& Lang}{2001}{fahlan01b} Fahrmeir, L. \& Lang, S., 2001: Bayesian Semiparametric Regression Analysis of
+Multicategorical Time-Space Data. {\it Annals of the Institute of Statistical Mathematics}, {\bf 53}, 10--30
+
+\harvarditem{Kandala et~al.}{2001}{kanlan01} Kandala, N. B., Lang, S., Klasen, S. \& Fahrmeir, L. (2001): Semiparametric
+Analysis of the Socio-Demographic and Spatial Determinants of Undernutrition in Two African Countries. {\it Research in
+Official Statistics}, {\bf 1}, 81--100.
+
+ \harvarditem{Kneib}{2006}{kneib2006b} {Kneib, T.} (2006) Geoadditive hazard regression for interval censored
+ survival times. {\it Computational Statistics and Data Analysis}, {\bf 51}, 777--792.
+
+ \harvarditem{Kneib \& Fahrmeir}{2006}{kneib2006a} {Kneib, T. \& Fahrmeir, L.} (2006) Structured additive
+ regression for categorical space-time data: A mixed model approach. {\it Biometrics}, {\bf 62}, 109--118.
+
+ \harvarditem{Kneib \& Fahrmeir}{2007}{kneib2007} {Kneib, T. \& Fahrmeir, L.} (2007) A mixed model approach for
+ geoadditive hazard regression. {\it Scandinavian Journal of Statistics}, {\bf 34} 207-228.
+
+
+\end{thebibliography}
+
+
+\end{document}

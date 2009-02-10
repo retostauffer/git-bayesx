@@ -1,0 +1,94 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[dvips]{epsfig}
+\usepackage[dcu]{harvard}
+\usepackage{dcolumn}
+\usepackage{shortvrb}
+\usepackage{parskip}
+\usepackage{multicol}
+
+\sloppy
+\parindent0em
+\topmargin-1.5cm \textheight23cm \textwidth15cm
+\oddsidemargin0.5cm
+
+\MakeShortVerb{\|}
+
+\begin{document}
+\title{Bayesian Semiparametric Regression Based on MCMC Simulation Techniques: A Tutorial}
+\author{Thomas Kneib, Stefan Lang and Andreas Brezger\\ [.25cm]
+\normalsize Department of Statistics, University of Munich. }
+\maketitle
+
+\begin{abstract}
+This tutorial demonstrates the usage of {\it BayesX} for analysing Bayesian semiparametric regression models based on MCMC
+simulation techniques. As an example, we consider data on undernutrition of children in Zambia. The tutorial is designed to be
+self-contained and describes all features of {\it BayesX} in detail, that will be needed throughout the tutorial. Therefore it
+may also serve as a first introduction into the general usage of {\it BayesX}. Note that the tutorial is written for the
+version of {\it BayesX} including a graphical user interface and graphics facilities. While all regression-related commands can
+be executed in the command line version as well, the graphics facilities will not be available.
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+\input{mcmc.tex}
+
+\addcontentsline{toc}{section}{References}
+
+\begin{thebibliography}{99}
+
+\harvarditem{Brezger \& Lang}{2006}{brelan05} Brezger, A. \& Lang,
+S., 2006: Generalized structured additive regression based on
+Bayesian P-splines. {\it Computational Statistics and Data
+Analysis}, {\bf 50}, 967--991.
+
+\harvarditem{Fahrmeir, Kneib \& Lang}{2004}{fahkne04} Fahrmeir, L., Kneib,
+T. \& Lang, S., 2004: Penalized structured additive regression for
+space-time data: A Bayesian perspective, {\it Statistica Sinica},
+{\bf 14}, 731--761 .
+
+\harvarditem{Fahrmeir \& Lang}{2001a}{fahlan01a} Fahrmeir, L. \&
+Lang, S., 2001a: Bayesian Inference for Generalized Additive Mixed
+Models Based on Markov Random Field Priors. {\it Journal of the
+Royal Statistical Society C}, {\bf 50}, 201--220.
+
+\harvarditem{Fahrmeir \& Lang}{2001b}{fahlan01b} Fahrmeir, L. \&
+Lang, S., 2001: Bayesian Semiparametric Regression Analysis of
+Multicategorical Time-Space Data. {\it Annals of the Institute of
+Statistical Mathematics}, {\bf 53}, 10--30
+
+\harvarditem{Fahrmeir \& Osuna}{2006}{fahosu03} Fahrmeir, L. \&
+Osuna, L. (2003), Structured additive regression for overdispersed and zero-inflated count data.
+{\it Applied Stochastic Models in Business and Industry}, {\bf 22}, 351--369.
+
+\harvarditem{George \& Liu}{1981}{geoliu81} George, A. \& Liu,
+J.W. 1981: {\it Computer Solution of Large Sparse Positive
+Definite Systems}, Prentice-Hall.
+
+\harvarditem{Hennerfeind, Brezger \& Fahrmeir}{2006}{henfah03} Hennerfeind, A.,
+Brezger, A. \& Fahrmeir, L., 2003: Geoadditive survival models.
+{\it Journal of the American Statistical Association}, {\bf 101}, 1065--1075
+
+\harvarditem{Kandala et~al.}{2001}{kanlan01} Kandala, N. B., Lang,
+S., Klasen, S. \& Fahrmeir, L. (2001): Semiparametric Analysis of
+the Socio-Demographic and Spatial Determinants of Undernutrition
+in Two African Countries. {\it Research in Official Statistics},
+{\bf 1}, 81--100.
+
+\harvarditem{Lang \& Brezger}{2004}{lanbre04} Lang, S. \& Brezger,
+A., 2004: Bayesian P-splines. {\it Journal of Computational and
+Graphical Statistics}, {\bf 13}, 183--212.
+
+\harvarditem{Spiegelhalter et~al.}{2002}{spibes02} Spiegelhalter,
+D.J., Best, N.G., Carlin, B.P. \& van der Linde, A. (2002):
+Bayesian measures of model complexity and fit. {\it Journal of the
+Royal Statistical Society B}, {\bf 65}, 583--639
+
+\end{thebibliography}
+
+
+\end{document}

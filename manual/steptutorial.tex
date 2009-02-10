@@ -1,0 +1,57 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[dvips]{epsfig}
+\usepackage{dcolumn}
+\usepackage{shortvrb}
+\usepackage{parskip}
+\usepackage{multicol}
+\usepackage[dcu]{harvard}
+
+\sloppy
+\parindent0em
+\topmargin-1.5cm \textheight23cm \textwidth15cm
+\oddsidemargin0.5cm
+
+\MakeShortVerb{\|}
+
+\begin{document}
+
+\title{Simultaneously Selecting Variables and Smoothing Parameters in Semiparametric Regression Models: A Tutorial}
+\author{Christiane Belitz and Stefan Lang\\ [.25cm]
+\normalsize Department of Statistics, University of Munich. } \maketitle
+
+\begin{abstract}
+This tutorial demonstrates the usage of {\it BayesX} for simultaneously selecting variables and smoothing parameters in
+semiparametric regression models. As an example, we consider data on undernutrition of children in Zambia. The tutorial is
+designed to be self-contained and describes all features of {\it BayesX} in detail, that will be needed throughout the
+tutorial. Therefore it may also serve as a first introduction into the general usage of {\it BayesX}. Note that the tutorial is
+written for the version of {\it BayesX} including a graphical user interface and graphics facilities. While all
+regression-related commands can be executed in the command line version as well, the graphics facilities will not be available.
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+\input{step.tex}
+
+\addcontentsline{toc}{section}{References}
+
+\begin{thebibliography}{99}
+
+\harvarditem{Belitz \& Lang}{2008}{bellan08} Belitz, C. \& Lang, S.  (2001): Simultaneous selection of variables and smoothing
+parameters in structured additive regression models. {\it Computational Statistics and Data Analysis}, {\bf 53}, 61--81.
+
+\harvarditem{George \& Liu}{1981}{geoliu81} George, A. \& Liu, J.W. 1981: {\it Computer Solution of Large Sparse Positive
+Definite Systems}, Prentice-Hall.
+
+\harvarditem{Kandala et~al.}{2001}{kanlan01} Kandala, N. B., Lang, S., Klasen, S. \& Fahrmeir, L. (2001): Semiparametric
+Analysis of the Socio-Demographic and Spatial Determinants of Undernutrition in Two African Countries. {\it Research in
+Official Statistics}, {\bf 1}, 81--100.
+
+
+\end{thebibliography}
+
+\end{document}
