@@ -37,9 +37,6 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   FC paramsample;
 
-  FC pvalue_sample;
-  bool pvalue;
-
   bool IWLS;
 
   sampletype stype;
@@ -54,6 +51,12 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void centerparam_sample(void);
 
 
+  FC pvalue_sample;                          // stores required quantities for
+                                             // computing p-values
+  bool pvalue;                               // compute pvalues, yes, no
+                                             // default no
+
+  
   void compute_pvalue(ST::string & pathresults);
   void update_pvalue(void);
 

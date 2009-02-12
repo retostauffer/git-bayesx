@@ -249,11 +249,11 @@ void FC::readsample3(datamatrix & b) const
   unsigned i,j;
   for(i=0;i<b.rows();i++)
     for(j=0;j<b.cols();j++,work++)
+      {
       in.read((char *) work,size);
+      }
 
   }
-
-
 
 
 datamatrix FC::compute_autocorr(const unsigned & lag,const unsigned & row,
@@ -460,6 +460,11 @@ void FC::update(void)
 
 
     }  // end: if ((it > burnin) && ((it-burnin) % nrbetween == 0))
+
+  if (optionsp->nriter==optionsp->iterations)
+    {
+    samplestream.close();
+    }
 
   }
 
