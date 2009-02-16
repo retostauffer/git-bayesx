@@ -1232,7 +1232,7 @@ string outresults(const unsigned & l,const string & name, const double & mean,
 
   string ls(' ',l);
 
-  string result = "  " + name + ls + means + stds + qu10s + qu50s + qu90s;
+  string result = "    " + name + ls + means + stds + qu10s + qu50s + qu90s;
 
   return result;
 
