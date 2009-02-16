@@ -86,6 +86,9 @@ double __EXPORT_TYPE trunc_normal2(const double & a,const double & b,const doubl
 double __EXPORT_TYPE trunc_normal3(const double & a,const double & b,const double & mu,
                     const double & s = 1);
 
+double __EXPORT_TYPE trunc_normal4(const double & a,const double & mu,
+                    const double & s = 1);
+
 double __EXPORT_TYPE truncnormal(const double & a,const double & b);
 
 // Erzeugen von exponentialverteilten Zufallszahlen mit Parameter lambda

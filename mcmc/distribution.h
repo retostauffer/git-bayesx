@@ -24,6 +24,7 @@ using randnumbers::rand_normal;
 using randnumbers::uniform;
 using randnumbers::trunc_normal;
 using randnumbers::trunc_normal2;
+using randnumbers::trunc_normal4;
 using randnumbers::truncnormal;
 using randnumbers::kssample;
 using randnumbers::rand_gamma;
@@ -2373,14 +2374,7 @@ class __EXPORT_TYPE DISTRIBUTION_AFT : public DISTRIBUTION_gaussian
   protected:
 
   datamatrix censoring;
-
-
-  // FUNCTION: standardise
-  // TASK: standardises the response and the offset
-  //       sets scalesave.transform = trmult*trmult (!!!)
-
-  void standardise(void);
-
+  datamatrix responseorig;
 
   public:
 

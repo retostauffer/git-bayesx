@@ -5402,30 +5402,6 @@ double DISTRIBUTION_gaussian::compute_rss(void)
 //------------------------- CLASS: DISTRIBUTION_AFT ----------------------------
 //------------------------------------------------------------------------------
 
-void DISTRIBUTION_AFT::standardise(void)
-  {
-
-  /*
-  double s = sqrt(response.var(0,weight));
-
-  trmult = datamatrix(1,1,s);
-
-  unsigned i;
-  double * workresp = response.getV();
-  double * worklin = (*linpred_current).getV();
-  for (i=0;i<nrobs;i++,workresp++,worklin++)
-   {
-   *workresp = *workresp/trmult(0,0);
-   *worklin = *worklin/trmult(0,0);
-   }
-
-
-  datamatrix tr(1,1,trmult(0,0)*trmult(0,0));
-  Scalesave.set_transformmult(tr);
-  */
-
-  }
-
 
 DISTRIBUTION_AFT::DISTRIBUTION_AFT(void) : DISTRIBUTION_gaussian()
   {
@@ -5445,6 +5421,7 @@ DISTRIBUTION_AFT::DISTRIBUTION_AFT(const double & a,
 
   {
   censoring = cens;
+  responseorig = response;
   }
 
 
@@ -5458,6 +5435,7 @@ DISTRIBUTION_AFT::DISTRIBUTION_AFT(const datamatrix & offset,
 
   {
   censoring = cens;
+  responseorig = response;
   }
 
 
@@ -5467,6 +5445,7 @@ DISTRIBUTION_AFT::DISTRIBUTION_AFT(const DISTRIBUTION_AFT & nd)
    : DISTRIBUTION_gaussian(DISTRIBUTION_gaussian(nd))
   {
   censoring = nd.censoring;
+  responseorig = nd.responseorig;
   }
 
 
@@ -5477,6 +5456,7 @@ const DISTRIBUTION_AFT & DISTRIBUTION_AFT::operator=(
     return *this;
   DISTRIBUTION_gaussian::operator=(DISTRIBUTION_gaussian(nd));
   censoring = nd.censoring;
+  responseorig = nd.responseorig;
   return *this;
   }
 
@@ -5491,15 +5471,29 @@ void DISTRIBUTION_AFT::compute_deviance(const double * response,
     }
 
 
-void DISTRIBUTION_AFT::outoptions(void)
+void DISTRIBUTION_AFT::outoptions(void) 
   {
-
+  DISTRIBUTION_gaussian::outoptions();
   }
 
 
 void DISTRIBUTION_AFT::update(void)
   {
+  unsigned i;
 
+  double test = trmult(0,0);
+
+  double * rp = response.getV();
+  double * rpo = responseorig.getV();
+  double * cp = censoring.getV();
+  double * worklin = (*linpred_current).getV();
+  double sqrtscale = sqrt(scale(0,0));
+  for(i=0; i< responseorig.rows(); i++, rp++, rpo++, cp++,worklin++)
+    {
+    if(*cp==0)
+      *rp = trunc_normal4(*rpo, *worklin, sqrtscale);
+    }
+  DISTRIBUTION_gaussian::update();
   }
 
 

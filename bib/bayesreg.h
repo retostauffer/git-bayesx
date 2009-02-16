@@ -90,6 +90,7 @@ using MCMC::DISTRIBUTION_multinomial_latent;
 using MCMC::DISTRIBUTION_cumulative_latent3;
 using MCMC::DISTRIBUTION_coxmodel;
 using MCMC::DISTRIBUTION_multistatemodel;
+using MCMC::DISTRIBUTION_AFT;
 using MCMC::FULLCOND;
 using MCMC::FULLCOND_const;
 using MCMC::FULLCOND_const_gaussian;
@@ -167,6 +168,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   datamatrix D;
   unsigned statepos;
   unsigned begpos;
+  unsigned censpos;
   vector<ST::string> modelvarnamesv;
 
   // global options
@@ -371,6 +373,8 @@ class __EXPORT_TYPE bayesreg : public statobject
   stroption zipdistopt;
   // options zero inflated distributed response
 
+  // options aft model
+  stroption censoring;
   // options cox model
   stroption begin;
   stroption state;
@@ -440,6 +444,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   DISTRIBUTION_coxmodel distr_cox;
   DISTRIBUTION_multistatemodel distr_multistatemodel;
   DISTRIBUTION_gaussianh distr_gaussianh;
+  DISTRIBUTION_AFT distr_aft;
 
   doubleoption reference;
 

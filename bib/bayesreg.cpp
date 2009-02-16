@@ -56,7 +56,8 @@ bool bayesreg::check_gaussian(const unsigned & collinpred)
      (family.getvalue() == "binomialtlink") ||
      (family.getvalue() == "multinomialprobit") ||
      ((family.getvalue() == "gaussianh") && (collinpred==0)) ||
-     (family.getvalue() == "cumprobit")
+     (family.getvalue() == "cumprobit") ||
+     (family.getvalue() == "aft")
      )
      return true;
   else
@@ -286,7 +287,7 @@ void bayesreg::create(void)
 // BEGIN: merror
   merror = intoption("merror",0,0,10);
 // END: merror
-  families.reserve(20);
+  families.reserve(30);
   families.push_back("gaussian");
   families.push_back("gaussian_re");
   families.push_back("multgaussian");
@@ -306,6 +307,7 @@ void bayesreg::create(void)
   families.push_back("cox");
   families.push_back("multistate");
   families.push_back("gaussianh");
+  families.push_back("aft");
   family = stroption("family",families,"binomial");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -352,6 +354,8 @@ void bayesreg::create(void)
   nosamples = simpleoption("nosamples",false);
 
   begin = stroption("begin");
+
+  censoring = stroption("censoring");
 
   state = stroption("state");
 
@@ -415,6 +419,7 @@ void bayesreg::create(void)
   regressoptions.push_back(&zipdistopt);
   regressoptions.push_back(&nosamples);
 
+  regressoptions.push_back(&censoring);
   regressoptions.push_back(&begin);
   regressoptions.push_back(&state);
 
@@ -707,6 +712,8 @@ void bayesreg::initpointers(void)
       distr.push_back(&distr_cox);
     else if (distrstring[i] == "multistate")
       distr.push_back(&distr_multistatemodel);
+    else if (distrstring[i] == "aft")
+      distr.push_back(&distr_aft);
     }
 
 
@@ -972,6 +979,7 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   distr_nbinomial = b.distr_nbinomial;
   distr_zip = b.distr_zip;
   distr_cox = b.distr_cox;
+  distr_aft = b.distr_aft;
   distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
@@ -1017,6 +1025,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   distr_nbinomial = b.distr_nbinomial;
   distr_zip = b.distr_zip;
   distr_cox = b.distr_cox;
+  distr_aft = b.distr_aft;
   distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
@@ -1241,6 +1250,12 @@ bool bayesreg::create_distribution(void)
     begpos = modelvarnamesv.size()-1;
     }
 
+  if(censoring.getvalue() != "")
+    {
+    modelvarnamesv.push_back(censoring.getvalue());
+    censpos = modelvarnamesv.size()-1;
+    }
+
   // Für Multistate model
   if(state.getvalue() != "")
     {
@@ -1316,6 +1331,27 @@ bool bayesreg::create_distribution(void)
     statemat = datamatrix(1,1);
   else
     statemat = D.getCol(statepos);
+
+  datamatrix cens;
+  if(censoring.getvalue() == "")
+    cens = datamatrix(D.rows(),1,1);
+  else
+    {
+    cens = D.getCol(censpos);
+    unsigned k=0;
+    bool censerr = false;
+    while(k<cens.rows() && !censerr)
+      {
+      if(cens(k,0)!=1 && cens(k,0)!=0)
+        censerr=true;  
+      k++;
+      }
+    if(censerr)
+      {
+      outerror("ERROR: censoring indicator must be either zero or one\n");
+      return true;
+      }
+    }
 
 
   describetext.push_back("Response distribution: "
@@ -1406,6 +1442,71 @@ bool bayesreg::create_distribution(void)
     nrcategories = 1;
     }
 //-------------------------- END: Gaussian response ----------------------------
+
+//--------------------------------------- AFT  ---------------------------------
+  else if (family.getvalue() == "aft")
+    {
+
+    ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
+    ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
+
+    if (offs.rows() == 1)
+      distr_aft = DISTRIBUTION_AFT(aresp.getvalue(),bresp.getvalue(),
+                                             &generaloptions[generaloptions.size()-1],
+                                             D.getCol(0),cens,path2,
+                                             path3,w);
+    else
+      distr_aft = DISTRIBUTION_AFT(offs,aresp.getvalue(),
+                                             bresp.getvalue(),&generaloptions[generaloptions.size()-1],
+                                             D.getCol(0),cens,path2,path3,
+                                             w);
+
+    if (uniformprior.getvalue()==true)
+      {
+      distr_aft.set_uniformprior();
+      }
+
+    if (constscale.getvalue()==true)
+      {
+      distr_aft.set_constscale(scalevalue.getvalue());
+      }
+
+    distr_aft.init_names(rname,wn);
+
+    // prediction stuff
+
+    if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+      distr_aft.set_predict(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_aft.set_predictfull(pathfullsample,pathfull,n);
+      }
+
+    if (pind.rows() > 1)
+      distr_aft.set_predictresponse(pind);
+
+    // end: prediction stuff
+
+    distr.push_back(&distr_aft);
+    distrstring.push_back("AFT");
+    distrposition.push_back(0);
+    nrcategories = 1;
+    }
+//----------------------------------- END: AFT ---------------------------------
 
 //---------------------------- Gaussian response RE  ---------------------------
   else if (family.getvalue() == "gaussian_re")

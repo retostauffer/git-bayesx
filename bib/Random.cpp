@@ -389,6 +389,17 @@ double trunc_normal3(const double & a,const double & b,const double & mu,
   return mu+s*z;
   }
 
+double trunc_normal4(const double & a, const double & mu, const double & s)
+  {
+  double at = Phi2((a-mu)/s);
+  double u = at+(1-at)*uniform();
+  double r = mu+s*invPhi2(u);
+  if (r < a)
+    r = a+0.00000001;
+
+  return r;
+  }
+
 double truncnormal(const double & a,const double & b)
   {
   bool accept = false;
