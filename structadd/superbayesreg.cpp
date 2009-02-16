@@ -52,7 +52,8 @@ void superbayesreg::make_paths(ST::string & pathnonp,
     pathres = outfile.getvalue() + "_" + h + "_f_" +
                     varname1 + endingres;
 
-    title = h + "_f_" + varname1 + endingtitle;
+//    title = h + "_f_" + varname1 + endingtitle;
+    title = h + ": " + endingtitle + varname1;
 
     }
   else
@@ -468,14 +469,14 @@ void superbayesreg::make_header(unsigned & modnr)
     if (equations[modnr].equationtype == "mean")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": main regression";
-      equations[modnr].paths = "main";
+                              ": MAIN REGRESSION";
+      equations[modnr].paths = "MAIN_REGRESSION";
       }
     else if (equations[modnr].equationtype == "variance")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": main variance regression";
-      equations[modnr].paths = "variance";
+                              ": MAIN VARIANCE REGRESSION";
+      equations[modnr].paths = "MAIN_VARIANCE_REGRESSION";
       }
     }
   else if (equations[modnr].hlevel == 2)
@@ -483,14 +484,14 @@ void superbayesreg::make_header(unsigned & modnr)
     if (equations[modnr].equationtype == "mean")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": random effects regression";
-      equations[modnr].paths = "random_effects";
+                              ": RANDOM EFFECTS REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS";
       }
     else if (equations[modnr].equationtype == "variance")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": random effects variance regression";
-      equations[modnr].paths = "random_effects_variance";
+                              ": RANDOM EFFECTS VARIANCE REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_VARIANCE";
       }
     }
 
@@ -823,13 +824,13 @@ bool superbayesreg::create_linear(void)
 
   ST::string h = equations[modnr].paths;
 
-  title = "FixedEffects_" + h;
+  title = h + ": linear effects" ;
 
   pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + "_FixedEffects"  +
+                           + "_LinearEffects"  +
                            "_" + h + ".raw";
 
-  pathconstres = outfile.getvalue() +  "_FixedEffects" + "_" + h +
+  pathconstres = outfile.getvalue() +  "_LinearEffects" + "_" + h +
                     ".res";
 
   if (pathconst.isvalidfile() == 1)
@@ -875,7 +876,7 @@ void superbayesreg::create_pspline(unsigned i)
   unsigned modnr = equations.size()-1;
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-             "_pspline.raw","_pspline.res","_pspline");
+             "_pspline.raw","_pspline.res"," Nonlinear effect (P-spline) of ");
 
   datamatrix d,iv;
   extract_data(i,d,iv);
@@ -901,7 +902,7 @@ void superbayesreg::create_pspline(unsigned i)
   // variances
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-  "_pspline_var.raw","_pspline_var.res","_pspline_variance");
+  "_pspline_var.raw","_pspline_var.res","Variance of nonlinear effect of ");
 
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_psplines[design_psplines.size()-1],
@@ -947,7 +948,7 @@ bool superbayesreg::create_hrandom(unsigned i)
   unsigned modnr = equations.size()-1;
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-             "_hrandom.raw","_hrandom.res","_hrandom");
+             "_hrandom.raw","_hrandom.res","Random effect of ");
 
   ST::string pathnonp2 = pathnonp.substr(0,pathnonp.length()-4)  + "_2.res";
 
@@ -983,7 +984,7 @@ bool superbayesreg::create_hrandom(unsigned i)
   // variances
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-  "_hrandom_var.raw","_hrandom_var.res","_hrandom_variance");
+  "_hrandom_var.raw","_hrandom_var.res","Variance of random effect of ");
 
   FC_hrandom_variances.push_back(FC_hrandom_variance(&generaloptions,equations[modnr].distrp,
                                  equations[fnr].distrp,
@@ -1065,7 +1066,7 @@ bool superbayesreg::create_mrf(unsigned i)
   unsigned modnr = equations.size()-1;
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-             "_spatial.raw","_spatial.res","_spatial");
+             "_spatial.raw","_spatial.res","Spatial effect (MRF) of ");
 
   datamatrix d,iv;
   extract_data(i,d,iv);
@@ -1116,7 +1117,7 @@ bool superbayesreg::create_mrf(unsigned i)
   // variances
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-  "_spatial_var.raw","_spatial_var.res","_spatial_variance");
+  "_spatial_var.raw","_spatial_var.res","Variance of spatial effect of ");
 
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_mrfs[design_mrfs.size()-1],

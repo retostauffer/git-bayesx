@@ -237,9 +237,10 @@ void FC_nonp::compute_pvalue(ST::string & pathresults)
   contourprob = contourprob/optionsp->samplesize;
 
 
-  optionsp->out("  Bayesian p-value: " +
+  optionsp->out("    Bayesian p-value: " +
   ST::doubletostring(contourprob,2) + "\n");
 
+  optionsp->out("\n");
 
   ST::string path = pathresults.substr(0,pathresults.length()-4)+"_contour.res";
 
@@ -827,7 +828,7 @@ bool FC_nonp::posteriormode(void)
 
 void FC_nonp::outoptions(void)
   {
-  optionsp->out("  OPTIONS FOR TERM: " + title + "\n",true);
+  optionsp->out("  " + title + "\n",true);
   optionsp->out("\n");
   designp->outoptions(optionsp);
   }
@@ -844,8 +845,8 @@ void FC_nonp::outresults(const ST::string & pathresults)
 
     outresults_acceptance();
 
-    optionsp->out("  Results are stored in file\n");
-    optionsp->out("  " +  pathresults + "\n");
+    optionsp->out("    Results are stored in file\n");
+    optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
     ofstream outres(pathresults.strtochar());
@@ -1021,7 +1022,8 @@ void FC_nonp::outresults(const ST::string & pathresults)
       outres << endl;
       }
 
-    compute_pvalue(pathresults);
+    if (pvalue)
+      compute_pvalue(pathresults);
 
     }
 

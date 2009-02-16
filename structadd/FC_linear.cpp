@@ -543,7 +543,7 @@ void FC_linear::outresults(const ST::string & pathresults)
       help = ST::doubletostring(optionsp->upper2,4) + "% quant.";
       ST::string levelu = help + ST::string(' ',15-help.length());
 
-      optionsp->out("  Variable" + l +
+      optionsp->out("    Variable" + l +
                     "mean           " +
                     "Std. Dev.      " +
                     levell +
@@ -564,9 +564,9 @@ void FC_linear::outresults(const ST::string & pathresults)
         {
 
         if (maxvarnamelength  > 10)
-          nsp = 2+maxvarnamelength-datanames[i].length();
+          nsp = 6+maxvarnamelength-datanames[i].length();
         else
-          nsp = 10-datanames[i].length();
+          nsp = 12-datanames[i].length();
 
         m= betamean(i,0);
 
@@ -611,8 +611,8 @@ void FC_linear::outresults(const ST::string & pathresults)
 
       optionsp->out("\n");
 
-      optionsp->out("  Results for fixed effects are also stored in file\n");
-      optionsp->out("  " + pathresults + "\n");
+      optionsp->out("    Results for fixed effects are also stored in file\n");
+      optionsp->out("    " + pathresults + "\n");
 
       optionsp->out("\n");
     }

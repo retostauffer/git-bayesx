@@ -161,67 +161,67 @@ void FC_nonp_variance::outresults(const ST::string & pathresults)
   if (optionsp->samplesize > 1)
     {
 
-    vstr = "  Mean:         ";
+    vstr = "    Mean:         ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betamean(0,0),6) + "\n");
 
-    vstr = "  Std. dev.:    ";
+    vstr = "    Std. dev.:    ";
 
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(sqrt(betavar(0,0)),6) + "\n");
 
-    vstr = "  " + l1 + "% Quantile: ";
+    vstr = "    " + l1 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu_l1_lower(0,0),6) + "\n");
 
-    vstr = "  " + l2 + "% Quantile: ";
+    vstr = "    " + l2 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu_l2_lower(0,0),6) + "\n");
 
-    vstr = "  50% Quantile: ";
+    vstr = "    50% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu50(0,0),6) + "\n");
 
-    vstr = "  " + u1 + "% Quantile: ";
+    vstr = "    " + u1 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu_l2_upper(0,0),6) + "\n");
 
-    vstr = "  " + u2 + "% Quantile: ";
+    vstr = "    " + u2 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu_l1_upper(0,0),6) + "\n");
 
     optionsp->out("\n");
 
-    optionsp->out("  Smoothing parameter\n");
+    optionsp->out("    Smoothing parameter\n");
 
     optionsp->out("\n");
 
-    vstr = "  Mean:         ";
+    vstr = "    Mean:         ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betamean(0,1),6) + "\n");
 
-    vstr = "  Std. dev.:    ";
+    vstr = "    Std. dev.:    ";
 
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(sqrt(betavar(0,1)),6) + "\n");
 
-    vstr = "  " + l1 + "% Quantile: ";
+    vstr = "    " + l1 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu_l1_lower(0,1),6) + "\n");
 
-    vstr = "  " + l2 + "% Quantile: ";
+    vstr = "    " + l2 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu_l2_lower(0,1),6) + "\n");
 
-    vstr = "  50% Quantile: ";
+    vstr = "    50% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu50(0,1),6) + "\n");
 
-    vstr = "  " + u1 + "% Quantile: ";
+    vstr = "    " + u1 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu_l2_upper(0,1),6) + "\n");
 
-    vstr = "  " + u2 + "% Quantile: ";
+    vstr = "    " + u2 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(betaqu_l1_upper(0,1),6) + "\n");
 
@@ -229,7 +229,7 @@ void FC_nonp_variance::outresults(const ST::string & pathresults)
     }
   else
     {
-    optionsp->out("  Smoothing parameter: " +
+    optionsp->out("    Smoothing parameter: " +
     ST::doubletostring(betamean(0,1),6) + "\n");
 
     optionsp->out("\n");
@@ -239,8 +239,8 @@ void FC_nonp_variance::outresults(const ST::string & pathresults)
   if (pathresults.isvalidfile() != 1)
     {
 
-    optionsp->out("  Results for the variance component are also stored in file\n");
-    optionsp->out("  " +  pathresults + "\n");
+    optionsp->out("    Results for the variance component are also stored in file\n");
+    optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
     ofstream ou(pathresults.strtochar());

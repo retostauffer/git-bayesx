@@ -413,7 +413,7 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
   standardise();
 //   trmult=1;
 
-  FCsigma2 = FC(o,"Gaussian variance parameter",1,1,ps);
+  FCsigma2 = FC(o,"",1,1,ps);
   FCsigma2.transform(0,0) = pow(trmult,2);
 
   }
@@ -620,19 +620,19 @@ void DISTR_gaussian::outresults(ST::string pathresults)
 
   double help;
 
-  optionsp->out("  Estimation results for the scale parameter:\n",true);
+  optionsp->out("  SCALE PARAMETER:\n",true);
   optionsp->out("\n");
 
 
   ST::string vstr;
 
-  vstr = "  Mean:         ";
+  vstr = "    Mean:         ";
   optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
         ST::doubletostring(FCsigma2.betamean(0,0),6) + "\n");
 
   if (optionsp->samplesize > 1)
     {
-    vstr = "  Std. dev.:    ";
+    vstr = "    Std. dev.:    ";
     if (FCsigma2.betavar(0,0) < 0)
       help = 0;
     else
@@ -640,23 +640,23 @@ void DISTR_gaussian::outresults(ST::string pathresults)
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(help,6) + "\n");
 
-    vstr = "  " + l1 + "% Quantile: ";
+    vstr = "    " + l1 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(FCsigma2.betaqu_l1_lower(0,0),6) + "\n");
 
-    vstr = "  " + l2 + "% Quantile: ";
+    vstr = "    " + l2 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(FCsigma2.betaqu_l2_lower(0,0),6) + "\n");
 
-    vstr = "  50% Quantile: ";
+    vstr = "    50% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(FCsigma2.betaqu50(0,0),6) + "\n");
 
-    vstr = "  " + u1 + "% Quantile: ";
+    vstr = "    " + u1 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(FCsigma2.betaqu_l2_upper(0,0),6) + "\n");
 
-    vstr = "  " + u2 + "% Quantile: ";
+    vstr = "    " + u2 + "% Quantile: ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
     ST::doubletostring(FCsigma2.betaqu_l1_upper(0,0),6) + "\n");
     }
@@ -667,8 +667,8 @@ void DISTR_gaussian::outresults(ST::string pathresults)
 
     optionsp->out("\n");
 
-    optionsp->out("  Results for variance parameter are also stored in file\n");
-    optionsp->out("  " +  pathresults + "\n");
+    optionsp->out("    Results for variance parameter are also stored in file\n");
+    optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
     ofstream outscale(pathresults.strtochar());

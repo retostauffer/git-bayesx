@@ -413,7 +413,7 @@ void FC::update(void)
       rate = (double(acceptance)/double(optionsp->nriter) )*100;
     else
       rate = (double(acceptance)/double(nrtrials) )*100;
-    optionsp->out("  Acceptance rate:    "  + ST::doubletostring(rate,4)
+    optionsp->out("    Acceptance rate:    "  + ST::doubletostring(rate,4)
                   + " %\n");
     optionsp->out("\n");
 
@@ -520,7 +520,7 @@ void FC::outresults_acceptance(void)
       rate = (double(acceptance)/double(optionsp->nriter))*100;
     else
       rate = (double(acceptance)/double(nrtrials))*100;
-    optionsp->out("  Acceptance rate:    "  + ST::doubletostring(rate,4) + " %\n");
+    optionsp->out("    Acceptance rate:    "  + ST::doubletostring(rate,4) + " %\n");
     optionsp->out("\n");
     }
   }
@@ -536,7 +536,7 @@ void FC::outresults(const ST::string & pathresults)
     optionsp->out("\n");
     optionsp->out("  " + title + "\n",true);
     optionsp->out("\n");
-    optionsp->out("\n");
+//    optionsp->out("\n");
     }
 
   if (optionsp->samplesize > 0)

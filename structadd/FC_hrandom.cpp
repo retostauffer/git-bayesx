@@ -64,7 +64,7 @@ FC_hrandom::FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
   read_options(op,vn);
   likep_RE = lp_RE;
   likep_RE->trmult = likep->trmult;
-  FCrcoeff = FC(o,t + "_random coefficients",beta.rows(),beta.cols(),fp2);
+  FCrcoeff = FC(o,"",beta.rows(),beta.cols(),fp2);
   }
 
 
@@ -436,8 +436,8 @@ void FC_hrandom::outresults(const ST::string & pathresults)
     FC::outresults(pathresults);
     FCrcoeff.outresults("");
 
-    optionsp->out("  Results are stored in file\n");
-    optionsp->out("  " +  pathresults + "\n");
+    optionsp->out("    Results are stored in file\n");
+    optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
     ofstream outres(pathresults.strtochar());

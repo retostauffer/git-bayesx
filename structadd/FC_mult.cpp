@@ -230,7 +230,7 @@ void FC_mult::outresults(const ST::string & pathresults)
     if (pathresults.isvalidfile() != 1)
       {
 
-      FCmulteffect.optionsp->out("  Results are stored in file\n");
+      FCmulteffect.optionsp->out("    Results are stored in file\n");
       FCmulteffect.optionsp->out("  " +  pathresults + "\n");
       FCmulteffect.optionsp->out("\n");
 
