@@ -564,9 +564,9 @@ void FC_linear::outresults(const ST::string & pathresults)
         {
 
         if (maxvarnamelength  > 10)
-          nsp = 6+maxvarnamelength-datanames[i].length();
+          nsp = 4+maxvarnamelength-datanames[i].length();
         else
-          nsp = 12-datanames[i].length();
+          nsp = 10-datanames[i].length();
 
         m= betamean(i,0);
 

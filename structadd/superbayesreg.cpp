@@ -49,10 +49,9 @@ void superbayesreg::make_paths(ST::string & pathnonp,
     pathnonp = defaultpath + "\\temp\\" + name + "_" + h + "_f_"
                                   + varname1 + endingraw;
 
-    pathres = outfile.getvalue() + "_" + h + "_f_" +
-                    varname1 + endingres;
+    pathres = outfile.getvalue() + "_" + h + "_" +
+                     endingres + "_" + varname1 + ".res";
 
-//    title = h + "_f_" + varname1 + endingtitle;
     title = h + ": " + endingtitle + varname1;
 
     }
@@ -61,10 +60,11 @@ void superbayesreg::make_paths(ST::string & pathnonp,
     pathnonp = defaultpath + "\\temp\\" + name + "_" + h + "_" + varname2
                  + "_f_"  + varname1 + endingraw;
 
-    pathres = outfile.getvalue() +  "_" + h + "_" + varname2 + "_f_" +
-                varname1 + endingres;
+    pathres = outfile.getvalue() + "_" + h + "_" +
+                     endingres + "_" + varname1 + "_" + varname2 + ".res";
 
-    title = h+ "_" + varname2 + "_f_"  + varname1 + endingtitle;
+
+    title = h + ": " + endingtitle + varname1 + " and " + varname2;
 
     }
 
@@ -830,8 +830,7 @@ bool superbayesreg::create_linear(void)
                            + "_LinearEffects"  +
                            "_" + h + ".raw";
 
-  pathconstres = outfile.getvalue() +  "_LinearEffects" + "_" + h +
-                    ".res";
+  pathconstres = outfile.getvalue() + "_" + h + "_LinearEffects.res";
 
   if (pathconst.isvalidfile() == 1)
     {
@@ -876,7 +875,7 @@ void superbayesreg::create_pspline(unsigned i)
   unsigned modnr = equations.size()-1;
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-             "_pspline.raw","_pspline.res"," Nonlinear effect (P-spline) of ");
+             "_pspline.raw","nonlinear_pspline_effect_of"," Nonlinear effect (P-spline) of ");
 
   datamatrix d,iv;
   extract_data(i,d,iv);
@@ -902,7 +901,7 @@ void superbayesreg::create_pspline(unsigned i)
   // variances
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-  "_pspline_var.raw","_pspline_var.res","Variance of nonlinear effect of ");
+  "_pspline_var.raw","variance_of_nonlinear_pspline_effect_of","Variance of nonlinear effect of ");
 
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_psplines[design_psplines.size()-1],
@@ -948,7 +947,7 @@ bool superbayesreg::create_hrandom(unsigned i)
   unsigned modnr = equations.size()-1;
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-             "_hrandom.raw","_hrandom.res","Random effect of ");
+             "_hrandom.raw","random_effect_of","Random effect of ");
 
   ST::string pathnonp2 = pathnonp.substr(0,pathnonp.length()-4)  + "_2.res";
 
@@ -984,7 +983,7 @@ bool superbayesreg::create_hrandom(unsigned i)
   // variances
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-  "_hrandom_var.raw","_hrandom_var.res","Variance of random effect of ");
+  "_hrandom_var.raw","variance_of_random_effect_of","Variance of random effect of ");
 
   FC_hrandom_variances.push_back(FC_hrandom_variance(&generaloptions,equations[modnr].distrp,
                                  equations[fnr].distrp,
@@ -1066,7 +1065,7 @@ bool superbayesreg::create_mrf(unsigned i)
   unsigned modnr = equations.size()-1;
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-             "_spatial.raw","_spatial.res","Spatial effect (MRF) of ");
+             "_spatial.raw","spatial_MRF_effect_of","Spatial effect (MRF) of ");
 
   datamatrix d,iv;
   extract_data(i,d,iv);
@@ -1117,7 +1116,7 @@ bool superbayesreg::create_mrf(unsigned i)
   // variances
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-  "_spatial_var.raw","_spatial_var.res","Variance of spatial effect of ");
+  "_spatial_var.raw","variance_of_spatial_MRF_effect_of","Variance of spatial effect of ");
 
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_mrfs[design_mrfs.size()-1],

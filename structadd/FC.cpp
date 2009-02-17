@@ -413,7 +413,7 @@ void FC::update(void)
       rate = (double(acceptance)/double(optionsp->nriter) )*100;
     else
       rate = (double(acceptance)/double(nrtrials) )*100;
-    optionsp->out("    Acceptance rate:    "  + ST::doubletostring(rate,4)
+    optionsp->out("  Acceptance rate:    "  + ST::doubletostring(rate,4)
                   + " %\n");
     optionsp->out("\n");
 
