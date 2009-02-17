@@ -1510,7 +1510,14 @@ class __EXPORT_TYPE term_varcoeff_merror : public basic_termtype
   stroption centermethod;
 
   //SUSI: add new option
-  doubleoption merrorvar;
+  doubleoption merrorvar1;
+  doubleoption merrorvar2;
+  doubleoption arvar;
+  doubleoption arpar1;
+  doubleoption arpar2;
+  doubleoption biasmean;
+  doubleoption biasvar;
+
 
   void setdefault(void);
 
@@ -1547,65 +1554,6 @@ class __EXPORT_TYPE term_varcoeff_merror : public basic_termtype
   };
 
 
-/*class __EXPORT_TYPE term_varcoeff_merror : public basic_termtype
-  {
-  protected:
-
-  intoption min;
-  intoption max;
-  intoption minvar;
-  intoption maxvar;
-  doubleoption startv;
-  doubleoption lambda;
-  doubleoption a;
-  doubleoption b;
-  stroption proposal;
-  intoption updateW;
-  simpleoption updatetau;
-  doubleoption f;
-  doubleoption lambdamin;
-  doubleoption lambdamax;
-  doubleoption lambdastart;
-  simpleoption stationary;
-  doubleoption alpha;
-  simpleoption alphafix;
-
-  //SUSI: add new option
-  doubleoption merrorvar;
-
-  void setdefault(void);
-
-  public:
-
-  // DEFAULT CONSTRUCTOR
-
-  term_varcoeff_merror(void);
-
-  // FUNCTION: check
-
-  bool check(term & t);
-
-  // FUNCTION: checkvector
-  // TASK: returns true if term 'i' is a first or second order random walk
-
-  bool checkvector(const vector<term>  & terms,const unsigned & i)
-    {
-
-    assert(i< terms.size());
-
-    if ((terms[i].type == "varcoeffmerrorrw1") ||
-        (terms[i].type == "varcoeffmerrorrw2")
-       )
-      return true;
-
-    return false;
-    }
-
-  // DESTRUCTOR
-
-  ~term_varcoeff_merror() {}
-
-  };*/
 
 //------------------------------------------------------------------------------
 //------------------------- class term_baseline -------------------------------

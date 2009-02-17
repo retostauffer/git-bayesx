@@ -2840,9 +2840,13 @@ term_varcoeff_merror::term_varcoeff_merror(void)
 
   // SUSI: initialize new option
   // Syntax : doubleoption("name", default, lower limit, upper limit)
-  merrorvar = doubleoption("merrorvar",0.5,0.0,10000000);
-
-
+  merrorvar1 = doubleoption("merrorvar1",20,0.0,10000000);
+  merrorvar2 = doubleoption("merrorvar2",20,0.0,10000000);
+  arvar = doubleoption("arvar",20,0.0,10000000);
+  arpar1 = doubleoption("arpar1",0.5,0.0,1);
+  arpar2 = doubleoption("arpar2",0.25,0.0,1);
+  biasmean = doubleoption("biasmean",0,-10000000,10000000);
+  biasvar = doubleoption("biasvar",1000,0.0,10000000);
   }
 
 
@@ -2871,7 +2875,13 @@ void term_varcoeff_merror::setdefault(void)
   centermethod.setdefault();
 
   // SUSI: call setdefault() for new option
-  merrorvar.setdefault();
+  merrorvar1.setdefault();
+  merrorvar2.setdefault();
+  arvar.setdefault();
+  arpar1.setdefault();
+  arpar2.setdefault();
+  biasmean.setdefault();
+  biasvar.setdefault();
   }
 
 
@@ -2880,7 +2890,7 @@ bool term_varcoeff_merror::check(term & t)
 
   if ( (t.varnames.size()==2)  && (t.options.size() >=1)
 // SUSI: Adjust options.size()
-        && (t.options.size() <= 23) )
+        && (t.options.size() <= 29) )
     {
 
     if (t.options[0] == "merrorrw1")
@@ -2917,7 +2927,13 @@ bool term_varcoeff_merror::check(term & t)
 
 
     // SUSI: add option to options list
-    optlist.push_back(&merrorvar);
+    optlist.push_back(&merrorvar1);
+    optlist.push_back(&merrorvar2);
+    optlist.push_back(&arvar);
+    optlist.push_back(&arpar1);
+    optlist.push_back(&arpar2);
+    optlist.push_back(&biasmean);
+    optlist.push_back(&biasvar);
 
     optlist.push_back(&centermethod);
 
@@ -2945,7 +2961,7 @@ bool term_varcoeff_merror::check(term & t)
 
     t.options.erase(t.options.begin(),t.options.end());
     // SUSI: Adjust length of options
-    t.options = vector<ST::string>(23);
+    t.options = vector<ST::string>(29);
     t.options[0] = t.type;
     t.options[1] = ST::inttostring(min.getvalue());
     t.options[2] = ST::inttostring(max.getvalue());
@@ -2984,9 +3000,15 @@ bool term_varcoeff_merror::check(term & t)
       t.options[20] = "true";
 
     // SUSI: Add new option
-    t.options[21] = ST::doubletostring(merrorvar.getvalue());
+    t.options[21] = ST::doubletostring(merrorvar1.getvalue());
+    t.options[22] = ST::doubletostring(merrorvar2.getvalue());
+    t.options[23] = ST::doubletostring(arvar.getvalue());
+    t.options[24] = ST::doubletostring(arpar1.getvalue());
+    t.options[25] = ST::doubletostring(arpar2.getvalue());
+    t.options[26] = ST::doubletostring(biasmean.getvalue());
+    t.options[27] = ST::doubletostring(biasvar.getvalue());
 
-    t.options[22] = centermethod.getvalue();
+    t.options[28] = centermethod.getvalue();
 
     if ( contourprob.getvalue()-1 > degree.getvalue())
       {
@@ -3007,233 +3029,6 @@ bool term_varcoeff_merror::check(term & t)
   }
 
 
-/*term_varcoeff_merror::term_varcoeff_merror(void)
-  {
-  type = "term_varcoeff_merror";
-  min=intoption("min",1,1,500);
-  max=intoption("max",1,1,500);
-  minvar=intoption("minvar",1,1,500);
-  maxvar=intoption("maxvar",1,1,500);
-  startv = doubleoption("startv",0.05,0.00001,1000);
-  lambda = doubleoption("lambda",0.1,0,10000000);
-  a = doubleoption("a",0.001,-1.0,500);
-  b = doubleoption("b",0.001,0,500);
-  vector<ST::string> adm_prop;
-  adm_prop.push_back("cp");
-  adm_prop.push_back("iwls");
-  adm_prop.push_back("iwlsmode");
-  proposal = stroption("proposal",adm_prop,"iwls");
-  updateW = intoption("updateW",1,0,100);
-  updatetau = simpleoption("updatetau",false);
-  f = doubleoption("f",2,0,10000000);
-  lambdamin = doubleoption("lambdamin",0.0001,0.000001,10000000);
-  lambdamax = doubleoption("lambdamax",10000,0.000001,10000000);
-  lambdastart = doubleoption("lambdastart",-1,-1,10000000);
-  stationary = simpleoption("stationary",false);
-  alpha = doubleoption("alpha",0.9,-1.0,1.0);
-  alphafix = simpleoption("alphafix",false);
-
-  // SUSI: initialize new option
-  // Syntax : doubleoption("name", default, lower limit, upper limit)
-  merrorvar = doubleoption("merrorvar",0.5,0.0,10000000);
-
-  }
-
-void term_varcoeff_merror::setdefault(void)
-  {
-  min.setdefault();
-  max.setdefault();
-  minvar.setdefault();
-  maxvar.setdefault();
-  startv.setdefault();
-  lambda.setdefault();
-  a.setdefault();
-  b.setdefault();
-  proposal.setdefault();
-  updateW.setdefault();
-  updatetau.setdefault();
-  f.setdefault();
-  lambdamin.setdefault();
-  lambdamax.setdefault();
-  lambdastart.setdefault();
-  alpha.setdefault();
-  stationary.setdefault();
-  alphafix.setdefault();
-
-  // SUSI: call setdefault() for new option
-  merrorvar.setdefault();
-  }
-
-
-bool term_varcoeff_merror::check(term & t)
-  {
-
-  if ( (t.varnames.size()==2)  && (t.options.size() >=1)
-// SUSI: Adjust options.size()
-        && (t.options.size() <= 19) )
-    {
-
-    if (t.options[0] == "merrorrw1")
-      t.type = "varcoeffmerrorrw1";
-    else if (t.options[0] == "merrorrw2")
-      t.type = "varcoeffmerrorrw2";
-    else
-      {
-      setdefault();
-      return false;
-      }
-
-    long minim,maxim;
-    double minl, maxl, startl;
-
-    vector<ST::string> opt;
-    optionlist optlist;
-    optlist.push_back(&min);
-    optlist.push_back(&max);
-    optlist.push_back(&minvar);
-    optlist.push_back(&maxvar);
-    optlist.push_back(&startv);
-    optlist.push_back(&lambda);
-    optlist.push_back(&a);
-    optlist.push_back(&b);
-    optlist.push_back(&proposal);
-    optlist.push_back(&updateW);
-    optlist.push_back(&updatetau);
-    optlist.push_back(&f);
-    optlist.push_back(&lambdamin);
-    optlist.push_back(&lambdamax);
-    optlist.push_back(&lambdastart);
-    optlist.push_back(&stationary);
-    optlist.push_back(&alpha);
-    optlist.push_back(&alphafix);
-
-    // SUSI: add option to options list
-    optlist.push_back(&merrorvar);
-
-    unsigned i;
-    bool rec = true;
-    for (i=1;i<t.options.size();i++)
-      {
-      if (optlist.parse(t.options[i],true) == 0)
-        rec = false;
-      if (optlist.geterrormessages().size() > 0)
-        {
-        setdefault();
-        return false;
-        }
-      }
-    if (rec == false)
-      {
-      setdefault();
-      return false;
-      }
-    t.options.erase(t.options.begin(),t.options.end());
-    // SUSI: Adjust length of options
-    t.options = vector<ST::string>(20);
-    t.options[0] = t.type;
-    t.options[1] = ST::inttostring(min.getvalue());
-    t.options[2] = ST::inttostring(max.getvalue());
-    t.options[3] = ST::inttostring(minvar.getvalue());
-    t.options[4] = ST::inttostring(maxvar.getvalue());
-    t.options[5] = ST::doubletostring(startv.getvalue());
-    t.options[6] = ST::doubletostring(lambda.getvalue());
-    t.options[7] = ST::doubletostring(a.getvalue());
-    t.options[8] = ST::doubletostring(b.getvalue());
-    t.options[9] = proposal.getvalue();
-    t.options[10] = ST::inttostring(updateW.getvalue());
-    if (updatetau.getvalue()==false)
-      t.options[11] = "false";
-    else
-      t.options[11] = "true";
-    t.options[12] = ST::doubletostring(f.getvalue());
-    t.options[13] = ST::doubletostring(lambdamin.getvalue());
-    t.options[14] = ST::doubletostring(lambdamax.getvalue());
-    t.options[15] = ST::doubletostring(lambdastart.getvalue());
-    if(stationary.getvalue() == false)
-      t.options[16] = "false";
-    else
-      t.options[16] = "true";
-    t.options[17] = ST::doubletostring(alpha.getvalue());
-    if(alphafix.getvalue() == false)
-      t.options[18] = "false";
-    else
-      t.options[18] = "true";
-
-    // SUSI: Add new option
-    t.options[19] = ST::doubletostring(merrorvar.getvalue());
-
-
-    if (t.options[1].strtolong(minim) == 1)
-      {
-      setdefault();
-      return false;
-      }
-    if (minim < 1)
-      {
-      setdefault();
-      return false;
-      }
-    if (t.options[2].strtolong(maxim) == 1)
-      {
-      setdefault();
-      return false;
-      }
-    if (maxim < minim)
-      {
-      setdefault();
-      return false;
-      }
-    if (t.options[3].strtolong(minim) == 1)
-      {
-      setdefault();
-      return false;
-      }
-    if (minim < 1)
-      {
-      setdefault();
-      return false;
-      }
-    if (t.options[4].strtolong(maxim) == 1)
-      {
-      setdefault();
-      return false;
-      }
-    if (maxim < minim)
-      {
-      setdefault();
-      return false;
-      }
-
-    // stepwise
-    int b = t.options[13].strtodouble(minl);
-    b = t.options[14].strtodouble(maxl);
-    b = t.options[15].strtodouble(startl);
-    if (b==1)
-      {
-      setdefault();
-      return false;
-      }
-    if (minl >= maxl)
-      {
-      setdefault();
-      return false;
-      }
-    if (maxl < startl)
-      {
-      setdefault();
-      return false;
-      }
-    // END: stepwise
-
-    setdefault();
-    return true;
-    }
-  else
-    {
-    setdefault();
-    return false;
-    }
-  }*/
 
 //------------------------------------------------------------------------------
 //--------- class term_randomslope: implementation of member functions ---------

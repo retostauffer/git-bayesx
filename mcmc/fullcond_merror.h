@@ -67,9 +67,14 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   // SUSI: Add help fullcond object
 
 //  FULLCOND whatsoever;
+  FULLCOND fc_bias;
 
   unsigned drows;
   unsigned dcols;
+
+  double biasmean;
+  double biasvar;
+  double sigma12;
 
   datamatrix effmod;
 
@@ -126,7 +131,10 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
   // fp   : file path for storing sampled parameters
 
   fullcond_merror(MCMCoptions * o, /*FULLCOND_nonp * p,*/ FULLCOND_nonp_basis * p, DISTRIBUTION * dp,
-           const datamatrix & d, const datamatrix & em, const ST::string & t, const ST::string & fp);
+           const datamatrix & d, const datamatrix & em, const ST::string & t, const ST::string & fp,
+           const double & mvar1, const double & mvar2, const double & arvar,
+           const double & arpar1, const double & arpar2, const double & bmean,
+           const double & bvar);
 
   // BEGIN: merror
   // CONSTRUCTOR : Thomas (Measurement error in a nonparametric effect)
@@ -162,12 +170,6 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
 
   void compute_proposal(const datamatrix & xi, const unsigned & blocks,
                                const unsigned & a,const unsigned b);
-
-  // SUSI: add additonal options
-  void setmerroroptions(const double & mvar)
-    {
-    // sigma1 = mvar;
-    }
 
   // FUNCTION: posteriormode
   // TASK: computes the posterior mode

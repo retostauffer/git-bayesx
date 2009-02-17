@@ -20,7 +20,10 @@ namespace MCMC
   fullcond_merror::fullcond_merror(MCMCoptions * o,
 //               FULLCOND_nonp_basis * p, const datamatrix & d,        //wird bei IWLS-propsal benötigt
                /*FULLCOND_nonp * p,*/ FULLCOND_nonp_basis * p, DISTRIBUTION * dp, const datamatrix & d,               //wird bei Conditional prior propsal benötigt
-               const datamatrix & em, const ST::string & t, const ST::string & fp)
+               const datamatrix & em, const ST::string & t, const ST::string & fp,
+               const double & mvar1, const double & mvar2, const double & arvar,
+               const double & arpar1, const double & arpar2, const double & bmean,
+               const double & bvar)
                          : FULLCOND(o,d,t,d.rows(),1,fp)
     {
 
@@ -35,17 +38,30 @@ namespace MCMC
     drows = d.rows();
     dcols = d.cols();
 
-    double a = 0.75;                // AR-parameter
-    double a2 = a*a;                // AR-parameter^2
-    double sige = 20;               // sigma_e^2 = Varianz AR-Prozess
-    double sigma12 = 20;            // sigma_1^2 = Messfehlervarianz 1
-    double sigma22 = 20;            // sigma_2^2 = Messfehlervarianz 2
+//    double a = 0.75;                // AR-parameter
+//    double a2 = a*a;                // AR-parameter^2
+//    double sige = 20;               // sigma_e^2 = Varianz AR-Prozess
+//    double sigma12 = 20;            // sigma_1^2 = Messfehlervarianz 1
+//    double sigma22 = 20;            // sigma_2^2 = Messfehlervarianz 2
+    double a = arpar1;                // AR-parameter
+    double a2 = arpar2;                // AR-parameter^2
+    double sige = arvar;               // sigma_e^2 = Varianz AR-Prozess
+    sigma12 = mvar1;                   // sigma_1^2 = Messfehlervarianz 1
+    double sigma22 = mvar2;            // sigma_2^2 = Messfehlervarianz 2
     minmerror = 1;                  // Minimum Blocksize
     maxmerror = 1;                  // Maximum Blocksize
+
+    biasmean = bmean;
+    biasvar = bvar;
+
+  ST::string path = samplepath.substr(0,samplepath.length()-4);
 
     // SUSI: Initialize help fullcond
 //    whatsoever = FULLCOND(o,datamatrix(1,1),p->get_title()+"_whatsoever",1,1,path);
 //    whatsoever.setflags(MCMC::norelchange | MCMC::nooutput);
+    double startbias = d.mean(0)-d.mean(1);
+    fc_bias = FULLCOND(o,datamatrix(1,1,startbias),p->get_title()+"_bias",1,1,path);
+    fc_bias.setflags(MCMC::norelchange | MCMC::nooutput);
 
     merror_random = datamatrix(drows,1,0);
     randnorm = datamatrix(drows,1,0);
@@ -333,6 +349,10 @@ namespace MCMC
 // BEGIN: Susi
     // SUSI: add help fullcond to copy constructor
     //whatsoever = m.whatsoever;
+    fc_bias = m.fc_bias;
+    sigma12 = m.sigma12;
+    biasmean = m.biasmean;
+    biasvar = m.biasvar;
     drows = m.drows;
     minmerror = m.minmerror;
     maxmerror = m.maxmerror;
@@ -388,6 +408,10 @@ namespace MCMC
 // BEGIN: Susi
     // SUSI: add help fullcond to copy constructor
     //whatsoever = m.whatsoever;
+    fc_bias = m.fc_bias;
+    sigma12 = m.sigma12;
+    biasmean = m.biasmean;
+    biasvar = m.biasvar;
     drows = m.drows;
     minmerror = m.minmerror;
     maxmerror = m.maxmerror;
@@ -536,6 +560,22 @@ namespace MCMC
       // and update
 //      whatsoever.update();
 
+      // pointer to the current value of the fullcond object
+      double * biasp = fc_bias.getbetapointer();
+      // assign a new value
+      double empbias=0;
+      unsigned i;
+      for(i=0; i<drows; i++)
+        {
+        empbias += data(i,0)-xi(i,0);
+        }
+      double propvar = 1/biasvar + drows/sigma12;
+      double propmean = (biasmean/biasvar + empbias/sigma12)/propvar;
+
+      *biasp = propmean + sqrt(propvar)*rand_normal();
+      
+      // and update
+      fc_bias.update();
 
       }
     else

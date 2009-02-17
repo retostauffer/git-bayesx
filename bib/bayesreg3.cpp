@@ -28,7 +28,7 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
 
   long h;
   unsigned min,max,degree,nrknots;
-  double lambda, mvar;
+  double lambda, mvar1, mvar2, arva, arpa1, arpa2, bmean, bvar;
   double a1,b1;
   int gridsize, contourprob;
   int f;
@@ -122,7 +122,13 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
 
       // SUSI: read new opttion form the options list
 
-      f = (terms[i].options[21]).strtodouble(mvar);
+      f = (terms[i].options[21]).strtodouble(mvar1);
+      f = (terms[i].options[22]).strtodouble(mvar2);
+      f = (terms[i].options[23]).strtodouble(arva);
+      f = (terms[i].options[24]).strtodouble(arpa1);
+      f = (terms[i].options[25]).strtodouble(arpa2);
+      f = (terms[i].options[26]).strtodouble(bmean);
+      f = (terms[i].options[27]).strtodouble(bvar);
 
       if (f==1)
         return true;
@@ -271,17 +277,18 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
                  terms[i].varnames[0],"_merror.raw",
                  "_merror.res","_merror");
 
+      //SUSI: add value to the merror fullcond
       fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
                          &fciwlspspline[fciwlspspline.size()-1],
                          distr[distr.size()-1],
                                    medata,
                                    D.getCol(j2),
                                    title,
-                                   pathres)
+                                   pathres,
+                                   mvar1, mvar2, arva, arpa1, arpa2, bmean, bvar)
                          );
 
-      //SUSI: add value to the merror fullcond
-      fcmerror[fcmerror.size()-1].setmerroroptions(mvar);
+//      fcmerror[fcmerror.size()-1].setmerroroptions(mvar1, mvar2, arva, arpa1, arpa2);
       fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
       fullcond.push_back(&fcmerror[fcmerror.size()-1]);
       }
@@ -289,182 +296,6 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
     }
 
 
-/*  long h;
-  unsigned min, max, updateW, i, j, k;
-  // SUSI: add variable for new option
-  double lambda, a1, b1, alpha, hd, ftune, mvar;
-  bool updatetau, iwls, varcoeff;
-  ST::string proposal;
-  int f, j1, j2;
-
-  for(i=0;i<terms.size();i++)
-    {
-    if ( nonpvarcoeffmerror.checkvector(terms,i) == true )
-      {
-      varcoeff=true;
-      MCMC::fieldtype type;
-      if (terms[i].options[0] == "merrorrw1")
-        type = MCMC::RW1;
-      else
-        type = MCMC::RW2;
-
-      // extract interaction variables
-      ST::string test = terms[i].varnames[0].substr(0,terms[i].varnames[0].length()-7);
-      datamatrix medata = datamatrix(D.rows(),2,0);
-      for(k=0; k<2; k++)
-        {
-        j1 = (test+ST::inttostring(k+1)).isinlist(modelvarnamesv);
-        medata.putCol(k, D.getCol(j1));
-        }
-      terms[i].varnames[0] = test;
-
-      datamatrix meandata = datamatrix(D.rows(),1,0);
-      unsigned mecols = medata.cols();
-      for(k=0; k<D.rows(); k++)
-        {
-        for(j=0; j<mecols; j++)
-          {
-          meandata(k,0) = medata(k,j);
-          }
-        meandata(k,0) /= mecols;
-        }
-
-      // extract effect modifier
-      j2 = terms[i].varnames[1].isinlist(modelvarnamesv);
-
-      f = (terms[i].options[1]).strtolong(h);
-      min = unsigned(h);
-
-      f = (terms[i].options[2]).strtolong(h);
-      max = unsigned(h);
-
-      f = (terms[i].options[6]).strtodouble(hd);
-      lambda = hd;
-
-      f = (terms[i].options[7]).strtodouble(a1);
-
-      f = (terms[i].options[8]).strtodouble(b1);
-
-      proposal = terms[i].options[9];
-
-      f = (terms[i].options[10]).strtolong(h);
-      updateW = unsigned(h);
-
-      if (terms[i].options[11] == "true")
-        updatetau=true;
-      else
-        updatetau=false;
-
-      f = (terms[i].options[12]).strtodouble(ftune);
-
-      f = (terms[i].options[17]).strtodouble(alpha);
-
-      // SUSI: read new opttion form the options list
-
-      f = (terms[i].options[19]).strtodouble(mvar);
-
-      if (f==1)
-        return true;
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
-                terms[i].varnames[0],
-                 "_rw.raw","_rw.res","_rw");
-
-      if (proposal != "cp")
-        iwls=true;
-      else
-        iwls=false;
-
-      //-------------------- gaussian response, etc. -------------------------
-      if ( (check_gaussian(collinpred)) || (check_iwls(iwls,collinpred)) )
-        {
-        fcnonpgaussian.push_back(
-        FULLCOND_nonp_gaussian(&generaloptions[generaloptions.size()-1],
-        distr[distr.size()-1],D.getCol(j2),meandata,fcconst_intercept,
-        unsigned(maxint.getvalue()),type,title,pathnonp,pathres,collinpred,
-        lambda));
-
-        vector<ST::string> na;
-        na.push_back(terms[i].varnames[1]);
-        na.push_back(terms[i].varnames[0]);
-        fcnonpgaussian[fcnonpgaussian.size()-1].init_names(na);
-
-        if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
-             && (updatetau==false) )
-          fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW);
-        if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
-             && (updatetau==false) )
-           fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS(updateW,true);
-        if ( (check_nongaussian(collinpred)) && (proposal == "iwls")
-             && (updatetau==true) )
-           fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS_hyperblock(
-                                                               updateW,a1,b1);
-        if ( (check_nongaussian(collinpred)) && (proposal == "iwlsmode")
-             && (updatetau==true) )
-          fcnonpgaussian[fcnonpgaussian.size()-1].set_IWLS_hyperblock(
-                                                      updateW,a1,b1,true);
-
-        if (terms[i].options[16] == "true")
-          fcnonpgaussian[fcnonpgaussian.size()-1].set_stationary(alpha);
-
-        fcnonpgaussian[fcnonpgaussian.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcnonpgaussian[fcnonpgaussian.size()-1]);
-        }
-      else
-        {
-        //------------------- non-gaussian response, etc. --------------------
-
-        Pmatrices.push_back(PenaltyMatrix(D.getCol(j2),terms[i].varnames[1],
-        unsigned(maxint.getvalue()),min,max,type));
-
-        fcnonp.push_back(
-        FULLCOND_nonp(&generaloptions[generaloptions.size()-1],
-        distr[distr.size()-1],&Pmatrices[Pmatrices.size()-1],
-        fcconst_intercept,lambda,pathnonp,pathres,title," ",collinpred));
-
-        fcnonp[fcnonp.size()-1].init_name(terms[i].varnames[0]);
-
-        fcnonp[fcnonp.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcnonp[fcnonp.size()-1]);
-
-        make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
-               "_rw_var.raw","_rw_var.res","_rw_variance");
-
-        fcvarnonp.push_back(
-        FULLCOND_variance_nonp(&generaloptions[generaloptions.size()-1],
-        &fcnonp[fcnonp.size()-1],distr[distr.size()-1],a1,b1,title,pathnonp,
-        pathres,false,collinpred));
-
-        if (constlambda.getvalue() == true)
-          fcvarnonp[fcvarnonp.size()-1].set_constlambda();
-
-        fcvarnonp[fcvarnonp.size()-1].set_fcnumber(fullcond.size());
-        fullcond.push_back(&fcvarnonp[fcvarnonp.size()-1]);
-
-        //------------------- end: non-gaussian response, etc. ---------------
-        }
-
-        // Fullcond-Objekt zur Generierung der wahren Kovariablenwerte
-
-      make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[1],
-                 terms[i].varnames[0],"_merror.raw",
-                 "_merror.res","_merror");
-
-      fcmerror.push_back(fullcond_merror(&generaloptions[generaloptions.size()-1],
-//                         &fcnonpgaussian[fcnonpgaussian.size()-1],
-                         &fcnonp[fcnonp.size()-1],
-                         distr[distr.size()-1],
-                                   medata,
-                                   title,
-                                   pathres)
-                         );
-
-      //SUSI: add value to the merror fullcond
-      fcmerror[fcmerror.size()-1].setmerroroptions(mvar);
-      fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
-      fullcond.push_back(&fcmerror[fcmerror.size()-1]);
-      }
-    }*/
   return false;
   }
 
