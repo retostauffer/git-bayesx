@@ -343,6 +343,17 @@ class adja;
   T quantile  (const T & percent,const unsigned & col) const;
 
   // FUNCTION: quantile
+  // TASK: returns the 'percent' (0 < percent < 100) percent quantile
+  //       of the 'col' th column
+  //       index contains the index sort of the col-th column, i.e. it is
+  //       assumed that the indexsort is already done 
+
+  T quantile  (const T & percent,const unsigned & col,
+  statmatrix<int> & index) const;
+
+
+
+  // FUNCTION: quantile
   // TASK: computes the 'percent' percent quantile of the columns of the
   //       calling matrix, returns a column vektor with the quantiles
 

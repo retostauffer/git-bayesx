@@ -1042,6 +1042,26 @@ T statmatrix<T>::quantile(const T & percent,const unsigned & col) const
 
 
 template<class T>
+T statmatrix<T>::quantile(const T & percent,const unsigned & col, statmatrix<int> & index) const
+  {
+
+  T k = this->rows()*(percent/100.0);           // (alpha * Anzahl der Beobachtungen)
+  unsigned kganz = unsigned(k);
+
+  if(kganz == 0)                             // T==0 => Minimum
+     return this->get(index(0,0),col);
+  else if(kganz == this->rows())                   // T==100 => Maximum
+     return this->get(index(this->rows()-1,0),col);
+  else if (k == kganz)                             // Falls k ganzzahlig ist
+	 return (this->get(index(kganz-1,0),col) + this->get(index(kganz,0),col))/2.0;
+  else                                       // Falls k nicht ganzzahlig ist
+	 return this->get(index(kganz,0),col);
+
+  }
+
+
+
+template<class T>
 statmatrix<T> statmatrix<T>::quantile(T percent)
   {
   statmatrix<T> quant(this->cols(),1);

@@ -43,6 +43,9 @@ class __EXPORT_TYPE FC
   ST::string samplepath;         // filename for storing sampled parameters
   ofstream samplestream;         // stream object for storing sampled parameters
 
+  bool samplestore;
+
+
   vector<ST::string> priorassumptions;
 
 
@@ -77,6 +80,8 @@ class __EXPORT_TYPE FC
   datamatrix betavarold;
   datamatrix betaminold;
   datamatrix betamaxold;
+
+  datamatrix sampled_beta;
 
   datamatrix transform;          // The factor with which all beta's will be
                                  // multiplied before storing them and computing
