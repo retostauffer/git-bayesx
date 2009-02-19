@@ -127,7 +127,7 @@ class __EXPORT_TYPE MCMCsim
   // TASK: computes autocorrelations for all samples parameters
   //      (i.e. for all beta matrices) and stores the result in file 'path'
 
-  void autocorr(const unsigned & lag,const ST::string & path);
+  void autocorr(const unsigned & lag);
 
   // FUNCTION: compute_nrpar
   // TASK: computes the total number of parameters
@@ -141,9 +141,9 @@ class __EXPORT_TYPE MCMCsim
 
   void get_samples(
   #if defined(JAVA_OUTPUT_WINDOW)
-  vector<ST::string> & newc,
+  vector<ST::string> & newc
   #endif
-  const ST::string & path,const unsigned & step=1);
+  );
 
   // DESTRUCTOR
 

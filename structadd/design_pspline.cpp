@@ -146,7 +146,7 @@ const DESIGN_pspline & DESIGN_pspline::operator=(const DESIGN_pspline & m)
   }
 
 
-void DESIGN_pspline::init_data(datamatrix & dm, datamatrix & iv)
+void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
   {
 
   // TASK: sorts the data such that the precision has minimum envelope

@@ -83,7 +83,7 @@ class __EXPORT_TYPE FC_mult  : public FC
   void set_intp(DESIGN * d,FC_nonp * fp);
 
   void set_multeffects(GENERAL_OPTIONS * o,const ST::string & t,
-           const ST::string & fp,bool sm);
+           const ST::string & fp,bool sm,bool sstore);
 
   void update_multeffect(void);
 

@@ -59,8 +59,8 @@ FC_hrandom_variance::FC_hrandom_variance(GENERAL_OPTIONS * o,DISTR * lp,
                   DISTR * lpRE,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
-                 vector<ST::string> & vn)
-     : FC_nonp_variance(o,lp,t,fp,Dp,FCn,op,vn)
+                 vector<ST::string> & vn,bool sstore)
+     : FC_nonp_variance(o,lp,t,fp,Dp,FCn,op,vn,sstore)
   {
   read_options(op,vn);
   likepRE = lpRE;

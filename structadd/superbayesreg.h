@@ -134,6 +134,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   intoption step;                      // Thinning parameter
   doubleoption level1;                 // Nominal level 1 of credible intervals
   doubleoption level2;                 // Nominal level 2 of credible intervals
+  simpleoption storesample;             // if specified samples will be temorarily
+                                       // stored on disk, useful if memory is
+                                       // limited
   // general MCMC options
 
   vector<ST::string> families;          // Response families

@@ -107,6 +107,7 @@ void superbayesreg::create_hregress(void)
   step = intoption("step",50,1,1000);
   level1 = doubleoption("level1",95,40,99);
   level2 = doubleoption("level2",80,40,99);
+  storesample = simpleoption("storesample",false);
 
   families.reserve(20);
   families.push_back("gaussian");
@@ -141,6 +142,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&step);
   regressoptions.push_back(&level1);
   regressoptions.push_back(&level2);
+  regressoptions.push_back(&storesample);
   regressoptions.push_back(&family);
   regressoptions.push_back(&aresp);
   regressoptions.push_back(&bresp);
@@ -859,8 +861,12 @@ bool superbayesreg::create_linear(void)
 
     }
 
+  bool store=false ;
+  if (storesample.getvalue() == true)
+    store = true;
+
   FC_linears.push_back(FC_linear(&generaloptions,equations[modnr].distrp,X,
-                         varnames,title,pathconst));
+                         varnames,title,pathconst,store));
 
   equations[modnr].add_FC(&FC_linears[FC_linears.size()-1],pathconstres);
 
@@ -889,10 +895,13 @@ void superbayesreg::create_pspline(unsigned i)
                             &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));
 
+  bool store=false ;
+  if (storesample.getvalue() == true)
+    store = true;
 
   FC_nonps.push_back(FC_nonp(&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_psplines[design_psplines.size()-1],
-                     terms[i].options,terms[i].varnames));
+                     terms[i].options,terms[i].varnames,store));
 
 
   equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
@@ -906,7 +915,7 @@ void superbayesreg::create_pspline(unsigned i)
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_psplines[design_psplines.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
-                                terms[i].varnames));
+                                terms[i].varnames,store));
 
   equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
 
@@ -971,12 +980,14 @@ bool superbayesreg::create_hrandom(unsigned i)
                              equations[fnr].distrp,
                             terms[i].options,terms[i].varnames));
 
-
+  bool store=false ;
+  if (storesample.getvalue() == true)
+    store = true;
 
   FC_hrandoms.push_back(FC_hrandom(&generaloptions,equations[modnr].distrp,
                         equations[fnr].distrp, title,pathnonp,pathnonp2,
                         &design_hrandoms[design_hrandoms.size()-1],
-                        terms[i].options,terms[i].varnames));
+                        terms[i].options,terms[i].varnames,store));
 
   equations[modnr].add_FC(&FC_hrandoms[FC_hrandoms.size()-1],pathres);
 
@@ -989,7 +1000,7 @@ bool superbayesreg::create_hrandom(unsigned i)
                                  equations[fnr].distrp,
                                 title,pathnonp,&design_hrandoms[design_hrandoms.size()-1],
                                 &FC_hrandoms[FC_hrandoms.size()-1],terms[i].options,
-                                terms[i].varnames));
+                                terms[i].varnames,store));
 
   equations[modnr].add_FC(&FC_hrandom_variances[FC_hrandom_variances.size()-1],pathres);
 
@@ -1049,8 +1060,12 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   else
     samplem = true;
 
+  bool store=false ;
+  if (storesample.getvalue() == true)
+    store = true;
+
   FC_mults[FC_mults.size()-1].set_multeffects(&generaloptions,title,pathnonp,
-         samplem);
+         samplem,store);
 
   equations[modnr].add_FC(&FC_mults[FC_mults.size()-1],pathres);
 
@@ -1105,11 +1120,13 @@ bool superbayesreg::create_mrf(unsigned i)
                            &FC_linears[FC_linears.size()-1],m,
                             terms[i].options,terms[i].varnames));
 
-
+  bool store=false ;
+  if (storesample.getvalue() == true)
+    store = true;
 
   FC_nonps.push_back(FC_nonp(&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_mrfs[design_mrfs.size()-1],
-                     terms[i].options,terms[i].varnames));
+                     terms[i].options,terms[i].varnames,store));
 
   equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
 
@@ -1121,7 +1138,7 @@ bool superbayesreg::create_mrf(unsigned i)
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_mrfs[design_mrfs.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
-                                terms[i].varnames));
+                                terms[i].varnames,store));
 
   equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
 
@@ -1168,7 +1185,7 @@ void autocorrrun(superbayesreg & b)
        if (b.generaloptions.samplesize < unsigned(b.maxlag.getvalue()*4))
          b.outerror("ERROR: samplesize too small\n");
        else
-         b.simobj.autocorr(b.maxlag.getvalue(),path);
+         b.simobj.autocorr(b.maxlag.getvalue());
        }
      else
        b.outerror("ERROR: no MCMC simulation results\n");
@@ -1190,7 +1207,7 @@ void getsamplerun(superbayesreg & b)
 
       b.simobj.get_samples(b.newcommands,b.outfile.getvalue() + "_");
       #else
-      b.simobj.get_samples(b.outfile.getvalue() + "_");
+      b.simobj.get_samples();
       #endif
       }
     else

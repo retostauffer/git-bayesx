@@ -43,13 +43,12 @@ class __EXPORT_TYPE FC
   ST::string samplepath;         // filename for storing sampled parameters
   ofstream samplestream;         // stream object for storing sampled parameters
 
-  bool samplestore;
-
-
   vector<ST::string> priorassumptions;
 
 
   public:
+
+  bool samplestore;
 
   GENERAL_OPTIONS * optionsp;    // Pointer to general MCMC options
 
@@ -81,7 +80,11 @@ class __EXPORT_TYPE FC
   datamatrix betaminold;
   datamatrix betamaxold;
 
-  datamatrix sampled_beta;
+  datamatrix sampled_beta;       // sampled beta's, the i-th row contains the
+                                 // i-th sample, i.e. the number of rows
+                                 // corresponds to the number of stored samples
+                                 // the number of columns correspond to the
+                                 // number of parameters
 
   datamatrix transform;          // The factor with which all beta's will be
                                  // multiplied before storing them and computing
@@ -141,7 +144,7 @@ class __EXPORT_TYPE FC
 
   FC(GENERAL_OPTIONS * o,const ST::string & t,
            const unsigned & rows, const unsigned & cols,
-           const ST::string & fp);
+           const ST::string & fp,bool sstore);
 
   // COPY CONSTRUCTOR
 
@@ -182,10 +185,14 @@ class __EXPORT_TYPE FC
   datamatrix compute_autocorr(const unsigned & lag,const unsigned & row,
                               const unsigned & col) const;
 
+  double compute_autocorr_single(const unsigned & lag,const unsigned & row,
+                                      const unsigned & col) const;
+
+
   // FUNCTION: get_samples
   // TASK: stores the sampled parameters in ASCII format
 
-  virtual void get_samples(const ST::string & filename, const unsigned & step = 1) const;
+  virtual void get_samples(const ST::string & filename) const;
 
   // FUNCTION: update
   // TASK: - stores sampled parameters in file 'samplepath'

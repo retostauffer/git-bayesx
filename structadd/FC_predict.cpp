@@ -42,14 +42,14 @@ FC_predict::FC_predict(void)
 FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
      const ST::string & fp, const ST::string & fpd, datamatrix & dm,
       vector<ST::string> & dn)
-  : FC(o,t,1,1,fp)
+  : FC(o,t,1,1,fp,false)
   {
   likep = lp;
   designmatrix= dm;
   varnames = dn;
   setbeta(lp->nrobs,2,0);
 
-  FC_deviance = FC(o,"",2,1,fpd);
+  FC_deviance = FC(o,"",2,1,fpd,false);
 
   }
 

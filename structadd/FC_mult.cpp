@@ -24,7 +24,7 @@ void FC_mult::set_intp(DESIGN * d,FC_nonp * fp)
 
 
 void FC_mult::set_multeffects(GENERAL_OPTIONS * o,const ST::string & t,
-           const ST::string & fp,bool sm)
+           const ST::string & fp,bool sm,bool sstore)
   {
 
   unsigned rows = dp1->Zout.rows()*dp2->Zout.rows();
@@ -32,7 +32,7 @@ void FC_mult::set_multeffects(GENERAL_OPTIONS * o,const ST::string & t,
   samplemult = sm;
 
   if (samplemult)
-    FCmulteffect = FC(o,t,rows,1,fp);
+    FCmulteffect = FC(o,t,rows,1,fp,sstore);
 
   }
 

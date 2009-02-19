@@ -63,7 +63,7 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp, DISTR * lp_RE,const ST::string & t,
            const ST::string & fp, const ST::string & fp2, DESIGN * dp,
-           vector<ST::string> & op,vector<ST::string> & vn);
+           vector<ST::string> & op,vector<ST::string> & vn,bool sstore);
 
   // COPY CONSTRUCTOR
 

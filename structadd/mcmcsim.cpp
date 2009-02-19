@@ -720,6 +720,7 @@ void MCMCsim::autocorr(const unsigned & lag,datamatrix & cmat)
   // TASK: computes autocorrelations for all samples parameters
   //      (i.e. for all beta matrices) and stores the result in file 'path'
 
+/*
 void MCMCsim::autocorr(const unsigned & lag,const ST::string & path)
   {
 
@@ -859,7 +860,100 @@ void MCMCsim::autocorr(const unsigned & lag,const ST::string & path)
     #endif
 
   }   // end: autocorr
+*/
 
+
+void MCMCsim::autocorr(const unsigned & lag)
+  {
+
+  unsigned i,j,k,l,s,r,c,nrpar;
+  double min,mean,max;
+  unsigned nrmodels = equations.size();
+  double autoc;
+  ST::string path;
+  bool misstot;
+
+  genoptions->out("Computing autocorrelation functions...\n");
+  genoptions->out("Autocorrelations are stored in file(s):\n");
+  genoptions->out("\n");
+
+
+  for (s=0;s<nrmodels;s++)
+    {
+
+    for(j=0;j<equations[s].FCpointer.size();j++)
+      {
+      if (equations[s].FCpointer[j]->nosamples == false)
+        {
+        path = equations[s].FCpaths[j].substr(0,equations[s].FCpaths[j].length()-4) + "_autocor.raw";
+        ofstream out(path.strtochar());
+
+        genoptions->out(path);
+        genoptions->out("\n");
+
+        out << "lag  ";
+
+        for (k=0;k<equations[s].FCpointer[j]->beta.cols();k++)
+          for(i=0;i<equations[s].FCpointer[j]->beta.rows();i++)
+            {
+            if (equations[s].FCpointer[j]->beta.cols() == 1)
+              out << "b_" << (i+1) << " ";
+            else
+              out << "b_" << (i+1) << "_" << (k+1) << " ";
+            }
+
+        out  << "b_min " << "b_mean " << "b_max " << endl;
+
+        misstot = false;
+        for(l=1;l<=lag;l++)
+          {
+
+          nrpar = 0;
+
+          out << l << "  ";
+
+          min = 1;
+          max = -1;
+          mean = 0;
+
+          for(c=0;c<equations[s].FCpointer[j]->beta.cols();c++)
+            for (r=0;r<equations[s].FCpointer[j]->beta.rows();r++)
+              {
+              autoc = equations[s].FCpointer[j]->compute_autocorr_single(l,r,c);
+              if ( (autoc <= 1) && (autoc >= -1) )
+                {
+                nrpar++;
+                if (autoc < min)
+                  min = autoc;
+                if (autoc > max)
+                  max = autoc;
+                mean += autoc;
+                out << autoc << "  ";
+                }
+              else
+                {
+                out << "NA  " << endl;
+                misstot = true;
+                }
+              }
+
+          out << min << "  ";
+          out << max << "  ";
+          out << mean/nrpar << "  ";
+          out << endl;
+          }  // end: for(l=0;l<lag;l++)
+
+        if (misstot==true)
+          {
+          genoptions->out("WARNING: There were undefined autocorrelations\n",true,true);
+          genoptions->out("\n");
+          }
+
+        }
+      }  // end: for(j=0;j<fullcondp.size();j++)
+    } // end: for (s=0;s<nrmodels;s++)
+
+  }   // end: autocorr
 
 
 
@@ -870,9 +964,9 @@ void MCMCsim::autocorr(const unsigned & lag,const ST::string & path)
 
 void MCMCsim::get_samples(
   #if defined(JAVA_OUTPUT_WINDOW)
-  vector<ST::string> & newc,
+  vector<ST::string> & newc
   #endif
-  const ST::string & path,const unsigned & step)
+  )
   {
 
   unsigned i,j;
@@ -890,12 +984,12 @@ void MCMCsim::get_samples(
       {
       if (equations[j].FCpointer[i]->nosamples == false)
         {
-        filename = path + equations[j].FCpointer[i]->title + "_sample.raw";
-        equations[j].FCpointer[i]->get_samples(filename,step);
+        filename =  equations[j].FCpaths[i].substr(0,equations[j].FCpaths[i].length()-4) + "_sample.raw";
+        equations[j].FCpointer[i]->get_samples(filename);
         genoptions->out(filename + "\n");
         #if defined(JAVA_OUTPUT_WINDOW)
 
-        psname = path + equations[j].FCpointer[i]->get_title() + "_sample.ps";
+        psname = equations[j].FCpaths[i].substr(0,equations[j].FCpaths[i].length()-4) + "_sample.ps";
         newc.push_back("dataset _dat");
         newc.push_back("_dat.infile , nonote using " + filename);
         newc.push_back("graph _g");

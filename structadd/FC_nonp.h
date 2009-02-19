@@ -100,7 +100,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   FC_nonp(GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
            const ST::string & fp,DESIGN * dp,vector<ST::string> & op,
-             vector<ST::string> & vn);
+             vector<ST::string> & vn,bool sstore);
 
   // COPY CONSTRUCTOR
 

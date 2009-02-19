@@ -76,7 +76,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   // virtual functions
 
-  void init_data(datamatrix & dm, datamatrix & iv);
+  void init_data(const datamatrix & dm, const datamatrix & iv);
 
   void compute_penalty(void);
 

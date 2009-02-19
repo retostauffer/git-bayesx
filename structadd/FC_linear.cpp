@@ -49,8 +49,8 @@ int FC_linear::add_variable(datamatrix & d,ST::string & name)
 
 FC_linear::FC_linear(GENERAL_OPTIONS * o,DISTR * lp,datamatrix & d,
                  vector<ST::string> & vn, const ST::string & t,
-                 const ST::string & fp)
-     : FC(o,t,1,1,fp)
+                 const ST::string & fp,bool sstore)
+     : FC(o,t,1,1,fp,sstore)
   {
 
   likep = lp;

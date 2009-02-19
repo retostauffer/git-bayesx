@@ -58,13 +58,13 @@ void FC_hrandom::read_options(vector<ST::string> & op,vector<ST::string> & vn)
 FC_hrandom::FC_hrandom(GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
                  const ST::string & t,const ST::string & fp,
                  const ST::string & fp2, DESIGN * Dp,
-                 vector<ST::string> & op, vector<ST::string> & vn)
-     : FC_nonp(o,lp,t,fp,Dp,op,vn)
+                 vector<ST::string> & op, vector<ST::string> & vn,bool sstore)
+     : FC_nonp(o,lp,t,fp,Dp,op,vn,sstore)
   {
   read_options(op,vn);
   likep_RE = lp_RE;
   likep_RE->trmult = likep->trmult;
-  FCrcoeff = FC(o,"",beta.rows(),beta.cols(),fp2);
+  FCrcoeff = FC(o,"",beta.rows(),beta.cols(),fp2,sstore);
   }
 
 

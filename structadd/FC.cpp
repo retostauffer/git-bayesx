@@ -25,10 +25,10 @@ FC::FC(void)
 
 
 FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
-                   const unsigned & cols,const ST::string & fp)
+                   const unsigned & cols,const ST::string & fp,bool sstore)
   {
 
-  samplestore = false;
+  samplestore = sstore;
   nosamples = false;
   optionsp = o;
 
@@ -204,27 +204,43 @@ void FC::setbeta(const datamatrix & betanew)
   }
 
 
-
-
-
-
 void FC::readsample(datamatrix & sample,const unsigned & nr,
                           const unsigned & col) const
   {
-
   unsigned nrpar = beta.cols()*beta.rows();
-  unsigned size = sizeof(double);
-  ifstream in;
-  in.open(samplepath.strtochar(),ios::binary);
+
+
   unsigned i;
-  double* work=sample.getV()+col;
+
   unsigned s = sample.cols();
-  in.seekg(size*nr);
-  for (i=0;i<optionsp->samplesize;i++,work+=s)
+
+  double* work=sample.getV()+col;
+
+  if (samplestore==true)
     {
-    in.read((char*) work,size);
-    in.seekg(size*(nrpar-1),ios::cur);
+    unsigned size = sizeof(double);
+
+    ifstream in;
+    in.open(samplepath.strtochar(),ios::binary);
+
+    in.seekg(size*nr);
+    for (i=0;i<optionsp->samplesize;i++,work+=s)
+      {
+      in.read((char*) work,size);
+      in.seekg(size*(nrpar-1),ios::cur);
+      }
     }
+  else
+    {
+
+    double * sampled_betap = sampled_beta.getV()+nr;
+    for (i=0;i<optionsp->samplesize;i++,work+=s,sampled_betap+=nrpar)
+      {
+      *work = *sampled_betap;
+      }
+
+    }
+
   }
 
 
@@ -249,16 +265,28 @@ void FC::readsample2(datamatrix & b,const unsigned & nr) const
 void FC::readsample3(datamatrix & b) const
   {
 
-  unsigned size = sizeof(double);
-  ifstream in;
-  in.open(samplepath.strtochar(),ios::binary);
-  double * work = b.getV();
-  unsigned i,j;
-  for(i=0;i<b.rows();i++)
-    for(j=0;j<b.cols();j++,work++)
+  if (nosamples == false)
+    {
+    if (samplestore)
       {
-      in.read((char *) work,size);
+      unsigned size = sizeof(double);
+      ifstream in;
+      in.open(samplepath.strtochar(),ios::binary);
+      double * work = b.getV();
+      unsigned i,j;
+      for(i=0;i<b.rows();i++)
+        for(j=0;j<b.cols();j++,work++)
+          {
+          in.read((char *) work,size);
+          }
       }
+    else
+      {
+      b.assign(sampled_beta);
+      }
+
+    } // end: if (nosamples == false)
+
 
   }
 
@@ -266,56 +294,118 @@ void FC::readsample3(datamatrix & b) const
 datamatrix FC::compute_autocorr(const unsigned & lag,const unsigned & row,
                                       const unsigned & col) const
   {
-  unsigned o = optionsp->samplesize;
-  datamatrix sample(o,1);
-  unsigned nr = row*(beta.cols())+col;
-  readsample(sample,nr);
-  return sample.autocorr (1,lag,0);
+  if (nosamples==false)
+    {
+
+    unsigned nr = row*(beta.cols())+col;
+
+    if (samplestore)
+      {
+      unsigned o = optionsp->samplesize;
+      datamatrix sample(o,1);
+      readsample(sample,nr);
+      return sample.autocorr (1,lag,0);
+      }
+    else
+      {
+      return sampled_beta.autocorr(1,lag,nr);
+      }
+    }
+  else
+    return datamatrix(1,1);  
   }
 
 
-void FC::get_samples(const ST::string & filename,const unsigned & step) const
+double FC::compute_autocorr_single(const unsigned & lag,const unsigned & row,
+                                      const unsigned & col) const
   {
   if (nosamples == false)
     {
-    ofstream out(filename.strtochar());
-    assert(!out.fail());
+
+    unsigned nr = row*(beta.cols())+col;
+
+    if (samplestore==true)
+      {
+      unsigned o = optionsp->samplesize;
+      datamatrix sample(o,1);
+      readsample(sample,nr);
+      return sample.autocorr (lag,0);
+      }
+    else
+      {
+      return sampled_beta.autocorr(lag,nr);
+      }
+    }
+  else
+    return 0;
+  }
+
+
+void FC::get_samples(const ST::string & filename) const
+  {
+  if (nosamples == false)
+    {
 
     unsigned i,j,k;
 
     unsigned nrpar = beta.rows()*beta.cols();
 
-    datamatrix betac(beta.rows(),beta.cols());
+    ofstream out(filename.strtochar());
+    assert(!out.fail());
 
     out << "intnr " << " ";
     if (beta.cols() > 1)
       {
-      for (j=0;j<beta.rows();j+=step)
+      for (j=0;j<beta.rows();j++)
         for(k=0;k<beta.cols();k++)
           out << "b_" << (j+1) << "_" << (k+1) << " ";
       }
     else
       {
-      for (j=0;j<nrpar;j+=step)
+      for (j=0;j<nrpar;j++)
         out << "b_" << (j+1) << " ";
       }
 
     out << endl;
 
-    for(i=0;i<optionsp->samplesize;i++)
-      {
-      readsample2(betac,i);
-      out << (i+1) << " ";
-      for (j=0;j<beta.rows();j+=step)
-        for(k=0;k<betac.cols();k++)
-          out << betac(j,k) << " ";
 
-      out << endl;
+    if (samplestore)
+      {
+
+      datamatrix betac(beta.rows(),beta.cols());
+
+
+      for(i=0;i<optionsp->samplesize;i++)
+        {
+        readsample2(betac,i);
+        out << (i+1) << " ";
+        for (j=0;j<beta.rows();j++)
+          for(k=0;k<betac.cols();k++)
+            out << betac(j,k) << " ";
+
+        out << endl;
+        }
+
+
+      }
+    else
+      {
+
+      double * sampled_betap = sampled_beta.getV();
+      for(i=0;i<optionsp->samplesize;i++)
+        {
+        out << (i+1) << " ";
+        for (j=0;j<nrpar;j++,sampled_betap++)
+          out << *sampled_betap << " ";
+
+        out << endl;
+        }
+
       }
 
     out.close();
-    }
 
+    } // end: if (nosamples == false)
   }
 
 
@@ -625,7 +715,7 @@ void FC::reset(void)
   setbeta(beta.rows(),beta.cols(),0);
   acceptance = 0;
   nrtrials = 0;
-  if (nosamples==false)
+  if (nosamples==false && samplestore == true)
     {
     samplestream.close();
     remove(samplepath.strtochar());
