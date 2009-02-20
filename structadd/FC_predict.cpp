@@ -92,6 +92,8 @@ void  FC_predict::update(void)
 
   FC::update();
 
+//  FC_deviance.transform(0,0) = likep->trmult;
+
   FC_deviance.beta(0,0) = deviance;
   FC_deviance.beta(1,0) = deviancesat;
   FC_deviance.acceptance++;
@@ -117,7 +119,7 @@ void FC_predict::get_predictor(void)
   double deviancehelp;
   double deviancesathelp;
 
-  double * workresponse = likep->response.getV();
+  double * workresponse = likep->response_untransformed.getV();
   double * workweight = likep->weight.getV();
   double muhelp;
   double scalehelp=likep->get_scale(true);
@@ -176,7 +178,7 @@ void FC_predict::outresults_DIC(void)
 
   double mu_meanlin;
   double * workmeanlin = betamean.getV();
-  double * workresponse = likep->response.getV();
+  double * workresponse = likep->response_untransformed.getV();
   double * workweight = likep->weight.getV();
 
   unsigned i;
@@ -374,7 +376,7 @@ void FC_predict::outresults(const ST::string & pathresults)
     FC::outresults(pathresults);
     FC_deviance.outresults("");
 
-    optionsp->out("  Predicted values: \n",true);
+    optionsp->out("  PREDICTED VALUES: \n",true);
     optionsp->out("\n");    
 
     optionsp->out("  Results for the predictor, mean are stored in file\n");

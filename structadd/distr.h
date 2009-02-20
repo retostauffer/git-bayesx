@@ -34,6 +34,10 @@ using randnumbers::rand_gamma;
 class __EXPORT_TYPE DISTR
   {
 
+  // FUNCTION: check_workingweights_one
+  // TASK: checks if all workingweights are one (returns true if this is the
+  //       case)
+
   bool check_workingweights_one(void);
 
   protected:
@@ -55,9 +59,12 @@ class __EXPORT_TYPE DISTR
 
   unsigned nrobs;                 // Number of observations
 
-  datamatrix response;            // Response
-  datamatrix workingresponse;      // Working response, tilde y
-  ST::string responsename;        // Name of the response
+  datamatrix response;                // Response
+  datamatrix response_untransformed;  // untransformed response, i.e.
+                                      // response in the original measurement
+                                      // scale
+  datamatrix workingresponse;         // Working response, tilde y
+  ST::string responsename;            // Name of the response
 
 
   datamatrix weight;              // Weightvariable for weighted regression
@@ -66,8 +73,6 @@ class __EXPORT_TYPE DISTR
   datamatrix workingweight;       // Working weight
   bool changingweight;
   bool weights_one;
-
-//  datamatrix partres;             // partial residual
 
 
   datamatrix linearpred1;          // Linear predictor

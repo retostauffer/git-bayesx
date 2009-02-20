@@ -36,6 +36,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   updateIWLS = false;
 
   response = r;
+  response_untransformed = r;
   workingresponse = r;
   responsename = "Y";
 
@@ -81,6 +82,7 @@ DISTR::DISTR(const DISTR & d)
   nrobs = d.nrobs;
 
   response = d.response;
+  response_untransformed = d.response_untransformed;
   workingresponse = d.workingresponse;
   responsename = d.responsename;
 
@@ -116,6 +118,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   nrobs = d.nrobs;
 
   response = d.response;
+  response_untransformed = d.response_untransformed;
   workingresponse = d.workingresponse;
   responsename = d.responsename;
 
@@ -447,6 +450,8 @@ void DISTR_gaussian::standardise(void)
   {
 
   trmult = sqrt(response.var(0,weight));
+
+
 
   unsigned i;
   double * workresp = workingresponse.getV();

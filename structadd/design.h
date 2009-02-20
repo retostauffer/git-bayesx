@@ -235,7 +235,6 @@ class __EXPORT_TYPE DESIGN
   void compute_f(datamatrix & beta,datamatrix & betalin,
                        datamatrix & f, datamatrix & ftot);
 
-
   // FUNCTION: compute_effect
   // TASK: computes the effect vector
 
@@ -247,7 +246,7 @@ class __EXPORT_TYPE DESIGN
   // FUNCTION: update_linpred
   // TASK: updates the predictor based on the current function f
 
-  void update_linpred(datamatrix & f,bool add);
+  void update_linpred(datamatrix & f);
 
   // FUNCTION: compute_partres
   // TASK: computes
@@ -255,6 +254,8 @@ class __EXPORT_TYPE DESIGN
   void compute_partres(datamatrix & res,datamatrix & f);
 
   void compute_partres(int begin,int end,double & res, double & f);
+
+//  void compute_partres_nopred(datamatrix & res, datamatrix & f);
 
   double compute_ZtZ(unsigned & i, unsigned & j);
 

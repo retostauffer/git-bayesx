@@ -982,7 +982,6 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
   }
 
 
-
 void DESIGN::compute_partres(int begin,int end,double & res, double & f)
   {
 
@@ -1076,7 +1075,7 @@ void DESIGN::compute_partres(int begin,int end,double & res, double & f)
 
 
 
-void DESIGN::update_linpred(datamatrix & f,bool add)
+void DESIGN::update_linpred(datamatrix & f)
   {
   int i,j;
 
@@ -1094,61 +1093,31 @@ void DESIGN::update_linpred(datamatrix & f,bool add)
 
   int size = posbeg.size();
 
-  if (add==true)
-    {
-    if (intvar.rows()==data.rows())   // varying coefficient
-      {
-      for (i=0;i<size;i++,++itbeg,++itend,workf++)
-        {
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,workintvar++,linpredp++)
-            *(*linpredp) += (*workintvar) * (*workf);
-          }
-        }
-      }
-    else                              // additive
-      {
-      for (i=0;i<size;i++,++itbeg,++itend,workf++)
-        {
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,linpredp++)
-            *(*linpredp) += *workf;
-          }
-        }
-      }
-    }
-  else
+
+  if (intvar.rows()==data.rows())   // varying coefficient
     {
 
-    if (intvar.rows()==data.rows())   // varying coefficient
+    for (i=0;i<size;i++,++itbeg,++itend,workf++)
       {
-
-      for (i=0;i<size;i++,++itbeg,++itend,workf++)
+      if (*itbeg != -1)
         {
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,workintvar++,linpredp++)
-            *(*linpredp) -= (*workintvar) * (*workf);
-          }
-        }
-
-      }
-    else                              // additive
-      {
-      for (i=0;i<size;i++,++itbeg,++itend,workf++)
-        {
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,linpredp++)
-            *(*linpredp) -= *workf;
-          }
+        for (j=*itbeg;j<=*itend;j++,workintvar++,linpredp++)
+          *(*linpredp) += (*workintvar) * (*workf);
         }
       }
 
     }
-
+  else                              // additive
+    {
+    for (i=0;i<size;i++,++itbeg,++itend,workf++)
+      {
+      if (*itbeg != -1)
+        {
+        for (j=*itbeg;j<=*itend;j++,linpredp++)
+          *(*linpredp) += *workf;
+        }
+      }
+    }
 
   // TEST
   /*
@@ -1159,6 +1128,11 @@ void DESIGN::update_linpred(datamatrix & f,bool add)
 
 
   }
+
+
+
+
+
 
 
 void DESIGN::read_options(vector<ST::string> & op,vector<ST::string> & vn)

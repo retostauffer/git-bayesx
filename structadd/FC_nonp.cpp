@@ -422,11 +422,12 @@ void FC_nonp::update_IWLS(void)
     get_linparam();
     }
 
+
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
   betadiff.minus(beta,betaold);
-  designp->update_linpred(betadiff,true);
 
+  designp->update_linpred(betadiff);
 
   // Compute new log-likelihood
 
@@ -465,7 +466,7 @@ void FC_nonp::update_IWLS(void)
     {
 
     betadiff.minus(betaold,beta);
-    designp->update_linpred(betadiff,true);
+    designp->update_linpred(betadiff);
 
 
     param.assign(paramold);
@@ -490,9 +491,12 @@ void FC_nonp::update_IWLS(void)
     fsample.update();
     }
 
+ /*
+   // würde nur für pvalue gebraucht!!
   paramsample.beta.assign(param);
   paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
+*/
 
   FC::update();
 
@@ -586,7 +590,7 @@ void FC_nonp::update_gaussian(void)
 
   betadiff.minus(beta,betaold);
 
-  designp->update_linpred(betadiff,true);
+  designp->update_linpred(betadiff);
 
   // TEST
   // ofstream out("c:\\bayesx\\testh\\results\\beta_re.res");
@@ -730,7 +734,7 @@ void FC_nonp::update_isotonic(void)
 
   betadiff.minus(beta,betaold);
 
-  designp->update_linpred(betadiff,true);
+  designp->update_linpred(betadiff);
 
   acceptance++;
 
@@ -837,7 +841,7 @@ bool FC_nonp::posteriormode(void)
 
   betadiff.minus(beta,betaold);
 
-  designp->update_linpred(betadiff,true);
+  designp->update_linpred(betadiff);
 
   transform_beta();
 
