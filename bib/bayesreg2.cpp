@@ -115,7 +115,7 @@ bool bayesreg::create_geokriging(const unsigned & collinpred)
       MAP::map m = mapp->getmap();
       if(!m.centroids_existing())
         {
-        outerror("ERROR: map object doesn´t contain centroids\n");
+        outerror("ERROR: map object does not contain centroids\n");
         return true;
         }
 
@@ -2142,7 +2142,7 @@ bool bayesreg::create_geospline(const unsigned & collinpred)
 
       if(!m.centroids_existing())
         {
-        outerror("ERROR: map object doesn´t contain centroids\n");
+        outerror("ERROR: map object does not contain centroids\n");
         return true;
         }
 
@@ -2424,7 +2424,7 @@ bool bayesreg::create_varcoeff_geospline(const unsigned & collinpred)
 
       if(!m.centroids_existing())
         {
-        outerror("ERROR: map object doesn´t contain centroids\n");
+        outerror("ERROR: map object does not contain centroids\n");
         return true;
         }
 

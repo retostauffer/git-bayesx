@@ -4645,7 +4645,7 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
       MAP::map m = mapp->getmap();
       if(!m.centroids_existing())
         {
-        outerror("ERROR: map object doesn´t contain centroids\n");
+        outerror("ERROR: map object does not contain centroids\n");
         return true;
         }
 

@@ -2404,7 +2404,7 @@ bool remlreg::create_geospline(const unsigned & collinpred)
 
       if(!m.centroids_existing())
         {
-        outerror("ERROR: map object doesn´t contain centroids\n");
+        outerror("ERROR: map object does not contain centroids\n");
         return true;
         }
 
@@ -2503,7 +2503,7 @@ bool remlreg::create_geospline_varcoeff(const unsigned & collinpred)
 
       if(!m.centroids_existing())
         {
-        outerror("ERROR: map object doesn´t contain centroids\n");
+        outerror("ERROR: map object does not contain centroids\n");
         return true;
         }
 
@@ -3038,7 +3038,7 @@ bool remlreg::create_geokriging(const unsigned & collinpred)
       MAP::map m = mapp->getmap();
       if(!m.centroids_existing())
         {
-        outerror("ERROR: map object doesn´t contain centroids\n");
+        outerror("ERROR: map object does not contain centroids\n");
         return true;
         }
 
@@ -3204,7 +3204,7 @@ bool remlreg::create_geokriging_varcoeff(const unsigned & collinpred)
       MAP::map m = mapp->getmap();
       if(!m.centroids_existing())
         {
-        outerror("ERROR: map object doesn´t contain centroids\n");
+        outerror("ERROR: map object does not contain centroids\n");
         return true;
         }
 

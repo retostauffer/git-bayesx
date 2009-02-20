@@ -465,7 +465,7 @@ void outfilerun(mapobject & m)
 
     } // end: if (m.mapexisting)
   else
-    m.out("NOTE: map object doesn´t contain any data\n");
+    m.out("NOTE: map object does not contain any data\n");
 
   }
 
@@ -487,7 +487,7 @@ void reorderrun(mapobject & m)
       m.out(m.mapinfo.get_errormessages());
     }
   else
-    m.out("NOTE: map object doesn´t contain any data\n");
+    m.out("NOTE: map object does not contain any data\n");
 
   }
 
@@ -528,10 +528,10 @@ void mapobject::describe(const optionlist & globaloptions)
 #endif
       }
     else
-      out("NOTE: map object doesn´t contain any data\n");
+      out("NOTE: map object does not contain any data\n");
     }
   else
-    out("NOTE: map object doesn´t contain any data\n");
+    out("NOTE: map object does not contain any data\n");
   }
 
 
