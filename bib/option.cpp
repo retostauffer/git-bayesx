@@ -239,12 +239,17 @@ int stroption::parse(const ST::string & c)
   vector<ST::string> token = c.strtoken("=");
 
   if(!token.empty())
-    token[0] = token[0].eatallwhitespace();  
+    {
+    token[0] = token[0].eatallwhitespace();
+    token[0] = token[0].eatallcarriagereturns();
+    }
 
   if (token.size() >= 3)
     {
     token[1] = token[1].eatallwhitespace();
+    token[1] = token[1].eatallcarriagereturns();
     token[2] = token[2].eatwhitespace();
+    token[2] = token[2].eatallcarriagereturns();
     }
 
   if ( (! token.empty()) && (token[0] == optionname) )

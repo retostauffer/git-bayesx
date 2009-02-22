@@ -313,10 +313,9 @@ class __EXPORT_TYPE string
   // string test = " hello world"
   // test.eatallwhitespace() returns the string "helloworld"
 
-  string eatallwhitespace(void) const
-	 {
-	 return deleteallsigns(' ');
-	 }
+  string eatallwhitespace(void) const;
+
+  string eatallcarriagereturns(void) const;
 
   // FUNCTION: closingbracketpos
   // TASK: returns the position of the closing bracket ) in the calling string,

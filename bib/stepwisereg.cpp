@@ -3234,6 +3234,7 @@ void drawmaprun(stepwisereg & b)
     ifstream in(path.strtochar());
     ST::string h;
     ST::getline(in,10000,h);
+    h = h.eatallcarriagereturns();
     vnames = 	h.strtoken(" ");
 
     ST::string graphname = "_" + b.name + "_graph";
@@ -3341,6 +3342,7 @@ void plotnonprun(stepwisereg & b)
     ifstream in(path.strtochar());
     ST::string h;
     ST::getline(in,10000,h);
+    h = h.eatallcarriagereturns();
     vnames = 	h.strtoken(" ");
 
     ST::string graphname = "_" + b.name + "_graph";

@@ -1149,6 +1149,7 @@ void map::infile(const ST::string & path)
 	 ST::getline(fin,li);
 	 nrlines++;
 	 li = li.eatallwhitespace();
+     li = li.eatallcarriagereturns();
 	 if (li.length() > 0)
 		{
 		token = li.strtoken(",");
@@ -1350,6 +1351,7 @@ void map::infile_neighbors(const ST::string & path)
   for(i=0;i<nrregions;i++)
     {
     ST::getline(fin,li);
+    li = li.eatallcarriagereturns();
     assert (!fin.fail());
     token = li.strtoken(" ");
     assert(token[0] == regions[i].get_name());

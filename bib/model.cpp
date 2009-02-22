@@ -164,6 +164,7 @@ void term::parse(const ST::string & t)
 
   ST::string te;
   te = t.eatallwhitespace();
+  te = te.eatallcarriagereturns();
   if (te.length() == 0)
     {
     errormessages.push_back("ERROR: invalid term specification");
@@ -3858,6 +3859,7 @@ void modelterm::parse(const ST::string & m)
   model::parse(m);
   ST::string mod;
   mod = m.eatallwhitespace();
+  mod = mod.eatallcarriagereturns();
 
   bool bracketmiss=false;
   vector<ST::string> token = mod.strtoken2("=",bracketmiss);
@@ -3962,6 +3964,7 @@ void modeltermmult::parse(const ST::string & m)
   model::parse(m);
   ST::string mod;
   mod = m.eatallwhitespace();
+  mod = mod.eatallcarriagereturns();
 
   vector<ST::string> equations = mod.strtoken(":",false);
 

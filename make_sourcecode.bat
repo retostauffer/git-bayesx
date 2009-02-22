@@ -36,7 +36,7 @@ rm #*
 rm *.obj
 
 cd ..\bib
-rm -r CVS
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj

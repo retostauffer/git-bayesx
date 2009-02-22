@@ -541,6 +541,7 @@ bool Thauptformular::parse(ST::string & in)
                     {
                     ST::getline(infile,10000,help,'\n');
                     help = help.eatwhitespace();
+                    help = help.eatallcarriagereturns();
                     if (help.length() > 0 && help[0] != '%')
                       {
                       in = in + " " + help;
@@ -563,6 +564,7 @@ bool Thauptformular::parse(ST::string & in)
                   ST::getline(infile,10000,in,'\n');
 
 	            in = in.eatwhitespace();
+                in = in.eatallcarriagereturns();
 
                 if (in.length() > 0 && in[0] != '%')
                   {

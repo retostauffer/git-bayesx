@@ -411,6 +411,21 @@ string string::eatwhitespace(void) const
 
   }
 
+string string::eatallwhitespace(void) const
+  {
+/*  string res = *this;
+  res.deleteallsigns(' ');
+  res.deleteallsigns('\n');
+  res.deleteallsigns('\r');
+  return res;*/
+  return deleteallsigns(' ');
+  }
+
+string string::eatallcarriagereturns(void) const
+  {
+  return deleteallsigns('\r');
+  }
+
 
 int string::closingbracketpos(const unsigned bracketpos) const
   {

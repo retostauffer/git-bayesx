@@ -411,6 +411,7 @@ ifstream & in,ST::string & missing,
 	 {
 	 ST::string h;
 	 ST::getline(in,50000,h,'\n');
+     h = h.eatallcarriagereturns();
 	 datarep.varnames = h.strtokenlist(" \t",false);
 	 }
   else

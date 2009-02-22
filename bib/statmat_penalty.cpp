@@ -896,6 +896,7 @@ void compare_nonp(const ST::string & ref, const ST::string & neu, double limit,
   if(!in.fail())
     {
     ST::getline(in,50000,header);
+    header = header.eatallcarriagereturns();
     refdata.prettyScan(in);
     }
 
@@ -903,6 +904,7 @@ void compare_nonp(const ST::string & ref, const ST::string & neu, double limit,
   if(!in2.fail())
     {
     ST::getline(in2,50000,header);
+    header = header.eatallcarriagereturns();
     neudata.prettyScan(in2);
     }
 
