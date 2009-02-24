@@ -29,18 +29,29 @@ using randnumbers::truncnormal;
 using randnumbers::kssample;
 using randnumbers::rand_gamma;
 
+/*
+1. workingweights ändern sich, weights ungleich 1
 
+2. workingweights ändern sich, weights gleich eins
+
+3. workingweights ändern sich nicht und sind konstant
+
+4. workingweights ändern sich nicht und sind eins
+*/
+
+enum weighttype{wweightschange_weightsneqone,wweightschange_weightsone,
+wweightsnochange_constant,wweightsnochange_one};
 
 class __EXPORT_TYPE DISTR
   {
+
+  protected:
 
   // FUNCTION: check_workingweights_one
   // TASK: checks if all workingweights are one (returns true if this is the
   //       case)
 
-  bool check_workingweights_one(void);
-
-  protected:
+  bool check_weightsone(void);
 
 
   GENERAL_OPTIONS * optionsp;         // pointer to general MCMC options object
@@ -70,9 +81,22 @@ class __EXPORT_TYPE DISTR
   datamatrix weight;              // Weightvariable for weighted regression
   ST::string weightname;          // Name of the weightvariable
 
-  datamatrix workingweight;       // Working weight
-  bool changingweight;
-  bool weights_one;
+  datamatrix workingweight;       // Working weight (workingweight = weight
+                                  // in the constructor)
+  bool changingworkingweights;    // true if working weights change from
+                                  // iteration to iteration of the sampler
+                                  // changingworkingweights is set true by
+                                  // default
+  bool workingweightsone;         // true if workingweights are one
+                                  // default: = false 
+
+
+  weighttype wtype;               // weight type: default is
+                                  // wweightschange_weightsneqone, i.e.
+                                  // workingweights change and weights are
+                                  // not equal to one
+  bool weightsone;                     // true if weights are one for all
+                                  // observations
 
 
   datamatrix linearpred1;          // Linear predictor
@@ -139,6 +163,11 @@ class __EXPORT_TYPE DISTR
     return 0;
     }
 
+  virtual double loglikelihood_weightsone(double * res,double * lin) const
+    {
+    return 0;
+    }
+
   // FUNCTION: loglikelihood
   // TASK: computes the complete loglikelihood for all observations
 
@@ -175,8 +204,10 @@ class __EXPORT_TYPE DISTR
 
   // FUNCTION: compute_IWLS (for one observation)
   // TASK: computes the iwls weights (will be stored in workingweight),
-  //       tildey=(y-mu)g'(mu) (stored in workingresponse) and
+  //       tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
   //       the loglikelihood (will be returned)
+
+  //       type: wweightschange_weightsneqone
 
   virtual double compute_iwls(double * response, double * linpred,
                               double * weight, double * workingweight,
@@ -184,6 +215,54 @@ class __EXPORT_TYPE DISTR
     {
     return 0;
     }
+
+  // FUNCTION: compute_IWLS (for one observation)
+  // TASK: computes the iwls weights (will be stored in workingweight),
+  //       tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
+  //       the loglikelihood stored in like (only if compute_like = true)
+  //       assumes that weighs=1 (for all observations)
+
+  virtual void compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+    {
+    }
+
+
+  // FUNCTION: compute_IWLS (for one observation)
+  // TASK: computes tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
+  //       the loglikelihood stored in like (only if compute_like = true)
+  //       assumes that workingweighs=constant (for all observations), i.e.
+  //       they are not recomputed in the function
+
+  //       wweightsnochange_constant
+
+  virtual void compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+    {
+    }
+
+
+  // FUNCTION: compute_IWLS (for one observation)
+  // TASK: computes tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
+  //       the loglikelihood stored in like (only if compute_like = true)
+  //       assumes that workingweighs=1 (for all observations), must be set
+  //       to one in advance
+
+  virtual void compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+    {
+    }
+
 
   // FUNCTION: compute_IWLS (for the whole dataset
   // TASK:
@@ -324,9 +403,31 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
                        double * lin,
                        double * w) const;
 
+  double loglikelihood_weightsone(double * res,double * lin) const;
+
   double compute_iwls(double * response, double * linpred,
                               double * weight, double * workingweight,
                               double * workingresponse, const bool & like);
+
+  void compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like);
+
+  void compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
 
   void outoptions(void);
 

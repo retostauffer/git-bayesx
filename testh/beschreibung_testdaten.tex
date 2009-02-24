@@ -33,30 +33,101 @@
 
 \section{Gaussian response}
 
-\subsection{Eine r\"{a}umliche Funktion, nicht hierarchisch}
+\subsection{Lineare Effekte}
 
 {\bf Simulationsfile}
 
-gaussian\_spatial\_1fkt.do
+hgaussian\_linear.do
 
 {\bf Datensatz}
 
-gaussian\_spatial\_1fkt.raw
+hgaussian\_linear.raw \\[0.2cm]
+hgaussian\_linear.dta
+
 
 {\bf Modell}
 
-$y1  \sim N(0.4(xcenter+ycenter),0.3^2)$
 
-wobei $xcenter$ und $ycenter$ die (zentrierten) Zentroide der
-Regionen sind. Die Zentroide findet man in der Datei
-kreisecentroid.raw, das bnd-file unter kreisesim.bnd.
+$y  \sim N(2+0.8 x1 - 0.9 x2 ,0.7^2)$
+
+$x1 \sim U(-3,3)$
+
+$x2 \sim U(-3,3)$
 
 {\bf mcmcreg: batch-file}
 
-gaussian\_spatial\_1fkt\_work.prg
+hgaussian\_linear.prg
 
 {\bf bayesreg: batch-file}
 
-gaussian\_spatial\_1fkt\_alt.prg
+hgaussian\_linear\_alt.prg
+
+
+
+\subsection{Eine nichtlineare Funktion}
+
+{\bf Simulationsfile}
+
+hgaussian\_nonp\_1fkt.do
+
+{\bf Datensatz}
+
+hgaussian\_nonp\_1fkt.raw \\[0.2cm]
+hgaussian\_nonp\_1fkt.dta
+
+{\bf Modell}
+
+$y  \sim N(sin(x1),0.7^2)$
+
+$x1 \sim U(-3,3)$
+
+{\bf mcmcreg: batch-file}
+
+hgaussian\_nonp\_1fkt\.prg
+
+{\bf bayesreg: batch-file}
+
+hgaussian\_nonp\_1fkt\_alt.prg
+
+
+
+\section{Binomial response: Logit}
+
+\subsection{Lineare Effekte}
+
+{\bf Simulationsfile}
+
+hbinomial\_linear.do
+
+{\bf Datensatz}
+
+hbinomial\_linear.raw \\[0.2cm]
+hbinomial\_linear.dta
+
+
+{\bf Modell}
+
+
+$y  \sim B(1,\pi)$
+
+$\eta = -0.25+0.4 \cdot x1-0.6 \cdot x2$
+
+
+$x1 \sim U(-3,3)$
+
+$x2 \sim U(-3,3)$
+
+{\bf mcmcreg: batch-file}
+
+hbinomial\_linear.prg
+
+{\bf bayesreg: batch-file}
+
+hbinomial\_linear\_alt.prg
+
+
+
+
+
 
 \end{document}

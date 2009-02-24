@@ -552,12 +552,12 @@ void FC_nonp::update_gaussian(void)
   designp->compute_partres(partres,beta);
 
 
-  if ((likep->changingweight) || (designp->changingdesign))
+  if ((likep->changingworkingweights) || (designp->changingdesign))
     designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
   else
     designp->compute_XtransposedWres(partres, lambda);
 
-  if ((likep->changingweight) || (designp->changingdesign) || (!lambdaconst))
+  if ((likep->changingworkingweights) || (designp->changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
 
 
@@ -646,12 +646,12 @@ void FC_nonp::update_isotonic(void)
   designp->compute_partres(partres,beta);
 
 
-  if ((likep->changingweight) || (designp->changingdesign))
+  if ((likep->changingworkingweights) || (designp->changingdesign))
     designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
   else
     designp->compute_XtransposedWres(partres, lambda);
 
-  if ((likep->changingweight) || (designp->changingdesign) || (!lambdaconst))
+  if ((likep->changingworkingweights) || (designp->changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
 
   int count = 0;
@@ -802,12 +802,12 @@ bool FC_nonp::posteriormode(void)
   // TEST
 
 
-  if ((likep->changingweight) || (designp->changingdesign))
+  if ((likep->changingworkingweights) || (designp->changingdesign))
     designp->compute_XtransposedWX_XtransposedWres(partres, lambda);
   else
     designp->compute_XtransposedWres(partres, lambda);
 
-  if ((likep->changingweight) || (designp->changingdesign) || (!lambdaconst))
+  if ((likep->changingworkingweights) || (designp->changingdesign) || (!lambdaconst))
     designp->compute_precision(lambda);
 
   // TEST

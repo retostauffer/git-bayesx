@@ -66,9 +66,30 @@ class __EXPORT_TYPE DISTR_binomial : public DISTR
   double loglikelihood(double * response, double * linpred,
                        double * weight) const;
 
+  double loglikelihood_weightsone(double * response, double * linpred) const;
+
   double compute_iwls(double * response, double * linpred,
                       double * weight, double * workingweight,
                       double * workingresponse, const bool & like);
+
+  void compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like);
+
+  void compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
 
   void outoptions(void);
 

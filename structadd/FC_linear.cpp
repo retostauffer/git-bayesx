@@ -302,7 +302,9 @@ void FC_linear::update_gaussian(void)
     if (!initialize)
       create_matrices();
 
-    if (likep->changingweight || optionsp->nriter==1)
+    if ((likep->wtype==wweightschange_weightsneqone) ||
+        (likep->wtype==wweightschange_weightsone) ||
+        (optionsp->nriter==1))
       {
       compute_XWX(XWX);
       XWXroot = XWX.root();
@@ -349,21 +351,42 @@ void FC_linear::compute_XWX(datamatrix & r)
   double * Xt_jp;
   double * workingweightp;
   double help;
-  for (i=0;i<nrconst;i++)
-    for (j=i;j<nrconst;j++)
-      {
-      help = 0;
-      Xt_ip = Xt.getV()+i*nrobs;
-      Xt_jp = Xt.getV()+j*nrobs;
-      workingweightp = likep->workingweight.getV();
 
-      for (k=0;k<nrobs;k++,Xt_ip++,Xt_jp++,workingweightp++)
-        help += (*workingweightp) * (*Xt_ip)*(*Xt_jp);
+  if (likep->wtype==wweightsnochange_one)
+    {
+    for (i=0;i<nrconst;i++)
+      for (j=i;j<nrconst;j++)
+        {
+        help = 0;
+        Xt_ip = Xt.getV()+i*nrobs;
+        Xt_jp = Xt.getV()+j*nrobs;
 
-      r(i,j) = help;
-      if (i!=j)
-        r(j,i) = help;
-      }
+        for (k=0;k<nrobs;k++,Xt_ip++,Xt_jp++)
+          help += (*Xt_ip)*(*Xt_jp);
+
+        r(i,j) = help;
+        if (i!=j)
+          r(j,i) = help;
+        }
+    }
+  else
+    {
+    for (i=0;i<nrconst;i++)
+      for (j=i;j<nrconst;j++)
+        {
+        help = 0;
+        Xt_ip = Xt.getV()+i*nrobs;
+        Xt_jp = Xt.getV()+j*nrobs;
+        workingweightp = likep->workingweight.getV();
+
+        for (k=0;k<nrobs;k++,Xt_ip++,Xt_jp++,workingweightp++)
+          help += (*workingweightp) * (*Xt_ip)*(*Xt_jp);
+
+        r(i,j) = help;
+        if (i!=j)
+          r(j,i) = help;
+        }
+    }
 
   }
 
@@ -417,12 +440,21 @@ void FC_linear::compute_Wpartres(datamatrix & linpred)
   else
     predictorp = likep->linearpred2.getV();
 
-  for (i=0;i<likep->nrobs;i++,workingweightp++,workingresponsep++,
-                              residualp++,linpredp++,predictorp++)
-    *residualp = *workingweightp * ((*workingresponsep)  - (*predictorp)
-                 + (*linpredp));
+  if (likep->wtype == wweightsnochange_one)
+    {
+    for (i=0;i<likep->nrobs;i++,workingresponsep++,
+                                residualp++,linpredp++,predictorp++)
+      *residualp = ((*workingresponsep)  - (*predictorp)
+                   + (*linpredp));
+    }
+  else
+    {
+    for (i=0;i<likep->nrobs;i++,workingweightp++,workingresponsep++,
+                                residualp++,linpredp++,predictorp++)
+      *residualp = *workingweightp * ((*workingresponsep)  - (*predictorp)
+                   + (*linpredp));
+    }
   }
-
 
 
 double FC_linear::compute_XtWpartres(double & mo)

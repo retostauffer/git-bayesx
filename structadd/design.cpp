@@ -904,8 +904,8 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
 
     double * workintvar = intvar.getV();
 
-    if ((likep->changingweight==true) ||
-    ((likep->changingweight==false) && (likep->weights_one==false)))
+    if ((likep->changingworkingweights==true) ||
+    ((likep->changingworkingweights==false) && (likep->workingweightsone==false)))
       {
       for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
         {
@@ -940,8 +940,8 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
   else                              // additive
     {
 
-    if ((likep->changingweight==true) ||
-    ((likep->changingweight==false) && (likep->weights_one==false)))
+    if ((likep->changingworkingweights==true) ||
+    ((likep->changingworkingweights==false) && (likep->workingweightsone==false)))
       {
       for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
         {
@@ -1006,8 +1006,8 @@ void DESIGN::compute_partres(int begin,int end,double & res, double & f)
 
     double * workintvar = intvar.getV()+begin;
 
-    if ((likep->changingweight==true) ||
-    ((likep->changingweight==false) && (likep->weights_one==false)))
+    if ((likep->changingworkingweights==true) ||
+    ((likep->changingworkingweights==false) && (likep->workingweightsone==false)))
       {
       res = 0;
       if (begin != -1)
@@ -1038,8 +1038,8 @@ void DESIGN::compute_partres(int begin,int end,double & res, double & f)
   else                              // additive
     {
 
-    if ((likep->changingweight==true) ||
-    ((likep->changingweight==false) && (likep->weights_one==false)))
+    if ((likep->changingworkingweights==true) ||
+    ((likep->changingworkingweights==false) && (likep->workingweightsone==false)))
       {
       res = 0;
       if (begin != -1)

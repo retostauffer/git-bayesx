@@ -371,7 +371,7 @@ bool FC_hrandom::posteriormode_multexp(void)
   // linpred = etarest + exp(random_effect)* intvar
 
   likep->optionbool1 = true;
-  likep->changingweight = true;
+  likep->changingworkingweights = true;
   likep->updateIWLS = true;
 
   update_response_multexp();     // linpred = random_effect*intvar
@@ -381,7 +381,7 @@ bool FC_hrandom::posteriormode_multexp(void)
   update_linpred_multexp();
 
   likep->optionbool1 = false;
-  likep->changingweight = false;
+  likep->changingworkingweights = false;
   likep->updateIWLS = false;
 
   likep->response.assign(response_o);

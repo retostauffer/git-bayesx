@@ -6,16 +6,16 @@ namespace MCMC
 {
 
 
-bool DISTR::check_workingweights_one(void)
+bool DISTR::check_weightsone(void)
   {
   unsigned i=0;
-  double * work_workingweight = workingweight.getV();
+  double * work_weight = weight.getV();
   bool one = true;
   while (i<nrobs && one == true)
     {
-    if (*work_workingweight != 1)
+    if (*work_weight != 1)
       one = false;
-    work_workingweight++;
+    work_weight++;
     i++;
     }
   return one;  
@@ -45,7 +45,6 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   if (w.rows() == 1)
     {
     weight = datamatrix(r.rows(),1,1);
-    weights_one=true;
     }
   else
     {
@@ -53,9 +52,12 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
     }
 
   workingweight = weight;
-  weights_one = check_workingweights_one();
+  changingworkingweights = true;
+  workingweightsone = false;
 
-  changingweight = false;
+  weightsone = check_weightsone();
+
+  wtype = wweightschange_weightsneqone;
 
   weightname = "W";
 
@@ -90,8 +92,10 @@ DISTR::DISTR(const DISTR & d)
   weightname = d.weightname;
 
   workingweight = d.workingweight;
-  changingweight = d.changingweight;
-  weights_one = d.weights_one;
+  changingworkingweights = d.changingworkingweights;
+  workingweightsone = d.workingweightsone;
+  weightsone = d.weightsone;
+  wtype = d.wtype;
 
   linearpred1 = d.linearpred1;
   linearpred2 = d.linearpred2;
@@ -126,8 +130,10 @@ const DISTR & DISTR::operator=(const DISTR & d)
   weightname = d.weightname;
 
   workingweight = d.workingweight;
-  changingweight = d.changingweight;
-  weights_one = d.weights_one;
+  changingworkingweights = d.changingworkingweights;
+  workingweightsone = d.workingweightsone;
+  weightsone = d.weightsone;  
+  wtype = d.wtype;
 
   linearpred1 = d.linearpred1;
   linearpred2 = d.linearpred2;
@@ -177,8 +183,16 @@ double DISTR::loglikelihood(const bool & current) const
       worklin = linearpred1.getV();
     }
 
-  for (i=0;i<nrobs;i++,workweight++,worklin++,workres++)
-    help += loglikelihood(workres,worklin,workweight);
+  if (weightsone==true)
+    {
+    for (i=0;i<nrobs;i++,worklin++,workres++)
+      help += loglikelihood_weightsone(workres,worklin);
+    }
+  else
+    {
+    for (i=0;i<nrobs;i++,workweight++,worklin++,workres++)
+      help += loglikelihood(workres,worklin,workweight);
+    }
 
   return help;
 
@@ -342,13 +356,58 @@ double DISTR::compute_iwls(const bool & current, const bool & like)
 
   double likelihood = 0;
 
-  for (i=0;i<nrobs;i++,workweight++,work_workingweight++,workresponse++,
-          work_workingresponse++,worklin++)
+  if (wtype==wweightschange_weightsneqone)
     {
 
-    likelihood += compute_iwls(workresponse,worklin,
-                               workweight,work_workingweight,
-                               work_workingresponse,like);
+    for (i=0;i<nrobs;i++,workweight++,work_workingweight++,workresponse++,
+          work_workingresponse++,worklin++)
+      {
+
+      likelihood += compute_iwls(workresponse,worklin,
+                                 workweight,work_workingweight,
+                                 work_workingresponse,like);
+      }
+
+    }
+  else if (wtype==wweightschange_weightsone)
+    {
+
+    for (i=0;i<nrobs;i++,work_workingweight++,workresponse++,
+          work_workingresponse++,worklin++)
+      {
+
+      compute_iwls_wweightschange_weightsone(workresponse,worklin,
+                                 work_workingweight,work_workingresponse,
+                                 likelihood,like);
+      }
+
+
+    }
+  else if (wtype==wweightsnochange_constant)
+    {
+
+    for (i=0;i<nrobs;i++,work_workingweight++,workresponse++,
+          work_workingresponse++,worklin++)
+      {
+
+      compute_iwls_wweightsnochange_constant(workresponse,worklin,
+                                 work_workingweight,work_workingresponse,
+                                 likelihood,like);
+      }
+
+    }
+  else if (wtype==wweightsnochange_one)
+    {
+
+    for (i=0;i<nrobs;i++,workresponse++,
+          work_workingresponse++,worklin++)
+      {
+
+      compute_iwls_wweightsnochange_one(workresponse,worklin,
+                                        work_workingresponse,
+                                        likelihood,like);
+      }
+
     }
 
   // TEST
@@ -409,12 +468,17 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
 
   {
 
+
+  if (check_weightsone())
+    wtype = wweightsnochange_one;
+  else
+    wtype = wweightsnochange_constant;
+
   a_invgamma = a;
   b_invgamma = b;
   family = "Gaussian";
 
   standardise();
-//   trmult=1;
 
   FCsigma2 = FC(o,"",1,1,ps,false);
   FCsigma2.transform(0,0) = pow(trmult,2);
@@ -460,7 +524,7 @@ void DISTR_gaussian::standardise(void)
   for (i=0;i<nrobs;i++,workresp++,worklin++,resp_p++)
    {
    *workresp = *workresp/trmult;
-   *resp_p = (*resp_p)/trmult;   
+   *resp_p = (*resp_p)/trmult;
    *worklin = *worklin/trmult;
    }
 
@@ -553,6 +617,15 @@ double DISTR_gaussian::loglikelihood(double * res, double * lin,
   }
 
 
+double DISTR_gaussian::loglikelihood_weightsone(double * res, double * lin) const
+  {
+  double help = *res-*lin;
+  return  - (pow(help,2))/(2* sigma2);
+
+
+  }
+
+
 double DISTR_gaussian::compute_iwls(double * response, double * linpred,
                               double * weight, double * workingweight,
                               double * workingresponse, const bool & like)
@@ -562,9 +635,49 @@ double DISTR_gaussian::compute_iwls(double * response, double * linpred,
   if (like)
     return  - *weight * (pow(*response-(*linpred),2))/(2* sigma2);
   else
-    return 0;  
-  
+    return 0;
   }
+
+
+void DISTR_gaussian::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  *workingweight=1;
+  *workingresponse = *response;
+  if (compute_like)
+    like -=  (pow(*response-(*linpred),2))/(2* sigma2);
+
+  }
+
+
+void DISTR_gaussian::compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  *workingresponse = *response;
+  if (compute_like)
+    like  =- *workingweight * (pow(*response-(*linpred),2))/(2* sigma2);
+  }
+
+
+void DISTR_gaussian::compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  *workingresponse = *response;
+  if (compute_like)
+    like -=  (pow(*response-(*linpred),2))/(2* sigma2);
+  }
+
 
 bool DISTR_gaussian::posteriormode(void)
   {
@@ -738,7 +851,7 @@ DISTR_gaussian_exp::DISTR_gaussian_exp(const double & a,
 
   {
   standardise();
-  changingweight = true;
+  changingworkingweights = true;
   updateIWLS = true;
   }
 
@@ -926,7 +1039,7 @@ DISTR_gaussian_mult::DISTR_gaussian_mult(const double & a,
   {
   standardise();
   optionbool1 = false;
-  changingweight = false;
+  changingworkingweights = false;
   updateIWLS = false;  
   }
 
@@ -937,14 +1050,14 @@ void DISTR_gaussian_mult::set_mult(bool & m)
   if (m==true)
     {
     optionbool1 = true;
-    changingweight = true;
+    changingworkingweights = true;
     updateIWLS = true;
 
     }
   else
     {
     optionbool1 = false;
-    changingweight = false;
+    changingworkingweights = false;
     updateIWLS = false;
     }
 

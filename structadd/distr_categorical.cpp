@@ -16,8 +16,12 @@ DISTR_binomial::DISTR_binomial(GENERAL_OPTIONS * o, const datamatrix & r,
 
   {
 
+  if (check_weightsone() == true)
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+
   family = "Binomial";
-  changingweight = true;
   updateIWLS = true;
   }
 
@@ -55,6 +59,17 @@ double DISTR_binomial::loglikelihood(double * response, double * linpred,
     return *weight *(*response * *linpred - *linpred);
   else
     return *weight *(*response * *linpred - log(1+exp(*linpred)));
+  }
+
+
+double DISTR_binomial::loglikelihood_weightsone(
+                                  double * response, double * linpred) const
+  {
+
+  if (*linpred >= 10)
+    return *response * (*linpred) - *linpred;
+  else
+    return *response * (*linpred) - log(1+exp(*linpred));
   }
 
 
@@ -121,6 +136,60 @@ double DISTR_binomial::compute_iwls(double * response, double * linpred,
     }
 
   }
+
+
+void DISTR_binomial::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+
+  double el = exp(*linpred);
+  double mu = el/(1+el);
+  if(mu > 0.999)
+    mu = 0.999;
+  if(mu < 0.001)
+    mu = 0.001;
+  double v = mu*(1-mu);
+
+  *workingweight =  v;
+
+  *workingresponse = *linpred + (*response - mu)/v;
+
+  if (compute_like)
+    {
+    if (*linpred >= 10)
+      like += *response * (*linpred) - *linpred;
+    else
+      like += *response * (*linpred) - log(1+el);
+    }
+
+  }
+
+  
+void DISTR_binomial::compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+
+  }
+
+void DISTR_binomial::compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+
+  }
+
 
 
 } // end: namespace MCMC

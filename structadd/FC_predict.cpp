@@ -206,7 +206,7 @@ void FC_predict::outresults_DIC(void)
     d = 8;
 
 
-  optionsp->out("  Estimation results for the DIC: \n",true);
+  optionsp->out("  ESTIMATION RESULTS FOR THE DIC: \n",true);
   optionsp->out("\n");
 
   optionsp->out("  DIC based on the unstandardized deviance\n");
@@ -280,7 +280,7 @@ void FC_predict::outresults_deviance(void)
     unsigned l_u2str = u2str.length();
 
 
-    optionsp->out("  Estimation results for the deviance: \n",true);
+    optionsp->out("  ESTIMATION RESULT FOR THE DEVIANCE: \n",true);
     optionsp->out("\n");
 
     optionsp->out("  Unstandardized Deviance (-2*Loglikelihood(y|mu))\n");
@@ -361,6 +361,8 @@ void FC_predict::outresults_deviance(void)
     devhelp = FC_deviance.betaqu_l1_upper(1,0);
     optionsp->out(u2str +  ST::string(' ',20-l_u2str) +
     ST::doubletostring(devhelp,d) +  "\n");
+
+    optionsp->out("\n");
 
     optionsp->out("\n");
 
