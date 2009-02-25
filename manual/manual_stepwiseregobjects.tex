@@ -2,13 +2,11 @@
 \normalsize
 \label{stepwisereg} \index{Stepwisereg object}
 
-{\em stepwisereg objects} are used to fit models with {\em structured
-additive predictor} subsumed in the class of {\em structured
-additive regression (STAR)} models, see Belitz and Lang (2007) and
-Fahrmeir, Kneib, and Lang (2004, 2007). In addition to {\em bayesreg} and
-{\em remlreg objects} described in the previous two chapters, {\em stepwisereg
-objects} are also able to perform model choice and variable selection. Model
-choice and estimation of the parameters is done simultaneously. The algorithms of {\em stepwisereg objects} are able to
+{\em stepwisereg objects} are used to fit models with {\em structured additive predictor} subsumed in the class of {\em
+structured additive regression (STAR)} models, see \citeasnoun{BelLan07} and \citeasnoun{FahKneLan04}. In addition to {\em
+bayesreg} and {\em remlreg objects} described in the previous two chapters, {\em stepwisereg objects} are also able to perform
+model choice and variable selection. Model choice and estimation of the parameters is done simultaneously. The algorithms of
+{\em stepwisereg objects} are able to
 \begin{itemize}
 \item decide whether a particular covariate enters the model,
 \item decide whether a continuous covariate enters the model linearly or nonlinearly,
@@ -17,11 +15,11 @@ choice and estimation of the parameters is done simultaneously. The algorithms o
 \item select complex interaction effects (two dimensional surfaces, varying coefficient terms),
 \item select the degree of smoothness of  nonlinear covariate, spatial or cluster specific heterogeneity effects.
 \end{itemize}
-Inference is based on penalized likelihood in combination with fast algorithms for selection relevant covariates
-and model terms. Different models are compared via various goodness of fit criteria., e.g. AIC, BIC,
-GCV and 5 or 10 fold cross validation. Models with structured additive predictor and the algorithms for model
-choice and variable selection are described in considerable detail in the methodology manual. More details on the
-algorithms for model choice and variable selection are given in Belitz and Lang (2007) and Belitz (2007).
+Inference is based on penalized likelihood in combination with fast algorithms for selection relevant covariates and model
+terms. Different models are compared via various goodness of fit criteria., e.g. AIC, BIC, GCV and 5 or 10 fold cross
+validation. Models with structured additive predictor and the algorithms for model choice and variable selection are described
+in considerable detail in the methodology manual. More details on the algorithms for model choice and variable selection are
+given in \citeasnoun{BelLan07} and \citeasnoun{Bel07}.
 
 \index{Generalized linear models} \index{Generalized additive
 models} \index{Varying coefficients} \index{Bayesian semiparametric
@@ -1251,15 +1249,15 @@ DEFAULT: {\tt steps = 100}
                  &         &           & cdescent3 & adaptive/exact search \\
                  &         &           & stepwise  & stepwise algorithm \\
 \hline
-{\tt criterion}  & string  & GCV       & GCV      & Generalized Cross Validation based on deviance residuals, see e.g. Wood (2006a) \\
+{\tt criterion}  & string  & GCV       & GCV      & Generalized Cross Validation based on deviance residuals, see e.g. \citeasnoun{Woo06a} \\
                  &         &           & GCVrss   & Generalized Cross Validation based on residual sum of squares
-                                                    (for Gaussian responses GCV and GCVrss coincide), see e.g. Wood (2006a) \\
-                 &         &           & AIC      & Akaike Information Criterion, see e.g. Burnham and Anderson (1998) \\
-                 &         &           & AIC\_imp & improved AIC with bias correction for regression models, see e.g. Burnham and Anderson (1998) \\
-                 &         &           & BIC      & Bayesian information criterion, see e.g. Hastie et al. (2001)  \\
+                                                    (for Gaussian responses GCV and GCVrss coincide), see e.g. \citeasnoun{Woo06a} \\
+                 &         &           & AIC      & Akaike Information Criterion, see e.g. \citeasnoun{BurAnd98} \\
+                 &         &           & AIC\_imp & improved AIC with bias correction for regression models, see e.g. \citeasnoun{BurAnd98} \\
+                 &         &           & BIC      & Bayesian information criterion, see e.g. \citeasnoun{HasTibFri01}  \\
                  &         &           & MSEP     & Mean Squared Error Prediction \\
-                 &         &           & CV5      & 5--fold cross validation, see e.g. Hastie et al. (2001)\\
-                 &         &           & CV10     & 10--fold cross validation, see e.g. Hastie et al. (2001) \\
+                 &         &           & CV5      & 5--fold cross validation, see e.g. \citeasnoun{HasTibFri01}\\
+                 &         &           & CV10     & 10--fold cross validation, see e.g. \citeasnoun{HasTibFri01} \\
                  &         &           & AUC      & area under the ROC curve
                                                     (binary response only) \\
 \hline
@@ -1294,9 +1292,10 @@ provide two alternatives for confidence interval estimation. These are
 \item confidence intervals conditional on the selected model, i.e. model uncertainty is not taken into account. The confidence intervals are
 based on MCMC simulations from the posterior. Pointwise (Bayesian) confidence intervals are simply obtained by computing the respective
 quantiles of simulated parameters and function evaluations. Conditional confidence intervals are specified by {\tt CI = MCMCselect}.
-\item unconditional confidence intervals where model uncertainty is taken into account. The computation is based on bootstrap confidence intervals
-proposed by Wood (2006b), see page ?? of the methodology manual for details. Unconditional confidence intervals are specified by {\tt CI = MCMCbootstrap}.
-The number of bootstrap samples is specified using option {\tt bootstrapsamples}, see below.
+\item unconditional confidence intervals where model uncertainty is taken into account. The computation is based on
+    bootstrap confidence intervals proposed by \citeasnoun{Woo06b}, see the methodology manual for details.
+    Unconditional confidence intervals are specified by {\tt CI = MCMCbootstrap}. The number of bootstrap samples is
+    specified using option {\tt bootstrapsamples}, see below.
 \end{itemize}
 Both alternatives are computer intensive. Conditional confidence intervals take much less computing time than unconditional intervals. The advantage of
 unconditional confidence intervals is that sampling distributions for the degrees of freedom or smoothing parameters are obtained. \\
@@ -1591,30 +1590,3 @@ nonparametric effect of #X# in file
 
 Visualization of estimation results is described in
 \autoref{visualization}
-
-\section{References}
-\label{stepwiseregreferences}
-
-\begin{description}
-\item[Belitz, C. (2007):] {\it Model Selection in Generalized Structured Additive Regression Models.} PhD Thesis, University of Munich.
-
-\item [Belitz, C. and Lang, S. (2007):] Simultaneous selection of variables and smoothing
-parameters in structured additive regression models. {\it Technical Report}, University of Innsbruck.
-
-\item[Burnham, K.P. and Anderson, D.R., (1998):] {\it Model Selection and Multimodel Inference.} Springer, New York.
-
-\item[Chambers, J.M. and Hastie, T. (1991):] {\it Statistical Models in S.} Chapman and Hall.
-
-\item[Fahrmeir, L., Kneib, T. and Lang, S. (2004):] Penalized
-structured additive regression for space-time data: A Bayesian
-perspective. {\it Statistica Sinica}, 14, 715-745.
-
-\item[Fahrmeir, L., Kneib, T. and Lang, S. (2007):] {\it Regression. Modelle, Methoden und Anwendungen.} Springer Verlag, Berlin.
-
-\item[Hastie, T.J. and Tibshirani, R.J. and Friedman, J. (2001):] {\it The Elements of Statistical Learning.} Springer, New York.
-
-\item[Wood, S.N. (2006a):] {\it Generalized Additive Models: An Introduction with R.} Chapman and Hall.
-
-\item[Wood, S.N. (2006b):] On confidence intervals for GAMs based on penalized regression splines.
-{\it Australian and New Zealand Journal of Statistics}, 48, 445-464.
-\end{description}

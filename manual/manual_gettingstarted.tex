@@ -13,63 +13,57 @@ three data sets that will be used for demonstrating purposes in
 the later chapters.
 
 \section{Available versions of BayesX}
-\label{availableversions} \index{Java based version} \index{Non-Java
-based version} \index{Versions} \index{Versions!Java based}
-\index{Versions!Non-Java based}
+\label{availableversions} \index{Windows version} \index{Command line version} \index{Versions} \index{Versions!Windows}
+\index{Versions!Command line}
 
-In its current form, {\em BayesX} runs only under the various
-versions of the Windows operating system (e.g. Windows 95, 98,
-2000, NT, XP). The graphical user interface and the visualisation
-tools are implemented in Java, while the computerintensive parts
-of the program have been implemented in C++. The current version
-of {\em BayesX} can be downloaded from
-\href{http://www.stat.uni-muenchen.de/~bayesx}
+Currently, {\it BayesX} is available in two different versions. The first one is intended for the various versions of the
+Windows operating system (e.g. Windows 95, 98, 2000, NT, XP, Vista) and includes a graphical user interface that enables
+visualisation of estimated effects. While the computational kernel of {\it BayesX} has been implemented in C++, the graphical
+user interface has been implemented in Java.
+
+The second version of {\it BayesX} is a command line version that is based purely on C++ and comes without any graphics
+facilities. While the Windows version is provided as a pre-compiled binary with an easy to use installer, the command line
+version is provided in terms of source code and has to be compiled on your system. A make file is provided that assumes that
+the GNU C++ compiler is available on your system. Hence, the command line version is suitable for any operating system that
+supports the GNU compiler family and has been successfully tested on Windows, Linux and Mac OS.
+
+As a supplement to both versions, an additional R package {\it BayesX} is available from CRAN
+(\href{http://www.r-project.org}{http://www.r-project.org}). While this package does not provide direct access to {\it BayesX}
+from within R at the moment (this is planned for the future), it provides additional visualisation routines and additional
+functionality for handling geographical information.
+
+The current releases of both {\em BayesX} versions can be downloaded from \href{http://www.stat.uni-muenchen.de/~bayesx}
 {http://www.stat.uni-muenchen.de/\~{}bayesx}.
 
-Up to version 1.3, {\em BayesX} has been distributed in two
-versions, the {\em Java based version} described above and a {\em
-non-Java based version}, which was written completely in C++.
-Since the Java based version has additional features, the non-Java
-based version is no longer supported.
+Most of this manual applies for both versions of {\it BayesX}. However, those parts that deal with visualisation of data sets
+or estimation results are exclusively for the Windows version.
 
 \section{Installing BayesX}\label{installbayesx}
 \index{Installation} \index{Installation directories}
 
-After you have downloaded the file #installBayesX.exe# from the
-{\em BayesX} homepage, proceed by executing this file. The
-installation process is quite simple and comparable to most
-standard installations. The installation routine will request all
-necessary information.
+Depending on the version of {\it BayesX} you are planning to use, there are two different ways to install it on your computer.
+For the Windows version, you have to download the installation routine from the {\em BayesX} homepage and execute it (with
+administrator privileges for Windows Vista). The installation routine will request all necessary information during the
+installation process. Note that it is recommended to install BayesX in a directory without spaces in the path name. When {\em
+BayesX} has been installed successfully, it can be started using the {\em Windows Start} button or the icon created on the
+desktop (depending on your specifications during the installation process).
 
-When {\em BayesX} has been installed successfully, it can be
-started using the {\em Windows Start} button or the icon created
-on the desktop (depending on your specifications during the
-installation process). The installation directory contains the
-five subdirectories #doc#, #examples#, #output#, #sfunctions# and
-#temp#. The #doc# directory contains the program documentation,
-i.e. the three {\em BayesX} manuals (see the following
-subsection). The #examples# directory contains the three data
-sets, #credit.raw#, #rents.raw# and #zambia.raw#, which will be
-used for demonstrating purposes throughout the manual. A detailed
-description of these data sets is given in
-\autoref{datadescription}. The #examples# directory also contains
-some tutorial programs that illustrate the usage of {\em BayesX},
-see the tutorials manual. The #output# directory is the default
-directory for program output stored in files. Of course, the
-output window can be redefined by the user, compare
-\autoref{bayesregglobopt} and \autoref{remlregglobopt}. The
-#sfunctions# directory contains some R and S-plus functions for
-visualizing estimation results obtained with {\em bayesreg
-objects} or {\em remlreg objects}, see \autoref{splus} for a
-detailed description of these functions. Note, however, that the
-current {\em BayesX} version has its own graphics capabilities,
-see \autoref{graphobj} and \autoref{visualization} for details.
-Finally, temporary files created when estimating regression models
-will be stored in the #temp# directory. Usually you will never use
-this directory.
+For the command line version, you have to unpack the zip archive containing the source code of {\it BayesX}. If you have the
+make facility available, you can simply type #make BayesX# in the shell and {\it BayesX} will be compiled. Depending on your
+operating system, some minor modifications of the make file (for example relating to the version of the GNU compiler you have
+installed or the location of the readline library) may be necessary.
 
-The subdirectories and their content are briefly summarized in
-\autoref{dirtable}.
+After a successful installation, there should be four subdirectories in the installation directors. The #doc# directory
+contains the program documentation, i.e. the three {\em BayesX} manuals (see the following subsection). The #examples#
+directory contains the three data sets, #credit.raw#, #rents.raw# and #zambia.raw#, which will be used for demonstrating
+purposes throughout the manual. A detailed description of these data sets is given in \autoref{datadescription}. The #examples#
+directory also contains some tutorial programs that illustrate the usage of {\em BayesX}, see the tutorials manual. The
+#output# directory is the default directory for program output stored in files. Of course, the output window can be redefined
+by the user, compare \autoref{bayesregglobopt}, \autoref{remlregglobopt} and \autoref{stepwiseregglobopt}. Finally, temporary
+files created when estimating regression models will be stored in the #temp# directory. Usually you will never use this
+directory.
+
+The subdirectories and their content are briefly summarized in \autoref{dirtable}.
 
 \begin{table}[ht]
 \begin{center}
@@ -80,140 +74,102 @@ Directory & Content \\
 #doc# & the {\em BayesX} manuals \\
 #examples# & data set examples and tutorial programs \\
 #output# & default directory for estimation output \\
-#sfunctions# & R and S-plus functions for visualizing output \\
 #temp# & temporary files \\
 \hline
 \end{tabular}
-{\em\caption{ \label{dirtable} Subdirectories of the installation
-directory and their content.}}
+{\em\caption{ \label{dirtable} Subdirectories of the installation directory and their content.}}
 \end{center}
 \end{table}
 
 \section{Manuals}\label{bayesxmanuals}
 \index{Manuals}
 
-{\em BayesX} is shipped with three different manuals. The
-reference manual (i.e. the manual you are just reading) gives
-detailed information on the general usage of BayesX, the syntax of
-{\em BayesX} commands and the different objects used by {\em
-BayesX}. The methodology manual provides background information on
-the statistical methodology that is implemented in {\em BayesX}.
-In this manual you will also find more references on the
-methodological background. The tutorial manual is intended to make
-new users familiar with the usage of {\em BayesX} by demonstrating
-examples. It contains two self-contained tutorials, describing how
-to perform semiparametric regression analyses using {\em BayesX}.
-The manuals are also available from the help menu and can be found
-in the #doc# directory (a subdirectory of the installation
-directory).
+{\em BayesX} is shipped with three different manuals. The reference manual (i.e. the manual you are just reading) gives
+detailed information on the general usage of BayesX, the syntax of {\em BayesX} commands and the different objects used by {\em
+BayesX}. The methodology manual provides background information on the statistical methodology that is implemented in {\em
+BayesX}. In this manual, you will also find more references on the methodological background. The tutorial manual is intended
+to make new users familiar with the usage of {\em BayesX} by demonstrating examples. It contains three self-contained
+tutorials, describing how to perform semiparametric regression analyses using {\em BayesX}. All three manuals can be found in
+the #doc# directory (a subdirectory of the installation directory). In the Windows version of {\it BayesX}, the manuals are
+also available from the help menu.
 
 \section{Windows and buttons in BayesX}\label{bayesxwindows}
 \index{Windows}
 
-After starting {\em BayesX} you will see a main window with a menu
-bar and four additional subwindows. The four windows are the {\em
-command window}, the {\em output window}, the {\em review window}
-and the {\em object browser}. The purpose of these windows is
-described in the following four subsections. Below the menu bar
-there is a menu bar containing the buttons BREAK, PAUSE and
-SUPPRESS OUTPUT, and the priority menu. Their functionality is
-described in subsection \ref{buttons} and \ref{prioritymenu}.
+This section only applies to the Windows version of {\it BayesX}
+
+After starting {\em BayesX} you will see a main window with a menu bar and four additional subwindows. The four windows are the
+{\em command window}, the {\em output window}, the {\em review window} and the {\em object browser}. The purpose of these
+windows is described in the following four subsections. Below the menu bar there is a menu bar containing the buttons BREAK,
+PAUSE and SUPPRESS OUTPUT, and the priority menu. Their functionality is described in subsection \ref{buttons} and
+\ref{prioritymenu}.
 
 \subsection{The command window}
 \index{Command window} \index{Windows!Command}
 
-Allmost all {\em BayesX} commands are entered and executed in the
-{\em command window}. By default, a command will be executed if
-you press the return key. You can change this default delimiter
-using the #delimiter# command, see \autoref{delimiter}.
+Allmost all {\em BayesX} commands are entered and executed in the {\em command window}. By default, a command will be executed
+if you press the return key. You can change this default delimiter using the #delimiter# command, see \autoref{delimiter}.
 
 \subsection{The output window}
 \index{Output window} \index{Windows!Output}
 
-In the {\em output window}, all commands entered in the {\em
-command window} or executed through a batch file (see
+In the {\em output window}, all commands entered in the {\em command window} or executed through a batch file (see
 \autoref{batch}) are printed together with the program output.
 
-\index{Saving the output} The content of the {\em output window} can
-be saved and processed with your favorite text editor. For saving
-the output, enter the {\em file menu} and click on {\em Save output}
-or {\em Save output as}. The file save dialog will allow you to
-choose between two different file formats. The default is the
-rich-text format but it is also possible to store the {\em output
-window} in plain ASCII format. This, however, has the disadvantage
-that all text highlights (for example bold letters) will disappear
-in the saved file.
+\index{Saving the output} The content of the {\em output window} can be saved and processed with your favorite text editor. For
+saving the output, enter the {\em file menu} and click on {\em Save output} or {\em Save output as}. The file save dialog will
+allow you to choose between two different file formats. The default is the rich-text format but it is also possible to store
+the {\em output window} in plain ASCII format. This, however, has the disadvantage that all text highlights (for example bold
+letters) will disappear in the saved file.
 
-The {\em file menu} also allows to clear the {\em output window}
-(i.e. delete the content of the window) or to open an already
+The {\em file menu} also allows to clear the {\em output window} (i.e. delete the content of the window) or to open an already
 existing file.
 
-Depending on the screen resolution of your computer, letters
-appearing in the {\em output window} may be very small or too
+Depending on the screen resolution of your computer, letters appearing in the {\em output window} may be very small or too
 large. The font size can be varied in the {\em preferences menu}.
 
 \subsection{The review window}
 \index{Review window} \index{Windows!Review}
 
-In many cases, subsequent commands change only slightly. The {\em
-review window} gives you convenient access to the last 100 past
-commands entered during a session. Double click on one of these
-past commands and it is automatically copied to the {\em command
-window}, where it can be modified and / or executed again.
+In many cases, subsequent commands change only slightly. The {\em review window} gives you convenient access to the last 100
+past commands entered during a session. Double click on one of these past commands and it is automatically copied to the {\em
+command window}, where it can be modified and / or executed again.
 
 \subsection{The object browser}
 \index{Object browser}
 
-{\em BayesX} is object oriented, i.e. different types of objects
-are used to store data, estimate regression models, etc. The {\em
-object browser} provides an overview of the objects currently
-defined and about their contents. The {\em object browser} window
-is split into two parts. The left part displays the different
-object types currently supported by {\em BayesX} ({\em dataset
-objects}, {\em bayesreg objects}, {\em remlreg objects}, {\em map
-objects}, {\em dag objects} and {\em graph objects})s. By clicking
-on one of the object types, the names of all objects of this type
-will appear in the right panel of the {\em object browser}. Double
-clicking on one of the names gives a visualization of the object
-and / or a short summary in the {\em output window}, depending on
-the object type. Double clicking on {\em dataset objects}, for
-example, will open a spreadsheet where the variables and the
-observations of the data set can be inspected. Clicking on {\em
-map objects} opens a window that contains a graphical
-representation of the map.
+{\em BayesX} is object oriented, i.e. different types of objects are used to store data, estimate regression models, etc. The
+{\em object browser} provides an overview of the objects currently defined and about their contents. The {\em object browser}
+window is split into two parts. The left part displays the different object types currently supported by {\em BayesX} ({\em
+dataset objects}, {\em bayesreg objects}, {\em remlreg objects}, {\em map objects}, {\em dag objects} and {\em graph
+objects})s. By clicking on one of the object types, the names of all objects of this type will appear in the right panel of the
+{\em object browser}. Double clicking on one of the names gives a visualization of the object and / or a short summary in the
+{\em output window}, depending on the object type. Double clicking on {\em dataset objects}, for example, will open a
+spreadsheet where the variables and the observations of the data set can be inspected. Clicking on {\em map objects} opens a
+window that contains a graphical representation of the map.
 
 \subsection{BREAK, PAUSE and SUPPRESS OUTPUT button}
 \label{buttons} \index{PAUSE button} \index{BREAK button}
 \index{SUPPRESS OUTPUT button} \index{Buttons} \index{Buttons!PAUSE}
 \index{Buttons!BREAK} \index{Buttons!SUPPRESS OUTPUT}
 
-The {\em BayesX} button panel contains the BREAK button, the PAUSE
-button and the SUPPRESS OUTPUT button. The purpose of the BREAK
-button is to interrupt the process that is currently executed
-(this may take some time). Clicking on the PAUSE button interrupts
-the current process temporarily until the button is pressed again.
-If a process is paused, the button caption PAUSE is replaced by
-CONTINUE, indicating that a second click on the button will
-continue the current process. Pausing a current process will
-increase the execution speed of other programs currently running
-on your computer. Clicking the SUPPRESS OUTPUT button suppresses
-printing of output in the {\em output window}. The button caption
-changes to SHOW OUTPUT to indicate that an additional click on the
-button will cause the program to print the output again.
-Suppressing the output increases the execution speed of {\em
-BayesX} and saves memory. Note, that you can store your output in
-a log-file even if printing of the output is suppressed (see
-\autoref{logfile}).
+The {\em BayesX} button panel contains the BREAK button, the PAUSE button and the SUPPRESS OUTPUT button. The purpose of the
+BREAK button is to interrupt the process that is currently executed (this may take some time). Clicking on the PAUSE button
+interrupts the current process temporarily until the button is pressed again. If a process is paused, the button caption PAUSE
+is replaced by CONTINUE, indicating that a second click on the button will continue the current process. Pausing a current
+process will increase the execution speed of other programs currently running on your computer. Clicking the SUPPRESS OUTPUT
+button suppresses printing of output in the {\em output window}. The button caption changes to SHOW OUTPUT to indicate that an
+additional click on the button will cause the program to print the output again. Suppressing the output increases the execution
+speed of {\em BayesX} and saves memory. Note, that you can store your output in a log-file even if printing of the output is
+suppressed (see \autoref{logfile}).
 
 \subsection{Priority menu}
 \label{prioritymenu} \index{Priority menu}
 
-When running extensive computations, it may be desirable to reduce
-the priority of BayesX since otherwise all further programs may be
-executed very slowly. The priority menu allows you to change the
-priority of your computations from within BayesX. Usually there
-should be no need to increase the priority (although it is
-possible). To pause the current computations use the PAUSE button.
+When running extensive computations, it may be desirable to reduce the priority of BayesX since otherwise all further programs
+may be executed very slowly. The priority menu allows you to change the priority of your computations from within BayesX.
+Usually there should be no need to increase the priority (although it is possible). To pause the current computations use the
+PAUSE button.
 
 \section{General usage of BayesX}
 \label{generalusage}
@@ -221,33 +177,20 @@ possible). To pause the current computations use the PAUSE button.
 \subsection{Creating objects}
 \label{createobject} \index{Objects} \index{Objects!Create}
 
-{\em BayesX} is implemented in an object oriented way, although
-the object oriented concept does not go too far, i.e. inheritance
-or other concepts of object oriented programming languages such as
-S or C++ are not supported. As a consequence, the first thing to
-do during a session, is to create some objects. Currently, six
-different object types are available: {\em dataset objects}, {\em
-bayesreg objects}, {\em remlreg objects}, {\em map objects}, {\em
-dag objects} and {\em graph objects}. {\em Dataset objects} are
-used to store, handle, and manipulate data sets, see
-\autoref{datasetobj} for details. {\em Map objects} are used to
-handle geographical information and are covered in more detail in
-\autoref{map}. The main purpose of {\em map objects} is to serve
-as auxiliary objects for {\em bayesreg objects} or {\em remlreg
-objects} when estimating spatial effects. {\em Graph objects} are
-used to visualize data (e.g. to create scatterplots or to color
-geographical maps according to some numerical characteristics),
-see \autoref{graphobj} for details. The most important object
-types are {\em bayesreg objects} and {\em remlreg objects}. These
-objects are used to estimate Bayesian semiparametric regression
-models based on either Markov Chain Monte Carlo simulation
-techniques ({\em bayesreg objects}) or a mixed model
-representation of the regression model ({\em remlreg objects}).
-See \autoref{bayesreg} for a detailed description of {\em bayesreg
-objects} and \autoref{remlreg} for a detailed description of {\em
-remlreg objects}. {\em Dag objects} are used to estimate Gaussian
-or non-Gaussian DAGs (direct acyclic graphs) based on reversible
-jump MCMC simulation techniques (see \autoref{dag} for details).
+{\em BayesX} is implemented in an object oriented way, although the object oriented concept does not go too far, i.e.
+inheritance or other concepts of object oriented programming languages such as S or C++ are not supported. As a consequence,
+the first thing to do during a session, is to create some objects. Currently, six different object types are available: {\em
+dataset objects}, {\em bayesreg objects}, {\em remlreg objects}, {\em map objects}, {\em dag objects} and {\em graph objects}.
+{\em Dataset objects} are used to store, handle, and manipulate data sets, see \autoref{datasetobj} for details. {\em Map
+objects} are used to handle geographical information and are covered in more detail in \autoref{map}. The main purpose of {\em
+map objects} is to serve as auxiliary objects for {\em bayesreg objects} or {\em remlreg objects} when estimating spatial
+effects. {\em Graph objects} are used to visualize data (e.g. to create scatterplots or to color geographical maps according to
+some numerical characteristics), see \autoref{graphobj} for details. The most important object types are {\em bayesreg objects}
+and {\em remlreg objects}. These objects are used to estimate Bayesian semiparametric regression models based on either Markov
+Chain Monte Carlo simulation techniques ({\em bayesreg objects}) or a mixed model representation of the regression model ({\em
+remlreg objects}). See \autoref{bayesreg} for a detailed description of {\em bayesreg objects} and \autoref{remlreg} for a
+detailed description of {\em remlreg objects}. {\em Dag objects} are used to estimate Gaussian or non-Gaussian DAGs (direct
+acyclic graphs) based on reversible jump MCMC simulation techniques (see \autoref{dag} for details).
 
 The syntax for creating a new object is:
 
@@ -257,22 +200,17 @@ To create for example a {\em dataset object} with name #mydata#, simply type:
 
 #> dataset mydata#
 
-Note that some restrictions are imposed on the names of objects,
-i.e. not all object names are allowed. For example, object names
-have to begin with an uppercase or lowercase letter rather than a
-number. Section \ref{varnames} discusses valid variable names but
-the same rules apply also to object names.
+Note that some restrictions are imposed on the names of objects, i.e. not all object names are allowed. For example, object
+names have to begin with an uppercase or lowercase letter rather than a number. Section \ref{varnames} discusses valid variable
+names but the same rules apply also to object names.
 
 \subsection{Applying methods to previously defined objects}
 
-When an object has been created successfully, you can apply methods
-to that particular object. For instance, {\em dataset objects} may
-be used to read data stored in an ASCII file using method #infile#,
-to create new variables using method #generate#, to modify existing
-variables using method #replace# and so on. The syntax for applying
-methods to the objects is similar for all methods and independent of
-the particular object type. The general syntax is: \index{General
-syntax} \index{Syntax}
+When an object has been created successfully, you can apply methods to that particular object. For instance, {\em dataset
+objects} may be used to read data stored in an ASCII file using method #infile#, to create new variables using method
+#generate#, to modify existing variables using method #replace# and so on. The syntax for applying methods to the objects is
+similar for all methods and independent of the particular object type. The general syntax is: \index{General syntax}
+\index{Syntax}
 
 #># {\em objectname.methodname} [{\em model}] [#weight# {\em varname}] [#if# {\em boolean expression}] [, {\em options}] \\
 \hspace*{4.8cm} [#using# {\em usingtext}]
@@ -401,40 +339,19 @@ $L$ & location of the building in subquarters \\
 \end{table}
 
 
-\subsubsection*{References}
-
-\begin{description}
-
-\item[Lang, S. and Brezger, A. (2004):]
-\href{http://www.stat.uni-muenchen.de/~lang/publications.html}
-{Bayesian P-splines.} {\it Journal of Computational and Graphical
-Statistics}, 13, 183-212.
-
-\end{description}
-
-
 \subsection{Credit scoring}
 \label{creditdata} \index{Credit scoring} \index{Data set
 examples!Credit scoring}
 
-The aim of credit scoring is to model and / or predict the
-probability that a client with certain covariates ('risk factors')
-will not pay back his credit. The data set contained in the file
-#credit.raw# consists of 1000 consumer credits from a bank in
-southern Germany. The response variable is 'creditability' in
-dichotomous form ($y=0$ for creditworthy, $y=1$ for not
-creditworthy). In addition, 20 covariates that are assumed to
-influence creditability were collected. The present data set
-(stored in the #examples# directory) contains a subset of these
-covariates that proved to be the main influential variables on the
-response variable, see Fahrmeir and Tutz (2001, ch. 2.1).
-\autoref{creditdatavar} gives a description of the variables of
-the data set. Usually a binary logit model is applied to estimate
-the effect of the covariates on the probability of being not
-creditworthy. As in the case of the rents for flats example, this
-data set is used to demonstrate the usage of certain features of
-{\em BayesX}, see primarily \autoref{creditanalyse} for a Bayesian
-regression analysis of the data set.
+The aim of credit scoring is to model and / or predict the probability that a client with certain covariates ('risk factors')
+will not pay back his credit. The data set contained in the file #credit.raw# consists of 1000 consumer credits from a bank in
+southern Germany. The response variable is 'creditability' in dichotomous form ($y=0$ for creditworthy, $y=1$ for not
+creditworthy). In addition, 20 covariates that are assumed to influence creditability were collected. The present data set
+(stored in the #examples# directory) contains a subset of these covariates that proved to be the main influential variables on
+the response variable, see \citeasnoun[Ch.~2.1]{FahTut01}. \autoref{creditdatavar} gives a description of the variables of the
+data set. Usually a binary logit model is applied to estimate the effect of the covariates on the probability of being not
+creditworthy. As in the case of the rents for flats example, this data set is used to demonstrate the usage of certain features
+of {\em BayesX}, see primarily \autoref{creditanalyse} for a Bayesian regression analysis of the data set.
 
 \begin{table}[ht]
 
@@ -458,14 +375,6 @@ $marstat$ & marital status, with categories "married" ($=1$) and "living alone" 
 {\em \caption{\label{creditdatavar}Variables of the credit scoring
 data set.}}
 \end{table}
-
-\subsubsection*{References}
-
-\begin{description}
-\item [Fahrmeir, L., Tutz, G. (2001):] {\it Multivariate Statistical
-Modelling based on Generalized Linear Models.} New York:
-Springer--Verlag.
-\end{description}
 
 \subsection{Childhood undernutrition in Zambia}
 \label{zambia} \index{Childhood undernutrition} \index{Data set
@@ -492,8 +401,7 @@ mother, the age of the child, and the district the mother lives
 in). \autoref{zambiavar} gives more information on the covariates
 in the data set.
 
-This data set is used in chapter \ref*{zambiaanalysis} and
-\ref*{remlregzambiaanalysis} of the tutorial manual.
+This data set is used in the tutorial manual.
 
 \begin{table}[|h|t|]
 \begin{center}
@@ -519,12 +427,3 @@ This data set is used in chapter \ref*{zambiaanalysis} and
 \label{zambiavar}}}
 \end{center}
 \end{table}
-
-\subsubsection*{References}
-
-\begin{description}
-\item [Kandala, N. B., Lang, S., Klasen, S. and Fahrmeir, L. (2001):] Semiparametric Analysis of
-the Socio-Demographic and Spatial Determinants of Undernutrition
-in Two African Countries.{\it Research in Official Statistics}, 1,
-81-100.
-\end{description}

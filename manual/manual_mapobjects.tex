@@ -1,29 +1,21 @@
 \chapter{map objects}
 \label{map} \index{Map object}
 
-The purpose of {\em map objects} is to provide functionality for
-handling and storing geographical maps. In addition, {\em map
-objects} serve as auxiliary objects for regression models with
-spatial effects, where the effect of a location variable is to be
-included via a spatially correlated prior. In this context, {\em
-map objects} store the neighborhood structure of a map and provide
-functionality to compute weights associated with this neighborhood
-structure.
+The purpose of {\em map objects} is to provide functionality for handling and storing geographical maps. In addition, {\em map
+objects} serve as auxiliary objects for regression models with spatial effects, where the effect of a location variable is to
+be included via a spatially correlated prior. In this context, {\em map objects} store the neighborhood structure of a map and
+provide functionality to compute weights associated with this neighborhood structure.
 
-The typical approach will be as follows: A {\em map object} is
-created, the boundary information of a geographical map is read
-from an external file and stored in the {\em map object}. This can
-be achieved using the #infile# command, see \autoref{mapinfile}
-below. Based on the boundary information, the {\em map object}
-automatically computes the neighborhood structure of the map and
-the weights associated with the neighborhood structure. Since
-there are several proposals in the spatial statistics literature
-for defining weights, the user is given the choice between a
-couple of alternatives. Afterwards the {\em map object} can be
-passed to the #regress# function of a regression object to
-estimate regression models with spatial covariates, see
-\autoref{bayesreg} and \autoref{remlreg}, and in particular the
-subsections about spatial covariates therein.
+The typical approach will be as follows: A {\em map object} is created, the boundary information of a geographical map is read
+from an external file and stored in the {\em map object}. This can be achieved using the #infile# command, see
+\autoref{mapinfile} below. Based on the boundary information, the {\em map object} automatically computes the neighborhood
+structure of the map and the weights associated with the neighborhood structure. Since there are several proposals in the
+spatial statistics literature for defining weights, the user is given the choice between a couple of alternatives. Afterwards
+the {\em map object} can be passed to the #regress# function of a regression object to estimate regression models with spatial
+covariates, see \autoref{bayesreg} and \autoref{remlreg}, and in particular the subsections about spatial covariates therein.
+
+The {\it BayesX} R package (see~\autoref{rpackage}) provides some functionality for creating and manipulating boundary
+information and for storing it in file formats that can be processed by {\it BayesX}.
 
 \clearpage
 
@@ -218,15 +210,11 @@ in principle, there is no limitation for the names of regions in
 
 \subsubsection*{Structure of a graph file}
 
-A graph file stores the nodes and the edges of a graph $G =
-(N,E)$, see for example George and Liu (1981, Ch. 3) for a brief
-introduction to graph theory. A graph is a convenient way to
-represent the neighborhood structure of a geographical map, where
-the nodes of the graph correspond to the region codes while the
-neighborhood structure is represented by the edges of the graph.
-In some situations it can be useful to define weights associated
-with the edges of a graph which can be stored in the {\em graph
-file} as well.
+A graph file stores the nodes and the edges of a graph $G = (N,E)$, see for example \citeasnoun[Ch.~3]{GeoLiu81} for a brief
+introduction to graph theory. A graph is a convenient way to represent the neighborhood structure of a geographical map, where
+the nodes of the graph correspond to the region codes while the neighborhood structure is represented by the edges of the
+graph. In some situations it can be useful to define weights associated with the edges of a graph which can be stored in the
+{\em graph file} as well.
 
 In {\em BayesX}, the first line of a {\em graph file} has to
 contain the total number of nodes of the graph. Afterwards, each
@@ -398,12 +386,9 @@ object!Reorder command}
 
 \begin{stanza}{Description}
 
-Method #reorder# reorders the regions of a map to obtain an
-adjacency matrix with minimal envelope. A new map should always be
-reordered before using it with {\em bayesreg objects} since MCMC
-updates for spatial covariates will be much faster with an
-optimised envelope. {\em BayesX} uses the reverse Cuthill Mc-Kee
-algorithm to reorder maps, see George and Liu (1981) p. 58 ff.
+Method #reorder# reorders the regions of a map to obtain an adjacency matrix with minimal envelope. A new map should always be
+reordered before using it with {\em bayesreg objects} since MCMC updates for spatial covariates will be much faster with an
+optimised envelope. {\em BayesX} uses the reverse Cuthill Mc-Kee algorithm to reorder maps, see \citeasnoun[p.~58ff]{GeoLiu81}.
 \end{stanza}
 
 \begin{stanza}{Syntax}
@@ -417,15 +402,4 @@ smallest envelope of the corresponding adjacency matrix.}
 \begin{stanza}{Options}
 
 not allowed.
-\end{stanza}
-
-\begin{stanza}{Reference}
-
-{\begin{description}
-
-\item[George, A., Liu, J. W. (1981).] {\em Computer Solution of
-Large Sparse Positive Definite Systems.} Series in computational
-mathematics, Prentice-Hall.
-
-\end{description}}
 \end{stanza}

@@ -1,9 +1,7 @@
 \chapter{Special Commands}
 
-This chapter describes some commands that are not associated with
-a particular object type. Among others, there are commands for
-exiting {\em BayesX}, opening and closing log files, saving
-program output, deleting objects etc.
+This chapter describes some commands that are not associated with a particular object type. Among others, there are commands
+for exiting {\em BayesX}, opening and closing log files, saving program output, deleting objects etc.
 
 \section{Exiting BayesX}
 \index{Exiting BayesX}
@@ -16,27 +14,21 @@ or
 
 #> quit#
 
-in the {\em command window}. Of course, {\em BayesX} can also be
-closed using the 'exit' entry from the file menu or by clicking on
-the cross in the upper right corner.
+in the {\em command window} / on the command line. Of course, the Windows version of {\em BayesX} can also be closed using the
+'exit' entry from the file menu or by clicking on the cross in the upper right corner.
 
 \section{Opening and closing log files} \label{logfile}
 \index{Log files}
 
-Program output and commands entered by the user can automatically
-be stored in a log file to make them available for editing in your
-favorite text editor. Another important application of log files
-is the documentation of your work. A log file is opened by the
-command:
+Program output and commands entered by the user can automatically be stored in a log file to make them available for editing in
+your favorite text editor. Another important application of log files is the documentation of your work. A log file is opened
+by the command:
 
 #> logopen# [{\em, option}] #using# {\em filename}
 
-Afterwards all commands entered and all program output will be
-saved in the file {\em filename}. If the log file specified in
-{\em filename} is already existing, new output is appended at the
-end of the file. To overwrite an existing log file, option
-#replace# has to be specified in addition. Note that it is not
-allowed to open more than one log file simultaneously.
+Afterwards all commands entered and all program output will be saved in the file {\em filename}. If the log file specified in
+{\em filename} is already existing, new output is appended at the end of the file. To overwrite an existing log file, option
+#replace# has to be specified in addition. Note that it is not allowed to open more than one log file simultaneously.
 
 An open log file can be closed by typing:
 
@@ -47,52 +39,39 @@ Exiting {\em BayesX} automatically closes the current log file.
 \section{Saving the contents of the output window}
 \index{Output window!Saving the contents} \index{Saveoutput}
 
-You can save the contents of the {\em output window} not only with
-the {\em file$\rightarrow$save output} or {\em
-file$\rightarrow$save output as} menu, but also using the
-#saveoutput# command. This is particularly useful for automatic
-saving in batch files, see \autoref{batch}. The syntax for saving
-the {\em output window} is
+You can save the contents of the {\em output window} not only with the {\em file$\rightarrow$save output} or {\em
+file$\rightarrow$save output as} menu, but also using the #saveoutput# command. This is particularly useful for automatic
+saving in batch files, see \autoref{batch}. The syntax for saving the {\em output window} is
 
 #> saveoutput# [{\em , options}] #using# {\em filename}
 
-where {\em filename} is the file (including path) in which the
-contents of the output will be stored.
+where {\em filename} is the file (including path) in which the contents of the output will be stored.
 
 \subsection*{Options}
 
 \begin{itemize}
 \item # replace# \\
-By default an error will be raised if you try to store the
-contents of the {\em output window} in a file that is already
-existing. This preserves you from overwriting a file
-unintentionally. An already existing file can be overwritten by
+By default an error will be raised if you try to store the contents of the {\em output window} in a file that is already
+existing. This preserves you from overwriting a file unintentionally. An already existing file can be overwritten by
 explicitly specifying the #replace# option.
 \item #type = rtf #$|$# txt # \\
-The {\em output window} can be saved in two different file types,
-namely rich text format (the default) and plain ASCII (requested
-by specifying #type=txt# as an option.
+The {\em output window} can be saved in two different file types, namely rich text format (the default) and plain ASCII
+(requested by specifying #type=txt# as an option.
 \end{itemize}
 
 \section{Changing the delimiter}
 \label{delimiter} \index{Delimiter}
 
-By default, commands entered using the {\em command window} will
-be executed after pressing the return key. This can be
-inconvenient, in particular if your statements are long or in
-batch files. In this case it may be favorable to split a statement
-into several lines, and execute the command using a different
-delimiter.
+By default, commands entered using the {\em command window} will be executed after pressing the return key. This can be
+inconvenient, in particular if your statements are long or in batch files. In this case it may be favorable to split a
+statement into several lines, and execute the command using a different delimiter.
 
-You can change the delimiter using the #delimiter# command. The
-syntax is
+You can change the delimiter using the #delimiter# command. The syntax is
 
 #> delimiter# = {\em newdel}
 
-where {\em newdel} is the new delimiter. Only two different
-delimiters are currently allowed, namely the return key and the
-'#;#' (semicolon) key. To specify the semicolon as the delimiter,
-type
+where {\em newdel} is the new delimiter. Only two different delimiters are currently allowed, namely the return key and the
+'#;#' (semicolon) key. To specify the semicolon as the delimiter, type
 
 #> delimiter = ;#
 
@@ -100,9 +79,10 @@ and press return. To return to the return key as the delimiter, type
 
 #> delimiter = return;#
 
-Note that this statement has to end with a semicolon, since this
-was previously set to be the current delimiter.
+Note that this statement has to end with a semicolon, since this was previously set to be the current delimiter.
 
+Finally, note that it is not possible to change the delimiter for the command line. However, batch files (see the next section)
+with changed delimiter can also be used with the command line version of {\it BayesX}.
 
 \section{Using batch files}
 \label{batch} \index{Batch files}
@@ -125,7 +105,7 @@ file within a currently running batch file.
 \subsubsection*{Comments}\index{Comments}
 
 Comments in batch files are indicated by a  #%#
-sign, i.e. every line
+sign, i.e. every line 
 starting with #%# is ignored by the program.
 
 \subsubsection*{Changing the delimiter}

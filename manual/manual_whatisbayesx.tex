@@ -1,7 +1,8 @@
 \chapter{What is BayesX?}
 
 \begin{stanza}{General scope}
-{\em BayesX} is a software tool for estimating structured additive
+
+{\it BayesX} is a software tool for estimating structured additive
 regression models. Structured additive regression embrasses
 several well-known regression models such as generalized additive
 models (GAM), generalized additive mixed models (GAMM),
@@ -24,40 +25,25 @@ empirical Bayes inference. Both concepts have been implemented in
 separate regression objects:
 
 \begin{itemize}
-\item {\bf\sffamily MCMC simulation techniques (bayesreg
-objects):} A fully Bayesian interpretation of structured additive
-regression models is obtained by specifying prior distributions
-for all unknown parameters. Estimation can be facilitated using
-Markov chain Monte Carlo simulation techniques, a general and
-versatile concept for Bayesian inference. Bayesreg objects provide
-numerically efficient implementations of MCMC schemes for
-structured additive regression models. Suitable proposal densities
-have been developed to obtain rapidly mixing, well-behaved
-sampling schemes without the need for manual tuning.
-\item{\bf\sffamily Mixed model based estimation (remlreg
-objects):} An increasingly popular way to estimate semiparametric
-regression models is the representation of penalisation approaches
-as mixed models. Within {\em BayesX} this concept has been
-extended to structured additive regression models and several
-types of non-standard regression situations. The general idea is
-to take advantage of the close connection between penalty concepts
-and corresponding random effects distributions. The smoothing
-parameters of the penalties then transform to variance components
-in the random effects (mixed) model. While the selection of
-smoothing parameters has been a difficult task for a long time,
-several estimation procedures for variance components in mixed
-models are already available since the 1970's. The most popular
-one is restricted maximum likelihood in Gaussian mixed models with
-marginal likelihood as the non-Gaussian counterpart.<br> Remlreg
-objects employ mixed model methodology for the estimation of
-structured additive regression models. While regression
-coefficients are estimated based on penalised likelihood,
-restricted maximum likelihood or marginal likelihood estimation
-forms the basis for the determination of smoothing parameters.
-From a Bayesian perspective, this yields empirical Bayes /
-posterior mode estimates for the structured additive regression
-models. However, estimates can also merely be interpreted as
-penalised likelihood estimates from a frequentist perspective.
+\item {\bf\sffamily MCMC simulation techniques (bayesreg objects):} A fully Bayesian interpretation of structured additive
+    regression models is obtained by specifying prior distributions for all unknown parameters. Estimation can be
+    facilitated using Markov chain Monte Carlo simulation techniques, a general and versatile concept for Bayesian
+    inference. Bayesreg objects provide numerically efficient implementations of MCMC schemes for structured additive
+    regression models. Suitable proposal densities have been developed to obtain rapidly mixing, well-behaved sampling
+    schemes without the need for manual tuning.
+\item{\bf\sffamily Mixed model based estimation (remlreg objects):} An increasingly popular way to estimate semiparametric
+    regression models is the representation of penalisation approaches as mixed models. Within {\em BayesX }this concept
+    has been extended to structured additive regression  models and several types of non-standard regression situations.
+    The general idea is to take advantage of the close  connection between penalty concepts and corresponding random
+    effects distributions. The smoothing parameters of the  penalties then transform to variance components in the random
+    effects (mixed) model. While the selection of smoothing  parameters has been a difficult task for a long time, several
+    estimation procedures for variance components in mixed models are already available since the 1970's. The most popular
+    one is restricted maximum likelihood in Gaussian mixed models with marginal likelihood as the non-Gaussian counterpart.
+    Remlreg objects employ mixed model methodology for the estimation of structured additive regression models. While
+    regression coefficients are estimated based on penalised likelihood, restricted maximum likelihood or marginal
+    likelihood estimation forms the basis for the determination of smoothing parameters. From a Bayesian perspective, this
+    yields empirical Bayes / posterior mode estimates for the structured additive regression models. However, estimates can
+    also merely be interpreted as penalised likelihood estimates from a frequentist perspective.
 \end{itemize}
 \end{stanza}
 
@@ -68,83 +54,61 @@ penalised likelihood estimates from a frequentist perspective.
 responses:
 
 \begin{itemize}
-\item{\bf\sffamily Univariate exponential family:} Supported
-response distributions are Gaussian, Poisson, Binomial, Gamma,
-negative binomial, zero-inflated Poisson, and zero-inflated
-negative binomial.
+\item{\bf\sffamily Univariate exponential family:} Supported response distributions are Gaussian, Poisson, Binomial, Gamma,
+    negative binomial, zero-inflated Poisson, and zero-inflated negative binomial.
 
-\item{\bf\sffamily Categorical responses with unordered
-responses:} For categorical responses with unordered categories,
-{\em BayesX} supports multinomial logit and multinomial probit
-models. Both effects of category-specific and globally-defined
-covariates can be estimated. Category-specific offsets or
-non-availability indicators can be defined to account for varying
-choice sets.
+\item{\bf\sffamily Categorical responses with unordered responses:} For categorical responses with unordered categories,
+    {\em BayesX} supports multinomial logit and multinomial probit models. Both effects of category-specific and
+    globally-defined covariates can be estimated. Category-specific offsets or non-availability indicators can be defined
+    to account for varying choice sets.
 
-\item{\bf\sffamily Categorical responses with ordered responses:}
-For ordered categorical responses, ordinal as well as sequential
-models can be specified. Effects can be requested to be
-category-specific or to be constant over the categories. Supported
-response functions include the logit and the probit
-transformation.
+\item{\bf\sffamily Categorical responses with ordered responses:} For ordered categorical responses, ordinal as well as
+    sequential models can be specified. Effects can be requested to be category-specific or to be constant over the
+    categories. Supported response functions include the logit and the probit transformation.
 
-\item{\bf\sffamily Continuous time survival models:} {\em BayesX}
-supports Cox-type hazard regression models with structured
-additive predictor for continuous time survival analysis. In
-contrast to the Cox model, the baseline hazard rate is estimated
-jointly with the remaining effects based on penalized splines.
-Furthermore, both time-varying effects and time-varying covariates
-can be included in the predictor. Arbitrary combinations of right,
-left and interval censored as well as left truncated obserations
-can be analysed.
+\item{\bf\sffamily Continuous time survival models:} {\em BayesX} supports Cox-type hazard regression models with
+    structured additive predictor for continuous time survival analysis. In contrast to the Cox model, the baseline hazard
+    rate is estimated jointly with the remaining effects based on penalized splines. Furthermore, both time-varying effects
+    and time-varying covariates can be included in the predictor. Arbitrary combinations of right, left and interval
+    censored as well as left truncated obserations can be analysed.
 
-\item{\bf\sffamily Continuous time multi-state models:} In {\em
-BayesX} version 1.5 multi-state models have been added to the
-model class. Multi-state models form a general class for the
-analysis of the evolution of discrete phenomena in continuous
-time. Transition intensities between the discrete states are
-specified in analogy to the hazard rate in continuous time
-survival models.
+\item{\bf\sffamily Continuous time multi-state models:} Multi-state models form a general class for the analysis of the
+    evolution of discrete phenomena in continuous time. Transition intensities between the discrete states are specified in
+    analogy to the hazard rate in continuous time survival models.
 \end{itemize}
 
 Structured additive regression models can be build from arbitrary
 combinations of the following model terms:
 
 \begin{itemize}
-\item{\bf\sffamily Nonlinear effects:} Nonlinear effects can be
-estimated based on either penalised spline or random walk
-models.
+\item{\bf\sffamily Nonlinear effects:} Nonlinear effects can be estimated based on either penalised spline or random walk
+    models.
 
-\item{\bf\sffamily Seasonal effects:} Specific autoregressive
-priors allow for the estimation of flexible, time-varying seasonal
-effects.
+\item{\bf\sffamily Seasonal effects:} Specific autoregressive priors allow for the estimation of flexible, time-varying
+    seasonal effects.
 
-\item{\bf\sffamily Spatial effects:} Spatial effects can be
-specified based on Markov random fields, stationary Gaussian
-random fields (kriging) or bivariate penalised splines. Both
-georeferenced regional data as well as point-referenced data based
-on coordinates are supported.
+\item{\bf\sffamily Spatial effects:} Spatial effects can be specified based on Markov random fields, stationary Gaussian
+    random fields (kriging) or bivariate penalised splines. Both georeferenced regional data as well as point-referenced
+    data based on coordinates are supported.
 
-\item{\bf\sffamily Interaction surfaces:} Bivariate extensions of
-penalised splines allow to estimate flexible interactions between
-continuous covariates. Stationary Gaussian random fields can also
-be considered a radial basis function approach and, hence, form a
-second possibility for the specification of interaction surfaces.
+\item{\bf\sffamily Interaction surfaces:} Bivariate extensions of penalised splines allow to estimate flexible interactions
+    between continuous covariates. Stationary Gaussian random fields can also be considered a radial basis function
+    approach and, hence, form a second possibility for the specification of interaction surfaces.
 
-\item{\bf\sffamily Varying coefficients:} Varying coefficient
-models with both continuous and spatial effect modifiers can be
-estimated. The latter case is also known as geograhpcially
-weighted regression.
+\item{\bf\sffamily Varying coefficients:} Varying coefficient models with both continuous and spatial effect modifiers can
+    be estimated. The latter case is also known as geographically weighted regression.
 
-\item{\bf\sffamily Cluster-specific random effects:} {\em BayesX}
-supports i.i.d. Gaussian random intercepts and random slopes.
+\item{\bf\sffamily Cluster-specific random effects:} {\em BayesX} supports i.i.d. Gaussian random intercepts and random
+    slopes.
+
+\item {\bf\sffamily Regularised high-dimensional effects:} High-dimensional vectors of regression coefficients can be
+    assigned Bayesian regularisation priors. Available alternatives are ridge regression, lasso regularisation and normal
+    mixture of inverse gamma (spike and slab) priors.
 \end{itemize}
 
-Note that parts of the functionality may be available for one of
-the regression objects only. For example, bayesreg objects do not
-support interval censored survival times while multinomial probit
-models can not be estimated with remlreg objects. Details can be
-found in the reference manual.
+Note that parts of the functionality may be available for one of the regression objects only. For example, bayesreg objects do
+not support interval censored survival times while multinomial probit models can not be estimated with remlreg objects. Details
+can be found in the reference manual.
 \end{stanza}
 
 \begin{stanza}{Further functionality}
@@ -194,7 +158,7 @@ yourself familiar with the general usage of {\em BayesX}.
  Bayesian semiparametric regression based on MCMC
  simulation techniques. No experience with MCMC.
  & Read an introductory text about MCMC first. A brief introduction is given
- for example in Green (2001). Read the methodology manual to make yourself
+ for example in \citeasnoun{Gre01}. Read the methodology manual to make yourself
  familiar with STAR models.
  Proceed with chapter \ref*{zambiaanalysis} of the tutorial manual. \\
  \hline Bayesian semiparametric regression based on MCMC simulation
@@ -207,7 +171,7 @@ yourself familiar with the general usage of {\em BayesX}.
  models. Proceed with chapter \ref*{remlregzambiaanalysis} of the tutorial manual. \\
  \hline Model selection for DAGs. No experience with reversible jump
  MCMC. & Read an introductory text about reversible jump MCMC first.
- A brief introduction is given for example in Green (2001). Proceed with \autoref{dag}. \\
+ A brief introduction is given for example in \citeasnoun{Gre01}. Proceed with \autoref{dag}. \\
  \hline
  Draw and color geographical maps & Read \autoref{map} and \autoref{graphdrawmap} of the reference manual. \\
  \hline
@@ -217,14 +181,4 @@ yourself familiar with the general usage of {\em BayesX}.
 reading.}}
 \end{center}
 \end{table}
-\end{stanza}
-
-\begin{stanza}{References}
-
-\begin{description}
-\item[Green, P.J. (2001):] A Primer in Markov Chain Monte Carlo. In: Barndorff-Nielsen, O.E.,
-Cox, D.R. and Kl{\"u}ppelberg, C. (eds.), {\em Complex Stochastic
-Systems}. Chapman and Hall, London, 1-62.
-\end{description}
-
 \end{stanza}

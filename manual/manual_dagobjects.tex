@@ -11,15 +11,12 @@ Dag objects are needed to estimate dag models using reversible
 jump MCMC. The considered variables may be Gaussian or binary,
 even the mixed case of a conditional Gaussian distribution is
 possible. A general introduction into graphical models can be
-found in Lauritzen (1996). For a description of the more
-particular Gaussian dags see for instance Geiger and Heckerman
-(1994). We refer to Brooks (1998) or Gilks (1996) for an
+found in \citeasnoun{Lau96}. For a description of the more
+particular Gaussian dags see for instance \citeasnoun{GeiHec94}. We refer to \citeasnoun{Bro98} or \citeasnoun{GilRicSpi96} for an
 introduction into MCMC simulation techniques. For the more general
-reversible jump MCMC have a look at Green (1995); for reversible
-jump MCMC in context of graphical models at Giudici and Green
-(1999). The following explanations to the statistical background
-of the program can be found in more detail in Fronk and Giudici
-(2000).
+reversible jump MCMC have a look at \citeasnoun{Gre95}; for reversible
+jump MCMC in context of graphical models at \citeasnoun{GiuGre99}. The following explanations to the statistical background
+of the program can be found in more detail in \citeasnoun{FroGiu00}.
 
 
 
@@ -48,12 +45,11 @@ introducing latent variables.
 \subsubsection*{Model Assumptions }
 \index{Dag object!Assumptions}
 
-A Gaussian dag $d$ can be represented as a regression model for
-each variable $X_i, \, i=0, \dots, p-1$, given the parents of
-$X_i$, denoted by $\X_{pa(i)}$,
+A Gaussian dag $d$ can be represented as a regression model for each variable $X_i, \, i=0, \dots, p-1$, given the parents of
+$X_i$, denoted by $\Xvec_{pa(i)}$,
 %
 \begin{eqnarray}
-X_i \mid \x_{pa(i)},  \mbeta_{i \mid pa(i)}, \sigma_{i \mid
+X_i \mid \xvec_{pa(i)},  \mbeta_{i \mid pa(i)}, \sigma_{i \mid
 pa(i)}^2, d \sim  \N(\beta_{i0} + \sum_{x_l \in pa(x_i)}
 \beta_{il}x_l, \sigma_{i \mid pa(i)}^2). \nonumber
 \end{eqnarray}
@@ -63,15 +59,15 @@ X_{p-1})'$ is then given by
 %
 \begin{eqnarray}
 %p(\x \mid  \mmu, \mSigma) =
-p(\x \mid  \mbeta, \msigma^2) = \prod_{i=0}^{p-1} p(x_i \mid
-\x_{pa(i)}, \mbeta_{i \mid pa(i)}, \sigma_{i \mid pa(i)}^2),
+p(\xvec \mid  \mbeta, \msigma^2) = \prod_{i=0}^{p-1} p(x_i \mid
+\xvec_{pa(i)}, \mbeta_{i \mid pa(i)}, \sigma_{i \mid pa(i)}^2),
 \nonumber
 \end{eqnarray}
 %
 where $\mbeta_{i \mid pa(i)}$ is the $|pa(i)|+1$-dimensional
 vector of the intercept $\beta_{i0}$ and the $|pa(i)|$ regression
 coefficients of $X_i$. Furthermore, $\sigma_{i \mid pa(i)}^2$ is
-the partial variance of $X_i$ given its parents $\x_{pa(i)}$. Let
+the partial variance of $X_i$ given its parents $\xvec_{pa(i)}$. Let
 $\mbeta = (\mbeta'_{0 \mid pa(1)}, \dots, \mbeta'_{p-1 \mid
 pa(p)})'$ denote the vector of the $\mbeta_{i \mid pa(i)}$'s and
 accordingly $\msigma^2 = (\sigma_{0 \mid pa(1)}^2, \dots,
@@ -104,8 +100,8 @@ probability, we get a discrete uniform distribution for $d$: $p(d)
 =  1/D.$ Taking advantage of the well-known factorization property
 of the joint distribution
 \begin{eqnarray}
-p(\x \mid \mbeta, \msigma^2, d) &=&  \prod_{i=0}^{p-1} p(x_i \mid
-\x_{pa(i)}, \mbeta_{i \mid pa(i)}, \sigma_{i\mid pa(i)}^2)
+p(\xvec \mid \mbeta, \msigma^2, d) &=&  \prod_{i=0}^{p-1} p(x_i \mid
+\xvec_{pa(i)}, \mbeta_{i \mid pa(i)}, \sigma_{i\mid pa(i)}^2)
 \nonumber
 \end{eqnarray}
 and the "global parameter independences"
@@ -115,33 +111,18 @@ p(\mbeta \mid  \msigma^2, d) &=& \prod_{i=0}^{p-1} p(\mbeta_{i
 \mbox{and \hspace{1cm}} p( \msigma^2 \mid d) &=& \prod_{i=0}^{p-1}
 p(\sigma_{i \mid pa(i)}^2) \nonumber
 \end{eqnarray}
-(for a detailed description see Geiger and Heckerman, 1999), we
+(for a detailed description see \citeasnoun{GeiHec99}, we
 get the joint distribution:
 %
 \begin{eqnarray}
-\lefteqn{ p(\x, \mbeta, \msigma^2, d)  }  \nonumber \\  [0.3cm]
-&=&   p(\x \mid \mbeta, \msigma^2, d) \,p(\mbeta \mid \msigma^2, d)  \, p( \msigma^2 \mid d)  \, p(d) \nonumber\\
-&=&    \prod_{i=0}^{p-1} p( \x_i \mid \x_{pa(i)}, \mbeta_{i \mid
+\lefteqn{ p(\xvec, \mbeta, \msigma^2, d)  }  \nonumber \\  [0.3cm]
+&=&   p(\xvec \mid \mbeta, \msigma^2, d) \,p(\mbeta \mid \msigma^2, d)  \, p( \msigma^2 \mid d)  \, p(d) \nonumber\\
+&=&    \prod_{i=0}^{p-1} p( \xvec_i \mid \xvec_{pa(i)}, \mbeta_{i \mid
 pa(i)}, \sigma^2_{i \mid pa(i)})
     \, \prod_{i=0}^{p-1} p(\mbeta_{i \mid pa(i)} \mid \sigma_{i \mid pa(i)}^2)  \nonumber  \\
 & &  \, \prod_{i=0}^{p-1} p(\sigma_{i \mid pa(i)}^2) \, p(d)
 \nonumber
 \end{eqnarray}
-
-%joint distribution
-%Taking advantage of the well-known factorization property of the
-%joint distribution in (\ref{modularity_1}) and the "global
-%parameter independence" in (\ref{modularity_2}) and
-%(\ref{modularity_3}) (for a detailed description see Geiger and
-%Heckerman, 1999):
-%
-%\begin{eqnarray}
-%p(\x \mid \mbeta, \msigma^2, d)
-%&=&  \prod_{i=1}^p p(x_i \mid \x_{pa(i)}, \mbeta_{i \mid pa(i)}, \sigma_{i\mid pa(i)}^2), \label{modularity_1}  \\ [0.1cm]
-%p(\mbeta \mid  \msigma^2, d)
-%&=& \prod_{i=1}^p p(\mbeta_{i \mid pa(i)} \mid \msigma_{i \mid pa(i)}^2), \label{modularity_2}   \\ [0.1cm]
-%p( \msigma^2 \mid d) &=&  \prod_{i=1}^p p(\sigma_{i \mid pa(i)}^2). \label{modularity_3}
-%\end{eqnarray}
 
 \newpage
 
@@ -207,12 +188,12 @@ containing and the corresponding adjacency matrix $A$.}}}
 We are not only interested in estimating the parameters for a
 given dag $d$ but also want to learn about the structure of $d$
 itself. So we need to construct a Markov chain which has $
-\pi(d,\mmu, \mbeta, \msigma^2\mid \x)$ as its invariant
+\pi(d,\mmu, \mbeta, \msigma^2\mid \xvec)$ as its invariant
 distribution. Changing the dag like adding or deleting a directed
 edge implies also a changing in the dimension of the parameter
 space. To deal with this situation we use a reversible jump
 algorithm. Reversible jump MCMC was proposed and described by
-Green (1995); it can be regarded as a generalization of the usual
+\citeasnoun{Gre95}; it can be regarded as a generalization of the usual
 MCMC and allows to sample simultaneously from parameter spaces of
 different dimensions.
 
@@ -242,17 +223,17 @@ simplification of the oftentimes crucial switch step, see Fronk
 
 Now we consider the situation of $p$ binary variables of which the
 joint distribution is assumed to be multinomial. The influence to
-a variable $X_i$ from its known parents $\x_{pa(i)}$ shall be
+a variable $X_i$ from its known parents $\xvec_{pa(i)}$ shall be
 given by a probit model, i.e.~
 \begin{eqnarray} \label{probit}
-p_{i} \,=\,  E(X_{i} \mid \x_{pa(i)})
-      \,=\,  \Phi (  \x_{pa(i)}'\mbeta_{i \mid pa(i)}, \sigma_{i \mid pa(i)}^2),
+p_{i} \,=\,  E(X_{i} \mid \xvec_{pa(i)})
+      \,=\,  \Phi (  \xvec_{pa(i)}'\mbeta_{i \mid pa(i)}, \sigma_{i \mid pa(i)}^2),
 \end{eqnarray}
 where $i=1, \dots , p$ and  $\Phi (\mu ,\sigma^2)$ denotes the cdf
 of the normal distribution. This binary situation is reduced to
 the continuous one by sampling a latent variable, a so-called
 utility, $Z_i$ for each binary variable $X_i$. The general idea is
-found in Albert and Chib (1993). Here, we first focus on the
+found in \citeasnoun{AlbChi93}. Here, we first focus on the
 situation that we are only interested in the main effects. I.e.~we
 do not take any interactions into account although they now of
 course can occur as we do not longer consider the Gaussian case.
@@ -261,11 +242,11 @@ briefly summarized as:
 %
 \begin{enumerate}
 \item  For $X_i$, $i=0, \dots, p-1$, draw $Z_{i}$ from its full conditional
-        $\N(\x_{pa(i)}' \mbeta_{i \mid pa(i)},1)$, which is truncated at the left by 0 if $x_{i}=1$
+        $\N(\xvec_{pa(i)}' \mbeta_{i \mid pa(i)},1)$, which is truncated at the left by 0 if $x_{i}=1$
         and at the  right if $x_{i}=0$.
 \item Add, delete, or switch a directed edge like in the Gaussian case, but take the utility $Z_i$ instead of
 $X_i$ as response in $i$th regression model; the covariables
-$\x_{pa(i)}$ of the $i$th model remain unchanged.
+$\xvec_{pa(i)}$ of the $i$th model remain unchanged.
 \item Update  $\mbeta_{i\mid pa(i)}$, $i=0, \dots, p-1$.
 \item Update $\sigma^2_{i\mid pa(i)}$, $i=0, \dots, p-1$.
 \end{enumerate}
@@ -281,9 +262,9 @@ Fronk (2002).
 
 For the mixed case, we assume the considered continuous and binary
 variables to follow a conditional Gaussian (CG) distribution. For
-a general introduction we refer to Lauritzen (1996). The
-univariate conditioned distribution of $f(x_i \mid \x_{pa(i)})$
-are then CG regressions (see Lauritzen and Wermuth, 1989) and can
+a general introduction we refer to \citeasnoun{Lau96}. The
+univariate conditioned distribution of $f(x_i \mid \xvec_{pa(i)})$
+are then CG regressions and can
 be represented by a normal regression resp.~a probit model with
 mixed covariables.
 \begin{enumerate}
@@ -292,7 +273,7 @@ mixed covariables.
        \item[] If $X_i$ is discrete,
             \begin{enumerate}
             \item[] For all observations $X_{ki}$, $k=1, \dots, n$,  \\
-                    draw utility $Z_{ki}$ from full conditional $Z_{ki} \mid x_{ki}, \x_{k pa(i)} \mbeta_{i \mid pa(i)}$
+                    draw utility $Z_{ki}$ from full conditional $Z_{ki} \mid x_{ki}, \xvec_{k pa(i)} \mbeta_{i \mid pa(i)}$
             \end{enumerate}
     \end{enumerate}
 \item Update $d$, i.e.~cancel, add, or switch the directed edge $X_j \rightarrow X_i$;
@@ -327,8 +308,8 @@ one single graph, the essential graph. Of course model selection
 could be done in a more effective way if only the space of those
 essential graphs would be considered. This will be a task of our
 research in future. For more details concerning Markov-equivalence
-we refer to papers of Andersson et al. (1997a, b) and Chickering
-(1995).
+we refer to papers of \citeasnoun{Andetal97a}, \citeasnoun{Andetal97b} and
+\citeasnoun{Chi95}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -719,74 +700,3 @@ model and have to be interpreted in a very careful way.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{References}
-
-\begin{description}
-
-{\small
-
-\item [Andersson, S.~A., Madigan, D., and Perlman, M.~D.~(1997a).] A
-Characterization of Markov equivalence Classes for Acyclic
-Digraphs. {\it The Annals of Statistics}, {\bf 25}, 505--541.
-%
-\item[Andersson, S.~A., Madigan, D., and Perlman, M.~D.~(1997b).] On the
-Markov equivalence of Chain Graphs, Undirected Graphs, and Acyclic
-Digraphs. { \it Scandinavian Journal of Statistics}, {\bf  24},
-81--102.
-
-\item[Chickering, D.~M.~(1995).] A Transformational Characterization of Equivalent Bayesian Network Structures.
-In P.~Besnard and S.~Hanks (Eds.), {\it Uncertainty in Artificial
-Intelligence, Proceedings of the Eleventh Conference}, San
-Francisco: Morgan Kaufmann, pp. 87 -- 98
-%
-\item[Brooks, S.~P.~(1998).] Markov Chain Monte Carlo Method and its Application. {\it The Statistician},
-{\bf 47}, 69--100.
-%
-\item[Fronk, E.--M. and Giudici, P. (2000).] Markov Chain Monte Carlo model selection for DAG Models.
-       {\it Discussion Paper}, Universit\"{a}t M\"{u}nchen.
-%
-%\item{Gelman, A., Carlin, J.~B., Stern, H.~S., and Rubin,
-%D.~B.~(1995).} {\it Bayesian Data Analysis}, Chapman and Hall,
-%London.
-%
-%
-\item[Geiger, D. and Heckerman, D.~(1994).] Learning Gaussian Networks.
-{\it Proceedings of the Tenth Conference on Uncertainty in
-Artificial Intelligence.} Morgan Kaufmann, 235--243.
-%
-\item[Geiger, D. and Heckerman, D.~(1999).] Parameter priors for
-directed acyclic graphical models and the characterisation of
-several probability distributions. Submitted for publication.
-%
-\item [Gilks, W.~R., Richardson, S., and Spiegelhalter, D.~J. (1996).]
-        {\it Markov Chain Monte Carlo in Practice.},Chapman and Hall, London.
-%
-\item[Giudici, P.~and Green, P.~J.~(1999).] Decomposable Graphical
-Gaussian Model Determination. {\it Biometrika}, {\bf 86},
-785--801.
-%
-%\item{Giudici, P., Green, P.~J., and Tarantola, C.~(1999).} Efficient
-%Model Determination for Discrete Graphical Models. Submitted for
-%publication.
-%
-\item [Green, P.~J.~(1995).]
-Reversible Jump Markov Chain Monte Carlo Computation and Bayesian
-Model Determination. {\it Biometrika}, {\bf  82}, 711--32.
-%
-\item[Lauritzen, S.~L.~(1996).] {\it Graphical Models}, Clarendon Press, Oxford.
-
-%\item{Lang, S.~and Brezger, A.~(2000).} BayesX--Software for
-%Bayesian Inference Based on Markov Chain Monte Carlo Simulation Techniques.
-%Discussion Paper 187,
-%Sonderforschungsbereich 386, Ludwig--Maximilians--Universit\"at, M\"unchen, Germany.
-%
-%\item{Schachter, R.~and Kenley, C.~(1989).} Gaussian Influence Diagrams.
-%{\it Management Science}, {\bf 35}, 527--550.
-}
-
-\end{description}
-
-
-%{\bf  \large Example}\\[0.3cm]
-%\subsection{Example}
-%Blablabla...  ist das notwendig ?????

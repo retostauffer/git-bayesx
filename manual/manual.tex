@@ -1,108 +1,6 @@
 \documentclass[11pt,a4paper,twoside]{bayesxreport}
 
-\usepackage{amsfonts}
-\usepackage[dvips]{graphicx}
-\usepackage[dvips]{epsfig}
-\usepackage{fancyhdr}
-
-%\usepackage{showkeys}
-%\usepackage{showidx}
-
-\usepackage{rotating}
-\usepackage{shortvrb}
-\usepackage{multicol}
-\usepackage{longtable}
-\usepackage{xr}
-
-\usepackage[ps2pdf]{thumbpdf}
-\usepackage[ps2pdf]{hyperref}
-\hypersetup{
-%    pdffitwindow=true,
-    pdfstartview=FitB,
-    pdftitle={BayesX Reference Manual},
-    pdfauthor={Christiane Belitz, Andreas Brezger, Thomas Kneib and Stefan Lang},
-    colorlinks=true,
-    linkcolor=blue,
-    pdfpagemode=UseOutlines,
-    bookmarksopen=true,
-    bookmarksnumbered=true,
-    pdfstartpage={1},
-    hyperindex=true
-    }
-
-\sloppy
-\parindent0em
-\parskip0.3em
-\topmargin -0.3cm
-\textheight24cm
-\textwidth16.5cm
-\headheight0.5cm
-\oddsidemargin-0.4cm
-\evensidemargin-0.4cm
-
- \fancyhead[RO,LE]{\thepage}
- \fancyhead[C]{}
- \fancyhead[LO]{\nouppercase\rightmark}
- \fancyhead[RE]{\nouppercase\leftmark}
- \fancyfoot[RO,LE]{}
- \fancyfoot[C]{\small\today} %Am ende raus!!!
- \fancyfoot[LO,RE]{}
- \fancyfoot[C]{}
-
- \renewcommand{\headrulewidth}{.4pt}
- \renewcommand{\footrulewidth}{0pt} %Am Ende 0 !!!
-
-\pagestyle{fancy}
-
-
-\renewcommand{\descriptionlabel}[1]{\hspace\labelsep\sc #1}
-
-\def \re {{\bf R}}
-\def \beq {\begin{equation}}
-\def \eeq {\end{equation}}
-\def \bdis {\begin{displaymath}}
-\def \edis {\end{displaymath}}
-\def \ds {\displaystyle}
-
-\def \mbeta {\mbox{\boldmath $\beta$}}
-\def \mtheta {\mbox{\boldmath $\theta$}}
-\def \hatmbeta {\mbox{\boldmath $\hat\beta$}}
-\def \eps {\epsilon}
-\def \meps {\mbox{\boldmath $\epsilon$}}
-\def \mmu {\mbox{\boldmath $\mu$}}
-\def \mnu {\mbox{\boldmath $\nu$}}
-\def \mSigma {\mbox{\boldmath $\Sigma$}}
-\def \mGamma {\mbox{\boldmath $\Gamma$}}
-\def \msigma {\mbox{\boldmath $\sigma$}}
-\def \mPhi {\mbox{\boldmath $\Phi$}}
-
-\newcommand{\N}{\mbox{N}}
-\newcommand{\Var}{\mbox{Var}}
-\newcommand{\E}{\mbox{E}}
-
-\newcommand{\X}{\mbox{\boldmath $X$}}
-\newcommand{\x}{\mbox{\boldmath $x$}}
-\newcommand{\Z}{\mbox{\boldmath $Z$}}
-\newcommand{\z}{\mbox{\boldmath $z$}}
-\newcommand{\mb}{\mbox{\boldmath $b$}}
-\newcommand{\Fx}{\mbox{\scriptsize \boldmath $x$}}
-\newcommand{\I}{\mbox{\boldmath $I$}}
-\newcommand{\Y}{\mbox{\boldmath $Y$}}
-\newcommand{\y}{\mbox{\boldmath $y$}}
-\newcommand{\mS}{\mbox{\boldmath $S$}}
-\newcommand{\T}{\mbox{\boldmath $T$}}
-\newcommand{\K}{\mbox{\boldmath $K$}}
-\newcommand{\kt}{\mbox{\boldmath $t$}}
-\newcommand{\U}{\mbox{\boldmath $U$}}
-\newcommand{\fu}{\mbox{\boldmath $u$}}
-\newcommand{\ba}{\mbox{\boldmath $\alpha$}}
-\newcommand{\bb}{\mbox{\boldmath $\beta$}}
-
-\renewcommand{\chaptername}{Chapter}
-
-\newcommand{\subheader}[1]{\textsf{\textbf{{\large #1}}}}
-
-\newenvironment{stanza}[2]{\subheader{#1} \begin{itemize} \item[]#2}{\end{itemize}}
+\input{manual_preliminaries.tex}
 
  \externaldocument{manual_star}
  \externaldocument{manual_tutorials}
@@ -114,7 +12,11 @@
 \begin{document}
 \MakeShortVerb{\#}
 
-\input{manual_preliminaries.tex}
+\preface{2.00}{Reference Manual}
+
+\pdfbookmark[1]{Contents}{contents} \tableofcontents \hypertarget{contents}{}
+
+\newpage
 
 \input{manual_whatisbayesx.tex}
 
@@ -138,6 +40,7 @@
 
 \input{manual_dagobjects.tex}
 
+\input{manual_literature.tex}
 
 \addcontentsline{toc}{chapter}{Index}
 \input{manual.ind}

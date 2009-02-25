@@ -29,7 +29,7 @@ admin_gnu::admin_gnu(void)
   objecttyps.push_back("remlreg");
   objecttyps.push_back("map");
   objecttyps.push_back("dag");
-//  objecttyps.push_back("graph");
+  objecttyps.push_back("graph");
 
   delim = '\r';
 
@@ -165,22 +165,9 @@ void admin_gnu::dropobjects(ST::string name, ST::string type)
 
      }
 
-/*   else if (type == "graph")
+   else if (type == "graph")
      {
-
-	 while ( (i < graphobjects.size()) && (recognized == 0) )
-		{
-
-		if ( name == graphobjects[i].getname())
-		  {
-
-		  graphobjects.erase(graphobjects.begin()+i,graphobjects.begin()+i+1);
-		  recognized = 1;
-		  }
-		i++;
-		}
-
-     }*/
+     }
 
   adjustobjects();
 
@@ -265,11 +252,13 @@ ST::string admin_gnu::create(const ST::string & in)
              dagobjects.push_back(newobject);
              }
 
-/*           else if (token[0] == "graph")
+           else if (token[0] == "graph")
              {
-             graphobj newobject(token[1],&logout,input,&objects);
-             graphobjects.push_back(newobject);
-             }*/
+             errormessages.push_back("ERROR: graph objects are not included in this version of BayesX\n");
+
+//             graphobj newobject(token[1],&logout,input,&objects);
+//             graphobjects.push_back(newobject);
+             }
 
 		  adjustobjects();
 

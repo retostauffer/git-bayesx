@@ -1,27 +1,17 @@
 \chapter{bayesreg objects}
 \label{bayesreg} \index{Bayesreg object}
 
-{\em bayesreg objects} are used to fit (multivariate) exponential
-family, hazard rate or multi-state models with {\em structured
-additive predictor} subsumed in the class of {\em structured
-additive regression (STAR)} models, see Fahrmeir, Kneib, and Lang
-(2004). Inference is based on fully Bayesian approach implemented
-via Markov Chain Monte Carlo (MCMC) simulation techniques. The
-methodology manual provides brief introduction to structured
-additive regression and MCMC-based inference. More details can be
-found in Fahrmeir and Lang (2001a), Fahrmeir and Lang (2001b),
-Lang and Brezger (2004), Brezger and Lang (2006), Fahrmeir and
-Osuna (2003), Hennerfeind, Brezger and Fahrmeir (2006), and
-Fahrmeir and Hennerfeind (2003). Good introductions to generalized
-linear models are the monographs of Fahrmeir and Tutz (2001) and
-Mc Cullagh and Nelder (1989). Introductions to semi- and
-nonparametric models are given in Green and Silverman (1994),
-Hastie and Tibshirani (1990), Hastie and Tibshirani (1993) and
-Hastie, Tibshirani and Friedman (2001). The paper of Chib and
-Greenberg (1995), the monograph {\em Markov Chain Monte Carlo in
-Practice} edited by Gilks, Richardson and Spiegelhalter (1996) and
-the article by Green (2001) give a thorough overview over MCMC
-simulation techniques.
+{\em bayesreg objects} are used to fit (multivariate) exponential family, hazard rate or multi-state models with {\em
+structured additive predictor} subsumed in the class of {\em structured additive regression (STAR)} models, see \citeasnoun{FahKneLan04}.
+Inference is based on fully Bayesian approach implemented via Markov Chain Monte Carlo (MCMC)
+simulation techniques. The methodology manual provides brief introduction to structured additive regression and MCMC-based
+inference. More details can be found in \citeasnoun{FahLan01a}, \citeasnoun{FahLan01b}, \citeasnoun{LanBre04},
+\citeasnoun{BreLan06}, \citeasnoun{FahOsu03} and \citeasnoun{HenBreFah06}. Good introductions to
+generalized linear models are the monographs of \citeasnoun{FahTut01} and \citeasnoun{McCNel89}. Introductions to semi- and
+nonparametric models are given in \citeasnoun{GreSil94}, \citeasnoun{HasTib90}, \citeasnoun{HasTibFri01} or \citeasnoun{Woo06a}.
+The paper of \citeasnoun{ChiGre95}, the monograph {\em Markov Chain Monte Carlo in Practice} edited by
+\citeasnoun{GilRicSpi96} and the introductory article by \citeasnoun{Gre01} give a thorough overview over MCMC simulation
+techniques.
 
 First steps with {\em bayesreg objects} can be done with the
 tutorial like example in chapter \ref*{zambiaanalysis} of the
@@ -544,7 +534,7 @@ assumed for $f(grvar)$. A main effect $\gamma X1$ is additionally
 estimated using a diffuse prior for $\gamma$. Therefore the random
 slope effect $f(grvar)X1$ can be seen as the deviation from the
 main effect. Estimation is carried out using hierarchical
-centering, see Gelfand, Sahu and Carlin (1995). Note that
+centering, see \citeasnoun{GelSahCar96}. Note that
 nonsensical results are obtained if an additional fixed effect of
 #X1# is added in the model statement because the fixed effect is
 automatically included. \item[] {\em Predictor}: $\eta = \cdots +
@@ -1030,8 +1020,8 @@ estimation results. An exception are cumulative models with three
 categories of the response. In this case, {\em BayesX} uses a
 reparameterized model for which the mixing of the threshold
 parameters is typically quite satisfactory. A description of this
-reparameterization can be found in Fahrmeir and Lang (2001b) or in
-Chen and Dey (2000). However, parameter estimates are given in the
+reparameterization can be found in \citeasnoun{FahLan01b} or in
+\citeasnoun{CheDey00}. However, parameter estimates are given in the
 original parameterization. To estimate three categorical response
 models without reparameterization the additional option
 #notransform# can be added to the options list (not recommended).
@@ -1341,7 +1331,7 @@ the global option #state#.
 
 More details about Bayesian semiparametric multi-state models
 including a detailed description of the human sleep data application
-can be found in Kneib and Hennerfeind (2006).
+can be found in \citeasnoun{KneHen06}.
 
 \subsection{Options}
 \label{regressoptions}
@@ -1542,8 +1532,8 @@ level of 70\% rather than 80\%.
 parameters} \index{Predicted values} \index{Leverage statistics}
 Option #predict# may be specified to compute samples of the deviance
 $D$, the effective number of parameters $p_D$ and the deviance
-information criterion $DIC$ of the model, see Spiegelhalter et
-al.~(2002). The computation of these quantities is based on the
+information criterion $DIC$ of the model, see \citeasnoun{SpiBesCar02}.
+The computation of these quantities is based on the
 unstandardized deviance which is defined as $D(\theta) =
 -2\log(p(y|\theta))$ where $\theta = (\mu,\sigma^2)$ for Gaussian
 responses, $\theta = (\mu,\delta)$ for negative binomial responses
@@ -1577,7 +1567,7 @@ residuals. The deviance residuals are given by $r_i =
 sign(y_i-\mu_i) \sqrt{D^{sat}_i}$. The leverage statistics $p_{D_i}$
 is defined as the contribution of the $i$th observation to $p_D$.
 More details about the quantities discussed above can be found in
-Spiegelhalter et al.~(2002). To clarify the computation of $D$,
+\citeasnoun{SpiBesCar02}. To clarify the computation of $D$,
 $p_D$, $DIC$ etc. \autoref{deviancetable} provides formulas of the
 p.d.f.~and the (unstandardized) deviance $D$ for the different
 response distributions provided in {\em BayesX}.
@@ -1695,8 +1685,7 @@ Note that the first row always contains the names of the variables
 in the ten columns.
 
 The estimated nonlinear effects can be visualized by using either
-the graphics capabilities of {\em BayesX} or a couple of R and
-S-plus functions, see \autoref{bayesxplot} and \autoref{splus},
+the graphics capabilities of {\em BayesX} or the {\it BayesX} R package, see \autoref{bayesxplot} and \autoref{rpackage},
 respectively. Of course, any other (statistics) software package
 with plotting facilities may be used as well.
 
@@ -1833,7 +1822,7 @@ external file whose name and storing path is printed in the {\em
 output window} and/or an additional log file. The computed
 autocorrelations can be visualized by using either
 \hyperref[graphplotautocor]{method #plotautocor#} of {\em graph
-objects} or the \hyperref[splusplotautocor]{R / S-plus function
+objects} or the \hyperref[rpackage]{R function
 #plotautocor#}.
 \end{stanza}
 
@@ -1875,7 +1864,7 @@ the file contains the column names.
 
 The computed autocorrelations can be visualized by using either
 \hyperref[graphplotautocor]{method #plotautocor#} of {\em graph
-objects} or the \hyperref[splusplotautocor]{R / S-plus function
+objects} or the \hyperref[rpackage]{R function
 #plotautocor#}. However, since the structure of the file is very
 simple, the visualization of the functions can be done with every
 software package which has graphics capabilities.
@@ -1929,7 +1918,7 @@ Now the autocorrelation functions will be stored under
 #c:#$\backslash$#data#$\backslash$#estimate1_autocor.raw#.
 
 The computed autocorrelation functions may now be visualized using
-the \hyperref[splusplotautocor]{R / S-plus function #plotautocor#}.
+the \hyperref[rpackage]{R function #plotautocor#}.
 The function plots the autocorrelation functions for all estimated
 parameters (in our example only three) against the lag number. If
 the option #mean.autocor=T# is specified, only minimum, mean and
@@ -1937,16 +1926,6 @@ maximum autocorrelations for each term in the model are plotted
 against the lag number. Obviously, this is much faster than the
 first alternative, where the autocorrelation functions of all
 parameters are plotted.
-
-The following statement in plots and stores the autocorrelations in
-the postscript file #c:\data\estimate1_autocor.ps#:
-
- #> plotautocor("c:\\data\\estimate1_autocor.raw",#\\
- #  "c:\\data\\estimate1_autocor.ps")#
-
-Note that double backslashes are required in R / S-plus to specify
-the directory of a file correctly. For more details about the
-function #plotautocor# compare \autoref{splusplotautocor}.
 
 The autocorrelation functions can be plotted directly in {\em
 BayesX} using \hyperref[graphplotautocor]{method #plotautocor#} of
@@ -1983,7 +1962,7 @@ all sampled parameters will be stored in (one or more) ASCII
 file(s). Afterwards, sampling paths can be plotted and stored in a
 postscript file either by using \hyperref[graphplotsample]{method
 #plotsample#} of {\em graph objects} or by using the
-\hyperref[splusplotsample]{R / S-plus function #plotsample#}. Of
+\hyperref[rpackage]{R function #plotsample#}. Of
 course, any other program with graphics capacities could be used as
 well.
 \end{stanza}
@@ -2090,8 +2069,7 @@ method #plotsample#:
 #> graph g #\\
 #> g.plotsample using s1#
 
-Alternatively we could use \hyperref[splusplotsample]{R / S-plus and
-the function #plotsample#} for visualizing sampling paths. We type,
+Alternatively we could use \hyperref[rpackage]{R function #plotsample#} for visualizing sampling paths. We type,
 for instance
 
 #> plotsample("c:\\data\\estimate1_FixedEffects1_sample.raw")#
@@ -2523,8 +2501,8 @@ regression coefficients are no longer Gaussian. {\em BayesX} offers
 3 different types of proposal densities. These are iteratively
 weighted least squares (IWLS) proposals based either on the current
 state of the parameters or on the posterior modes as described in
-\autoref{IWLS} or Brezger and Lang (2006), and conditional prior
-proposals as described in Fahrmeir and Lang (2001b). We recommend
+\autoref{IWLS} or \citeasnoun{BreLan06}, and conditional prior
+proposals as described in \citeasnoun{FahLan01b}. We recommend
 the usage of IWLS proposals, since no tuning is required and mixing
 properties are superior to those of conditional prior proposals. The
 default are IWLS proposals based on the current state of the
@@ -2635,127 +2613,3 @@ slightly for the different choices of #a# and #b#.
 {\em\tt duration} and {\em\tt amount} for different values of the
 hyperparameters for the variances.}}
 \end{figure}
-
-\section{References}
-\label{zambia_bayesregref}
-
-\begin{description}
-
-\item[Besag, J., Green, P., Higdon, D. and Mengersen, K. (1995):]
- Bayesian computation and stochastic systems (with discussion).
-{\em Statistical Science}, 10, 3-66.
-
-\item[Besag, J. and Kooperberg, C. (1995):] On conditional and intrinsic autoregressions.
-{\em Biometrika}, 82, 733-746.
-
-\item[Besag, J., York, J. and Mollie, A. (1991):]
-Bayesian image restoration with two applications in spatial
-statistics (with discussion). {\em Annals of the Institute of
-Statistical Mathematics}, 43, 1-59.
-
-\item[Biller, C. (2000):] {\em Bayesianische Ans\"atze zur nonparametrischen Regression.}
-Skaker Verlag, Aachen.
-
-\item[Brezger, A. (2000):] \href{http://www.stat.uni-muenchen.de/~andib}
-{\em Bayesianische P-splines.} Master thesis, University of Munich.
-
-\item[Brezger, A. and Lang, S. (2006):]
-Generalized additive regression based on Bayesian P-splines. {\em
-Computational Statistics and Data Analysis} 50, 967-991.
-
-\item[Clayton, D. (1996):] Generalized linear mixed models. In: Gilks, W., Richardson S. and
-Spiegelhalter D. (eds), {\em Markov Chain Monte Carlo in
-Practice}. London: Chapman and Hall, 275-301.
-
-\item[Chen, M.H. and Dey, D.K. (2000):] Bayesian Analysis for Correlated Ordinal Data Models.
-{\em Generalized linear models: A Bayesian perspective} (ed. Dey,
-D.K., Ghosh, S.K. and Mallick, B.K.), 8,133-159, Marcel Dekker,
-New York.
-
-\item[Chib, S. and Greenberg, E. (1995):] Understanding the
-Metropolis-Hastings Algorithm. {\em The American Statistician},
-49, 327-335.
-
-\item [Eilers, P.H.C.~and Marx, B.D. (1996):]
-Flexible smoothing using B-splines and penalized likelihood (with
-comments and rejoinder). {\it Statistical Science}, 11 (2),
-89-121.
-
-\item[Fahrmeir, L. and Lang, S. (2001a):]
-Bayesian Inference for Generalized Additive Mixed Models Based on
-Markov Random Field Priors. {\em Journal of the Royal Statistical
-Society C}, 50, 201-220.
-
-\item[Fahrmeir, L. and Lang, S. (2001b):] Bayesian Semiparametric Regression Analysis of Multicategorical
-Time-Space Data. {\em Annals of the Institute of Statistical
-Mathematics}, 53, 10-30.
-
-\item[Fahrmeir, L. and Tutz, G. (2001):] {\em Multivariate Statistical
-Modelling based on Generalized Linear Models.} New York:
-Springer-Verlag.
-
-
-\item[Gamerman, D. (1997):] Efficient Sampling from the posterior distribution
-in generalized linear models. {\em Statistics and Computing}, 7,
-57-68.
-
-\item[Gelfand, A.E., Sahu, S.K. and Carlin, B.P. (1996):] Efficient Parametrizations for
-Genera\-lized Linear Mixed Models. In: Bernardo, J.M., Berger, J.O.,
-Dawid, A.P. and Smith, A.F.M. (eds.), {\em Bayesian Statistics,
-5}. Oxford University Press, 165-180.
-
-\item[George, A. and Liu, J.W. (1981).] {\em Computer Solution of Large
-Sparse Positive Definite Systems.} Series in computational
-mathematics, Prentice-Hall.
-
-\item[Green, P.J. (2001):] A Primer in Markov Chain Monte Carlo. In: Barndorff-Nielsen, O.E.,
-Cox, D.R. and Kl\"{u}ppelberg, C. (eds.), {\em Complex Stochastic
-Systems}. Chapmann and Hall, London, 1-62.
-
-\item[Green, P.J. and Silverman, B. (1994):] {\em Nonparametric Regression and Generalized Linear Models.} Chapman
-and Hall, London.
-
-\item[Hastie, T. and Tibshirani, R. (1990):] {\em Generalized additive models.} Chapman and
-Hall, London.
-
-\item[Hastie, T. and Tibshirani, R. (1993):] Varying-coefficient Models.
-{\em Journal of the Royal Statistical Society B}, 55, 757-796.
-
-\item[Hastie, T. and Tibshirani, R. (2000):] Bayesian Backfitting. {\em Statistical Science}, 15, 193-223.
-
-\item[Hastie, T., Tisbshirani, R. and Friedman, J. (2001):] {\em The Elements of Statistical Learning: Data Mining,
-Inference and Prediction.} New York: Sprigner-Verlag.
-
-\item[Kneib, T. and Hennerfeind, A.] (2006) Bayesian Semiparametric
-Multi-State Models. Under revision for {\em Statistical Modelling}.
-A preliminary version is available as SFB 386 Discussion Paper 502.
-
-\item[Knorr-Held, L. (1999):]
-Conditional Prior Proposals in Dynamic Models. {\em Scandinavian
-Journal of Statistics}, 26, 129-144.
-
-\item[Kragler, P. (2000):] \href{http://www.scor.fr/us/2_laureat.asp?pays=2}
-{Statistische Analyse von Schadensf\"allen privater
-Krankenversicherungen.} Master thesis, University of Munich.
-
-\item[Lang, S. (1996):]
-\href{mailto:stefan.lang@uibk.ac.at} {Bayesianische Inferenz in
-Modellen mit variierenden Koeffizienten}. Master thesis, University
-of Munich.
-
-\item[Lang, S. and Brezger, A. (2004):]
-Bayesian P-splines. {\em Journal of Computational and Graphical Statistics}, 13, 183-212.
-
-\item[McCullagh, P. and Nelder, J.A. (1989):] {\em Generalized Linear Models.} Chapman and Hall, London.
-
-\item[Osuna, L. (2004):] {\it Semiparametric Bayesian Count Data
-Models}. Dr. Hut Verlag, M\"{u}nchen.
-
-\item[Rue, H. (2001):] Fast Sampling of Gaussian Markov Random Fields with Applications.
-{\em Journal of the Royal Statistical Society B}, 63, 325-338.
-
-\item[Spiegelhalter, D.J., Best, N.G., Carlin, B.P. and van der Linde, A. (2002):]
-Bayesian measures of model complexity and fit. {\em Journal of the
-Royal Statistical Society B}, 65, 583-639.
-
-\end{description}

@@ -16,6 +16,7 @@ cp -rf mcmc sourcecode
 cp -rf psplines sourcecode
 cp -rf samson sourcecode
 cp -rf structadd sourcecode
+cp -rf examples sourcecode
 
 cd sourcecode\adaptiv
 rm -r CVS
@@ -89,3 +90,5 @@ mkdir gnuobj
 
 rm bayesxsource.zip
 zip -ll -r bayesxsource.zip c:\bayesx\sourcecode
+
+

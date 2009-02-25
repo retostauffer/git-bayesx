@@ -1,22 +1,14 @@
 \chapter{remlreg objects}\normalsize
 \label{remlreg} \index{Remlreg object}
 
-{\em Remlreg objects} are used to fit (multivariate) exponential
-family, hazard rate or multi-state models with {\em structured
-additive predictor} subsumed in the class of {\em structured
-additive regression (STAR)} models, see Fahrmeir, Kneib, and Lang
-(2004). Inference is based on a mixed model representation of the
-regression model and yields either penalised likelihood estimates
-(from a frequentist perspective) or empirical Bayes / posterior
-mode estimates (from a Bayesian perspective). The methodological
-background is provided in considerable detail in the methodology
-manual. More details on models for univariate responses can be
-found in Fahrmeir, Kneib and Lang (2004). Kneib and Fahrmeir
-(2006) describes models for categorical responses. Models for
-continuous time survival analysis based on structured hazard
-regression can be found in Kneib and Fahrmeir (2007). Interval
-censoring and some further extensions are discussed in Kneib
-(2006).
+{\em Remlreg objects} are used to fit (multivariate) exponential family, hazard rate or multi-state models with {\em structured
+additive predictor} subsumed in the class of {\em structured additive regression (STAR)} models, see \citeasnoun{FahKneLan04}.
+Inference is based on a mixed model representation of the regression model and yields either penalised likelihood estimates
+(from a frequentist perspective) or empirical Bayes / posterior mode estimates (from a Bayesian perspective). The
+methodological background is provided in considerable detail in the methodology manual. More details on models for univariate
+responses can be found in \citeasnoun{FahKneLan04}. \citeasnoun{KneFah06} describe models for categorical responses. Models for
+continuous time survival analysis based on structured hazard regression can be found in \citeasnoun{KneFah07}. Interval
+censoring and some further extensions are discussed in \citeasnoun{Kne06}.
 
 \index{Generalized linear models} \index{Generalized additive
 models} \index{Varying coefficients} \index{Bayesian semiparametric
@@ -1746,56 +1738,3 @@ nonparametric effect of #X# in file
 
 Visualization of estimation results is described in
 \autoref{visualization}
-
-\section{References}
-\label{remlregreferences}
-
-\begin{description}
-
-\item[Fahrmeir, L., Kneib, T. and Lang, S. (2004):] Penalized
-structured additive regression for space-time data: A Bayesian
-perspective. {\it Statistica Sinica}, 14, 715-745.
-
-\item[Fahrmeir, L. and Tutz, G. (2001):] {\em Multivariate
-Statistical Modelling based on Generalized Linear Models.} New
-York: Springer--Verlag.
-
-\item[Green, P.J. and Silverman, B. (1994):] {\em Nonparametric Regression and Generalized Linear Models.} Chapman
-and Hall, London.
-
-\item[Hastie, T. and Tibshirani, R. (1990):] {\em Generalized additive models.} Chapman and
-Hall, London.
-
-\item[Hastie, T. and Tibshirani, R. (1993):] Varying-coefficient Models.
-{\em Journal of the Royal Statistical Society B} , 55, 757-796.
-
-\item[Hastie, T., Tisbshirani, R. and Friedman, J. (2001):] {\em The Elements of Statistical Learning: Data Mining,
-Inference and Prediction.} New York: Springer--Verlag.
-
-\item[Kneib, T. (2006):] Geoadditive hazard regression for interval
-censored survival times. {\em Computational Statistics and Data
-Analysis}, 51, 777-792
-
-\item[Kneib, T. and Hennerfeind, A.] (2006) Bayesian Semiparametric
-Multi-State Models. Under revision for {\em Statistical Modelling}.
-A preliminary version is available as SFB 386 Discussion Paper 502.
-
-\item[Kneib, T. and Fahrmeir, L., (2006):] Structured additive
-regression for categorical space-time data: A mixed model approach.
-{\it Biometrics}, 62, 109-118.
-
-\item[Kneib, T. and Fahrmeir, L., (2007):] A mixed model approach
-to structured hazard regression. {\em Scandinavian Journal of
-Statistics}, 34, 207-228..
-
-\item[Brezger, A. (2000):]
-\href{http://www.stat.uni-muenchen.de/~andib} {\em Bayesianische
-P-splines.} Master thesis, University of Munich.
-
-\item[Lin, X. and Zhang, D. (1999):] Inference in generalized additive mixed models by using
-smoothing splines. {\it Journal of the Royal Statistical Society
-B}, 61, 381--400.
-
-\item[McCullagh, P. and Nelder, J.A. (1989):] {\em Generalized Linear Models.} Chapman and Hall, London.
-
-\end{description}
