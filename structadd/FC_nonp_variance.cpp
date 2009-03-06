@@ -134,10 +134,11 @@ bool FC_nonp_variance::posteriormode(void)
 
 
 
-void FC_nonp_variance::outresults(const ST::string & pathresults)
+void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
+                                  const ST::string & pathresults)
   {
 
-  FC::outresults(pathresults);
+  FC::outresults(out_stata,out_R,pathresults);
 
 //  optionsp->out("\n");
 

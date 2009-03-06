@@ -221,11 +221,12 @@ bool FC_mult::posteriormode(void)
   }
 
 
-void FC_mult::outresults(const ST::string & pathresults)
+void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
+                         const ST::string & pathresults)
   {
   if ((RE_update==false) && (samplemult))
     {
-    FCmulteffect.outresults("");
+    FCmulteffect.outresults(out_stata,out_R,"");
 
     if (pathresults.isvalidfile() != 1)
       {

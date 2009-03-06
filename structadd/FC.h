@@ -217,12 +217,21 @@ class __EXPORT_TYPE FC
     {
     }
 
+  // FUNCTION: outgraphs
+  // TASK: writes batch files for STATA and R for visualizing results
+
+  virtual void outgraphs(ofstream & out_stata, ofstream & out_R,
+                         ST::string & path)
+    {
+    }
 
 
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  virtual void outresults(const ST::string & pathresults);
+  virtual void outresults(ofstream & out_stata, ofstream & out_R,
+               const ST::string & pathresults);
+
   void outresults_acceptance(void);
 
   // FUNCTION: reset

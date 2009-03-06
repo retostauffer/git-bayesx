@@ -55,7 +55,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
                                              // computing p-values
   bool pvalue;                               // compute pvalues, yes, no
                                              // default no
-
+  datamatrix mPhelp;                         // help matrix for updating p-value
+                                             // information
   
   void compute_pvalue(ST::string & pathresults);
   void update_pvalue(void);
@@ -78,10 +79,12 @@ class __EXPORT_TYPE FC_nonp  : public FC
   //---------------------------- centering -------------------------------------
 
   datamatrix Vcenter;
+  datamatrix Vcentert;  
   datamatrix Wcenter;
   datamatrix Ucenter;
   datamatrix Utc;
   datamatrix ccenter;
+  datamatrix helpcenter;
 
   void get_linparam(void);
 
@@ -137,10 +140,17 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void outoptions(void);
 
+  // FUNCTION: outgraphs
+  // TASK: writes batch files for STATA and R for visualizing results
+
+  void outgraphs(ofstream & out_stata, ofstream & out_R,ST::string & path);
+
+
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(const ST::string & pathresults);
+  void outresults(ofstream & out_stata, ofstream & out_R,
+                  const ST::string & pathresults);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 

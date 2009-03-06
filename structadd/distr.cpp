@@ -52,8 +52,6 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
     }
 
   workingweight = weight;
-  changingworkingweights = true;
-  workingweightsone = false;
 
   weightsone = check_weightsone();
 
@@ -92,8 +90,6 @@ DISTR::DISTR(const DISTR & d)
   weightname = d.weightname;
 
   workingweight = d.workingweight;
-  changingworkingweights = d.changingworkingweights;
-  workingweightsone = d.workingweightsone;
   weightsone = d.weightsone;
   wtype = d.wtype;
 
@@ -130,9 +126,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   weightname = d.weightname;
 
   workingweight = d.workingweight;
-  changingworkingweights = d.changingworkingweights;
-  workingweightsone = d.workingweightsone;
-  weightsone = d.weightsone;  
+  weightsone = d.weightsone;
   wtype = d.wtype;
 
   linearpred1 = d.linearpred1;
@@ -269,20 +263,69 @@ double & sumworkingweight)
 
   sumworkingweight = 0;
 
-  for (i=begin;i<=end;i++,work_workingweightp++,work_linpredp++,
-       workresponsep++,work_weightp++,work_workingresponsep++)
+
+  if (wtype==wweightschange_weightsneqone)
     {
 
-    help += compute_iwls(*workresponsep,*work_linpredp,*work_weightp,
+    for (i=begin;i<=end;i++,work_workingweightp++,work_linpredp++,
+         workresponsep++,work_weightp++,work_workingresponsep++)
+      {
+
+      help += compute_iwls(*workresponsep,*work_linpredp,*work_weightp,
                          *work_workingweightp,*work_workingresponsep,true);
 
-    sumworkingweight+= *(*work_workingweightp);
-    // sumworkingweight+= *work_workingweightp * (*workintvar2);
+      sumworkingweight+= *(*work_workingweightp);
+      }
+
+    }
+  else if (wtype==wweightschange_weightsone)
+    {
+
+    for (i=begin;i<=end;i++,work_workingweightp++,work_linpredp++,
+         workresponsep++,work_workingresponsep++)
+      {
+
+      compute_iwls_wweightschange_weightsone(*workresponsep,
+                         *work_linpredp, *work_workingweightp,
+                         *work_workingresponsep,help,true);
+
+      sumworkingweight+= *(*work_workingweightp);
+      }
+
+    }
+  else if (wtype==wweightsnochange_constant)
+    {
+
+    for (i=begin;i<=end;i++,work_workingweightp++,work_linpredp++,
+         workresponsep++,work_workingresponsep++)
+      {
+
+      compute_iwls_wweightsnochange_constant(*workresponsep,
+                         *work_linpredp, *work_workingweightp,
+                         *work_workingresponsep,help,true);
+
+      sumworkingweight+= *(*work_workingweightp);
+      }
+
+    }
+  else if (wtype==wweightsnochange_one)
+    {
+
+
+    for (i=begin;i<=end;i++,work_linpredp++,
+         workresponsep++,work_workingresponsep++)
+      {
+
+      compute_iwls_wweightsnochange_one(*workresponsep,
+                         *work_linpredp, *work_workingresponsep,help,true);
+
+      }
+
+    sumworkingweight = begin-end+1;
 
     }
 
   return help;
-
 
   }
 
@@ -719,7 +762,10 @@ void DISTR_gaussian::outresults(ST::string pathresults)
   {
   DISTR::outresults();
 
-  FCsigma2.outresults("");
+  ofstream out1;
+  ofstream out2;
+
+  FCsigma2.outresults(out1,out2,"");
 
 
   ST::string l1 = ST::doubletostring(optionsp->lower1,4);
@@ -851,7 +897,7 @@ DISTR_gaussian_exp::DISTR_gaussian_exp(const double & a,
 
   {
   standardise();
-  changingworkingweights = true;
+//  changingworkingweights = true;
   updateIWLS = true;
   }
 
@@ -1039,7 +1085,7 @@ DISTR_gaussian_mult::DISTR_gaussian_mult(const double & a,
   {
   standardise();
   optionbool1 = false;
-  changingworkingweights = false;
+//  changingworkingweights = false;
   updateIWLS = false;  
   }
 
@@ -1050,14 +1096,14 @@ void DISTR_gaussian_mult::set_mult(bool & m)
   if (m==true)
     {
     optionbool1 = true;
-    changingworkingweights = true;
+//    changingworkingweights = true;
     updateIWLS = true;
 
     }
   else
     {
     optionbool1 = false;
-    changingworkingweights = false;
+//    changingworkingweights = false;
     updateIWLS = false;
     }
 

@@ -88,7 +88,8 @@ class __EXPORT_TYPE FC_predict   : public FC
 
   void outresults_deviance(void);
   void outresults_DIC(void);
-  void outresults(const ST::string & pathresults);
+  void outresults(ofstream & out_stata, ofstream & out_R,
+                  const ST::string & pathresults);
 
   void reset(void);
 

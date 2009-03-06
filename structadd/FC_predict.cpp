@@ -369,14 +369,15 @@ void FC_predict::outresults_deviance(void)
     }
 
 
-void FC_predict::outresults(const ST::string & pathresults)
+void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
+                            const ST::string & pathresults)
   {
 
   if (pathresults.isvalidfile() != 1)
     {
 
-    FC::outresults(pathresults);
-    FC_deviance.outresults("");
+    FC::outresults(out_stata,out_R,pathresults);
+    FC_deviance.outresults(out_stata,out_R,"");
 
     optionsp->out("  PREDICTED VALUES: \n",true);
     optionsp->out("\n");    
@@ -436,7 +437,6 @@ void FC_predict::outresults(const ST::string & pathresults)
     double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
     double * workbetaqu50 = betaqu50.getV();
 
-    unsigned nrpar = beta.rows();
 
     for(i=0;i<designmatrix.rows();i++,
           workmean++,

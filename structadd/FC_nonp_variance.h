@@ -92,7 +92,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(const ST::string & pathresults);
+  void outresults(ofstream & out_stata,ofstream & out_R,
+                  const ST::string & pathresults);
 
   // FUNCTION: reset
   // TASK: resets all parameters

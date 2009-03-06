@@ -559,12 +559,14 @@ void hregressrun(superbayesreg & b)
 
     b.simobj = MCMCsim(&b.generaloptions,b.equations);
 
+    ST::string pathgraphs = b.outfile.getvalue();
+
     if (b.modeonly.getvalue())
       {
-      failure = b.simobj.posteriormode(false);
+      failure = b.simobj.posteriormode(pathgraphs,false);
       }
     else
-      failure = b.simobj.simulate(b.setseed.getvalue(),true);
+      failure = b.simobj.simulate(pathgraphs,b.setseed.getvalue(),true);
 
     if (!failure)
       b.resultsyesno = true;

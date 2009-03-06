@@ -109,9 +109,10 @@ class __EXPORT_TYPE MCMCsim
   // TASK: runs a MCMC simulation
   //       returns true, if simulation error or user break occured
 
-  bool simulate(const int & seed, const bool & computemode=true);
+  bool simulate(ST::string & pathgraphs, const int & seed,
+                const bool & computemode=true);
 
-  bool posteriormode(const bool & presim=false);
+  bool posteriormode(ST::string & pathgraphs,const bool & presim=false);
 
   void out_effects(const vector<ST::string> & paths);
 

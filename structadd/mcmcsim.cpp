@@ -139,7 +139,7 @@ const MCMCsim & MCMCsim::operator=(const MCMCsim & s)
   // TASK: runs a MCMC simulation
   //       returns true, if simulation error or user break occured
 
-bool MCMCsim::simulate(const int & seed, const bool & computemode)
+bool MCMCsim::simulate(ST::string & pathgraphs, const int & seed, const bool & computemode)
   {
   unsigned i,j;
 
@@ -192,7 +192,7 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
     genoptions->out("  COMPUTING STARTING VALUES (MAY TAKE SOME TIME)");
     genoptions->out("\n");
 
-    bool c = posteriormode(true);
+    bool c = posteriormode("",true);
     }
 
   //-------------- end: Compute posterior mode as starting value ---------------
@@ -350,6 +350,12 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
       genoptions->out("ESTIMATION RESULTS:\n",true);
       genoptions->out("\n");
 
+      ST::string pathstata = pathgraphs + "_stata.do";
+      ST::string pathR = pathgraphs + "_R.r";
+
+      ofstream out_stata(pathstata.strtochar());
+      ofstream out_R(pathR.strtochar());
+
       for (i=0;i<nrmodels;i++)
         {
 
@@ -364,9 +370,17 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
         equations[nrmodels-1-i].distrp->outresults();
 
         for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-          equations[nrmodels-1-i].FCpointer[j]->outresults(equations[nrmodels-1-i].FCpaths[j]);
+          equations[nrmodels-1-i].FCpointer[j]->outresults(out_stata,out_R,equations[nrmodels-1-i].FCpaths[j]);
 
         }
+
+      genoptions->out("  FILES FOR VISULAZING RESULTS:\n",true,true,12,255,0,0);
+      genoptions->out("\n");
+      genoptions->out("    STATA DO-FILE\n");
+      genoptions->out("\n");
+      genoptions->out("    " + pathstata);
+      genoptions->out("\n");
+
 
       return false;
 
@@ -428,7 +442,7 @@ bool MCMCsim::simulate(const int & seed, const bool & computemode)
   }
 
 
-bool MCMCsim::posteriormode(const bool & presim)
+bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
   {
 
   unsigned i,j;
@@ -549,15 +563,30 @@ bool MCMCsim::posteriormode(const bool & presim)
         genoptions->out("\n");
 
 
+        ST::string pathstata = pathgraphs + "_stata.do";
+        ST::string pathR = pathgraphs + "_R.r";
+
+        ofstream out_stata(pathstata.strtochar());
+        ofstream out_R(pathR.strtochar());
+
+
         for(i=0;i<nrmodels;i++)
           {
 
           equations[nrmodels-1-i].distrp->outresults(equations[nrmodels-1-i].pathd);
 
           for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-            equations[nrmodels-1-i].FCpointer[j]->outresults(equations[nrmodels-1-i].FCpaths[j]);
+            equations[nrmodels-1-i].FCpointer[j]->outresults(out_stata,out_R,equations[nrmodels-1-i].FCpaths[j]);
 
           }
+
+        genoptions->out("  FILES FOR VISULAZING RESULTS:\n",true,true,12,255,0,0);
+        genoptions->out("  STATA DO-FILE\n");
+        genoptions->out("\n");
+        genoptions->out(pathstata);
+        genoptions->out("\n");        
+
+
 
         } // end: if Frame->stop
       #if defined(BORLAND_OUTPUT_WINDOW)

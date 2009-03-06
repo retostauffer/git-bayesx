@@ -637,7 +637,8 @@ void FC::outresults_acceptance(void)
   }
 
 
-void FC::outresults(const ST::string & pathresults)
+void FC::outresults(ofstream & out_stata, ofstream & out_R,
+                    const ST::string & pathresults)
   {
 
   unsigned nrpar=beta.rows()*beta.cols();

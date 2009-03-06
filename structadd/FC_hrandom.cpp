@@ -52,6 +52,10 @@ void FC_hrandom::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   if (op[17] == "true")
     rtype = multexp;
 
+  if (op[18] == "true")
+    pvalue = true;
+  else
+    pvalue = false;
 
   }
 
@@ -371,7 +375,7 @@ bool FC_hrandom::posteriormode_multexp(void)
   // linpred = etarest + exp(random_effect)* intvar
 
   likep->optionbool1 = true;
-  likep->changingworkingweights = true;
+//  likep->changingworkingweights = true;
   likep->updateIWLS = true;
 
   update_response_multexp();     // linpred = random_effect*intvar
@@ -381,7 +385,7 @@ bool FC_hrandom::posteriormode_multexp(void)
   update_linpred_multexp();
 
   likep->optionbool1 = false;
-  likep->changingworkingweights = false;
+//  likep->changingworkingweights = false;
   likep->updateIWLS = false;
 
   likep->response.assign(response_o);
@@ -427,14 +431,15 @@ bool FC_hrandom::posteriormode(void)
   }
 
 
-void FC_hrandom::outresults(const ST::string & pathresults)
+void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
+                            const ST::string & pathresults)
   {
 
   if (pathresults.isvalidfile() != 1)
     {
 
-    FC::outresults(pathresults);
-    FCrcoeff.outresults("");
+    FC::outresults(out_stata,out_R,pathresults);
+    FCrcoeff.outresults(out_stata,out_R,"");
 
     optionsp->out("    Results are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
@@ -565,6 +570,11 @@ void FC_hrandom::outresults(const ST::string & pathresults)
 
       outres << endl;
       }
+
+
+    if (pvalue)
+      compute_pvalue(pathresults);
+
 
     }
 

@@ -54,10 +54,11 @@ class __EXPORT_TYPE GENERAL_OPTIONS
                                   //  charkteristics of the posterior)
 
   double level1;                  // level1 for credible intervals
+                                  // lower1 - upper2
   double level2;                  // level2 for credible intervals
+                                  // lower2 - upper1
 
-
-  double lower1;
+  double lower1;                  
   double lower2;
 
   double upper1;

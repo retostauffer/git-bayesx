@@ -74,7 +74,8 @@ class __EXPORT_TYPE FC_mult  : public FC
 
   bool posteriormode(void);
 
-  void outresults(const ST::string & pathresults);
+  void outresults(ofstream & out_stata, ofstream & out_R,
+                  const ST::string & pathresults);
 
   void reset(void);
 

@@ -904,8 +904,22 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
 
     double * workintvar = intvar.getV();
 
-    if ((likep->changingworkingweights==true) ||
-    ((likep->changingworkingweights==false) && (likep->workingweightsone==false)))
+    if (likep->wtype==wweightsnochange_one)
+      {
+      for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
+        {
+        *workres = 0;
+        if (*itbeg != -1)
+          {
+          for (j=*itbeg;j<=*itend;j++,work_responsep++,worklinp++,workintvar++)
+            {
+            *workres += (*workintvar) * (*(*work_responsep) - (*(*worklinp)) +
+            (*workintvar) * (*workf));
+            }
+          }
+        }
+      }
+    else
       {
       for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
         {
@@ -921,27 +935,29 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
           }
         }
       }
-    else
+
+    }
+  else                              // additive
+    {
+
+    if (likep->wtype==wweightsnochange_one)
       {
+
       for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
         {
         *workres = 0;
         if (*itbeg != -1)
           {
-          for (j=*itbeg;j<=*itend;j++,work_responsep++,worklinp++,workintvar++)
+          for (j=*itbeg;j<=*itend;j++,work_responsep++,worklinp++)
             {
-            *workres += (*workintvar) * (*(*work_responsep) - (*(*worklinp)) +
-            (*workintvar) * (*workf));
+            *workres += *(*work_responsep) - (*(*worklinp)) + *workf;
+
             }
           }
         }
-      }
-    }
-  else                              // additive
-    {
 
-    if ((likep->changingworkingweights==true) ||
-    ((likep->changingworkingweights==false) && (likep->workingweightsone==false)))
+      }
+    else
       {
       for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
         {
@@ -957,21 +973,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
           }
         }
       }
-    else
-      {
-      for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
-        {
-        *workres = 0;
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,work_responsep++,worklinp++)
-            {
-            *workres += *(*work_responsep) - (*(*worklinp)) + *workf;
 
-            }
-          }
-        }
-      }
     }
 
   // TEST
@@ -1006,8 +1008,20 @@ void DESIGN::compute_partres(int begin,int end,double & res, double & f)
 
     double * workintvar = intvar.getV()+begin;
 
-    if ((likep->changingworkingweights==true) ||
-    ((likep->changingworkingweights==false) && (likep->workingweightsone==false)))
+
+    if (likep->wtype==wweightsnochange_one)
+      {
+      res = 0;
+      if (begin != -1)
+        {
+        for (j=begin;j<=end;j++,work_responsep++,worklinp++,workintvar++)
+          {
+          res += (*workintvar) * (*(*work_responsep) - (*(*worklinp)) +
+          (*workintvar) * f);
+          }
+        }
+      }
+    else
       {
       res = 0;
       if (begin != -1)
@@ -1019,27 +1033,23 @@ void DESIGN::compute_partres(int begin,int end,double & res, double & f)
           (*(*work_responsep) - (*(*worklinp)) + (*workintvar) * f);
           }
         }
-
-      }
-    else
-      {
-      res = 0;
-      if (begin != -1)
-        {
-        for (j=begin;j<=end;j++,work_responsep++,worklinp++,workintvar++)
-          {
-          res += (*workintvar) * (*(*work_responsep) - (*(*worklinp)) +
-          (*workintvar) * f);
-          }
-        }
-
       }
     }
   else                              // additive
     {
 
-    if ((likep->changingworkingweights==true) ||
-    ((likep->changingworkingweights==false) && (likep->workingweightsone==false)))
+    if (likep->wtype==wweightsnochange_one)
+      {
+      res = 0;
+      if (begin != -1)
+        {
+        for (j=begin;j<=end;j++,work_responsep++,worklinp++)
+          {
+          res += *(*work_responsep) - (*(*worklinp)) + f;
+          }
+        }
+      }
+    else
       {
       res = 0;
       if (begin != -1)
@@ -1052,19 +1062,8 @@ void DESIGN::compute_partres(int begin,int end,double & res, double & f)
           }
         }
       }
-    else
-      {
-      res = 0;
-      if (begin != -1)
-        {
-        for (j=begin;j<=end;j++,work_responsep++,worklinp++)
-          {
-          res += *(*work_responsep) - (*(*worklinp)) + f;
-          }
-        }
-      }
 
-    }
+   }
 
   // TEST
   //    ofstream out("c:\\bayesx\\test\\results\\tildey.res");

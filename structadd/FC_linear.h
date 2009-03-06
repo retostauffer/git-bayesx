@@ -122,7 +122,8 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   // FUNCTION: outresults
 
-  void outresults(const ST::string & pathresults);
+  void outresults(ofstream & out_stata,ofstream & out_R,
+                  const ST::string & pathresults);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 

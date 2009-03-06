@@ -527,14 +527,15 @@ void FC_linear::outoptions(void)
 //  optionsp->out("\n");
   }
 
-void FC_linear::outresults(const ST::string & pathresults)
+void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
+                           const ST::string & pathresults)
   {
   if (datanames.size() > 0)
     {
     unsigned i;
     unsigned nrconst = design.cols();
 
-    FC::outresults(pathresults);
+    FC::outresults(out_stata,out_R,pathresults);
 
     ST::string l1 = ST::doubletostring(optionsp->lower1,4);
     ST::string l2 = ST::doubletostring(optionsp->lower2,4);

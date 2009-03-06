@@ -100,7 +100,8 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
     // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(const ST::string & pathresults);
+  void outresults(ofstream & out_stata,ofstream & out_R,
+                 const ST::string & pathresults);
 
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);

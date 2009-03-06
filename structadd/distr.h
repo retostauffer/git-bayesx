@@ -83,19 +83,12 @@ class __EXPORT_TYPE DISTR
 
   datamatrix workingweight;       // Working weight (workingweight = weight
                                   // in the constructor)
-  bool changingworkingweights;    // true if working weights change from
-                                  // iteration to iteration of the sampler
-                                  // changingworkingweights is set true by
-                                  // default
-  bool workingweightsone;         // true if workingweights are one
-                                  // default: = false 
-
 
   weighttype wtype;               // weight type: default is
                                   // wweightschange_weightsneqone, i.e.
                                   // workingweights change and weights are
                                   // not equal to one
-  bool weightsone;                     // true if weights are one for all
+  bool weightsone;                // true if weights are one for all
                                   // observations
 
 
