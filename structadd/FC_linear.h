@@ -17,6 +17,7 @@
 #include"distr.h"
 #include"clstring.h"
 #include"FC.h"
+#include"MASTER_OBJ.h"
 #include<cmath>
 
 namespace MCMC
@@ -32,6 +33,10 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   protected:
 
+  MASTER_OBJ * masterp;
+
+  void compute_meaneffect_design(void);
+
   bool initialize;
   bool IWLS;
 
@@ -39,6 +44,7 @@ class __EXPORT_TYPE FC_linear  : public FC
   datamatrix design;                         // Designmatrix
   vector<datamatrix> designhelp;             // help vector for constructing the
                                              // designmatrix
+  datamatrix meaneffectdesign;
   vector<ST::string> datanames;              // names of covariates
 
   datamatrix Xt;                             // transposed designmatrix
@@ -76,6 +82,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   public:
 
+
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
   // DEFAULT CONSTRUCTOR
@@ -84,7 +91,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   // CONSTRUCTOR
 
-  FC_linear(GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
+  FC_linear(MASTER_OBJ * mp, GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
             vector<ST::string> & vn, const ST::string & t,
            const ST::string & fp,bool sstore);
 

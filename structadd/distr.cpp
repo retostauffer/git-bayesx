@@ -66,6 +66,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 
   trmult=1;
 
+  meaneffect = 0;
+
   }
 
 
@@ -101,6 +103,8 @@ DISTR::DISTR(const DISTR & d)
   family = d.family;
 
   trmult=d.trmult;
+
+  meaneffect = d.meaneffect;
   }
 
 
@@ -137,6 +141,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
   family = d.family;
 
   trmult=d.trmult;
+
+  meaneffect = d.meaneffect;  
 
   return *this;
   }

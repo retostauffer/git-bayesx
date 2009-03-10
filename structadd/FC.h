@@ -103,6 +103,7 @@ class __EXPORT_TYPE FC
   unsigned column;               // the response category the fc belongs to
 
 
+  double meaneffect;            // for results in original scale          
 
   // FUNCTION: readsample
   // TASK: reads sample of parameter 'nr' and stores the sample in datamatrix

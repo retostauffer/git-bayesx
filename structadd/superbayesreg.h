@@ -13,6 +13,7 @@
 
 #include"statobj.h"
 #include"dataobj.h"
+#include"MASTER_OBJ.h"
 #include"GENERAL_OPTIONS.h"
 
 #include"model_parameters.h"
@@ -36,6 +37,7 @@
 
 #include"mcmcsim.h"
 
+using MCMC::MASTER_OBJ;
 
 using randnumbers::uniform;
 using randnumbers::rand_normvek;
@@ -158,6 +160,10 @@ class __EXPORT_TYPE superbayesreg : public statobject
   optionlist regressoptions;
 
   // end: OPTIONS for method regress
+
+ // ------------------------------- MASTER_OBJ ---------------------------------
+
+ MASTER_OBJ master;
 
 //---------------------------------- DISTR  ------------------------------------
 

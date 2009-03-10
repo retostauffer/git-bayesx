@@ -297,6 +297,7 @@ const ST::string & n,ofstream * lo,istream * in,
   clear();
   adminp_p = adp;
   statobj = st;
+  master = MASTER_OBJ();
   create();
   resultsyesno = false;
   run_yes = false;
@@ -310,6 +311,7 @@ superbayesreg::superbayesreg(const ST::string & n,ofstream * lo,istream * in,
   {
   clear();
   statobj = st;
+  master =MASTER_OBJ();
   create();
   resultsyesno = false;
   run_yes = false;
@@ -338,6 +340,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
 
   equations=b.equations;
   simobj = b.simobj;
+
+  master = b.master;
 
   generaloptions = b.generaloptions;
 
@@ -385,6 +389,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 
   equations=b.equations;
   simobj = b.simobj;
+
+  master = b.master;
 
   generaloptions = b.generaloptions;
 
@@ -554,6 +560,7 @@ void hregressrun(superbayesreg & b)
   if ((! failure) && (b.hlevel.getvalue() == 1) &&
       (b.equationtype.getvalue()=="mean"))
     {
+
 
     b.run_yes=true;
 
@@ -744,6 +751,8 @@ bool superbayesreg::create_distribution(void)
   equations[modnr].distrp->responsename=rname;
   equations[modnr].distrp->weightname=wn;
 
+  if (equations[modnr].hlevel==1)
+    master.level1_likep = equations[modnr].distrp;
 
   return false;
 
@@ -867,7 +876,7 @@ bool superbayesreg::create_linear(void)
   if (storesample.getvalue() == true)
     store = true;
 
-  FC_linears.push_back(FC_linear(&generaloptions,equations[modnr].distrp,X,
+  FC_linears.push_back(FC_linear(&master,&generaloptions,equations[modnr].distrp,X,
                          varnames,title,pathconst,store));
 
   equations[modnr].add_FC(&FC_linears[FC_linears.size()-1],pathconstres);
@@ -901,7 +910,7 @@ void superbayesreg::create_pspline(unsigned i)
   if (storesample.getvalue() == true)
     store = true;
 
-  FC_nonps.push_back(FC_nonp(&generaloptions,equations[modnr].distrp,title,
+  FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_psplines[design_psplines.size()-1],
                      terms[i].options,terms[i].varnames,store));
 
@@ -986,7 +995,7 @@ bool superbayesreg::create_hrandom(unsigned i)
   if (storesample.getvalue() == true)
     store = true;
 
-  FC_hrandoms.push_back(FC_hrandom(&generaloptions,equations[modnr].distrp,
+  FC_hrandoms.push_back(FC_hrandom(&master,&generaloptions,equations[modnr].distrp,
                         equations[fnr].distrp, title,pathnonp,pathnonp2,
                         &design_hrandoms[design_hrandoms.size()-1],
                         terms[i].options,terms[i].varnames,store));
@@ -1054,7 +1063,8 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   FC_mults[FC_mults.size()-1].set_intp(dp_pspline,fcnp_pspline);
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-             "_mult.raw","_mult.res","_mult");
+             "_mult.raw","_multiplicative_effect_of",
+             "Multiplicative effect of ");
 
   bool samplem;
   if (terms[i].options[13] == "false")
@@ -1126,7 +1136,7 @@ bool superbayesreg::create_mrf(unsigned i)
   if (storesample.getvalue() == true)
     store = true;
 
-  FC_nonps.push_back(FC_nonp(&generaloptions,equations[modnr].distrp,title,
+  FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_mrfs[design_mrfs.size()-1],
                      terms[i].options,terms[i].varnames,store));
 

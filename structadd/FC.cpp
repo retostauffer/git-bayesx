@@ -45,6 +45,8 @@ FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
 
   addon = 0;
 
+  meaneffect = 0;
+
   }
 
 
@@ -91,6 +93,8 @@ FC::FC(const FC & m)
   nrtrials = m.nrtrials;
 
   column = m.column;
+
+  meaneffect = m.meaneffect;
 
   }
 
@@ -142,6 +146,8 @@ const FC & FC::operator=(const FC & m)
   nrtrials = m.nrtrials;
 
   column = m.column;
+
+  meaneffect = m.meaneffect;
 
   return *this;
 

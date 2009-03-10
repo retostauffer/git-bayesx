@@ -232,7 +232,7 @@ void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
       {
 
       FCmulteffect.optionsp->out("    Results are stored in file\n");
-      FCmulteffect.optionsp->out("  " +  pathresults + "\n");
+      FCmulteffect.optionsp->out("    " +  pathresults + "\n");
       FCmulteffect.optionsp->out("\n");
 
       ofstream outres(pathresults.strtochar());

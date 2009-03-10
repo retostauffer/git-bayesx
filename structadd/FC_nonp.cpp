@@ -33,6 +33,7 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   16      centermethod
   17      internal_mult
   18      pvalue
+  19      meaneffect  
   */
 
   if (op[14] == "increasing")
@@ -46,6 +47,13 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
     pvalue = true;
   else
     pvalue = false;
+
+  if (op[19] == "true")
+    computemeaneffect = true;
+  else
+    computemeaneffect = false;
+
+
   }
 
 
@@ -54,13 +62,14 @@ FC_nonp::FC_nonp(void)
   }
 
 
-FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
+FC_nonp::FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,vector<ST::string> & op,
                  vector<ST::string> & vn,bool sstore)
      : FC(o,t,Dp->Zout.rows(),1,fp,sstore)
   {
   read_options(op,vn);
+  masterp = mp;
   likep = lp;
   designp = Dp;
   param = datamatrix(designp->nrpar,1,0);
@@ -89,7 +98,105 @@ FC_nonp::FC_nonp(GENERAL_OPTIONS * o,DISTR * lp,
     paramsample = FC(o,"",param.rows(),1,fp + ".param",sstore);
     }
 
+  if (computemeaneffect==true)
+    {
+    meaneffect_sample = FC(o,"",beta.rows(),1,fp+".meaneffect",sstore);
+    }
+
   }
+
+
+FC_nonp::FC_nonp(const FC_nonp & m)
+  : FC(FC(m))
+  {
+
+  masterp = m.masterp;
+
+  fsample = m.fsample;
+
+  paramsample = m.paramsample;
+
+  pvalue_sample = m.pvalue_sample;
+  pvalue = m.pvalue;
+  mPhelp = m.mPhelp;
+
+  computemeaneffect = m.computemeaneffect;
+  meaneffect_sample = m.meaneffect_sample;
+
+  stype = m.stype;
+  likep = m.likep;
+  designp = m.designp;
+  param = m.param;
+  paramlin = m.paramlin;
+  parammode = m.parammode;
+  paramold = m.paramold;
+  paramhelp = m.paramhelp;
+  paramKparam = paramKparam;
+  betaold = m.betaold;
+  betadiff = m.betadiff;
+  partres = m.partres;
+  lambda=m.lambda;
+  tau2 = m.tau2;
+  IWLS = m.IWLS;
+
+  Vcenter = m.Vcenter;
+  Vcentert = m.Vcentert;
+  Wcenter = m.Wcenter;
+  Ucenter = m.Ucenter;
+  Utc = m.Utc;
+  ccenter = m.ccenter;
+  helpcenter = m.helpcenter;
+
+  }
+
+
+const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
+  {
+
+  if (this==&m)
+	 return *this;
+  FC::operator=(FC(m));
+
+  masterp = m.masterp;
+
+  fsample = m.fsample;
+
+  paramsample = m.paramsample;
+
+  pvalue_sample = m.pvalue_sample;
+  pvalue = m.pvalue;
+  mPhelp = m.mPhelp;
+
+  computemeaneffect = m.computemeaneffect;
+  meaneffect_sample = m.meaneffect_sample;
+
+  stype = m.stype;
+  likep = m.likep;
+  designp = m.designp;
+  param = m.param;
+  paramlin = m.paramlin;
+  paramKparam = paramKparam;
+  parammode = m.parammode;
+  paramold = m.paramold;
+  paramhelp = m.paramhelp;
+  betaold = m.betaold;
+  betadiff = m.betadiff;
+  partres = m.partres;
+  lambda=m.lambda;
+  tau2 = m.tau2;
+  IWLS = m.IWLS;
+
+  Vcenter = m.Vcenter;
+  Vcentert = m.Vcentert;
+  Wcenter = m.Wcenter;
+  Ucenter = m.Ucenter;
+  Utc = m.Utc;
+  ccenter = m.ccenter;
+  helpcenter = m.helpcenter;
+
+  return *this;
+  }
+
 
 
 void FC_nonp::update_pvalue(void)
@@ -280,86 +387,6 @@ void FC_nonp::compute_pvalue(ST::string & pathresults)
 
 
 
-FC_nonp::FC_nonp(const FC_nonp & m)
-  : FC(FC(m))
-  {
-
-  fsample = m.fsample;
-
-  paramsample = m.paramsample;
-
-  pvalue_sample = m.pvalue_sample;
-  pvalue = m.pvalue;
-  mPhelp = m.mPhelp;
-
-  stype = m.stype;
-  likep = m.likep;
-  designp = m.designp;
-  param = m.param;
-  paramlin = m.paramlin;
-  parammode = m.parammode;
-  paramold = m.paramold;
-  paramhelp = m.paramhelp;
-  paramKparam = paramKparam;
-  betaold = m.betaold;
-  betadiff = m.betadiff;
-  partres = m.partres;
-  lambda=m.lambda;
-  tau2 = m.tau2;
-  IWLS = m.IWLS;
-
-  Vcenter = m.Vcenter;
-  Vcentert = m.Vcentert;
-  Wcenter = m.Wcenter;
-  Ucenter = m.Ucenter;
-  Utc = m.Utc;
-  ccenter = m.ccenter;
-  helpcenter = m.helpcenter;
-
-  }
-
-
-const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
-  {
-
-  if (this==&m)
-	 return *this;
-  FC::operator=(FC(m));
-
-  fsample = m.fsample;
-
-  paramsample = m.paramsample;
-
-  pvalue_sample = m.pvalue_sample;
-  pvalue = m.pvalue;
-  mPhelp = m.mPhelp;
-
-  stype = m.stype;
-  likep = m.likep;
-  designp = m.designp;
-  param = m.param;
-  paramlin = m.paramlin;
-  paramKparam = paramKparam;
-  parammode = m.parammode;
-  paramold = m.paramold;
-  paramhelp = m.paramhelp;
-  betaold = m.betaold;
-  betadiff = m.betadiff;
-  partres = m.partres;
-  lambda=m.lambda;
-  tau2 = m.tau2;
-  IWLS = m.IWLS;
-
-  Vcenter = m.Vcenter;
-  Vcentert = m.Vcentert;
-  Wcenter = m.Wcenter;
-  Ucenter = m.Ucenter;
-  Utc = m.Utc;
-  ccenter = m.ccenter;
-  helpcenter = m.helpcenter;
-
-  return *this;
-  }
 
 
 void FC_nonp::get_linparam(void)
@@ -532,6 +559,15 @@ void FC_nonp::update(void)
       update_gaussian();
       }
     }
+
+
+  designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
+                             meaneffect_sample.beta,computemeaneffect);
+  if (computemeaneffect == true)
+    {
+    meaneffect_sample.update();
+    }
+
   }
 
 
@@ -633,6 +669,32 @@ void FC_nonp::update_gaussian(void)
     }
 
   FC::update();
+
+  }
+
+
+void FC_nonp::compute_meaneffect(void)
+
+  {
+
+  masterp->level1_likep->meaneffect -= meaneffect;
+
+  meaneffect = beta(designp->meaneffectnr,0);     // vorsicht varcoeff
+
+  if (computemeaneffect==true)
+    {
+    unsigned i;
+    double * betap = beta.getV();
+    double * meffectp = meaneffect_sample.beta.getV();
+    double l;
+    for(i=0;i<beta.rows();i++,meffectp++,betap++)
+      {
+      l=masterp->level1_likep->meaneffect+(*betap);
+      likep->compute_mu(&l,meffectp);
+      }
+    }
+
+  masterp->level1_likep->meaneffect += meaneffect;
 
   }
 
@@ -874,6 +936,10 @@ bool FC_nonp::posteriormode(void)
     fsample.posteriormode_betamean();
     }
 
+
+  compute_meaneffect();
+
+
   return FC::posteriormode();
 
   }
@@ -981,6 +1047,9 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     if (designp->position_lin != -1)
       fsample.outresults(out_stata,out_R,pathresults);
 
+   if (computemeaneffect==true)
+      meaneffect_sample.outresults(out_stata,out_R,pathresults);
+
     outresults_acceptance();
 
     optionsp->out("    Results are stored in file\n");
@@ -1003,8 +1072,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     u2 = u2.replaceallsigns('.','p');
 
     outres << "intnr" << "   ";
-//    for (i=0;i<designp->datanames.size();i++)
-      outres << designp->datanames[designp->datanames.size()-1] << "   ";
+    outres << designp->datanames[designp->datanames.size()-1] << "   ";
     outres << "pmean   ";
 
     if (optionsp->samplesize > 1)
@@ -1034,8 +1102,25 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
         outres << "pcat" << optionsp->level1 << "_d   ";
         outres << "pcat" << optionsp->level2 << "_d   ";
         }
+      }
+
+
+    if (computemeaneffect==true)
+      {
+
+      outres << "pmean_mu   ";
+
+      if (optionsp->samplesize > 1)
+        {
+        outres << "pqu"  << l1  << "_mu   ";
+        outres << "pqu"  << l2  << "_mu   ";
+        outres << "pmed_mu   ";
+        outres << "pqu"  << u1  << "_mu   ";
+        outres << "pqu"  << u2  << "_mu   ";
+        }
 
       }
+
 
     outres << endl;
 
@@ -1053,6 +1138,14 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     double * dworkbetaqu_l1_upper_p;
     double * dworkbetaqu_l2_upper_p;
     double * dworkbetaqu50;
+
+
+    double * mu_workmean;
+    double * mu_workbetaqu_l1_lower_p;
+    double * mu_workbetaqu_l2_lower_p;
+    double * mu_workbetaqu_l1_upper_p;
+    double * mu_workbetaqu_l2_upper_p;
+    double * mu_workbetaqu50;
 
 
     if (designp->position_lin!=-1)
@@ -1080,6 +1173,17 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
       workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
       workbetaqu50 = betaqu50.getV();
+      }
+
+
+    if (computemeaneffect==true)
+      {
+      mu_workmean = meaneffect_sample.betamean.getV();
+      mu_workbetaqu_l1_lower_p = meaneffect_sample.betaqu_l1_lower.getV();
+      mu_workbetaqu_l2_lower_p = meaneffect_sample.betaqu_l2_lower.getV();
+      mu_workbetaqu_l1_upper_p = meaneffect_sample.betaqu_l1_upper.getV();
+      mu_workbetaqu_l2_upper_p = meaneffect_sample.betaqu_l2_upper.getV();
+      mu_workbetaqu50 = meaneffect_sample.betaqu50.getV();
       }
 
 
@@ -1153,6 +1257,33 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
           dworkbetaqu50++;
           dworkbetaqu_l1_upper_p++;
           dworkbetaqu_l2_upper_p++;
+          }
+
+        }
+
+
+      if (computemeaneffect==true)
+        {
+
+        outres << *mu_workmean << "   ";
+
+        if (optionsp->samplesize > 1)
+          {
+          outres << *mu_workbetaqu_l1_lower_p << "   ";
+          outres << *mu_workbetaqu_l2_lower_p << "   ";
+          outres << *mu_workbetaqu50 << "   ";
+          outres << *mu_workbetaqu_l2_upper_p << "   ";
+          outres << *mu_workbetaqu_l1_upper_p << "   ";
+          }
+
+        if (i <nrpar-1)
+          {
+          mu_workmean++;
+          mu_workbetaqu_l1_lower_p++;
+          mu_workbetaqu_l2_lower_p++;
+          mu_workbetaqu50++;
+          mu_workbetaqu_l1_upper_p++;
+          mu_workbetaqu_l2_upper_p++;
           }
 
         }

@@ -108,6 +108,9 @@ class __EXPORT_TYPE DESIGN
   vector<ST::string> effectvalues;           // values of the different
                                              // covariates
 
+  unsigned meaneffectnr;
+  unsigned meaneffectnr_intvar;
+
 //------------------------------------------------------------------------------
 
   datamatrix Zout;                           // Design matrix (only non null
@@ -296,6 +299,11 @@ class __EXPORT_TYPE DESIGN
   // TASK: computes XWX and XWres, res is the partial residual
 
   virtual void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
+
+
+  virtual void compute_meaneffect(DISTR * level1_likep,double & meaneffect,
+                                datamatrix & beta,datamatrix & meaneffectbeta,
+                                bool computemeaneffect);
 
 
   virtual void compute_precision(double l);

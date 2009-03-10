@@ -47,12 +47,14 @@ int FC_linear::add_variable(datamatrix & d,ST::string & name)
   }
 
 
-FC_linear::FC_linear(GENERAL_OPTIONS * o,DISTR * lp,datamatrix & d,
+FC_linear::FC_linear(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
+                    datamatrix & d,
                  vector<ST::string> & vn, const ST::string & t,
                  const ST::string & fp,bool sstore)
      : FC(o,t,1,1,fp,sstore)
   {
 
+  masterp = mp;
   likep = lp;
   int i;
   datanames = vn;
@@ -69,10 +71,12 @@ FC_linear::FC_linear(GENERAL_OPTIONS * o,DISTR * lp,datamatrix & d,
 FC_linear::FC_linear(const FC_linear & m)
   : FC(FC(m))
   {
+  masterp = m.masterp;
   IWLS = m.IWLS;
   likep = m.likep;
   design = m.design;
   designhelp = m.designhelp;
+  meaneffectdesign = m.meaneffectdesign;
   XWX = m.XWX;
   XWXold = m.XWXold;
   XWXroot = m.XWXroot;
@@ -88,7 +92,7 @@ FC_linear::FC_linear(const FC_linear & m)
   linold = m.linold;
   linnew = m.linnew;
   linmode = m.linmode;
-  proposal=m.proposal;  
+  proposal=m.proposal;
   diff = m.diff;
   linoldp = m.linoldp;
   linnewp = m.linnewp;
@@ -102,10 +106,12 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+  masterp = m.masterp;
   IWLS = m.IWLS;
   likep = m.likep;
   design = m.design;
   designhelp = m.designhelp;
+  meaneffectdesign = m.meaneffectdesign;
   XWX = m.XWX;
   XWXold = m.XWXold;
   XWXroot = m.XWXroot;
@@ -289,6 +295,11 @@ void FC_linear::update(void)
       update_IWLS();
     else
       update_gaussian();
+
+    masterp->level1_likep->meaneffect -= meaneffect;
+    meaneffect = (meaneffectdesign*beta)(0,0);
+    masterp->level1_likep->meaneffect += meaneffect;
+
     }
   else
     nosamples = true;
@@ -391,6 +402,38 @@ void FC_linear::compute_XWX(datamatrix & r)
   }
 
 
+void FC_linear::compute_meaneffect_design(void)
+  {
+  unsigned i,j;
+
+  meaneffectdesign = datamatrix(1,design.cols(),0);
+
+  double  mhelp;
+
+  double bestdiff;
+  double currentdiff;
+
+  for (j=0;j<design.cols();j++)
+    {
+    mhelp = design.mean(j);
+    bestdiff = fabs(design(0,j) - mhelp);
+    meaneffectdesign(0,j) = design(0,j);
+    for (i=1;i<design.rows();i++)
+      {
+      currentdiff = fabs(design(i,j) - mhelp);
+      if (currentdiff < bestdiff)
+        {
+        bestdiff = currentdiff;
+        meaneffectdesign(0,j) = design(i,j);
+        }
+
+      }
+
+    }
+
+  }
+
+
 void FC_linear::create_matrices(void)
   {
 
@@ -398,6 +441,13 @@ void FC_linear::create_matrices(void)
   design = datamatrix(designhelp[0].rows(),designhelp.size());
   for(i=0;i<designhelp.size();i++)
     design.putCol(i,designhelp[i]);
+
+  compute_meaneffect_design();
+
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\meandesign.res");
+  // meaneffectdesign.prettyPrint(out);
+  // TEST
 
   Xt = design.transposed();
   XWX = datamatrix(design.cols(),design.cols(),0);
@@ -513,6 +563,10 @@ bool FC_linear::posteriormode(void)
     betaold.assign(beta);
 
     transform(0,0) = likep->trmult;
+
+    masterp->level1_likep->meaneffect -= meaneffect;
+    meaneffect = (meaneffectdesign*beta)(0,0);
+    masterp->level1_likep->meaneffect += meaneffect;
 
     return FC::posteriormode();
     }

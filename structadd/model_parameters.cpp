@@ -35,6 +35,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   centermethod = stroption("centermethod",centermethods,"mean");
   internal_multexp = simpleoption("internal_multexp",false);
   pvalue = simpleoption("pvalue",false);
+  meaneffect = simpleoption("meaneffect",false);
   }
 
 void term_nonp::setdefault(void)
@@ -57,6 +58,7 @@ void term_nonp::setdefault(void)
   centermethod.setdefault();
   internal_multexp.setdefault();
   pvalue.setdefault();
+  meaneffect.setdefault();
   }
 
 
@@ -125,6 +127,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&centermethod);
     optlist.push_back(&internal_multexp);
     optlist.push_back(&pvalue);
+    optlist.push_back(&meaneffect);
 
     unsigned i;
     bool rec = true;
@@ -197,6 +200,10 @@ bool term_nonp::check(term & t)
     else
       t.options[18] = "true";
 
+    if(meaneffect.getvalue() == false)
+      t.options[19] = "false";
+    else
+      t.options[19] = "true";
 
     setdefault();
     return true;

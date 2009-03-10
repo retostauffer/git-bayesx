@@ -122,6 +122,11 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   index_data.indexinit();
   dm.indexsort(index_data,0,dm.rows()-1,0,0);
 
+  double dm_mean = dm.mean(0);
+  double iv_mean;
+  if (iv.rows() == dm.rows())
+    iv_mean = iv.mean(0);
+
   make_data(dm,iv);
 
   double * workdata;
@@ -145,10 +150,22 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   if (posend.size() < posbeg.size())
     posend.push_back(data.rows()-1);
 
+
+  double d;
+  meaneffectnr = 0;
+  double mclosest = data(posbeg[0],0);
   for(j=0;j<posbeg.size();j++)
-    effectvalues.push_back(ST::doubletostring(data(posbeg[j],0)));
+    {
+    d = data(posbeg[j],0);
+    if ( fabs(d-dm_mean) < fabs(mclosest-dm_mean) )
+      {
+      meaneffectnr = j;
+      mclosest = d;
+      }
 
+    effectvalues.push_back(ST::doubletostring(d,0));
 
+    }
 
   /*
   // TEST
@@ -204,6 +221,9 @@ DESIGN::DESIGN(const DESIGN & m)
   index_data = m.index_data;
   datanames = m.datanames;
   effectvalues = m.effectvalues;
+  meaneffectnr = m.meaneffectnr;
+  meaneffectnr_intvar = m.meaneffectnr_intvar;
+
 
   Zout = m.Zout;
   index_Zout=m.index_Zout;
@@ -267,6 +287,9 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   index_data = m.index_data;
   datanames = m.datanames;
   effectvalues = m.effectvalues;
+  meaneffectnr = m.meaneffectnr;
+  meaneffectnr_intvar = m.meaneffectnr_intvar;
+
 
   Zout = m.Zout;
   index_Zout=m.index_Zout;
@@ -418,30 +441,71 @@ void DESIGN::compute_XtransposedWX(void)
 
   double * * work_workingweightp = workingweightp.getV();
 
+
   if (intvar.rows() == data.rows())
     {
     double * work_intvar2=intvar2.getV();
-    for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
+
+    if (likep->wtype==wweightsnochange_one)
       {
-      *work_Wsum=0;
-      if (*itbeg != -1)
+      for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
         {
-        for (j=*itbeg;j<=*itend;j++,work_workingweightp++,work_intvar2++)
-          *work_Wsum +=  (*work_intvar2) * (**work_workingweightp);
+        *work_Wsum=0;
+        if (*itbeg != -1)
+          {
+          for (j=*itbeg;j<=*itend;j++,work_intvar2++)
+            *work_Wsum +=  *work_intvar2 ;
+          }
         }
       }
+    else
+      {
+
+      for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
+        {
+        *work_Wsum=0;
+        if (*itbeg != -1)
+          {
+          for (j=*itbeg;j<=*itend;j++,work_workingweightp++,work_intvar2++)
+            *work_Wsum +=  (*work_intvar2) * (**work_workingweightp);
+          }
+        }
+
+      }
+
     }
   else
     {
-    for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
+
+    if (likep->wtype==wweightsnochange_one)
       {
-      *work_Wsum=0;
-      if (*itbeg != -1)
+
+      for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
         {
-        for (j=*itbeg;j<=*itend;j++,work_workingweightp++)
-          *work_Wsum += *(*work_workingweightp);
+        if (*itbeg != -1)
+          {
+          *work_Wsum = *itend - *itbeg + 1;
+          }
+        else
+          *work_Wsum=0;
         }
+
       }
+    else
+      {
+
+      for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
+        {
+        *work_Wsum=0;
+        if (*itbeg != -1)
+          {
+          for (j=*itbeg;j<=*itend;j++,work_workingweightp++)
+            *work_Wsum += *(*work_workingweightp);
+          }
+        }
+
+      }
+
     }
 
   // TEST
@@ -1069,6 +1133,35 @@ void DESIGN::compute_partres(int begin,int end,double & res, double & f)
   //    ofstream out("c:\\bayesx\\test\\results\\tildey.res");
   //    (likep->workingresponse).prettyPrint(out);
   // TEST
+
+  }
+
+
+
+void DESIGN::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
+                                datamatrix & beta,datamatrix & meaneffectbeta,
+                                bool computemeaneffect)
+
+  {
+
+  level1_likep->meaneffect -= meaneffect;
+
+  meaneffect = beta(meaneffectnr,0);     // vorsicht varcoeff
+
+  if (computemeaneffect==true)
+    {
+    unsigned i;
+    double * betap = beta.getV();
+    double * meffectp = meaneffectbeta.getV();
+    double l;
+    for(i=0;i<beta.rows();i++,meffectp++,betap++)
+      {
+      l=level1_likep->meaneffect+(*betap);
+      level1_likep->compute_mu(&l,meffectp);
+      }
+    }
+
+  level1_likep->meaneffect += meaneffect;
 
   }
 

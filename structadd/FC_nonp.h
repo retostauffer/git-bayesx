@@ -17,6 +17,7 @@
 #include"clstring.h"
 #include"FC.h"
 #include"design.h"
+#include"MASTER_obj.h"
 #include<cmath>
 
 namespace MCMC
@@ -33,6 +34,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   protected:
 
+  MASTER_OBJ * masterp;
+
   FC fsample;
 
   FC paramsample;
@@ -43,6 +46,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   DISTR * likep;                             // Pointer to DISTR obejct
   DESIGN * designp;                          // Pointer to design object
+
 
   datamatrix betaold;
   datamatrix betadiff;
@@ -57,10 +61,14 @@ class __EXPORT_TYPE FC_nonp  : public FC
                                              // default no
   datamatrix mPhelp;                         // help matrix for updating p-value
                                              // information
-  
+
   void compute_pvalue(ST::string & pathresults);
   void update_pvalue(void);
 
+
+  bool computemeaneffect;
+  FC meaneffect_sample;
+  void compute_meaneffect(void);
 
   public:
 
@@ -79,7 +87,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   //---------------------------- centering -------------------------------------
 
   datamatrix Vcenter;
-  datamatrix Vcentert;  
+  datamatrix Vcentert;
   datamatrix Wcenter;
   datamatrix Ucenter;
   datamatrix Utc;
@@ -101,7 +109,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // t    : title of the full conditional (for example "fixed effects")
   // fp   : file path for storing sampled parameters
 
-  FC_nonp(GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
+  FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
            const ST::string & fp,DESIGN * dp,vector<ST::string> & op,
              vector<ST::string> & vn,bool sstore);
 

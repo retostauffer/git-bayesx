@@ -44,6 +44,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   stroption centermethod;
   simpleoption internal_multexp;
   simpleoption pvalue;
+  simpleoption meaneffect;
 
   vector<ST::string> termnames;
 

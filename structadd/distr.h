@@ -96,6 +96,8 @@ class __EXPORT_TYPE DISTR
   datamatrix linearpred2;          // Proposed linear predictor
   int linpred_current;
 
+  double meaneffect;  
+
   void swap_linearpred(void);
 
 
