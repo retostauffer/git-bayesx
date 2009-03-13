@@ -563,6 +563,7 @@ void FC_nonp::update(void)
 
   designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
                              meaneffect_sample.beta,computemeaneffect);
+
   if (computemeaneffect == true)
     {
     meaneffect_sample.update();
@@ -673,30 +674,6 @@ void FC_nonp::update_gaussian(void)
   }
 
 
-void FC_nonp::compute_meaneffect(void)
-
-  {
-
-  masterp->level1_likep->meaneffect -= meaneffect;
-
-  meaneffect = beta(designp->meaneffectnr,0);     // vorsicht varcoeff
-
-  if (computemeaneffect==true)
-    {
-    unsigned i;
-    double * betap = beta.getV();
-    double * meffectp = meaneffect_sample.beta.getV();
-    double l;
-    for(i=0;i<beta.rows();i++,meffectp++,betap++)
-      {
-      l=masterp->level1_likep->meaneffect+(*betap);
-      likep->compute_mu(&l,meffectp);
-      }
-    }
-
-  masterp->level1_likep->meaneffect += meaneffect;
-
-  }
 
 
 void FC_nonp::update_isotonic(void)
@@ -936,9 +913,8 @@ bool FC_nonp::posteriormode(void)
     fsample.posteriormode_betamean();
     }
 
-
-  compute_meaneffect();
-
+  designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
+                             meaneffect_sample.beta,computemeaneffect);
 
   return FC::posteriormode();
 
@@ -998,6 +974,17 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,ST::string & path
               << " pcat" << po_str << "_d";
     }
 
+    
+  if (computemeaneffect==true)
+    {
+    out_stata << " pmean_mu pqu"
+              << pu1_str << "_mu"
+              << " pqu" << po1_str << "_mu"
+              << " pmed_d pqu" << po2_str << "_mu"
+              << " pqu" << pu2_str << "_mu";
+    }
+
+
   out_stata << " using "
             << path << endl
             << "drop in 1" << endl
@@ -1031,6 +1018,26 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,ST::string & path
 
     }
 
+
+  if (computemeaneffect==true)
+    {
+
+    out_stata << "graph twoway rarea pqu" << pu1_str << "_mu"
+              << " pqu" << pu2_str << "_mu"
+              << " " << xvar << ", bcolor(gs13) || rarea pqu" << po1_str << "_mu"
+              << " pqu" << po2_str << "_mu"
+              << " " << xvar << " , bcolor(gs10) || /*"
+              << endl << " */ scatter pmean_mu "
+              << xvar << ", c(l) m(i) clpattern(l) clcolor(gs0) /* "
+              << endl << " */ ytitle(\"Effect of "
+              << xvar << "\") xtitle(\"" << xvar
+              << "\") xlab(,grid) ylab(,grid) legend(off)"
+              << endl << "graph export " << pathps << "_mu.eps, replace"
+                    << endl << endl;
+
+    }
+
+
   }
 
 
@@ -1055,6 +1062,10 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    Results are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
+
+    optionsp->out("    Mean effects evaluated at " +
+                  designp->datanames[designp->datanames.size()-1] + "=" +
+                  designp->effectvalues[designp->meaneffectnr]);
 
     ofstream outres(pathresults.strtochar());
 

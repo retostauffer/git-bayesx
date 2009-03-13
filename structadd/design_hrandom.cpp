@@ -30,7 +30,6 @@ vector<ST::string> & vn)
   12      internal_mult
   */
 
-  int f;
 
   datanames = vn;
 
@@ -103,6 +102,8 @@ void DESIGN_hrandom::init_data(const datamatrix & dm, const datamatrix & iv)
   //                     posbeg, posend, effectvalues
 
   make_index(dm,iv);
+
+  meaneffectnr = compute_modecategorie();
 
   nrpar = posbeg.size();
 
@@ -298,7 +299,7 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
 
   double * partresp = partres.getV();
 
-  unsigned i,j;
+  unsigned i;
 
   for(i=0;i<nrpar;i++,workXWres++,linpredREp++,partresp++)
     *workXWres =  l*(*linpredREp)+(*partresp);
@@ -334,6 +335,46 @@ void DESIGN_hrandom::compute_precision(double l)
   }
 
 
+
+void DESIGN_hrandom::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
+                                datamatrix & beta,datamatrix & meaneffectbeta,
+                                bool computemeaneffect)
+
+  {
+
+  level1_likep->meaneffect -= meaneffect;
+
+  double * linpredREp;
+  double linm;
+  if (likep_RE->linpred_current==1)
+    {
+    linpredREp = likep_RE->linearpred1.getV();
+    linm = likep_RE->linearpred1(meaneffectnr,0);
+    }
+  else
+    {
+    linpredREp = likep_RE->linearpred2.getV();
+    linm = likep_RE->linearpred2(meaneffectnr,0);
+    }
+
+  meaneffect = beta(meaneffectnr,0) - linm;     // vorsicht varcoeff
+
+  if (computemeaneffect==true)
+    {
+    unsigned i;
+    double * betap = beta.getV();
+    double * meffectp = meaneffectbeta.getV();
+    double l;
+    for(i=0;i<beta.rows();i++,meffectp++,betap++,linpredREp++)
+      {
+      l=level1_likep->meaneffect+(*betap)- (*linpredREp);
+      level1_likep->compute_mu(&l,meffectp);
+      }
+    }
+
+  level1_likep->meaneffect += meaneffect;
+
+  }
 
 
 void DESIGN_hrandom::outoptions(GENERAL_OPTIONS * op)

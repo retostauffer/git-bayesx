@@ -70,6 +70,8 @@ class __EXPORT_TYPE DESIGN
   void make_index(const datamatrix & dm, const datamatrix & iv);
 
 
+  unsigned compute_modecategorie(void);  
+
 
   DISTR * likep;                             // Pointer to DISTR obejct
 
@@ -110,6 +112,7 @@ class __EXPORT_TYPE DESIGN
 
   unsigned meaneffectnr;
   unsigned meaneffectnr_intvar;
+  double meaneffectintvar;
 
 //------------------------------------------------------------------------------
 

@@ -113,6 +113,7 @@ void DESIGN::make_data(const datamatrix & dm,const datamatrix & iv)
 
   }
 
+  
 void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   {
 
@@ -167,6 +168,27 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
 
     }
 
+
+  meaneffectintvar=1;
+  if (iv.rows() == dm.rows())
+    {
+    double * intvarp = intvar.getV();
+    meaneffectnr_intvar = 0;
+    mclosest = *intvarp;
+    for (j=0;j<intvar.rows();j++,intvarp++)
+      {
+
+      if ( fabs(*intvarp-iv_mean) < fabs(mclosest-iv_mean) )
+        {
+        meaneffectnr_intvar = j;
+        mclosest = *intvarp;
+        meaneffectintvar= *intvarp;        
+        }
+
+      }
+
+    }
+
   /*
   // TEST
   int ev = effectvalues.size();
@@ -178,6 +200,30 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   */
 
   }
+
+
+unsigned DESIGN::compute_modecategorie(void)
+  {
+
+  unsigned j;
+
+  double d;
+  unsigned modenr = 0;
+  double mnr = 0;
+  for(j=0;j<posbeg.size();j++)
+    {
+    d = (posend[j] - posbeg[j]+1);
+    if ( d > mnr)
+      {
+      modenr = j;
+      mnr = d;
+      }
+
+    }
+
+  return modenr;
+  }
+
 
 
 // DEFAULT CONSTRUCTOR
@@ -223,6 +269,8 @@ DESIGN::DESIGN(const DESIGN & m)
   effectvalues = m.effectvalues;
   meaneffectnr = m.meaneffectnr;
   meaneffectnr_intvar = m.meaneffectnr_intvar;
+  meaneffectintvar = m.meaneffectintvar;  
+
 
 
   Zout = m.Zout;
@@ -1146,19 +1194,32 @@ void DESIGN::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
 
   level1_likep->meaneffect -= meaneffect;
 
-  meaneffect = beta(meaneffectnr,0);     // vorsicht varcoeff
+  meaneffect = meaneffectintvar* beta(meaneffectnr,0);
 
   if (computemeaneffect==true)
     {
+
     unsigned i;
     double * betap = beta.getV();
     double * meffectp = meaneffectbeta.getV();
     double l;
-    for(i=0;i<beta.rows();i++,meffectp++,betap++)
+    if (intvar.rows() == data.rows())
       {
-      l=level1_likep->meaneffect+(*betap);
-      level1_likep->compute_mu(&l,meffectp);
+      for(i=0;i<beta.rows();i++,meffectp++,betap++)
+        {
+        l=level1_likep->meaneffect+meaneffectintvar*(*betap);
+        level1_likep->compute_mu(&l,meffectp);
+        }
       }
+    else
+      {
+      for(i=0;i<beta.rows();i++,meffectp++,betap++)
+        {
+        l=level1_likep->meaneffect+(*betap);
+        level1_likep->compute_mu(&l,meffectp);
+        }
+      }
+
     }
 
   level1_likep->meaneffect += meaneffect;

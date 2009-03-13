@@ -47,6 +47,7 @@ using MCMC::GENERAL_OPTIONS;
 
 using MCMC::DISTR;
 using MCMC::DISTR_gaussian;
+using MCMC::DISTR_loggaussian;
 using MCMC::DISTR_gaussian_re;
 using MCMC::DISTR_gaussian_exp;
 using MCMC::DISTR_gaussian_mult;
@@ -154,8 +155,13 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<ST::string> equationtypes;
   stroption equationtype;               // type of equation, e.g. mean, variance
 
+  // prediction
   vector<ST::string> predictop;
   stroption predict;
+
+  vector<ST::string> MSEop;
+  stroption mse;
+
 
   optionlist regressoptions;
 
@@ -168,6 +174,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 //---------------------------------- DISTR  ------------------------------------
 
   vector<DISTR_gaussian> distr_gaussians;
+  vector<DISTR_loggaussian> distr_loggaussians;
   vector<DISTR_gaussian_re> distr_gaussian_res;
   vector<DISTR_gaussian_exp> distr_gaussian_exps;
   vector<DISTR_gaussian_mult> distr_gaussian_mults;

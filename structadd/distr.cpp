@@ -18,9 +18,23 @@ bool DISTR::check_weightsone(void)
     work_weight++;
     i++;
     }
-  return one;  
+  return one;
   }
 
+
+unsigned DISTR::compute_nrzeroweights(void)
+  {
+  unsigned i=0;
+  double * work_weight = weight.getV();
+  unsigned nr=0;
+  for (i=0;i<weight.rows();i++,work_weight++)
+    {
+    if (*work_weight == 0)
+      nr++;
+    }
+  return nr;
+  }
+  
 
 DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
              const datamatrix & w)
@@ -54,6 +68,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   workingweight = weight;
 
   weightsone = check_weightsone();
+  nrzeroweights = compute_nrzeroweights();
 
   wtype = wweightschange_weightsneqone;
 
@@ -90,6 +105,7 @@ DISTR::DISTR(const DISTR & d)
 
   weight = d.weight;
   weightname = d.weightname;
+  nrzeroweights = d.nrzeroweights;  
 
   workingweight = d.workingweight;
   weightsone = d.weightsone;
@@ -128,6 +144,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
 
   weight = d.weight;
   weightname = d.weightname;
+  nrzeroweights = d.nrzeroweights;
 
   workingweight = d.workingweight;
   weightsone = d.weightsone;
@@ -142,7 +159,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
 
   trmult=d.trmult;
 
-  meaneffect = d.meaneffect;  
+  meaneffect = d.meaneffect;
 
   return *this;
   }
@@ -622,7 +639,7 @@ void DISTR_gaussian::update(void)
     sum += *workweight*pow(help,2);
     }
 
-  sigma2  = rand_invgamma(a_invgamma+0.5*nrobs,
+  sigma2  = rand_invgamma(a_invgamma+0.5*(nrobs-nrzeroweights),
                           b_invgamma+0.5*sum);
 
   FCsigma2.beta(0,0) = sigma2;
@@ -649,9 +666,17 @@ void DISTR_gaussian::compute_deviance(const double * response,
                                  double * deviance, double * deviancesat,
                                  double * scale) const
   {
-  double r = *response-*mu;
-  *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
-  *deviancesat = (*weight/(*scale))*r*r;
+  if (*weight == 0)
+    {
+    *deviance = 0;
+    *deviancesat = 0;
+    }
+  else
+    {
+    double r = *response-*mu;
+    *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
+    *deviancesat = (*weight/(*scale))*r*r;
+    }
   }
 
 
@@ -659,10 +684,13 @@ void DISTR_gaussian::compute_deviance(const double * response,
 double DISTR_gaussian::loglikelihood(double * res, double * lin,
                                      double * w) const
   {
-  double help = *res-*lin;
-  return  - *w * (pow(help,2))/(2* sigma2);
-
-
+  if (*w==0)
+    return 0;
+  else
+    {
+    double help = *res-*lin;
+    return  - *w * (pow(help,2))/(2* sigma2);
+    }
   }
 
 
@@ -670,8 +698,6 @@ double DISTR_gaussian::loglikelihood_weightsone(double * res, double * lin) cons
   {
   double help = *res-*lin;
   return  - (pow(help,2))/(2* sigma2);
-
-
   }
 
 
@@ -681,7 +707,7 @@ double DISTR_gaussian::compute_iwls(double * response, double * linpred,
   {
   *workingweight=*weight;
   *workingresponse = *response;
-  if (like)
+  if (like && (*weight != 0))
     return  - *weight * (pow(*response-(*linpred),2))/(2* sigma2);
   else
     return 0;
@@ -711,7 +737,7 @@ void DISTR_gaussian::compute_iwls_wweightsnochange_constant(double * response,
                                               const bool & compute_like)
   {
   *workingresponse = *response;
-  if (compute_like)
+  if (compute_like && *workingweight!=0)
     like  =- *workingweight * (pow(*response-(*linpred),2))/(2* sigma2);
   }
 
@@ -886,6 +912,72 @@ double DISTR_gaussian::get_scalemean(void)
   {
   return FCsigma2.betamean(0,0);
   }
+
+
+//------------------------------------------------------------------------------
+//---------------------- CLASS DISTRIBUTION_loggaussian ------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_loggaussian::DISTR_loggaussian(const double & a,
+                                             const double & b,
+                                             GENERAL_OPTIONS * o,
+                                             const datamatrix & r,
+                                             const ST::string & ps,
+                                             const datamatrix & w)
+  : DISTR_gaussian(a,b,o,r,ps,w)
+
+  {
+  family = "log-Gaussian";
+  }
+
+
+const DISTR_loggaussian & DISTR_loggaussian::operator=(
+                                      const DISTR_loggaussian & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gaussian::operator=(DISTR_gaussian(nd));
+  return *this;
+  }
+
+
+DISTR_loggaussian::DISTR_loggaussian(const DISTR_loggaussian & nd)
+   : DISTR_gaussian(DISTR_gaussian(nd))
+  {
+  }
+
+
+
+void DISTR_loggaussian::compute_mu(const double * linpred,double * mu,
+                                bool notransform)
+  {
+//  double scale = FCsigma2.beta(0,0);
+
+  if (!notransform)
+    *mu = exp(trmult * (*linpred) + sigma2*pow(trmult,2)/2.0);
+  else
+    *mu = exp((*linpred) + sigma2*pow(trmult,2)/2.0);
+  }
+
+
+void DISTR_loggaussian::compute_deviance(const double * response,
+                                 const double * weight, const double * mu,
+                                 double * deviance, double * deviancesat,
+                                 double * scale) const
+  {
+  double r = *response-*mu;
+  *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
+  *deviancesat = (*weight/(*scale))*r*r;
+  }
+
+
+/*
+    double s = scale(0,0)*pow(trmult(0,0),2);
+    double r = *response*trmult(0,0)-(log(*mu)-0.5*s);
+    *deviance = (*weight/s)*r*r+log(2*M_PI*s/(*weight)) + 2.0**response*trmult(0,0);
+    *deviancesat = (*weight/s)*r*r;
+*/
 
 
 //------------------------------------------------------------------------------

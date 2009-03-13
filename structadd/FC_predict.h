@@ -34,6 +34,8 @@ using std::bitset;
 //--------------------------- CLASS: FC_predict --------------------------------
 //------------------------------------------------------------------------------
 
+enum msetype{no,all,zeroweights};
+
 
 class __EXPORT_TYPE FC_predict   : public FC
   {
@@ -46,13 +48,19 @@ class __EXPORT_TYPE FC_predict   : public FC
   datamatrix designmatrix;
   vector<ST::string> varnames;
 
+  unsigned & colresponse;
+  unsigned & colweight;
 
   double deviance;
   double deviancesat;
 
+
+
   void get_predictor(void);
 
   public:
+
+  msetype MSE;
 
   // DEFAULT CONSTRUCTOR
 
@@ -62,6 +70,7 @@ class __EXPORT_TYPE FC_predict   : public FC
 
   FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
      const ST::string & fp,const ST::string & fpd, datamatrix & dm,
+     unsigned & cresponse, unsigned & cweight,
      vector<ST::string> & dn);
 
   // COPY CONSTRUCTOR

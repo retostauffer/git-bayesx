@@ -111,6 +111,7 @@ void superbayesreg::create_hregress(void)
 
   families.reserve(20);
   families.push_back("gaussian");
+  families.push_back("loggaussian");  
   families.push_back("gaussian_re");
   families.push_back("gaussian_exp");
   families.push_back("gaussian_mult");
@@ -132,6 +133,12 @@ void superbayesreg::create_hregress(void)
   predictop.push_back("full");
   predict = stroption("predict",predictop,"no");
 
+  MSEop.reserve(20);
+  MSEop.push_back("no")
+  MSEop.push_back("all")
+  MSEop.push_back("weightszero")
+  mse = stroption("MSE",MSEop,"no");
+
 
   regressoptions.reserve(100);
 
@@ -150,6 +157,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&equationnr);
   regressoptions.push_back(&equationtype);
   regressoptions.push_back(&predict);
+  regressoptions.push_back(&mse);  
 
 
   // methods 0
@@ -239,6 +247,9 @@ void superbayesreg::clear(void)
 
   distr_gaussians.erase(distr_gaussians.begin(),distr_gaussians.end());
   distr_gaussians.reserve(10);
+
+  distr_loggaussians.erase(distr_loggaussians.begin(),distr_loggaussians.end());
+  distr_loggaussians.reserve(10);
 
   distr_gaussian_res.erase(distr_gaussian_res.begin(),distr_gaussian_res.end());
   distr_gaussian_res.reserve(10);
@@ -346,6 +357,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
+  distr_loggaussians = b.distr_loggaussians;  
   distr_gaussian_res = b.distr_gaussian_res;
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
@@ -395,6 +407,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
+  distr_loggaussians = b.distr_loggaussians;
   distr_gaussian_res = b.distr_gaussian_res;
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
@@ -694,6 +707,21 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: Gaussian response ----------------------------
+//-------------------------- log-Gaussian response -----------------------------
+  else if (family.getvalue() == "loggaussian")
+    {
+
+    ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+
+    distr_loggaussians.push_back(DISTR_loggaussian(aresp.getvalue(),
+                                       bresp.getvalue(),
+                                      &generaloptions,D.getCol(0),path,w) );
+
+    equations[modnr].distrp = &distr_loggaussians[distr_loggaussians.size()-1];
+    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+
+    }
+//------------------------- END: log-Gaussian response -------------------------
 //--------------- Gaussian response, exponential response function -------------
   else if (family.getvalue() == "gaussian_exp")
     {

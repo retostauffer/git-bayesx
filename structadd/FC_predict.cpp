@@ -41,9 +41,13 @@ FC_predict::FC_predict(void)
 
 FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
      const ST::string & fp, const ST::string & fpd, datamatrix & dm,
+     unsigned & cresponse, unsigned & cweight,
       vector<ST::string> & dn)
   : FC(o,t,1,1,fp,false)
   {
+  colweight = cweight;
+  colresponse = cresponse;
+  MSE = no;
   likep = lp;
   designmatrix= dm;
   varnames = dn;
@@ -57,6 +61,9 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
 FC_predict::FC_predict(const FC_predict & m)
   : FC(FC(m))
   {
+  colresponse = m.colresponse;
+  colweight = m.colweight;
+  MSE = m.MSE;
   likep = m.likep;
   designmatrix = m.designmatrix;
   varnames = m.varnames;
@@ -71,6 +78,9 @@ const FC_predict & FC_predict::operator=(const FC_predict & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+  colresponse = m.colresponse;
+  colweight = m.colweight;
+  MSE = m.MSE;
   likep = m.likep;
   designmatrix = m.designmatrix;
   varnames = m.varnames;
@@ -372,6 +382,7 @@ void FC_predict::outresults_deviance(void)
 void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
                             const ST::string & pathresults)
   {
+  double MSE = 0;
 
   if (pathresults.isvalidfile() != 1)
     {
@@ -380,7 +391,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     FC_deviance.outresults(out_stata,out_R,"");
 
     optionsp->out("  PREDICTED VALUES: \n",true);
-    optionsp->out("\n");    
+    optionsp->out("\n");
 
     optionsp->out("  Results for the predictor, mean are stored in file\n");
     optionsp->out("  " +  pathresults + "\n");
@@ -472,6 +483,13 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
       workbetaqu_l2_upper_p++;
 
       outres << *workmean << "   ";
+      if (MSE != no)
+        {
+        if
+
+// designmatrix(i,j)
+
+        }
 
       if (optionsp->samplesize > 1)
         {
@@ -488,7 +506,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
      }
 
     outresults_deviance();
-    outresults_DIC();    
+    outresults_DIC();
 
     }   // end if (pathresults.isvalidfile() != 1)
 

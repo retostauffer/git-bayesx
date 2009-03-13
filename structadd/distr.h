@@ -53,6 +53,11 @@ class __EXPORT_TYPE DISTR
 
   bool check_weightsone(void);
 
+  // FUNCTION: compute_nrzeroweights
+  // TASK: determines the number of zero weights and returns the result
+
+  unsigned compute_nrzeroweights(void);
+
 
   GENERAL_OPTIONS * optionsp;         // pointer to general MCMC options object
 
@@ -69,6 +74,7 @@ class __EXPORT_TYPE DISTR
   ST::string family;              // name of the distribution
 
   unsigned nrobs;                 // Number of observations
+
 
   datamatrix response;                // Response
   datamatrix response_untransformed;  // untransformed response, i.e.
@@ -91,6 +97,7 @@ class __EXPORT_TYPE DISTR
   bool weightsone;                // true if weights are one for all
                                   // observations
 
+  unsigned nrzeroweights;         // number of zero weights 
 
   datamatrix linearpred1;          // Linear predictor
   datamatrix linearpred2;          // Proposed linear predictor
@@ -437,6 +444,54 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
   double get_scalemean(void);
 
+
+  };
+
+//------------------------------------------------------------------------------
+//-------------------- CLASS: DISTRIBUTION_loggaussian -------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_loggaussian : public DISTR_gaussian
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTR_loggaussian(void) : DISTR_gaussian()
+     {
+     }
+
+   // CONSTRUCTOR1
+   // a_invgamma = a
+   // b_invgamma = b
+
+   DISTR_loggaussian(const double & a,const double & b,GENERAL_OPTIONS * o,
+                  const datamatrix & r,const ST::string & ps,
+                         const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+   DISTR_loggaussian(const DISTR_loggaussian & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTR_loggaussian & operator=(const DISTR_loggaussian & nd);
+
+   // DESTRUCTOR
+
+   ~DISTR_loggaussian() {}
+
+  void compute_mu(const double * linpred,double * mu, bool notransform);
+
+  void compute_deviance(const double * response,
+                           const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           double * scale) const;
 
   };
 

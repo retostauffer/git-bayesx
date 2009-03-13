@@ -68,7 +68,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   bool computemeaneffect;
   FC meaneffect_sample;
-  void compute_meaneffect(void);
+
 
   public:
 

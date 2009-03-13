@@ -258,14 +258,7 @@ void FC_hrandom::update_IWLS(void)
 void FC_hrandom::update(void)
   {
 
-  if (IWLS)
-    {
-    update_IWLS();
-    }
-  else
-    {
-    FC_nonp::update_gaussian();
-    }
+  FC_nonp::update();
 
   set_rcoeff();
 
@@ -441,9 +434,16 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
     FC::outresults(out_stata,out_R,pathresults);
     FCrcoeff.outresults(out_stata,out_R,"");
 
+   if (computemeaneffect==true)
+      meaneffect_sample.outresults(out_stata,out_R,pathresults);
+
     optionsp->out("    Results are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
+
+    optionsp->out("    Mean effects evaluated at " +
+                  designp->datanames[designp->datanames.size()-1] + "=" +
+                  designp->effectvalues[designp->meaneffectnr]);
 
     ofstream outres(pathresults.strtochar());
 
@@ -490,6 +490,23 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
       }
 
 
+    if (computemeaneffect==true)
+      {
+
+      outres << "pmean_mu   ";
+
+      if (optionsp->samplesize > 1)
+        {
+        outres << "pqu"  << l1  << "_mu   ";
+        outres << "pqu"  << l2  << "_mu   ";
+        outres << "pmed_mu   ";
+        outres << "pqu"  << u1  << "_mu   ";
+        outres << "pqu"  << u2  << "_mu   ";
+        }
+
+      }
+
+
     outres << endl;
 
     double * workmean = betamean.getV();
@@ -505,6 +522,23 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
     double * workbetaqu_l1_upper_p_rcoeff = FCrcoeff.betaqu_l1_upper.getV();
     double * workbetaqu_l2_upper_p_rcoeff = FCrcoeff.betaqu_l2_upper.getV();
     double * workbetaqu50_rcoeff = FCrcoeff.betaqu50.getV();
+
+    double * mu_workmean;
+    double * mu_workbetaqu_l1_lower_p;
+    double * mu_workbetaqu_l2_lower_p;
+    double * mu_workbetaqu_l1_upper_p;
+    double * mu_workbetaqu_l2_upper_p;
+    double * mu_workbetaqu50;
+
+    if (computemeaneffect==true)
+      {
+      mu_workmean = meaneffect_sample.betamean.getV();
+      mu_workbetaqu_l1_lower_p = meaneffect_sample.betaqu_l1_lower.getV();
+      mu_workbetaqu_l2_lower_p = meaneffect_sample.betaqu_l2_lower.getV();
+      mu_workbetaqu_l1_upper_p = meaneffect_sample.betaqu_l1_upper.getV();
+      mu_workbetaqu_l2_upper_p = meaneffect_sample.betaqu_l2_upper.getV();
+      mu_workbetaqu50 = meaneffect_sample.betaqu50.getV();
+      }
 
     unsigned nrpar = beta.rows();
     for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
@@ -567,6 +601,34 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
         else
           outres << 0 << "   ";
         }
+
+
+      if (computemeaneffect==true)
+        {
+
+        outres << *mu_workmean << "   ";
+
+        if (optionsp->samplesize > 1)
+          {
+          outres << *mu_workbetaqu_l1_lower_p << "   ";
+          outres << *mu_workbetaqu_l2_lower_p << "   ";
+          outres << *mu_workbetaqu50 << "   ";
+          outres << *mu_workbetaqu_l2_upper_p << "   ";
+          outres << *mu_workbetaqu_l1_upper_p << "   ";
+          }
+
+        if (i <nrpar-1)
+          {
+          mu_workmean++;
+          mu_workbetaqu_l1_lower_p++;
+          mu_workbetaqu_l2_lower_p++;
+          mu_workbetaqu50++;
+          mu_workbetaqu_l1_upper_p++;
+          mu_workbetaqu_l2_upper_p++;
+          }
+
+        }
+
 
       outres << endl;
       }

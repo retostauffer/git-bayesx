@@ -472,6 +472,11 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
       genoptions->out("  " + equations[nrmodels-1-i].distrp->family + "\n");
       genoptions->out("  Number of observations: " +
       ST::inttostring(equations[nrmodels-1-i].distrp->response.rows()) + "\n");
+      genoptions->out("  Number of observations with positive Weights: " +
+      ST::inttostring(equations[nrmodels-1-i].distrp->response.rows()-
+      equations[nrmodels-1-i].distrp->nrzeroweights
+      ) + "\n");
+
       genoptions->out("\n");
 
       } // end: if (!presim)
