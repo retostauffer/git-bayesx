@@ -126,12 +126,16 @@ void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
 
   make_data(dm,iv);
 
+  meaneffectnr = compute_modecategorie();
+  compute_meaneffectintvar();
+
   if (ma.get_errormessages().size() > 0)
     {
 //  FEHLT!!
     }
 
   }
+
 
 
 void DESIGN_mrf::compute_penalty(void)

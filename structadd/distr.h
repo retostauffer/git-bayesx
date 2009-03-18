@@ -201,6 +201,13 @@ class __EXPORT_TYPE DISTR
 
 
   //----------------------------------------------------------------------------
+  //------------------------------- COMPUTE MSE --------------------------------
+  //----------------------------------------------------------------------------
+
+  virtual double compute_MSE(const double * response, const double * weight,
+                             const double * linpred);
+
+  //----------------------------------------------------------------------------
   //----------------------------- IWLS Algorithm -------------------------------
   //----------------------------------------------------------------------------
 
@@ -486,6 +493,10 @@ class __EXPORT_TYPE DISTR_loggaussian : public DISTR_gaussian
    ~DISTR_loggaussian() {}
 
   void compute_mu(const double * linpred,double * mu, bool notransform);
+
+  double compute_MSE(const double * response, const double * weight,
+                     const double * linpred);
+
 
   void compute_deviance(const double * response,
                            const double * weight,

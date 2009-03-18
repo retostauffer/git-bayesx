@@ -134,9 +134,8 @@ void superbayesreg::create_hregress(void)
   predict = stroption("predict",predictop,"no");
 
   MSEop.reserve(20);
-  MSEop.push_back("no")
-  MSEop.push_back("all")
-  MSEop.push_back("weightszero")
+  MSEop.push_back("no");
+  MSEop.push_back("yes");
   mse = stroption("MSE",MSEop,"no");
 
 
@@ -822,6 +821,9 @@ void superbayesreg::create_predict(void)
 
     FC_predicts.push_back(FC_predict(&generaloptions,
                          equations[modnr].distrp,"",pathnonp,pathnonp2,D,modelvarnamesv));
+
+    if (mse.getvalue() ==  "yes")
+      FC_predicts[FC_predicts.size()-1].MSE = MCMC::yesMSE;
 
     equations[modnr].add_FC(&FC_predicts[FC_predicts.size()-1],pathres);
 

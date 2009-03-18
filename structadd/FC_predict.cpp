@@ -41,13 +41,10 @@ FC_predict::FC_predict(void)
 
 FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
      const ST::string & fp, const ST::string & fpd, datamatrix & dm,
-     unsigned & cresponse, unsigned & cweight,
       vector<ST::string> & dn)
   : FC(o,t,1,1,fp,false)
   {
-  colweight = cweight;
-  colresponse = cresponse;
-  MSE = no;
+  MSE = noMSE;
   likep = lp;
   designmatrix= dm;
   varnames = dn;
@@ -61,8 +58,6 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
 FC_predict::FC_predict(const FC_predict & m)
   : FC(FC(m))
   {
-  colresponse = m.colresponse;
-  colweight = m.colweight;
   MSE = m.MSE;
   likep = m.likep;
   designmatrix = m.designmatrix;
@@ -78,8 +73,6 @@ const FC_predict & FC_predict::operator=(const FC_predict & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
-  colresponse = m.colresponse;
-  colweight = m.colweight;
   MSE = m.MSE;
   likep = m.likep;
   designmatrix = m.designmatrix;
@@ -219,33 +212,33 @@ void FC_predict::outresults_DIC(void)
   optionsp->out("  ESTIMATION RESULTS FOR THE DIC: \n",true);
   optionsp->out("\n");
 
-  optionsp->out("  DIC based on the unstandardized deviance\n");
+  optionsp->out("    DIC based on the unstandardized deviance\n");
   optionsp->out("\n");
 
-  optionsp->out("  Deviance(bar_mu):           " +
+  optionsp->out("    Deviance(bar_mu):           " +
   ST::doubletostring(deviance2,d) + "\n");
 
-  optionsp->out("  pD:                         " +
+  optionsp->out("    pD:                         " +
   ST::doubletostring(devhelpm-deviance2,d) + "\n");
 
-  optionsp->out("  DIC:                        " +
+  optionsp->out("    DIC:                        " +
   ST::doubletostring(2*devhelpm-deviance2,d) + "\n");
   optionsp->out("\n");
 
 
-  optionsp->out("  DIC based on the saturated deviance\n");
+  optionsp->out("    DIC based on the saturated deviance\n");
   optionsp->out("\n");
 
 
   double devhelpm_sat = FC_deviance.betamean(1,0);
 
-  optionsp->out("  Deviance(bar_mu):           " +
+  optionsp->out("    Deviance(bar_mu):           " +
   ST::doubletostring(deviance2_sat,d) + "\n");
 
-  optionsp->out("  pD:                         " +
+  optionsp->out("    pD:                         " +
   ST::doubletostring(devhelpm_sat-deviance2_sat,d) + "\n");
 
-  optionsp->out("  DIC:                        " +
+  optionsp->out("    DIC:                        " +
   ST::doubletostring(2*devhelpm_sat-deviance2_sat,d) + "\n");
 
   optionsp->out("\n");
@@ -268,32 +261,32 @@ void FC_predict::outresults_deviance(void)
     u2 = u2.replaceallsigns('.','p');
 
 
-    ST::string meanstr = "  Mean:          ";
+    ST::string meanstr = "    Mean:          ";
     unsigned l_meanstr = meanstr.length();
 
-    ST::string stdstr =  "  Std. Dev:      ";
+    ST::string stdstr =  "    Std. Dev:      ";
     unsigned l_stdstr = stdstr.length();
 
-    ST::string l1str = "  " + l1 + "% Quantile: ";
+    ST::string l1str = "    " + l1 + "% Quantile: ";
     unsigned l_l1str = l1str.length();
 
-    ST::string l2str = "  " + l2 + "% Quantile: ";
+    ST::string l2str = "    " + l2 + "% Quantile: ";
     unsigned l_l2str = l2str.length();
 
-    ST::string medianstr = "  50% Quantile: ";
+    ST::string medianstr = "    50% Quantile: ";
     unsigned l_medianstr = medianstr.length();
 
-    ST::string u1str = "  " + u1 + "% Quantile: ";
+    ST::string u1str = "    " + u1 + "% Quantile: ";
     unsigned l_u1str = u1str.length();
 
-    ST::string u2str = "  " + u2 + "% Quantile: ";
+    ST::string u2str = "    " + u2 + "% Quantile: ";
     unsigned l_u2str = u2str.length();
 
 
     optionsp->out("  ESTIMATION RESULT FOR THE DEVIANCE: \n",true);
     optionsp->out("\n");
 
-    optionsp->out("  Unstandardized Deviance (-2*Loglikelihood(y|mu))\n");
+    optionsp->out("    Unstandardized Deviance (-2*Loglikelihood(y|mu))\n");
     optionsp->out("\n");
 
     double devhelpm = FC_deviance.betamean(0,0);
@@ -379,10 +372,56 @@ void FC_predict::outresults_deviance(void)
     }
 
 
+void FC_predict::compute_MSE(ST::string & pathresults)
+  {
+
+  unsigned i;
+  unsigned nrobs = designmatrix.rows();
+  unsigned nrzeroweights = 0;
+  double meanmse = 0;
+  double meanmse_zeroweight=0;
+  double * responsep = likep->response_untransformed.getV();
+  double * weightp = likep->weight.getV();
+  double * linpredp = betamean.getV();
+  for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=2)
+    if (*weightp==0)
+      {
+      meanmse_zeroweight += likep->compute_MSE(responsep,weightp,linpredp);
+      nrzeroweights++;
+      }
+    else
+      meanmse += likep->compute_MSE(responsep,weightp,linpredp);
+
+  ST::string h;
+  optionsp->out("  EMPIRICAL MSE: \n",true);
+  optionsp->out("\n");
+  h = ST::doubletostring(meanmse_zeroweight+meanmse,10);
+  optionsp->out("    sum MSE (all observations):            " +
+  h +   "\n");
+  optionsp->out("    sum MSE (zero weight observations):    " +
+  ST::doubletostring(meanmse_zeroweight,10) +  "\n");
+  optionsp->out("    sum MSE (nonzero weight observations): " +
+  ST::doubletostring(meanmse,10) +  "\n");
+  optionsp->out("\n");
+
+  ST::string pathmse = pathresults.substr(0,pathresults.length()-4) + "_MSE.res";
+  ofstream out(pathmse.strtochar());
+  out << "nrobs  nrzeroweights  sum_MSE  sum_MSE_zeroweights   sum_MSE_nonzeroweights" << endl;
+  out << nrobs  << "  "
+      << nrzeroweights << "  "
+      <<  (meanmse_zeroweight+meanmse)
+      << "  " << meanmse_zeroweight
+      << "  " << meanmse << endl;
+
+  optionsp->out("    Results for the MSE are also stored in file\n");
+  optionsp->out("    " + pathmse + "\n");
+  optionsp->out("\n");
+
+  }
+
 void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
                             const ST::string & pathresults)
   {
-  double MSE = 0;
 
   if (pathresults.isvalidfile() != 1)
     {
@@ -393,9 +432,14 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("  PREDICTED VALUES: \n",true);
     optionsp->out("\n");
 
-    optionsp->out("  Results for the predictor, mean are stored in file\n");
-    optionsp->out("  " +  pathresults + "\n");
+    optionsp->out("    Results for the predictor, mean are stored in file\n");
+    optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
+
+    if (MSE != noMSE)
+      {
+      compute_MSE(pathresults);
+      }
 
     ofstream outres(pathresults.strtochar());
 
@@ -483,13 +527,6 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
       workbetaqu_l2_upper_p++;
 
       outres << *workmean << "   ";
-      if (MSE != no)
-        {
-        if
-
-// designmatrix(i,j)
-
-        }
 
       if (optionsp->samplesize > 1)
         {

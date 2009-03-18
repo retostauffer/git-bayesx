@@ -72,6 +72,7 @@ class __EXPORT_TYPE DESIGN
 
   unsigned compute_modecategorie(void);  
 
+  void compute_meaneffectintvar(void);  
 
   DISTR * likep;                             // Pointer to DISTR obejct
 
@@ -110,9 +111,12 @@ class __EXPORT_TYPE DESIGN
   vector<ST::string> effectvalues;           // values of the different
                                              // covariates
 
-  unsigned meaneffectnr;
-  unsigned meaneffectnr_intvar;
-  double meaneffectintvar;
+  unsigned meaneffectnr;                    // position of meaneffect value
+  unsigned meaneffectnr_intvar;             // position in intvar for meaneffect
+                                            // value of intvar
+  double meaneffectintvar;                  // value of the interaction variable
+                                            // at which the meaneffect will be
+                                            // computed
 
 //------------------------------------------------------------------------------
 
@@ -301,8 +305,11 @@ class __EXPORT_TYPE DESIGN
   // FUNCTION: compute_XtransposedWX_XtransposedWres
   // TASK: computes XWX and XWres, res is the partial residual
 
-  virtual void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
+  virtual void compute_XtransposedWX_XtransposedWres(datamatrix & partres,
+                                                      double l);
 
+  // FUNCTION: compute_meaneffect
+  // TASK: computes the meaneffect of a particular model term
 
   virtual void compute_meaneffect(DISTR * level1_likep,double & meaneffect,
                                 datamatrix & beta,datamatrix & meaneffectbeta,

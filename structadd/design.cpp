@@ -124,9 +124,9 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   dm.indexsort(index_data,0,dm.rows()-1,0,0);
 
   double dm_mean = dm.mean(0);
-  double iv_mean;
-  if (iv.rows() == dm.rows())
-    iv_mean = iv.mean(0);
+//  double iv_mean;
+//  if (iv.rows() == dm.rows())
+//    iv_mean = iv.mean(0);
 
   make_data(dm,iv);
 
@@ -168,7 +168,7 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
 
     }
 
-
+/*
   meaneffectintvar=1;
   if (iv.rows() == dm.rows())
     {
@@ -182,12 +182,16 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
         {
         meaneffectnr_intvar = j;
         mclosest = *intvarp;
-        meaneffectintvar= *intvarp;        
+        meaneffectintvar= *intvarp;
         }
 
       }
 
     }
+*/
+
+  compute_meaneffectintvar();
+
 
   /*
   // TEST
@@ -202,6 +206,34 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   }
 
 
+void DESIGN::compute_meaneffectintvar(void)
+  {
+  meaneffectintvar=1;
+  if (data.rows() == intvar.rows())
+    {
+
+    double iv_mean = intvar.mean(0);
+
+    double * intvarp = intvar.getV();
+    meaneffectnr_intvar = 0;
+    double mclosest = *intvarp;
+    unsigned j;
+    for (j=0;j<intvar.rows();j++,intvarp++)
+      {
+
+      if ( fabs(*intvarp-iv_mean) < fabs(mclosest-iv_mean) )
+        {
+        meaneffectnr_intvar = j;
+        mclosest = *intvarp;
+        meaneffectintvar= *intvarp;
+        }
+
+      }
+
+    }
+  }
+
+  
 unsigned DESIGN::compute_modecategorie(void)
   {
 

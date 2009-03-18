@@ -371,6 +371,14 @@ void DISTR::compute_mu(const double * linpred,double * mu,
   }
 
 
+double DISTR::compute_MSE(const double * response, const double * weight,
+                          const double * linpred)
+  {
+  return pow(*response-*linpred,2); 
+
+  }
+
+
 void DISTR::swap_linearpred(void)
   {
 
@@ -961,14 +969,31 @@ void DISTR_loggaussian::compute_mu(const double * linpred,double * mu,
   }
 
 
+double DISTR_loggaussian::compute_MSE(const double * response,
+                                      const double * weight,
+                                      const double * linpred)
+  {
+  double diff = exp(*response) - exp(*linpred +  FCsigma2.betamean(0,0)/2);
+  return pow(diff,2);
+  }
+
+
 void DISTR_loggaussian::compute_deviance(const double * response,
                                  const double * weight, const double * mu,
                                  double * deviance, double * deviancesat,
                                  double * scale) const
   {
   double r = *response-*mu;
-  *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
-  *deviancesat = (*weight/(*scale))*r*r;
+  if (*weight != 0)
+    {
+    *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
+    *deviancesat = (*weight/(*scale))*r*r;
+    }
+  else
+    {
+    *deviance = 0;
+    *deviancesat = 0;
+    }
   }
 
 
