@@ -1069,6 +1069,7 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   dp_pspline->changingdesign=true;
   datamatrix effect(D.rows(),1,1);
   dp_pspline->set_intvar(effect,0);
+  dp_pspline->meaneffectintvar = 1;
 
   FC_mults.push_back(FC_mult(true,multexp));
   equations[modnr].add_FC(&FC_mults[FC_mults.size()-1],"");
@@ -1083,6 +1084,7 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   FC_nonp * fcnp_hrandom = &FC_hrandoms[FC_hrandoms.size()-1];
   MCMC::DESIGN * dp_hrandom = &design_hrandoms[design_hrandoms.size()-1];
   dp_hrandom->changingdesign=true;
+  dp_hrandom->meaneffectintvar=0;
 
   FC_mults.push_back(FC_mult(false,multexp));
 
@@ -1106,8 +1108,12 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   if (storesample.getvalue() == true)
     store = true;
 
-  FC_mults[FC_mults.size()-1].set_multeffects(&generaloptions,title,pathnonp,
-         samplem,store);
+  bool me=false ;
+  if (terms[i].options[19] == "true")
+    me = true;
+
+  FC_mults[FC_mults.size()-1].set_multeffects(&master,&generaloptions,
+                                              title,pathnonp,samplem,store,me);
 
   equations[modnr].add_FC(&FC_mults[FC_mults.size()-1],pathres);
 

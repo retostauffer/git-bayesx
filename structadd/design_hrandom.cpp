@@ -104,6 +104,7 @@ void DESIGN_hrandom::init_data(const datamatrix & dm, const datamatrix & iv)
   make_index(dm,iv);
 
   meaneffectnr = compute_modecategorie();
+  compute_meaneffectintvar();  
 
   nrpar = posbeg.size();
 
@@ -357,7 +358,7 @@ void DESIGN_hrandom::compute_meaneffect(DISTR * level1_likep,double & meaneffect
     linm = likep_RE->linearpred2(meaneffectnr,0);
     }
 
-  meaneffect = beta(meaneffectnr,0) - linm;     // vorsicht varcoeff
+  meaneffect = meaneffectintvar*(beta(meaneffectnr,0) - linm);
 
   if (computemeaneffect==true)
     {
@@ -367,7 +368,7 @@ void DESIGN_hrandom::compute_meaneffect(DISTR * level1_likep,double & meaneffect
     double l;
     for(i=0;i<beta.rows();i++,meffectp++,betap++,linpredREp++)
       {
-      l=level1_likep->meaneffect+(*betap)- (*linpredREp);
+      l=level1_likep->meaneffect+meaneffectintvar*((*betap)- (*linpredREp));
       level1_likep->compute_mu(&l,meffectp);
       }
     }

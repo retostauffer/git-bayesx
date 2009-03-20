@@ -23,16 +23,24 @@ void FC_mult::set_intp(DESIGN * d,FC_nonp * fp)
   }
 
 
-void FC_mult::set_multeffects(GENERAL_OPTIONS * o,const ST::string & t,
-           const ST::string & fp,bool sm,bool sstore)
+void FC_mult::set_multeffects(MASTER_OBJ * mp,GENERAL_OPTIONS * o,
+                              const ST::string & t, const ST::string & fp,
+                              bool sm,bool sstore,bool meane)
   {
+
+  masterp = mp;
 
   unsigned rows = dp1->Zout.rows()*dp2->Zout.rows();
 
   samplemult = sm;
+  compmeaneffect = meane;
 
   if (samplemult)
+    {
     FCmulteffect = FC(o,t,rows,1,fp,sstore);
+    if (compmeaneffect==true)
+      FCmulteffect_mean = FC(o,"",rows,1,fp,sstore);
+    }
 
   }
 
@@ -42,6 +50,7 @@ FC_mult::FC_mult(void)
   {
   nosamples = true;
   samplemult = false;
+  compmeaneffect = false;
   multexp=false;
   }
 
@@ -52,6 +61,7 @@ FC_mult::FC_mult(bool reu,bool mexp)
   multexp = mexp;
   nosamples = true;
   samplemult = false;
+  compmeaneffect = false;
   RE_update = reu;
   }
 
@@ -59,9 +69,12 @@ FC_mult::FC_mult(bool reu,bool mexp)
 FC_mult::FC_mult(const FC_mult & m)
   : FC(FC(m))
   {
+  masterp = m.masterp;
   multexp = m.multexp;
   FCmulteffect = m.FCmulteffect;
+  FCmulteffect_mean = m.FCmulteffect_mean;
   samplemult = m.samplemult;
+  compmeaneffect = m.compmeaneffect;
   dp1 = m.dp1;
   dp2 = m.dp2;
   FCnp = m.FCnp;
@@ -78,9 +91,12 @@ const FC_mult & FC_mult::operator=(const FC_mult & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+  masterp = m.masterp;
   multexp = m.multexp;
   FCmulteffect = m.FCmulteffect;
+  FCmulteffect_mean = m.FCmulteffect_mean;
   samplemult = m.samplemult;
+  compmeaneffect = m.compmeaneffect;
   dp1 = m.dp1;
   dp2 = m.dp2;
   FCnp = m.FCnp;
@@ -112,6 +128,11 @@ void FC_mult::update(void)
     update_multeffect();
     FCmulteffect.acceptance++;
     FCmulteffect.update();
+    if (compmeaneffect)
+      {
+      FCmulteffect_mean.acceptance++;
+      FCmulteffect_mean.update();
+      }
     }
 
   }
@@ -142,13 +163,33 @@ void FC_mult::update_multeffect(void)
   // FCnp2->beta.prettyPrint(out2);
   // TEST
 
-
-  for (i=0;i<FCnp->beta.rows();i++,FCnpbetap++)
+  if (compmeaneffect)
     {
-    FCnp2betap = FCnp2->beta.getV();
-    for (j=0;j<FCnp2->beta.rows();j++,mebetap++,FCnp2betap++)
-      *mebetap = (*FCnpbetap+1)*(*FCnp2betap);
+    double meanlin = masterp->level1_likep->meaneffect-FCnp2->meaneffect;
+    double lin;
+    double * FCmp = FCmulteffect_mean.beta.getV();
+    for (i=0;i<FCnp->beta.rows();i++,FCnpbetap++)
+      {
+      FCnp2betap = FCnp2->beta.getV();
+      for (j=0;j<FCnp2->beta.rows();j++,mebetap++,FCnp2betap++,FCmp++)
+        {
+        *mebetap = (*FCnpbetap+1)*(*FCnp2betap);
+        lin = meanlin + *mebetap;
+        masterp->level1_likep->compute_mu(&lin,FCmp);
+        }
+      }
     }
+  else
+    {
+    for (i=0;i<FCnp->beta.rows();i++,FCnpbetap++)
+      {
+      FCnp2betap = FCnp2->beta.getV();
+      for (j=0;j<FCnp2->beta.rows();j++,mebetap++,FCnp2betap++)
+        *mebetap = (*FCnpbetap+1)*(*FCnp2betap);
+      }
+
+    }
+
   }
 
 
@@ -175,6 +216,12 @@ bool FC_mult::posteriormode(void)
       {
       update_multeffect();
       bool h = FCmulteffect.posteriormode();
+
+      if (compmeaneffect)
+        {
+        h = FCmulteffect_mean.posteriormode();
+        }
+
       }
     }
   else
@@ -212,8 +259,13 @@ bool FC_mult::posteriormode(void)
       {
       update_multeffect();
       bool h = FCmulteffect.posteriormode();
-      }
 
+      if (compmeaneffect)
+        {
+        h = FCmulteffect_mean.posteriormode();
+        }
+
+      }
 
     }
 
@@ -227,6 +279,9 @@ void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
   if ((RE_update==false) && (samplemult))
     {
     FCmulteffect.outresults(out_stata,out_R,"");
+
+    if (compmeaneffect)
+      FCmulteffect_mean.outresults(out_stata,out_R,"");
 
     if (pathresults.isvalidfile() != 1)
       {
@@ -278,6 +333,21 @@ void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
         outres << "pcat" << FCmulteffect.optionsp->level2 << "   ";
         }
 
+      if (compmeaneffect)
+        {
+        outres << "pmean_mu   ";
+
+        if (FCmulteffect.optionsp->samplesize > 1)
+          {
+          outres << "pqu"  << l1  << "_mu   ";
+          outres << "pqu"  << l2  << "_mu   ";
+          outres << "pmed_mu   ";
+          outres << "pqu"  << u1  << "_mu   ";
+          outres << "pqu"  << u2  << "_mu   ";
+          }
+        }
+
+
       outres << endl;
 
       double * workmean = FCmulteffect.betamean.getV();
@@ -286,6 +356,23 @@ void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
       double * workbetaqu_l1_upper_p = FCmulteffect.betaqu_l1_upper.getV();
       double * workbetaqu_l2_upper_p = FCmulteffect.betaqu_l2_upper.getV();
       double * workbetaqu50 = FCmulteffect.betaqu50.getV();
+
+      double * workmean_mu;
+      double * workbetaqu_l1_lower_p_mu;
+      double * workbetaqu_l2_lower_p_mu;
+      double * workbetaqu_l1_upper_p_mu;
+      double * workbetaqu_l2_upper_p_mu;
+      double * workbetaqu50_mu;
+
+      if (compmeaneffect)
+        {
+        workmean_mu = FCmulteffect_mean.betamean.getV();
+        workbetaqu_l1_lower_p_mu = FCmulteffect_mean.betaqu_l1_lower.getV();
+        workbetaqu_l2_lower_p_mu = FCmulteffect_mean.betaqu_l2_lower.getV();
+        workbetaqu_l1_upper_p_mu = FCmulteffect_mean.betaqu_l1_upper.getV();
+        workbetaqu_l2_upper_p_mu = FCmulteffect_mean.betaqu_l2_upper.getV();
+        workbetaqu50_mu = FCmulteffect_mean.betaqu50.getV();
+        }
 
       for (i=0;i<FCnp->beta.rows();i++)
         {
@@ -320,6 +407,35 @@ void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
             else
               outres << 0 << "   ";
             }
+
+
+          if (compmeaneffect)
+            {
+
+            outres << *workmean_mu << "   ";
+
+            if (FCmulteffect.optionsp->samplesize > 1)
+              {
+              outres << *workbetaqu_l1_lower_p_mu << "   ";
+              outres << *workbetaqu_l2_lower_p_mu << "   ";
+              outres << *workbetaqu50_mu << "   ";
+              outres << *workbetaqu_l2_upper_p_mu << "   ";
+              outres << *workbetaqu_l1_upper_p_mu << "   ";
+
+              }
+
+            if ( !( (i == FCnp->beta.rows()-1)  && (j==FCnp2->beta.rows()-1) ) )
+              {
+              workmean_mu++;
+              workbetaqu_l1_lower_p_mu++;
+              workbetaqu_l2_lower_p_mu++;
+              workbetaqu50_mu++;
+              workbetaqu_l1_upper_p_mu++;
+              workbetaqu_l2_upper_p_mu++;
+              }
+
+            }
+
 
           outres << endl;
           }

@@ -38,11 +38,12 @@ void FC_hrandom::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   17     internal_multexp
   */
 
-  if (op[14] == "increasing")
+/*  if (op[14] == "increasing")
     stype = increasing;
   else if (op[14] == "decreasing")
     stype = decreasing;
   else
+*/  
     stype = unconstrained;
 
   rtype = additive;

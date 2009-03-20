@@ -780,8 +780,8 @@ void FC_nonp::update_isotonic(void)
   */
 
   if(designp->center)
-    centerparam();
-//    centerparam_sample();
+//    centerparam();
+    centerparam_sample();
 
   if (designp->position_lin!=-1)
     {
@@ -912,6 +912,8 @@ bool FC_nonp::posteriormode(void)
     {
     fsample.posteriormode_betamean();
     }
+
+  ST::string n = designp->datanames[0];
 
   designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
                              meaneffect_sample.beta,computemeaneffect);
