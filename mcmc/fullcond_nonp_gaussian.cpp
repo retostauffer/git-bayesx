@@ -4,7 +4,6 @@
 namespace MCMC
 {
 
-#if defined(INCLUDE_REML)
 //---------------------------FOR REML ------------------------------------------
 
 // REML: spatial covariates
@@ -1038,7 +1037,6 @@ void FULLCOND_nonp_gaussian::outoptionsreml()
   }
 
 // -------------------------------- END: FOR REML ------------------------------
-#endif
 
 void FULLCOND_nonp_gaussian::set_lambdaconst(double la)
   {
@@ -1743,10 +1741,8 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(const FULLCOND_nonp_gaussian & fc
   lattice = fc.lattice;
   xyvalues = fc.xyvalues;
   pathmap = fc.pathmap;
-#if defined(INCLUDE_REML)
   X_VCM=fc.X_VCM;
   Z_VCM=fc.Z_VCM;
-#endif
   remlspatialdesign=fc.remlspatialdesign;
   }
 
@@ -1790,10 +1786,8 @@ const FULLCOND_nonp_gaussian & FULLCOND_nonp_gaussian::operator=(
   lattice = fc.lattice;
   xyvalues = fc.xyvalues;
   pathmap = fc.pathmap;
-#if defined(INCLUDE_REML)
   X_VCM=fc.X_VCM;
   Z_VCM=fc.Z_VCM;
-#endif
   remlspatialdesign=fc.remlspatialdesign;
   return *this;
   }
