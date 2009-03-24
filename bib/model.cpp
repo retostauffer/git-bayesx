@@ -247,11 +247,11 @@ term_shrinkage::term_shrinkage(void)
   // taustart = doubleoption("taustart",0.1,0,10000000);
 
   // Startwert für den Shrinkageparameter
-  shrinkagestart = doubleoption("shrinkagestart",1,0,10000000);
+  shrinkagestart = doubleoption("shrinkagepar",1,0,10000000);
   
   // Hyperparameter der Priori fuer Shrinkageparameter
-  a_shrinkage = doubleoption("a_shrinkage",0.001,0,500);
-  b_shrinkage = doubleoption("b_shrinkage",0.001,0,500);
+  a_shrinkage = doubleoption("a",0.001,0,500);
+  b_shrinkage = doubleoption("b",0.001,0,500);
   
   // Feste Werte für den Shrinkageparameter
   shrinkagefix = simpleoption("shrinkagefix",false);
@@ -378,21 +378,21 @@ term_nigmix::term_nigmix(void)
   type = "term_nigmix";
 
   // Startwert für Indicator (1. Komponente des Varianzparameters)
-  indicatorstart = doubleoption("indicatorstart",1,0,10000000);
+  indicatorstart = doubleoption("indicator",1,0,10000000);
   
   // Lage der Punktmassen des Indikators
   v0 = doubleoption("v0",0.005,0,10000000);
   v1 = doubleoption("v1",1,0,10000000);
 
   // Startwert für t^2 (2. Komponente des Varianzparameters)
-  t2start = doubleoption("t2start",11,0,10000000);
+  t2start = doubleoption("t2",11,0,10000000);
   
   // Hyperparameter der Priori fuer Shrinkageparameter
-  a_t2 = doubleoption("a_t2",5,0,500);
-  b_t2 = doubleoption("b_t2",50,0,500);
+  a_t2 = doubleoption("a",5,0,500);
+  b_t2 = doubleoption("b",50,0,500);
 
   // Startwert fuer die Mischungskomponente 
-  omegastart = doubleoption("omegastart",0.5,0,1);  
+  omegastart = doubleoption("omega",0.5,0,1);  
 
   // Feste Werte für die Komponenten
   omegafix = simpleoption("omegafix",false);
