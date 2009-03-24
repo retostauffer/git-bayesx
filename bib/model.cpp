@@ -378,7 +378,7 @@ term_nigmix::term_nigmix(void)
   type = "term_nigmix";
 
   // Startwert für Indicator (1. Komponente des Varianzparameters)
-  indicatorstart = doubleoption("indicator",1,0,10000000);
+  indicatorstart = doubleoption("I",1,0,10000000);
   
   // Lage der Punktmassen des Indikators
   v0 = doubleoption("v0",0.005,0,10000000);
