@@ -141,6 +141,60 @@ The following model statement specified a model with $q$ fixed
 \texttt{Y = W1 + W2 + $\cdots$ + Wq}
 \end{itemize}
 
+% NEW_START: Susanne.Konrath@stat.uni-muenchen.de %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{Shrinkage of fixed Effects}
+\index{Shrinkage of fixed Effects}
+
+\begin{itemize}
+\item[] {\em Description}: Defines a shrinkage-prior for the corresponding 
+  parameters $\gamma _{j} $, $j=1,...,q$, $q \ge 1$ of the linear effects 
+  #X1,...Xq#. There are three priors possible: Ridge-, 
+  Lasso- and Normal Mixture of inverse Gamma (NMIG)-Prior.
+
+\item[] {\em Predictor}: $\eta =\cdots +\gamma _{1} {\kern 1pt} X1+\cdots +
+  \gamma _{q} {\kern 1pt} Xq+\cdots $
+
+\item[] {\em Syntax}: 
+
+  \begin{itemize}
+  \item  Ridge-Prior: #X1(ridge#[, {\em options}]#) #
+  \item  Lasso-Prior: #X1(lasso#[, {\em options}]#) #
+  \item  NMIG-Prior: #X1(nigmix#[, {\em options}]#) #
+  \end{itemize}
+
+\item[] {\em Example}:
+ The following model statement can be used to estimate a model with q lasso-penalized 
+ linear effects
+
+ #Y = X1(lasso)+...+ Xq(lasso)#
+
+ By default, the starting value of the shrinkage parameter in the Makkov chain is 
+ set to 1 and the shrinkage parameter is estimated by the data. It is also possible 
+ to fix the shrinkage parameter through the iterations in order to use a prespecified 
+ amount fo shrinkage. To do so the the option #shrinkagefix# have to be set 
+ in the corresponding terms and this results in fixing the shrinkage parameter at 
+ the starting value assigned in the option #shrinkagepar#.
+
+ The following model term defines a lasso-penalty with shrinkage parameter 
+ fixed at the value 1.5:
+
+ #Y = X1(lasso)+...+ Xq(lasso,shrinkagepar=1.5,shrinkagefix)#
+ 
+ Full details about all possible options for shrinkage-effects are given in \ref{localoptions}.
+
+ {\em Important Remark}: Except the option #lambda# for the inverse variances, 
+ all the other possible options used in the shrinkage-methods are those which are 
+ specified in the last term of the corresponding penalty, e.g.
+ 
+ #Y = X2(lasso,shrinkagepar=2,shrinkagefix)+ X1(lasso,shrinkagepar=1.5)#
+ 
+ uses the options of #X1#.
+
+\end{itemize}
+
+% NEW_END: Susanne.Konrath@stat.uni-muenchen.de %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \subsubsection*{Nonlinear effects of continuous covariates and time
 scales}\index{Nonlinear effects}\index{Random
 walks}\index{P-splines}
@@ -320,6 +374,7 @@ we have only limited experience with multilevel models so that it
 is not clear how well these models can be estimated in {\em
 BayesX}.
 \end{itemize}
+
 
 \subsubsection*{Nonlinear baseline effect in hazard regression or multi-state models}
 \index{Baseline}\index{Cox model}\index{Multi-state model}
@@ -623,6 +678,12 @@ Offset & #offs(offset)#  & Variable #offs# is an offset term. \\
 \hline
 Linear effect & #W1#  & Linear effect of #W1#. \\
 \hline
+Ridge effect & #X1(ridge)#  & Linear effect of #X1# with Ridge-Penalty. \\
+\hline
+Lasso effect & #X1(lasso)#  & Linear effect of #X1# with Lasso-Penalty. \\
+\hline
+NMIG effect & #X1(nigmix)#  & Linear effect of #X1# with NMIG-Penalty. \\
+\hline
 First or second order random walk &   #X1(rw1)#  \newline  #X1(rw2)#  & Nonlinear effect of #X1#. \\
 \hline
 P-spline &  #X1(psplinerw1)#   \newline  #X1(psplinerw2)#  & Nonlinear effect of #X1#.  \\
@@ -649,6 +710,7 @@ of the baseline effect $\lambda_0(time)$ of a Cox model. $\log(\lambda_0(time))$
 for bayesreg objects.}}
 \end{center}
 \end{table}
+
 
 
 \begin{table}[ht] \footnotesize
@@ -688,11 +750,21 @@ terms for bayesreg objects.}}
 \begin{table}[ht] \footnotesize \centering
 \begin{tabular}{|l|p{0.6\linewidth}|c|}
 
-\hline Option & Description & Default\\ \hline\hline
+\hline Option & Description & Default\\ \hline
+\hline
 
-#a#,#b# & The options #a# and #b# specify the hyperparameters of
-the inverse Gamma prior for
-the variance $\tau^2$. & #a=0.001#, #b=0.001# \\
+#a#,#b# 
+& 1. The options #a# and #b# specify the hyperparameters of
+  the inverse Gamma prior for the variance $\tau^2$. 
+& #a=0.001#, #b=0.001# \\
+
+& 2. The options #a# and #b# specify the hyperparameters of the inverse Gamma prior 
+  for the shrinkage parameter $\lambda$ if the Lasso- or the Ridge-Penalty is used (*). 
+& #a=0.001#, #b=0.001# \\
+ 
+& 3. The options #a# and #b# specify the hyperparameters the inverse Gamma prior 
+  for the variance parameters $t_{j}^2$ if the NIG-Penalty is used (*). 
+& #a=5#, #b=50# \\
 \hline
 
 #min#,#max# & The options #min# and #max# define the minimum and
@@ -707,7 +779,13 @@ Gaussian responses, categorical probit models,
  or if #proposal=iwls# or #proposal=iwlsmode# is specified. & automatic\newline determination \\
 \hline
 
-#lambda# & Provides a starting value for the smoothing parameter $\lambda$. & #lambda=0.1# \\
+#lambda# 
+& 1. Provides a starting value for the smoothing parameter $\lambda$. & #lambda=0.1# \\
+
+& 2. Provides a starting value of for the variance parameter $\lambda _{j} =1/
+  \tau _{j}^{2} $ of the corresponding effect if the Lasso- or the Ridge-Penalty is used.
+  Values have to be positive and have to be set in each shrinkage term. 
+& #lambda=0.1# \\
 \hline
 
 #proposal# & Specifies the type of proposal. #proposal=cp# means
@@ -758,7 +836,57 @@ function estimate are computed (for P-splines only). & - \\ \hline
 \hline
 
 #nofixed# & The option #nofixed# suppresses the estimation of the
-main effect $\gamma X1$ for random slopes. & - \\ \hline
+main effect $\gamma X1$ for random slopes. & - \\ 
+\hline
+
+
+#shrinkagepar# 
+& Provides a starting value of for the shrinkage parameter $\lambda$ . Values 
+  have to be positive (*). 
+& #shrinkagepar=1# \\
+\hline
+
+#shrinkagefix# 
+& Specifies if the shrinkage parameter $\lambda$ should take the fixed value 
+  given in option #shrinkagepar# (*). 
+& - \\
+\hline
+
+#I# 
+& Provides a starting value of for the indicator variable $I_{j} $ of the corresponding 
+  effect. Values have to be 0 or 1 and have to be set in each shrinkage term. 
+& #I=1# \\
+\hline
+
+#v0#, #v1# 
+& Hyperparameters that determine the modes of the marginal variances. Values 
+  have to be nonnegative (*). 
+& #v0=0.005#, #v1=1# \\
+\hline
+
+#t2# 
+& Provides a starting value of for the variance parameter $t_{j}^{2}$ of the corresponding 
+  effect. Values have to be positive and have to be set in each shrinkage term. 
+& #t2=11# \\
+\hline
+
+#omega# 
+& Specifies the starting value of the complexity parameter $\omega$. Values have to 
+  be in the interval (0,1) (*). 
+& #omega=0.5# \\
+\hline
+
+#omegafix# 
+& Specifies if the complexity parameter $\omega$ should take the fixed value given 
+  in option #omega# (*). 
+& - \\
+
+
+\hline
+& (*) these options are specified in the last covariate occurring in term of 
+  the corresponding penalty
+& \\
+\hline
 
 \end{tabular}
 {\em\caption{\label{options} Optional arguments for bayesreg
