@@ -19,6 +19,7 @@
 #include"statobj.h"
 #include"dataobj.h"
 #include"bayesreg.h"
+#include"superbayesreg.h"
 #include"remlreg.h"
 #include"mapobject.h"
 #include"dagobject.h"
@@ -56,6 +57,7 @@ class __EXPORT_TYPE admin_gnu
   // valid types:
   // - dataset
   // - bayesreg
+  // - mcmcreg
   // - remlreg
   // - stepwisereg
   // - map
@@ -80,6 +82,10 @@ class __EXPORT_TYPE admin_gnu
   // 'bayesregobjects' contains current bayesreg objects
 
   vector<bayesreg> bayesregobjects;
+
+  // 'mcmcregobjects' contains current mcmcreg objects
+
+  vector<superbayesreg> mcmcregobjects;
 
   // 'stepwiseregobjects' contains current stepwisereg objects
 
