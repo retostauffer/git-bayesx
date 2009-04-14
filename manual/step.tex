@@ -1,10 +1,14 @@
 \section{Introduction}
 
-This tutorial demonstrates the usage of {\it BayesX} for simultaneously selecting variables and smoothing parameters in
-semiparametric regression models using {\it stepwisereg objects}. As an example, we consider data on childhood undernutrition
-in Zambia. This data has already been analysed in \citeasnoun{kanlan01} and we will use the same model that has been developed
-there. Since our focus is on demonstrating how regression models can be estimated in {\it BayesX}, we do not discuss or
-interpret the estimation results but simply give the commands to obtain them.
+This tutorial demonstrates the usage of {\it BayesX} for
+simultaneously selecting variables and smoothing parameters in
+semiparametric regression models using {\it stepwisereg objects}. As
+an example, we consider data on childhood undernutrition in Zambia.
+This data has already been analysed in \citeasnoun{kanlan01} and we
+will use the same data set  that has been used there. Since our
+focus is on demonstrating how regression models can be estimated in
+{\it BayesX}, we do not discuss or interpret the estimation results
+but simply give the commands to obtain them.
 
 The main focus in this tutorial is on a method for simultaneously selecting variables and smoothing parameters. {\it BayesX}
 also supports two further inferential concepts: full Bayesian inference based on MCMC and empirical Bayes inference based on
@@ -13,7 +17,7 @@ describe all features of {\it BayesX} in detail, that will be needed throughout 
 with the usage of {\it dataset} and {\it map objects} may therefore skim through sections \ref{step:usage}--\ref{step:maps}.
 
 The theoretical background of Bayesian semiparametric regression will not be described in this tutorial. The reference manual
-may serve as a first introduction, while further details about the estimation techniques employed n this tutorial can be found
+may serve as a first introduction, while further details about the estimation techniques employed in this tutorial can be found
 in \citeasnoun{bellan08}.
 
 \section{Description of the data set}
@@ -27,9 +31,9 @@ Z_i = \frac{AI_i-MAI}{\sigma}
 where $AI$ refers to the child`s anthropometric indicator (height at a certain age in our example), while MAI and $\sigma$
 correspond to the median and the standard deviation in the reference population, respectively.
 
-Our main interest is on modelling the dependence of undernutrition on covariates including the age of the child, the body mass
+Our main interest is in modelling the dependence of undernutrition on covariates including the age of the child, the body mass
 index of the child`s mother, the district the child lives in and some further categorial covariates. Table \ref{step:zambiavar}
-gives a description of the variables that we will use in our model.
+gives a description of the variables that will be used in our analysis.
 
 {\footnotesize
 \begin{table}[ht]
@@ -57,7 +61,7 @@ gives a description of the variables that we will use in our model.
 After having started the graphical user interface version of {\it BayesX}, a main window with four sub-windows appears on the
 screen. These are the {\it command window} for entering and executing code, the {\it output window} for displaying results, the
 {\it review window} for easy access to past commands, and the {\it object browser} that displays all objects currently
-available. In the command line version of {\it BayesX}, there are, of course, no sub-windows but only command line prompt to
+available. In the command line version of {\it BayesX}, there are, of course, no sub-windows but only the command line prompt to
 enter commands.
 
 {\it BayesX} is object oriented although the concept is limited, i.e. inheritance and other concepts of object oriented
@@ -75,8 +79,8 @@ brief description of some methods that may be applied to {\it dataset objects}. 
 the district in which a child lives, we need the boundaries of the districts to compute the neighborhood information of the map
 of Zambia. This information will be stored in a {\it map object}. \ref{step:maps} describes how to create and handle these
 objects. Model selection and estimation of the regression model is carried out in \ref{step:regression} using a {\it
-stepwisereg object}. Section \ref{step:confidence} extends the usage of {\it stepwisereg objects} to an additional calculation
-of credible bands. The next two sections describe how to visualize the estimation results and how to customize the obtained
+stepwisereg object}. Section \ref{step:confidence} extends the usage of {\it stepwisereg objects} to calculating
+credible bands. The next two sections describe how to visualize the estimation results and how to customize the obtained
 graphics.
 
 If you have not done so yet, please download the data set and the {\it boundary file} associated with this tutorial now (from
@@ -105,7 +109,7 @@ like this:
  -0.1599823 \,\, 20.43 \,\, 56 \,\, 81 \,\, 1 \,\, -1 \,\, -1 \,\, 1 \,\, 1\\
  0.1733911 \,\, 22.27 \,\, 6 \,\, 81 \,\, -1 \,\, 0 \,\, 1 \,\, 1 \,\, 1}
 
-In our example, the file contains the variable names in the first line. Therefore, it is not necessary to specify them in the
+In our example, the file contains the variable names in the first line. It is therefore not necessary to specify the variable names explicitly in the
 |infile| command. If the file contained only the data without variable names, we would have to supply them after the keyword
 |infile|:
 
@@ -130,9 +134,9 @@ After having read the dataset information, we can inspect the data visually. Exe
 opens an {\it Object-Viewer} window containing the data in form of a spreadsheet (see Figure \ref{step:screenshot}). The same
 can also be achieved by double-clicking on the {\it dataset object} in the {\it object browser}.
 
-\vspace{1cm}
+\vspace{2cm}
 
-\begin{figure}[ht]
+\begin{figure}
 \begin{center}
 \epsfig{file=grafiken/screenshot2.eps,scale=0.5} {\it\caption{A
 screenshot of the dataset.\label{step:screenshot}}}
@@ -403,10 +407,10 @@ with the {\it map object} |m| in the following, we delete |m1|:
 
 |> drop m1|
 
-\section[Simultaneously selecting variables and smoothing parameters]{Simultaneous selection of variables and smoothing parameters in semiparametric
-regression models}\label{step:regression}
+\section[Simultaneously selecting variables and smoothing parameters]{Simultaneous selection of variables and smoothing parameters}
+\label{step:regression}
 
-To perform a simultaneous selection of variables and smoothing parameters in regression models, we first create a {\it
+To perform  simultaneous selection of variables and smoothing parameters in regression models, we first create a {\it
 stepwisereg object}:
 
 |> stepwisereg s|
@@ -424,7 +428,7 @@ character `s'. Of course the base filename may be different from the name of the
 
 In addition to parameter estimates of the selected model, {\it BayesX} also gives some further information on the selection
 process. Not all of this information is stored automatically but is printed in the {\it output window}. Therefore it is useful
-to store the contents of the {\it output window}. This can be achieved automatically by opening a log file using the |logopen|
+to store the contents of the {\it output window}. This is achieved by opening a log file using the |logopen|
 command
 
 |> logopen, replace using c:\data\logstep.txt|
@@ -436,15 +440,15 @@ appended to an existing file.
 The model presented in Kandala et al.~(2001) is given by the following semiparametric predictor:
 \[\eta=\gamma_0+\gamma_1rcw+\gamma_2edu1+\gamma_3edu2+\gamma_4tpr+\gamma_5sex+f_1(bmi)+f_2(agc)+f^{str}(district)+f^{unstr}(district)\]
 The two continuous covariates |bmi| and |agc| are assumed to have a possibly nonlinear effect on the Z-score and, therefore,
-can be modelled nonparametrically (as P-splines with second order random walk prior in our example). However, a linear effect
+are modeled nonparametrically (using P-splines with second order difference penalty in our example). However, a linear effect
 could be more appropriate and, hence, the linear effect is also considered for model selection. The spatial effect of the
 district is split up into a spatially correlated part $f^{str}(district)$ and an uncorrelated part $f^{unstr}(district)$, see
-Fahrmeir and Lang (2001b) for a motivation. The correlated part is modelled by a Markov random field prior, where the
+Fahrmeir and Lang (2001b) for a motivation. The correlated part is modeled by a (quadratic) pairwise difference penalty, where the
 neighborhood matrix and possible weights associated with the neighbors are obtained from the {\it map object} |m|. The
-uncorrelated part is modelled by an i.i.d.~Gaussian effect. For each variable and function, the selection procedure
-additionally considers the possibility of removing the term from the model. Both effect variables |edu1| and |edu2| represent
-one part of the overall effect of |edu| so that the selection procedure should treat both variables in the same way. That means
-either both variables are removed from the model or both are included into the model. In order to achieve this the variable
+uncorrelated part is modelled by an i.i.d.~Gaussian random effect (simple ridge type penalty). For each variable and function,
+the selection procedure additionally considers the possibility of removing the term from the model.
+Both effect variables |edu1| and |edu2| represent
+the overall effect of the categorical variable |edu|.  Therefore the variable
 |edu| is specified as a {\tt factor} for the selection procedure.
 
 
@@ -699,10 +703,10 @@ Note, that the log file is closed automatically when you exit {\it BayesX}.
 
 \subsection{Conditional confidence bands}\label{step:cond}
 
-Conditional confidence bands are calculated conditional on the selected model, i.e.~they are calculated for selected variables
-and functions only. The calculation of conditional confidence bands is performed using an MCMC-algorithm subsequent to the
-selection procedure. For the selection of a model with an adjacent calculation of conditional confidence bands we can use
-method |regress| of {\it stepwisereg objects} again:
+Conditional confidence bands are calculated conditional on the selected model, i.e.~they are computed for selected variables
+and functions only. The computation of conditional confidence bands is based on an  MCMC-algorithm subsequent to the
+selection procedure. For the selection of a model with an adjacent computation of conditional confidence bands we can use
+method |regress| of {\it stepwisereg objects}:
 
  |> s.regress hazstd = rcw + edu(factor) + tpr + sex + bmi(psplinerw2)|\\
  |  + agc(psplinerw2) + district(spatial,map=m) + district(random),|\\
@@ -718,7 +722,7 @@ Note, that the choice of {\tt iterations} also affects computation time. On a 2.
 minute and ? seconds, which is rather fast in regard of the complexity of the model.
 
 Now, file |c:\data\s_f_age_pspline.res| for the effect of |age| contains also results for median, posterior 2.5\%, 10\%, 90\%
-and 97.5\% quantiles, and corresponding 95\% and 80\% posterior probabilities of the estimated effects and the beginning of the
+and 97.5\% quantiles, and corresponding 95\% and 80\% posterior probabilities of the estimated effects. The first few lines  of the
 file looks like this:
 
 {\footnotesize
@@ -734,25 +738,24 @@ example specifying |level1=99| and |level2=70| in the options list of the |regre
 
 \subsection{Unconditional confidence bands}\label{step:uncond}
 
-Unconditional confidence bands consider the uncertainty due to model selection. The calculation of unconditional confidence
-bands is performed For the selection of a model with an adjacent calculation of unconditional confidence bands we can use
-method |regress| of {\it stepwisereg objects} again:
+Unconditional confidence bands consider the uncertainty due to model selection. Unconditional confidence bands are obtained using the following modified
+ |regress| command:
 
  |> s.regress hazstd = rcw + edu(factor) + tpr + sex + bmi(psplinerw2)|\\
  |  + agc(psplinerw2) + district(spatial,map=m) + district(random),|\\
  |  CI=MCMCbootstrap bootstrapsamples=99 step=10 iterations=10000 |\\
  |  family=gaussian predict using d|
 
-Like above, options {\tt iterations} and {\tt step} define properties of the MCMC-algorithm. The number of {\tt iterations} is
+Options {\tt iterations} and {\tt step} define properties of the MCMC-algorithm. The number of {\tt iterations} is
 divided equally between the bootstrap iterations. Here, for each of the 99 bootstrap data sets (specified by {\it
-bootstrapsamples=99}) and the original data set 100 MCMC samples are drawn. The thinning parameter provokes that only 10
-samples per data set (i.e.~1000 samples altogether) are used for the calculation of empirical quantiles. Note, that the number
+bootstrapsamples=99}) and the original data set 100 MCMC samples are drawn. The thinning parameter is {\tt step =10}, i.e. every  10th
+sampled parameter per data set (i.e.~1000 samples altogether) are used for the computation of empirical quantiles. Note, that the number
 of bootstrap data sets strongly affects computation time.
 
 In addition to confidence bands, a kind of sensitivity analysis regarding model selection can be performed using the estimation
 results. For the effect of |age|, file |c:\data\s_f_age_pspline_df.raw| contains the number of times each modelling alternative
 was selected during the bootstrapping process. This frequency distribution indicates the plausibility of the different
-modelling alternatives, especially of the modelling alternative selected for the original data. The beginning of file
+modelling alternatives, especially of the modelling alternative selected for the original data. The first few lines of file
 |c:\data\s_f_age_pspline_df.raw| looks like this:
 
 {\footnotesize
@@ -764,7 +767,7 @@ df\_value \,\,   sp\_value \,\, frequency \,\, selected \\
 
 \section{Visualizing estimation results}\label{step:visual}
 
-{\it BayesX} provides three possibilities to visualize estimation results:
+{\it BayesX} provides three alternatives  for visualizing estimation results:
 \begin{itemize}
 \item As mentioned in the previous subsubsection, certain results are automatically visualized by {\it BayesX} and stored
     in postscript files. \item Post estimation commands of {\it stepwisereg objects} allow to visualize results after

@@ -44,6 +44,24 @@ separate regression objects:
     likelihood estimation forms the basis for the determination of smoothing parameters. From a Bayesian perspective, this
     yields empirical Bayes / posterior mode estimates for the structured additive regression models. However, estimates can
     also merely be interpreted as penalised likelihood estimates from a frequentist perspective.
+\item{\bf \sffamily Penalized least squares including model selection (stepwisereg objects):}
+As a third alternative {\em BayesX} provides a penalized least squares (respectively penalized likelihood) approach for
+estimating structured additive regression tools.
+In addition to
+the previously described estimation alternatives a powerful variable and model selection tool is included.  Model choice and estimation of
+the parameters is done simultaneously. The algorithms are able to
+\begin{itemize}
+\item decide whether a particular covariate enters the model,
+\item decide whether a continuous covariate enters the model linearly or nonlinearly,
+\item decide whether a spatial effect enters the model,
+\item decide whether a unit- or cluster specific heterogeneity effect enters the model,
+\item select complex interaction effects (two dimensional surfaces, varying coefficient terms),
+\item select the degree of smoothness of  nonlinear covariate, spatial or cluster specific heterogeneity effects.
+\end{itemize}
+Inference is based on penalized likelihood in combination with fast
+algorithms for selecting relevant covariates and model terms.
+Different models are compared via various goodness of fit criteria,
+e.g. AIC, BIC, GCV and 5 or 10 fold cross validation.
 \end{itemize}
 \end{stanza}
 
@@ -169,6 +187,11 @@ yourself familiar with the general usage of {\em BayesX}.
  Semiparametric regression based on mixed model methodology. &
  Read the methodology manual to make yourself familiar with STAR
  models. Proceed with chapter \ref*{remlregzambiaanalysis} of the tutorial manual. \\
+\hline
+Semiparametric regression based on penalized least squares including
+variable and model selection. &
+ Read the methodology manual to make yourself familiar with STAR
+ models. Proceed with chapter \ref*{zambia_step_analysis} of the tutorial manual. \\
  \hline Model selection for DAGs. No experience with reversible jump
  MCMC. & Read an introductory text about reversible jump MCMC first.
  A brief introduction is given for example in \citeasnoun{Gre01}. Proceed with \autoref{dag}. \\
