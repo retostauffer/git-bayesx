@@ -13,7 +13,7 @@
 
 #include"statobj.h"
 #include"dataobj.h"
-#include"MASTER_OBJ.h"
+#include"MASTER_obj.h"
 #include"GENERAL_OPTIONS.h"
 
 #include"model_parameters.h"

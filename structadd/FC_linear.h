@@ -17,7 +17,7 @@
 #include"distr.h"
 #include"clstring.h"
 #include"FC.h"
-#include"MASTER_OBJ.h"
+#include"MASTER_obj.h"
 #include<cmath>
 
 namespace MCMC
