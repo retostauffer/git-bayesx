@@ -191,8 +191,8 @@ bool MCMCsim::simulate(ST::string & pathgraphs, const int & seed, const bool & c
 
     genoptions->out("  COMPUTING STARTING VALUES (MAY TAKE SOME TIME)");
     genoptions->out("\n");
-
-    bool c = posteriormode("",true);
+    ST::string h = "";
+    bool c = posteriormode(h,true);
     }
 
   //-------------- end: Compute posterior mode as starting value ---------------
@@ -589,7 +589,7 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
         genoptions->out("  STATA DO-FILE\n");
         genoptions->out("\n");
         genoptions->out(pathstata);
-        genoptions->out("\n");        
+        genoptions->out("\n");
 
 
 

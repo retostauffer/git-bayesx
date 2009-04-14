@@ -62,7 +62,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   datamatrix mPhelp;                         // help matrix for updating p-value
                                              // information
 
-  void compute_pvalue(ST::string & pathresults);
+  void compute_pvalue(const ST::string & pathresults);
   void update_pvalue(void);
 
 
@@ -151,7 +151,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // FUNCTION: outgraphs
   // TASK: writes batch files for STATA and R for visualizing results
 
-  void outgraphs(ofstream & out_stata, ofstream & out_R,ST::string & path);
+  void outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string & path);
 
 
   // FUNCTION: outresults

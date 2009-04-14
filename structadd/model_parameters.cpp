@@ -32,6 +32,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   vector<ST::string> centermethods;
   centermethods.push_back("mean");
   centermethods.push_back("nullspace");
+  centermethods.push_back("meansimple");
   centermethod = stroption("centermethod",centermethods,"mean");
   internal_multexp = simpleoption("internal_multexp",false);
   pvalue = simpleoption("pvalue",false);

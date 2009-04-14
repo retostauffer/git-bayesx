@@ -52,6 +52,7 @@ using MCMC::DISTR_gaussian_re;
 using MCMC::DISTR_gaussian_exp;
 using MCMC::DISTR_gaussian_mult;
 using MCMC::DISTR_binomial;
+using MCMC::DISTR_binomialprobit;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -179,6 +180,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_gaussian_exp> distr_gaussian_exps;
   vector<DISTR_gaussian_mult> distr_gaussian_mults;
   vector<DISTR_binomial> distr_binomials;
+  vector<DISTR_binomialprobit> distr_binomialprobits;
 
   bool create_distribution(void);
 

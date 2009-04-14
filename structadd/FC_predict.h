@@ -55,7 +55,7 @@ class __EXPORT_TYPE FC_predict   : public FC
 
   void get_predictor(void);
 
-  void compute_MSE(ST::string & pathresults);
+  void compute_MSE(const ST::string & pathresults);
 
   public:
 

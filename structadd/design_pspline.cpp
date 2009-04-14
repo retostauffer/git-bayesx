@@ -57,6 +57,8 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
 
   if (op[16]=="mean")
     centermethod = cmean;
+  else if (op[16] == "meansimple")
+    centermethod = meansimple;
   else if (op[16] == "nullspace")
     centermethod = nullspace;
 
@@ -161,7 +163,7 @@ void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
     if (iv.rows()==dm.rows())
       {
       int h;
-      if ((centermethod==cmean) && (multeffect==false))
+      if ((centermethod==cmean || centermethod==meansimple) && (multeffect==false))
         {
         h = FClinearp->add_variable(iv,datanames[0]);
         }
@@ -378,7 +380,7 @@ void DESIGN_pspline::compute_basisNull(void)
   if (intvar.rows() == data.rows())
     {
 
-    if (centermethod==cmean)
+    if (centermethod==cmean || centermethod==meansimple)
       {
       basisNull = datamatrix(1,nrpar,1);
       position_lin = -1;

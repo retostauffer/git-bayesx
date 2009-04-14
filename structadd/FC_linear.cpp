@@ -39,7 +39,7 @@ FC_linear::FC_linear(void)
   }
 
 
-int FC_linear::add_variable(datamatrix & d,ST::string & name)
+int FC_linear::add_variable(const datamatrix & d,ST::string & name)
   {
   datanames.push_back(name);
   designhelp.push_back(d);
@@ -211,7 +211,7 @@ void FC_linear::update_IWLS(void)
 
     }
   else
-  
+
     {
 
     if (optionsp->nriter == 1)

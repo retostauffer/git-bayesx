@@ -38,7 +38,10 @@ void DESIGN_mrf::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else
     center = false;
 
-  centermethod = cmean;
+  if (op[16] == "meansimple")
+    centermethod = meansimple;
+  else
+    centermethod = cmean;
 
   datanames = vn;
 

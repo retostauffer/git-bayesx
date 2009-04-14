@@ -43,7 +43,7 @@ void FC_hrandom::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else if (op[14] == "decreasing")
     stype = decreasing;
   else
-*/  
+*/
     stype = unconstrained;
 
   rtype = additive;
@@ -259,7 +259,12 @@ void FC_hrandom::update_IWLS(void)
 void FC_hrandom::update(void)
   {
 
-  FC_nonp::update();
+  if (IWLS)
+    {
+    update_IWLS();
+    }
+  else
+    FC_nonp::update();
 
   set_rcoeff();
 
@@ -636,7 +641,7 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
 
 
     if (pvalue)
-      compute_pvalue(pathresults);
+      FC_nonp::compute_pvalue(pathresults);
 
 
     }

@@ -116,6 +116,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussian_exp");
   families.push_back("gaussian_mult");
   families.push_back("binomial_logit");
+  families.push_back("binomial_probit");  
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -263,6 +264,11 @@ void superbayesreg::clear(void)
   distr_binomials.erase(distr_binomials.begin(),distr_binomials.end());
   distr_binomials.reserve(10);
 
+  distr_binomialprobits.erase(distr_binomialprobits.begin(),
+                              distr_binomialprobits.end());
+  distr_binomialprobits.reserve(10);
+
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(30);
 
@@ -361,6 +367,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
+  distr_binomialprobits = b.distr_binomialprobits;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -411,6 +418,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
+  distr_binomialprobits = b.distr_binomialprobits;  
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -773,6 +781,18 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: Binomial response ----------------------------
+//---------------------------- Binomial response probit-------------------------
+  else if (family.getvalue() == "binomial_probit")
+    {
+
+    distr_binomialprobits.push_back(DISTR_binomialprobit(
+    &generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_binomialprobits[distr_binomialprobits.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//-------------------------- END: Binomial response probit ---------------------
 
 
   equations[modnr].distrp->responsename=rname;

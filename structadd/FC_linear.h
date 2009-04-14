@@ -140,7 +140,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   // FUNCTION: add_variable
 
-  int add_variable(datamatrix & d,ST::string & name);
+  int add_variable(const datamatrix & d,ST::string & name);
 
   };
 

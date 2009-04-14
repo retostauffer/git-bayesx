@@ -372,7 +372,7 @@ void FC_predict::outresults_deviance(void)
     }
 
 
-void FC_predict::compute_MSE(ST::string & pathresults)
+void FC_predict::compute_MSE(const ST::string & pathresults)
   {
 
   unsigned i;

@@ -33,7 +33,7 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   16      centermethod
   17      internal_mult
   18      pvalue
-  19      meaneffect  
+  19      meaneffect
   */
 
   if (op[14] == "increasing")
@@ -261,7 +261,7 @@ void FC_nonp::update_pvalue(void)
   }
 
 
-void FC_nonp::compute_pvalue(ST::string & pathresults)
+void FC_nonp::compute_pvalue(const ST::string & pathresults)
   {
 
   if (optionsp->nriter == optionsp->iterations)
@@ -447,9 +447,12 @@ void FC_nonp::update_IWLS(void)
 
 
   if(designp->center)
-    centerparam_sample();
-//    centerparam();
-
+    {
+    if (designp->centermethod==meansimple)
+      centerparam();
+    else
+      centerparam_sample();
+    }
 
   paramhelp.minus(param,paramhelp);
 
@@ -592,10 +595,8 @@ void FC_nonp::update_gaussian(void)
   lambda = likep->get_scale()/tau2;
 
   // TEST
-
-//  ofstream out("c:\\bayesx\\testh\\results\\responseRE.res");
-//  likep->response.prettyPrint(out);
-
+  //  ofstream out("c:\\bayesx\\testh\\results\\responseRE.res");
+  //  likep->response.prettyPrint(out);
   // TEST
 
   designp->compute_partres(partres,beta);
@@ -603,7 +604,7 @@ void FC_nonp::update_gaussian(void)
   if ( (likep->wtype==wweightschange_weightsneqone)  ||
        (likep->wtype==wweightschange_weightsone) ||
        (designp->changingdesign)
-     )  
+     )
     designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
   else
     designp->compute_XtransposedWres(partres, lambda);
@@ -632,8 +633,12 @@ void FC_nonp::update_gaussian(void)
     designp->precision.solve(designp->XWres,paramhelp,param);
 
   if(designp->center)
-//    centerparam();
-    centerparam_sample();
+    {
+    if (designp->centermethod==meansimple)
+      centerparam();
+    else
+      centerparam_sample();
+    }  
 
   if (designp->position_lin!=-1)
     {
@@ -780,8 +785,12 @@ void FC_nonp::update_isotonic(void)
   */
 
   if(designp->center)
-//    centerparam();
-    centerparam_sample();
+    {
+    if (designp->centermethod==meansimple)
+      centerparam();
+    else
+      centerparam_sample();
+    }
 
   if (designp->position_lin!=-1)
     {
@@ -930,7 +939,7 @@ void FC_nonp::outoptions(void)
   }
 
 
-void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,ST::string & path)
+void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string & path)
   {
 
   ST::string pathps = path.substr(0,path.length()-4) + "_statagraph";
@@ -976,7 +985,7 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,ST::string & path
               << " pcat" << po_str << "_d";
     }
 
-    
+
   if (computemeaneffect==true)
     {
     out_stata << " pmean_mu pqu"

@@ -984,16 +984,18 @@ void DISTR_loggaussian::compute_deviance(const double * response,
                                  double * scale) const
   {
   double r = *response-*mu;
+/*
   if (*weight != 0)
     {
     *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
     *deviancesat = (*weight/(*scale))*r*r;
     }
-  else
-    {
+*/
+//  else
+//    {
     *deviance = 0;
     *deviancesat = 0;
-    }
+//    }
   }
 
 

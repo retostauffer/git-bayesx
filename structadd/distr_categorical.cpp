@@ -191,6 +191,266 @@ void DISTR_binomial::compute_iwls_wweightsnochange_one(double * response,
   }
 
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS DISTRIBUTION_binomialprobit --------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_binomialprobit::DISTR_binomialprobit(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR(o,r,w)
+
+  {
+
+  if (check_weightsone() == true)
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+
+  family = "Binomial";
+  updateIWLS = false;
+  }
+
+
+const DISTR_binomialprobit & DISTR_binomialprobit::operator=(
+                                      const DISTR_binomialprobit & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR::operator=(DISTR(nd));
+  return *this;
+  }
+
+
+DISTR_binomialprobit::DISTR_binomialprobit(const DISTR_binomialprobit & nd)
+   : DISTR(DISTR(nd))
+  {
+  }
+
+
+void DISTR_binomialprobit::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function: standard normal (probit link)\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTR_binomialprobit::loglikelihood(double * response, double * linpred,
+                                     double * weight) const
+  {
+
+  if (*weight!=0)
+    {
+    double mu = randnumbers::Phi2(*linpred);
+    if (*response > 0)
+      return log(mu);
+    else
+      return log(1-mu);
+    }
+  else
+    return 0;
+
+  }
+
+
+
+double DISTR_binomialprobit::loglikelihood_weightsone(
+                                  double * response, double * linpred) const
+  {
+
+  double mu = randnumbers::Phi2(*linpred);
+  if (*response > 0)
+    return log(mu);
+  else
+    return log(1-mu);
+
+  }
+
+
+void DISTR_binomialprobit::compute_mu(const double * linpred,double * mu,
+                                bool notransform)
+  {
+  *mu = randnumbers::Phi2(*linpred);
+  }
+
+
+void DISTR_binomialprobit::compute_deviance(const double * response,
+                   const double * weight,const double * mu,double * deviance,
+                   double * deviancesat, double * scale) const
+  {
+
+  if (*weight !=  0)
+    {
+
+    if (*response<=0)
+      {
+      *deviance = -2*log(1-*mu);
+      *deviancesat = *deviance;
+      }
+    else if (*response > 0)
+      {
+      *deviance = -2*log(*mu);
+      *deviancesat = *deviance;
+      }
+
+    }
+  else
+    {
+    *deviance = 0;
+    *deviancesat = 0;
+    }
+
+  }
+
+
+double DISTR_binomialprobit::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+
+  double  mu = randnumbers::Phi2(*linpred);
+
+  double h = 0.39894228*exp(-0.5 * *linpred * *linpred);
+  double g = 1/pow(h,2);
+
+  *workingweight = *weight / (mu*(1-mu) * g);
+
+
+  *workingresponse = *linpred + (*response - mu)/h;
+
+  if (like)
+    {
+
+    if (*response > 0)
+      return log(mu);
+    else
+      return log(1-mu);
+    }
+  else
+    {
+    return 0;
+    }
+
+
+  }
+
+
+
+void DISTR_binomialprobit::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  double  mu = randnumbers::Phi2(*linpred);
+  double h = 0.39894228*exp(-0.5 * *linpred * *linpred);
+  double g = 1/pow(h,2);
+
+  *workingweight = 1.0 / (mu*(1-mu) * g);
+
+  *workingresponse = *linpred + (*response - mu)/h;
+
+  if (compute_like)
+    {
+
+    if (*response > 0)
+      like+= log(mu);
+    else
+      like+= log(1-mu);
+    }
+
+  }
+
+
+void DISTR_binomialprobit::compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  double t = 0;
+
+  }
+
+void DISTR_binomialprobit::compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  double t = 0;
+
+  }
+
+
+void DISTR_binomialprobit::update(void)
+  {
+
+  double * worklin;
+  double * workresp;
+  double * workwresp;  
+  double * weightwork;
+  double * workingweightwork;
+
+  register unsigned i;
+
+
+  if (optionsp->nriter==1)
+    {
+
+    weightwork = weight.getV();
+    workingweightwork = workingweight.getV();
+
+    for (i=0;i<nrobs;i++,weightwork++,workingweightwork++)
+      {
+      *workingweightwork = *weightwork;
+      }
+
+    }
+  else
+    {
+    if (check_weightsone())
+      wtype = wweightsnochange_one;
+    else
+      wtype = wweightsnochange_constant;
+    }
+
+
+
+  workresp = response.getV();
+  workwresp = workingresponse.getV();
+  weightwork = weight.getV();
+
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+
+  for(i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,workwresp++)
+    {
+
+    if (*weightwork != 0)
+      {
+      if (*workresp > 0)
+        *workwresp = trunc_normal2(0,20,*worklin,1);
+      else
+        *workwresp = trunc_normal2(-20,0,*worklin,1);
+      }
+
+    }
+
+  DISTR::update();
+
+  }
+
 
 } // end: namespace MCMC
 
