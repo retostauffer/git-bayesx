@@ -95,6 +95,6 @@ cd ..
 mkdir gnuobj
 
 rm bayesxsource.zip
-zip -ll -r bayesxsource2.zip c:\bayesx\sourcecode
+zip -ll -r bayesxsource.zip c:\bayesx\sourcecode
 
 
