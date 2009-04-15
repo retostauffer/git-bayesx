@@ -81,18 +81,33 @@ Ende: Allgemeiner Teil der Seite
 <p><b>New features in version 2.0 of BayesX are:</b></p>
 
 <ul>
-<li>In addition to the compiled Windows version of BayesX that includes a graphical user interface, a command line version of BayesX is available
-that can be compiled with the GNU C++ compiler. This version of BayesX does not have any graphics facilities but can be compiled under any operating system
+<li>Linux and MacOS Version: 
+In addition to the compiled Windows version of BayesX that includes a graphical user interface, a command line version of BayesX is available 
+that can be compiled with the GNU C++ compiler. This version of BayesX does not have any graphics facilities but can be compiled under any operating system 
 that supports the GNU compiler and in particular under Linuy and Mac OS. Graphics facilities are available in the new BayesX R package, see the next point. 
 A further advantage of the command line version of BayesX is that it can be called from within R using the <span style="font-family:monospace; font-size:medium">system</span> command.
 </li>
-<li>An R-package called BayesX that implements visualisation tools as well as functionality for creating and manipulating map objects (boundary and graph format)
-has been developed. In the future, this package will also contain the possibility to call BayesX directly from within R, but for the moment it is mostly intended
-to supplement the command line version of BayesX that does not have graphics facilities.
+<li>R-package with visualization tools: 
+An R-package called BayesX that implements visualisation tools as well as functionality for creating and manipulating map objects (boundary and graph format) 
+has been developed. In the future, this package will also contain the possibility to call BayesX directly from within R, but for the moment it is mostly intended 
+to supplement the command line version of BayesX that does not have graphics facilities. 
 </li>
-<li>A new regression obeject (<span style="font-family:monospace; font-size:medium">stepwisereg object</span>) has been added.</li>
-<li>For inference based on MCMC, Bayesian regularisation priors have been added to the regression functionality. The methodology supports Bayesian
-analogues to ridge regression, the lasso and spike and slab priors, see the reference manual for details.</li>
+<li>New regression object with built in varaiable and model selection: 
+A new regression object (<span style="font-family:monospace; font-size:medium">stepwisereg object</span>) has been added. 
+The new object implements a penalized least squares (or more generally penalized likelihood) approach for estimating structured additive regression models. 
+It is equipped with built in variable and model selection. The algorithms are able to  
+<ul>
+<li>decide whether a particular covariate enters the model,</li>
+<li>decide whether a continuous covariate enters the model linearly or nonlinearly,</li>
+<li>decide whether a spatial effect enters the model,</li>
+<li>decide whether a unit- or cluster specific heterogeneity effect enters the model,</li>
+<li>select complex interaction effects (two dimensional surfaces, varying coefficient terms),</li>
+<li>select the degree of smoothness of  nonlinear covariate, spatial or cluster specific heterogeneity effects.</li>
+</ul></li>
+<li>Bayesian ridge, lasso and spike and slab priors: 
+For inference based on MCMC, Bayesian regularisation priors have been added to the regression functionality. The methodology supports Bayesian 
+analogues to ridge regression, the lasso and spike and slab priors, see the reference manual for details. 
+</li>
 </ul>
 
 <p><b>New features in version 1.5 of BayesX are:</b></p>

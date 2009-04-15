@@ -6,7 +6,7 @@ structured additive predictor} subsumed in the class of {\em structured additive
 Inference is based on fully Bayesian approach implemented via Markov Chain Monte Carlo (MCMC)
 simulation techniques. The methodology manual provides brief introduction to structured additive regression and MCMC-based
 inference. More details can be found in \citeasnoun{FahLan01a}, \citeasnoun{FahLan01b}, \citeasnoun{LanBre04},
-\citeasnoun{BreLan06}, \citeasnoun{FahOsu03} and \citeasnoun{HenBreFah06}. Good introductions to
+\citeasnoun{BreLan06}, \citeasnoun{FahOsu06} and \citeasnoun{HenBreFah06}. Good introductions to
 generalized linear models are the monographs of \citeasnoun{FahTut01} and \citeasnoun{McCNel89}. Introductions to semi- and
 nonparametric models are given in \citeasnoun{GreSil94}, \citeasnoun{HasTib90}, \citeasnoun{HasTibFri01} or \citeasnoun{Woo06a}.
 The paper of \citeasnoun{ChiGre95}, the monograph {\em Markov Chain Monte Carlo in Practice} edited by
@@ -142,14 +142,14 @@ The following model statement specified a model with $q$ fixed
 \end{itemize}
 
 % NEW_START: Susanne.Konrath@stat.uni-muenchen.de %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Shrinkage of fixed Effects}
+\subsubsection*{Shrinkage of fixed effects}
 \index{Shrinkage of fixed Effects}
 
 \begin{itemize}
 \item[] {\em Description}: Defines a shrinkage-prior for the corresponding
-  parameters $\gamma _{j} $, $j=1,...,q$, $q \ge 1$ of the linear effects
-  #X1,...Xq#. There are three priors possible: Ridge-,
-  Lasso- and Normal Mixture of inverse Gamma (NMIG)-Prior.
+  parameters $\gamma _{j} $, $j=1,\ldots,q$, $q \ge 1$ of the linear effects
+  #X1,...Xq#. There are three priors possible: ridge-,
+  lasso- and Normal Mixture of inverse Gamma (NMIG)-prior.
 
 \item[] {\em Predictor}: $\eta =\cdots +\gamma _{1} {\kern 1pt} X1+\cdots +
   \gamma _{q} {\kern 1pt} Xq+\cdots $
@@ -157,21 +157,21 @@ The following model statement specified a model with $q$ fixed
 \item[] {\em Syntax}:
 
   \begin{itemize}
-  \item  Ridge-Prior: #X1(ridge#[, {\em options}]#) #
-  \item  Lasso-Prior: #X1(lasso#[, {\em options}]#) #
-  \item  NMIG-Prior: #X1(nigmix#[, {\em options}]#) #
+  \item  Ridge-prior: #X1(ridge#[, {\em options}]#) #
+  \item  Lasso-prior: #X1(lasso#[, {\em options}]#) #
+  \item  NMIG-prior: #X1(nigmix#[, {\em options}]#) #
   \end{itemize}
 
 \item[] {\em Example}:
- The following model statement can be used to estimate a model with q lasso-penalized
+ The following model statement can be used to estimate a model with $q$ lasso-penalized
  linear effects
 
  #Y = X1(lasso)+...+ Xq(lasso)#
 
- By default, the starting value of the shrinkage parameter in the Makkov chain is
+ By default, the starting value of the shrinkage parameter in the Markov chain is
  set to 1 and the shrinkage parameter is estimated by the data. It is also possible
  to fix the shrinkage parameter through the iterations in order to use a prespecified
- amount fo shrinkage. To do so the the option #shrinkagefix# have to be set
+ amount for shrinkage. To do so the the option #shrinkagefix# have to be set
  in the corresponding terms and this results in fixing the shrinkage parameter at
  the starting value assigned in the option #shrinkagepar#.
 
@@ -182,7 +182,7 @@ The following model statement specified a model with $q$ fixed
 
  Full details about all possible options for shrinkage-effects are given in \ref{localoptions}.
 
- {\em Important Remark}: Except the option #lambda# for the inverse variances,
+ {\em Important Remark}: Except for the option #lambda# for the inverse variances,
  all the other possible options used in the shrinkage-methods are those which are
  specified in the last term of the corresponding penalty, e.g.
 
@@ -662,7 +662,7 @@ specified as follows:
 #X1*grvar(random,a=0.001,b=0.001,proposal=iwls,nofixed)#
 
 Note that all options may be specified in arbitrary order.
-\autoref{options} provides explanations and the default values of
+\autoref{options1} and \autoref{options2} provide explanations and the default values of
 all possible options. All reasonable combinations of model terms
 and options can be found in \autoref{termsoptions}.
 
@@ -678,11 +678,11 @@ Offset & #offs(offset)#  & Variable #offs# is an offset term. \\
 \hline
 Linear effect & #W1#  & Linear effect of #W1#. \\
 \hline
-Ridge effect & #X1(ridge)#  & Linear effect of #X1# with Ridge-Penalty. \\
+Ridge effect & #X1(ridge)#  & Linear effect of #X1# with ridge-penalty. \\
 \hline
-Lasso effect & #X1(lasso)#  & Linear effect of #X1# with Lasso-Penalty. \\
+Lasso effect & #X1(lasso)#  & Linear effect of #X1# with lasso-penalty. \\
 \hline
-NMIG effect & #X1(nigmix)#  & Linear effect of #X1# with NMIG-Penalty. \\
+NMIG effect & #X1(nigmix)#  & Linear effect of #X1# with NMIG-penalty. \\
 \hline
 First or second order random walk &   #X1(rw1)#  \newline  #X1(rw2)#  & Nonlinear effect of #X1#. \\
 \hline
@@ -759,11 +759,11 @@ terms for bayesreg objects.}}
 & #a=0.001#, #b=0.001# \\
 
 & 2. The options #a# and #b# specify the hyperparameters of the inverse Gamma prior
-  for the shrinkage parameter $\lambda$ if the Lasso- or the Ridge-Penalty is used (*).
+  for the shrinkage parameter $\lambda$ if the lasso- or the ridge-prior is used (*).
 & #a=0.001#, #b=0.001# \\
 
 & 3. The options #a# and #b# specify the hyperparameters the inverse Gamma prior
-  for the variance parameters $t_{j}^2$ if the NIG-Penalty is used (*).
+  for the variance parameters $t_{j}^2$ if the NIG-penalty is used (*).
 & #a=5#, #b=50# \\
 \hline
 
@@ -800,7 +800,7 @@ on an equidistant grid with #nrpoints# knots. & #gridsize=-1# \\
 & 1. Provides a starting value for the smoothing parameter $\lambda$. & #lambda=0.1# \\
 
 & 2. Provides a starting value of for the variance parameter $\lambda _{j} =1/
-  \tau _{j}^{2} $ of the corresponding effect if the Lasso- or the Ridge-Penalty is used.
+  \tau _{j}^{2} $ of the corresponding effect if the lasso- or the ridge-prior is used.
   Values have to be positive and have to be set in each shrinkage term.
 & #lambda=0.1# \\
 \hline
@@ -832,7 +832,7 @@ term. & #nrknots=20# \\ \hline
 
 
 \end{tabular}
-{\em\caption{\label{options} Optional arguments for bayesreg
+{\em\caption{\label{options1} Optional arguments for bayesreg
 object terms in alphabetical order (1).}}
 \end{table}
 
@@ -844,9 +844,9 @@ object terms in alphabetical order (1).}}
 \hline Option & Description & Default\\ \hline
 \hline
 
-#omega# 
-& Specifies the starting value of the complexity parameter $\omega$. Values have to 
-  be in the interval (0,1) (*). 
+#omega#
+& Specifies the starting value of the complexity parameter $\omega$. Values have to
+  be in the interval (0,1) (*).
 & #omega=0.5# \\
 \hline
 
@@ -924,7 +924,7 @@ the IWLS weight matrix should be updated. #updateW=0# means never,
 
 
 \end{tabular}
-{\em\caption{\label{options} Optional arguments for bayesreg
+{\em\caption{\label{options2} Optional arguments for bayesreg
 object terms in alphabetical order (2).}}
 \end{table}
 

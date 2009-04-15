@@ -85,23 +85,27 @@ If you want to report a bug, please include any files that are needed to reprodu
 </p>
 
 <ul>
-<li><i>Does BayesX support spaces in file names?</i><br>
+<li><b>Does BayesX support spaces in file names?</b><br>
 Unfortunately not. Altough spaces in file names work well in some situations, they should in general be avoided. In particular, an installation directory without 
 spaces should be chosen.</li>
-<li><i>Does BayesX support the specification of relative paths?</i><br>
+
+<li><b>Does BayesX support the specification of relative paths?</b><br>
 Again, unfortunetaly not, at least not yet. 
 </li>
-<li><i>How do I obtain a map in boundary or graph format?</i><br>
+
+<li><b>How do I obtain a map in boundary or graph format?</b><br>
 Whenever the coordinate (or polygon) information on geographical regions is available, it is (at least in principle) possible
 to construct a boundary file by following the description in Chapter 5 of the reference manual. The BayesX R package contains some functionality that
 allows to convert shapefiles into boundary files and some additional functionality for modifying existing boundary and graph files. If you have successfully
 converted your geographical information to a boundary file, we would be happy to make it available in the <a href="bayesxmaps.html">maps</a> area to
 other BayesX users.
 </li>
-<li><i>Does BayesX support non-numerical variable types (such as character variables)?</i><br>
+
+<li><b>Does BayesX support non-numerical variable types (such as character variables)?</b><br>
 Unfortunately not. All variables will have to be converted to numerical values before they can be read into BayesX.
 </li>
-<li><i>Is there a connection to R? Can I call BayesX from R?</i><br>
+
+<li><b>Is there a connection to R? Can I call BayesX from R?</b><br>
 In principle, the answer is yes. Using the <span style="font-family:monospace; font-size:medium">system</span> command in R allows to call the command line version of BayesX (delivered in the subdirectory <span style="font-family:monospace; font-size:medium">commandline</span>
 of the installation directory) via<br>
 <span style="font-family:monospace; font-size:medium">R> system("BayesX </span><i>filename</i><span style="font-family:monospace; font-size:medium">")</span><br>
@@ -109,11 +113,13 @@ where <i>filename</i> contains a batch file with BayesX commands. Before calling
 have been stored at the places specified in the batch file. After completion of the </span>system</span> call, the estimation results can be visualised
 with functionality provided in the BayesX R package.
 </li>
-<li><i>Does BayesX work with other operating systems than Windows?</i><br>
+
+<li><b>Does BayesX work with other operating systems than Windows?</b><br>
 For a long time the answer has been no, but version 2.0 of BayesX is now available in a open soruce distribution that can be compiled with GNU C++ compiler.
 As a consequence, BayesX now also works under Linux and Mac OS.
 </li>
-<li><i>BayesX crashes. What did I do wrong?</i><br> 
+
+<li><b>BayesX crashes. What did I do wrong?</b><br> 
 Of course, there is no definite answer to this questions. There is the not too unlikely possibility that there is a bug in the software but in our
 experience, the overwhelming portion of crashes is caused by problems in the data and / or the model specification. Some possible difficulties are
 <ul>
@@ -134,9 +140,11 @@ In general, there are several useful strategies to identify whether the model sp
 estimation. The estimation results from the model obtained may contain valuable information to identify numerical difficulties.</li>
 </ul>
 </li>
-<li><i>How should I cite BayesX?</i><br>
+
+<li><b>How should I cite BayesX?</b><br>
 The recommended citation is "Belitz, C., Brezger, A., Kneib, T., Lang, S. (200x): BayesX - Software for Bayesian inference in structured additive regression models.
-Version x.x. Available from http://www.stat.uni-muenchen.de/~bayesx". However, please also cite the methodological publications to credit the work of the
+Version x.x. Available from http://www.stat.uni-muenchen.de/~bayesx". (with x replaced by information corresponding to the version you have used.
+However, please also cite the methodological publications to credit the work of the
 BayesX contributors.
 </li>
 </ul>

@@ -19,19 +19,25 @@ cp -rf structadd sourcecode
 cp -rf examples sourcecode
 
 cd sourcecode\adaptiv
-rm -r CVS
+rm -rf CVS
+rm *.~*
+rm #*
+rm *.obj
+
+cd ..\examples
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj
 
 cd ..\alex
-rm -r CVS
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj
 
 cd ..\andrea
-rm -r CVS
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj
@@ -44,43 +50,43 @@ rm *.obj
 rm -f *.dfm
 
 cd ..\dag
-rm -r CVS
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj
 
 cd ..\graph
-rm -r CVS
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj
 
 cd ..\leyre
-rm -r CVS
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj
 
 cd ..\mcmc
-rm -r CVS
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj
 
 cd ..\psplines
-rm -r CVS
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj
 
 cd ..\samson
-rm -r CVS
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj
 
 cd ..\structadd
-rm -r CVS
+rm -rf CVS
 rm *.~*
 rm #*
 rm *.obj
@@ -89,6 +95,6 @@ cd ..
 mkdir gnuobj
 
 rm bayesxsource.zip
-zip -ll -r bayesxsource.zip c:\bayesx\sourcecode
+zip -ll -r bayesxsource2.zip c:\bayesx\sourcecode
 
 

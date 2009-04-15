@@ -117,6 +117,24 @@ estimation forms the basis for the determination of smoothing parameters. From a
 empirical Bayes / posterior mode estimates for the structured additive regression models. However, estimates can also merely
 be interpreted as penalised likelihood estimates from a frequentist perspective.
 </li>
+<li><b>Penalized least squares including model selection (stepwisereg objects).</b><br>
+As a third alternative, BayesX provides a penalized least squares (respectively penalized likelihood) approach for
+estimating structured additive regression tools. In addition to
+the previously described estimation alternatives a powerful variable and model selection tool is included.  Model choice and estimation of
+the parameters is done simultaneously. The algorithms are able to
+<ul>
+<li>decide whether a particular covariate enters the model,</li>
+<li>decide whether a continuous covariate enters the model linearly or nonlinearly,</li>
+<li>decide whether a spatial effect enters the model,</li>
+<li>decide whether a unit- or cluster specific heterogeneity effect enters the model,</li>
+<li>select complex interaction effects (two dimensional surfaces, varying coefficient terms),</li>
+<li>select the degree of smoothness of  nonlinear covariate, spatial or cluster specific heterogeneity effects.</li>
+</ul>
+Inference is based on penalized likelihood in combination with fast
+algorithms for selecting relevant covariates and model terms.
+Different models are compared via various goodness of fit criteria,
+e.g. AIC, BIC, GCV and 5 or 10 fold cross validation.
+</li>
 </ul>
 
 <p style="font-weight:bold">Model classes and model terms</p>
