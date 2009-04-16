@@ -430,6 +430,14 @@ bool FC_hrandom::posteriormode(void)
   }
 
 
+void FC_hrandom::compute_autocorr_all(const ST::string & path, unsigned lag) const
+  {
+  compute_autocorr(path,lag);
+  ST::string path2 = path.substr(0,path.length()-4) + "2.raw";
+
+  FCrcoeff.compute_autocorr(path2,lag);
+  }
+
 void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
                             const ST::string & pathresults)
   {

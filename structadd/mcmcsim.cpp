@@ -896,7 +896,7 @@ void MCMCsim::autocorr(const unsigned & lag,const ST::string & path)
   }   // end: autocorr
 */
 
-
+/*
 void MCMCsim::autocorr(const unsigned & lag)
   {
 
@@ -988,7 +988,36 @@ void MCMCsim::autocorr(const unsigned & lag)
     } // end: for (s=0;s<nrmodels;s++)
 
   }   // end: autocorr
+*/
 
+
+void MCMCsim::autocorr(const unsigned & lag)
+  {
+
+  unsigned j,s;
+
+  unsigned nrmodels = equations.size();
+  ST::string path;
+
+
+  genoptions->out("Computing autocorrelation functions...\n");
+  genoptions->out("Autocorrelations are stored in file(s):\n");
+  genoptions->out("\n");
+
+
+  for (s=0;s<nrmodels;s++)
+    {
+
+    for(j=0;j<equations[s].FCpointer.size();j++)
+      {
+      path = equations[s].FCpaths[j].substr(0,
+      equations[s].FCpaths[j].length()-4) + "_autocor.raw";
+      equations[s].FCpointer[j]->compute_autocorr_all(path,lag);
+      }  // end: for(j=0;j<fullcondp.size();j++)
+
+    } // end: for (s=0;s<nrmodels;s++)
+
+  }   // end: autocorr
 
 
   // FUNCTION: get_samples

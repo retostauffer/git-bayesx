@@ -98,6 +98,8 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   void transform_beta(void);
 
+  void compute_autocorr_all(const ST::string & path, unsigned lag) const;
+
     // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 

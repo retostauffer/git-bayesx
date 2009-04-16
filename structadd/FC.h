@@ -190,6 +190,14 @@ class __EXPORT_TYPE FC
                                       const unsigned & col) const;
 
 
+  // FUNCTION: compute_autocorr
+  // TASK: computes autocorrelation function for lags 1 - 'lag' for parameter
+  //       beta. writes the autocorrelations in a file 'path'
+
+  void compute_autocorr(const ST::string & path, unsigned lag) const;
+
+  virtual void compute_autocorr_all(const ST::string & path, unsigned lag) const;
+
   // FUNCTION: get_samples
   // TASK: stores the sampled parameters in ASCII format
 

@@ -318,7 +318,7 @@ datamatrix FC::compute_autocorr(const unsigned & lag,const unsigned & row,
       }
     }
   else
-    return datamatrix(1,1);  
+    return datamatrix(1,1);
   }
 
 
@@ -344,6 +344,88 @@ double FC::compute_autocorr_single(const unsigned & lag,const unsigned & row,
     }
   else
     return 0;
+  }
+
+
+void FC::compute_autocorr(const ST::string & path, unsigned lag) const
+  {
+  if (nosamples == false)
+    {
+    unsigned k,i,c,l,r;
+    unsigned nrpar;
+    bool misstot;
+    double min,max,mean,autoc;
+
+    ofstream out(path.strtochar());
+
+    optionsp->out(path);
+    optionsp->out("\n");
+
+    out << "lag  ";
+
+    for (k=0;k<beta.cols();k++)
+      for(i=0;i<beta.rows();i++)
+        {
+        if (beta.cols() == 1)
+          out << "b_" << (i+1) << " ";
+        else
+          out << "b_" << (i+1) << "_" << (k+1) << " ";
+        }
+
+    out  << "b_min " << "b_mean " << "b_max " << endl;
+
+    misstot = false;
+
+    for(l=1;l<=lag;l++)
+      {
+
+      nrpar = 0;
+
+      out << l << "  ";
+
+      min = 1;
+      max = -1;
+      mean = 0;
+
+      for(c=0;c<beta.cols();c++)
+        for (r=0;r<beta.rows();r++)
+          {
+          autoc = compute_autocorr_single(l,r,c);
+          if ( (autoc <= 1) && (autoc >= -1) )
+            {
+            nrpar++;
+            if (autoc < min)
+              min = autoc;
+            if (autoc > max)
+              max = autoc;
+            mean += autoc;
+            out << autoc << "  ";
+            }
+          else
+            {
+            out << "NA  " << endl;
+            misstot = true;
+            }
+          }
+
+        out << min << "  ";
+        out << max << "  ";
+        out << mean/nrpar << "  ";
+        out << endl;
+      }  // end: for(l=0;l<lag;l++)
+
+    if (misstot==true)
+      {
+      optionsp->out("WARNING: There were undefined autocorrelations\n",true,true);
+      optionsp->out("\n");
+      }
+    }
+  }
+
+
+void FC::compute_autocorr_all(const ST::string & path, unsigned lag) const
+  {
+  compute_autocorr(path,lag);
   }
 
 

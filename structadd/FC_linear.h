@@ -33,6 +33,8 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   protected:
 
+  int constposition;
+
   MASTER_OBJ * masterp;
 
   void compute_meaneffect_design(void);
@@ -42,6 +44,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   DISTR * likep;                             // Pointer to DISTR obejct
   datamatrix design;                         // Designmatrix
+  datamatrix mean_designcols;
   vector<datamatrix> designhelp;             // help vector for constructing the
                                              // designmatrix
   datamatrix meaneffectdesign;
@@ -68,6 +71,12 @@ class __EXPORT_TYPE FC_linear  : public FC
   datamatrix * linoldp;
   datamatrix * linnewp;
 
+  void find_const(datamatrix & design);
+
+
+  void update_constsamples(void);
+  void posteriormode_constsamples(void);
+
   void create_matrices(void);
 
   // FUNCTION: compute_XWX
@@ -82,6 +91,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   public:
 
+  datamatrix constsamples;
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 

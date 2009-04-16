@@ -643,7 +643,7 @@ bool superbayesreg::create_distribution(void)
   modelvarnamesh = modreg.getModelVarnamesAsVector();
   modelvarnamesv.erase(modelvarnamesv.begin(),modelvarnamesv.end());
   for(i=0;i<modelvarnamesh.size();i++)
-    if (modelvarnamesh[i] != "noconst")
+    if (modelvarnamesh[i] != "const")
       modelvarnamesv.push_back(modelvarnamesh[i]);
 
   rname = modelvarnamesv[0].to_bstr();
@@ -662,11 +662,14 @@ bool superbayesreg::create_distribution(void)
   if ((datap->allexisting(modelvarnamesv,notex)) == false)
     {
     for (i=0;i<notex.size();i++)
+      {
+      ST::string test = notex[i];
       if (notex[i] != "const" && notex[i] != "noconst")
         {
         outerror("ERROR: variable " + notex[i] + " is not existing\n");
         failure = true;
         }
+      }
     if (failure)
       return true;
     } // end: if ((datap->allexisting(modelvarnamesv,notex)) == false)
@@ -865,18 +868,10 @@ bool superbayesreg::create_linear(void)
   vector<ST::string> varnames;
   vector<ST::string> varnamesh =  lineareffects.get_constvariables(terms);
 
-  bool noconst=false;
+
 
   for(i=0;i<varnamesh.size();i++)
-    if (varnamesh[i] == "noconst")
-      noconst=true;
-
-  if (equations[modnr].hlevel == 1 && (noconst==false))
-    varnames.push_back("const");
-
-  for(i=0;i<varnamesh.size();i++)
-    if (varnamesh[i] != "noconst")
-      varnames.push_back(varnamesh[i]);
+    varnames.push_back(varnamesh[i]);
 
   unsigned nr = varnames.size();
 
@@ -906,6 +901,7 @@ bool superbayesreg::create_linear(void)
   if (nr > 0)
     X = datamatrix(D.rows(),nr,1);
 
+  bool constfound = false;
   for (i=0;i<varnames.size();i++)
     {
 
@@ -920,7 +916,17 @@ bool superbayesreg::create_linear(void)
         *workX = *workD;
       }
 
+    if (varnames[i]=="const")
+      {
+      master.constposition = i;
+      constfound = true;
+      }
     }
+
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\X.res");
+  // X.prettyPrint(out);
+  // TEST
 
   bool store=false ;
   if (storesample.getvalue() == true)
@@ -928,6 +934,9 @@ bool superbayesreg::create_linear(void)
 
   FC_linears.push_back(FC_linear(&master,&generaloptions,equations[modnr].distrp,X,
                          varnames,title,pathconst,store));
+
+  if (constfound==true)
+    master.const_pointer = &(FC_linears[FC_linears.size()-1].constsamples);
 
   equations[modnr].add_FC(&FC_linears[FC_linears.size()-1],pathconstres);
 

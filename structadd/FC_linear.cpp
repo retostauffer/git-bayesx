@@ -65,12 +65,15 @@ FC_linear::FC_linear(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
     }
   initialize = false;
   IWLS = likep->updateIWLS;
+
+  constsamples = datamatrix(optionsp->compute_samplesize(),1,0);
   }
 
 
 FC_linear::FC_linear(const FC_linear & m)
   : FC(FC(m))
   {
+  constposition = m.constposition;
   masterp = m.masterp;
   IWLS = m.IWLS;
   likep = m.likep;
@@ -97,6 +100,8 @@ FC_linear::FC_linear(const FC_linear & m)
   linoldp = m.linoldp;
   linnewp = m.linnewp;
   datanames = m.datanames;
+  mean_designcols = m.mean_designcols;
+  constsamples = m.constsamples;
   }
 
 
@@ -106,6 +111,7 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+  constposition = m.constposition;
   masterp = m.masterp;
   IWLS = m.IWLS;
   likep = m.likep;
@@ -131,7 +137,8 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   diff = m.diff;
   linoldp = m.linoldp;
   linnewp = m.linnewp;
-
+  mean_designcols = m.mean_designcols;
+  constsamples = m.constsamples;
   datanames = m.datanames;
   return *this;
   }
@@ -206,6 +213,7 @@ void FC_linear::update_IWLS(void)
       add_linpred(diff);
       }
 
+    update_constsamples();
     FC::update();
 
 
@@ -283,8 +291,10 @@ void FC_linear::update_IWLS(void)
       add_linpred(diff);
       }
 
+    update_constsamples();
     FC::update();
     }
+
   }
 
 void FC_linear::update(void)
@@ -348,7 +358,68 @@ void FC_linear::update_gaussian(void)
     transform(0,0) = likep->trmult;
     acceptance++;
 
+    update_constsamples();
+
     FC::update();
+    }
+  }
+
+
+void FC_linear::update_constsamples(void)
+  {
+  if (constposition != -1)
+    {
+    if(
+       (optionsp->nriter > optionsp->burnin)
+       &&
+       ((optionsp->nriter-optionsp->burnin-1) % (optionsp->step) == 0)
+      )
+      {
+      double c =0;
+      int i;
+      for (i=0;i<design.cols();i++)
+        if (i != constposition)
+          c += mean_designcols(0,i)*beta(i,0);
+
+      constsamples(optionsp->samplesize-1,0) +=
+                                        transform(0,0)*(beta(constposition,0)- c);
+      }
+    }
+  else
+    {
+
+    if(
+       (optionsp->nriter > optionsp->burnin)
+       &&
+       ((optionsp->nriter-optionsp->burnin-1) % (optionsp->step) == 0)
+      )
+      {
+      double c =0;
+      int i;
+      for (i=0;i<design.cols();i++)
+        if (i != constposition)
+          c += mean_designcols(0,i)*beta(i,0);
+
+      double * dp = masterp->const_pointer->getV()+ optionsp->samplesize-1;
+      *dp  -= transform(0,0)*c;
+      }
+    }
+  }
+
+
+void FC_linear::posteriormode_constsamples(void)
+  {
+  if (constposition != -1)
+    {
+
+    double c =0;
+    int i;
+    for (i=0;i<design.cols();i++)
+      if (i != constposition)
+        c += mean_designcols(0,i)*beta(i,0);
+
+    betamean(constposition,0) = transform(0,0)*(beta(constposition,0)- c);
+
     }
   }
 
@@ -434,13 +505,61 @@ void FC_linear::compute_meaneffect_design(void)
   }
 
 
+void FC_linear::find_const(datamatrix & design)
+  {
+  constposition = -1;
+  bool constfound = false;
+  int i=0;
+  int j;
+  while (constfound==false && i < design.cols())
+    {
+    j = 0;
+    bool allone = true;
+    while (allone == true && j < design.rows())
+      {
+      if (design(j,i) != 1)
+        allone = false;
+      j++;
+      }
+    if (allone == true)
+      {
+      constfound = true;
+      constposition = i;
+      }
+    i++;
+    }
+
+  }
+
+
 void FC_linear::create_matrices(void)
   {
 
-  int i;
+  int i,j;
   design = datamatrix(designhelp[0].rows(),designhelp.size());
   for(i=0;i<designhelp.size();i++)
     design.putCol(i,designhelp[i]);
+
+  find_const(design);
+
+  double m;
+  mean_designcols = datamatrix(1,design.cols(),1);
+  for (i=0;i<design.cols();i++)
+    {
+    if (i!= constposition)
+      {
+      m = design.mean(i);
+      for (j=0;j<design.rows();j++)
+        design(j,i) -= m;
+      mean_designcols(0,i) = m;
+      }
+
+    }
+
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\design.res");
+  // design.prettyPrint(out);
+  // TEST
 
   compute_meaneffect_design();
 
@@ -568,6 +687,7 @@ bool FC_linear::posteriormode(void)
     meaneffect = (meaneffectdesign*beta)(0,0);
     masterp->level1_likep->meaneffect += meaneffect;
 
+    posteriormode_constsamples(); 
     return FC::posteriormode();
     }
 
@@ -655,12 +775,32 @@ void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
         else
           nsp = 10-datanames[i].length();
 
-        m= betamean(i,0);
-
-        if (betavar(i,0) == 0)
-          stddouble = 0;
+        if (i==constposition)
+          {
+          if (optionsp->samplesize>1)
+            m = constsamples.mean(0);
+          else
+            {
+            posteriormode_constsamples();
+            m = betamean(i,0);
+            }
+          }  
         else
-          stddouble = sqrt(betavar(i,0));
+          m= betamean(i,0);
+
+        if (i==constposition)
+          {
+          stddouble = sqrt(constsamples.var(0));
+          }
+        else
+          {
+          if (betavar(i,0) == 0)
+            stddouble = 0;
+          else
+            stddouble = sqrt(betavar(i,0));
+          }
+
+
 
         if (pathresults.isvalidfile() != 1)
           {
@@ -668,31 +808,67 @@ void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
           outp << datanames[i] << "   ";
           outp << m << "   ";
           outp << stddouble << "   ";
-          outp << betaqu_l1_lower(i,0) << "   ";
-          outp << betaqu_l2_lower(i,0) << "   ";
-          outp << betaqu50(i,0) << "   ";
-          outp << betaqu_l2_upper(i,0) << "   ";
-          outp << betaqu_l1_upper(i,0) << "   ";
-          if (betaqu_l1_lower(i,0) > 0)
-            outp << "1   ";
-          else if (betaqu_l1_upper(i,0) < 0)
-            outp << "-1   ";
-          else
-            outp << "0   ";
 
-          if (betaqu_l2_lower(i,0) > 0)
-            outp << "1   ";
-          else if (betaqu_l2_upper(i,0) < 0)
-            outp << "-1   ";
-          else
-            outp << "0   ";
+          if (i==constposition)
+            {
+            outp << constsamples.quantile(optionsp->lower1,0) << "   ";
+            outp << constsamples.quantile(optionsp->lower2,0) << "   ";
+            outp << constsamples.quantile(50,0) << "   ";
+            outp << constsamples.quantile(optionsp->upper1,0)  << "   ";
+            outp << constsamples.quantile(optionsp->upper2,0) << "   ";
+            if (constsamples.quantile(optionsp->lower1,0) > 0)
+              outp << "1   ";
+            else if (constsamples.quantile(optionsp->upper2,0) < 0)
+              outp << "-1   ";
+            else
+              outp << "0   ";
 
-          outp << endl;
+            if (constsamples.quantile(optionsp->lower2,0) > 0)
+              outp << "1   ";
+            else if (constsamples.quantile(optionsp->upper1,0)   < 0)
+              outp << "-1   ";
+            else
+              outp << "0   ";
+
+            outp << endl;
+
+
+            optionsp->out(ST::outresults(nsp,datanames[i],m,
+                          stddouble,constsamples.quantile(optionsp->lower1,0),
+                          constsamples.quantile(50,0),
+                          constsamples.quantile(optionsp->upper2,0)) + "\n");
+
+            }
+          else
+            {
+            outp << betaqu_l1_lower(i,0) << "   ";
+            outp << betaqu_l2_lower(i,0) << "   ";
+            outp << betaqu50(i,0) << "   ";
+            outp << betaqu_l2_upper(i,0) << "   ";
+            outp << betaqu_l1_upper(i,0) << "   ";
+            if (betaqu_l1_lower(i,0) > 0)
+              outp << "1   ";
+            else if (betaqu_l1_upper(i,0) < 0)
+              outp << "-1   ";
+            else
+              outp << "0   ";
+
+            if (betaqu_l2_lower(i,0) > 0)
+              outp << "1   ";
+            else if (betaqu_l2_upper(i,0) < 0)
+              outp << "-1   ";
+            else
+              outp << "0   ";
+
+            outp << endl;
+
+
+            optionsp->out(ST::outresults(nsp,datanames[i],m,
+                          stddouble,betaqu_l1_lower(i,0),
+                          betaqu50(i,0),betaqu_l1_upper(i,0)) + "\n");
+            }
+
           }
-
-        optionsp->out(ST::outresults(nsp,datanames[i],m,
-                        stddouble,betaqu_l1_lower(i,0),
-                        betaqu50(i,0),betaqu_l1_upper(i,0)) + "\n");
 
         }
 
