@@ -34,6 +34,7 @@ class __EXPORT_TYPE FC_linear  : public FC
   protected:
 
   int constposition;
+  bool center;
 
   MASTER_OBJ * masterp;
 
@@ -73,10 +74,6 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   void find_const(datamatrix & design);
 
-
-  void update_constsamples(void);
-  void posteriormode_constsamples(void);
-
   void create_matrices(void);
 
   // FUNCTION: compute_XWX
@@ -91,8 +88,6 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   public:
 
-  datamatrix constsamples;
-
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
   // DEFAULT CONSTRUCTOR
@@ -103,7 +98,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   FC_linear(MASTER_OBJ * mp, GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
             vector<ST::string> & vn, const ST::string & t,
-           const ST::string & fp,bool sstore);
+           const ST::string & fp,bool sstore,bool cent);
 
   // COPY CONSTRUCTOR
 
@@ -141,6 +136,10 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   void outresults(ofstream & out_stata,ofstream & out_R,
                   const ST::string & pathresults);
+
+  void compute_autocorr_all(const ST::string & path,
+                              unsigned lag, ofstream & outg) const;
+
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 

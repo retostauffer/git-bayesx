@@ -139,6 +139,7 @@ void superbayesreg::create_hregress(void)
   MSEop.push_back("yes");
   mse = stroption("MSE",MSEop,"no");
 
+  centerlinear = simpleoption("centerlinear",false);
 
   regressoptions.reserve(100);
 
@@ -157,7 +158,8 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&equationnr);
   regressoptions.push_back(&equationtype);
   regressoptions.push_back(&predict);
-  regressoptions.push_back(&mse);  
+  regressoptions.push_back(&mse);
+  regressoptions.push_back(&centerlinear);  
 
 
   // methods 0
@@ -901,7 +903,6 @@ bool superbayesreg::create_linear(void)
   if (nr > 0)
     X = datamatrix(D.rows(),nr,1);
 
-  bool constfound = false;
   for (i=0;i<varnames.size();i++)
     {
 
@@ -916,11 +917,6 @@ bool superbayesreg::create_linear(void)
         *workX = *workD;
       }
 
-    if (varnames[i]=="const")
-      {
-      master.constposition = i;
-      constfound = true;
-      }
     }
 
   // TEST
@@ -928,15 +924,10 @@ bool superbayesreg::create_linear(void)
   // X.prettyPrint(out);
   // TEST
 
-  bool store=false ;
-  if (storesample.getvalue() == true)
-    store = true;
 
   FC_linears.push_back(FC_linear(&master,&generaloptions,equations[modnr].distrp,X,
-                         varnames,title,pathconst,store));
-
-  if (constfound==true)
-    master.const_pointer = &(FC_linears[FC_linears.size()-1].constsamples);
+                         varnames,title,pathconst,storesample.getvalue(),
+                         centerlinear.getvalue()));
 
   equations[modnr].add_FC(&FC_linears[FC_linears.size()-1],pathconstres);
 
@@ -1262,7 +1253,10 @@ void autocorrrun(superbayesreg & b)
        if (b.generaloptions.samplesize < unsigned(b.maxlag.getvalue()*4))
          b.outerror("ERROR: samplesize too small\n");
        else
-         b.simobj.autocorr(b.maxlag.getvalue());
+         {
+         ST::string pathgraphs = b.outfile.getvalue();
+         b.simobj.autocorr(b.maxlag.getvalue(),pathgraphs);
+         }
        }
      else
        b.outerror("ERROR: no MCMC simulation results\n");

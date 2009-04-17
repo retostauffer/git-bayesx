@@ -984,28 +984,20 @@ void DISTR_loggaussian::compute_deviance(const double * response,
                                  double * scale) const
   {
   double r = *response-*mu;
-/*
+
   if (*weight != 0)
     {
     *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
     *deviancesat = (*weight/(*scale))*r*r;
     }
-*/
-//  else
-//    {
+
+  else
+    {
     *deviance = 0;
     *deviancesat = 0;
-//    }
+    }
+
   }
-
-
-/*
-    double s = scale(0,0)*pow(trmult(0,0),2);
-    double r = *response*trmult(0,0)-(log(*mu)-0.5*s);
-    *deviance = (*weight/s)*r*r+log(2*M_PI*s/(*weight)) + 2.0**response*trmult(0,0);
-    *deviancesat = (*weight/s)*r*r;
-*/
-
 
 //------------------------------------------------------------------------------
 //--------------------- CLASS DISTRIBUTION_gaussian_exp ------------------------

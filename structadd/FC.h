@@ -196,7 +196,8 @@ class __EXPORT_TYPE FC
 
   void compute_autocorr(const ST::string & path, unsigned lag) const;
 
-  virtual void compute_autocorr_all(const ST::string & path, unsigned lag) const;
+  virtual void compute_autocorr_all(const ST::string & path, unsigned lag,
+                                    ofstream & outg) const;
 
   // FUNCTION: get_samples
   // TASK: stores the sampled parameters in ASCII format

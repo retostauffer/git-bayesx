@@ -37,9 +37,6 @@ class __EXPORT_TYPE MASTER_OBJ
 
   DISTR * level1_likep;
 
-  datamatrix * const_pointer;
-  unsigned constposition;
-
   // DEFAULT CONSTRUCTOR
 
   MASTER_OBJ(void);

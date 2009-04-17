@@ -45,6 +45,12 @@ void FC_mult::set_multeffects(MASTER_OBJ * mp,GENERAL_OPTIONS * o,
   }
 
 
+void FC_mult::compute_autocorr_all(const ST::string & path, unsigned lag,
+                                    ofstream & outg) const
+  {
+
+  }                                    
+
 
 FC_mult::FC_mult(void)
   {

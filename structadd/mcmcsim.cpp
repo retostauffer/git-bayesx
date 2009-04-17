@@ -139,7 +139,8 @@ const MCMCsim & MCMCsim::operator=(const MCMCsim & s)
   // TASK: runs a MCMC simulation
   //       returns true, if simulation error or user break occured
 
-bool MCMCsim::simulate(ST::string & pathgraphs, const int & seed, const bool & computemode)
+bool MCMCsim::simulate(ST::string & pathgraphs,
+const int & seed, const bool & computemode)
   {
   unsigned i,j;
 
@@ -750,248 +751,8 @@ void MCMCsim::autocorr(const unsigned & lag,datamatrix & cmat)
 
   }
 
-  // FUNCTION: autocorr
-  // TASK: computes autocorrelations for all samples parameters
-  //      (i.e. for all beta matrices) and stores the result in file 'path'
 
-/*
-void MCMCsim::autocorr(const unsigned & lag,const ST::string & path)
-  {
-
-  unsigned nrmodels = equations.size();
-
-  ofstream out(path.strtochar());
-  assert(!out.fail());
-  assert(!out.bad());
-
-  ST::string name;
-  datamatrix cmat;
-  unsigned i,j,k,l,nr,s;
-  double min,mean,max,n;
-  bool miss,misstot;
-  misstot = false;
-  genoptions->out("Computing autocorrelation functions...\n");
-  autocorr(lag,cmat);
-
-  #if defined(BORLAND_OUTPUT_WINDOW)
-  if (!Frame->stop)
-  #elif defined(JAVA_OUTPUT_WINDOW)
-  if (!genoptions->adminb_p->get_stop())
-  #endif
-    {
-    out << "lag ";
-
-    for (s=0;s<nrmodels;s++)
-      {
-
-      for(j=0;j<equations[s].FCpointer.size();j++)
-        {
-        if (equations[s].FCpointer[j]->nosamples == false)
-          {
-          name = equations[s].FCpointer[j]->title;
-
-          for (k=0;k<equations[s].FCpointer[j]->beta.cols();k++)
-            for(i=0;i<equations[s].FCpointer[j]->beta.rows();i++)
-              {
-              if (equations[s].FCpointer[j]->beta.cols() == 1)
-                out << name << "_" << (i+1) << " ";
-              else
-                out << name << (i+1) << "_" << (k+1) << " ";
-              }
-
-          out << name << "_min " << name << "_mean " << name << "_max ";
-          }
-
-        }  // end: for(j=0;j<fullcondp.size();j++)
-      }
-
-      out << endl;
-
-    for(l=0;l<lag;l++)
-      {
-      nr = 0;
-      out << (l+1) << " ";
-
-      for (s=0;s<equations.size();s++)
-        {
-
-        for(j=0;j<equations[s].FCpointer.size();j++)
-          {
-          if (equations[s].FCpointer[j]->nosamples == false)
-            {
-            min = 1;
-            max = -1;
-            mean = 0;
-            miss = true;
-
-            for (k=0;k<equations[s].FCpointer[j]->beta.cols();k++)
-              for(i=0;i<equations[s].FCpointer[j]->beta.rows();i++)
-                {
-                if (cmat(l,nr) <= 1)
-                  {
-                  miss = false;
-                  if (cmat(l,nr) > max)
-                    max = cmat(l,nr);
-                  if (cmat(l,nr) < min)
-                    min = cmat(l,nr);
-                  mean+=cmat(l,nr);
-                  out << cmat(l,nr) << " ";
-                  }
-                else
-                  {
-                  misstot = true;
-                  out << "NA ";
-                  }
-
-                nr++;
-                }
-
-            if (miss)
-              out << "NA NA NA ";
-            else
-              {
-              n = equations[s].FCpointer[j]->beta.cols() * equations[s].FCpointer[j]->beta.rows();
-              out << min << " " << (mean/n) << " " << max << " ";
-              }
-            } // end: if (equations[s].FCpointer[j]->nosamples == false)
-          }  // end: for(j=0;j<equations[s].FCpointer.size();j++)
-        } // for (s=0;s<equations.size();s++)
-        out << endl;
-      } // end: for(l=0;l<lag;l++)
-
-      genoptions->out("Autocorrelation functions computed and stored in file\n");
-      genoptions->out(path + ".\n");
-      genoptions->out("\n");
-      if (misstot)
-        {
-        genoptions->out("WARNING: There were undefined autocorrelations\n",true,true);
-        genoptions->out("\n");
-        }
-
-    #if !defined(JAVA_OUTPUT_WINDOW)
-      genoptions->out("They may be visualized using the R function 'plotautocor'.\n");
-      genoptions->out("\n");
-    #endif
-      } // end: if (!Frame->stop)
-    #if defined(BORLAND_OUTPUT_WINDOW)
-    else
-      {
-      genoptions->out("USER BREAK\n");
-      genoptions->out("No autocorrelation functions computed\n");
-      genoptions->out("\n");
-      out.close();
-      remove(path.strtochar());
-      }
-    #elif defined(JAVA_OUTPUT_WINDOW)
-    else
-      {
-//      genoptions->out("SIMULATION TERMINATED BY USER BREAK\n");
-      genoptions->out("No autocorrelation functions computed\n");
-      genoptions->out("\n");
-      out.close();
-      remove(path.strtochar());
-      }
-    #endif
-
-  }   // end: autocorr
-*/
-
-/*
-void MCMCsim::autocorr(const unsigned & lag)
-  {
-
-  unsigned i,j,k,l,s,r,c,nrpar;
-  double min,mean,max;
-  unsigned nrmodels = equations.size();
-  double autoc;
-  ST::string path;
-  bool misstot;
-
-  genoptions->out("Computing autocorrelation functions...\n");
-  genoptions->out("Autocorrelations are stored in file(s):\n");
-  genoptions->out("\n");
-
-
-  for (s=0;s<nrmodels;s++)
-    {
-
-    for(j=0;j<equations[s].FCpointer.size();j++)
-      {
-      if (equations[s].FCpointer[j]->nosamples == false)
-        {
-        path = equations[s].FCpaths[j].substr(0,equations[s].FCpaths[j].length()-4) + "_autocor.raw";
-        ofstream out(path.strtochar());
-
-        genoptions->out(path);
-        genoptions->out("\n");
-
-        out << "lag  ";
-
-        for (k=0;k<equations[s].FCpointer[j]->beta.cols();k++)
-          for(i=0;i<equations[s].FCpointer[j]->beta.rows();i++)
-            {
-            if (equations[s].FCpointer[j]->beta.cols() == 1)
-              out << "b_" << (i+1) << " ";
-            else
-              out << "b_" << (i+1) << "_" << (k+1) << " ";
-            }
-
-        out  << "b_min " << "b_mean " << "b_max " << endl;
-
-        misstot = false;
-        for(l=1;l<=lag;l++)
-          {
-
-          nrpar = 0;
-
-          out << l << "  ";
-
-          min = 1;
-          max = -1;
-          mean = 0;
-
-          for(c=0;c<equations[s].FCpointer[j]->beta.cols();c++)
-            for (r=0;r<equations[s].FCpointer[j]->beta.rows();r++)
-              {
-              autoc = equations[s].FCpointer[j]->compute_autocorr_single(l,r,c);
-              if ( (autoc <= 1) && (autoc >= -1) )
-                {
-                nrpar++;
-                if (autoc < min)
-                  min = autoc;
-                if (autoc > max)
-                  max = autoc;
-                mean += autoc;
-                out << autoc << "  ";
-                }
-              else
-                {
-                out << "NA  " << endl;
-                misstot = true;
-                }
-              }
-
-          out << min << "  ";
-          out << max << "  ";
-          out << mean/nrpar << "  ";
-          out << endl;
-          }  // end: for(l=0;l<lag;l++)
-
-        if (misstot==true)
-          {
-          genoptions->out("WARNING: There were undefined autocorrelations\n",true,true);
-          genoptions->out("\n");
-          }
-
-        }
-      }  // end: for(j=0;j<fullcondp.size();j++)
-    } // end: for (s=0;s<nrmodels;s++)
-
-  }   // end: autocorr
-*/
-
-
-void MCMCsim::autocorr(const unsigned & lag)
+void MCMCsim::autocorr(const unsigned & lag,ST::string & pathgraphs)
   {
 
   unsigned j,s;
@@ -1005,17 +766,37 @@ void MCMCsim::autocorr(const unsigned & lag)
   genoptions->out("\n");
 
 
+  ST::string pathauto = pathgraphs + "_autocor.prg";
+  ofstream outg(pathauto.strtochar());
+  outg << "% usefile " << pathauto.strtochar()  << endl << endl;
+
+  outg << "dataset _d" << endl;
+  outg << "graph _g" << endl << endl;
+
+
   for (s=0;s<nrmodels;s++)
     {
 
     for(j=0;j<equations[s].FCpointer.size();j++)
       {
-      path = equations[s].FCpaths[j].substr(0,
-      equations[s].FCpaths[j].length()-4) + "_autocor.raw";
-      equations[s].FCpointer[j]->compute_autocorr_all(path,lag);
+      ST::string p = equations[s].FCpaths[j];
+      if (equations[s].FCpaths[j].length() >= 4)
+        {
+        path = equations[s].FCpaths[j].substr(0,
+        equations[s].FCpaths[j].length()-4) + "_autocor.raw";
+        equations[s].FCpointer[j]->compute_autocorr_all(path,lag,outg);
+        }
       }  // end: for(j=0;j<fullcondp.size();j++)
 
     } // end: for (s=0;s<nrmodels;s++)
+
+  outg << "drop _d _g" << endl << endl;
+
+  genoptions->out("File for convenient computation and visualization of \n");
+  genoptions->out("autocorrelations using the Windows version of BayesX is stored in\n");
+  genoptions->out("\n");
+  genoptions->out(pathauto + "\n");
+  genoptions->out("\n");
 
   }   // end: autocorr
 
@@ -1049,7 +830,7 @@ void MCMCsim::get_samples(
         {
         filename =  equations[j].FCpaths[i].substr(0,equations[j].FCpaths[i].length()-4) + "_sample.raw";
         equations[j].FCpointer[i]->get_samples(filename);
-        genoptions->out(filename + "\n");
+//        genoptions->out(filename + "\n");
         #if defined(JAVA_OUTPUT_WINDOW)
 
         psname = equations[j].FCpaths[i].substr(0,equations[j].FCpaths[i].length()-4) + "_sample.ps";

@@ -128,7 +128,7 @@ class __EXPORT_TYPE MCMCsim
   // TASK: computes autocorrelations for all samples parameters
   //      (i.e. for all beta matrices) and stores the result in file 'path'
 
-  void autocorr(const unsigned & lag);
+  void autocorr(const unsigned & lag,ST::string & pathgraphs);
 
   // FUNCTION: compute_nrpar
   // TASK: computes the total number of parameters

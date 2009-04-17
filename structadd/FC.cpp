@@ -423,9 +423,14 @@ void FC::compute_autocorr(const ST::string & path, unsigned lag) const
   }
 
 
-void FC::compute_autocorr_all(const ST::string & path, unsigned lag) const
+void FC::compute_autocorr_all(const ST::string & path,
+                              unsigned lag, ofstream & outg) const
   {
   compute_autocorr(path,lag);
+  outg << "_d.infile using " << path << endl;
+  ST::string pathps = path.substr(0,path.length()-4) + ".ps";
+  outg << "_g.plotautocor , outfile=" <<  pathps.strtochar() <<  " using _d" << endl;
+  outg << endl;
   }
 
 
@@ -492,6 +497,8 @@ void FC::get_samples(const ST::string & filename) const
       }
 
     out.close();
+
+    optionsp->out(filename + "\n");
 
     } // end: if (nosamples == false)
   }

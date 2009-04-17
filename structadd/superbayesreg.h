@@ -163,6 +163,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<ST::string> MSEop;
   stroption mse;
 
+  // linear effects
+
+  simpleoption centerlinear;
 
   optionlist regressoptions;
 
