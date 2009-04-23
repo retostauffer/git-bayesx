@@ -1157,11 +1157,6 @@ public void actionPerformed(ActionEvent ae)
                 {
 		JOptionPane.showMessageDialog(this,"BayesX\n\nSoftware for Bayesian Inference in Structured Additive Regression Models\n"+
 			"Version 2.00 (24.04.2009)\n\n"+
-			"developed at\n"+
-			"  University of Munich\n"+
-			"  Department of Statistics\n"+
-			"  Ludwigstr. 33\n"+
-			"  80539 Munich\n\n"+
 			"developed by\n"+
 			"  Christiane Belitz\n"+
 			"  Andreas Brezger\n"+

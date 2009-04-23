@@ -115,7 +115,7 @@ with functionality provided in the BayesX R package.
 </li>
 
 <li><b>Does BayesX work with other operating systems than Windows?</b><br>
-For a long time the answer has been no, but version 2.0 of BayesX is now available in a open soruce distribution that can be compiled with GNU C++ compiler.
+For a long time the answer has been no, but version 2.0 of BayesX is now available in an open source distribution that can be compiled with GNU C++ compiler.
 As a consequence, BayesX now also works under Linux and Mac OS.
 </li>
 
@@ -125,11 +125,11 @@ experience, the overwhelming portion of crashes is caused by problems in the dat
 <ul>
 <li>Complete separation in binary or categorical regression models. This happens particularly frequently when
 considering binary covariates with only a very small number of ones or a larger number of response categories. Complete
-separation leads to the divergence of parameter estimates and therefore ultimately to the crach of BayesX.</li>
+separation leads to the divergence of parameter estimates and therefore ultimately to the crash of BayesX.</li>
 <li>A small fraction of excessively large counts in count data regression. Since all count data models in BayesX use the exponential
 link function, numerical difficulties can occur when there are some out-lying large response values.</li> 
 <li>Non-identifiable model specification. Again, such models lead to the divergence of parameter estimates and ultimately to a crash of the software.
-Example include models where the same term has been specified more than once or varying coefficient models without appropriate centering restrictions
+Examples include models where the same term has been specified more than once or varying coefficient models without appropriate centering restrictions
 (see the reference manual).</li> 
 </ul>
 In general, there are several useful strategies to identify whether the model specification is problematic for the data at hand:
@@ -143,7 +143,7 @@ estimation. The estimation results from the model obtained may contain valuable 
 
 <li><b>How should I cite BayesX?</b><br>
 The recommended citation is "Belitz, C., Brezger, A., Kneib, T., Lang, S. (200x): BayesX - Software for Bayesian inference in structured additive regression models.
-Version x.x. Available from http://www.stat.uni-muenchen.de/~bayesx". (with x replaced by information corresponding to the version you have used.
+Version x.x. Available from http://www.stat.uni-muenchen.de/~bayesx". (with x replaced by information corresponding to the version you have used).
 However, please also cite the methodological publications to credit the work of the
 BayesX contributors.
 </li>
