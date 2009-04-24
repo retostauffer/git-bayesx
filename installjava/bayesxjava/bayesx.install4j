@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="4.1.4" transformSequenceNumber="2">
-  <directoryPresets config="C:/bayesx/bin/Release/bayesx.exe" />
+  <directoryPresets config="C:/bayesx/internet/bayesx/tutorials/regression_step/steptutorial.prg" />
   <application name="BayesX" distributionSourceDir="" applicationId="2916-3818-7425-2636" mediaDir="c:/bayesx/installjava/bayesxjava" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="false" shortName="BayesX" publisher="BayesX Group" publisherWeb="http://www.stat.uni-muenchen.de/~bayesx" version="2.0" allPathsRelative="false" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.4.2" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false">
       <principalLanguage id="en" customLocalizationFile="" />
@@ -21,8 +21,9 @@
       <mountPoint id="18" root="" location="temp" mode="755" />
       <mountPoint id="20" root="" location="umontreal" mode="755" />
       <mountPoint id="25" root="" location="doc" mode="755" />
-      <mountPoint id="19" root="" location="" mode="755" />
       <mountPoint id="63" root="" location="commandline" mode="755" />
+      <mountPoint id="19" root="" location="" mode="755" />
+      <mountPoint id="100" root="" location="examples" mode="755" />
     </mountPoints>
     <entries>
       <dirEntry mountPoint="20" file="C:/bayesx/java/umontreal" overwrite="4" shared="false" mode="644" uninstallMode="0" excludeSuffixes="" dirMode="755">
@@ -39,6 +40,7 @@
       <fileEntry mountPoint="25" file="C:/bayesx/java/doc/methodology_manual.pdf" overwrite="4" shared="false" mode="644" uninstallMode="0" />
       <fileEntry mountPoint="25" file="C:/bayesx/java/doc/reference_manual.pdf" overwrite="4" shared="false" mode="644" uninstallMode="0" />
       <fileEntry mountPoint="25" file="C:/bayesx/java/doc/tutorials_manual.pdf" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="63" file="C:/bayesx/bin/Release/bayesx.exe" overwrite="4" shared="false" mode="644" uninstallMode="0" />
       <fileEntry mountPoint="19" file="C:/bayesx/java/adminparseDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
       <fileEntry mountPoint="19" file="C:/bayesx/java/Bayesicon.gif" overwrite="4" shared="false" mode="644" uninstallMode="0" />
       <fileEntry mountPoint="19" file="C:/bayesx/java/bayesregDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
@@ -101,7 +103,17 @@
       <fileEntry mountPoint="19" file="C:/bayesx/java/Surfplot.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
       <fileEntry mountPoint="19" file="C:/bayesx/java/vcl35.bpl" overwrite="4" shared="false" mode="644" uninstallMode="0" />
       <fileEntry mountPoint="19" file="C:/bayesx/java/vclx35.bpl" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="63" file="C:/bayesx/bin/Release/bayesx.exe" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/examples/credit.prg" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/examples/credit.raw" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/examples/munich.bnd" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/examples/rent.prg" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/examples/rent94.raw" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/internet/bayesx/tutorials/zambia.bnd" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/internet/bayesx/tutorials/zambia.raw" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/internet/bayesx/tutorials/regression_mcmc/mcmctutorial.prg" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/internet/bayesx/tutorials/regression_reml/remltutorial.prg" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/internet/bayesx/tutorials/regression_step/steptutorial.prg" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <fileEntry mountPoint="100" file="C:/bayesx/examples/rent94means.raw" overwrite="4" shared="false" mode="644" uninstallMode="0" />
     </entries>
     <components />
   </files>
