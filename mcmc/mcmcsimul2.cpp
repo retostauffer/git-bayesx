@@ -458,7 +458,7 @@ bool STEPWISErun::stepwise(const ST::string & procedure, const ST::string & mini
       return true;
     }
 
-  make_tex_end(path,modell_final);
+  make_tex_end(path,modell_final,CI);
   outtex.close();
 
 // FÜR SIMULATIONEN:
@@ -524,8 +524,8 @@ bool STEPWISErun::single_stepwise(const vector<unsigned> & start,
     {
     likep_mult[0]->reset();
     for(i=0;i<fullcond_alle.size();i++)
-      fullcond_alle[i]->reset();  
-    fullcond_alle[0]->setbeta(fullcond_alle[0]->get_nrpar(),1,0);      
+      fullcond_alle[i]->reset();
+    fullcond_alle[0]->setbeta(fullcond_alle[0]->get_nrpar(),1,0);
     }
 
   if(hierarchical == true)
@@ -708,15 +708,15 @@ void STEPWISErun::schaetzen(int z, double & kriterium, bool neu, ST::string vari
       }
     }
 
-  else if(variante == "factor" || variante == "nonpfix" || variante == "fixfix")  
+  else if(variante == "factor" || variante == "nonpfix" || variante == "fixfix")
     {
     if(variante == "nonpfix")
-      neu = false;  
+      neu = false;
     else if(variante == "fixfix")
       neu = true;
     if(criterion != "CV5" && criterion != "CV10")
       {
-      if(!neu) 
+      if(!neu)
         fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
                                fullcond_alle[z]->get_data_forfixedeffects(),true);
       else
@@ -819,7 +819,7 @@ void STEPWISErun::schaetzen(int z, double & kriterium, bool neu, ST::string vari
     ST::string possible = "alles";
     if(hierarchical == true)
       fullcond_alle[z]->hierarchical(possible);
-  
+
     if(criterion != "CV5" && criterion != "CV10")
       {
       if((possible != "valles" && possible != "vrfix" && possible != "vraus")
@@ -863,8 +863,8 @@ void STEPWISErun::schaetzen(int z, double & kriterium, bool neu, ST::string vari
         }
       }
     }
- 
-  } 
+
+  }
 
 
 // -----------------------------------------------------------------------------
@@ -1765,7 +1765,7 @@ void STEPWISErun::stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt, dou
     fullcond_alle[z]->hierarchical(possible);
   if(possible == "valles")
     possible = "alles";
-    
+
   // VCM
   if(possible == "vfix")
     {
@@ -2057,7 +2057,7 @@ void STEPWISErun::minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
       reset_fix(names_nonp[z-1][i]);
     kriterium = MAXDOUBLE;
     }
-    
+
   vector<FULLCOND*> fullcond_begin = fullcondp;
   vector<double> modell1 = modell_alt;
   modell1[z+names_fixed.size()-2] = 1;
@@ -2709,7 +2709,7 @@ void STEPWISErun::koord_factor_leer(vector<double> & kriteriumiteration2,
         fullcond_alle[0]->posteriormode_single(names_nonp[z-1],
                                      fullcond_alle[z]->get_data_forfixedeffects(),true);
         modell_neu[z+names_fixed.size()-2] = -1;
-        fullcond_alle[z]->set_inthemodel(-1);        
+        fullcond_alle[z]->set_inthemodel(-1);
         }
 
       if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
@@ -2822,7 +2822,7 @@ void STEPWISErun::koord_leer_factor(vector<double> & kriteriumiteration2,
       for(i=0;i<names_nonp[z-1].size();i++)
         reset_fix(names_nonp[z-1][i]);
       modell_neu[z+names_fixed.size()-2] = 0;
-      fullcond_alle[z]->set_inthemodel(0);      
+      fullcond_alle[z]->set_inthemodel(0);
       }
     }
 
@@ -3755,7 +3755,7 @@ fullcond_alle[0]->posteriormode();
 // -----------------------------------------------------------------------------
 
 bool STEPWISErun::make_pause(void)
-  { 
+  {
   #if defined(BORLAND_OUTPUT_WINDOW)
   Application->ProcessMessages();
 
@@ -3804,12 +3804,12 @@ bool STEPWISErun::make_pause(void)
     likep_mult[0]->reset();
     for(unsigned j=0;j<fullcond_alle.size();j++)
       fullcond_alle[j]->reset();
-    
+
     return true;
     }
   #endif
 
-  return false; 
+  return false;
   }
 
 
@@ -3878,11 +3878,10 @@ void STEPWISErun::options_text(const int & number,
   for(i=1;i<names_fixed.size();i++)
      {
      genoptions_mult[0]->out("\n");
-     genoptions_mult[0]->out("  OPTIONS FOR FIXED EFFECTS TERM: "
+     genoptions_mult[0]->out("  OPTIONS FOR LINEAR EFFECTS TERM: "
         + names_fixed[i] + "\n");
      genoptions_mult[0]->out("\n");
-     genoptions_mult[0]->out("  Prior: diffuse prior \n");
-     unsigned j;
+          unsigned j;
      for(j=0;j<startfix.size();j++)
         if(startfix[j][i-1] == 0)
            genoptions_mult[0]->out("  Startvalue of the "
@@ -3891,7 +3890,7 @@ void STEPWISErun::options_text(const int & number,
            genoptions_mult[0]->out("  Startvalue of the "
               + ST::doubletostring(j+1) + ". startmodel is the fixed effect \n");
      }
-     
+
   for(i=1;i<fullcondp.size();i++)
      {
      fullcondp[i]->set_inthemodel(1);
@@ -3950,7 +3949,7 @@ void STEPWISErun::options_text(const int & number,
                 + ST::doubletostring(fullcondp[i]->compute_df(),6) + "\n");
              }
           }
-     fullcondp[i]->set_inthemodel(0);          
+     fullcondp[i]->set_inthemodel(0);
      }
   genoptions_mult[0]->out("\n");
   genoptions_mult[0]->out("\n");
@@ -3991,7 +3990,7 @@ void STEPWISErun::make_graphics(const ST::string & name,
   }
 
 
-void STEPWISErun::make_tex_end(ST::string & path, const vector<double> & modell)
+void STEPWISErun::make_tex_end(ST::string & path, const vector<double> & modell,ST::string & CI)
   {
   ST::string path_batch = path + "_graphics.prg";
   ST::string path_splus = path +  "_r.R";
@@ -4025,7 +4024,7 @@ void STEPWISErun::make_tex_end(ST::string & path, const vector<double> & modell)
      outtex << distr_results[i] << endl;
      }
 
-  make_fixed_table();
+  make_fixed_table(CI);
 
     // Pfade der Files
     //werden im BayesX-Output angegeben
@@ -4114,11 +4113,11 @@ void STEPWISErun::make_model(void)
 void STEPWISErun::make_prior(vector<vector<unsigned> > & startindex)
   {
   vector<ST::string> names_fixed = fullcond_alle[0]->get_datanames();
-  outtex << "\n\\noindent {\\bf \\large Priors:}\\\\" << endl << "\\\\" << endl;
+  outtex << "\n\\noindent {\\bf \\large Assumptions:}\\\\" << endl << "\\\\" << endl;
   unsigned i;
   if(names_fixed.size()>1)
      {
-     outtex << "Fixed Effects:\\\\";
+     outtex << "Linear Effects:\\\\";
      ST::string term = "";
      for(i=1;i<names_fixed.size()-1;i++)
         term = term + "$" + names_fixed[i] + "$, ";
@@ -4126,12 +4125,12 @@ void STEPWISErun::make_prior(vector<vector<unsigned> > & startindex)
      outtex << endl << "\\begin{tabular}{p{12cm}}\n" << term
             << "$\n\\end{tabular}\n" << endl;
      if(startmodel == "full" || startmodel == "userdefined")
-        outtex << "Startvalue is the fixed effect \\\\ \n\\\\" << endl;
+        outtex << "Startvalue is a linear effect \\\\ \n\\\\" << endl;
      else if(startmodel == "empty")
         outtex << "Startvalue is 'effect excluded' \\\\ \n\\\\" << endl;
      else
         outtex << "1. Startvalue is 'effect excluded' \\\\" << endl
-               << "2. Startvalue is the fixed effect \\\\ \n\\\\" << endl;
+               << "2. Startvalue is a linear effect \\\\ \n\\\\" << endl;
     }
 
   unsigned j;
@@ -4209,9 +4208,9 @@ void STEPWISErun::make_prior(vector<vector<unsigned> > & startindex)
   }
 
 
-void STEPWISErun::make_fixed_table(void)
+void STEPWISErun::make_fixed_table(ST::string & CI)
   {
-  /*
+
   // falls andere Quantile gewünscht werden
   double u = fullcondp[begin[0]]->get_level1();
   double o = fullcondp[begin[0]]->get_level2();
@@ -4225,26 +4224,33 @@ void STEPWISErun::make_fixed_table(void)
   ST::string u2_str = ST::doubletostring(u2,5);
   ST::string o1_str = ST::doubletostring(o1,5);
   ST::string o2_str = ST::doubletostring(o2,5);
-  */
+
   vector<ST::string> h;
   unsigned j;
   unsigned r = 2;
-  outtex << "\n\\newpage \n" << endl << "\n\\noindent {\\bf \\large Fixed Effects:}\\\\"
+  outtex << "\n\\newpage \n" << endl << "\n\\noindent {\\bf \\large Linear Effects:}\\\\"
            << endl << "\\\\" << endl;
-  outtex << "\\begin{tabular}{|r|r|}" << endl << "\\hline" << endl
-         << "Variable & Mean \\\\" << endl << "\\hline" << endl;
+
+
+
+  outtex << "\\begin{tabular}{|r|r|r|r|r|r|}" << endl << "\\hline" << endl
+           << "Variable & Mean & Std & CI" << ST::doubletostring(u)
+           << "lower & Median & CI" << ST::doubletostring(u)
+           << "upper \\\\" << endl << "\\hline" << endl;
+
   h = fullcondp[0]->get_results_latex();
   for(j=0;j<h.size();j++)
      {
      r++;
      if (r < 39)
-        outtex << h[j].substr(0,h[j].length()-17) << "\\\\" << endl;
+ //       outtex << h[j].substr(0,h[j].length()-17) << "\\\\" << endl;
+      outtex << h[j]  << endl;
      else
         {
         r=1;
         outtex << "\\hline \n\\end{tabular}" << endl;
         outtex << "\n\\newpage \n" << endl
-               << "\n\\noindent {\\bf \\large Fixed Effects (continued):}\\\\"
+               << "\n\\noindent {\\bf \\large Linear Effects (continued):}\\\\"
                << endl << "\\\\" << endl;
         outtex << "\\begin{tabular}{|r|r|}" << endl << "\\hline" << endl
                << "Variable & Mean\\\\" << endl << "\\hline" << endl;
@@ -4253,7 +4259,7 @@ void STEPWISErun::make_fixed_table(void)
      }
   outtex << "\\hline \n\\end{tabular}" << endl;
   }
-  
+
 
 void STEPWISErun::make_plots(ST::string & path_batch,
                              ST::string & path_splus)      //,ST::string & path_stata)
@@ -4626,7 +4632,7 @@ bool STEPWISErun::confidence_bootstrap(const vector<double> & modell_final,
     fullcond_komplett(modell_boot);
     modell_alt = modell_boot;
     modell_neu = modell_boot;
-    
+
     if(criterion == "MSEP" || criterion == "AUC")
       {
       likep_mult[0]->weight_for_all();   // macht hier das Gegenteil und setzt "weight" für MSEP ein!
@@ -4794,7 +4800,7 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
 
   while(bootstrap > 0)
     {
-    genoptions_mult[0]->out("BOOTSTRAPSAMPLE " + ST::inttostring(bootstrap) + "\n",true);
+    genoptions_mult[0]->out("  BOOTSTRAPSAMPLE " + ST::inttostring(bootstrap) + "\n",false);
 
     zaehler += 1;
     bootstrap -= 1;

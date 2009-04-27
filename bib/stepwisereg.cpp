@@ -3718,7 +3718,7 @@ void regressrun(stepwisereg & b)
              }
         //   }
 
-        b.newcommands.push_back(b.name + ".texsummary");
+       // b.newcommands.push_back(b.name + ".texsummary");
        }
 
 #endif
