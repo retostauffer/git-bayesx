@@ -4766,7 +4766,7 @@ bool STEPWISErun::confidence_MCMCbootstrap(const vector<double> & modell_final,
     else if((modell_alt[names_fixed.size()-2+i] == -1 || modell_alt[names_fixed.size()-2+i] == -2)
                              && fullcond_alle[i]->get_fctype() != MCMC::factor)
         {
-        fullcond_alle[i]->set_inthemodel(0);
+        fullcond_alle[i]->set_inthemodel(-1);
         }
     }
 
@@ -4898,7 +4898,7 @@ genoptions_mult[0]->out("\n");*/
       else if((modell_alt[names_fixed.size()-2+i] == -1 || modell_alt[names_fixed.size()-2+i] == -2)
                              && fullcond_alle[i]->get_fctype() != MCMC::factor)
         {
-        fullcond_alle[i]->set_inthemodel(0);
+        fullcond_alle[i]->set_inthemodel(-1);
         }
       }
 

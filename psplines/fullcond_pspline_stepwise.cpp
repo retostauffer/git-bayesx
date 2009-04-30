@@ -786,7 +786,7 @@ bool FULLCOND_pspline_stepwise::search_for_interaction(void)
 //    {
     bool drin, fix;         // 2d Interaktion muß an der letzten Stelle sein!!!
     interactions_pointer[interactions_pointer.size()-1]->get_inthemodel(drin,fix);
-    if(drin == true)  
+    if(drin == true)
       thereis = true;
 //    }
   return thereis;
@@ -868,7 +868,7 @@ void FULLCOND_pspline_stepwise::reset(void)
   FULLCOND::reset();
   }
 
-void FULLCOND_pspline_stepwise::update_stepwise(double la)         
+void FULLCOND_pspline_stepwise::update_stepwise(double la)
   {
   if(matrixnumber == 1)
     {
@@ -889,7 +889,7 @@ void FULLCOND_pspline_stepwise::update_stepwise(double la)
         prec_env = all_precenv[i-1];
         lambda_prec = lambda;
         }
-      } 
+      }
     }
   else if(matrixnumber > 1)
     {
@@ -1097,7 +1097,7 @@ vector<double> & lvec, int & number)
     else if(maxi > 60 && maxi<=100)
       {
       df_for_lambdamax = 3;
-      number = floor(maxi/3); 
+      number = floor(maxi/3);
       df_for_lambdamin = number*3;
       }
     else if(maxi > 100 && maxi<=180)
@@ -1236,7 +1236,7 @@ ST::string FULLCOND_pspline_stepwise::get_effect(void)
 if(matrixnumber == 1)
   {
   if(varcoeff)
-    h = datanames[1] + "*" + datanames[0];   
+    h = datanames[1] + "*" + datanames[0];
   else
     h = datanames[0];
   if (type== MCMC::RW1)
@@ -1296,7 +1296,7 @@ void FULLCOND_pspline_stepwise::init_names(const vector<ST::string> & na)
 
 void FULLCOND_pspline_stepwise::updateMenv(void)
   {
-  unsigned i;  
+  unsigned i;
   if(decreasing || increasing)
     {
     vector<double>::iterator workdiag = Menv.getDiagIterator();
@@ -1633,7 +1633,7 @@ if(kombimatrix == false || matrixnumber==1)
         {
         anz = anz+1;
         j++;
-        p++;  
+        p++;
         }
      if(sample.get(*q,0) <= 0)
        number1.push_back(anz);
@@ -2024,7 +2024,7 @@ void FULLCOND_pspline_stepwise::update_IWLS(void)
     betaold = datamatrix(nrpar,1,0);
     W = datamatrix(likep->get_nrobs(),1,0);
     }
-    
+
   betaold.assign(beta);
 
   double logold;
@@ -2161,6 +2161,10 @@ void FULLCOND_pspline_stepwise::outresults(void)
   {
 if(matrixnumber == 1 || kombimatrix == false)
   {
+
+  FULLCOND_pspline_gaussian::outresults();
+
+  /*
   if(!isbootstrap)
     FULLCOND_pspline_gaussian::outresults();
   else
@@ -2258,6 +2262,8 @@ if(matrixnumber == 1 || kombimatrix == false)
       outres << endl;
       }
     }
+    */
+
   }
   }
 

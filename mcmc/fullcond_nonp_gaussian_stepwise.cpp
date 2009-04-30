@@ -221,7 +221,7 @@ const FULLCOND_nonp_gaussian_stepwise & FULLCOND_nonp_gaussian_stepwise::operato
   lambdaold_unstr = fc.lambdaold_unstr;
   lambdavec = fc.lambdavec;
   all_precenv = fc.all_precenv;
-  fc_df = fc.fc_df;  
+  fc_df = fc.fc_df;
   isbootstrap = fc.isbootstrap;
   Kenv2 = fc.Kenv2;
   Kenv3 = fc.Kenv3;
@@ -840,7 +840,7 @@ vector<double> & lvec, int & number)
           df_for_lambdamax = 3;
           number = maxi - 2;
           }
-        else 
+        else
           {
           df_for_lambdamax = 2;
           number = maxi - 1;
@@ -863,7 +863,7 @@ vector<double> & lvec, int & number)
       else if(maxi > 60 && maxi<=100)
         {
         df_for_lambdamax = 3;
-        number = floor(maxi/3); 
+        number = floor(maxi/3);
         df_for_lambdamin = number*3;
         }
       else if(maxi > 100 && maxi<=180)
@@ -882,31 +882,31 @@ vector<double> & lvec, int & number)
     else
       {
       double diff = maxi-period+1;
-      if(diff <= 30)  
+      if(diff <= 30)
         {
         df_for_lambdamin = maxi;
         df_for_lambdamax = period-1+0.001;
         number = diff;
         }
-      else if(diff > 30 && diff<=60)  
+      else if(diff > 30 && diff<=60)
         {
         number = floor(diff/2);
         df_for_lambdamin = period-1 + number*2;
         df_for_lambdamax = period-1+0.001;
         }
-      else if(diff > 60 && diff<=100)  
+      else if(diff > 60 && diff<=100)
         {
         number = floor(diff/3);
         df_for_lambdamin = period-1 + number*3;
         df_for_lambdamax = period-1+0.001;
         }
-      else if(diff > 100 && diff<=180)  
+      else if(diff > 100 && diff<=180)
         {
         number = floor(diff/5);
         df_for_lambdamin = period-1 + number*5;
         df_for_lambdamax = period-1+0.001;
         }
-      else if(diff > 180)  
+      else if(diff > 180)
         {
         number = floor(diff/10);
         df_for_lambdamin = period-1 + number*10;
@@ -914,7 +914,7 @@ vector<double> & lvec, int & number)
         }
       }
     }
-   
+
   if (df_equidist==true && spfromdf!="direct" && number>1)
      FULLCOND::compute_lambdavec_equi(lvec,number);
   else
@@ -1173,7 +1173,7 @@ if(kombimatrix == false || matrixnumber==1)
   beta = betaold;
   }
   }
-  
+
 
 void FULLCOND_nonp_gaussian_stepwise::update_bootstrap_df(void)
   {
@@ -1288,7 +1288,7 @@ if(kombimatrix == false || matrixnumber==1)
   FULLCOND::setflags(MCMC::norelchange);
   }
   }
-  
+
 
 void FULLCOND_nonp_gaussian_stepwise::outresults_df(unsigned & size)
   {
@@ -1336,7 +1336,7 @@ if(kombimatrix == false || matrixnumber==1)
         {
         anz = anz+1;
         j++;
-        p++;  
+        p++;
         }
      if(sample.get(*q,0) <= 0)
        number1.push_back(anz);
@@ -1723,6 +1723,10 @@ void FULLCOND_nonp_gaussian_stepwise::outresults(void)
   {
 if(matrixnumber == 1 || kombimatrix == false)
   {
+
+  FULLCOND_nonp_gaussian::outresults();
+
+  /*
   if(!isbootstrap)
     {
     FULLCOND_nonp_gaussian::outresults();
@@ -1958,6 +1962,7 @@ if(matrixnumber == 1 || kombimatrix == false)
         }
       }
     }
+    */
   }
   }
 
@@ -2116,7 +2121,7 @@ if(matrixnumber==1)
             }
           workz += i;
           }
-        }  
+        }
       else
         {
         for(i=0;i<nrpar;i++,d++,p++,p2++,p3++,workz++)
@@ -2130,10 +2135,10 @@ if(matrixnumber==1)
             }
           workz += i;
           }
-                
-        }       
-          
-        
+
+        }
+
+
       int kl,ku,k;
       vector<unsigned>::iterator a;
       if(type != twomrfI)
@@ -2153,7 +2158,7 @@ if(matrixnumber==1)
           //Z(i,i-ku+k) = Z(i-ku+k,i);
             }
           }
-        }  
+        }
       else
         {
         vector<double>::iterator b;
@@ -2173,8 +2178,8 @@ if(matrixnumber==1)
           //Z(i,i-ku+k) = Z(i-ku+k,i);
             }
           }
-        }   
-          
+        }
+
       for(i=0;i<nrpar;i++)    // schreibt untere Hälfte von Z voll
         {
         for(j=i+1;j<nrpar;j++)
