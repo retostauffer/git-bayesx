@@ -173,7 +173,7 @@ class __EXPORT_TYPE graphobj : public statobject
 
   int parse(const ST::string & c);
 
-  void describe(optionlist & globaloptions = optionlist());
+  void describe(const optionlist & globaloptions = optionlist());
 
 
   };

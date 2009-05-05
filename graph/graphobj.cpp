@@ -249,7 +249,7 @@ int graphobj::parse(const ST::string & c)
   }
 
 
-void graphobj::describe(optionlist & globaloptions)
+void graphobj::describe(const optionlist & globaloptions)
   {
 
   vector<ST::string> varnames = m.getModelVarnamesAsVector();

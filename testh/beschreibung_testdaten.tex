@@ -70,24 +70,90 @@ hgaussian\_linear\_alt.prg
 
 hgaussian\_nonp\_1fkt.do
 
+kleiner Effekt:
+
+hgaussian\_nonp\_1fkt\_small.do
+
 {\bf Datensatz}
 
 hgaussian\_nonp\_1fkt.raw \\[0.2cm]
 hgaussian\_nonp\_1fkt.dta
 
+kleiner Effekt:
+
+hgaussian\_nonp\_1fkt\_small.raw \\[0.2cm]
+hgaussian\_nonp\_1fkt\_small.dta
+
+
 {\bf Modell}
 
 $y  \sim N(sin(x1),0.7^2)$
 
+bzw.
+
+$y  \sim N(0.3 \cdot sin(x1),0.7^2)$
+
+bei kleinem Effekt
+
 $x1 \sim U(-3,3)$
+
 
 {\bf mcmcreg: batch-file}
 
-hgaussian\_nonp\_1fkt\.prg
+hgaussian\_nonp\_1fkt.prg
+
+bzw.
+
+hgaussian\_nonp\_1fkt\_small.prg
+
+bei kleinem Effekt.
+
 
 {\bf bayesreg: batch-file}
 
 hgaussian\_nonp\_1fkt\_alt.prg
+
+bzw.
+
+hgaussian\_nonp\_1fkt\_alt\_small.prg
+
+bei kleinem Effekt
+
+
+\subsection{Hierarchisches Modell mit zwei Stufen}
+
+{\bf Simulationsfile}
+
+hgaussian\_nonp.do
+
+{\bf Datensatz}
+
+hgaussian\_nonp\_re.raw \\[0.2cm]
+hgaussian\_nonp\_re.dta
+
+und
+
+hgaussian\_nonp.raw \\[0.2cm]
+hgaussian\_nonp.dta
+
+
+{\bf Modell}
+
+$y  \sim N(x1+sin(x2)+re,0.75^2)$
+
+$re \sim N(cos(x3)+log(x4),0.66^2)$
+
+
+{\bf mcmcreg: batch-file}
+
+hgaussian\_nonp.prg
+
+
+{\bf bayesreg: batch-file}
+
+hgaussian\_nonp\_alt.prg
+
+
 
 
 

@@ -806,9 +806,9 @@ void MCMCsim::autocorr(const unsigned & lag,ST::string & pathgraphs)
   //       for each full conditional one file will be created with filename
   //       'path' + title of the full conditional + "_sample.raw"
 
-void MCMCsim::get_samples(
+void MCMCsim::get_samples(ST::string & pathgraphs
   #if defined(JAVA_OUTPUT_WINDOW)
-  vector<ST::string> & newc
+  , vector<ST::string> & newc
   #endif
   )
   {
@@ -822,6 +822,14 @@ void MCMCsim::get_samples(
   genoptions->out("Sampled parameters are stored in file(s):\n");
   genoptions->out("\n");
 
+  ST::string pathauto = pathgraphs + "_samples.prg";
+  ofstream outg(pathauto.strtochar());
+  outg << "% usefile " << pathauto.strtochar()  << endl << endl;
+
+  outg << "dataset _d" << endl;
+  outg << "graph _g" << endl << endl;
+
+
   for(j=0;j<equations.size();j++)
     {
     for(i=0;i<equations[j].FCpointer.size();i++)
@@ -829,7 +837,7 @@ void MCMCsim::get_samples(
       if (equations[j].FCpointer[i]->nosamples == false)
         {
         filename =  equations[j].FCpaths[i].substr(0,equations[j].FCpaths[i].length()-4) + "_sample.raw";
-        equations[j].FCpointer[i]->get_samples(filename);
+        equations[j].FCpointer[i]->get_samples(filename,outg);
 //        genoptions->out(filename + "\n");
         #if defined(JAVA_OUTPUT_WINDOW)
 
@@ -847,6 +855,15 @@ void MCMCsim::get_samples(
         }
       }
     }
+
+  outg << "drop _d _g" << endl << endl;
+
+  genoptions->out("File for convenient visualization of \n");
+  genoptions->out("sampling paths using the Windows version of BayesX is stored in\n");
+  genoptions->out("\n");
+  genoptions->out(pathauto + "\n");
+  genoptions->out("\n");
+
 
   /*
   if (likepexisting)
@@ -879,11 +896,9 @@ void MCMCsim::get_samples(
    */
 
   genoptions->out("\n");
-  genoptions->out("Storing completed\n");
-  genoptions->out("\n");
   #if defined(BORLAND_OUTPUT_WINDOW)
   genoptions->out(
-  "Sampled parameters may be visualized using the R\n");
+  "Sampled parameters may also be visualized using the R\n");
   genoptions->out("function 'plotsample'.\n");
   genoptions->out("\n");
   #endif

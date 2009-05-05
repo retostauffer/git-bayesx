@@ -3861,7 +3861,7 @@ void STEPWISErun::options_text(const int & number,
   genoptions_mult[0]->out("GENERAL OPTIONS: \n");
   genoptions_mult[0]->out("\n");
   genoptions_mult[0]->out("  Performance criterion: " + criterion + " \n");
-  genoptions_mult[0]->out("  Maximal number of iterations: " + ST::inttostring(steps) + "\n");
+  genoptions_mult[0]->out("  Maximum number of iterations: " + ST::inttostring(steps) + "\n");
   //genoptions_mult[0]->out("  Number of different smoothing parameters: "
   //   + ST::inttostring(number) + "\n");
   genoptions_mult[0]->out("\n");
@@ -3900,7 +3900,7 @@ void STEPWISErun::options_text(const int & number,
      genoptions_mult[0]->out("\n");
      if(fullcondp[i]->get_lambdamin()!=0 && fullcondp[i]->get_lambdamin()!=-1)
           {
-          genoptions_mult[0]->out("  Minimal value for the smoothing parameter: "
+          genoptions_mult[0]->out("  Minimum value for the smoothing parameter: "
              + ST::doubletostring(fullcondp[i]->get_lambdamin()) + "\n");
           fullcondp[i]->update_stepwise(fullcondp[i]->get_lambdamin());
           if(fullcondp[i]->get_df_equidist()==false || fullcondp[i]->get_spfromdf()=="direct")
@@ -3913,7 +3913,7 @@ void STEPWISErun::options_text(const int & number,
           }
      if(fullcondp[i]->get_lambdamax()!=0 && fullcondp[i]->get_lambdamax()!=-1)
           {
-          genoptions_mult[0]->out("  Maximal value for the smoothing parameter: "
+          genoptions_mult[0]->out("  Maximum value for the smoothing parameter: "
              + ST::doubletostring(fullcondp[i]->get_lambdamax(),6) + "\n");
           fullcondp[i]->update_stepwise(fullcondp[i]->get_lambdamax());
           if(fullcondp[i]->get_df_equidist()==false || fullcondp[i]->get_spfromdf()=="direct")
@@ -4143,7 +4143,7 @@ void STEPWISErun::make_prior(vector<vector<unsigned> > & startindex)
         outtex << prior[j] << "\\\\" << endl;
      if(fullcond_alle[i]->get_lambdamin()!=0 && fullcond_alle[i]->get_lambdamin()!=-1)
         {
-        outtex << "Minimal value for the smoothing parameter: $\\lambda = "
+        outtex << "Minimum value for the smoothing parameter: $\\lambda = "
                << ST::doubletostring(fullcond_alle[i]->get_lambdamin())
                << " \\,\\, \\hat{=} \\,\\, \\mbox{df} = ";
         fullcond_alle[i]->update_stepwise(fullcond_alle[i]->get_lambdamin());
@@ -4154,7 +4154,7 @@ void STEPWISErun::make_prior(vector<vector<unsigned> > & startindex)
                   << " \\approx " << ST::doubletostring(fullcond_alle[i]->get_df_lambdamin());
         outtex << "$ \\\\ \n";
 
-        outtex << "Maximal value for the smoothing parameter: $\\lambda = "
+        outtex << "Maximum value for the smoothing parameter: $\\lambda = "
                << ST::doubletostring(fullcondp[i]->get_lambdamax(),6)
                << " \\,\\, \\hat{=} \\,\\, \\mbox{df} = ";
         fullcond_alle[i]->update_stepwise(fullcond_alle[i]->get_lambdamax());

@@ -434,7 +434,7 @@ void FC::compute_autocorr_all(const ST::string & path,
   }
 
 
-void FC::get_samples(const ST::string & filename) const
+void FC::get_samples(const ST::string & filename,ofstream & outg) const
   {
   if (nosamples == false)
     {
@@ -499,6 +499,11 @@ void FC::get_samples(const ST::string & filename) const
     out.close();
 
     optionsp->out(filename + "\n");
+
+    outg << "_d.infile using " << filename << endl;
+    ST::string pathps = filename.substr(0,filename.length()-4) + ".ps";
+    outg << "_g.plotsample , outfile=" <<  pathps.strtochar() <<  " using _d" << endl;
+    outg << endl;
 
     } // end: if (nosamples == false)
   }

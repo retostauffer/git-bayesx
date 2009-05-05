@@ -720,6 +720,33 @@ void FULLCOND_nonp_gaussian_stepwise::init_names(const vector<ST::string> & na)
     }
 
 
+void FULLCOND_nonp_gaussian_stepwise::init_priorassumptions(const ST::string & na)
+    {
+    if(type==MCMC::RW1)
+       priorassumptions.push_back("first order difference penalty");
+    else if(type==MCMC::RW2)
+       priorassumptions.push_back("second order difference penalty");
+    else if(type==MCMC::mrf)
+       priorassumptions.push_back("spatial pairwise difference penalty");
+    else if(type==MCMC::RE)
+       priorassumptions.push_back("random effect");
+    else if(type==MCMC::seasonal)
+       priorassumptions.push_back("time varying seasonal component");
+    else if(type==MCMC::smoothspline)
+       priorassumptions.push_back("smoothing spline");
+    else if(type==MCMC::mrfkronecker)
+       priorassumptions.push_back("Kronecker product interaction");
+    else if(type==MCMC::mrflinear)
+       priorassumptions.push_back("2 dimensional first order difference penalty");
+    else if(type==MCMC::mrfkr1)
+       priorassumptions.push_back("Kronecker product interaction (RW1*RW1)");
+    else if(type==MCMC::mrfkr2)
+       priorassumptions.push_back("Kronecker product interaction (RW2*RW2)");
+    }
+
+
+
+
 void FULLCOND_nonp_gaussian_stepwise::reset_effect(const unsigned & pos)
   {
 

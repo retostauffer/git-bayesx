@@ -101,7 +101,7 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
   void compute_autocorr_all(const ST::string & path, unsigned lag,
                             ofstream & outg) const;
 
-  void get_samples(const ST::string & filename) const;
+  void get_samples(const ST::string & filename,ofstream & outg) const;
 
     // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file

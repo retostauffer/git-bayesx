@@ -800,6 +800,7 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: Binomial response probit ---------------------
 
 
+
   equations[modnr].distrp->responsename=rname;
   equations[modnr].distrp->weightname=wn;
 
@@ -1269,16 +1270,16 @@ void autocorrrun(superbayesreg & b)
 
 void getsamplerun(superbayesreg & b)
   {
-
   if (b.resultsyesno == true)
     {
+    ST::string pathgraphs = b.outfile.getvalue();
     if (b.posteriormode == false)
       {
       #if defined(JAVA_OUTPUT_WINDOW)
 
       b.simobj.get_samples(b.newcommands,b.outfile.getvalue() + "_");
       #else
-      b.simobj.get_samples();
+      b.simobj.get_samples(pathgraphs);
       #endif
       }
     else

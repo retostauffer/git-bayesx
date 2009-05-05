@@ -169,6 +169,12 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   virtual void transform_beta(void);
 
+  void compute_autocorr_all(const ST::string & path,
+                                      unsigned lag, ofstream & outg) const;
+
+  void get_samples(const ST::string & filename,ofstream & outg) const;                                      
+
+
   };
 
 

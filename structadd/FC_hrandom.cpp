@@ -433,18 +433,18 @@ bool FC_hrandom::posteriormode(void)
 void FC_hrandom::compute_autocorr_all(const ST::string & path,
                                       unsigned lag, ofstream & outg) const
   {
-  compute_autocorr(path,lag);
+  FC::compute_autocorr_all(path,lag,outg);
   ST::string path2 = path.substr(0,path.length()-4) + "2.raw";
 
-  FCrcoeff.compute_autocorr(path2,lag);
+  FCrcoeff.compute_autocorr_all(path2,lag,outg);
   }
 
 
-void FC_hrandom::get_samples(const ST::string & filename) const
+void FC_hrandom::get_samples(const ST::string & filename,ofstream & outg) const
   {
-  FC::get_samples(filename);
+  FC::get_samples(filename,outg);
   ST::string path2 = filename.substr(0,filename.length()-4) + "2.raw";
-  FCrcoeff.get_samples(path2);
+  FCrcoeff.get_samples(path2,outg);
   }
 
 

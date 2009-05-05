@@ -53,6 +53,7 @@ class __EXPORT_TYPE FULLCOND_nonp_gaussian_stepwise : public FULLCOND_nonp_gauss
   vector<double> kappa_prec;
   vector<FULLCOND *> otherfullcond;
 
+  void init_priorassumptions(const ST::string & na);
 
   public:
 

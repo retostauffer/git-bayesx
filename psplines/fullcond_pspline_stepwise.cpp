@@ -1279,9 +1279,9 @@ void FULLCOND_pspline_stepwise::init_names(const vector<ST::string> & na)
            + " (" + ST::inttostring(column+1) + ". \\mbox{ } response \\mbox{ } category)$:");
 
   if(type==MCMC::RW1)
-     priorassumptions.push_back("P-spline with first order random walk penalty");
+     priorassumptions.push_back("P-spline with first order difference penalty");
   else if(type==MCMC::RW2)
-     priorassumptions.push_back("P-spline with second order random walk penalty");
+     priorassumptions.push_back("P-spline with second order difference penalty");
 
   ST::string knotstr;
   if (knpos == equidistant)

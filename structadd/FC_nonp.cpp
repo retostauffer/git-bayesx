@@ -89,13 +89,14 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
     paramlin = datamatrix(Dp->designlinear.cols(),1,0);
     }
 
+  paramsample = FC(o,"",param.rows(),1,fp + ".param",sstore);
+
   helpcenter = datamatrix(designp->nrpar,1);
 
   if (pvalue==true)
     {
     pvalue_sample = FC(o,"",param.rows()*2+6,1,fp + ".pvalue",sstore);
     mPhelp = datamatrix(param.rows(),1,0);
-    paramsample = FC(o,"",param.rows(),1,fp + ".param",sstore);
     }
 
   if (computemeaneffect==true)
@@ -533,12 +534,10 @@ void FC_nonp::update_IWLS(void)
     fsample.update();
     }
 
- /*
-   // würde nur für pvalue gebraucht!!
+
   paramsample.beta.assign(param);
   paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
-*/
 
   FC::update();
 
@@ -669,10 +668,11 @@ void FC_nonp::update_gaussian(void)
   if (pvalue)
     {
     update_pvalue();
-    paramsample.beta.assign(param);
-    paramsample.transform(0,0) = likep->trmult;
-    paramsample.update();
     }
+
+  paramsample.beta.assign(param);
+  paramsample.transform(0,0) = likep->trmult;
+  paramsample.update();
 
   FC::update();
 
@@ -818,6 +818,9 @@ void FC_nonp::update_isotonic(void)
   // beta.prettyPrint(out);
   // TEST
 
+  paramsample.beta.assign(param);
+  paramsample.transform(0,0) = likep->trmult;
+  paramsample.update();
 
   FC::update();
 
@@ -1365,11 +1368,16 @@ void FC_nonp::centerparam_sample(void)
     }
 
   // TEST
-  // ofstream out("c:\\bayesx\\testh\\results\\Vcenter.res");
-  // Vcenter.prettyPrint(out);
+   /*
+   ofstream out0("c:\\bayesx\\testh\\results\\basisnull.res");
+   (designp->basisNullt[0]).prettyPrint(out0);
 
-  // ofstream out2("c:\\bayesx\\testh\\results\\Vcentert.res");
-  // Vcentert.prettyPrint(out2);
+   ofstream out("c:\\bayesx\\testh\\results\\Vcenter.res");
+   Vcenter.prettyPrint(out);
+
+   ofstream out2("c:\\bayesx\\testh\\results\\praecision.res");
+   designp->precision.print4(out2);
+   */
   // TEST
 
   Wcenter.mult(designp->basisNull,Vcenter);
@@ -1378,11 +1386,21 @@ void FC_nonp::centerparam_sample(void)
   Utc = Ucenter.transposed()*ccenter;
 
 //  TEST
-//  ofstream out("c:\\bayesx\\test\\results\\Utc.res");
-//  Utc.prettyPrint(out);
+  /*
+  ofstream out4("c:\\bayesx\\testh\\results\\param.res");
+  param.prettyPrint(out4);
+  */
 //  TEST
 
   param.minus(param,Utc);
+
+//  TEST
+  /*
+  ofstream out5("c:\\bayesx\\testh\\results\\paramneu.res");
+  param.prettyPrint(out5);
+  */
+//  TEST
+
 
 //  TEST
 //  ofstream out2("c:\\bayesx\\test\\results\\param.res");
@@ -1412,6 +1430,20 @@ void FC_nonp::centerparam(void)
     *workparam-= sum;
 
   }
+
+
+void FC_nonp::compute_autocorr_all(const ST::string & path,
+                                      unsigned lag, ofstream & outg) const
+  {
+  paramsample.compute_autocorr_all(path,lag,outg);
+  }
+
+
+void FC_nonp::get_samples(const ST::string & filename,ofstream & outg) const
+  {
+  paramsample.get_samples(filename,outg);
+  }
+
 
 
 void FC_nonp::reset(void)

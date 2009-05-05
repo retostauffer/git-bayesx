@@ -202,7 +202,7 @@ class __EXPORT_TYPE FC
   // FUNCTION: get_samples
   // TASK: stores the sampled parameters in ASCII format
 
-  virtual void get_samples(const ST::string & filename) const;
+  virtual void get_samples(const ST::string & filename,ofstream & outg) const;
 
   // FUNCTION: update
   // TASK: - stores sampled parameters in file 'samplepath'
