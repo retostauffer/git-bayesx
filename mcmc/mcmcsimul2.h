@@ -269,7 +269,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
   void make_graphics(const ST::string & name, vector<vector<unsigned> > & startindex);
 
-  void make_tex_end(ST::string & path, const vector<double> & modell,ST::string & CI);
+  void make_tex_end(ST::string & path, vector<double> & modell,const ST::string & CI);
 
   void make_options(void);
 
@@ -279,7 +279,7 @@ class __EXPORT_TYPE STEPWISErun : public MCMCsimulate
 
   void make_prior(vector<vector<unsigned> > & startindex);
 
-  void make_fixed_table(ST::string & CI);
+  void make_fixed_table(const ST::string & CI);
 
   void make_plots(ST::string & path_batch,ST::string & path_splus);
                  // ST::string & path_stata);

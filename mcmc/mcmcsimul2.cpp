@@ -3990,7 +3990,7 @@ void STEPWISErun::make_graphics(const ST::string & name,
   }
 
 
-void STEPWISErun::make_tex_end(ST::string & path, const vector<double> & modell,ST::string & CI)
+void STEPWISErun::make_tex_end(ST::string & path, vector<double> & modell,const ST::string & CI)
   {
   ST::string path_batch = path + "_graphics.prg";
   ST::string path_splus = path +  "_r.R";
@@ -4208,7 +4208,7 @@ void STEPWISErun::make_prior(vector<vector<unsigned> > & startindex)
   }
 
 
-void STEPWISErun::make_fixed_table(ST::string & CI)
+void STEPWISErun::make_fixed_table(const ST::string & CI)
   {
 
   // falls andere Quantile gewünscht werden
