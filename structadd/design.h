@@ -44,7 +44,7 @@ enum effecttype2 {
                 Varcoefftotal
    };
 
-enum centerm {cmean,nullspace,meansimple};
+enum centerm {cmean,nullspace,meansimple,cmeanintegral,cmeaninvvar};
 
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: DESIGN ------------------------------------

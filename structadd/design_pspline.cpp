@@ -61,6 +61,10 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
     centermethod = meansimple;
   else if (op[16] == "nullspace")
     centermethod = nullspace;
+  else if (op[16] == "meaninvvar")
+    centermethod = cmeaninvvar;
+  else if (op[16] == "meanintegral")
+    centermethod = cmeanintegral;
 
   if (op[12] == "true")
     multeffect=true;
@@ -370,6 +374,55 @@ void DESIGN_pspline::compute_penalty(void)
   }
 
 
+void DESIGN_pspline::compute_betaweight(datamatrix & betaweight)
+  {
+
+  unsigned i;
+
+  if(degree==1)
+    {
+    betaweight = datamatrix(1,nrpar,1);
+
+    betaweight(0,0) = 0.5;
+    betaweight(0,nrpar-1) = 0.5;
+
+    for(i=0;i<betaweight.cols();i++)
+      betaweight(0,i) /= (nrknots-1);
+    }
+  else if(degree==2)
+    {
+    betaweight = datamatrix(1,nrpar,1);
+
+    betaweight(0,0) = 1/6.0;
+    betaweight(0,nrpar-1) = 1/6.0;
+    betaweight(0,1) = 5/6.0;
+    betaweight(0,nrpar-2) = 5/6.0;
+
+    for(i=0;i<betaweight.cols();i++)
+      betaweight(0,i) /= (nrknots-1);
+    }
+  else if(degree==3)
+    {
+    betaweight = datamatrix(1,nrpar,1);
+
+    betaweight(0,0) = 1/24.0;
+    betaweight(0,nrpar-1) = 1/24.0;
+    betaweight(0,1) = 12/24.0;
+    betaweight(0,nrpar-2) = 12/24.0;
+    betaweight(0,2) = 23/24.0;
+    betaweight(0,nrpar-3) = 23/24.0;
+
+    for(i=0;i<betaweight.cols();i++)
+      betaweight(0,i) /= (nrknots-1);
+    }
+  else
+    {
+    betaweight = datamatrix(1,nrpar,1.0/double(nrpar));
+    }
+
+  }
+
+
 void DESIGN_pspline::compute_basisNull(void)
   {
 
@@ -429,29 +482,50 @@ void DESIGN_pspline::compute_basisNull(void)
   else
     {
 
-    if ((centermethod == cmean) || (type==Rw1))
+    if (centermethod==cmean)
       {
       basisNull = datamatrix(1,nrpar,1);
       position_lin = -1;
       }
-    else if ((type==Rw2) && (centermethod == nullspace))
+    else if (centermethod==cmeaninvvar)
       {
-      basisNull = datamatrix(2,nrpar,1);
-      deque<double>::iterator it = knot.begin();
-      for (i=0;i<nrpar;i++,++it)
-        basisNull(1,i) = *it;
+      compute_precision(10);
+
+      envmatdouble precisioninv;
+      precisioninv = envmatdouble(0.0,nrpar,degree>2?degree:2);
+      precision.inverse_envelope(precisioninv);
+
+      basisNull = datamatrix(1,nrpar,1);
+
+      unsigned k;
+      for (k=0;k<nrpar;k++)
+        basisNull(0,k) = 1/precisioninv.getDiag(k);
+
+      position_lin = -1;
+      }
+    else if (centermethod==cmeanintegral)
+      {
+      compute_betaweight(basisNull);
+      position_lin = -1;
+      }
+    else if (centermethod==nullspace)
+      {
+
+      if (type==Rw1)
+        {
+        basisNull = datamatrix(1,nrpar,1);
+        position_lin = -1;
+        }
+      else if (type==Rw2)
+        {
+        basisNull = datamatrix(2,nrpar,1);
+        deque<double>::iterator it = knot.begin();
+        for (i=0;i<nrpar;i++,++it)
+          basisNull(1,i) = *it;
+        }
 
       }
-    else if ((type==Rw3) && (centermethod == nullspace))
-      {
-      basisNull = datamatrix(3,nrpar,1);
-      deque<double>::iterator it = knot.begin();
-      for (i=0;i<nrpar;i++,++it)
-        {
-        basisNull(1,i) = *it;
-        basisNull(1,i) = pow(*it,2);
-        }
-      }
+
 
     for(i=0;i<basisNull.rows();i++)
       {

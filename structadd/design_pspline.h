@@ -45,6 +45,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   void make_Bspline(void);
 
+  void compute_betaweight(datamatrix & betaweight);
 
   public:
 

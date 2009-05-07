@@ -1385,27 +1385,30 @@ void FC_nonp::centerparam_sample(void)
   ccenter.mult(designp->basisNull,param);
   Utc = Ucenter.transposed()*ccenter;
 
-//  TEST
+  //  TEST
   /*
   ofstream out4("c:\\bayesx\\testh\\results\\param.res");
   param.prettyPrint(out4);
   */
-//  TEST
+  //  TEST
 
   param.minus(param,Utc);
 
-//  TEST
+  //  TEST
   /*
   ofstream out5("c:\\bayesx\\testh\\results\\paramneu.res");
   param.prettyPrint(out5);
+
+  ofstream out5("c:\\bayesx\\testh\\results\\Utc.res");
+  Utc.prettyPrint(out5);
   */
-//  TEST
+  //  TEST
 
 
-//  TEST
-//  ofstream out2("c:\\bayesx\\test\\results\\param.res");
-//  param.prettyPrint(out2);
-//  TEST
+  //  TEST
+  //  ofstream out2("c:\\bayesx\\test\\results\\param.res");
+  //  param.prettyPrint(out2);
+  //  TEST
   }
 
 
