@@ -39,6 +39,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   internal_multexp = simpleoption("internal_multexp",false);
   pvalue = simpleoption("pvalue",false);
   meaneffect = simpleoption("meaneffect",false);
+  binning = doubleoption("binning",-1,10,1000);
   }
 
 void term_nonp::setdefault(void)
@@ -62,6 +63,7 @@ void term_nonp::setdefault(void)
   internal_multexp.setdefault();
   pvalue.setdefault();
   meaneffect.setdefault();
+  binning = doubleoption("binning",-1,10,1000);  
   }
 
 
@@ -131,6 +133,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&internal_multexp);
     optlist.push_back(&pvalue);
     optlist.push_back(&meaneffect);
+    optlist.push_back(&binning);
 
     unsigned i;
     bool rec = true;
@@ -207,6 +210,8 @@ bool term_nonp::check(term & t)
       t.options[19] = "false";
     else
       t.options[19] = "true";
+
+    t.options[20] = ST::doubletostring(binning.getvalue());
 
     setdefault();
     return true;

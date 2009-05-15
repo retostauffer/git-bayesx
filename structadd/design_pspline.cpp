@@ -32,6 +32,10 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   14      constraints
   15      round
   16      centermethod
+  17      internal_mult
+  18      pvalue
+  19      meaneffect
+  20      binning
   */
 
 
@@ -71,6 +75,8 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   else
     multeffect=false;
 
+  f = op[20].strtodouble(binning);
+
   datanames = vn;
 
   }
@@ -91,11 +97,9 @@ DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
 
   read_options(op,vn);
 
-  if (round == -1)
-    init_data(dm,iv);
-  else
+  datamatrix dmr = dm;
+  if (round != -1)
     {
-    datamatrix dmr = dm;
     unsigned i;
     for(i=0;i<dmr.rows();i++)
       dmr(i,0) =  floor(dm(i,0) * pow( 10, round) + 0.5) * pow(10, -round);
@@ -104,9 +108,37 @@ DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
     // ofstream out("c:\\bayesx\\test\\results\\dmr.res");
     // dmr.prettyPrint(out);
     // TEST
-
-    init_data(dmr,iv);
     }
+
+  if (binning != -1)
+    {
+
+    unsigned i;
+
+    double a = dmr.min(0);
+    double b = dmr.max(0);
+    double delta = (b-a)/binning;
+    double u1 = a+delta/2;
+    double h;
+    double dmrw;
+
+    for(i=0;i<dmr.rows();i++)
+      {
+      dmrw = dmr(i,0);
+      h = floor((dmrw- a)/delta);
+      if (h >= binning)
+      h-=1;
+      dmr(i,0) = u1+h*delta;
+      }
+
+    }
+
+  // TEST
+  //  ofstream out("c:\\bayesx\\testh\\results\\dmr.res");
+  //  dmr.prettyPrint(out);
+  // TEST
+
+  init_data(dmr,iv);
 
   weightK = vector<double>(nrpar,1);
   compute_penalty();
@@ -132,6 +164,8 @@ DESIGN_pspline::DESIGN_pspline(const DESIGN_pspline & m)
   degree = m.degree;
   difforder = m.difforder;
   weightK = m.weightK;
+  round = m.round;
+  binning = m.binning;
   }
 
 
@@ -148,6 +182,8 @@ const DESIGN_pspline & DESIGN_pspline::operator=(const DESIGN_pspline & m)
   degree = m.degree;
   difforder = m.difforder;
   weightK = m.weightK;
+  round = m.round;
+  binning = m.binning;  
   return *this;
   }
 

@@ -53,6 +53,7 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
   long degree;                      // Grad des Splines
   long difforder;                   // Differenzenordnung (1,2,3)
   double round;
+  double binning;
 
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------

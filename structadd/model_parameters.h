@@ -45,6 +45,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   simpleoption internal_multexp;
   simpleoption pvalue;
   simpleoption meaneffect;
+  doubleoption binning;
 
   vector<ST::string> termnames;
 
