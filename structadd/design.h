@@ -44,7 +44,7 @@ enum effecttype2 {
                 Varcoefftotal
    };
 
-enum centerm {cmean,nullspace,meansimple,cmeanintegral,cmeaninvvar};
+enum centerm {cmean,nullspace,meansimple,cmeanintegral,cmeaninvvar,cmeanf};
 
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: DESIGN ------------------------------------
@@ -118,7 +118,7 @@ class __EXPORT_TYPE DESIGN
                                             // at which the meaneffect will be
                                             // computed
 
-//------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
 
   datamatrix Zout;                           // Design matrix (only non null
                                              // elements for output of results
@@ -136,6 +136,23 @@ class __EXPORT_TYPE DESIGN
   bool identity;                             // true if identity matrix
 
   bool check_Zout_consecutive(void);
+
+  //----------------------------------------------------------------------------
+
+  vector<double> ZoutTZout;
+  vector<int> beg_ZoutTZout;
+  vector<int> Wsump;
+
+  vector<double> ZoutTZout_d;
+  vector<int> beg_ZoutTZout_d;
+  vector<int> Wsump_d;  
+
+
+
+
+  void compute_ZoutTZout(unsigned & i, unsigned & j);
+
+  void compute_ZoutTZout(void);  
 
   //----------------------------------------------------------------------------
 
@@ -163,6 +180,8 @@ class __EXPORT_TYPE DESIGN
   unsigned nrpar;                            // number of parameters
 
   // --------------------------- for center ------------------------------------
+
+  double compute_sumBk(unsigned & k);
 
   bool center;
   centerm centermethod;

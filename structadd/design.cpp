@@ -114,6 +114,22 @@ void DESIGN::make_data(const datamatrix & dm,const datamatrix & iv)
   }
 
   
+double DESIGN::compute_sumBk(unsigned & k)
+  {
+
+  double sum=0;
+  unsigned c;
+
+  unsigned j;
+    for (j=0;j<ZoutT[k].size();j++)
+      {
+      c = index_ZoutT[k][j];
+      sum += ZoutT[k][j]*(posend[c]-posbeg[c]+1);
+      }
+
+  return sum;
+  }
+
 void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   {
 
@@ -303,8 +319,6 @@ DESIGN::DESIGN(const DESIGN & m)
   meaneffectnr_intvar = m.meaneffectnr_intvar;
   meaneffectintvar = m.meaneffectintvar;  
 
-
-
   Zout = m.Zout;
   index_Zout=m.index_Zout;
   posbeg = m.posbeg;
@@ -315,6 +329,14 @@ DESIGN::DESIGN(const DESIGN & m)
 
   ZoutT = m.ZoutT;
   index_ZoutT = m.index_ZoutT;
+
+  ZoutTZout = m.ZoutTZout;
+  beg_ZoutTZout = m.beg_ZoutTZout;
+  Wsump = m.Wsump;
+
+  ZoutTZout_d = m.ZoutTZout_d;
+  beg_ZoutTZout_d = m.beg_ZoutTZout_d;
+  Wsump_d = m.Wsump_d;  
 
   responsep = m.responsep;
   weightp = m.weightp;
@@ -370,7 +392,6 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   meaneffectnr = m.meaneffectnr;
   meaneffectnr_intvar = m.meaneffectnr_intvar;
 
-
   Zout = m.Zout;
   index_Zout=m.index_Zout;
   posbeg = m.posbeg;
@@ -381,6 +402,14 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
 
   ZoutT = m.ZoutT;
   index_ZoutT = m.index_ZoutT;
+
+  ZoutTZout = m.ZoutTZout;
+  beg_ZoutTZout = m.beg_ZoutTZout;
+  Wsump = m.Wsump;
+
+  ZoutTZout_d = m.ZoutTZout_d;
+  beg_ZoutTZout_d = m.beg_ZoutTZout_d;
+  Wsump_d = m.Wsump_d;
 
   responsep = m.responsep;
   weightp = m.weightp;
@@ -466,8 +495,9 @@ void DESIGN::compute_Zout_transposed(void)
       index_ZoutT[index_Zout(i,j)].push_back(i);
       }
 
-   /*
+
   // TEST
+  /*
   ofstream out("c:\\bayesx\\test\\results\\ZoutT.res");
   for (i=0;i<ZoutT.size();i++)
     {
@@ -483,8 +513,18 @@ void DESIGN::compute_Zout_transposed(void)
       out2 <<  index_ZoutT[i][j] << "  ";
     out2 << endl;
     }
-  // TEST
+
+  ofstream out4("c:\\bayesx\\testh\\results\\Z.res");
+  datamatrix Z(Zout.rows(),ZoutT.size(),0);
+  for (i=0;i<ZoutT.size();i++)
+    {
+    for(j=0;j<ZoutT[i].size();j++)
+      Z(index_ZoutT[i][j],i) = ZoutT[i][j];
+    }
+
+  Z.prettyPrint(out4);
   */
+  // TEST
 
   }
 
@@ -594,10 +634,41 @@ void DESIGN::compute_XtransposedWX(void)
   // TEST
 
 
+  if (ZoutTZout_d.size() <= 1)
+    {
+
+    for (i=0;i<int(nrpar);i++)
+      {
+      beg_ZoutTZout_d.push_back(ZoutTZout_d.size());
+      for (j=0;j<ZoutT[i].size();j++)
+        {
+        ZoutTZout_d.push_back(pow(ZoutT[i][j],2));
+        Wsump_d.push_back(index_ZoutT[i][j]);
+        }
+
+      }
+
+    }
+
   vector<double>::iterator diag = XWX.getDiagIterator();
   double help;
   int ip;
+  vector<double>::iterator ZoutTZout_d_p = ZoutTZout_d.begin();
+  vector<int>::iterator Wsump_d_p = Wsump_d.begin();
 
+  for (i=0;i<int(nrpar);i++,++diag)
+    {
+    *diag=0;
+
+    for (j=0;j<ZoutT[i].size();j++,++ZoutTZout_d_p,++Wsump_d_p)
+      {
+      *diag += *ZoutTZout_d_p  * Wsum(*Wsump_d_p,0);
+      }
+
+    }
+
+
+/*
   for (i=0;i<int(nrpar);i++,++diag)
     {
     *diag=0;
@@ -610,6 +681,7 @@ void DESIGN::compute_XtransposedWX(void)
       }
 
     }
+*/
 
   vector<double>::iterator env = XWX.getEnvIterator();
   vector<unsigned>::iterator xenv = XWX.getXenvIterator();
@@ -617,7 +689,55 @@ void DESIGN::compute_XtransposedWX(void)
   unsigned nrnnull;
   xenv++;
 
-//  unsigned envs = XWX.getXenv(nrpar);
+
+  if (ZoutTZout.size() <= 1)
+    compute_ZoutTZout();
+
+  vector<double>::iterator ZoutTZoutp = ZoutTZout.begin();
+  vector<int>::iterator beg_ZoutTZoutp = beg_ZoutTZout.begin();
+  vector<int>::iterator Wsumpp = Wsump.begin();
+  int nr=0;
+
+  unsigned k;
+  int beg, end;
+
+  for(i=0;i<int(nrpar);i++,++xenv)
+    {
+    nrnnull = *xenv-start;
+    if (nrnnull > 0)
+      {
+      for (j=i-nrnnull;j<i;j++,++env)
+        {
+        beg = *beg_ZoutTZoutp;
+        if (nr < beg_ZoutTZout.size()-1)
+          {
+          beg_ZoutTZoutp++;
+          end = *beg_ZoutTZoutp-1;
+          nr++;
+          }
+        else
+          {
+          end =ZoutTZout.size()-1;
+
+          }
+
+        *env = 0;
+        for (k=beg;k<=end;k++,++ZoutTZoutp,++Wsumpp)
+          {
+          *env += *ZoutTZoutp * Wsum(*Wsumpp,0);
+          }
+
+        }
+
+      }
+    start = *xenv;
+    }
+
+//  ofstream out("c:\\bayesx\\testh\\results\\XWX.res");
+//  XWX.print4(out);
+
+
+/*
   for(i=0;i<int(nrpar);i++,++xenv)
     {
     nrnnull = *xenv-start;
@@ -631,6 +751,11 @@ void DESIGN::compute_XtransposedWX(void)
       }
     start = *xenv;
     }
+*/
+
+//  ofstream out("c:\\bayesx\\testh\\results\\XWXalt.res");
+//  XWX.print4(out);
+
 
   XWX.setDecomposed(false);
 
@@ -690,6 +815,86 @@ void DESIGN::compute_XtransposedWX(void)
   */
 
   // TEST
+
+  }
+
+
+void DESIGN::compute_ZoutTZout(void)
+  {
+  vector<unsigned>::iterator xenv = XWX.getXenvIterator();
+  unsigned start = *xenv;
+  unsigned nrnnull;
+  xenv++;
+
+  unsigned i,j;
+  for(i=0;i<int(nrpar);i++,++xenv)
+    {
+    nrnnull = *xenv-start;
+    if (nrnnull > 0)
+      {
+      for (j=i-nrnnull;j<i;j++)
+        {
+        compute_ZoutTZout(i,j);
+        }
+
+      }
+    start = *xenv;
+    }
+
+/*
+  ofstream out("c:\\bayesx\\testh\\results\\beg_ZoutTZout.res");
+  for(i=0;i<beg_ZoutTZout.size();i++)
+    out << beg_ZoutTZout[i] << endl;
+
+  out.close();
+
+  ofstream out2("c:\\bayesx\\testh\\results\\ZoutTZout.res");
+  for(i=0;i<ZoutTZout.size();i++)
+    out2 << ZoutTZout[i] << endl;
+
+  out2.close();
+*/
+
+  }
+
+
+void DESIGN::compute_ZoutTZout(unsigned & i, unsigned & j)
+  {
+
+  beg_ZoutTZout.push_back(ZoutTZout.size());
+
+  unsigned k_i=0;
+  unsigned k_j=0;
+  int pos_i;
+  int pos_j;
+
+  while (k_i<ZoutT[i].size() && k_j < ZoutT[j].size())
+    {
+
+    pos_i = index_ZoutT[i][k_i];
+    pos_j = index_ZoutT[j][k_j];
+
+    if (pos_j > pos_i)
+      {
+      k_i++;
+      }
+    else if (pos_j < pos_i)
+      {
+      k_j++;
+      }
+    else  // equal
+      {
+
+      ZoutTZout.push_back(ZoutT[i][k_i]* ZoutT[j][k_j]);
+      Wsump.push_back(pos_i);
+
+      k_i++;
+      k_j++;
+
+      }
+
+    }
+
 
   }
 
@@ -974,6 +1179,7 @@ void DESIGN::compute_f(datamatrix & beta,datamatrix & betalin,
     }
 
   // TEST
+  
   /*
   ofstream out("c:\\bayesx\\testh\\results\\f.res");
   f.prettyPrint(out);
@@ -981,6 +1187,7 @@ void DESIGN::compute_f(datamatrix & beta,datamatrix & betalin,
   ofstream out2("c:\\bayesx\\testh\\results\\beta.res");
   beta.prettyPrint(out2);
   */
+
   /*
   datamatrix Zoutm(data.rows(),nrpar,0);
   unsigned k;
@@ -1304,6 +1511,7 @@ void DESIGN::update_linpred(datamatrix & f)
       }
     }
 
+
   // TEST
   /*
   ofstream out3("c:\\bayesx\\test\\results\\lin.res");
@@ -1313,10 +1521,6 @@ void DESIGN::update_linpred(datamatrix & f)
 
 
   }
-
-
-
-
 
 
 

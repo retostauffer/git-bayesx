@@ -589,8 +589,6 @@ void DISTR_gaussian::standardise(void)
 
   trmult = sqrt(response.var(0,weight));
 
-
-
   unsigned i;
   double * workresp = workingresponse.getV();
   double * resp_p = response.getV();

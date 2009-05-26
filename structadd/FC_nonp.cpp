@@ -637,7 +637,7 @@ void FC_nonp::update_gaussian(void)
       centerparam();
     else
       centerparam_sample();
-    }  
+    }
 
   if (designp->position_lin!=-1)
     {
@@ -677,8 +677,6 @@ void FC_nonp::update_gaussian(void)
   FC::update();
 
   }
-
-
 
 
 void FC_nonp::update_isotonic(void)
@@ -910,8 +908,8 @@ bool FC_nonp::posteriormode(void)
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
   // TEST
-//    ofstream out5("c:\\bayesx\\testh\\results\\f.res");
-//    beta.prettyPrint(out5);
+  // ofstream out5("c:\\bayesx\\testh\\results\\f.res");
+  // beta.prettyPrint(out5);
   // TEST
 
   betadiff.minus(beta,betaold);
@@ -1386,22 +1384,20 @@ void FC_nonp::centerparam_sample(void)
   Utc = Ucenter.transposed()*ccenter;
 
   //  TEST
-  /*
-  ofstream out4("c:\\bayesx\\testh\\results\\param.res");
-  param.prettyPrint(out4);
-  */
+
+  // ofstream out4("c:\\bayesx\\testh\\results\\param.res");
+  // param.prettyPrint(out4);
+
   //  TEST
 
   param.minus(param,Utc);
 
   //  TEST
-  /*
-  ofstream out5("c:\\bayesx\\testh\\results\\paramneu.res");
-  param.prettyPrint(out5);
+  // ofstream out5("c:\\bayesx\\testh\\results\\paramneu.res");
+  // param.prettyPrint(out5);
 
-  ofstream out5("c:\\bayesx\\testh\\results\\Utc.res");
-  Utc.prettyPrint(out5);
-  */
+  // ofstream out6("c:\\bayesx\\testh\\results\\Utc.res");
+  // Utc.prettyPrint(out6);
   //  TEST
 
 

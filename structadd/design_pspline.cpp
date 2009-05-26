@@ -69,6 +69,9 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
     centermethod = cmeaninvvar;
   else if (op[16] == "meanintegral")
     centermethod = cmeanintegral;
+  else if (op[16] == "meanf")
+    centermethod = cmeanf;
+
 
   if (op[12] == "true")
     multeffect=true;
@@ -543,6 +546,24 @@ void DESIGN_pspline::compute_basisNull(void)
       {
       compute_betaweight(basisNull);
       position_lin = -1;
+      }
+    else if (centermethod==cmeanf)
+      {
+
+      basisNull = datamatrix(1,nrpar,1);
+
+      unsigned k;
+      for (k=0;k<nrpar;k++)
+        basisNull(0,k) = compute_sumBk(k);
+
+      // TEST
+
+      // ofstream out("c:\\bayesx\\testh\\results\\basisnull.res");
+      // basisNull.prettyPrint(out);
+      // ende: TEST
+
+      position_lin = -1;
+
       }
     else if (centermethod==nullspace)
       {
