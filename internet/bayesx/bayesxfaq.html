@@ -116,7 +116,16 @@ with functionality provided in the BayesX R package.
 
 <li><b>Does BayesX work with other operating systems than Windows?</b><br>
 For a long time the answer has been no, but version 2.0 of BayesX is now available in an open source distribution that can be compiled with GNU C++ compiler.
-As a consequence, BayesX now also works under Linux and Mac OS.
+As a consequence, BayesX now also works under Linux and Mac OS.<br>
+For Mac OS, some adjustments of the makefile and the main function in main.cpp may be necessary. Versions of these files that have been used for a successful compilation under Mac OS can be found <a href="install/makefile">here</a> and <a href="install/main.cpp">here</a> 
+(thanks to Anestis Antoniadis for providing these files).
+</li>
+
+<li><b>When running BayesX on Windows Vista, an UnsatisfiedLinkError appears.</b><br>
+This error is caused by an internal mechanism of Windows Vista that should prevent software from executing possibly dangerous code in the background. BayesX
+of course does not do this but simply tries to start a new process running the actual computations in addition to the process running the graphical user interface. You can prevent
+this by executing BayesX as administrator, an option that you obtain by right-clicking on the BayesX icon. An alternative would of course also be to use the command line version
+of BayesX instead of the GUI-version. The command line version can be found in a subdirectory of the installation directory.
 </li>
 
 <li><b>BayesX crashes. What did I do wrong?</b><br> 
