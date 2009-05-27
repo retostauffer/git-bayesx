@@ -144,7 +144,7 @@ class __EXPORT_TYPE DESIGN
   vector<int> Wsump;
 
   vector<double> ZoutTZout_d;
-  vector<int> beg_ZoutTZout_d;
+
   vector<int> Wsump_d;  
 
 

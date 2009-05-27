@@ -335,8 +335,7 @@ DESIGN::DESIGN(const DESIGN & m)
   Wsump = m.Wsump;
 
   ZoutTZout_d = m.ZoutTZout_d;
-  beg_ZoutTZout_d = m.beg_ZoutTZout_d;
-  Wsump_d = m.Wsump_d;  
+  Wsump_d = m.Wsump_d;
 
   responsep = m.responsep;
   weightp = m.weightp;
@@ -408,7 +407,6 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   Wsump = m.Wsump;
 
   ZoutTZout_d = m.ZoutTZout_d;
-  beg_ZoutTZout_d = m.beg_ZoutTZout_d;
   Wsump_d = m.Wsump_d;
 
   responsep = m.responsep;
@@ -634,12 +632,14 @@ void DESIGN::compute_XtransposedWX(void)
   // TEST
 
 
+
+// VARIANTE 1
+
   if (ZoutTZout_d.size() <= 1)
     {
 
     for (i=0;i<int(nrpar);i++)
       {
-      beg_ZoutTZout_d.push_back(ZoutTZout_d.size());
       for (j=0;j<ZoutT[i].size();j++)
         {
         ZoutTZout_d.push_back(pow(ZoutT[i][j],2));
@@ -651,37 +651,21 @@ void DESIGN::compute_XtransposedWX(void)
     }
 
   vector<double>::iterator diag = XWX.getDiagIterator();
-  double help;
-  int ip;
   vector<double>::iterator ZoutTZout_d_p = ZoutTZout_d.begin();
   vector<int>::iterator Wsump_d_p = Wsump_d.begin();
+  int s;
 
   for (i=0;i<int(nrpar);i++,++diag)
     {
     *diag=0;
-
-    for (j=0;j<ZoutT[i].size();j++,++ZoutTZout_d_p,++Wsump_d_p)
+    s=ZoutT[i].size();
+    for (j=0;j<s;j++,++ZoutTZout_d_p,++Wsump_d_p)
       {
       *diag += *ZoutTZout_d_p  * Wsum(*Wsump_d_p,0);
       }
 
     }
 
-
-/*
-  for (i=0;i<int(nrpar);i++,++diag)
-    {
-    *diag=0;
-
-    for (j=0;j<ZoutT[i].size();j++)
-      {
-      help=pow(ZoutT[i][j],2);
-      ip = index_ZoutT[i][j];
-      *diag += help*Wsum(ip,0);
-      }
-
-    }
-*/
 
   vector<double>::iterator env = XWX.getEnvIterator();
   vector<unsigned>::iterator xenv = XWX.getXenvIterator();
@@ -733,11 +717,40 @@ void DESIGN::compute_XtransposedWX(void)
     start = *xenv;
     }
 
+
 //  ofstream out("c:\\bayesx\\testh\\results\\XWX.res");
 //  XWX.print4(out);
 
 
+
+
+
+// VARIANTE 2 (alt)
 /*
+  vector<double>::iterator diag = XWX.getDiagIterator();
+  double help;
+  int ip;
+
+  for (i=0;i<int(nrpar);i++,++diag)
+    {
+    *diag=0;
+
+    for (j=0;j<ZoutT[i].size();j++)
+      {
+      help=pow(ZoutT[i][j],2);
+      ip = index_ZoutT[i][j];
+      *diag += help*Wsum(ip,0);
+      }
+
+    }
+
+
+  vector<double>::iterator env = XWX.getEnvIterator();
+  vector<unsigned>::iterator xenv = XWX.getXenvIterator();
+  unsigned start = *xenv;
+  unsigned nrnnull;
+  xenv++;
+
   for(i=0;i<int(nrpar);i++,++xenv)
     {
     nrnnull = *xenv-start;
@@ -752,7 +765,6 @@ void DESIGN::compute_XtransposedWX(void)
     start = *xenv;
     }
 */
-
 //  ofstream out("c:\\bayesx\\testh\\results\\XWXalt.res");
 //  XWX.print4(out);
 

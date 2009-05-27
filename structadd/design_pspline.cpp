@@ -477,6 +477,48 @@ void DESIGN_pspline::compute_basisNull(void)
       basisNull = datamatrix(1,nrpar,1);
       position_lin = -1;
       }
+
+    else if (centermethod==cmeaninvvar)
+      {
+      compute_precision(10);
+
+      envmatdouble precisioninv;
+      precisioninv = envmatdouble(0.0,nrpar,degree>2?degree:2);
+      precision.inverse_envelope(precisioninv);
+
+      basisNull = datamatrix(1,nrpar,1);
+
+      unsigned k;
+      for (k=0;k<nrpar;k++)
+        basisNull(0,k) = 1/precisioninv.getDiag(k);
+
+      position_lin = -1;
+      }
+    else if (centermethod==cmeanintegral)
+      {
+      compute_betaweight(basisNull);
+      position_lin = -1;
+      }
+    else if (centermethod==cmeanf)
+      {
+
+      basisNull = datamatrix(1,nrpar,1);
+
+      unsigned k;
+      for (k=0;k<nrpar;k++)
+        basisNull(0,k) = compute_sumBk(k);
+
+      // TEST
+
+      // ofstream out("c:\\bayesx\\testh\\results\\basisnull.res");
+      // basisNull.prettyPrint(out);
+      // ende: TEST
+
+      position_lin = -1;
+
+      }
+
+
     else if (centermethod==nullspace)
       {
       if (type==Rw1)
@@ -521,7 +563,7 @@ void DESIGN_pspline::compute_basisNull(void)
   else
     {
 
-    if (centermethod==cmean)
+    if (centermethod==cmean || centermethod==meansimple)
       {
       basisNull = datamatrix(1,nrpar,1);
       position_lin = -1;
