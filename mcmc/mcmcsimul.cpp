@@ -255,7 +255,6 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
 
   //--------------- Compute posterior mode as starting value -------------------
 
-
   if (computemode)
     {
     vector<ST::string> he;
@@ -346,7 +345,6 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
       if (likepexisting)
         likep_mult[nrmodels-1-i]->update();        // DO NOT CHANGE ORDER !!!!
 
-
     for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
       {
       fullcondp[j]->update();
@@ -357,7 +355,6 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
       if (likepexisting)
         likep_mult[nrmodels-1-i]->update_predict();
       }
-
 
 #if defined(BORLAND_OUTPUT_WINDOW)
     Application->ProcessMessages();
@@ -442,6 +439,7 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
 
        if (likep_mult[i]->get_family() == "cox" && likep_mult[i]->get_predict() == true)
           {
+
 //          for(j=begin[i];j<=end[i];j++)
 //            if(fullcondp[j]->is_baseline() == true)
           j = begin[i];

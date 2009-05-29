@@ -952,7 +952,7 @@ if(PartialLikelihood)
 {
   // Hilfsvariablen
   unsigned i, j;
-  int helpindex = -1; 
+  int helpindex = -1;
   double workintercept;
   double worklinpred;
   double workresponse;
@@ -1030,7 +1030,7 @@ if(PartialLikelihood)
   {
   spline(i,0) = log(breslowbaseline(i,0));
   }
-  
+
   // subtraction of the current log-baelinnehazard from the predictor
   likep->substr_linearpred_m(spline,column,true);
 
@@ -1147,7 +1147,7 @@ if(PartialLikelihood)
       // Datei-Ausgabe Ergebnisse
       ST::string breslowcumbaseline_pathresults = pathresult.substr(0,pathresult.length()-15) + "breslowcumbaseline.res";
       ofstream ou(breslowcumbaseline_pathresults.strtochar());
-    
+
     //  ou << "varname  pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
     //  nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
       ou << "time  delta  pmean   pqu"  << nl1 << "   pqu" << nu2 << endl;  
@@ -1312,6 +1312,7 @@ if(PartialLikelihood)
 //else
 if(!Weibull && !PartialLikelihood)
 {
+
   if(optionsp->get_nriter()==1 && baselinep.size()>1 && begin0==true)
     {
     unsigned i=0;
