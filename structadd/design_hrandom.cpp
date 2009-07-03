@@ -104,7 +104,7 @@ void DESIGN_hrandom::init_data(const datamatrix & dm, const datamatrix & iv)
   make_index(dm,iv);
 
   meaneffectnr = compute_modecategorie();
-  compute_meaneffectintvar();  
+  compute_meaneffectintvar();
 
   nrpar = posbeg.size();
 
@@ -265,6 +265,8 @@ void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(
 
     }
 
+  XWres_p = &XWres;
+
 // TEST
   /*
   ofstream out("c:\\bayesx\\test\\results\\XWX.res");
@@ -304,6 +306,8 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
 
   for(i=0;i<nrpar;i++,workXWres++,linpredREp++,partresp++)
     *workXWres =  l*(*linpredREp)+(*partresp);
+
+  XWres_p = &XWres;
 
   }
 

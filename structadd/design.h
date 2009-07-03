@@ -230,7 +230,8 @@ class __EXPORT_TYPE DESIGN
   datamatrix XWres;                          // X'W(y-eta)
   bool XWresdeclared;                        // is true if X'Wres is already
                                              // defined
-
+  datamatrix * XWres_p;                      // Pointer to the current
+                                             // XWres object
 
   // ---------------------------------------------------------------------------
 

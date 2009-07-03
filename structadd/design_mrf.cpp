@@ -38,10 +38,16 @@ void DESIGN_mrf::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else
     center = false;
 
-  if (op[16] == "meansimple")
-    centermethod = meansimple;
-  else
+  if (op[16]=="mean" || op[16] == "nullspace")
     centermethod = cmean;
+  else if (op[16] == "meansimple")
+    centermethod = meansimple;
+  else if (op[16] == "meaninvvar")
+    centermethod = cmeaninvvar;
+  else if (op[16] == "meanintegral")
+    centermethod = cmeanintegral;
+  else if (op[16] == "meanf")
+    centermethod = cmeanf;
 
   datanames = vn;
 
@@ -77,7 +83,7 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
 
   compute_precision(1.0);
 
-  compute_basisNull();  
+  compute_basisNull();
 
   identity=true;
   }
@@ -149,12 +155,27 @@ void DESIGN_mrf::compute_penalty(void)
   }
 
 
-
 void DESIGN_mrf::compute_basisNull(void)
   {
   int i,j;
 
   basisNull = datamatrix(1,nrpar,1);
+
+  if (centermethod==cmeanf || centermethod==cmeanintegral)
+    {
+
+    unsigned k;
+    for (k=0;k<nrpar;k++)
+      {
+      if (posbeg[k] != -1)
+        basisNull(0,k) = posend[k]-posbeg[k]+1;
+      else
+        basisNull(0,k) = 0;
+      }
+
+    }
+
+
   position_lin = -1;
 
 
@@ -190,7 +211,7 @@ void DESIGN_mrf::compute_XtransposedWX_XtransposedWres(datamatrix & partres,
 
   if (XWresdeclared == false)
     {
-    XWres = datamatrix(nrpar,1);
+//    XWres = datamatrix(nrpar,1);
     XWresdeclared = true;
     }
 
@@ -202,6 +223,44 @@ void DESIGN_mrf::compute_XtransposedWX_XtransposedWres(datamatrix & partres,
 
   unsigned i;
   int j;
+
+  double * * workingweightpp = workingweightp.getV();
+  vector<double>::iterator d = XWX.getDiagIterator();
+
+  if (intvar.rows() != data.rows())   // additive
+    {
+    for(i=0;i<posbeg.size();i++,++d)
+      {
+      *d=0;
+      if (posbeg[i] != -1)
+        {
+        for (j=posbeg[i];j<=posend[i];j++,workingweightpp++)
+          {
+          *d += *(*workingweightpp);
+          }
+        }
+      }
+    }
+  else                    // varying coefficients
+    {
+    double * workdata2 = intvar2.getV();
+    for(i=0;i<posbeg.size();i++,++d)
+      {
+      *d=0;
+      if (posbeg[i] != -1)
+        {
+        for (j=posbeg[i];j<=posend[i];j++,workdata2++,workingweightpp++)
+          {
+          *d += *(*workingweightpp) * (*workdata2);
+          }
+        }
+      }
+    }
+
+  XWres_p = &partres;
+
+  /*
+  ALT
 
   double * workXWres = XWres.getV();
   double * * workingweightpp = workingweightp.getV();
@@ -239,6 +298,8 @@ void DESIGN_mrf::compute_XtransposedWX_XtransposedWres(datamatrix & partres,
         }
       }
     }
+  */
+
   }
 
 
@@ -246,7 +307,7 @@ void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l)
   {
   if (XWresdeclared == false)
     {
-    XWres = datamatrix(nrpar,1);
+    // XWres = datamatrix(nrpar,1);
     XWresdeclared = true;
     }
 
@@ -255,6 +316,10 @@ void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l)
     make_pointerindex();
     }
 
+  XWres_p = &partres;
+
+  /*
+  ALT
   double * workXWres = XWres.getV();
   double * workpartres = partres.getV();
 
@@ -264,6 +329,7 @@ void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l)
     {
     *workXWres = *workpartres;
     }
+  */
 
   }
 
@@ -348,7 +414,7 @@ void DESIGN_mrf::compute_precision(double l)
 
   }
 
-  
+
 void DESIGN_mrf::outoptions(GENERAL_OPTIONS * op)
   {
 

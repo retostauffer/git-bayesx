@@ -431,7 +431,7 @@ void FC_nonp::update_IWLS(void)
 
   designp->compute_precision(lambda);
 
-  designp->precision.solve(designp->XWres,paramhelp);
+  designp->precision.solve(*(designp->XWres_p),paramhelp);
 
   // TEST
   // ofstream out("c:\\bayesx\\testh\\results\\paramhelp_v.res");
@@ -482,7 +482,7 @@ void FC_nonp::update_IWLS(void)
 
   designp->compute_precision(lambda);
 
-  designp->precision.solve(designp->XWres,paramhelp);
+  designp->precision.solve(*(designp->XWres_p),paramhelp);
 
   // TEST
   // ofstream out2("c:\\bayesx\\testh\\results\\paramhelp_n.res");
@@ -625,11 +625,11 @@ void FC_nonp::update_gaussian(void)
 
   if (pvalue)
     {
-    designp->precision.solve(designp->XWres,parammode);
+    designp->precision.solve(*(designp->XWres_p),parammode);
     param.plus(parammode,paramhelp);
     }
   else
-    designp->precision.solve(designp->XWres,paramhelp,param);
+    designp->precision.solve(*(designp->XWres_p),paramhelp,param);
 
   if(designp->center)
     {
@@ -720,51 +720,63 @@ void FC_nonp::update_isotonic(void)
   int maxit = 20;
   double mu;
   double s;
+  double * paramp;
+  double * parampi;
+  double * XWresp;
 
 
   while(count < maxit)
     {
 
-    for (i=0;i<param.rows();i++)
+    XWresp = (*(designp->XWres_p)).getV();
+    parampi = param.getV();
+    for (i=0;i<param.rows();i++,XWresp++,parampi++)
       {
 
       mu = 0;
-      for (j=0;j<i;j++)    // links
+      paramp = param.getV();
+      for (j=0;j<i;j++,paramp++)    // links
         {
-        mu+= param(j,0)*designp->precision(i,j);
+//        mu+= param(j,0)*designp->precision(i,j);
+        mu+= (*paramp) * designp->precision(i,j);
         }
 
-      for (j=i+1;j<param.rows();j++)  // rechts
+
+
+      paramp = param.getV()+i+1;
+      for (j=i+1;j<param.rows();j++,paramp++)  // rechts
         {
-        mu+= param(j,0)*designp->precision(i,j);
+//        mu+= param(j,0)*designp->precision(i,j);
+        mu+= (*paramp)*designp->precision(i,j);
         }
 
-      mu = (designp->XWres(i,0) -mu)/designp->precision(i,i);
+//      mu = ((*(designp->XWres_p))(i,0) -mu)/designp->precision(i,i);
+      mu = (*XWresp -mu)/designp->precision(i,i);
 
       s = sqrt(sigma2resp/designp->precision(i,i));
 
       if(i==0)
         {
         if(stype==increasing)
-          param(i,0) = trunc_normal2(-20,param(1,0),mu,s);
+          *parampi = trunc_normal2(-20,param(1,0),mu,s);
         else
-          param(i,0) = trunc_normal2(param(1,0),20,mu,s);
+          *parampi = trunc_normal2(param(1,0),20,mu,s);
         }
       else if(i==param.rows()-1)
         {
         if(stype==increasing)
-          param(i,0) = trunc_normal2(param(param.rows()-2,0),20,mu,s);
+          *parampi = trunc_normal2(param(param.rows()-2,0),20,mu,s);
         else
-          param(i,0) = trunc_normal2(-20,param(param.rows()-2,0),mu,s);
+          *parampi = trunc_normal2(-20,param(param.rows()-2,0),mu,s);
         }
       else
         {
         if(stype==increasing)
           {
-          param(i,0) = trunc_normal2(param(i-1,0),param(i+1,0),mu,s);
+          *parampi = trunc_normal2(param(i-1,0),param(i+1,0),mu,s);
           }
         else
-          param(i,0) = trunc_normal2(param(i+1,0),param(i-1,0),mu,s);
+          *parampi = trunc_normal2(param(i+1,0),param(i-1,0),mu,s);
         }
 
       }
@@ -889,7 +901,7 @@ bool FC_nonp::posteriormode(void)
   // TEST
 
 
-  designp->precision.solve(designp->XWres,param);
+  designp->precision.solve(*(designp->XWres_p),param);
 
   // TEST
   // ofstream out8("c:\\bayesx\\test\\results\\param.res");

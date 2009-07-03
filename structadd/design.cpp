@@ -365,6 +365,7 @@ DESIGN::DESIGN(const DESIGN & m)
 
   XWres = m.XWres;
   XWresdeclared = m.XWresdeclared;
+  XWres_p = m.XWres_p;
 
   type=m.type;
 
@@ -437,6 +438,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
 
   XWres = m.XWres;
   XWresdeclared = m.XWresdeclared;
+  XWres_p = m.XWres_p;
 
   type=m.type;
 
@@ -1036,6 +1038,7 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
 
     }
 
+  XWres_p = &XWres;  
 
   // TEST
 //  ofstream out("c:\\bayesx\\test\\results\\XWres.res");
