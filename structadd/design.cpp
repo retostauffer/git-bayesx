@@ -99,21 +99,20 @@ void DESIGN::make_data(const datamatrix & dm,const datamatrix & iv)
 
   if (iv.rows() == dm.rows())
     {
-    intvar = datamatrix(iv.rows(),1);
+    intvar = iv;
     intvar2 = datamatrix(iv.rows(),1);
-    double * workintvar = intvar.getV();
     double * workintvar2 = intvar2.getV();
-    workindex = index_data.getV();
-    for (j=0;j<iv.rows();j++,workintvar++,workindex++,workintvar2++)
+    double * workintvar = intvar.getV();
+
+    for (j=0;j<iv.rows();j++,workintvar++,workintvar2++)
       {
-      *workintvar = iv(*workindex,0);
       *workintvar2 = pow(*workintvar,2);
       }
     }
 
   }
 
-  
+
 double DESIGN::compute_sumBk(unsigned & k)
   {
 
@@ -130,10 +129,14 @@ double DESIGN::compute_sumBk(unsigned & k)
   return sum;
   }
 
+
+
 void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   {
 
   unsigned j;
+
+  ind = statmatrix<unsigned>(dm.rows(),1);
 
   index_data = statmatrix<int>(dm.rows(),1);
   index_data.indexinit();
@@ -147,6 +150,7 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   make_data(dm,iv);
 
   double * workdata;
+
   posbeg.push_back(0);
   workdata = data.getV()+1;
   double help = data(0,0);
@@ -168,6 +172,23 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
     posend.push_back(data.rows()-1);
 
 
+  int * workindex = index_data.getV();
+
+  int k;
+
+  for (j=0;j<posend.size();j++)
+    {
+    for (k=posbeg[j];k<=posend[j];k++,workindex++)
+      ind(*workindex,0) = j;
+
+    }
+
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\ind.res");
+  // ind.prettyPrint(out);
+  // TEST
+
+
   double d;
   meaneffectnr = 0;
   double mclosest = data(posbeg[0],0);
@@ -184,27 +205,6 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
 
     }
 
-/*
-  meaneffectintvar=1;
-  if (iv.rows() == dm.rows())
-    {
-    double * intvarp = intvar.getV();
-    meaneffectnr_intvar = 0;
-    mclosest = *intvarp;
-    for (j=0;j<intvar.rows();j++,intvarp++)
-      {
-
-      if ( fabs(*intvarp-iv_mean) < fabs(mclosest-iv_mean) )
-        {
-        meaneffectnr_intvar = j;
-        mclosest = *intvarp;
-        meaneffectintvar= *intvarp;
-        }
-
-      }
-
-    }
-*/
 
   compute_meaneffectintvar();
 
@@ -249,7 +249,7 @@ void DESIGN::compute_meaneffectintvar(void)
     }
   }
 
-  
+
 unsigned DESIGN::compute_modecategorie(void)
   {
 
@@ -313,11 +313,12 @@ DESIGN::DESIGN(const DESIGN & m)
   intvar2=m.intvar2;
   intvar = m.intvar;
   index_data = m.index_data;
+  ind = m.ind;
   datanames = m.datanames;
   effectvalues = m.effectvalues;
   meaneffectnr = m.meaneffectnr;
   meaneffectnr_intvar = m.meaneffectnr_intvar;
-  meaneffectintvar = m.meaneffectintvar;  
+  meaneffectintvar = m.meaneffectintvar;
 
   Zout = m.Zout;
   index_Zout=m.index_Zout;
@@ -399,6 +400,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   consecutive = m.consecutive;
   consecutive_ZoutT = m.consecutive_ZoutT;
   identity = m.identity;
+  ind = m.ind;
 
   ZoutT = m.ZoutT;
   index_ZoutT = m.index_ZoutT;
@@ -453,10 +455,11 @@ void DESIGN::init_data(const datamatrix & dm, const datamatrix & iv)
 
   double * workintvar = intvar.getV();
   double * workintvar2 = intvar2.getV();
-  int * workindex = index_data.getV();
-  for (j=0;j<iv.rows();j++,workintvar++,workindex++,workintvar2++)
+  double * workiv=iv.getV();
+
+  for (j=0;j<iv.rows();j++,workintvar++,workintvar2++,workiv++)
     {
-    *workintvar = iv(*workindex,0);
+    *workintvar = *workiv;
     *workintvar2 = pow(*workintvar,2);
     }
 
@@ -529,11 +532,12 @@ void DESIGN::compute_Zout_transposed(void)
   }
 
 
-void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l)
+void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres,
+                                                   double l)
   {
 
   compute_XtransposedWX();
-  compute_XtransposedWres(partres, l);
+  compute_XtransposedWres(partres,l);
 
   }
 
@@ -542,8 +546,8 @@ void DESIGN::compute_XtransposedWX(void)
   {
 
   // TEST
-//  ofstream out("c:\\bayesx\\test\\results\\workingweight.res");
-//  likep->workingweight.prettyPrint(out);
+  //  ofstream out("c:\\bayesx\\test\\results\\workingweight.res");
+  //  likep->workingweight.prettyPrint(out);
   // TEST
 
   if (workingresponsep.rows() != data.rows())
@@ -553,89 +557,6 @@ void DESIGN::compute_XtransposedWX(void)
 
   unsigned int i,j;
 
-  int size = posbeg.size();
-
-  vector<int>::iterator itbeg = posbeg.begin();
-  vector<int>::iterator itend = posend.begin();
-  double * work_Wsum = Wsum.getV();
-
-  double * * work_workingweightp = workingweightp.getV();
-
-
-  if (intvar.rows() == data.rows())
-    {
-    double * work_intvar2=intvar2.getV();
-
-    if (likep->wtype==wweightsnochange_one)
-      {
-      for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
-        {
-        *work_Wsum=0;
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,work_intvar2++)
-            *work_Wsum +=  *work_intvar2 ;
-          }
-        }
-      }
-    else
-      {
-
-      for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
-        {
-        *work_Wsum=0;
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,work_workingweightp++,work_intvar2++)
-            *work_Wsum +=  (*work_intvar2) * (**work_workingweightp);
-          }
-        }
-
-      }
-
-    }
-  else
-    {
-
-    if (likep->wtype==wweightsnochange_one)
-      {
-
-      for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
-        {
-        if (*itbeg != -1)
-          {
-          *work_Wsum = *itend - *itbeg + 1;
-          }
-        else
-          *work_Wsum=0;
-        }
-
-      }
-    else
-      {
-
-      for (i=0;i<size;i++,work_Wsum++,itbeg++,itend++)
-        {
-        *work_Wsum=0;
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,work_workingweightp++)
-            *work_Wsum += *(*work_workingweightp);
-          }
-        }
-
-      }
-
-    }
-
-  // TEST
-//  ofstream out2("c:\\bayesx\\test\\results\\Wsum.res");
-//  Wsum.prettyPrint(out2);
-  // TEST
-
-
-
-// VARIANTE 1
 
   if (ZoutTZout_d.size() <= 1)
     {
@@ -719,115 +640,9 @@ void DESIGN::compute_XtransposedWX(void)
     start = *xenv;
     }
 
-
-//  ofstream out("c:\\bayesx\\testh\\results\\XWX.res");
-//  XWX.print4(out);
-
-
-
-
-
-// VARIANTE 2 (alt)
-/*
-  vector<double>::iterator diag = XWX.getDiagIterator();
-  double help;
-  int ip;
-
-  for (i=0;i<int(nrpar);i++,++diag)
-    {
-    *diag=0;
-
-    for (j=0;j<ZoutT[i].size();j++)
-      {
-      help=pow(ZoutT[i][j],2);
-      ip = index_ZoutT[i][j];
-      *diag += help*Wsum(ip,0);
-      }
-
-    }
-
-
-  vector<double>::iterator env = XWX.getEnvIterator();
-  vector<unsigned>::iterator xenv = XWX.getXenvIterator();
-  unsigned start = *xenv;
-  unsigned nrnnull;
-  xenv++;
-
-  for(i=0;i<int(nrpar);i++,++xenv)
-    {
-    nrnnull = *xenv-start;
-    if (nrnnull > 0)
-      {
-      for (j=i-nrnnull;j<i;j++,++env)
-        {
-        *env = compute_ZtZ(i,j);
-        }
-
-      }
-    start = *xenv;
-    }
-*/
-//  ofstream out("c:\\bayesx\\testh\\results\\XWXalt.res");
-//  XWX.print4(out);
-
-
-  XWX.setDecomposed(false);
-
   // TEST
-  /*
-  vector<double> env = XWX.getEnv();
-
-  ofstream out2("c:\\bayesx\\test\\results\\XWXenv.res");
-  for (j=0;j<env.size();j++)
-    out2 << env[j] << endl;
-
-
-  vector<unsigned> Xenv = XWX.getXenv();
-
-  ofstream out3("c:\\bayesx\\test\\results\\XWX_Xenv.res");
-  for (j=0;j<Xenv.size();j++)
-    out3 << Xenv[j] << endl;
-
-
-
-  ofstream out3("c:\\bayesx\\test\\results\\XWX.res");
-  XWX.print2(out3);
-
-  unsigned k;
-  datamatrix Zoutm(data.rows(),nrpar,0);
-  for (i=0;i<posbeg.size();i++)
-    {
-    for (j=posbeg[i];j<=posend[i];j++)
-      {
-      for(k=0;k<Zout.cols();k++)
-        Zoutm(j,index_Zout(i,k)) =
-        sqrt(likep->workingweight(index_data(j,0),0))*Zout(i,k);
-      }
-
-    }
-
-  datamatrix ZtZ = Zoutm.transposed()*Zoutm;
-  ofstream out5("c:\\bayesx\\test\\results\\XWXmat.res");
-  ZtZ.prettyPrint(out5);
-
-
-  Zoutm = datamatrix(data.rows(),nrpar,0);
-  for (i=0;i<posbeg.size();i++)
-    {
-    for (j=posbeg[i];j<=posend[i];j++)
-      {
-      for(k=0;k<Zout.cols();k++)
-        Zoutm(j,index_Zout(i,k)) =
-        Zout(i,k);
-      }
-
-    }
-
-
-//  ofstream out7("c:\\bayesx\\test\\results\\Zoutm.res");
-//  Zoutm.prettyPrint(out7);
-  */
-
+  // ofstream out("c:\\bayesx\\testh\\results\\XWX.res");
+  // XWX.print4(out);
   // TEST
 
   }
@@ -1038,7 +853,7 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
 
     }
 
-  XWres_p = &XWres;  
+  XWres_p = &XWres;
 
   // TEST
 //  ofstream out("c:\\bayesx\\test\\results\\XWres.res");
@@ -1059,6 +874,8 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
   f.prettyPrint(out0);
   */
   // TEST
+
+
 
   int i,j;
 
@@ -1194,7 +1011,7 @@ void DESIGN::compute_f(datamatrix & beta,datamatrix & betalin,
     }
 
   // TEST
-  
+
   /*
   ofstream out("c:\\bayesx\\testh\\results\\f.res");
   f.prettyPrint(out);
@@ -1239,108 +1056,121 @@ void DESIGN::compute_precision(double l)
   }
 
 
-void DESIGN::compute_partres(datamatrix & res, datamatrix & f)
+void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
   {
 
-  int i,j;
-  int size = posbeg.size();
-  vector<int>::iterator itbeg = posbeg.begin();
-  vector<int>::iterator itend = posend.begin();
-//  int * workindex = index_data.getV();
-  double * workf = f.getV();
+  // VARIANTE 1
 
-  double * workres = res.getV();
-
-  if (workingresponsep.rows() != data.rows())
-    {
-    make_pointerindex();
-    }
-
-  double * * work_responsep = workingresponsep.getV();
-  double * * work_workingweightp = workingweightp.getV();
-
-  double * * worklinp;
+  double * workingresponsep = likep->workingresponse.getV();
+  double * worklinp;
   if (likep->linpred_current==1)
-    worklinp = linpredp1.getV();
+    worklinp = likep->linearpred1.getV();
   else
-    worklinp = linpredp2.getV();
+    worklinp = likep->linearpred2.getV();
+
+  double * workingweightp = likep->workingweight.getV();
+  unsigned * indp = ind.getV();
+
+  int i;
+  double * resp = res.getV();
+  for (i=0;i<res.rows();i++,resp++)
+    *resp =  0;
+
 
   if (intvar.rows()==data.rows())   // varying coefficient
     {
 
     double * workintvar = intvar.getV();
 
+
     if (likep->wtype==wweightsnochange_one)
       {
-      for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
-        {
-        *workres = 0;
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,work_responsep++,worklinp++,workintvar++)
-            {
-            *workres += (*workintvar) * (*(*work_responsep) - (*(*worklinp)) +
-            (*workintvar) * (*workf));
-            }
-          }
-        }
+
+      for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,workintvar++)
+        res(*indp,0) += *workintvar * ( *workingresponsep - *worklinp +
+                        (*workintvar) * f(*indp,0));
+
       }
     else
       {
-      for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
+      if (likep->wtype==wweightsnochange_constant)
         {
-        *workres = 0;
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,work_responsep++,
-               work_workingweightp++,worklinp++,workintvar++)
-            {
-            *workres += *(*work_workingweightp) * (*workintvar) *
-            (*(*work_responsep) - (*(*worklinp)) + (*workintvar) * (*workf));
-            }
-          }
+
+        for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
+                                workingweightp++,workintvar++)
+          res(*indp,0) +=  (*workingweightp) *  (*workintvar) *
+                           (*workingresponsep - *worklinp +
+                           (*workintvar) * f(*indp,0));
+
+
         }
+      else  // wweightschange
+        {
+
+        double * Wsump = Wsum.getV();
+        for (i=0;i<Wsum.rows();i++,Wsump++)
+          *Wsump =  0;
+
+        for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
+                                workingweightp++,workintvar++)
+          {
+          res(*indp,0) +=  (*workingweightp) * (*workintvar) *
+                            (*workingresponsep - *worklinp +
+                            (*workintvar) * f(*indp,0));
+
+          Wsum(*indp,0) += *workingweightp;
+          }
+
+        }
+
       }
 
     }
   else                              // additive
     {
-
     if (likep->wtype==wweightsnochange_one)
       {
 
-      for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
-        {
-        *workres = 0;
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,work_responsep++,worklinp++)
-            {
-            *workres += *(*work_responsep) - (*(*worklinp)) + *workf;
+      for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++)
+        res(*indp,0) += *workingresponsep - *worklinp + f(*indp,0);
 
-            }
-          }
-        }
 
       }
     else
       {
-      for (i=0;i<size;i++,++itbeg,++itend,workf++,workres++)
+      if (likep->wtype==wweightsnochange_constant)
         {
-        *workres = 0;
-        if (*itbeg != -1)
-          {
-          for (j=*itbeg;j<=*itend;j++,work_responsep++,
-               work_workingweightp++,worklinp++)
-            {
-            *workres += *(*work_workingweightp) *
-            (*(*work_responsep) - (*(*worklinp)) + *workf);
-            }
-          }
+
+        for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
+                                workingweightp++)
+          res(*indp,0) +=  (*workingweightp) *
+                          (*workingresponsep - *worklinp + f(*indp,0));
+
+
         }
+      else  // wweightschange
+        {
+
+        double * Wsump = Wsum.getV();
+        for (i=0;i<Wsum.rows();i++,Wsump++)
+          *Wsump =  0;
+
+        for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
+                                workingweightp++)
+          {
+          res(*indp,0) +=  (*workingweightp) *
+                            (*workingresponsep - *worklinp + f(*indp,0));
+
+          Wsum(*indp,0) += *workingweightp;
+          }
+
+        }
+
       }
 
     }
+
+  // VARIANTE 1
 
   // TEST
   // ofstream out("c:\\bayesx\\test\\results\\tildey.res");
@@ -1484,6 +1314,42 @@ void DESIGN::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
 
 void DESIGN::update_linpred(datamatrix & f)
   {
+
+  /*
+  double * worklinp;
+  if (likep->linpred_current==1)
+    worklinp = likep->linearpred1.getV();
+  else
+    worklinp = likep->linearpred2.getV();
+
+  double * workintvar = intvar.getV();
+
+  unsigned * indp = ind.getV();
+
+  int i;
+
+  if (intvar.rows()==data.rows())   // varying coefficient
+    {
+
+    for (i=0;i<data.rows();i++,worklinp++,workintvar++,indp++)
+      {
+      *worklinp += (*workintvar) *  f(*indp,0);
+      }
+
+    }
+  else                              // additive
+    {
+
+    for (i=0;i<data.rows();i++,worklinp++,indp++)
+      {
+      *worklinp += f(*indp,0);
+      }
+
+    }
+  */
+
+
+
   int i,j;
 
   vector<int>::iterator itbeg = posbeg.begin();
@@ -1525,7 +1391,7 @@ void DESIGN::update_linpred(datamatrix & f)
         }
       }
     }
-
+  
 
   // TEST
   /*

@@ -672,7 +672,7 @@ datamatrix & partres, double l)
   if (XWXdeclared==false)
     {
     XWX = envmatdouble(bandmatdouble(nrpar,degree,0));
-    Wsum = datamatrix(posbeg.size(),1,0);
+    Wsum =datamatrix(posbeg.size(),1,1);
     XWXdeclared  = true;
     }
 
@@ -712,11 +712,23 @@ void DESIGN_pspline::compute_precision(double l)
   ofstream out3("c:\\bayesx\\test\\results\\K.res");
   K.print2(out3);
 
-
-  ofstream out("c:\\bayesx\\test\\results\\precision.res");
+  ofstream out("c:\\bayesx\\testh\\results\\precision.res");
   precision.print2(out);
-  // TEST
+
+  ofstream out2("c:\\bayesx\\testh\\results\\env.res");
+  vector<double> e = precision.getEnv();
+  unsigned i;
+  for (i=0;i!= e.size();i++)
+    out2 << e[i] << endl;
+
+  ofstream out3("c:\\bayesx\\testh\\results\\xenv.res");
+  vector<unsigned> xe = precision.getXenv();
+  for (i=0;i!= xe.size();i++)
+    out3 << xe[i] << endl;
   */
+
+  // TEST
+
   }
 
 void DESIGN_pspline::outoptions(GENERAL_OPTIONS * op)

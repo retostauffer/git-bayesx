@@ -10,6 +10,13 @@
 namespace MCMC
 {
 
+void FC_predict::compute_autocorr_all(const ST::string & path, unsigned lag,
+                                    ofstream & outg) const
+  {
+
+  }
+
+
 void FC_predict::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   {
 

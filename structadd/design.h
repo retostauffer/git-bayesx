@@ -57,22 +57,22 @@ class __EXPORT_TYPE DESIGN
 
   // FUNCTION: make_index
   // TASK: takes index_data (computed elsewhere)
-  //       creates sorted data ntvar, data2
+  //       creates sorted data intvar, intvar2
 
   void make_data(const datamatrix & dm,const datamatrix & iv);
 
   // FUNCTION: make_index
   // TASK: sorts the data,
-  //       creates sorted intvar, data2
+  //       creates intvar, intvar2
   //       initializes index_data,
   //       posbeg, posend, effectvalues
 
   void make_index(const datamatrix & dm, const datamatrix & iv);
 
 
-  unsigned compute_modecategorie(void);  
+  unsigned compute_modecategorie(void);
 
-  void compute_meaneffectintvar(void);  
+  void compute_meaneffectintvar(void);
 
   DISTR * likep;                             // Pointer to DISTR obejct
 
@@ -103,6 +103,9 @@ class __EXPORT_TYPE DESIGN
   datamatrix intvar;                         // interaction variable for
                                              // varying coefficients
   datamatrix intvar2;                        // intvar^2 for varying coefficients
+
+  statmatrix<unsigned> ind;                  // the category in the sorted data
+                                             // vector
 
   statmatrix<int> index_data;                // index for sort of data
   vector<ST::string> datanames;              // names of covariates
@@ -145,14 +148,14 @@ class __EXPORT_TYPE DESIGN
 
   vector<double> ZoutTZout_d;
 
-  vector<int> Wsump_d;  
+  vector<int> Wsump_d;
 
 
 
 
   void compute_ZoutTZout(unsigned & i, unsigned & j);
 
-  void compute_ZoutTZout(void);  
+  void compute_ZoutTZout(void);
 
   //----------------------------------------------------------------------------
 
@@ -281,7 +284,7 @@ class __EXPORT_TYPE DESIGN
   // FUNCTION: compute_partres
   // TASK: computes
 
-  void compute_partres(datamatrix & res,datamatrix & f);
+  void compute_partres(datamatrix & res,datamatrix & f,bool cwsum=true);
 
   void compute_partres(int begin,int end,double & res, double & f);
 

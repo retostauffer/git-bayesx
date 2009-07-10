@@ -870,8 +870,7 @@ bool FC_nonp::posteriormode(void)
 
   bool lambdaconst = false;
 
-  designp->compute_partres(partres,beta);
-
+  designp->compute_partres(partres,beta,true);
 
   // TEST
 
@@ -880,26 +879,14 @@ bool FC_nonp::posteriormode(void)
 
   // TEST
 
-  if ( (likep->wtype==wweightschange_weightsneqone)  ||
-       (likep->wtype==wweightschange_weightsone) ||
-       (designp->changingdesign)
-     )
-    designp->compute_XtransposedWX_XtransposedWres(partres, lambda);
-  else
-    designp->compute_XtransposedWres(partres, lambda);
+  designp->compute_XtransposedWX_XtransposedWres(partres, lambda);
 
-  if ((likep->wtype==wweightschange_weightsneqone) ||
-      (likep->wtype==wweightschange_weightsone) ||
-      (designp->changingdesign) ||
-      (!lambdaconst)
-      )
-    designp->compute_precision(lambda);
+  designp->compute_precision(lambda);
 
   // TEST
 //   ofstream out1("c:\\bayesx\\test\\results\\precision.res");
 //   designp->precision.print1(out1);
   // TEST
-
 
   designp->precision.solve(*(designp->XWres_p),param);
 
