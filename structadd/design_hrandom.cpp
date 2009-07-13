@@ -59,8 +59,9 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
   compute_penalty();
 
   datamatrix  help(Zout.rows(),1,1);
-  compute_XtransposedWX_XtransposedWres(help,1);
 
+  compute_XtransposedWX_XtransposedWres(help,1);
+  Wsum = datamatrix(posbeg.size(),1,1);
   compute_precision(1.0);
 
   center = false;
@@ -115,6 +116,8 @@ void DESIGN_hrandom::init_data(const datamatrix & dm, const datamatrix & iv)
   consecutive = 1;
 
   compute_Zout_transposed();
+
+
 
   }
 

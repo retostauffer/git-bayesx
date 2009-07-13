@@ -34,6 +34,8 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   protected:
 
+  datamatrix likelihoodc,likelihoodn;
+
   DISTR * likep_RE;
 
   FC FCrcoeff;

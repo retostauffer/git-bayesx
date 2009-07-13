@@ -143,9 +143,6 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   dm.indexsort(index_data,0,dm.rows()-1,0,0);
 
   double dm_mean = dm.mean(0);
-//  double iv_mean;
-//  if (iv.rows() == dm.rows())
-//    iv_mean = iv.mean(0);
 
   make_data(dm,iv);
 
@@ -882,37 +879,21 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
   if (effect.rows() != data.rows())
     effect = datamatrix(data.rows(),1,0);
 
-  vector<int>::iterator itbeg = posbeg.begin();
-  vector<int>::iterator itend = posend.begin();
-
-  double * workf = f.getV();
   double * workintvar = intvar.getV();
+  unsigned * workind = ind.getV();
+  double * workeffect = effect.getV();
 
-  int * workindex = index_data.getV();
-
-  int size = posbeg.size();
+  int size = ind.rows();
 
   if (et==Function)
     {
-    for (i=0;i<size;i++,++itbeg,++itend,workf++)
-      {
-      if (*itbeg != -1)
-        {
-        for (j=*itbeg;j<=*itend;j++,workindex++)
-          effect(*workindex,0) = *workf;
-        }
-      }
+    for (i=0;i<size;i++,workind++,workeffect++)
+      *workeffect = f(*workind,0);
     }
   else if (et==Varcoefftotal)
     {
-    for (i=0;i<size;i++,++itbeg,++itend,workf++)
-      {
-      if (*itbeg != -1)
-        {
-        for (j=*itbeg;j<=*itend;j++,workindex++,workintvar++)
-          effect(*workindex,0) = *workintvar * (*workf);
-        }
-      }
+    for (i=0;i<size;i++,workind++,workeffect++,workintvar++)
+      *workeffect = *workintvar * f(*workind,0);
     }
 
   // TEST
@@ -929,7 +910,6 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
   */
   // TEST
 
-
   }
 
 
@@ -940,10 +920,10 @@ void DESIGN::set_intvar(datamatrix & iv,double add)
 
   double * workintvar = intvar.getV();
   double * workintvar2 = intvar2.getV();
-  int * workindex = index_data.getV();
-  for (j=0;j<iv.rows();j++,workintvar++,workindex++,workintvar2++)
+  double * workiv = iv.getV();
+  for (j=0;j<iv.rows();j++,workintvar++,workiv++,workintvar2++)
     {
-    *workintvar = iv(*workindex,0)+add;
+    *workintvar = *workiv+add;
     *workintvar2 = pow(*workintvar,2);
     }
 
@@ -1093,7 +1073,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
       }
     else
       {
-      if (likep->wtype==wweightsnochange_constant)
+      if ((likep->wtype==wweightsnochange_constant) && (cwsum==false))
         {
 
         for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
@@ -1128,7 +1108,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
     }
   else                              // additive
     {
-    if (likep->wtype==wweightsnochange_one)
+    if ((likep->wtype==wweightsnochange_one) && (cwsum==false))
       {
 
       for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++)
@@ -1138,7 +1118,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
       }
     else
       {
-      if (likep->wtype==wweightsnochange_constant)
+      if ((likep->wtype==wweightsnochange_constant) && (cwsum==false))
         {
 
         for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
@@ -1315,7 +1295,7 @@ void DESIGN::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
 void DESIGN::update_linpred(datamatrix & f)
   {
 
-  /*
+
   double * worklinp;
   if (likep->linpred_current==1)
     worklinp = likep->linearpred1.getV();
@@ -1346,10 +1326,10 @@ void DESIGN::update_linpred(datamatrix & f)
       }
 
     }
-  */
 
 
 
+  /*
   int i,j;
 
   vector<int>::iterator itbeg = posbeg.begin();
@@ -1391,7 +1371,7 @@ void DESIGN::update_linpred(datamatrix & f)
         }
       }
     }
-  
+  */
 
   // TEST
   /*

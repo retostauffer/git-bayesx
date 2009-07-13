@@ -81,6 +81,8 @@ FC_hrandom::FC_hrandom(const FC_hrandom & m)
   FCrcoeff = m.FCrcoeff;
   response_o = m.response_o;
   linpred_o = m.linpred_o;
+  likelihoodc = m.likelihoodc;
+  likelihoodn = m.likelihoodn;
   }
 
 
@@ -95,6 +97,8 @@ const FC_hrandom & FC_hrandom::operator=(const FC_hrandom & m)
   FCrcoeff = m.FCrcoeff;
   response_o = m.response_o;
   linpred_o = m.linpred_o;
+  likelihoodc = m.likelihoodc;
+  likelihoodn = m.likelihoodn;
   return *this;
   }
 
@@ -150,6 +154,8 @@ void FC_hrandom::update_linpred(int & begin, int & end, double value)
 
 
 
+// ALT
+/*
 void FC_hrandom::update_IWLS(void)
   {
   unsigned i;
@@ -254,6 +260,154 @@ void FC_hrandom::update_IWLS(void)
   FC::update();
 
   }
+*/
+
+
+void FC_hrandom::update_IWLS(void)
+  {
+  unsigned i;
+
+  lambda = likep->get_scale()/tau2;
+
+  if (optionsp->nriter == 1)
+    {
+    betaold.assign(beta);
+    }
+
+  double * betap = beta.getV();
+  double * betaoldp = betaold.getV();
+
+  double * linpredREp;
+  if (likep_RE->linpred_current==1)
+    linpredREp = likep_RE->linearpred1.getV();
+  else
+    linpredREp = likep_RE->linearpred2.getV();
+
+  if (likelihoodc.rows() <=1)
+    {
+    likelihoodc = datamatrix(beta.rows(),1,0);
+    likelihoodn = datamatrix(beta.rows(),1,0);
+    }
+
+  double postmode;
+  double diff;
+  double var;
+  double u;
+  double xwres;
+
+
+  likep->compute_iwls(true,likelihoodc,designp->ind);
+
+  designp->compute_partres(partres,beta);
+
+  double * workpartres = partres.getV();
+  double * worklikelihoodc = likelihoodc.getV();
+  double * workWsum = designp->Wsum.getV();
+
+  ofstream out("c:\\bayesx\\testh\\results\\likelihoodc.res");
+  likelihoodc.prettyPrint(out);
+
+  vector<int>::iterator itbeg = designp->posbeg.begin();
+  vector<int>::iterator itend = designp->posend.begin();
+  double xwx;
+
+
+  statmatrix<double *> * linpredp;
+
+  if (likep->linpred_current==1)
+    linpredp = &(designp->linpredp1);
+  else
+    linpredp = &(designp->linpredp2);
+
+
+  for (i=0;i<beta.rows();i++,betap++,linpredREp++,
+       workpartres++,worklikelihoodc++,workWsum++,++itbeg,++itend)
+
+    {
+
+
+    double lold = likep->compute_iwls_loglikelihood_sumworkingweight(
+                                  *itbeg,*itend,designp->responsep,
+                                  designp->workingresponsep,
+                                  designp->weightp,designp->workingweightp,
+                                  *linpredp,designp->intvar2,xwx);
+
+
+    *worklikelihoodc  -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
+
+    xwres =  lambda*(*linpredREp)+ (*workpartres);
+
+    var = 1/(*workWsum+lambda);
+    postmode =  var * xwres;
+    *betap = postmode + sqrt(var)*rand_normal();
+    diff = *betap - postmode;
+    *worklikelihoodc = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
+    }
+
+  betadiff.minus(beta,betaold);
+  designp->update_linpred(betadiff);
+
+
+
+  likep->compute_iwls(true,likelihoodn,designp->ind);
+  designp->compute_partres(partres,beta);
+
+  workpartres = partres.getV();
+  double * worklikelihoodn = likelihoodn.getV();
+  worklikelihoodc = likelihoodc.getV();
+  workWsum = designp->Wsum.getV();
+
+  betap = beta.getV();
+  betaoldp = betaold.getV();
+
+  linpredREp;
+  if (likep_RE->linpred_current==1)
+    linpredREp = likep_RE->linearpred1.getV();
+  else
+    linpredREp = likep_RE->linearpred2.getV();
+
+
+  for (i=0;i<beta.rows();i++,betap++,linpredREp++,
+       betaoldp++,workpartres++,worklikelihoodn++,workWsum++,worklikelihoodc++)
+
+    {
+
+
+    *worklikelihoodn -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
+
+    xwres =  lambda*(*linpredREp)+ (*workpartres);
+
+
+    var = 1/(*workWsum+lambda);
+    diff = *betaoldp - var * xwres;
+
+    *worklikelihoodn = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
+
+
+    nrtrials++;
+    u = log(uniform());
+    if (u <= (*worklikelihoodn) - (*worklikelihoodc))
+      {
+      acceptance++;
+      *betaoldp = *betap;
+      }
+    else
+      {
+      *betap = *betaoldp;
+      }
+
+    }
+
+
+  betadiff.minus(beta,betaold);
+  designp->update_linpred(betadiff);
+
+  transform_beta();
+
+  FC::update();
+
+  }
+
 
 
 void FC_hrandom::update(void)

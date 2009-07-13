@@ -278,6 +278,8 @@ class __EXPORT_TYPE DISTR
 
   double compute_iwls(const bool & current,const bool & like);
 
+  void compute_iwls(const bool & current,datamatrix & likelihood,
+                    statmatrix<unsigned> & ind);  
 
   // FUNCTION: compute_IWLS (
   // TASK: computes the iwls weights (will be stored in workingweight),

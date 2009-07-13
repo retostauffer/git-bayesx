@@ -284,7 +284,7 @@ class __EXPORT_TYPE DESIGN
   // FUNCTION: compute_partres
   // TASK: computes
 
-  void compute_partres(datamatrix & res,datamatrix & f,bool cwsum=true);
+  void compute_partres(datamatrix & res,datamatrix & f,bool cwsum=false);
 
   void compute_partres(int begin,int end,double & res, double & f);
 

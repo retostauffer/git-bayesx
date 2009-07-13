@@ -498,6 +498,115 @@ double DISTR::compute_iwls(const bool & current, const bool & like)
   }
 
 
+
+
+void DISTR::compute_iwls(const bool & current,datamatrix & likelihood,
+                    statmatrix<unsigned> & ind)
+  {
+
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\ind.res");
+  // ind.prettyPrint(out);
+  // TEST
+
+  register unsigned  i;
+
+  double * workweight = weight.getV();
+  double * workresponse = response.getV();
+
+  double * worklin;
+  if (current)
+    {
+    if (linpred_current == 1)
+      worklin = linearpred1.getV();
+    else
+      worklin = linearpred2.getV();
+    }
+  else  // use porposed
+    {
+    if (linpred_current == 1)
+      worklin = linearpred2.getV();
+    else
+      worklin = linearpred1.getV();
+    }
+
+  double * work_workingresponse=workingresponse.getV();
+  double * work_workingweight = workingweight.getV();
+
+  unsigned * workind = ind.getV();
+
+  double * worklikelihood=likelihood.getV();
+  for (i=0;i<likelihood.rows();i++,worklikelihood++)
+    *worklikelihood=0;
+
+  if (wtype==wweightschange_weightsneqone)
+    {
+
+    for (i=0;i<nrobs;i++,workweight++,work_workingweight++,workresponse++,
+          work_workingresponse++,worklin++,workind++)
+      {
+
+      likelihood(*workind,0) += compute_iwls(workresponse,worklin,
+                                 workweight,work_workingweight,
+                                 work_workingresponse,true);
+      }
+
+    }
+  else if (wtype==wweightschange_weightsone)
+    {
+
+    for (i=0;i<nrobs;i++,work_workingweight++,workresponse++,
+          work_workingresponse++,worklin++,workind++)
+      {
+
+      compute_iwls_wweightschange_weightsone(workresponse,worklin,
+                                 work_workingweight,work_workingresponse,
+                                 likelihood(*workind,0),true);
+      }
+
+
+    }
+  else if (wtype==wweightsnochange_constant)
+    {
+
+    for (i=0;i<nrobs;i++,work_workingweight++,workresponse++,
+          work_workingresponse++,worklin++,workind++)
+      {
+
+      compute_iwls_wweightsnochange_constant(workresponse,worklin,
+                                 work_workingweight,work_workingresponse,
+                                 likelihood(*workind,0),true);
+      }
+
+    }
+  else if (wtype==wweightsnochange_one)
+    {
+
+    for (i=0;i<nrobs;i++,workresponse++,
+          work_workingresponse++,worklin++,workind++)
+      {
+
+      compute_iwls_wweightsnochange_one(workresponse,worklin,
+                                        work_workingresponse,
+                                        likelihood(*workind,0),true);
+      }
+
+    }
+
+  // TEST
+  /*
+  ofstream out("c:\\bayesx\\test\\results\\workresponse.res");
+  workingresponse.prettyPrint(out);
+
+  ofstream out2("c:\\bayesx\\test\\results\\workweight.res");
+  workingweight.prettyPrint(out2);
+  */
+  // TEST
+
+  }
+
+
+
 void DISTR::outresults(ST::string pathresults)
   {
   optionsp->out("\n");
@@ -744,7 +853,7 @@ void DISTR_gaussian::compute_iwls_wweightsnochange_constant(double * response,
   {
   *workingresponse = *response;
   if (compute_like && *workingweight!=0)
-    like  =- *workingweight * (pow(*response-(*linpred),2))/(2* sigma2);
+    like  -= *workingweight * (pow(*response-(*linpred),2))/(2* sigma2);
   }
 
 
