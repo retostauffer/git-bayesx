@@ -159,6 +159,7 @@ class __EXPORT_TYPE DESIGN
 
   //----------------------------------------------------------------------------
 
+ /*
   statmatrix<double *> responsep;            // matrix of pointers to
                                              // response observations
   statmatrix<double *> weightp;              // matrix of pointers to
@@ -177,6 +178,7 @@ class __EXPORT_TYPE DESIGN
   //       linpredp2
 
   void make_pointerindex(void);
+  */
 
   //----------------------------------------------------------------------------
 
@@ -286,10 +288,6 @@ class __EXPORT_TYPE DESIGN
 
   void compute_partres(datamatrix & res,datamatrix & f,bool cwsum=false);
 
-  void compute_partres(int begin,int end,double & res, double & f);
-
-//  void compute_partres_nopred(datamatrix & res, datamatrix & f);
-
   double compute_ZtZ(unsigned & i, unsigned & j);
 
   // ------------------------- VIRTUAL FUNCTIONS -------------------------------
@@ -324,12 +322,6 @@ class __EXPORT_TYPE DESIGN
   // TASK: computes XWX and XWres, res is the partial residual
 
   virtual void compute_XtransposedWX(void);
-
-  // FUNCTION: compute_XtransposedWX_XtransposedWres
-  // TASK: computes XWX and XWres, res is the partial residual
-
-  virtual void compute_XtransposedWX_XtransposedWres(datamatrix & partres,
-                                                      double l);
 
   // FUNCTION: compute_meaneffect
   // TASK: computes the meaneffect of a particular model term

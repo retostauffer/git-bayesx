@@ -427,7 +427,8 @@ void FC_nonp::update_IWLS(void)
   logold -= 0.5*paramKparam*lambda;
 
   designp->compute_partres(partres,beta);
-  designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
+  designp->compute_XtransposedWX();
+  designp->compute_XtransposedWres(partres,lambda);
 
   designp->compute_precision(lambda);
 
@@ -478,7 +479,8 @@ void FC_nonp::update_IWLS(void)
   lognew  -= 0.5*designp->K.compute_quadform(param,0)*lambda;
 
   designp->compute_partres(partres,beta);
-  designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
+  designp->compute_XtransposedWX();
+  designp->compute_XtransposedWres(partres,lambda);
 
   designp->compute_precision(lambda);
 
@@ -604,9 +606,9 @@ void FC_nonp::update_gaussian(void)
        (likep->wtype==wweightschange_weightsone) ||
        (designp->changingdesign)
      )
-    designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
-  else
-    designp->compute_XtransposedWres(partres, lambda);
+     designp->compute_XtransposedWX();
+
+  designp->compute_XtransposedWres(partres, lambda);
 
   if ((likep->wtype==wweightschange_weightsneqone) ||
       (likep->wtype==wweightschange_weightsone) ||
@@ -705,9 +707,9 @@ void FC_nonp::update_isotonic(void)
        (likep->wtype==wweightschange_weightsone) ||
        (designp->changingdesign)
      )
-    designp->compute_XtransposedWX_XtransposedWres(partres,lambda);
-  else
-    designp->compute_XtransposedWres(partres, lambda);
+    designp->compute_XtransposedWX();
+
+  designp->compute_XtransposedWres(partres, lambda);
 
   if ((likep->wtype==wweightschange_weightsneqone) ||
       (likep->wtype==wweightschange_weightsone) ||
@@ -879,7 +881,8 @@ bool FC_nonp::posteriormode(void)
 
   // TEST
 
-  designp->compute_XtransposedWX_XtransposedWres(partres, lambda);
+  designp->compute_XtransposedWX();
+  designp->compute_XtransposedWres(partres, lambda);
 
   designp->compute_precision(lambda);
 

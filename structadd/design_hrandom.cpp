@@ -60,7 +60,8 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
 
   datamatrix  help(Zout.rows(),1,1);
 
-  compute_XtransposedWX_XtransposedWres(help,1);
+  compute_XtransposedWX();
+  compute_XtransposedWres(help,1);
   Wsum = datamatrix(posbeg.size(),1,1);
   compute_precision(1.0);
 
@@ -140,144 +141,17 @@ void DESIGN_hrandom::compute_XtransposedWX(void)
     XWXdeclared = true;
     }
 
-  if (workingresponsep.rows() != data.rows())
-    {
-    make_pointerindex();
-    }
 
   unsigned i;
-  int j;
 
-  double * * workingweightpp = workingweightp.getV();
+  double * Wsump = Wsum.getV();
   vector<double>::iterator d = XWX.getDiagIterator();
 
+  for (i=0;i<Wsum.rows();i++,++d,Wsump++)
+    *Wsump = *d;
 
-  if (intvar.rows() != data.rows())   // additive
-    {
-    for(i=0;i<nrpar;i++,++d)
-      {
-      *d=0;
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workingweightpp++)
-          {
-          *d += *(*workingweightpp);
-          }
+ }
 
-        }
-      }
-
-    }
-  else                    // varying coefficients
-    {
-
-    double * workdata2 = intvar2.getV();
-    for(i=0;i<nrpar;i++,++d)
-      {
-      *d=0;
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workdata2++,workingweightpp++)
-          {
-          *d += *(*workingweightpp) * (*workdata2);
-          }
-        }
-      }
-
-    }
-
-  }
-
-
-void DESIGN_hrandom::compute_XtransposedWX_XtransposedWres(
-                                                         datamatrix & partres,
-                                                         double l)
-  {
-
-  if (XWXdeclared == false)
-    {
-    XWX = envmatdouble(0,nrpar);
-    XWXdeclared = true;
-    }
-
-  if (XWresdeclared == false)
-    {
-    XWres = datamatrix(nrpar,1);
-    XWresdeclared = true;
-    }
-
-  if (workingresponsep.rows() != data.rows())
-    {
-    make_pointerindex();
-    }
-
-  unsigned i;
-  int j;
-
-  double * * workingweightpp = workingweightp.getV();
-  vector<double>::iterator d = XWX.getDiagIterator();
-
-  double * workXWres = XWres.getV();
-
-  double * linpredREp;
-  if (likep_RE->linpred_current==1)
-    linpredREp = likep_RE->linearpred1.getV();
-  else
-    linpredREp = likep_RE->linearpred2.getV();
-
-  double * partresp = partres.getV();
-
-  // TEST
-  // ofstream out("c:\\bayesx\\testh\\linpredRE.res");
-  // likep_RE->linearpred1.prettyPrint(out);
-  // TEST
-
-  if (intvar.rows() != data.rows())   // additive
-    {
-    for(i=0;i<nrpar;i++,++d,workXWres++,linpredREp++,partresp++)
-      {
-      *d=0;
-      *workXWres =  l*(*linpredREp)+(*partresp);
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workingweightpp++)
-          {
-          *d += *(*workingweightpp);
-          }
-
-        }
-      }
-
-    }
-  else                    // varying coefficients
-    {
-
-    double * workdata2 = intvar2.getV();
-    for(i=0;i<nrpar;i++,++d,workXWres++,linpredREp++,partresp++)
-      {
-      *d=0;
-      *workXWres =  l*(*linpredREp)+(*partresp);
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workdata2++,workingweightpp++)
-          {
-          *d += *(*workingweightpp) * (*workdata2);
-          }
-        }
-      }
-
-    }
-
-  XWres_p = &XWres;
-
-// TEST
-  /*
-  ofstream out("c:\\bayesx\\test\\results\\XWX.res");
-  XWX.print2(out);
-  */
-// TEST
-
-  }
 
 
 void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
@@ -289,13 +163,8 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
     XWresdeclared = true;
     }
 
-  if (workingresponsep.rows() != data.rows())
-    {
-    make_pointerindex();
-    }
 
   double * workXWres = XWres.getV();
-
 
   double * linpredREp;
   if (likep_RE->linpred_current==1)

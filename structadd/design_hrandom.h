@@ -77,8 +77,6 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   void compute_XtransposedWX(void);
 
-  void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
-
   void compute_precision(double l);
 
   void compute_meaneffect(DISTR * level1_likep,double & meaneffect,

@@ -203,102 +203,10 @@ void DESIGN_mrf::compute_basisNull(void)
 void DESIGN_mrf::compute_XtransposedWX_XtransposedWres(datamatrix & partres,
                                                         double l)
   {
-  if (XWXdeclared == false)
-    {
-    XWX = envmatdouble(0,nrpar);
-    XWXdeclared = true;
-    }
 
-  if (XWresdeclared == false)
-    {
-//    XWres = datamatrix(nrpar,1);
-    XWresdeclared = true;
-    }
+  compute_XtransposedWX();
 
-  if (workingresponsep.rows() != data.rows())
-    {
-    make_pointerindex();
-    }
-
-
-  unsigned i;
-  int j;
-
-  double * * workingweightpp = workingweightp.getV();
-  vector<double>::iterator d = XWX.getDiagIterator();
-
-  if (intvar.rows() != data.rows())   // additive
-    {
-    for(i=0;i<posbeg.size();i++,++d)
-      {
-      *d=0;
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workingweightpp++)
-          {
-          *d += *(*workingweightpp);
-          }
-        }
-      }
-    }
-  else                    // varying coefficients
-    {
-    double * workdata2 = intvar2.getV();
-    for(i=0;i<posbeg.size();i++,++d)
-      {
-      *d=0;
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workdata2++,workingweightpp++)
-          {
-          *d += *(*workingweightpp) * (*workdata2);
-          }
-        }
-      }
-    }
-
-  XWres_p = &partres;
-
-  /*
-  ALT
-
-  double * workXWres = XWres.getV();
-  double * * workingweightpp = workingweightp.getV();
-  vector<double>::iterator d = XWX.getDiagIterator();
-  double * workpartres = partres.getV();
-
-  if (intvar.rows() != data.rows())   // additive
-    {
-    for(i=0;i<posbeg.size();i++,++d,workXWres++,workpartres++)
-      {
-      *d=0;
-      *workXWres = *workpartres;
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workingweightpp++)
-          {
-          *d += *(*workingweightpp);
-          }
-        }
-      }
-    }
-  else                    // varying coefficients
-    {
-    double * workdata2 = intvar2.getV();
-    for(i=0;i<posbeg.size();i++,++d,workXWres++,workpartres++)
-      {
-      *d=0;
-      *workXWres = *workpartres;
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workdata2++,workingweightpp++)
-          {
-          *d += *(*workingweightpp) * (*workdata2);
-          }
-        }
-      }
-    }
-  */
+  compute_XtransposedWres(partres,l);
 
   }
 
@@ -307,29 +215,10 @@ void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l)
   {
   if (XWresdeclared == false)
     {
-    // XWres = datamatrix(nrpar,1);
     XWresdeclared = true;
     }
 
-  if (workingresponsep.rows() != data.rows())
-    {
-    make_pointerindex();
-    }
-
   XWres_p = &partres;
-
-  /*
-  ALT
-  double * workXWres = XWres.getV();
-  double * workpartres = partres.getV();
-
-  unsigned i;
-
-  for(i=0;i<nrpar;i++,workXWres++,workpartres++)
-    {
-    *workXWres = *workpartres;
-    }
-  */
 
   }
 
@@ -343,46 +232,14 @@ void DESIGN_mrf::compute_XtransposedWX(void)
     XWXdeclared = true;
     }
 
-  if (workingresponsep.rows() != data.rows())
-    {
-    make_pointerindex();
-    }
-
   unsigned i;
-  int j;
 
-  double * * workingweightpp = workingweightp.getV();
+  double * Wsump = Wsum.getV();
   vector<double>::iterator d = XWX.getDiagIterator();
 
-  if (intvar.rows() != data.rows())   // additive
-    {
-    for(i=0;i<posbeg.size();i++,++d)
-      {
-      *d=0;
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workingweightpp++)
-          {
-          *d += *(*workingweightpp);
-          }
-        }
-      }
-    }
-  else                    // varying coefficients
-    {
-    double * workdata2 = intvar2.getV();
-    for(i=0;i<posbeg.size();i++,++d)
-      {
-      *d=0;
-      if (posbeg[i] != -1)
-        {
-        for (j=posbeg[i];j<=posend[i];j++,workdata2++,workingweightpp++)
-          {
-          *d += *(*workingweightpp) * (*workdata2);
-          }
-        }
-      }
-    }
+  for (i=0;i<Wsum.rows();i++,++d,Wsump++)
+    *Wsump = *d;
+
   }
 
 
@@ -394,7 +251,6 @@ void DESIGN_mrf::compute_precision(double l)
     precision = envmatdouble(K.getXenv(),0,nrpar);
     precisiondeclared = true;
     }
-
 
   precision.addtodiag(XWX,K,1.0,l);
 

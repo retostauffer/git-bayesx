@@ -147,7 +147,8 @@ DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
   compute_penalty();
 
   datamatrix  help(Zout.rows(),1,1);
-  compute_XtransposedWX_XtransposedWres(help, 1);
+  compute_XtransposedWX();
+  compute_XtransposedWres(help, 1);
 
   compute_precision(1.0);
 
@@ -665,8 +666,7 @@ void DESIGN_pspline::compute_basisNull(void)
   }
 
 
-void DESIGN_pspline::compute_XtransposedWX_XtransposedWres(
-datamatrix & partres, double l)
+void DESIGN_pspline::compute_XtransposedWX(void)
   {
 
   if (XWXdeclared==false)
@@ -676,22 +676,9 @@ datamatrix & partres, double l)
     XWXdeclared  = true;
     }
 
-  DESIGN::compute_XtransposedWX_XtransposedWres(partres, l);
-
-
-  }
-
-
-void DESIGN_pspline::compute_XtransposedWX(void)
-  {
   DESIGN::compute_XtransposedWX();
   }
 
-
-void DESIGN_pspline::compute_XtransposedWres(datamatrix & partres, double l)
-  {
-  DESIGN::compute_XtransposedWres(partres, l);
-  }
 
 
 void DESIGN_pspline::compute_precision(double l)

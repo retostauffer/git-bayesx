@@ -9,7 +9,7 @@ namespace MCMC
 //---------------- CLASS: DESIGN implementation of member functions ------------
 //------------------------------------------------------------------------------
 
-
+/*
 void DESIGN::make_pointerindex(void)
   {
   unsigned i;
@@ -39,7 +39,7 @@ void DESIGN::make_pointerindex(void)
     linpredp2(i,0) = &(likep->linearpred2(index_data(i,0),0));
 
   }
-
+*/
 
 bool DESIGN::check_Zout_consecutive(void)
   {
@@ -335,12 +335,14 @@ DESIGN::DESIGN(const DESIGN & m)
   ZoutTZout_d = m.ZoutTZout_d;
   Wsump_d = m.Wsump_d;
 
+/*
   responsep = m.responsep;
   weightp = m.weightp;
   workingresponsep = m.workingresponsep;
   workingweightp = m.workingweightp;
   linpredp1 = m.linpredp1;
   linpredp2 = m.linpredp2;
+*/
 
   nrpar = m.nrpar;
 
@@ -409,12 +411,14 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   ZoutTZout_d = m.ZoutTZout_d;
   Wsump_d = m.Wsump_d;
 
+/*
   responsep = m.responsep;
   weightp = m.weightp;
   workingresponsep = m.workingresponsep;
   workingweightp = m.workingweightp;
   linpredp1 = m.linpredp1;
   linpredp2 = m.linpredp2;
+*/
 
   nrpar = m.nrpar;
 
@@ -529,14 +533,6 @@ void DESIGN::compute_Zout_transposed(void)
   }
 
 
-void DESIGN::compute_XtransposedWX_XtransposedWres(datamatrix & partres,
-                                                   double l)
-  {
-
-  compute_XtransposedWX();
-  compute_XtransposedWres(partres,l);
-
-  }
 
 
 void DESIGN::compute_XtransposedWX(void)
@@ -547,10 +543,12 @@ void DESIGN::compute_XtransposedWX(void)
   //  likep->workingweight.prettyPrint(out);
   // TEST
 
+/*
   if (workingresponsep.rows() != data.rows())
     {
     make_pointerindex();
     }
+*/
 
   unsigned int i,j;
 
@@ -874,7 +872,7 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
 
 
 
-  int i,j;
+  int i;
 
   if (effect.rows() != data.rows())
     effect = datamatrix(data.rows(),1,0);
@@ -1039,8 +1037,6 @@ void DESIGN::compute_precision(double l)
 void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
   {
 
-  // VARIANTE 1
-
   double * workingresponsep = likep->workingresponse.getV();
   double * worklinp;
   if (likep->linpred_current==1)
@@ -1150,8 +1146,6 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
 
     }
 
-  // VARIANTE 1
-
   // TEST
   // ofstream out("c:\\bayesx\\test\\results\\tildey.res");
   // (likep->workingresponse).prettyPrint(out);
@@ -1160,93 +1154,6 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
   }
 
 
-void DESIGN::compute_partres(int begin,int end,double & res, double & f)
-  {
-
-  int j;
-
-  if (workingresponsep.rows() != data.rows())
-    {
-    make_pointerindex();
-    }
-
-  double * * work_responsep = workingresponsep.getV()+begin;
-  double * * work_workingweightp = workingweightp.getV()+begin;
-
-  double * * worklinp;
-  if (likep->linpred_current==1)
-    worklinp = linpredp1.getV()+begin;
-  else
-    worklinp = linpredp2.getV()+begin;
-
-  if (intvar.rows()==data.rows())   // varying coefficient
-    {
-
-    double * workintvar = intvar.getV()+begin;
-
-
-    if (likep->wtype==wweightsnochange_one)
-      {
-      res = 0;
-      if (begin != -1)
-        {
-        for (j=begin;j<=end;j++,work_responsep++,worklinp++,workintvar++)
-          {
-          res += (*workintvar) * (*(*work_responsep) - (*(*worklinp)) +
-          (*workintvar) * f);
-          }
-        }
-      }
-    else
-      {
-      res = 0;
-      if (begin != -1)
-        {
-        for (j=begin;j<=end;j++,work_responsep++,
-             work_workingweightp++,worklinp++,workintvar++)
-          {
-          res += *(*work_workingweightp) * (*workintvar) *
-          (*(*work_responsep) - (*(*worklinp)) + (*workintvar) * f);
-          }
-        }
-      }
-    }
-  else                              // additive
-    {
-
-    if (likep->wtype==wweightsnochange_one)
-      {
-      res = 0;
-      if (begin != -1)
-        {
-        for (j=begin;j<=end;j++,work_responsep++,worklinp++)
-          {
-          res += *(*work_responsep) - (*(*worklinp)) + f;
-          }
-        }
-      }
-    else
-      {
-      res = 0;
-      if (begin != -1)
-        {
-        for (j=begin;j<=end;j++,work_responsep++,
-               work_workingweightp++,worklinp++)
-          {
-          res += *(*work_workingweightp) *
-          (*(*work_responsep) - (*(*worklinp)) + f);
-          }
-        }
-      }
-
-   }
-
-  // TEST
-  //    ofstream out("c:\\bayesx\\test\\results\\tildey.res");
-  //    (likep->workingresponse).prettyPrint(out);
-  // TEST
-
-  }
 
 
 

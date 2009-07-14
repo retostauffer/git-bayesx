@@ -134,135 +134,6 @@ void FC_hrandom::transform_beta(void)
   }
 
 
-
-void FC_hrandom::update_linpred(int & begin, int & end, double value)
-  {
-
-  unsigned i;
-
-  double * * linpredp;
-
-  if (likep->linpred_current==1)
-    linpredp = designp->linpredp1.getV()+begin;
-  else
-    linpredp = designp->linpredp2.getV()+begin;
-
-  for (i=begin;i<=end;i++,linpredp++)
-    *(*linpredp) += value;
-
-  }
-
-
-
-// ALT
-/*
-void FC_hrandom::update_IWLS(void)
-  {
-  unsigned i;
-
-  statmatrix<double *> * linpredp;
-
-  lambda = likep->get_scale()/tau2;
-
-  if (likep->linpred_current==1)
-    linpredp = &(designp->linpredp1);
-  else
-    linpredp = &(designp->linpredp2);
-
-  if (optionsp->nriter == 1)
-    {
-    betaold.assign(beta);
-    }
-
-  double * betap = beta.getV();
-  double * betaoldp = betaold.getV();
-  vector<int>::iterator itbeg = designp->posbeg.begin();
-  vector<int>::iterator itend = designp->posend.begin();
-
-  double * linpredREp;
-  if (likep_RE->linpred_current==1)
-    linpredREp = likep_RE->linearpred1.getV();
-  else
-    linpredREp = likep_RE->linearpred2.getV();
-
-
-  double postmode;
-  double diff;
-  double var;
-  double lnew,lold;
-  double u;
-  double qold;
-  double qnew;
-  double xwx,xwres;
-  double pres;
-
-  for (i=0;i<beta.rows();i++,++itbeg,++itend,betap++,linpredREp++,
-       betaoldp++)
-
-    {
-    lold = likep->compute_iwls_loglikelihood_sumworkingweight(
-                                  *itbeg,*itend,designp->responsep,
-                                  designp->workingresponsep,
-                                  designp->weightp,designp->workingweightp,
-                                  *linpredp,designp->intvar2,xwx);
-
-    lold -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
-
-    designp->compute_partres(*itbeg,*itend,pres,*betap);
-
-    xwres =  lambda*(*linpredREp)+pres;
-
-
-    var = 1/(xwx+lambda);
-    postmode =  var * xwres;
-    *betap = postmode + sqrt(var)*rand_normal();
-    diff = *betap - postmode;
-    qold = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
-
-    update_linpred(*itbeg,*itend,*betap-*betaoldp);
-
-
-    lnew = likep->compute_iwls_loglikelihood_sumworkingweight(
-                                  *itbeg,*itend,designp->responsep,
-                                  designp->workingresponsep,
-                                  designp->weightp,designp->workingweightp,
-                                  *linpredp,designp->intvar2,xwx);
-
-    lnew -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
-
-    designp->compute_partres(*itbeg,*itend,pres,*betap);
-
-    xwres =  lambda*(*linpredREp)+pres;
-
-
-    var = 1/(xwx+lambda);
-    diff = *betaoldp - var * xwres;
-    qnew = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
-
-
-    nrtrials++;
-    u = log(uniform());
-    if (u <= lnew - lold + qnew -qold)
-      {
-      acceptance++;
-      *betaoldp = *betap;
-      }
-    else
-      {
-      update_linpred(*itbeg,*itend,*betaoldp-*betap);
-      *betap = *betaoldp;
-      }
-
-    }
-
-  transform_beta();
-
-  FC::update();
-
-  }
-*/
-
-
 void FC_hrandom::update_IWLS(void)
   {
   unsigned i;
@@ -304,34 +175,10 @@ void FC_hrandom::update_IWLS(void)
   double * worklikelihoodc = likelihoodc.getV();
   double * workWsum = designp->Wsum.getV();
 
-  ofstream out("c:\\bayesx\\testh\\results\\likelihoodc.res");
-  likelihoodc.prettyPrint(out);
-
-  vector<int>::iterator itbeg = designp->posbeg.begin();
-  vector<int>::iterator itend = designp->posend.begin();
-  double xwx;
-
-
-  statmatrix<double *> * linpredp;
-
-  if (likep->linpred_current==1)
-    linpredp = &(designp->linpredp1);
-  else
-    linpredp = &(designp->linpredp2);
-
-
   for (i=0;i<beta.rows();i++,betap++,linpredREp++,
-       workpartres++,worklikelihoodc++,workWsum++,++itbeg,++itend)
+       workpartres++,worklikelihoodc++,workWsum++)
 
     {
-
-
-    double lold = likep->compute_iwls_loglikelihood_sumworkingweight(
-                                  *itbeg,*itend,designp->responsep,
-                                  designp->workingresponsep,
-                                  designp->weightp,designp->workingweightp,
-                                  *linpredp,designp->intvar2,xwx);
-
 
     *worklikelihoodc  -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
 
@@ -341,13 +188,12 @@ void FC_hrandom::update_IWLS(void)
     postmode =  var * xwres;
     *betap = postmode + sqrt(var)*rand_normal();
     diff = *betap - postmode;
-    *worklikelihoodc = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
+    *worklikelihoodc += -1.0/(2*var)* pow(diff,2)-0.5*log(var);
     }
+
 
   betadiff.minus(beta,betaold);
   designp->update_linpred(betadiff);
-
-
 
   likep->compute_iwls(true,likelihoodn,designp->ind);
   designp->compute_partres(partres,beta);
@@ -360,18 +206,17 @@ void FC_hrandom::update_IWLS(void)
   betap = beta.getV();
   betaoldp = betaold.getV();
 
-  linpredREp;
   if (likep_RE->linpred_current==1)
     linpredREp = likep_RE->linearpred1.getV();
   else
     linpredREp = likep_RE->linearpred2.getV();
 
+  double * betadiffp = betadiff.getV();
 
-  for (i=0;i<beta.rows();i++,betap++,linpredREp++,
+  for (i=0;i<beta.rows();i++,betap++,linpredREp++,betadiffp++,
        betaoldp++,workpartres++,worklikelihoodn++,workWsum++,worklikelihoodc++)
 
     {
-
 
     *worklikelihoodn -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
 
@@ -381,7 +226,7 @@ void FC_hrandom::update_IWLS(void)
     var = 1/(*workWsum+lambda);
     diff = *betaoldp - var * xwres;
 
-    *worklikelihoodn = -1.0/(2*var)* pow(diff,2)-0.5*log(var);
+    *worklikelihoodn += -1.0/(2*var)* pow(diff,2)-0.5*log(var);
 
 
     nrtrials++;
@@ -390,16 +235,16 @@ void FC_hrandom::update_IWLS(void)
       {
       acceptance++;
       *betaoldp = *betap;
+      *betadiffp = 0;
       }
     else
       {
+      *betadiffp = *betaoldp - *betap;
       *betap = *betaoldp;
       }
 
     }
 
-
-  betadiff.minus(beta,betaold);
   designp->update_linpred(betadiff);
 
   transform_beta();
@@ -437,7 +282,7 @@ void FC_hrandom::update(void)
 
 void FC_hrandom::update_response_multexp(void)
   {
-
+/*
   unsigned i,j;
 
   int size = designp->posbeg.size();
@@ -474,12 +319,14 @@ void FC_hrandom::update_response_multexp(void)
       }
     }
 
+  */
   }
 
 
 void FC_hrandom::update_linpred_multexp(void)
   {
 
+  /*
   unsigned i,j;
 
   int size = designp->posbeg.size();
@@ -512,13 +359,13 @@ void FC_hrandom::update_linpred_multexp(void)
 
       }
     }
-
+   */
   }
 
 
 bool FC_hrandom::posteriormode_multexp(void)
   {
-
+/*
   if (response_o.rows()==1)
     {
     response_o = likep->response;
@@ -542,6 +389,9 @@ bool FC_hrandom::posteriormode_multexp(void)
   likep->updateIWLS = false;
 
   likep->response.assign(response_o);
+ */
+ 
+  return true;
 
   }
 
