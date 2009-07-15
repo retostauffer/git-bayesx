@@ -74,11 +74,7 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
 
   void compute_basisNull(void);
 
-  void compute_XtransposedWX_XtransposedWres(datamatrix & partres, double l);
-
   void compute_XtransposedWres(datamatrix & partres, double l);
-
-  void compute_XtransposedWX(void);
 
   void compute_precision(double l);
 

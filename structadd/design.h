@@ -55,21 +55,6 @@ class __EXPORT_TYPE DESIGN
 
   protected:
 
-  // FUNCTION: make_index
-  // TASK: takes index_data (computed elsewhere)
-  //       creates sorted data intvar, intvar2
-
-  void make_data(const datamatrix & dm,const datamatrix & iv);
-
-  // FUNCTION: make_index
-  // TASK: sorts the data,
-  //       creates intvar, intvar2
-  //       initializes index_data,
-  //       posbeg, posend, effectvalues
-
-  void make_index(const datamatrix & dm, const datamatrix & iv);
-
-
   unsigned compute_modecategorie(void);
 
   void compute_meaneffectintvar(void);
@@ -150,35 +135,9 @@ class __EXPORT_TYPE DESIGN
 
   vector<int> Wsump_d;
 
-
-
-
   void compute_ZoutTZout(unsigned & i, unsigned & j);
 
   void compute_ZoutTZout(void);
-
-  //----------------------------------------------------------------------------
-
- /*
-  statmatrix<double *> responsep;            // matrix of pointers to
-                                             // response observations
-  statmatrix<double *> weightp;              // matrix of pointers to
-                                             // weights
-
-  statmatrix<double *> workingresponsep;     // matrix of pointers to working
-                                             // response observations
-  statmatrix<double *> workingweightp;       // matrix of pointers to working
-                                             // weights
-
-  statmatrix<double *> linpredp1;            // matrix of pointers to linpred1
-  statmatrix<double *> linpredp2;            // matrix of pointers to linpred2
-
-  // FUNCTION: make_pointerindex
-  // TASK: computes pointer matrices responsep, workingweightp,linpredp1,
-  //       linpredp2
-
-  void make_pointerindex(void);
-  */
 
   //----------------------------------------------------------------------------
 
@@ -228,13 +187,8 @@ class __EXPORT_TYPE DESIGN
   datamatrix Wsum;
 
   envmatdouble XWX;                          // X'WX
-  bool XWXdeclared;                          // is true if X'WX is already
-                                             // defined (i.e. memory allocated
-                                             // etc.)
 
   datamatrix XWres;                          // X'W(y-eta)
-  bool XWresdeclared;                        // is true if X'Wres is already
-                                             // defined
   datamatrix * XWres_p;                      // Pointer to the current
                                              // XWres object
 
@@ -293,13 +247,12 @@ class __EXPORT_TYPE DESIGN
   // ------------------------- VIRTUAL FUNCTIONS -------------------------------
 
   // FUNCTION: init_data
-  // TASK: sorts the data such that the precision has minimum envelope
-  //       computes index_data
-  //       computes partres_pindex
-  //       computes Zout, posbeg, posend
-  //       computes nrpar
-  //       computes effectvalues
-  //       initializes datanames
+  // TASK: sorts the data,
+  //       creates data, intvar, intvar2
+  //       initializes index_data, data, intvar, intvar2, ind
+  //       posbeg, posend, effectvalues
+  //       meaneffectnr,
+  //       effectvalues
 
   virtual void init_data(const datamatrix & dm, const datamatrix & iv);
 

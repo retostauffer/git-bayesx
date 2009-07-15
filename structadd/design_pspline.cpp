@@ -143,12 +143,18 @@ DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
 
   init_data(dmr,iv);
 
+  nrpar = nrknots-1+degree;
+
+  make_Bspline();
+
+  compute_Zout_transposed();
+
   weightK = vector<double>(nrpar,1);
   compute_penalty();
 
-  datamatrix  help(Zout.rows(),1,1);
-  compute_XtransposedWX();
-  compute_XtransposedWres(help, 1);
+  XWX = envmatdouble(bandmatdouble(nrpar,degree,0));
+  Wsum =datamatrix(nrpar,1,1);
+  XWres = datamatrix(nrpar,1);
 
   compute_precision(1.0);
 
@@ -187,75 +193,10 @@ const DESIGN_pspline & DESIGN_pspline::operator=(const DESIGN_pspline & m)
   difforder = m.difforder;
   weightK = m.weightK;
   round = m.round;
-  binning = m.binning;  
+  binning = m.binning;
   return *this;
   }
 
-
-void DESIGN_pspline::init_data(const datamatrix & dm,const datamatrix & iv)
-  {
-
-  // TASK: sorts the data such that the precision has minimum envelope
-  //       computes index_data, posbeg, posend
-  //       computes effectvalues
-  //       computes Zout, index_Zout
-  //       computes nrpar
-  //       initializes datanames
-
-  if (center == true)
-    {
-    if (iv.rows()==dm.rows())
-      {
-      int h;
-      if ((centermethod==cmean || centermethod==meansimple) && (multeffect==false))
-        {
-        h = FClinearp->add_variable(iv,datanames[0]);
-        }
-      else if (centermethod==nullspace)
-        {
-        h = FClinearp->add_variable(iv,datanames[0]);
-        if (type==Rw1)
-          {
-
-          }
-        else if (type==Rw2)
-          {
-          ST::string n = datanames[0] + "_" + datanames[1];
-          datamatrix m(iv.rows(),1);
-          unsigned i;
-          for(i=0;i<m.rows();i++)
-            m(i,0) = iv(i,0)*dm(i,0);
-          position_lin = FClinearp->add_variable(m,n);
-          }
-        else if (type==Rw3)
-          {
-
-          }
-
-        }
-      }
-    else
-      {
-      if (type==Rw2 && centermethod == nullspace)
-        position_lin = FClinearp->add_variable(dm,datanames[0]);
-      else if (type==Rw3 && centermethod==nullspace)
-        {
-        // fehlt
-        }
-      }
-    }
-
-
-  make_index(dm,iv);
-
-  nrpar = nrknots-1+degree;
-
-  make_Bspline();
-
-  compute_Zout_transposed();
-
-
-  }
 
 
 void DESIGN_pspline::make_Bspline(void)
@@ -402,8 +343,6 @@ void DESIGN_pspline::compute_penalty(void)
   else if (type==Rw2)
     {
     K = Krw2env(nrpar);
-//    ofstream out("c:\\bayesx\\test\\results\\K.res");
-//    K.print2(out);
     rankK = nrpar-2;
     }
   else if (type==Rw3)
@@ -469,186 +408,90 @@ void DESIGN_pspline::compute_basisNull(void)
   if (center==true)
   {
   unsigned i,j;
+  int h;
 
-  if (intvar.rows() == data.rows())
+  if (centermethod==cmean || centermethod==meansimple)
+    {
+    basisNull = datamatrix(1,nrpar,1);
+    position_lin = -1;
+    }
+  else if (centermethod==cmeaninvvar)
+    {
+    compute_precision(10);
+
+    envmatdouble precisioninv;
+    precisioninv = envmatdouble(0.0,nrpar,degree>2?degree:2);
+    precision.inverse_envelope(precisioninv);
+
+    basisNull = datamatrix(1,nrpar,1);
+
+    unsigned k;
+    for (k=0;k<nrpar;k++)
+      basisNull(0,k) = 1/precisioninv.getDiag(k);
+
+    position_lin = -1;
+    }
+  else if (centermethod==cmeanintegral)
+    {
+    compute_betaweight(basisNull);
+    position_lin = -1;
+    }
+  else if (centermethod==cmeanf)
     {
 
-    if (centermethod==cmean || centermethod==meansimple)
-      {
-      basisNull = datamatrix(1,nrpar,1);
-      position_lin = -1;
-      }
+    basisNull = datamatrix(1,nrpar,1);
 
-    else if (centermethod==cmeaninvvar)
-      {
-      compute_precision(10);
+    unsigned k;
+    for (k=0;k<nrpar;k++)
+      basisNull(0,k) = compute_sumBk(k);
 
-      envmatdouble precisioninv;
-      precisioninv = envmatdouble(0.0,nrpar,degree>2?degree:2);
-      precision.inverse_envelope(precisioninv);
+    // TEST
+    // ofstream out("c:\\bayesx\\testh\\results\\basisnull.res");
+    // basisNull.prettyPrint(out);
+    // ende: TEST
 
-      basisNull = datamatrix(1,nrpar,1);
+    position_lin = -1;
 
-      unsigned k;
-      for (k=0;k<nrpar;k++)
-        basisNull(0,k) = 1/precisioninv.getDiag(k);
-
-      position_lin = -1;
-      }
-    else if (centermethod==cmeanintegral)
-      {
-      compute_betaweight(basisNull);
-      position_lin = -1;
-      }
-    else if (centermethod==cmeanf)
-      {
-
-      basisNull = datamatrix(1,nrpar,1);
-
-      unsigned k;
-      for (k=0;k<nrpar;k++)
-        basisNull(0,k) = compute_sumBk(k);
-
-      // TEST
-
-      // ofstream out("c:\\bayesx\\testh\\results\\basisnull.res");
-      // basisNull.prettyPrint(out);
-      // ende: TEST
-
-      position_lin = -1;
-
-      }
-
-
-    else if (centermethod==nullspace)
-      {
-      if (type==Rw1)
-        {
-        basisNull = datamatrix(1,nrpar,1);
-        position_lin = -1;
-        }
-      else if (type==Rw2)
-        {
-        basisNull = datamatrix(2,nrpar,1);
-        deque<double>::iterator it = knot.begin();
-        for (i=0;i<nrpar;i++,++it)
-          basisNull(1,i) = *it;
-
-        designlinear = datamatrix(posbeg.size(),basisNull.rows()-1);
-
-        double * workdl = designlinear.getV();
-        double h;
-        for(i=0;i<posbeg.size();i++)
-          for(j=0;j<designlinear.cols();j++,workdl++)
-            {
-            h = data(posbeg[i],0);
-            *workdl =  pow(h,j+1);
-            }
-
-        }
-      else if (type==Rw3)
-        {
-
-        }
-
-      }
-
-    for(i=0;i<basisNull.rows();i++)
-      {
-      basisNullt.push_back(datamatrix(basisNull.cols(),1));
-      for(j=0;j<basisNull.cols();j++)
-        basisNullt[i](j,0) = basisNull(i,j);
-      }
-
-    } // end: if (intvar.rows() == data.rows())
-  else
+    }
+  else if (centermethod==nullspace)
     {
 
-    if (centermethod==cmean || centermethod==meansimple)
+    if (type==Rw1)
       {
       basisNull = datamatrix(1,nrpar,1);
       position_lin = -1;
       }
-    else if (centermethod==cmeaninvvar)
+    else if (type==Rw2)
       {
-      compute_precision(10);
-
-      envmatdouble precisioninv;
-      precisioninv = envmatdouble(0.0,nrpar,degree>2?degree:2);
-      precision.inverse_envelope(precisioninv);
-
-      basisNull = datamatrix(1,nrpar,1);
-
-      unsigned k;
-      for (k=0;k<nrpar;k++)
-        basisNull(0,k) = 1/precisioninv.getDiag(k);
-
-      position_lin = -1;
+      basisNull = datamatrix(2,nrpar,1);
+      deque<double>::iterator it = knot.begin();
+      for (i=0;i<nrpar;i++,++it)
+        basisNull(1,i) = *it;
       }
-    else if (centermethod==cmeanintegral)
-      {
-      compute_betaweight(basisNull);
-      position_lin = -1;
-      }
-    else if (centermethod==cmeanf)
-      {
 
-      basisNull = datamatrix(1,nrpar,1);
+    }
 
-      unsigned k;
-      for (k=0;k<nrpar;k++)
-        basisNull(0,k) = compute_sumBk(k);
 
-      // TEST
+  for(i=0;i<basisNull.rows();i++)
+    {
+    basisNullt.push_back(datamatrix(basisNull.cols(),1));
+    for(j=0;j<basisNull.cols();j++)
+      basisNullt[i](j,0) = basisNull(i,j);
+    }
 
-      // ofstream out("c:\\bayesx\\testh\\results\\basisnull.res");
-      // basisNull.prettyPrint(out);
-      // ende: TEST
 
-      position_lin = -1;
+  if (basisNull.rows() > 1)
+    {
+    designlinear = datamatrix(posbeg.size(),basisNull.rows()-1);
 
-      }
-    else if (centermethod==nullspace)
-      {
-
-      if (type==Rw1)
+    double * workdl = designlinear.getV();
+    double h;
+    for(i=0;i<posbeg.size();i++)
+      for(j=0;j<designlinear.cols();j++,workdl++)
         {
-        basisNull = datamatrix(1,nrpar,1);
-        position_lin = -1;
+        h = data(posbeg[i],0);
+        *workdl =  pow(h,j+1);
         }
-      else if (type==Rw2)
-        {
-        basisNull = datamatrix(2,nrpar,1);
-        deque<double>::iterator it = knot.begin();
-        for (i=0;i<nrpar;i++,++it)
-          basisNull(1,i) = *it;
-        }
-
-      }
-
-
-    for(i=0;i<basisNull.rows();i++)
-      {
-      basisNullt.push_back(datamatrix(basisNull.cols(),1));
-      for(j=0;j<basisNull.cols();j++)
-        basisNullt[i](j,0) = basisNull(i,j);
-      }
-
-
-    if (basisNull.rows() > 1)
-      {
-      designlinear = datamatrix(posbeg.size(),basisNull.rows()-1);
-
-      double * workdl = designlinear.getV();
-      double h;
-      for(i=0;i<posbeg.size();i++)
-        for(j=0;j<designlinear.cols();j++,workdl++)
-          {
-          h = data(posbeg[i],0);
-          *workdl =  pow(h,j+1);
-          }
-      }
-
     }
 
   }
@@ -665,19 +508,6 @@ void DESIGN_pspline::compute_basisNull(void)
 
   }
 
-
-void DESIGN_pspline::compute_XtransposedWX(void)
-  {
-
-  if (XWXdeclared==false)
-    {
-    XWX = envmatdouble(bandmatdouble(nrpar,degree,0));
-    Wsum =datamatrix(posbeg.size(),1,1);
-    XWXdeclared  = true;
-    }
-
-  DESIGN::compute_XtransposedWX();
-  }
 
 
 

@@ -9,37 +9,6 @@ namespace MCMC
 //---------------- CLASS: DESIGN implementation of member functions ------------
 //------------------------------------------------------------------------------
 
-/*
-void DESIGN::make_pointerindex(void)
-  {
-  unsigned i;
-  workingresponsep = statmatrix<double*> (data.rows(),1);
-  for(i=0;i<data.rows();i++)
-    workingresponsep(i,0) = &(likep->workingresponse(index_data(i,0),0));
-
-  workingweightp = statmatrix<double*> (data.rows(),1);
-  for(i=0;i<data.rows();i++)
-    workingweightp(i,0) = &(likep->workingweight(index_data(i,0),0));
-
-  responsep = statmatrix<double*> (data.rows(),1);
-  for(i=0;i<data.rows();i++)
-    responsep(i,0) = &(likep->response(index_data(i,0),0));
-
-  weightp = statmatrix<double*> (data.rows(),1);
-  for(i=0;i<data.rows();i++)
-    weightp(i,0) = &(likep->weight(index_data(i,0),0));
-
-  linpredp1 = statmatrix<double*> (data.rows(),1);
-  linpredp2 = statmatrix<double*> (data.rows(),1);
-
-  for(i=0;i<data.rows();i++)
-    linpredp1(i,0) = &(likep->linearpred1(index_data(i,0),0));
-
-  for(i=0;i<data.rows();i++)
-    linpredp2(i,0) = &(likep->linearpred2(index_data(i,0),0));
-
-  }
-*/
 
 bool DESIGN::check_Zout_consecutive(void)
   {
@@ -86,9 +55,39 @@ bool DESIGN::check_ZoutT_consecutive(void)
   }
 
 
-void DESIGN::make_data(const datamatrix & dm,const datamatrix & iv)
+double DESIGN::compute_sumBk(unsigned & k)
   {
+
+  double sum=0;
+  unsigned c;
+
   unsigned j;
+    for (j=0;j<ZoutT[k].size();j++)
+      {
+      c = index_ZoutT[k][j];
+      sum += ZoutT[k][j]*(posend[c]-posbeg[c]+1);
+      }
+
+  return sum;
+  }
+
+
+void DESIGN::init_data(const datamatrix & dm,const datamatrix & iv)
+  {
+
+  unsigned j;
+
+  // 1. Indexsort of data
+  if (index_data.rows() <= 1)
+    {
+    index_data = statmatrix<int>(dm.rows(),1);
+    index_data.indexinit();
+    dm.indexsort(index_data,0,dm.rows()-1,0,0);
+    }
+
+  double dm_mean = dm.mean(0);
+
+  //2. data = sorted observations, init intvar and intvar2
   data = datamatrix(dm.rows(),1);
   double * workdata = data.getV();
   int * workindex = index_data.getV();
@@ -110,44 +109,10 @@ void DESIGN::make_data(const datamatrix & dm,const datamatrix & iv)
       }
     }
 
-  }
+  // 3. Creates posbeg, posend
 
-
-double DESIGN::compute_sumBk(unsigned & k)
-  {
-
-  double sum=0;
-  unsigned c;
-
-  unsigned j;
-    for (j=0;j<ZoutT[k].size();j++)
-      {
-      c = index_ZoutT[k][j];
-      sum += ZoutT[k][j]*(posend[c]-posbeg[c]+1);
-      }
-
-  return sum;
-  }
-
-
-
-void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
-  {
-
-  unsigned j;
-
-  ind = statmatrix<unsigned>(dm.rows(),1);
-
-  index_data = statmatrix<int>(dm.rows(),1);
-  index_data.indexinit();
-  dm.indexsort(index_data,0,dm.rows()-1,0,0);
-
-  double dm_mean = dm.mean(0);
-
-  make_data(dm,iv);
-
-  double * workdata;
-
+  posbeg.erase(posbeg.begin(),posbeg.end());
+  posend.erase(posend.begin(),posend.end());
   posbeg.push_back(0);
   workdata = data.getV()+1;
   double help = data(0,0);
@@ -164,15 +129,13 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
 
     }
 
-
   if (posend.size() < posbeg.size())
     posend.push_back(data.rows()-1);
 
-
-  int * workindex = index_data.getV();
-
+  // 4. initializes ind
   int k;
-
+  workindex = index_data.getV();
+  ind = statmatrix<unsigned>(dm.rows(),1);
   for (j=0;j<posend.size();j++)
     {
     for (k=posbeg[j];k<=posend[j];k++,workindex++)
@@ -186,6 +149,8 @@ void DESIGN::make_index(const datamatrix & dm,const datamatrix & iv)
   // TEST
 
 
+  // 5. Compute meaneffectnr, mclosest, effectvalues
+  effectvalues.erase(effectvalues.begin(),effectvalues.end());
   double d;
   meaneffectnr = 0;
   double mclosest = data(posbeg[0],0);
@@ -288,8 +253,6 @@ DESIGN::DESIGN(DISTR * lp,FC_linear * fcp)
   likep = lp;
   FClinearp = fcp;
 
-  XWXdeclared = false;
-  XWresdeclared = false;
   precisiondeclared=false;
   consecutive = -1;
   consecutive_ZoutT = -1;
@@ -335,15 +298,6 @@ DESIGN::DESIGN(const DESIGN & m)
   ZoutTZout_d = m.ZoutTZout_d;
   Wsump_d = m.Wsump_d;
 
-/*
-  responsep = m.responsep;
-  weightp = m.weightp;
-  workingresponsep = m.workingresponsep;
-  workingweightp = m.workingweightp;
-  linpredp1 = m.linpredp1;
-  linpredp2 = m.linpredp2;
-*/
-
   nrpar = m.nrpar;
 
   center = m.center;
@@ -358,13 +312,11 @@ DESIGN::DESIGN(const DESIGN & m)
   rankK = m.rankK;
 
   XWX = m.XWX;
-  XWXdeclared = m.XWXdeclared;
   precision = m.precision;
   precisiondeclared = m.precisiondeclared;
   Wsum = m.Wsum;
 
   XWres = m.XWres;
-  XWresdeclared = m.XWresdeclared;
   XWres_p = m.XWres_p;
 
   type=m.type;
@@ -411,14 +363,6 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   ZoutTZout_d = m.ZoutTZout_d;
   Wsump_d = m.Wsump_d;
 
-/*
-  responsep = m.responsep;
-  weightp = m.weightp;
-  workingresponsep = m.workingresponsep;
-  workingweightp = m.workingweightp;
-  linpredp1 = m.linpredp1;
-  linpredp2 = m.linpredp2;
-*/
 
   nrpar = m.nrpar;
 
@@ -434,36 +378,16 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   rankK = m.rankK;
 
   XWX = m.XWX;
-  XWXdeclared = m.XWXdeclared;
   precision = m.precision;
   precisiondeclared = m.precisiondeclared;
   Wsum = m.Wsum;
 
   XWres = m.XWres;
-  XWresdeclared = m.XWresdeclared;
   XWres_p = m.XWres_p;
 
   type=m.type;
 
   return *this;
-  }
-
-
-
-void DESIGN::init_data(const datamatrix & dm, const datamatrix & iv)
-  {
-  unsigned j;
-
-  double * workintvar = intvar.getV();
-  double * workintvar2 = intvar2.getV();
-  double * workiv=iv.getV();
-
-  for (j=0;j<iv.rows();j++,workintvar++,workintvar2++,workiv++)
-    {
-    *workintvar = *workiv;
-    *workintvar2 = pow(*workintvar,2);
-    }
-
   }
 
 
@@ -543,96 +467,103 @@ void DESIGN::compute_XtransposedWX(void)
   //  likep->workingweight.prettyPrint(out);
   // TEST
 
-/*
-  if (workingresponsep.rows() != data.rows())
+
+  if (XWX.getBandwidth() == 0)
     {
-    make_pointerindex();
+
+    unsigned i;
+
+    double * Wsump = Wsum.getV();
+    vector<double>::iterator d = XWX.getDiagIterator();
+
+    for (i=0;i<Wsum.rows();i++,++d,Wsump++)
+      *Wsump = *d;
+
     }
-*/
-
-  unsigned int i,j;
-
-
-  if (ZoutTZout_d.size() <= 1)
+  else
     {
 
-    for (i=0;i<int(nrpar);i++)
+    unsigned int i,j;
+
+    if (ZoutTZout_d.size() <= 1)
       {
-      for (j=0;j<ZoutT[i].size();j++)
+
+      for (i=0;i<int(nrpar);i++)
         {
-        ZoutTZout_d.push_back(pow(ZoutT[i][j],2));
-        Wsump_d.push_back(index_ZoutT[i][j]);
+        for (j=0;j<ZoutT[i].size();j++)
+          {
+          ZoutTZout_d.push_back(pow(ZoutT[i][j],2));
+          Wsump_d.push_back(index_ZoutT[i][j]);
+          }
+        }
+      }
+
+    vector<double>::iterator diag = XWX.getDiagIterator();
+    vector<double>::iterator ZoutTZout_d_p = ZoutTZout_d.begin();
+    vector<int>::iterator Wsump_d_p = Wsump_d.begin();
+    int s;
+
+    for (i=0;i<int(nrpar);i++,++diag)
+      {
+      *diag=0;
+      s=ZoutT[i].size();
+      for (j=0;j<s;j++,++ZoutTZout_d_p,++Wsump_d_p)
+        {
+        *diag += *ZoutTZout_d_p  * Wsum(*Wsump_d_p,0);
         }
 
       }
 
-    }
 
-  vector<double>::iterator diag = XWX.getDiagIterator();
-  vector<double>::iterator ZoutTZout_d_p = ZoutTZout_d.begin();
-  vector<int>::iterator Wsump_d_p = Wsump_d.begin();
-  int s;
+    vector<double>::iterator env = XWX.getEnvIterator();
+    vector<unsigned>::iterator xenv = XWX.getXenvIterator();
+    unsigned start = *xenv;
+    unsigned nrnnull;
+    xenv++;
 
-  for (i=0;i<int(nrpar);i++,++diag)
-    {
-    *diag=0;
-    s=ZoutT[i].size();
-    for (j=0;j<s;j++,++ZoutTZout_d_p,++Wsump_d_p)
+
+    if (ZoutTZout.size() <= 1)
+      compute_ZoutTZout();
+
+    vector<double>::iterator ZoutTZoutp = ZoutTZout.begin();
+    vector<int>::iterator beg_ZoutTZoutp = beg_ZoutTZout.begin();
+    vector<int>::iterator Wsumpp = Wsump.begin();
+    int nr=0;
+
+    unsigned k;
+    int beg, end;
+
+    for(i=0;i<int(nrpar);i++,++xenv)
       {
-      *diag += *ZoutTZout_d_p  * Wsum(*Wsump_d_p,0);
-      }
-
-    }
-
-
-  vector<double>::iterator env = XWX.getEnvIterator();
-  vector<unsigned>::iterator xenv = XWX.getXenvIterator();
-  unsigned start = *xenv;
-  unsigned nrnnull;
-  xenv++;
-
-
-  if (ZoutTZout.size() <= 1)
-    compute_ZoutTZout();
-
-  vector<double>::iterator ZoutTZoutp = ZoutTZout.begin();
-  vector<int>::iterator beg_ZoutTZoutp = beg_ZoutTZout.begin();
-  vector<int>::iterator Wsumpp = Wsump.begin();
-  int nr=0;
-
-  unsigned k;
-  int beg, end;
-
-  for(i=0;i<int(nrpar);i++,++xenv)
-    {
-    nrnnull = *xenv-start;
-    if (nrnnull > 0)
-      {
-      for (j=i-nrnnull;j<i;j++,++env)
+      nrnnull = *xenv-start;
+      if (nrnnull > 0)
         {
-        beg = *beg_ZoutTZoutp;
-        if (nr < beg_ZoutTZout.size()-1)
+        for (j=i-nrnnull;j<i;j++,++env)
           {
-          beg_ZoutTZoutp++;
-          end = *beg_ZoutTZoutp-1;
-          nr++;
-          }
-        else
-          {
-          end =ZoutTZout.size()-1;
+          beg = *beg_ZoutTZoutp;
+          if (nr < beg_ZoutTZout.size()-1)
+            {
+            beg_ZoutTZoutp++;
+            end = *beg_ZoutTZoutp-1;
+            nr++;
+            }
+          else
+            {
+            end =ZoutTZout.size()-1;
+            }
 
-          }
+          *env = 0;
+          for (k=beg;k<=end;k++,++ZoutTZoutp,++Wsumpp)
+            {
+            *env += *ZoutTZoutp * Wsum(*Wsumpp,0);
+            }
 
-        *env = 0;
-        for (k=beg;k<=end;k++,++ZoutTZoutp,++Wsumpp)
-          {
-          *env += *ZoutTZoutp * Wsum(*Wsumpp,0);
           }
 
         }
-
+      start = *xenv;
       }
-    start = *xenv;
+
     }
 
   // TEST
@@ -767,13 +698,6 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
   {
 
   unsigned i,j;
-
-  if (XWresdeclared == false)
-    {
-    XWres = datamatrix(nrpar,1);
-    XWresdeclared = true;
-    }
-
 
   if (ZoutT.size() != nrpar)
     compute_Zout_transposed();
@@ -1058,8 +982,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
 
     double * workintvar = intvar.getV();
 
-
-    if (likep->wtype==wweightsnochange_one)
+    if ((likep->wtype==wweightsnochange_one) && (cwsum==false))
       {
 
       for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,workintvar++)
@@ -1087,14 +1010,16 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
         for (i=0;i<Wsum.rows();i++,Wsump++)
           *Wsump =  0;
 
+        double * workintvar2 = intvar2.getV();
+
         for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
-                                workingweightp++,workintvar++)
+                                workingweightp++,workintvar++,workintvar2++)
           {
           res(*indp,0) +=  (*workingweightp) * (*workintvar) *
                             (*workingresponsep - *worklinp +
                             (*workintvar) * f(*indp,0));
 
-          Wsum(*indp,0) += *workingweightp;
+          Wsum(*indp,0) += *workingweightp * (*workintvar2);
           }
 
         }

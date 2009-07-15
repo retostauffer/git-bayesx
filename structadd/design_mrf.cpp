@@ -74,12 +74,21 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
   ma = m;
   type = Mrf;
 
+
+  nrpar = ma.get_nrregions();
+  consecutive=true;
+
+  Zout = datamatrix(nrpar,1,1);
+  index_Zout = statmatrix<int>(Zout.rows(),1);
+  index_Zout.indexinit();
+
   init_data(dm,iv);
 
   compute_penalty();
 
-  datamatrix  help(Zout.rows(),1,1);
-  compute_XtransposedWX_XtransposedWres(help,1);
+  XWX = envmatdouble(0,nrpar);
+  XWres = datamatrix(nrpar,1);
+  Wsum = datamatrix(nrpar,1,1);
 
   compute_precision(1.0);
 
@@ -112,31 +121,14 @@ const DESIGN_mrf & DESIGN_mrf::operator=(const DESIGN_mrf & m)
 void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
   {
 
-  // FUNCTION: init_data
-  // TASK: sorts the data such that the precision has minimum envelope
-  //       computes index_data
-  //       computes Zout, posbeg, posend
-  //       computes nrpar
-  //       computes effectvalues
-  //       computes consecutive
-  //       computes ZoutT, index_ZoutT
-
-  nrpar = ma.get_nrregions();
-  consecutive=true;
-
-  Zout = datamatrix(nrpar,1,1);
-  index_Zout = statmatrix<int>(Zout.rows(),1);
-  index_Zout.indexinit();
-
   if (ma.get_bandsize() > 40)
     ma.reorderopt();
 
   ma.compute_reg(dm,posbeg,posend,effectvalues,index_data);
 
-  make_data(dm,iv);
+  DESIGN::init_data(dm,iv);
 
   meaneffectnr = compute_modecategorie();
-  compute_meaneffectintvar();
 
   if (ma.get_errormessages().size() > 0)
     {
@@ -200,46 +192,9 @@ void DESIGN_mrf::compute_basisNull(void)
   }
 
 
-void DESIGN_mrf::compute_XtransposedWX_XtransposedWres(datamatrix & partres,
-                                                        double l)
-  {
-
-  compute_XtransposedWX();
-
-  compute_XtransposedWres(partres,l);
-
-  }
-
-
 void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l)
   {
-  if (XWresdeclared == false)
-    {
-    XWresdeclared = true;
-    }
-
   XWres_p = &partres;
-
-  }
-
-
-void DESIGN_mrf::compute_XtransposedWX(void)
-  {
-
-  if (XWXdeclared == false)
-    {
-    XWX = envmatdouble(0,nrpar);
-    XWXdeclared = true;
-    }
-
-  unsigned i;
-
-  double * Wsump = Wsum.getV();
-  vector<double>::iterator d = XWX.getDiagIterator();
-
-  for (i=0;i<Wsum.rows();i++,++d,Wsump++)
-    *Wsump = *d;
-
   }
 
 

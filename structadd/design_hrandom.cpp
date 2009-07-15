@@ -55,14 +55,22 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
   type = Hrandom;
 
   init_data(dm,iv);
+  nrpar = posbeg.size();
+
+  Zout = datamatrix(posbeg.size(),1,1);
+  index_Zout = statmatrix<int>(Zout.rows(),1);
+  index_Zout.indexinit();
+
+  consecutive = 1;
+
+  compute_Zout_transposed();
 
   compute_penalty();
 
-  datamatrix  help(Zout.rows(),1,1);
+  XWX = envmatdouble(0,nrpar);
+  XWres = datamatrix(nrpar,1);
+  Wsum = datamatrix(nrpar,1,1);
 
-  compute_XtransposedWX();
-  compute_XtransposedWres(help,1);
-  Wsum = datamatrix(posbeg.size(),1,1);
   compute_precision(1.0);
 
   center = false;
@@ -91,34 +99,10 @@ const DESIGN_hrandom & DESIGN_hrandom::operator=(const DESIGN_hrandom & m)
 void DESIGN_hrandom::init_data(const datamatrix & dm, const datamatrix & iv)
   {
 
-  // TASK: sorts the data such that the precision has minimum envelope
-  //       computes index_data
-  //       computes Zout, posbeg, posend
-  //       computes nrpar
-  //       computes effectvalues
-  //       initializes datanames
 
-  // TASK of make_index: sorts the data,
-  //                     creates sorted intvar, data2
-  //                     initializes index_data,
-  //                     posbeg, posend, effectvalues
-
-  make_index(dm,iv);
+  DESIGN::init_data(dm,iv);
 
   meaneffectnr = compute_modecategorie();
-  compute_meaneffectintvar();
-
-  nrpar = posbeg.size();
-
-  Zout = datamatrix(posbeg.size(),1,1);
-  index_Zout = statmatrix<int>(Zout.rows(),1);
-  index_Zout.indexinit();
-
-  consecutive = 1;
-
-  compute_Zout_transposed();
-
-
 
   }
 
@@ -131,38 +115,8 @@ void DESIGN_hrandom::compute_penalty(void)
   }
 
 
-
-void DESIGN_hrandom::compute_XtransposedWX(void)
-  {
-
-  if (XWXdeclared == false)
-    {
-    XWX = envmatdouble(0,nrpar);
-    XWXdeclared = true;
-    }
-
-
-  unsigned i;
-
-  double * Wsump = Wsum.getV();
-  vector<double>::iterator d = XWX.getDiagIterator();
-
-  for (i=0;i<Wsum.rows();i++,++d,Wsump++)
-    *Wsump = *d;
-
- }
-
-
-
 void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
   {
-
-  if (XWresdeclared == false)
-    {
-    XWres = datamatrix(nrpar,1);
-    XWresdeclared = true;
-    }
-
 
   double * workXWres = XWres.getV();
 
