@@ -197,6 +197,20 @@ class __EXPORT_TYPE DESIGN
   ttype2 type;                                // Term type
 
 
+  //--------------------- for orthogonal transformation ------------------------
+
+  void compute_orthogonaldecomp(void);
+
+  datamatrix s;                             // contains eigenvalues of
+                                             // R^-1 K R-T
+  datamatrix QtRinv;
+  datamatrix RtinvQ;
+
+  datamatrix u;
+  datamatrix acutebeta;
+
+  //----------------------------------------------------------------------------
+
   //----------------------- CONSTRUCTORS, DESTRUCTOR ---------------------------
 
   // DEFAULT CONSTRUCTOR

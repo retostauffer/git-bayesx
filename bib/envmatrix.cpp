@@ -255,6 +255,40 @@ T envmatrix<T>::operator()(const unsigned & i, const unsigned & j) const
 
   }
 
+
+template<class T>
+T envmatrix<T>::get(const unsigned & i, const unsigned & j) const
+  {
+  assert(i<dim);
+  assert(j<dim);
+
+  unsigned ih, jh;
+  int kl, ku, zeroes;
+
+  if(i>j)
+    {
+    ih = i;
+    jh = j;
+    }
+  else if(i<j)
+    {
+    ih = j;
+    jh = i;
+    }
+  else
+    return diag[i];
+
+  kl=xenv[ih];
+  ku=xenv[ih+1];
+  zeroes=ih-ku+kl;
+
+  if(jh<zeroes)
+    return T(0);
+  else
+    return env[kl+jh-zeroes];
+  }
+
+
 template<class T>
 envmatrix<T>::envmatrix(const envmatrix & em)
   {
@@ -2479,6 +2513,32 @@ T envmatrix<T>::getL(const unsigned & i, const unsigned & j) const
   else
     return lenv[kl+jh-zeroes];
   }
+
+template<class T>
+statmatrix<T> envmatrix<T>::getL(void) const
+  {
+  statmatrix<T> R(dim,dim,0);
+  unsigned i,j;
+  for (i=0;i<dim;i++)
+    for (j=0;j<=i;j++)
+      R(i,j) = getL(i,j);
+
+  return R;    
+  }
+
+
+template<class T>
+statmatrix<T> envmatrix<T>::get(void) const
+  {
+  statmatrix<T> S(dim,dim,0);
+  unsigned i,j;
+  for (i=0;i<dim;i++)
+    for (j=0;j<dim;j++)
+      S(i,j) = get(i,j);
+
+  return S;
+  }
+
 
 template<class T>
 int envmatrix<T>::getBandwidth(void) const

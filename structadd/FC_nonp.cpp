@@ -576,6 +576,85 @@ void FC_nonp::update(void)
   }
 
 
+void FC_nonp::update_gaussian_transform(void)
+  {
+
+  if (designp->QtRinv.rows() <= 1)
+    designp->compute_orthogonaldecomp();
+
+  betaold.assign(beta);
+
+  double sigma2resp = likep->get_scale();
+  lambda = likep->get_scale()/tau2;
+
+  designp->compute_partres(partres,beta);
+
+  designp->compute_XtransposedWres(partres, lambda);
+
+  designp->u.mult(designp->QtRinv,designp->XWres);
+
+  unsigned j;
+  double * paramp = param.getV();
+  double * up = designp->u.getV();
+  double * sp = designp->s.getV();
+  double * acutebetap = designp->acutebeta.getV();
+  double mu,var;
+  double h;
+  for (j=0;j<param.rows();j++,up++,paramp++,sp++,acutebetap++)
+    {
+    h = 1/(1+lambda* (*sp));
+    mu = h * (*up);
+    var = sigma2resp * h;
+    *acutebetap = mu + sqrt(var)*rand_normal();
+    }
+
+  param.mult(designp->RtinvQ,designp->acutebeta);
+
+/*
+  if(designp->center)
+    {
+    if (designp->centermethod==meansimple)
+      centerparam();
+    else
+      centerparam_sample();
+    }
+
+  if (designp->position_lin!=-1)
+    {
+    get_linparam();
+    }
+*/
+
+  designp->compute_f(param,paramlin,beta,fsample.beta);
+
+  betadiff.minus(beta,betaold);
+
+  designp->update_linpred(betadiff);
+
+  acceptance++;
+
+  transform_beta();
+
+/*
+  if (designp->position_lin!=-1)
+    {
+    fsample.update();
+    }
+
+  if (pvalue)
+    {
+    update_pvalue();
+    }
+*/
+
+  paramsample.beta.assign(param);
+  paramsample.transform(0,0) = likep->trmult;
+  paramsample.update();
+
+  FC::update();
+
+  }
+
 void FC_nonp::update_gaussian(void)
   {
 
@@ -587,7 +666,9 @@ void FC_nonp::update_gaussian(void)
    //designp->intvar.prettyPrint(out00);
   // TEST
 
+  update_gaussian_transform();
 
+  /*
   bool lambdaconst = false;
 
   betaold.assign(beta);
@@ -677,7 +758,7 @@ void FC_nonp::update_gaussian(void)
   paramsample.update();
 
   FC::update();
-
+  */
   }
 
 

@@ -1,6 +1,7 @@
 
 #include "design.h"
 #include "clstring.h"
+#include "statmat_penalty.h"
 
 namespace MCMC
 {
@@ -8,6 +9,28 @@ namespace MCMC
 //------------------------------------------------------------------------------
 //---------------- CLASS: DESIGN implementation of member functions ------------
 //------------------------------------------------------------------------------
+
+void DESIGN::compute_orthogonaldecomp(void)
+  {
+
+  XWX.decomp();
+  datamatrix R = XWX.getL();
+  datamatrix Rt = R.transposed();
+  datamatrix Kd = K.get();
+  datamatrix RinvKRtinv = R.inverse()*Kd*Rt.inverse();
+
+  s = datamatrix(nrpar,1,0);
+
+  bool ecorrect = eigen2(RinvKRtinv,s);
+  eigensort(s,RinvKRtinv);
+
+  QtRinv = RinvKRtinv.transposed()*R.inverse();
+  RtinvQ = Rt.inverse()*RinvKRtinv;
+
+  u = datamatrix(nrpar,1,0);
+  acutebeta = datamatrix(nrpar,1,0);
+
+  }
 
 
 bool DESIGN::check_Zout_consecutive(void)
@@ -321,6 +344,12 @@ DESIGN::DESIGN(const DESIGN & m)
 
   type=m.type;
 
+  s = m.s;
+  QtRinv = m.QtRinv;
+  RtinvQ = m.RtinvQ;
+  u = m.u;
+  acutebeta = m.acutebeta;
+
   }
 
 
@@ -386,6 +415,12 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   XWres_p = m.XWres_p;
 
   type=m.type;
+
+  s = m.s;
+  QtRinv = m.QtRinv;
+  RtinvQ = m.RtinvQ;
+  u = m.u;
+  acutebeta = m.acutebeta;
 
   return *this;
   }
@@ -457,8 +492,6 @@ void DESIGN::compute_Zout_transposed(void)
   }
 
 
-
-
 void DESIGN::compute_XtransposedWX(void)
   {
 
@@ -477,7 +510,9 @@ void DESIGN::compute_XtransposedWX(void)
     vector<double>::iterator d = XWX.getDiagIterator();
 
     for (i=0;i<Wsum.rows();i++,++d,Wsump++)
-      *Wsump = *d;
+      {
+      *d =  *Wsump;
+      }
 
     }
   else

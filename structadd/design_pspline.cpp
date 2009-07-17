@@ -153,7 +153,7 @@ DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
   compute_penalty();
 
   XWX = envmatdouble(bandmatdouble(nrpar,degree,0));
-  Wsum =datamatrix(nrpar,1,1);
+  Wsum =datamatrix(posbeg.size(),1,1);
   XWres = datamatrix(nrpar,1);
 
   compute_precision(1.0);

@@ -134,6 +134,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void update(void);
 
+  void update_gaussian_transform(void);
   void update_gaussian(void);
   void update_IWLS(void);
   void update_isotonic(void);

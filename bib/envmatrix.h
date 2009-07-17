@@ -137,6 +137,10 @@ class envmatrix
 
   T operator()(const unsigned & i, const unsigned & j) const;
 
+  T get(const unsigned & i, const unsigned & j) const;
+
+  statmatrix<T> get(void) const;
+
   // DESTRUCTOR
 
   ~envmatrix() {}
@@ -238,6 +242,14 @@ class envmatrix
   //           matrix
 
   T getL(const unsigned & i, const unsigned & j) const;
+
+
+  // FUNCTION: getL
+  // TASK:     returns the cholesky-factor of the calling
+  //           matrix  in statmatrix format
+
+  statmatrix<T> getL(void) const;
+
 
   // FUNCTION: getBandwidth
   // TASK:     returns the bandwidth of the matrix. -1 indicates a matrix
