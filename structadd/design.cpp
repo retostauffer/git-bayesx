@@ -1,7 +1,6 @@
 
 #include "design.h"
-#include "clstring.h"
-#include "statmat_penalty.h"
+
 
 namespace MCMC
 {
@@ -13,6 +12,7 @@ namespace MCMC
 void DESIGN::compute_orthogonaldecomp(void)
   {
 
+  compute_XtransposedWX();
   XWX.decomp();
   datamatrix R = XWX.getL();
   datamatrix Rt = R.transposed();
@@ -28,7 +28,6 @@ void DESIGN::compute_orthogonaldecomp(void)
   RtinvQ = Rt.inverse()*RinvKRtinv;
 
   u = datamatrix(nrpar,1,0);
-  acutebeta = datamatrix(nrpar,1,0);
 
   }
 
@@ -280,6 +279,7 @@ DESIGN::DESIGN(DISTR * lp,FC_linear * fcp)
   consecutive = -1;
   consecutive_ZoutT = -1;
   identity = false;
+  full = false;
 
   position_lin = -1;
   }
@@ -310,6 +310,7 @@ DESIGN::DESIGN(const DESIGN & m)
   consecutive = m.consecutive;
   consecutive_ZoutT = m.consecutive_ZoutT;
   identity = m.identity;
+  full = m.full;
 
   ZoutT = m.ZoutT;
   index_ZoutT = m.index_ZoutT;
@@ -348,7 +349,6 @@ DESIGN::DESIGN(const DESIGN & m)
   QtRinv = m.QtRinv;
   RtinvQ = m.RtinvQ;
   u = m.u;
-  acutebeta = m.acutebeta;
 
   }
 
@@ -380,6 +380,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   consecutive = m.consecutive;
   consecutive_ZoutT = m.consecutive_ZoutT;
   identity = m.identity;
+  full = m.full;
   ind = m.ind;
 
   ZoutT = m.ZoutT;
@@ -420,7 +421,6 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   QtRinv = m.QtRinv;
   RtinvQ = m.RtinvQ;
   u = m.u;
-  acutebeta = m.acutebeta;
 
   return *this;
   }
@@ -431,6 +431,10 @@ void DESIGN::compute_penalty(void)
 
   }
 
+double  DESIGN::penalty_compute_quadform(datamatrix & beta)
+  {
+  return K.compute_quadform(beta,0);
+  }
 
 void DESIGN::compute_basisNull(void)
   {
@@ -894,6 +898,10 @@ void DESIGN::compute_f(datamatrix & beta,datamatrix & betalin,
   if (identity)
     {
     f.assign(beta);
+    }
+  else if (full)
+    {
+    f.mult(Zout,beta);
     }
   else
     {

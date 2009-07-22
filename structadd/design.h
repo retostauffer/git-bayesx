@@ -13,7 +13,7 @@
 
 #include"statmat.h"
 #include"sparsemat.h"
-
+#include "statmat_penalty.h"
 #include"Random.h"
 #include"envmatrix_penalty.h"
 #include"../values.h"
@@ -35,7 +35,8 @@ enum ttype2 {   Rw1,
                 Rw2,
                 Rw3,
                 Mrf,
-                Hrandom
+                Hrandom,
+                kriging
                 };
 
 
@@ -121,7 +122,8 @@ class __EXPORT_TYPE DESIGN
                                              //  0 = not consecutive
                                              //  1 = consecutive
 
-  bool identity;                             // true if identity matrix
+  bool identity;                             // true if Zout identity matrix
+  bool full;                                 // true if Zout full matrix
 
   bool check_Zout_consecutive(void);
 
@@ -199,15 +201,12 @@ class __EXPORT_TYPE DESIGN
 
   //--------------------- for orthogonal transformation ------------------------
 
-  void compute_orthogonaldecomp(void);
-
   datamatrix s;                             // contains eigenvalues of
                                              // R^-1 K R-T
   datamatrix QtRinv;
   datamatrix RtinvQ;
 
   datamatrix u;
-  datamatrix acutebeta;
 
   //----------------------------------------------------------------------------
 
@@ -275,6 +274,8 @@ class __EXPORT_TYPE DESIGN
 
   virtual void compute_penalty(void);
 
+  virtual double penalty_compute_quadform(datamatrix & beta);  
+
   // FUNCTION: compute_basisNull
   // TASK: computes the basis of the null space of the penalty matrix
 
@@ -306,6 +307,8 @@ class __EXPORT_TYPE DESIGN
   virtual void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
   virtual void outoptions(GENERAL_OPTIONS * op);
+
+  virtual void compute_orthogonaldecomp(void);
 
   // --------------------- END: VIRTUAL FUNCTIONS ------------------------------
 

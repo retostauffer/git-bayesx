@@ -41,6 +41,19 @@ term_nonp::term_nonp(vector<ST::string> & na)
   pvalue = simpleoption("pvalue",false);
   meaneffect = simpleoption("meaneffect",false);
   binning = doubleoption("binning",-1,10,1000);
+
+  vector<ST::string> updatem;
+  updatem.push_back("direct");
+  updatem.push_back("orthogonal");
+  update = stroption("update",updatem,"direct");
+
+  vector<ST::string> nuv;
+  nuv.push_back("0.5");
+  nuv.push_back("1.5");
+  nuv.push_back("2.5");
+  nuv.push_back("3.5");
+  nu = stroption("nu",nuv,"1.5");
+  maxdist = doubleoption("maxdist",-1,0.00001,10000);
   }
 
 void term_nonp::setdefault(void)
@@ -64,7 +77,10 @@ void term_nonp::setdefault(void)
   internal_multexp.setdefault();
   pvalue.setdefault();
   meaneffect.setdefault();
-  binning = doubleoption("binning",-1,10,1000);  
+  binning.setdefault();
+  update.setdefault();
+  nu.setdefault();
+  maxdist.setdefault();
   }
 
 
@@ -135,6 +151,9 @@ bool term_nonp::check(term & t)
     optlist.push_back(&pvalue);
     optlist.push_back(&meaneffect);
     optlist.push_back(&binning);
+    optlist.push_back(&update);
+    optlist.push_back(&nu);
+    optlist.push_back(&maxdist);
 
     unsigned i;
     bool rec = true;
@@ -213,6 +232,12 @@ bool term_nonp::check(term & t)
       t.options[19] = "true";
 
     t.options[20] = ST::doubletostring(binning.getvalue());
+
+    t.options[21] = update.getvalue();
+
+    t.options[22] = nu.getvalue();
+
+    t.options[23] = ST::doubletostring(maxdist.getvalue());
 
     setdefault();
     return true;

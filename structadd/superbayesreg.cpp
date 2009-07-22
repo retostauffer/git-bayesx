@@ -86,6 +86,7 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("pspline");
   tnames.push_back("hrandom");
   tnames.push_back("spatial");
+  tnames.push_back("kriging");  
   tnames.push_back("hrandom_pspline");
   tnames.push_back("hrandomexp_pspline");
 
@@ -226,20 +227,6 @@ void superbayesreg::create(void)
 
   }
 
-/*
-void superbayesreg::initpointers(void)
-  {
-
-  unsigned i;
-
-  for(i=0;i<FC_nonps.size();i++)
-    {
-    equations[0].FCpointer.push_back(&FC_nonps[i]);
-    equations[0].FCpointer.push_back(&FC_nonp_variances[i]);
-    }
-
-  }
-*/
 
 void superbayesreg::clear(void)
   {
@@ -279,6 +266,9 @@ void superbayesreg::clear(void)
 
   design_mrfs.erase(design_mrfs.begin(),design_mrfs.end());
   design_mrfs.reserve(30);
+
+  design_krigings.erase(design_krigings.begin(),design_krigings.end());
+  design_krigings.reserve(30);
 
   design_hrandoms.erase(design_hrandoms.begin(),design_hrandoms.end());
   design_hrandoms.reserve(30);
@@ -364,7 +354,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
-  distr_loggaussians = b.distr_loggaussians;  
+  distr_loggaussians = b.distr_loggaussians;
   distr_gaussian_res = b.distr_gaussian_res;
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
@@ -383,6 +373,9 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
 
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
+
+  design_krigings = b.design_krigings;
+  design_mrfs = b.design_mrfs;
 
   }
 
@@ -434,6 +427,9 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
+
+  design_krigings = b.design_krigings;
+  design_mrfs = b.design_mrfs;
 
   return *this;
   }
@@ -812,14 +808,26 @@ bool superbayesreg::create_distribution(void)
   }
 
 
-void superbayesreg::extract_data(unsigned i, datamatrix & d,datamatrix & iv)
+void superbayesreg::extract_data(unsigned i, datamatrix & d,datamatrix & iv,
+                                 unsigned dim_dm)
   {
-  int j1,j2;
-  unsigned p = terms[i].varnames.size()-1;
-  j1 = terms[i].varnames[p].isinlist(modelvarnamesv);
-  d = D.getCol(j1);
 
-  if (terms[i].varnames.size() > 1)
+  d = datamatrix(D.rows(),dim_dm);
+
+  int j1,j2;
+  unsigned p;
+  for (p=0;p<dim_dm;p++)
+    {
+    j1 = terms[i].varnames[terms[i].varnames.size()-1-p].isinlist(modelvarnamesv);
+    d.putCol(dim_dm-1-p,D.getCol(j1));
+    }
+
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\d.res");
+  // d.prettyPrint(out);
+  // TEST
+
+  if (terms[i].varnames.size() > dim_dm)
     {
     j2 = terms[i].varnames[0].isinlist(modelvarnamesv);
     iv = D.getCol(j2);
@@ -946,7 +954,7 @@ void superbayesreg::create_pspline(unsigned i)
              "_pspline.raw","nonlinear_pspline_effect_of"," Nonlinear effect (P-spline) of ");
 
   datamatrix d,iv;
-  extract_data(i,d,iv);
+  extract_data(i,d,iv,1);
 
   // TEST
   //  ofstream out("c:\\bayesx\\testh\\results\\d.res");
@@ -1024,7 +1032,7 @@ bool superbayesreg::create_hrandom(unsigned i)
 
 
   datamatrix d,iv;
-  extract_data(i,d,iv);
+  extract_data(i,d,iv,1);
 
   unsigned fnr;
   ST::string na = terms[i].varnames[terms[i].varnames.size()-1];
@@ -1152,7 +1160,7 @@ bool superbayesreg::create_mrf(unsigned i)
              "_spatial.raw","spatial_MRF_effect_of","Spatial effect (MRF) of ");
 
   datamatrix d,iv;
-  extract_data(i,d,iv);
+  extract_data(i,d,iv,1);
 
   mapobject * mapp;                           // pointer to mapobject
 
@@ -1215,6 +1223,48 @@ bool superbayesreg::create_mrf(unsigned i)
   }
 
 
+bool superbayesreg::create_kriging(unsigned i)
+  {
+
+  unsigned modnr = equations.size()-1;
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+             "_kriging.raw","2dim_kriging_effect_of","2dim effect (kriging) of ");
+
+  datamatrix d,iv;
+  extract_data(i,d,iv,2);
+
+  design_krigings.push_back(DESIGN_kriging(d,iv,equations[modnr].distrp,
+                           &FC_linears[FC_linears.size()-1],
+                            terms[i].options,terms[i].varnames));
+
+  bool store=false ;
+  if (storesample.getvalue() == true)
+    store = true;
+
+  FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,
+                     title, pathnonp,&design_krigings[design_krigings.size()-1],
+                     terms[i].options,terms[i].varnames,store));
+
+  equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
+
+  // variances
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+  "_kriging_var.raw","variance_of_2dim_kriging_effect_of",
+  "Variance of 2dim effect of ");
+
+  FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
+                                title,pathnonp,&design_krigings[design_krigings.size()-1],
+                                &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                                terms[i].varnames,store));
+
+  equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
+
+  return false;
+  }
+
+
 bool superbayesreg::create_nonp(void)
   {
 
@@ -1231,6 +1281,8 @@ bool superbayesreg::create_nonp(void)
         error = create_hrandom(i);
       if (terms[i].options[0] == "spatial")
         error = create_mrf(i);
+      if (terms[i].options[0] == "kriging")
+        error = create_kriging(i);
       if ((terms[i].options[0] == "hrandom_pspline") ||
           (terms[i].options[0] == "hrandomexp_pspline"))
         error = create_random_pspline(i);

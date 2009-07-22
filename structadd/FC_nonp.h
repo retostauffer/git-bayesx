@@ -42,6 +42,10 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   bool IWLS;
 
+
+  bool orthogonal;
+  datamatrix acuteparam;
+
   sampletype stype;
 
   DISTR * likep;                             // Pointer to DISTR obejct
@@ -143,6 +147,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // TASK: computes the posterior mode
 
   bool posteriormode(void);
+
+  bool posteriormode_transform(void);
 
   // FUNCTION: outoptions
   // TASK: writes estimation options (hyperparameters, etc.) to outputstream

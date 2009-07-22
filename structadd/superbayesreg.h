@@ -25,6 +25,7 @@
 #include"design_pspline.h"
 #include"design_hrandom.h"
 #include"design_mrf.h"
+#include"design_kriging.h"
 
 #include"FC.h"
 #include"FC_predict.h"
@@ -57,6 +58,7 @@ using MCMC::DISTR_binomialprobit;
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
 using MCMC::DESIGN_mrf;
+using MCMC::DESIGN_kriging;
 using MCMC::equation;
 
 using MCMC::FC;
@@ -89,7 +91,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
                   ST::string  endingraw,
                   ST::string  endingres, ST::string  endingtitle);
 
-  void extract_data(unsigned i, datamatrix & d,datamatrix & iv);
+  void extract_data(unsigned i, datamatrix & d,datamatrix & iv,unsigned dim_dm);
 
   bool findREdistr(ST::string & na,equation & maine,unsigned & fnr);
 
@@ -224,12 +226,14 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   vector<DESIGN_pspline> design_psplines;
   vector<DESIGN_mrf> design_mrfs;
+  vector<DESIGN_kriging> design_krigings;  
   vector<FC_nonp> FC_nonps;
   vector<FC_nonp_variance> FC_nonp_variances;
 
   bool create_nonp(void);
   void create_pspline(unsigned i);
   bool create_mrf(unsigned i);
+  bool create_kriging(unsigned i);  
 
 //------------------------ end for nonparametric terms -------------------------
 

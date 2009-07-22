@@ -105,7 +105,7 @@ void FC_nonp_variance::update(void)
   // END: TEST
 
   beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
-              b_invgamma+0.5*designp->K.compute_quadform(FCnonpp->param,0));
+              b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
 
   beta(0,1) = likep->get_scale()/beta(0,0);
 

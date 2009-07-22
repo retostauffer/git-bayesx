@@ -757,6 +757,7 @@ void DISTR_gaussian::update(void)
   sigma2  = rand_invgamma(a_invgamma+0.5*(nrobs-nrzeroweights),
                           b_invgamma+0.5*sum);
 
+
   FCsigma2.beta(0,0) = sigma2;
   FCsigma2.acceptance++;
   FCsigma2.update();
