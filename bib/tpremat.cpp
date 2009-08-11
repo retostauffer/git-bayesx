@@ -24,6 +24,8 @@
 #include <math.h>
 #include <limits.h>
 
+#include <stdio.h>
+
 #include <strstream>
 
 #include <string.h>

@@ -823,11 +823,11 @@ bool remlreg::create_data(datamatrix & weight)
   else
     {
     // check for correct distributions
-    if(family.getvalue()=="cox" || family.getvalue()=="coxold")
+/*    if(family.getvalue()=="cox" || family.getvalue()=="coxold")
       {
       outerror("ERROR: weight not allowed for family=cox\n");
       return true;
-      }
+      }*/
     if(family.getvalue()=="multistate")
       {
       outerror("ERROR: weight not allowed for family=multistate\n");
@@ -842,7 +842,7 @@ bool remlreg::create_data(datamatrix & weight)
       outerror("ERROR: negative weights encountered\n");
       return true;
       }
-    // only weights 1 or 0 allowed for multinomial responses
+    // only weights 1 or 0 allowed for multinomial responses and survival times
     if(family.getvalue()=="multinomial" ||
        family.getvalue()=="multinomialcatsp" ||
        family.getvalue()=="cumlogit" ||
@@ -855,6 +855,18 @@ bool remlreg::create_data(datamatrix & weight)
         if(weight(i,0)!=0 && weight(i,0)!=1)
           {
           outerror("ERROR: weights have to equal 0 or 1 for multicategorical response\n");
+          return true;
+          }
+        }
+      }
+    if(family.getvalue()=="cox" ||
+       family.getvalue()=="coxold")
+      {
+      for(int i=0; i<weight.rows(); i++)
+        {
+        if(weight(i,0)!=0 && weight(i,0)!=1)
+          {
+          outerror("ERROR: weights have to equal 0 or 1 for survival times\n");
           return true;
           }
         }

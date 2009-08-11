@@ -128,6 +128,13 @@ this by executing BayesX as administrator, an option that you obtain by right-cl
 of BayesX instead of the GUI-version. The command line version can be found in a subdirectory of the installation directory.
 </li>
 
+<li><b>When running BayesX on Windows Vista, an UnsatisfiedLinkError appears.</b><br>
+This error is caused by an internal mechanism of Windows Vista that should prevent software from executing possibly dangerous code in the background. BayesX
+of course does not do this but simply tries to start a new process running the actual computations in addition to the process running the graphical user interface. You can prevent
+this by executing BayesX as administrator, an option that you obtain by right-clicking on the BayesX icon. An alternative would of course also be to use the command line version
+of BayesX instead of the GUI-version. The command line version can be found in a subdirectory of the installation directory.
+</li>
+
 <li><b>BayesX crashes. What did I do wrong?</b><br> 
 Of course, there is no definite answer to this questions. There is the not too unlikely possibility that there is a bug in the software but in our
 experience, the overwhelming portion of crashes is caused by problems in the data and / or the model specification. Some possible difficulties are

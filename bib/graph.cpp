@@ -152,6 +152,7 @@ graph::graph(const ST::string & path)
   long helplong;
   double helpdouble;
   long nrnodes,edgesi;
+  nrnodes=0;
 
   ST::getline(in,help);
   help = help.eatallcarriagereturns();
@@ -166,6 +167,8 @@ graph::graph(const ST::string & path)
     weights = vector< vector<double> >(nrnodes);
 
     unsigned i,j,k;
+
+    unsigned weightcheck=0;
 
     i=0;
     while ( (i<nrnodes) && (error != true) )
@@ -188,8 +191,16 @@ graph::graph(const ST::string & path)
         ST::getline(in,help);
         help = help.eatallcarriagereturns();
         token = help.strtoken(" ");
-        if ( (i==0) && (token.size() == 2*edgesi) )
-          weightex=true;
+
+        if( (i==weightcheck) && (token.size()==2*edgesi) )
+          {
+          if( edgesi > 0 )
+            weightex = true;
+          else
+            weightcheck++;
+          }
+//        if ( (i==0) && (token.size() == 2*edgesi))
+//          weightex=true;
 
         if (weightex == false)
           {
