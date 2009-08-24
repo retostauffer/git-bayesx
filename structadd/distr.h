@@ -111,6 +111,16 @@ class __EXPORT_TYPE DISTR
   double trmult;                   // multiplicative constant with which
                                    // the response has been transformed
 
+//------------------------------------------------------------------------------
+//------------------------------- ERRORS ---------------------------------------
+
+  bool errors;
+
+  vector<ST::string> errormessages;
+
+  virtual void check_errors(void);
+
+
 
 //------------------------------------------------------------------------------
 //--------------------------- CONSTRUCTORS -------------------------------------
@@ -690,6 +700,8 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
   void outresults(ST::string pathresults="");
 
   void outoptions(void);
+
+  void check_errors(void);
 
   };
 

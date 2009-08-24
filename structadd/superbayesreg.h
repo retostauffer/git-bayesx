@@ -95,6 +95,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   bool findREdistr(ST::string & na,equation & maine,unsigned & fnr);
 
+  bool check_errors(void);
+
   void clear(void);
 //  void initpointers(void);
 

@@ -5,6 +5,10 @@
 namespace MCMC
 {
 
+void DISTR::check_errors(void)
+  {
+  errors=false;
+  }
 
 bool DISTR::check_weightsone(void)
   {
@@ -34,7 +38,7 @@ unsigned DISTR::compute_nrzeroweights(void)
     }
   return nr;
   }
-  
+
 
 DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
              const datamatrix & w)
@@ -83,6 +87,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 
   meaneffect = 0;
 
+  check_errors();
+
   }
 
 
@@ -121,6 +127,10 @@ DISTR::DISTR(const DISTR & d)
   trmult=d.trmult;
 
   meaneffect = d.meaneffect;
+
+  errors = d.errors;
+  errormessages = d.errormessages;
+
   }
 
 
@@ -160,6 +170,10 @@ const DISTR & DISTR::operator=(const DISTR & d)
   trmult=d.trmult;
 
   meaneffect = d.meaneffect;
+
+  errors = d.errors;
+  errormessages = d.errormessages;
+
 
   return *this;
   }
@@ -1467,6 +1481,33 @@ DISTR_gaussian_re::DISTR_gaussian_re(GENERAL_OPTIONS * o,const datamatrix & r,
   {
 
   family = "Gaussian_random_effect";
+
+  check_errors();
+
+  }
+
+
+
+void DISTR_gaussian_re::check_errors(void)
+  {
+  DISTR::check_errors();
+  bool helperror;
+
+  
+  unsigned col = 0;
+  helperror = response.check_ascending(col);
+  if (helperror == false)
+    {
+    errors = true;
+    errormessages.push_back("ERROR: group indicator values must be sorted in ascending order for distribution gaussian_re\n");
+    }
+
+
+  if (!weightsone)
+    {
+    errors = true;
+    errormessages.push_back("ERROR: weights not allowed for distribution gaussian_re\n");
+    }
 
   }
 

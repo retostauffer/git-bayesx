@@ -103,7 +103,19 @@ class __EXPORT_TYPE FC
   unsigned column;               // the response category the fc belongs to
 
 
-  double meaneffect;            // for results in original scale          
+  double meaneffect;            // for results in original scale
+
+
+  //----------------------------------------------------------------------------
+  //------------------------------ ERRORS --------------------------------------
+  //----------------------------------------------------------------------------
+
+  bool errors;
+  vector<ST::string> errormessages;
+
+  //----------------------------------------------------------------------------
+  //--------------------------- END: ERRORS ------------------------------------
+  //----------------------------------------------------------------------------
 
   // FUNCTION: readsample
   // TASK: reads sample of parameter 'nr' and stores the sample in datamatrix
@@ -250,6 +262,8 @@ class __EXPORT_TYPE FC
   virtual void reset(void);
 
   virtual void read_options(vector<ST::string> & op,vector<ST::string> & vn);
+
+  virtual void check_errors(void);
 
   };
 

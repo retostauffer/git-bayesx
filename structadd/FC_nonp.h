@@ -181,6 +181,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void get_samples(const ST::string & filename,ofstream & outg) const;                                      
 
+  void check_errors(void);
 
   };
 

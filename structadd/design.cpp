@@ -24,6 +24,11 @@ void DESIGN::compute_orthogonaldecomp(void)
   bool ecorrect = eigen2(RinvKRtinv,s);
   eigensort(s,RinvKRtinv);
 
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\s.res");
+  // s.prettyPrint(out);
+  // TEST
+
   QtRinv = RinvKRtinv.transposed()*R.inverse();
   RtinvQ = Rt.inverse()*RinvKRtinv;
 

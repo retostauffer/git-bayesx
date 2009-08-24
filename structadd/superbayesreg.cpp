@@ -554,7 +554,7 @@ void hregressrun(superbayesreg & b)
 
   b.make_header(modnr);
 
-//  b.outfiles.push_back(b.outfile.getvalue()+b.add_name);
+
 
   bool failure = false;
 
@@ -579,24 +579,71 @@ void hregressrun(superbayesreg & b)
       (b.equationtype.getvalue()=="mean"))
     {
 
+    if (!failure)
+      failure = b.check_errors();
 
-    b.run_yes=true;
-
-    b.simobj = MCMCsim(&b.generaloptions,b.equations);
-
-    ST::string pathgraphs = b.outfile.getvalue();
-
-    if (b.modeonly.getvalue())
+    if (!failure)
       {
-      failure = b.simobj.posteriormode(pathgraphs,false);
+      b.run_yes=true;
+
+      b.simobj = MCMCsim(&b.generaloptions,b.equations);
+
+      ST::string pathgraphs = b.outfile.getvalue();
+
+      if (b.modeonly.getvalue())
+        {
+        failure = b.simobj.posteriormode(pathgraphs,false);
+        }
+      else
+        failure = b.simobj.simulate(pathgraphs,b.setseed.getvalue(),true);
       }
-    else
-      failure = b.simobj.simulate(pathgraphs,b.setseed.getvalue(),true);
 
     if (!failure)
       b.resultsyesno = true;
     }
 
+  }
+
+
+bool superbayesreg::check_errors(void)
+  {
+
+  bool err=false;
+
+
+  unsigned i,j,k;
+
+  for (k=0;k<equations.size();k++)
+    {
+
+    if (equations[k].distrp->errors == true)
+      {
+      err = true;
+      for (j=0;j<equations[k].distrp->errormessages.size();j++)
+        outerror(equations[k].distrp->errormessages[j]);
+      }
+
+    }
+
+
+/*
+  for (k=0;k<equations.size();k++)
+    {
+    for (i=0;i<equations[k].distrp.size();i++)
+      {
+      if (equations[k].distrp[i]->errors == true)
+        {
+        err = true;
+        for (j=0;j<equations[k].distrp[i]->errormessages.size();j++)
+          outerror(equations[k].distrp[i]->errormessages[j]);
+        }
+
+      }
+
+    }
+*/
+
+  return err;
   }
 
 

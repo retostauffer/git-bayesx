@@ -24,6 +24,12 @@ FC::FC(void)
   }
 
 
+void FC::check_errors(void)
+  {
+  errors = false;
+  }
+
+
 FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
                    const unsigned & cols,const ST::string & fp,bool sstore)
   {
@@ -47,6 +53,7 @@ FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
 
   meaneffect = 0;
 
+  check_errors();
   }
 
 
@@ -95,6 +102,9 @@ FC::FC(const FC & m)
   column = m.column;
 
   meaneffect = m.meaneffect;
+
+  errors = m.errors;
+  errormessages = m.errormessages;
 
   }
 
@@ -148,6 +158,9 @@ const FC & FC::operator=(const FC & m)
   column = m.column;
 
   meaneffect = m.meaneffect;
+
+  errors = m.errors;
+  errormessages = m.errormessages;
 
   return *this;
 

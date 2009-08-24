@@ -63,6 +63,12 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   }
 
 
+void FC_nonp::check_errors(void)
+  {
+  FC::check_errors();
+  }
+
+
 FC_nonp::FC_nonp(void)
   {
   }
@@ -109,6 +115,8 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
     {
     meaneffect_sample = FC(o,"",beta.rows(),1,fp+".meaneffect",sstore);
     }
+
+  check_errors();
 
   }
 
