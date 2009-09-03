@@ -114,6 +114,7 @@ double FC_hrandom_variance::compute_quadform(void)
 
   }
 
+  
 
 void FC_hrandom_variance::transform_beta(void)
   {
