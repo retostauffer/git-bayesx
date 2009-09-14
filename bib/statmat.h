@@ -239,6 +239,15 @@ class adja;
   void indexsort (statmatrix<int> & index,int start,int ende,
                   int col,int indexcol) const;
 
+  // FUNCTION: indexsort2d
+  // TASK: index sort of the 'col' th column within the 'start' th and 'ende'
+  //       th row followed by sorting accoring to the 'col2' th row.
+  //       after sorting 'indexcol' of index contains the rank vector
+  //       of the 'col' th column of the calling matrix
+
+  void indexsort2d (statmatrix<int> & index,int start,int ende,
+                    int col,int col2, int indexcol) const;
+
   // FUNCTION: rank
   // TASK: computes the ranks of the elements within the 'start'th and 'ende'th
   //       row of the 'col'th column.
@@ -411,6 +420,11 @@ class adja;
    // TASK: rounds the elements of the calling matrix to the precision specified
    //       in digits
    void round(const int digits);
+
+   // FUNCTION: check_sorted
+   // TASK: checks whether the col-th row of the calling matrix is sorted
+
+   bool check_ascending(unsigned & col);
 
   };
 

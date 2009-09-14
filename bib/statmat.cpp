@@ -802,6 +802,41 @@ void statmatrix<T>::indexsort(statmatrix<int> & index,int start,int ende,
 
 
 template<class T>
+void  statmatrix<T>::indexsort2d(statmatrix<int> & index,int start,int ende,
+                                 int col,int col2, int indexcol) const
+  {
+  indexsort(index,start,ende,col,indexcol);
+
+  unsigned j;
+  vector<unsigned> posbeg;
+  vector<unsigned> posend;
+  posbeg.push_back(0);
+
+  double help = get(index(0,indexcol),col);
+  for(j=1;j<rows();j++)
+    {
+    if (get(index(j,indexcol),col) != help)
+      {
+      posend.push_back(j-1);
+      if (j < rows())
+        posbeg.push_back(j);
+      }
+
+    help = get(index(j,indexcol),col);
+
+    }
+
+  if (posend.size() < posbeg.size())
+    posend.push_back(rows()-1);
+
+
+  for (j=0;j<posbeg.size();j++)
+    indexsort(index,posbeg[j],posend[j],col2,indexcol);
+
+  }
+
+
+template<class T>
 void statmatrix<T>::rank(statmatrix<double> & rang,statmatrix<int> & index,
                         int start,int ende,int col) const
   {
@@ -1471,6 +1506,28 @@ for(i=0; i<rows; i++)
 this->round(digits, 0, this->cols(), 0, this->rows());
 }
 
+
+template<class T>
+bool statmatrix<T>::check_ascending(unsigned & col)
+  {
+  unsigned i;
+  bool asc=true;
+  T * p = getV()+col;
+  T last = *p;
+  i=1;
+  while (i<rows() && asc==true)
+    {
+    if (*p < last)
+      asc = false;
+
+    last = (*p);
+    i++;
+    if (i < rows()-1)
+      p+=cols();
+    }
+
+  return asc;
+  }
 
 /*
 template<class T>
