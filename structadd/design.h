@@ -36,7 +36,7 @@ enum ttype2 {   Rw1,
                 Rw3,
                 Mrf,
                 Hrandom,
-                kriging
+                Grf
                 };
 
 

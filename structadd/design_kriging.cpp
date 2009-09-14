@@ -116,7 +116,7 @@ DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
 
   read_options(op,vn);
 
-  type = kriging;
+  type = Grf;
 
   init_data(dm,iv);
 
