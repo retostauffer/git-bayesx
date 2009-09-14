@@ -538,6 +538,11 @@ double FULLCOND_random::outresultsreml(datamatrix & X,datamatrix & Z,
   ofstream outres(outest.strtochar());
   assert(!outres.fail());
 
+  // determine precisions for outstream
+  std::streamsize lowPrec = outres.precision();
+  std::streamsize highPrec = 15;
+
+
   if (randomslope)
     {
     optionsp->out("  Results for random slopes are stored in file\n");
@@ -579,7 +584,12 @@ double FULLCOND_random::outresultsreml(datamatrix & X,datamatrix & Z,
 //      workbetapval++)
     {
     outres << (i+1) << "   ";
-    outres << effvalues(i,0) << "   ";
+//    outres << effvalues(i,0) << "   ";
+
+    // this is the ID: we need a higher precision here, to avoid
+    // collating different IDs.
+    outres << setprecision(highPrec) << effvalues(i,0) << setprecision(lowPrec) << "   ";
+
     outres << *workmean << "   ";
 //    outres << *workbetapval << "   ";
     outres << *workbetaqu_l1_lower_p << "   ";
@@ -1011,6 +1021,10 @@ void FULLCOND_random::outresults(void)
   ofstream outres(pathcurrent.strtochar());
   assert(!outres.fail());
 
+  // determine precisions for outstream
+  std::streamsize lowPrec = outres.precision();
+  std::streamsize highPrec = 15;
+
   ST::string name = datanames[0];
 
   outres << "intnr" << "   ";
@@ -1042,7 +1056,11 @@ void FULLCOND_random::outresults(void)
     else
       {
       outres << (i+1) << "   ";
-      outres << effvalues(i,0) << "   ";
+//      outres << effvalues(i,0) << "   ";
+      // this is the ID: we need a higher precision here, to avoid
+      // collating different IDs.
+      outres << setprecision(highPrec) << effvalues(i,0) << setprecision(lowPrec) << "   ";
+
       outres << *workmean << "   ";
       outres << *workbetaqu_l1_lower_p << "   ";
       outres << *workbetaqu_l2_lower_p << "   ";
@@ -1114,7 +1132,10 @@ void FULLCOND_random::outresults(void)
         workbetaqu50++)
       {
       outres2 << (i+1) << "   ";
-      outres2 << effvalues(i,0) << "   ";
+//      outres2 << effvalues(i,0) << "   ";
+      // this is the ID: we need a higher precision here, to avoid
+      // collating different IDs.
+      outres2 << setprecision(highPrec) << effvalues(i,0) << setprecision(lowPrec) << "   ";
       outres2 << *workmean << "   ";
       outres2 << *workbetaqu_l1_lower_p << "   ";
       outres2 << *workbetaqu_l2_lower_p << "   ";

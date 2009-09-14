@@ -11,6 +11,8 @@
 
 #define MCMCrandom_INCLUDED
 
+#include <iomanip>
+using std::setprecision;
 
 #include"mcmc.h"
 #include"fullcond.h"
