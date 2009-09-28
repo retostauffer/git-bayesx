@@ -812,22 +812,22 @@ void  statmatrix<T>::indexsort2d(statmatrix<int> & index,int start,int ende,
   vector<unsigned> posend;
   posbeg.push_back(0);
 
-  double help = get(index(0,indexcol),col);
-  for(j=1;j<rows();j++)
+  double help = this->get(index(0,indexcol),col);
+  for(j=1;j<this->rows();j++)
     {
-    if (get(index(j,indexcol),col) != help)
+    if (this->get(index(j,indexcol),col) != help)
       {
       posend.push_back(j-1);
-      if (j < rows())
+      if (j < this->rows())
         posbeg.push_back(j);
       }
 
-    help = get(index(j,indexcol),col);
+    help = this->get(index(j,indexcol),col);
 
     }
 
   if (posend.size() < posbeg.size())
-    posend.push_back(rows()-1);
+    posend.push_back(this->rows()-1);
 
 
   for (j=0;j<posbeg.size();j++)
@@ -1515,15 +1515,15 @@ bool statmatrix<T>::check_ascending(unsigned & col)
   T * p = getV()+col;
   T last = *p;
   i=1;
-  while (i<rows() && asc==true)
+  while (i<this->rows() && asc==true)
     {
     if (*p < last)
       asc = false;
 
     last = (*p);
     i++;
-    if (i < rows()-1)
-      p+=cols();
+    if (i < this->rows()-1)
+      p+=this->cols();
     }
 
   return asc;
