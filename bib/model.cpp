@@ -2181,7 +2181,7 @@ bool term_geospline::check(term & t)
    else
      t.options[15] = "true";
 
-   t.options[20] = centermethod.getvalue();
+   t.options[16] = centermethod.getvalue();
 
    t.options[1].strtolong(minim);
    t.options[2].strtolong(maxim);
