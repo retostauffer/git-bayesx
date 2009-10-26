@@ -4437,9 +4437,9 @@ void STEPWISErun::make_plots(ST::string & path_batch,
             // Plot-Befehle f. d. SPlus-file
            outsplus << "# NOTE: 'input_filename' must be substituted by the "
                     << "filename of the boundary-file \n"
-                    << "# NOTE: choose a 'name' for the map \n" << endl
-                     << "'name' <- read.bnd(\"'input_filename'\")" << endl
-                    << "drawmap(map = 'name', plotvar = \"pmean\", regionvar = \""
+//                    << "# NOTE: choose a 'name' for the map \n" << endl
+                     << "m <- read.bnd(\"'input_filename'\")" << endl
+                    << "drawmap(data = \"" << pathres_spl << "\", map = m, plotvar = \"pmean\", regionvar = \""
                     << regionvar << "\")" << endl;
            /*
            outsplus << "drawmap(map = 'name', outfile = \"" << pathps_spl

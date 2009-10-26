@@ -1132,13 +1132,13 @@ void remlest_multinomial::make_plots(ofstream & outtex,ST::string path_batch,
           // Plot-Befehle f. d. SPlus-file
           outsplus << "# NOTE: 'input_filename' must be substituted by the "
                    << "filename of the boundary-file \n"
-                   << "# NOTE: choose a 'name' for the map \n" << endl
-                     << "'name' <- read.bnd(\"'input_filename'\")" << endl
-                   << "drawmap(map = 'name', plotvar = \"pmode\", regionvar = \""
+//                   << "# NOTE: choose a 'name' for the map \n" << endl
+                     << "m <- read.bnd(\"'input_filename'\")" << endl
+                   << "drawmap(data = \"" << pathres_spl << "\", map = m, plotvar = \"pmode\", regionvar = \""
                    << regionvar << "\")" << endl;
-          outsplus << "drawmap(map = 'name', plotvar = \"pcat" << u_str << "\", regionvar = \""
+          outsplus << "drawmap(data = \"" << pathres_spl << "\", map = m, plotvar = \"pcat" << u_str << "\", regionvar = \""
                   << regionvar << "\", legend = F, pcat = T)" << endl;
-          outsplus << "drawmap(map = 'name', plotvar = \"pcat" << o_str << "\", regionvar = \""
+          outsplus << "drawmap(data = \"" << pathres_spl << "\", map = m, plotvar = \"pcat" << o_str << "\", regionvar = \""
                     << regionvar << "\", legend = F, pcat = T)" << endl;
             // Plot-Befehle f. d. tex-file
           ST::string effect = regionvar;
@@ -3679,13 +3679,13 @@ void remlest_multistate::make_plots(ofstream & outtex,ST::string path_batch,
             // Plot-Befehle f. d. SPlus-file
             outsplus << "# NOTE: 'input_filename' must be substituted by the "
                      << "filename of the boundary-file \n"
-                     << "# NOTE: choose a 'name' for the map \n" << endl
-                     << "'name' <- read.bnd(\"'input_filename'\")" << endl
-                     << "drawmap(map = 'name', plotvar = \"pmode\", regionvar = \""
+//                     << "# NOTE: choose a 'name' for the map \n" << endl
+                     << "m <- read.bnd(\"'input_filename'\")" << endl
+                     << "drawmap(data = \"" << pathres_spl << "\", map = m, plotvar = \"pmode\", regionvar = \""
                      << regionvar << "\")" << endl;
-            outsplus << "drawmap(map = 'name', plotvar = \"pcat" << u_str << "\", regionvar = \""
+            outsplus << "drawmap(data = \"" << pathres_spl << "\", map = m, plotvar = \"pcat" << u_str << "\", regionvar = \""
                     << regionvar << "\", legend = F, pcat = T)" << endl;
-            outsplus << "drawmap(map = 'name', plotvar = \"pcat" << o_str << "\", regionvar = \""
+            outsplus << "drawmap(data = \"" << pathres_spl << "\", map = m, plotvar = \"pcat" << o_str << "\", regionvar = \""
                       << regionvar << "\", legend = F, pcat = T)" << endl;
               // Plot-Befehle f. d. tex-file
             ST::string effect = regionvar;
