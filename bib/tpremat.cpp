@@ -25,6 +25,7 @@
 #include <limits.h>
 
 #include <stdio.h>
+#include <cstdio>
 
 #include <strstream>
 
