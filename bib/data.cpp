@@ -410,7 +410,7 @@ ifstream & in,ST::string & missing,
   if (names.empty())
 	 {
 	 ST::string h;
-	 ST::getline(in,500000,h,'\n');
+	 ST::getline(in,1000000,h,'\n');
      h = h.eatallcarriagereturns();
 	 datarep.varnames = h.strtokenlist(" \t",false);
 	 }
