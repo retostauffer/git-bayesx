@@ -452,12 +452,86 @@ void FC_hrandom::get_samples(const ST::string & filename,ofstream & outg) const
   }
 
 
+void FC_hrandom::outgraphs(ofstream & out_stata, ofstream & out_R,
+                          const ST::string & path)
+  {
+
+  ST::string pathps = path.substr(0,path.length()-4) + "_statagraph";
+
+  double u = optionsp->level1;
+  double o = optionsp->level2;
+  double u1 = optionsp->lower1;
+  double u2 = optionsp->upper2;
+  double o1 = optionsp->lower2;
+  double o2 = optionsp->upper1;
+  ST::string u_str = ST::doubletostring(u,0);
+  ST::string o_str = ST::doubletostring(o,0);
+  ST::string u1_str = ST::doubletostring(u1,5);
+  ST::string u2_str = ST::doubletostring(u2,5);
+  ST::string o1_str = ST::doubletostring(o1,5);
+  ST::string o2_str = ST::doubletostring(o2,5);
+
+  ST::string pu1_str = u1_str.replaceallsigns('.','p');
+  ST::string pu2_str = u2_str.replaceallsigns('.','p');
+  ST::string po1_str = o1_str.replaceallsigns('.','p');
+  ST::string po2_str = o2_str.replaceallsigns('.','p');
+  ST::string pu_str = u_str.replaceallsigns('.','p');
+  ST::string po_str = o_str.replaceallsigns('.','p');
+
+  ST::string xvar = designp->datanames[designp->datanames.size()-1];
+
+
+  out_stata << "clear" << endl
+            << "infile intnr " << xvar
+            << " pmean_tot pqu" << pu1_str << "_tot "
+            << " pqu" << po1_str << "_tot" << " pmed_tot pqu" << po2_str
+            << "_tot" << " pqu" << pu2_str << "_tot"
+            << " pcat" << pu_str << "_tot" << " pcat" << po_str << "_tot"
+            << " pmean pqu" << pu1_str
+            << " pqu" << po1_str << " pmed pqu" << po2_str << " pqu" <<
+            pu2_str << " pcat" << pu_str  << " pcat" << po_str;
+
+
+  if (computemeaneffect==true)
+    {
+    out_stata << " pmean_mu pqu"
+              << pu1_str << "_mu"
+              << " pqu" << po1_str << "_mu"
+              << " pmed_d pqu" << po2_str << "_mu"
+              << " pqu" << pu2_str << "_mu";
+    }
+
+
+  out_stata << " using "
+            << path << endl
+            << "drop in 1" << endl;
+
+  out_stata << "kdensity pmean_tot" << endl
+            << "graph export " << pathps << "_tot.eps, replace"
+            << endl << endl;
+
+  out_stata << "kdensity pmean" << endl
+            << "graph export " << pathps << ".eps, replace"
+            << endl << endl;
+
+  if (computemeaneffect==true)
+    {
+    out_stata << "kdensity pmean_mu" << endl
+              << "graph export " << pathps << "_mu.eps, replace"
+              << endl << endl;
+    }
+
+  }
+
+
 void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
                             const ST::string & pathresults)
   {
 
   if (pathresults.isvalidfile() != 1)
     {
+
+    outgraphs(out_stata,out_R,pathresults);
 
     FC::outresults(out_stata,out_R,pathresults);
     FCrcoeff.outresults(out_stata,out_R,"");

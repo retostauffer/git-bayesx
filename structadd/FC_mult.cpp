@@ -279,6 +279,64 @@ bool FC_mult::posteriormode(void)
   }
 
 
+void FC_mult::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string & path)
+  {
+
+  ST::string pathps = path.substr(0,path.length()-4) + "_statagraph";
+
+  double u = FCmulteffect.optionsp->level1;
+  double o = FCmulteffect.optionsp->level2;
+  double u1 = FCmulteffect.optionsp->lower1;
+  double u2 = FCmulteffect.optionsp->upper2;
+  double o1 = FCmulteffect.optionsp->lower2;
+  double o2 = FCmulteffect.optionsp->upper1;
+  ST::string u_str = ST::doubletostring(u,0);
+  ST::string o_str = ST::doubletostring(o,0);
+  ST::string u1_str = ST::doubletostring(u1,5);
+  ST::string u2_str = ST::doubletostring(u2,5);
+  ST::string o1_str = ST::doubletostring(o1,5);
+  ST::string o2_str = ST::doubletostring(o2,5);
+
+  ST::string pu1_str = u1_str.replaceallsigns('.','p');
+  ST::string pu2_str = u2_str.replaceallsigns('.','p');
+  ST::string po1_str = o1_str.replaceallsigns('.','p');
+  ST::string po2_str = o2_str.replaceallsigns('.','p');
+  ST::string pu_str = u_str.replaceallsigns('.','p');
+  ST::string po_str = o_str.replaceallsigns('.','p');
+
+  ST::string xvar1 = dp1->datanames[0] + "   ";
+  ST::string xvar2 = dp2->datanames[0] + "   ";
+
+  out_stata << "clear" << endl
+            << "infile intnr " << xvar1 << xvar2
+            << " pmean pqu" << pu1_str
+            << " pqu" << po1_str << " pmed pqu" << po2_str << " pqu" << pu2_str
+            << " pcat" << pu_str << " pcat" << po_str;
+
+
+  /*
+  if (computemeaneffect==true)
+    {
+    out_stata << " pmean_mu pqu"
+              << pu1_str << "_mu"
+              << " pqu" << po1_str << "_mu"
+              << " pmed_d pqu" << po2_str << "_mu"
+              << " pqu" << pu2_str << "_mu";
+    }
+  */
+
+  out_stata << " using "
+            << path << endl
+            << "drop in 1" << endl;
+
+  out_stata << "scatter pmean " << xvar2 <<  endl << endl;
+
+
+  }
+
+
+
+
 void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
                          const ST::string & pathresults)
   {
@@ -291,6 +349,8 @@ void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
     if (pathresults.isvalidfile() != 1)
       {
+
+      outgraphs(out_stata,out_R,pathresults);
 
       FCmulteffect.optionsp->out("    Results are stored in file\n");
       FCmulteffect.optionsp->out("    " +  pathresults + "\n");
@@ -322,7 +382,7 @@ void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
      */
 
 
-      outres << dp1->datanames[0] << "   ";     
+      outres << dp1->datanames[0] << "   ";
       outres << dp2->datanames[0] << "   ";
 
 

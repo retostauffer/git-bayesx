@@ -82,6 +82,11 @@ class __EXPORT_TYPE FC_mult  : public FC
   void outresults(ofstream & out_stata, ofstream & out_R,
                   const ST::string & pathresults);
 
+
+  void outgraphs(ofstream & out_stata, ofstream & out_R,
+  const ST::string & path);
+
+
   void reset(void);
 
   void set_effectp(DESIGN * d,FC_nonp * fp);

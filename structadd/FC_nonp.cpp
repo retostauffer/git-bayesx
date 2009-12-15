@@ -1151,34 +1151,53 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
 
   out_stata << " using "
             << path << endl
-            << "drop in 1" << endl
-            << "graph twoway rarea pqu" << pu1_str << " pqu" << pu2_str
-            << " " << xvar << ", bcolor(gs13) || rarea pqu" << po1_str
-            << " pqu" << po2_str << " " << xvar << " , bcolor(gs10) || /*"
-            << endl << " */ scatter pmean "
-            << xvar << ", c(l) m(i) clpattern(l) clcolor(gs0) /* "
-            << endl << " */ ytitle(\"Effect of "
-            << xvar << "\") xtitle(\"" << xvar
-            << "\") xlab(,grid) ylab(,grid) legend(off)"
-            << endl << "graph export " << pathps << ".eps, replace"
-                    << endl << endl;
-
-
-  if (designp->position_lin!=-1)
-    {
-
-    out_stata << "graph twoway rarea pqu" << pu1_str << "_d"
-              << " pqu" << pu2_str << "_d"
-              << " " << xvar << ", bcolor(gs13) || rarea pqu" << po1_str << "_d"
-              << " pqu" << po2_str << "_d"
-              << " " << xvar << " , bcolor(gs10) || /*"
-              << endl << " */ scatter pmean_d "
+            << "drop in 1" << endl;
+            if (designp->type == Mrf)
+              {
+              out_stata << "kdensity pmean" << endl
+              << "graph export " << pathps << ".eps, replace"
+                      << endl << endl;
+              }
+            else
+              {
+              out_stata << "graph twoway rarea pqu" << pu1_str << " pqu" << pu2_str
+              << " " << xvar << ", bcolor(gs13) || rarea pqu" << po1_str
+              << " pqu" << po2_str << " " << xvar << " , bcolor(gs10) || /*"
+              << endl << " */ scatter pmean "
               << xvar << ", c(l) m(i) clpattern(l) clcolor(gs0) /* "
               << endl << " */ ytitle(\"Effect of "
               << xvar << "\") xtitle(\"" << xvar
               << "\") xlab(,grid) ylab(,grid) legend(off)"
-              << endl << "graph export " << pathps << "_linexluded.eps, replace"
-                    << endl << endl;
+              << endl << "graph export " << pathps << ".eps, replace"
+                      << endl << endl;
+              }
+
+
+  if (designp->position_lin!=-1)
+    {
+    if (designp->type == Mrf)
+      {
+      out_stata << "kdensity pmean_d" << endl
+                << "graph export " << pathps << "_linexluded.eps, replace"
+                << endl << endl;
+
+      }
+    else
+      {
+
+      out_stata << "graph twoway rarea pqu" << pu1_str << "_d"
+                << " pqu" << pu2_str << "_d"
+                << " " << xvar << ", bcolor(gs13) || rarea pqu" << po1_str << "_d"
+                << " pqu" << po2_str << "_d"
+                << " " << xvar << " , bcolor(gs10) || /*"
+                << endl << " */ scatter pmean_d "
+                << xvar << ", c(l) m(i) clpattern(l) clcolor(gs0) /* "
+                << endl << " */ ytitle(\"Effect of "
+                << xvar << "\") xtitle(\"" << xvar
+                << "\") xlab(,grid) ylab(,grid) legend(off)"
+                << endl << "graph export " << pathps << "_linexluded.eps, replace"
+                      << endl << endl;
+      }
 
     }
 
@@ -1186,21 +1205,29 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
   if (computemeaneffect==true)
     {
 
-    out_stata << "graph twoway rarea pqu" << pu1_str << "_mu"
-              << " pqu" << pu2_str << "_mu"
-              << " " << xvar << ", bcolor(gs13) || rarea pqu" << po1_str << "_mu"
-              << " pqu" << po2_str << "_mu"
-              << " " << xvar << " , bcolor(gs10) || /*"
-              << endl << " */ scatter pmean_mu "
-              << xvar << ", c(l) m(i) clpattern(l) clcolor(gs0) /* "
-              << endl << " */ ytitle(\"Effect of "
-              << xvar << "\") xtitle(\"" << xvar
-              << "\") xlab(,grid) ylab(,grid) legend(off)"
-              << endl << "graph export " << pathps << "_mu.eps, replace"
-                    << endl << endl;
+    if (designp->type == Mrf)
+      {
+      out_stata << "kdensity pmean_mu" << endl
+                << "graph export " << pathps << "_mu.eps, replace"
+                << endl << endl;
+      }
+    else
+      {
+      out_stata << "graph twoway rarea pqu" << pu1_str << "_mu"
+                << " pqu" << pu2_str << "_mu"
+                << " " << xvar << ", bcolor(gs13) || rarea pqu" << po1_str << "_mu"
+                << " pqu" << po2_str << "_mu"
+                << " " << xvar << " , bcolor(gs10) || /*"
+                << endl << " */ scatter pmean_mu "
+                << xvar << ", c(l) m(i) clpattern(l) clcolor(gs0) /* "
+                << endl << " */ ytitle(\"Effect of "
+                << xvar << "\") xtitle(\"" << xvar
+                << "\") xlab(,grid) ylab(,grid) legend(off)"
+                << endl << "graph export " << pathps << "_mu.eps, replace"
+                      << endl << endl;
+      }
 
     }
-
 
   }
 

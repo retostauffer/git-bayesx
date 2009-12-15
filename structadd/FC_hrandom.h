@@ -110,6 +110,8 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
   void outresults(ofstream & out_stata,ofstream & out_R,
                  const ST::string & pathresults);
 
+  void outgraphs(ofstream & out_stata, ofstream & out_R,
+                         const ST::string & path);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
