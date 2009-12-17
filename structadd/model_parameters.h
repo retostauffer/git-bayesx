@@ -49,6 +49,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   stroption update;
   stroption nu;
   doubleoption maxdist;
+  simpleoption ccovariate;
 
   vector<ST::string> termnames;
 

@@ -53,6 +53,7 @@ using MCMC::DISTR_gaussian_re;
 using MCMC::DISTR_gaussian_exp;
 using MCMC::DISTR_gaussian_mult;
 using MCMC::DISTR_binomial;
+using MCMC::DISTR_poisson;
 using MCMC::DISTR_binomialprobit;
 
 using MCMC::DESIGN_pspline;
@@ -187,6 +188,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_gaussian_exp> distr_gaussian_exps;
   vector<DISTR_gaussian_mult> distr_gaussian_mults;
   vector<DISTR_binomial> distr_binomials;
+  vector<DISTR_poisson> distr_poissons;
   vector<DISTR_binomialprobit> distr_binomialprobits;
 
   bool create_distribution(void);
@@ -228,14 +230,14 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   vector<DESIGN_pspline> design_psplines;
   vector<DESIGN_mrf> design_mrfs;
-  vector<DESIGN_kriging> design_krigings;  
+  vector<DESIGN_kriging> design_krigings;
   vector<FC_nonp> FC_nonps;
   vector<FC_nonp_variance> FC_nonp_variances;
 
   bool create_nonp(void);
   void create_pspline(unsigned i);
   bool create_mrf(unsigned i);
-  bool create_kriging(unsigned i);  
+  bool create_kriging(unsigned i);
 
 //------------------------ end for nonparametric terms -------------------------
 

@@ -452,6 +452,161 @@ void DISTR_binomialprobit::update(void)
   }
 
 
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS DISTRIBUTION_poisson ---------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_poisson::DISTR_poisson(GENERAL_OPTIONS * o, const datamatrix & r,
+                               const datamatrix & w)
+  : DISTR(o,r,w)
+
+  {
+
+  if (check_weightsone() == true)
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+
+  family = "Poisson";
+  updateIWLS = true;
+  }
+
+
+const DISTR_poisson & DISTR_poisson::operator=(
+                                      const DISTR_poisson & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR::operator=(DISTR(nd));
+  return *this;
+  }
+
+
+DISTR_poisson::DISTR_poisson(const DISTR_poisson & nd)
+   : DISTR(DISTR(nd))
+  {
+  }
+
+
+void DISTR_poisson::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function: exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTR_poisson::loglikelihood(double * response, double * linpred,
+                                     double * weight) const
+  {
+
+  return *weight * (*response * *linpred - exp(*linpred));
+
+  }
+
+
+double DISTR_poisson::loglikelihood_weightsone(
+                                  double * response, double * linpred) const
+  {
+  return  *response * (*linpred) - exp(*linpred);
+  }
+
+
+void DISTR_poisson::compute_mu(const double * linpred,double * mu,
+                                bool notransform)
+  {
+  *mu = exp(*linpred);
+  }
+
+
+void DISTR_poisson::compute_deviance(const double * response,
+                   const double * weight,const double * mu,double * deviance,
+                   double * deviancesat, double * scale) const
+  {
+
+  if (*response==0)
+    {
+    *deviance = 2* *weight * *mu;
+    *deviancesat = *deviance;
+    }
+  else
+    {
+    *deviance = -2* *weight*(*response*log(*mu)-*mu);
+    *deviancesat = *deviance+2 *
+                     *weight*(*response * log(*response) - *response);
+    }
+
+  }
+
+
+double DISTR_poisson::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+
+  double mu = exp(*linpred);
+
+  *workingweight = *weight * mu;
+
+  *workingresponse = *linpred + (*response - mu)/mu;
+
+   if (like)
+     {
+     return *weight * (*response * (*linpred) - mu);
+     }
+   else
+     return 0;
+
+  }
+
+
+void DISTR_poisson::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  *workingweight = exp(*linpred);
+
+  *workingresponse = *linpred + (*response - *workingweight)/(*workingweight);
+
+   if (compute_like)
+     {
+     like+=  *response * (*linpred) - (*workingweight);
+     }
+
+  }
+
+
+void DISTR_poisson::compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+
+  }
+
+void DISTR_poisson::compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+
+  }
+
+
+
+
+
 } // end: namespace MCMC
 
 

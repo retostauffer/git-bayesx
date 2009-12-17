@@ -54,6 +54,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   nuv.push_back("3.5");
   nu = stroption("nu",nuv,"1.5");
   maxdist = doubleoption("maxdist",-1,0.00001,10000);
+
+  ccovariate = simpleoption("ccovariate",false);
   }
 
 void term_nonp::setdefault(void)
@@ -81,6 +83,7 @@ void term_nonp::setdefault(void)
   update.setdefault();
   nu.setdefault();
   maxdist.setdefault();
+  ccovariate.setdefault();
   }
 
 
@@ -154,6 +157,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&update);
     optlist.push_back(&nu);
     optlist.push_back(&maxdist);
+    optlist.push_back(&ccovariate);
 
     unsigned i;
     bool rec = true;
@@ -238,6 +242,11 @@ bool term_nonp::check(term & t)
     t.options[22] = nu.getvalue();
 
     t.options[23] = ST::doubletostring(maxdist.getvalue());
+
+    if(ccovariate.getvalue() == false)
+      t.options[24] = "false";
+    else
+      t.options[24] = "true";
 
     setdefault();
     return true;

@@ -29,6 +29,8 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   protected:
 
+  bool ccov;                    // true if covariate should be centered
+
   bool multeffect;
 
   deque<double> knot;          // Vektor der Knoten (sichtbare und unsichtbare)

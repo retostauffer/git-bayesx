@@ -36,6 +36,10 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   18      pvalue
   19      meaneffect
   20      binning
+  21      update
+  22      nu
+  23      maxdist
+  24      ccovariate
   */
 
 
@@ -79,6 +83,11 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
     multeffect=false;
 
   f = op[20].strtodouble(binning);
+
+  if (op[24] == "false")
+    ccov = false;
+  else
+    ccov = true;
 
   datanames = vn;
 
@@ -141,6 +150,17 @@ DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
   //  dmr.prettyPrint(out);
   // TEST
 
+  // centering dm
+  if (ccov == true)
+    {
+    double dmr_mean = dmr.mean(0);
+    double * workd = dmr.getV();
+    unsigned i;
+    for (i=0;i<dmr.rows();i++,workd++)
+      *workd = *workd-dmr_mean;
+    }
+  // end centering
+
   init_data(dmr,iv);
 
   nrpar = nrknots-1+degree;
@@ -176,6 +196,7 @@ DESIGN_pspline::DESIGN_pspline(const DESIGN_pspline & m)
   weightK = m.weightK;
   round = m.round;
   binning = m.binning;
+  ccov = m.ccov;
   }
 
 
@@ -194,6 +215,7 @@ const DESIGN_pspline & DESIGN_pspline::operator=(const DESIGN_pspline & m)
   weightK = m.weightK;
   round = m.round;
   binning = m.binning;
+  ccov = m.ccov;
   return *this;
   }
 

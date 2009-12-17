@@ -117,6 +117,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussian_exp");
   families.push_back("gaussian_mult");
   families.push_back("binomial_logit");
+  families.push_back("poisson");  
   families.push_back("binomial_probit");  
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
@@ -253,6 +254,9 @@ void superbayesreg::clear(void)
   distr_binomials.erase(distr_binomials.begin(),distr_binomials.end());
   distr_binomials.reserve(10);
 
+  distr_poissons.erase(distr_poissons.begin(),distr_poissons.end());
+  distr_poissons.reserve(10);
+
   distr_binomialprobits.erase(distr_binomialprobits.begin(),
                               distr_binomialprobits.end());
   distr_binomialprobits.reserve(10);
@@ -359,6 +363,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
+  distr_poissons = b.distr_poissons;  
   distr_binomialprobits = b.distr_binomialprobits;
 
   resultsyesno = b.resultsyesno;
@@ -413,6 +418,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
+  distr_poissons = b.distr_poissons;  
   distr_binomialprobits = b.distr_binomialprobits;  
 
   resultsyesno = b.resultsyesno;
@@ -611,7 +617,7 @@ bool superbayesreg::check_errors(void)
   bool err=false;
 
 
-  unsigned i,j,k;
+  unsigned j,k;
 
   for (k=0;k<equations.size();k++)
     {
@@ -762,6 +768,18 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: Gaussian response ----------------------------
+//----------------------------- Poisson response -------------------------------
+  else if (family.getvalue() == "poisson")
+    {
+
+    distr_poissons.push_back(DISTR_poisson(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_poissons[distr_poissons.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//-------------------------- END: poisson response ----------------------------
+
 //-------------------------- log-Gaussian response -----------------------------
   else if (family.getvalue() == "loggaussian")
     {
