@@ -29,6 +29,7 @@
 
 #include"FC.h"
 #include"FC_predict.h"
+#include"FC_predictive_check.h"
 #include"FC_nonp.h"
 #include"FC_linear.h"
 #include"FC_hrandom.h"
@@ -64,6 +65,7 @@ using MCMC::equation;
 
 using MCMC::FC;
 using MCMC::FC_predict;
+using MCMC::FC_predictive_check;
 using MCMC::FC_nonp;
 using MCMC::FC_linear;
 using MCMC::FC_mult;
@@ -165,6 +167,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<ST::string> predictop;
   stroption predict;
 
+  simpleoption pred_check;
+
   vector<ST::string> MSEop;
   stroption mse;
 
@@ -215,6 +219,16 @@ class __EXPORT_TYPE superbayesreg : public statobject
   void create_predict(void);
 
   //----------------------------------------------------------------------------
+
+
+  //-------------------------- for predictive_checks ---------------------------
+
+  vector<FC_predictive_check> FC_predictive_checks;
+
+  void create_predictive_check(void);
+
+  //----------------------------------------------------------------------------
+
 
   //---------------------------- for linear terms ------------------------------
 

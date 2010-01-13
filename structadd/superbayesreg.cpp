@@ -86,7 +86,7 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("pspline");
   tnames.push_back("hrandom");
   tnames.push_back("spatial");
-  tnames.push_back("kriging");  
+  tnames.push_back("kriging");
   tnames.push_back("hrandom_pspline");
   tnames.push_back("hrandomexp_pspline");
 
@@ -112,13 +112,13 @@ void superbayesreg::create_hregress(void)
 
   families.reserve(20);
   families.push_back("gaussian");
-  families.push_back("loggaussian");  
+  families.push_back("loggaussian");
   families.push_back("gaussian_re");
   families.push_back("gaussian_exp");
   families.push_back("gaussian_mult");
   families.push_back("binomial_logit");
-  families.push_back("poisson");  
-  families.push_back("binomial_probit");  
+  families.push_back("poisson");
+  families.push_back("binomial_probit");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -135,6 +135,8 @@ void superbayesreg::create_hregress(void)
   predictop.push_back("nosamples");
   predictop.push_back("full");
   predict = stroption("predict",predictop,"no");
+
+  pred_check = simpleoption("pred_check",false);
 
   MSEop.reserve(20);
   MSEop.push_back("no");
@@ -160,9 +162,9 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&equationnr);
   regressoptions.push_back(&equationtype);
   regressoptions.push_back(&predict);
+  regressoptions.push_back(&pred_check);
   regressoptions.push_back(&mse);
-  regressoptions.push_back(&centerlinear);  
-
+  regressoptions.push_back(&centerlinear);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -296,6 +298,9 @@ void superbayesreg::clear(void)
   FC_predicts.erase(FC_predicts.begin(),FC_predicts.end());
   FC_predicts.reserve(10);
 
+  FC_predictive_checks.erase(FC_predictive_checks.begin(),FC_predictive_checks.end());
+  FC_predictive_checks.reserve(10);
+
   }
 
 
@@ -375,6 +380,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_predicts = b.FC_predicts;
+  FC_predictive_checks = b.FC_predictive_checks;
 
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
@@ -418,8 +424,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
-  distr_poissons = b.distr_poissons;  
-  distr_binomialprobits = b.distr_binomialprobits;  
+  distr_poissons = b.distr_poissons;
+  distr_binomialprobits = b.distr_binomialprobits;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -430,6 +436,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_predicts = b.FC_predicts;
+  FC_predictive_checks = b.FC_predictive_checks;
 
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
@@ -579,6 +586,9 @@ void hregressrun(superbayesreg & b)
 
   if (!failure)
     b.create_predict();
+
+  if (!failure)
+    b.create_predictive_check();
 
 
   if ((! failure) && (b.hlevel.getvalue() == 1) &&
@@ -929,6 +939,29 @@ void superbayesreg::create_predict(void)
 
     }
 
+
+  }
+
+
+void superbayesreg::create_predictive_check(void)
+  {
+
+  if (pred_check.getvalue() == true)
+    {
+
+    unsigned modnr = equations.size()-1;
+
+    ST::string h = equations[modnr].paths;
+
+    ST::string pathres = outfile.getvalue() +  "_" + h + "_predictive_check.res";
+
+    FC_predictive_checks.push_back(FC_predictive_check(&generaloptions,
+                         equations[modnr].distrp,"","",D,modelvarnamesv));
+
+    equations[modnr].add_FC(&FC_predictive_checks[FC_predictive_checks.size()-1]
+                           ,pathres);
+
+    }
 
   }
 

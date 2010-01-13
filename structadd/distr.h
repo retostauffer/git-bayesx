@@ -341,6 +341,15 @@ class __EXPORT_TYPE DISTR
 
   virtual void update(void);
 
+
+  //----------------------------------------------------------------------------
+  //---------------------------- SAMPLE RESPONSES ------------------------------
+  //----------------------------------------------------------------------------
+
+  virtual void sample_responses(unsigned i,datamatrix & sr);
+
+  virtual void outresults_predictive_check(datamatrix & D,datamatrix & sr);
+
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
@@ -463,6 +472,9 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
   double get_scalemean(void);
 
+  void sample_responses(unsigned i,datamatrix & sr);
+
+  void outresults_predictive_check(datamatrix & D,datamatrix & sr);
 
   };
 

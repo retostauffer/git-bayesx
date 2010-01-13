@@ -650,6 +650,14 @@ double DISTR::get_scalemean(void)
   }
 
 
+void DISTR::sample_responses(unsigned i,datamatrix & sr)
+  {
+  }
+
+void DISTR::outresults_predictive_check(datamatrix & D,datamatrix & sr)
+  {
+  }
+
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian --------------------------
 //------------------------------------------------------------------------------
@@ -725,6 +733,25 @@ void DISTR_gaussian::standardise(void)
 
   }
 
+
+void DISTR_gaussian::sample_responses(unsigned i,datamatrix & sr)
+  {
+
+  double * linpredp;
+
+  if (linpred_current==1)
+    linpredp = linearpred1.getV();
+  else
+    linpredp = linearpred2.getV();
+
+  double * rp = sr.getV()+i;
+
+  unsigned j;
+  for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
+    *rp = trmult*(*linpredp+sqrt(sigma2)*rand_normal());
+  }
+
+
 void DISTR_gaussian::outoptions(void)
   {
   DISTR::outoptions();
@@ -735,6 +762,58 @@ void DISTR_gaussian::outoptions(void)
 
   optionsp->out("\n");
   optionsp->out("\n");
+  }
+
+
+void DISTR_gaussian::outresults_predictive_check(datamatrix & D,datamatrix & sr)
+  {
+
+  unsigned j;
+  datamatrix h(sr.cols(),1,0);
+
+  optionsp->out("\n");
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.mean(j);
+
+  optionsp->out("   Mean           " + ST::doubletostring(D.mean(0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.min(j);
+  optionsp->out("   Minimum        " + ST::doubletostring(D.min(0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.quantile(25,j);
+  optionsp->out("   25\% Quantile  " + ST::doubletostring(D.quantile(25,0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.quantile(50,j);
+  optionsp->out("   50\% Quantile  " + ST::doubletostring(D.quantile(50,0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.quantile(75,j);
+  optionsp->out("   75\% Quantile  " + ST::doubletostring(D.quantile(75,0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.max(j);
+  optionsp->out("   Maximum        " + ST::doubletostring(D.max(0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+
+  optionsp->out("\n");
+
   }
 
 
