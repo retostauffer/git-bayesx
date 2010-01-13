@@ -220,6 +220,19 @@ class __EXPORT_TYPE FULLCOND
     return fctype;
     }
 
+  // FUNCTION: get_fctype
+  // TASK: returns the type of the full conditional
+
+  void set_fctype(const fullcondtype & fc)
+    {
+    fctype = fc;
+    }
+
+  void set_optionsp(MCMCoptions * o)
+    {
+    optionsp = o;
+    }
+
   // FUNCTION: readsample
   // TASK: reads sample of parameter 'nr' and stores the sample in datamatrix
   //       sample (sample must be optionsp->samplesize x 1 matrix)

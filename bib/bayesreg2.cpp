@@ -1045,7 +1045,6 @@ bool bayesreg::create_random(const unsigned & collinpred)
                                                         )
                           );
 
-
        if  ( ( (structured1==1) && (structured2==0) ) ||
              ( (structured1==0) && (structured2==1) )
            )

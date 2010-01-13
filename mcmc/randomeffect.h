@@ -67,9 +67,13 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
 
   FULLCOND ftotal;
 
+  // BEGIN: DSB //
+  bool ppcheck;
+  void update_linpred_ppcheck(datamatrix & b1,datamatrix & b2);
+  // END: DSB //
+
   void init_spatialtotal(vector<ST::string> & ev, const ST::string & pnt,
                          const ST::string & prt);
-
 
   bool changingweight;
 

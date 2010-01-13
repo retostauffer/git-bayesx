@@ -4,6 +4,75 @@
 namespace MCMC
 {
 
+// BEGIN: DSB //
+
+// initialize ppchecking with a given path for the output
+void
+DISTRIBUTION::initialise_ppcheck(const ST::string & path)
+{
+    // only initialize if we have not yet a full predchange container
+    if (predchange.rows() < nrobs)
+    {
+        // activate ppcheck
+        ppcheck = true;
+
+        // initialize predictor change vector into which the
+        // random effects objects put their individual changes
+        predchange = datamatrix(nrobs, 1, 0);
+
+        // initialize the full conditional object for the ppcheck predictor
+        ST::string path1 = path + "_ppcheck_pred.raw";
+        ppc_pred = FULLCOND(optionsp, datamatrix(1, 1), "ppcheck_pred",
+                            nrobs, 1, path1);
+        ppc_pred.setflags(MCMC::norelchange | MCMC::nooutput);
+
+        // initialize the full conditional object for the ppcheck likelihood contributions
+        ST::string path2 = path + "_ppcheck_like.raw";
+        ppc_like = FULLCOND(optionsp, datamatrix(1, 1), "ppcheck_like",
+                            nrobs, 1, path2);
+        ppc_like.setflags(MCMC::norelchange | MCMC::nooutput);
+    }
+}
+
+// add the double "m" to the position "row" of "predchange"
+void
+DISTRIBUTION::add_linearpred_ppcheck(const double m, const unsigned int row)
+{
+    // only if ppcheck is activated
+    if (ppcheck)
+    {
+        // then go to the position "row" of "predchange" and add the double "m"
+        double * workl = predchange.getV() + row;
+        * workl += m;
+    }
+}
+
+// add the double "m" to the range "index"["beg":"end"] of "predchange".
+// This is an analogue to the function
+// DISTRIBUTION::add_linearpred(const double & m,const unsigned & beg,
+//                              const unsigned & end,const statmatrix<int> & index,
+//                              const unsigned & col, const bool & current)
+void
+DISTRIBUTION::add_linearpred_ppcheck(const double m,
+                                     const unsigned int beg,
+                                     const unsigned int end,
+                                     const statmatrix<int> & index)
+{
+    // only if ppcheck is activated
+    if (ppcheck)
+    {
+        // then get the start position given by the "beg" element of "index"
+        int * workindex = index.getV() + beg;
+
+        // and add the "m" to "predchange" until the "end" of the "index" range
+        for (unsigned register i = beg; i <= end; i++, workindex++)
+        {
+            predchange(* workindex, 0) += m;
+        }
+    }
+}
+// END: DSB
+
 
 void DISTRIBUTION::compute_overall_deviance(double & deviance,double & deviancesat)
   {
@@ -61,7 +130,7 @@ double DISTRIBUTION::compute_msep(void)
 
       nr += 1;
       }
-    else       // überprüfen!!!!!
+    else       // ï¿½berprï¿½fen!!!!!
       {
       worklin += nlcols - 1;
       workresp += nlcols - 1;
@@ -184,7 +253,7 @@ void DISTRIBUTION::create_bootstrap_weights(void)   // wie bei MSEP und CV???
     {
     srand(seed);
     response_ori = response;  // speichert Response vom Original-Datensatz
-    linearpred_ori = linearpred;     // speichert Prädiktor vom Original-Datensatz
+    linearpred_ori = linearpred;     // speichert Prï¿½diktor vom Original-Datensatz
     }
 
   double * workresp = response.getV();
@@ -225,7 +294,7 @@ void DISTRIBUTION::create_weight(datamatrix & w, const double & p1, const bool &
 
   srand(seed);
 
-  if(fertig == true)        // erstellt neue Gewichte für MSEP / AUC
+  if(fertig == true)        // erstellt neue Gewichte fï¿½r MSEP / AUC
     {
     constant_iwlsweights = false;
     iwlsweights_notchanged_df = false;
@@ -263,7 +332,7 @@ void DISTRIBUTION::create_weight(datamatrix & w, const double & p1, const bool &
     iwlsweights_notchanged_df = false;
     weightcv = datamatrix(nrobs,p1,1);
 
-    if(weight.max(0) != 1 || weight.max(0) != 1)  // falls Gewichte im Befehl angegeben wurden, werden diese berücksuchtigt
+    if(weight.max(0) != 1 || weight.max(0) != 1)  // falls Gewichte im Befehl angegeben wurden, werden diese berï¿½cksuchtigt
       {
       double * workw = weight.getV();
       double * workcv = weightcv.getV();
@@ -677,6 +746,12 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   lassosum = d.lassosum;
   nrnigmix = d.nrnigmix;
   nigmixsum = d.nigmixsum;
+
+  ppcheck = d.ppcheck;
+  ppc_pred = d.ppc_pred;
+  ppc_like = d.ppc_like;
+  predchange = d.predchange;
+
   }
 
 
@@ -774,6 +849,11 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   lassosum = d.lassosum;
   nrnigmix = d.nrnigmix;
   nigmixsum = d.nigmixsum;
+
+  ppcheck = d.ppcheck;
+  ppc_pred = d.ppc_pred;
+  ppc_like = d.ppc_like;
+  predchange = d.predchange;
 
   return *this;
   }
@@ -2079,26 +2159,87 @@ void DISTRIBUTION::swap_linearpred(void)
   }
 
 
-void DISTRIBUTION::update(void)
-  {
-
-
-  if (scaleexisting)
+    void
+    DISTRIBUTION::update(void)
     {
 
-    double * bp = Scalesave.getbetapointer();
-    double * sc = scale.getV();
-    unsigned i,j;
-    for (i=0;i<scale.rows();i++)
-      for (j=0;j<scale.cols();j++,bp++,sc++)
-        *bp = *sc;
+        if (scaleexisting)
+        {
 
-    Scalesave.updatemult();
+            double * bp = Scalesave.getbetapointer();
+            double * sc = scale.getV();
+            unsigned i, j;
+            for (i = 0; i < scale.rows(); i++)
+                for (j = 0; j < scale.cols(); j++, bp++, sc++)
+                    * bp = * sc;
 
-    } // end: if (scaleexisting)
+            Scalesave.updatemult();
+
+        } // end: if (scaleexisting)
+
+        // BEGIN: DSB //
+
+        // do we need to do ppchecking?
+        if (ppcheck)
+        {
+
+            // add the current linear predictor values to the predictor changes values
+            {
+                double * prc = predchange.getV();
+                double * prcu = linpred_current->getV();
+                for (int i = 0; i < nrobs; i++, prc++, prcu++)
+                {
+                    * prc += * prcu;
+                }
+            }
+            // so now predchange contains the approximate leave-one-out predictor samples!
+
+            // this is only for debugging:
+
+/*             ofstream out2("c:\\bayesx\\output\\linpred.raw");
+             linpred_current->prettyPrint(out2);
+             out2.close();
+
+             ofstream out3("c:\\bayesx\\output\\response.raw");
+             response.prettyPrint(out3);
+             out3.close();
+
+             ofstream out4("c:\\bayesx\\output\\weight.raw");
+             weight.prettyPrint(out4);
+             out4.close();*/
+
+            // end of debugging part.
 
 
-  } // end: update
+            // write the approximate LOO predictor values into the output matrix,
+            // and compute the corresponding likelihood contributions,
+            // for all (single) observations.
+            {
+                double * ppc_likep = ppc_like.getbetapointer();
+                double * ppc_predp = ppc_pred.getbetapointer();
+                double * resp = response.getV();
+                double * wei = weight.getV();
+                double * prc = predchange.getV();
+
+                for (int i = 0; i < nrobs; i++, ppc_likep++, ppc_predp++, resp++, wei++, prc++)
+                {
+                    * ppc_likep = loglikelihood(prc, resp, wei, 0);
+                    double test=trmult(0,0);
+                    double test2 = addinterceptsample;
+                    * ppc_predp = trmult(0,0) * *prc + addinterceptsample;
+                }
+            }
+
+            // write into files
+            ppc_like.update();
+            ppc_pred.update();
+
+            // refresh predchange vector with zeros
+            predchange = datamatrix(nrobs, 1, 0);
+        }
+        // END: DSB //
+
+    } // end: update
 
 
 void DISTRIBUTION::update_predict(void)
@@ -2358,6 +2499,25 @@ void DISTRIBUTION::outresults(void)
     Scalesave.outresults();
     }
 
+    // BEGIN: DSB //
+
+    // if we do ppchecking
+    if (ppcheck)
+    {
+        // then first the likelihood samples
+        ppc_like.outresults();
+        ST::string pathhelp =
+                pathresultsscale.substr(0, pathresultsscale.length() - 10)
+                        + "_ppcheck_like.raw";
+        ppc_like.get_samples(pathhelp);
+
+        // and then the predictor samples
+        ppc_pred.outresults();
+        pathhelp = pathresultsscale.substr(0, pathresultsscale.length()
+                - 10) + "_ppcheck_pred.raw";
+        ppc_pred.get_samples(pathhelp);
+    }
+    // END: DSB //
 
   lower1 = Scalesave.get_lower1();
   lower2 = Scalesave.get_lower2();
@@ -5220,7 +5380,7 @@ void DISTRIBUTION_gaussian::update(void)
 
   if ( (varianceest==true) || (constscale==true) )
     {
-/* ------------------------- für sigma2_i bei fMRI !!! ------------------------
+/* ------------------------- fï¿½r sigma2_i bei fMRI !!! ------------------------
     unsigned j;
     double sum;
 
@@ -5552,7 +5712,7 @@ void DISTRIBUTION_AFT::outresults(void)
     if (*workweight == 0)
       {
       help = exp(trmult(0,0) * *workresp) - exp(trmult(0,0) * *worklin + sigma2_halbe);
-      //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
+      //sum += *workweight*help*help;     // u.U. ï¿½ndern, so dass zwei Variablen, eine mit
                                           // Gewichten != 0, die andere 0/1 Variable
       sum += help*help * *work2;
       nr += 1;
@@ -5581,7 +5741,7 @@ double DISTRIBUTION_gaussian::compute_msep(void)
     if (*workweight == 0)
       {
       help = *workresp - *worklin;
-      //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
+      //sum += *workweight*help*help;     // u.U. ï¿½ndern, so dass zwei Variablen, eine mit
                                           // Gewichten != 0, die andere 0/1 Variable
       sum += help*help * *work2;
       nr += 1;
@@ -5682,7 +5842,7 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const double & a,
   constscale=false;
   uniformprior=false;
 
-/* ---------------------- für sigma2_i bei fMRI !!! ---------------------------
+/* ---------------------- fï¿½r sigma2_i bei fMRI !!! ---------------------------
   scale(0,0)=1;
   changingweight=true;
   constscale=true;
@@ -6571,10 +6731,10 @@ void DISTRIBUTION_binomial::compute_deviance(const double * response,
 
 double DISTRIBUTION_binomial::compute_auc(void)
   {
-  datamatrix linpred_null_hilf = datamatrix(nrobs,1,0);       // Erzeugen einer Matrix die Einträge für Beob.
-                                                              // mit weight=0 enthält und darunter Nuller
-  datamatrix response_null_hilf = datamatrix(nrobs,1,0);      // Erzeugen einer Matrix die Einträge für Beob.
-                                                              // mit weight=0 enthält und darunter Nuller
+  datamatrix linpred_null_hilf = datamatrix(nrobs,1,0);       // Erzeugen einer Matrix die Eintrï¿½ge fï¿½r Beob.
+                                                              // mit weight=0 enthï¿½lt und darunter Nuller
+  datamatrix response_null_hilf = datamatrix(nrobs,1,0);      // Erzeugen einer Matrix die Eintrï¿½ge fï¿½r Beob.
+                                                              // mit weight=0 enthï¿½lt und darunter Nuller
   double * worklin = linearpred.getV();
   double * lin_null = linpred_null_hilf.getV();
   double * workweight = weight.getV();
@@ -6597,8 +6757,8 @@ double DISTRIBUTION_binomial::compute_auc(void)
       }
     }
 
-  datamatrix linpred_null = datamatrix(nrnull,1,0);  // Kürzen des "Null"-Prädiktors, d.h. Weglassen der Nullen
-  datamatrix response_null = datamatrix(nrnull,1,0); // Kürzen des "Null"-Response, d.h. Weglassen der Nullen
+  datamatrix linpred_null = datamatrix(nrnull,1,0);  // Kï¿½rzen des "Null"-Prï¿½diktors, d.h. Weglassen der Nullen
+  datamatrix response_null = datamatrix(nrnull,1,0); // Kï¿½rzen des "Null"-Response, d.h. Weglassen der Nullen
   double * lin_hilf = linpred_null_hilf.getV();
   lin_null = linpred_null.getV();
   double * resp_hilf = response_null_hilf.getV();
@@ -6609,11 +6769,11 @@ double DISTRIBUTION_binomial::compute_auc(void)
      *resp_null = *resp_hilf;
      }
 
-  statmatrix<int> index_gesamt(linpred_null.rows(),1);      // Sortieren des linearen Prädiktors
+  statmatrix<int> index_gesamt(linpred_null.rows(),1);      // Sortieren des linearen Prï¿½diktors
   index_gesamt.indexinit();
   linpred_null.indexsort(index_gesamt,0,linpred_null.rows()-1,0,0);
   statmatrix<double> rang_gepoolt(linpred_null.rows(),1);
-  linpred_null.rank(rang_gepoolt,index_gesamt,0,linpred_null.rows()-1,0);  // Ränge berechnen
+  linpred_null.rank(rang_gepoolt,index_gesamt,0,linpred_null.rows()-1,0);  // Rï¿½nge berechnen
 
   int* gesamt = index_gesamt.getV();
   double* rang_gep = rang_gepoolt.getV();
