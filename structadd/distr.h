@@ -528,6 +528,10 @@ class __EXPORT_TYPE DISTR_loggaussian : public DISTR_gaussian
                            double * deviancesat,
                            double * scale) const;
 
+  void sample_responses(unsigned i,datamatrix & sr);
+
+  void outresults_predictive_check(datamatrix & D,datamatrix & sr);
+
   };
 
 
@@ -594,6 +598,10 @@ class __EXPORT_TYPE DISTR_gaussian_exp : public DISTR_gaussian
   void update(void);
 
   bool posteriormode(void);
+
+  void sample_responses(unsigned i,datamatrix & sr);
+
+  void outresults_predictive_check(datamatrix & D,datamatrix & sr);
 
   };
 

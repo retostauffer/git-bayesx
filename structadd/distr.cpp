@@ -654,8 +654,63 @@ void DISTR::sample_responses(unsigned i,datamatrix & sr)
   {
   }
 
+
 void DISTR::outresults_predictive_check(datamatrix & D,datamatrix & sr)
   {
+  unsigned j;
+  datamatrix h(sr.cols(),1,0);
+
+  optionsp->out("\n");
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.mean(j);
+
+  optionsp->out("    Mean           " + ST::doubletostring(D.mean(0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sqrt(sr.var(j));
+
+  optionsp->out("    Std.Dev        " + ST::doubletostring(sqrt(D.var(0))) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.min(j);
+  optionsp->out("    Minimum        " + ST::doubletostring(D.min(0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.quantile(25,j);
+  optionsp->out("    25\% Quantile  " + ST::doubletostring(D.quantile(25,0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.quantile(50,j);
+  optionsp->out("    50\% Quantile  " + ST::doubletostring(D.quantile(50,0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.quantile(75,j);
+  optionsp->out("    75\% Quantile  " + ST::doubletostring(D.quantile(75,0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+  for (j=1;j<h.rows();j++)
+    h(j,0) = sr.max(j);
+  optionsp->out("    Maximum        " + ST::doubletostring(D.max(0)) +  "  " +
+                ST::doubletostring(h.quantile(5,0)) + " - "
+                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
+
+
+  optionsp->out("\n");
   }
 
 //------------------------------------------------------------------------------
@@ -768,52 +823,7 @@ void DISTR_gaussian::outoptions(void)
 void DISTR_gaussian::outresults_predictive_check(datamatrix & D,datamatrix & sr)
   {
 
-  unsigned j;
-  datamatrix h(sr.cols(),1,0);
-
-  optionsp->out("\n");
-
-  for (j=1;j<h.rows();j++)
-    h(j,0) = sr.mean(j);
-
-  optionsp->out("   Mean           " + ST::doubletostring(D.mean(0)) +  "  " +
-                ST::doubletostring(h.quantile(5,0)) + " - "
-                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
-
-  for (j=1;j<h.rows();j++)
-    h(j,0) = sr.min(j);
-  optionsp->out("   Minimum        " + ST::doubletostring(D.min(0)) +  "  " +
-                ST::doubletostring(h.quantile(5,0)) + " - "
-                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
-
-
-  for (j=1;j<h.rows();j++)
-    h(j,0) = sr.quantile(25,j);
-  optionsp->out("   25\% Quantile  " + ST::doubletostring(D.quantile(25,0)) +  "  " +
-                ST::doubletostring(h.quantile(5,0)) + " - "
-                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
-
-  for (j=1;j<h.rows();j++)
-    h(j,0) = sr.quantile(50,j);
-  optionsp->out("   50\% Quantile  " + ST::doubletostring(D.quantile(50,0)) +  "  " +
-                ST::doubletostring(h.quantile(5,0)) + " - "
-                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
-
-  for (j=1;j<h.rows();j++)
-    h(j,0) = sr.quantile(75,j);
-  optionsp->out("   75\% Quantile  " + ST::doubletostring(D.quantile(75,0)) +  "  " +
-                ST::doubletostring(h.quantile(5,0)) + " - "
-                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
-
-  for (j=1;j<h.rows();j++)
-    h(j,0) = sr.max(j);
-  optionsp->out("   Maximum        " + ST::doubletostring(D.max(0)) +  "  " +
-                ST::doubletostring(h.quantile(5,0)) + " - "
-                + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
-
-
-  optionsp->out("\n");
-
+  DISTR::outresults_predictive_check(D,sr);
   }
 
 
@@ -1200,6 +1210,36 @@ void DISTR_loggaussian::compute_deviance(const double * response,
 
   }
 
+
+void DISTR_loggaussian::sample_responses(unsigned i,datamatrix & sr)
+  {
+
+  double * linpredp;
+
+  if (linpred_current==1)
+    linpredp = linearpred1.getV();
+  else
+    linpredp = linearpred2.getV();
+
+  double * rp = sr.getV()+i;
+
+  unsigned j;
+  for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
+    *rp = exp(trmult*(*linpredp+sqrt(sigma2)*rand_normal()));
+  }
+
+
+void DISTR_loggaussian::outresults_predictive_check(datamatrix & D,datamatrix & sr)
+  {
+
+  datamatrix Dh = D;
+  unsigned i;
+  for (i=0;i<D.rows();i++)
+    Dh(i,0) = exp(D(i,0));
+
+  DISTR::outresults_predictive_check(Dh,sr);
+  }
+
 //------------------------------------------------------------------------------
 //--------------------- CLASS DISTRIBUTION_gaussian_exp ------------------------
 //------------------------------------------------------------------------------
@@ -1384,6 +1424,31 @@ bool DISTR_gaussian_exp::posteriormode(void)
 
   return true;
 
+  }
+
+
+void DISTR_gaussian_exp::sample_responses(unsigned i,datamatrix & sr)
+  {
+
+  double * linpredp;
+
+  if (linpred_current==1)
+    linpredp = linearpred1.getV();
+  else
+    linpredp = linearpred2.getV();
+
+  double * rp = sr.getV()+i;
+
+  unsigned j;
+  for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
+    *rp = trmult*( exp(*linpredp)+sqrt(sigma2)*rand_normal() );
+  }
+
+
+void DISTR_gaussian_exp::outresults_predictive_check(datamatrix & D,
+                                                     datamatrix & sr)
+  {
+  DISTR::outresults_predictive_check(D,sr);
   }
 
 
