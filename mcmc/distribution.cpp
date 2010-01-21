@@ -1079,6 +1079,34 @@ double DISTRIBUTION::loglikelihood2(const unsigned & beg,const unsigned & end,
 
   }
 
+// BEGIN: DSB //
+
+// FUNCTION: loglikelihood_from_deviance
+// TASK: computes the loglikelihood for a single observation for univariate
+// response, by using the compute_deviance function.
+
+    double
+    DISTRIBUTION::loglikelihood_from_deviance(const double res, // response
+                                              const double lin, // linear predictor
+                                              const double weight // weight
+                                              ) const
+    {
+        // first compute the corresponding mu (with transformation onto the original scale,
+        // as compute_deviance expects that.)
+        double mu = 0;
+        compute_mu(&lin, &mu);
+
+        // then compute the deviance
+        double deviance = 0;
+        double unused = 0;
+
+        compute_deviance(&res, &weight, &mu, &deviance, &unused, scale, 0);
+
+        // and return the corresponding loglikelihood
+        return - 0.5 * deviance;
+    }
+
+// END: DSB //
 
 void DISTRIBUTION::compute_weight(datamatrix & w,const unsigned & col,
                                   const bool & current) const
@@ -2187,7 +2215,7 @@ void DISTRIBUTION::swap_linearpred(void)
             {
                 double * prc = predchange.getV();
                 double * prcu = linpred_current->getV();
-                for (int i = 0; i < nrobs; i++, prc++, prcu++)
+                for (unsigned int i = 0; i < nrobs; i++, prc++, prcu++)
                 {
                     * prc += * prcu;
                 }
@@ -2221,12 +2249,13 @@ void DISTRIBUTION::swap_linearpred(void)
                 double * wei = weight.getV();
                 double * prc = predchange.getV();
 
-                for (int i = 0; i < nrobs; i++, ppc_likep++, ppc_predp++, resp++, wei++, prc++)
+                for (unsigned int i = 0; i < nrobs; i++, ppc_likep++, ppc_predp++, resp++, wei++, prc++)
                 {
-                    * ppc_likep = loglikelihood(prc, resp, wei, 0);
-                    double test=trmult(0,0);
-                    double test2 = addinterceptsample;
-                    * ppc_predp = trmult(0,0) * *prc + addinterceptsample;
+                    * ppc_likep = loglikelihood_from_deviance(*resp, *prc, *wei);
+
+                    double factor = trmult(0,0);
+                    double shift = addinterceptsample;
+                    * ppc_predp = factor * (*prc) + shift;
                 }
             }
 

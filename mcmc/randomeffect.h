@@ -69,7 +69,7 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
 
   // BEGIN: DSB //
   bool ppcheck;
-  void update_linpred_ppcheck(datamatrix & b1,datamatrix & b2);
+  void update_linpred_ppcheck(datamatrix & priorSamples, datamatrix & posteriorSamples);
   // END: DSB //
 
   void init_spatialtotal(vector<ST::string> & ev, const ST::string & pnt,

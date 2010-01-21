@@ -503,6 +503,19 @@ class __EXPORT_TYPE DISTRIBUTION
     return 0;
     }
 
+  // BEGIN: DSB //
+
+    // FUNCTION: loglikelihood_from_deviance
+    // TASK: computes the loglikelihood for a single observation for univariate
+    // response, by using the compute_deviance function.
+
+    double loglikelihood_from_deviance(const double res, // response
+                                       const double lin, // linear predictor
+                                       const double weight // weight
+                                       ) const;
+
+    // END: DSB //
+
   // FUNCTION: loglikelihood
   // TASK: computes the complete loglikelihood for all observations
   // FOR UNIVARIATE AND MULTIVARIATE RESPONSE

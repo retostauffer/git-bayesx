@@ -715,7 +715,7 @@ FULLCOND_random::FULLCOND_random (MCMCoptions * o,DISTRIBUTION * dp,
   // BEGIN: DSB //
 
   // activate checking
-  ppcheck=false;
+  ppcheck=true;
 
   // and then initialize checking in the distribution object with correct path.
   if(ppcheck)
@@ -836,7 +836,7 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * o,DISTRIBUTION * dp,
   // BEGIN: DSB //
 
   // activate checking
-  ppcheck=false;
+  ppcheck=true;
 
   // and then initialize checking in the distribution object with correct path.
   if(ppcheck)
@@ -1337,57 +1337,19 @@ void FULLCOND_random::update_linpred_diff(datamatrix & b1,datamatrix & b2)
         // if this random effect is a random slope:
         if (randomslope)
         {
-            // get the index and covariate data pointers
-            // ??? correct that it is initialized here and not inside the i loop ???
+            // get the index and covariate data pointers, similarly as in update_linpred_diff...
             int * workindex = index.getV();
             double * workdata = data.getV();
 
-            // I think that`s fine. More or less, the function is copied from update_linpred_diff...
-
-            if (includefixed)
-            {
-                unsigned int n = nrpar - 1;
-
-                double ms1 = priorSamples(n, 0);
-                double ms2 = posteriorSamples(n, 0);
-
-                //
-                assert(ms1 == ms2);
-
-                for (unsigned int i = 0; i < n; i++, prior++, posterior++, ++itbeg, ++itend)
-                {
-                    if (* itbeg != - 1)
-                    {
-                        double h = * prior + ms1 - * posterior - ms2;
-                        for (unsigned int j = * itbeg; j <= * itend; j++, workindex++, workdata++)
-                        {
-                            likep->add_linearpred_ppcheck(h * (* workdata), unsigned(* workindex));
-                        }
-                    }
-                }
-
-            }
-            else
-            {
-
-
-            // then process each sample
             for (unsigned int i = 0; i < nrpar; i++, prior++, posterior++, ++itbeg, ++itend)
             {
-                // only do something if the beginning position is valid
-                if (* itbeg != - 1)
+                // compute the difference prior-posterior, multiply with the covariate
+                // value and put thant into the predchange container,
+                // for all [itbeg:itend] indices.
+                for (unsigned int j = * itbeg; j <= * itend; j++, workindex++, workdata++)
                 {
-                    // then compute the difference prior-posterior, multiply with the covariate
-                    // value and put thant into the predchange container,
-                    // for all [itbeg:itend] indices.
-                    for (unsigned int j = * itbeg; j <= * itend; j++, workindex++, workdata++)
-                    {
-                        likep->add_linearpred_ppcheck((* prior - * posterior) * (* workdata), unsigned(* workindex));
-                    }
-
+                    likep->add_linearpred_ppcheck((* prior - * posterior) * (* workdata), unsigned(* workindex));
                 }
-
-            }
             }
         }
         else
@@ -1395,11 +1357,7 @@ void FULLCOND_random::update_linpred_diff(datamatrix & b1,datamatrix & b2)
             // process each sample
             for (unsigned int i = 0; i < nrpar; i++, prior++, posterior++, ++itbeg, ++itend)
             {
-                // only do something if the beginning position is valid
-                if (* itbeg != - 1)
-                {
-                    likep->add_linearpred_ppcheck(*prior - *posterior, * itbeg, * itend, index);
-                }
+                likep->add_linearpred_ppcheck(*prior - *posterior, * itbeg, * itend, index);
             }
         }
 
