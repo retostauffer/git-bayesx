@@ -715,7 +715,7 @@ FULLCOND_random::FULLCOND_random (MCMCoptions * o,DISTRIBUTION * dp,
   // BEGIN: DSB //
 
   // activate checking
-  ppcheck=true;
+  ppcheck = false;
 
   // and then initialize checking in the distribution object with correct path.
   if(ppcheck)
@@ -836,7 +836,7 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * o,DISTRIBUTION * dp,
   // BEGIN: DSB //
 
   // activate checking
-  ppcheck=true;
+  ppcheck = false;
 
   // and then initialize checking in the distribution object with correct path.
   if(ppcheck)

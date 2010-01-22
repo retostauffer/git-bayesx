@@ -57,7 +57,8 @@ bool bayesreg::check_gaussian(const unsigned & collinpred)
      (family.getvalue() == "multinomialprobit") ||
      ((family.getvalue() == "gaussianh") && (collinpred==0)) ||
      (family.getvalue() == "cumprobit") ||
-     (family.getvalue() == "aft")
+     (family.getvalue() == "aft") ||
+     (family.getvalue() == "quantreg")
      )
      return true;
   else
@@ -308,10 +309,14 @@ void bayesreg::create(void)
   families.push_back("multistate");
   families.push_back("gaussianh");
   families.push_back("aft");
+  families.push_back("quantreg");
   family = stroption("family",families,"binomial");
+
+  quantile = doubleoption("quantile",0.5,0.001,0.999);
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
   reference = doubleoption("reference",0,-10000,10000);
+  
 
   vector<ST::string> dop;
   dop.push_back("nb");
@@ -390,6 +395,7 @@ void bayesreg::create(void)
   regressoptions.push_back(&family);
   regressoptions.push_back(&aresp);
   regressoptions.push_back(&bresp);
+  regressoptions.push_back(&quantile);
 
   regressoptions.push_back(&gamvar);
   regressoptions.push_back(&cit);
@@ -714,6 +720,8 @@ void bayesreg::initpointers(void)
       distr.push_back(&distr_multistatemodel);
     else if (distrstring[i] == "aft")
       distr.push_back(&distr_aft);
+    else if (distrstring[i] == "quantreg")
+      distr.push_back(&distr_quantreg);
     }
 
 
@@ -980,6 +988,7 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   distr_zip = b.distr_zip;
   distr_cox = b.distr_cox;
   distr_aft = b.distr_aft;
+  distr_quantreg = b.distr_quantreg;
   distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
@@ -1026,6 +1035,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   distr_zip = b.distr_zip;
   distr_cox = b.distr_cox;
   distr_aft = b.distr_aft;
+  distr_quantreg = b.distr_quantreg;
   distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
@@ -1507,6 +1517,63 @@ bool bayesreg::create_distribution(void)
     nrcategories = 1;
     }
 //----------------------------------- END: AFT ---------------------------------
+
+//----------------------------------- quantreg ---------------------------------
+  else if (family.getvalue() == "quantreg")
+    {
+    ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
+#if defined(__BUILDING_LINUX)
+    ST::string path3 = defaultpath + "/temp/" + name + add_name + "_scale.raw";
+#else
+    ST::string path3 = defaultpath + "\\temp\\" + name + add_name + "_scale.raw";
+#endif
+
+    double quant = quantile.getvalue();
+
+    if (offs.rows() == 1)
+      distr_quantreg = DISTRIBUTION_QUANTREG(aresp.getvalue(),bresp.getvalue(),
+                                             &generaloptions[generaloptions.size()-1],
+                                             D.getCol(0),path2,
+                                             path3,quant,w);
+    else
+      distr_quantreg = DISTRIBUTION_QUANTREG(offs,aresp.getvalue(),
+                                             bresp.getvalue(),&generaloptions[generaloptions.size()-1],
+                                             D.getCol(0),path2,path3,
+                                             quant,w);
+
+    distr_quantreg.init_names(rname,wn);
+    distr_quantreg.set_constscale(scalevalue.getvalue());
+
+    // prediction stuff
+
+    if ((predict.getvalue() == true) || (predictmu.getvalue() == true) )
+      distr_quantreg.set_predict(path,pathdev,&D,modelvarnamesv);
+
+    if (predictmu.getvalue() == true)
+      {
+      unsigned n;
+      if (predictuntil.changed())
+        {
+        n = predictuntil.getvalue();
+        if (n > D.rows())
+          n = D.rows();
+        }
+      else
+         n = D.rows();
+      distr_quantreg.set_predictfull(pathfullsample,pathfull,n);
+      }
+
+    if (pind.rows() > 1)
+      distr_quantreg.set_predictresponse(pind);
+
+    // end: prediction stuff
+
+    distr.push_back(&distr_quantreg);
+    distrstring.push_back("QuantileReg");
+    distrposition.push_back(0);
+    nrcategories = 1;
+    }
+//-------------------------------- END: quantreg -------------------------------
 
 //---------------------------- Gaussian response RE  ---------------------------
   else if (family.getvalue() == "gaussian_re")

@@ -2488,6 +2488,106 @@ class __EXPORT_TYPE DISTRIBUTION_AFT : public DISTRIBUTION_gaussian
   };
 
 
+//------------------------------------------------------------------------------
+//---------------------- CLASS: DISTRIBUTION_QUANTREG --------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTRIBUTION_QUANTREG : public DISTRIBUTION_gaussian
+  {
+
+  protected:
+
+  datamatrix responseorig;
+  double quantile;
+  double xi;
+  double sigma02;
+
+  public:
+
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTRIBUTION_QUANTREG(void);
+
+   // CONSTRUCTOR1
+   // a_invgamma = a
+   // b_invgamma = b
+
+   DISTRIBUTION_QUANTREG(const double & a,
+                         const double & b,
+                         MCMCoptions * o,
+                         const datamatrix & r,
+                         const ST::string & p,
+                         const ST::string & ps,
+                         const double & quant,
+                         const datamatrix & w=datamatrix());
+
+   // CONSTRUCTOR2
+   // a_invgamma = a
+   // b_invgamma = b
+
+   DISTRIBUTION_QUANTREG(const datamatrix & offset,
+                         const double & a,
+                         const double & b,
+                         MCMCoptions * o,
+                         const datamatrix & r,
+                         const ST::string & p,
+                         const ST::string & ps,
+                         const double & quant,
+                         const datamatrix & w=datamatrix());
+
+
+
+   // COPY CONSTRUCTOR
+
+   DISTRIBUTION_QUANTREG(const DISTRIBUTION_QUANTREG & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTRIBUTION_QUANTREG & operator=(const DISTRIBUTION_QUANTREG & nd);
+
+   // DESTRUCTOR
+
+   ~DISTRIBUTION_QUANTREG() {}
+
+  // FUNCTION: compute_deviance
+  // TASK: computes the retransformed individual deviance
+  //       scale and response is assumed to be NOT RETRANSFORMED
+  //       but will be retransformed when computing the residual
+  //       mu is assumed to be already restransformed
+
+  void compute_deviance(const double * response,const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           const datamatrix & scale,const int & i) const;
+
+
+  void outoptions(void);
+
+  // FUNCTION: update
+  // TASK: updates the scale parameter
+
+  void update(void);
+
+  bool posteriormode(void);
+
+  bool posteriormode_converged_fc(const datamatrix & beta,
+                                  const datamatrix & beta_mode,
+                                  const unsigned & itnr);
+
+  void outresults(void);
+
+/*
+  void set_constscale(double s);
+
+  void undo_constscale(void);
+
+  void set_uniformprior(void);
+
+  void update_missings(void);
+*/
+  };
+
 
 
 

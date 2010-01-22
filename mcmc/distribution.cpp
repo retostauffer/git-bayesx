@@ -4,6 +4,8 @@
 namespace MCMC
 {
 
+using randnumbers::rand_inv_gaussian;
+
 // BEGIN: DSB //
 
 // initialize ppchecking with a given path for the output
@@ -506,6 +508,8 @@ DISTRIBUTION::DISTRIBUTION(MCMCoptions * o, const datamatrix & r,
                            const ST::string & ps)
   {
   nosamples = false;
+  ppcheck=false;
+
   pathresultsscale = pr;
   Scalesave = FULLCOND(o,datamatrix(1,1),"Scaleparameter",1,1,ps);
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
@@ -526,6 +530,7 @@ DISTRIBUTION::DISTRIBUTION(const datamatrix & offset,MCMCoptions * o,
                            const ST::string & pr,const ST::string & ps)
   {
   nosamples = false;
+  ppcheck=false;
   pathresultsscale = pr;
   Scalesave = FULLCOND(o,datamatrix(1,1),"Scaleparameter",1,1,ps);
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
@@ -5716,11 +5721,176 @@ void DISTRIBUTION_AFT::outresults(void)
   void update_missings(void);
   */
 
-// -----------------------------------------------------------------------------
-//----------------------------- DISTRIBUTION_AFT -------------------------------
+
+//------------------------------------------------------------------------------
+//---------------------- CLASS: DISTRIBUTION_QUANTREG --------------------------
 //------------------------------------------------------------------------------
 
 
+DISTRIBUTION_QUANTREG::DISTRIBUTION_QUANTREG(void) : DISTRIBUTION_gaussian()
+  {
+  }
+
+
+
+DISTRIBUTION_QUANTREG::DISTRIBUTION_QUANTREG(const double & a,
+                                             const double & b,
+                                             MCMCoptions * o,
+                                             const datamatrix & r,
+                                             const ST::string & p,
+                                             const ST::string & ps,
+                                             const double & quant,
+                                             const datamatrix & w)
+  : DISTRIBUTION_gaussian(a,b,o,r,p,ps,w)
+
+  {
+  responseorig = response;
+  changingweight = true;
+  quantile = quant;
+  xi = (1-2*quant)/(quant * (1-quant));
+  sigma02 = 2 / (quant*(1-quant));
+  }
+
+
+// constructor with offset
+DISTRIBUTION_QUANTREG::DISTRIBUTION_QUANTREG(const datamatrix & offset,
+                      const double & a, const double & b, MCMCoptions * o,
+                      const datamatrix & r,
+                      const ST::string & p,
+                      const ST::string & ps,
+                      const double & quant,
+                      const datamatrix & w)
+  : DISTRIBUTION_gaussian(offset,a,b,o,r,p,ps,w)
+
+  {
+  responseorig = response;
+  changingweight = true;
+  quantile = quant;
+  xi = (1-2*quant)/(quant * (1-quant));
+  sigma02 = 2 / (quant*(1-quant));
+  }
+
+
+// COPY CONSTRUCTOR
+
+DISTRIBUTION_QUANTREG::DISTRIBUTION_QUANTREG(const DISTRIBUTION_QUANTREG & nd)
+   : DISTRIBUTION_gaussian(DISTRIBUTION_gaussian(nd))
+  {
+  responseorig = nd.responseorig;
+  quantile = nd.quantile;
+  xi = nd.xi;
+  sigma02 = nd.sigma02;
+  }
+
+
+const DISTRIBUTION_QUANTREG & DISTRIBUTION_QUANTREG::operator=(
+                                      const DISTRIBUTION_QUANTREG & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTRIBUTION_gaussian::operator=(DISTRIBUTION_gaussian(nd));
+  responseorig = nd.responseorig;
+  quantile = nd.quantile;
+  xi = nd.xi;
+  sigma02 = nd.sigma02;
+  return *this;
+  }
+
+
+void DISTRIBUTION_QUANTREG::compute_deviance(const double * response,
+                           const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           const datamatrix & scale,const int & i) const
+    {
+
+    }
+
+
+void DISTRIBUTION_QUANTREG::outoptions(void) 
+  {
+  DISTRIBUTION_gaussian::outoptions();
+  }
+
+
+void DISTRIBUTION_QUANTREG::update(void)
+  {
+  unsigned i;
+
+  double * rp = response.getV();
+  double * rpo = responseorig.getV();
+  double * w = weight.getV();
+  double * worklin = (*linpred_current).getV();
+
+  double xi2 = xi*xi;
+  double lambda = (xi2 + 2*sigma02)/ (scale(0,0));
+  double num = sqrt(xi2 + 2*sigma02);
+  double mu;
+
+  double sumres=0;
+  double sumw=0;
+
+  for(i=0; i<weight.rows(); i++, w++, rp++, worklin++)
+    {
+    double test = *rp;
+    double test2 = *worklin;
+    double test3 = *rp - *worklin;
+    double test4 = abs(*rp - *worklin);
+
+    mu = num/(fabs(*rp-*worklin));
+    *w = rand_inv_gaussian(mu, lambda);
+    *rp = *rpo - xi / *w;
+
+    sumw += 1 / *w;
+    sumres += *w * (*rp-*worklin)*(*rp-*worklin); 
+    }
+
+  sumres /= sigma02;
+
+  scale(0,0) = rand_invgamma(a_invgamma + 1.5*nrobsmweightzero,
+                  b_invgamma + 0.5*sumres + sumw);
+
+  DISTRIBUTION_gaussian::update();
+
+  scale(0,0) *= sigma02;
+
+  }
+
+
+bool DISTRIBUTION_QUANTREG::posteriormode(void)
+  {
+
+  return true;
+  }
+
+bool DISTRIBUTION_QUANTREG::posteriormode_converged_fc(const datamatrix & beta,
+                                  const datamatrix & beta_mode,
+                                  const unsigned & itnr)
+  {
+  return true;
+  }
+
+
+void DISTRIBUTION_QUANTREG::outresults(void)
+  {
+  DISTRIBUTION_gaussian::outresults();
+  }
+
+
+  /*
+  void set_constscale(double s);
+
+  void undo_constscale(void);
+
+  void set_uniformprior(void);
+
+  void update_missings(void);
+  */
+
+
+//------------------------------------------------------------------------------
+//----------------------- END: DISTRIBUTION_QUANTREG ---------------------------
+//------------------------------------------------------------------------------
 
 /*double DISTRIBUTION_gaussian::compute_logmsep(void)
   {

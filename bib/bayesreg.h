@@ -91,6 +91,7 @@ using MCMC::DISTRIBUTION_cumulative_latent3;
 using MCMC::DISTRIBUTION_coxmodel;
 using MCMC::DISTRIBUTION_multistatemodel;
 using MCMC::DISTRIBUTION_AFT;
+using MCMC::DISTRIBUTION_QUANTREG;
 using MCMC::FULLCOND;
 using MCMC::FULLCOND_const;
 using MCMC::FULLCOND_const_gaussian;
@@ -397,6 +398,7 @@ class __EXPORT_TYPE bayesreg : public statobject
                                         // (Gaussian response)
   doubleoption bresp;                   // Hyperparameter b of overal variance
                                         // (Gaussian response)
+  doubleoption quantile;                // quantile for quantile regression
 
   stroption knots;                      // equidistant knots or non equidistant
                                         // knots (P-splines)
@@ -445,6 +447,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   DISTRIBUTION_multistatemodel distr_multistatemodel;
   DISTRIBUTION_gaussianh distr_gaussianh;
   DISTRIBUTION_AFT distr_aft;
+  DISTRIBUTION_QUANTREG distr_quantreg;
 
   doubleoption reference;
 
