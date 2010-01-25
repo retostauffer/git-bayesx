@@ -5830,14 +5830,14 @@ void DISTRIBUTION_QUANTREG::update(void)
   double sumres=0;
   double sumw=0;
 
-  for(i=0; i<weight.rows(); i++, w++, rp++, worklin++)
+  for(i=0; i<weight.rows(); i++, w++, rp++, worklin++, rpo++)
     {
-    double test = *rp;
+/*    double test = *rp;
     double test2 = *worklin;
     double test3 = *rp - *worklin;
-    double test4 = abs(*rp - *worklin);
+    double test4 = abs(*rp - *worklin);*/
 
-    mu = num/(fabs(*rp-*worklin));
+    mu = num/(fabs(*rpo-*worklin));
     *w = rand_inv_gaussian(mu, lambda);
     *rp = *rpo - xi / *w;
 
