@@ -773,6 +773,8 @@ bool bayesreg::create_randomslope(const unsigned & collinpred)
                                                         inclf,collinpred
                                                         )
                           );
+        if(mscheck.getvalue()==true)
+          fcrandomgaussian[fcrandomgaussian.size()-1].set_mscheck(true);
 
         vector<ST::string> na;
         na.push_back(terms[i].varnames[1]);
@@ -820,6 +822,8 @@ bool bayesreg::create_randomslope(const unsigned & collinpred)
                                                         collinpred
                                                         )
                           );
+        if(mscheck.getvalue()==true)
+          fcrandom[fcrandom.size()-1].set_mscheck(true);
 
         vector<ST::string> na;
         na.push_back(terms[i].varnames[1]);
@@ -938,6 +942,8 @@ bool bayesreg::create_random(const unsigned & collinpred)
                                                         lambda,collinpred
                                                         )
                           );
+        if(mscheck.getvalue()==true)
+          fcrandomgaussian[fcrandomgaussian.size()-1].set_mscheck(true);
 
         if (structured==1)
           {
@@ -1044,6 +1050,8 @@ bool bayesreg::create_random(const unsigned & collinpred)
                                                         collinpred
                                                         )
                           );
+        if(mscheck.getvalue()==true)
+          fcrandom[fcrandom.size()-1].set_mscheck(true);
 
        if  ( ( (structured1==1) && (structured2==0) ) ||
              ( (structured1==0) && (structured2==1) )
@@ -3887,4 +3895,5 @@ bool bayesreg::create_random_pspline(const unsigned & collinpred)
 
   return false;
   }
+
 

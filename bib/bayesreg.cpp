@@ -313,6 +313,8 @@ void bayesreg::create(void)
   family = stroption("family",families,"binomial");
 
   quantile = doubleoption("quantile",0.5,0.001,0.999);
+  mscheck = simpleoption("mscheck",false);
+
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
   reference = doubleoption("reference",0,-10000,10000);
@@ -396,6 +398,7 @@ void bayesreg::create(void)
   regressoptions.push_back(&aresp);
   regressoptions.push_back(&bresp);
   regressoptions.push_back(&quantile);
+  regressoptions.push_back(&mscheck);
 
   regressoptions.push_back(&gamvar);
   regressoptions.push_back(&cit);

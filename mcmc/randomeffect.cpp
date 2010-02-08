@@ -9,6 +9,19 @@ namespace MCMC
 //----------------- class FULLCOND_random --------------------------------------
 //------------------------------------------------------------------------------
 
+  // BEGIN: DSB //
+void FULLCOND_random::set_mscheck(const bool & val)
+    {
+    mscheck = val;
+    if(mscheck)
+      {
+      ST::string path = samplepath.substr(0,samplepath.length()-4);
+      likep->initialise_mscheck(path);
+      }
+    }
+  // END: DSB //
+
+
 void FULLCOND_random::init_name(const ST::string & na)
     {
     char charh = '_';
@@ -712,18 +725,6 @@ FULLCOND_random::FULLCOND_random (MCMCoptions * o,DISTRIBUTION * dp,
 
   muy = datamatrix(nrpar,1);
 
-  // BEGIN: DSB //
-
-  // activate checking
-  ppcheck = false;
-
-  // and then initialize checking in the distribution object with correct path.
-  if(ppcheck)
-    {
-    ST::string path = samplepath.substr(0,samplepath.length()-4);
-    likep->initialise_ppcheck(path);
-    }
-  // END: DSB //
 
 //  identifiable =true;
 
@@ -833,19 +834,6 @@ FULLCOND_random::FULLCOND_random(MCMCoptions * o,DISTRIBUTION * dp,
 
   muy = datamatrix(nrpar,1);
 
-  // BEGIN: DSB //
-
-  // activate checking
-  ppcheck = false;
-
-  // and then initialize checking in the distribution object with correct path.
-  if(ppcheck)
-  {
-    ST::string path = samplepath.substr(0,samplepath.length()-4);
-    likep->initialise_ppcheck(path);
-  }
-  // END: DSB //
-
   identifiable = true;
 
   }
@@ -879,7 +867,7 @@ FULLCOND_random::FULLCOND_random(const FULLCOND_random & fc)
   data2 = fc.data2;
 
   // BEGIN:  //
-  ppcheck = fc.ppcheck;
+  mscheck = fc.mscheck;
   // END: DSB //
 
   }
@@ -918,7 +906,7 @@ const FULLCOND_random & FULLCOND_random::
   data2 = fc.data2;
 
   // BEGIN: DSB //
-  ppcheck = fc.ppcheck;
+  mscheck = fc.mscheck;
   // END: DSB //
 
   return *this;
@@ -934,7 +922,7 @@ void FULLCOND_random::update(void)
     transform = 1;
 
   // BEGIN: DSB //
-    if (ppcheck)
+    if (mscheck)
         {
             // allocate storage for the random effects prior samples
             datamatrix bsamples = datamatrix(beta.rows(), beta.cols());
@@ -963,7 +951,7 @@ void FULLCOND_random::update(void)
             }
 
             // update the linear predictors accordingly
-            update_linpred_ppcheck(bsamples, beta);
+            update_linpred_mscheck(bsamples, beta);
 
         }
   // END: DSB //
@@ -1323,7 +1311,7 @@ void FULLCOND_random::update_linpred_diff(datamatrix & b1,datamatrix & b2)
 
     // BEGIN: DSB //
     void
-    FULLCOND_random::update_linpred_ppcheck(datamatrix & priorSamples,
+    FULLCOND_random::update_linpred_mscheck(datamatrix & priorSamples,
                                             datamatrix & posteriorSamples)
     {
         // these pointers are needed both for random slopes and random intercepts:
@@ -1348,7 +1336,7 @@ void FULLCOND_random::update_linpred_diff(datamatrix & b1,datamatrix & b2)
                 // for all [itbeg:itend] indices.
                 for (unsigned int j = * itbeg; j <= * itend; j++, workindex++, workdata++)
                 {
-                    likep->add_linearpred_ppcheck((* prior - * posterior) * (* workdata), unsigned(* workindex));
+                    likep->add_linearpred_mscheck((* prior - * posterior) * (* workdata), unsigned(* workindex));
                 }
             }
         }
@@ -1357,7 +1345,7 @@ void FULLCOND_random::update_linpred_diff(datamatrix & b1,datamatrix & b2)
             // process each sample
             for (unsigned int i = 0; i < nrpar; i++, prior++, posterior++, ++itbeg, ++itend)
             {
-                likep->add_linearpred_ppcheck(*prior - *posterior, * itbeg, * itend, index);
+                likep->add_linearpred_mscheck(*prior - *posterior, * itbeg, * itend, index);
             }
         }
 

@@ -68,8 +68,8 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
   FULLCOND ftotal;
 
   // BEGIN: DSB //
-  bool ppcheck;
-  void update_linpred_ppcheck(datamatrix & priorSamples, datamatrix & posteriorSamples);
+  bool mscheck;
+  void update_linpred_mscheck(datamatrix & priorSamples, datamatrix & posteriorSamples);
   // END: DSB //
 
   void init_spatialtotal(vector<ST::string> & ev, const ST::string & pnt,
@@ -84,6 +84,8 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
   void update_linpred_diff(datamatrix & b1,datamatrix & b2);
 
   public:
+
+  void set_mscheck(const bool & val);
 
   // DEFAULT CONSTRUCTOR:
 

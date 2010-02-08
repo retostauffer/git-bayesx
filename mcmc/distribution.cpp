@@ -8,40 +8,40 @@ using randnumbers::rand_inv_gaussian;
 
 // BEGIN: DSB //
 
-// initialize ppchecking with a given path for the output
+// initialize mschecking with a given path for the output
 void
-DISTRIBUTION::initialise_ppcheck(const ST::string & path)
+DISTRIBUTION::initialise_mscheck(const ST::string & path)
 {
     // only initialize if we have not yet a full predchange container
     if (predchange.rows() < nrobs)
     {
-        // activate ppcheck
-        ppcheck = true;
+        // activate mscheck
+        mscheck = true;
 
         // initialize predictor change vector into which the
         // random effects objects put their individual changes
         predchange = datamatrix(nrobs, 1, 0);
 
-        // initialize the full conditional object for the ppcheck predictor
-        ST::string path1 = path + "_ppcheck_pred.raw";
-        ppc_pred = FULLCOND(optionsp, datamatrix(1, 1), "ppcheck_pred",
+        // initialize the full conditional object for the mscheck predictor
+        ST::string path1 = path + "_mscheck_pred.raw";
+        msc_pred = FULLCOND(optionsp, datamatrix(1, 1), "mscheck_pred",
                             nrobs, 1, path1);
-        ppc_pred.setflags(MCMC::norelchange | MCMC::nooutput);
+        msc_pred.setflags(MCMC::norelchange | MCMC::nooutput);
 
-        // initialize the full conditional object for the ppcheck likelihood contributions
-        ST::string path2 = path + "_ppcheck_like.raw";
-        ppc_like = FULLCOND(optionsp, datamatrix(1, 1), "ppcheck_like",
+        // initialize the full conditional object for the mscheck likelihood contributions
+        ST::string path2 = path + "_mscheck_like.raw";
+        msc_like = FULLCOND(optionsp, datamatrix(1, 1), "mscheck_like",
                             nrobs, 1, path2);
-        ppc_like.setflags(MCMC::norelchange | MCMC::nooutput);
+        msc_like.setflags(MCMC::norelchange | MCMC::nooutput);
     }
 }
 
 // add the double "m" to the position "row" of "predchange"
 void
-DISTRIBUTION::add_linearpred_ppcheck(const double m, const unsigned int row)
+DISTRIBUTION::add_linearpred_mscheck(const double m, const unsigned int row)
 {
-    // only if ppcheck is activated
-    if (ppcheck)
+    // only if mscheck is activated
+    if (mscheck)
     {
         // then go to the position "row" of "predchange" and add the double "m"
         double * workl = predchange.getV() + row;
@@ -55,13 +55,13 @@ DISTRIBUTION::add_linearpred_ppcheck(const double m, const unsigned int row)
 //                              const unsigned & end,const statmatrix<int> & index,
 //                              const unsigned & col, const bool & current)
 void
-DISTRIBUTION::add_linearpred_ppcheck(const double m,
+DISTRIBUTION::add_linearpred_mscheck(const double m,
                                      const unsigned int beg,
                                      const unsigned int end,
                                      const statmatrix<int> & index)
 {
-    // only if ppcheck is activated
-    if (ppcheck)
+    // only if mscheck is activated
+    if (mscheck)
     {
         // then get the start position given by the "beg" element of "index"
         int * workindex = index.getV() + beg;
@@ -508,7 +508,7 @@ DISTRIBUTION::DISTRIBUTION(MCMCoptions * o, const datamatrix & r,
                            const ST::string & ps)
   {
   nosamples = false;
-  ppcheck=false;
+  mscheck=false;
 
   pathresultsscale = pr;
   Scalesave = FULLCOND(o,datamatrix(1,1),"Scaleparameter",1,1,ps);
@@ -530,7 +530,7 @@ DISTRIBUTION::DISTRIBUTION(const datamatrix & offset,MCMCoptions * o,
                            const ST::string & pr,const ST::string & ps)
   {
   nosamples = false;
-  ppcheck=false;
+  mscheck=false;
   pathresultsscale = pr;
   Scalesave = FULLCOND(o,datamatrix(1,1),"Scaleparameter",1,1,ps);
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
@@ -752,9 +752,9 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   nrnigmix = d.nrnigmix;
   nigmixsum = d.nigmixsum;
 
-  ppcheck = d.ppcheck;
-  ppc_pred = d.ppc_pred;
-  ppc_like = d.ppc_like;
+  mscheck = d.mscheck;
+  msc_pred = d.msc_pred;
+  msc_like = d.msc_like;
   predchange = d.predchange;
 
   }
@@ -855,9 +855,9 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   nrnigmix = d.nrnigmix;
   nigmixsum = d.nigmixsum;
 
-  ppcheck = d.ppcheck;
-  ppc_pred = d.ppc_pred;
-  ppc_like = d.ppc_like;
+  mscheck = d.mscheck;
+  msc_pred = d.msc_pred;
+  msc_like = d.msc_like;
   predchange = d.predchange;
 
   return *this;
@@ -2212,8 +2212,8 @@ void DISTRIBUTION::swap_linearpred(void)
 
         // BEGIN: DSB //
 
-        // do we need to do ppchecking?
-        if (ppcheck)
+        // do we need to do mschecking?
+        if (mscheck)
         {
 
             // add the current linear predictor values to the predictor changes values
@@ -2248,25 +2248,25 @@ void DISTRIBUTION::swap_linearpred(void)
             // and compute the corresponding likelihood contributions,
             // for all (single) observations.
             {
-                double * ppc_likep = ppc_like.getbetapointer();
-                double * ppc_predp = ppc_pred.getbetapointer();
+                double * msc_likep = msc_like.getbetapointer();
+                double * msc_predp = msc_pred.getbetapointer();
                 double * resp = response.getV();
                 double * wei = weight.getV();
                 double * prc = predchange.getV();
 
-                for (unsigned int i = 0; i < nrobs; i++, ppc_likep++, ppc_predp++, resp++, wei++, prc++)
+                for (unsigned int i = 0; i < nrobs; i++, msc_likep++, msc_predp++, resp++, wei++, prc++)
                 {
-                    * ppc_likep = loglikelihood_from_deviance(*resp, *prc, *wei);
+                    * msc_likep = loglikelihood_from_deviance(*resp, *prc, *wei);
 
                     double factor = trmult(0,0);
                     double shift = addinterceptsample;
-                    * ppc_predp = factor * (*prc) + shift;
+                    * msc_predp = factor * (*prc) + shift;
                 }
             }
 
             // write into files
-            ppc_like.update();
-            ppc_pred.update();
+            msc_like.update();
+            msc_pred.update();
 
             // refresh predchange vector with zeros
             predchange = datamatrix(nrobs, 1, 0);
@@ -2535,21 +2535,21 @@ void DISTRIBUTION::outresults(void)
 
     // BEGIN: DSB //
 
-    // if we do ppchecking
-    if (ppcheck)
+    // if we do mschecking
+    if (mscheck)
     {
         // then first the likelihood samples
-        ppc_like.outresults();
+        msc_like.outresults();
         ST::string pathhelp =
                 pathresultsscale.substr(0, pathresultsscale.length() - 10)
-                        + "_ppcheck_like.raw";
-        ppc_like.get_samples(pathhelp);
+                        + "_mscheck_like.raw";
+        msc_like.get_samples(pathhelp);
 
         // and then the predictor samples
-        ppc_pred.outresults();
+        msc_pred.outresults();
         pathhelp = pathresultsscale.substr(0, pathresultsscale.length()
-                - 10) + "_ppcheck_pred.raw";
-        ppc_pred.get_samples(pathhelp);
+                - 10) + "_mscheck_pred.raw";
+        msc_pred.get_samples(pathhelp);
     }
     // END: DSB //
 

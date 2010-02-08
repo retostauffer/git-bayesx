@@ -399,6 +399,7 @@ class __EXPORT_TYPE bayesreg : public statobject
   doubleoption bresp;                   // Hyperparameter b of overal variance
                                         // (Gaussian response)
   doubleoption quantile;                // quantile for quantile regression
+  simpleoption mscheck;                 // Marshall-Spiegelhalter model checking
 
   stroption knots;                      // equidistant knots or non equidistant
                                         // knots (P-splines)

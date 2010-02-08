@@ -157,9 +157,9 @@ class __EXPORT_TYPE DISTRIBUTION
 
   // BEGIN: DSB //
 
-  bool ppcheck;                   // do approximate leave-one-out checking?
-  FULLCOND ppc_pred;              // Full conditional storing corresponding Predictors samples
-  FULLCOND ppc_like;              // Full conditional storing corresponding Likelihoods samples
+  bool mscheck;                   // do approximate leave-one-out checking?
+  FULLCOND msc_pred;              // Full conditional storing corresponding Predictors samples
+  FULLCOND msc_like;              // Full conditional storing corresponding Likelihoods samples
   datamatrix predchange;          // matrix (with one column) storing the difference between
                                   // predictors for prior and posterior sampling in one iteration -
                                   // this is necessary for approximate leave-one-out checking
@@ -282,9 +282,9 @@ class __EXPORT_TYPE DISTRIBUTION
   ~DISTRIBUTION() {}
 
   // BEGIN: DSB //
-  void initialise_ppcheck(const ST::string & path);
-  void add_linearpred_ppcheck(const double m, const unsigned int row);
-  void add_linearpred_ppcheck(const double m,const unsigned int beg,
+  void initialise_mscheck(const ST::string & path);
+  void add_linearpred_mscheck(const double m, const unsigned int row);
+  void add_linearpred_mscheck(const double m,const unsigned int beg,
                         const unsigned int end,const statmatrix<int> & index);
   // END: DSB //
 
