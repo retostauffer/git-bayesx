@@ -1329,7 +1329,9 @@ void FULLCOND_random::update_linpred_diff(datamatrix & b1,datamatrix & b2)
             int * workindex = index.getV();
             double * workdata = data.getV();
 
-            for (unsigned int i = 0; i < nrpar; i++, prior++, posterior++, ++itbeg, ++itend)
+            // note that if a fixed effect is included (then includefixed is true), we only
+            // go up to the last but one parameter, in order not to run into segmentation faults
+            for (unsigned int i = 0; i < nrpar - includefixed; i++, prior++, posterior++, ++itbeg, ++itend)
             {
                 // compute the difference prior-posterior, multiply with the covariate
                 // value and put thant into the predchange container,

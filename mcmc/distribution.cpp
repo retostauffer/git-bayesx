@@ -33,6 +33,12 @@ DISTRIBUTION::initialise_mscheck(const ST::string & path)
         msc_like = FULLCOND(optionsp, datamatrix(1, 1), "mscheck_like",
                             nrobs, 1, path2);
         msc_like.setflags(MCMC::norelchange | MCMC::nooutput);
+
+        // initialize the full conditional object for the mscheck predictive observation samples
+        ST::string path3 = path + "_mscheck_obssamples.raw";
+        msc_obssamples = FULLCOND(optionsp, datamatrix(1, 1), "mscheck_obssamples",
+                            nrobs, 1, path3);
+        msc_obssamples.setflags(MCMC::norelchange | MCMC::nooutput);
     }
 }
 
@@ -755,6 +761,7 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   mscheck = d.mscheck;
   msc_pred = d.msc_pred;
   msc_like = d.msc_like;
+  msc_obssamples = d.msc_obssamples;
   predchange = d.predchange;
 
   }
@@ -858,6 +865,7 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   mscheck = d.mscheck;
   msc_pred = d.msc_pred;
   msc_like = d.msc_like;
+  msc_obssamples = d.msc_obssamples;
   predchange = d.predchange;
 
   return *this;
@@ -1092,16 +1100,11 @@ double DISTRIBUTION::loglikelihood2(const unsigned & beg,const unsigned & end,
 
     double
     DISTRIBUTION::loglikelihood_from_deviance(const double res, // response
-                                              const double lin, // linear predictor
+                                              const double mu, // mean sample
                                               const double weight // weight
                                               ) const
     {
-        // first compute the corresponding mu (with transformation onto the original scale,
-        // as compute_deviance expects that.)
-        double mu = 0;
-        compute_mu(&lin, &mu);
-
-        // then compute the deviance
+        // compute the deviance
         double deviance = 0;
         double unused = 0;
 
@@ -2250,14 +2253,26 @@ void DISTRIBUTION::swap_linearpred(void)
             {
                 double * msc_likep = msc_like.getbetapointer();
                 double * msc_predp = msc_pred.getbetapointer();
+                double * msc_obssamplesp = msc_obssamples.getbetapointer();
                 double * resp = response.getV();
                 double * wei = weight.getV();
                 double * prc = predchange.getV();
 
-                for (unsigned int i = 0; i < nrobs; i++, msc_likep++, msc_predp++, resp++, wei++, prc++)
+                for (unsigned int i = 0; i < nrobs;
+                     i++, msc_likep++, msc_predp++, msc_obssamplesp++, resp++, wei++, prc++)
                 {
-                    * msc_likep = loglikelihood_from_deviance(*resp, *prc, *wei);
+                    // first compute the corresponding mu (with transformation onto the original scale,
+                    // as the functions below expect that.)
+                    double mu = 0;
+                    compute_mu(prc, &mu);
 
+                    // compute the loglikelihood of the observation *resp
+                    * msc_likep = loglikelihood_from_deviance(*resp, mu, *wei);
+
+                    // sample once from the corresponding predictive distribution
+                    * msc_obssamplesp = sample_from_likelihood(*wei, mu);
+
+                    // and finally compute the linear predictor sample
                     double factor = trmult(0,0);
                     double shift = addinterceptsample;
                     * msc_predp = factor * (*prc) + shift;
@@ -2267,6 +2282,7 @@ void DISTRIBUTION::swap_linearpred(void)
             // write into files
             msc_like.update();
             msc_pred.update();
+            msc_obssamples.update();
 
             // refresh predchange vector with zeros
             predchange = datamatrix(nrobs, 1, 0);
@@ -2550,6 +2566,12 @@ void DISTRIBUTION::outresults(void)
         pathhelp = pathresultsscale.substr(0, pathresultsscale.length()
                 - 10) + "_mscheck_pred.raw";
         msc_pred.get_samples(pathhelp);
+
+        // then the predictive observation samples
+        msc_obssamples.outresults();
+        pathhelp = pathresultsscale.substr(0, pathresultsscale.length() - 10)
+                       + "_mscheck_obssamples.raw";
+        msc_obssamples.get_samples(pathhelp);
     }
     // END: DSB //
 
@@ -4353,6 +4375,28 @@ void DISTRIBUTION_gamma::compute_IWLS_weight_tildey(
   }
 
 
+// BEGIN: DSB //
+
+double
+    DISTRIBUTION_gamma::sample_from_likelihood(const double weight,
+                                               const double mu) const
+    {
+        // get the current "scale" parameter of the Gamma likelihood
+        double nu = (weight != 0.0) ? weight / scale(0, 0) : 1.0 / scale(0, 0);
+        // todo: is this correct?? Even if the observation has weight 0,
+        // we should be able to produce samples from the predictive distribution
+        // which conditions on the observations with positive weights!
+
+        // transform into the Gamma(a, b) parametrization
+        double a = nu;
+        double b = nu / mu;
+
+        // and then use the sample function from Random.cpp
+        return randnumbers::rand_gamma(a, b);
+    }
+
+// END: DSB //
+
 
 void DISTRIBUTION_gamma::compute_deviance(const double * response,
                                           const double * weight,
@@ -4853,6 +4897,27 @@ double DISTRIBUTION_gamma2::compute_gmu(double * linpred,
   return 1.0/exp(*linpred);
   }
 
+
+// BEGIN: DSB //
+
+// this is just a copy of DISTRIBUTION_gamma::sample_from_likelihood
+double
+    DISTRIBUTION_gamma2::sample_from_likelihood(const double weight,
+                                                const double mu) const
+    {
+        // get the current "scale" parameter of the Gamma likelihood
+        double nu = (weight != 0.0) ? weight / scale(0, 0) : 1.0 / scale(0, 0);
+        // todo: is this correct?
+
+        // transform into the Gamma(a, b) parametrization
+        double a = nu;
+        double b = nu / mu;
+
+        // and then use the sample function from Random.cpp
+        return randnumbers::rand_gamma(a, b);
+    }
+
+// END: DSB //
 
 void DISTRIBUTION_gamma2::compute_deviance(const double * response,
                                           const double * weight,
@@ -5564,6 +5629,7 @@ double DISTRIBUTION_gaussian::loglikelihood(double * res,
   return  - *w * ( help * help )/(2* scale(0,0));
   }
 
+
 // ------------------- For Stepwise --------------------------------------------
 
 double DISTRIBUTION_gaussian::compute_rss(void)
@@ -6110,6 +6176,22 @@ const DISTRIBUTION_gaussian & DISTRIBUTION_gaussian::operator=(
   return *this;
   }
 
+// BEGIN: DSB //
+
+double
+    DISTRIBUTION_gaussian::sample_from_likelihood(const double weight,
+                                                  const double mu) const
+    {
+        // get the current "scale" parameter of the normal likelihood
+        double s =  scale(0,0) * pow(trmult(0,0), 2);
+        double sigma2 = (weight != 0.0) ? s / weight : s;
+
+        // and then use the sample function from Random.cpp
+        return mu + sqrt(sigma2) * randnumbers::rand_normal();
+    }
+
+// END: DSB //
+
 
 void DISTRIBUTION_gaussian::compute_deviance(const double * response,
                            const double * weight,
@@ -6433,6 +6515,24 @@ const DISTRIBUTION_gaussian_re & DISTRIBUTION_gaussian_re::operator=(
   }
 
 
+// BEGIN: DSB //
+
+// this is the same as DISTRIBUTION_gaussian::sample_from_likelihood
+// todo: perhaps the other function is not needed because there cannot be any random effects??
+double
+    DISTRIBUTION_gaussian_re::sample_from_likelihood(const double weight,
+                                                     const double mu) const
+    {
+        // get the current "scale" parameter of the normal likelihood
+        double s =  scale(0,0) * pow(trmult(0,0), 2);
+        double sigma2 = (weight != 0.0) ? s / weight : s;
+
+        // and then use the sample function from Random.cpp
+        return mu + sqrt(sigma2) * randnumbers::rand_normal();
+    }
+
+// END: DSB //
+
 void DISTRIBUTION_gaussian_re::compute_deviance(const double * response,
                            const double * weight,
                            const double * mu, double * deviance,
@@ -6579,6 +6679,29 @@ const DISTRIBUTION_lognormal & DISTRIBUTION_lognormal::operator=(
   DISTRIBUTION_gaussian::operator=(DISTRIBUTION_gaussian(nd));
   return *this;
   }
+
+
+// BEGIN: DSB //
+
+double
+    DISTRIBUTION_lognormal::sample_from_likelihood(const double weight,
+                                                   const double mu) const
+    {
+        // get the current scale parameter of the normal likelihood
+        double s = scale(0,0) * pow(trmult(0,0), 2);
+
+        // and the current mean parameter
+        double m = log(mu) - 0.5 * s;
+        // todo: why doesn't this depend on sigma2 but on s? It is also like that in the compute_deviance function below!
+
+        // the variance parameter then depends again on the weight
+        double sigma2 = (weight != 0.0) ? s / weight : s;
+
+        // finally we can draw from the lognormal distribution
+        return exp(m + sqrt(sigma2) * randnumbers::rand_normal());
+    }
+
+// END: DSB //
 
 
 void DISTRIBUTION_lognormal::compute_deviance(const double * response,
@@ -6894,6 +7017,22 @@ bool DISTRIBUTION_binomial::posteriormode_converged(const unsigned & itnr)
   }
 
 
+// BEGIN: DSB //
+
+double
+    DISTRIBUTION_binomial::sample_from_likelihood(const double weight,
+                                                  const double mu) const
+    {
+        // determine the size parameter
+        double size = (weight != 0.0) ? weight : 1.0;
+
+        // use the sample function from Random.cpp
+        return randnumbers::rand_binom(size, mu);
+    }
+
+// END: DSB //
+
+
 void DISTRIBUTION_binomial::compute_deviance(const double * response,
                const double * weight,const double * mu,double * deviance,
                double * deviancesat,
@@ -7087,6 +7226,21 @@ void DISTRIBUTION_binomial_latent::outoptions(void)
   optionsp->out("\n");
   }
 
+
+// BEGIN: DSB //
+
+double
+    DISTRIBUTION_binomial_latent::sample_from_likelihood(const double weight,
+                                                         const double mu) const
+    {
+        // determine the size parameter
+        double size = (weight != 0.0) ? weight : 1.0;
+
+        // use the sample function from Random.cpp
+        return randnumbers::rand_binom(size, mu);
+    }
+
+// END: DSB //
 
 void DISTRIBUTION_binomial_latent::compute_deviance(const double * response,
           const double * weight, const double * mu,double * deviance,
@@ -7428,6 +7582,21 @@ void DISTRIBUTION_binomial_logit_latent::outoptions(void)
   }
 
 
+// BEGIN: DSB //
+
+double
+    DISTRIBUTION_binomial_logit_latent::sample_from_likelihood(const double weight,
+                                                               const double mu) const
+    {
+        // determine the size parameter
+        double size = (weight != 0.0) ? weight : 1.0;
+
+        // use the sample function from Random.cpp
+        return randnumbers::rand_binom(size, mu);
+    }
+
+// END: DSB //
+
 void DISTRIBUTION_binomial_logit_latent::compute_deviance(
           const double * response, const double * weight,
           const double * mu,double * deviance, double * deviancesat,
@@ -7456,11 +7625,6 @@ void DISTRIBUTION_binomial_logit_latent::compute_deviance(
 
 void DISTRIBUTION_binomial_logit_latent::create(const bool & tl)
   {
-
-
-
-
-
   family = "Binomial (logit link)";
   scale(0,0) = 1;
   scaleexisting = false;
@@ -7848,6 +8012,20 @@ void DISTRIBUTION_poisson::compute_IWLS_weight_tildey(double * response,
 
   }
 
+// BEGIN: DSB //
+
+double
+    DISTRIBUTION_poisson::sample_from_likelihood(const double weight,
+                                                 const double mu) const
+    {
+        // derive the mean for the Poisson distribution
+        double m = (weight != 0.0) ? weight * mu : mu;
+
+        // then use the sample function from Random.cpp
+        return randnumbers::rand_pois(m);
+    }
+
+// END: DSB //
 
 void DISTRIBUTION_poisson::compute_deviance(const double * response,
                                             const double * weight,
