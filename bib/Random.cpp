@@ -9,6 +9,8 @@
 
 // for INT_MAX etc.
 #include <limits.h>
+#include <math.h>
+#include <cmath>
 
 // for the new generators
 #define repeat for(;;)
@@ -814,14 +816,16 @@ double rand_binom(double nin, double prob)
     double p, q, np, g, r, al, alv, amaxp, ffm, ynorm;
     int i,ix,k, n;
 
-    if(finite(nin) != 0)
+    if(std::fabs(nin) > std::numeric_limits<double>::max())
+//    if(finite(nin) != 0)
         return NAN;
 
     r = floor(nin + 0.5);
     if (r != nin)
         return NAN;
 
-    if(finite(prob) != 0 ||
+    if((std::fabs(prob) > std::numeric_limits<double>::max()) ||
+//    if(finite(prob) != 0 ||
         /* n=0, p=0, p=1 are not errors <TSL>*/
         r < 0 || prob < 0. || prob > 1.)
         return NAN;
@@ -837,7 +841,12 @@ double rand_binom(double nin, double prob)
     /* else */
     n = r;
 
-    p = fmin(prob, 1. - prob);
+//    p = fmin(prob, 1. - prob);
+    p = MIN(prob, 1. - prob);
+//    p = prob;
+//    if((1. - prob) < prob)
+//      p = 1. - prob;
+      
     q = 1. - p;
     np = n * p;
     r = p / q;
@@ -1018,7 +1027,8 @@ double rand_pois(double mu)
     double pois = -1.;
     int k, kflag, big_mu, new_big_mu = 0;
 
-    if (finite(mu) != 0 || mu < 0)
+    if((std::fabs(mu) > std::numeric_limits<double>::max()) || mu < 0)
+//    if (finite(mu) != 0 || mu < 0)
         return NAN;
 
     if (mu <= 0.)
