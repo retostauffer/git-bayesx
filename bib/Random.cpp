@@ -7,32 +7,36 @@
 
 // BEGIN: DSB //
 
-// for INT_MAX etc.
+// define what is NAN, and how we determine whether a double is infinite.
+#if defined(MICROSOFT_VISUAL)
+#include <limits>
+    const double NAN = DBL_MAX;
+
+    bool
+    infinite(double x)
+    {
+        return ABS(x) > DBL_MAX;
+    }
+#elif defined(__BUILDING_GNU)
 #include <limits.h>
-#include <math.h>
-#include <cmath>
+    bool
+    infinite(double x)
+    {
+        return finite(x) != 0;
+    }
+#else
+#include"../values.h"
+    const double NAN = MAXDOUBLE;
 
-// for the new generators
+    bool
+    infinite(double x)
+    {
+        return ABS(x) > MAXDOUBLE;
+    }
+#endif
+
+// define a "repeat" syntax (for the new generators adapted from R)
 #define repeat for(;;)
-
-// some handy functions defined in R's C-sources
-double
-fsign(double x, double y)
-{
-    return ((y >= 0) ? fabs(x) : - fabs(x));
-}
-
-int
-imax2(int x, int y)
-{
-    return (x < y) ? y : x;
-}
-
-int
-imin2(int x, int y)
-{
-    return (x < y) ? x : y;
-}
 
 // END: DSB //
 
@@ -816,16 +820,14 @@ double rand_binom(double nin, double prob)
     double p, q, np, g, r, al, alv, amaxp, ffm, ynorm;
     int i,ix,k, n;
 
-    if(std::fabs(nin) > std::numeric_limits<double>::max())
-//    if(finite(nin) != 0)
+    if(infinite(nin))
         return NAN;
 
     r = floor(nin + 0.5);
     if (r != nin)
         return NAN;
 
-    if((std::fabs(prob) > std::numeric_limits<double>::max()) ||
-//    if(finite(prob) != 0 ||
+    if(infinite(prob) ||
         /* n=0, p=0, p=1 are not errors <TSL>*/
         r < 0 || prob < 0. || prob > 1.)
         return NAN;
@@ -900,7 +902,7 @@ double rand_binom(double nin, double prob)
       /* parallelogram region */
       if (u <= p2) {
           x = xl + (u - p1) / c;
-          v = v * c + 1.0 - fabs(xm - x) / p1;
+          v = v * c + 1.0 - ABS(xm - x) / p1;
           if (v > 1.0 || v <= 0.)
               continue;
           ix = x;
@@ -1027,7 +1029,7 @@ double rand_pois(double mu)
     double pois = -1.;
     int k, kflag, big_mu, new_big_mu = 0;
 
-    if((std::fabs(mu) > std::numeric_limits<double>::max()) || mu < 0)
+    if(infinite(mu) || mu < 0)
 //    if (finite(mu) != 0 || mu < 0)
         return NAN;
 
@@ -1059,7 +1061,7 @@ double rand_pois(double mu)
             /*muprev = 0.;-* such that next time, mu != muprev ..*/
             if (mu != muprev) {
                 muprev = mu;
-                m = imax2(1, (int) mu);
+                m = MAX(1, (int) mu);
                 l = 0; /* pp[] is already ok up to pp[l] */
                 q = p0 = p = exp(-mu);
             }
@@ -1074,7 +1076,7 @@ double rand_pois(double mu)
                    pp-table of cumulative poisson probabilities
                    (0.458 > ~= pp[9](= 0.45792971447) for mu=10 ) */
                 if (l != 0) {
-                    for (k = (u <= 0.458) ? 1 : imin2(l, m);  k <= l; k++)
+                    for (k = (u <= 0.458) ? 1 : MIN(l, m);  k <= l; k++)
                         if (u <= pp[k])
                             return (double)k;
                     if (l == 35) /* u > pp[35] */
@@ -1152,7 +1154,7 @@ double rand_pois(double mu)
         /*  sample t from the laplace 'hat'
             (if t <= -0.6744 then pk < fk for all mu >= 10.) */
         u = 2 * uniform() - 1.;
-        t = 1.8 + fsign(E, u);
+        t = 1.8 + FSIGN(E, u);
         if (t > -0.6744) {
             pois = floor(mu + s * t);
             fk = pois;
@@ -1173,7 +1175,7 @@ double rand_pois(double mu)
                 del = one_12 / fk;
                 del = del * (1. - 4.8 * del * del);
                 v = difmuk / fk;
-                if (fabs(v) <= 0.25)
+                if (ABS(v) <= 0.25)
                     px = fk * v * v * (((((((a7 * v + a6) * v + a5) * v + a4) *
                                           v + a3) * v + a2) * v + a1) * v + a0)
                         - del;
@@ -1187,7 +1189,7 @@ double rand_pois(double mu)
             fy = omega * (((c3 * x + c2) * x + c1) * x + c0);
             if (kflag > 0) {
                 /* Step H. Hat acceptance (E is repeated on rejection) */
-                if (c * fabs(u) <= py * exp(px + E) - fy * exp(fx + E))
+                if (c * ABS(u) <= py * exp(px + E) - fy * exp(fx + E))
                     break;
             } else
                 /* Step Q. Quotient acceptance (rare case) */

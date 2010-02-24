@@ -12,11 +12,7 @@
 
 #define RANDOM_INCLUDED
 
-#if defined(MICROSOFT_VISUAL)
-#include<limits>
-#else
-#include"../values.h"
-#endif
+
 
 #include <stdlib.h>
 #include <time.h>
@@ -32,16 +28,11 @@ namespace randnumbers
 #define MAX(a,b)  ((a) > (b) ? (a) : (b))
 #define MIN(a,b)  ((a) < (b) ? (a) : (b))
 #define ABS(a) ((a) >= 0 ? (a) : -(a))
+#define FSIGN(a,b) ((b >= 0) ? ABS(a) : - ABS(a))
 #define SQR(x)    ((x)*(x))
 #define PI 3.141592654
 #define PI2 9.869604401
 #define sqrt_pi 2.506628275
-
-#if defined(MICROSOFT_VISUAL)
-  const double NAN = DBL_MAX;
-#elif !defined(__BUILDING_GNU)
-  const double NAN = MAXDOUBLE;
-#endif
 
 // Erzeugen von auf (0,1) gleichverteilten Zufallszahlen
 
