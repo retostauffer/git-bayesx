@@ -589,11 +589,28 @@ void DESIGN_pspline::outoptions(GENERAL_OPTIONS * op)
   else
     centerm = "centered sampling";
 
+  double min;
+  min = data(0,0);
+
+  double max;
+  max = data(data.rows()-1,0);
+
+  double dist = max-min;
+
+  min -= 0.01*dist;
+  max += 0.01*dist;
+
+  dist = (max - min)/(nrknots-1);
+  double knot=min - degree*dist;
+
   op->out("  Prior: " + typestr + "\n");
   op->out("  Number of knots: " + ST::inttostring(nrknots) + "\n" );
+  op->out("  First knot: " + ST::doubletostring(knot,8) + "\n");
+  op->out("  Knot distance: " + ST::doubletostring(dist,8) + "\n");
   op->out("  Degree of Splines: " + ST::inttostring(degree) + "\n" );
   op->out("  " + centerm + "\n" );
   op->out("\n");
+
   }
 
 } // end: namespace MCMC

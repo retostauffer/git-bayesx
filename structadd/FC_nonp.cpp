@@ -1241,16 +1241,25 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
     outgraphs(out_stata,out_R,pathresults);
 
-    FC::outresults(out_stata,out_R,pathresults);
+    FC::outresults(out_stata,out_R,"");
     if (designp->position_lin != -1)
-      fsample.outresults(out_stata,out_R,pathresults);
+      fsample.outresults(out_stata,out_R,"");
 
-   if (computemeaneffect==true)
-      meaneffect_sample.outresults(out_stata,out_R,pathresults);
+    if (computemeaneffect==true)
+       meaneffect_sample.outresults(out_stata,out_R,"");
+
+    ST::string pathresultsbeta = pathresults.substr(0,pathresults.length()-4) +
+                                 "_param.res";
 
     outresults_acceptance();
 
-    optionsp->out("    Results are stored in file\n");
+    paramsample.outresults(out_stata,out_R,pathresultsbeta);
+
+    optionsp->out("    Estimated parameters are stored in file\n");
+    optionsp->out("    " +  pathresultsbeta + "\n");
+    optionsp->out("\n");
+
+    optionsp->out("    Function estimates are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 

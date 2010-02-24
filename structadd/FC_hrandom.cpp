@@ -533,11 +533,11 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
 
     outgraphs(out_stata,out_R,pathresults);
 
-    FC::outresults(out_stata,out_R,pathresults);
+    FC::outresults(out_stata,out_R,"");
     FCrcoeff.outresults(out_stata,out_R,"");
 
    if (computemeaneffect==true)
-      meaneffect_sample.outresults(out_stata,out_R,pathresults);
+      meaneffect_sample.outresults(out_stata,out_R,"");
 
     optionsp->out("    Results are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");

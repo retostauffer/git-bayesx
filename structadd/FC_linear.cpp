@@ -661,7 +661,7 @@ void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
     unsigned i;
     unsigned nrconst = design.cols();
 
-    FC::outresults(out_stata,out_R,pathresults);
+    FC::outresults(out_stata,out_R,"");
 
     ST::string l1 = ST::doubletostring(optionsp->lower1,4);
     ST::string l2 = ST::doubletostring(optionsp->lower2,4);

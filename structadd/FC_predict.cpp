@@ -433,7 +433,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
   if (pathresults.isvalidfile() != 1)
     {
 
-    FC::outresults(out_stata,out_R,pathresults);
+    FC::outresults(out_stata,out_R,"");
     FC_deviance.outresults(out_stata,out_R,"");
 
     optionsp->out("  PREDICTED VALUES: \n",true);

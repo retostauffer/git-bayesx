@@ -817,7 +817,76 @@ void FC::outresults(ofstream & out_stata, ofstream & out_R,
         *wqu2u = sampled_beta.quantile(optionsp->upper2,i,index);
         }
 
-      }
+
+      if (pathresults.isvalidfile() != 1)
+        {
+
+        ofstream outres(pathresults.strtochar());
+
+        unsigned i;
+
+        ST::string l1 = ST::doubletostring(optionsp->lower1,4);
+        ST::string l2 = ST::doubletostring(optionsp->lower2,4);
+        ST::string u1 = ST::doubletostring(optionsp->upper1,4);
+        ST::string u2 = ST::doubletostring(optionsp->upper2,4);
+        l1 = l1.replaceallsigns('.','p');
+        l2 = l2.replaceallsigns('.','p');
+        u1 = u1.replaceallsigns('.','p');
+        u2 = u2.replaceallsigns('.','p');
+
+        outres << "intnr" << "   ";
+        outres << "pmean   ";
+
+        if (optionsp->samplesize > 1)
+          {
+          outres << "pqu"  << l1  << "   ";
+          outres << "pqu"  << l2  << "   ";
+          outres << "pmed   ";
+          outres << "pqu"  << u1  << "   ";
+          outres << "pqu"  << u2  << "   ";
+          }
+
+        outres << endl;
+
+        double * workmean;
+        double * workbetaqu_l1_lower_p;
+        double * workbetaqu_l2_lower_p;
+        double * workbetaqu_l1_upper_p;
+        double * workbetaqu_l2_upper_p;
+        double * workbetaqu50;
+
+        workmean = betamean.getV();
+        workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
+        workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
+        workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
+        workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
+        workbetaqu50 = betaqu50.getV();
+
+        unsigned nrpar = beta.rows();
+        for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
+                                  workbetaqu_l2_lower_p++,workbetaqu50++,
+                                  workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++)
+          {
+          outres << (i+1) << "   ";
+          outres << *workmean << "   ";
+
+          if (optionsp->samplesize > 1)
+            {
+            outres << *workbetaqu_l1_lower_p << "   ";
+            outres << *workbetaqu_l2_lower_p << "   ";
+            outres << *workbetaqu50 << "   ";
+            outres << *workbetaqu_l2_upper_p << "   ";
+            outres << *workbetaqu_l1_upper_p << "   ";
+
+            }
+
+          outres << endl;
+
+          }
+
+        }
+
+      } // end: if (samplestore==true)
 
     }  // if (optionsp->get_samplesize() > 0)
   }

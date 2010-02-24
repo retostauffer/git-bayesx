@@ -257,6 +257,9 @@ class __EXPORT_TYPE DESIGN
 
   double compute_ZtZ(unsigned & i, unsigned & j);
 
+
+  void outdesign(ofstream & out);
+
   // ------------------------- VIRTUAL FUNCTIONS -------------------------------
 
   // FUNCTION: init_data
@@ -274,7 +277,7 @@ class __EXPORT_TYPE DESIGN
 
   virtual void compute_penalty(void);
 
-  virtual double penalty_compute_quadform(datamatrix & beta);  
+  virtual double penalty_compute_quadform(datamatrix & beta);
 
   // FUNCTION: compute_basisNull
   // TASK: computes the basis of the null space of the penalty matrix
