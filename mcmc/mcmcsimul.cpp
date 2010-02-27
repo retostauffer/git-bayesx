@@ -1845,6 +1845,11 @@ const ST::string & path,const unsigned & step)
         #endif
 
         }
+
+      if (likep_mult[i]->get_mscheck())
+        {
+        likep_mult[i]->get_mssamples();
+        }
       }
     }
 

@@ -164,6 +164,10 @@ class __EXPORT_TYPE DISTRIBUTION
   datamatrix predchange;          // matrix (with one column) storing the difference between
                                   // predictors for prior and posterior sampling in one iteration -
                                   // this is necessary for approximate leave-one-out checking
+   statmatrix<int> msindex;       // index vector for the identification of individuals
+   vector<unsigned> msposbeg;
+   vector<unsigned> msposend;
+   unsigned msnrind;              // no. of individuals
   // END:  //
 
   datamatrix * Dp;
@@ -283,10 +287,17 @@ class __EXPORT_TYPE DISTRIBUTION
   ~DISTRIBUTION() {}
 
   // BEGIN: DSB //
-  void initialise_mscheck(const ST::string & path);
+  void initialise_mscheck(const ST::string & path, const statmatrix<int> & index,
+       const unsigned & nrpar, const vector<unsigned> & posbeg,
+       const vector<unsigned> & posend);
   void add_linearpred_mscheck(const double m, const unsigned int row);
   void add_linearpred_mscheck(const double m,const unsigned int beg,
                         const unsigned int end,const statmatrix<int> & index);
+  bool get_mscheck()
+    {
+    return mscheck;
+    }
+  void get_mssamples();
   // END: DSB //
 
   //----------------------------------------------------------------------------

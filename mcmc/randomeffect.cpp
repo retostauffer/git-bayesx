@@ -16,7 +16,7 @@ void FULLCOND_random::set_mscheck(const bool & val)
     if(mscheck)
       {
       ST::string path = samplepath.substr(0,samplepath.length()-4);
-      likep->initialise_mscheck(path);
+      likep->initialise_mscheck(path, index, nrpar-includefixed, posbeg, posend);
       }
     }
   // END: DSB //

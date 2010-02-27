@@ -10,13 +10,20 @@ using randnumbers::rand_inv_gaussian;
 
 // initialize mschecking with a given path for the output
 void
-DISTRIBUTION::initialise_mscheck(const ST::string & path)
+DISTRIBUTION::initialise_mscheck(const ST::string & path,
+      const statmatrix<int> & index, const unsigned & nrpar,
+      const vector<unsigned> & posbeg, const vector<unsigned> & posend)
 {
     // only initialize if we have not yet a full predchange container
     if (predchange.rows() < nrobs)
     {
         // activate mscheck
         mscheck = true;
+
+        msnrind = nrpar;
+        msindex = index;
+        msposbeg = posbeg;
+        msposend = posend;
 
         // initialize predictor change vector into which the
         // random effects objects put their individual changes
@@ -31,7 +38,7 @@ DISTRIBUTION::initialise_mscheck(const ST::string & path)
         // initialize the full conditional object for the mscheck likelihood contributions
         ST::string path2 = path + "_mscheck_like.raw";
         msc_like = FULLCOND(optionsp, datamatrix(1, 1), "mscheck_like",
-                            nrobs, 1, path2);
+                            msnrind, 1, path2);
         msc_like.setflags(MCMC::norelchange | MCMC::nooutput);
 
         // initialize the full conditional object for the mscheck predictive observation samples
@@ -79,6 +86,23 @@ DISTRIBUTION::add_linearpred_mscheck(const double m,
         }
     }
 }
+
+void DISTRIBUTION::get_mssamples()
+  {
+  ST::string pathhelp =
+        pathresultsscale.substr(0, pathresultsscale.length() - 10)
+                        + "_mscheck_like.raw";
+  optionsp->out(pathhelp + "\n\n");
+  msc_like.get_samples(pathhelp);
+  pathhelp = pathresultsscale.substr(0, pathresultsscale.length()
+                - 10) + "_mscheck_pred.raw";
+  optionsp->out(pathhelp + "\n\n");
+  msc_pred.get_samples(pathhelp);
+  pathhelp = pathresultsscale.substr(0, pathresultsscale.length() - 10)
+                       + "_mscheck_obssamples.raw";
+  optionsp->out(pathhelp + "\n\n");
+  msc_obssamples.get_samples(pathhelp);
+  }
 // END: DSB
 
 
@@ -763,6 +787,10 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   msc_like = d.msc_like;
   msc_obssamples = d.msc_obssamples;
   predchange = d.predchange;
+  msindex = d.msindex;
+  msnrind = d.msnrind;
+  msposbeg = d.msposbeg;
+  msposend = d.msposend;
 
   }
 
@@ -867,6 +895,10 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   msc_like = d.msc_like;
   msc_obssamples = d.msc_obssamples;
   predchange = d.predchange;
+  msindex = d.msindex;
+  msnrind = d.msnrind;
+  msposbeg = d.msposbeg;
+  msposend = d.msposend;
 
   return *this;
   }
@@ -2250,16 +2282,17 @@ void DISTRIBUTION::swap_linearpred(void)
             // write the approximate LOO predictor values into the output matrix,
             // and compute the corresponding likelihood contributions,
             // for all (single) observations.
+            datamatrix likehelp = datamatrix(nrobs, 1);
             {
-                double * msc_likep = msc_like.getbetapointer();
                 double * msc_predp = msc_pred.getbetapointer();
                 double * msc_obssamplesp = msc_obssamples.getbetapointer();
                 double * resp = response.getV();
                 double * wei = weight.getV();
                 double * prc = predchange.getV();
+                double * likehelpp = likehelp.getV();
 
                 for (unsigned int i = 0; i < nrobs;
-                     i++, msc_likep++, msc_predp++, msc_obssamplesp++, resp++, wei++, prc++)
+                     i++, likehelpp++, msc_predp++, msc_obssamplesp++, resp++, wei++, prc++)
                 {
                     // first compute the corresponding mu (with transformation onto the original scale,
                     // as the functions below expect that.)
@@ -2267,7 +2300,7 @@ void DISTRIBUTION::swap_linearpred(void)
                     compute_mu(prc, &mu);
 
                     // compute the loglikelihood of the observation *resp
-                    * msc_likep = loglikelihood_from_deviance(*resp, mu, *wei);
+                    * likehelpp = loglikelihood_from_deviance(*resp, mu, *wei);
 
                     // sample once from the corresponding predictive distribution
                     * msc_obssamplesp = sample_from_likelihood(*wei, mu);
@@ -2278,6 +2311,20 @@ void DISTRIBUTION::swap_linearpred(void)
                     * msc_predp = factor * (*prc) + shift;
                 }
             }
+
+
+            double * msc_likep = msc_like.getbetapointer();
+
+            for(unsigned int i=0; i<msnrind; i++, msc_likep++)
+                {
+                int * workindex = msindex.getV() + msposbeg[i];
+                *msc_likep = 0.0;
+
+                for (unsigned register j = msposbeg[i]; j <= msposend[i]; j++, workindex++)
+                   {
+                   *msc_likep += likehelp(*workindex,0);
+                   }
+                }
 
             // write into files
             msc_like.update();
@@ -2552,26 +2599,14 @@ void DISTRIBUTION::outresults(void)
     // BEGIN: DSB //
 
     // if we do mschecking
-    if (mscheck)
+  if (mscheck)
     {
         // then first the likelihood samples
         msc_like.outresults();
-        ST::string pathhelp =
-                pathresultsscale.substr(0, pathresultsscale.length() - 10)
-                        + "_mscheck_like.raw";
-        msc_like.get_samples(pathhelp);
-
         // and then the predictor samples
         msc_pred.outresults();
-        pathhelp = pathresultsscale.substr(0, pathresultsscale.length()
-                - 10) + "_mscheck_pred.raw";
-        msc_pred.get_samples(pathhelp);
-
         // then the predictive observation samples
         msc_obssamples.outresults();
-        pathhelp = pathresultsscale.substr(0, pathresultsscale.length() - 10)
-                       + "_mscheck_obssamples.raw";
-        msc_obssamples.get_samples(pathhelp);
     }
     // END: DSB //
 
@@ -5741,7 +5776,7 @@ void DISTRIBUTION_AFT::update(void)
   {
   unsigned i;
 
-  double test = trmult(0,0);
+//  double test = trmult(0,0);
 
   double * rp = response.getV();
   double * rpo = responseorig.getV();
