@@ -740,7 +740,7 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
 
   standardise();
 
-  FCsigma2 = FC(o,"",1,1,ps,false);
+  FCsigma2 = FC(o,"",1,1,ps);
   FCsigma2.transform(0,0) = pow(trmult,2);
 
   }
@@ -1132,6 +1132,224 @@ double DISTR_gaussian::get_scalemean(void)
   return FCsigma2.betamean(0,0);
   }
 
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS DISTR_quantreg -------------------------------
+//------------------------------------------------------------------------------
+
+DISTR_quantreg::DISTR_quantreg(const double & a,const double & b,
+                               GENERAL_OPTIONS * o, const datamatrix & r,
+                               const ST::string & ps,double & quant,
+                               const datamatrix & w)
+  : DISTR_gaussian(a,b,o,r,ps,w)
+  {
+  quantile = quant;
+  xi = (1-2*quantile)/(quantile * (1-quantile));
+  xi2 = xi*xi;
+  sigma02 = 2 / (quantile*(1-quantile));
+  num = sqrt(xi2 + 2*sigma02);
+  }
+
+
+DISTR_quantreg::DISTR_quantreg(const DISTR_quantreg & nd)
+  : DISTR_gaussian(DISTR_gaussian(nd))
+  {
+  quantile = nd.quantile;
+  xi = nd.xi;
+  xi2 = nd.xi2;
+  num = nd.num;
+  sigma02 = nd.sigma02;
+  }
+
+
+const DISTR_quantreg & DISTR_quantreg::operator=(
+                                      const DISTR_quantreg & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_quantreg::operator=(DISTR_quantreg(nd));
+  quantile = nd.quantile;
+  xi = nd.xi;
+  xi2 = nd.xi2;
+  num = nd.num;
+  sigma02 = nd.sigma02;
+  return *this;
+  }
+
+
+/*
+void DISTR_quantreg::compute_mu(const double * linpred,double * mu,
+                                bool notransform)
+  {
+
+  }
+*/
+
+
+/*
+void DISTR_quantreg::compute_deviance(const double * response,
+                           const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           double * scale) const
+{
+}
+*/
+
+/*
+double DISTR_quantreg::loglikelihood(double * res, double * lin,
+                                     double * w) const
+  {
+
+  }
+*/
+
+/*
+double DISTR_quantreg::loglikelihood_weightsone(double * res,double * lin) const
+  {
+
+  }
+
+
+double DISTR_quantreg::compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse, const bool & like)
+  {
+
+  }
+
+
+void DISTR_quantreg::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  }
+
+
+void DISTR_quantreg::compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  }
+
+
+void DISTR_quantreg::compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  }
+*/
+
+
+void DISTR_quantreg::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function: identity\n");
+  optionsp->out("  Hyperparameter a: " + ST::doubletostring(a_invgamma,6) + "\n");
+  optionsp->out("  Hyperparameter b: " + ST::doubletostring(b_invgamma,6) + "\n");
+  optionsp->out("  Quantile: " + ST::doubletostring(quantile,6) + "\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+
+  }
+
+
+void DISTR_quantreg::update(void)
+  {
+
+  // sigma2 corresponds to 1/delta_0
+  // sigma02 corresponds to sigma^2 in the paper
+
+  unsigned i;
+
+  double * worklin;
+  double * workresp;
+  double * workweight;
+
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  workresp = workingresponse.getV();
+  workweight = weight.getV();
+
+  double lambda = (xi2 + 2*sigma02) / sigma2;
+
+  double mu;
+
+  double sumres=0;
+  double sumw=0;
+
+  for(i=0; i<nrobs; i++, workweight++, workresp++, worklin++)
+    {
+
+    *worklin -= xi/ (*workweight);
+
+    mu = num/(fabs(*workresp-*worklin));
+
+    *workweight = rand_inv_gaussian(mu, lambda);
+
+    *worklin += xi/ (*workweight);
+
+    sumw += 1 / (*workweight);
+    sumres += *workweight * pow(*workresp-*worklin,2);
+    }
+
+  sumres /= sigma02;
+
+  sigma2 = rand_invgamma(a_invgamma + 1.5*nrobs,b_invgamma + 0.5*sumres + sumw);
+
+//  DISTR_gaussian::update();  // ?????
+
+  sigma2 *= sigma02;
+
+  FCsigma2.beta(0,0) = sigma2;
+  FCsigma2.acceptance++;
+  FCsigma2.update();
+
+  }
+
+
+
+
+/*
+bool DISTR_quantreg::posteriormode(void)
+  {
+
+  }
+
+
+void DISTR_quantreg::outresults(ST::string pathresults="")
+  {
+
+  }
+
+double DISTR_quantreg::get_scalemean(void)
+  {
+
+  }
+
+
+void DISTR_quantreg::sample_responses(unsigned i,datamatrix & sr)
+  {
+
+  }
+
+
+void DISTR_quantregoutresults_predictive_check(datamatrix & D,datamatrix & sr)
+  {
+
+  }
+*/
 
 //------------------------------------------------------------------------------
 //---------------------- CLASS DISTRIBUTION_loggaussian ------------------------

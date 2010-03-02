@@ -44,7 +44,7 @@ FC_predictive_check::FC_predictive_check(void)
 FC_predictive_check::FC_predictive_check(GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t, const ST::string & fp,datamatrix & dm,
                  vector<ST::string> & dn)
-  : FC(o,t,1,1,fp,false)
+  : FC(o,t,1,1,fp)
   {
 
   likep = lp;

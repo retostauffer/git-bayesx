@@ -94,7 +94,7 @@ class __EXPORT_TYPE FC_mult  : public FC
   void set_intp(DESIGN * d,FC_nonp * fp);
 
   void set_multeffects(MASTER_OBJ * mp,GENERAL_OPTIONS * o,const ST::string & t,
-           const ST::string & fp,bool sm,bool sstore,bool meane);
+           const ST::string & fp,bool sm,bool meane);
 
   void compute_autocorr_all(const ST::string & path, unsigned lag,
                                     ofstream & outg) const;

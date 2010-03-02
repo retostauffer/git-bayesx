@@ -49,6 +49,7 @@ using MCMC::GENERAL_OPTIONS;
 
 using MCMC::DISTR;
 using MCMC::DISTR_gaussian;
+using MCMC::DISTR_quantreg;
 using MCMC::DISTR_loggaussian;
 using MCMC::DISTR_gaussian_re;
 using MCMC::DISTR_gaussian_exp;
@@ -145,9 +146,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   intoption step;                      // Thinning parameter
   doubleoption level1;                 // Nominal level 1 of credible intervals
   doubleoption level2;                 // Nominal level 2 of credible intervals
-  simpleoption storesample;             // if specified samples will be temorarily
-                                       // stored on disk, useful if memory is
-                                       // limited
+
   // general MCMC options
 
   vector<ST::string> families;          // Response families
@@ -187,6 +186,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 //---------------------------------- DISTR  ------------------------------------
 
   vector<DISTR_gaussian> distr_gaussians;
+  vector<DISTR_quantreg> distr_quantregs;  
   vector<DISTR_loggaussian> distr_loggaussians;
   vector<DISTR_gaussian_re> distr_gaussian_res;
   vector<DISTR_gaussian_exp> distr_gaussian_exps;

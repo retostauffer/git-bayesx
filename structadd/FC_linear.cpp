@@ -50,8 +50,8 @@ int FC_linear::add_variable(const datamatrix & d,ST::string & name)
 FC_linear::FC_linear(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
                     datamatrix & d,
                  vector<ST::string> & vn, const ST::string & t,
-                 const ST::string & fp,bool sstore,bool cent)
-     : FC(o,t,1,1,fp,sstore)
+                 const ST::string & fp,bool cent)
+     : FC(o,t,1,1,fp)
   {
 
   masterp = mp;

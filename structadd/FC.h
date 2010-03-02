@@ -48,8 +48,6 @@ class __EXPORT_TYPE FC
 
   public:
 
-  bool samplestore;
-
   GENERAL_OPTIONS * optionsp;    // Pointer to general MCMC options
 
 
@@ -157,7 +155,7 @@ class __EXPORT_TYPE FC
 
   FC(GENERAL_OPTIONS * o,const ST::string & t,
            const unsigned & rows, const unsigned & cols,
-           const ST::string & fp,bool sstore);
+           const ST::string & fp);
 
   // COPY CONSTRUCTOR
 
@@ -247,6 +245,11 @@ class __EXPORT_TYPE FC
     {
     }
 
+
+  // FUNCTION: simconfBand
+  // TASK: computes scaling factor for simultaneous confidence bands
+
+  double FC::simconfBand(bool l1);
 
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file

@@ -42,8 +42,8 @@ FC_nonp_variance::FC_nonp_variance(void)
 FC_nonp_variance::FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
-                 vector<ST::string> & vn,bool sstore)
-     : FC(o,t,1,2,fp,sstore)
+                 vector<ST::string> & vn)
+     : FC(o,t,1,2,fp)
   {
   FCnonpp = FCn;
   likep = lp;

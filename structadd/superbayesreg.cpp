@@ -108,11 +108,11 @@ void superbayesreg::create_hregress(void)
   step = intoption("step",50,1,1000);
   level1 = doubleoption("level1",95,40,99);
   level2 = doubleoption("level2",80,40,99);
-  storesample = simpleoption("storesample",false);
 
   families.reserve(20);
   families.push_back("gaussian");
   families.push_back("loggaussian");
+  families.push_back("quantreg");  
   families.push_back("gaussian_re");
   families.push_back("gaussian_exp");
   families.push_back("gaussian_mult");
@@ -154,7 +154,6 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&step);
   regressoptions.push_back(&level1);
   regressoptions.push_back(&level2);
-  regressoptions.push_back(&storesample);
   regressoptions.push_back(&family);
   regressoptions.push_back(&aresp);
   regressoptions.push_back(&bresp);
@@ -239,6 +238,9 @@ void superbayesreg::clear(void)
 
   distr_gaussians.erase(distr_gaussians.begin(),distr_gaussians.end());
   distr_gaussians.reserve(10);
+
+  distr_quantregs.erase(distr_quantregs.begin(),distr_quantregs.end());
+  distr_quantregs.reserve(10);
 
   distr_loggaussians.erase(distr_loggaussians.begin(),distr_loggaussians.end());
   distr_loggaussians.reserve(10);
@@ -363,12 +365,13 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
+  distr_quantregs = b.distr_quantregs;
   distr_loggaussians = b.distr_loggaussians;
   distr_gaussian_res = b.distr_gaussian_res;
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
-  distr_poissons = b.distr_poissons;  
+  distr_poissons = b.distr_poissons;
   distr_binomialprobits = b.distr_binomialprobits;
 
   resultsyesno = b.resultsyesno;
@@ -419,6 +422,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
+  distr_quantregs = b.distr_quantregs;
   distr_loggaussians = b.distr_loggaussians;
   distr_gaussian_res = b.distr_gaussian_res;
   distr_gaussian_exps = b.distr_gaussian_exps;
@@ -805,6 +809,24 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------- END: log-Gaussian response -------------------------
+
+//----------------------------- quantreg response ------------------------------
+  else if (family.getvalue() == "quantreg")
+    {
+
+    ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+
+    double quantile = 0.8;
+    distr_quantregs.push_back(DISTR_quantreg(aresp.getvalue(),
+                                              bresp.getvalue(),
+                                     &generaloptions,D.getCol(0),path,quantile, w) );
+
+    equations[modnr].distrp = &distr_quantregs[distr_quantregs.size()-1];
+    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+
+    }
+//------------------------- END: quantreg response -----------------------------
+
 //--------------- Gaussian response, exponential response function -------------
   else if (family.getvalue() == "gaussian_exp")
     {
@@ -1033,7 +1055,7 @@ bool superbayesreg::create_linear(void)
 
 
   FC_linears.push_back(FC_linear(&master,&generaloptions,equations[modnr].distrp,X,
-                         varnames,title,pathconst,storesample.getvalue(),
+                         varnames,title,pathconst,
                          centerlinear.getvalue()));
 
   equations[modnr].add_FC(&FC_linears[FC_linears.size()-1],pathconstres);
@@ -1063,13 +1085,9 @@ void superbayesreg::create_pspline(unsigned i)
                             &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));
 
-  bool store=false ;
-  if (storesample.getvalue() == true)
-    store = true;
-
   FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_psplines[design_psplines.size()-1],
-                     terms[i].options,terms[i].varnames,store));
+                     terms[i].options,terms[i].varnames));
 
 
   equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
@@ -1083,7 +1101,7 @@ void superbayesreg::create_pspline(unsigned i)
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_psplines[design_psplines.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
-                                terms[i].varnames,store));
+                                terms[i].varnames));
 
   equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
 
@@ -1148,14 +1166,10 @@ bool superbayesreg::create_hrandom(unsigned i)
                              equations[fnr].distrp,
                             terms[i].options,terms[i].varnames));
 
-  bool store=false ;
-  if (storesample.getvalue() == true)
-    store = true;
-
   FC_hrandoms.push_back(FC_hrandom(&master,&generaloptions,equations[modnr].distrp,
                         equations[fnr].distrp, title,pathnonp,pathnonp2,
                         &design_hrandoms[design_hrandoms.size()-1],
-                        terms[i].options,terms[i].varnames,store));
+                        terms[i].options,terms[i].varnames));
 
   equations[modnr].add_FC(&FC_hrandoms[FC_hrandoms.size()-1],pathres);
 
@@ -1168,7 +1182,7 @@ bool superbayesreg::create_hrandom(unsigned i)
                                  equations[fnr].distrp,
                                 title,pathnonp,&design_hrandoms[design_hrandoms.size()-1],
                                 &FC_hrandoms[FC_hrandoms.size()-1],terms[i].options,
-                                terms[i].varnames,store));
+                                terms[i].varnames));
 
   equations[modnr].add_FC(&FC_hrandom_variances[FC_hrandom_variances.size()-1],pathres);
 
@@ -1231,16 +1245,12 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   else
     samplem = true;
 
-  bool store=false ;
-  if (storesample.getvalue() == true)
-    store = true;
-
   bool me=false ;
   if (terms[i].options[19] == "true")
     me = true;
 
   FC_mults[FC_mults.size()-1].set_multeffects(&master,&generaloptions,
-                                              title,pathnonp,samplem,store,me);
+                                              title,pathnonp,samplem,me);
 
   equations[modnr].add_FC(&FC_mults[FC_mults.size()-1],pathres);
 
@@ -1295,13 +1305,9 @@ bool superbayesreg::create_mrf(unsigned i)
                            &FC_linears[FC_linears.size()-1],m,
                             terms[i].options,terms[i].varnames));
 
-  bool store=false ;
-  if (storesample.getvalue() == true)
-    store = true;
-
   FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_mrfs[design_mrfs.size()-1],
-                     terms[i].options,terms[i].varnames,store));
+                     terms[i].options,terms[i].varnames));
 
   equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
 
@@ -1313,7 +1319,7 @@ bool superbayesreg::create_mrf(unsigned i)
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_mrfs[design_mrfs.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
-                                terms[i].varnames,store));
+                                terms[i].varnames));
 
   equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
 
@@ -1336,13 +1342,9 @@ bool superbayesreg::create_kriging(unsigned i)
                            &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));
 
-  bool store=false ;
-  if (storesample.getvalue() == true)
-    store = true;
-
   FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,
                      title, pathnonp,&design_krigings[design_krigings.size()-1],
-                     terms[i].options,terms[i].varnames,store));
+                     terms[i].options,terms[i].varnames));
 
   equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
 
@@ -1355,7 +1357,7 @@ bool superbayesreg::create_kriging(unsigned i)
   FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_krigings[design_krigings.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
-                                terms[i].varnames,store));
+                                terms[i].varnames));
 
   equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
 

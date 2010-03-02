@@ -77,8 +77,8 @@ FC_nonp::FC_nonp(void)
 FC_nonp::FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,vector<ST::string> & op,
-                 vector<ST::string> & vn,bool sstore)
-     : FC(o,t,Dp->Zout.rows(),1,fp,sstore)
+                 vector<ST::string> & vn)
+     : FC(o,t,Dp->Zout.rows(),1,fp)
   {
   read_options(op,vn);
   masterp = mp;
@@ -97,23 +97,23 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
 
   if (Dp->position_lin != -1)
     {
-    fsample = FC(o,"",beta.rows(),beta.cols(),fp + ".lin",sstore);
+    fsample = FC(o,"",beta.rows(),beta.cols(),fp + ".lin");
     paramlin = datamatrix(Dp->designlinear.cols(),1,0);
     }
 
-  paramsample = FC(o,"",param.rows(),1,fp + ".param",sstore);
+  paramsample = FC(o,"",param.rows(),1,fp + ".param");
 
   helpcenter = datamatrix(designp->nrpar,1);
 
   if (pvalue==true)
     {
-    pvalue_sample = FC(o,"",param.rows()*2+6,1,fp + ".pvalue",sstore);
+    pvalue_sample = FC(o,"",param.rows()*2+6,1,fp + ".pvalue");
     mPhelp = datamatrix(param.rows(),1,0);
     }
 
   if (computemeaneffect==true)
     {
-    meaneffect_sample = FC(o,"",beta.rows(),1,fp+".meaneffect",sstore);
+    meaneffect_sample = FC(o,"",beta.rows(),1,fp+".meaneffect");
     }
 
   check_errors();
@@ -294,14 +294,7 @@ void FC_nonp::compute_pvalue(const ST::string & pathresults)
     datamatrix * contour;
     datamatrix contourm;
 
-    if (pvalue_sample.samplestore==true)
-      {
-      contourm = datamatrix(optionsp->samplesize,pvalue_sample.beta.rows(),0);
-      pvalue_sample.readsample3(contourm);
-      contour = &contourm;
-      }
-    else
-      contour = &pvalue_sample.sampled_beta;
+    contour = &pvalue_sample.sampled_beta;
 
     // TEST
     // ofstream out2("c:\\bayesx\\testh\\results\\contour.res");
@@ -318,17 +311,7 @@ void FC_nonp::compute_pvalue(const ST::string & pathresults)
     datamatrix * parameter;
     datamatrix parameterm;
 
-    if (samplestore==true)
-      {
-      parameterm=datamatrix(optionsp->samplesize,nrpar,0);  // samplesize x nrpar
-      paramsample.readsample3(parameterm);
-      parameter = &parameterm;
-      }
-    else
-      {
-      parameter = &paramsample.sampled_beta;
-      }
-
+    parameter = &paramsample.sampled_beta;
 
     // TEST
     // ofstream out3("c:\\bayesx\\testh\\results\\parameter.res");
@@ -1124,7 +1107,11 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
             << "infile intnr " << xvar
             << " pmean pqu" << pu1_str
             << " pqu" << po1_str << " pmed pqu" << po2_str << " pqu" << pu2_str
-            << " pcat" << pu_str << " pcat" << po_str;
+            << " pcat" << pu_str << " pcat" << po_str
+            << " sim_pqu" << pu1_str
+            << " sim_pqu" << po1_str << " sim_pqu" << po2_str << " sim_pqu" << pu2_str
+            << " sim_pcat" << pu_str << " sim_pcat" << po_str;
+
 
 
   if (designp->position_lin!=-1)
@@ -1267,6 +1254,26 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
                   designp->datanames[designp->datanames.size()-1] + "=" +
                   designp->effectvalues[designp->meaneffectnr]);
 
+    optionsp->out("\n");
+
+    double s_level1 = simconfBand(true);
+    double s_level2 = simconfBand(false);
+
+    optionsp->out("    Scaling factor to blow up pointwise " +
+                 ST::inttostring(optionsp->level1) + " percent credible intervals\n");
+    optionsp->out("    to obtain simultaneous credible intervals: " +
+         ST::doubletostring(s_level1,6) + "\n");
+
+    optionsp->out("\n");
+
+    optionsp->out("    Scaling factor to blow up pointwise " +
+                 ST::inttostring(optionsp->level2) + " percent credible intervals\n");
+    optionsp->out("    to obtain simultaneous credible intervals: " +
+         ST::doubletostring(s_level2,6) + "\n");
+
+    optionsp->out("\n");
+
+
     ofstream outres(pathresults.strtochar());
 
     optionsp->out("\n");
@@ -1301,6 +1308,13 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       outres << "pqu"  << u2  << "   ";
       outres << "pcat" << optionsp->level1 << "   ";
       outres << "pcat" << optionsp->level2 << "   ";
+
+      outres << "pqu"  << l1  << "_sim   ";
+      outres << "pqu"  << l2  << "_sim   ";
+      outres << "pqu"  << u1  << "_sim   ";
+      outres << "pqu"  << u2  << "_sim   ";
+      outres << "pcat" << optionsp->level1 << "_sim   ";
+      outres << "pcat" << optionsp->level2 << "_sim   ";
       }
 
 
@@ -1403,6 +1417,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       mu_workbetaqu50 = meaneffect_sample.betaqu50.getV();
       }
 
+    double l1_sim,l2_sim,u1_sim,u2_sim;  
 
     unsigned nrpar = beta.rows();
     for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
@@ -1434,6 +1449,32 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
           outres << -1 << "   ";
         else
           outres << 0 << "   ";
+
+        l1_sim = *workmean - s_level1*(*workmean- *workbetaqu_l1_lower_p);
+        l2_sim = *workmean - s_level2*(*workmean- *workbetaqu_l2_lower_p);
+        u1_sim = *workmean + s_level1*(*workbetaqu_l1_upper_p - *workmean);
+        u2_sim = *workmean + s_level2*(*workbetaqu_l2_upper_p - *workmean);
+
+        outres << l1_sim << "   ";
+        outres << l2_sim << "   ";
+        outres << u2_sim << "   ";
+        outres << u1_sim << "   ";
+
+        if (l1_sim > 0)
+          outres << 1 << "   ";
+        else if (u1_sim < 0)
+          outres << -1 << "   ";
+        else
+          outres << 0 << "   ";
+
+        if (l2_sim > 0)
+          outres << 1 << "   ";
+        else if (u2_sim < 0)
+          outres << -1 << "   ";
+        else
+          outres << 0 << "   ";
+
+
         }
 
 

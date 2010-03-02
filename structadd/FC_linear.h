@@ -98,7 +98,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   FC_linear(MASTER_OBJ * mp, GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
             vector<ST::string> & vn, const ST::string & t,
-           const ST::string & fp,bool sstore,bool cent);
+           const ST::string & fp,bool cent);
 
   // COPY CONSTRUCTOR
 

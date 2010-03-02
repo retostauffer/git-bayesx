@@ -601,14 +601,22 @@ void DESIGN_pspline::outoptions(GENERAL_OPTIONS * op)
   max += 0.01*dist;
 
   dist = (max - min)/(nrknots-1);
-  double knot=min - degree*dist;
 
   op->out("  Prior: " + typestr + "\n");
   op->out("  Number of knots: " + ST::inttostring(nrknots) + "\n" );
-  op->out("  First knot: " + ST::doubletostring(knot,8) + "\n");
+  op->out("  First knot: " + ST::doubletostring(min,8) + "\n");
+  op->out("  Last knot: " + ST::doubletostring(max,8) + "\n");
   op->out("  Knot distance: " + ST::doubletostring(dist,8) + "\n");
   op->out("  Degree of Splines: " + ST::inttostring(degree) + "\n" );
   op->out("  " + centerm + "\n" );
+
+
+  op->out("  B-spline basis may be created e.g. in STATA by: \n");
+  op->out("  bspline , xvar(x) generate(Bs) power(" + ST::inttostring(degree) +
+         ") knots(" + ST::doubletostring(min,8) + "(" +
+          ST::doubletostring(dist,8) + ")" + ST::doubletostring(max,8) + ") \n"
+         );
+  op->out("  where x contains the values for which the basis functions should be created\n");       
   op->out("\n");
 
   }

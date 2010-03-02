@@ -28,6 +28,7 @@ using randnumbers::trunc_normal2;
 using randnumbers::truncnormal;
 using randnumbers::kssample;
 using randnumbers::rand_gamma;
+using randnumbers::rand_inv_gaussian;
 
 /*
 1. workingweights ändern sich, weights ungleich 1
@@ -477,6 +478,111 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
   void outresults_predictive_check(datamatrix & D,datamatrix & sr);
 
   };
+
+
+//------------------------------------------------------------------------------
+//-------------------- CLASS: DISTRIBUTION_quantreg ----------------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE DISTR_quantreg : public DISTR_gaussian
+  {
+
+  protected:
+
+  double quantile;
+  double xi,xi2;
+  double num;
+  double sigma02;
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTR_quantreg(void) : DISTR_gaussian()
+     {
+     }
+
+   // CONSTRUCTOR1
+   // a_invgamma = a
+   // b_invgamma = b
+
+   DISTR_quantreg(const double & a,const double & b,GENERAL_OPTIONS * o,
+                  const datamatrix & r,const ST::string & ps,double & quant,
+                  const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+   DISTR_quantreg(const DISTR_quantreg & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTR_quantreg & operator=(const DISTR_quantreg & nd);
+
+   // DESTRUCTOR
+
+   ~DISTR_quantreg() {}
+
+/*
+  void compute_mu(const double * linpred,double * mu, bool notransform);
+
+  void compute_deviance(const double * response,
+                           const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           double * scale) const;
+
+  double loglikelihood(double * res,
+                       double * lin,
+                       double * w) const;
+
+  double loglikelihood_weightsone(double * res,double * lin) const;
+
+  double compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse, const bool & like);
+
+  void compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like);
+
+  void compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  */
+
+  void outoptions(void);
+
+  // FUNCTION: update
+  // TASK: updates the scale parameter
+
+  void update(void);
+
+  /*
+  bool posteriormode(void);
+
+  void outresults(ST::string pathresults="");
+
+  double get_scalemean(void);
+
+  void sample_responses(unsigned i,datamatrix & sr);
+
+  void outresults_predictive_check(datamatrix & D,datamatrix & sr);
+  */
+  };
+
 
 //------------------------------------------------------------------------------
 //-------------------- CLASS: DISTRIBUTION_loggaussian -------------------------

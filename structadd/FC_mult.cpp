@@ -25,7 +25,7 @@ void FC_mult::set_intp(DESIGN * d,FC_nonp * fp)
 
 void FC_mult::set_multeffects(MASTER_OBJ * mp,GENERAL_OPTIONS * o,
                               const ST::string & t, const ST::string & fp,
-                              bool sm,bool sstore,bool meane)
+                              bool sm,bool meane)
   {
 
   masterp = mp;
@@ -37,9 +37,9 @@ void FC_mult::set_multeffects(MASTER_OBJ * mp,GENERAL_OPTIONS * o,
 
   if (samplemult)
     {
-    FCmulteffect = FC(o,t,rows,1,fp,sstore);
+    FCmulteffect = FC(o,t,rows,1,fp);
     if (compmeaneffect==true)
-      FCmulteffect_mean = FC(o,"",rows,1,fp,sstore);
+      FCmulteffect_mean = FC(o,"",rows,1,fp);
     }
 
   }
