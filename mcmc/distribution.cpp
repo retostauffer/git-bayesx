@@ -91,15 +91,15 @@ void DISTRIBUTION::get_mssamples()
   {
   ST::string pathhelp =
         pathresultsscale.substr(0, pathresultsscale.length() - 10)
-                        + "_mscheck_like.raw";
+                        + "_mscheck_like_sample.raw";
   optionsp->out(pathhelp + "\n\n");
   msc_like.get_samples(pathhelp);
   pathhelp = pathresultsscale.substr(0, pathresultsscale.length()
-                - 10) + "_mscheck_pred.raw";
+                - 10) + "_mscheck_pred_sample.raw";
   optionsp->out(pathhelp + "\n\n");
   msc_pred.get_samples(pathhelp);
   pathhelp = pathresultsscale.substr(0, pathresultsscale.length() - 10)
-                       + "_mscheck_obssamples.raw";
+                       + "_mscheck_obssamples_sample.raw";
   optionsp->out(pathhelp + "\n\n");
   msc_obssamples.get_samples(pathhelp);
   }
@@ -2596,20 +2596,6 @@ void DISTRIBUTION::outresults(void)
     Scalesave.outresults();
     }
 
-    // BEGIN: DSB //
-
-    // if we do mschecking
-  if (mscheck)
-    {
-        // then first the likelihood samples
-        msc_like.outresults();
-        // and then the predictor samples
-        msc_pred.outresults();
-        // then the predictive observation samples
-        msc_obssamples.outresults();
-    }
-    // END: DSB //
-
   lower1 = Scalesave.get_lower1();
   lower2 = Scalesave.get_lower2();
   upper1 = Scalesave.get_upper1();
@@ -2679,6 +2665,151 @@ void DISTRIBUTION::outresults(void)
       }
 
     }
+
+    // BEGIN: DSB //
+
+    // if we do mschecking
+  if (mscheck)
+    {
+        msc_like.outresults();
+        // and then the predictor samples
+        msc_pred.outresults();
+        // then the predictive observation samples
+        msc_obssamples.outresults();
+
+    double avescore = 0;
+
+    optionsp->out("  Marshall-Spiegelhalter Cross Validation:\n",true);
+    optionsp->out("\n");
+    optionsp->out("  Estimated individual likelihoods, predictors and\n");
+    optionsp->out("  observation samples are stored in files\n");
+    optionsp->out("\n");
+
+    // Likelihood results
+    ST::string pathhelp =
+        pathresultsscale.substr(0, pathresultsscale.length() - 10)
+                        + "_mscheck_like.res";
+    optionsp->out("  " + pathhelp + "\n");
+    optionsp->out("\n");
+
+    ofstream outres(pathhelp.strtochar());
+
+    outres << "intnr" << "   ";
+    outres << "pmean   ";
+    outres << "pqu"  << l1  << "   ";
+    outres << "pqu"  << l2  << "   ";
+    outres << "pmed   ";
+    outres << "pqu"  << u1  << "   ";
+    outres << "pqu"  << u2  << "   ";
+    outres << endl;
+
+    double * workmean = msc_like.get_betameanp();
+    double * workbetaqu_l1_lower_p = msc_like.get_beta_lower1_p();
+    double * workbetaqu_l2_lower_p = msc_like.get_beta_lower2_p();
+    double * workbetaqu50 = msc_like.get_betaqu50p();
+    double * workbetaqu_l1_upper_p = msc_like.get_beta_upper1_p();
+    double * workbetaqu_l2_upper_p = msc_like.get_beta_upper2_p();
+
+    for(unsigned int i=0; i<msnrind; i++, workmean++, workbetaqu_l1_lower_p++,
+    workbetaqu_l2_lower_p++, workbetaqu50++, workbetaqu_l2_upper_p++, workbetaqu_l1_upper_p++)
+      {
+      avescore += *workmean;
+
+      outres << (i+1) << "   ";
+      outres << *workmean << "   ";
+      outres << *workbetaqu_l1_lower_p << "   ";
+      outres << *workbetaqu_l2_lower_p << "   ";
+      outres << *workbetaqu50 << "   ";
+      outres << *workbetaqu_l2_upper_p << "   ";
+      outres << *workbetaqu_l1_upper_p << "   ";
+      outres << endl;
+      }
+
+    avescore /= (double)msnrind;
+
+    // Predictor results
+    pathhelp = pathresultsscale.substr(0, pathresultsscale.length()
+                - 10) + "_mscheck_pred.res";
+    optionsp->out("  " + pathhelp + "\n");
+    optionsp->out("\n");
+
+    ofstream outres2(pathhelp.strtochar());
+
+    outres2 << "intnr" << "   ";
+    outres2 << "pmean   ";
+    outres2 << "pqu"  << l1  << "   ";
+    outres2 << "pqu"  << l2  << "   ";
+    outres2 << "pmed   ";
+    outres2 << "pqu"  << u1  << "   ";
+    outres2 << "pqu"  << u2  << "   ";
+    outres2 << endl;
+
+    workmean = msc_pred.get_betameanp();
+    workbetaqu_l1_lower_p = msc_pred.get_beta_lower1_p();
+    workbetaqu_l2_lower_p = msc_pred.get_beta_lower2_p();
+    workbetaqu50 = msc_pred.get_betaqu50p();
+    workbetaqu_l1_upper_p = msc_pred.get_beta_upper1_p();
+    workbetaqu_l2_upper_p = msc_pred.get_beta_upper2_p();
+
+    for(unsigned int i=0; i<nrobs; i++, workmean++, workbetaqu_l1_lower_p++,
+    workbetaqu_l2_lower_p++, workbetaqu50++, workbetaqu_l2_upper_p++, workbetaqu_l1_upper_p++)
+      {
+      outres2 << (i+1) << "   ";
+      outres2 << *workmean << "   ";
+      outres2 << *workbetaqu_l1_lower_p << "   ";
+      outres2 << *workbetaqu_l2_lower_p << "   ";
+      outres2 << *workbetaqu50 << "   ";
+      outres2 << *workbetaqu_l2_upper_p << "   ";
+      outres2 << *workbetaqu_l1_upper_p << "   ";
+      outres2 << endl;
+      }
+
+    // Observation samples
+
+    pathhelp = pathresultsscale.substr(0, pathresultsscale.length() - 10)
+                       + "_mscheck_obssamples.res";
+    optionsp->out("  " + pathhelp + "\n\n\n");
+
+    ofstream outres3(pathhelp.strtochar());
+
+    outres3 << "intnr" << "   ";
+    outres3 << "pmean   ";
+    outres3 << "pqu"  << l1  << "   ";
+    outres3 << "pqu"  << l2  << "   ";
+    outres3 << "pmed   ";
+    outres3 << "pqu"  << u1  << "   ";
+    outres3 << "pqu"  << u2  << "   ";
+    outres3 << endl;
+
+    workmean = msc_obssamples.get_betameanp();
+    workbetaqu_l1_lower_p = msc_obssamples.get_beta_lower1_p();
+    workbetaqu_l2_lower_p = msc_obssamples.get_beta_lower2_p();
+    workbetaqu50 = msc_obssamples.get_betaqu50p();
+    workbetaqu_l1_upper_p = msc_obssamples.get_beta_upper1_p();
+    workbetaqu_l2_upper_p = msc_obssamples.get_beta_upper2_p();
+
+    for(unsigned int i=0; i<nrobs; i++, workmean++, workbetaqu_l1_lower_p++,
+    workbetaqu_l2_lower_p++, workbetaqu50++, workbetaqu_l2_upper_p++, workbetaqu_l1_upper_p++)
+      {
+      outres3 << (i+1) << "   ";
+      outres3 << *workmean << "   ";
+      outres3 << *workbetaqu_l1_lower_p << "   ";
+      outres3 << *workbetaqu_l2_lower_p << "   ";
+      outres3 << *workbetaqu50 << "   ";
+      outres3 << *workbetaqu_l2_upper_p << "   ";
+      outres3 << *workbetaqu_l1_upper_p << "   ";
+      outres3 << endl;
+      }
+
+    // Results for the average score
+    optionsp->out("\n");
+    optionsp->out("  Results for the average leave one out score: " + ST::doubletostring(avescore, 6) + "\n");
+    optionsp->out("\n");
+    optionsp->out("\n");
+
+
+    }
+    // END: DSB //
 
 
   if ( (predict) && (optionsp->get_samplesize() > 0) && (!isbootstrap) )
