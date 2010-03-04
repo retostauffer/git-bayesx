@@ -496,7 +496,7 @@ Matrix<double> rand_normvek(unsigned dim)
 // Erzeugung einer Wishart verteilten Zufallsmatrix mit n Freiheitsgraden
 // und Skalenparameter Sigma und Dimension q x q
 // w gibt an, ob es sich bei Sigma schon um die Choleskyzerlegung einer
-// Kovarianzmatrix handelt, oder ob Sigma noch zerlegt werden mu�
+// Kovarianzmatrix handelt, oder ob Sigma noch zerlegt werden muss
 // w = 1 (default) entspricht schon zerlegt ansonsten unzerlegt
 
 void rand_wishart(Matrix<double> & Sigma,const unsigned & n,Matrix<double> & res)

@@ -1737,7 +1737,7 @@ void FULLCOND_random_gaussian::update(void)
   update_linpred(false);
 
 
-  // nicht verï¿½ndern wegen SUR-Modellen
+  // nicht verändern wegen SUR-Modellen
   likep->compute_respminuslinpred(mu,column);
 
 

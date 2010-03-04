@@ -76,7 +76,7 @@ double __EXPORT_TYPE kssample(void);
 
 double __EXPORT_TYPE rand_normal(void);
 
-// Erzeugen von Zufallszahlen gemï¿½ï¿½ einer truncated normal distribution
+// Erzeugen von Zufallszahlen gemaess einer truncated normal distribution
 
 double __EXPORT_TYPE trunc_normal(const double & a,const double & b,const double & mu,
                     const double & s = 1);
@@ -101,9 +101,9 @@ inline double __EXPORT_TYPE rand_expo(double lambda)
 
 
 // Erzeugen einer gammaverteilten Zufallszahl mit Parametern a und b
-// Fï¿½r a > 1 Best's Rejection Algorithmus (vgl. Devroye (1986) S.410)
-// Fï¿½r a = 1 Exponentialverteilung
-// Fï¿½r a < 1 Stuart's Theorem (vgl. Devroye (1986) S.182)
+// Für a > 1 Best's Rejection Algorithmus (vgl. Devroye (1986) S.410)
+// Für a = 1 Exponentialverteilung
+// Für a < 1 Stuart's Theorem (vgl. Devroye (1986) S.182)
 // Dichte der Gammaverteilung:
 // f(x) = b^a * Gamma(a)^-1 * x^a-1 * exp(-bx)
 // E(X) = a/b     Var(X) = a/b^2
@@ -112,7 +112,7 @@ double __EXPORT_TYPE rand_gamma(double a,double b);
 
 
 // erzeugen einer invers gammaverteilten Zufallszahl mit Parametern a,b
-// E(X) = b/(a-1) fï¿½r a > 1
+// E(X) = b/(a-1) für a > 1
 // Var(X) = b^2/((a-1)^2 * (a-2))
 
 inline double __EXPORT_TYPE rand_invgamma(double a,double b)
