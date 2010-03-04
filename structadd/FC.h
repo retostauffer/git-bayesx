@@ -249,7 +249,7 @@ class __EXPORT_TYPE FC
   // FUNCTION: simconfBand
   // TASK: computes scaling factor for simultaneous confidence bands
 
-  double FC::simconfBand(bool l1);
+  double simconfBand(bool l1);
 
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
