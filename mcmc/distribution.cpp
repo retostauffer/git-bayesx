@@ -162,7 +162,7 @@ double DISTRIBUTION::compute_msep(void)
 
       nr += 1;
       }
-    else       // ï¿½berprï¿½fen!!!!!
+    else       // überprüfen!!!!!
       {
       worklin += nlcols - 1;
       workresp += nlcols - 1;
@@ -285,7 +285,7 @@ void DISTRIBUTION::create_bootstrap_weights(void)   // wie bei MSEP und CV???
     {
     srand(seed);
     response_ori = response;  // speichert Response vom Original-Datensatz
-    linearpred_ori = linearpred;     // speichert Prï¿½diktor vom Original-Datensatz
+    linearpred_ori = linearpred;     // speichert Prädiktor vom Original-Datensatz
     }
 
   double * workresp = response.getV();
@@ -326,7 +326,7 @@ void DISTRIBUTION::create_weight(datamatrix & w, const double & p1, const bool &
 
   srand(seed);
 
-  if(fertig == true)        // erstellt neue Gewichte fï¿½r MSEP / AUC
+  if(fertig == true)        // erstellt neue Gewichte für MSEP / AUC
     {
     constant_iwlsweights = false;
     iwlsweights_notchanged_df = false;
@@ -364,7 +364,7 @@ void DISTRIBUTION::create_weight(datamatrix & w, const double & p1, const bool &
     iwlsweights_notchanged_df = false;
     weightcv = datamatrix(nrobs,p1,1);
 
-    if(weight.max(0) != 1 || weight.max(0) != 1)  // falls Gewichte im Befehl angegeben wurden, werden diese berï¿½cksuchtigt
+    if(weight.max(0) != 1 || weight.max(0) != 1)  // falls Gewichte im Befehl angegeben wurden, werden diese berücksuchtigt
       {
       double * workw = weight.getV();
       double * workcv = weightcv.getV();
@@ -2280,19 +2280,19 @@ void DISTRIBUTION::swap_linearpred(void)
 
 
             // write the approximate LOO predictor values into the output matrix,
-            // and compute the corresponding likelihood contributions,
+            // and compute the corresponding log-likelihood contributions,
             // for all (single) observations.
-            datamatrix likehelp = datamatrix(nrobs, 1);
+            datamatrix singleLogLikelihoods = datamatrix(nrobs, 1);
             {
                 double * msc_predp = msc_pred.getbetapointer();
                 double * msc_obssamplesp = msc_obssamples.getbetapointer();
                 double * resp = response.getV();
                 double * wei = weight.getV();
                 double * prc = predchange.getV();
-                double * likehelpp = likehelp.getV();
+                double * singleLogLikelihoodsp = singleLogLikelihoods.getV();
 
                 for (unsigned int i = 0; i < nrobs;
-                     i++, likehelpp++, msc_predp++, msc_obssamplesp++, resp++, wei++, prc++)
+                     i++, singleLogLikelihoodsp++, msc_predp++, msc_obssamplesp++, resp++, wei++, prc++)
                 {
                     // first compute the corresponding mu (with transformation onto the original scale,
                     // as the functions below expect that.)
@@ -2300,7 +2300,7 @@ void DISTRIBUTION::swap_linearpred(void)
                     compute_mu(prc, &mu);
 
                     // compute the loglikelihood of the observation *resp
-                    * likehelpp = loglikelihood_from_deviance(*resp, mu, *wei);
+                    * singleLogLikelihoodsp = loglikelihood_from_deviance(*resp, mu, *wei);
 
                     // sample once from the corresponding predictive distribution
                     * msc_obssamplesp = sample_from_likelihood(*wei, mu);
@@ -2317,13 +2317,18 @@ void DISTRIBUTION::swap_linearpred(void)
 
             for(unsigned int i=0; i<msnrind; i++, msc_likep++)
                 {
+
+                // first sum all loglikelihood contributions for individual i
                 int * workindex = msindex.getV() + msposbeg[i];
                 *msc_likep = 0.0;
 
                 for (unsigned register j = msposbeg[i]; j <= msposend[i]; j++, workindex++)
                    {
-                   *msc_likep += likehelp(*workindex,0);
+                   *msc_likep += singleLogLikelihoods(*workindex,0);
                    }
+
+                // and then exponentiate to get the likelihood of individual i
+                *msc_likep = exp(*msc_likep);
                 }
 
             // write into files
@@ -2703,7 +2708,9 @@ void DISTRIBUTION::outresults(void)
     outres << "pqu"  << u2  << "   ";
     outres << endl;
 
+    // here is the pointer to the means of the individuals likelihood samples:
     double * workmean = msc_like.get_betameanp();
+
     double * workbetaqu_l1_lower_p = msc_like.get_beta_lower1_p();
     double * workbetaqu_l2_lower_p = msc_like.get_beta_lower2_p();
     double * workbetaqu50 = msc_like.get_betaqu50p();
@@ -2713,7 +2720,9 @@ void DISTRIBUTION::outresults(void)
     for(unsigned int i=0; i<msnrind; i++, workmean++, workbetaqu_l1_lower_p++,
     workbetaqu_l2_lower_p++, workbetaqu50++, workbetaqu_l2_upper_p++, workbetaqu_l1_upper_p++)
       {
-      avescore += *workmean;
+        // for the average log-score, we first have to logarithmize the individuals mean likelihoods,
+        // and then average this over all individuals
+      avescore += log(*workmean);
 
       outres << (i+1) << "   ";
       outres << *workmean << "   ";
@@ -2725,7 +2734,9 @@ void DISTRIBUTION::outresults(void)
       outres << endl;
       }
 
-    avescore /= (double)msnrind;
+    // divide by the number of individuals to get the average log-score,
+    // and also add a minus to get the same orientation as for the DIC (lower scores are then better)
+    avescore /= - (double)msnrind;
 
     // Predictor results
     pathhelp = pathresultsscale.substr(0, pathresultsscale.length()
@@ -2801,9 +2812,9 @@ void DISTRIBUTION::outresults(void)
       outres3 << endl;
       }
 
-    // Results for the average score
+    // Results for the log-score
     optionsp->out("\n");
-    optionsp->out("  Results for the average leave one out score: " + ST::doubletostring(avescore, 6) + "\n");
+    optionsp->out("  Resulting average leave one out log-score: " + ST::doubletostring(avescore, 6) + "\n");
     optionsp->out("\n");
     optionsp->out("\n");
 
@@ -5645,7 +5656,7 @@ void DISTRIBUTION_gaussian::update(void)
 
   if ( (varianceest==true) || (constscale==true) )
     {
-/* ------------------------- fï¿½r sigma2_i bei fMRI !!! ------------------------
+/* ------------------------- für sigma2_i bei fMRI !!! ------------------------
     unsigned j;
     double sum;
 
@@ -6143,7 +6154,7 @@ void DISTRIBUTION_QUANTREG::outresults(void)
     if (*workweight == 0)
       {
       help = exp(trmult(0,0) * *workresp) - exp(trmult(0,0) * *worklin + sigma2_halbe);
-      //sum += *workweight*help*help;     // u.U. ï¿½ndern, so dass zwei Variablen, eine mit
+      //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
                                           // Gewichten != 0, die andere 0/1 Variable
       sum += help*help * *work2;
       nr += 1;
@@ -6172,7 +6183,7 @@ double DISTRIBUTION_gaussian::compute_msep(void)
     if (*workweight == 0)
       {
       help = *workresp - *worklin;
-      //sum += *workweight*help*help;     // u.U. ï¿½ndern, so dass zwei Variablen, eine mit
+      //sum += *workweight*help*help;     // u.U. ändern, so dass zwei Variablen, eine mit
                                           // Gewichten != 0, die andere 0/1 Variable
       sum += help*help * *work2;
       nr += 1;
@@ -6273,7 +6284,7 @@ DISTRIBUTION_gaussian::DISTRIBUTION_gaussian(const double & a,
   constscale=false;
   uniformprior=false;
 
-/* ---------------------- fï¿½r sigma2_i bei fMRI !!! ---------------------------
+/* ---------------------- für sigma2_i bei fMRI !!! ---------------------------
   scale(0,0)=1;
   changingweight=true;
   constscale=true;
@@ -7235,10 +7246,10 @@ void DISTRIBUTION_binomial::compute_deviance(const double * response,
 
 double DISTRIBUTION_binomial::compute_auc(void)
   {
-  datamatrix linpred_null_hilf = datamatrix(nrobs,1,0);       // Erzeugen einer Matrix die Eintrï¿½ge fï¿½r Beob.
-                                                              // mit weight=0 enthï¿½lt und darunter Nuller
-  datamatrix response_null_hilf = datamatrix(nrobs,1,0);      // Erzeugen einer Matrix die Eintrï¿½ge fï¿½r Beob.
-                                                              // mit weight=0 enthï¿½lt und darunter Nuller
+  datamatrix linpred_null_hilf = datamatrix(nrobs,1,0);       // Erzeugen einer Matrix die Einträge für Beob.
+                                                              // mit weight=0 enthält und darunter Nuller
+  datamatrix response_null_hilf = datamatrix(nrobs,1,0);      // Erzeugen einer Matrix die Einträge für Beob.
+                                                              // mit weight=0 enthält und darunter Nuller
   double * worklin = linearpred.getV();
   double * lin_null = linpred_null_hilf.getV();
   double * workweight = weight.getV();
@@ -7261,8 +7272,8 @@ double DISTRIBUTION_binomial::compute_auc(void)
       }
     }
 
-  datamatrix linpred_null = datamatrix(nrnull,1,0);  // Kï¿½rzen des "Null"-Prï¿½diktors, d.h. Weglassen der Nullen
-  datamatrix response_null = datamatrix(nrnull,1,0); // Kï¿½rzen des "Null"-Response, d.h. Weglassen der Nullen
+  datamatrix linpred_null = datamatrix(nrnull,1,0);  // Kürzen des "Null"-Prädiktors, d.h. Weglassen der Nullen
+  datamatrix response_null = datamatrix(nrnull,1,0); // Kürzen des "Null"-Response, d.h. Weglassen der Nullen
   double * lin_hilf = linpred_null_hilf.getV();
   lin_null = linpred_null.getV();
   double * resp_hilf = response_null_hilf.getV();
@@ -7273,11 +7284,11 @@ double DISTRIBUTION_binomial::compute_auc(void)
      *resp_null = *resp_hilf;
      }
 
-  statmatrix<int> index_gesamt(linpred_null.rows(),1);      // Sortieren des linearen Prï¿½diktors
+  statmatrix<int> index_gesamt(linpred_null.rows(),1);      // Sortieren des linearen Prädiktors
   index_gesamt.indexinit();
   linpred_null.indexsort(index_gesamt,0,linpred_null.rows()-1,0,0);
   statmatrix<double> rang_gepoolt(linpred_null.rows(),1);
-  linpred_null.rank(rang_gepoolt,index_gesamt,0,linpred_null.rows()-1,0);  // Rï¿½nge berechnen
+  linpred_null.rank(rang_gepoolt,index_gesamt,0,linpred_null.rows()-1,0);  // Ränge berechnen
 
   int* gesamt = index_gesamt.getV();
   double* rang_gep = rang_gepoolt.getV();
