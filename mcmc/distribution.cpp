@@ -29,7 +29,7 @@ DISTRIBUTION::initialise_mscheck(const ST::string & path,
         // random effects objects put their individual changes
         predchange = datamatrix(nrobs, 1, 0);
 
-        // initialize the full conditional object for the mscheck predictor
+/*        // initialize the full conditional object for the mscheck predictor
         ST::string path1 = path + "_mscheck_pred.raw";
         msc_pred = FULLCOND(optionsp, datamatrix(1, 1), "mscheck_pred",
                             nrobs, 1, path1);
@@ -45,7 +45,7 @@ DISTRIBUTION::initialise_mscheck(const ST::string & path,
         ST::string path3 = path + "_mscheck_obssamples.raw";
         msc_obssamples = FULLCOND(optionsp, datamatrix(1, 1), "mscheck_obssamples",
                             nrobs, 1, path3);
-        msc_obssamples.setflags(MCMC::norelchange | MCMC::nooutput);
+        msc_obssamples.setflags(MCMC::norelchange | MCMC::nooutput);*/
     }
 }
 
@@ -89,7 +89,7 @@ DISTRIBUTION::add_linearpred_mscheck(const double m,
 
 void DISTRIBUTION::get_mssamples()
   {
-  ST::string pathhelp =
+/*  ST::string pathhelp =
         pathresultsscale.substr(0, pathresultsscale.length() - 10)
                         + "_mscheck_like_sample.raw";
   optionsp->out(pathhelp + "\n\n");
@@ -101,7 +101,7 @@ void DISTRIBUTION::get_mssamples()
   pathhelp = pathresultsscale.substr(0, pathresultsscale.length() - 10)
                        + "_mscheck_obssamples_sample.raw";
   optionsp->out(pathhelp + "\n\n");
-  msc_obssamples.get_samples(pathhelp);
+  msc_obssamples.get_samples(pathhelp);*/
   }
 // END: DSB
 
@@ -538,8 +538,9 @@ DISTRIBUTION::DISTRIBUTION(MCMCoptions * o, const datamatrix & r,
                            const ST::string & ps)
   {
   nosamples = false;
+// Begin: DSB //
   mscheck=false;
-
+// End: DSB //
   pathresultsscale = pr;
   Scalesave = FULLCOND(o,datamatrix(1,1),"Scaleparameter",1,1,ps);
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
@@ -560,7 +561,9 @@ DISTRIBUTION::DISTRIBUTION(const datamatrix & offset,MCMCoptions * o,
                            const ST::string & pr,const ST::string & ps)
   {
   nosamples = false;
+// Begin: DSB
   mscheck=false;
+// End : DSB
   pathresultsscale = pr;
   Scalesave = FULLCOND(o,datamatrix(1,1),"Scaleparameter",1,1,ps);
   Scalesave.setflags(MCMC::norelchange | MCMC::nooutput);
@@ -782,15 +785,17 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   nrnigmix = d.nrnigmix;
   nigmixsum = d.nigmixsum;
 
+// Begin: DSB
   mscheck = d.mscheck;
-  msc_pred = d.msc_pred;
-  msc_like = d.msc_like;
-  msc_obssamples = d.msc_obssamples;
+//  msc_pred = d.msc_pred;
+//  msc_like = d.msc_like;
+//  msc_obssamples = d.msc_obssamples;
   predchange = d.predchange;
   msindex = d.msindex;
   msnrind = d.msnrind;
   msposbeg = d.msposbeg;
   msposend = d.msposend;
+// End: DSB
 
   }
 
@@ -890,16 +895,17 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   nrnigmix = d.nrnigmix;
   nigmixsum = d.nigmixsum;
 
+// Begin: DSB
   mscheck = d.mscheck;
-  msc_pred = d.msc_pred;
-  msc_like = d.msc_like;
-  msc_obssamples = d.msc_obssamples;
+//  msc_pred = d.msc_pred;
+//  msc_like = d.msc_like;
+//  msc_obssamples = d.msc_obssamples;
   predchange = d.predchange;
   msindex = d.msindex;
   msnrind = d.msnrind;
   msposbeg = d.msposbeg;
   msposend = d.msposend;
-
+// End: DSB
   return *this;
   }
 
@@ -1124,7 +1130,7 @@ double DISTRIBUTION::loglikelihood2(const unsigned & beg,const unsigned & end,
 
   }
 
-// BEGIN: DSB //
+/*// BEGIN: DSB //
 
 // FUNCTION: loglikelihood_from_deviance
 // TASK: computes the loglikelihood for a single observation for univariate
@@ -1146,7 +1152,7 @@ double DISTRIBUTION::loglikelihood2(const unsigned & beg,const unsigned & end,
         return - 0.5 * deviance;
     }
 
-// END: DSB //
+// END: DSB //*/
 
 void DISTRIBUTION::compute_weight(datamatrix & w,const unsigned & col,
                                   const bool & current) const
@@ -2262,27 +2268,10 @@ void DISTRIBUTION::swap_linearpred(void)
             }
             // so now predchange contains the approximate leave-one-out predictor samples!
 
-            // this is only for debugging:
-
-/*             ofstream out2("c:\\bayesx\\output\\linpred.raw");
-             linpred_current->prettyPrint(out2);
-             out2.close();
-
-             ofstream out3("c:\\bayesx\\output\\response.raw");
-             response.prettyPrint(out3);
-             out3.close();
-
-             ofstream out4("c:\\bayesx\\output\\weight.raw");
-             weight.prettyPrint(out4);
-             out4.close();*/
-
-            // end of debugging part.
-
-
             // write the approximate LOO predictor values into the output matrix,
             // and compute the corresponding log-likelihood contributions,
             // for all (single) observations.
-            datamatrix singleLogLikelihoods = datamatrix(nrobs, 1);
+/*            datamatrix singleLogLikelihoods = datamatrix(nrobs, 1);
             {
                 double * msc_predp = msc_pred.getbetapointer();
                 double * msc_obssamplesp = msc_obssamples.getbetapointer();
@@ -2334,7 +2323,7 @@ void DISTRIBUTION::swap_linearpred(void)
             // write into files
             msc_like.update();
             msc_pred.update();
-            msc_obssamples.update();
+            msc_obssamples.update();*/
 
             // refresh predchange vector with zeros
             predchange = datamatrix(nrobs, 1, 0);
@@ -2676,7 +2665,7 @@ void DISTRIBUTION::outresults(void)
     // if we do mschecking
   if (mscheck)
     {
-        msc_like.outresults();
+/*        msc_like.outresults();
         // and then the predictor samples
         msc_pred.outresults();
         // then the predictive observation samples
@@ -2817,7 +2806,7 @@ void DISTRIBUTION::outresults(void)
     optionsp->out("  Resulting average leave one out log-score: " + ST::doubletostring(avescore, 6) + "\n");
     optionsp->out("\n");
     optionsp->out("\n");
-
+    */
 
     }
     // END: DSB //
@@ -4552,7 +4541,7 @@ void DISTRIBUTION_gamma::compute_IWLS_weight_tildey(
   }
 
 
-// BEGIN: DSB //
+/*// BEGIN: DSB //
 
 double
     DISTRIBUTION_gamma::sample_from_likelihood(const double weight,
@@ -4572,7 +4561,7 @@ double
         return randnumbers::rand_gamma(a, b);
     }
 
-// END: DSB //
+// END: DSB //*/
 
 
 void DISTRIBUTION_gamma::compute_deviance(const double * response,
@@ -5075,7 +5064,7 @@ double DISTRIBUTION_gamma2::compute_gmu(double * linpred,
   }
 
 
-// BEGIN: DSB //
+/*// BEGIN: DSB //
 
 // this is just a copy of DISTRIBUTION_gamma::sample_from_likelihood
 double
@@ -5094,7 +5083,7 @@ double
         return randnumbers::rand_gamma(a, b);
     }
 
-// END: DSB //
+// END: DSB //*/
 
 void DISTRIBUTION_gamma2::compute_deviance(const double * response,
                                           const double * weight,
@@ -6075,17 +6064,13 @@ void DISTRIBUTION_QUANTREG::update(void)
 
   for(i=0; i<weight.rows(); i++, w++, rp++, worklin++, rpo++)
     {
-/*    double test = *rp;
-    double test2 = *worklin;
-    double test3 = *rp - *worklin;
-    double test4 = abs(*rp - *worklin);*/
 
     mu = num/(fabs(*rpo-*worklin));
     *w = rand_inv_gaussian(mu, lambda);
     *rp = *rpo - xi / *w;
 
     sumw += 1 / *w;
-    sumres += *w * (*rp-*worklin)*(*rp-*worklin); 
+    sumres += *w * (*rp-*worklin)*(*rp-*worklin);
     }
 
   sumres /= sigma02;
@@ -6120,20 +6105,11 @@ void DISTRIBUTION_QUANTREG::outresults(void)
   }
 
 
-  /*
-  void set_constscale(double s);
-
-  void undo_constscale(void);
-
-  void set_uniformprior(void);
-
-  void update_missings(void);
-  */
-
-
 //------------------------------------------------------------------------------
 //----------------------- END: DISTRIBUTION_QUANTREG ---------------------------
 //------------------------------------------------------------------------------
+
+
 
 /*double DISTRIBUTION_gaussian::compute_logmsep(void)
   {
@@ -6353,7 +6329,7 @@ const DISTRIBUTION_gaussian & DISTRIBUTION_gaussian::operator=(
   return *this;
   }
 
-// BEGIN: DSB //
+/*// BEGIN: DSB //
 
 double
     DISTRIBUTION_gaussian::sample_from_likelihood(const double weight,
@@ -6367,7 +6343,7 @@ double
         return mu + sqrt(sigma2) * randnumbers::rand_normal();
     }
 
-// END: DSB //
+// END: DSB //*/
 
 
 void DISTRIBUTION_gaussian::compute_deviance(const double * response,
@@ -6692,7 +6668,7 @@ const DISTRIBUTION_gaussian_re & DISTRIBUTION_gaussian_re::operator=(
   }
 
 
-// BEGIN: DSB //
+/*// BEGIN: DSB //
 
 // this is the same as DISTRIBUTION_gaussian::sample_from_likelihood
 // todo: perhaps the other function is not needed because there cannot be any random effects??
@@ -6708,7 +6684,7 @@ double
         return mu + sqrt(sigma2) * randnumbers::rand_normal();
     }
 
-// END: DSB //
+// END: DSB //*/
 
 void DISTRIBUTION_gaussian_re::compute_deviance(const double * response,
                            const double * weight,
@@ -6858,7 +6834,7 @@ const DISTRIBUTION_lognormal & DISTRIBUTION_lognormal::operator=(
   }
 
 
-// BEGIN: DSB //
+/*// BEGIN: DSB //
 
 double
     DISTRIBUTION_lognormal::sample_from_likelihood(const double weight,
@@ -6878,7 +6854,7 @@ double
         return exp(m + sqrt(sigma2) * randnumbers::rand_normal());
     }
 
-// END: DSB //
+// END: DSB //*/
 
 
 void DISTRIBUTION_lognormal::compute_deviance(const double * response,
@@ -7194,7 +7170,7 @@ bool DISTRIBUTION_binomial::posteriormode_converged(const unsigned & itnr)
   }
 
 
-// BEGIN: DSB //
+/*// BEGIN: DSB //
 
 double
     DISTRIBUTION_binomial::sample_from_likelihood(const double weight,
@@ -7207,7 +7183,7 @@ double
         return randnumbers::rand_binom(size, mu);
     }
 
-// END: DSB //
+// END: DSB //*/
 
 
 void DISTRIBUTION_binomial::compute_deviance(const double * response,
@@ -7404,7 +7380,7 @@ void DISTRIBUTION_binomial_latent::outoptions(void)
   }
 
 
-// BEGIN: DSB //
+/*// BEGIN: DSB //
 
 double
     DISTRIBUTION_binomial_latent::sample_from_likelihood(const double weight,
@@ -7417,7 +7393,7 @@ double
         return randnumbers::rand_binom(size, mu);
     }
 
-// END: DSB //
+// END: DSB //*/
 
 void DISTRIBUTION_binomial_latent::compute_deviance(const double * response,
           const double * weight, const double * mu,double * deviance,
@@ -7759,7 +7735,7 @@ void DISTRIBUTION_binomial_logit_latent::outoptions(void)
   }
 
 
-// BEGIN: DSB //
+/*// BEGIN: DSB //
 
 double
     DISTRIBUTION_binomial_logit_latent::sample_from_likelihood(const double weight,
@@ -7772,7 +7748,7 @@ double
         return randnumbers::rand_binom(size, mu);
     }
 
-// END: DSB //
+// END: DSB //*/
 
 void DISTRIBUTION_binomial_logit_latent::compute_deviance(
           const double * response, const double * weight,
@@ -8189,7 +8165,7 @@ void DISTRIBUTION_poisson::compute_IWLS_weight_tildey(double * response,
 
   }
 
-// BEGIN: DSB //
+/*// BEGIN: DSB //
 
 double
     DISTRIBUTION_poisson::sample_from_likelihood(const double weight,
@@ -8202,7 +8178,7 @@ double
         return randnumbers::rand_pois(m);
     }
 
-// END: DSB //
+// END: DSB //*/
 
 void DISTRIBUTION_poisson::compute_deviance(const double * response,
                                             const double * weight,

@@ -158,9 +158,9 @@ class __EXPORT_TYPE DISTRIBUTION
   // BEGIN: DSB //
 
   bool mscheck;                   // do approximate leave-one-out checking?
-  FULLCOND msc_pred;              // Full conditional storing corresponding Predictors samples
-  FULLCOND msc_like;              // Full conditional storing corresponding Likelihoods samples
-  FULLCOND msc_obssamples;        // Full conditional storing corresponding predictive observation samples
+//  FULLCOND msc_pred;              // Full conditional storing corresponding Predictors samples
+//  FULLCOND msc_like;              // Full conditional storing corresponding Likelihoods samples
+//  FULLCOND msc_obssamples;        // Full conditional storing corresponding predictive observation samples
   datamatrix predchange;          // matrix (with one column) storing the difference between
                                   // predictors for prior and posterior sampling in one iteration -
                                   // this is necessary for approximate leave-one-out checking
@@ -168,7 +168,7 @@ class __EXPORT_TYPE DISTRIBUTION
    vector<unsigned> msposbeg;
    vector<unsigned> msposend;
    unsigned msnrind;              // no. of individuals
-  // END:  //
+  // END: DSB //
 
   datamatrix * Dp;
   vector<ST::string> Dnames;
@@ -515,7 +515,7 @@ class __EXPORT_TYPE DISTRIBUTION
     return 0;
     }
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
     // FUNCTION: loglikelihood_from_deviance
     // TASK: computes the loglikelihood for a single observation for univariate
@@ -526,7 +526,7 @@ class __EXPORT_TYPE DISTRIBUTION
                                        const double weight // weight
                                        ) const;
 
-    // END: DSB //
+    // END: DSB //*/
 
   // FUNCTION: loglikelihood
   // TASK: computes the complete loglikelihood for all observations
@@ -570,7 +570,7 @@ class __EXPORT_TYPE DISTRIBUTION
 
   void compute_mu(const datamatrix & linpred, datamatrix & mu) const;
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
   //----------------------------------------------------------------------------
   //----------------------- SAMPLING FROM THE LIKELIHOOD ------------------------
@@ -589,7 +589,7 @@ class __EXPORT_TYPE DISTRIBUTION
   }
 
 
-  // END: DSB //
+  // END: DSB //*/
 
 
   //----------------------------------------------------------------------------
@@ -1938,13 +1938,13 @@ class __EXPORT_TYPE DISTRIBUTION_gamma : public DISTRIBUTION
                         double * deviancesat,const datamatrix & scale,
                         const int & i) const;
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
 
-  // END: DSB //
+  // END: DSB //*/
 
   // FUNCTION: update
   // TASK: updates the scale parameter and the interecept
@@ -2083,13 +2083,13 @@ class __EXPORT_TYPE DISTRIBUTION_gamma2 : public DISTRIBUTION
 
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
 
-  // END: DSB //
+  // END: DSB //*/
 
   // FUNCTION: compute_devresidual
   // TASK: computes the deviance residual
@@ -2361,13 +2361,13 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
 
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
 
-  // END: DSB //
+  // END: DSB //*/
 
   // FUNCTION: compute_deviance
   // TASK: computes the retransformed individual deviance
@@ -2635,17 +2635,7 @@ class __EXPORT_TYPE DISTRIBUTION_QUANTREG : public DISTRIBUTION_gaussian
 
   void outresults(void);
 
-/*
-  void set_constscale(double s);
-
-  void undo_constscale(void);
-
-  void set_uniformprior(void);
-
-  void update_missings(void);
-*/
   };
-
 
 
 
@@ -2739,13 +2729,13 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian_re : public DISTRIBUTION
 
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
 
-  // END: DSB //
+  // END: DSB //*/
 
   // FUNCTION: compute_deviance
   // TASK: computes the retransformed individual deviance
@@ -2888,13 +2878,13 @@ class __EXPORT_TYPE DISTRIBUTION_lognormal : public DISTRIBUTION_gaussian
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
 
-  // END: DSB //
+  // END: DSB //*/
 
 
   // FUNCTION: compute_deviance
@@ -2997,13 +2987,13 @@ class __EXPORT_TYPE DISTRIBUTION_binomial : public DISTRIBUTION
 
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
 
-  // END: DSB //
+  // END: DSB //*/
 
   // FUNCTION: compute_deviance
   // TASK: computes the deviance
@@ -3127,13 +3117,13 @@ class __EXPORT_TYPE DISTRIBUTION_binomial_latent : public DISTRIBUTION
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
 
-  // END: DSB //
+  // END: DSB //*/
 
 
   // FUNCTION: compute_deviance
@@ -3246,13 +3236,13 @@ class __EXPORT_TYPE DISTRIBUTION_binomial_logit_latent : public DISTRIBUTION
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
 
-  // END: DSB //
+  // END: DSB //*/
 
 
   // FUNCTION: compute_deviance
@@ -3365,13 +3355,13 @@ class __EXPORT_TYPE DISTRIBUTION_poisson : public DISTRIBUTION
                                    double * weightiwls,double * tildey,
                                    const unsigned & col=0);
 
-  // BEGIN: DSB //
+/*  // BEGIN: DSB //
 
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
 
-  // END: DSB //
+  // END: DSB //*/
 
   // FUNCTION: compute_deviance
   // TASK: computes the individual deviance

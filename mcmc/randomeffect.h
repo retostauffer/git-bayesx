@@ -85,7 +85,9 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
 
   public:
 
+// Begin: DSB
   void set_mscheck(const bool & val);
+// End: DSB
 
   // DEFAULT CONSTRUCTOR:
 

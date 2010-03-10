@@ -1846,10 +1846,12 @@ const ST::string & path,const unsigned & step)
 
         }
 
+// Begin: DSB
       if (likep_mult[i]->get_mscheck())
         {
         likep_mult[i]->get_mssamples();
         }
+// End: DSB
       }
     }
 

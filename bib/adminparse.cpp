@@ -1,6 +1,4 @@
 
-
-
 #include "adminparse.h"
 
 administrator::administrator(void)
@@ -267,7 +265,6 @@ bool administrator::alreadyexisting(const ST::string & name)
 
 ST::string administrator::create(const ST::string & in)
   {
-
   ST::string name;
   vector<ST::string> token = in.strtoken(" ");
 
@@ -276,6 +273,7 @@ ST::string administrator::create(const ST::string & in)
 	 errormessages.push_back("ERROR: invalid creation of new object\n");
 	 return "";
 	 }
+
   else // token.size() == 2
 	 {
 
@@ -290,28 +288,24 @@ ST::string administrator::create(const ST::string & in)
 		  errormessages.push_back(
 		  "ERROR: object " + token[1] + " is already existing\n");
 		else
-		  {
-
+    	  {
 		  if (token[0] == "dataset")
 			 {
 			 dataobject newobject(&adminb,&adminp,token[1],&logout,input);
 			 dataobjects.push_back(newobject);
-			 }
-
+             }
 		  else if (token[0] == "bayesreg")
 			 {
 			 bayesreg newobject(&adminb,&adminp,
              token[1],&logout,input,defaultpath,&objects);
 			 bayesregobjects.push_back(newobject);
 			 }
-
 		  else if (token[0] == "stepwisereg")
 			 {
 			 stepwisereg newobject(&adminb,&adminp,
              token[1],&logout,input,defaultpath,&objects);
 			 stepwiseregobjects.push_back(newobject);
 			 }
-
 		  else if (token[0] == "remlreg")
 			 {
 			 remlreg newobject(&adminb,
@@ -336,14 +330,14 @@ ST::string administrator::create(const ST::string & in)
              graphobj newobject(&adminb,&adminp,token[1],&logout,input,&objects);
              graphobjects.push_back(newobject);
              }
-
-		  adjustobjects();
-
-		  }
-		return token[1];
-		}
-	 } // end: if token.size() == 2
+           adjustobjects();
+           return(token[1]);
+          }
+       }
+     }
   }
+
+
 
 
 void administrator::parseexisting(const ST::string & objectname,const ST::string & com)
@@ -783,11 +777,14 @@ bool administrator::parse(ST::string & in)
 	 else if (firsttoken.isinlist(objecttyps) >= 0)      // create a new object
 		{
 
-
 		if (pointpos == -1)
+          {
 		  objectname = create(in);
+          }
 		else
+          {
           objectname = create(in.substr(0,pointpos));
+          }
 
 
 		if ( (errormessages.empty()) && (pointpos > 0) )
