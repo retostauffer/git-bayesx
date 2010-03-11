@@ -2314,16 +2314,33 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage_ridge_Effects" + ST::inttostring(i+1);
+        if(collinpred == 0)
+          {
+          title = "shrinkage_ridge_Effects" + ST::inttostring(i+1);
 #if defined(__BUILDING_LINUX)
-        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #else
-        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #endif
-        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
-
+          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+          }
+        else
+          {
+          title = "shrinkage_ridge_Effects" + ST::inttostring(i+1)+ "_" +
+                            ST::inttostring(collinpred+1);
+#if defined(__BUILDING_LINUX)
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#else
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#endif
+          pathconstres = outfile.getvalue() + add_name + "_" +
+                            ST::inttostring(collinpred+1) + "_" + title + ".res";
+          }
+        
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
@@ -2373,15 +2390,32 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage_ridge_Effects" + ST::inttostring(i+1);
+        if(collinpred == 0)
+          {
+          title = "shrinkage_ridge_Effects" + ST::inttostring(i+1);
 #if defined(__BUILDING_LINUX)
-        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #else
-        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #endif
-        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+          }
+        else
+          {
+          title = "shrinkage_ridge_Effects" + ST::inttostring(i+1)+ "_" +
+                            ST::inttostring(collinpred+1);
+#if defined(__BUILDING_LINUX)
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#else
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#endif
+          pathconstres = outfile.getvalue() + add_name + "_" +
+                            ST::inttostring(collinpred+1) + "_" + title + ".res";
+          }
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
@@ -2514,16 +2548,32 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage_lasso_Effects" + ST::inttostring(i+1);
+        if(collinpred == 0)
+          {
+          title = "shrinkage_lasso_Effects" + ST::inttostring(i+1);
 #if defined(__BUILDING_LINUX)
-        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #else
-        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #endif
-        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
-
+          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+          }
+        else
+          {
+          title = "shrinkage_lasso_Effects" + ST::inttostring(i+1)+ "_" +
+                            ST::inttostring(collinpred+1);
+#if defined(__BUILDING_LINUX)
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#else
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#endif
+          pathconstres = outfile.getvalue() + add_name + "_" +
+                            ST::inttostring(collinpred+1) + "_" + title + ".res";
+          }
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
@@ -2572,15 +2622,32 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage_lasso_Effects" + ST::inttostring(i+1);
+        if(collinpred == 0)
+          {
+          title = "shrinkage_lasso_Effects" + ST::inttostring(i+1);
 #if defined(__BUILDING_LINUX)
-        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #else
-        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #endif
-        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+          }
+        else
+          {
+          title = "shrinkage_lasso_Effects" + ST::inttostring(i+1)+ "_" +
+                            ST::inttostring(collinpred+1);
+#if defined(__BUILDING_LINUX)
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#else
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#endif
+          pathconstres = outfile.getvalue() + add_name + "_" +
+                            ST::inttostring(collinpred+1) + "_" + title + ".res";
+          }
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
@@ -2728,23 +2795,39 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1);
+        if(collinpred == 0)
+          {
+          title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1);
 #if defined(__BUILDING_LINUX)
-        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #else
-        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #endif
-        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
-
+          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+          }
+        else
+          {
+          title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1)+ "_" +
+                            ST::inttostring(collinpred+1);
+#if defined(__BUILDING_LINUX)
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#else
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#endif
+          pathconstres = outfile.getvalue() + add_name + "_" +
+                            ST::inttostring(collinpred+1) + "_" + title + ".res";
+          }
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
                                  " for writing\n");
           return true;
           }
-
+          
         // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
         normalshrinkage.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
                                   distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
@@ -2787,15 +2870,32 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1);
+        if(collinpred == 0)
+          {
+          title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1);
 #if defined(__BUILDING_LINUX)
-        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #else
-        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                         + add_name + "_" + title + ".raw";
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + title + ".raw";
 #endif
-        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+          }
+        else
+          {
+          title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1)+ "_" +
+                            ST::inttostring(collinpred+1);
+#if defined(__BUILDING_LINUX)
+          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#else
+          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
+#endif
+          pathconstres = outfile.getvalue() + add_name + "_" +
+                            ST::inttostring(collinpred+1) + "_" + title + ".res";
+          }
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
