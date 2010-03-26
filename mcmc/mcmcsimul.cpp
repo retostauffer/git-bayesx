@@ -1497,7 +1497,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
             // Plot-Befehle f. d. tex-file
             outtex << "\n\\begin{figure}[h!]" << endl
                     << "\\centering" << endl
-                    << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
+                    << "\\includegraphics[scale=0.6]{" << pathgr << "}" << endl
                     << "\\caption{Non--linear Effect of '" <<
                     xvar.insert_string_char(hcharu,hstringu) << "'";
             if(lp>1)
@@ -1546,7 +1546,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
               {
               outtex << "\n\\begin{figure}[h!]" << endl
                      << "\\centering" << endl
-                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pmean.ps}"
+                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pmean}"
                      << endl
                      << "\\caption{Non--linear Effect of '" <<
                      regionvar.insert_string_char(hcharu,hstringu) << "'";
@@ -1557,7 +1557,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
               outtex << "\n\\begin{figure}[htb]" << endl
                      << "\\centering" << endl
                      << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << u_str << ".ps}" << endl
+                     << u_str << "}" << endl
                      << "\\caption{Non--linear Effect of '" << regionvar << "'";
               if(lp>1)
                 outtex << " (" <<  ST::inttostring(i+1) << ". response category)";
@@ -1570,7 +1570,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
               outtex << "\n\\begin{figure}[htb]" << endl
                      << "\\centering" << endl
                      << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << o_str << ".ps}" << endl
+                     << o_str << "}" << endl
                      << "\\caption{Non--linear Effect of '" << regionvar << "'";
               if(lp>1)
                 outtex << " (" << ST::inttostring(i+1) << ". response category)";
@@ -1585,7 +1585,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
               {
               outtex << "\n%\\begin{figure}[h!]" << endl
                      << "%\\centering" << endl
-                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmean.ps}"
+                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmean}"
                      << endl
                      << "%\\caption{Non--linear Effect of '" <<
                      regionvar.insert_string_char(hcharu,hstringu) << "'";
@@ -1596,7 +1596,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
               outtex << "\n%\\begin{figure}[htb]" << endl
                      << "%\\centering" << endl
                      << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << u_str << ".ps}" << endl
+                     << u_str << "}" << endl
                      << "%\\caption{Non--linear Effect of '" << regionvar << "'";
               if(lp>1)
                 outtex << " (" <<  ST::inttostring(i+1) << ". response category)";
@@ -1609,7 +1609,7 @@ void MCMCsimulate::make_plots(ofstream & outtex,const unsigned nr,
               outtex << "\n%\\begin{figure}[htb]" << endl
                      << "%\\centering" << endl
                      << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << o_str << ".ps}" << endl
+                     << o_str << "}" << endl
                      << "%\\caption{Non--linear Effect of '" << regionvar << "'";
               if(lp>1)
                 outtex << " (" << ST::inttostring(i+1) << ". response category)";

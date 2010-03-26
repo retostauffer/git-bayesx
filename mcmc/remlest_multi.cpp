@@ -1098,7 +1098,7 @@ void remlest_multinomial::make_plots(ofstream & outtex,ST::string path_batch,
             }
           outtex << "\n\\begin{figure}[h!]" << endl
                   << "\\centering" << endl
-                  << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
+                  << "\\includegraphics[scale=0.6]{" << pathgr << "}" << endl
                   << "\\caption{Non--linear Effect of '" <<
                   effect.insert_string_char(hcharu,hstringu) << "'";
           outtex << " (Category " << cats(i,0) << ")." << endl << "Shown are the posterior modes together with "
@@ -1151,7 +1151,7 @@ void remlest_multinomial::make_plots(ofstream & outtex,ST::string path_batch,
             {
             outtex << "\n\\begin{figure}[h!]" << endl
                    << "\\centering" << endl
-                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode}"
                    << endl
                    << "\\caption{Non--linear Effect of '" <<
                    effect.insert_string_char(hcharu,hstringu) << "'";
@@ -1160,7 +1160,7 @@ void remlest_multinomial::make_plots(ofstream & outtex,ST::string path_batch,
             outtex << "\n\\begin{figure}[htb]" << endl
                    << "\\centering" << endl
                    << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                   << u_str << ".ps}" << endl
+                   << u_str << "}" << endl
                    << "\\caption{Non--linear Effect of '" << effect << "'";
             outtex << " (Category " << cats(i,0) << "). Posterior probabilities for a nominal level of "
                    << u_str << "\\%." << endl
@@ -1171,7 +1171,7 @@ void remlest_multinomial::make_plots(ofstream & outtex,ST::string path_batch,
             outtex << "\n\\begin{figure}[htb]" << endl
                    << "\\centering" << endl
                    << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                   << o_str << ".ps}" << endl
+                   << o_str << "}" << endl
                    << "\\caption{Non--linear Effect of '" << effect << "'";
             outtex << " (Category " << cats(i,0) << "). Posterior probabilities for a nominal level of "
                    << o_str << "\\%." << endl
@@ -1184,7 +1184,7 @@ void remlest_multinomial::make_plots(ofstream & outtex,ST::string path_batch,
             {
             outtex << "\n%\\begin{figure}[h!]" << endl
                    << "%\\centering" << endl
-                   << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                   << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode}"
                    << endl
                    << "%\\caption{Non--linear Effect of '" <<
                    effect.insert_string_char(hcharu,hstringu) << "'";
@@ -1193,7 +1193,7 @@ void remlest_multinomial::make_plots(ofstream & outtex,ST::string path_batch,
             outtex << "\n%\\begin{figure}[htb]" << endl
                    << "%\\centering" << endl
                    << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                   << u_str << ".ps}" << endl
+                   << u_str << "}" << endl
                    << "%\\caption{Non--linear Effect of '" << effect << "'";
             outtex << " (Category " << cats(i,0) << "). Posterior probabilities for a nominal level of "
                    << u_str << "\\%." << endl
@@ -1204,7 +1204,7 @@ void remlest_multinomial::make_plots(ofstream & outtex,ST::string path_batch,
             outtex << "\n%\\begin{figure}[htb]" << endl
                    << "%\\centering" << endl
                    << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                   << o_str << ".ps}" << endl
+                   << o_str << "}" << endl
                    << "%\\caption{Non--linear Effect of '" << effect << "'";
             outtex << " (Category " << cats(i,0) << "). Posterior probabilities for a nominal level of "
                    << o_str << "\\%." << endl
@@ -3645,7 +3645,7 @@ void remlest_multistate::make_plots(ofstream & outtex,ST::string path_batch,
               }
             outtex << "\n\\begin{figure}[h!]" << endl
                     << "\\centering" << endl
-                    << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
+                    << "\\includegraphics[scale=0.6]{" << pathgr << "}" << endl
                     << "\\caption{Non--linear Effect of '" <<
                     effect.insert_string_char(hcharu,hstringu) << "'";
             outtex << "." << endl << "Shown are the posterior modes together with "
@@ -3698,7 +3698,7 @@ void remlest_multistate::make_plots(ofstream & outtex,ST::string path_batch,
               {
               outtex << "\n\\begin{figure}[h!]" << endl
                      << "\\centering" << endl
-                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode}"
                      << endl
                      << "\\caption{Non--linear Effect of '" <<
                      effect.insert_string_char(hcharu,hstringu) << "'";
@@ -3707,7 +3707,7 @@ void remlest_multistate::make_plots(ofstream & outtex,ST::string path_batch,
               outtex << "\n\\begin{figure}[htb]" << endl
                      << "\\centering" << endl
                      << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << u_str << ".ps}" << endl
+                     << u_str << "}" << endl
                      << "\\caption{Non--linear Effect of '" << effect << "'";
               outtex << ". Posterior probabilities for a nominal level of "
                      << u_str << "\\%." << endl
@@ -3718,7 +3718,7 @@ void remlest_multistate::make_plots(ofstream & outtex,ST::string path_batch,
               outtex << "\n\\begin{figure}[htb]" << endl
                      << "\\centering" << endl
                      << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << o_str << ".ps}" << endl
+                     << o_str << "}" << endl
                      << "\\caption{Non--linear Effect of '" << effect << "'";
               outtex << ". Posterior probabilities for a nominal level of "
                    << o_str << "\\%." << endl
@@ -3731,7 +3731,7 @@ void remlest_multistate::make_plots(ofstream & outtex,ST::string path_batch,
               {
               outtex << "\n%\\begin{figure}[h!]" << endl
                      << "%\\centering" << endl
-                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode}"
                      << endl
                      << "%\\caption{Non--linear Effect of '" <<
                      effect.insert_string_char(hcharu,hstringu) << "'";
@@ -3740,7 +3740,7 @@ void remlest_multistate::make_plots(ofstream & outtex,ST::string path_batch,
               outtex << "\n%\\begin{figure}[htb]" << endl
                      << "%\\centering" << endl
                      << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << u_str << ".ps}" << endl
+                     << u_str << "}" << endl
                      << "%\\caption{Non--linear Effect of '" << effect << "'";
               outtex << ". Posterior probabilities for a nominal level of "
                      << u_str << "\\%." << endl
@@ -3751,7 +3751,7 @@ void remlest_multistate::make_plots(ofstream & outtex,ST::string path_batch,
               outtex << "\n%\\begin{figure}[htb]" << endl
                      << "%\\centering" << endl
                      << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << o_str << ".ps}" << endl
+                     << o_str << "}" << endl
                      << "%\\caption{Non--linear Effect of '" << effect << "'";
               outtex << ". Posterior probabilities for a nominal level of "
                      << o_str << "\\%." << endl

@@ -5897,19 +5897,22 @@ for(i=0; i<nrobs; i++)
   outfit << loglike << " " << df << " " << aic << " " << bic << " " << endl;
   outfit.close();
 
-  out("\n");
-  out("  Cumulative Hazard Function\n",true);
-  out("\n");
-  out("\n");
-  out("  The cumulative hazard function is stored in file\n");
-  out("  "+outfile+"_predict.raw\n");
-  out("\n");
+  if(!timevarying)
+    {
+    out("\n");
+    out("  Cumulative Hazard Function\n",true);
+    out("\n");
+    out("\n");
+    out("  The cumulative hazard function is stored in file\n");
+    out("  "+outfile+"_predict.raw\n");
+    out("\n");
 
-  ofstream outpredict((outfile+"_predict.raw").strtochar());
-  outpredict << "cumhazard" << endl;
-  for(i=0; i<cumhazard.rows(); i++)
-    outpredict << cumhazard(i,0) << endl;
-  outpredict.close();
+    ofstream outpredict((outfile+"_predict.raw").strtochar());
+    outpredict << "cumhazard" << endl;
+    for(i=0; i<cumhazard.rows(); i++)
+      outpredict << cumhazard(i,0) << endl;
+    outpredict.close();
+    }
 
   return false;
   }
@@ -6151,7 +6154,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
             }
           outtex << "\n\\begin{figure}[h!]" << endl
                   << "\\centering" << endl
-                  << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
+                  << "\\includegraphics[scale=0.6]{" << pathgr << "}" << endl
                   << "\\caption{Non--linear Effect of '" <<
                   effect.insert_string_char(hcharu,hstringu) << "'";
           outtex << "." << endl << "Shown are the posterior modes together with "
@@ -6204,7 +6207,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
             {
             outtex << "\n\\begin{figure}[h!]" << endl
                    << "\\centering" << endl
-                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode}"
                    << endl
                    << "\\caption{Non--linear Effect of '" <<
                    effect.insert_string_char(hcharu,hstringu) << "'";
@@ -6213,7 +6216,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
             outtex << "\n\\begin{figure}[htb]" << endl
                    << "\\centering" << endl
                    << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                   << u_str << ".ps}" << endl
+                   << u_str << "}" << endl
                    << "\\caption{Non--linear Effect of '" << effect << "'";
             outtex << ". Posterior probabilities for a nominal level of "
                    << u_str << "\\%." << endl
@@ -6224,7 +6227,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
             outtex << "\n\\begin{figure}[htb]" << endl
                    << "\\centering" << endl
                    << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                   << o_str << ".ps}" << endl
+                   << o_str << "}" << endl
                    << "\\caption{Non--linear Effect of '" << effect << "'";
             outtex << ". Posterior probabilities for a nominal level of "
                    << o_str << "\\%." << endl
@@ -6237,7 +6240,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
             {
             outtex << "\n%\\begin{figure}[h!]" << endl
                    << "%\\centering" << endl
-                   << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                   << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode}"
                    << endl
                    << "%\\caption{Non--linear Effect of '" <<
                    effect.insert_string_char(hcharu,hstringu) << "'";
@@ -6246,7 +6249,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
             outtex << "\n%\\begin{figure}[htb]" << endl
                    << "%\\centering" << endl
                    << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                   << u_str << ".ps}" << endl
+                   << u_str << "}" << endl
                    << "%\\caption{Non--linear Effect of '" << effect << "'";
             outtex << ". Posterior probabilities for a nominal level of "
                    << u_str << "\\%." << endl
@@ -6257,7 +6260,7 @@ void remlest::make_plots(ofstream & outtex,ST::string path_batch,
             outtex << "\n%\\begin{figure}[htb]" << endl
                    << "%\\centering" << endl
                    << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                   << o_str << ".ps}" << endl
+                   << o_str << "}" << endl
                    << "%\\caption{Non--linear Effect of '" << effect << "'";
             outtex << ". Posterior probabilities for a nominal level of "
                    << o_str << "\\%." << endl

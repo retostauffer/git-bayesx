@@ -4403,7 +4403,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
             // Plot-Befehle f. d. tex-file
            outtex << "\n\\begin{figure}[h!]" << endl
                   << "\\centering" << endl
-                  << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
+                  << "\\includegraphics[scale=0.6]{" << pathgr << "}" << endl
                   << "\\caption{Non--linear Effect of '"
                   << xvar.insert_string_char(hcharu,hstringu) << "'";
            outtex << "." << endl << "Shown are the posterior means.}" << endl
@@ -4456,7 +4456,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
              {
              outtex << "\n\\begin{figure}[h!]" << endl
                     << "\\centering" << endl
-                    << "\\includegraphics[scale=0.6]{" << pathgr << "_pmean.ps}"
+                    << "\\includegraphics[scale=0.6]{" << pathgr << "_pmean}"
                     << endl
                     << "\\caption{Non--linear Effect of '" <<
                     regionvar.insert_string_char(hcharu,hstringu) << "'";
@@ -4467,7 +4467,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
              {
              outtex << "\n%\\begin{figure}[h!]" << endl
                     << "%\\centering" << endl
-                    << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmean.ps}"
+                    << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmean}"
                     << endl
                     << "%\\caption{Non--linear Effect of '" <<
                     regionvar.insert_string_char(hcharu,hstringu) << "'";
@@ -4478,7 +4478,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
            outtex << "\n\\begin{figure}[htb]" << endl
                   << "\\centering" << endl
                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                  << u_str << ".ps}" << endl
+                  << u_str << "}" << endl
                   << "\\caption{Non--linear Effect of '" << regionvar << "'";
            outtex << ". Posterior probabilities for a nominal level of "
                   << u_str << "\\%." << endl
@@ -4489,7 +4489,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
            outtex << "\n\\begin{figure}[htb]" << endl
                   << "\\centering" << endl
                   << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                  << o_str << ".ps}" << endl
+                  << o_str << "}" << endl
                   << "\\caption{Non--linear Effect of '" << regionvar << "'";
            outtex << ". Posterior probabilities for a nominal level of "
                   << o_str << "\\%." << endl

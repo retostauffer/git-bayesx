@@ -2859,7 +2859,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
               }
             outtex << "\n\\begin{figure}[h!]" << endl
                     << "\\centering" << endl
-                    << "\\includegraphics[scale=0.6]{" << pathgr << ".ps}" << endl
+                    << "\\includegraphics[scale=0.6]{" << pathgr << "}" << endl
                     << "\\caption{Non--linear Effect of '" <<
                     effect.insert_string_char(hcharu,hstringu) << "'";
             if(catspecific[j])
@@ -2916,7 +2916,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
               {
               outtex << "\n\\begin{figure}[h!]" << endl
                      << "\\centering" << endl
-                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                     << "\\includegraphics[scale=0.6]{" << pathgr << "_pmode}"
                      << endl
                      << "\\caption{Non--linear Effect of '" <<
                      effect.insert_string_char(hcharu,hstringu) << "'";
@@ -2929,7 +2929,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
               outtex << "\n\\begin{figure}[htb]" << endl
                      << "\\centering" << endl
                      << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << u_str << ".ps}" << endl
+                     << u_str << "}" << endl
                      << "\\caption{Non--linear Effect of '" << effect << "'";
               if(catspecific[j])
                 {
@@ -2944,7 +2944,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
               outtex << "\n\\begin{figure}[htb]" << endl
                      << "\\centering" << endl
                      << "\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << o_str << ".ps}" << endl
+                     << o_str << "}" << endl
                      << "\\caption{Non--linear Effect of '" << effect << "'";
               if(catspecific[j])
                 {
@@ -2961,7 +2961,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
               {
               outtex << "\n%\\begin{figure}[h!]" << endl
                      << "%\\centering" << endl
-                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode.ps}"
+                     << "%\\includegraphics[scale=0.6]{" << pathgr << "_pmode}"
                      << endl
                      << "%\\caption{Non--linear Effect of '" <<
                      effect.insert_string_char(hcharu,hstringu) << "'";
@@ -2974,7 +2974,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
               outtex << "\n%\\begin{figure}[htb]" << endl
                      << "%\\centering" << endl
                      << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << u_str << ".ps}" << endl
+                     << u_str << "}" << endl
                      << "%\\caption{Non--linear Effect of '" << effect << "'";
               if(catspecific[j])
                 {
@@ -2989,7 +2989,7 @@ void remlest_ordinal::make_plots(ofstream & outtex,ST::string path_batch,
               outtex << "\n%\\begin{figure}[htb]" << endl
                      << "%\\centering" << endl
                      << "%\\includegraphics[scale=0.6]{" << pathgr << "_pcat"
-                     << o_str << ".ps}" << endl
+                     << o_str << "}" << endl
                      << "%\\caption{Non--linear Effect of '" << effect << "'";
               if(catspecific[j])
                 {
