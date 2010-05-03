@@ -486,10 +486,19 @@ void FC_hrandom::outgraphs(ofstream & out_stata, ofstream & out_R,
             << " pmean_tot pqu" << pu1_str << "_tot "
             << " pqu" << po1_str << "_tot" << " pmed_tot pqu" << po2_str
             << "_tot" << " pqu" << pu2_str << "_tot"
-            << " pcat" << pu_str << "_tot" << " pcat" << po_str << "_tot"
+            << " pcat" << pu_str << "_tot" << " pcat" << po_str << "_tot pqu"
+            << pu1_str << "sim_tot "
+            << " pqu" << po1_str << "sim_tot"
+            << " pqu" << po2_str << "sim_tot"
+            << " pqu" << pu2_str << "sim_tot"
+            << " pcat" << pu_str << "sim_tot" << " pcat" << po_str << "sim_tot"
             << " pmean pqu" << pu1_str
             << " pqu" << po1_str << " pmed pqu" << po2_str << " pqu" <<
-            pu2_str << " pcat" << pu_str  << " pcat" << po_str;
+            pu2_str << " pcat" << pu_str  << " pcat" << po_str
+            << " pqu" << pu1_str
+            << "_sim pqu" << po1_str << "_sim pqu" << po2_str << "_sim pqu" <<
+            pu2_str << "_sim pcat" << pu_str  << "_sim pcat" << po_str << "_sim";
+
 
 
   if (computemeaneffect==true)
@@ -547,6 +556,29 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
                   designp->datanames[designp->datanames.size()-1] + "=" +
                   designp->effectvalues[designp->meaneffectnr]);
 
+
+    double s_level1 = simconfBand(true);
+    double s_level2 = simconfBand(false);
+
+    double s_level1_rcoeff = FCrcoeff.simconfBand(true);
+    double s_level2_rcoeff = FCrcoeff.simconfBand(false);
+
+
+    optionsp->out("    Scaling factor to blow up pointwise " +
+                 ST::inttostring(optionsp->level1) + " percent credible intervals\n");
+    optionsp->out("    to obtain simultaneous credible intervals: " +
+         ST::doubletostring(s_level1,6) + "\n");
+
+    optionsp->out("\n");
+
+    optionsp->out("    Scaling factor to blow up pointwise " +
+                 ST::inttostring(optionsp->level2) + " percent credible intervals\n");
+    optionsp->out("    to obtain simultaneous credible intervals: " +
+         ST::doubletostring(s_level2,6) + "\n");
+
+    optionsp->out("\n");
+
+
     ofstream outres(pathresults.strtochar());
 
     optionsp->out("\n");
@@ -575,6 +607,13 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
       outres << "pqu"  << u2  << "_tot   ";
       outres << "pcat" << optionsp->level1 << "_tot   ";
       outres << "pcat" << optionsp->level2 << "_tot   ";
+
+      outres << "pqu"  << l1  << "tot_sim   ";
+      outres << "pqu"  << l2  << "tot_sim   ";
+      outres << "pqu"  << u1  << "tot_sim   ";
+      outres << "pqu"  << u2  << "tot_sim   ";
+      outres << "pcat" << optionsp->level1 << "tot_sim   ";
+      outres << "pcat" << optionsp->level2 << "tot_sim   ";
       }
 
 
@@ -589,6 +628,13 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
       outres << "pqu"  << u2  << "   ";
       outres << "pcat" << optionsp->level1 << "   ";
       outres << "pcat" << optionsp->level2 << "   ";
+
+      outres << "pqu"  << l1  << "_sim   ";
+      outres << "pqu"  << l2  << "_sim   ";
+      outres << "pqu"  << u1  << "_sim   ";
+      outres << "pqu"  << u2  << "_sim   ";
+      outres << "pcat" << optionsp->level1 << "_sim   ";
+      outres << "pcat" << optionsp->level2 << "_sim   ";
       }
 
 
@@ -642,6 +688,8 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
       mu_workbetaqu50 = meaneffect_sample.betaqu50.getV();
       }
 
+    double l1_sim,l2_sim,u1_sim,u2_sim;  
+
     unsigned nrpar = beta.rows();
     for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
                               workbetaqu_l2_lower_p++,workbetaqu50++,
@@ -677,6 +725,31 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
           outres << -1 << "   ";
         else
           outres << 0 << "   ";
+
+        l1_sim = *workmean - s_level1*(*workmean- *workbetaqu_l1_lower_p);
+        l2_sim = *workmean - s_level2*(*workmean- *workbetaqu_l2_lower_p);
+        u1_sim = *workmean + s_level1*(*workbetaqu_l1_upper_p - *workmean);
+        u2_sim = *workmean + s_level2*(*workbetaqu_l2_upper_p - *workmean);
+
+        outres << l1_sim << "   ";
+        outres << l2_sim << "   ";
+        outres << u2_sim << "   ";
+        outres << u1_sim << "   ";
+
+        if (l1_sim > 0)
+          outres << 1 << "   ";
+        else if (u1_sim < 0)
+          outres << -1 << "   ";
+        else
+          outres << 0 << "   ";
+
+        if (l2_sim > 0)
+          outres << 1 << "   ";
+        else if (u2_sim < 0)
+          outres << -1 << "   ";
+        else
+          outres << 0 << "   ";
+
         }
 
       outres << *workmean_rcoeff << "   ";
@@ -702,6 +775,31 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
           outres << -1 << "   ";
         else
           outres << 0 << "   ";
+
+        l1_sim = *workmean_rcoeff - s_level1_rcoeff*(*workmean_rcoeff- *workbetaqu_l1_lower_p_rcoeff);
+        l2_sim = *workmean_rcoeff - s_level2_rcoeff*(*workmean_rcoeff- *workbetaqu_l2_lower_p_rcoeff);
+        u1_sim = *workmean_rcoeff + s_level1_rcoeff*(*workbetaqu_l1_upper_p_rcoeff - *workmean_rcoeff);
+        u2_sim = *workmean_rcoeff + s_level2_rcoeff*(*workbetaqu_l2_upper_p_rcoeff - *workmean_rcoeff);
+
+        outres << l1_sim << "   ";
+        outres << l2_sim << "   ";
+        outres << u2_sim << "   ";
+        outres << u1_sim << "   ";
+
+        if (l1_sim > 0)
+          outres << 1 << "   ";
+        else if (u1_sim < 0)
+          outres << -1 << "   ";
+        else
+          outres << 0 << "   ";
+
+        if (l2_sim > 0)
+          outres << 1 << "   ";
+        else if (u2_sim < 0)
+          outres << -1 << "   ";
+        else
+          outres << 0 << "   ";
+
         }
 
 

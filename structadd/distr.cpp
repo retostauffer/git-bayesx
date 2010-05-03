@@ -774,6 +774,7 @@ void DISTR_gaussian::standardise(void)
   {
 
   trmult = sqrt(response.var(0,weight));
+//  trmult=1;
 
   unsigned i;
   double * workresp = workingresponse.getV();
@@ -1148,6 +1149,7 @@ DISTR_quantreg::DISTR_quantreg(const double & a,const double & b,
   xi2 = xi*xi;
   sigma02 = 2 / (quantile*(1-quantile));
   num = sqrt(xi2 + 2*sigma02);
+  wtype = wweightschange_weightsneqone;
   }
 
 
@@ -1272,6 +1274,7 @@ void DISTR_quantreg::update(void)
 
   double * worklin;
   double * workresp;
+  double * workorigresp;
   double * workweight;
 
   if (linpred_current==1)
@@ -1280,7 +1283,8 @@ void DISTR_quantreg::update(void)
     worklin = linearpred2.getV();
 
   workresp = workingresponse.getV();
-  workweight = weight.getV();
+  workorigresp = response.getV();
+  workweight = workingweight.getV();
 
   double lambda = (xi2 + 2*sigma02) / sigma2;
 
@@ -1289,16 +1293,14 @@ void DISTR_quantreg::update(void)
   double sumres=0;
   double sumw=0;
 
-  for(i=0; i<nrobs; i++, workweight++, workresp++, worklin++)
+  for(i=0; i<nrobs; i++, workweight++, workresp++, workorigresp++, worklin++)
     {
 
-    *worklin -= xi/ (*workweight);
-
-    mu = num/(fabs(*workresp-*worklin));
+    mu = num/(fabs(*workorigresp-*worklin));
 
     *workweight = rand_inv_gaussian(mu, lambda);
 
-    *worklin += xi/ (*workweight);
+    *workresp = *workorigresp  - xi/ (*workweight);
 
     sumw += 1 / (*workweight);
     sumres += *workweight * pow(*workresp-*worklin,2);
@@ -1310,11 +1312,11 @@ void DISTR_quantreg::update(void)
 
 //  DISTR_gaussian::update();  // ?????
 
-  sigma2 *= sigma02;
-
   FCsigma2.beta(0,0) = sigma2;
   FCsigma2.acceptance++;
   FCsigma2.update();
+
+  sigma2 *= sigma02;
 
   }
 

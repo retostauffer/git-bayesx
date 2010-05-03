@@ -145,6 +145,8 @@ void superbayesreg::create_hregress(void)
 
   centerlinear = simpleoption("centerlinear",false);
 
+  quantile = doubleoption("quantile",0.5,0.001,0.999);
+
   regressoptions.reserve(100);
 
   regressoptions.push_back(&modeonly);
@@ -164,6 +166,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&pred_check);
   regressoptions.push_back(&mse);
   regressoptions.push_back(&centerlinear);
+  regressoptions.push_back(&quantile);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -816,10 +819,10 @@ bool superbayesreg::create_distribution(void)
 
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
 
-    double quantile = 0.8;
+    double quant = quantile.getvalue();
     distr_quantregs.push_back(DISTR_quantreg(aresp.getvalue(),
                                               bresp.getvalue(),
-                                     &generaloptions,D.getCol(0),path,quantile, w) );
+                                     &generaloptions,D.getCol(0),path,quant, w) );
 
     equations[modnr].distrp = &distr_quantregs[distr_quantregs.size()-1];
     equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
