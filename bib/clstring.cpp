@@ -185,7 +185,7 @@ istream & getline(istream & i,unsigned int maxlen,string & s,char delim)
 
 istream & getline(istream & i,string & s,char delim)
   {
-  return getline(i,256,s,delim);
+  return getline(i,4096,s,delim);
   }
 
 
