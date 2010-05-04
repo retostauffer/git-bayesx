@@ -121,11 +121,12 @@ For Mac OS, some adjustments of the makefile and the main function in main.cpp m
 (thanks to Anestis Antoniadis for providing these files).
 </li>
 
-<li><b>When running BayesX on Windows Vista, an UnsatisfiedLinkError appears.</b><br>
-This error is caused by an internal mechanism of Windows Vista that should prevent software from executing possibly dangerous code in the background. BayesX
-of course does not do this but simply tries to start a new process running the actual computations in addition to the process running the graphical user interface. You can prevent
-this by executing BayesX as administrator, an option that you obtain by right-clicking on the BayesX icon. An alternative would of course also be to use the command line version
-of BayesX instead of the GUI-version. The command line version can be found in a subdirectory of the installation directory.
+<li><b>The installation routine does not work with Windows 7.</b><br>
+To install BayesX under Windows 7, you will have to start the installation routine manually from the DOS-prompt via<br>
+<span style="font-family:monospace; font-size:medium">c:\temp> BayesX_windows.exe -manual</span><br>
+(from the appropriate location and with the appropriate version number added to the name of the installation routine).
+During the installation process, you will be asked to locate java.exe for BayesX. The reason for this
+manual installation is that Windows 7 has a separate program folder for 32-bit programs.
 </li>
 
 <li><b>When running BayesX on Windows Vista, an UnsatisfiedLinkError appears.</b><br>
