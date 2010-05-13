@@ -57,8 +57,11 @@ bool bayesreg::check_gaussian(const unsigned & collinpred)
      (family.getvalue() == "multinomialprobit") ||
      ((family.getvalue() == "gaussianh") && (collinpred==0)) ||
      (family.getvalue() == "cumprobit") ||
-     (family.getvalue() == "aft") ||
+     (family.getvalue() == "aft")
+#if !defined (__BUILDING_THE_DLL)
+     ||
      (family.getvalue() == "quantreg")
+#endif
      )
      return true;
   else
@@ -309,11 +312,15 @@ void bayesreg::create(void)
   families.push_back("multistate");
   families.push_back("gaussianh");
   families.push_back("aft");
+#if !defined (__BUILDING_THE_DLL)
   families.push_back("quantreg");
+#endif
   family = stroption("family",families,"binomial");
 
+#if !defined (__BUILDING_THE_DLL)
   quantile = doubleoption("quantile",0.5,0.001,0.999);
   mscheck = simpleoption("mscheck",false);
+#endif
 
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -397,9 +404,10 @@ void bayesreg::create(void)
   regressoptions.push_back(&family);
   regressoptions.push_back(&aresp);
   regressoptions.push_back(&bresp);
+#if !defined (__BUILDING_THE_DLL)
   regressoptions.push_back(&quantile);
   regressoptions.push_back(&mscheck);
-
+#endif
   regressoptions.push_back(&gamvar);
   regressoptions.push_back(&cit);
   regressoptions.push_back(&scalevalue);
@@ -723,8 +731,10 @@ void bayesreg::initpointers(void)
       distr.push_back(&distr_multistatemodel);
     else if (distrstring[i] == "aft")
       distr.push_back(&distr_aft);
+#if !defined (__BUILDING_THE_DLL)
     else if (distrstring[i] == "quantreg")
       distr.push_back(&distr_quantreg);
+#endif
     }
 
 
@@ -991,7 +1001,9 @@ bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   distr_zip = b.distr_zip;
   distr_cox = b.distr_cox;
   distr_aft = b.distr_aft;
+#if !defined (__BUILDING_THE_DLL)
   distr_quantreg = b.distr_quantreg;
+#endif
   distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
@@ -1038,7 +1050,9 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
   distr_zip = b.distr_zip;
   distr_cox = b.distr_cox;
   distr_aft = b.distr_aft;
+#if !defined (__BUILDING_THE_DLL)
   distr_quantreg = b.distr_quantreg;
+#endif
   distr_gaussianh = b.distr_gaussianh;
   terms = b.terms;
   normalconst = b.normalconst;
@@ -1522,6 +1536,7 @@ bool bayesreg::create_distribution(void)
 //----------------------------------- END: AFT ---------------------------------
 
 //----------------------------------- quantreg ---------------------------------
+#if !defined (__BUILDING_THE_DLL)
   else if (family.getvalue() == "quantreg")
     {
     ST::string path2 = outfile.getvalue() + add_name + "_scale.res";
@@ -1577,7 +1592,7 @@ bool bayesreg::create_distribution(void)
     nrcategories = 1;
     }
 //-------------------------------- END: quantreg -------------------------------
-
+#endif
 //---------------------------- Gaussian response RE  ---------------------------
   else if (family.getvalue() == "gaussian_re")
     {

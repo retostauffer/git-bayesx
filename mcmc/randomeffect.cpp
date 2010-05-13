@@ -10,7 +10,8 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
   // BEGIN: DSB //
-void FULLCOND_random::set_mscheck(const bool & val)
+#if !defined (__BUILDING_THE_DLL)
+  void FULLCOND_random::set_mscheck(const bool & val)
     {
     mscheck = val;
     if(mscheck)
@@ -19,6 +20,7 @@ void FULLCOND_random::set_mscheck(const bool & val)
       likep->initialise_mscheck(path, index, nrpar-includefixed, posbeg, posend);
       }
     }
+#endif    
   // END: DSB //
 
 
@@ -866,8 +868,10 @@ FULLCOND_random::FULLCOND_random(const FULLCOND_random & fc)
   lambdaconst=fc.lambdaconst;
   data2 = fc.data2;
 
-  // BEGIN:  //
+  // BEGIN: DSB //
+  #if !defined (__BUILDING_THE_DLL)
   mscheck = fc.mscheck;
+  #endif
   // END: DSB //
 
   }
@@ -906,7 +910,9 @@ const FULLCOND_random & FULLCOND_random::
   data2 = fc.data2;
 
   // BEGIN: DSB //
+  #if !defined (__BUILDING_THE_DLL)
   mscheck = fc.mscheck;
+  #endif
   // END: DSB //
 
   return *this;
@@ -922,6 +928,7 @@ void FULLCOND_random::update(void)
     transform = 1;
 
   // BEGIN: DSB //
+  #if !defined (__BUILDING_THE_DLL)
     if (mscheck)
         {
             // allocate storage for the random effects prior samples
@@ -954,6 +961,7 @@ void FULLCOND_random::update(void)
             update_linpred_mscheck(bsamples, beta);
 
         }
+  #endif
   // END: DSB //
 
   FULLCOND::update();
@@ -1310,6 +1318,7 @@ void FULLCOND_random::update_linpred_diff(datamatrix & b1,datamatrix & b2)
   }
 
     // BEGIN: DSB //
+    #if !defined (__BUILDING_THE_DLL)
     void
     FULLCOND_random::update_linpred_mscheck(datamatrix & priorSamples,
                                             datamatrix & posteriorSamples)
@@ -1352,6 +1361,7 @@ void FULLCOND_random::update_linpred_diff(datamatrix & b1,datamatrix & b2)
         }
 
     }
+    #endif
     // END: DSB //
 
 void FULLCOND_random::update_linpred(const bool & add)

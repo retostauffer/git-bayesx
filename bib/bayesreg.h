@@ -91,7 +91,9 @@ using MCMC::DISTRIBUTION_cumulative_latent3;
 using MCMC::DISTRIBUTION_coxmodel;
 using MCMC::DISTRIBUTION_multistatemodel;
 using MCMC::DISTRIBUTION_AFT;
+#if !defined (__BUILDING_THE_DLL)
 using MCMC::DISTRIBUTION_QUANTREG;
+#endif
 using MCMC::FULLCOND;
 using MCMC::FULLCOND_const;
 using MCMC::FULLCOND_const_gaussian;
@@ -398,9 +400,10 @@ class __EXPORT_TYPE bayesreg : public statobject
                                         // (Gaussian response)
   doubleoption bresp;                   // Hyperparameter b of overal variance
                                         // (Gaussian response)
+#if !defined (__BUILDING_THE_DLL)
   doubleoption quantile;                // quantile for quantile regression
   simpleoption mscheck;                 // Marshall-Spiegelhalter model checking
-
+#endif
   stroption knots;                      // equidistant knots or non equidistant
                                         // knots (P-splines)
   vector<ST::string> knotsdef;
@@ -448,8 +451,9 @@ class __EXPORT_TYPE bayesreg : public statobject
   DISTRIBUTION_multistatemodel distr_multistatemodel;
   DISTRIBUTION_gaussianh distr_gaussianh;
   DISTRIBUTION_AFT distr_aft;
+#if !defined (__BUILDING_THE_DLL)
   DISTRIBUTION_QUANTREG distr_quantreg;
-
+#endif
   doubleoption reference;
 
   vector<DISTRIBUTION *> distr;              // Pointer to distribution objects
