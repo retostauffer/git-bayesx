@@ -138,6 +138,8 @@ void superbayesreg::create_hregress(void)
 
   pred_check = simpleoption("pred_check",false);
 
+  cv = simpleoption("cv",false);
+
   MSEop.reserve(20);
   MSEop.push_back("no");
   MSEop.push_back("yes");
@@ -167,6 +169,8 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&mse);
   regressoptions.push_back(&centerlinear);
   regressoptions.push_back(&quantile);
+  regressoptions.push_back(&cv);  
+
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -597,6 +601,9 @@ void hregressrun(superbayesreg & b)
   if (!failure)
     b.create_predictive_check();
 
+  if (!failure)
+    b.create_cv();
+
 
   if ((! failure) && (b.hlevel.getvalue() == 1) &&
       (b.equationtype.getvalue()=="mean"))
@@ -985,6 +992,27 @@ void superbayesreg::create_predictive_check(void)
 
     equations[modnr].add_FC(&FC_predictive_checks[FC_predictive_checks.size()-1]
                            ,pathres);
+
+    }
+
+  }
+
+
+void superbayesreg::create_cv(void)
+  {
+
+  if (cv.getvalue() == true)
+    {
+
+    unsigned modnr = equations.size()-1;
+
+    ST::string h = equations[modnr].paths;
+
+    ST::string pathres = outfile.getvalue() +  "_" + h + "_cv.res";
+
+    FCcv = FC_cv(&generaloptions,equations[modnr].distrp,"","",&FC_hrandoms);
+
+    equations[modnr].add_FC(&FCcv,pathres);
 
     }
 

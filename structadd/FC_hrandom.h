@@ -34,6 +34,8 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   protected:
 
+  datamatrix beta_prior;                            // sampled re's from prior
+
   datamatrix likelihoodc,likelihoodn;
 
   DISTR * likep_RE;
@@ -114,6 +116,11 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
                          const ST::string & path);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
+
+  // FUNCTION: sample_for_cv
+  // TASK: samples for cv-score
+
+  void sample_for_cv(datamatrix & pred);
 
   };
 

@@ -1643,6 +1643,15 @@ void FC_nonp::centerparam_sample(void)
   }
 
 
+
+void FC_nonp::get_effect(datamatrix & effect)
+  {
+
+  designp->compute_effect(effect,beta,Varcoefftotal);
+
+  }
+
+
 void FC_nonp::centerparam(void)
   {
 

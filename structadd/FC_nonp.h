@@ -183,6 +183,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void check_errors(void);
 
+  void get_effect(datamatrix & effect);
+
   };
 
 

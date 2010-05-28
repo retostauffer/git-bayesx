@@ -347,6 +347,10 @@ class __EXPORT_TYPE DISTR
   //---------------------------- SAMPLE RESPONSES ------------------------------
   //----------------------------------------------------------------------------
 
+  // FUNCTION: sample responses
+  // TASK: samples vector of responses based on current predictor and scale
+  //       parameter,stores results in the i-th col of sr
+
   virtual void sample_responses(unsigned i,datamatrix & sr);
 
   virtual void outresults_predictive_check(datamatrix & D,datamatrix & sr);

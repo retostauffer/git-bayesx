@@ -83,6 +83,7 @@ FC_hrandom::FC_hrandom(const FC_hrandom & m)
   linpred_o = m.linpred_o;
   likelihoodc = m.likelihoodc;
   likelihoodn = m.likelihoodn;
+  beta_prior = m.beta_prior;
   }
 
 
@@ -99,6 +100,7 @@ const FC_hrandom & FC_hrandom::operator=(const FC_hrandom & m)
   linpred_o = m.linpred_o;
   likelihoodc = m.likelihoodc;
   likelihoodn = m.likelihoodn;
+  beta_prior = m.beta_prior;  
   return *this;
   }
 
@@ -279,6 +281,21 @@ void FC_hrandom::update(void)
 
   }
 
+
+void FC_hrandom::sample_for_cv(datamatrix & pred)
+  {
+  if (beta_prior.rows() == 1)
+    beta_prior = beta;
+
+  unsigned i;
+  double * workbeta = beta_prior.getV();
+  double tau = sqrt(tau2);
+  for (i=0;i<beta_prior.rows();i++,workbeta++)
+    *workbeta =  tau*rand_normal();
+
+  designp->compute_effect(pred,beta_prior,Function);
+
+  }
 
 void FC_hrandom::update_response_multexp(void)
   {

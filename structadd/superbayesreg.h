@@ -36,6 +36,7 @@
 #include"FC_mult.h"
 #include"FC_nonp_variance.h"
 #include"FC_hrandom_variance.h"
+#include"FC_cv.h"
 
 #include"mcmcsim.h"
 
@@ -67,6 +68,7 @@ using MCMC::equation;
 using MCMC::FC;
 using MCMC::FC_predict;
 using MCMC::FC_predictive_check;
+using MCMC::FC_cv;
 using MCMC::FC_nonp;
 using MCMC::FC_linear;
 using MCMC::FC_mult;
@@ -168,6 +170,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   simpleoption pred_check;
 
+  simpleoption cv;
+
   vector<ST::string> MSEop;
   stroption mse;
 
@@ -228,6 +232,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_predictive_check> FC_predictive_checks;
 
   void create_predictive_check(void);
+
+  FC_cv FCcv;
+  void create_cv(void);  
 
   //----------------------------------------------------------------------------
 
