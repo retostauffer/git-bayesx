@@ -282,6 +282,7 @@ void FC_hrandom::update(void)
   }
 
 
+  
 void FC_hrandom::sample_for_cv(datamatrix & pred)
   {
   if (beta_prior.rows() == 1)
