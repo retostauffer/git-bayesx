@@ -6086,8 +6086,16 @@ void DISTRIBUTION_QUANTREG::update(void)
 
   sumres /= sigma02;
 
-  scale(0,0) = rand_invgamma(a_invgamma + 1.5*nrobsmweightzero,
-                  b_invgamma + 0.5*sumres + sumw);
+  if(shrinkage)
+    {
+    scale(0,0) = rand_invgamma(a_invgamma + 1.5*nrobsmweightzero + 0.5*nrridge + 0.5*nrlasso + 0.5*nrnigmix,
+                 b_invgamma + 0.5*sumres + sumw + 0.5*ridgesum + 0.5*lassosum + 0.5*nigmixsum);
+    }
+  else
+    {
+    scale(0,0) = rand_invgamma(a_invgamma + 1.5*nrobsmweightzero,
+                    b_invgamma + 0.5*sumres + sumw);
+    }
 
   DISTRIBUTION_gaussian::update();
 
