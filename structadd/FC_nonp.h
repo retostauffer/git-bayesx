@@ -49,8 +49,6 @@ class __EXPORT_TYPE FC_nonp  : public FC
   sampletype stype;
 
   DISTR * likep;                             // Pointer to DISTR obejct
-  DESIGN * designp;                          // Pointer to design object
-
 
   datamatrix betaold;
   datamatrix betadiff;
@@ -75,6 +73,9 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
 
   public:
+
+  DESIGN * designp;                          // Pointer to design object
+
 
   datamatrix param;                          // Parameters, beta stores hatf
   datamatrix paramlin;
@@ -184,6 +185,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void check_errors(void);
 
   void get_effect(datamatrix & effect);
+
 
   };
 

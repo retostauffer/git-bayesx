@@ -294,7 +294,7 @@ void FC_hrandom::sample_for_cv(datamatrix & pred)
   for (i=0;i<beta_prior.rows();i++,workbeta++)
     *workbeta =  tau*rand_normal();
 
-  designp->compute_effect(pred,beta_prior,Function);
+  designp->compute_effect(pred,beta_prior,Varcoefftotal);
 
   }
 

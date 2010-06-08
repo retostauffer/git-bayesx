@@ -851,6 +851,9 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
 
   int size = ind.rows();
 
+  if ( (intvar.rows() != data.rows()) && (et==Varcoefftotal) )
+    et = Function;
+
   if (et==Function)
     {
     for (i=0;i<size;i++,workind++,workeffect++)

@@ -40,6 +40,14 @@ class __EXPORT_TYPE FC_cv   : public FC
 
   protected:
 
+  statmatrix<unsigned> ind;
+
+  vector<ST::string> effectvalues;           
+
+
+  unsigned nrcat;
+
+  void get_ind(void);
 
   datamatrix sampled_etas;
   datamatrix sampled_responses;
@@ -51,6 +59,20 @@ class __EXPORT_TYPE FC_cv   : public FC
 
   datamatrix effect;
   datamatrix linpred;
+
+
+  datamatrix e_score;                                        // energy score
+  datamatrix log_score;                                       // log score 
+
+  // FUNCTION: compute_energyscore
+  // TASK: computes the energy score and stores the result in e_score
+
+  double compute_energyscore(void);
+
+  // FUNCTION: compute_logscore
+  // TASK: computes the log score and stores the result in log_score
+
+  double compute_logscore(void);
 
 
   public:
@@ -90,6 +112,8 @@ class __EXPORT_TYPE FC_cv   : public FC
   void reset(void);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
+
+
 
   };
 

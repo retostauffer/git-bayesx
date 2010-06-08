@@ -51,6 +51,7 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
       vector<ST::string> & dn)
   : FC(o,t,1,1,fp)
   {
+  nosamples = true;
   MSE = noMSE;
   likep = lp;
   designmatrix= dm;

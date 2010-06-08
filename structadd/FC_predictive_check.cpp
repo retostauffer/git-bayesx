@@ -54,6 +54,8 @@ FC_predictive_check::FC_predictive_check(GENERAL_OPTIONS * o,DISTR * lp,
   designmatrix= dm;
   varnames = dn;
 
+  nosamples=true;
+
   }
 
 
