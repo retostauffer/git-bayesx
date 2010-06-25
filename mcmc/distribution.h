@@ -2559,6 +2559,7 @@ class __EXPORT_TYPE DISTRIBUTION_QUANTREG : public DISTRIBUTION_gaussian
   protected:
 
   datamatrix responseorig;
+  datamatrix weightorig;
   double quantile;
   double xi;
   double sigma02;

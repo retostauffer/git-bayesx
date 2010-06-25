@@ -5988,6 +5988,7 @@ DISTRIBUTION_QUANTREG::DISTRIBUTION_QUANTREG(const double & a,
 
   {
   responseorig = response;
+  weightorig = w;
   changingweight = true;
   quantile = quant;
   xi = (1-2*quant)/(quant * (1-quant));
@@ -6007,6 +6008,7 @@ DISTRIBUTION_QUANTREG::DISTRIBUTION_QUANTREG(const datamatrix & offset,
 
   {
   responseorig = response;
+  weightorig = w;
   changingweight = true;
   quantile = quant;
   xi = (1-2*quant)/(quant * (1-quant));
@@ -6020,6 +6022,7 @@ DISTRIBUTION_QUANTREG::DISTRIBUTION_QUANTREG(const DISTRIBUTION_QUANTREG & nd)
    : DISTRIBUTION_gaussian(DISTRIBUTION_gaussian(nd))
   {
   responseorig = nd.responseorig;
+  weightorig = nd.weightorig;
   quantile = nd.quantile;
   xi = nd.xi;
   sigma02 = nd.sigma02;
@@ -6032,6 +6035,7 @@ const DISTRIBUTION_QUANTREG & DISTRIBUTION_QUANTREG::operator=(
   if (this==&nd)
     return *this;
   DISTRIBUTION_gaussian::operator=(DISTRIBUTION_gaussian(nd));
+  weightorig = nd.weightorig;
   responseorig = nd.responseorig;
   quantile = nd.quantile;
   xi = nd.xi;
@@ -6063,6 +6067,7 @@ void DISTRIBUTION_QUANTREG::update(void)
   double * rp = response.getV();
   double * rpo = responseorig.getV();
   double * w = weight.getV();
+  double * wo = weightorig.getV();
   double * worklin = (*linpred_current).getV();
 
   double xi2 = xi*xi;
@@ -6073,15 +6078,17 @@ void DISTRIBUTION_QUANTREG::update(void)
   double sumres=0;
   double sumw=0;
 
-  for(i=0; i<weight.rows(); i++, w++, rp++, worklin++, rpo++)
+  for(i=0; i<weight.rows(); i++, w++, rp++, worklin++, rpo++, wo++)
     {
+    if(*wo != 0)
+      {
+      mu = num/(fabs(*rpo-*worklin));
+      *w = rand_inv_gaussian(mu, lambda);
+      *rp = *rpo - xi / *w;
 
-    mu = num/(fabs(*rpo-*worklin));
-    *w = rand_inv_gaussian(mu, lambda);
-    *rp = *rpo - xi / *w;
-
-    sumw += 1 / *w;
-    sumres += *w * (*rp-*worklin)*(*rp-*worklin);
+      sumw += 1 / *w;
+      sumres += *w * (*rp-*worklin)*(*rp-*worklin);
+      }
     }
 
   sumres /= sigma02;
