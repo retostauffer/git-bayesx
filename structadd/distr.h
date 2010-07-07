@@ -342,7 +342,7 @@ class __EXPORT_TYPE DISTR
 
   virtual void update(void);
 
-  
+
 
   //----------------------------------------------------------------------------
   //---------------------------- SAMPLE RESPONSES ------------------------------
@@ -353,6 +353,9 @@ class __EXPORT_TYPE DISTR
   //       parameter,stores results in the i-th col of sr
 
   virtual void sample_responses(unsigned i,datamatrix & sr);
+
+  virtual void sample_responses_cv(unsigned i,datamatrix & linpred,
+                                   datamatrix & sr);
 
   virtual void outresults_predictive_check(datamatrix & D,datamatrix & sr);
 
@@ -479,6 +482,8 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
   double get_scalemean(void);
 
   void sample_responses(unsigned i,datamatrix & sr);
+
+  void sample_responses_cv(unsigned i,datamatrix & linpred, datamatrix & sr);
 
   void outresults_predictive_check(datamatrix & D,datamatrix & sr);
 
@@ -640,6 +645,8 @@ class __EXPORT_TYPE DISTR_loggaussian : public DISTR_gaussian
                            double * scale) const;
 
   void sample_responses(unsigned i,datamatrix & sr);
+
+  void sample_responses_cv(unsigned i,datamatrix & linpred, datamatrix & sr);
 
   void outresults_predictive_check(datamatrix & D,datamatrix & sr);
 

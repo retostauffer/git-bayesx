@@ -1008,9 +1008,14 @@ void superbayesreg::create_cv(void)
 
     ST::string h = equations[modnr].paths;
 
+
+    ST::string pathnonp = defaultpath + "\\temp\\" + name + "_" + h +
+                            "_cv_responses.raw";
+
+
     ST::string pathres = outfile.getvalue() +  "_" + h + "_cv.res";
 
-    FCcv = FC_cv(&generaloptions,equations[modnr].distrp,"","",&FC_hrandoms);
+    FCcv = FC_cv(&generaloptions,equations[modnr].distrp,"",pathnonp,&FC_hrandoms);
 
     equations[modnr].add_FC(&FCcv,pathres);
 

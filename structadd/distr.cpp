@@ -655,6 +655,11 @@ void DISTR::sample_responses(unsigned i,datamatrix & sr)
   }
 
 
+void DISTR::sample_responses_cv(unsigned i,datamatrix & linpred, datamatrix & sr)
+  {
+  }
+
+
 void DISTR::outresults_predictive_check(datamatrix & D,datamatrix & sr)
   {
   unsigned j;
@@ -806,6 +811,25 @@ void DISTR_gaussian::sample_responses(unsigned i,datamatrix & sr)
   for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
     *rp = trmult*(*linpredp+sqrt(sigma2)*rand_normal());
   }
+
+// linpred already transformed
+void DISTR_gaussian::sample_responses_cv(unsigned i,datamatrix & linpred,
+                                         datamatrix & sr)
+  {
+
+  double * linpredp;
+
+  linpredp = linpred.getV();
+
+  double * rp = sr.getV()+i;
+
+  unsigned j;
+  for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
+    *rp = *linpredp + trmult*sqrt(sigma2)*rand_normal();
+
+
+  }
+
 
 
 void DISTR_gaussian::outoptions(void)
@@ -1276,6 +1300,7 @@ void DISTR_quantreg::update(void)
   double * workresp;
   double * workorigresp;
   double * workweight;
+  double * workw;
 
   if (linpred_current==1)
     worklin = linearpred1.getV();
@@ -1285,6 +1310,7 @@ void DISTR_quantreg::update(void)
   workresp = workingresponse.getV();
   workorigresp = response.getV();
   workweight = workingweight.getV();
+  workw = weight.getV();
 
   double lambda = (xi2 + 2*sigma02) / sigma2;
 
@@ -1293,22 +1319,31 @@ void DISTR_quantreg::update(void)
   double sumres=0;
   double sumw=0;
 
-  for(i=0; i<nrobs; i++, workweight++, workresp++, workorigresp++, worklin++)
+  for(i=0; i<nrobs; i++, workw++, workweight++, workresp++, workorigresp++,
+      worklin++)
     {
 
     mu = num/(fabs(*workorigresp-*worklin));
 
-    *workweight = rand_inv_gaussian(mu, lambda);
+    if (*workw == 0)
+      {
+      *workweight=0;
+      *workresp = 0;
+      }
+    else
+      {
+      *workweight = rand_inv_gaussian(mu, lambda);
 
-    *workresp = *workorigresp  - xi/ (*workweight);
-
-    sumw += 1 / (*workweight);
-    sumres += *workweight * pow(*workresp-*worklin,2);
+      *workresp = *workorigresp  - xi/ (*workweight);
+      sumw += 1 / (*workweight);
+      sumres += *workweight * pow(*workresp-*worklin,2);
+      }
     }
 
   sumres /= sigma02;
 
-  sigma2 = rand_invgamma(a_invgamma + 1.5*nrobs,b_invgamma + 0.5*sumres + sumw);
+  sigma2 = rand_invgamma(a_invgamma + 1.5*(nrobs-nrzeroweights),
+                         b_invgamma + 0.5*sumres + sumw);
 
 //  DISTR_gaussian::update();  // ?????
 
@@ -1447,6 +1482,23 @@ void DISTR_loggaussian::sample_responses(unsigned i,datamatrix & sr)
   for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
     *rp = exp(trmult*(*linpredp+sqrt(sigma2)*rand_normal()));
   }
+
+
+void DISTR_loggaussian::sample_responses_cv(unsigned i,datamatrix & linpred,
+                                            datamatrix & sr)
+  {
+
+  double * linpredp;
+
+  linpredp = linpred.getV();
+
+  double * rp = sr.getV()+i;
+
+  unsigned j;
+  for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
+    *rp = exp(*linpredp+trmult*sqrt(sigma2)*rand_normal());
+  }
+
 
 
 void DISTR_loggaussian::outresults_predictive_check(datamatrix & D,datamatrix & sr)

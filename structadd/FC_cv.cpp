@@ -57,7 +57,7 @@ FC_cv::FC_cv(void)
 FC_cv::FC_cv(GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t, const ST::string & fp,
                  vector<FC_hrandom> * FChs)
-  : FC(o,t,1,1,fp)
+  : FC(o,t,lp->nrobs,1,fp)
   {
 
   likep = lp;
@@ -65,6 +65,10 @@ FC_cv::FC_cv(GENERAL_OPTIONS * o,DISTR * lp,
   hrandoms = FChs;
   sampled_etas = datamatrix(likep->nrobs,o->compute_samplesize(),0);
   sampled_responses = datamatrix(likep->nrobs,o->compute_samplesize(),0);
+  sampled_likelihood = datamatrix(likep->nrobs,o->compute_samplesize(),0);
+
+  FC_sampled_l = FC(o,"",likep->nrobs,1,fp+"_like");
+
   effect = datamatrix(likep->nrobs,1,0);
   linpred = datamatrix(likep->nrobs,1,0);
   size =   hrandoms->size();
@@ -79,6 +83,8 @@ FC_cv::FC_cv(const FC_cv & m)
   nrcat = m.nrcat;
   sampled_etas = m.sampled_etas;
   sampled_responses = m.sampled_responses;
+  sampled_likelihood = m.sampled_likelihood;
+  FC_sampled_l = m.FC_sampled_l;
   likep = m.likep;
   hrandoms = m.hrandoms;
   effect = m.effect;
@@ -100,6 +106,8 @@ const FC_cv & m)
   nrcat = m.nrcat;
   sampled_etas = m.sampled_etas;
   sampled_responses = m.sampled_responses;
+  sampled_likelihood = m.sampled_likelihood;
+  FC_sampled_l = m.FC_sampled_l;
   likep = m.likep;
   hrandoms = m.hrandoms;
   effect = m.effect;
@@ -136,7 +144,7 @@ void  FC_cv::update(void)
 
     for(i=0;i<size;i++,++it)
       {
-      (*it).get_effect(effect);
+      (*it).compute_effect_cv(effect);
 
       linpred.minus(linpred,effect);
 
@@ -146,15 +154,49 @@ void  FC_cv::update(void)
       }
 
     double * workse = sampled_etas.getV()+samplesize-1;
+    double * workli = sampled_likelihood.getV()+samplesize-1;
     double * worklin = linpred.getV();
-    for (i=0;i<sampled_etas.rows();i++,workse+=sampled_etas.cols())
-      *workse = likep->trmult*(*worklin);
+    double * wr = likep->response_untransformed.getV();
+    double * ww = likep->weight.getV();
+    double devsat;
+    double muhelp;
+    double scalehelp=likep->get_scale(true);
+    for (i=0;i<sampled_etas.rows();i++,workse+=sampled_etas.cols(),
+    workli+=sampled_likelihood.cols(),worklin++,wr++,ww++)
+      {
+      *worklin *= likep->trmult;
+      *workse = *worklin;
 
-    likep->sample_responses(samplesize-1,sampled_responses);
+      likep->compute_mu(worklin,&muhelp,true);
+
+      likep->compute_deviance(wr,ww,&muhelp, workli,&devsat,&scalehelp);
+
+      *workli *= -0.5;
+      }
+
+    likep->sample_responses_cv(samplesize-1,linpred,sampled_responses);
+
+    double * workbeta = beta.getV();
+    double * sr = sampled_responses.getV()+samplesize-1;
+
+    for(i=0;i<beta.rows();i++,workbeta++,sr+=sampled_responses.cols())
+      *workbeta = *sr;
+
+
+    workbeta = FC_sampled_l.beta.getV();
+    double * sl = sampled_likelihood.getV()+samplesize-1;
+
+    for(i=0;i<FC_sampled_l.beta.rows();i++,workbeta++,sl+=sampled_likelihood.cols())
+      *workbeta = *sl;
+
     }
 
 
+  FC::update();
+  FC_sampled_l.update();
+
   }
+
 
 
 bool FC_cv::posteriormode(void)
@@ -178,17 +220,32 @@ void FC_cv::outresults(ofstream & out_stata, ofstream & out_R,
   if (pathresults.isvalidfile() != 1)
     {
 
-    optionsp->out("  CV: \n",true);
+    FC::outresults(out_stata,out_R,pathresults);
+
+    optionsp->out("  Marshall-Spiegelhalter Cross Validation: \n",true);
     optionsp->out("\n");
 
-    optionsp->out("    Samples for CV are stored in\n");
+    optionsp->out("    Estimated individual observation samples are stored in\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
-    ofstream outres(pathresults.strtochar());
 
-    unsigned nrobs = sampled_etas.rows();
-    unsigned i,j;
+    ST::string pathresults_like = pathresults.substr(0,pathresults.length()-4)+
+                                  "_like.res";
+
+    FC_sampled_l.outresults(out_stata,out_R,pathresults_like);
+
+    optionsp->out("    Estimated individual observation likelihoods are stored in\n");
+    optionsp->out("    " +  pathresults_like + "\n");
+    optionsp->out("\n");
+
+
+
+//    unsigned nrobs = sampled_etas.rows();
+    unsigned i;
+
+    /*
+    ofstream outres(pathresults.strtochar());
 
     for(j=0;j<sampled_etas.cols();j++)
       outres << "s_eta_" << (j+1) << "  ";
@@ -208,22 +265,49 @@ void FC_cv::outresults(ofstream & out_stata, ofstream & out_R,
         outres << sampled_responses(i,j) << "  ";
 
       outres << endl;
-      }
 
+      }
+     */
 
     // Energy score
 
     double es = compute_energyscore();
 
+
     ST::string pathresults_e = pathresults.substr(0,pathresults.length()-4)+
                                "_energy.res";
 
+
     ofstream out2(pathresults_e.strtochar());
+    out2 << "id   score" << endl;
 
     for (i=0;i<e_score.rows();i++)
       out2 << effectvalues[i] << "  " << e_score(i,0) << endl;
 
-    optionsp->out("    Energy score: " + ST::doubletostring(es,8) + "\n");
+    // Log-score
+
+
+    double ls = compute_logscore();
+
+    ST::string pathresults_l = pathresults.substr(0,pathresults.length()-4)+
+                               "_logscore.res";
+
+    ofstream out3(pathresults_l.strtochar());
+    out3 << "id   score" << endl;
+
+    for (i=0;i<e_score.rows();i++)
+      out3 << effectvalues[i] << "  " << log_score(i,0) << endl;
+
+    optionsp->out("    Estimated energy scores are stored in\n");
+    optionsp->out("    " +  pathresults_e + "\n");
+    optionsp->out("\n");
+
+    optionsp->out("    Estimated log-scores are stored in\n");
+    optionsp->out("    " +  pathresults_l + "\n");
+    optionsp->out("\n");
+
+    optionsp->out("    Mean energy score: " + ST::doubletostring(es,8) + "\n");
+    optionsp->out("    Mean log score: " + ST::doubletostring(ls,8) + "\n");
 
 
     }   // end if (pathresults.isvalidfile() != 1)
@@ -267,8 +351,6 @@ double FC_cv::compute_energyscore(void)
 */
 
 
-
-
   unsigned in;
 
   for (i=0;i<I;i++)
@@ -286,8 +368,8 @@ double FC_cv::compute_energyscore(void)
 
     }
 
-  ofstream out("c:\\bayesx\\testh\\results\\es1.res");
-  es1.prettyPrint(out);
+//  ofstream out("c:\\bayesx\\testh\\results\\es1.res");
+//  es1.prettyPrint(out);
 
 
 
@@ -314,10 +396,55 @@ double FC_cv::compute_energyscore(void)
   }
 
 
+
 double FC_cv::compute_logscore(void)
   {
 
-  return 0;
+  unsigned s,i;
+
+//  ofstream out("c:\\bayesx\\testh\\results\\sampled_likelihood.res");
+//  sampled_likelihood.prettyPrint(out);
+
+  unsigned S = sampled_likelihood.cols();       // S = number of samples
+  unsigned I = sampled_likelihood.rows();       // I = number of observations
+                                                // i-th row, s-th column contains
+                                                // log-likelihood of i-th
+                                                // observation in sample s
+
+  if (log_score.rows() != nrcat)
+    log_score = datamatrix(nrcat,1,0);
+
+  datamatrix lhelp(nrcat,S,0);
+
+  unsigned in;
+
+  for (i=0;i<I;i++)
+    {
+
+    in = ind(i,0);
+
+    for (s=0;s<S;s++)
+      {
+      lhelp(in,s) += sampled_likelihood(i,s);
+      }
+
+
+
+//    log_score(in,0) = log(S) - log(log_score(in,0));
+    }
+
+
+  for (i=0;i<nrcat;i++)
+    {
+    log_score(i,0) = 0;
+    for (s=0;s<S;s++)
+      log_score(i,0) +=  exp(lhelp(i,s));
+
+    log_score(i,0) = log(S) - log(log_score(i,0));
+    }
+
+  return log_score.mean(0);
+
   }
 
 

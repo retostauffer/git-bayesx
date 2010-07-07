@@ -282,7 +282,6 @@ void FC_hrandom::update(void)
   }
 
 
-  
 void FC_hrandom::sample_for_cv(datamatrix & pred)
   {
   if (beta_prior.rows() == 1)
@@ -297,6 +296,56 @@ void FC_hrandom::sample_for_cv(datamatrix & pred)
   designp->compute_effect(pred,beta_prior,Varcoefftotal);
 
   }
+
+
+void FC_hrandom::compute_effect_cv(datamatrix & effect)
+  {
+
+  int i;
+
+  if (effect.rows() != designp->data.rows())
+    effect = datamatrix(designp->data.rows(),1,0);
+
+  double * workintvar = designp->intvar.getV();
+  unsigned * workind = designp->ind.getV();
+  double * workeffect = effect.getV();
+
+  int size = designp->ind.rows();
+
+  if (likep_RE->linpred_current==1)
+    {
+    if (designp->intvar.rows() != designp->data.rows())
+      {
+      for (i=0;i<size;i++,workind++,workeffect++)
+        *workeffect = beta(*workind,0)- likep_RE->linearpred1(*workind,0);
+      }
+    else
+      {
+      for (i=0;i<size;i++,workind++,workeffect++,workintvar++)
+        *workeffect = *workintvar * (beta(*workind,0) -
+        likep_RE->linearpred1(*workind,0));
+      }
+    }
+  else
+    {
+
+    if (designp->intvar.rows() != designp->data.rows())
+      {
+      for (i=0;i<size;i++,workind++,workeffect++)
+        *workeffect = beta(*workind,0)- likep_RE->linearpred2(*workind,0);
+      }
+    else
+      {
+      for (i=0;i<size;i++,workind++,workeffect++,workintvar++)
+        *workeffect = *workintvar * (beta(*workind,0) -
+        likep_RE->linearpred2(*workind,0));
+      }
+
+    }
+
+  }
+
+
 
 void FC_hrandom::update_response_multexp(void)
   {

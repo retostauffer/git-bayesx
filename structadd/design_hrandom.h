@@ -38,6 +38,8 @@ namespace MCMC
 class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
   {
 
+  // beta contains linpredRE+random effect
+
 
   protected:
 

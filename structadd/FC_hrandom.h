@@ -117,15 +117,25 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
+  //----------------------------------------------------------------------------
+  //----------------------- For Cross Validation stuff -------------------------
+  //----------------------------------------------------------------------------
+
   // FUNCTION: sample_for_cv
   // TASK: samples for cv-score
 
   void sample_for_cv(datamatrix & pred);
 
+  void compute_effect_cv(datamatrix & effect);
+
+  //----------------------------------------------------------------------------
+  //-------------------- End: For Cross Validation stuff -----------------------
+  //----------------------------------------------------------------------------
+
   };
 
 
-  
+
 } // end: namespace MCMC
 
 #endif

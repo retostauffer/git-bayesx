@@ -765,11 +765,15 @@ void FC_nonp::update_isotonic(void)
   {
 
   // TEST
-   // ofstream out0("c:\\bayesx\\testh\\results\\beta_f.res");
-   // beta.prettyPrint(out0);
+  /*
+   ofstream out0("c:\\bayesx\\testh\\results\\beta_f.res");
+   beta.prettyPrint(out0);
+   out0.close();
 
-   // ofstream out00("c:\\bayesx\\testh\\results\\intvar_f.res");
-   // designp->intvar.prettyPrint(out00);
+  ofstream out00("c:\\bayesx\\testh\\results\\intvar_f.res");
+  designp->intvar.prettyPrint(out00);
+  out00.close();
+  */
   // TEST
 
   unsigned i,j;

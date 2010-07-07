@@ -51,6 +51,9 @@ class __EXPORT_TYPE FC_cv   : public FC
 
   datamatrix sampled_etas;
   datamatrix sampled_responses;
+  datamatrix sampled_likelihood;  
+
+  FC FC_sampled_l;
 
   DISTR * likep;
 
