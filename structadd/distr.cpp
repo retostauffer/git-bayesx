@@ -778,8 +778,8 @@ DISTR_gaussian::DISTR_gaussian(const DISTR_gaussian & nd)
 void DISTR_gaussian::standardise(void)
   {
 
-  trmult = sqrt(response.var(0,weight));
-//  trmult=1;
+//  trmult = sqrt(response.var(0,weight));
+  trmult=1;
 
   unsigned i;
   double * workresp = workingresponse.getV();

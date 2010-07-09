@@ -832,10 +832,14 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
   {
 
   // TEST
-  /*
-  ofstream out0("c:\\bayesx\\test\\results\\fueb.res");
-  f.prettyPrint(out0);
-  */
+
+  // ofstream out0("c:\\bayesx\\testh\\results\\ind.res");
+  // ind.prettyPrint(out0);
+
+  // ofstream out0_1("c:\\bayesx\\testh\\results\\f.res");
+  // f.prettyPrint(out0_1);
+
+
   // TEST
 
 
@@ -857,7 +861,9 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
   if (et==Function)
     {
     for (i=0;i<size;i++,workind++,workeffect++)
+      {
       *workeffect = f(*workind,0);
+      }
     }
   else if (et==Varcoefftotal)
     {
@@ -866,17 +872,17 @@ void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
     }
 
   // TEST
-  /*
-  ofstream out("c:\\bayesx\\test\\results\\effect.res");
-  for (i=0;i<effect.rows();i++)
-    out << effect(i,0) << "  " << endl;
 
-  ofstream out2("c:\\bayesx\\test\\results\\data.res");
-  data.prettyPrint(out2);
+  // ofstream out("c:\\bayesx\\testh\\results\\effect.res");
+  // for (i=0;i<effect.rows();i++)
+  //   out << effect(i,0) << "  " << endl;
 
-  ofstream out3("c:\\bayesx\\test\\results\\index.res");
-  index_data.prettyPrint(out3);
-  */
+  // ofstream out2("c:\\bayesx\\testh\\results\\data.res");
+  // data.prettyPrint(out2);
+
+  // ofstream out3("c:\\bayesx\\testh\\results\\index.res");
+  // index_data.prettyPrint(out3);
+
   // TEST
 
   }
@@ -886,6 +892,12 @@ void DESIGN::set_intvar(datamatrix & iv,double add)
   {
 
   unsigned j;
+
+  if (intvar.rows() != iv.rows())
+    {
+    intvar=iv;
+    intvar2 =iv;
+    }
 
   double * workintvar = intvar.getV();
   double * workintvar2 = intvar2.getV();
@@ -1033,7 +1045,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
 
     double * workintvar = intvar.getV();
 
-    if ((likep->wtype==wweightsnochange_one) && (cwsum==false))
+    if ((likep->wtype==wweightsnochange_one) && (cwsum==false) && (changingdesign==false))
       {
 
       for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,workintvar++)
@@ -1043,7 +1055,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
       }
     else
       {
-      if ((likep->wtype==wweightsnochange_constant) && (cwsum==false))
+      if ((likep->wtype==wweightsnochange_constant) && (cwsum==false) && (changingdesign==false))
         {
 
         for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
@@ -1080,7 +1092,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
     }
   else                              // additive
     {
-    if ((likep->wtype==wweightsnochange_one) && (cwsum==false))
+    if ((likep->wtype==wweightsnochange_one) && (cwsum==false) && (changingdesign==false))
       {
 
       for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++)
@@ -1090,7 +1102,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
       }
     else
       {
-      if ((likep->wtype==wweightsnochange_constant) && (cwsum==false))
+      if ((likep->wtype==wweightsnochange_constant) && (cwsum==false) && (changingdesign==false))
         {
 
         for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,

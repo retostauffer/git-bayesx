@@ -490,6 +490,7 @@ bool FC_hrandom::posteriormode_additive(void)
 
 bool FC_hrandom::posteriormode(void)
   {
+
   if (rtype==multexp)
     {
     return posteriormode_multexp();
@@ -624,26 +625,35 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
                   designp->effectvalues[designp->meaneffectnr]);
 
 
-    double s_level1 = simconfBand(true);
-    double s_level2 = simconfBand(false);
+    double s_level1 = 0;
+    double s_level2 = 0;
 
-    double s_level1_rcoeff = FCrcoeff.simconfBand(true);
-    double s_level2_rcoeff = FCrcoeff.simconfBand(false);
+    double s_level1_rcoeff = 0;
+    double s_level2_rcoeff = 0;
+
+    if (optionsp->samplesize > 0)
+      {
+      s_level1 = simconfBand(true);
+      s_level2 = simconfBand(false);
+
+      s_level1_rcoeff = FCrcoeff.simconfBand(true);
+      s_level2_rcoeff = FCrcoeff.simconfBand(false);
 
 
-    optionsp->out("    Scaling factor to blow up pointwise " +
-                 ST::inttostring(optionsp->level1) + " percent credible intervals\n");
-    optionsp->out("    to obtain simultaneous credible intervals: " +
-         ST::doubletostring(s_level1,6) + "\n");
+      optionsp->out("    Scaling factor to blow up pointwise " +
+                   ST::inttostring(optionsp->level1) + " percent credible intervals\n");
+      optionsp->out("    to obtain simultaneous credible intervals: " +
+           ST::doubletostring(s_level1,6) + "\n");
 
-    optionsp->out("\n");
+      optionsp->out("\n");
 
-    optionsp->out("    Scaling factor to blow up pointwise " +
-                 ST::inttostring(optionsp->level2) + " percent credible intervals\n");
-    optionsp->out("    to obtain simultaneous credible intervals: " +
-         ST::doubletostring(s_level2,6) + "\n");
+      optionsp->out("    Scaling factor to blow up pointwise " +
+                   ST::inttostring(optionsp->level2) + " percent credible intervals\n");
+      optionsp->out("    to obtain simultaneous credible intervals: " +
+           ST::doubletostring(s_level2,6) + "\n");
 
-    optionsp->out("\n");
+      optionsp->out("\n");
+      }
 
 
     ofstream outres(pathresults.strtochar());

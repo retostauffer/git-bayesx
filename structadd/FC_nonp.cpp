@@ -656,12 +656,16 @@ void FC_nonp::update_gaussian_transform(void)
 void FC_nonp::update_gaussian(void)
   {
 
-  // TEST
-   //ofstream out0("c:\\bayesx\\testh\\results\\beta_re.res");
-   //beta.prettyPrint(out0);
 
-   //ofstream out00("c:\\bayesx\\testh\\results\\intvar_re.res");
-   //designp->intvar.prettyPrint(out00);
+
+  // TEST
+  // ofstream out0("c:\\bayesx\\testh\\results\\beta_re.res");
+  // beta.prettyPrint(out0);
+
+  // ofstream out00("c:\\bayesx\\testh\\results\\intvar_re.res");
+  // designp->intvar.prettyPrint(out00);
+
+
   // TEST
 
   if (orthogonal)
@@ -765,15 +769,15 @@ void FC_nonp::update_isotonic(void)
   {
 
   // TEST
-  /*
-   ofstream out0("c:\\bayesx\\testh\\results\\beta_f.res");
-   beta.prettyPrint(out0);
-   out0.close();
 
-  ofstream out00("c:\\bayesx\\testh\\results\\intvar_f.res");
-  designp->intvar.prettyPrint(out00);
-  out00.close();
-  */
+   // ofstream out0("c:\\bayesx\\testh\\results\\beta_f.res");
+   // beta.prettyPrint(out0);
+   // out0.close();
+
+   // ofstream out00("c:\\bayesx\\testh\\results\\intvar_f.res");
+   // designp->intvar.prettyPrint(out00);
+   // out00.close();
+
   // TEST
 
   unsigned i,j;
@@ -917,6 +921,16 @@ void FC_nonp::update_isotonic(void)
   paramsample.beta.assign(param);
   paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
+
+  // TEST
+  // ofstream out0_1("c:\\bayesx\\testh\\results\\beta_f.res");
+  // beta.prettyPrint(out0_1);
+  // out0_1.close();
+
+  // ofstream out00_1("c:\\bayesx\\testh\\results\\intvar_f.res");
+  // designp->intvar.prettyPrint(out00_1);
+  // out00_1.close();
+  // TEST
 
   FC::update();
 
@@ -1260,22 +1274,27 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
     optionsp->out("\n");
 
-    double s_level1 = simconfBand(true);
-    double s_level2 = simconfBand(false);
+    double s_level1=0;
+    double s_level2=0;
+    if (optionsp->samplesize > 0)
+      {
+      s_level1 = simconfBand(true);
+      s_level2 = simconfBand(false);
 
-    optionsp->out("    Scaling factor to blow up pointwise " +
-                 ST::inttostring(optionsp->level1) + " percent credible intervals\n");
-    optionsp->out("    to obtain simultaneous credible intervals: " +
-         ST::doubletostring(s_level1,6) + "\n");
+      optionsp->out("    Scaling factor to blow up pointwise " +
+                   ST::inttostring(optionsp->level1) + " percent credible intervals\n");
+      optionsp->out("    to obtain simultaneous credible intervals: " +
+           ST::doubletostring(s_level1,6) + "\n");
 
-    optionsp->out("\n");
+      optionsp->out("\n");
 
-    optionsp->out("    Scaling factor to blow up pointwise " +
-                 ST::inttostring(optionsp->level2) + " percent credible intervals\n");
-    optionsp->out("    to obtain simultaneous credible intervals: " +
-         ST::doubletostring(s_level2,6) + "\n");
+      optionsp->out("    Scaling factor to blow up pointwise " +
+                   ST::inttostring(optionsp->level2) + " percent credible intervals\n");
+      optionsp->out("    to obtain simultaneous credible intervals: " +
+           ST::doubletostring(s_level2,6) + "\n");
 
-    optionsp->out("\n");
+      optionsp->out("\n");
+      }
 
 
     ofstream outres(pathresults.strtochar());
