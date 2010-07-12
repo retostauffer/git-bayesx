@@ -42,10 +42,20 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   datamatrix bspline(const double & x);
 
+  // FUNCTION: bspline
+  // TASK: computes B-splines first derivative at position x
+
+  datamatrix bspline_derivative(const double & x);
+
   // FUNCTION: make_Bspline
   // TASK: computes knot, Zout and index_Zout
 
   void make_Bspline(void);
+
+  // FUNCTION: make_Bspline_derivative
+  // TASK: computes Bsplines derivative design matrix Zout_derivative
+
+  void make_Bspline_derivative(void);
 
   void compute_betaweight(datamatrix & betaweight);
 

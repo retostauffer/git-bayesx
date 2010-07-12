@@ -65,6 +65,13 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   f = op[25].strtodouble(s2);
 
 
+  if (op[26] == "false")
+     derivative = false;
+  else
+    derivative = true;
+
+
+
   }
 
 
@@ -121,6 +128,11 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
     meaneffect_sample = FC(o,"",beta.rows(),1,fp+".meaneffect");
     }
 
+  if (derivative == true)
+    {
+    derivativesample = FC(o,"",beta.rows(),1,fp+".derivative");
+    }
+
   check_errors();
 
   }
@@ -171,6 +183,8 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   acuteparam = m.acuteparam;
   s2 = m.s2;
 
+  derivative = m.derivative;
+  derivativesample = m.derivativesample;
   }
 
 
@@ -221,6 +235,9 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
 
   acuteparam = m.acuteparam;
   s2 = m.s2;
+
+  derivative = m.derivative;
+  derivativesample = m.derivativesample;
 
   return *this;
   }
@@ -745,6 +762,11 @@ void FC_nonp::update_gaussian(void)
 
     designp->compute_f(param,paramlin,beta,fsample.beta);
 
+    if (derivative)
+      designp->compute_f_derivative(param,paramlin,derivativesample.beta,
+                                    derivativesample.beta);
+
+
     betadiff.minus(beta,betaold);
 
     designp->update_linpred(betadiff);
@@ -771,6 +793,12 @@ void FC_nonp::update_gaussian(void)
     paramsample.beta.assign(param);
     paramsample.transform(0,0) = likep->trmult;
     paramsample.update();
+
+    if (derivative)
+      {
+      derivativesample.transform(0,0) = likep->trmult;
+      derivativesample.update();
+      }
 
     FC::update();
     }
@@ -1252,6 +1280,109 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
   }
 
 
+
+void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
+                        const ST::string & pathresults)
+  {
+
+  if (pathresults.isvalidfile() != 1)
+    {
+
+    derivativesample.outresults(out_stata,out_R,"");
+
+    optionsp->out("    Estimated first derivatives are stored in file\n");
+    optionsp->out("    " +  pathresults + "\n");
+    optionsp->out("\n");
+
+    ofstream outres(pathresults.strtochar());
+
+    optionsp->out("\n");
+
+    unsigned i;
+
+    ST::string l1 = ST::doubletostring(optionsp->lower1,4);
+    ST::string l2 = ST::doubletostring(optionsp->lower2,4);
+    ST::string u1 = ST::doubletostring(optionsp->upper1,4);
+    ST::string u2 = ST::doubletostring(optionsp->upper2,4);
+    l1 = l1.replaceallsigns('.','p');
+    l2 = l2.replaceallsigns('.','p');
+    u1 = u1.replaceallsigns('.','p');
+    u2 = u2.replaceallsigns('.','p');
+
+    outres << "intnr" << "   ";
+
+    unsigned start=0;
+    if (designp->intvar.rows()==designp->data.rows())
+      start = 1;
+
+    for (i=start;i<designp->datanames.size();i++)
+      outres << designp->datanames[i] << "   ";
+    outres << "pmean   ";
+
+    outres << "pqu"  << l1  << "   ";
+    outres << "pqu"  << l2  << "   ";
+    outres << "pmed   ";
+    outres << "pqu"  << u1  << "   ";
+    outres << "pqu"  << u2  << "   ";
+    outres << "pcat" << optionsp->level1 << "   ";
+    outres << "pcat" << optionsp->level2 << "   ";
+
+    outres << endl;
+
+
+    double * workmean;
+    double * workbetaqu_l1_lower_p;
+    double * workbetaqu_l2_lower_p;
+    double * workbetaqu_l1_upper_p;
+    double * workbetaqu_l2_upper_p;
+    double * workbetaqu50;
+
+    workmean = derivativesample.betamean.getV();
+    workbetaqu_l1_lower_p = derivativesample.betaqu_l1_lower.getV();
+    workbetaqu_l2_lower_p = derivativesample.betaqu_l2_lower.getV();
+    workbetaqu_l1_upper_p = derivativesample.betaqu_l1_upper.getV();
+    workbetaqu_l2_upper_p = derivativesample.betaqu_l2_upper.getV();
+    workbetaqu50 = derivativesample.betaqu50.getV();
+
+    unsigned nrpar = beta.rows();
+    for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
+                              workbetaqu_l2_lower_p++,workbetaqu50++,
+                              workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++)
+      {
+      outres << (i+1) << "   ";
+      outres << designp->effectvalues[i] << "   ";
+      outres << *workmean << "   ";
+
+      outres << *workbetaqu_l1_lower_p << "   ";
+      outres << *workbetaqu_l2_lower_p << "   ";
+      outres << *workbetaqu50 << "   ";
+      outres << *workbetaqu_l2_upper_p << "   ";
+      outres << *workbetaqu_l1_upper_p << "   ";
+
+      if (*workbetaqu_l1_lower_p > 0)
+        outres << 1 << "   ";
+      else if (*workbetaqu_l1_upper_p < 0)
+        outres << -1 << "   ";
+      else
+        outres << 0 << "   ";
+
+      if (*workbetaqu_l2_lower_p > 0)
+        outres << 1 << "   ";
+      else if (*workbetaqu_l2_upper_p < 0)
+        outres << -1 << "   ";
+      else
+        outres << 0 << "   ";
+
+      outres << endl;
+      }
+
+    }
+
+  }
+
+
+
+
 void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
                         const ST::string & pathresults)
   {
@@ -1272,6 +1403,15 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
                                  "_param.res";
 
     outresults_acceptance();
+
+    if ((optionsp->samplesize > 1) && (derivative==true))
+      {
+      ST::string pathresultsderivative =
+                         pathresults.substr(0,pathresults.length()-4) +
+                                 "_derivative.res";
+
+      outresults_derivative(out_stata,out_R,pathresultsderivative);
+      }
 
     paramsample.outresults(out_stata,out_R,pathresultsbeta);
 

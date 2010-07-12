@@ -286,6 +286,9 @@ DESIGN::DESIGN(DISTR * lp,FC_linear * fcp)
   identity = false;
   full = false;
 
+  derivative = false;
+  derivative_full = false;
+
   position_lin = -1;
   }
 
@@ -354,6 +357,10 @@ DESIGN::DESIGN(const DESIGN & m)
   QtRinv = m.QtRinv;
   RtinvQ = m.RtinvQ;
   u = m.u;
+
+  Zout_derivative = m.Zout_derivative;
+  derivative_full = m.derivative_full;
+  derivative = m.derivative;
 
   }
 
@@ -426,6 +433,10 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   QtRinv = m.QtRinv;
   RtinvQ = m.RtinvQ;
   u = m.u;
+
+  Zout_derivative = m.Zout_derivative;
+  derivative_full = m.derivative_full;
+  derivative = m.derivative;
 
   return *this;
   }
@@ -1015,6 +1026,116 @@ void DESIGN::compute_f(datamatrix & beta,datamatrix & betalin,
 
   }
 
+
+
+
+void DESIGN::compute_f_derivative(datamatrix & beta,datamatrix & betalin,
+                                  datamatrix & f_der, datamatrix & ftot)
+  {
+
+  if (derivative_full)
+    {
+    f_der.mult(Zout_derivative,beta);
+    }
+  else
+    {
+
+    if (consecutive == -1)
+      {
+      bool c = check_Zout_consecutive();
+      consecutive = c;
+      }
+
+    unsigned i,j;
+
+    unsigned rows;
+    unsigned cols;
+    rows = Zout_derivative.rows();
+    cols = Zout_derivative.cols();
+
+    double * workZ = Zout_derivative.getV();
+
+    double * workf = f_der.getV();
+
+    if (consecutive == 0)
+      {
+
+      int * workindex = index_Zout.getV();
+
+      for(i=0;i<rows;i++,workf++)
+        {
+        *workf = 0;
+        for(j=0;j<cols;j++,workindex++,workZ++)
+          {
+          *workf += (*workZ) * beta(*workindex,0);
+          }
+        }
+      }
+    else
+      {
+
+      double * workbeta;
+      for(i=0;i<rows;i++,workf++)
+        {
+        *workf = 0;
+        workbeta = beta.getV()+index_Zout(i,0);
+        for(j=0;j<cols;j++,workZ++,workbeta++)
+          {
+          *workf += (*workZ) * (*workbeta);
+          }
+        }
+
+      }
+
+    }
+
+  // TEST
+
+  /*
+  ofstream out("c:\\bayesx\\testh\\results\\f.res");
+  f.prettyPrint(out);
+
+  ofstream out2("c:\\bayesx\\testh\\results\\beta.res");
+  beta.prettyPrint(out2);
+  */
+
+  /*
+  datamatrix Zoutm(data.rows(),nrpar,0);
+  unsigned k;
+  for (i=0;i<posbeg.size();i++)
+    {
+    for (j=posbeg[i];j<=posend[i];j++)
+      {
+      for(k=0;k<Zout.cols();k++)
+        Zoutm(j,index_Zout(i,k)) = Zout(i,k);
+      }
+
+    }
+
+  ofstream out2("c:\\bayesx\\test\\results\\falt.res");
+
+  datamatrix falt = Zoutm*beta;
+
+  falt.prettyPrint(out2);
+  // TEST
+  */
+
+
+  /*
+  if (position_lin!=-1)
+    {
+    ftot.mult(designlinear,betalin);
+    ftot.plus(f);
+    }
+  */
+
+  }
+
+
+
+
+
+
 void DESIGN::compute_precision(double l)
   {
 
@@ -1287,6 +1408,12 @@ void DESIGN::read_options(vector<ST::string> & op,vector<ST::string> & vn)
     center = true;
   else
     center = false;
+
+  if (op[26] == "false")
+    derivative = false;
+  else
+    derivative = true;
+
 
   datanames = vn;
 

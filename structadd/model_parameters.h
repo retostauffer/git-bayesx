@@ -51,6 +51,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption maxdist;
   simpleoption ccovariate;
   doubleoption sum2;
+  simpleoption derivative;
+  
 
   vector<ST::string> termnames;
 

@@ -107,7 +107,7 @@ class __EXPORT_TYPE DESIGN
                                             // at which the meaneffect will be
                                             // computed
 
-  //----------------------------------------------------------------------------
+  //------------------------------- Zout ---------------------------------------
 
   datamatrix Zout;                           // Design matrix (only non null
                                              // elements for output of results
@@ -126,6 +126,21 @@ class __EXPORT_TYPE DESIGN
   bool full;                                 // true if Zout full matrix
 
   bool check_Zout_consecutive(void);
+
+  //---------------------------- Zout_derivative -------------------------------
+
+  bool derivative;                         // true if derivatives should be
+                                           // computed/estimated
+
+  datamatrix Zout_derivative;              // Design matrix of first derivative
+
+  bool derivative_full;                    // true if derivative design marix
+                                           // is full
+
+
+  void compute_f_derivative(datamatrix & beta,datamatrix & betalin,
+                                  datamatrix & f_der, datamatrix & ftot);
+
 
   //----------------------------------------------------------------------------
 

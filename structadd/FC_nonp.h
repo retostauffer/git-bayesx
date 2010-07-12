@@ -40,6 +40,10 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   FC paramsample;
 
+  bool derivative;
+  FC derivativesample;
+
+
   bool IWLS;
 
 
@@ -169,6 +173,13 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void outresults(ofstream & out_stata, ofstream & out_R,
                   const ST::string & pathresults);
+
+  // FUNCTION: outresults_derivative
+  // TASK: writes estimated first derivatives
+
+  void outresults_derivative(ofstream & out_stata, ofstream & out_R,
+                        const ST::string & pathresults);
+
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 

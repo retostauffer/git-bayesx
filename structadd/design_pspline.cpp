@@ -91,6 +91,12 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   else
     ccov = true;
 
+  if (op[26] == "false")
+    derivative = false;
+  else
+    derivative = true;
+    
+
   datanames = vn;
 
   }
@@ -279,6 +285,9 @@ void DESIGN_pspline::make_Bspline(void)
   consecutive = 1;
 
 
+  if (derivative)
+    make_Bspline_derivative();
+
   // TEST
   /*
   bool t = check_Zout_consecutive();
@@ -315,7 +324,6 @@ void DESIGN_pspline::make_Bspline(void)
 
 
   }
-
 
 
 datamatrix DESIGN_pspline::bspline(const double & x)
@@ -355,6 +363,126 @@ datamatrix DESIGN_pspline::bspline(const double & x)
   return b;
 
   }
+
+
+void DESIGN_pspline::make_Bspline_derivative(void)
+  {
+
+  unsigned i,j,k;
+  double value;
+
+  datamatrix help;
+
+
+  Zout_derivative = datamatrix(posbeg.size(),degree+1,0.0);
+  double * work = Zout_derivative.getV();
+
+  help = datamatrix(nrpar,1,0.0);
+
+  for (i=0;i<posbeg.size();i++)
+    {
+    value = data(posbeg[i],0);
+    j=0;
+    while(knot[degree+j+1] <= value)
+      j++;
+    help.assign(bspline_derivative(value));
+
+    for (k=0;k<Zout_derivative.cols();k++,work++)
+      {
+      *work = help(k+j,0);
+      }
+
+    }
+
+
+  // TEST
+
+
+
+  ofstream out("c:\\bayesx\\testh\\results\\Zout.res");
+  Zout_derivative.prettyPrint(out);
+
+  /*
+  datamatrix Zoutm(data.rows(),nrpar,0);
+  for (i=0;i<posbeg.size();i++)
+    {
+    for (j=posbeg[i];j<=posend[i];j++)
+      {
+      for(k=0;k<Zout.cols();k++)
+        Zoutm(j,index_Zout(i,k)) = sqrt(likep->workingweight(index_data(j,0),0))*Zout(i,k)*intvar(j,0);
+      }
+
+    }
+
+  datamatrix h(data.rows(),1,1);
+  datamatrix Zteins =  Zoutm.transposed()*h;
+
+  datamatrix ZtZ = Zoutm.transposed()*Zoutm;
+
+  ofstream out3("c:\\bayesx\\test\\results\\Zteins.res");
+  Zteins.prettyPrint(out3);
+
+  ofstream out4("c:\\bayesx\\test\\results\\ZtZ.res");
+  ZtZ.prettyPrint(out4);
+  */
+  // TEST
+
+
+  }
+
+
+
+datamatrix DESIGN_pspline::bspline_derivative(const double & x)
+  {
+
+
+// nach Hämmerlin/Hoffmann
+  datamatrix b(nrpar,1,0.0);
+  datamatrix help(nrpar+degree,1,0.0);
+  unsigned j;
+  double * bwork;
+  double * helpwork;
+
+// Grad 0
+
+  for(j=0;j<nrpar;j++)
+    if( knot[j]<=x && x<knot[j+1])
+      b(j,0) = 1.0;
+
+  for(int l=1;l<=degree-1;l++)
+    {
+    bwork = b.getV();
+    helpwork = help.getV();
+    for(j=0;j<nrpar;j++,++helpwork,++bwork)
+//      help(j,0) = b(j,0);
+      *helpwork = *bwork;
+    bwork = b.getV();
+    helpwork = help.getV();
+    for(j=0;j<nrpar;j++,++helpwork,++bwork)
+      {
+//      b(j,0) = (x-knot[j])*help(j,0)/(knot[j+l]-knot[j])
+//                  + (knot[j+l+1]-x)*help(j+1,0)/(knot[j+l+1]-knot[j+1]);
+      *bwork = (x-knot[j])**helpwork/(knot[j+l]-knot[j])
+                  + (knot[j+l+1]-x)**(helpwork+1)/(knot[j+l+1]-knot[j+1]);
+
+      }
+    }
+
+// Hämmerlin/Hoffmann Seite 263
+
+  bwork = b.getV();
+  helpwork = help.getV();
+  for(j=0;j<nrpar;j++,++helpwork,++bwork)
+    *helpwork = *bwork;
+  bwork = b.getV();
+  helpwork = help.getV();
+  for(j=0;j<nrpar;j++,++helpwork,++bwork)
+    *bwork = degree*( *helpwork/(knot[j+degree]-knot[j]) - *(helpwork+1)/(knot[j+degree+1]-knot[j+1]) );
+
+  return b;
+
+  }
+
 
 
 void DESIGN_pspline::compute_penalty(void)
