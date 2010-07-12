@@ -60,6 +60,11 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else
     orthogonal = true;
 
+  int f;
+
+  f = op[25].strtodouble(s2);
+
+
   }
 
 
@@ -164,6 +169,7 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   helpcenter = m.helpcenter;
 
   acuteparam = m.acuteparam;
+  s2 = m.s2;
 
   }
 
@@ -214,6 +220,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   helpcenter = m.helpcenter;
 
   acuteparam = m.acuteparam;
+  s2 = m.s2;
 
   return *this;
   }
@@ -455,6 +462,8 @@ void FC_nonp::update_IWLS(void)
     {
     if (designp->centermethod==meansimple)
       centerparam();
+    else if (designp->centermethod==meansum2)
+      centerparam_sum2(s2);
     else
       centerparam_sample();
     }
@@ -613,6 +622,8 @@ void FC_nonp::update_gaussian_transform(void)
     {
     if (designp->centermethod==meansimple)
       centerparam();
+    else if (designp->centermethod==meansum2)
+      centerparam_sum2(s2);
     else
       centerparam_sample();
     }
@@ -721,6 +732,8 @@ void FC_nonp::update_gaussian(void)
       {
       if (designp->centermethod==meansimple)
         centerparam();
+      else if (designp->centermethod==meansum2)
+        centerparam_sum2(s2);
       else
         centerparam_sample();
       }
@@ -888,6 +901,8 @@ void FC_nonp::update_isotonic(void)
     {
     if (designp->centermethod==meansimple)
       centerparam();
+    else if (designp->centermethod==meansum2)
+      centerparam_sum2(s2);
     else
       centerparam_sample();
     }
@@ -1075,7 +1090,7 @@ bool FC_nonp::posteriormode(void)
       fsample.posteriormode_betamean();
       }
 
-    ST::string n = designp->datanames[0];
+//    ST::string n = designp->datanames[0];
 
     designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
                                meaneffect_sample.beta,computemeaneffect);
@@ -1696,6 +1711,44 @@ void FC_nonp::centerparam(void)
     *workparam-= sum;
 
   }
+
+
+void FC_nonp::centerparam_sum2(double & s2)
+  {
+
+  unsigned i;
+  double sum=0;
+  double sum2=0;
+  double * workparam = param.getV();
+  unsigned nrparam = param.rows();
+
+  for (i=0;i<nrparam;i++,workparam++)
+    {
+    sum+= *workparam;
+    }
+
+  workparam = param.getV();
+
+  sum /= double(nrparam);
+
+
+  workparam = param.getV();
+
+  for (i=0;i<nrparam;i++,workparam++)
+    {
+    sum2+= pow(*workparam-sum,2);
+    }
+
+
+  workparam = param.getV();
+  for (i=0;i<nrparam;i++,workparam++)
+    *workparam = sqrt(s2/sum2) * (*workparam-sum);
+
+//   ofstream out("c:\\bayesx\\testh\\results\\param.res");
+//   param.prettyPrint(out);
+
+  }
+
 
 
 void FC_nonp::compute_autocorr_all(const ST::string & path,

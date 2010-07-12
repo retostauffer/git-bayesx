@@ -36,6 +36,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   centermethods.push_back("nullspace");
   centermethods.push_back("meansimple");
   centermethods.push_back("meanf");
+  centermethods.push_back("meansum2");
   centermethod = stroption("centermethod",centermethods,"meanf");
   internal_multexp = simpleoption("internal_multexp",false);
   pvalue = simpleoption("pvalue",false);
@@ -56,6 +57,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   maxdist = doubleoption("maxdist",-1,0.00001,10000);
 
   ccovariate = simpleoption("ccovariate",false);
+
+  sum2 = doubleoption("sum2",0,0,10000000);
   }
 
 void term_nonp::setdefault(void)
@@ -84,6 +87,7 @@ void term_nonp::setdefault(void)
   nu.setdefault();
   maxdist.setdefault();
   ccovariate.setdefault();
+  sum2.setdefault();
   }
 
 
@@ -158,6 +162,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&nu);
     optlist.push_back(&maxdist);
     optlist.push_back(&ccovariate);
+    optlist.push_back(&sum2);
 
     unsigned i;
     bool rec = true;
@@ -247,6 +252,8 @@ bool term_nonp::check(term & t)
       t.options[24] = "false";
     else
       t.options[24] = "true";
+
+    t.options[25] = ST::doubletostring(sum2.getvalue());
 
     setdefault();
     return true;

@@ -75,6 +75,8 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
     centermethod = cmeanintegral;
   else if (op[16] == "meanf")
     centermethod = cmeanf;
+  else if (op[16] == "meansum2")
+    centermethod = meansum2;
 
 
   if (op[12] == "true")
