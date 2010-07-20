@@ -52,6 +52,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   simpleoption ccovariate;
   doubleoption sum2;
   simpleoption derivative;
+  simpleoption samplederivative;
+  simpleoption samplef;
   
 
   vector<ST::string> termnames;

@@ -37,11 +37,15 @@ class __EXPORT_TYPE FC_nonp  : public FC
   MASTER_OBJ * masterp;
 
   FC fsample;
+  bool samplef;
 
   FC paramsample;
 
   bool derivative;
+  bool samplederivative;
   FC derivativesample;
+  //  FC elasticitysample;
+  //  void compute_elasticity(void);
 
 
   bool IWLS;

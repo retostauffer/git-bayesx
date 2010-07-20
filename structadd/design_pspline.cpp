@@ -397,10 +397,8 @@ void DESIGN_pspline::make_Bspline_derivative(void)
 
   // TEST
 
-
-
-  ofstream out("c:\\bayesx\\testh\\results\\Zout.res");
-  Zout_derivative.prettyPrint(out);
+  // ofstream out("c:\\bayesx\\testh\\results\\Zout.res");
+  // Zout_derivative.prettyPrint(out);
 
   /*
   datamatrix Zoutm(data.rows(),nrpar,0);

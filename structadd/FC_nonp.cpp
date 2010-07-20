@@ -70,6 +70,15 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else
     derivative = true;
 
+  if (op[27] == "false")
+     samplederivative = false;
+  else
+    samplederivative = true;
+
+  if (op[28] == "false")
+     samplef = false;
+  else
+    samplef = true;
 
 
   }
@@ -130,7 +139,13 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
 
   if (derivative == true)
     {
-    derivativesample = FC(o,"",beta.rows(),1,fp+".derivative");
+    if (designp->type==Mrf)
+      derivative = false;
+    else
+      {
+      derivativesample = FC(o,"",beta.rows(),1,fp+".derivative");
+      // elasticitysample = FC(o,"",beta.rows(),1,fp+".elasticity");
+      }
     }
 
   check_errors();
@@ -185,6 +200,9 @@ FC_nonp::FC_nonp(const FC_nonp & m)
 
   derivative = m.derivative;
   derivativesample = m.derivativesample;
+  samplederivative = m.samplederivative;
+  samplef = m.samplef;
+  // elasticitysample = m.elasticitysample;
   }
 
 
@@ -238,6 +256,9 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
 
   derivative = m.derivative;
   derivativesample = m.derivativesample;
+  samplederivative = m.samplederivative;
+  samplef = m.samplef;
+  // elasticitysample = m.elasticitysample;
 
   return *this;
   }
@@ -548,6 +569,14 @@ void FC_nonp::update_IWLS(void)
     }
 
 
+  if (derivative)
+    {
+    designp->compute_f_derivative(param,paramlin,derivativesample.beta,
+                                    derivativesample.beta);
+    // compute_elasticity();
+    }
+
+
   // TEST
   /*
   ofstream out("c:\\bayesx\\test\\results\\param.res");
@@ -569,6 +598,13 @@ void FC_nonp::update_IWLS(void)
   paramsample.beta.assign(param);
   paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
+
+  if (derivative)
+    {
+    derivativesample.transform(0,0) = likep->trmult;
+    derivativesample.update();
+    //elasticitysample.update();
+    }
 
   FC::update();
 
@@ -763,9 +799,11 @@ void FC_nonp::update_gaussian(void)
     designp->compute_f(param,paramlin,beta,fsample.beta);
 
     if (derivative)
+      {
       designp->compute_f_derivative(param,paramlin,derivativesample.beta,
                                     derivativesample.beta);
-
+      // compute_elasticity();
+      }
 
     betadiff.minus(beta,betaold);
 
@@ -798,6 +836,7 @@ void FC_nonp::update_gaussian(void)
       {
       derivativesample.transform(0,0) = likep->trmult;
       derivativesample.update();
+      // elasticitysample.update();
       }
 
     FC::update();
@@ -805,6 +844,26 @@ void FC_nonp::update_gaussian(void)
 
   }
 
+/*
+void FC_nonp::compute_elasticity(void)
+  {
+
+  unsigned i;
+  double * workf = beta.getV();
+  double * workelasticity = elasticitysample.beta.getV();
+  double * workderivative = derivativesample.beta.getV();
+  double d;
+  for (i=0;i<beta.rows();i++,workf++,workelasticity++,workderivative++)
+    {
+    d = designp->data(designp->posbeg[i],0);
+    if (*workf != 0)
+      *workelasticity = *workderivative * d / (*workf);
+    else
+      *workelasticity =  100000;
+    }
+
+  }
+*/
 
 void FC_nonp::update_isotonic(void)
   {
@@ -942,6 +1001,13 @@ void FC_nonp::update_isotonic(void)
 
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
+  if (derivative)
+    {
+    designp->compute_f_derivative(param,paramlin,derivativesample.beta,
+                                    derivativesample.beta);
+    // compute_elasticity();
+    }
+
 
   betadiff.minus(beta,betaold);
 
@@ -964,6 +1030,13 @@ void FC_nonp::update_isotonic(void)
   paramsample.beta.assign(param);
   paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
+
+  if (derivative)
+    {
+    derivativesample.transform(0,0) = likep->trmult;
+    derivativesample.update();
+    // elasticitysample.update();
+    }
 
   // TEST
   // ofstream out0_1("c:\\bayesx\\testh\\results\\beta_f.res");
@@ -1163,6 +1236,45 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
 
   ST::string xvar = designp->datanames[designp->datanames.size()-1];
 
+  if (derivative)
+    {
+
+    ST::string pathderivative = path.substr(0,path.length()-4) +
+                                 "_derivative.res";
+
+    ST::string pathderivativeps = path.substr(0,path.length()-4) +
+                                  "_derivative_statagraph";
+
+    // ST::string pathelasticityps = path.substr(0,path.length()-4) +
+    //                              "_elasticity_statagraph";
+
+
+    out_stata << "clear" << endl
+              << "infile intnr " << xvar
+
+              << " pmean pqu" << pu1_str
+              << " pqu" << po1_str << " pmed pqu" << po2_str << " pqu" << pu2_str
+              << " pcat" << pu_str << " pcat" << po_str
+              // << " pmean_elast pqu" << pu1_str << "_elast"
+              // << " pqu" << po1_str << "_elast pmed_elast pqu" << po2_str
+              // << "_elast pqu" << pu2_str
+              // << "_elast pcat" << pu_str << "_elast pcat" << po_str << "_elast"
+              << " using "
+              << pathderivative << endl
+              << "drop in 1" << endl;
+
+    out_stata << "graph twoway rarea pqu" << pu1_str << " pqu" << pu2_str
+              << " " << xvar << ", bcolor(gs13) || rarea pqu" << po1_str
+              << " pqu" << po2_str << " " << xvar << " , bcolor(gs10) || /*"
+              << endl << " */ scatter pmean "
+              << xvar << ", c(l) m(i) clpattern(l) clcolor(gs0) /* "
+              << endl << " */ ytitle(\"Derivative of effect of "
+              << xvar << "\") xtitle(\"" << xvar
+              << "\") xlab(,grid) ylab(,grid) legend(off)"
+              << endl << "graph export " << pathderivativeps << ".eps, replace"
+                      << endl << endl;
+
+    }
 
   out_stata << "clear" << endl
             << "infile intnr " << xvar
@@ -1289,6 +1401,7 @@ void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
     {
 
     derivativesample.outresults(out_stata,out_R,"");
+    // elasticitysample.outresults(out_stata,out_R,"");
 
     optionsp->out("    Estimated first derivatives are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
@@ -1327,6 +1440,16 @@ void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
     outres << "pcat" << optionsp->level1 << "   ";
     outres << "pcat" << optionsp->level2 << "   ";
 
+    // outres << "pmean_elast   ";
+    // outres << "pqu"  << l1  << "_elast   ";
+    // outres << "pqu"  << l2  << "_elast   ";
+    // outres << "pmed_elast   ";
+    // outres << "pqu"  << u1  << "_elast   ";
+    // outres << "pqu"  << u2  << "_elast   ";
+    // outres << "pcat" << optionsp->level1 << "_elast   ";
+    // outres << "pcat" << optionsp->level2 << "_elast   ";
+
+
     outres << endl;
 
 
@@ -1344,10 +1467,32 @@ void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
     workbetaqu_l2_upper_p = derivativesample.betaqu_l2_upper.getV();
     workbetaqu50 = derivativesample.betaqu50.getV();
 
+    /*
+    double * workmean_elast;
+    double * workbetaqu_l1_lower_p_elast;
+    double * workbetaqu_l2_lower_p_elast;
+    double * workbetaqu_l1_upper_p_elast;
+    double * workbetaqu_l2_upper_p_elast;
+    double * workbetaqu50_elast;
+
+    workmean_elast = elasticitysample.betamean.getV();
+    workbetaqu_l1_lower_p_elast = elasticitysample.betaqu_l1_lower.getV();
+    workbetaqu_l2_lower_p_elast = elasticitysample.betaqu_l2_lower.getV();
+    workbetaqu_l1_upper_p_elast = elasticitysample.betaqu_l1_upper.getV();
+    workbetaqu_l2_upper_p_elast = elasticitysample.betaqu_l2_upper.getV();
+    workbetaqu50_elast = elasticitysample.betaqu50.getV();
+    */
+
     unsigned nrpar = beta.rows();
-    for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
+    for(i=0;i<nrpar;i++,
+        workmean++,workbetaqu_l1_lower_p++,
                               workbetaqu_l2_lower_p++,workbetaqu50++,
-                              workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++)
+                              workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++
+//                              workmean_elast++,workbetaqu_l1_lower_p_elast++,
+//                              workbetaqu_l2_lower_p_elast++,workbetaqu50_elast++,
+//                              workbetaqu_l1_upper_p_elast++,
+//                              workbetaqu_l2_upper_p_elast++
+                              )
       {
       outres << (i+1) << "   ";
       outres << designp->effectvalues[i] << "   ";
@@ -1372,6 +1517,30 @@ void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
         outres << -1 << "   ";
       else
         outres << 0 << "   ";
+
+      /*
+      outres << *workmean_elast << "   ";
+
+      outres << *workbetaqu_l1_lower_p_elast << "   ";
+      outres << *workbetaqu_l2_lower_p_elast << "   ";
+      outres << *workbetaqu50_elast << "   ";
+      outres << *workbetaqu_l2_upper_p_elast << "   ";
+      outres << *workbetaqu_l1_upper_p_elast << "   ";
+
+      if (*workbetaqu_l1_lower_p_elast > 0)
+        outres << 1 << "   ";
+      else if (*workbetaqu_l1_upper_p_elast < 0)
+        outres << -1 << "   ";
+      else
+        outres << 0 << "   ";
+
+      if (*workbetaqu_l2_lower_p_elast > 0)
+        outres << 1 << "   ";
+      else if (*workbetaqu_l2_upper_p_elast < 0)
+        outres << -1 << "   ";
+      else
+        outres << 0 << "   ";
+      */
 
       outres << endl;
       }
@@ -1404,15 +1573,6 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
     outresults_acceptance();
 
-    if ((optionsp->samplesize > 1) && (derivative==true))
-      {
-      ST::string pathresultsderivative =
-                         pathresults.substr(0,pathresults.length()-4) +
-                                 "_derivative.res";
-
-      outresults_derivative(out_stata,out_R,pathresultsderivative);
-      }
-
     paramsample.outresults(out_stata,out_R,pathresultsbeta);
 
     optionsp->out("    Estimated parameters are stored in file\n");
@@ -1427,12 +1587,11 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
                   designp->datanames[designp->datanames.size()-1] + "=" +
                   designp->effectvalues[designp->meaneffectnr]);
 
-    optionsp->out("\n");
-
     double s_level1=0;
     double s_level2=0;
     if (optionsp->samplesize > 0)
       {
+      optionsp->out("\n");      
       s_level1 = simconfBand(true);
       s_level2 = simconfBand(false);
 
@@ -1449,6 +1608,16 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
            ST::doubletostring(s_level2,6) + "\n");
 
       optionsp->out("\n");
+      }
+
+
+    if ((optionsp->samplesize > 1) && (derivative==true))
+      {
+      ST::string pathresultsderivative =
+                         pathresults.substr(0,pathresults.length()-4) +
+                                 "_derivative.res";
+
+      outresults_derivative(out_stata,out_R,pathresultsderivative);
       }
 
 
@@ -1901,6 +2070,22 @@ void FC_nonp::compute_autocorr_all(const ST::string & path,
 void FC_nonp::get_samples(const ST::string & filename,ofstream & outg) const
   {
   paramsample.get_samples(filename,outg);
+  if (derivative && samplederivative)
+    {
+    ST::string filed = filename.substr(0,filename.length()-11) +
+                                 "_derivative_sample.raw";
+
+    derivativesample.get_samples(filed,outg);
+    }
+
+  if (samplef)
+    {
+    ST::string filef = filename.substr(0,filename.length()-11) +
+                                 "_function_sample.raw";
+
+    FC::get_samples(filef,outg);
+    }
+
   }
 
 

@@ -70,6 +70,7 @@ FC_hrandom::FC_hrandom(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp
   likep_RE = lp_RE;
   likep_RE->trmult = likep->trmult;
   FCrcoeff = FC(o,"",beta.rows(),beta.cols(),fp2);
+  derivative=false;
   }
 
 

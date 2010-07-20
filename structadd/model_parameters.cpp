@@ -61,6 +61,9 @@ term_nonp::term_nonp(vector<ST::string> & na)
   sum2 = doubleoption("sum2",0,0,10000000);
 
   derivative = simpleoption("derivative",false);
+  samplederivative = simpleoption("samplederivative",false);
+  samplef = simpleoption("samplef",false);
+
   }
 
 void term_nonp::setdefault(void)
@@ -91,6 +94,8 @@ void term_nonp::setdefault(void)
   ccovariate.setdefault();
   sum2.setdefault();
   derivative.setdefault();
+  samplederivative.setdefault();
+  samplef.setdefault();
   }
 
 
@@ -167,6 +172,8 @@ bool term_nonp::check(term & t)
     optlist.push_back(&ccovariate);
     optlist.push_back(&sum2);
     optlist.push_back(&derivative);
+    optlist.push_back(&samplederivative);
+    optlist.push_back(&samplef);        
 
     unsigned i;
     bool rec = true;
@@ -264,6 +271,15 @@ bool term_nonp::check(term & t)
     else
       t.options[26] = "true";
 
+    if(samplederivative.getvalue() == false)
+      t.options[27] = "false";
+    else
+      t.options[27] = "true";
+
+    if(samplef.getvalue() == false)
+      t.options[28] = "false";
+    else
+      t.options[28] = "true";
 
     setdefault();
     return true;
