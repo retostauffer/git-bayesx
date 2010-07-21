@@ -36,7 +36,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   Weibull = false;
 // NEW FOR PARTIALLIKELIHOOD
   PartialLikelihood = false;
-  
+
   lambda = l;
   sigma2 = 1.0/l;
 
@@ -60,18 +60,13 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
 //--statt index -> ges_index
 //--und statt "multBS" -> testmat verwenden------------------------------------------------------------
 
-  zi_ges = datamatrix(2*zi.rows(),1,0);
+/*  zi_ges = datamatrix(2*zi.rows(),1,0);
 
   vector<datamatrix> gaussy(gauss_n);
   for(i=0;i<gauss_n;i++)
     {
     gaussy[i] = datamatrix(zi.rows()+1,1,0);
     }
-
-//  make_index(time,z);
-//  make_index2();
-//  make_Bspline(time,true);
-//  make_BS(z);
 
   for(i=0;i<zi.rows();i++)
     {
@@ -137,7 +132,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
     gaussy[i](zi.rows(),0)=maxzi;
 //    gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true,knot);
     gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true);
-    }
+    }*/
 
 //------------------------------------------------------------------------------------------------------*/
 
@@ -157,6 +152,7 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
   make_index2();
   make_Bspline(time,true);
   make_BS(z);
+
 
 // xvalues und fchelp initialisieren
   ST::string pnt = fp.substr(0,fp.length()-4)+"_fchelp.raw";
@@ -292,7 +288,6 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
 
   Weibull = wb;
 
-//-----------------linkstrunkiert oder zeitl. variierende Kovariablen?--------
   if(anfang.rows()==1)
     {
     begin0 = true;
@@ -304,7 +299,8 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
     beg_i = anfang;
     }
 
-  zi_ges = datamatrix(2*zi.rows(),1,0);
+//-----------------linkstrunkiert oder zeitl. variierende Kovariablen?--------
+/*  zi_ges = datamatrix(2*zi.rows(),1,0);
 
   vector<datamatrix> gaussy(gauss_n);
   for(i=0;i<gauss_n;i++)
@@ -380,10 +376,8 @@ pspline_baseline::pspline_baseline(MCMCoptions * o,DISTRIBUTION * dp,FULLCOND_co
     gaussy[i](zi.rows(),0)=maxzi;
 //    gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true,knot);
     gaussmat[i] = MCMC::bsplinemat(gaussy[i],nrk,degr,kp,true);
-    }
+    }*/
 //-----------------------------------------------------------------------------
-
-
 
   oldacceptance = 0;
   oldnrtrials = 0;
