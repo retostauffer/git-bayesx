@@ -814,6 +814,82 @@ void FC_linear::reset(void)
   }
 
 
+//------------------------------------------------------------------------------
+//------------------------------- FC_linear_pen --------------------------------
+//------------------------------------------------------------------------------
+
+
+FC_linear_pen::FC_linear_pen(void)
+  {
+  }
+
+
+
+
+FC_linear_pen::FC_linear_pen(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
+                    datamatrix & d,
+                 vector<ST::string> & vn, const ST::string & t,
+                 const ST::string & fp,bool cent)
+     : FC_linear(mp,o,lp,d,vn,t,fp,cent)
+  {
+
+
+  }
+
+
+FC_linear_pen::FC_linear_pen(const FC_linear_pen & m)
+  : FC_linear(FC_linear(m))
+  {
+  }
+
+
+const FC_linear_pen & FC_linear_pen::operator=(const FC_linear_pen & m)
+  {
+
+  if (this==&m)
+	 return *this;
+  FC_linear::operator=(FC_linear(m));
+  return *this;
+  }
+
+
+
+void FC_linear_pen::update(void)
+  {
+  FC_linear::update();
+  }
+
+
+
+bool FC_linear_pen::posteriormode(void)
+  {
+  return FC_linear::posteriormode();
+  }
+
+
+
+
+void FC_linear_pen::outoptions(void)
+  {
+//  optionsp->out("  OPTIONS FOR TERM: " + title + "\n",true);
+//  optionsp->out("\n");
+  }
+
+void FC_linear_pen::outresults(ofstream & out_stata,ofstream & out_R,
+                           const ST::string & pathresults)
+  {
+  FC_linear::outresults(out_stata,out_R,pathresults);
+  }
+
+
+void FC_linear_pen::reset(void)
+  {
+
+  }
+
+
+
+
 } // end: namespace MCMC
 
 

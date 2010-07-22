@@ -20,6 +20,7 @@
 
 #include"distr.h"
 #include"distr_categorical.h"
+#include"distr_mixture.h"
 
 #include"design.h"
 #include"design_pspline.h"
@@ -35,6 +36,7 @@
 #include"FC_hrandom.h"
 #include"FC_mult.h"
 #include"FC_nonp_variance.h"
+#include"FC_variance_pen_vector.h"
 #include"FC_hrandom_variance.h"
 #include"FC_cv.h"
 
@@ -50,6 +52,7 @@ using MCMC::GENERAL_OPTIONS;
 
 using MCMC::DISTR;
 using MCMC::DISTR_gaussian;
+using MCMC::DISTR_gaussianmixture;
 using MCMC::DISTR_quantreg;
 using MCMC::DISTR_loggaussian;
 using MCMC::DISTR_gaussian_re;
@@ -73,10 +76,9 @@ using MCMC::FC_nonp;
 using MCMC::FC_linear;
 using MCMC::FC_mult;
 using MCMC::FC_hrandom;
-
 using MCMC::FC_nonp_variance;
 using MCMC::FC_hrandom_variance;
-
+using MCMC::FC_variance_pen_vector;
 
 using MCMC::MCMCsim;
 
@@ -192,7 +194,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
 //---------------------------------- DISTR  ------------------------------------
 
   vector<DISTR_gaussian> distr_gaussians;
-  vector<DISTR_quantreg> distr_quantregs;  
+  vector<DISTR_quantreg> distr_quantregs;
+  vector<DISTR_gaussianmixture> distr_gaussianmixtures;
   vector<DISTR_loggaussian> distr_loggaussians;
   vector<DISTR_gaussian_re> distr_gaussian_res;
   vector<DISTR_gaussian_exp> distr_gaussian_exps;
@@ -234,7 +237,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   void create_predictive_check(void);
 
   FC_cv FCcv;
-  void create_cv(void);  
+  void create_cv(void);
 
   //----------------------------------------------------------------------------
 
@@ -246,6 +249,15 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_linear> FC_linears;
 
   bool create_linear(void);
+
+  //----------------------------------------------------------------------------
+
+  vector<FC_variance_pen_vector> FC_variance_pen_vectors;
+
+  bool create_pen(unsigned i);
+  bool create_pen_final(unsigned i);
+
+  //----------------------- for penalized linear terms -------------------------
 
   //----------------------------------------------------------------------------
 

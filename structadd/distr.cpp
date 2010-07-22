@@ -1193,7 +1193,7 @@ const DISTR_quantreg & DISTR_quantreg::operator=(
   {
   if (this==&nd)
     return *this;
-  DISTR_quantreg::operator=(DISTR_quantreg(nd));
+  DISTR_gaussian::operator=(DISTR_gaussian(nd));
   quantile = nd.quantile;
   xi = nd.xi;
   xi2 = nd.xi2;

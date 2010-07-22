@@ -89,6 +89,8 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("kriging");
   tnames.push_back("hrandom_pspline");
   tnames.push_back("hrandomexp_pspline");
+  tnames.push_back("pen");  
+
 
 
   tnonp = term_nonp(tnames);
@@ -111,6 +113,7 @@ void superbayesreg::create_hregress(void)
 
   families.reserve(20);
   families.push_back("gaussian");
+  families.push_back("gaussian_mixture");  
   families.push_back("loggaussian");
   families.push_back("quantreg");  
   families.push_back("gaussian_re");
@@ -246,6 +249,10 @@ void superbayesreg::clear(void)
   distr_gaussians.erase(distr_gaussians.begin(),distr_gaussians.end());
   distr_gaussians.reserve(10);
 
+  distr_gaussianmixtures.erase(distr_gaussianmixtures.begin(),
+  distr_gaussianmixtures.end());
+  distr_gaussianmixtures.reserve(10);
+
   distr_quantregs.erase(distr_quantregs.begin(),distr_quantregs.end());
   distr_quantregs.reserve(10);
 
@@ -299,6 +306,12 @@ void superbayesreg::clear(void)
 
   FC_nonp_variances.erase(FC_nonp_variances.begin(),FC_nonp_variances.end());
   FC_nonp_variances.reserve(30);
+
+
+  FC_variance_pen_vectors.erase(FC_variance_pen_vectors.begin(),
+                                FC_variance_pen_vectors.end());
+  FC_variance_pen_vectors.reserve(30);
+
 
   FC_hrandom_variances.erase(FC_hrandom_variances.begin(),
   FC_hrandom_variances.end());
@@ -373,6 +386,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
 
   distr_gaussians = b.distr_gaussians;
   distr_quantregs = b.distr_quantregs;
+  distr_gaussianmixtures = b.distr_gaussianmixtures;
   distr_loggaussians = b.distr_loggaussians;
   distr_gaussian_res = b.distr_gaussian_res;
   distr_gaussian_exps = b.distr_gaussian_exps;
@@ -430,6 +444,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 
   distr_gaussians = b.distr_gaussians;
   distr_quantregs = b.distr_quantregs;
+  distr_gaussianmixtures = b.distr_gaussianmixtures;
   distr_loggaussians = b.distr_loggaussians;
   distr_gaussian_res = b.distr_gaussian_res;
   distr_gaussian_exps = b.distr_gaussian_exps;
@@ -836,6 +851,22 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------- END: quantreg response -----------------------------
+
+//-------------------------- gaussian_mixture response -------------------------
+  else if (family.getvalue() == "gaussian_mixture")
+    {
+
+    ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+
+    distr_gaussianmixtures.push_back(DISTR_gaussianmixture(aresp.getvalue(),
+                                              bresp.getvalue(),
+                                     &generaloptions,D.getCol(0),path,w) );
+
+    equations[modnr].distrp = &distr_gaussianmixtures[distr_gaussianmixtures.size()-1];
+    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+
+    }
+//------------------------- END: gaussian mixture response ---------------------
 
 //--------------- Gaussian response, exponential response function -------------
   else if (family.getvalue() == "gaussian_exp")
@@ -1401,6 +1432,22 @@ bool superbayesreg::create_kriging(unsigned i)
   }
 
 
+bool superbayesreg::create_pen(unsigned i)
+  {
+
+
+  return false;
+  }
+
+
+bool superbayesreg::create_pen_final(unsigned i)
+  {
+
+
+  return false;
+  }
+
+
 bool superbayesreg::create_nonp(void)
   {
 
@@ -1422,6 +1469,8 @@ bool superbayesreg::create_nonp(void)
       if ((terms[i].options[0] == "hrandom_pspline") ||
           (terms[i].options[0] == "hrandomexp_pspline"))
         error = create_random_pspline(i);
+      if (terms[i].options[0] == "pen")
+        error = create_pen(i);
       }
 
     if (error)

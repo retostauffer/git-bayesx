@@ -154,6 +154,73 @@ class __EXPORT_TYPE FC_linear  : public FC
   };
 
 
+//------------------------------------------------------------------------------
+//------------------------ CLASS: FC_linear_pen --------------------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE FC_linear_pen  : public FC_linear
+  {
+
+  protected:
+
+
+  public:
+
+//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
+
+  // DEFAULT CONSTRUCTOR
+
+  FC_linear_pen(void);
+
+  // CONSTRUCTOR
+
+  FC_linear_pen(MASTER_OBJ * mp, GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
+            vector<ST::string> & vn, const ST::string & t,
+           const ST::string & fp,bool cent);
+
+  // COPY CONSTRUCTOR
+
+  FC_linear_pen(const FC_linear_pen & m);
+
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const FC_linear_pen & operator=(const FC_linear_pen & m);
+
+  // DESTRUCTOR
+
+  ~FC_linear_pen()
+    {
+    }
+
+  // FUNCTION: update
+  // TASK: - stores sampled parameters in file 'samplepath'
+  //         storing order: first row, second row, ...
+
+  void update(void);
+
+  // FUNCTION: posteriormode
+
+  bool posteriormode(void);
+
+  // FUNCTION: outoptions
+
+  void outoptions(void);
+
+  // FUNCTION: outresults
+
+  void outresults(ofstream & out_stata,ofstream & out_R,
+                  const ST::string & pathresults);
+
+  // FUNCTION: reset
+
+  void reset(void);
+
+  };
+
+
+
 } // end: namespace MCMC
 
 #endif
