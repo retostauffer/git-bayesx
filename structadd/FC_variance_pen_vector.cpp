@@ -13,6 +13,16 @@ namespace MCMC
 
 using randnumbers::rand_inv_gaussian;
 
+
+void FC_variance_pen_vector::add_variable(datamatrix & x,
+                    double la, double shrink,
+                    bool sfix, double a, double b)
+  {
+
+  }                    
+
+
+
 void FC_variance_pen_vector::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   {
 
@@ -67,68 +77,36 @@ void FC_variance_pen_vector::read_options(vector<ST::string> & op,vector<ST::str
 //______________________________________________________________________________
 
 FC_variance_pen_vector::FC_variance_pen_vector(MASTER_OBJ * mp,
-                                          GENERAL_OPTIONS * o, FC_linear * p,
+                                          GENERAL_OPTIONS * o, FC_linear_pen * p,
                                           DISTR * d,const ST::string & ti,
-                         const ST::string & fp, const ST::string & fr,
-                         const vector<unsigned> & ct, vector<ST::string> & op,
+                         const ST::string & fp, bool isr,
+                          vector<ST::string> & op,
                          vector<ST::string> & vn)
                          : FC(o,ti,1,1,fp)
     {
 
     read_options(op,vn);
 
-    update_sigma2 = true;
+    is_ridge = isr;
 
-    pathresults = fr;
+    update_sigma2 = true;
 
     Cp = p;
 
     distrp = d;
 
-    cut = ct;
-
-
-
     priorassumptions.push_back("\\\\");
 
-    ST::string path = pathresults.substr(0,pathresults.length()-4)+"_shrinkage.raw";
 
-    /*
-    fc_shrinkage = FULLCOND(o,datamatrix(1,1),Cp[0]->get_title()+"_shrinkage",1,1,path);
-    fc_shrinkage.setflags(MCMC::norelchange | MCMC::nooutput);
+    // vector<ST::string> varnames = fc_shrinkage.get_datanames();
 
-    vector<ST::string> varnames = fc_shrinkage.get_datanames();
 
-    // current value of shrinkageparameter lambda
-    double * shrinkagep = fc_shrinkage.getbetapointer();
-
-    // Startwerte setzen aus Option
-    * shrinkagep = shrinkage_start;
-    shrinkagefix = shrinkage_fix;
-    a_shrinkagegamma = a_shrinkage_gamma;
-    b_shrinkagegamma = b_shrinkage_gamma;
-    */
 
     //Initialisieren der Betamatrizen für die Varianzan + Übergabe der Startwerte
-    /*
-    datamatrix help;
-    if (is_ridge == 0)                                       // L1-penalty
-      {
-      lassosum = 0;
-      help = datamatrix(cut[cut.size()-1],1,0);
-      }
-    if (is_ridge == 1)                                       // L2-penalty
-      {
-      ridgesum = 0;
-      help = datamatrix(cut[cut.size()-1],1,0);
-      }
 
-    unsigned i;
-    for(i=0; i<cut.size()-1; i++)
-      help.putRowBlock(cut[i],cut[i+1],Cp[i]->get_variances());
-    setbeta(help);
-    */
-//    variances = datamatrix(beta.rows(), 1, 0);
+    lassosum = 0;
+    ridgesum = 0;
+
     }
 //______________________________________________________________________________
 //
@@ -141,16 +119,15 @@ FC_variance_pen_vector::FC_variance_pen_vector(const FC_variance_pen_vector & t)
   tau = t.tau;
   lambda = t.lambda;
   update_sigma2 = t.update_sigma2;
-  pathresults = t.pathresults;
   Cp = t.Cp;
   distrp = t.distrp;
-  // fc_shrinkage = t.fc_shrinkage;
+  fc_shrinkage = t.fc_shrinkage;
   shrinkagefix = t.shrinkagefix;
   a_shrinkagegamma = t.a_shrinkagegamma;
   b_shrinkagegamma = t.b_shrinkagegamma;
+  shrinkagestart = t.shrinkagestart;
   lassosum = t.lassosum;
   ridgesum = t.ridgesum;
-  cut = t.cut;
   is_ridge = t.is_ridge;
   }
 
@@ -166,34 +143,28 @@ const FC_variance_pen_vector & FC_variance_pen_vector::operator=(
   if (this == &t)
     return *this;
   FC::operator=(FC(t));
-
   tau = t.tau;
   lambda = t.lambda;
   update_sigma2 = t.update_sigma2;
-  pathresults = t.pathresults;
   Cp = t.Cp;
   distrp = t.distrp;
-  //fc_shrinkage = t.fc_shrinkage;
+  fc_shrinkage = t.fc_shrinkage;
   shrinkagefix = t.shrinkagefix;
   a_shrinkagegamma = t.a_shrinkagegamma;
   b_shrinkagegamma = t.b_shrinkagegamma;
+  shrinkagestart = t.shrinkagestart;
   lassosum = t.lassosum;
   ridgesum = t.ridgesum;
-  cut = t.cut;
   is_ridge = t.is_ridge;
-
-
   return *this;
   }
 
 
-  // Pointer auf das Shrinkagearameter lambda Fullcond-Objekt
-/*
-FULLCOND * FULLCOND_variance_nonp_vector::get_shrinkagepointer()
+bool FC_variance_pen_vector::posteriormode(void)
   {
-  return &fc_shrinkage;
+  return true;
   }
-*/
+
 
 //______________________________________________________________________________
 //
@@ -204,7 +175,15 @@ FULLCOND * FULLCOND_variance_nonp_vector::get_shrinkagepointer()
 
 void FC_variance_pen_vector::update(void)
   {
+
+
+
+
+  fc_shrinkage = FC(optionsp,"",shrinkagefix.size(),1,samplepath + ".shrinkage");
+
   /*
+  double * shrinkagep fc_skrinkage.beta.getV();
+
   acceptance++;
   unsigned i, j, k;
 
@@ -405,16 +384,14 @@ void FC_variance_pen_vector::outresults(ofstream & out_stata, ofstream & out_R,
 
 void FC_variance_pen_vector::get_samples(const ST::string & filename,ofstream & outg) const
   {
-  /*
-  FULLCOND::get_samples(filename, step);
+
+  FC::get_samples(filename,outg);
 
 
-  ST::string pathhelp = pathresults.substr(0,pathresults.length()-7)+"shrinkage_sample.raw";
+  ST::string pathhelp = filename.substr(0,filename.length()-7)+"shrinkage_sample.raw";
 
-  optionsp->out(pathhelp + "\n");
-  optionsp->out("\n");
-  fc_shrinkage.get_samples(pathhelp);
-  */
+  fc_shrinkage.get_samples(pathhelp,outg);
+
   }
 
 //______________________________________________________________________________

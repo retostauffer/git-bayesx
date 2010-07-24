@@ -74,6 +74,7 @@ using MCMC::FC_predictive_check;
 using MCMC::FC_cv;
 using MCMC::FC_nonp;
 using MCMC::FC_linear;
+using MCMC::FC_linear_pen;
 using MCMC::FC_mult;
 using MCMC::FC_hrandom;
 using MCMC::FC_nonp_variance;
@@ -252,12 +253,20 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   //----------------------------------------------------------------------------
 
+  //----------------------- for penalized linear terms -------------------------
+
+  int ridge;
+  int lasso;
+  int ridge_linear;
+  int lasso_linear;
+
+  vector<FC_linear_pen> FC_linear_pens;
   vector<FC_variance_pen_vector> FC_variance_pen_vectors;
 
-  bool create_pen(unsigned i);
-  bool create_pen_final(unsigned i);
+  bool create_ridge_lasso(unsigned i);
 
-  //----------------------- for penalized linear terms -------------------------
+
+  //----------------------- end for penalized linear terms ---------------------
 
   //----------------------------------------------------------------------------
 

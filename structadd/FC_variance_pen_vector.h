@@ -21,30 +21,27 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
 
   protected:
 
-  vector<double> tau;               // Varianceparameters
+  vector<double> tau;               // tau^2
   vector<double> lambda;            // Inverse Varianceparameter: lambda=1/tau^2
 
   bool update_sigma2;
 
-  ST::string pathresults;           //  File path for storing sampled parameters
-
-  FC_linear * Cp;
+  FC_linear_pen * Cp;
 
   DISTR * distrp;
 
-  // FULLCOND fc_shrinkage;
-  bool shrinkagefix;                //  Shrinkageparameter fix
-  double a_shrinkagegamma;          //  Hyperparameter for Shrinkageparameter
-  double b_shrinkagegamma;          //  Hyperparameter for Shrinkageparameter
+  FC fc_shrinkage;
+  vector<bool> shrinkagefix;          //  Shrinkageparameter fix
+  vector<double> a_shrinkagegamma;    //  Hyperparameter for Shrinkageparameter
+  vector<double> b_shrinkagegamma;    //  Hyperparameter for Shrinkageparameter
+  vector<double> shrinkagestart;
+
 
   double lassosum;                  //  sum(beta^2/tau^2)
   double ridgesum;                  //  sum(beta^2/tau^2)
 
-  vector<unsigned> cut;             //  Blocks of regression coefficients
-  bool is_ridge;                    //  The Components indicates if "true" the L2-penalty
-                                    //  and if "false" the L1-penalty is used
-
-//  datamatrix variances;              // current values of the variances
+  bool is_ridge;          //  The Components indicates if "true" the L2-penalty
+                         //  and if "false" the L1-penalty is used
 
   void outresults_shrinkage(void);  //  Function to write results to output window and files
 
@@ -65,10 +62,10 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
   // CONSTRUCTOR
   //____________________________________________________________________________
 
-  FC_variance_pen_vector(MASTER_OBJ * mp,GENERAL_OPTIONS * o, FC_linear * p,
+  FC_variance_pen_vector(MASTER_OBJ * mp,GENERAL_OPTIONS * o, FC_linear_pen * p,
                          DISTR * d,const ST::string & ti,
-                         const ST::string & fp, const ST::string & fr,
-                         const vector<unsigned> & ct, vector<ST::string> & op,
+                         const ST::string & fp, bool isr,
+                         vector<ST::string> & op,
                          vector<ST::string> & vn);
 
   //____________________________________________________________________________
@@ -86,6 +83,9 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
 
   const FC_variance_pen_vector & operator=(const FC_variance_pen_vector & t);
 
+
+  void add_variable(datamatrix & x, double la, double shrink,
+                    bool sfix, double a, double b);
 
   //____________________________________________________________________________
   //
@@ -110,6 +110,11 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
 
   void update(void);
 
+  // FUNCTION: posteriormode
+  // TASK: computes the posterior mode
+
+  bool posteriormode(void);
+  
 
   //____________________________________________________________________________
   //

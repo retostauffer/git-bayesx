@@ -89,7 +89,8 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("kriging");
   tnames.push_back("hrandom_pspline");
   tnames.push_back("hrandomexp_pspline");
-  tnames.push_back("pen");  
+  tnames.push_back("ridge");
+  tnames.push_back("lasso");    
 
 
 
@@ -308,6 +309,9 @@ void superbayesreg::clear(void)
   FC_nonp_variances.reserve(30);
 
 
+  FC_linear_pens.erase(FC_linear_pens.begin(),FC_linear_pens.end());
+  FC_linear_pens.reserve(30);
+
   FC_variance_pen_vectors.erase(FC_variance_pen_vectors.begin(),
                                 FC_variance_pen_vectors.end());
   FC_variance_pen_vectors.reserve(30);
@@ -406,6 +410,13 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   FC_predicts = b.FC_predicts;
   FC_predictive_checks = b.FC_predictive_checks;
 
+  ridge = b.ridge;
+  lasso = b.lasso;
+  ridge_linear = b.ridge_linear;
+  lasso_linear = b.lasso_linear;
+  FC_variance_pen_vectors = b.FC_variance_pen_vectors;
+  FC_linear_pens = b.FC_linear_pens;
+
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
 
@@ -463,6 +474,13 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   FC_nonp_variances = b.FC_nonp_variances;
   FC_predicts = b.FC_predicts;
   FC_predictive_checks = b.FC_predictive_checks;
+
+  ridge = b.ridge;
+  lasso = b.lasso;
+  ridge_linear = b.ridge_linear;
+  lasso_linear = b.lasso_linear;
+  FC_variance_pen_vectors = b.FC_variance_pen_vectors;
+  FC_linear_pens = b.FC_linear_pens;
 
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
@@ -592,8 +610,6 @@ void hregressrun(superbayesreg & b)
   unsigned modnr = b.equations.size()-1;
 
   b.make_header(modnr);
-
-
 
   bool failure = false;
 
@@ -1432,20 +1448,126 @@ bool superbayesreg::create_kriging(unsigned i)
   }
 
 
-bool superbayesreg::create_pen(unsigned i)
+bool superbayesreg::create_ridge_lasso(unsigned i)
   {
+  bool isridge;
+  if (terms[i].options[0] == "ridge")
+    isridge = true;
+  else
+    isridge = false;
 
+  if ( ( (ridge == -1) && (terms[i].options[0] == "ridge")  ) ||
+       ( (lasso == -1) && (terms[i].options[0] == "lasso")  )
+     )
+    {
+
+    unsigned modnr = equations.size()-1;
+
+    ST::string title;
+    ST::string pathpen;
+    ST::string pathpenres;
+
+    ST::string titlevar;
+    ST::string pathpenvar;
+    ST::string pathpenresvar;
+
+
+    ST::string h = equations[modnr].paths;
+
+    if (isridge)
+      {
+
+      title = h + ": linear effects with ridge penalty";
+
+      pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                             + "_LinearEffects_ridgepenalty"  +
+                             "_" + h + ".raw";
+
+      pathpenres = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_ridgepenalty.res";
+
+      titlevar = h + ": linear effects with ridge penalty (var)";
+
+      pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                             + "_LinearEffects_ridgepenalty_var"  +
+                             "_" + h + ".raw";
+
+      pathpenres = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_ridgepenalty_var.res";
+
+      }
+    else
+      {
+      title = h + ": linear effects with lasso penalty";
+
+      pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                             + "_LinearEffects_lassopenalty"  +
+                             "_" + h + ".raw";
+
+      pathpenres = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_lassopenalty.res";
+
+      titlevar = h + ": linear effects with lasso penalty (var)";
+
+      pathpenvar = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                             + "_LinearEffects_lassopenalty_var"  +
+                             "_" + h + ".raw";
+
+      pathpenresvar = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_lassopenalty_var.res";
+
+      }
+
+
+    if (pathpen.isvalidfile() == 1)
+      {
+      errormessages.push_back("ERROR: unable to open file " + pathpen +
+                                 " for writing\n");
+      return true;
+      }
+
+
+    datamatrix d,iv;
+    extract_data(i,d,iv,1);
+
+    FC_linear_pens.push_back(FC_linear_pen(&master,&generaloptions,
+                         equations[modnr].distrp,d,terms[i].varnames,title,
+                         pathpen, centerlinear.getvalue()));
+
+    equations[modnr].add_FC(&FC_linear_pens[FC_linear_pens.size()-1],pathpenres);
+
+    FC_variance_pen_vectors.push_back(
+    FC_variance_pen_vector(&master,&generaloptions,
+                            &(FC_linear_pens[FC_linear_pens.size()-1])  ,
+                            equations[modnr].distrp,titlevar, pathpenvar,
+                            isridge,
+                            terms[i].options,terms[i].varnames));
+
+    if (isridge)
+      {
+      ridge_linear = FC_linear_pens.size()-1;
+      ridge = FC_variance_pen_vectors.size()-1;
+      }
+    else
+      {
+      lasso_linear = FC_linear_pens.size()-1;
+      lasso = FC_variance_pen_vectors.size()-1;
+      }
+
+    equations[modnr].add_FC(&FC_variance_pen_vectors[
+    FC_variance_pen_vectors.size()-1],pathpenresvar);
+
+    }
+  else
+    {
+
+
+
+    }
 
   return false;
   }
 
-
-bool superbayesreg::create_pen_final(unsigned i)
-  {
-
-
-  return false;
-  }
 
 
 bool superbayesreg::create_nonp(void)
@@ -1453,6 +1575,11 @@ bool superbayesreg::create_nonp(void)
 
   unsigned i;
   bool error=false;
+
+  lasso = -1;
+  ridge = -1;
+  lasso_linear = -1;
+  ridge_linear = -1;
 
   for(i=0;i<terms.size();i++)
     {
@@ -1469,8 +1596,10 @@ bool superbayesreg::create_nonp(void)
       if ((terms[i].options[0] == "hrandom_pspline") ||
           (terms[i].options[0] == "hrandomexp_pspline"))
         error = create_random_pspline(i);
-      if (terms[i].options[0] == "pen")
-        error = create_pen(i);
+      if (terms[i].options[0] == "ridge")
+        error = create_ridge_lasso(i);
+      if (terms[i].options[0] == "lasso")
+        error = create_ridge_lasso(i);
       }
 
     if (error)

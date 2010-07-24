@@ -54,7 +54,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   simpleoption derivative;
   simpleoption samplederivative;
   simpleoption samplef;
-  
+  doubleoption shrinkage;
+  simpleoption shrinkagefix;
 
   vector<ST::string> termnames;
 

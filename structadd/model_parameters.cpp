@@ -9,6 +9,8 @@
 
 term_nonp::term_nonp(vector<ST::string> & na)
   {
+
+  // DO NOT CHANGE ORDER!!!!
   termnames = na;
   degree=intoption("degree",3,0,5);
   numberknots=intoption("nrknots",20,5,500);
@@ -63,6 +65,9 @@ term_nonp::term_nonp(vector<ST::string> & na)
   derivative = simpleoption("derivative",false);
   samplederivative = simpleoption("samplederivative",false);
   samplef = simpleoption("samplef",false);
+  shrinkage = doubleoption("shrinkage",1,0,10000000);
+  shrinkagefix = simpleoption("shrinkagefix",false);
+
 
   }
 
@@ -96,6 +101,8 @@ void term_nonp::setdefault(void)
   derivative.setdefault();
   samplederivative.setdefault();
   samplef.setdefault();
+  shrinkage.setdefault();
+  shrinkagefix.setdefault();
   }
 
 
@@ -122,7 +129,7 @@ bool term_nonp::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 50) )
+        && (t.options.size() <= 100) )
     {
 
     bool f = false;
@@ -173,7 +180,10 @@ bool term_nonp::check(term & t)
     optlist.push_back(&sum2);
     optlist.push_back(&derivative);
     optlist.push_back(&samplederivative);
-    optlist.push_back(&samplef);        
+    optlist.push_back(&samplef);
+    optlist.push_back(&shrinkage);
+    optlist.push_back(&shrinkagefix);
+
 
     unsigned i;
     bool rec = true;
@@ -198,7 +208,7 @@ bool term_nonp::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(50);
+    t.options = vector<ST::string>(100);
     t.options[0] = termnames[namespos];
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -280,6 +290,13 @@ bool term_nonp::check(term & t)
       t.options[28] = "false";
     else
       t.options[28] = "true";
+
+    t.options[29] = ST::doubletostring(shrinkage.getvalue());
+
+    if(shrinkagefix.getvalue() == false)
+      t.options[30] = "false";
+    else
+      t.options[30] = "true";
 
     setdefault();
     return true;
