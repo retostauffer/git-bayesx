@@ -1488,11 +1488,11 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
 
       titlevar = h + ": linear effects with ridge penalty (var)";
 
-      pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+      pathpenvar = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                              + "_LinearEffects_ridgepenalty_var"  +
                              "_" + h + ".raw";
 
-      pathpenres = outfile.getvalue() + "_" + h +
+      pathpenresvar = outfile.getvalue() + "_" + h +
                    "_LinearEffects_ridgepenalty_var.res";
 
       }
@@ -1540,18 +1540,21 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
     FC_variance_pen_vector(&master,&generaloptions,
                             &(FC_linear_pens[FC_linear_pens.size()-1])  ,
                             equations[modnr].distrp,titlevar, pathpenvar,
-                            isridge,
-                            terms[i].options,terms[i].varnames));
+                            isridge));
 
     if (isridge)
       {
       ridge_linear = FC_linear_pens.size()-1;
       ridge = FC_variance_pen_vectors.size()-1;
+      FC_variance_pen_vectors[ridge].add_variable(d,terms[i].options,
+                                                  terms[i].varnames);
       }
     else
       {
       lasso_linear = FC_linear_pens.size()-1;
       lasso = FC_variance_pen_vectors.size()-1;
+      FC_variance_pen_vectors[lasso].add_variable(d,terms[i].options,
+                                                  terms[i].varnames);
       }
 
     equations[modnr].add_FC(&FC_variance_pen_vectors[
@@ -1560,8 +1563,21 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
     }
   else
     {
+    datamatrix d,iv;
+    extract_data(i,d,iv,1);
 
-
+    if (isridge)
+      {
+      FC_linear_pens[ridge_linear].add_variable(d,terms[i].varnames[0]);
+      FC_variance_pen_vectors[ridge].add_variable(d,terms[i].options,
+                                                  terms[i].varnames);
+      }
+    else
+      {
+      FC_linear_pens[lasso_linear].add_variable(d,terms[i].varnames[0]);
+      FC_variance_pen_vectors[lasso].add_variable(d,terms[i].options,
+                                                  terms[i].varnames);
+      }
 
     }
 

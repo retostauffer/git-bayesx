@@ -67,7 +67,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   samplef = simpleoption("samplef",false);
   shrinkage = doubleoption("shrinkage",1,0,10000000);
   shrinkagefix = simpleoption("shrinkagefix",false);
-
+  shrinkageweight = doubleoption("shrinkageweight",1,0,10000000);
 
   }
 
@@ -103,6 +103,7 @@ void term_nonp::setdefault(void)
   samplef.setdefault();
   shrinkage.setdefault();
   shrinkagefix.setdefault();
+  shrinkageweight.setdefault();
   }
 
 
@@ -183,6 +184,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&samplef);
     optlist.push_back(&shrinkage);
     optlist.push_back(&shrinkagefix);
+    optlist.push_back(&shrinkageweight);
 
 
     unsigned i;
@@ -297,6 +299,8 @@ bool term_nonp::check(term & t)
       t.options[30] = "false";
     else
       t.options[30] = "true";
+
+    t.options[31] = ST::doubletostring(shrinkageweight.getvalue());
 
     setdefault();
     return true;

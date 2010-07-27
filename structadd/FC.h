@@ -257,6 +257,14 @@ class __EXPORT_TYPE FC
   virtual void outresults(ofstream & out_stata, ofstream & out_R,
                const ST::string & pathresults);
 
+  // FUNCTION: outresults_help
+  // TASK: writes output in table form (similar to linear effects)
+
+  void outresults_help(ofstream & out_stata, ofstream & out_R,
+                    const ST::string & pathresults,
+                    const vector<ST::string> & datanames);
+
+
   void outresults_acceptance(void);
 
   // FUNCTION: reset

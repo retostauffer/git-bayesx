@@ -35,6 +35,7 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
   vector<double> a_shrinkagegamma;    //  Hyperparameter for Shrinkageparameter
   vector<double> b_shrinkagegamma;    //  Hyperparameter for Shrinkageparameter
   vector<double> shrinkagestart;
+  vector<double> shrinkageweight;
 
 
   double lassosum;                  //  sum(beta^2/tau^2)
@@ -64,9 +65,7 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
 
   FC_variance_pen_vector(MASTER_OBJ * mp,GENERAL_OPTIONS * o, FC_linear_pen * p,
                          DISTR * d,const ST::string & ti,
-                         const ST::string & fp, bool isr,
-                         vector<ST::string> & op,
-                         vector<ST::string> & vn);
+                         const ST::string & fp, bool isr);
 
   //____________________________________________________________________________
   //
@@ -84,16 +83,13 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
   const FC_variance_pen_vector & operator=(const FC_variance_pen_vector & t);
 
 
-  void add_variable(datamatrix & x, double la, double shrink,
-                    bool sfix, double a, double b);
+  void add_variable(datamatrix & x,vector<ST::string> & op,
+                         vector<ST::string> & vn);
 
   //____________________________________________________________________________
   //
   // OVERLOADED ASSIGNMENT OPERATOR
   //____________________________________________________________________________
-
-
-  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
 
   // Pointer auf das shrinkage-Parameter Fullcond-Objekt
@@ -114,7 +110,7 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
   // TASK: computes the posterior mode
 
   bool posteriormode(void);
-  
+
 
   //____________________________________________________________________________
   //

@@ -656,6 +656,8 @@ void FC_linear::outoptions(void)
 //  optionsp->out("\n");
   }
 
+
+/*
 void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
                            const ST::string & pathresults)
   {
@@ -794,7 +796,7 @@ void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
           {
           if (k != constposition)
             {
-            optionsp->out("          " + datanames[k] + ": " + ST::doubletostring(mean_designcols(0,k),6) + "\n");  
+            optionsp->out("          " + datanames[k] + ": " + ST::doubletostring(mean_designcols(0,k),6) + "\n");
 
             }
 
@@ -803,6 +805,45 @@ void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
         }
 
       optionsp->out("\n");
+    }
+
+  }
+*/
+
+void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
+                           const ST::string & pathresults)
+  {
+  if (datanames.size() > 0)
+    {
+
+    FC::outresults(out_stata,out_R,pathresults);
+    FC::outresults_help(out_stata,out_R,pathresults,datanames);
+
+    optionsp->out("    Results for fixed effects are also stored in file\n");
+    optionsp->out("    " + pathresults + "\n");
+
+    if (center==true)
+      {
+      optionsp->out("\n");
+      optionsp->out("    Note: Covariates with linear effects are centered around zero before estimation\n");
+      optionsp->out("          Centering of covariates may improve the mixing of the MCMC sampler while\n");
+      optionsp->out("          the regression coefficents are unchanged\n");
+      optionsp->out("          However the intercept is changed due to the centering of covariates.\n");
+      optionsp->out("          The means of the covariates are:\n");
+      unsigned k;
+      for (k=0;k<mean_designcols.cols();k++)
+        {
+        if (k != constposition)
+          {
+          optionsp->out("          " + datanames[k] + ": " + ST::doubletostring(mean_designcols(0,k),6) + "\n");
+          }
+
+        }
+
+      } // end: if (center==true)
+
+    optionsp->out("\n");
+
     }
 
   }

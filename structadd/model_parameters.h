@@ -56,6 +56,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   simpleoption samplef;
   doubleoption shrinkage;
   simpleoption shrinkagefix;
+  doubleoption shrinkageweight;
 
   vector<ST::string> termnames;
 

@@ -4,7 +4,7 @@
 
 
 //------------------------------------------------------------------------------
-//-- CLASS: FC_variance_pen_vector implementation of member functions -----------
+//-- CLASS: FC_variance_pen_vector implementation of member functions ----------
 //------------------------------------------------------------------------------
 
 
@@ -15,45 +15,33 @@ using randnumbers::rand_inv_gaussian;
 
 
 void FC_variance_pen_vector::add_variable(datamatrix & x,
-                    double la, double shrink,
-                    bool sfix, double a, double b)
+                         vector<ST::string> & op,
+                         vector<ST::string> & vn)
   {
 
-  }                    
+  int f;
+  double la;
+  double shrink;
+  bool sfix;
+  double a,b;
+  double shw;
 
+  f = op[4].strtodouble(la);
+  f = op[29].strtodouble(shrink);
+  if (op[30]=="true")
+    sfix = true;
+  else
+    sfix = false;
+  f = op[5].strtodouble(a);
+  f = op[6].strtodouble(b);
+  f = op[31].strtodouble(shw);
 
-
-void FC_variance_pen_vector::read_options(vector<ST::string> & op,vector<ST::string> & vn)
-  {
-
-  /*
-  1       degree
-  2       numberknots
-  3       difforder
-  4       lambda
-  5       a
-  6       b
-  7       center
-  8       map
-  9       lambda_re
-  10      a_re
-  11      b_re
-  12      internal_mult
-  13      samplemult
-  14      constraints
-  15      round
-  16      centermethod
-  17      internal_mult
-  18      pvalue
-  19      meaneffect
-  20      binning
-  21      update
-  */
-
-
-//  is_ridge = isridge;
-
-
+  lambda.push_back(la);
+  shrinkagestart.push_back(shrink);
+  shrinkagefix.push_back(sfix);
+  a_shrinkagegamma.push_back(a);
+  b_shrinkagegamma.push_back(b);
+  shrinkageweight.push_back(shw);
   }
 
 
@@ -79,13 +67,9 @@ void FC_variance_pen_vector::read_options(vector<ST::string> & op,vector<ST::str
 FC_variance_pen_vector::FC_variance_pen_vector(MASTER_OBJ * mp,
                                           GENERAL_OPTIONS * o, FC_linear_pen * p,
                                           DISTR * d,const ST::string & ti,
-                         const ST::string & fp, bool isr,
-                          vector<ST::string> & op,
-                         vector<ST::string> & vn)
+                         const ST::string & fp, bool isr)
                          : FC(o,ti,1,1,fp)
     {
-
-    read_options(op,vn);
 
     is_ridge = isr;
 
@@ -126,6 +110,7 @@ FC_variance_pen_vector::FC_variance_pen_vector(const FC_variance_pen_vector & t)
   a_shrinkagegamma = t.a_shrinkagegamma;
   b_shrinkagegamma = t.b_shrinkagegamma;
   shrinkagestart = t.shrinkagestart;
+  shrinkageweight = t.shrinkageweight;  
   lassosum = t.lassosum;
   ridgesum = t.ridgesum;
   is_ridge = t.is_ridge;
@@ -153,6 +138,7 @@ const FC_variance_pen_vector & FC_variance_pen_vector::operator=(
   a_shrinkagegamma = t.a_shrinkagegamma;
   b_shrinkagegamma = t.b_shrinkagegamma;
   shrinkagestart = t.shrinkagestart;
+  shrinkageweight = t.shrinkageweight;  
   lassosum = t.lassosum;
   ridgesum = t.ridgesum;
   is_ridge = t.is_ridge;
@@ -177,9 +163,7 @@ void FC_variance_pen_vector::update(void)
   {
 
 
-
-
-  fc_shrinkage = FC(optionsp,"",shrinkagefix.size(),1,samplepath + ".shrinkage");
+//  fc_shrinkage = FC(optionsp,"",shrinkagefix.size(),1,samplepath + ".shrinkage");
 
   /*
   double * shrinkagep fc_skrinkage.beta.getV();
@@ -315,7 +299,7 @@ void FC_variance_pen_vector::update(void)
 void FC_variance_pen_vector::outresults(ofstream & out_stata, ofstream & out_R,
                   const ST::string & pathresults)
   {
-  FC::outresults(out_stata,out_R,pathresults);
+  // FC::outresults(out_stata,out_R,pathresults);
 
   /*
   unsigned int i,j,k  = 0;
