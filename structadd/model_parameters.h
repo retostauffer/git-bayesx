@@ -58,6 +58,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   simpleoption shrinkagefix;
   doubleoption shrinkageweight;
   simpleoption adaptiveshrinkage;
+  doubleoption tau2;
 
   vector<ST::string> termnames;
 

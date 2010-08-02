@@ -80,7 +80,8 @@ class __EXPORT_TYPE FC_linear  : public FC
   // TASK: computes XWX on the basis of the current working weight and stores
   //       the result in r
 
-  void compute_XWX(datamatrix & r);
+  virtual void compute_XWX(datamatrix & r);
+  void compute_XWXroot(datamatrix & r);
   void compute_Wpartres(datamatrix & linpred);
   double compute_XtWpartres(double & mo);
 
@@ -164,8 +165,9 @@ class __EXPORT_TYPE FC_linear_pen  : public FC_linear
 
   protected:
 
-
   public:
+
+  datamatrix  tau2;
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
@@ -203,6 +205,8 @@ class __EXPORT_TYPE FC_linear_pen  : public FC_linear
   // FUNCTION: posteriormode
 
   bool posteriormode(void);
+
+  void compute_XWX(datamatrix & r);
 
   // FUNCTION: outoptions
 

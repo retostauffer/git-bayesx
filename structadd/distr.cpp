@@ -415,6 +415,12 @@ bool DISTR::posteriormode(void)
   }
 
 
+void DISTR::update_scale_hyperparameters(datamatrix & h)
+  {
+
+  }
+  
+
 double DISTR::compute_iwls(const bool & current, const bool & like)
   {
 
@@ -733,6 +739,8 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
 
   {
 
+  lassosum = 0;
+  ridgesum = 0;
 
   if (check_weightsone())
     wtype = wweightsnochange_one;
@@ -759,6 +767,10 @@ const DISTR_gaussian & DISTR_gaussian::operator=(
   DISTR::operator=(DISTR(nd));
   a_invgamma = nd.a_invgamma;
   b_invgamma = nd.b_invgamma;
+  lassosum = nd.lassosum;
+  ridgesum = nd.ridgesum;
+  nrlasso = nd.nrlasso;
+  nrridge = nd.nrridge;
   FCsigma2 = nd.FCsigma2;
   return *this;
   }
@@ -770,6 +782,10 @@ DISTR_gaussian::DISTR_gaussian(const DISTR_gaussian & nd)
   {
   a_invgamma = nd.a_invgamma;
   b_invgamma = nd.b_invgamma;
+  lassosum = nd.lassosum;
+  ridgesum = nd.ridgesum;
+  nrlasso = nd.nrlasso;
+  nrridge = nd.nrridge;
   FCsigma2 = nd.FCsigma2;
   }
 
@@ -831,6 +847,26 @@ void DISTR_gaussian::sample_responses_cv(unsigned i,datamatrix & linpred,
   }
 
 
+  // FUNCTION: update_scale_hyperparameters
+  // TASK: updates parameters for lasso, ridge etc.
+  //       h(0,0) = type, 1 =ridge, 2=lasso
+  //       h(1,0) = nrridge/nrlasso
+  //       h(2,0) = lassosum/ridgesum
+
+void DISTR_gaussian::update_scale_hyperparameters(datamatrix & h)
+  {
+   if (h(0,0) == 1)        //  ridge
+     {
+     nrridge = h(1,0);
+     ridgesum = h(2,0);
+     }
+   else if (h(0,0) == 2)   // lasso
+     {
+     nrlasso = h(1,0);
+     lassosum = h(2,0);
+     }
+  }
+
 
 void DISTR_gaussian::outoptions(void)
   {
@@ -882,8 +918,8 @@ void DISTR_gaussian::update(void)
     sum += *workweight*pow(help,2);
     }
 
-  sigma2  = rand_invgamma(a_invgamma+0.5*(nrobs-nrzeroweights),
-                          b_invgamma+0.5*sum);
+  sigma2  = rand_invgamma(a_invgamma+0.5*((nrobs-nrzeroweights)+nrlasso+nrridge),
+                          b_invgamma+0.5*(sum+lassosum+ridgesum));
 
 
   FCsigma2.beta(0,0) = sigma2;

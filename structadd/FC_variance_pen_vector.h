@@ -21,14 +21,14 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
 
   protected:
 
-  vector<double> tau;                 //  tau^2
-  vector<double> lambda;              //  Inverse Varianceparameter: lambda=1/tau^2
+  vector<double> tau2;                 //  tau^2
 
   bool update_sigma2;                 //  update sigma2
 
   FC_linear_pen * Cp;
 
   DISTR * distrp;
+  datamatrix shelp;
 
   FC FC_shrinkage;
   vector<bool> shrinkagefix;          //  Shrinkageparameter fix, at value shrinkagestart
@@ -39,8 +39,8 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
   vector<double> shrinkageweight;     //  Weights for shrinkage
 
 
-  double lassosum;                    //  sum(beta^2/tau^2)
-  double ridgesum;                    //  sum(beta^2/tau^2)
+  double pensum;                    //  sum(beta^2/tau^2)
+  int nrpen;
 
   bool is_ridge;          //  indicates if "true" the L2-penalty
                           //  and if "false" the L1-penalty is used

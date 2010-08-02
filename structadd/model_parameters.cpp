@@ -69,6 +69,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   shrinkagefix = simpleoption("shrinkagefix",false);
   shrinkageweight = doubleoption("shrinkageweight",1,0,10000000);
   adaptiveshrinkage = simpleoption("adaptive",false);
+  tau2 = doubleoption("tau2",1,0.000000000001,100000000); 
 
   }
 
@@ -106,6 +107,7 @@ void term_nonp::setdefault(void)
   shrinkagefix.setdefault();
   shrinkageweight.setdefault();
   adaptiveshrinkage.setdefault();
+  tau2.setdefault();
   }
 
 
@@ -187,6 +189,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&shrinkage);
     optlist.push_back(&shrinkagefix);
     optlist.push_back(&shrinkageweight);
+    optlist.push_back(&tau2);
 
 
     unsigned i;
@@ -303,11 +306,13 @@ bool term_nonp::check(term & t)
       t.options[30] = "true";
 
     t.options[31] = ST::doubletostring(shrinkageweight.getvalue());
-    
+
     if(adaptiveshrinkage.getvalue() == false)
       t.options[32] = "false";
     else
       t.options[32] = "true";
+
+    t.options[33] = ST::doubletostring(tau2.getvalue());
 
     setdefault();
     return true;
@@ -320,6 +325,5 @@ bool term_nonp::check(term & t)
     }
 
   }
-
 
 

@@ -235,9 +235,7 @@ void FC_linear::update_IWLS(void)
 
     double h = likep->compute_iwls(true,false);
 
-    compute_XWX(XWXold);
-
-    XWXroot = XWXold.root();
+    compute_XWXroot(XWXold);
 
     compute_Wpartres(linmode);
     Xtresidual.mult(Xt,residual);
@@ -321,13 +319,7 @@ void FC_linear::update_gaussian(void)
     if (!initialize)
       create_matrices();
 
-    if ((likep->wtype==wweightschange_weightsneqone) ||
-        (likep->wtype==wweightschange_weightsone) ||
-        (optionsp->nriter==1))
-      {
-      compute_XWX(XWX);
-      XWXroot = XWX.root();
-      }
+    compute_XWXroot(XWX);
 
     linold.mult(design,beta);
     compute_Wpartres(linold);
@@ -363,50 +355,66 @@ void FC_linear::update_gaussian(void)
 
 
 
+void FC_linear::compute_XWXroot(datamatrix & r)
+  {
+
+  compute_XWX(r);
+  XWXroot = r.root();
+  }
+
+
 void FC_linear::compute_XWX(datamatrix & r)
   {
-  unsigned i,j,k;
-  unsigned nrconst = beta.rows();
-  unsigned nrobs = Xt.cols();
-  double * Xt_ip;
-  double * Xt_jp;
-  double * workingweightp;
-  double help;
 
-  if (likep->wtype==wweightsnochange_one)
+  if ((likep->wtype==wweightschange_weightsneqone) ||
+      (likep->wtype==wweightschange_weightsone) ||
+      (optionsp->nriter<=1))
     {
-    for (i=0;i<nrconst;i++)
-      for (j=i;j<nrconst;j++)
-        {
-        help = 0;
-        Xt_ip = Xt.getV()+i*nrobs;
-        Xt_jp = Xt.getV()+j*nrobs;
 
-        for (k=0;k<nrobs;k++,Xt_ip++,Xt_jp++)
-          help += (*Xt_ip)*(*Xt_jp);
+    unsigned i,j,k;
+    unsigned nrconst = beta.rows();
+    unsigned nrobs = Xt.cols();
+    double * Xt_ip;
+    double * Xt_jp;
+    double * workingweightp;
+    double help;
 
-        r(i,j) = help;
-        if (i!=j)
-          r(j,i) = help;
-        }
-    }
-  else
-    {
-    for (i=0;i<nrconst;i++)
-      for (j=i;j<nrconst;j++)
-        {
-        help = 0;
-        Xt_ip = Xt.getV()+i*nrobs;
-        Xt_jp = Xt.getV()+j*nrobs;
-        workingweightp = likep->workingweight.getV();
+    if (likep->wtype==wweightsnochange_one)
+      {
+      for (i=0;i<nrconst;i++)
+        for (j=i;j<nrconst;j++)
+          {
+          help = 0;
+          Xt_ip = Xt.getV()+i*nrobs;
+          Xt_jp = Xt.getV()+j*nrobs;
 
-        for (k=0;k<nrobs;k++,Xt_ip++,Xt_jp++,workingweightp++)
-          help += (*workingweightp) * (*Xt_ip)*(*Xt_jp);
+          for (k=0;k<nrobs;k++,Xt_ip++,Xt_jp++)
+            help += (*Xt_ip)*(*Xt_jp);
 
-        r(i,j) = help;
-        if (i!=j)
-          r(j,i) = help;
-        }
+          r(i,j) = help;
+          if (i!=j)
+            r(j,i) = help;
+          }
+      }
+    else
+      {
+      for (i=0;i<nrconst;i++)
+        for (j=i;j<nrconst;j++)
+          {
+          help = 0;
+          Xt_ip = Xt.getV()+i*nrobs;
+          Xt_jp = Xt.getV()+j*nrobs;
+          workingweightp = likep->workingweight.getV();
+
+          for (k=0;k<nrobs;k++,Xt_ip++,Xt_jp++,workingweightp++)
+            help += (*workingweightp) * (*Xt_ip)*(*Xt_jp);
+
+          r(i,j) = help;
+          if (i!=j)
+            r(j,i) = help;
+          }
+      }
+
     }
 
   }
@@ -657,158 +665,6 @@ void FC_linear::outoptions(void)
   }
 
 
-/*
-void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
-                           const ST::string & pathresults)
-  {
-  if (datanames.size() > 0)
-    {
-    unsigned i;
-    unsigned nrconst = design.cols();
-
-    FC::outresults(out_stata,out_R,"");
-
-    ST::string l1 = ST::doubletostring(optionsp->lower1,4);
-    ST::string l2 = ST::doubletostring(optionsp->lower2,4);
-    ST::string u1 = ST::doubletostring(optionsp->upper1,4);
-    ST::string u2 = ST::doubletostring(optionsp->upper2,4);
-    l1 = l1.replaceallsigns('.','p');
-    l2 = l2.replaceallsigns('.','p');
-    u1 = u1.replaceallsigns('.','p');
-    u2 = u2.replaceallsigns('.','p');
-
-    ofstream outp(pathresults.strtochar());
-
-    if (pathresults.isvalidfile() != 1)
-      outp << "paramnr varname pmean pstd pqu" << l1 << " pqu" << l2 <<
-              " pmed pqu" << u1 << " pqu" << u2 << " pcat" << optionsp->level1
-               << " pcat" << optionsp->level2 << endl;
-
-    optionsp->out("\n");
-
-    ST::string l;
-    int maxvarnamelength = 0;
-    int len;
-
-    for(i=0;i<nrconst;i++)
-      {
-      len = datanames[i].length();
-      if (len > maxvarnamelength)
-        maxvarnamelength = len;
-      }
-
-    if (maxvarnamelength>10)
-      l = ST::string(' ',maxvarnamelength-4);
-    else
-      l = "  ";
-
-      ST::string help =  ST::doubletostring(optionsp->lower1,4) + "% quant.";
-      ST::string levell = help + ST::string(' ',15-help.length());
-      help = ST::doubletostring(optionsp->upper2,4) + "% quant.";
-      ST::string levelu = help + ST::string(' ',15-help.length());
-
-      optionsp->out("    Variable" + l +
-                    "mean           " +
-                    "Std. Dev.      " +
-                    levell +
-                    "median         " +
-                    levelu + "\n");
-
-      ST::string mean;
-      ST::string std;
-      ST::string qu10;
-      ST::string qu50;
-      ST::string qu90;
-
-      double m,stddouble;
-
-      unsigned nsp;
-
-      for (i=0;i<nrconst;i++)
-        {
-
-        if (maxvarnamelength  > 10)
-          nsp = 4+maxvarnamelength-datanames[i].length();
-        else
-          nsp = 10-datanames[i].length();
-
-        m= betamean(i,0);
-
-        if (betavar(i,0) == 0)
-            stddouble = 0;
-        else
-          stddouble = sqrt(betavar(i,0));
-
-        if (pathresults.isvalidfile() != 1)
-          {
-          outp << (i+1) << "   ";
-          outp << datanames[i] << "   ";
-          outp << m << "   ";
-          outp << stddouble << "   ";
-
-
-
-          outp << betaqu_l1_lower(i,0) << "   ";
-          outp << betaqu_l2_lower(i,0) << "   ";
-          outp << betaqu50(i,0) << "   ";
-          outp << betaqu_l2_upper(i,0) << "   ";
-          outp << betaqu_l1_upper(i,0) << "   ";
-          if (betaqu_l1_lower(i,0) > 0)
-            outp << "1   ";
-          else if (betaqu_l1_upper(i,0) < 0)
-            outp << "-1   ";
-          else
-            outp << "0   ";
-
-          if (betaqu_l2_lower(i,0) > 0)
-            outp << "1   ";
-          else if (betaqu_l2_upper(i,0) < 0)
-            outp << "-1   ";
-          else
-            outp << "0   ";
-
-          outp << endl;
-
-
-          optionsp->out(ST::outresults(nsp,datanames[i],m,
-                        stddouble,betaqu_l1_lower(i,0),
-                        betaqu50(i,0),betaqu_l1_upper(i,0)) + "\n");
-
-          }
-
-        }
-
-      optionsp->out("\n");
-
-      optionsp->out("    Results for fixed effects are also stored in file\n");
-      optionsp->out("    " + pathresults + "\n");
-
-      if (center==true)
-        {
-        optionsp->out("\n");
-        optionsp->out("    Note: Covariates with linear effects are centered around zero before estimation\n");
-        optionsp->out("          Centering of covariates may improve the mixing of the MCMC sampler while\n");
-        optionsp->out("          the regression coefficents are unchanged\n");
-        optionsp->out("          However the intercept is changed due to the centering of covariates.\n");
-        optionsp->out("          The means of the covariates are:\n");
-        unsigned k;
-        for (k=0;k<mean_designcols.cols();k++)
-          {
-          if (k != constposition)
-            {
-            optionsp->out("          " + datanames[k] + ": " + ST::doubletostring(mean_designcols(0,k),6) + "\n");
-
-            }
-
-          }
-
-        }
-
-      optionsp->out("\n");
-    }
-
-  }
-*/
 
 void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
                            const ST::string & pathresults)
@@ -881,6 +737,7 @@ FC_linear_pen::FC_linear_pen(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
 FC_linear_pen::FC_linear_pen(const FC_linear_pen & m)
   : FC_linear(FC_linear(m))
   {
+  tau2 = m.tau2;
   }
 
 
@@ -890,6 +747,7 @@ const FC_linear_pen & FC_linear_pen::operator=(const FC_linear_pen & m)
   if (this==&m)
 	 return *this;
   FC_linear::operator=(FC_linear(m));
+  tau2 = m.tau2;  
   return *this;
   }
 
@@ -897,6 +755,7 @@ const FC_linear_pen & FC_linear_pen::operator=(const FC_linear_pen & m)
 
 void FC_linear_pen::update(void)
   {
+  
   FC_linear::update();
   }
 
@@ -920,6 +779,26 @@ void FC_linear_pen::outresults(ofstream & out_stata,ofstream & out_R,
                            const ST::string & pathresults)
   {
   FC_linear::outresults(out_stata,out_R,pathresults);
+  }
+
+
+void FC_linear_pen::compute_XWX(datamatrix & r)
+  {
+
+  if ((likep->wtype==wweightschange_weightsneqone) ||
+      (likep->wtype==wweightschange_weightsone) ||
+      (optionsp->nriter<=1))
+    {
+    FC_linear::compute_XWX(r);
+    }
+
+  unsigned i;
+  double * tau2p = tau2.getV();
+  unsigned nrpar = beta.rows();
+
+  for (i=0;i<nrpar;i++,tau2p++)
+    XWX(i,i) += 1/(*tau2p);
+
   }
 
 

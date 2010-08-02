@@ -319,6 +319,7 @@ class __EXPORT_TYPE DISTR
 
   virtual double get_scale(bool tranform=false);
   virtual double get_scalemean(void);
+  virtual void update_scale_hyperparameters(datamatrix & h);
 
   //----------------------------------------------------------------------------
   //----------------------- POSTERIORMODE FUNCTIONS ----------------------------
@@ -395,6 +396,12 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
   FC FCsigma2;
 
+  double nrlasso;
+  double nrridge;
+  double lassosum;
+  double ridgesum;
+
+
   // FUNCTION: standardise
   // TASK: standardises the response and the offset
   //       sets scalesave.transform = trmult*trmult (!!!)
@@ -403,6 +410,7 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
 
   public:
+
 
    // DEFAULT CONSTRUCTOR
 
@@ -486,6 +494,14 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
   void sample_responses_cv(unsigned i,datamatrix & linpred, datamatrix & sr);
 
   void outresults_predictive_check(datamatrix & D,datamatrix & sr);
+
+  // FUNCTION: update_scale_hyperparameters
+  // TASK: updates parameters for lasso, ridge etc.
+  //       h(0,0) = type, 1 =ridge, 2=lasso
+  //       h(1,0) = nrridge/nrlasso
+  //       h(2,0) = lassosum/ridgesum
+
+  void update_scale_hyperparameters(datamatrix & h);
 
   };
 
