@@ -151,7 +151,7 @@ class __EXPORT_TYPE FULLCOND
   bool transformed;
   ST::string transformtype;
 
-  unsigned long acceptance;      // number of accepted iterations
+  //unsigned long acceptance;      // number of accepted iterations
   unsigned long nrtrials;        // number of trials
 
   bool identifiable;             // true, if term is identifiable
@@ -211,6 +211,8 @@ class __EXPORT_TYPE FULLCOND
   //----------------------------------------------------------------------------
 
   public:
+  
+  unsigned long acceptance;      // number of accepted iterations
 
   // FUNCTION: get_fctype
   // TASK: returns the type of the full conditional
