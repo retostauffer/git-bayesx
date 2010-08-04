@@ -2745,6 +2745,8 @@ bool bayesreg::create_const(const unsigned & collinpred)
 
   bool shrinkage = false;
   vector<double> variances;
+  bool use_effectstart = false;
+  vector<double> effectstart;
 
   if (nr > 0)
     {
@@ -2856,7 +2858,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
             normalconst_re.push_back(FULLCOND_const_gaussian_re(
             &generaloptions[generaloptions.size()-1],distr[distr.size()-1],X,
                                   title,constpos,pathconst,pathconstres,
-                                  shrinkage, variances, collinpred));
+                                  shrinkage, variances, use_effectstart, effectstart, collinpred));
             normalconst_re[normalconst_re.size()-1].init_names(varnamesvec[k]);
 
             normalconst_re[normalconst_re.size()-1].set_fcnumber(fullcond.size());
@@ -2882,7 +2884,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
             normalconst.push_back(FULLCOND_const_gaussian(
             &generaloptions[generaloptions.size()-1],distr[distr.size()-1],X,
                                   title,constpos,pathconst,pathconstres,
-                                  shrinkage, variances, collinpred));
+                                  shrinkage, variances, use_effectstart, effectstart, collinpred));
             normalconst[normalconst.size()-1].init_names(varnamesvec[k]);
 
             normalconst[normalconst.size()-1].set_fcnumber(fullcond.size());
@@ -2912,7 +2914,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
           {
             nbinomialconst.push_back(FULLCOND_const_nbinomial(&generaloptions[generaloptions.size()-1],
                                 distr[distr.size()-1],&distr_nbinomial,X,title,constpos,pathconst,
-                                pathconstres, shrinkage, variances, collinpred));
+                                pathconstres, shrinkage, variances, use_effectstart, effectstart, collinpred));
 
             nbinomialconst[nbinomialconst.size()-1].init_names(varnamesvec[k]);
 
@@ -2929,7 +2931,7 @@ bool bayesreg::create_const(const unsigned & collinpred)
           {
             nongaussianconst.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
                                    distr[distr.size()-1],X,title,constpos,pathconst,pathconstres,
-                                   shrinkage, variances, collinpred));
+                                   shrinkage, variances, use_effectstart, effectstart, collinpred));
             nongaussianconst[nongaussianconst.size()-1].init_names(varnamesvec[k]);
 
             nongaussianconst[nongaussianconst.size()-1].set_fcnumber(fullcond.size());

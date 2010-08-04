@@ -38,16 +38,18 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   FULLCOND fc_indicator;
   FULLCOND fc_t2;
 
-  vector<double> indicatorstart;    //  Blocks of regression coefficients
-  double v0;                        //  Hyperparameter for Shrinkageparameter
-  double v1;                        //  Hyperparameter for Shrinkageparameter
-  vector<double> t2start;           //  Blocks of regression coefficients
-  double a_t2;                      //  Hyperparameter for Shrinkageparameter
-  double b_t2;                      //  Hyperparameter for Shrinkageparameter
-  bool omegafix;                    //  Mixingparameter fix
+  vector<double> v_0;               //  Hyperparameter for Varianceparameterkomponent: Indicator
+  vector<double> v_1;               //  Hyperparameter for Varianceparameterkomponent: Indicator
+  vector<double> a_t2;              //  Hyperparameter for Varianceparameterkomponent: t2
+  vector<double> b_t2;              //  Hyperparameter for Varianceparameterkomponent: t2
+  vector<double> a_omega;           //  Hyperparameter for Prameter w
+  vector<double> b_omega;           //  Hyperparameter for Prameter w
+  bool omega_fix;                   //  Mixingparameter fix
+  bool omega_adaptive;              //  Mixingparameter fix
 
   datamatrix indicator;             // Matrix for 1. Varianceparameterkomponent: Indicators
   datamatrix t2;                    // Matrix for 1. Varianceparameterkomponent: t2
+  datamatrix startdata;             //  Matrix with Starting values and hyperparameters
 
   double nigmixsum;                 //  sum(beta^2/tau^2) for update of scaleparameter
 
@@ -77,9 +79,15 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   FULLCOND_variance_nonp_vector_nigmix(MCMCoptions * o, vector<FULLCOND_const*> & p,
                          DISTRIBUTION * d,const ST::string & ti,
                          const ST::string & fp, const ST::string & fr,
-                         const vector<double> & ins, const double & vv0, const double & vv1,
-                         const vector<double> & t2s, const double & at2, const double & bt2,
-                         const double & omegastart, const bool & omf,
+                         const vector<unsigned long> & indicators, 
+                         const vector<double> & v0, const vector<double> & v1,
+                         const vector<double> & t2s, 
+                         const vector<double> & at2, const vector<double> & bt2,
+                         const vector<double> & omegas, 
+                         const vector<double> & aomega, const vector<double> & bomega,
+                         const vector<bool> & omegaf,
+//                         const datamatrix start_data, 
+                         const vector<bool> & omegaad,
                          const vector<unsigned> & ct,
                          const unsigned & c);
 
@@ -104,6 +112,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
 
 
   void get_samples(const ST::string & filename, const unsigned & step = 1) const;
+  
+  void get_startvalues(void);
 
   //____________________________________________________________________________
   //

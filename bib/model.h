@@ -453,16 +453,21 @@ class __EXPORT_TYPE term_shrinkage : public basic_termtype
   protected:
 
   // Einlesen der Starwerte aus externer Datei
-  simpleoption external;
+  stroption startdata;
+//  simpleoption startdata;
 
-  // Startwert für lambda=1/tau^2=1/Varianzparameter
-  doubleoption lambda;
-
-  // Alternativ: Startwert für tau^2=Varianzparameter
-  // doubleoption taustart;
+  // Startwerte für die shhrinkgeeffekte
+  doubleoption effectstart;
+  
+  // Startwert für tau^2=Varianzparameter
+  doubleoption tau2;
 
   // Startwert fuer den Shrinkageparameter
   doubleoption shrinkagestart;
+
+
+  // Gewichte für die Shrinkageeffekte
+  doubleoption weight;
 
   // Hyperparameter der Priori fuer Shrinkageparameter
   doubleoption a_shrinkage;
@@ -471,6 +476,8 @@ class __EXPORT_TYPE term_shrinkage : public basic_termtype
   // Feste Werte für den Shrinkageparameter
   simpleoption shrinkagefix;
 
+  // Varianzspezifische Werte für den Shrinkageparameter
+  simpleoption shrinkageadaptive;
 
   // FUNCTION: setdefault
   void setdefault(void);
@@ -502,28 +509,39 @@ class __EXPORT_TYPE term_shrinkage : public basic_termtype
 class __EXPORT_TYPE term_nigmix : public basic_termtype
   {
   protected:
-
+  // Einlesen der Starwerte aus externer Datei
+  stroption startdata;
+  
+  // Startwerte für die shhrinkgeeffekte
+  doubleoption effectstart;
+  
   // Startwert für Indicator (1. Komponente des Varianzparameters)
-  doubleoption indicatorstart;
-
-  // Lage der Punktmassen des Indikators
-  doubleoption v0;
-  doubleoption v1;
+  intoption indicatorstart;
 
   // Startwert für t^2 (2. Komponente des Varianzparameters)
   doubleoption t2start;
+  
+  // Startwert fuer die Mischungskomponente
+  doubleoption omegastart;
+  
+  // Lage der Punktmassen des Indikators
+  doubleoption v0;
+  doubleoption v1;
 
   // Hyperparameter der Priori fuer Varianzparameterkomponente t2
   doubleoption a_t2;
   doubleoption b_t2;
 
-  // Startwert fuer die Mischungskomponente
-  doubleoption omegastart;
+  // Hyperparameter der Priori fuer Mischungskomponente
+  doubleoption a_omega;
+  doubleoption b_omega;
 
   // Feste Werte für die Komponenten
   simpleoption omegafix;
 
-
+  // Varinazspezifische Werte für die Komponenten
+  simpleoption omegaadaptive;
+  
   // FUNCTION: setdefault
   void setdefault(void);
 

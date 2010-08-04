@@ -237,24 +237,31 @@ vector<ST::string> basic_termtype::get_constvariables(vector<term> & terms)
 term_shrinkage::term_shrinkage(void)
   {
   type = "term_shrinkage";
-  
-  // Einlesen der Starwerte aus externer Datei
-  external = simpleoption("external",false);
 
-  // Startwert fuer inverse varianzparameter lambda=1/tau^2
-  lambda = doubleoption("lambda",0.1,0,10000000);
-  // Alternativ Varianzparameter tau^2:
-  // taustart = doubleoption("taustart",0.1,0,10000000);
+  // Einlesen der Starwerte aus externer Datei
+  startdata = stroption("startdata");
+
+  // Startwerte für die shhrinkgeeffekte
+  effectstart = doubleoption("effect",1E8,-1E7,1E7) ;
+  
+  // Startwert fuer inverse varianzparameter tau^2
+  tau2 = doubleoption("tau2",0.1,0,10000000);
 
   // Startwert für den Shrinkageparameter
-  shrinkagestart = doubleoption("shrinkagepar",1,0,10000000);
-  
+  shrinkagestart = doubleoption("shrinkage",1,0,10000000);
+
   // Hyperparameter der Priori fuer Shrinkageparameter
   a_shrinkage = doubleoption("a",0.001,0,500);
   b_shrinkage = doubleoption("b",0.001,0,500);
-  
+
+  // Gewichte für die Shrinkageeffekte
+  weight = doubleoption("weight",1,0,10000000);
+
   // Feste Werte für den Shrinkageparameter
   shrinkagefix = simpleoption("shrinkagefix",false);
+
+  // Varianzspezifische Werte für den Shrinkageparameter
+  shrinkageadaptive = simpleoption("adaptive",false);
 
   }
 
@@ -264,13 +271,16 @@ term_shrinkage::term_shrinkage(void)
 void term_shrinkage::setdefault(void)
   {
   // call setdefault-methods of the options
-  external.setdefault();
-  lambda.setdefault();
+  startdata.setdefault();
+  effectstart.setdefault();
+  tau2.setdefault();
   shrinkagestart.setdefault();
-  //taustart.setdefault();
+  weight.setdefault();
   a_shrinkage.setdefault();
   b_shrinkage.setdefault();
   shrinkagefix.setdefault();
+  shrinkageadaptive.setdefault();
+
   }
 
 
@@ -278,14 +288,14 @@ void term_shrinkage::setdefault(void)
 //-----------------
 bool term_shrinkage::check(term & t)
   {
-  if ( (t.varnames.size() == 1) && (t.options.size()<=7) && (t.options.size()>=1))   // SET: Anzahl Optionen
+  if ( (t.varnames.size() == 1) && (t.options.size()<=10) && (t.options.size()>=1))   // SET: Anzahl Optionen
     {
     // extract options
     // prior coorespponds to L2-Norm df coefficients
     if (t.options[0] == "ridge")
       t.type = "ridge";
-    
-    // prior coorespponds to L1-Norm df coefficients  
+
+    // prior coorespponds to L1-Norm df coefficients
     else if (t.options[0] == "lasso")
       t.type = "lasso";
     else
@@ -296,14 +306,15 @@ bool term_shrinkage::check(term & t)
 
     vector<ST::string> opt;
     optionlist optlist;
-    optlist.push_back(&external);
-    optlist.push_back(&lambda);
-    //optlist.push_back(&taustart);
+    optlist.push_back(&startdata);
+    optlist.push_back(&effectstart);
+    optlist.push_back(&tau2);
     optlist.push_back(&shrinkagestart);
+    optlist.push_back(&weight);
     optlist.push_back(&a_shrinkage);
     optlist.push_back(&b_shrinkage);
     optlist.push_back(&shrinkagefix);
-
+    optlist.push_back(&shrinkageadaptive);
 
     unsigned i;
     bool rec = true;
@@ -328,23 +339,24 @@ bool term_shrinkage::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(7);                        // SET: Anzahl Optionen
+    t.options = vector<ST::string>(10);                        // SET: Anzahl Optionen
     t.options[0] = t.type;
-    if (external.getvalue()==false)
-       t.options[1] = "false";
-    else
-       t.options[1] = "true";    
-    
-    t.options[2] = ST::doubletostring(lambda.getvalue());
-    //t.options[] = ST::doubletostring(taustart.getvalue());
-    t.options[3] = ST::doubletostring(shrinkagestart.getvalue());
-    t.options[4] = ST::doubletostring(a_shrinkage.getvalue());
-    t.options[5] = ST::doubletostring(b_shrinkage.getvalue());
+    t.options[1] = startdata.getvalue();
+    t.options[2] = ST::doubletostring(effectstart.getvalue());
+    t.options[3] = ST::doubletostring(tau2.getvalue());
+    t.options[4] = ST::doubletostring(shrinkagestart.getvalue());
+    t.options[5] = ST::doubletostring(weight.getvalue());
+    t.options[6] = ST::doubletostring(a_shrinkage.getvalue());
+    t.options[7] = ST::doubletostring(b_shrinkage.getvalue());
     if (shrinkagefix.getvalue()==false)
-       t.options[6] = "false";
+       t.options[8] = "false";
     else
-       t.options[6] = "true";
-
+       t.options[8] = "true";
+    if (shrinkageadaptive.getvalue()==false)
+       t.options[9] = "false";
+    else
+       t.options[9] = "true";
+       
     setdefault();
     return true;
     }
@@ -367,6 +379,7 @@ bool term_shrinkage::checkvector(const vector<term> & terms, const unsigned & i)
   return false;
   }
 
+
 //------------------------------------------------------------------------------
 //---------- class term_nigmix: implementation of member functions -------------
 //------------------------------------------------------------------------------
@@ -377,25 +390,38 @@ term_nigmix::term_nigmix(void)
   {
   type = "term_nigmix";
 
+  // Einlesen der Starwerte aus externer Datei
+  startdata = stroption("startdata");
+
+  // Startwerte für die shhrinkgeeffekte
+  effectstart = doubleoption("effect",1E8,-1E7,1E7) ;
+
   // Startwert für Indicator (1. Komponente des Varianzparameters)
-  indicatorstart = doubleoption("I",1,0,10000000);
+  indicatorstart = intoption("I",1,0,1);
+
+  // Startwert für t^2 (2. Komponente des Varianzparameters)
+  t2start = doubleoption("t2",11,0,10000000);
+
+  // Startwert fuer die Mischungskomponente 
+  omegastart = doubleoption("w",0.5,0,1);  
   
   // Lage der Punktmassen des Indikators
   v0 = doubleoption("v0",0.005,0,10000000);
   v1 = doubleoption("v1",1,0,10000000);
-
-  // Startwert für t^2 (2. Komponente des Varianzparameters)
-  t2start = doubleoption("t2",11,0,10000000);
   
   // Hyperparameter der Priori fuer Shrinkageparameter
   a_t2 = doubleoption("a",5,0,500);
   b_t2 = doubleoption("b",50,0,500);
-
-  // Startwert fuer die Mischungskomponente 
-  omegastart = doubleoption("omega",0.5,0,1);  
+  
+  // Hyperparameter der Priori fuer Mischungskomponente
+  a_omega = doubleoption("aw",1,0,500);
+  b_omega = doubleoption("bw",1,0,500);
 
   // Feste Werte für die Komponenten
-  omegafix = simpleoption("omegafix",false);
+  omegafix = simpleoption("wfix",false);
+
+  // Varinazspezifische Werte für die Komponenten
+  omegaadaptive = simpleoption("adaptive",false);
  
   }
 
@@ -405,14 +431,19 @@ term_nigmix::term_nigmix(void)
 void term_nigmix::setdefault(void)
   {
   // call setdefault-methods of the options
+  startdata.setdefault();
+  effectstart.setdefault();
   indicatorstart.setdefault();
+  t2start.setdefault();
+  omegastart.setdefault();
   v0.setdefault();
   v1.setdefault();
-  t2start.setdefault();
   a_t2.setdefault();
   b_t2.setdefault();
-  omegastart.setdefault();
+  a_omega.setdefault();
+  b_omega.setdefault();
   omegafix.setdefault();
+  omegaadaptive.setdefault();
   }
 
 
@@ -420,7 +451,7 @@ void term_nigmix::setdefault(void)
 //-----------------
 bool term_nigmix::check(term & t)
   {
-  if ( (t.varnames.size() == 1) && (t.options.size()<=9) && (t.options.size()>=1))   // SET: Anzahl Optionen
+  if ( (t.varnames.size() == 1) && (t.options.size()<=14) && (t.options.size()>=1))   // SET: Anzahl Optionen
     {
     // extract options
     // prior coorespponds to Normal-Indicator-Mixing
@@ -435,17 +466,19 @@ bool term_nigmix::check(term & t)
 
     vector<ST::string> opt;
     optionlist optlist;
-
+    optlist.push_back(&startdata);
+    optlist.push_back(&effectstart);
     optlist.push_back(&indicatorstart);
+    optlist.push_back(&t2start);
+    optlist.push_back(&omegastart);
     optlist.push_back(&v0);
     optlist.push_back(&v1);
-    optlist.push_back(&t2start);
     optlist.push_back(&a_t2);
     optlist.push_back(&b_t2);
-    optlist.push_back(&omegastart);
+    optlist.push_back(&a_omega);
+    optlist.push_back(&b_omega);
     optlist.push_back(&omegafix);
-    
-
+    optlist.push_back(&omegaadaptive);
 
     unsigned i;
     bool rec = true;
@@ -470,20 +503,28 @@ bool term_nigmix::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(9);                        // SET: Anzahl Optionen
+    t.options = vector<ST::string>(14);                        // SET: Anzahl Optionen
     t.options[0] = t.type;
-    t.options[1] = ST::doubletostring(indicatorstart.getvalue());
-    t.options[2] = ST::doubletostring(v0.getvalue());
-    t.options[3] = ST::doubletostring(v1.getvalue());
+    t.options[1] = startdata.getvalue();
+    t.options[2] = ST::doubletostring(effectstart.getvalue());
+    t.options[3] = ST::inttostring(indicatorstart.getvalue());
     t.options[4] = ST::doubletostring(t2start.getvalue());
-    t.options[5] = ST::doubletostring(a_t2.getvalue());
-    t.options[6] = ST::doubletostring(b_t2.getvalue());
-    t.options[7] = ST::doubletostring(omegastart.getvalue());    
-    if (omegafix.getvalue()==false)
-       t.options[8] = "false";
-     else
-       t.options[8] = "true";
+    t.options[5] = ST::doubletostring(omegastart.getvalue());    
+    t.options[6] = ST::doubletostring(v0.getvalue());
+    t.options[7] = ST::doubletostring(v1.getvalue());
+    t.options[8] = ST::doubletostring(a_t2.getvalue());
+    t.options[9] = ST::doubletostring(b_t2.getvalue());
+    t.options[10] = ST::doubletostring(a_omega.getvalue());
+    t.options[11] = ST::doubletostring(b_omega.getvalue());
 
+    if (omegafix.getvalue()==false)
+       t.options[12] = "false";
+     else
+       t.options[12] = "true";
+    if (omegaadaptive.getvalue()==false)
+       t.options[13] = "false";
+     else
+       t.options[13] = "true";
 
     setdefault();
     return true;

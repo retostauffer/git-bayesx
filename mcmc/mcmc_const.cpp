@@ -122,7 +122,8 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * op,const datamatrix & d,
   {
 
   // BEGIN: shrinkage
-  shrinkage=false;
+  shrinkage = false;
+  use_effectstart = false;
   // END: shrinkage
 
   ismultinomialcatsp = ismcatsp;
@@ -655,7 +656,8 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * o,DISTRIBUTION * dp,
   {
 
   // BEGIN: shrinkage
-  shrinkage=false;
+  shrinkage = false;
+  use_effectstart = false;
   // END: shrinkage
 
   lambda=-1;
@@ -728,6 +730,8 @@ FULLCOND_const::FULLCOND_const(const FULLCOND_const & m) : FULLCOND(FULLCOND(m))
   // BEGIN: shrinkage
   shrinkage = m.shrinkage;
   variances = m.variances;
+  use_effectstart = m.use_effectstart;
+  effectstart = m.effectstart;
   // END: shrinkage
   }
 
@@ -759,6 +763,8 @@ const FULLCOND_const & FULLCOND_const::operator=(const FULLCOND_const & m)
   // BEGIN: shrinkage
   shrinkage = m.shrinkage;
   variances = m.variances;
+  use_effectstart = m.use_effectstart;
+  effectstart = m.effectstart;
   // END: shrinkage
   return *this;
   }
@@ -840,12 +846,14 @@ bool FULLCOND_const::posteriormode(void)
 void FULLCOND_const::outoptions(void)
   {
 
-  optionsp->out("  OPTIONS FOR FIXED EFFECTS:\n",true);
-  optionsp->out("\n");
-  optionsp->out("  Priors:\n");
-  optionsp->out("\n");
-  optionsp->out("  diffuse priors\n");
-  optionsp->out("\n");
+  if(shrinkage==false)
+    {
+    optionsp->out("  OPTIONS FOR FIXED EFFECTS: " + title + "\n",true);
+    optionsp->out("\n");
+    optionsp->out("  Priors: diffuse priors\n");
+    }
+
+    optionsp->out("\n");
 
   }
 
@@ -913,13 +921,16 @@ FULLCOND_const_gaussian::FULLCOND_const_gaussian(MCMCoptions * o,
                          const ST::string & t, const int & constant,
                          const ST::string & fs,const ST::string & fr,
                          const bool & r, const datamatrix vars,
+                         const bool & useeff, const datamatrix eff,            //NEW
                          const unsigned & c)
                          : FULLCOND_const(o,dp,d,t,constant,fs,fr,c)
   {
 
   // BEGIN: shrinkage
-  shrinkage=r;
+  shrinkage = r;
   variances = vars;
+  use_effectstart = useeff;
+  effectstart = eff;
   // END: shrinkage
 
   transform = likep->get_trmult(c);
@@ -972,6 +983,7 @@ const FULLCOND_const_gaussian & FULLCOND_const_gaussian::operator=
 void FULLCOND_const_gaussian::compute_matrices(void)
   {
 
+ 
   // computing X1
 
   unsigned i,j,k;
@@ -997,12 +1009,12 @@ void FULLCOND_const_gaussian::compute_matrices(void)
 
   // BEGIN: shrinkage
    if(shrinkage)
-     {
-//     double help = likep->get_scale(column);
-     for (j=0;j<nrconst;j++)
-//       X1(j,j) += help/variances(j,0);
-       X1(j,j) += 1/variances(j,0);
-     }
+    {
+    for (j=0;j<nrconst;j++)
+      {
+      X1(j,j) += 1/variances(j,0);
+      }
+    }
   // END: shrinkage
 
    X1 = X1.cinverse();
@@ -1039,6 +1051,20 @@ void FULLCOND_const_gaussian::update_intercept(double & m)
 
 void FULLCOND_const_gaussian::update(void)
   {
+  // BEGIN: shrinkage
+  // outfilestream with starting values for the shrinkage regression coefficients
+  if (shrinkage == true && use_effectstart == true && optionsp->get_nriter() == 1)
+  {
+  ST::string pathstartdata = pathresult.substr(0,pathresult.length()-4) + "_startdata.raw";
+  ofstream outstartdata(pathstartdata.strtochar(), ios::out);
+  outstartdata << "varnam startvalue" << "\n";
+  for(unsigned int j=0; j<nrconst; j++)
+    {
+    outstartdata << datanames[j] << " " << beta(j,0)*transform << "\n";
+    }
+  }
+  // END: shrinkage
+  
 
   FULLCOND_const::update();
 
@@ -1084,7 +1110,6 @@ void FULLCOND_const_gaussian::update(void)
   transform = likep->get_trmult(column);
 
 //  FULLCOND_const::update();
-
   }
 
 
@@ -1098,6 +1123,8 @@ void FULLCOND_const_gaussian::posteriormode_intercept(double & m)
 
 bool FULLCOND_const_gaussian::posteriormode(void)
   {
+  
+  
   unsigned i;
   double * worklinold=linold.getV();        // linold = data * beta
   for(i=0;i<linold.rows();i++,worklinold++) // add interceptadd to linold
@@ -1126,19 +1153,35 @@ bool FULLCOND_const_gaussian::posteriormode(void)
   // BEGIN: shrinkage
   if(shrinkage)
     {
-//    double help = likep->get_scale();
     for(i=0; i<nrconst; i++)
-//      X1(i,i) += help/variances(i,0);
+      {
       X1(i,i) += 1/variances(i,0);
+      }
     }
   // END: shrinkage
 
-  X1.assign((X1.cinverse()));               // continued
-  likep->substr_linearpred_m(linold,column);  // substracts linold from linpred
+  X1.assign((X1.cinverse()));                         // continued
+  likep->substr_linearpred_m(linold,column);          // substracts linold from linpred
   likep->compute_weightiwls_workingresiduals(column); // computes W(y-linpred)
-  beta = X1*data.transposed()*likep->get_workingresiduals();
-  linold.mult(data,beta);                   // updates linold
-  likep->add_linearpred_m(linold,column);   // updates linpred
+  
+//  beta = X1*data.transposed()*likep->get_workingresiduals();
+
+  // BEGIN: shrinkage - Set starting values
+  if(!use_effectstart)
+    {
+    beta = X1*data.transposed()*likep->get_workingresiduals();                      
+    }           
+  if(use_effectstart)
+    {
+    for(unsigned int j=0; j<nrconst; j++)
+      {
+      beta(j,0) = effectstart(j,0)/transform;      
+      }                     
+    }                 
+   // END: shrinkage - Set starting values
+     
+  linold.mult(data,beta);                            // updates linold
+  likep->add_linearpred_m(linold,column);            // updates linpred
   return FULLCOND_const::posteriormode();
   }
 
@@ -1167,6 +1210,7 @@ FULLCOND_const_gaussian_re::FULLCOND_const_gaussian_re(MCMCoptions * o,
                          const ST::string & t, const int & constant,
                          const ST::string & fs,const ST::string & fr,
                          const bool & r, const datamatrix vars,
+                         const bool & useeff, const datamatrix eff,            //NEW
                          const unsigned & c)
 
   {
@@ -1197,7 +1241,7 @@ FULLCOND_const_gaussian_re::FULLCOND_const_gaussian_re(MCMCoptions * o,
       ofstream out2("d:\\temp\\dnew.raw");
       newd.prettyPrint(out2);*/
 
-      FULLCOND_const_gaussian::FULLCOND_const_gaussian(o,dp,newd,t,-1,fs,fr,r,vars,c);
+      FULLCOND_const_gaussian::FULLCOND_const_gaussian(o,dp,newd,t,-1,fs,fr,r,vars,useeff,eff,c);
       }
     else
       {
@@ -1206,16 +1250,14 @@ FULLCOND_const_gaussian_re::FULLCOND_const_gaussian_re(MCMCoptions * o,
 
     }
   else
-    FULLCOND_const_gaussian::FULLCOND_const_gaussian(o,dp,d,t,constant,fs,fr,r,vars,c);
-
-
-
-
+    FULLCOND_const_gaussian::FULLCOND_const_gaussian(o,dp,d,t,constant,fs,fr,r,vars,useeff,eff,c);
 
 /*
   // BEGIN: shrinkage
-  shrinkage=r;
+  shrinkage = r;
   variances = vars;
+  use_effectstart = useeff;
+  effectstart = eff;
   // END: shrinkage
 
   transform = likep->get_trmult(c);
@@ -1324,16 +1366,19 @@ FULLCOND_const_nongaussian::FULLCOND_const_nongaussian(MCMCoptions* o,
                             DISTRIBUTION * dp, const datamatrix & d,
                             const ST::string & t, const int & constant,
                             const ST::string & fs,const ST::string & fr,
-                            const bool & r, const datamatrix vars,
+                            const bool & r, const datamatrix vars, 
+                            const bool & useeff, const datamatrix eff,            //NEW
                             const unsigned & c)
                             : FULLCOND_const(o,dp,d,t,constant,fs,fr,c)
   {
 
   // BEGIN: shrinkage
-  shrinkage=r;
+  shrinkage = r;
   variances = vars;
+  use_effectstart = useeff;
+  effectstart = eff;
   // END: shrinkage
-
+  
   step = o->get_step();
   diff = linnew;
   weightiwls = datamatrix(likep->get_nrobs(),1,1);
@@ -1342,17 +1387,18 @@ FULLCOND_const_nongaussian::FULLCOND_const_nongaussian(MCMCoptions* o,
   XWX = datamatrix(nrconst,nrconst);
   XWXold = XWX;
   help = beta;
-  muy=datamatrix(nrconst,1);
+  muy = datamatrix(nrconst,1);
 
   compute_XWX(XWXold);
   // BEGIN: shrinkage
-  if(!shrinkage)
-    {
+  //if(!shrinkage)
+  //  {
     datamatrix test = XWXold.cinverse();
     if (test.rows() < nrconst)
       errors.push_back("ERROR: design matrix for fixed effects is rank deficient\n");
-    }
+  //  }
   // END: shrinkage
+
   }
 
 FULLCOND_const_nongaussian::FULLCOND_const_nongaussian(
@@ -1402,6 +1448,7 @@ bool FULLCOND_const_nongaussian::posteriormode(void)
   {
 
   likep->fisher(XWX,data,column);
+
   // BEGIN: shrinkage
   if(shrinkage)
     {
@@ -1412,6 +1459,7 @@ bool FULLCOND_const_nongaussian::posteriormode(void)
       }
     }
   // END: shrinkage
+
   XWX.assign(XWX.cinverse());
 
   unsigned i;
@@ -1425,8 +1473,23 @@ bool FULLCOND_const_nongaussian::posteriormode(void)
 
   likep->compute_weightiwls_workingresiduals(column);
 
-  beta = XWX*data.transposed()*likep->get_workingresiduals();
 
+//    beta = XWX*data.transposed()*likep->get_workingresiduals();                      
+
+  // BEGIN: shrinkage - Set starting values
+  if(!use_effectstart)
+    {
+    beta = XWX*data.transposed()*likep->get_workingresiduals();                      
+    }           
+  if(use_effectstart)
+    {
+    for(unsigned int j=0; j<nrconst; j++)
+      {
+      beta(j,0) = effectstart(j,0);      
+      }                     
+    }                 
+   // END: shrinkage - Set starting values
+  
   linold.mult(data,beta);                   // updates linold
   likep->add_linearpred_m(linold,column);   // updates linpred
 
@@ -1508,6 +1571,20 @@ void  FULLCOND_const_nongaussian::update(void)
   {
 
 //  update_iwls();
+
+  // BEGIN: shrinkage
+  // outfilestream with starting values for the shrinkage regression coefficients
+  if (shrinkage == true && use_effectstart == true && optionsp->get_nriter() == 1)
+  {
+  ST::string pathstartdata = pathresult.substr(0,pathresult.length()-4) + "_startdata.raw";
+  ofstream outstartdata(pathstartdata.strtochar(), ios::out);
+  outstartdata << "varnam startvalue" << "\n";
+  for(int j=0; j<nrconst; j++)
+    {
+    outstartdata << datanames[j] << " " << beta(j,0) << "\n";
+    }
+  }
+  // END: shrinkage
 
 
   FULLCOND_const::update();
@@ -1596,6 +1673,21 @@ void  FULLCOND_const_nongaussian::update(void)
 
 void  FULLCOND_const_nongaussian::update_iwls(void)
   {
+  
+  // BEGIN: shrinkage
+  // outfilestream with starting values for the shrinkage regression coefficients
+  if (shrinkage == true && use_effectstart == true && optionsp->get_nriter() == 1)
+  {
+  ST::string pathstartdata = pathresult.substr(0,pathresult.length()-4) + "_startdata.raw";
+  ofstream outstartdata(pathstartdata.strtochar(), ios::out);
+  outstartdata << "varnam startvalue" << "\n";
+  for(int j=0; j<nrconst; j++)
+    {
+    outstartdata << datanames[j] << " " << beta(j,0) << "\n";
+    }
+  }
+  // END: shrinkage
+  
 
   FULLCOND_const::update();
 
@@ -1697,8 +1789,9 @@ FULLCOND_const_nbinomial::FULLCOND_const_nbinomial(MCMCoptions* o,
                             const ST::string & t, const int & constant,
                             const ST::string & fs,const ST::string & fr,
                             const bool & r, const datamatrix & vars,
+                            const bool & useeff, const datamatrix eff,            //NEW
                             const unsigned & c)
-                            : FULLCOND_const_nongaussian(o,dp,d,t,constant,fs,fr,r,vars,c)
+                            : FULLCOND_const_nongaussian(o,dp,d,t,constant,fs,fr,r,vars,useeff,eff,c)
   {
   nblikep = nb;
   }
@@ -1742,6 +1835,22 @@ void FULLCOND_const_nbinomial::update_intercept(double & m)
 
 void FULLCOND_const_nbinomial::update(void)
   {
+  
+  // BEGIN: shrinkage
+  // outfilestream with starting values for the shrinkage regression coefficients
+  if (shrinkage == true && use_effectstart == true && optionsp->get_nriter() == 1)
+  {
+  ST::string pathstartdata = pathresult.substr(0,pathresult.length()-4) + "_startdata.raw";
+  ofstream outstartdata(pathstartdata.strtochar(), ios::out);
+  outstartdata << "varnam startvalue" << "\n";
+  for(int j=0; j<nrconst; j++)
+    {
+    outstartdata << datanames[j] << " " << beta(j,0) << "\n";
+    }
+  }
+  // END: shrinkage
+  
+
 /*
     Mit der Funktion geht es nicht! die Acceptance-Raten für FixedEffect
     sind viel zu klein!

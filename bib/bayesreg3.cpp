@@ -2181,91 +2181,292 @@ bool bayesreg::create_varcoeffmultibaseline(const unsigned & collinpred)
 bool bayesreg::create_ridge(const unsigned & collinpred)
   {
 
-  // options
+  // helpvariables
+  double tau2start;
   double shrinkagestart;
-  double a_shrinkagegamma;
-  double b_shrinkagegamma;
+  double a_shrinkage;
+  double b_shrinkage;
   bool shrinkagefix;
+  double effectstart;
+  double shrinkageweight;
+  bool shrinkageadaptive;
 
-  bool external;
-  matrix start;
-  int readline=0;
+  // Vektoren mit den Startwerten die uebergeben werden für adaptive shrinkkage  
+  vector<double> variances_vec;
+  vector<double> shrinkagestart_vec;    // for adaptive shrinkage (individual shrinkageparameters)
+  vector<double> a_shrinkage_vec;       // for adaptive shrinkage
+  vector<double> b_shrinkage_vec;       // for adaptive shrinkage
+  vector<bool> shrinkagefix_vec;
+  vector<double> effectstart_vec;
+  vector<double> shrinkageweight_vec;   // for weighted shrinkage (weights for variances)
+  vector<bool> shrinkageadaptive_vec;
+  
+  // Matrizen fuer Startwerte 
+  datamatrix variances;    //inverse Varianzparameter lambdastart=tau^2
+  datamatrix effects;      //Regressionskoeffizienten
+  datamatrix startdata;    //alle Startwerte also mit Hyperparametern
 
-  datamatrix variances;
-
-  int j, f;
-  unsigned i;
-  double helpvar;               // fuer Starewerte der inversen Varianzparameter helpvar=lambda=1/tau^2
-  long h;
+  
+ // Sollen die Sartwerte der Effekte verwendet werden. Bei use_effectstart="false" 
+ // werden die Startwerte in mcmc_const via ::posteriormode() berechnet.  
+  bool use_effectstart = true;
+  bool external = false;    // stammen Hyperparameter/Startwerte aus externer Datei
+  int termnr1 = 0;           // Zaehler fuer die erste Ridgeterm Nummer aus der derzeit der
+                            // Startdataset eingelesen wird.
+  unsigned ridgecount = 0;  // Zaehler fuer die Anzahl der Ridgeterme
+  unsigned readline = 0;    // Zeilennummer die aus Dataset eingelesen wird
+  dataobject * datap;       // pointer to datasetobject
+  statobject * s;           // pointer to statobject
+  
+  // names of startdata
+  list<ST::string> startnames;
+  startnames.push_back("effect");
+  startnames.push_back("tau2");
+  startnames.push_back("shrinkage");
+  startnames.push_back("weight");
+  startnames.push_back("a");
+  startnames.push_back("b");
+  startnames.push_back("shrinkagefix");
+  startnames.push_back("adaptive");
+  
+  unsigned i, j, f;
 
   vector<ST::string> varnames;
-  vector<double> varhelp;
-  bool check=false;
-  bool isridge=true;
+
+  bool check = false;
+  bool isridge = true;
+
   vector<FULLCOND_const*> fc;
 
-  ofstream output_start("c:/bayesx/test/teststart.txt", ios::out|ios::app);     // --> outfilestream
 
   for(i=0;i<terms.size();i++)
     {
-
-    if ( shrinkage.checkvector(terms,i) == true )
+    if (shrinkage.checkvector(terms,i) == true)
       {
       if(terms[i].options[0] == "ridge")
         {
-        check=true;
+        check = true;
         varnames.push_back(terms[i].varnames[0]);
-
-        if (terms[i].options[1] == "true")
+        if(termnr1==0) 
+          termnr1 = i; 
+        ridgecount = ridgecount + 1;                              
+        
+        // Optionen aus externer Datendatei auslesen
+        if (terms[i].options[1] != "")
           {
-           // read starting values from external file
-           // column arrangement in matrix start:
-           // beta | lambda | shrinkagestart | a_shrinkage | b_shrinkage | shrinkagefix
-           ifstream instart("c:\\bayesx\\temp\\lasso_start.raw");
-           start.prettyScan(instart);
-           instart.close();
-
-           // assign the values
-           varhelp.push_back(1/start.get(readline,1));
-           shrinkagestart=start.get(readline,2);
-           a_shrinkagegamma=start.get(readline,3);
-           b_shrinkagegamma=start.get(readline,4);
-           if (start.get(readline,5)==0.0)
-             shrinkagefix = false;
-           if (start.get(readline,5)==1.0)
-             shrinkagefix = true;
-
-           output_start << readline                                             // --> outfilestream
-           << " " << start.get(readline,0)
-           << " " << start.get(readline,1)
-           << " " << start.get(readline,2)
-           << " " << start.get(readline,3)
-           << " " << start.get(readline,4)
-           << " " << start.get(readline,5)
-           << " " << "\n";
-
-           readline=readline+1;
-          }
-        if (terms[i].options[1] == "false")
-          {
-          f = terms[i].options[2].strtodouble(helpvar);
-          varhelp.push_back(1/helpvar);
-
-          // letzter Term enthält die verwendeten Werte
-          f = (terms[i].options[3]).strtodouble(shrinkagestart);
-          f = (terms[i].options[4]).strtodouble(a_shrinkagegamma);
-          f = (terms[i].options[5]).strtodouble(b_shrinkagegamma);
-          if (terms[i].options[6] == "true")
-            shrinkagefix = true;
-          else
-            shrinkagefix = false;
-          }
+          external = true;
+          }      
         }
-      }
+      }     
     }
 
   if(check)
     {
+    if(external == false) // Startwerte aus Termen einlesen 
+      {
+      for(i=0;i<terms.size();i++)
+        { 
+        if (shrinkage.checkvector(terms,i) == true)
+          {
+          if(terms[i].options[0] == "ridge")
+            {
+            // Folgende Werte werden nur aus dem 1. Term gesetzt
+            if (terms[termnr1].options[8] == "true")                   //Option aus letztem Term
+              {   
+              shrinkagefix = true;
+              }
+            else
+              {
+              shrinkagefix = false;
+              }
+            if (terms[termnr1].options[9] == "true")                   //Option aus letztem Term
+              {   
+              shrinkageadaptive = true;
+              }
+            else
+              {
+              shrinkageadaptive = false;
+              }
+            
+            // Folgende Werte werden aus jedem Term gesetzt
+            f = terms[i].options[2].strtodouble(effectstart);
+            if(effectstart==1E8)
+              {
+              use_effectstart = false;
+              }       
+            f = terms[i].options[5].strtodouble(shrinkageweight);
+            
+            // Folgende Werte werden nur aus jedem Term gesetzt wenn adaptive gewählt
+            // ansonsten werden die Werte aus dem 1. Term genommen
+            if(shrinkageadaptive==false)
+              {
+              f = terms[termnr1].options[3].strtodouble(tau2start);    //Option aus 1. Term
+              f = terms[termnr1].options[4].strtodouble(shrinkagestart); //Option aus 1. Term
+              f = terms[termnr1].options[6].strtodouble(a_shrinkage);    //Option aus 1. Term
+              f = terms[termnr1].options[7].strtodouble(b_shrinkage);    //Option aus 1. Term
+              }
+            if(shrinkageadaptive==true)
+              {
+              f = terms[i].options[3].strtodouble(tau2start);    //Option aus jedem Term
+              f = terms[i].options[4].strtodouble(shrinkagestart); //Option aus jedem Term
+              f = terms[i].options[6].strtodouble(a_shrinkage);    //Option aus jedem Term
+              f = terms[i].options[7].strtodouble(b_shrinkage);    //Option aus jedem Term
+              }
+              
+            // Vektoren der uebergebenen Optionen
+            effectstart_vec.push_back(effectstart);
+            variances_vec.push_back(tau2start);
+            shrinkagestart_vec.push_back(shrinkagestart);
+            shrinkageweight_vec.push_back(shrinkageweight); 
+            a_shrinkage_vec.push_back(a_shrinkage);
+            b_shrinkage_vec.push_back(b_shrinkage);
+            shrinkagefix_vec.push_back(shrinkagefix);
+            shrinkageadaptive_vec.push_back(shrinkageadaptive);
+            }
+          }
+        }
+
+      // Startwerte in Datenmatrix schreiben
+      startdata = datamatrix(variances_vec.size(),startnames.size(),0);          
+      for(readline=0; readline<variances_vec.size(); readline++)
+        {
+        startdata(readline,0) = effectstart_vec[readline];
+        startdata(readline,1) = variances_vec[readline];
+        startdata(readline,2) = shrinkagestart_vec[readline];
+        startdata(readline,3) = shrinkageweight_vec[readline];
+        startdata(readline,4) = a_shrinkage_vec[readline];
+        startdata(readline,5) = b_shrinkage_vec[readline];
+        startdata(readline,6) = shrinkagefix_vec[readline];
+        startdata(readline,7) = shrinkageadaptive_vec[readline];
+        }
+      }
+
+    
+    if(external == true) // Startwerte aus externem Dataset einlesen 
+      {
+      
+      int objpos = findstatobject(*statobj,terms[termnr1].options[1],"dataset");
+      if (objpos >= 0)
+        {
+        s = statobj->at(objpos);
+        datap = dynamic_cast<dataobject*>(s);
+        if (datap->obs()==0 || datap->getVarnames().size()==0)
+          {
+          outerror("ERROR: dataset object " + terms[termnr1].options[1] + 
+                   " does not contain any data or the length of rows differ\n");
+          return true;
+          }
+        else if (datap->getVarnames().size()>8)
+          {
+          outerror("ERROR: dataset object " + terms[termnr1].options[1] + 
+                   " contains more than seven variables\n");
+          return true;
+          }
+        else if (datap->getVarnames().size()<8)
+          {
+          outerror("ERROR: dataset object " + terms[termnr1].options[1] + 
+                   " contains less than six variables\n");
+          return true;
+          }
+        else if (datap->getVarnames().size()==8)
+          {
+          outerror("NOTE: dataset " + terms[termnr1].options[1] + 
+                   " with starting values for the ridge-variables is assigned in variable " + 
+                   terms[termnr1].varnames[0] + "\n");
+          }  
+        }
+      else
+        {
+        outerror("ERROR: dataset object with the starting values for ridge is not existing.\n"
+                 "Check if variable -" + terms[termnr1].varnames[0] + "- contains the startdata option.\n");
+        return true;
+        }
+  
+      // create datamatrix
+      startnames = datap->getVarnames();
+      ST::string expr = "";
+      datap->makematrix(startnames,startdata,expr);
+
+      // column arrangement in matrix startdata:
+      // effect | tau2 | shrinkage | weight | a | b | shrinkagefix | adaptive
+  
+      if(ridgecount==startdata.rows())
+        {
+        for(readline=0;readline<startdata.rows();readline++)
+          {
+          // Folgende Werte werden nur aus der 1. Zeile gesetzt
+          if (startdata.get(0,6)==0.0)           //Option aus letzter Zeile
+            {
+            shrinkagefix = false;
+            }
+          if (startdata.get(0,6)==1.0)
+            {
+            shrinkagefix = true;
+            }
+          if (startdata.get(0,7)==0.0)           //Option aus letzter Zeile
+            {
+            shrinkageadaptive = false;
+            }
+          if (startdata.get(0,7)==1.0)
+            {
+            shrinkageadaptive = true;
+            }
+            
+          // Folgende Werte werden aus jeder Zeile gesetzt
+          effectstart = startdata.get(readline,0);
+          if(effectstart==1E8)
+            {
+            use_effectstart = false;
+            }    
+          shrinkageweight = startdata.get(readline,3);
+          
+          // Folgende Werte werden nur aus jeder Zeile gesetzt wenn adaptive gewählt
+          // ansonsten werden die Werte aus der 1. zeile genommen
+          if(shrinkageadaptive==false)
+            {
+            tau2start = startdata.get(0,1);
+            shrinkagestart = startdata.get(0,2);   //Option aus 1. Zeile
+            a_shrinkage = startdata.get(0,4);      //Option aus 1. Zeile
+            b_shrinkage = startdata.get(0,5);      //Option aus 1. Zeile
+            }
+          if(shrinkageadaptive==true)
+            {
+            tau2start = startdata.get(readline,1);      //Option aus jeder Zeile
+            shrinkagestart = startdata.get(readline,2);   //Option aus jeder Zeile
+            a_shrinkage = startdata.get(readline,4);      //Option aus jeder Zeile
+            b_shrinkage = startdata.get(readline,5);      //Option aus jeder Zeile
+            }
+          
+          // Vektoren der Startwerte die übergeben werden sollen
+          effectstart_vec.push_back(effectstart); 
+          variances_vec.push_back(tau2start);
+          shrinkagestart_vec.push_back(shrinkagestart);
+          shrinkageweight_vec.push_back(shrinkageweight); 
+          a_shrinkage_vec.push_back(a_shrinkage);
+          b_shrinkage_vec.push_back(b_shrinkage);
+          shrinkagefix_vec.push_back(shrinkagefix);
+          shrinkageadaptive_vec.push_back(shrinkageadaptive);
+          }                                              
+        }
+        
+        else
+          {
+          outerror("ERROR: Number of rows in dataset" + terms[termnr1].options[1] + 
+                   " don't coincide with the number of ridge terms in the model formula \n");
+          return true;          
+          }
+      }
+    if(use_effectstart == false)
+      {
+      outerror("NOTE: Starting values of ridge effects are comuted as posteriormode \n"); 
+      }
+    if(use_effectstart == true)
+      {
+      outerror("NOTE: Starting values of ridge effects are assigned by the user \n"); 
+      }      
+      
+
+    // Cut-vektor zum identifizieren der Bloecke
     unsigned nr = varnames.size();
     unsigned bs = blocksize.getvalue();
     unsigned nrblocks = 1;
@@ -2280,11 +2481,16 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
       }
     cut.push_back(nr);
 
-    // Varianzparameter
-    variances = datamatrix(varhelp.size(),1,0);
-    for(i=0; i<varhelp.size(); i++)
-      variances(i,0) = varhelp[i];
+    // Varianzparameter und Startwerte fuer Regressionskoeffizienten
+    variances = datamatrix(variances_vec.size(),1,0);
+    effects = datamatrix(variances_vec.size(),1,0); 
 
+    for(i=0; i<variances_vec.size(); i++)
+      {
+      variances(i,0) = variances_vec[i];
+      effects(i,0) = effectstart_vec[i];
+      }
+      
     // Daten
     datamatrix data(D.rows(),varnames.size(),0);
 
@@ -2314,33 +2520,16 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        if(collinpred == 0)
-          {
-          title = "shrinkage_ridge_Effects" + ST::inttostring(i+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
-          }
-        else
-          {
-          title = "shrinkage_ridge_Effects" + ST::inttostring(i+1)+ "_" +
-                            ST::inttostring(collinpred+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" +
-                            ST::inttostring(collinpred+1) + "_" + title + ".res";
-          }
-        
+        title = "ridge_Effects" + ST::inttostring(i+1);
+        #if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #else
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #endif
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
@@ -2350,9 +2539,11 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
 
         // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
         normalshrinkage.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
-                                distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
-                                pathconst, pathconstres, true,
-                                variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+                        distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), 
+                        title, constpos, pathconst, pathconstres, 
+                        true, variances.getRowBlock(cut[i], cut[i+1]), 
+                        use_effectstart, effects.getRowBlock(cut[i], cut[i+1]),
+                        collinpred));
 
         normalshrinkage[normalshrinkage.size()-1].init_names(varnameshelp);
         normalshrinkage[normalshrinkage.size()-1].set_fcnumber(fullcond.size());
@@ -2361,19 +2552,21 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
-      title = "shrinkage_ridge";
-      make_paths(collinpred,pathnonp,pathres,title,title,"",
-             "_var.raw","_var.res","_variance");
+      title = "ridge";
+      make_paths(collinpred,pathnonp,pathres,title,title,"","_var.raw","_var.res","_variance");
 
       distr[distr.size()-1]->set_ridge(data.cols());
       distr[distr.size()-1]->update_ridge(0.0);
 
 
       // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
-      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
-          &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],
-          title,pathnonp,pathres,shrinkagestart,a_shrinkagegamma,b_shrinkagegamma,
-          shrinkagefix,isridge,cut,collinpred));
+      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(&generaloptions[generaloptions.size()-1],
+                   fc,distr[distr.size()-1],title,pathnonp,pathres,
+                   shrinkagestart_vec,a_shrinkage_vec,b_shrinkage_vec,
+                   shrinkagefix_vec,shrinkageweight_vec,
+//                   startdata,
+                   shrinkageadaptive_vec,
+                   isridge,cut,collinpred));
 
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
       }
@@ -2390,32 +2583,15 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        if(collinpred == 0)
-          {
-          title = "shrinkage_ridge_Effects" + ST::inttostring(i+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
-          }
-        else
-          {
-          title = "shrinkage_ridge_Effects" + ST::inttostring(i+1)+ "_" +
-                            ST::inttostring(collinpred+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" +
-                            ST::inttostring(collinpred+1) + "_" + title + ".res";
-          }
+        title = "ridge_Effects" + ST::inttostring(i+1);
+        #if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #else
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #endif
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
@@ -2425,9 +2601,11 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
 
         // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
         nongaussianshrinkage.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
-                              distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
-                              pathconst, pathconstres, true,
-                              variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+                             distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
+                             pathconst, pathconstres, true, variances.getRowBlock(cut[i], cut[i+1]), 
+                             use_effectstart, effects.getRowBlock(cut[i], cut[i+1]),
+                             collinpred));
+                             
         nongaussianshrinkage[nongaussianshrinkage.size()-1].init_names(varnameshelp);
         nongaussianshrinkage[nongaussianshrinkage.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&nongaussianshrinkage[nongaussianshrinkage.size()-1]);
@@ -2435,71 +2613,311 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
-      title = "shrinkage_ridge";
-      make_paths(collinpred,pathnonp,pathres,title,title,"",
-             "_var.raw","_var.res","_variance");
+      title = "ridge";
+      make_paths(collinpred,pathnonp,pathres,title,title,"","_var.raw","_var.res","_variance");
 
      // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
-      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
-          &generaloptions[generaloptions.size()-1],
-          fc,distr[distr.size()-1],title,pathnonp,pathres,
-          shrinkagestart,a_shrinkagegamma,b_shrinkagegamma,shrinkagefix,isridge,cut,collinpred));
+      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(&generaloptions[generaloptions.size()-1],
+                   fc,distr[distr.size()-1],title,pathnonp,pathres,
+                   shrinkagestart_vec,a_shrinkage_vec,b_shrinkage_vec,
+                   shrinkagefix_vec,shrinkageweight_vec,
+//                   startdata,
+                   shrinkageadaptive_vec,
+                   isridge,cut,collinpred));
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
 //      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_shrinkagepointer());
       }
     }
-
   return false;
   }
 
 bool bayesreg::create_lasso(const unsigned & collinpred)
   {
 
-  // options
+  // helpvariables
+  double tau2start;
   double shrinkagestart;
-  double a_shrinkagegamma;
-  double b_shrinkagegamma;
+  double a_shrinkage;
+  double b_shrinkage;
   bool shrinkagefix;
-  bool external;
+  double effectstart;
+  double shrinkageweight;
+  bool shrinkageadaptive;
 
-  datamatrix variances;
+  // Vektoren mit den Startwerten die uebergeben werden  
+  vector<double> variances_vec;
+  vector<double> shrinkagestart_vec;    // for adaptive shrinkage (individual shrinkageparameters)
+  vector<double> a_shrinkage_vec;       // for adaptive shrinkage
+  vector<double> b_shrinkage_vec;       // for adaptive shrinkage
+  vector<bool> shrinkagefix_vec;
+  vector<double> effectstart_vec;
+  vector<double> shrinkageweight_vec;   // for weighted shrinkage (weights for variances)
+  vector<bool> shrinkageadaptive_vec;
 
-  int j, f;
-  unsigned i;
-  double helpvar;               // fuer Starewerte der inversen Varianzparameter helpvar=lambda=1/tau^2
-  long h;
+  // Matrizen fuer Startwerte 
+  datamatrix variances;    //inverse Varianzparameter lambdastart=tau^2
+  datamatrix effects;      //Regressionskoeffizienten
+  datamatrix startdata;    //alle Startwerte also mit Hyperparametern
+
+
+  // Sollen die Sartwerte der Effekte verwendet werden. Bei use_effectstart="false"
+  // werden die Startwerte in mcmc_const via ::posteriormode() berechnet. 
+  bool use_effectstart = true;
+  bool external = false;    // stammen Hyperparameter/Startwerte aus externer Datei
+  int termnr1 = 0;           // Zaehler fuer die erste Lassoterm Nummer aus der derzeit der
+                            // Startdataset üebergeben wird.
+  unsigned lassocount = 0;  // Zaehler fuer die Anzahl der Lassoterme
+  unsigned readline = 0;    // Zeilennummer die aus Dataset eingelesen wird
+  dataobject * datap;       // pointer to datasetobject
+  statobject * s;           // pointer to statobject
+  
+ // names of startdata
+  list<ST::string> startnames;
+  startnames.push_back("effect");
+  startnames.push_back("tau2");
+  startnames.push_back("shrinkage");
+  startnames.push_back("weight");
+  startnames.push_back("a");
+  startnames.push_back("b");
+  startnames.push_back("shrinkagefix");
+  startnames.push_back("adaptive");
+
+  unsigned i, j, f;
 
   vector<ST::string> varnames;
-  vector<double> varhelp;
-  bool check=false;
-  bool isridge=false;
+
+  bool check = false;
+  bool isridge = false;
+
   vector<FULLCOND_const*> fc;
+
 
   for(i=0;i<terms.size();i++)
     {
+
     if ( shrinkage.checkvector(terms,i) == true )
       {
       if(terms[i].options[0] == "lasso")
         {
-        check=true;
+        check = true;
         varnames.push_back(terms[i].varnames[0]);
-        f = terms[i].options[2].strtodouble(helpvar);
-        varhelp.push_back(1/helpvar);
-
-        // letzter Term enthält die verwendeten Werte
-        f = (terms[i].options[3]).strtodouble(shrinkagestart);
-        f = (terms[i].options[4]).strtodouble(a_shrinkagegamma);
-        f = (terms[i].options[5]).strtodouble(b_shrinkagegamma);
-        if (terms[i].options[6] == "true")
-          shrinkagefix = true;
-        else
-          shrinkagefix = false;
+        if(termnr1==0) 
+          termnr1 = i; 
+        lassocount = lassocount + 1;                              
+        
+        // Optionen aus externer Datendatei auslesen
+        if (terms[i].options[1] != "")
+          {
+          external = true;
+          }  
         }
       }
     }
 
   if(check)
     {
+    if(external == false) // Startwerte aus Termen einlesen 
+      {
+      for(i=0;i<terms.size();i++)
+        { 
+        if (shrinkage.checkvector(terms,i) == true)
+          {
+          if(terms[i].options[0] == "lasso")
+            {
+            // Folgende Werte werden nur aus dem 1. Term gesetzt
+            if (terms[termnr1].options[8] == "true")                   //Option aus letztem Term
+              {   
+              shrinkagefix = true;
+              }
+            else
+              {
+              shrinkagefix = false;
+              }
+            if (terms[termnr1].options[9] == "true")                   //Option aus letztem Term
+              {   
+              shrinkageadaptive = true;
+              }
+            else
+              {
+              shrinkageadaptive = false;
+              }
+            
+            // Folgende Werte werden aus jedem Term gesetzt
+            f = terms[i].options[2].strtodouble(effectstart);
+            if(effectstart==1E8)
+              {
+              use_effectstart = false;
+              }       
+            f = terms[i].options[3].strtodouble(tau2start); 
+            f = terms[i].options[5].strtodouble(shrinkageweight);
+            
+            // Folgende Werte werden nur aus jedem Term gesetzt wenn adaptive gewählt
+            // ansonsten werden die Werte aus dem 1. Term genommen
+            if(shrinkageadaptive==false)
+              {
+              f = terms[termnr1].options[4].strtodouble(shrinkagestart); //Option aus 1. Term
+              f = terms[termnr1].options[6].strtodouble(a_shrinkage);    //Option aus 1. Term
+              f = terms[termnr1].options[7].strtodouble(b_shrinkage);    //Option aus 1. Term
+              }
+            if(shrinkageadaptive==true)
+              {
+              f = terms[i].options[4].strtodouble(shrinkagestart); //Option aus jedem Term
+              f = terms[i].options[6].strtodouble(a_shrinkage);    //Option aus jedem Term
+              f = terms[i].options[7].strtodouble(b_shrinkage);    //Option aus jedem Term
+              }
+              
+            // Vektoren der uebergebenen Optionen
+            effectstart_vec.push_back(effectstart);
+            variances_vec.push_back(tau2start);
+            shrinkagestart_vec.push_back(shrinkagestart);
+            shrinkageweight_vec.push_back(shrinkageweight); 
+            a_shrinkage_vec.push_back(a_shrinkage);
+            b_shrinkage_vec.push_back(b_shrinkage);
+            shrinkagefix_vec.push_back(shrinkagefix);
+            shrinkageadaptive_vec.push_back(shrinkageadaptive);
+            }
+          }
+        }
+
+      // Startwerte in Datenmatrix schreiben
+      startdata = datamatrix(variances_vec.size(),startnames.size(),0);          
+      for(readline=0; readline<variances_vec.size(); readline++)
+        {
+        startdata(readline,0) = effectstart_vec[readline];
+        startdata(readline,1) = variances_vec[readline];
+        startdata(readline,2) = shrinkagestart_vec[readline];
+        startdata(readline,3) = shrinkageweight_vec[readline];
+        startdata(readline,4) = a_shrinkage_vec[readline];
+        startdata(readline,5) = b_shrinkage_vec[readline];
+        startdata(readline,6) = shrinkagefix_vec[readline];
+        startdata(readline,7) = shrinkageadaptive_vec[readline];
+        }
+      }
+
+    if(external == true) // Startwerte aus externem Dataset einlesen 
+      {
+      
+      int objpos = findstatobject(*statobj,terms[termnr1].options[1],"dataset");
+      if (objpos >= 0)
+        {
+        s = statobj->at(objpos);
+        datap = dynamic_cast<dataobject*>(s);
+        if (datap->obs()==0 || datap->getVarnames().size()==0)
+          {
+          outerror("ERROR: dataset object " + terms[termnr1].options[1] + 
+                   " does not contain any data or the length of rows differ\n");
+          return true;
+          }
+        else if (datap->getVarnames().size()>8)
+          {
+          outerror("ERROR: dataset object " + terms[termnr1].options[1] + 
+                   " contains more than seven variables\n");
+          return true;
+          }
+        else if (datap->getVarnames().size()<8)
+          {
+          outerror("ERROR: dataset object " + terms[termnr1].options[1] + 
+                   " contains less than six variables\n");
+          return true;
+          }
+        else if (datap->getVarnames().size()==8)
+          {
+          outerror("NOTE: dataset " + terms[termnr1].options[1] + 
+                   " with starting values for the lasso-variables is assigned in variable " + 
+                   terms[termnr1].varnames[0] + "\n");
+          }  
+        }
+      else
+        {
+        outerror("ERROR: dataset object with the starting values for lasso is not existing.\n"
+                 "Check if variable -" + terms[termnr1].varnames[0] + "- contains the startdata option.\n");
+        return true;
+        }
+  
+      // create datamatrix
+      startnames = datap->getVarnames(); 
+      ST::string expr = "";
+      datap->makematrix(startnames,startdata,expr);
+
+      // column arrangement in matrix startdata:
+      // effect | tau2 | shrinkage | weight | a | b | shrinkagefix | adaptive
+
+      if(lassocount==startdata.rows())
+        {
+        for(readline=0;readline<startdata.rows();readline++)
+          {
+          // Folgende Werte werden nur aus der 1. Zeile gesetzt
+          if (startdata.get(0,6)==0.0)           //Option aus letzter Zeile
+            {
+            shrinkagefix = false;
+            }
+          if (startdata.get(0,6)==1.0)
+            {
+            shrinkagefix = true;
+            }
+          if (startdata.get(0,7)==0.0)           //Option aus letzter Zeile
+            {
+            shrinkageadaptive = false;
+            }
+          if (startdata.get(0,7)==1.0)
+            {
+            shrinkageadaptive = true;
+            }
+            
+          // Folgende Werte werden aus jeder Zeile gesetzt
+          effectstart = startdata.get(readline,0);
+          if(effectstart==1E8)
+            {
+            use_effectstart = false;
+            }    
+          tau2start = startdata.get(readline,1);
+          shrinkageweight = startdata.get(readline,3);
+          
+          // Folgende Werte werden nur aus jeder Zeile gesetzt wenn adaptive gewählt
+          // ansonsten werden die Werte aus der 1. zeile genommen
+          if(shrinkageadaptive==false)
+            {
+            shrinkagestart = startdata.get(0,2);   //Option aus 1. Zeile
+            a_shrinkage = startdata.get(0,4);      //Option aus 1. Zeile
+            b_shrinkage = startdata.get(0,5);      //Option aus 1. Zeile
+            }
+          if(shrinkageadaptive==true)
+            {
+            shrinkagestart = startdata.get(readline,2);   //Option aus jeder Zeile
+            a_shrinkage = startdata.get(readline,4);      //Option aus jeder Zeile
+            b_shrinkage = startdata.get(readline,5);      //Option aus jeder Zeile
+            }
+          
+          // Vektoren der Startwerte die übergeben werden sollen
+          effectstart_vec.push_back(effectstart); 
+          variances_vec.push_back(tau2start);
+          shrinkagestart_vec.push_back(shrinkagestart);
+          shrinkageweight_vec.push_back(shrinkageweight); 
+          a_shrinkage_vec.push_back(a_shrinkage);
+          b_shrinkage_vec.push_back(b_shrinkage);
+          shrinkagefix_vec.push_back(shrinkagefix);
+          shrinkageadaptive_vec.push_back(shrinkageadaptive);   
+          }                                              
+        }
+        
+        else
+          {
+          outerror("ERROR: Number of rows in dataset" + terms[termnr1].options[1] + 
+                   " don't coincide with the number of lasso terms in the model formula \n");
+          return true;          
+          }
+      }
+    if(use_effectstart == false)
+      {
+      outerror("NOTE: Starting values of lasso effects are comuted as posteriormode \n"); 
+      }
+    if(use_effectstart == true)
+      {
+      outerror("NOTE: Starting values of lasso effects are assigned by the user \n"); 
+      }      
+      
+
+    // Cut-vektor zum identifizieren der Bloecke
     unsigned nr = varnames.size();
     unsigned bs = blocksize.getvalue();
     unsigned nrblocks = 1;
@@ -2514,10 +2932,15 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
       }
     cut.push_back(nr);
 
-    // Varianzparameter
-    variances = datamatrix(varhelp.size(),1,0);
-    for(i=0; i<varhelp.size(); i++)
-      variances(i,0) = varhelp[i];
+    // Varianzparameter und Startwerte fuer Regressionskoeffizienten
+    variances = datamatrix(variances_vec.size(),1,0);
+    effects = datamatrix(variances_vec.size(),1,0); 
+
+    for(i=0; i<variances_vec.size(); i++)
+      {
+      variances(i,0) = variances_vec[i];
+      effects(i,0) = effectstart_vec[i];
+      }
 
     // Daten
     datamatrix data(D.rows(),varnames.size(),0);
@@ -2548,32 +2971,16 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        if(collinpred == 0)
-          {
-          title = "shrinkage_lasso_Effects" + ST::inttostring(i+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
-          }
-        else
-          {
-          title = "shrinkage_lasso_Effects" + ST::inttostring(i+1)+ "_" +
-                            ST::inttostring(collinpred+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" +
-                            ST::inttostring(collinpred+1) + "_" + title + ".res";
-          }
+        title = "lasso_Effects" + ST::inttostring(i+1);
+        #if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #else
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #endif
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
@@ -2583,9 +2990,11 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
 
         // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
         normalshrinkage.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
-                                distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
-                                pathconst, pathconstres, true,
-                                variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+                        distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]),
+                        title, constpos, pathconst, pathconstres, 
+                        true, variances.getRowBlock(cut[i], cut[i+1]), 
+                        use_effectstart, effects.getRowBlock(cut[i], cut[i+1]),
+                        collinpred));
 
         normalshrinkage[normalshrinkage.size()-1].init_names(varnameshelp);
         normalshrinkage[normalshrinkage.size()-1].set_fcnumber(fullcond.size());
@@ -2594,18 +3003,20 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
-      title = "shrinkage_lasso";
-      make_paths(collinpred,pathnonp,pathres,title,title,"",
-             "_var.raw","_var.res","_variance");
+      title = "lasso";
+      make_paths(collinpred,pathnonp,pathres,title,title,"","_var.raw","_var.res","_variance");
 
       distr[distr.size()-1]->set_lasso(data.cols());
       distr[distr.size()-1]->update_lasso(0.0);
 
       // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
-      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
-          &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],
-          title,pathnonp,pathres,shrinkagestart,a_shrinkagegamma,b_shrinkagegamma,
-          shrinkagefix,isridge,cut,collinpred));
+      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(&generaloptions[generaloptions.size()-1],
+                   fc,distr[distr.size()-1],title,pathnonp,pathres,
+                   shrinkagestart_vec,a_shrinkage_vec,b_shrinkage_vec,
+                   shrinkagefix_vec,shrinkageweight_vec,
+//                   startdata,
+                   shrinkageadaptive_vec,
+                   isridge,cut,collinpred));
 
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
       }
@@ -2622,32 +3033,15 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        if(collinpred == 0)
-          {
-          title = "shrinkage_lasso_Effects" + ST::inttostring(i+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
-          }
-        else
-          {
-          title = "shrinkage_lasso_Effects" + ST::inttostring(i+1)+ "_" +
-                            ST::inttostring(collinpred+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" +
-                            ST::inttostring(collinpred+1) + "_" + title + ".res";
-          }
+        title = "lasso_Effects" + ST::inttostring(i+1);
+        #if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #else
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #endif
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
@@ -2658,8 +3052,10 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
         nongaussianshrinkage.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
                               distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
-                              pathconst, pathconstres, true,
-                              variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+                              pathconst, pathconstres, true, variances.getRowBlock(cut[i], cut[i+1]), 
+                              use_effectstart, effects.getRowBlock(cut[i], cut[i+1]),
+                              collinpred));
+
         nongaussianshrinkage[nongaussianshrinkage.size()-1].init_names(varnameshelp);
         nongaussianshrinkage[nongaussianshrinkage.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&nongaussianshrinkage[nongaussianshrinkage.size()-1]);
@@ -2667,15 +3063,17 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
-      title = "shrinkage_lasso";
-      make_paths(collinpred,pathnonp,pathres,title,title,"",
-             "_var.raw","_var.res","_variance");
+      title = "lasso";
+      make_paths(collinpred,pathnonp,pathres,title,title,"","_var.raw","_var.res","_variance");
 
      // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector
-      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(
-          &generaloptions[generaloptions.size()-1],
-          fc,distr[distr.size()-1],title,pathnonp,pathres,
-          shrinkagestart,a_shrinkagegamma,b_shrinkagegamma,shrinkagefix,isridge,cut,collinpred));
+      fcvarnonpvec.push_back(FULLCOND_variance_nonp_vector(&generaloptions[generaloptions.size()-1],
+                   fc,distr[distr.size()-1],title,pathnonp,pathres,
+                   shrinkagestart_vec,a_shrinkage_vec,b_shrinkage_vec,
+                   shrinkagefix_vec,shrinkageweight_vec,
+//                   startdata,
+                   shrinkageadaptive_vec,
+                   isridge,cut,collinpred));
       fullcond.push_back(&fcvarnonpvec[fcvarnonpvec.size()-1]);
 //      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_shrinkagepointer());
       }
@@ -2688,65 +3086,357 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
 bool bayesreg::create_nigmix(const unsigned & collinpred)
   {
 
-  // options
-  vector<double> indicatorstart;
+  // helpvariables
+  double effectstart;
+  unsigned long indicator;
   double v0;
   double v1;
-  vector<double> t2start;
+  double t2;
   double a_t2;
   double b_t2;
-  double omegastart;
+  double a_omega;
+  double b_omega;
+  double omega;
   bool omegafix;
+  bool omegaadaptive;
+  
+  double helpindicator;
+  double helpvariances;
+ 
+  // Vector-options (ersetzen später die 1-dim optionen von oben) 
+  vector<double> variances_vec;
+  vector<double> effectstart_vec;
+  vector<unsigned long> indicator_vec;
+  vector<double> v0_vec;
+  vector<double> v1_vec;
+  vector<double> t2_vec;
+  vector<double> a_t2_vec;
+  vector<double> b_t2_vec;
+  vector<double> a_omega_vec;
+  vector<double> b_omega_vec;
+  vector<double> omega_vec;
+  vector<bool> omegafix_vec;
+  vector<bool> omegaadaptive_vec;
 
 
-  datamatrix variances;
 
-  int j, f;
-  unsigned i;
-  double helpvar1;               // fuer Starewerte der inversen Varianzparameter tau2=1/(indicator*t2), helpvar1=t2
-  double helpvar2;               // fuer Starewerte der inversen Varianzparameter tau2=1/(indicator*t2), helpvar2=indicator
-  long h;
+  // Matrizen fuer Startwerte 
+  datamatrix variances;    //inverse Varianzparameter tau^2
+  datamatrix effects;      //Regressionskoeffizienten
+  datamatrix startdata;    //alle Startwerte also mit Hyperparametern
+  
+  // Sollen die Sartwerte der Effekte verwendet werden. Bei use_effectstart="false"
+  // werden die Startwerte in mcmc_const via ::posteriormode() berechnet. 
+  bool use_effectstart = true;
+  bool external = false;    // stammen Hyperparameter/Startwerte aus externer Datei
+  int termnr1 = 0;           // Zaehler fuer die erste NIGMIXterm Nummer aus der derzeit der
+                            // Startdataset eingelesen werden.
+  unsigned nigmixcount = 0; // Zaehler fuer die Anzahl der Nigmixterme
+  unsigned readline = 0;    // Zeilennummer die aus Dataset eingelesen wird
+  dataobject * datap;       // pointer to datasetobject
+  statobject * s;           // pointer to statobject
+  
+ // names of startdata
+  list<ST::string> startnames;
+  startnames.push_back("effect");
+  startnames.push_back("I");
+  startnames.push_back("t2");
+  startnames.push_back("w");
+  startnames.push_back("v0");
+  startnames.push_back("v1");
+  startnames.push_back("a");
+  startnames.push_back("b");
+  startnames.push_back("aw");
+  startnames.push_back("bw");
+  startnames.push_back("wfix");
+  startnames.push_back("adaptive");
 
+  
+  unsigned i, j, f;
+  long help;
+  
   vector<ST::string> varnames;
-  vector<double> varhelp;
 
   bool check=false;
+  
   vector<FULLCOND_const*> fc;
+
 
   for(i=0;i<terms.size();i++)
     {
+
     if ( nigmix.checkvector(terms,i) == true )
       {
       if(terms[i].options[0] == "nigmix")
         {
         check=true;
         varnames.push_back(terms[i].varnames[0]);
-
-        f = (terms[i].options[1]).strtodouble(helpvar1);
-        f = (terms[i].options[4]).strtodouble(helpvar2);
-        varhelp.push_back(1/(helpvar1*helpvar2));
-        indicatorstart.push_back(helpvar1);
-        t2start.push_back(helpvar2);
-
-//    double test1 = t2start[i];
-//    double test2 = indicatorstart[i];
-
-        // letzter Term enthält die verwendeten Werte
-        f = (terms[i].options[2]).strtodouble(v0);
-        f = (terms[i].options[3]).strtodouble(v1);
-        f = (terms[i].options[5]).strtodouble(a_t2);
-        f = (terms[i].options[6]).strtodouble(b_t2);
-        f = (terms[i].options[7]).strtodouble(omegastart);
-        if (terms[i].options[8] == "true")
-          omegafix = true;
-        else
-          omegafix = false;
+        if(termnr1==0) 
+          termnr1 = i; 
+        nigmixcount = nigmixcount + 1;
+        
+        // Optionen aus externer Datendatei auslesen
+        if (terms[i].options[1] != "")
+          {
+          external = true;
+          }
+       
         }
-      }
+      }     
     }
+
 
   if(check)
     {
+    if(external == false) // Startwerte aus Termen einlesen 
+      {
+      for(i=0;i<terms.size();i++)
+        { 
+        if (nigmix.checkvector(terms,i) == true)
+          {
+          if(terms[i].options[0] == "nigmix")
+            {
+            // Folgende Werte werden nur aus dem 1. Term gesetzt
+            f = (terms[termnr1].options[6]).strtodouble(v0);                 //Option aus 1. Term
+            f = (terms[termnr1].options[7]).strtodouble(v1);                 //Option aus 1. Term
+            if (terms[termnr1].options[12] == "true")                  //Option aus 1. Term
+              omegafix = true;
+            else
+              omegafix = false;
+            if (terms[termnr1].options[13] == "true")                  //Option aus 1. Term
+              omegaadaptive = true;
+            else
+              omegaadaptive = false;
+              
+            // Folgende Werte werden aus jedem Term gesetzt
+            f = terms[i].options[2].strtodouble(effectstart);
+            if(effectstart==1E8)
+              {
+              use_effectstart = false;
+              }
+            f = (terms[i].options[3]).strtolong(help);
+            indicator = help;
+            f = (terms[i].options[4]).strtodouble(t2);
+            
+            // Folgende Werte werden nur aus jedem Term gesetzt wenn adaptive gewählt
+            // ansonsten werden die Werte aus dem 1. Term genommen
+          if(omegaadaptive==false)
+            {
+            f = (terms[termnr1].options[5]).strtodouble(omega);              //Option aus 1. Term
+            f = (terms[termnr1].options[8]).strtodouble(a_t2);               //Option aus 1. Term
+            f = (terms[termnr1].options[9]).strtodouble(b_t2);               //Option aus 1. Term
+            f = (terms[termnr1].options[10]).strtodouble(a_omega);           //Option aus 1. Term
+            f = (terms[termnr1].options[11]).strtodouble(b_omega);           //Option aus 1. Term
+            }
+          if(omegaadaptive==true)
+            {
+            f = (terms[i].options[5]).strtodouble(omega);              //Option aus jedem Term
+            f = (terms[i].options[8]).strtodouble(a_t2);               //Option aus jedem Term
+            f = (terms[i].options[9]).strtodouble(b_t2);               //Option aus jedem Term
+            f = (terms[i].options[10]).strtodouble(a_omega);           //Option aus jedem Term
+            f = (terms[i].options[11]).strtodouble(b_omega);           //Option aus jedem Term
+            }
+            // Vektoren der uebergebenen Optionen
+            if(indicator==0)
+              {
+              helpvariances = (v0 * t2);
+              }
+            if(indicator==1)
+              {
+              helpvariances = (v1 * t2);
+              }
+            variances_vec.push_back(helpvariances);
+            effectstart_vec.push_back(effectstart);
+            indicator_vec.push_back(indicator);
+            t2_vec.push_back(t2);
+            omega_vec.push_back(omega);
+            v0_vec.push_back(v0);
+            v1_vec.push_back(v1); 
+            a_t2_vec.push_back(a_t2);
+            b_t2_vec.push_back(b_t2);
+            a_omega_vec.push_back(a_omega);
+            b_omega_vec.push_back(b_omega);
+            omegafix_vec.push_back(omegafix);  
+            omegaadaptive_vec.push_back(omegaadaptive);              
+            }
+          }
+        }
+
+
+      // Startwerte in Datenmatrix schreiben
+      startdata = datamatrix(variances_vec.size(),startnames.size(),0);          
+      for(readline=0; readline<variances_vec.size(); readline++)
+        {
+        startdata(readline,0) = effectstart_vec[readline];
+        startdata(readline,1) = indicator_vec[readline];
+        startdata(readline,2) = t2_vec[readline];
+        startdata(readline,3) = omega_vec[readline];
+        startdata(readline,4) = v0_vec[readline];
+        startdata(readline,5) = v1_vec[readline];
+        startdata(readline,6) = a_t2_vec[readline];
+        startdata(readline,7) = b_t2_vec[readline];
+        startdata(readline,8) = a_omega_vec[readline];
+        startdata(readline,9) = b_omega_vec[readline];
+        startdata(readline,10) = omegafix_vec[readline];
+        startdata(readline,11) = omegaadaptive_vec[readline];
+        }
+     }
+    
+    if(external == true) // Startwerte aus externem Dataset einlesen 
+      {
+
+      
+      int objpos = findstatobject(*statobj,terms[termnr1].options[1],"dataset");
+      if (objpos >= 0)
+        {
+        s = statobj->at(objpos);
+        datap = dynamic_cast<dataobject*>(s);
+
+        if (datap->obs()==0 || datap->getVarnames().size()==0)
+          {
+          outerror("ERROR: dataset object " + terms[termnr1].options[1] + 
+                   " does not contain any data or the length of rows differ\n");
+          return true;
+          }
+        else if (datap->getVarnames().size()>12)
+          {
+          outerror("ERROR: dataset object " + terms[termnr1].options[1] + 
+                   " contains more than eleven variables\n");
+          return true;
+          }
+        else if (datap->getVarnames().size()<12)
+          {
+          outerror("ERROR: dataset object " + terms[termnr1].options[1] + 
+                   " contains less than eleven variables\n");
+          return true;
+          }
+        else if (datap->getVarnames().size()==12)
+          {
+          outerror("NOTE: dataset " + terms[termnr1].options[1] + 
+                   " with starting values for the nigmix-variables is assigned in variable " + 
+                   terms[termnr1].varnames[0] + "\n");
+          }  
+        }
+      else
+        {
+        outerror("ERROR: dataset object with the starting values for nigmix is not existing.\n"
+                 "Check if variable -" + terms[termnr1].varnames[0] + "- contains the startdata option.\n");
+        return true;
+        }
+  
+      // create datamatrix
+      startnames = datap->getVarnames();
+      ST::string expr = "";
+      datap->makematrix(startnames,startdata,expr);
+
+      // column arrangement in matrix startdata:
+      // effect | I | t2 | w | v0 | v1 | a | b | aw | bw| wfix | adaptive
+   
+      if(nigmixcount==startdata.rows())
+        {
+        for(readline=0;readline<startdata.rows();readline++)
+          {
+          // Folgende Werte werden nur aus der 1. Zeile gesetzt
+          v0 = startdata.get(0,4);                //Option aus 1. Term
+          v1 = startdata.get(0,5);                //Option aus 1. Term
+          if (startdata.get(0,10)==0.0)                    //Option 1. Term
+            {
+            omegafix = false;
+            }
+          if (startdata.get(0,10)==1.0)
+            {
+            omegafix = true;
+            }
+          if (startdata.get(0,11)==0.0)                     //Option 1. Term
+            {
+            omegaadaptive = false;
+            }
+          if (startdata.get(0,11)==1.0)
+            {
+            omegaadaptive = true;
+            }
+          
+          // Folgende Werte werden aus jeder Zeile gesetzt
+          effectstart = startdata.get(readline,0);
+          if(effectstart==1E8)
+            {
+            use_effectstart = false;
+            }         
+          
+          helpindicator = startdata.get(readline,1);
+          
+          if(helpindicator!=1 && helpindicator!=0)
+            {
+            outerror("ERROR: Indicators need to be 0 or 1 \n"); 
+            return true;
+            }
+          else
+            indicator = startdata.get(readline,1);
+            
+          t2 = startdata.get(readline,2);
+          
+          // Folgende Werte werden nur aus jeder Zeile gesetzt wenn adaptive gewählt
+          // ansonsten werden die Werte aus der 1. zeile genommen
+          if(omegaadaptive==false)
+            {
+            omega = startdata.get(0,3);             //Option aus 1. Term
+            a_t2 = startdata.get(0,6);              //Option aus 1. Term
+            b_t2 = startdata.get(0,7);              //Option aus 1. Term
+            a_omega = startdata.get(0,8);           //Option aus 1. Term
+            b_omega = startdata.get(0,9);           //Option aus 1. Term
+            }
+          if(omegaadaptive==true)
+            {
+            omega = startdata.get(readline,3);             //Option aus jedem Term
+            a_t2 = startdata.get(readline,6);              //Option aus jedem Term
+            b_t2 = startdata.get(readline,7);              //Option aus jedem Term
+            a_omega = startdata.get(readline,8);           //Option aus jedem Term
+            b_omega = startdata.get(readline,9);           //Option aus jedem Term
+            }
+
+          if(indicator==0)
+            {
+            helpvariances = (v0 * t2);
+            }
+          if(indicator==1)
+            {
+            helpvariances = (v1 * t2);
+            }
+          // Vektoren denen Startwerte die übergeben werden sollen
+          variances_vec.push_back(helpvariances);
+          effectstart_vec.push_back(effectstart);
+          indicator_vec.push_back(indicator);
+          t2_vec.push_back(t2);
+          omega_vec.push_back(omega);
+          v0_vec.push_back(v0);
+          v1_vec.push_back(v1); 
+          a_t2_vec.push_back(a_t2);
+          b_t2_vec.push_back(b_t2);
+          a_omega_vec.push_back(a_omega);
+          b_omega_vec.push_back(b_omega);
+          omegafix_vec.push_back(omegafix); 
+          omegaadaptive_vec.push_back(omegaadaptive);             
+          }                                              
+        }
+        
+        else
+          {
+          outerror("ERROR: Number of rows in dataset" + terms[termnr1].options[1] + 
+                   " don't coincide with the number of nigmix terms in the model formula \n");
+          return true;          
+          }
+      }
+    if(use_effectstart == false)
+      {
+      outerror("NOTE: Starting values of nigmix effects are comuted as posteriormode \n"); 
+      }
+    if(use_effectstart == true)
+      {
+      outerror("NOTE: Starting values of nigmix effects are assigned by the user \n"); 
+      }
+
+    
+    // Cut-vektor zum identifizieren der Bloecke
     unsigned nr = varnames.size();
     unsigned bs = blocksize.getvalue();
     unsigned nrblocks = 1;
@@ -2761,10 +3451,15 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
       }
     cut.push_back(nr);
 
-    // Varianzparameter
-    variances = datamatrix(varhelp.size(),1,0);
-    for(i=0; i<varhelp.size(); i++)
-      variances(i,0) = varhelp[i];
+    // Varianzparameter und Startwerte fuer Regressionskoeffizienten
+    variances = datamatrix(variances_vec.size(),1,0);
+    effects = datamatrix(variances_vec.size(),1,0); 
+
+    for(i=0; i<variances_vec.size(); i++)
+      {
+      variances(i,0) = variances_vec[i];
+      effects(i,0) = effectstart_vec[i];
+      }
 
     // Daten
     datamatrix data(D.rows(),varnames.size(),0);
@@ -2795,44 +3490,30 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        if(collinpred == 0)
-          {
-          title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
-          }
-        else
-          {
-          title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1)+ "_" +
-                            ST::inttostring(collinpred+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" +
-                            ST::inttostring(collinpred+1) + "_" + title + ".res";
-          }
+        title = "nigmix_Effects" + ST::inttostring(i+1);
+        #if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #else
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #endif
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
+
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
                                  " for writing\n");
           return true;
           }
-          
+
         // Uebergabe der Optionen an Constuctor FULLCOND_const_gaussian
         normalshrinkage.push_back(FULLCOND_const_gaussian(&generaloptions[generaloptions.size()-1],
-                                  distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
-                                  pathconst, pathconstres, true,
-                                  variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+                        distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), 
+                        title, constpos, pathconst, pathconstres, 
+                        true, variances.getRowBlock(cut[i], cut[i+1]), 
+                        use_effectstart, effects.getRowBlock(cut[i], cut[i+1]),
+                        collinpred));
 
         normalshrinkage[normalshrinkage.size()-1].init_names(varnameshelp);
         normalshrinkage[normalshrinkage.size()-1].set_fcnumber(fullcond.size());
@@ -2841,19 +3522,21 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
-      title = "shrinkage_nigmix";
-      make_paths(collinpred,pathnonp,pathres,title,title,"",
-             "_var.raw","_var.res","_variance");
+      title = "nigmix";
+      make_paths(collinpred,pathnonp,pathres,title,title,"","_var.raw","_var.res","_variance");
 
       distr[distr.size()-1]->set_nigmix(data.cols());
       distr[distr.size()-1]->update_nigmix(0.0);
 
 
       // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector_nigmix
-      fcvarnonpvecnigmix.push_back(FULLCOND_variance_nonp_vector_nigmix(
-          &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],
-          title,pathnonp,pathres,indicatorstart,v0,v1,t2start,a_t2,b_t2,omegastart,omegafix,
-          cut,collinpred));
+      fcvarnonpvecnigmix.push_back(FULLCOND_variance_nonp_vector_nigmix(&generaloptions[generaloptions.size()-1],
+                         fc,distr[distr.size()-1],title,pathnonp,pathres,
+                         indicator_vec,v0_vec,v1_vec,t2_vec,a_t2_vec,b_t2_vec,
+                         omega_vec,a_omega_vec,b_omega_vec,omegafix_vec,
+//                         startdata,
+                         omegaadaptive_vec,
+                         cut,collinpred));
 
       fullcond.push_back(&fcvarnonpvecnigmix[fcvarnonpvecnigmix.size()-1]);
       }
@@ -2870,32 +3553,15 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         for(j=cut[i]; j<cut[i+1]; j++)
           varnameshelp.push_back(varnames[j]);
 
-        if(collinpred == 0)
-          {
-          title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
-          }
-        else
-          {
-          title = "shrinkage_nigmix_Effects" + ST::inttostring(i+1)+ "_" +
-                            ST::inttostring(collinpred+1);
-#if defined(__BUILDING_LINUX)
-          pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#else
-          pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                           + add_name + "_" + ST::inttostring(collinpred+1) + "_" + title + ".raw";
-#endif
-          pathconstres = outfile.getvalue() + add_name + "_" +
-                            ST::inttostring(collinpred+1) + "_" + title + ".res";
-          }
+        title = "nigmix_Effects" + ST::inttostring(i+1);
+        #if defined(__BUILDING_LINUX)
+        pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #else
+        pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                         + add_name + "_" + title + ".raw";
+        #endif
+        pathconstres = outfile.getvalue() + add_name + "_" + title + ".res";
         if (pathconst.isvalidfile() == 1)
           {
           errormessages.push_back("ERROR: unable to open file " + pathconst +
@@ -2905,9 +3571,11 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
 
         // Uebergabe der Optionen an Constuctor FULLCOND_const_nongaussian
         nongaussianshrinkage.push_back(FULLCOND_const_nongaussian(&generaloptions[generaloptions.size()-1],
-                              distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
-                              pathconst, pathconstres, true,
-                              variances.getRowBlock(cut[i], cut[i+1]), collinpred));
+                            distr[distr.size()-1], data.getColBlock(cut[i], cut[i+1]), title, constpos,
+                            pathconst, pathconstres, true, variances.getRowBlock(cut[i], cut[i+1]), 
+                            use_effectstart, effects.getRowBlock(cut[i], cut[i+1]), 
+                            collinpred));
+                            
         nongaussianshrinkage[nongaussianshrinkage.size()-1].init_names(varnameshelp);
         nongaussianshrinkage[nongaussianshrinkage.size()-1].set_fcnumber(fullcond.size());
         fullcond.push_back(&nongaussianshrinkage[nongaussianshrinkage.size()-1]);
@@ -2915,19 +3583,21 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         }
 
       // Erstellen der Dateien fuer die Ergebnisse der Varianzparameterschaetzung
-      title = "shrinkage_nigmix";
-      make_paths(collinpred,pathnonp,pathres,title,title,"",
-             "_var.raw","_var.res","_variance");
+      title = "nigmix";
+      make_paths(collinpred,pathnonp,pathres,title,title,"","_var.raw","_var.res","_variance");
 
      // Uebergabe der Optionen an Constuctor FULLCOND_variance_nonp_vector_nigmix
-      fcvarnonpvecnigmix.push_back(FULLCOND_variance_nonp_vector_nigmix(
-          &generaloptions[generaloptions.size()-1],fc,distr[distr.size()-1],title,pathnonp,pathres,
-          indicatorstart,v0,v1,t2start,a_t2,b_t2,omegastart,omegafix,cut,collinpred));
+      fcvarnonpvecnigmix.push_back(FULLCOND_variance_nonp_vector_nigmix(&generaloptions[generaloptions.size()-1],
+                         fc,distr[distr.size()-1],title,pathnonp,pathres,
+                         indicator_vec,v0_vec,v1_vec,t2_vec,a_t2_vec,b_t2_vec,
+                         omega_vec,a_omega_vec,b_omega_vec,omegafix_vec,
+//                         startdata,
+                         omegaadaptive_vec,
+                         cut,collinpred));
       fullcond.push_back(&fcvarnonpvecnigmix[fcvarnonpvecnigmix.size()-1]);
 //      fullcond.push_back(fcvarnonpvec[fcvarnonpvec.size()-1].get_shrinkagepointer());
       }
     }
-
   return false;
   }
 

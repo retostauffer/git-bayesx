@@ -43,6 +43,8 @@ class __EXPORT_TYPE FULLCOND_const : public FULLCOND
   // Shrinkage
   bool shrinkage;
   datamatrix variances;
+  bool use_effectstart;
+  datamatrix effectstart;
   // Shrinkage
 
   unsigned nrconst;                // number of fixed effects paramters
@@ -241,6 +243,7 @@ class __EXPORT_TYPE FULLCOND_const_gaussian : public FULLCOND_const
                           const ST::string & t,const int & constant,
                           const ST::string & fs,const ST::string & fr,
                           const bool & r, const datamatrix vars,
+                          const bool & useeff, const datamatrix eff,            //NEW
                           const unsigned & c=0);
 
   //CONSTRUCTOR2 (for factor)
@@ -314,6 +317,7 @@ class __EXPORT_TYPE FULLCOND_const_gaussian_re : public FULLCOND_const_gaussian
                           const ST::string & t,const int & constant,
                           const ST::string & fs,const ST::string & fr,
                           const bool & r, const datamatrix vars,
+                          const bool & useeff, const datamatrix eff,            //NEW
                           const unsigned & c=0);
 
 
@@ -389,11 +393,12 @@ class __EXPORT_TYPE FULLCOND_const_nongaussian : public FULLCOND_const
 
   // CONSTRUCTOR
 
-  FULLCOND_const_nongaussian(MCMCoptions* o,DISTRIBUTION * dp,
-                             const datamatrix & d, const ST::string & t,
-                             const int & constant, const ST::string & fs,
-                             const ST::string & fr, const bool & r,
-                             const datamatrix vars, const unsigned & c=0);
+  FULLCOND_const_nongaussian(MCMCoptions* o,DISTRIBUTION * dp,const datamatrix & d,
+                             const ST::string & t, const int & constant, 
+                             const ST::string & fs, const ST::string & fr, 
+                             const bool & r, const datamatrix vars, 
+                             const bool & useeff, const datamatrix eff,            //NEW
+                             const unsigned & c=0);
 
   //CONSTRUCTOR2 (for factor)
 
@@ -467,8 +472,9 @@ class __EXPORT_TYPE FULLCOND_const_nbinomial : public FULLCOND_const_nongaussian
   FULLCOND_const_nbinomial(MCMCoptions* o,DISTRIBUTION * dp,DISTRIBUTION_nbinomial * nb,
                              const datamatrix & d, const ST::string & t,
                              const int & constant, const ST::string & fs,
-                             const ST::string & fr, const bool & r,
-                             const datamatrix & vars, const unsigned & c=0);
+                             const ST::string & fr, const bool & r, const datamatrix & vars, 
+                             const bool & useeff, const datamatrix eff,            //NEW 
+                             const unsigned & c=0);
 
   // COPY CONSTRUCTOR
 

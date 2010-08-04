@@ -34,10 +34,13 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
 
   DISTRIBUTION * distrp;
 
-  FULLCOND fc_shrinkage;
-  bool shrinkagefix;                //  Shrinkageparameter fix
-  double a_shrinkagegamma;          //  Hyperparameter for Shrinkageparameter
-  double b_shrinkagegamma;          //  Hyperparameter for Shrinkageparameter
+  FULLCOND fc_shrinkage;            //  Fullcondobjekt shrinkageparameter
+  bool shrinkage_fix;               //  Shrinkageparameter fix
+  bool shrinkage_adaptive;          //  variancespecific shrinkageparameter
+  vector<double> a_shrinkage;       //  Hyperparameter for Shrinkageparameter
+  vector<double> b_shrinkage;       //  Hyperparameter for Shrinkageparameter
+  vector<double> weight;            //  Weights for Shrinkage
+  datamatrix startdata;             //  Matrix with Starting values and hyperparameters
 
   double lassosum;                  //  sum(beta^2/tau^2)
   double ridgesum;                  //  sum(beta^2/tau^2)
@@ -70,8 +73,11 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   FULLCOND_variance_nonp_vector(MCMCoptions * o, vector<FULLCOND_const*> & p,
                          DISTRIBUTION * d,const ST::string & ti,
                          const ST::string & fp, const ST::string & fr,
-                         const double & shrinkage_start, const double & a_shrinkage_gamma,
-                         const double & b_shrinkage_gamma, const bool & shrinkage_fix,
+                         const vector<double> & shrinkagestart, const vector<double> & ashrinkage,
+                         const vector<double> & bshrinkage, const vector<bool> & shrinkagefix,
+                         const vector<double> & shrinkageweight, 
+//                         const datamatrix start_data,
+                         const vector<bool> & shrinkageadaptive,
                          const bool & isridge, const vector<unsigned> & ct,
                          const unsigned & c);
 
@@ -96,6 +102,8 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
   FULLCOND * get_shrinkagepointer();
 
   void get_samples(const ST::string & filename, const unsigned & step = 1) const;
+
+  void get_startvalues(void);
 
   //____________________________________________________________________________
   //
