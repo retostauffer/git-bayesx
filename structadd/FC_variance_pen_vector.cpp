@@ -24,7 +24,7 @@ void FC_variance_pen_vector::add_variable(datamatrix & x,
   double ta;
   double shrink;
   bool sfix;
-//  bool adsh;
+  bool adsh;
   double a,b;
   double shw;
 
@@ -34,10 +34,10 @@ void FC_variance_pen_vector::add_variable(datamatrix & x,
     sfix = true;
   else
     sfix = false;
-//  if (op[32]=="true")
-//    adsh = true;
-//  else
-//    adsh = false;
+  if (op[32]=="true")
+    adsh = true;
+  else
+    adsh = false;
   f = op[5].strtodouble(a);
   f = op[6].strtodouble(b);
   f = op[31].strtodouble(shw);
@@ -45,12 +45,21 @@ void FC_variance_pen_vector::add_variable(datamatrix & x,
   tau2.push_back(ta);
   shrinkagestart.push_back(shrink);
   shrinkagefix.push_back(sfix);
-//  adaptiveshrinkage.push_back(adsh);
+  adaptiveshrinkage.push_back(adsh);
   a_shrinkagegamma.push_back(a);
   b_shrinkagegamma.push_back(b);
   shrinkageweight.push_back(shw);
+  
+  is_fix = shrinkagefix[0];
+  is_adaptive = adaptiveshrinkage[0];
+
 
   nrpen++;
+  Cp->tau2 = datamatrix(nrpen,1,0);
+  for(int i=0;i<nrpen;i++)
+    {
+    Cp->tau2(i,0) = tau2[i];
+    }
   }
 
 
@@ -109,12 +118,10 @@ FC_variance_pen_vector::FC_variance_pen_vector(MASTER_OBJ * mp,
 
   // vector<ST::string> vnames = FC_shrinkage.get_datanames();
   //Initialisieren der Betamatrizen für die Varianzan + Übergabe der Startwerte
+  //is_fix = shrinkagefix[0];
+  //is_adaptive = adaptiveshrinkage[0];
 
-
-  is_fix = true;          // = shrinkagefix[1]
-  is_adaptive = true;     // = adaptiveshrinkage[1]
-
-  nrpen = 1;
+  nrpen = 0;
   pensum = 0;
 
   }
@@ -204,12 +211,12 @@ bool FC_variance_pen_vector::posteriormode(void)
 void FC_variance_pen_vector::update(void)
   {
   acceptance++;
-  unsigned i;
+  int i;
   double helpshrinkage;
 
 
   // reset Variables for summs
-  int nrpar = beta.rows();
+//  int nrpen = beta.rows();
   double rand_invgaussian = 0;
   double sumvariances = 0;
   double sumregcoeff = 0;
@@ -219,7 +226,13 @@ void FC_variance_pen_vector::update(void)
   if (optionsp->nriter == 1)
     {
     FC_shrinkage = FC(optionsp,"",shrinkagefix.size(),1,samplepath + ".shrinkage");
-    Cp->tau2 = datamatrix(nrpen,1,0);
+//    Cp->tau2 = datamatrix(nrpen,1,0);
+  // get current value of first shrinkagearameter
+    double * shrinkagep = FC_shrinkage.beta.getV();
+    for(i=0;i<nrpen;i++,shrinkagep++)
+      {
+      *shrinkagep = shrinkagestart[i];
+      }
     }
 
   // get current value of first shrinkagearameter
@@ -235,7 +248,7 @@ void FC_variance_pen_vector::update(void)
   //-----------------------------------------
   if (is_ridge == 0 && is_adaptive == false)   // Lasso L1-Penalty
    {
-   for(i=0; i<nrpar; i++, workbeta++, shrinkagep++)
+   for(i=0; i<nrpen; i++, workbeta++, shrinkagep++)
     {
     if (*workbeta>0 && *shrinkagep>0)
       {
@@ -258,7 +271,7 @@ void FC_variance_pen_vector::update(void)
 
   if (is_ridge == 0 && is_adaptive == true)   // Lasso L1-Penalty adaptive
    {
-   for(i=0; i<nrpar; i++, workbeta++, shrinkagep++)
+   for(i=0; i<nrpen; i++, workbeta++, shrinkagep++)
     {
     if (*workbeta>0 && *shrinkagep>0)
       {
@@ -281,16 +294,17 @@ void FC_variance_pen_vector::update(void)
 
   if (is_ridge == 1 && is_adaptive == false)   // Ridge L2-penalty
     {
-    for(i=0; i<nrpar; i++, workbeta++, shrinkagep++)
+    for(i=0; i<nrpen; i++, workbeta++, shrinkagep++)
       {
       beta(i,0) = shrinkageweight[i]/(2*(*shrinkagep));
       pensum +=  ((*workbeta)*(*workbeta))/beta(i,0);  // sum(beta^2/tau^2)
       sumregcoeff = sumregcoeff + (*workbeta)*(*workbeta)/(shrinkageweight[i]);
       }
     }
+    
   if (is_ridge == 1 && is_adaptive == true)   // Ridge L2-penalty adaptive
     {
-    for(i=0; i<nrpar; i++, workbeta++, shrinkagep++)
+    for(i=0; i<nrpen; i++, workbeta++, shrinkagep++)
       {
       beta(i,0) = 1/(2*(*shrinkagep));
       pensum += ((*workbeta)*(*workbeta))/beta(i,0);  // sum(beta^2/tau^2)
@@ -302,17 +316,19 @@ void FC_variance_pen_vector::update(void)
   //----------------------------------------------------------
   if(is_fix==false)
     {
+    shrinkagep = FC_shrinkage.beta.getV();
+    workbeta = Cp->beta.getV();
     if(is_ridge == 0 && is_adaptive == false)            // Lasso L1-penalty
       {
-      helpshrinkage = sqrt(rand_gamma(nrpar + a_shrinkagegamma[1], b_shrinkagegamma[1] + 0.5*sumvariances));
-      for(i=0; i<nrpar; i++, shrinkagep++)
+      helpshrinkage = sqrt(rand_gamma(nrpen + a_shrinkagegamma[0], b_shrinkagegamma[0] + 0.5*sumvariances));
+      for(i=0; i<nrpen; i++, shrinkagep++)
         {
         *shrinkagep = helpshrinkage;
         }
       }
     if(is_ridge == 0 && is_adaptive == true)            // Lasso L1-penalty adaptive
       {
-      for(i=0; i<nrpar; i++, shrinkagep++)
+      for(i=0; i<nrpen; i++, shrinkagep++)
         {
         *shrinkagep = sqrt(rand_gamma(1 + a_shrinkagegamma[i], b_shrinkagegamma[i] + 0.5*beta(i,0)));
         }
@@ -321,15 +337,15 @@ void FC_variance_pen_vector::update(void)
 
     if(is_ridge == 1 && is_adaptive == false)            // Ridge L2-penalty
       {
-      helpshrinkage = rand_gamma(0.5*nrpar + a_shrinkagegamma[1], b_shrinkagegamma[1] + sumregcoeff/(sigma*sigma));
-      for(i=0; i<nrpar; i++, shrinkagep++)
+      helpshrinkage = rand_gamma(0.5*nrpen + a_shrinkagegamma[1], b_shrinkagegamma[1] + sumregcoeff/(sigma*sigma));
+      for(i=0; i<nrpen; i++, shrinkagep++)
         {
         *shrinkagep = helpshrinkage;
         }
       }
     if(is_ridge == 1 && is_adaptive == true)            // Ridge L2-penalty adaptive
       {
-      for(i=0; i<nrpar; i++, shrinkagep++, workbeta++)
+      for(i=0; i<nrpen; i++, shrinkagep++, workbeta++)
         {
         *shrinkagep = rand_gamma(0.5*1 + a_shrinkagegamma[i], b_shrinkagegamma[i] + ((*workbeta)*(*workbeta))/(sigma*sigma));
         }
@@ -410,8 +426,8 @@ void FC_variance_pen_vector::outresults_shrinkage(void)
   if(is_adaptive==false)
     {
     // KOMMENTAR Susanne:  Hie können prinzipiell die selben funktionen aufgerufen
-    // werden nur das dann nr=1 bzw nrpar=1 gesetzt werden muss, da sonst
-    // nrpar mal das selbe rausgeschrieben wird
+    // werden nur das dann nr=1 bzw nrpen=1 gesetzt werden muss, da sonst
+    // nrpen mal das selbe rausgeschrieben wird
 
     // FC_shrinkage.outresults(out_stata,out_R,pathresults);
     // FC_shrinkage.outresults_help(out_stata,out_R,pathresults,datanames);
@@ -437,14 +453,14 @@ void FC_variance_pen_vector::outoptions(void)
 
 //TEMP:BEGIN--------------------------------------------------------------------
 // KOMMENTAR Susanne:  FC_shrinkage kann dann hier wieder rausgenommen weden
-   FC_shrinkage = FC(optionsp,"",shrinkagefix.size(),1,samplepath + ".shrinkage");
+//   FC_shrinkage = FC(optionsp,"",shrinkagefix.size(),1,samplepath + ".shrinkage");
 //TEMP:END----------------------------------------------------------------------
 
   int i;
-  int nrpar = beta.rows();
+//  int nrpen = beta.rows();
   vector<ST::string> vnames;   // = FC_shrinkage.datanames.getV();
 
-  for (i=0;i<nrpar;i++)
+  for (i=0;i<nrpen;i++)
       vnames.push_back("_x_" + ST::inttostring(i));
 
   double * shrinkagep = FC_shrinkage.beta.getV();
@@ -475,7 +491,7 @@ void FC_variance_pen_vector::outoptions(void)
 
   if(is_adaptive==true)
     {
-    for(i=0; i<nrpar; i++, shrinkagep++)
+    for(i=0; i<nrpen; i++, shrinkagep++)
       {
       optionsp->out("  Hyperparameter a for shrinkage of " + vnames[i] + ": " +
                        ST::doubletostring(a_shrinkagegamma[i]) + "\n" );
