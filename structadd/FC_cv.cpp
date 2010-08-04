@@ -160,14 +160,16 @@ void  FC_cv::update(void)
     double * ww = likep->weight.getV();
     double devsat;
     double muhelp;
-    double scalehelp=likep->get_scale(true);
+//    double scalehelp=likep->get_scale(true);
+    double scalehelp=likep->get_scale();
     for (i=0;i<sampled_etas.rows();i++,workse+=sampled_etas.cols(),
     workli+=sampled_likelihood.cols(),worklin++,wr++,ww++)
       {
-      *worklin *= likep->trmult;
+      // *worklin *= likep->trmult;
       *workse = *worklin;
 
-      likep->compute_mu(worklin,&muhelp,true);
+//      likep->compute_mu(worklin,&muhelp,true);
+      likep->compute_mu(worklin,&muhelp);
 
       likep->compute_deviance(wr,ww,&muhelp, workli,&devsat,&scalehelp);
 
@@ -326,8 +328,8 @@ double FC_cv::compute_energyscore(void)
   unsigned I = sampled_responses.rows();
 
   double * srp = sampled_responses.getV();
-  double * esp1;
-  double * esp2;
+  // double * esp1;
+  // double * esp2;
 
 
   datamatrix es1 = datamatrix(nrcat,S,0);

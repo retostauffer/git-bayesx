@@ -102,7 +102,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
-  virtual void transform_beta(void);
+  // virtual void transform_beta(void);
 
   };
 

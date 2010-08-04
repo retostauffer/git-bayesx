@@ -115,7 +115,7 @@ double FC_hrandom_variance::compute_quadform(void)
   }
 
   
-
+/*
 void FC_hrandom_variance::transform_beta(void)
   {
   if (mult)
@@ -123,7 +123,7 @@ void FC_hrandom_variance::transform_beta(void)
   else
     FC_nonp_variance::transform_beta();
   }
-
+*/
 
 void FC_hrandom_variance::update(void)
   {
@@ -136,7 +136,7 @@ void FC_hrandom_variance::update(void)
   FCnonpp->tau2 = beta(0,0);
   likepRE->sigma2=beta(0,0);
 
-  transform_beta();
+//  transform_beta();
   acceptance++;
   FC::update();
 

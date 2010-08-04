@@ -229,7 +229,7 @@ void FC_variance_pen_vector::update(void)
   double * workbeta = Cp->beta.getV();
 
   // getcurrent value of sqrt(scale) parameter
-  double sigma = sqrt(distrp->get_scale(column));
+  double sigma = sqrt(distrp->get_scale());
 
   // Gibbs-Update of varianceparameters tau^2
   //-----------------------------------------

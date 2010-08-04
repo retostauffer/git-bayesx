@@ -385,9 +385,14 @@ void FC_nonp::compute_pvalue(const ST::string & pathresults)
           mPbeta += (*contour)(nu,nrpar+6+k)* (*paramp);
 //        mPbeta += (*contour)(nu,nrpar+6+k)* (*parameter)(t,k);
 
+//        exponent =  (*contour)(t,nrpar+2)
+//                 + (*contour)(nu,nrpar+1) * (*contour)(t,nrpar+3)
+//                 + (*contour)(nu,nrpar+4) - 2*mPbeta/transform(0,0);
+
         exponent =  (*contour)(t,nrpar+2)
                  + (*contour)(nu,nrpar+1) * (*contour)(t,nrpar+3)
-                 + (*contour)(nu,nrpar+4) - 2*mPbeta/transform(0,0);
+                 + (*contour)(nu,nrpar+4) - 2*mPbeta;
+
         RB(nu,0) = 0.5* (*contour)(nu,nrpar+5) - (*contour)(nu,nrpar)   * 0.5*(exponent);
         }
 
@@ -587,7 +592,7 @@ void FC_nonp::update_IWLS(void)
   */
   // TEST
 
-  transform_beta();
+  // transform_beta();
 
   if (designp->position_lin!=-1)
     {
@@ -596,14 +601,13 @@ void FC_nonp::update_IWLS(void)
 
 
   paramsample.beta.assign(param);
-  paramsample.transform(0,0) = likep->trmult;
+//  paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
 
   if (derivative)
     {
-    derivativesample.transform(0,0) = likep->trmult;
+//    derivativesample.transform(0,0) = likep->trmult;
     derivativesample.update();
-    //elasticitysample.update();
     }
 
   FC::update();
@@ -695,7 +699,7 @@ void FC_nonp::update_gaussian_transform(void)
 
   acceptance++;
 
-  transform_beta();
+  // transform_beta();
 
 /*
   if (designp->position_lin!=-1)
@@ -710,7 +714,7 @@ void FC_nonp::update_gaussian_transform(void)
 */
 
   paramsample.beta.assign(param);
-  paramsample.transform(0,0) = likep->trmult;
+//  paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
 
   FC::update();
@@ -816,7 +820,7 @@ void FC_nonp::update_gaussian(void)
 
     acceptance++;
 
-    transform_beta();
+    // transform_beta();
 
     if (designp->position_lin!=-1)
       {
@@ -829,14 +833,13 @@ void FC_nonp::update_gaussian(void)
       }
 
     paramsample.beta.assign(param);
-    paramsample.transform(0,0) = likep->trmult;
+//    paramsample.transform(0,0) = likep->trmult;
     paramsample.update();
 
     if (derivative)
       {
-      derivativesample.transform(0,0) = likep->trmult;
+//      derivativesample.transform(0,0) = likep->trmult;
       derivativesample.update();
-      // elasticitysample.update();
       }
 
     FC::update();
@@ -1015,7 +1018,7 @@ void FC_nonp::update_isotonic(void)
 
   acceptance++;
 
-  transform_beta();
+  // transform_beta();
 
   if (designp->position_lin!=-1)
     {
@@ -1028,12 +1031,12 @@ void FC_nonp::update_isotonic(void)
   // TEST
 
   paramsample.beta.assign(param);
-  paramsample.transform(0,0) = likep->trmult;
+//  paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
 
   if (derivative)
     {
-    derivativesample.transform(0,0) = likep->trmult;
+//    derivativesample.transform(0,0) = likep->trmult;
     derivativesample.update();
     // elasticitysample.update();
     }
@@ -1052,14 +1055,15 @@ void FC_nonp::update_isotonic(void)
 
   }
 
-
+  
+/*
 void FC_nonp::transform_beta(void)
   {
   transform(0,0) = likep->trmult;
   if (designp->position_lin != -1)
   fsample.transform(0,0) = likep->trmult;
   }
-
+*/
 
 
 bool FC_nonp::posteriormode_transform(void)
@@ -1108,7 +1112,7 @@ bool FC_nonp::posteriormode_transform(void)
 
   designp->update_linpred(betadiff);
 
-  transform_beta();
+  // transform_beta();
 
   if (designp->position_lin!=-1)
     {
@@ -1184,7 +1188,7 @@ bool FC_nonp::posteriormode(void)
 
     designp->update_linpred(betadiff);
 
-    transform_beta();
+    // transform_beta();
 
     if (designp->position_lin!=-1)
       {

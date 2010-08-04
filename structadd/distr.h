@@ -109,8 +109,8 @@ class __EXPORT_TYPE DISTR
   void swap_linearpred(void);
 
 
-  double trmult;                   // multiplicative constant with which
-                                   // the response has been transformed
+  double trmult;                   // multiplicative constant for hyperparameters
+
 
 //------------------------------------------------------------------------------
 //------------------------------- ERRORS ---------------------------------------
@@ -201,8 +201,11 @@ class __EXPORT_TYPE DISTR
   //------------------------------- COMPUTE mu ---------------------------------
   //----------------------------------------------------------------------------
 
-  virtual void compute_mu(const double * linpred,double * mu,
-                          bool notransform=false);
+//  virtual void compute_mu(const double * linpred,double * mu,
+//                          bool notransform=false);
+
+  virtual void compute_mu(const double * linpred,double * mu);
+
 
   virtual void compute_deviance(const double * response,
                            const double * weight,
@@ -317,7 +320,8 @@ class __EXPORT_TYPE DISTR
   //----------------------- ACCESS TO SCALE PARAMETER --------------------------
   //----------------------------------------------------------------------------
 
-  virtual double get_scale(bool tranform=false);
+  virtual double get_scale(void);
+//  virtual double get_scale(bool tranform=false);
   virtual double get_scalemean(void);
   virtual void update_scale_hyperparameters(datamatrix & h);
 
@@ -406,7 +410,7 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
   // TASK: standardises the response and the offset
   //       sets scalesave.transform = trmult*trmult (!!!)
 
-  virtual void standardise(void);
+  // virtual void standardise(void);
 
 
   public:
@@ -438,7 +442,8 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
    ~DISTR_gaussian() {}
 
-  void compute_mu(const double * linpred,double * mu, bool notransform);
+//  void compute_mu(const double * linpred,double * mu, bool notransform);
+  void compute_mu(const double * linpred,double * mu);
 
   void compute_deviance(const double * response,
                            const double * weight,
@@ -651,7 +656,8 @@ class __EXPORT_TYPE DISTR_loggaussian : public DISTR_gaussian
 
    ~DISTR_loggaussian() {}
 
-  void compute_mu(const double * linpred,double * mu, bool notransform);
+//  void compute_mu(const double * linpred,double * mu, bool notransform);
+  void compute_mu(const double * linpred,double * mu);
 
   double compute_MSE(const double * response, const double * weight,
                      const double * linpred);
@@ -685,7 +691,7 @@ class __EXPORT_TYPE DISTR_gaussian_exp : public DISTR_gaussian
   // TASK: standardises the response and the offset
   //       sets scalesave.transform = trmult*trmult (!!!)
 
-  void standardise(void);
+  // void standardise(void);
 
 
   public:
@@ -716,7 +722,8 @@ class __EXPORT_TYPE DISTR_gaussian_exp : public DISTR_gaussian
 
    ~DISTR_gaussian_exp() {}
 
-  void compute_mu(const double * linpred,double * mu, bool notransform);
+//  void compute_mu(const double * linpred,double * mu, bool notransform);
+  void compute_mu(const double * linpred,double * mu);
 
 
   double loglikelihood(double * res,
@@ -756,7 +763,7 @@ class __EXPORT_TYPE DISTR_gaussian_mult : public DISTR_gaussian_exp
   // TASK: standardises the response and the offset
   //       sets scalesave.transform = trmult*trmult (!!!)
 
-  void standardise(void);
+//  void standardise(void);
 
 
   public:
@@ -789,7 +796,8 @@ class __EXPORT_TYPE DISTR_gaussian_mult : public DISTR_gaussian_exp
 
    ~DISTR_gaussian_mult() {}
 
-  void compute_mu(const double * linpred,double * mu, bool notransform);
+//  void compute_mu(const double * linpred,double * mu, bool notransform);
+  void compute_mu(const double * linpred,double * mu);
 
 
   double loglikelihood(double * res,

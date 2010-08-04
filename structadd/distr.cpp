@@ -377,9 +377,15 @@ void DISTR::compute_deviance(const double * response,
   }
 
 
-
+/*
 void DISTR::compute_mu(const double * linpred,double * mu,
                        bool notransform)
+  {
+
+  }
+*/
+
+void DISTR::compute_mu(const double * linpred,double * mu)
   {
 
   }
@@ -640,13 +646,19 @@ void DISTR::reset(void)
   linpred_current = 1;
   }
 
-
+/*
 double DISTR::get_scale(bool transform)
   {
   if (!transform)
     return sigma2;
   else
     return sigma2*pow(trmult,2);
+  }
+*/
+
+double DISTR::get_scale(void)
+  {
+  return sigma2;
   }
 
 
@@ -748,13 +760,16 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
     wtype = wweightsnochange_constant;
 
   a_invgamma = a;
-  b_invgamma = b;
+  double h = sqrt(response.var(0,weight));
+//  h=1;
+  b_invgamma = b*h;
+  trmult = h;
   family = "Gaussian";
 
-  standardise();
+  // standardise();
 
   FCsigma2 = FC(o,"",1,1,ps);
-  FCsigma2.transform(0,0) = pow(trmult,2);
+  // FCsigma2.transform(0,0) = pow(trmult,2);
 
   }
 
@@ -790,12 +805,12 @@ DISTR_gaussian::DISTR_gaussian(const DISTR_gaussian & nd)
   }
 
 
-
+/*
 void DISTR_gaussian::standardise(void)
   {
 
-  trmult = sqrt(response.var(0,weight));
-//  trmult=1;
+  // trmult = sqrt(response.var(0,weight));
+  trmult=1;
 
   unsigned i;
   double * workresp = workingresponse.getV();
@@ -809,6 +824,7 @@ void DISTR_gaussian::standardise(void)
    }
 
   }
+*/
 
 
 void DISTR_gaussian::sample_responses(unsigned i,datamatrix & sr)
@@ -825,7 +841,8 @@ void DISTR_gaussian::sample_responses(unsigned i,datamatrix & sr)
 
   unsigned j;
   for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
-    *rp = trmult*(*linpredp+sqrt(sigma2)*rand_normal());
+//    *rp = trmult*(*linpredp+sqrt(sigma2)*rand_normal());
+        *rp = *linpredp+sqrt(sigma2)*rand_normal();
   }
 
 // linpred already transformed
@@ -841,7 +858,8 @@ void DISTR_gaussian::sample_responses_cv(unsigned i,datamatrix & linpred,
 
   unsigned j;
   for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
-    *rp = *linpredp + trmult*sqrt(sigma2)*rand_normal();
+    // *rp = *linpredp + trmult*sqrt(sigma2)*rand_normal();
+    *rp = *linpredp + sqrt(sigma2)*rand_normal();
 
 
   }
@@ -930,14 +948,21 @@ void DISTR_gaussian::update(void)
 
   }
 
-
+/*
 void DISTR_gaussian::compute_mu(const double * linpred,double * mu,
                                 bool notransform)
   {
-    if (!notransform)
-      *mu = trmult * (*linpred);
-    else
-      *mu = (*linpred);
+  if (!notransform)
+    *mu = trmult * (*linpred);
+  else
+    *mu = (*linpred);
+  }
+*/
+
+
+void DISTR_gaussian::compute_mu(const double * linpred,double * mu)
+  {
+  *mu = (*linpred);
   }
 
 
@@ -1458,7 +1483,7 @@ DISTR_loggaussian::DISTR_loggaussian(const DISTR_loggaussian & nd)
   }
 
 
-
+/*
 void DISTR_loggaussian::compute_mu(const double * linpred,double * mu,
                                 bool notransform)
   {
@@ -1468,6 +1493,12 @@ void DISTR_loggaussian::compute_mu(const double * linpred,double * mu,
     *mu = exp(trmult * (*linpred) + sigma2*pow(trmult,2)/2.0);
   else
     *mu = exp((*linpred) + sigma2*pow(trmult,2)/2.0);
+  }
+*/
+
+void DISTR_loggaussian::compute_mu(const double * linpred,double * mu)
+  {
+  *mu = exp((*linpred) + 0.5*sigma2);
   }
 
 
@@ -1516,7 +1547,8 @@ void DISTR_loggaussian::sample_responses(unsigned i,datamatrix & sr)
 
   unsigned j;
   for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
-    *rp = exp(trmult*(*linpredp+sqrt(sigma2)*rand_normal()));
+//    *rp = exp(trmult*(*linpredp+sqrt(sigma2)*rand_normal()));
+        *rp = exp(*linpredp+sqrt(sigma2)*rand_normal());
   }
 
 
@@ -1532,7 +1564,8 @@ void DISTR_loggaussian::sample_responses_cv(unsigned i,datamatrix & linpred,
 
   unsigned j;
   for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
-    *rp = exp(*linpredp+trmult*sqrt(sigma2)*rand_normal());
+//    *rp = exp(*linpredp+trmult*sqrt(sigma2)*rand_normal());
+    *rp = exp(*linpredp+sqrt(sigma2)*rand_normal());
   }
 
 
@@ -1562,8 +1595,8 @@ DISTR_gaussian_exp::DISTR_gaussian_exp(const double & a,
   : DISTR_gaussian(a,b,o,r,ps,w)
 
   {
-  standardise();
-//  changingworkingweights = true;
+  // standardise();
+  // changingworkingweights = true;
   updateIWLS = true;
   }
 
@@ -1585,7 +1618,7 @@ DISTR_gaussian_exp::DISTR_gaussian_exp(const DISTR_gaussian_exp & nd)
   }
 
 
-
+/*
 void DISTR_gaussian_exp::standardise(void)
   {
 
@@ -1600,10 +1633,10 @@ void DISTR_gaussian_exp::standardise(void)
     *worklin = 0;
     }
 
-  FCsigma2.transform(0,0) = pow(trmult,2);    
+  FCsigma2.transform(0,0) = pow(trmult,2);
 
   }
-
+*/
 
 
 void DISTR_gaussian_exp::outoptions(void)
@@ -1660,7 +1693,7 @@ void DISTR_gaussian_exp::update(void)
 
   }
 
-
+/*
 void DISTR_gaussian_exp::compute_mu(const double * linpred,double * mu,
                                     bool notransform)
   {
@@ -1669,6 +1702,14 @@ void DISTR_gaussian_exp::compute_mu(const double * linpred,double * mu,
     else
       *mu = exp(*linpred);
   }
+*/
+
+
+void DISTR_gaussian_exp::compute_mu(const double * linpred,double * mu)
+  {
+  *mu = exp(*linpred);
+  }
+
 
 
 double DISTR_gaussian_exp::loglikelihood(double * res, double * lin,
@@ -1749,7 +1790,8 @@ void DISTR_gaussian_exp::sample_responses(unsigned i,datamatrix & sr)
 
   unsigned j;
   for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
-    *rp = trmult*( exp(*linpredp)+sqrt(sigma2)*rand_normal() );
+//    *rp = trmult*( exp(*linpredp)+sqrt(sigma2)*rand_normal() );
+    *rp =  exp(*linpredp)+sqrt(sigma2)*rand_normal();
   }
 
 
@@ -1774,7 +1816,7 @@ DISTR_gaussian_mult::DISTR_gaussian_mult(const double & a,
   : DISTR_gaussian_exp(a,b,o,r,ps,w)
 
   {
-  standardise();
+  //standardise();
   optionbool1 = false;
 //  changingworkingweights = false;
   updateIWLS = false;  
@@ -1817,7 +1859,7 @@ DISTR_gaussian_mult::DISTR_gaussian_mult(const DISTR_gaussian_mult & nd)
   }
 
 
-
+/*
 void DISTR_gaussian_mult::standardise(void)
   {
 
@@ -1835,7 +1877,7 @@ void DISTR_gaussian_mult::standardise(void)
   FCsigma2.transform(0,0) = pow(trmult,2);
 
   }
-
+*/
 
 
 void DISTR_gaussian_mult::outoptions(void)
@@ -1852,7 +1894,7 @@ void DISTR_gaussian_mult::update(void)
     DISTR_gaussian::update();
   }
 
-
+/*
 void DISTR_gaussian_mult::compute_mu(const double * linpred,double * mu,
                                     bool notransform)
   {
@@ -1863,6 +1905,20 @@ void DISTR_gaussian_mult::compute_mu(const double * linpred,double * mu,
  else
    {
    DISTR_gaussian_exp::compute_mu(linpred,mu,notransform);
+   }
+
+  }
+*/
+
+void DISTR_gaussian_mult::compute_mu(const double * linpred,double * mu)
+  {
+  if (!optionbool1)
+    {
+    DISTR_gaussian::compute_mu(linpred,mu);
+    }
+ else
+   {
+   DISTR_gaussian_exp::compute_mu(linpred,mu);
    }
 
   }
@@ -1921,6 +1977,7 @@ bool DISTR_gaussian_mult::posteriormode(void)
   }
 
 
+  
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian_re -----------------------
 //------------------------------------------------------------------------------

@@ -68,7 +68,7 @@ FC_hrandom::FC_hrandom(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp
   {
   read_options(op,vn);
   likep_RE = lp_RE;
-  likep_RE->trmult = likep->trmult;
+//  likep_RE->trmult = likep->trmult;
   FCrcoeff = FC(o,"",beta.rows(),beta.cols(),fp2);
   derivative=false;
   }
@@ -122,10 +122,10 @@ void FC_hrandom::set_rcoeff(void)
   for (i=0;i<beta.rows();i++,betap++,betarcoeffp++,linpredREp++)
     *betarcoeffp = *betap - *linpredREp;
 
-  FCrcoeff.transform(0,0) = transform(0,0);
+//  FCrcoeff.transform(0,0) = transform(0,0);
   }
 
-
+/*
 void FC_hrandom::transform_beta(void)
   {
   if (rtype == mult)
@@ -135,7 +135,7 @@ void FC_hrandom::transform_beta(void)
   else
     FC_nonp::transform_beta();
   }
-
+*/
 
 void FC_hrandom::update_IWLS(void)
   {
@@ -250,7 +250,7 @@ void FC_hrandom::update_IWLS(void)
 
   designp->update_linpred(betadiff);
 
-  transform_beta();
+//  transform_beta();
 
   FC::update();
 
@@ -275,7 +275,7 @@ void FC_hrandom::update(void)
 
   likep_RE->workingresponse.assign(beta);
   likep_RE->response.assign(beta);
-  likep_RE->trmult = likep->trmult;
+//  likep_RE->trmult = likep->trmult;
 
 //  ofstream out("c:\\bayesx\\testh\\results\\response_h.res");
 //  beta.prettyPrint(out);
@@ -476,7 +476,7 @@ bool FC_hrandom::posteriormode_additive(void)
 
   likep_RE->workingresponse.assign(beta);
   likep_RE->response.assign(beta);
-  likep_RE->trmult = likep->trmult;
+//  likep_RE->trmult = likep->trmult;
 
   // TEST
   /*

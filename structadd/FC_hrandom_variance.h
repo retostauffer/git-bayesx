@@ -82,7 +82,7 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
 
   bool posteriormode(void);
 
-  void transform_beta(void);
+  // void transform_beta(void);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 

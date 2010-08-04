@@ -90,7 +90,7 @@ FC::FC(const FC & m)
 
   sampled_beta = m.sampled_beta;
 
-  transform = m.transform;
+//  transform = m.transform;
   addon = m.addon;
 
 
@@ -145,7 +145,7 @@ const FC & FC::operator=(const FC & m)
 
   sampled_beta = m.sampled_beta;
 
-  transform = m.transform;
+//  transform = m.transform;
   addon = m.addon;
 
 
@@ -185,7 +185,7 @@ void FC::setbeta(const unsigned & rows,const unsigned & cols,
   betavarold = datamatrix(rows,cols,0);
   betaminold = datamatrix(rows,cols,0);
   betamaxold = datamatrix(rows,cols,0);
-  transform = datamatrix(cols,1,1);
+//  transform = datamatrix(cols,1,1);
 
   }
 
@@ -215,7 +215,7 @@ void FC::setbeta(const datamatrix & betanew)
   betavarold = datamatrix(beta.rows(),beta.cols(),0);
   betaminold = datamatrix(beta.rows(),beta.cols(),0);
   betamaxold = datamatrix(beta.rows(),beta.cols(),0);
-  transform = datamatrix(beta.cols(),1,1);
+//  transform = datamatrix(beta.cols(),1,1);
 
   }
 
@@ -486,8 +486,7 @@ void FC::update(void)
 
         {
 
-        betatransform = transform(j,0) * (*workbeta)+addon;
-
+        betatransform = (*workbeta)+addon;
 
         // storing sampled parameters in binary mode
 
@@ -597,6 +596,9 @@ void FC::update(void)
   }
 
 
+
+
+
 bool FC::posteriormode(void)
   {
 
@@ -634,7 +636,8 @@ void FC::posteriormode_betamean(void)
   for(i=0;i<beta.rows();i++)
     for (j=0;j<beta.cols();j++,workbetamean++,workbeta++)
       {
-      *workbetamean = transform(j,0) * (*workbeta)+addon;
+//      *workbetamean = transform(j,0) * (*workbeta)+addon;
+      *workbetamean =  (*workbeta)+addon;
       }
   }
 

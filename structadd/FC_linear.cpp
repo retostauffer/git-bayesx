@@ -345,7 +345,7 @@ void FC_linear::update_gaussian(void)
 
     betaold.assign(beta);
 
-    transform(0,0) = likep->trmult;
+//    transform(0,0) = likep->trmult;
     acceptance++;
 
     FC::update();
@@ -634,7 +634,7 @@ bool FC_linear::posteriormode(void)
 
     betaold.assign(beta);
 
-    transform(0,0) = likep->trmult;
+//    transform(0,0) = likep->trmult;
 
     masterp->level1_likep->meaneffect -= meaneffect;
     meaneffect = (meaneffectdesign*beta)(0,0);

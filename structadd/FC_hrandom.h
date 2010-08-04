@@ -99,7 +99,7 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   bool posteriormode(void);
 
-  void transform_beta(void);
+//  void transform_beta(void);
 
   void compute_autocorr_all(const ST::string & path, unsigned lag,
                             ofstream & outg) const;

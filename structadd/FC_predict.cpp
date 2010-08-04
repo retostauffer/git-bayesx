@@ -97,7 +97,7 @@ void  FC_predict::update(void)
 
   get_predictor();
 
-  transform(0,0) = likep->trmult;
+//  transform(0,0) = likep->trmult;
 
   acceptance++;
 
@@ -133,7 +133,8 @@ void FC_predict::get_predictor(void)
   double * workresponse = likep->response_untransformed.getV();
   double * workweight = likep->weight.getV();
   double muhelp;
-  double scalehelp=likep->get_scale(true);
+//  double scalehelp=likep->get_scale(true);
+  double scalehelp=likep->get_scale();
 
   for(i=0;i<likep->nrobs;i++,worklinp++,workresponse++,workweight++,betap++)
     {
@@ -158,7 +159,7 @@ bool FC_predict::posteriormode(void)
 
   get_predictor();
 
-  transform(0,0) = likep->trmult;
+//  transform(0,0) = likep->trmult;
 
   posteriormode_betamean();
 
@@ -196,7 +197,8 @@ void FC_predict::outresults_DIC(void)
   for (i=0;i<likep->nrobs;i++,workmeanlin+=beta.cols(),workresponse++,workweight++)
     {
 
-    likep->compute_mu(workmeanlin,&mu_meanlin,true);
+//    likep->compute_mu(workmeanlin,&mu_meanlin,true);
+    likep->compute_mu(workmeanlin,&mu_meanlin);
 
     likep->compute_deviance(workresponse,workweight,&mu_meanlin,
     &devhelp,&devhelp_sat,&scalehelp);

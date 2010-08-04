@@ -192,7 +192,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void reset(void);
 
-  virtual void transform_beta(void);
+//  virtual void transform_beta(void);
 
   void compute_autocorr_all(const ST::string & path,
                                       unsigned lag, ofstream & outg) const;

@@ -58,8 +58,9 @@ FC_nonp_variance::FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp,
 
   FCnonpp->tau2 = beta(0,0);
   FCnonpp->lambda = beta(0,1);
-  transform(1,0) = 1;
+  // transform(1,0) = 1;
 
+  b_invgamma = likep->trmult*b_invgamma;
   }
 
 
@@ -90,11 +91,12 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   return *this;
   }
 
-  
+/*
 void FC_nonp_variance::transform_beta(void)
   {
   transform(0,0) = pow(likep->trmult,2);
   }
+*/
 
 void FC_nonp_variance::update(void)
   {
@@ -112,7 +114,7 @@ void FC_nonp_variance::update(void)
 
   FCnonpp->tau2 = beta(0,0);
 
-  transform_beta();
+  // transform_beta();
   acceptance++;
   FC::update();
   }
@@ -125,7 +127,7 @@ bool FC_nonp_variance::posteriormode(void)
 
   FCnonpp->tau2 = beta(0,0);
 
-  transform_beta();
+  // transform_beta();
 
   posteriormode_betamean();
 
@@ -295,8 +297,8 @@ void FC_nonp_variance::reset(void)
 
   FCnonpp->tau2 = beta(0,0);
   FCnonpp->lambda = beta(1,0);
-  transform(0,0) = 1;
-  transform(1,0) = 1;
+//  transform(0,0) = 1;
+//  transform(1,0) = 1;
 
   }
 

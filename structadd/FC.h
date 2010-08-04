@@ -84,7 +84,7 @@ class __EXPORT_TYPE FC
                                  // the number of columns correspond to the
                                  // number of parameters
 
-  datamatrix transform;          // The factor with which all beta's will be
+//  datamatrix transform;        // The factor with which all beta's will be
                                  // multiplied before storing them and computing
                                  // means, std, etc.
                                  // DEFAULT: transform = 1
