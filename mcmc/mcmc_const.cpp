@@ -1,5 +1,6 @@
 
 #include "mcmc_const.h"
+using namespace std;
 
 namespace MCMC
 {
