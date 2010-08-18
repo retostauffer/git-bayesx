@@ -173,22 +173,24 @@ The following model statement specified a model with $q$ fixed
  to fix the shrinkage parameter through the iterations in order to use a prespecified
  amount for shrinkage. To do so the the option #shrinkagefix# have to be set
  in the corresponding terms and this results in fixing the shrinkage parameter at
- the starting value assigned in the option #shrinkagepar#.
+ the starting value assigned in the option #shrinkage#.
 
  The following model term defines a lasso-penalty with shrinkage parameter
  fixed at the value 1.5:
 
- #Y = X1(lasso)+...+ Xq(lasso,shrinkagepar=1.5,shrinkagefix)#
+ #Y = X1(lasso)+...+ Xq(lasso,shrinkage=1.5,shrinkagefix)#
 
  Full details about all possible options for shrinkage-effects are given in \ref{localoptions}.
 
- {\em Important Remark}: Except for the option #lambda# for the inverse variances,
+ {\em Important Remark}: Except the option #tau2# for the variances of lasso or ridge
+ (and resp. the options #I# and #t2# for nigmix),
  all the other possible options used in the shrinkage-methods are those which are
- specified in the last term of the corresponding penalty, e.g.
+ specified in the first term of the corresponding penalty, e.g.
 
  #Y = X2(lasso,shrinkagepar=2,shrinkagefix)+ X1(lasso,shrinkagepar=1.5)#
 
- uses the options of #X1#.
+ uses the options of #X2#. If the option #adaptive# is specified the options from
+ each term are used.
 
 \end{itemize}
 
@@ -763,10 +765,21 @@ terms for bayesreg objects.}}
 & #a=0.001#, #b=0.001# \\
 
 & 3. The options #a# and #b# specify the hyperparameters the inverse Gamma prior
-  for the variance parameters $t_{j}^2$ if the NIG-penalty is used (*).
+  for the variance parameters $t_{j}^2$ if the NMIG-penalty is used (*).
 & #a=5#, #b=50# \\
 \hline
 
+#adaptive#
+& Specifies adaptive versions of the shrinkge priors.
+& #-# \\
+\hline
+
+#aw#,#bw#
+& The options #aw# and #bw# specify the hyperparameters of
+  the Beta prior for the parameter $\omega$ if the NMIG-penalty is used.
+& #a=0.001#, #b=0.001# \\
+ \hline
+ 
 #contourprob# & Forces the computation of contour probabilities for P-splines as described
 in \citeasnoun{BreLan08}. For instance, #contourprob=4# specifies
 that contour probabilities for difference orders zero to four are computed.
@@ -791,18 +804,13 @@ on an equidistant grid with #nrpoints# knots. & #gridsize=-1# \\
 
 #I#
 & Provides a starting value of for the indicator variable $I_{j} $ of the corresponding
-  effect. Values have to be 0 or 1 and have to be set in each shrinkage term.
+  effect if the NMIG-penalty is used. Values have to be 0 or 1 and have to be set in each shrinkage term.
 & #I=1# \\
 \hline
 
 
 #lambda#
-& 1. Provides a starting value for the smoothing parameter $\lambda$. & #lambda=0.1# \\
-
-& 2. Provides a starting value of for the variance parameter $\lambda _{j} =1/
-  \tau _{j}^{2} $ of the corresponding effect if the lasso- or the ridge-prior is used.
-  Values have to be positive and have to be set in each shrinkage term.
-& #lambda=0.1# \\
+& Provides a starting value for the smoothing parameter $\lambda$. & #lambda=0.1# \\
 \hline
 
 
@@ -844,15 +852,15 @@ object terms in alphabetical order (1).}}
 \hline Option & Description & Default\\ \hline
 \hline
 
-#omega#
-& Specifies the starting value of the complexity parameter $\omega$. Values have to
+#w#
+& Specifies the starting value of the complexity parameter $\omega$ if the NMIG-penalty is used. Values have to
   be in the interval (0,1) (*).
-& #omega=0.5# \\
+& #w=0.5# \\
 \hline
 
-#omegafix#
+#wfix#
 & Specifies if the complexity parameter $\omega$ should take the fixed value given
-  in option #omega# (*).
+  in option #w# (*) if the NMIG-penalty is used.
 & - \\
 \hline
 
@@ -870,23 +878,29 @@ weighted least squares (IWLS)
 
 #shrinkagefix#
 & Specifies if the shrinkage parameter $\lambda$ should take the fixed value
-  given in option #shrinkagepar# (*).
+  given in option #shrinkage# (*).
 & - \\
 \hline
 
 
-#shrinkagepar#
-& Provides a starting value of for the shrinkage parameter $\lambda$ . Values
-  have to be positive (*).
-& #shrinkagepar=1# \\
+#shrinkage#
+& Provides a starting value of for the shrinkage parameter $\lambda$ if the lasso-
+  or ridge -penalty is used. Values have to be positive (*).
+& #shrinkage=1# \\
 \hline
 
 #t2#
 & Provides a starting value of for the variance parameter $t_{j}^{2}$ of the corresponding
-  effect. Values have to be positive and have to be set in each shrinkage term.
+  effect if the NMIG-penalty is used. Values have to be positive and have to be set in each shrinkage term.
 & #t2=11# \\
 \hline
 
+#tau2#
+& Provides a starting value of for the variance parameter $\tau _{j}^{2} $
+of the corresponding effect if the lasso- or the ridge-prior is used.
+Values have to be positive and have to be set in each shrinkage term.
+& #tau2=0.1# \\
+\hline
 
 #updateW# & The option #updateW# may be used to specify how often
 the IWLS weight matrix should be updated. #updateW=0# means never,
@@ -897,7 +911,7 @@ the IWLS weight matrix should be updated. #updateW=0# means never,
 
 
 #v0#, #v1#
-& Hyperparameters that determine the modes of the marginal variances. Values
+& Hyperparameters that determine the modes of the marginal variances if the NMIG-penalty is used. Values
   have to be nonnegative (*).
 & #v0=0.005#, #v1=1# \\
 \hline
@@ -906,7 +920,7 @@ the IWLS weight matrix should be updated. #updateW=0# means never,
 
 
 \hline
-& (*) these options are specified in the last covariate occurring in term of
+& (*) these options are specified in the first covariate occurring in term of
   the corresponding penalty
 & \\
 \hline

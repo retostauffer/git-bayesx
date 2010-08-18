@@ -939,10 +939,10 @@ together with special mixing distributions for the variances $\tau _{s}^{2} =\le
 \label{ZEqnNum341486}
 p\left(\beta _{s} |\tau _{s}^{2} \right)\propto \frac{1}{\det \left(K_{s} \right)^{{1
 \mathord{\left/ {\vphantom {1 2}} \right. \kern-\nulldelimiterspace} 2} } } \exp
-\left(-\frac{1}{2} \beta _{s} ^{{'} } K_{s} \beta _{s} \right)
+\left(-\frac{1}{2} \beta _{s} ^{{'} } K_{s} \beta _{s} \right),
 \end{equation}
 
-where $K_{s} =diag\left(\tau _{p+1}^{2} ,\ldots,\tau _{p+q}^{2} \right)$ denotes the diagonal matrix of the variances.
+where $K_{s} =diag\left(\sigma^2\tau _{p+1}^{2} ,\ldots,\sigma^2\tau _{p+q}^{2} \right)$ denotes the diagonal matrix of the variances.
 
 {\em Ridge-Prior}
 
@@ -964,8 +964,13 @@ of the regression coefficients and is equipped with a Gamma distribution
 
 which results in a marginal Gaussian distribution of the regression coefficients $\beta _{s} |\lambda \mathop{\sim
 }\limits^{i.i.d.} N\left(0,{\lambda \mathord{\left/ { \vphantom {\lambda  2}} \right. \kern-\nulldelimiterspace} 2} \right).$
-The logarithm of the common marginal prior for $\beta _{s} |\lambda $ corresponds to the ridge penalty $\lambda \sum \gamma
-_{j}^{2}  $ and for given $\lambda $ posterior mode estimation coincides with penalized likelihood estimation.
+The logarithm of the common marginal prior for $\beta _{s} |\lambda $ corresponds to the ridge penalty $\lambda \sum \beta
+_{j}^{2}  $ and for a given value of $\lambda $ posterior mode estimation coincides with penalized likelihood estimation.
+
+The {\em adaptive} version allows the tuning each variance patameter via
+
+\[{\lambda _j}\sim Gamma\left( {{a_j},{b_j}} \right).\]
+
 
 {\em Lasso-Prior}
 
@@ -984,9 +989,14 @@ The prior of the squared shrinkage parameter is also a gamma distribution
 \[\lambda ^{2} \sim Gamma\left(a,b\right);\quad a,b>0\]
 
 and the corresponding marginal priors of the regression coefficients are i.i.d. Laplace
-distributions $\gamma _{j} |\lambda \mathop{\sim }\limits^{i.i.d.} Laplace\left(0,
-\lambda \right)$ so that the logarithm of the common marginal prior for $\gamma $ corresponds
+distributions $\beta _{j} |\lambda \mathop{\sim }\limits^{i.i.d.} Laplace\left(0,
+\lambda \right)$ so that the logarithm of the common marginal prior for $\beta $ corresponds
 to the Lasso penalty (Park and Casella, 2008).
+
+The {\em adaptive} version allows the tuning each variance patameter via
+
+\[\lambda _j^2\sim Gamma\left( {{a_j},{b_j}} \right).\]
+
 
 {\em Normal-Mixture of inverse Gamma-Prior}
 
@@ -1012,11 +1022,19 @@ _{1} $, $\omega \, $, $a $, $b $ with representation as a mixture
 of scaled inverse Gamma distributions
 
 \[\pi \left(\tau _{j}^{2} |\nu _{0} ,\nu _{1} ,\omega ,a ,b \right)=
-\left(1-\omega \right)\cdot IG\left(\tau _{j}^{2} |a ,\nu _{0} b
-\right)+\omega \cdot IG\left(\tau _{j}^{2} |a ,\nu _{1} b \right). \]
-We
-assume a uniform prior for the parameter $\omega $, i.e. $\omega \sim Uniform\left(0,1
-\right)$, which expresses an indifferent prior knowledge about the model complexity.
+\left(1-\omega \right)\cdot InvGamma\left(\tau _{j}^{2} |a ,\nu _{0} b
+\right)+\omega \cdot InvGamma\left(\tau _{j}^{2} |a ,\nu _{1} b \right). \]
+
+We assume a beta prior for the parameter $\omega $, i.e. $\omega \sim \[Beta\left( {{a_\omega },{b_\omega }} \right)\]$,
+with $ {{a_\omega }={b_\omega }} = 1$ as default, which expresses an indifferent prior knowledge about the model complexity.
+
+The {\em adaptive} version enables
+
+\[\begin{array}{l}
+ t_j^2\sim Gamma\left( {{a_j},{b_j}} \right) \\
+ {\omega _j}\sim Beta\left( {{a_{\omega ,j}},{b_{\omega ,j}}} \right) .\\
+ \end{array}\]
+
 
 More Details can be found in Kneib, Konrath, Fahrmeir (2009) for the Gaussian case
 and in Konrath, Kneib and Fahrmeir (2008) for exponential family and hazard regression.
