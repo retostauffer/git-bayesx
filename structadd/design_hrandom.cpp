@@ -172,7 +172,7 @@ void DESIGN_hrandom::compute_precision(double l)
 
 void DESIGN_hrandom::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
                                 datamatrix & beta,datamatrix & meaneffectbeta,
-                                bool computemeaneffect)
+                                bool computemeaneffect,double meaneffectconstant)
 
   {
 
@@ -195,13 +195,20 @@ void DESIGN_hrandom::compute_meaneffect(DISTR * level1_likep,double & meaneffect
 
   if (computemeaneffect==true)
     {
+    double co;
+
+    if (meaneffectconstant == 0)
+      co = level1_likep->meaneffect;
+    else
+      co = meaneffectconstant;
+
     unsigned i;
     double * betap = beta.getV();
     double * meffectp = meaneffectbeta.getV();
     double l;
     for(i=0;i<beta.rows();i++,meffectp++,betap++,linpredREp++)
       {
-      l=level1_likep->meaneffect+meaneffectintvar*((*betap)- (*linpredREp));
+      l=co+meaneffectintvar*((*betap)- (*linpredREp));
       level1_likep->compute_mu(&l,meffectp);
       }
     }

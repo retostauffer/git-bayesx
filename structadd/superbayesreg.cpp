@@ -245,47 +245,47 @@ void superbayesreg::clear(void)
   {
 
   equations.erase(equations.begin(),equations.end());
-  equations.reserve(10);
+  equations.reserve(20);
 
   distr_gaussians.erase(distr_gaussians.begin(),distr_gaussians.end());
-  distr_gaussians.reserve(10);
+  distr_gaussians.reserve(20);
 
   distr_gaussianmixtures.erase(distr_gaussianmixtures.begin(),
   distr_gaussianmixtures.end());
-  distr_gaussianmixtures.reserve(10);
+  distr_gaussianmixtures.reserve(20);
 
   distr_quantregs.erase(distr_quantregs.begin(),distr_quantregs.end());
-  distr_quantregs.reserve(10);
+  distr_quantregs.reserve(20);
 
   distr_loggaussians.erase(distr_loggaussians.begin(),distr_loggaussians.end());
-  distr_loggaussians.reserve(10);
+  distr_loggaussians.reserve(20);
 
   distr_gaussian_res.erase(distr_gaussian_res.begin(),distr_gaussian_res.end());
-  distr_gaussian_res.reserve(10);
+  distr_gaussian_res.reserve(20);
 
   distr_gaussian_exps.erase(distr_gaussian_exps.begin(),distr_gaussian_exps.end());
-  distr_gaussian_exps.reserve(10);
+  distr_gaussian_exps.reserve(20);
 
   distr_gaussian_mults.erase(distr_gaussian_mults.begin(),
   distr_gaussian_mults.end());
-  distr_gaussian_mults.reserve(10);
+  distr_gaussian_mults.reserve(20);
 
   distr_binomials.erase(distr_binomials.begin(),distr_binomials.end());
-  distr_binomials.reserve(10);
+  distr_binomials.reserve(20);
 
   distr_poissons.erase(distr_poissons.begin(),distr_poissons.end());
-  distr_poissons.reserve(10);
+  distr_poissons.reserve(20);
 
   distr_binomialprobits.erase(distr_binomialprobits.begin(),
                               distr_binomialprobits.end());
-  distr_binomialprobits.reserve(10);
+  distr_binomialprobits.reserve(20);
 
 
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
-  FC_linears.reserve(30);
+  FC_linears.reserve(50);
 
   design_psplines.erase(design_psplines.begin(),design_psplines.end());
-  design_psplines.reserve(30);
+  design_psplines.reserve(100);
 
   design_mrfs.erase(design_mrfs.begin(),design_mrfs.end());
   design_mrfs.reserve(30);
@@ -294,38 +294,38 @@ void superbayesreg::clear(void)
   design_krigings.reserve(30);
 
   design_hrandoms.erase(design_hrandoms.begin(),design_hrandoms.end());
-  design_hrandoms.reserve(30);
+  design_hrandoms.reserve(50);
 
   FC_nonps.erase(FC_nonps.begin(),FC_nonps.end());
-  FC_nonps.reserve(30);
+  FC_nonps.reserve(200);
 
   FC_hrandoms.erase(FC_hrandoms.begin(),FC_hrandoms.end());
-  FC_hrandoms.reserve(30);
+  FC_hrandoms.reserve(50);
 
   FC_mults.erase(FC_mults.begin(),FC_mults.end());
   FC_mults.reserve(30);
 
   FC_nonp_variances.erase(FC_nonp_variances.begin(),FC_nonp_variances.end());
-  FC_nonp_variances.reserve(30);
+  FC_nonp_variances.reserve(200);
 
 
   FC_linear_pens.erase(FC_linear_pens.begin(),FC_linear_pens.end());
-  FC_linear_pens.reserve(30);
+  FC_linear_pens.reserve(50);
 
   FC_variance_pen_vectors.erase(FC_variance_pen_vectors.begin(),
                                 FC_variance_pen_vectors.end());
-  FC_variance_pen_vectors.reserve(30);
+  FC_variance_pen_vectors.reserve(50);
 
 
   FC_hrandom_variances.erase(FC_hrandom_variances.begin(),
   FC_hrandom_variances.end());
-  FC_hrandom_variances.reserve(30);
+  FC_hrandom_variances.reserve(50);
 
   FC_predicts.erase(FC_predicts.begin(),FC_predicts.end());
-  FC_predicts.reserve(10);
+  FC_predicts.reserve(30);
 
   FC_predictive_checks.erase(FC_predictive_checks.begin(),FC_predictive_checks.end());
-  FC_predictive_checks.reserve(10);
+  FC_predictive_checks.reserve(30);
 
   }
 
@@ -1304,7 +1304,10 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   terms[i].varnames.push_back(helpt.varnames[0]);
 
   terms[i].options[12] = "true";
-  create_hrandom(i);
+  bool error=false;
+  error = create_hrandom(i);
+  if (error==true)
+    return true;
   FC_nonp * fcnp_hrandom = &FC_hrandoms[FC_hrandoms.size()-1];
   MCMC::DESIGN * dp_hrandom = &design_hrandoms[design_hrandoms.size()-1];
   dp_hrandom->changingdesign=true;
@@ -1332,8 +1335,13 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   if (terms[i].options[19] == "true")
     me = true;
 
+  double mec;
+  int f;
+   f = (terms[i].options[34]).strtodouble(mec);
+
+
   FC_mults[FC_mults.size()-1].set_multeffects(&master,&generaloptions,
-                                              title,pathnonp,samplem,me);
+                                              title,pathnonp,samplem,me,mec);
 
   equations[modnr].add_FC(&FC_mults[FC_mults.size()-1],pathres);
 

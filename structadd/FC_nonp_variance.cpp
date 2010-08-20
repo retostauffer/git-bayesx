@@ -39,6 +39,7 @@ FC_nonp_variance::FC_nonp_variance(void)
   }
 
 
+  
 FC_nonp_variance::FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,

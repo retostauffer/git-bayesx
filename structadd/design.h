@@ -314,7 +314,7 @@ class __EXPORT_TYPE DESIGN
 
   virtual void compute_meaneffect(DISTR * level1_likep,double & meaneffect,
                                 datamatrix & beta,datamatrix & meaneffectbeta,
-                                bool computemeaneffect);
+                                bool computemeaneffect,double meaneffectconstant);
 
 
   virtual void compute_precision(double l);

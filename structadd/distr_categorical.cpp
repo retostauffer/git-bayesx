@@ -73,8 +73,7 @@ double DISTR_binomial::loglikelihood_weightsone(
   }
 
 
-void DISTR_binomial::compute_mu(const double * linpred,double * mu,
-                                bool notransform)
+void DISTR_binomial::compute_mu(const double * linpred,double * mu)
   {
   double el = exp(*linpred);
   *mu = el/(1+el);
@@ -270,8 +269,7 @@ double DISTR_binomialprobit::loglikelihood_weightsone(
   }
 
 
-void DISTR_binomialprobit::compute_mu(const double * linpred,double * mu,
-                                bool notransform)
+void DISTR_binomialprobit::compute_mu(const double * linpred,double * mu)
   {
   *mu = randnumbers::Phi2(*linpred);
   }
@@ -515,8 +513,7 @@ double DISTR_poisson::loglikelihood_weightsone(
   }
 
 
-void DISTR_poisson::compute_mu(const double * linpred,double * mu,
-                                bool notransform)
+void DISTR_poisson::compute_mu(const double * linpred,double * mu)
   {
   *mu = exp(*linpred);
   }

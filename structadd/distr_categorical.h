@@ -57,7 +57,7 @@ class __EXPORT_TYPE DISTR_binomial : public DISTR
 
    ~DISTR_binomial() {}
 
-  void compute_mu(const double * linpred,double * mu, bool notransform=false);
+  void compute_mu(const double * linpred,double * mu);
 
   void compute_deviance(const double * response, const double * weight,
                         const double * mu,double * deviance,
@@ -131,7 +131,7 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
 
    ~DISTR_binomialprobit() {}
 
-  void compute_mu(const double * linpred,double * mu, bool notransform=false);
+  void compute_mu(const double * linpred,double * mu);
 
   void compute_deviance(const double * response, const double * weight,
                         const double * mu,double * deviance,
@@ -207,7 +207,7 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
 
    ~DISTR_poisson() {}
 
-  void compute_mu(const double * linpred,double * mu, bool notransform=false);
+  void compute_mu(const double * linpred,double * mu);
 
   void compute_deviance(const double * response, const double * weight,
                         const double * mu,double * deviance,

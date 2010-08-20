@@ -1268,7 +1268,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
 
 void DESIGN::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
                                 datamatrix & beta,datamatrix & meaneffectbeta,
-                                bool computemeaneffect)
+                                bool computemeaneffect,double meaneffectconstant)
 
   {
 
@@ -1279,6 +1279,12 @@ void DESIGN::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
   if (computemeaneffect==true)
     {
 
+    double co;
+    if (meaneffectconstant == 0)
+      co = level1_likep->meaneffect;
+    else
+      co = meaneffectconstant;
+
     unsigned i;
     double * betap = beta.getV();
     double * meffectp = meaneffectbeta.getV();
@@ -1287,7 +1293,8 @@ void DESIGN::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
       {
       for(i=0;i<beta.rows();i++,meffectp++,betap++)
         {
-        l=level1_likep->meaneffect+meaneffectintvar*(*betap);
+
+        l=co+meaneffectintvar*(*betap);
         level1_likep->compute_mu(&l,meffectp);
         }
       }
@@ -1295,7 +1302,7 @@ void DESIGN::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
       {
       for(i=0;i<beta.rows();i++,meffectp++,betap++)
         {
-        l=level1_likep->meaneffect+(*betap);
+        l=co+(*betap);
         level1_likep->compute_mu(&l,meffectp);
         }
       }

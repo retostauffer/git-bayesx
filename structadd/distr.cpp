@@ -753,6 +753,8 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
 
   lassosum = 0;
   ridgesum = 0;
+  nrlasso=0;
+  nrridge=0;
 
   if (check_weightsone())
     wtype = wweightsnochange_one;

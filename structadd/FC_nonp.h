@@ -79,6 +79,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
 
   bool computemeaneffect;
+  double meaneffectconstant;
   FC meaneffect_sample;
 
 

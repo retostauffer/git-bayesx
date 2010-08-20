@@ -80,6 +80,7 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else
     samplef = true;
 
+   f = op[34].strtodouble(meaneffectconstant);
 
   }
 
@@ -168,6 +169,7 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   mPhelp = m.mPhelp;
 
   computemeaneffect = m.computemeaneffect;
+  meaneffectconstant = m.meaneffectconstant;
   meaneffect_sample = m.meaneffect_sample;
 
   stype = m.stype;
@@ -224,6 +226,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   mPhelp = m.mPhelp;
 
   computemeaneffect = m.computemeaneffect;
+  meaneffectconstant = m.meaneffectconstant;  
   meaneffect_sample = m.meaneffect_sample;
 
   stype = m.stype;
@@ -635,7 +638,8 @@ void FC_nonp::update(void)
 
 
   designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
-                             meaneffect_sample.beta,computemeaneffect);
+                             meaneffect_sample.beta,computemeaneffect,
+                             meaneffectconstant);
 
   if (computemeaneffect == true)
     {
@@ -1123,7 +1127,8 @@ bool FC_nonp::posteriormode_transform(void)
   ST::string n = designp->datanames[0];
 
   designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
-                              meaneffect_sample.beta,computemeaneffect);
+                              meaneffect_sample.beta,computemeaneffect,
+                              meaneffectconstant);
 
   return FC::posteriormode();
 
@@ -1198,7 +1203,8 @@ bool FC_nonp::posteriormode(void)
 //    ST::string n = designp->datanames[0];
 
     designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
-                               meaneffect_sample.beta,computemeaneffect);
+                               meaneffect_sample.beta,computemeaneffect,
+                               meaneffectconstant);
 
     return FC::posteriormode();
     }

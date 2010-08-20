@@ -69,7 +69,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   shrinkagefix = simpleoption("shrinkagefix",false);
   shrinkageweight = doubleoption("shrinkageweight",1,0,10000000);
   adaptiveshrinkage = simpleoption("adaptive",false);
-  tau2 = doubleoption("tau2",1,0.000000000001,100000000); 
+  tau2 = doubleoption("tau2",1,0.000000000001,100000000);
+  meaneffectconst = doubleoption("meaneffectconst",0,-10000000,10000000);
 
   }
 
@@ -108,6 +109,7 @@ void term_nonp::setdefault(void)
   shrinkageweight.setdefault();
   adaptiveshrinkage.setdefault();
   tau2.setdefault();
+  meaneffectconst.setdefault();
   }
 
 
@@ -190,6 +192,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&shrinkagefix);
     optlist.push_back(&shrinkageweight);
     optlist.push_back(&tau2);
+    optlist.push_back(&meaneffectconst);
 
 
     unsigned i;
@@ -313,6 +316,8 @@ bool term_nonp::check(term & t)
       t.options[32] = "true";
 
     t.options[33] = ST::doubletostring(tau2.getvalue());
+
+    t.options[34] = ST::doubletostring(meaneffectconst.getvalue());
 
     setdefault();
     return true;

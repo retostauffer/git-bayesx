@@ -25,7 +25,7 @@ void FC_mult::set_intp(DESIGN * d,FC_nonp * fp)
 
 void FC_mult::set_multeffects(MASTER_OBJ * mp,GENERAL_OPTIONS * o,
                               const ST::string & t, const ST::string & fp,
-                              bool sm,bool meane)
+                              bool sm,bool meane, double meanec)
   {
 
   masterp = mp;
@@ -34,6 +34,7 @@ void FC_mult::set_multeffects(MASTER_OBJ * mp,GENERAL_OPTIONS * o,
 
   samplemult = sm;
   compmeaneffect = meane;
+  meaneffectconstant = meanec;
 
   if (samplemult)
     {
@@ -49,7 +50,7 @@ void FC_mult::compute_autocorr_all(const ST::string & path, unsigned lag,
                                     ofstream & outg) const
   {
 
-  }                                    
+  }
 
 
 FC_mult::FC_mult(void)
@@ -57,6 +58,7 @@ FC_mult::FC_mult(void)
   nosamples = true;
   samplemult = false;
   compmeaneffect = false;
+  meaneffectconstant = 0;
   multexp=false;
   }
 
@@ -68,6 +70,7 @@ FC_mult::FC_mult(bool reu,bool mexp)
   nosamples = true;
   samplemult = false;
   compmeaneffect = false;
+  meaneffectconstant = 0;
   RE_update = reu;
   }
 
@@ -81,6 +84,7 @@ FC_mult::FC_mult(const FC_mult & m)
   FCmulteffect_mean = m.FCmulteffect_mean;
   samplemult = m.samplemult;
   compmeaneffect = m.compmeaneffect;
+  meaneffectconstant = m.meaneffectconstant;
   dp1 = m.dp1;
   dp2 = m.dp2;
   FCnp = m.FCnp;
@@ -103,6 +107,7 @@ const FC_mult & FC_mult::operator=(const FC_mult & m)
   FCmulteffect_mean = m.FCmulteffect_mean;
   samplemult = m.samplemult;
   compmeaneffect = m.compmeaneffect;
+  meaneffectconstant = m.meaneffectconstant;
   dp1 = m.dp1;
   dp2 = m.dp2;
   FCnp = m.FCnp;
@@ -171,7 +176,12 @@ void FC_mult::update_multeffect(void)
 
   if (compmeaneffect)
     {
-    double meanlin = masterp->level1_likep->meaneffect-FCnp2->meaneffect;
+    double meanlin;
+    if (meaneffectconstant==0)
+      meanlin = masterp->level1_likep->meaneffect-FCnp2->meaneffect;
+    else
+      meanlin = meaneffectconstant;
+
     double lin;
     double * FCmp = FCmulteffect_mean.beta.getV();
     for (i=0;i<FCnp->beta.rows();i++,FCnpbetap++)
@@ -314,8 +324,8 @@ void FC_mult::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
             << " pcat" << pu_str << " pcat" << po_str;
 
 
-  /*
-  if (computemeaneffect==true)
+
+  if (compmeaneffect==true)
     {
     out_stata << " pmean_mu pqu"
               << pu1_str << "_mu"
@@ -323,7 +333,7 @@ void FC_mult::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
               << " pmed_d pqu" << po2_str << "_mu"
               << " pqu" << pu2_str << "_mu";
     }
-  */
+
 
   out_stata << " using "
             << path << endl
