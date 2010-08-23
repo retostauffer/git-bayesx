@@ -231,6 +231,7 @@ void FULLCOND_variance_nonp_vector::update(void)
   ridgesum = 0;
   double sumvariances = 0;
   double sumregcoeff = 0;
+  double sumabsregcoeff = 0;
 
   // get current value of (first)
   int iteration = optionsp->get_nriter();                  // Iteration
@@ -291,6 +292,7 @@ void FULLCOND_variance_nonp_vector::update(void)
           beta(k,0) = 1E-6;
           }
         lassosum = lassosum + ((*workbeta)*(*workbeta))/beta(k,0);              // sum(beta^2/tau^2) for scale update
+        sumabsregcoeff = sumabsregcoeff + sqrt((*workbeta)*(*workbeta));              // sum(beta^2/tau^2) for scale update
         sumvariances = sumvariances + beta(k,0)/(weight[k] * weight[k]);        // sum(tau^2) of current variances
         }
       }
@@ -330,6 +332,7 @@ void FULLCOND_variance_nonp_vector::update(void)
     
     if(is_ridge == 0 && shrinkage_adaptive == false)            // L1-penalty
       {
+      //helpshrinkage = rand_gamma(nrpar + a_shrinkage[0], b_shrinkage[0] + sumabsregcoeff/sqrt(sigma2));//Armagan+Dunson
       helpshrinkage =  sqrt(rand_gamma(nrpar + a_shrinkage[0], b_shrinkage[0] + 0.5*sumvariances));
       for(i=0; i<nrpar; i++, shrinkagep++)
         {
@@ -345,8 +348,8 @@ void FULLCOND_variance_nonp_vector::update(void)
         workbeta = Cp[j]->getbetapointer();               // current value of first regressionparameter
         for(k=cut[j]; k<cut[j+1]; k++, workbeta++, shrinkagep++)
           {
-          *shrinkagep = rand_gamma(1 + a_shrinkage[k], b_shrinkage[k] + abs(*workbeta)/sqrt(sigma2));//Armagan+Dunson
-          //*shrinkagep = sqrt(rand_gamma(1 + a_shrinkage[k], b_shrinkage[k] + 0.5*beta(k,0)));
+          //*shrinkagep = rand_gamma(1 + a_shrinkage[k], b_shrinkage[k] + abs(*workbeta)/sqrt(sigma2));//Armagan+Dunson
+          *shrinkagep = sqrt(rand_gamma(1 + a_shrinkage[k], b_shrinkage[k] + 0.5*beta(k,0)));
           }
         }
       }
