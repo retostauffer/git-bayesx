@@ -772,9 +772,11 @@ void FC::outresults_help(ofstream & out_stata, ofstream & out_R,
     vnames = datanames;
   else
     {
+    nr = datanames.size();                            //Kommentar Susanne: das hab ich hier eigefügt
     unsigned i;
     for (i=0;i<nr;i++)
-      vnames.push_back("_x_" + ST::inttostring(i));
+//      vnames.push_back("_x_" + ST::inttostring(i)); //Kommentar Susanne: das hab ich auskommentiert
+        vnames.push_back(datanames[i]);               //Kommentar Susanne: das hab ich ersetzt
     }
 
 //  outresults(out_stata,out_R,"");
