@@ -48,8 +48,10 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
   bool is_adaptive;       //  indicates if "true" that the Shrinkage is adaptive
                           
 
-  void outresults_shrinkage(void);  //  Function to write results to output window and files
+//  void outresults_shrinkage(void);  //  Function to write results to output window and files
 
+  void outresults_shrinkage(const ST::string & pathresults);
+   
   public:
 
   //____________________________________________________________________________
@@ -124,7 +126,7 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
 
   void outresults(ofstream & out_stata, ofstream & out_R,
                   const ST::string & pathresults);
-
+                  
   //____________________________________________________________________________
   //
   // FUNCTION: outoptions

@@ -337,7 +337,7 @@ void FC_variance_pen_vector::update(void)
 
     if(is_ridge == 1 && is_adaptive == false)            // Ridge L2-penalty
       {
-      helpshrinkage = rand_gamma(0.5*nrpen + a_shrinkagegamma[1], b_shrinkagegamma[1] + sumregcoeff/(sigma*sigma));
+      helpshrinkage = rand_gamma(0.5*nrpen + a_shrinkagegamma[0], b_shrinkagegamma[0] + sumregcoeff/(sigma*sigma));
       for(i=0; i<nrpen; i++, shrinkagep++)
         {
         *shrinkagep = helpshrinkage;
@@ -380,7 +380,7 @@ void FC_variance_pen_vector::get_samples(const ST::string & filename,ofstream & 
 
   FC::get_samples(filename,outg);
 
-  ST::string pathhelp = filename.substr(0,filename.length()-7)+"shrinkage_sample.raw";
+  ST::string pathhelp = filename.substr(0,filename.length()-14)+"shrinkage_sample.raw";
 
   FC_shrinkage.get_samples(pathhelp,outg);
 
@@ -395,16 +395,27 @@ void FC_variance_pen_vector::get_samples(const ST::string & filename,ofstream & 
 void FC_variance_pen_vector::outresults(ofstream & out_stata, ofstream & out_R,
                              const ST::string & pathresults)
   {
-  // FC.outresults(out_stata,out_R,pathresults);
-  // FC.outresults_help(out_stata,out_R,pathresults,datanames);
-
-
+ 
+  int i;
+  vector<ST::string> vnames;   
+  // vnames = Cp->datanames.getV();//= FC_shrinkage.datanames.getV();
+  for (i=0;i<nrpen;i++)
+    vnames.push_back("tau2_x_" + ST::inttostring(i));
+    
+   
+    
+  FC::outresults(out_stata,out_R,"");
+  FC::outresults_help(out_stata,out_R,pathresults,vnames);
+  
   optionsp->out("\n");
   optionsp->out("    Results for variances are also stored in file\n");
   optionsp->out("    " + pathresults + "\n");
   optionsp->out("\n");
 
-  outresults_shrinkage();
+  
+  // outresults shrinkage
+  ST::string shrinkage_pathresults = pathresults.substr(0,pathresults.length()-7) + "shrinkage.res";
+  outresults_shrinkage(shrinkage_pathresults);
 
   }
 
@@ -414,31 +425,47 @@ void FC_variance_pen_vector::outresults(ofstream & out_stata, ofstream & out_R,
 // TASK: - write results for shrinkageparameter to output window and files
 //______________________________________________________________________________
 
-void FC_variance_pen_vector::outresults_shrinkage(void)
+//void FC_variance_pen_vector::outresults_shrinkage(void)
+void FC_variance_pen_vector::outresults_shrinkage(const ST::string & pathresults)
   {
-  
-  if(is_adaptive==true)
+
+ 
+ 
+  if(is_fix==false)
     {
-    // FC_shrinkage.outresults(out_stata,out_R,pathresults);
-    // FC_shrinkage.outresults_help(out_stata,out_R,pathresults,datanames);
+    ST::string shrinkage_pathresults = pathresults;
+    vector<ST::string> vnames;   // = FC_shrinkage.datanames.getV();
+   
+    ofstream out1;
+    ofstream out2;
+    
+    FC_shrinkage.outresults(out1,out2,"");
+ //   FC_shrinkage.outresults_help(out1,out2,shrinkage_pathresults,vnames);
+
+    unsigned nr;
+    if(is_adaptive==true)
+      {
+      nr = nrpen;
+      for (int i=0;i<nr;i++)
+        vnames.push_back("lambda_x_" + ST::inttostring(i));
+      
+      FC_shrinkage.outresults_help(out1,out2,shrinkage_pathresults,vnames);
+      }
+    
+    if(is_adaptive==false)
+      {
+      nr = 1;
+      for (int i=0;i<nr;i++)
+        vnames.push_back("lambda_x_" + ST::inttostring(i));
+      
+      FC_shrinkage.outresults_help(out1,out2,shrinkage_pathresults,vnames);
+      }
+    
+    optionsp->out("\n");
+    optionsp->out("    Results for the shrinkage parameter are also stored in file\n");
+    optionsp->out("    " + shrinkage_pathresults + "\n");
+    optionsp->out("\n");
     }
-
-  if(is_adaptive==false)
-    {
-    // KOMMENTAR Susanne:  Hie können prinzipiell die selben funktionen aufgerufen
-    // werden nur das dann nr=1 bzw nrpen=1 gesetzt werden muss, da sonst
-    // nrpen mal das selbe rausgeschrieben wird
-
-    // FC_shrinkage.outresults(out_stata,out_R,pathresults);
-    // FC_shrinkage.outresults_help(out_stata,out_R,pathresults,datanames);
-
-    }
-
-  optionsp->out("\n");
-  optionsp->out("    Results for the shrinkage parameter are also stored in file\n");
-//  optionsp->out("    " + shrinkage_pathresults + "\n");
-  optionsp->out("\n");
-
   }
 
 
@@ -459,9 +486,10 @@ void FC_variance_pen_vector::outoptions(void)
   int i;
 //  int nrpen = beta.rows();
   vector<ST::string> vnames;   // = FC_shrinkage.datanames.getV();
+  
 
   for (i=0;i<nrpen;i++)
-      vnames.push_back("_x_" + ST::inttostring(i));
+    vnames.push_back("_x_" + ST::inttostring(i));
 
   double * shrinkagep = FC_shrinkage.beta.getV();
 
@@ -478,9 +506,9 @@ void FC_variance_pen_vector::outoptions(void)
   if(is_adaptive==false)
     {
     optionsp->out("  Hyperparameter a for shrinkage: " +
-                     ST::doubletostring(a_shrinkagegamma[1]) + "\n" );
+                     ST::doubletostring(a_shrinkagegamma[0]) + "\n" );
     optionsp->out("  Hyperparameter b for shrinkage: " +
-                     ST::doubletostring(b_shrinkagegamma[1]) + "\n" );
+                     ST::doubletostring(b_shrinkagegamma[0]) + "\n" );
     if(is_fix==true)
       {
       optionsp->out("  Shrinkage is fixed at value = " +
