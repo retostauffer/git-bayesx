@@ -191,6 +191,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&shrinkage);
     optlist.push_back(&shrinkagefix);
     optlist.push_back(&shrinkageweight);
+    optlist.push_back(&adaptiveshrinkage);
     optlist.push_back(&tau2);
     optlist.push_back(&meaneffectconst);
 
