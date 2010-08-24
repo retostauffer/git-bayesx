@@ -15,9 +15,8 @@ using randnumbers::rand_inv_gaussian;
 using randnumbers::rand_gamma;
 
 
-void FC_variance_pen_vector::add_variable(datamatrix & x,
-                         vector<ST::string> & op,
-                         vector<ST::string> & vn)
+void FC_variance_pen_vector::add_variable(datamatrix & x,vector<ST::string> & op,
+                                          vector<ST::string> & vn)
   {
 
   int f;
@@ -27,7 +26,8 @@ void FC_variance_pen_vector::add_variable(datamatrix & x,
   bool adsh;
   double a,b;
   double shw;
-
+  
+  // read options
   f = op[33].strtodouble(ta);
   f = op[29].strtodouble(shrink);
   if (op[30]=="true")
@@ -42,18 +42,45 @@ void FC_variance_pen_vector::add_variable(datamatrix & x,
   f = op[6].strtodouble(b);
   f = op[31].strtodouble(shw);
 
+
+  // options from each term
   tau2.push_back(ta);
-  shrinkagestart.push_back(shrink);
-  shrinkagefix.push_back(sfix);
-  adaptiveshrinkage.push_back(adsh);
-  a_shrinkagegamma.push_back(a);
-  b_shrinkagegamma.push_back(b);
   shrinkageweight.push_back(shw);
   
+  // options from first term or all terms. Depends on adaptiveshrinkage
+  shrinkagefix.push_back(sfix);
+  adaptiveshrinkage.push_back(adsh);
+  
+  // shrinkagefix and adaptiveshrinkage are set from first term
   is_fix = shrinkagefix[0];
   is_adaptive = adaptiveshrinkage[0];
+  
+  if(is_ridge==1)                        // for Ridge
+    shrinkagestart.push_back(1/(2*ta));
+  if(is_ridge==0)                        // for Lasso
+    shrinkagestart.push_back(shrink);
+ 
+  a_shrinkagegamma.push_back(a);
+  b_shrinkagegamma.push_back(b);
+ 
+  if(is_adaptive==false)
+    {
+    shrinkagestart[nrpen] = shrinkagestart[0];
+    a_shrinkagegamma[nrpen] = a_shrinkagegamma[0];
+    b_shrinkagegamma[nrpen] = b_shrinkagegamma[0];
+    }
 
-
+  // optionsp->out("\n");
+  // optionsp->out("OPTIONS FROM TERMS\n");
+  // optionsp->out("penalty = " + ST::doubletostring(shelp(0,0)) + "\n");
+  // optionsp->out("nrpen = " + ST::doubletostring(nrpen) + "\n");
+  // optionsp->out("tau2 = " + ST::doubletostring(tau2[nrpen]) + "\n");
+  // optionsp->out("weight = " + ST::doubletostring(shrinkageweight[nrpen]) + "\n");
+  // optionsp->out("shrinkage = " + ST::doubletostring(shrinkagestart[nrpen]) + "\n");
+  // optionsp->out("a_shrinkage = " + ST::doubletostring(a_shrinkagegamma[nrpen]) + "\n");
+  // optionsp->out("b_shrinkage = " + ST::doubletostring(b_shrinkagegamma[nrpen]) + "\n");
+  // optionsp->out("\n");
+    
   nrpen++;
   Cp->tau2 = datamatrix(nrpen,1,0);
   for(int i=0;i<nrpen;i++)
@@ -225,6 +252,7 @@ void FC_variance_pen_vector::update(void)
 
   if (optionsp->nriter == 1)
     {
+
     FC_shrinkage = FC(optionsp,"",shrinkagefix.size(),1,samplepath + ".shrinkage");
 //    Cp->tau2 = datamatrix(nrpen,1,0);
   // get current value of first shrinkagearameter
@@ -240,9 +268,29 @@ void FC_variance_pen_vector::update(void)
 
   // get current value of first regressionparameter
   double * workbeta = Cp->beta.getV();
-
+  
   // getcurrent value of sqrt(scale) parameter
   double sigma = sqrt(distrp->get_scale());
+
+//TEMP:BEGIN--------------------------------------------------------------------
+  // ofstream outpenreg("c:/bayesx/test/outpenreg.txt", ios::out|ios::app);
+  // outpenreg << "beta ";    
+  // for(unsigned i=0; i<nrpen; i++,workbeta++) {outpenreg << *workbeta  << " ";}
+  // outpenreg << "\n";
+  // outpenreg << "tau2 ";    
+  // for(unsigned i=0; i<nrpen; i++) {outpenreg << beta(i,0)  << " ";}
+  // outpenreg << "\n";
+  // outpenreg << "lambda ";    
+  // for(unsigned i=0; i<nrpen; i++,shrinkagep++) {outpenreg << *shrinkagep  << " ";}
+  // outpenreg << "\n";
+  // outpenreg << "sigma "<< sigma <<"\n";
+  
+  // shrinkagep = FC_shrinkage.beta.getV();
+  // workbeta = Cp->beta.getV();
+  // sigma = sqrt(distrp->get_scale());
+//TEMP:END----------------------------------------------------------------------  
+
+
 
   // Gibbs-Update of varianceparameters tau^2
   //-----------------------------------------
@@ -362,7 +410,7 @@ void FC_variance_pen_vector::update(void)
   FC_shrinkage.acceptance++;
   FC_shrinkage.update();
 
-  acceptance++;
+//  acceptance++;
   FC::update();
 
 
@@ -491,8 +539,6 @@ void FC_variance_pen_vector::outoptions(void)
   for (i=0;i<nrpen;i++)
     vnames.push_back("_x_" + ST::inttostring(i));
 
-  double * shrinkagep = FC_shrinkage.beta.getV();
-
 
   if(is_ridge == 0)
     {
@@ -512,14 +558,14 @@ void FC_variance_pen_vector::outoptions(void)
     if(is_fix==true)
       {
       optionsp->out("  Shrinkage is fixed at value = " +
-                       ST::doubletostring(*shrinkagep) + "\n" );
+                       ST::doubletostring(shrinkagestart[0]) + "\n" );
       }
     optionsp->out("\n");
     }
 
   if(is_adaptive==true)
     {
-    for(i=0; i<nrpen; i++, shrinkagep++)
+    for(i=0; i<nrpen; i++)
       {
       optionsp->out("  Hyperparameter a for shrinkage of " + vnames[i] + ": " +
                        ST::doubletostring(a_shrinkagegamma[i]) + "\n" );
@@ -528,7 +574,7 @@ void FC_variance_pen_vector::outoptions(void)
       if(is_fix==true)
         {
         optionsp->out("  Shrinkage of " + vnames[i] + " is fixed at value = " +
-                         ST::doubletostring(*shrinkagep) + "\n" );
+                         ST::doubletostring(shrinkagestart[i]) + "\n" );
         }
       }
     optionsp->out("\n");
