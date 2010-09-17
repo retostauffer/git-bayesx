@@ -774,7 +774,7 @@ bool bayesreg::create_randomslope(const unsigned & collinpred)
                                                         )
                           );
 // Begin: DSB
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
         if(mscheck.getvalue()==true)
           fcrandomgaussian[fcrandomgaussian.size()-1].set_mscheck(true);
 #endif
@@ -826,7 +826,7 @@ bool bayesreg::create_randomslope(const unsigned & collinpred)
                                                         )
                           );
 // Begin: DSB
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
         if(mscheck.getvalue()==true)
           fcrandom[fcrandom.size()-1].set_mscheck(true);
 #endif
@@ -950,7 +950,7 @@ bool bayesreg::create_random(const unsigned & collinpred)
                                                         )
                           );
 // Begin: DSB
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
         if(mscheck.getvalue()==true)
           fcrandomgaussian[fcrandomgaussian.size()-1].set_mscheck(true);
 #endif
@@ -1061,7 +1061,7 @@ bool bayesreg::create_random(const unsigned & collinpred)
                                                         )
                           );
 // Begin: DSB
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
         if(mscheck.getvalue()==true)
           fcrandom[fcrandom.size()-1].set_mscheck(true);
 #endif

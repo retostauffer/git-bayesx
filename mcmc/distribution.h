@@ -156,7 +156,7 @@ class __EXPORT_TYPE DISTRIBUTION
   FULLCOND responsesave;          // handles samples for the predicted response
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   bool mscheck;                   // do approximate leave-one-out checking?
   FULLCOND msc_pred;              // Full conditional storing corresponding Predictors samples
   FULLCOND msc_like;              // Full conditional storing corresponding Likelihoods samples
@@ -288,7 +288,7 @@ class __EXPORT_TYPE DISTRIBUTION
   ~DISTRIBUTION() {}
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   void initialise_mscheck(const ST::string & path, const statmatrix<int> & index,
        const unsigned & nrpar, const vector<unsigned> & posbeg,
        const vector<unsigned> & posend);
@@ -519,7 +519,7 @@ class __EXPORT_TYPE DISTRIBUTION
     }
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
     // FUNCTION: loglikelihood_from_deviance
     // TASK: computes the loglikelihood for a single observation for univariate
     // response, by using the compute_deviance function.
@@ -574,7 +574,7 @@ class __EXPORT_TYPE DISTRIBUTION
   void compute_mu(const datamatrix & linpred, datamatrix & mu) const;
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   //----------------------------------------------------------------------------
   //----------------------- SAMPLING FROM THE LIKELIHOOD ------------------------
   //----------------------------------------------------------------------------
@@ -1942,7 +1942,7 @@ class __EXPORT_TYPE DISTRIBUTION_gamma : public DISTRIBUTION
                         const int & i) const;
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
@@ -2087,7 +2087,7 @@ class __EXPORT_TYPE DISTRIBUTION_gamma2 : public DISTRIBUTION
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
@@ -2365,7 +2365,7 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian : public DISTRIBUTION
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
@@ -2733,7 +2733,7 @@ class __EXPORT_TYPE DISTRIBUTION_gaussian_re : public DISTRIBUTION
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
@@ -2882,7 +2882,7 @@ class __EXPORT_TYPE DISTRIBUTION_lognormal : public DISTRIBUTION_gaussian
 
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
@@ -2991,7 +2991,7 @@ class __EXPORT_TYPE DISTRIBUTION_binomial : public DISTRIBUTION
   void compute_mu_notransform(const double * linpred,double * mu) const;
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
@@ -3121,7 +3121,7 @@ class __EXPORT_TYPE DISTRIBUTION_binomial_latent : public DISTRIBUTION
 
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
@@ -3240,7 +3240,7 @@ class __EXPORT_TYPE DISTRIBUTION_binomial_logit_latent : public DISTRIBUTION
 
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;
@@ -3359,7 +3359,7 @@ class __EXPORT_TYPE DISTRIBUTION_poisson : public DISTRIBUTION
                                    const unsigned & col=0);
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   double
   sample_from_likelihood(const double weight,
                          const double mu) const;

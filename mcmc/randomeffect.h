@@ -68,7 +68,7 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
   FULLCOND ftotal;
 
   // BEGIN: DSB //
-  #if !defined (__BUILDING_THE_DLL)
+  #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   bool mscheck;
   void update_linpred_mscheck(datamatrix & priorSamples, datamatrix & posteriorSamples);
   #endif
@@ -88,7 +88,7 @@ class __EXPORT_TYPE FULLCOND_random : public FULLCOND
   public:
 
 // Begin: DSB
-  #if !defined (__BUILDING_THE_DLL)
+  #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   void set_mscheck(const bool & val);
   #endif
 // End: DSB

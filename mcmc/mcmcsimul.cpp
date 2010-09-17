@@ -1847,7 +1847,7 @@ const ST::string & path,const unsigned & step)
         }
 
 // Begin: DSB
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
       if (likep_mult[i]->get_mscheck())
         {
         likep_mult[i]->get_mssamples();

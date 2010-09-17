@@ -10,7 +10,7 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
   // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   void FULLCOND_random::set_mscheck(const bool & val)
     {
     mscheck = val;
@@ -869,7 +869,7 @@ FULLCOND_random::FULLCOND_random(const FULLCOND_random & fc)
   data2 = fc.data2;
 
   // BEGIN: DSB //
-  #if !defined (__BUILDING_THE_DLL)
+  #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   mscheck = fc.mscheck;
   #endif
   // END: DSB //
@@ -910,7 +910,7 @@ const FULLCOND_random & FULLCOND_random::
   data2 = fc.data2;
 
   // BEGIN: DSB //
-  #if !defined (__BUILDING_THE_DLL)
+  #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   mscheck = fc.mscheck;
   #endif
   // END: DSB //
@@ -928,7 +928,7 @@ void FULLCOND_random::update(void)
     transform = 1;
 
   // BEGIN: DSB //
-  #if !defined (__BUILDING_THE_DLL)
+  #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
     if (mscheck)
         {
             // allocate storage for the random effects prior samples
@@ -1318,7 +1318,7 @@ void FULLCOND_random::update_linpred_diff(datamatrix & b1,datamatrix & b2)
   }
 
     // BEGIN: DSB //
-    #if !defined (__BUILDING_THE_DLL)
+    #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
     void
     FULLCOND_random::update_linpred_mscheck(datamatrix & priorSamples,
                                             datamatrix & posteriorSamples)

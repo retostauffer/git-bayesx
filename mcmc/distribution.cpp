@@ -7,7 +7,7 @@ namespace MCMC
 using randnumbers::rand_inv_gaussian;
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 // initialize mschecking with a given path for the output
 void
 DISTRIBUTION::initialise_mscheck(const ST::string & path,
@@ -540,7 +540,7 @@ DISTRIBUTION::DISTRIBUTION(MCMCoptions * o, const datamatrix & r,
   {
   nosamples = false;
 // Begin: DSB //
-  #if !defined (__BUILDING_THE_DLL)
+  #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   mscheck=false;
   #endif
 // End: DSB //
@@ -565,7 +565,7 @@ DISTRIBUTION::DISTRIBUTION(const datamatrix & offset,MCMCoptions * o,
   {
   nosamples = false;
 // Begin: DSB
-  #if !defined (__BUILDING_THE_DLL)
+  #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   mscheck=false;
   #endif
 // End : DSB
@@ -791,7 +791,7 @@ DISTRIBUTION::DISTRIBUTION(const DISTRIBUTION & d)
   nigmixsum = d.nigmixsum;
 
 // Begin: DSB
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   mscheck = d.mscheck;
   msc_pred = d.msc_pred;
   msc_like = d.msc_like;
@@ -903,7 +903,7 @@ const DISTRIBUTION & DISTRIBUTION::operator=(const DISTRIBUTION & d)
   nigmixsum = d.nigmixsum;
 
 // Begin: DSB
-  #if !defined (__BUILDING_THE_DLL)
+  #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
   mscheck = d.mscheck;
   msc_pred = d.msc_pred;
   msc_like = d.msc_like;
@@ -1140,7 +1140,7 @@ double DISTRIBUTION::loglikelihood2(const unsigned & beg,const unsigned & end,
   }
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 // FUNCTION: loglikelihood_from_deviance
 // TASK: computes the loglikelihood for a single observation for univariate
 // response, by using the compute_deviance function.
@@ -2262,7 +2262,7 @@ void DISTRIBUTION::swap_linearpred(void)
         } // end: if (scaleexisting)
 
         // BEGIN: DSB //
-        #if !defined (__BUILDING_THE_DLL)
+        #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
         // do we need to do mschecking?
         if (mscheck)
         {
@@ -2672,7 +2672,7 @@ void DISTRIBUTION::outresults(void)
     }
 
     // BEGIN: DSB //
-    #if !defined (__BUILDING_THE_DLL)
+    #if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
     // if we do mschecking
   if (mscheck)
     {
@@ -4553,7 +4553,7 @@ void DISTRIBUTION_gamma::compute_IWLS_weight_tildey(
 
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 double
     DISTRIBUTION_gamma::sample_from_likelihood(const double weight,
                                                const double mu) const
@@ -5076,7 +5076,7 @@ double DISTRIBUTION_gamma2::compute_gmu(double * linpred,
 
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 // this is just a copy of DISTRIBUTION_gamma::sample_from_likelihood
 double
     DISTRIBUTION_gamma2::sample_from_likelihood(const double weight,
@@ -6356,7 +6356,7 @@ const DISTRIBUTION_gaussian & DISTRIBUTION_gaussian::operator=(
   }
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 double
     DISTRIBUTION_gaussian::sample_from_likelihood(const double weight,
                                                   const double mu) const
@@ -6695,7 +6695,7 @@ const DISTRIBUTION_gaussian_re & DISTRIBUTION_gaussian_re::operator=(
 
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 // this is the same as DISTRIBUTION_gaussian::sample_from_likelihood
 // todo: perhaps the other function is not needed because there cannot be any random effects??
 double
@@ -6861,7 +6861,7 @@ const DISTRIBUTION_lognormal & DISTRIBUTION_lognormal::operator=(
 
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 double
     DISTRIBUTION_lognormal::sample_from_likelihood(const double weight,
                                                    const double mu) const
@@ -7197,7 +7197,7 @@ bool DISTRIBUTION_binomial::posteriormode_converged(const unsigned & itnr)
 
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 double
     DISTRIBUTION_binomial::sample_from_likelihood(const double weight,
                                                   const double mu) const
@@ -7407,7 +7407,7 @@ void DISTRIBUTION_binomial_latent::outoptions(void)
 
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 double
     DISTRIBUTION_binomial_latent::sample_from_likelihood(const double weight,
                                                          const double mu) const
@@ -7762,7 +7762,7 @@ void DISTRIBUTION_binomial_logit_latent::outoptions(void)
 
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 double
     DISTRIBUTION_binomial_logit_latent::sample_from_likelihood(const double weight,
                                                                const double mu) const
@@ -8192,7 +8192,7 @@ void DISTRIBUTION_poisson::compute_IWLS_weight_tildey(double * response,
   }
 
 // BEGIN: DSB //
-#if !defined (__BUILDING_THE_DLL)
+#if !defined (__BUILDING_THE_DLL) & !defined(__BUILDING_GNU)
 double
     DISTRIBUTION_poisson::sample_from_likelihood(const double weight,
                                                  const double mu) const
