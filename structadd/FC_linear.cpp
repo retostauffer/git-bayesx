@@ -738,6 +738,7 @@ FC_linear_pen::FC_linear_pen(const FC_linear_pen & m)
   : FC_linear(FC_linear(m))
   {
   tau2 = m.tau2;
+  tau2oldinv = m.tau2oldinv;
   }
 
 
@@ -747,7 +748,8 @@ const FC_linear_pen & FC_linear_pen::operator=(const FC_linear_pen & m)
   if (this==&m)
 	 return *this;
   FC_linear::operator=(FC_linear(m));
-  tau2 = m.tau2;  
+  tau2 = m.tau2;
+  tau2oldinv = m.tau2oldinv;
   return *this;
   }
 
@@ -755,7 +757,7 @@ const FC_linear_pen & FC_linear_pen::operator=(const FC_linear_pen & m)
 
 void FC_linear_pen::update(void)
   {
-  
+
   FC_linear::update();
   }
 
@@ -794,10 +796,15 @@ void FC_linear_pen::compute_XWX(datamatrix & r)
 
   unsigned i;
   double * tau2p = tau2.getV();
+  double * tau2oldinvp = tau2oldinv.getV();
   unsigned nrpar = beta.rows();
 
-  for (i=0;i<nrpar;i++,tau2p++)
-    XWX(i,i) += 1/(*tau2p);
+  for (i=0;i<nrpar;i++,tau2p++,tau2oldinvp++)
+    {
+    XWX(i,i) += (1/(*tau2p) - *tau2oldinvp);
+    *tau2oldinvp =  1/(*tau2p);
+    }
+
 
   }
 

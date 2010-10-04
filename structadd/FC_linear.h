@@ -49,7 +49,7 @@ class __EXPORT_TYPE FC_linear  : public FC
   vector<datamatrix> designhelp;             // help vector for constructing the
                                              // designmatrix
   datamatrix meaneffectdesign;
-  vector<ST::string> datanames;              // names of covariates
+
 
   datamatrix Xt;                             // transposed designmatrix
   datamatrix XWX;
@@ -88,6 +88,8 @@ class __EXPORT_TYPE FC_linear  : public FC
   void add_linpred(datamatrix & l);
 
   public:
+
+  vector<ST::string> datanames;              // names of covariates
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
@@ -168,6 +170,7 @@ class __EXPORT_TYPE FC_linear_pen  : public FC_linear
   public:
 
   datamatrix  tau2;
+  datamatrix  tau2oldinv;
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 

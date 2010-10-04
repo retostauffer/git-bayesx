@@ -83,6 +83,7 @@ void FC_variance_pen_vector::add_variable(datamatrix & x,vector<ST::string> & op
     
   nrpen++;
   Cp->tau2 = datamatrix(nrpen,1,0);
+  Cp->tau2oldinv = datamatrix(nrpen,1,0);  
   for(int i=0;i<nrpen;i++)
     {
     Cp->tau2(i,0) = tau2[i];
