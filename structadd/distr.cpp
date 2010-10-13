@@ -1338,6 +1338,19 @@ void DISTR_quantreg::compute_iwls_wweightsnochange_one(double * response,
 */
 
 
+double DISTR_quantreg::compute_MSE(const double * response,
+                                   const double * weight,
+                                   const double * linpred)
+  {
+  double u = *response-*linpred;
+  if (u >= 0)
+    return u*quantile;
+  else
+    return u*(quantile-1);
+  }
+
+
+
 void DISTR_quantreg::outoptions(void)
   {
   DISTR::outoptions();

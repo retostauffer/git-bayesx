@@ -554,6 +554,11 @@ class __EXPORT_TYPE DISTR_quantreg : public DISTR_gaussian
 
    ~DISTR_quantreg() {}
 
+
+   double compute_MSE(const double * response,const double * weight,
+                                      const double * linpred);
+
+
 /*
   void compute_mu(const double * linpred,double * mu, bool notransform);
 
