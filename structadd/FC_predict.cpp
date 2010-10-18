@@ -385,6 +385,16 @@ void FC_predict::outresults_deviance(void)
     }
 
 
+ST::string FC_predict::getloss(void)
+  {
+  if (MSE==quadraticMSE)
+    return "quadratic";
+  else if (MSE==checkMSE)
+    return "check";
+  else
+    return " ";
+  }
+
 void FC_predict::compute_MSE(const ST::string & pathresults)
   {
 
@@ -408,6 +418,9 @@ void FC_predict::compute_MSE(const ST::string & pathresults)
   ST::string h;
   optionsp->out("  EMPIRICAL MSE: \n",true);
   optionsp->out("\n");
+  ST::string t = getloss();
+
+  optionsp->out("    Loss function: " + t +  "\n");
   h = ST::doubletostring(meanmse_zeroweight+meanmse,10);
   optionsp->out("    sum MSE (all observations):            " +
   h +   "\n");

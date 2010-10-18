@@ -81,7 +81,7 @@ class __EXPORT_TYPE FC_linear  : public FC
   //       the result in r
 
   virtual void compute_XWX(datamatrix & r);
-  void compute_XWXroot(datamatrix & r);
+  virtual void compute_XWXroot(datamatrix & r);
   void compute_Wpartres(datamatrix & linpred);
   double compute_XtWpartres(double & mo);
 
@@ -210,6 +210,7 @@ class __EXPORT_TYPE FC_linear_pen  : public FC_linear
   bool posteriormode(void);
 
   void compute_XWX(datamatrix & r);
+  void compute_XWXroot(datamatrix & r);  
 
   // FUNCTION: outoptions
 

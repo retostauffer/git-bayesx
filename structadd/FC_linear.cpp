@@ -56,7 +56,7 @@ FC_linear::FC_linear(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
 
   masterp = mp;
   likep = lp;
-  int i;
+  unsigned i;
   datanames = vn;
   if (datanames.size() > 0)
     {
@@ -166,7 +166,7 @@ void FC_linear::update_IWLS(void)
   if (!initialize)
     create_matrices();
 
-
+/*
   if (design.cols() == 1)
     {
     double moold;
@@ -183,7 +183,7 @@ void FC_linear::update_IWLS(void)
 
     double h = likep->compute_iwls(true,false);
 
-    compute_XWX(XWXold);
+    (XWXold);
 
     Xtresidual(0,0) = compute_XtWpartres(mode(0,0));
 
@@ -220,7 +220,7 @@ void FC_linear::update_IWLS(void)
   else
 
     {
-
+*/
     if (optionsp->nriter == 1)
       {
       linold.mult(design,beta);
@@ -289,7 +289,9 @@ void FC_linear::update_IWLS(void)
       }
 
     FC::update();
-    }
+
+//    }
+
 
   }
 
@@ -353,13 +355,18 @@ void FC_linear::update_gaussian(void)
   }
 
 
-
-
 void FC_linear::compute_XWXroot(datamatrix & r)
   {
 
   compute_XWX(r);
-  XWXroot = r.root();
+
+  if ((likep->wtype==wweightschange_weightsneqone) ||
+      (likep->wtype==wweightschange_weightsone) ||
+      (optionsp->nriter<=1))
+    {
+    XWXroot = r.root();
+    }
+
   }
 
 
@@ -456,8 +463,8 @@ void FC_linear::find_const(datamatrix & design)
   {
   constposition = -1;
   bool constfound = false;
-  int i=0;
-  int j;
+  unsigned i=0;
+  unsigned j;
   while (constfound==false && i < design.cols())
     {
     j = 0;
@@ -482,7 +489,7 @@ void FC_linear::find_const(datamatrix & design)
 void FC_linear::create_matrices(void)
   {
 
-  int i,j;
+  unsigned i,j;
   design = datamatrix(designhelp[0].rows(),designhelp.size());
   for(i=0;i<designhelp.size();i++)
     design.putCol(i,designhelp[i]);
@@ -492,6 +499,7 @@ void FC_linear::create_matrices(void)
   if (center == true)
     {
     double m;
+    int i;
     mean_designcols = datamatrix(1,design.cols(),1);
     for (i=0;i<design.cols();i++)
       {
@@ -784,27 +792,43 @@ void FC_linear_pen::outresults(ofstream & out_stata,ofstream & out_R,
   }
 
 
+void FC_linear_pen::compute_XWXroot(datamatrix & r)
+  {
+  compute_XWX(r);
+  XWXroot = r.root();
+  }
+
+
 void FC_linear_pen::compute_XWX(datamatrix & r)
   {
-
-  if ((likep->wtype==wweightschange_weightsneqone) ||
-      (likep->wtype==wweightschange_weightsone) ||
-      (optionsp->nriter<=1))
-    {
-    FC_linear::compute_XWX(r);
-    }
 
   unsigned i;
   double * tau2p = tau2.getV();
   double * tau2oldinvp = tau2oldinv.getV();
   unsigned nrpar = beta.rows();
 
-  for (i=0;i<nrpar;i++,tau2p++,tau2oldinvp++)
+  if ((likep->wtype==wweightschange_weightsneqone) ||
+      (likep->wtype==wweightschange_weightsone) ||
+      (optionsp->nriter<=1))
     {
-    XWX(i,i) += (1/(*tau2p) - *tau2oldinvp);
-    *tau2oldinvp =  1/(*tau2p);
-    }
+    FC_linear::compute_XWX(r);
+    for (i=0;i<nrpar;i++,tau2p++,tau2oldinvp++)
+      {
+      XWX(i,i) += (1/(*tau2p));
+      *tau2oldinvp =  1/(*tau2p);
+      }
 
+    }
+  else
+    {
+
+    for (i=0;i<nrpar;i++,tau2p++,tau2oldinvp++)
+      {
+      XWX(i,i) += (1/(*tau2p) - *tau2oldinvp);
+      *tau2oldinvp =  1/(*tau2p);
+      }
+
+    }
 
   }
 

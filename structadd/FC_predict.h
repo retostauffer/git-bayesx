@@ -62,6 +62,8 @@ class __EXPORT_TYPE FC_predict   : public FC
   msetype MSE;
   double MSEparam;
 
+  ST::string getloss(void);
+
   // DEFAULT CONSTRUCTOR
 
   FC_predict(void);
