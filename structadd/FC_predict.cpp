@@ -53,6 +53,7 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
   {
   nosamples = true;
   MSE = noMSE;
+  MSEparam = 0.5;
   likep = lp;
   designmatrix= dm;
   varnames = dn;
@@ -67,6 +68,7 @@ FC_predict::FC_predict(const FC_predict & m)
   : FC(FC(m))
   {
   MSE = m.MSE;
+  MSEparam = m.MSEparam;
   likep = m.likep;
   designmatrix = m.designmatrix;
   varnames = m.varnames;
@@ -82,6 +84,7 @@ const FC_predict & FC_predict::operator=(const FC_predict & m)
 	 return *this;
   FC::operator=(FC(m));
   MSE = m.MSE;
+  MSEparam = m.MSEparam;  
   likep = m.likep;
   designmatrix = m.designmatrix;
   varnames = m.varnames;
@@ -396,11 +399,11 @@ void FC_predict::compute_MSE(const ST::string & pathresults)
   for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=2)
     if (*weightp==0)
       {
-      meanmse_zeroweight += likep->compute_MSE(responsep,weightp,linpredp);
+      meanmse_zeroweight += likep->compute_MSE(responsep,weightp,linpredp,MSE,MSEparam);
       nrzeroweights++;
       }
     else
-      meanmse += likep->compute_MSE(responsep,weightp,linpredp);
+      meanmse += likep->compute_MSE(responsep,weightp,linpredp,MSE,MSEparam);
 
   ST::string h;
   optionsp->out("  EMPIRICAL MSE: \n",true);

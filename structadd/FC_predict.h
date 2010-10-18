@@ -34,7 +34,7 @@ using std::bitset;
 //--------------------------- CLASS: FC_predict --------------------------------
 //------------------------------------------------------------------------------
 
-enum msetype{noMSE,yesMSE};
+
 
 
 class __EXPORT_TYPE FC_predict   : public FC
@@ -60,6 +60,7 @@ class __EXPORT_TYPE FC_predict   : public FC
   public:
 
   msetype MSE;
+  double MSEparam;
 
   // DEFAULT CONSTRUCTOR
 

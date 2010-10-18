@@ -392,10 +392,18 @@ void DISTR::compute_mu(const double * linpred,double * mu)
 
 
 double DISTR::compute_MSE(const double * response, const double * weight,
-                          const double * linpred)
+                          const double * linpred, msetype t, double v)
   {
-  return pow(*response-*linpred,2); 
-
+  if (t == quadraticMSE)
+    return pow(*response-*linpred,2);
+  else
+    {
+    double u = *response-*linpred;
+    if (u >= 0)
+      return u*v;
+    else
+      return u*(v-1);
+    }
   }
 
 
@@ -1340,13 +1348,18 @@ void DISTR_quantreg::compute_iwls_wweightsnochange_one(double * response,
 
 double DISTR_quantreg::compute_MSE(const double * response,
                                    const double * weight,
-                                   const double * linpred)
+                                   const double * linpred, msetype t,double v)
   {
-  double u = *response-*linpred;
-  if (u >= 0)
-    return u*quantile;
+  if (t==quadraticMSE)
+    return pow(*response-*linpred,2);
   else
-    return u*(quantile-1);
+    {
+    double u = *response-*linpred;
+    if (u >= 0)
+      return u*quantile;
+    else
+      return u*(quantile-1);
+    }
   }
 
 
@@ -1519,10 +1532,18 @@ void DISTR_loggaussian::compute_mu(const double * linpred,double * mu)
 
 double DISTR_loggaussian::compute_MSE(const double * response,
                                       const double * weight,
-                                      const double * linpred)
+                                      const double * linpred,msetype t, double v)
   {
   double diff = exp(*response) - exp(*linpred +  FCsigma2.betamean(0,0)/2);
-  return pow(diff,2);
+  if (t == quadraticMSE)
+    return pow(diff,2);
+  else
+    {
+    if (diff >= 0)
+      return diff*v;
+    else
+      return diff*(v-1);
+    }
   }
 
 

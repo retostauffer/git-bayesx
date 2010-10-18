@@ -43,6 +43,8 @@ using randnumbers::rand_inv_gaussian;
 enum weighttype{wweightschange_weightsneqone,wweightschange_weightsone,
 wweightsnochange_constant,wweightsnochange_one};
 
+enum msetype{noMSE,quadraticMSE,checkMSE};
+
 class __EXPORT_TYPE DISTR
   {
 
@@ -98,13 +100,13 @@ class __EXPORT_TYPE DISTR
   bool weightsone;                // true if weights are one for all
                                   // observations
 
-  unsigned nrzeroweights;         // number of zero weights 
+  unsigned nrzeroweights;         // number of zero weights
 
   datamatrix linearpred1;          // Linear predictor
   datamatrix linearpred2;          // Proposed linear predictor
   int linpred_current;
 
-  double meaneffect;  
+  double meaneffect;
 
   void swap_linearpred(void);
 
@@ -219,7 +221,7 @@ class __EXPORT_TYPE DISTR
   //----------------------------------------------------------------------------
 
   virtual double compute_MSE(const double * response, const double * weight,
-                             const double * linpred);
+                             const double * linpred, msetype t, double v);
 
   //----------------------------------------------------------------------------
   //----------------------------- IWLS Algorithm -------------------------------
@@ -556,7 +558,7 @@ class __EXPORT_TYPE DISTR_quantreg : public DISTR_gaussian
 
 
    double compute_MSE(const double * response,const double * weight,
-                                      const double * linpred);
+                                      const double * linpred, msetype t,double v);
 
 
 /*
@@ -665,7 +667,7 @@ class __EXPORT_TYPE DISTR_loggaussian : public DISTR_gaussian
   void compute_mu(const double * linpred,double * mu);
 
   double compute_MSE(const double * response, const double * weight,
-                     const double * linpred);
+                     const double * linpred, msetype t,double v);
 
 
   void compute_deviance(const double * response,

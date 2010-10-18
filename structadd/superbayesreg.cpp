@@ -147,7 +147,11 @@ void superbayesreg::create_hregress(void)
   MSEop.reserve(20);
   MSEop.push_back("no");
   MSEop.push_back("yes");
+  MSEop.push_back("quadratic");
+  MSEop.push_back("check");
   mse = stroption("MSE",MSEop,"no");
+
+  mseparam = doubleoption("mseparam",0.5,-9999999999,9999999999);
 
   centerlinear = simpleoption("centerlinear",false);
 
@@ -171,6 +175,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&predict);
   regressoptions.push_back(&pred_check);
   regressoptions.push_back(&mse);
+  regressoptions.push_back(&mseparam);
   regressoptions.push_back(&centerlinear);
   regressoptions.push_back(&quantile);
   regressoptions.push_back(&cv);  
@@ -1011,7 +1016,18 @@ void superbayesreg::create_predict(void)
                          equations[modnr].distrp,"",pathnonp,pathnonp2,D,modelvarnamesv));
 
     if (mse.getvalue() ==  "yes")
-      FC_predicts[FC_predicts.size()-1].MSE = MCMC::yesMSE;
+      FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
+
+    if (mse.getvalue() ==  "quadratic")
+      FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
+
+    if (mse.getvalue() ==  "check")
+      {
+      FC_predicts[FC_predicts.size()-1].MSE = MCMC::checkMSE;
+      FC_predicts[FC_predicts.size()-1].MSEparam = mseparam.getvalue();
+      }
+
+
 
     equations[modnr].add_FC(&FC_predicts[FC_predicts.size()-1],pathres);
 

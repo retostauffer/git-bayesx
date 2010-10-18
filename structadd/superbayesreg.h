@@ -177,6 +177,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   vector<ST::string> MSEop;
   stroption mse;
+  doubleoption mseparam;
 
   doubleoption quantile;
 
