@@ -90,7 +90,7 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("hrandom_pspline");
   tnames.push_back("hrandomexp_pspline");
   tnames.push_back("ridge");
-  tnames.push_back("lasso");    
+  tnames.push_back("lasso");
 
 
 
@@ -114,9 +114,9 @@ void superbayesreg::create_hregress(void)
 
   families.reserve(20);
   families.push_back("gaussian");
-  families.push_back("gaussian_mixture");  
+  families.push_back("gaussian_mixture");
   families.push_back("loggaussian");
-  families.push_back("quantreg");  
+  families.push_back("quantreg");
   families.push_back("gaussian_re");
   families.push_back("gaussian_exp");
   families.push_back("gaussian_mult");
@@ -151,7 +151,7 @@ void superbayesreg::create_hregress(void)
   MSEop.push_back("check");
   mse = stroption("MSE",MSEop,"no");
 
-  mseparam = doubleoption("mseparam",0.5,-9999999999,9999999999);
+  mseparam = doubleoption("mseparam",0.5,-999999999,999999999);
 
   centerlinear = simpleoption("centerlinear",false);
 
@@ -178,7 +178,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&mseparam);
   regressoptions.push_back(&centerlinear);
   regressoptions.push_back(&quantile);
-  regressoptions.push_back(&cv);  
+  regressoptions.push_back(&cv);
 
 
   // methods 0
