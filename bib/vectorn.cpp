@@ -250,7 +250,7 @@ template<class T>
 vectornum<T>  vectornum<T>::isequal(vectornum<T> & v2)
   {
   #if defined(__BUILDING_GNU)
-  class vectornum<T>::iterator pos1,pos2,pos3;
+  typename vectornum<T>::iterator pos1,pos2,pos3;
   #else
   vectornum<T>::iterator pos1,pos2,pos3;
   #endif
@@ -288,7 +288,7 @@ template<class T>
 vectornum<T> vectornum<T>::isnotequal(vectornum<T> & v2)
   {
   #if defined(__BUILDING_GNU)
-  class vectornum<T>::iterator pos1,pos2,pos3;
+  typename vectornum<T>::iterator pos1,pos2,pos3;
   #else
   vectornum<T>::iterator pos1,pos2,pos3;
   #endif

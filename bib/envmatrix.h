@@ -321,12 +321,12 @@ class envmatrix
 //------------------------------------------------------------------------------
 
   #if defined(__BUILDING_GNU)
-  class
+  typename
   #endif
   vector<T>::iterator getDiagIterator();
 
   #if defined(__BUILDING_GNU)
-  class
+  typename
   #endif
   vector<T>::iterator getEnvIterator();
 
