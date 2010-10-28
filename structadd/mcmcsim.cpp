@@ -209,7 +209,7 @@ const int & seed, const bool & computemode)
     }
   #else
     {
-    srand(1);
+    srand((unsigned)time(0));
     }
   #endif
 
