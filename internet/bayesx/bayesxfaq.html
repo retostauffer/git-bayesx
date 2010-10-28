@@ -129,15 +129,26 @@ During the installation process, you will be asked to locate java.exe for BayesX
 manual installation is that Windows 7 has a separate program folder for 32-bit programs.
 </li>
 
-<li><b>When running BayesX on Windows Vista, an UnsatisfiedLinkError appears.</b><br>
-This error is caused by an internal mechanism of Windows Vista that should prevent software from executing possibly dangerous code in the background. BayesX
+<li><b>When running BayesX on Windows Vista or Windows 7, an UnsatisfiedLinkError appears.</b><br>
+There may be two reasons for this problem:
+<ul>
+<li>
+The error may be caused by an internal Windows mechanism that should prevent software from executing possibly dangerous code in the background. BayesX
 of course does not do this but simply tries to start a new process running the actual computations in addition to the process running the graphical user interface. You can prevent
 this by executing BayesX as administrator, an option that you obtain by right-clicking on the BayesX icon. An alternative would of course also be to use the command line version
 of BayesX instead of the GUI-version. The command line version can be found in a subdirectory of the installation directory.
 </li>
+<li>
+You may have to start BayesX in the compatibility mode for Windows XP. Therefore locate the BayesX application 
+in the program folder (or an alternative installation directory you may have chosen), right-click in properties, 
+select the compatibility folder, and tip the "Run this program in compatibility mode for:" option with
+"Windows XP Service Pack3". Thanks to Elisa Duarte for providing this workaround!
+</li>
+</ul>
+</li>
 
 <li><b>BayesX crashes. What did I do wrong?</b><br> 
-Of course, there is no definite answer to this questions. There is the not too unlikely possibility that there is a bug in the software but in our
+Of course, there is no definite answer to this question. There is the not too unlikely possibility that there is a bug in the software but in our
 experience, the overwhelming portion of crashes is caused by problems in the data and / or the model specification. Some possible difficulties are
 <ul>
 <li>Complete separation in binary or categorical regression models. This happens particularly frequently when
