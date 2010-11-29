@@ -63,10 +63,10 @@ DESIGN_mrf::DESIGN_mrf(void) : DESIGN()
   // Spatial covariates
 
 DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
-                       DISTR * dp,FC_linear * fcl,
+                       GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
                        const MAP::map & m,vector<ST::string> & op,
                        vector<ST::string> & vn)
-                      : DESIGN(dp,fcl)
+                      : DESIGN(o,dp,fcl)
   {
 
   read_options(op,vn);
@@ -126,7 +126,55 @@ void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
 
   ma.compute_reg(dm,posbeg,posend,effectvalues,index_data);
 
+  vector<int> posbeg_help = posbeg;
+  vector<int> posend_help = posend;
+  vector<ST::string> effectvalues_help = effectvalues;
+
   DESIGN::init_data(dm,iv);
+
+  posbeg = posbeg_help;
+  posend = posend_help;
+  effectvalues = effectvalues_help;
+
+  int k,j;
+  int * workindex = index_data.getV();
+  ind = statmatrix<unsigned>(dm.rows(),1);
+  for (j=0;j<posend.size();j++)
+    {
+
+    if (posbeg[j] != -1)
+      {
+      for (k=posbeg[j];k<=posend[j];k++,workindex++)
+        ind(*workindex,0) = j;
+      }
+    else
+      {
+      optionsp->out("NOTE: no observations for region " + effectvalues[j] + "\n");
+      }
+
+    }
+
+
+  // TEST
+  /*
+  int j;
+  ofstream out2("c:\\bayesx\\testh\\results\\posend_neu.res");
+  for (j=0;j<posend.size();j++)
+    out2 << posend[j] << endl;
+
+  ofstream out2a("c:\\bayesx\\testh\\results\\posbeg_neu.res");
+  for (j=0;j<posbeg.size();j++)
+    out2a << posbeg[j] << endl;
+
+  ofstream out3("c:\\bayesx\\testh\\results\\effectvalues_neu.res");
+  for (j=0;j<effectvalues.size();j++)
+    out3 << effectvalues[j] << endl;
+
+  ofstream out4("c:\\bayesx\\testh\\results\\index_data_neu.res");
+  index_data.prettyPrint(out4);
+  */
+  // TEST
+
 
   meaneffectnr = compute_modecategorie();
 
@@ -145,6 +193,10 @@ void DESIGN_mrf::compute_penalty(void)
     K = Kmrfenv(ma);
   rankK = ma.get_nrregions()-1;
   }
+
+
+
+
 
 
 void DESIGN_mrf::compute_basisNull(void)
@@ -230,6 +282,137 @@ void DESIGN_mrf::outoptions(GENERAL_OPTIONS * op)
   {
 
   }
+
+
+/*
+void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
+  {
+
+  double * workingresponsep = likep->workingresponse.getV();
+  double * worklinp;
+  if (likep->linpred_current==1)
+    worklinp = likep->linearpred1.getV();
+  else
+    worklinp = likep->linearpred2.getV();
+
+  double * workingweightp = likep->workingweight.getV();
+  unsigned * indp = ind.getV();
+
+  int i,j;
+  double * resp = res.getV();
+  for (i=0;i<res.rows();i++,resp++)
+    *resp =  0;
+
+
+  if (intvar.rows()==data.rows())   // varying coefficient
+    {
+
+    double * workintvar = intvar.getV();
+
+    if ((likep->wtype==wweightsnochange_one) && (cwsum==false) && (changingdesign==false))
+      {
+
+      for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,workintvar++)
+        res(*indp,0) += *workintvar * ( *workingresponsep - *worklinp +
+                        (*workintvar) * f(*indp,0));
+
+      }
+    else
+      {
+      if ((likep->wtype==wweightsnochange_constant) && (cwsum==false) && (changingdesign==false))
+        {
+
+        for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
+                                workingweightp++,workintvar++)
+          res(*indp,0) +=  (*workingweightp) *  (*workintvar) *
+                           (*workingresponsep - *worklinp +
+                           (*workintvar) * f(*indp,0));
+
+
+        }
+      else  // wweightschange
+        {
+
+        double * Wsump = Wsum.getV();
+        for (i=0;i<Wsum.rows();i++,Wsump++)
+          *Wsump =  0;
+
+        double * workintvar2 = intvar2.getV();
+
+        for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
+                                workingweightp++,workintvar++,workintvar2++)
+          {
+          res(*indp,0) +=  (*workingweightp) * (*workintvar) *
+                            (*workingresponsep - *worklinp +
+                            (*workintvar) * f(*indp,0));
+
+          Wsum(*indp,0) += *workingweightp * (*workintvar2);
+          }
+
+        }
+
+      }
+
+    }
+  else                              // additive
+    {
+    if ((likep->wtype==wweightsnochange_one) && (cwsum==false) && (changingdesign==false))
+      {
+
+      for (j=0;j<posend.size();j++)
+        {
+        if (posbeg[j] != -1)
+          for (i=posbeg[j];i<=posend[j];i++,workingresponsep++,indp++,worklinp++)
+            res(*indp,0) += *workingresponsep - *worklinp + f(*indp,0);
+        }
+
+      }
+    else
+      {
+      if ((likep->wtype==wweightsnochange_constant) && (cwsum==false) && (changingdesign==false))
+        {
+
+        for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
+                                workingweightp++)
+          res(*indp,0) +=  (*workingweightp) *
+                          (*workingresponsep - *worklinp + f(*indp,0));
+
+
+        }
+      else  // wweightschange
+        {
+
+        double * Wsump = Wsum.getV();
+        for (i=0;i<Wsum.rows();i++,Wsump++)
+          *Wsump =  0;
+
+        for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
+                                workingweightp++)
+          {
+          res(*indp,0) +=  (*workingweightp) *
+                            (*workingresponsep - *worklinp + f(*indp,0));
+
+          Wsum(*indp,0) += *workingweightp;
+          }
+
+        }
+
+      }
+
+    }
+
+  // TEST
+
+  ofstream out0("c:\\bayesx\\testh\\results\\residuum.res");
+  res.prettyPrint(out0);
+
+  // ofstream out("c:\\bayesx\\test\\results\\tildey.res");
+  // (likep->workingresponse).prettyPrint(out);
+  // TEST
+
+  }
+*/
+
 
 } // end: namespace MCMC
 

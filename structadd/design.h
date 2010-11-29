@@ -60,6 +60,7 @@ class __EXPORT_TYPE DESIGN
 
   void compute_meaneffectintvar(void);
 
+  GENERAL_OPTIONS * optionsp;
   DISTR * likep;                             // Pointer to DISTR obejct
 
   //----------------------------------------------------------------------------
@@ -233,7 +234,7 @@ class __EXPORT_TYPE DESIGN
 
   // CONSTRUCTOR
 
-  DESIGN(DISTR * dp,FC_linear * fcl);
+  DESIGN(GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl);
 
   // COPY CONSTRUCTOR
 

@@ -55,12 +55,13 @@ FC_hrandom_variance::FC_hrandom_variance(void)
   }
 
 
-FC_hrandom_variance::FC_hrandom_variance(GENERAL_OPTIONS * o,DISTR * lp,
+FC_hrandom_variance::FC_hrandom_variance(MASTER_OBJ * mp,
+                 GENERAL_OPTIONS * o,DISTR * lp,
                   DISTR * lpRE,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                  vector<ST::string> & vn)
-     : FC_nonp_variance(o,lp,t,fp,Dp,FCn,op,vn)
+     : FC_nonp_variance(mp,o,lp,t,fp,Dp,FCn,op,vn)
   {
   read_options(op,vn);
   likepRE = lpRE;
@@ -127,6 +128,8 @@ void FC_hrandom_variance::transform_beta(void)
 
 void FC_hrandom_variance::update(void)
   {
+
+  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
 
   beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
                                   b_invgamma+0.5*compute_quadform());

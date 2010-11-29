@@ -58,7 +58,8 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
   // Spatial covariates
 
   DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
-             DISTR * dp,FC_linear * fcl, DISTR * dp_RE,vector<ST::string> & op,
+             GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl, DISTR * dp_RE,
+             vector<ST::string> & op,
              vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR

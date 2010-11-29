@@ -272,11 +272,12 @@ DESIGN::DESIGN(void)
 
 // CONSTRUCTOR
 
-DESIGN::DESIGN(DISTR * lp,FC_linear * fcp)
+DESIGN::DESIGN(GENERAL_OPTIONS * o,DISTR * lp,FC_linear * fcp)
   {
 
   changingdesign = false;
 
+  optionsp = o;
   likep = lp;
   FClinearp = fcp;
 
@@ -298,6 +299,8 @@ DESIGN::DESIGN(DISTR * lp,FC_linear * fcp)
 DESIGN::DESIGN(const DESIGN & m)
   {
   changingdesign = m.changingdesign;
+
+  optionsp = m.optionsp;
   likep = m.likep;
 
   data = m.data;
@@ -374,6 +377,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
 
   changingdesign = m.changingdesign;
 
+  optionsp = m.optionsp;
   likep = m.likep;
 
   data = m.data;
@@ -623,7 +627,7 @@ void DESIGN::compute_XtransposedWX(void)
 
   // TEST
   // ofstream out("c:\\bayesx\\testh\\results\\XWX.res");
-  // XWX.print4(out);
+  // XWX.print1(out);
   // TEST
 
   }
@@ -1256,6 +1260,10 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
     }
 
   // TEST
+
+  // ofstream out0("c:\\bayesx\\testh\\results\\residuum.res");
+  // res.prettyPrint(out0);
+
   // ofstream out("c:\\bayesx\\test\\results\\tildey.res");
   // (likep->workingresponse).prettyPrint(out);
   // TEST

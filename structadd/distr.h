@@ -29,6 +29,7 @@ using randnumbers::truncnormal;
 using randnumbers::kssample;
 using randnumbers::rand_gamma;
 using randnumbers::rand_inv_gaussian;
+using randnumbers::invPhi2;
 
 /*
 1. workingweights ändern sich, weights ungleich 1
@@ -445,6 +446,12 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
    // DESTRUCTOR
 
    ~DISTR_gaussian() {}
+
+
+   double compute_MSE(const double * response,
+                          const double * weight,
+                          const double * linpred, msetype t, double v);
+
 
 //  void compute_mu(const double * linpred,double * mu, bool notransform);
   void compute_mu(const double * linpred,double * mu);

@@ -1180,7 +1180,7 @@ void superbayesreg::create_pspline(unsigned i)
   //  d.prettyPrint(out);
   // TEST
 
-  design_psplines.push_back(DESIGN_pspline(d,iv,equations[modnr].distrp,
+  design_psplines.push_back(DESIGN_pspline(d,iv,&generaloptions,equations[modnr].distrp,
                             &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));
 
@@ -1197,7 +1197,7 @@ void superbayesreg::create_pspline(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_pspline_var.raw","variance_of_nonlinear_pspline_effect_of","Variance of nonlinear effect of ");
 
-  FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
+  FC_nonp_variances.push_back(FC_nonp_variance(&master,&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_psplines[design_psplines.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
                                 terms[i].varnames));
@@ -1260,7 +1260,8 @@ bool superbayesreg::create_hrandom(unsigned i)
     }
 
 
-  design_hrandoms.push_back(DESIGN_hrandom(d,iv,equations[modnr].distrp,
+  design_hrandoms.push_back(DESIGN_hrandom(d,iv,&generaloptions,
+                            equations[modnr].distrp,
                             &FC_linears[FC_linears.size()-1],
                              equations[fnr].distrp,
                             terms[i].options,terms[i].varnames));
@@ -1277,7 +1278,8 @@ bool superbayesreg::create_hrandom(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_hrandom_var.raw","variance_of_random_effect_of","Variance of random effect of ");
 
-  FC_hrandom_variances.push_back(FC_hrandom_variance(&generaloptions,equations[modnr].distrp,
+  FC_hrandom_variances.push_back(FC_hrandom_variance(&master,
+                                  &generaloptions,equations[modnr].distrp,
                                  equations[fnr].distrp,
                                 title,pathnonp,&design_hrandoms[design_hrandoms.size()-1],
                                 &FC_hrandoms[FC_hrandoms.size()-1],terms[i].options,
@@ -1408,7 +1410,7 @@ bool superbayesreg::create_mrf(unsigned i)
     return true;
     }
 
-  design_mrfs.push_back(DESIGN_mrf(d,iv,equations[modnr].distrp,
+  design_mrfs.push_back(DESIGN_mrf(d,iv,&generaloptions,equations[modnr].distrp,
                            &FC_linears[FC_linears.size()-1],m,
                             terms[i].options,terms[i].varnames));
 
@@ -1423,7 +1425,8 @@ bool superbayesreg::create_mrf(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_spatial_var.raw","variance_of_spatial_MRF_effect_of","Variance of spatial effect of ");
 
-  FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
+  FC_nonp_variances.push_back(FC_nonp_variance(&master,
+                                &generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_mrfs[design_mrfs.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
                                 terms[i].varnames));
@@ -1445,7 +1448,8 @@ bool superbayesreg::create_kriging(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,2);
 
-  design_krigings.push_back(DESIGN_kriging(d,iv,equations[modnr].distrp,
+  design_krigings.push_back(DESIGN_kriging(d,iv,&generaloptions,
+                            equations[modnr].distrp,
                            &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));
 
@@ -1461,7 +1465,8 @@ bool superbayesreg::create_kriging(unsigned i)
   "_kriging_var.raw","variance_of_2dim_kriging_effect_of",
   "Variance of 2dim effect of ");
 
-  FC_nonp_variances.push_back(FC_nonp_variance(&generaloptions,equations[modnr].distrp,
+  FC_nonp_variances.push_back(FC_nonp_variance(&master,
+                                &generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_krigings[design_krigings.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
                                 terms[i].varnames));

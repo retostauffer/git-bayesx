@@ -110,9 +110,10 @@ DESIGN_pspline::DESIGN_pspline(void) : DESIGN()
   // CONSTRUCTOR
 
 DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
-                       DISTR * dp,FC_linear * fcl, vector<ST::string> & op,
+                       GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
+                       vector<ST::string> & op,
                        vector<ST::string> & vn)
-                      : DESIGN(dp,fcl)
+                      : DESIGN(o,dp,fcl)
   {
 
   read_options(op,vn);

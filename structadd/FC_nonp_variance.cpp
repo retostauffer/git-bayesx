@@ -28,7 +28,7 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
 
   f = op[4].strtodouble(lambdastart);
   f = op[5].strtodouble(a_invgamma);
-  f = op[6].strtodouble(b_invgamma);
+  f = op[6].strtodouble(b_invgamma_orig);
 
   }
 
@@ -39,9 +39,9 @@ FC_nonp_variance::FC_nonp_variance(void)
   }
 
 
-  
-FC_nonp_variance::FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp,
-                 const ST::string & t,const ST::string & fp,
+
+FC_nonp_variance::FC_nonp_variance(MASTER_OBJ * mp, GENERAL_OPTIONS * o,
+                 DISTR * lp, const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                  vector<ST::string> & vn)
      : FC(o,t,1,2,fp)
@@ -49,6 +49,7 @@ FC_nonp_variance::FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp,
   FCnonpp = FCn;
   likep = lp;
   designp = Dp;
+  masterp = mp;
 
   read_options(op,vn);
 
@@ -59,9 +60,7 @@ FC_nonp_variance::FC_nonp_variance(GENERAL_OPTIONS * o,DISTR * lp,
 
   FCnonpp->tau2 = beta(0,0);
   FCnonpp->lambda = beta(0,1);
-  // transform(1,0) = 1;
 
-  b_invgamma = likep->trmult*b_invgamma;
   }
 
 
@@ -71,7 +70,9 @@ FC_nonp_variance::FC_nonp_variance(const FC_nonp_variance & m)
   FCnonpp = m.FCnonpp;
   likep = m.likep;
   designp = m.designp;
+  masterp = m.masterp;
   a_invgamma = m.a_invgamma;
+  b_invgamma_orig = m.b_invgamma_orig;
   b_invgamma = m.b_invgamma;
   lambdastart = m.lambdastart;
   }
@@ -86,7 +87,9 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   FCnonpp = m.FCnonpp;
   likep = m.likep;
   designp = m.designp;
+  masterp = m.masterp;
   a_invgamma = m.a_invgamma;
+  b_invgamma_orig = m.b_invgamma_orig;
   b_invgamma = m.b_invgamma;
   lambdastart = m.lambdastart;
   return *this;
@@ -107,6 +110,8 @@ void FC_nonp_variance::update(void)
   //  (FCnonpp->param).prettyPrint(out);
   // END: TEST
 
+  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
+
   beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
               b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
 
@@ -123,6 +128,8 @@ void FC_nonp_variance::update(void)
 
 bool FC_nonp_variance::posteriormode(void)
   {
+
+  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
 
   beta(0,0) = likep->get_scale()/beta(0,1);
 
@@ -280,6 +287,9 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
 
 void FC_nonp_variance::outoptions(void)
   {
+
+  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
+
   optionsp->out("  Hyperprior a for variance parameter: " +
                 ST::doubletostring(a_invgamma) + "\n" );
   optionsp->out("  Hyperprior b for variance parameter: " +

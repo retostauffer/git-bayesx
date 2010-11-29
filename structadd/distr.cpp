@@ -997,6 +997,34 @@ void DISTR_gaussian::compute_deviance(const double * response,
   }
 
 
+double DISTR_gaussian::compute_MSE(const double * response,
+                          const double * weight,
+                          const double * linpred, msetype t, double v)
+  {
+  if (t == quadraticMSE)
+    return pow(*response-*linpred,2);
+  else
+    {
+    double u;
+
+    if (*weight == 0)
+      {
+      u = *response - ( *linpred +
+      sqrt(FCsigma2.betamean(0,0))* randnumbers::invPhi2(v) );
+      }
+    else
+      {
+      u = *response - ( *linpred +
+      sqrt(FCsigma2.betamean(0,0)/(*weight))* randnumbers::invPhi2(v) );
+      }
+      
+    if (u >= 0)
+      return u*v;
+    else
+      return u*(v-1);
+    }
+  }
+
 
 double DISTR_gaussian::loglikelihood(double * res, double * lin,
                                      double * w) const
@@ -1547,6 +1575,8 @@ double DISTR_loggaussian::compute_MSE(const double * response,
       return diff*(v-1);
     }
   }
+
+
 
 
 void DISTR_loggaussian::compute_deviance(const double * response,

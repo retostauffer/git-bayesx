@@ -77,7 +77,8 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
   // CONSTRUCTOR
 
   DESIGN_pspline(datamatrix & dm, datamatrix & iv,
-             DISTR * dp,FC_linear * fcl, vector<ST::string> & op,
+             GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
+             vector<ST::string> & op,
              vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR

@@ -79,7 +79,8 @@ class __EXPORT_TYPE DESIGN_kriging : public DESIGN
   // Spatial covariates
 
   DESIGN_kriging(const datamatrix & dm, const datamatrix & iv,
-                 DISTR * dp,FC_linear * fcl,vector<ST::string> & op,
+                 GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
+                 vector<ST::string> & op,
                  vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR

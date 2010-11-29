@@ -106,9 +106,9 @@ DESIGN_kriging::DESIGN_kriging(void) : DESIGN()
 
 
 DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
-                               DISTR * dp,FC_linear * fcl,
+                               GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
                                vector<ST::string> & op, vector<ST::string> & vn)
-                               : DESIGN(dp,fcl)
+                               : DESIGN(o,dp,fcl)
   {
 
   center = false;
