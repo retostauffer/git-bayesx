@@ -5897,22 +5897,22 @@ for(i=0; i<nrobs; i++)
   outfit << loglike << " " << df << " " << aic << " " << bic << " " << endl;
   outfit.close();
 
-  if(!timevarying)
-    {
+//  if(!timevarying)
+//    {
     out("\n");
-    out("  Cumulative Hazard Function\n",true);
+    out("  (Cumulative) Hazard Function and Predictor\n",true);
     out("\n");
     out("\n");
-    out("  The cumulative hazard function is stored in file\n");
+    out("  The (cumulative) hazard function and the predictor are stored in file\n");
     out("  "+outfile+"_predict.raw\n");
     out("\n");
 
     ofstream outpredict((outfile+"_predict.raw").strtochar());
-    outpredict << "cumhazard" << endl;
+    outpredict << "cumhazard hazard eta" << endl;
     for(i=0; i<cumhazard.rows(); i++)
-      outpredict << cumhazard(i,0) << endl;
+      outpredict << cumhazard(i,0) << " " << exp(eta(i,0)) << " " << eta(i,0) << endl;
     outpredict.close();
-    }
+//    }
 
   return false;
   }
