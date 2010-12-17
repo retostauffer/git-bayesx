@@ -5512,11 +5512,11 @@ bool STEPMULTIrun::simulate(const vector<ST::string> & header, const int & seed,
     }
   #elif!defined(__BUILDING_GNU)
     {
-    randomize();
+    srand((unsigned)time(0));
     }
   #else
     {
-    srand(1);
+    srand((unsigned)time(0));
     }
   #endif
 

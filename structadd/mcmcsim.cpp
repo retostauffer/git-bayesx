@@ -205,7 +205,7 @@ const int & seed, const bool & computemode)
     }
   #elif!defined(__BUILDING_GNU)
     {
-    randomize();
+    srand((unsigned)time(0));
     }
   #else
     {

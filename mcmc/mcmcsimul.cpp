@@ -276,7 +276,8 @@ bool MCMCsimulate::simulate(const vector<ST::string> & header, const int & seed,
     }
   #elif!defined(__BUILDING_GNU)
     {
-    randomize();
+    srand((unsigned)time(0));
+
     }
   #else
     {
