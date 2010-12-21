@@ -1015,6 +1015,27 @@ T statmatrix<T>::norm(unsigned col) const
   return norm;
   }
 
+
+template<class T>
+T statmatrix<T>::euclidean_dist(unsigned col, const statmatrix<T> & A,
+const & colA) const
+  {
+
+
+  assert(col < this->cols());
+  assert(colA < A.cols());
+  assert(this->rows() == A.rows());
+
+  T sum = 0;
+  register unsigned i;
+  T* work = this->getV()+col;
+  T* workA = A.getV()+colA;
+  for (i=0;i<this->rows();i++,work+=this->cols(),workA+=A.cols())
+    sum += pow((*work- (*workA)),2)  ;
+  return sqrt(sum);
+  }
+
+
 template<class T>
 statmatrix<T> statmatrix<T>::norm()
   {

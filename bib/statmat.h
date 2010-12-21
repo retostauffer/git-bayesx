@@ -321,6 +321,14 @@ class adja;
 
   statmatrix<T> norm();
 
+
+  // FUNCTION
+  // TASK: returns the euclidean distance between the col-th column and the
+  //       colA-th column of A
+
+  T euclidean_dist(unsigned col, const statmatrix<T> & A, const & colA) const;
+
+
   // FUNCTION: mean
   // TASK: computes the mean of the columns of the calling matrix
   //       returns a column vector of means

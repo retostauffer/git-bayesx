@@ -208,12 +208,129 @@ void line::print(ostream & o) const
 //-------------- class polygone: implementation of member functions ------------
 //------------------------------------------------------------------------------
 
+polygone::polygone(void)
+  {
+  nrlines = 0;
+  }
+
+
+void polygone::add_line(const line & l)
+  {
+  lines.push_back(l);
+  nrlines++;
+  if (nrlines == 1)
+    {
+
+    if (lines[0].x1 <= lines[0].x2)
+      {
+      xmin = lines[0].x1;
+      xmax = lines[0].x2;
+      }
+    else
+      {
+      xmin = lines[0].x2;
+      xmax = lines[0].x1;
+      }
+
+    if (lines[0].y1 <= lines[0].y2)
+      {
+      ymin = lines[0].y1;
+      ymax = lines[0].y2;
+      }
+    else
+      {
+      ymin = lines[0].y2;
+      ymax = lines[0].y1;
+      }
+
+    }
+  else
+    {
+
+    unsigned i = nrlines-1;
+
+    if (lines[i].x1 < xmin)
+      xmin = lines[i].x1;
+    if (lines[i].x2 < xmin)
+      xmin = lines[i].x2;
+
+    if (lines[i].x1 > xmax)
+      xmax = lines[i].x1;
+    if (lines[i].x2 > xmax)
+      xmax = lines[i].x2;
+
+    if (lines[i].y1 < ymin)
+      ymin = lines[i].y1;
+    if (lines[i].y2 < ymin)
+      ymin = lines[i].y2;
+
+    if (lines[i].y1 > ymax)
+      ymax = lines[i].y1;
+    if (lines[i].y2 > ymax)
+      ymax = lines[i].y2;
+
+    }
+
+  }
+
+
+void polygone::compute_min_max(void)
+  {
+  if (lines[0].x1 <= lines[0].x2)
+    {
+    xmin = lines[0].x1;
+    xmax = lines[0].x2;
+    }
+  else
+    {
+    xmin = lines[0].x2;
+    xmax = lines[0].x1;
+    }
+
+  if (lines[0].y1 <= lines[0].y2)
+    {
+    ymin = lines[0].y1;
+    ymax = lines[0].y2;
+    }
+  else
+    {
+    ymin = lines[0].y2;
+    ymax = lines[0].y1;
+    }
+
+  unsigned i;
+  for(i=1;i<lines.size();i++)
+    {
+    if (lines[i].x1 < xmin)
+      xmin = lines[i].x1;
+    if (lines[i].x2 < xmin)
+      xmin = lines[i].x2;
+
+    if (lines[i].x1 > xmax)
+      xmax = lines[i].x1;
+    if (lines[i].x2 > xmax)
+      xmax = lines[i].x2;
+
+    if (lines[i].y1 < ymin)
+      ymin = lines[i].y1;
+    if (lines[i].y2 < ymin)
+      ymin = lines[i].y2;
+
+    if (lines[i].y1 > ymax)
+      ymax = lines[i].y1;
+    if (lines[i].y2 > ymax)
+      ymax = lines[i].y2;
+
+    }
+
+  }
 
 
 polygone::polygone(const vector<line> & l)
   {
   lines = l;
   nrlines = lines.size();
+  compute_min_max();
   }
 
 
@@ -221,6 +338,10 @@ polygone::polygone(const polygone & p)
   {
   lines = p.lines;
   nrlines = p.nrlines;
+  xmin = p.xmin;
+  xmax = p.xmax;
+  ymin = p.ymin;
+  ymax = p.ymax;
   }
 
 
@@ -230,6 +351,10 @@ const polygone & polygone::operator=(const polygone & p)
     return *this;
   lines = p.lines;
   nrlines = p.nrlines;
+  xmin = p.xmin;
+  xmax = p.xmax;
+  ymin = p.ymin;
+  ymax = p.ymax;
   return *this;
   }
 
@@ -254,6 +379,34 @@ double polygone::commonborderlength(const polygone & p) const
 //------------------------------------------------------------------------------
 
 
+void region::compute_min_max(void)
+  {
+
+  xmin = polygones[0].get_xmin();
+  xmax = polygones[0].get_xmax();
+  ymin = polygones[0].get_ymin();
+  ymax = polygones[0].get_ymax();
+
+  unsigned i;
+  for(i=1;i<polygones.size();i++)
+    {
+    if (polygones[i].get_xmin() < xmin)
+      xmin = polygones[i].get_xmin();
+
+    if (polygones[i].get_xmax() > xmax)
+      xmax = polygones[i].get_xmax();
+
+    if (polygones[i].get_ymin() < ymin)
+      ymin = polygones[i].get_ymin();
+
+    if (polygones[i].get_ymax() > ymax)
+      ymax = polygones[i].get_ymax();
+
+    }
+
+  }
+
+
 region::region(const region & r)
   {
   orderrelation = r.orderrelation;
@@ -263,6 +416,10 @@ region::region(const region & r)
   polygones = r.polygones;
   nrpoly = r.nrpoly;
   isin = r.isin;
+  xmin = r.xmin;
+  xmax = r.xmax;
+  ymin = r.ymin;
+  ymax = r.ymax;
   }
 
 
@@ -278,6 +435,10 @@ const region & region::operator=(const region & r)
   polygones = r.polygones;
   nrpoly = r.nrpoly;
   isin = r.isin;
+  xmin = r.xmin;
+  xmax = r.xmax;
+  ymin = r.ymin;
+  ymax = r.ymax;
   return *this;
   }
 
@@ -325,6 +486,12 @@ bool region::compare(const region & r) const
 
   if ( (isin == r.name) || (r.isin == name) )
     return true;
+
+  if ((ymax < r.ymin) || (r.ymax < ymin))
+    return false;
+
+  if ((xmax < r.xmin) || (r.xmax < xmin))
+    return false;
 
   bool neighbors = false;
   unsigned i,j,k,l;
@@ -1805,6 +1972,21 @@ void map::compute_reg(const datamatrix & d,vector<int> & posbeg,
     for(j=0;j<posbeg.size();j++)
       inveffindex(effindex(j,0),0) = j;
 
+    // inveffindex(i,0) = rank of the i-th effectvalue
+
+    // TEST
+    /*
+    ofstream out("c:\\bayesx\\testh\\results\\inveffindex.res");
+    inveffindex.prettyPrint(out);
+
+    ofstream out2("c:\\bayesx\\testh\\results\\effindex.res");
+    effindex.prettyPrint(out2);
+
+    ofstream out3("c:\\bayesx\\testh\\results\\effvalues.res");
+    effvalueshelp.prettyPrint(out3);
+    */
+    // TEST
+
     statmatrix<int> indexneu(index.rows(),1);
 
     unsigned k=0;
@@ -1836,6 +2018,30 @@ void map::compute_reg(const datamatrix & d,vector<int> & posbeg,
     index = indexneu;
 
     }
+
+
+    // TEST
+    /*
+    ofstream out("c:\\bayesx\\testh\\results\\index.res");
+    index.prettyPrint(out);
+
+    ofstream out2("c:\\bayesx\\testh\\results\\posend.res");
+    for (j=0;j<posend.size();j++)
+      out2 << posend[j] << endl;
+
+    ofstream out2a("c:\\bayesx\\testh\\results\\posbeg.res");
+    for (j=0;j<posbeg.size();j++)
+      out2a << posbeg[j] << endl;
+
+    ofstream out3("c:\\bayesx\\testh\\results\\effvalues.res");
+    effvalueshelp.prettyPrint(out3);
+
+    ofstream out4("c:\\bayesx\\testh\\results\\index_data.res");
+    index.prettyPrint(out4);
+    */
+
+    // TEST
+
 
 
   }

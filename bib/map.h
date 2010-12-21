@@ -156,6 +156,12 @@ class polygone
   unsigned nrlines;                     // number of lines of the polygone
   vector<line> lines;                   // vector of lines
 
+  double xmin;                     // minimum x coordinate
+  double xmax;                     // maximum x coordinate
+  double ymin;                     // minimum y coordinate
+  double ymax;                     // maximum y coordinate
+
+  void compute_min_max(void);
 
   public:
 
@@ -165,10 +171,7 @@ class polygone
 
   // DEFAULT CONSTRUCTOR
 
-  polygone()
-    {
-    nrlines = 0;
-    }
+  polygone(void);
 
   // CONSTRUCTOR
 
@@ -210,16 +213,43 @@ class polygone
   // FUNCTION: add_line
   // TASK: adds a line to the current polygone
 
-  void add_line(const line & l)
-    {
-    lines.push_back(l);
-    nrlines++;
-    }
+  void add_line(const line & l);
 
   // FUNCTION: commonborderlength
   // TASK: returns the length of the common border segment of the two polygones
 
   double commonborderlength(const polygone & p) const;
+
+  // FUNCTION: get_xmin
+  // TASK: returns xmin
+
+  double get_xmin(void)
+    {
+    return xmin;
+    }
+
+  // FUNCTION: get_xmax
+  // TASK: returns xmax
+
+  double get_xmax(void)
+    {
+    return xmax;
+    }
+
+  // FUNCTION: get_ymin
+  // TASK: returns ymin
+
+  double get_ymin(void)
+    {
+    return ymin;
+    }
+  // FUNCTION: get_ymax
+  // TASK: returns ymax
+
+  double get_ymax(void)
+    {
+    return ymax;
+    }
 
   };
 
@@ -251,6 +281,12 @@ class region
                                    // region; isin stores the name of that
                                    // region
 
+  double xmin;                     // minimum x coordinate
+  double xmax;                     // maximum x coordinate
+  double ymin;                     // minimum y coordinate
+  double ymax;                     // maximum y coordinate
+
+  void compute_min_max(void);
 
   public:
 
@@ -325,6 +361,7 @@ class region
     polygones.push_back(p);
     nrpoly = 1;
     orderrelation = names;
+    compute_min_max();
     }
 
   // CONSTRUCTOR 2
@@ -337,6 +374,7 @@ class region
     polygones = p;
     nrpoly = p.size();
     orderrelation = names;
+    compute_min_max();
     }
 
 
@@ -431,6 +469,7 @@ class region
     {
     polygones.push_back(p);
     nrpoly++;
+    compute_min_max();
     }
 
   // FUNCTION: set_isin
@@ -458,7 +497,36 @@ class region
 
   double distance(const region & r, const metric & m) const;
 
+  // FUNCTION: get_xmin
+  // TASK: returns xmin
 
+  double get_xmin(void)
+    {
+    return xmin;
+    }
+
+  // FUNCTION: get_xmax
+  // TASK: returns xmax
+
+  double get_xmax(void)
+    {
+    return xmax;
+    }
+
+  // FUNCTION: get_ymin
+  // TASK: returns ymin
+
+  double get_ymin(void)
+    {
+    return ymin;
+    }
+  // FUNCTION: get_ymax
+  // TASK: returns ymax
+
+  double get_ymax(void)
+    {
+    return ymax;
+    }
 
   };
 
@@ -902,6 +970,15 @@ class __EXPORT_TYPE map
   //----------------------------------------------------------------------------
   //-------------- COMPUTING INDIZES, ETC. FOR REGRESSION MODELS ---------------
   //----------------------------------------------------------------------------
+
+  // FUNCTION: compute_reg
+  // TASK:
+  // effectvalues = vector of regions in the map in the order of appearence
+  // posbeg(j) - posend(j) gives the "position" of the j-th value in effectvalue
+  // in the data
+  // posbeg(j) = -1 denotes value not in d
+  // i: posbeg(j) - posend(j): d(index(i,0)) gives the values in d with
+  // effectvalue(j)
 
   void compute_reg(const datamatrix & d,vector<int> & posbeg,
                    vector<int> & posend,vector<ST::string> & effectvalues,
