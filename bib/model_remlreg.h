@@ -263,6 +263,7 @@ class __EXPORT_TYPE term_varcoeff_pspline_remlreg : public basic_termtype
   doubleoption lambdastart;
   simpleoption catspecific;
   simpleoption center;
+  doubleoption reference;
 
   void setdefault(void);
 
@@ -310,6 +311,7 @@ class __EXPORT_TYPE term_baseline_remlreg : public basic_termtype
                               // censored data
   simpleoption catspecific;
   intoption gridsize;
+  doubleoption reference;
 
   void setdefault(void);
 
@@ -348,6 +350,7 @@ class __EXPORT_TYPE term_baseline_varcoeff_remlreg : public basic_termtype
   doubleoption lambdastart;
   simpleoption catspecific;
   intoption gridsize;
+  doubleoption reference;
 
   void setdefault(void);
 

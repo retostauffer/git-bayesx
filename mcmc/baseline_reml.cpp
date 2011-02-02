@@ -16,15 +16,15 @@ baseline_reml::baseline_reml(MCMCoptions * o,
               const unsigned & nrb, const knotpos & kp, const fieldtype & ft,
               const ST::string & ti, const ST::string & fp,
               const ST::string & pres, const double & l, const double & sl,
-              const knotpos & gp, const int & gs, const bool & catsp)
-  : spline_basis(o,d,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp,0.0,0.0,0.0,0.0,gs,-9999)
+              const knotpos & gp, const int & gs, const bool & catsp, const double & rv)
+  : spline_basis(o,d,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp,0.0,0.0,0.0,0.0,gs,rv)
   {
   unsigned i,j,k;
 
   baseline=true;
   varcoeff=false;
 
-  refcheck=false;
+//  refcheck=false;
 
   gridpos = gp;
   double tmax=d.max(0);
@@ -162,8 +162,8 @@ baseline_reml::baseline_reml(MCMCoptions * o,const datamatrix & d1,
                       const unsigned & degr, const unsigned & tgr,
                       const knotpos & kp, const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl, const int & gs, const bool & catsp)
-  : spline_basis(o,d1,d2,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp,false)
+                      const double & sl, const int & gs, const bool & catsp, const double & rv)
+  : spline_basis(o,d1,d2,nrk,degr,kp,ft,ti,fp,pres,l,sl,catsp,false,rv)
   {
   baseline=true;
   interact_var = d2;
@@ -220,7 +220,17 @@ void baseline_reml::createreml(datamatrix & X,datamatrix & Z,
   double * workX;
   unsigned Xcols = X.cols();
 
-// X für Daten berechen
+  datamatrix refhelp;
+  if(refcheck)
+    {
+    refhelp = bspline(reference);
+    if(!varcoeff)
+      X_ref = datamatrix(1,1);
+    else
+      X_ref = datamatrix(1,2);
+    }
+
+  // X für Daten berechen
 
   datamatrix knoten = datamatrix(nrpar,1,0.0);
   for(i=0;i<nrpar;i++)
@@ -249,11 +259,30 @@ void baseline_reml::createreml(datamatrix & X,datamatrix & Z,
       }
     }
 
+  if(refcheck)
+    {
+    if(!varcoeff)
+      {
+      for(i=0; i<knoten.rows(); i++)
+        X_ref(0,0) += knoten(i,0)*refhelp(i,0);
+//      X_ref(0,0) -= splinemean;
+      }
+    else
+      {
+      X_ref(0,0) = 1.0;
+      for(i=0; i<knoten.rows(); i++)
+        X_ref(0,1) += knoten(i,0)*refhelp(i,0);
+      }
+    }
+
 // Z für Daten berechnen
 
   compute_Kweights();
   datamatrix diffmatrix = weighteddiffmat(2,weight);
   diffmatrix = diffmatrix.transposed()*diffmatrix.transposed().sscp().inverse();
+
+  if(refcheck)
+    Z_ref = datamatrix(1,dimZ);
 
   unsigned Zcols = Z.cols();
   for(j=0;j<dimZ;j++)
@@ -262,6 +291,11 @@ void baseline_reml::createreml(datamatrix & X,datamatrix & Z,
 
     workdata = spline.getV();
     workZ = Z.getV()+Zpos+j;
+
+    if(refcheck)
+      {
+      Z_ref(0,j) = (refhelp.transposed()*diffmatrix.getCol(j))(0,0);
+      }
 
     if(varcoeff)
       {

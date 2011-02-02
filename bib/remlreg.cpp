@@ -2066,7 +2066,7 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
   ST::string monotone;
   long h;
   unsigned degree,nrknots;
-  double lambda,startlambda;
+  double lambda,startlambda,refval;
   bool catsp, ctr;
   int f;
 
@@ -2134,6 +2134,8 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
       else
         ctr=false;
 
+      f = (terms[i].options[7]).strtodouble(refval);
+
       if (f==1)
         return true;
 
@@ -2162,7 +2164,8 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
                                               lambda,
                                               startlambda,
                                               catsp,
-                                              ctr
+                                              ctr,
+                                              refval
                                              )
                            );
       vector<ST::string> na;
@@ -3295,7 +3298,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
   ST::string title;
   long h;
   unsigned degree,nrknots,tgrid,nrquant,nrbetween;
-  double lambda, startlambda;
+  double lambda, startlambda, refval;
   bool catsp;
   int f, gridsize;
   MCMC::knotpos gridpo;
@@ -3408,6 +3411,7 @@ bool remlreg::create_baseline(const unsigned & collinpred)
         }
       f = (terms[i].options[11]).strtolong(h);
       gridsize = int(h);
+      f = (terms[i].options[12]).strtodouble(refval);
 
       if (f==1)
         return true;
@@ -3435,7 +3439,8 @@ bool remlreg::create_baseline(const unsigned & collinpred)
                                               startlambda,
                                               gridpo,
                                               gridsize,
-                                              catsp
+                                              catsp,
+                                              refval
                                              )
                            );
 
@@ -3456,7 +3461,7 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
   ST::string pathnonp;
   ST::string pathres;
   ST::string title;
-  double lambda, startlambda;
+  double lambda, startlambda,refval;
   unsigned degree,nrknots,tgrid;
   bool catsp;
   int f, gridsize;
@@ -3491,6 +3496,7 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
         }
       f = (terms[i].options[4]).strtolong(h);
       gridsize = int(h);
+      f = (terms[i].options[5]).strtodouble(refval);
 
       if (f==1)
         return true;
@@ -3521,7 +3527,8 @@ bool remlreg::create_baseline_varcoeff(const unsigned & collinpred)
                                               lambda,
                                               startlambda,
                                               gridsize,
-                                              catsp
+                                              catsp,
+                                              refval
                                              )
                            );
 

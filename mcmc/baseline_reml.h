@@ -64,7 +64,7 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
                const fieldtype & ft, const ST::string & ti,
                const ST::string & fp, const ST::string & pres, const double & l,
                const double & sl, const knotpos & gp, const int & gs,
-               const bool & catsp);
+               const bool & catsp, const double & rv);
 
   // CONSTRUCTOR 2 (VCM)
 
@@ -74,7 +74,8 @@ class __EXPORT_TYPE baseline_reml : public spline_basis
                       const knotpos & kp, const fieldtype & ft,
                       const ST::string & ti, const ST::string & fp,
                       const ST::string & pres, const double & l,
-                      const double & sl, const int & gs, const bool & catsp);
+                      const double & sl, const int & gs, const bool & catsp,
+                      const double & rv);
 
   // COPY CONSTRUCTOR
 

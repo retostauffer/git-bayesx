@@ -425,7 +425,7 @@ spline_basis::spline_basis(MCMCoptions * o,const datamatrix & d1,
                       const datamatrix & d2, const unsigned & nrk, const unsigned & degr,
                       const knotpos & kp, const fieldtype & ft, const ST::string & ti,
                       const ST::string & fp, const ST::string & pres, const double & l,
-                      const double & sl, const bool & catsp, const bool & ctr)
+                      const double & sl, const bool & catsp, const bool & ctr, const double & rv)
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
@@ -434,11 +434,15 @@ spline_basis::spline_basis(MCMCoptions * o,const datamatrix & d1,
   lowerknot=0.0;
   upperknot=0.0;
 
-  refcheck=false;
-
   pseudocontourprob = false;
 
 //------------------------------------------------------------------------------
+
+  reference = rv;
+  if(reference == -9999)
+    refcheck=false;
+  else
+    refcheck = true;
 
   fctype = nonparametric;
 
@@ -3380,7 +3384,13 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
 
   datamatrix refhelp;
   if(refcheck)
+    {
     refhelp = bspline(reference);
+    if(!varcoeff)
+      X_ref = datamatrix(1,1);
+    else
+      X_ref = datamatrix(1,2);
+    }
 
 // X berechen
 
@@ -3434,9 +3444,9 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
 
     multBS_index(spline,knoten);
 
+    double splinemean=spline.mean(0);
     if(!varcoeff)
       {
-      double splinemean=spline.mean(0);
       for(i=0; i<spline.rows(); i++)
         {
         spline(i,0)=spline(i,0)-splinemean;
@@ -3449,14 +3459,23 @@ void spline_basis::createreml(datamatrix & X,datamatrix & Z,
           X_grid(i,0) = spline2(i,0)-splinemean;
           }
         }
+      }
+
       if(refcheck)
         {
-        X_ref = datamatrix(1,1);
-        for(i=0; i<knoten.rows(); i++)
-          X_ref(0,0) += knoten(i,0)*refhelp(i,0);
-        X_ref(0,0) -= splinemean;
+        if(!varcoeff)
+          {
+          for(i=0; i<knoten.rows(); i++)
+            X_ref(0,0) += knoten(i,0)*refhelp(i,0);
+          X_ref(0,0) -= splinemean;
+          }
+        else
+          {
+          X_ref(0,0) = 1.0;
+          for(i=0; i<knoten.rows(); i++)
+            X_ref(0,1) += knoten(i,0)*refhelp(i,0);
+          }
         }
-      }
 
     if(X.rows()<spline.rows())
     // category specific covariates
@@ -3811,39 +3830,101 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
 
   if(refcheck)
     {
-    for(i=0,j=0;i<X.rows();i++,indexit++,freqwork++,k+=*indexit)
+    if(varcoeff || X.rows()<X_VCM.rows())
       {
-      if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+      for(i=0,j=0;i<Z_VCM.rows();i++,indexit++,freqwork++,k+=*indexit)
         {
-        if(type == RW1)
+        if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
           {
-          betarefmean(j,0) = ((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)-Z_ref)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
-          betarefstd(j,0) = sqrt(((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)-Z_ref)*
-                   betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar-1,betaZpos+nrpar-1)*
-                   (Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)-Z_ref).transposed())(0,0));
-          }
-        else
-          {
-          betarefmean(j,0) = betareml(betaXpos,0)*(X(k,Xpos)-X_ref(0,0)) + ((Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref)*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1))(0,0);
-          betarefstd(j,0) = sqrt(
-                              (
-                               (X(k,Xpos)-X_ref(0,0))*betacov(betaXpos,betaXpos)
-                               +
-                               ((Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
-                              )*(X(k,Xpos)-X_ref(0,0))
-                              +
-                              (
-                               (
-                                (X(k,Xpos)-X_ref(0,0))*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+          if(type == RW1)
+            {
+            if(!centervcm)
+              {
+              betarefmean(j,0) = betareml(betaXpos,0)*(X_VCM(k,0)-X_ref(0,0)) + ((Z_VCM.getRow(k)-Z_ref)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
+              betarefstd(j,0) = sqrt(
+                                  (
+                                   (X_VCM(k,0)-X_ref(0,0))*betacov(betaXpos,betaXpos)
+                                   +
+                                   ((Z_VCM.getRow(k)-Z_ref)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
+                                  )*(X_VCM(k,0)-X_ref(0,0))
+                                  +
+                                  (
+                                   (
+                                    (X_VCM(k,0)-X_ref(0,0))*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+                                    +
+                                    (Z_VCM.getRow(k)-Z_ref)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                                   )*((Z_VCM.getRow(k)-Z_ref).transposed())
+                                  )(0,0)
+                                 );
+              }
+            else
+              {
+              betarefmean(j,0) = ((Z_VCM.getRow(k)-Z_ref)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
+              betarefstd(j,0) = sqrt(
+                                  ((Z_VCM.getRow(k)-Z_ref)*
+                                   betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)*
+                                   ((Z_VCM.getRow(k)-Z_ref).transposed()))(0,0));
+              }
+            }
+          else
+            {
+            betarefmean(j,0) = ((X_VCM.getRow(k)-X_ref)*betareml.getBlock(betaXpos,0,betaXpos+dimX,1))(0,0) + ((Z_VCM.getRow(k)-Z_ref)*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1))(0,0);
+            betarefstd(j,0) = sqrt(
+                                ((
+                                (X_VCM.getRow(k)-X_ref)*betacov.getBlock(betaXpos,betaXpos,betaXpos+dimX,betaXpos+dimX)
                                 +
-                                (Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
-                               )*((Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref).transposed())
-                              )(0,0)
-                             );
+                                ((Z_VCM.getRow(k)-Z_ref)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+dimX))
+                                )*(X_VCM.getRow(k)-X_ref).transposed())(0,0)
+                                +
+                                (
+                                (
+                                 (X_VCM.getRow(k)-X_ref)*betacov.getBlock(betaXpos,betaZpos,betaXpos+dimX,betaZpos+dimZ)
+                                 +
+                                 (Z_VCM.getRow(k)-Z_ref)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                                )*((Z_VCM.getRow(k)-Z_ref).transposed())
+                                )(0,0)
+                               );
+            }
+          j++;
           }
-        j++;
         }
       }
+    else
+      {
+      for(i=0,j=0;i<X.rows();i++,indexit++,freqwork++,k+=*indexit)
+        {
+        if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
+          {
+          if(type == RW1)
+            {
+            betarefmean(j,0) = ((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)-Z_ref)*betareml.getBlock(betaZpos,0,betaZpos+nrpar-1,1))(0,0);
+            betarefstd(j,0) = sqrt(((Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)-Z_ref)*
+                     betacov.getBlock(betaZpos,betaZpos,betaZpos+nrpar-1,betaZpos+nrpar-1)*
+                     (Z.getBlock(k,Zpos,k+1,Zpos+nrpar-1)-Z_ref).transposed())(0,0));
+            }
+          else
+            {
+            betarefmean(j,0) = betareml(betaXpos,0)*(X(k,Xpos)-X_ref(0,0)) + ((Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref)*betareml.getBlock(betaZpos,0,betaZpos+dimZ,1))(0,0);
+            betarefstd(j,0) = sqrt(
+                                (
+                                 (X(k,Xpos)-X_ref(0,0))*betacov(betaXpos,betaXpos)
+                                 +
+                                 ((Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref)*betacov.getBlock(betaZpos,betaXpos,betaZpos+dimZ,betaXpos+1))(0,0)
+                                )*(X(k,Xpos)-X_ref(0,0))
+                                +
+                                (
+                                 (
+                                  (X(k,Xpos)-X_ref(0,0))*betacov.getBlock(betaXpos,betaZpos,betaXpos+1,betaZpos+dimZ)
+                                  +
+                                  (Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref)*betacov.getBlock(betaZpos,betaZpos,betaZpos+dimZ,betaZpos+dimZ)
+                                 )*((Z.getBlock(k,Zpos,k+1,Zpos+dimZ)-Z_ref).transposed())
+                                )(0,0)
+                               );
+            }
+          j++;
+          }
+        }
+      }  
     for(j=0; j<nr; j++)
       {
 //      betarefmean(j,0)=betarefmean(j,0)-mean;

@@ -326,7 +326,7 @@ class adja;
   // TASK: returns the euclidean distance between the col-th column and the
   //       colA-th column of A
 
-  T euclidean_dist(unsigned col, const statmatrix<T> & A, const & colA) const;
+  T euclidean_dist(unsigned col, const statmatrix<T> & A, const unsigned & colA) const;
 
 
   // FUNCTION: mean
@@ -363,7 +363,7 @@ class adja;
   // TASK: returns the 'percent' (0 < percent < 100) percent quantile
   //       of the 'col' th column
   //       index contains the index sort of the col-th column, i.e. it is
-  //       assumed that the indexsort is already done 
+  //       assumed that the indexsort is already done
 
   T quantile  (const T & percent,const unsigned & col,
   statmatrix<int> & index) const;
