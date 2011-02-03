@@ -193,6 +193,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
  MASTER_OBJ master;
 
+ 
 //---------------------------------- DISTR  ------------------------------------
 
   vector<DISTR_gaussian> distr_gaussians;
