@@ -1,16 +1,8 @@
 
-
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __attribute__((dllexport))
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (DISTR_INCLUDED)
 #define DISTR_INCLUDED
 
+#include"../export_type.h"
 #include"statmat.h"
 #include"Random.h"
 #include"GENERAL_OPTIONS.h"
@@ -224,7 +216,7 @@ class __EXPORT_TYPE DISTR
   virtual double compute_MSE(const double * response, const double * weight,
                              const double * linpred, msetype t, double v);
 
-                           
+
 
   //----------------------------------------------------------------------------
   //----------------------------- IWLS Algorithm -------------------------------
@@ -298,7 +290,7 @@ class __EXPORT_TYPE DISTR
   double compute_iwls(const bool & current,const bool & like);
 
   void compute_iwls(const bool & current,datamatrix & likelihood,
-                    statmatrix<unsigned> & ind);  
+                    statmatrix<unsigned> & ind);
 
   // FUNCTION: compute_IWLS (
   // TASK: computes the iwls weights (will be stored in workingweight),
