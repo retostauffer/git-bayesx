@@ -135,9 +135,9 @@ SRC = \
 
 OBJ = $(patsubst %.cpp,%.o,$(SRC))
 
-LINKOBJ  = $(OBJ) /usr/lib/libreadline.so
-LIBS =  -g3
-INCS =  -I. -I"bib"  -I"alex"  -I"adaptiv"  -I"andrea"  -I"dag"  -I"graph"  -I"mcmc"  -I"psplines"  -I"samson"  -I"leyre"  -I"structadd" 
+LINKOBJ  = $(OBJ) -lreadline
+LIBS = -g3
+INCS =  -I. -I"bib"  -I"alex"  -I"adaptiv"  -I"andrea"  -I"dag"  -I"graph"  -I"mcmc"  -I"psplines"  -I"samson"  -I"leyre"  -I"structadd"
 CXXINCS = $(INCS)
 
 WARNINGS = -Wcomment -Wdeprecated -Woverflow -Wpointer-arith\

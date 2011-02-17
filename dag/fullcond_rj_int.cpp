@@ -758,7 +758,7 @@ void FULLCOND_rj_int::switch_version_1(unsigned v_i, unsigned j)
 						datamatrix & beta_new, datamatrix & xx_new, datamatrix & b_new, 
 						datamatrix & x_new)
   {
-	  make_new_b(vector<unsigned> ia_new, double beta_new, 
+	  void make_new_b(vector<unsigned> ia_new, double beta_new, 
 				datamatrix & xx_new, datamatrix & b_new, datamatrix & x_new);
   }
 
