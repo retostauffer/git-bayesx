@@ -81,7 +81,7 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
     k=0;
     for(i=0;i<2*zi.rows();i++)
       {
-      unsigned tin = ges_index(i,0);
+//      unsigned tin = ges_index(i,0);
       if(likep->get_transition(ges_index(i,0),col)==1)
         {
         teil_index[col](k,0)=ges_index(i,0);
@@ -282,7 +282,7 @@ pspline_multibaseline::pspline_multibaseline(MCMCoptions * o,DISTRIBUTION * dp,F
                     const int & gs, const unsigned & c,const datamatrix & zustand, const datamatrix & anfang, const bool & gl)
   : FULLCOND_pspline(o,dp,fcc,ft,ti,nrk,degr,kp,fp,pres,false,gs,c)
   {
-  unsigned i,j,k;
+  unsigned i,j;
 
   baselinep = vector<pspline_multibaseline*>(0);
 
@@ -822,8 +822,8 @@ if(begin0==false)
 
     k=k+1;
     }
-  double indextest=teil_index[col](0,0);
-  double zigestest=zi_ges(teil_index[col](0,0),0);
+//  double indextest=teil_index[col](0,0);
+//  double zigestest=zi_ges(teil_index[col](0,0),0);
   erg=erg*dist_knots;
   erg=erg+(exp(spline_teil[col](0,0))+exp(spline_o))*(zi_ges(teil_index[col](0,0),0)-int_knots_l[col](k-1,0));
 
@@ -863,7 +863,7 @@ if(begin0==false)
 
         k++;
         }
-      double test= spline_o;
+//      double test= spline_o;
       erg=erg+(exp(spline_teil[col](i,0))+exp(spline_o))*(zi_ges(teil_index[col](i,0),0)-int_knots_l[col](k-1,0));
       }
 
@@ -981,7 +981,7 @@ if(begin0==false)
 
         k++;
         }
-      double test= spline_o;
+//      double test= spline_o;
       erg=erg+(exp(spline_ges(i,0))+exp(spline_o))*(zi_ges(ges_index(i,0),0)-int_knots(k-1,0));
       }
 

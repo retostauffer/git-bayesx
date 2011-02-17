@@ -748,7 +748,7 @@ bool superbayesreg::create_distribution(void)
   ST::string rname;
   ST::string wn;
   ST::string ifexpression;
-  unsigned weightpos;
+  unsigned weightpos=0;
 
   vector<ST::string> modelvarnamesh;
   modelvarnamesh = modreg.getModelVarnamesAsVector();

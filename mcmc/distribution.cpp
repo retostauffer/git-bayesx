@@ -1948,8 +1948,9 @@ void DISTRIBUTION::add_linearpred2(const double & m,const unsigned & beg,
     worklin = &((*linpred_proposed)(index(beg,0),col));
 
   int * workindex2 = index2.getV()+beg;
+  int linearpred_cols = linearpred.cols();
 
-  for (i=beg;i<=end;i++,workindex2++,worklin+=*workindex2*linearpred.cols())
+  for (i=beg;i<=end;i++,workindex2++,worklin+=*workindex2*linearpred_cols)
     *worklin += m;
 
   }
@@ -8386,7 +8387,7 @@ double DISTRIBUTION_multinom::compute_weight(double * linpred, double * weight,
   {
 
   register unsigned j;
-  double expcol;
+  double expcol=0.0;
   double sumexp=0;
   for (j=0;j<linearpred.cols();j++,linpred++)
     {
@@ -8416,7 +8417,7 @@ void DISTRIBUTION_multinom::compute_IWLS_weight_tildey(double * response,
   {
 
   register unsigned j;
-  double expcol;
+  double expcol=0.0;
   double sumexp=0;
   for (j=0;j<linearpred.cols();j++,linpred++)
     {
@@ -8457,7 +8458,7 @@ double DISTRIBUTION_multinom::compute_IWLS(double * resp,double * linpred,
   unsigned dim = response.cols();
 
   register unsigned j;
-  double expcol;
+  double expcol=0.0;
   double sumexp=0;
   double * worklin = linpred;
   for (j=0;j<dim;j++,worklin++)
@@ -8802,7 +8803,7 @@ double DISTRIBUTION_multinom2::compute_weight(double * linpred, double * weight,
   {
 
   register unsigned j;
-  double expcol;
+  double expcol = 0.0;
   double sumexp=0;
   for (j=0;j<linearpred.cols();j++,linpred++)
     {
@@ -8832,7 +8833,7 @@ void DISTRIBUTION_multinom2::compute_IWLS_weight_tildey(double * response,
   {
 
   register unsigned j;
-  double expcol;
+  double expcol=0.0;
   double sumexp=0;
   for (j=0;j<linearpred.cols();j++,linpred++)
     {
@@ -8873,7 +8874,7 @@ double DISTRIBUTION_multinom2::compute_IWLS(double * resp,double * linpred,
   unsigned dim = response.cols();
 
   register unsigned j;
-  double expcol;
+  double expcol=0.0;
   double sumexp=0;
   double * worklin = linpred;
   for (j=0;j<dim;j++,worklin++)

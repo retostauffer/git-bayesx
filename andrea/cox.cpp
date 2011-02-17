@@ -295,7 +295,9 @@ void DISTRIBUTION_coxmodel::compute_deviance(const double * response, const doub
 } // END: namespace MCMC
 
 //---------------------------------------------------------------------------
+#if !defined(__BUILDING_GNU)
 #pragma package(smart_init)
+#endif
 
 
 

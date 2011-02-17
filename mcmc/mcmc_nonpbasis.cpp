@@ -338,7 +338,7 @@ void FULLCOND_nonp_basis::compute_u(datamatrix & u)
 
 double FULLCOND_nonp_basis::compute_ui(unsigned i)
   {
-  double v;
+  double v=0.0;
 
   if (type ==RW1)
     v = beta(i,0)-beta(i-1,0);
@@ -525,7 +525,7 @@ void FULLCOND_nonp_basis::outresults(void)
     optionsp->out("  Type for example: objectname.drawmap " +
     ST::inttostring(fcnumber) + "\n");
     optionsp->out("\n");
-    #else defined(BORLAND_OUTPUT_WINDOW)
+    #elif defined(BORLAND_OUTPUT_WINDOW)
     optionsp->out("  Results may be visualized using the R function");
     optionsp->out(" 'drawmap'\n");
     optionsp->out("\n");

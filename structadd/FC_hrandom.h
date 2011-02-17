@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE  __attribute__((dllexport))
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (FChrandomINCLUDED)
 
 #define FChrandomINCLUDED
 
+#include"../export_type.h"
 #include"../values.h"
 #include<fstream>
 #include"GENERAL_OPTIONS.h"

@@ -22,7 +22,7 @@ void estimaterun(dagobject & d)
 
   //--------------------- reading dataset information --------------------------
 
-  dataobject * datap;               // pointer to dataset
+  dataobject * datap = NULL;               // pointer to dataset
 
   int objpos = findstatobject(*(d.statobj),d.udata.getusingtext(),"dataset");
   statobject * s;

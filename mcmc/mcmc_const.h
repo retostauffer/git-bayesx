@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (MCMCconst_INCLUDED)
 
 #define MCMCconst_INCLUDED
 
+#include"../export_type.h"
 #include"mcmc.h"
 #include"fullcond.h"
 #include"distribution.h"
@@ -394,9 +387,9 @@ class __EXPORT_TYPE FULLCOND_const_nongaussian : public FULLCOND_const
   // CONSTRUCTOR
 
   FULLCOND_const_nongaussian(MCMCoptions* o,DISTRIBUTION * dp,const datamatrix & d,
-                             const ST::string & t, const int & constant, 
-                             const ST::string & fs, const ST::string & fr, 
-                             const bool & r, const datamatrix vars, 
+                             const ST::string & t, const int & constant,
+                             const ST::string & fs, const ST::string & fr,
+                             const bool & r, const datamatrix vars,
                              const bool & useeff, const datamatrix eff,            //NEW
                              const unsigned & c=0);
 
@@ -472,8 +465,8 @@ class __EXPORT_TYPE FULLCOND_const_nbinomial : public FULLCOND_const_nongaussian
   FULLCOND_const_nbinomial(MCMCoptions* o,DISTRIBUTION * dp,DISTRIBUTION_nbinomial * nb,
                              const datamatrix & d, const ST::string & t,
                              const int & constant, const ST::string & fs,
-                             const ST::string & fr, const bool & r, const datamatrix & vars, 
-                             const bool & useeff, const datamatrix eff,            //NEW 
+                             const ST::string & fr, const bool & r, const datamatrix & vars,
+                             const bool & useeff, const datamatrix eff,            //NEW
                              const unsigned & c=0);
 
   // COPY CONSTRUCTOR

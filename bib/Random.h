@@ -1,18 +1,10 @@
 // Modul zur Erzeugung von Zufallszahlen
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined( RANDOM_INCLUDED )
 
 #define RANDOM_INCLUDED
 
-
+#include"../export_type.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -21,6 +13,8 @@
 #include <vector>
 
 using std::vector;
+
+bool infinite(double x);
 
 namespace randnumbers
 {
@@ -176,6 +170,8 @@ double __EXPORT_TYPE IG(double mu, double lambda);
 
 
 double __EXPORT_TYPE GIG(double lambda, double psi, double chi);
+
+double __EXPORT_TYPE GIG(double chi);
 
 
 double __EXPORT_TYPE f1old(double x, int j);

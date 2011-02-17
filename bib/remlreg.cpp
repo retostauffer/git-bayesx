@@ -743,7 +743,7 @@ bool remlreg::create_data(datamatrix & weight)
       resphelp.sort(0,resphelp.rows()-1,0);
       allcats.erase(allcats.begin(),allcats.end());
       allcats.push_back(resphelp(0,0));
-      unsigned refpos;
+//      unsigned refpos;
       for(i=1; i<resphelp.rows(); i++)
         {
         if(resphelp(i,0)!=resphelp(i-1,0))
@@ -2070,12 +2070,12 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
   bool catsp, ctr;
   int f;
 
-  unsigned i;
-  int j1,j2,k;
+//  unsigned i;
+  int j1,j2;
 
   datamatrix data1;
   datamatrix data2;
-  for(i=0;i<terms.size();i++)
+  for(unsigned i=0;i<terms.size();i++)
     {
     if ( nonpvarcoeffpspline.checkvector(terms,i) == true )
       {
@@ -2098,7 +2098,7 @@ bool remlreg::create_varcoeffpspline(const unsigned & collinpred)
         test = terms[i].varnames[0].substr(0,terms[i].varnames[0].length()-12);
         data1 = datamatrix(allcats.size()*D.rows(),1,0);
         data2 = datamatrix(allcats.size()*D.rows(),1,0);
-        for(k=0; k<allcats.size(); k++)
+        for(unsigned k=0; k<allcats.size(); k++)
           {
           j1 = (test+ST::inttostring(allcats[k])).isinlist(modelvarnamesv);
           data1.putRowBlock(k*D.rows(), (k+1)*D.rows(), D.getCol(j1));

@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __attribute__((dllexport))
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (FChrandomVARIANCEINCLUDED)
 
 #define FChrandomVARIANCEINCLUDED
 
+#include"../export_type.h"
 #include"../values.h"
 #include<fstream>
 #include"GENERAL_OPTIONS.h"
@@ -32,7 +25,7 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
 
   protected:
 
-  
+
 
   DISTR * likepRE;
 

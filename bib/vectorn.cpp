@@ -249,11 +249,7 @@ vectornum<T> operator<(const T & v2,const vectornum<T> & v1)
 template<class T>
 vectornum<T>  vectornum<T>::isequal(vectornum<T> & v2)
   {
-  #if defined(__BUILDING_GNU)
-  typename vectornum<T>::iterator pos1,pos2,pos3;
-  #else
-  vectornum<T>::iterator pos1,pos2,pos3;
-  #endif
+  VEC_ITER_TYPE vectornum<T>::iterator pos1,pos2,pos3;
   vectornum<T> h(v2.size());
   for (pos1=this->begin(),pos2=v2.begin(),pos3=h.begin();
 		 pos1 != this->end();++pos1,++pos2,++pos3)

@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE  __attribute__((dllexport))
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (DESIGNINCLUDED)
 
 #define DESIGNINCLUDED
 
+#include"../export_type.h"
 #include"statmat.h"
 #include"sparsemat.h"
 #include "statmat_penalty.h"

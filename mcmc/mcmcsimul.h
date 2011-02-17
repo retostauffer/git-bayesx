@@ -1,16 +1,10 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
+#include"../export_type.h"
 #if !defined (MCMCsimulate_INCLUDED)
 
 #define MCMCsimulate_INCLUDED
 
+#include"../export_type.h"
 #include"mcmc.h"
 #include"distribution.h"
 #include"fullcond.h"

@@ -2067,7 +2067,7 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
   fchelp.set_transform(transform);
   fctotal.set_transform(transform);
 
-  unsigned i;
+//  unsigned i;
 
   if(utype == iwls)
     {
@@ -2093,8 +2093,9 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
     prec_env.addto(XX_env,Kenv,invscale,1.0/sigma2);
 
     double * work = proposal.getV();
-    for(unsigned i=0;i<nrpar;i++,work++)
+    for(unsigned int i=0;i<nrpar;i++,work++){
       *work = rand_normal();
+      }
 
     prec_env.solve(muy,betahelp);
     prec_env.solveU(proposal,betahelp);
@@ -2104,15 +2105,17 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
     beta.assign(proposal);
     compute_intercept();
     compute_beta();
-    for(i=0;i<nrpar;i++)
+    for(unsigned int i=0;i<nrpar;i++){
       beta(i,0) += intercept;
+      }
     intercept = 0.0;
     proposal.assign(beta);
     beta.assign(betahelp);
     compute_intercept();
     compute_beta();
-    for(i=0;i<nrpar;i++)
+    for(unsigned int i=0;i<nrpar;i++){
       beta(i,0) += intercept;
+      }
     intercept = 0.0;
     betahelp.assign(beta);
     beta.assign(betasave);
@@ -2149,8 +2152,9 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
     beta.assign(betahelp);
     compute_intercept();
     compute_beta();
-    for(i=0;i<nrpar;i++)
+    for(unsigned int i=0;i<nrpar;i++){
       beta(i,0) += intercept;
+      }
     intercept = 0.0;
     betahelp.assign(beta);
     beta.assign(betasave);
@@ -2173,10 +2177,12 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
       beta.assign(proposal);
       compute_intercept();
       fcconst->update_intercept(intercept);
-      for(i=0;i<nrpar;i++)
+      for(unsigned int i=0;i<nrpar;i++){
         beta(i,0) -= intercept;
-      for(i=0;i<likep->get_nrobs();i++)
-         spline(i,0) -= intercept;
+        }
+      for(unsigned int i=0;i<likep->get_nrobs();i++){
+        spline(i,0) -= intercept;
+        }
       intercept = 0.0;
       }
     else
@@ -2200,8 +2206,9 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
       prec.addto2(K,XX,1.0/sigma2,scaleinv);
 
     double * work = standnormal.getV();
-    for(i=0;i<nrpar;i++,work++)
+    for(unsigned int i=0;i<nrpar;i++,work++){
       *work = rand_normal();
+      }
 
     prec.solveL(standnormal,beta);
     likep->compute_respminuslinpred(mu,column);   // nicht ändern wegen multgaussian
@@ -2213,15 +2220,18 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
     compute_intercept();
     compute_beta();
     fcconst->update_intercept(intercept);
-    for(i=0;i<nrpar;i++)
+    for(unsigned int i=0;i<nrpar;i++){
       beta(i,0) = beta(i,0) + intercept;
+      }
 
     add_linearpred_multBS(beta);
 
-    for(i=0;i<nrpar;i++)
+    for(unsigned int i=0;i<nrpar;i++){
       beta(i,0) -= intercept;
-    for(i=0;i<spline.rows();i++)
+      }
+    for(unsigned int i=0;i<spline.rows();i++){
       spline(i,0) -= intercept;
+      }
     intercept = 0.0;
 
     acceptance++;
@@ -2239,7 +2249,7 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
           {
           vector<int>::iterator freqwork = freqoutput.begin();
           int * workindex = index.getV();
-          for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+          for(unsigned int i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
             {
             if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
               {
@@ -2278,7 +2288,7 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
 
       vector<int>::iterator freqwork = freqoutput.begin();
       int * workindex = index.getV();
-      for(i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
+      for(unsigned int i=0;i<likep->get_nrobs();i++,freqwork++,workindex++)
         {
         if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
           {
@@ -2293,7 +2303,7 @@ void FULLCOND_pspline_surf_stepwise::update_linear_function(void)
     else
       {
       multDG(splinehelp,beta);
-      for(i=0;i<unsigned(gridsize);i++,fchelpbetap++)
+      for(unsigned int i=0;i<unsigned(gridsize);i++,fchelpbetap++)
         *fchelpbetap = splinehelp(i,0);
       }
     }
@@ -2318,7 +2328,7 @@ void FULLCOND_pspline_surf_stepwise::change_Korder(double lamb)
           datamatrix Kstat = STATMAT_PENALTY::K2dim_pspline_rw2(nrpar1dim,2,2);
           datamatrix de(nrpar,1);
           datamatrix ud = datamatrix(nrpar,(nrpar1dim+1)*2);
-          for(unsigned i=0;i<nrpar;i++)
+          for(unsigned int i=0;i<nrpar;i++)
            {
            de(i,0) = Kstat(i,i);
            for(unsigned j=0;j<ud.cols();j++)
@@ -2568,7 +2578,7 @@ void FULLCOND_pspline_surf_stepwise::multBS_index(datamatrix & res, const datama
   {
   int i;
   unsigned j,k;
-  double val;
+  double val=0.0;
 
   double *workbeta;
   double *workB;

@@ -1,15 +1,8 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (VARIANCENONP_VECTOR_INCLUDED)
 #define VARIANCENONP_VECTOR_INCLUDED
 
+#include"../export_type.h"
 #include"mcmc_const.h"
 
 namespace MCMC
@@ -75,7 +68,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector : public FULLCOND
                          const ST::string & fp, const ST::string & fr,
                          const vector<double> & shrinkagestart, const vector<double> & ashrinkage,
                          const vector<double> & bshrinkage, const vector<bool> & shrinkagefix,
-                         const vector<double> & shrinkageweight, 
+                         const vector<double> & shrinkageweight,
 //                         const datamatrix start_data,
                          const vector<bool> & shrinkageadaptive,
                          const bool & isridge, const vector<unsigned> & ct,

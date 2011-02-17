@@ -27,7 +27,8 @@
 #include <stdio.h>
 #include <cstdio>
 
-#include <strstream>
+//#include <strstream>
+#include <sstream>
 
 #include <string.h>
 
@@ -653,12 +654,14 @@ void PreMatrix<T>::prettyPrint( ostream &out)
 		w[ j ] = 0;
 		for ( i = 0; i < this->rows( ); i++ )
 		{
-			char buffer[128];
-			std::ostrstream item(buffer, sizeof buffer);
+			//char buffer[128];
+			//std::ostrstream item(buffer, sizeof buffer);
+			std::ostringstream item;
 
 			item << this->get( i, j ) << ends;
 
-			int currW = strlen( item.str( ) );
+//			int currW = strlen( item.str( ) );
+			int currW = item.str().length();
 			if ( currW > w[ j ] )
 				w[ j ] = currW;
 		}
@@ -731,7 +734,8 @@ prettyScan( istream &in )
 		//	Die Datenelemente in der Zeile werden ebenfalls erst in
 		//	einem Stack von Elementen (dataRow) gesammelt
 
-		std::istrstream line( lineBuffer, buffSize );
+		//std::istrstream line( lineBuffer, buffSize );
+		std::istringstream line;
 
 		Stack<T> dataRow;
 

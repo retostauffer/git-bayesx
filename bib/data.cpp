@@ -1516,8 +1516,8 @@ void dataset::marketing(vector<ST::string> & names, ST::string & defs, int & lak
 
 //  ofstream out("c:\\cprog\\test\\osaft\\marke.raw");  //File nur zum Überprüfen
 
-  int nrout;
-  int nrwoche;
+  int nrout=0;
+  int nrwoche=0;
 
   unsigned i;
   for(i=0;i<names.size()-2;i++)    //durchläuft die Variablen outlet, wochenin

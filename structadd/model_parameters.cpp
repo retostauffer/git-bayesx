@@ -141,7 +141,7 @@ bool term_nonp::check(term & t)
 
     bool f = false;
     unsigned j=0;
-    unsigned namespos;
+    unsigned namespos=0;
 
     while ( (j<termnames.size()) && (f == false) )
       {

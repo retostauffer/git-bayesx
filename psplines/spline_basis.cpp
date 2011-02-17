@@ -171,7 +171,7 @@ void spline_basis::get_effectmatrix(datamatrix & e, vector<ST::string> & enames,
   vector<int>::iterator itend = posend.begin();
 
   int j;
-  unsigned i,k;
+  unsigned i;
 
   if (varcoeff)
     {
@@ -976,9 +976,9 @@ void spline_basis::make_Bspline(const datamatrix & md)
 void spline_basis::make_Bspline(const datamatrix & md, const bool & minnull)
   {
 
-  unsigned i,j,k;
-  double value;
-  double * work;
+  unsigned i=0,j=0,k=0;
+  double value=0.0;
+  double * work = NULL;
 
   vector<int>::iterator freqwork;
   datamatrix help;
@@ -1417,7 +1417,7 @@ void spline_basis::add_linearpred_multBS(const bool & current)
 
   unsigned j,k;
   unsigned col = degree+1;
-  unsigned lpcols = likep->get_linearpred(current).cols();
+  int lpcols = likep->get_linearpred(current).cols();
   int i,stop;
 
   vector<int>::iterator freqwork = freq.begin();
@@ -1471,7 +1471,7 @@ void spline_basis::add_linearpred_multBS(const datamatrix & beta,const bool & cu
 
   unsigned j,k;
   unsigned col = degree+1;
-  unsigned lpcols = likep->get_linearpred(current).cols();
+  int lpcols = likep->get_linearpred(current).cols();
   int i,stop;
 // spline = 0 setzen
   double * workspline = spline.getV();
@@ -1527,7 +1527,7 @@ void spline_basis::add_linearpred_multBS(const datamatrix & beta1,const datamatr
 
   unsigned j,k;
   unsigned col = degree+1;
-  unsigned lpcols = likep->get_linearpred(current).cols();
+  int lpcols = likep->get_linearpred(current).cols();
   int i,stop;
 // spline = 0 setzen
   double * workspline = spline.getV();
@@ -2530,7 +2530,7 @@ void spline_basis::compute_XWXenv(const datamatrix & weight, const unsigned & c)
   unsigned i,j,k;
   int stop, l;
   unsigned BScols = degree+1;
-  unsigned weightcols = weight.cols();
+  int weightcols = weight.cols();
 
   vector<double>::iterator diag = XX_env.getDiagIterator();
   vector<double>::iterator env = XX_env.getEnvIterator();
@@ -2584,6 +2584,7 @@ void spline_basis::compute_XWXenv(const datamatrix & weight, const unsigned & c)
             else
               *workupper += *(workBS+j) * *workweight * *(workBS+k);
             l++;
+            if ( l >= stop ) break;
             freqwork++;
             workBS += BScols*(*freqwork-*(freqwork-1));
             workindex2++;
@@ -2608,7 +2609,7 @@ void spline_basis::compute_XWXenv_XWtildey(const datamatrix & weight, const doub
   int stop, l;
   unsigned ind;
   unsigned BScols = degree+1;
-  unsigned weightcols = weight.cols();
+  int weightcols = weight.cols();
 
   vector<double>::iterator diag = XX_env.getDiagIterator();
   vector<double>::iterator env = XX_env.getEnvIterator();
@@ -2616,12 +2617,12 @@ void spline_basis::compute_XWXenv_XWtildey(const datamatrix & weight, const doub
   vector<double>::iterator workupper;
   vector<double>::iterator workdiag;
 
-  double *workmu;
-  double *workmuy;
-  double *workmuy2;
+  double *workmu=NULL;
+  double *workmuy=NULL;
+  double *workmuy2=NULL;
 
-  double *workBS;
-  double *workweight;
+  double *workBS=NULL;
+  double *workweight=NULL;
 
   vector<int>::iterator freqwork = freq.begin();
   vector<int>::iterator workindex2 = index2.begin();
@@ -2797,7 +2798,7 @@ void spline_basis::compute_XWtildey(const datamatrix & weight, const datamatrix 
   int stop, l;
   unsigned ind;
   unsigned BScols = degree+1;
-  unsigned weightcols = weight.cols();
+  int weightcols = weight.cols();
 
   vector<int>::iterator freqwork = freq.begin();
   vector<int>::iterator workindex2 = index2.begin();
@@ -4287,8 +4288,8 @@ void spline_basis::outoptionsreml()
 
 void spline_basis::update_merror_varcoef(datamatrix & effmod, datamatrix & newintact)
   {
-  unsigned i,j,k;
-  double value;
+//  unsigned i,j,k;
+//  double value;
 
   freq = vector<int>();
   freqoutput = vector<int>();
@@ -4388,7 +4389,9 @@ datamatrix spline_basis::get_spline_merror(void)
 } // end: namespace MCMC
 
 //---------------------------------------------------------------------------
+#if !defined(__BUILDING_GNU)
 #pragma package(smart_init)
+#endif
 
 
 

@@ -1415,7 +1415,7 @@ void FULLCOND_const_stepwise::make_design(const datamatrix & d)
      errors.push_back("ERROR: There are too many different categories!\n");
 
   bool gefunden = false;
-  unsigned ref;
+  unsigned ref=0;
   for(i=0;i<diff_categories.size();i++)
      {
      if(diff_categories[i]==reference)

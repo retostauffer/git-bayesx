@@ -1427,6 +1427,8 @@ ST::string FULLCOND_kriging2::getinfo(void)
 } // end: namespace MCMC
 
 //---------------------------------------------------------------------------
+#if !defined(__BUILDING_GNU)
 #pragma package(smart_init)
+#endif
 
 

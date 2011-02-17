@@ -143,14 +143,8 @@ envmatrix<T>::envmatrix(const symbandmatrix<T> & X)
 
   T* dx=X.getdiagpointer();
   T* ex=X.getupperpointer();
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator di = diag.begin();
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator e = env.begin();
+  VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
+  VEC_ITER_TYPE vector<T>::iterator e = env.begin();
 
   unsigned i, l, k;
 
@@ -338,14 +332,8 @@ void envmatrix<T>::decomp()
     if(bandwidth==0)
       {
 //      unsigned i;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
 //      for(i=0; i<dim; i++)
       for(; d!=diag.end();++ld, ++d)
         {
@@ -355,22 +343,10 @@ void envmatrix<T>::decomp()
       }
     else if(bandwidth==1)
       {
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator le = lenv.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator e = env.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
 
       unsigned i;
 //      ldiag[0]=sqrt(diag[0]);
@@ -407,22 +383,10 @@ void envmatrix<T>::decomp()
       }
     else if(bandwidth==2)
       {
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator le = lenv.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator e = env.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
 
       unsigned i, h;
 //      ldiag[0]=sqrt(diag[0]);
@@ -467,34 +431,13 @@ void envmatrix<T>::decomp()
 //      unsigned i, j, k, h, l;
       unsigned i, k, h, l;
       h=0;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator di = diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldi = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldk;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator e = env.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator le = lenv.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lej;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lel;
+      VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ldk;
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator lej;
+      VEC_ITER_TYPE vector<T>::iterator lel;
       vector<unsigned>::iterator xe;
 
 //      for(i=0; i<bandwidth; i++)
@@ -561,40 +504,16 @@ void envmatrix<T>::decomp()
       T s = T(0);
       T s1 = T(0);
 
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldi = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator di = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
       vector<unsigned>::iterator xei = xenv.begin()+1;
       vector<unsigned>::iterator xek;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ek;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lem;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lel;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lek;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lej;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldk;
+      VEC_ITER_TYPE vector<T>::iterator ek;
+      VEC_ITER_TYPE vector<T>::iterator lem;
+      VEC_ITER_TYPE vector<T>::iterator lel;
+      VEC_ITER_TYPE vector<T>::iterator lek;
+      VEC_ITER_TYPE vector<T>::iterator lej;
+      VEC_ITER_TYPE vector<T>::iterator ldk;
 
       assert(*di>0);
       *ldi=sqrt(*di);
@@ -700,14 +619,8 @@ void envmatrix<T>::decomp2(unsigned start)
     if(bandwidth==0)
       {
 //      unsigned i;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
 //      for(i=0; i<dim; i++)
       for(; d!=diag.end();++ld, ++d)
         {
@@ -717,22 +630,10 @@ void envmatrix<T>::decomp2(unsigned start)
       }
     else if(bandwidth==1)
       {
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator le = lenv.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator e = env.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
 
       unsigned i;
 //      ldiag[0]=sqrt(diag[0]);
@@ -769,22 +670,10 @@ void envmatrix<T>::decomp2(unsigned start)
       }
     else if(bandwidth==2)
       {
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator le = lenv.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator e = env.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
 
       unsigned i, h;
 //      ldiag[0]=sqrt(diag[0]);
@@ -833,34 +722,13 @@ void envmatrix<T>::decomp2(unsigned start)
       if(start > (unsigned)bandwidth)
         h = unsigned(bandwidth*(bandwidth-1)/2 + bandwidth*(start-bandwidth));
 
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator di = diag.begin()+start;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldi = ldiag.begin()+start;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldk;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator e = env.begin()+h;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator le = lenv.begin()+h;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lej;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lel;
+      VEC_ITER_TYPE vector<T>::iterator di = diag.begin()+start;
+      VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin()+start;
+      VEC_ITER_TYPE vector<T>::iterator ldk;
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin()+h;
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin()+h;
+      VEC_ITER_TYPE vector<T>::iterator lej;
+      VEC_ITER_TYPE vector<T>::iterator lel;
       vector<unsigned>::iterator xe;
 
 //      for(i=0; i<bandwidth; i++)
@@ -931,40 +799,16 @@ void envmatrix<T>::decomp2(unsigned start)
       T s = T(0);
       T s1 = T(0);
 
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldi = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator di = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
       vector<unsigned>::iterator xei = xenv.begin()+1;
       vector<unsigned>::iterator xek;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ek;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lem;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lel;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lek;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lej;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldk;
+      VEC_ITER_TYPE vector<T>::iterator ek;
+      VEC_ITER_TYPE vector<T>::iterator lem;
+      VEC_ITER_TYPE vector<T>::iterator lel;
+      VEC_ITER_TYPE vector<T>::iterator lek;
+      VEC_ITER_TYPE vector<T>::iterator lej;
+      VEC_ITER_TYPE vector<T>::iterator ldk;
 
       assert(*di>0);
       *ldi=sqrt(*di);
@@ -1070,14 +914,8 @@ void envmatrix<T>::decomp_rational()
     if(bandwidth==0)
       {
 //      unsigned i;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
 //      for(i=0; i<dim; i++)
       for(; d!=diag.end();++ld, ++d)
         {
@@ -1088,22 +926,10 @@ void envmatrix<T>::decomp_rational()
     else if(bandwidth==1)
       {
       unsigned i;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator le = lenv.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator e = env.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
 
 //      ldiag[0]=1/diag[0];
       *ld=1/ *d;
@@ -1126,22 +952,10 @@ void envmatrix<T>::decomp_rational()
       {
 //      unsigned i, h;
       unsigned i;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator le = lenv.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator e = env.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
 
 //      ldiag[0]=1/diag[0];
       *ld=1/ *d;
@@ -1174,38 +988,14 @@ void envmatrix<T>::decomp_rational()
 //      unsigned i, j, k, h, l, m;
       unsigned i, k, h, l;
       h=0;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldk;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldm;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator le = lenv.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lej;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator lel;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator e = env.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ldk;
+      VEC_ITER_TYPE vector<T>::iterator ldm;
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator lej;
+      VEC_ITER_TYPE vector<T>::iterator lel;
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
       vector<unsigned>::iterator xe;
 
       for(i=0; i<(unsigned)bandwidth; i++)
@@ -1281,30 +1071,12 @@ void envmatrix<T>::decomp_rational()
       int i, k, j, h, jstart;
       h=0;
 
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d = diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ld = ldiag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldk;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator ldj;
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator e = env.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ldk;
+      VEC_ITER_TYPE vector<T>::iterator ldj;
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
       vector<unsigned>::iterator xe = xenv.begin();
       vector<unsigned>::iterator xek;
 
@@ -1449,10 +1221,7 @@ void envmatrix<T>::solveL(datamatrix & b)
   if(bandwidth==0)
     {
 //    unsigned i;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ldi = ldiag.begin();
+    VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin();
     T* bi = b.getV();
 
 //    for(i=0; i<dim; i++)
@@ -1465,14 +1234,8 @@ void envmatrix<T>::solveL(datamatrix & b)
   else if(bandwidth==1)
     {
     unsigned i;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le=lenv.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld=ldiag.begin();
+    VEC_ITER_TYPE vector<T>::iterator le=lenv.begin();
+    VEC_ITER_TYPE vector<T>::iterator ld=ldiag.begin();
     T* bi = b.getV();
 
 //    b(0,0) = b(0,0)/ldiag[0];
@@ -1489,14 +1252,8 @@ void envmatrix<T>::solveL(datamatrix & b)
     {
 //    unsigned i, k;
     unsigned i;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le = lenv.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld = ldiag.begin();
+    VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
     T* bi = b.getV();
 
 //    b(0,0) = b(0,0)/ldiag[0];
@@ -1516,14 +1273,8 @@ void envmatrix<T>::solveL(datamatrix & b)
     {
 //    unsigned i, k, l;
     unsigned i, k;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld = ldiag.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le;
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+    VEC_ITER_TYPE vector<T>::iterator le;
     vector<unsigned>::iterator xe=xenv.begin();
     T* bi = b.getV();
     T* bk;
@@ -1569,14 +1320,8 @@ void envmatrix<T>::solveL(datamatrix & b)
     int iband;
     T s = T(0);
     vector<unsigned>::iterator xei = xenv.begin()+ifirst;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ldi = ldiag.begin()+ifirst;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator lek;
+    VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin()+ifirst;
+    VEC_ITER_TYPE vector<T>::iterator lek;
     T* bl;
 
 //    for(i=ifirst; i<dim; i++)
@@ -1628,10 +1373,7 @@ void envmatrix<T>::solveL(const datamatrix & b, datamatrix & res)
 //    unsigned i;
     T* ri = res.getV();
     T* bi = b.getV();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ldi = ldiag.begin();
+    VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin();
 //    for(i=0; i<dim; i++)
     for(; ldi!=ldiag.end(); ri++, ++ldi, bi++)
       {
@@ -1642,14 +1384,8 @@ void envmatrix<T>::solveL(const datamatrix & b, datamatrix & res)
   else if(bandwidth==1)
     {
     unsigned i;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld = ldiag.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le = lenv.begin();
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+    VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
     T* bi = b.getV();
     T* resi = res.getV();
 
@@ -1667,14 +1403,8 @@ void envmatrix<T>::solveL(const datamatrix & b, datamatrix & res)
     {
 //    unsigned i, k;
     unsigned i;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-     vector<T>::iterator ld = ldiag.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le = lenv.begin();
+    VEC_ITER_TYPE  vector<T>::iterator ld = ldiag.begin();
+    VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
     T* bi = b.getV();
     T* resi = res.getV();
 
@@ -1694,14 +1424,8 @@ void envmatrix<T>::solveL(const datamatrix & b, datamatrix & res)
   else if(bandwidth>2)
     {
     unsigned i, k;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld = ldiag.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le;
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+    VEC_ITER_TYPE vector<T>::iterator le;
     vector<unsigned>::iterator xe = xenv.begin();
     T* bi = b.getV();
     T* resi = res.getV();
@@ -1757,14 +1481,8 @@ void envmatrix<T>::solveL(const datamatrix & b, datamatrix & res)
     int iband;
     T s = T(0);
     vector<unsigned>::iterator xei = xenv.begin()+ifirst;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator lek;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ldi = ldiag.begin()+ifirst;
+    VEC_ITER_TYPE vector<T>::iterator lek;
+    VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin()+ifirst;
     T* rl;
 
     for(i=ifirst; i<dim; i++, bi++, ri++, ++ldi)
@@ -1858,10 +1576,7 @@ void envmatrix<T>::solveU(datamatrix &b)
     {
 //    unsigned i;
     T* bi = b.getV();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ldi = ldiag.begin();
+    VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin();
 
 //    for(i=0; i<dim; i++)
     for(; ldi!=ldiag.end();bi++, ++ldi)
@@ -1872,14 +1587,8 @@ void envmatrix<T>::solveU(datamatrix &b)
     }
   else if(bandwidth==1)
     {
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld = ldiag.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le = lenv.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator le = lenv.end()-1;
     T* bi = b.getV()+dim-1;
     int i;
 
@@ -1895,14 +1604,8 @@ void envmatrix<T>::solveU(datamatrix &b)
     }
   else if(bandwidth==2)
     {
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld = ldiag.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le = lenv.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator le = lenv.end()-1;
     vector<unsigned>::iterator xe = xenv.end()-2;
     T* bi = b.getV()+dim-1;
 //    int i, k;
@@ -1923,15 +1626,9 @@ void envmatrix<T>::solveU(datamatrix &b)
     }
   else if(bandwidth>2)
     {
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld = ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.end()-1;
     vector<unsigned>::iterator xe = xenv.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le;
+    VEC_ITER_TYPE vector<T>::iterator le;
     T* bi = b.getV()+dim-1;
     T* bk;
 
@@ -1982,14 +1679,8 @@ void envmatrix<T>::solveU(datamatrix &b)
 //    vector<unsigned>::iterator xei = xenv.begin()+dim;
     vector<unsigned>::iterator xei = xenv.end()-1;
 //    vector<T>::iterator ldi = ldiag.begin()+dim-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ldi = ldiag.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator lel;
+    VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator lel;
 
 //    for(i=dim-1; i>=0; i--)
     for(i=dim-1; i>=0; i--, bi--, --ldi)
@@ -2034,10 +1725,7 @@ void envmatrix<T>::solveU(datamatrix &b, const datamatrix &bhelp)
 //    unsigned i;
     T* bi = b.getV();
     T* bhelpi = bhelp.getV();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ldi = ldiag.begin();
+    VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin();
 
 //    for(i=0; i<dim; i++)
     for(; ldi!=ldiag.end();bi++, ++ldi, bhelpi++)
@@ -2049,14 +1737,8 @@ void envmatrix<T>::solveU(datamatrix &b, const datamatrix &bhelp)
     }
   else if(bandwidth==1)
     {
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld = ldiag.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le = lenv.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator le = lenv.end()-1;
     T* bi = b.getV()+dim-1;
     T* bhelpi = bhelp.getV()+dim-1;
 
@@ -2078,14 +1760,8 @@ void envmatrix<T>::solveU(datamatrix &b, const datamatrix &bhelp)
     }
   else if(bandwidth==2)
     {
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld = ldiag.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le = lenv.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator le = lenv.end()-1;
     T* bi = b.getV()+dim-1;
     T* bhelpi = bhelp.getV()+dim-1;
 
@@ -2117,14 +1793,8 @@ void envmatrix<T>::solveU(datamatrix &b, const datamatrix &bhelp)
     }
   else if(bandwidth>2)
     {
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld = ldiag.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le;
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator le;
     vector<unsigned>::iterator xe = xenv.end()-1;
     T* bi = b.getV()+dim-1;
     T* bhelpi = bhelp.getV()+dim-1;
@@ -2177,14 +1847,8 @@ void envmatrix<T>::solveU(datamatrix &b, const datamatrix &bhelp)
 //    vector<unsigned>::iterator xei = xenv.begin()+dim;
     vector<unsigned>::iterator xei = xenv.end()-1;
 //    vector<T>::iterator ldi = ldiag.begin()+dim-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ldi = ldiag.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator lel;
+    VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator lel;
 
 //    for(i=dim-1; i>=0; i--)
     for(i=dim-1; i>=0; i--, bi--, bhelpi--, --ldi)
@@ -2227,14 +1891,8 @@ void envmatrix<T>::inverse_envelope(envmatrix<T> & inv)
   if(bandwidth==0)
     {
     unsigned i;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator invdiag=inv.getDiagIterator();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator d=diag.begin();
+    VEC_ITER_TYPE vector<T>::iterator invdiag=inv.getDiagIterator();
+    VEC_ITER_TYPE vector<T>::iterator d=diag.begin();
     for(i=0; i<dim; i++, invdiag++, ++d)
       {
       *invdiag = 1/ *d;
@@ -2243,22 +1901,10 @@ void envmatrix<T>::inverse_envelope(envmatrix<T> & inv)
   else if(bandwidth==1)
     {
     int i;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator invdiag=inv.getDiagIterator()+dim-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld=ldiag.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator invenv=inv.getEnvIterator()+env.size()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator le=lenv.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator invdiag=inv.getDiagIterator()+dim-1;
+    VEC_ITER_TYPE vector<T>::iterator ld=ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator invenv=inv.getEnvIterator()+env.size()-1;
+    VEC_ITER_TYPE vector<T>::iterator le=lenv.end()-1;
 
     decomp_rational();
 
@@ -2278,22 +1924,10 @@ void envmatrix<T>::inverse_envelope(envmatrix<T> & inv)
   else if(bandwidth==2)
     {
     int i;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator invdiag=inv.getDiagIterator()+dim-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld=ldiag.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator invenv=inv.getEnvIterator()+env.size()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator lenvit=lenv.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator invdiag=inv.getDiagIterator()+dim-1;
+    VEC_ITER_TYPE vector<T>::iterator ld=ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator invenv=inv.getEnvIterator()+env.size()-1;
+    VEC_ITER_TYPE vector<T>::iterator lenvit=lenv.end()-1;
 
     decomp_rational();
 
@@ -2335,18 +1969,9 @@ void envmatrix<T>::inverse_envelope(envmatrix<T> & inv)
   else if(bandwidth>2)
     {
     int i, k, l, upperk, upperl;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator invdiag=inv.getDiagIterator()+dim-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ld=ldiag.end()-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator invenv=inv.getEnvIterator()+env.size()-1;
+    VEC_ITER_TYPE vector<T>::iterator invdiag=inv.getDiagIterator()+dim-1;
+    VEC_ITER_TYPE vector<T>::iterator ld=ldiag.end()-1;
+    VEC_ITER_TYPE vector<T>::iterator invenv=inv.getEnvIterator()+env.size()-1;
 
     decomp_rational();
 
@@ -2406,19 +2031,10 @@ void envmatrix<T>::inverse_envelope(envmatrix<T> & inv)
   else
     {
     int i, k, l, upperk, upperl;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator invdiag=inv.getDiagIterator()+dim-1;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator invenv=inv.getEnvIterator()+env.size()-1;
+    VEC_ITER_TYPE vector<T>::iterator invdiag=inv.getDiagIterator()+dim-1;
+    VEC_ITER_TYPE vector<T>::iterator invenv=inv.getEnvIterator()+env.size()-1;
 
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator invenv1;
+    VEC_ITER_TYPE vector<T>::iterator invenv1;
     for(invenv1=inv.getEnvIterator(); invenv1<invenv; invenv1++)
       {
       *invenv1=0;
@@ -2596,10 +2212,7 @@ T envmatrix<T>::getLogDet()
     decomp();
     }
   T logdet=0;
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator ld = ldiag.begin();
+  VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
   for(; ld!=ldiag.end(); ++ld)
     {
     logdet+=log(*ld);
@@ -2613,14 +2226,8 @@ T envmatrix<T>::traceOfProduct(envmatrix<T> & B)
   T trace=0;
   if((bandwidth==0)||(B.getBandwidth()==0))
     {
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator d1=diag.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator d2=B.getDiagIterator();
+    VEC_ITER_TYPE vector<T>::iterator d1=diag.begin();
+    VEC_ITER_TYPE vector<T>::iterator d2=B.getDiagIterator();
     unsigned i;
 
     for(i=0; i<dim; i++, d1++, d2++)
@@ -2632,22 +2239,10 @@ T envmatrix<T>::traceOfProduct(envmatrix<T> & B)
     {
     if(bandwidth==B.getBandwidth())
       {
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d1=diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d2=B.getDiagIterator();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator env1=env.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator env2=B.getEnvIterator();
+      VEC_ITER_TYPE vector<T>::iterator d1=diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator d2=B.getDiagIterator();
+      VEC_ITER_TYPE vector<T>::iterator env1=env.begin();
+      VEC_ITER_TYPE vector<T>::iterator env2=B.getEnvIterator();
       for(; d1<diag.end(); d1++, d2++)
         {
         trace += *d1* *d2;
@@ -2659,22 +2254,10 @@ T envmatrix<T>::traceOfProduct(envmatrix<T> & B)
       }
     else if(bandwidth<B.getBandwidth())
       {
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d1=diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d2=B.getDiagIterator();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator env1=env.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator env2=B.getEnvIterator();
+      VEC_ITER_TYPE vector<T>::iterator d1=diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator d2=B.getDiagIterator();
+      VEC_ITER_TYPE vector<T>::iterator env1=env.begin();
+      VEC_ITER_TYPE vector<T>::iterator env2=B.getEnvIterator();
       int i, k, diff,bbw;
       bbw=B.getBandwidth();
       diff=bbw-bandwidth;
@@ -2707,26 +2290,11 @@ T envmatrix<T>::traceOfProduct(envmatrix<T> & B)
       }
     else
       {
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d1=diag.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator d2=B.getDiagIterator();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator env1=env.begin();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator env2=B.getEnvIterator();
-      #if defined(__BUILDING_GNU)
-      typename
-      #endif
-      vector<T>::iterator env2end=B.getEnvIterator()+B.getXenv(dim);
+      VEC_ITER_TYPE vector<T>::iterator d1=diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator d2=B.getDiagIterator();
+      VEC_ITER_TYPE vector<T>::iterator env1=env.begin();
+      VEC_ITER_TYPE vector<T>::iterator env2=B.getEnvIterator();
+      VEC_ITER_TYPE vector<T>::iterator env2end=B.getEnvIterator()+B.getXenv(dim);
 
       int i, k, diff, bbw;
       bbw=B.getBandwidth();
@@ -2761,22 +2329,10 @@ T envmatrix<T>::traceOfProduct(envmatrix<T> & B)
     }
   else
     {
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator d1=diag.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator d2=B.getDiagIterator();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator env1=env.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator env2=B.getEnvIterator();
+    VEC_ITER_TYPE vector<T>::iterator d1=diag.begin();
+    VEC_ITER_TYPE vector<T>::iterator d2=B.getDiagIterator();
+    VEC_ITER_TYPE vector<T>::iterator env1=env.begin();
+    VEC_ITER_TYPE vector<T>::iterator env2=B.getEnvIterator();
     vector<unsigned>::iterator xenv1=xenv.begin();
     vector<unsigned>::iterator xenv2=B.getXenvIterator();
 
@@ -2853,19 +2409,13 @@ vector<unsigned> envmatrix<T>::computeMaxXenv(const envmatrix<T> & B)
 
 
 template<class T>
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator envmatrix<T>::getDiagIterator()
+  VEC_ITER_TYPE vector<T>::iterator envmatrix<T>::getDiagIterator()
   {
   return diag.begin();
   }
 
 template<class T>
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator envmatrix<T>::getEnvIterator()
+  VEC_ITER_TYPE vector<T>::iterator envmatrix<T>::getEnvIterator()
   {
   return env.begin();
   }
@@ -2956,26 +2506,11 @@ void envmatrix<T>::addtodiag(envmatrix &X, envmatrix &K,
   assert(dim==K.getDim());
   assert(xenv==K.getXenv());
 //  unsigned i;
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator xd = X.getDiagIterator();
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator kd = K.getDiagIterator();
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator ke = K.getEnvIterator();
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator d = diag.begin();
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator e = env.begin();
+  VEC_ITER_TYPE vector<T>::iterator xd = X.getDiagIterator();
+  VEC_ITER_TYPE vector<T>::iterator kd = K.getDiagIterator();
+  VEC_ITER_TYPE vector<T>::iterator ke = K.getEnvIterator();
+  VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+  VEC_ITER_TYPE vector<T>::iterator e = env.begin();
 
 //  for(i=0; i<dim; i++)
   for(; d!=diag.end();++d, ++kd, ++xd)
@@ -3002,18 +2537,9 @@ void envmatrix<T>::addto(envmatrix &X, envmatrix &K,
   assert(X.getDim()==K.getDim());
   assert(dim==K.getDim());
 
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator xd = X.getDiagIterator();
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator kd = K.getDiagIterator();
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator d = diag.begin();
+  VEC_ITER_TYPE vector<T>::iterator xd = X.getDiagIterator();
+  VEC_ITER_TYPE vector<T>::iterator kd = K.getDiagIterator();
+  VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
   for(; d!=diag.end(); ++d, ++kd, ++xd)
     {
     *d = f1* *xd + f2* *kd;
@@ -3024,18 +2550,9 @@ void envmatrix<T>::addto(envmatrix &X, envmatrix &K,
     unsigned bwx = X.getBandwidth();
     unsigned bwk = K.getBandwidth();
 
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ke = K.getEnvIterator();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator xe = X.getEnvIterator();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator e = env.begin();
+    VEC_ITER_TYPE vector<T>::iterator ke = K.getEnvIterator();
+    VEC_ITER_TYPE vector<T>::iterator xe = X.getEnvIterator();
+    VEC_ITER_TYPE vector<T>::iterator e = env.begin();
 
     if(bwx>bwk)
       {
@@ -3116,18 +2633,9 @@ void envmatrix<T>::addto(envmatrix &X, envmatrix &K,
     }
   else
     {
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ke = K.getEnvIterator();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator xe = X.getEnvIterator();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator e = env.begin();
+    VEC_ITER_TYPE vector<T>::iterator ke = K.getEnvIterator();
+    VEC_ITER_TYPE vector<T>::iterator xe = X.getEnvIterator();
+    VEC_ITER_TYPE vector<T>::iterator e = env.begin();
     vector<unsigned>::iterator kxe = K.getXenvIterator();
     vector<unsigned>::iterator xxe = X.getXenvIterator();
 
@@ -3179,10 +2687,7 @@ T envmatrix<T>::compute_quadform(const statmatrix<T> & x,
   if(bandwidth==0)
     {
     unsigned i;
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator di = diag.begin();
+    VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
     T* xi = x.getV()+c;
     unsigned d = x.cols();
 //    for(i=0; i<dim; i++)
@@ -3196,14 +2701,8 @@ T envmatrix<T>::compute_quadform(const statmatrix<T> & x,
     {
     unsigned i;
     unsigned d = x.cols();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator di = diag.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator e = env.begin();
+    VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
+    VEC_ITER_TYPE vector<T>::iterator e = env.begin();
     T* xi = x.getV()+c;
 //    sum += diag[0]*x(0,c)*x(0,c);
     sum += *di**xi**xi;
@@ -3225,14 +2724,8 @@ T envmatrix<T>::compute_quadform(const statmatrix<T> & x,
 //    unsigned i, k;
     unsigned i;
     unsigned d=x.cols();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator di = diag.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator e = env.begin();
+    VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
+    VEC_ITER_TYPE vector<T>::iterator e = env.begin();
     T* xi = x.getV()+c;
 
 //    sum += diag[0]*x(0,c)*x(0,c);
@@ -3261,14 +2754,8 @@ T envmatrix<T>::compute_quadform(const statmatrix<T> & x,
 //    unsigned i, k, j;
     unsigned i, k;
     unsigned d = x.cols();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator di = diag.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator e = env.begin();
+    VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
+    VEC_ITER_TYPE vector<T>::iterator e = env.begin();
     T* xi = x.getV()+c;
     T* xk;
 
@@ -3302,14 +2789,8 @@ T envmatrix<T>::compute_quadform(const statmatrix<T> & x,
 //    unsigned i,j,jstop,k;
     unsigned i,j,jstop;
     unsigned d = x.cols();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator di = diag.begin();
-    #if defined(__BUILDING_GNU)
-    typename
-    #endif
-    vector<T>::iterator ej;
+    VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
+    VEC_ITER_TYPE vector<T>::iterator ej;
     vector<unsigned>::iterator xei1 = xenv.begin();
     vector<unsigned>::iterator xei2 = xenv.begin()+1;
     T* xi = x.getV()+c;
@@ -3350,10 +2831,7 @@ T envmatrix<T>::compute_sumfabsdiff(const statmatrix<T> & x,
   T sum = T(0);
   unsigned i,j,jstop;
   unsigned d = x.cols();
-  #if defined(__BUILDING_GNU)
-  typename
-  #endif
-  vector<T>::iterator ej;
+  VEC_ITER_TYPE vector<T>::iterator ej;
   vector<unsigned>::iterator xei1 = xenv.begin();
   vector<unsigned>::iterator xei2 = xenv.begin()+1;
   T* xi = x.getV()+c;

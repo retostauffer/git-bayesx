@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __attribute__((dllexport))
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (FClinearINCLUDED)
 
 #define FClinearINCLUDED
 
+#include"../export_type.h"
 #include"../values.h"
 #include<fstream>
 #include"GENERAL_OPTIONS.h"
@@ -210,7 +203,7 @@ class __EXPORT_TYPE FC_linear_pen  : public FC_linear
   bool posteriormode(void);
 
   void compute_XWX(datamatrix & r);
-  void compute_XWXroot(datamatrix & r);  
+  void compute_XWXroot(datamatrix & r);
 
   // FUNCTION: outoptions
 

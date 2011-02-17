@@ -270,7 +270,7 @@ bool bayesreg::create_spatial(const unsigned & collinpred)
   int f;
   double lambda,a1,b1,alpha;
   unsigned i;
-  int j1,j2;
+  int j1=0,j2=0;
   bool iwls;
   bool varcoeff=false;
   unsigned updateW;
@@ -922,7 +922,7 @@ bool bayesreg::create_random(const unsigned & collinpred)
       if (check_gaussian(collinpred))
         {
 
-        FULLCOND_nonp_gaussian * structuredp;
+        FULLCOND_nonp_gaussian * structuredp = NULL;
         unsigned structured=0;
 
         unsigned j1;
@@ -1012,7 +1012,7 @@ bool bayesreg::create_random(const unsigned & collinpred)
       else
         {
 
-        FULLCOND_nonp * structuredp1;
+        FULLCOND_nonp * structuredp1 = NULL;
         unsigned structured1=0;
 
         unsigned j1;
@@ -1030,7 +1030,7 @@ bool bayesreg::create_random(const unsigned & collinpred)
           }
 
 
-        FULLCOND_nonp_gaussian * structuredp2;
+        FULLCOND_nonp_gaussian * structuredp2 = NULL;
         unsigned structured2=0;
 
         for (j1=0;j1<fcnonpgaussian.size();j1++)
@@ -1372,7 +1372,7 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
 
   ST::string proposal;
   bool varcoeff;
-  int j1,j2,j3;
+  int j1=0,j2=0,j3=0;
 
   long h;
   double lambda;
@@ -1501,8 +1501,8 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
       if (check_gaussian(collinpred))
         {
 
-        FULLCOND_pspline_gaussian * mainp1;
-        FULLCOND_pspline_gaussian * mainp2;
+        FULLCOND_pspline_gaussian * mainp1=NULL;
+        FULLCOND_pspline_gaussian * mainp2=NULL;
         unsigned main1=0;
         unsigned main2=0;
 
@@ -1705,8 +1705,8 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
           {
           // IWLS
 
-          IWLS_pspline * mainp1;
-          IWLS_pspline * mainp2;
+          IWLS_pspline * mainp1=NULL;
+          IWLS_pspline * mainp2=NULL;
           unsigned main1=0;
           unsigned main2=0;
 
@@ -1939,8 +1939,8 @@ bool bayesreg::create_interactionspspline(const unsigned & collinpred)
             return true;
             }
 
-          FULLCOND_pspline * mainp1;
-          FULLCOND_pspline * mainp2;
+          FULLCOND_pspline * mainp1=NULL;
+          FULLCOND_pspline * mainp2=NULL;
           unsigned main1=0;
           unsigned main2=0;
 
@@ -3100,7 +3100,7 @@ bool bayesreg::create_spatial_rw1rw2(const unsigned & collinpred)
   double ftune_s;
   ST::string proposal_s;
 
-  long h;
+//  long h;
   double lambda,a1,b1,alpha;
 //  bool updatetau;
   double ftune;
@@ -3361,7 +3361,7 @@ bool bayesreg::create_random_pspline(const unsigned & collinpred)
 
   double lambda_r;
   double a_r,b_r;
-  bool updatetau_r;
+//  bool updatetau_r;
   ST::string proposal_r;
 
   ST::string monotone;

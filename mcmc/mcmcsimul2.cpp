@@ -81,8 +81,8 @@ bool STEPWISErun::posteriormode(const vector<ST::string> & header,
     } // end: if (!presim)
 
   unsigned it=1;
-  bool converged;
-  bool allconverged;
+  bool converged=false;
+  bool allconverged=false;
 
   bool convergedouterloop=false;
 
@@ -1758,7 +1758,7 @@ void STEPWISErun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, doub
 
 void STEPWISErun::stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt, double & kriterium)
   {
-  unsigned i;
+  unsigned i=0;
 
   ST::string possible = "alles";
   if(hierarchical == true)
@@ -4513,7 +4513,7 @@ void STEPWISErun::make_plots(ST::string & path_batch,
 bool STEPWISErun::confidence_intervals(const ST::string & CI, const vector<double> & modell_final,
               const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
   {
-  bool abbruch;
+  bool abbruch=false;
   if(CI=="MCMCselect")
     {
     abbruch = confidence_MCMCselect(modell_final,kriterium_final,fullcond_z);

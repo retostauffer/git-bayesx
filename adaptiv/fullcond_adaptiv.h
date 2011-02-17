@@ -1,17 +1,10 @@
 
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (MCMCadaptiv_INCLUDED)
 
 #define MCMCadaptiv_INCLUDED
 
+#include"../export_type.h"
 #include "mcmc.h"
 #include "fullcond.h"
 #include "mcmc_nonp.h"

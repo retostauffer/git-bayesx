@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __attribute__((dllexport))
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (superBAYESREG_INCLUDED)
 
 #define superBAYESREG_INCLUDED
 
+#include"../export_type.h"
 #include"statobj.h"
 #include"dataobj.h"
 #include"MASTER_obj.h"
@@ -193,7 +186,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
  MASTER_OBJ master;
 
- 
+
 //---------------------------------- DISTR  ------------------------------------
 
   vector<DISTR_gaussian> distr_gaussians;

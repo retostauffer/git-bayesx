@@ -1459,7 +1459,7 @@ double FULLCOND::lambda_from_df(double & df_wunsch, double & lambda_vorg)
      lambda_oben = lambda_vorg;
      df_mitte = df_vers;
      }
-  double lambda_mitte;
+  double lambda_mitte=0.0;
   while( (df_mitte-df_wunsch) >= df_accuracy || (df_mitte-df_wunsch) <= -1*df_accuracy )
      {
      lambda_mitte = lambda_oben + (lambda_unten - lambda_oben) / 2;

@@ -1883,9 +1883,9 @@ void spline_basis_surf::multBS_index(datamatrix & res, const datamatrix & b)
 
   int i;
   unsigned j,k;
-  double val;
+  double val=0.0;
 
-  double *workbeta;
+  double *workbeta=NULL;
   double *workB = B.getV();
   int *workindex = index.getV();
 
@@ -3192,7 +3192,9 @@ void spline_basis_surf::outoptionsreml()
 
 
 //---------------------------------------------------------------------------
+#if !defined(__BUILDING_GNU)
 #pragma package(smart_init)
+#endif
 
 
 

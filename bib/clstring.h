@@ -1,15 +1,8 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (CLSTRING_INCLUDED)
 #define CLSTRING_INCLUDED
 
+#include"../export_type.h"
 #include<string.h>
 #include<stdio.h>
 #include<iostream>
@@ -167,7 +160,7 @@ class __EXPORT_TYPE string
 
   friend int __EXPORT_TYPE operator==(const string & s1, const string & s2);
 
-  friend int __EXPORT_TYPE operator!=(const string & s1, char * s2);
+  friend int __EXPORT_TYPE operator!=(const string & s1, const char * s2);
 
   friend int __EXPORT_TYPE operator!=(string & s1, string & s2)
 	 {

@@ -184,7 +184,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		for( i=0; i<a.rows(); i++)
 			for(j=0; j<a.cols(); j++)
-				put(i,j,a(i,j));
+				put(i,j,a(i,j));*/
 
 /*		for( i=0; i<a.rows(); i++)
 			for(j=0; j<a.cols(); j++)
@@ -904,14 +904,14 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 	// TASK: writes out the essential graph ess into a separate file
 	void adja::write_out_ess_short(essfreq & ess, ST::string path_res, unsigned n)
 	{
-		int i,j;
+//		int i,j;
 		int num_imm;
 
 		ofstream fout(path_res.strtochar(),ios::app);
 
-		for(i=0; i<nvar; i++)
+		for(unsigned i=0; i<nvar; i++)
 		{
-			for(j=0; j<nvar; j++)
+			for(unsigned j=0; j<nvar; j++)
 			{
 				fout<<ess.sceleton(i,j);
 			}
@@ -924,7 +924,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		if(num_imm>0)
 		{
-			for(i=num_imm-1; i>=0; i--)
+			for(int i=num_imm-1; i>=0; i--)
 			{
 				fout<<(ess.immoral)[i][0]<<" ";
 				fout<<(ess.immoral)[i][1]<<" ";

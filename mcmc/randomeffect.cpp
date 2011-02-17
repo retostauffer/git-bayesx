@@ -1515,7 +1515,7 @@ void FULLCOND_random::get_effectmatrix(datamatrix & e,
   vector<unsigned>::iterator itend = posend.begin();
 
   int j;
-  unsigned i,k;
+  unsigned i;
 
   if (randomslope)
     {

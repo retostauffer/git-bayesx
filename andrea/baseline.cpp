@@ -841,7 +841,7 @@ if(Weibull)
   logold = logold + ((betaold(0,0)*b_prop)-1.0)*log(beta(0,0)) - beta(0,0)*b_prop + betaold(0,0)*b_prop*log(b_prop) - lgammafunc(betaold(0,0)*b_prop); //gamma(beta+b,b)-Proposal
 
  //---------Integral berechnen----------
-  double test = betaold(0,0);
+//  double test = betaold(0,0);
   rho = beta(0,0);
 
   for(i=0;i<zi.rows();i++)

@@ -1500,7 +1500,7 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & wo
       {
       if(nasum[i]>0)
         {
-        int test=nasum[i];
+//        int test=nasum[i];
         workweighthelp = datamatrix(nrcat2-nasum[i],nrcat2-nasum[i],0);
         workweighthelpinverse = datamatrix(nrcat2,nrcat2,0);
         k1=0;

@@ -1,15 +1,8 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (DISTRIBUTION_INCLUDED)
 #define DISTRIBUTION_INCLUDED
 
+#include"../export_type.h"
 #include"statmat.h"
 #include"Random.h"
 #include"mcmc.h"
@@ -1035,7 +1028,7 @@ class __EXPORT_TYPE DISTRIBUTION
 
   virtual double * get_integral_ti(void)
     {
-    double * temp;
+    double * temp=NULL;
     return temp;
     }
   virtual double  get_transition(unsigned i, unsigned j)

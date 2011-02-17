@@ -304,7 +304,7 @@ void FULLCOND_rj_int::death_step(unsigned int i, unsigned int j)
 				}
 				cout<<endl
 					<<endl;;
-			//*********************/
+			*********************/
 		}
 
 		nrtrials_d ++;
@@ -754,12 +754,11 @@ void FULLCOND_rj_int::switch_version_1(unsigned v_i, unsigned j)
 
  // FUNCTION: make_new_b 
   // TASK: computes the new values for a birth-step
-  void make_new_b (ST::string step, unsigned int i, unsigned int j, unsigned ia_new,
+  void FULLCOND_rj_int::make_new_b (ST::string step, unsigned int i, unsigned int j, unsigned ia_new,
 						datamatrix & beta_new, datamatrix & xx_new, datamatrix & b_new, 
 						datamatrix & x_new)
   {
-
-	  void make_new_b (vector<unsigned> ia_new, double beta_new, 
+	  make_new_b(vector<unsigned> ia_new, double beta_new, 
 				datamatrix & xx_new, datamatrix & b_new, datamatrix & x_new);
   }
 

@@ -11,12 +11,12 @@ admin_gnu::admin_gnu(void)
 //  adminb = administrator_basic();
 //  adminp = administrator_pointer();
 
-  char path[100];
+  char path[100] = "";
   getcwd(path, 100);
 
   defaultpath = ST::string(path);
 
-  bool error = false;
+//  bool error = false;
 
   logfileopen = false;
   input = &cin;
@@ -358,7 +358,7 @@ void admin_gnu::adjustobjects(void)
 bool admin_gnu::parse(ST::string & in)
   {
 
-  bool stop;
+//  bool stop;
 
   errormessages.clear();
 

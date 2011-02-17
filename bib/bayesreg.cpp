@@ -176,7 +176,7 @@ void bayesreg::create(void)
   {
 
   varianceest=false;
-  RE_est==false;
+  RE_est=false;
   missingest=false;
   add_name="";
 
@@ -1166,9 +1166,9 @@ bool bayesreg::create_distribution(void)
   ST::string ifexpression;
   ST::string predictindicator;
   ST::string missingindicator;
-  unsigned weightpos;
-  unsigned predictindpos;
-  unsigned missingindpos;
+  unsigned weightpos=0;
+  unsigned predictindpos=0;
+  unsigned missingindpos=0;
 
   if (family.getvalue() =="multgaussian" ||
       family.getvalue() == "multistate"  ||
@@ -2442,7 +2442,7 @@ bool bayesreg::create_distribution(void)
 
     bool baselineexisting = false;
 
-    unsigned j;
+    unsigned j=0;
     for(i=0;i<terms.size();i++)
       {
       if ( baseline.checkvector(terms,i) == true )
@@ -2499,7 +2499,7 @@ bool bayesreg::create_distribution(void)
 
     bool baselineexisting;
 
-    unsigned j,k;
+    unsigned j=0,k=0;
     for(i=0;i<termsmult.size();i++)
       {
       baselineexisting=false;
@@ -2978,7 +2978,7 @@ bool bayesreg::create_nonprw1rw2(const unsigned & collinpred)
   bool center;
 
   unsigned i;
-  int j1,j2;
+  int j1=0,j2=0;
 
   for(i=0;i<terms.size();i++)
     {
@@ -3312,8 +3312,8 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
   unsigned min,max,degree,nrknots;
   double lambda,a1,b1,alpha,merrorvar;
   bool ub,diagtransform,derivative,bsplinebasis,discretize;
-  int gridsize,contourprob,digits,nobs;
-  int f;
+  int gridsize=0,contourprob=0,digits=0,nobs=0;
+  int f=0;
   ST::string test ="test";
   double lowerknot=0;
   double upperknot=0;

@@ -1,14 +1,8 @@
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
 
 #if !defined (MODEL_INCLUDED)
 #define MODEL_INCLUDED
 
+#include"../export_type.h"
 #include"clstring.h"
 #include<vector>
 #include"data.h"
@@ -458,7 +452,7 @@ class __EXPORT_TYPE term_shrinkage : public basic_termtype
 
   // Startwerte für die shhrinkgeeffekte
   doubleoption effectstart;
-  
+
   // Startwert für tau^2=Varianzparameter
   doubleoption tau2;
 
@@ -511,19 +505,19 @@ class __EXPORT_TYPE term_nigmix : public basic_termtype
   protected:
   // Einlesen der Starwerte aus externer Datei
   stroption startdata;
-  
+
   // Startwerte für die shhrinkgeeffekte
   doubleoption effectstart;
-  
+
   // Startwert für Indicator (1. Komponente des Varianzparameters)
   intoption indicatorstart;
 
   // Startwert für t^2 (2. Komponente des Varianzparameters)
   doubleoption t2start;
-  
+
   // Startwert fuer die Mischungskomponente
   doubleoption omegastart;
-  
+
   // Lage der Punktmassen des Indikators
   doubleoption v0;
   doubleoption v1;
@@ -541,7 +535,7 @@ class __EXPORT_TYPE term_nigmix : public basic_termtype
 
   // Varinazspezifische Werte für die Komponenten
   simpleoption omegaadaptive;
-  
+
   // FUNCTION: setdefault
   void setdefault(void);
 

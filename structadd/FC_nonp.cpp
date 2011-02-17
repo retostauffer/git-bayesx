@@ -1713,27 +1713,27 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     outres << endl;
 
 
-    double * workmean;
-    double * workbetaqu_l1_lower_p;
-    double * workbetaqu_l2_lower_p;
-    double * workbetaqu_l1_upper_p;
-    double * workbetaqu_l2_upper_p;
-    double * workbetaqu50;
+    double * workmean=NULL;
+    double * workbetaqu_l1_lower_p=NULL;
+    double * workbetaqu_l2_lower_p=NULL;
+    double * workbetaqu_l1_upper_p=NULL;
+    double * workbetaqu_l2_upper_p=NULL;
+    double * workbetaqu50=NULL;
 
-    double * dworkmean;
-    double * dworkbetaqu_l1_lower_p;
-    double * dworkbetaqu_l2_lower_p;
-    double * dworkbetaqu_l1_upper_p;
-    double * dworkbetaqu_l2_upper_p;
-    double * dworkbetaqu50;
+    double * dworkmean=NULL;
+    double * dworkbetaqu_l1_lower_p=NULL;
+    double * dworkbetaqu_l2_lower_p=NULL;
+    double * dworkbetaqu_l1_upper_p=NULL;
+    double * dworkbetaqu_l2_upper_p=NULL;
+    double * dworkbetaqu50=NULL;
 
 
-    double * mu_workmean;
-    double * mu_workbetaqu_l1_lower_p;
-    double * mu_workbetaqu_l2_lower_p;
-    double * mu_workbetaqu_l1_upper_p;
-    double * mu_workbetaqu_l2_upper_p;
-    double * mu_workbetaqu50;
+    double * mu_workmean=NULL;
+    double * mu_workbetaqu_l1_lower_p=NULL;
+    double * mu_workbetaqu_l2_lower_p=NULL;
+    double * mu_workbetaqu_l1_upper_p=NULL;
+    double * mu_workbetaqu_l2_upper_p=NULL;
+    double * mu_workbetaqu50=NULL;
 
 
     if (designp->position_lin!=-1)

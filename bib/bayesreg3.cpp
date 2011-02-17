@@ -1402,7 +1402,7 @@ bool bayesreg::create_nonpseason(const unsigned & collinpred)
   int f;
 
   unsigned i;
-  int j1,j2;
+  int j1=0,j2=0;
   bool varcoeff;
 
   for(i=0;i<terms.size();i++)
@@ -1886,7 +1886,7 @@ bool bayesreg::create_multibaseline(const unsigned & collinpred)
   int f;
 
   unsigned i;
-  int j,k;
+  int j=0,k=0;
   for(i=0;i<terms.size();i++)
     {
     if ( baseline.checkvector(terms,i) == true )
@@ -2186,10 +2186,10 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   double shrinkagestart;
   double a_shrinkage;
   double b_shrinkage;
-  bool shrinkagefix;
+  bool shrinkagefix=false;
   double effectstart;
   double shrinkageweight;
-  bool shrinkageadaptive;
+  bool shrinkageadaptive=false;
 
   // Vektoren mit den Startwerten die uebergeben werden für adaptive shrinkkage  
   vector<double> variances_vec;
@@ -3097,8 +3097,8 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
   double a_omega;
   double b_omega;
   double omega;
-  bool omegafix;
-  bool omegaadaptive;
+  bool omegafix=false;
+  bool omegaadaptive=false;
   
   double helpindicator;
   double helpvariances;

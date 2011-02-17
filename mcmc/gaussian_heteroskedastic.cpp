@@ -306,7 +306,7 @@ void DISTRIBUTION_gaussianh::compute_iwls(void)
     double * workres = response.getV();
     double * worktildey = tildey.getV();
     double * workweightiwls = weightiwls.getV();
-    double help;
+    double help=0.0;
 
 
     for (i=0;i<nrobs;i++)

@@ -433,12 +433,12 @@ void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
       double * workbetaqu_l2_upper_p = FCmulteffect.betaqu_l2_upper.getV();
       double * workbetaqu50 = FCmulteffect.betaqu50.getV();
 
-      double * workmean_mu;
-      double * workbetaqu_l1_lower_p_mu;
-      double * workbetaqu_l2_lower_p_mu;
-      double * workbetaqu_l1_upper_p_mu;
-      double * workbetaqu_l2_upper_p_mu;
-      double * workbetaqu50_mu;
+      double * workmean_mu=NULL;
+      double * workbetaqu_l1_lower_p_mu=NULL;
+      double * workbetaqu_l2_lower_p_mu=NULL;
+      double * workbetaqu_l1_upper_p_mu=NULL;
+      double * workbetaqu_l2_upper_p_mu=NULL;
+      double * workbetaqu50_mu=NULL;
 
       if (compmeaneffect)
         {

@@ -1,15 +1,8 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (TVARIANCE2DIM_INCLUDED)
 #define TVARIANCE2DIM_INCLUDED
 
+#include"../export_type.h"
 #include "fullcond_pspline_surf_gaussian.h"
 #include "fullcond_nonp_gaussian.h"
 #include "distribution.h"

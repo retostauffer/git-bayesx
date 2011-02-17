@@ -304,8 +304,9 @@ void DISTRIBUTION_multistatemodel::compute_deviance(const double * response, con
     for(unsigned j=0; j<nrtransition;j++,response++,mu++)
       {
       erg = erg + *mu * *(int_ti.getV()+i*nrtransition+j);
-      if(transition(i,j)==1.0);
+      if(transition(i,j)==1.0){
         erg = erg - *mu * *(int_ti.getV()+i*nrtransition+j);
+        }
       }
     *deviance = -2.0 * *weight *erg;
     }
@@ -314,5 +315,7 @@ void DISTRIBUTION_multistatemodel::compute_deviance(const double * response, con
 } // END: namespace MCMC
 
 //---------------------------------------------------------------------------
+#if !defined(__BUILDING_GNU)
 #pragma package(smart_init)
+#endif
 

@@ -1611,6 +1611,8 @@ void FULLCOND_kriging::make_xy_values_grid(const datamatrix & var1,const datamat
 } // end: namespace MCMC
 
 //---------------------------------------------------------------------------
+#if !defined(__BUILDING_GNU)
 #pragma package(smart_init)
+#endif
 
 

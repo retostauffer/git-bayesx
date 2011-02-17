@@ -81,8 +81,8 @@ bool STEPMULTIrun::posteriormode(const vector<ST::string> & header,
     } // end: if (!presim)
 
   unsigned it=1;
-  bool converged;
-  bool allconverged;
+  bool converged=false;
+  bool allconverged=false;
 
   bool convergedouterloop=false;
 
@@ -2408,7 +2408,7 @@ void STEPMULTIrun::minexact_nonp_leer(unsigned & z, vector<double> & krit_fkt,
 
 double STEPMULTIrun::criterion_min(const double & df)
   {
-  double kriterium;
+  double kriterium = 0.0;
 
   if(criterion=="GCV")
     kriterium = likep_mult[0]->compute_gcv(df);
@@ -4909,7 +4909,7 @@ void STEPMULTIrun::make_plots(ST::string & path_batch,
 bool STEPMULTIrun::confidence_intervals(const ST::string & CI, const vector<double> & modell_final,
               const double & kriterium_final, vector<FULLCOND*> & fullcond_z)
   {
-  bool abbruch;
+  bool abbruch = false;
   if(CI=="MCMCselect")
     {
     abbruch = confidence_MCMCselect(modell_final,kriterium_final,fullcond_z);

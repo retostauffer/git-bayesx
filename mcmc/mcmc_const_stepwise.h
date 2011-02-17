@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (MCMCconststepwise_INCLUDED)
 
 #define MCMCconststepwise_INCLUDED
 
+#include"../export_type.h"
 #include"mcmc_const.h"
 
 namespace MCMC

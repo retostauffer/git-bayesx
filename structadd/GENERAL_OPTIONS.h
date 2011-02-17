@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __attribute__((dllexport))
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (GENERALOPTIONS)
 
 #define GENERALOPTIONS
 
+#include"../export_type.h"
 #include<fstream>
 #include<vector>
 #include"clstring.h"
@@ -58,7 +51,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
   double level2;                  // level2 for credible intervals
                                   // lower2 - upper1
 
-  double lower1;                  
+  double lower1;
   double lower2;
 
   double upper1;

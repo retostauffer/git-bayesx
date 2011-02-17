@@ -1,15 +1,8 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #ifndef multistateH
 #define multistateH
 
+#include"../export_type.h"
 #include "distribution.h"
 #include "mcmc_pspline.h"
 #include "multibaseline.h"
@@ -57,7 +50,7 @@ class __EXPORT_TYPE DISTRIBUTION_multistatemodel : public DISTRIBUTION
     return transition(i,j);
   else
   {
-    double testrow= transition.rows();
+//    double testrow= transition.rows();
     return transition(i-transition.rows(),j);
   }
   }

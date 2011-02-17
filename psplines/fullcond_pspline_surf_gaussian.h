@@ -1,15 +1,8 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #ifndef fullcond_pspline_surf_gaussianH
 #define fullcond_pspline_surf_gaussianH
 
+#include"../export_type.h"
 #include "sparsemat.h"
 #include "bandmat.h"
 #include "bandmat_penalty.h"

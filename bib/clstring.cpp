@@ -138,7 +138,7 @@ int operator==(const string & s1, const string & s2)
   }
 
 
-int operator!=(const string & s1, char * s2)
+int operator!=(const string & s1, const char * s2)
   {
   assert(s1.str != NULL);
   assert(s2 != NULL);
@@ -357,7 +357,7 @@ string string::insert_after_all_string(string s1, string s2) const
 
   unsigned n2 = s2.length();
   unsigned n = s.length()-n2;
-  unsigned i,k;
+  unsigned i=0,k=0;
   unsigned j=0;
 
   for(i=0; i<n+1; i++)
@@ -1216,7 +1216,7 @@ list<string> string::strtokenlist(const string & parsingsigns,bool inclsigns) co
 bool string::endswith(const char * c) const
     {
     int lenc = strlen(c);
-    bool endwith = true;
+//    bool endwith = true;
     for(int i=0;i<lenc;i++)
       if(c[lenc-1-i] != str[len-1-i])
         return false;

@@ -292,7 +292,7 @@ void FULLCOND_rj::rj_step(void)
 			}
 			else if (zeta(vertex_j,vertex_i) == 1)
 			{
-				if(conditions_okay_s(vertex_i,vertex_j) == true);
+				if(conditions_okay_s(vertex_i,vertex_j) == true)
 					switch_step(vertex_i,vertex_j);
 			}
 			else
@@ -383,7 +383,7 @@ void FULLCOND_rj::birth_step(unsigned int v_i, unsigned int v_j)
 				}
 				cout<<endl
 					<<endl;;
-			//*********************/
+			*********************/
 		}
 
 		nrtrials_b ++;
@@ -464,7 +464,7 @@ void FULLCOND_rj::death_step(unsigned int v_i, unsigned int v_j)
 			}
 			cout<<endl
 				<<endl;;
-		//*********************/
+		*********************/
 	}
 
 	nrtrials_d ++;
@@ -749,7 +749,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 		}
 		cout<<endl
 			<<endl;;
-		//*********************/
+		*********************/
 	}
 
 	step_aborted = false;
@@ -1834,7 +1834,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 	void FULLCOND_rj::write_out_resfile(void)
 	{
-		int i, j, loop_end;
+		int i, loop_end;
 	    unsigned size_list;
 		unsigned total_number_ess=0;
 		adja adja_help (nvar);
@@ -1870,7 +1870,7 @@ void FULLCOND_rj::switch_version_2(unsigned v_i, unsigned v_j)
 
 		for(i=0; i<nvar; i++)
 		{
-			for(j=0; j<nvar; j++)
+			for(unsigned j=0; j<nvar; j++)
 			{
 				fout<<zetamean(i,j)<<" ";
 

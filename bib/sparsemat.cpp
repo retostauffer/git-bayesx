@@ -238,7 +238,7 @@ double SparseMatrix::compute_condmean(const unsigned & i,
                                       const datamatrix & beta)
   {
   double m=0;
-  double sumweight;
+  double sumweight=0.0;
   unsigned j;
 
   std::vector<unsigned>::iterator nonserosit = nonseros[i].begin();

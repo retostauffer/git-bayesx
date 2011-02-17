@@ -581,11 +581,9 @@ bool MCMCsimulate::posteriormode(const vector<ST::string> & header,
       } // end: if (!presim)
 
 
-
     unsigned it=1;
     bool converged;
     bool allconverged;
-
     bool convergedouterloop=false;
 
     unsigned k=0;

@@ -1402,6 +1402,8 @@ double IWLS_pspline::compute_quadform(void)
 
 
 //---------------------------------------------------------------------------
+#if !defined(__BUILDING_GNU)
 #pragma package(smart_init)
+#endif
 
 

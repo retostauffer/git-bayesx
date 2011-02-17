@@ -1,15 +1,8 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (VARIANCEPEN_VECTOR_INCLUDED)
 #define VARIANCEPEN_VECTOR_INCLUDED
 
+#include"../export_type.h"
 #include"FC_linear.h"
 
 namespace MCMC
@@ -46,12 +39,12 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
                           //  and if "false" the L1-penalty is used
   bool is_fix;            //  indicates if "true" that the Shrinkageparameter is fixed
   bool is_adaptive;       //  indicates if "true" that the Shrinkage is adaptive
-                          
+
 
 //  void outresults_shrinkage(void);  //  Function to write results to output window and files
 
   void outresults_shrinkage(const ST::string & pathresults);
-   
+
   public:
 
   //____________________________________________________________________________
@@ -126,7 +119,7 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
 
   void outresults(ofstream & out_stata, ofstream & out_R,
                   const ST::string & pathresults);
-                  
+
   //____________________________________________________________________________
   //
   // FUNCTION: outoptions

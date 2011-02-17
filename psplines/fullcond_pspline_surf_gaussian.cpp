@@ -93,7 +93,7 @@ void FULLCOND_pspline_surf_gaussian::create(const datamatrix & v1, const datamat
   if(!singleblock || utype != gaussian)
     samplecentered = false;
 
-  unsigned i,j,bands;
+  unsigned i=0,j=0,bands=0;
 
   lambda_prec = -1;
 
@@ -2188,7 +2188,7 @@ void FULLCOND_pspline_surf_gaussian::add_linearpred_multBS(const datamatrix & b)
 */
 
   unsigned i,j,k,l;
-  double val;
+  double val=0.0;
 
   double *workbeta;
   double *workB;
@@ -2237,7 +2237,7 @@ void FULLCOND_pspline_surf_gaussian::add_linearpred_multBS2(const datamatrix & b
 
   unsigned i,j,k,l;
   unsigned col = degree+1;
-  double val;
+  double val=0.0;
 
   double *workbeta;
   double *workB;
@@ -2749,6 +2749,7 @@ double FULLCOND_pspline_surf_gaussian::compute_df(void)
 } // end: namespace MCMC
 
 //---------------------------------------------------------------------------
+#if !defined(__BUILDING_GNU)
 #pragma package(smart_init)
-
+#endif
 

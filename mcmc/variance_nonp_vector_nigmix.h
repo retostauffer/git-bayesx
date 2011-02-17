@@ -1,15 +1,8 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (VARIANCENONP_VECTOR_NIG_INCLUDED)
 #define VARIANCENONP_VECTOR_NIG_INCLUDED
 
+#include"../export_type.h"
 #include"mcmc_const.h"
 
 namespace MCMC
@@ -79,14 +72,14 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
   FULLCOND_variance_nonp_vector_nigmix(MCMCoptions * o, vector<FULLCOND_const*> & p,
                          DISTRIBUTION * d,const ST::string & ti,
                          const ST::string & fp, const ST::string & fr,
-                         const vector<unsigned long> & indicators, 
+                         const vector<unsigned long> & indicators,
                          const vector<double> & v0, const vector<double> & v1,
-                         const vector<double> & t2s, 
+                         const vector<double> & t2s,
                          const vector<double> & at2, const vector<double> & bt2,
-                         const vector<double> & omegas, 
+                         const vector<double> & omegas,
                          const vector<double> & aomega, const vector<double> & bomega,
                          const vector<bool> & omegaf,
-//                         const datamatrix start_data, 
+//                         const datamatrix start_data,
                          const vector<bool> & omegaad,
                          const vector<unsigned> & ct,
                          const unsigned & c);
@@ -112,7 +105,7 @@ class __EXPORT_TYPE FULLCOND_variance_nonp_vector_nigmix : public FULLCOND
 
 
   void get_samples(const ST::string & filename, const unsigned & step = 1) const;
-  
+
   void get_startvalues(void);
 
   //____________________________________________________________________________

@@ -973,7 +973,7 @@ namespace MCMC
 		workx_new = x_new.getV();
 		workx = x.getV();
 
-        unsigned position;
+        unsigned position=0;
 
 
 		for(k=0; k<nobs; k++)

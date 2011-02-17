@@ -798,7 +798,7 @@ void FULLCOND_variance_nonp_vector::get_startvalues(void)
   unsigned i, j, k;
     
   // Hilfsvariablen
-  double * helpbeta;
+//  double * helpbeta;
   double * helpvariance;
   double * helpshrinkage = fc_shrinkage.getbetapointer();
   vector<ST::string> helpvarname_variance;

@@ -775,7 +775,7 @@ const datamatrix & xo,const double & md, const metric & m)
   double distance;
   double h1,h2;
   double xi,yi;
-  double xcomp,ycomp;
+  double xcomp=0.0,ycomp=0.0;
 
   mindistance=NA;
   maxdistance=0;
@@ -1284,16 +1284,16 @@ void map::infile(const ST::string & path)
 
   ST::string li;               // stores lines read successively from file path
   ST::string help;
-  long n;                      // number of points that build a polygone
-  double n1,n2;                // x,y coordinates of a point
-  double begx,begy;
+  long n=0.0;                      // number of points that build a polygone
+  double n1=0.0,n2=0.0;                // x,y coordinates of a point
+  double begx=0.0,begy=0.0;
   int nrlines=0;               // number of lines read (so far) from file 'path'
-  int linenr;
+  int linenr=0;
   polygone helppoly;
   vector<ST::string> token;
 
   line lhelp;
-  bool first;
+  bool first=false;
 
 #if defined(MICROSOFT_VISUAL)
   {

@@ -1,15 +1,8 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (kriging2_INCLUDED)
 #define kriging2_INCLUDED
 
+#include"../export_type.h"
 #include"fullcond.h"
 #include"mcmc_nonpbasis.h"
 #include"spline_basis.h"

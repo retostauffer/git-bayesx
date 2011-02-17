@@ -134,9 +134,9 @@ void bsplinemat::make_index(const datamatrix & moddata)
 void bsplinemat::make_Bspline(const bool & deriv, const datamatrix & md, const bool & minnull)
   {
 
-  unsigned i,j,k;
-  double value;
-  double * work;
+  unsigned i=0,j=0,k=0;
+  double value=0.0;
+  double * work=NULL;
 
   vector<int>::iterator freqwork;
   datamatrix help = datamatrix(nrpar,1,0.0);
@@ -410,6 +410,7 @@ void bsplinemat::mult_index(datamatrix & res, const datamatrix & beta)
 
 
 //---------------------------------------------------------------------------
+#if !defined(__BUILDING_GNU)
 #pragma package(smart_init)
-
+#endif
 

@@ -871,7 +871,7 @@ void FULLCOND_const_gaussian::update_missings(datamatrix & x,
 
   unsigned i=0;
   bool found=false;
-  unsigned nr;
+  unsigned nr=0;
   while ( (i < datanames.size()) && (found==false) )
     {
     if (datanames[i] == na)

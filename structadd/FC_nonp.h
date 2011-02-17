@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __attribute__((dllexport))
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (FCNONPINCLUDED)
 
 #define FCNONPINCLUDED
 
+#include"../export_type.h"
 #include"../values.h"
 #include<fstream>
 #include"GENERAL_OPTIONS.h"
@@ -198,7 +191,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void compute_autocorr_all(const ST::string & path,
                                       unsigned lag, ofstream & outg) const;
 
-  void get_samples(const ST::string & filename,ofstream & outg) const;                                      
+  void get_samples(const ST::string & filename,ofstream & outg) const;
 
   void check_errors(void);
 

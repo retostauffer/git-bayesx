@@ -445,7 +445,7 @@ void FC_variance_pen_vector::outresults(ofstream & out_stata, ofstream & out_R,
                              const ST::string & pathresults)
   {
  
-  int i;
+//  int i;
   vector<ST::string> vnames;   
   vnames = Cp->datanames;
 

@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (MAP_INCLUDED)
 
 #define MAP_INCLUDED
 
+#include"../export_type.h"
 #if defined(MICROSOFT_VISUAL)
 #include<limits>
 #else

@@ -3,6 +3,7 @@ cd c:\bayesx
 
 cp -f makefile sourcecode\makefile
 cp -f values.h sourcecode\values.h
+cp -f export_type.h sourcecode\export_type.h
 cp -f main.cpp sourcecode\main.cpp
 
 cp -rf adaptiv sourcecode

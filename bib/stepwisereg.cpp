@@ -813,7 +813,7 @@ bool stepwisereg::create_distribution(ST::string method)
   ST::string rname;
   ST::string wn;
   ST::string ifexpression;
-  unsigned weightpos;
+  unsigned weightpos=0;
 
 if(method == "regress")
   {
@@ -1071,7 +1071,7 @@ else if(method == "mregress")
 #endif
 
     int st = cit.getvalue();
-    double v1 = gamvar.getvalue();
+//    double v1 = gamvar.getvalue();
 
     double sv = scalevalue.getvalue();
 
@@ -1678,7 +1678,7 @@ bool stepwisereg::create_factor(const unsigned & collinpred)
                                 reference,title,pathconst,pathconstres,
                                 collinpred));*/
       int helpint = (int)reference;
-      FULLCOND_const_stepwise * fcc;
+      FULLCOND_const_stepwise * fcc = NULL;
       if(normalconst.size()>=1)
         fcc = &normalconst[normalconst.size()-1];
 
@@ -1949,7 +1949,7 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
   MCMC::fieldtype type;
 
   unsigned i;
-  int j1,j2;
+  int j1=0,j2=0;
   for(i=0;i<terms.size();i++)
     {
     if ( nonprw1rw2.checkvector(terms,i) == true )
@@ -2066,7 +2066,7 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
         if(center == true)
           {
           hierarchical_model_yesno = true;
-          FULLCOND * mainp1;
+          FULLCOND * mainp1 = NULL;
           unsigned main1=0;
 
           unsigned j;
@@ -2108,7 +2108,7 @@ bool stepwisereg::create_nonprw1rw2(const unsigned & collinpred)
           }
 
         // Zeiger auf Haupteffekt
-        FULLCOND * mainp2;
+        FULLCOND * mainp2 = NULL;
         unsigned main2=0;
 
         unsigned j;
@@ -2191,7 +2191,7 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
   bool nofixed;
 
   unsigned i;
-  int j1,j2;
+  int j1=0,j2=0;
   for(i=0;i<terms.size();i++)
     {
     if ( nonppspline.checkvector(terms,i) == true )
@@ -2375,7 +2375,7 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
           if(center == true)
             {
             hierarchical_model_yesno = true;
-            FULLCOND * mainp1;
+            FULLCOND * mainp1 = NULL;
             unsigned main1=0;
 
             unsigned j;
@@ -2417,7 +2417,7 @@ bool stepwisereg::create_pspline(const unsigned & collinpred)
             }
 
           // Zeiger auf Haupteffekt
-          FULLCOND * mainp2;
+          FULLCOND * mainp2 = NULL;
           unsigned main2=0;
 
           unsigned j;
@@ -2499,7 +2499,7 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
   int f;
   double lambda;
   unsigned i;
-  int j1,j2;
+  int j1=0,j2=0;
   double lambdamin;
   double lambdamax;
   double lambdastart;
@@ -2707,7 +2707,7 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
           if(center == true)
             {
             hierarchical_model_yesno = true;
-            FULLCOND * mainp1;
+            FULLCOND * mainp1 = NULL;
             unsigned main1=0;
 
             unsigned j;
@@ -2749,7 +2749,7 @@ bool stepwisereg::create_spatial(const unsigned & collinpred)
             }
 
           // Zeiger auf Haupteffekt
-          FULLCOND * mainp2;
+          FULLCOND * mainp2 = NULL;
           unsigned main2=0;
 
           unsigned j;
@@ -2931,7 +2931,7 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
         if(inclf == false)
           {
           hierarchical_model_yesno = true;
-          FULLCOND * mainp1;
+          FULLCOND * mainp1 = NULL;
           unsigned main1=0;
 
           unsigned j;
@@ -2973,7 +2973,7 @@ bool stepwisereg::create_randomslope(const unsigned & collinpred)
           }
 
         // Zeiger auf Haupteffekt
-        FULLCOND * mainp2;
+        FULLCOND * mainp2 = NULL;
         unsigned main2=0;
 
         unsigned j;
@@ -3092,10 +3092,10 @@ bool stepwisereg::create_random(const unsigned & collinpred)
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                  "_random.raw","_random.res","");
 
-      FULLCOND_nonp_gaussian_stepwise * structuredp;
+      FULLCOND_nonp_gaussian_stepwise * structuredp = NULL;
       unsigned structured=0;
 
-      unsigned j1,s;
+      unsigned j1=0,s=0;
       for (j1=0;j1<fcnonpgaussian.size();j1++)
         {
         if  ( ((fcnonpgaussian[j1].get_datanames()).size() == 1) &&
@@ -4078,7 +4078,7 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
   bool center, varcoeff, nofixed;
 
   unsigned i;
-  int j1,j2,j3;
+  int j1=0,j2=0,j3=0;
   for(i=0;i<terms.size();i++)
     {
     if ( nonpinteractpspline.checkvector(terms,i) == true )
@@ -4194,8 +4194,8 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
 
       if(varcoeff==false)
         {
-        FULLCOND_pspline_stepwise * mainp1;
-        FULLCOND_pspline_stepwise * mainp2;
+        FULLCOND_pspline_stepwise * mainp1 = NULL;
+        FULLCOND_pspline_stepwise * mainp2 = NULL;
         unsigned main1=0;
         unsigned main2=0;
 
@@ -4366,8 +4366,8 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         }
       else // if(varcoeff == true)
         {
-        FULLCOND_pspline_stepwise * mainp1;
-        FULLCOND_pspline_stepwise * mainp2;
+        FULLCOND_pspline_stepwise * mainp1 = NULL;
+        FULLCOND_pspline_stepwise * mainp2 = NULL;
         unsigned main1=0;
         unsigned main2=0;
 
@@ -4478,7 +4478,7 @@ bool stepwisereg::create_interactionspspline(const unsigned & collinpred)
         if(center == true)
           {
           hierarchical_model_yesno = true;
-          FULLCOND * mainp3;
+          FULLCOND * mainp3 = NULL;
           unsigned main3=0;
 
           unsigned j;
@@ -4600,7 +4600,7 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
   double df_accuracy;
 
   unsigned i;
-  int j,j1,j2;
+  int j=0,j1=0,j2=0;
   for(i=0;i<terms.size();i++)
     {
     if ( nonpgeospline.checkvector(terms,i) == true )
@@ -4752,7 +4752,7 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
         if(center == true)
           {
           hierarchical_model_yesno = true;
-          FULLCOND * mainp1;
+          FULLCOND * mainp1 = NULL;
           unsigned main1=0;
 
           unsigned j;
@@ -4794,7 +4794,7 @@ bool stepwisereg::create_geospline(const unsigned & collinpred)
           }
 
         // Zeiger auf Haupteffekt
-        FULLCOND * mainp2;
+        FULLCOND * mainp2 = NULL;
         unsigned main2=0;
 
         for (j=0;j<fcpsplinesurfstep.size();j++)

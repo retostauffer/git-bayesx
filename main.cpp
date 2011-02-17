@@ -36,13 +36,13 @@
 int main(int argc, char *argv[])
   {
   // terminating commands
-  ST::string* stop1 = new ST::string("quit") ;
-  ST::string* stop2 = new ST::string("exit") ;
+//  ST::string* stop1 = new ST::string("quit") ;
+//  ST::string* stop2 = new ST::string("exit") ;
 
   bool run=false;
   admin_gnu a;
 
-  char path[100];
+  char path[100] = "";
   getcwd(path, 100);
 
 #if defined(__BUILDING_LINUX)

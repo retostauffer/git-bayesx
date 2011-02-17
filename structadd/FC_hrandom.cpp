@@ -749,12 +749,12 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
     double * workbetaqu_l2_upper_p_rcoeff = FCrcoeff.betaqu_l2_upper.getV();
     double * workbetaqu50_rcoeff = FCrcoeff.betaqu50.getV();
 
-    double * mu_workmean;
-    double * mu_workbetaqu_l1_lower_p;
-    double * mu_workbetaqu_l2_lower_p;
-    double * mu_workbetaqu_l1_upper_p;
-    double * mu_workbetaqu_l2_upper_p;
-    double * mu_workbetaqu50;
+    double * mu_workmean=NULL;
+    double * mu_workbetaqu_l1_lower_p=NULL;
+    double * mu_workbetaqu_l2_lower_p=NULL;
+    double * mu_workbetaqu_l1_upper_p=NULL;
+    double * mu_workbetaqu_l2_upper_p=NULL;
+    double * mu_workbetaqu50=NULL;
 
     if (computemeaneffect==true)
       {

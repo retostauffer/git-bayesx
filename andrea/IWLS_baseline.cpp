@@ -2212,7 +2212,8 @@ void IWLS_baseline::compute_score(void)
 
 
 //---------------------------------------------------------------------------
+#if !defined(__BUILDING_GNU)
 #pragma package(smart_init)
-
+#endif
 
 

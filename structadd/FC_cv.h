@@ -1,16 +1,9 @@
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __attribute__((dllexport))
-#else
-#define __EXPORT_TYPE __import
-#endif
-
 #if !defined (FCcvINCLUDED)
 
 #define FCcvINCLUDED
 
+#include"../export_type.h"
 #include"statmat.h"
 #include"sparsemat.h"
 
@@ -42,7 +35,7 @@ class __EXPORT_TYPE FC_cv   : public FC
 
   statmatrix<unsigned> ind;
 
-  vector<ST::string> effectvalues;           
+  vector<ST::string> effectvalues;
 
 
   unsigned nrcat;
@@ -51,7 +44,7 @@ class __EXPORT_TYPE FC_cv   : public FC
 
   datamatrix sampled_etas;
   datamatrix sampled_responses;
-  datamatrix sampled_likelihood;  
+  datamatrix sampled_likelihood;
 
   FC FC_sampled_l;
 
@@ -65,7 +58,7 @@ class __EXPORT_TYPE FC_cv   : public FC
 
 
   datamatrix e_score;                                        // energy score
-  datamatrix log_score;                                       // log score 
+  datamatrix log_score;                                       // log score
 
   // FUNCTION: compute_energyscore
   // TASK: computes the energy score and stores the result in e_score

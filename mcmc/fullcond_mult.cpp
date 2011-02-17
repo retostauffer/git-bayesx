@@ -123,7 +123,7 @@ bool FULLCOND_mult::posteriormode(void)
       basis1p->init_data_varcoeff(data,1);
       }
     }
-  else if (ttype=mrf_rw)
+  else if (ttype==mrf_rw)
     {
     if (first)
       {
