@@ -1361,13 +1361,13 @@ void texsummaryrun(bayesreg & b)
   bool gefunden = false;
   while(i>=0 && gefunden == false)
     {
-    if(path2[i] == '\\')
+    if(path2[i] == '\\' || path2[i]=='/')
       gefunden = true;
     path2 = path2.substr(0,i);
     i--;
     }
 
-  ST::string helpbat = path + "_latexcommands.bat";
+  ST::string helpbat = path2 + "_latexcommands.bat";
   ofstream outbat(helpbat.strtochar());
   outbat << "cd " << path2 << endl;
   outbat << path.substr(0,1) << ":" << endl;
