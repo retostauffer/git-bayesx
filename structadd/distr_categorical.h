@@ -89,6 +89,93 @@ class __EXPORT_TYPE DISTR_binomial : public DISTR
 
 
 //------------------------------------------------------------------------------
+//------------------ CLASS: DISTRIBUTION_logit_fruehwirth-----------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_logit_fruehwirth : public DISTR_binomial
+{
+ protected:
+
+	int H;
+  datamatrix SQ;
+  datamatrix weights_mixed;
+
+
+ public:
+
+ 	// DEFAULT CONSTRUCTOR
+
+ 	DISTR_logit_fruehwirth(void) : DISTR_binomial()
+ 		{
+ 		}
+
+ 	// CONSTRUCTOR1
+ 	DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
+  											const datamatrix r,
+                        const datamatrix & w=datamatrix());
+
+
+ 	// COPY CONSTRUCTOR
+ 	DISTR_logit_fruehwirth(const DISTR_logit_fruehwirth & nd);
+
+
+ 	// OVERLOADED ASSIGNMENT OPERATOR
+ 	const DISTR_logit_fruehwirth & operator=(const DISTR_logit_fruehwirth & nd);
+
+
+ 	// DESTRUCTOR
+ 	~DISTR_logit_fruehwirth()
+ 	{
+ 	}
+////////////////////
+
+/*
+ 	double compute_MSE();
+
+ 	void compute_mu();
+
+ 	void compute_deviance();
+
+ 	double loglikelihood();
+*/
+
+/* 	double loglickelihood_wightsone();
+
+	double compute_iwls();
+
+	void compute_iwls_wweightschange_wieghtsone();
+
+	void compute_iwls_wweightsnochange_constant();
+
+	void compute_iwls_wweightsnochange_one();
+*/
+	void outpotions();
+
+	// FUNCTION: update
+	// TASK: uptdates the scale parameter
+
+	void update(void);
+
+	bool posteriormode(void);
+
+/*	void outresults();
+
+	double get_scalemean(void);
+
+	void sample_responses();
+
+	void sample_responses_cv();
+
+	void outresults_predictive_check();
+
+	void update_scale_hyperparameters();
+*/
+
+};
+
+
+
+//------------------------------------------------------------------------------
 //-------------------- CLASS: DISTRIBUTION_binomialprobit ----------------------
 //------------------------------------------------------------------------------
 

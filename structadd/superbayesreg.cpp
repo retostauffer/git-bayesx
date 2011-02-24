@@ -123,6 +123,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("binomial_logit");
   families.push_back("poisson");
   families.push_back("binomial_probit");
+  families.push_back("binomial_logit_l1");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -286,6 +287,11 @@ void superbayesreg::clear(void)
   distr_binomialprobits.reserve(20);
 
 
+  distr_logit_fruehwirths.erase(distr_logit_fruehwirths.begin(),
+                               distr_logit_fruehwirths.end());
+  distr_logit_fruehwirths.reserve(20);
+
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -403,6 +409,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_binomials = b.distr_binomials;
   distr_poissons = b.distr_poissons;
   distr_binomialprobits = b.distr_binomialprobits;
+  distr_logit_fruehwirths = b.distr_logit_fruehwirths;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -468,6 +475,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_binomials = b.distr_binomials;
   distr_poissons = b.distr_poissons;
   distr_binomialprobits = b.distr_binomialprobits;
+  distr_logit_fruehwirths = b.distr_logit_fruehwirths;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;

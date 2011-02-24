@@ -7,6 +7,7 @@
 #include"Random.h"
 #include"GENERAL_OPTIONS.h"
 #include"FC.h"
+#include <fstream.h> 	//used for class logit_fruehwirt
 
 
 namespace MCMC
@@ -21,6 +22,7 @@ using randnumbers::truncnormal;
 using randnumbers::kssample;
 using randnumbers::rand_gamma;
 using randnumbers::rand_inv_gaussian;
+
 using randnumbers::invPhi2;
 
 /*
@@ -252,6 +254,8 @@ class __EXPORT_TYPE DISTR
 
 
   // FUNCTION: compute_IWLS (for one observation)
+
+
   // TASK: computes tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
   //       the loglikelihood stored in like (only if compute_like = true)
   //       assumes that workingweighs=constant (for all observations), i.e.
@@ -877,6 +881,7 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
   void check_errors(void);
 
   };
+
 
 
 } // end: namespace MCMC

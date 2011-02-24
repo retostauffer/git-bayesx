@@ -1686,6 +1686,7 @@ DISTR_gaussian_exp::DISTR_gaussian_exp(const DISTR_gaussian_exp & nd)
   }
 
 
+
 /*
 void DISTR_gaussian_exp::standardise(void)
   {
@@ -2146,7 +2147,7 @@ void DISTR_gaussian_re::outresults(ST::string pathresults)
   {
   }
 
+
+
+  
 } // end: namespace MCMC
-
-
-

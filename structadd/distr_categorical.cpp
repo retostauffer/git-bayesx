@@ -6,6 +6,180 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
+//------------------ CLASS: DISTRIBUTION_logit_fruehwirth ----------------------
+//------------------------------------------------------------------------------
+
+DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
+                                             const datamatrix r,
+ 																				     const datamatrix & w)
+ 	: DISTR_binomial(o, r, w), H(h)
+	{
+
+  SQ = datamatrix(5,5,0);
+  SQ(0,1) = 1.2131;
+  SQ(1,1) = 2.9955;
+  SQ(2,1) = 7.5458;
+  weights_mixed = datamatrix(5,5,0);
+  weights_mixed(0,1) = 25.22;
+  weights_mixed(1,1) = 58.523;
+  weights_mixed(2,1) = 16.257;
+  weights_mixed = weights_mixed/100;
+
+
+
+/*######		for(n = 0; n < H; n++)
+			for(m = 0; m < 2; m++)
+			{
+				sqr[n][m] = SQR[n][H-2+m];	//H-2 column for sq, H-2 + 1 column for w
+			}
+*/
+	}
+
+DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const DISTR_logit_fruehwirth & nd)
+	: H(nd.H), SQ(nd.SQ), weights_mixed(nd.weights_mixed)
+	{
+		//copy sqr from CONSTRUCTOR1   , sqw(nd.sqw)
+	}
+
+const DISTR_logit_fruehwirth & DISTR_logit_fruehwirth::operator=(const DISTR_logit_fruehwirth & nd)
+	{
+	if (this==&nd)
+  	return *this;
+  H = nd.H;
+  SQ = nd.SQ;
+  weights_mixed = nd.weights_mixed;
+  //copy sqw from COPY-CONSTRUCTOR
+  return *this;
+	}
+
+/*
+double DISTR_logit_fruehwirth::compute_MSE()
+  {
+
+  }
+
+void DISTR_logit_fruehwirth::compute_mu()
+  {
+  // datamatrix test(3,3,0);
+  // ofstream out("c:\\bayesx\\temp\\r.res");
+  // test.prettyPrint(out);
+  }
+*/
+
+/*
+void DISTR_logit_fruehwirth::compute_deviance()
+  {
+
+  }
+
+double DISTR_logit_fruehwirth::loglikelihood()
+  {
+
+
+  }
+*/
+
+/* 	double loglickelihood_wightsone();
+
+	double compute_iwls();
+
+	void compute_iwls_wweightschange_wieghtsone();
+
+	void compute_iwls_wweightsnochange_constant();
+
+	void compute_iwls_wweightsnochange_one();
+*/
+
+
+void DISTR_logit_fruehwirth::outpotions()
+  {
+  DISTR_binomial::outoptions();
+  }
+
+
+void DISTR_logit_fruehwirth::update(void)
+  {
+
+  double * workresp;
+  double * workwresp;
+  double * weightwork;
+  double * wweightwork;
+
+  workresp = response.getV();
+  workwresp = workingresponse.getV();
+  weightwork = weight.getV();
+  wweightwork = workingweight.getV();
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  datamatrix prob(H,1);
+  double lambda;
+  double U;
+  datamatrix weights_aux(H,1);
+
+
+  for(int i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,workwresp++,wweightwork++)
+    {
+    lambda= exp(*worklin);
+    U = uniform();
+    *workwresp = log(lambda*U+*workresp)-log(1-U+lambda*(1-*workresp));
+
+    //weights_mixed
+    for(int j=0; j < H; j++)
+    	{
+      weights_aux(j,0) = weights_mixed(j,H-2)/SQ(j,H-2) * exp(-1/2*  pow((*workresp - *worklin)/SQ(j,H-2),2) );
+      }
+
+    //verteilungsfunktion
+    for(int j=1; j <H; j++)
+    	{
+       weights_aux(j,0) = weights_aux(j-1,0) + weights_aux(j,0);
+      }
+
+    U = uniform();
+    U = U*weights_aux(H-1,0);	//skalierung auf [0, max]
+
+
+    int iaux = 0;
+    while (U > weights_aux(iaux,0))
+      {
+      iaux++;
+      }
+
+    *wweightwork =  SQ(iaux,H-2);    //<algorithm>
+
+    }
+
+
+  }
+
+
+bool DISTR_logit_fruehwirth::posteriormode(void)
+  {
+  return DISTR_binomial::posteriormode();
+  }
+
+
+/*
+	void outresults();
+
+	double get_scalemean(void);
+
+	void sample_responses();
+
+	void sample_responses_cv();
+
+	void outresults_predictive_check();
+
+	void update_scale_hyperparameters();
+*/
+
+
+//------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_binomial --------------------------
 //------------------------------------------------------------------------------
 

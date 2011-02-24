@@ -54,6 +54,7 @@ using MCMC::DISTR_gaussian_mult;
 using MCMC::DISTR_binomial;
 using MCMC::DISTR_poisson;
 using MCMC::DISTR_binomialprobit;
+using MCMC::DISTR_logit_fruehwirth;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -199,6 +200,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_binomial> distr_binomials;
   vector<DISTR_poisson> distr_poissons;
   vector<DISTR_binomialprobit> distr_binomialprobits;
+  vector<DISTR_logit_fruehwirth> distr_logit_fruehwirths;
 
   bool create_distribution(void);
 
