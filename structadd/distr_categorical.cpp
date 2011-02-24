@@ -15,15 +15,39 @@ DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
  	: DISTR_binomial(o, r, w), H(h)
 	{
 
-  SQ = datamatrix(5,5,0);
+
+  family = "Binomial_l1";
+  updateIWLS = false;
+
+
+  SQ = datamatrix(6,5,0);
   SQ(0,1) = 1.2131;
   SQ(1,1) = 2.9955;
   SQ(2,1) = 7.5458;
-  weights_mixed = datamatrix(5,5,0);
-  weights_mixed(0,1) = 25.22;
-  weights_mixed(1,1) = 58.523;
-  weights_mixed(2,1) = 16.257;
-  weights_mixed = weights_mixed/100;
+
+  SQ(0,4) = 0.68159;
+  SQ(1,4) = 1.2419;
+  SQ(2,4) = 2.2388;
+  SQ(3,4) = 4.0724;
+  SQ(4,4) = 7.4371;
+  SQ(5,4) = 13.772;
+
+
+  weights_mixed = datamatrix(6,5,0);
+  weights_mixed(0,1) = 1/25.22;
+  weights_mixed(1,1) = 1/58.523;
+  weights_mixed(2,1) = 1/16.257;
+
+
+  weights_mixed(0,4) = 1/1.8446;
+  weights_mixed(1,4) = 1/17.268;
+  weights_mixed(2,4) = 1/37.393;
+  weights_mixed(3,4) = 1/31.697;
+  weights_mixed(4,4) = 1/10.89;
+  weights_mixed(5,4) = 1/0.90745;
+
+
+  weights_mixed = weights_mixed*100;
 
 
 
@@ -36,7 +60,7 @@ DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
 	}
 
 DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const DISTR_logit_fruehwirth & nd)
-	: H(nd.H), SQ(nd.SQ), weights_mixed(nd.weights_mixed)
+	: DISTR_binomial(DISTR_binomial(nd)) , H(nd.H), SQ(nd.SQ), weights_mixed(nd.weights_mixed)
 	{
 		//copy sqr from CONSTRUCTOR1   , sqw(nd.sqw)
 	}
@@ -45,6 +69,7 @@ const DISTR_logit_fruehwirth & DISTR_logit_fruehwirth::operator=(const DISTR_log
 	{
 	if (this==&nd)
   	return *this;
+  DISTR_binomial::operator=(DISTR_binomial(nd));
   H = nd.H;
   SQ = nd.SQ;
   weights_mixed = nd.weights_mixed;

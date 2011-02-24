@@ -961,8 +961,18 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: Binomial response probit ---------------------
+//----------------------- Binomial response logit fruehwirth--------------------
+  else if (family.getvalue() == "binomial_logit_l1")
+    {
 
+    distr_logit_fruehwirths.push_back(DISTR_logit_fruehwirth(6,
+    &generaloptions,D.getCol(0),w));
 
+    equations[modnr].distrp = &distr_logit_fruehwirths[distr_logit_fruehwirths.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//-------------------------- END: Binomial response probit ---------------------
 
   equations[modnr].distrp->responsename=rname;
   equations[modnr].distrp->weightname=wn;
@@ -1720,6 +1730,7 @@ void superbayesreg::describe(const optionlist & globaloptions)
 //------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
+
 
 
 
