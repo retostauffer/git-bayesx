@@ -25,44 +25,34 @@ DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
   SQ(1,1) = 2.9955;
   SQ(2,1) = 7.5458;
 
-  SQ(0,4) = 0.68159;
-  SQ(1,4) = 1.2419;
-  SQ(2,4) = 2.2388;
-  SQ(3,4) = 4.0724;
-  SQ(4,4) = 7.4371;
-  SQ(5,4) = 13.772;
+  SQ(0,4) = 1/0.68159;
+  SQ(1,4) = 1/1.2419;
+  SQ(2,4) = 1/2.2388;
+  SQ(3,4) = 1/4.0724;
+  SQ(4,4) = 1/7.4371;
+  SQ(5,4) = 1/13.772;
 
 
   weights_mixed = datamatrix(6,5,0);
-  weights_mixed(0,1) = 1/25.22;
-  weights_mixed(1,1) = 1/58.523;
-  weights_mixed(2,1) = 1/16.257;
+  weights_mixed(0,1) = 25.22;
+  weights_mixed(1,1) = 58.523;
+  weights_mixed(2,1) = 16.257;
 
 
-  weights_mixed(0,4) = 1/1.8446;
-  weights_mixed(1,4) = 1/17.268;
-  weights_mixed(2,4) = 1/37.393;
-  weights_mixed(3,4) = 1/31.697;
-  weights_mixed(4,4) = 1/10.89;
-  weights_mixed(5,4) = 1/0.90745;
+  weights_mixed(0,4) = 1.8446;
+  weights_mixed(1,4) = 17.268;
+  weights_mixed(2,4) = 37.393;
+  weights_mixed(3,4) = 31.697;
+  weights_mixed(4,4) = 10.89;
+  weights_mixed(5,4) = 0.90745;
 
 
-  weights_mixed = weights_mixed*100;
-
-
-
-/*######		for(n = 0; n < H; n++)
-			for(m = 0; m < 2; m++)
-			{
-				sqr[n][m] = SQR[n][H-2+m];	//H-2 column for sq, H-2 + 1 column for w
-			}
-*/
+  weights_mixed = weights_mixed/100;
 	}
 
 DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const DISTR_logit_fruehwirth & nd)
 	: DISTR_binomial(DISTR_binomial(nd)) , H(nd.H), SQ(nd.SQ), weights_mixed(nd.weights_mixed)
 	{
-		//copy sqr from CONSTRUCTOR1   , sqw(nd.sqw)
 	}
 
 const DISTR_logit_fruehwirth & DISTR_logit_fruehwirth::operator=(const DISTR_logit_fruehwirth & nd)
@@ -73,7 +63,6 @@ const DISTR_logit_fruehwirth & DISTR_logit_fruehwirth::operator=(const DISTR_log
   H = nd.H;
   SQ = nd.SQ;
   weights_mixed = nd.weights_mixed;
-  //copy sqw from COPY-CONSTRUCTOR
   return *this;
 	}
 
@@ -141,7 +130,6 @@ void DISTR_logit_fruehwirth::update(void)
   else
     worklin = linearpred2.getV();
 
-  datamatrix prob(H,1);
   double lambda;
   double U;
   datamatrix weights_aux(H,1);
@@ -156,17 +144,17 @@ void DISTR_logit_fruehwirth::update(void)
     //weights_mixed
     for(int j=0; j < H; j++)
     	{
-      weights_aux(j,0) = weights_mixed(j,H-2)/SQ(j,H-2) * exp(-1/2*  pow((*workresp - *worklin)/SQ(j,H-2),2) );
+      weights_aux(j,0) = weights_mixed(j,H-2)*sqrt(SQ(j,H-2)) * exp(-1/2*  pow((*workresp - *worklin), 2)*SQ(j,H-2) );
       }
 
-    //verteilungsfunktion
+    //distribution function
     for(int j=1; j <H; j++)
     	{
        weights_aux(j,0) = weights_aux(j-1,0) + weights_aux(j,0);
       }
 
     U = uniform();
-    U = U*weights_aux(H-1,0);	//skalierung auf [0, max]
+    U = U*weights_aux(H-1,0);	//scale to [0, max]
 
 
     int iaux = 0;
@@ -175,11 +163,9 @@ void DISTR_logit_fruehwirth::update(void)
       iaux++;
       }
 
-    *wweightwork =  SQ(iaux,H-2);    //<algorithm>
+    *wweightwork =  SQ(iaux,H-2);
 
     }
-
-
   }
 
 
