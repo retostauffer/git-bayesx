@@ -155,11 +155,16 @@ class __EXPORT_TYPE superbayesreg : public statobject
   doubleoption bresp;                   // Hyperparameter b of overal variance
                                         // (Gaussian response)
 
+  intoption H;                          // Number of mixture components in
+                                        // binomial_logit_l1                                      
+
   intoption equationnr;                 // Equationnumber for multivariate
                                         // responses
   intoption hlevel;                     // hierarchy
   vector<ST::string> equationtypes;
   stroption equationtype;               // type of equation, e.g. mean, variance
+
+
 
   // prediction
   vector<ST::string> predictop;

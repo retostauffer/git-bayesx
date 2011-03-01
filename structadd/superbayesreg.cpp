@@ -127,6 +127,7 @@ void superbayesreg::create_hregress(void)
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
+  H = intoption("H",6,2,6);
 
   hlevel = intoption("hlevel",1,1,3);
   equationnr = intoption("equation",1,1,50);
@@ -170,6 +171,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&family);
   regressoptions.push_back(&aresp);
   regressoptions.push_back(&bresp);
+  regressoptions.push_back(&H);  
   regressoptions.push_back(&hlevel);
   regressoptions.push_back(&equationnr);
   regressoptions.push_back(&equationtype);
@@ -965,7 +967,8 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "binomial_logit_l1")
     {
 
-    distr_logit_fruehwirths.push_back(DISTR_logit_fruehwirth(6,
+
+    distr_logit_fruehwirths.push_back(DISTR_logit_fruehwirth(H.getvalue(),
     &generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_logit_fruehwirths[distr_logit_fruehwirths.size()-1];

@@ -85,6 +85,11 @@ class __EXPORT_TYPE DISTR_binomial : public DISTR
 
   void outoptions(void);
 
+  void sample_responses(unsigned i,datamatrix & sr);
+
+  void sample_responses_cv(unsigned i,datamatrix & linpred,
+                                   datamatrix & sr);
+
   };
 
 
@@ -131,25 +136,54 @@ class __EXPORT_TYPE DISTR_logit_fruehwirth : public DISTR_binomial
 
 /*
  	double compute_MSE();
-
- 	void compute_mu();
-
- 	void compute_deviance();
-
- 	double loglikelihood();
 */
 
-/* 	double loglickelihood_wightsone();
+//  basis class implementation
+// 	void compute_mu(const double * linpred,double * mu);
 
-	double compute_iwls();
+// basis class implementation
+//  void compute_deviance(const double * response, const double * weight,
+//                        const double * mu,double * deviance,
+//                        double * deviancesat, double * scale) const;
 
-	void compute_iwls_wweightschange_wieghtsone();
+// basis class implementation
+//  double loglikelihood(double * response, double * linpred,
+//                       double * weight) const;
 
-	void compute_iwls_wweightsnochange_constant();
 
-	void compute_iwls_wweightsnochange_one();
+// basis class implementation
+//  double loglikelihood_weightsone(double * response, double * linpred) const;
+
+
+// basis class implementation
+/*
+  double compute_iwls(double * response, double * linpred,
+                      double * weight, double * workingweight,
+                      double * workingresponse, const bool & like);
+
+  void compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like);
+
+  void compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
 */
-	void outpotions();
+
+
+	void outoptions();
 
 	// FUNCTION: update
 	// TASK: uptdates the scale parameter
@@ -158,18 +192,20 @@ class __EXPORT_TYPE DISTR_logit_fruehwirth : public DISTR_binomial
 
 	bool posteriormode(void);
 
-/*	void outresults();
+  // no results
+  // void outresults();
 
-	double get_scalemean(void);
+  // not required
+	// double get_scalemean(void);
 
-	void sample_responses();
+//  basis class implementation
+// 	void sample_responses(unsigned i,datamatrix & sr);
 
-	void sample_responses_cv();
+//  basis class implementation
+//	void sample_responses_cv();
 
-	void outresults_predictive_check();
-
-	void update_scale_hyperparameters();
-*/
+//  basis class implementation
+//	void outresults_predictive_check();
 
 };
 

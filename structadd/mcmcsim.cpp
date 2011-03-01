@@ -375,7 +375,7 @@ const int & seed, const bool & computemode)
 
         }
 
-      genoptions->out("  FILES FOR VISULAZING RESULTS:\n",true,true,12,255,0,0);
+      genoptions->out("  FILES FOR VISUALIZING RESULTS:\n",true,true,12,255,0,0);
       genoptions->out("\n");
       genoptions->out("    STATA DO-FILE\n");
       genoptions->out("\n");
@@ -586,7 +586,7 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
 
           }
 
-        genoptions->out("  FILES FOR VISULAZING RESULTS:\n",true,true,12,255,0,0);
+        genoptions->out("  FILES FOR VISUALIZING RESULTS:\n",true,true,12,255,0,0);
         genoptions->out("  STATA DO-FILE\n");
         genoptions->out("\n");
         genoptions->out(pathstata);

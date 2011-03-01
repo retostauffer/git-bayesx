@@ -21,9 +21,9 @@ DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
 
 
   SQ = datamatrix(6,5,0);
-  SQ(0,1) = 1.2131;
-  SQ(1,1) = 2.9955;
-  SQ(2,1) = 7.5458;
+  SQ(0,1) = 1/1.2131;
+  SQ(1,1) = 1/2.9955;
+  SQ(2,1) = 1/7.5458;
 
   SQ(0,4) = 1/0.68159;
   SQ(1,4) = 1/1.2419;
@@ -80,34 +80,16 @@ void DISTR_logit_fruehwirth::compute_mu()
   }
 */
 
-/*
-void DISTR_logit_fruehwirth::compute_deviance()
+
+
+
+void DISTR_logit_fruehwirth::outoptions()
   {
-
-  }
-
-double DISTR_logit_fruehwirth::loglikelihood()
-  {
-
-
-  }
-*/
-
-/* 	double loglickelihood_wightsone();
-
-	double compute_iwls();
-
-	void compute_iwls_wweightschange_wieghtsone();
-
-	void compute_iwls_wweightsnochange_constant();
-
-	void compute_iwls_wweightsnochange_one();
-*/
-
-
-void DISTR_logit_fruehwirth::outpotions()
-  {
-  DISTR_binomial::outoptions();
+  DISTR::outoptions();
+  optionsp->out("  Response function: logistic distribution function\n");
+  optionsp->out("  Number of mixture components: " + ST::inttostring(H) + "\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
   }
 
 
@@ -173,22 +155,6 @@ bool DISTR_logit_fruehwirth::posteriormode(void)
   {
   return DISTR_binomial::posteriormode();
   }
-
-
-/*
-	void outresults();
-
-	double get_scalemean(void);
-
-	void sample_responses();
-
-	void sample_responses_cv();
-
-	void outresults_predictive_check();
-
-	void update_scale_hyperparameters();
-*/
-
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_binomial --------------------------
@@ -352,7 +318,7 @@ void DISTR_binomial::compute_iwls_wweightschange_weightsone(
 
   }
 
-  
+
 void DISTR_binomial::compute_iwls_wweightsnochange_constant(double * response,
                                               double * linpred,
                                               double * workingweight,
@@ -371,6 +337,52 @@ void DISTR_binomial::compute_iwls_wweightsnochange_one(double * response,
                                               const bool & compute_like)
   {
 
+
+  }
+
+
+void DISTR_binomial::sample_responses(unsigned i,datamatrix & sr)
+  {
+  double * linpredp;
+
+  if (linpred_current==1)
+    linpredp = linearpred1.getV();
+  else
+    linpredp = linearpred2.getV();
+
+  double * rp = sr.getV()+i;
+  double mu;
+
+  unsigned j;
+  for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
+    {
+    compute_mu(linpredp,&mu);
+
+    *rp = randnumbers::rand_binom(1,mu);
+
+    }
+
+  }
+
+
+void DISTR_binomial::sample_responses_cv(unsigned i,datamatrix & linpred,
+                                         datamatrix & sr)
+  {
+
+  double * linpredp;
+
+  linpredp = linpred.getV();
+
+  double * rp = sr.getV()+i;
+  double mu;
+
+  unsigned j;
+  for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
+    {
+    compute_mu(linpredp,&mu);
+
+    *rp = randnumbers::rand_binom(1,mu);
+    }
 
   }
 
@@ -557,8 +569,6 @@ void DISTR_binomialprobit::compute_iwls_wweightsnochange_constant(double * respo
                                               const bool & compute_like)
   {
 
-  double t = 0;
-
   }
 
 void DISTR_binomialprobit::compute_iwls_wweightsnochange_one(double * response,
@@ -567,8 +577,6 @@ void DISTR_binomialprobit::compute_iwls_wweightsnochange_one(double * response,
                                               double & like,
                                               const bool & compute_like)
   {
-
-  double t = 0;
 
   }
 
