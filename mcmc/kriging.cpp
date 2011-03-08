@@ -333,6 +333,7 @@ FULLCOND_kriging::FULLCOND_kriging(MCMCoptions * o, const datamatrix & intact,
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
+  gridsize=0;
 
   m = mp;
   mapexisting = true;

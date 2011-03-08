@@ -8,15 +8,18 @@ library("BayesX")
 m <- read.bnd("kreisesim.bnd")
 centroids <- get.centroids(m)
 n <- nrow(centroids)
+nrep <- 10
 centroids[, 2] <- (centroids[, 2] - min(centroids[, 2])) / (max(centroids[, 2]) - min(centroids[, 2]))
 centroids[, 3] <- (centroids[, 3] - min(centroids[, 3])) / (max(centroids[, 3]) - min(centroids[, 3]))
+centroids <- centroids[rep(1:n, each=nrep),]
+n <- nrep*n
 
 set.seed(777)
 
-z1 <- rbinom(n, prob=0.5, size=1)
+z1 <- runif(n, -1, 1)
 
-eta1 <- centroids[,2]*centroids[,3]
-eta2 <- centroids[,2]*centroids[,3] + z1*sin(centroids[,2]*2*pi)
+eta1 <- -2 + 6*centroids[,2]*centroids[,3]
+eta2 <- -0.7 + 2*centroids[,2]*centroids[,3] + z1*1.5*sin(centroids[,2]*2*pi)
 
 mydata <- data.frame(region=as.numeric(rownames(centroids)), eta1, eta2, z1)
 

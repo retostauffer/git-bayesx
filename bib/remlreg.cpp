@@ -2356,6 +2356,8 @@ bool remlreg::create_geospline(const unsigned & collinpred)
   {
   ST::string pathnonp;
   ST::string pathres;
+  ST::string title;
+
   long h;
   double lambda,startlambda;
   unsigned nrknots,degree,gridsizex,gridsizey;
@@ -2377,6 +2379,30 @@ bool remlreg::create_geospline(const unsigned & collinpred)
         type = MCMC::mrfquadratic12;
 
       j = terms[i].varnames[0].isinlist(modelvarnamesv);
+
+      mapobject * mapp;                           // pointer to mapobject
+      statobject * s;
+      int objpos = findstatobject(*statobj,terms[i].options[4],"map");
+      if (objpos >= 0)
+        {
+        s = statobj->at(objpos);
+        mapp = dynamic_cast<mapobject*>(s);
+        }
+      else
+        {
+        if (objpos == -1)
+          outerror("ERROR: map object " + terms[i].options[4] + " is not existing\n");
+        else
+          outerror("ERROR: " + terms[i].options[4] + " is not a map object\n");
+        return true;
+        }
+      MAP::map m = mapp->getmap();
+
+      if(!m.centroids_existing())
+        {
+        outerror("ERROR: map object does not contain centroids\n");
+        return true;
+        }
 
       f = (terms[i].options[1]).strtolong(h);
       degree = unsigned(h);
@@ -2400,30 +2426,8 @@ bool remlreg::create_geospline(const unsigned & collinpred)
       if (f==1)
         return true;
 
-      mapobject * mapp;                           // pointer to mapobject
-      int objpos = findstatobject(*statobj,terms[i].options[4],"map");
-      if (objpos >= 0)
-        {
-        statobject * s = statobj->at(objpos);
-        mapp = dynamic_cast<mapobject*>(s);
-        }
-      else
-        {
-        if (objpos == -1)
-          outerror("ERROR: map object " + terms[i].options[4] + " is not existing\n");
-        else
-          outerror("ERROR: " + terms[i].options[4] + " is not a map object\n");
-        return true;
-        }
-      MAP::map m = mapp->getmap();
-
-      if(!m.centroids_existing())
-        {
-        outerror("ERROR: map object does not contain centroids\n");
-        return true;
-        }
-
-      ST::string title;
+//      ST::string test = terms[i].varnames[0];
+//      ST::string test = "region";
 
       make_paths(collinpred,pathnonp,pathres,title,terms[i].varnames[0],"",
                  "_geospline.raw","_geospline.res","_geospline");
