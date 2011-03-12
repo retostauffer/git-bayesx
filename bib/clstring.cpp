@@ -5,6 +5,8 @@
 
 #include <stdlib.h>
 #include <climits>
+#include <sstream>
+#include <string>
 
 
 using std::ifstream;
@@ -850,10 +852,13 @@ string doubletostring(double value,int dec)
   {
   if ((dec > 19) || (dec < 1))
 	 dec = 15;
-  char h[20];
+/*  char h[20];
   gcvt(value,dec,h);
   string s = h;
-  return s;
+  return s;*/
+  std::stringstream ss;
+  ss << value;
+  return ss.str();
 //  return string(h);
   }
 

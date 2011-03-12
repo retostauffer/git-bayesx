@@ -1242,7 +1242,8 @@ FULLCOND_const_gaussian_re::FULLCOND_const_gaussian_re(MCMCoptions * o,
       ofstream out2("d:\\temp\\dnew.raw");
       newd.prettyPrint(out2);*/
 
-      FULLCOND_const_gaussian::FULLCOND_const_gaussian(o,dp,newd,t,-1,fs,fr,r,vars,useeff,eff,c);
+//      FULLCOND_const_gaussian::FULLCOND_const_gaussian(o,dp,newd,t,-1,fs,fr,r,vars,useeff,eff,c);
+      FULLCOND_const_gaussian(o,dp,newd,t,-1,fs,fr,r,vars,useeff,eff,c);
       }
     else
       {
@@ -1251,7 +1252,8 @@ FULLCOND_const_gaussian_re::FULLCOND_const_gaussian_re(MCMCoptions * o,
 
     }
   else
-    FULLCOND_const_gaussian::FULLCOND_const_gaussian(o,dp,d,t,constant,fs,fr,r,vars,useeff,eff,c);
+//    FULLCOND_const_gaussian::FULLCOND_const_gaussian(o,dp,d,t,constant,fs,fr,r,vars,useeff,eff,c);
+    FULLCOND_const_gaussian(o,dp,d,t,constant,fs,fr,r,vars,useeff,eff,c);
 
 /*
   // BEGIN: shrinkage

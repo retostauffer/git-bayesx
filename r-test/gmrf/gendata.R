@@ -8,7 +8,7 @@ library("BayesX")
 m <- read.bnd("kreisesim.bnd")
 centroids <- get.centroids(m)
 n <- nrow(centroids)
-nrep <- 10
+nrep <- 15
 centroids[, 2] <- (centroids[, 2] - min(centroids[, 2])) / (max(centroids[, 2]) - min(centroids[, 2]))
 centroids[, 3] <- (centroids[, 3] - min(centroids[, 3])) / (max(centroids[, 3]) - min(centroids[, 3]))
 centroids <- centroids[rep(1:n, each=nrep),]

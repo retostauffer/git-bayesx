@@ -34,20 +34,18 @@ DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
 
 
   weights_mixed = datamatrix(6,5,0);
-  weights_mixed(0,1) = 25.22;
-  weights_mixed(1,1) = 58.523;
-  weights_mixed(2,1) = 16.257;
+  weights_mixed(0,1) = 0.2522;
+  weights_mixed(1,1) = 0.58523;
+  weights_mixed(2,1) = 0.16257;
 
 
-  weights_mixed(0,4) = 1.8446;
-  weights_mixed(1,4) = 17.268;
-  weights_mixed(2,4) = 37.393;
-  weights_mixed(3,4) = 31.697;
-  weights_mixed(4,4) = 10.89;
-  weights_mixed(5,4) = 0.90745;
+  weights_mixed(0,4) = 0.018446;
+  weights_mixed(1,4) = 0.17268;
+  weights_mixed(2,4) = 0.37393;
+  weights_mixed(3,4) = 0.31697;
+  weights_mixed(4,4) = 0.1089;
+  weights_mixed(5,4) = 0.0090745;
 
-
-  weights_mixed = weights_mixed/100;
 	}
 
 DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const DISTR_logit_fruehwirth & nd)
@@ -586,7 +584,7 @@ void DISTR_binomialprobit::update(void)
 
   double * worklin;
   double * workresp;
-  double * workwresp;  
+  double * workwresp;
   double * weightwork;
   double * workingweightwork;
 

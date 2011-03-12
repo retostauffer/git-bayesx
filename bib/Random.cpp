@@ -22,7 +22,8 @@
     bool
     infinite(double x)
     {
-        return finite(x) != 0;
+//        return finite(x) != 0;
+    return !isfinite(x);
     }
 #else
 #include"../values.h"
