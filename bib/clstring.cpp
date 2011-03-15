@@ -8,10 +8,13 @@
 #include <sstream>
 #include <string>
 
+#include <iomanip>
+#include <iostream>
 
 using std::ifstream;
 using std::ofstream;
 using std::ios;
+
 
 //------------------------------------------------------------------------------
 //-------------- CLASS STRING: Implementation of member functions --------------
@@ -851,14 +854,16 @@ string inttostring(int value)
 string doubletostring(double value,int dec)
   {
   if ((dec > 19) || (dec < 1))
+     {
 	 dec = 15;
+     }
 /*  char h[20];
   gcvt(value,dec,h);
   string s = h;
   return s;*/
-  std::stringstream ss;
-  ss << value;
-  return ss.str();
+  std::ostringstream oss;
+  oss << std::setprecision(dec) << value;
+  return oss.str();
 //  return string(h);
   }
 
