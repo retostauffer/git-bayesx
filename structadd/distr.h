@@ -7,7 +7,7 @@
 #include"Random.h"
 #include"GENERAL_OPTIONS.h"
 #include"FC.h"
-#include <fstream.h> 	//used for class logit_fruehwirt
+#include <fstream> 	//used for class logit_fruehwirt
 
 #define M_PI		3.14159265358979323846
 
