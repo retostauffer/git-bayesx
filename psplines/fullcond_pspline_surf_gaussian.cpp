@@ -2330,7 +2330,7 @@ void FULLCOND_pspline_surf_gaussian::compute_XWX(const datamatrix & W,const unsi
   unsigned cols = degree+1;
   unsigned Bcols = B.cols();
   unsigned uppercols = (nrpar1dim+1)*degree;
-  unsigned dim = W.cols();
+  int dim = W.cols();
 
   vector<int>::iterator firstwork;
   vector<int>::iterator freqwork;
