@@ -356,6 +356,11 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
                                               double & like,
                                               const bool & compute_like);
 
+  void sample_responses(unsigned i,datamatrix & sr);
+
+  void sample_responses_cv(unsigned i,datamatrix & linpred,
+                                   datamatrix & sr);
+
   void outoptions(void);
 
   };

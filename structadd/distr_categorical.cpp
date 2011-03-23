@@ -385,6 +385,7 @@ void DISTR_binomial::sample_responses_cv(unsigned i,datamatrix & linpred,
   }
 
 
+
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_binomialprobit --------------------
 //------------------------------------------------------------------------------
@@ -792,6 +793,50 @@ void DISTR_poisson::compute_iwls_wweightsnochange_one(double * response,
   }
 
 
+void DISTR_poisson::sample_responses(unsigned i,datamatrix & sr)
+  {
+  double * linpredp;
+
+  if (linpred_current==1)
+    linpredp = linearpred1.getV();
+  else
+    linpredp = linearpred2.getV();
+
+  double * rp = sr.getV()+i;
+  double mu;
+
+  unsigned j;
+  for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
+    {
+    compute_mu(linpredp,&mu);
+
+    *rp = randnumbers::rand_pois(mu);
+
+    }
+
+  }
+
+
+void DISTR_poisson::sample_responses_cv(unsigned i,datamatrix & linpred,
+                                         datamatrix & sr)
+  {
+
+  double * linpredp;
+
+  linpredp = linpred.getV();
+
+  double * rp = sr.getV()+i;
+  double mu;
+
+  unsigned j;
+  for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
+    {
+    compute_mu(linpredp,&mu);
+
+    *rp = randnumbers::rand_pois(mu);
+    }
+
+  }
 
 
 
