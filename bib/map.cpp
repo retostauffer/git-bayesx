@@ -1894,7 +1894,7 @@ void map::compute_reg(const datamatrix & d,vector<int> & posbeg,
   index.indexinit();
   d.indexsort(index,0,d.rows()-1,0,0);
 
-  if (nrregions <= 5)
+  if (nrregions <= 3)
     {
     error=true;
     errormessages.push_back("ERROR: not enough regions to estimate spatial effect\n");

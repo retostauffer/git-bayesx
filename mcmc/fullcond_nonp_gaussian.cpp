@@ -1605,7 +1605,7 @@ FULLCOND_nonp_gaussian::FULLCOND_nonp_gaussian(MCMCoptions * o,
   if (m.isconnected()==false)
     errors.push_back("ERROR: maxdist=" + ST::doubletostring(md) +
                      " leads to a disconnected graph\n");
-  if (m.get_nrregions() <=5)
+  if (m.get_nrregions() <=3)
     errors.push_back("ERROR: not enough regions to estimate spatial effect\n");
 
   if (errors.size() == 0)
