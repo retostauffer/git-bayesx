@@ -2211,7 +2211,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
  // werden die Startwerte in mcmc_const via ::posteriormode() berechnet.  
   bool use_effectstart = true;
   bool external = false;    // stammen Hyperparameter/Startwerte aus externer Datei
-  int termnr1 = 0;           // Zaehler fuer die erste Ridgeterm Nummer aus der derzeit der
+  int termnr1 = -1;           // Zaehler fuer die erste Ridgeterm Nummer aus der derzeit der
                             // Startdataset eingelesen wird.
   unsigned ridgecount = 0;  // Zaehler fuer die Anzahl der Ridgeterme
   unsigned readline = 0;    // Zeilennummer die aus Dataset eingelesen wird
@@ -2247,7 +2247,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
         {
         check = true;
         varnames.push_back(terms[i].varnames[0]);
-        if(termnr1==0) 
+        if(termnr1==-1) 
           termnr1 = i; 
         ridgecount = ridgecount + 1;                              
         
@@ -2664,7 +2664,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
   // werden die Startwerte in mcmc_const via ::posteriormode() berechnet. 
   bool use_effectstart = true;
   bool external = false;    // stammen Hyperparameter/Startwerte aus externer Datei
-  int termnr1 = 0;           // Zaehler fuer die erste Lassoterm Nummer aus der derzeit der
+  int termnr1 = -1;           // Zaehler fuer die erste Lassoterm Nummer aus der derzeit der
                             // Startdataset üebergeben wird.
   unsigned lassocount = 0;  // Zaehler fuer die Anzahl der Lassoterme
   unsigned readline = 0;    // Zeilennummer die aus Dataset eingelesen wird
@@ -2701,7 +2701,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
         {
         check = true;
         varnames.push_back(terms[i].varnames[0]);
-        if(termnr1==0) 
+        if(termnr1==-1) 
           termnr1 = i; 
         lassocount = lassocount + 1;                              
         
@@ -3129,7 +3129,7 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
   // werden die Startwerte in mcmc_const via ::posteriormode() berechnet. 
   bool use_effectstart = true;
   bool external = false;    // stammen Hyperparameter/Startwerte aus externer Datei
-  int termnr1 = 0;           // Zaehler fuer die erste NIGMIXterm Nummer aus der derzeit der
+  int termnr1 = -1;           // Zaehler fuer die erste NIGMIXterm Nummer aus der derzeit der
                             // Startdataset eingelesen werden.
   unsigned nigmixcount = 0; // Zaehler fuer die Anzahl der Nigmixterme
   unsigned readline = 0;    // Zeilennummer die aus Dataset eingelesen wird
@@ -3171,7 +3171,7 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         {
         check=true;
         varnames.push_back(terms[i].varnames[0]);
-        if(termnr1==0) 
+        if(termnr1==-1) 
           termnr1 = i; 
         nigmixcount = nigmixcount + 1;
         
