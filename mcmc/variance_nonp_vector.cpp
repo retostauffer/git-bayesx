@@ -277,14 +277,14 @@ void FULLCOND_variance_nonp_vector::update(void)
         {
         if (*workbeta>0 && *shrinkagep>0)
           {
-          rand_invgaussian = rand_inv_gaussian((sqrt(sigma2) * *shrinkagep)/(*workbeta * weight[k]), 
-                                               (*shrinkagep * *shrinkagep)/(weight[k] * weight[k]));
+          rand_invgaussian = rand_inv_gaussian((sqrt(sigma2) * *shrinkagep)/(*workbeta), 
+                                               (*shrinkagep * *shrinkagep));
           beta(k,0) = 1.0/rand_invgaussian;
           }
         if (*workbeta<0 && *shrinkagep>0)
           {
-          rand_invgaussian = rand_inv_gaussian(-1.0 * (sqrt(sigma2) * *shrinkagep)/(*workbeta * weight[k]), 
-                                              (*shrinkagep * *shrinkagep)/(weight[k] * weight[k]));
+          rand_invgaussian = rand_inv_gaussian(-1.0 * (sqrt(sigma2) * *shrinkagep)/(*workbeta), 
+                                              (*shrinkagep * *shrinkagep));
           beta(k,0) = 1.0/(rand_invgaussian);
           }
         if (*workbeta==0 || *shrinkagep<=0)
@@ -293,7 +293,7 @@ void FULLCOND_variance_nonp_vector::update(void)
           }
         lassosum = lassosum + ((*workbeta)*(*workbeta))/beta(k,0);              // sum(beta^2/tau^2) for scale update
         sumabsregcoeff = sumabsregcoeff + sqrt((*workbeta)*(*workbeta));              // sum(beta^2/tau^2) for scale update
-        sumvariances = sumvariances + beta(k,0)/(weight[k] * weight[k]);        // sum(tau^2) of current variances
+        sumvariances = sumvariances + beta(k,0);        // sum(tau^2) of current variances
         }
       }
      
@@ -312,9 +312,9 @@ void FULLCOND_variance_nonp_vector::update(void)
       for(k=cut[j]; k<cut[j+1]; k++, workbeta++, shrinkagep++)   
         {
 
-         beta(k,0) = weight[k]/(2 * *shrinkagep);
+         beta(k,0) = 1/(2 * *shrinkagep);
          ridgesum = ridgesum + ((*workbeta)*(*workbeta))/beta(k,0);  // sum(beta^2/tau^2)
-         sumregcoeff = sumregcoeff + (*workbeta * *workbeta)/(weight[k]);
+         sumregcoeff = sumregcoeff + (*workbeta * *workbeta);
         }
       }
     // transfer ridgesum to scale update

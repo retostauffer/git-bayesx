@@ -301,12 +301,12 @@ void FC_variance_pen_vector::update(void)
     {
     if (*workbeta>0 && *shrinkagep>0)
       {
-      rand_invgaussian = rand_inv_gaussian(sigma*(*shrinkagep)/(*workbeta * shrinkageweight[i]), (*shrinkagep)*(*shrinkagep)/(shrinkageweight[i]*shrinkageweight[i]));
+      rand_invgaussian = rand_inv_gaussian(sigma*(*shrinkagep)/(*workbeta), (*shrinkagep)*(*shrinkagep));
       beta(i,0) = 1.0/rand_invgaussian;
       }
     if (*workbeta<0 && *shrinkagep>0)
       {
-      rand_invgaussian = rand_inv_gaussian(-1.0*sigma*(*shrinkagep)/(*workbeta * shrinkageweight[i]), (*shrinkagep)*(*shrinkagep)/(shrinkageweight[i]*shrinkageweight[i]));
+      rand_invgaussian = rand_inv_gaussian(-1.0*sigma*(*shrinkagep)/(*workbeta), (*shrinkagep)*(*shrinkagep));
       beta(i,0) = 1.0/(rand_invgaussian);
       }
     if (*workbeta==0 || *shrinkagep<=0)
@@ -314,7 +314,7 @@ void FC_variance_pen_vector::update(void)
       beta(i,0) = 1E-6;
       }
     pensum += ((*workbeta)*(*workbeta))/beta(i,0);                          // sum(beta^2/tau^2)
-    sumvariances = sumvariances + beta(i,0)/(shrinkageweight[i] * shrinkageweight[i]);  // sum(tau^2/weights^2) of current variances
+    sumvariances = sumvariances + beta(i,0);  // sum(tau^2/weights^2) of current variances
    }
   }
 
@@ -345,9 +345,9 @@ void FC_variance_pen_vector::update(void)
     {
     for(i=0; i<nrpen; i++, workbeta++, shrinkagep++)
       {
-      beta(i,0) = shrinkageweight[i]/(2*(*shrinkagep));
+      beta(i,0) = 1/(2*(*shrinkagep));
       pensum +=  ((*workbeta)*(*workbeta))/beta(i,0);  // sum(beta^2/tau^2)
-      sumregcoeff = sumregcoeff + (*workbeta)*(*workbeta)/(shrinkageweight[i]);
+      sumregcoeff = sumregcoeff + (*workbeta)*(*workbeta);
       }
     }
     
