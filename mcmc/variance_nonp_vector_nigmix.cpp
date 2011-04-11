@@ -98,7 +98,7 @@ FULLCOND_variance_nonp_vector_nigmix::FULLCOND_variance_nonp_vector_nigmix(MCMCo
   // Fullcondobject for shrinkageparameter omega
   ST::string helptitle = Cp[0]->get_title();
   ST::string title = helptitle.substr(0,helptitle.length()-1);
-  fc_shrinkage = FULLCOND(o,datamatrix(1,1),title+"_shrinkage",nrpar,1,path1);
+  fc_shrinkage = FULLCOND(o,datamatrix(nrpar,1),title+"_shrinkage",nrpar,1,path1);
   fc_shrinkage.setflags(MCMC::norelchange);
 
   // Fullcondobject for Variancekomponents indicator and t2
@@ -285,6 +285,7 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
     }
 
 
+    
 //TEMP:BEGIN--------------------------------------------------------------------
 //ofstream output_beta("c:/bayesx/test/nigmix_beta.txt", ios::out|ios::app);
 //ofstream output_scale("c:/bayesx/test/nigmix_scale.txt", ios::out|ios::app);
@@ -306,27 +307,29 @@ void FULLCOND_variance_nonp_vector_nigmix::update(void)
   //---------------------------------------------------------------------------
   workt2 = fc_t2.getbetapointer(); 
   workindicator = fc_indicator.getbetapointer();
+  workomega = fc_shrinkage.getbetapointer();
+  
   k = 0;
   for(j=0; j<cut.size()-1; j++)
     {
     workbeta = Cp[j]->getbetapointer();
-    for(k=cut[j]; k<cut[j+1]; k++, workbeta++, workindicator++, workt2++)
+    for(k=cut[j]; k<cut[j+1]; k++, workbeta++, workindicator++, workt2++, workomega++)
       {
-      probv1 = 1/(1+((1-(*workomega))/(*workomega)*sqrt(v_1[k]/v_0[k])*exp(-(1/v_0[k]-1/v_1[k])*(*workbeta)*(*workbeta)/(2*sigma2 * (*workt2)))));
+      probv1 = 1/(1+((1-(*workomega))/(*workomega)*sqrt(v_1[0]/v_0[0])*exp(-(1/v_0[0]-1/v_1[0])*(*workbeta)*(*workbeta)/(2*sigma2 * (*workt2)))));
       rand_bernoulli = bernoulli(probv1);
 
       if(rand_bernoulli==0)
         {
         *workindicator = 0.0;
         sumindicatorv0 = sumindicatorv0 + 1;
-        *workt2 = rand_invgamma(0.5+a_t2[k],b_t2[k]+(*workbeta)*(*workbeta)/(2* sigma2 * v_0[0]));
+        *workt2 = rand_invgamma(0.5+a_t2[0],b_t2[0]+(*workbeta)*(*workbeta)/(2* sigma2 * v_0[0]));
         beta(k,0) = v_0[0] * *workt2;
        }
       if(rand_bernoulli==1)
         {
         *workindicator = 1.0;
         sumindicatorv1 = sumindicatorv1 + 1;
-        *workt2 = rand_invgamma(0.5+a_t2[k],b_t2[k]+(*workbeta)*(*workbeta)/(2* sigma2 * v_1[0]));
+        *workt2 = rand_invgamma(0.5+a_t2[0],b_t2[0]+(*workbeta)*(*workbeta)/(2* sigma2 * v_1[0]));
         beta(k,0) = v_1[0] * *workt2;
         }
 
@@ -981,13 +984,12 @@ void FULLCOND_variance_nonp_vector_nigmix::outoptions(void)
  
   if(omega_adaptive == true)
     {
-    optionsp->out("  Hyperparameter v0 for variance component I: " +
-                     ST::doubletostring(v_0[0]) + "\n" );
-    optionsp->out("  Hyperparameter v1 for variance component I: " +
-                     ST::doubletostring(v_1[0]) + "\n" );
-    optionsp->out("\n");
     for(unsigned i=0; i<nrpar; i++)
       {
+      optionsp->out("  Hyperparameter v0 for variance component I of " +  varnames[i] + ": " +
+                       ST::doubletostring(v_0[i]) + "\n" );
+      optionsp->out("  Hyperparameter v1 for variance component I of " +  varnames[i] + ": " +
+                       ST::doubletostring(v_1[i]) + "\n" );
       optionsp->out("  Hyperparameter a for variance component t2 of " +  varnames[i] + ": " +
                        ST::doubletostring(a_t2[i]) + "\n" );
       optionsp->out("  Hyperparameter b for variance component t2 of " +  varnames[i] + ": " +
@@ -1095,9 +1097,9 @@ void FULLCOND_variance_nonp_vector_nigmix::get_startvalues(void)
       t2_outoutstartdata << helpvarname_t2[k] << " " << *helpt2 << endl;
       variance_outoutstartdata << helpvarname_variance[i] << " " << *helpvariance << endl;
       shrinkage_outoutstartdata << helpvarname_t2[k] << " " << *helpshrinkage << "  " << endl;
-      hyperpar_outoutstartdata << helpvarname_t2[k]  << " " << v_0[k] << " " << v_1[k] << " " 
-                               << a_t2[k] << " " << b_t2[k] << " " 
-                               << a_omega[k] << " " << b_omega[k] << " " 
+      hyperpar_outoutstartdata << helpvarname_t2[k]  << " " << v_0[0] << " " << v_1[0] << " " 
+                               << a_t2[0] << " " << b_t2[0] << " " 
+                               << a_omega[0] << " " << b_omega[0] << " " 
                                << omega_fix  << " " << omega_adaptive << endl;
       }
     }

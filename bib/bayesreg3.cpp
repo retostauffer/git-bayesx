@@ -3197,8 +3197,6 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
           if(terms[i].options[0] == "nigmix")
             {
             // Folgende Werte werden nur aus dem 1. Term gesetzt
-            f = (terms[termnr1].options[6]).strtodouble(v0);                 //Option aus 1. Term
-            f = (terms[termnr1].options[7]).strtodouble(v1);                 //Option aus 1. Term
             if (terms[termnr1].options[12] == "true")                  //Option aus 1. Term
               omegafix = true;
             else
@@ -3223,6 +3221,8 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
           if(omegaadaptive==false)
             {
             f = (terms[termnr1].options[5]).strtodouble(omega);              //Option aus 1. Term
+            f = (terms[termnr1].options[6]).strtodouble(v0);                 //Option aus 1. Term
+            f = (terms[termnr1].options[7]).strtodouble(v1);                 //Option aus 1. Term
             f = (terms[termnr1].options[8]).strtodouble(a_t2);               //Option aus 1. Term
             f = (terms[termnr1].options[9]).strtodouble(b_t2);               //Option aus 1. Term
             f = (terms[termnr1].options[10]).strtodouble(a_omega);           //Option aus 1. Term
@@ -3231,6 +3231,8 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
           if(omegaadaptive==true)
             {
             f = (terms[i].options[5]).strtodouble(omega);              //Option aus jedem Term
+            f = (terms[i].options[6]).strtodouble(v0);                 //Option aus jedem Term
+            f = (terms[i].options[7]).strtodouble(v1);                 //Option aus jedem Term
             f = (terms[i].options[8]).strtodouble(a_t2);               //Option aus jedem Term
             f = (terms[i].options[9]).strtodouble(b_t2);               //Option aus jedem Term
             f = (terms[i].options[10]).strtodouble(a_omega);           //Option aus jedem Term
@@ -3337,8 +3339,6 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
         for(readline=0;readline<startdata.rows();readline++)
           {
           // Folgende Werte werden nur aus der 1. Zeile gesetzt
-          v0 = startdata.get(0,4);                //Option aus 1. Term
-          v1 = startdata.get(0,5);                //Option aus 1. Term
           if (startdata.get(0,10)==0.0)                    //Option 1. Term
             {
             omegafix = false;
@@ -3380,6 +3380,8 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
           if(omegaadaptive==false)
             {
             omega = startdata.get(0,3);             //Option aus 1. Term
+            v0 = startdata.get(0,4);                //Option aus 1. Term
+            v1 = startdata.get(0,5);                //Option aus 1. Term
             a_t2 = startdata.get(0,6);              //Option aus 1. Term
             b_t2 = startdata.get(0,7);              //Option aus 1. Term
             a_omega = startdata.get(0,8);           //Option aus 1. Term
@@ -3388,6 +3390,8 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
           if(omegaadaptive==true)
             {
             omega = startdata.get(readline,3);             //Option aus jedem Term
+            v0 = startdata.get(readline,4);                //Option aus jedem Term
+            v1 = startdata.get(readline,5);                //Option aus jedem Term
             a_t2 = startdata.get(readline,6);              //Option aus jedem Term
             b_t2 = startdata.get(readline,7);              //Option aus jedem Term
             a_omega = startdata.get(readline,8);           //Option aus jedem Term
