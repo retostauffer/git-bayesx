@@ -929,7 +929,7 @@ of normals, are implemented in {\em BayesX}, i.e. the {\em ridge}-, the {\em las
 Gamma (NMIG)-prior}. Common for all approaches is an informative, zero mean conditional Gaussian distribution of the regression
 coefficients
 
-\[\beta _{j} |\tau _{j}^{2} \mathop{\sim }\limits^{i.i.d.} N\left(0,\tau _{j}^{2}
+\[\beta _{j} |\sigma^2,\tau _{j}^{2} \mathop{\sim }\limits^{i.i.d.} N\left(0,\sigma^2\tau _{j}^{2}
 \right),\quad j=p+1,\ldots,p+q\]
 
 together with special mixing distributions for the variances $\tau _{s}^{2} =\left( \tau _{p+1}^{2} ,\ldots,\tau _{p+q}^{2}
@@ -937,9 +937,9 @@ together with special mixing distributions for the variances $\tau _{s}^{2} =\le
 
 \begin{equation}
 \label{ZEqnNum341486}
-p\left(\beta _{s} |\tau _{s}^{2} \right)\propto \frac{1}{\det \left(K_{s} \right)^{{1
+p\left(\beta _{s} |\sigma^2,\tau _{s}^{2} \right)\propto \frac{1}{\det \left(K_{s} \right)^{{1
 \mathord{\left/ {\vphantom {1 2}} \right. \kern-\nulldelimiterspace} 2} } } \exp
-\left(-\frac{1}{2} \beta _{s} ^{{'} } K_{s} \beta _{s} \right),
+\left(-\frac{1}{2} \beta _{s} ^{{'} } K_{s}^{-1} \beta _{s} \right),
 \end{equation}
 
 where $K_{s} =diag\left(\sigma^2\tau _{p+1}^{2} ,\ldots,\sigma^2\tau _{p+q}^{2} \right)$ denotes the diagonal matrix of the variances.
@@ -962,13 +962,16 @@ of the regression coefficients and is equipped with a Gamma distribution
 
 \[\lambda \sim Gamma\left(a,b\right);\quad a,b>0\]
 
-which results in a marginal Gaussian distribution of the regression coefficients $\beta _{s} |\lambda \mathop{\sim
-}\limits^{i.i.d.} N\left(0,{\lambda \mathord{\left/ { \vphantom {\lambda  2}} \right. \kern-\nulldelimiterspace} 2} \right).$
-The logarithm of the common marginal prior for $\beta _{s} |\lambda $ corresponds to the ridge penalty $\lambda \sum \beta
-_{j}^{2}  $ and for a given value of $\lambda $ posterior mode estimation coincides with penalized likelihood estimation.
+which results in a marginal (respective $\tau_{j}^2$) Gaussian distribution of the regression coefficients $\beta _{s} |\sigma^2,\lambda \mathop{\sim
+}\limits^{i.i.d.} N\left(0,{\lambda \mathord{\left/ { \vphantom {\lambda  2\sigma^2}} \right. \kern-\nulldelimiterspace} 2\sigma^2} \right).$
+The logarithm of the common marginal prior for $\beta _{s} |\sigma^2,\lambda $ corresponds to the ridge penalty
+and for a given value of $\lambda $ posterior mode estimation coincides with penalized likelihood estimation.
 
 The {\em adaptive} version allows the tuning each variance patameter via
 
+\[\tau _{j}^{2} |\lambda_j \mathop{\sim }\limits \delta _{{1\mathord{\left/
+{\vphantom {1 2\lambda_j }} \right. \kern-\nulldelimiterspace} 2\lambda_j } } \left(
+\tau _{j}^{2} \right),\]
 \[{\lambda _j}\sim Gamma\left( {{a_j},{b_j}} \right).\]
 
 
@@ -989,12 +992,15 @@ The prior of the squared shrinkage parameter is also a gamma distribution
 \[\lambda ^{2} \sim Gamma\left(a,b\right);\quad a,b>0\]
 
 and the corresponding marginal priors of the regression coefficients are i.i.d. Laplace
-distributions $\beta _{j} |\lambda \mathop{\sim }\limits^{i.i.d.} Laplace\left(0,
-\lambda \right)$ so that the logarithm of the common marginal prior for $\beta $ corresponds
+distributions $\beta _{j} |\sigma^2,\lambda \mathop{\sim }\limits^{i.i.d.} Laplace\left(0,
+\lambda / \sigma \right)$ so that the logarithm of the common marginal prior for $\beta $ (respective $\tau_{j}^2$) corresponds
 to the Lasso penalty (Park and Casella, 2008).
 
 The {\em adaptive} version allows the tuning each variance patameter via
 
+\[\tau _{j}^{2} |\lambda_{j}^{2} \mathop{\sim }\limits Exp\left({\lambda_{j}^{2}
+\mathord{\left/ {\vphantom {\lambda_{j}^{2}  2}} \right. \kern-\nulldelimiterspace}
+2} \right),\]
 \[\lambda _j^2\sim Gamma\left( {{a_j},{b_j}} \right).\]
 
 
@@ -1031,7 +1037,7 @@ with $ {{a_\omega }={b_\omega }} = 1$ as default, which expresses an indifferent
 The {\em adaptive} version enables
 
 \[\begin{array}{l}
- t_j^2\sim Gamma\left( {{a_j},{b_j}} \right) \\
+ I_j|\nu _{0} ,\nu _{1} ,\omega_j \sim \left(1-\omega_j \right) \delta _{\nu _{o} } \left(\cdot \right)+\omega_j \delta _{\nu _{1} } \\
  {\omega _j}\sim Beta\left( {{a_{\omega ,j}},{b_{\omega ,j}}} \right) .\\
  \end{array}\]
 
@@ -1543,12 +1549,12 @@ shrinkage components $\beta _{p+1} ,\ldots,\beta _{p+q} ,\tau _{p+1}^{2} ,\ldots
 similarity of the prior \eqref{ZEqnNum341486} to the prior \eqref{genform} the full conditionals of the shrinkage effects
 $\beta _{s} =\left(\beta _{p+1} ,\ldots \beta _{p+q} \right)$ are similar to the full conditionals of the previous subsections
 \ref{gaussianresp} to \ref{IWLS} if the penalty matrix ${K_{j} \mathord{\left/ {\vphantom {K_{j}  \tau _{j}^{2} }} \right.
-\kern-\nulldelimiterspace} \tau _{j}^{2} } $ is replaced by the pnalty matrix of the shrinkage priors $K_{s} $. For example for
+\kern-\nulldelimiterspace} \tau _{j}^{2} } $ is replaced by the pnalty matrix of the shrinkage priors $K_{s}^{-1} $. For example for
 Gaussian responses \ref{gaussianresp} the full conditional for the regression coefficients $\beta _{s} $ is also Gaussian with
 covariance (inverse precision) matrix and mean similar to the formulas \eqref{meangaussian} and \eqref{covgaussian}:
 
 \[Cov\left(\beta _{s} |\cdot \right)=P_{s}^{-1} =\left(\frac{1}{\sigma ^{2} } X_{s}
-^{{'} } CX_{s} +K_{s} \right)^{-1} ,\quad m_{s} =P_{s}^{-1} \frac{1}{\sigma ^{2}
+^{{'} } CX_{s} +K_{s}^{-1} \right)^{-1} ,\quad m_{s} =P_{s}^{-1} \frac{1}{\sigma ^{2}
 } X_{s} ^{{'} } C\left(y-\eta _{-s} \right)\]
 
 where $X_{s} $ is the design matrix corresponding to the shrinkage effects in $\beta _{s} $ and $\eta
@@ -1568,21 +1574,34 @@ For the ridge prior the full conditionals of the variance parameters simplify to
 {\vphantom {1 2\lambda }} \right. \kern-\nulldelimiterspace} 2\lambda } $, $j=p+1,..,p+q$. For the shrinkage parameter $\lambda
 $ we get a gamma density with parameters
 
-\[a'=\frac{q}{2} +a\quad {\rm and}\quad b'=\sum _{j=p+1}^{p+q}\beta _{j}^{2}  +b.\]
+\[a'=\frac{q}{2} +a\quad {\rm and}\quad b'=\sum _{j=p+1}^{p+q}\beta _{j}^{2} / \sigma^2  +b\]
 
+and for the {\em adaptive} version
+
+\[a'=\frac{1}{2} +a_j\quad {\rm and}\quad b'=\beta _{j}^{2} / \sigma^2  +b_j.\]
 
 {\em Lasso-Prior}
 
 For the variance parameters $\tau _{j}^{2} $, $j=p+1,..,p+q$ of the Bayesian lasso the full conditionals are inverse Gaussian
 distributions
 
-\[\frac{1}{\tau _{j}^{2} } |\cdot \, \sim InvGauss\left(\frac{\sqrt{\lambda ^{2}
+\[\frac{1}{\tau _{j}^{2} } |\cdot \, \sim InvGauss\left(\frac{\sqrt{\sigma^2 \lambda ^{2}
 } }{\left|\beta _{j} \right|} ,\lambda ^{2} \right).\]
 
 The full conditional for the quadratic shrinkage parameter $\lambda ^{2} |\cdot \, $ is
 a Gamma distribution with parameters:
 
 \[a'=q+a\quad {\rm and}\quad b'=\frac{1}{2} \sum _{j=p+1}^{p+q}\tau _{j}^{2}  +b.\]
+
+For the {\em adaptive} version  we get
+
+\[\frac{1}{\tau _{j}^{2} } |\cdot \, \sim InvGauss\left(\frac{\sqrt{\sigma^2 \lambda_j^{2}
+} }{\left|\beta _{j} \right|} ,\lambda_j^{2} \right).\]
+
+and
+
+\[a'=1+a_j\quad {\rm and}\quad b'=\frac{1}{2}\tau _{j}^{2}  +b_j.\]
+
 
 {\em Normal-Mixture of inverse Gamma-Prior}
 
@@ -1595,25 +1614,33 @@ conditionals for the binary indicator variables are Bernoulli distributions with
 and
 
 \[\frac{A_{I,j} }{B_{I,j} } =\frac{\left(1-\omega \right)}{\omega } \frac{\sqrt{
-\nu _{1} } }{\sqrt{\nu _{0} } } \exp \left\{-\frac{1}{2\nu _{0} t_{j}^{2} } \beta
-_{j}^{2} +\frac{1}{2\nu _{1} t_{j}^{2} } \beta _{j}^{2} \right\}.\]
+\nu _{1} } }{\sqrt{\nu _{0} } } \exp \left\{-\frac{1}{2\sigma^2 \nu _{0} t_{j}^{2} } \beta
+_{j}^{2} +\frac{1}{2\sigma^2 \nu _{1} t_{j}^{2} } \beta _{j}^{2} \right\}.\]
 The full conditionals for the second variance parameter component $t_{j}^{2} $ are
 inverse gamma densities with parameters
 
-\[a'=\frac{1}{2} +a\quad and\quad b'=b+\frac{\beta _{j}^{2} }{2I_{j} } .\]
+\[a'=\frac{1}{2} +a\quad and\quad b'=b+\frac{\beta _{j}^{2} }{2\sigma^2I_{j} } .\]
 
-while the full conditional for the complexity parameter $\omega $ is a $Beta\left(1+n.
-\nu _{1} ;1+n.\nu _{0} \right)$ distribution with $n.\nu _{0} :=\# \left\{j:I_{j}
+while the full conditional for the complexity parameter $\omega $ is a $Beta\left(a_{\omega}+n.
+\nu _{1} ;b_{\omega}+n.\nu _{0} \right)$ distribution with $n.\nu _{0} :=\# \left\{j:I_{j}
 =\nu _{0} \right\},n.\nu _{1} :=\# \left\{j:I_{j} =\nu _{1} \right\}$.
+
+For the {\em adaptive} version  we get
+
+\[\frac{A_{I,j} }{B_{I,j} } =\frac{\left(1-\omega_j \right)}{\omega_j } \frac{\sqrt{
+\nu _{1} } }{\sqrt{\nu _{0} } } \exp \left\{-\frac{1}{2\sigma^2 \nu _{0} t_{j}^{2} } \beta
+_{j}^{2} +\frac{1}{2\sigma^2 \nu _{1} t_{j}^{2} } \beta _{j}^{2} \right\}\]
+
+and $\omega_j $ is a $Beta\left(a_{\omega,j}+1 ;a_{\omega,j}+1 \right)$ distribution.
 
 The scale parameter $\sigma ^{2} $ is for all shrinkage priors inverse
 gamma with parameters
 
 \[a'_{\sigma } =a_{\sigma } +\frac{n}{2} +\frac{q}{2} \quad und\quad b'_{\sigma }
-=b_{\sigma } +\frac{1}{2} \varepsilon '\varepsilon +\frac{1}{2} \beta 'K_{s}^{-1}
+=b_{\sigma } +\frac{1}{2} \varepsilon '\varepsilon +\frac{1}{2} \beta '{(K_{s}/\sigma^2)}^{-1}
 \beta \]
 
-and the corresponding variance matrix $K_{s} $ for the ridge, lasso and NMIG.
+and the corresponding variances matrix $K_{s}/ \sigma^2 =diag\left(\tau _{p+1}^{2} ,\ldots,\tau _{p+q}^{2} \right)$ for the ridge, lasso and NMIG.
 
 
 \subsection{Empirical Bayes inference based on mixed model methodology}

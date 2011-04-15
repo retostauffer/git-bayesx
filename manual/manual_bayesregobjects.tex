@@ -761,11 +761,11 @@ terms for bayesreg objects.}}
 & #a=0.001#, #b=0.001# \\
 
 & 2. The options #a# and #b# specify the hyperparameters of the inverse Gamma prior
-  for the shrinkage parameter $\lambda$ if the lasso- or the ridge-prior is used (*).
+  for the shrinkage parameter $\lambda$ if the lasso- or the ridge-prior is used (**).
 & #a=0.001#, #b=0.001# \\
 
 & 3. The options #a# and #b# specify the hyperparameters the inverse Gamma prior
-  for the variance parameters $t_{j}^2$ if the NMIG-penalty is used (*).
+  for the variance parameters $t_{j}^2$ if the NMIG-penalty is used.
 & #a=5#, #b=50# \\
 \hline
 
@@ -776,7 +776,7 @@ terms for bayesreg objects.}}
 
 #aw#,#bw#
 & The options #aw# and #bw# specify the hyperparameters of
-  the Beta prior for the parameter $\omega$ if the NMIG-penalty is used.
+  the Beta prior for the parameter $\omega$ if the NMIG-penalty is used (**).
 & #a=0.001#, #b=0.001# \\
  \hline
  
@@ -860,7 +860,7 @@ object terms in alphabetical order (1).}}
 
 #wfix#
 & Specifies if the complexity parameter $\omega$ should take the fixed value given
-  in option #w# (*) if the NMIG-penalty is used.
+  in option #w# if the NMIG-penalty is used (**).
 & - \\
 \hline
 
@@ -885,7 +885,7 @@ weighted least squares (IWLS)
 
 #shrinkage#
 & Provides a starting value of for the shrinkage parameter $\lambda$ if the lasso-
-  or ridge -penalty is used. Values have to be positive (*).
+  or ridge -penalty is used. Values have to be positive (**).
 & #shrinkage=1# \\
 \hline
 
@@ -921,7 +921,11 @@ the IWLS weight matrix should be updated. #updateW=0# means never,
 
 \hline
 & (*) these options are specified in the first covariate occurring in term of
-  the corresponding penalty
+  the corresponding penalty.
+& \\
+& (**) these options are specified in the first covariate occurring in term of
+  the corresponding penalty in the nonadaptive case and in each covariate in the
+  adaptive case.
 & \\
 \hline
 
