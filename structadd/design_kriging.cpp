@@ -655,6 +655,12 @@ void DESIGN_kriging::compute_precision(double l)
 void DESIGN_kriging::outoptions(GENERAL_OPTIONS * op)
   {
 
+  op->out("  Correlation function: Matern \n");
+  op->out("  Parameter nu: " + ST::doubletostring(nu) + "\n");
+  op->out("  Parameter rho: " + ST::doubletostring(rho) + "\n");
+  op->out("  Number of knots: " + ST::inttostring(nrknots) + "\n");
+
+
   }
 
 } // end: namespace MCMC

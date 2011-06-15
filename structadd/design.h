@@ -219,6 +219,9 @@ class __EXPORT_TYPE DESIGN
 
   //----------------------------------------------------------------------------
 
+  bool errors;                // true if an error has occured during
+                              // initialization
+
   //----------------------- CONSTRUCTORS, DESTRUCTOR ---------------------------
 
   // DEFAULT CONSTRUCTOR

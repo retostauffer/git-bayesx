@@ -291,6 +291,8 @@ DESIGN::DESIGN(GENERAL_OPTIONS * o,DISTR * lp,FC_linear * fcp)
   derivative_full = false;
 
   position_lin = -1;
+
+  errors=false;
   }
 
 
@@ -364,6 +366,8 @@ DESIGN::DESIGN(const DESIGN & m)
   Zout_derivative = m.Zout_derivative;
   derivative_full = m.derivative_full;
   derivative = m.derivative;
+
+  errors=m.errors;
 
   }
 
@@ -441,6 +445,8 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   Zout_derivative = m.Zout_derivative;
   derivative_full = m.derivative_full;
   derivative = m.derivative;
+
+  errors=m.errors;
 
   return *this;
   }

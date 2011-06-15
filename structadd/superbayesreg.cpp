@@ -437,6 +437,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   design_krigings = b.design_krigings;
   design_mrfs = b.design_mrfs;
 
+  errors = b.errors;
+
   }
 
 
@@ -502,6 +504,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 
   design_krigings = b.design_krigings;
   design_mrfs = b.design_mrfs;
+
+  errors = b.errors;
 
   return *this;
   }
@@ -604,79 +608,88 @@ void hregressrun(superbayesreg & b)
     b.clear();
     b.run_yes=false;
     b.generaloptions_yes = false;
+    b.errors=false;
     }
 
-  b.resultsyesno = false;
-  if (b.modeonly.getvalue() == true)
-    b.posteriormode = true;
-  else
-    b.posteriormode = false;
-
-  b.terms = b.modreg.getterms();
-
-  b.describetext.erase(b.describetext.begin(),b.describetext.end());
-  b.describetext.push_back("LAST ESTIMATED MODEL: \n");
-  b.describetext.push_back("\n");
-  b.describetext.push_back(b.modreg.getModelText());
-  b.describetext.push_back("\n");
-
-  b.equations.push_back(equation(b.equationnr.getvalue(),b.hlevel.getvalue(),
-  b.equationtype.getvalue()));
-  unsigned modnr = b.equations.size()-1;
-
-  b.make_header(modnr);
-
-  bool failure = false;
-
-  if (!failure && b.generaloptions_yes==false)
+  if (b.errors==false)    // errors from level 2 equations
     {
-    failure = b.create_generaloptions();
-    b.generaloptions_yes = true;
-    }
+    b.resultsyesno = false;
+    if (b.modeonly.getvalue() == true)
+      b.posteriormode = true;
+    else
+      b.posteriormode = false;
 
-  if (!failure)
-    failure = b.create_distribution();
-  if (!failure)
-    failure = b.create_linear();
-  if (!failure && b.terms.size() >= 1)
-    failure = b.create_nonp();
+    b.terms = b.modreg.getterms();
 
-  if (!failure)
-    b.create_predict();
+    b.describetext.erase(b.describetext.begin(),b.describetext.end());
+    b.describetext.push_back("LAST ESTIMATED MODEL: \n");
+    b.describetext.push_back("\n");
+    b.describetext.push_back(b.modreg.getModelText());
+    b.describetext.push_back("\n");
 
-  if (!failure)
-    b.create_predictive_check();
+    b.equations.push_back(equation(b.equationnr.getvalue(),b.hlevel.getvalue(),
+    b.equationtype.getvalue()));
+    unsigned modnr = b.equations.size()-1;
 
-  if (!failure)
-    b.create_cv();
+    b.make_header(modnr);
 
+    bool failure = false;
 
-  if ((! failure) && (b.hlevel.getvalue() == 1) &&
-      (b.equationtype.getvalue()=="mean"))
-    {
-
-    if (!failure)
-      failure = b.check_errors();
-
-    if (!failure)
+    if (!failure && b.generaloptions_yes==false)
       {
-      b.run_yes=true;
-
-      b.simobj = MCMCsim(&b.generaloptions,b.equations);
-
-      ST::string pathgraphs = b.outfile.getvalue();
-
-      if (b.modeonly.getvalue())
-        {
-        failure = b.simobj.posteriormode(pathgraphs,false);
-        }
-      else
-        failure = b.simobj.simulate(pathgraphs,b.setseed.getvalue(),true);
+      failure = b.create_generaloptions();
+      b.generaloptions_yes = true;
       }
 
     if (!failure)
-      b.resultsyesno = true;
-    }
+      failure = b.create_distribution();
+    if (!failure)
+      failure = b.create_linear();
+    if (!failure && b.terms.size() >= 1)
+      failure = b.create_nonp();
+
+    if (!failure)
+      b.create_predict();
+
+    if (!failure)
+      b.create_predictive_check();
+
+    if (!failure)
+      b.create_cv();
+
+
+    if ((! failure) && (b.hlevel.getvalue() == 1) &&
+        (b.equationtype.getvalue()=="mean"))
+      {
+
+      if (!failure)
+        failure = b.check_errors();
+
+      if (!failure)
+        {
+        b.run_yes=true;
+
+        b.simobj = MCMCsim(&b.generaloptions,b.equations);
+
+        ST::string pathgraphs = b.outfile.getvalue();
+
+        if (b.modeonly.getvalue())
+          {
+          failure = b.simobj.posteriormode(pathgraphs,false);
+          }
+        else
+          failure = b.simobj.simulate(pathgraphs,b.setseed.getvalue(),true);
+        }
+
+      if (!failure)
+        b.resultsyesno = true;
+      }
+
+
+    if (failure)
+      b.errors=true;
+
+    } // end: if errors == false
 
   }
 
@@ -1438,6 +1451,10 @@ bool superbayesreg::create_mrf(unsigned i)
   FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_mrfs[design_mrfs.size()-1],
                      terms[i].options,terms[i].varnames));
+
+  if (FC_nonps[FC_nonps.size()-1].errors==true)
+    return true;
+
 
   equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
 

@@ -102,54 +102,64 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
                  vector<ST::string> & vn)
      : FC(o,t,Dp->Zout.rows(),1,fp)
   {
+
   read_options(op,vn);
   masterp = mp;
   likep = lp;
   designp = Dp;
-  param = datamatrix(designp->nrpar,1,0);
-  paramold = param;
-  parammode = param;
-  paramhelp = param;
-  betaold = beta;
-  betadiff = beta;
-  partres = datamatrix(designp->posbeg.size(),1,0);
-  lambda=1;
-  tau2 = likep->get_scale()/lambda;
-  IWLS = likep->updateIWLS;
 
-  if (Dp->position_lin != -1)
+  if (designp->errors==false)
     {
-    fsample = FC(o,"",beta.rows(),beta.cols(),fp + ".lin");
-    paramlin = datamatrix(Dp->designlinear.cols(),1,0);
-    }
+    param = datamatrix(designp->nrpar,1,0);
+    paramold = param;
+    parammode = param;
+    paramhelp = param;
+    betaold = beta;
+    betadiff = beta;
+    partres = datamatrix(designp->posbeg.size(),1,0);
+    lambda=1;
+    tau2 = likep->get_scale()/lambda;
+    IWLS = likep->updateIWLS;
 
-  paramsample = FC(o,"",param.rows(),1,fp + ".param");
-
-  helpcenter = datamatrix(designp->nrpar,1);
-
-  if (pvalue==true)
-    {
-    pvalue_sample = FC(o,"",param.rows()*2+6,1,fp + ".pvalue");
-    mPhelp = datamatrix(param.rows(),1,0);
-    }
-
-  if (computemeaneffect==true)
-    {
-    meaneffect_sample = FC(o,"",beta.rows(),1,fp+".meaneffect");
-    }
-
-  if (derivative == true)
-    {
-    if (designp->type==Mrf)
-      derivative = false;
-    else
+    if (Dp->position_lin != -1)
       {
-      derivativesample = FC(o,"",beta.rows(),1,fp+".derivative");
-      // elasticitysample = FC(o,"",beta.rows(),1,fp+".elasticity");
+      fsample = FC(o,"",beta.rows(),beta.cols(),fp + ".lin");
+      paramlin = datamatrix(Dp->designlinear.cols(),1,0);
       }
+
+    paramsample = FC(o,"",param.rows(),1,fp + ".param");
+
+    helpcenter = datamatrix(designp->nrpar,1);
+
+    if (pvalue==true)
+      {
+      pvalue_sample = FC(o,"",param.rows()*2+6,1,fp + ".pvalue");
+      mPhelp = datamatrix(param.rows(),1,0);
+      }
+
+    if (computemeaneffect==true)
+      {
+      meaneffect_sample = FC(o,"",beta.rows(),1,fp+".meaneffect");
+      }
+
+    if (derivative == true)
+      {
+      if (designp->type==Mrf)
+        derivative = false;
+      else
+        {
+        derivativesample = FC(o,"",beta.rows(),1,fp+".derivative");
+        // elasticitysample = FC(o,"",beta.rows(),1,fp+".elasticity");
+        }
+      }
+
+    } // end: if designp->errors() == false
+  else
+    {
+    errors=true;
     }
 
-  check_errors();
+//  check_errors();
 
   }
 

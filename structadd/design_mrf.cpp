@@ -69,32 +69,39 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
                       : DESIGN(o,dp,fcl)
   {
 
-  read_options(op,vn);
+  if (errors==false)
+    {
 
-  ma = m;
-  type = Mrf;
+    read_options(op,vn);
 
+    ma = m;
+    type = Mrf;
 
-  nrpar = ma.get_nrregions();
-  consecutive=true;
+    nrpar = ma.get_nrregions();
+    consecutive=true;
 
-  Zout = datamatrix(nrpar,1,1);
-  index_Zout = statmatrix<int>(Zout.rows(),1);
-  index_Zout.indexinit();
+    Zout = datamatrix(nrpar,1,1);
+    index_Zout = statmatrix<int>(Zout.rows(),1);
+    index_Zout.indexinit();
+    }
 
-  init_data(dm,iv);
+  if (errors==false)
+    init_data(dm,iv);
 
-  compute_penalty();
+  if (errors==false)
+    {
+    compute_penalty();
 
-  XWX = envmatdouble(0,nrpar);
-  XWres = datamatrix(nrpar,1);
-  Wsum = datamatrix(nrpar,1,1);
+    XWX = envmatdouble(0,nrpar);
+    XWres = datamatrix(nrpar,1);
+    Wsum = datamatrix(nrpar,1,1);
 
-  compute_precision(1.0);
+    compute_precision(1.0);
 
-  compute_basisNull();
+    compute_basisNull();
 
-  identity=true;
+    identity=true;
+    }
   }
 
 
@@ -126,62 +133,75 @@ void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
 
   ma.compute_reg(dm,posbeg,posend,effectvalues,index_data);
 
-  vector<int> posbeg_help = posbeg;
-  vector<int> posend_help = posend;
-  vector<ST::string> effectvalues_help = effectvalues;
-
-  DESIGN::init_data(dm,iv);
-
-  posbeg = posbeg_help;
-  posend = posend_help;
-  effectvalues = effectvalues_help;
-
-  int k,j;
-  int * workindex = index_data.getV();
-  ind = statmatrix<unsigned>(dm.rows(),1);
-  for (j=0;j<posend.size();j++)
+  vector<ST::string> errormessages = ma.get_errormessages();
+  if (errormessages.size() >= 1)
     {
-
-    if (posbeg[j] != -1)
-      {
-      for (k=posbeg[j];k<=posend[j];k++,workindex++)
-        ind(*workindex,0) = j;
-      }
-    else
-      {
-      optionsp->out("NOTE: no observations for region " + effectvalues[j] + "\n");
-      }
-
+    errors=true;
+    unsigned i;
+    for (i=0;i<errormessages.size();i++)
+      optionsp->out(errormessages[i]);
     }
 
-
-  // TEST
-  /*
-  int j;
-  ofstream out2("c:\\bayesx\\testh\\results\\posend_neu.res");
-  for (j=0;j<posend.size();j++)
-    out2 << posend[j] << endl;
-
-  ofstream out2a("c:\\bayesx\\testh\\results\\posbeg_neu.res");
-  for (j=0;j<posbeg.size();j++)
-    out2a << posbeg[j] << endl;
-
-  ofstream out3("c:\\bayesx\\testh\\results\\effectvalues_neu.res");
-  for (j=0;j<effectvalues.size();j++)
-    out3 << effectvalues[j] << endl;
-
-  ofstream out4("c:\\bayesx\\testh\\results\\index_data_neu.res");
-  index_data.prettyPrint(out4);
-  */
-  // TEST
-
-
-  meaneffectnr = compute_modecategorie();
-
-  if (ma.get_errormessages().size() > 0)
+  if (errors==false)
     {
-//  FEHLT!!
-    }
+    vector<int> posbeg_help = posbeg;
+    vector<int> posend_help = posend;
+    vector<ST::string> effectvalues_help = effectvalues;
+
+    DESIGN::init_data(dm,iv);
+
+    posbeg = posbeg_help;
+    posend = posend_help;
+    effectvalues = effectvalues_help;
+
+    int k,j;
+    int * workindex = index_data.getV();
+    ind = statmatrix<unsigned>(dm.rows(),1);
+    for (j=0;j<posend.size();j++)
+      {
+
+      if (posbeg[j] != -1)
+        {
+        for (k=posbeg[j];k<=posend[j];k++,workindex++)
+          ind(*workindex,0) = j;
+        }
+      else
+        {
+        optionsp->out("NOTE: no observations for region " + effectvalues[j] + "\n");
+        }
+
+      }
+
+
+    // TEST
+    /*
+    int j;
+    ofstream out2("c:\\bayesx\\testh\\results\\posend_neu.res");
+    for (j=0;j<posend.size();j++)
+      out2 << posend[j] << endl;
+
+    ofstream out2a("c:\\bayesx\\testh\\results\\posbeg_neu.res");
+    for (j=0;j<posbeg.size();j++)
+      out2a << posbeg[j] << endl;
+
+    ofstream out3("c:\\bayesx\\testh\\results\\effectvalues_neu.res");
+    for (j=0;j<effectvalues.size();j++)
+      out3 << effectvalues[j] << endl;
+
+    ofstream out4("c:\\bayesx\\testh\\results\\index_data_neu.res");
+    index_data.prettyPrint(out4);
+    */
+    // TEST
+
+
+    meaneffectnr = compute_modecategorie();
+
+    if (ma.get_errormessages().size() > 0)
+      {
+      //  FEHLT!!
+      }
+
+    } // end: if (errors==false)
 
   }
 

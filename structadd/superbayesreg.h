@@ -125,7 +125,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   optionlist globaloptions;
 
-  // ---------------------  for method 'regress'  ------------------------------
+  // ---------------------  for method 'hregress'  ------------------------------
 
   vector<equation> equations;          // Vector of equations
   MCMCsim simobj;                      // Simulation object;
@@ -134,7 +134,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   bool generaloptions_yes;
   bool create_generaloptions(void);
 
-  // OPTIONS for method regress
+  bool errors;
+
+  // OPTIONS for method hregress
 
   simpleoption modeonly;               // Computes the posterior mode only
   intoption setseed;
