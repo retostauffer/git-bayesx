@@ -1019,6 +1019,7 @@ T statmatrix<T>::norm(unsigned col) const
 template<class T>
 T statmatrix<T>::euclidean_dist(unsigned col, const statmatrix<T> & A,
 const unsigned & colA) const
+
   {
 
 

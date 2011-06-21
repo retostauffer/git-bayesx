@@ -329,6 +329,7 @@ class adja;
   T euclidean_dist(unsigned col, const statmatrix<T> & A, const unsigned & colA) const;
 
 
+
   // FUNCTION: mean
   // TASK: computes the mean of the columns of the calling matrix
   //       returns a column vector of means
