@@ -286,6 +286,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   void create_pspline(unsigned i);
   bool create_mrf(unsigned i);
   bool create_kriging(unsigned i);
+  bool create_geokriging(unsigned i);
+
+  bool find_map(unsigned i,MAP::map & m);
 
 //------------------------ end for nonparametric terms -------------------------
 

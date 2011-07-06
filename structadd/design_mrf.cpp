@@ -136,6 +136,7 @@ void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
   vector<ST::string> errormessages = ma.get_errormessages();
   if (errormessages.size() >= 1)
     {
+    
     errors=true;
     unsigned i;
     for (i=0;i<errormessages.size();i++)

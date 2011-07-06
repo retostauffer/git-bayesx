@@ -87,6 +87,7 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("hrandom");
   tnames.push_back("spatial");
   tnames.push_back("kriging");
+  tnames.push_back("geokriging");
   tnames.push_back("hrandom_pspline");
   tnames.push_back("hrandomexp_pspline");
   tnames.push_back("ridge");
@@ -171,7 +172,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&family);
   regressoptions.push_back(&aresp);
   regressoptions.push_back(&bresp);
-  regressoptions.push_back(&H);  
+  regressoptions.push_back(&H);
   regressoptions.push_back(&hlevel);
   regressoptions.push_back(&equationnr);
   regressoptions.push_back(&equationtype);
@@ -1402,6 +1403,37 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   }
 
 
+bool  superbayesreg::find_map(unsigned i,MAP::map & m)
+    {
+
+    mapobject * mapp;
+
+    int objpos = findstatobject(*statobj,terms[i].options[8],"map");
+
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      mapp = dynamic_cast<mapobject*>(s);
+      m = mapp->getmap();
+      return false;
+      }
+    else
+      {
+      if (objpos == -1)
+        {
+        if ((terms[i].options[1] == "") || (terms[i].options[1] == " "))
+          outerror("ERROR: map object must be specified to estimate a spatial effect\n");
+        else
+          outerror("ERROR: map object " + terms[i].options[1] + " is not existing\n");
+        }
+      else
+        outerror("ERROR: " + terms[i].options[1] + " is not a map object\n");
+      return true;
+      }
+
+    }
+
+
 bool superbayesreg::create_mrf(unsigned i)
   {
 
@@ -1413,6 +1445,7 @@ bool superbayesreg::create_mrf(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,1);
 
+  /*
   mapobject * mapp;                           // pointer to mapobject
 
   int objpos = findstatobject(*statobj,terms[i].options[8],"map");
@@ -1437,6 +1470,12 @@ bool superbayesreg::create_mrf(unsigned i)
     }
 
   MAP::map m = mapp->getmap();
+  */
+
+  MAP::map m;
+  if (find_map(i,m) == true)
+    return true;
+
   bool isconnected = m.isconnected();
   if (isconnected==false)
     {
@@ -1513,6 +1552,79 @@ bool superbayesreg::create_kriging(unsigned i)
 
   return false;
   }
+
+
+bool superbayesreg::create_geokriging(unsigned i)
+  {
+
+  unsigned modnr = equations.size()-1;
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+             "_geokriging.raw","geokriging_effect_of",
+             "spatial effect (kriging) of ");
+
+  datamatrix d,iv;
+  extract_data(i,d,iv,1);
+
+  /*
+  mapobject * mapp;                           // pointer to mapobject
+
+  int objpos = findstatobject(*statobj,terms[i].options[8],"map");
+
+  if (objpos >= 0)
+    {
+    statobject * s = statobj->at(objpos);
+    mapp = dynamic_cast<mapobject*>(s);
+    }
+  else
+    {
+    if (objpos == -1)
+      {
+      if ((terms[i].options[1] == "") || (terms[i].options[1] == " "))
+        outerror("ERROR: map object must be specified to estimate a geokriging effect\n");
+      else
+        outerror("ERROR: map object " + terms[i].options[1] + " is not existing\n");
+      }
+    else
+      outerror("ERROR: " + terms[i].options[1] + " is not a map object\n");
+    return true;
+    }
+
+  MAP::map m = mapp->getmap();
+  */
+
+  MAP::map m;
+  if (find_map(i,m) == true)
+    return true;
+
+  design_krigings.push_back(DESIGN_kriging(d,iv,m,&generaloptions,
+                            equations[modnr].distrp,
+                           &FC_linears[FC_linears.size()-1],
+                            terms[i].options,terms[i].varnames));
+
+  FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,
+                     title, pathnonp,&design_krigings[design_krigings.size()-1],
+                     terms[i].options,terms[i].varnames));
+
+  equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
+
+  // variances
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+  "_geokriging_var.raw","variance_of_geokriging_effect_of",
+  "Variance of geokriging effect of ");
+
+  FC_nonp_variances.push_back(FC_nonp_variance(&master,
+                                &generaloptions,equations[modnr].distrp,
+                                title,pathnonp,&design_krigings[design_krigings.size()-1],
+                                &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                                terms[i].varnames));
+
+  equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
+
+  return false;
+  }
+
 
 
 bool superbayesreg::create_ridge_lasso(unsigned i)
@@ -1676,6 +1788,8 @@ bool superbayesreg::create_nonp(void)
         error = create_mrf(i);
       if (terms[i].options[0] == "kriging")
         error = create_kriging(i);
+      if (terms[i].options[0] == "geokriging")
+        error = create_geokriging(i);
       if ((terms[i].options[0] == "hrandom_pspline") ||
           (terms[i].options[0] == "hrandomexp_pspline"))
         error = create_random_pspline(i);

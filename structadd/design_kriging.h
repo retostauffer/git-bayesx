@@ -60,6 +60,15 @@ class __EXPORT_TYPE DESIGN_kriging : public DESIGN
 
   long nrknots;
 
+  // ---------------------- Variablen für geokriging ---------------------------
+
+  MAP::map ma;
+  bool mapexisting;
+  datamatrix regions;
+
+
+  // ---------------------- Variablen für geokriging ---------------------------
+
   datamatrix tildeZ_t;
 
   datamatrix XWXfull;
@@ -75,13 +84,24 @@ class __EXPORT_TYPE DESIGN_kriging : public DESIGN
 
   DESIGN_kriging(void);
 
+  void help_construct(const datamatrix & dmy,const datamatrix & iv,
+                 vector<ST::string> & op, vector<ST::string> & vn);
+
   // CONSTRUCTOR 1
-  // Spatial covariates
+  // x,y covariates
 
   DESIGN_kriging(const datamatrix & dm, const datamatrix & iv,
                  GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
                  vector<ST::string> & op,
                  vector<ST::string> & vn);
+
+  // CONSTRUCTOR 2
+  // spatial covariate
+
+  DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
+                 const MAP::map & mp,
+                 GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
+                 vector<ST::string> & op, vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR
 

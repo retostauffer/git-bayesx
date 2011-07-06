@@ -36,8 +36,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   centermethods.push_back("meanintegral");
   centermethods.push_back("meaninvvar");
   centermethods.push_back("nullspace");
-  centermethods.push_back("meansimple");
-  centermethods.push_back("meanf");
+  centermethods.push_back("meansimple");      // subtract mean from parameters
+  centermethods.push_back("meanf");           // sample centered f
   centermethods.push_back("meansum2");
   centermethod = stroption("centermethod",centermethods,"meanf");
   internal_multexp = simpleoption("internal_multexp",false);

@@ -105,10 +105,8 @@ DESIGN_kriging::DESIGN_kriging(void) : DESIGN()
   }
 
 
-DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
-                               GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
+void DESIGN_kriging::help_construct(const datamatrix & dmy, const datamatrix & iv,
                                vector<ST::string> & op, vector<ST::string> & vn)
-                               : DESIGN(o,dp,fcl)
   {
 
   center = false;
@@ -118,7 +116,7 @@ DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
 
   type = Grf;
 
-  init_data(dm,iv);
+  init_data(dmy,iv);
 
   compute_knots(xvalues,yvalues,nrknots,-20,20,xknots,yknots);
 //  xknots = xvalues;
@@ -153,6 +151,131 @@ DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
   WsumtildeZ = datamatrix(Zout.rows(),Zout.cols());
   Wsum = datamatrix(posbeg.size(),1,1);
 
+
+  }
+
+
+DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
+                               const MAP::map & mp,
+                               GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
+                               vector<ST::string> & op, vector<ST::string> & vn)
+                               : DESIGN(o,dp,fcl)
+  {
+
+  ma = mp;
+  mapexisting = true;
+  ma.sortmap();
+  regions=datamatrix(ma.get_nrregions(),3,0);
+  unsigned i;
+  ST::string rn;
+  MAP::region rh;
+  for (i=0;i<regions.rows();i++)
+    {
+    rn = ma.getname(i);
+    rh = ma.get_region(i);
+    rn.strtodouble(regions(i,0));
+    regions(i,1) = rh.get_xcenter();
+    regions(i,2) = rh.get_ycenter();
+    }
+
+  index_data = statmatrix<int>(dm.rows(),1);
+  index_data.indexinit();
+  dm.indexsort(index_data,0,dm.rows()-1,0,0);
+
+  datamatrix dmy(dm.rows(),2,0);
+  vector<ST::string> evh;
+  unsigned j=0;
+  evh.push_back(ST::doubletostring(regions(j,0)));
+  bool found;
+  for (i=0;i<dm.rows();i++)
+    {
+    found=false;
+    while (found==false)
+      {
+      if (dm(index_data(i,0),0) == regions(j,0))
+         {
+         dmy(index_data(i,0),0) = regions(j,1);
+         dmy(index_data(i,0),1) = regions(j,2);
+         found=true;
+         }
+       else
+         {
+         j++;
+         evh.push_back(ST::doubletostring(regions(j,0)));
+         }
+      }
+
+    }
+
+  help_construct(dmy,iv,op,vn);
+
+  // test
+  // ofstream out("c:\\bayesx\\testh\\results\\regions.res");
+  // dmy.prettyPrint(out);
+  // ende test
+
+  for(i=0;i<effectvalues.size();i++)
+   {
+   effectvalues[i] = evh[i] + "   " + effectvalues[i];
+   }
+
+  datanames[0] = datanames[0] + "   xcoord    ycoord"; 
+
+  }
+
+
+DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
+                               GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
+                               vector<ST::string> & op, vector<ST::string> & vn)
+                               : DESIGN(o,dp,fcl)
+  {
+
+  help_construct(dm,iv,op,vn);
+
+  /*
+  center = false;
+  full = true;
+
+  read_options(op,vn);
+
+  type = Grf;
+
+  init_data(dm,iv);
+
+  compute_knots(xvalues,yvalues,nrknots,-20,20,xknots,yknots);
+  //  xknots = xvalues;
+  //  yknots = yvalues;
+  nrpar = xknots.size();
+
+  // berechne rho
+  unsigned i,j;
+  rho=0;
+  double norm2;
+  for(i=0; i<xvalues.size(); i++)
+    {
+    for(j=0; j<xvalues.size(); j++)
+      {
+      norm2=(xvalues[i]-xvalues[j])*(xvalues[i]-xvalues[j])+
+      (yvalues[i]-yvalues[j])*(yvalues[i]-yvalues[j]);
+      if(norm2>rho)
+        {
+        rho=norm2;
+        }
+      }
+    }
+  rho=sqrt(rho)/maxdist;
+
+  compute_penalty();
+
+  compute_tildeZ();
+
+  XWres = datamatrix(nrpar,1);
+
+  XWXfull = datamatrix(nrpar,nrpar);
+  WsumtildeZ = datamatrix(Zout.rows(),Zout.cols());
+  Wsum = datamatrix(posbeg.size(),1,1);
+  */
+
   }
 
 
@@ -161,6 +284,11 @@ DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
 DESIGN_kriging::DESIGN_kriging(const DESIGN_kriging & m)
     : DESIGN(DESIGN(m))
   {
+
+  ma = m.ma;
+  mapexisting = m.mapexisting;
+  regions = m.regions;
+
   xknots = m.xknots;
   yknots = m.yknots;
   xvalues = m.xvalues;
@@ -182,6 +310,11 @@ const DESIGN_kriging & DESIGN_kriging::operator=(const DESIGN_kriging & m)
   if (this == &m)
     return *this;
   DESIGN::operator=(DESIGN(m));
+
+  ma = m.ma;
+  mapexisting = m.mapexisting;
+  regions = m.regions;
+
   xknots = m.xknots;
   yknots = m.yknots;
   xvalues = m.xvalues;
@@ -664,6 +797,8 @@ void DESIGN_kriging::outoptions(GENERAL_OPTIONS * op)
   }
 
 } // end: namespace MCMC
+
+
 
 
 
