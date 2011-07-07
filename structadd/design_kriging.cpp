@@ -110,6 +110,9 @@ void DESIGN_kriging::help_construct(const datamatrix & dmy, const datamatrix & i
   {
 
   center = false;
+
+//  center = true;
+
   full = true;
 
   read_options(op,vn);
@@ -178,9 +181,15 @@ DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
     regions(i,2) = rh.get_ycenter();
     }
 
-  index_data = statmatrix<int>(dm.rows(),1);
-  index_data.indexinit();
-  dm.indexsort(index_data,0,dm.rows()-1,0,0);
+  // test
+  // ofstream out("c:\\bayesx\\testh\\results\\regions.res");
+  // regions.prettyPrint(out);
+  // ende test
+
+
+  statmatrix<int> ind(dm.rows(),1);
+  ind.indexinit();
+  dm.indexsort(ind,0,dm.rows()-1,0,0);
 
   datamatrix dmy(dm.rows(),2,0);
   vector<ST::string> evh;
@@ -192,34 +201,38 @@ DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
     found=false;
     while (found==false)
       {
-      if (dm(index_data(i,0),0) == regions(j,0))
-         {
-         dmy(index_data(i,0),0) = regions(j,1);
-         dmy(index_data(i,0),1) = regions(j,2);
-         found=true;
-         }
-       else
-         {
-         j++;
-         evh.push_back(ST::doubletostring(regions(j,0)));
-         }
+      if (dm(ind(i,0),0) == regions(j,0))
+        {
+        dmy(ind(i,0),0) = regions(j,1);
+        dmy(ind(i,0),1) = regions(j,2);
+        found=true;
+        }
+      else
+        {
+        j++;
+        evh.push_back(ST::doubletostring(regions(j,0)));
+        }
       }
-
     }
 
-  help_construct(dmy,iv,op,vn);
-
   // test
-  // ofstream out("c:\\bayesx\\testh\\results\\regions.res");
+  // ofstream out("c:\\bayesx\\testh\\results\\dmy.res");
   // dmy.prettyPrint(out);
   // ende test
 
+
+  help_construct(dmy,iv,op,vn);
+
+
+
+  ST::string h;
   for(i=0;i<effectvalues.size();i++)
    {
-   effectvalues[i] = evh[i] + "   " + effectvalues[i];
+   h =   ST::doubletostring(dm(index_data(posbeg[i],0),0));
+   effectvalues[i] = h + "   " + effectvalues[i];
    }
 
-  datanames[0] = datanames[0] + "   xcoord    ycoord"; 
+  datanames[0] = datanames[0] + "   xcoord    ycoord";
 
   }
 
@@ -558,10 +571,12 @@ void DESIGN_kriging::init_data(const datamatrix & dm, const datamatrix & iv)
     }
 
   // TEST
-  // ofstream out("c:\\bayesx\\testh\\results\\sortdata.res");
-  // unsigned k;
-  // for(k=0;k<dm.rows();k++)
-  //  out << dm(index_data(k,0),0) << "  " << dm(index_data(k,0),1) << endl;
+  /*
+   ofstream out("c:\\bayesx\\testh\\results\\sortdata.res");
+   unsigned t;
+   for(t=0;t<dm.rows();t++)
+    out << dm(index_data(t,0),0) << "  " << dm(index_data(t,0),1) << endl;
+  */
   // TEST
 
 
@@ -622,6 +637,10 @@ void DESIGN_kriging::init_data(const datamatrix & dm, const datamatrix & iv)
   // ofstream out("c:\\bayesx\\testh\\results\\xvalues.res");
   // for (j=0;j<xvalues.size();j++)
   //   out << xvalues[j] << "  " << yvalues[j] << endl;
+
+  // ofstream out("c:\\bayesx\\testh\\results\\posbeg.res");
+  // for (j=0;j<posbeg.size();j++)
+  //   out << posbeg[j] << "  " << posend[j] << endl;
   // TEST
 
   // 4. initializes ind
@@ -650,7 +669,7 @@ void DESIGN_kriging::init_data(const datamatrix & dm, const datamatrix & iv)
   double distclosest,distcurrent;
   distclosest = pow(data(posbeg[0],0)-dm_mean1,2)+
                 pow(data(posbeg[0],1)-dm_mean2,2);
-                
+
   for(j=0;j<posbeg.size();j++)
     {
     d1 = data(posbeg[j],0);
@@ -765,8 +784,8 @@ void DESIGN_kriging::compute_XtransposedWX(void)
   XWXfull.mult(tildeZ_t,WsumtildeZ);
 
   // TEST
-  // ofstream out("c:\\bayesx\\testh\\results\\XWXfull.res");
-  // XWXfull.prettyPrint(out);
+  ofstream out("c:\\bayesx\\testh\\results\\XWXfull.res");
+  XWXfull.prettyPrint(out);
 
   }
 
