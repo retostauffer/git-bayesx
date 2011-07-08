@@ -179,4 +179,10 @@ class __EXPORT_TYPE graphobj : public statobject
   };
 
 
+void plotnonprun(graphobj & o);
+void drawmaprun(graphobj & o);
+void plotsamplerun(graphobj & o);
+void plotsurfrun(graphobj & o);
+void plotautocorrun(graphobj & o);
+
 #endif
