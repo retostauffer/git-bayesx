@@ -1,14 +1,14 @@
 
-#if !defined (FChrandomVARIANCEINCLUDED)
+#if !defined (FChrandomVARIANCEVECINCLUDED)
 
-#define FChrandomVARIANCEINCLUDED
+#define FChrandomVARIANCEVECINCLUDED
 
 #include"../export_type.h"
 #include"../values.h"
 #include<fstream>
 #include"GENERAL_OPTIONS.h"
 #include"clstring.h"
-#include"FC_nonp_variance.h"
+#include"FC_nonp_variance_vec.h"
 #include"design.h"
 #include<cmath>
 
@@ -16,22 +16,20 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: FC_hrandom_variance -----------------------
+//----------------------- CLASS: FC_hrandom_variance_vec -----------------------
 //------------------------------------------------------------------------------
 
 
-class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
+class __EXPORT_TYPE FC_hrandom_variance_vec  : public FC_nonp_variance_vec
   {
 
   protected:
-
-
 
   DISTR * likepRE;
 
   bool mult;
 
-  double compute_quadform(void);
+  double hyperLambda;
 
   public:
 
@@ -39,30 +37,31 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
 
   // DEFAULT CONSTRUCTOR
 
-  FC_hrandom_variance(void);
+  FC_hrandom_variance_vec(void);
 
   // CONSTRUCTOR
   // o    : pointer to GENERAL_OPTIONS object
   // t    : title of the full conditional (for example "fixed effects")
   // fp   : file path for storing sampled parameters
 
-  FC_hrandom_variance(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp, DISTR * lpRE,
-                      const ST::string & t, const ST::string & fp,DESIGN * dp,
-                      FC_nonp * FCn,vector<ST::string> & op,
-                      vector<ST::string> & vn);
+  FC_hrandom_variance_vec(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
+                          DISTR * lpRE, const ST::string & t,
+                          const ST::string & fp,DESIGN * dp,
+                          FC_nonp * FCn,vector<ST::string> & op,
+                          vector<ST::string> & vn);
 
   // COPY CONSTRUCTOR
 
-  FC_hrandom_variance(const FC_hrandom_variance & m);
+  FC_hrandom_variance_vec(const FC_hrandom_variance_vec & m);
 
 
   // OVERLOADED ASSIGNMENT OPERATOR
 
-  const FC_hrandom_variance & operator=(const FC_hrandom_variance & m);
+  const FC_hrandom_variance_vec & operator=(const FC_hrandom_variance_vec & m);
 
   // DESTRUCTOR
 
-  ~FC_hrandom_variance()
+  ~FC_hrandom_variance_vec()
     {
     }
 

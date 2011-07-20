@@ -288,6 +288,7 @@ class __EXPORT_TYPE DESIGN
   // TASK: computes the penalty matrix and determines rankK
 
   virtual void compute_penalty(void);
+  virtual void compute_penalty2(const datamatrix & par);
 
   virtual double penalty_compute_quadform(datamatrix & beta);
 

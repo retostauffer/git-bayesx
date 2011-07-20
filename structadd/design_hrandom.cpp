@@ -119,6 +119,26 @@ void DESIGN_hrandom::compute_penalty(void)
   }
 
 
+void DESIGN_hrandom::compute_penalty2(const datamatrix & pen)
+  {
+  if (K.getDim() != pen.rows())
+    {
+    K =   envmatrix<double>(1,nrpar);
+    rankK = nrpar;
+    }
+  else
+    {
+    unsigned i;
+    double * workpen = pen.getV();
+    for (i=0;i<pen.rows();i++,workpen++)
+      {
+      K.setDiag(i,1/(*workpen));
+      }
+    }
+  }
+
+
+
 void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
   {
 

@@ -11,7 +11,7 @@ namespace MCMC
 {
 
 
-void FC_hrandom_variance::read_options(vector<ST::string> & op,
+void FC_hrandom_variance_vec::read_options(vector<ST::string> & op,
 vector<ST::string> & vn)
   {
 
@@ -32,7 +32,6 @@ vector<ST::string> & vn)
   12      internal_mult
   */
 
-  FC_nonp_variance::read_options(op,vn);
 
   if (op[12] == "true")
     {
@@ -46,59 +45,69 @@ vector<ST::string> & vn)
     mult = false;
     }
 
+
   }
 
 
-FC_hrandom_variance::FC_hrandom_variance(void)
+FC_hrandom_variance_vec::FC_hrandom_variance_vec(void)
   {
 
   }
 
 
-FC_hrandom_variance::FC_hrandom_variance(MASTER_OBJ * mp,
+FC_hrandom_variance_vec::FC_hrandom_variance_vec(MASTER_OBJ * mp,
                  GENERAL_OPTIONS * o,DISTR * lp,
                   DISTR * lpRE,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                  vector<ST::string> & vn)
-     : FC_nonp_variance(mp,o,lp,t,fp,Dp,FCn,op,vn)
+     : FC_nonp_variance_vec(mp,o,lp,t,fp,Dp,FCn,op,vn)
   {
   read_options(op,vn);
   likepRE = lpRE;
+
+  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
+
+//  hyperLambda=rand_gamma(a_invgamma,b_invgamma);
+  hyperLambda=0.1;
   }
 
 
-FC_hrandom_variance::FC_hrandom_variance(const FC_hrandom_variance & m)
-  : FC_nonp_variance(FC_nonp_variance(m))
+FC_hrandom_variance_vec::FC_hrandom_variance_vec(const FC_hrandom_variance_vec & m)
+  : FC_nonp_variance_vec(FC_nonp_variance_vec(m))
   {
   likepRE = m.likepRE;
   mult = m.mult;
+  hyperLambda=m.hyperLambda;
   }
 
 
-const FC_hrandom_variance & FC_hrandom_variance::operator=(
-const FC_hrandom_variance & m)
+const FC_hrandom_variance_vec & FC_hrandom_variance_vec::operator=(
+const FC_hrandom_variance_vec & m)
   {
 
   if (this==&m)
 	 return *this;
-  FC_nonp_variance::operator=(FC_nonp_variance(m));
+  FC_nonp_variance_vec::operator=(FC_nonp_variance_vec(m));
   likepRE = m.likepRE;
   mult = m.mult;
+  hyperLambda=m.hyperLambda;
   return *this;
   }
 
 
-double FC_hrandom_variance::compute_quadform(void)
+
+void FC_hrandom_variance_vec::update(void)
   {
 
-  unsigned n;
-  double sum = 0;
-  double * workbeta = FCnonpp->beta.getV();
+  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
+
   register unsigned i;
+  double * workbeta = beta.getV();
+  double * workbetafcn = FCnonpp->beta.getV();
 
-  n = FCnonpp->beta.rows();
-
+  double hyperLambda2 = hyperLambda*hyperLambda;
+  double sumtau2 = 0;
 
   double * linpredREp;
   if (likepRE->linpred_current==1)
@@ -106,50 +115,39 @@ double FC_hrandom_variance::compute_quadform(void)
   else
     linpredREp = likepRE->linearpred2.getV();
 
-  for(i=0;i<n;i++,workbeta++,linpredREp++)
+  double * ww = likepRE->workingweight.getV();
+
+  for (i=0;i<beta.rows();i++,workbeta++,workbetafcn++,ww++)
     {
-    sum += pow(*workbeta-(*linpredREp),2);
+    *workbeta = rand_inv_gaussian(fabs(hyperLambda)/
+    fabs((*workbetafcn - (*linpredREp))),hyperLambda2);
+    *ww = 1/(*workbeta);
+    sumtau2 += (*workbeta);
     }
 
-  return sum;
+  hyperLambda = sqrt(rand_gamma(a_invgamma+beta.rows(),b_invgamma+0.5*sumtau2));
 
-  }
+  FCnonpp->tau2 = 1;
+  designp->compute_penalty2(beta);
 
-  
-/*
-void FC_hrandom_variance::transform_beta(void)
-  {
-  if (mult)
-    transform(0,0) = 1;
-  else
-    FC_nonp_variance::transform_beta();
-  }
-*/
+  likepRE->sigma2 = 1;
 
-void FC_hrandom_variance::update(void)
-  {
 
-  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
 
-  beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
-                                  b_invgamma+0.5*compute_quadform());
-
-  beta(0,1) = likep->get_scale()/beta(0,0);
-
-  FCnonpp->tau2 = beta(0,0);
-  likepRE->sigma2=beta(0,0);
-
-//  transform_beta();
   acceptance++;
   FC::update();
 
   }
 
 
-bool FC_hrandom_variance::posteriormode(void)
+bool FC_hrandom_variance_vec::posteriormode(void)
   {
-  return  FC_nonp_variance::posteriormode();
+  likepRE->wtype=wweightschange_weightsone;
+  return  FC_nonp_variance_vec::posteriormode();
   }
+
+
+
 
 
 } // end: namespace MCMC

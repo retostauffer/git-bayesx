@@ -160,6 +160,8 @@ void superbayesreg::create_hregress(void)
 
   quantile = doubleoption("quantile",0.5,0.001,0.999);
 
+  includescale = simpleoption("includescale",false);
+
   regressoptions.reserve(100);
 
   regressoptions.push_back(&modeonly);
@@ -183,6 +185,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&centerlinear);
   regressoptions.push_back(&quantile);
   regressoptions.push_back(&cv);
+  regressoptions.push_back(&includescale);    
 
 
   // methods 0
@@ -335,6 +338,12 @@ void superbayesreg::clear(void)
   FC_hrandom_variances.end());
   FC_hrandom_variances.reserve(50);
 
+
+  FC_hrandom_variance_vecs.erase(FC_hrandom_variance_vecs.begin(),
+  FC_hrandom_variance_vecs.end());
+  FC_hrandom_variance_vecs.reserve(50);
+
+
   FC_predicts.erase(FC_predicts.begin(),FC_predicts.end());
   FC_predicts.reserve(30);
 
@@ -434,6 +443,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
 
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
+  FC_hrandom_variance_vecs = b.FC_hrandom_variance_vecs;  
 
   design_krigings = b.design_krigings;
   design_mrfs = b.design_mrfs;
@@ -502,6 +512,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
+  FC_hrandom_variance_vecs = b.FC_hrandom_variance_vecs;
 
   design_krigings = b.design_krigings;
   design_mrfs = b.design_mrfs;
@@ -1313,14 +1324,36 @@ bool superbayesreg::create_hrandom(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_hrandom_var.raw","variance_of_random_effect_of","Variance of random effect of ");
 
-  FC_hrandom_variances.push_back(FC_hrandom_variance(&master,
-                                  &generaloptions,equations[modnr].distrp,
-                                 equations[fnr].distrp,
-                                title,pathnonp,&design_hrandoms[design_hrandoms.size()-1],
-                                &FC_hrandoms[FC_hrandoms.size()-1],terms[i].options,
-                                terms[i].varnames));
+  if (terms[i].options[35] == "iid")
+    {
+    FC_hrandom_variances.push_back(FC_hrandom_variance(&master,
+                                   &generaloptions,equations[modnr].distrp,
+                                   equations[fnr].distrp,
+                                  title,pathnonp,
+                                  &design_hrandoms[design_hrandoms.size()-1],
+                                  &FC_hrandoms[FC_hrandoms.size()-1],
+                                  terms[i].options, terms[i].varnames));
 
-  equations[modnr].add_FC(&FC_hrandom_variances[FC_hrandom_variances.size()-1],pathres);
+    equations[modnr].add_FC(&FC_hrandom_variances[FC_hrandom_variances.size()-1],pathres);
+
+    }
+  else if (terms[i].options[35] == "lasso")
+    {
+
+    FC_hrandom_variance_vecs.push_back(FC_hrandom_variance_vec(&master,
+                                   &generaloptions,equations[modnr].distrp,
+                                   equations[fnr].distrp,
+                                  title,pathnonp,
+                                  &design_hrandoms[design_hrandoms.size()-1],
+                                  &FC_hrandoms[FC_hrandoms.size()-1],
+                                  terms[i].options, terms[i].varnames));
+
+    equations[modnr].add_FC(&FC_hrandom_variance_vecs[FC_hrandom_variance_vecs.size()-1],pathres);
+
+    }
+
+
+
 
   return false;
 

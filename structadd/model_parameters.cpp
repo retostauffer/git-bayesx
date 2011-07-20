@@ -72,6 +72,14 @@ term_nonp::term_nonp(vector<ST::string> & na)
   tau2 = doubleoption("tau2",1,0.000000000001,100000000);
   meaneffectconst = doubleoption("meaneffectconst",0,-10000000,10000000);
 
+  vector<ST::string> priors;
+  priors.push_back("iid");
+  priors.push_back("lasso");
+  priors.push_back("dirichlet");
+
+  prior = stroption("prior",priors,"iid");
+
+
   }
 
 void term_nonp::setdefault(void)
@@ -110,6 +118,7 @@ void term_nonp::setdefault(void)
   adaptiveshrinkage.setdefault();
   tau2.setdefault();
   meaneffectconst.setdefault();
+  prior.setdefault();
   }
 
 
@@ -194,6 +203,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&adaptiveshrinkage);
     optlist.push_back(&tau2);
     optlist.push_back(&meaneffectconst);
+    optlist.push_back(&prior);
 
 
     unsigned i;
@@ -319,6 +329,8 @@ bool term_nonp::check(term & t)
     t.options[33] = ST::doubletostring(tau2.getvalue());
 
     t.options[34] = ST::doubletostring(meaneffectconst.getvalue());
+
+    t.options[35] = prior.getvalue();
 
     setdefault();
     return true;

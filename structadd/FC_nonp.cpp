@@ -783,6 +783,7 @@ void FC_nonp::update_gaussian(void)
         )
       designp->compute_precision(lambda);
 
+      
     double * work = paramhelp.getV();
     unsigned i;
     unsigned nrpar = param.rows();

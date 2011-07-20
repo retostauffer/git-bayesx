@@ -29,8 +29,10 @@
 #include"FC_hrandom.h"
 #include"FC_mult.h"
 #include"FC_nonp_variance.h"
+#include"FC_nonp_variance_vec.h"
 #include"FC_variance_pen_vector.h"
 #include"FC_hrandom_variance.h"
+#include"FC_hrandom_variance_vec.h"
 #include"FC_cv.h"
 
 #include"mcmcsim.h"
@@ -74,6 +76,8 @@ using MCMC::FC_hrandom;
 using MCMC::FC_nonp_variance;
 using MCMC::FC_hrandom_variance;
 using MCMC::FC_variance_pen_vector;
+using MCMC::FC_nonp_variance_vec;
+using MCMC::FC_hrandom_variance_vec;
 
 using MCMC::MCMCsim;
 
@@ -167,6 +171,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   stroption equationtype;               // type of equation, e.g. mean, variance
 
 
+  simpleoption includescale;            // multiply error variance to penalty
+                                        // matrices
 
   // prediction
   vector<ST::string> predictop;
@@ -297,6 +303,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DESIGN_hrandom>  design_hrandoms;
   vector<FC_hrandom> FC_hrandoms;
   vector<FC_hrandom_variance> FC_hrandom_variances;
+  vector<FC_hrandom_variance_vec> FC_hrandom_variance_vecs;
 
   bool create_hrandom(unsigned i);
 

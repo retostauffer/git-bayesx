@@ -54,6 +54,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   simpleoption adaptiveshrinkage;
   doubleoption tau2;
   doubleoption meaneffectconst;
+  stroption prior;
 
   vector<ST::string> termnames;
 
