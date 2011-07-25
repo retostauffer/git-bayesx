@@ -746,6 +746,7 @@ void DISTR::outresults_predictive_check(datamatrix & D,datamatrix & sr)
   optionsp->out("\n");
   }
 
+
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian --------------------------
 //------------------------------------------------------------------------------
@@ -851,10 +852,11 @@ void DISTR_gaussian::sample_responses(unsigned i,datamatrix & sr)
 
   double * rp = sr.getV()+i;
 
+  double * wweightp  = workingweight.getV();
+
   unsigned j;
-  for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
-//    *rp = trmult*(*linpredp+sqrt(sigma2)*rand_normal());
-        *rp = *linpredp+sqrt(sigma2)*rand_normal();
+  for (j=0;j<nrobs;j++,linpredp++,wweightp++,rp+=sr.cols())
+    *rp = *linpredp+sqrt(sigma2)/sqrt(*wweightp)*rand_normal();
   }
 
 // linpred already transformed
@@ -960,17 +962,6 @@ void DISTR_gaussian::update(void)
 
   }
 
-/*
-void DISTR_gaussian::compute_mu(const double * linpred,double * mu,
-                                bool notransform)
-  {
-  if (!notransform)
-    *mu = trmult * (*linpred);
-  else
-    *mu = (*linpred);
-  }
-*/
-
 
 void DISTR_gaussian::compute_mu(const double * linpred,double * mu)
   {
@@ -1017,7 +1008,7 @@ double DISTR_gaussian::compute_MSE(const double * response,
       u = *response - ( *linpred +
       sqrt(FCsigma2.betamean(0,0)/(*weight))* randnumbers::invPhi2(v) );
       }
-      
+
     if (u >= 0)
       return u*v;
     else
@@ -1257,6 +1248,508 @@ double DISTR_gaussian::get_scalemean(void)
   {
   return FCsigma2.betamean(0,0);
   }
+
+
+//------------------------------------------------------------------------------
+//----------------------------- DISTR_vargaussian ------------------------------
+//------------------------------------------------------------------------------
+
+  void check_errors(void);
+
+  // CONSTRUCTOR1
+  // TASK: initializes data
+  //       response = r
+  //       weight = w
+  //       nrobs = r.rows()
+
+  DISTR_vargaussian::DISTR_vargaussian(GENERAL_OPTIONS * o,const datamatrix & r)
+   : DISTR(o,r)
+    {
+
+    }
+
+  // COPY CONSTRUCTOR
+
+  DISTR_vargaussian::DISTR_vargaussian(const DISTR_vargaussian & d)
+     : DISTR(DISTR(d))
+    {
+
+    dgaussian = d.dgaussian;
+    }
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_vargaussian & DISTR_vargaussian::operator=(
+                                               const DISTR_vargaussian & d)
+    {
+    if (this==&d)
+      return *this;
+    DISTR::operator=(DISTR(d));
+    dgaussian = d.dgaussian;
+    }
+
+/*
+  //----------------------------------------------------------------------------
+  //------------------------------ WRITING OPTIONS -----------------------------
+  //----------------------------------------------------------------------------
+
+  // FUNCTION: outoptions
+  // TASK: writing options
+
+  void outoptions(void);
+
+  //----------------------------------------------------------------------------
+  //----------------------- COMPUTING THE LOGLIKELIHOOD ------------------------
+  //----------------------------------------------------------------------------
+
+  // FUNCTION: loglikelihood
+  // TASK: computes the loglikelihood for a single observation
+
+  double loglikelihood(double * res,double * lin,double * weight) const;
+
+  double loglikelihood_weightsone(double * res,double * lin) const;
+
+  //----------------------------------------------------------------------------
+  //------------------------------- COMPUTE mu ---------------------------------
+  //----------------------------------------------------------------------------
+
+  void compute_mu(const double * linpred,double * mu);
+
+
+  void compute_deviance(const double * response,
+                           const double * weight,
+                           const double * mu, double * deviance,
+                           double * deviancesat,
+                           double * scale) const;
+
+
+  //----------------------------------------------------------------------------
+  //------------------------------- COMPUTE MSE --------------------------------
+  //----------------------------------------------------------------------------
+
+  double compute_MSE(const double * response, const double * weight,
+                             const double * linpred, msetype t, double v);
+
+
+
+  //----------------------------------------------------------------------------
+  //----------------------------- IWLS Algorithm -------------------------------
+  //----------------------------------------------------------------------------
+
+  // FUNCTION: compute_IWLS (for one observation)
+  // TASK: computes the iwls weights (will be stored in workingweight),
+  //       tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
+  //       the loglikelihood (will be returned)
+
+  //       type: wweightschange_weightsneqone
+
+  double compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse,const bool & like);
+
+  // FUNCTION: compute_IWLS (for one observation)
+  // TASK: computes the iwls weights (will be stored in workingweight),
+  //       tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
+  //       the loglikelihood stored in like (only if compute_like = true)
+  //       assumes that weighs=1 (for all observations)
+
+  void compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like);
+
+
+  // FUNCTION: compute_IWLS (for one observation)
+  // TASK: computes tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
+  //       the loglikelihood stored in like (only if compute_like = true)
+  //       assumes that workingweighs=constant (for all observations), i.e.
+  //       they are not recomputed in the function
+
+  //       wweightsnochange_constant
+
+  void compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  // FUNCTION: compute_IWLS (for one observation)
+  // TASK: computes tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
+  //       the loglikelihood stored in like (only if compute_like = true)
+  //       assumes that workingweighs=1 (for all observations), must be set
+  //       to one in advance
+
+  void compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  //----------------------------------------------------------------------------
+  //----------------------- POSTERIORMODE FUNCTIONS ----------------------------
+  //----------------------------------------------------------------------------
+
+  // FUNCTION: posteriormode
+  // TASK: computes the posterior mode
+
+  bool posteriormode(void);
+
+  //----------------------------------------------------------------------------
+  //--------------------------- UPDATE FUNCTIONS -------------------------------
+  //----------------------------------------------------------------------------
+
+  // FUNCTION: update
+  // TASK: base function for inherited classes,
+  //       should update the scale parameter
+  //       the base function updates the estimated mean and variance
+  //       of the scale parameter only
+
+  void update(void);
+
+  */
+
+
+//------------------------------------------------------------------------------
+//-------------------- CLASS DISTRIBUTION_hetgaussian --------------------------
+//------------------------------------------------------------------------------
+/*
+DISTR_hetgaussian::DISTR_hetgaussian(double a,double b, GENERAL_OPTIONS * o,
+                                     DISTR_vargaussian * dv,
+                                     const datamatrix & r,
+                                     const datamatrix & w)
+  : DISTR_gaussian(a,b,o,r,"",w)
+
+  {
+
+  dvargaussian = dv;
+
+  if (check_weightsone())
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+
+  family = "Heteroscedastic Gaussian";
+
+  sigma2=1;
+  }
+
+
+const DISTR_hetgaussian & DISTR_hetgaussian::operator=(
+                                      const DISTR_hetgaussian & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gaussian::operator=(DISTR_gaussian(nd));
+  dvargaussian = nd.dvargaussian;
+  return *this;
+  }
+
+
+DISTR_hetgaussian::DISTR_hetgaussian(const DISTR_hetgaussian & nd)
+   : DISTR_gaussian(DISTR_gaussian(nd))
+  {
+  dvargaussian = nd.dvargaussian;
+  }
+
+
+void DISTR_hetgaussian::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function: identity\n");
+
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_hetgaussian::update(void)
+  {
+
+  DISTR_gaussian::update();
+
+  }
+
+
+
+
+void DISTR_gaussian::compute_deviance(const double * response,
+                                 const double * weight, const double * mu,
+                                 double * deviance, double * deviancesat,
+                                 double * scale) const
+  {
+  if (*weight == 0)
+    {
+    *deviance = 0;
+    *deviancesat = 0;
+    }
+  else
+    {
+    double r = *response-*mu;
+    *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
+    *deviancesat = (*weight/(*scale))*r*r;
+    }
+  }
+
+
+double DISTR_gaussian::compute_MSE(const double * response,
+                          const double * weight,
+                          const double * linpred, msetype t, double v)
+  {
+  if (t == quadraticMSE)
+    return pow(*response-*linpred,2);
+  else
+    {
+    double u;
+
+    if (*weight == 0)
+      {
+      u = *response - ( *linpred +
+      sqrt(FCsigma2.betamean(0,0))* randnumbers::invPhi2(v) );
+      }
+    else
+      {
+      u = *response - ( *linpred +
+      sqrt(FCsigma2.betamean(0,0)/(*weight))* randnumbers::invPhi2(v) );
+      }
+
+    if (u >= 0)
+      return u*v;
+    else
+      return u*(v-1);
+    }
+  }
+
+
+double DISTR_gaussian::loglikelihood(double * res, double * lin,
+                                     double * w) const
+  {
+  if (*w==0)
+    return 0;
+  else
+    {
+    double help = *res-*lin;
+    return  - *w * (pow(help,2))/(2* sigma2);
+    }
+  }
+
+
+double DISTR_gaussian::loglikelihood_weightsone(double * res, double * lin) const
+  {
+  double help = *res-*lin;
+  return  - (pow(help,2))/(2* sigma2);
+  }
+
+
+double DISTR_gaussian::compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse, const bool & like)
+  {
+  *workingweight=*weight;
+  *workingresponse = *response;
+  if (like && (*weight != 0))
+    return  - *weight * (pow(*response-(*linpred),2))/(2* sigma2);
+  else
+    return 0;
+  }
+
+
+void DISTR_gaussian::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  *workingweight=1;
+  *workingresponse = *response;
+  if (compute_like)
+    like -=  (pow(*response-(*linpred),2))/(2* sigma2);
+
+  }
+
+
+void DISTR_gaussian::compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  *workingresponse = *response;
+  if (compute_like && *workingweight!=0)
+    like  -= *workingweight * (pow(*response-(*linpred),2))/(2* sigma2);
+  }
+
+
+void DISTR_gaussian::compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  *workingresponse = *response;
+  if (compute_like)
+    like -=  (pow(*response-(*linpred),2))/(2* sigma2);
+  }
+
+
+bool DISTR_gaussian::posteriormode(void)
+  {
+
+  unsigned i;
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * workresp = workingresponse.getV();
+  double * workweight = weight.getV();
+
+  double sum = 0;
+  double sumweight=0;
+  double help;
+
+  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
+    {
+    help = *workresp - *worklin;
+    sum += *workweight*pow(help,2);
+    sumweight+=*workweight;
+    }
+
+  sigma2 = (1.0/sumweight)*sum;
+
+  FCsigma2.beta(0,0) = sigma2;
+
+  FCsigma2.posteriormode_betamean();
+
+  return true;
+
+  }
+
+
+void DISTR_gaussian::outresults(ST::string pathresults)
+  {
+  DISTR::outresults();
+
+  ofstream out1;
+  ofstream out2;
+
+  FCsigma2.outresults(out1,out2,"");
+
+
+  ST::string l1 = ST::doubletostring(optionsp->lower1,4);
+  ST::string l2 = ST::doubletostring(optionsp->lower2,4);
+  ST::string u1 = ST::doubletostring(optionsp->upper1,4);
+  ST::string u2 = ST::doubletostring(optionsp->upper2,4);
+
+  ST::string nl1 = ST::doubletostring(optionsp->lower1,4);
+  ST::string nl2 = ST::doubletostring(optionsp->lower2,4);
+  ST::string nu1 = ST::doubletostring(optionsp->upper1,4);
+  ST::string nu2 = ST::doubletostring(optionsp->upper2,4);
+  nl1 = nl1.replaceallsigns('.','p');
+  nl2 = nl2.replaceallsigns('.','p');
+  nu1 = nu1.replaceallsigns('.','p');
+  nu2 = nu2.replaceallsigns('.','p');
+
+  double help;
+
+  optionsp->out("  SCALE PARAMETER:\n",true);
+  optionsp->out("\n");
+
+
+  ST::string vstr;
+
+  vstr = "    Mean:         ";
+  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+        ST::doubletostring(FCsigma2.betamean(0,0),6) + "\n");
+
+  if (optionsp->samplesize > 1)
+    {
+    vstr = "    Std. dev.:    ";
+    if (FCsigma2.betavar(0,0) < 0)
+      help = 0;
+    else
+      help = sqrt(FCsigma2.betavar(0,0));
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(help,6) + "\n");
+
+    vstr = "    " + l1 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(FCsigma2.betaqu_l1_lower(0,0),6) + "\n");
+
+    vstr = "    " + l2 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(FCsigma2.betaqu_l2_lower(0,0),6) + "\n");
+
+    vstr = "    50% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(FCsigma2.betaqu50(0,0),6) + "\n");
+
+    vstr = "    " + u1 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(FCsigma2.betaqu_l2_upper(0,0),6) + "\n");
+
+    vstr = "    " + u2 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(FCsigma2.betaqu_l1_upper(0,0),6) + "\n");
+    }
+
+
+  if (pathresults.isvalidfile() != 1)
+    {
+
+    optionsp->out("\n");
+
+    optionsp->out("    Results for variance parameter are also stored in file\n");
+    optionsp->out("    " +  pathresults + "\n");
+    optionsp->out("\n");
+
+    ofstream outscale(pathresults.strtochar());
+
+    if (optionsp->samplesize > 1)
+      {
+      outscale << "pmean   pstddev   pqu" << nl1 << "   pqu" << nl2 <<
+                "   pqu50   pqu" << nu1 << "   pqu" << nu2 << endl;
+      }
+    else
+      {
+      outscale << "pmean" << endl;
+      }
+
+    outscale << FCsigma2.betamean(0,0) << "  ";
+
+    if (optionsp->samplesize > 1)
+      {
+      if (FCsigma2.betavar(0,0) < 0)
+        help = 0;
+      else
+        help = sqrt(FCsigma2.betavar(0,0));
+      outscale << help << "  ";
+
+      outscale << FCsigma2.betaqu_l1_lower(0,0) << "  ";
+
+      outscale << FCsigma2.betaqu_l2_lower(0,0) << "  ";
+
+      outscale << FCsigma2.betaqu50(0,0) << "  ";
+
+      outscale << FCsigma2.betaqu_l2_upper(0,0) << "  ";
+
+      outscale << FCsigma2.betaqu_l1_upper(0,0) << "  ";
+      }
+
+    outscale << endl;
+    }
+
+  optionsp->out("\n");
+
+  }
+
+
+*/
 
 
 //------------------------------------------------------------------------------
