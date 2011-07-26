@@ -47,6 +47,7 @@ using MCMC::GENERAL_OPTIONS;
 
 using MCMC::DISTR;
 using MCMC::DISTR_gaussian;
+using MCMC::DISTR_vargaussian;
 using MCMC::DISTR_gaussianmixture;
 using MCMC::DISTR_quantreg;
 using MCMC::DISTR_loggaussian;
@@ -204,6 +205,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 //---------------------------------- DISTR  ------------------------------------
 
   vector<DISTR_gaussian> distr_gaussians;
+  vector<DISTR_vargaussian> distr_vargaussians;
   vector<DISTR_quantreg> distr_quantregs;
   vector<DISTR_gaussianmixture> distr_gaussianmixtures;
   vector<DISTR_loggaussian> distr_loggaussians;

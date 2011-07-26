@@ -733,14 +733,16 @@ class __EXPORT_TYPE DISTR_vargaussian  : public DISTR
 
   protected:
 
-  DISTR_gaussian * dgaussian;
+  double sigma2old;
 
   public:
+
+  DISTR_gaussian * dgaussian;
 
 //------------------------------------------------------------------------------
 //------------------------------- ERRORS ---------------------------------------
 
-  void check_errors(void);
+  // void check_errors(void);
 
 //------------------------------------------------------------------------------
 //--------------------------- CONSTRUCTORS -------------------------------------
@@ -774,15 +776,6 @@ class __EXPORT_TYPE DISTR_vargaussian  : public DISTR
   ~DISTR_vargaussian() {}
 
   //----------------------------------------------------------------------------
-  //------------------------------ WRITING OPTIONS -----------------------------
-  //----------------------------------------------------------------------------
-
-  // FUNCTION: outoptions
-  // TASK: writing options
-
-  void outoptions(void);
-
-  //----------------------------------------------------------------------------
   //----------------------- COMPUTING THE LOGLIKELIHOOD ------------------------
   //----------------------------------------------------------------------------
 
@@ -791,12 +784,10 @@ class __EXPORT_TYPE DISTR_vargaussian  : public DISTR
 
   double loglikelihood(double * res,double * lin,double * weight) const;
 
-  double loglikelihood_weightsone(double * res,double * lin) const;
-
   //----------------------------------------------------------------------------
   //------------------------------- COMPUTE mu ---------------------------------
   //----------------------------------------------------------------------------
-
+  /*
   void compute_mu(const double * linpred,double * mu);
 
 
@@ -814,7 +805,7 @@ class __EXPORT_TYPE DISTR_vargaussian  : public DISTR
   double compute_MSE(const double * response, const double * weight,
                              const double * linpred, msetype t, double v);
 
-
+  */
 
   //----------------------------------------------------------------------------
   //----------------------------- IWLS Algorithm -------------------------------
@@ -831,45 +822,6 @@ class __EXPORT_TYPE DISTR_vargaussian  : public DISTR
                               double * weight, double * workingweight,
                               double * workingresponse,const bool & like);
 
-  // FUNCTION: compute_IWLS (for one observation)
-  // TASK: computes the iwls weights (will be stored in workingweight),
-  //       tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
-  //       the loglikelihood stored in like (only if compute_like = true)
-  //       assumes that weighs=1 (for all observations)
-
-  void compute_iwls_wweightschange_weightsone(
-                                         double * response, double * linpred,
-                                         double * workingweight,
-                                         double * workingresponse,double & like,
-                                         const bool & compute_like);
-
-
-  // FUNCTION: compute_IWLS (for one observation)
-  // TASK: computes tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
-  //       the loglikelihood stored in like (only if compute_like = true)
-  //       assumes that workingweighs=constant (for all observations), i.e.
-  //       they are not recomputed in the function
-
-  //       wweightsnochange_constant
-
-  void compute_iwls_wweightsnochange_constant(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-  // FUNCTION: compute_IWLS (for one observation)
-  // TASK: computes tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
-  //       the loglikelihood stored in like (only if compute_like = true)
-  //       assumes that workingweighs=1 (for all observations), must be set
-  //       to one in advance
-
-  void compute_iwls_wweightsnochange_one(double * response,
-                                              double * linpred,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
 
   //----------------------------------------------------------------------------
   //----------------------- POSTERIORMODE FUNCTIONS ----------------------------
@@ -893,8 +845,6 @@ class __EXPORT_TYPE DISTR_vargaussian  : public DISTR
   void update(void);
 
   }; // end: class DISTR_vargaussian
-
-
 
 
 //------------------------------------------------------------------------------

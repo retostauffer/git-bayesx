@@ -113,8 +113,10 @@ void superbayesreg::create_hregress(void)
   level1 = doubleoption("level1",95,40,99);
   level2 = doubleoption("level2",80,40,99);
 
-  families.reserve(20);
+  families.reserve(40);
   families.push_back("gaussian");
+  families.push_back("hetgaussian");
+  families.push_back("vargaussian");
   families.push_back("gaussian_mixture");
   families.push_back("loggaussian");
   families.push_back("quantreg");
@@ -185,7 +187,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&centerlinear);
   regressoptions.push_back(&quantile);
   regressoptions.push_back(&cv);
-  regressoptions.push_back(&includescale);    
+  regressoptions.push_back(&includescale);
 
 
   // methods 0
@@ -261,6 +263,9 @@ void superbayesreg::clear(void)
 
   distr_gaussians.erase(distr_gaussians.begin(),distr_gaussians.end());
   distr_gaussians.reserve(20);
+
+  distr_vargaussians.erase(distr_vargaussians.begin(),distr_vargaussians.end());
+  distr_vargaussians.reserve(20);
 
   distr_gaussianmixtures.erase(distr_gaussianmixtures.begin(),
   distr_gaussianmixtures.end());
@@ -347,7 +352,8 @@ void superbayesreg::clear(void)
   FC_predicts.erase(FC_predicts.begin(),FC_predicts.end());
   FC_predicts.reserve(30);
 
-  FC_predictive_checks.erase(FC_predictive_checks.begin(),FC_predictive_checks.end());
+  FC_predictive_checks.erase(FC_predictive_checks.begin(),
+  FC_predictive_checks.end());
   FC_predictive_checks.reserve(30);
 
   }
@@ -412,6 +418,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
+  distr_vargaussians = b.distr_vargaussians;
   distr_quantregs = b.distr_quantregs;
   distr_gaussianmixtures = b.distr_gaussianmixtures;
   distr_loggaussians = b.distr_loggaussians;
@@ -443,7 +450,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
 
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
-  FC_hrandom_variance_vecs = b.FC_hrandom_variance_vecs;  
+  FC_hrandom_variance_vecs = b.FC_hrandom_variance_vecs;
 
   design_krigings = b.design_krigings;
   design_mrfs = b.design_mrfs;
@@ -481,6 +488,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
+  distr_vargaussians = b.distr_vargaussians;
   distr_quantregs = b.distr_quantregs;
   distr_gaussianmixtures = b.distr_gaussianmixtures;
   distr_loggaussians = b.distr_loggaussians;
@@ -863,6 +871,44 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: Gaussian response ----------------------------
+
+//------------- variance equation of heteroscedastic Gaussian ------------------
+  if (family.getvalue() == "hetgaussian" && equationtype.getvalue()=="variance")
+    {
+
+    distr_vargaussians.push_back(DISTR_vargaussian(&generaloptions,D.getCol(0)));
+
+    equations[modnr].distrp = &distr_vargaussians[distr_vargaussians.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//---------- END: variance equation of heteroscedastic Gaussian ----------------
+
+//---------------------- heteroscedastic Gaussian response ---------------------
+  else if (family.getvalue() == "hetgaussian" && equationtype.getvalue()=="mean")
+    {
+
+    ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+
+    distr_gaussians.push_back(DISTR_gaussian(aresp.getvalue(),bresp.getvalue(),
+                                      &generaloptions,D.getCol(0),path,w) );
+
+    equations[modnr].distrp = &distr_gaussians[distr_gaussians.size()-1];
+    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+
+    if (distr_vargaussians.size() != 1)
+      {
+      outerror("ERROR: Variance equation for heteroscedastic Gausian responses is missing");
+      return true;
+      }
+    else
+      {
+      distr_vargaussians[0].dgaussian = &distr_gaussians[distr_gaussians.size()-1];
+      }
+
+    }
+//----------------- END: heteroscedastic Gaussian response ---------------------
+
 //----------------------------- Poisson response -------------------------------
   else if (family.getvalue() == "poisson")
     {

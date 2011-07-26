@@ -1254,7 +1254,7 @@ double DISTR_gaussian::get_scalemean(void)
 //----------------------------- DISTR_vargaussian ------------------------------
 //------------------------------------------------------------------------------
 
-  void check_errors(void);
+//  void check_errors(void);
 
   // CONSTRUCTOR1
   // TASK: initializes data
@@ -1265,7 +1265,10 @@ double DISTR_gaussian::get_scalemean(void)
   DISTR_vargaussian::DISTR_vargaussian(GENERAL_OPTIONS * o,const datamatrix & r)
    : DISTR(o,r)
     {
-
+    family="heteroscedastic Gaussian, variance component";
+    wtype = wweightschange_weightsneqone;
+    updateIWLS = true;
+    sigma2old=0;
     }
 
   // COPY CONSTRUCTOR
@@ -1273,8 +1276,8 @@ double DISTR_gaussian::get_scalemean(void)
   DISTR_vargaussian::DISTR_vargaussian(const DISTR_vargaussian & d)
      : DISTR(DISTR(d))
     {
-
     dgaussian = d.dgaussian;
+    sigma2old=d.sigma2old;
     }
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -1286,33 +1289,20 @@ double DISTR_gaussian::get_scalemean(void)
       return *this;
     DISTR::operator=(DISTR(d));
     dgaussian = d.dgaussian;
+    sigma2old=d.sigma2old;
+    return *this;
     }
 
-/*
-  //----------------------------------------------------------------------------
-  //------------------------------ WRITING OPTIONS -----------------------------
-  //----------------------------------------------------------------------------
 
-  // FUNCTION: outoptions
-  // TASK: writing options
+  double DISTR_vargaussian::loglikelihood(double * res,double * lin,
+                                          double * weight) const
+    {
+    double m = exp(*lin);
+    return  -  (*res)/(2*m) - 0.5* (*lin) ;
+    }
 
-  void outoptions(void);
 
-  //----------------------------------------------------------------------------
-  //----------------------- COMPUTING THE LOGLIKELIHOOD ------------------------
-  //----------------------------------------------------------------------------
-
-  // FUNCTION: loglikelihood
-  // TASK: computes the loglikelihood for a single observation
-
-  double loglikelihood(double * res,double * lin,double * weight) const;
-
-  double loglikelihood_weightsone(double * res,double * lin) const;
-
-  //----------------------------------------------------------------------------
-  //------------------------------- COMPUTE mu ---------------------------------
-  //----------------------------------------------------------------------------
-
+ /*
   void compute_mu(const double * linpred,double * mu);
 
 
@@ -1322,93 +1312,125 @@ double DISTR_gaussian::get_scalemean(void)
                            double * deviancesat,
                            double * scale) const;
 
-
-  //----------------------------------------------------------------------------
-  //------------------------------- COMPUTE MSE --------------------------------
-  //----------------------------------------------------------------------------
-
   double compute_MSE(const double * response, const double * weight,
                              const double * linpred, msetype t, double v);
-
-
-
-  //----------------------------------------------------------------------------
-  //----------------------------- IWLS Algorithm -------------------------------
-  //----------------------------------------------------------------------------
-
-  // FUNCTION: compute_IWLS (for one observation)
-  // TASK: computes the iwls weights (will be stored in workingweight),
-  //       tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
-  //       the loglikelihood (will be returned)
-
-  //       type: wweightschange_weightsneqone
-
-  double compute_iwls(double * response, double * linpred,
-                              double * weight, double * workingweight,
-                              double * workingresponse,const bool & like);
-
-  // FUNCTION: compute_IWLS (for one observation)
-  // TASK: computes the iwls weights (will be stored in workingweight),
-  //       tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
-  //       the loglikelihood stored in like (only if compute_like = true)
-  //       assumes that weighs=1 (for all observations)
-
-  void compute_iwls_wweightschange_weightsone(
-                                         double * response, double * linpred,
-                                         double * workingweight,
-                                         double * workingresponse,double & like,
-                                         const bool & compute_like);
-
-
-  // FUNCTION: compute_IWLS (for one observation)
-  // TASK: computes tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
-  //       the loglikelihood stored in like (only if compute_like = true)
-  //       assumes that workingweighs=constant (for all observations), i.e.
-  //       they are not recomputed in the function
-
-  //       wweightsnochange_constant
-
-  void compute_iwls_wweightsnochange_constant(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-  // FUNCTION: compute_IWLS (for one observation)
-  // TASK: computes tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
-  //       the loglikelihood stored in like (only if compute_like = true)
-  //       assumes that workingweighs=1 (for all observations), must be set
-  //       to one in advance
-
-  void compute_iwls_wweightsnochange_one(double * response,
-                                              double * linpred,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-  //----------------------------------------------------------------------------
-  //----------------------- POSTERIORMODE FUNCTIONS ----------------------------
-  //----------------------------------------------------------------------------
-
-  // FUNCTION: posteriormode
-  // TASK: computes the posterior mode
-
-  bool posteriormode(void);
-
-  //----------------------------------------------------------------------------
-  //--------------------------- UPDATE FUNCTIONS -------------------------------
-  //----------------------------------------------------------------------------
-
-  // FUNCTION: update
-  // TASK: base function for inherited classes,
-  //       should update the scale parameter
-  //       the base function updates the estimated mean and variance
-  //       of the scale parameter only
-
-  void update(void);
-
   */
+
+
+  double DISTR_vargaussian::compute_iwls(double * response, double * linpred,
+                              double * weight, double * workingweight,
+                              double * workingresponse,const bool & like)
+    {
+    double m = exp(*linpred);
+
+    *workingweight=0.5;
+
+    *workingresponse = *linpred + (*response - m)/m;
+
+    if (like && (*weight != 0))
+      return  -  (*response)/(2*m) - 0.5* (*linpred);
+    else
+      return 0;
+    }
+
+
+  bool DISTR_vargaussian::posteriormode(void)
+    {
+    dgaussian->wtype=wweightschange_weightsneqone;
+
+    double s = dgaussian->sigma2;
+    double * worklin;
+    if (linpred_current==1)
+      worklin = linearpred1.getV();
+    else
+      worklin = linearpred2.getV();
+
+    double * worklin_mean;
+    if (dgaussian->linpred_current==1)
+      worklin_mean = dgaussian->linearpred1.getV();
+    else
+      worklin_mean = dgaussian->linearpred2.getV();
+
+    double * wweight_mean = dgaussian->weight.getV();
+
+    double * workingweight_mean = dgaussian->workingweight.getV();
+
+    double * workresponse = response.getV();
+    double * workresponse_mean = dgaussian->response.getV();
+
+    unsigned i;
+    double m;
+    if (sigma2old==0)
+      {
+      for (i=0;i<nrobs;i++, wweight_mean++, worklin++,workingweight_mean++,
+      worklin_mean++,workresponse++,workresponse_mean++)
+        {
+        *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
+        *worklin = log(s/(*wweight_mean));
+        }
+      }
+    else
+      {
+      for (i=0;i<nrobs;i++, wweight_mean++, worklin++,workingweight_mean++,
+           worklin_mean++,workresponse++,workresponse_mean++)
+        {
+        *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
+        *worklin -= log(sigma2old/(*wweight_mean));
+         m = exp(*worklin);
+        *workingweight_mean = 1/m;
+        *worklin += log(s/(*wweight_mean));
+        }
+      }
+
+    sigma2old = s;
+
+    return true;
+    }
+
+
+  void DISTR_vargaussian::update(void)
+    {
+
+    unsigned i;
+    double * workresponse = response.getV();
+    double * workresponse_mean = dgaussian->response.getV();
+
+    double * worklin_mean;
+    if (dgaussian->linpred_current==1)
+      worklin_mean = dgaussian->linearpred1.getV();
+    else
+      worklin_mean = dgaussian->linearpred2.getV();
+
+
+    double * worklin;
+    if (linpred_current==1)
+      worklin = linearpred1.getV();
+    else
+      worklin = linearpred2.getV();
+
+
+    double * wweight_mean = dgaussian->weight.getV();
+
+    double * workingweight_mean = dgaussian->workingweight.getV();
+
+    double s = dgaussian->sigma2;
+    double m;
+
+    for (i=0;i<nrobs;i++,workresponse++,workresponse_mean++,worklin_mean++,
+         wweight_mean++,workingweight_mean++,worklin++)
+      {
+      *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
+      *worklin-=log(sigma2old/(*wweight_mean));
+      m = exp(*worklin);
+      *workingweight_mean = 1/m;
+      *worklin+=log(s/(*wweight_mean));
+      }
+
+    sigma2old=s;
+
+    DISTR::update();
+
+    }
 
 
 //------------------------------------------------------------------------------
