@@ -63,6 +63,10 @@ class __EXPORT_TYPE DISTR
 
   public:
 
+  bool maindistribution;
+
+
+
   bool optionbool1;
   ST::string option1;
 
@@ -219,7 +223,9 @@ class __EXPORT_TYPE DISTR
   virtual double compute_MSE(const double * response, const double * weight,
                              const double * linpred, msetype t, double v);
 
-
+  virtual void compute_MSE_all(datamatrix & meanpred, double & MSE,
+                               double & MSEzeroweight, unsigned & nrzeroweights,
+                               msetype & t, double & v);
 
   //----------------------------------------------------------------------------
   //----------------------------- IWLS Algorithm -------------------------------
@@ -323,7 +329,6 @@ class __EXPORT_TYPE DISTR
   //----------------------------------------------------------------------------
 
   virtual double get_scale(void);
-//  virtual double get_scale(bool tranform=false);
   virtual double get_scalemean(void);
   virtual void update_scale_hyperparameters(datamatrix & h);
 
@@ -406,14 +411,6 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
   double lassosum;
   double ridgesum;
 
-
-  // FUNCTION: standardise
-  // TASK: standardises the response and the offset
-  //       sets scalesave.transform = trmult*trmult (!!!)
-
-  // virtual void standardise(void);
-
-
   public:
 
 
@@ -448,8 +445,6 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
                           const double * weight,
                           const double * linpred, msetype t, double v);
 
-
-//  void compute_mu(const double * linpred,double * mu, bool notransform);
   void compute_mu(const double * linpred,double * mu);
 
   void compute_deviance(const double * response,
@@ -625,7 +620,7 @@ class __EXPORT_TYPE DISTR_quantreg : public DISTR_gaussian
   */
   };
 
-/*
+
 //------------------------------------------------------------------------------
 //-------------------- CLASS: DISTRIBUTION_hetgaussian -------------------------
 //------------------------------------------------------------------------------
@@ -641,88 +636,43 @@ class __EXPORT_TYPE DISTR_hetgaussian : public DISTR_gaussian
 
   public:
 
+  datamatrix weightoriginal;
 
-   // DEFAULT CONSTRUCTOR
+  // DEFAULT CONSTRUCTOR
 
-   DISTR_hetgaussian(void) : DISTR_gaussian()
-     {
-     }
+  DISTR_hetgaussian(void) : DISTR_gaussian()
+    {
+    }
 
-   // CONSTRUCTOR1
+  // CONSTRUCTOR1
 
-   DISTR_hetgaussian(double a,double b,
-                     GENERAL_OPTIONS * o, DISTR_vargaussian * dv,
-                     const datamatrix & r, const datamatrix & w=datamatrix());
+  DISTR_hetgaussian(double a, double b, GENERAL_OPTIONS * o,
+                     const datamatrix & r,
+                     const ST::string & ps,
+                     const datamatrix & w=datamatrix());
 
-   // COPY CONSTRUCTOR
+  // COPY CONSTRUCTOR
 
-   DISTR_hetgaussian(const DISTR_hetgaussian & nd);
+  DISTR_hetgaussian(const DISTR_hetgaussian & nd);
 
-   // OVERLOADED ASSIGNMENT OPERATOR
+  // OVERLOADED ASSIGNMENT OPERATOR
 
-   const DISTR_hetgaussian & operator=(const DISTR_hetgaussian & nd);
+  const DISTR_hetgaussian & operator=(const DISTR_hetgaussian & nd);
 
-   // DESTRUCTOR
+  // DESTRUCTOR
 
-   ~DISTR_hetgaussian() {}
+  ~DISTR_hetgaussian() {}
 
-   double compute_MSE(const double * response,
-                          const double * weight,
-                          const double * linpred, msetype t, double v);
+  //double compute_MSE(const double * response,
+  //                        const double * weight,
+  //                        const double * linpred, msetype t, double v);
 
-  void compute_mu(const double * linpred,double * mu);
-
-  void compute_deviance(const double * response,
-                           const double * weight,
-                           const double * mu, double * deviance,
-                           double * deviancesat,
-                           double * scale) const;
-
-  double loglikelihood(double * res,
-                       double * lin,
-                       double * w) const;
-
-  double loglikelihood_weightsone(double * res,double * lin) const;
-
-  double compute_iwls(double * response, double * linpred,
-                              double * weight, double * workingweight,
-                              double * workingresponse, const bool & like);
-
-  void compute_iwls_wweightschange_weightsone(
-                                         double * response, double * linpred,
-                                         double * workingweight,
-                                         double * workingresponse,double & like,
-                                         const bool & compute_like);
-
-  void compute_iwls_wweightsnochange_constant(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-  void compute_iwls_wweightsnochange_one(double * response,
-                                              double * linpred,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-
-  void outoptions(void);
-
-  // FUNCTION: update
-  // TASK: updates the scale parameter
-
-  void update(void);
-
-  bool posteriormode(void);
-
-  void outresults(ST::string pathresults="");
-
-  void outresults_predictive_check(datamatrix & D,datamatrix & sr);
+  void compute_MSE_all(datamatrix & meanpred, double & MSE,
+                               double & MSEzeroweight, unsigned & nrzeroweights,
+                               msetype & t, double & v);
 
   };
-*/
+
 
 //------------------------------------------------------------------------------
 //--------------------------- DISTR_vargaussian --------------------------------
@@ -737,7 +687,7 @@ class __EXPORT_TYPE DISTR_vargaussian  : public DISTR
 
   public:
 
-  DISTR_gaussian * dgaussian;
+  DISTR_hetgaussian * dgaussian;
 
 //------------------------------------------------------------------------------
 //------------------------------- ERRORS ---------------------------------------
@@ -787,25 +737,17 @@ class __EXPORT_TYPE DISTR_vargaussian  : public DISTR
   //----------------------------------------------------------------------------
   //------------------------------- COMPUTE mu ---------------------------------
   //----------------------------------------------------------------------------
-  /*
+
   void compute_mu(const double * linpred,double * mu);
-
-
-  void compute_deviance(const double * response,
-                           const double * weight,
-                           const double * mu, double * deviance,
-                           double * deviancesat,
-                           double * scale) const;
-
 
   //----------------------------------------------------------------------------
   //------------------------------- COMPUTE MSE --------------------------------
   //----------------------------------------------------------------------------
 
-  double compute_MSE(const double * response, const double * weight,
-                             const double * linpred, msetype t, double v);
+//  double compute_MSE(const double * response, const double * weight,
+//                             const double * linpred, msetype t, double v);
 
-  */
+
 
   //----------------------------------------------------------------------------
   //----------------------------- IWLS Algorithm -------------------------------
@@ -823,18 +765,12 @@ class __EXPORT_TYPE DISTR_vargaussian  : public DISTR
                               double * workingresponse,const bool & like);
 
 
-  //----------------------------------------------------------------------------
-  //----------------------- POSTERIORMODE FUNCTIONS ----------------------------
-  //----------------------------------------------------------------------------
+  void outoptions(void);
 
   // FUNCTION: posteriormode
   // TASK: computes the posterior mode
 
   bool posteriormode(void);
-
-  //----------------------------------------------------------------------------
-  //--------------------------- UPDATE FUNCTIONS -------------------------------
-  //----------------------------------------------------------------------------
 
   // FUNCTION: update
   // TASK: base function for inherited classes,

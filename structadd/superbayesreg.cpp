@@ -264,6 +264,9 @@ void superbayesreg::clear(void)
   distr_gaussians.erase(distr_gaussians.begin(),distr_gaussians.end());
   distr_gaussians.reserve(20);
 
+  distr_hetgaussians.erase(distr_hetgaussians.begin(),distr_hetgaussians.end());
+  distr_hetgaussians.reserve(20);
+
   distr_vargaussians.erase(distr_vargaussians.begin(),distr_vargaussians.end());
   distr_vargaussians.reserve(20);
 
@@ -418,6 +421,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
+  distr_hetgaussians = b.distr_hetgaussians;
   distr_vargaussians = b.distr_vargaussians;
   distr_quantregs = b.distr_quantregs;
   distr_gaussianmixtures = b.distr_gaussianmixtures;
@@ -488,6 +492,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
+  distr_hetgaussians = b.distr_hetgaussians;
   distr_vargaussians = b.distr_vargaussians;
   distr_quantregs = b.distr_quantregs;
   distr_gaussianmixtures = b.distr_gaussianmixtures;
@@ -890,10 +895,10 @@ bool superbayesreg::create_distribution(void)
 
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
 
-    distr_gaussians.push_back(DISTR_gaussian(aresp.getvalue(),bresp.getvalue(),
+    distr_hetgaussians.push_back(DISTR_hetgaussian(aresp.getvalue(),bresp.getvalue(),
                                       &generaloptions,D.getCol(0),path,w) );
 
-    equations[modnr].distrp = &distr_gaussians[distr_gaussians.size()-1];
+    equations[modnr].distrp = &distr_hetgaussians[distr_hetgaussians.size()-1];
     equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
 
     if (distr_vargaussians.size() != 1)
@@ -903,7 +908,7 @@ bool superbayesreg::create_distribution(void)
       }
     else
       {
-      distr_vargaussians[0].dgaussian = &distr_gaussians[distr_gaussians.size()-1];
+      distr_vargaussians[0].dgaussian = &distr_hetgaussians[distr_hetgaussians.size()-1];
       }
 
     }

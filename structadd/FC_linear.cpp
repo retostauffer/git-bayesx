@@ -166,66 +166,11 @@ void FC_linear::update_IWLS(void)
   if (!initialize)
     create_matrices();
 
-/*
-  if (design.cols() == 1)
+  if (optionsp->nriter == 1)
     {
-    double moold;
-
-    if (optionsp->nriter == 1)
-      {
-      mode(0,0) = beta(0,0);
-      }
-
-    double logold = likep->loglikelihood(true);
-
-    diff.mult_scalar(design,mode(0,0)-beta(0,0));
-    add_linpred(diff);
-
-    double h = likep->compute_iwls(true,false);
-
-    (XWXold);
-
-    Xtresidual(0,0) = compute_XtWpartres(mode(0,0));
-
-    moold = mode(0,0);
-    mode(0,0) = Xtresidual(0,0)/XWXold(0,0);
-
-    qoldbeta = -0.5*pow(beta(0,0)-mode(0,0),2)*XWXold(0,0);
-
-    proposal(0,0) = mode(0,0) + sqrt(1/XWXold(0,0)) *rand_normal();
-
-    qnewbeta = -0.5* pow(proposal(0,0)-mode(0,0),2)*XWXold(0,0);
-
-    diff.mult_scalar(design,proposal(0,0)-moold);
-    add_linpred(diff);                           // (mit proposed)
-
-    double logprop = likep->loglikelihood();     // mit proposed
-
-    double u = log(uniform());
-
-    if (u <= (logprop + qoldbeta - logold - qnewbeta) )
-      {
-      beta.assign(proposal);
-      acceptance++;
-      }
-    else
-      {
-      diff.mult_scalar(design,beta(0,0)-proposal(0,0));
-      add_linpred(diff);
-      }
-
-    FC::update();
-
+    linold.mult(design,beta);
+    mode.assign(beta);
     }
-  else
-
-    {
-*/
-    if (optionsp->nriter == 1)
-      {
-      linold.mult(design,beta);
-      mode.assign(beta);
-      }
 
     double logold = likep->loglikelihood(true);
 

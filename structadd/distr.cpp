@@ -44,6 +44,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
              const datamatrix & w)
   {
 
+  maindistribution=true;
+
   option1 = "";
 
   sigma2=1;
@@ -96,6 +98,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 DISTR::DISTR(const DISTR & d)
   {
 
+  maindistribution = d.maindistribution;
+
   option1 = d.option1;
   optionbool1 = d.optionbool1;
 
@@ -111,7 +115,7 @@ DISTR::DISTR(const DISTR & d)
 
   weight = d.weight;
   weightname = d.weightname;
-  nrzeroweights = d.nrzeroweights;  
+  nrzeroweights = d.nrzeroweights;
 
   workingweight = d.workingweight;
   weightsone = d.weightsone;
@@ -138,6 +142,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
   {
   if (this == &d)
     return *this;
+
+  maindistribution = d.maindistribution;
 
   option1 = d.option1;
   optionbool1 = d.optionbool1;
@@ -377,14 +383,6 @@ void DISTR::compute_deviance(const double * response,
   }
 
 
-/*
-void DISTR::compute_mu(const double * linpred,double * mu,
-                       bool notransform)
-  {
-
-  }
-*/
-
 void DISTR::compute_mu(const double * linpred,double * mu)
   {
 
@@ -407,6 +405,26 @@ double DISTR::compute_MSE(const double * response, const double * weight,
   }
 
 
+void DISTR::compute_MSE_all(datamatrix & meanpred, double & MSE,
+                            double & MSEzeroweight, unsigned & nrzeroweights,
+                            msetype & t, double & v)
+  {
+  unsigned i;
+  nrzeroweights = 0;
+  MSE = 0;
+  MSEzeroweight=0;
+  double * responsep = response_untransformed.getV();
+  double * weightp = weight.getV();
+  double * linpredp = meanpred.getV();
+  for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=2)
+    if (*weightp==0)
+      {
+      MSEzeroweight += compute_MSE(responsep,weightp,linpredp,t,v);
+      nrzeroweights++;
+      }
+    else
+      MSE += compute_MSE(responsep,weightp,linpredp,t,v);
+  }
 
 
 void DISTR::swap_linearpred(void)
@@ -435,7 +453,7 @@ void DISTR::update_scale_hyperparameters(datamatrix & h)
   {
 
   }
-  
+
 
 double DISTR::compute_iwls(const bool & current, const bool & like)
   {
@@ -779,10 +797,7 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
   trmult = h;
   family = "Gaussian";
 
-  // standardise();
-
   FCsigma2 = FC(o,"",1,1,ps);
-  // FCsigma2.transform(0,0) = pow(trmult,2);
 
   }
 
@@ -818,28 +833,6 @@ DISTR_gaussian::DISTR_gaussian(const DISTR_gaussian & nd)
   }
 
 
-/*
-void DISTR_gaussian::standardise(void)
-  {
-
-  // trmult = sqrt(response.var(0,weight));
-  trmult=1;
-
-  unsigned i;
-  double * workresp = workingresponse.getV();
-  double * resp_p = response.getV();
-  double * worklin = linearpred1.getV();
-  for (i=0;i<nrobs;i++,workresp++,worklin++,resp_p++)
-   {
-   *workresp = *workresp/trmult;
-   *resp_p = (*resp_p)/trmult;
-   *worklin = *worklin/trmult;
-   }
-
-  }
-*/
-
-
 void DISTR_gaussian::sample_responses(unsigned i,datamatrix & sr)
   {
 
@@ -872,7 +865,6 @@ void DISTR_gaussian::sample_responses_cv(unsigned i,datamatrix & linpred,
 
   unsigned j;
   for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
-    // *rp = *linpredp + trmult*sqrt(sigma2)*rand_normal();
     *rp = *linpredp + sqrt(sigma2)*rand_normal();
 
 
@@ -931,7 +923,6 @@ void DISTR_gaussian::update(void)
   double * workresp;
   double * workweight;
 
-
   // scaleparameter
 
   double sum = 0;
@@ -946,8 +937,11 @@ void DISTR_gaussian::update(void)
 
   for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
     {
-    help = *workresp - *worklin;
-    sum += *workweight*pow(help,2);
+    if (*workweight !=0)
+      {
+      help = *workresp - *worklin;
+      sum += *workweight*pow(help,2);
+      }
     }
 
   sigma2  = rand_invgamma(a_invgamma+0.5*((nrobs-nrzeroweights)+nrlasso+nrridge),
@@ -1265,8 +1259,11 @@ double DISTR_gaussian::get_scalemean(void)
   DISTR_vargaussian::DISTR_vargaussian(GENERAL_OPTIONS * o,const datamatrix & r)
    : DISTR(o,r)
     {
+
+    maindistribution=false;
     family="heteroscedastic Gaussian, variance component";
     wtype = wweightschange_weightsneqone;
+    weightsone=false;
     updateIWLS = true;
     sigma2old=0;
     }
@@ -1302,19 +1299,24 @@ double DISTR_gaussian::get_scalemean(void)
     }
 
 
- /*
-  void compute_mu(const double * linpred,double * mu);
+void DISTR_vargaussian::compute_mu(const double * linpred,double * mu)
+  {
+  *mu = exp(*linpred);
+  }
 
 
-  void compute_deviance(const double * response,
-                           const double * weight,
-                           const double * mu, double * deviance,
-                           double * deviancesat,
-                           double * scale) const;
+// double compute_MSE(const double * response, const double * weight,
+//                             const double * linpred, msetype t, double v);
 
-  double compute_MSE(const double * response, const double * weight,
-                             const double * linpred, msetype t, double v);
-  */
+
+  void DISTR_vargaussian::outoptions(void)
+    {
+    DISTR::outoptions();
+
+    optionsp->out("\n");
+    optionsp->out("\n");
+
+    }
 
 
   double DISTR_vargaussian::compute_iwls(double * response, double * linpred,
@@ -1334,51 +1336,56 @@ double DISTR_gaussian::get_scalemean(void)
     }
 
 
-  bool DISTR_vargaussian::posteriormode(void)
+bool DISTR_vargaussian::posteriormode(void)
+  {
+
+  double s = dgaussian->sigma2;
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\linpredvar.res");
+  // linearpred1.prettyPrint(out);
+  // END: TEST
+
+  double * worklin_mean;
+  if (dgaussian->linpred_current==1)
+    worklin_mean = dgaussian->linearpred1.getV();
+  else
+    worklin_mean = dgaussian->linearpred2.getV();
+
+  double * wweight_mean = dgaussian->weight.getV();
+
+  double * wweight_orig = dgaussian->weightoriginal.getV();
+
+  double * workresponse = response.getV();
+  double * workresponse_mean = dgaussian->response.getV();
+
+  unsigned i;
+  double m;
+  if (sigma2old==0)
     {
-    dgaussian->wtype=wweightschange_weightsneqone;
-
-    double s = dgaussian->sigma2;
-    double * worklin;
-    if (linpred_current==1)
-      worklin = linearpred1.getV();
-    else
-      worklin = linearpred2.getV();
-
-    double * worklin_mean;
-    if (dgaussian->linpred_current==1)
-      worklin_mean = dgaussian->linearpred1.getV();
-    else
-      worklin_mean = dgaussian->linearpred2.getV();
-
-    double * wweight_mean = dgaussian->weight.getV();
-
-    double * workingweight_mean = dgaussian->workingweight.getV();
-
-    double * workresponse = response.getV();
-    double * workresponse_mean = dgaussian->response.getV();
-
-    unsigned i;
-    double m;
-    if (sigma2old==0)
+    for (i=0;i<nrobs;i++, wweight_mean++, worklin++,wweight_orig++,
+    worklin_mean++,workresponse++,workresponse_mean++)
       {
-      for (i=0;i<nrobs;i++, wweight_mean++, worklin++,workingweight_mean++,
-      worklin_mean++,workresponse++,workresponse_mean++)
-        {
-        *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
-        *worklin = log(s/(*wweight_mean));
-        }
+      *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
+      *worklin = log(s/(*wweight_orig));
       }
+    }
     else
       {
-      for (i=0;i<nrobs;i++, wweight_mean++, worklin++,workingweight_mean++,
+      for (i=0;i<nrobs;i++, wweight_mean++, worklin++,wweight_orig++,
            worklin_mean++,workresponse++,workresponse_mean++)
         {
         *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
-        *worklin -= log(sigma2old/(*wweight_mean));
+        *worklin -= log(sigma2old/(*wweight_orig));
          m = exp(*worklin);
-        *workingweight_mean = 1/m;
-        *worklin += log(s/(*wweight_mean));
+        *wweight_mean = 1/m;
+        *worklin += log(s/(*wweight_orig));
         }
       }
 
@@ -1388,43 +1395,42 @@ double DISTR_gaussian::get_scalemean(void)
     }
 
 
-  void DISTR_vargaussian::update(void)
+void DISTR_vargaussian::update(void)
+  {
+
+  unsigned i;
+  double * workresponse = response.getV();
+  double * workresponse_mean = dgaussian->response.getV();
+
+  double * worklin_mean;
+  if (dgaussian->linpred_current==1)
+    worklin_mean = dgaussian->linearpred1.getV();
+  else
+    worklin_mean = dgaussian->linearpred2.getV();
+
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * wweight_mean = dgaussian->weight.getV();
+
+  double * wweight_orig = dgaussian->weightoriginal.getV();
+
+  double s = dgaussian->sigma2;
+  double m;
+
+  for (i=0;i<nrobs;i++,workresponse++,workresponse_mean++,worklin_mean++,
+        wweight_mean++,wweight_orig++,worklin++)
     {
-
-    unsigned i;
-    double * workresponse = response.getV();
-    double * workresponse_mean = dgaussian->response.getV();
-
-    double * worklin_mean;
-    if (dgaussian->linpred_current==1)
-      worklin_mean = dgaussian->linearpred1.getV();
-    else
-      worklin_mean = dgaussian->linearpred2.getV();
-
-
-    double * worklin;
-    if (linpred_current==1)
-      worklin = linearpred1.getV();
-    else
-      worklin = linearpred2.getV();
-
-
-    double * wweight_mean = dgaussian->weight.getV();
-
-    double * workingweight_mean = dgaussian->workingweight.getV();
-
-    double s = dgaussian->sigma2;
-    double m;
-
-    for (i=0;i<nrobs;i++,workresponse++,workresponse_mean++,worklin_mean++,
-         wweight_mean++,workingweight_mean++,worklin++)
-      {
-      *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
-      *worklin-=log(sigma2old/(*wweight_mean));
-      m = exp(*worklin);
-      *workingweight_mean = 1/m;
-      *worklin+=log(s/(*wweight_mean));
-      }
+    *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
+    *worklin-=log(sigma2old/(*wweight_orig));
+    m = exp(*worklin);
+    *wweight_mean = 1/m;
+    *worklin+=log(s/(*wweight_orig));
+    }
 
     sigma2old=s;
 
@@ -1436,25 +1442,21 @@ double DISTR_gaussian::get_scalemean(void)
 //------------------------------------------------------------------------------
 //-------------------- CLASS DISTRIBUTION_hetgaussian --------------------------
 //------------------------------------------------------------------------------
-/*
+
 DISTR_hetgaussian::DISTR_hetgaussian(double a,double b, GENERAL_OPTIONS * o,
-                                     DISTR_vargaussian * dv,
                                      const datamatrix & r,
+                                     const ST::string & ps,
                                      const datamatrix & w)
-  : DISTR_gaussian(a,b,o,r,"",w)
+  : DISTR_gaussian(a,b,o,r,ps,w)
 
   {
 
-  dvargaussian = dv;
-
-  if (check_weightsone())
-    wtype = wweightschange_weightsone;
-  else
-    wtype = wweightschange_weightsneqone;
+  wtype = wweightschange_weightsneqone;
 
   family = "Heteroscedastic Gaussian";
 
-  sigma2=1;
+  weightoriginal = weight;
+
   }
 
 
@@ -1464,7 +1466,7 @@ const DISTR_hetgaussian & DISTR_hetgaussian::operator=(
   if (this==&nd)
     return *this;
   DISTR_gaussian::operator=(DISTR_gaussian(nd));
-  dvargaussian = nd.dvargaussian;
+  weightoriginal = nd.weightoriginal;
   return *this;
   }
 
@@ -1472,306 +1474,30 @@ const DISTR_hetgaussian & DISTR_hetgaussian::operator=(
 DISTR_hetgaussian::DISTR_hetgaussian(const DISTR_hetgaussian & nd)
    : DISTR_gaussian(DISTR_gaussian(nd))
   {
-  dvargaussian = nd.dvargaussian;
+  weightoriginal = nd.weightoriginal;
   }
 
 
-void DISTR_hetgaussian::outoptions(void)
+void DISTR_hetgaussian::compute_MSE_all(datamatrix & meanpred, double & MSE,
+                               double & MSEzeroweight, unsigned & nrzeroweights,
+                               msetype & t, double & v)
   {
-  DISTR::outoptions();
-  optionsp->out("  Response function: identity\n");
-
-  optionsp->out("\n");
-  optionsp->out("\n");
-  }
-
-
-void DISTR_hetgaussian::update(void)
-  {
-
-  DISTR_gaussian::update();
-
-  }
-
-
-
-
-void DISTR_gaussian::compute_deviance(const double * response,
-                                 const double * weight, const double * mu,
-                                 double * deviance, double * deviancesat,
-                                 double * scale) const
-  {
-  if (*weight == 0)
-    {
-    *deviance = 0;
-    *deviancesat = 0;
-    }
-  else
-    {
-    double r = *response-*mu;
-    *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
-    *deviancesat = (*weight/(*scale))*r*r;
-    }
-  }
-
-
-double DISTR_gaussian::compute_MSE(const double * response,
-                          const double * weight,
-                          const double * linpred, msetype t, double v)
-  {
-  if (t == quadraticMSE)
-    return pow(*response-*linpred,2);
-  else
-    {
-    double u;
-
-    if (*weight == 0)
-      {
-      u = *response - ( *linpred +
-      sqrt(FCsigma2.betamean(0,0))* randnumbers::invPhi2(v) );
-      }
-    else
-      {
-      u = *response - ( *linpred +
-      sqrt(FCsigma2.betamean(0,0)/(*weight))* randnumbers::invPhi2(v) );
-      }
-
-    if (u >= 0)
-      return u*v;
-    else
-      return u*(v-1);
-    }
-  }
-
-
-double DISTR_gaussian::loglikelihood(double * res, double * lin,
-                                     double * w) const
-  {
-  if (*w==0)
-    return 0;
-  else
-    {
-    double help = *res-*lin;
-    return  - *w * (pow(help,2))/(2* sigma2);
-    }
-  }
-
-
-double DISTR_gaussian::loglikelihood_weightsone(double * res, double * lin) const
-  {
-  double help = *res-*lin;
-  return  - (pow(help,2))/(2* sigma2);
-  }
-
-
-double DISTR_gaussian::compute_iwls(double * response, double * linpred,
-                              double * weight, double * workingweight,
-                              double * workingresponse, const bool & like)
-  {
-  *workingweight=*weight;
-  *workingresponse = *response;
-  if (like && (*weight != 0))
-    return  - *weight * (pow(*response-(*linpred),2))/(2* sigma2);
-  else
-    return 0;
-  }
-
-
-void DISTR_gaussian::compute_iwls_wweightschange_weightsone(
-                                         double * response, double * linpred,
-                                         double * workingweight,
-                                         double * workingresponse,double & like,
-                                         const bool & compute_like)
-  {
-
-  *workingweight=1;
-  *workingresponse = *response;
-  if (compute_like)
-    like -=  (pow(*response-(*linpred),2))/(2* sigma2);
-
-  }
-
-
-void DISTR_gaussian::compute_iwls_wweightsnochange_constant(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like)
-  {
-  *workingresponse = *response;
-  if (compute_like && *workingweight!=0)
-    like  -= *workingweight * (pow(*response-(*linpred),2))/(2* sigma2);
-  }
-
-
-void DISTR_gaussian::compute_iwls_wweightsnochange_one(double * response,
-                                              double * linpred,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like)
-  {
-  *workingresponse = *response;
-  if (compute_like)
-    like -=  (pow(*response-(*linpred),2))/(2* sigma2);
-  }
-
-
-bool DISTR_gaussian::posteriormode(void)
-  {
-
   unsigned i;
-
-  double * worklin;
-  if (linpred_current==1)
-    worklin = linearpred1.getV();
-  else
-    worklin = linearpred2.getV();
-
-  double * workresp = workingresponse.getV();
-  double * workweight = weight.getV();
-
-  double sum = 0;
-  double sumweight=0;
-  double help;
-
-  for (i=0;i<nrobs;i++,worklin++,workresp++,workweight++)
-    {
-    help = *workresp - *worklin;
-    sum += *workweight*pow(help,2);
-    sumweight+=*workweight;
-    }
-
-  sigma2 = (1.0/sumweight)*sum;
-
-  FCsigma2.beta(0,0) = sigma2;
-
-  FCsigma2.posteriormode_betamean();
-
-  return true;
-
-  }
-
-
-void DISTR_gaussian::outresults(ST::string pathresults)
-  {
-  DISTR::outresults();
-
-  ofstream out1;
-  ofstream out2;
-
-  FCsigma2.outresults(out1,out2,"");
-
-
-  ST::string l1 = ST::doubletostring(optionsp->lower1,4);
-  ST::string l2 = ST::doubletostring(optionsp->lower2,4);
-  ST::string u1 = ST::doubletostring(optionsp->upper1,4);
-  ST::string u2 = ST::doubletostring(optionsp->upper2,4);
-
-  ST::string nl1 = ST::doubletostring(optionsp->lower1,4);
-  ST::string nl2 = ST::doubletostring(optionsp->lower2,4);
-  ST::string nu1 = ST::doubletostring(optionsp->upper1,4);
-  ST::string nu2 = ST::doubletostring(optionsp->upper2,4);
-  nl1 = nl1.replaceallsigns('.','p');
-  nl2 = nl2.replaceallsigns('.','p');
-  nu1 = nu1.replaceallsigns('.','p');
-  nu2 = nu2.replaceallsigns('.','p');
-
-  double help;
-
-  optionsp->out("  SCALE PARAMETER:\n",true);
-  optionsp->out("\n");
-
-
-  ST::string vstr;
-
-  vstr = "    Mean:         ";
-  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-        ST::doubletostring(FCsigma2.betamean(0,0),6) + "\n");
-
-  if (optionsp->samplesize > 1)
-    {
-    vstr = "    Std. dev.:    ";
-    if (FCsigma2.betavar(0,0) < 0)
-      help = 0;
-    else
-      help = sqrt(FCsigma2.betavar(0,0));
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(help,6) + "\n");
-
-    vstr = "    " + l1 + "% Quantile: ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(FCsigma2.betaqu_l1_lower(0,0),6) + "\n");
-
-    vstr = "    " + l2 + "% Quantile: ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(FCsigma2.betaqu_l2_lower(0,0),6) + "\n");
-
-    vstr = "    50% Quantile: ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(FCsigma2.betaqu50(0,0),6) + "\n");
-
-    vstr = "    " + u1 + "% Quantile: ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(FCsigma2.betaqu_l2_upper(0,0),6) + "\n");
-
-    vstr = "    " + u2 + "% Quantile: ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(FCsigma2.betaqu_l1_upper(0,0),6) + "\n");
-    }
-
-
-  if (pathresults.isvalidfile() != 1)
-    {
-
-    optionsp->out("\n");
-
-    optionsp->out("    Results for variance parameter are also stored in file\n");
-    optionsp->out("    " +  pathresults + "\n");
-    optionsp->out("\n");
-
-    ofstream outscale(pathresults.strtochar());
-
-    if (optionsp->samplesize > 1)
+  nrzeroweights = 0;
+  MSE = 0;
+  MSEzeroweight=0;
+  double * responsep = response_untransformed.getV();
+  double * weightp = weight.getV();
+  double * linpredp = meanpred.getV();
+  for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=2)
+    if (*weightp==0)
       {
-      outscale << "pmean   pstddev   pqu" << nl1 << "   pqu" << nl2 <<
-                "   pqu50   pqu" << nu1 << "   pqu" << nu2 << endl;
+      MSEzeroweight += compute_MSE(responsep,weightp,linpredp,t,v);
+      nrzeroweights++;
       }
     else
-      {
-      outscale << "pmean" << endl;
-      }
-
-    outscale << FCsigma2.betamean(0,0) << "  ";
-
-    if (optionsp->samplesize > 1)
-      {
-      if (FCsigma2.betavar(0,0) < 0)
-        help = 0;
-      else
-        help = sqrt(FCsigma2.betavar(0,0));
-      outscale << help << "  ";
-
-      outscale << FCsigma2.betaqu_l1_lower(0,0) << "  ";
-
-      outscale << FCsigma2.betaqu_l2_lower(0,0) << "  ";
-
-      outscale << FCsigma2.betaqu50(0,0) << "  ";
-
-      outscale << FCsigma2.betaqu_l2_upper(0,0) << "  ";
-
-      outscale << FCsigma2.betaqu_l1_upper(0,0) << "  ";
-      }
-
-    outscale << endl;
-    }
-
-  optionsp->out("\n");
-
+      MSE += compute_MSE(responsep,weightp,linpredp,t,v);
   }
-
-
-*/
 
 
 //------------------------------------------------------------------------------
@@ -2572,6 +2298,8 @@ DISTR_gaussian_re::DISTR_gaussian_re(GENERAL_OPTIONS * o,const datamatrix & r,
   : DISTR_gaussian(1,1,o,r,"",w)
 
   {
+
+  maindistribution=false;
 
   family = "Gaussian_random_effect";
 

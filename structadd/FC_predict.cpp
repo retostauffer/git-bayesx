@@ -59,7 +59,10 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
   varnames = dn;
   setbeta(lp->nrobs,2,0);
 
-  FC_deviance = FC(o,"",2,1,fpd);
+  if (likep->maindistribution == true)
+    {
+    FC_deviance = FC(o,"",2,1,fpd);
+    }
 
   }
 
@@ -84,7 +87,7 @@ const FC_predict & FC_predict::operator=(const FC_predict & m)
 	 return *this;
   FC::operator=(FC(m));
   MSE = m.MSE;
-  MSEparam = m.MSEparam;  
+  MSEparam = m.MSEparam;
   likep = m.likep;
   designmatrix = m.designmatrix;
   varnames = m.varnames;
@@ -100,18 +103,17 @@ void  FC_predict::update(void)
 
   get_predictor();
 
-//  transform(0,0) = likep->trmult;
-
   acceptance++;
 
   FC::update();
 
-//  FC_deviance.transform(0,0) = likep->trmult;
-
-  FC_deviance.beta(0,0) = deviance;
-  FC_deviance.beta(1,0) = deviancesat;
-  FC_deviance.acceptance++;
-  FC_deviance.update();
+  if (likep->maindistribution == true)
+    {
+    FC_deviance.beta(0,0) = deviance;
+    FC_deviance.beta(1,0) = deviancesat;
+    FC_deviance.acceptance++;
+    FC_deviance.update();
+    }
 
   }
 
@@ -136,18 +138,21 @@ void FC_predict::get_predictor(void)
   double * workresponse = likep->response_untransformed.getV();
   double * workweight = likep->weight.getV();
   double muhelp;
-//  double scalehelp=likep->get_scale(true);
   double scalehelp=likep->get_scale();
 
   for(i=0;i<likep->nrobs;i++,worklinp++,workresponse++,workweight++,betap++)
     {
 
     likep->compute_mu(worklinp,&muhelp);
-    likep->compute_deviance(workresponse,workweight,&muhelp,&deviancehelp,
-    &deviancesathelp,&scalehelp);
 
-    deviance+=deviancehelp;
-    deviancesat+=deviancesathelp;
+    if (likep->maindistribution == true)
+      {
+      likep->compute_deviance(workresponse,workweight,&muhelp,&deviancehelp,
+      &deviancesathelp,&scalehelp);
+
+      deviance+=deviancehelp;
+      deviancesat+=deviancesathelp;
+      }
 
     *betap = *worklinp;
     betap++;
@@ -161,8 +166,6 @@ bool FC_predict::posteriormode(void)
   {
 
   get_predictor();
-
-//  transform(0,0) = likep->trmult;
 
   posteriormode_betamean();
 
@@ -200,7 +203,6 @@ void FC_predict::outresults_DIC(void)
   for (i=0;i<likep->nrobs;i++,workmeanlin+=beta.cols(),workresponse++,workweight++)
     {
 
-//    likep->compute_mu(workmeanlin,&mu_meanlin,true);
     likep->compute_mu(workmeanlin,&mu_meanlin);
 
     likep->compute_deviance(workresponse,workweight,&mu_meanlin,
@@ -257,8 +259,6 @@ void FC_predict::outresults_DIC(void)
   optionsp->out("\n");
 
   }
-
-
 
 
 void FC_predict::outresults_deviance(void)
@@ -398,22 +398,13 @@ ST::string FC_predict::getloss(void)
 void FC_predict::compute_MSE(const ST::string & pathresults)
   {
 
-  unsigned i;
   unsigned nrobs = designmatrix.rows();
-  unsigned nrzeroweights = 0;
-  double meanmse = 0;
-  double meanmse_zeroweight=0;
-  double * responsep = likep->response_untransformed.getV();
-  double * weightp = likep->weight.getV();
-  double * linpredp = betamean.getV();
-  for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=2)
-    if (*weightp==0)
-      {
-      meanmse_zeroweight += likep->compute_MSE(responsep,weightp,linpredp,MSE,MSEparam);
-      nrzeroweights++;
-      }
-    else
-      meanmse += likep->compute_MSE(responsep,weightp,linpredp,MSE,MSEparam);
+  unsigned nrzeroweights;
+  double meanmse;
+  double meanmse_zeroweight;
+
+  likep->compute_MSE_all(betamean, meanmse, meanmse_zeroweight,nrzeroweights,
+                         MSE,MSEparam);
 
   ST::string h;
   optionsp->out("  EMPIRICAL MSE: \n",true);
@@ -445,6 +436,17 @@ void FC_predict::compute_MSE(const ST::string & pathresults)
 
   }
 
+/*
+  for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=2)
+    if (*weightp==0)
+      {
+      meanmse_zeroweight += likep->compute_MSE(responsep,weightp,linpredp,MSE,MSEparam);
+      nrzeroweights++;
+      }
+    else
+      meanmse += likep->compute_MSE(responsep,weightp,linpredp,MSE,MSEparam);
+*/
+
 void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
                             const ST::string & pathresults)
   {
@@ -453,7 +455,11 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     {
 
     FC::outresults(out_stata,out_R,"");
-    FC_deviance.outresults(out_stata,out_R,"");
+
+    if (likep->maindistribution == true)
+      {
+      FC_deviance.outresults(out_stata,out_R,"");
+      }
 
     optionsp->out("  PREDICTED VALUES: \n",true);
     optionsp->out("\n");
@@ -462,7 +468,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
-    if (MSE != noMSE)
+    if ((likep->maindistribution == true) && (MSE != noMSE))
       {
       compute_MSE(pathresults);
       }
@@ -568,8 +574,11 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
 
      }
 
-    outresults_deviance();
-    outresults_DIC();
+    if (likep->maindistribution == true)
+      {
+      outresults_deviance();
+      outresults_DIC();
+      }
 
     }   // end if (pathresults.isvalidfile() != 1)
 
