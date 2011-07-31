@@ -65,7 +65,7 @@ class __EXPORT_TYPE DISTR
 
   bool maindistribution;
 
-
+  datamatrix * FCpredict_betamean;
 
   bool optionbool1;
   ST::string option1;
@@ -636,6 +636,8 @@ class __EXPORT_TYPE DISTR_hetgaussian : public DISTR_gaussian
 
   public:
 
+  datamatrix * FCpredict_betamean_vargaussian;
+
   datamatrix weightoriginal;
 
   // DEFAULT CONSTRUCTOR
@@ -663,9 +665,8 @@ class __EXPORT_TYPE DISTR_hetgaussian : public DISTR_gaussian
 
   ~DISTR_hetgaussian() {}
 
-  //double compute_MSE(const double * response,
-  //                        const double * weight,
-  //                        const double * linpred, msetype t, double v);
+  double compute_MSE(const double * response, const double * weight,
+                         const double * linpred, msetype t, double v);
 
   void compute_MSE_all(datamatrix & meanpred, double & MSE,
                                double & MSEzeroweight, unsigned & nrzeroweights,

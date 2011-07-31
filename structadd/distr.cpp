@@ -94,9 +94,10 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   }
 
 
-
 DISTR::DISTR(const DISTR & d)
   {
+
+  FCpredict_betamean = d.FCpredict_betamean;
 
   maindistribution = d.maindistribution;
 
@@ -142,6 +143,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
   {
   if (this == &d)
     return *this;
+
+  FCpredict_betamean = d.FCpredict_betamean;
 
   maindistribution = d.maindistribution;
 
@@ -1294,8 +1297,13 @@ double DISTR_gaussian::get_scalemean(void)
   double DISTR_vargaussian::loglikelihood(double * res,double * lin,
                                           double * weight) const
     {
-    double m = exp(*lin);
-    return  -  (*res)/(2*m) - 0.5* (*lin) ;
+    if (*weight !=0)
+      {
+      double m = exp(*lin);
+      return  -  (*res)/(2*m) - 0.5* (*lin) ;
+      }
+    else
+      return 0;  
     }
 
 
@@ -1325,7 +1333,7 @@ void DISTR_vargaussian::compute_mu(const double * linpred,double * mu)
     {
     double m = exp(*linpred);
 
-    *workingweight=0.5;
+    *workingweight=(*weight)*0.5;
 
     *workingresponse = *linpred + (*response - m)/m;
 
@@ -1338,6 +1346,9 @@ void DISTR_vargaussian::compute_mu(const double * linpred,double * mu)
 
 bool DISTR_vargaussian::posteriormode(void)
   {
+
+  dgaussian->FCpredict_betamean_vargaussian = FCpredict_betamean;
+  weight = dgaussian->weightoriginal;
 
   double s = dgaussian->sigma2;
 
@@ -1373,7 +1384,10 @@ bool DISTR_vargaussian::posteriormode(void)
     worklin_mean++,workresponse++,workresponse_mean++)
       {
       *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
-      *worklin = log(s/(*wweight_orig));
+      if (*wweight_orig==0)
+        *worklin = log(s);
+      else
+        *worklin = log(s/(*wweight_orig));
       }
     }
     else
@@ -1382,10 +1396,19 @@ bool DISTR_vargaussian::posteriormode(void)
            worklin_mean++,workresponse++,workresponse_mean++)
         {
         *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
-        *worklin -= log(sigma2old/(*wweight_orig));
-         m = exp(*worklin);
-        *wweight_mean = 1/m;
-        *worklin += log(s/(*wweight_orig));
+        if (*wweight_orig==0)
+          {
+          *worklin -= log(sigma2old);
+          *wweight_mean = 0;
+          *worklin += log(s);
+          }
+        else
+          {
+          *worklin -= log(sigma2old/(*wweight_orig));
+          m = exp(*worklin);
+          *wweight_mean = 1/m;
+          *worklin += log(s/(*wweight_orig));
+          }
         }
       }
 
@@ -1397,6 +1420,8 @@ bool DISTR_vargaussian::posteriormode(void)
 
 void DISTR_vargaussian::update(void)
   {
+
+  dgaussian->FCpredict_betamean_vargaussian = FCpredict_betamean;
 
   unsigned i;
   double * workresponse = response.getV();
@@ -1426,10 +1451,21 @@ void DISTR_vargaussian::update(void)
         wweight_mean++,wweight_orig++,worklin++)
     {
     *workresponse = pow(*workresponse_mean-(*worklin_mean),2);
-    *worklin-=log(sigma2old/(*wweight_orig));
-    m = exp(*worklin);
-    *wweight_mean = 1/m;
-    *worklin+=log(s/(*wweight_orig));
+    if (*wweight_orig==0)
+      {
+      *worklin-=log(sigma2old);
+      *wweight_mean = 0;
+      *worklin+=log(s);
+      }
+    else
+      {
+      *worklin-=log(sigma2old/(*wweight_orig));
+      m = exp(*worklin);
+      *wweight_mean = 1/m;
+      *worklin+=log(s/(*wweight_orig));
+      }
+
+
     }
 
     sigma2old=s;
@@ -1467,6 +1503,7 @@ const DISTR_hetgaussian & DISTR_hetgaussian::operator=(
     return *this;
   DISTR_gaussian::operator=(DISTR_gaussian(nd));
   weightoriginal = nd.weightoriginal;
+  FCpredict_betamean_vargaussian = nd.FCpredict_betamean_vargaussian;
   return *this;
   }
 
@@ -1475,6 +1512,7 @@ DISTR_hetgaussian::DISTR_hetgaussian(const DISTR_hetgaussian & nd)
    : DISTR_gaussian(DISTR_gaussian(nd))
   {
   weightoriginal = nd.weightoriginal;
+  FCpredict_betamean_vargaussian = nd.FCpredict_betamean_vargaussian;
   }
 
 
@@ -1487,16 +1525,51 @@ void DISTR_hetgaussian::compute_MSE_all(datamatrix & meanpred, double & MSE,
   MSE = 0;
   MSEzeroweight=0;
   double * responsep = response_untransformed.getV();
-  double * weightp = weight.getV();
+  double * weightp = FCpredict_betamean_vargaussian->getV();
+  weightp++;
+  double * weightorigp = weightoriginal.getV();
+
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\betamean.raw");
+  // FCpredict_betamean_vargaussian->prettyPrint(out);
+  // TEST
+
+  double w;
+
   double * linpredp = meanpred.getV();
-  for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=2)
-    if (*weightp==0)
+  for(i=0;i<nrobs;i++,responsep++,linpredp+=2,weightp+=2,
+      weightorigp++)
+    {
+    w=1/(*weightp);
+    if (*weightorigp==0)
       {
-      MSEzeroweight += compute_MSE(responsep,weightp,linpredp,t,v);
+      MSEzeroweight += compute_MSE(responsep,&w,linpredp,t,v);
       nrzeroweights++;
       }
     else
-      MSE += compute_MSE(responsep,weightp,linpredp,t,v);
+      MSE += compute_MSE(responsep,&w,linpredp,t,v);
+    }
+  }
+
+
+double DISTR_hetgaussian::compute_MSE(const double * response,
+                          const double * weight,
+                          const double * linpred, msetype t, double v)
+  {
+  if (t == quadraticMSE)
+    return pow(*response-*linpred,2);
+  else
+    {
+    double u;
+
+    u = *response - ( *linpred +
+    sqrt(1/(*weight)) * randnumbers::invPhi2(v) );
+
+    if (u >= 0)
+      return u*v;
+    else
+      return u*(v-1);
+    }
   }
 
 

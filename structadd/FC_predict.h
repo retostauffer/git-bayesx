@@ -28,8 +28,6 @@ using std::bitset;
 //------------------------------------------------------------------------------
 
 
-
-
 class __EXPORT_TYPE FC_predict   : public FC
   {
 

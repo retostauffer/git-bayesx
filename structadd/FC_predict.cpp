@@ -64,6 +64,8 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
     FC_deviance = FC(o,"",2,1,fpd);
     }
 
+  int d = betamean.rows();
+
   }
 
 
@@ -100,6 +102,8 @@ const FC_predict & FC_predict::operator=(const FC_predict & m)
 
 void  FC_predict::update(void)
   {
+
+  likep->FCpredict_betamean = &betamean;
 
   get_predictor();
 
