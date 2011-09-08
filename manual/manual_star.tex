@@ -1027,11 +1027,13 @@ for the variance parameters $\tau _{j}^{2} :=I_{j} t_{j}^{2} ,$ given $\nu _{0} 
 _{1} $, $\omega \, $, $a $, $b $ with representation as a mixture
 of scaled inverse Gamma distributions
 
-\[\pi \left(\tau _{j}^{2} |\nu _{0} ,\nu _{1} ,\omega ,a ,b \right)=
+\[
+\pi \left(\tau _{j}^{2} |\nu _{0} ,\nu _{1} ,\omega ,a ,b \right)=
 \left(1-\omega \right)\cdot InvGamma\left(\tau _{j}^{2} |a ,\nu _{0} b
-\right)+\omega \cdot InvGamma\left(\tau _{j}^{2} |a ,\nu _{1} b \right). \]
+\right)+\omega \cdot InvGamma\left(\tau _{j}^{2} | a ,\nu _{1} b \right). 
+\]
 
-We assume a beta prior for the parameter $\omega $, i.e. $\omega \sim \[Beta\left( {{a_\omega },{b_\omega }} \right)\]$,
+We assume a beta prior for the parameter $\omega $, i.e. $\omega \sim  Beta \left( a_{\omega} ,b_{\omega} \right)$,
 with $ {{a_\omega }={b_\omega }} = 1$ as default, which expresses an indifferent prior knowledge about the model complexity.
 
 The {\em adaptive} version enables

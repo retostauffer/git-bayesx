@@ -1,3 +1,23 @@
+/* BayesX - Software for Bayesian Inference in
+Structured Additive Regression Models.
+Copyright (C) 2011  Christiane Belitz, Andreas Brezger,
+Thomas Kneib, Stefan Lang, Nikolaus Umlauf
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
+
+
 
 
 
@@ -113,6 +133,8 @@ void superbayesreg::create_hregress(void)
   level1 = doubleoption("level1",95,40,99);
   level2 = doubleoption("level2",80,40,99);
 
+  standardize = simpleoption("standardize",false);
+
   families.reserve(40);
   families.push_back("gaussian");
   families.push_back("hetgaussian");
@@ -188,6 +210,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&quantile);
   regressoptions.push_back(&cv);
   regressoptions.push_back(&includescale);
+  regressoptions.push_back(&standardize);
 
 
   // methods 0
