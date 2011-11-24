@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 #include"FC.h"
 #include"FC_predict.h"
+#include"FC_predict_predictor.h"
 #include"FC_predictive_check.h"
 #include"FC_nonp.h"
 #include"FC_linear.h"
@@ -88,6 +89,7 @@ using MCMC::equation;
 
 using MCMC::FC;
 using MCMC::FC_predict;
+using MCMC::FC_predict_predictor;
 using MCMC::FC_predictive_check;
 using MCMC::FC_cv;
 using MCMC::FC_nonp;
@@ -229,7 +231,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 //---------------------------------- DISTR  ------------------------------------
 
   vector<DISTR_gaussian> distr_gaussians;
-  vector<DISTR_hetgaussian> distr_hetgaussians;  
+  vector<DISTR_hetgaussian> distr_hetgaussians;
   vector<DISTR_vargaussian> distr_vargaussians;
   vector<DISTR_quantreg> distr_quantregs;
   vector<DISTR_gaussianmixture> distr_gaussianmixtures;
@@ -262,8 +264,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   //---------------------------- for predict -----------------------------------
 
   vector<FC_predict> FC_predicts;
+  vector<FC_predict_predictor> FC_predict_predictors;
 
-  void create_predict(void);
+  bool create_predict(void);
 
   //----------------------------------------------------------------------------
 

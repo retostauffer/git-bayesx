@@ -165,6 +165,8 @@ void superbayesreg::create_hregress(void)
   predictop.push_back("no");
   predictop.push_back("nosamples");
   predictop.push_back("full");
+  predictop.push_back("predictor");
+
   predict = stroption("predict",predictop,"no");
 
   pred_check = simpleoption("pred_check",false);
@@ -378,6 +380,11 @@ void superbayesreg::clear(void)
   FC_predicts.erase(FC_predicts.begin(),FC_predicts.end());
   FC_predicts.reserve(30);
 
+  FC_predict_predictors.erase(FC_predict_predictors.begin(),
+                              FC_predict_predictors.end());
+  FC_predict_predictors.reserve(30);
+
+
   FC_predictive_checks.erase(FC_predictive_checks.begin(),
   FC_predictive_checks.end());
   FC_predictive_checks.reserve(30);
@@ -466,6 +473,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_predicts = b.FC_predicts;
+  FC_predict_predictors = b.FC_predict_predictors;
   FC_predictive_checks = b.FC_predictive_checks;
 
   ridge = b.ridge;
@@ -537,6 +545,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_predicts = b.FC_predicts;
+  FC_predict_predictors = b.FC_predict_predictors;
   FC_predictive_checks = b.FC_predictive_checks;
 
   ridge = b.ridge;
@@ -697,7 +706,7 @@ void hregressrun(superbayesreg & b)
       failure = b.create_nonp();
 
     if (!failure)
-      b.create_predict();
+      failure = b.create_predict();
 
     if (!failure)
       b.create_predictive_check();
@@ -1114,7 +1123,7 @@ void superbayesreg::extract_data(unsigned i, datamatrix & d,datamatrix & iv,
   }
 
 
-void superbayesreg::create_predict(void)
+bool superbayesreg::create_predict(void)
   {
   if (predict.getvalue() != "no")
     {
@@ -1132,29 +1141,52 @@ void superbayesreg::create_predict(void)
 
     ST::string pathres = outfile.getvalue() +  "_" + h + "_predict.res";
 
-    FC_predicts.push_back(FC_predict(&generaloptions,
-                         equations[modnr].distrp,"",pathnonp,pathnonp2,D,modelvarnamesv));
 
-    if (mse.getvalue() ==  "yes")
-      FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
-
-    if (mse.getvalue() ==  "quadratic")
-      FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
-
-    if (mse.getvalue() ==  "check")
+    if (predict.getvalue() == "full")
       {
-      FC_predicts[FC_predicts.size()-1].MSE = MCMC::checkMSE;
-      FC_predicts[FC_predicts.size()-1].MSEparam = mseparam.getvalue();
+
+      if (equations[modnr].distrp->maindistribution == false)
+        {
+        outerror("ERROR: predict=full is allowed only for the main regression equation\n");
+        outerror("HINT: Use predict=predictor to get predictions of the predictor for this equation\n");
+        return true;
+        }
+      else
+        {
+        FC_predicts.push_back(FC_predict(&generaloptions,
+                           equations[modnr].distrp,"",pathnonp,
+                           pathnonp2,D,modelvarnamesv));
+
+        if (mse.getvalue() ==  "yes")
+          FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
+
+        if (mse.getvalue() ==  "quadratic")
+          FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
+
+        if (mse.getvalue() ==  "check")
+          {
+          FC_predicts[FC_predicts.size()-1].MSE = MCMC::checkMSE;
+          FC_predicts[FC_predicts.size()-1].MSEparam = mseparam.getvalue();
+          }
+
+        equations[modnr].add_FC(&FC_predicts[FC_predicts.size()-1],pathres);
+        }
       }
+    else if (predict.getvalue() == "predictor")
+      {
 
+      FC_predict_predictors.push_back(FC_predict_predictor(&generaloptions,
+                           equations[modnr].distrp,"",pathnonp,pathnonp2,D,
+                           modelvarnamesv));
 
+      equations[modnr].add_FC(&FC_predict_predictors[FC_predict_predictors.size()-1],pathres);
 
-    equations[modnr].add_FC(&FC_predicts[FC_predicts.size()-1],pathres);
+      }
 
 
     }
 
-
+  return false;
   }
 
 
