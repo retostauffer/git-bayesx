@@ -341,7 +341,7 @@ bool STEPMULTIrun::stepwise(const ST::string & procedure, const ST::string & min
   anz_fullcond = unsigned(fullcond_alle.size()/kategorien);
 
   modell_alt.erase(modell_alt.begin(),modell_alt.end());
-  text_alt = " ";  
+  text_alt = " ";
   vector<double> modell_final;
   double kriterium_final;
   ST::string text_final;
@@ -951,7 +951,7 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
     ST::string possible = "alles";
     if(hierarchical == true)
       fullcond_alle[z]->hierarchical(possible);
-  
+
     if(criterion != "CV5" && criterion != "CV10")
       {
       if((possible != "valles" && possible != "vrfix" && possible != "vraus")
@@ -995,7 +995,7 @@ void STEPMULTIrun::schaetzen(int z, double & kriterium, bool neu, ST::string var
         }
       }
     }
- 
+
   }
 
 
@@ -1794,7 +1794,7 @@ void STEPMULTIrun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,dou
 
   if(hierarchical == false)
     possible == "alles";
-    
+
   fullcond_alle[ind_fullc]->safe_const();
   bool interact = false;
   fullcond_alle[z]->safe_splines(interact);
@@ -2701,7 +2701,7 @@ void STEPMULTIrun::koord_fix_leer(vector<double> & kriteriumiteration2,
         }
       else
         kriterium_neu = kriterium_aktuell;
- 
+
       if(neu==true || kriterium_aktuell < kriterium_neu)
         {
         int c = column_for_fix(names_fixed[ind_name]);
@@ -2745,7 +2745,7 @@ void STEPMULTIrun::koord_fix_leer(vector<double> & kriteriumiteration2,
       fullcond_alle[ind_fullc]->posteriormode_single(name_help,datamatrix(D.getCol(c)),true);
       modell_neu[i-1] = -1;
       }
-      
+
 
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
       fertig = false;
@@ -2849,7 +2849,7 @@ void STEPMULTIrun::koord_leer_fix(vector<double> & kriteriumiteration2,
       {
       reset_fix(names_fixed[ind_name]);
       modell_neu[i-1] = 0;
-      fullcond_alle[ind_fullc]->posteriormode_const();      
+      fullcond_alle[ind_fullc]->posteriormode_const();
       }
 
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
@@ -2944,7 +2944,7 @@ void STEPMULTIrun::koord_factor_leer(vector<double> & kriteriumiteration2,
       reset_fix(names_nonp[ind_name][i]);
     schaetzen(ind_fullc,kriterium_neu,true,"leer");
     fullcond_alle[ind_fullc]->set_const_old();
-  
+
     if(minim == "approx_control")
       {
       double kriterium_test;
@@ -3019,9 +3019,9 @@ void STEPMULTIrun::koord_factor_leer(vector<double> & kriteriumiteration2,
         fullcond_alle[ind_fullc]->posteriormode_single(names_nonp[ind_name],
                                      fullcond_alle[z]->get_data_forfixedeffects(),true);
         modell_neu[ind_mod] = -1;
-        fullcond_alle[z]->set_inthemodel(-1);        
+        fullcond_alle[z]->set_inthemodel(-1);
         }
- 
+
       if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
         fertig = false;
       if(modell_alt[ind_mod] != modell_neu[ind_mod]
@@ -3134,7 +3134,7 @@ void STEPMULTIrun::koord_leer_factor(vector<double> & kriteriumiteration2,
       for(i=0;i<names_nonp[ind_name].size();i++)
         reset_fix(names_nonp[ind_name][i]);
       modell_neu[ind_mod] = 0;
-      fullcond_alle[z]->set_inthemodel(0);      
+      fullcond_alle[z]->set_inthemodel(0);
       }
     }
 
@@ -3148,7 +3148,7 @@ void STEPMULTIrun::koord_leer_factor(vector<double> & kriteriumiteration2,
         reset_fix(names_nonp[ind_name][i]);
       modell_neu[ind_mod] = 0;
       fullcond_alle[z]->set_inthemodel(0);
-      fullcond_alle[ind_fullc]->posteriormode_const();      
+      fullcond_alle[ind_fullc]->posteriormode_const();
       }
 
     if(fabs((kriterium_adaptiv - kriterium_aktuell)/kriterium_adaptiv) >= std::pow(10,-6.0))
@@ -4271,7 +4271,7 @@ void STEPMULTIrun::options_text(const int & number,
            genoptions_mult[0]->out("  Startvalue of the "
               + ST::doubletostring(j+1) + ". startmodel is the fixed effect \n");
      }
-     
+
   for(i=1;i<anz_fullcond;i++)
      {
      fullcond_alle[i]->set_inthemodel(1);
@@ -4330,7 +4330,7 @@ void STEPMULTIrun::options_text(const int & number,
                 + ST::doubletostring(fullcond_alle[i]->compute_df(),6) + "\n");
              }
           }
-     fullcond_alle[i]->set_inthemodel(0);          
+     fullcond_alle[i]->set_inthemodel(0);
      }
   genoptions_mult[0]->out("\n");
   genoptions_mult[0]->out("\n");
@@ -4675,7 +4675,7 @@ void STEPMULTIrun::make_fixed_table(void)
     outtex << "\\hline \n\\end{tabular}" << endl;
     }
   }
-  
+
 
 void STEPMULTIrun::make_plots(ST::string & path_batch,
                              ST::string & path_splus)      //,ST::string & path_stata)
@@ -5139,7 +5139,9 @@ bool STEPMULTIrun::confidence_MCMCbootstrap(const vector<double> & modell_final,
   unsigned k = 0;
   for(i=1;i<fullcond_alle.size();i++)
     {
+// STEFAN: CHECKEN
     if(fmod(i,anz_fullcond)==0)
+//    if(i%anz_fullcond==0)
       {
       fullcond_alle[k*anz_fullcond]->update_bootstrap_df();
       fullcond_alle[k*anz_fullcond]->save_betamean();
@@ -5174,7 +5176,9 @@ bool STEPMULTIrun::confidence_MCMCbootstrap(const vector<double> & modell_final,
   unsigned ind_mod;
   for(i=1;i<fullcond_alle.size();i++)
     {
+// STEFAN: CHECKEN
     if(fmod(i,anz_fullcond)==0)
+//    if(i%anz_fullcond==0)
       {
       k +=1;
       i++;

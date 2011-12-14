@@ -19,13 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 
 
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE
-#else
-#define __EXPORT_TYPE __import
-#endif
+#include"../export_type.h"
 
 
 #if !defined (GRAPHOBJ_INCLUDED)

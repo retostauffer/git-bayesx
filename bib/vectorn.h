@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"realobs.h"
 
 using std::vector;
-
+using namespace std;
 //------------------------------------------------------------------------------
 //----------------------------- CLASS vectornum --------------------------------
 //------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ class vectornum : public vector<T>
 
   // OVERLOADED ASSIGNMENT OPERATOR (assigns a vectornum)
 
-  const vectornum<T> & operator=(const vectornum<T> & v) 
+  const vectornum<T> & operator=(const vectornum<T> & v)
 	 {
 	 vector<T>::operator=( vector<T>(v) );
 	 return *this;
@@ -602,7 +602,7 @@ vectornum<T> floor(const vectornum<T> & o)
 typedef vectornum<double> vectord;
 typedef vectornum<float> vectorf;
 typedef vectornum<int> vectori;
-typedef vectornum<realob::realobs> vectorrealobs; 
+typedef vectornum<realob::realobs> vectorrealobs;
 
 //#if !defined (__BUILDING_GNU)
 #if !defined (VECTORN_CPP_INCLUDED)

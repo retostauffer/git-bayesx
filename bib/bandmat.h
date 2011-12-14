@@ -166,6 +166,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 // Then beta is distributed according to N(E(beta),P^{-1})
 
+using std::endl;
+
 #if defined(__BUILDING_GNU)
 template <class T>
 class symbandmatrix;

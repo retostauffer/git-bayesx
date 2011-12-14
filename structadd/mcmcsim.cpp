@@ -447,7 +447,7 @@ const int & seed, const bool & computemode)
 
         for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
           {
-          equations[nrmodels-1-i].FCpointer[j]->reset())
+          equations[nrmodels-1-i].FCpointer[j]->reset();
           } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
 
         }

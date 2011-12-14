@@ -1979,6 +1979,8 @@ void getsamplerun(superbayesreg & b)
       {
       #if defined(JAVA_OUTPUT_WINDOW)
 
+// STEFAN: CHECKEN
+// zweites Argument sollte ein Vektor sein.
       b.simobj.get_samples(b.newcommands,b.outfile.getvalue() + "_");
       #else
       b.simobj.get_samples(pathgraphs);
