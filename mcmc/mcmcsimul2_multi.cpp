@@ -5140,7 +5140,7 @@ bool STEPMULTIrun::confidence_MCMCbootstrap(const vector<double> & modell_final,
   for(i=1;i<fullcond_alle.size();i++)
     {
 // STEFAN: CHECKEN
-    if(fmod(i,anz_fullcond)==0)
+    if(fmod(static_cast<double>(i),static_cast<double>(anz_fullcond))==0)
 //    if(i%anz_fullcond==0)
       {
       fullcond_alle[k*anz_fullcond]->update_bootstrap_df();
@@ -5177,7 +5177,7 @@ bool STEPMULTIrun::confidence_MCMCbootstrap(const vector<double> & modell_final,
   for(i=1;i<fullcond_alle.size();i++)
     {
 // STEFAN: CHECKEN
-    if(fmod(i,anz_fullcond)==0)
+    if(fmod(static_cast<double>(i),static_cast<double>(anz_fullcond))==0)
 //    if(i%anz_fullcond==0)
       {
       k +=1;

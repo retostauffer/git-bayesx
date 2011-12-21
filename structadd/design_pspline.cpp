@@ -661,7 +661,7 @@ void DESIGN_pspline::compute_basisNull(void)
       for(j=0;j<designlinear.cols();j++,workdl++)
         {
         h = data(posbeg[i],0);
-        *workdl =  pow(h,j+1);
+        *workdl =  pow(static_cast<double>(h),static_cast<double>(j+1));
         }
     }
 

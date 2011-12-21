@@ -874,7 +874,7 @@ void statmatrix<T>::rank(statmatrix<double> & rang,statmatrix<int> & index,
   while(i<=ende-start)
     {
     unten = i-1;
-    while( (i<=ende-start) && (this->get(index(i,0),col)-this->get(index(i-1,0),col))<pow(10,-10) )
+    while( (i<=ende-start) && (this->get(index(i,0),col)-this->get(index(i-1,0),col))<pow(10.0,-10.0) )
       {
       anzahl++;
       i++;
@@ -1518,7 +1518,7 @@ unsigned cols = maxcol-mincol;
 unsigned colinc = this->cols()-cols;
 unsigned rows = maxrow-minrow;
 unsigned i,j;
-double mult = pow(10,digits);
+double mult = pow(10.0,static_cast<double>(digits));
 T* p = this->getV() + mincol + minrow*this->cols();
 
 for(i=0; i<rows; i++, p+=colinc)

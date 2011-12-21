@@ -1656,8 +1656,8 @@ void map::reorder(const ST::string & path)
     for(j=0;j<neighbors[perm[i]].size();j++)
       {
       neighborsnew[i][j] = invp[neighbors[perm[i]][j]];
-      if (abs(i-neighborsnew[i][j]) > bandsize)
-        bandsize = abs(i-neighborsnew[i][j]);
+      if (abs(static_cast<int>(i)-static_cast<int>(neighborsnew[i][j])) > bandsize)
+        bandsize = abs(static_cast<int>(i)-static_cast<int>(neighborsnew[i][j]));
       }
 
   neighbors = neighborsnew;
@@ -1725,8 +1725,8 @@ void map::reorderopt(void)
     for (i=0;i<nrregions;i++)
       {
       for(j=0;j<neighbors[i].size();j++)
-        if (abs(i-neighbors[i][j]) > bandsize)
-          bandsize = abs(i-neighbors[i][j]);
+        if (abs(static_cast<int>(i)-static_cast<int>(neighbors[i][j])) > bandsize)
+          bandsize = abs(static_cast<int>(i)-static_cast<int>(neighbors[i][j]));
 
       }
 

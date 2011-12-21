@@ -292,8 +292,8 @@ namespace MCMC
   digits = dig;
   nbeta = nb;
 
-  minx = lk+1/pow(10,digits);
-  maxx = uk-1/pow(10,digits);
+  minx = lk+1/pow(10.0,static_cast<double>(digits));
+  maxx = uk-1/pow(10.0,static_cast<double>(digits));
 
   old = meandata;
 //  if(discretize)
