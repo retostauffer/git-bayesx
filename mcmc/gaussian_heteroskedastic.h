@@ -27,7 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"../export_type.h"
 #include"distribution.h"
 
+#if !defined(M_PI)
 #define M_PI		3.14159265358979323846
+#endif
 
 namespace MCMC
 {

@@ -17,15 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
-
-
-#if defined (__BUILDING_THE_DLL)
-#define __EXPORT_TYPingE __export
-#elif defined (__BUILDING_GNU)
-#define __EXPORT_TYPE __attribute__((dllexport))
-#else
-#define __EXPORT_TYPE __import
-#endif
+#include "../export_type.h"
 
 #if !defined (DESIGNkrigingINCLUDED)
 
