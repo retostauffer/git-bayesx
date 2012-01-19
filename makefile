@@ -99,6 +99,7 @@ STRUCTADD_SRC = \
 	structadd/FC.cpp\
 	structadd/FC_hrandom.cpp\
 	structadd/FC_hrandom_variance.cpp\
+	structadd/FC_hrandom_variance_vec.cpp\
 	structadd/FC_linear.cpp\
 	structadd/FC_mult.cpp\
 	structadd/FC_nonp.cpp\
@@ -119,7 +120,9 @@ STRUCTADD_SRC = \
 	structadd/model_parameters.cpp\
 	structadd/superbayesreg.cpp\
 	structadd/design_kriging.cpp\
-	structadd/FC_predictive_check.cpp
+	structadd/FC_predictive_check.cpp\
+        structadd/FC_predict_predictor.cpp\
+        structadd/FC_nonp_variance_vec.cpp
 SRC = \
 	$(ANDREA_SRC)\
 	$(BIB_SRC)\
@@ -135,7 +138,13 @@ SRC = \
 
 OBJ = $(patsubst %.cpp,%.o,$(SRC))
 
+LINKOBJ  = $(OBJ)
+ifeq ($(SYSTEM),Linux)
 LINKOBJ  = $(OBJ) -lreadline
+endif
+ifeq ($(SYSTEM),CYGWIN_NT-5.1)
+LINKOBJ  = $(OBJ) -lreadline
+endif
 LIBS = -g3
 INCS =  -I. -I"bib"  -I"alex"  -I"adaptiv"  -I"andrea"  -I"dag"  -I"graph"  -I"mcmc"  -I"psplines"  -I"samson"  -I"leyre"  -I"structadd"
 CXXINCS = $(INCS)
