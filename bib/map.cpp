@@ -2084,3 +2084,8 @@ void map::compute_reg(const datamatrix & d,vector<int> & posbeg,
 
 
 
+
+
+
+
+
