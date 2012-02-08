@@ -43,11 +43,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #endif
 
 
+using std::endl;
 
 namespace MAP
 {
 
-using std::endl;
 //#if defined(JAVA_OUTPUT_WINDOW)
  #if defined(MICROSOFT_VISUAL)
  const double NA = DBL_MAX;
