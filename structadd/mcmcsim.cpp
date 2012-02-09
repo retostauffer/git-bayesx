@@ -388,7 +388,7 @@ const int & seed, const bool & computemode)
           genoptions->out("\n");
           }
 
-        equations[nrmodels-1-i].distrp->outresults();
+        equations[nrmodels-1-i].distrp->outresults(equations[nrmodels-1-i].pathd);
 
         for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
           equations[nrmodels-1-i].FCpointer[j]->outresults(out_stata,out_R,equations[nrmodels-1-i].FCpaths[j]);

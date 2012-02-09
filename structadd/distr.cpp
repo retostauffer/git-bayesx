@@ -25,6 +25,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 namespace MCMC
 {
 
+void DISTR::get_samples(const ST::string & filename) const
+  {
+
+
+  }
+
+
 void DISTR::check_errors(void)
   {
   errors=false;
@@ -1918,12 +1925,18 @@ void DISTR_loggaussian::compute_deviance(const double * response,
                                  double * deviance, double * deviancesat,
                                  double * scale) const
   {
-  double r = *response-*mu;
+
+
+  double pred = log(*mu)-(*scale)/2;
+  double deviancehelp;
+  double deviancesathelp;
 
   if (*weight != 0)
     {
-    *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
-    *deviancesat = (*weight/(*scale))*r*r;
+    DISTR_gaussian::compute_deviance(response,weight,&pred,&deviancehelp,
+    &deviancesathelp,scale);
+    *deviance =  2*(*response)  + deviancehelp;
+    *deviancesat = 2*(*response)  + deviancesathelp;;
     }
 
   else

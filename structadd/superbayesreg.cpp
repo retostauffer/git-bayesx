@@ -904,7 +904,7 @@ bool superbayesreg::create_distribution(void)
                                       &generaloptions,D.getCol(0),path,w) );
 
     equations[modnr].distrp = &distr_gaussians[distr_gaussians.size()-1];
-    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+    equations[modnr].pathd = outfile.getvalue() + "_scale.res";
 
     }
 //-------------------------- END: Gaussian response ----------------------------
@@ -969,7 +969,7 @@ bool superbayesreg::create_distribution(void)
                                       &generaloptions,D.getCol(0),path,w) );
 
     equations[modnr].distrp = &distr_loggaussians[distr_loggaussians.size()-1];
-    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+    equations[modnr].pathd =  outfile.getvalue() + "_scale.res";
 
     }
 //------------------------- END: log-Gaussian response -------------------------
@@ -986,7 +986,7 @@ bool superbayesreg::create_distribution(void)
                                      &generaloptions,D.getCol(0),path,quant, w) );
 
     equations[modnr].distrp = &distr_quantregs[distr_quantregs.size()-1];
-    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+    equations[modnr].pathd = outfile.getvalue() + "_scale.res";
 
     }
 //------------------------- END: quantreg response -----------------------------
@@ -1002,7 +1002,7 @@ bool superbayesreg::create_distribution(void)
                                      &generaloptions,D.getCol(0),path,w) );
 
     equations[modnr].distrp = &distr_gaussianmixtures[distr_gaussianmixtures.size()-1];
-    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+    equations[modnr].pathd = outfile.getvalue()  + "_scale.res";
 
     }
 //------------------------- END: gaussian mixture response ---------------------
@@ -1018,7 +1018,7 @@ bool superbayesreg::create_distribution(void)
                                   &generaloptions,D.getCol(0),path,w) );
 
     equations[modnr].distrp = &distr_gaussian_exps[distr_gaussian_exps.size()-1];
-    equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+    equations[modnr].pathd =  outfile.getvalue() +  "_scale.res";
 
     }
 //------------- END: Gaussian response, exponential response function ----------
