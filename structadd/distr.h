@@ -192,7 +192,7 @@ class __EXPORT_TYPE DISTR
   //-------------- OBTAINING SAMPLES OF DISTRIBUTION PARAMETERS  ---------------
   //----------------------------------------------------------------------------
 
-  virtual void get_samples(const ST::string & filename) const;
+  virtual void get_samples(const ST::string & filename,ofstream & outg) const;
 
   //----------------------------------------------------------------------------
   //-------------- OBTAINING SAMPLES OF DISTRIBUTION PARAMETERS  ---------------
@@ -473,6 +473,8 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
    ~DISTR_gaussian() {}
 
+
+   void get_samples(const ST::string & filename,ofstream & outg) const;
 
    double compute_MSE(const double * response,
                           const double * weight,

@@ -852,6 +852,11 @@ void MCMCsim::get_samples(ST::string & pathgraphs
 
   for(j=0;j<equations.size();j++)
     {
+
+    filename =  equations[j].pathd.substr(0,equations[j].pathd.length()-4) + "_sample.raw";
+    equations[j].distrp->get_samples(filename,outg);
+
+
     for(i=0;i<equations[j].FCpointer.size();i++)
       {
       if (equations[j].FCpointer[i]->nosamples == false)

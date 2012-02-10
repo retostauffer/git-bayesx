@@ -471,6 +471,11 @@ void FC_predict::compute_MSE(const ST::string & pathresults)
       meanmse += likep->compute_MSE(responsep,weightp,linpredp,MSE,MSEparam);
 */
 
+//void FC_predict::get_samples(const ST::string & filename,ofstream & outg) const
+//  {
+//  double f=0;
+//  }
+
 void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
                             const ST::string & pathresults)
   {

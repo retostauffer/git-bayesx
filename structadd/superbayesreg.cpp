@@ -165,6 +165,7 @@ void superbayesreg::create_hregress(void)
   predictop.push_back("no");
   predictop.push_back("nosamples");
   predictop.push_back("full");
+  predictop.push_back("fulls");
   predictop.push_back("predictor");
 
   predict = stroption("predict",predictop,"no");
@@ -1142,7 +1143,7 @@ bool superbayesreg::create_predict(void)
     ST::string pathres = outfile.getvalue() +  "_" + h + "_predict.res";
 
 
-    if (predict.getvalue() == "full")
+    if ((predict.getvalue() == "full") || (predict.getvalue() == "fulls"))
       {
 
       if (equations[modnr].distrp->maindistribution == false)
@@ -1156,6 +1157,9 @@ bool superbayesreg::create_predict(void)
         FC_predicts.push_back(FC_predict(&generaloptions,
                            equations[modnr].distrp,"",pathnonp,
                            pathnonp2,D,modelvarnamesv));
+
+        if (predict.getvalue() == "fulls")
+          FC_predicts[FC_predicts.size()-1].nosamples=false;
 
         if (mse.getvalue() ==  "yes")
           FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;

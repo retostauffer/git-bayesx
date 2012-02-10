@@ -114,6 +114,8 @@ class __EXPORT_TYPE FC_predict   : public FC
   void compute_autocorr_all(const ST::string & path, unsigned lag,
                                     ofstream & outg) const;
 
+//  void get_samples(const ST::string & filename,ofstream & outg) const;
+
   void reset(void);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);

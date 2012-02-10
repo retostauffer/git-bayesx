@@ -35,6 +35,7 @@ namespace MCMC
 class __EXPORT_TYPE equation
   {
 
+  
   protected:
 
   public:

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 namespace MCMC
 {
 
-void DISTR::get_samples(const ST::string & filename) const
+void DISTR::get_samples(const ST::string & filename,ofstream & outg) const
   {
 
 
@@ -861,6 +861,19 @@ DISTR_gaussian::DISTR_gaussian(const DISTR_gaussian & nd)
   nrridge = nd.nrridge;
   FCsigma2 = nd.FCsigma2;
   }
+
+
+
+void DISTR_gaussian::get_samples(const ST::string & filename,ofstream & outg) const
+  {
+  if (filename.isvalidfile() != 1)
+    {
+
+    FCsigma2.get_samples(filename,outg);
+    }
+
+  }
+
 
 
 void DISTR_gaussian::sample_responses(unsigned i,datamatrix & sr)
