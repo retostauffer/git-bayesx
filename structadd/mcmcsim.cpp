@@ -853,7 +853,11 @@ void MCMCsim::get_samples(ST::string & pathgraphs
   for(j=0;j<equations.size();j++)
     {
 
-    filename =  equations[j].pathd.substr(0,equations[j].pathd.length()-4) + "_sample.raw";
+    if (equations[j].pathd.length() >=4)
+      filename =  equations[j].pathd.substr(0,equations[j].pathd.length()-4) + "_sample.raw";
+    else
+      filename = "";
+
     equations[j].distrp->get_samples(filename,outg);
 
 
@@ -861,12 +865,19 @@ void MCMCsim::get_samples(ST::string & pathgraphs
       {
       if (equations[j].FCpointer[i]->nosamples == false)
         {
-        filename =  equations[j].FCpaths[i].substr(0,equations[j].FCpaths[i].length()-4) + "_sample.raw";
+
+        if (equations[j].FCpaths[i].length() >= 4)
+          filename =  equations[j].FCpaths[i].substr(0,equations[j].FCpaths[i].length()-4) + "_sample.raw";
+        else
+          filename = "";
         equations[j].FCpointer[i]->get_samples(filename,outg);
-//        genoptions->out(filename + "\n");
+
         #if defined(JAVA_OUTPUT_WINDOW)
 
-        psname = equations[j].FCpaths[i].substr(0,equations[j].FCpaths[i].length()-4) + "_sample.ps";
+        if (equations[j].FCpaths[i].length() >= 4)
+          psname = equations[j].FCpaths[i].substr(0,equations[j].FCpaths[i].length()-4) + "_sample.ps";
+        else
+          psname = "";
         newc.push_back("dataset _dat");
         newc.push_back("_dat.infile , nonote using " + filename);
         newc.push_back("graph _g");

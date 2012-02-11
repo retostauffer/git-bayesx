@@ -868,7 +868,6 @@ void DISTR_gaussian::get_samples(const ST::string & filename,ofstream & outg) co
   {
   if (filename.isvalidfile() != 1)
     {
-
     FCsigma2.get_samples(filename,outg);
     }
 
@@ -2480,7 +2479,7 @@ void DISTR_gaussian_re::update(void)
 
   }
 
-  
+
 
 bool DISTR_gaussian_re::posteriormode(void)
   {
@@ -2510,6 +2509,10 @@ void DISTR_gaussian_re::outresults(ST::string pathresults)
   }
 
 
+void DISTR_gaussian_re::get_samples(const ST::string &
+                                    filename,ofstream & outg) const
+  {
+  }
 
-  
+
 } // end: namespace MCMC

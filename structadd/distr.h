@@ -1067,6 +1067,8 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
 
   void outoptions(void);
 
+  void get_samples(const ST::string & filename,ofstream & outg) const;  
+
   void check_errors(void);
 
   };
