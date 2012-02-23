@@ -144,11 +144,13 @@ set(SRC
 	adaptiv/fullcond_adaptiv.cpp
 	alex/mixture.cpp
 )
+add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC)
+if(NOT WIN32)
+add_definitions(-D__BUILDING_LINUX)
 find_package(Readline REQUIRED)
-add_definitions(-D__BUILDING_GNU -D__BUILDING_LINUX -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC)
-
+target_link_libraries(bayesx ${READLINE_LIBRARY})
+target_link_libraries(bayesxlib ${READLINE_LIBRARY})
+endif()
 include_directories(bib alex adaptiv andrea dag graph mcmc psplines samson leyre structadd)
 add_executable(bayesx ${SRC})
 add_library(bayesxlib SHARED ${SRC})
-target_link_libraries(bayesx ${READLINE_LIBRARY})
-target_link_libraries(bayesxlib ${READLINE_LIBRARY})
