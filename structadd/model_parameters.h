@@ -75,6 +75,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption tau2;
   doubleoption meaneffectconst;
   stroption prior;
+  fileoption knotpath;
+  stroption datasetref;
 
   vector<ST::string> termnames;
 

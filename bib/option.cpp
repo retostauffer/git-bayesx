@@ -166,6 +166,9 @@ int fileoption::parse(const ST::string & c)
 
 	 if (errormessages.empty())
 		{
+
+        ST::string t = token[2];
+
 		int isex = token[2].isvalidfile();
 
 		if (isex == 1)
@@ -186,6 +189,74 @@ int fileoption::parse(const ST::string & c)
     return 0;
 
   }
+
+
+//------------------------------------------------------------------------------
+//----------- CLASS fileoption2: implementation of member functions ------------
+//------------------------------------------------------------------------------
+
+
+fileoption2::fileoption2 (const ST::string & n,
+const ST::string & v,bool t) : fileoption(n,v,t)
+  {
+  }
+
+
+fileoption2::fileoption2(const fileoption2 & o) : fileoption(fileoption(o))
+  {
+  }
+
+
+const fileoption2 & fileoption2::operator=(const fileoption2 & o)
+  {
+  if (this==&o)
+	 return *this;
+  fileoption::operator=(fileoption(o));
+  return *this;
+  }
+
+
+int fileoption2::parse(const ST::string & c)
+  {
+
+  errormessages.clear();
+
+  vector<ST::string> token = c.strtoken(" =");
+
+  if ( (! token.empty()) && (token[0] == optionname ) )
+	 {
+
+	 if (token.size() < 2 || token[1] != "=")
+		errormessages.push_back("ERROR in option " + optionname + ": \"=\" expected\n");
+	 if (token.size() < 3)
+		errormessages.push_back ("ERROR in option " + optionname + ": filename specification expected\n");
+	 if (token.size() > 3)
+		errormessages.push_back("ERROR in option " + optionname + ": invalid option specification");
+
+	 if (errormessages.empty())
+		{
+
+		int isex = token[2].isexistingfile();
+
+		if (isex == 1)
+		  errormessages.push_back("ERROR in option " + optionname + ": " + token[2] +
+										  " is not an existing filename\n");
+		else
+          {
+		  value = token[2];
+          valuechanged = true;
+          }
+
+		}
+
+	 return 1;
+
+	 }
+  else
+    return 0;
+
+  }
+
 
 
 //------------------------------------------------------------------------------

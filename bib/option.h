@@ -327,6 +327,52 @@ class __EXPORT_TYPE fileoption : public option
 
 
 //------------------------------------------------------------------------------
+//------------------------- CLASS: fileoption2 ----------------------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE fileoption2 : public fileoption
+  {
+
+  protected:
+
+
+  public:
+
+  // -------------------------- PUBLIC FUNCTIONS -------------------------------
+
+
+  // DEFAULT CONSTRUCTOR
+
+  fileoption2(void) : fileoption() {}
+
+  // CONSTRUCTOR
+
+  fileoption2(const ST::string & n,const ST::string & v,bool t=true);
+
+  // COPY CONSTRUCTOR
+
+  fileoption2(const fileoption2 & o);
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const fileoption2 & operator=(const fileoption2 & o);
+
+  // FUNCTION: parse
+  // TASK: parse the string c
+
+  int parse (const ST::string & c);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//------------------------ END class fileoption2 --------------------------------
+//------------------------------------------------------------------------------
+
+
+
+//------------------------------------------------------------------------------
 //------------------------- CLASS: stroption -----------------------------------
 //------------------------------------------------------------------------------
 

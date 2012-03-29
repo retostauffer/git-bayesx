@@ -98,7 +98,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   priors.push_back("dirichlet");
 
   prior = stroption("prior",priors,"iid");
-
+  knotpath = fileoption("knotpath","");
+  datasetref = stroption("datasetref","");
 
   }
 
@@ -139,6 +140,8 @@ void term_nonp::setdefault(void)
   tau2.setdefault();
   meaneffectconst.setdefault();
   prior.setdefault();
+  knotpath.setdefault();
+  datasetref.setdefault();
   }
 
 
@@ -224,6 +227,9 @@ bool term_nonp::check(term & t)
     optlist.push_back(&tau2);
     optlist.push_back(&meaneffectconst);
     optlist.push_back(&prior);
+    optlist.push_back(&knotpath);
+    optlist.push_back(&datasetref);
+
 
 
     unsigned i;
@@ -352,6 +358,9 @@ bool term_nonp::check(term & t)
 
     t.options[35] = prior.getvalue();
 
+    t.options[36] = knotpath.getvalue();
+    t.options[37] = datasetref.getvalue();
+
     setdefault();
     return true;
 
@@ -363,5 +372,6 @@ bool term_nonp::check(term & t)
     }
 
   }
+
 
 

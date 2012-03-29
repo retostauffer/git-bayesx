@@ -77,7 +77,14 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
   likep = lp;
   designmatrix= dm;
   varnames = dn;
-  setbeta(lp->nrobs,2,0);
+  if (likep->maindistribution == true)
+    {
+    setbeta(lp->nrobs,3,0);
+    }
+  else
+    {
+    setbeta(lp->nrobs,2,0);
+    }
 
   if (likep->maindistribution == true)
     {
@@ -163,6 +170,9 @@ void FC_predict::get_predictor(void)
   double * workweight = likep->weight.getV();
   double muhelp;
   double scalehelp=likep->get_scale();
+  double weightone = 1;
+
+  double predlik;
 
   for(i=0;i<likep->nrobs;i++,worklinp++,workresponse++,workweight++,betap++)
     {
@@ -176,13 +186,26 @@ void FC_predict::get_predictor(void)
 
       deviance+=deviancehelp;
       deviancesat+=deviancesathelp;
+
+      if (*workweight==0)
+        predlik = loglikelihood(workresponse,worklinp,&weightone);
+      else
+        predlik = loglikelihood(workresponse,worklinp,workweight);
+
+
       }
 
     *betap = *worklinp;
     betap++;
     *betap = muhelp;
-    }
+    if (likep->maindistribution == true)
+      {
+      betap++;
+      *betap = predlik;
+      }
 
+    }
+    
   }
 
 
@@ -543,6 +566,24 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
       outres << "pqu"  << u1  << "_mu   ";
       outres << "pqu"  << u2  << "_mu   ";
       }
+
+
+    if (likep->maindistribution == true)
+      {
+
+      outres << "pmean_predl   ";
+
+      if (optionsp->samplesize > 1)
+        {
+        outres << "pqu"  << l1  << "_predl   ";
+        outres << "pqu"  << l2  << "_predl   ";
+        outres << "pmed_mu   ";
+        outres << "pqu"  << u1  << "_predl   ";
+        outres << "pqu"  << u2  << "_predl   ";
+        }
+
+      }
+
 
     outres << endl;
 

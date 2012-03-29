@@ -58,11 +58,15 @@ class __EXPORT_TYPE DESIGN_kriging : public DESIGN
   double maxdist;
   double nu;
 
+  ST::string knotdatapath;
+
   vector<double> xknots;              // x-und y-Koordinaten der Knoten
   vector<double> yknots;
 
   vector<double> xvalues;             // unterschiedliche Werte der Kovariablen
   vector<double> yvalues;
+
+  void read_knots_from_data(void);
 
   void compute_knots(const vector<double> & xvals,
                      const vector<double> & yvals,
@@ -97,7 +101,8 @@ class __EXPORT_TYPE DESIGN_kriging : public DESIGN
   DESIGN_kriging(void);
 
   void help_construct(const datamatrix & dmy,const datamatrix & iv,
-                 vector<ST::string> & op, vector<ST::string> & vn);
+                 vector<ST::string> & op, vector<ST::string> & vn,
+                 datamatrix & kd);
 
   // CONSTRUCTOR 1
   // x,y covariates
@@ -105,7 +110,7 @@ class __EXPORT_TYPE DESIGN_kriging : public DESIGN
   DESIGN_kriging(const datamatrix & dm, const datamatrix & iv,
                  GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
                  vector<ST::string> & op,
-                 vector<ST::string> & vn);
+                 vector<ST::string> & vn, datamatrix & kd);
 
   // CONSTRUCTOR 2
   // spatial covariate

@@ -93,7 +93,7 @@ void DESIGN_kriging::read_options(vector<ST::string> & op,vector<ST::string> & v
   else if (op[22]=="3.5")
     nu = 3.5;
 
-  f = op[23].strtodouble(maxdist);  
+  f = op[23].strtodouble(maxdist);
 
   if(maxdist<=0) // wähle maxdist so, dass Korrelation für
                  // Punkte mitmaximalem Abstand = 0.0001
@@ -116,6 +116,8 @@ void DESIGN_kriging::read_options(vector<ST::string> & op,vector<ST::string> & v
       }
     }
 
+  knotdatapath = op[36];
+
   }
 
 
@@ -125,13 +127,34 @@ DESIGN_kriging::DESIGN_kriging(void) : DESIGN()
   }
 
 
+void DESIGN_kriging::read_knots_from_data(void)
+  {
+  if (knotdatapath!="")
+    {
+    datamatrix help;
+    ifstream in(knotdatapath.strtochar());
+    if(!in.fail())
+      {
+      help.prettyScan(in);
+      nrknots=help.rows();
+      unsigned i;
+      for(i=0; i<nrknots; i++)
+        {
+        xknots.push_back(help(i,0));
+        yknots.push_back(help(i,1));
+        }
+      }
+
+    }
+  }
+
+
 void DESIGN_kriging::help_construct(const datamatrix & dmy, const datamatrix & iv,
-                               vector<ST::string> & op, vector<ST::string> & vn)
+                               vector<ST::string> & op, vector<ST::string> & vn,
+                               datamatrix & kd)
   {
 
   center = false;
-
-//  center = true;
 
   full = true;
 
@@ -141,10 +164,32 @@ void DESIGN_kriging::help_construct(const datamatrix & dmy, const datamatrix & i
 
   init_data(dmy,iv);
 
-  compute_knots(xvalues,yvalues,nrknots,-20,20,xknots,yknots);
-//  xknots = xvalues;
-//  yknots = yvalues;
+  if (kd.rows() > 1)
+    {
+    unsigned i;
+    nrknots = kd.rows();
+    for(i=0; i<nrknots; i++)
+      {
+      xknots.push_back(kd(i,0));
+      yknots.push_back(kd(i,1));
+      }
+    }
+  else
+    compute_knots(xvalues,yvalues,nrknots,-20,20,xknots,yknots);
+
   nrpar = xknots.size();
+
+  if (knotdatapath.isvalidfile() != 1)
+    {
+    ofstream out(knotdatapath.strtochar());
+    unsigned i;
+    out << datanames[0] << "   " << datanames[1] << endl;
+    for(i=0; i<nrknots; i++)
+      {
+      out << xknots[i] << "   " << yknots[i] << endl;
+      }
+    out.close();
+    }
 
   // berechne rho
   unsigned i,j;
@@ -241,7 +286,8 @@ DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
   // ende test
 
 
-  help_construct(dmy,iv,op,vn);
+  datamatrix kd;
+  help_construct(dmy,iv,op,vn,kd);
 
 
 
@@ -259,11 +305,12 @@ DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
 
 DESIGN_kriging::DESIGN_kriging(const datamatrix & dm,const datamatrix & iv,
                                GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
-                               vector<ST::string> & op, vector<ST::string> & vn)
+                               vector<ST::string> & op, vector<ST::string> & vn,
+                               datamatrix & kd)
                                : DESIGN(o,dp,fcl)
   {
 
-  help_construct(dm,iv,op,vn);
+  help_construct(dm,iv,op,vn,kd);
 
   /*
   center = false;
@@ -322,6 +369,8 @@ DESIGN_kriging::DESIGN_kriging(const DESIGN_kriging & m)
   mapexisting = m.mapexisting;
   regions = m.regions;
 
+  knotdatapath = m.knotdatapath;
+
   xknots = m.xknots;
   yknots = m.yknots;
   xvalues = m.xvalues;
@@ -347,6 +396,8 @@ const DESIGN_kriging & DESIGN_kriging::operator=(const DESIGN_kriging & m)
   ma = m.ma;
   mapexisting = m.mapexisting;
   regions = m.regions;
+
+  knotdatapath = m.knotdatapath;
 
   xknots = m.xknots;
   yknots = m.yknots;

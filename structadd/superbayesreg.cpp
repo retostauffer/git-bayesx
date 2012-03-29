@@ -1668,10 +1668,45 @@ bool superbayesreg::create_kriging(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,2);
 
+  //----------------------------------------------------------------------------
+
+  datamatrix knotdata;
+  if (terms[i].options[37] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[37],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[37] + " does not contain any data\n");
+        return true;
+        }
+      else if (datap->getVarnames().size()>2)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[37] + " contains more than two variables\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[37] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> knotnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(knotnames,knotdata,expr);
+
+    }
+
+  //----------------------------------------------------------------------------
+
   design_krigings.push_back(DESIGN_kriging(d,iv,&generaloptions,
                             equations[modnr].distrp,
                            &FC_linears[FC_linears.size()-1],
-                            terms[i].options,terms[i].varnames));
+                            terms[i].options,terms[i].varnames,knotdata));
 
   FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,
                      title, pathnonp,&design_krigings[design_krigings.size()-1],
