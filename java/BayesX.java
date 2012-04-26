@@ -39,13 +39,13 @@ import java.net.*;
  *@author Thomas Kneib
  */
 
-public class BayesX extends JFrame 
+public class BayesX extends JFrame
 	implements ActionListener, ItemListener, DocumentListener, ListSelectionListener,
 		WindowListener, AdjustmentListener//, CaretListener
 {
 
 private String defaultDirectory = (new File(System.getProperty("user.dir"),"output")).toString();
-    
+
 //Variablen der Klasse BayesX
 private JMenuBar jMenuBar;
 	private JMenu file;
@@ -129,7 +129,7 @@ private JDesktopPane jDesktopPanel;
 		private JFrame mapFrame;
 			protected MapPanel mapPanel;
 			private JFileChooser fileChooser2;
-			private JScrollPane mapFrameScrollPane;                        
+			private JScrollPane mapFrameScrollPane;
 
 private JPanel buttonPanel;
 	private JButton breakButton;
@@ -139,7 +139,7 @@ private JPanel buttonPanel;
 	private JButton outputButton;
 	private JLabel priorityLabel;
 	private JComboBox priorityBox;
-private File registryFile; 
+private File registryFile;
 	private int[] registryArray;
 	private String registryString;
 private boolean consoleInput;
@@ -260,7 +260,7 @@ public BayesX()
 		}
 
 	this.getContentPane().setLayout(new BorderLayout(5,5));
-	
+
 //Erzeugen der Menüleiste
 
 	jMenuBar = new JMenuBar();
@@ -431,7 +431,7 @@ public BayesX()
 	breakButton.addActionListener(this);
 	breakButton.setRequestFocusEnabled(false);
 	breakButton.setEnabled(false);
-	
+
 	pauseButton = new JButton("PAUSE");
 	pause = false;
 	processRunning = false;
@@ -517,7 +517,7 @@ public BayesX()
 					{
 					StringSelection sel = new StringSelection(outputPane.getSelectedText());
 					cb.setContents(sel,sel);
-					outputPane.replaceSelection("");					
+					outputPane.replaceSelection("");
 					}
 				else if(e.getKeyCode()==KeyEvent.VK_C)
 					{
@@ -553,7 +553,7 @@ public BayesX()
 	jDesktopPanel.add(output);
 	output.setBounds(registryArray[2],registryArray[3],registryArray[4],registryArray[5]);
 	Out("BayesX - Software for Bayesian Inference in Structured Additive Regression Models\n\n",true,false,(short)11,0,0,0);
-	Out("Version 2.0.1 (21.10.2009)\n\n");
+	Out("Version 2.1 (26.04.2012)\n\n");
 
 //	Out("Note: When running time consuming computations it is useful to reduce the priority of BayesX in the Windows Task-Manager!\n\n");
 	hasBeenSaved = false;
@@ -651,7 +651,7 @@ public BayesX()
 				{
 				int index = reviewList.getSelectedIndex();
 				if(index>-1)
-					{	
+					{
 					String selected = (String)reviewVector.elementAt(index);
 					commandArea.setText(selected);
 					try
@@ -674,7 +674,7 @@ public BayesX()
 				{
 				int index = reviewList.getSelectedIndex();
 				if(index>-1)
-					{	
+					{
 					String selected = (String)reviewVector.elementAt(index);
 					commandArea.setText(selected);
 					try
@@ -834,7 +834,7 @@ public BayesX()
 	setTitle("BayesX");
 	setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 	setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
-	
+
 // Random Number Generation
 
 	Random seed = new Random();
@@ -1156,13 +1156,15 @@ public void actionPerformed(ActionEvent ae)
         else if(source.equals("About BayesX"))
                 {
 		JOptionPane.showMessageDialog(this,"BayesX\n\nSoftware for Bayesian Inference in Structured Additive Regression Models\n"+
-			"Version 2.0.1 (21.10.2009)\n\n"+
+			"Version 2.1 (26.04.2012)\n\n"+
 			"developed by\n"+
 			"  Christiane Belitz\n"+
 			"  Andreas Brezger\n"+
 			"  Thomas Kneib\n"+
-			"  Stefan Lang\n\n"+
+			"  Stefan Lang\n"+
+			"  Nikolaus Umlauf\n\n"+
 			"with contributions by\n"+
+			"  Daniel Adler\n"+
 			"  Eva-Maria Fronk\n"+
 			"  Felix Heinzl\n"+
 			"  Andrea Hennerfeind\n"+
@@ -1172,11 +1174,12 @@ public void actionPerformed(ActionEvent ae)
 			"  Petra Kragler\n"+
 			"  Cornelia Oberhauser\n"+
 			"  Leyre Estibaliz Osuna Echavarria\n"+
-			"  Daniel Sabanes Bove\n\n"+
+			"  Daniel Sabanes Bove\n"+
+			"  Achim Zeileis\n\n"+
 			"supported by\n"+
 			"  Ludwig Fahrmeir (mentally)\n"+
 			"  Leo Held (mentally)\n"+
-			"  German Science Foundation (financially)","About BayesX"
+			"  German Research Foundation (financially)","About BayesX"
 			,JOptionPane.INFORMATION_MESSAGE,new ImageIcon(Toolkit.getDefaultToolkit().getImage("bayesicon.gif")));
 		}
 	else if(source.equals("BREAK"))
@@ -1224,7 +1227,7 @@ public void actionPerformed(ActionEvent ae)
 		if(processRunning)
 			{
 			Out("\nPROGRAM PAUSED\nClick CONTINUE to proceed\n\n");
-			}			
+			}
 		pauseButton.setToolTipText("Continues the current process");
 
 		}
@@ -1450,9 +1453,9 @@ public void windowClosing(WindowEvent we)
 								null, options1, null);
 							if(returnValue1==JOptionPane.YES_OPTION)
 								{
-			                                        PrintWriter out = new PrintWriter(new FileWriter(f));        
+			                                        PrintWriter out = new PrintWriter(new FileWriter(f));
                                                                 if(function==3)
-                                                                        mapPanel.Saveplotnonp(out);    
+                                                                        mapPanel.Saveplotnonp(out);
                                                                 else if(function==2)
                                                                         mapPanel.Savedrawmap(out);
                                                                 else if(function==1)
@@ -1490,9 +1493,9 @@ public void windowClosing(WindowEvent we)
 									}
 								}
 							}
-	                                        PrintWriter out = new PrintWriter(new FileWriter(f));      
+	                                        PrintWriter out = new PrintWriter(new FileWriter(f));
                                                 if(function==3)
-                                                        mapPanel.Saveplotnonp(out);    
+                                                        mapPanel.Saveplotnonp(out);
                                                 else if(function==2)
                                                         mapPanel.Savedrawmap(out);
                                                 else if(function==1)
@@ -1511,9 +1514,9 @@ public void windowClosing(WindowEvent we)
 						}
 					else
 						{
-                        	                PrintWriter out = new PrintWriter(new FileWriter(f));        
+                        	                PrintWriter out = new PrintWriter(new FileWriter(f));
                                                 if(function==3)
-                                                        mapPanel.Saveplotnonp(out);    
+                                                        mapPanel.Saveplotnonp(out);
                                                 else if(function==2)
                                                         mapPanel.Savedrawmap(out);
                                                 else if(function==1)
@@ -1670,8 +1673,8 @@ public void adjustmentValueChanged(AdjustmentEvent ae)
 				objectTable.setValueAt(getValue(j+r,i+c),j,i+c);
 				}
 			rowHeaderTable.setValueAt(new Integer(j+r+1),j+1,0);
-			}		
-		}		
+			}
+		}
 	}
 
 //Hilfsfunktionen zur Event-Bearbeitung
@@ -1683,7 +1686,7 @@ public String getExtension(File f)
 	String ext = null;
 	String s = f.getName();
 	int i = s.lastIndexOf('.');
-	if (i > 0 &&  i < s.length() - 1) 
+	if (i > 0 &&  i < s.length() - 1)
 		{
 		ext = s.substring(i+1).toLowerCase();
 		}
@@ -1694,16 +1697,16 @@ public String getExtension(File f)
 
 
 public void JavaShowData()
-	{	
+	{
 	setEnabled(false);
-	
+
 	varnames = new Vector();
 	setVarnames(varnames);
 	rows = Math.min(19,getRows());
 	cols = Math.min(7,varnames.size());
 	data = new Object[rows][varnames.size()];
 	vars = new Object[varnames.size()];
-	
+
 	for(int i=0; i<cols; i++)
 		{
 		for(int j=0; j<rows; j++)
@@ -1802,7 +1805,7 @@ public void JavaShowData()
 					objectTable.setValueAt(getValue(j+r,i+c),j,i+c);
 					}
 				rowHeaderTable.setValueAt(new Integer(j+r+1),j+1,0);
-				}		
+				}
 			}
 		});
 	objectFrame.pack();
@@ -1816,16 +1819,16 @@ public void JavaShowData()
 
 public void JavaDescribeMap(boolean opt)
 	{
-            
+
         int width;
         int height;
-        
+
         function = 1;
 
         drawnames = opt;
 	fontsize = 0;
         outfile = "";
-        
+
         setEnabled(false);
 	fileChooser2 = new JFileChooser(defaultDirectory);
 	fileChooser2.addChoosableFileFilter(new MapFilter());
@@ -1833,28 +1836,28 @@ public void JavaDescribeMap(boolean opt)
 	double[] d = new double[4];
 	getboundaries(d);
         mapPanel = new MapPanel(this);
-        
+
 //        mapPanel.setfunction((short)1);
-        
-	mapFrame.getContentPane().add(mapPanel,BorderLayout.CENTER);        
+
+	mapFrame.getContentPane().add(mapPanel,BorderLayout.CENTER);
 	mapFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
  	mapFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
  	mapFrame.addWindowListener(this);
-        
+
         width = 500;
         height = (int)(width*(d[3]-d[1])/(d[2]-d[0]));
-        
+
         if(height>700)
                 {
                 width = (int)(width*700/height);
                 height = 700;
                 }
-        
+
         mapFrame.setSize(width + 8,height + 27);
 
 
-        if(outfile.equals(""))        
-                {    
+        if(outfile.equals(""))
+                {
 		mapFrame.show();
 //		parseThread.suspend();
 		setPause(true);
@@ -1864,8 +1867,8 @@ public void JavaDescribeMap(boolean opt)
                 {
                 try
                         {
-                        PrintWriter out = new PrintWriter(new FileWriter(outfile));        
-                        mapPanel.SaveMap(out);   
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));
+                        mapPanel.SaveMap(out);
                         setEnabled(true);
                         mapFrame.dispose();
                         }
@@ -1874,21 +1877,21 @@ public void JavaDescribeMap(boolean opt)
 	        	System.err.println(ioe.getMessage());
 		        }
                 }
- 
+
 	}
 
 public void JavaShowMap(boolean opt, int jfontsize, String joutfile)
 	{
-            
+
         int width;
         int height;
-        
+
         function = 1;
 
         drawnames = opt;
 	fontsize = jfontsize;
         outfile = joutfile;
-        
+
         setEnabled(false);
 	fileChooser2 = new JFileChooser(defaultDirectory);
 	fileChooser2.addChoosableFileFilter(new MapFilter());
@@ -1896,28 +1899,28 @@ public void JavaShowMap(boolean opt, int jfontsize, String joutfile)
 	double[] d = new double[4];
 	getboundaries(d);
         mapPanel = new MapPanel(this);
-        
+
 //        mapPanel.setfunction((short)1);
-        
-	mapFrame.getContentPane().add(mapPanel,BorderLayout.CENTER);        
+
+	mapFrame.getContentPane().add(mapPanel,BorderLayout.CENTER);
 	mapFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
  	mapFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
  	mapFrame.addWindowListener(this);
-        
+
         width = 500;
         height = (int)(width*(d[3]-d[1])/(d[2]-d[0]));
-        
+
         if(height>700)
                 {
                 width = (int)(width*700/height);
                 height = 700;
                 }
-        
+
         mapFrame.setSize(width + 8,height + 27);
 
 
-        if(outfile.equals(""))        
-                {    
+        if(outfile.equals(""))
+                {
 		mapFrame.show();
 //		parseThread.suspend();
 		setPause(true);
@@ -1927,8 +1930,8 @@ public void JavaShowMap(boolean opt, int jfontsize, String joutfile)
                 {
                 try
                         {
-                        PrintWriter out = new PrintWriter(new FileWriter(outfile));        
-                        mapPanel.SaveMap(out);   
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));
+                        mapPanel.SaveMap(out);
                         setEnabled(true);
                         mapFrame.dispose();
                         }
@@ -1937,7 +1940,7 @@ public void JavaShowMap(boolean opt, int jfontsize, String joutfile)
 	        	System.err.println(ioe.getMessage());
 		        }
                 }
- 
+
 	}
 
 public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4, boolean opt5,
@@ -1950,12 +1953,12 @@ public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4, 
 		setPause(true);
 		parseThread.setPriority(Thread.MIN_PRIORITY);
 		}
-       
+
         int width;
         int height;
 
         function = 2;
-        
+
         color = opt1;
         legend = opt2;
         swap = opt3;
@@ -1966,7 +1969,7 @@ public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4, 
         shades = jshades;
 	fontsize = jfontsize;
         outfile = joutfile;
-        title = jtitle;        
+        title = jtitle;
         titlescale = jtitlescale;
 
         if(jpcat)
@@ -1975,15 +1978,15 @@ public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4, 
             lowerlimit = -1;
             upperlimit = 1;
             }
-        
+
         setEnabled(false);
-	double[] d = new double[4];        
+	double[] d = new double[4];
         getboundaries(d);
 	mapFrame = new JFrame("Object-Viewer");
 	mapPanel = new MapPanel(this);
-  
-//        mapPanel.setfunction((short)2);        
-        
+
+//        mapPanel.setfunction((short)2);
+
         if(outfile.equals(""))
                 {
 	        fileChooser2 = new JFileChooser(defaultDirectory);
@@ -1992,8 +1995,8 @@ public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4, 
 	        mapFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
  	        mapFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
  	        mapFrame.addWindowListener(this);
-                }        
-        
+                }
+
         width = 500;
         height = (int)(width*(d[3]-d[1])/(d[2]-d[0]));
 
@@ -2008,25 +2011,25 @@ public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4, 
                 height = height + 35;
                 help = help + 35;
                 }
-            
+
         if(height>700)
                 {
                 width = (int)(width*(700-help)/height);
                 height = 700;
                 }
-        
-        mapFrame.setSize(width + 8, height + 27);           
 
-        if(outfile.equals(""))        
-                {    
+        mapFrame.setSize(width + 8, height + 27);
+
+        if(outfile.equals(""))
+                {
                 mapFrame.show();
                 }
         else
                 {
                 try
                         {
-                        PrintWriter out = new PrintWriter(new FileWriter(outfile));        
-                        mapPanel.Savedrawmap(out);   
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));
+                        mapPanel.Savedrawmap(out);
                         setEnabled(true);
                         mapFrame.dispose();
                         }
@@ -2035,25 +2038,25 @@ public void Javadrawmap(boolean opt1, boolean opt2, boolean opt3, boolean opt4, 
 	        	System.err.println(ioe.getMessage());
 		        }
                 }
-        
+
                 if(nrNA > 0 && nrNA < getnrregions())
                     {
-                    String str = "NOTE: " + String.valueOf(nrNA) + " missing value(s) plotted\n";                    
-                    Out(str,false,false,(short)11,0,0,0);        
+                    String str = "NOTE: " + String.valueOf(nrNA) + " missing value(s) plotted\n";
+                    Out(str,false,false,(short)11,0,0,0);
                     }
-                else if (nrNA >= getnrregions())        
+                else if (nrNA >= getnrregions())
                     {
-                    String str = "WARNING: only missing values plotted - map probably doesn't match data file\n";   
-                    Out(str,true,true,(short)11,255,0,0);        
-                    }        
-        
-	}        
-        
+                    String str = "WARNING: only missing values plotted - map probably doesn't match data file\n";
+                    Out(str,true,true,(short)11,255,0,0);
+                    }
+
+	}
+
 public void Javaplotnonp(String joutfile, String jtitle, String jxlab, String jylab,
                          String jconnect, String jlinecolor, int jheight, int jwidth, double jxmax, double jxmin,
                          double jymax, double jymin, double jxstep, double jxstart, double jystep, double jystart,
-			 int jyear, int jmonth, int jlinewidth, int jpointsize, int jfontsize, double jtitlescale)                          
-                         
+			 int jyear, int jmonth, int jlinewidth, int jpointsize, int jfontsize, double jtitlescale)
+
         {
         if(joutfile.equals(""))
                 {
@@ -2062,7 +2065,7 @@ public void Javaplotnonp(String joutfile, String jtitle, String jxlab, String jy
 		parseThread.setPriority(Thread.MIN_PRIORITY);
 		}
         function = 3;
-        
+
         outfile = joutfile;
         title = jtitle;
         xlab = jxlab;
@@ -2091,11 +2094,11 @@ public void Javaplotnonp(String joutfile, String jtitle, String jxlab, String jy
         mapFrame = new JFrame("Object-Viewer");
 
         mapPanel = new MapPanel(this);
-//        mapPanel.setfunction((short)3);        
+//        mapPanel.setfunction((short)3);
 
 //        MapPanel mapPanel2 = new MapPanel(this);
-//        mapPanel2.setfunction((short)3);                  
-        
+//        mapPanel2.setfunction((short)3);
+
         if(outfile.equals(""))
                 {
 	        fileChooser2 = new JFileChooser(defaultDirectory);
@@ -2104,10 +2107,10 @@ public void Javaplotnonp(String joutfile, String jtitle, String jxlab, String jy
                 JTabbedPane mapTabbedPane = new JTabbedPane();
 	        mapTabbedPane.addTab("Page 1",mapPanel);
 //                mapTabbedPane.addTab("Page 2",mapPanel2);
-               
+
                 mapFrame.getContentPane().add(mapTabbedPane,BorderLayout.CENTER);
 //	        mapFrame.getContentPane().add(mapPanel,BorderLayout.CENTER);
-                
+
 	        mapFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
  	        mapFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
  	        mapFrame.addWindowListener(this);
@@ -2118,8 +2121,8 @@ public void Javaplotnonp(String joutfile, String jtitle, String jxlab, String jy
                 {
                 try
                         {
-                        PrintWriter out = new PrintWriter(new FileWriter(outfile));        
-                        mapPanel.Saveplotnonp(out);   
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));
+                        mapPanel.Saveplotnonp(out);
                         setEnabled(true);
                         mapFrame.dispose();
                         }
@@ -2127,10 +2130,10 @@ public void Javaplotnonp(String joutfile, String jtitle, String jxlab, String jy
         	        {
 	        	System.err.println(ioe.getMessage());
 		        }
-                }        
-        
+                }
+
 //        resetplotoptions();
-        
+
         }
 
 /*
@@ -2138,7 +2141,7 @@ public void Javaplot(String joutfile, String jtitle, String jxlab, String jylab,
                      String jconnect, int jheight, int jwidth, int jlinewidth, int jfontsize)
         {
         function = 3;
-        
+
         outfile = joutfile;
         title = jtitle;
         xlab = jxlab;
@@ -2159,23 +2162,23 @@ public void Javaplot(String joutfile, String jtitle, String jxlab, String jylab,
 	        fileChooser2.addChoosableFileFilter(new MapFilter());
 
                 int nrpages = 5;    // berechnen
-                
-                JTabbedPane mapTabbedPane = new JTabbedPane();                
+
+                JTabbedPane mapTabbedPane = new JTabbedPane();
                 MapPanel[] mapPanels = new MapPanel[nrpages];
-                
+
                 for(int i=0;i<nrpages;i++)
                     {
                     mapPanels[i] = new MapPanel(this);
-//                    mapPanels[i].setfunction((short)3);                                      
+//                    mapPanels[i].setfunction((short)3);
 // hier alles speichern, was man für die ganze Seite braucht
 //                  for(int j=0;j<nrplots;j++)
 //                  mapPanels[i].data[j][][]
 //                  mapPanels[i].minX[j]
-//                  mapPanels[i].setparam[i]       
-                    
+//                  mapPanels[i].setparam[i]
+
                     mapTabbedPane.addTab("Page "+(i+1),mapPanels[i]);
                     }
-               
+
                 mapFrame.getContentPane().add(mapTabbedPane,BorderLayout.CENTER);
 	        mapFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
  	        mapFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -2189,18 +2192,18 @@ public void Javaplot(String joutfile, String jtitle, String jxlab, String jylab,
                 {
                 try
                         {
-                        PrintWriter out = new PrintWriter(new FileWriter(outfile));        
-                        mapPanel.Saveplotnonp(out);   
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));
+                        mapPanel.Saveplotnonp(out);
                         setEnabled(true);
                         mapFrame.dispose();
                         }
                 catch(IOException ioe)
         	        {
 	        	System.err.println(ioe.getMessage());
-		        }      
-                }        
+		        }
+                }
         }
-*/        
+*/
 
 public void Javaplotsample(String joutfile, String jconnect)
         {
@@ -2211,16 +2214,16 @@ public void Javaplotsample(String joutfile, String jconnect)
 		parseThread.setPriority(Thread.MIN_PRIORITY);
 		}
         function = 4;
-        
+
         plotsperpage = 6;
-        
+
         outfile = joutfile;
         connect = jconnect;
 
         setEnabled(false);
 	mapFrame = new JFrame("Object-Viewer");
-        
-        mapPanel = new MapPanel(this);        
+
+        mapPanel = new MapPanel(this);
 
         if(outfile.equals(""))
                 {
@@ -2228,23 +2231,23 @@ public void Javaplotsample(String joutfile, String jconnect)
 	        fileChooser2.addChoosableFileFilter(new MapFilter());
 
                 int nrpages = (getDCols()-2)/plotsperpage+1;
-                
+
         	JTabbedPane mapTabbedPane = new JTabbedPane();
                 MapPanel[] mapPanels = new MapPanel[nrpages];
-                
+
                 for(int i=0;i<nrpages;i++)
                     {
                     mapPanels[i] = new MapPanel(this);
                     mapPanels[i].page = (short)(i);
                     mapTabbedPane.addTab("Page "+(i+1),mapPanels[i]);
-                    }                
+                    }
 
                 mapFrameScrollPane = new JScrollPane(mapTabbedPane);
-//                mapFrameScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);                
-                mapFrameScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);                                
-                
-//                mapFrame.getContentPane().add(mapTabbedPane,BorderLayout.CENTER);        
-                mapFrame.getContentPane().add(mapFrameScrollPane,BorderLayout.CENTER);                        
+//                mapFrameScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                mapFrameScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+//                mapFrame.getContentPane().add(mapTabbedPane,BorderLayout.CENTER);
+                mapFrame.getContentPane().add(mapFrameScrollPane,BorderLayout.CENTER);
 	        mapFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
  	        mapFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
  	        mapFrame.addWindowListener(this);
@@ -2255,9 +2258,9 @@ public void Javaplotsample(String joutfile, String jconnect)
                 {
                 try
                         {
-                        PrintWriter out = new PrintWriter(new FileWriter(outfile));   
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));
 //                        mapPanel = new MapPanel(this);
-                        mapPanel.Saveplotsample(out);   
+                        mapPanel.Saveplotsample(out);
                         setEnabled(true);
                         mapFrame.dispose();
                         }
@@ -2265,9 +2268,9 @@ public void Javaplotsample(String joutfile, String jconnect)
         	        {
 	        	System.err.println(ioe.getMessage());
 		        }
-                }        
+                }
         }
-        
+
 public void Javaplotautocor(String joutfile, String jconnect, boolean jmeanautocor)
         {
         if(joutfile.equals(""))
@@ -2277,43 +2280,43 @@ public void Javaplotautocor(String joutfile, String jconnect, boolean jmeanautoc
 		parseThread.setPriority(Thread.MIN_PRIORITY);
 		}
         function = 5;
-        
+
         outfile = joutfile;
         connect = jconnect;
         meanautocor = jmeanautocor;
-        
+
         if(meanautocor==false)
             plotsperpage = 6;
         else
             plotsperpage = 3;
-        
+
         setEnabled(false);
 	mapFrame = new JFrame("Object-Viewer");
 
         mapPanel = new MapPanel(this);
-        
+
         if(outfile.equals(""))
                 {
 	        fileChooser2 = new JFileChooser(defaultDirectory);
 	        fileChooser2.addChoosableFileFilter(new MapFilter());
 
                 int nrpages = (getDCols()-2)/plotsperpage+1;
-                
+
         	JTabbedPane mapTabbedPane = new JTabbedPane();
                 MapPanel[] mapPanels = new MapPanel[nrpages];
-                
+
                 for(int i=0;i<nrpages;i++)
                     {
                     mapPanels[i] = new MapPanel(this);
                     mapPanels[i].page = (short)(i);
                     mapTabbedPane.addTab("Page "+(i+1),mapPanels[i]);
-                    }                
-                
+                    }
+
                 mapFrameScrollPane = new JScrollPane(mapTabbedPane);
-                mapFrameScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);                
-                
+                mapFrameScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
 //                mapFrame.getContentPane().add(mapTabbedPane,BorderLayout.CENTER);
-                mapFrame.getContentPane().add(mapFrameScrollPane,BorderLayout.CENTER);                
+                mapFrame.getContentPane().add(mapFrameScrollPane,BorderLayout.CENTER);
 	        mapFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
  	        mapFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
  	        mapFrame.addWindowListener(this);
@@ -2324,8 +2327,8 @@ public void Javaplotautocor(String joutfile, String jconnect, boolean jmeanautoc
                 {
                 try
                         {
-                        PrintWriter out = new PrintWriter(new FileWriter(outfile));        
-                        mapPanel.Saveplotautocor(out);   
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));
+                        mapPanel.Saveplotautocor(out);
                         setEnabled(true);
                         mapFrame.dispose();
                         }
@@ -2333,16 +2336,16 @@ public void Javaplotautocor(String joutfile, String jconnect, boolean jmeanautoc
         	        {
 	        	System.err.println(ioe.getMessage());
 		        }
-                }        
+                }
         }
 
 
 public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jylab, String jzlab,
-			 double jxrot, double jyrot, double jzrot, String jlinecolor, int jheight, int jwidth, 
+			 double jxrot, double jyrot, double jzrot, String jlinecolor, int jheight, int jwidth,
  			 double jxlimtop, double jxlimbottom, double jylimtop, double jylimbottom, double jzlimtop, double jzlimbottom,
 	                 double jxstep, double jxstart, double jystep, double jystart, double jzstep, double jzstart, int jgridsize,
-			 int jlinewidth, int jpointsize, int jfontsize, double jtitlescale)                          
-                         
+			 int jlinewidth, int jpointsize, int jfontsize, double jtitlescale)
+
         {
         if(joutfile.equals(""))
                 {
@@ -2350,7 +2353,7 @@ public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jy
 		parseThread.setPriority(Thread.MIN_PRIORITY);
 		}
         function = 6;
-        
+
         outfile = joutfile;
         title = jtitle;
         xlab = jxlab;
@@ -2385,13 +2388,13 @@ public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jy
         mapFrame = new JFrame("Object-Viewer");
 
         mapPanel = new MapPanel(this);
-        
+
         if(outfile.equals(""))
                 {
 	        fileChooser2 = new JFileChooser(defaultDirectory);
 	        fileChooser2.addChoosableFileFilter(new MapFilter());
 
-                mapFrame.getContentPane().add(mapPanel,BorderLayout.CENTER);          
+                mapFrame.getContentPane().add(mapPanel,BorderLayout.CENTER);
 	        mapFrame.setIconImage(Toolkit.getDefaultToolkit().getImage("bayesicon.gif"));
  	        mapFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
  	        mapFrame.addWindowListener(this);
@@ -2402,8 +2405,8 @@ public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jy
                 {
                 try
                         {
-                        PrintWriter out = new PrintWriter(new FileWriter(outfile));        
-                        mapPanel.Saveplotsurf(out);   
+                        PrintWriter out = new PrintWriter(new FileWriter(outfile));
+                        mapPanel.Saveplotsurf(out);
                         setEnabled(true);
                         mapFrame.dispose();
                         }
@@ -2411,20 +2414,20 @@ public void Javaplotsurf(String joutfile, String jtitle, String jxlab, String jy
         	        {
 	        	System.err.println(ioe.getMessage());
 		        }
-                }        
-        
+                }
+
         }
 
 
-/*        
+/*
 private void resetplotoptions()
         {
         xstep = 0.0;
         ystep = 0.0;
-        }   
+        }
 */
 
-// für maps        
+// für maps
 native void getline(double[] d, int i, int j, int k);
 native void getboundaries(double[] d);
 native int getnrregions();
@@ -2509,9 +2512,9 @@ public void fileAction(int i)
 			System.err.println(ble.getMessage());
 			}
 		}
-	}		
+	}
 
-        
+
 public void fileCommand(int i)
 	{
 	try
@@ -2653,7 +2656,7 @@ public void fileCommand(int i)
 				{
 				fileAction(i);
 				}
-			else	
+			else
 				{
 				}
 			}
@@ -2816,12 +2819,12 @@ public void saveOutput()
 
 
 //Funktionen, die die Kommunikation mit C++ steuern
-   
+
 static
 	{
 	System.loadLibrary("bayesxdll");
-	}        
-        
+	}
+
 
 private void checkDefaultpath(String str)
 	{
@@ -2847,11 +2850,11 @@ private void checkDefaultpath(String str)
 			}
 		}
 	}
-        
+
 //private void JavaOutput(String str)
 //private void JavaOutput(String str, boolean thick, boolean italic, short size)
 //public void JavaOutput(String str, boolean thick, boolean italic, short size, int c1, int c2, int c3)
-private void JavaOutput(String str, boolean thick, boolean italic, short size, int c1, int c2, int c3)        
+private void JavaOutput(String str, boolean thick, boolean italic, short size, int c1, int c2, int c3)
         {
 	if(consoleInput)
 		{
@@ -2912,7 +2915,7 @@ private void JavaOutput(String str, boolean thick, boolean italic, short size, i
 		}
 	}
 
-private void JavaOutput(String str)        
+private void JavaOutput(String str)
         {
 	if(consoleInput)
 		{
@@ -2949,9 +2952,9 @@ private void JavaOutput(String str)
 			}
 		}
 	}
- 
-        
-public void Out(String str, boolean thick, boolean italic, short size, int c1, int c2, int c3)        
+
+
+public void Out(String str, boolean thick, boolean italic, short size, int c1, int c2, int c3)
         {
 	if(consoleInput)
 		{
@@ -2995,7 +2998,7 @@ public void Out(String str, boolean thick, boolean italic, short size, int c1, i
 	}
 
 
-public void Out(String str)        
+public void Out(String str)
         {
 	if(consoleInput)
 		{
@@ -3003,7 +3006,7 @@ public void Out(String str)
 		}
 	else
 		{
-		final String stri = str;       
+		final String stri = str;
 		try
 			{
 			outputDocument.insertString(outputDocument.getLength(),stri,outputAttributes);
@@ -3014,7 +3017,7 @@ public void Out(String str)
 			}
 		}
 	}
-        
+
 private void JavaReview(String str)
 	{
 	if(!consoleInput)
@@ -3026,38 +3029,38 @@ private void JavaReview(String str)
 		reviewVector.add(str);
 		reviewList.setListData(reviewVector);
 		}
-	}        
-        
+	}
+
 private void ClearOutput()
 	{
 	fileCommand(2);
 	}
 
-        
+
 private void addtoVector(Vector v, String str)
 	{
-	v.add(str);       
+	v.add(str);
 	}
-        
+
 private void JavaSaveOutput()
 	{
 	saveOutput();
 	}
-     
-        
+
+
 private void setDelim(String str)
         {
         if (str.equals("return"))
-          {  
+          {
           delimiter = '\n';
           }
         else if (str.equals("semicolon"))
-          {   
+          {
           delimiter = ';';
           }
         }
 
-        
+
 private native void setObjectList(Vector v, String type);
 private native void setObjectTypeList(Vector v);
 
@@ -3201,7 +3204,7 @@ void finished()
 	commandArea.requestFocus();
 	int index1 = objectsList1.getSelectedIndex();
 	if(index1>-1)
-		{	
+		{
 		objectVector.clear();
 		String selected = (String)objectsVector.elementAt(index1);
 		setObjectList(objectVector,selected);
@@ -3212,9 +3215,9 @@ void finished()
 
 native boolean parse(String str);
 private native void parsecommand(String str);
-private native void parsecommand2(JTextArea oA, String str);    
-    
-        
+private native void parsecommand2(JTextArea oA, String str);
+
+
 //Klasse main, die ein BayesX-Fenster erzeugt und anzeigt
 public static void main(String[] args)
 	{
@@ -3222,7 +3225,7 @@ public static void main(String[] args)
 		{
 		BayesX b = new BayesX();
 		b.consoleInput = true;
-		System.out.println("\nBayesX Version 1.51");
+		System.out.println("\nBayesX Version 2.1");
 		System.out.println("Software for Bayesian Inference in Structured Additive Regression Models");
 		BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 		String str = null;
