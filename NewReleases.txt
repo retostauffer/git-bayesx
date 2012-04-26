@@ -1,0 +1,41 @@
+To Do for New Releases of BayesX
+
+1. Compile Manual
+
+- Change version no. in LaTeX-sources (add exact location)
+- Compile manuals by calling manual\make_manuals.bat (compiles the pdfs and copies them to appropriate places)
+
+2. Build Windows Version with Installer
+
+- Change version no. in java-sources (add exact location)
+- Build C++-code (update all projects in baysx_project.bpg with Borland Builder)
+- Call java\make_bayesx.bat to compile the java resources
+- Delete all temporary files from java\temp and java\output
+- Build installer with install4j (Explain download of install4j, Licencing information, Download of virtual machines, project)
+- The installer is located in ...
+
+3. Build Command Line Version
+
+- Compile bayesx.cbp with CodeBlocks (change build target to `Release')
+- The compiled command line version is located in bin\Release
+
+4. Build Source Code Distribution
+
+- Call make_sourcecode.bat
+- bayesxsource.zip is located in sourcecode
+
+5. Update Website
+
+- Anonymous SVN-account details
+- GPL
+- News
+- Modify download section (version no. etc)
+- Archive of old versions
+
+
+Add explanation for the different software components?
+
+- Borland-Builder incl java
+- install4j
+- CodeBlocks
+
