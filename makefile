@@ -138,8 +138,6 @@ SRC = \
 
 OBJ = $(patsubst %.cpp,%.o,$(SRC))
 
-LINKOBJ  = $(OBJ) -lreadline
-LIBS = -g3
 INCS =  -I. -I"bib"  -I"alex"  -I"adaptiv"  -I"andrea"  -I"dag"  -I"graph"  -I"mcmc"  -I"psplines"  -I"samson"  -I"leyre"  -I"structadd"
 CXXINCS = $(INCS)
 
@@ -199,21 +197,25 @@ SYSTEM := $(shell uname -s)
 DEFINES = -D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC
 ifeq ($(SYSTEM),Linux)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
+    LIBS := ${LIBS} -lreadline
 endif
 ifeq ($(SYSTEM),CYGWIN_NT-5.1)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
+    LIBS := ${LIBS} -lreadline
 endif
 ifeq ($(SYSTEM),Darwin)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
+    LIBS := ${LIBS} -lreadline
     # Building Universal Binaries..
     #TARGET_ARCH = -arch i386 -arch x86_64
 endif
 ifeq ($(SYSTEM),FreeBSD)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
+    LIBS := ${LIBS} -lreadline
 endif
 ifeq ($(SYSTEM),OpenBSD)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
-LIBS += -lncurses
+    LIBS := ${LIBS} -lreadline -lncurses
 endif
 CFLAGS = $(WARNINGS) $(INCS) $(DEFINES) -O3 -ansi
 CXXFLAGS = $(CFLAGS)
@@ -227,7 +229,7 @@ clean: clean-custom
 	${RM} $(OBJ) $(BIN) $(subst .cpp,.d,$(SRC))
 
 $(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o "BayesX" $(LIBS) $(TARGET_ARCH) 
+	$(CPP) $(OBJ) -o "BayesX" $(LIBS) $(TARGET_ARCH) 
 
 # automatic dependency generation
 ifneq ($(MAKECMDGOALS),clean)
