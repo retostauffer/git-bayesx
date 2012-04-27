@@ -121,8 +121,8 @@ STRUCTADD_SRC = \
 	structadd/superbayesreg.cpp\
 	structadd/design_kriging.cpp\
 	structadd/FC_predictive_check.cpp\
-        structadd/FC_predict_predictor.cpp\
-        structadd/FC_nonp_variance_vec.cpp
+	structadd/FC_predict_predictor.cpp\
+	structadd/FC_nonp_variance_vec.cpp
 SRC = \
 	$(ANDREA_SRC)\
 	$(BIB_SRC)\
@@ -138,13 +138,7 @@ SRC = \
 
 OBJ = $(patsubst %.cpp,%.o,$(SRC))
 
-LINKOBJ  = $(OBJ)
-ifeq ($(SYSTEM),Linux)
 LINKOBJ  = $(OBJ) -lreadline
-endif
-ifeq ($(SYSTEM),CYGWIN_NT-5.1)
-LINKOBJ  = $(OBJ) -lreadline
-endif
 LIBS = -g3
 INCS =  -I. -I"bib"  -I"alex"  -I"adaptiv"  -I"andrea"  -I"dag"  -I"graph"  -I"mcmc"  -I"psplines"  -I"samson"  -I"leyre"  -I"structadd"
 CXXINCS = $(INCS)
@@ -192,9 +186,11 @@ else
     # -Wunreachable-code
     # -Wunused-value
     # -Wall  -> and then reduce the number of redundant warnings
-    WARNINGS := $(WARNINGS) -Waddress -Wempty-body -Wendif-labels\
+    WARNINGS := $(WARNINGS) -Waddress -Wendif-labels\
        	-Wmissing-braces -Wmissing-declarations -Wpragmas -Wundef -Wunused-macros\
-       	-Wunused-variable -Wtype-limits
+       	-Wunused-variable 
+    # -Wempty-body 
+    # -Wtype-limits
 endif
 
 
@@ -206,6 +202,18 @@ ifeq ($(SYSTEM),Linux)
 endif
 ifeq ($(SYSTEM),CYGWIN_NT-5.1)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
+endif
+ifeq ($(SYSTEM),Darwin)
+    DEFINES := $(DEFINES) -D__BUILDING_LINUX
+    # Building Universal Binaries..
+    #TARGET_ARCH = -arch i386 -arch x86_64
+endif
+ifeq ($(SYSTEM),FreeBSD)
+    DEFINES := $(DEFINES) -D__BUILDING_LINUX
+endif
+ifeq ($(SYSTEM),OpenBSD)
+    DEFINES := $(DEFINES) -D__BUILDING_LINUX
+LIBS += -lncurses
 endif
 CFLAGS = $(WARNINGS) $(INCS) $(DEFINES) -O3 -ansi
 CXXFLAGS = $(CFLAGS)
@@ -219,7 +227,7 @@ clean: clean-custom
 	${RM} $(OBJ) $(BIN) $(subst .cpp,.d,$(SRC))
 
 $(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o "BayesX" $(LIBS) 
+	$(CPP) $(LINKOBJ) -o "BayesX" $(LIBS) $(TARGET_ARCH) 
 
 # automatic dependency generation
 ifneq ($(MAKECMDGOALS),clean)
