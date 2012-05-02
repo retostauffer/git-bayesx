@@ -87,7 +87,7 @@ FC_linear::FC_linear(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
   IWLS = likep->updateIWLS;
 
   center = cent;
-
+  rankXWX_ok = true;
   }
 
 
@@ -102,6 +102,7 @@ FC_linear::FC_linear(const FC_linear & m)
   designhelp = m.designhelp;
   meaneffectdesign = m.meaneffectdesign;
   XWX = m.XWX;
+  rankXWX_ok = m.rankXWX_ok;
   XWXold = m.XWXold;
   XWXroot = m.XWXroot;
   Xt = m.Xt;
@@ -140,6 +141,7 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   designhelp = m.designhelp;
   meaneffectdesign = m.meaneffectdesign;
   XWX = m.XWX;
+  rankXWX_ok = m.rankXWX_ok;
   XWXold = m.XWXold;
   XWXroot = m.XWXroot;
   Xt = m.Xt;
@@ -262,7 +264,7 @@ void FC_linear::update_IWLS(void)
 
 void FC_linear::update(void)
   {
-  if (datanames.size() > 0)
+  if ((datanames.size() > 0) && (rankXWX_ok==true))
     {
     if (IWLS)
       update_IWLS();
@@ -281,7 +283,7 @@ void FC_linear::update(void)
 
 void FC_linear::update_gaussian(void)
   {
-  if (datanames.size() > 0)
+  if ((datanames.size() > 0) && (rankXWX_ok==true))
     {
     if (!initialize)
       create_matrices();
@@ -584,36 +586,48 @@ bool FC_linear::posteriormode(void)
 
   if (datanames.size() > 0)
     {
-    if (!initialize)
-      create_matrices();
+    if (rankXWX_ok == true)
+      {
+      if (!initialize)
+        create_matrices();
 
-    double h = likep->compute_iwls(true,false);
+      double h = likep->compute_iwls(true,false);
 
-    compute_XWX(XWX);
+      compute_XWX(XWX);
+      datamatrix test = XWX.cinverse();
+      if (test.rows() < XWX.rows())
+        {
+        rankXWX_ok = false;
+        optionsp->out("    WARNING: Cross product matrix for linear effects is rank deficient\n");
+        optionsp->out("             linear effects are not estimated\n");
+        optionsp->out("\n");
+        }
+      }
 
-    linold.mult(design,beta);
-    compute_Wpartres(linold);
+    if (rankXWX_ok == true)
+      {
+      linold.mult(design,beta);
+      compute_Wpartres(linold);
 
-    Xtresidual.mult(Xt,residual);
+      Xtresidual.mult(Xt,residual);
 
-    beta = XWX.solve(Xtresidual);
+      beta = XWX.solve(Xtresidual);
 
-    betadiff.minus(beta,betaold);
+      betadiff.minus(beta,betaold);
 
-    if (likep->linpred_current==1)
-      likep->linearpred1.addmult(design,betadiff);
-    else
-      likep->linearpred2.addmult(design,betadiff);
+      if (likep->linpred_current==1)
+        likep->linearpred1.addmult(design,betadiff);
+      else
+        likep->linearpred2.addmult(design,betadiff);
 
-    betaold.assign(beta);
+      betaold.assign(beta);
 
-//    transform(0,0) = likep->trmult;
+      masterp->level1_likep->meaneffect -= meaneffect;
+      meaneffect = (meaneffectdesign*beta)(0,0);
+      masterp->level1_likep->meaneffect += meaneffect;
 
-    masterp->level1_likep->meaneffect -= meaneffect;
-    meaneffect = (meaneffectdesign*beta)(0,0);
-    masterp->level1_likep->meaneffect += meaneffect;
-
-    return FC::posteriormode();
+      return FC::posteriormode();
+      }
     }
 
   return true;
@@ -623,7 +637,7 @@ bool FC_linear::posteriormode(void)
 void FC_linear::compute_autocorr_all(const ST::string & path,
                               unsigned lag, ofstream & outg) const
   {
-  if (datanames.size() > 0)
+  if ((datanames.size() > 0) && (rankXWX_ok==true))
     {
     FC::compute_autocorr_all(path,lag,outg);
     }
@@ -642,7 +656,7 @@ void FC_linear::outoptions(void)
 void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
                            const ST::string & pathresults)
   {
-  if (datanames.size() > 0)
+  if ((datanames.size() > 0) && (rankXWX_ok==true))
     {
 
     FC::outresults(out_stata,out_R,pathresults);

@@ -101,6 +101,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   workingweight = weight;
 
   weightsone = check_weightsone();
+
   nrzeroweights = compute_nrzeroweights();
 
   wtype = wweightschange_weightsneqone;

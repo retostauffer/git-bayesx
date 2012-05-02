@@ -66,6 +66,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   datamatrix Xt;                             // transposed designmatrix
   datamatrix XWX;
+  bool rankXWX_ok;
   datamatrix XWXold;
   datamatrix XWXroot;
   datamatrix residual;

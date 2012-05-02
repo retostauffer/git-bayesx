@@ -226,9 +226,11 @@ void FC_predict::outoptions(void)
 
 
 
-void FC_predict::outresults_DIC(void)
+void FC_predict::outresults_DIC(const ST::string & pathresults)
   {
 
+  ST::string pathresultsdic = pathresults.substr(0,pathresults.length()-4) + "_DIC.res";
+  ofstream out(pathresultsdic.strtochar());
 
   double deviance2=0;
   double deviance2_sat=0;
@@ -269,6 +271,7 @@ void FC_predict::outresults_DIC(void)
   else
     d = 8;
 
+  out << "deviance   pd dic" << endl;
 
   optionsp->out("  ESTIMATION RESULTS FOR THE DIC: \n",true);
   optionsp->out("\n");
@@ -278,14 +281,16 @@ void FC_predict::outresults_DIC(void)
 
   optionsp->out("    Deviance(bar_mu):           " +
   ST::doubletostring(deviance2,d) + "\n");
+  out << deviance2 << "   ";
 
   optionsp->out("    pD:                         " +
   ST::doubletostring(devhelpm-deviance2,d) + "\n");
+  out << (devhelpm-deviance2) << "   ";
 
   optionsp->out("    DIC:                        " +
   ST::doubletostring(2*devhelpm-deviance2,d) + "\n");
   optionsp->out("\n");
-
+  out << (2*devhelpm-deviance2) << "   " << endl;
 
   optionsp->out("    DIC based on the saturated deviance\n");
   optionsp->out("\n");
@@ -670,7 +675,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     if (likep->maindistribution == true)
       {
       outresults_deviance();
-      outresults_DIC();
+      outresults_DIC(pathresults);
       }
 
     }   // end if (pathresults.isvalidfile() != 1)
