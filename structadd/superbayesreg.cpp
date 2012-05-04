@@ -957,7 +957,6 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "multinom_probit" && equationtype.getvalue()=="meanservant")
     {
 
-
     distr_multinomprobits.push_back(DISTR_multinomprobit(&generaloptions,false,D.getCol(0)));
 
     equations[modnr].distrp = &distr_multinomprobits[distr_multinomprobits.size()-1];
@@ -977,9 +976,10 @@ bool superbayesreg::create_distribution(void)
       unsigned i;
       for (i=0;i<distr_multinomprobits.size()-1;i++)
         {
-         distr_multinomprobits[distr_multinomprobits.size()-1].othercat.push_back(&distr_multinomprobits[i]);
-
+        distr_multinomprobits[distr_multinomprobits.size()-1].assign_othercat(&distr_multinomprobits[i]);
         }
+
+      distr_multinomprobits[distr_multinomprobits.size()-1].create_responsecat();
 
       }
 

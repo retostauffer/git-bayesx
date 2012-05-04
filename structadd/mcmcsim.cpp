@@ -206,7 +206,7 @@ const int & seed, const bool & computemode)
   genoptions->out("\n");
 
   //--------------- Compute posterior mode as starting value -------------------
-
+/*
   if (computemode)
     {
 
@@ -215,7 +215,7 @@ const int & seed, const bool & computemode)
     ST::string h = "";
     bool c = posteriormode(h,true);
     }
-
+*/
   //-------------- end: Compute posterior mode as starting value ---------------
 
 
