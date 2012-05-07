@@ -1,6 +1,3 @@
-c:
-cd c:\bayesx
-
 cp -f makefile sourcecode\makefile
 cp -f values.h sourcecode\values.h
 cp -f export_type.h sourcecode\export_type.h
@@ -21,6 +18,7 @@ cp -rf examples sourcecode
 
 cd sourcecode\adaptiv
 rm -rf CVS
+rm -rf .svn
 rm *.~*
 rm #*
 rm *.obj
@@ -29,6 +27,7 @@ rm *.d
 
 cd ..\examples
 rm -rf CVS
+rm -rf .svn
 rm *.~*
 rm #*
 rm *.obj
@@ -37,6 +36,7 @@ rm *.d
 
 cd ..\alex
 rm -rf CVS
+rm -rf .svn
 rm *.~*
 rm #*
 rm *.obj
@@ -45,6 +45,7 @@ rm *.d
 
 cd ..\andrea
 rm -rf CVS
+rm -rf .svn
 rm *.~*
 rm #*
 rm *.obj
@@ -52,6 +53,7 @@ rm *.o
 rm *.d
 
 cd ..\bib
+rm -rf .svn
 rm -rf CVS
 rm *.~*
 rm #*
@@ -61,6 +63,7 @@ rm *.o
 rm *.d
 
 cd ..\dag
+rm -rf .svn
 rm -rf CVS
 rm *.~*
 rm #*
@@ -69,6 +72,7 @@ rm *.o
 rm *.d
 
 cd ..\graph
+rm -rf .svn
 rm -rf CVS
 rm *.~*
 rm #*
@@ -78,6 +82,7 @@ rm *.d
 
 cd ..\leyre
 rm -rf CVS
+rm -rf .svn
 rm *.~*
 rm #*
 rm *.obj
@@ -86,6 +91,7 @@ rm *.d
 
 cd ..\mcmc
 rm -rf CVS
+rm -rf .svn
 rm *.~*
 rm #*
 rm *.obj
@@ -94,6 +100,7 @@ rm *.d
 
 cd ..\psplines
 rm -rf CVS
+rm -rf .svn
 rm *.~*
 rm #*
 rm *.obj
@@ -102,6 +109,7 @@ rm *.d
 
 cd ..\samson
 rm -rf CVS
+rm -rf .svn
 rm *.~*
 rm #*
 rm *.obj
@@ -109,6 +117,7 @@ rm *.o
 rm *.d
 
 cd ..\structadd
+rm -rf .svn
 rm -rf CVS
 rm *.~*
 rm #*
@@ -123,6 +132,7 @@ rm bayesxsource.zip
 rm *.o
 rm *.d
 rm *.exe
-zip -ll -r bayesxsource.zip c:\bayesx\sourcecode
+zip -ll -r bayesxsource.zip .
 
+cd ..
 

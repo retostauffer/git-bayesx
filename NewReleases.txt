@@ -14,8 +14,9 @@ To Do for New Releases of BayesX
 - Build C++-code (update all projects in bayesx_project.bpg with Borland Builder)
 - Call java\make_bayesx.bat to compile the java resources
 - Delete all temporary files from java\temp and java\output
-- Build installer with install4j (project bayesx.install4j, change version no., check JVM)
+- Build installer with install4j (project bayesx.install4j, change version no., check Java Virtual Machine)
 - The installer is located in installjava\bayesxjava
+- Test the installer
 
 
 3. Build Command Line Version
@@ -28,6 +29,7 @@ To Do for New Releases of BayesX
 
 - Call make_sourcecode.bat
 - bayesxsource.zip is located in sourcecode
+- Test sourcecode
 
 
 5. Update Website
@@ -41,6 +43,7 @@ To Do for New Releases of BayesX
 - Archive of old versions if not yet available (i.e. rename sourcecode.zip to sourcecode_x_y.zip and BayesX_windows.exe to BayesX_windows_x_y.exe with x and y replacing appropriate version info)
 - Upload new sourcecode.zip and BayesX_windows.exe (no version numbers)
 
+- News: GPL, Windows 7
 
 - Anonymous SVN-account details
 - GPL
