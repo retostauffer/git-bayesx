@@ -115,6 +115,7 @@ STRUCTADD_SRC = \
 	structadd/design_pspline.cpp\
 	structadd/distr.cpp\
 	structadd/distr_categorical.cpp\
+	structadd/distr_categorical_mult.cpp\
 	structadd/distr_mixture.cpp\
 	structadd/mcmcsim.cpp\
 	structadd/model_parameters.cpp\
