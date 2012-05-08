@@ -1,5 +1,7 @@
-BayesX - Software for Bayesian Inference in Structured Additive Regression Models
-Version 2.00
+BayesX - Software for Bayesian Inference in
+Structured Additive Regression Models.
+Copyright (C) 2011  Christiane Belitz, Andreas Brezger,
+Thomas Kneib, Stefan Lang, Nikolaus Umlauf
 
 Developed by
 
@@ -7,9 +9,11 @@ Christiane Belitz
 Andreas Brezger
 Thomas Kneib (Carl von Ossietzky University Oldenburg)
 Stefan Lang (Leopold-Franzens-University Innsbruck)
+Nikolaus Umlauf Lang (Leopold-Franzens-University Innsbruck)
 
 With contributions
 
+Daniel Adler
 Eva-Maria Fronk
 Felix Heinzl
 Andrea Hennerfeind
@@ -20,12 +24,18 @@ Petra Kragler
 Cornelia Oberhauser
 Leyre Estíbaliz Osuna Echavarría
 Daniel Sabanés Bové
+Achim Zeileis 
 
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
-The authors of this software grant to any individual or non-commercial organization the right to use and modify this software
-and to make an unlimited number of copies of it. Usage by commercial entities requires a license from the authors. This
-software cannot be sold without written authorization from the authors. This restriction is not intended to apply for connect
-time charges, or flat rate connection/download fees for electronic bulletin board services. The authors of this program accept
-no responsibility for damages resulting from the use of this software and make no warranty on representation, either express or
-implied, including but not limited to, any implied warranty of merchantability or fitness for a particular purpose. This
-software is provided as is, and you, its user, assume all risks when using it.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.

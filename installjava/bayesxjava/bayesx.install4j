@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="4.2.7" transformSequenceNumber="2">
-  <directoryPresets config="C:/bayesx/internet/bayesx/tutorials/regression_step/steptutorial.prg" />
-  <application name="BayesX" distributionSourceDir="" applicationId="2916-3818-7425-2636" mediaDir="c:/bayesx/installjava/bayesxjava" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="false" missingFilesStrategy="warn" shortName="BayesX" publisher="BayesX Group" publisherWeb="http://www.stat.uni-muenchen.de/~bayesx" version="2.0.2" allPathsRelative="false" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.4.2" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
+<install4j version="5.0.9" transformSequenceNumber="3">
+  <directoryPresets config="P:/bayesx/trunk/java" />
+  <application name="BayesX" distributionSourceDir="" applicationId="2916-3818-7425-2636" mediaDir="p:/bayesx/trunk/installjava/bayesxjava" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="BayesX" publisher="BayesX Group" publisherWeb="http://www.bayesx.org" version="2.1" allPathsRelative="false" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.4.2" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -12,114 +12,105 @@
       <envVar name="JDK_HOME" />
     </searchSequence>
     <variables />
+    <mergedProjects />
   </application>
-  <files>
+  <files keepModificationTimes="false" missingFilesStrategy="warn" globalExcludeSuffixes="" defaultOverwriteMode="4" defaultUninstallMode="0" launcherOverwriteMode="3" defaultFileMode="644" defaultDirMode="755">
     <filesets />
     <roots />
     <mountPoints>
       <mountPoint id="17" root="" location="output" mode="755" />
       <mountPoint id="18" root="" location="temp" mode="755" />
-      <mountPoint id="20" root="" location="umontreal" mode="755" />
-      <mountPoint id="25" root="" location="doc" mode="755" />
       <mountPoint id="63" root="" location="commandline" mode="755" />
       <mountPoint id="100" root="" location="examples" mode="755" />
       <mountPoint id="19" root="" location="" mode="755" />
     </mountPoints>
     <entries>
-      <dirEntry mountPoint="20" file="C:/bayesx/java/umontreal" overwrite="4" shared="false" mode="644" uninstallMode="0" excludeSuffixes="" dirMode="755">
+      <fileEntry mountPoint="63" file="P:/bayesx/trunk/bin/Release/bayesx.exe" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="100" file="P:/bayesx/trunk/examples/credit.prg" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="100" file="P:/bayesx/trunk/examples/credit.raw" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="100" file="P:/bayesx/trunk/examples/munich.bnd" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="100" file="P:/bayesx/trunk/examples/rent.prg" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="100" file="P:/bayesx/trunk/examples/rent94.raw" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="100" file="P:/bayesx/trunk/internet/bayesx/tutorials/zambia.bnd" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="100" file="P:/bayesx/trunk/internet/bayesx/tutorials/zambia.raw" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="100" file="P:/bayesx/trunk/internet/bayesx/tutorials/regression_mcmc/mcmctutorial.prg" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="100" file="P:/bayesx/trunk/internet/bayesx/tutorials/regression_reml/remltutorial.prg" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="100" file="P:/bayesx/trunk/internet/bayesx/tutorials/regression_step/steptutorial.prg" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <dirEntry mountPoint="19" file="P:/bayesx/trunk/java/umontreal" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="umontreal" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude>
-          <entry location="CVS" fileType="regular" />
-          <entry location="iro/CVS" fileType="regular" />
-          <entry location="iro/lecuyer/CVS" fileType="regular" />
-          <entry location="iro/lecuyer/probdist/CVS" fileType="regular" />
-          <entry location="iro/lecuyer/randvar/CVS" fileType="regular" />
-          <entry location="iro/lecuyer/rng/CVS" fileType="regular" />
-          <entry location="iro/lecuyer/util/CVS" fileType="regular" />
+          <entry location=".svn" fileType="regular" />
         </exclude>
       </dirEntry>
-      <fileEntry mountPoint="25" file="C:/bayesx/java/doc/methodology_manual.pdf" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="25" file="C:/bayesx/java/doc/reference_manual.pdf" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="25" file="C:/bayesx/java/doc/tutorials_manual.pdf" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="63" file="C:/bayesx/bin/Release/bayesx.exe" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/examples/credit.prg" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/examples/credit.raw" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/examples/munich.bnd" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/examples/rent.prg" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/examples/rent94.raw" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/internet/bayesx/tutorials/zambia.bnd" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/internet/bayesx/tutorials/zambia.raw" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/internet/bayesx/tutorials/regression_mcmc/mcmctutorial.prg" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/internet/bayesx/tutorials/regression_reml/remltutorial.prg" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/internet/bayesx/tutorials/regression_step/steptutorial.prg" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="100" file="C:/bayesx/examples/rent94means.raw" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/adminparseDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/Bayesicon.gif" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/bayesregDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$1.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$10.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$11.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$12.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$13.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$14.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$15.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$16.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$17.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$2.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$3.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$4.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$5.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$6.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$7.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$8.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX$9.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesX.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/BayesXdll.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/borlndmm.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/CP3240MT.DLL" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/dagDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/dagobjectDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/dataobjDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/Dense.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/File_Writer.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/graphobjDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/Interpolate.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/MAPDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/MapFilter.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/mapobjDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/MapPanel.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/Matrix3D.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/MatrixclassesDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/MCMCDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/OutputFilter.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/OutputFilter2.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/PageableText.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/ParseData.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/parser_dataDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/ParseThread$1.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/ParseThread$2.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/ParseThread$ThreadVar.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/ParseThread.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/Plot3D.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/PSGr2.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/PSGrBase.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/RandomDLL.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/registry.bayesx" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/remlregDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/ShellExec.exe" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/Sort.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/Sort_ind.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/statobjDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/stepwiseregDLL_java.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/stringDLL.dll" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/Surfplot.class" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/vcl35.bpl" overwrite="4" shared="false" mode="644" uninstallMode="0" />
-      <fileEntry mountPoint="19" file="C:/bayesx/java/vclx35.bpl" overwrite="4" shared="false" mode="644" uninstallMode="0" />
+      <dirEntry mountPoint="19" file="P:/bayesx/trunk/java/doc" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="doc" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/adminparseDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/Bayesicon.gif" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/bayesregDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$1.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$10.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$11.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$12.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$13.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$14.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$15.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$16.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$17.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$2.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$3.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$4.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$5.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$6.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$7.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$8.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX$9.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesX.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/dagobjectDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/dataobjDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/BayesXdll.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/borlndmm.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/CP3240MT.DLL" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/dagDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/Dense.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/File_Writer.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/graphobjDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/Interpolate.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/MAPDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/MapFilter.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/mapobjDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/MapPanel.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/Matrix3D.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/MatrixclassesDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/MCMCDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/OutputFilter.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/OutputFilter2.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/PageableText.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/ParseData.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/parser_dataDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/ParseThread$1.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/ParseThread$2.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/ParseThread$ThreadVar.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/ParseThread.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/Plot3D.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/PSGr2.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/PSGrBase.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/RandomDLL.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/registry.bayesx" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/remlregDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/ShellExec.exe" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/Sort.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/Sort_ind.class" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/statobjDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/stepwiseregDLL_java.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/stringDLL.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/vcl35.bpl" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="19" file="P:/bayesx/trunk/java/vclx35.bpl" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
     </entries>
     <components />
   </files>
   <launchers>
-    <launcher name="BayesX" id="23" external="false" excludeFromMenu="false" menuName="" icnsFile="" pngIcon16File="C:/bayesx/java/Bayesicon16x16.png" pngIcon32File="C:/bayesx/java/Bayesicon32x32.png" macServiceDependencies="" swtApp="false" fileset="">
-      <executable name="BayesX" type="1" iconSet="true" iconFile="" executableDir="." redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false">
+    <launcher name="BayesX" id="23" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="" icnsFile="" swtApp="false" fileset="">
+      <executable name="BayesX" type="1" iconSet="true" iconFile="" executableDir="." redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
       <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="0" height="0" bitmapFile="" java6SplashScreen="false">
@@ -132,26 +123,45 @@
         <classPath>
           <directory location="." failOnError="false" />
         </classPath>
-        <nativeLibraryDirectories />
+        <nativeLibraryDirectories>
+          <directory name="." />
+        </nativeLibraryDirectories>
       </java>
       <includedFiles />
       <unextractableFiles />
+      <vmOptionsFile mode="none" overwriteMode="0" fileMode="644">
+        <content />
+      </vmOptionsFile>
       <customScript mode="1" file="">
-        <scriptLines />
+        <content />
       </customScript>
+      <iconImageFiles>
+        <file path="P:/bayesx/trunk/java/Bayesicon16x16.png" />
+        <file path="P:/bayesx/trunk/java/Bayesicon32x32.png" />
+      </iconImageFiles>
     </launcher>
   </launchers>
-  <installerGui installerType="1" suggestPreviousProgramGroup="false" addOnAppId="" suggestPreviousLocations="true">
-    <customCode useInstalledFiles="false" />
+  <installerGui installerType="1" addOnAppId="" suggestPreviousLocations="true" autoUpdateDescriptorUrl="" useAutoUpdateBaseUrl="false" autoUpdateBaseUrl="">
+    <customCode />
+    <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
+      <commentFiles />
+      <customAttributes />
+    </autoUpdate>
     <applications>
-      <application name="" id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" enabled="true" commentSet="false" comment="" customIcnsFile="" customIcoFile="">
+      <application name="" id="installer" customizedId="" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" enabled="true" commentSet="false" comment="" fileset="" customIcnsFile="" customIcoFile="" automaticLauncherIntegration="false" launchMode="startupFirstWindow" launchInNewProcess="false" launchSchedule="updateSchedule" allLaunchers="true">
         <serializedBean>
           <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.applications.InstallerApplication" />
+            <object class="com.install4j.runtime.beans.applications.InstallerApplication">
+              <void property="frameSizeClientArea">
+                <boolean>false</boolean>
+              </void>
+            </object>
           </java>
         </serializedBean>
+        <launcherIds />
+        <variables />
         <startup>
-          <screen name="" id="1" beanClass="com.install4j.runtime.beans.screens.StartupScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+          <screen name="" id="1" customizedId="" beanClass="com.install4j.runtime.beans.screens.StartupScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.StartupScreen" />
@@ -161,12 +171,21 @@
             <validation />
             <preActivation />
             <postActivation />
-            <actions />
+            <actions>
+              <action name="" id="101" customizedId="" beanClass="com.install4j.runtime.beans.actions.misc.RequestPrivilegesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.misc.RequestPrivilegesAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+            </actions>
             <formComponents />
           </screen>
         </startup>
         <screens>
-          <screen name="" id="2" beanClass="com.install4j.runtime.beans.screens.WelcomeScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+          <screen name="" id="2" customizedId="" beanClass="com.install4j.runtime.beans.screens.WelcomeScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.WelcomeScreen" />
@@ -176,23 +195,32 @@
             <validation />
             <preActivation />
             <postActivation />
-            <actions />
+            <actions>
+              <action name="" id="102" customizedId="" beanClass="com.install4j.runtime.beans.actions.misc.LoadResponseFileAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="true" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.misc.LoadResponseFileAction" />
+                  </java>
+                </serializedBean>
+                <condition>context.getBooleanVariable("sys.confirmedUpdateInstallation")</condition>
+              </action>
+            </actions>
             <formComponents />
           </screen>
-          <screen name="" id="3" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+          <screen name="" id="3" customizedId="" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" />
               </java>
             </serializedBean>
-            <condition />
+            <condition>!context.getBooleanVariable("sys.confirmedUpdateInstallation")</condition>
             <validation />
             <preActivation />
             <postActivation />
             <actions />
             <formComponents />
           </screen>
-          <screen name="" id="4" beanClass="com.install4j.runtime.beans.screens.ComponentsScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+          <screen name="" id="4" customizedId="" beanClass="com.install4j.runtime.beans.screens.ComponentsScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.ComponentsScreen" />
@@ -205,20 +233,24 @@
             <actions />
             <formComponents />
           </screen>
-          <screen name="" id="5" beanClass="com.install4j.runtime.beans.screens.StandardProgramGroupScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+          <screen name="" id="5" customizedId="" beanClass="com.install4j.runtime.beans.screens.StandardProgramGroupScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.screens.StandardProgramGroupScreen" />
+                <object class="com.install4j.runtime.beans.screens.StandardProgramGroupScreen">
+                  <void property="programGroupName">
+                    <string>${compiler:sys.fullName}</string>
+                  </void>
+                </object>
               </java>
             </serializedBean>
-            <condition />
+            <condition>!context.getBooleanVariable("sys.confirmedUpdateInstallation")</condition>
             <validation />
             <preActivation />
             <postActivation />
             <actions />
             <formComponents />
           </screen>
-          <screen name="" id="6" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="true" backButton="2" finishScreen="false">
+          <screen name="" id="6" customizedId="" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="true" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.InstallationScreen" />
@@ -229,7 +261,7 @@
             <preActivation />
             <postActivation />
             <actions>
-              <action name="" id="7" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+              <action name="" id="7" customizedId="" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="2" errorMessage="${i18n:FileCorrupted}">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.InstallFilesAction" />
@@ -237,19 +269,19 @@
                 </serializedBean>
                 <condition />
               </action>
-              <action name="" id="8" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+              <action name="" id="8" customizedId="" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction">
-                      <void property="programGroupName">
-                        <string>${compiler:sys.fullName}</string>
+                      <void property="uninstallerMenuName">
+                        <string>${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</string>
                       </void>
                     </object>
                   </java>
                 </serializedBean>
-                <condition />
+                <condition>!context.getBooleanVariable("sys.programGroupDisabled")</condition>
               </action>
-              <action name="" id="9" beanClass="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+              <action name="" id="9" customizedId="" beanClass="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction">
@@ -264,7 +296,7 @@
             </actions>
             <formComponents />
           </screen>
-          <screen name="" id="10" beanClass="com.install4j.runtime.beans.screens.FinishedScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="true">
+          <screen name="" id="10" customizedId="" beanClass="com.install4j.runtime.beans.screens.FinishedScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="true" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.FinishedScreen" />
@@ -279,14 +311,20 @@
           </screen>
         </screens>
       </application>
-      <application name="" id="uninstaller" beanClass="com.install4j.runtime.beans.applications.UninstallerApplication" enabled="true" commentSet="false" comment="" customIcnsFile="" customIcoFile="">
+      <application name="" id="uninstaller" customizedId="" beanClass="com.install4j.runtime.beans.applications.UninstallerApplication" enabled="true" commentSet="false" comment="" fileset="" customIcnsFile="" customIcoFile="" automaticLauncherIntegration="false" launchMode="startupFirstWindow" launchInNewProcess="false" launchSchedule="updateSchedule" allLaunchers="true">
         <serializedBean>
           <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.applications.UninstallerApplication" />
+            <object class="com.install4j.runtime.beans.applications.UninstallerApplication">
+              <void property="frameSizeClientArea">
+                <boolean>false</boolean>
+              </void>
+            </object>
           </java>
         </serializedBean>
+        <launcherIds />
+        <variables />
         <startup>
-          <screen name="" id="11" beanClass="com.install4j.runtime.beans.screens.StartupScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+          <screen name="" id="11" customizedId="" beanClass="com.install4j.runtime.beans.screens.StartupScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.StartupScreen" />
@@ -296,12 +334,14 @@
             <validation />
             <preActivation />
             <postActivation />
-            <actions />
+            <actions>
+              <link name="" id="103" customizedId="" beanClass="" enabled="true" targetId="101" mergedProjectId="" />
+            </actions>
             <formComponents />
           </screen>
         </startup>
         <screens>
-          <screen name="" id="12" beanClass="com.install4j.runtime.beans.screens.UninstallWelcomeScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+          <screen name="" id="12" customizedId="" beanClass="com.install4j.runtime.beans.screens.UninstallWelcomeScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.UninstallWelcomeScreen" />
@@ -314,7 +354,7 @@
             <actions />
             <formComponents />
           </screen>
-          <screen name="" id="13" beanClass="com.install4j.runtime.beans.screens.UninstallationScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+          <screen name="" id="13" customizedId="" beanClass="com.install4j.runtime.beans.screens.UninstallationScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.UninstallationScreen" />
@@ -325,7 +365,7 @@
             <preActivation />
             <postActivation />
             <actions>
-              <action name="" id="14" beanClass="com.install4j.runtime.beans.actions.UninstallFilesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+              <action name="" id="14" customizedId="" beanClass="com.install4j.runtime.beans.actions.UninstallFilesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.UninstallFilesAction" />
@@ -336,7 +376,7 @@
             </actions>
             <formComponents />
           </screen>
-          <screen name="" id="16" beanClass="com.install4j.runtime.beans.screens.UninstallFailureScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="true">
+          <screen name="" id="16" customizedId="" beanClass="com.install4j.runtime.beans.screens.UninstallFailureScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="true" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.UninstallFailureScreen" />
@@ -349,7 +389,7 @@
             <actions />
             <formComponents />
           </screen>
-          <screen name="" id="15" beanClass="com.install4j.runtime.beans.screens.UninstallSuccessScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="true">
+          <screen name="" id="15" customizedId="" beanClass="com.install4j.runtime.beans.screens.UninstallSuccessScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="true" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.UninstallSuccessScreen" />
@@ -367,15 +407,21 @@
     </applications>
   </installerGui>
   <mediaSets>
-    <win32 name="Windows" id="21" mediaFileName="" installDir="BayesX" overridePrincipalLanguage="false" requires64bit="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" includedJRE="windows-x86-1.6.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL="" runAsAdmin="true">
+    <windows name="Windows" id="21" customizedId="" mediaFileName="" installDir="BayesX" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.7.0_03" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="1" downloadURL="" verifyIntegrity="true">
       <excludedLaunchers />
-      <excludedComponents />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
       <variables />
-    </win32>
+      <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
+        <commentFiles />
+        <customAttributes />
+      </autoUpdate>
+      <excludedComponents />
+      <includedDownloadableComponents />
+    </windows>
   </mediaSets>
   <buildIds buildAll="true" />
+  <buildOptions verbose="false" faster="false" debug="false" />
 </install4j>
 

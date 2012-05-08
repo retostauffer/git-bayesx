@@ -129,6 +129,7 @@ cd ..
 mkdir gnuobj
 
 rm bayesxsource.zip
+rm bayesxsource.tar.gz
 rm *.o
 rm *.d
 rm *.exe

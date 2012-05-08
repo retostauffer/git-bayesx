@@ -7,7 +7,13 @@ To Do for New Releases of BayesX
 - Compile manuals by calling manual\make_manuals.bat (compiles the pdfs and copies them to appropriate places)
 
 
-2. Build Windows Version with Installer
+2. Build Command Line Version
+
+- Compile bayesx.cbp with CodeBlocks (change build target to `Release')
+- The compiled command line version is located in bin\Release
+
+
+3. Build Windows Version with Installer
 
 - Change version no. in java-sources (java\BayesX.java, line 556, 1159, 3225)
 - Modify authors if needed (java\BayesX.java, lines 1160ff)
@@ -19,14 +25,9 @@ To Do for New Releases of BayesX
 - Test the installer
 
 
-3. Build Command Line Version
-
-- Compile bayesx.cbp with CodeBlocks (change build target to `Release')
-- The compiled command line version is located in bin\Release
-
-
 4. Build Source Code Distribution
 
+- Change version no. and authors in sourcecode\LICENSE
 - Call make_sourcecode.bat
 - bayesxsource.zip is located in sourcecode
 - Test sourcecode
@@ -43,8 +44,5 @@ To Do for New Releases of BayesX
 - Archive of old versions if not yet available (i.e. rename sourcecode.zip to sourcecode_x_y.zip and BayesX_windows.exe to BayesX_windows_x_y.exe with x and y replacing appropriate version info)
 - Upload new sourcecode.zip and BayesX_windows.exe (no version numbers)
 
-- News: GPL, Windows 7
-
 - Anonymous SVN-account details
-- GPL
 
