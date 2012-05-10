@@ -50,18 +50,16 @@ class __EXPORT_TYPE DISTR_multinomprobit : public DISTR
                                                // including master
   unsigned nrothercat;                         // number of servant categories                                                
 
-  double maxutility(vector<datamatrix*> responsep,
-                    const unsigned & i, const unsigned & cat);
-
+  double maxutility(vector<datamatrix*>
+                    responsep,
+                    const unsigned & i,
+                    const unsigned & cat);
 
 
   public:
 
-//  datamatrix reference;                          // reference category
   datamatrix responsecat;
 
-
-  void create_reference(void);
   void create_responsecat(void);
 
   void assign_othercat(DISTR* o);
@@ -76,7 +74,8 @@ class __EXPORT_TYPE DISTR_multinomprobit : public DISTR
    // CONSTRUCTOR
 
    DISTR_multinomprobit(GENERAL_OPTIONS * o, bool mast,
-                        const datamatrix & r, const datamatrix & w=datamatrix());
+                        const datamatrix & r,
+                        const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
 

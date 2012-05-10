@@ -38,39 +38,6 @@ void DISTR_multinomprobit::assign_othercat(DISTR* o)
   nrothercat = othercat.size();
   }
 
-/*
-void DISTR_multinomprobit::create_reference(void)
-  {
-  unsigned i,j;
-  bool ref;
-
-  reference = datamatrix(nrobs,1,0);
-
-  for (i=0;i<nrobs;i++)
-    {
-     ref=true;
-     j=0;
-
-     while ((j < othercat.size()) && (ref==true) )
-       {
-       if (othercat[j]->response(i,0) == 1)
-         ref=false;
-       j++;
-       }
-     if ((ref==true) && (response(i,0) == 1))
-       ref =false;
-
-     reference(i,0) = ref;
-
-    }
-
-  // TEST
-  // ofstream out("c:\\bayesx\\testh\\results\\reference.raw");
-  // reference.prettyPrint(out);
-  // ENDE: TEST
-
-  }
-*/
 
 
 void DISTR_multinomprobit::create_responsecat(void)
@@ -132,18 +99,20 @@ DISTR_multinomprobit::DISTR_multinomprobit(GENERAL_OPTIONS * o,
     nrothercat = 0;
 
     if (check_weightsone() == true)
-      wtype = wweightsnochange_one;
+      wtype = wweightschange_weightsone;
     else
-      wtype = wweightsnochange_constant;
+      wtype = wweightschange_weightsneqone;
 
     }
   else
-    wtype = wweightsnochange_one;
+    wtype = wweightschange_weightsone;
 
   family = "Multinomial probit";
 
   updateIWLS = false;
   }
+
+
 
 
 const DISTR_multinomprobit & DISTR_multinomprobit::operator=(
@@ -152,7 +121,6 @@ const DISTR_multinomprobit & DISTR_multinomprobit::operator=(
   if (this==&nd)
     return *this;
   DISTR::operator=(DISTR(nd));
-//  reference=nd.reference;
   responsecat = nd.responsecat;
   master=nd.master;
   othercat = nd.othercat;
@@ -165,7 +133,6 @@ const DISTR_multinomprobit & DISTR_multinomprobit::operator=(
 DISTR_multinomprobit::DISTR_multinomprobit(const DISTR_multinomprobit & nd)
    : DISTR(DISTR(nd))
   {
-//  reference=nd.reference;
   responsecat = nd.responsecat;
   master=nd.master;
   othercat = nd.othercat;
@@ -254,7 +221,7 @@ double DISTR_multinomprobit::compute_iwls(double * response, double * linpred,
                            double * weight, double * workingweight,
                            double * workingresponse, const bool & like)
   {
-/*
+
   double  mu = randnumbers::Phi2(*linpred);
 
   double h = 0.39894228*exp(-0.5 * *linpred * *linpred);
@@ -277,7 +244,6 @@ double DISTR_multinomprobit::compute_iwls(double * response, double * linpred,
     {
     return 0;
     }
-*/
 
   }
 
@@ -289,7 +255,7 @@ void DISTR_multinomprobit::compute_iwls_wweightschange_weightsone(
                                          double * workingresponse,double & like,
                                          const bool & compute_like)
   {
-/*
+
   double  mu = randnumbers::Phi2(*linpred);
   double h = 0.39894228*exp(-0.5 * *linpred * *linpred);
   double g = 1/pow(h,2);
@@ -306,7 +272,7 @@ void DISTR_multinomprobit::compute_iwls_wweightschange_weightsone(
     else
       like+= log(1-mu);
     }
-  */
+
   }
 
 
@@ -355,6 +321,11 @@ const unsigned & i, const unsigned & cat)
 
 void DISTR_multinomprobit::update(void)
   {
+
+  if (optionsp->nriter==1)
+    {
+    workingweight = weight;
+    }
 
 
   if (master==true)
