@@ -327,6 +327,15 @@ void DISTR_multinomprobit::update(void)
     workingweight = weight;
     }
 
+  if (optionsp->nriter==2)
+    {
+
+    if (check_weightsone() == true)
+      wtype = wweightsnochange_one;
+    else
+      wtype = wweightsnochange_constant;
+
+    }
 
   if (master==true)
     {

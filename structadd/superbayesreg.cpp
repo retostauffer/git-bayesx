@@ -632,17 +632,24 @@ void superbayesreg::make_header(unsigned & modnr)
   {
   if (equations[modnr].hlevel == 1)
     {
+    ST::string rn = equations[modnr].distrp->responsename;
     if (equations[modnr].equationtype == "mean")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN REGRESSION";
-      equations[modnr].paths = "MAIN_REGRESSION";
+                              ": MAIN REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_REGRESSION_"+ rn;
       }
     else if (equations[modnr].equationtype == "variance")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN VARIANCE REGRESSION";
-      equations[modnr].paths = "MAIN_VARIANCE_REGRESSION";
+                              ": MAIN VARIANCE REGRESSION+ rn";
+      equations[modnr].paths = "MAIN_VARIANCE_REGRESSION+ rn";
+      }
+    else if (equations[modnr].equationtype == "meanservant")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN REGRESSION_" + rn;
+      equations[modnr].paths = "MAIN_REGRESSION_" + rn;
       }
     }
   else if (equations[modnr].hlevel == 2)
@@ -695,7 +702,7 @@ void hregressrun(superbayesreg & b)
     b.equationtype.getvalue()));
     unsigned modnr = b.equations.size()-1;
 
-    b.make_header(modnr);
+//    b.make_header(modnr);
 
     bool failure = false;
 
@@ -707,6 +714,11 @@ void hregressrun(superbayesreg & b)
 
     if (!failure)
       failure = b.create_distribution();
+
+    if (!failure)
+      b.make_header(modnr);
+      
+
     if (!failure)
       failure = b.create_linear();
     if (!failure && b.terms.size() >= 1)
@@ -720,6 +732,7 @@ void hregressrun(superbayesreg & b)
 
     if (!failure)
       b.create_cv();
+
 
 
     if ((! failure) && (b.hlevel.getvalue() == 1) &&
