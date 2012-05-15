@@ -276,7 +276,7 @@ public:
 
 	void insert(const T &v)
 	{
-		addHead(v);
+		this->addHead(v);
 	}
 
 	void remove()

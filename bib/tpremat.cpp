@@ -829,7 +829,7 @@ prettyScan( istream &in )
 			const Array<T> &curr = inputBuffer.top();
 			register unsigned j;
 			for ( j = 0; j < cols; j++ )
-				put( at, j, curr( j ) );
+				this->put( at, j, curr( j ) );
 			inputBuffer.remove();
 			--at;
 		}

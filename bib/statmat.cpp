@@ -735,8 +735,8 @@ void statmatrix<T>::sort(int start,int ende,int col)
 	 if (i <= j)
 		{
 		hilfe = this->getRow(i);
-		putRow(i,this->getRow(j));
-		putRow(j,hilfe);
+		this->putRow(i,this->getRow(j));
+		this->putRow(j,hilfe);
 		i++;
 		j--;
 		}
@@ -765,8 +765,8 @@ void statmatrix<T>::sortcol(int start,int ende,int col)
 	 if (i <= j)
 		{
 		hilfe = this->get(i,col);
-		put(i,col,this->get(j,col));
-		put(j,col,hilfe);
+		this->put(i,col,this->get(j,col));
+		this->put(j,col,hilfe);
 		i++;
 		j--;
 		}

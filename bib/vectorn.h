@@ -473,7 +473,7 @@ class vectornum : public vector<T>
   void clear()
 	 {
 	 if (this->size() > 0)
-		erase(this->begin(),this->end());
+		this->erase(this->begin(),this->end());
 	 }
 
 
