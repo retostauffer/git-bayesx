@@ -107,17 +107,20 @@ Unfortunately not. All variables will have to be converted to numerical values b
 </li>
 
 <li><b>Is there a connection to R? Can I call BayesX from R?</b><br>
-In principle, the answer is yes. Using the <span style="font-family:monospace; font-size:medium">system</span> command in R allows to call the command line version of BayesX (delivered in the subdirectory <span style="font-family:monospace; font-size:medium">commandline</span>
+Yes, the R-package <span style="font-family:monospace; font-size:medium">R2BayesX</span> (available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">CRAN</a>) provides easy and convenient access to the BayesX facilities
+via the usual R-type model specification language. The package basically calls BayesX in the background and then transfers all estimation results back to R. An alternative, manual way to access BayesX from R is the <span style="font-family:monospace; font-size:medium">system</span> 
+command in R that allows to call the command line version of BayesX (delivered in the subdirectory <span style="font-family:monospace; font-size:medium">commandline</span>
 of the installation directory) via<br>
 <span style="font-family:monospace; font-size:medium">R> system("BayesX </span><i>filename</i><span style="font-family:monospace; font-size:medium">")</span><br>
 where <i>filename</i> contains a batch file with BayesX commands. Before calling <span style="font-family:monospace; font-size:medium">system</span>, you will have to ensure that all data sets and geographical information
 have been stored at the places specified in the batch file. After completion of the </span>system</span> call, the estimation results can be visualised
-with functionality provided in the BayesX R package.
+with functionality provided in the <span style="font-family:monospace; font-size:medium">BayesX</span> R package.
 </li>
 
 <li><b>Does BayesX work with other operating systems than Windows?</b><br>
 For a long time the answer has been no, but version 2.0 of BayesX is now available in an open source distribution that can be compiled with GNU C++ compiler.
-As a consequence, BayesX now also works under Linux and Mac OS.<br>
+As a consequence, BayesX now also works under Linux and Mac OS. A possibility to avoind manual compilation on some systems is to use R-package <span style="font-family:monospace; font-size:medium">R2BayesX</span> (available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">CRAN</a>)
+that provides pre-compiled BayesX version for example for Mac OS.<br>
 For older versions of BayesX, some adjustments of the makefile and the main function in main.cpp may be necessary to make them work on Mac OS. Versions of these files that have been used for a successful compilation under Mac OS can be found <a href="install/makefile">here</a> and <a href="install/main.cpp">here</a> 
 (thanks to Anestis Antoniadis for providing these files).
 </li>
@@ -171,7 +174,7 @@ estimation. The estimation results from the model obtained may contain valuable 
 </li>
 
 <li><b>How should I cite BayesX?</b><br>
-The recommended citation is "Belitz, C., Brezger, A., Kneib, T., Lang, S., Umlauf, N. (200x): BayesX - Software for Bayesian inference in structured additive regression models.
+The recommended citation is "Belitz, C., Brezger, A., Kneib, T., Lang, S., Umlauf, N. (20xx): BayesX - Software for Bayesian inference in structured additive regression models.
 Version x.x. Available from http://www.stat.uni-muenchen.de/~bayesx". (with x replaced by information corresponding to the version you have used).
 However, please also cite the methodological publications to credit the work of the
 BayesX contributors.
