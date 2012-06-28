@@ -492,7 +492,7 @@ DISTR_multinomlogit::DISTR_multinomlogit(GENERAL_OPTIONS * o,
 
 	}
 
-DISTR_multionomlogit::DISTR_multinomlogit(const DISTR_multinomlogit & nd)
+DISTR_multinomlogit::DISTR_multinomlogit(const DISTR_multinomlogit & nd)
 	: DISTR_multinomprobit(DISTR_multinomprobit(nd))
 	{
     H = nd.H;
