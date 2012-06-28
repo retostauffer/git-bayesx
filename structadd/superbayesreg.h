@@ -83,6 +83,7 @@ using MCMC::DISTR_binomialprobit;
 using MCMC::DISTR_binomialsvm;
 using MCMC::DISTR_logit_fruehwirth;
 using MCMC::DISTR_multinomprobit;
+using MCMC::DISTR_multinomlogit;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -248,6 +249,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_binomialsvm> distr_binomialsvms;
   vector<DISTR_logit_fruehwirth> distr_logit_fruehwirths;
   vector<DISTR_multinomprobit> distr_multinomprobits;
+  vector<DISTR_multinomlogit> distr_multinomlogits;
 
   bool create_distribution(void);
 

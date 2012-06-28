@@ -148,9 +148,10 @@ void superbayesreg::create_hregress(void)
   families.push_back("binomial_logit");
   families.push_back("poisson");
   families.push_back("binomial_probit");
-  families.push_back("binomial_svm");  
+  families.push_back("binomial_svm");
   families.push_back("multinom_probit");
   families.push_back("binomial_logit_l1");
+  families.push_back("multinom_logit");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -160,7 +161,7 @@ void superbayesreg::create_hregress(void)
   equationnr = intoption("equation",1,1,50);
   equationtypes.reserve(20);
   equationtypes.push_back("mean");
-  equationtypes.push_back("meanservant");  
+  equationtypes.push_back("meanservant");
   equationtypes.push_back("variance");
   equationtype = stroption("equationtype",equationtypes,"mean");
 
@@ -337,6 +338,10 @@ void superbayesreg::clear(void)
                               distr_multinomprobits.end());
   distr_multinomprobits.reserve(20);
 
+  distr_multinomlogits.erase(distr_multinomlogits.begin(),
+                              distr_multinomlogits.end());
+  distr_multinomlogits.reserve(20);
+
   distr_logit_fruehwirths.erase(distr_logit_fruehwirths.begin(),
                                distr_logit_fruehwirths.end());
   distr_logit_fruehwirths.reserve(20);
@@ -476,6 +481,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_binomialprobits = b.distr_binomialprobits;
   distr_binomialsvms = b.distr_binomialsvms;
   distr_multinomprobits = b.distr_multinomprobits;
+  distr_multinomlogits = b.distr_multinomlogits;
   distr_logit_fruehwirths = b.distr_logit_fruehwirths;
 
   resultsyesno = b.resultsyesno;
@@ -551,12 +557,13 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_binomialprobits = b.distr_binomialprobits;
   distr_binomialsvms = b.distr_binomialsvms;
   distr_multinomprobits = b.distr_multinomprobits;
+  distr_multinomlogits = b.distr_multinomlogits;
   distr_logit_fruehwirths = b.distr_logit_fruehwirths;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
   posteriormode = b.posteriormode;
-  computemodeforstartingvalues = b.computemodeforstartingvalues;  
+  computemodeforstartingvalues = b.computemodeforstartingvalues;
 
   FC_linears = b.FC_linears;
   design_psplines = b.design_psplines;
@@ -728,7 +735,7 @@ void hregressrun(superbayesreg & b)
 
     if (!failure)
       b.make_header(modnr);
-      
+
 
     if (!failure)
       failure = b.create_linear();
@@ -1015,6 +1022,42 @@ bool superbayesreg::create_distribution(void)
 
     }
 //--------------------- END: multinomial probit response -----------------------
+
+
+//----------------------- multinomial logit response ---------------------------
+  else if (family.getvalue() == "multinom_logit" && equationtype.getvalue()=="meanservant")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_multinomlogits.push_back(DISTR_multinomlogit(&generaloptions,false,D.getCol(0)));
+
+    equations[modnr].distrp = &distr_multinomlogits[distr_multinomlogits.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+  else if (family.getvalue() == "multinom_logit" && equationtype.getvalue()=="mean")
+    {
+
+    distr_multinomlogits.push_back(DISTR_multinomlogit(&generaloptions,true,D.getCol(0),w) );
+
+    equations[modnr].distrp = &distr_multinomlogits[distr_multinomlogits.size()-1];
+    equations[modnr].pathd = "";
+
+    if (distr_multinomlogits.size() > 1)
+      {
+      unsigned i;
+      for (i=0;i<distr_multinomlogits.size()-1;i++)
+        {
+        distr_multinomlogits[distr_multinomlogits.size()-1].assign_othercat(&distr_multinomlogits[i]);
+        }
+
+      distr_multinomlogits[distr_multinomlogits.size()-1].create_responsecat();
+
+      }
+
+    }
+//--------------------- END: multinomial logit response ------------------------
 
 
 //----------------------------- Poisson response -------------------------------
