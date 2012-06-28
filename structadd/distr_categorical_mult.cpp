@@ -418,6 +418,176 @@ void DISTR_multinomprobit::update(void)
 
 
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS DISTRIBUTION_multinomlogit- --------------------
+//------------------------------------------------------------------------------
+// Logit bisher: ähnlich wie frühwirth eindimensional
+
+DISTR_multinomlogit::DISTR_multinomlogit(GENERAL_OPTIONS * o,
+                                         bool mast,
+                                         const datamatrix & r,
+                                         const datamatrix & w)
+ 	: DISTR_multinomprobit(o, mast, r, w)
+	{
+
+  family = "Multinomial logit";
+  H = 6; // vorläufig fix vorgegeben
+// Tabellenwerte aus Frühwirth-Schnatter
+  SQ = datamatrix(6,5,0); // entspricht 1/s_r^2
+  SQ(0,1) = 1/1.2131;
+  SQ(1,1) = 1/2.9955;
+  SQ(2,1) = 1/7.5458;
+
+  SQ(0,4) = 1/0.68159;
+  SQ(1,4) = 1/1.2419;
+  SQ(2,4) = 1/2.2388;
+  SQ(3,4) = 1/4.0724;
+  SQ(4,4) = 1/7.4371;
+  SQ(5,4) = 1/13.772;
+
+  //müsste um H = 5 und H= 4  und H = 2 erweitern
+  SQ(0,3) = 1/0.79334;
+  SQ(1,3) = 1/1.5474;
+  SQ(2,3) = 1/3.012;
+  SQ(3,3) = 1/5.9224;
+  SQ(4,3) = 1/11.77;
+
+  SQ(0,2) = 1/0.95529;
+  SQ(1,2) = 1/2.048;
+  SQ(2,2) = 1/4.4298;
+  SQ(3,2) = 1/9.701;
+
+  SQ(0,0) = 1/1.6927;
+  SQ(1,0) = 1/5.2785;
+
+
+  weights_mixed = datamatrix(6,5,0);
+  weights_mixed(0,1) = 0.2522;  // enstpricht w_r
+  weights_mixed(1,1) = 0.58523;
+  weights_mixed(2,1) = 0.16257;
+
+
+  weights_mixed(0,4) = 0.018446;
+  weights_mixed(1,4) = 0.17268;
+  weights_mixed(2,4) = 0.37393;
+  weights_mixed(3,4) = 0.31697;
+  weights_mixed(4,4) = 0.1089;
+  weights_mixed(5,4) = 0.0090745;
+
+  // ebenso hier die erweitern für H= 5 und H = 4 und H = 2
+
+  weights_mixed(0,3) = 0.044333;
+  weights_mixed(1,3) = 0.29497;
+  weights_mixed(2,3) = 0.42981;
+  weights_mixed(3,3) = 0.20759;
+  weights_mixed(4,3) = 0.023291;
+
+  weights_mixed(0,2) = 0.1065;
+  weights_mixed(1,2) = 0.45836;
+  weights_mixed(2,2) = 0.37419;
+  weights_mixed(3,2) = 0.060951;
+
+  weights_mixed(0,0) = 0.56442;
+  weights_mixed(1,0) = 0.43558;
+
+	}
+
+DISTR_multionomlogit::DISTR_multinomlogit(const DISTR_multinomlogit & nd)
+	: DISTR_multinomprobit(DISTR_multinomprobit(nd))
+	{
+    H = nd.H;
+	SQ = nd.SQ;
+	weights_mixed = nd.weights_mixed;
+	}
+
+const DISTR_multinomlogit & DISTR_multinomlogit::operator=(const DISTR_multinomlogit & nd)
+	{
+	if (this==&nd)
+  	return *this;
+  DISTR_multinomprobit::operator=(DISTR_multinomprobit(nd));
+  H = nd.H;
+  SQ = nd.SQ;
+  weights_mixed = nd.weights_mixed;
+  return *this;
+	}
+
+void DISTR_multinomlogit::outoptions()   //output for logfile
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function: logistic distribution function\n");
+  optionsp->out("  Number of mixture components: " + ST::inttostring(H) + "\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+// Update nach Vorbild fruehwirthschnatter
+void DISTR_multinomlogit::update(void)
+  {
+/*
+  double * workresp;  // yi
+  double * workwresp; // wki datamatrix workwresp(Anzahlkat,nrobs)
+  double * weightwork;
+  double * wweightwork; // Gewicht sj mit dem dann beta gesampelt wird
+
+  workresp = response.getV();  // yi
+  workwresp = workingresponse.getV(); // wki
+  weightwork = weight.getV();
+  wweightwork = workingweight.getV(); //
+
+  double * worklin;  // sollte xi*betak sein
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double lambda;
+  double lambda_k;
+  double U;
+  bool kategoriek;
+  datamatrix weights_aux(H,1);
+
+    for(int i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,workwresp++,wweightwork++)  // workwresp nicht raufzählen (w(k,i)) weightwork wozu???
+     {
+      lambda = exp(*worklin);
+      lambda_k = sum(exp(*worklin)); // summe worklin außer für k te Kategorie - wie machen?
+      U = uniform();
+      if (workresp = k)
+        kategoriek = 1;
+      else
+        kategoriek = 0;
+
+      *workwresp(k,i) = log(lambda*U/lambda_k+kategoriek)-log(1-U+lambda/lambda_k*(1+ kategoriek));
+
+      //weights_mixed  // H- 2 da H eigentlich von 2 - 6 läuft und nicht von 0 - 4
+      for(int j=0; j < H; j++)
+    	  {
+        weights_aux(j,0) = weights_mixed(j,H-2)*sqrt(SQ(j,H-2)) * exp(-1/2*  pow((*workwresp - *worklin), 2)*SQ(j,H-2) );
+        }
+
+      //distribution function
+      for(int j=1; j <H; j++)  // alle zusammenzählen
+    	  {
+         weights_aux(j,0) = weights_aux(j-1,0) + weights_aux(j,0);
+        }
+
+      U = uniform();
+      U = U*weights_aux(H-1,0);	//scale to [0, max]
+
+
+      int iaux = 0; // ziehe rki damit man dann das Gewicht bekommt
+      while (U > weights_aux(iaux,0))
+        {
+        iaux++;
+        }
+
+      *wweightwork =  SQ(iaux,H-2); // herauslesen von sj aus der Tabelle von Frühwirth und Schnatter; von k und i abhängig!
+
+      }
+*/
+    }
+
+
 
 
 } // end: namespace MCMC
