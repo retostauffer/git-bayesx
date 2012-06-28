@@ -308,6 +308,72 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
 
 
 //------------------------------------------------------------------------------
+//-------------------- CLASS: DISTRIBUTION_binomialsvm -------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_binomialsvm : public DISTR
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTR_binomialsvm(void) : DISTR()
+     {
+     }
+
+   // CONSTRUCTOR
+
+   DISTR_binomialsvm(GENERAL_OPTIONS * o, const datamatrix & r,
+                  const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+   DISTR_binomialsvm(const DISTR_binomialsvm & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTR_binomialsvm & operator=(const DISTR_binomialsvm & nd);
+
+   // DESTRUCTOR
+
+   ~DISTR_binomialsvm() {}
+
+  void compute_mu(const double * linpred,double * mu);
+
+  void compute_deviance(const double * response, const double * weight,
+                        const double * mu,double * deviance,
+                        double * deviancesat, double * scale) const;
+
+  double loglikelihood(double * response, double * linpred,
+                       double * weight) const;
+
+  double loglikelihood_weightsone(double * response, double * linpred) const;
+
+  double compute_iwls(double * response, double * linpred,
+                      double * weight, double * workingweight,
+                      double * workingresponse, const bool & like);
+
+  void compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like);
+
+
+
+  void outoptions(void);
+
+  void update(void);
+
+  };
+
+
+
+//------------------------------------------------------------------------------
 //-------------------- CLASS: DISTRIBUTION_poisson -----------------------------
 //------------------------------------------------------------------------------
 

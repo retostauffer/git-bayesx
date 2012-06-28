@@ -148,6 +148,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("binomial_logit");
   families.push_back("poisson");
   families.push_back("binomial_probit");
+  families.push_back("binomial_svm");  
   families.push_back("multinom_probit");
   families.push_back("binomial_logit_l1");
   family = stroption("family",families,"gaussian");
@@ -328,6 +329,10 @@ void superbayesreg::clear(void)
                               distr_binomialprobits.end());
   distr_binomialprobits.reserve(20);
 
+  distr_binomialsvms.erase(distr_binomialsvms.begin(),
+                              distr_binomialsvms.end());
+  distr_binomialsvms.reserve(20);
+
   distr_multinomprobits.erase(distr_multinomprobits.begin(),
                               distr_multinomprobits.end());
   distr_multinomprobits.reserve(20);
@@ -412,6 +417,7 @@ const ST::string & n,ofstream * lo,istream * in,
   resultsyesno = false;
   run_yes = false;
   posteriormode = false;
+  computemodeforstartingvalues = true;
   describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
   }
 #else
@@ -426,6 +432,7 @@ superbayesreg::superbayesreg(const ST::string & n,ofstream * lo,istream * in,
   resultsyesno = false;
   run_yes = false;
   posteriormode = false;
+  computemodeforstartingvalues = true;
   describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
   }
 #endif
@@ -467,12 +474,14 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_binomials = b.distr_binomials;
   distr_poissons = b.distr_poissons;
   distr_binomialprobits = b.distr_binomialprobits;
+  distr_binomialsvms = b.distr_binomialsvms;
   distr_multinomprobits = b.distr_multinomprobits;
   distr_logit_fruehwirths = b.distr_logit_fruehwirths;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
   posteriormode = b.posteriormode;
+  computemodeforstartingvalues = b.computemodeforstartingvalues;
 
   FC_linears = b.FC_linears;
   design_psplines = b.design_psplines;
@@ -540,12 +549,14 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_binomials = b.distr_binomials;
   distr_poissons = b.distr_poissons;
   distr_binomialprobits = b.distr_binomialprobits;
-  distr_multinomprobits = b.distr_multinomprobits;  
+  distr_binomialsvms = b.distr_binomialsvms;
+  distr_multinomprobits = b.distr_multinomprobits;
   distr_logit_fruehwirths = b.distr_logit_fruehwirths;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
   posteriormode = b.posteriormode;
+  computemodeforstartingvalues = b.computemodeforstartingvalues;  
 
   FC_linears = b.FC_linears;
   design_psplines = b.design_psplines;
@@ -755,7 +766,8 @@ void hregressrun(superbayesreg & b)
           failure = b.simobj.posteriormode(pathgraphs,false);
           }
         else
-          failure = b.simobj.simulate(pathgraphs,b.setseed.getvalue(),true);
+          failure = b.simobj.simulate(pathgraphs,b.setseed.getvalue(),
+          b.computemodeforstartingvalues);
         }
 
       if (!failure)
@@ -917,6 +929,7 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- Gaussian response -------------------------------
   if (family.getvalue() == "gaussian")
     {
+    computemodeforstartingvalues = true;
 
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
 
@@ -945,6 +958,8 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "hetgaussian" && equationtype.getvalue()=="mean")
     {
 
+    computemodeforstartingvalues = true;
+
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
 
     distr_hetgaussians.push_back(DISTR_hetgaussian(aresp.getvalue(),bresp.getvalue(),
@@ -969,6 +984,8 @@ bool superbayesreg::create_distribution(void)
 //----------------------- multinomial probit response --------------------------
   else if (family.getvalue() == "multinom_probit" && equationtype.getvalue()=="meanservant")
     {
+
+    computemodeforstartingvalues = true;
 
     distr_multinomprobits.push_back(DISTR_multinomprobit(&generaloptions,false,D.getCol(0)));
 
@@ -1003,6 +1020,7 @@ bool superbayesreg::create_distribution(void)
 //----------------------------- Poisson response -------------------------------
   else if (family.getvalue() == "poisson")
     {
+    computemodeforstartingvalues = true;
 
     distr_poissons.push_back(DISTR_poisson(&generaloptions,D.getCol(0),w));
 
@@ -1015,6 +1033,8 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- log-Gaussian response -----------------------------
   else if (family.getvalue() == "loggaussian")
     {
+
+    computemodeforstartingvalues = true;
 
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
 
@@ -1031,6 +1051,8 @@ bool superbayesreg::create_distribution(void)
 //----------------------------- quantreg response ------------------------------
   else if (family.getvalue() == "quantreg")
     {
+
+    computemodeforstartingvalues = true;
 
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
 
@@ -1049,6 +1071,8 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "gaussian_mixture")
     {
 
+    computemodeforstartingvalues = true;
+
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
 
     distr_gaussianmixtures.push_back(DISTR_gaussianmixture(aresp.getvalue(),
@@ -1064,6 +1088,8 @@ bool superbayesreg::create_distribution(void)
 //--------------- Gaussian response, exponential response function -------------
   else if (family.getvalue() == "gaussian_exp")
     {
+
+    computemodeforstartingvalues = true;
 
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
 
@@ -1106,6 +1132,8 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "binomial_logit")
     {
 
+    computemodeforstartingvalues = true;
+
     distr_binomials.push_back(DISTR_binomial(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_binomials[distr_binomials.size()-1];
@@ -1117,6 +1145,8 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "binomial_probit")
     {
 
+    computemodeforstartingvalues = true;
+
     distr_binomialprobits.push_back(DISTR_binomialprobit(
     &generaloptions,D.getCol(0),w));
 
@@ -1125,10 +1155,24 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: Binomial response probit ---------------------
+//---------------------------- Binomial response SVM ---------------------------
+  else if (family.getvalue() == "binomial_svm")
+    {
+    computemodeforstartingvalues = false;
+
+    distr_binomialsvms.push_back(DISTR_binomialsvm(
+    &generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_binomialsvms[distr_binomialsvms.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//-------------------------- END: Binomial response SVM ------------------------
 //----------------------- Binomial response logit fruehwirth--------------------
   else if (family.getvalue() == "binomial_logit_l1")
     {
 
+    computemodeforstartingvalues = true;
 
     distr_logit_fruehwirths.push_back(DISTR_logit_fruehwirth(H.getvalue(),
     &generaloptions,D.getCol(0),w));

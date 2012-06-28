@@ -663,6 +663,233 @@ void DISTR_binomialprobit::update(void)
 
 
 
+
+//------------------------------------------------------------------------------
+//--------------------- CLASS DISTRIBUTION_binomialsvm -------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_binomialsvm::DISTR_binomialsvm(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR(o,r,w)
+
+  {
+
+  if (check_weightsone() == true)
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+
+  family = "Binomial_SVM";
+  updateIWLS = false;
+  }
+
+
+const DISTR_binomialsvm & DISTR_binomialsvm::operator=(
+                                      const DISTR_binomialsvm & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR::operator=(DISTR(nd));
+  return *this;
+  }
+
+
+DISTR_binomialsvm::DISTR_binomialsvm(const DISTR_binomialsvm & nd)
+   : DISTR(DISTR(nd))
+  {
+  }
+
+
+void DISTR_binomialsvm::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Bayesian support vector machine\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTR_binomialsvm::loglikelihood(double * response, double * linpred,
+                                     double * weight) const
+  {
+/*
+  if (*weight!=0)
+    {
+    double mu = randnumbers::Phi2(*linpred);
+    if (*response > 0)
+      return log(mu);
+    else
+      return log(1-mu);
+    }
+  else
+    return 0;
+*/
+  }
+
+
+
+double DISTR_binomialsvm::loglikelihood_weightsone(
+                                  double * response, double * linpred) const
+  {
+  /*
+  double mu = randnumbers::Phi2(*linpred);
+  if (*response > 0)
+    return log(mu);
+  else
+    return log(1-mu);
+  */
+  }
+
+
+void DISTR_binomialsvm::compute_mu(const double * linpred,double * mu)
+  {
+//  *mu = randnumbers::Phi2(*linpred);
+  }
+
+
+void DISTR_binomialsvm::compute_deviance(const double * response,
+                   const double * weight,const double * mu,double * deviance,
+                   double * deviancesat, double * scale) const
+  {
+  /*
+  if (*weight !=  0)
+    {
+
+    if (*response<=0)
+      {
+      *deviance = -2*log(1-*mu);
+      *deviancesat = *deviance;
+      }
+    else if (*response > 0)
+      {
+      *deviance = -2*log(*mu);
+      *deviancesat = *deviance;
+      }
+
+    }
+  else
+    {
+    *deviance = 0;
+    *deviancesat = 0;
+    }
+  */
+
+  }
+
+
+double DISTR_binomialsvm::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+
+  /*
+  double  mu = randnumbers::Phi2(*linpred);
+
+  double h = 0.39894228*exp(-0.5 * *linpred * *linpred);
+  double g = 1/pow(h,2);
+
+  *workingweight = *weight / (mu*(1-mu) * g);
+
+
+  *workingresponse = *linpred + (*response - mu)/h;
+
+  if (like)
+    {
+
+    if (*response > 0)
+      return log(mu);
+    else
+      return log(1-mu);
+    }
+  else
+    {
+    return 0;
+    }
+  */
+
+  }
+
+
+
+void DISTR_binomialsvm::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  /*
+  double  mu = randnumbers::Phi2(*linpred);
+  double h = 0.39894228*exp(-0.5 * *linpred * *linpred);
+  double g = 1/pow(h,2);
+
+  *workingweight = 1.0 / (mu*(1-mu) * g);
+
+  *workingresponse = *linpred + (*response - mu)/h;
+
+  if (compute_like)
+    {
+
+    if (*response > 0)
+      like+= log(mu);
+    else
+      like+= log(1-mu);
+    }
+  */
+  }
+
+
+
+void DISTR_binomialsvm::update(void)
+  {
+
+  double * worklin;
+  double * workwresp;
+  double * weightwork;
+
+  double * wweightwork;
+
+  register unsigned i;
+
+  workwresp = workingresponse.getV();
+  weightwork = weight.getV();
+  wweightwork = workingweight.getV();
+
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double a;
+  double b=1;
+  double lambda;
+
+  for(i=0;i<nrobs;i++,worklin++,weightwork++,workwresp++,
+                      wweightwork++)
+    {
+
+    if (*weightwork != 0)
+      {
+      a= 1/fabs(1-(*worklin));
+      lambda= rand_inv_gaussian(a,b);
+
+      *wweightwork = 1/lambda;
+
+      *workwresp = 1+lambda;
+      }
+
+    }
+
+  DISTR::update();
+
+  }
+
+
+
+
+
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_poisson ---------------------------
 //------------------------------------------------------------------------------

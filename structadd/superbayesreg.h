@@ -80,6 +80,7 @@ using MCMC::DISTR_gaussian_mult;
 using MCMC::DISTR_binomial;
 using MCMC::DISTR_poisson;
 using MCMC::DISTR_binomialprobit;
+using MCMC::DISTR_binomialsvm;
 using MCMC::DISTR_logit_fruehwirth;
 using MCMC::DISTR_multinomprobit;
 
@@ -244,13 +245,15 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_binomial> distr_binomials;
   vector<DISTR_poisson> distr_poissons;
   vector<DISTR_binomialprobit> distr_binomialprobits;
+  vector<DISTR_binomialsvm> distr_binomialsvms;
   vector<DISTR_logit_fruehwirth> distr_logit_fruehwirths;
-  vector<DISTR_multinomprobit> distr_multinomprobits;  
+  vector<DISTR_multinomprobit> distr_multinomprobits;
 
   bool create_distribution(void);
 
   bool resultsyesno;
   bool posteriormode;
+  bool computemodeforstartingvalues;
 
 
   //----------------------------------------------------------------------------

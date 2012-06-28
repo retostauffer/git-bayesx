@@ -65,7 +65,7 @@ void DISTR_multinomprobit::create_responsecat(void)
 
     if ((found==false) && response(i,0)==1)    // master
       {
-      responsecat(i,0) = nrothercat;
+//      responsecat(i,0) = nrothercat;
       found=true;
       }
 
