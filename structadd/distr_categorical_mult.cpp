@@ -430,6 +430,8 @@ DISTR_multinomlogit::DISTR_multinomlogit(GENERAL_OPTIONS * o,
  	: DISTR_multinomprobit(o, mast, r, w)
 	{
 
+
+
   family = "Multinomial logit";
   H = 6; // vorläufig fix vorgegeben
 // Tabellenwerte aus Frühwirth-Schnatter
@@ -521,74 +523,136 @@ void DISTR_multinomlogit::outoptions()   //output for logfile
   }
 
 
-// Update nach Vorbild fruehwirthschnatter
 void DISTR_multinomlogit::update(void)
   {
-/*
-  double * workresp;  // yi
-  double * workwresp; // wki datamatrix workwresp(Anzahlkat,nrobs)
-  double * weightwork;
-  double * wweightwork; // Gewicht sj mit dem dann beta gesampelt wird
+  if (master == true)
+  {
+  int j;
+// linear predictor
+  vector<datamatrix *> worklin;
+  for (j=0;j<nrothercat;j++)
+    {
+    if (othercat[j]->linpred_current==1)
+      worklin.push_back(&othercat[j]->linearpred1);
+    else
+      worklin.push_back(&othercat[j]->linearpred2);
+    }
 
-  workresp = response.getV();  // yi
-  workwresp = workingresponse.getV(); // wki
-  weightwork = weight.getV();
-  wweightwork = workingweight.getV(); //
-
-  double * worklin;  // sollte xi*betak sein
   if (linpred_current==1)
-    worklin = linearpred1.getV();
+    worklin.push_back(&linearpred1);
   else
-    worklin = linearpred2.getV();
+    worklin.push_back(&linearpred2);
 
-  double lambda;
-  double lambda_k;
-  double U;
-  bool kategoriek;
-  datamatrix weights_aux(H,1);
+// response
+  vector<datamatrix *> responsep;
+  for (j=0;j<nrothercat;j++)
+    {
+    responsep.push_back(&othercat[j]->workingresponse);
+    }
+  responsep.push_back(&workingresponse);
 
-    for(int i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,workwresp++,wweightwork++)  // workwresp nicht raufzählen (w(k,i)) weightwork wozu???
-     {
-      lambda = exp(*worklin);
-      lambda_k = sum(exp(*worklin)); // summe worklin außer für k te Kategorie - wie machen?
-      U = uniform();
-      if (workresp = k)
-        kategoriek = 1;
-      else
-        kategoriek = 0;
+// working weights
+  vector<datamatrix *> workingweightp;
+  for (j=0;j<nrothercat;j++)
+    {
+    workingweightp.push_back(&othercat[j]->workingweight);
+    }
+  workingweightp.push_back(&workingweight);
 
-      *workwresp(k,i) = log(lambda*U/lambda_k+kategoriek)-log(1-U+lambda/lambda_k*(1+ kategoriek));
+// original response
+  vector<datamatrix *> origrespp;
+  for (j=0;j<nrothercat;j++)
+    {
+    origrespp.push_back(&othercat[j]->response);
+    }
+  origrespp.push_back(&response);  // response 0,1 je nach Kategorie
 
-      //weights_mixed  // H- 2 da H eigentlich von 2 - 6 läuft und nicht von 0 - 4
-      for(int j=0; j < H; j++)
-    	  {
-        weights_aux(j,0) = weights_mixed(j,H-2)*sqrt(SQ(j,H-2)) * exp(-1/2*  pow((*workwresp - *worklin), 2)*SQ(j,H-2) );
-        }
+  int i;
+  int k;
+  int l;
+  double sumpred;
+  double uni;
+  double uni2;
+  double ratio;
+  double elin;
+  double hresp;
+  double hprop;
+  datamatrix rvektor(H,1,0);
 
-      //distribution function
-      for(int j=1; j <H; j++)  // alle zusammenzählen
-    	  {
-         weights_aux(j,0) = weights_aux(j-1,0) + weights_aux(j,0);
-        }
-
-      U = uniform();
-      U = U*weights_aux(H-1,0);	//scale to [0, max]
-
-
-      int iaux = 0; // ziehe rki damit man dann das Gewicht bekommt
-      while (U > weights_aux(iaux,0))
-        {
-        iaux++;
-        }
-
-      *wweightwork =  SQ(iaux,H-2); // herauslesen von sj aus der Tabelle von Frühwirth und Schnatter; von k und i abhängig!
-
+  for (i=0;i<nrobs;i++)
+    {
+    sumpred = 0;
+    for (j=0;j<nrcat-1;j++)
+      {
+      sumpred += exp((*worklin[j])(i,0));   // summe Prediktoren
       }
-*/
+    for (j=0;j<nrcat-1;j++)
+      {
+      uni = uniform();
+      elin = exp((*worklin[j])(i,0));
+      ratio = elin / (sumpred - elin);
+      hresp = (*origrespp[j])(i,0);
+      (*responsep[j])(i,0) = log(ratio*uni + hresp) - log(1 - uni + ratio*(1-hresp));
+      hprop = -1/2 *  (pow((*responsep[j])(i,0) - (*worklin[j])(i,0),2));
+
+      for (k=0;k<H;k++)
+        {
+        rvektor(k,0) = weights_mixed(k,H-2) * sqrt(SQ(k,H-2)) * exp(hprop*SQ(k,H-2)); // zu eins aufsummieren
+        }
+      for(int k=1;j<H;k++)
+        {
+        rvektor(k,0) = rvektor(k-1,0) + rvektor(k,0);
+        }
+      uni2 = uniform();
+      l = 0;
+      while (uni2> rvektor(k,0))
+        {
+        l++;
+        }
+      (*workingweightp[j])(i,0) = SQ(l,H-2);
+      }
+    }
+  }
+  }
+
+/*
+
+   double lin;
+
+    for (i=0;i<nrobs;i++)
+      {
+      if (responsecat(i,0) == -1)   // reference category
+        {
+
+        for (j=0;j<=nrothercat;j++)
+          {
+          lin = (*worklin[j])(i,0);
+          (*responsep[j])(i,0) = lin+truncnormal(-20-lin,-lin);
+          }
+
+        }
+      else
+        {
+        lin = (*worklin[responsecat(i,0)])(i,0);
+        (*responsep[responsecat(i,0)])(i,0) = lin + truncnormal(maxutility(responsep,i,responsecat(i,0)) - lin,20-lin);
+
+        for (j=0;j<=nrothercat;j++)
+          {
+          if (j != responsecat(i,0))
+            {
+            lin = (*worklin[j])(i,0);
+            (*responsep[j])(i,0) = lin + truncnormal(-20-lin,(*responsep[responsecat(i,0)])(i,0) - lin);
+            }
+          }
+
+        }
+      }
+
+
     }
 
 
-
+*/
 
 } // end: namespace MCMC
 
