@@ -525,6 +525,37 @@ void DISTR_multinomlogit::outoptions()   //output for logfile
 
 void DISTR_multinomlogit::update(void)
   {
+
+  if (master)
+    {
+/*
+  ofstream out1("c:\\bayesx\\testh\\results\\lin_master.raw");
+  if (linpred_current==1)
+  linearpred1.prettyPrint(out1);
+  else
+  linearpred2.prettyPrint(out1);
+  }
+  else
+    {
+  ofstream out1("c:\\bayesx\\testh\\results\\lin.raw");
+  if (linpred_current==1)
+  linearpred1.prettyPrint(out1);
+  else
+  linearpred2.prettyPrint(out1);
+  }
+*/
+
+  ofstream out1("c:\\bayesx\\testh\\results\\res_master.raw");
+  workingresponse.prettyPrint(out1);
+  }
+  else
+    {
+  ofstream out1("c:\\bayesx\\testh\\results\\res.raw");
+  workingresponse.prettyPrint(out1);
+  }
+
+
+
   if (master == true)
   {
   int j;
@@ -578,6 +609,7 @@ void DISTR_multinomlogit::update(void)
   double hresp;
   double hprop;
   datamatrix rvektor(H,1,0);
+  unsigned lstar;
 
   for (i=0;i<nrobs;i++)
     {
@@ -595,17 +627,36 @@ void DISTR_multinomlogit::update(void)
       (*responsep[j])(i,0) = log(ratio*uni + hresp) - log(1 - uni + ratio*(1-hresp));
       hprop = -1/2 *  (pow((*responsep[j])(i,0) - (*worklin[j])(i,0),2));
 
+//      ofstream out("c:\\bayesx\\testh\\results\\rvektor.raw");
+
       for (k=0;k<H;k++)
         {
         rvektor(k,0) = weights_mixed(k,H-2) * sqrt(SQ(k,H-2)) * exp(hprop*SQ(k,H-2)); // zu eins aufsummieren
         }
-      for(int k=1;j<H;k++)
+
+//      rvektor.prettyPrint(out);
+//      out <<   endl;
+
+      for(int k=1;k<H;k++)
         {
         rvektor(k,0) = rvektor(k-1,0) + rvektor(k,0);
         }
+
+//      rvektor.prettyPrint(out);
+//      out <<   endl;
+
+      for(int k=0;k<H;k++)
+        {
+        rvektor(k,0) = rvektor(k,0)/rvektor(H-1,0);
+        }
+
+
+//      rvektor.prettyPrint(out);
+
+
       uni2 = uniform();
       l = 0;
-      while (uni2> rvektor(k,0))
+      while (uni2> rvektor(l,0))
         {
         l++;
         }
