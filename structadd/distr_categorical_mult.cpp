@@ -421,7 +421,6 @@ void DISTR_multinomprobit::update(void)
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_multinomlogit- --------------------
 //------------------------------------------------------------------------------
-// Logit bisher: ähnlich wie frühwirth eindimensional
 
 DISTR_multinomlogit::DISTR_multinomlogit(GENERAL_OPTIONS * o,
                                          bool mast,
@@ -430,16 +429,34 @@ DISTR_multinomlogit::DISTR_multinomlogit(GENERAL_OPTIONS * o,
  	: DISTR_multinomprobit(o, mast, r, w)
 	{
 
-
-
   family = "Multinomial logit";
   H = 6; // vorläufig fix vorgegeben
 // Tabellenwerte aus Frühwirth-Schnatter
   SQ = datamatrix(6,5,0); // entspricht 1/s_r^2
+
+// H = 2:
+  SQ(0,0) = 1/1.6927;
+  SQ(1,0) = 1/5.2785;
+
+// H = 3:
   SQ(0,1) = 1/1.2131;
   SQ(1,1) = 1/2.9955;
   SQ(2,1) = 1/7.5458;
 
+// H = 4:
+  SQ(0,2) = 1/0.95529;
+  SQ(1,2) = 1/2.048;
+  SQ(2,2) = 1/4.4298;
+  SQ(3,2) = 1/9.701;
+
+// H = 5:
+  SQ(0,3) = 1/0.79334;
+  SQ(1,3) = 1/1.5474;
+  SQ(2,3) = 1/3.012;
+  SQ(3,3) = 1/5.9224;
+  SQ(4,3) = 1/11.77;
+
+// H = 6:
   SQ(0,4) = 1/0.68159;
   SQ(1,4) = 1/1.2419;
   SQ(2,4) = 1/2.2388;
@@ -447,28 +464,32 @@ DISTR_multinomlogit::DISTR_multinomlogit(GENERAL_OPTIONS * o,
   SQ(4,4) = 1/7.4371;
   SQ(5,4) = 1/13.772;
 
-  //müsste um H = 5 und H= 4  und H = 2 erweitern
-  SQ(0,3) = 1/0.79334;
-  SQ(1,3) = 1/1.5474;
-  SQ(2,3) = 1/3.012;
-  SQ(3,3) = 1/5.9224;
-  SQ(4,3) = 1/11.77;
 
-  SQ(0,2) = 1/0.95529;
-  SQ(1,2) = 1/2.048;
-  SQ(2,2) = 1/4.4298;
-  SQ(3,2) = 1/9.701;
+  weights_mixed = datamatrix(6,5,0);  // enstpricht w_r
 
-  SQ(0,0) = 1/1.6927;
-  SQ(1,0) = 1/5.2785;
+// H = 2:
+  weights_mixed(0,0) = 0.56442;
+  weights_mixed(1,0) = 0.43558;
 
-
-  weights_mixed = datamatrix(6,5,0);
-  weights_mixed(0,1) = 0.2522;  // enstpricht w_r
+// H = 3:
+  weights_mixed(0,1) = 0.2522;
   weights_mixed(1,1) = 0.58523;
   weights_mixed(2,1) = 0.16257;
 
+// H = 4:
+  weights_mixed(0,2) = 0.1065;
+  weights_mixed(1,2) = 0.45836;
+  weights_mixed(2,2) = 0.37419;
+  weights_mixed(3,2) = 0.060951;
 
+// H = 5:
+  weights_mixed(0,3) = 0.044333;
+  weights_mixed(1,3) = 0.29497;
+  weights_mixed(2,3) = 0.42981;
+  weights_mixed(3,3) = 0.20759;
+  weights_mixed(4,3) = 0.023291;
+
+// H = 6:
   weights_mixed(0,4) = 0.018446;
   weights_mixed(1,4) = 0.17268;
   weights_mixed(2,4) = 0.37393;
@@ -476,23 +497,8 @@ DISTR_multinomlogit::DISTR_multinomlogit(GENERAL_OPTIONS * o,
   weights_mixed(4,4) = 0.1089;
   weights_mixed(5,4) = 0.0090745;
 
-  // ebenso hier die erweitern für H= 5 und H = 4 und H = 2
-
-  weights_mixed(0,3) = 0.044333;
-  weights_mixed(1,3) = 0.29497;
-  weights_mixed(2,3) = 0.42981;
-  weights_mixed(3,3) = 0.20759;
-  weights_mixed(4,3) = 0.023291;
-
-  weights_mixed(0,2) = 0.1065;
-  weights_mixed(1,2) = 0.45836;
-  weights_mixed(2,2) = 0.37419;
-  weights_mixed(3,2) = 0.060951;
-
-  weights_mixed(0,0) = 0.56442;
-  weights_mixed(1,0) = 0.43558;
-
 	}
+
 
 DISTR_multinomlogit::DISTR_multinomlogit(const DISTR_multinomlogit & nd)
 	: DISTR_multinomprobit(DISTR_multinomprobit(nd))
@@ -526,6 +532,8 @@ void DISTR_multinomlogit::outoptions()   //output for logfile
 void DISTR_multinomlogit::update(void)
   {
 
+
+// zum testen was drinsteht Test Anfang
   if (master)
     {
 /*
@@ -555,6 +563,8 @@ void DISTR_multinomlogit::update(void)
   }
 
 
+
+// Test Ende
 
   if (master == true)
   {
@@ -598,10 +608,10 @@ void DISTR_multinomlogit::update(void)
     }
   origrespp.push_back(&response);  // response 0,1 je nach Kategorie
 
-  int i;
-  int k;
+  int i;  // nrobs
+  int k;  //
   int l;
-  double sumpred;
+  double sumpred; // sum exp(x_i* beta_k)
   double uni;
   double uni2;
   double ratio;
