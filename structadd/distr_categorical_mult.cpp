@@ -537,7 +537,7 @@ void DISTR_multinomlogit::update(void)
   if (master)
     {
 
-  ofstream out1("c:\\testhn\\lin_master.raw");
+ /* ofstream out1("c:\\testhn\\lin_master.raw");
   if (linpred_current==1)
   linearpred1.prettyPrint(out1);
   else
@@ -551,7 +551,7 @@ void DISTR_multinomlogit::update(void)
   else
   linearpred2.prettyPrint(out1);
   }
-
+*/
 
   ofstream out1("c:\\testhn\\res_master.raw");
   workingresponse.prettyPrint(out1);
@@ -562,7 +562,7 @@ void DISTR_multinomlogit::update(void)
   workingresponse.prettyPrint(out1);
   }
 
-// Test Ende
+  //Test Ende
 
 
   if (master == true)
@@ -608,7 +608,7 @@ void DISTR_multinomlogit::update(void)
   origrespp.push_back(&response);  // response 0,1 je nach Kategorie
 
   int i;  // nrobs
-  int k;  //
+  int k;
   int l;
   double sumpred; // sum exp(x_i* beta_k)
   double uni;
@@ -618,41 +618,52 @@ void DISTR_multinomlogit::update(void)
   double hresp;
   double hprop;
   datamatrix rvektor(H,1,0);
-  unsigned lstar;
+
 
   for (i=0;i<nrobs;i++)
     {
     sumpred = 0;
     for (j=0;j<nrcat-1;j++)
       {
-      sumpred += exp((*worklin[j])(i,0));   // summe Prediktoren
+      sumpred += exp((*worklin[j])(i,0));   // sum Prediktoren
       }
     for (j=0;j<nrcat-1;j++)
       {
       uni = uniform();
-      elin = exp((*worklin[j])(i,0));
+      elin = exp((*worklin[j])(i,0)); // xi*betak
       ratio = elin / (sumpred - elin);
-      hresp = (*origrespp[j])(i,0);
+      hresp = (*origrespp[j])(i,0);  // 0 or 1
       (*responsep[j])(i,0) = log(ratio*uni + hresp) - log(1 - uni + ratio*(1-hresp));
-      hprop = -1/2 *  (pow((*responsep[j])(i,0) - (*worklin[j])(i,0),2));
+      hprop = -0.5 *  (pow((*responsep[j])(i,0) - (*worklin[j])(i,0),2));
 
+/*
      ofstream out("c:\\testhn\\rvektor.raw");  // Test
+     cout << "sumpred " << sumpred << "\n"; // test
+     cout << "elin " <<elin<< "\n"; // test
+     cout << "ratio "<<ratio<< "\n"; // test
+     cout << "uni " << uni << "\n"; // test
+     cout << "responsep " << (*responsep[j])(i,0) << "\n"; // test
+     cout << "origrespp[j])(i,0)" << (*origrespp[j])(i,0) << "\n"; // test
+     cout << "hresp "<<hresp<<"\n"; // test
+     cout << "hprop "<<hprop<<"\n"; // test
+*/
 
       for (k=0;k<H;k++)
         {
-        rvektor(k,0) = weights_mixed(k,H-2) * sqrt(SQ(k,H-2)) * exp(hprop*SQ(k,H-2)); // zu eins aufsummieren
+        rvektor(k,0) = weights_mixed(k,H-2) * sqrt(SQ(k,H-2)) * exp(hprop*SQ(k,H-2));
         }
 
-     rvektor.prettyPrint(out);  // test
-      out <<   endl;  // Test
+
+//     rvektor.prettyPrint(out);  // test
+//      out <<   endl;  // Test
 
       for(int k=1;k<H;k++)
         {
         rvektor(k,0) = rvektor(k-1,0) + rvektor(k,0);
         }
 
-      rvektor.prettyPrint(out); // Test
-      out <<   endl;  // Test
+//      rvektor.prettyPrint(out); // Test
+//      out <<   endl;  // Test
 
       for(int k=0;k<H;k++)
         {
@@ -660,7 +671,7 @@ void DISTR_multinomlogit::update(void)
         }
 
 
-      rvektor.prettyPrint(out); // Test
+ //     rvektor.prettyPrint(out); // Test
 
 
       uni2 = uniform();
@@ -670,6 +681,7 @@ void DISTR_multinomlogit::update(void)
         l++;
         }
       (*workingweightp[j])(i,0) = SQ(l,H-2);
+ //     cout << "ww " << (*workingweightp[j])(i,0) << "\n"; // test
       }
     }
   }
