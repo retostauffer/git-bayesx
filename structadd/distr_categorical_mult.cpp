@@ -536,8 +536,8 @@ void DISTR_multinomlogit::update(void)
 // zum testen was drinsteht Test Anfang
   if (master)
     {
-/*
-  ofstream out1("c:\\bayesx\\testh\\results\\lin_master.raw");
+
+  ofstream out1("c:\\testhn\\lin_master.raw");
   if (linpred_current==1)
   linearpred1.prettyPrint(out1);
   else
@@ -545,26 +545,25 @@ void DISTR_multinomlogit::update(void)
   }
   else
     {
-  ofstream out1("c:\\bayesx\\testh\\results\\lin.raw");
+  ofstream out1("c:\\testhn\\lin.raw");
   if (linpred_current==1)
   linearpred1.prettyPrint(out1);
   else
   linearpred2.prettyPrint(out1);
   }
-*/
 
-  ofstream out1("c:\\bayesx\\testh\\results\\res_master.raw");
+
+  ofstream out1("c:\\testhn\\res_master.raw");
   workingresponse.prettyPrint(out1);
   }
   else
     {
-  ofstream out1("c:\\bayesx\\testh\\results\\res.raw");
+  ofstream out1("c:\\testhn\\res.raw");
   workingresponse.prettyPrint(out1);
   }
-
-
 
 // Test Ende
+
 
   if (master == true)
   {
@@ -637,23 +636,23 @@ void DISTR_multinomlogit::update(void)
       (*responsep[j])(i,0) = log(ratio*uni + hresp) - log(1 - uni + ratio*(1-hresp));
       hprop = -1/2 *  (pow((*responsep[j])(i,0) - (*worklin[j])(i,0),2));
 
-//      ofstream out("c:\\bayesx\\testh\\results\\rvektor.raw");
+     ofstream out("c:\\testhn\\rvektor.raw");  // Test
 
       for (k=0;k<H;k++)
         {
         rvektor(k,0) = weights_mixed(k,H-2) * sqrt(SQ(k,H-2)) * exp(hprop*SQ(k,H-2)); // zu eins aufsummieren
         }
 
-//      rvektor.prettyPrint(out);
-//      out <<   endl;
+     rvektor.prettyPrint(out);  // test
+      out <<   endl;  // Test
 
       for(int k=1;k<H;k++)
         {
         rvektor(k,0) = rvektor(k-1,0) + rvektor(k,0);
         }
 
-//      rvektor.prettyPrint(out);
-//      out <<   endl;
+      rvektor.prettyPrint(out); // Test
+      out <<   endl;  // Test
 
       for(int k=0;k<H;k++)
         {
@@ -661,7 +660,7 @@ void DISTR_multinomlogit::update(void)
         }
 
 
-//      rvektor.prettyPrint(out);
+      rvektor.prettyPrint(out); // Test
 
 
       uni2 = uniform();
