@@ -364,12 +364,13 @@ void DISTR_multinomprobit::update(void)
       }
     responsep.push_back(&workingresponse);
 
+    double * wresponsecat = responsecat.getV();
 
     double lin;
 
-    for (i=0;i<nrobs;i++)
+    for (i=0;i<nrobs;i++,wresponsecat++)
       {
-      if (responsecat(i,0) == -1)   // reference category
+      if (*wresponsecat == -1)   // reference category
         {
 
         for (j=0;j<=nrothercat;j++)
@@ -381,15 +382,15 @@ void DISTR_multinomprobit::update(void)
         }
       else
         {
-        lin = (*worklin[responsecat(i,0)])(i,0);
-        (*responsep[responsecat(i,0)])(i,0) = lin + truncnormal(maxutility(responsep,i,responsecat(i,0)) - lin,20-lin);
+        lin = (*worklin[*wresponsecat])(i,0);
+        (*responsep[*wresponsecat])(i,0) = lin + truncnormal(maxutility(responsep,i,*wresponsecat) - lin,20-lin);
 
         for (j=0;j<=nrothercat;j++)
           {
-          if (j != responsecat(i,0))
+          if (j != (*wresponsecat))
             {
             lin = (*worklin[j])(i,0);
-            (*responsep[j])(i,0) = lin + truncnormal(-20-lin,(*responsep[responsecat(i,0)])(i,0) - lin);
+            (*responsep[j])(i,0) = lin + truncnormal(-20-lin,(*responsep[*wresponsecat])(i,0) - lin);
             }
           }
 

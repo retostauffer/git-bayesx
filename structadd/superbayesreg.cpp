@@ -1016,9 +1016,9 @@ bool superbayesreg::create_distribution(void)
         distr_multinomprobits[distr_multinomprobits.size()-1].assign_othercat(&distr_multinomprobits[i]);
         }
 
-      distr_multinomprobits[distr_multinomprobits.size()-1].create_responsecat();
-
       }
+
+    distr_multinomprobits[distr_multinomprobits.size()-1].create_responsecat();
 
     }
 //--------------------- END: multinomial probit response -----------------------
