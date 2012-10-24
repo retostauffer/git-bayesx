@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"distr_categorical.h"
 #include"distr_categorical_mult.h"
 #include"distr_mixture.h"
+#include"distr_gamlss.h"
 
 #include"design.h"
 #include"design_pspline.h"
@@ -84,6 +85,8 @@ using MCMC::DISTR_binomialsvm;
 using MCMC::DISTR_logit_fruehwirth;
 using MCMC::DISTR_multinomprobit;
 using MCMC::DISTR_multinomlogit;
+using MCMC::DISTR_ziplambda;
+using MCMC::DISTR_zippi;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -250,6 +253,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_logit_fruehwirth> distr_logit_fruehwirths;
   vector<DISTR_multinomprobit> distr_multinomprobits;
   vector<DISTR_multinomlogit> distr_multinomlogits;
+  vector<DISTR_ziplambda> distr_ziplambdas;
+  vector<DISTR_zippi> distr_zippis;
+
 
   bool create_distribution(void);
 

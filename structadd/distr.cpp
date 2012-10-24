@@ -1792,6 +1792,9 @@ void DISTR_quantreg::update(void)
   double sumres=0;
   double sumw=0;
 
+
+  //  sigma02 = delta2
+
   for(i=0; i<nrobs; i++, workw++, workweight++, workresp++, workorigresp++,
       worklin++)
     {
@@ -1805,15 +1808,15 @@ void DISTR_quantreg::update(void)
       }
     else
       {
-      *workweight = rand_inv_gaussian(mu, lambda);
+      *workweight = rand_inv_gaussian(mu, lambda);         // 1/z_i
 
-      *workresp = *workorigresp  - xi/ (*workweight);
-      sumw += 1 / (*workweight);
-      sumres += *workweight * pow(*workresp-*worklin,2);
+      *workresp = *workorigresp  - xi/ (*workweight);      // y_i - offset = y_i - xi * z_i
+      sumw += 1 / (*workweight);                           // sum z_i
+      sumres += *workweight * pow(*workresp-*worklin,2);   // 1/z_i * (y_i-eta_i - xi * z_i)
       }
     }
 
-  sumres /= sigma02;
+  sumres /= sigma02;                  // 1/(delta2 *z_i) * (y_i-eta_i - xi * z_i)
 
   sigma2 = rand_invgamma(a_invgamma + 1.5*(nrobs-nrzeroweights),
                          b_invgamma + 0.5*sumres + sumw);
