@@ -129,6 +129,10 @@ class __EXPORT_TYPE DISTR
   datamatrix linearpred2;          // Proposed linear predictor
   int linpred_current;
 
+  datamatrix helpmat1;              // Stores auxiliary quantities
+  datamatrix helpmat2;              // Stores auxiliary quantities
+  datamatrix helpmat3;              // Stores auxiliary quantities    
+
   double meaneffect;
 
   void swap_linearpred(void);
@@ -207,12 +211,12 @@ class __EXPORT_TYPE DISTR
   // FUNCTION: loglikelihood
   // TASK: computes the loglikelihood for a single observation
 
-  virtual double loglikelihood(double * res,double * lin,double * weight) const
+  virtual double loglikelihood(double * res,double * lin,double * weight)
     {
     return 0;
     }
 
-  virtual double loglikelihood_weightsone(double * res,double * lin) const
+  virtual double loglikelihood_weightsone(double * res,double * lin)
     {
     return 0;
     }
@@ -220,7 +224,7 @@ class __EXPORT_TYPE DISTR
   // FUNCTION: loglikelihood
   // TASK: computes the complete loglikelihood for all observations
 
-  double loglikelihood(const bool & current=true) const;
+  double loglikelihood(const bool & current=true);
 
   // FUNCTION: loglikelihood
   // TASK: computes the loglikelihood for observations between begin and end
@@ -230,7 +234,7 @@ class __EXPORT_TYPE DISTR
   double loglikelihood(int & begin,
                        int & end, statmatrix<double *> & responsep,
                        statmatrix<double *> & workingweightp,
-                       statmatrix<double *> & linpredp) const;
+                       statmatrix<double *> & linpredp);
 
 
   //----------------------------------------------------------------------------
@@ -375,6 +379,8 @@ class __EXPORT_TYPE DISTR
 
   virtual bool posteriormode(void);
 
+  virtual void posteriormode_end(void);
+
 
   //----------------------------------------------------------------------------
   //--------------------------- UPDATE FUNCTIONS -------------------------------
@@ -387,6 +393,15 @@ class __EXPORT_TYPE DISTR
   //       of the scale parameter only
 
   virtual void update(void);
+
+
+  // FUNCTION: update
+  // TASK: base function for inherited classes,
+  //       may be used to update quantities that have been changed while updating
+  //       FC's and that are required for other equations (e.g. in ZIP models)
+
+  virtual void update_end(void);
+
 
 
 
@@ -491,9 +506,9 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
   double loglikelihood(double * res,
                        double * lin,
-                       double * w) const;
+                       double * w);
 
-  double loglikelihood_weightsone(double * res,double * lin) const;
+  double loglikelihood_weightsone(double * res,double * lin);
 
   double compute_iwls(double * response, double * linpred,
                               double * weight, double * workingweight,
@@ -769,7 +784,7 @@ class __EXPORT_TYPE DISTR_vargaussian  : public DISTR
   // FUNCTION: loglikelihood
   // TASK: computes the loglikelihood for a single observation
 
-  double loglikelihood(double * res,double * lin,double * weight) const;
+  double loglikelihood(double * res,double * lin,double * weight);
 
   //----------------------------------------------------------------------------
   //------------------------------- COMPUTE mu ---------------------------------
@@ -930,7 +945,7 @@ class __EXPORT_TYPE DISTR_gaussian_exp : public DISTR_gaussian
 
   double loglikelihood(double * res,
                        double * lin,
-                       double * w) const;
+                       double * w);
 
   double compute_iwls(double * response, double * linpred,
                               double * weight, double * workingweight,
@@ -1004,7 +1019,7 @@ class __EXPORT_TYPE DISTR_gaussian_mult : public DISTR_gaussian_exp
 
   double loglikelihood(double * res,
                        double * lin,
-                       double * w) const;
+                       double * w);
 
   double compute_iwls(double * response, double * linpred,
                               double * weight, double * workingweight,
@@ -1068,7 +1083,7 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
 
   void outoptions(void);
 
-  void get_samples(const ST::string & filename,ofstream & outg) const;  
+  void get_samples(const ST::string & filename,ofstream & outg) const;
 
   void check_errors(void);
 

@@ -154,6 +154,10 @@ DISTR::DISTR(const DISTR & d)
   linearpred2 = d.linearpred2;
   linpred_current = d.linpred_current;
 
+  helpmat1 = d.helpmat1;
+  helpmat2 = d.helpmat2;
+  helpmat3 = d.helpmat3;    
+
   updateIWLS = d.updateIWLS;
   family = d.family;
 
@@ -201,6 +205,10 @@ const DISTR & DISTR::operator=(const DISTR & d)
   linearpred2 = d.linearpred2;
   linpred_current = d.linpred_current;
 
+  helpmat1 = d.helpmat1;
+  helpmat2 = d.helpmat2;
+  helpmat3 = d.helpmat3;    
+
   updateIWLS = d.updateIWLS;
   family = d.family;
 
@@ -227,7 +235,7 @@ void DISTR::outoptions(void)
 
 
 
-double DISTR::loglikelihood(const bool & current) const
+double DISTR::loglikelihood(const bool & current)
   {
 
   register unsigned  i;
@@ -269,7 +277,7 @@ double DISTR::loglikelihood(const bool & current) const
 
 double DISTR::loglikelihood(int & begin,
 int & end, statmatrix<double *> & responsep,
-statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp) const
+statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp) 
   {
   double help=0;
   int i;
@@ -473,12 +481,20 @@ void DISTR::update(void)
   } // end: update
 
 
+void DISTR::update_end(void)
+  {
+  } // end: update_end
+
+
 bool DISTR::posteriormode(void)
   {
   double h = compute_iwls(true,false);
   return true;
   }
 
+void DISTR::posteriormode_end(void)
+  {
+  }
 
 void DISTR::update_scale_hyperparameters(datamatrix & h)
   {
@@ -1055,7 +1071,7 @@ double DISTR_gaussian::compute_MSE(const double * response,
 
 
 double DISTR_gaussian::loglikelihood(double * res, double * lin,
-                                     double * w) const
+                                     double * w)
   {
   if (*w==0)
     return 0;
@@ -1067,7 +1083,7 @@ double DISTR_gaussian::loglikelihood(double * res, double * lin,
   }
 
 
-double DISTR_gaussian::loglikelihood_weightsone(double * res, double * lin) const
+double DISTR_gaussian::loglikelihood_weightsone(double * res, double * lin)
   {
   double help = *res-*lin;
   return  - (pow(help,2))/(2* sigma2);
@@ -1335,7 +1351,7 @@ double DISTR_gaussian::get_scalemean(void)
 
 
   double DISTR_vargaussian::loglikelihood(double * res,double * lin,
-                                          double * weight) const
+                                          double * weight)
     {
     if (*weight !=0)
       {
@@ -2145,7 +2161,7 @@ void DISTR_gaussian_exp::compute_mu(const double * linpred,double * mu)
 
 
 double DISTR_gaussian_exp::loglikelihood(double * res, double * lin,
-                                         double * w) const
+                                         double * w)
   {
   double help = *res-exp(*lin);
   return  - *w * (pow(help,2))/(2* sigma2);
@@ -2357,7 +2373,7 @@ void DISTR_gaussian_mult::compute_mu(const double * linpred,double * mu)
 
 
 double DISTR_gaussian_mult::loglikelihood(double * res, double * lin,
-                                         double * w) const
+                                         double * w) 
   {
 
   if (!optionbool1)

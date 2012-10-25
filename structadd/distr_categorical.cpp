@@ -221,7 +221,7 @@ void DISTR_binomial::outoptions(void)
 
 
 double DISTR_binomial::loglikelihood(double * response, double * linpred,
-                                     double * weight) const
+                                     double * weight)
   {
 
   if (*linpred >= 10)
@@ -232,7 +232,7 @@ double DISTR_binomial::loglikelihood(double * response, double * linpred,
 
 
 double DISTR_binomial::loglikelihood_weightsone(
-                                  double * response, double * linpred) const
+                                  double * response, double * linpred)
   {
 
   if (*linpred >= 10)
@@ -454,7 +454,7 @@ void DISTR_binomialprobit::outoptions(void)
 
 
 double DISTR_binomialprobit::loglikelihood(double * response, double * linpred,
-                                     double * weight) const
+                                     double * weight)
   {
 
   if (*weight!=0)
@@ -473,7 +473,7 @@ double DISTR_binomialprobit::loglikelihood(double * response, double * linpred,
 
 
 double DISTR_binomialprobit::loglikelihood_weightsone(
-                                  double * response, double * linpred) const
+                                  double * response, double * linpred) 
   {
 
   double mu = randnumbers::Phi2(*linpred);
@@ -712,7 +712,7 @@ void DISTR_binomialsvm::outoptions(void)
 
 
 double DISTR_binomialsvm::loglikelihood(double * response, double * linpred,
-                                     double * weight) const
+                                     double * weight)
   {
 /*
   if (*weight!=0)
@@ -731,7 +731,7 @@ double DISTR_binomialsvm::loglikelihood(double * response, double * linpred,
 
 
 double DISTR_binomialsvm::loglikelihood_weightsone(
-                                  double * response, double * linpred) const
+                                  double * response, double * linpred)
   {
   /*
   double mu = randnumbers::Phi2(*linpred);
@@ -937,7 +937,7 @@ void DISTR_poisson::outoptions(void)
 
 
 double DISTR_poisson::loglikelihood(double * response, double * linpred,
-                                     double * weight) const
+                                     double * weight)
   {
 
   return *weight * (*response * *linpred - exp(*linpred));
@@ -946,7 +946,7 @@ double DISTR_poisson::loglikelihood(double * response, double * linpred,
 
 
 double DISTR_poisson::loglikelihood_weightsone(
-                                  double * response, double * linpred) const
+                                  double * response, double * linpred)
   {
   return  *response * (*linpred) - exp(*linpred);
   }

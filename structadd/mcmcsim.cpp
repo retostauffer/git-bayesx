@@ -295,6 +295,8 @@ const int & seed, const bool & computemode)
       for(j=0;j<equations[nrmodels-1-i].FCpointer.size();j++)
         equations[nrmodels-1-i].FCpointer[j]->update();
 
+      equations[nrmodels-1-i].distrp->update_end();
+
       }
 
 
@@ -530,6 +532,9 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
           if (equations[nrmodels-1-i].FCpointer[j]->posteriormode() == false)
               allconverged = false;
           } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
+
+        equations[nrmodels-1-i].distrp->posteriormode_end();
+
         }
 
 

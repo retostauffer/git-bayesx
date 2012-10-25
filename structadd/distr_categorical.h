@@ -76,9 +76,9 @@ class __EXPORT_TYPE DISTR_binomial : public DISTR
                         double * deviancesat, double * scale) const;
 
   double loglikelihood(double * response, double * linpred,
-                       double * weight) const;
+                       double * weight);
 
-  double loglikelihood_weightsone(double * response, double * linpred) const;
+  double loglikelihood_weightsone(double * response, double * linpred);
 
   double compute_iwls(double * response, double * linpred,
                       double * weight, double * workingweight,
@@ -273,9 +273,9 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
                         double * deviancesat, double * scale) const;
 
   double loglikelihood(double * response, double * linpred,
-                       double * weight) const;
+                       double * weight);
 
-  double loglikelihood_weightsone(double * response, double * linpred) const;
+  double loglikelihood_weightsone(double * response, double * linpred);
 
   double compute_iwls(double * response, double * linpred,
                       double * weight, double * workingweight,
@@ -349,9 +349,9 @@ class __EXPORT_TYPE DISTR_binomialsvm : public DISTR
                         double * deviancesat, double * scale) const;
 
   double loglikelihood(double * response, double * linpred,
-                       double * weight) const;
+                       double * weight);
 
-  double loglikelihood_weightsone(double * response, double * linpred) const;
+  double loglikelihood_weightsone(double * response, double * linpred);
 
   double compute_iwls(double * response, double * linpred,
                       double * weight, double * workingweight,
@@ -415,9 +415,9 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
                         double * deviancesat, double * scale) const;
 
   double loglikelihood(double * response, double * linpred,
-                       double * weight) const;
+                       double * weight);
 
-  double loglikelihood_weightsone(double * response, double * linpred) const;
+  double loglikelihood_weightsone(double * response, double * linpred);
 
   double compute_iwls(double * response, double * linpred,
                       double * weight, double * workingweight,

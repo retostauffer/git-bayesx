@@ -96,9 +96,9 @@ class __EXPORT_TYPE DISTR_multinomprobit : public DISTR
                         double * deviancesat, double * scale) const;
 
   double loglikelihood(double * response, double * linpred,
-                       double * weight) const;
+                       double * weight);
 
-  double loglikelihood_weightsone(double * response, double * linpred) const;
+  double loglikelihood_weightsone(double * response, double * linpred);
 
   double compute_iwls(double * response, double * linpred,
                       double * weight, double * workingweight,

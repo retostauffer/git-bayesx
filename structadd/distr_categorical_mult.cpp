@@ -151,7 +151,7 @@ void DISTR_multinomprobit::outoptions(void)
 
 
 double DISTR_multinomprobit::loglikelihood(double * response, double * linpred,
-                                     double * weight) const
+                                     double * weight)
   {
 /*
   if (*weight!=0)
@@ -170,7 +170,7 @@ double DISTR_multinomprobit::loglikelihood(double * response, double * linpred,
 
 
 double DISTR_multinomprobit::loglikelihood_weightsone(
-                                  double * response, double * linpred) const
+                                  double * response, double * linpred) 
   {
 /*
   double mu = randnumbers::Phi2(*linpred);
