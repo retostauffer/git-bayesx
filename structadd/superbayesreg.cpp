@@ -704,6 +704,13 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": RANDOM EFFECTS VARIANCE REGRESSION";
       equations[modnr].paths = "RANDOM_EFFECTS_VARIANCE";
       }
+    else if (equations[modnr].equationtype == "pi")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS ZERO INFLATION REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_ZERO_INFLATION";
+      }
+
     }
 
   }
