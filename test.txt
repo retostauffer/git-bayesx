@@ -1,0 +1,12 @@
+% usefile d:\_sicher\papzip\prg\test.txt
+
+dataset d
+d.infile using d:\_sicher\papzip\data\simdata.zip.txt
+
+mcmcreg m
+
+m.outfile = d:\_sicher\papzip\results\r1_pi
+m.hregress y17 = const + x1(pspline) + x2(pspline) , family=zip_pi  equationtype=pi iterations=12000 step=10 burnin=2000 using d
+
+m.outfile = d:\_sicher\papzip\results\r1_lambda
+m.hregress y17 = const + x1(pspline) + x2(pspline), family=zip_lambda   equationtype=mean  using d

@@ -1,0 +1,29 @@
+% usefile d:\_sicher\papzip\prg\test2.txt
+
+dataset d
+d.infile using d:\_sicher\papzip\data\dist_sim.raw
+d.generate distH2 = distH
+
+dataset d1
+d1.infile using d:\_sicher\papzip\data\sim.raw
+d1.generate distH2 = distH
+
+map ma
+ma.infile using d:\_sicher\papzip\data\india_dist_aufb.bnd
+
+
+mcmcreg m
+
+m.outfile = d:\_sicher\papzip\results\r1_pi_distH
+m.hregress distH = const+x1dist(pspline) + x2dist(pspline)  ,  hlevel=2 family=gaussian_re equationtype=pi iterations=5000 step=3 burnin=2000 using d
+
+m.outfile = d:\_sicher\papzip\results\r1_lambda_distH
+m.hregress distH2 = x1dist(pspline) + x2dist(pspline) ,  hlevel=2 family=gaussian_re equationtype=mean  using d
+
+m.outfile = d:\_sicher\papzip\results\r1_pi
+m.hregress y =  x1(pspline) + x2(pspline) + distH(hrandom)  , iterations=5000 step=3 burnin=2000 hlevel=1 family=zip_pi  equationtype=pi  using d1
+
+
+m.outfile = d:\_sicher\papzip\results\r1_lambda
+m.hregress y = const + x1(pspline) + x2(pspline) + distH2(hrandom) , hlevel=1 family=zip_lambda   equationtype=mean  using d1
+
