@@ -123,7 +123,8 @@ STRUCTADD_SRC = \
 	structadd/design_kriging.cpp\
 	structadd/FC_predictive_check.cpp\
 	structadd/FC_predict_predictor.cpp\
-	structadd/FC_nonp_variance_vec.cpp
+	structadd/FC_nonp_variance_vec.cpp\
+        structadd/distr_gamlss.cpp
 SRC = \
 	$(ANDREA_SRC)\
 	$(BIB_SRC)\

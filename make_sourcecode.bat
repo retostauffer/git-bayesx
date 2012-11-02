@@ -16,6 +16,12 @@ cp -rf samson sourcecode
 cp -rf structadd sourcecode
 cp -rf examples sourcecode
 
+cp -f internet\bayesx\tutorials\zambia.bnd sourcecode\examples\zambia.bnd
+cp -f internet\bayesx\tutorials\zambia.raw sourcecode\examples\zambia.raw
+cp -f internet\bayesx\tutorials\regression_mcmc\mcmctutorial.prg sourcecode\examples\mcmctutorial.prg
+cp -f internet\bayesx\tutorials\regression_reml\remltutorial.prg sourcecode\examples\remltutorial.prg
+cp -f internet\bayesx\tutorials\regression_step\steptutorial.prg sourcecode\examples\steptutorial.prg
+
 cd sourcecode\adaptiv
 rm -rf CVS
 rm -rf .svn
@@ -129,7 +135,6 @@ cd ..
 mkdir gnuobj
 
 rm bayesxsource.zip
-rm bayesxsource.tar.gz
 rm *.o
 rm *.d
 rm *.exe
