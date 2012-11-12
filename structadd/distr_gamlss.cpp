@@ -261,6 +261,9 @@ void DISTR_ziplambda::compute_iwls_wweightschange_weightsone(
 
   *workingweight = (lambda* (*workonempi)*(denom-expminuslambda*lambda*pi))/denom;
 
+//  if (*workingweight < 0.000001)
+//    *workingweight = 0.000001;
+
   *workingresponse = *linpred + nu/(*workingweight);
 
   if (compute_like)
@@ -544,6 +547,9 @@ void DISTR_zippi::compute_iwls_wweightschange_weightsone(
     nu += pi/denom;
 
   *workingweight = (pi*pi*(1-(*workexpmlambda))*oneminuspi)/denom;
+
+//  if (*workingweight < 0.000001)
+//    *workingweight = 0.000001;
 
   *workingresponse = *linpred + nu/(*workingweight);
 

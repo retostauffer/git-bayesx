@@ -207,6 +207,7 @@ const int & seed, const bool & computemode)
 
   //--------------- Compute posterior mode as starting value -------------------
 
+
   if (computemode)
     {
 
@@ -419,7 +420,7 @@ const int & seed, const bool & computemode)
       genoptions->out("Estimation results: none\n");
       genoptions->out("\n");
 
-/*
+
       for(i=0;i<nrmodels;i++)
         {
 
@@ -431,7 +432,7 @@ const int & seed, const bool & computemode)
           } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
 
         }
-*/
+
       return true;
       }
 #elif defined(JAVA_OUTPUT_WINDOW)
