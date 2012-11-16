@@ -77,6 +77,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   stroption prior;
   fileoption knotpath;
   stroption datasetref;
+  simpleoption lambdaconst;
 
   vector<ST::string> termnames;
 

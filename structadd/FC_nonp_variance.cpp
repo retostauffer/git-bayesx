@@ -50,6 +50,13 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
   f = op[5].strtodouble(a_invgamma);
   f = op[6].strtodouble(b_invgamma_orig);
 
+  if (op[38] == "true")
+    {
+    lambdaconst = true;
+    nosamples =true;
+    }
+
+
   }
 
 
@@ -70,6 +77,7 @@ FC_nonp_variance::FC_nonp_variance(MASTER_OBJ * mp, GENERAL_OPTIONS * o,
   likep = lp;
   designp = Dp;
   masterp = mp;
+  lambdaconst = false;
 
   read_options(op,vn);
 
@@ -95,6 +103,7 @@ FC_nonp_variance::FC_nonp_variance(const FC_nonp_variance & m)
   b_invgamma_orig = m.b_invgamma_orig;
   b_invgamma = m.b_invgamma;
   lambdastart = m.lambdastart;
+  lambdaconst = m.lambdaconst;
   }
 
 
@@ -112,6 +121,7 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   b_invgamma_orig = m.b_invgamma_orig;
   b_invgamma = m.b_invgamma;
   lambdastart = m.lambdastart;
+  lambdaconst = m.lambdaconst;
   return *this;
   }
 
@@ -132,17 +142,20 @@ void FC_nonp_variance::update(void)
 
   b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
 
-  beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
-              b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
+  if (lambdaconst == false)
+    {
+    beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
+                b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
 
-  beta(0,1) = likep->get_scale()/beta(0,0);
+    beta(0,1) = likep->get_scale()/beta(0,0);
 
+    FCnonpp->tau2 = beta(0,0);
 
-  FCnonpp->tau2 = beta(0,0);
+    acceptance++;
+    FC::update();
 
-  // transform_beta();
-  acceptance++;
-  FC::update();
+    }
+
   }
 
 

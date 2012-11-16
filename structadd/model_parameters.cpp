@@ -101,6 +101,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   knotpath = fileoption("knotpath","");
   datasetref = stroption("datasetref","");
 
+  lambdaconst = simpleoption("lambdaconst",false);
+
   }
 
 void term_nonp::setdefault(void)
@@ -142,6 +144,7 @@ void term_nonp::setdefault(void)
   prior.setdefault();
   knotpath.setdefault();
   datasetref.setdefault();
+  lambdaconst.setdefault();
   }
 
 
@@ -229,6 +232,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&prior);
     optlist.push_back(&knotpath);
     optlist.push_back(&datasetref);
+    optlist.push_back(&lambdaconst);
 
 
 
@@ -361,6 +365,11 @@ bool term_nonp::check(term & t)
     t.options[36] = knotpath.getvalue();
     t.options[37] = datasetref.getvalue();
 
+    if(lambdaconst.getvalue() == false)
+      t.options[38] = "false";
+    else
+      t.options[38] = "true";
+
     setdefault();
     return true;
 
@@ -372,6 +381,4 @@ bool term_nonp::check(term & t)
     }
 
   }
-
-
 

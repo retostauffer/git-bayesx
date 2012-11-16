@@ -101,6 +101,11 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
+
+  void outresults(ofstream & out_stata, ofstream & out_R,
+                         const ST::string & pathresults);
+
+
   };
 
 

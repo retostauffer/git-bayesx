@@ -57,6 +57,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   double b_invgamma;
   double lambdastart;
 
+  bool lambdaconst;
+
   public:
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------

@@ -66,6 +66,12 @@ vector<ST::string> & vn)
     mult = false;
     }
 
+  if (op[38] == "true")
+    {
+    lambdaconst = true;
+    nosamples =true;
+    }
+
   }
 
 
@@ -151,17 +157,19 @@ void FC_hrandom_variance::update(void)
 
   b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
 
-  beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
-                                  b_invgamma+0.5*compute_quadform());
+  if (lambdaconst==false)
+    {
+    beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
+                                    b_invgamma+0.5*compute_quadform());
 
-  beta(0,1) = likep->get_scale()/beta(0,0);
+    beta(0,1) = likep->get_scale()/beta(0,0);
 
-  FCnonpp->tau2 = beta(0,0);
-  likepRE->sigma2=beta(0,0);
+    FCnonpp->tau2 = beta(0,0);
+    likepRE->sigma2=beta(0,0);
 
-//  transform_beta();
-  acceptance++;
-  FC::update();
+    acceptance++;
+    FC::update();
+    }
 
   }
 
@@ -170,6 +178,15 @@ bool FC_hrandom_variance::posteriormode(void)
   {
   return  FC_nonp_variance::posteriormode();
   }
+
+
+void FC_hrandom_variance::outresults(ofstream & out_stata, ofstream & out_R,
+                         const ST::string & pathresults)
+  {
+  if (lambdaconst==false)
+    FC_nonp_variance::outresults(out_stata,out_R,pathresults);
+  }
+
 
 
 } // end: namespace MCMC
