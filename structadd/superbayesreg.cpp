@@ -66,8 +66,13 @@ void superbayesreg::make_paths(ST::string & pathnonp,
 
   if (varname2=="")
     {
+#if defined(__BUILDING_LINUX)
+    pathnonp = defaultpath + "/temp/" + name + "_" + h + "_f_"
+                                  + varname1 + endingraw;
+#else
     pathnonp = defaultpath + "\\temp\\" + name + "_" + h + "_f_"
                                   + varname1 + endingraw;
+#endif
 
     pathres = outfile.getvalue() + "_" + h + "_" +
                      endingres + "_" + varname1 + ".res";
@@ -77,8 +82,13 @@ void superbayesreg::make_paths(ST::string & pathnonp,
     }
   else
     {
+#if defined(__BUILDING_LINUX)
+    pathnonp = defaultpath + "/temp/" + name + "_" + h + "_" + varname2
+                 + "_f_"  + varname1 + endingraw;
+#else
     pathnonp = defaultpath + "\\temp\\" + name + "_" + h + "_" + varname2
                  + "_f_"  + varname1 + endingraw;
+#endif
 
     pathres = outfile.getvalue() + "_" + h + "_" +
                      endingres + "_" + varname1 + "_" + varname2 + ".res";
@@ -273,7 +283,11 @@ void superbayesreg::create(void)
   generaloptions_yes = false;
   run_yes=false;
 
+#if defined(__BUILDING_LINUX)
+  ST::string h = defaultpath+"/output/"+name;
+#else
   ST::string h = defaultpath+"\\output\\"+name;
+#endif
 
   outfile = fileoption("outfile",h,false);
 
@@ -663,7 +677,7 @@ void superbayesreg::make_header(unsigned & modnr)
   {
   if (equations[modnr].hlevel == 1)
     {
-    
+
     ST::string rn = equations[modnr].distrp->responsename;
     if (equations[modnr].equationtype == "mean")
       {
@@ -965,7 +979,11 @@ bool superbayesreg::create_distribution(void)
     {
     computemodeforstartingvalues = true;
 
+#if defined(__BUILDING_LINUX)
+    ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
+#else
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+#endif
 
     distr_gaussians.push_back(DISTR_gaussian(aresp.getvalue(),bresp.getvalue(),
                                       &generaloptions,D.getCol(0),path,w) );
@@ -994,13 +1012,22 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
+#if defined(__BUILDING_LINUX)
+    ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
+#else
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+#endif
 
     distr_hetgaussians.push_back(DISTR_hetgaussian(aresp.getvalue(),bresp.getvalue(),
                                       &generaloptions,D.getCol(0),path,w) );
 
     equations[modnr].distrp = &distr_hetgaussians[distr_hetgaussians.size()-1];
+
+#if defined(__BUILDING_LINUX)
+    equations[modnr].pathd = defaultpath + "/temp/" + name  + "_scale.res";
+#else
     equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+#endif
 
     if (distr_vargaussians.size() != 1)
       {
@@ -1149,7 +1176,11 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
+#if defined(__BUILDING_LINUX)
+    ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
+#else
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+#endif
 
     distr_loggaussians.push_back(DISTR_loggaussian(aresp.getvalue(),
                                        bresp.getvalue(),
@@ -1167,7 +1198,11 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
+#if defined(__BUILDING_LINUX)
+    ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
+#else
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+#endif
 
     double quant = quantile.getvalue();
     distr_quantregs.push_back(DISTR_quantreg(aresp.getvalue(),
@@ -1186,7 +1221,11 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
+#if defined(__BUILDING_LINUX)
+    ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
+#else
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+#endif
 
     distr_gaussianmixtures.push_back(DISTR_gaussianmixture(aresp.getvalue(),
                                               bresp.getvalue(),
@@ -1204,7 +1243,11 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
+#if defined(__BUILDING_LINUX)
+    ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
+#else
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+#endif
 
     distr_gaussian_exps.push_back(DISTR_gaussian_exp(
                                   aresp.getvalue(),bresp.getvalue(),
@@ -1219,14 +1262,23 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "gaussian_mult")
     {
 
+#if defined(__BUILDING_LINUX)
+    ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
+#else
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+#endif
 
     distr_gaussian_mults.push_back(DISTR_gaussian_mult(
                                   aresp.getvalue(),bresp.getvalue(),
                                   &generaloptions,D.getCol(0),path,w) );
 
     equations[modnr].distrp = &distr_gaussian_mults[distr_gaussian_mults.size()-1];
+
+#if defined(__BUILDING_LINUX)
+    equations[modnr].pathd = defaultpath + "/temp/" + name  + "_scale.res";
+#else
     equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
+#endif
 
     }
 //---------- END: Gaussian response, multiplicative random effects allowed -----
@@ -1343,11 +1395,21 @@ bool superbayesreg::create_predict(void)
 
     ST::string h = equations[modnr].paths;
 
+#if defined(__BUILDING_LINUX)
+    ST::string pathnonp = defaultpath + "/temp/" + name + "_" + h +
+                            "_predict.raw";
+#else
     ST::string pathnonp = defaultpath + "\\temp\\" + name + "_" + h +
                             "_predict.raw";
+#endif
 
+#if defined(__BUILDING_LINUX)
+    ST::string pathnonp2 = defaultpath + "/temp/" + name + "_" + h +
+                            "_deviance.raw";
+#else
     ST::string pathnonp2 = defaultpath + "\\temp\\" + name + "_" + h +
                             "_deviance.raw";
+#endif
 
 
     ST::string pathres = outfile.getvalue() +  "_" + h + "_predict.res";
@@ -1438,8 +1500,13 @@ void superbayesreg::create_cv(void)
     ST::string h = equations[modnr].paths;
 
 
+#if defined(__BUILDING_LINUX)
+    ST::string pathnonp = defaultpath + "/temp/" + name + "_" + h +
+                            "_cv_responses.raw";
+#else
     ST::string pathnonp = defaultpath + "\\temp\\" + name + "_" + h +
                             "_cv_responses.raw";
+#endif
 
 
     ST::string pathres = outfile.getvalue() +  "_" + h + "_cv.res";
@@ -1480,9 +1547,15 @@ bool superbayesreg::create_linear(void)
 
   title = h + ": linear effects" ;
 
+#if defined(__BUILDING_LINUX)
+  pathconst = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                           + "_LinearEffects"  +
+                           "_" + h + ".raw";
+#else
   pathconst = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                            + "_LinearEffects"  +
                            "_" + h + ".raw";
+#endif
 
   pathconstres = outfile.getvalue() + "_" + h + "_LinearEffects.res";
 
@@ -2046,18 +2119,30 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
 
       title = h + ": linear effects with ridge penalty";
 
+#if defined(__BUILDING_LINUX)
+      pathpen = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                             + "_LinearEffects_ridgepenalty"  +
+                             "_" + h + ".raw";
+#else
       pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                              + "_LinearEffects_ridgepenalty"  +
                              "_" + h + ".raw";
+#endif
 
       pathpenres = outfile.getvalue() + "_" + h +
                    "_LinearEffects_ridgepenalty.res";
 
       titlevar = h + ": linear effects with ridge penalty (var)";
 
+#if defined(__BUILDING_LINUX)
+      pathpenvar = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                             + "_LinearEffects_ridgepenalty_var"  +
+                             "_" + h + ".raw";
+#else
       pathpenvar = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                              + "_LinearEffects_ridgepenalty_var"  +
                              "_" + h + ".raw";
+#endif
 
       pathpenresvar = outfile.getvalue() + "_" + h +
                    "_LinearEffects_ridgepenalty_var.res";
@@ -2067,18 +2152,30 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
       {
       title = h + ": linear effects with lasso penalty";
 
+#if defined(__BUILDING_LINUX)
+      pathpen = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                             + "_LinearEffects_lassopenalty"  +
+                             "_" + h + ".raw";
+#else
       pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                              + "_LinearEffects_lassopenalty"  +
                              "_" + h + ".raw";
+#endif
 
       pathpenres = outfile.getvalue() + "_" + h +
                    "_LinearEffects_lassopenalty.res";
 
       titlevar = h + ": linear effects with lasso penalty (var)";
 
+#if defined(__BUILDING_LINUX)
+      pathpenvar = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                             + "_LinearEffects_lassopenalty_var"  +
+                             "_" + h + ".raw";
+#else
       pathpenvar = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                              + "_LinearEffects_lassopenalty_var"  +
                              "_" + h + ".raw";
+#endif
 
       pathpenresvar = outfile.getvalue() + "_" + h +
                    "_LinearEffects_lassopenalty_var.res";
