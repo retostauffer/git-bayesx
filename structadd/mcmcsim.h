@@ -109,7 +109,7 @@ class __EXPORT_TYPE MCMCsim
   // TASK: initializes the MCMC simulation object with general MCMC options 'go'
   //       a vector of equations 'equ'
 
-  MCMCsim(GENERAL_OPTIONS * go,vector<equation> & equ);
+  MCMCsim(GENERAL_OPTIONS * go,vector<equation> & equ,unsigned maxit=1000);
 
   // COPY CONSTRUCTOR
 

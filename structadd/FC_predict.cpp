@@ -91,8 +91,6 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
     FC_deviance = FC(o,"",2,1,fpd);
     }
 
-  int d = betamean.rows();
-
   }
 
 
@@ -170,9 +168,7 @@ void FC_predict::get_predictor(void)
   double * workweight = likep->weight.getV();
   double muhelp;
   double scalehelp=likep->get_scale();
-  double weightone = 1;
-
-  double predlik;
+//  double weightone = 1;
 
   for(i=0;i<likep->nrobs;i++,worklinp++,workresponse++,workweight++,betap++)
     {

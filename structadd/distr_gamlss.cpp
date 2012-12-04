@@ -173,12 +173,19 @@ double DISTR_ziplambda::loglikelihood_weightsone(
 
   }
 
-
-void DISTR_ziplambda::compute_mu(const double * linpred,double * mu)
+/*
+void DISTR_ziplambda::compute_mu(const double * linpred,double * mu,bool meanpred)
   {
+
+  if (counter==0)
+    {
+    set_worklinpi();
+    }
+
+
   *mu = 0; // mu = (1-pi)*lambda
   }
-
+*/
 
 void DISTR_ziplambda::compute_deviance(const double * response,
                    const double * weight,const double * mu,double * deviance,
@@ -200,10 +207,22 @@ double DISTR_ziplambda::compute_iwls(double * response, double * linpred,
     set_worklinpi();
     }
 
-  double lambda = exp(*linpred);
-//  double oneminuspi = 1/(1+exp(*worklinpi));
+
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= -10)
+    {
+    lambda  = 0.0000454;
+    expminuslambda = 0.9999546;
+    }
+  else
+    {
+    lambda = exp(*linpred);
+    expminuslambda = exp(-lambda);
+    }
+
   double pi = 1-(*workonempi);
-  double expminuslambda = exp(-lambda);
   double denom = pi+(*workonempi)*expminuslambda;
 
   double nu = (*response) - lambda;
@@ -219,15 +238,13 @@ double DISTR_ziplambda::compute_iwls(double * response, double * linpred,
   if (like)
     {
 
-    double exptildeeta = exp(*worklinpi);
-
     if (*response==0)
       {
-      l = -log(1+exptildeeta) + log(exptildeeta+exp(-lambda));
+      l= -log(1+ (*workexplinpi)) + log((*workexplinpi)+expminuslambda);
       }
     else // response > 0
       {
-      l = -log(1+exptildeeta) + (*response)*(*linpred)-lambda;
+      l= -log(1+(*workexplinpi)) + (*response)*(*linpred)-lambda;
       }
 
     }
@@ -250,9 +267,21 @@ void DISTR_ziplambda::compute_iwls_wweightschange_weightsone(
     set_worklinpi();
     }
 
-  double lambda = exp(*linpred);
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= -10)
+    {
+    lambda  = 0.0000454;
+    expminuslambda = 0.9999546;
+    }
+  else
+    {
+    lambda = exp(*linpred);
+    expminuslambda = exp(-lambda);
+    }
+
   double pi = 1-(*workonempi);
-  double expminuslambda = exp(-lambda);
   double denom = pi+(*workonempi)*expminuslambda;
 
   double nu = (*response) - lambda;
@@ -261,9 +290,6 @@ void DISTR_ziplambda::compute_iwls_wweightschange_weightsone(
 
   *workingweight = (lambda* (*workonempi)*(denom-expminuslambda*lambda*pi))/denom;
 
-//  if (*workingweight < 0.000001)
-//    *workingweight = 0.000001;
-
   *workingresponse = *linpred + nu/(*workingweight);
 
   if (compute_like)
@@ -271,7 +297,7 @@ void DISTR_ziplambda::compute_iwls_wweightschange_weightsone(
 
     if (*response==0)
       {
-      like += -log(1+ (*workexplinpi)) + log((*workexplinpi)+exp(-lambda));
+      like += -log(1+ (*workexplinpi)) + log((*workexplinpi)+expminuslambda);
       }
     else // response > 0
       {
@@ -295,7 +321,7 @@ void DISTR_ziplambda::update_end(void)
   {
 
   // helpmat1 stores exp(-lambda)
-  // helpmat2 stores lambda  
+  // helpmat2 stores lambda
 
   double * worklin;
   if (linpred_current==1)
@@ -315,8 +341,16 @@ void DISTR_ziplambda::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,ph++,worklin++,l++)
     {
-    *l = exp(*worklin);
-    *ph = exp(-(*l));
+    if (*worklin <= -10)
+      {
+      *l  = 0.0000454;
+      *ph = 0.9999546;
+      }
+    else
+      {
+      *l = exp(*worklin);
+      *ph = exp(-(*l));
+      }
     }
 
   }
@@ -490,7 +524,7 @@ double DISTR_zippi::compute_iwls(double * response, double * linpred,
     set_worklinlambda();
     }
 
-  double oneminuspi = 1/(1+exp(*linpred));
+  double oneminuspi = 0.001+0.998/(1+exp(*linpred));
   double pi = 1-oneminuspi;
   double denom = pi+oneminuspi*(*workexpmlambda);
   double nu = - pi;
@@ -538,7 +572,7 @@ void DISTR_zippi::compute_iwls_wweightschange_weightsone(
     set_worklinlambda();
     }
 
-  double oneminuspi = 1/(1+exp(*linpred));
+  double oneminuspi = 0.001+0.998/(1+exp(*linpred));
   double pi = 1-oneminuspi;
   double denom = pi+oneminuspi* (*workexpmlambda);
 
@@ -573,6 +607,7 @@ void DISTR_zippi::compute_iwls_wweightschange_weightsone(
 
   }
 
+
 void DISTR_zippi::posteriormode_end(void)
   {
   update_end();
@@ -605,7 +640,7 @@ void DISTR_zippi::update_end(void)
   for (i=0;i<nrobs;i++,ete++,worklin++,wpi++)
     {
     *ete = exp(*worklin);
-    *wpi = 1/(1+(*ete));
+    *wpi = 0.001+0.998/(1+(*ete));
     }
 
   }

@@ -175,6 +175,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   simpleoption modeonly;               // Computes the posterior mode only
   intoption setseed;
+  intoption modemaxit;                 // maxmimum number of iterations for
+                                      // posterior mode
 
   // general MCMC options
   intoption iterations;                // Number of iterations

@@ -335,12 +335,12 @@ void FC_nonp_variance::reset(void)
   {
 
   datamatrix betanew(1,2);
-  betanew(0,0) = likep->get_scale()/1.0;
-  betanew(1,0) = 1.0;
+  betanew(0,0) = likep->get_scale()/lambdastart;
+  betanew(0,1) = lambdastart;
   setbeta(betanew);
 
   FCnonpp->tau2 = beta(0,0);
-  FCnonpp->lambda = beta(1,0);
+  FCnonpp->lambda = beta(0,1);
 //  transform(0,0) = 1;
 //  transform(1,0) = 1;
 

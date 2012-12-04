@@ -206,6 +206,8 @@ void superbayesreg::create_hregress(void)
 
   includescale = simpleoption("includescale",false);
 
+  modemaxit = intoption("modemaxit",1000,0,5000);
+
   regressoptions.reserve(100);
 
   regressoptions.push_back(&modeonly);
@@ -231,7 +233,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&cv);
   regressoptions.push_back(&includescale);
   regressoptions.push_back(&standardize);
-
+  regressoptions.push_back(&modemaxit);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -805,7 +807,8 @@ void hregressrun(superbayesreg & b)
         {
         b.run_yes=true;
 
-        b.simobj = MCMCsim(&b.generaloptions,b.equations);
+        unsigned mit = b.modemaxit.getvalue();
+        b.simobj = MCMCsim(&b.generaloptions,b.equations,mit);
 
         ST::string pathgraphs = b.outfile.getvalue();
 

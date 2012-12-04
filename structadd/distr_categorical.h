@@ -382,6 +382,8 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
 
   protected:
 
+  double c_scale;
+
 
   public:
 

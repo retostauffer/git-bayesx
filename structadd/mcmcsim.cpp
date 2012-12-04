@@ -126,11 +126,11 @@ void equation::add_FC(FC * FCp,const ST::string & p)
 //------------------------------------------------------------------------------
 
 
-MCMCsim::MCMCsim(GENERAL_OPTIONS * go,vector<equation> & equ)
+MCMCsim::MCMCsim(GENERAL_OPTIONS * go,vector<equation> & equ,unsigned maxit)
   {
   genoptions = go;
   equations = equ;
-  maxiterations = 1000;
+  maxiterations = maxit;
 //  maxiterations = 10;
   }
 
