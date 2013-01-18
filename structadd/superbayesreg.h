@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 #include"FC.h"
 #include"FC_predict.h"
+#include"FC_predict_mult.h"
 #include"FC_predict_predictor.h"
 #include"FC_predictive_check.h"
 #include"FC_nonp.h"
@@ -96,6 +97,7 @@ using MCMC::equation;
 
 using MCMC::FC;
 using MCMC::FC_predict;
+using MCMC::FC_predict_mult;
 using MCMC::FC_predict_predictor;
 using MCMC::FC_predictive_check;
 using MCMC::FC_cv;
@@ -280,6 +282,10 @@ class __EXPORT_TYPE superbayesreg : public statobject
   //---------------------------- for predict -----------------------------------
 
   vector<FC_predict> FC_predicts;
+
+  vector<FC_predict_mult> FC_predicts_mult;
+  vector<DISTR *> predict_mult_distrs;
+
   vector<FC_predict_predictor> FC_predict_predictors;
 
   bool create_predict(void);

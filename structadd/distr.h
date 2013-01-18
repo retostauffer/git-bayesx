@@ -86,6 +86,7 @@ class __EXPORT_TYPE DISTR
   public:
 
   bool maindistribution;
+  bool predict_mult;
 
   datamatrix * FCpredict_betamean;
 
@@ -241,10 +242,9 @@ class __EXPORT_TYPE DISTR
   //------------------------------- COMPUTE mu ---------------------------------
   //----------------------------------------------------------------------------
 
-//  virtual void compute_mu(const double * linpred,double * mu,
-//                          bool notransform=false);
-
   virtual void compute_mu(const double * linpred,double * mu);
+
+  virtual void compute_mu_mult(vector<double *> linpred,double * mu);
 
 
   virtual void compute_deviance(const double * response,

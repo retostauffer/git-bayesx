@@ -72,6 +72,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   {
 
   maindistribution=true;
+  predict_mult=false;
 
   option1 = "";
 
@@ -128,6 +129,7 @@ DISTR::DISTR(const DISTR & d)
   FCpredict_betamean = d.FCpredict_betamean;
 
   maindistribution = d.maindistribution;
+  predict_mult = d.predict_mult;
 
   option1 = d.option1;
   optionbool1 = d.optionbool1;
@@ -156,7 +158,7 @@ DISTR::DISTR(const DISTR & d)
 
   helpmat1 = d.helpmat1;
   helpmat2 = d.helpmat2;
-  helpmat3 = d.helpmat3;    
+  helpmat3 = d.helpmat3;
 
   updateIWLS = d.updateIWLS;
   family = d.family;
@@ -179,6 +181,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   FCpredict_betamean = d.FCpredict_betamean;
 
   maindistribution = d.maindistribution;
+  predict_mult = d.predict_mult;  
 
   option1 = d.option1;
   optionbool1 = d.optionbool1;
@@ -423,6 +426,12 @@ void DISTR::compute_deviance(const double * response,
 
 
 void DISTR::compute_mu(const double * linpred,double * mu)
+  {
+
+  }
+
+
+void DISTR::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
   }

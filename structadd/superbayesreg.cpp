@@ -124,7 +124,6 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("lasso");
 
 
-
   tnonp = term_nonp(tnames);
   lineareffects = basic_termtype();
   termtypes.push_back(&tnonp);
@@ -416,9 +415,14 @@ void superbayesreg::clear(void)
   FC_hrandom_variance_vecs.end());
   FC_hrandom_variance_vecs.reserve(50);
 
-
   FC_predicts.erase(FC_predicts.begin(),FC_predicts.end());
   FC_predicts.reserve(30);
+
+  FC_predicts_mult.erase(FC_predicts_mult.begin(),FC_predicts_mult.end());
+  FC_predicts_mult.reserve(30);
+
+  predict_mult_distrs.erase(predict_mult_distrs.begin(),predict_mult_distrs.end());
+  predict_mult_distrs.reserve(30);
 
   FC_predict_predictors.erase(FC_predict_predictors.begin(),
                               FC_predict_predictors.end());
@@ -521,6 +525,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_predicts = b.FC_predicts;
+  FC_predicts_mult = b.FC_predicts_mult;
   FC_predict_predictors = b.FC_predict_predictors;
   FC_predictive_checks = b.FC_predictive_checks;
 
@@ -599,6 +604,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_predicts = b.FC_predicts;
+  FC_predicts_mult = b.FC_predicts_mult;
   FC_predict_predictors = b.FC_predict_predictors;
   FC_predictive_checks = b.FC_predictive_checks;
 
@@ -1056,6 +1062,8 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_zippis[distr_zippis.size()-1];
     equations[modnr].pathd = "";
 
+    predict_mult_distrs.push_back(&distr_zippis[distr_zippis.size()-1]);
+
     }
 //------------------------------- END: ZIP pi ----------------------------------
 
@@ -1069,6 +1077,8 @@ bool superbayesreg::create_distribution(void)
 
     equations[modnr].distrp = &distr_ziplambdas[distr_ziplambdas.size()-1];
     equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_ziplambdas[distr_ziplambdas.size()-1]);
 
     if (distr_zippis.size() != 1)
       {
@@ -1429,26 +1439,44 @@ bool superbayesreg::create_predict(void)
         }
       else
         {
-        FC_predicts.push_back(FC_predict(&generaloptions,
-                           equations[modnr].distrp,"",pathnonp,
-                           pathnonp2,D,modelvarnamesv));
-
-        if (predict.getvalue() == "fulls")
-          FC_predicts[FC_predicts.size()-1].nosamples=false;
-
-        if (mse.getvalue() ==  "yes")
-          FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
-
-        if (mse.getvalue() ==  "quadratic")
-          FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
-
-        if (mse.getvalue() ==  "check")
+        if (equations[modnr].distrp->predict_mult == false)
           {
-          FC_predicts[FC_predicts.size()-1].MSE = MCMC::checkMSE;
-          FC_predicts[FC_predicts.size()-1].MSEparam = mseparam.getvalue();
+          FC_predicts.push_back(FC_predict(&generaloptions,
+                             equations[modnr].distrp,"",pathnonp,
+                             pathnonp2,D,modelvarnamesv));
+
+          if (predict.getvalue() == "fulls")
+            FC_predicts[FC_predicts.size()-1].nosamples=false;
+
+          if (mse.getvalue() ==  "yes")
+            FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
+
+          if (mse.getvalue() ==  "quadratic")
+            FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
+
+          if (mse.getvalue() ==  "check")
+            {
+            FC_predicts[FC_predicts.size()-1].MSE = MCMC::checkMSE;
+            FC_predicts[FC_predicts.size()-1].MSEparam = mseparam.getvalue();
+            }
+
+          equations[modnr].add_FC(&FC_predicts[FC_predicts.size()-1],pathres);
+          }
+        else // predict_mult==true
+          {
+
+          FC_predicts_mult.push_back(FC_predict_mult(&generaloptions,
+                             predict_mult_distrs,"",pathnonp,
+                             pathnonp2,D,modelvarnamesv));
+
+//          if (predict.getvalue() == "fulls")
+//            FC_predicts[FC_predicts.size()-1].nosamples=false;
+
+          equations[modnr].add_FC(&FC_predicts_mult[FC_predicts_mult.size()-1],pathres);
+
+
           }
 
-        equations[modnr].add_FC(&FC_predicts[FC_predicts.size()-1],pathres);
         }
       }
     else if (predict.getvalue() == "predictor")

@@ -36,6 +36,8 @@ DISTR_ziplambda::DISTR_ziplambda(GENERAL_OPTIONS * o, const datamatrix & r,
 
   {
 
+  predict_mult = true;
+
   if (check_weightsone() == true)
     wtype = wweightschange_weightsone;
   else
@@ -172,6 +174,17 @@ double DISTR_ziplambda::loglikelihood_weightsone(
   return l;
 
   }
+
+
+void DISTR_ziplambda::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+
+  double el = exp(*linpred[0]);
+
+  *mu = 1/(1+el)*exp(*linpred[1]);
+
+  }
+
 
 /*
 void DISTR_ziplambda::compute_mu(const double * linpred,double * mu,bool meanpred)
@@ -366,6 +379,7 @@ DISTR_zippi::DISTR_zippi(GENERAL_OPTIONS * o, const datamatrix & r,
 
   {
 
+  maindistribution=false;
   if (check_weightsone() == true)
     wtype = wweightschange_weightsone;
   else
@@ -495,10 +509,10 @@ double DISTR_zippi::loglikelihood_weightsone(
   }
 
 
-void DISTR_zippi::compute_mu(const double * linpred,double * mu)
+void DISTR_zippi::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
-  *mu = 0;
+
   }
 
 

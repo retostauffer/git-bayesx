@@ -100,6 +100,8 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
                                          double * workingresponse,double & like,
                                          const bool & compute_like);
 
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
   void outoptions(void);
 
 
@@ -162,7 +164,7 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
 
    ~DISTR_zippi() {}
 
-  void compute_mu(const double * linpred,double * mu);
+
 
   void compute_deviance(const double * response, const double * weight,
                         const double * mu,double * deviance,
@@ -182,6 +184,8 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
                                          double * workingweight,
                                          double * workingresponse,double & like,
                                          const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
 
   void outoptions(void);
 
