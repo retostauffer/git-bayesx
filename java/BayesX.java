@@ -215,7 +215,7 @@ public BayesX()
 	registryFile = new File(new File(System.getProperty("user.dir")),"registry.bayesx");
 	try
 		{
-		if(!registryFile.exists() && registryFile.canWrite())
+		if(!registryFile.exists() )
 			{
 			PrintWriter out = new PrintWriter(new FileWriter(registryFile));
 			if(out!=null)
