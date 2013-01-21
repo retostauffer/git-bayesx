@@ -2358,7 +2358,9 @@ void getsamplerun(superbayesreg & b)
 
 // STEFAN: CHECKEN
 // zweites Argument sollte ein Vektor sein.
-      b.simobj.get_samples(b.newcommands,b.outfile.getvalue() + "_");
+      // b.simobj.get_samples(b.newcommands,b.outfile.getvalue() + "_");
+      ST::string aString( b.outfile.getvalue() + "_" );
+      b.simobj.get_samples(aString, b.newcommands);
       #else
       b.simobj.get_samples(pathgraphs);
       #endif
