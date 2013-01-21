@@ -112,6 +112,7 @@ set(STRUCTADD_SRC
 	structadd/FC_nonp.cpp
 	structadd/FC_nonp_variance.cpp
 	structadd/FC_predict.cpp
+	structadd/FC_predict_mult.cpp
 	structadd/FC_cv.cpp
 	structadd/FC_variance_pen_vector.cpp
 	structadd/GENERAL_OPTIONS.cpp
@@ -122,8 +123,10 @@ set(STRUCTADD_SRC
 	structadd/design_pspline.cpp
 	structadd/distr.cpp
 	structadd/distr_categorical.cpp
+	structadd/distr_categorical_mult.cpp
 	structadd/distr_mixture.cpp
-	structadd/mcmcsim.cpp
+	structadd/distr_gamlss.cpp
+        structadd/mcmcsim.cpp
 	structadd/model_parameters.cpp
 	structadd/superbayesreg.cpp
 	structadd/design_kriging.cpp
@@ -144,15 +147,13 @@ set(SRC
 	adaptiv/fullcond_adaptiv.cpp
 	alex/mixture.cpp
 )
+include_directories(bib alex adaptiv andrea dag graph mcmc psplines samson leyre structadd)
+add_executable(bayesx ${SRC})
 add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC)
 if(NOT WIN32)
 add_definitions(-D__BUILDING_LINUX)
 find_package(Readline REQUIRED)
 target_link_libraries(bayesx ${READLINE_LIBRARY})
-target_link_libraries(bayesxlib ${READLINE_LIBRARY})
 endif()
-find_package(JNI REQUIRED)
-include_directories(${JNI_INCLUDE_DIRS})
-include_directories(bib alex adaptiv andrea dag graph mcmc psplines samson leyre structadd java)
-#add_executable(bayesx ${SRC})
-add_library(bayesxlib SHARED ${SRC} java/BayesXdll.cpp)
+add_subdirectory(java)
+
