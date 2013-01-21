@@ -387,8 +387,10 @@ JNIEXPORT jdouble JNICALL Java_BayesX_getname
 
 // --------------------------------------------------------------------------
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WINDOWS__)
 int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void*)
 {
     return 1;
 }
+#endif
 //---------------------------------------------------------------------------
