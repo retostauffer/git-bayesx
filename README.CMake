@@ -99,5 +99,20 @@ See 'add_executable' and 'add_library' where they are ultimately assembled
 together. 
  
 
+Explicitly build only executable or only dll
+============================================
+
+make <target> 
+  where target is bayesx or BayesXDll
+
+
+Build faster on multi-processor
+===============================
+
+make -j#
+
+  where # is the number of cores (e.g. make -j4)
+
+
 Last Updated: 2013-01-21 <dadler@uni-goettingen.de>
 
