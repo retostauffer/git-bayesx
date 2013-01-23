@@ -470,7 +470,7 @@ bool admin_gnu::parse(ST::string & in)
 
                   }
                 else
-                  ST::getline(infile,10000,in,'\n');
+                  ST::getline(infile,100000,in,'\n');
 
 	            in = in.eatwhitespace();
 	            in = in.eatallcarriagereturns();
