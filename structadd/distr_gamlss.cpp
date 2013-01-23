@@ -186,27 +186,30 @@ void DISTR_ziplambda::compute_mu_mult(vector<double *> linpred,double * mu)
   }
 
 
-/*
-void DISTR_ziplambda::compute_mu(const double * linpred,double * mu,bool meanpred)
+void DISTR_ziplambda::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const
   {
 
-  if (counter==0)
+  double l;
+  double explinpi = exp(*linpred[0]);
+  double lambda = exp(*linpred[1]);
+
+  if (*response[1]==0)
     {
-    set_worklinpi();
+    l= -log(1+ explinpi) + log(explinpi+ exp(-lambda));
+    }
+  else // response > 0
+    {
+    l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda;
     }
 
+  *deviance = -2*l;
+  *deviancesat = *deviance;
 
-  *mu = 0; // mu = (1-pi)*lambda
-  }
-*/
-
-void DISTR_ziplambda::compute_deviance(const double * response,
-                   const double * weight,const double * mu,double * deviance,
-                   double * deviancesat, double * scale) const
-  {
-
-  *deviance = 0;
-  *deviancesat = 0;
   }
 
 
@@ -454,6 +457,7 @@ double DISTR_zippi::loglikelihood(double * response, double * linpred,
   }
 
 
+
 void DISTR_zippi::set_worklinlambda(void)
   {
   if (distrlambda->linpred_current==1)
@@ -516,16 +520,18 @@ void DISTR_zippi::compute_mu_mult(vector<double *> linpred,double * mu)
   }
 
 
-void DISTR_zippi::compute_deviance(const double * response,
-                   const double * weight,const double * mu,double * deviance,
-                   double * deviancesat, double * scale) const
+void DISTR_zippi::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const
   {
 
 
-  *deviance = 0;
-  *deviancesat = *deviance;
-
   }
+
+
 
 
 double DISTR_zippi::compute_iwls(double * response, double * linpred,

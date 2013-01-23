@@ -254,6 +254,14 @@ class __EXPORT_TYPE DISTR
                            double * scale) const;
 
 
+  virtual void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const;
+
+
   //----------------------------------------------------------------------------
   //------------------------------- COMPUTE MSE --------------------------------
   //----------------------------------------------------------------------------

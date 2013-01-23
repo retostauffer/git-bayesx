@@ -79,11 +79,12 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
 
    ~DISTR_ziplambda() {}
 
-//  void compute_mu(const double * linpred,double * mu);
-
-  void compute_deviance(const double * response, const double * weight,
-                        const double * mu,double * deviance,
-                        double * deviancesat, double * scale) const;
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const;
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);
@@ -164,11 +165,13 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
 
    ~DISTR_zippi() {}
 
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const;
 
-
-  void compute_deviance(const double * response, const double * weight,
-                        const double * mu,double * deviance,
-                        double * deviancesat, double * scale) const;
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);

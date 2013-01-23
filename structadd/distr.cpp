@@ -425,6 +425,18 @@ void DISTR::compute_deviance(const double * response,
   }
 
 
+void DISTR::compute_deviance_mult(vector<double *> response,
+                                  vector<double *> weight,
+                                  vector<double *> linpred,
+                                  double * deviance,
+                                  double * deviancesat,
+                                  vector<double> scale) const
+  {
+
+  }                                  
+
+
+
 void DISTR::compute_mu(const double * linpred,double * mu)
   {
 

@@ -114,6 +114,7 @@ void FC_predict_mult::get_predictor(void)
 
     for (j=0;j<likep.size();j++)
       {
+
       if (likep[j]->linpred_current==1)
         worklinp.push_back(likep[j]->linearpred1.getV());
       else
@@ -144,19 +145,30 @@ void FC_predict_mult::get_predictor(void)
       for (j=0;j<likep.size();j++,betap++)
         {
         likep[j]->compute_mu_mult(worklinp,betap);
-
-        worklinp[j]++;
         }
 
 
+      likep[likep.size()-1]->compute_deviance_mult(workresponse,workweight,
+                              worklinp,&deviancehelp,&deviancesathelp,scalehelp);
+
+
+      for (j=0;j<likep.size();j++)
+        {
+        worklinp[j]++;
+        workresponse[j]++;
+        workweight[j]++;
+        }
+
+      deviance+=deviancehelp;
+      deviancesat+=deviancesathelp;
 
       }
 
-   // TEST
-   // ofstream out("c:\\bayesx\\testh\\results\\beta.raw");
-   // beta.prettyPrint(out);
-   // out.close();
-   // END TEST
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\beta.raw");
+  // beta.prettyPrint(out);
+  // out.close();
+  // END TEST
 
   }
 
@@ -178,39 +190,54 @@ void FC_predict_mult::outoptions(void)
   }
 
 
-
 void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
   {
-/*
+
   ST::string pathresultsdic = pathresults.substr(0,pathresults.length()-4) + "_DIC.res";
   ofstream out(pathresultsdic.strtochar());
 
   double deviance2=0;
   double deviance2_sat=0;
 
-
-  double scalehelp = likep->get_scalemean();
-
-
   double devhelp;
   double devhelp_sat;
 
-  double mu_meanlin;
-  double * workmeanlin = betamean.getV();
-  double * workresponse = likep->response_untransformed.getV();
-  double * workweight = likep->weight.getV();
+  vector<double *> worklinp;
+  vector<double *> workresponse;
+  vector<double *> workweight;
+  vector<double>   scalehelp;
 
-  unsigned i;
-  for (i=0;i<likep->nrobs;i++,workmeanlin+=beta.cols(),workresponse++,workweight++)
+  unsigned j;
+
+  for (j=0;j<likep.size();j++)
     {
 
-    likep->compute_mu(workmeanlin,&mu_meanlin);
+    worklinp.push_back(betamean.getV()+j);
 
-    likep->compute_deviance(workresponse,workweight,&mu_meanlin,
-    &devhelp,&devhelp_sat,&scalehelp);
+    workresponse.push_back(likep[j]->response_untransformed.getV());
+
+    workweight.push_back(likep[j]->weight.getV());
+
+    }
+
+  unsigned i;
+
+  for (i=0;i<likep[0]->nrobs;i++)
+    {
+
+    likep[likep.size()-1]->compute_deviance_mult(workresponse,workweight,worklinp,
+    &devhelp,&devhelp_sat,scalehelp);
 
     deviance2 += devhelp;
     deviance2_sat += devhelp_sat;
+
+    for (j=0;j<likep.size();j++)
+      {
+      worklinp[j]++;
+      workresponse[j]++;
+      workweight[j]++;
+      }
+
     }
 
 
@@ -261,13 +288,13 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
   ST::doubletostring(2*devhelpm_sat-deviance2_sat,d) + "\n");
 
   optionsp->out("\n");
-  */
+  
   }
 
 
 void FC_predict_mult::outresults_deviance(void)
     {
-    /*
+
     ST::string l1 = ST::doubletostring(optionsp->lower1,4);
     ST::string l2 = ST::doubletostring(optionsp->lower2,4);
     ST::string u1 = ST::doubletostring(optionsp->upper1,4);
@@ -385,7 +412,7 @@ void FC_predict_mult::outresults_deviance(void)
     optionsp->out("\n");
 
     optionsp->out("\n");
-     */
+
     }
 
 
@@ -399,12 +426,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
     FC::outresults(out_stata,out_R,"");
 
-    /*
-    if (likep->maindistribution == true)
-      {
-      FC_deviance.outresults(out_stata,out_R,"");
-      }
-    */
+    FC_deviance.outresults(out_stata,out_R,"");
 
     optionsp->out("  PREDICTED VALUES: \n",true);
     optionsp->out("\n");
@@ -523,8 +545,8 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
      }
 
-//      outresults_deviance();
-//      outresults_DIC(pathresults);
+     outresults_deviance();
+     outresults_DIC(pathresults);
 
 
     }   // end if (pathresults.isvalidfile() != 1)
