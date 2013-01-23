@@ -144,7 +144,7 @@ void superbayesreg::create_hregress(void)
 
   standardize = simpleoption("standardize",false);
 
-  families.reserve(40);
+  families.reserve(80);
   families.push_back("gaussian");
   families.push_back("hetgaussian");
   families.push_back("vargaussian");
@@ -163,6 +163,9 @@ void superbayesreg::create_hregress(void)
   families.push_back("multinom_logit");
   families.push_back("zip_lambda");
   families.push_back("zip_pi");
+  families.push_back("zinb_mu");
+  families.push_back("zinb_pi");
+  families.push_back("zinb_delta");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -175,6 +178,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("meanservant");
   equationtypes.push_back("variance");
   equationtypes.push_back("pi");
+  equationtypes.push_back("delta");
   equationtype = stroption("equationtype",equationtypes,"mean");
 
   predictop.reserve(20);
@@ -370,6 +374,16 @@ void superbayesreg::clear(void)
   distr_zippis.erase(distr_zippis.begin(),distr_zippis.end());
   distr_zippis.reserve(20);
 
+  distr_negbinzip_mus.erase(distr_negbinzip_mus.begin(),distr_negbinzip_mus.end());
+  distr_negbinzip_mus.reserve(20);
+
+  distr_negbinzip_pis.erase(distr_negbinzip_pis.begin(),distr_negbinzip_pis.end());
+  distr_negbinzip_pis.reserve(20);
+
+  distr_negbinzip_deltas.erase(distr_negbinzip_deltas.begin(),distr_negbinzip_deltas.end());
+  distr_negbinzip_deltas.reserve(20);
+
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -514,6 +528,9 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_logit_fruehwirths = b.distr_logit_fruehwirths;
   distr_ziplambdas = b.distr_ziplambdas;
   distr_zippis = b.distr_zippis;
+  distr_negbinzip_mus = b.distr_negbinzip_mus;
+  distr_negbinzip_pis = b.distr_negbinzip_pis;
+  distr_negbinzip_deltas = b.distr_negbinzip_deltas;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -593,6 +610,9 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_logit_fruehwirths = b.distr_logit_fruehwirths;
   distr_ziplambdas = b.distr_ziplambdas;
   distr_zippis = b.distr_zippis;
+  distr_negbinzip_mus = b.distr_negbinzip_mus;
+  distr_negbinzip_pis = b.distr_negbinzip_pis;
+  distr_negbinzip_deltas = b.distr_negbinzip_deltas;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -643,7 +663,6 @@ int superbayesreg::parse(const ST::string & c)
 
 bool superbayesreg::create_generaloptions(void)
   {
-
 
   if (iterations.getvalue()- burnin.getvalue() < 100)
     {
@@ -1050,6 +1069,89 @@ bool superbayesreg::create_distribution(void)
 
     }
 //----------------- END: heteroscedastic Gaussian response ---------------------
+
+//---------------------------------- ZINB pi -----------------------------------
+  else if (family.getvalue() == "zinb_pi" && equationtype.getvalue()=="pi")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_negbinzip_pis.push_back(DISTR_negbinzip_pi(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_negbinzip_pis[distr_negbinzip_pis.size()-1];
+    equations[modnr].pathd = "";
+
+//    predict_mult_distrs.push_back(&distr_zippis[distr_zippis.size()-1]);
+
+    }
+//------------------------------- END: ZINB pi ---------------------------------
+
+//---------------------------------- ZINB delta --------------------------------
+  else if (family.getvalue() == "zinb_delta" && equationtype.getvalue()=="delta")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_negbinzip_deltas.push_back(DISTR_negbinzip_delta(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1];
+    equations[modnr].pathd = "";
+
+//    predict_mult_distrs.push_back(&distr_zippis[distr_zippis.size()-1]);
+
+    }
+//------------------------------ END: ZINB delta -------------------------------
+
+
+//----------------------------------- ZINB mu ----------------------------------
+  else if (family.getvalue() == "zinb_mu" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_negbinzip_mus.push_back(DISTR_negbinzip_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_negbinzip_mus[distr_negbinzip_mus.size()-1];
+    equations[modnr].pathd = "";
+
+//    predict_mult_distrs.push_back(&distr_zippis[distr_zippis.size()-1]);
+
+    if (distr_negbinzip_pis.size() != 1)
+      {
+      outerror("ERROR: Equation for pi is missing");
+      return true;
+      }
+
+    if (distr_negbinzip_deltas.size() != 1)
+      {
+      outerror("ERROR: Equation for delta is missing");
+      return true;
+      }
+
+
+    distr_negbinzip_pis[distr_negbinzip_pis.size()-1].distrmu =
+    &distr_negbinzip_mus[distr_negbinzip_mus.size()-1];
+
+    distr_negbinzip_pis[distr_negbinzip_pis.size()-1].distrdelta =
+    &distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1];
+
+
+    distr_negbinzip_mus[distr_negbinzip_mus.size()-1].distrpi =
+    &distr_negbinzip_pis[distr_negbinzip_pis.size()-1];
+
+    distr_negbinzip_mus[distr_negbinzip_mus.size()-1].distrdelta =
+    &distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1];
+
+
+    distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1].distrpi =
+    &distr_negbinzip_pis[distr_negbinzip_pis.size()-1];
+
+    distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1].distrmu =
+    &distr_negbinzip_mus[distr_negbinzip_mus.size()-1];
+
+    }
+//------------------------------ END: ZINB mu ----------------------------------
+
 
 //---------------------------------- ZIP pi ------------------------------------
   else if (family.getvalue() == "zip_pi" && equationtype.getvalue()=="pi")

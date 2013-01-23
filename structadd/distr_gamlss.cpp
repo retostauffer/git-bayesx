@@ -25,6 +25,1150 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 namespace MCMC
 {
 
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS DISTR_negbinzip_mu ---------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_negbinzip_mu::DISTR_negbinzip_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+                                 const datamatrix & w)
+  : DISTR(o,r,w)
+
+  {
+
+  predict_mult = true;
+
+  if (check_weightsone() == true)
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+
+  counter = 0;
+
+  family = "Zero_Inflated_Negative_Binomial";
+  updateIWLS = true;
+  }
+
+
+const DISTR_negbinzip_mu & DISTR_negbinzip_mu::operator=(
+const DISTR_negbinzip_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR::operator=(DISTR(nd));
+  distrpi = nd.distrpi;
+  distrdelta = nd.distrdelta;
+  counter = nd.counter;
+  return *this;
+  }
+
+
+DISTR_negbinzip_mu::DISTR_negbinzip_mu(const DISTR_negbinzip_mu & nd)
+   : DISTR(DISTR(nd))
+  {
+  distrpi = nd.distrpi;
+  distrdelta = nd.distrdelta;
+  counter = nd.counter;
+  }
+
+
+void DISTR_negbinzip_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): exponential\n");
+  optionsp->out("  Response function (pi): logistic distribution function\n");
+  optionsp->out("  Response function (delta): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTR_negbinzip_mu::loglikelihood(double * response, double * linpred,
+                                     double * weight)
+  {
+
+  if (counter==0)
+    {
+    set_worklinpi();
+    set_worklindelta();
+    }
+
+
+  double l=0;
+
+  // FEHLT
+
+  modify_worklinpi();
+  modify_worklindelta();
+
+  return l;
+
+  }
+
+
+void DISTR_negbinzip_mu::set_worklinpi(void)
+  {
+  // FEHLT
+  /*
+  if (distrpi->linpred_current==1)
+    worklinpi = distrpi->linearpred1.getV();
+  else
+    worklinpi = distrpi->linearpred2.getV();
+
+  workexplinpi = distrpi->helpmat1.getV();
+  workonempi = distrpi->helpmat2.getV();
+  */
+  }
+
+
+void DISTR_negbinzip_mu::set_worklindelta(void)
+  {
+  // FEHLT
+  /*
+  if (distrpi->linpred_current==1)
+    worklinpi = distrpi->linearpred1.getV();
+  else
+    worklinpi = distrpi->linearpred2.getV();
+
+  workexplinpi = distrpi->helpmat1.getV();
+  workonempi = distrpi->helpmat2.getV();
+  */
+  }
+
+
+void DISTR_negbinzip_mu::modify_worklinpi(void)
+  {
+  /*
+  if (counter<nrobs-1)
+    {
+    counter++;
+    worklinpi++;
+    workexplinpi++;
+    workonempi++;
+    }
+  else
+    {
+    counter=0;
+    }
+   */
+  }
+
+
+void DISTR_negbinzip_mu::modify_worklindelta(void)
+  {
+
+  // FEHLT
+  /*
+  if (counter<nrobs-1)
+    {
+    counter++;
+    worklinpi++;
+    workexplinpi++;
+    workonempi++;
+    }
+  else
+    {
+    counter=0;
+    }
+   */
+  }
+
+
+
+double DISTR_negbinzip_mu::loglikelihood_weightsone(
+                                  double * response, double * linpred)
+  {
+
+  if (counter==0)
+    {
+    set_worklinpi();
+    set_worklindelta();
+    }
+
+  double l = 0;
+
+  // FEHLT
+
+  modify_worklinpi();
+  modify_worklindelta();
+
+  return l;
+
+  }
+
+
+void DISTR_negbinzip_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  /*
+  double el = exp(*linpred[0]);
+
+  *mu = 1/(1+el)*exp(*linpred[1]);
+  */
+  }
+
+
+void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const
+  {
+  double l=0;
+  /*
+
+  double explinpi = exp(*linpred[0]);
+  double lambda = exp(*linpred[1]);
+
+  if (*response[1]==0)
+    {
+    l= -log(1+ explinpi) + log(explinpi+ exp(-lambda));
+    }
+  else // response > 0
+    {
+    l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda;
+    }
+  */
+
+  *deviance = -2*l;
+  *deviancesat = *deviance;
+
+  }
+
+
+double DISTR_negbinzip_mu::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+
+  if (counter==0)
+    {
+    set_worklinpi();
+    set_worklindelta();
+    }
+
+  /*
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= -10)
+    {
+    lambda  = 0.0000454;
+    expminuslambda = 0.9999546;
+    }
+  else
+    {
+    lambda = exp(*linpred);
+    expminuslambda = exp(-lambda);
+    }
+
+  double pi = 1-(*workonempi);
+  double denom = pi+(*workonempi)*expminuslambda;
+
+  double nu = (*response) - lambda;
+  if (*response == 0)
+    nu += pi*lambda/denom;
+
+  *workingweight = (lambda*(*workonempi)*(denom-expminuslambda*lambda*pi))/denom;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  double l=0;
+
+  if (like)
+    {
+
+    if (*response==0)
+      {
+      l= -log(1+ (*workexplinpi)) + log((*workexplinpi)+expminuslambda);
+      }
+    else // response > 0
+      {
+      l= -log(1+(*workexplinpi)) + (*response)*(*linpred)-lambda;
+      }
+
+    }
+  */
+
+  double l = 0;
+
+  modify_worklinpi();
+  modify_worklindelta();
+
+  return l;
+  }
+
+
+void DISTR_negbinzip_mu::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  if (counter==0)
+    {
+    set_worklinpi();
+    set_worklindelta();
+    }
+
+  /*
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= -10)
+    {
+    lambda  = 0.0000454;
+    expminuslambda = 0.9999546;
+    }
+  else
+    {
+    lambda = exp(*linpred);
+    expminuslambda = exp(-lambda);
+    }
+
+  double pi = 1-(*workonempi);
+  double denom = pi+(*workonempi)*expminuslambda;
+
+  double nu = (*response) - lambda;
+  if (*response == 0)
+    nu += pi*lambda/denom;
+
+  *workingweight = (lambda* (*workonempi)*(denom-expminuslambda*lambda*pi))/denom;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+
+    if (*response==0)
+      {
+      like += -log(1+ (*workexplinpi)) + log((*workexplinpi)+expminuslambda);
+      }
+    else // response > 0
+      {
+      like += -log(1+(*workexplinpi)) + (*response)*(*linpred)-lambda;
+      }
+
+    }
+  */
+
+  modify_worklinpi();
+  modify_worklindelta();
+
+  }
+
+
+void DISTR_negbinzip_mu::posteriormode_end(void)
+  {
+  update_end();
+  }
+
+
+void DISTR_negbinzip_mu::update_end(void)
+  {
+
+  // helpmat1 stores exp(-lambda)
+  // helpmat2 stores lambda
+  /*
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  if (helpmat1.rows() == 1)
+    {
+    helpmat1 = datamatrix(nrobs,1,0);
+    helpmat2 = datamatrix(nrobs,1,0);
+    }
+
+  double * ph = helpmat1.getV();
+  double * l = helpmat2.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,ph++,worklin++,l++)
+    {
+    if (*worklin <= -10)
+      {
+      *l  = 0.0000454;
+      *ph = 0.9999546;
+      }
+    else
+      {
+      *l = exp(*worklin);
+      *ph = exp(-(*l));
+      }
+    }
+   */
+
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS DISTR_negbinzip_pi ---------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_negbinzip_pi::DISTR_negbinzip_pi(GENERAL_OPTIONS * o, const datamatrix & r,
+                                 const datamatrix & w)
+  : DISTR(o,r,w)
+
+  {
+
+  predict_mult = true;
+
+  if (check_weightsone() == true)
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+
+  counter = 0;
+
+  family = "Zero_Inflated_Negative_Binomial";
+  updateIWLS = true;
+  }
+
+
+const DISTR_negbinzip_pi & DISTR_negbinzip_pi::operator=(
+const DISTR_negbinzip_pi & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR::operator=(DISTR(nd));
+  distrmu = nd.distrmu;
+  distrdelta = nd.distrdelta;
+  counter = nd.counter;
+  return *this;
+  }
+
+
+DISTR_negbinzip_pi::DISTR_negbinzip_pi(const DISTR_negbinzip_pi & nd)
+   : DISTR(DISTR(nd))
+  {
+  distrmu = nd.distrmu;
+  distrdelta = nd.distrdelta;
+  counter = nd.counter;
+  }
+
+
+void DISTR_negbinzip_pi::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): exponential\n");
+  optionsp->out("  Response function (pi): logistic distribution function\n");
+  optionsp->out("  Response function (delta): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTR_negbinzip_pi::loglikelihood(double * response, double * linpred,
+                                     double * weight)
+  {
+
+  if (counter==0)
+    {
+    set_worklinmu();
+    set_worklindelta();
+    }
+
+
+  double l=0;
+
+  // FEHLT
+
+  modify_worklinmu();
+  modify_worklindelta();
+
+  return l;
+
+  }
+
+
+void DISTR_negbinzip_pi::set_worklinmu(void)
+  {
+  // FEHLT
+  /*
+  if (distrpi->linpred_current==1)
+    worklinpi = distrpi->linearpred1.getV();
+  else
+    worklinpi = distrpi->linearpred2.getV();
+
+  workexplinpi = distrpi->helpmat1.getV();
+  workonempi = distrpi->helpmat2.getV();
+  */
+  }
+
+
+void DISTR_negbinzip_pi::set_worklindelta(void)
+  {
+  // FEHLT
+  /*
+  if (distrpi->linpred_current==1)
+    worklinpi = distrpi->linearpred1.getV();
+  else
+    worklinpi = distrpi->linearpred2.getV();
+
+  workexplinpi = distrpi->helpmat1.getV();
+  workonempi = distrpi->helpmat2.getV();
+  */
+  }
+
+
+void DISTR_negbinzip_pi::modify_worklinmu(void)
+  {
+  /*
+  if (counter<nrobs-1)
+    {
+    counter++;
+    worklinpi++;
+    workexplinpi++;
+    workonempi++;
+    }
+  else
+    {
+    counter=0;
+    }
+   */
+  }
+
+
+void DISTR_negbinzip_pi::modify_worklindelta(void)
+  {
+
+  // FEHLT
+  /*
+  if (counter<nrobs-1)
+    {
+    counter++;
+    worklinpi++;
+    workexplinpi++;
+    workonempi++;
+    }
+  else
+    {
+    counter=0;
+    }
+   */
+  }
+
+
+
+double DISTR_negbinzip_pi::loglikelihood_weightsone(
+                                  double * response, double * linpred)
+  {
+
+  if (counter==0)
+    {
+    set_worklinmu();
+    set_worklindelta();
+    }
+
+  double l = 0;
+
+  // FEHLT
+
+  modify_worklinmu();
+  modify_worklindelta();
+
+  return l;
+
+  }
+
+
+void DISTR_negbinzip_pi::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  /*
+  double el = exp(*linpred[0]);
+
+  *mu = 1/(1+el)*exp(*linpred[1]);
+  */
+  }
+
+
+void DISTR_negbinzip_pi::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                           double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const
+  {
+  double l=0;
+  /*
+
+  double explinpi = exp(*linpred[0]);
+  double lambda = exp(*linpred[1]);
+
+  if (*response[1]==0)
+    {
+    l= -log(1+ explinpi) + log(explinpi+ exp(-lambda));
+    }
+  else // response > 0
+    {
+    l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda;
+    }
+  */
+
+  *deviance = -2*l;
+  *deviancesat = *deviance;
+
+  }
+
+
+double DISTR_negbinzip_pi::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+
+  if (counter==0)
+    {
+    set_worklinmu();
+    set_worklindelta();
+    }
+
+  /*
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= -10)
+    {
+    lambda  = 0.0000454;
+    expminuslambda = 0.9999546;
+    }
+  else
+    {
+    lambda = exp(*linpred);
+    expminuslambda = exp(-lambda);
+    }
+
+  double pi = 1-(*workonempi);
+  double denom = pi+(*workonempi)*expminuslambda;
+
+  double nu = (*response) - lambda;
+  if (*response == 0)
+    nu += pi*lambda/denom;
+
+  *workingweight = (lambda*(*workonempi)*(denom-expminuslambda*lambda*pi))/denom;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  double l=0;
+
+  if (like)
+    {
+
+    if (*response==0)
+      {
+      l= -log(1+ (*workexplinpi)) + log((*workexplinpi)+expminuslambda);
+      }
+    else // response > 0
+      {
+      l= -log(1+(*workexplinpi)) + (*response)*(*linpred)-lambda;
+      }
+
+    }
+  */
+
+  double l = 0;
+
+  modify_worklinmu();
+  modify_worklindelta();
+
+  return l;
+  }
+
+
+void DISTR_negbinzip_pi::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  if (counter==0)
+    {
+    set_worklinmu();
+    set_worklindelta();
+    }
+
+  /*
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= -10)
+    {
+    lambda  = 0.0000454;
+    expminuslambda = 0.9999546;
+    }
+  else
+    {
+    lambda = exp(*linpred);
+    expminuslambda = exp(-lambda);
+    }
+
+  double pi = 1-(*workonempi);
+  double denom = pi+(*workonempi)*expminuslambda;
+
+  double nu = (*response) - lambda;
+  if (*response == 0)
+    nu += pi*lambda/denom;
+
+  *workingweight = (lambda* (*workonempi)*(denom-expminuslambda*lambda*pi))/denom;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+
+    if (*response==0)
+      {
+      like += -log(1+ (*workexplinpi)) + log((*workexplinpi)+expminuslambda);
+      }
+    else // response > 0
+      {
+      like += -log(1+(*workexplinpi)) + (*response)*(*linpred)-lambda;
+      }
+
+    }
+  */
+
+  modify_worklinmu();
+  modify_worklindelta();
+
+  }
+
+
+void DISTR_negbinzip_pi::posteriormode_end(void)
+  {
+  update_end();
+  }
+
+
+void DISTR_negbinzip_pi::update_end(void)
+  {
+
+  // helpmat1 stores exp(-lambda)
+  // helpmat2 stores lambda
+  /*
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  if (helpmat1.rows() == 1)
+    {
+    helpmat1 = datamatrix(nrobs,1,0);
+    helpmat2 = datamatrix(nrobs,1,0);
+    }
+
+  double * ph = helpmat1.getV();
+  double * l = helpmat2.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,ph++,worklin++,l++)
+    {
+    if (*worklin <= -10)
+      {
+      *l  = 0.0000454;
+      *ph = 0.9999546;
+      }
+    else
+      {
+      *l = exp(*worklin);
+      *ph = exp(-(*l));
+      }
+    }
+   */
+
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS DISTR_negbinzip_delta ------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_negbinzip_delta::DISTR_negbinzip_delta(GENERAL_OPTIONS * o,
+                                    const datamatrix & r, const datamatrix & w)
+  : DISTR(o,r,w)
+
+  {
+
+  predict_mult = true;
+
+  if (check_weightsone() == true)
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+
+  counter = 0;
+
+  family = "Zero_Inflated_Negative_Binomial";
+  updateIWLS = true;
+  }
+
+
+const DISTR_negbinzip_delta & DISTR_negbinzip_delta::operator=(
+const DISTR_negbinzip_delta & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR::operator=(DISTR(nd));
+  distrmu = nd.distrmu;
+  distrpi = nd.distrpi;
+  counter = nd.counter;
+  return *this;
+  }
+
+
+DISTR_negbinzip_delta::DISTR_negbinzip_delta(const DISTR_negbinzip_delta & nd)
+   : DISTR(DISTR(nd))
+  {
+  distrmu = nd.distrmu;
+  distrpi = nd.distrpi;
+  counter = nd.counter;
+  }
+
+
+void DISTR_negbinzip_delta::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): exponential\n");
+  optionsp->out("  Response function (pi): logistic distribution function\n");
+  optionsp->out("  Response function (delta): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTR_negbinzip_delta::loglikelihood(double * response, double * linpred,
+                                     double * weight)
+  {
+
+  if (counter==0)
+    {
+    set_worklinmu();
+    set_worklinpi();
+    }
+
+
+  double l=0;
+
+  // FEHLT
+
+  modify_worklinmu();
+  modify_worklinpi();
+
+  return l;
+
+  }
+
+
+void DISTR_negbinzip_delta::set_worklinmu(void)
+  {
+  // FEHLT
+  /*
+  if (distrpi->linpred_current==1)
+    worklinpi = distrpi->linearpred1.getV();
+  else
+    worklinpi = distrpi->linearpred2.getV();
+
+  workexplinpi = distrpi->helpmat1.getV();
+  workonempi = distrpi->helpmat2.getV();
+  */
+  }
+
+
+void DISTR_negbinzip_delta::set_worklinpi(void)
+  {
+  // FEHLT
+  /*
+  if (distrpi->linpred_current==1)
+    worklinpi = distrpi->linearpred1.getV();
+  else
+    worklinpi = distrpi->linearpred2.getV();
+
+  workexplinpi = distrpi->helpmat1.getV();
+  workonempi = distrpi->helpmat2.getV();
+  */
+  }
+
+
+void DISTR_negbinzip_delta::modify_worklinmu(void)
+  {
+  /*
+  if (counter<nrobs-1)
+    {
+    counter++;
+    worklinpi++;
+    workexplinpi++;
+    workonempi++;
+    }
+  else
+    {
+    counter=0;
+    }
+   */
+  }
+
+
+void DISTR_negbinzip_delta::modify_worklinpi(void)
+  {
+
+  // FEHLT
+  /*
+  if (counter<nrobs-1)
+    {
+    counter++;
+    worklinpi++;
+    workexplinpi++;
+    workonempi++;
+    }
+  else
+    {
+    counter=0;
+    }
+   */
+  }
+
+
+double DISTR_negbinzip_delta::loglikelihood_weightsone(
+                                  double * response, double * linpred)
+  {
+
+  if (counter==0)
+    {
+    set_worklinmu();
+    set_worklinpi();
+    }
+
+  double l = 0;
+
+  // FEHLT
+
+  modify_worklinmu();
+  modify_worklinpi();
+
+  return l;
+
+  }
+
+
+void DISTR_negbinzip_delta::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  /*
+  double el = exp(*linpred[0]);
+
+  *mu = 1/(1+el)*exp(*linpred[1]);
+  */
+  }
+
+
+void DISTR_negbinzip_delta::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                           double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const
+  {
+  double l=0;
+  /*
+
+  double explinpi = exp(*linpred[0]);
+  double lambda = exp(*linpred[1]);
+
+  if (*response[1]==0)
+    {
+    l= -log(1+ explinpi) + log(explinpi+ exp(-lambda));
+    }
+  else // response > 0
+    {
+    l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda;
+    }
+  */
+
+  *deviance = -2*l;
+  *deviancesat = *deviance;
+
+  }
+
+
+double DISTR_negbinzip_delta::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+
+  if (counter==0)
+    {
+    set_worklinmu();
+    set_worklinpi();
+    }
+
+  /*
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= -10)
+    {
+    lambda  = 0.0000454;
+    expminuslambda = 0.9999546;
+    }
+  else
+    {
+    lambda = exp(*linpred);
+    expminuslambda = exp(-lambda);
+    }
+
+  double pi = 1-(*workonempi);
+  double denom = pi+(*workonempi)*expminuslambda;
+
+  double nu = (*response) - lambda;
+  if (*response == 0)
+    nu += pi*lambda/denom;
+
+  *workingweight = (lambda*(*workonempi)*(denom-expminuslambda*lambda*pi))/denom;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  double l=0;
+
+  if (like)
+    {
+
+    if (*response==0)
+      {
+      l= -log(1+ (*workexplinpi)) + log((*workexplinpi)+expminuslambda);
+      }
+    else // response > 0
+      {
+      l= -log(1+(*workexplinpi)) + (*response)*(*linpred)-lambda;
+      }
+
+    }
+  */
+
+  double l = 0;
+
+  modify_worklinmu();
+  modify_worklinpi();
+
+  return l;
+  }
+
+
+void DISTR_negbinzip_delta::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  if (counter==0)
+    {
+    set_worklinmu();
+    set_worklinpi();
+    }
+
+  /*
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= -10)
+    {
+    lambda  = 0.0000454;
+    expminuslambda = 0.9999546;
+    }
+  else
+    {
+    lambda = exp(*linpred);
+    expminuslambda = exp(-lambda);
+    }
+
+  double pi = 1-(*workonempi);
+  double denom = pi+(*workonempi)*expminuslambda;
+
+  double nu = (*response) - lambda;
+  if (*response == 0)
+    nu += pi*lambda/denom;
+
+  *workingweight = (lambda* (*workonempi)*(denom-expminuslambda*lambda*pi))/denom;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+
+    if (*response==0)
+      {
+      like += -log(1+ (*workexplinpi)) + log((*workexplinpi)+expminuslambda);
+      }
+    else // response > 0
+      {
+      like += -log(1+(*workexplinpi)) + (*response)*(*linpred)-lambda;
+      }
+
+    }
+  */
+
+  modify_worklinmu();
+  modify_worklinpi();
+
+  }
+
+
+void DISTR_negbinzip_delta::posteriormode_end(void)
+  {
+  update_end();
+  }
+
+
+void DISTR_negbinzip_delta::update_end(void)
+  {
+
+  // helpmat1 stores exp(-lambda)
+  // helpmat2 stores lambda
+  /*
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  if (helpmat1.rows() == 1)
+    {
+    helpmat1 = datamatrix(nrobs,1,0);
+    helpmat2 = datamatrix(nrobs,1,0);
+    }
+
+  double * ph = helpmat1.getV();
+  double * l = helpmat2.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,ph++,worklin++,l++)
+    {
+    if (*worklin <= -10)
+      {
+      *l  = 0.0000454;
+      *ph = 0.9999546;
+      }
+    else
+      {
+      *l = exp(*worklin);
+      *ph = exp(-(*l));
+      }
+    }
+   */
+
+  }
+
+
+
+
+
+
 //------------------------------------------------------------------------------
 //---------------------- CLASS DISTRIBUTION_ziplambda --------------------------
 //------------------------------------------------------------------------------
