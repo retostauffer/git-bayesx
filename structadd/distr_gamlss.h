@@ -45,6 +45,13 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
 
   unsigned counter;
 
+  double * worklinpi;
+  double * workonempi;
+
+  double * worklindelta;
+  double * workexplindelta;
+
+
   void set_worklinpi(void);
   void modify_worklinpi(void);
 
@@ -130,6 +137,12 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
 
   unsigned counter;
 
+  double * worklinmu;
+  double * workexplinmu;
+
+  double * worklindelta;
+  double * workexplindelta;
+
   void set_worklinmu(void);
   void modify_worklinmu(void);
 
@@ -213,6 +226,12 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   protected:
 
   unsigned counter;
+
+  double * worklinmu;
+  double * workexplinmu;
+
+  double * worklinpi;
+  double * workonempi;
 
   void set_worklinmu(void);
   void modify_worklinmu(void);
