@@ -528,11 +528,13 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
         if (equations[nrmodels-1-i].distrp->posteriormode() == false)
           allconverged = false;
 
+        
         for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
           {
           if (equations[nrmodels-1-i].FCpointer[j]->posteriormode() == false)
               allconverged = false;
           } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
+
 
         equations[nrmodels-1-i].distrp->posteriormode_end();
 

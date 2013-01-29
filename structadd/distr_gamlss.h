@@ -51,12 +51,8 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
   double * worklindelta;
   double * workexplindelta;
 
-
-  void set_worklinpi(void);
-  void modify_worklinpi(void);
-
-  void set_worklindelta(void);
-  void modify_worklindelta(void);
+  void set_worklinpidelta(void);
+  void modify_worklinpidelta(void);
 
 
   public:
@@ -143,11 +139,8 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
   double * worklindelta;
   double * workexplindelta;
 
-  void set_worklinmu(void);
-  void modify_worklinmu(void);
-
-  void set_worklindelta(void);
-  void modify_worklindelta(void);
+  void set_worklinmudelta(void);
+  void modify_worklinmudelta(void);
 
 
   public:
@@ -225,7 +218,43 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
 
   protected:
 
+  // auxiliary variables for iwls
+
+  double delta;
+  double delta2;
+  double deltay;
+  double dig_deltay;
+  double dig_delta;
+  double trig_deltay;
+  double trig_delta;
+
+  double deltamu;
+  double delta_div_deltamu;
+  double log_delta_div_deltamu;
+  double mu_m_y_div_delta_m_mu;
+  double pi;
+  double mu_div_deltamu;
+  double pot;
+  double denom;
+  double sum;
+
+  double explinpi;
+  double log_one_explinpi;
+  double log_explinpi_pot;
+
+  double lng_delta;
+  double delta_linpred;
+  double log_delta_mu;
+
+  double E_dig_y_delta;
+  double E_trig_y_delta;
+
+
+  // end auxiliary variables for iwls
+
   unsigned counter;
+
+  double responsemax;
 
   double * worklinmu;
   double * workexplinmu;
@@ -233,12 +262,10 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   double * worklinpi;
   double * workonempi;
 
-  void set_worklinmu(void);
-  void modify_worklinmu(void);
+  void set_worklinmupi(void);
+  void modify_worklinmupi(void);
 
-  void set_worklinpi(void);
-  void modify_worklinpi(void);
-
+  void compute_expectation(void);
 
   public:
 

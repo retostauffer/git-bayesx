@@ -724,6 +724,13 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": MAIN ZERO INFLATION REGRESSION_"+ rn;
       equations[modnr].paths = "MAIN_ZERO_INFLATION_REGRESSION_"+ rn;
       }
+    else if (equations[modnr].equationtype == "delta")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN DELTA REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_DELTA_REGRESSION_"+ rn;
+      }
+
     else if (equations[modnr].equationtype == "meanservant")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +

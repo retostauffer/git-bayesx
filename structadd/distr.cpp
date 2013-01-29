@@ -607,11 +607,12 @@ double DISTR::compute_iwls(const bool & current, const bool & like)
     }
 
   // TEST
+
   /*
-  ofstream out("c:\\bayesx\\test\\results\\workresponse.res");
+  ofstream out("c:\\bayesx\\testh\\results\\workresponse.res");
   workingresponse.prettyPrint(out);
 
-  ofstream out2("c:\\bayesx\\test\\results\\workweight.res");
+  ofstream out2("c:\\bayesx\\testh\\results\\workweight.res");
   workingweight.prettyPrint(out2);
   */
   // TEST
