@@ -31,7 +31,7 @@ public static final double WHITE_Z = 108.883;
 public static final double WHITE_u = 0.1978398;
 public static final double WHITE_v = 0.4683363;
 
-/* Gamma-Korrektur Faktor für hcl Farben */
+/* Gamma-Korrektur Faktor fuer hcl Farben */
 
 public static final double GAMMA = 2.2;
 
@@ -39,7 +39,7 @@ public static final double GAMMA = 2.2;
 
 public static final double DEG2RAD = 0.0174532925199433;
 
-/* Default-Werte für hcl Farben */
+/* Default-Werte fuer hcl Farben */
 
 private double h1 = 130;
 private double h2 =  25;
@@ -93,7 +93,7 @@ public void setplotparam(int xoff, int yoff, int w, int h, int ps, int fs, doubl
 	    titlescale = ts;
         }
 
-public void paintComponent(Graphics g1)                 // für Bildschirmanzeige
+public void paintComponent(Graphics g1)                 // fuer Bildschirmanzeige
 	{
 
         Graphics2D g2 = (Graphics2D)g1;
@@ -1873,7 +1873,7 @@ private String formatLabel(String str, boolean centering)
                 }
         else
                 {
-                // keine Formatierung für ganze Zahlen
+                // keine Formatierung fuer ganze Zahlen
                 }
 
 	if(centering)

@@ -274,6 +274,8 @@
 		<Unit filename="structadd\distr_categorical.cpp" />
 		<Unit filename="structadd\distr_categorical.h" />
 		<Unit filename="structadd\distr_categorical_mult.cpp" />
+		<Unit filename="structadd\distr_gamlss.cpp" />
+		<Unit filename="structadd\distr_gamlss.h" />
 		<Unit filename="structadd\distr_mixture.cpp" />
 		<Unit filename="structadd\distr_mixture.h" />
 		<Unit filename="structadd\mcmcsim.cpp" />
