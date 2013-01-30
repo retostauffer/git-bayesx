@@ -234,6 +234,21 @@ double __EXPORT_TYPE rand_pois(double mu);
 
 // END: DSB //
 
+
+// returns an approximation of the digamma function at x
+double __EXPORT_TYPE digamma(double & x);
+
+// returns an approximation of the trigamma function at x
+double __EXPORT_TYPE trigamma(double x);
+
+double __EXPORT_TYPE trigamma_exact (double x);
+
+// returns an approximation of the logarithm of the gamma function at x
+double __EXPORT_TYPE lngamma(double x);
+
+// returns an approximation of the gamma function at x
+double __EXPORT_TYPE gamma(double x);
+
 }
 
 

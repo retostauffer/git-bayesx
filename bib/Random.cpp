@@ -1224,4 +1224,131 @@ double rand_pois(double mu)
 
 // END: DSB //
 
+
+// returns an approximation of the digamma function at x
+double  digamma(double & x)
+  {
+
+  double h;
+
+  if (x > 10)
+    h = h= 9.18e-06 + .9999992*log(x) -0.5042821/x;
+  else if ((x <= 10) && (x > 2.0))
+    h= 0.051732 + 0.9750672*log(x) + 0.0016516*x - 0.6156125/x;
+  else if ((x <=2) && (x > 1))
+    {
+    h= 0.1666866 + 0.8241922*log(x)+ 0.0378463*x -0.7817054/x;
+    }
+  else if ((x <=1) && (x > 0.1))
+    {
+    h= 0.0081534+ 0.3181587*log(x)+ 0.3910535*x -0.9730558/x;
+    }
+  else if (x <= 0.1 && x > 0.001)
+    h = -0.5623762 +  0.0029593*log(x)+ 1.460786*x -0.9999936/x;
+  else
+    h = -0.5764066 + 0.0000956*log(x)+ 1.474073*x -1/x;
+
+  return h;
+  }
+
+
+
+// returns an approximation of the trigamma function at x
+double trigamma(double x)
+  {
+
+  double h;
+
+  if (x > 10)
+    h = -0.000135 + 0.0000142*log(x) - 3.34e-10*x +1.028129/x;
+  else if ((x <= 10) && (x > 2.0))
+    h= -0.4255031 + 0.2102015*log(x) -0.0144464*x +1.900889/x;
+  else if ((x <=2) && (x > 1))
+    h= -2.067756 + 2.560398*log(x) - 0.6123307*x + 4.324023/x;
+  else if ((x <=1) && (x > 0.25))
+    h =  4.22168 + 24.43998*log(x) -15.26871*x + 12.62421/x;
+  else if ((x <= 0.25) && (x > 0.1))
+    h = 326.6316 +   245.3824*log(x) - 501.1111*x + 38.96686/x;
+  else if ((x <= 0.1) && (x > 0.04))
+    h = 94921.6 + 25286.61*log(x) - 694418*x + 3342782*x*x + 380.8172/x;
+  else if ((x <= 0.04) && (x > 0.009))
+    h = 109892.7 + 28832.41*log(x) - 835570*x + 4215901*x*x + 408.2645/x;
+  else
+    h = 1.29e+08 + 1.97e+07*log(x) - 7.23e+09*x + 3.45e+11*x*x + 13812.71/x;
+
+  return h;
+
+  }
+
+
+
+double trigamma_exact (double x)
+  {
+  double a = 0.0001;
+  double b = 5.0;
+  double b2 =  0.1666666667;
+  double b4 = -0.03333333333;
+  double b6 =  0.02380952381;
+  double b8 = -0.03333333333;
+  double value;
+  double y;
+  double z;
+
+  z = x;
+//
+//  Use small value approximation if X <= A.
+//
+  if ( x <= a )
+  {
+    value = 1.0 / x / x;
+    return value;
+  }
+//
+//  Increase argument to ( X + I ) >= B.
+//
+  value = 0.0;
+
+  while ( z < b )
+  {
+    value = value + 1.0 / z / z;
+    z = z + 1.0;
+  }
+//
+//  Apply asymptotic formula if argument is B or greater.
+//
+  y = 1.0 / z / z;
+
+  value = value + 0.5 *
+      y + ( 1.0
+    + y * ( b2
+    + y * ( b4
+    + y * ( b6
+    + y *   b8 )))) / z;
+
+  return value;
+}
+
+
+// returns an approximation of the logarithm of the gamma function at x
+double lngamma(double x)
+  {
+  double h;
+  if (x <=10)
+    h= -0.5322656 + 0.3604045*x + 0.181826*x*x - 0.0057185*x*x*x
+            - 1.208332*log(x) - 0.0025601/x;
+  else
+    h= 0.5*log(2*3.1415927) +(x-0.5)*log(x) -x;
+
+  return h;  
+  }
+
+
+// returns an approximation of the gamma function at x
+double gamma(double x)
+  {
+  return exp(lngamma(x));
+  }
+
+
+
 } // end: namespace randnumbers
