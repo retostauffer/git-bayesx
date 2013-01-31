@@ -148,7 +148,7 @@ private boolean consoleInput;
 protected short function;
 protected short plotsperpage;
 
-// Optionen für Javadrawmap
+// Optionen fuer Javadrawmap
 protected boolean color;
 protected boolean legend;
 protected boolean swap;
@@ -162,7 +162,7 @@ protected short shades;
 
 protected int nrNA;
 
-// Optionen für Javaplotnonp
+// Optionen fuer Javaplotnonp
 protected String xlab;
 protected String ylab;
 protected String connect;
@@ -184,10 +184,10 @@ protected int fontsize;
 protected int pointsize;
 protected double titlescale;
 
-// Optionen für Javaplotautocor
+// Optionen fuer Javaplotautocor
 protected boolean meanautocor;
 
-// Optionen für Javaplotsurf
+// Optionen fuer Javaplotsurf
 protected String zlab;
 protected double xrot;
 protected double yrot;
@@ -210,7 +210,7 @@ public BayesX()
 
 	consoleInput = false;
 
-//Lese bzw. erzeuge die Datei, die die Größen der Fenster enthält
+//Lese bzw. erzeuge die Datei, die die Groessen der Fenster enthaelt
 
 	registryFile = new File(new File(System.getProperty("user.dir")),"registry.bayesx");
 	try
@@ -261,7 +261,7 @@ public BayesX()
 
 	this.getContentPane().setLayout(new BorderLayout(5,5));
 
-//Erzeugen der Menüleiste
+//Erzeugen der Menueleiste
 
 	jMenuBar = new JMenuBar();
 	jMenuBar.setRequestFocusEnabled(false);
@@ -422,7 +422,7 @@ public BayesX()
 	setJMenuBar(jMenuBar);
 
 
-//Und jetzt das Panel für die Buttons sowie die Buttons selbst
+//Und jetzt das Panel fuer die Buttons sowie die Buttons selbst
 
 	buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,10,5));
 
@@ -467,13 +467,13 @@ public BayesX()
 	this.getContentPane().add(buttonPanel,BorderLayout.NORTH);
 	buttonPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
-//Erzeugen des Desktops für die einzelnen Fenster
+//Erzeugen des Desktops fuer die einzelnen Fenster
 
 	jDesktopPanel = new JDesktopPane();
 	getContentPane().add(jDesktopPanel,BorderLayout.CENTER);
 	jDesktopPanel.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 
-//Die einzelnen Fenster erzeugen und hinzufügen
+//Die einzelnen Fenster erzeugen und hinzufuegen
 
 //Zuerst das Output-Fenster
 
@@ -864,9 +864,9 @@ public BayesX()
 
 //Die Listener zur Event-Bearbeitung:
 
-//Listener für die Menüleiste und die Buttons
+//Listener fuer die Menueleiste und die Buttons
 
-//ActionListener für File, die Buttons und die ComboBox
+//ActionListener fuer File, die Buttons und die ComboBox
 
 public void actionPerformed(ActionEvent ae)
 	{
@@ -1274,7 +1274,7 @@ public void actionPerformed(ActionEvent ae)
 		}
 	}
 
-//ItemListener für Window und Edit
+//ItemListener fuer Window und Edit
 
 public void itemStateChanged(ItemEvent ie)
 	{
@@ -1590,7 +1590,7 @@ public void windowClosing(WindowEvent we)
 	}
 
 
-//ListSelectionListener für Review und Object
+//ListSelectionListener fuer Review und Object
 
 public void valueChanged(ListSelectionEvent lse)
 	{
@@ -1608,7 +1608,7 @@ public void valueChanged(ListSelectionEvent lse)
 	}
 
 
-//DocumentListener für das Output-Fenster
+//DocumentListener fuer das Output-Fenster
 
 public void insertUpdate(DocumentEvent e)
 	{
@@ -1630,7 +1630,7 @@ public void changedUpdate(DocumentEvent e)
 
 
 
-//AdjustmentListener für die Tabellen in JavaShowData
+//AdjustmentListener fuer die Tabellen in JavaShowData
 
 public void adjustmentValueChanged(AdjustmentEvent ae)
 	{
@@ -1679,7 +1679,7 @@ public void adjustmentValueChanged(AdjustmentEvent ae)
 
 //Hilfsfunktionen zur Event-Bearbeitung
 
-//liefert die Endung einer Datei zurück
+//liefert die Endung einer Datei zurueck
 
 public String getExtension(File f)
 	{
@@ -2170,7 +2170,7 @@ public void Javaplot(String joutfile, String jtitle, String jxlab, String jylab,
                     {
                     mapPanels[i] = new MapPanel(this);
 //                    mapPanels[i].setfunction((short)3);
-// hier alles speichern, was man für die ganze Seite braucht
+// hier alles speichern, was man fuer die ganze Seite braucht
 //                  for(int j=0;j<nrplots;j++)
 //                  mapPanels[i].data[j][][]
 //                  mapPanels[i].minX[j]
@@ -2427,7 +2427,7 @@ private void resetplotoptions()
         }
 */
 
-// für maps
+// fuer maps
 native void getline(double[] d, int i, int j, int k);
 native void getboundaries(double[] d);
 native int getnrregions();
@@ -2439,7 +2439,7 @@ native void getcentroid(double[] centroid, int i);
 
 native double getname(int i);
 
-//Zwei Funktionen zum Steuern des Verhaltens beim Speichern bzw. Schließen der Anwendung
+//Zwei Funktionen zum Steuern des Verhaltens beim Speichern bzw. Schliessen der Anwendung
 
 public void fileAction(int i)
 	{
@@ -3064,12 +3064,12 @@ private void setDelim(String str)
 private native void setObjectList(Vector v, String type);
 private native void setObjectTypeList(Vector v);
 
-// für describe dataset
+// fuer describe dataset
 private native String getValue(int i, int j);
 protected native void setVarnames(Vector v);
 protected native int getRows();
 
-// für graphobj
+// fuer graphobj
 protected native double getDoubleValue(int i, int j);
 protected native int getDRows();
 protected native int getDCols();
@@ -3132,7 +3132,7 @@ private double jweibull(double alpha, double lambda)
 	}
 
 
-//Funktion, die bei der Übergabe eines Befehls aufgerufen wird
+//Funktion, die bei der uebergabe eines Befehls aufgerufen wird
 
 private void doparse(String inp)
 	{
