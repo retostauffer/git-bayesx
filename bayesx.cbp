@@ -252,6 +252,8 @@
 		<Unit filename="structadd\FC_nonp_variance_vec.cpp" />
 		<Unit filename="structadd\FC_predict.cpp" />
 		<Unit filename="structadd\FC_predict.h" />
+		<Unit filename="structadd\FC_predict_mult.cpp" />
+		<Unit filename="structadd\FC_predict_mult.h" />
 		<Unit filename="structadd\FC_predict_predictor.cpp" />
 		<Unit filename="structadd\FC_predictive_check.cpp" />
 		<Unit filename="structadd\FC_variance_pen_vector.cpp" />
