@@ -95,25 +95,20 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
-  double compute_iwls(double * response, double * linpred,
-                      double * weight, double * workingweight,
-                      double * workingresponse, const bool & like);
-
-  void compute_iwls_wweightschange_weightsone(
-                                         double * response, double * linpred,
-                                         double * workingweight,
-                                         double * workingresponse,double & like,
-                                         const bool & compute_like);
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
 
   void compute_mu_mult(vector<double *> linpred,double * mu);
 
   void outoptions(void);
 
-
   void posteriormode_end(void);
 
   void update_end(void);
-
 
 //  void sample_responses(unsigned i,datamatrix & sr);
 
@@ -171,29 +166,18 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
 
    ~DISTR_negbinzip_pi() {}
 
-  void compute_deviance_mult(vector<double *> response,
-                             vector<double *> weight,
-                             vector<double *> linpred,
-                             double * deviance,
-                             double * deviancesat,
-                             vector<double> scale) const;
-
   double loglikelihood(double * response, double * linpred,
                        double * weight);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
-  double compute_iwls(double * response, double * linpred,
-                      double * weight, double * workingweight,
-                      double * workingresponse, const bool & like);
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
 
-  void compute_iwls_wweightschange_weightsone(
-                                         double * response, double * linpred,
-                                         double * workingweight,
-                                         double * workingresponse,double & like,
-                                         const bool & compute_like);
-
-  void compute_mu_mult(vector<double *> linpred,double * mu);
 
   void outoptions(void);
 
@@ -208,7 +192,6 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
   };
 
 
-
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_negbinzip_delta -------------------------
 //------------------------------------------------------------------------------
@@ -217,6 +200,9 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   {
 
   protected:
+
+  double stopsum;
+  int stoprmax;
 
   // auxiliary variables for iwls
 
@@ -281,7 +267,8 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
    // CONSTRUCTOR
 
    DISTR_negbinzip_delta(GENERAL_OPTIONS * o, const datamatrix & r,
-                   const datamatrix & w=datamatrix());
+                         double & stpsum, int & strmax,
+                         const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
 
@@ -295,29 +282,17 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
 
    ~DISTR_negbinzip_delta() {}
 
-  void compute_deviance_mult(vector<double *> response,
-                             vector<double *> weight,
-                             vector<double *> linpred,
-                             double * deviance,
-                             double * deviancesat,
-                             vector<double> scale) const;
-
   double loglikelihood(double * response, double * linpred,
                        double * weight);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
-  double compute_iwls(double * response, double * linpred,
-                      double * weight, double * workingweight,
-                      double * workingresponse, const bool & like);
-
-  void compute_iwls_wweightschange_weightsone(
-                                         double * response, double * linpred,
-                                         double * workingweight,
-                                         double * workingresponse,double & like,
-                                         const bool & compute_like);
-
-  void compute_mu_mult(vector<double *> linpred,double * mu);
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
 
   void outoptions(void);
 
@@ -330,7 +305,6 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
 //  void sample_responses_cv(unsigned i,datamatrix & linpred,datamatrix & sr);
 
   };
-
 
 
 //------------------------------------------------------------------------------

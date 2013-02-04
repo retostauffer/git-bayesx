@@ -182,6 +182,15 @@ void FC_linear::add_linpred(datamatrix & l)
 void FC_linear::update_IWLS(void)
   {
 
+
+/*
+      ofstream out3("c:\\bayesx\\testh\\results\\linpred.res");
+      if (likep->linpred_current==1)
+        likep->linearpred1.prettyPrint(out3);
+      else
+        likep->linearpred2.prettyPrint(out3);
+*/
+
   double qoldbeta;
   double qnewbeta;
 
@@ -254,6 +263,17 @@ void FC_linear::update_IWLS(void)
       diff.minus(*linoldp,*linnewp);
       add_linpred(diff);
       }
+
+
+    double t = beta(0,0);
+
+/*
+      ofstream out4("c:\\bayesx\\testh\\results\\linprednew.res");
+      if (likep->linpred_current==1)
+        likep->linearpred1.prettyPrint(out4);
+      else
+        likep->linearpred2.prettyPrint(out4);
+*/
 
     FC::update();
 
@@ -626,9 +646,19 @@ bool FC_linear::posteriormode(void)
       meaneffect = (meaneffectdesign*beta)(0,0);
       masterp->level1_likep->meaneffect += meaneffect;
 
+/*
+      ofstream out3("c:\\bayesx\\testh\\results\\linpred.res");
+      if (likep->linpred_current==1)
+        likep->linearpred1.prettyPrint(out3);
+      else
+        likep->linearpred2.prettyPrint(out3);
+*/
+
       return FC::posteriormode();
       }
     }
+
+
 
   return true;
   }

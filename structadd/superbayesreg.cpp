@@ -211,6 +211,9 @@ void superbayesreg::create_hregress(void)
 
   modemaxit = intoption("modemaxit",1000,0,5000);
 
+  stopsum = doubleoption("stopsum",0.999,0.9,0.999999);
+  stoprmax = intoption("stoprmax",5,1,100000);
+
   regressoptions.reserve(100);
 
   regressoptions.push_back(&modeonly);
@@ -237,6 +240,8 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&includescale);
   regressoptions.push_back(&standardize);
   regressoptions.push_back(&modemaxit);
+  regressoptions.push_back(&stopsum);
+  regressoptions.push_back(&stoprmax);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -1099,7 +1104,12 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
-    distr_negbinzip_deltas.push_back(DISTR_negbinzip_delta(&generaloptions,D.getCol(0),w));
+    double stpsum = stopsum.getvalue();
+    int strmax = stoprmax.getvalue();
+
+    distr_negbinzip_deltas.push_back(DISTR_negbinzip_delta(&generaloptions,
+                                     D.getCol(0),stpsum,
+                                     strmax,w));
 
     equations[modnr].distrp = &distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1];
     equations[modnr].pathd = "";
@@ -1135,6 +1145,9 @@ bool superbayesreg::create_distribution(void)
       return true;
       }
 
+    predict_mult_distrs.push_back(&distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1]);
+    predict_mult_distrs.push_back(&distr_negbinzip_pis[distr_negbinzip_pis.size()-1]);
+    predict_mult_distrs.push_back(&distr_negbinzip_mus[distr_negbinzip_mus.size()-1]);    
 
     distr_negbinzip_pis[distr_negbinzip_pis.size()-1].distrmu =
     &distr_negbinzip_mus[distr_negbinzip_mus.size()-1];

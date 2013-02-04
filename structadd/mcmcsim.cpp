@@ -251,6 +251,9 @@ const int & seed, const bool & computemode)
   for (it=1;it<=iterations;it++)
     {
 
+//    if (it==150)
+//      double t = 0;
+
     if ( (runtime ==false) && (iterations/it == 100) )
       {
       runtime = true;

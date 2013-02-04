@@ -608,13 +608,17 @@ double DISTR::compute_iwls(const bool & current, const bool & like)
 
   // TEST
 
-  /*
+/*
   ofstream out("c:\\bayesx\\testh\\results\\workresponse.res");
   workingresponse.prettyPrint(out);
 
   ofstream out2("c:\\bayesx\\testh\\results\\workweight.res");
   workingweight.prettyPrint(out2);
+
+  ofstream out3("c:\\bayesx\\testh\\results\\linpred.res");
+  linearpred1.prettyPrint(out3);
   */
+
   // TEST
 
   return likelihood;

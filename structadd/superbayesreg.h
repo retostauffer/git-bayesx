@@ -235,6 +235,11 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   optionlist regressoptions;
 
+  // Zero Inflated Negative Binomial - delta parameter
+
+  doubleoption stopsum;
+  intoption stoprmax;
+
   // end: OPTIONS for method regress
 
  // ------------------------------- MASTER_OBJ ---------------------------------
