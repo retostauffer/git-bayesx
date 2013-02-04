@@ -191,21 +191,28 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
                              double * deviancesat,
                              vector<double> scale) const
   {
-  double l=0;
-  /*
 
-  double explinpi = exp(*linpred[0]);
-  double lambda = exp(*linpred[1]);
+  double explindelta = exp(*linpred[0]);
+  double explinpi = exp(*linpred[1]);
+  double lambda = exp(*linpred[2]);
 
-  if (*response[1]==0)
+  double l= -log(1+explinpi);
+
+  if (*response[2]==0)
     {
-    l= -log(1+ explinpi) + log(explinpi+ exp(-lambda));
+    double pot = pow(explindelta/(explindelta+lambda),explindelta);
+    l += log(explinpi+pot);
     }
   else // response > 0
     {
-    l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda;
+    l +=    randnumbers::lngamma_exact(*response[2]+explindelta)
+          - randnumbers::lngamma_exact(*response[2]+1)
+          - randnumbers::lngamma_exact(explindelta)
+          + explindelta*(*linpred[0])
+          + (*response[2])*(*linpred[2])
+          - (explindelta+(*response[2]))*log(explindelta+lambda);
     }
-  */
+
 
   *deviance = -2*l;
   *deviancesat = *deviance;
@@ -1103,7 +1110,8 @@ void DISTR_ziplambda::compute_deviance_mult(vector<double *> response,
     }
   else // response > 0
     {
-    l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda;
+    l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda
+       + randnumbers::lngamma_exact(*response[1]+1);
     }
 
   *deviance = -2*l;

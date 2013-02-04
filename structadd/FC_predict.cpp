@@ -130,7 +130,12 @@ void  FC_predict::update(void)
 
   likep->FCpredict_betamean = &betamean;
 
-  get_predictor();
+  if(
+     (optionsp->nriter > optionsp->burnin)
+     &&
+     ((optionsp->nriter-optionsp->burnin-1) % (optionsp->step) == 0)
+    )
+    get_predictor();
 
   acceptance++;
 

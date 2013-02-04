@@ -85,7 +85,12 @@ const FC_predict_mult & FC_predict_mult::operator=(const FC_predict_mult & m)
 void  FC_predict_mult::update(void)
   {
 
-  get_predictor();
+  if(
+     (optionsp->nriter > optionsp->burnin)
+     &&
+     ((optionsp->nriter-optionsp->burnin-1) % (optionsp->step) == 0)
+    )
+    get_predictor();
 
   acceptance++;
 
@@ -231,9 +236,12 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
     deviance2 += devhelp;
     deviance2_sat += devhelp_sat;
 
-    for (j=0;j<likep.size();j++)
+    int s = likep.size();
+    int bs = betamean.cols();
+
+    for (j=0;j<s;j++)
       {
-      worklinp[j]++;
+      worklinp[j]+=bs;
       workresponse[j]++;
       workweight[j]++;
       }
