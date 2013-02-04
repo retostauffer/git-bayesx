@@ -678,6 +678,10 @@ void DISTR_negbinzip_delta::outoptions(void)
   optionsp->out("  Response function (mu): exponential\n");
   optionsp->out("  Response function (pi): logistic distribution function\n");
   optionsp->out("  Response function (delta): exponential\n");
+  optionsp->out("  Stop criteria for approximating expected values\n");
+  optionsp->out("  in working weights of delta equation:\n");
+  optionsp->out("    Cumulative probabilities:"  + ST::doubletostring(stopsum) +  "\n");
+  optionsp->out("    Maximum responses:"  + ST::inttostring(stoprmax) +  "\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
