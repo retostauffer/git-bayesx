@@ -1624,9 +1624,23 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
-    optionsp->out("    Mean effects evaluated at " +
+    if (designp->intvar.rows()==designp->data.rows())
+      {
+      optionsp->out("    Mean effects evaluated at " +
+                  designp->datanames[0] + "=" + ST::doubletostring(designp->meaneffectintvar,6)
+                   + " and " + designp->datanames[1] + "=" +
+                   designp->effectvalues[designp->meaneffectnr]
+                  + " with value " +
+                  ST::doubletostring(designp->meaneffectintvar * betamean(designp->meaneffectnr,0),6) + "\n");
+      }
+    else
+      {
+      optionsp->out("    Mean effects evaluated at " +
                   designp->datanames[designp->datanames.size()-1] + "=" +
-                  designp->effectvalues[designp->meaneffectnr]);
+                  designp->effectvalues[designp->meaneffectnr]
+                  + " with value " +
+                  ST::doubletostring(betamean(designp->meaneffectnr,0)) + "\n");
+      }
 
     double s_level1=0;
     double s_level2=0;
