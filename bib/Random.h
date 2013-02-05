@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <float.h>
 #include "tmatrix.h"
 #include <vector>
 
