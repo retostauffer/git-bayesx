@@ -153,6 +153,8 @@ set(SRC
 
 if(CMAKE_SIZEOF_VOID_P MATCHES 8)
   set(64BIT 1)
+else()
+  set(32BIT 1)
 endif()
 
 add_definitions(-DJAVA_OUTPUT_WINDOW)
@@ -166,7 +168,7 @@ if(NOT WIN32)
 else(WIN32)
   add_definitions(-D_JNI_IMPLEMENTATION_)
   set_target_properties(BayesXdll PROPERTIES PREFIX "") 
-  if(MINGW AND 64BIT)
+  if(MINGW AND 32BIT)
     set_target_properties(BayesXdll PROPERTIES LINK_FLAGS "-Wl,--kill-at") 
   endif()
 endif()
