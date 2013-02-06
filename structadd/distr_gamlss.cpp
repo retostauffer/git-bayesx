@@ -205,8 +205,10 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
     }
   else // response > 0
     {
-    l +=    randnumbers::lngamma_exact(*response[2]+explindelta)
-          - randnumbers::lngamma_exact(*response[2]+1)
+    double help1 = *response[2]+explindelta;
+    double help2 = *response[2]+1;
+    l +=    randnumbers::lngamma_exact(help1)
+          - randnumbers::lngamma_exact(help2)
           - randnumbers::lngamma_exact(explindelta)
           + explindelta*(*linpred[0])
           + (*response[2])*(*linpred[2])
@@ -1092,8 +1094,8 @@ void DISTR_ziplambda::compute_mu_mult(vector<double *> linpred,double * mu)
   }
 
 
-  
-  
+
+
 
 void DISTR_ziplambda::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
@@ -1113,8 +1115,9 @@ void DISTR_ziplambda::compute_deviance_mult(vector<double *> response,
     }
   else // response > 0
     {
+    double help1 = *response[1]+1;
     l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda
-       - randnumbers::lngamma_exact(*response[1]+1);
+       - randnumbers::lngamma_exact(help1);
     }
 
   *deviance = -2*l;
