@@ -1591,8 +1591,8 @@ bool superbayesreg::create_predict(void)
                              predict_mult_distrs,"",pathnonp,
                              pathnonp2,D,modelvarnamesv));
 
-//          if (predict.getvalue() == "fulls")
-//            FC_predicts[FC_predicts.size()-1].nosamples=false;
+          if (predict.getvalue() == "fulls")
+            FC_predicts_mult[FC_predicts_mult.size()-1].nosamples=false;
 
           equations[modnr].add_FC(&FC_predicts_mult[FC_predicts_mult.size()-1],pathres);
 

@@ -30,6 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 namespace MCMC
 {
 
+void FC_predict_mult::compute_autocorr_all(const ST::string & path,
+                                           unsigned lag,
+                                           ofstream & outg) const
+  {
+
+  }
 
 
 FC_predict_mult::FC_predict_mult(void)
@@ -43,6 +49,9 @@ FC_predict_mult::FC_predict_mult(GENERAL_OPTIONS * o,vector<DISTR *> lp,
                                  vector<ST::string> & dn)
   : FC(o,t,1,1,fp)
   {
+
+  nosamples = true;
+
   likep = lp;
   designmatrix= dm;
   varnames = dn;

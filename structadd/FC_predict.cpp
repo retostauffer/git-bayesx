@@ -71,7 +71,7 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
       vector<ST::string> & dn)
   : FC(o,t,1,1,fp)
   {
-//  nosamples = true;
+  nosamples = true;
   MSE = noMSE;
   MSEparam = 0.5;
   likep = lp;

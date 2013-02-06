@@ -104,6 +104,9 @@ class __EXPORT_TYPE FC_predict_mult   : public FC
   void outresults(ofstream & out_stata, ofstream & out_R,
                   const ST::string & pathresults);
 
+  void compute_autocorr_all(const ST::string & path, unsigned lag,
+                                    ofstream & outg) const;
+
   void reset(void);
 
   };
