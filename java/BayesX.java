@@ -44,6 +44,14 @@ public class BayesX extends JFrame
 		WindowListener, AdjustmentListener//, CaretListener
 {
 
+//Funktionen, die die Kommunikation mit C++ steuern
+
+static
+	{
+	System.loadLibrary("BayesXdll");
+	}
+
+
 private String defaultDirectory = (new File(System.getProperty("user.dir"),"output")).toString();
 
 //Variablen der Klasse BayesX
@@ -2815,14 +2823,6 @@ public void saveOutput()
 		{
 		System.err.println(ble.getMessage());
 		}
-	}
-
-
-//Funktionen, die die Kommunikation mit C++ steuern
-
-static
-	{
-	System.loadLibrary("BayesXdll");
 	}
 
 

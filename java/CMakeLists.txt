@@ -150,16 +150,27 @@ set(SRC
 	../adaptiv/fullcond_adaptiv.cpp
 	../alex/mixture.cpp
 )
+
+if(CMAKE_SIZEOF_VOID_P MATCHES 8)
+  set(64BIT 1)
+endif()
+
 add_definitions(-DJAVA_OUTPUT_WINDOW)
 add_library(BayesXdll SHARED ${SRC} ${JAVA_SRC} ../java/BayesXdll.cpp)
 add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC)
+
 if(NOT WIN32)
-add_definitions(-D__BUILDING_LINUX)
-find_package(Readline REQUIRED)
-target_link_libraries(BayesXdll ${READLINE_LIBRARY})
+  add_definitions(-D__BUILDING_LINUX)
+  find_package(Readline REQUIRED)
+  target_link_libraries(BayesXdll ${READLINE_LIBRARY})
 else(WIN32)
-set_target_properties(BayesXdll PROPERTIES PREFIX "") 
+  add_definitions(-D_JNI_IMPLEMENTATION_)
+  set_target_properties(BayesXdll PROPERTIES PREFIX "") 
+  if(MINGW AND 64BIT)
+    set_target_properties(BayesXdll PROPERTIES LINK_FLAGS "-Wl,--kill-at") 
+  endif()
 endif()
+
 find_package(JNI REQUIRED)
 include_directories(${JNI_INCLUDE_DIRS})
 include_directories(../bib ../alex ../adaptiv ../andrea ../dag ../graph ../mcmc ../psplines ../samson ../leyre ../structadd ../java)
