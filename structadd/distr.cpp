@@ -75,6 +75,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   predict_mult=false;
 
   option1 = "";
+  offsetname = "";
 
   sigma2=1;
 
@@ -143,6 +144,7 @@ DISTR::DISTR(const DISTR & d)
   response_untransformed = d.response_untransformed;
   workingresponse = d.workingresponse;
   responsename = d.responsename;
+  offsetname = d.offsetname;
 
   weight = d.weight;
   weightname = d.weightname;
@@ -181,7 +183,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   FCpredict_betamean = d.FCpredict_betamean;
 
   maindistribution = d.maindistribution;
-  predict_mult = d.predict_mult;  
+  predict_mult = d.predict_mult;
 
   option1 = d.option1;
   optionbool1 = d.optionbool1;
@@ -195,6 +197,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   response_untransformed = d.response_untransformed;
   workingresponse = d.workingresponse;
   responsename = d.responsename;
+  offsetname = d.offsetname;
 
   weight = d.weight;
   weightname = d.weightname;
@@ -234,6 +237,8 @@ void DISTR::outoptions(void)
   optionsp->out("\n");
   optionsp->out("  Family: " + family + "\n");
   optionsp->out("  Number of observations: " + ST::inttostring(nrobs) + "\n");
+  if (offsetname.length() > 0)
+    optionsp->out("  Offset: " + offsetname + "\n");
   }
 
 

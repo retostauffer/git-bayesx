@@ -278,6 +278,13 @@ class __EXPORT_TYPE superbayesreg : public statobject
   bool posteriormode;
   bool computemodeforstartingvalues;
 
+  //----------------------------------------------------------------------------
+
+  // --------------------------- offset handling -------------------------------
+
+  void create_offset(unsigned i);
+
+  // ------------------------- end: offset handling ----------------------------
 
   //----------------------------------------------------------------------------
 

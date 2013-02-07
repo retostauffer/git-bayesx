@@ -24,6 +24,200 @@ namespace MCMC
 
 
 //------------------------------------------------------------------------------
+//----------------------------- CLASS DISTR_gamlss -----------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_gamlss::DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,
+                                 const datamatrix & w)
+  : DISTR(o,r,w)
+
+  {
+
+  predict_mult = true;
+
+  if (check_weightsone() == true)
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+
+  counter = 0;
+
+  helpmat1 = datamatrix(nrobs,1,1);
+
+  updateIWLS = true;
+
+  }
+
+
+const DISTR_gamlss & DISTR_gamlss::operator=(
+const DISTR_gamlss & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR::operator=(DISTR(nd));
+  counter = nd.counter;
+  worklin = nd.worklin;
+  worktransformlin = nd.worktransformlin;
+  distrp = nd.distrp;
+  return *this;
+  }
+
+
+DISTR_gamlss::DISTR_gamlss(const DISTR_gamlss & nd)
+   : DISTR(DISTR(nd))
+  {
+  counter = nd.counter;
+  worklin = nd.worklin;
+  worktransformlin = nd.worktransformlin;
+  distrp = nd.distrp;
+  }
+
+
+void DISTR_gamlss::outoptions(void)
+  {
+  DISTR::outoptions();
+  }
+
+
+void DISTR_gamlss::set_worklin(void)
+  {
+
+  unsigned i;
+  for (i=0;i<worklin.size();i++)
+    {
+
+    if (distrp[i]->linpred_current==1)
+      worklin[i] = distrp[i]->linearpred1.getV();
+    else
+      worklin[i] = distrp[i]->linearpred2.getV();
+
+    worktransformlin[i] = distrp[i]->helpmat1.getV();
+    }
+
+  }
+
+
+void DISTR_gamlss::modify_worklin(void)
+  {
+
+  if (counter<nrobs-1)
+    {
+    counter++;
+    unsigned i;
+    for (i=0;i<worklin.size();i++)
+      {
+      worklin[i]++;
+      worktransformlin[i]++;
+      }
+    }
+  else
+    {
+    counter=0;
+    }
+
+  }
+
+
+double DISTR_gamlss::loglikelihood(double * response, double * linpred,
+                                         double * weight)
+  {
+  return loglikelihood_weightsone(response,linpred);
+  }
+
+
+double DISTR_gamlss::loglikelihood_weightsone(double * response,
+                                                    double * linpred)
+  {
+  return 0;
+  }
+
+
+void DISTR_gamlss::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+
+//  *mu = 1/(1+el)*exp(*linpred[2]);
+
+  }
+
+
+void DISTR_gamlss::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const
+  {
+
+
+
+//  *deviance = -2*l;
+//  *deviancesat = *deviance;
+
+  }
+
+
+void DISTR_gamlss::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  if (counter==0)
+    set_worklin();
+
+
+//  modify_worklin();
+
+  }
+
+
+void DISTR_gamlss::posteriormode_end(void)
+  {
+  update_end();
+  }
+
+
+void DISTR_gamlss::update_end(void)
+  {
+
+  // helpmat1 stores mu, i.e. exp(linpred)
+
+  /*
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  if (helpmat1.rows() == 1)
+    {
+    helpmat1 = datamatrix(nrobs,1,0);
+    }
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    if (*worklin <= -10)
+      {
+      *pmu  = 0.0000454;
+      }
+    else
+      {
+      *pmu = exp(*worklin);
+      }
+
+    }
+
+  */
+  }
+
+
+
+//------------------------------------------------------------------------------
 //------------------------- CLASS DISTR_negbinzip_mu ---------------------------
 //------------------------------------------------------------------------------
 
@@ -752,7 +946,19 @@ double DISTR_negbinzip_delta::loglikelihood_weightsone(double * response,
 
   double explinpi = exp(*worklinpi);
 
-  double delta = exp(*linpred);
+  if (counter==0)
+    set_worklinmupi();
+
+  double delta;
+  if (*linpred <= -10)
+    {
+    delta  = 0.0000454;
+    }
+  else
+    {
+    delta = exp(*linpred);
+    }
+
   double deltay = delta+(*response);
 
   double deltamu = delta + (*workexplinmu);
@@ -790,7 +996,15 @@ void DISTR_negbinzip_delta::compute_iwls_wweightschange_weightsone(
   if (counter==0)
     set_worklinmupi();
 
-  delta = exp(*linpred);
+  if (*linpred <= -10)
+    {
+    delta  = 0.0000454;
+    }
+  else
+    {
+    delta = exp(*linpred);
+    }
+
   delta2 = delta*delta;
   deltay = delta+(*response);
   dig_deltay = randnumbers::digamma_exact(deltay);

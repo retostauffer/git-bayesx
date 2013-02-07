@@ -122,6 +122,7 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("hrandomexp_pspline");
   tnames.push_back("ridge");
   tnames.push_back("lasso");
+  tnames.push_back("offset");
 
 
   tnonp = term_nonp(tnames);
@@ -1672,6 +1673,22 @@ void superbayesreg::create_cv(void)
 
   }
 
+void superbayesreg::create_offset(unsigned i)
+  {
+
+  datamatrix d,iv;
+  extract_data(i,d,iv,1);
+
+  unsigned modnr = equations.size()-1;
+
+  if (equations[modnr].distrp->linpred_current==1)
+    equations[modnr].distrp->linearpred1.plus(d);
+  else
+    equations[modnr].distrp->linearpred1.plus(d);
+
+  equations[modnr].distrp->offsetname = terms[i].varnames[0];    
+
+  }
 
 bool superbayesreg::create_linear(void)
   {
@@ -2418,6 +2435,8 @@ bool superbayesreg::create_nonp(void)
     {
     if (terms[i].options.size() > 0)
       {
+      if (terms[i].options[0] == "offset")
+        create_offset(i);
       if (terms[i].options[0] == "pspline")
         create_pspline(i);
       if (terms[i].options[0] == "hrandom")

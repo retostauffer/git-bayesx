@@ -109,6 +109,8 @@ class __EXPORT_TYPE DISTR
   datamatrix workingresponse;         // Working response, tilde y
   ST::string responsename;            // Name of the response
 
+  ST::string offsetname;          // name of offset variable
+
 
   datamatrix weight;              // Weightvariable for weighted regression
 

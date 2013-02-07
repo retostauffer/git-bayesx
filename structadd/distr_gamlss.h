@@ -35,6 +35,82 @@ namespace MCMC
 
 
 //------------------------------------------------------------------------------
+//-------------------------- CLASS: DISTR_gamlss -------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gamlss : public DISTR
+  {
+
+  protected:
+
+  unsigned counter;
+
+  vector<double *> worklin;
+  vector<double *> worktransformlin;
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+
+  public:
+
+  vector<DISTR*> distrp;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gamlss(void) : DISTR()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,
+                   const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gamlss(const DISTR_gamlss & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gamlss & operator=(const DISTR_gamlss & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gamlss() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const;
+
+  double loglikelihood(double * response, double * linpred,
+                       double * weight);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  void posteriormode_end(void);
+
+  void update_end(void);
+
+  };
+
+
+
+//------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_negbinzip_mu ----------------------------
 //------------------------------------------------------------------------------
 
