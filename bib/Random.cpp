@@ -662,6 +662,95 @@ double GIG(double chi)
   }
 
 
+double GIG(double lambda, double psi, double chi)
+  {
+
+  double out;
+
+  if (chi == 0)
+    return rand_gamma(lambda,psi/2);
+  else if (psi == 0)
+    return rand_invgamma(-lambda,chi/2);
+  else
+    {
+
+    double h = lambda;
+    double b = sqrt(chi * psi);
+    double m = ( h-1+sqrt( pow(h-1,2)+ pow(b,2)) ) / b;
+    double m2 = pow(m,2);
+    double log_1_over_pm = -(h-1)/2*log(m) + b/4*(m + (1/m));
+    double r = (6*m + 2*h*m - b* m2 + b)/(4* m2);
+    double s = (1 + h - b*m)/(2*m2);
+    double p = (3*s - pow(r,2))/3;
+    double q = (2* pow(r,3))/27 - (r*s)/27 + b/(-4*m2);
+    double eta = sqrt(-(pow(p,3))/27);
+    double y1  = 2*exp(log(eta)/3) * cos(acos(-q/(2*eta))/3) - r/3;
+    double y2  = 2*exp(log(eta)/3) * cos(acos(-q/(2*eta))/3 + 2/3* 3.1415) - r/3;
+
+    double ym;
+
+    if ( ((h<=1) && (b<=1)) || (abs(q/eta)>2) || (y1<0) || (y2>0) )
+      {
+      ym = (-h-1 + sqrt( pow(h+1,2) + pow(b,2)))/b;
+
+      double a = exp(-0.5*h*log(m*ym) + 0.5*log(m/ym) + b/4*(m + 1/m - ym - 1.0/ym));
+
+      double u = uniform();
+      double v = uniform();
+      double out = a * (v/u);
+      while ( log(u) > (h-1)/2*log(out) - b/4*(out + 1/out) + log_1_over_pm  )
+        {
+        u = uniform();
+        v = uniform();
+        out = a * (v/u);
+        }
+      }
+    else
+      {
+
+      double vplus = exp(log_1_over_pm + log(1/y1) + (h-1)/2*log(1/y1 + m) -
+                           b/4*(1/y1 + m + 1/(1/y1 + m)) );
+      double vminus = -exp(log_1_over_pm + log(-1/y2) + (h-1)/2*log(1/y2 + m) -
+                           b/4*(1/y2 + m + 1/(1/y2 + m)) );
+
+      double u = uniform();
+      double v = vminus + (vplus - vminus) * uniform();
+      double z = v/u;
+
+      while (z < -m )
+        {
+        u = uniform();
+        v = vminus + (vplus - vminus) * uniform();
+        z = v/u;
+        }
+      out = z + m;
+
+      while (log(u) > (log_1_over_pm + (h-1)/2*log(out) - b/4*(out + 1/out)) )
+        {
+        u = uniform();
+        v = vminus + (vplus - vminus) * uniform();
+        z = v /u;
+
+        while (z < -m)
+          {
+          u = uniform();
+          v = vminus + (vplus - vminus) * uniform();
+          z = v/u;
+          }
+
+          out = z + m;
+
+        }
+
+       }
+
+     }
+
+  return sqrt( chi / psi ) * out;
+
+  }
+
+
 double f1old(double x, int j)
   {
   // first series approximation, guranteed to be monotone for x > 1.333
