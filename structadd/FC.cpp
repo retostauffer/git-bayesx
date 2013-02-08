@@ -1029,6 +1029,97 @@ void FC::outresults(ofstream & out_stata, ofstream & out_R,
   }
 
 
+void FC::outresults_singleparam(ofstream & out_stata,ofstream & out_R,
+                                  const ST::string & pathresults)
+  {
+
+  ST::string l1 = ST::doubletostring(optionsp->lower1,4);
+  ST::string l2 = ST::doubletostring(optionsp->lower2,4);
+  ST::string u1 = ST::doubletostring(optionsp->upper1,4);
+  ST::string u2 = ST::doubletostring(optionsp->upper2,4);
+
+  ST::string nl1 = ST::doubletostring(optionsp->lower1,4);
+  ST::string nl2 = ST::doubletostring(optionsp->lower2,4);
+  ST::string nu1 = ST::doubletostring(optionsp->upper1,4);
+  ST::string nu2 = ST::doubletostring(optionsp->upper2,4);
+  nl1 = nl1.replaceallsigns('.','p');
+  nl2 = nl2.replaceallsigns('.','p');
+  nu1 = nu1.replaceallsigns('.','p');
+  nu2 = nu2.replaceallsigns('.','p');
+
+  ST::string vstr;
+
+  vstr = "    Mean:         ";
+  optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+  ST::doubletostring(betamean(0,0),6) + "\n");
+
+  if (optionsp->samplesize > 1)
+    {
+
+    vstr = "    Std. dev.:    ";
+
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(sqrt(betavar(0,0)),6) + "\n");
+
+    vstr = "    " + l1 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(betaqu_l1_lower(0,0),6) + "\n");
+
+    vstr = "    " + l2 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(betaqu_l2_lower(0,0),6) + "\n");
+
+    vstr = "    50% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(betaqu50(0,0),6) + "\n");
+
+    vstr = "    " + u1 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(betaqu_l2_upper(0,0),6) + "\n");
+
+    vstr = "    " + u2 + "% Quantile: ";
+    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
+    ST::doubletostring(betaqu_l1_upper(0,0),6) + "\n");
+
+    optionsp->out("\n");
+    }
+
+
+  if (pathresults.isvalidfile() != 1)
+    {
+
+    ofstream ou(pathresults.strtochar());
+
+    if (optionsp->samplesize > 1)
+      {
+      ou << "pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+      nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
+      }
+    else
+      {
+      ou << "pmean" << endl;
+      }
+
+    ou << betamean(0,0) << "  ";
+    if (optionsp->samplesize > 1)
+      {
+      ou << (betavar(0,0)<0.0?0.0:sqrt(betavar(0,0))) << "  ";
+      ou << betaqu_l1_lower(0,0) << "  ";
+      ou << betaqu_l2_lower(0,0) << "  ";
+      ou << betaqu50(0,0) << "  ";
+      ou << betaqu_l2_upper(0,0) << "  ";
+      ou << betaqu_l1_upper(0,0) << "  ";
+      ou << betamin(0,0) << "  ";
+      ou << betamax(0,0) << "  " << endl;
+      }
+
+    optionsp->out("\n");
+    }
+
+  }
+
+
+
 void FC::reset(void)
   {
 

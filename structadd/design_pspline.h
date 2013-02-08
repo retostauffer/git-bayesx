@@ -106,6 +106,8 @@ class __EXPORT_TYPE DESIGN_pspline : public DESIGN
 
   void compute_penalty(void);
 
+  void compute_penalty2(const datamatrix & pen);  
+
   void compute_basisNull(void);
 
   void compute_precision(double l);

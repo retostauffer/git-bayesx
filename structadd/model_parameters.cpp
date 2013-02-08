@@ -96,12 +96,22 @@ term_nonp::term_nonp(vector<ST::string> & na)
   priors.push_back("iid");
   priors.push_back("lasso");
   priors.push_back("dirichlet");
+  priors.push_back("nmig");
+  priors.push_back("ssvs");    
 
   prior = stroption("prior",priors,"iid");
   knotpath = fileoption("knotpath","");
   datasetref = stroption("datasetref","");
 
   lambdaconst = simpleoption("lambdaconst",false);
+
+  abeta = doubleoption("abeta",1,0.00000001,500);
+  bbeta = doubleoption("bbeta",1,0.00000001,500);
+  r = doubleoption("r",0.000025,0.0000000001,1);
+  v = doubleoption("v",5,0.0000000001,500);
+  aQ = doubleoption("aQ",1,0.00000001,500);
+  bQ = doubleoption("bQ",1,0.00000001,500);
+  regiterates = intoption("regiterates",1000,0,10000000000);
 
   }
 
@@ -145,6 +155,15 @@ void term_nonp::setdefault(void)
   knotpath.setdefault();
   datasetref.setdefault();
   lambdaconst.setdefault();
+
+  abeta.setdefault();
+  bbeta.setdefault();
+  r.setdefault();
+  v.setdefault();
+  aQ.setdefault();
+  bQ.setdefault();
+  regiterates.setdefault();
+
   }
 
 
@@ -234,6 +253,13 @@ bool term_nonp::check(term & t)
     optlist.push_back(&datasetref);
     optlist.push_back(&lambdaconst);
 
+    optlist.push_back(&abeta);
+    optlist.push_back(&bbeta);
+    optlist.push_back(&r);
+    optlist.push_back(&v);
+    optlist.push_back(&aQ);
+    optlist.push_back(&bQ);
+    optlist.push_back(&regiterates);
 
 
     unsigned i;
@@ -369,6 +395,14 @@ bool term_nonp::check(term & t)
       t.options[38] = "false";
     else
       t.options[38] = "true";
+
+    t.options[39] = ST::doubletostring(abeta.getvalue());
+    t.options[40] = ST::doubletostring(bbeta.getvalue());
+    t.options[41] = ST::doubletostring(r.getvalue());
+    t.options[42] = ST::doubletostring(v.getvalue());
+    t.options[43] = ST::doubletostring(aQ.getvalue());
+    t.options[44] = ST::doubletostring(bQ.getvalue());
+    t.options[45] = ST::inttostring(regiterates.getvalue());
 
     setdefault();
     return true;

@@ -758,8 +758,6 @@ void FC_nonp::update_gaussian_transform(void)
 void FC_nonp::update_gaussian(void)
   {
 
-
-
   // TEST
   // ofstream out0("c:\\bayesx\\testh\\results\\beta_re.res");
   // beta.prettyPrint(out0);
@@ -1091,16 +1089,6 @@ void FC_nonp::update_isotonic(void)
   }
 
   
-/*
-void FC_nonp::transform_beta(void)
-  {
-  transform(0,0) = likep->trmult;
-  if (designp->position_lin != -1)
-  fsample.transform(0,0) = likep->trmult;
-  }
-*/
-
-
 bool FC_nonp::posteriormode_transform(void)
   {
 

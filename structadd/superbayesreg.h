@@ -57,6 +57,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"FC_variance_pen_vector.h"
 #include"FC_hrandom_variance.h"
 #include"FC_hrandom_variance_vec.h"
+#include"FC_hrandom_variance_vec_nmig.h"
 #include"FC_cv.h"
 
 #include"mcmcsim.h"
@@ -114,6 +115,9 @@ using MCMC::FC_hrandom_variance;
 using MCMC::FC_variance_pen_vector;
 using MCMC::FC_nonp_variance_vec;
 using MCMC::FC_hrandom_variance_vec;
+using MCMC::FC_hrandom_variance_vec_nmig;
+using MCMC::FC_hrandom_variance_ssvs;
+
 
 using MCMC::MCMCsim;
 
@@ -374,6 +378,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_hrandom> FC_hrandoms;
   vector<FC_hrandom_variance> FC_hrandom_variances;
   vector<FC_hrandom_variance_vec> FC_hrandom_variance_vecs;
+  vector<FC_hrandom_variance_vec_nmig> FC_hrandom_variance_vec_nmigs;
+  vector<FC_hrandom_variance_ssvs> FC_hrandom_variance_ssvss;    
 
   bool create_hrandom(unsigned i);
 

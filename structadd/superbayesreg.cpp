@@ -430,10 +430,17 @@ void superbayesreg::clear(void)
   FC_hrandom_variances.end());
   FC_hrandom_variances.reserve(50);
 
-
   FC_hrandom_variance_vecs.erase(FC_hrandom_variance_vecs.begin(),
   FC_hrandom_variance_vecs.end());
   FC_hrandom_variance_vecs.reserve(50);
+
+  FC_hrandom_variance_vec_nmigs.erase(FC_hrandom_variance_vec_nmigs.begin(),
+  FC_hrandom_variance_vec_nmigs.end());
+  FC_hrandom_variance_vec_nmigs.reserve(50);
+
+  FC_hrandom_variance_ssvss.erase(FC_hrandom_variance_ssvss.begin(),
+  FC_hrandom_variance_ssvss.end());
+  FC_hrandom_variance_ssvss.reserve(50);
 
   FC_predicts.erase(FC_predicts.begin(),FC_predicts.end());
   FC_predicts.reserve(30);
@@ -562,6 +569,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
   FC_hrandom_variance_vecs = b.FC_hrandom_variance_vecs;
+  FC_hrandom_variance_vec_nmigs = b.FC_hrandom_variance_vec_nmigs;
+  FC_hrandom_variance_ssvss = b.FC_hrandom_variance_ssvss;
 
   design_krigings = b.design_krigings;
   design_mrfs = b.design_mrfs;
@@ -644,6 +653,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   design_hrandoms = b.design_hrandoms;
   FC_hrandom_variances = b.FC_hrandom_variances;
   FC_hrandom_variance_vecs = b.FC_hrandom_variance_vecs;
+  FC_hrandom_variance_vec_nmigs = b.FC_hrandom_variance_vec_nmigs;
+  FC_hrandom_variance_ssvss = b.FC_hrandom_variance_ssvss;  
 
   design_krigings = b.design_krigings;
   design_mrfs = b.design_mrfs;
@@ -1914,9 +1925,34 @@ bool superbayesreg::create_hrandom(unsigned i)
     equations[modnr].add_FC(&FC_hrandom_variance_vecs[FC_hrandom_variance_vecs.size()-1],pathres);
 
     }
+  else if (terms[i].options[35] == "nmig")
+    {
 
+    FC_hrandom_variance_vec_nmigs.push_back(FC_hrandom_variance_vec_nmig(&master,
+                                        &generaloptions,equations[modnr].distrp,
+                                        equations[fnr].distrp,
+                                        title,pathnonp,
+                                        &design_hrandoms[design_hrandoms.size()-1],
+                                        &FC_hrandoms[FC_hrandoms.size()-1],
+                                        terms[i].options, terms[i].varnames));
 
+    equations[modnr].add_FC(&FC_hrandom_variance_vec_nmigs[FC_hrandom_variance_vec_nmigs.size()-1],pathres);
 
+    }
+  else if ((terms[i].options[35] == "ssvs"))
+    {
+
+    FC_hrandom_variance_ssvss.push_back(FC_hrandom_variance_ssvs(&master,
+                                        &generaloptions,equations[modnr].distrp,
+                                        equations[fnr].distrp,
+                                        title,pathnonp,
+                                        &design_hrandoms[design_hrandoms.size()-1],
+                                        &FC_hrandoms[FC_hrandoms.size()-1],
+                                        terms[i].options, terms[i].varnames));
+
+    equations[modnr].add_FC(&FC_hrandom_variance_ssvss[FC_hrandom_variance_ssvss.size()-1],pathres);
+
+    }
 
   return false;
 

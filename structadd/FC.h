@@ -278,6 +278,13 @@ class __EXPORT_TYPE FC
                     const vector<ST::string> & datanames);
 
 
+  // FUNCTION: outresults_singleparam
+  // TASK: writes results for FC's ewith just one parameter
+
+  void outresults_singleparam(ofstream & out_stata,ofstream & out_R,
+                                  const ST::string & pathresults);
+
+
   void outresults_acceptance(void);
 
   // FUNCTION: reset

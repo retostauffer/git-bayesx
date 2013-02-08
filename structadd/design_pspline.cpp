@@ -503,6 +503,25 @@ datamatrix DESIGN_pspline::bspline_derivative(const double & x)
   }
 
 
+void DESIGN_pspline::compute_penalty2(const datamatrix & pen)
+  {
+  if (type==Rw1)
+    {
+    K = Krw1env(pen);
+    rankK = nrpar-1;
+    }
+  else if (type==Rw2)
+    {
+    K = Krw2env(nrpar);
+    rankK = nrpar-2;
+    }
+  else if (type==Rw3)
+    {
+    K = Krw3env(nrpar);
+    rankK = nrpar-3;
+    }
+  }
+
 
 void DESIGN_pspline::compute_penalty(void)
   {
@@ -579,7 +598,6 @@ void DESIGN_pspline::compute_basisNull(void)
   if (center==true)
   {
   unsigned i,j;
-  int h;
 
   if (centermethod==cmean || centermethod==meansimple)
     {

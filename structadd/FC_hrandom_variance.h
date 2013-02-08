@@ -45,8 +45,6 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
 
   protected:
 
-
-
   DISTR * likepRE;
 
   bool mult;
@@ -104,6 +102,85 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
 
   void outresults(ofstream & out_stata, ofstream & out_R,
                          const ST::string & pathresults);
+
+
+  };
+
+
+//------------------------------------------------------------------------------
+//---------------------- CLASS: FC_hrandom_variance_ssvs -----------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE FC_hrandom_variance_ssvs
+      : public FC_hrandom_variance
+  {
+
+  protected:
+
+  FC FC_delta;
+  FC FC_omega;
+
+  double abeta;
+  double bbeta;
+  double r;
+  int regiterates;
+
+  datamatrix pen;
+
+  public:
+
+//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
+
+  // DEFAULT CONSTRUCTOR
+
+  FC_hrandom_variance_ssvs(void);
+
+  // CONSTRUCTOR
+  // o    : pointer to GENERAL_OPTIONS object
+  // t    : title of the full conditional (for example "fixed effects")
+  // fp   : file path for storing sampled parameters
+
+  FC_hrandom_variance_ssvs(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
+                          DISTR * lpRE, const ST::string & t,
+                          const ST::string & fp,DESIGN * dp,
+                          FC_nonp * FCn,vector<ST::string> & op,
+                          vector<ST::string> & vn);
+
+  // COPY CONSTRUCTOR
+
+  FC_hrandom_variance_ssvs(const FC_hrandom_variance_ssvs & m);
+
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const FC_hrandom_variance_ssvs & operator=(
+   const FC_hrandom_variance_ssvs & m);
+
+  // DESTRUCTOR
+
+  ~FC_hrandom_variance_ssvs()
+    {
+    }
+
+  // FUNCTION: update
+  // TASK: - stores sampled parameters in file 'samplepath'
+  //         storing order: first row, second row, ...
+
+  void update(void);
+
+  // FUNCTION: outresults
+  // TASK: writes estimation results to logout or into a file
+
+  void outresults(ofstream & out_stata,ofstream & out_R,
+                  const ST::string & pathresults);
+
+
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
+
+  void get_samples(const ST::string & filename,ofstream & outg) const;
+
+  void compute_autocorr_all(const ST::string & path,
+                                      unsigned lag, ofstream & outg) const;
 
 
   };

@@ -79,6 +79,15 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   stroption datasetref;
   simpleoption lambdaconst;
 
+  doubleoption abeta;
+  doubleoption bbeta;
+  doubleoption r;
+  doubleoption v;
+  doubleoption aQ;
+  doubleoption bQ;
+  intoption regiterates;
+
+
   vector<ST::string> termnames;
 
   void setdefault(void);

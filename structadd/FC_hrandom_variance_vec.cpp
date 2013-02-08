@@ -137,7 +137,7 @@ void FC_hrandom_variance_vec::update(void)
 
   double * ww = likepRE->workingweight.getV();
 
-  for (i=0;i<beta.rows();i++,workbeta++,workbetafcn++,ww++)
+  for (i=0;i<beta.rows();i++,workbeta++,workbetafcn++,ww++,linpredREp++)
     {
     *workbeta = rand_inv_gaussian(fabs(hyperLambda)/
     fabs((*workbetafcn - (*linpredREp))),hyperLambda2);
