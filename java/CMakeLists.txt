@@ -176,3 +176,40 @@ endif()
 find_package(JNI REQUIRED)
 include_directories(${JNI_INCLUDE_DIRS})
 include_directories(../bib ../alex ../adaptiv ../andrea ../dag ../graph ../mcmc ../psplines ../samson ../leyre ../structadd ../java)
+
+set(JavaSources 
+BayesX.java
+Dense.java
+FileFormatException.java
+File_Writer.java
+HelpFilter.java
+Interpolate.java
+MapFilter.java
+MapPanel.java
+Matrix3D.java
+Model3D.java
+OutputFilter.java
+OutputFilter2.java
+PSGr2.java
+PSGrBase.java
+PageableText.java
+ParseData.java
+ParseThread.java
+Plot3D.java
+PrintableComponent.java
+Sort.java
+Sort_ind.java
+Surfplot.java
+SwingWorker.java
+ThreeD.java
+finalmap.java
+)
+find_package(Java)
+include(UseJava)
+
+# set(CMAKE_JAVA_EXECUTABLE BayesX)
+# set(CMAKE_JAVA_MANIFEST manifest.mf)
+set(CMAKE_JAVA_JAR_ENTRY_POINT BayesX)
+add_jar(BayesX ${JavaSources}) 
+
+
