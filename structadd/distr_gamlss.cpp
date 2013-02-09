@@ -341,8 +341,8 @@ double DISTR_negbinzip_mu::loglikelihood_weightsone(double * response,
 
   double mu;
 
-  if (*linpred <= -10)
-    mu  = 0.0000454;
+  if (*linpred <= -30)
+    mu  = 9.358e-14;
   else
     mu = exp(*linpred);
 
@@ -428,8 +428,8 @@ void DISTR_negbinzip_mu::compute_iwls_wweightschange_weightsone(
 
   double mu;
 
-  if (*linpred <= -10)
-    mu  = 0.0000454;
+  if (*linpred <= -30)
+    mu  = 9.358e-14;
   else
     mu = exp(*linpred);
 
@@ -502,9 +502,9 @@ void DISTR_negbinzip_mu::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,pmu++,worklin++)
     {
-    if (*worklin <= -10)
+    if (*worklin <= -30)
       {
-      *pmu  = 0.0000454;
+      *pmu  = 9.358e-14;
       }
     else
       {
@@ -950,9 +950,9 @@ double DISTR_negbinzip_delta::loglikelihood_weightsone(double * response,
     set_worklinmupi();
 
   double delta;
-  if (*linpred <= -10)
+  if (*linpred <= -30)
     {
-    delta  = 0.0000454;
+    delta  = 9.358e-14;                               
     }
   else
     {
@@ -996,9 +996,9 @@ void DISTR_negbinzip_delta::compute_iwls_wweightschange_weightsone(
   if (counter==0)
     set_worklinmupi();
 
-  if (*linpred <= -10)
+  if (*linpred <= -30)
     {
-    delta  = 0.0000454;
+    delta  = 9.358e-14;
     }
   else
     {
@@ -1133,9 +1133,9 @@ void DISTR_negbinzip_delta::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,worklin++,l++)
     {
-    if (*worklin <= -10)
+    if (*worklin <= -30)
       {
-      *l  = 0.0000454;
+      *l  = 9.358e-14;
       }
     else
       {
