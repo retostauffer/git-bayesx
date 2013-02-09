@@ -241,6 +241,8 @@
 		<Unit filename="structadd\FC_hrandom_variance.cpp" />
 		<Unit filename="structadd\FC_hrandom_variance.h" />
 		<Unit filename="structadd\FC_hrandom_variance_vec.cpp" />
+		<Unit filename="structadd\FC_hrandom_variance_vec_nmig.cpp" />
+		<Unit filename="structadd\FC_hrandom_variance_vec_nmig.h" />
 		<Unit filename="structadd\FC_linear.cpp" />
 		<Unit filename="structadd\FC_linear.h" />
 		<Unit filename="structadd\FC_mult.cpp" />
