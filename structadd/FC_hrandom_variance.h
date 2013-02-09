@@ -123,7 +123,7 @@ class __EXPORT_TYPE FC_hrandom_variance_ssvs
   double abeta;
   double bbeta;
   double r;
-  int regiterates;
+  long regiterates;
 
   datamatrix pen;
 

@@ -97,7 +97,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   priors.push_back("lasso");
   priors.push_back("dirichlet");
   priors.push_back("nmig");
-  priors.push_back("ssvs");    
+  priors.push_back("ssvs");
 
   prior = stroption("prior",priors,"iid");
   knotpath = fileoption("knotpath","");
@@ -111,7 +111,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   v = doubleoption("v",5,0.0000000001,500);
   aQ = doubleoption("aQ",1,0.00000001,500);
   bQ = doubleoption("bQ",1,0.00000001,500);
-  regiterates = intoption("regiterates",1000,0,10000000000);
+  regiterates = intoption("regiterates",1000,0,1000000000);
 
   }
 

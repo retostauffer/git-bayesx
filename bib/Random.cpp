@@ -689,7 +689,7 @@ double GIG(double lambda, double psi, double chi)
 
     double ym;
 
-    if ( ((h<=1) && (b<=1)) || (abs(q/eta)>2) || (y1<0) || (y2>0) )
+    if ( ((h<=1.0) && (b<=1.0)) || (fabs(q/eta)>2.0) || (y1<0.0) || (y2>0.0) )
       {
       ym = (-h-1 + sqrt( pow(h+1,2) + pow(b,2)))/b;
 
@@ -959,7 +959,7 @@ double rand_binom(double nin, double prob)
 //    p = prob;
 //    if((1. - prob) < prob)
 //      p = 1. - prob;
-      
+
     q = 1. - p;
     np = n * p;
     r = p / q;

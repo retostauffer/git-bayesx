@@ -51,7 +51,7 @@ class __EXPORT_TYPE FC_hrandom_variance_vec_nmig
   double v;
   double aQ;
   double bQ;
-  int regiterates;
+  long regiterates;
 
   public:
 
