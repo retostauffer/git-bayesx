@@ -4,12 +4,10 @@
 
 # add r-tools mingw to the path to enable access to the compiler 
 c:\env\mingw-rtools.bat
-# add codeblocks mingw to the path to enable access to mingw32-make 
-c:\env\mingw-cb.bat
 # add cmake to the path 
 c:\env\cmake.bat
-# add java to the path
-c:\env\java.bat
+# add codeblocks mingw to the path to enable access to mingw32-make 
+c:\env\mingw-cb.bat
 
 # call cmake with explicit compiler specification for 64bit comilation
 # if there has been no previous call that set the compiler:
@@ -20,6 +18,8 @@ cmake -G "MinGW Makefiles" .
 # call make (with no. of kernels defined by -j)
 mingw32-make -j4
 
+# add java to the path
+c:\env\java.bat
 # compile java version
 cd java
 javac BayesX.java

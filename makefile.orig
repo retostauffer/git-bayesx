@@ -106,6 +106,7 @@ STRUCTADD_SRC = \
 	structadd/FC_nonp.cpp\
 	structadd/FC_nonp_variance.cpp\
 	structadd/FC_predict.cpp\
+	structadd/FC_predict_mult.cpp\
 	structadd/FC_cv.cpp\
 	structadd/FC_variance_pen_vector.cpp\
 	structadd/GENERAL_OPTIONS.cpp\
@@ -116,8 +117,10 @@ STRUCTADD_SRC = \
 	structadd/design_pspline.cpp\
 	structadd/distr.cpp\
 	structadd/distr_categorical.cpp\
+	structadd/distr_categorical_mult.cpp\
 	structadd/distr_mixture.cpp\
-	structadd/mcmcsim.cpp\
+	structadd/distr_gamlss.cpp\
+        structadd/mcmcsim.cpp\
 	structadd/model_parameters.cpp\
 	structadd/superbayesreg.cpp\
 	structadd/design_kriging.cpp\
@@ -139,14 +142,6 @@ SRC = \
 
 OBJ = $(patsubst %.cpp,%.o,$(SRC))
 
-LINKOBJ  = $(OBJ)
-ifeq ($(SYSTEM),Linux)
-LINKOBJ  = $(OBJ) -lreadline
-endif
-ifeq ($(SYSTEM),CYGWIN_NT-5.1)
-LINKOBJ  = $(OBJ) -lreadline
-endif
-LIBS = -g3
 INCS =  -I. -I"bib"  -I"alex"  -I"adaptiv"  -I"andrea"  -I"dag"  -I"graph"  -I"mcmc"  -I"psplines"  -I"samson"  -I"leyre"  -I"structadd"
 CXXINCS = $(INCS)
 
@@ -193,9 +188,11 @@ else
     # -Wunreachable-code
     # -Wunused-value
     # -Wall  -> and then reduce the number of redundant warnings
-    WARNINGS := $(WARNINGS) -Waddress -Wempty-body -Wendif-labels\
+    WARNINGS := $(WARNINGS) -Waddress -Wendif-labels\
        	-Wmissing-braces -Wmissing-declarations -Wpragmas -Wundef -Wunused-macros\
-       	-Wunused-variable -Wtype-limits
+       	-Wunused-variable 
+    # -Wempty-body
+    # -Wtype-limits
 endif
 
 
@@ -204,9 +201,25 @@ SYSTEM := $(shell uname -s)
 DEFINES = -D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC
 ifeq ($(SYSTEM),Linux)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
+    LIBS := ${LIBS} -lreadline
 endif
 ifeq ($(SYSTEM),CYGWIN_NT-5.1)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
+    LIBS := ${LIBS} -lreadline
+endif
+ifeq ($(SYSTEM),Darwin)
+    DEFINES := $(DEFINES) -D__BUILDING_LINUX
+    LIBS := ${LIBS} -lreadline
+    # Building Universal Binaries..
+    #TARGET_ARCH = -arch i386 -arch x86_64
+endif
+ifeq ($(SYSTEM),FreeBSD)
+    DEFINES := $(DEFINES) -D__BUILDING_LINUX
+    LIBS := ${LIBS} -lreadline
+endif
+ifeq ($(SYSTEM),OpenBSD)
+    DEFINES := $(DEFINES) -D__BUILDING_LINUX
+    LIBS := ${LIBS} -lreadline -lncurses
 endif
 CFLAGS = $(WARNINGS) $(INCS) $(DEFINES) -O3 -ansi
 CXXFLAGS = $(CFLAGS)
@@ -220,7 +233,7 @@ clean: clean-custom
 	${RM} $(OBJ) $(BIN) $(subst .cpp,.d,$(SRC))
 
 $(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o "BayesX" $(LIBS) 
+	$(CPP) $(OBJ) -o "BayesX" $(LIBS) $(TARGET_ARCH)
 
 # automatic dependency generation
 ifneq ($(MAKECMDGOALS),clean)

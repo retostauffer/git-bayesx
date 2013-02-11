@@ -1,4 +1,6 @@
-cp -f makefile sourcecode\makefile
+cp -f CMakeLists.txt sourcecode\CMakeLists.txt
+cp -f README.BayesX sourcecode\README.BayesX
+cp -f makefile.orig sourcecode\makefile.orig
 cp -f values.h sourcecode\values.h
 cp -f export_type.h sourcecode\export_type.h
 cp -f main.cpp sourcecode\main.cpp
@@ -15,6 +17,7 @@ cp -rf psplines sourcecode
 cp -rf samson sourcecode
 cp -rf structadd sourcecode
 cp -rf examples sourcecode
+cp -rf share sourcecode
 
 cp -f internet\bayesx\tutorials\zambia.bnd sourcecode\examples\zambia.bnd
 cp -f internet\bayesx\tutorials\zambia.raw sourcecode\examples\zambia.raw
@@ -131,7 +134,31 @@ rm *.obj
 rm *.o
 rm *.d
 
+cd ..\share
+rm -rf .svn
+rm -rf CVS
+
+cd cmake
+rm -rf .svn
+rm -rf CVS
 cd ..
+
+cd ..
+mkdir java
+
+cd ..
+cp -rf java\doc sourcecode\java\doc
+cp -rf java\umontreal sourcecode\java\umontreal
+
+cd java
+cp *.java ..\sourcecode\java
+cp *.cpp ..\sourcecode\java
+cp *.h ..\sourcecode\java
+cp *.txt ..\sourcecode\java
+cp *.gif ..\sourcecode\java
+cp *.jpg ..\sourcecode\java
+
+cd ..\sourcecode
 mkdir gnuobj
 
 rm bayesxsource.zip
