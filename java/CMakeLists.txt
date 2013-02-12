@@ -208,9 +208,9 @@ finalmap.java
 find_package(Java)
 include(UseJava)
 
- set(CMAKE_JAVA_EXECUTABLE BayesX)
- set(CMAKE_JAVA_MANIFEST manifest.mf)
-set(CMAKE_JAVA_JAR_ENTRY_POINT BayesX)
+# set(CMAKE_JAVA_EXECUTABLE BayesX)
+# set(CMAKE_JAVA_MANIFEST manifest.mf)
+#set(CMAKE_JAVA_JAR_ENTRY_POINT BayesX)
 add_jar(BayesX ${JavaSources}) 
 
 
