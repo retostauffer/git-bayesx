@@ -1,5 +1,5 @@
 project(BayesX)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.9)
 set(CMAKE_MODULE_PATH ${BayesX_SOURCE_DIR}/share/cmake ${CMAKE_MODULE_PATH})
 set(ANDREA_SRC 
 	andrea/baseline.cpp
