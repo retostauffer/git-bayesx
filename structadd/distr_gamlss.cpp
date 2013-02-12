@@ -24,12 +24,346 @@ namespace MCMC
 
 
 //------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_zip_cloglog_pi --------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_zip_cloglog_pi::DISTR_zip_cloglog_pi(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Zero_Inflated_Poisson - pi";
+  }
+
+
+DISTR_zip_cloglog_pi::DISTR_zip_cloglog_pi(const DISTR_zip_cloglog_pi & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_zip_cloglog_pi & DISTR_zip_cloglog_pi::operator=(
+                            const DISTR_zip_cloglog_pi & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_zip_cloglog_pi::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+
+double DISTR_zip_cloglog_pi::loglikelihood_weightsone(double * response,
+                                                      double * linpred)
+  {
+
+  if (counter==0)
+    set_worklin();
+
+  double explinpi = exp(*linpred);
+  double oneminuspi = 1 - exp(-explinpi);
+  double pi = 1-oneminuspi;
+  double expminuslambda = exp(-(*worktransformlin[0]));
+  double denompart = pi+oneminuspi*expminuslambda;
+
+  modify_worklin();
+
+  if (*response == 0)
+    return log(denompart);
+  else
+    return log(oneminuspi);
+
+  }
+
+
+void DISTR_zip_cloglog_pi::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    set_worklin();
+
+  double explinpi = exp(*linpred);
+  double oneminuspi = 1 - exp(-explinpi);
+  double pi = 1-oneminuspi;
+  double expminuslambda = exp(-(*worktransformlin[0]));
+  double denompart = pi+oneminuspi*expminuslambda;
+  double denom =  denompart*oneminuspi;
+  double explinpi_pi = explinpi*pi;
+
+  double nu = explinpi_pi/oneminuspi;
+  if (*response == 0)
+    nu -= explinpi_pi/denom;
+
+  *workingweight =  pow(explinpi,2)*pow(pi,2)*(1-expminuslambda)/denom;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+
+  if (compute_like)
+    {
+
+    if (*response == 0)
+      like += log(denompart);
+    else
+      like += log(oneminuspi);
+
+    }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_zip_cloglog_pi::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (pi): complementary log log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_zip_cloglog_pi::update_end(void)
+  {
+
+  // helpmat1 stores 1-pi
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  if (helpmat1.rows() == 1)
+    {
+    helpmat1 = datamatrix(nrobs,1,0);
+    }
+
+  double * ppi = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,ppi++,worklin++)
+    {
+    *ppi = 1-exp(-exp(*worklin));
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_zip_cloglog_mu --------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_zip_cloglog_mu::DISTR_zip_cloglog_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Zero_Inflated_Poisson - lambda";
+  }
+
+
+DISTR_zip_cloglog_mu::DISTR_zip_cloglog_mu(const DISTR_zip_cloglog_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_zip_cloglog_mu & DISTR_zip_cloglog_mu::operator=(
+                            const DISTR_zip_cloglog_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_zip_cloglog_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const
+  {
+
+  double l;
+  double explinpi = exp(*linpred[0]);
+  double pi = exp(-explinpi);
+  double lambda = exp(*linpred[1]);
+
+  if (*response[1]==0)
+    {
+    l=  log(pi+(1-pi)*exp(-lambda));
+    }
+  else // response > 0
+    {
+    double help1 = *response[1]+1;
+    l= log(1-pi) + (*response[1])*(*linpred[1])- lambda
+       - randnumbers::lngamma_exact(help1);
+    }
+
+  *deviance = -2*l;
+  *deviancesat = *deviance;
+
+  }
+
+
+double DISTR_zip_cloglog_mu::get_intercept_start(void)
+  {
+  return log(response.mean(0));
+  }
+
+
+double DISTR_zip_cloglog_mu::loglikelihood_weightsone(double * response,
+                                                      double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of pi equation
+  // *worktransformlin[0] = 1-pi = 1-exp(-exp(eta_pi));
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= -30)
+    {
+    lambda  = 9.358e-14;
+    expminuslambda = 1;
+    }
+  else
+    {
+    lambda = exp(*linpred);
+    expminuslambda = exp(-lambda);
+    }
+
+  double denom = 1-(*worktransformlin[0])+(*worktransformlin[0])*expminuslambda;
+
+  modify_worklin();
+
+  if (*response==0)
+    return log(denom);
+  else
+    return (*response)*(*linpred)-lambda;
+
+  }
+
+
+void DISTR_zip_cloglog_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of pi equation
+  // *worktransformlin[0] = 1-pi = 1-exp(-exp(eta_pi));
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= -30)
+    {
+    lambda  = 9.358e-14;
+    expminuslambda = 1;
+    }
+  else
+    {
+    lambda = exp(*linpred);
+    expminuslambda = exp(-lambda);
+    }
+
+  double pi = 1-(*worktransformlin[0]);
+  double denom = pi+(*worktransformlin[0])*expminuslambda;
+
+  double nu = (*response) - lambda;
+  if (*response == 0)
+    nu += pi*lambda/denom;
+
+  *workingweight = (lambda* (*worktransformlin[0])*(denom-expminuslambda*lambda*pi))/denom;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+
+    if (*response==0)
+      {
+      like += log(denom);
+      }
+    else // response > 0
+      {
+      like += (*response)*(*linpred)-lambda;
+      }
+
+    }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_zip_cloglog_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  double el = exp(-exp(*linpred[0]));
+
+  *mu = (1-el)*exp(*linpred[1]);
+  }
+
+
+void DISTR_zip_cloglog_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (lambda): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_zip_cloglog_mu::update_end(void)
+  {
+  DISTR_gamlss::update_end();
+  }
+
+
+//------------------------------------------------------------------------------
 //----------------------------- CLASS DISTR_gamlss -----------------------------
 //------------------------------------------------------------------------------
 
 
 DISTR_gamlss::DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,
-                                 const datamatrix & w)
+                           unsigned nrdistr,
+                           const datamatrix & w)
   : DISTR(o,r,w)
 
   {
@@ -44,6 +378,9 @@ DISTR_gamlss::DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,
   counter = 0;
 
   helpmat1 = datamatrix(nrobs,1,1);
+
+  worklin = vector<double*>(nrdistr);
+  worktransformlin = vector<double*>(nrdistr);
 
   updateIWLS = true;
 
@@ -119,6 +456,12 @@ void DISTR_gamlss::modify_worklin(void)
   }
 
 
+double DISTR_gamlss::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+
 double DISTR_gamlss::loglikelihood(double * response, double * linpred,
                                          double * weight)
   {
@@ -184,7 +527,7 @@ void DISTR_gamlss::update_end(void)
 
   // helpmat1 stores mu, i.e. exp(linpred)
 
-  /*
+
   double * worklin;
   if (linpred_current==1)
     worklin = linearpred1.getV();
@@ -201,9 +544,9 @@ void DISTR_gamlss::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,pmu++,worklin++)
     {
-    if (*worklin <= -10)
+    if (*worklin <= -30)
       {
-      *pmu  = 0.0000454;
+      *pmu  = 9.358e-14;
       }
     else
       {
@@ -212,7 +555,7 @@ void DISTR_gamlss::update_end(void)
 
     }
 
-  */
+
   }
 
 
@@ -322,6 +665,12 @@ void DISTR_negbinzip_mu::modify_worklinpidelta(void)
     counter=0;
     }
 
+  }
+
+
+double DISTR_negbinzip_mu::get_intercept_start(void)
+  {
+  return log(response.mean(0));
   }
 
 
@@ -624,12 +973,27 @@ void DISTR_negbinzip_pi::modify_worklinmudelta(void)
   }
 
 
+double DISTR_negbinzip_pi::get_intercept_start(void)
+  {
+  unsigned i;
+  double * responsep = response.getV();
+  double m = 0;
+  for (i=0;i<nrobs;i++,responsep++);
+    {
+    if (*responsep==0)
+      m += 1;
+    }
+
+  m /= nrobs;
+
+  return log(m/(1-m));
+  }
+
+
 double DISTR_negbinzip_pi::loglikelihood(double * response, double * linpred,
                                      double * weight)
   {
-
   return loglikelihood_weightsone(response,linpred);
-
   }
 
 
@@ -929,6 +1293,11 @@ void DISTR_negbinzip_delta::modify_worklinmupi(void)
 
   }
 
+double DISTR_negbinzip_delta::get_intercept_start(void)
+  {
+  return log(response.mean(0));
+  }
+
 
 double DISTR_negbinzip_delta::loglikelihood(double * response, double * linpred,
                                      double * weight)
@@ -952,7 +1321,7 @@ double DISTR_negbinzip_delta::loglikelihood_weightsone(double * response,
   double delta;
   if (*linpred <= -30)
     {
-    delta  = 9.358e-14;                               
+    delta  = 9.358e-14;
     }
   else
     {
@@ -1268,6 +1637,12 @@ void DISTR_ziplambda::modify_worklinpi(void)
   }
 
 
+double DISTR_ziplambda::get_intercept_start(void)
+  {
+  return log(response.mean(0));
+  }
+
+
 double DISTR_ziplambda::loglikelihood_weightsone(
                                   double * response, double * linpred)
   {
@@ -1554,6 +1929,23 @@ void DISTR_zippi::outoptions(void)
   optionsp->out("  Response function (pi): logistic distribution function\n");
   optionsp->out("\n");
   optionsp->out("\n");
+  }
+
+
+double DISTR_zippi::get_intercept_start(void)
+  {
+  unsigned i;
+  double * responsep = response.getV();
+  double m = 0;
+  for (i=0;i<nrobs;i++,responsep++);
+    {
+    if (*responsep==0)
+      m += 1;
+    }
+
+  m /= nrobs;
+
+  return log(m/(1-m));
   }
 
 

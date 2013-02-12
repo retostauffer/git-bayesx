@@ -167,6 +167,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("zinb_mu");
   families.push_back("zinb_pi");
   families.push_back("zinb_delta");
+  families.push_back("zip_pi_cloglog");
+  families.push_back("zip_lambda_cloglog");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -389,6 +391,11 @@ void superbayesreg::clear(void)
   distr_negbinzip_deltas.erase(distr_negbinzip_deltas.begin(),distr_negbinzip_deltas.end());
   distr_negbinzip_deltas.reserve(20);
 
+  distr_zip_cloglog_mus.erase(distr_zip_cloglog_mus.begin(),distr_zip_cloglog_mus.end());
+  distr_zip_cloglog_mus.reserve(20);
+
+  distr_zip_cloglog_pis.erase(distr_zip_cloglog_pis.begin(),distr_zip_cloglog_pis.end());
+  distr_zip_cloglog_pis.reserve(20);
 
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
@@ -544,6 +551,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_negbinzip_mus = b.distr_negbinzip_mus;
   distr_negbinzip_pis = b.distr_negbinzip_pis;
   distr_negbinzip_deltas = b.distr_negbinzip_deltas;
+  distr_zip_cloglog_mus = b.distr_zip_cloglog_mus;
+  distr_zip_cloglog_pis = b.distr_zip_cloglog_pis;    
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -628,6 +637,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_negbinzip_mus = b.distr_negbinzip_mus;
   distr_negbinzip_pis = b.distr_negbinzip_pis;
   distr_negbinzip_deltas = b.distr_negbinzip_deltas;
+  distr_zip_cloglog_mus = b.distr_zip_cloglog_mus;
+  distr_zip_cloglog_pis = b.distr_zip_cloglog_pis;    
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -654,7 +665,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   FC_hrandom_variances = b.FC_hrandom_variances;
   FC_hrandom_variance_vecs = b.FC_hrandom_variance_vecs;
   FC_hrandom_variance_vec_nmigs = b.FC_hrandom_variance_vec_nmigs;
-  FC_hrandom_variance_ssvss = b.FC_hrandom_variance_ssvss;  
+  FC_hrandom_variance_ssvss = b.FC_hrandom_variance_ssvss;
 
   design_krigings = b.design_krigings;
   design_mrfs = b.design_mrfs;
@@ -1159,7 +1170,7 @@ bool superbayesreg::create_distribution(void)
 
     predict_mult_distrs.push_back(&distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1]);
     predict_mult_distrs.push_back(&distr_negbinzip_pis[distr_negbinzip_pis.size()-1]);
-    predict_mult_distrs.push_back(&distr_negbinzip_mus[distr_negbinzip_mus.size()-1]);    
+    predict_mult_distrs.push_back(&distr_negbinzip_mus[distr_negbinzip_mus.size()-1]);
 
     distr_negbinzip_pis[distr_negbinzip_pis.size()-1].distrmu =
     &distr_negbinzip_mus[distr_negbinzip_mus.size()-1];
@@ -1230,7 +1241,56 @@ bool superbayesreg::create_distribution(void)
       }
 
     }
-//------------------------------- END: ZIP pi ----------------------------------
+//------------------------------- END: ZIP lambda ------------------------------
+
+
+//-------------------------------- ZIP pi cloglog ------------------------------
+  else if (family.getvalue() == "zip_pi_cloglog" && equationtype.getvalue()=="pi")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_zip_cloglog_pis.push_back(DISTR_zip_cloglog_pi(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_zip_cloglog_pis[distr_zip_cloglog_pis.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_zip_cloglog_pis[distr_zip_cloglog_pis.size()-1]);
+
+    }
+//------------------------------ END: ZIP pi cloglog----------------------------
+
+
+//------------------------------ ZIP lambda cloglog ----------------------------
+  else if (family.getvalue() == "zip_lambda_cloglog" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_zip_cloglog_mus.push_back(DISTR_zip_cloglog_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_zip_cloglog_mus[distr_zip_cloglog_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_zip_cloglog_mus[distr_zip_cloglog_mus.size()-1]);
+
+    if (distr_zip_cloglog_pis.size() != 1)
+      {
+      outerror("ERROR: Equation for pi is missing");
+      return true;
+      }
+    else
+      {
+      distr_zip_cloglog_pis[distr_zip_cloglog_pis.size()-1].distrp.push_back
+      (&distr_zip_cloglog_mus[distr_zip_cloglog_mus.size()-1]);
+
+      distr_zip_cloglog_mus[distr_zip_cloglog_mus.size()-1].distrp.push_back
+      (&distr_zip_cloglog_pis[distr_zip_cloglog_pis.size()-1]);
+      }
+
+    }
+//---------------------------- END: ZIP lambda cloglog -------------------------
+
 
 //----------------------- multinomial probit response --------------------------
   else if (family.getvalue() == "multinom_probit" && equationtype.getvalue()=="meanservant")

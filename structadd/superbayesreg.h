@@ -92,6 +92,9 @@ using MCMC::DISTR_zippi;
 using MCMC::DISTR_negbinzip_mu;
 using MCMC::DISTR_negbinzip_pi;
 using MCMC::DISTR_negbinzip_delta;
+using MCMC::DISTR_zip_cloglog_mu;
+using MCMC::DISTR_zip_cloglog_pi;
+
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -274,6 +277,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_negbinzip_mu> distr_negbinzip_mus;
   vector<DISTR_negbinzip_pi> distr_negbinzip_pis;
   vector<DISTR_negbinzip_delta> distr_negbinzip_deltas;
+  vector<DISTR_zip_cloglog_pi> distr_zip_cloglog_pis;
+  vector<DISTR_zip_cloglog_mu> distr_zip_cloglog_mus;  
 
 
   bool create_distribution(void);

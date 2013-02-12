@@ -48,8 +48,8 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
   vector<double *> worklin;
   vector<double *> worktransformlin;
 
-  void set_worklin(void);
-  void modify_worklin(void);
+  virtual void set_worklin(void);
+  virtual void modify_worklin(void);
 
 
   public:
@@ -64,7 +64,7 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
 
    // CONSTRUCTOR
 
-  DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,
+  DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,unsigned nrdistr,
                    const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
@@ -85,6 +85,8 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
                              double * deviance,
                              double * deviancesat,
                              vector<double> scale) const;
+
+  double get_intercept_start(void);
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);
@@ -108,6 +110,121 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
 
   };
 
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_zip_cloglog_mu --------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_zip_cloglog_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_zip_cloglog_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_zip_cloglog_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_zip_cloglog_mu(const DISTR_zip_cloglog_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_zip_cloglog_mu & operator=(const DISTR_zip_cloglog_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_zip_cloglog_mu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             double * deviancesat,
+                             vector<double> scale) const;
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_zip_cloglog_pi --------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_zip_cloglog_pi : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_zip_cloglog_pi(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_zip_cloglog_pi(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_zip_cloglog_pi(const DISTR_zip_cloglog_pi & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_zip_cloglog_pi & operator=(const DISTR_zip_cloglog_pi & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_zip_cloglog_pi() {}
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
 
 
 //------------------------------------------------------------------------------
@@ -166,8 +283,10 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
                              double * deviancesat,
                              vector<double> scale) const;
 
+  double get_intercept_start(void);
+
   double loglikelihood(double * response, double * linpred,
-                       double * weight);
+                                         double * weight);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -185,10 +304,6 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
   void posteriormode_end(void);
 
   void update_end(void);
-
-//  void sample_responses(unsigned i,datamatrix & sr);
-
-//  void sample_responses_cv(unsigned i,datamatrix & linpred,datamatrix & sr);
 
   };
 
@@ -241,6 +356,8 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
    // DESTRUCTOR
 
    ~DISTR_negbinzip_pi() {}
+
+  double get_intercept_start(void);
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);
@@ -358,6 +475,8 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
 
    ~DISTR_negbinzip_delta() {}
 
+  double get_intercept_start(void);
+
   double loglikelihood(double * response, double * linpred,
                        double * weight);
 
@@ -375,10 +494,6 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   void posteriormode_end(void);
 
   void update_end(void);
-
-//  void sample_responses(unsigned i,datamatrix & sr);
-
-//  void sample_responses_cv(unsigned i,datamatrix & linpred,datamatrix & sr);
 
   };
 
@@ -435,6 +550,8 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
                              double * deviancesat,
                              vector<double> scale) const;
 
+  double get_intercept_start(void);
+
   double loglikelihood(double * response, double * linpred,
                        double * weight);
 
@@ -458,11 +575,6 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
   void posteriormode_end(void);
 
   void update_end(void);
-
-
-//  void sample_responses(unsigned i,datamatrix & sr);
-
-//  void sample_responses_cv(unsigned i,datamatrix & linpred,datamatrix & sr);
 
   };
 
@@ -521,6 +633,7 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
                              double * deviancesat,
                              vector<double> scale) const;
 
+  double get_intercept_start(void);
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);
@@ -544,13 +657,6 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
   void posteriormode_end(void);
 
   void update_end(void);
-
-
-
-//  void sample_responses(unsigned i,datamatrix & sr);
-
-//  void sample_responses_cv(unsigned i,datamatrix & linpred,
-//                                   datamatrix & sr);
 
   };
 

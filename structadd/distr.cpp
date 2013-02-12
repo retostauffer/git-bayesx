@@ -242,6 +242,11 @@ void DISTR::outoptions(void)
   }
 
 
+double DISTR::get_intercept_start(void)
+  {
+  return 0;
+  }
+
 
 double DISTR::loglikelihood(const bool & current)
   {
@@ -1098,6 +1103,12 @@ double DISTR_gaussian::compute_MSE(const double * response,
     else
       return u*(v-1);
     }
+  }
+
+
+double DISTR_gaussian::get_intercept_start(void)
+  {
+  return response.mean(0);
   }
 
 

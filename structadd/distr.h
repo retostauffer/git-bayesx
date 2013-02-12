@@ -206,6 +206,14 @@ class __EXPORT_TYPE DISTR
   //-------------- OBTAINING SAMPLES OF DISTRIBUTION PARAMETERS  ---------------
   //----------------------------------------------------------------------------
 
+  //----------------------------------------------------------------------------
+  //----------------------- INITIALIZE AN INTERCEPT ----------------------------
+  //----------------------------------------------------------------------------
+
+  // FUNCTION: get_intercept_start
+  // TASK: returns starting value for the intercept (if specified)
+
+  virtual double get_intercept_start(void);
 
   //----------------------------------------------------------------------------
   //----------------------- COMPUTING THE LOGLIKELIHOOD ------------------------
@@ -513,6 +521,8 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
                            const double * mu, double * deviance,
                            double * deviancesat,
                            double * scale) const;
+
+  double get_intercept_start(void);
 
   double loglikelihood(double * res,
                        double * lin,

@@ -220,6 +220,13 @@ void DISTR_binomial::outoptions(void)
   }
 
 
+double DISTR_binomial::get_intercept_start(void)
+  {
+  double m = response.mean(0);
+  return log(m/(1-m));
+  }
+
+
 double DISTR_binomial::loglikelihood(double * response, double * linpred,
                                      double * weight)
   {
@@ -450,6 +457,13 @@ void DISTR_binomialprobit::outoptions(void)
   optionsp->out("  Response function: standard normal (probit link)\n");
   optionsp->out("\n");
   optionsp->out("\n");
+  }
+
+
+double DISTR_binomialprobit::get_intercept_start(void)
+  {
+  double m = response.mean(0);
+  return invPhi2(m);
   }
 
 
@@ -938,6 +952,12 @@ void DISTR_poisson::outoptions(void)
   optionsp->out("  Response function: exponential\n");
   optionsp->out("\n");
   optionsp->out("\n");
+  }
+
+
+double DISTR_poisson::get_intercept_start(void)
+  {
+  return log(response.mean(0));
   }
 
 

@@ -265,8 +265,6 @@ void FC_linear::update_IWLS(void)
       }
 
 
-    double t = beta(0,0);
-
 /*
       ofstream out4("c:\\bayesx\\testh\\results\\linprednew.res");
       if (likep->linpred_current==1)
@@ -522,13 +520,28 @@ void FC_linear::create_matrices(void)
 
   setbeta(design.cols(),1,0);
   betaold=datamatrix(beta.rows(),1,0);
+  if (constposition != -1)
+    {
+    double m = likep->get_intercept_start();
+    beta(constposition,0) = m;
+    betaold(constposition,0) = m;
+    double * linpred;
+    if (likep->linpred_current==1)
+      linpred = likep->linearpred1.getV();
+    else
+      linpred = likep->linearpred2.getV();
+    unsigned i;
+    for (i=0;i<likep->nrobs;i++,linpred++)
+      *linpred += m;
+    }
+
   betadiff = betaold;
   betam = beta;
   help = beta;
   linold = datamatrix(design.rows(),1,0);
   initialize=true;
 
-  // For IWLS
+
   linnew = datamatrix(design.rows(),1,0);
   linmode = datamatrix(design.rows(),1,0);
   diff = datamatrix(design.rows(),1,0);
@@ -537,6 +550,7 @@ void FC_linear::create_matrices(void)
   mode = beta;
   proposal = beta;
   XWXold = datamatrix(design.cols(),design.cols(),0);
+
   }
 
 
