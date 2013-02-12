@@ -154,6 +154,7 @@ cd java
 cp *.java ..\sourcecode\java
 cp *.cpp ..\sourcecode\java
 cp *.h ..\sourcecode\java
+cp *.sh ..\sourcecode\java
 cp *.txt ..\sourcecode\java
 cp *.gif ..\sourcecode\java
 cp *.jpg ..\sourcecode\java
@@ -166,6 +167,7 @@ rm *.o
 rm *.d
 rm *.exe
 zip -ll -r bayesxsource.zip .
+zip -r bayesxsource.zip java\umontreal java\doc java\Bayesicon.gif
 
 cd ..
 
