@@ -868,7 +868,7 @@ void FC::outresults_help(ofstream & out_stata, ofstream & out_R,
 
     m= betamean(i,0);
 
-    if (betavar(i,0) == 0)
+    if (betavar(i,0) < 0.0000000000001)
       stddouble = 0;
     else
       stddouble = sqrt(betavar(i,0));

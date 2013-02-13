@@ -239,6 +239,7 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
   unsigned counter;
 
   double * worklinpi;
+  double * workexplinpi;
   double * workonempi;
 
   double * worklindelta;
@@ -557,10 +558,6 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
-  double compute_iwls(double * response, double * linpred,
-                      double * weight, double * workingweight,
-                      double * workingresponse, const bool & like);
-
   void compute_iwls_wweightschange_weightsone(
                                          double * response, double * linpred,
                                          double * workingweight,
@@ -626,13 +623,6 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
 
    ~DISTR_zippi() {}
 
-  void compute_deviance_mult(vector<double *> response,
-                             vector<double *> weight,
-                             vector<double *> linpred,
-                             double * deviance,
-                             double * deviancesat,
-                             vector<double> scale) const;
-
   double get_intercept_start(void);
 
   double loglikelihood(double * response, double * linpred,
@@ -640,9 +630,6 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
-  double compute_iwls(double * response, double * linpred,
-                      double * weight, double * workingweight,
-                      double * workingresponse, const bool & like);
 
   void compute_iwls_wweightschange_weightsone(
                                          double * response, double * linpred,
@@ -650,7 +637,6 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
                                          double * workingresponse,double & like,
                                          const bool & compute_like);
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
 
   void outoptions(void);
 
