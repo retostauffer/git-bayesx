@@ -915,9 +915,6 @@ DISTR_poisson::DISTR_poisson(GENERAL_OPTIONS * o, const datamatrix & r,
 
   {
 
-//  c_scale = 0.5;
-//  c_scale=1;
-
   if (check_weightsone() == true)
     wtype = wweightschange_weightsone;
   else
@@ -964,19 +961,14 @@ double DISTR_poisson::get_intercept_start(void)
 double DISTR_poisson::loglikelihood(double * response, double * linpred,
                                      double * weight)
   {
-
   return *weight * ((*response) * (*linpred) - exp(*linpred));
-
   }
 
 
 double DISTR_poisson::loglikelihood_weightsone(
                                   double * response, double * linpred)
   {
-//  return  (*response) *c_scale * (*linpred + log(c_scale)) -
-//  exp(*linpred + log(c_scale));
   return  (*response) * (*linpred) - exp(*linpred);
-
   }
 
 
@@ -998,7 +990,9 @@ void DISTR_poisson::compute_deviance(const double * response,
     }
   else
     {
-    *deviance = -2* *weight*(*response*log(*mu)-*mu);
+    double rplusone = *response+1;
+    *deviance = -2* *weight*(*response*log(*mu)-*mu
+                - randnumbers::lngamma(rplusone));
     *deviancesat = *deviance+2 *
                      *weight*(*response * log(*response) - *response);
     }

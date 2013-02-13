@@ -418,7 +418,6 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   double denom;
   double sum;
 
-  double explinpi;
   double log_one_explinpi;
   double log_explinpi_pot;
 
@@ -441,6 +440,7 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
 
   double * worklinpi;
   double * workonempi;
+  double * workexplinpi;  
 
   void set_worklinmupi(void);
   void modify_worklinmupi(void);
