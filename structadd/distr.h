@@ -103,9 +103,7 @@ class __EXPORT_TYPE DISTR
 
 
   datamatrix response;                // Response
-  datamatrix response_untransformed;  // untransformed response, i.e.
-                                      // response in the original measurement
-                                      // scale
+
   datamatrix workingresponse;         // Working response, tilde y
   ST::string responsename;            // Name of the response
 
@@ -134,7 +132,7 @@ class __EXPORT_TYPE DISTR
 
   datamatrix helpmat1;              // Stores auxiliary quantities
   datamatrix helpmat2;              // Stores auxiliary quantities
-  datamatrix helpmat3;              // Stores auxiliary quantities    
+  datamatrix helpmat3;              // Stores auxiliary quantities
 
   double meaneffect;
 
@@ -260,7 +258,6 @@ class __EXPORT_TYPE DISTR
   virtual void compute_deviance(const double * response,
                            const double * weight,
                            const double * mu, double * deviance,
-                           double * deviancesat,
                            double * scale) const;
 
 
@@ -268,7 +265,6 @@ class __EXPORT_TYPE DISTR
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             double * deviancesat,
                              vector<double> scale) const;
 
 
@@ -317,13 +313,10 @@ class __EXPORT_TYPE DISTR
 
 
   // FUNCTION: compute_IWLS (for one observation)
-
-
   // TASK: computes tildey=predicor+(y-mu)g'(mu) (stored in workingresponse) and
   //       the loglikelihood stored in like (only if compute_like = true)
   //       assumes that workingweighs=constant (for all observations), i.e.
   //       they are not recomputed in the function
-
   //       wweightsnochange_constant
 
   virtual void compute_iwls_wweightsnochange_constant(double * response,
@@ -421,8 +414,6 @@ class __EXPORT_TYPE DISTR
   virtual void update_end(void);
 
 
-
-
   //----------------------------------------------------------------------------
   //---------------------------- SAMPLE RESPONSES ------------------------------
   //----------------------------------------------------------------------------
@@ -490,6 +481,7 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
    // CONSTRUCTOR1
    // a_invgamma = a
    // b_invgamma = b
+   // N(linpred,sigma2/weight)
 
    DISTR_gaussian(const double & a,const double & b,GENERAL_OPTIONS * o,
                   const datamatrix & r,const ST::string & ps,
@@ -519,7 +511,6 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
   void compute_deviance(const double * response,
                            const double * weight,
                            const double * mu, double * deviance,
-                           double * deviancesat,
                            double * scale) const;
 
   double get_intercept_start(void);
@@ -903,7 +894,6 @@ class __EXPORT_TYPE DISTR_loggaussian : public DISTR_gaussian
   void compute_deviance(const double * response,
                            const double * weight,
                            const double * mu, double * deviance,
-                           double * deviancesat,
                            double * scale) const;
 
   void sample_responses(unsigned i,datamatrix & sr);

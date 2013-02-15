@@ -85,7 +85,6 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   updateIWLS = false;
 
   response = r;
-  response_untransformed = r;
   workingresponse = r;
   responsename = "Y";
 
@@ -141,7 +140,6 @@ DISTR::DISTR(const DISTR & d)
   nrobs = d.nrobs;
 
   response = d.response;
-  response_untransformed = d.response_untransformed;
   workingresponse = d.workingresponse;
   responsename = d.responsename;
   offsetname = d.offsetname;
@@ -194,7 +192,6 @@ const DISTR & DISTR::operator=(const DISTR & d)
   nrobs = d.nrobs;
 
   response = d.response;
-  response_untransformed = d.response_untransformed;
   workingresponse = d.workingresponse;
   responsename = d.responsename;
   offsetname = d.offsetname;
@@ -213,7 +210,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
 
   helpmat1 = d.helpmat1;
   helpmat2 = d.helpmat2;
-  helpmat3 = d.helpmat3;    
+  helpmat3 = d.helpmat3;
 
   updateIWLS = d.updateIWLS;
   family = d.family;
@@ -290,7 +287,7 @@ double DISTR::loglikelihood(const bool & current)
 
 double DISTR::loglikelihood(int & begin,
 int & end, statmatrix<double *> & responsep,
-statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp) 
+statmatrix<double *> & workingweightp, statmatrix<double *> & linpredp)
   {
   double help=0;
   int i;
@@ -428,7 +425,6 @@ double & sumworkingweight)
 void DISTR::compute_deviance(const double * response,
                            const double * weight,
                            const double * mu, double * deviance,
-                           double * deviancesat,
                            double * scale) const
   {
 
@@ -439,11 +435,10 @@ void DISTR::compute_deviance_mult(vector<double *> response,
                                   vector<double *> weight,
                                   vector<double *> linpred,
                                   double * deviance,
-                                  double * deviancesat,
                                   vector<double> scale) const
   {
 
-  }                                  
+  }
 
 
 
@@ -483,7 +478,7 @@ void DISTR::compute_MSE_all(datamatrix & meanpred, double & MSE,
   nrzeroweights = 0;
   MSE = 0;
   MSEzeroweight=0;
-  double * responsep = response_untransformed.getV();
+  double * responsep = response.getV();
   double * weightp = weight.getV();
   double * linpredp = meanpred.getV();
   for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=2)
@@ -1060,19 +1055,17 @@ void DISTR_gaussian::compute_mu(const double * linpred,double * mu)
 
 void DISTR_gaussian::compute_deviance(const double * response,
                                  const double * weight, const double * mu,
-                                 double * deviance, double * deviancesat,
+                                 double * deviance,
                                  double * scale) const
   {
   if (*weight == 0)
     {
     *deviance = 0;
-    *deviancesat = 0;
     }
   else
     {
     double r = *response-*mu;
     *deviance =  (*weight/(*scale))*r*r+log(2*M_PI*(*scale)/(*weight));
-    *deviancesat = (*weight/(*scale))*r*r;
     }
   }
 
@@ -1401,7 +1394,7 @@ double DISTR_gaussian::get_scalemean(void)
       return  -  (*res)/(2*m) - 0.5* (*lin) ;
       }
     else
-      return 0;  
+      return 0;
     }
 
 
@@ -1622,7 +1615,7 @@ void DISTR_hetgaussian::compute_MSE_all(datamatrix & meanpred, double & MSE,
   nrzeroweights = 0;
   MSE = 0;
   MSEzeroweight=0;
-  double * responsep = response_untransformed.getV();
+  double * responsep = response.getV();
   double * weightp = FCpredict_betamean_vargaussian->getV();
   weightp++;
   double * weightorigp = weightoriginal.getV();
@@ -1996,27 +1989,23 @@ double DISTR_loggaussian::compute_MSE(const double * response,
 
 void DISTR_loggaussian::compute_deviance(const double * response,
                                  const double * weight, const double * mu,
-                                 double * deviance, double * deviancesat,
+                                 double * deviance,
                                  double * scale) const
   {
 
 
-  double pred = log(*mu)-(*scale)/2;
+  double pred = log(*mu)-(*scale)/(2*(*weight));
   double deviancehelp;
-  double deviancesathelp;
 
   if (*weight != 0)
     {
-    DISTR_gaussian::compute_deviance(response,weight,&pred,&deviancehelp,
-    &deviancesathelp,scale);
+    DISTR_gaussian::compute_deviance(response,weight,&pred,&deviancehelp,scale);
     *deviance =  2*(*response)  + deviancehelp;
-    *deviancesat = 2*(*response)  + deviancesathelp;;
     }
 
   else
     {
     *deviance = 0;
-    *deviancesat = 0;
     }
 
   }
@@ -2309,7 +2298,7 @@ DISTR_gaussian_mult::DISTR_gaussian_mult(const double & a,
   //standardise();
   optionbool1 = false;
 //  changingworkingweights = false;
-  updateIWLS = false;  
+  updateIWLS = false;
   }
 
 
@@ -2415,7 +2404,7 @@ void DISTR_gaussian_mult::compute_mu(const double * linpred,double * mu)
 
 
 double DISTR_gaussian_mult::loglikelihood(double * res, double * lin,
-                                         double * w) 
+                                         double * w)
   {
 
   if (!optionbool1)
@@ -2467,7 +2456,7 @@ bool DISTR_gaussian_mult::posteriormode(void)
   }
 
 
-  
+
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian_re -----------------------
 //------------------------------------------------------------------------------
@@ -2494,7 +2483,7 @@ void DISTR_gaussian_re::check_errors(void)
   DISTR::check_errors();
   bool helperror;
 
-  
+
   unsigned col = 0;
   helperror = response.check_ascending(col);
   if (helperror == false)
@@ -2550,7 +2539,7 @@ bool DISTR_gaussian_re::posteriormode(void)
   /*
     ofstream out("c:\\bayesx\\test\\results\\response_RE.res");
     response.prettyPrint(out);
-  */  
+  */
   // ENDE TEST
 
   return true;
@@ -2562,7 +2551,7 @@ void DISTR_gaussian_re::outoptions(void)
   optionsp->out("\n");
   optionsp->out("  Family: " + family + "\n");
   optionsp->out("  Number of clusters: " + ST::inttostring(nrobs) + "\n");
-  optionsp->out("\n");  
+  optionsp->out("\n");
   }
 
 

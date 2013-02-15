@@ -88,7 +88,7 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
 
   if (likep->maindistribution == true)
     {
-    FC_deviance = FC(o,"",2,1,fpd);
+    FC_deviance = FC(o,"",1,1,fpd);
     }
 
   }
@@ -144,7 +144,6 @@ void  FC_predict::update(void)
   if (likep->maindistribution == true)
     {
     FC_deviance.beta(0,0) = deviance;
-    FC_deviance.beta(1,0) = deviancesat;
     FC_deviance.acceptance++;
     FC_deviance.update();
     }
@@ -165,11 +164,9 @@ void FC_predict::get_predictor(void)
     worklinp = likep->linearpred2.getV();
 
   deviance=0;
-  deviancesat=0;
   double deviancehelp;
-  double deviancesathelp;
 
-  double * workresponse = likep->response_untransformed.getV();
+  double * workresponse = likep->response.getV();
   double * workweight = likep->weight.getV();
   double muhelp;
   double scalehelp=likep->get_scale();
@@ -183,10 +180,9 @@ void FC_predict::get_predictor(void)
     if (likep->maindistribution == true)
       {
       likep->compute_deviance(workresponse,workweight,&muhelp,&deviancehelp,
-      &deviancesathelp,&scalehelp);
+      &scalehelp);
 
       deviance+=deviancehelp;
-      deviancesat+=deviancesathelp;
 
 //      if (*workweight==0)
 //        predlik = likep->loglikelihood(workresponse,worklinp,&weightone);
@@ -234,18 +230,15 @@ void FC_predict::outresults_DIC(const ST::string & pathresults)
   ofstream out(pathresultsdic.strtochar());
 
   double deviance2=0;
-  double deviance2_sat=0;
-
 
   double scalehelp = likep->get_scalemean();
 
 
   double devhelp;
-  double devhelp_sat;
 
   double mu_meanlin;
   double * workmeanlin = betamean.getV();
-  double * workresponse = likep->response_untransformed.getV();
+  double * workresponse = likep->response.getV();
   double * workweight = likep->weight.getV();
 
   unsigned i;
@@ -254,11 +247,11 @@ void FC_predict::outresults_DIC(const ST::string & pathresults)
 
     likep->compute_mu(workmeanlin,&mu_meanlin);
 
-    likep->compute_deviance(workresponse,workweight,&mu_meanlin,
-    &devhelp,&devhelp_sat,&scalehelp);
+    likep->compute_deviance(workresponse,workweight,&mu_meanlin,&devhelp,
+                            &scalehelp);
 
     deviance2 += devhelp;
-    deviance2_sat += devhelp_sat;
+
     }
 
 
@@ -277,9 +270,6 @@ void FC_predict::outresults_DIC(const ST::string & pathresults)
   optionsp->out("  ESTIMATION RESULTS FOR THE DIC: \n",true);
   optionsp->out("\n");
 
-  optionsp->out("    DIC based on the unstandardized deviance\n");
-  optionsp->out("\n");
-
   optionsp->out("    Deviance(bar_mu):           " +
   ST::doubletostring(deviance2,d) + "\n");
   out << deviance2 << "   ";
@@ -292,21 +282,6 @@ void FC_predict::outresults_DIC(const ST::string & pathresults)
   ST::doubletostring(2*devhelpm-deviance2,d) + "\n");
   optionsp->out("\n");
   out << (2*devhelpm-deviance2) << "   " << endl;
-
-  optionsp->out("    DIC based on the saturated deviance\n");
-  optionsp->out("\n");
-
-
-  double devhelpm_sat = FC_deviance.betamean(1,0);
-
-  optionsp->out("    Deviance(bar_mu):           " +
-  ST::doubletostring(deviance2_sat,d) + "\n");
-
-  optionsp->out("    pD:                         " +
-  ST::doubletostring(devhelpm_sat-deviance2_sat,d) + "\n");
-
-  optionsp->out("    DIC:                        " +
-  ST::doubletostring(2*devhelpm_sat-deviance2_sat,d) + "\n");
 
   optionsp->out("\n");
 
@@ -351,9 +326,6 @@ void FC_predict::outresults_deviance(void)
     optionsp->out("  ESTIMATION RESULT FOR THE DEVIANCE: \n",true);
     optionsp->out("\n");
 
-    optionsp->out("    Unstandardized Deviance (-2*Loglikelihood(y|mu))\n");
-    optionsp->out("\n");
-
     double devhelpm = FC_deviance.betamean(0,0);
     double devhelp;
 
@@ -392,41 +364,6 @@ void FC_predict::outresults_deviance(void)
 
 
     devhelp = FC_deviance.betaqu_l1_upper(0,0);
-    optionsp->out(u2str +  ST::string(' ',20-l_u2str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    optionsp->out("\n");
-
-
-    optionsp->out("  Saturated Deviance (-2*Loglikelihood(y|mu) + 2*Loglikelihood(y|mu=y))\n");
-    optionsp->out("\n");
-
-    devhelpm = FC_deviance.betamean(1,0);
-
-    optionsp->out(meanstr + ST::string(' ',20-l_meanstr) +
-    ST::doubletostring(devhelpm,d) + "\n");
-
-    devhelp = sqrt(FC_deviance.betavar(1,0));
-    optionsp->out(stdstr + ST::string(' ',20-l_stdstr) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    devhelp = FC_deviance.betaqu_l1_lower(1,0);;
-    optionsp->out(l1str +  ST::string(' ',20-l_l1str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    devhelp = FC_deviance.betaqu_l2_lower(1,0);
-    optionsp->out(l2str +  ST::string(' ',20-l_l2str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    devhelp = FC_deviance.betaqu50(1,0);
-    optionsp->out(medianstr +  ST::string(' ',20-l_medianstr) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    devhelp = FC_deviance.betaqu_l2_upper(1,0);
-    optionsp->out(u1str +  ST::string(' ',20-l_u1str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    devhelp = FC_deviance.betaqu_l1_upper(1,0);
     optionsp->out(u2str +  ST::string(' ',20-l_u2str) +
     ST::doubletostring(devhelp,d) +  "\n");
 

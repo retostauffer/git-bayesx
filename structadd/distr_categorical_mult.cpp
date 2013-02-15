@@ -179,6 +179,7 @@ double DISTR_multinomprobit::loglikelihood_weightsone(
   else
     return log(1-mu);
   */
+  return 0;
   }
 
 
@@ -190,7 +191,7 @@ void DISTR_multinomprobit::compute_mu(const double * linpred,double * mu)
 
 void DISTR_multinomprobit::compute_deviance(const double * response,
                    const double * weight,const double * mu,double * deviance,
-                   double * deviancesat, double * scale) const
+                   double * scale) const
   {
 /*
   if (*weight !=  0)
@@ -568,7 +569,7 @@ void DISTR_multinomlogit::update(void)
 
   if (master == true)
   {
-  int j;
+  unsigned j;
 // linear predictor
   vector<datamatrix *> worklin;
   for (j=0;j<nrothercat;j++)
@@ -608,7 +609,7 @@ void DISTR_multinomlogit::update(void)
     }
   origrespp.push_back(&response);  // response 0,1 je nach Kategorie
 
-  int i;  // nrobs
+  unsigned i;  // nrobs
   int k;
   int l;
   double sumpred; // sum exp(x_i* beta_k)

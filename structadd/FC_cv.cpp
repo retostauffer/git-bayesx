@@ -176,9 +176,9 @@ void  FC_cv::update(void)
     double * workse = sampled_etas.getV()+samplesize-1;
     double * workli = sampled_likelihood.getV()+samplesize-1;
     double * worklin = linpred.getV();
-    double * wr = likep->response_untransformed.getV();
+    double * wr = likep->response.getV();
     double * ww = likep->weight.getV();
-    double devsat;
+
     double muhelp;
 //    double scalehelp=likep->get_scale(true);
     double scalehelp=likep->get_scale();
@@ -191,7 +191,7 @@ void  FC_cv::update(void)
 //      likep->compute_mu(worklin,&muhelp,true);
       likep->compute_mu(worklin,&muhelp);
 
-      likep->compute_deviance(wr,ww,&muhelp, workli,&devsat,&scalehelp);
+      likep->compute_deviance(wr,ww,&muhelp, workli,&scalehelp);
 
       *workli *= -0.5;
       }
@@ -347,7 +347,7 @@ double FC_cv::compute_energyscore(void)
   unsigned S = sampled_responses.cols();
   unsigned I = sampled_responses.rows();
 
-  double * srp = sampled_responses.getV();
+  //double * srp = sampled_responses.getV();
   // double * esp1;
   // double * esp2;
 
@@ -382,11 +382,11 @@ double FC_cv::compute_energyscore(void)
 
     for (s=0;s<S-1;s++)
       {
-      es1(in,s) += pow(sampled_responses(i,s)-likep->response_untransformed(i,0),2);
+      es1(in,s) += pow(sampled_responses(i,s)-likep->response(i,0),2);
       es2(in,s) += pow(sampled_responses(i,s+1)-sampled_responses(i,s),2);
       }
 
-    es1(in,S-1) += pow(sampled_responses(i,s)-likep->response_untransformed(i,0),2);
+    es1(in,S-1) += pow(sampled_responses(i,s)-likep->response(i,0),2);
 
     }
 

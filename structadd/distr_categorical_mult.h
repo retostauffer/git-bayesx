@@ -92,8 +92,8 @@ class __EXPORT_TYPE DISTR_multinomprobit : public DISTR
   void compute_mu(const double * linpred,double * mu);
 
   void compute_deviance(const double * response, const double * weight,
-                        const double * mu,double * deviance,
-                        double * deviancesat, double * scale) const;
+                        const double * mu,double * deviance, double * scale)
+                        const;
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);

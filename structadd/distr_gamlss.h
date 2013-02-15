@@ -38,6 +38,10 @@ namespace MCMC
 //-------------------------- CLASS: DISTR_gamlss -------------------------------
 //------------------------------------------------------------------------------
 
+const double linpredlimit = -10;
+const double explinpredlimit = 0.0000454;
+const double expminusexplinpredlimit = 0.9999546;     // for exp(-exp(eta))
+
 class __EXPORT_TYPE DISTR_gamlss : public DISTR
   {
 
@@ -83,7 +87,6 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             double * deviancesat,
                              vector<double> scale) const;
 
   double get_intercept_start(void);
@@ -150,7 +153,6 @@ class __EXPORT_TYPE DISTR_zip_cloglog_mu : public DISTR_gamlss
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             double * deviancesat,
                              vector<double> scale) const;
 
   double get_intercept_start(void);
@@ -281,7 +283,6 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             double * deviancesat,
                              vector<double> scale) const;
 
   double get_intercept_start(void);
@@ -379,9 +380,6 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
 
   void update_end(void);
 
-//  void sample_responses(unsigned i,datamatrix & sr);
-
-//  void sample_responses_cv(unsigned i,datamatrix & linpred,datamatrix & sr);
 
   };
 
@@ -548,7 +546,6 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             double * deviancesat,
                              vector<double> scale) const;
 
   double get_intercept_start(void);

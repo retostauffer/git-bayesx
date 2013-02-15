@@ -57,9 +57,8 @@ FC_predict_mult::FC_predict_mult(GENERAL_OPTIONS * o,vector<DISTR *> lp,
   varnames = dn;
 
   setbeta((likep[0])->nrobs,likep.size()*2,0);
-//  setbeta(1000,likep.size()*2,0);
 
-  FC_deviance = FC(o,"",2,1,fpd);
+  FC_deviance = FC(o,"",1,1,fpd);
 
   }
 
@@ -72,7 +71,6 @@ FC_predict_mult::FC_predict_mult(const FC_predict_mult & m)
   varnames = m.varnames;
   FC_deviance = m.FC_deviance;
   deviance = m.deviance;
-  deviancesat = m.deviancesat;
   }
 
 
@@ -86,7 +84,6 @@ const FC_predict_mult & FC_predict_mult::operator=(const FC_predict_mult & m)
   varnames = m.varnames;
   FC_deviance = m.FC_deviance;
   deviance = m.deviance;
-  deviancesat = m.deviancesat;
   return *this;
   }
 
@@ -106,7 +103,6 @@ void  FC_predict_mult::update(void)
   FC::update();
 
   FC_deviance.beta(0,0) = deviance;
-  FC_deviance.beta(1,0) = deviancesat;
   FC_deviance.acceptance++;
   FC_deviance.update();
 
@@ -134,7 +130,7 @@ void FC_predict_mult::get_predictor(void)
       else
         worklinp.push_back(likep[j]->linearpred2.getV());
 
-      workresponse.push_back(likep[j]->response_untransformed.getV());
+      workresponse.push_back(likep[j]->response.getV());
 
       workweight.push_back(likep[j]->weight.getV());
 
@@ -142,10 +138,7 @@ void FC_predict_mult::get_predictor(void)
       }
 
     deviance=0;
-    deviancesat=0;
     double deviancehelp;
-    double deviancesathelp;
-
 
     for(i=0;i<likep[0]->nrobs;i++)
       {
@@ -163,7 +156,7 @@ void FC_predict_mult::get_predictor(void)
 
 
       likep[likep.size()-1]->compute_deviance_mult(workresponse,workweight,
-                              worklinp,&deviancehelp,&deviancesathelp,scalehelp);
+                              worklinp,&deviancehelp,scalehelp);
 
 
       for (j=0;j<likep.size();j++)
@@ -174,8 +167,6 @@ void FC_predict_mult::get_predictor(void)
         }
 
       deviance+=deviancehelp;
-      deviancesat+=deviancesathelp;
-
       }
 
   // TEST
@@ -211,10 +202,8 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
   ofstream out(pathresultsdic.strtochar());
 
   double deviance2=0;
-  double deviance2_sat=0;
 
   double devhelp;
-  double devhelp_sat;
 
   vector<double *> worklinp;
   vector<double *> workresponse;
@@ -228,7 +217,7 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
 
     worklinp.push_back(betamean.getV()+j);
 
-    workresponse.push_back(likep[j]->response_untransformed.getV());
+    workresponse.push_back(likep[j]->response.getV());
 
     workweight.push_back(likep[j]->weight.getV());
 
@@ -239,11 +228,11 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
   for (i=0;i<likep[0]->nrobs;i++)
     {
 
-    likep[likep.size()-1]->compute_deviance_mult(workresponse,workweight,worklinp,
-    &devhelp,&devhelp_sat,scalehelp);
+    likep[likep.size()-1]->compute_deviance_mult(workresponse,
+                                                 workweight,worklinp,
+                                                 &devhelp,scalehelp);
 
     deviance2 += devhelp;
-    deviance2_sat += devhelp_sat;
 
     int s = likep.size();
     int bs = betamean.cols();
@@ -273,9 +262,6 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
   optionsp->out("  ESTIMATION RESULTS FOR THE DIC: \n",true);
   optionsp->out("\n");
 
-  optionsp->out("    DIC based on the unstandardized deviance\n");
-  optionsp->out("\n");
-
   optionsp->out("    Deviance(bar_mu):           " +
   ST::doubletostring(deviance2,d) + "\n");
   out << deviance2 << "   ";
@@ -289,23 +275,8 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
   optionsp->out("\n");
   out << (2*devhelpm-deviance2) << "   " << endl;
 
-  optionsp->out("    DIC based on the saturated deviance\n");
   optionsp->out("\n");
 
-
-  double devhelpm_sat = FC_deviance.betamean(1,0);
-
-  optionsp->out("    Deviance(bar_mu):           " +
-  ST::doubletostring(deviance2_sat,d) + "\n");
-
-  optionsp->out("    pD:                         " +
-  ST::doubletostring(devhelpm_sat-deviance2_sat,d) + "\n");
-
-  optionsp->out("    DIC:                        " +
-  ST::doubletostring(2*devhelpm_sat-deviance2_sat,d) + "\n");
-
-  optionsp->out("\n");
-  
   }
 
 
@@ -345,9 +316,6 @@ void FC_predict_mult::outresults_deviance(void)
 
 
     optionsp->out("  ESTIMATION RESULT FOR THE DEVIANCE: \n",true);
-    optionsp->out("\n");
-
-    optionsp->out("    Unstandardized Deviance (-2*Loglikelihood(y|mu))\n");
     optionsp->out("\n");
 
     double devhelpm = FC_deviance.betamean(0,0);
@@ -393,45 +361,9 @@ void FC_predict_mult::outresults_deviance(void)
 
     optionsp->out("\n");
 
-
-    optionsp->out("  Saturated Deviance (-2*Loglikelihood(y|mu) + 2*Loglikelihood(y|mu=y))\n");
-    optionsp->out("\n");
-
-    devhelpm = FC_deviance.betamean(1,0);
-
-    optionsp->out(meanstr + ST::string(' ',20-l_meanstr) +
-    ST::doubletostring(devhelpm,d) + "\n");
-
-    devhelp = sqrt(FC_deviance.betavar(1,0));
-    optionsp->out(stdstr + ST::string(' ',20-l_stdstr) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    devhelp = FC_deviance.betaqu_l1_lower(1,0);;
-    optionsp->out(l1str +  ST::string(' ',20-l_l1str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    devhelp = FC_deviance.betaqu_l2_lower(1,0);
-    optionsp->out(l2str +  ST::string(' ',20-l_l2str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    devhelp = FC_deviance.betaqu50(1,0);
-    optionsp->out(medianstr +  ST::string(' ',20-l_medianstr) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    devhelp = FC_deviance.betaqu_l2_upper(1,0);
-    optionsp->out(u1str +  ST::string(' ',20-l_u1str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    devhelp = FC_deviance.betaqu_l1_upper(1,0);
-    optionsp->out(u2str +  ST::string(' ',20-l_u2str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    optionsp->out("\n");
-
     optionsp->out("\n");
 
     }
-
 
 
 void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
@@ -575,8 +507,6 @@ void FC_predict_mult::reset(void)
   {
 
   }
-
-
 
 } // end: namespace MCMC
 

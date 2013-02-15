@@ -59,10 +59,7 @@ class __EXPORT_TYPE FC_predict_mult   : public FC
   datamatrix designmatrix;
   vector<ST::string> varnames;
 
-
   double deviance;
-  double deviancesat;
-
 
   void get_predictor(void);
 

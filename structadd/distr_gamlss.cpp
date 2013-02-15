@@ -202,7 +202,6 @@ void DISTR_zip_cloglog_mu::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             double * deviancesat,
                              vector<double> scale) const
   {
 
@@ -223,7 +222,6 @@ void DISTR_zip_cloglog_mu::compute_deviance_mult(vector<double *> response,
     }
 
   *deviance = -2*l;
-  *deviancesat = *deviance;
 
   }
 
@@ -488,15 +486,9 @@ void DISTR_gamlss::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             double * deviancesat,
                              vector<double> scale) const
   {
-
-
-
-//  *deviance = -2*l;
-//  *deviancesat = *deviance;
-
+  //  *deviance = -2*l;
   }
 
 
@@ -608,7 +600,7 @@ DISTR_negbinzip_mu::DISTR_negbinzip_mu(const DISTR_negbinzip_mu & nd)
   {
   worklinpi = nd.worklinpi;
   workonempi = nd.workonempi;
-  workexplinpi = nd.workexplinpi;  
+  workexplinpi = nd.workexplinpi;
   worklindelta = nd.worklindelta;
   workexplindelta = nd.workexplindelta;
   distrpi = nd.distrpi;
@@ -691,8 +683,8 @@ double DISTR_negbinzip_mu::loglikelihood_weightsone(double * response,
 
   double mu;
 
-  if (*linpred <= -10)
-    mu  = 0.0000454;
+  if (*linpred <= linpredlimit)
+    mu  = explinpredlimit;
   else
     mu = exp(*linpred);
 
@@ -722,16 +714,16 @@ void DISTR_negbinzip_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
   double lambda;
-  if (*linpred[2] <= -10)
-    lambda  = 0.0000454;
+  if (*linpred[2] <= linpredlimit)
+    lambda  = explinpredlimit;
   else
     lambda = exp(*linpred[2]);
 
   double explinpi;
-  if (*linpred[1] > -10)
+  if (*linpred[1] > linpredlimit)
     explinpi= exp(*linpred[1]);
   else
-    explinpi = 0.0000454;
+    explinpi = explinpredlimit;
 
   *mu = 1/(1+explinpi)*lambda;
 
@@ -742,27 +734,26 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             double * deviancesat,
                              vector<double> scale) const
   {
 
   double mu;
-  if (*linpred[2] <= -10)
-    mu  = 0.0000454;
+  if (*linpred[2] <= linpredlimit)
+    mu  = explinpredlimit;
   else
     mu = exp(*linpred[2]);
 
   double explinpi;
-  if (*linpred[1] > -10)
+  if (*linpred[1] > linpredlimit)
     explinpi= exp(*linpred[1]);
   else
-    explinpi = 0.0000454;
+    explinpi = explinpredlimit;
 
   double explindelta;
-  if (*linpred[0] > -10)
+  if (*linpred[0] > linpredlimit)
     explindelta= exp(*linpred[0]);
   else
-    explindelta = 0.0000454;
+    explindelta = explinpredlimit;
 
   double l= -log(1+explinpi);
 
@@ -784,8 +775,6 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
     }
 
   *deviance = -2*l;
-  *deviancesat = *deviance;
-
   }
 
 
@@ -801,8 +790,8 @@ void DISTR_negbinzip_mu::compute_iwls_wweightschange_weightsone(
 
   double mu;
 
-  if (*linpred <= -10)
-    mu  = 0.0000454;
+  if (*linpred <= linpredlimit)
+    mu  = explinpredlimit;
   else
     mu = exp(*linpred);
 
@@ -868,8 +857,8 @@ void DISTR_negbinzip_mu::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,pmu++,worklin++)
     {
-    if (*worklin <= -10)
-      *pmu  = 0.0000454;
+    if (*worklin <= linpredlimit)
+      *pmu  = explinpredlimit;
     else
       *pmu = exp(*worklin);
     }
@@ -1013,8 +1002,8 @@ double DISTR_negbinzip_pi::loglikelihood_weightsone(
     set_worklinmudelta();
 
   double explinpredpi;
-  if (*linpred <= -10)
-    explinpredpi  = 0.0000454;
+  if (*linpred <= linpredlimit)
+    explinpredpi  = explinpredlimit;
   else
     explinpredpi = exp(*linpred);
 
@@ -1048,8 +1037,8 @@ void DISTR_negbinzip_pi::compute_iwls_wweightschange_weightsone(
     set_worklinmudelta();
 
   double explinpredpi;
-  if (*linpred <= -10)
-    explinpredpi  = 0.0000454;
+  if (*linpred <= linpredlimit)
+    explinpredpi  = explinpredlimit;
   else
     explinpredpi = exp(*linpred);
 
@@ -1107,10 +1096,10 @@ void DISTR_negbinzip_pi::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,ppi++,worklin++,workexplin++)
     {
-    if (*worklin > -10)
+    if (*worklin > linpredlimit)
       *workexplin = exp(*worklin);
     else
-      *workexplin = 0.0000454;
+      *workexplin = explinpredlimit;
     *ppi = 0.001+0.998/(1+(*workexplin));
     }
 
@@ -1332,8 +1321,8 @@ double DISTR_negbinzip_delta::loglikelihood_weightsone(double * response,
     set_worklinmupi();
 
   double delta;
-  if (*linpred <= -10)
-    delta  = 0.0000454;
+  if (*linpred <= linpredlimit)
+    delta  = explinpredlimit;
   else
     delta = exp(*linpred);
 
@@ -1374,8 +1363,8 @@ void DISTR_negbinzip_delta::compute_iwls_wweightschange_weightsone(
   if (counter==0)
     set_worklinmupi();
 
-  if (*linpred <= -10)
-    delta  = 0.0000454;
+  if (*linpred <= linpredlimit)
+    delta  = explinpredlimit;
   else
     delta = exp(*linpred);
 
@@ -1500,8 +1489,8 @@ void DISTR_negbinzip_delta::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,worklin++,l++)
     {
-    if (*worklin <= -10)
-      *l  = 0.0000454;
+    if (*worklin <= linpredlimit)
+      *l  = explinpredlimit;
     else
       *l = exp(*worklin);
     }
@@ -1585,10 +1574,10 @@ double DISTR_ziplambda::loglikelihood(double * response, double * linpred,
   double expminuslambda;
 
 
-  if (*linpred <= -10)
+  if (*linpred <= linpredlimit)
     {
-    lambda  = 0.0000454;
-    expminuslambda = 0.9999546;
+    lambda  = explinpredlimit;
+    expminuslambda = expminusexplinpredlimit;
     }
   else
     {
@@ -1596,10 +1585,10 @@ double DISTR_ziplambda::loglikelihood(double * response, double * linpred,
     expminuslambda = exp(-lambda);
     }
 
-  if (*worklinpi > -10)
+  if (*worklinpi > linpredlimit)
     exptildeeta= exp(*worklinpi);
   else
-    exptildeeta = 0.0000454;
+    exptildeeta = explinpredlimit;
 
   double l;
 
@@ -1666,10 +1655,10 @@ double DISTR_ziplambda::loglikelihood_weightsone(
   double lambda;
   double expminuslambda;
 
-  if (*linpred <= -10)
+  if (*linpred <= linpredlimit)
     {
-    lambda  = 0.0000454;
-    expminuslambda = 0.9999546;
+    lambda  = explinpredlimit;
+    expminuslambda = expminusexplinpredlimit;
     }
   else
     {
@@ -1695,16 +1684,16 @@ void DISTR_ziplambda::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
   double lambda;
-  if (*linpred[1] <= -10)
-    lambda  = 0.0000454;
+  if (*linpred[1] <= linpredlimit)
+    lambda  = explinpredlimit;
   else
     lambda = exp(*linpred[1]);
 
-  double explinpi;  
-  if (*linpred[0] > -10)
+  double explinpi;
+  if (*linpred[0] > linpredlimit)
     explinpi= exp(*linpred[0]);
   else
-    explinpi = 0.0000454;
+    explinpi = explinpredlimit;
 
   *mu = 1/(1+explinpi)*lambda;
 
@@ -1715,7 +1704,6 @@ void DISTR_ziplambda::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             double * deviancesat,
                              vector<double> scale) const
   {
 
@@ -1725,10 +1713,10 @@ void DISTR_ziplambda::compute_deviance_mult(vector<double *> response,
   double expminuslambda;
   double explinpi;
 
-  if (*linpred[1] <= -10)
+  if (*linpred[1] <= linpredlimit)
     {
-    lambda  = 0.0000454;
-    expminuslambda = 0.9999546;
+    lambda  = explinpredlimit;
+    expminuslambda = expminusexplinpredlimit;
     }
   else
     {
@@ -1736,10 +1724,10 @@ void DISTR_ziplambda::compute_deviance_mult(vector<double *> response,
     expminuslambda = exp(-lambda);
     }
 
-  if (*linpred[0] > -10)
+  if (*linpred[0] > linpredlimit)
     explinpi= exp(*linpred[0]);
   else
-    explinpi = 0.0000454;
+    explinpi = explinpredlimit;
 
 
   if (*response[1]==0)
@@ -1754,8 +1742,6 @@ void DISTR_ziplambda::compute_deviance_mult(vector<double *> response,
     }
 
   *deviance = -2*l;
-  *deviancesat = *deviance;
-
   }
 
 
@@ -1775,10 +1761,10 @@ void DISTR_ziplambda::compute_iwls_wweightschange_weightsone(
   double expminuslambda;
 
 
-  if (*linpred <= -10)
+  if (*linpred <= linpredlimit)
     {
-    lambda  = 0.0000454;
-    expminuslambda = 0.9999546;
+    lambda  = explinpredlimit;
+    expminuslambda = expminusexplinpredlimit;
     }
   else
     {
@@ -1846,10 +1832,10 @@ void DISTR_ziplambda::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,ph++,worklin++,l++)
     {
-    if (*worklin <= -10)
+    if (*worklin <= linpredlimit)
       {
-      *l  = 0.0000454;
-      *ph = 0.9999546;
+      *l  = explinpredlimit;
+      *ph = expminusexplinpredlimit;
       }
     else
       {
@@ -1982,10 +1968,10 @@ double DISTR_zippi::loglikelihood_weightsone(
 
   double exptildeeta;
 
-  if (*linpred > -10)
+  if (*linpred > linpredlimit)
     exptildeeta= exp(*linpred);
   else
-    exptildeeta = 0.0000454;
+    exptildeeta = explinpredlimit;
 
   double l;
 
@@ -2019,10 +2005,10 @@ void DISTR_zippi::compute_iwls_wweightschange_weightsone(
 
   double exptildeeta;
 
-  if (*linpred > -10)
+  if (*linpred > linpredlimit)
     exptildeeta= exp(*linpred);
   else
-    exptildeeta = 0.0000454;
+    exptildeeta = explinpredlimit;
 
   double oneminuspi = 0.001+0.998/(1+exptildeeta);
   double pi = 1-oneminuspi;
@@ -2080,10 +2066,10 @@ void DISTR_zippi::update_end(void)
   for (i=0;i<nrobs;i++,ete++,worklin++,wpi++)
     {
 
-    if (*worklin > -0.0000454)
+    if (*worklin > linpredlimit)
       *ete= exp(*worklin);
     else
-      *ete = 0.0000454;
+      *ete = explinpredlimit;
 
     *wpi = 0.001+0.998/(1+(*ete));
     }

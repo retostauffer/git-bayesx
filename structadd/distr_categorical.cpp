@@ -258,25 +258,15 @@ void DISTR_binomial::compute_mu(const double * linpred,double * mu)
 
 void DISTR_binomial::compute_deviance(const double * response,
                    const double * weight,const double * mu,double * deviance,
-                   double * deviancesat, double * scale) const
+                   double * scale) const
   {
 
   if (*response==0)
-    {
     *deviance = -2* *weight * log(1-*mu);
-    *deviancesat = *deviance;
-    }
   else if (*response == 1)
-    {
     *deviance = -2* *weight*log(*mu);
-    *deviancesat = *deviance;
-    }
   else
-    {
     *deviance = -2* *weight*( *response*log(*mu)+(1-*response)*log(1-*mu) );
-    *deviancesat = *deviance +
-    2* *weight*( *response*log(*response)+(1-*response)*log(1-*response) );
-    }
 
   }
 
@@ -507,29 +497,19 @@ void DISTR_binomialprobit::compute_mu(const double * linpred,double * mu)
 
 void DISTR_binomialprobit::compute_deviance(const double * response,
                    const double * weight,const double * mu,double * deviance,
-                   double * deviancesat, double * scale) const
+                   double * scale) const
   {
 
   if (*weight !=  0)
     {
-
     if (*response<=0)
-      {
       *deviance = -2*log(1-*mu);
-      *deviancesat = *deviance;
-      }
-    else if (*response > 0)
-      {
-      *deviance = -2*log(*mu);
-      *deviancesat = *deviance;
-      }
 
+    else if (*response > 0)
+      *deviance = -2*log(*mu);
     }
   else
-    {
     *deviance = 0;
-    *deviancesat = 0;
-    }
 
   }
 
@@ -740,6 +720,7 @@ double DISTR_binomialsvm::loglikelihood(double * response, double * linpred,
   else
     return 0;
 */
+  return 0;
   }
 
 
@@ -754,6 +735,7 @@ double DISTR_binomialsvm::loglikelihood_weightsone(
   else
     return log(1-mu);
   */
+  return 0;
   }
 
 
@@ -765,7 +747,7 @@ void DISTR_binomialsvm::compute_mu(const double * linpred,double * mu)
 
 void DISTR_binomialsvm::compute_deviance(const double * response,
                    const double * weight,const double * mu,double * deviance,
-                   double * deviancesat, double * scale) const
+                   double * scale) const
   {
   /*
   if (*weight !=  0)
@@ -822,7 +804,7 @@ double DISTR_binomialsvm::compute_iwls(double * response, double * linpred,
     return 0;
     }
   */
-
+  return 0;
   }
 
 
@@ -980,21 +962,18 @@ void DISTR_poisson::compute_mu(const double * linpred,double * mu)
 
 void DISTR_poisson::compute_deviance(const double * response,
                    const double * weight,const double * mu,double * deviance,
-                   double * deviancesat, double * scale) const
+                   double * scale) const
   {
 
   if (*response==0)
     {
     *deviance = 2* *weight * *mu;
-    *deviancesat = *deviance;
     }
   else
     {
     double rplusone = *response+1;
-    *deviance = -2* *weight*(*response*log(*mu)-*mu
-                - randnumbers::lngamma(rplusone));
-    *deviancesat = *deviance+2 *
-                     *weight*(*response * log(*response) - *response);
+    *deviance = -2* *weight*(*response*log(*mu)-*mu-
+                    randnumbers::lngamma(rplusone));
     }
 
   }
