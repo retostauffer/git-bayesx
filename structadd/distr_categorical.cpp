@@ -973,7 +973,7 @@ void DISTR_poisson::compute_deviance(const double * response,
     {
     double rplusone = *response+1;
     *deviance = -2* *weight*(*response*log(*mu)-*mu-
-                    randnumbers::lngamma(rplusone));
+                    randnumbers::lngamma_exact(rplusone));
     }
 
   }
