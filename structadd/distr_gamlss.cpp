@@ -108,11 +108,13 @@ double DISTR_negbin_delta::loglikelihood_weightsone(double * response,
 
   double resp_plus_delta = (*response) + delta;
 
+  double log_mu_plus_delta = log((*worktransformlin[0]) + delta);
+
   modify_worklin();
 
   return  randnumbers::lngamma_exact(resp_plus_delta) -
           randnumbers::lngamma_exact(delta) -
-          (resp_plus_delta)*log((*worktransformlin[0]) + delta) +
+          (resp_plus_delta)* log_mu_plus_delta  +
           delta*log(delta);
 
   }
@@ -270,25 +272,27 @@ void DISTR_negbin_mu::compute_deviance_mult(vector<double *> response,
                              double * deviance,
                              vector<double> scale) const
   {
-  /*
-  double l;
-  double explinpi = exp(*linpred[0]);
-  double pi = exp(-explinpi);
-  double lambda = exp(*linpred[1]);
 
-  if (*response[1]==0)
-    {
-    l=  log(pi+(1-pi)*exp(-lambda));
-    }
-  else // response > 0
-    {
-    double help1 = *response[1]+1;
-    l= log(1-pi) + (*response[1])*(*linpred[1])- lambda
-       - randnumbers::lngamma_exact(help1);
-    }
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_delta
+   // *linpred[1] = eta_mu
+
+   double delta = exp(*linpred[0]);
+   double mu = exp(*linpred[1]);
+   double resp_plus_one = (*response[1]) + 1;
+   double delta_plus_mu = delta + mu;
+   double delta_plus_response = delta+(*response[1]);
+
+   double l = randnumbers::lngamma_exact(delta_plus_response) -
+              randnumbers::lngamma_exact(resp_plus_one) -
+              randnumbers::lngamma_exact(delta) +
+              delta*log(delta/delta_plus_mu)+
+              (*response[1])*log(mu/delta_plus_mu);
+
 
   *deviance = -2*l;
-  */
+
+
   }
 
 
@@ -405,6 +409,7 @@ DISTR_zip_cloglog_pi::DISTR_zip_cloglog_pi(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Zero_Inflated_Poisson - pi";
+  helpmat1 = datamatrix(nrobs,1,1-exp(-exp(0)));
   }
 
 
@@ -469,6 +474,9 @@ void DISTR_zip_cloglog_pi::compute_iwls_wweightschange_weightsone(
   if (counter==0)
     set_worklin();
 
+//  double t = *worktransformlin[0];
+//  double t2 = *worklin[0];
+
   double explinpi = exp(*linpred);
   double oneminuspi = 1 - exp(-explinpi);
   double pi = 1-oneminuspi;
@@ -514,6 +522,8 @@ void DISTR_zip_cloglog_pi::outoptions(void)
 void DISTR_zip_cloglog_pi::update_end(void)
   {
 
+//  ofstream out("d:\\_sicher\\papzip\\results\\etapi.raw");
+
   // helpmat1 stores 1-pi
 
   double * worklin;
@@ -529,6 +539,7 @@ void DISTR_zip_cloglog_pi::update_end(void)
   for (i=0;i<nrobs;i++,ppi++,worklin++)
     {
     *ppi = 1-exp(-exp(*worklin));
+//    out << *worklin << "  " << *ppi << endl;
     }
 
   }
@@ -614,10 +625,10 @@ double DISTR_zip_cloglog_mu::loglikelihood_weightsone(double * response,
   double lambda;
   double expminuslambda;
 
-  if (*linpred <= -30)
+  if (*linpred <= linpredlimit)
     {
-    lambda  = 9.358e-14;
-    expminuslambda = 1;
+    lambda  = explinpredlimit;
+    expminuslambda = expminusexplinpredlimit;
     }
   else
     {
@@ -657,16 +668,17 @@ void DISTR_zip_cloglog_mu::compute_iwls_wweightschange_weightsone(
   double lambda;
   double expminuslambda;
 
-  if (*linpred <= -30)
+  if (*linpred <= linpredlimit)
     {
-    lambda  = 9.358e-14;
-    expminuslambda = 1;
+    lambda  = explinpredlimit;
+    expminuslambda = expminusexplinpredlimit;
     }
   else
     {
     lambda = exp(*linpred);
     expminuslambda = exp(-lambda);
     }
+
 
   double pi = 1-(*worktransformlin[0]);
   double denom = pi+(*worktransformlin[0])*expminuslambda;
@@ -843,9 +855,6 @@ double DISTR_gamlss::loglikelihood_weightsone(double * response,
 
 void DISTR_gamlss::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-
-//  *mu = 1/(1+el)*exp(*linpred[2]);
-
   }
 
 
@@ -869,7 +878,6 @@ void DISTR_gamlss::compute_iwls_wweightschange_weightsone(
   if (counter==0)
     set_worklin();
 
-
 //  modify_worklin();
 
   }
@@ -884,8 +892,9 @@ void DISTR_gamlss::posteriormode_end(void)
 void DISTR_gamlss::update_end(void)
   {
 
-  // helpmat1 stores mu, i.e. exp(linpred)
+//  ofstream out("d:\\_sicher\\papzip\\results\\etamu.raw");
 
+  // helpmat1 stores exp(linpred)
 
   double * worklin;
   if (linpred_current==1)
@@ -893,27 +902,17 @@ void DISTR_gamlss::update_end(void)
   else
     worklin = linearpred2.getV();
 
-  if (helpmat1.rows() == 1)
-    {
-    helpmat1 = datamatrix(nrobs,1,0);
-    }
-
   double * pmu = helpmat1.getV();
 
   unsigned i;
   for (i=0;i<nrobs;i++,pmu++,worklin++)
     {
-    if (*worklin <= -30)
-      {
-      *pmu  = 9.358e-14;
-      }
+    if (*worklin <= linpredlimit)
+      *pmu  = explinpredlimit;
     else
-      {
       *pmu = exp(*worklin);
-      }
-
+//    out << *worklin << "  " << *pmu << endl;
     }
-
 
   }
 
