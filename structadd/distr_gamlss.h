@@ -114,6 +114,132 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
   };
 
 
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_negbin_delta ----------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_negbin_delta(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_negbin_delta(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_negbin_delta(const DISTR_negbin_delta & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_negbin_delta & operator=(const DISTR_negbin_delta & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_negbin_delta() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<double> scale) const;
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_negbin_mu -------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_negbin_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_negbin_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_negbin_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_negbin_mu(const DISTR_negbin_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_negbin_mu & operator=(const DISTR_negbin_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_negbin_mu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<double> scale) const;
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_zip_cloglog_mu --------------------------
 //------------------------------------------------------------------------------

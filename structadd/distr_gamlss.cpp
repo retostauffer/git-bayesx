@@ -24,6 +24,331 @@ namespace MCMC
 
 
 //------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_negbin_delta --------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_negbin_delta::DISTR_negbin_delta(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Negative_Binomial - delta";
+  }
+
+
+DISTR_negbin_delta::DISTR_negbin_delta(const DISTR_negbin_delta & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_negbin_delta & DISTR_negbin_delta::operator=(
+                            const DISTR_negbin_delta & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_negbin_delta::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<double> scale) const
+  {
+  /*
+  double l;
+  double explinpi = exp(*linpred[0]);
+  double pi = exp(-explinpi);
+  double lambda = exp(*linpred[1]);
+
+  if (*response[1]==0)
+    {
+    l=  log(pi+(1-pi)*exp(-lambda));
+    }
+  else // response > 0
+    {
+    double help1 = *response[1]+1;
+    l= log(1-pi) + (*response[1])*(*linpred[1])- lambda
+       - randnumbers::lngamma_exact(help1);
+    }
+
+  *deviance = -2*l;
+  */
+  }
+
+
+double DISTR_negbin_delta::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+
+double DISTR_negbin_delta::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double delta;
+
+  if (*linpred <= linpredlimit)
+    delta = explinpredlimit;
+  else
+    delta = exp(*linpred);
+
+  double resp_plus_delta = (*response) + delta;
+
+  modify_worklin();
+
+  return  randnumbers::lngamma(resp_plus_delta) -
+          randnumbers::lngamma(delta) -
+          (resp_plus_delta)*log((*worktransformlin[0]) + delta) +
+          delta*log(delta);
+
+  }
+
+
+void DISTR_negbin_delta::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double delta;
+
+  if (*linpred <= linpredlimit)
+    delta = explinpredlimit;
+  else
+    delta = exp(*linpred);
+
+
+
+
+  double delta_plus_mu = delta + (*worktransformlin[0]);
+
+  double nu = delta*(randnumbers::digamma(  )              );
+
+  *workingweight =
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+
+    like +=
+
+    }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_negbin_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  *mu = exp(*linpred[1]);
+  }
+
+
+void DISTR_negbin_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_negbin_mu::update_end(void)
+  {
+  DISTR_gamlss::update_end();
+  }
+
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_negbin_mu -----------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_negbin_mu::DISTR_negbin_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Negative_Binomial - mu";
+  }
+
+
+DISTR_negbin_mu::DISTR_negbin_mu(const DISTR_negbin_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_negbin_mu & DISTR_negbin_mu::operator=(
+                            const DISTR_negbin_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_negbin_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<double> scale) const
+  {
+  /*
+  double l;
+  double explinpi = exp(*linpred[0]);
+  double pi = exp(-explinpi);
+  double lambda = exp(*linpred[1]);
+
+  if (*response[1]==0)
+    {
+    l=  log(pi+(1-pi)*exp(-lambda));
+    }
+  else // response > 0
+    {
+    double help1 = *response[1]+1;
+    l= log(1-pi) + (*response[1])*(*linpred[1])- lambda
+       - randnumbers::lngamma_exact(help1);
+    }
+
+  *deviance = -2*l;
+  */
+  }
+
+
+double DISTR_negbin_mu::get_intercept_start(void)
+  {
+  return log(response.mean(0));
+  }
+
+
+double DISTR_negbin_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of delta equation
+  // *worktransformlin[0] = exp(eta_delta);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu;
+
+  if (*linpred <= linpredlimit)
+    mu = explinpredlimit;
+  else
+    mu = exp(*linpred);
+
+  modify_worklin();
+
+  return - ((*worktransformlin[0]) + (*response))*
+           log((*worktransformlin[0])+mu);
+
+  }
+
+
+void DISTR_negbin_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of delta equation
+  // *worktransformlin[0] = exp(eta_delta);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu;
+
+
+  if (*linpred <= linpredlimit)
+    mu = explinpredlimit;
+  else
+    mu = exp(*linpred);
+
+
+  double delta_plus_mu = (*worktransformlin[0]) + mu;
+
+  double nu = (*worktransformlin[0])*((*response)-mu)/delta_plus_mu;
+
+  *workingweight = (*worktransformlin[0])*mu/delta_plus_mu;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+
+    like += -((*worktransformlin[0])+(*response))*log(delta_plus_mu);
+
+    }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_negbin_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  *mu = exp(*linpred[1]);
+  }
+
+
+void DISTR_negbin_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_negbin_mu::update_end(void)
+  {
+  DISTR_gamlss::update_end();
+  }
+
+  
+
+//------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_zip_cloglog_pi --------------------------
 //------------------------------------------------------------------------------
 
@@ -151,10 +476,6 @@ void DISTR_zip_cloglog_pi::update_end(void)
   else
     worklin = linearpred2.getV();
 
-  if (helpmat1.rows() == 1)
-    {
-    helpmat1 = datamatrix(nrobs,1,0);
-    }
 
   double * ppi = helpmat1.getV();
 
@@ -1084,6 +1405,8 @@ void DISTR_negbinzip_pi::update_end(void)
   // helpmat1 stores 1-pi
   // helpmat2 stores exp(eta_pi)
 
+//  ofstream out("d:\\_sicher\\papzip\\results\\etapi.raw");
+
   double * worklin;
   if (linpred_current==1)
     worklin = linearpred1.getV();
@@ -1096,6 +1419,7 @@ void DISTR_negbinzip_pi::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,ppi++,worklin++,workexplin++)
     {
+//    out << *worklin << endl;
     if (*worklin > linpredlimit)
       *workexplin = exp(*worklin);
     else
@@ -1476,6 +1800,8 @@ void DISTR_negbinzip_delta::posteriormode_end(void)
 void DISTR_negbinzip_delta::update_end(void)
   {
 
+
+//  ofstream out("d:\\_sicher\\papzip\\results\\etadelta.raw");
   // helpmat1 stores exp(linpred)
 
   double * worklin;
@@ -1489,6 +1815,7 @@ void DISTR_negbinzip_delta::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,worklin++,l++)
     {
+//    out << *worklin << endl;
     if (*worklin <= linpredlimit)
       *l  = explinpredlimit;
     else
