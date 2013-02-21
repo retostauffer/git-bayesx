@@ -30,7 +30,7 @@ To Do for New Releases of BayesX
 - Change version no. and authors in sourcecode\LICENSE
 - Call make_sourcecode.bat
 - bayesxsource.zip is located in sourcecode
-- Test sourcecode
+- Test sourcecode(cmake)
 
 
 5. Update Website
@@ -43,6 +43,4 @@ To Do for New Releases of BayesX
 - Upload manuals
 - Archive of old versions if not yet available (i.e. rename sourcecode.zip to sourcecode_x_y.zip and BayesX_windows.exe to BayesX_windows_x_y.exe with x and y replacing appropriate version info)
 - Upload new sourcecode.zip and BayesX_windows.exe (no version numbers)
-
-- Anonymous SVN-account details
 
