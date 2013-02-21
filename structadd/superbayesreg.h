@@ -94,6 +94,8 @@ using MCMC::DISTR_negbinzip_pi;
 using MCMC::DISTR_negbinzip_delta;
 using MCMC::DISTR_zip_cloglog_mu;
 using MCMC::DISTR_zip_cloglog_pi;
+using MCMC::DISTR_negbin_mu;
+using MCMC::DISTR_negbin_delta;
 
 
 using MCMC::DESIGN_pspline;
@@ -278,7 +280,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_negbinzip_pi> distr_negbinzip_pis;
   vector<DISTR_negbinzip_delta> distr_negbinzip_deltas;
   vector<DISTR_zip_cloglog_pi> distr_zip_cloglog_pis;
-  vector<DISTR_zip_cloglog_mu> distr_zip_cloglog_mus;  
+  vector<DISTR_zip_cloglog_mu> distr_zip_cloglog_mus;
+  vector<DISTR_negbin_mu> distr_negbin_mus;
+  vector<DISTR_negbin_delta> distr_negbin_deltas;
 
 
   bool create_distribution(void);
@@ -384,7 +388,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_hrandom_variance> FC_hrandom_variances;
   vector<FC_hrandom_variance_vec> FC_hrandom_variance_vecs;
   vector<FC_hrandom_variance_vec_nmig> FC_hrandom_variance_vec_nmigs;
-  vector<FC_hrandom_variance_ssvs> FC_hrandom_variance_ssvss;    
+  vector<FC_hrandom_variance_ssvs> FC_hrandom_variance_ssvss;
 
   bool create_hrandom(unsigned i);
 

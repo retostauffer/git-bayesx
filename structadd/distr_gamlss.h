@@ -124,6 +124,21 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
 
   protected:
 
+  double E_dig_y_delta;
+  double E_trig_y_delta;
+  double delta;
+  double log_delta_div_delta_plus_mu;
+  double lngamma_delta;
+  double delta_plus_mu;
+
+  double stopsum;
+  int stoprmax;
+
+
+  void compute_expectation(void);
+
+
+
 
   public:
 
@@ -136,7 +151,8 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
    // CONSTRUCTOR
 
   DISTR_negbin_delta(GENERAL_OPTIONS * o, const datamatrix & r,
-                       const datamatrix & w=datamatrix());
+                     double & stpsum, int & strmax,
+                     const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
 
@@ -150,12 +166,6 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
 
   ~DISTR_negbin_delta() {}
 
-  void compute_deviance_mult(vector<double *> response,
-                             vector<double *> weight,
-                             vector<double *> linpred,
-                             double * deviance,
-                             vector<double> scale) const;
-
   double get_intercept_start(void);
 
   double loglikelihood_weightsone(double * response, double * linpred);
@@ -167,7 +177,6 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
                                               double & like,
                                               const bool & compute_like);
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
 
   void outoptions(void);
 

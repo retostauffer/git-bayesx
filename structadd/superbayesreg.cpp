@@ -169,6 +169,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("zinb_delta");
   families.push_back("zip_pi_cloglog");
   families.push_back("zip_lambda_cloglog");
+  families.push_back("negbin_mu");
+  families.push_back("negbin_delta");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -397,6 +399,13 @@ void superbayesreg::clear(void)
   distr_zip_cloglog_pis.erase(distr_zip_cloglog_pis.begin(),distr_zip_cloglog_pis.end());
   distr_zip_cloglog_pis.reserve(20);
 
+  distr_negbin_mus.erase(distr_negbin_mus.begin(),distr_negbin_mus.end());
+  distr_negbin_mus.reserve(20);
+
+  distr_negbin_deltas.erase(distr_negbin_deltas.begin(),distr_negbin_deltas.end());
+  distr_negbin_deltas.reserve(20);
+
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -552,7 +561,9 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_negbinzip_pis = b.distr_negbinzip_pis;
   distr_negbinzip_deltas = b.distr_negbinzip_deltas;
   distr_zip_cloglog_mus = b.distr_zip_cloglog_mus;
-  distr_zip_cloglog_pis = b.distr_zip_cloglog_pis;    
+  distr_zip_cloglog_pis = b.distr_zip_cloglog_pis;
+  distr_negbin_mus = b.distr_negbin_mus;
+  distr_negbin_deltas = b.distr_negbin_deltas;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -638,7 +649,10 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_negbinzip_pis = b.distr_negbinzip_pis;
   distr_negbinzip_deltas = b.distr_negbinzip_deltas;
   distr_zip_cloglog_mus = b.distr_zip_cloglog_mus;
-  distr_zip_cloglog_pis = b.distr_zip_cloglog_pis;    
+  distr_zip_cloglog_pis = b.distr_zip_cloglog_pis;
+  distr_negbin_mus = b.distr_negbin_mus;
+  distr_negbin_deltas = b.distr_negbin_deltas;
+
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -1194,6 +1208,57 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------ END: ZINB mu ----------------------------------
+
+
+//-------------------------------- negbin delta --------------------------------
+  else if (family.getvalue() == "negbin_delta" && equationtype.getvalue()=="delta")
+    {
+
+    computemodeforstartingvalues = true;
+
+    double stpsum = stopsum.getvalue();
+    int strmax = stoprmax.getvalue();
+
+    distr_negbin_deltas.push_back(DISTR_negbin_delta(&generaloptions,D.getCol(0),
+    stpsum,strmax,w));
+
+    equations[modnr].distrp = &distr_negbin_deltas[distr_negbin_deltas.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_negbin_deltas[distr_negbin_deltas.size()-1]);
+
+    }
+//---------------------------- END: negbin delta -------------------------------
+
+//------------------------------- negbin mu ------------------------------------
+  else if (family.getvalue() == "negbin_mu" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_negbin_mus.push_back(DISTR_negbin_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_negbin_mus[distr_negbin_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_negbin_mus[distr_negbin_mus.size()-1]);
+
+    if (distr_negbin_deltas.size() != 1)
+      {
+      outerror("ERROR: Equation for delta is missing");
+      return true;
+      }
+    else
+      {
+      distr_negbin_deltas[distr_negbin_deltas.size()-1].distrp.push_back
+      (&distr_negbin_mus[distr_negbin_mus.size()-1]);
+
+      distr_negbin_mus[distr_negbin_mus.size()-1].distrp.push_back
+      (&distr_negbin_deltas[distr_negbin_deltas.size()-1]);
+      }
+
+    }
+//------------------------------- END: negbin mu -------------------------------
 
 
 //---------------------------------- ZIP pi ------------------------------------
@@ -2621,6 +2686,8 @@ void superbayesreg::describe(const optionlist & globaloptions)
 //------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
+
+
 
 
 
