@@ -110,8 +110,8 @@ double DISTR_negbin_delta::loglikelihood_weightsone(double * response,
 
   modify_worklin();
 
-  return  randnumbers::lngamma(resp_plus_delta) -
-          randnumbers::lngamma(delta) -
+  return  randnumbers::lngamma_exact(resp_plus_delta) -
+          randnumbers::lngamma_exact(delta) -
           (resp_plus_delta)*log((*worktransformlin[0]) + delta) +
           delta*log(delta);
 
@@ -137,7 +137,7 @@ void DISTR_negbin_delta::compute_expectation(void)
     k_delta = k + delta;
     kplus1 = k + 1;
 
-    L = exp(randnumbers::lngamma(k_delta) - randnumbers::lngamma(kplus1)
+    L = exp(randnumbers::lngamma_exact(k_delta) - randnumbers::lngamma_exact(kplus1)
             - lngamma_delta + delta*log_delta_div_delta_plus_mu +
             k* log(*worktransformlin[0]/delta_plus_mu) );
 
@@ -181,7 +181,7 @@ void DISTR_negbin_delta::compute_iwls_wweightschange_weightsone(
 
   log_delta_div_delta_plus_mu = log(delta/delta_plus_mu);
 
-  lngamma_delta = randnumbers::lngamma(delta);
+  lngamma_delta = randnumbers::lngamma_exact(delta);
 
   double delta_plus_response = delta + (*response);
 
@@ -204,7 +204,7 @@ void DISTR_negbin_delta::compute_iwls_wweightschange_weightsone(
 
     double resp_plus_delta = (*response) + delta;
 
-    like += randnumbers::lngamma(resp_plus_delta) -
+    like += randnumbers::lngamma_exact(resp_plus_delta) -
             lngamma_delta -
             resp_plus_delta*log(delta_plus_mu) +
             delta*log(delta);
@@ -320,7 +320,7 @@ double DISTR_negbin_mu::loglikelihood_weightsone(double * response,
   modify_worklin();
 
   return - ((*worktransformlin[0]) + (*response))*
-           log((*worktransformlin[0])+mu);
+           log((*worktransformlin[0])+mu) +(*response)*log(mu);
 
   }
 
@@ -362,7 +362,8 @@ void DISTR_negbin_mu::compute_iwls_wweightschange_weightsone(
   if (compute_like)
     {
 
-    like += -((*worktransformlin[0])+(*response))*log(delta_plus_mu);
+    like += -((*worktransformlin[0])+(*response))*log(delta_plus_mu) +
+            (*response)*log(mu);
 
     }
 
@@ -391,7 +392,7 @@ void DISTR_negbin_mu::update_end(void)
   DISTR_gamlss::update_end();
   }
 
-  
+
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_zip_cloglog_pi --------------------------
@@ -1820,8 +1821,8 @@ void DISTR_negbinzip_delta::compute_expectation(void)
     kplus1 = k + 1;
 
     L = exp(-log_one_explinpi
-        +randnumbers::lngamma(k_delta)
-        -randnumbers::lngamma(kplus1)
+        +randnumbers::lngamma_exact(k_delta)
+        -randnumbers::lngamma_exact(kplus1)
         -lng_delta+delta_linpred+k*(*worklinmu)-(delta+k)*log_delta_mu);
 
     psum += L;
