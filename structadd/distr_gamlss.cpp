@@ -321,10 +321,12 @@ double DISTR_negbin_mu::loglikelihood_weightsone(double * response,
   else
     mu = exp(*linpred);
 
+  double l = - ((*worktransformlin[0]) + (*response))*
+           log((*worktransformlin[0])+mu) +(*response)*log(mu);
+
   modify_worklin();
 
-  return - ((*worktransformlin[0]) + (*response))*
-           log((*worktransformlin[0])+mu) +(*response)*log(mu);
+  return l;
 
   }
 
