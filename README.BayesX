@@ -79,12 +79,12 @@ Calling cmake will create a make file that, by default, builds both BayesX versi
 The two versions can be invoked as follows: For the command line version, there
 will be an executable BayesX that is called via
 
-> BayesX
+> bayesx
 
 Note that BayesX has to be executable. Under linux systems, the call sometimes has to
 be changed to
 
-> ./BayesX
+> ./bayesx
 
 For the java version, change to the java subdirectory via
 
@@ -92,7 +92,7 @@ For the java version, change to the java subdirectory via
 
 and execute
 
-> run-java-gui.sh
+> ./run-java-gui.sh
 
 This should start the java GUI. Note that run-java-gui.sh has to be executable.
 This can be ensured by first  typing
@@ -149,7 +149,7 @@ will conflict with cmake and should therefore be excluded from the path variable
 # providing additional options for cmake
 
 In most cases (at least under windows OS), additional options will have to be
-parsed to cmake. Useful options from our experience are thw following:
+parsed to cmake. Useful options from our experience are the following:
 
 To explicitly specify the make facility that will be used for compiling BayesX,
 set the -G <GENERATOR> option. For example, to use mingw32-make, you will have to
@@ -182,7 +182,7 @@ from the path (see "Requirements" above).
 - java is not detected: See "Additional Options for cmake" above to explicitly
 specify the location of java on your computer.
 
-- Invoking the java GUI does not work on linus: You will have to specify the
+- Invoking the java GUI sometimes fails on linux: You will have to specify the
 java.library.path, see "Different versions of BayesX" above.
 
 - If cmake failes, it sometimes helps to delete the cmake cache file CMakeCache.txt
@@ -241,11 +241,11 @@ We assume that we start with a "clean" path that does not contain cmake,
 the compilers, the make facility and no r-tools. Then we proceed as follows:
 
 Add cmake to the path:
-> ???
+> PATH C:\Programme\cmake 2.8\bin;%PATH%
 
 Add mingw (obtained as a part of the CodeBlocks compiler suite) to the path to
 make gcc/g++ available:
-> ????
+> PATH c:\Programme\CodeBlocks\MinGW\bin;%PATH%
 
 Call cmake with explicit compiler specification and requesting MinGW makefiles:
 > cmake -G "MinGW Makefiles" -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ .
@@ -255,7 +255,7 @@ have successfully called cmake once, the call
 will be sufficient since the required compiler info is extracted from the cache.
 
 Add r-tools to make mingw32-make available:
-> ????
+> PATH c:\rtools\bin;C:\Rtools\MinGW\bin;C:\Rtools\MinGW64\bin;%PATH%
 and call make (with no. of kernels defined by -j):
 > mingw32-make -j2
 
