@@ -96,6 +96,10 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
+  double compute_iwls(double * response, double * linpred,
+                      double * weight, double * workingweight,
+                      double * workingresponse, const bool & like);
+
   void compute_iwls_wweightschange_weightsone(double * response,
                                               double * linpred,
                                               double * workingweight,
@@ -519,10 +523,93 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
   };
 
 
+
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_negbinzip_delta -------------------------
 //------------------------------------------------------------------------------
 
+class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
+  {
+
+  protected:
+
+  double stopsum;
+  int stoprmax;
+
+
+  unsigned counter;
+
+  double responsemax;
+
+  double * worklinmu;
+  double * workexplinmu;
+
+  double * worklinpi;
+  double * workonempi;
+  double * workexplinpi;
+
+  void set_worklinmupi(void);
+  void modify_worklinmupi(void);
+
+
+
+  public:
+
+  DISTR*  distrmu;
+  DISTR*  distrpi;
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTR_negbinzip_delta(void) : DISTR()
+     {
+     }
+
+   // CONSTRUCTOR
+
+   DISTR_negbinzip_delta(GENERAL_OPTIONS * o, const datamatrix & r,
+                         double & stpsum, int & strmax,
+                         const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+   DISTR_negbinzip_delta(const DISTR_negbinzip_delta & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTR_negbinzip_delta & operator=(const DISTR_negbinzip_delta & nd);
+
+   // DESTRUCTOR
+
+   ~DISTR_negbinzip_delta() {}
+
+  double get_intercept_start(void);
+
+  double loglikelihood(double * response, double * linpred,
+                       double * weight);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void outoptions(void);
+
+  void posteriormode_end(void);
+
+  void update_end(void);
+
+  };
+
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_negbinzip_delta -------------------------
+//------------------------------------------------------------------------------
+/*
 class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   {
 
@@ -573,7 +660,7 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
 
   double * worklinpi;
   double * workonempi;
-  double * workexplinpi;  
+  double * workexplinpi;
 
   void set_worklinmupi(void);
   void modify_worklinmupi(void);
@@ -630,7 +717,7 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   void update_end(void);
 
   };
-
+*/
 
 //------------------------------------------------------------------------------
 //---------------------- CLASS: DISTRIBUTION_ziplambda -------------------------

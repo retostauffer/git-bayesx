@@ -216,7 +216,7 @@ void superbayesreg::create_hregress(void)
 
   modemaxit = intoption("modemaxit",1000,0,5000);
 
-  stopsum = doubleoption("stopsum",0.999,0.9,0.999999);
+  stopsum = doubleoption("stopsum",1,0.9,1);
   stoprmax = intoption("stoprmax",5,1,100000);
 
   regressoptions.reserve(100);

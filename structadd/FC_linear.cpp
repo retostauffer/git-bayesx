@@ -231,11 +231,9 @@ void FC_linear::update_IWLS(void)
 
     proposal.plus(mode);
 
-
     help.minus(proposal,mode);
 
     qnewbeta = -0.5*XWXold.compute_quadform(help);
-
 
     linnewp->mult(design,proposal);
 

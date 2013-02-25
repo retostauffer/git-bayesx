@@ -272,7 +272,12 @@ double DISTR::loglikelihood(const bool & current)
   if (weightsone==true)
     {
     for (i=0;i<nrobs;i++,worklin++,workres++)
+      {
+      if (i==nrobs-1)
+      double t = 0;
       help += loglikelihood_weightsone(workres,worklin);
+
+      }
     }
   else
     {
