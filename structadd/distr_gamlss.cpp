@@ -447,7 +447,7 @@ void DISTR_negbin_mu::compute_deviance_mult(vector<double *> response,
 
 double DISTR_negbin_mu::get_intercept_start(void)
   {
-  return log(response.mean(0));
+  return 0; // log(response.mean(0));
   }
 
 
@@ -763,7 +763,7 @@ void DISTR_zip_cloglog_mu::compute_deviance_mult(vector<double *> response,
 
 double DISTR_zip_cloglog_mu::get_intercept_start(void)
   {
-  return log(response.mean(0));
+  return 0; // log(response.mean(0));
   }
 
 
@@ -1236,7 +1236,7 @@ void DISTR_negbinzip_mu::modify_worklinpidelta(void)
 
 double DISTR_negbinzip_mu::get_intercept_start(void)
   {
-  return log(response.mean(0));
+  return 0; // log(response.mean(0));
   }
 
 
@@ -1589,6 +1589,7 @@ void DISTR_negbinzip_pi::modify_worklinmudelta(void)
 
 double DISTR_negbinzip_pi::get_intercept_start(void)
   {
+  /*
   unsigned i;
   double * responsep = response.getV();
   double m = 0;
@@ -1601,6 +1602,8 @@ double DISTR_negbinzip_pi::get_intercept_start(void)
   m /= nrobs;
 
   return log(m/(1-m));
+  */
+  return 0;
   }
 
 
@@ -2164,7 +2167,7 @@ void DISTR_negbinzip_delta::update_end(void)
 
   }
 
-*/  
+*/
 
 
 //------------------------------------------------------------------------------
@@ -2643,7 +2646,7 @@ void DISTR_ziplambda::modify_worklinpi(void)
 
 double DISTR_ziplambda::get_intercept_start(void)
   {
-  return log(response.mean(0));
+  return 0; //log(response.mean(0));
   }
 
 
@@ -2969,6 +2972,7 @@ void DISTR_zippi::outoptions(void)
 
 double DISTR_zippi::get_intercept_start(void)
   {
+  /*
   unsigned i;
   double * responsep = response.getV();
   double m = 0;
@@ -2979,8 +2983,9 @@ double DISTR_zippi::get_intercept_start(void)
     }
 
   m /= nrobs;
+  */
 
-  return log(m/(1-m));
+  return 0; // log(m/(1-m));
   }
 
 

@@ -518,6 +518,8 @@ void FC_linear::create_matrices(void)
 
   setbeta(design.cols(),1,0);
   betaold=datamatrix(beta.rows(),1,0);
+
+  /*
   if (constposition != -1)
     {
     double m = likep->get_intercept_start();
@@ -532,6 +534,7 @@ void FC_linear::create_matrices(void)
     for (i=0;i<likep->nrobs;i++,linpred++)
       *linpred += m;
     }
+   */
 
   betadiff = betaold;
   betam = beta;
