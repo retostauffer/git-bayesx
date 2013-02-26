@@ -437,19 +437,6 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
                                          double * workingresponse,double & like,
                                          const bool & compute_like);
 
-  void compute_iwls_wweightsnochange_constant(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-  void compute_iwls_wweightsnochange_one(double * response,
-                                              double * linpred,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
   void sample_responses(unsigned i,datamatrix & sr);
 
   void sample_responses_cv(unsigned i,datamatrix & linpred,

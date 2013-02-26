@@ -248,6 +248,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   doubleoption stopsum;
   intoption stoprmax;
+  doubleoption fraclimit;
 
   // end: OPTIONS for method regress
 

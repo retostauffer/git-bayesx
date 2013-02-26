@@ -135,7 +135,7 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
   double lngamma_delta;
   double delta_plus_mu;
 
-  double stopsum;
+  double fraclimit;
   int stoprmax;
 
 
@@ -155,7 +155,7 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
    // CONSTRUCTOR
 
   DISTR_negbin_delta(GENERAL_OPTIONS * o, const datamatrix & r,
-                     double & stpsum, int & strmax,
+                     double & fs, int & strmax,
                      const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
@@ -438,6 +438,11 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
                                               double & like,
                                               const bool & compute_like);
 
+  double compute_iwls(double * response, double * linpred,
+                      double * weight, double * workingweight,
+                      double * workingresponse, const bool & like);
+
+
   void compute_mu_mult(vector<double *> linpred,double * mu);
 
   void outoptions(void);
@@ -511,6 +516,11 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
                                               double * workingresponse,
                                               double & like,
                                               const bool & compute_like);
+
+  double compute_iwls(double * response, double * linpred,
+                      double * weight, double * workingweight,
+                      double * workingresponse, const bool & like);
+
 
 
   void outoptions(void);
@@ -595,6 +605,12 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
                                               double * workingresponse,
                                               double & like,
                                               const bool & compute_like);
+
+  double compute_iwls(double * response, double * linpred,
+                                     double * weight, double * workingweight,
+                                     double * workingresponse,
+                                     const bool & like);
+
 
   void outoptions(void);
 
@@ -783,6 +799,11 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
                                          double * workingresponse,double & like,
                                          const bool & compute_like);
 
+  double compute_iwls(double * response, double * linpred,
+                      double * weight, double * workingweight,
+                      double * workingresponse, const bool & like);
+
+
   void compute_mu_mult(vector<double *> linpred,double * mu);
 
   void outoptions(void);
@@ -855,6 +876,11 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
                                          double * workingweight,
                                          double * workingresponse,double & like,
                                          const bool & compute_like);
+
+
+  double compute_iwls(double * response, double * linpred,
+                      double * weight, double * workingweight,
+                      double * workingresponse, const bool & like);
 
 
   void outoptions(void);

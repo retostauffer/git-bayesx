@@ -943,14 +943,20 @@ double DISTR_poisson::get_intercept_start(void)
 double DISTR_poisson::loglikelihood(double * response, double * linpred,
                                      double * weight)
   {
-  return *weight * ((*response) * (*linpred) - exp(*linpred));
+  if (*response==0)
+    return -(*weight)*exp(*linpred);
+  else
+    return *weight * ((*response) * (*linpred) - exp(*linpred));
   }
 
 
 double DISTR_poisson::loglikelihood_weightsone(
                                   double * response, double * linpred)
   {
-  return  (*response) * (*linpred) - exp(*linpred);
+  if (*response==0)
+    return  - exp(*linpred);
+  else
+    return  (*response) * (*linpred) - exp(*linpred);
   }
 
 
@@ -965,15 +971,20 @@ void DISTR_poisson::compute_deviance(const double * response,
                    double * scale) const
   {
 
-  if (*response==0)
-    {
-    *deviance = 2* *weight * *mu;
-    }
+  if (*weight==0)
+    *deviance = 0;
   else
     {
-    double rplusone = *response+1;
-    *deviance = -2* *weight*(*response*log(*mu)-*mu-
-                    randnumbers::lngamma_exact(rplusone));
+    if (*response==0)
+      {
+      *deviance = 2* *weight * *mu;
+      }
+    else
+      {
+      double rplusone = *response+1;
+      *deviance = -2* *weight*(*response*log(*mu)-*mu-
+                      randnumbers::lngamma_exact(rplusone));
+      }
     }
 
   }
@@ -988,14 +999,24 @@ double DISTR_poisson::compute_iwls(double * response, double * linpred,
 
   *workingweight = *weight * mu;
 
-  *workingresponse = *linpred + (*response - mu)/mu;
+  if (*response==0)
+    {
+    *workingresponse = *linpred -1;
 
-   if (like)
-     {
-     return *weight * (*response * (*linpred) - mu);
-     }
-   else
-     return 0;
+    if (like)
+       return -(*weight) *mu;
+     else
+       return 0;
+    }
+  else
+    {
+    *workingresponse = *linpred + (*response - mu)/mu;
+
+    if (like)
+       return *weight * (*response * (*linpred) - mu);
+     else
+       return 0;
+    }
 
   }
 
@@ -1007,42 +1028,26 @@ void DISTR_poisson::compute_iwls_wweightschange_weightsone(
                                          const bool & compute_like)
   {
 
-//  double h = *linpred+log(c_scale);
-
   *workingweight = exp(*linpred);
-//  *workingweight = exp(h);
 
-  *workingresponse = *linpred + (*response - (*workingweight))/(*workingweight);
-//  *workingresponse = *linpred   + (*response*c_scale - *workingweight)/(*workingweight);
+  if (*response==0)
+    {
+    *workingresponse = *linpred - 1;
 
-   if (compute_like)
-     {
-     like+=  *response * (*linpred) - (*workingweight);
-     }
+     if (compute_like)
+       like -=   (*workingweight);
+    }
+  else
+    {
+    *workingresponse = *linpred + (*response - (*workingweight))/(*workingweight);
 
-  }
-
-
-void DISTR_poisson::compute_iwls_wweightsnochange_constant(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like)
-  {
-
+     if (compute_like)
+       like+=  *response * (*linpred) - (*workingweight);
+    }
 
   }
 
-void DISTR_poisson::compute_iwls_wweightsnochange_one(double * response,
-                                              double * linpred,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like)
-  {
 
-
-  }
 
 
 void DISTR_poisson::sample_responses(unsigned i,datamatrix & sr)

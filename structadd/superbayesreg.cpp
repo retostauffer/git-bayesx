@@ -218,6 +218,8 @@ void superbayesreg::create_hregress(void)
 
   stopsum = doubleoption("stopsum",1,0.9,1);
   stoprmax = intoption("stoprmax",5,1,100000);
+  fraclimit = doubleoption("fraclimit",0.001,0,1);
+
 
   regressoptions.reserve(100);
 
@@ -247,6 +249,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&modemaxit);
   regressoptions.push_back(&stopsum);
   regressoptions.push_back(&stoprmax);
+  regressoptions.push_back(&fraclimit);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -1216,11 +1219,11 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
-    double stpsum = stopsum.getvalue();
+    double flimit = fraclimit.getvalue();
     int strmax = stoprmax.getvalue();
 
     distr_negbin_deltas.push_back(DISTR_negbin_delta(&generaloptions,D.getCol(0),
-    stpsum,strmax,w));
+    flimit,strmax,w));
 
     equations[modnr].distrp = &distr_negbin_deltas[distr_negbin_deltas.size()-1];
     equations[modnr].pathd = "";
