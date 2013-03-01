@@ -220,6 +220,7 @@ void superbayesreg::create_hregress(void)
   stoprmax = intoption("stoprmax",5,1,100000);
   fraclimit = doubleoption("fraclimit",0.001,0,1);
 
+  scaleconst = simpleoption("scaleconst",false);
 
   regressoptions.reserve(100);
 
@@ -250,6 +251,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&stopsum);
   regressoptions.push_back(&stoprmax);
   regressoptions.push_back(&fraclimit);
+  regressoptions.push_back(&scaleconst);  
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -1098,8 +1100,9 @@ bool superbayesreg::create_distribution(void)
     ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
 #endif
 
-    distr_hetgaussians.push_back(DISTR_hetgaussian(aresp.getvalue(),bresp.getvalue(),
-                                      &generaloptions,D.getCol(0),path,w) );
+    distr_hetgaussians.push_back(DISTR_hetgaussian(aresp.getvalue(),
+                                 bresp.getvalue(), &generaloptions,
+                                 D.getCol(0),path,scaleconst.getvalue(),w) );
 
     equations[modnr].distrp = &distr_hetgaussians[distr_hetgaussians.size()-1];
 

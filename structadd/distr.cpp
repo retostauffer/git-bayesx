@@ -1577,7 +1577,7 @@ void DISTR_vargaussian::update(void)
 
 DISTR_hetgaussian::DISTR_hetgaussian(double a,double b, GENERAL_OPTIONS * o,
                                      const datamatrix & r,
-                                     const ST::string & ps,
+                                     const ST::string & ps, const bool sc,
                                      const datamatrix & w)
   : DISTR_gaussian(a,b,o,r,ps,w)
 
@@ -1588,6 +1588,9 @@ DISTR_hetgaussian::DISTR_hetgaussian(double a,double b, GENERAL_OPTIONS * o,
   family = "Heteroscedastic Gaussian";
 
   weightoriginal = weight;
+
+  sigma2const=sc;
+  sigma2=1;
 
   }
 
@@ -1600,6 +1603,7 @@ const DISTR_hetgaussian & DISTR_hetgaussian::operator=(
   DISTR_gaussian::operator=(DISTR_gaussian(nd));
   weightoriginal = nd.weightoriginal;
   FCpredict_betamean_vargaussian = nd.FCpredict_betamean_vargaussian;
+  sigma2const = nd.sigma2const;
   return *this;
   }
 
@@ -1609,6 +1613,7 @@ DISTR_hetgaussian::DISTR_hetgaussian(const DISTR_hetgaussian & nd)
   {
   weightoriginal = nd.weightoriginal;
   FCpredict_betamean_vargaussian = nd.FCpredict_betamean_vargaussian;
+  sigma2const = nd.sigma2const;  
   }
 
 
@@ -1666,6 +1671,22 @@ double DISTR_hetgaussian::compute_MSE(const double * response,
     else
       return u*(v-1);
     }
+  }
+
+
+void DISTR_hetgaussian::update(void)
+  {
+  if (!sigma2const)
+    DISTR_gaussian::update();
+  }
+
+
+bool DISTR_hetgaussian::posteriormode(void)
+  {
+  if (!sigma2const)
+    return DISTR_gaussian::posteriormode();
+  else
+    return true;  
   }
 
 

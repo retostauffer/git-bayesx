@@ -695,6 +695,7 @@ class __EXPORT_TYPE DISTR_hetgaussian : public DISTR_gaussian
 
   protected:
 
+  bool sigma2const;
 
   public:
 
@@ -712,7 +713,7 @@ class __EXPORT_TYPE DISTR_hetgaussian : public DISTR_gaussian
 
   DISTR_hetgaussian(double a, double b, GENERAL_OPTIONS * o,
                      const datamatrix & r,
-                     const ST::string & ps,
+                     const ST::string & ps, const bool sc,
                      const datamatrix & w=datamatrix());
 
   // COPY CONSTRUCTOR
@@ -733,6 +734,10 @@ class __EXPORT_TYPE DISTR_hetgaussian : public DISTR_gaussian
   void compute_MSE_all(datamatrix & meanpred, double & MSE,
                                double & MSEzeroweight, unsigned & nrzeroweights,
                                msetype & t, double & v);
+
+  void update(void);
+
+  bool posteriormode(void);
 
   };
 
