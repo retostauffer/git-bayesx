@@ -739,6 +739,8 @@ class __EXPORT_TYPE DISTR_hetgaussian : public DISTR_gaussian
 
   bool posteriormode(void);
 
+  void outresults(ST::string pathresults="");  
+
   };
 
 

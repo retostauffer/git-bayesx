@@ -272,12 +272,7 @@ double DISTR::loglikelihood(const bool & current)
   if (weightsone==true)
     {
     for (i=0;i<nrobs;i++,worklin++,workres++)
-      {
-      if (i==nrobs-1)
-      double t = 0;
       help += loglikelihood_weightsone(workres,worklin);
-
-      }
     }
   else
     {
@@ -1686,9 +1681,15 @@ bool DISTR_hetgaussian::posteriormode(void)
   if (!sigma2const)
     return DISTR_gaussian::posteriormode();
   else
-    return true;  
+    return true;
   }
 
+
+void DISTR_hetgaussian::outresults(ST::string pathresults)
+  {
+  if (!sigma2const)
+    DISTR_gaussian::outresults(pathresults);
+  }
 
 //------------------------------------------------------------------------------
 //------------------------- CLASS DISTR_quantreg -------------------------------
