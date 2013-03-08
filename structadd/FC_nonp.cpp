@@ -234,7 +234,6 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   derivativesample = m.derivativesample;
   samplederivative = m.samplederivative;
   samplef = m.samplef;
-  // elasticitysample = m.elasticitysample;
   }
 
 
@@ -256,7 +255,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   mPhelp = m.mPhelp;
 
   computemeaneffect = m.computemeaneffect;
-  meaneffectconstant = m.meaneffectconstant;  
+  meaneffectconstant = m.meaneffectconstant;
   meaneffect_sample = m.meaneffect_sample;
 
   stype = m.stype;
@@ -291,7 +290,6 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   derivativesample = m.derivativesample;
   samplederivative = m.samplederivative;
   samplef = m.samplef;
-  // elasticitysample = m.elasticitysample;
 
   return *this;
   }
@@ -473,9 +471,6 @@ void FC_nonp::compute_pvalue(const ST::string & pathresults)
   }
 
 
-
-
-
 void FC_nonp::get_linparam(void)
   {
   int pos = designp->position_lin;
@@ -483,6 +478,31 @@ void FC_nonp::get_linparam(void)
   for (i=0;i<paramlin.rows();i++)
     paramlin(i,0) = designp->FClinearp->beta(pos+i,0);
   }
+
+
+
+void FC_nonp::perform_centering(void)
+  {
+
+  if(designp->center)
+    {
+    if (designp->centermethod==meansimple)
+      centerparam();
+    else if (designp->centermethod==integralsimple)
+      centerparam_weight();
+    else if (designp->centermethod==meansum2)
+      centerparam_sum2(s2);
+    else
+      centerparam_sample();
+    }
+
+  if (designp->position_lin!=-1)
+    {
+    get_linparam();
+    }
+
+  }
+
 
 void FC_nonp::update_IWLS(void)
   {
@@ -533,27 +553,12 @@ void FC_nonp::update_IWLS(void)
   designp->precision.solveU(param,paramhelp); // param contains now the proposed
                                               // new parametervector
 
-
-  if(designp->center)
-    {
-    if (designp->centermethod==meansimple)
-      centerparam();
-    else if (designp->centermethod==meansum2)
-      centerparam_sum2(s2);
-    else
-      centerparam_sample();
-    }
+  perform_centering();
 
   paramhelp.minus(param,paramhelp);
 
   double qold = 0.5*designp->precision.getLogDet()-
                 0.5*designp->precision.compute_quadform(paramhelp,0);
-
-  if (designp->position_lin!=-1)
-    {
-    get_linparam();
-    }
-
 
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
@@ -590,6 +595,30 @@ void FC_nonp::update_IWLS(void)
     {
     acceptance++;
 
+    /*
+    if(designp->center)
+      {
+
+      betaold.assign(beta);
+
+      if (designp->centermethod==meansimple)
+        centerparam();
+      else if (designp->centermethod==integralsimple)
+        centerparam_weight();
+      else if (designp->centermethod==meansum2)
+        centerparam_sum2(s2);
+      else
+        centerparam_sample();
+
+      designp->compute_f(param,paramlin,beta,fsample.beta);
+
+      betadiff.minus(beta,betaold);
+
+      designp->update_linpred(betadiff);
+
+      }
+     */
+
     paramKparam=designp->penalty_compute_quadform(param);
 
     betaold.assign(beta);
@@ -611,18 +640,17 @@ void FC_nonp::update_IWLS(void)
     {
     designp->compute_f_derivative(param,paramlin,derivativesample.beta,
                                     derivativesample.beta);
-    // compute_elasticity();
     }
 
 
   // TEST
-  /*
-  ofstream out("c:\\bayesx\\test\\results\\param.res");
-  param.prettyPrint(out);
 
-  ofstream out2("c:\\bayesx\\test\\results\\beta.res");
-  beta.prettyPrint(out2);
-  */
+  // ofstream out("c:\\bayesx\\test\\results\\param.res");
+  // param.prettyPrint(out);
+
+  // ofstream out2("c:\\bayesx\\test\\results\\beta.res");
+  // beta.prettyPrint(out2);
+
   // TEST
 
   // transform_beta();
@@ -634,18 +662,15 @@ void FC_nonp::update_IWLS(void)
 
 
   paramsample.beta.assign(param);
-//  paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
 
   if (derivative)
-    {
-//    derivativesample.transform(0,0) = likep->trmult;
     derivativesample.update();
-    }
 
   FC::update();
 
   }
+
 
 
 void FC_nonp::update(void)
@@ -709,21 +734,8 @@ void FC_nonp::update_gaussian_transform(void)
 
   param.mult(designp->RtinvQ,acuteparam);
 
-  if(designp->center)
-    {
-    if (designp->centermethod==meansimple)
-      centerparam();
-    else if (designp->centermethod==meansum2)
-      centerparam_sum2(s2);
-    else
-      centerparam_sample();
-    }
 
-  if (designp->position_lin!=-1)
-    {
-    get_linparam();
-    }
-
+  perform_centering();
 
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
@@ -733,7 +745,7 @@ void FC_nonp::update_gaussian_transform(void)
 
   acceptance++;
 
-  // transform_beta();
+
 
 /*
   if (designp->position_lin!=-1)
@@ -748,7 +760,6 @@ void FC_nonp::update_gaussian_transform(void)
 */
 
   paramsample.beta.assign(param);
-//  paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
 
   FC::update();
@@ -801,7 +812,7 @@ void FC_nonp::update_gaussian(void)
         )
       designp->compute_precision(lambda);
 
-      
+
     double * work = paramhelp.getV();
     unsigned i;
     unsigned nrpar = param.rows();
@@ -818,29 +829,14 @@ void FC_nonp::update_gaussian(void)
     else
       designp->precision.solve(*(designp->XWres_p),paramhelp,param);
 
-    if(designp->center)
-      {
-      if (designp->centermethod==meansimple)
-        centerparam();
-      else if (designp->centermethod==meansum2)
-        centerparam_sum2(s2);
-      else
-        centerparam_sample();
-      }
-
-    if (designp->position_lin!=-1)
-      {
-      get_linparam();
-      }
+    perform_centering();
 
     designp->compute_f(param,paramlin,beta,fsample.beta);
 
     if (derivative)
-      {
       designp->compute_f_derivative(param,paramlin,derivativesample.beta,
                                     derivativesample.beta);
-      // compute_elasticity();
-      }
+
 
     betadiff.minus(beta,betaold);
 
@@ -853,8 +849,6 @@ void FC_nonp::update_gaussian(void)
 
     acceptance++;
 
-    // transform_beta();
-
     if (designp->position_lin!=-1)
       {
       fsample.update();
@@ -866,40 +860,17 @@ void FC_nonp::update_gaussian(void)
       }
 
     paramsample.beta.assign(param);
-//    paramsample.transform(0,0) = likep->trmult;
+
     paramsample.update();
 
     if (derivative)
-      {
-//      derivativesample.transform(0,0) = likep->trmult;
       derivativesample.update();
-      }
 
     FC::update();
     }
 
   }
 
-/*
-void FC_nonp::compute_elasticity(void)
-  {
-
-  unsigned i;
-  double * workf = beta.getV();
-  double * workelasticity = elasticitysample.beta.getV();
-  double * workderivative = derivativesample.beta.getV();
-  double d;
-  for (i=0;i<beta.rows();i++,workf++,workelasticity++,workderivative++)
-    {
-    d = designp->data(designp->posbeg[i],0);
-    if (*workf != 0)
-      *workelasticity = *workderivative * d / (*workf);
-    else
-      *workelasticity =  100000;
-    }
-
-  }
-*/
 
 void FC_nonp::update_isotonic(void)
   {
@@ -1020,38 +991,19 @@ void FC_nonp::update_isotonic(void)
   TEST
   */
 
-  if(designp->center)
-    {
-    if (designp->centermethod==meansimple)
-      centerparam();
-    else if (designp->centermethod==meansum2)
-      centerparam_sum2(s2);
-    else
-      centerparam_sample();
-    }
-
-  if (designp->position_lin!=-1)
-    {
-    get_linparam();
-    }
+  perform_centering();
 
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
   if (derivative)
-    {
     designp->compute_f_derivative(param,paramlin,derivativesample.beta,
                                     derivativesample.beta);
-    // compute_elasticity();
-    }
-
 
   betadiff.minus(beta,betaold);
 
   designp->update_linpred(betadiff);
 
   acceptance++;
-
-  // transform_beta();
 
   if (designp->position_lin!=-1)
     {
@@ -1064,15 +1016,10 @@ void FC_nonp::update_isotonic(void)
   // TEST
 
   paramsample.beta.assign(param);
-//  paramsample.transform(0,0) = likep->trmult;
   paramsample.update();
 
   if (derivative)
-    {
-//    derivativesample.transform(0,0) = likep->trmult;
     derivativesample.update();
-    // elasticitysample.update();
-    }
 
   // TEST
   // ofstream out0_1("c:\\bayesx\\testh\\results\\beta_f.res");
@@ -1088,7 +1035,7 @@ void FC_nonp::update_isotonic(void)
 
   }
 
-  
+
 bool FC_nonp::posteriormode_transform(void)
   {
 
@@ -1134,8 +1081,6 @@ bool FC_nonp::posteriormode_transform(void)
   betadiff.minus(beta,betaold);
 
   designp->update_linpred(betadiff);
-
-  // transform_beta();
 
   if (designp->position_lin!=-1)
     {
@@ -1194,7 +1139,15 @@ bool FC_nonp::posteriormode(void)
     // TEST
 
     if(designp->center)
-      centerparam();
+      {
+      if ((designp->centermethod==integralsimple) ||
+          (designp->centermethod==meanf) ||
+          (designp->centermethod==meanfd)
+         )
+        centerparam_weight();
+      else
+        centerparam();
+      }
 
     if (designp->position_lin!=-1)
       {
@@ -1634,7 +1587,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     double s_level2=0;
     if (optionsp->samplesize > 0)
       {
-      optionsp->out("\n");      
+      optionsp->out("\n");
       s_level1 = simconfBand(true);
       s_level2 = simconfBand(false);
 
@@ -1689,8 +1642,8 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       outres << designp->datanames[i] << "   ";
     outres << "pmean   ";
 
-    if (optionsp->samplesize > 1)
-      {
+//    if (optionsp->samplesize > 1)
+//      {
       outres << "pqu"  << l1  << "   ";
       outres << "pqu"  << l2  << "   ";
       outres << "pmed   ";
@@ -1705,7 +1658,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       outres << "pqu"  << u2  << "_sim   ";
       outres << "pcat" << optionsp->level1 << "_sim   ";
       outres << "pcat" << optionsp->level2 << "_sim   ";
-      }
+//      }
 
 
     if (designp->position_lin!=-1)
@@ -1807,7 +1760,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       mu_workbetaqu50 = meaneffect_sample.betaqu50.getV();
       }
 
-    double l1_sim,l2_sim,u1_sim,u2_sim;  
+    double l1_sim,l2_sim,u1_sim,u2_sim;
 
     unsigned nrpar = beta.rows();
     for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
@@ -1864,8 +1817,9 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
         else
           outres << 0 << "   ";
 
-
         }
+      else
+        outres << "0  0  0  0  0  0  0  0  0  0  0  0  0  ";
 
 
       if (designp->position_lin!=-1)
@@ -2063,6 +2017,34 @@ void FC_nonp::centerparam(void)
     *workparam-= sum;
 
   }
+
+
+void FC_nonp::centerparam_weight(void)
+  {
+
+  unsigned i;
+  double sum=0;
+  double * workparam = param.getV();
+  unsigned nrparam = param.rows();
+  double * wp = designp->basisNull.getV();
+
+  double sumw=0;
+
+  for (i=0;i<nrparam;i++,workparam++,wp++)
+    {
+    sum+= (*workparam)*(*wp);
+    sumw+= (*wp);
+    }
+
+  sum /= sumw;
+
+  workparam = param.getV();
+
+  for (i=0;i<nrparam;i++,workparam++)
+    *workparam-= sum;
+
+  }
+
 
 
 void FC_nonp::centerparam_sum2(double & s2)

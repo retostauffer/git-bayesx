@@ -119,6 +119,20 @@ double DESIGN::compute_sumBk(unsigned & k)
   }
 
 
+double DESIGN::compute_sumBk_different(unsigned & k)
+  {
+
+  double sum=0;
+
+  unsigned j;
+  for (j=0;j<ZoutT[k].size();j++)
+    sum += ZoutT[k][j];
+
+  return sum;
+  }
+
+
+
 void DESIGN::init_data(const datamatrix & dm,const datamatrix & iv)
   {
 

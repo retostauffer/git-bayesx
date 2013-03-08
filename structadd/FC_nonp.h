@@ -75,7 +75,9 @@ class __EXPORT_TYPE FC_nonp  : public FC
   datamatrix betadiff;
 
   double s2;
+  void perform_centering(void);
   void centerparam(void);
+  void centerparam_weight(void);
   void centerparam_sum2(double & s2);
   void centerparam_sample(void);
 

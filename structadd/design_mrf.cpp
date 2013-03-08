@@ -59,7 +59,7 @@ void DESIGN_mrf::read_options(vector<ST::string> & op,vector<ST::string> & vn)
     center = false;
 
   if (op[16]=="mean" || op[16] == "nullspace")
-    centermethod = cmean;
+    centermethod = mean;
   else if (op[16] == "meansimple")
     centermethod = meansimple;
   else if (op[16] == "meaninvvar")
@@ -67,7 +67,7 @@ void DESIGN_mrf::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else if (op[16] == "meanintegral")
     centermethod = cmeanintegral;
   else if (op[16] == "meanf")
-    centermethod = cmeanf;
+    centermethod = meanf;
 
   datanames = vn;
 
@@ -237,16 +237,13 @@ void DESIGN_mrf::compute_penalty(void)
 
 
 
-
-
-
 void DESIGN_mrf::compute_basisNull(void)
   {
   int i,j;
 
   basisNull = datamatrix(1,nrpar,1);
 
-  if (centermethod==cmeanf || centermethod==cmeanintegral)
+  if (centermethod==meanf || centermethod==cmeanintegral)
     {
 
     unsigned k;

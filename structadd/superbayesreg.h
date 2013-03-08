@@ -224,7 +224,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   simpleoption includescale;            // multiply error variance to penalty
                                         // matrices
 
-  simpleoption scaleconst;                                        
+  simpleoption scaleconst;
+  simpleoption utilities;                                        
 
   // prediction
   vector<ST::string> predictop;

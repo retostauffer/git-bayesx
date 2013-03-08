@@ -222,6 +222,9 @@ void superbayesreg::create_hregress(void)
 
   scaleconst = simpleoption("scaleconst",false);
 
+  utilities = simpleoption("utilities",false);  
+
+
   regressoptions.reserve(100);
 
   regressoptions.push_back(&modeonly);
@@ -251,7 +254,8 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&stopsum);
   regressoptions.push_back(&stoprmax);
   regressoptions.push_back(&fraclimit);
-  regressoptions.push_back(&scaleconst);  
+  regressoptions.push_back(&scaleconst);
+  regressoptions.push_back(&utilities);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -1590,12 +1594,18 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
+    #if defined(__BUILDING_LINUX)
+    ST::string path = defaultpath + "/temp/" + name  + "_latentutilities.raw";
+    #else
+    ST::string path = defaultpath + "\\temp\\" + name  + "_latentutilities.raw";
+    #endif
+
+
     distr_binomialprobits.push_back(DISTR_binomialprobit(
-    &generaloptions,D.getCol(0),w));
+    &generaloptions,D.getCol(0),utilities.getvalue(),path,w));
 
     equations[modnr].distrp = &distr_binomialprobits[distr_binomialprobits.size()-1];
-    equations[modnr].pathd = "";
-
+    equations[modnr].pathd = outfile.getvalue() + "_latentvariables.res";
     }
 //-------------------------- END: Binomial response probit ---------------------
 //---------------------------- Binomial response SVM ---------------------------

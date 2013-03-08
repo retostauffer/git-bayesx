@@ -84,9 +84,11 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   f = op[15].strtodouble(round);
 
   if (op[16]=="mean")
-    centermethod = cmean;
+    centermethod = mean;
   else if (op[16] == "meansimple")
     centermethod = meansimple;
+  else if (op[16] == "integralsimple")
+    centermethod = integralsimple;
   else if (op[16] == "nullspace")
     centermethod = nullspace;
   else if (op[16] == "meaninvvar")
@@ -94,7 +96,9 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
   else if (op[16] == "meanintegral")
     centermethod = cmeanintegral;
   else if (op[16] == "meanf")
-    centermethod = cmeanf;
+    centermethod = meanf;
+  else if (op[16] == "meanfd")
+    centermethod = meanfd;
   else if (op[16] == "meansum2")
     centermethod = meansum2;
 
@@ -599,7 +603,7 @@ void DESIGN_pspline::compute_basisNull(void)
   {
   unsigned i,j;
 
-  if (centermethod==cmean || centermethod==meansimple)
+  if (centermethod==mean || centermethod==meansimple)
     {
     basisNull = datamatrix(1,nrpar,1);
     position_lin = -1;
@@ -620,12 +624,12 @@ void DESIGN_pspline::compute_basisNull(void)
 
     position_lin = -1;
     }
-  else if (centermethod==cmeanintegral)
+  else if ((centermethod==cmeanintegral) || (centermethod==integralsimple))  // integral f = 0
     {
     compute_betaweight(basisNull);
     position_lin = -1;
     }
-  else if (centermethod==cmeanf)
+  else if (centermethod==meanf)            // sum of f's zero (over all observations)
     {
 
     basisNull = datamatrix(1,nrpar,1);
@@ -633,6 +637,23 @@ void DESIGN_pspline::compute_basisNull(void)
     unsigned k;
     for (k=0;k<nrpar;k++)
       basisNull(0,k) = compute_sumBk(k);
+
+    // TEST
+    // ofstream out("c:\\bayesx\\testh\\results\\basisnull.res");
+    // basisNull.prettyPrint(out);
+    // ende: TEST
+
+    position_lin = -1;
+
+    }
+  else if (centermethod==meanfd)            // sum of f's zero
+    {
+
+    basisNull = datamatrix(1,nrpar,1);
+
+    unsigned k;
+    for (k=0;k<nrpar;k++)
+      basisNull(0,k) = compute_sumBk_different(k);
 
     // TEST
     // ofstream out("c:\\bayesx\\testh\\results\\basisnull.res");

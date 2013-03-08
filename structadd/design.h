@@ -58,7 +58,23 @@ enum effecttype2 {
                 Varcoefftotal
    };
 
-enum centerm {cmean,nullspace,meansimple,cmeanintegral,cmeaninvvar,cmeanf,meansum2};
+
+// Centermethods
+// 1. Without sampling
+// a) meansimple
+//    center parameters around zero
+// b) integralsimple
+//    integral f = 0
+// 2. Within sampling
+// a) mean
+//    center parameters around zero
+// b) meanf
+//    sum_i f(x_i) = 0 (over all observations)
+// c) meanfd
+//    sum_j f(x_(j)) = 0 (over the different observations)
+
+enum centerm {mean,nullspace,meansimple,integralsimple,
+              cmeanintegral,cmeaninvvar,meanf,meanfd,meansum2};
 
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: DESIGN ------------------------------------
@@ -177,6 +193,7 @@ class __EXPORT_TYPE DESIGN
   // --------------------------- for center ------------------------------------
 
   double compute_sumBk(unsigned & k);
+  double compute_sumBk_different(unsigned & k);  
 
   bool center;
   centerm centermethod;

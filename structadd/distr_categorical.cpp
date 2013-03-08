@@ -409,7 +409,8 @@ void DISTR_binomial::sample_responses_cv(unsigned i,datamatrix & linpred,
 
 
 DISTR_binomialprobit::DISTR_binomialprobit(GENERAL_OPTIONS * o,
-                                           const datamatrix & r,
+                                           const datamatrix & r,const bool ut,
+                                           const ST::string & ps,
                                            const datamatrix & w)
   : DISTR(o,r,w)
 
@@ -422,6 +423,11 @@ DISTR_binomialprobit::DISTR_binomialprobit(GENERAL_OPTIONS * o,
 
   family = "Binomial";
   updateIWLS = false;
+
+  utilities = ut;
+  if (utilities)
+    FC_latentutilities = FC(o,"",nrobs,1,ps);
+
   }
 
 
@@ -431,6 +437,8 @@ const DISTR_binomialprobit & DISTR_binomialprobit::operator=(
   if (this==&nd)
     return *this;
   DISTR::operator=(DISTR(nd));
+  utilities = nd.utilities;
+  FC_latentutilities = nd.FC_latentutilities;
   return *this;
   }
 
@@ -438,6 +446,8 @@ const DISTR_binomialprobit & DISTR_binomialprobit::operator=(
 DISTR_binomialprobit::DISTR_binomialprobit(const DISTR_binomialprobit & nd)
    : DISTR(DISTR(nd))
   {
+  utilities = nd.utilities;
+  FC_latentutilities = nd.FC_latentutilities;  
   }
 
 
@@ -651,12 +661,56 @@ void DISTR_binomialprobit::update(void)
 
     }
 
+
+  if (utilities)
+    {
+    workwresp = workingresponse.getV();
+    double * wb = FC_latentutilities.beta.getV();
+
+    for (i=0;i<nrobs;i++,workwresp++,wb++)
+      {
+      *wb = *workwresp;
+      }
+    FC_latentutilities.update();
+    }
+
   DISTR::update();
 
   }
 
 
+void DISTR_binomialprobit::outresults(ST::string pathresults)
+  {
+  if (utilities && pathresults.isvalidfile() != 1)
+    {
+    ofstream out1;
+    ofstream out2;
+    unsigned i;
 
+    FC_latentutilities.outresults(out1,out2,"");
+
+    ofstream out(pathresults.strtochar());
+
+    double * wb = FC_latentutilities.betamean.getV();
+
+    for (i=0;i<nrobs;i++,wb++)
+      {
+      out << *wb << endl;
+      }
+
+    }
+
+  }
+
+
+void DISTR_binomialprobit::get_samples(const ST::string & filename,ofstream & outg) const
+  {
+  if ((utilities) && (filename.isvalidfile() != 1))
+    {
+    FC_latentutilities.get_samples(filename,outg);
+    }
+
+  }
 
 //------------------------------------------------------------------------------
 //--------------------- CLASS DISTRIBUTION_binomialsvm -------------------------

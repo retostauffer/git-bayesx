@@ -35,12 +35,12 @@ term_nonp::term_nonp(vector<ST::string> & na)
   degree=intoption("degree",3,0,5);
   numberknots=intoption("nrknots",20,5,500);
   difforder =  intoption("difforder",2,1,3);
-  lambda = doubleoption("lambda",0.1,0,10000000);
+  lambda = doubleoption("lambda",10,0,10000000);
   a = doubleoption("a",0.001,-1.0,500);
   b = doubleoption("b",0.001,0,500);
   nocenter = simpleoption("nocenter",false);
   map=stroption("map");
-  lambda_re = doubleoption("lambda_re",0.1,0,10000000);
+  lambda_re = doubleoption("lambda_re",10,0,10000000);
   a_re = doubleoption("a_re",0.001,-1.0,500);
   b_re = doubleoption("b_re",0.001,0,500);
   internal_mult = simpleoption("internal_mult",false);
@@ -57,9 +57,11 @@ term_nonp::term_nonp(vector<ST::string> & na)
   centermethods.push_back("meaninvvar");
   centermethods.push_back("nullspace");
   centermethods.push_back("meansimple");      // subtract mean from parameters
+  centermethods.push_back("integralsimple");      // subtract mean from parameters  
   centermethods.push_back("meanf");           // sample centered f
+  centermethods.push_back("meanfd");           // sample centered f
   centermethods.push_back("meansum2");
-  centermethod = stroption("centermethod",centermethods,"meanf");
+  centermethod = stroption("centermethod",centermethods,"meanfd");
   internal_multexp = simpleoption("internal_multexp",false);
   pvalue = simpleoption("pvalue",false);
   meaneffect = simpleoption("meaneffect",false);

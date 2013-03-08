@@ -242,6 +242,8 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
 
   protected:
 
+  bool utilities;
+  FC FC_latentutilities;
 
   public:
 
@@ -253,8 +255,8 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
 
    // CONSTRUCTOR
 
-   DISTR_binomialprobit(GENERAL_OPTIONS * o, const datamatrix & r,
-                  const datamatrix & w=datamatrix());
+   DISTR_binomialprobit(GENERAL_OPTIONS * o, const datamatrix & r,const bool ut,
+                        const ST::string & ps,const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
 
@@ -307,6 +309,10 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
   void outoptions(void);
 
   void update(void);
+
+  void outresults(ST::string pathresults);
+
+  void get_samples(const ST::string & filename,ofstream & outg) const;    
 
   };
 
