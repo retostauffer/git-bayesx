@@ -34,9 +34,9 @@ using std::endl;
 //------------------------------------------------------------------------------
 
 const double sqrtmin = 0.0000000000000000001;
-const double sqrtmax = 1000000000000000000000;
+const double sqrtmax = 100000000000000000000.0;
 const double logmin =  0.0000000000000000001;
-const double logmax =  1000000000000000000000;
+const double logmax =  100000000000000000000.0;
 
 template<class T>
 class envmatrix
