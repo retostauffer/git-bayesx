@@ -648,7 +648,7 @@ bool envmatrix<T>::decomp_save()
       VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
       for(; d!=diag.end();++ld, ++d)
         {
-        if ((*d) > sqrtmin)
+        if ((*d) > sqrtmin && (*d) < sqrtmax)
           *ld = sqrt(*d);
         else
           {
@@ -666,7 +666,7 @@ bool envmatrix<T>::decomp_save()
 
       unsigned i;
 
-      if ((*d) > sqrtmin)
+      if ((*d) > sqrtmin &&  (*d) < sqrtmax)
         *ld=sqrt(*d);
       else
         {
@@ -690,7 +690,7 @@ bool envmatrix<T>::decomp_save()
       for(i=1; i<dim-1; i++, ++e, ++ld, ++d)
         {
         help = *d-(*le* *le);
-        if (help > sqrtmin)
+        if (help > sqrtmin && help < sqrtmax)
           *ld=sqrt(help);
         else
           {
@@ -710,7 +710,7 @@ bool envmatrix<T>::decomp_save()
         }
 
       help = *d-*le* *le;
-      if (help > sqrtmin)
+      if (help > sqrtmin && help < sqrtmax)
         *ld=sqrt(help);
       else
         {
@@ -728,7 +728,7 @@ bool envmatrix<T>::decomp_save()
 
       unsigned i, h;
 
-      if (*d > sqrtmin)
+      if ((*d) > sqrtmin && (*d) < sqrtmax)
         *ld=sqrt(*d);
       else
         {
@@ -747,7 +747,7 @@ bool envmatrix<T>::decomp_save()
       ++d; ++e, ++ld;
 
       help = *d-*le* *le;
-      if (help > sqrtmin)
+      if (help > sqrtmin && help < sqrtmax)
         *ld=sqrt(help);
       else
         {
@@ -774,7 +774,7 @@ bool envmatrix<T>::decomp_save()
         ++e; ++ld; ++d;
 
         help = *d-*le* *le-*(le-1)* *(le-1);
-        if (help > sqrtmin)
+        if (help > sqrtmin && help < sqrtmax)
           *ld=sqrt(help);
         else
           {
@@ -816,7 +816,7 @@ bool envmatrix<T>::decomp_save()
           *ldi-=*le* *le;
           }
 
-        if (*ldi > sqrtmin)
+        if ((*ldi) > sqrtmin && (*ldi) < sqrtmax)
           *ldi=sqrt(*ldi);
         else
           {
@@ -848,7 +848,7 @@ bool envmatrix<T>::decomp_save()
           }
 
 
-        if (*ldi > sqrtmin)
+        if ((*ldi) > sqrtmin && (*ldi) < sqrtmax)
           *ldi=sqrt(*ldi);
         else
           {
@@ -879,7 +879,7 @@ bool envmatrix<T>::decomp_save()
       VEC_ITER_TYPE vector<T>::iterator ldk;
 
 
-      if (*di > sqrtmin)
+      if ((*di) > sqrtmin && (*di) < sqrtmax)
           *ldi=sqrt(*di);
       else
         {
@@ -960,7 +960,7 @@ bool envmatrix<T>::decomp_save()
             }
           }
 
-        if (temp > sqrtmin)
+        if (temp > sqrtmin && temp < sqrtmax)
           *ldi = sqrt(temp);
         else
           {
@@ -2589,6 +2589,37 @@ T envmatrix<T>::getLogDet()
     }
   return 2*logdet;
   }
+
+
+template<class T>
+T envmatrix<T>::getLogDet_save(bool error)
+  {
+  error=false;
+  if(!decomposed)
+    {
+    error = decomp_save();
+    }
+
+  T logdet=0;
+  if (error == false)
+    {
+
+    VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+    for(; ld!=ldiag.end(); ++ld)
+      {
+      if ((*ld) > logmin && (*ld) < logmax)
+        logdet+=log(*ld);
+      else
+        {
+        error = true;
+        logdet += logmin;
+        }
+      }
+    }
+
+  return 2*logdet;
+  }
+
 
 template<class T>
 T envmatrix<T>::traceOfProduct(envmatrix<T> & B)

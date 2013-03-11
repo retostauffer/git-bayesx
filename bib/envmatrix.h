@@ -33,8 +33,10 @@ using std::endl;
 //------------------------------ CLASS: envmatrix ------------------------------
 //------------------------------------------------------------------------------
 
-const sqrtmin = 0.00000001;
-
+const double sqrtmin = 0.0000000000000000001;
+const double sqrtmax = 1000000000000000000000;
+const double logmin =  0.0000000000000000001;
+const double logmax =  1000000000000000000000;
 
 template<class T>
 class envmatrix
@@ -328,6 +330,8 @@ class envmatrix
   // TASK: returns the logarithm of the determinant of the calling matrix
 
   T getLogDet();
+
+  T getLogDet_save(bool error);
 
   // FUNCTION: traceOfProduct
   // TASK: returns the trace of the product A*B, where A is the calling matrix.
