@@ -52,7 +52,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   constraints = stroption("constraints",ctypes,"unconstrained");
   round = doubleoption("round",-1,0,500);
   vector<ST::string> centermethods;
-  centermethods.push_back("mean");
+  centermethods.push_back("meancoeff");
   centermethods.push_back("meanintegral");
   centermethods.push_back("meaninvvar");
   centermethods.push_back("nullspace");

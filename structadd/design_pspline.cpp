@@ -83,8 +83,8 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
 
   f = op[15].strtodouble(round);
 
-  if (op[16]=="mean")
-    centermethod = mean;
+  if (op[16]=="meancoeff")
+    centermethod = meancoeff;
   else if (op[16] == "meansimple")
     centermethod = meansimple;
   else if (op[16] == "integralsimple")
@@ -119,7 +119,7 @@ void DESIGN_pspline::read_options(vector<ST::string> & op,
     derivative = false;
   else
     derivative = true;
-    
+
 
   datanames = vn;
 
@@ -603,7 +603,7 @@ void DESIGN_pspline::compute_basisNull(void)
   {
   unsigned i,j;
 
-  if (centermethod==mean || centermethod==meansimple)
+  if (centermethod==meancoeff || centermethod==meansimple)
     {
     basisNull = datamatrix(1,nrpar,1);
     position_lin = -1;
@@ -804,7 +804,7 @@ void DESIGN_pspline::outoptions(GENERAL_OPTIONS * op)
          ") knots(" + ST::doubletostring(min,8) + "(" +
           ST::doubletostring(dist,8) + ")" + ST::doubletostring(max,8) + ") \n"
          );
-  op->out("  where x contains the values for which the basis functions should be created\n");       
+  op->out("  where x contains the values for which the basis functions should be created\n");
   op->out("\n");
 
   }

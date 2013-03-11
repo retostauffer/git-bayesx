@@ -58,8 +58,8 @@ void DESIGN_mrf::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else
     center = false;
 
-  if (op[16]=="mean" || op[16] == "nullspace")
-    centermethod = mean;
+  if (op[16]=="meancoeff" || op[16] == "nullspace")
+    centermethod = meancoeff;
   else if (op[16] == "meansimple")
     centermethod = meansimple;
   else if (op[16] == "meaninvvar")
@@ -156,7 +156,7 @@ void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
   vector<ST::string> errormessages = ma.get_errormessages();
   if (errormessages.size() >= 1)
     {
-    
+
     errors=true;
     unsigned i;
     for (i=0;i<errormessages.size();i++)

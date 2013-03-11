@@ -147,6 +147,14 @@ void FC_nonp_variance::update(void)
     beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
                 b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
 
+/*
+    if (beta(0,0) > 3)
+      beta(0,0) = 3;
+
+    if (beta(0,0) < 0.001)
+      beta(0,0) = 0.001;
+*/
+
     beta(0,1) = likep->get_scale()/beta(0,0);
 
     FCnonpp->tau2 = beta(0,0);
