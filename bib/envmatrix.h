@@ -33,6 +33,8 @@ using std::endl;
 //------------------------------ CLASS: envmatrix ------------------------------
 //------------------------------------------------------------------------------
 
+const sqrtmin = 0.00000001;
+
 
 template<class T>
 class envmatrix
@@ -176,6 +178,8 @@ class envmatrix
   // TASK: Computes the cholesky decomposition and stores it in lenv and ldiag
 
   void decomp();
+
+  bool decomp_save();
 
   // FUNCTION: decomp2
   // TASK: Computes the cholesky decomposition and stores it in lenv and ldiag
@@ -472,6 +476,7 @@ class envmatrix
   };
 
   typedef envmatrix<double> envmatdouble;
+  typedef long double ldouble;
 
 #if !defined(ENVMATRIX_CPP_INCLUDED)
 #include"envmatrix.cpp"

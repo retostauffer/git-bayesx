@@ -343,7 +343,6 @@ const envmatrix<T> & envmatrix<T>::operator=(const envmatrix<T> & em)
 //--- Functions that decompose a matrix or solve systems of linear equations---
 //-----------------------------------------------------------------------------
 
-
 template<class T>
 void envmatrix<T>::decomp()
   {
@@ -628,6 +627,357 @@ void envmatrix<T>::decomp()
     }
   decomposed=true;
   rational_decomposed=false;
+  }
+
+
+
+//-----------------------------------------------------------------------------
+//--- Functions that decompose a matrix or solve systems of linear equations---
+//-----------------------------------------------------------------------------
+
+template<class T>
+bool envmatrix<T>::decomp_save()
+  {
+  bool error = false;
+  T help;
+  if(!decomposed)
+    {
+    if(bandwidth==0)
+      {
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      for(; d!=diag.end();++ld, ++d)
+        {
+        if ((*d) > sqrtmin)
+          *ld = sqrt(*d);
+        else
+          {
+          error=true;
+          *ld = sqrt(sqrtmin);
+          }
+        }
+      }
+    else if(bandwidth==1)
+      {
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
+
+      unsigned i;
+
+      if ((*d) > sqrtmin)
+        *ld=sqrt(*d);
+      else
+        {
+        error=true;
+        *ld = sqrt(sqrtmin);
+        }
+
+      ++d;
+
+      if(*e!=0)
+        {
+        *le = *e/ *ld;
+        }
+      else
+        {
+        *le=0;
+        }
+      ++e;
+      ++ld;
+
+      for(i=1; i<dim-1; i++, ++e, ++ld, ++d)
+        {
+        help = *d-(*le* *le);
+        if (help > sqrtmin)
+          *ld=sqrt(help);
+        else
+          {
+          error=true;
+          *ld = sqrt(sqrtmin);
+          }
+        ++le;
+
+        if(*e!=0)
+          {
+          *le=*e/ *ld;
+          }
+        else
+          {
+          *le=0;
+          }
+        }
+
+      help = *d-*le* *le;
+      if (help > sqrtmin)
+        *ld=sqrt(help);
+      else
+        {
+        error=true;
+        *ld = sqrt(sqrtmin);
+        }
+
+      }
+    else if(bandwidth==2)
+      {
+      VEC_ITER_TYPE vector<T>::iterator d = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ld = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
+
+      unsigned i, h;
+
+      if (*d > sqrtmin)
+        *ld=sqrt(*d);
+      else
+        {
+        error=true;
+        *ld = sqrt(sqrtmin);
+        }
+
+      if(*e!=0)
+        {
+        *le=*e/ *ld;
+        }
+      else
+        {
+        *le=0;
+        }
+      ++d; ++e, ++ld;
+
+      help = *d-*le* *le;
+      if (help > sqrtmin)
+        *ld=sqrt(help);
+      else
+        {
+        error=true;
+        *ld = sqrt(sqrtmin);
+        }
+
+      ++le;
+      for(i=2, h=1; i<dim; i++)
+        {
+        if(*e!=0)
+          {
+          *le=*e/ *(ld-1);
+          }
+        else
+          {
+          *le=0;
+          }
+        h++;
+        ++e; ++le;
+
+        *le=(*e-*(le-1)* *(le-2))/ *ld;
+        h++;
+        ++e; ++ld; ++d;
+
+        help = *d-*le* *le-*(le-1)* *(le-1);
+        if (help > sqrtmin)
+          *ld=sqrt(help);
+        else
+          {
+          error=true;
+          *ld = sqrt(sqrtmin);
+          }
+
+        ++le;
+        }
+      }
+    else if(bandwidth>2)
+      {
+      unsigned i, k, h, l;
+      h=0;
+      VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator ldk;
+      VEC_ITER_TYPE vector<T>::iterator e = env.begin();
+      VEC_ITER_TYPE vector<T>::iterator le = lenv.begin();
+      VEC_ITER_TYPE vector<T>::iterator lej;
+      VEC_ITER_TYPE vector<T>::iterator lel;
+      vector<unsigned>::iterator xe;
+
+      for(i=0; i<(unsigned)bandwidth; i++, ++di, ++ldi)
+        {
+        *ldi=*di;
+
+        for(k=0, xe = xenv.begin(), ldk = ldiag.begin(); k<i;
+            k++, h++, ++e, ++le, ++xe, ++ldk)
+          {
+
+          lej=lenv.begin()+*xe;
+          *le=*e;
+          for(l=h-k, lel=lenv.begin()+h-k; l<h; l++, ++lel, ++lej)
+            {
+            *le-=*lej* *lel;
+            }
+          *le/=*ldk;
+          *ldi-=*le* *le;
+          }
+
+        if (*ldi > sqrtmin)
+          *ldi=sqrt(*ldi);
+        else
+          {
+          error=true;
+          *ldi = sqrt(sqrtmin);
+          }
+
+        }
+
+      for(i=bandwidth; i<dim; i++, ++di, ++ldi)
+        {
+
+        *ldi=*di;
+
+        for(k=0, xe = xenv.begin()+i-bandwidth+1, ldk=ldiag.begin()+i-bandwidth;
+            k<(unsigned)bandwidth; k++, h++, ++e, ++le, ++xe, ++ldk)
+          {
+
+          *le=*e;
+          lej=lenv.begin()+*xe-k;
+          for(l=h-k, lel=lenv.begin()+h-k; l<h; l++, ++lel, ++lej)
+            {
+            *le-=*lel* *lej;
+            }
+
+          *le/=*ldk;
+
+          *ldi-=*le* *le;
+          }
+
+
+        if (*ldi > sqrtmin)
+          *ldi=sqrt(*ldi);
+        else
+          {
+          error=true;
+          *ldi = sqrt(sqrtmin);
+          }
+
+        }
+      }
+    else
+      {
+      unsigned i, ixenv, iband, ifirst, last, k, l, mstop, m, jstop, j;
+
+      int kband;
+      T temp = T(0);
+      T s = T(0);
+      T s1 = T(0);
+
+      VEC_ITER_TYPE vector<T>::iterator ldi = ldiag.begin();
+      VEC_ITER_TYPE vector<T>::iterator di = diag.begin();
+      vector<unsigned>::iterator xei = xenv.begin()+1;
+      vector<unsigned>::iterator xek;
+      VEC_ITER_TYPE vector<T>::iterator ek;
+      VEC_ITER_TYPE vector<T>::iterator lem;
+      VEC_ITER_TYPE vector<T>::iterator lel;
+      VEC_ITER_TYPE vector<T>::iterator lek;
+      VEC_ITER_TYPE vector<T>::iterator lej;
+      VEC_ITER_TYPE vector<T>::iterator ldk;
+
+
+      if (*di > sqrtmin)
+          *ldi=sqrt(*di);
+      else
+        {
+        error=true;
+        *ldi = sqrt(sqrtmin);
+        }
+
+      ++di; ++ldi;
+
+      for(i=1; i<dim; i++, ++ldi, ++di)
+        {
+
+        ixenv = *xei;
+        ++xei;
+        iband = *xei-ixenv;
+        temp = *di;
+
+        if(iband>0)
+          {
+          ifirst = i-iband;
+          last = ixenv;
+
+          for(k=0, xek=xenv.begin()+ifirst, ek=env.begin()+ixenv,
+              lek=lenv.begin()+ixenv, ldk=ldiag.begin()+ifirst;
+              k<iband;
+              k++, ++ek, ++lek, ++ldk)
+            {
+
+            kband = -(int)*xek;
+            ++xek;
+            kband += *xek;
+
+            if(kband > k)
+              {
+              kband = k;
+              }
+
+            s = *ek;
+
+            l = k+ixenv-kband;
+            lel = lenv.begin()+k+ixenv-kband;
+
+            if((kband>0) && (last>=l))
+              {
+              mstop = *xek - 1;
+              for(lem=lenv.begin() + *xek - kband, m=*xek-kband; m<=mstop;
+                                 ++lem, ++lel, m++)
+                  {
+                l++;
+                if(*lel!=0 && *lem!=0)
+                  {
+                  s -= *lel**lem;
+                  }
+                }
+              }
+            if(s!=0)
+              {
+
+              *lek = s/ *ldk;
+              last=k+ixenv;
+              }
+            else
+              {
+
+              *lek=0;
+              }
+            }
+
+          jstop = *xei-1;
+
+         for(j=ixenv, lej=lenv.begin()+ixenv; j<=jstop; j++, ++lej)
+            {
+            s1 = *lej;
+            if(s1!=0)
+              {
+              temp = temp - s1*s1;
+              }
+            }
+          }
+
+        if (temp > sqrtmin)
+          *ldi = sqrt(temp);
+        else
+          {
+          error=true;
+          *ldi = sqrt(sqrtmin);
+          }
+
+        }
+      }
+    }
+  if (error == false)
+    {
+    decomposed=true;
+    rational_decomposed=false;
+    }
+  return error;
+
   }
 
 
