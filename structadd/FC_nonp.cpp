@@ -526,6 +526,10 @@ void FC_nonp::update_IWLS(void)
     paramKparam=designp->penalty_compute_quadform(param);
     }
 
+//  double t =  log(0.0000000000000000001);
+//         t =  log(1000000000000000000000);
+//         t = sqrt(0.0000000000000000001);
+//         t = sqrt(1000000000000000000000);
 
   // Compute log-likelihood with old param, computes workingweight and
   // workingresponse
@@ -538,10 +542,10 @@ void FC_nonp::update_IWLS(void)
 
   designp->compute_precision(lambda);
 
-//  bool error = designp->precision.decomp_save();
+  bool error = designp->precision.decomp_save();
 
-//  if (error == false)
-//    {
+  if (error == false)
+    {
     designp->precision.solve(*(designp->XWres_p),paramhelp);
 
     // TEST
@@ -561,85 +565,79 @@ void FC_nonp::update_IWLS(void)
 
     paramhelp.minus(param,paramhelp);
 
-    double qold = 0.5*designp->precision.getLogDet()-
+    double qold = 0.5*designp->precision.getLogDet_save(error)-
                 0.5*designp->precision.compute_quadform(paramhelp,0);
 
-    designp->compute_f(param,paramlin,beta,fsample.beta);
-
-    betadiff.minus(beta,betaold);
-
-    designp->update_linpred(betadiff);
-
-    // Compute new log-likelihood
-
-    double lognew = likep->compute_iwls(true,true);
-    lognew  -= 0.5*designp->penalty_compute_quadform(param)*lambda;
-
-    designp->compute_partres(partres,beta);
-    designp->compute_XtransposedWX();
-    designp->compute_XtransposedWres(partres,lambda);
-
-    designp->compute_precision(lambda);
-
-    designp->precision.solve(*(designp->XWres_p),paramhelp);
-
-    // TEST
-    // ofstream out2("c:\\bayesx\\testh\\results\\paramhelp_n.res");
-    // paramhelp.prettyPrint(out2);
-    // TEST
-
-
-    paramhelp.minus(paramold,paramhelp);
-    double qnew = 0.5*designp->precision.getLogDet() -
-                  0.5*designp->precision.compute_quadform(paramhelp,0);
-
-
-    double u = log(uniform());
-    if (u <= (lognew - logold  + qnew - qold) )
+    if (error == false)
       {
-      acceptance++;
+      designp->compute_f(param,paramlin,beta,fsample.beta);
 
-      /*
-      if(designp->center)
+      betadiff.minus(beta,betaold);
+
+      designp->update_linpred(betadiff);
+
+      // Compute new log-likelihood
+
+      double lognew = likep->compute_iwls(true,true);
+      lognew  -= 0.5*designp->penalty_compute_quadform(param)*lambda;
+
+      designp->compute_partres(partres,beta);
+      designp->compute_XtransposedWX();
+      designp->compute_XtransposedWres(partres,lambda);
+
+      designp->compute_precision(lambda);
+
+      error = designp->precision.decomp_save();
+
+      if (error==false)
         {
+        designp->precision.solve(*(designp->XWres_p),paramhelp);
 
-        betaold.assign(beta);
+        // TEST
+        // ofstream out2("c:\\bayesx\\testh\\results\\paramhelp_n.res");
+        // paramhelp.prettyPrint(out2);
+        // TEST
 
-        if (designp->centermethod==meansimple)
-          centerparam();
-        else if (designp->centermethod==integralsimple)
-          centerparam_weight();
-        else if (designp->centermethod==meansum2)
-          centerparam_sum2(s2);
+
+        paramhelp.minus(paramold,paramhelp);
+        double qnew = 0.5*designp->precision.getLogDet_save(error) -
+                      0.5*designp->precision.compute_quadform(paramhelp,0);
+
+
+        double u = log(uniform());
+        if (u <= (lognew - logold  + qnew - qold) && error==false)
+          {
+          acceptance++;
+
+          paramKparam=designp->penalty_compute_quadform(param);
+
+          betaold.assign(beta);
+          paramold.assign(param);
+          }
         else
-          centerparam_sample();
+         {
 
-        designp->compute_f(param,paramlin,beta,fsample.beta);
+         betadiff.minus(betaold,beta);
+         designp->update_linpred(betadiff);
 
-        betadiff.minus(beta,betaold);
-
-        designp->update_linpred(betadiff);
-
+         param.assign(paramold);
+         beta.assign(betaold);
+         }
         }
-       */
+      else
+        {
+         betadiff.minus(betaold,beta);
+         designp->update_linpred(betadiff);
 
-      paramKparam=designp->penalty_compute_quadform(param);
-
-      betaold.assign(beta);
-      paramold.assign(param);
+         param.assign(paramold);
+         beta.assign(betaold);
+        }
       }
     else
       {
-
-      betadiff.minus(betaold,beta);
-      designp->update_linpred(betadiff);
-
-
       param.assign(paramold);
-      beta.assign(betaold);
       }
-
-//    } // end if (error==false)
+    } // end if (error==false)
 
   if (derivative)
     {
@@ -675,6 +673,31 @@ void FC_nonp::update_IWLS(void)
   FC::update();
 
   }
+
+
+          /*
+        if(designp->center)
+          {
+
+          betaold.assign(beta);
+
+          if (designp->centermethod==meansimple)
+            centerparam();
+          else if (designp->centermethod==integralsimple)
+            centerparam_weight();
+          else if (designp->centermethod==meansum2)
+            centerparam_sum2(s2);
+          else
+            centerparam_sample();
+
+          designp->compute_f(param,paramlin,beta,fsample.beta);
+
+          betadiff.minus(beta,betaold);
+
+          designp->update_linpred(betadiff);
+
+          }
+         */
 
 
 
