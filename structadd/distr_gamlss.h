@@ -38,7 +38,8 @@ namespace MCMC
 //-------------------------- CLASS: DISTR_gamlss -------------------------------
 //------------------------------------------------------------------------------
 
-const double linpredlimit = -10;
+const double linpredlimit = -10.0;
+const double linpredlimitmax = 10.0;
 const double explinpredlimit = 0.0000454;
 const double expminusexplinpredlimit = 0.9999546;     // for exp(-exp(eta))
 
