@@ -39,8 +39,9 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
 const double linpredlimit = -10.0;
-const double linpredlimitmax = 10.0;
-const double explinpredlimit = 0.0000454;
+const double linpredlimitmax = 15.0;
+const double explinpredlimit = exp(linpredlimit);
+const double explinpredlimitmax = exp(linpredlimitmax);
 const double expminusexplinpredlimit = 0.9999546;     // for exp(-exp(eta))
 
 class __EXPORT_TYPE DISTR_gamlss : public DISTR
@@ -140,7 +141,7 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
   int stoprmax;
 
 
-  void compute_expectation(void);
+//  void compute_expectation(void);
 
 
 

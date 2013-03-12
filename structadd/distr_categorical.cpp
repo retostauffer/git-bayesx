@@ -967,7 +967,6 @@ const DISTR_poisson & DISTR_poisson::operator=(
   if (this==&nd)
     return *this;
   DISTR::operator=(DISTR(nd));
-  c_scale = nd.c_scale;
   return *this;
   }
 
@@ -975,7 +974,6 @@ const DISTR_poisson & DISTR_poisson::operator=(
 DISTR_poisson::DISTR_poisson(const DISTR_poisson & nd)
    : DISTR(DISTR(nd))
   {
-  c_scale = nd.c_scale;
   }
 
 
@@ -990,7 +988,7 @@ void DISTR_poisson::outoptions(void)
 
 double DISTR_poisson::get_intercept_start(void)
   {
-  return log(response.mean(0));
+//  return log(response.mean(0));
   }
 
 
@@ -1007,10 +1005,12 @@ double DISTR_poisson::loglikelihood(double * response, double * linpred,
 double DISTR_poisson::loglikelihood_weightsone(
                                   double * response, double * linpred)
   {
+
   if (*response==0)
     return  - exp(*linpred);
   else
     return  (*response) * (*linpred) - exp(*linpred);
+
   }
 
 
@@ -1148,6 +1148,152 @@ void DISTR_poisson::sample_responses_cv(unsigned i,datamatrix & linpred,
     }
 
   }
+
+
+
+//------------------------------------------------------------------------------
+//--------------------- CLASS DISTRIBUTION_poisson_ext -------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_poisson_ext::DISTR_poisson_ext(GENERAL_OPTIONS * o, const datamatrix & r,
+                                 double ap, double bp, bool ada,
+                               const datamatrix & w)
+  : DISTR_poisson(o,r,w)
+
+  {
+  a=ap;
+  b=bp;
+  adapt = ada;
+  if (adapt)
+    {
+    double rmax = response.max(0);
+    }
+  }
+
+
+const DISTR_poisson_ext & DISTR_poisson_ext::operator=(
+                                      const DISTR_poisson_ext & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_poisson::operator=(DISTR_poisson(nd));
+  a = nd.a;
+  b = nd.b;
+  adapt = nd.adapt;
+  return *this;
+  }
+
+
+DISTR_poisson_ext::DISTR_poisson_ext(const DISTR_poisson_ext & nd)
+   : DISTR_poisson(DISTR_poisson(nd))
+  {
+  a = nd.a;
+  b = nd.b;
+  adapt = nd.adapt;  
+  }
+
+
+void DISTR_poisson_ext::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function: extended exponential exp(a+b eta)\n");
+  optionsp->out("  a = " + ST::doubletostring(a) + "\n");
+  optionsp->out("  b = " + ST::doubletostring(b) + "\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTR_poisson_ext::get_intercept_start(void)
+  {
+//  return log(response.mean(0));
+  }
+
+
+double DISTR_poisson_ext::loglikelihood(double * response, double * linpred,
+                                     double * weight)
+  {
+  return (*weight)*loglikelihood_weightsone(response,linpred);
+  }
+
+
+double DISTR_poisson_ext::loglikelihood_weightsone(
+                                  double * response, double * linpred)
+  {
+
+  if (*response==0)
+    return  - exp(a+b*(*linpred));
+  else
+    return  b*(*response) * (*linpred) - exp(a+b*(*linpred));
+
+  }
+
+
+void DISTR_poisson_ext::compute_mu(const double * linpred,double * mu)
+  {
+  *mu = exp(a+b*(*linpred));
+  }
+
+
+double DISTR_poisson_ext::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+
+  double lambda = exp(a+b*(*linpred));
+
+  *workingweight = *weight * pow(b,2)* lambda;
+
+  if (*response==0)
+    {
+    *workingresponse = *linpred -1/b;
+
+    if (like)
+       return -(*weight) *lambda;
+     else
+       return 0;
+    }
+  else
+    {
+    *workingresponse = *linpred + (*response - lambda)/(b*lambda);
+
+    if (like)
+       return (*weight)*(b*(*response) * (*linpred) - lambda);
+     else
+       return 0;
+    }
+
+  }
+
+
+void DISTR_poisson_ext::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  double lambda = exp(a+b*(*linpred));
+  *workingweight = b*b*lambda;
+
+  if (*response==0)
+    {
+    *workingresponse = *linpred - 1/b;
+
+     if (compute_like)
+       like -=   lambda;
+    }
+  else
+    {
+    *workingresponse = *linpred + (*response - lambda)/(b*lambda);
+
+     if (compute_like)
+       like+=  b*(*response) * (*linpred) - lambda;
+    }
+
+  }
+
 
 
 

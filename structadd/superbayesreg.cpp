@@ -157,6 +157,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussian_mult");
   families.push_back("binomial_logit");
   families.push_back("poisson");
+  families.push_back("poisson_ext");
   families.push_back("binomial_probit");
   families.push_back("binomial_svm");
   families.push_back("multinom_probit");
@@ -224,6 +225,11 @@ void superbayesreg::create_hregress(void)
 
   utilities = simpleoption("utilities",false);  
 
+  aexp = doubleoption("aexp",0,0.00000000001,100000000);
+  bexp = doubleoption("bexp",1,0.00000000001,100000000);
+
+  adaptexp = simpleoption("adaptexp",false);
+
 
   regressoptions.reserve(100);
 
@@ -256,6 +262,9 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&fraclimit);
   regressoptions.push_back(&scaleconst);
   regressoptions.push_back(&utilities);
+  regressoptions.push_back(&aexp);
+  regressoptions.push_back(&bexp);
+  regressoptions.push_back(&adaptexp);      
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -366,6 +375,9 @@ void superbayesreg::clear(void)
 
   distr_poissons.erase(distr_poissons.begin(),distr_poissons.end());
   distr_poissons.reserve(20);
+
+  distr_poisson_exts.erase(distr_poisson_exts.begin(),distr_poisson_exts.end());
+  distr_poisson_exts.reserve(20);
 
   distr_binomialprobits.erase(distr_binomialprobits.begin(),
                               distr_binomialprobits.end());
@@ -559,6 +571,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
   distr_poissons = b.distr_poissons;
+  distr_poisson_exts = b.distr_poisson_exts;
   distr_binomialprobits = b.distr_binomialprobits;
   distr_binomialsvms = b.distr_binomialsvms;
   distr_multinomprobits = b.distr_multinomprobits;
@@ -647,6 +660,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
   distr_poissons = b.distr_poissons;
+  distr_poisson_exts = b.distr_poisson_exts;  
   distr_binomialprobits = b.distr_binomialprobits;
   distr_binomialsvms = b.distr_binomialsvms;
   distr_multinomprobits = b.distr_multinomprobits;
@@ -1451,6 +1465,23 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: poisson response ----------------------------
+
+
+//-------------- Poisson response with extended response function---------------
+  else if (family.getvalue() == "poisson_ext")
+    {
+    computemodeforstartingvalues = true;
+
+    distr_poisson_exts.push_back(DISTR_poisson_ext(
+    &generaloptions,D.getCol(0),aexp.getvalue(),
+    bexp.getvalue(),adaptexp.getvalue(),w));
+
+    equations[modnr].distrp = &distr_poisson_exts[distr_poisson_exts.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//-------------------------- END: poisson response ----------------------------
+
 
 //-------------------------- log-Gaussian response -----------------------------
   else if (family.getvalue() == "loggaussian")

@@ -82,6 +82,7 @@ using MCMC::DISTR_gaussian_exp;
 using MCMC::DISTR_gaussian_mult;
 using MCMC::DISTR_binomial;
 using MCMC::DISTR_poisson;
+using MCMC::DISTR_poisson_ext;
 using MCMC::DISTR_binomialprobit;
 using MCMC::DISTR_binomialsvm;
 using MCMC::DISTR_logit_fruehwirth;
@@ -253,6 +254,12 @@ class __EXPORT_TYPE superbayesreg : public statobject
   intoption stoprmax;
   doubleoption fraclimit;
 
+  // extended Poisson
+
+  doubleoption aexp;
+  doubleoption bexp;
+  simpleoption adaptexp;
+
   // end: OPTIONS for method regress
 
  // ------------------------------- MASTER_OBJ ---------------------------------
@@ -273,6 +280,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_gaussian_mult> distr_gaussian_mults;
   vector<DISTR_binomial> distr_binomials;
   vector<DISTR_poisson> distr_poissons;
+  vector<DISTR_poisson_ext> distr_poisson_exts;
   vector<DISTR_binomialprobit> distr_binomialprobits;
   vector<DISTR_binomialsvm> distr_binomialsvms;
   vector<DISTR_logit_fruehwirth> distr_logit_fruehwirths;

@@ -392,9 +392,6 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
 
   protected:
 
-  double c_scale;
-
-
   public:
 
    // DEFAULT CONSTRUCTOR
@@ -447,6 +444,69 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
 
   void sample_responses_cv(unsigned i,datamatrix & linpred,
                                    datamatrix & sr);
+
+  void outoptions(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//-------------------- CLASS: DISTRIBUTION_poisson -----------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_poisson_ext : public DISTR_poisson
+  {
+
+  protected:
+
+  double a;
+  double b;
+  bool adapt;
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTR_poisson_ext(void) : DISTR_poisson()
+     {
+     }
+
+   // CONSTRUCTOR
+
+   DISTR_poisson_ext(GENERAL_OPTIONS * o, const datamatrix & r,
+                     double ap, double bp, bool ada,
+                     const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+   DISTR_poisson_ext(const DISTR_poisson_ext & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTR_poisson_ext & operator=(const DISTR_poisson_ext & nd);
+
+   // DESTRUCTOR
+
+   ~DISTR_poisson_ext() {}
+
+  void compute_mu(const double * linpred,double * mu);
+
+  double get_intercept_start(void);
+
+  double loglikelihood(double * response, double * linpred,
+                       double * weight);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  double compute_iwls(double * response, double * linpred,
+                      double * weight, double * workingweight,
+                      double * workingresponse, const bool & like);
+
+  void compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like);
 
   void outoptions(void);
 
