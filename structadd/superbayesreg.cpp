@@ -158,6 +158,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("binomial_logit");
   families.push_back("poisson");
   families.push_back("poisson_ext");
+  families.push_back("poisson_extlin");
   families.push_back("binomial_probit");
   families.push_back("binomial_svm");
   families.push_back("multinom_probit");
@@ -223,7 +224,7 @@ void superbayesreg::create_hregress(void)
 
   scaleconst = simpleoption("scaleconst",false);
 
-  utilities = simpleoption("utilities",false);  
+  utilities = simpleoption("utilities",false);
 
   aexp = doubleoption("aexp",0,0.00000000001,100000000);
   bexp = doubleoption("bexp",1,0.00000000001,100000000);
@@ -378,6 +379,10 @@ void superbayesreg::clear(void)
 
   distr_poisson_exts.erase(distr_poisson_exts.begin(),distr_poisson_exts.end());
   distr_poisson_exts.reserve(20);
+
+  distr_poisson_extlins.erase(distr_poisson_extlins.begin(),
+                              distr_poisson_extlins.end());
+  distr_poisson_extlins.reserve(20);
 
   distr_binomialprobits.erase(distr_binomialprobits.begin(),
                               distr_binomialprobits.end());
@@ -572,6 +577,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_binomials = b.distr_binomials;
   distr_poissons = b.distr_poissons;
   distr_poisson_exts = b.distr_poisson_exts;
+  distr_poisson_extlins = b.distr_poisson_extlins;
   distr_binomialprobits = b.distr_binomialprobits;
   distr_binomialsvms = b.distr_binomialsvms;
   distr_multinomprobits = b.distr_multinomprobits;
@@ -660,7 +666,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
   distr_poissons = b.distr_poissons;
-  distr_poisson_exts = b.distr_poisson_exts;  
+  distr_poisson_exts = b.distr_poisson_exts;
+  distr_poisson_extlins = b.distr_poisson_extlins;  
   distr_binomialprobits = b.distr_binomialprobits;
   distr_binomialsvms = b.distr_binomialsvms;
   distr_multinomprobits = b.distr_multinomprobits;
@@ -1154,8 +1161,6 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_negbinzip_pis[distr_negbinzip_pis.size()-1];
     equations[modnr].pathd = "";
 
-//    predict_mult_distrs.push_back(&distr_zippis[distr_zippis.size()-1]);
-
     }
 //------------------------------- END: ZINB pi ---------------------------------
 
@@ -1165,17 +1170,15 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
-    double stpsum = stopsum.getvalue();
     int strmax = stoprmax.getvalue();
+    double flimit = fraclimit.getvalue();
 
     distr_negbinzip_deltas.push_back(DISTR_negbinzip_delta(&generaloptions,
-                                     D.getCol(0),stpsum,
+                                     D.getCol(0),flimit,
                                      strmax,w));
 
     equations[modnr].distrp = &distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1];
     equations[modnr].pathd = "";
-
-//    predict_mult_distrs.push_back(&distr_zippis[distr_zippis.size()-1]);
 
     }
 //------------------------------ END: ZINB delta -------------------------------
@@ -1191,8 +1194,6 @@ bool superbayesreg::create_distribution(void)
 
     equations[modnr].distrp = &distr_negbinzip_mus[distr_negbinzip_mus.size()-1];
     equations[modnr].pathd = "";
-
-//    predict_mult_distrs.push_back(&distr_zippis[distr_zippis.size()-1]);
 
     if (distr_negbinzip_pis.size() != 1)
       {
@@ -1464,8 +1465,7 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].pathd = "";
 
     }
-//-------------------------- END: poisson response ----------------------------
-
+//-------------------------- END: poisson response -----------------------------
 
 //-------------- Poisson response with extended response function---------------
   else if (family.getvalue() == "poisson_ext")
@@ -1480,8 +1480,22 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].pathd = "";
 
     }
-//-------------------------- END: poisson response ----------------------------
+//--------------End: Poisson response with extended response function-----------
 
+//---- Poisson response with extended response function, linear for eta > 0-----
+  else if (family.getvalue() == "poisson_extlin")
+    {
+    computemodeforstartingvalues = true;
+
+    distr_poisson_extlins.push_back(DISTR_poisson_extlin(
+    &generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp =
+    &distr_poisson_extlins[distr_poisson_extlins.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//-- End: Poisson response with extended response function, linear for eta > 0--
 
 //-------------------------- log-Gaussian response -----------------------------
   else if (family.getvalue() == "loggaussian")

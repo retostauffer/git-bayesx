@@ -546,6 +546,7 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   protected:
 
   double stopsum;
+  double fraclimit;  
   int stoprmax;
 
 
@@ -579,7 +580,7 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
    // CONSTRUCTOR
 
    DISTR_negbinzip_delta(GENERAL_OPTIONS * o, const datamatrix & r,
-                         double & stpsum, int & strmax,
+                         double & fl, int & strmax,
                          const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR

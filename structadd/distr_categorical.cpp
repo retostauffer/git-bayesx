@@ -135,7 +135,7 @@ void DISTR_logit_fruehwirth::update(void)
   datamatrix weights_aux(H,1);
 
 
-  for(int i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,workwresp++,wweightwork++)
+  for(unsigned i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,workwresp++,wweightwork++)
     {
     lambda= exp(*worklin);
     U = uniform();
@@ -989,6 +989,7 @@ void DISTR_poisson::outoptions(void)
 double DISTR_poisson::get_intercept_start(void)
   {
 //  return log(response.mean(0));
+  return 0;
   }
 
 
@@ -1208,6 +1209,7 @@ void DISTR_poisson_ext::outoptions(void)
 double DISTR_poisson_ext::get_intercept_start(void)
   {
 //  return log(response.mean(0));
+  return 0;
   }
 
 
@@ -1221,12 +1223,10 @@ double DISTR_poisson_ext::loglikelihood(double * response, double * linpred,
 double DISTR_poisson_ext::loglikelihood_weightsone(
                                   double * response, double * linpred)
   {
-
   if (*response==0)
     return  - exp(a+b*(*linpred));
   else
     return  b*(*response) * (*linpred) - exp(a+b*(*linpred));
-
   }
 
 
@@ -1294,6 +1294,185 @@ void DISTR_poisson_ext::compute_iwls_wweightschange_weightsone(
 
   }
 
+
+
+//------------------------------------------------------------------------------
+//--------------------- CLASS DISTRIBUTION_poisson_extlin ----------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_poisson_extlin::DISTR_poisson_extlin(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_poisson(o,r,w)
+
+  {
+  }
+
+
+const DISTR_poisson_extlin & DISTR_poisson_extlin::operator=(
+                                      const DISTR_poisson_extlin & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_poisson::operator=(DISTR_poisson(nd));
+  return *this;
+  }
+
+
+DISTR_poisson_extlin::DISTR_poisson_extlin(const DISTR_poisson_extlin & nd)
+   : DISTR_poisson(DISTR_poisson(nd))
+  {
+  }
+
+
+void DISTR_poisson_extlin::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function: exp(eta) for eta < 0 and eta+1 for eta >= 0\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTR_poisson_extlin::get_intercept_start(void)
+  {
+//  return log(response.mean(0));
+  return 0;
+  }
+
+
+double DISTR_poisson_extlin::loglikelihood(double * response, double * linpred,
+                                     double * weight)
+  {
+  return (*weight)*loglikelihood_weightsone(response,linpred);
+  }
+
+
+double DISTR_poisson_extlin::loglikelihood_weightsone(
+                                  double * response, double * linpred)
+  {
+  if (*linpred < 0)
+    {
+    if (*response==0)
+      return  - exp(*linpred);
+    else
+      return  (*response) * (*linpred) - exp(*linpred);
+    }
+  else
+    {
+    if (*response==0)
+      return  - (*linpred+1);
+    else
+      return  (*response) * log(*linpred + 1) - (*linpred+1);
+    }
+
+  }
+
+
+void DISTR_poisson_extlin::compute_mu(const double * linpred,double * mu)
+  {
+  if (*linpred < 0)
+    *mu = exp(*linpred);
+  else
+    *mu = *linpred + 1;
+
+  }
+
+
+double DISTR_poisson_extlin::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+
+  if (*linpred < 0)
+    {
+
+    *workingweight = (*weight)*exp(*linpred);
+
+    if (*response==0)
+      {
+      *workingresponse = *linpred - 1;
+
+       if (like)
+         return -(*workingweight);
+      }
+    else
+      {
+      *workingresponse = *linpred + (*response - (*workingweight))/(*workingweight);
+
+       if (like)
+         return  (*response) * (*linpred) - (*workingweight);
+      }
+
+    }
+  else
+    {
+    *workingweight = (*weight)/(*linpred+1);
+
+    *workingresponse = *response-1;
+
+    if (like)
+      {
+
+      if (*response==0)
+        return  - (*weight)*(*linpred+1);
+      else
+        return  (*weight)*((*response) * log(*linpred + 1) - (*linpred+1));
+      }
+
+    }
+
+  return 0;  
+  }
+
+
+void DISTR_poisson_extlin::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  if (*linpred < 0)
+    {
+
+    *workingweight = exp(*linpred);
+
+    if (*response==0)
+      {
+      *workingresponse = *linpred - 1;
+
+       if (compute_like)
+         like -=   (*workingweight);
+      }
+    else
+      {
+      *workingresponse = *linpred + (*response - (*workingweight))/(*workingweight);
+
+       if (compute_like)
+         like+=  (*response) * (*linpred) - (*workingweight);
+      }
+
+    }
+  else
+    {
+    *workingweight = 1/(*linpred+1);
+
+    *workingresponse = *response-1;
+
+    if (compute_like)
+      {
+
+      if (*response==0)
+        like+=  - (*linpred+1);
+      else
+        like+=  (*response) * log(*linpred + 1) - (*linpred+1);
+      }
+
+    }
+
+  }
 
 
 

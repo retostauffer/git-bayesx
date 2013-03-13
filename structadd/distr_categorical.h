@@ -451,7 +451,7 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
 
 
 //------------------------------------------------------------------------------
-//-------------------- CLASS: DISTRIBUTION_poisson -----------------------------
+//-------------------- CLASS: DISTRIBUTION_poisson_ext -------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_poisson_ext : public DISTR_poisson
@@ -512,6 +512,63 @@ class __EXPORT_TYPE DISTR_poisson_ext : public DISTR_poisson
 
   };
 
+
+//------------------------------------------------------------------------------
+//-------------------- CLASS: DISTRIBUTION_poisson_extlin ----------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_poisson_extlin : public DISTR_poisson
+  {
+
+  protected:
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTR_poisson_extlin(void) : DISTR_poisson()
+     {
+     }
+
+   // CONSTRUCTOR
+
+   DISTR_poisson_extlin(GENERAL_OPTIONS * o, const datamatrix & r,
+                        const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+   DISTR_poisson_extlin(const DISTR_poisson_extlin & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTR_poisson_extlin & operator=(const DISTR_poisson_extlin & nd);
+
+   // DESTRUCTOR
+
+   ~DISTR_poisson_extlin() {}
+
+  void compute_mu(const double * linpred,double * mu);
+
+  double get_intercept_start(void);
+
+  double loglikelihood(double * response, double * linpred,
+                       double * weight);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  double compute_iwls(double * response, double * linpred,
+                      double * weight, double * workingweight,
+                      double * workingresponse, const bool & like);
+
+  void compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like);
+
+  void outoptions(void);
+
+  };
 
 
 } // end: namespace MCMC
