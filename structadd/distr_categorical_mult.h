@@ -33,6 +33,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 namespace MCMC
 {
 
+
+
+
 //------------------------------------------------------------------------------
 //-------------------- CLASS: DISTRIBUTION_multinomprobit ----------------------
 //------------------------------------------------------------------------------
@@ -128,6 +131,140 @@ class __EXPORT_TYPE DISTR_multinomprobit : public DISTR
   void update(void);
 
   };
+
+
+//------------------------------------------------------------------------------
+//-------------------- CLASS: DISTRIBUTION_multgaussian ------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_multgaussian : public DISTR_multinomprobit
+  {
+
+  protected:
+
+  void outresults_help(ST::string t,datamatrix & r);
+  void initpointer(unsigned j,double* & worklin, double* & workresp);  
+
+  FC FC_scale;
+
+  double A;                    // Hyperparameter for Inverse Wishart
+  datamatrix B;                // Hyperparameter for Inverse Wishart
+  datamatrix sumB;
+  datamatrix diff;
+
+  datamatrix SIGMA_mr;         // Sigma_-r
+  datamatrix SIGMA_rmr;        // Sigma_r|-r (row vector)
+  datamatrix sigma_rmr;        // column vector of sigma^2_r | -r
+
+  datamatrix offset;           // stores the offsets in a nrobs x nrcat matrix
+                                // i -th row corresponds to i-th observation
+                                // r - th column stores o_r|-r 's
+
+
+   // FUNCTION: compute_IWproduct
+   // TASK: computes 0.5*SUM_{i=1}^{n} (y_i-eta_i)(y_i-eta_i)' and stores
+   //       the result in sumB
+   //       y_i = (y_i1,...y_ik)'
+
+   void compute_IWproduct(void);
+
+   // FUNCTION: compute_SIGMA_mr
+   // TASK: computes the submatrix of Sigma where the elements corresponding to
+   //       the r-th component of Sigma are removed
+   //       stores the INVERSE of SIGMA_mr
+
+   void compute_SIGMA_mr(unsigned r);
+
+   // FUNCTION: compute_SIGMA_rmr
+   // TASK: computes SIGMA_r|-r as a row vector
+
+   void compute_SIGMA_rmr(unsigned r);
+
+  // FUNCTION: compute_sigmarmr
+  // TASK: computes for r=1,...,k: sigma2_r|-r =
+  //       sigma2_r - SIGMA_r|-r * (SIGMA_-r)^-1 * (SIGMA_r|-r)'
+  //       stores the results in the column vector sigma_rmr
+
+  void compute_sigmarmr(void);
+
+  // FUNCTION: compute_offset
+  // TASK computes the offset and stores it in the matrix 'offset'
+
+  void compute_offset(void);
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+   DISTR_multgaussian(void) : DISTR_multinomprobit()
+     {
+     }
+
+   // CONSTRUCTOR
+
+   DISTR_multgaussian(const double & a,const double & b,
+                      GENERAL_OPTIONS * o, bool mast,
+                      const datamatrix & r,
+                      const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+   DISTR_multgaussian(const DISTR_multgaussian & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+   const DISTR_multgaussian & operator=(const DISTR_multgaussian & nd);
+
+   // DESTRUCTOR
+
+   ~DISTR_multgaussian() {}
+
+  void compute_mu(const double * linpred,double * mu);
+
+  void compute_deviance(const double * response, const double * weight,
+                        const double * mu,double * deviance, double * scale)
+                        const;
+
+  double loglikelihood(double * response, double * linpred,
+                       double * weight);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  double compute_iwls(double * response, double * linpred,
+                      double * weight, double * workingweight,
+                      double * workingresponse, const bool & like);
+
+  void compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like);
+
+  void compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void outoptions(void);
+
+
+  void outresults(ST::string pathresults="");
+
+  bool posteriormode(void);  
+
+  void update(void);
+
+  };
+
 
 
 

@@ -162,6 +162,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("binomial_probit");
   families.push_back("binomial_svm");
   families.push_back("multinom_probit");
+  families.push_back("multgaussian");
   families.push_back("binomial_logit_l1");
   families.push_back("multinom_logit");
   families.push_back("zip_lambda");
@@ -396,6 +397,10 @@ void superbayesreg::clear(void)
                               distr_multinomprobits.end());
   distr_multinomprobits.reserve(20);
 
+  distr_multgaussians.erase(distr_multgaussians.begin(),
+                              distr_multgaussians.end());
+  distr_multgaussians.reserve(20);
+
   distr_multinomlogits.erase(distr_multinomlogits.begin(),
                               distr_multinomlogits.end());
   distr_multinomlogits.reserve(20);
@@ -581,6 +586,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_binomialprobits = b.distr_binomialprobits;
   distr_binomialsvms = b.distr_binomialsvms;
   distr_multinomprobits = b.distr_multinomprobits;
+  distr_multgaussians = b.distr_multgaussians;
   distr_multinomlogits = b.distr_multinomlogits;
   distr_logit_fruehwirths = b.distr_logit_fruehwirths;
   distr_ziplambdas = b.distr_ziplambdas;
@@ -667,10 +673,11 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_binomials = b.distr_binomials;
   distr_poissons = b.distr_poissons;
   distr_poisson_exts = b.distr_poisson_exts;
-  distr_poisson_extlins = b.distr_poisson_extlins;  
+  distr_poisson_extlins = b.distr_poisson_extlins;
   distr_binomialprobits = b.distr_binomialprobits;
   distr_binomialsvms = b.distr_binomialsvms;
   distr_multinomprobits = b.distr_multinomprobits;
+  distr_multgaussians = b.distr_multgaussians;
   distr_multinomlogits = b.distr_multinomlogits;
   distr_logit_fruehwirths = b.distr_logit_fruehwirths;
   distr_ziplambdas = b.distr_ziplambdas;
@@ -1416,6 +1423,41 @@ bool superbayesreg::create_distribution(void)
 
     }
 //--------------------- END: multinomial probit response -----------------------
+
+//----------------------- multivariate gaussian response -----------------------
+  else if (family.getvalue() == "multgaussian" && equationtype.getvalue()=="meanservant")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_multgaussians.push_back(DISTR_multgaussian(aresp.getvalue(),
+    bresp.getvalue(),&generaloptions,false,D.getCol(0)));
+
+    equations[modnr].distrp = &distr_multgaussians[distr_multgaussians.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+  else if (family.getvalue() == "multgaussian" && equationtype.getvalue()=="mean")
+    {
+
+    distr_multgaussians.push_back(DISTR_multgaussian(aresp.getvalue(),
+    bresp.getvalue(),&generaloptions,true,D.getCol(0),w) );
+
+    equations[modnr].distrp = &distr_multgaussians[distr_multgaussians.size()-1];
+    equations[modnr].pathd = "";
+
+    if (distr_multgaussians.size() > 1)
+      {
+      unsigned i;
+      for (i=0;i<distr_multgaussians.size()-1;i++)
+        {
+        distr_multgaussians[distr_multgaussians.size()-1].assign_othercat(&distr_multgaussians[i]);
+        }
+
+      }
+
+    }
+//--------------------- END: multivariate gaussian response --------------------
 
 
 //----------------------- multinomial logit response ---------------------------

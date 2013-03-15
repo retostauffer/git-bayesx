@@ -27,6 +27,525 @@ namespace MCMC
 
 
 //------------------------------------------------------------------------------
+//----------------------- CLASS DISTRIBUTION_multgaussian ----------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_multgaussian::DISTR_multgaussian(const double & a,const double & b,
+                                       GENERAL_OPTIONS * o,
+                                       bool mast,
+                                       const datamatrix & r,
+                                       const datamatrix & w)
+  : DISTR_multinomprobit(o,mast,r,w)
+
+  {
+  family = "Multivariate Gaussian";
+  A = a;
+  B = datamatrix(1,1,b);
+
+  wtype = wweightsnochange_constant;
+
+  }
+
+
+
+
+const DISTR_multgaussian & DISTR_multgaussian::operator=(
+                                      const DISTR_multgaussian & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_multinomprobit::operator=(DISTR_multinomprobit(nd));
+  FC_scale = nd.FC_scale;
+  sumB = nd.sumB;
+  diff = nd.diff;
+  offset = nd.offset;
+  sigma_rmr = nd.sigma_rmr;
+  SIGMA_mr = nd.SIGMA_mr;
+  SIGMA_rmr = nd.SIGMA_rmr;
+  A = nd.A;
+  B = nd.B;
+  return *this;
+  }
+
+
+DISTR_multgaussian::DISTR_multgaussian(const DISTR_multgaussian & nd)
+   : DISTR_multinomprobit(DISTR_multinomprobit(nd))
+  {
+  FC_scale = nd.FC_scale;
+  sumB = nd.sumB;
+  diff = nd.diff;
+  offset = nd.offset;
+  sigma_rmr = nd.sigma_rmr;
+  SIGMA_mr = nd.SIGMA_mr;
+  SIGMA_rmr = nd.SIGMA_rmr;
+  A = nd.A;
+  B = nd.B;
+  }
+
+
+void DISTR_multgaussian::outoptions(void)
+  {
+  DISTR::outoptions();
+
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTR_multgaussian::loglikelihood(double * response, double * linpred,
+                                     double * weight)
+  {
+  return 0;
+  }
+
+
+
+double DISTR_multgaussian::loglikelihood_weightsone(
+                                  double * response, double * linpred)
+  {
+  return 0;
+  }
+
+
+void DISTR_multgaussian::compute_mu(const double * linpred,double * mu)
+  {
+
+  }
+
+
+void DISTR_multgaussian::compute_deviance(const double * response,
+                   const double * weight,const double * mu,double * deviance,
+                   double * scale) const
+  {
+  }
+
+
+double DISTR_multgaussian::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+
+  *workingweight=*weight;
+  *workingresponse = *response;
+  if (like && (*weight != 0))
+    return  - *weight * (pow(*response-(*linpred),2))/(2* sigma2);
+  else
+    return 0;
+
+  }
+
+
+
+void DISTR_multgaussian::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+
+  *workingweight=1;
+  *workingresponse = *response;
+  if (compute_like)
+    like -=  (pow(*response-(*linpred),2))/(2* sigma2);
+
+
+  }
+
+
+void DISTR_multgaussian::compute_iwls_wweightsnochange_constant(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  *workingresponse = *response;
+  if (compute_like && *workingweight!=0)
+    like  -= *workingweight * (pow(*response-(*linpred),2))/(2* sigma2);
+  }
+
+void DISTR_multgaussian::compute_iwls_wweightsnochange_one(double * response,
+                                              double * linpred,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  *workingresponse = *response;
+  if (compute_like)
+    like -=  (pow(*response-(*linpred),2))/(2* sigma2);
+  }
+
+
+void DISTR_multgaussian::compute_sigmarmr(void)
+  {
+
+  if (nrcat==2)
+    {
+    sigma_rmr(0,0) = FC_scale.beta(0,0)-(FC_scale.beta(0,1)*FC_scale.beta(0,1))/FC_scale.beta(1,1);
+    sigma_rmr(1,0) = FC_scale.beta(1,1)-(FC_scale.beta(0,1)*FC_scale.beta(0,1))/FC_scale.beta(0,0);
+    }
+  else
+    {
+
+    unsigned r;
+    datamatrix help;
+
+    for (r=0;r<nrcat;r++)
+      {
+      compute_SIGMA_mr(r);
+      compute_SIGMA_rmr(r);
+      help = SIGMA_rmr*SIGMA_mr*SIGMA_rmr.transposed();
+      sigma_rmr(r,0) = FC_scale.beta(r,r) - help(0,0);
+      if (r < nrcat-1)
+        othercat[r]->sigma2=sigma_rmr(r,0);
+      else
+        sigma2 = sigma_rmr(r,0);
+      } // end: for (r=0;r<nrcat;r++)
+
+    }
+
+  }
+
+void DISTR_multgaussian::compute_SIGMA_rmr(unsigned r)
+  {
+
+  unsigned k,l;
+
+  l=0;
+  for (k=0;k<nrcat;k++)
+    {
+    if (k != r)
+      {
+      SIGMA_rmr(0,l) = FC_scale.beta(r,k);
+      l++;
+      } //end: if (k != i)
+    } //end: for (k=0;k<nrcat;k++)
+
+  }
+
+
+void DISTR_multgaussian::compute_SIGMA_mr(unsigned r)
+  {
+
+  unsigned n,l,k,m;
+
+  n = 0;
+  for (k=0;k<nrcat;k++)
+    {
+    if (k != r)
+      {
+      l = 0;
+      for (m=0;m<nrcat;m++)
+        {
+        if (m != r)
+          {
+          SIGMA_mr(n,l) = FC_scale.beta(k,m);
+          l++;
+          }
+        } // end: for (m=0;m<nrcat;m++)
+        n++;
+      } // end: if (k != i)
+
+    } // end: for (k=0;k<nrcat;k++)
+
+  SIGMA_mr = SIGMA_mr.inverse();
+
+  }
+
+
+void DISTR_multgaussian::compute_offset(void)
+  {
+
+  double * workresp_c;
+  double * worklin_c;
+
+  double * workresp;
+  double * worklin;
+  double * worko;
+
+  if (nrcat==2)
+    {
+
+    unsigned i;
+    double f1 = FC_scale.beta(0,1)/FC_scale.beta(1,1);
+
+    initpointer(0,worklin_c,workresp_c);
+    initpointer(1,worklin,workresp);
+    worko = offset.getV();
+
+    for (i=0;i<nrobs;i++,worklin_c++,worklin++,workresp++,worko+=2)
+      {
+      *worklin -= *worko;
+      *worko = f1*((*workresp) - (*worklin));
+      *worklin += *worko;
+      }
+
+    double f2 = FC_scale.beta(0,1)/FC_scale.beta(0,0);
+
+    initpointer(1,worklin_c,workresp_c);
+    initpointer(0,worklin,workresp);
+    worko = offset.getV()+1;
+
+    for (i=0;i<nrobs;i++,worklin_c++,worklin++,workresp++,worko+=2)
+      {
+      *worklin -= *worko;
+      *worko = f2*((*workresp) - (*worklin));
+      *worklin += *worko;
+      }
+
+    }
+  else
+    {
+    /*
+    unsigned i,k,l,r;
+
+    datamatrix help(1,nrcat-1);
+
+    for (r=0;r<nrcat;r++)
+      {
+
+      compute_SIGMA_rmr(r);
+
+      compute_SIGMA_mr(r);
+
+      help.mult(SIGMA_rmr,SIGMA_mr);
+
+      double di;
+
+      for (i=0;i<nrobs;i++)
+        {
+
+        offset(i,r) = 0;
+
+        l = 0;
+        for (k=0;k<nrcat;k++)
+          {
+          if (k != r)
+            {
+            di = response(i,k)-(*linpred_current)(i,k);
+            offset(i,r) += help(0,l)*di;
+            l++;
+            } // end: if (k != r)
+          } //end: for (k=0;k<nrcat;k++)
+        } // end: for (i=0;i<nrobs;i++)
+      } // end: for (r=0;r<offset.cols();r++)
+    */
+    }
+
+  } // end: compute_offset
+
+
+void DISTR_multgaussian::initpointer(unsigned j,double* & worklin, double* & workresp)
+  {
+
+  if (j<nrcat-1)
+    {
+    if (othercat[j]->linpred_current==1)
+      worklin = othercat[j]->linearpred1.getV();
+    else
+      worklin = othercat[j]->linearpred2.getV();
+    workresp = othercat[j]->response.getV();
+    }
+  else
+    {
+    if (linpred_current==1)
+      worklin = linearpred1.getV();
+    else
+      worklin = linearpred2.getV();
+    workresp = response.getV();
+    }
+
+  }
+
+
+
+
+void DISTR_multgaussian::compute_IWproduct(void)
+  {
+
+  unsigned i,j,k;
+
+  double * sumBwork = sumB.getV();
+
+  double * worklin1;
+  double * worklin2;
+
+  double * workresp1;
+  double * workresp2;
+
+
+  for(i=0;i<sumB.rows();i++)
+    {
+    for(j=0;j<sumB.cols();j++,sumBwork++)
+      {
+      *sumBwork = 0;
+
+      initpointer(i,worklin1,workresp1);
+      initpointer(j,worklin2,workresp2);
+
+      for(k=0;k<nrobs;k++,worklin1++,worklin2++,workresp1++,workresp2++)
+        *sumBwork +=  (*workresp1-(*worklin1)) * (*workresp2-(*worklin2));
+
+      *sumBwork *= 0.5;
+      }
+    }
+
+  }
+
+
+
+
+void DISTR_multgaussian::update(void)
+  {
+  if (master)
+    {
+    compute_IWproduct();
+
+    sumB.plus(B,sumB);
+
+    sumB = 0.5*sumB.inverse();
+
+    randnumbers::rand_wishart(sumB,2.0*A+nrobs,FC_scale.beta);
+
+    FC_scale.beta = FC_scale.beta.inverse();
+
+    compute_sigmarmr();
+
+    compute_offset();
+
+    DISTR::update();
+    }
+
+  }
+
+
+bool DISTR_multgaussian::posteriormode(void)
+  {
+
+  if (master && offset.cols()==1)
+    {
+
+    nrcat = nrcat-1;
+
+    FC_scale = FC(optionsp,"",nrcat,nrcat,"");
+
+    sumB = datamatrix(nrcat,nrcat,0);
+    diff = datamatrix(nrcat,nrcat,0);
+
+
+    sigma_rmr = datamatrix(nrcat,1);
+
+    offset = datamatrix(nrobs,nrcat,0);
+
+    SIGMA_rmr = datamatrix(1,nrcat-1);
+    SIGMA_mr = datamatrix(nrcat-1,nrcat-1);
+
+    B = datamatrix(nrcat,nrcat,B(0,0));
+
+    }
+
+
+  if (master)
+    {
+    register unsigned i,j;
+
+    double * worklin;
+    double * workresp;
+    double * workweight;
+
+    double sum;
+
+    for(j=0;j<nrcat;j++)
+      {
+      sum = 0;
+
+      workweight = weight.getV();
+
+      initpointer(j,worklin,workresp);
+
+      for (i=0;i<nrobs;i++,workweight++,workresp++,worklin++)
+        sum += *workweight*pow(*workresp - *worklin,2);
+
+      FC_scale.beta(j,j) = (1.0/nrobs)*sum;
+      sigma_rmr(j,0) = FC_scale.beta(j,j);
+
+      if (j<nrcat-1)
+        othercat[j]->sigma2 = FC_scale.beta(j,j);
+      else
+        sigma2 = FC_scale.beta(j,j);
+
+      }
+
+    FC_scale.posteriormode_betamean();
+    }
+
+  return true;
+
+  }
+
+
+void DISTR_multgaussian::outresults_help(ST::string t,datamatrix & r)
+  {
+
+  ST::string help;
+
+  optionsp->out("  " + t + ":\n");
+  optionsp->out("\n");
+
+  unsigned i,j;
+  for (i=0;i<FC_scale.beta.rows();i++)
+    {
+    help="  ";
+    for(j=0;j<FC_scale.beta.cols();j++)
+      {
+      help = help + ST::doubletostring(r(i,j),6) + "   ";
+      }
+    optionsp->out(help + "\n");
+    }
+  }
+
+
+
+void DISTR_multgaussian::outresults(ST::string pathresults)
+  {
+
+  if (master)
+    {
+    ofstream out1;
+    ofstream out2;
+    FC_scale.outresults(out1,out2,"");
+
+    ST::string l1 = ST::doubletostring(optionsp->lower1,4);
+    ST::string l2 = ST::doubletostring(optionsp->lower2,4);
+    ST::string u1 = ST::doubletostring(optionsp->upper1,4);
+    ST::string u2 = ST::doubletostring(optionsp->upper2,4);
+    l1 = l1.replaceallsigns('.','p');
+    l2 = l2.replaceallsigns('.','p');
+    u1 = u1.replaceallsigns('.','p');
+    u2 = u2.replaceallsigns('.','p');
+
+    optionsp->out("  Estimation results for the scale parameter\n",true);
+    optionsp->out("\n");
+
+    outresults_help("Posterior mean",FC_scale.betamean);
+    outresults_help("Posterior variance",FC_scale.betavar);
+    outresults_help("Posterior " + l1 + " percent quantile",
+                  FC_scale.betaqu_l1_lower);
+    outresults_help("Posterior median",FC_scale.betaqu50);
+    outresults_help("Posterior " + u1 + " percent quantile",
+                    FC_scale.betaqu_l1_upper);
+
+    // FEHLT: correlation
+
+    optionsp->out("\n");
+    optionsp->out("\n");
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_multinomprobit --------------------
 //------------------------------------------------------------------------------
 

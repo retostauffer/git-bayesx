@@ -88,6 +88,7 @@ using MCMC::DISTR_binomialprobit;
 using MCMC::DISTR_binomialsvm;
 using MCMC::DISTR_logit_fruehwirth;
 using MCMC::DISTR_multinomprobit;
+using MCMC::DISTR_multgaussian;
 using MCMC::DISTR_multinomlogit;
 using MCMC::DISTR_ziplambda;
 using MCMC::DISTR_zippi;
@@ -287,6 +288,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_binomialsvm> distr_binomialsvms;
   vector<DISTR_logit_fruehwirth> distr_logit_fruehwirths;
   vector<DISTR_multinomprobit> distr_multinomprobits;
+  vector<DISTR_multgaussian> distr_multgaussians;  
   vector<DISTR_multinomlogit> distr_multinomlogits;
   vector<DISTR_ziplambda> distr_ziplambdas;
   vector<DISTR_zippi> distr_zippis;
