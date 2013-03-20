@@ -1394,8 +1394,9 @@ bool superbayesreg::create_distribution(void)
     {
 
     computemodeforstartingvalues = true;
+    unsigned cat = distr_multinomprobits.size();
 
-    distr_multinomprobits.push_back(DISTR_multinomprobit(&generaloptions,false,D.getCol(0)));
+    distr_multinomprobits.push_back(DISTR_multinomprobit(&generaloptions,cat,false,D.getCol(0)));
 
     equations[modnr].distrp = &distr_multinomprobits[distr_multinomprobits.size()-1];
     equations[modnr].pathd = "";
@@ -1404,7 +1405,10 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "multinom_probit" && equationtype.getvalue()=="mean")
     {
 
-    distr_multinomprobits.push_back(DISTR_multinomprobit(&generaloptions,true,D.getCol(0),w) );
+    computemodeforstartingvalues = true;
+    unsigned cat = distr_multinomprobits.size();
+
+    distr_multinomprobits.push_back(DISTR_multinomprobit(&generaloptions,cat,true,D.getCol(0),w) );
 
     equations[modnr].distrp = &distr_multinomprobits[distr_multinomprobits.size()-1];
     equations[modnr].pathd = "";
@@ -1429,32 +1433,40 @@ bool superbayesreg::create_distribution(void)
     {
 
     computemodeforstartingvalues = true;
+    unsigned cat = distr_multgaussians.size();
 
     distr_multgaussians.push_back(DISTR_multgaussian(aresp.getvalue(),
-    bresp.getvalue(),&generaloptions,false,D.getCol(0)));
+    bresp.getvalue(),cat,&generaloptions,false,D.getCol(0)));
 
     equations[modnr].distrp = &distr_multgaussians[distr_multgaussians.size()-1];
     equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_multgaussians[distr_multgaussians.size()-1]);
 
     }
   else if (family.getvalue() == "multgaussian" && equationtype.getvalue()=="mean")
     {
 
+    computemodeforstartingvalues = true;
+    unsigned cat = distr_multgaussians.size();
+
     distr_multgaussians.push_back(DISTR_multgaussian(aresp.getvalue(),
-    bresp.getvalue(),&generaloptions,true,D.getCol(0),w) );
+    bresp.getvalue(),cat,&generaloptions,true,D.getCol(0),w) );
 
     equations[modnr].distrp = &distr_multgaussians[distr_multgaussians.size()-1];
     equations[modnr].pathd = "";
 
-    if (distr_multgaussians.size() > 1)
-      {
-      unsigned i;
-      for (i=0;i<distr_multgaussians.size()-1;i++)
-        {
-        distr_multgaussians[distr_multgaussians.size()-1].assign_othercat(&distr_multgaussians[i]);
-        }
+    predict_mult_distrs.push_back(&distr_multgaussians[distr_multgaussians.size()-1]);    
 
+    unsigned i;
+    vector<DISTR *> dp;
+    for (i=0;i<distr_multgaussians.size();i++)
+      {
+      dp.push_back(&distr_multgaussians[i]);
       }
+
+    for (i=0;i<distr_multgaussians.size();i++)
+      distr_multgaussians[i].assign_distributions(dp);
 
     }
 //--------------------- END: multivariate gaussian response --------------------
@@ -1465,8 +1477,9 @@ bool superbayesreg::create_distribution(void)
     {
 
     computemodeforstartingvalues = true;
+    unsigned cat = distr_multinomlogits.size();
 
-    distr_multinomlogits.push_back(DISTR_multinomlogit(&generaloptions,false,D.getCol(0)));
+    distr_multinomlogits.push_back(DISTR_multinomlogit(&generaloptions,cat,false,D.getCol(0)));
 
     equations[modnr].distrp = &distr_multinomlogits[distr_multinomlogits.size()-1];
     equations[modnr].pathd = "";
@@ -1475,7 +1488,10 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "multinom_logit" && equationtype.getvalue()=="mean")
     {
 
-    distr_multinomlogits.push_back(DISTR_multinomlogit(&generaloptions,true,D.getCol(0),w) );
+    computemodeforstartingvalues = true;
+    unsigned cat = distr_multinomlogits.size();
+
+    distr_multinomlogits.push_back(DISTR_multinomlogit(&generaloptions,cat,true,D.getCol(0),w) );
 
     equations[modnr].distrp = &distr_multinomlogits[distr_multinomlogits.size()-1];
     equations[modnr].pathd = "";

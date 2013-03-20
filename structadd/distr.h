@@ -63,6 +63,8 @@ wweightsnochange_constant,wweightsnochange_one};
 
 enum msetype{noMSE,quadraticMSE,checkMSE};
 
+enum auxiliarytype{current,postmean};
+
 class __EXPORT_TYPE DISTR
   {
 
@@ -130,16 +132,29 @@ class __EXPORT_TYPE DISTR
   datamatrix linearpred2;          // Proposed linear predictor
   int linpred_current;
 
+  double meaneffect;
+
+  //----------------------------------------------------------------------------
+  //------------------------- auxiliary variables ------------------------------
+  //----------------------------------------------------------------------------
+
   datamatrix helpmat1;              // Stores auxiliary quantities
   datamatrix helpmat2;              // Stores auxiliary quantities
   datamatrix helpmat3;              // Stores auxiliary quantities
 
-  double meaneffect;
+  double helpquantity1;             // Stores auxiliary quantities
+  double helpquantity2;             // Stores auxiliary quantities
+  double helpquantity3;             // Stores auxiliary quantities
+
+  //----------------------------------------------------------------------------
+  //---------------------- end: auxiliary variables ----------------------------
+  //----------------------------------------------------------------------------
+
 
   void swap_linearpred(void);
 
 
-  double trmult;                   // multiplicative constant for hyperparameters
+  double trmult;                 // multiplicative constant for hyperparameters
 
 
 //------------------------------------------------------------------------------
@@ -265,7 +280,7 @@ class __EXPORT_TYPE DISTR
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const;
+                             vector<datamatrix *> aux);
 
 
   //----------------------------------------------------------------------------
@@ -380,6 +395,7 @@ class __EXPORT_TYPE DISTR
   virtual double get_scale(void);
   virtual double get_scalemean(void);
   virtual void update_scale_hyperparameters(datamatrix & h);
+  virtual datamatrix * get_auxiliary_parameter(auxiliarytype t = current);
 
   //----------------------------------------------------------------------------
   //----------------------- POSTERIORMODE FUNCTIONS ----------------------------

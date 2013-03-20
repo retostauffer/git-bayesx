@@ -160,6 +160,10 @@ DISTR::DISTR(const DISTR & d)
   helpmat2 = d.helpmat2;
   helpmat3 = d.helpmat3;
 
+  helpquantity1 = d.helpquantity1;
+  helpquantity2 = d.helpquantity2;
+  helpquantity3 = d.helpquantity3;
+
   updateIWLS = d.updateIWLS;
   family = d.family;
 
@@ -212,6 +216,10 @@ const DISTR & DISTR::operator=(const DISTR & d)
   helpmat2 = d.helpmat2;
   helpmat3 = d.helpmat3;
 
+  helpquantity1 = d.helpquantity1;
+  helpquantity2 = d.helpquantity2;
+  helpquantity3 = d.helpquantity3;
+
   updateIWLS = d.updateIWLS;
   family = d.family;
 
@@ -221,7 +229,6 @@ const DISTR & DISTR::operator=(const DISTR & d)
 
   errors = d.errors;
   errormessages = d.errormessages;
-
 
   return *this;
   }
@@ -435,7 +442,7 @@ void DISTR::compute_deviance_mult(vector<double *> response,
                                   vector<double *> weight,
                                   vector<double *> linpred,
                                   double * deviance,
-                                  vector<double> scale) const
+                                  vector<datamatrix *> aux)
   {
 
   }
@@ -767,6 +774,10 @@ double DISTR::get_scale(void)
   return sigma2;
   }
 
+datamatrix * DISTR::get_auxiliary_parameter(auxiliarytype t)
+  {
+  return &helpmat1;
+  }
 
 double DISTR::get_scalemean(void)
   {
@@ -870,7 +881,6 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
 
   a_invgamma = a;
   double h = sqrt(response.var(0,weight));
-//  h=1;
   b_invgamma = b*h;
   trmult = h;
   family = "Gaussian";

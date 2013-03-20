@@ -120,7 +120,7 @@ void FC_predict_mult::get_predictor(void)
     vector<double *> worklinp;
     vector<double *> workresponse;
     vector<double *> workweight;
-    vector<double>   scalehelp;
+    vector<datamatrix *>   aux;
 
     for (j=0;j<likep.size();j++)
       {
@@ -134,7 +134,7 @@ void FC_predict_mult::get_predictor(void)
 
       workweight.push_back(likep[j]->weight.getV());
 
-      scalehelp.push_back(likep[j]->get_scale());
+      aux.push_back(likep[j]->get_auxiliary_parameter());
       }
 
     deviance=0;
@@ -156,7 +156,7 @@ void FC_predict_mult::get_predictor(void)
 
 
       likep[likep.size()-1]->compute_deviance_mult(workresponse,workweight,
-                              worklinp,&deviancehelp,scalehelp);
+                              worklinp,&deviancehelp,aux);
 
 
       for (j=0;j<likep.size();j++)
@@ -208,7 +208,7 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
   vector<double *> worklinp;
   vector<double *> workresponse;
   vector<double *> workweight;
-  vector<double>   scalehelp;
+  vector<datamatrix *>    aux;
 
   unsigned j;
 
@@ -221,6 +221,8 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
 
     workweight.push_back(likep[j]->weight.getV());
 
+    aux.push_back(likep[j]->get_auxiliary_parameter());
+
     }
 
   unsigned i;
@@ -230,7 +232,7 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
 
     likep[likep.size()-1]->compute_deviance_mult(workresponse,
                                                  workweight,worklinp,
-                                                 &devhelp,scalehelp);
+                                                 &devhelp,aux);
 
     deviance2 += devhelp;
 

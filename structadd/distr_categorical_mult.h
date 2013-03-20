@@ -45,6 +45,8 @@ class __EXPORT_TYPE DISTR_multinomprobit : public DISTR
 
   protected:
 
+  unsigned catnr;                              // category number
+
   bool master;                                 // master equation that updates
                                                // utilities yes/no
 
@@ -66,6 +68,7 @@ class __EXPORT_TYPE DISTR_multinomprobit : public DISTR
   void create_responsecat(void);
 
   void assign_othercat(DISTR* o);
+  void assign_distributions(vector<DISTR * > dp);
 
 
    // DEFAULT CONSTRUCTOR
@@ -76,7 +79,7 @@ class __EXPORT_TYPE DISTR_multinomprobit : public DISTR
 
    // CONSTRUCTOR
 
-   DISTR_multinomprobit(GENERAL_OPTIONS * o, bool mast,
+   DISTR_multinomprobit(GENERAL_OPTIONS * o, unsigned & cnr, bool mast,
                         const datamatrix & r,
                         const datamatrix & w=datamatrix());
 
@@ -142,10 +145,14 @@ class __EXPORT_TYPE DISTR_multgaussian : public DISTR_multinomprobit
 
   protected:
 
+  double devianceconst;
+
+
   void outresults_help(ST::string t,datamatrix & r);
-  void initpointer(unsigned j,double* & worklin, double* & workresp);  
+  void initpointer(unsigned j,double* & worklin, double* & workresp);
 
   FC FC_scale;
+  FC FC_corr;
 
   double A;                    // Hyperparameter for Inverse Wishart
   datamatrix B;                // Hyperparameter for Inverse Wishart
@@ -154,7 +161,8 @@ class __EXPORT_TYPE DISTR_multgaussian : public DISTR_multinomprobit
 
   datamatrix SIGMA_mr;         // Sigma_-r
   datamatrix SIGMA_rmr;        // Sigma_r|-r (row vector)
-  datamatrix sigma_rmr;        // column vector of sigma^2_r | -r
+
+                               // helpmat1 stores SIGMA_rmr * SIGMA_mr
 
   datamatrix offset;           // stores the offsets in a nrobs x nrcat matrix
                                 // i -th row corresponds to i-th observation
@@ -203,7 +211,7 @@ class __EXPORT_TYPE DISTR_multgaussian : public DISTR_multinomprobit
 
    // CONSTRUCTOR
 
-   DISTR_multgaussian(const double & a,const double & b,
+   DISTR_multgaussian(const double & a,const double & b, unsigned & cnr,
                       GENERAL_OPTIONS * o, bool mast,
                       const datamatrix & r,
                       const datamatrix & w=datamatrix());
@@ -222,9 +230,16 @@ class __EXPORT_TYPE DISTR_multgaussian : public DISTR_multinomprobit
 
   void compute_mu(const double * linpred,double * mu);
 
-  void compute_deviance(const double * response, const double * weight,
-                        const double * mu,double * deviance, double * scale)
-                        const;
+  void compute_mu_mult(vector<double *> linpred,double * mu);  
+
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix *> aux);
+
+  datamatrix * get_auxiliary_parameter(auxiliarytype t = current);                             
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);
@@ -259,7 +274,7 @@ class __EXPORT_TYPE DISTR_multgaussian : public DISTR_multinomprobit
 
   void outresults(ST::string pathresults="");
 
-  bool posteriormode(void);  
+  bool posteriormode(void);
 
   void update(void);
 
@@ -290,7 +305,7 @@ class __EXPORT_TYPE DISTR_multinomlogit : public DISTR_multinomprobit
  		}
 
  	// CONSTRUCTOR1
- 	DISTR_multinomlogit(GENERAL_OPTIONS * o,
+ 	DISTR_multinomlogit(GENERAL_OPTIONS * o,unsigned & cnr,
                         bool mast,
                         const datamatrix & r,
                         const datamatrix & w=datamatrix());

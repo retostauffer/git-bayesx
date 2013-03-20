@@ -675,9 +675,9 @@ void FC_nonp::update_IWLS(void)
   FC::update();
 
   }
-  
 
-  
+
+
 /*
 void FC_nonp::update_IWLS(void)
   {
@@ -1433,6 +1433,9 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
               << endl << "graph export " << pathderivativeps << ".eps, replace"
                       << endl << endl;
 
+   out_stata << "sleep 1000" << endl << endl;
+
+
     }
 
   out_stata << "clear" << endl
@@ -1491,6 +1494,8 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
                       << endl << endl;
               }
 
+   out_stata << "sleep 1000" << endl << endl;
+
 
   if (designp->position_lin!=-1)
     {
@@ -1518,6 +1523,7 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
                       << endl << endl;
       }
 
+    out_stata << "sleep 1000" << endl << endl;
     }
 
 
@@ -1546,6 +1552,7 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
                       << endl << endl;
       }
 
+    out_stata << "sleep 1000" << endl << endl;
     }
 
   }

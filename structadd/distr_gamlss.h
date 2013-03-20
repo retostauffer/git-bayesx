@@ -89,7 +89,7 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const;
+                             vector<datamatrix*> aux);
 
   double get_intercept_start(void);
 
@@ -232,7 +232,7 @@ class __EXPORT_TYPE DISTR_negbin_mu : public DISTR_gamlss
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const;
+                             vector<datamatrix*> aux);
 
   double get_intercept_start(void);
 
@@ -294,7 +294,7 @@ class __EXPORT_TYPE DISTR_zip_cloglog_mu : public DISTR_gamlss
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const;
+                             vector<datamatrix*> aux);
 
   double get_intercept_start(void);
 
@@ -424,7 +424,7 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const;
+                             vector<datamatrix *> aux);
 
   double get_intercept_start(void);
 
@@ -787,7 +787,7 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const;
+                             vector<datamatrix*> aux);
 
   double get_intercept_start(void);
 

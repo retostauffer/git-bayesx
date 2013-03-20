@@ -548,7 +548,7 @@ void DISTR_negbin_mu::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const
+                             vector<datamatrix*> aux)
   {
 
    // *response[0] = *response[1] = response
@@ -948,7 +948,7 @@ void DISTR_zip_cloglog_mu::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const
+                             vector<datamatrix*> aux)
   {
 
   double l;
@@ -1246,7 +1246,7 @@ void DISTR_gamlss::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const
+                             vector<datamatrix*> aux)
   {
   //  *deviance = -2*l;
   }
@@ -1530,7 +1530,7 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const
+                             vector<datamatrix*> aux)
   {
 
   double mu;
@@ -2678,7 +2678,7 @@ void DISTR_ziplambda::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<double> scale) const
+                             vector<datamatrix*> aux)
   {
 
    if (*weight[1] == 0)

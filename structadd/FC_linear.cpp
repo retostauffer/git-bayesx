@@ -466,6 +466,14 @@ void FC_linear::find_const(datamatrix & design)
     i++;
     }
 
+  if (constposition==-1)
+    {
+    optionsp->out("\n");
+    optionsp->out("WARNING: AT LEAST ONE EQUATION CONTAINS NO INTERCEPT\n");
+    optionsp->out("         Intercept may be specified using const in linear effects term\n");
+    optionsp->out("\n");
+    }
+
   }
 
 
