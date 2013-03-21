@@ -63,7 +63,7 @@ wweightsnochange_constant,wweightsnochange_one};
 
 enum msetype{noMSE,quadraticMSE,checkMSE};
 
-enum auxiliarytype{current,postmean};
+enum auxiliarytype{auxcurrent,auxpostmean};
 
 class __EXPORT_TYPE DISTR
   {
@@ -395,7 +395,7 @@ class __EXPORT_TYPE DISTR
   virtual double get_scale(void);
   virtual double get_scalemean(void);
   virtual void update_scale_hyperparameters(datamatrix & h);
-  virtual datamatrix * get_auxiliary_parameter(auxiliarytype t = current);
+  virtual datamatrix * get_auxiliary_parameter(auxiliarytype t = auxcurrent);
 
   //----------------------------------------------------------------------------
   //----------------------- POSTERIORMODE FUNCTIONS ----------------------------
@@ -755,7 +755,7 @@ class __EXPORT_TYPE DISTR_hetgaussian : public DISTR_gaussian
 
   bool posteriormode(void);
 
-  void outresults(ST::string pathresults="");  
+  void outresults(ST::string pathresults="");
 
   };
 
