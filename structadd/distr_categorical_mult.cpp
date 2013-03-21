@@ -140,12 +140,9 @@ void DISTR_multgaussian::compute_deviance_mult(vector<double *> response,
   {
 
 
+  
   if (*weight[nrcat-1] != 0)
     {
-
-//    datamatrix h = *aux[nrcat-1];
-//    unsigned r = (*aux[nrcat-1])->rows();
-//    unsigned c = (*aux[nrcat-1])->cols();
 
     unsigned j,k;
     double qf=0;
@@ -158,7 +155,7 @@ void DISTR_multgaussian::compute_deviance_mult(vector<double *> response,
         {
         for(k=j+1;k<nrcat;k++)
           {
-          qf += 2*(*aux[nrcat-1])(j,k)*diffj*((*linpred[j])-(*response[j]));
+          qf += 2*(*aux[nrcat-1])(j,k)*diffj*((*linpred[k])-(*response[k]));
           }
         }
       }
@@ -514,6 +511,8 @@ bool DISTR_multgaussian::posteriormode(void)
       othercat[j]->sigma2 = FC_scale.beta(j,j);
 
       }
+
+    helpmat2 = FC_scale.beta.inverse();  
 
     FC_scale.posteriormode_betamean();
     }
