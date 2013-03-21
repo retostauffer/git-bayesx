@@ -129,49 +129,41 @@ void DISTR_multgaussian::compute_mu_mult(vector<double *> linpred,double * mu)
 
 datamatrix * DISTR_multgaussian::get_auxiliary_parameter(auxiliarytype t)
   {
-
-  if (master)
-    {
-
-    if (t == current)
-      return &FC_scale.beta;
-    else
-      return &FC_scale.betamean;
-    }
-  else
-    return &helpmat1;
-  }
-
+  return &helpmat2;
+  }
 
 void DISTR_multgaussian::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
-                             vector<datamatrix *> aux) 
+                             vector<datamatrix *> aux)
   {
 
 
   if (*weight[nrcat-1] != 0)
     {
 
-    if (helpmat2.rows() < nrcat)
-      helpmat2 = datamatrix(nrcat,1,0);
+//    datamatrix h = *aux[nrcat-1];
+//    unsigned r = (*aux[nrcat-1])->rows();
+//    unsigned c = (*aux[nrcat-1])->cols();
 
-    datamatrix scaleinv = (*aux[nrcat-1]).inverse();
-    unsigned j;
-    double * hm2p = helpmat2.getV();
-    for (j=0;j<nrcat;j++,hm2p++)
-      *hm2p = (*linpred[j])-(*response[j]);
+    unsigned j,k;
+    double qf=0;
+    double diffj;
+    for (j=0;j<nrcat;j++)
+      {
+      diffj = (*linpred[j])-(*response[j]);
+      qf += (*aux[nrcat-1])(j,j)* pow(diffj,2);
+      if (j<nrcat-1)
+        {
+        for(k=j+1;k<nrcat;k++)
+          {
+          qf += 2*(*aux[nrcat-1])(j,k)*diffj*((*linpred[j])-(*response[j]));
+          }
+        }
+      }
 
-    helpmat3 = helpmat2.transposed()*scaleinv*helpmat2;
-
-    double l = -devianceconst
-               -0.5*log((*aux[nrcat-1]).det())
-               - 0.5*helpmat3(0,0);
-
-
-    *deviance =  -2*l;
-
+    *deviance = 2*devianceconst+log((*aux[nrcat-1]).det()) + qf;
     }
   else
     *deviance = 0;
@@ -435,9 +427,9 @@ void DISTR_multgaussian::update(void)
 
     sumB = 0.5*sumB.inverse();
 
-    randnumbers::rand_wishart(sumB,2.0*A+nrobs,FC_scale.beta);
+    randnumbers::rand_wishart(sumB,2.0*A+nrobs,helpmat2);
 
-    FC_scale.beta = FC_scale.beta.inverse();
+    FC_scale.beta = helpmat2.inverse();
 
     compute_sigmarmr();
 
@@ -469,6 +461,7 @@ bool DISTR_multgaussian::posteriormode(void)
     offset = datamatrix(nrobs,1,0);
 
     helpmat1 = datamatrix(1,nrcat-1,0);
+    helpmat2 = datamatrix(nrcat,nrcat,0);
 
     devianceconst = double(nrcat)/2*log(6.2831853);
 
@@ -561,6 +554,7 @@ void DISTR_multgaussian::outresults(ST::string pathresults)
     {
     ofstream out1;
     ofstream out2;
+    helpmat2 = FC_scale.betamean;
     FC_scale.outresults(out1,out2,"");
 
     ST::string l1 = ST::doubletostring(optionsp->lower1,4);

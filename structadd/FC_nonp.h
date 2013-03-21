@@ -48,6 +48,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   protected:
 
   MASTER_OBJ * masterp;
+  unsigned equationnr;
 
   FC fsample;
   bool samplef;
@@ -57,8 +58,6 @@ class __EXPORT_TYPE FC_nonp  : public FC
   bool derivative;
   bool samplederivative;
   FC derivativesample;
-  //  FC elasticitysample;
-  //  void compute_elasticity(void);
 
 
   bool IWLS;
@@ -140,7 +139,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // t    : title of the full conditional (for example "fixed effects")
   // fp   : file path for storing sampled parameters
 
-  FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
+  FC_nonp(MASTER_OBJ * mp,unsigned & enr ,GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
            const ST::string & fp,DESIGN * dp,vector<ST::string> & op,
              vector<ST::string> & vn);
 

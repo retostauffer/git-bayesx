@@ -46,7 +46,7 @@ void FC_variance_pen_vector::add_variable(datamatrix & x,vector<ST::string> & op
   bool adsh;
   double a,b;
   double shw;
-  
+
   // read options
   f = op[33].strtodouble(ta);
   f = op[29].strtodouble(shrink);
@@ -66,23 +66,23 @@ void FC_variance_pen_vector::add_variable(datamatrix & x,vector<ST::string> & op
   // options from each term
   tau2.push_back(ta);
   shrinkageweight.push_back(shw);
-  
+
   // options from first term or all terms. Depends on adaptiveshrinkage
   shrinkagefix.push_back(sfix);
   adaptiveshrinkage.push_back(adsh);
-  
+
   // shrinkagefix and adaptiveshrinkage are set from first term
   is_fix = shrinkagefix[0];
   is_adaptive = adaptiveshrinkage[0];
-  
+
   if(is_ridge==1)                        // for Ridge
     shrinkagestart.push_back(1/(2*ta));
   if(is_ridge==0)                        // for Lasso
     shrinkagestart.push_back(shrink);
- 
+
   a_shrinkagegamma.push_back(a);
   b_shrinkagegamma.push_back(b);
- 
+
   if(is_adaptive==false)
     {
     shrinkagestart[nrpen] = shrinkagestart[0];
@@ -100,10 +100,10 @@ void FC_variance_pen_vector::add_variable(datamatrix & x,vector<ST::string> & op
   // optionsp->out("a_shrinkage = " + ST::doubletostring(a_shrinkagegamma[nrpen]) + "\n");
   // optionsp->out("b_shrinkage = " + ST::doubletostring(b_shrinkagegamma[nrpen]) + "\n");
   // optionsp->out("\n");
-    
+
   nrpen++;
   Cp->tau2 = datamatrix(nrpen,1,0);
-  Cp->tau2oldinv = datamatrix(nrpen,1,0);  
+  Cp->tau2oldinv = datamatrix(nrpen,1,0);
   for(int i=0;i<nrpen;i++)
     {
     Cp->tau2(i,0) = tau2[i];
@@ -289,27 +289,27 @@ void FC_variance_pen_vector::update(void)
 
   // get current value of first regressionparameter
   double * workbeta = Cp->beta.getV();
-  
+
   // getcurrent value of sqrt(scale) parameter
   double sigma = sqrt(distrp->get_scale());
 
 //TEMP:BEGIN--------------------------------------------------------------------
   // ofstream outpenreg("c:/bayesx/test/outpenreg.txt", ios::out|ios::app);
-  // outpenreg << "beta ";    
+  // outpenreg << "beta ";
   // for(unsigned i=0; i<nrpen; i++,workbeta++) {outpenreg << *workbeta  << " ";}
   // outpenreg << "\n";
-  // outpenreg << "tau2 ";    
+  // outpenreg << "tau2 ";
   // for(unsigned i=0; i<nrpen; i++) {outpenreg << beta(i,0)  << " ";}
   // outpenreg << "\n";
-  // outpenreg << "lambda ";    
+  // outpenreg << "lambda ";
   // for(unsigned i=0; i<nrpen; i++,shrinkagep++) {outpenreg << *shrinkagep  << " ";}
   // outpenreg << "\n";
   // outpenreg << "sigma "<< sigma <<"\n";
-  
+
   // shrinkagep = FC_shrinkage.beta.getV();
   // workbeta = Cp->beta.getV();
   // sigma = sqrt(distrp->get_scale());
-//TEMP:END----------------------------------------------------------------------  
+//TEMP:END----------------------------------------------------------------------
 
 
 
@@ -370,7 +370,7 @@ void FC_variance_pen_vector::update(void)
       sumregcoeff = sumregcoeff + (*workbeta)*(*workbeta);
       }
     }
-    
+
   if (is_ridge == 1 && is_adaptive == true)   // Ridge L2-penalty adaptive
     {
     for(i=0; i<nrpen; i++, workbeta++, shrinkagep++)
@@ -464,20 +464,20 @@ void FC_variance_pen_vector::get_samples(const ST::string & filename,ofstream & 
 void FC_variance_pen_vector::outresults(ofstream & out_stata, ofstream & out_R,
                              const ST::string & pathresults)
   {
- 
+
 //  int i;
-  vector<ST::string> vnames;   
+  vector<ST::string> vnames;
   vnames = Cp->datanames;
 
   FC::outresults(out_stata,out_R,"");
   FC::outresults_help(out_stata,out_R,pathresults,vnames);
-  
+
   optionsp->out("\n");
   optionsp->out("    Results for variances are also stored in file\n");
   optionsp->out("    " + pathresults + "\n");
   optionsp->out("\n");
 
-  
+
   // outresults shrinkage
   ST::string shrinkage_pathresults = pathresults.substr(0,pathresults.length()-7) + "shrinkage.res";
   outresults_shrinkage(shrinkage_pathresults);
@@ -502,10 +502,10 @@ void FC_variance_pen_vector::outresults_shrinkage(const ST::string & pathresults
     ST::string shrinkage_pathresults = pathresults;
     vector<ST::string> vnames;
     vnames = Cp->datanames;
-   
+
     ofstream out1;
     ofstream out2;
-    
+
     FC_shrinkage.outresults(out1,out2,"");
     FC_shrinkage.outresults_help(out1,out2,shrinkage_pathresults,vnames);
 
@@ -514,12 +514,12 @@ void FC_variance_pen_vector::outresults_shrinkage(const ST::string & pathresults
       // {
       // FC_shrinkage.outresults_help(out1,out2,shrinkage_pathresults,vnames);
       // }
-    
+
     // if(is_adaptive==false)
       // {
       // FC_shrinkage.outresults_help(out1,out2,shrinkage_pathresults,vnames);
       // }
-    
+
     optionsp->out("\n");
     optionsp->out("    Results for shrinkage parameters are also stored in file\n");
     optionsp->out("    " + shrinkage_pathresults + "\n");

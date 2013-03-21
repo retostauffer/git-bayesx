@@ -67,7 +67,7 @@ FC_nonp_variance::FC_nonp_variance(void)
 
 
 
-FC_nonp_variance::FC_nonp_variance(MASTER_OBJ * mp, GENERAL_OPTIONS * o,
+FC_nonp_variance::FC_nonp_variance(MASTER_OBJ * mp, unsigned & enr, GENERAL_OPTIONS * o,
                  DISTR * lp, const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                  vector<ST::string> & vn)
@@ -77,6 +77,7 @@ FC_nonp_variance::FC_nonp_variance(MASTER_OBJ * mp, GENERAL_OPTIONS * o,
   likep = lp;
   designp = Dp;
   masterp = mp;
+  equationnr = enr,
   lambdaconst = false;
 
   read_options(op,vn);
@@ -99,6 +100,7 @@ FC_nonp_variance::FC_nonp_variance(const FC_nonp_variance & m)
   likep = m.likep;
   designp = m.designp;
   masterp = m.masterp;
+  equationnr = m.equationnr;
   a_invgamma = m.a_invgamma;
   b_invgamma_orig = m.b_invgamma_orig;
   b_invgamma = m.b_invgamma;
@@ -117,6 +119,7 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   likep = m.likep;
   designp = m.designp;
   masterp = m.masterp;
+  equationnr = m.equationnr;
   a_invgamma = m.a_invgamma;
   b_invgamma_orig = m.b_invgamma_orig;
   b_invgamma = m.b_invgamma;
@@ -140,7 +143,7 @@ void FC_nonp_variance::update(void)
   //  (FCnonpp->param).prettyPrint(out);
   // END: TEST
 
-  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
+  b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
   if (lambdaconst == false)
     {
@@ -170,7 +173,7 @@ void FC_nonp_variance::update(void)
 bool FC_nonp_variance::posteriormode(void)
   {
 
-  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
+  b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
   beta(0,0) = likep->get_scale()/beta(0,1);
 
@@ -329,7 +332,7 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
 void FC_nonp_variance::outoptions(void)
   {
 
-  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
+  b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
   optionsp->out("  Hyperprior a for variance parameter: " +
                 ST::doubletostring(a_invgamma) + "\n" );

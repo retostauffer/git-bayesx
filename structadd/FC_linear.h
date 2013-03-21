@@ -50,6 +50,7 @@ class __EXPORT_TYPE FC_linear  : public FC
   bool center;
 
   MASTER_OBJ * masterp;
+  unsigned equationnr;
 
   void compute_meaneffect_design(void);
 
@@ -113,8 +114,8 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   // CONSTRUCTOR
 
-  FC_linear(MASTER_OBJ * mp, GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
-            vector<ST::string> & vn, const ST::string & t,
+  FC_linear(MASTER_OBJ * mp, unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
+            datamatrix & d, vector<ST::string> & vn, const ST::string & t,
            const ST::string & fp,bool cent);
 
   // COPY CONSTRUCTOR
@@ -194,9 +195,10 @@ class __EXPORT_TYPE FC_linear_pen  : public FC_linear
 
   // CONSTRUCTOR
 
-  FC_linear_pen(MASTER_OBJ * mp, GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
-            vector<ST::string> & vn, const ST::string & t,
-           const ST::string & fp,bool cent);
+  FC_linear_pen(MASTER_OBJ * mp,unsigned & enr,
+                GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
+                vector<ST::string> & vn, const ST::string & t,
+                const ST::string & fp,bool cent);
 
   // COPY CONSTRUCTOR
 

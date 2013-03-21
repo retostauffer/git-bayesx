@@ -80,11 +80,11 @@ void FC_hrandom::read_options(vector<ST::string> & op,vector<ST::string> & vn)
 
   }
 
-FC_hrandom::FC_hrandom(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
+FC_hrandom::FC_hrandom(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
                  const ST::string & t,const ST::string & fp,
                  const ST::string & fp2, DESIGN * Dp,
                  vector<ST::string> & op, vector<ST::string> & vn)
-     : FC_nonp(mp,o,lp,t,fp,Dp,op,vn)
+     : FC_nonp(mp,enr,o,lp,t,fp,Dp,op,vn)
   {
   read_options(op,vn);
   likep_RE = lp_RE;
@@ -120,7 +120,7 @@ const FC_hrandom & FC_hrandom::operator=(const FC_hrandom & m)
   linpred_o = m.linpred_o;
   likelihoodc = m.likelihoodc;
   likelihoodn = m.likelihoodn;
-  beta_prior = m.beta_prior;  
+  beta_prior = m.beta_prior;
   return *this;
   }
 
@@ -465,7 +465,7 @@ bool FC_hrandom::posteriormode_multexp(void)
 
   likep->response.assign(response_o);
  */
- 
+
   return true;
 
   }
@@ -773,7 +773,7 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
       mu_workbetaqu50 = meaneffect_sample.betaqu50.getV();
       }
 
-    double l1_sim,l2_sim,u1_sim,u2_sim;  
+    double l1_sim,l2_sim,u1_sim,u2_sim;
 
     unsigned nrpar = beta.rows();
     for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,

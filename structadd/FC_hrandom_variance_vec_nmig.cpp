@@ -64,13 +64,13 @@ FC_hrandom_variance_vec_nmig::FC_hrandom_variance_vec_nmig(void)
   }
 
 
-FC_hrandom_variance_vec_nmig::FC_hrandom_variance_vec_nmig(MASTER_OBJ * mp,
+FC_hrandom_variance_vec_nmig::FC_hrandom_variance_vec_nmig(MASTER_OBJ * mp,unsigned & enr,
                   GENERAL_OPTIONS * o,DISTR * lp,
                   DISTR * lpRE,
                   const ST::string & t,const ST::string & fp,
                   DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                   vector<ST::string> & vn)
-     : FC_hrandom_variance_vec(mp,o,lp,lpRE,t,fp,Dp,FCn,op,vn)
+     : FC_hrandom_variance_vec(mp,enr,o,lp,lpRE,t,fp,Dp,FCn,op,vn)
   {
   read_options(op,vn);
 
@@ -238,7 +238,7 @@ void FC_hrandom_variance_vec_nmig::outresults(ofstream & out_stata,
     optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
     optionsp->out("    " +  pathresults_omega + "\n");
     optionsp->out("\n");
-    optionsp->out("\n");    
+    optionsp->out("\n");
 
     optionsp->out("    Variance parameter Q:\n");
     optionsp->out("\n");

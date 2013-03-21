@@ -81,13 +81,13 @@ FC_hrandom_variance::FC_hrandom_variance(void)
   }
 
 
-FC_hrandom_variance::FC_hrandom_variance(MASTER_OBJ * mp,
+FC_hrandom_variance::FC_hrandom_variance(MASTER_OBJ * mp,unsigned & enr,
                  GENERAL_OPTIONS * o,DISTR * lp,
                   DISTR * lpRE,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                  vector<ST::string> & vn)
-     : FC_nonp_variance(mp,o,lp,t,fp,Dp,FCn,op,vn)
+     : FC_nonp_variance(mp,enr,o,lp,t,fp,Dp,FCn,op,vn)
   {
   read_options(op,vn);
   likepRE = lpRE;
@@ -145,7 +145,7 @@ double FC_hrandom_variance::compute_quadform(void)
 void FC_hrandom_variance::update(void)
   {
 
-  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
+  b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
   if (lambdaconst==false)
     {
@@ -153,8 +153,8 @@ void FC_hrandom_variance::update(void)
                                     b_invgamma+0.5*compute_quadform());
 
     if (beta(0,0) > 5)
-      beta(0,0) = 5;            
-                                    
+      beta(0,0) = 5;
+
 
     beta(0,1) = likep->get_scale()/beta(0,0);
 
@@ -203,7 +203,7 @@ vector<ST::string> & vn)
 
   */
 
-  FC_nonp_variance::read_options(op,vn);  
+  FC_nonp_variance::read_options(op,vn);
   FC_hrandom_variance::read_options(op,vn);
 
   f = op[39].strtodouble(abeta);
@@ -220,13 +220,13 @@ FC_hrandom_variance_ssvs::FC_hrandom_variance_ssvs(void)
 
 
 
-FC_hrandom_variance_ssvs::FC_hrandom_variance_ssvs(MASTER_OBJ * mp,
+FC_hrandom_variance_ssvs::FC_hrandom_variance_ssvs(MASTER_OBJ * mp,unsigned & enr,
                   GENERAL_OPTIONS * o,DISTR * lp,
                   DISTR * lpRE,
                   const ST::string & t,const ST::string & fp,
                   DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                   vector<ST::string> & vn)
-     : FC_hrandom_variance(mp,o,lp,lpRE,t,fp,Dp,FCn,op,vn)
+     : FC_hrandom_variance(mp,enr, o,lp,lpRE,t,fp,Dp,FCn,op,vn)
   {
   read_options(op,vn);
 
@@ -329,7 +329,7 @@ void FC_hrandom_variance_ssvs::update(void)
       }
     }
 
-  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
+  b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
   beta(0,0) = rand_invgamma(a_invgamma+0.5*nrcluster,b_invgamma+0.5*quadform);
 

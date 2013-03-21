@@ -43,12 +43,13 @@ void FC_mult::set_intp(DESIGN * d,FC_nonp * fp)
   }
 
 
-void FC_mult::set_multeffects(MASTER_OBJ * mp,GENERAL_OPTIONS * o,
+void FC_mult::set_multeffects(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,
                               const ST::string & t, const ST::string & fp,
                               bool sm,bool meane, double meanec)
   {
 
   masterp = mp;
+  equationnr = enr;
 
   unsigned rows = dp1->Zout.rows()*dp2->Zout.rows();
 
@@ -98,6 +99,7 @@ FC_mult::FC_mult(bool reu,bool mexp)
 FC_mult::FC_mult(const FC_mult & m)
   : FC(FC(m))
   {
+  equationnr = m.equationnr;
   masterp = m.masterp;
   multexp = m.multexp;
   FCmulteffect = m.FCmulteffect;
@@ -121,6 +123,7 @@ const FC_mult & FC_mult::operator=(const FC_mult & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+  equationnr = m.equationnr;
   masterp = m.masterp;
   multexp = m.multexp;
   FCmulteffect = m.FCmulteffect;
@@ -198,7 +201,7 @@ void FC_mult::update_multeffect(void)
     {
     double meanlin;
     if (meaneffectconstant==0)
-      meanlin = masterp->level1_likep->meaneffect-FCnp2->meaneffect;
+      meanlin = masterp->level1_likep[equationnr]->meaneffect-FCnp2->meaneffect;
     else
       meanlin = meaneffectconstant;
 
@@ -211,7 +214,7 @@ void FC_mult::update_multeffect(void)
         {
         *mebetap = (*FCnpbetap+1)*(*FCnp2betap);
         lin = meanlin + *mebetap;
-        masterp->level1_likep->compute_mu(&lin,FCmp);
+        masterp->level1_likep[equationnr]->compute_mu(&lin,FCmp);
         }
       }
     }

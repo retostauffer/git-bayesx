@@ -116,7 +116,7 @@ FC_nonp::FC_nonp(void)
   }
 
 
-FC_nonp::FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
+FC_nonp::FC_nonp(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,vector<ST::string> & op,
                  vector<ST::string> & vn)
@@ -124,7 +124,9 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
   {
 
   read_options(op,vn);
+
   masterp = mp;
+  equationnr = enr;
   likep = lp;
   designp = Dp;
 
@@ -189,6 +191,7 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   {
 
   masterp = m.masterp;
+  equationnr = m.equationnr;
 
   fsample = m.fsample;
 
@@ -245,6 +248,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   FC::operator=(FC(m));
 
   masterp = m.masterp;
+  equationnr = m.equationnr;
 
   fsample = m.fsample;
 
@@ -869,7 +873,7 @@ void FC_nonp::update(void)
     }
 
 
-  designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
+  designp->compute_meaneffect(masterp->level1_likep[equationnr],meaneffect,beta,
                              meaneffect_sample.beta,computemeaneffect,
                              meaneffectconstant);
 
@@ -1267,7 +1271,7 @@ bool FC_nonp::posteriormode_transform(void)
 
   ST::string n = designp->datanames[0];
 
-  designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
+  designp->compute_meaneffect(masterp->level1_likep[equationnr],meaneffect,beta,
                               meaneffect_sample.beta,computemeaneffect,
                               meaneffectconstant);
 
@@ -1351,7 +1355,7 @@ bool FC_nonp::posteriormode(void)
 
 //    ST::string n = designp->datanames[0];
 
-    designp->compute_meaneffect(masterp->level1_likep,meaneffect,beta,
+    designp->compute_meaneffect(masterp->level1_likep[equationnr],meaneffect,beta,
                                meaneffect_sample.beta,computemeaneffect,
                                meaneffectconstant);
 

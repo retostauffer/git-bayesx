@@ -266,7 +266,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&utilities);
   regressoptions.push_back(&aexp);
   regressoptions.push_back(&bexp);
-  regressoptions.push_back(&adaptexp);      
+  regressoptions.push_back(&adaptexp);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -564,6 +564,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   modelvarnamesv = b.modelvarnamesv;
 
   equations=b.equations;
+  nrlevel1 = b.nrlevel1;
   simobj = b.simobj;
 
   master = b.master;
@@ -655,6 +656,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   modelvarnamesv = b.modelvarnamesv;
 
   equations=b.equations;
+  nrlevel1 = b.nrlevel1;
   simobj = b.simobj;
 
   master = b.master;
@@ -852,6 +854,7 @@ void hregressrun(superbayesreg & b)
     b.run_yes=false;
     b.generaloptions_yes = false;
     b.errors=false;
+    b.nrlevel1 = 0;
     }
 
   if (b.errors==false)    // errors from level 2 equations
@@ -905,7 +908,8 @@ void hregressrun(superbayesreg & b)
     if (!failure)
       b.create_cv();
 
-
+    if (b.hlevel.getvalue() == 1)
+      b.nrlevel1++;
 
     if ((! failure) && (b.hlevel.getvalue() == 1) &&
         (b.equationtype.getvalue()=="mean"))
@@ -1456,7 +1460,7 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_multgaussians[distr_multgaussians.size()-1];
     equations[modnr].pathd = "";
 
-    predict_mult_distrs.push_back(&distr_multgaussians[distr_multgaussians.size()-1]);    
+    predict_mult_distrs.push_back(&distr_multgaussians[distr_multgaussians.size()-1]);
 
     unsigned i;
     vector<DISTR *> dp;
@@ -1743,7 +1747,7 @@ bool superbayesreg::create_distribution(void)
   equations[modnr].distrp->weightname=wn;
 
   if (equations[modnr].hlevel==1)
-    master.level1_likep = equations[modnr].distrp;
+    master.level1_likep.push_back(equations[modnr].distrp);
 
   return false;
 
@@ -1941,7 +1945,7 @@ void superbayesreg::create_offset(unsigned i)
   else
     equations[modnr].distrp->linearpred1.plus(d);
 
-  equations[modnr].distrp->offsetname = terms[i].varnames[0];    
+  equations[modnr].distrp->offsetname = terms[i].varnames[0];
 
   }
 
@@ -2017,7 +2021,7 @@ bool superbayesreg::create_linear(void)
   // TEST
 
 
-  FC_linears.push_back(FC_linear(&master,&generaloptions,equations[modnr].distrp,X,
+  FC_linears.push_back(FC_linear(&master,nrlevel1,&generaloptions,equations[modnr].distrp,X,
                          varnames,title,pathconst,
                          centerlinear.getvalue()));
 
@@ -2048,7 +2052,7 @@ void superbayesreg::create_pspline(unsigned i)
                             &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));
 
-  FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,title,
+  FC_nonps.push_back(FC_nonp(&master,nrlevel1,&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_psplines[design_psplines.size()-1],
                      terms[i].options,terms[i].varnames));
 
@@ -2061,7 +2065,7 @@ void superbayesreg::create_pspline(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_pspline_var.raw","variance_of_nonlinear_pspline_effect_of","Variance of nonlinear effect of ");
 
-  FC_nonp_variances.push_back(FC_nonp_variance(&master,&generaloptions,equations[modnr].distrp,
+  FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_psplines[design_psplines.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
                                 terms[i].varnames));
@@ -2130,7 +2134,7 @@ bool superbayesreg::create_hrandom(unsigned i)
                              equations[fnr].distrp,
                             terms[i].options,terms[i].varnames));
 
-  FC_hrandoms.push_back(FC_hrandom(&master,&generaloptions,equations[modnr].distrp,
+  FC_hrandoms.push_back(FC_hrandom(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
                         equations[fnr].distrp, title,pathnonp,pathnonp2,
                         &design_hrandoms[design_hrandoms.size()-1],
                         terms[i].options,terms[i].varnames));
@@ -2144,7 +2148,7 @@ bool superbayesreg::create_hrandom(unsigned i)
 
   if (terms[i].options[35] == "iid")
     {
-    FC_hrandom_variances.push_back(FC_hrandom_variance(&master,
+    FC_hrandom_variances.push_back(FC_hrandom_variance(&master,nrlevel1,
                                    &generaloptions,equations[modnr].distrp,
                                    equations[fnr].distrp,
                                   title,pathnonp,
@@ -2158,7 +2162,7 @@ bool superbayesreg::create_hrandom(unsigned i)
   else if (terms[i].options[35] == "lasso")
     {
 
-    FC_hrandom_variance_vecs.push_back(FC_hrandom_variance_vec(&master,
+    FC_hrandom_variance_vecs.push_back(FC_hrandom_variance_vec(&master,nrlevel1,
                                    &generaloptions,equations[modnr].distrp,
                                    equations[fnr].distrp,
                                   title,pathnonp,
@@ -2173,7 +2177,7 @@ bool superbayesreg::create_hrandom(unsigned i)
     {
 
     FC_hrandom_variance_vec_nmigs.push_back(FC_hrandom_variance_vec_nmig(&master,
-                                        &generaloptions,equations[modnr].distrp,
+                                        nrlevel1,&generaloptions,equations[modnr].distrp,
                                         equations[fnr].distrp,
                                         title,pathnonp,
                                         &design_hrandoms[design_hrandoms.size()-1],
@@ -2186,7 +2190,7 @@ bool superbayesreg::create_hrandom(unsigned i)
   else if ((terms[i].options[35] == "ssvs"))
     {
 
-    FC_hrandom_variance_ssvss.push_back(FC_hrandom_variance_ssvs(&master,
+    FC_hrandom_variance_ssvss.push_back(FC_hrandom_variance_ssvs(&master,nrlevel1,
                                         &generaloptions,equations[modnr].distrp,
                                         equations[fnr].distrp,
                                         title,pathnonp,
@@ -2269,7 +2273,7 @@ bool  superbayesreg::create_random_pspline(unsigned i)
    f = (terms[i].options[34]).strtodouble(mec);
 
 
-  FC_mults[FC_mults.size()-1].set_multeffects(&master,&generaloptions,
+  FC_mults[FC_mults.size()-1].set_multeffects(&master,nrlevel1,&generaloptions,
                                               title,pathnonp,samplem,me,mec);
 
   equations[modnr].add_FC(&FC_mults[FC_mults.size()-1],pathres);
@@ -2363,7 +2367,7 @@ bool superbayesreg::create_mrf(unsigned i)
                            &FC_linears[FC_linears.size()-1],m,
                             terms[i].options,terms[i].varnames));
 
-  FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,title,
+  FC_nonps.push_back(FC_nonp(&master,nrlevel1,&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_mrfs[design_mrfs.size()-1],
                      terms[i].options,terms[i].varnames));
 
@@ -2378,7 +2382,7 @@ bool superbayesreg::create_mrf(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_spatial_var.raw","variance_of_spatial_MRF_effect_of","Variance of spatial effect of ");
 
-  FC_nonp_variances.push_back(FC_nonp_variance(&master,
+  FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,
                                 &generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_mrfs[design_mrfs.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
@@ -2441,7 +2445,7 @@ bool superbayesreg::create_kriging(unsigned i)
                            &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames,knotdata));
 
-  FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,
+  FC_nonps.push_back(FC_nonp(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
                      title, pathnonp,&design_krigings[design_krigings.size()-1],
                      terms[i].options,terms[i].varnames));
 
@@ -2453,7 +2457,7 @@ bool superbayesreg::create_kriging(unsigned i)
   "_kriging_var.raw","variance_of_2dim_kriging_effect_of",
   "Variance of 2dim effect of ");
 
-  FC_nonp_variances.push_back(FC_nonp_variance(&master,
+  FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,
                                 &generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_krigings[design_krigings.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
@@ -2513,7 +2517,7 @@ bool superbayesreg::create_geokriging(unsigned i)
                            &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));
 
-  FC_nonps.push_back(FC_nonp(&master,&generaloptions,equations[modnr].distrp,
+  FC_nonps.push_back(FC_nonp(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
                      title, pathnonp,&design_krigings[design_krigings.size()-1],
                      terms[i].options,terms[i].varnames));
 
@@ -2525,7 +2529,7 @@ bool superbayesreg::create_geokriging(unsigned i)
   "_geokriging_var.raw","variance_of_geokriging_effect_of",
   "Variance of geokriging effect of ");
 
-  FC_nonp_variances.push_back(FC_nonp_variance(&master,
+  FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,
                                 &generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_krigings[design_krigings.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
@@ -2644,7 +2648,7 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
     datamatrix d,iv;
     extract_data(i,d,iv,1);
 
-    FC_linear_pens.push_back(FC_linear_pen(&master,&generaloptions,
+    FC_linear_pens.push_back(FC_linear_pen(&master,nrlevel1,&generaloptions,
                          equations[modnr].distrp,d,terms[i].varnames,title,
                          pathpen, centerlinear.getvalue()));
 

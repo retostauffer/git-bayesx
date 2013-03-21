@@ -56,11 +56,11 @@ FC_nonp_variance_vec::FC_nonp_variance_vec(void)
 
 
 
-FC_nonp_variance_vec::FC_nonp_variance_vec(MASTER_OBJ * mp, GENERAL_OPTIONS * o,
+FC_nonp_variance_vec::FC_nonp_variance_vec(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,
                  DISTR * lp, const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                  vector<ST::string> & vn)
-     : FC_nonp_variance(mp,o,lp,t,fp,Dp,FCn,op,vn)
+     : FC_nonp_variance(mp,enr, o,lp,t,fp,Dp,FCn,op,vn)
   {
 
 
@@ -104,7 +104,7 @@ bool FC_nonp_variance_vec::posteriormode(void)
   {
 
 
-  b_invgamma = masterp->level1_likep->trmult*b_invgamma_orig;
+  b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
   unsigned i;
   for(i=0;i<beta.rows();i++)
@@ -182,7 +182,7 @@ void FC_nonp_variance_vec::outresults(ofstream & out_stata,ofstream & out_R,
     optionsp->out("\n");
     }
 
-    
+
   }
 
 

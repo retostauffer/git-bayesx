@@ -67,7 +67,7 @@ int FC_linear::add_variable(const datamatrix & d,ST::string & name)
   }
 
 
-FC_linear::FC_linear(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
+FC_linear::FC_linear(MASTER_OBJ * mp,unsigned & enr,GENERAL_OPTIONS * o,DISTR * lp,
                     datamatrix & d,
                  vector<ST::string> & vn, const ST::string & t,
                  const ST::string & fp,bool cent)
@@ -75,6 +75,7 @@ FC_linear::FC_linear(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
   {
 
   masterp = mp;
+  equationnr = enr;
   likep = lp;
   unsigned i;
   datanames = vn;
@@ -96,6 +97,7 @@ FC_linear::FC_linear(const FC_linear & m)
   {
   constposition = m.constposition;
   masterp = m.masterp;
+  equationnr = m.equationnr;
   IWLS = m.IWLS;
   likep = m.likep;
   design = m.design;
@@ -135,6 +137,7 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   FC::operator=(FC(m));
   constposition = m.constposition;
   masterp = m.masterp;
+  equationnr = m.equationnr;
   IWLS = m.IWLS;
   likep = m.likep;
   design = m.design;
@@ -287,9 +290,9 @@ void FC_linear::update(void)
     else
       update_gaussian();
 
-    masterp->level1_likep->meaneffect -= meaneffect;
+    masterp->level1_likep[equationnr]->meaneffect -= meaneffect;
     meaneffect = (meaneffectdesign*beta)(0,0);
-    masterp->level1_likep->meaneffect += meaneffect;
+    masterp->level1_likep[equationnr]->meaneffect += meaneffect;
 
     }
   else
@@ -665,9 +668,9 @@ bool FC_linear::posteriormode(void)
 
       betaold.assign(beta);
 
-      masterp->level1_likep->meaneffect -= meaneffect;
+      masterp->level1_likep[equationnr]->meaneffect -= meaneffect;
       meaneffect = (meaneffectdesign*beta)(0,0);
-      masterp->level1_likep->meaneffect += meaneffect;
+      masterp->level1_likep[equationnr]->meaneffect += meaneffect;
 
 /*
       ofstream out3("c:\\bayesx\\testh\\results\\linpred.res");
@@ -763,11 +766,11 @@ FC_linear_pen::FC_linear_pen(void)
 
 
 
-FC_linear_pen::FC_linear_pen(MASTER_OBJ * mp,GENERAL_OPTIONS * o,DISTR * lp,
-                    datamatrix & d,
+FC_linear_pen::FC_linear_pen(MASTER_OBJ * mp,unsigned & enr,
+                            GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
                  vector<ST::string> & vn, const ST::string & t,
                  const ST::string & fp,bool cent)
-     : FC_linear(mp,o,lp,d,vn,t,fp,cent)
+     : FC_linear(mp,enr,o,lp,d,vn,t,fp,cent)
   {
 
 

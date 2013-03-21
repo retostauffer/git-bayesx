@@ -180,6 +180,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   // ---------------------  for method 'hregress'  ------------------------------
 
   vector<equation> equations;          // Vector of equations
+  unsigned nrlevel1;
   MCMCsim simobj;                      // Simulation object;
 
   GENERAL_OPTIONS generaloptions;
