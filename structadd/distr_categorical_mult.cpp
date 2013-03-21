@@ -129,8 +129,22 @@ void DISTR_multgaussian::compute_mu_mult(vector<double *> linpred,double * mu)
 
 datamatrix * DISTR_multgaussian::get_auxiliary_parameter(auxiliarytype t)
   {
-  return &helpmat2;
-  }
+
+   return &helpmat2;
+
+  /*
+  if (master)
+    {
+
+    if (t == current)
+      return &FC_scale.beta;
+    else
+      return &FC_scale.betamean;
+    }
+  else
+    return &helpmat1;
+  */  }
+
 
 void DISTR_multgaussian::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
@@ -139,8 +153,6 @@ void DISTR_multgaussian::compute_deviance_mult(vector<double *> response,
                              vector<datamatrix *> aux)
   {
 
-
-  
   if (*weight[nrcat-1] != 0)
     {
 
@@ -149,21 +161,25 @@ void DISTR_multgaussian::compute_deviance_mult(vector<double *> response,
     double diffj;
     for (j=0;j<nrcat;j++)
       {
-      diffj = (*linpred[j])-(*response[j]);
+      diffj = (*response[j])-(*linpred[j]);
       qf += (*aux[nrcat-1])(j,j)* pow(diffj,2);
       if (j<nrcat-1)
         {
         for(k=j+1;k<nrcat;k++)
           {
-          qf += 2*(*aux[nrcat-1])(j,k)*diffj*((*linpred[k])-(*response[k]));
+          qf += 2*(*aux[nrcat-1])(j,k)*diffj*((*response[k])-(*linpred[k]));
           }
         }
       }
 
-    *deviance = 2*devianceconst+log((*aux[nrcat-1]).det()) + qf;
+    double l = -devianceconst+0.5*log((*aux[nrcat-1]).det())-0.5*qf;
+
+    *deviance = -2*l;
+
     }
   else
     *deviance = 0;
+
 
   }
 
@@ -302,6 +318,7 @@ void DISTR_multgaussian::compute_offset(void)
   vector<double *> worklin;
 
   double * workresp_c;
+  double * workrespcat = response.getV();
 
   for (j=0;j<nrcat;j++)
     {
@@ -329,18 +346,15 @@ void DISTR_multgaussian::compute_offset(void)
 //  ofstream out2("d:\\_sicher\\anett\\offset_vorher.raw");
 //  offset.prettyPrint(out2);
 
+  double o;
 
-  double * worko = offset.getV();
-
-  for (i=0;i<nrobs;i++,worko++,workresp_c++)
+  for (i=0;i<nrobs;i++,workresp_c++,workrespcat++)
     {
 
-    *workresp_c -= *worko;
-    *worko = 0;
-
+    o = 0;
     for (k=0;k<nrcat-1;k++)
       {
-      *worko += helpmat1(0,k)*((*workresp[k]) - (*worklin[k]));
+      o += helpmat1(0,k)*((*workresp[k]) - (*worklin[k]));
       if (i<nrobs-1)
         {
         workresp[k]++;
@@ -348,8 +362,7 @@ void DISTR_multgaussian::compute_offset(void)
         }
       }
 
-
-    *workresp_c += *worko;
+    *workresp_c = *workrespcat-o;
 
     } // end: for (i=0;i<nrobs;i++)
 
@@ -458,7 +471,6 @@ bool DISTR_multgaussian::posteriormode(void)
     offset = datamatrix(nrobs,1,0);
 
     helpmat1 = datamatrix(1,nrcat-1,0);
-    helpmat2 = datamatrix(nrcat,nrcat,0);
 
     devianceconst = double(nrcat)/2*log(6.2831853);
 
@@ -512,7 +524,7 @@ bool DISTR_multgaussian::posteriormode(void)
 
       }
 
-    helpmat2 = FC_scale.beta.inverse();  
+    helpmat2 = FC_scale.beta.inverse();
 
     FC_scale.posteriormode_betamean();
     }
@@ -553,7 +565,6 @@ void DISTR_multgaussian::outresults(ST::string pathresults)
     {
     ofstream out1;
     ofstream out2;
-    helpmat2 = FC_scale.betamean;
     FC_scale.outresults(out1,out2,"");
 
     ST::string l1 = ST::doubletostring(optionsp->lower1,4);
