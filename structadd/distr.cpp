@@ -588,8 +588,15 @@ double DISTR::compute_iwls(const bool & current, const bool & like)
                                  work_workingweight,work_workingresponse,
                                  likelihood,like);
       }
+/*
+    ofstream out("d:\\_sicher\\papzip\\wweight.raw");
+    workingweight.prettyPrint(out);
+    out.close();
 
-
+    ofstream out2("d:\\_sicher\\papzip\\wresponse.raw");
+    workingresponse.prettyPrint(out2);
+    out2.close();
+*/
     }
   else if (wtype==wweightsnochange_constant)
     {

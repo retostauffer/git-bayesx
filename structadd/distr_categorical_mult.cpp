@@ -340,13 +340,7 @@ void DISTR_multgaussian::compute_offset(void)
 
     }
 
-//  ofstream out("d:\\_sicher\\anett\\linpred_vorher.raw");
-//  (othercat[catnr]->linearpred1).prettyPrint(out);
-
-//  ofstream out2("d:\\_sicher\\anett\\offset_vorher.raw");
-//  offset.prettyPrint(out2);
-
-  double o;
+  double o;
 
   for (i=0;i<nrobs;i++,workresp_c++,workrespcat++)
     {
@@ -366,13 +360,6 @@ void DISTR_multgaussian::compute_offset(void)
 
     } // end: for (i=0;i<nrobs;i++)
 
-//  ofstream out3("d:\\_sicher\\anett\\linpred_nachher.raw");
-//  (othercat[catnr]->linearpred1).prettyPrint(out3);
-
-//  ofstream out4("d:\\_sicher\\anett\\offset_nachher.raw");
-//  offset.prettyPrint(out4);
-
-
   } // end: compute_offset
 
 
@@ -386,12 +373,7 @@ void DISTR_multgaussian::initpointer(unsigned j,double* & worklin, double* & wor
 
   workresp = othercat[j]->response.getV();
 
-//  ofstream out("d:\\_sicher\\anett\\linpred.raw");
-//  (othercat[j]->linearpred1).prettyPrint(out);
-
   }
-
-
 
 
 void DISTR_multgaussian::compute_IWproduct(void)
@@ -580,7 +562,7 @@ void DISTR_multgaussian::outresults(ST::string pathresults)
     optionsp->out("\n");
 
     outresults_help("Posterior mean",FC_scale.betamean);
-    outresults_help("Posterior variance",FC_scale.betavar);
+//    outresults_help("Posterior variance",FC_scale.betavar);
 //    outresults_help("Posterior " + l1 + " percent quantile",
 //                  FC_scale.betaqu_l1_lower);
 //    outresults_help("Posterior median",FC_scale.betaqu50);
@@ -594,7 +576,7 @@ void DISTR_multgaussian::outresults(ST::string pathresults)
     optionsp->out("\n");
 
     outresults_help("Posterior mean",FC_corr.betamean);
-    outresults_help("Posterior variance",FC_corr.betavar);
+  //  outresults_help("Posterior variance",FC_corr.betavar);
 
     }
 
