@@ -36,11 +36,13 @@ DISTR_multgaussian::DISTR_multgaussian(const double & a,const double & b,
                                        GENERAL_OPTIONS * o,
                                        bool mast,
                                        const datamatrix & r,
+                                       const ST::string & ps,
                                        const datamatrix & w)
   : DISTR_multinomprobit(o,cnr,mast,r,w)
 
   {
   family = "Multivariate Gaussian";
+  pathscale = ps;
   predict_mult=true;
   A = a;
   double h = sqrt(response.var(0,weight));
@@ -62,6 +64,7 @@ const DISTR_multgaussian & DISTR_multgaussian::operator=(
   DISTR_multinomprobit::operator=(DISTR_multinomprobit(nd));
   devianceconst = nd.devianceconst;
   FC_scale = nd.FC_scale;
+  pathscale = nd.pathscale;
   FC_corr = nd.FC_corr;
   sumB = nd.sumB;
   diff = nd.diff;
@@ -79,6 +82,7 @@ DISTR_multgaussian::DISTR_multgaussian(const DISTR_multgaussian & nd)
   {
   devianceconst = nd.devianceconst;
   FC_scale = nd.FC_scale;
+  pathscale = nd.pathscale;
   FC_corr = nd.FC_corr;
   sumB = nd.sumB;
   diff = nd.diff;
@@ -459,7 +463,7 @@ bool DISTR_multgaussian::posteriormode(void)
     if (master)
       {
 
-      FC_scale = FC(optionsp,"",nrcat,nrcat,"");
+      FC_scale = FC(optionsp,"",nrcat,nrcat,pathscale);
       FC_corr = FC(optionsp,"",nrcat,nrcat,"");
 
       sumB = datamatrix(nrcat,nrcat,0);
@@ -540,6 +544,209 @@ void DISTR_multgaussian::outresults_help(ST::string t,datamatrix & r)
 
 
 
+/*
+      else  // scale is a matrix
+      {
+      if (optionsp->get_samplesize() > 0)
+        {
+
+        ofstream outscale(pathresultsscale.strtochar());
+
+        unsigned i,j;
+
+        outscale << "row   col   pmean   pstddev   pqu" << nl1 << "   pqu" <<
+                     nl2 << "   pqu50   pqu" << nu1 << "   pqu" << nu2 <<
+                     "   pmean_corr" <<  endl;
+
+        datamatrix corr(optionsp->get_samplesize(),scale.cols()*scale.cols(),1);
+
+        datamatrix corr_i(scale.cols(),scale.cols(),1);
+
+        unsigned l,r;
+        for (i=0;i<optionsp->get_samplesize();i++)
+          {
+          Scalesave.readsample2(corr_i,i);
+          j = 0;
+          for (l=0;l<corr_i.rows();l++)
+            for(r=0;r<corr_i.cols();r++)
+              {
+              corr(i,j) = corr_i(l,r)/sqrt(corr_i(l,l)*corr_i(r,r));
+              j++;
+              }
+
+          }
+
+        l=0;
+        for (i=0;i<scale.rows();i++)
+          {
+
+          for(j=0;j<scale.cols();j++)
+            {
+            outscale << (i+1) << "   " << (j+1) << "   ";
+            outscale << Scalesave.get_betamean(i,j) << "   ";
+            outscale << sqrt(Scalesave.get_betavar(i,j)) << "   ";
+
+            outscale << Scalesave.get_beta_lower1(i,j) <<  "   ";
+            outscale << Scalesave.get_beta_lower2(i,j) <<  "   ";
+            outscale << Scalesave.get_betaqu50(i,j) << "   ";
+            outscale << Scalesave.get_beta_upper1(i,j) <<  "   ";
+            outscale << Scalesave.get_beta_upper2(i,j) <<  "   ";
+            outscale << corr.mean(l) << "   ";
+            l++;
+            outscale << endl;
+            }
+
+          }
+
+        optionsp->out("  Estimation results for the scale parameter\n",true);
+        optionsp->out("\n");
+
+        ST::string help;
+
+        optionsp->out("  Posterior mean:\n");
+        optionsp->out("\n");
+
+        for (i=0;i<scale.rows();i++)
+          {
+          help="  ";
+          for(j=0;j<scale.cols();j++)
+            {
+            help = help + ST::doubletostring(Scalesave.get_betamean(i,j),6)
+                   + "   ";
+            }
+          optionsp->out(help + "\n");
+          }
+
+        optionsp->out("\n");
+        optionsp->out("  Posterior mean (correlations):\n");
+        optionsp->out("\n");
+
+        l=0;
+        for (i=0;i<scale.rows();i++)
+          {
+          help="  ";
+          for(j=0;j<scale.cols();j++)
+            {
+            help = help + ST::doubletostring(corr.mean(l),6)
+                   + "   ";
+            l++;
+            }
+          optionsp->out(help + "\n");
+          }
+
+
+        optionsp->out("\n");
+        optionsp->out("  Posterior standard deviation:\n");
+        optionsp->out("\n");
+
+        for (i=0;i<scale.rows();i++)
+          {
+          help="  ";
+          for(j=0;j<scale.cols();j++)
+            {
+            help = help + ST::doubletostring(sqrt(Scalesave.get_betavar(i,j)),6)
+                   + "   ";
+            }
+          optionsp->out(help + "\n");
+          }
+
+        optionsp->out("\n");
+        optionsp->out("  Posterior " + l1 + " percent quantile:\n");
+        optionsp->out("\n");
+
+        for (i=0;i<scale.rows();i++)
+          {
+          help="  ";
+          for(j=0;j<scale.cols();j++)
+            {
+            help = help + ST::doubletostring(Scalesave.get_beta_lower1(i,j),6)
+                   + "   ";
+            }
+          optionsp->out(help + "\n");
+          }
+
+        optionsp->out("\n");
+        optionsp->out("  Posterior 50\% quantile:\n");
+        optionsp->out("\n");
+
+        for (i=0;i<scale.rows();i++)
+          {
+          help="  ";
+          for(j=0;j<scale.cols();j++)
+            {
+            help = help + ST::doubletostring(Scalesave.get_betaqu50(i,j),6)
+                   + "   ";
+            }
+          optionsp->out(help + "\n");
+          }
+
+        optionsp->out("\n");
+        optionsp->out("  Posterior " + u1 + " percent quantile:\n");
+        optionsp->out("\n");
+
+        for (i=0;i<scale.rows();i++)
+          {
+          help="  ";
+          for(j=0;j<scale.cols();j++)
+            {
+            help = help + ST::doubletostring(Scalesave.get_beta_upper1(i,j),6)
+                   + "   ";
+            }
+          optionsp->out(help + "\n");
+          }
+
+        optionsp->out("\n");
+        optionsp->out("\n");
+
+        } // end: if samplesize > 0
+      else // posterior mode
+        {
+        ofstream outscale(pathresultsscale.strtochar());
+
+        unsigned i,j;
+
+        outscale << "row   col   pmean" << endl;
+
+        for (i=0;i<scale.rows();i++)
+          {
+          for(j=0;j<scale.cols();j++)
+            {
+            outscale << (i+1) << "   " << (j+1) << "   ";
+            outscale << trmult(i,0)*trmult(j,0)*scale(i,j) << "   ";
+            outscale << endl;
+            }
+          }
+
+        optionsp->out("  Estimation results for the scale parameter\n",true);
+        optionsp->out("\n");
+
+        ST::string help;
+
+        optionsp->out("  Posterior mean:\n");
+        optionsp->out("\n");
+
+        for (i=0;i<scale.rows();i++)
+          {
+          help="  ";
+          for(j=0;j<scale.cols();j++)
+            {
+            help = help + ST::doubletostring(trmult(i,0)*trmult(j,0)*scale(i,j),6)
+                   + "   ";
+            }
+          optionsp->out(help + "\n");
+          }
+
+        optionsp->out("\n");
+        optionsp->out("\n");
+
+        }
+
+      }
+
+    } // end: if (scaleexisting)
+ */
+
+
 void DISTR_multgaussian::outresults(ST::string pathresults)
   {
 
@@ -580,6 +787,13 @@ void DISTR_multgaussian::outresults(ST::string pathresults)
 
     }
 
+  }
+
+
+void DISTR_multgaussian::get_samples(const ST::string & filename,ofstream & outg) const
+  {
+  if (master)
+    FC_scale.get_samples(filename,outg);
   }
 
 

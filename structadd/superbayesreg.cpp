@@ -1439,8 +1439,14 @@ bool superbayesreg::create_distribution(void)
     computemodeforstartingvalues = true;
     unsigned cat = distr_multgaussians.size();
 
+#if defined(__BUILDING_LINUX)
+    ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
+#else
+    ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+#endif
+
     distr_multgaussians.push_back(DISTR_multgaussian(aresp.getvalue(),
-    bresp.getvalue(),cat,&generaloptions,false,D.getCol(0)));
+    bresp.getvalue(),cat,&generaloptions,false,D.getCol(0),path) );
 
     equations[modnr].distrp = &distr_multgaussians[distr_multgaussians.size()-1];
     equations[modnr].pathd = "";
@@ -1454,8 +1460,15 @@ bool superbayesreg::create_distribution(void)
     computemodeforstartingvalues = true;
     unsigned cat = distr_multgaussians.size();
 
+#if defined(__BUILDING_LINUX)
+    ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
+#else
+    ST::string path = defaultpath + "\\temp\\" + name  + "_scale.raw";
+#endif
+
+
     distr_multgaussians.push_back(DISTR_multgaussian(aresp.getvalue(),
-    bresp.getvalue(),cat,&generaloptions,true,D.getCol(0),w) );
+    bresp.getvalue(),cat,&generaloptions,true,D.getCol(0),path,w) );
 
     equations[modnr].distrp = &distr_multgaussians[distr_multgaussians.size()-1];
     equations[modnr].pathd = "";

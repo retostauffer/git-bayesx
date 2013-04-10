@@ -151,6 +151,7 @@ class __EXPORT_TYPE DISTR_multgaussian : public DISTR_multinomprobit
   void outresults_help(ST::string t,datamatrix & r);
   void initpointer(unsigned j,double* & worklin, double* & workresp);
 
+  ST::string pathscale;
   FC FC_scale;
   FC FC_corr;
 
@@ -213,7 +214,7 @@ class __EXPORT_TYPE DISTR_multgaussian : public DISTR_multinomprobit
 
    DISTR_multgaussian(const double & a,const double & b, unsigned & cnr,
                       GENERAL_OPTIONS * o, bool mast,
-                      const datamatrix & r,
+                      const datamatrix & r,const ST::string & ps,
                       const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
@@ -271,12 +272,13 @@ class __EXPORT_TYPE DISTR_multgaussian : public DISTR_multinomprobit
 
   void outoptions(void);
 
-
-  void outresults(ST::string pathresults="");
-
   bool posteriormode(void);
 
   void update(void);
+
+  void outresults(ST::string pathresults="");
+
+  void get_samples(const ST::string & filename,ofstream & outg) const;
 
   };
 
