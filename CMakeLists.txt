@@ -127,6 +127,7 @@ set(STRUCTADD_SRC
 	structadd/distr_categorical_mult.cpp
 	structadd/distr_mixture.cpp
 	structadd/distr_gamlss.cpp
+	structadd/distr_gamlss_nadja.cpp
         structadd/mcmcsim.cpp
 	structadd/model_parameters.cpp
 	structadd/superbayesreg.cpp
@@ -156,5 +157,5 @@ add_definitions(-D__BUILDING_LINUX)
 find_package(Readline REQUIRED)
 target_link_libraries(bayesx ${READLINE_LIBRARY})
 endif()
-add_subdirectory(java)
+#add_subdirectory(java)
 
