@@ -234,7 +234,7 @@ void DISTR_beta_mu::compute_deviance_mult(vector<double *> response,
      double l;
 
        l = (mu_help-1)*log(*response[1]) +
-			(one_minus_mu_help-1)*log(1-*response[1])-
+			(one_minus_mu_help-1)*log(1-(*response[1]))-
 			randnumbers::lngamma_exact(mu_help)-
 			randnumbers::lngamma_exact(one_minus_mu_help)+
 			randnumbers::lngamma_exact(help);
@@ -282,6 +282,7 @@ double DISTR_beta_mu::loglikelihood_weightsone(double * response,
 
   }
 
+  
 void DISTR_beta_mu::compute_iwls_wweightschange_weightsone(
                                               double * response,
                                               double * linpred,
