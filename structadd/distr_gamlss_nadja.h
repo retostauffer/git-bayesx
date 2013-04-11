@@ -33,6 +33,122 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 namespace MCMC
 {
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_beta_delta -------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_beta_sigma2 : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_beta_sigma2(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_beta_sigma2(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_beta_sigma2(const DISTR_beta_sigma2 & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_beta_sigma2 & operator=(const DISTR_beta_sigma2 & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_beta_sigma2() {}
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_beta_mu -------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_beta_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_beta_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_beta_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_beta_mu(const DISTR_beta_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_beta_mu & operator=(const DISTR_beta_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_beta_mu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
 
 
 

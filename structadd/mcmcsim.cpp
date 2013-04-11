@@ -518,6 +518,11 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
 
     converged=false;
 
+    for (i=0;i<nrmodels;i++)
+      {
+      equations[nrmodels-1-i].distrp->posteriormode_end();
+      }
+
     unsigned it=1;
 
     while ((!converged) && (it <= maxiterations))
@@ -528,12 +533,10 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
       for (i=0;i<nrmodels;i++)
         {
 
-//        likep_mult[nrmodels-1-i]->compute_iwls();
-
         if (equations[nrmodels-1-i].distrp->posteriormode() == false)
           allconverged = false;
 
-        
+
         for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
           {
           if (equations[nrmodels-1-i].FCpointer[j]->posteriormode() == false)

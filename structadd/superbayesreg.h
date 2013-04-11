@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"distr_categorical_mult.h"
 #include"distr_mixture.h"
 #include"distr_gamlss.h"
+#include"distr_gamlss_nadja.h"
 
 #include"design.h"
 #include"design_pspline.h"
@@ -99,6 +100,8 @@ using MCMC::DISTR_zip_cloglog_mu;
 using MCMC::DISTR_zip_cloglog_pi;
 using MCMC::DISTR_negbin_mu;
 using MCMC::DISTR_negbin_delta;
+using MCMC::DISTR_beta_mu;
+using MCMC::DISTR_beta_sigma2;
 
 
 using MCMC::DESIGN_pspline;
@@ -229,7 +232,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
                                         // matrices
 
   simpleoption scaleconst;
-  simpleoption utilities;                                        
+  simpleoption utilities;
 
   // prediction
   vector<ST::string> predictop;
@@ -289,7 +292,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_binomialsvm> distr_binomialsvms;
   vector<DISTR_logit_fruehwirth> distr_logit_fruehwirths;
   vector<DISTR_multinomprobit> distr_multinomprobits;
-  vector<DISTR_multgaussian> distr_multgaussians;  
+  vector<DISTR_multgaussian> distr_multgaussians;
   vector<DISTR_multinomlogit> distr_multinomlogits;
   vector<DISTR_ziplambda> distr_ziplambdas;
   vector<DISTR_zippi> distr_zippis;
@@ -300,7 +303,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_zip_cloglog_mu> distr_zip_cloglog_mus;
   vector<DISTR_negbin_mu> distr_negbin_mus;
   vector<DISTR_negbin_delta> distr_negbin_deltas;
-
+  vector<DISTR_beta_mu> distr_beta_mus;
+  vector<DISTR_beta_sigma2> distr_beta_sigma2s;
 
   bool create_distribution(void);
 

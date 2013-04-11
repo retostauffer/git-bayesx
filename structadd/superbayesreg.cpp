@@ -174,6 +174,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("zip_lambda_cloglog");
   families.push_back("negbin_mu");
   families.push_back("negbin_delta");
+  families.push_back("beta_mu");
+  families.push_back("beta_sigma2");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -187,6 +189,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("variance");
   equationtypes.push_back("pi");
   equationtypes.push_back("delta");
+  equationtypes.push_back("sigma2");
   equationtype = stroption("equationtype",equationtypes,"mean");
 
   predictop.reserve(20);
@@ -436,6 +439,11 @@ void superbayesreg::clear(void)
   distr_negbin_deltas.erase(distr_negbin_deltas.begin(),distr_negbin_deltas.end());
   distr_negbin_deltas.reserve(20);
 
+  distr_beta_mus.erase(distr_beta_mus.begin(),distr_beta_mus.end());
+  distr_beta_mus.reserve(20);
+
+  distr_beta_sigma2s.erase(distr_beta_sigma2s.begin(),distr_beta_sigma2s.end());
+  distr_beta_sigma2s.reserve(20);
 
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
@@ -599,6 +607,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_zip_cloglog_pis = b.distr_zip_cloglog_pis;
   distr_negbin_mus = b.distr_negbin_mus;
   distr_negbin_deltas = b.distr_negbin_deltas;
+  distr_beta_mus = b.distr_beta_mus;
+  distr_beta_sigma2s = b.distr_beta_sigma2s;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -691,6 +701,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_zip_cloglog_pis = b.distr_zip_cloglog_pis;
   distr_negbin_mus = b.distr_negbin_mus;
   distr_negbin_deltas = b.distr_negbin_deltas;
+  distr_beta_mus = b.distr_beta_mus;
+  distr_beta_sigma2s = b.distr_beta_sigma2s;
 
 
   resultsyesno = b.resultsyesno;
@@ -811,7 +823,12 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": MAIN DELTA REGRESSION_"+ rn;
       equations[modnr].paths = "MAIN_DELTA_REGRESSION_"+ rn;
       }
-
+    else if (equations[modnr].equationtype == "sigma2")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN SIGMA2 REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_SIGMA2_REGRESSION_"+ rn;
+      }
     else if (equations[modnr].equationtype == "meanservant")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
@@ -1295,6 +1312,52 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: negbin mu -------------------------------
+
+//-------------------------------- beta sigma2 ---------------------------------
+  else if (family.getvalue() == "beta_sigma2" && equationtype.getvalue()=="sigma2")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_beta_sigma2s.push_back(DISTR_beta_sigma2(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_beta_sigma2s[distr_beta_sigma2s.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
+
+    }
+//---------------------------- END: beta sigma2 -------------------------------
+
+//------------------------------- beta mu ------------------------------------
+  else if (family.getvalue() == "beta_mu" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+
+    if (distr_beta_sigma2s.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma2 is missing");
+      return true;
+      }
+    else
+      {
+      distr_beta_sigma2s[distr_beta_sigma2s.size()-1].distrp.push_back
+      (&distr_beta_mus[distr_beta_mus.size()-1]);
+
+      distr_beta_mus[distr_beta_mus.size()-1].distrp.push_back
+      (&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
+      }
+
+    }
+//------------------------------- END: beta mu -------------------------------
 
 
 //---------------------------------- ZIP pi ------------------------------------
