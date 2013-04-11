@@ -234,6 +234,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   simpleoption scaleconst;
   simpleoption utilities;
 
+  simpleoption slow;
+
   // prediction
   vector<ST::string> predictop;
   stroption predict;

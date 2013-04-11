@@ -120,7 +120,6 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
   };
 
 
-
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_negbin_delta ----------------------------
 //------------------------------------------------------------------------------
@@ -140,11 +139,9 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
   double fraclimit;
   int stoprmax;
 
+  bool slow;
 
-//  void compute_expectation(void);
-
-
-
+  void compute_expectation(void);
 
   public:
 
@@ -157,7 +154,7 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
    // CONSTRUCTOR
 
   DISTR_negbin_delta(GENERAL_OPTIONS * o, const datamatrix & r,
-                     double & fs, int & strmax,
+                     double & fs, int & strmax, bool & sl,
                      const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
@@ -183,14 +180,19 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
                                               double & like,
                                               const bool & compute_like);
 
+  void compute_iwls_wweightschange_weightsone_slow(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
 
   void outoptions(void);
 
   void update_end(void);
 
   };
-
-
 
 
 //------------------------------------------------------------------------------
