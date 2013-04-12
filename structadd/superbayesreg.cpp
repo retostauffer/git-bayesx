@@ -176,6 +176,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("negbin_delta");
   families.push_back("beta_mu");
   families.push_back("beta_sigma2");
+    families.push_back("gamma_mu");
+  families.push_back("gamma_sigma");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -190,6 +192,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("pi");
   equationtypes.push_back("delta");
   equationtypes.push_back("sigma2");
+  equationtypes.push_back("sigma");
   equationtype = stroption("equationtype",equationtypes,"mean");
 
   predictop.reserve(20);
@@ -271,7 +274,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&aexp);
   regressoptions.push_back(&bexp);
   regressoptions.push_back(&adaptexp);
-  regressoptions.push_back(&slow);  
+  regressoptions.push_back(&slow);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -447,6 +450,12 @@ void superbayesreg::clear(void)
   distr_beta_sigma2s.erase(distr_beta_sigma2s.begin(),distr_beta_sigma2s.end());
   distr_beta_sigma2s.reserve(20);
 
+  distr_gamma_mus.erase(distr_gamma_mus.begin(),distr_gamma_mus.end());
+  distr_gamma_mus.reserve(20);
+
+  distr_gamma_sigmas.erase(distr_gamma_sigmas.begin(),distr_gamma_sigmas.end());
+  distr_gamma_sigmas.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -611,6 +620,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_negbin_deltas = b.distr_negbin_deltas;
   distr_beta_mus = b.distr_beta_mus;
   distr_beta_sigma2s = b.distr_beta_sigma2s;
+  distr_gamma_mus = b.distr_gamma_mus;
+  distr_gamma_sigmas = b.distr_gamma_sigmas;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -705,6 +716,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_negbin_deltas = b.distr_negbin_deltas;
   distr_beta_mus = b.distr_beta_mus;
   distr_beta_sigma2s = b.distr_beta_sigma2s;
+  distr_gamma_mus = b.distr_gamma_mus;
+  distr_gamma_sigmas = b.distr_gamma_sigmas;
 
 
   resultsyesno = b.resultsyesno;
@@ -830,6 +843,12 @@ void superbayesreg::make_header(unsigned & modnr)
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
                               ": MAIN SIGMA2 REGRESSION_"+ rn;
       equations[modnr].paths = "MAIN_SIGMA2_REGRESSION_"+ rn;
+      }
+    else if (equations[modnr].equationtype == "sigma")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN SIGMA REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_SIGMA_REGRESSION_"+ rn;
       }
     else if (equations[modnr].equationtype == "meanservant")
       {
@@ -1315,6 +1334,54 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: negbin mu -------------------------------
+
+//-------------------------------- gamma_sigma ---------------------------------
+  else if (family.getvalue() == "gamma_sigma" && equationtype.getvalue()=="sigma")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_gamma_sigmas.push_back(DISTR_gamma_sigma(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gamma_sigmas[distr_gamma_sigmas.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_gamma_sigmas[distr_gamma_sigmas.size()-1]);
+
+    }
+//---------------------------- END: gamma_sigma -------------------------------
+
+
+//------------------------------- gamma_mu ------------------------------------
+  else if (family.getvalue() == "gamma_mu" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_gamma_mus.push_back(DISTR_gamma_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gamma_mus[distr_gamma_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_gamma_mus[distr_gamma_mus.size()-1]);
+
+    if (distr_gamma_sigmas.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma is missing");
+      return true;
+      }
+    else
+      {
+      distr_gamma_sigmas[distr_gamma_sigmas.size()-1].distrp.push_back
+      (&distr_gamma_mus[distr_gamma_mus.size()-1]);
+
+      distr_gamma_mus[distr_gamma_mus.size()-1].distrp.push_back
+      (&distr_gamma_sigmas[distr_gamma_sigmas.size()-1]);
+      }
+
+    }
+//------------------------------- END: gamma_mu -------------------------------
+
 
 //-------------------------------- beta sigma2 ---------------------------------
   else if (family.getvalue() == "beta_sigma2" && equationtype.getvalue()=="sigma2")
