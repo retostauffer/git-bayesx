@@ -102,6 +102,8 @@ using MCMC::DISTR_negbin_mu;
 using MCMC::DISTR_negbin_delta;
 using MCMC::DISTR_beta_mu;
 using MCMC::DISTR_beta_sigma2;
+using MCMC::DISTR_lognormal_mu;
+using MCMC::DISTR_lognormal_sigma2;
 using MCMC::DISTR_gamma_mu;
 using MCMC::DISTR_gamma_sigma;
 
@@ -309,6 +311,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_negbin_delta> distr_negbin_deltas;
   vector<DISTR_beta_mu> distr_beta_mus;
   vector<DISTR_beta_sigma2> distr_beta_sigma2s;
+    vector<DISTR_lognormal_mu> distr_lognormal_mus;
+  vector<DISTR_lognormal_sigma2> distr_lognormal_sigma2s;
   vector<DISTR_gamma_mu> distr_gamma_mus;
   vector<DISTR_gamma_sigma> distr_gamma_sigmas;
 

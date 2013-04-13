@@ -176,6 +176,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("negbin_delta");
   families.push_back("beta_mu");
   families.push_back("beta_sigma2");
+  families.push_back("lognormal_mu");
+  families.push_back("lognormal_sigma2");
     families.push_back("gamma_mu");
   families.push_back("gamma_sigma");
   family = stroption("family",families,"gaussian");
@@ -193,6 +195,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("delta");
   equationtypes.push_back("sigma2");
   equationtypes.push_back("sigma");
+  equationtypes.push_back("scale");
   equationtype = stroption("equationtype",equationtypes,"mean");
 
   predictop.reserve(20);
@@ -450,6 +453,12 @@ void superbayesreg::clear(void)
   distr_beta_sigma2s.erase(distr_beta_sigma2s.begin(),distr_beta_sigma2s.end());
   distr_beta_sigma2s.reserve(20);
 
+  distr_lognormal_mus.erase(distr_lognormal_mus.begin(),distr_lognormal_mus.end());
+  distr_lognormal_mus.reserve(20);
+
+  distr_lognormal_sigma2s.erase(distr_lognormal_sigma2s.begin(),distr_lognormal_sigma2s.end());
+  distr_lognormal_sigma2s.reserve(20);
+
   distr_gamma_mus.erase(distr_gamma_mus.begin(),distr_gamma_mus.end());
   distr_gamma_mus.reserve(20);
 
@@ -620,6 +629,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_negbin_deltas = b.distr_negbin_deltas;
   distr_beta_mus = b.distr_beta_mus;
   distr_beta_sigma2s = b.distr_beta_sigma2s;
+  distr_lognormal_mus = b.distr_lognormal_mus;
+  distr_lognormal_sigma2s = b.distr_lognormal_sigma2s;
   distr_gamma_mus = b.distr_gamma_mus;
   distr_gamma_sigmas = b.distr_gamma_sigmas;
 
@@ -716,9 +727,10 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_negbin_deltas = b.distr_negbin_deltas;
   distr_beta_mus = b.distr_beta_mus;
   distr_beta_sigma2s = b.distr_beta_sigma2s;
+  distr_lognormal_mus = b.distr_lognormal_mus;
+  distr_lognormal_sigma2s = b.distr_lognormal_sigma2s;
   distr_gamma_mus = b.distr_gamma_mus;
   distr_gamma_sigmas = b.distr_gamma_sigmas;
-
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -850,6 +862,12 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": MAIN SIGMA REGRESSION_"+ rn;
       equations[modnr].paths = "MAIN_SIGMA_REGRESSION_"+ rn;
       }
+    else if (equations[modnr].equationtype == "scale")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN SCALE REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_SCALE_REGRESSION_"+ rn;
+      }
     else if (equations[modnr].equationtype == "meanservant")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
@@ -877,7 +895,18 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": RANDOM EFFECTS ZERO INFLATION REGRESSION";
       equations[modnr].paths = "RANDOM_EFFECTS_ZERO_INFLATION";
       }
-
+    else if (equations[modnr].equationtype == "sigma2")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS SIGMA2 REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_SIGMA2";
+      }
+	else if (equations[modnr].equationtype == "delta")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS DELTA REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_DELTA";
+      }
     }
 
   }
@@ -1335,6 +1364,7 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: negbin mu -------------------------------
 
+
 //-------------------------------- gamma_sigma ---------------------------------
   else if (family.getvalue() == "gamma_sigma" && equationtype.getvalue()=="sigma")
     {
@@ -1381,6 +1411,55 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: gamma_mu -------------------------------
+
+
+
+
+//-------------------------------- lognormal sigma2 ---------------------------------
+  else if (family.getvalue() == "lognormal_sigma2" && equationtype.getvalue()=="sigma2")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_lognormal_sigma2s.push_back(DISTR_lognormal_sigma2(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1]);
+
+    }
+//---------------------------- END: lognormal sigma2 -------------------------------
+
+//------------------------------- lognormal mu ------------------------------------
+  else if (family.getvalue() == "lognormal_mu" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_lognormal_mus.push_back(DISTR_lognormal_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_lognormal_mus[distr_lognormal_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_lognormal_mus[distr_lognormal_mus.size()-1]);
+
+    if (distr_lognormal_sigma2s.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma2 is missing");
+      return true;
+      }
+    else
+      {
+      distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1].distrp.push_back
+      (&distr_lognormal_mus[distr_lognormal_mus.size()-1]);
+
+      distr_lognormal_mus[distr_lognormal_mus.size()-1].distrp.push_back
+      (&distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1]);
+      }
+
+    }
+//------------------------------- END: lognormal mu -------------------------------
 
 
 //-------------------------------- beta sigma2 ---------------------------------
