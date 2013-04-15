@@ -792,7 +792,7 @@ void DISTR_multgaussian::outresults(ST::string pathresults)
 
 void DISTR_multgaussian::get_samples(const ST::string & filename,ofstream & outg) const
   {
-  if (master)
+  if (master && (filename.isvalidfile() != 1))
     FC_scale.get_samples(filename,outg);
   }
 

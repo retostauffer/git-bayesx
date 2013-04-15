@@ -1250,10 +1250,11 @@ bool superbayesreg::create_distribution(void)
 
     int strmax = stoprmax.getvalue();
     double flimit = fraclimit.getvalue();
+    bool sl = slow.getvalue();
 
     distr_negbinzip_deltas.push_back(DISTR_negbinzip_delta(&generaloptions,
                                      D.getCol(0),flimit,
-                                     strmax,w));
+                                     strmax,sl,w));
 
     equations[modnr].distrp = &distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1];
     equations[modnr].pathd = "";
@@ -1683,7 +1684,7 @@ bool superbayesreg::create_distribution(void)
     bresp.getvalue(),cat,&generaloptions,true,D.getCol(0),path,w) );
 
     equations[modnr].distrp = &distr_multgaussians[distr_multgaussians.size()-1];
-    equations[modnr].pathd = "";
+    equations[modnr].pathd = outfile.getvalue() + "_scale.res";
 
     predict_mult_distrs.push_back(&distr_multgaussians[distr_multgaussians.size()-1]);
 

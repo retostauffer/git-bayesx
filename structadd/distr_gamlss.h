@@ -136,6 +136,9 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
   double lngamma_delta;
   double delta_plus_mu;
 
+  datamatrix E_dig_y_delta_m;
+  double * Ep;
+
   double fraclimit;
   int stoprmax;
 
@@ -179,6 +182,15 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
                                               double * workingresponse,
                                               double & like,
                                               const bool & compute_like);
+
+  void compute_iwls_wweightschange_weightsone_variant1(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
 
   void compute_iwls_wweightschange_weightsone_slow(double * response,
                                               double * linpred,
@@ -548,9 +560,40 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   protected:
 
   double stopsum;
-  double fraclimit;  
+  double fraclimit;
   int stoprmax;
+  bool slow;
 
+  //----------------------------------------------------------------------------
+
+  double delta;
+  double delta2;
+  double deltay;
+  double dig_deltay;
+  double dig_delta;
+  double trig_deltay;
+  double trig_delta;
+  double deltamu;
+  double delta_div_deltamu;
+  double log_delta_div_deltamu;
+  double mu_m_y_div_delta_m_mu;
+  double pi;
+  double mu_div_deltamu;
+  double pot;
+  double denom;
+  double sum;
+  double log_one_explinpi;
+  double log_explinpi_pot;
+  double lng_delta;
+  double delta_linpred;
+  double log_delta_mu;
+  double E_dig_y_delta;
+  double E_trig_y_delta;
+
+  datamatrix E_dig_y_delta_m;
+  double * Ep;
+
+  //----------------------------------------------------------------------------
 
   unsigned counter;
 
@@ -582,7 +625,7 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
    // CONSTRUCTOR
 
    DISTR_negbinzip_delta(GENERAL_OPTIONS * o, const datamatrix & r,
-                         double & fl, int & strmax,
+                         double & fl, int & strmax,bool & sl,
                          const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
@@ -610,6 +653,15 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
                                               double * workingresponse,
                                               double & like,
                                               const bool & compute_like);
+
+  void compute_iwls_wweightschange_weightsone_slow(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_expectation(void);                                              
 
   double compute_iwls(double * response, double * linpred,
                                      double * weight, double * workingweight,
