@@ -24,6 +24,7 @@ namespace MCMC
 {
 
 
+
 //------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_gamma_sigma ---------------------------
 //------------------------------------------------------------------------------
@@ -34,7 +35,7 @@ DISTR_gamma_sigma::DISTR_gamma_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Gamma - sigma";
+  family = "gamma - sigma";
   }
 
 
@@ -74,12 +75,10 @@ double DISTR_gamma_sigma::loglikelihood_weightsone(double * response,
     }
 
   double sig = exp((*linpred));
-  double mu_div_sigma = sig/(*worktransformlin[0]);
 
   double l;
 
-     l = sig*log(sig)-sig*log((*worktransformlin[0])) - randnumbers::lngamma_exact(sig) +
-		 (sig)*log(*response)-mu_div_sigma*(*response);
+     l = sig*log(sig) - sig*log((*worktransformlin[0])) - randnumbers::lngamma_exact(sig) + (sig-1)*log(*response) - (sig/(*worktransformlin[0]))*(*response);
 
 
   modify_worklin();
@@ -98,31 +97,29 @@ void DISTR_gamma_sigma::compute_iwls_wweightschange_weightsone(
   {
 
   // *worklin[0] = linear predictor of mu equation
-  // *worktransformlin[0] = exp(eta_mu);
+  // *worktransformlin[0] = exp(eta_mu)/(1+exp(eta_mu));
 
   if (counter==0)
     {
     set_worklin();
     }
 
-    double sig = exp(*linpred);
-
-    double mu_div_sigma = sig/(*worktransformlin[0]);
-
-    double nu = sig*(log(sig) + 2 - log((*worktransformlin[0])) - randnumbers::digamma_exact(sig) + log(*response) ) -
-	             mu_div_sigma*(*response);
+    double sig = exp((*linpred));
 
 
+    double nu = sig*log(sig) +  sig - sig*log((*worktransformlin[0])) - sig*(randnumbers::digamma_exact(sig)) +
+				sig*log((*response)) - (sig/(*worktransformlin[0]))*(*response);
 
-    *workingweight =  sig*( randnumbers::trigamma_exact(sig)*sig - 1 );
+
+
+    *workingweight = sig*(sig*randnumbers::trigamma_exact(sig) - 1);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
       {
 
-        like += sig*log(sig)-sig*log((*worktransformlin[0])) - randnumbers::lngamma_exact(sig) +
-		 (sig)*log(*response)-mu_div_sigma*(*response);;
+        like += sig*log(sig) - sig*log((*worktransformlin[0])) - randnumbers::lngamma_exact(sig) + (sig-1)*log(*response) - (sig/(*worktransformlin[0]))*(*response);
 
       }
 
@@ -134,7 +131,7 @@ void DISTR_gamma_sigma::compute_iwls_wweightschange_weightsone(
 void DISTR_gamma_sigma::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Response function (sigma): exponential\n");
+  optionsp->out("  Link function (sigma): exponential\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -142,24 +139,22 @@ void DISTR_gamma_sigma::outoptions(void)
 
 void DISTR_gamma_sigma::update_end(void)
   {
-  DISTR_gamlss::update_end();
+
   // helpmat1 stores sigma
 
- /* double * worklin;
+  double * worklin;
   if (linpred_current==1)
     worklin = linearpred1.getV();
   else
     worklin = linearpred2.getV();
 
-  double exp_lin;
   double * pmu = helpmat1.getV();
 
   unsigned i;
   for (i=0;i<nrobs;i++,pmu++,worklin++)
     {
-    exp_lin = exp(*worklin);
-    *pmu = exp_lin;
-    } */
+    *pmu = exp(*worklin);
+    }
 
   }
 
@@ -174,7 +169,7 @@ DISTR_gamma_mu::DISTR_gamma_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Gamma - mu";
+  family = "gamma - mu";
   }
 
 
@@ -203,19 +198,19 @@ void DISTR_gamma_mu::compute_deviance_mult(vector<double *> response,
   {
 
    // *response[0] = *response[1] = response
-   // *linpred[0] = eta_sigma2
+   // *linpred[0] = eta_sigma
    // *linpred[1] = eta_mu
 
    if (*weight[1] == 0)
      *deviance=0;
    else
      {
-     double sig = exp((*linpred[0]));
-     double mu = exp((*linpred[1]));
+     double sig = exp(*linpred[0]);
+     double mu = exp(*linpred[1]);
 
      double l;
 
-       l = sig*log(sig) + sig -sig*log(mu) - sig*randnumbers::digamma_exact(sig) + sig*log((*response[0])) - sig*(*response[0])/mu;
+       l = sig*log(sig) - sig*log(mu) - randnumbers::lngamma_exact(sig) + (sig-1)*log(*response[1]) - (sig/mu)*(*response[1]);
 
 
     *deviance = -2*l;
@@ -234,20 +229,19 @@ double DISTR_gamma_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
 
-  // *worklin[0] = linear predictor of sigma2 equation
-  // *worktransformlin[0] = sigma2;
+  // *worklin[0] = linear predictor of sigma equation
+  // *worktransformlin[0] = sigma;
 
   if (counter==0)
     {
     set_worklin();
     }
 
-  double mu = exp((*linpred));
+  double mu = exp(*linpred);
 
   double l;
 
-     l = -(*worktransformlin[0])*log(mu) - ((*worktransformlin[0])*(*response))/mu;
-
+     l =  - (*worktransformlin[0])*log(mu) - ((*worktransformlin[0])/mu)*(*response);
   modify_worklin();
 
   return l;
@@ -264,8 +258,8 @@ void DISTR_gamma_mu::compute_iwls_wweightschange_weightsone(
                                               const bool & compute_like)
   {
 
-  // *worklin[0] = linear predictor of sigma2 equation
-  // *worktransformlin[0] = sigma2;
+  // *worklin[0] = linear predictor of sigma equation
+  // *worktransformlin[0] = sigma;
 
   // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
   // helpmat1.prettyPrint(out);
@@ -277,18 +271,18 @@ void DISTR_gamma_mu::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-    double mu = exp((*linpred));
+    double mu = exp(*linpred);
 
-    double nu = -(*worktransformlin[0])*(*response)/mu;
+    double nu = -(*worktransformlin[0]) + ((*worktransformlin[0])/mu)*(*response);
 
-    *workingweight =(*worktransformlin[0]);
+    *workingweight = (*worktransformlin[0]);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
       {
 
-        like += -(*worktransformlin[0])*log(mu) - (*worktransformlin[0])*(*response)/mu;
+        like +=  - (*worktransformlin[0])*log(mu) - ((*worktransformlin[0])/mu)*(*response);
 
       }
 
@@ -309,7 +303,7 @@ void DISTR_gamma_mu::compute_mu_mult(vector<double *> linpred,double * mu)
 void DISTR_gamma_mu::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (mu):exponential\n");
+  optionsp->out("  Link function (mu): exponential\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -319,13 +313,29 @@ void DISTR_gamma_mu::update_end(void)
   {
 
 
-DISTR_gamlss::update_end();
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
 
   }
 
 
+
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_lognormal_sigma2 ---------------------------
+//------------------------- CLASS: DISTR_lognormal_sigma2 ----------------------
 //------------------------------------------------------------------------------
 
 

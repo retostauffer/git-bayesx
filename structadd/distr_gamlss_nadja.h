@@ -34,7 +34,7 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_gamma_sigma -------------------------------
+//----------------------- CLASS: DISTR_gamma_sigma ------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_gamma_sigma : public DISTR_gamlss
@@ -146,6 +146,7 @@ class __EXPORT_TYPE DISTR_gamma_mu : public DISTR_gamlss
   void update_end(void);
 
   };
+
 
 
 
