@@ -932,7 +932,7 @@ void DISTR_zip_cloglog_pi::compute_iwls_wweightschange_weightsone(
 
   modify_worklin();
 
-  }
+  }
 
 
 void DISTR_zip_cloglog_pi::outoptions(void)
