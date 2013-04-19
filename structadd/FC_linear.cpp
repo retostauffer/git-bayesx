@@ -244,12 +244,14 @@ void FC_linear::update_IWLS(void)
 
     add_linpred(diff);                           // (mit proposed)
 
+    bool ok = likep->check_linpred();
+
     double logprop = likep->loglikelihood();     // mit proposed
 
 
     double u = log(uniform());
 
-    if (u <= (logprop + qoldbeta - logold - qnewbeta) )
+    if (ok && (u <= (logprop + qoldbeta - logold - qnewbeta)) )
       {
       datamatrix * mp = linoldp;
       linoldp = linnewp;
@@ -630,6 +632,9 @@ double FC_linear::compute_XtWpartres(double & mo)
 bool FC_linear::posteriormode(void)
   {
 
+//  ofstream out("d:\\_sicher\\papzip\\resultsconst\\linpredvorher.raw");
+//  likep->linearpred1.prettyPrint(out);
+
   if (datanames.size() > 0)
     {
     if (rankXWX_ok == true)
@@ -666,11 +671,33 @@ bool FC_linear::posteriormode(void)
       else
         likep->linearpred2.addmult(design,betadiff);
 
-      betaold.assign(beta);
 
-      masterp->level1_likep[equationnr]->meaneffect -= meaneffect;
-      meaneffect = (meaneffectdesign*beta)(0,0);
-      masterp->level1_likep[equationnr]->meaneffect += meaneffect;
+
+      bool ok = likep->check_linpred();
+
+      if (ok)
+        {
+        betaold.assign(beta);
+
+        masterp->level1_likep[equationnr]->meaneffect -= meaneffect;
+        meaneffect = (meaneffectdesign*beta)(0,0);
+        masterp->level1_likep[equationnr]->meaneffect += meaneffect;
+        }
+      else
+        {
+        betadiff.minus(betaold,beta);
+
+        if (likep->linpred_current==1)
+          likep->linearpred1.addmult(design,betadiff);
+        else
+          likep->linearpred2.addmult(design,betadiff);
+
+        beta.assign(betaold);
+        }
+
+//  ofstream out2("d:\\_sicher\\papzip\\resultsconst\\linprednachher.raw");
+//  likep->linearpred1.prettyPrint(out2);
+
 
 /*
       ofstream out3("c:\\bayesx\\testh\\results\\linpred.res");

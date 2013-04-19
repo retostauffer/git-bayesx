@@ -624,8 +624,9 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
    // CONSTRUCTOR
 
    DISTR_negbinzip_delta(GENERAL_OPTIONS * o, const datamatrix & r,
-                         double & fl, int & strmax,bool & sl,
-                         const datamatrix & w=datamatrix());
+                                          double & ss, int & strmax,
+                                          int & sts,bool & sl,
+                                          const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
 

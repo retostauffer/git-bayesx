@@ -118,6 +118,9 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 
   meaneffect = 0;
 
+  linpredminlimit = -10000000000;
+  linpredmaxlimit = 10000000000;
+
   check_errors();
 
   }
@@ -173,6 +176,9 @@ DISTR::DISTR(const DISTR & d)
 
   errors = d.errors;
   errormessages = d.errormessages;
+
+  linpredminlimit = d.linpredminlimit;
+  linpredmaxlimit = d.linpredmaxlimit;
 
   }
 
@@ -230,9 +236,48 @@ const DISTR & DISTR::operator=(const DISTR & d)
   errors = d.errors;
   errormessages = d.errormessages;
 
+  linpredminlimit = d.linpredminlimit;
+  linpredmaxlimit = d.linpredmaxlimit;
+
   return *this;
   }
 
+
+bool DISTR::check_linpred(bool current)
+  {
+
+  bool ok = true;
+
+  double* worklin;
+  if (current)
+    {
+    if (linpred_current==1)
+      worklin = linearpred1.getV();
+    else
+      worklin = linearpred2.getV();
+    }
+  else
+    {
+    if (linpred_current==1)
+      worklin = linearpred2.getV();
+    else
+      worklin = linearpred1.getV();
+    }
+
+  unsigned i=0;
+  while (ok && (i<nrobs))
+    {
+    if (*worklin > linpredmaxlimit)
+      ok = false;
+    if (*worklin < linpredminlimit)
+      ok = false;      
+
+    worklin++;
+    i++;
+    }
+
+  return ok;
+  }
 
 
 void DISTR::outoptions(void)

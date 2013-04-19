@@ -1278,12 +1278,12 @@ bool superbayesreg::create_distribution(void)
     computemodeforstartingvalues = true;
 
     int strmax = stoprmax.getvalue();
-    double flimit = fraclimit.getvalue();
     bool sl = slow.getvalue();
+    int nb = nrbetween.getvalue();
+    double sts = stopsum.getvalue();
 
     distr_negbinzip_deltas.push_back(DISTR_negbinzip_delta(&generaloptions,
-                                     D.getCol(0),flimit,
-                                     strmax,sl,w));
+                                     D.getCol(0),sts,strmax,nb,sl,w));
 
     equations[modnr].distrp = &distr_negbinzip_deltas[distr_negbinzip_deltas.size()-1];
     equations[modnr].pathd = "";

@@ -228,6 +228,11 @@ void DISTR_negbin_delta::compute_expectation(void)
 
   E_trig_y_delta -= randnumbers::trigamma_exact(delta);
 
+  E_dig_y_delta *=  delta;
+
+  E_trig_y_delta *= delta*delta;
+
+
   *Ep = E_dig_y_delta;
   *Ep_trig = E_trig_y_delta;
 
@@ -363,8 +368,9 @@ void DISTR_negbin_delta::compute_iwls_wweightschange_weightsone(
     E_trig_y_delta = (*Ep_trig);
     }
 
-  *workingweight = -delta*(log_delta_div_delta_plus_mu + (*worktransformlin[0])/delta_plus_mu)
-                   -delta*E_dig_y_delta-pow(delta,2)*E_trig_y_delta;
+  *workingweight = -delta*(log_delta_div_delta_plus_mu
+                   +(*worktransformlin[0])/delta_plus_mu)
+                   -E_dig_y_delta-E_trig_y_delta;
 
   if (*workingweight <= 0)
     *workingweight = 0.0001;
@@ -1407,6 +1413,10 @@ DISTR_negbinzip_mu::DISTR_negbinzip_mu(GENERAL_OPTIONS * o, const datamatrix & r
 
   family = "Zero_Inflated_Negative_Binomial - mu";
   updateIWLS = true;
+
+  linpredminlimit=-10;
+  linpredmaxlimit=15;
+
   }
 
 
@@ -1767,6 +1777,10 @@ DISTR_negbinzip_pi::DISTR_negbinzip_pi(GENERAL_OPTIONS * o, const datamatrix & r
 
   family = "Zero_Inflated_Negative_Binomial - pi";
   updateIWLS = true;
+
+  linpredminlimit=-10;
+  linpredmaxlimit=10;
+
   }
 
 
@@ -2034,9 +2048,10 @@ void DISTR_negbinzip_pi::update_end(void)
 //------------------------------------------------------------------------------
 
 DISTR_negbinzip_delta::DISTR_negbinzip_delta(GENERAL_OPTIONS * o,
-                                    const datamatrix & r,
-                                    double & fl, int & strmax,bool & sl,
-                                    const datamatrix & w)
+                                             const datamatrix & r,
+                                             double & ss, int & strmax,
+                                             int & sts, bool & sl,
+                                             const datamatrix & w)
   : DISTR(o,r,w)
 
   {
@@ -2056,18 +2071,20 @@ DISTR_negbinzip_delta::DISTR_negbinzip_delta(GENERAL_OPTIONS * o,
   family = "Zero_Inflated_Negative_Binomial - delta";
   updateIWLS = true;
 
-  fraclimit = fl;
   stoprmax = strmax;
   if (stoprmax < responsemax)
     stoprmax = responsemax;
 
-  stopsum=0.999;
-  nrbetween = 1000000;
+  stopsum = ss;
+  nrbetween = sts;
 
   slow = sl;
 
   E_dig_y_delta_m = datamatrix(nrobs,1,0);
   E_trig_y_delta_m = datamatrix(nrobs,1,0);
+
+  linpredminlimit=-10;
+  linpredmaxlimit=10;
 
   }
 
@@ -2294,6 +2311,7 @@ void DISTR_negbinzip_delta::compute_iwls_wweightschange_weightsone(
                                          const bool & compute_like)
   {
 
+
 /*
   if (slow)
     compute_iwls_wweightschange_weightsone_slow(response,linpred,
@@ -2389,6 +2407,10 @@ void DISTR_negbinzip_delta::compute_iwls_wweightschange_weightsone(
       E_digamma_y_delta  -= digamma_delta;
       E_trigamma_y_delta -= trigamma_delta;
 
+      E_digamma_y_delta  *= delta;
+      E_trigamma_y_delta *= delta2;
+
+
       *Ep = E_digamma_y_delta;
       *Ep_trig = E_trigamma_y_delta;
       }
@@ -2403,10 +2425,10 @@ void DISTR_negbinzip_delta::compute_iwls_wweightschange_weightsone(
   *workingweight = -delta*(*workonempi)*
                    (log_delta_div_delta_plus_mu+mu_div_delta_plus_mu) -
                     ((*workonempi)*pi*delta2*pot*log_plus_term2)/denom -
-                    delta*E_digamma_y_delta- delta2*E_trigamma_y_delta;
+                    E_digamma_y_delta - E_trigamma_y_delta;
 
   if (*workingweight <=0)
-    *workingweight = 0.001;                      
+    *workingweight = 0.001;
 
 //  if (workingweightprop>0)
 //    *workingweight = workingweightprop;
