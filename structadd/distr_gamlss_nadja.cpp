@@ -78,7 +78,7 @@ double DISTR_gengamma_tau::loglikelihood_weightsone(double * response,
 
   double l;
 
-     l = log(tau) + (tau*(*worktransformlin[0])-1)*log((*response)) -pow((((*worktransformlin[0])/(*worktransformlin[1]))*(*response)),tau) -
+     l = log(tau) + (tau*(*worktransformlin[0]))*log((*response)) -pow((((*worktransformlin[0])/(*worktransformlin[1]))*(*response)),tau) +
      	 tau*(*worktransformlin[0])*log((*worktransformlin[0])/(*worktransformlin[1]));
 
 
@@ -112,7 +112,7 @@ void DISTR_gengamma_tau::compute_iwls_wweightschange_weightsone(
 
 
     double nu = 1 + (*worktransformlin[0])*tau*log((*response)) -
-				pow(((*worktransformlin[0])/(*worktransformlin[1]))*(*response),tau)*tau*log(((*worktransformlin[0])/(*worktransformlin[1]))*(*response)) -
+				pow(((*worktransformlin[0])/(*worktransformlin[1]))*(*response),tau)*tau*log(((*worktransformlin[0])/(*worktransformlin[1]))*(*response)) +
 				tau*(*worktransformlin[0])*log((*worktransformlin[0])/(*worktransformlin[1]));
 
 	double exp_linsigma_plus1 = ((*worktransformlin[0])+1);
@@ -124,7 +124,7 @@ void DISTR_gengamma_tau::compute_iwls_wweightschange_weightsone(
     if (compute_like)
       {
 
-        like += log(tau) + (tau*(*worktransformlin[0])-1)*log((*response)) -pow((((*worktransformlin[0])/(*worktransformlin[1]))*(*response)),tau) -
+        like += log(tau) + (tau*(*worktransformlin[0]))*log((*response)) -pow((((*worktransformlin[0])/(*worktransformlin[1]))*(*response)),tau) +
      	 tau*(*worktransformlin[0])*log((*worktransformlin[0])/(*worktransformlin[1]));
 
       }
@@ -220,7 +220,7 @@ double DISTR_gengamma_sigma::loglikelihood_weightsone(double * response,
 
   double l;
 
-     l = log((*worktransformlin[0])) + (sig*(*worktransformlin[0])-1)*log((*response)) -pow(((sig/(*worktransformlin[1]))*(*response)),(*worktransformlin[0])) -
+     l = (sig*(*worktransformlin[0])-1)*log((*response)) -pow(((sig/(*worktransformlin[1]))*(*response)),(*worktransformlin[0])) +
      	 sig*(*worktransformlin[0])*log(sig/(*worktransformlin[1])) -randnumbers::lngamma_exact(sig);
 
 
@@ -252,19 +252,19 @@ void DISTR_gengamma_sigma::compute_iwls_wweightschange_weightsone(
     double sig = exp((*linpred));
 
 
-    double nu = sig*(*worktransformlin[0])*log((*response)) - (*worktransformlin[0])*pow((sig/(*worktransformlin[1]))*(*response),(*worktransformlin[0])) -
-				sig*(*worktransformlin[0])*log(sig/((*worktransformlin[1]))) - sig*(*worktransformlin[0])/(*worktransformlin[1]) - sig*(randnumbers::digamma_exact(sig));
+    double nu = sig*(*worktransformlin[0])*log((*response)) - (*worktransformlin[0])*pow((sig/(*worktransformlin[1]))*(*response),(*worktransformlin[0])) +
+				sig*(*worktransformlin[0])*log(sig/((*worktransformlin[1]))) + sig*(*worktransformlin[0]) - sig*(randnumbers::digamma_exact(sig));
 
 
 
-    *workingweight = sig*(sig*randnumbers::trigamma_exact(sig) + (*worktransformlin[0]) + pow((*worktransformlin[0]),2));
+    *workingweight = sig*(sig*randnumbers::trigamma_exact(sig) - 2*(*worktransformlin[0]) + pow((*worktransformlin[0]),2));
 
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
       {
 
-        like += log((*worktransformlin[0])) + (sig*(*worktransformlin[0])-1)*log((*response)) -pow(((sig/(*worktransformlin[1]))*(*response)),(*worktransformlin[0])) -
+        like +=  (sig*(*worktransformlin[0]))*log((*response)) -pow(((sig/(*worktransformlin[1]))*(*response)),(*worktransformlin[0])) +
      	 sig*(*worktransformlin[0])*log(sig/(*worktransformlin[1])) -randnumbers::lngamma_exact(sig);
 
       }
@@ -358,7 +358,7 @@ void DISTR_gengamma_mu::compute_deviance_mult(vector<double *> response,
 
      double l;
 
-       l = log(tau) + (sig*tau-1)*log((*response[1])) -pow(((sig/mu)*(*response[1])),tau) - sig*tau*log(sig/mu) -randnumbers::lngamma_exact(sig);
+       l = log(tau) + (sig*tau-1)*log((*response[1])) -pow(((sig/mu)*(*response[1])),tau) + sig*tau*log(sig/mu) -randnumbers::lngamma_exact(sig);
 
 
     *deviance = -2*l;
@@ -391,7 +391,7 @@ double DISTR_gengamma_mu::loglikelihood_weightsone(double * response,
 
   double l;
 
-     l =  -pow((((*worktransformlin[1])/mu)*(*response)),(*worktransformlin[0])) - (*worktransformlin[1])*(*worktransformlin[0])*log((*worktransformlin[1])/mu) ;
+     l =  -pow((((*worktransformlin[1])/mu)*(*response)),(*worktransformlin[0])) - (*worktransformlin[1])*(*worktransformlin[0])*log(mu) ;
   modify_worklin();
 
   return l;
@@ -436,7 +436,7 @@ void DISTR_gengamma_mu::compute_iwls_wweightschange_weightsone(
     if (compute_like)
       {
 
-        like +=  -pow((((*worktransformlin[1])/mu)*(*response)),(*worktransformlin[0])) - (*worktransformlin[1])*(*worktransformlin[0])*log((*worktransformlin[1])/mu);
+        like +=  -pow((((*worktransformlin[1])/mu)*(*response)),(*worktransformlin[0])) - (*worktransformlin[1])*(*worktransformlin[0])*log(mu);
 
       }
 
