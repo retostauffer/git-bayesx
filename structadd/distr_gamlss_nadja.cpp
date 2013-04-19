@@ -23,6 +23,473 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 namespace MCMC
 {
 
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_gengamma_tau --------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_gengamma_tau::DISTR_gengamma_tau(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Generalized gamma - tau";
+  }
+
+
+DISTR_gengamma_tau::DISTR_gengamma_tau(const DISTR_gengamma_tau & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_gengamma_tau & DISTR_gengamma_tau::operator=(
+                            const DISTR_gengamma_tau & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_gengamma_tau::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_gengamma_tau::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma equation
+  // *worktransformlin[0] = exp(eta_sigma);
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double tau = exp((*linpred));
+
+  double l;
+
+     l = log(tau) + (tau*(*worktransformlin[0])-1)*log((*response)) -pow((((*worktransformlin[0])/(*worktransformlin[1]))*(*response)),tau) -
+     	 tau*(*worktransformlin[0])*log((*worktransformlin[0])/(*worktransformlin[1]));
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_gengamma_tau::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma equation
+  // *worktransformlin[0] = exp(eta_sigma);
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double tau = exp((*linpred));
+
+
+    double nu = 1 + (*worktransformlin[0])*tau*log((*response)) -
+				pow(((*worktransformlin[0])/(*worktransformlin[1]))*(*response),tau)*tau*log(((*worktransformlin[0])/(*worktransformlin[1]))*(*response)) -
+				tau*(*worktransformlin[0])*log((*worktransformlin[0])/(*worktransformlin[1]));
+
+	double exp_linsigma_plus1 = ((*worktransformlin[0])+1);
+
+    *workingweight = (*worktransformlin[0])*((randnumbers::trigamma_exact(exp_linsigma_plus1))+pow((randnumbers::digamma_exact(exp_linsigma_plus1)),2));
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += log(tau) + (tau*(*worktransformlin[0])-1)*log((*response)) -pow((((*worktransformlin[0])/(*worktransformlin[1]))*(*response)),tau) -
+     	 tau*(*worktransformlin[0])*log((*worktransformlin[0])/(*worktransformlin[1]));
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_gengamma_tau::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (tau): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_gengamma_tau::update_end(void)
+  {
+
+  // helpmat1 stores tau
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_gengamma_sigma ---------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_gengamma_sigma::DISTR_gengamma_sigma(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Generalized gamma - sigma";
+  }
+
+
+DISTR_gengamma_sigma::DISTR_gengamma_sigma(const DISTR_gengamma_sigma & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_gengamma_sigma & DISTR_gengamma_sigma::operator=(
+                            const DISTR_gengamma_sigma & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_gengamma_sigma::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_gengamma_sigma::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of tau equation
+  // *worktransformlin[0] = exp(eta_tau);
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double sig = exp((*linpred));
+
+  double l;
+
+     l = log((*worktransformlin[0])) + (sig*(*worktransformlin[0])-1)*log((*response)) -pow(((sig/(*worktransformlin[1]))*(*response)),(*worktransformlin[0])) -
+     	 sig*(*worktransformlin[0])*log(sig/(*worktransformlin[1])) -randnumbers::lngamma_exact(sig);
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_gengamma_sigma::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of tau equation
+  // *worktransformlin[0] = exp(eta_tau);
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double sig = exp((*linpred));
+
+
+    double nu = sig*(*worktransformlin[0])*log((*response)) - (*worktransformlin[0])*pow((sig/(*worktransformlin[1]))*(*response),(*worktransformlin[0])) -
+				sig*(*worktransformlin[0])*log(sig/((*worktransformlin[1]))) - sig*(*worktransformlin[0])/(*worktransformlin[1]) - sig*(randnumbers::digamma_exact(sig));
+
+
+
+    *workingweight = sig*(sig*randnumbers::trigamma_exact(sig) + (*worktransformlin[0]) + pow((*worktransformlin[0]),2));
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += log((*worktransformlin[0])) + (sig*(*worktransformlin[0])-1)*log((*response)) -pow(((sig/(*worktransformlin[1]))*(*response)),(*worktransformlin[0])) -
+     	 sig*(*worktransformlin[0])*log(sig/(*worktransformlin[1])) -randnumbers::lngamma_exact(sig);
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_gengamma_sigma::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_gengamma_sigma::update_end(void)
+  {
+
+  // helpmat1 stores sigma
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_gengamma_mu ------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_gengamma_mu::DISTR_gengamma_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Generalized gamma - mu";
+  }
+
+
+DISTR_gengamma_mu::DISTR_gengamma_mu(const DISTR_gengamma_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_gengamma_mu & DISTR_gengamma_mu::operator=(
+                            const DISTR_gengamma_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_gengamma_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_tau
+   // *linpred[1] = eta_sigma
+   // *linpred[2] = eta_mu
+
+   if (*weight[1] == 0)
+     *deviance=0;
+   else
+     {
+	 double tau = exp(*linpred[0]);
+     double sig = exp(*linpred[1]);
+     double mu = exp(*linpred[2]);
+
+     double l;
+
+       l = log(tau) + (sig*tau-1)*log((*response[1])) -pow(((sig/mu)*(*response[1])),tau) - sig*tau*log(sig/mu) -randnumbers::lngamma_exact(sig);
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_gengamma_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_gengamma_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of tau equation
+  // *worktransformlin[0] = tau;
+  // *worklin[1] = linear predictor of sigma equation
+  // *worktransformlin[1] = sigma;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu = exp(*linpred);
+
+  double l;
+
+     l =  -pow((((*worktransformlin[1])/mu)*(*response)),(*worktransformlin[0])) - (*worktransformlin[1])*(*worktransformlin[0])*log((*worktransformlin[1])/mu) ;
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_gengamma_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of tau equation
+  // *worktransformlin[0] = tau;
+  // *worklin[1] = linear predictor of sigma equation
+  // *worktransformlin[1] = sigma;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double mu = exp((*linpred));
+
+    double exponent = (*worktransformlin[0]);
+
+    double nu = (*worktransformlin[0])*pow(((*worktransformlin[1])/mu)*(*response),exponent) - ((*worktransformlin[1]))*((*worktransformlin[0]));
+
+    *workingweight = (*worktransformlin[1])*pow((*worktransformlin[0]),2);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  -pow((((*worktransformlin[1])/mu)*(*response)),(*worktransformlin[0])) - (*worktransformlin[1])*(*worktransformlin[0])*log((*worktransformlin[1])/mu);
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_gengamma_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+
+  double exp_linmu = exp((*linpred[2]));
+  double exp_linsigma = exp((*linpred[1]));
+  double exp_lintau = exp((*linpred[0]));
+  double help = exp_linsigma+1/exp_lintau;
+  *mu = (randnumbers::lngamma_exact(help))*exp_linmu/(exp_linsigma*(randnumbers::lngamma_exact(exp_linsigma)));
+
+  }
+
+
+void DISTR_gengamma_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (mu): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_gengamma_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
 
 
 //------------------------------------------------------------------------------
@@ -97,7 +564,7 @@ void DISTR_gamma_sigma::compute_iwls_wweightschange_weightsone(
   {
 
   // *worklin[0] = linear predictor of mu equation
-  // *worktransformlin[0] = exp(eta_mu)/(1+exp(eta_mu));
+  // *worktransformlin[0] = exp(eta_mu);
 
   if (counter==0)
     {

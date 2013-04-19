@@ -34,7 +34,179 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_gamma_sigma ------------------------
+//----------------------- CLASS: DISTR_gengamma_tau ------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gengamma_tau : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gengamma_tau(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gengamma_tau(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gengamma_tau(const DISTR_gengamma_tau & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gengamma_tau & operator=(const DISTR_gengamma_tau & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gengamma_tau() {}
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_gengamma_sigma -----------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gengamma_sigma : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gengamma_sigma(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gengamma_sigma(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gengamma_sigma(const DISTR_gengamma_sigma & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gengamma_sigma & operator=(const DISTR_gengamma_sigma & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gengamma_sigma() {}
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_gengamma_mu ------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gengamma_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gengamma_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gengamma_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gengamma_mu(const DISTR_gengamma_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gengamma_mu & operator=(const DISTR_gengamma_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gengamma_mu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_gamma_sigma -----------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_gamma_sigma : public DISTR_gamlss

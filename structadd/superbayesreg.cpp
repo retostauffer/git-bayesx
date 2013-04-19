@@ -178,8 +178,11 @@ void superbayesreg::create_hregress(void)
   families.push_back("beta_sigma2");
   families.push_back("lognormal_mu");
   families.push_back("lognormal_sigma2");
-    families.push_back("gamma_mu");
+  families.push_back("gamma_mu");
   families.push_back("gamma_sigma");
+  families.push_back("gengamma_mu");
+  families.push_back("gengamma_sigma");
+  families.push_back("gengamma_tau");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -195,7 +198,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("delta");
   equationtypes.push_back("sigma2");
   equationtypes.push_back("sigma");
-  equationtypes.push_back("scale");
+  equationtypes.push_back("tau");
   equationtype = stroption("equationtype",equationtypes,"mean");
 
   predictop.reserve(20);
@@ -465,6 +468,15 @@ void superbayesreg::clear(void)
   distr_gamma_sigmas.erase(distr_gamma_sigmas.begin(),distr_gamma_sigmas.end());
   distr_gamma_sigmas.reserve(20);
 
+  distr_gengamma_mus.erase(distr_gengamma_mus.begin(),distr_gengamma_mus.end());
+  distr_gengamma_mus.reserve(20);
+
+  distr_gengamma_sigmas.erase(distr_gengamma_sigmas.begin(),distr_gengamma_sigmas.end());
+  distr_gengamma_sigmas.reserve(20);
+
+  distr_gengamma_taus.erase(distr_gengamma_taus.begin(),distr_gengamma_taus.end());
+  distr_gengamma_taus.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -633,6 +645,9 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_lognormal_sigma2s = b.distr_lognormal_sigma2s;
   distr_gamma_mus = b.distr_gamma_mus;
   distr_gamma_sigmas = b.distr_gamma_sigmas;
+  distr_gengamma_mus = b.distr_gengamma_mus;
+  distr_gengamma_sigmas = b.distr_gengamma_sigmas;
+  distr_gengamma_taus = b.distr_gengamma_taus;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -731,6 +746,9 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_lognormal_sigma2s = b.distr_lognormal_sigma2s;
   distr_gamma_mus = b.distr_gamma_mus;
   distr_gamma_sigmas = b.distr_gamma_sigmas;
+  distr_gengamma_mus = b.distr_gengamma_mus;
+  distr_gengamma_sigmas = b.distr_gengamma_sigmas;
+  distr_gengamma_taus = b.distr_gengamma_taus;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -868,6 +886,13 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": MAIN SCALE REGRESSION_"+ rn;
       equations[modnr].paths = "MAIN_SCALE_REGRESSION_"+ rn;
       }
+   else if (equations[modnr].equationtype == "tau")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN TAU REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_TAU_REGRESSION_"+ rn;
+      }
+
     else if (equations[modnr].equationtype == "meanservant")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
@@ -1364,6 +1389,86 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: negbin mu -------------------------------
+
+
+
+ //---------------------------------- gengamma tau -----------------------------------
+   else if (family.getvalue() == "gengamma_tau" && equationtype.getvalue()=="tau")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_gengamma_taus.push_back(DISTR_gengamma_tau(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_gengamma_taus[distr_gengamma_taus.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------- END: gengamma tau ---------------------------------
+
+ //---------------------------------- gengamma sigma --------------------------------
+   else if (family.getvalue() == "gengamma_sigma" && equationtype.getvalue()=="sigma")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_gengamma_sigmas.push_back(DISTR_gengamma_sigma(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_gengamma_sigmas[distr_gengamma_sigmas.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------ END: gengamma sigma -------------------------------
+
+
+ // ----------------------------------- gengamma mu ----------------------------------
+   else if (family.getvalue() == "gengamma_mu" && equationtype.getvalue()=="mean")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_gengamma_mus.push_back(DISTR_gengamma_mu(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_gengamma_mus[distr_gengamma_mus.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_gengamma_taus.size() != 1)
+       {
+       outerror("ERROR: Equation for tau is missing");
+       return true;
+       }
+
+     if (distr_gengamma_sigmas.size() != 1)
+       {
+       outerror("ERROR: Equation for sigma is missing");
+       return true;
+       }
+
+     predict_mult_distrs.push_back(&distr_gengamma_taus[distr_gengamma_taus.size()-1]);
+     predict_mult_distrs.push_back(&distr_gengamma_sigmas[distr_gengamma_sigmas.size()-1]);
+     predict_mult_distrs.push_back(&distr_gengamma_mus[distr_gengamma_mus.size()-1]);
+
+     distr_gengamma_taus[distr_gengamma_taus.size()-1].distrp.push_back(
+     &distr_gengamma_sigmas[distr_gengamma_sigmas.size()-1]);
+
+	 distr_gengamma_taus[distr_gengamma_taus.size()-1].distrp.push_back(
+     &distr_gengamma_mus[distr_gengamma_mus.size()-1]);
+
+     distr_gengamma_sigmas[distr_gengamma_sigmas.size()-1].distrp.push_back(
+     &distr_gengamma_taus[distr_gengamma_taus.size()-1]);
+
+     distr_gengamma_sigmas[distr_gengamma_sigmas.size()-1].distrp.push_back(
+     &distr_gengamma_mus[distr_gengamma_mus.size()-1]);
+
+     distr_gengamma_mus[distr_gengamma_mus.size()-1].distrp.push_back(
+     &distr_gengamma_taus[distr_gengamma_taus.size()-1]);
+
+     distr_gengamma_mus[distr_gengamma_mus.size()-1].distrp.push_back(
+     &distr_gengamma_sigmas[distr_gengamma_sigmas.size()-1]);
+
+     }
+ //------------------------------ END: gengamma mu ----------------------------------
+
 
 
 //-------------------------------- gamma_sigma ---------------------------------
