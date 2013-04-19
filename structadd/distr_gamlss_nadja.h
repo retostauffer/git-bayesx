@@ -88,7 +88,7 @@ class __EXPORT_TYPE DISTR_gengamma_tau : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_gengamma_sigma -----------------------------
+//----------------------- CLASS: DISTR_gengamma_sigma --------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_gengamma_sigma : public DISTR_gamlss

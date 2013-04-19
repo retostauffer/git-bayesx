@@ -31,7 +31,7 @@ namespace MCMC
 DISTR_gengamma_tau::DISTR_gengamma_tau(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
                                            const datamatrix & w)
-  : DISTR_gamlss(o,r,1,w)
+  : DISTR_gamlss(o,r,2,w)
   {
   family = "Generalized gamma - tau";
   }
@@ -173,7 +173,7 @@ void DISTR_gengamma_tau::update_end(void)
 DISTR_gengamma_sigma::DISTR_gengamma_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
                                            const datamatrix & w)
-  : DISTR_gamlss(o,r,1,w)
+  : DISTR_gamlss(o,r,2,w)
   {
   family = "Generalized gamma - sigma";
   }
@@ -313,7 +313,7 @@ void DISTR_gengamma_sigma::update_end(void)
 DISTR_gengamma_mu::DISTR_gengamma_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
                                            const datamatrix & w)
-  : DISTR_gamlss(o,r,1,w)
+  : DISTR_gamlss(o,r,2,w)
   {
   family = "Generalized gamma - mu";
   }
