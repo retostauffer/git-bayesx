@@ -661,8 +661,6 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
                                               double & like,
                                               const bool & compute_like);
 
-  void compute_expectation(void);                                              
-
   double compute_iwls(double * response, double * linpred,
                                      double * weight, double * workingweight,
                                      double * workingresponse,
@@ -677,120 +675,6 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
 
   };
 
-
-
-//------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_negbinzip_delta -------------------------
-//------------------------------------------------------------------------------
-/*
-class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
-  {
-
-  protected:
-
-  double stopsum;
-  int stoprmax;
-
-  // auxiliary variables for iwls
-
-  double delta;
-  double delta2;
-  double deltay;
-  double dig_deltay;
-  double dig_delta;
-  double trig_deltay;
-  double trig_delta;
-
-  double deltamu;
-  double delta_div_deltamu;
-  double log_delta_div_deltamu;
-  double mu_m_y_div_delta_m_mu;
-  double pi;
-  double mu_div_deltamu;
-  double pot;
-  double denom;
-  double sum;
-
-  double log_one_explinpi;
-  double log_explinpi_pot;
-
-  double lng_delta;
-  double delta_linpred;
-  double log_delta_mu;
-
-  double E_dig_y_delta;
-  double E_trig_y_delta;
-
-
-  // end auxiliary variables for iwls
-
-  unsigned counter;
-
-  double responsemax;
-
-  double * worklinmu;
-  double * workexplinmu;
-
-  double * worklinpi;
-  double * workonempi;
-  double * workexplinpi;
-
-  void set_worklinmupi(void);
-  void modify_worklinmupi(void);
-
-  void compute_expectation(void);
-
-  public:
-
-  DISTR*  distrmu;
-  DISTR*  distrpi;
-
-   // DEFAULT CONSTRUCTOR
-
-   DISTR_negbinzip_delta(void) : DISTR()
-     {
-     }
-
-   // CONSTRUCTOR
-
-   DISTR_negbinzip_delta(GENERAL_OPTIONS * o, const datamatrix & r,
-                         double & stpsum, int & strmax,
-                         const datamatrix & w=datamatrix());
-
-   // COPY CONSTRUCTOR
-
-   DISTR_negbinzip_delta(const DISTR_negbinzip_delta & nd);
-
-   // OVERLOADED ASSIGNMENT OPERATOR
-
-   const DISTR_negbinzip_delta & operator=(const DISTR_negbinzip_delta & nd);
-
-   // DESTRUCTOR
-
-   ~DISTR_negbinzip_delta() {}
-
-  double get_intercept_start(void);
-
-  double loglikelihood(double * response, double * linpred,
-                       double * weight);
-
-  double loglikelihood_weightsone(double * response, double * linpred);
-
-  void compute_iwls_wweightschange_weightsone(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-  void outoptions(void);
-
-  void posteriormode_end(void);
-
-  void update_end(void);
-
-  };
-*/
 
 //------------------------------------------------------------------------------
 //---------------------- CLASS: DISTRIBUTION_ziplambda -------------------------
