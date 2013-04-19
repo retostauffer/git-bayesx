@@ -268,6 +268,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   doubleoption stopsum;
   intoption stoprmax;
   doubleoption fraclimit;
+  intoption nrbetween;
 
   // extended Poisson
 

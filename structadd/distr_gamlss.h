@@ -137,10 +137,14 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
   double delta_plus_mu;
 
   datamatrix E_dig_y_delta_m;
+  datamatrix E_trig_y_delta_m;  
   double * Ep;
+  double * Ep_trig;  
 
-  double fraclimit;
+
+  double stopsum;
   int stoprmax;
+  int nrbetween;
 
   bool slow;
 
@@ -157,7 +161,7 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
    // CONSTRUCTOR
 
   DISTR_negbin_delta(GENERAL_OPTIONS * o, const datamatrix & r,
-                     double & fs, int & strmax, bool & sl,
+                     double & ss, int & strmax, int & sts, bool & sl,
                      const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
@@ -183,22 +187,14 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
                                               double & like,
                                               const bool & compute_like);
 
-  void compute_iwls_wweightschange_weightsone_variant1(
-                                              double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-
+/*
   void compute_iwls_wweightschange_weightsone_slow(double * response,
                                               double * linpred,
                                               double * workingweight,
                                               double * workingresponse,
                                               double & like,
                                               const bool & compute_like);
-
+*/
 
   void outoptions(void);
 
@@ -563,9 +559,10 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   double fraclimit;
   int stoprmax;
   bool slow;
+  int nrbetween;
 
   //----------------------------------------------------------------------------
-
+/*
   double delta;
   double delta2;
   double deltay;
@@ -589,9 +586,11 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   double log_delta_mu;
   double E_dig_y_delta;
   double E_trig_y_delta;
-
+*/
   datamatrix E_dig_y_delta_m;
+  datamatrix E_trig_y_delta_m;  
   double * Ep;
+  double * Ep_trig;
 
   //----------------------------------------------------------------------------
 
