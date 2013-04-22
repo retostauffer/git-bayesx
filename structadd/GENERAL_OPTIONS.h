@@ -86,6 +86,8 @@ class __EXPORT_TYPE GENERAL_OPTIONS
                                   // compute characteristics of the
                                   // posterior
 
+  bool saveestimation;
+
 
   // DEFAULT CONSTRUCTOR
   // Defines:
@@ -97,6 +99,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
   // nriter = 0
   // samplesize = 0
   // logout = &cout
+  // savestimation = false;
 
   GENERAL_OPTIONS(void);
 
@@ -111,14 +114,17 @@ class __EXPORT_TYPE GENERAL_OPTIONS
   // nriter = 0
   // samplesize = 0
   // logout = lo
+  // saveestimation = sa
 
   #if defined(JAVA_OUTPUT_WINDOW)
   GENERAL_OPTIONS(administrator_basic * abp,
               const unsigned & it,const unsigned & bu,const unsigned & st,
-              ostream * lo=&cout,const double & l1=95,const double & l2=80);
+              const bool & sa, ostream * lo=&cout,const double & l1=95,
+              const double & l2=80);
   #else
   GENERAL_OPTIONS(const unsigned & it,const unsigned & bu,const unsigned & st,
-                  ostream * lo=&cout,const double & l1=95,const double & l2=80);
+                  const bool & sa,ostream * lo=&cout,const double & l1=95,
+                  const double & l2=80);
   #endif
 
   // COPY CONSTRUCTOR

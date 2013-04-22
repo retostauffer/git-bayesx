@@ -244,7 +244,15 @@ void FC_linear::update_IWLS(void)
 
     add_linpred(diff);                           // (mit proposed)
 
-    bool ok = likep->check_linpred();
+    bool ok;
+    if (optionsp->saveestimation)
+      {
+      ok = likep->check_linpred();
+      if (!ok)
+        outsidelinpredlimits++;
+      }
+    else
+      ok = true;
 
     double logprop = likep->loglikelihood();     // mit proposed
 
@@ -672,8 +680,11 @@ bool FC_linear::posteriormode(void)
         likep->linearpred2.addmult(design,betadiff);
 
 
-
-      bool ok = likep->check_linpred();
+      bool ok;
+      if (optionsp->saveestimation)
+        ok = likep->check_linpred();
+      else
+        ok = true;
 
       if (ok)
         {
@@ -744,6 +755,7 @@ void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
 
     FC::outresults(out_stata,out_R,pathresults);
     FC::outresults_help(out_stata,out_R,pathresults,datanames);
+    FC::outresults_acceptance();
 
     optionsp->out("    Results for fixed effects are also stored in file\n");
     optionsp->out("    " + pathresults + "\n");

@@ -248,7 +248,13 @@ void superbayesreg::create_hregress(void)
 
   nrbetween = intoption("nrbetween",1000000,1,2000000);
 
-  regressoptions.reserve(100);
+  changelinpredlimits = simpleoption("changelinpredlimits",false);
+  linpredminlimit = doubleoption("linpredminlimit",-10000000000,-10000000000,10000000000);
+  linpredmaxlimit = doubleoption("linpredmaxlimit",10000000000,-10000000000,10000000000);
+  saveestimation = simpleoption("saveestimation",false);
+
+
+  regressoptions.reserve(200);
 
   regressoptions.push_back(&modeonly);
   regressoptions.push_back(&setseed);
@@ -283,8 +289,11 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&bexp);
   regressoptions.push_back(&adaptexp);
   regressoptions.push_back(&slow);
-  regressoptions.push_back(&nrbetween);  
-
+  regressoptions.push_back(&nrbetween);
+  regressoptions.push_back(&changelinpredlimits);
+  regressoptions.push_back(&linpredminlimit);
+  regressoptions.push_back(&linpredmaxlimit);
+  regressoptions.push_back(&saveestimation);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -824,7 +833,7 @@ bool superbayesreg::create_generaloptions(void)
   adminb_p,
   #endif
   iterations.getvalue(),burnin.getvalue(),
-                               step.getvalue(),logout,
+                               step.getvalue(),saveestimation.getvalue(),logout,
                                level1.getvalue(),level2.getvalue());
 
   describetext.push_back("ESTIMATION OPTIONS:\n");
@@ -2082,6 +2091,20 @@ bool superbayesreg::create_distribution(void)
 
   equations[modnr].distrp->responsename=rname;
   equations[modnr].distrp->weightname=wn;
+
+  if (changelinpredlimits.getvalue() == true)
+    {
+    double min = linpredminlimit.getvalue();
+    if (min == -10000000000)
+      min = equations[modnr].distrp->linpredminlimit;
+    double max = linpredmaxlimit.getvalue();
+    if (max == 10000000000)
+      max = equations[modnr].distrp->linpredmaxlimit;
+
+    equations[modnr].distrp->changelimits(min,max);
+
+    }
+
 
   if (equations[modnr].hlevel==1)
     master.level1_likep.push_back(equations[modnr].distrp);

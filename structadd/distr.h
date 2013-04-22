@@ -128,16 +128,29 @@ class __EXPORT_TYPE DISTR
 
   unsigned nrzeroweights;         // number of zero weights
 
-  double linpredminlimit;
-  double linpredmaxlimit;  
-
   datamatrix linearpred1;          // Linear predictor
   datamatrix linearpred2;          // Proposed linear predictor
   int linpred_current;
 
+  double meaneffect;
+
+  //----------------------------------------------------------------------------
+  //---------------------- linpredlimits for save estimation -------------------
+  //----------------------------------------------------------------------------
+
+  double linpredminlimit;
+  double linpredmaxlimit;
+
+  // FUNCTION: check_linpred
+  // TASK: checks whether current predictor vector is within linpredlimits
+
   bool check_linpred(bool current = true);
 
-  double meaneffect;
+  void changelimits(double min,double max);
+
+  //----------------------------------------------------------------------------
+  //---------------------- linpredlimits for save estimation -------------------
+  //----------------------------------------------------------------------------
 
   //----------------------------------------------------------------------------
   //------------------------- auxiliary variables ------------------------------

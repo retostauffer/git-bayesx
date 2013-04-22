@@ -65,6 +65,7 @@ FC::FC(GENERAL_OPTIONS * o,const ST::string & t,const unsigned & rows,
 
   acceptance = 0;
   nrtrials = 0;
+  outsidelinpredlimits = 0;  
 
   column = 0;
 
@@ -116,6 +117,7 @@ FC::FC(const FC & m)
 
   acceptance = m.acceptance;
   nrtrials = m.nrtrials;
+  outsidelinpredlimits = m.outsidelinpredlimits;
 
   column = m.column;
 
@@ -171,6 +173,7 @@ const FC & FC::operator=(const FC & m)
 
   acceptance = m.acceptance;
   nrtrials = m.nrtrials;
+  outsidelinpredlimits = m.outsidelinpredlimits;
 
   column = m.column;
 
@@ -205,7 +208,6 @@ void FC::setbeta(const unsigned & rows,const unsigned & cols,
   betavarold = datamatrix(rows,cols,0);
   betaminold = datamatrix(rows,cols,0);
   betamaxold = datamatrix(rows,cols,0);
-//  transform = datamatrix(cols,1,1);
 
   }
 
@@ -235,7 +237,6 @@ void FC::setbeta(const datamatrix & betanew)
   betavarold = datamatrix(beta.rows(),beta.cols(),0);
   betaminold = datamatrix(beta.rows(),beta.cols(),0);
   betamaxold = datamatrix(beta.rows(),beta.cols(),0);
-//  transform = datamatrix(beta.cols(),1,1);
 
   }
 
@@ -667,11 +668,24 @@ void FC::outresults_acceptance(void)
   if (optionsp->samplesize > 0)
     {
     double rate;
+    double rateoutside;
+    rateoutside = (double(outsidelinpredlimits)/double(optionsp->nriter))*100;
     if (nrtrials == 0)
+      {
       rate = (double(acceptance)/double(optionsp->nriter))*100;
+      }
     else
+      {
       rate = (double(acceptance)/double(nrtrials))*100;
+      }
     optionsp->out("    Acceptance rate:    "  + ST::doubletostring(rate,4) + " %\n");
+    if (optionsp->saveestimation)
+      {
+      if (outsidelinpredlimits > 0)
+        optionsp->out("    WARNING: In " + ST::doubletostring(rateoutside,4) +
+                      " percent of iterations the predictor was outside limits\n");
+
+      }
     optionsp->out("\n");
     }
   }

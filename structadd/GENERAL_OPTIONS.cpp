@@ -49,6 +49,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(void)
   logout = &cout;
   set_level1(95);
   set_level2(80);
+  saveestimation = false;
   }
 
 
@@ -57,7 +58,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(
 administrator_basic * abp,
 #endif
 const unsigned & it,const unsigned & bu,
-                         const unsigned & st, ostream * lo,
+                         const unsigned & st, const bool & sa, ostream * lo,
                          const double & l1,const double & l2)
   {
   iterations = it;
@@ -73,6 +74,7 @@ const unsigned & it,const unsigned & bu,
   nriter = 0;
   samplesize = 0;
   logout = lo;
+  saveestimation = sa;
 
   (*logout) << flush;
 #if defined(BORLAND_OUTPUT_WINDOW)
@@ -105,7 +107,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(const GENERAL_OPTIONS & o)
   lower2 = o.lower2;
   upper1 = o.upper1;
   upper2 = o.upper2;
-
+  saveestimation = o.saveestimation;
   }
 
 
@@ -130,6 +132,7 @@ const GENERAL_OPTIONS & GENERAL_OPTIONS::operator=(const GENERAL_OPTIONS & o)
   lower2 = o.lower2;
   upper1 = o.upper1;
   upper2 = o.upper2;
+  saveestimation = o.saveestimation;
   return *this;
   }
 
@@ -173,6 +176,10 @@ void GENERAL_OPTIONS::outoptions(void)
   out("  Number of iterations:  " + ST::inttostring(iterations) + "\n");
   out("  Burn-in period:        " + ST::inttostring(burnin)+ "\n");
   out("  Thinning parameter:    " + ST::inttostring(step)+ "\n");
+  if (saveestimation)
+    out("  Saveestimation:        enabled\n");
+  else
+    out("  Saveestimation:        disabled\n");  
   out("\n");
   }
 

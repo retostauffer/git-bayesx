@@ -1456,8 +1456,6 @@ void DISTR_negbinzip_mu::outoptions(void)
   {
   DISTR::outoptions();
   optionsp->out("  Response function (mu): exponential\n");
-  optionsp->out("  Response function (pi): logistic distribution function\n");
-  optionsp->out("  Response function (delta): exponential\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -1817,9 +1815,7 @@ DISTR_negbinzip_pi::DISTR_negbinzip_pi(const DISTR_negbinzip_pi & nd)
 void DISTR_negbinzip_pi::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Response function (mu): exponential\n");
   optionsp->out("  Response function (pi): logistic distribution function\n");
-  optionsp->out("  Response function (delta): exponential\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -2157,13 +2153,15 @@ DISTR_negbinzip_delta::DISTR_negbinzip_delta(const DISTR_negbinzip_delta & nd)
 void DISTR_negbinzip_delta::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Response function (mu): exponential\n");
-  optionsp->out("  Response function (pi): logistic distribution function\n");
   optionsp->out("  Response function (delta): exponential\n");
+  if (slow)
+    optionsp->out("  Estimation type: slow\n");
+  else
+    optionsp->out("  Estimation type: fast\n");
   optionsp->out("  Stop criteria for approximating expected values\n");
   optionsp->out("  in working weights of delta equation:\n");
-  optionsp->out("    fraction limit:"  + ST::doubletostring(fraclimit) +  "\n");
-  optionsp->out("    Maximum values:"  + ST::inttostring(stoprmax) +  "\n");
+  optionsp->out("    Maximum values          : "  + ST::inttostring(stoprmax) +  "\n");
+  optionsp->out("    Cumulative probabilities: "  + ST::doubletostring(stopsum) +  "\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }

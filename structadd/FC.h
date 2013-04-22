@@ -107,8 +107,11 @@ class __EXPORT_TYPE FC
 
 
 
-  unsigned long acceptance;      // number of accepted iterations
-  unsigned long nrtrials;        // number of trials
+  unsigned long acceptance;            // number of accepted iterations
+  unsigned long nrtrials;              // number of trials
+  unsigned long outsidelinpredlimits;  // number of iterations outside
+                                       // linpredlimits
+                                    
 
 
   unsigned column;               // the response category the fc belongs to

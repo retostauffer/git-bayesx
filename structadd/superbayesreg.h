@@ -276,6 +276,13 @@ class __EXPORT_TYPE superbayesreg : public statobject
   doubleoption bexp;
   simpleoption adaptexp;
 
+  // options for linpredlimits
+
+  simpleoption changelinpredlimits;
+  doubleoption linpredminlimit;
+  doubleoption linpredmaxlimit;
+  simpleoption saveestimation;
+
   // end: OPTIONS for method regress
 
  // ------------------------------- MASTER_OBJ ---------------------------------

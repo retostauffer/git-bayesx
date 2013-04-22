@@ -119,7 +119,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   meaneffect = 0;
 
   linpredminlimit = -10000000000;
-  linpredmaxlimit = 10000000000;
+  linpredmaxlimit =  10000000000;
 
   check_errors();
 
@@ -280,6 +280,13 @@ bool DISTR::check_linpred(bool current)
   }
 
 
+void DISTR::changelimits(double min,double max)
+  {
+  linpredminlimit=min;
+  linpredmaxlimit=max;  
+  }
+
+
 void DISTR::outoptions(void)
   {
   optionsp->out("RESPONSE DISTRIBUTION:\n",true);
@@ -288,6 +295,13 @@ void DISTR::outoptions(void)
   optionsp->out("  Number of observations: " + ST::inttostring(nrobs) + "\n");
   if (offsetname.length() > 0)
     optionsp->out("  Offset: " + offsetname + "\n");
+
+  if (optionsp->saveestimation)
+    {
+    optionsp->out("  Limits for predictor (save estimation mode):\n");
+    optionsp->out("    Minimum: " + ST::doubletostring(linpredminlimit,6) + "\n");
+    optionsp->out("    Maximum: " + ST::doubletostring(linpredmaxlimit,6) + "\n");
+    }
   }
 
 
