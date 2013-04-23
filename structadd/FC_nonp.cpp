@@ -572,34 +572,50 @@ void FC_nonp::update_IWLS(void)
 
     betadiff.minus(beta,betaold);
 
-    designp->update_linpred(betadiff);
+    bool ok;
+    if (optionsp->saveestimation)
+      {
+      ok = designp->update_linpred_save(betadiff);
+      if (!ok)
+        outsidelinpredlimits++;
+      }
+    else
+      {
+      designp->update_linpred(betadiff);
+      ok = true;
+      }
 
     // Compute new log-likelihood
 
-    double lognew = likep->compute_iwls(true,true);
-    lognew  -= 0.5*designp->penalty_compute_quadform(param)*lambda;
+    double lognew=0;
+    double qnew=0;
+    if (ok)
+      {
+      lognew   = likep->compute_iwls(true,true);
+      lognew  -= 0.5*designp->penalty_compute_quadform(param)*lambda;
 
-    designp->compute_partres(partres,beta);
-    designp->compute_XtransposedWX();
-    designp->compute_XtransposedWres(partres,lambda);
+      designp->compute_partres(partres,beta);
+      designp->compute_XtransposedWX();
+      designp->compute_XtransposedWres(partres,lambda);
 
-    designp->compute_precision(lambda);
+      designp->compute_precision(lambda);
 
-    designp->precision.solve(*(designp->XWres_p),paramhelp);
+      designp->precision.solve(*(designp->XWres_p),paramhelp);
 
-    // TEST
-    // ofstream out2("c:\\bayesx\\testh\\results\\paramhelp_n.res");
-    // paramhelp.prettyPrint(out2);
-    // TEST
+      // TEST
+      // ofstream out2("c:\\bayesx\\testh\\results\\paramhelp_n.res");
+      // paramhelp.prettyPrint(out2);
+      // TEST
 
 
-    paramhelp.minus(paramold,paramhelp);
-    double qnew = 0.5*designp->precision.getLogDet() -
-                  0.5*designp->precision.compute_quadform(paramhelp,0);
-
+      paramhelp.minus(paramold,paramhelp);
+      qnew = 0.5*designp->precision.getLogDet() -
+             0.5*designp->precision.compute_quadform(paramhelp,0);
+      }
 
     double u = log(uniform());
-    if (u <= (lognew - logold  + qnew - qold) )
+
+    if (ok && (u <= (lognew - logold  + qnew - qold)) )
       {
       acceptance++;
 
@@ -680,179 +696,6 @@ void FC_nonp::update_IWLS(void)
 
   }
 
-
-
-/*
-void FC_nonp::update_IWLS(void)
-  {
-
-  // TEST
-//  ofstream out("c:\\bayesx\\testh\\results\\beta.res");
-//  beta.prettyPrint(out);
-  // TEST
-
-
-  unsigned i;
-  double * workparam;
-
-//  lambda = likep->get_scale()/tau2;
-  lambda = 1/tau2;
-
-  if (optionsp->nriter == 1)
-    {
-    paramold.assign(param);
-    betaold.assign(beta);
-    paramKparam=designp->penalty_compute_quadform(param);
-    }
-
-//  double t =  log(0.0000000000000000001);
-//         t =  log(1000000000000000000000);
-//         t = sqrt(0.0000000000000000001);
-//         t = sqrt(1000000000000000000000);
-
-  // Compute log-likelihood with old param, computes workingweight and
-  // workingresponse
-  double logold = likep->compute_iwls(true,true);
-  logold -= 0.5*paramKparam*lambda;
-
-  designp->compute_partres(partres,beta);
-  designp->compute_XtransposedWX();
-  designp->compute_XtransposedWres(partres,lambda);
-
-  designp->compute_precision(lambda);
-
-  bool error = designp->precision.decomp_save();
-
-  if (error == false)
-    {
-    designp->precision.solve(*(designp->XWres_p),paramhelp);
-
-    // TEST
-    // ofstream out("c:\\bayesx\\testh\\results\\paramhelp_v.res");
-    // paramhelp.prettyPrint(out);
-    // TEST
-
-    workparam = param.getV();
-    unsigned nrpar = param.rows();
-    for(i=0;i<nrpar;i++,workparam++)
-      *workparam = rand_normal();
-
-    designp->precision.solveU(param,paramhelp); // param contains now the proposed
-                                                // new parametervector
-
-    perform_centering();
-
-    paramhelp.minus(param,paramhelp);
-
-    double qold = 0.5*designp->precision.getLogDet_save(error)-
-                0.5*designp->precision.compute_quadform(paramhelp,0);
-
-    if (error == false)
-      {
-      designp->compute_f(param,paramlin,beta,fsample.beta);
-
-      betadiff.minus(beta,betaold);
-
-      designp->update_linpred(betadiff);
-
-      // Compute new log-likelihood
-
-      double lognew = likep->compute_iwls(true,true);
-      lognew  -= 0.5*designp->penalty_compute_quadform(param)*lambda;
-
-      designp->compute_partres(partres,beta);
-      designp->compute_XtransposedWX();
-      designp->compute_XtransposedWres(partres,lambda);
-
-      designp->compute_precision(lambda);
-
-      error = designp->precision.decomp_save();
-
-      if (error==false)
-        {
-        designp->precision.solve(*(designp->XWres_p),paramhelp);
-
-        // TEST
-        // ofstream out2("c:\\bayesx\\testh\\results\\paramhelp_n.res");
-        // paramhelp.prettyPrint(out2);
-        // TEST
-
-
-        paramhelp.minus(paramold,paramhelp);
-        double qnew = 0.5*designp->precision.getLogDet_save(error) -
-                      0.5*designp->precision.compute_quadform(paramhelp,0);
-
-
-        double u = log(uniform());
-        if (u <= (lognew - logold  + qnew - qold) && error==false)
-          {
-          acceptance++;
-
-          paramKparam=designp->penalty_compute_quadform(param);
-
-          betaold.assign(beta);
-          paramold.assign(param);
-          }
-        else
-         {
-
-         betadiff.minus(betaold,beta);
-         designp->update_linpred(betadiff);
-
-         param.assign(paramold);
-         beta.assign(betaold);
-         }
-        }
-      else
-        {
-         betadiff.minus(betaold,beta);
-         designp->update_linpred(betadiff);
-
-         param.assign(paramold);
-         beta.assign(betaold);
-        }
-      }
-    else
-      {
-      param.assign(paramold);
-      }
-    } // end if (error==false)
-
-  if (derivative)
-    {
-    designp->compute_f_derivative(param,paramlin,derivativesample.beta,
-                                    derivativesample.beta);
-    }
-
-
-  // TEST
-
-  // ofstream out("c:\\bayesx\\test\\results\\param.res");
-  // param.prettyPrint(out);
-
-  // ofstream out2("c:\\bayesx\\test\\results\\beta.res");
-  // beta.prettyPrint(out2);
-
-  // TEST
-
-  // transform_beta();
-
-  if (designp->position_lin!=-1)
-    {
-    fsample.update();
-    }
-
-
-  paramsample.beta.assign(param);
-  paramsample.update();
-
-  if (derivative)
-    derivativesample.update();
-
-  FC::update();
-
-  }
- */
 
 void FC_nonp::update(void)
   {
@@ -1295,29 +1138,12 @@ bool FC_nonp::posteriormode(void)
 
     designp->compute_partres(partres,beta,true);
 
-    // TEST
-
-    // ofstream out4("c:\\bayesx\\test\\results\\partres.res");
-    // partres.prettyPrint(out4);
-
-    // TEST
-
     designp->compute_XtransposedWX();
     designp->compute_XtransposedWres(partres, lambda);
 
     designp->compute_precision(lambda);
 
-    // TEST
-    // ofstream out1("c:\\bayesx\\test\\results\\precision.res");
-    // designp->precision.print1(out1);
-    // TEST
-
     designp->precision.solve(*(designp->XWres_p),param);
-
-    // TEST
-    // ofstream out8("c:\\bayesx\\test\\results\\param.res");
-    // param.prettyPrint(out8);
-    // TEST
 
     if(designp->center)
       {
@@ -1337,27 +1163,40 @@ bool FC_nonp::posteriormode(void)
 
     designp->compute_f(param,paramlin,beta,fsample.beta);
 
-    // TEST
-    // ofstream out5("c:\\bayesx\\testh\\results\\f.res");
-    // beta.prettyPrint(out5);
-    // TEST
-
     betadiff.minus(beta,betaold);
 
-    designp->update_linpred(betadiff);
+    bool ok;
 
-    // transform_beta();
+    if (optionsp->saveestimation)
+      {
+      ok = designp->update_linpred_save(betadiff);
+      }
+    else
+      {
+      ok = true;
+      designp->update_linpred(betadiff);
+      }
+
+
+    if (!ok)
+      {
+      betadiff.minus(betaold,beta);
+
+      designp->update_linpred(betadiff);
+
+      beta.assign(betaold);
+      }
+
 
     if (designp->position_lin!=-1)
       {
       fsample.posteriormode_betamean();
       }
 
-//    ST::string n = designp->datanames[0];
 
-    designp->compute_meaneffect(masterp->level1_likep[equationnr],meaneffect,beta,
-                               meaneffect_sample.beta,computemeaneffect,
-                               meaneffectconstant);
+    designp->compute_meaneffect(masterp->level1_likep[equationnr],meaneffect,
+                                beta,meaneffect_sample.beta,computemeaneffect,
+                                meaneffectconstant);
 
     return FC::posteriormode();
     }

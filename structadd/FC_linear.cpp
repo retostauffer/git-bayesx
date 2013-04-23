@@ -254,8 +254,9 @@ void FC_linear::update_IWLS(void)
     else
       ok = true;
 
-    double logprop = likep->loglikelihood();     // mit proposed
-
+    double logprop=0;
+    if (ok)
+      logprop = likep->loglikelihood();     // mit proposed
 
     double u = log(uniform());
 
@@ -705,18 +706,6 @@ bool FC_linear::posteriormode(void)
 
         beta.assign(betaold);
         }
-
-//  ofstream out2("d:\\_sicher\\papzip\\resultsconst\\linprednachher.raw");
-//  likep->linearpred1.prettyPrint(out2);
-
-
-/*
-      ofstream out3("c:\\bayesx\\testh\\results\\linpred.res");
-      if (likep->linpred_current==1)
-        likep->linearpred1.prettyPrint(out3);
-      else
-        likep->linearpred2.prettyPrint(out3);
-*/
 
       return FC::posteriormode();
       }

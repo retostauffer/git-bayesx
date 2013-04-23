@@ -299,6 +299,8 @@ class __EXPORT_TYPE DESIGN
 
   void update_linpred(datamatrix & f);
 
+  bool update_linpred_save(datamatrix & f);  
+
   // FUNCTION: compute_partres
   // TASK: computes
 

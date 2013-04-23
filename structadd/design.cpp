@@ -1373,7 +1373,6 @@ void DESIGN::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
 void DESIGN::update_linpred(datamatrix & f)
   {
 
-
   double * worklinp;
   if (likep->linpred_current==1)
     worklinp = likep->linearpred1.getV();
@@ -1405,59 +1404,56 @@ void DESIGN::update_linpred(datamatrix & f)
 
     }
 
+  }
 
 
-  /*
-  int i,j;
+bool DESIGN::update_linpred_save(datamatrix & f)
+  {
 
-  vector<int>::iterator itbeg = posbeg.begin();
-  vector<int>::iterator itend = posend.begin();
+  bool ok = true;
+  double max = likep->linpredmaxlimit;
+  double min = likep->linpredminlimit;
 
-  double * workf = f.getV();
+  double * worklinp;
+  if (likep->linpred_current==1)
+    worklinp = likep->linearpred1.getV();
+  else
+    worklinp = likep->linearpred2.getV();
+
   double * workintvar = intvar.getV();
 
-  double * * linpredp;
-  if (likep->linpred_current==1)
-    linpredp = linpredp1.getV();
-  else
-    linpredp = linpredp2.getV();
+  unsigned * indp = ind.getV();
 
-  int size = posbeg.size();
-
+  int i;
 
   if (intvar.rows()==data.rows())   // varying coefficient
     {
 
-    for (i=0;i<size;i++,++itbeg,++itend,workf++)
+    for (i=0;i<data.rows();i++,worklinp++,workintvar++,indp++)
       {
-      if (*itbeg != -1)
-        {
-        for (j=*itbeg;j<=*itend;j++,workintvar++,linpredp++)
-          *(*linpredp) += (*workintvar) * (*workf);
-        }
+      *worklinp += (*workintvar) *  f(*indp,0);
+      if ((*worklinp) > max)
+        ok = false;
+      if ((*worklinp) < min)
+        ok = false;
       }
 
     }
   else                              // additive
     {
-    for (i=0;i<size;i++,++itbeg,++itend,workf++)
+
+    for (i=0;i<data.rows();i++,worklinp++,indp++)
       {
-      if (*itbeg != -1)
-        {
-        for (j=*itbeg;j<=*itend;j++,linpredp++)
-          *(*linpredp) += *workf;
-        }
+      *worklinp += f(*indp,0);
+      if ((*worklinp) > max)
+        ok = false;
+      if ((*worklinp) < min)
+        ok = false;
       }
+
     }
-  */
 
-  // TEST
-  /*
-  ofstream out3("c:\\bayesx\\test\\results\\lin.res");
-  likep->linearpred1.prettyPrint(out3);
-  */
-  // TEST
-
+  return ok;
 
   }
 

@@ -654,12 +654,14 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
                                               double & like,
                                               const bool & compute_like);
 
+/*
   void compute_iwls_wweightschange_weightsone_slow(double * response,
                                               double * linpred,
                                               double * workingweight,
                                               double * workingresponse,
                                               double & like,
                                               const bool & compute_like);
+*/
 
   double compute_iwls(double * response, double * linpred,
                                      double * weight, double * workingweight,
