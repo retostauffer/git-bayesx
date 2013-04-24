@@ -818,7 +818,7 @@ void DISTR_weibull_mu::update_end(void)
 //------------------------- CLASS: DISTR_zinb2_delta --------------------------
 //------------------------------------------------------------------------------
 
-
+/*
 DISTR_zinb2_delta::DISTR_zinb2_delta(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
                                            const datamatrix & w)
@@ -1420,7 +1420,7 @@ void DISTR_zinb2_mu::update_end(void)
 
   }
 
-
+*/
 
 //------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_gengamma_tau --------------------------
