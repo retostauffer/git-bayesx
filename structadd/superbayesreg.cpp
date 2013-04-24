@@ -183,6 +183,14 @@ void superbayesreg::create_hregress(void)
   families.push_back("gengamma_mu");
   families.push_back("gengamma_sigma");
   families.push_back("gengamma_tau");
+    families.push_back("zinb2_mu");
+  families.push_back("zinb2_pi");
+  families.push_back("zinb2_delta");
+    families.push_back("weibull_mu");
+  families.push_back("weibull_sigma");
+  families.push_back("dagum_a");
+  families.push_back("dagum_b");
+  families.push_back("dagum_p");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -199,6 +207,9 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("sigma2");
   equationtypes.push_back("sigma");
   equationtypes.push_back("tau");
+  equationtypes.push_back("a");
+  equationtypes.push_back("b");
+  equationtypes.push_back("p");
   equationtype = stroption("equationtype",equationtypes,"mean");
 
   predictop.reserve(20);
@@ -490,6 +501,32 @@ void superbayesreg::clear(void)
   distr_gengamma_taus.erase(distr_gengamma_taus.begin(),distr_gengamma_taus.end());
   distr_gengamma_taus.reserve(20);
 
+    distr_zinb2_mus.erase(distr_zinb2_mus.begin(),distr_zinb2_mus.end());
+  distr_zinb2_mus.reserve(20);
+
+  distr_zinb2_pis.erase(distr_zinb2_pis.begin(),distr_zinb2_pis.end());
+  distr_zinb2_pis.reserve(20);
+
+  distr_zinb2_deltas.erase(distr_zinb2_deltas.begin(),distr_zinb2_deltas.end());
+  distr_zinb2_deltas.reserve(20);
+
+   distr_weibull_mus.erase(distr_weibull_mus.begin(),distr_weibull_mus.end());
+  distr_weibull_mus.reserve(20);
+
+  distr_weibull_sigmas.erase(distr_weibull_sigmas.begin(),distr_weibull_sigmas.end());
+  distr_weibull_sigmas.reserve(20);
+
+   distr_dagum_as.erase(distr_dagum_as.begin(),distr_dagum_as.end());
+  distr_dagum_as.reserve(20);
+
+  distr_dagum_bs.erase(distr_dagum_bs.begin(),distr_dagum_bs.end());
+  distr_dagum_bs.reserve(20);
+
+  distr_dagum_ps.erase(distr_dagum_ps.begin(),distr_dagum_ps.end());
+  distr_dagum_ps.reserve(20);
+
+
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -661,6 +698,14 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gengamma_mus = b.distr_gengamma_mus;
   distr_gengamma_sigmas = b.distr_gengamma_sigmas;
   distr_gengamma_taus = b.distr_gengamma_taus;
+  distr_zinb2_mus = b.distr_zinb2_mus;
+  distr_zinb2_pis = b.distr_zinb2_pis;
+  distr_zinb2_deltas = b.distr_zinb2_deltas;
+  distr_weibull_mus = b.distr_weibull_mus;
+  distr_weibull_sigmas = b.distr_weibull_sigmas;
+  distr_dagum_as = b.distr_dagum_as;
+  distr_dagum_bs = b.distr_dagum_bs;
+  distr_dagum_ps = b.distr_dagum_ps;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -762,6 +807,14 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gengamma_mus = b.distr_gengamma_mus;
   distr_gengamma_sigmas = b.distr_gengamma_sigmas;
   distr_gengamma_taus = b.distr_gengamma_taus;
+  distr_zinb2_mus = b.distr_zinb2_mus;
+  distr_zinb2_pis = b.distr_zinb2_pis;
+  distr_zinb2_deltas = b.distr_zinb2_deltas;
+  distr_weibull_mus = b.distr_weibull_mus;
+  distr_weibull_sigmas = b.distr_weibull_sigmas;
+  distr_dagum_as = b.distr_dagum_as;
+  distr_dagum_bs = b.distr_dagum_bs;
+  distr_dagum_ps = b.distr_dagum_ps;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -944,6 +997,18 @@ void superbayesreg::make_header(unsigned & modnr)
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
                               ": RANDOM EFFECTS DELTA REGRESSION";
       equations[modnr].paths = "RANDOM_EFFECTS_DELTA";
+      }
+      	else if (equations[modnr].equationtype == "scale")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS SCALE REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_SCALE";
+      }
+            	else if (equations[modnr].equationtype == "shape")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS SHAPE REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_SHAPE";
       }
     }
 
@@ -1406,6 +1471,160 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: negbin mu -------------------------------
 
 
+ //---------------------------------- zinb2_delta -----------------------------------
+   else if (family.getvalue() == "zinb2_delta" && equationtype.getvalue()=="delta")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_zinb2_deltas.push_back(DISTR_zinb2_delta(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_zinb2_deltas[distr_zinb2_deltas.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------- END: zinb2_delta ---------------------------------
+
+ //---------------------------------- zinb2_pi --------------------------------
+   else if (family.getvalue() == "zinb2_pi" && equationtype.getvalue()=="pi")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_zinb2_pis.push_back(DISTR_zinb2_pi(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_zinb2_pis[distr_zinb2_pis.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------ END: zinb2_pi -------------------------------
+
+
+ // ----------------------------------- zinb2_mu ----------------------------------
+   else if (family.getvalue() == "zinb2_mu" && equationtype.getvalue()=="mean")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_zinb2_mus.push_back(DISTR_zinb2_mu(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_zinb2_mus[distr_zinb2_mus.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_zinb2_deltas.size() != 1)
+       {
+       outerror("ERROR: Equation for delta is missing");
+       return true;
+       }
+
+     if (distr_zinb2_pis.size() != 1)
+       {
+       outerror("ERROR: Equation for pi is missing");
+       return true;
+       }
+
+     predict_mult_distrs.push_back(&distr_zinb2_deltas[distr_zinb2_deltas.size()-1]);
+     predict_mult_distrs.push_back(&distr_zinb2_pis[distr_zinb2_pis.size()-1]);
+     predict_mult_distrs.push_back(&distr_zinb2_mus[distr_zinb2_mus.size()-1]);
+
+     distr_zinb2_deltas[distr_zinb2_deltas.size()-1].distrp.push_back(
+     &distr_zinb2_pis[distr_zinb2_pis.size()-1]);
+
+	 distr_zinb2_deltas[distr_zinb2_deltas.size()-1].distrp.push_back(
+     &distr_zinb2_mus[distr_zinb2_mus.size()-1]);
+
+     distr_zinb2_pis[distr_zinb2_pis.size()-1].distrp.push_back(
+     &distr_zinb2_deltas[distr_zinb2_deltas.size()-1]);
+
+     distr_zinb2_pis[distr_zinb2_pis.size()-1].distrp.push_back(
+     &distr_zinb2_mus[distr_zinb2_mus.size()-1]);
+
+     distr_zinb2_mus[distr_zinb2_mus.size()-1].distrp.push_back(
+     &distr_zinb2_deltas[distr_zinb2_deltas.size()-1]);
+
+     distr_zinb2_mus[distr_zinb2_mus.size()-1].distrp.push_back(
+     &distr_zinb2_pis[distr_zinb2_pis.size()-1]);
+
+     }
+ //------------------------------ END: zinb2_mu ----------------------------------
+
+  //---------------------------------- dagum_p -----------------------------------
+   else if (family.getvalue() == "dagum_p" && equationtype.getvalue()=="shape")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_dagum_ps.push_back(DISTR_dagum_p(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_dagum_ps[distr_dagum_ps.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------- END: dagum_p ---------------------------------
+
+ //---------------------------------- dagum_b --------------------------------
+   else if (family.getvalue() == "dagum_b" && equationtype.getvalue()=="scale")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_dagum_bs.push_back(DISTR_dagum_b(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_dagum_bs[distr_dagum_bs.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------ END: dagum_b -------------------------------
+
+
+ // ----------------------------------- dagum_a ----------------------------------
+   else if (family.getvalue() == "dagum_a" && equationtype.getvalue()=="mean")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_dagum_as.push_back(DISTR_dagum_a(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_dagum_as[distr_dagum_as.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_dagum_ps.size() != 1)
+       {
+       outerror("ERROR: Equation for p is missing");
+       return true;
+       }
+
+     if (distr_dagum_bs.size() != 1)
+       {
+       outerror("ERROR: Equation for b is missing");
+       return true;
+       }
+
+     predict_mult_distrs.push_back(&distr_dagum_ps[distr_dagum_ps.size()-1]);
+     predict_mult_distrs.push_back(&distr_dagum_bs[distr_dagum_bs.size()-1]);
+     predict_mult_distrs.push_back(&distr_dagum_as[distr_dagum_as.size()-1]);
+
+     distr_dagum_ps[distr_dagum_ps.size()-1].distrp.push_back(
+     &distr_dagum_bs[distr_dagum_bs.size()-1]);
+
+	 distr_dagum_ps[distr_dagum_ps.size()-1].distrp.push_back(
+     &distr_dagum_as[distr_dagum_as.size()-1]);
+
+     distr_dagum_bs[distr_dagum_bs.size()-1].distrp.push_back(
+     &distr_dagum_ps[distr_dagum_ps.size()-1]);
+
+     distr_dagum_bs[distr_dagum_bs.size()-1].distrp.push_back(
+     &distr_dagum_as[distr_dagum_as.size()-1]);
+
+     distr_dagum_as[distr_dagum_as.size()-1].distrp.push_back(
+     &distr_dagum_ps[distr_dagum_ps.size()-1]);
+
+     distr_dagum_as[distr_dagum_as.size()-1].distrp.push_back(
+     &distr_dagum_bs[distr_dagum_bs.size()-1]);
+
+     }
+ //------------------------------ END: dagum_a ----------------------------------
+
 
  //---------------------------------- gengamma tau -----------------------------------
    else if (family.getvalue() == "gengamma_tau" && equationtype.getvalue()=="tau")
@@ -1483,6 +1702,54 @@ bool superbayesreg::create_distribution(void)
 
      }
  //------------------------------ END: gengamma mu ----------------------------------
+
+ //-------------------------------- weibull_sigma ---------------------------------
+  else if (family.getvalue() == "weibull_sigma" && equationtype.getvalue()=="sigma")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_weibull_sigmas.push_back(DISTR_weibull_sigma(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_weibull_sigmas[distr_weibull_sigmas.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_weibull_sigmas[distr_weibull_sigmas.size()-1]);
+
+    }
+//---------------------------- END: weibull_sigma -------------------------------
+
+
+//------------------------------- weibull_mu ------------------------------------
+  else if (family.getvalue() == "weibull_mu" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_weibull_mus.push_back(DISTR_weibull_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_weibull_mus[distr_weibull_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_weibull_mus[distr_weibull_mus.size()-1]);
+
+    if (distr_weibull_sigmas.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma is missing");
+      return true;
+      }
+    else
+      {
+      distr_weibull_sigmas[distr_weibull_sigmas.size()-1].distrp.push_back
+      (&distr_weibull_mus[distr_weibull_mus.size()-1]);
+
+      distr_weibull_mus[distr_weibull_mus.size()-1].distrp.push_back
+      (&distr_weibull_sigmas[distr_weibull_sigmas.size()-1]);
+      }
+
+    }
+//------------------------------- END: weibull_mu -------------------------------
+
 
 
 

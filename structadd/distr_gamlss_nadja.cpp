@@ -24,6 +24,1405 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_dagum_p --------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_dagum_p::DISTR_dagum_p(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Dagum - p";
+  }
+
+
+DISTR_dagum_p::DISTR_dagum_p(const DISTR_dagum_p & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_dagum_p & DISTR_dagum_p::operator=(
+                            const DISTR_dagum_p & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_dagum_p::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_dagum_p::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of b equation
+  // *worktransformlin[0] = exp(eta_b);
+  // *worklin[1] = linear predictor of a equation
+  // *worktransformlin[1] = exp(eta_a);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double p = exp((*linpred));
+  double hilfs = pow((*response)/(*worktransformlin[0]),(*worktransformlin[1]));
+
+  double l;
+
+     l = log(p) + (*worktransformlin[1])*p*log((*response)) - (*worktransformlin[1])*p*log((*worktransformlin[0]))
+        -p*log(1+hilfs);
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of b equation
+  // *worktransformlin[0] = exp(eta_b);
+  // *worklin[1] = linear predictor of a equation
+  // *worktransformlin[1] = exp(eta_a);
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double p = exp((*linpred));
+    double hilfs = pow((*response)/(*worktransformlin[0]),(*worktransformlin[1]));
+
+    double nu = 1 + (*worktransformlin[1])*p*log((*response)) - (*worktransformlin[1])*p*log((*worktransformlin[0]))
+                -p*log(1+hilfs);
+
+	double exp_linsigma_plus1 = ((*worktransformlin[0])+1);
+
+    *workingweight = 1;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += log(p) + (*worktransformlin[1])*p*log((*response)) - (*worktransformlin[1])*p*log((*worktransformlin[0]))
+        -p*log(1+hilfs);
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_dagum_p::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (p): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_dagum_p::update_end(void)
+  {
+
+  // helpmat1 stores tau
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_dagum_b ---------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_dagum_b::DISTR_dagum_b(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Dagum - b";
+  }
+
+
+DISTR_dagum_b::DISTR_dagum_b(const DISTR_dagum_b & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_dagum_b & DISTR_dagum_b::operator=(
+                            const DISTR_dagum_b & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_dagum_b::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_dagum_b::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of p equation
+  // *worktransformlin[0] = exp(eta_p);
+  // *worklin[1] = linear predictor of a equation
+  // *worktransformlin[1] = exp(eta_a);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double b = exp((*linpred));
+  double hilfs = pow((*response)/b,(*worktransformlin[1]));
+  double l;
+
+     l = - (*worktransformlin[1])*(*worktransformlin[0])*log(b) - ((*worktransformlin[0])+1)*log(1+hilfs);
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of p equation
+  // *worktransformlin[0] = exp(eta_p);
+  // *worklin[1] = linear predictor of a equation
+  // *worktransformlin[1] = exp(eta_a);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double b = exp((*linpred));
+    double hilfs = pow((*response)/b,(*worktransformlin[1]));
+
+    double nu = (*worktransformlin[1]) - (((*worktransformlin[0])+1)*(*worktransformlin[1]))/(1+hilfs) ;
+
+
+
+    *workingweight = (((*worktransformlin[0])+1)*pow((*worktransformlin[1]),2)*hilfs)/pow((1+hilfs),2);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  - (*worktransformlin[1])*(*worktransformlin[0])*log(b) - ((*worktransformlin[0])+1)*log(1+hilfs);
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_dagum_b::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (b): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_dagum_b::update_end(void)
+  {
+
+  // helpmat1 stores b
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_dagum_a ------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_dagum_a::DISTR_dagum_a(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Dagum - a";
+  }
+
+
+DISTR_dagum_a::DISTR_dagum_a(const DISTR_dagum_a & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_dagum_a & DISTR_dagum_a::operator=(
+                            const DISTR_dagum_a & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_dagum_a::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_p
+   // *linpred[1] = eta_b
+   // *linpred[2] = eta_a
+
+   if (*weight[1] == 0)
+     *deviance=0;
+   else
+     {
+	 double p = exp(*linpred[0]);
+     double b = exp(*linpred[1]);
+     double a = exp(*linpred[2]);
+     double hilfs = pow((*response[1])/b,a);
+
+     double l;
+
+       l = log(a) + log(p) +(a*p-1)*log((*response[1])) - a*p*log(b) - (p+1)*log(1+hilfs);
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_dagum_a::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_dagum_a::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of p equation
+  // *worktransformlin[0] = p;
+  // *worklin[1] = linear predictor of b equation
+  // *worktransformlin[1] = b;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double a = exp(*linpred);
+  double hilfs = pow((*response)/(*worktransformlin[1]),a);
+  double l;
+
+     l =  log(a) +(a*(*worktransformlin[0]))*log((*response)) - a*(*worktransformlin[0])*log((*worktransformlin[1]))
+            - ((*worktransformlin[0])+1)*log(1+hilfs);
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of p equation
+  // *worktransformlin[0] = p;
+  // *worklin[1] = linear predictor of b equation
+  // *worktransformlin[1] = b;
+
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double a = exp((*linpred));
+
+    double hilfs = pow((*response)/(*worktransformlin[1]),a);
+
+    double nu = 1 + a*(*worktransformlin[0])*log((*response)/(*worktransformlin[1]))
+                - (((*worktransformlin[0])+1)*a*hilfs*log((*response)/(*worktransformlin[1])))/(1+hilfs);
+
+    *workingweight = 1 + (((*worktransformlin[0])+1)*pow(a,2)*hilfs*pow(log((*response)/(*worktransformlin[1])),2))/pow((1+hilfs),2);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  log(a) +(a*(*worktransformlin[0]))*log((*response)) - a*(*worktransformlin[0])*log((*worktransformlin[1]))
+            - ((*worktransformlin[0])+1)*log(1+hilfs);
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_dagum_a::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+
+  double exp_lin_a = exp((*linpred[2]));
+  double exp_lin_b = exp((*linpred[1]));
+  double exp_lin_p = exp((*linpred[0]));
+  double help1 = -1/exp_lin_a;
+  double help2 = -help1 + exp_lin_p;
+
+  *mu = 0;
+
+  if (exp_lin_a>1)
+  {
+      *mu = -(exp_lin_b/exp_lin_a)*(randnumbers::gamma_exact(help1)*randnumbers::gamma_exact(help2))/(randnumbers::gamma_exact(exp_lin_p));
+  }
+
+  }
+
+
+void DISTR_dagum_a::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (a): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_dagum_a::update_end(void)
+  {
+
+
+  // helpmat1 stores exp(eta_a)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_weibull_sigma ---------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_weibull_sigma::DISTR_weibull_sigma(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Weibull - sigma";
+  }
+
+
+DISTR_weibull_sigma::DISTR_weibull_sigma(const DISTR_weibull_sigma & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_weibull_sigma & DISTR_weibull_sigma::operator=(
+                            const DISTR_weibull_sigma & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_weibull_sigma::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_weibull_sigma::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double sig = exp((*linpred));
+
+  double l;
+
+     l = (sig)*log(*response) - pow((*response)/(*worktransformlin[0]),sig) -sig*log((*worktransformlin[0])) + log(sig);
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_weibull_sigma::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double sig = exp((*linpred));
+    double hilfs1 = pow((*response)/(*worktransformlin[0]),sig);
+
+    double nu = 1 + sig*log((*response)/(*worktransformlin[0]))*(1-hilfs1);
+
+
+
+    *workingweight = sig*log((*response)/(*worktransformlin[0]))*( hilfs1 + sig*hilfs1*log((*response)/(*worktransformlin[0])) -1 ) ;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  (sig)*log(*response) - hilfs1 -sig*log((*worktransformlin[0])) + log(sig);
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_weibull_sigma::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_weibull_sigma::update_end(void)
+  {
+
+  // helpmat1 stores sigma
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_weibull_mu ------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_weibull_mu::DISTR_weibull_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Weibull - mu";
+  }
+
+
+DISTR_weibull_mu::DISTR_weibull_mu(const DISTR_weibull_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_weibull_mu & DISTR_weibull_mu::operator=(
+                            const DISTR_weibull_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_weibull_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_sigma
+   // *linpred[1] = eta_mu
+
+   if (*weight[1] == 0)
+     *deviance=0;
+   else
+     {
+     double sig = exp(*linpred[0]);
+     double mu = exp(*linpred[1]);
+
+     double l;
+
+       l =   (sig-1)*log(*response[1]) - pow((*response[1])/mu,sig) -sig*log(mu) + log(sig) ;
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_weibull_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_weibull_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma equation
+  // *worktransformlin[0] = sigma;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu = exp(*linpred);
+
+  double l;
+
+     l = - pow((*response)/mu,(*worktransformlin[0])) - (*worktransformlin[0])*log(mu) ;
+
+  modify_worklin();
+
+
+  return l;
+
+  }
+
+
+void DISTR_weibull_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma equation
+  // *worktransformlin[0] = sigma;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double mu = exp(*linpred);
+    double hilfs1 = pow((*response)/mu,(*worktransformlin[0]));
+
+    double nu = (*worktransformlin[0])*( hilfs1-1 );
+
+    *workingweight = pow((*worktransformlin[0]),2);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += - hilfs1 - (*worktransformlin[0])*log(mu) ;
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_weibull_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+
+   double hilfs = 1+1/exp((*linpred[0]));
+  *mu = exp((*linpred[1]))*randnumbers::gamma_exact(hilfs);
+
+  }
+
+
+void DISTR_weibull_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (mu): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_weibull_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_zinb2_delta --------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_zinb2_delta::DISTR_zinb2_delta(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Zero-inflated negative binomial - delta";
+  }
+
+
+DISTR_zinb2_delta::DISTR_zinb2_delta(const DISTR_zinb2_delta & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_zinb2_delta & DISTR_zinb2_delta::operator=(
+                            const DISTR_zinb2_delta & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_zinb2_delta::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_zinb2_delta::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of pi equation
+  // *worktransformlin[0] = pi;
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+
+  double delta;
+
+  if (*linpred <= linpredlimit)
+    delta = explinpredlimit;
+  else if (*linpred >= linpredlimitmax)
+    delta = explinpredlimitmax;
+  else
+    delta = exp(*linpred);
+
+     double pot = pow(delta/((*worktransformlin[1])+delta),delta);
+
+     double l;
+
+      if (*response==0)
+      {
+        l = log((*worktransformlin[0])+(1-(*worktransformlin[0]))*pot);
+      }
+      else
+      {
+        double help1 = (*response) + delta;
+        double help2 = (*response) + 1;
+        l = randnumbers::lngamma_exact(help1)
+          - randnumbers::lngamma_exact(help2)
+          - randnumbers::lngamma_exact(delta)
+          + delta*(*linpred)
+          - (delta+(*response))*log(delta+(*worktransformlin[1]));
+      }
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_zinb2_delta::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of pi equation
+  // *worktransformlin[0] = pi;
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+
+  double delta;
+
+  if (*linpred <= linpredlimit)
+    delta = explinpredlimit;
+  else if (*linpred >= linpredlimitmax)
+    delta = explinpredlimitmax;
+  else
+    delta = exp(*linpred);
+    double pot = pow(delta/((*worktransformlin[1])+delta),delta);
+    double hilfs1 = (*response) + delta;
+
+    double nu = delta*(randnumbers::digamma_exact(hilfs1)-randnumbers::digamma_exact(delta)+log(delta/(delta+(*worktransformlin[1])))+((*worktransformlin[1])-(*response))/(delta+(*worktransformlin[1])));
+
+	if (*response==0)
+    {
+        nu -= (delta*(*worktransformlin[0])*(log(delta/(delta+(*worktransformlin[1])))+(*worktransformlin[1])/(delta+(*worktransformlin[1]))))/((*worktransformlin[0])+(1-(*worktransformlin[0]))*pot);
+    }
+
+    *workingweight = pow(nu,2);
+
+    *workingresponse = *linpred + 1/nu;
+
+    if (compute_like)
+      {
+
+      if (*response==0)
+      {
+        like += log((*worktransformlin[0])+(1-(*worktransformlin[0]))*pot);
+      }
+      else
+      {
+        double help1 = (*response) + delta;
+        double help2 = (*response) + 1;
+        like += randnumbers::lngamma_exact(help1)
+          - randnumbers::lngamma_exact(help2)
+          - randnumbers::lngamma_exact(delta)
+          + delta*(*linpred)
+          - (delta+(*response))*log(delta+(*worktransformlin[1]));
+      }
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_zinb2_delta::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (delta): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_zinb2_delta::update_end(void)
+  {
+
+  // helpmat1 stores tau
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_zinb2_pi ---------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_zinb2_pi::DISTR_zinb2_pi(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Zero-inflated negative binomial - pi";
+  }
+
+
+DISTR_zinb2_pi::DISTR_zinb2_pi(const DISTR_zinb2_pi & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_zinb2_pi & DISTR_zinb2_pi::operator=(
+                            const DISTR_zinb2_pi & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_zinb2_pi::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_zinb2_pi::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of delta equation
+  // *worktransformlin[0] = exp(eta_delta);
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double explinpredpi;
+  if (*linpred <= linpredlimit)
+    explinpredpi  = explinpredlimit;
+  else
+    explinpredpi = exp(*linpred);
+
+  double pi = 0.001 +0.998*explinpredpi/(1+explinpredpi);
+
+
+  double pot = pow((*worktransformlin[0])/((*worktransformlin[1])+(*worktransformlin[0])),(*worktransformlin[0]));
+
+  double l;
+
+      if (*response==0)
+      {
+        l = log(pi+(1-pi)*pot);
+      }
+      else
+      {
+        l = log(1-pi);
+      }
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_zinb2_pi::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of delta equation
+  // *worktransformlin[0] = exp(eta_delta);
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double explinpredpi;
+  if (*linpred <= linpredlimit)
+    explinpredpi  = explinpredlimit;
+  else
+    explinpredpi = exp(*linpred);
+
+  double pi = 0.001+0.998*explinpredpi/(1+explinpredpi);
+  double ci = 0.998*explinpredpi/pow((1+explinpredpi),2);
+   double pot = pow((*worktransformlin[0])/((*worktransformlin[1])+(*worktransformlin[0])),(*worktransformlin[0]));
+
+    double nu = -ci/(1-pi);
+    if (*response==0)
+    {
+        nu += (ci)/((pi+(1-pi)*pot)*(1-pi));
+    }
+
+
+    *workingweight = pow(nu,2);
+
+    *workingresponse = *linpred + 1/nu;
+
+ //   *workingweight = ( pow(pi,2)*(1-pi)*(1-pot) )/( pi+(1-pi)*pot );
+
+  //  *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+      if (*response==0)
+      {
+        like += log(pi+(1-pi)*pot);
+      }
+      else
+      {
+        like += log(1-pi);
+      }
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_zinb2_pi::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (pi): logit\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_zinb2_pi::update_end(void)
+  {
+
+  // helpmat1 stores sigma
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu =0.001+0.998*exp(*worklin)/(1+exp(*worklin));
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_zinb2_mu ------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_zinb2_mu::DISTR_zinb2_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Zero-inflated negative binomial - mu";
+  }
+
+
+DISTR_zinb2_mu::DISTR_zinb2_mu(const DISTR_zinb2_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_zinb2_mu & DISTR_zinb2_mu::operator=(
+                            const DISTR_zinb2_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_zinb2_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_delta
+   // *linpred[1] = eta_pi
+   // *linpred[2] = eta_mu
+
+  double mu = exp(*linpred[2]);
+
+  double pi = exp(*linpred[1])/(1+exp(*linpred[1]));
+
+  double  delta= exp(*linpred[0]);
+
+   if (*weight[1] == 0)
+     *deviance=0;
+   else
+     {
+
+     double pot = pow(delta/(mu+delta),delta);
+
+     double l;
+
+      if ((*response[1])==0)
+      {
+        l = log(pi+(1-pi)*pot);
+      }
+      else
+      {
+        double help1 = (*response[2]) + delta;
+        double help2 = (*response[2]) + 1;
+        l = log(1-pi) + randnumbers::lngamma_exact(help1)
+          - randnumbers::lngamma_exact(help2)
+          - randnumbers::lngamma_exact(delta)
+          + delta*(*linpred[0])
+          + (*response[2])*(*linpred[2])
+          - (delta+(*response[2]))*log(delta+mu);
+      }
+
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_zinb2_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_zinb2_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of delta equation
+  // *worktransformlin[0] = delta;
+  // *worklin[1] = linear predictor of pi equation
+  // *worktransformlin[1] = pi;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu;
+
+  if (*linpred <= linpredlimit)
+    mu = explinpredlimit;
+  else if (*linpred >= linpredlimitmax)
+    mu = explinpredlimitmax;
+  else
+    mu = exp(*linpred);
+  double pot = pow((*worktransformlin[0])/(mu+(*worktransformlin[0])),(*worktransformlin[0]));
+
+  double l;
+
+      if (*response==0)
+      {
+        l = log((*worktransformlin[1])+(1-(*worktransformlin[1]))*pot);
+      }
+      else
+      {
+        l = (*response)*(*linpred)
+          - ((*worktransformlin[0])+(*response))*log((*worktransformlin[0])+mu);
+      }
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+
+
+void DISTR_zinb2_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of delta equation
+  // *worktransformlin[0] = delta;
+  // *worklin[1] = linear predictor of pi equation
+  // *worktransformlin[1] = pi;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu;
+
+  if (*linpred <= linpredlimit)
+    mu = explinpredlimit;
+  else if (*linpred >= linpredlimitmax)
+    mu = explinpredlimitmax;
+  else
+    mu = exp(*linpred);
+
+    double pot = pow((*worktransformlin[0])/(mu+(*worktransformlin[0])),(*worktransformlin[0]));
+
+    double nu = (*worktransformlin[0])*((*response)-mu)/((*worktransformlin[0])+mu);
+
+    if (*response==0)
+    {
+        nu += ((*worktransformlin[0])*(*worktransformlin[1])*mu)/(((*worktransformlin[1])+(1-(*worktransformlin[1]))*pot)*(mu+(*worktransformlin[0])));
+    }
+
+    *workingweight = pow(nu,2);
+
+    *workingresponse = *linpred + 1/nu;
+
+//     *workingweight = ( (*worktransformlin[0])*mu*(1-(*worktransformlin[1])) )/( (*worktransformlin[0])+mu ) -
+//            ( (*worktransformlin[1])*(1-(*worktransformlin[1]))*pow((*worktransformlin[0]),2)*pow(mu,2)*pot )/( ((*worktransformlin[1])+(1-(*worktransformlin[1]))*pot)*pow((mu+(*worktransformlin[0])),2) );
+
+ //   *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+     if (*response==0)
+      {
+        like += log((*worktransformlin[1])+(1-(*worktransformlin[1]))*pot);
+      }
+      else
+      {
+        like += (*response)*(*linpred)
+          - ((*worktransformlin[0])+(*response))*log((*worktransformlin[0])+mu);
+      }
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_zinb2_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+
+  double exp_linmu = exp((*linpred[2]));
+  double exp_linpi = exp((*linpred[1]))/(1+ exp((*linpred[1])));
+
+  *mu = (1-exp_linpi)*exp_linmu;
+
+  }
+
+
+void DISTR_zinb2_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (mu): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_zinb2_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+
+//------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_gengamma_tau --------------------------
 //------------------------------------------------------------------------------
 
