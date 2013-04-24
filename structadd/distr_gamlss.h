@@ -38,11 +38,11 @@ namespace MCMC
 //-------------------------- CLASS: DISTR_gamlss -------------------------------
 //------------------------------------------------------------------------------
 
-const double linpredlimit = -10.0;
-const double linpredlimitmax = 15.0;
-const double explinpredlimit = exp(linpredlimit);
-const double explinpredlimitmax = exp(linpredlimitmax);
-const double expminusexplinpredlimit = 0.9999546;     // for exp(-exp(eta))
+//const double linpredlimit = -10.0;
+//const double linpredlimitmax = 15.0;
+//const double explinpredlimit = exp(linpredlimit);
+//const double explinpredlimitmax = exp(linpredlimitmax);
+//const double expminusexplinpredlimit = 0.9999546;     // for exp(-exp(eta))
 
 class __EXPORT_TYPE DISTR_gamlss : public DISTR
   {
@@ -757,7 +757,6 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
   void update_end(void);
 
   };
-
 
 
 //------------------------------------------------------------------------------
