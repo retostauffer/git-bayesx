@@ -183,9 +183,9 @@ void superbayesreg::create_hregress(void)
   families.push_back("gengamma_mu");
   families.push_back("gengamma_sigma");
   families.push_back("gengamma_tau");
-    families.push_back("zinb2_mu");
-  families.push_back("zinb2_pi");
-  families.push_back("zinb2_delta");
+ //   families.push_back("zinb2_mu");
+ // families.push_back("zinb2_pi");
+ // families.push_back("zinb2_delta");
     families.push_back("weibull_mu");
   families.push_back("weibull_sigma");
   families.push_back("dagum_a");
@@ -501,14 +501,14 @@ void superbayesreg::clear(void)
   distr_gengamma_taus.erase(distr_gengamma_taus.begin(),distr_gengamma_taus.end());
   distr_gengamma_taus.reserve(20);
 
-    distr_zinb2_mus.erase(distr_zinb2_mus.begin(),distr_zinb2_mus.end());
-  distr_zinb2_mus.reserve(20);
+//    distr_zinb2_mus.erase(distr_zinb2_mus.begin(),distr_zinb2_mus.end());
+//  distr_zinb2_mus.reserve(20);
 
-  distr_zinb2_pis.erase(distr_zinb2_pis.begin(),distr_zinb2_pis.end());
-  distr_zinb2_pis.reserve(20);
+//  distr_zinb2_pis.erase(distr_zinb2_pis.begin(),distr_zinb2_pis.end());
+ // distr_zinb2_pis.reserve(20);
 
-  distr_zinb2_deltas.erase(distr_zinb2_deltas.begin(),distr_zinb2_deltas.end());
-  distr_zinb2_deltas.reserve(20);
+ // distr_zinb2_deltas.erase(distr_zinb2_deltas.begin(),distr_zinb2_deltas.end());
+ // distr_zinb2_deltas.reserve(20);
 
    distr_weibull_mus.erase(distr_weibull_mus.begin(),distr_weibull_mus.end());
   distr_weibull_mus.reserve(20);
@@ -698,9 +698,9 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gengamma_mus = b.distr_gengamma_mus;
   distr_gengamma_sigmas = b.distr_gengamma_sigmas;
   distr_gengamma_taus = b.distr_gengamma_taus;
-  distr_zinb2_mus = b.distr_zinb2_mus;
-  distr_zinb2_pis = b.distr_zinb2_pis;
-  distr_zinb2_deltas = b.distr_zinb2_deltas;
+//  distr_zinb2_mus = b.distr_zinb2_mus;
+ // distr_zinb2_pis = b.distr_zinb2_pis;
+ // distr_zinb2_deltas = b.distr_zinb2_deltas;
   distr_weibull_mus = b.distr_weibull_mus;
   distr_weibull_sigmas = b.distr_weibull_sigmas;
   distr_dagum_as = b.distr_dagum_as;
@@ -807,9 +807,9 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gengamma_mus = b.distr_gengamma_mus;
   distr_gengamma_sigmas = b.distr_gengamma_sigmas;
   distr_gengamma_taus = b.distr_gengamma_taus;
-  distr_zinb2_mus = b.distr_zinb2_mus;
-  distr_zinb2_pis = b.distr_zinb2_pis;
-  distr_zinb2_deltas = b.distr_zinb2_deltas;
+//  distr_zinb2_mus = b.distr_zinb2_mus;
+ // distr_zinb2_pis = b.distr_zinb2_pis;
+  //distr_zinb2_deltas = b.distr_zinb2_deltas;
   distr_weibull_mus = b.distr_weibull_mus;
   distr_weibull_sigmas = b.distr_weibull_sigmas;
   distr_dagum_as = b.distr_dagum_as;
@@ -1470,7 +1470,7 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: negbin mu -------------------------------
 
-
+/*
  //---------------------------------- zinb2_delta -----------------------------------
    else if (family.getvalue() == "zinb2_delta" && equationtype.getvalue()=="delta")
      {
@@ -1547,7 +1547,7 @@ bool superbayesreg::create_distribution(void)
 
      }
  //------------------------------ END: zinb2_mu ----------------------------------
-
+*/
   //---------------------------------- dagum_p -----------------------------------
    else if (family.getvalue() == "dagum_p" && equationtype.getvalue()=="shape")
      {
