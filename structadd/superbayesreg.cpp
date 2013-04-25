@@ -1577,7 +1577,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: zinb2_mu ----------------------------------
 */
   //---------------------------------- dagum_p -----------------------------------
-   else if (family.getvalue() == "dagum_p" && equationtype.getvalue()=="shape")
+   else if (family.getvalue() == "dagum_p" && equationtype.getvalue()=="shape2")
      {
 
      computemodeforstartingvalues = true;
@@ -1591,7 +1591,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: dagum_p ---------------------------------
 
  //---------------------------------- dagum_b --------------------------------
-   else if (family.getvalue() == "dagum_b" && equationtype.getvalue()=="scale")
+   else if (family.getvalue() == "dagum_b" && equationtype.getvalue()=="shape1")
      {
 
      computemodeforstartingvalues = true;
