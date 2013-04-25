@@ -206,10 +206,14 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("delta");
   equationtypes.push_back("sigma2");
   equationtypes.push_back("sigma");
-  equationtypes.push_back("tau");
-  equationtypes.push_back("a");
-  equationtypes.push_back("b");
-  equationtypes.push_back("p");
+  equationtypes.push_back("scale");
+  equationtypes.push_back("shape");
+  equationtypes.push_back("shape1");
+  equationtypes.push_back("shape2");
+ // equationtypes.push_back("tau");
+ // equationtypes.push_back("a");
+ // equationtypes.push_back("b");
+ // equationtypes.push_back("p");
   equationtype = stroption("equationtype",equationtypes,"mean");
 
   predictop.reserve(20);
@@ -952,11 +956,23 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": MAIN SCALE REGRESSION_"+ rn;
       equations[modnr].paths = "MAIN_SCALE_REGRESSION_"+ rn;
       }
-   else if (equations[modnr].equationtype == "tau")
+   else if (equations[modnr].equationtype == "shape")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN TAU REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_TAU_REGRESSION_"+ rn;
+                              ": MAIN SHAPE REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_SHAPE_REGRESSION_"+ rn;
+      }
+         else if (equations[modnr].equationtype == "shape1")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN SHAPE1 REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_SHAPE1_REGRESSION_"+ rn;
+      }
+         else if (equations[modnr].equationtype == "shape2")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN SHAPE2 REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_SHAPE2_REGRESSION_"+ rn;
       }
 
     else if (equations[modnr].equationtype == "meanservant")
@@ -1009,6 +1025,18 @@ void superbayesreg::make_header(unsigned & modnr)
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
                               ": RANDOM EFFECTS SHAPE REGRESSION";
       equations[modnr].paths = "RANDOM_EFFECTS_SHAPE";
+      }
+                  	else if (equations[modnr].equationtype == "shape1")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS SHAPE1 REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_SHAPE1";
+      }
+                  	else if (equations[modnr].equationtype == "shape2")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS SHAPE2 REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_SHAPE2";
       }
     }
 
@@ -1627,7 +1655,7 @@ bool superbayesreg::create_distribution(void)
 
 
  //---------------------------------- gengamma tau -----------------------------------
-   else if (family.getvalue() == "gengamma_tau" && equationtype.getvalue()=="tau")
+   else if (family.getvalue() == "gengamma_tau" && equationtype.getvalue()=="shape2")
      {
 
      computemodeforstartingvalues = true;
@@ -1641,7 +1669,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: gengamma tau ---------------------------------
 
  //---------------------------------- gengamma sigma --------------------------------
-   else if (family.getvalue() == "gengamma_sigma" && equationtype.getvalue()=="sigma")
+   else if (family.getvalue() == "gengamma_sigma" && equationtype.getvalue()=="shape1")
      {
 
      computemodeforstartingvalues = true;
@@ -1704,7 +1732,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: gengamma mu ----------------------------------
 
  //-------------------------------- weibull_sigma ---------------------------------
-  else if (family.getvalue() == "weibull_sigma" && equationtype.getvalue()=="sigma")
+  else if (family.getvalue() == "weibull_sigma" && equationtype.getvalue()=="shape")
     {
 
     computemodeforstartingvalues = true;
@@ -1754,7 +1782,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //-------------------------------- gamma_sigma ---------------------------------
-  else if (family.getvalue() == "gamma_sigma" && equationtype.getvalue()=="sigma")
+  else if (family.getvalue() == "gamma_sigma" && equationtype.getvalue()=="shape")
     {
 
     computemodeforstartingvalues = true;
