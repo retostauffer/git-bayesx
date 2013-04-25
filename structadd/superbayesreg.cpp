@@ -1832,7 +1832,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //-------------------------------- lognormal sigma2 ---------------------------------
-  else if (family.getvalue() == "lognormal_sigma2" && equationtype.getvalue()=="sigma2")
+  else if (family.getvalue() == "lognormal_sigma2" && equationtype.getvalue()=="scale")
     {
 
     computemodeforstartingvalues = true;
