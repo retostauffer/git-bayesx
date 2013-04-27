@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"distr_categorical_mult.h"
 #include"distr_mixture.h"
 #include"distr_gamlss.h"
+#include"distr_zeroadjusted.h"
 #include"distr_gamlss_nadja.h"
 
 #include"design.h"
@@ -109,15 +110,12 @@ using MCMC::DISTR_gamma_sigma;
 using MCMC::DISTR_gengamma_mu;
 using MCMC::DISTR_gengamma_sigma;
 using MCMC::DISTR_gengamma_tau;
-//using MCMC::DISTR_zinb2_mu;
-//using MCMC::DISTR_zinb2_pi;
-//using MCMC::DISTR_zinb2_delta;
+using MCMC::DISTR_zeroadjusted;
 using MCMC::DISTR_weibull_mu;
 using MCMC::DISTR_weibull_sigma;
 using MCMC::DISTR_dagum_a;
 using MCMC::DISTR_dagum_b;
 using MCMC::DISTR_dagum_p;
-
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -291,6 +289,10 @@ class __EXPORT_TYPE superbayesreg : public statobject
   doubleoption linpredmaxlimit;
   simpleoption saveestimation;
 
+  // options for zero adjusted
+
+  simpleoption zeroadjusted;
+
   // end: OPTIONS for method regress
 
  // ------------------------------- MASTER_OBJ ---------------------------------
@@ -337,14 +339,12 @@ class __EXPORT_TYPE superbayesreg : public statobject
    vector<DISTR_gengamma_mu> distr_gengamma_mus;
   vector<DISTR_gengamma_sigma> distr_gengamma_sigmas;
   vector<DISTR_gengamma_tau> distr_gengamma_taus;
- //   vector<DISTR_zinb2_mu> distr_zinb2_mus;
-  //vector<DISTR_zinb2_pi> distr_zinb2_pis;
-  //vector<DISTR_zinb2_delta> distr_zinb2_deltas;
   vector<DISTR_weibull_mu> distr_weibull_mus;
   vector<DISTR_weibull_sigma> distr_weibull_sigmas;
   vector<DISTR_dagum_a> distr_dagum_as;
   vector<DISTR_dagum_b> distr_dagum_bs;
   vector<DISTR_dagum_p> distr_dagum_ps;
+  vector<DISTR_zeroadjusted> distr_zeroadjusteds;
 
   bool create_distribution(void);
 

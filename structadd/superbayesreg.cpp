@@ -268,6 +268,7 @@ void superbayesreg::create_hregress(void)
   linpredmaxlimit = doubleoption("linpredmaxlimit",10000000000,-10000000000,10000000000);
   saveestimation = simpleoption("saveestimation",false);
 
+  zeroadjusted = simpleoption("zeroadjusted",false);
 
   regressoptions.reserve(200);
 
@@ -309,6 +310,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&linpredminlimit);
   regressoptions.push_back(&linpredmaxlimit);
   regressoptions.push_back(&saveestimation);
+  regressoptions.push_back(&zeroadjusted);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -505,16 +507,10 @@ void superbayesreg::clear(void)
   distr_gengamma_taus.erase(distr_gengamma_taus.begin(),distr_gengamma_taus.end());
   distr_gengamma_taus.reserve(20);
 
-//    distr_zinb2_mus.erase(distr_zinb2_mus.begin(),distr_zinb2_mus.end());
-//  distr_zinb2_mus.reserve(20);
+  distr_zeroadjusteds.erase(distr_zeroadjusteds.begin(),distr_zeroadjusteds.end());
+  distr_zeroadjusteds.reserve(20);
 
-//  distr_zinb2_pis.erase(distr_zinb2_pis.begin(),distr_zinb2_pis.end());
- // distr_zinb2_pis.reserve(20);
-
- // distr_zinb2_deltas.erase(distr_zinb2_deltas.begin(),distr_zinb2_deltas.end());
- // distr_zinb2_deltas.reserve(20);
-
-   distr_weibull_mus.erase(distr_weibull_mus.begin(),distr_weibull_mus.end());
+  distr_weibull_mus.erase(distr_weibull_mus.begin(),distr_weibull_mus.end());
   distr_weibull_mus.reserve(20);
 
   distr_weibull_sigmas.erase(distr_weibull_sigmas.begin(),distr_weibull_sigmas.end());
@@ -528,8 +524,6 @@ void superbayesreg::clear(void)
 
   distr_dagum_ps.erase(distr_dagum_ps.begin(),distr_dagum_ps.end());
   distr_dagum_ps.reserve(20);
-
-
 
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
@@ -702,14 +696,13 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gengamma_mus = b.distr_gengamma_mus;
   distr_gengamma_sigmas = b.distr_gengamma_sigmas;
   distr_gengamma_taus = b.distr_gengamma_taus;
-//  distr_zinb2_mus = b.distr_zinb2_mus;
- // distr_zinb2_pis = b.distr_zinb2_pis;
- // distr_zinb2_deltas = b.distr_zinb2_deltas;
+  distr_zeroadjusteds = b.distr_zeroadjusteds;
   distr_weibull_mus = b.distr_weibull_mus;
   distr_weibull_sigmas = b.distr_weibull_sigmas;
   distr_dagum_as = b.distr_dagum_as;
   distr_dagum_bs = b.distr_dagum_bs;
   distr_dagum_ps = b.distr_dagum_ps;
+
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -811,14 +804,13 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gengamma_mus = b.distr_gengamma_mus;
   distr_gengamma_sigmas = b.distr_gengamma_sigmas;
   distr_gengamma_taus = b.distr_gengamma_taus;
-//  distr_zinb2_mus = b.distr_zinb2_mus;
- // distr_zinb2_pis = b.distr_zinb2_pis;
-  //distr_zinb2_deltas = b.distr_zinb2_deltas;
+  distr_zeroadjusteds = b.distr_zeroadjusteds;
   distr_weibull_mus = b.distr_weibull_mus;
   distr_weibull_sigmas = b.distr_weibull_sigmas;
   distr_dagum_as = b.distr_dagum_as;
   distr_dagum_bs = b.distr_dagum_bs;
   distr_dagum_ps = b.distr_dagum_ps;
+
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -2397,6 +2389,13 @@ bool superbayesreg::create_distribution(void)
       max = equations[modnr].distrp->linpredmaxlimit;
 
     equations[modnr].distrp->changelimits(min,max);
+
+    }
+
+  if (zeroadjusted.getvalue() == true)
+    {
+
+
 
     }
 
