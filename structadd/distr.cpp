@@ -1436,6 +1436,10 @@ double DISTR_gaussian::get_scalemean(void)
     weightsone=false;
     updateIWLS = true;
     sigma2old=0;
+
+    linpredminlimit=-10;
+    linpredmaxlimit= 15;
+
     }
 
   // COPY CONSTRUCTOR

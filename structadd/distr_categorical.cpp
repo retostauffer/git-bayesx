@@ -31,10 +31,9 @@ namespace MCMC
 
 DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
                                              const datamatrix r,
- 																				     const datamatrix & w)
- 	: DISTR_binomial(o, r, w), H(h)
-	{
-
+                                             const datamatrix & w)
+  : DISTR_binomial(o, r, w), H(h)
+  {
 
   family = "Binomial_l1";
   updateIWLS = false;
@@ -66,7 +65,10 @@ DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
   weights_mixed(4,4) = 0.1089;
   weights_mixed(5,4) = 0.0090745;
 
-	}
+  linpredminlimit=-10;
+  linpredmaxlimit= 10;
+
+  }
 
 DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const DISTR_logit_fruehwirth & nd)
 	: DISTR_binomial(DISTR_binomial(nd)) , H(nd.H), SQ(nd.SQ), weights_mixed(nd.weights_mixed)
@@ -192,6 +194,10 @@ DISTR_binomial::DISTR_binomial(GENERAL_OPTIONS * o, const datamatrix & r,
 
   family = "Binomial";
   updateIWLS = true;
+
+  linpredminlimit=-10;
+  linpredmaxlimit= 10;
+
   }
 
 
@@ -428,6 +434,9 @@ DISTR_binomialprobit::DISTR_binomialprobit(GENERAL_OPTIONS * o,
   if (utilities)
     FC_latentutilities = FC(o,"",nrobs,1,ps);
 
+  linpredminlimit=-10;
+  linpredmaxlimit= 10;
+
   }
 
 
@@ -447,7 +456,7 @@ DISTR_binomialprobit::DISTR_binomialprobit(const DISTR_binomialprobit & nd)
    : DISTR(DISTR(nd))
   {
   utilities = nd.utilities;
-  FC_latentutilities = nd.FC_latentutilities;  
+  FC_latentutilities = nd.FC_latentutilities;
   }
 
 
@@ -487,7 +496,7 @@ double DISTR_binomialprobit::loglikelihood(double * response, double * linpred,
 
 
 double DISTR_binomialprobit::loglikelihood_weightsone(
-                                  double * response, double * linpred) 
+                                  double * response, double * linpred)
   {
 
   double mu = randnumbers::Phi2(*linpred);
@@ -958,6 +967,10 @@ DISTR_poisson::DISTR_poisson(GENERAL_OPTIONS * o, const datamatrix & r,
 
   family = "Poisson";
   updateIWLS = true;
+
+  linpredminlimit=-10;
+  linpredmaxlimit= 15;
+
   }
 
 
@@ -996,10 +1009,19 @@ double DISTR_poisson::get_intercept_start(void)
 double DISTR_poisson::loglikelihood(double * response, double * linpred,
                                      double * weight)
   {
-  if (*response==0)
-    return -(*weight)*exp(*linpred);
+
+  double lambda;
+  if (*linpred <= linpredminlimit)
+    lambda = exp(linpredminlimit);
+  else if (*linpred >= linpredmaxlimit)
+    lambda = exp(linpredmaxlimit);
   else
-    return *weight * ((*response) * (*linpred) - exp(*linpred));
+    lambda = exp(*linpred);
+
+  if (*response==0)
+    return -(*weight)* lambda;
+  else
+    return *weight * ((*response) * (*linpred) - lambda);
   }
 
 
@@ -1007,17 +1029,32 @@ double DISTR_poisson::loglikelihood_weightsone(
                                   double * response, double * linpred)
   {
 
-  if (*response==0)
-    return  - exp(*linpred);
+  double lambda;
+  if (*linpred <= linpredminlimit)
+    lambda = exp(linpredminlimit);
+  else if (*linpred >= linpredmaxlimit)
+    lambda = exp(linpredmaxlimit);
   else
-    return  (*response) * (*linpred) - exp(*linpred);
+    lambda = exp(*linpred);
+
+  if (*response==0)
+    return  -  lambda;
+  else
+    return  (*response) * (*linpred) - lambda;
 
   }
 
 
 void DISTR_poisson::compute_mu(const double * linpred,double * mu)
   {
-  *mu = exp(*linpred);
+
+  if (*linpred <= linpredminlimit)
+    *mu = exp(linpredminlimit);
+  else if (*linpred >= linpredmaxlimit)
+    *mu = exp(linpredmaxlimit);
+  else
+    *mu = exp(*linpred);
+
   }
 
 
@@ -1050,7 +1087,13 @@ double DISTR_poisson::compute_iwls(double * response, double * linpred,
                            double * workingresponse, const bool & like)
   {
 
-  double mu = exp(*linpred);
+  double mu;
+  if (*linpred <= linpredminlimit)
+    mu = exp(linpredminlimit);
+  else if (*linpred >= linpredmaxlimit)
+    mu = exp(linpredmaxlimit);
+  else
+    mu = exp(*linpred);
 
   *workingweight = *weight * mu;
 
@@ -1083,7 +1126,13 @@ void DISTR_poisson::compute_iwls_wweightschange_weightsone(
                                          const bool & compute_like)
   {
 
-  *workingweight = exp(*linpred);
+
+  if (*linpred <= linpredminlimit)
+    *workingweight = exp(linpredminlimit);
+  else if (*linpred >= linpredmaxlimit)
+    *workingweight = exp(linpredmaxlimit);
+  else
+    *workingweight = exp(*linpred);
 
   if (*response==0)
     {

@@ -203,60 +203,78 @@ void FC_hrandom::update_IWLS(void)
 
 
   betadiff.minus(beta,betaold);
-  designp->update_linpred(betadiff);
 
-  likep->compute_iwls(true,likelihoodn,designp->ind);
-  designp->compute_partres(partres,beta);
-
-  workpartres = partres.getV();
-  double * worklikelihoodn = likelihoodn.getV();
-  worklikelihoodc = likelihoodc.getV();
-  workWsum = designp->Wsum.getV();
-
-  betap = beta.getV();
-  betaoldp = betaold.getV();
-
-  if (likep_RE->linpred_current==1)
-    linpredREp = likep_RE->linearpred1.getV();
-  else
-    linpredREp = likep_RE->linearpred2.getV();
-
-  double * betadiffp = betadiff.getV();
-
-  for (i=0;i<beta.rows();i++,betap++,linpredREp++,betadiffp++,
-       betaoldp++,workpartres++,worklikelihoodn++,workWsum++,worklikelihoodc++)
-
+  bool ok;
+  if (optionsp->saveestimation)
     {
-
-    *worklikelihoodn -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
-
-    xwres =  lambda*(*linpredREp)+ (*workpartres);
-
-
-    var = 1/(*workWsum+lambda);
-    diff = *betaoldp - var * xwres;
-
-    *worklikelihoodn += -1.0/(2*var)* pow(diff,2)-0.5*log(var);
-
-
-    nrtrials++;
-    u = log(uniform());
-    if (u <= (*worklikelihoodn) - (*worklikelihoodc))
-      {
-      acceptance++;
-      *betaoldp = *betap;
-      *betadiffp = 0;
-      }
-    else
-      {
-      *betadiffp = *betaoldp - *betap;
-      *betap = *betaoldp;
-      }
-
+    ok = designp->update_linpred_save(betadiff);
+    if (!ok)
+      outsidelinpredlimits++;
+    }
+  else
+    {
+    designp->update_linpred(betadiff);
+    ok = true;
     }
 
-  designp->update_linpred(betadiff);
 
+  if (ok)
+    {
+    likep->compute_iwls(true,likelihoodn,designp->ind);
+    designp->compute_partres(partres,beta);
+
+    workpartres = partres.getV();
+    double * worklikelihoodn = likelihoodn.getV();
+    worklikelihoodc = likelihoodc.getV();
+    workWsum = designp->Wsum.getV();
+
+    betap = beta.getV();
+    betaoldp = betaold.getV();
+
+    if (likep_RE->linpred_current==1)
+      linpredREp = likep_RE->linearpred1.getV();
+    else
+      linpredREp = likep_RE->linearpred2.getV();
+
+    double * betadiffp = betadiff.getV();
+
+    for (i=0;i<beta.rows();i++,betap++,linpredREp++,betadiffp++,
+         betaoldp++,workpartres++,worklikelihoodn++,workWsum++,worklikelihoodc++)
+
+      {
+
+      *worklikelihoodn -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
+
+      xwres =  lambda*(*linpredREp)+ (*workpartres);
+
+
+      var = 1/(*workWsum+lambda);
+      diff = *betaoldp - var * xwres;
+
+      *worklikelihoodn += -1.0/(2*var)* pow(diff,2)-0.5*log(var);
+
+
+      nrtrials++;
+      u = log(uniform());
+      if (u <= (*worklikelihoodn) - (*worklikelihoodc))
+        {
+        acceptance++;
+        *betaoldp = *betap;
+        *betadiffp = 0;
+        }
+      else
+        {
+        *betadiffp = *betaoldp - *betap;
+        *betap = *betaoldp;
+        }
+
+      }
+
+    } // if ok
+  else
+    betadiff.minus(betaold,beta);
+
+  designp->update_linpred(betadiff);
 
   FC::update();
 
@@ -621,6 +639,8 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
     FC::outresults(out_stata,out_R,"");
     FCrcoeff.outresults(out_stata,out_R,"");
 
+    outresults_acceptance();
+
    if (computemeaneffect==true)
       meaneffect_sample.outresults(out_stata,out_R,"");
 
@@ -930,6 +950,7 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
   }
 
 } // end: namespace MCMC
+
 
 
 
