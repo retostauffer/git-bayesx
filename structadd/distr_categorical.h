@@ -131,6 +131,8 @@ class __EXPORT_TYPE DISTR_logit_fruehwirth : public DISTR_binomial
 
  public:
 
+ void check_errors(void);
+
  	// DEFAULT CONSTRUCTOR
 
  	DISTR_logit_fruehwirth(void) : DISTR_binomial()
@@ -313,7 +315,7 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
 
   void outresults(ST::string pathresults);
 
-  void get_samples(const ST::string & filename,ofstream & outg) const;    
+  void get_samples(const ST::string & filename,ofstream & outg) const;
 
   };
 
@@ -424,7 +426,7 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
                         const double * mu,double * deviance,
                         double * scale) const;
 
-  double get_intercept_start(void);                        
+  double get_intercept_start(void);
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);

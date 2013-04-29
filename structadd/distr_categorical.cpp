@@ -68,7 +68,53 @@ DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
   linpredminlimit=-10;
   linpredmaxlimit= 10;
 
+  check_errors();
+
   }
+
+
+
+void DISTR_logit_fruehwirth::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight == 1)
+        {
+        if (*workresp != 0 && *workresp!=1)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response must be either 0 or 1\n");
+          }
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: weighted regression not allowed\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+
 
 DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const DISTR_logit_fruehwirth & nd)
 	: DISTR_binomial(DISTR_binomial(nd)) , H(nd.H), SQ(nd.SQ), weights_mixed(nd.weights_mixed)
@@ -1292,7 +1338,7 @@ DISTR_poisson_ext::DISTR_poisson_ext(const DISTR_poisson_ext & nd)
   {
   a = nd.a;
   b = nd.b;
-  adapt = nd.adapt;  
+  adapt = nd.adapt;
   }
 
 
@@ -1524,7 +1570,7 @@ double DISTR_poisson_extlin::compute_iwls(double * response, double * linpred,
 
     }
 
-  return 0;  
+  return 0;
   }
 
 
