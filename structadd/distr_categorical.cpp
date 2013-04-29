@@ -198,6 +198,58 @@ DISTR_binomial::DISTR_binomial(GENERAL_OPTIONS * o, const datamatrix & r,
   linpredminlimit=-10;
   linpredmaxlimit= 10;
 
+  check_errors();
+  }
+
+
+void DISTR_binomial::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+        if (*workresp != int(*workresp))
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response cannot be binomial; values must be integer numbers\n");
+          }
+
+        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response cannot be binomial; some values are negative\n");
+          }
+
+        if (*workresp > *workweight)
+          {
+          errors = true;
+          errormessages.push_back("ERROR: response cannot be binomial;\n");
+          errormessages.push_back("       number of successes larger than number of trials for some values\n");
+          }
+
+        *workresp = *workresp/(*workweight);
+        }
+      else if (*workweight < 0)
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
   }
 
 

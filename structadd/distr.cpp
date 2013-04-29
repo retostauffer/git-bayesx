@@ -34,7 +34,14 @@ void DISTR::get_samples(const ST::string & filename,ofstream & outg) const
 
 void DISTR::check_errors(void)
   {
-  errors=false;
+  if (response.var(0) < 0.0000000001)
+    {
+    errormessages.push_back("ERROR: response is not varying \n");
+    errors=true;
+    }
+  else
+    errors=false;
+
   }
 
 bool DISTR::check_weightsone(void)
@@ -270,7 +277,7 @@ bool DISTR::check_linpred(bool current)
     if (*worklin > linpredmaxlimit)
       ok = false;
     if (*worklin < linpredminlimit)
-      ok = false;      
+      ok = false;
 
     worklin++;
     i++;
@@ -283,7 +290,7 @@ bool DISTR::check_linpred(bool current)
 void DISTR::changelimits(double min,double max)
   {
   linpredminlimit=min;
-  linpredmaxlimit=max;  
+  linpredmaxlimit=max;
   }
 
 
@@ -1688,7 +1695,7 @@ DISTR_hetgaussian::DISTR_hetgaussian(const DISTR_hetgaussian & nd)
   {
   weightoriginal = nd.weightoriginal;
   FCpredict_betamean_vargaussian = nd.FCpredict_betamean_vargaussian;
-  sigma2const = nd.sigma2const;  
+  sigma2const = nd.sigma2const;
   }
 
 

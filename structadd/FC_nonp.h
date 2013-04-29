@@ -81,17 +81,6 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void centerparam_sample(void);
 
 
-  FC pvalue_sample;                          // stores required quantities for
-                                             // computing p-values
-  bool pvalue;                               // compute pvalues, yes, no
-                                             // default no
-  datamatrix mPhelp;                         // help matrix for updating p-value
-                                             // information
-
-  void compute_pvalue(const ST::string & pathresults);
-  void update_pvalue(void);
-
-
   bool computemeaneffect;
   double meaneffectconstant;
   FC meaneffect_sample;
@@ -139,7 +128,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // t    : title of the full conditional (for example "fixed effects")
   // fp   : file path for storing sampled parameters
 
-  FC_nonp(MASTER_OBJ * mp,unsigned & enr ,GENERAL_OPTIONS * o,DISTR * lp, const ST::string & t,
+  FC_nonp(MASTER_OBJ * mp,unsigned & enr ,GENERAL_OPTIONS * o,DISTR * lp,
+          const ST::string & t,
            const ST::string & fp,DESIGN * dp,vector<ST::string> & op,
              vector<ST::string> & vn);
 
@@ -154,7 +144,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   // DESTRUCTOR
 
-  
+
   ~FC_nonp()
     {
     }
@@ -207,8 +197,6 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // TASK: resets all parameters
 
   void reset(void);
-
-//  virtual void transform_beta(void);
 
   void compute_autocorr_all(const ST::string & path,
                                       unsigned lag, ofstream & outg) const;

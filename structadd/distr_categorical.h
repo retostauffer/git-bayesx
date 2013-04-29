@@ -43,8 +43,9 @@ class __EXPORT_TYPE DISTR_binomial : public DISTR
 
   protected:
 
-
   public:
+
+  void check_errors(void);
 
    // DEFAULT CONSTRUCTOR
 

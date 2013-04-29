@@ -73,11 +73,6 @@ void FC_hrandom::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   if (op[17] == "true")
     rtype = multexp;
 
-  if (op[18] == "true")
-    pvalue = true;
-  else
-    pvalue = false;
-
   }
 
 FC_hrandom::FC_hrandom(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
@@ -937,10 +932,6 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
 
       outres << endl;
       }
-
-
-    if (pvalue)
-      FC_nonp::compute_pvalue(pathresults);
 
 
     }
