@@ -38,14 +38,6 @@ namespace MCMC
 //-------------------------- CLASS: DISTR_gamlss -------------------------------
 //------------------------------------------------------------------------------
 
-/*
-const double linpredlimit = -10.0;
-const double linpredlimitmax = 15.0;
-const double explinpredlimit = exp(linpredlimit);
-const double explinpredlimitmax = exp(linpredlimitmax);
-const double expminusexplinpredlimit = 0.9999546;     // for exp(-exp(eta))
-*/
-
 class __EXPORT_TYPE DISTR_gamlss : public DISTR
   {
 
@@ -139,9 +131,9 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
   double delta_plus_mu;
 
   datamatrix E_dig_y_delta_m;
-  datamatrix E_trig_y_delta_m;  
+  datamatrix E_trig_y_delta_m;
   double * Ep;
-  double * Ep_trig;  
+  double * Ep_trig;
 
 
   double stopsum;
@@ -189,15 +181,6 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
                                               double & like,
                                               const bool & compute_like);
 
-/*
-  void compute_iwls_wweightschange_weightsone_slow(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-*/
-
   void outoptions(void);
 
   void update_end(void);
@@ -216,6 +199,8 @@ class __EXPORT_TYPE DISTR_negbin_mu : public DISTR_gamlss
 
 
   public:
+
+  void check_errors(void);
 
    // DEFAULT CONSTRUCTOR
 
@@ -278,6 +263,8 @@ class __EXPORT_TYPE DISTR_zip_cloglog_mu : public DISTR_gamlss
 
 
   public:
+
+  void check_errors(void);
 
    // DEFAULT CONSTRUCTOR
 
@@ -408,6 +395,8 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
 
   DISTR*  distrpi;
   DISTR*  distrdelta;
+
+  void check_errors(void);
 
    // DEFAULT CONSTRUCTOR
 
@@ -564,33 +553,9 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
   int nrbetween;
 
   //----------------------------------------------------------------------------
-/*
-  double delta;
-  double delta2;
-  double deltay;
-  double dig_deltay;
-  double dig_delta;
-  double trig_deltay;
-  double trig_delta;
-  double deltamu;
-  double delta_div_deltamu;
-  double log_delta_div_deltamu;
-  double mu_m_y_div_delta_m_mu;
-  double pi;
-  double mu_div_deltamu;
-  double pot;
-  double denom;
-  double sum;
-  double log_one_explinpi;
-  double log_explinpi_pot;
-  double lng_delta;
-  double delta_linpred;
-  double log_delta_mu;
-  double E_dig_y_delta;
-  double E_trig_y_delta;
-*/
+
   datamatrix E_dig_y_delta_m;
-  datamatrix E_trig_y_delta_m;  
+  datamatrix E_trig_y_delta_m;
   double * Ep;
   double * Ep_trig;
 
@@ -656,15 +621,6 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
                                               double & like,
                                               const bool & compute_like);
 
-/*
-  void compute_iwls_wweightschange_weightsone_slow(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-*/
-
   double compute_iwls(double * response, double * linpred,
                                      double * weight, double * workingweight,
                                      double * workingresponse,
@@ -702,11 +658,13 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
 
   DISTR*  distrpi;
 
+  void check_errors(void);
+
    // DEFAULT CONSTRUCTOR
 
-   DISTR_ziplambda(void) : DISTR()
-     {
-     }
+  DISTR_ziplambda(void) : DISTR()
+    {
+    }
 
    // CONSTRUCTOR
 
@@ -834,7 +792,6 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
   void update_end(void);
 
   };
-
 
 
 } // end: namespace MCMC

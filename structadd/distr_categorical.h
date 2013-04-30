@@ -250,6 +250,8 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
 
   public:
 
+  void check_errors(void);
+
    // DEFAULT CONSTRUCTOR
 
    DISTR_binomialprobit(void) : DISTR()
@@ -396,6 +398,8 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
   protected:
 
   public:
+
+  void check_errors(void);
 
    // DEFAULT CONSTRUCTOR
 

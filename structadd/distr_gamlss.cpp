@@ -27,7 +27,6 @@ namespace MCMC
 //------------------------- CLASS: DISTR_negbin_delta --------------------------
 //------------------------------------------------------------------------------
 
-
 DISTR_negbin_delta::DISTR_negbin_delta(GENERAL_OPTIONS * o,
                                        const datamatrix & r,
                                        double & ss, int & strmax,
@@ -305,6 +304,52 @@ void DISTR_negbin_delta::update_end(void)
 //------------------------- CLASS: DISTR_negbin_mu -----------------------------
 //------------------------------------------------------------------------------
 
+void DISTR_negbin_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+        if (*workresp != int(*workresp))
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response must be integer values\n");
+          }
+
+        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
 
 DISTR_negbin_mu::DISTR_negbin_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
@@ -315,6 +360,8 @@ DISTR_negbin_mu::DISTR_negbin_mu(GENERAL_OPTIONS * o,
 
   linpredminlimit=-10;
   linpredmaxlimit=15;
+
+  check_errors();
   }
 
 
@@ -629,6 +676,52 @@ void DISTR_zip_cloglog_pi::update_end(void)
 //----------------------- CLASS: DISTR_zip_cloglog_mu --------------------------
 //------------------------------------------------------------------------------
 
+void DISTR_zip_cloglog_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+        if (*workresp != int(*workresp))
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response must be integer values\n");
+          }
+
+        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
 
 DISTR_zip_cloglog_mu::DISTR_zip_cloglog_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
@@ -639,6 +732,8 @@ DISTR_zip_cloglog_mu::DISTR_zip_cloglog_mu(GENERAL_OPTIONS * o,
 
   linpredminlimit=-10;
   linpredmaxlimit=15;
+
+  check_errors();
   }
 
 
@@ -1042,6 +1137,52 @@ void DISTR_gamlss::update_end(void)
 //------------------------------------------------------------------------------
 //------------------------- CLASS DISTR_negbinzip_mu ---------------------------
 //------------------------------------------------------------------------------
+
+void DISTR_negbinzip_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+        if (*workresp != int(*workresp))
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response must be integer values\n");
+          }
+
+        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
 
 
 DISTR_negbinzip_mu::DISTR_negbinzip_mu(GENERAL_OPTIONS * o, const datamatrix & r,
@@ -2192,6 +2333,53 @@ void DISTR_negbinzip_delta::update_end(void)
 //---------------------- CLASS DISTRIBUTION_ziplambda --------------------------
 //------------------------------------------------------------------------------
 
+void DISTR_ziplambda::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+        if (*workresp != int(*workresp))
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response must be integer values\n");
+          }
+
+        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
 DISTR_ziplambda::DISTR_ziplambda(GENERAL_OPTIONS * o, const datamatrix & r,
                                  const datamatrix & w)
   : DISTR(o,r,w)
@@ -2212,6 +2400,8 @@ DISTR_ziplambda::DISTR_ziplambda(GENERAL_OPTIONS * o, const datamatrix & r,
 
   linpredminlimit=-10;
   linpredmaxlimit=15;
+
+  check_errors();
   }
 
 

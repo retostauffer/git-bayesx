@@ -114,9 +114,7 @@ void DISTR_logit_fruehwirth::check_errors(void)
   }
 
 
-
-
-DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const DISTR_logit_fruehwirth & nd)
+DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const DISTR_logit_fruehwirth & nd)
 	: DISTR_binomial(DISTR_binomial(nd)) , H(nd.H), SQ(nd.SQ), weights_mixed(nd.weights_mixed)
 	{
 	}
@@ -534,6 +532,46 @@ DISTR_binomialprobit::DISTR_binomialprobit(GENERAL_OPTIONS * o,
 
   linpredminlimit=-10;
   linpredmaxlimit= 10;
+
+  }
+
+
+void DISTR_binomialprobit::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight == 1)
+        {
+        if (*workresp != 0 && *workresp!=1)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response must be either 0 or 1\n");
+          }
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: weighted regression not allowed\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
 
   }
 
@@ -1051,6 +1089,53 @@ void DISTR_binomialsvm::update(void)
 //----------------------- CLASS DISTRIBUTION_poisson ---------------------------
 //------------------------------------------------------------------------------
 
+void DISTR_poisson::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+        if (*workresp != int(*workresp))
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response must be integer values\n");
+          }
+
+        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
 
 DISTR_poisson::DISTR_poisson(GENERAL_OPTIONS * o, const datamatrix & r,
                                const datamatrix & w)
@@ -1069,6 +1154,7 @@ DISTR_poisson::DISTR_poisson(GENERAL_OPTIONS * o, const datamatrix & r,
   linpredminlimit=-10;
   linpredmaxlimit= 15;
 
+  check_errors();
   }
 
 
