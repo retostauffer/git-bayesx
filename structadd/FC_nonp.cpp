@@ -556,6 +556,7 @@ void FC_nonp::update_gaussian_transform(void)
     ok = designp->update_linpred_save(betadiff);
     if (!ok)
       {
+      unsigned it = optionsp->nriter;
       outsidelinpredlimits++;
       betadiff.minus(betaold,beta);
       designp->update_linpred(betadiff);

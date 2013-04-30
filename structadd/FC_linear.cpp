@@ -342,10 +342,33 @@ void FC_linear::update_gaussian(void)
     else
       likep->linearpred2.addmult(design,betadiff);
 
-    betaold.assign(beta);
+    bool ok;
+    if (optionsp->saveestimation)
+      {
+      ok = likep->check_linpred();
+      if (!ok)
+        outsidelinpredlimits++;
+      }
+    else
+      ok = true;
 
-//    transform(0,0) = likep->trmult;
-    acceptance++;
+    if (ok)
+      {
+      betaold.assign(beta);
+
+      acceptance++;
+      }
+    else
+      {
+      betadiff.minus(betaold,beta);
+
+      if (likep->linpred_current==1)
+        likep->linearpred1.addmult(design,betadiff);
+      else
+        likep->linearpred2.addmult(design,betadiff);
+
+      beta.assign(betaold);
+      }
 
     FC::update();
     }

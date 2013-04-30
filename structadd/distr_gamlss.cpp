@@ -1369,8 +1369,8 @@ void DISTR_negbinzip_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   double max = distrpi->linpredmaxlimit;
   if (*linpred[1] <= min)
     explinpi = exp(min);
-  else if (*linpred[1] >= max)
-    explinpi = exp(max);
+// else if (*linpred[1] >= max)
+//    explinpi = exp(max);
   else
     explinpi = exp(*linpred[1]);
 
@@ -1400,8 +1400,8 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
   double max = distrpi->linpredmaxlimit;
   if (*linpred[1] <= min)
     explinpi = exp(min);
-  else if (*linpred[1] >= max)
-    explinpi = exp(max);
+//  else if (*linpred[1] >= max)
+//    explinpi = exp(max);
   else
     explinpi = exp(*linpred[1]);
 
@@ -1720,8 +1720,8 @@ double DISTR_negbinzip_pi::loglikelihood_weightsone(
   double explinpredpi;
   if (*linpred <= linpredminlimit)
     explinpredpi = exp(linpredminlimit);
-  else if (*linpred >= linpredmaxlimit)
-    explinpredpi = exp(linpredmaxlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    explinpredpi = exp(linpredmaxlimit);
   else
     explinpredpi = exp(*linpred);
 
@@ -1787,8 +1787,8 @@ void DISTR_negbinzip_pi::compute_iwls_wweightschange_weightsone(
   double explinpredpi;
   if (*linpred <= linpredminlimit)
     explinpredpi = exp(linpredminlimit);
-  else if (*linpred >= linpredmaxlimit)
-    explinpredpi = exp(linpredmaxlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    explinpredpi = exp(linpredmaxlimit);
   else
     explinpredpi = exp(*linpred);
 
@@ -1849,8 +1849,8 @@ void DISTR_negbinzip_pi::update_end(void)
 
     if (*worklin <= linpredminlimit)
       *workexplin = exp(linpredminlimit);
-    else if (*worklin >= linpredmaxlimit)
-      *workexplin = exp(linpredmaxlimit);
+//    else if (*worklin >= linpredmaxlimit)
+//      *workexplin = exp(linpredmaxlimit);
     else
       *workexplin = exp(*worklin);
 
@@ -2068,14 +2068,6 @@ double DISTR_negbinzip_delta::loglikelihood_weightsone(double * response,
   else
     delta = exp(*linpred);
 
-/*
-  double delta;
-  if (*linpred <= linpredlimit)
-    delta  = explinpredlimit;
-  else
-    delta = exp(*linpred);
-*/
-
   double y_plus_delta = (*response)+delta;
   double delta_plus_mu = delta + (*workexplinmu);
   double delta_div_delta_plus_mu = delta/delta_plus_mu;
@@ -2154,14 +2146,6 @@ void DISTR_negbinzip_delta::compute_iwls_wweightschange_weightsone(
   else
     delta = exp(*linpred);
 
-
-/*
-    double delta;
-    if (*linpred <= linpredlimit)
-      delta  = explinpredlimit;
-    else
-      delta = exp(*linpred);
-*/
 
     double delta2 = delta*delta;
 
@@ -2318,12 +2302,6 @@ void DISTR_negbinzip_delta::update_end(void)
     else
       *l = exp(*worklin);
 
-/*
-    if (*worklin <= linpredlimit)
-      *l  = explinpredlimit;
-    else
-      *l = exp(*worklin);
-*/
     }
 
   }
@@ -2544,8 +2522,8 @@ void DISTR_ziplambda::compute_mu_mult(vector<double *> linpred,double * mu)
   double explinpi;
   if (*linpred[0] <= distrpi->linpredminlimit)
     explinpi = exp(distrpi->linpredminlimit);
-  else if (*linpred[0] >= distrpi->linpredmaxlimit)
-    explinpi = exp(distrpi->linpredmaxlimit);
+//  else if (*linpred[0] >= distrpi->linpredmaxlimit)
+//    explinpi = exp(distrpi->linpredmaxlimit);
   else
     explinpi = exp(*linpred[0]);
 
@@ -2583,8 +2561,8 @@ void DISTR_ziplambda::compute_deviance_mult(vector<double *> response,
 
      if (*linpred[0] <= distrpi->linpredminlimit)
        explinpi = exp(distrpi->linpredminlimit);
-     else if (*linpred[0] >= distrpi->linpredmaxlimit)
-       explinpi = exp(distrpi->linpredmaxlimit);
+//     else if (*linpred[0] >= distrpi->linpredmaxlimit)
+//       explinpi = exp(distrpi->linpredmaxlimit);
      else
        explinpi = exp(*linpred[0]);
 
@@ -2870,8 +2848,8 @@ double DISTR_zippi::loglikelihood_weightsone(
   double exptildeeta;
   if (*linpred <= linpredminlimit)
     exptildeeta = exp(linpredminlimit);
-  else if (*linpred >= linpredmaxlimit)
-    exptildeeta = exp(linpredmaxlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    exptildeeta = exp(linpredmaxlimit);
   else
     exptildeeta = exp(*linpred);
 
@@ -2939,8 +2917,8 @@ void DISTR_zippi::compute_iwls_wweightschange_weightsone(
   double exptildeeta;
   if (*linpred <= linpredminlimit)
     exptildeeta = exp(linpredminlimit);
-  else if (*linpred >= linpredmaxlimit)
-    exptildeeta = exp(linpredmaxlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    exptildeeta = exp(linpredmaxlimit);
   else
     exptildeeta = exp(*linpred);
 
@@ -3002,8 +2980,8 @@ void DISTR_zippi::update_end(void)
 
     if (*worklin <= linpredminlimit)
       *ete = exp(linpredminlimit);
-    else if (*worklin >= linpredmaxlimit)
-      *ete = exp(linpredmaxlimit);
+ //   else if (*worklin >= linpredmaxlimit)
+ //     *ete = exp(linpredmaxlimit);
     else
       *ete = exp(*worklin);
 
