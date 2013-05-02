@@ -119,12 +119,12 @@ using MCMC::DISTR_weibull_mu;
 using MCMC::DISTR_weibull_sigma;
 using MCMC::DISTR_dagum_a;
 using MCMC::DISTR_dagum_b;
-using MCMC::DISTR_dagum_p;/*
+using MCMC::DISTR_dagum_p;
 using MCMC::DISTR_betainf_mu;
 using MCMC::DISTR_betainf_sigma2;
 using MCMC::DISTR_betainf_nu;
 using MCMC::DISTR_betainf_tau;
-*/
+
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
 using MCMC::DESIGN_mrf;
@@ -353,11 +353,11 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_dagum_b> distr_dagum_bs;
   vector<DISTR_dagum_p> distr_dagum_ps;
   vector<DISTR_zeroadjusted> distr_zeroadjusteds;
- /* vector<DISTR_betainf_mu> distr_betainf_mus;
+  vector<DISTR_betainf_mu> distr_betainf_mus;
   vector<DISTR_betainf_sigma2> distr_betainf_sigma2s;
   vector<DISTR_betainf_nu> distr_betainf_nus;
   vector<DISTR_betainf_tau> distr_betainf_taus;
-*/
+
   bool create_distribution(void);
 
   bool resultsyesno;

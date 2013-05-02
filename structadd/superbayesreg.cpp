@@ -195,10 +195,10 @@ void superbayesreg::create_hregress(void)
   families.push_back("dagum_a");
   families.push_back("dagum_b");
   families.push_back("dagum_p");
-//  families.push_back("betainf_mu");
-//  families.push_back("betainf_sigma2");
-//  families.push_back("betainf_nu");
-//  families.push_back("betainf_tau");
+  families.push_back("betainf_mu");
+  families.push_back("betainf_sigma2");
+  families.push_back("betainf_nu");
+  families.push_back("betainf_tau");
   families.push_back("zero_adjusted");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
@@ -546,7 +546,7 @@ void superbayesreg::clear(void)
   distr_dagum_ps.erase(distr_dagum_ps.begin(),distr_dagum_ps.end());
   distr_dagum_ps.reserve(20);
 
-/*  distr_betainf_mus.erase(distr_betainf_mus.begin(),distr_betainf_mus.end());
+  distr_betainf_mus.erase(distr_betainf_mus.begin(),distr_betainf_mus.end());
   distr_betainf_mus.reserve(20);
 
   distr_betainf_sigma2s.erase(distr_betainf_sigma2s.begin(),distr_betainf_sigma2s.end());
@@ -557,7 +557,7 @@ void superbayesreg::clear(void)
 
   distr_betainf_taus.erase(distr_betainf_taus.begin(),distr_betainf_taus.end());
   distr_betainf_taus.reserve(20);
-*/
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -739,11 +739,11 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_dagum_as = b.distr_dagum_as;
   distr_dagum_bs = b.distr_dagum_bs;
   distr_dagum_ps = b.distr_dagum_ps;
-/*  distr_betainf_mus = b.distr_betainf_mus;
+  distr_betainf_mus = b.distr_betainf_mus;
   distr_betainf_sigma2s = b.distr_betainf_sigma2s;
   distr_betainf_nus = b.distr_betainf_nus;
   distr_betainf_taus = b.distr_betainf_taus;
-*/
+
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -855,11 +855,11 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_dagum_as = b.distr_dagum_as;
   distr_dagum_bs = b.distr_dagum_bs;
   distr_dagum_ps = b.distr_dagum_ps;
-/*  distr_betainf_mus = b.distr_betainf_mus;
+  distr_betainf_mus = b.distr_betainf_mus;
   distr_betainf_sigma2s = b.distr_betainf_sigma2s;
   distr_betainf_nus = b.distr_betainf_nus;
   distr_betainf_taus = b.distr_betainf_taus;
-*/
+
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -1564,7 +1564,7 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: negbin mu -------------------------------
-/*
+
 //-------------------------------- betainf_mu ---------------------------------
   else if (family.getvalue() == "betainf_mu" && equationtype.getvalue()=="mu")
     {
@@ -1626,6 +1626,7 @@ bool superbayesreg::create_distribution(void)
 
     predict_mult_distrs.push_back(&distr_betainf_taus[distr_betainf_taus.size()-1]);
     predict_mult_distrs.push_back(&distr_betainf_nus[distr_betainf_nus.size()-1]);
+    predict_mult_distrs.push_back(&distr_betainf_sigma2s[distr_betainf_sigma2s.size()-1]);
     predict_mult_distrs.push_back(&distr_betainf_mus[distr_betainf_mus.size()-1]);
 
     if (distr_betainf_sigma2s.size() != 1)
@@ -1662,7 +1663,7 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: betainf_tau -------------------------------
 
-*/
+
 /*
  //---------------------------------- zinb2_delta -----------------------------------
    else if (family.getvalue() == "zinb2_delta" && equationtype.getvalue()=="delta")
