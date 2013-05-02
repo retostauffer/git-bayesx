@@ -27,14 +27,47 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
 
-DISTR_zeroadjusted::DISTR_zeroadjusted(GENERAL_OPTIONS * o,
-                                       const datamatrix & r,
-                                       unsigned nrdistr,
-                                       const datamatrix & w)
-  : DISTR(o,r,w)
+DISTR_zeroadjusted::DISTR_zeroadjusted(GENERAL_OPTIONS * o,DISTR* dpi,
+                                       DISTR* dmu)
+
 
   {
+  optionsp = o;
+  distrp_pi = dpi;
+  distrp_mu = dmu;
 
+  response = distrp_pi->response;
+  workingresponse = response;
+
+  maindistribution=true;
+  predict_mult=false;
+
+  nrobs = response.rows();
+
+/*
+  if (w.rows() == 1)
+    {
+    weight = datamatrix(r.rows(),1,1);
+    }
+  else
+    {
+    weight = w;
+    }
+
+  workingweight = weight;
+
+  weightsone = check_weightsone();
+
+  nrzeroweights = compute_nrzeroweights();
+
+  wtype = wweightschange_weightsneqone;
+
+  weightname = "W";
+*/
+  linearpred1 = datamatrix(nrobs,1,0);
+  linearpred2 = datamatrix(nrobs,1,0);
+
+  linpred_current = 1;
 
   }
 

@@ -56,8 +56,7 @@ class __EXPORT_TYPE DISTR_zeroadjusted : public DISTR
 
    // CONSTRUCTOR
 
-  DISTR_zeroadjusted(GENERAL_OPTIONS * o, const datamatrix & r,unsigned nrdistr,
-                   const datamatrix & w=datamatrix());
+  DISTR_zeroadjusted(GENERAL_OPTIONS * o,DISTR* dpi,DISTR* dmu);
 
    // COPY CONSTRUCTOR
 

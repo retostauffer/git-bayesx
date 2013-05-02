@@ -297,10 +297,6 @@ class __EXPORT_TYPE superbayesreg : public statobject
   doubleoption linpredmaxlimit;
   simpleoption saveestimation;
 
-  // options for zero adjusted
-
-  simpleoption zeroadjusted;
-
   // end: OPTIONS for method regress
 
  // ------------------------------- MASTER_OBJ ---------------------------------

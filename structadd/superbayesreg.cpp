@@ -199,6 +199,7 @@ void superbayesreg::create_hregress(void)
 //  families.push_back("betainf_sigma2");
 //  families.push_back("betainf_nu");
 //  families.push_back("betainf_tau");
+  families.push_back("zero_adjusted");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -278,8 +279,6 @@ void superbayesreg::create_hregress(void)
   linpredmaxlimit = doubleoption("linpredmaxlimit",10000000000,-10000000000,10000000000);
   saveestimation = simpleoption("saveestimation",false);
 
-  zeroadjusted = simpleoption("zeroadjusted",false);
-
   regressoptions.reserve(200);
 
   regressoptions.push_back(&modeonly);
@@ -320,7 +319,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&linpredminlimit);
   regressoptions.push_back(&linpredmaxlimit);
   regressoptions.push_back(&saveestimation);
-  regressoptions.push_back(&zeroadjusted);
+
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -2233,6 +2232,30 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: ZIP lambda ------------------------------
 
 
+//------------------------------  Zero adjusted --------------------------------
+
+  else if (family.getvalue() == "zero_adjusted")
+    {
+
+    computemodeforstartingvalues = true;
+
+    DISTR * help_b = &distr_binomials[distr_binomials.size()-1];
+    DISTR * help_m = &distr_gaussians[distr_gaussians.size()-1];
+
+
+    distr_zeroadjusteds.push_back(DISTR_zeroadjusted(&generaloptions,
+    help_b,help_m));
+
+    equations[modnr].distrp = &distr_zeroadjusteds[distr_zeroadjusteds.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(help_b);
+    predict_mult_distrs.push_back(&distr_zeroadjusteds[distr_zeroadjusteds.size()-1]);
+
+    }
+
+//------------------------------  Zero adjusted --------------------------------
+
 //-------------------------------- ZIP pi cloglog ------------------------------
   else if (family.getvalue() == "zip_pi_cloglog" && equationtype.getvalue()=="pi")
     {
@@ -2660,12 +2683,6 @@ bool superbayesreg::create_distribution(void)
 
     }
 
-  if (zeroadjusted.getvalue() == true)
-    {
-
-
-
-    }
 
 
   if (equations[modnr].hlevel==1)
