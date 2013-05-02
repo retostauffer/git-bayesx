@@ -204,7 +204,10 @@ void FC_hrandom::update_IWLS(void)
     {
     ok = designp->update_linpred_save(betadiff);
     if (!ok)
+      {
+      int i = optionsp->nriter;
       outsidelinpredlimits++;
+      }
     }
   else
     {

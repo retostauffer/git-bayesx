@@ -279,10 +279,6 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   }
 
 
-
-
-
-
 void FC_nonp::get_linparam(void)
   {
   int pos = designp->position_lin;
@@ -290,7 +286,6 @@ void FC_nonp::get_linparam(void)
   for (i=0;i<paramlin.rows();i++)
     paramlin(i,0) = designp->FClinearp->beta(pos+i,0);
   }
-
 
 
 void FC_nonp::perform_centering(void)
@@ -554,9 +549,9 @@ void FC_nonp::update_gaussian_transform(void)
   if (optionsp->saveestimation)
     {
     ok = designp->update_linpred_save(betadiff);
+
     if (!ok)
       {
-      unsigned it = optionsp->nriter;
       outsidelinpredlimits++;
       betadiff.minus(betaold,beta);
       designp->update_linpred(betadiff);
@@ -608,6 +603,8 @@ void FC_nonp::update_gaussian(void)
     bool lambdaconst = false;
 
     betaold.assign(beta);
+    if (optionsp->saveestimation)
+      paramold.assign(param);
 
     double sigmaresp = sqrt(likep->get_scale());
     lambda = likep->get_scale()/tau2;
@@ -656,14 +653,34 @@ void FC_nonp::update_gaussian(void)
 
     betadiff.minus(beta,betaold);
 
-    designp->update_linpred(betadiff);
+    bool ok;
+    if (optionsp->saveestimation)
+      {
+      ok = designp->update_linpred_save(betadiff);
+
+      if (!ok)
+        {
+        outsidelinpredlimits++;
+        betadiff.minus(betaold,beta);
+        designp->update_linpred(betadiff);
+        beta.assign(betaold);
+        param.assign(paramold);
+        }
+      else
+        acceptance++;
+      }
+    else
+      {
+      designp->update_linpred(betadiff);
+      ok = true;
+      acceptance++;
+      }
+
 
     // TEST
     // ofstream out("c:\\bayesx\\testh\\results\\beta_re.res");
     // beta.prettyPrint(out);
     // TEST
-
-    acceptance++;
 
     if (designp->position_lin!=-1)
       {
@@ -706,6 +723,9 @@ void FC_nonp::update_isotonic(void)
   lambda = likep->get_scale()/tau2;
 
   betaold.assign(beta);
+  if (optionsp->saveestimation)
+    paramold.assign(param);
+
 
   designp->compute_partres(partres,beta);
 
@@ -745,7 +765,7 @@ void FC_nonp::update_isotonic(void)
       paramp = param.getV();
       for (j=0;j<i;j++,paramp++)    // links
         {
-//        mu+= param(j,0)*designp->precision(i,j);
+        // mu+= param(j,0)*designp->precision(i,j);
         mu+= (*paramp) * designp->precision(i,j);
         }
 
@@ -754,11 +774,11 @@ void FC_nonp::update_isotonic(void)
       paramp = param.getV()+i+1;
       for (j=i+1;j<param.rows();j++,paramp++)  // rechts
         {
-//        mu+= param(j,0)*designp->precision(i,j);
+        // mu+= param(j,0)*designp->precision(i,j);
         mu+= (*paramp)*designp->precision(i,j);
         }
 
-//      mu = ((*(designp->XWres_p))(i,0) -mu)/designp->precision(i,i);
+      // mu = ((*(designp->XWres_p))(i,0) -mu)/designp->precision(i,i);
       mu = (*XWresp -mu)/designp->precision(i,i);
 
       s = sqrt(sigma2resp/designp->precision(i,i));
@@ -806,41 +826,46 @@ void FC_nonp::update_isotonic(void)
 
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
-  if (derivative)
-    designp->compute_f_derivative(param,paramlin,derivativesample.beta,
-                                    derivativesample.beta);
-
   betadiff.minus(beta,betaold);
 
-  designp->update_linpred(betadiff);
+  bool ok;
+  if (optionsp->saveestimation)
+    {
+    ok = designp->update_linpred_save(betadiff);
 
-  acceptance++;
+    if (!ok)
+      {
+      outsidelinpredlimits++;
+      betadiff.minus(betaold,beta);
+      designp->update_linpred(betadiff);
+      beta.assign(betaold);
+      param.assign(paramold);
+      }
+    else
+      acceptance++;
+    }
+  else
+    {
+    designp->update_linpred(betadiff);
+    ok = true;
+    acceptance++;
+    }
 
   if (designp->position_lin!=-1)
     {
     fsample.update();
     }
 
-  // TEST
-  // ofstream out("c:\\bayesx\\testh\\results\\beta_f.res");
-  // beta.prettyPrint(out);
-  // TEST
-
   paramsample.beta.assign(param);
   paramsample.update();
 
   if (derivative)
+    {
+    designp->compute_f_derivative(param,paramlin,derivativesample.beta,
+                                    derivativesample.beta);
+
     derivativesample.update();
-
-  // TEST
-  // ofstream out0_1("c:\\bayesx\\testh\\results\\beta_f.res");
-  // beta.prettyPrint(out0_1);
-  // out0_1.close();
-
-  // ofstream out00_1("c:\\bayesx\\testh\\results\\intvar_f.res");
-  // designp->intvar.prettyPrint(out00_1);
-  // out00_1.close();
-  // TEST
+    }
 
   FC::update();
 

@@ -315,6 +315,7 @@ void FC_linear::update_gaussian(void)
   {
   if ((datanames.size() > 0) && (rankXWX_ok==true))
     {
+
     if (!initialize)
       create_matrices();
 
