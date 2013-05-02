@@ -24,9 +24,1397 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_dagum_p --------------------------
+//------------------------- CLASS: DISTR_invgaussian_sigma2 ----------------------
 //------------------------------------------------------------------------------
 
+
+DISTR_invgaussian_sigma2::DISTR_invgaussian_sigma2(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Inverse Gaussian - sigma2";
+  }
+
+
+DISTR_invgaussian_sigma2::DISTR_invgaussian_sigma2(const DISTR_invgaussian_sigma2 & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_invgaussian_sigma2 & DISTR_invgaussian_sigma2::operator=(
+                            const DISTR_invgaussian_sigma2 & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_invgaussian_sigma2::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_invgaussian_sigma2::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double sigma_2 = exp((*linpred));
+
+  double l;
+
+     l = -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*(*response)*pow((*worktransformlin[0]),2)*sigma_2);
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_invgaussian_sigma2::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double sigma_2 = exp(*linpred);
+
+
+    double nu = -0.5 + (pow(((*response)-(*worklin[0])),2))/(2*(*response)*(pow((*worktransformlin[0]),2))*sigma_2);
+
+
+
+    *workingweight = 0.5;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*(*response)*pow((*worktransformlin[0]),2)*sigma_2);
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_invgaussian_sigma2::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma2): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_invgaussian_sigma2::update_end(void)
+  {
+
+  // helpmat1 stores sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_invgaussian_mu ------------------------
+//------------------------------------------------------------------------------
+void DISTR_invgaussian_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if (*workresp <= 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative/zero response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_invgaussian_mu::DISTR_invgaussian_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Inverse Gaussian - mu";
+  }
+
+
+DISTR_invgaussian_mu::DISTR_invgaussian_mu(const DISTR_invgaussian_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_invgaussian_mu & DISTR_invgaussian_mu::operator=(
+                            const DISTR_invgaussian_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_invgaussian_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_sigma2
+   // *linpred[1] = eta_mu
+
+   if (*weight[1] == 0)
+     *deviance=0;
+   else
+     {
+     double sigma_2 = exp(*linpred[0]);
+     double mu = exp(*linpred[1]);
+
+     double l;
+
+       l = -0.5*log(2*PI)-0.5*log(sigma_2)-1.5*log((*response[1]))-(1/(2*(*response[1])))*pow((((*response[0]))-mu),2)/(pow(mu,2)*sigma_2);
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_invgaussian_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_invgaussian_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = sigma2;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu = exp(*linpred);
+
+  double l;
+
+     l = -pow((((*response))-mu),2)/(2*(*response)*pow(mu,2)*(*worktransformlin[0]));
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_invgaussian_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = sigma2;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double mu = exp(*linpred);
+
+    double nu = ((*response)-mu)/(pow(mu,2)*(*worktransformlin[0]));
+
+    *workingweight = 1/(mu*(*worktransformlin[0]));
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += -pow((((*response))-mu),2)/(2*(*response)*pow(mu,2)*(*worktransformlin[0]));
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_invgaussian_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+
+  *mu = exp((*linpred[1]));
+
+  }
+
+
+void DISTR_invgaussian_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (mu): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_invgaussian_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+/*//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_betainf_mu --------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_betainf_mu::DISTR_betainf_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Beta Inflated - mu";
+  }
+
+
+DISTR_betainf_mu::DISTR_betainf_mu(const DISTR_betainf_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_betainf_mu & DISTR_betainf_mu::operator=(
+                            const DISTR_betainf_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_betainf_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_betainf_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = (1-sigma2)/sigma2;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double exp_lin = exp((*linpred));
+  double mu = exp_lin/(1+exp_lin);
+  double mu_worktrans = mu*(*worktransformlin[0]);
+  double one_minus_mu_worktrans = (1-mu)*(*worktransformlin[0]);
+
+  double l;
+
+     l = mu*(*worktransformlin[0])*log(*response) +
+		 (1-mu)*(*worktransformlin[0])*log(1-(*response))-
+		 randnumbers::lngamma_exact(mu_worktrans)-
+		 randnumbers::lngamma_exact(one_minus_mu_worktrans);
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_betainf_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = (1-sigma2)/sigma2;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double exp_lin = exp(*linpred);
+
+    double mu = exp_lin/(1+exp_lin);
+
+    double mu_worktrans = mu*(*worktransformlin[0]);
+
+    double one_minus_mu_worktrans = (1-mu)*(*worktransformlin[0]);
+
+    double nu = mu*one_minus_mu_worktrans*log((*response))-mu*one_minus_mu_worktrans*log((1-(*response)))+
+				mu*one_minus_mu_worktrans*(randnumbers::digamma_exact(one_minus_mu_worktrans)-randnumbers::digamma_exact(mu_worktrans));
+
+    *workingweight = pow((*worktransformlin[0]),2)*pow(mu,2)*pow((1-mu),2)*(randnumbers::trigamma_exact(one_minus_mu_worktrans)+randnumbers::trigamma_exact(mu_worktrans));
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += mu_worktrans*log((*response))+one_minus_mu_worktrans*log(1-(*response))-
+		        randnumbers::lngamma_exact(mu_worktrans)-randnumbers::lngamma_exact((one_minus_mu_worktrans));
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+
+void DISTR_betainf_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (mu): logit\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_betainf_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores exp(eta_mu)/(1+exp(eta_mu))
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double exp_lin;
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin)/(1+exp(*worklin));
+//    double t = 0;
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_betainf_sigma2 ---------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_betainf_sigma2::DISTR_betainf_sigma2(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Beta Inflated - sigma2";
+  }
+
+
+DISTR_betainf_sigma2::DISTR_betainf_sigma2(const DISTR_betainf_sigma2 & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_betainf_sigma2 & DISTR_betainf_sigma2::operator=(
+                            const DISTR_betainf_sigma2 & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_betainf_sigma2::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_betainf_sigma2::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu)/(1+exp(eta_mu));
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double exp_lin = exp((*linpred));
+  double sigma_2 = exp_lin/(1+exp_lin);
+  double help = (1-sigma_2)/sigma_2;
+  double mu_help = (*worktransformlin[0])*help;
+  double one_minus_mu_help = (1-(*worktransformlin[0]))*help;
+
+  double l;
+
+     l = mu_help*log(*response) +
+         one_minus_mu_help*log(1-(*response)) -
+         randnumbers::lngamma_exact(mu_help) - randnumbers::lngamma_exact(one_minus_mu_help) +
+         randnumbers::lngamma_exact(help);
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_betainf_sigma2::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu)/(1+exp(eta_mu));
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double exp_lin = exp(*linpred);
+
+    double sigma_2 = exp_lin/(1+exp_lin);
+
+    double help = (1-sigma_2)/sigma_2;
+    double mu_help = (*worktransformlin[0])*help;
+    double one_minus_mu_help = (1-(*worktransformlin[0]))*help;
+
+    double nu = -help*( -(*worktransformlin[0])*randnumbers::digamma_exact(mu_help)
+                       - (1-(*worktransformlin[0]))*randnumbers::digamma_exact(one_minus_mu_help) +
+                       randnumbers::digamma_exact(help) + (*worktransformlin[0])*log(*response)
+                       + (1-(*worktransformlin[0]))*log(1-(*response)) );
+
+
+
+    *workingweight =  pow(help,2)*( pow((1-(*worktransformlin[0])),2)*randnumbers::trigamma_exact(one_minus_mu_help)+
+                                   pow(((*worktransformlin[0])),2)*randnumbers::trigamma_exact(mu_help) -
+                                   randnumbers::trigamma_exact(help) );
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += mu_help*log(*response) +
+         one_minus_mu_help*log(1-(*response)) -
+         randnumbers::lngamma_exact(mu_help) - randnumbers::lngamma_exact(one_minus_mu_help) +
+         randnumbers::lngamma_exact(help);
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_betainf_sigma2::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma2): logit\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_betainf_sigma2::update_end(void)
+  {
+
+  // helpmat1 stores (1-sigma2)/sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double exp_lin;
+  double sigma_2;
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    exp_lin = exp(*worklin);
+    sigma_2 = exp_lin/(1+exp_lin);
+    *pmu = (1-sigma_2)/sigma_2;
+    }
+
+  }
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_betainf_nu --------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_betainf_nu::DISTR_betainf_nu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Beta Inflated - nu";
+  }
+
+
+DISTR_betainf_nu::DISTR_betainf_nu(const DISTR_betainf_nu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_betainf_nu & DISTR_betainf_nu::operator=(
+                            const DISTR_betainf_nu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_betainf_nu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_betainf_nu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of tau equation
+  // *worktransformlin[0] = exp(eta_tau);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double nup = exp((*linpred));
+
+  double l;
+
+    if ((*response)==0)
+     {
+         l = log(nup) - log(1+(*worktransformlin[0])+nup);
+     }
+     else
+     {
+        l =  - log(1+(*worktransformlin[0])+nup);
+     }
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_betainf_nu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of tau equation
+  // *worktransformlin[0] = exp(eta_tau);
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double nup = exp(*linpred);
+
+    double hilfs = 1+ (*worktransformlin[0]) + nup;
+
+    double nu = -nup/hilfs;
+
+    if ((*response)==0)
+    {
+        nu += 1;
+    }
+
+    *workingweight = nup*(1+(*worktransformlin[0]))/(pow(hilfs,2));
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        if ((*response)==0)
+        {
+            like += log(nup) - log(1+(*worktransformlin[0])+nup);
+        }
+        else
+        {
+            like +=  - log(1+(*worktransformlin[0])+nup);
+        }
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+
+void DISTR_betainf_nu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (nu): log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_betainf_nu::update_end(void)
+  {
+
+
+  // helpmat1 stores exp(eta_tau)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double exp_lin;
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_betainf_tau --------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_betainf_tau::DISTR_betainf_tau(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Beta Inflated - tau";
+  }
+
+
+DISTR_betainf_tau::DISTR_betainf_tau(const DISTR_betainf_tau & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_betainf_tau & DISTR_betainf_tau::operator=(
+                            const DISTR_betainf_tau & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_betainf_tau::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_tau
+   // *linpred[1] = eta_nu
+   // *linpred[2] = eta_sigma2
+   // *linpred[3] = eta_mu
+
+   if (*weight[1] == 0)
+     *deviance=0;
+   else
+     {
+     double tau =  exp(*linpred[0]);
+     double nup = exp(*linpred[1]);
+     double sigma_2 = exp(*linpred[2])/(1+exp(*linpred[2]));
+     double mu = exp(*linpred[3])/(1+exp(*linpred[3]));
+     double help = (1-sigma_2)/sigma_2;
+     double one_minus_mu_help = (1-mu)*help;
+     double mu_help = mu*help;
+     double p1 = nup/(1+nup+tau);
+     double p2 = tau/(1+nup+tau);
+
+     double l;
+
+     if ((*response[1])==0)
+     {
+         l = log(nup) - log(1+nup+tau);
+     }
+     else if ((*response[1])==1)
+     {
+        l = log(tau) - log(1+nup+tau);
+     }
+     else
+       l = (mu_help-1)*log(*response[1]) +
+			(one_minus_mu_help-1)*log(1-(*response[1]))-
+			randnumbers::lngamma_exact(mu_help)-
+			randnumbers::lngamma_exact(one_minus_mu_help)+
+			randnumbers::lngamma_exact(help);
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_betainf_tau::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_betainf_tau::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of nu equation
+  // *worktransformlin[0] = exp(eta_nu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double tau = exp((*linpred));
+
+  double l;
+
+    if ((*response)==1)
+     {
+         l = log(tau) - log(1+(*worktransformlin[0])+tau);
+     }
+     else
+     {
+        l =  - log(1+(*worktransformlin[0])+tau);
+     }
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_betainf_tau::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of nu equation
+  // *worktransformlin[0] = exp(eta_nu);
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double tau = exp(*linpred);
+
+    double hilfs = 1+ (*worktransformlin[0]) + tau;
+
+    double nu = -tau/hilfs;
+
+    if ((*response)==1)
+    {
+        nu += 1;
+    }
+
+    *workingweight = tau*(1+(*worktransformlin[0]))/(pow(hilfs,2));
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        if ((*response)==1)
+        {
+            like += log(tau) - log(1+(*worktransformlin[0])+tau);
+        }
+        else
+        {
+            like +=  - log(1+(*worktransformlin[0])+tau);
+        }
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_betainf_tau::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  double exp_lin_tau = exp(*linpred[0]);
+  double exp_lin_nup = exp(*linpred[1]);
+  double exp_lin_mu = exp(*linpred[3]);
+  double hilfs = (1+exp_lin_tau+exp_lin_nup);
+  *mu = (1-(exp_lin_tau+exp_lin_nup)/hilfs)*(exp_lin_mu/(1+exp_lin_mu))+exp_lin_tau/(hilfs);
+  }
+
+
+void DISTR_betainf_tau::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (tau): log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_betainf_tau::update_end(void)
+  {
+
+
+  // helpmat1 stores exp(eta_nu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double exp_lin;
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+*/
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_pareto_p ---------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_pareto_p::DISTR_pareto_p(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Pareto - p";
+  }
+
+
+DISTR_pareto_p::DISTR_pareto_p(const DISTR_pareto_p & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_pareto_p & DISTR_pareto_p::operator=(
+                            const DISTR_pareto_p & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_pareto_p::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_pareto_p::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of b equation
+  // *worktransformlin[0] = exp(eta_b);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double p = exp((*linpred));
+
+  double l;
+
+     l = log(p) + p*log(*worktransformlin[0]) - (p)*log((*response)+(*worktransformlin[0]));
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_pareto_p::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of b equation
+  // *worktransformlin[0] = exp(eta_b);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double p = exp((*linpred));
+
+    double nu = 1  + p*log(*worktransformlin[0]) - (p)*log((*response)+(*worktransformlin[0]));
+
+
+
+    *workingweight = 1;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  log(p) + p*log(*worktransformlin[0]) - (p)*log((*response)+(*worktransformlin[0]));
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_pareto_p::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (p): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_pareto_p::update_end(void)
+  {
+
+  // helpmat1 stores sigma
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_pareto_b ------------------------
+//------------------------------------------------------------------------------
+
+void DISTR_pareto_b::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if (*workresp <= 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative/zero response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+DISTR_pareto_b::DISTR_pareto_b(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Pareto - b";
+  }
+
+
+DISTR_pareto_b::DISTR_pareto_b(const DISTR_pareto_b & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_pareto_b & DISTR_pareto_b::operator=(
+                            const DISTR_pareto_b & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_pareto_b::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_p
+   // *linpred[1] = eta_b
+
+   if (*weight[1] == 0)
+     *deviance=0;
+   else
+     {
+     double p = exp(*linpred[0]);
+     double b = exp(*linpred[1]);
+
+     double l;
+
+       l =   log(p) + p*log(b) - (p+1)*log((*response[1])+b);
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_pareto_b::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_pareto_b::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of p equation
+  // *worktransformlin[0] = p;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double b = exp(*linpred);
+
+  double l;
+
+     l =  (*worktransformlin[0])*log(b) - ((*worktransformlin[0])+1)*log((*response)+b) ;
+
+  modify_worklin();
+
+
+  return l;
+
+  }
+
+
+void DISTR_pareto_b::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of p equation
+  // *worktransformlin[0] = p;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double b = exp(*linpred);
+
+    double nu = (*worktransformlin[0]) - (((*worktransformlin[0])+1)*b)/((*response)+b);
+
+    *workingweight = ((*worktransformlin[0]))/((*worktransformlin[0])+2);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += (*worktransformlin[0])*log(b) - ((*worktransformlin[0])+1)*log((*response)+b) ;
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_pareto_b::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+
+   double p = exp((*linpred[0]));
+   double b = exp((*linpred[1]));
+  *mu = b/(p-1);
+
+  }
+
+
+void DISTR_pareto_b::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (b): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_pareto_b::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_dagum_p --------------------------
+//------------------------------------------------------------------------------
 
 DISTR_dagum_p::DISTR_dagum_p(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
@@ -303,8 +1691,50 @@ void DISTR_dagum_b::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_dagum_a ------------------------
+//--------------------------- CLASS: DISTR_dagum_a -----------------------------
 //------------------------------------------------------------------------------
+
+
+void DISTR_dagum_a::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if (*workresp <= 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative/zero response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
 
 
 DISTR_dagum_a::DISTR_dagum_a(GENERAL_OPTIONS * o,
@@ -639,6 +2069,47 @@ void DISTR_weibull_sigma::update_end(void)
 //--------------------------- CLASS: DISTR_weibull_mu ------------------------
 //------------------------------------------------------------------------------
 
+void DISTR_weibull_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
 
 DISTR_weibull_mu::DISTR_weibull_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
@@ -868,12 +2339,8 @@ double DISTR_zinb2_delta::loglikelihood_weightsone(double * response,
 
   double delta;
 
-  if (*linpred <= linpredlimit)
-    delta = explinpredlimit;
-  else if (*linpred >= linpredlimitmax)
-    delta = explinpredlimitmax;
-  else
-    delta = exp(*linpred);
+
+     double delta = exp(*linpred);
 
      double pot = pow(delta/((*worktransformlin[1])+delta),delta);
 
@@ -923,12 +2390,8 @@ void DISTR_zinb2_delta::compute_iwls_wweightschange_weightsone(
 
   double delta;
 
-  if (*linpred <= linpredlimit)
-    delta = explinpredlimit;
-  else if (*linpred >= linpredlimitmax)
-    delta = explinpredlimitmax;
-  else
-    delta = exp(*linpred);
+
+    double delta = exp(*linpred);
     double pot = pow(delta/((*worktransformlin[1])+delta),delta);
     double hilfs1 = (*response) + delta;
 
@@ -982,11 +2445,7 @@ void DISTR_zinb2_delta::update_end(void)
 
   // helpmat1 stores tau
 
-  double * worklin;
-  if (linpred_current==1)
-    worklin = linearpred1.getV();
-  else
-    worklin = linearpred2.getV();
+  double * worklin = linearpred2.getV();
 
   double * pmu = helpmat1.getV();
 
@@ -1050,13 +2509,9 @@ double DISTR_zinb2_pi::loglikelihood_weightsone(double * response,
     set_worklin();
     }
 
-  double explinpredpi;
-  if (*linpred <= linpredlimit)
-    explinpredpi  = explinpredlimit;
-  else
-    explinpredpi = exp(*linpred);
 
-  double pi = 0.001 +0.998*explinpredpi/(1+explinpredpi);
+
+  double pi = exp((*linpred))/(1+exp((*linpred)));
 
 
   double pot = pow((*worktransformlin[0])/((*worktransformlin[1])+(*worktransformlin[0])),(*worktransformlin[0]));
@@ -1097,13 +2552,8 @@ void DISTR_zinb2_pi::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-  double explinpredpi;
-  if (*linpred <= linpredlimit)
-    explinpredpi  = explinpredlimit;
-  else
-    explinpredpi = exp(*linpred);
 
-  double pi = 0.001+0.998*explinpredpi/(1+explinpredpi);
+  double pi = exp(*linpred)/(1+exp(*linpred));
   double ci = 0.998*explinpredpi/pow((1+explinpredpi),2);
    double pot = pow((*worktransformlin[0])/((*worktransformlin[1])+(*worktransformlin[0])),(*worktransformlin[0]));
 
@@ -1155,18 +2605,14 @@ void DISTR_zinb2_pi::update_end(void)
 
   // helpmat1 stores sigma
 
-  double * worklin;
-  if (linpred_current==1)
-    worklin = linearpred1.getV();
-  else
-    worklin = linearpred2.getV();
+  double * worklin = linearpred2.getV();
 
   double * pmu = helpmat1.getV();
 
   unsigned i;
   for (i=0;i<nrobs;i++,pmu++,worklin++)
     {
-    *pmu =0.001+0.998*exp(*worklin)/(1+exp(*worklin));
+    *pmu = exp(*worklin)/(1+exp(*worklin));
     }
 
   }
@@ -1274,14 +2720,7 @@ double DISTR_zinb2_mu::loglikelihood_weightsone(double * response,
     set_worklin();
     }
 
-  double mu;
-
-  if (*linpred <= linpredlimit)
-    mu = explinpredlimit;
-  else if (*linpred >= linpredlimitmax)
-    mu = explinpredlimitmax;
-  else
-    mu = exp(*linpred);
+  double mu = exp(*linpred);
   double pot = pow((*worktransformlin[0])/(mu+(*worktransformlin[0])),(*worktransformlin[0]));
 
   double l;
@@ -1329,14 +2768,7 @@ void DISTR_zinb2_mu::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-  double mu;
-
-  if (*linpred <= linpredlimit)
-    mu = explinpredlimit;
-  else if (*linpred >= linpredlimitmax)
-    mu = explinpredlimitmax;
-  else
-    mu = exp(*linpred);
+  double mu = exp(*linpred);
 
     double pot = pow((*worktransformlin[0])/(mu+(*worktransformlin[0])),(*worktransformlin[0]));
 
@@ -1403,11 +2835,7 @@ void DISTR_zinb2_mu::update_end(void)
 
   // helpmat1 stores (eta_mu)
 
-  double * worklin;
-  if (linpred_current==1)
-    worklin = linearpred1.getV();
-  else
-    worklin = linearpred2.getV();
+  double * worklin = linearpred2.getV();
 
   double * pmu = helpmat1.getV();
 
@@ -1708,6 +3136,46 @@ void DISTR_gengamma_sigma::update_end(void)
 //--------------------------- CLASS: DISTR_gengamma_mu ------------------------
 //------------------------------------------------------------------------------
 
+void DISTR_gengamma_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if (*workresp <= 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative/zero response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
 
 DISTR_gengamma_mu::DISTR_gengamma_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
@@ -2029,6 +3497,46 @@ void DISTR_gamma_sigma::update_end(void)
 //--------------------------- CLASS: DISTR_gamma_mu ------------------------
 //------------------------------------------------------------------------------
 
+void DISTR_gamma_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if (*workresp <= 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative/zero response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
 
 DISTR_gamma_mu::DISTR_gamma_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
@@ -2336,6 +3844,46 @@ void DISTR_lognormal_sigma2::update_end(void)
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: DISTR_lognormal_mu ------------------------
 //------------------------------------------------------------------------------
+void DISTR_lognormal_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if (*workresp <= 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative/zero response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
 
 
 DISTR_lognormal_mu::DISTR_lognormal_mu(GENERAL_OPTIONS * o,
@@ -2668,6 +4216,54 @@ void DISTR_beta_sigma2::update_end(void)
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: DISTR_beta_mu -----------------------------
 //------------------------------------------------------------------------------
+
+void DISTR_beta_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if (*workresp <= 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative/zero response values encountered\n");
+          }
+
+        if (*workresp >= 1)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response values greater or equal to one encountered\n");
+          }
+
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
 
 
 DISTR_beta_mu::DISTR_beta_mu(GENERAL_OPTIONS * o,

@@ -107,6 +107,10 @@ using MCMC::DISTR_lognormal_mu;
 using MCMC::DISTR_lognormal_sigma2;
 using MCMC::DISTR_gamma_mu;
 using MCMC::DISTR_gamma_sigma;
+using MCMC::DISTR_pareto_b;
+using MCMC::DISTR_pareto_p;
+using MCMC::DISTR_invgaussian_mu;
+using MCMC::DISTR_invgaussian_sigma2;
 using MCMC::DISTR_gengamma_mu;
 using MCMC::DISTR_gengamma_sigma;
 using MCMC::DISTR_gengamma_tau;
@@ -115,8 +119,12 @@ using MCMC::DISTR_weibull_mu;
 using MCMC::DISTR_weibull_sigma;
 using MCMC::DISTR_dagum_a;
 using MCMC::DISTR_dagum_b;
-using MCMC::DISTR_dagum_p;
-
+using MCMC::DISTR_dagum_p;/*
+using MCMC::DISTR_betainf_mu;
+using MCMC::DISTR_betainf_sigma2;
+using MCMC::DISTR_betainf_nu;
+using MCMC::DISTR_betainf_tau;
+*/
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
 using MCMC::DESIGN_mrf;
@@ -336,7 +344,11 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_lognormal_sigma2> distr_lognormal_sigma2s;
   vector<DISTR_gamma_mu> distr_gamma_mus;
   vector<DISTR_gamma_sigma> distr_gamma_sigmas;
-   vector<DISTR_gengamma_mu> distr_gengamma_mus;
+    vector<DISTR_pareto_b> distr_pareto_bs;
+  vector<DISTR_pareto_p> distr_pareto_ps;
+  vector<DISTR_invgaussian_mu> distr_invgaussian_mus;
+  vector<DISTR_invgaussian_sigma2> distr_invgaussian_sigma2s;
+  vector<DISTR_gengamma_mu> distr_gengamma_mus;
   vector<DISTR_gengamma_sigma> distr_gengamma_sigmas;
   vector<DISTR_gengamma_tau> distr_gengamma_taus;
   vector<DISTR_weibull_mu> distr_weibull_mus;
@@ -345,7 +357,11 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_dagum_b> distr_dagum_bs;
   vector<DISTR_dagum_p> distr_dagum_ps;
   vector<DISTR_zeroadjusted> distr_zeroadjusteds;
-
+ /* vector<DISTR_betainf_mu> distr_betainf_mus;
+  vector<DISTR_betainf_sigma2> distr_betainf_sigma2s;
+  vector<DISTR_betainf_nu> distr_betainf_nus;
+  vector<DISTR_betainf_tau> distr_betainf_taus;
+*/
   bool create_distribution(void);
 
   bool resultsyesno;
