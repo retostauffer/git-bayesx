@@ -44,6 +44,58 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 //------------- CLASS superbayesreg: implementation of member functions --------
 //------------------------------------------------------------------------------
 
+bool superbayesreg::find_binomial(DISTR* & b)
+  {
+  bool found = false;
+
+  if (distr_binomials.size()==1)
+    {
+    found = true;
+    b = &distr_binomials[0];
+    }
+  else if (distr_binomialprobits.size()==1)
+    {
+    found = true;
+    b = &distr_binomialprobits[0];
+    }
+  else if (distr_logit_fruehwirths.size()==1)
+    {
+    found = true;
+    b = &distr_logit_fruehwirths[0];
+    }
+
+  return found;
+  }
+
+
+
+bool superbayesreg::find_continuous_singleparam(DISTR* & m)
+  {
+  bool found = false;
+
+  if (distr_gaussians.size()==1)
+    {
+    found = true;
+    m = &distr_gaussians[0];
+    }
+  else if (distr_loggaussians.size()==1)
+    {
+    found = true;
+    m = &distr_loggaussians[0];
+    }
+
+  return found;
+  }
+
+
+bool superbayesreg::find_continuous_multparam(vector<DISTR*> & m)
+  {
+  bool found = false;
+
+
+  return found;
+  }
+
 
 void superbayesreg::make_paths(ST::string & pathnonp,
                           ST::string & pathres,
@@ -2232,7 +2284,6 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: ZIP lambda ------------------------------
 
-
 //------------------------------  Zero adjusted --------------------------------
 
   else if (family.getvalue() == "zero_adjusted")
@@ -2240,9 +2291,21 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
-    DISTR * help_b = &distr_binomials[distr_binomials.size()-1];
-    DISTR * help_m = &distr_gaussians[distr_gaussians.size()-1];
+    DISTR * help_b;
+    bool binomialfound = find_binomial(help_b);
+    if (binomialfound==false)
+      {
+      outerror("ERROR: Binomial model for pi is missing\n");
+      return true;
+      }
 
+    DISTR * help_m;
+    bool continuous_single_found = find_continuous_singleparam(help_m);
+    if (continuous_single_found==false)
+      {
+      outerror("ERROR: Continuous model is missing\n");
+      return true;
+      }
 
     distr_zeroadjusteds.push_back(DISTR_zeroadjusted(&generaloptions,
     help_b,help_m));
@@ -2251,7 +2314,9 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].pathd = "";
 
     predict_mult_distrs.push_back(help_b);
-    predict_mult_distrs.push_back(&distr_zeroadjusteds[distr_zeroadjusteds.size()-1]);
+    predict_mult_distrs.push_back(help_m);
+    predict_mult_distrs.push_back(
+    &distr_zeroadjusteds[distr_zeroadjusteds.size()-1]);
 
     }
 

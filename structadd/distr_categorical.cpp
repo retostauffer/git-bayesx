@@ -607,8 +607,9 @@ void DISTR_binomialprobit::outoptions(void)
 
 double DISTR_binomialprobit::get_intercept_start(void)
   {
-  double m = response.mean(0);
-  return invPhi2(m);
+//  double m = response.mean(0);
+//  return invPhi2(m);
+  return 0;
   }
 
 

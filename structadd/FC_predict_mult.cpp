@@ -221,7 +221,7 @@ void FC_predict_mult::outresults_DIC(const ST::string & pathresults)
 
     workweight.push_back(likep[j]->weight.getV());
 
-    aux.push_back(likep[j]->get_auxiliary_parameter());
+    aux.push_back(likep[j]->get_auxiliary_parameter(auxpostmean));
 
     }
 

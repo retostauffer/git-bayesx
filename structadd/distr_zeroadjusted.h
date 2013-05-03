@@ -78,6 +78,8 @@ class __EXPORT_TYPE DISTR_zeroadjusted : public DISTR
 
   void compute_mu_mult(vector<double *> linpred,double * mu);
 
+  datamatrix * get_auxiliary_parameter(auxiliarytype t = auxcurrent);
+
   void outoptions(void);
 
   };

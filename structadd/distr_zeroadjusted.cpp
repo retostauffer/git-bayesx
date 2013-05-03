@@ -32,6 +32,9 @@ DISTR_zeroadjusted::DISTR_zeroadjusted(GENERAL_OPTIONS * o,DISTR* dpi,
 
 
   {
+
+  predict_mult = true;
+
   optionsp = o;
   distrp_pi = dpi;
   distrp_mu = dmu;
@@ -40,34 +43,19 @@ DISTR_zeroadjusted::DISTR_zeroadjusted(GENERAL_OPTIONS * o,DISTR* dpi,
   workingresponse = response;
 
   maindistribution=true;
-  predict_mult=false;
 
   nrobs = response.rows();
 
-/*
-  if (w.rows() == 1)
-    {
-    weight = datamatrix(r.rows(),1,1);
-    }
-  else
-    {
-    weight = w;
-    }
+  weight = datamatrix(response.rows(),1,1);
 
   workingweight = weight;
 
-  weightsone = check_weightsone();
-
-  nrzeroweights = compute_nrzeroweights();
-
-  wtype = wweightschange_weightsneqone;
-
-  weightname = "W";
-*/
   linearpred1 = datamatrix(nrobs,1,0);
   linearpred2 = datamatrix(nrobs,1,0);
 
   linpred_current = 1;
+
+  helpmat1 = datamatrix(1,1,1);
 
   }
 
@@ -100,7 +88,28 @@ void DISTR_zeroadjusted::outoptions(void)
 
 void DISTR_zeroadjusted::compute_mu_mult(vector<double *> linpred,double * mu)
   {
+
+  double pi;
+  double E;
+  distrp_pi->compute_mu(linpred[0],&pi);
+  distrp_mu->compute_mu(linpred[1],&E);
+
+  *mu = pi*E;
+
   }
+
+  
+datamatrix * DISTR_zeroadjusted::get_auxiliary_parameter(
+                                           auxiliarytype t)
+  {
+  if (t == auxcurrent)
+    helpmat1(0,0) = distrp_mu->get_scale();
+  else
+    helpmat1(0,0) = distrp_mu->get_scalemean();
+
+  return &helpmat1;  
+  }
+
 
 
 void DISTR_zeroadjusted::compute_deviance_mult(vector<double *> response,
@@ -109,11 +118,34 @@ void DISTR_zeroadjusted::compute_deviance_mult(vector<double *> response,
                              double * deviance,
                              vector<datamatrix*> aux)
   {
-  //  *deviance = -2*l;
+
+  double s=1;
+  double pi;
+  distrp_pi->compute_mu(linpred[0],&pi);
+
+  double d_pi;
+  distrp_pi->compute_deviance(response[0],weight[0],&pi,&d_pi,&s);
+
+  if (*response[0] == 0)
+    {
+
+    *deviance = d_pi;
+
+    }
+  else
+    {
+    double mu;
+    distrp_mu->compute_mu(linpred[1],&mu);
+
+    double s_mu= (*aux[2])(0,0);
+
+    double d_mu;
+    distrp_mu->compute_deviance(response[1],weight[1],&mu,&d_mu,&s_mu);
+
+    *deviance = d_pi + d_mu;
+
+    }
   }
-
-
-
 
 
 } // end: namespace MCMC

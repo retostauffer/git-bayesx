@@ -163,7 +163,11 @@ class __EXPORT_TYPE superbayesreg : public statobject
   ST::string title;
   ST::string pathnonp;
 
- void make_header(unsigned & modnr);
+  void make_header(unsigned & modnr);
+
+  bool find_binomial(DISTR* & b);
+  bool find_continuous_singleparam(DISTR* & m);
+  bool find_continuous_multparam(vector<DISTR*> & m);    
 
   void make_paths(ST::string & pathnonp, ST::string & pathres,
                   ST::string & title, vector<ST::string> vn,
