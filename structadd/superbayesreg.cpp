@@ -92,6 +92,18 @@ bool superbayesreg::find_continuous_multparam(vector<DISTR*> & m)
   {
   bool found = false;
 
+  if (distr_lognormal_mus.size()==1)
+    {
+    found = true;
+    m.push_back(&distr_lognormal_sigma2s[0]);
+    m.push_back(&distr_lognormal_mus[0]);
+    }
+  else if (distr_hetgaussians.size()==1)
+    {
+    found = true;
+    m.push_back(&distr_vargaussians[0]);
+    m.push_back(&distr_hetgaussians[0]);
+    }
 
   return found;
   }
@@ -581,7 +593,10 @@ void superbayesreg::clear(void)
   distr_gengamma_taus.reserve(20);
 
   distr_zeroadjusteds.erase(distr_zeroadjusteds.begin(),distr_zeroadjusteds.end());
-  distr_zeroadjusteds.reserve(20);
+  distr_zeroadjusteds.reserve(5);
+
+  distr_zeroadjusted_mults.erase(distr_zeroadjusted_mults.begin(),distr_zeroadjusted_mults.end());
+  distr_zeroadjusted_mults.reserve(5);
 
   distr_weibull_mus.erase(distr_weibull_mus.begin(),distr_weibull_mus.end());
   distr_weibull_mus.reserve(20);
@@ -786,6 +801,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gengamma_sigmas = b.distr_gengamma_sigmas;
   distr_gengamma_taus = b.distr_gengamma_taus;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
+  distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;  
   distr_weibull_mus = b.distr_weibull_mus;
   distr_weibull_sigmas = b.distr_weibull_sigmas;
   distr_dagum_as = b.distr_dagum_as;
@@ -902,6 +918,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gengamma_sigmas = b.distr_gengamma_sigmas;
   distr_gengamma_taus = b.distr_gengamma_taus;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
+  distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;  
   distr_weibull_mus = b.distr_weibull_mus;
   distr_weibull_sigmas = b.distr_weibull_sigmas;
   distr_dagum_as = b.distr_dagum_as;
@@ -2301,22 +2318,44 @@ bool superbayesreg::create_distribution(void)
 
     DISTR * help_m;
     bool continuous_single_found = find_continuous_singleparam(help_m);
-    if (continuous_single_found==false)
+
+    vector<DISTR*> help_m_vec;
+    bool continuous_mult_found = find_continuous_multparam(help_m_vec);
+    if ((continuous_single_found==false) && (continuous_mult_found==false))
       {
       outerror("ERROR: Continuous model is missing\n");
       return true;
       }
 
-    distr_zeroadjusteds.push_back(DISTR_zeroadjusted(&generaloptions,
-    help_b,help_m));
+    if (continuous_single_found)
+      {
+      distr_zeroadjusteds.push_back(DISTR_zeroadjusted(&generaloptions,
+      help_b,help_m));
 
-    equations[modnr].distrp = &distr_zeroadjusteds[distr_zeroadjusteds.size()-1];
-    equations[modnr].pathd = "";
+      equations[modnr].distrp = &distr_zeroadjusteds[distr_zeroadjusteds.size()-1];
+      equations[modnr].pathd = "";
 
-    predict_mult_distrs.push_back(help_b);
-    predict_mult_distrs.push_back(help_m);
-    predict_mult_distrs.push_back(
-    &distr_zeroadjusteds[distr_zeroadjusteds.size()-1]);
+      predict_mult_distrs.push_back(help_b);
+      predict_mult_distrs.push_back(help_m);
+      predict_mult_distrs.push_back(
+      &distr_zeroadjusteds[distr_zeroadjusteds.size()-1]);
+      }
+    else
+      {
+      distr_zeroadjusted_mults.push_back(DISTR_zeroadjusted_mult(&generaloptions,
+      help_b,help_m_vec));
+
+      equations[modnr].distrp = &distr_zeroadjusted_mults[distr_zeroadjusted_mults.size()-1];
+      equations[modnr].pathd = "";
+
+      predict_mult_distrs.push_back(help_b);
+      unsigned i;
+      for (i=0;i<help_m_vec.size();i++)
+        predict_mult_distrs.push_back(help_m_vec[i]);
+      predict_mult_distrs.push_back(
+      &distr_zeroadjusteds[distr_zeroadjusteds.size()-1]);
+
+      }
 
     }
 

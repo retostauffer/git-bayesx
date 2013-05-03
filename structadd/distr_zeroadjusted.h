@@ -85,6 +85,60 @@ class __EXPORT_TYPE DISTR_zeroadjusted : public DISTR
   };
 
 
+//------------------------------------------------------------------------------
+//---------------------- CLASS: DISTR_zeroadjusted_mult ------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_zeroadjusted_mult : public DISTR
+  {
+
+  protected:
+
+  DISTR* distrp_pi;
+  vector<DISTR*> distrp_mu;
+  vector<double*> linpredvec;
+  vector<double*> responsevec;
+  vector<double*> weightvec;    
+
+
+  public:
+
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_zeroadjusted_mult(void) : DISTR()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_zeroadjusted_mult(GENERAL_OPTIONS * o,DISTR* dpi,vector<DISTR*> dmu);
+
+   // COPY CONSTRUCTOR
+
+  DISTR_zeroadjusted_mult(const DISTR_zeroadjusted_mult & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_zeroadjusted_mult & operator=(const DISTR_zeroadjusted_mult & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_zeroadjusted_mult() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  };
+
+
 
 } // end: namespace MCMC
 

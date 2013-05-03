@@ -148,6 +148,138 @@ void DISTR_zeroadjusted::compute_deviance_mult(vector<double *> response,
   }
 
 
+//------------------------------------------------------------------------------
+//------------------------ CLASS DISTR_zeroadjusted_mult -----------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_zeroadjusted_mult::DISTR_zeroadjusted_mult(GENERAL_OPTIONS * o,DISTR* dpi,
+                                       vector<DISTR*> dmu)
+
+
+  {
+
+  predict_mult = true;
+
+  optionsp = o;
+  distrp_pi = dpi;
+  distrp_mu = dmu;
+
+  response = distrp_pi->response;
+  workingresponse = response;
+
+  maindistribution=true;
+
+  nrobs = response.rows();
+
+  weight = datamatrix(response.rows(),1,1);
+
+  workingweight = weight;
+
+  linearpred1 = datamatrix(nrobs,1,0);
+  linearpred2 = datamatrix(nrobs,1,0);
+
+  linpred_current = 1;
+
+  helpmat1 = datamatrix(1,1,1);
+  linpredvec = vector<double*>(distrp_mu.size());
+  responsevec = vector<double*>(distrp_mu.size());
+  weightvec = vector<double*>(distrp_mu.size());
+
+  }
+
+
+const DISTR_zeroadjusted_mult & DISTR_zeroadjusted_mult::operator=(
+const DISTR_zeroadjusted_mult & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR::operator=(DISTR(nd));
+  distrp_pi = nd.distrp_pi;
+  distrp_mu = nd.distrp_mu;
+  linpredvec = nd.linpredvec;
+  weightvec = nd.weightvec;
+  responsevec = nd.responsevec;
+  return *this;
+  }
+
+
+DISTR_zeroadjusted_mult::DISTR_zeroadjusted_mult(
+                         const DISTR_zeroadjusted_mult & nd)
+   : DISTR(DISTR(nd))
+  {
+  distrp_pi = nd.distrp_pi;
+  distrp_mu = nd.distrp_mu;
+  linpredvec = nd.linpredvec;
+  weightvec = nd.weightvec;
+  responsevec = nd.responsevec;
+  }
+
+
+void DISTR_zeroadjusted_mult::outoptions(void)
+  {
+
+  }
+
+
+void DISTR_zeroadjusted_mult::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+
+  double pi;
+  double E;
+  distrp_pi->compute_mu(linpred[0],&pi);
+
+  unsigned i;
+  for (i=0;i<linpredvec.size();i++)
+    linpredvec[i] = linpred[i+1];
+
+  distrp_mu[distrp_mu.size()-1]->compute_mu_mult(linpredvec,&E);
+
+  *mu = pi*E;
+
+  }
+
+
+
+void DISTR_zeroadjusted_mult::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+  double s=1;
+  double pi;
+  distrp_pi->compute_mu(linpred[0],&pi);
+
+  double d_pi;
+  distrp_pi->compute_deviance(response[0],weight[0],&pi,&d_pi,&s);
+
+  if (*response[0] == 0)
+    {
+    *deviance = d_pi;
+    }
+  else
+    {
+
+    double d_mu;
+    unsigned i;
+    for (i=0;i<linpredvec.size();i++)
+      {
+      linpredvec[i] = linpred[i+1];
+      weightvec[i] = weight[i+1];
+      responsevec[i] = response[i+1];            
+      }
+
+    distrp_mu[distrp_mu.size()-1]->compute_deviance_mult(responsevec,weightvec,
+                                                         linpredvec,&d_mu,aux);
+    *deviance = d_pi + d_mu;
+
+    }
+
+  }
+
+
 } // end: namespace MCMC
 
 
