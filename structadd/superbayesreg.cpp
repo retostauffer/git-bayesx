@@ -1426,6 +1426,7 @@ bool superbayesreg::create_distribution(void)
 
   unsigned modnr = equations.size()-1;
 
+
 //---------------------------- Gaussian response -------------------------------
   if (family.getvalue() == "gaussian")
     {
@@ -2177,7 +2178,9 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: lognormal sigma2 -------------------------------
 
 //------------------------------- lognormal mu ------------------------------------
-  else if (family.getvalue() == "lognormal_mu" && equationtype.getvalue()=="mean")
+  else if ((family.getvalue() == "lognormal_mu") &&
+           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant")) 
+          )
     {
 
     computemodeforstartingvalues = true;
@@ -2348,12 +2351,13 @@ bool superbayesreg::create_distribution(void)
       equations[modnr].distrp = &distr_zeroadjusted_mults[distr_zeroadjusted_mults.size()-1];
       equations[modnr].pathd = "";
 
+      predict_mult_distrs.erase(predict_mult_distrs.begin(),predict_mult_distrs.end());
       predict_mult_distrs.push_back(help_b);
       unsigned i;
       for (i=0;i<help_m_vec.size();i++)
         predict_mult_distrs.push_back(help_m_vec[i]);
       predict_mult_distrs.push_back(
-      &distr_zeroadjusteds[distr_zeroadjusteds.size()-1]);
+      &distr_zeroadjusted_mults[distr_zeroadjusted_mults.size()-1]);
 
       }
 

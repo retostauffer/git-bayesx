@@ -34,6 +34,10 @@ DISTR_zeroadjusted::DISTR_zeroadjusted(GENERAL_OPTIONS * o,DISTR* dpi,
   {
 
   predict_mult = true;
+  outpredictor = false;
+  outexpectation = true;
+  predictor_name = "overall";  
+
 
   optionsp = o;
   distrp_pi = dpi;
@@ -98,7 +102,7 @@ void DISTR_zeroadjusted::compute_mu_mult(vector<double *> linpred,double * mu)
 
   }
 
-  
+
 datamatrix * DISTR_zeroadjusted::get_auxiliary_parameter(
                                            auxiliarytype t)
   {
@@ -160,10 +164,15 @@ DISTR_zeroadjusted_mult::DISTR_zeroadjusted_mult(GENERAL_OPTIONS * o,DISTR* dpi,
   {
 
   predict_mult = true;
+  outpredictor = false;
+  outexpectation = true;
+  predictor_name = "overall";
 
   optionsp = o;
   distrp_pi = dpi;
   distrp_mu = dmu;
+
+  distrp_mu[1]->predstart_mumult=1;
 
   response = distrp_pi->response;
   workingresponse = response;
@@ -229,11 +238,13 @@ void DISTR_zeroadjusted_mult::compute_mu_mult(vector<double *> linpred,double * 
   double E;
   distrp_pi->compute_mu(linpred[0],&pi);
 
+/*
   unsigned i;
   for (i=0;i<linpredvec.size();i++)
     linpredvec[i] = linpred[i+1];
+*/
 
-  distrp_mu[distrp_mu.size()-1]->compute_mu_mult(linpredvec,&E);
+  distrp_mu[distrp_mu.size()-1]->compute_mu_mult(linpred,&E);
 
   *mu = pi*E;
 

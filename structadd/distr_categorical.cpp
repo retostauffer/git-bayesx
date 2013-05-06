@@ -35,6 +35,9 @@ DISTR_logit_fruehwirth::DISTR_logit_fruehwirth(const int h, GENERAL_OPTIONS * o,
   : DISTR_binomial(o, r, w), H(h)
   {
 
+  predictor_name = "pi";
+  outexpectation = true;
+
   family = "Binomial_l1";
   updateIWLS = false;
 
@@ -231,6 +234,9 @@ DISTR_binomial::DISTR_binomial(GENERAL_OPTIONS * o, const datamatrix & r,
 
   {
 
+  predictor_name = "pi";
+  outexpectation = true;
+
   if (check_weightsone() == true)
     wtype = wweightschange_weightsone;
   else
@@ -356,6 +362,14 @@ void DISTR_binomial::compute_mu(const double * linpred,double * mu)
   double el = exp(*linpred);
   *mu = el/(1+el);
   }
+
+
+void DISTR_binomial::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  double el = exp(*linpred[predstart_mumult]);
+  *mu = el/(1+el);
+  }
+
 
 
 void DISTR_binomial::compute_deviance(const double * response,
@@ -518,6 +532,9 @@ DISTR_binomialprobit::DISTR_binomialprobit(GENERAL_OPTIONS * o,
 
   {
 
+  outexpectation = true;
+  predictor_name = "pi";
+
   if (check_weightsone() == true)
     wtype = wweightschange_weightsone;
   else
@@ -648,6 +665,12 @@ double DISTR_binomialprobit::loglikelihood_weightsone(
 void DISTR_binomialprobit::compute_mu(const double * linpred,double * mu)
   {
   *mu = randnumbers::Phi2(*linpred);
+  }
+
+
+void DISTR_binomialprobit::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  *mu = randnumbers::Phi2(*linpred[predstart_mumult]);
   }
 
 
@@ -869,6 +892,9 @@ DISTR_binomialsvm::DISTR_binomialsvm(GENERAL_OPTIONS * o,
   : DISTR(o,r,w)
 
   {
+
+  predictor_name = "pi";
+  outexpectation = true;
 
   if (check_weightsone() == true)
     wtype = wweightschange_weightsone;
@@ -1143,6 +1169,9 @@ DISTR_poisson::DISTR_poisson(GENERAL_OPTIONS * o, const datamatrix & r,
   : DISTR(o,r,w)
 
   {
+
+  predictor_name = "lambda";
+  outexpectation = true;
 
   if (check_weightsone() == true)
     wtype = wweightschange_weightsone;

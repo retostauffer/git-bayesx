@@ -53,6 +53,7 @@ class __EXPORT_TYPE FC_predict_mult   : public FC
 
   protected:
 
+
   FC FC_deviance;
 
   vector<DISTR *> likep;

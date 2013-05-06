@@ -130,6 +130,11 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 
   check_errors();
 
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "";
+  predstart_mumult = 0;
+
   }
 
 
@@ -187,6 +192,10 @@ DISTR::DISTR(const DISTR & d)
   linpredminlimit = d.linpredminlimit;
   linpredmaxlimit = d.linpredmaxlimit;
 
+  outpredictor = d.outpredictor;
+  outexpectation = d.outexpectation;
+  predictor_name = d.predictor_name;
+  predstart_mumult = d.predstart_mumult;
   }
 
 
@@ -245,6 +254,11 @@ const DISTR & DISTR::operator=(const DISTR & d)
 
   linpredminlimit = d.linpredminlimit;
   linpredmaxlimit = d.linpredmaxlimit;
+
+  outpredictor = d.outpredictor;
+  outexpectation = d.outexpectation;
+  predictor_name = d.predictor_name;
+  predstart_mumult = d.predstart_mumult;
 
   return *this;
   }
@@ -942,6 +956,9 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
 
   {
 
+  predictor_name = "mu";
+  outexpectation = true;
+
   lassosum = 0;
   ridgesum = 0;
   nrlasso=0;
@@ -1437,6 +1454,7 @@ double DISTR_gaussian::get_scalemean(void)
    : DISTR(o,r)
     {
 
+    predictor_name = "sigma2";
     maindistribution=false;
     family="heteroscedastic Gaussian, variance component";
     wtype = wweightschange_weightsneqone;
@@ -1665,6 +1683,9 @@ DISTR_hetgaussian::DISTR_hetgaussian(double a,double b, GENERAL_OPTIONS * o,
 
   {
 
+  predictor_name = "mu";
+  outexpectation = true;
+
   wtype = wweightschange_weightsneqone;
 
   family = "Heteroscedastic Gaussian";
@@ -1788,6 +1809,10 @@ DISTR_quantreg::DISTR_quantreg(const double & a,const double & b,
                                const datamatrix & w)
   : DISTR_gaussian(a,b,o,r,ps,w)
   {
+
+  predictor_name = "quantile";
+  outexpectation = true;
+
   quantile = quant;
   xi = (1-2*quantile)/(quantile * (1-quantile));
   xi2 = xi*xi;
@@ -2044,6 +2069,7 @@ DISTR_loggaussian::DISTR_loggaussian(const double & a,
 
   {
   family = "log-Gaussian";
+  outexpectation = true;
   }
 
 
@@ -2190,6 +2216,7 @@ DISTR_gaussian_exp::DISTR_gaussian_exp(const double & a,
   // standardise();
   // changingworkingweights = true;
   updateIWLS = true;
+  outexpectation = true;
   }
 
 
@@ -2568,7 +2595,6 @@ bool DISTR_gaussian_mult::posteriormode(void)
 
 
   }
-
 
 
 //------------------------------------------------------------------------------

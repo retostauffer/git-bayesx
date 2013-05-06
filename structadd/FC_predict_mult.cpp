@@ -109,7 +109,6 @@ void  FC_predict_mult::update(void)
   }
 
 
-
 void FC_predict_mult::get_predictor(void)
   {
 
@@ -392,6 +391,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
     unsigned i,j;
 
+
     ST::string l1 = ST::doubletostring(optionsp->lower1,4);
     ST::string l2 = ST::doubletostring(optionsp->lower2,4);
     ST::string u1 = ST::doubletostring(optionsp->upper1,4);
@@ -408,29 +408,37 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
     for (i=0;i<likep.size();i++)
       {
-      outres << "pmean_pred_" << i << "   ";
 
-      if (optionsp->samplesize > 1)
+      if (likep[i]->outpredictor)
         {
-        outres << "pqu"  << l1  << "_pred_" << i << "   ";
-        outres << "pqu"  << l2  << "_pred_" << i << "   ";
-        outres << "pmed_pred_" << i << "   ";
-        outres << "pqu"  << u1  << "_pred_" << i << "   ";
-        outres << "pqu"  << u2  << "_pred_" << i << "   ";
+        outres << "pmean_pred_" << likep[i]->predictor_name << "   ";
+
+        if (optionsp->samplesize > 1)
+          {
+          outres << "pqu"  << l1  << "_pred_" << likep[i]->predictor_name << "   ";
+          outres << "pqu"  << l2  << "_pred_" << likep[i]->predictor_name << "   ";
+          outres << "pmed_pred_" << likep[i]->predictor_name << "   ";
+          outres << "pqu"  << u1  << "_pred_" << likep[i]->predictor_name << "   ";
+          outres << "pqu"  << u2  << "_pred_" << likep[i]->predictor_name << "   ";
+          }
         }
+
       }
 
     for (i=0;i<likep.size();i++)
       {
-      outres << "pmean_mu_" << i << "   ";
-
-      if (optionsp->samplesize > 1)
+      if (likep[i]->outexpectation)
         {
-        outres << "pqu"  << l1  << "_mu_" << i << "   ";
-        outres << "pqu"  << l2  << "_mu_" << i << "   ";
-        outres << "pmed_mu_" << i << "   ";
-        outres << "pqu"  << u1  << "_mu_" << i << "   ";
-        outres << "pqu"  << u2  << "_mu_" << i << "   ";
+        outres << "pmean_E_" << likep[i]->predictor_name << "   ";
+
+        if (optionsp->samplesize > 1)
+          {
+          outres << "pqu"  << l1  << "_E_" << likep[i]->predictor_name << "   ";
+          outres << "pqu"  << l2  << "_E_" << likep[i]->predictor_name << "   ";
+          outres << "pmed_E_" << likep[i]->predictor_name << "   ";
+          outres << "pqu"  << u1  << "_E_" << likep[i]->predictor_name << "   ";
+          outres << "pqu"  << u2  << "_E_" << likep[i]->predictor_name << "   ";
+          }
         }
       }
 
@@ -460,37 +468,47 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           workbetaqu_l1_upper_p++,
           workbetaqu_l2_upper_p++)
         {
-        outres << *workmean << "   ";
 
-        if (optionsp->samplesize > 1)
+        if (likep[j]->outpredictor)
           {
-          outres << *workbetaqu_l1_lower_p << "   ";
-          outres << *workbetaqu_l2_lower_p << "   ";
-          outres << *workbetaqu50 << "   ";
-          outres << *workbetaqu_l2_upper_p << "   ";
-          outres << *workbetaqu_l1_upper_p << "   ";
+          outres << *workmean << "   ";
+
+          if (optionsp->samplesize > 1)
+            {
+            outres << *workbetaqu_l1_lower_p << "   ";
+            outres << *workbetaqu_l2_lower_p << "   ";
+            outres << *workbetaqu50 << "   ";
+            outres << *workbetaqu_l2_upper_p << "   ";
+            outres << *workbetaqu_l1_upper_p << "   ";
+            }
           }
+        }
 
-      // mu
-        workmean++;
-        workbetaqu_l1_lower_p++;
-        workbetaqu_l2_lower_p++;
-        workbetaqu50++;
-        workbetaqu_l1_upper_p++;
-        workbetaqu_l2_upper_p++;
+      for (j=0;j<likep.size();j++,
+          workmean++,
+          workbetaqu_l1_lower_p++,
+          workbetaqu_l2_lower_p++,
+          workbetaqu50++,
+          workbetaqu_l1_upper_p++,
+          workbetaqu_l2_upper_p++)
+        {
 
-        outres << *workmean << "   ";
-
-        if (optionsp->samplesize > 1)
+        if (likep[j]->outexpectation)
           {
-          outres << *workbetaqu_l1_lower_p << "   ";
-          outres << *workbetaqu_l2_lower_p << "   ";
-          outres << *workbetaqu50 << "   ";
-          outres << *workbetaqu_l2_upper_p << "   ";
-          outres << *workbetaqu_l1_upper_p << "   ";
+          outres << *workmean << "   ";
+
+
+          if (optionsp->samplesize > 1)
+            {
+            outres << *workbetaqu_l1_lower_p << "   ";
+            outres << *workbetaqu_l2_lower_p << "   ";
+            outres << *workbetaqu50 << "   ";
+            outres << *workbetaqu_l2_upper_p << "   ";
+            outres << *workbetaqu_l1_upper_p << "   ";
+            }
           }
-      // end mu
-      }
+        // end mu
+        }
 
       outres << endl;
 

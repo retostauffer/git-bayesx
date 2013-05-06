@@ -132,6 +132,11 @@ class __EXPORT_TYPE DISTR
   datamatrix linearpred2;          // Proposed linear predictor
   int linpred_current;
 
+  bool outpredictor;
+  bool outexpectation;
+  ST::string predictor_name;
+  unsigned predstart_mumult;
+
   double meaneffect;
 
   //----------------------------------------------------------------------------

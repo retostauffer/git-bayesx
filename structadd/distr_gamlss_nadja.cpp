@@ -3719,6 +3719,11 @@ DISTR_lognormal_sigma2::DISTR_lognormal_sigma2(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Lognormal - sigma2";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma2";
+
   }
 
 
@@ -3892,6 +3897,9 @@ DISTR_lognormal_mu::DISTR_lognormal_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Lognormal - mu";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
   }
 
 
@@ -4017,9 +4025,8 @@ void DISTR_lognormal_mu::compute_iwls_wweightschange_weightsone(
 
 void DISTR_lognormal_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-
-  *mu = exp((*linpred[1])+(*linpred[0])/2);
-
+  double s = exp(*linpred[predstart_mumult]);
+  *mu = exp((*linpred[predstart_mumult+1])+s/2);
   }
 
 

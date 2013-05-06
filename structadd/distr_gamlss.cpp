@@ -35,6 +35,12 @@ DISTR_negbin_delta::DISTR_negbin_delta(GENERAL_OPTIONS * o,
                                        const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
+
+  predictor_name = "delta";
+  outpredictor = true;
+  outexpectation = false;
+
+
   family = "Negative_Binomial - delta";
 
   double responsemax = response.max(0);
@@ -356,6 +362,11 @@ DISTR_negbin_mu::DISTR_negbin_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
+
+  predictor_name = "mu";
+  outpredictor = true;
+  outexpectation = true;
+
   family = "Negative_Binomial - mu";
 
   linpredminlimit=-10;
@@ -511,7 +522,7 @@ void DISTR_negbin_mu::compute_iwls_wweightschange_weightsone(
 
 void DISTR_negbin_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-  *mu = exp(*linpred[1]);
+  *mu = exp(*linpred[predstart_mumult+1]);
   }
 
 
@@ -540,6 +551,11 @@ DISTR_zip_cloglog_pi::DISTR_zip_cloglog_pi(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
+
+  predictor_name = "pi";
+  outpredictor = true;
+  outexpectation = false;
+
   family = "Zero_Inflated_Poisson - pi";
   helpmat1 = datamatrix(nrobs,1,1-exp(-exp(0)));
 
@@ -728,6 +744,11 @@ DISTR_zip_cloglog_mu::DISTR_zip_cloglog_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
+
+  predictor_name = "lambda";
+  outpredictor = true;
+  outexpectation = true;
+
   family = "Zero_Inflated_Poisson - lambda";
 
   linpredminlimit=-10;
@@ -880,9 +901,9 @@ void DISTR_zip_cloglog_mu::compute_iwls_wweightschange_weightsone(
 
 void DISTR_zip_cloglog_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-  double el = exp(-exp(*linpred[0]));
+  double el = exp(-exp(*linpred[predstart_mumult]));
 
-  *mu = (1-el)*exp(*linpred[1]);
+  *mu = (1-el)*exp(*linpred[predstart_mumult+1]);
   }
 
 
@@ -912,6 +933,8 @@ DISTR_gamlss::DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,
   : DISTR(o,r,w)
 
   {
+
+  predictor_name = "mu";
 
   predict_mult = true;
 
@@ -1191,6 +1214,9 @@ DISTR_negbinzip_mu::DISTR_negbinzip_mu(GENERAL_OPTIONS * o, const datamatrix & r
 
   {
 
+  predictor_name = "mu";
+  outpredictor = true;
+  outexpectation = true;
   predict_mult = true;
 
   if (check_weightsone() == true)
@@ -1356,23 +1382,19 @@ void DISTR_negbinzip_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
   double lambda;
-  if (*linpred[2] <= linpredminlimit)
+  if (*linpred[predstart_mumult+2] <= linpredminlimit)
     lambda = exp(linpredminlimit);
-//  else if (*linpred[2] >= linpredmaxlimit)
-//    lambda = exp(linpredmaxlimit);
   else
-    lambda = exp(*linpred[2]);
+    lambda = exp(*linpred[predstart_mumult+2]);
 
 
   double explinpi;
   double min = distrpi->linpredminlimit;
   double max = distrpi->linpredmaxlimit;
-  if (*linpred[1] <= min)
+  if (*linpred[predstart_mumult+1] <= min)
     explinpi = exp(min);
-// else if (*linpred[1] >= max)
-//    explinpi = exp(max);
   else
-    explinpi = exp(*linpred[1]);
+    explinpi = exp(*linpred[predstart_mumult+1]);
 
   *mu = 1/(1+explinpi)*lambda;
 
@@ -1389,8 +1411,6 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
   double mu;
   if (*linpred[2] <= linpredminlimit)
     mu = exp(linpredminlimit);
-//  else if (*linpred[2] >= linpredmaxlimit)
-//    mu = exp(linpredmaxlimit);
   else
     mu = exp(*linpred[2]);
 
@@ -1400,8 +1420,6 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
   double max = distrpi->linpredmaxlimit;
   if (*linpred[1] <= min)
     explinpi = exp(min);
-//  else if (*linpred[1] >= max)
-//    explinpi = exp(max);
   else
     explinpi = exp(*linpred[1]);
 
@@ -1411,8 +1429,6 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
   max = distrdelta->linpredmaxlimit;
   if (*linpred[0] <= min)
     explindelta = exp(min);
-//  else if (*linpred[0] >= max)
-//    explindelta = exp(max);
   else
     explindelta = exp(*linpred[0]);
 
@@ -1484,8 +1500,6 @@ void DISTR_negbinzip_mu::compute_iwls_wweightschange_weightsone(
   double mu;
   if (*linpred <= linpredminlimit)
     mu = exp(linpredminlimit);
-//  else if (*linpred >= linpredmaxlimit)
-//    mu = exp(linpredmaxlimit);
   else
     mu = exp(*linpred);
 
@@ -1574,6 +1588,10 @@ DISTR_negbinzip_pi::DISTR_negbinzip_pi(GENERAL_OPTIONS * o, const datamatrix & r
   : DISTR(o,r,w)
 
   {
+
+  predictor_name = "pi";
+  outpredictor = true;
+  outexpectation = false;
 
   predict_mult = true;
 
@@ -1720,8 +1738,6 @@ double DISTR_negbinzip_pi::loglikelihood_weightsone(
   double explinpredpi;
   if (*linpred <= linpredminlimit)
     explinpredpi = exp(linpredminlimit);
-//  else if (*linpred >= linpredmaxlimit)
-//    explinpredpi = exp(linpredmaxlimit);
   else
     explinpredpi = exp(*linpred);
 
@@ -1787,8 +1803,6 @@ void DISTR_negbinzip_pi::compute_iwls_wweightschange_weightsone(
   double explinpredpi;
   if (*linpred <= linpredminlimit)
     explinpredpi = exp(linpredminlimit);
-//  else if (*linpred >= linpredmaxlimit)
-//    explinpredpi = exp(linpredmaxlimit);
   else
     explinpredpi = exp(*linpred);
 
@@ -1872,6 +1886,10 @@ DISTR_negbinzip_delta::DISTR_negbinzip_delta(GENERAL_OPTIONS * o,
   : DISTR(o,r,w)
 
   {
+
+  predictor_name = "delta";
+  outpredictor = true;
+  outexpectation = false;
 
   responsemax = response.max(0);
 
@@ -2063,8 +2081,6 @@ double DISTR_negbinzip_delta::loglikelihood_weightsone(double * response,
   double delta;
   if (*linpred <= linpredminlimit)
     delta = exp(linpredminlimit);
-//  else if (*linpred >= linpredmaxlimit)
-//    delta = exp(linpredmaxlimit);
   else
     delta = exp(*linpred);
 
@@ -2141,8 +2157,6 @@ void DISTR_negbinzip_delta::compute_iwls_wweightschange_weightsone(
   double delta;
   if (*linpred <= linpredminlimit)
     delta = exp(linpredminlimit);
-//  else if (*linpred >= linpredmaxlimit)
-//    delta = exp(linpredmaxlimit);
   else
     delta = exp(*linpred);
 
@@ -2297,8 +2311,6 @@ void DISTR_negbinzip_delta::update_end(void)
 
     if (*worklin <= linpredminlimit)
       *l = exp(linpredminlimit);
-//    else if (*worklin >= linpredmaxlimit)
-//      *l = exp(linpredmaxlimit);
     else
       *l = exp(*worklin);
 
@@ -2364,6 +2376,9 @@ DISTR_ziplambda::DISTR_ziplambda(GENERAL_OPTIONS * o, const datamatrix & r,
 
   {
 
+  predictor_name = "lambda";
+  outpredictor = true;
+  outexpectation = true;
   predict_mult = true;
 
   if (check_weightsone() == true)
@@ -2511,21 +2526,17 @@ void DISTR_ziplambda::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
   double lambda;
-  if (*linpred[1] <= linpredminlimit)
+  if (*linpred[predstart_mumult+1] <= linpredminlimit)
     lambda = exp(linpredminlimit);
-//  else if (*linpred[1] >= linpredmaxlimit)
-//    lambda = exp(linpredmaxlimit);
   else
-    lambda = exp(*linpred[1]);
+    lambda = exp(*linpred[predstart_mumult+1]);
 
 
   double explinpi;
-  if (*linpred[0] <= distrpi->linpredminlimit)
+  if (*linpred[predstart_mumult] <= distrpi->linpredminlimit)
     explinpi = exp(distrpi->linpredminlimit);
-//  else if (*linpred[0] >= distrpi->linpredmaxlimit)
-//    explinpi = exp(distrpi->linpredmaxlimit);
   else
-    explinpi = exp(*linpred[0]);
+    explinpi = exp(*linpred[predstart_mumult]);
 
   *mu = 1/(1+explinpi)*lambda;
 
@@ -2721,6 +2732,11 @@ DISTR_zippi::DISTR_zippi(GENERAL_OPTIONS * o, const datamatrix & r,
   : DISTR(o,r,w)
 
   {
+
+  predictor_name = "pi";
+  outpredictor = true;
+  outexpectation = false;
+
 
   maindistribution=false;
   if (check_weightsone() == true)
