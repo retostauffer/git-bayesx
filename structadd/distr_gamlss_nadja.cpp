@@ -885,36 +885,35 @@ void DISTR_betainf_tau::compute_deviance_mult(vector<double *> response,
    // *linpred[2] = eta_sigma2
    // *linpred[3] = eta_mu
 
-   if (*weight[1] == 0)
+   if (*weight[3] == 0)
      *deviance=0;
    else
      {
-     double tau =  exp(*linpred[0]);
-     double nup = exp(*linpred[1]);
-     double sigma_2 = exp(*linpred[2])/(1+exp(*linpred[2]));
-     double mu = exp(*linpred[3])/(1+exp(*linpred[3]));
+     double tau =  exp(*linpred[3]);
+     double nup = exp(*linpred[2]);
+     double sigma_2 = exp(*linpred[1])/(1+exp(*linpred[1]));
+     double mu = exp(*linpred[0])/(1+exp(*linpred[0]));
      double help = (1-sigma_2)/sigma_2;
      double one_minus_mu_help = (1-mu)*help;
      double mu_help = mu*help;
-     double p1 = nup/(1+nup+tau);
-     double p2 = tau/(1+nup+tau);
+     double one_nup_tau = (1+nup+tau);
 
      double l;
 
-     if ((*response[1])==0)
+     if ((*response[3])==0)
      {
-         l = log(nup) - log(1+nup+tau);
+         l = log(nup) - log(one_nup_tau);
      }
-     else if ((*response[1])==1)
+     else if ((*response[3])==1)
      {
-        l = log(tau) - log(1+nup+tau);
+        l = log(tau) - log(one_nup_tau);
      }
      else
-       l = (mu_help-1)*log(*response[1]) +
-			(one_minus_mu_help-1)*log(1-(*response[1]))-
+       l = (mu_help-1)*log(*response[3]) +
+			(one_minus_mu_help-1)*log(1-(*response[3]))-
 			randnumbers::lngamma_exact(mu_help)-
 			randnumbers::lngamma_exact(one_minus_mu_help)+
-			randnumbers::lngamma_exact(help);
+			randnumbers::lngamma_exact(help)- log(one_nup_tau);
 
 
     *deviance = -2*l;
@@ -1019,9 +1018,9 @@ void DISTR_betainf_tau::compute_iwls_wweightschange_weightsone(
 
 void DISTR_betainf_tau::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-  double exp_lin_tau = exp(*linpred[0]);
-  double exp_lin_nup = exp(*linpred[1]);
-  double exp_lin_mu = exp(*linpred[3]);
+  double exp_lin_tau = exp(*linpred[3]);
+  double exp_lin_nup = exp(*linpred[2]);
+  double exp_lin_mu = exp(*linpred[0]);
   double hilfs = (1+exp_lin_tau+exp_lin_nup);
   *mu = (1-(exp_lin_tau+exp_lin_nup)/hilfs)*(exp_lin_mu/(1+exp_lin_mu))+exp_lin_tau/(hilfs);
   }
@@ -1775,18 +1774,18 @@ void DISTR_dagum_a::compute_deviance_mult(vector<double *> response,
    // *linpred[1] = eta_b
    // *linpred[2] = eta_a
 
-   if (*weight[1] == 0)
+   if (*weight[2] == 0)
      *deviance=0;
    else
      {
 	 double p = exp(*linpred[0]);
      double b = exp(*linpred[1]);
      double a = exp(*linpred[2]);
-     double hilfs = pow((*response[1])/b,a);
+     double hilfs = pow((*response[2])/b,a);
 
      double l;
 
-       l = log(a) + log(p) +(a*p-1)*log((*response[1])) - a*p*log(b) - (p+1)*log(1+hilfs);
+       l = log(a) + log(p) +(a*p-1)*log((*response[2])) - a*p*log(b) - (p+1)*log(1+hilfs);
 
 
     *deviance = -2*l;
@@ -1933,11 +1932,11 @@ void DISTR_dagum_a::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_weibull_sigma ---------------------------
+//------------------------- CLASS: DISTR_weibull_alpha ---------------------------
 //------------------------------------------------------------------------------
 
 
-DISTR_weibull_sigma::DISTR_weibull_sigma(GENERAL_OPTIONS * o,
+DISTR_weibull_alpha::DISTR_weibull_alpha(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
@@ -1946,15 +1945,15 @@ DISTR_weibull_sigma::DISTR_weibull_sigma(GENERAL_OPTIONS * o,
   }
 
 
-DISTR_weibull_sigma::DISTR_weibull_sigma(const DISTR_weibull_sigma & nd)
+DISTR_weibull_alpha::DISTR_weibull_alpha(const DISTR_weibull_alpha & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
 
   }
 
 
-const DISTR_weibull_sigma & DISTR_weibull_sigma::operator=(
-                            const DISTR_weibull_sigma & nd)
+const DISTR_weibull_alpha & DISTR_weibull_alpha::operator=(
+                            const DISTR_weibull_alpha & nd)
   {
   if (this==&nd)
     return *this;
@@ -1963,13 +1962,13 @@ const DISTR_weibull_sigma & DISTR_weibull_sigma::operator=(
   }
 
 
-double DISTR_weibull_sigma::get_intercept_start(void)
+double DISTR_weibull_alpha::get_intercept_start(void)
   {
   return 0; // log(response.mean(0));
   }
 
 
-double DISTR_weibull_sigma::loglikelihood_weightsone(double * response,
+double DISTR_weibull_alpha::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
 
@@ -1994,7 +1993,7 @@ double DISTR_weibull_sigma::loglikelihood_weightsone(double * response,
 
   }
 
-void DISTR_weibull_sigma::compute_iwls_wweightschange_weightsone(
+void DISTR_weibull_alpha::compute_iwls_wweightschange_weightsone(
                                               double * response,
                                               double * linpred,
                                               double * workingweight,
@@ -2034,7 +2033,7 @@ void DISTR_weibull_sigma::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_weibull_sigma::outoptions(void)
+void DISTR_weibull_alpha::outoptions(void)
   {
   DISTR::outoptions();
   optionsp->out("  Link function (sigma): exponential\n");
@@ -2043,7 +2042,7 @@ void DISTR_weibull_sigma::outoptions(void)
   }
 
 
-void DISTR_weibull_sigma::update_end(void)
+void DISTR_weibull_alpha::update_end(void)
   {
 
   // helpmat1 stores sigma
@@ -2066,10 +2065,10 @@ void DISTR_weibull_sigma::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_weibull_mu ------------------------
+//--------------------------- CLASS: DISTR_weibull_lambda ------------------------
 //------------------------------------------------------------------------------
 
-void DISTR_weibull_mu::check_errors(void)
+void DISTR_weibull_lambda::check_errors(void)
   {
 
   if (errors==false)
@@ -2111,7 +2110,7 @@ void DISTR_weibull_mu::check_errors(void)
   }
 
 
-DISTR_weibull_mu::DISTR_weibull_mu(GENERAL_OPTIONS * o,
+DISTR_weibull_lambda::DISTR_weibull_lambda(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
@@ -2120,15 +2119,15 @@ DISTR_weibull_mu::DISTR_weibull_mu(GENERAL_OPTIONS * o,
   }
 
 
-DISTR_weibull_mu::DISTR_weibull_mu(const DISTR_weibull_mu & nd)
+DISTR_weibull_lambda::DISTR_weibull_lambda(const DISTR_weibull_lambda & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
 
   }
 
 
-const DISTR_weibull_mu & DISTR_weibull_mu::operator=(
-                            const DISTR_weibull_mu & nd)
+const DISTR_weibull_lambda & DISTR_weibull_lambda::operator=(
+                            const DISTR_weibull_lambda & nd)
   {
   if (this==&nd)
     return *this;
@@ -2137,7 +2136,7 @@ const DISTR_weibull_mu & DISTR_weibull_mu::operator=(
   }
 
 
-void DISTR_weibull_mu::compute_deviance_mult(vector<double *> response,
+void DISTR_weibull_lambda::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
@@ -2166,13 +2165,13 @@ void DISTR_weibull_mu::compute_deviance_mult(vector<double *> response,
   }
 
 
-double DISTR_weibull_mu::get_intercept_start(void)
+double DISTR_weibull_lambda::get_intercept_start(void)
   {
   return 0; // log(response.mean(0));
   }
 
 
-double DISTR_weibull_mu::loglikelihood_weightsone(double * response,
+double DISTR_weibull_lambda::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
 
@@ -2198,7 +2197,7 @@ double DISTR_weibull_mu::loglikelihood_weightsone(double * response,
   }
 
 
-void DISTR_weibull_mu::compute_iwls_wweightschange_weightsone(
+void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
                                               double * response,
                                               double * linpred,
                                               double * workingweight,
@@ -2242,7 +2241,7 @@ void DISTR_weibull_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_weibull_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_weibull_lambda::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
    double hilfs = 1+1/exp((*linpred[0]));
@@ -2251,7 +2250,7 @@ void DISTR_weibull_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   }
 
 
-void DISTR_weibull_mu::outoptions(void)
+void DISTR_weibull_lambda::outoptions(void)
   {
   DISTR::outoptions();
   optionsp->out("  Link function (mu): exponential\n");
@@ -2260,7 +2259,7 @@ void DISTR_weibull_mu::outoptions(void)
   }
 
 
-void DISTR_weibull_mu::update_end(void)
+void DISTR_weibull_lambda::update_end(void)
   {
 
 
@@ -3215,7 +3214,7 @@ void DISTR_gengamma_mu::compute_deviance_mult(vector<double *> response,
    // *linpred[1] = eta_sigma
    // *linpred[2] = eta_mu
 
-   if (*weight[1] == 0)
+   if (*weight[2] == 0)
      *deviance=0;
    else
      {
@@ -3225,7 +3224,7 @@ void DISTR_gengamma_mu::compute_deviance_mult(vector<double *> response,
 
      double l;
 
-       l = log(tau) + (sig*tau-1)*log((*response[1])) -pow(((sig/mu)*(*response[1])),tau) + sig*tau*log(sig/mu) -randnumbers::lngamma_exact(sig);
+       l = log(tau) + (sig*tau-1)*log((*response[2])) -pow(((sig/mu)*(*response[2])),tau) + sig*tau*log(sig/mu) -randnumbers::lngamma_exact(sig);
 
 
     *deviance = -2*l;

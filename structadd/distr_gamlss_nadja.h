@@ -672,10 +672,10 @@ class __EXPORT_TYPE DISTR_dagum_a : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_weibull_sigma -----------------------------
+//----------------------- CLASS: DISTR_weibull_alpha -----------------------------
 //------------------------------------------------------------------------------
 
-class __EXPORT_TYPE DISTR_weibull_sigma : public DISTR_gamlss
+class __EXPORT_TYPE DISTR_weibull_alpha : public DISTR_gamlss
   {
 
   protected:
@@ -686,26 +686,26 @@ class __EXPORT_TYPE DISTR_weibull_sigma : public DISTR_gamlss
 
    // DEFAULT CONSTRUCTOR
 
-  DISTR_weibull_sigma(void) : DISTR_gamlss()
+  DISTR_weibull_alpha(void) : DISTR_gamlss()
     {
     }
 
    // CONSTRUCTOR
 
-  DISTR_weibull_sigma(GENERAL_OPTIONS * o, const datamatrix & r,
+  DISTR_weibull_alpha(GENERAL_OPTIONS * o, const datamatrix & r,
                        const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
 
-  DISTR_weibull_sigma(const DISTR_weibull_sigma & nd);
+  DISTR_weibull_alpha(const DISTR_weibull_alpha & nd);
 
    // OVERLOADED ASSIGNMENT OPERATOR
 
-  const DISTR_weibull_sigma & operator=(const DISTR_weibull_sigma & nd);
+  const DISTR_weibull_alpha & operator=(const DISTR_weibull_alpha & nd);
 
    // DESTRUCTOR
 
-  ~DISTR_weibull_sigma() {}
+  ~DISTR_weibull_alpha() {}
 
   double get_intercept_start(void);
 
@@ -727,10 +727,10 @@ class __EXPORT_TYPE DISTR_weibull_sigma : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_weibull_mu -------------------------------
+//----------------------- CLASS: DISTR_weibull_lambda -------------------------------
 //------------------------------------------------------------------------------
 
-class __EXPORT_TYPE DISTR_weibull_mu : public DISTR_gamlss
+class __EXPORT_TYPE DISTR_weibull_lambda : public DISTR_gamlss
   {
 
   protected:
@@ -742,26 +742,26 @@ class __EXPORT_TYPE DISTR_weibull_mu : public DISTR_gamlss
 
    // DEFAULT CONSTRUCTOR
 
-  DISTR_weibull_mu(void) : DISTR_gamlss()
+  DISTR_weibull_lambda(void) : DISTR_gamlss()
     {
     }
 
    // CONSTRUCTOR
 
-  DISTR_weibull_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+  DISTR_weibull_lambda(GENERAL_OPTIONS * o, const datamatrix & r,
                        const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR
 
-  DISTR_weibull_mu(const DISTR_weibull_mu & nd);
+  DISTR_weibull_lambda(const DISTR_weibull_lambda & nd);
 
    // OVERLOADED ASSIGNMENT OPERATOR
 
-  const DISTR_weibull_mu & operator=(const DISTR_weibull_mu & nd);
+  const DISTR_weibull_lambda & operator=(const DISTR_weibull_lambda & nd);
 
    // DESTRUCTOR
 
-  ~DISTR_weibull_mu() {}
+  ~DISTR_weibull_lambda() {}
 
   void compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,

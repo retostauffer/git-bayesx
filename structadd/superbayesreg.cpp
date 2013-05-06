@@ -254,8 +254,8 @@ void superbayesreg::create_hregress(void)
  //   families.push_back("zinb2_mu");
  // families.push_back("zinb2_pi");
  // families.push_back("zinb2_delta");
-  families.push_back("weibull_mu");
-  families.push_back("weibull_sigma");
+  families.push_back("weibull_lambda");
+  families.push_back("weibull_alpha");
   families.push_back("dagum_a");
   families.push_back("dagum_b");
   families.push_back("dagum_p");
@@ -279,6 +279,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("delta");
   equationtypes.push_back("sigma2");
   equationtypes.push_back("sigma");
+  equationtypes.push_back("location");
   equationtypes.push_back("scale");
   equationtypes.push_back("shape");
   equationtypes.push_back("shape1");
@@ -598,11 +599,11 @@ void superbayesreg::clear(void)
   distr_zeroadjusted_mults.erase(distr_zeroadjusted_mults.begin(),distr_zeroadjusted_mults.end());
   distr_zeroadjusted_mults.reserve(5);
 
-  distr_weibull_mus.erase(distr_weibull_mus.begin(),distr_weibull_mus.end());
-  distr_weibull_mus.reserve(20);
+  distr_weibull_lambdas.erase(distr_weibull_lambdas.begin(),distr_weibull_lambdas.end());
+  distr_weibull_lambdas.reserve(20);
 
-  distr_weibull_sigmas.erase(distr_weibull_sigmas.begin(),distr_weibull_sigmas.end());
-  distr_weibull_sigmas.reserve(20);
+  distr_weibull_alphas.erase(distr_weibull_alphas.begin(),distr_weibull_alphas.end());
+  distr_weibull_alphas.reserve(20);
 
    distr_dagum_as.erase(distr_dagum_as.begin(),distr_dagum_as.end());
   distr_dagum_as.reserve(20);
@@ -802,8 +803,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gengamma_taus = b.distr_gengamma_taus;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
   distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;  
-  distr_weibull_mus = b.distr_weibull_mus;
-  distr_weibull_sigmas = b.distr_weibull_sigmas;
+  distr_weibull_lambdas = b.distr_weibull_lambdas;
+  distr_weibull_alphas = b.distr_weibull_alphas;
   distr_dagum_as = b.distr_dagum_as;
   distr_dagum_bs = b.distr_dagum_bs;
   distr_dagum_ps = b.distr_dagum_ps;
@@ -919,8 +920,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gengamma_taus = b.distr_gengamma_taus;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
   distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;  
-  distr_weibull_mus = b.distr_weibull_mus;
-  distr_weibull_sigmas = b.distr_weibull_sigmas;
+  distr_weibull_lambdas = b.distr_weibull_lambdas;
+  distr_weibull_alphas = b.distr_weibull_alphas;
   distr_dagum_as = b.distr_dagum_as;
   distr_dagum_bs = b.distr_dagum_bs;
   distr_dagum_ps = b.distr_dagum_ps;
@@ -1060,6 +1061,12 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": MAIN SIGMA REGRESSION_"+ rn;
       equations[modnr].paths = "MAIN_SIGMA_REGRESSION_"+ rn;
       }
+    else if (equations[modnr].equationtype == "location")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN LOCATION REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_LOCATION_REGRESSION_"+ rn;
+      }
     else if (equations[modnr].equationtype == "scale")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
@@ -1143,6 +1150,12 @@ void superbayesreg::make_header(unsigned & modnr)
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
                               ": RANDOM EFFECTS SCALE REGRESSION";
       equations[modnr].paths = "RANDOM_EFFECTS_SCALE";
+      }
+    else if (equations[modnr].equationtype == "location")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS LOCATION REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_LOCATION";
       }
     else if (equations[modnr].equationtype == "shape")
       {
@@ -1636,7 +1649,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: negbin mu -------------------------------
 
 //-------------------------------- betainf_mu ---------------------------------
-  else if (family.getvalue() == "betainf_mu" && equationtype.getvalue()=="mu")
+  else if (family.getvalue() == "betainf_mu" && equationtype.getvalue()=="location")
     {
 
     computemodeforstartingvalues = true;
@@ -1646,13 +1659,12 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_betainf_mus[distr_betainf_mus.size()-1];
     equations[modnr].pathd = "";
 
-    predict_mult_distrs.push_back(&distr_betainf_mus[distr_betainf_mus.size()-1]);
 
     }
 //---------------------------- END: betainf_mu -------------------------------
 
 //-------------------------------- betainf_sigma2 ---------------------------------
-  else if (family.getvalue() == "betainf_sigma2" && equationtype.getvalue()=="sigma2")
+  else if (family.getvalue() == "betainf_sigma2" && equationtype.getvalue()=="scale")
     {
 
     computemodeforstartingvalues = true;
@@ -1662,13 +1674,11 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_betainf_sigma2s[distr_betainf_sigma2s.size()-1];
     equations[modnr].pathd = "";
 
-    predict_mult_distrs.push_back(&distr_betainf_sigma2s[distr_betainf_sigma2s.size()-1]);
-
     }
 //---------------------------- END: betainf_sigma2 -------------------------------
 
 //-------------------------------- betainf_nu ---------------------------------
-  else if (family.getvalue() == "betainf_nu" && equationtype.getvalue()=="nu")
+  else if (family.getvalue() == "betainf_nu" && equationtype.getvalue()=="shape")
     {
 
     computemodeforstartingvalues = true;
@@ -1677,8 +1687,6 @@ bool superbayesreg::create_distribution(void)
 
     equations[modnr].distrp = &distr_betainf_nus[distr_betainf_nus.size()-1];
     equations[modnr].pathd = "";
-
-    predict_mult_distrs.push_back(&distr_betainf_nus[distr_betainf_nus.size()-1]);
 
     }
 //---------------------------- END: betainf_nu -------------------------------
@@ -1694,10 +1702,11 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_betainf_taus[distr_betainf_taus.size()-1];
     equations[modnr].pathd = "";
 
-    predict_mult_distrs.push_back(&distr_betainf_taus[distr_betainf_taus.size()-1]);
-    predict_mult_distrs.push_back(&distr_betainf_nus[distr_betainf_nus.size()-1]);
-    predict_mult_distrs.push_back(&distr_betainf_sigma2s[distr_betainf_sigma2s.size()-1]);
     predict_mult_distrs.push_back(&distr_betainf_mus[distr_betainf_mus.size()-1]);
+    predict_mult_distrs.push_back(&distr_betainf_sigma2s[distr_betainf_sigma2s.size()-1]);
+    predict_mult_distrs.push_back(&distr_betainf_nus[distr_betainf_nus.size()-1]);
+    predict_mult_distrs.push_back(&distr_betainf_taus[distr_betainf_taus.size()-1]);
+
 
     if (distr_betainf_sigma2s.size() != 1)
       {
@@ -2016,52 +2025,52 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: pareto_b -------------------------------
 
 
- //-------------------------------- weibull_sigma ---------------------------------
-  else if (family.getvalue() == "weibull_sigma" && equationtype.getvalue()=="shape")
+ //-------------------------------- weibull_alpha ---------------------------------
+  else if (family.getvalue() == "weibull_alpha" && equationtype.getvalue()=="shape")
     {
 
     computemodeforstartingvalues = true;
 
-    distr_weibull_sigmas.push_back(DISTR_weibull_sigma(&generaloptions,D.getCol(0),w));
+    distr_weibull_alphas.push_back(DISTR_weibull_alpha(&generaloptions,D.getCol(0),w));
 
-    equations[modnr].distrp = &distr_weibull_sigmas[distr_weibull_sigmas.size()-1];
+    equations[modnr].distrp = &distr_weibull_alphas[distr_weibull_alphas.size()-1];
     equations[modnr].pathd = "";
 
-    predict_mult_distrs.push_back(&distr_weibull_sigmas[distr_weibull_sigmas.size()-1]);
+    predict_mult_distrs.push_back(&distr_weibull_alphas[distr_weibull_alphas.size()-1]);
 
     }
-//---------------------------- END: weibull_sigma -------------------------------
+//---------------------------- END: weibull_alpha -------------------------------
 
 
-//------------------------------- weibull_mu ------------------------------------
-  else if (family.getvalue() == "weibull_mu" && equationtype.getvalue()=="mean")
+//------------------------------- weibull_lambda ------------------------------------
+  else if (family.getvalue() == "weibull_lambda" && equationtype.getvalue()=="mean")
     {
 
     computemodeforstartingvalues = true;
 
-    distr_weibull_mus.push_back(DISTR_weibull_mu(&generaloptions,D.getCol(0),w));
+    distr_weibull_lambdas.push_back(DISTR_weibull_lambda(&generaloptions,D.getCol(0),w));
 
-    equations[modnr].distrp = &distr_weibull_mus[distr_weibull_mus.size()-1];
+    equations[modnr].distrp = &distr_weibull_lambdas[distr_weibull_lambdas.size()-1];
     equations[modnr].pathd = "";
 
-    predict_mult_distrs.push_back(&distr_weibull_mus[distr_weibull_mus.size()-1]);
+    predict_mult_distrs.push_back(&distr_weibull_lambdas[distr_weibull_lambdas.size()-1]);
 
-    if (distr_weibull_sigmas.size() != 1)
+    if (distr_weibull_alphas.size() != 1)
       {
       outerror("ERROR: Equation for sigma is missing");
       return true;
       }
     else
       {
-      distr_weibull_sigmas[distr_weibull_sigmas.size()-1].distrp.push_back
-      (&distr_weibull_mus[distr_weibull_mus.size()-1]);
+      distr_weibull_alphas[distr_weibull_alphas.size()-1].distrp.push_back
+      (&distr_weibull_lambdas[distr_weibull_lambdas.size()-1]);
 
-      distr_weibull_mus[distr_weibull_mus.size()-1].distrp.push_back
-      (&distr_weibull_sigmas[distr_weibull_sigmas.size()-1]);
+      distr_weibull_lambdas[distr_weibull_lambdas.size()-1].distrp.push_back
+      (&distr_weibull_alphas[distr_weibull_alphas.size()-1]);
       }
 
     }
-//------------------------------- END: weibull_mu -------------------------------
+//------------------------------- END: weibull_lambda -------------------------------
 
 
 
@@ -2211,7 +2220,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //-------------------------------- beta sigma2 ---------------------------------
-  else if (family.getvalue() == "beta_sigma2" && equationtype.getvalue()=="sigma2")
+  else if (family.getvalue() == "beta_sigma2" && equationtype.getvalue()=="scale")
     {
 
     computemodeforstartingvalues = true;
