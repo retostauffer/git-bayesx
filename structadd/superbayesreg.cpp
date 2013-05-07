@@ -98,6 +98,18 @@ bool superbayesreg::find_continuous_multparam(vector<DISTR*> & m)
     m.push_back(&distr_lognormal_sigma2s[0]);
     m.push_back(&distr_lognormal_mus[0]);
     }
+  if (distr_invgaussian_mus.size()==1)
+    {
+    found = true;
+    m.push_back(&distr_invgaussian_sigma2s[0]);
+    m.push_back(&distr_invgaussian_mus[0]);
+    }
+  if (distr_gamma_mus.size()==1)
+    {
+    found = true;
+    m.push_back(&distr_gamma_sigmas[0]);
+    m.push_back(&distr_gamma_mus[0]);
+    }
   else if (distr_hetgaussians.size()==1)
     {
     found = true;
@@ -107,6 +119,9 @@ bool superbayesreg::find_continuous_multparam(vector<DISTR*> & m)
 
   return found;
   }
+
+  vector<DISTR_gamma_mu> distr_gamma_mus;
+  vector<DISTR_gamma_sigma> distr_gamma_sigmas;
 
 
 void superbayesreg::make_paths(ST::string & pathnonp,
@@ -2093,7 +2108,9 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- gamma_mu ------------------------------------
-  else if (family.getvalue() == "gamma_mu" && equationtype.getvalue()=="mean")
+  else if ((family.getvalue() == "gamma_mu") &&
+          ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
+          )
     {
 
     computemodeforstartingvalues = true;
@@ -2139,7 +2156,9 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: invgaussian sigma2 -------------------------------
 
 //------------------------------- invgaussian mu ------------------------------------
-  else if (family.getvalue() == "invgaussian_mu" && equationtype.getvalue()=="mean")
+  else if ((family.getvalue() == "invgaussian_mu") &&
+           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
+          )
     {
 
     computemodeforstartingvalues = true;
@@ -2784,6 +2803,11 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: Binomial response probit ---------------------
+  else
+    {
+    outerror("ERROR: Invalid distribution specification (check family and/or equationtype option)\n");
+    return true;
+    }
 
   equations[modnr].distrp->responsename=rname;
   equations[modnr].distrp->weightname=wn;

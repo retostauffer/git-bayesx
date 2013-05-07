@@ -34,6 +34,10 @@ DISTR_invgaussian_sigma2::DISTR_invgaussian_sigma2(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Inverse Gaussian - sigma2";
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma2";
+
   }
 
 
@@ -207,6 +211,9 @@ DISTR_invgaussian_mu::DISTR_invgaussian_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Inverse Gaussian - mu";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
   }
 
 
@@ -333,7 +340,7 @@ void DISTR_invgaussian_mu::compute_iwls_wweightschange_weightsone(
 void DISTR_invgaussian_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
-  *mu = exp((*linpred[1]));
+  *mu = exp((*linpred[predstart_mumult+1]));
 
   }
 
@@ -3369,6 +3376,9 @@ DISTR_gamma_sigma::DISTR_gamma_sigma(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "gamma - sigma";
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma";
   }
 
 
@@ -3543,6 +3553,9 @@ DISTR_gamma_mu::DISTR_gamma_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "gamma - mu";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
   }
 
 
@@ -3668,7 +3681,7 @@ void DISTR_gamma_mu::compute_iwls_wweightschange_weightsone(
 void DISTR_gamma_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
-  *mu = exp((*linpred[1]));
+  *mu = exp((*linpred[predstart_mumult+1]));
 
   }
 
