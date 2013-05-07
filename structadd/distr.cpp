@@ -317,6 +317,13 @@ void DISTR::outoptions(void)
   if (offsetname.length() > 0)
     optionsp->out("  Offset: " + offsetname + "\n");
 
+
+    optionsp->out("  Number of observations with positive weights: " +
+      ST::inttostring(nrobs-nrzeroweights) + "\n");
+
+      optionsp->out("\n");
+
+
   if (optionsp->saveestimation)
     {
     optionsp->out("  Limits for predictor (save estimation mode):\n");
