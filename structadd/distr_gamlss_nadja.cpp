@@ -37,6 +37,8 @@ DISTR_invgaussian_sigma2::DISTR_invgaussian_sigma2(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma2";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
 
   }
 
@@ -214,6 +216,8 @@ DISTR_invgaussian_mu::DISTR_invgaussian_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -389,6 +393,11 @@ DISTR_betainf_mu::DISTR_betainf_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Beta Inflated - mu";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "mu";
+    linpredminlimit=-10;
+  linpredmaxlimit=10;
   }
 
 
@@ -543,6 +552,11 @@ DISTR_betainf_sigma2::DISTR_betainf_sigma2(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Beta Inflated - sigma2";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma2";
+    linpredminlimit=-10;
+  linpredmaxlimit=10;
   }
 
 
@@ -699,6 +713,11 @@ DISTR_betainf_nu::DISTR_betainf_nu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Beta Inflated - nu";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "nu";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -859,6 +878,11 @@ DISTR_betainf_tau::DISTR_betainf_tau(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Beta Inflated - tau";
+    outpredictor = true;
+  outexpectation = true;
+  predictor_name = "tau";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -1078,6 +1102,11 @@ DISTR_pareto_p::DISTR_pareto_p(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Pareto - p";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "p";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -1250,6 +1279,11 @@ DISTR_pareto_b::DISTR_pareto_b(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Pareto - b";
+    outpredictor = true;
+  outexpectation = true;
+  predictor_name = "b";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -1428,6 +1462,11 @@ DISTR_dagum_p::DISTR_dagum_p(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   family = "Dagum - p";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "p";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -1570,6 +1609,11 @@ DISTR_dagum_b::DISTR_dagum_b(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   family = "Dagum - b";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "b";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -1749,6 +1793,11 @@ DISTR_dagum_a::DISTR_dagum_a(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   family = "Dagum - a";
+    outpredictor = true;
+  outexpectation = true;
+  predictor_name = "a";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -1948,7 +1997,12 @@ DISTR_weibull_alpha::DISTR_weibull_alpha(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Weibull - sigma";
+  family = "Weibull - alpha";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "alpha";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -2043,7 +2097,7 @@ void DISTR_weibull_alpha::compute_iwls_wweightschange_weightsone(
 void DISTR_weibull_alpha::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("  Link function (alpha): exponential\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -2122,7 +2176,12 @@ DISTR_weibull_lambda::DISTR_weibull_lambda(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Weibull - mu";
+  family = "Weibull - lambda";
+    outpredictor = true;
+  outexpectation = true;
+  predictor_name = "lambda";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -2260,7 +2319,7 @@ void DISTR_weibull_lambda::compute_mu_mult(vector<double *> linpred,double * mu)
 void DISTR_weibull_lambda::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (mu): exponential\n");
+  optionsp->out("  Link function (lambda): exponential\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -2867,6 +2926,11 @@ DISTR_gengamma_tau::DISTR_gengamma_tau(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   family = "Generalized gamma - tau";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "tau";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -3009,6 +3073,11 @@ DISTR_gengamma_sigma::DISTR_gengamma_sigma(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   family = "Generalized gamma - sigma";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -3189,6 +3258,11 @@ DISTR_gengamma_mu::DISTR_gengamma_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   family = "Generalized gamma - mu";
+    outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -3379,6 +3453,8 @@ DISTR_gamma_sigma::DISTR_gamma_sigma(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -3556,6 +3632,8 @@ DISTR_gamma_mu::DISTR_gamma_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -3735,6 +3813,8 @@ DISTR_lognormal_sigma2::DISTR_lognormal_sigma2(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma2";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
 
   }
 
@@ -3912,6 +3992,8 @@ DISTR_lognormal_mu::DISTR_lognormal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -4086,6 +4168,11 @@ DISTR_beta_sigma2::DISTR_beta_sigma2(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Beta - sigma2";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma2";
+    linpredminlimit=-10;
+  linpredmaxlimit=10;
   }
 
 
@@ -4291,6 +4378,11 @@ DISTR_beta_mu::DISTR_beta_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "Beta - mu";
+    outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
+  linpredminlimit=-10;
+  linpredmaxlimit=10;
   }
 
 
