@@ -1454,6 +1454,7 @@ bool superbayesreg::create_distribution(void)
 
   unsigned modnr = equations.size()-1;
 
+  // ST::string f = family.getvalue();
 
 //---------------------------- Gaussian response -------------------------------
   if (family.getvalue() == "gaussian")
@@ -1476,7 +1477,7 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: Gaussian response ----------------------------
 
 //------------- variance equation of heteroscedastic Gaussian ------------------
-  if (family.getvalue() == "hetgaussian" && equationtype.getvalue()=="variance")
+  else if (family.getvalue() == "hetgaussian" && equationtype.getvalue()=="variance")
     {
 
     distr_vargaussians.push_back(DISTR_vargaussian(&generaloptions,D.getCol(0)));
