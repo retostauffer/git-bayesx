@@ -158,5 +158,5 @@ add_definitions(-D__BUILDING_LINUX)
 find_package(Readline REQUIRED)
 target_link_libraries(bayesx ${READLINE_LIBRARY})
 endif()
-add_subdirectory(java)
+#add_subdirectory(java)
 

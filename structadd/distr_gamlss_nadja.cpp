@@ -82,7 +82,7 @@ double DISTR_invgaussian_sigma2::loglikelihood_weightsone(double * response,
 
   double l;
 
-     l = -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*(*response)*pow((*worktransformlin[0]),2)*sigma_2);
+     l = -0.5*log(sigma_2)-pow((((*response))-(*worktransformlin[0])),2)/(2*(*response)*pow((*worktransformlin[0]),2)*sigma_2);
 
 
   modify_worklin();
@@ -111,7 +111,7 @@ void DISTR_invgaussian_sigma2::compute_iwls_wweightschange_weightsone(
     double sigma_2 = exp(*linpred);
 
 
-    double nu = -0.5 + (pow(((*response)-(*worklin[0])),2))/(2*(*response)*(pow((*worktransformlin[0]),2))*sigma_2);
+    double nu = -0.5 + (pow(((*response)-(*worktransformlin[0])),2))/(2*(*response)*(pow((*worktransformlin[0]),2))*sigma_2);
 
 
 
@@ -122,7 +122,7 @@ void DISTR_invgaussian_sigma2::compute_iwls_wweightschange_weightsone(
     if (compute_like)
       {
 
-        like +=  -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*(*response)*pow((*worktransformlin[0]),2)*sigma_2);
+        like +=  -0.5*log(sigma_2)-pow((((*response))-(*worktransformlin[0])),2)/(2*(*response)*pow((*worktransformlin[0]),2)*sigma_2);
 
       }
 
