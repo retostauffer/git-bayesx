@@ -511,9 +511,9 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
             }
           // end mu
 
-          outres << endl;
           }
 
+        outres << endl;
         }
 
       } // end: if (nosamplessave==false)
