@@ -89,12 +89,14 @@ FC_linear::FC_linear(MASTER_OBJ * mp,unsigned & enr,GENERAL_OPTIONS * o,DISTR * 
 
   center = cent;
   rankXWX_ok = true;
+  constwarning=false;
   }
 
 
 FC_linear::FC_linear(const FC_linear & m)
   : FC(FC(m))
   {
+  constwarning=m.constwarning;
   constposition = m.constposition;
   masterp = m.masterp;
   equationnr = m.equationnr;
@@ -135,6 +137,7 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+  constwarning=m.constwarning;  
   constposition = m.constposition;
   masterp = m.masterp;
   equationnr = m.equationnr;
@@ -178,7 +181,6 @@ void FC_linear::add_linpred(datamatrix & l)
   else
     likep->linearpred2.plus(l);
   }
-
 
 
 
@@ -734,8 +736,17 @@ bool FC_linear::posteriormode(void)
       return FC::posteriormode();
       }
     }
-
-
+  else
+    {
+    if (constwarning==false)
+      {
+      constwarning=true;
+      optionsp->out("\n");
+      optionsp->out("WARNING: AT LEAST ONE EQUATION CONTAINS NO INTERCEPT\n");
+      optionsp->out("         Intercept may be specified using const in linear effects term\n");
+      optionsp->out("\n");
+      }
+    }
 
   return true;
   }

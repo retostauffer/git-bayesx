@@ -128,12 +128,6 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   return *this;
   }
 
-/*
-void FC_nonp_variance::transform_beta(void)
-  {
-  transform(0,0) = pow(likep->trmult,2);
-  }
-*/
 
 void FC_nonp_variance::update(void)
   {
@@ -150,13 +144,6 @@ void FC_nonp_variance::update(void)
     beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
                 b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
 
-/*
-    if (beta(0,0) > 3)
-      beta(0,0) = 3;
-
-    if (beta(0,0) < 0.001)
-      beta(0,0) = 0.001;
-*/
 
     beta(0,1) = likep->get_scale()/beta(0,0);
 
@@ -179,8 +166,6 @@ bool FC_nonp_variance::posteriormode(void)
 
   FCnonpp->tau2 = beta(0,0);
 
-  // transform_beta();
-
   posteriormode_betamean();
 
   return true;
@@ -193,8 +178,6 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
   {
 
   FC::outresults(out_stata,out_R,"");
-
-//  optionsp->out("\n");
 
   ST::string l1 = ST::doubletostring(optionsp->lower1,4);
   ST::string l2 = ST::doubletostring(optionsp->lower2,4);
@@ -247,6 +230,7 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
 
     optionsp->out("\n");
 
+/*
     optionsp->out("    Smoothing parameter\n");
 
     optionsp->out("\n");
@@ -281,6 +265,7 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
     ST::doubletostring(betaqu_l1_upper(0,1),6) + "\n");
 
     optionsp->out("\n");
+    */
     }
   else
     {
@@ -290,6 +275,7 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
     optionsp->out("\n");
     }
 
+  out_R << "term=" << title <<  ";" << endl;
 
   if (pathresults.isvalidfile() != 1)
     {
@@ -297,13 +283,14 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
     optionsp->out("    Results for the variance component are also stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
+    out_R << "filetype=param; path=" << pathresults << ";" <<  endl;
 
     ofstream ou(pathresults.strtochar());
 
     if (optionsp->samplesize > 1)
       {
-      ou << "pmean  pstddev  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
-      nu1 << "   pqu" << nu2 << "  pmin  pmax" << endl;
+      ou << "pmean  pstd  pqu"  << nl1 << "   pqu" << nl2 << "  pmed pqu" <<
+      nu1 << "   pqu" << nu2 << endl;
       }
     else
       {
@@ -313,14 +300,15 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
     ou << betamean(0,0) << "  ";
     if (optionsp->samplesize > 1)
       {
-      ou << (betavar(0,0)<0.0?0.0:sqrt(betavar(0,0))) << "  ";
+      if (betavar(0,0) < 0.0000000000001)
+        ou << 0 << "  ";
+      else
+        ou << sqrt(betavar(0,0)) << "  ";
       ou << betaqu_l1_lower(0,0) << "  ";
       ou << betaqu_l2_lower(0,0) << "  ";
       ou << betaqu50(0,0) << "  ";
       ou << betaqu_l2_upper(0,0) << "  ";
-      ou << betaqu_l1_upper(0,0) << "  ";
-      ou << betamin(0,0) << "  ";
-      ou << betamax(0,0) << "  " << endl;
+      ou << betaqu_l1_upper(0,0) << "  " << endl;
       }
 
     optionsp->out("\n");

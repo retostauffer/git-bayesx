@@ -1059,20 +1059,14 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
     ST::string pathderivativeps = path.substr(0,path.length()-4) +
                                   "_derivative_statagraph";
 
-    // ST::string pathelasticityps = path.substr(0,path.length()-4) +
-    //                              "_elasticity_statagraph";
 
 
     out_stata << "clear" << endl
               << "infile intnr " << xvar
 
-              << " pmean pqu" << pu1_str
+              << " pmean pstd pqu" << pu1_str
               << " pqu" << po1_str << " pmed pqu" << po2_str << " pqu" << pu2_str
               << " pcat" << pu_str << " pcat" << po_str
-              // << " pmean_elast pqu" << pu1_str << "_elast"
-              // << " pqu" << po1_str << "_elast pmed_elast pqu" << po2_str
-              // << "_elast pqu" << pu2_str
-              // << "_elast pcat" << pu_str << "_elast pcat" << po_str << "_elast"
               << " using "
               << pathderivative << endl
               << "drop in 1" << endl;
@@ -1095,7 +1089,7 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
 
   out_stata << "clear" << endl
             << "infile intnr " << xvar
-            << " pmean pqu" << pu1_str
+            << " pmean pstd pqu" << pu1_str
             << " pqu" << po1_str << " pmed pqu" << po2_str << " pqu" << pu2_str
             << " pcat" << pu_str << " pcat" << po_str
             << " sim_pqu" << pu1_str
@@ -1106,7 +1100,7 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
 
   if (designp->position_lin!=-1)
     {
-    out_stata << " pmean_d pqu"
+    out_stata << " pmean_d pstd_d pqu"
               << pu1_str << "_d"
               << " pqu" << po1_str << "_d"
               << " pmed_d pqu" << po2_str << "_d"
@@ -1118,7 +1112,7 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
 
   if (computemeaneffect==true)
     {
-    out_stata << " pmean_mu pqu"
+    out_stata << " pmean_mu pstd_mu pqu"
               << pu1_str << "_mu"
               << " pqu" << po1_str << "_mu"
               << " pmed_d pqu" << po2_str << "_mu"
@@ -1222,11 +1216,11 @@ void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
     {
 
     derivativesample.outresults(out_stata,out_R,"");
-    // elasticitysample.outresults(out_stata,out_R,"");
 
     optionsp->out("    Estimated first derivatives are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
+    out_R << "filetype=derivative; path=" << pathresults << ";" <<  endl;
 
     ofstream outres(pathresults.strtochar());
 
@@ -1261,15 +1255,6 @@ void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
     outres << "pcat" << optionsp->level1 << "   ";
     outres << "pcat" << optionsp->level2 << "   ";
 
-    // outres << "pmean_elast   ";
-    // outres << "pqu"  << l1  << "_elast   ";
-    // outres << "pqu"  << l2  << "_elast   ";
-    // outres << "pmed_elast   ";
-    // outres << "pqu"  << u1  << "_elast   ";
-    // outres << "pqu"  << u2  << "_elast   ";
-    // outres << "pcat" << optionsp->level1 << "_elast   ";
-    // outres << "pcat" << optionsp->level2 << "_elast   ";
-
 
     outres << endl;
 
@@ -1288,31 +1273,12 @@ void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
     workbetaqu_l2_upper_p = derivativesample.betaqu_l2_upper.getV();
     workbetaqu50 = derivativesample.betaqu50.getV();
 
-    /*
-    double * workmean_elast;
-    double * workbetaqu_l1_lower_p_elast;
-    double * workbetaqu_l2_lower_p_elast;
-    double * workbetaqu_l1_upper_p_elast;
-    double * workbetaqu_l2_upper_p_elast;
-    double * workbetaqu50_elast;
-
-    workmean_elast = elasticitysample.betamean.getV();
-    workbetaqu_l1_lower_p_elast = elasticitysample.betaqu_l1_lower.getV();
-    workbetaqu_l2_lower_p_elast = elasticitysample.betaqu_l2_lower.getV();
-    workbetaqu_l1_upper_p_elast = elasticitysample.betaqu_l1_upper.getV();
-    workbetaqu_l2_upper_p_elast = elasticitysample.betaqu_l2_upper.getV();
-    workbetaqu50_elast = elasticitysample.betaqu50.getV();
-    */
 
     unsigned nrpar = beta.rows();
     for(i=0;i<nrpar;i++,
         workmean++,workbetaqu_l1_lower_p++,
                               workbetaqu_l2_lower_p++,workbetaqu50++,
                               workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++
-//                              workmean_elast++,workbetaqu_l1_lower_p_elast++,
-//                              workbetaqu_l2_lower_p_elast++,workbetaqu50_elast++,
-//                              workbetaqu_l1_upper_p_elast++,
-//                              workbetaqu_l2_upper_p_elast++
                               )
       {
       outres << (i+1) << "   ";
@@ -1339,38 +1305,12 @@ void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
       else
         outres << 0 << "   ";
 
-      /*
-      outres << *workmean_elast << "   ";
-
-      outres << *workbetaqu_l1_lower_p_elast << "   ";
-      outres << *workbetaqu_l2_lower_p_elast << "   ";
-      outres << *workbetaqu50_elast << "   ";
-      outres << *workbetaqu_l2_upper_p_elast << "   ";
-      outres << *workbetaqu_l1_upper_p_elast << "   ";
-
-      if (*workbetaqu_l1_lower_p_elast > 0)
-        outres << 1 << "   ";
-      else if (*workbetaqu_l1_upper_p_elast < 0)
-        outres << -1 << "   ";
-      else
-        outres << 0 << "   ";
-
-      if (*workbetaqu_l2_lower_p_elast > 0)
-        outres << 1 << "   ";
-      else if (*workbetaqu_l2_upper_p_elast < 0)
-        outres << -1 << "   ";
-      else
-        outres << 0 << "   ";
-      */
-
       outres << endl;
       }
 
     }
 
   }
-
-
 
 
 void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
@@ -1396,13 +1336,17 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
     paramsample.outresults(out_stata,out_R,pathresultsbeta);
 
+    out_R << "term=" << title <<  ";" << endl;
+
     optionsp->out("    Estimated parameters are stored in file\n");
     optionsp->out("    " +  pathresultsbeta + "\n");
     optionsp->out("\n");
+    out_R << "filetype=param; path=" << pathresultsbeta << ";" <<  endl;
 
     optionsp->out("    Function estimates are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
+    out_R << "filetype=function; path=" << pathresults << ";" <<  endl;
 
     if (designp->intvar.rows()==designp->data.rows())
       {
@@ -1481,8 +1425,8 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       outres << designp->datanames[i] << "   ";
     outres << "pmean   ";
 
-//    if (optionsp->samplesize > 1)
-//      {
+    outres << "pstd   ";
+
       outres << "pqu"  << l1  << "   ";
       outres << "pqu"  << l2  << "   ";
       outres << "pmed   ";
@@ -1497,13 +1441,14 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       outres << "pqu"  << u2  << "_sim   ";
       outres << "pcat" << optionsp->level1 << "_sim   ";
       outres << "pcat" << optionsp->level2 << "_sim   ";
-//      }
+
 
 
     if (designp->position_lin!=-1)
       {
 
       outres << "pmean_d   ";
+      outres << "pstd_d   ";
 
       if (optionsp->samplesize > 1)
         {
@@ -1522,6 +1467,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       {
 
       outres << "pmean_mu   ";
+      outres << "pstd_mu   ";
 
       if (optionsp->samplesize > 1)
         {
@@ -1539,6 +1485,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
 
     double * workmean=NULL;
+    double * workstd=NULL;
     double * workbetaqu_l1_lower_p=NULL;
     double * workbetaqu_l2_lower_p=NULL;
     double * workbetaqu_l1_upper_p=NULL;
@@ -1546,6 +1493,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     double * workbetaqu50=NULL;
 
     double * dworkmean=NULL;
+    double * dworkstd=NULL;
     double * dworkbetaqu_l1_lower_p=NULL;
     double * dworkbetaqu_l2_lower_p=NULL;
     double * dworkbetaqu_l1_upper_p=NULL;
@@ -1554,6 +1502,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
 
     double * mu_workmean=NULL;
+    double * mu_workstd=NULL;
     double * mu_workbetaqu_l1_lower_p=NULL;
     double * mu_workbetaqu_l2_lower_p=NULL;
     double * mu_workbetaqu_l1_upper_p=NULL;
@@ -1564,6 +1513,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     if (designp->position_lin!=-1)
       {
       workmean = fsample.betamean.getV();
+      workstd = fsample.betavar.getV();
       workbetaqu_l1_lower_p = fsample.betaqu_l1_lower.getV();
       workbetaqu_l2_lower_p = fsample.betaqu_l2_lower.getV();
       workbetaqu_l1_upper_p = fsample.betaqu_l1_upper.getV();
@@ -1571,6 +1521,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       workbetaqu50 = fsample.betaqu50.getV();
 
       dworkmean = betamean.getV();
+      dworkstd = betavar.getV();
       dworkbetaqu_l1_lower_p = betaqu_l1_lower.getV();
       dworkbetaqu_l2_lower_p = betaqu_l2_lower.getV();
       dworkbetaqu_l1_upper_p = betaqu_l1_upper.getV();
@@ -1581,6 +1532,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     else
       {
       workmean = betamean.getV();
+      workstd = betavar.getV();
       workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
       workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
       workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
@@ -1592,6 +1544,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     if (computemeaneffect==true)
       {
       mu_workmean = meaneffect_sample.betamean.getV();
+      mu_workstd = meaneffect_sample.betavar.getV();
       mu_workbetaqu_l1_lower_p = meaneffect_sample.betaqu_l1_lower.getV();
       mu_workbetaqu_l2_lower_p = meaneffect_sample.betaqu_l2_lower.getV();
       mu_workbetaqu_l1_upper_p = meaneffect_sample.betaqu_l1_upper.getV();
@@ -1602,7 +1555,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     double l1_sim,l2_sim,u1_sim,u2_sim;
 
     unsigned nrpar = beta.rows();
-    for(i=0;i<nrpar;i++,workmean++,workbetaqu_l1_lower_p++,
+    for(i=0;i<nrpar;i++,workmean++,workstd++,workbetaqu_l1_lower_p++,
                               workbetaqu_l2_lower_p++,workbetaqu50++,
                               workbetaqu_l1_upper_p++,workbetaqu_l2_upper_p++)
       {
@@ -1612,6 +1565,10 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
       if (optionsp->samplesize > 1)
         {
+        if (*workstd < 0.0000000000001)
+          outres << 0 << "   ";
+        else
+          outres << sqrt(*workstd) << "   ";
         outres << *workbetaqu_l1_lower_p << "   ";
         outres << *workbetaqu_l2_lower_p << "   ";
         outres << *workbetaqu50 << "   ";
@@ -1658,7 +1615,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
         }
       else
-        outres << "0  0  0  0  0  0  0  0  0  0  0  0  0  ";
+        outres << "0  0  0  0  0  0  0  0  0  0  0  0  0  0  ";
 
 
       if (designp->position_lin!=-1)
@@ -1668,6 +1625,12 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
         if (optionsp->samplesize > 1)
           {
+
+          if ((*dworkstd) < 0.0000000000001)
+            outres << 0 << "   ";
+          else
+            outres << sqrt(*dworkstd) << "   ";
+
           outres << *dworkbetaqu_l1_lower_p << "   ";
           outres << *dworkbetaqu_l2_lower_p << "   ";
           outres << *dworkbetaqu50 << "   ";
@@ -1693,6 +1656,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
         if (i <nrpar-1)
           {
           dworkmean++;
+          dworkstd++;
           dworkbetaqu_l1_lower_p++;
           dworkbetaqu_l2_lower_p++;
           dworkbetaqu50++;
@@ -1710,6 +1674,11 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
         if (optionsp->samplesize > 1)
           {
+          if (*mu_workstd < 0.0000000000001)
+            outres << 0 << "   ";
+          else
+            outres << sqrt(*mu_workstd) << "   ";
+
           outres << *mu_workbetaqu_l1_lower_p << "   ";
           outres << *mu_workbetaqu_l2_lower_p << "   ";
           outres << *mu_workbetaqu50 << "   ";
@@ -1720,6 +1689,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
         if (i <nrpar-1)
           {
           mu_workmean++;
+          mu_workstd++;
           mu_workbetaqu_l1_lower_p++;
           mu_workbetaqu_l2_lower_p++;
           mu_workbetaqu50++;

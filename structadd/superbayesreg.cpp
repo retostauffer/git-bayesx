@@ -312,6 +312,7 @@ void superbayesreg::create_hregress(void)
   predictop.push_back("nosamples");
   predictop.push_back("full");
   predictop.push_back("fulls");
+  predictop.push_back("light");  
   predictop.push_back("predictor");
 
   predict = stroption("predict",predictop,"no");
@@ -2892,7 +2893,10 @@ bool superbayesreg::create_predict(void)
     ST::string pathres = outfile.getvalue() +  "_" + h + "_predict.res";
 
 
-    if ((predict.getvalue() == "full") || (predict.getvalue() == "fulls"))
+    if ((predict.getvalue() == "full")   ||
+        (predict.getvalue() == "fulls")  ||
+        (predict.getvalue() == "light")  
+       )
       {
 
       if (equations[modnr].distrp->maindistribution == false)
@@ -2911,6 +2915,9 @@ bool superbayesreg::create_predict(void)
 
           if (predict.getvalue() == "fulls")
             FC_predicts[FC_predicts.size()-1].nosamples=false;
+
+          if (predict.getvalue() == "light")
+            FC_predicts[FC_predicts.size()-1].nosamplessave=true;
 
           if (mse.getvalue() ==  "yes")
             FC_predicts[FC_predicts.size()-1].MSE = MCMC::quadraticMSE;
@@ -2935,6 +2942,10 @@ bool superbayesreg::create_predict(void)
 
           if (predict.getvalue() == "fulls")
             FC_predicts_mult[FC_predicts_mult.size()-1].nosamples=false;
+
+          if (predict.getvalue() == "light")
+            FC_predicts_mult[FC_predicts_mult.size()-1].nosamplessave=true;
+
 
           equations[modnr].add_FC(&FC_predicts_mult[FC_predicts_mult.size()-1],pathres);
 

@@ -64,7 +64,10 @@ class __EXPORT_TYPE FC
   GENERAL_OPTIONS * optionsp;    // Pointer to general MCMC options
 
 
-  bool nosamples;
+  bool nosamples;                // no samples, only means,
+                                 // and stds will be reported
+  bool nosamplessave;            // full samples, but samples will not be stored
+                                 // on disk using getsample
 
   ST::string title;              // Title/name of the full conditional
 
@@ -97,10 +100,6 @@ class __EXPORT_TYPE FC
                                  // the number of columns correspond to the
                                  // number of parameters
 
-//  datamatrix transform;        // The factor with which all beta's will be
-                                 // multiplied before storing them and computing
-                                 // means, std, etc.
-                                 // DEFAULT: transform = 1
   double addon;                  // An additive constant that will be added
                                  // on each component of beta before storing
                                  // DEFAULT: addon = 0;

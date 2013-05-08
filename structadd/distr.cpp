@@ -1816,7 +1816,7 @@ DISTR_quantreg::DISTR_quantreg(const double & a,const double & b,
                                const datamatrix & w)
   : DISTR_gaussian(a,b,o,r,ps,w)
   {
-
+  family="Quantile regression based on asymmetric Laplace distribution"; 
   predictor_name = "quantile";
   outexpectation = true;
 

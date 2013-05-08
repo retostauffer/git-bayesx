@@ -391,7 +391,6 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
     unsigned i,j;
 
-
     ST::string l1 = ST::doubletostring(optionsp->lower1,4);
     ST::string l2 = ST::doubletostring(optionsp->lower2,4);
     ST::string u1 = ST::doubletostring(optionsp->upper1,4);
@@ -406,113 +405,161 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
     for (i=0;i<varnames.size();i++)
       outres << varnames[i] << "   ";
 
-    for (i=0;i<likep.size();i++)
+    if (nosamplessave==false)
       {
 
-      if (likep[i]->outpredictor)
-        {
-        outres << "pmean_pred_" << likep[i]->predictor_name << "   ";
-
-        if (optionsp->samplesize > 1)
-          {
-          outres << "pqu"  << l1  << "_pred_" << likep[i]->predictor_name << "   ";
-          outres << "pqu"  << l2  << "_pred_" << likep[i]->predictor_name << "   ";
-          outres << "pmed_pred_" << likep[i]->predictor_name << "   ";
-          outres << "pqu"  << u1  << "_pred_" << likep[i]->predictor_name << "   ";
-          outres << "pqu"  << u2  << "_pred_" << likep[i]->predictor_name << "   ";
-          }
-        }
-
-      }
-
-    for (i=0;i<likep.size();i++)
-      {
-      if (likep[i]->outexpectation)
-        {
-        outres << "pmean_E_" << likep[i]->predictor_name << "   ";
-
-        if (optionsp->samplesize > 1)
-          {
-          outres << "pqu"  << l1  << "_E_" << likep[i]->predictor_name << "   ";
-          outres << "pqu"  << l2  << "_E_" << likep[i]->predictor_name << "   ";
-          outres << "pmed_E_" << likep[i]->predictor_name << "   ";
-          outres << "pqu"  << u1  << "_E_" << likep[i]->predictor_name << "   ";
-          outres << "pqu"  << u2  << "_E_" << likep[i]->predictor_name << "   ";
-          }
-        }
-      }
-
-    outres << endl;
-
-    double * workmean = betamean.getV();
-    double * workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
-    double * workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
-    double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
-    double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
-    double * workbetaqu50 = betaqu50.getV();
-
-
-    for(i=0;i<designmatrix.rows();i++)
-      {
-
-      outres << (i+1) << "   ";
-
-      for (j=0;j<designmatrix.cols();j++)
-        outres << designmatrix(i,j) << "   ";
-
-      for (j=0;j<likep.size();j++,
-          workmean++,
-          workbetaqu_l1_lower_p++,
-          workbetaqu_l2_lower_p++,
-          workbetaqu50++,
-          workbetaqu_l1_upper_p++,
-          workbetaqu_l2_upper_p++)
+      for (i=0;i<likep.size();i++)
         {
 
-        if (likep[j]->outpredictor)
+        if (likep[i]->outpredictor)
           {
-          outres << *workmean << "   ";
+          outres << "pmean_pred_" << likep[i]->predictor_name << "   ";
 
           if (optionsp->samplesize > 1)
             {
-            outres << *workbetaqu_l1_lower_p << "   ";
-            outres << *workbetaqu_l2_lower_p << "   ";
-            outres << *workbetaqu50 << "   ";
-            outres << *workbetaqu_l2_upper_p << "   ";
-            outres << *workbetaqu_l1_upper_p << "   ";
+            outres << "pqu"  << l1  << "_pred_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << l2  << "_pred_" << likep[i]->predictor_name << "   ";
+            outres << "pmed_pred_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << u1  << "_pred_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << u2  << "_pred_" << likep[i]->predictor_name << "   ";
             }
           }
+
         }
 
-      for (j=0;j<likep.size();j++,
-          workmean++,
-          workbetaqu_l1_lower_p++,
-          workbetaqu_l2_lower_p++,
-          workbetaqu50++,
-          workbetaqu_l1_upper_p++,
-          workbetaqu_l2_upper_p++)
+      for (i=0;i<likep.size();i++)
         {
-
-        if (likep[j]->outexpectation)
+        if (likep[i]->outexpectation)
           {
-          outres << *workmean << "   ";
-
+          outres << "pmean_E_" << likep[i]->predictor_name << "   ";
 
           if (optionsp->samplesize > 1)
             {
-            outres << *workbetaqu_l1_lower_p << "   ";
-            outres << *workbetaqu_l2_lower_p << "   ";
-            outres << *workbetaqu50 << "   ";
-            outres << *workbetaqu_l2_upper_p << "   ";
-            outres << *workbetaqu_l1_upper_p << "   ";
+            outres << "pqu"  << l1  << "_E_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << l2  << "_E_" << likep[i]->predictor_name << "   ";
+            outres << "pmed_E_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << u1  << "_E_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << u2  << "_E_" << likep[i]->predictor_name << "   ";
             }
           }
-        // end mu
         }
 
       outres << endl;
 
-     }
+      double * workmean = betamean.getV();
+      double * workbetaqu_l1_lower_p = betaqu_l1_lower.getV();
+      double * workbetaqu_l2_lower_p = betaqu_l2_lower.getV();
+      double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
+      double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
+      double * workbetaqu50 = betaqu50.getV();
+
+
+      for(i=0;i<designmatrix.rows();i++)
+        {
+
+        outres << (i+1) << "   ";
+
+        for (j=0;j<designmatrix.cols();j++)
+          outres << designmatrix(i,j) << "   ";
+
+        for (j=0;j<likep.size();j++,
+            workmean++,
+            workbetaqu_l1_lower_p++,
+            workbetaqu_l2_lower_p++,
+            workbetaqu50++,
+            workbetaqu_l1_upper_p++,
+            workbetaqu_l2_upper_p++)
+          {
+
+          if (likep[j]->outpredictor)
+            {
+            outres << *workmean << "   ";
+
+            if (optionsp->samplesize > 1)
+              {
+              outres << *workbetaqu_l1_lower_p << "   ";
+              outres << *workbetaqu_l2_lower_p << "   ";
+              outres << *workbetaqu50 << "   ";
+              outres << *workbetaqu_l2_upper_p << "   ";
+              outres << *workbetaqu_l1_upper_p << "   ";
+              }
+            }
+          }
+
+        for (j=0;j<likep.size();j++,
+            workmean++,
+            workbetaqu_l1_lower_p++,
+            workbetaqu_l2_lower_p++,
+            workbetaqu50++,
+            workbetaqu_l1_upper_p++,
+            workbetaqu_l2_upper_p++)
+          {
+
+          if (likep[j]->outexpectation)
+            {
+            outres << *workmean << "   ";
+
+
+            if (optionsp->samplesize > 1)
+              {
+              outres << *workbetaqu_l1_lower_p << "   ";
+              outres << *workbetaqu_l2_lower_p << "   ";
+              outres << *workbetaqu50 << "   ";
+              outres << *workbetaqu_l2_upper_p << "   ";
+              outres << *workbetaqu_l1_upper_p << "   ";
+              }
+            }
+          // end mu
+
+          outres << endl;
+          }
+
+        }
+
+      } // end: if (nosamplessave==false)
+    else
+      {
+
+      for (i=0;i<likep.size();i++)
+        {
+        if (likep[i]->outpredictor)
+          outres << "pmean_pred_" << likep[i]->predictor_name << "   ";
+        }
+
+      for (i=0;i<likep.size();i++)
+        {
+        if (likep[i]->outexpectation)
+          outres << "pmean_E_" << likep[i]->predictor_name << "   ";
+        }
+
+      outres << endl;
+
+      double * workmean = betamean.getV();
+
+      for(i=0;i<designmatrix.rows();i++)
+        {
+
+        outres << (i+1) << "   ";
+
+        for (j=0;j<designmatrix.cols();j++)
+          outres << designmatrix(i,j) << "   ";
+
+        for (j=0;j<likep.size();j++,workmean++)
+          {
+          if (likep[j]->outpredictor)
+            outres << *workmean << "   ";
+          }
+
+        for (j=0;j<likep.size();j++,workmean++)
+          {
+          if (likep[j]->outexpectation)
+            outres << *workmean << "   ";
+          }
+
+        outres << endl;
+        }
+
+      }
 
      outresults_deviance();
      outresults_DIC(pathresults);

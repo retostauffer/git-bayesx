@@ -47,6 +47,7 @@ class __EXPORT_TYPE FC_linear  : public FC
   protected:
 
   int constposition;
+  bool constwarning;
   bool center;
 
   MASTER_OBJ * masterp;
