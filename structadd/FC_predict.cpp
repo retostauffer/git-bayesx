@@ -489,7 +489,8 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
 
     outres << "pmean_pred   ";
 
-    if (optionsp->samplesize > 1)
+
+    if ((optionsp->samplesize > 1) && (nosamplessave==false))
       {
       outres << "pqu"  << l1  << "_pred   ";
       outres << "pqu"  << l2  << "_pred   ";
@@ -500,7 +501,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
 
     outres << "pmean_mu   ";
 
-    if (optionsp->samplesize > 1)
+    if ((optionsp->samplesize > 1) && (nosamplessave==false))
       {
       outres << "pqu"  << l1  << "_mu   ";
       outres << "pqu"  << l2  << "_mu   ";
@@ -508,24 +509,6 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
       outres << "pqu"  << u1  << "_mu   ";
       outres << "pqu"  << u2  << "_mu   ";
       }
-
-/*
-    if (likep->maindistribution == true)
-      {
-
-      outres << "pmean_predl   ";
-
-      if (optionsp->samplesize > 1)
-        {
-        outres << "pqu"  << l1  << "_predl   ";
-        outres << "pqu"  << l2  << "_predl   ";
-        outres << "pmed_predl   ";
-        outres << "pqu"  << u1  << "_predl   ";
-        outres << "pqu"  << u2  << "_predl   ";
-        }
-
-      }
-*/
 
     outres << endl;
 
@@ -536,56 +519,34 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
     double * workbetaqu50 = betaqu50.getV();
 
-
-    for(i=0;i<designmatrix.rows();i++,
-          workmean++,
-          workbetaqu_l1_lower_p++,
-          workbetaqu_l2_lower_p++,
-          workbetaqu50++,
-          workbetaqu_l1_upper_p++,
-          workbetaqu_l2_upper_p++)
+    if (nosamplessave==false)
       {
-
-      outres << (i+1) << "   ";
-
-      for (j=0;j<designmatrix.cols();j++)
-        outres << designmatrix(i,j) << "   ";
-
-      outres << *workmean << "   ";
-
-      if (optionsp->samplesize > 1)
+      for(i=0;i<designmatrix.rows();i++,
+            workmean++,
+            workbetaqu_l1_lower_p++,
+            workbetaqu_l2_lower_p++,
+            workbetaqu50++,
+            workbetaqu_l1_upper_p++,
+            workbetaqu_l2_upper_p++)
         {
-        outres << *workbetaqu_l1_lower_p << "   ";
-        outres << *workbetaqu_l2_lower_p << "   ";
-        outres << *workbetaqu50 << "   ";
-        outres << *workbetaqu_l2_upper_p << "   ";
-        outres << *workbetaqu_l1_upper_p << "   ";
-        }
 
-      // mu
-      workmean++;
-      workbetaqu_l1_lower_p++;
-      workbetaqu_l2_lower_p++;
-      workbetaqu50++;
-      workbetaqu_l1_upper_p++;
-      workbetaqu_l2_upper_p++;
+        outres << (i+1) << "   ";
 
-      outres << *workmean << "   ";
+        for (j=0;j<designmatrix.cols();j++)
+          outres << designmatrix(i,j) << "   ";
 
-      if (optionsp->samplesize > 1)
-        {
-        outres << *workbetaqu_l1_lower_p << "   ";
-        outres << *workbetaqu_l2_lower_p << "   ";
-        outres << *workbetaqu50 << "   ";
-        outres << *workbetaqu_l2_upper_p << "   ";
-        outres << *workbetaqu_l1_upper_p << "   ";
-        }
-      // end mu
+        outres << *workmean << "   ";
 
-/*
-      // predictive likelihood
-      if (likep->maindistribution == true)
-        {
+        if (optionsp->samplesize > 1)
+          {
+          outres << *workbetaqu_l1_lower_p << "   ";
+          outres << *workbetaqu_l2_lower_p << "   ";
+          outres << *workbetaqu50 << "   ";
+          outres << *workbetaqu_l2_upper_p << "   ";
+          outres << *workbetaqu_l1_upper_p << "   ";
+          }
+
+        // mu
         workmean++;
         workbetaqu_l1_lower_p++;
         workbetaqu_l2_lower_p++;
@@ -603,12 +564,33 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
           outres << *workbetaqu_l2_upper_p << "   ";
           outres << *workbetaqu_l1_upper_p << "   ";
           }
-        }
-      // end predictive likelihood
-*/
-      outres << endl;
+        // end mu
 
-     }
+        outres << endl;
+        }
+      }
+    else
+      {
+
+      for(i=0;i<designmatrix.rows();i++,
+            workmean++)
+        {
+
+        outres << (i+1) << "   ";
+
+        for (j=0;j<designmatrix.cols();j++)
+          outres << designmatrix(i,j) << "   ";
+
+        outres << *workmean << "   ";
+
+        workmean++;
+
+        outres << *workmean << "   ";
+
+        outres << endl;
+        }
+
+      }
 
     if (likep->maindistribution == true)
       {
