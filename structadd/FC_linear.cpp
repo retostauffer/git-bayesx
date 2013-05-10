@@ -784,6 +784,9 @@ void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
     optionsp->out("    Results for fixed effects are also stored in file\n");
     optionsp->out("    " + pathresults + "\n");
 
+    out_R << "term=" << title <<  ";" << endl;
+    out_R << "filetype=paramlinear; path=" << pathresults << ";" <<  endl;
+
     if (center==true)
       {
       optionsp->out("\n");

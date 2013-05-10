@@ -276,7 +276,7 @@ class __EXPORT_TYPE DISTR_multgaussian : public DISTR_multinomprobit
 
   void update(void);
 
-  void outresults(ST::string pathresults="");
+  void outresults(ofstream & out_stata,ofstream & out_R,ST::string pathresults="");
 
   void get_samples(const ST::string & filename,ofstream & outg) const;
 

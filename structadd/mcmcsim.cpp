@@ -67,10 +67,11 @@ equation::equation(int enr, int hl,ST::string t)
   }
 
 
-equation::equation(const ST::string & h, DISTR * dp, const vector<FC*> fcp,
-                   const ST::string & pd, const vector<ST::string> & ps)
+equation::equation(unsigned enr, const ST::string & h, DISTR * dp,
+                   const vector<FC*> fcp, const ST::string & pd,
+                   const vector<ST::string> & ps)
   {
-  equationnr = 1;
+  equationnr = enr;
   equationtype = "mean";
   hlevel = 1;
   header = h;
@@ -394,7 +395,15 @@ const int & seed, const bool & computemode)
           genoptions->out("\n");
           }
 
-        equations[nrmodels-1-i].distrp->outresults(equations[nrmodels-1-i].pathd);
+        out_R << "equationnumber=" << equations[nrmodels-1-i].equationnr << ";"
+              << " header=" << equations[nrmodels-1-i].header << ";"
+              << " family=" << equations[nrmodels-1-i].distrp->family << ";"              
+              << " equationtype="  << equations[nrmodels-1-i].equationtype << ";"
+              << " hlevel="        << equations[nrmodels-1-i].hlevel <<  endl;
+
+
+        equations[nrmodels-1-i].distrp->outresults(out_stata,out_R,
+                                                 equations[nrmodels-1-i].pathd);
 
         for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
           equations[nrmodels-1-i].FCpointer[j]->outresults(out_stata,out_R,equations[nrmodels-1-i].FCpaths[j]);
@@ -615,7 +624,14 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
         for(i=0;i<nrmodels;i++)
           {
 
-          equations[nrmodels-1-i].distrp->outresults(equations[nrmodels-1-i].pathd);
+          out_R << "equationnumber=" << equations[nrmodels-1-i].equationnr << ";"
+                << " header=" << equations[nrmodels-1-i].header << ";"
+                << " family=" << equations[nrmodels-1-i].distrp->family << ";"
+                << " equationtype="  << equations[nrmodels-1-i].equationtype << ";"
+                << " hlevel="        << equations[nrmodels-1-i].hlevel <<  endl;
+
+
+          equations[nrmodels-1-i].distrp->outresults(out_stata,out_R,equations[nrmodels-1-i].pathd);
 
           for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
             equations[nrmodels-1-i].FCpointer[j]->outresults(out_stata,out_R,equations[nrmodels-1-i].FCpaths[j]);

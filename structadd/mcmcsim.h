@@ -65,7 +65,8 @@ class __EXPORT_TYPE equation
 
   // CONSTRUCTOR2
 
-  equation(const ST::string & h, DISTR * dp, const vector<FC*> fcp,
+  equation(unsigned enr, const ST::string & h, DISTR * dp,
+           const vector<FC*> fcp,
            const ST::string & pd, const vector<ST::string> & ps);
 
   // COPY CONSTRUCTOR

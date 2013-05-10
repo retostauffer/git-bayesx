@@ -32,6 +32,7 @@ DISTR_zeroadjusted::DISTR_zeroadjusted(GENERAL_OPTIONS * o,DISTR* dpi,
 
 
   {
+  family="zero adjusted";
 
   predict_mult = true;
   outpredictor = false;
@@ -162,6 +163,7 @@ DISTR_zeroadjusted_mult::DISTR_zeroadjusted_mult(GENERAL_OPTIONS * o,DISTR* dpi,
 
 
   {
+  family="zero adjusted";
 
   predict_mult = true;
   outpredictor = false;

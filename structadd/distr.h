@@ -476,7 +476,7 @@ class __EXPORT_TYPE DISTR
   // TASK: writes estimation results for the scale parameter
   //       estimated mean and variance
 
-  virtual void outresults(ST::string pathresults="");
+  virtual void outresults(ofstream & out_stata, ofstream & out_R,ST::string pathresults="");
 
   // FUNCTION: reset
   // TASK: resets linpred (all values to 0)
@@ -593,7 +593,7 @@ class __EXPORT_TYPE DISTR_gaussian : public DISTR
 
   bool posteriormode(void);
 
-  void outresults(ST::string pathresults="");
+  void outresults(ofstream & out_stata, ofstream & out_R,ST::string pathresults="");
 
   double get_scalemean(void);
 
@@ -778,7 +778,8 @@ class __EXPORT_TYPE DISTR_hetgaussian : public DISTR_gaussian
 
   bool posteriormode(void);
 
-  void outresults(ST::string pathresults="");
+  void outresults(ofstream & out_stata, ofstream & out_R,
+                  ST::string pathresults="");
 
   };
 
@@ -1135,7 +1136,7 @@ class __EXPORT_TYPE DISTR_gaussian_re : public DISTR_gaussian
 
   bool posteriormode(void);
 
-  void outresults(ST::string pathresults="");
+  void outresults(ofstream & out_stata, ofstream & out_R,ST::string pathresults="");
 
   void outoptions(void);
 

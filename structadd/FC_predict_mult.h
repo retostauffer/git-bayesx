@@ -98,7 +98,8 @@ class __EXPORT_TYPE FC_predict_mult   : public FC
   void outoptions(void);
 
   void outresults_deviance(void);
-  void outresults_DIC(const ST::string & pathresults);
+  void outresults_DIC(ofstream & out_stata, ofstream & out_R,
+                      const ST::string & pathresults);
   void outresults(ofstream & out_stata, ofstream & out_R,
                   const ST::string & pathresults);
 

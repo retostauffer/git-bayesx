@@ -848,15 +848,14 @@ void DISTR_binomialprobit::update(void)
   }
 
 
-void DISTR_binomialprobit::outresults(ST::string pathresults)
+void DISTR_binomialprobit::outresults(ofstream & out_stata, ofstream & out_R,
+                                      ST::string pathresults)
   {
   if (utilities && pathresults.isvalidfile() != 1)
     {
-    ofstream out1;
-    ofstream out2;
     unsigned i;
 
-    FC_latentutilities.outresults(out1,out2,"");
+    FC_latentutilities.outresults(out_stata,out_R,"");
 
     ofstream out(pathresults.strtochar());
 

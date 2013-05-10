@@ -840,7 +840,7 @@ void DISTR::compute_iwls(const bool & current,datamatrix & likelihood,
 
 
 
-void DISTR::outresults(ST::string pathresults)
+void DISTR::outresults(ofstream & out_stata, ofstream & out_R,ST::string pathresults)
   {
   optionsp->out("\n");
   }
@@ -853,15 +853,6 @@ void DISTR::reset(void)
   linpred_current = 1;
   }
 
-/*
-double DISTR::get_scale(bool transform)
-  {
-  if (!transform)
-    return sigma2;
-  else
-    return sigma2*pow(trmult,2);
-  }
-*/
 
 double DISTR::get_scale(void)
   {
@@ -1321,15 +1312,12 @@ bool DISTR_gaussian::posteriormode(void)
   }
 
 
-void DISTR_gaussian::outresults(ST::string pathresults)
+void DISTR_gaussian::outresults(ofstream & out_stata, ofstream & out_R,
+                                ST::string pathresults)
   {
-  DISTR::outresults();
+  DISTR::outresults(out_stata,out_R);
 
-  ofstream out1;
-  ofstream out2;
-
-  FCsigma2.outresults(out1,out2,"");
-
+  FCsigma2.outresults(out_stata,out_R,"");
 
   ST::string l1 = ST::doubletostring(optionsp->lower1,4);
   ST::string l2 = ST::doubletostring(optionsp->lower2,4);
@@ -1397,6 +1385,7 @@ void DISTR_gaussian::outresults(ST::string pathresults)
     optionsp->out("    Results for variance parameter are also stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
+    out_R << "scale=" << pathresults << ";" <<  endl;
 
     ofstream outscale(pathresults.strtochar());
 
@@ -1800,10 +1789,11 @@ bool DISTR_hetgaussian::posteriormode(void)
   }
 
 
-void DISTR_hetgaussian::outresults(ST::string pathresults)
+void DISTR_hetgaussian::outresults(ofstream & out_stata, ofstream & out_R,
+                                   ST::string pathresults)
   {
   if (!sigma2const)
-    DISTR_gaussian::outresults(pathresults);
+    DISTR_gaussian::outresults(out_stata,out_R,pathresults);
   }
 
 //------------------------------------------------------------------------------
@@ -2702,7 +2692,8 @@ void DISTR_gaussian_re::outoptions(void)
   }
 
 
-void DISTR_gaussian_re::outresults(ST::string pathresults)
+void DISTR_gaussian_re::outresults(ofstream & out_stata, ofstream & out_R,
+                                   ST::string pathresults)
   {
   }
 

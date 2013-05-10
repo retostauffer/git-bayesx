@@ -312,7 +312,7 @@ void superbayesreg::create_hregress(void)
   predictop.push_back("nosamples");
   predictop.push_back("full");
   predictop.push_back("fulls");
-  predictop.push_back("light");  
+  predictop.push_back("light");
   predictop.push_back("predictor");
 
   predict = stroption("predict",predictop,"no");
@@ -475,7 +475,7 @@ void superbayesreg::clear(void)
   {
 
   equations.erase(equations.begin(),equations.end());
-  equations.reserve(20);
+  equations.reserve(50);
 
   distr_gaussians.erase(distr_gaussians.begin(),distr_gaussians.end());
   distr_gaussians.reserve(20);
@@ -818,7 +818,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gengamma_sigmas = b.distr_gengamma_sigmas;
   distr_gengamma_taus = b.distr_gengamma_taus;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
-  distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;  
+  distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;
   distr_weibull_lambdas = b.distr_weibull_lambdas;
   distr_weibull_alphas = b.distr_weibull_alphas;
   distr_dagum_as = b.distr_dagum_as;
@@ -935,7 +935,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gengamma_sigmas = b.distr_gengamma_sigmas;
   distr_gengamma_taus = b.distr_gengamma_taus;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
-  distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;  
+  distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;
   distr_weibull_lambdas = b.distr_weibull_lambdas;
   distr_weibull_alphas = b.distr_weibull_alphas;
   distr_dagum_as = b.distr_dagum_as;
@@ -1236,11 +1236,9 @@ void hregressrun(superbayesreg & b)
     b.describetext.push_back(b.modreg.getModelText());
     b.describetext.push_back("\n");
 
-    b.equations.push_back(equation(b.equationnr.getvalue(),b.hlevel.getvalue(),
-    b.equationtype.getvalue()));
-    unsigned modnr = b.equations.size()-1;
-
-//    b.make_header(modnr);
+    unsigned modnr = b.equations.size();
+    b.equations.push_back(equation(modnr+1,b.hlevel.getvalue(),
+                                   b.equationtype.getvalue()));
 
     bool failure = false;
 
@@ -2209,7 +2207,7 @@ bool superbayesreg::create_distribution(void)
 
 //------------------------------- lognormal mu ------------------------------------
   else if ((family.getvalue() == "lognormal_mu") &&
-           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant")) 
+           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
           )
     {
 
@@ -2895,7 +2893,7 @@ bool superbayesreg::create_predict(void)
 
     if ((predict.getvalue() == "full")   ||
         (predict.getvalue() == "fulls")  ||
-        (predict.getvalue() == "light")  
+        (predict.getvalue() == "light")
        )
       {
 

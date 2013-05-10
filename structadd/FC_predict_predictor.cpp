@@ -162,6 +162,7 @@ void FC_predict_predictor::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    Results for the predictor are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
+    out_R << "predict=" << pathresults << ";" <<  endl;
 
     ofstream outres(pathresults.strtochar());
 

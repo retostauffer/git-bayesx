@@ -223,11 +223,18 @@ void FC_predict::outoptions(void)
 
 
 
-void FC_predict::outresults_DIC(const ST::string & pathresults)
+void FC_predict::outresults_DIC(ofstream & out_stata, ofstream & out_R,
+                                const ST::string & pathresults)
   {
 
   ST::string pathresultsdic = pathresults.substr(0,pathresults.length()-4) + "_DIC.res";
   ofstream out(pathresultsdic.strtochar());
+
+  out_R << "DIC=" << pathresultsdic << ";" <<  endl;  
+
+  optionsp->out("    Results for the DIC are stored in file\n");
+  optionsp->out("    " +  pathresultsdic + "\n");
+  optionsp->out("\n");
 
   double deviance2=0;
 
@@ -462,6 +469,9 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
+    out_R << "predict=" << pathresults << ";" <<  endl;
+
+
     if ((likep->maindistribution == true) && (MSE != noMSE))
       {
       compute_MSE(pathresults);
@@ -595,7 +605,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     if (likep->maindistribution == true)
       {
       outresults_deviance();
-      outresults_DIC(pathresults);
+      outresults_DIC(out_stata,out_R,pathresults);
       }
 
     }   // end if (pathresults.isvalidfile() != 1)

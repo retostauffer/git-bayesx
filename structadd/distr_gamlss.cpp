@@ -1390,7 +1390,6 @@ void DISTR_negbinzip_mu::compute_mu_mult(vector<double *> linpred,double * mu)
 
   double explinpi;
   double min = distrpi->linpredminlimit;
-  double max = distrpi->linpredmaxlimit;
   if (*linpred[predstart_mumult+1] <= min)
     explinpi = exp(min);
   else
@@ -1417,7 +1416,6 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
 
   double explinpi;
   double min = distrpi->linpredminlimit;
-  double max = distrpi->linpredmaxlimit;
   if (*linpred[1] <= min)
     explinpi = exp(min);
   else
@@ -1426,7 +1424,6 @@ void DISTR_negbinzip_mu::compute_deviance_mult(vector<double *> response,
 
   double explindelta;
   min = distrdelta->linpredminlimit;
-  max = distrdelta->linpredmaxlimit;
   if (*linpred[0] <= min)
     explindelta = exp(min);
   else
