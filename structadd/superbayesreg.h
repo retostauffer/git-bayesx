@@ -105,6 +105,8 @@ using MCMC::DISTR_beta_mu;
 using MCMC::DISTR_beta_sigma2;
 using MCMC::DISTR_lognormal_mu;
 using MCMC::DISTR_lognormal_sigma2;
+using MCMC::DISTR_normal_mu;
+using MCMC::DISTR_normal_sigma2;
 using MCMC::DISTR_gamma_mu;
 using MCMC::DISTR_gamma_sigma;
 using MCMC::DISTR_pareto_b;
@@ -168,7 +170,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   bool find_binomial(DISTR* & b);
   bool find_continuous_singleparam(DISTR* & m);
-  bool find_continuous_multparam(vector<DISTR*> & m);    
+  bool find_continuous_multparam(vector<DISTR*> & m);
 
   void make_paths(ST::string & pathnonp, ST::string & pathres,
                   ST::string & title, vector<ST::string> vn,
@@ -343,6 +345,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_beta_sigma2> distr_beta_sigma2s;
   vector<DISTR_lognormal_mu> distr_lognormal_mus;
   vector<DISTR_lognormal_sigma2> distr_lognormal_sigma2s;
+  vector<DISTR_normal_mu> distr_normal_mus;
+  vector<DISTR_normal_sigma2> distr_normal_sigma2s;
   vector<DISTR_gamma_mu> distr_gamma_mus;
   vector<DISTR_gamma_sigma> distr_gamma_sigmas;
   vector<DISTR_pareto_b> distr_pareto_bs;
@@ -358,7 +362,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_dagum_b> distr_dagum_bs;
   vector<DISTR_dagum_p> distr_dagum_ps;
   vector<DISTR_zeroadjusted> distr_zeroadjusteds;
-  vector<DISTR_zeroadjusted_mult> distr_zeroadjusted_mults;  
+  vector<DISTR_zeroadjusted_mult> distr_zeroadjusted_mults;
   vector<DISTR_betainf_mu> distr_betainf_mus;
   vector<DISTR_betainf_sigma2> distr_betainf_sigma2s;
   vector<DISTR_betainf_nu> distr_betainf_nus;

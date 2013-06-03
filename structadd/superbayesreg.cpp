@@ -257,6 +257,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("beta_sigma2");
   families.push_back("lognormal_mu");
   families.push_back("lognormal_sigma2");
+    families.push_back("normal_mu");
+  families.push_back("normal_sigma2");
   families.push_back("gamma_mu");
   families.push_back("gamma_sigma");
   families.push_back("pareto_b");
@@ -582,6 +584,12 @@ void superbayesreg::clear(void)
   distr_lognormal_sigma2s.erase(distr_lognormal_sigma2s.begin(),distr_lognormal_sigma2s.end());
   distr_lognormal_sigma2s.reserve(20);
 
+    distr_normal_mus.erase(distr_normal_mus.begin(),distr_normal_mus.end());
+  distr_normal_mus.reserve(20);
+
+  distr_normal_sigma2s.erase(distr_normal_sigma2s.begin(),distr_normal_sigma2s.end());
+  distr_normal_sigma2s.reserve(20);
+
   distr_invgaussian_mus.erase(distr_invgaussian_mus.begin(),distr_invgaussian_mus.end());
   distr_invgaussian_mus.reserve(20);
 
@@ -808,6 +816,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_beta_sigma2s = b.distr_beta_sigma2s;
   distr_lognormal_mus = b.distr_lognormal_mus;
   distr_lognormal_sigma2s = b.distr_lognormal_sigma2s;
+  distr_normal_mus = b.distr_normal_mus;
+  distr_normal_sigma2s = b.distr_normal_sigma2s;
   distr_invgaussian_mus = b.distr_invgaussian_mus;
   distr_invgaussian_sigma2s = b.distr_invgaussian_sigma2s;
   distr_gamma_mus = b.distr_gamma_mus;
@@ -925,6 +935,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_beta_sigma2s = b.distr_beta_sigma2s;
   distr_lognormal_mus = b.distr_lognormal_mus;
   distr_lognormal_sigma2s = b.distr_lognormal_sigma2s;
+    distr_normal_mus = b.distr_normal_mus;
+  distr_normal_sigma2s = b.distr_normal_sigma2s;
   distr_invgaussian_mus = b.distr_invgaussian_mus;
   distr_invgaussian_sigma2s = b.distr_invgaussian_sigma2s;
   distr_gamma_mus = b.distr_gamma_mus;
@@ -2236,6 +2248,55 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: lognormal mu -------------------------------
+
+//-------------------------------- normal sigma2 ---------------------------------
+  else if (family.getvalue() == "normal_sigma2" && equationtype.getvalue()=="scale")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_normal_sigma2s.push_back(DISTR_normal_sigma2(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_normal_sigma2s[distr_normal_sigma2s.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+
+    }
+//---------------------------- END: normal sigma2 -------------------------------
+
+//------------------------------- normal mu ------------------------------------
+  else if ((family.getvalue() == "normal_mu") &&
+           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
+          )
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_normal_mus.push_back(DISTR_normal_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_normal_mus[distr_normal_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
+
+    if (distr_normal_sigma2s.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma2 is missing");
+      return true;
+      }
+    else
+      {
+      distr_normal_sigma2s[distr_normal_sigma2s.size()-1].distrp.push_back
+      (&distr_normal_mus[distr_normal_mus.size()-1]);
+
+      distr_normal_mus[distr_normal_mus.size()-1].distrp.push_back
+      (&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+      }
+
+    }
+//------------------------------- END: normal mu -------------------------------
+
 
 
 //-------------------------------- beta sigma2 ---------------------------------
