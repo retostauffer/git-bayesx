@@ -87,6 +87,7 @@ using MCMC::DISTR_poisson;
 using MCMC::DISTR_poisson_ext;
 using MCMC::DISTR_poisson_extlin;
 using MCMC::DISTR_binomialprobit;
+using MCMC::DISTR_cloglog;
 using MCMC::DISTR_binomialsvm;
 using MCMC::DISTR_logit_fruehwirth;
 using MCMC::DISTR_multinomprobit;
@@ -327,6 +328,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_poisson_ext> distr_poisson_exts;
   vector<DISTR_poisson_extlin> distr_poisson_extlins;
   vector<DISTR_binomialprobit> distr_binomialprobits;
+  vector<DISTR_cloglog> distr_cloglogs;
   vector<DISTR_binomialsvm> distr_binomialsvms;
   vector<DISTR_logit_fruehwirth> distr_logit_fruehwirths;
   vector<DISTR_multinomprobit> distr_multinomprobits;

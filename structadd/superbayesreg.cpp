@@ -235,6 +235,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussian_exp");
   families.push_back("gaussian_mult");
   families.push_back("binomial_logit");
+  families.push_back("cloglog");
   families.push_back("poisson");
   families.push_back("poisson_ext");
   families.push_back("poisson_extlin");
@@ -257,7 +258,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("beta_sigma2");
   families.push_back("lognormal_mu");
   families.push_back("lognormal_sigma2");
-    families.push_back("normal_mu");
+  families.push_back("normal_mu");
   families.push_back("normal_sigma2");
   families.push_back("gamma_mu");
   families.push_back("gamma_sigma");
@@ -268,9 +269,6 @@ void superbayesreg::create_hregress(void)
   families.push_back("gengamma_mu");
   families.push_back("gengamma_sigma");
   families.push_back("gengamma_tau");
- //   families.push_back("zinb2_mu");
- // families.push_back("zinb2_pi");
- // families.push_back("zinb2_delta");
   families.push_back("weibull_lambda");
   families.push_back("weibull_alpha");
   families.push_back("dagum_a");
@@ -510,6 +508,9 @@ void superbayesreg::clear(void)
 
   distr_binomials.erase(distr_binomials.begin(),distr_binomials.end());
   distr_binomials.reserve(20);
+
+  distr_cloglogs.erase(distr_cloglogs.begin(),distr_cloglogs.end());
+  distr_cloglogs.reserve(20);
 
   distr_poissons.erase(distr_poissons.begin(),distr_poissons.end());
   distr_poissons.reserve(20);
@@ -794,6 +795,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
+  distr_cloglogs = b.distr_cloglogs;
   distr_poissons = b.distr_poissons;
   distr_poisson_exts = b.distr_poisson_exts;
   distr_poisson_extlins = b.distr_poisson_extlins;
@@ -913,6 +915,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gaussian_exps = b.distr_gaussian_exps;
   distr_gaussian_mults = b.distr_gaussian_mults;
   distr_binomials = b.distr_binomials;
+  distr_cloglogs = b.distr_cloglogs;
   distr_poissons = b.distr_poissons;
   distr_poisson_exts = b.distr_poisson_exts;
   distr_poisson_extlins = b.distr_poisson_extlins;
@@ -1770,84 +1773,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: betainf_tau -------------------------------
 
 
-/*
- //---------------------------------- zinb2_delta -----------------------------------
-   else if (family.getvalue() == "zinb2_delta" && equationtype.getvalue()=="delta")
-     {
 
-     computemodeforstartingvalues = true;
-
-     distr_zinb2_deltas.push_back(DISTR_zinb2_delta(&generaloptions,D.getCol(0),w));
-
-     equations[modnr].distrp = &distr_zinb2_deltas[distr_zinb2_deltas.size()-1];
-     equations[modnr].pathd = "";
-
-     }
- //------------------------------- END: zinb2_delta ---------------------------------
-
- //---------------------------------- zinb2_pi --------------------------------
-   else if (family.getvalue() == "zinb2_pi" && equationtype.getvalue()=="pi")
-     {
-
-     computemodeforstartingvalues = true;
-
-     distr_zinb2_pis.push_back(DISTR_zinb2_pi(&generaloptions,D.getCol(0),w));
-
-     equations[modnr].distrp = &distr_zinb2_pis[distr_zinb2_pis.size()-1];
-     equations[modnr].pathd = "";
-
-     }
- //------------------------------ END: zinb2_pi -------------------------------
-
-
- // ----------------------------------- zinb2_mu ----------------------------------
-   else if (family.getvalue() == "zinb2_mu" && equationtype.getvalue()=="mean")
-     {
-
-     computemodeforstartingvalues = true;
-
-     distr_zinb2_mus.push_back(DISTR_zinb2_mu(&generaloptions,D.getCol(0),w));
-
-     equations[modnr].distrp = &distr_zinb2_mus[distr_zinb2_mus.size()-1];
-     equations[modnr].pathd = "";
-
-     if (distr_zinb2_deltas.size() != 1)
-       {
-       outerror("ERROR: Equation for delta is missing");
-       return true;
-       }
-
-     if (distr_zinb2_pis.size() != 1)
-       {
-       outerror("ERROR: Equation for pi is missing");
-       return true;
-       }
-
-     predict_mult_distrs.push_back(&distr_zinb2_deltas[distr_zinb2_deltas.size()-1]);
-     predict_mult_distrs.push_back(&distr_zinb2_pis[distr_zinb2_pis.size()-1]);
-     predict_mult_distrs.push_back(&distr_zinb2_mus[distr_zinb2_mus.size()-1]);
-
-     distr_zinb2_deltas[distr_zinb2_deltas.size()-1].distrp.push_back(
-     &distr_zinb2_pis[distr_zinb2_pis.size()-1]);
-
-	 distr_zinb2_deltas[distr_zinb2_deltas.size()-1].distrp.push_back(
-     &distr_zinb2_mus[distr_zinb2_mus.size()-1]);
-
-     distr_zinb2_pis[distr_zinb2_pis.size()-1].distrp.push_back(
-     &distr_zinb2_deltas[distr_zinb2_deltas.size()-1]);
-
-     distr_zinb2_pis[distr_zinb2_pis.size()-1].distrp.push_back(
-     &distr_zinb2_mus[distr_zinb2_mus.size()-1]);
-
-     distr_zinb2_mus[distr_zinb2_mus.size()-1].distrp.push_back(
-     &distr_zinb2_deltas[distr_zinb2_deltas.size()-1]);
-
-     distr_zinb2_mus[distr_zinb2_mus.size()-1].distrp.push_back(
-     &distr_zinb2_pis[distr_zinb2_pis.size()-1]);
-
-     }
- //------------------------------ END: zinb2_mu ----------------------------------
-*/
   //---------------------------------- dagum_p -----------------------------------
    else if (family.getvalue() == "dagum_p" && equationtype.getvalue()=="shape2")
      {
@@ -2344,6 +2270,21 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: beta mu -------------------------------
+
+//----------------------------- cloglog -------------------------------
+  else if (family.getvalue() == "cloglog"&& equationtype.getvalue()=="mean")
+    {
+    computemodeforstartingvalues = true;
+
+    distr_cloglogs.push_back(DISTR_cloglog(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_cloglogs[distr_cloglogs.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_cloglogs[distr_cloglogs.size()-1]);
+
+    }
+//-------------------------- END: cloglog -----------------------------
 
 
 //---------------------------------- ZIP pi ------------------------------------
