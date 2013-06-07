@@ -63,7 +63,11 @@ bool superbayesreg::find_binomial(DISTR* & b)
     found = true;
     b = &distr_logit_fruehwirths[0];
     }
-
+else if (distr_cloglogs.size()==1)
+    {
+    found = true;
+    b = &distr_cloglogs[0];
+    }
   return found;
   }
 
@@ -2272,7 +2276,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: beta mu -------------------------------
 
 //----------------------------- cloglog -------------------------------
-  else if (family.getvalue() == "cloglog"&& equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "cloglog")//&& equationtype.getvalue()=="mean"|| (equationtype.getvalue()=="meanservant"))
     {
     computemodeforstartingvalues = true;
 
