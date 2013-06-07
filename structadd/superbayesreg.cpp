@@ -2276,7 +2276,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: beta mu -------------------------------
 
 //----------------------------- cloglog -------------------------------
-  else if (family.getvalue() == "cloglog")//&& equationtype.getvalue()=="mean"|| (equationtype.getvalue()=="meanservant"))
+  else if (family.getvalue() == "cloglog") //&& equationtype.getvalue()=="mean"|| (equationtype.getvalue()=="meanservant"))
     {
     computemodeforstartingvalues = true;
 
