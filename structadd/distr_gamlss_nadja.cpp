@@ -1049,9 +1049,9 @@ void DISTR_betainf_tau::compute_iwls_wweightschange_weightsone(
 
 void DISTR_betainf_tau::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-  double exp_lin_tau = exp(*linpred[3]);
-  double exp_lin_nup = exp(*linpred[2]);
-  double exp_lin_mu = exp(*linpred[0]);
+  double exp_lin_tau = exp(*linpred[predstart_mumult+3]);
+  double exp_lin_nup = exp(*linpred[predstart_mumult+2]);
+  double exp_lin_mu = exp(*linpred[predstart_mumult]);
   double hilfs = (1+exp_lin_tau+exp_lin_nup);
   *mu = (1-(exp_lin_tau+exp_lin_nup)/hilfs)*(exp_lin_mu/(1+exp_lin_mu))+exp_lin_tau/(hilfs);
   }
@@ -1411,8 +1411,8 @@ void DISTR_pareto_b::compute_iwls_wweightschange_weightsone(
 void DISTR_pareto_b::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
-   double p = exp((*linpred[0]));
-   double b = exp((*linpred[1]));
+   double p = exp((*linpred[predstart_mumult]));
+   double b = exp((*linpred[predstart_mumult+1]));
   *mu = b/(p-1);
 
   }
@@ -1936,9 +1936,9 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
 void DISTR_dagum_a::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
-  double exp_lin_a = exp((*linpred[2]));
-  double exp_lin_b = exp((*linpred[1]));
-  double exp_lin_p = exp((*linpred[0]));
+  double exp_lin_a = exp((*linpred[predstart_mumult+2]));
+  double exp_lin_b = exp((*linpred[predstart_mumult+1]));
+  double exp_lin_p = exp((*linpred[predstart_mumult]));
   double help1 = -1/exp_lin_a;
   double help2 = -help1 + exp_lin_p;
 
@@ -2310,8 +2310,8 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
 void DISTR_weibull_lambda::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
-   double hilfs = 1+1/exp((*linpred[0]));
-  *mu = exp((*linpred[1]))*randnumbers::gamma_exact(hilfs);
+   double hilfs = 1+1/exp((*linpred[predstart_mumult]));
+  *mu = exp((*linpred[predstart_mumult+1]))*randnumbers::gamma_exact(hilfs);
 
   }
 
@@ -4319,7 +4319,7 @@ void DISTR_beta_mu::compute_iwls_wweightschange_weightsone(
 
 void DISTR_beta_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-  double exp_lin = exp(*linpred[1]);
+  double exp_lin = exp(*linpred[predstart_mumult+1]);
   *mu = exp_lin/(1+exp_lin);
   }
 
