@@ -2810,8 +2810,11 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
 
     double mu = exp(*linpred);
     double hilfs1 = pow((*response)/mu,(*worktransformlin[0]));
+ //   double hilfs2 = (*worktransformlin[0])+1;
 
     double nu = (*worktransformlin[0])*( hilfs1-1 );
+
+  //  *workingweight = (*worktransformlin[0])*randnumbers::gamma_exact(hilfs2)*((*worktransformlin[0])-1)+(*worktransformlin[0]);
 
     *workingweight = pow((*worktransformlin[0]),2);
 
@@ -2833,8 +2836,8 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
 void DISTR_weibull_lambda::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
-   double hilfs = 1+1/exp((*linpred[predstart_mumult]));
-  *mu = exp((*linpred[predstart_mumult+1]))*randnumbers::gamma_exact(hilfs);
+   double hilfs = 1+1/exp((*linpred[predstart_mumult+1]));
+  *mu = (exp((*linpred[predstart_mumult])))*randnumbers::gamma_exact(hilfs);
 
   }
 
