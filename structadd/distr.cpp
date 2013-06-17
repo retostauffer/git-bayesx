@@ -1385,7 +1385,7 @@ void DISTR_gaussian::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    Results for variance parameter are also stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
-    out_R << "scale=" << pathresults << ";" <<  endl;
+//    out_R << "scale=" << pathresults << ";" <<  endl;
 
     ofstream outscale(pathresults.strtochar());
 
@@ -1806,7 +1806,7 @@ DISTR_quantreg::DISTR_quantreg(const double & a,const double & b,
                                const datamatrix & w)
   : DISTR_gaussian(a,b,o,r,ps,w)
   {
-  family="Quantile regression based on asymmetric Laplace distribution"; 
+  family="Quantile regression based on asymmetric Laplace distribution";
   predictor_name = "quantile";
   outexpectation = true;
 

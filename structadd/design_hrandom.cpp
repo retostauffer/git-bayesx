@@ -131,6 +131,20 @@ void DESIGN_hrandom::init_data(const datamatrix & dm, const datamatrix & iv)
   }
 
 
+void DESIGN_hrandom::outbasis_R(ofstream & out)
+  {
+  unsigned i;
+  out << "BayesX.design.matrix<-function(x,...){" << endl;
+  out << "x<-as.integer(x)" << endl;
+  out << "nl<-" << effectvalues.size() << endl;
+  out << "x<-factor(x, levels = 1:nl)" << endl;
+  out << "X<-diag(nl)[x,]" << endl;
+  out << "return(X)" << endl;
+  out << "}" << endl;
+  }
+
+
+
 
 void DESIGN_hrandom::compute_penalty(void)
   {

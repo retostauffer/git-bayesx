@@ -22,14 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include "FC_nonp_variance.h"
 
 
-//------------------------------------------------------------------------------
-//---------- CLASS: FC_non_variance implementation of member functions ---------
-//------------------------------------------------------------------------------
-
-
 namespace MCMC
 {
 
+//------------------------------------------------------------------------------
+//---------- CLASS: FC_nonp_variance implementation of member functions ---------
+//------------------------------------------------------------------------------
 
 void FC_nonp_variance::read_options(vector<ST::string> & op,
                                    vector<ST::string> & vn)
@@ -275,7 +273,7 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
     optionsp->out("\n");
     }
 
-  out_R << "term=" << title <<  ";" << endl;
+//  out_R << "term=" << title <<  ";" << endl;
 
   if (pathresults.isvalidfile() != 1)
     {
@@ -283,7 +281,7 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
     optionsp->out("    Results for the variance component are also stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
-    out_R << "filetype=param; path=" << pathresults << ";" <<  endl;
+//    out_R << "filetype=param; path=" << pathresults << ";" <<  endl;
 
     ofstream ou(pathresults.strtochar());
 
@@ -342,6 +340,115 @@ void FC_nonp_variance::reset(void)
   FCnonpp->lambda = beta(0,1);
 //  transform(0,0) = 1;
 //  transform(1,0) = 1;
+
+  }
+
+
+
+//------------------------------------------------------------------------------
+//---------- CLASS: FC_nonp_variance_varselection implementation of member functions ---------
+//------------------------------------------------------------------------------
+
+void FC_nonp_variance_varselection::read_options(vector<ST::string> & op,
+                                   vector<ST::string> & vn)
+  {
+  FC_nonp_variance::read_options(op,vn);
+  }
+
+
+FC_nonp_variance_varselection::FC_nonp_variance_varselection(void)
+  {
+
+  }
+
+
+
+FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp, unsigned & enr, GENERAL_OPTIONS * o,
+                 DISTR * lp, const ST::string & t,const ST::string & fp,
+                 DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
+                 vector<ST::string> & vn)
+     : FC_nonp_variance(mp,enr,o,lp,t,fp,Dp,FCn,op,vn)
+  {
+
+  read_options(op,vn);
+
+  FC_delta = FC(o,"",1,1,"");
+  FC_delta.setbeta(1,1,1);
+
+  FC_psi2 = FC(o,"",1,1,"");
+  FC_psi2.setbeta(1,1,0.5);
+
+  }
+
+
+FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_variance_varselection & m)
+    : FC_nonp_variance(FC_nonp_variance(m))
+  {
+  FC_delta = m.FC_delta;
+  FC_psi2 = m.FC_psi2;
+  }
+
+
+const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(const FC_nonp_variance_varselection & m)
+  {
+
+  if (this==&m)
+	 return *this;
+  FC::operator=(FC(m));
+  FC_delta = m.FC_delta;
+  FC_psi2 = m.FC_psi2;
+  return *this;
+  }
+
+
+void FC_nonp_variance_varselection::update(void)
+  {
+
+  // TEST
+  //  ofstream out("c:\\bayesx\\test\\results\\param.res");
+  //  (FCnonpp->param).prettyPrint(out);
+  // END: TEST
+
+  b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
+
+  if (lambdaconst == false)
+    {
+    beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
+                b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
+
+
+    beta(0,1) = likep->get_scale()/beta(0,0);
+
+    FCnonpp->tau2 = beta(0,0);
+
+    acceptance++;
+    FC::update();
+
+    }
+
+  }
+
+
+
+void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & out_R,
+                                  const ST::string & pathresults)
+  {
+
+  FC_nonp_variance::outresults(out_stata,out_R,pathresults);
+
+  }
+
+
+void FC_nonp_variance_varselection::outoptions(void)
+  {
+  FC_nonp_variance::outoptions();
+  }
+
+
+void FC_nonp_variance_varselection::reset(void)
+  {
+
+  FC_nonp_variance::reset();
 
   }
 

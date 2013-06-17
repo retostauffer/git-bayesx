@@ -632,6 +632,21 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
   if (pathresults.isvalidfile() != 1)
     {
 
+    ST::string pathbasis = pathresults.substr(0,pathresults.length()-4) +
+                                 "_basisR.res";
+
+    outbasis_R(pathbasis);
+
+    ST::string paths = pathresults.substr(0,pathresults.length()-4) +
+                                 "_sample.raw";
+
+    out_R << "equation=" << likep->family.strtochar() << ",";
+    out_R << "term=sx("  << designp->datanames[0].strtochar()  << "),";
+    out_R << "filetype=nonlinear,";
+    out_R << "pathsamples=" << paths.strtochar() << ",";
+    out_R << "pathbasis=" << pathbasis.strtochar() << endl;
+
+
     outgraphs(out_stata,out_R,pathresults);
 
     FC::outresults(out_stata,out_R,"");

@@ -94,6 +94,8 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
 
   void outoptions(GENERAL_OPTIONS * op);
 
+  void outbasis_R(ofstream & out);
+
   // DESTRUCTOR
 
   ~DESIGN_mrf() {}

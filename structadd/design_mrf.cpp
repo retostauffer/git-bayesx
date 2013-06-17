@@ -226,7 +226,17 @@ void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
 
   }
 
-
+void DESIGN_mrf::outbasis_R(ofstream & out)
+  {
+  unsigned i;
+  out << "BayesX.design.matrix<-function(x,...){" << endl;
+  out << "x<-as.integer(x)" << endl;
+  out << "nl<-" << effectvalues.size() << endl;
+  out << "x<-factor(x, levels = 1:nl)" << endl;
+  out << "X<-diag(nl)[x,]" << endl;
+  out << "return(X)" << endl;
+  out << "}" << endl;
+  }
 
 void DESIGN_mrf::compute_penalty(void)
   {

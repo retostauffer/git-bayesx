@@ -1484,6 +1484,12 @@ void DESIGN::outoptions(GENERAL_OPTIONS * op)
   }
 
 
+void DESIGN::outbasis_R(ofstream & out)
+  {
+
+  }
+
+
 } // end: namespace MCMC
 
 

@@ -299,7 +299,7 @@ class __EXPORT_TYPE DESIGN
 
   void update_linpred(datamatrix & f);
 
-  bool update_linpred_save(datamatrix & f);  
+  bool update_linpred_save(datamatrix & f);
 
   // FUNCTION: compute_partres
   // TASK: computes
@@ -362,6 +362,8 @@ class __EXPORT_TYPE DESIGN
   virtual void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
   virtual void outoptions(GENERAL_OPTIONS * op);
+
+  virtual void outbasis_R(ofstream & out);
 
   virtual void compute_orthogonaldecomp(void);
 

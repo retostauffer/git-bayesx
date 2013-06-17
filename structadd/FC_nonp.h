@@ -190,6 +190,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void outresults_derivative(ofstream & out_stata, ofstream & out_R,
                         const ST::string & pathresults);
 
+  void outbasis_R(const ST::string & pathbasis);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 

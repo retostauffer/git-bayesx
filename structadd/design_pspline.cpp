@@ -230,6 +230,8 @@ DESIGN_pspline::DESIGN_pspline(const DESIGN_pspline & m)
   round = m.round;
   binning = m.binning;
   ccov = m.ccov;
+  minBS = m.minBS;
+  maxBS = m.maxBS;
   }
 
 
@@ -249,10 +251,27 @@ const DESIGN_pspline & DESIGN_pspline::operator=(const DESIGN_pspline & m)
   round = m.round;
   binning = m.binning;
   ccov = m.ccov;
+  minBS = m.minBS;
+  maxBS = m.maxBS;
   return *this;
   }
 
-
+void DESIGN_pspline::outbasis_R(ofstream & out)
+  {
+  unsigned i;
+  out << "BayesX.design.matrix<-function(x,...){" << endl;
+  out << "require(\"splines\")" << endl;
+  out << "knots<-c(";
+  for (i=0;i<knot.size()-1;i++)
+    {
+    out << knot[i] << ",";
+    }
+  out << knot[knot.size()-1] << ")" << endl;
+  out << "degree<-" << degree << endl;
+  out << "X<-splineDesign(knots=knots,x=x,ord=degree+1,outer.ok=TRUE,...)" << endl;
+  out << "return(X)" << endl;
+  out << "}" << endl;
+  }
 
 void DESIGN_pspline::make_Bspline(void)
   {
@@ -263,22 +282,22 @@ void DESIGN_pspline::make_Bspline(void)
   datamatrix help;
 
 // berechne x_min, x_max
-  double min;
-  min = data(0,0);
 
-  double max;
-  max = data(data.rows()-1,0);
+  minBS = data(0,0);
 
-  double dist = max-min;
 
-  min -= 0.01*dist;
-  max += 0.01*dist;
+  maxBS= data(data.rows()-1,0);
+
+  double dist = maxBS-minBS;
+
+  minBS -= 0.01*dist;
+  maxBS += 0.01*dist;
 
 
 // Knoten berechnen
 
-  dist = (max - min)/(nrknots-1);
-  knot.push_back(min - degree*dist);
+  dist = (maxBS - minBS)/(nrknots-1);
+  knot.push_back(minBS - degree*dist);
   for(i=1;i<nrknots+2*degree;i++)
     knot.push_back(knot[i-1] + dist);
 

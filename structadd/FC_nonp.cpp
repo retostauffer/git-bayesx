@@ -1220,7 +1220,6 @@ void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    Estimated first derivatives are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
-    out_R << "filetype=derivative; path=" << pathresults << ";" <<  endl;
 
     ofstream outres(pathresults.strtochar());
 
@@ -1313,6 +1312,13 @@ void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
   }
 
 
+void FC_nonp::outbasis_R(const ST::string & pathbasis)
+  {
+  ofstream out(pathbasis.strtochar());
+  designp->outbasis_R(out);
+  }
+
+
 void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
                         const ST::string & pathresults)
   {
@@ -1332,21 +1338,33 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     ST::string pathresultsbeta = pathresults.substr(0,pathresults.length()-4) +
                                  "_param.res";
 
+
+    ST::string pathbasis = pathresults.substr(0,pathresults.length()-4) +
+                                 "_basisR.res";
+
+    outbasis_R(pathbasis);
+
     outresults_acceptance();
 
     paramsample.outresults(out_stata,out_R,pathresultsbeta);
 
-    out_R << "term=" << title <<  ";" << endl;
+    ST::string paths = pathresults.substr(0,pathresults.length()-4) +
+                                 "_sample.raw";
+
+    out_R << "equation=" << likep->family.strtochar() << ",";
+    out_R << "term=sx("  << designp->datanames[0].strtochar()  << "),";
+    out_R << "filetype=nonlinear,";
+    out_R << "pathsamples=" << paths.strtochar() << ",";
+    out_R << "pathbasis=" << pathbasis.strtochar() << endl;
 
     optionsp->out("    Estimated parameters are stored in file\n");
     optionsp->out("    " +  pathresultsbeta + "\n");
     optionsp->out("\n");
-    out_R << "filetype=param; path=" << pathresultsbeta << ";" <<  endl;
 
     optionsp->out("    Function estimates are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
-    out_R << "filetype=function; path=" << pathresults << ";" <<  endl;
+
 
     if (designp->intvar.rows()==designp->data.rows())
       {
@@ -1901,6 +1919,7 @@ void FC_nonp::compute_autocorr_all(const ST::string & path,
 void FC_nonp::get_samples(const ST::string & filename,ofstream & outg) const
   {
   paramsample.get_samples(filename,outg);
+
   if (derivative && samplederivative)
     {
     ST::string filed = filename.substr(0,filename.length()-11) +

@@ -395,11 +395,11 @@ const int & seed, const bool & computemode)
           genoptions->out("\n");
           }
 
-        out_R << "equationnumber=" << equations[nrmodels-1-i].equationnr << ";"
-              << " header=" << equations[nrmodels-1-i].header << ";"
-              << " family=" << equations[nrmodels-1-i].distrp->family << ";"              
-              << " equationtype="  << equations[nrmodels-1-i].equationtype << ";"
-              << " hlevel="        << equations[nrmodels-1-i].hlevel <<  endl;
+//        out_R << "equationnumber=" << equations[nrmodels-1-i].equationnr << ";"
+//              << " header=" << equations[nrmodels-1-i].header << ";"
+//              << " family=" << equations[nrmodels-1-i].distrp->family << ";"
+//              << " equationtype="  << equations[nrmodels-1-i].equationtype << ";"
+//              << " hlevel="        << equations[nrmodels-1-i].hlevel <<  endl;
 
 
         equations[nrmodels-1-i].distrp->outresults(out_stata,out_R,
@@ -624,11 +624,11 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
         for(i=0;i<nrmodels;i++)
           {
 
-          out_R << "equationnumber=" << equations[nrmodels-1-i].equationnr << ";"
-                << " header=" << equations[nrmodels-1-i].header << ";"
-                << " family=" << equations[nrmodels-1-i].distrp->family << ";"
-                << " equationtype="  << equations[nrmodels-1-i].equationtype << ";"
-                << " hlevel="        << equations[nrmodels-1-i].hlevel <<  endl;
+//          out_R << "equationnumber=" << equations[nrmodels-1-i].equationnr << ";"
+//                << " header=" << equations[nrmodels-1-i].header << ";"
+//                << " family=" << equations[nrmodels-1-i].distrp->family << ";"
+//                << " equationtype="  << equations[nrmodels-1-i].equationtype << ";"
+//                << " hlevel="        << equations[nrmodels-1-i].hlevel <<  endl;
 
 
           equations[nrmodels-1-i].distrp->outresults(out_stata,out_R,equations[nrmodels-1-i].pathd);
