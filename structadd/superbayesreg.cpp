@@ -1848,7 +1848,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: dagum_p ---------------------------------
 
  //---------------------------------- dagum_b --------------------------------
-   else if (family.getvalue() == "dagum_b" && equationtype.getvalue()=="shape1")
+   else if (family.getvalue() == "dagum_b" && equationtype.getvalue()=="scale")
      {
 
      computemodeforstartingvalues = true;
