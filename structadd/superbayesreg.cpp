@@ -711,6 +711,9 @@ void superbayesreg::clear(void)
   FC_nonp_variances.erase(FC_nonp_variances.begin(),FC_nonp_variances.end());
   FC_nonp_variances.reserve(200);
 
+  FC_nonp_variance_varselections.erase(FC_nonp_variance_varselections.begin(),
+                                       FC_nonp_variance_varselections.end());
+  FC_nonp_variance_varselections.reserve(200);
 
   FC_linear_pens.erase(FC_linear_pens.begin(),FC_linear_pens.end());
   FC_linear_pens.reserve(50);
@@ -891,6 +894,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   design_psplines = b.design_psplines;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
+  FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
   FC_predicts = b.FC_predicts;
   FC_predicts_mult = b.FC_predicts_mult;
   FC_predict_predictors = b.FC_predict_predictors;
@@ -1018,6 +1022,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   design_psplines = b.design_psplines;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
+  FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;  
   FC_predicts = b.FC_predicts;
   FC_predicts_mult = b.FC_predicts_mult;
   FC_predict_predictors = b.FC_predict_predictors;
@@ -3394,12 +3399,28 @@ void superbayesreg::create_pspline(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_pspline_var.raw","variance_of_nonlinear_pspline_effect_of","Variance of nonlinear effect of ");
 
-  FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
-                                title,pathnonp,&design_psplines[design_psplines.size()-1],
-                                &FC_nonps[FC_nonps.size()-1],terms[i].options,
-                                terms[i].varnames));
+  if (terms[i].options[35] == "iid")
+    {
+    FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
+                                  title,pathnonp,&design_psplines[design_psplines.size()-1],
+                                  &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                                  terms[i].varnames));
 
-  equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
+    equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
+
+    }
+  else if (terms[i].options[35] == "ssvs")
+    {
+
+    FC_nonp_variance_varselections.push_back(FC_nonp_variance_varselection(
+                                  &master,nrlevel1,&generaloptions,equations[modnr].distrp,
+                                  title,pathnonp,&design_psplines[design_psplines.size()-1],
+                                  &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                                  terms[i].varnames));
+
+    equations[modnr].add_FC(&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1],pathres);
+    }
+
 
   }
 

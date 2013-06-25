@@ -127,14 +127,24 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   };
 
 
-
-class __EXPORT_TYPE FC_nonp_variance_varselection  : public FC_nonp_variance
+class __EXPORT_TYPE FC_nonp_variance_varselection  : public FC_nonp_variance
   {
 
   protected:
 
   FC FC_delta;
   FC FC_psi2;
+  FC FC_omega;
+
+  double a_omega;
+  double b_omega;
+
+  double v;
+  double Q;
+
+  double r;
+
+  datamatrix X;
 
   public:
 
@@ -175,6 +185,7 @@ class __EXPORT_TYPE FC_nonp_variance_varselection  : public FC_nonp_variance
 
   void update(void);
 
+  bool posteriormode(void);
 
   // FUNCTION: outoptions
   // TASK: writes estimation options (hyperparameters, etc.) to outputstream

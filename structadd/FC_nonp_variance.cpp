@@ -228,42 +228,6 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
 
     optionsp->out("\n");
 
-/*
-    optionsp->out("    Smoothing parameter\n");
-
-    optionsp->out("\n");
-
-    vstr = "    Mean:         ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(betamean(0,1),6) + "\n");
-
-    vstr = "    Std. dev.:    ";
-
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(sqrt(betavar(0,1)),6) + "\n");
-
-    vstr = "    " + l1 + "% Quantile: ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(betaqu_l1_lower(0,1),6) + "\n");
-
-    vstr = "    " + l2 + "% Quantile: ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(betaqu_l2_lower(0,1),6) + "\n");
-
-    vstr = "    50% Quantile: ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(betaqu50(0,1),6) + "\n");
-
-    vstr = "    " + u1 + "% Quantile: ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(betaqu_l2_upper(0,1),6) + "\n");
-
-    vstr = "    " + u2 + "% Quantile: ";
-    optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
-    ST::doubletostring(betaqu_l1_upper(0,1),6) + "\n");
-
-    optionsp->out("\n");
-    */
     }
   else
     {
@@ -346,13 +310,17 @@ void FC_nonp_variance::reset(void)
 
 
 //------------------------------------------------------------------------------
-//---------- CLASS: FC_nonp_variance_varselection implementation of member functions ---------
+//--- CLASS: FC_nonp_variance_varselection implementation of member functions --
 //------------------------------------------------------------------------------
 
 void FC_nonp_variance_varselection::read_options(vector<ST::string> & op,
                                    vector<ST::string> & vn)
   {
   FC_nonp_variance::read_options(op,vn);
+
+  int f;
+
+  f = op[41].strtodouble(r);
   }
 
 
@@ -363,7 +331,8 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(void)
 
 
 
-FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp, unsigned & enr, GENERAL_OPTIONS * o,
+FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
+                 unsigned & enr, GENERAL_OPTIONS * o,
                  DISTR * lp, const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                  vector<ST::string> & vn)
@@ -378,7 +347,16 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp, un
   FC_psi2 = FC(o,"",1,1,"");
   FC_psi2.setbeta(1,1,0.5);
 
-  }
+  FC_omega = FC(o,"",1,1,"");
+  FC_omega.setbeta(1,1,0.5);
+
+  a_omega = 1;
+  b_omega = 1;
+
+  v = 5;
+  Q = 25;
+
+  }
 
 
 FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_variance_varselection & m)
@@ -386,6 +364,13 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   {
   FC_delta = m.FC_delta;
   FC_psi2 = m.FC_psi2;
+  FC_omega = m.FC_omega;
+  a_omega = m.a_omega;
+  b_omega = m.b_omega;
+  v = m.v;
+  Q = m.Q;
+  r = m.r;
+  X = m.X;
   }
 
 
@@ -397,6 +382,13 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   FC::operator=(FC(m));
   FC_delta = m.FC_delta;
   FC_psi2 = m.FC_psi2;
+  FC_omega = m.FC_omega;
+  a_omega = m.a_omega;
+  b_omega = m.b_omega;
+  v = m.v;
+  Q = m.Q;
+  r = m.r;
+  X = m.X;
   return *this;
   }
 
@@ -404,28 +396,113 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
 void FC_nonp_variance_varselection::update(void)
   {
 
-  // TEST
-  //  ofstream out("c:\\bayesx\\test\\results\\param.res");
-  //  (FCnonpp->param).prettyPrint(out);
-  // END: TEST
+  unsigned i;
 
-  b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
+  // updating psi2
 
-  if (lambdaconst == false)
+  double r_delta;
+  if (FC_delta.beta(0,0) == 0)
+    r_delta = r;
+  else
+    r_delta = 1;
+
+  FC_psi2.beta(0,0) = rand_invgamma(v+0.5,Q+0.5*beta(0,0)*r_delta);
+
+  double psi2 = FC_psi2.beta(0,0);
+
+  FC_psi2.update();
+
+  // end: updating psi2
+
+  // updating delta
+
+  double u = uniform();
+  double L = 1/sqrt(r)*exp(- beta(0,0)/(2*FC_psi2.beta(0,0))*(1/r-1));
+  double pr1 = 1/(1+ ((1-FC_omega.beta(0,0))/FC_omega.beta(0,0))*L);
+  if (u <=pr1)
     {
-    beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
-                b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
-
-
-    beta(0,1) = likep->get_scale()/beta(0,0);
-
-    FCnonpp->tau2 = beta(0,0);
-
-    acceptance++;
-    FC::update();
-
+    FC_delta.beta(0,0) = 1;
+    r_delta = 1;
+    }
+  else
+    {
+    FC_delta.beta(0,0) = 0;
+    r_delta = r;
     }
 
+  double delta = FC_delta.beta(0,0);
+
+  FC_delta.update();
+
+  // end: updating delta
+
+
+  // updating w
+
+  FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
+                                          b_omega+1-FC_delta.beta(0,0));
+  double omega = FC_omega.beta(0,0);
+
+  FC_omega.update();
+
+  // end: updating w
+
+
+  // updating tau2
+
+  FCnonpp->designp->compute_effect(X,FCnonpp->beta);
+
+//  ofstream out("c:\\bayesx\\testh\\results\\X.res");
+//  X.prettyPrint(out);
+
+  double * worklin;
+  if (likep->linpred_current==1)
+    worklin = likep->linearpred1.getV();
+  else
+    worklin = likep->linearpred2.getV();
+
+  double Sigmatau;
+  double mutau = 0;
+  double * Xp = X.getV();
+  double * responsep = likep->workingresponse.getV();
+  double varinv = 1/(likep->get_scale()*beta(0,0));
+  double xtx=0;
+  for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++)
+    {
+    xtx += pow(*Xp,2);
+    mutau += (*Xp) * ((*responsep) - (*worklin)+(*Xp));
+    }
+
+  Sigmatau = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
+
+  mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
+
+  double tau = mutau + sqrt(Sigmatau) * rand_normal();
+
+  double tau2 = tau*tau;
+
+  beta(0,0) = pow(tau,2);
+
+
+  beta(0,1) = likep->get_scale()/beta(0,0);
+
+  FCnonpp->tau2 = beta(0,0);
+
+  // end: updating tau2
+
+  acceptance++;
+  FC::update();
+
+  }
+
+
+bool FC_nonp_variance_varselection::posteriormode(void)
+  {
+  bool t = FC_nonp_variance::posteriormode();
+
+  FC_psi2.beta(0,0) = beta(0,0);
+
+  return true;
   }
 
 
@@ -434,7 +511,42 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
                                   const ST::string & pathresults)
   {
 
-  FC_nonp_variance::outresults(out_stata,out_R,pathresults);
+  if (pathresults.isvalidfile() != 1)
+    {
+
+    ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-4) + "_delta.res";
+    ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
+
+    FC_nonp_variance::outresults(out_stata,out_R,pathresults);
+
+    FC_delta.outresults(out_stata,out_R,"");
+    FC_omega.outresults(out_stata,out_R,pathresults_omega);
+
+
+    optionsp->out("    Inclusion probability: " + ST::doubletostring(FC_delta.betamean(0,0),6)  + "\n");
+    optionsp->out("\n");
+    optionsp->out("    Results for the inclusion probabilities are also stored in file\n");
+    optionsp->out("    " +  pathresults_delta + "\n");
+    optionsp->out("\n");
+    optionsp->out("\n");
+
+    optionsp->out("    Inclusion probability parameter omega:\n");
+    optionsp->out("\n");
+    FC_omega.outresults_singleparam(out_stata,out_R,"");
+    optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
+    optionsp->out("    " +  pathresults_omega + "\n");
+    optionsp->out("\n");
+    optionsp->out("\n");
+
+    // deltas
+    ofstream ou(pathresults_delta.strtochar());
+
+    ou << "pmean" << endl;
+    ou << FC_delta.betamean(0,0) << endl;
+    }
+
+
+//  FC_nonp_variance::outresults(out_stata,out_R,pathresults);
 
   }
 

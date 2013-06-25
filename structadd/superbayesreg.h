@@ -154,6 +154,7 @@ using MCMC::FC_linear_pen;
 using MCMC::FC_mult;
 using MCMC::FC_hrandom;
 using MCMC::FC_nonp_variance;
+using MCMC::FC_nonp_variance_varselection;
 using MCMC::FC_hrandom_variance;
 using MCMC::FC_variance_pen_vector;
 using MCMC::FC_nonp_variance_vec;
@@ -469,6 +470,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DESIGN_kriging> design_krigings;
   vector<FC_nonp> FC_nonps;
   vector<FC_nonp_variance> FC_nonp_variances;
+  vector<FC_nonp_variance_varselection> FC_nonp_variance_varselections;  
 
   bool create_nonp(void);
   void create_pspline(unsigned i);

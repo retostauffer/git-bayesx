@@ -890,7 +890,7 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
 
 
 void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
-                      effecttype2 et)
+                            effecttype2 et)
   {
 
   // TEST
