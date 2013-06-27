@@ -353,6 +353,26 @@ void FC_hrandom_variance_ssvs::update(void)
   }
 
 
+void FC_hrandom_variance_ssvs::outoptions(void)
+  {
+
+  optionsp->out("  Options for spike and slap prior\n");
+  optionsp->out("\n");
+
+  FC_nonp_variance::outoptions();
+
+  optionsp->out("  Hyperparameter a for beta distribution: " +
+                ST::doubletostring(abeta) + "\n" );
+  optionsp->out("  Hyperparameter b for beta distribution: " +
+                ST::doubletostring(bbeta) + "\n" );
+
+  optionsp->out("  Spike and slap parameter r: " + ST::doubletostring(r) + "\n");
+
+  optionsp->out("\n");
+
+  }
+
+
 void FC_hrandom_variance_ssvs::outresults(ofstream & out_stata,
                                               ofstream & out_R,
                                               const ST::string & pathresults)

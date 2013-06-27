@@ -174,6 +174,10 @@ class __EXPORT_TYPE FC_hrandom_variance_ssvs
   void outresults(ofstream & out_stata,ofstream & out_R,
                   const ST::string & pathresults);
 
+  // FUNCTION: outoptions
+  // TASK: writes estimation options (hyperparameters, etc.) to outputstream
+
+  void outoptions(void);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
