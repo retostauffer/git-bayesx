@@ -2060,7 +2060,13 @@ bool superbayesreg::create_distribution(void)
 
      computemodeforstartingvalues = true;
 
-     distr_bivnormal_mus.push_back(DISTR_bivnormal_mu(&generaloptions,D.getCol(0),w));
+     unsigned pos;
+     if (equationtype.getvalue()=="mean")
+       pos = 1;
+     else
+       pos = 0;
+
+     distr_bivnormal_mus.push_back(DISTR_bivnormal_mu(&generaloptions,D.getCol(0),pos,w));
 
      equations[modnr].distrp = &distr_bivnormal_mus[distr_bivnormal_mus.size()-1];
      equations[modnr].pathd = "";
@@ -2077,34 +2083,42 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-     If ((equationtype.getvalue()=="mean") && (distr_bivnormal_mus.size() != 2))
+     if ((equationtype.getvalue()=="mean") && (distr_bivnormal_mus.size() != 2))
        {
        outerror("ERROR: Two equations for mus required");
        return true;
        }
 
-     if
-     predict_mult_distrs.push_back(&distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
-     predict_mult_distrs.push_back(&distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
-     predict_mult_distrs.push_back(&distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
+     if (equationtype.getvalue()=="mean")
+       {
 
-     distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1].distrp.push_back(
-     &distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
+       predict_mult_distrs.push_back(&distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
+       predict_mult_distrs.push_back(&distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-2]);
+       predict_mult_distrs.push_back(&distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
+       predict_mult_distrs.push_back(&distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
+       predict_mult_distrs.push_back(&distr_bivnormal_mus[distr_bivnormal_mus.size()-2]);
 
-	 distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1].distrp.push_back(
-     &distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
+       distr_bivnormal_mus[distr_bivnormal_mus.size()-2].response2 = distr_bivnormal_mus[distr_bivnormal_mus.size()-1].response;
+       distr_bivnormal_mus[distr_bivnormal_mus.size()-1].response2 = distr_bivnormal_mus[distr_bivnormal_mus.size()-2].response;
 
-     distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1].distrp.push_back(
-     &distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
+       distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1].distrp.push_back(
+       &distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
 
-     distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1].distrp.push_back(
-     &distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
+	   distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1].distrp.push_back(
+       &distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
 
-     distr_bivnormal_mus[distr_bivnormal_mus.size()-1].distrp.push_back(
-     &distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
+       distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1].distrp.push_back(
+       &distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
 
-     distr_bivnormal_mus[distr_bivnormal_mus.size()-1].distrp.push_back(
-     &distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
+       distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1].distrp.push_back(
+       &distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
+
+       distr_bivnormal_mus[distr_bivnormal_mus.size()-1].distrp.push_back(
+       &distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
+
+       distr_bivnormal_mus[distr_bivnormal_mus.size()-1].distrp.push_back(
+       &distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
+       }
 
      }
  //------------------------------ END: bivnormal_mu ----------------------------------
