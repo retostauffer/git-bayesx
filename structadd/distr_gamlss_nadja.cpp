@@ -5860,7 +5860,8 @@ DISTR_bivnormal_rho::DISTR_bivnormal_rho(GENERAL_OPTIONS * o,
 DISTR_bivnormal_rho::DISTR_bivnormal_rho(const DISTR_bivnormal_rho & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
-
+  response2 = nd.response2;
+  response2p = nd.response2p;
   }
 
 
@@ -5870,6 +5871,8 @@ const DISTR_bivnormal_rho & DISTR_bivnormal_rho::operator=(
   if (this==&nd)
     return *this;
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  response2 = nd.response2;
+  response2p = nd.response2p;
   return *this;
   }
 
@@ -5878,6 +5881,31 @@ double DISTR_bivnormal_rho::get_intercept_start(void)
   {
   return 0; // log(response.mean(0));
   }
+
+
+void DISTR_bivnormal_rho::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_bivnormal_rho::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
 
 
 double DISTR_bivnormal_rho::loglikelihood_weightsone(double * response,
