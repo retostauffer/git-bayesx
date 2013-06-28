@@ -2035,6 +2035,8 @@ class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
 
   protected:
 
+  unsigned pos;
+
   void set_worklin(void);
   void modify_worklin(void);
 
@@ -2054,7 +2056,7 @@ class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
 
    // CONSTRUCTOR
 
-  DISTR_bivnormal_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+  DISTR_bivnormal_mu(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
                        const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR

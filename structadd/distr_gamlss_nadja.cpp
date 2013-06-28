@@ -6204,9 +6204,11 @@ void DISTR_bivnormal_mu::check_errors(void)
 
 DISTR_bivnormal_mu::DISTR_bivnormal_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
+                                           unsigned & p,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,4,w)
   {
+  pos =p;
   family = "bivariate normal - mu";
   outpredictor = true;
   outexpectation = true;
@@ -6219,6 +6221,7 @@ DISTR_bivnormal_mu::DISTR_bivnormal_mu(GENERAL_OPTIONS * o,
 DISTR_bivnormal_mu::DISTR_bivnormal_mu(const DISTR_bivnormal_mu & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
+  pos = nd.pos;
   response2 = nd.response2;
   response2p = nd.response2p;
   }
@@ -6230,6 +6233,7 @@ const DISTR_bivnormal_mu & DISTR_bivnormal_mu::operator=(
   if (this==&nd)
     return *this;
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  pos = nd.pos;
   response2 = nd.response2;
   response2p = nd.response2p;
   return *this;
