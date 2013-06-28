@@ -2048,6 +2048,13 @@ bool superbayesreg::create_distribution(void)
      equations[modnr].distrp = &distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1];
      equations[modnr].pathd = "";
 
+     if (distr_bivnormal_sigmas.size() == 2)
+       {
+       distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-2].response2 = distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1].response;
+       distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1].response2 = distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-2].response;
+       }
+
+
      }
  //------------------------------ END: bivnormal_sigma -------------------------------
 
