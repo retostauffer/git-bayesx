@@ -3954,8 +3954,8 @@ DISTR_lognormal2_mu::DISTR_lognormal2_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-    linpredminlimit=-10;
-  linpredmaxlimit=15;
+ //   linpredminlimit=-10;
+ // linpredmaxlimit=15;
   }
 
 
@@ -4314,8 +4314,8 @@ DISTR_lognormal_mu::DISTR_lognormal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-    linpredminlimit=-10;
-  linpredmaxlimit=15;
+   // linpredminlimit=-10;
+  //linpredmaxlimit=15;
   }
 
 
@@ -4665,8 +4665,8 @@ DISTR_normal2_mu::DISTR_normal2_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-    linpredminlimit=-10;
-  linpredmaxlimit=15;
+//    linpredminlimit=-10;
+ // linpredmaxlimit=15;
   }
 
 
@@ -5019,8 +5019,8 @@ DISTR_normal_mu::DISTR_normal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-    linpredminlimit=-10;
-  linpredmaxlimit=15;
+ //   linpredminlimit=-10;
+ // linpredmaxlimit=15;
   }
 
 
