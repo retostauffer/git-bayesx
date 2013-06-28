@@ -6211,15 +6211,16 @@ DISTR_bivnormal_mu::DISTR_bivnormal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-    linpredminlimit=-10;
-  linpredmaxlimit=15;
+//    linpredminlimit=-10;
+//  linpredmaxlimit=15;
   }
 
 
 DISTR_bivnormal_mu::DISTR_bivnormal_mu(const DISTR_bivnormal_mu & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
-
+  response2 = nd.response2;
+  response2p = nd.response2p;
   }
 
 
@@ -6229,6 +6230,8 @@ const DISTR_bivnormal_mu & DISTR_bivnormal_mu::operator=(
   if (this==&nd)
     return *this;
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  response2 = nd.response2;
+  response2p = nd.response2p;
   return *this;
   }
 
@@ -6274,6 +6277,31 @@ double DISTR_bivnormal_mu::get_intercept_start(void)
   {
   return 0; // log(response.mean(0));
   }
+
+
+void DISTR_bivnormal_mu::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_bivnormal_mu::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
 
 
 double DISTR_bivnormal_mu::loglikelihood_weightsone(double * response,

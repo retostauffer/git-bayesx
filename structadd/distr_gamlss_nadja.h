@@ -2035,8 +2035,14 @@ class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
 
   protected:
 
+  void set_worklin(void);
+  void modify_worklin(void);
+
 
   public:
+
+  datamatrix response2;
+  double * response2p;
 
   void check_errors(void);
 

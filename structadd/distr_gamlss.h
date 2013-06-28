@@ -51,7 +51,6 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
   virtual void set_worklin(void);
   virtual void modify_worklin(void);
 
-
   public:
 
   vector<DISTR*> distrp;
