@@ -2043,7 +2043,13 @@ bool superbayesreg::create_distribution(void)
 
      computemodeforstartingvalues = true;
 
-     distr_bivnormal_sigmas.push_back(DISTR_bivnormal_sigma(&generaloptions,D.getCol(0),w));
+      unsigned pos;
+      if (distr_bivnormal_sigmas.size()==0)
+        pos=0;
+      else
+        pos=1;
+
+     distr_bivnormal_sigmas.push_back(DISTR_bivnormal_sigma(&generaloptions,D.getCol(0),pos,w));
 
      equations[modnr].distrp = &distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1];
      equations[modnr].pathd = "";

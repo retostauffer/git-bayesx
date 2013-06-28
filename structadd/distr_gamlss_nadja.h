@@ -1981,6 +1981,8 @@ class __EXPORT_TYPE DISTR_bivnormal_sigma : public DISTR_gamlss
 
   protected:
 
+  unsigned pos;
+
   void set_worklin(void);
   void modify_worklin(void);
 
@@ -1998,7 +2000,7 @@ class __EXPORT_TYPE DISTR_bivnormal_sigma : public DISTR_gamlss
 
    // CONSTRUCTOR
 
-  DISTR_bivnormal_sigma(GENERAL_OPTIONS * o, const datamatrix & r,
+  DISTR_bivnormal_sigma(GENERAL_OPTIONS * o, const datamatrix & r,unsigned & p,
                        const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR

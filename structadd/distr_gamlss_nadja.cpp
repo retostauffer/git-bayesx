@@ -6007,12 +6007,13 @@ void DISTR_bivnormal_rho::update_end(void)
 
 
 DISTR_bivnormal_sigma::DISTR_bivnormal_sigma(GENERAL_OPTIONS * o,
-                                           const datamatrix & r,
+                                           const datamatrix & r,unsigned & p,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,4,w)
   {
   family = "bivariate normal - sigma";
 
+  pos = p;
   outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma";
@@ -6025,6 +6026,7 @@ DISTR_bivnormal_sigma::DISTR_bivnormal_sigma(GENERAL_OPTIONS * o,
 DISTR_bivnormal_sigma::DISTR_bivnormal_sigma(const DISTR_bivnormal_sigma & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
+  pos = nd.pos;
   response2 = nd.response2;
   response2p = nd.response2p;
   }
@@ -6036,6 +6038,7 @@ const DISTR_bivnormal_sigma & DISTR_bivnormal_sigma::operator=(
   if (this==&nd)
     return *this;
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  pos = nd.pos;
   response2 = nd.response2;
   response2p = nd.response2p;
   return *this;
