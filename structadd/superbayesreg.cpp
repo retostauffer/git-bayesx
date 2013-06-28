@@ -277,9 +277,12 @@ void superbayesreg::create_hregress(void)
   families.push_back("gengamma_mu");
   families.push_back("gengamma_sigma");
   families.push_back("gengamma_tau");
-    families.push_back("t_mu");
+  families.push_back("t_mu");
   families.push_back("t_sigma2");
   families.push_back("t_n");
+  families.push_back("bivnormal_mu");
+  families.push_back("bivnormal_sigma");
+  families.push_back("bivnormal_rho");
   families.push_back("weibull_lambda");
   families.push_back("weibull_alpha");
   families.push_back("dagum_a");
@@ -313,6 +316,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("mu");
   equationtypes.push_back("nu");
   equationtypes.push_back("df");
+  equationtypes.push_back("rho");
  // equationtypes.push_back("tau");
  // equationtypes.push_back("a");
  // equationtypes.push_back("b");
@@ -642,7 +646,7 @@ void superbayesreg::clear(void)
   distr_gengamma_taus.erase(distr_gengamma_taus.begin(),distr_gengamma_taus.end());
   distr_gengamma_taus.reserve(20);
 
-    distr_t_mus.erase(distr_t_mus.begin(),distr_t_mus.end());
+  distr_t_mus.erase(distr_t_mus.begin(),distr_t_mus.end());
   distr_t_mus.reserve(20);
 
   distr_t_sigma2s.erase(distr_t_sigma2s.begin(),distr_t_sigma2s.end());
@@ -650,6 +654,15 @@ void superbayesreg::clear(void)
 
   distr_t_ns.erase(distr_t_ns.begin(),distr_t_ns.end());
   distr_t_ns.reserve(20);
+
+  distr_bivnormal_mus.erase(distr_bivnormal_mus.begin(),distr_bivnormal_mus.end());
+  distr_bivnormal_mus.reserve(20);
+
+  distr_bivnormal_sigmas.erase(distr_bivnormal_sigmas.begin(),distr_bivnormal_sigmas.end());
+  distr_bivnormal_sigmas.reserve(20);
+
+  distr_bivnormal_rhos.erase(distr_bivnormal_rhos.begin(),distr_bivnormal_rhos.end());
+  distr_bivnormal_rhos.reserve(20);
 
   distr_zeroadjusteds.erase(distr_zeroadjusteds.begin(),distr_zeroadjusteds.end());
   distr_zeroadjusteds.reserve(5);
@@ -872,6 +885,9 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_t_mus = b.distr_t_mus;
   distr_t_sigma2s = b.distr_t_sigma2s;
   distr_t_ns = b.distr_t_ns;
+  distr_bivnormal_mus = b.distr_bivnormal_mus;
+  distr_bivnormal_sigmas = b.distr_bivnormal_sigmas;
+  distr_bivnormal_rhos = b.distr_bivnormal_rhos;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
   distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;
   distr_weibull_lambdas = b.distr_weibull_lambdas;
@@ -999,6 +1015,9 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gengamma_taus = b.distr_gengamma_taus;
   distr_t_mus = b.distr_t_mus;
   distr_t_sigma2s = b.distr_t_sigma2s;
+  distr_bivnormal_mus = b.distr_bivnormal_mus;
+  distr_bivnormal_sigmas = b.distr_bivnormal_sigmas;
+  distr_bivnormal_rhos = b.distr_bivnormal_rhos;
   distr_t_ns = b.distr_t_ns;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
   distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;
@@ -1022,7 +1041,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   design_psplines = b.design_psplines;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
-  FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;  
+  FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
   FC_predicts = b.FC_predicts;
   FC_predicts_mult = b.FC_predicts_mult;
   FC_predict_predictors = b.FC_predict_predictors;
@@ -1194,8 +1213,14 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": MAIN DF REGRESSION_"+ rn;
       equations[modnr].paths = "MAIN_DF_REGRESSION_"+ rn;
       }
+  else if (equations[modnr].equationtype == "rho")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN RHO REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_RHO_REGRESSION_"+ rn;
+      }
 
-    else if (equations[modnr].equationtype == "meanservant")
+ else if (equations[modnr].equationtype == "meanservant")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
                               ": MAIN REGRESSION_" + rn;
@@ -1281,6 +1306,12 @@ void superbayesreg::make_header(unsigned & modnr)
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
                               ": RANDOM EFFECTS DF REGRESSION";
       equations[modnr].paths = "RANDOM_EFFECTS_DF";
+      }
+    else if (equations[modnr].equationtype == "rho")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS RHO REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_RHO";
       }
     }
 
@@ -1992,6 +2023,82 @@ bool superbayesreg::create_distribution(void)
      }
  //------------------------------ END: t_mu ----------------------------------
 
+  //---------------------------------- bivnormal_rho -----------------------------------
+   else if (family.getvalue() == "bivnormal_rho" && equationtype.getvalue()=="rho")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_bivnormal_rhos.push_back(DISTR_bivnormal_rho(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------- END: bivnormal_rho ---------------------------------
+
+ //---------------------------------- bivnormal_sigma --------------------------------
+   else if (family.getvalue() == "bivnormal_sigma" && equationtype.getvalue()=="scale")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_bivnormal_sigmas.push_back(DISTR_bivnormal_sigma(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------ END: bivnormal_sigma -------------------------------
+
+
+ // ----------------------------------- bivnormal_mu ----------------------------------
+   else if (family.getvalue() == "bivnormal_mu" && equationtype.getvalue()=="mean")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_bivnormal_mus.push_back(DISTR_bivnormal_mu(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_bivnormal_mus[distr_bivnormal_mus.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_bivnormal_rhos.size() != 1)
+       {
+       outerror("ERROR: Equation for rho is missing");
+       return true;
+       }
+
+     if (distr_bivnormal_sigmas.size() != 1)
+       {
+       outerror("ERROR: Equation for sigma is missing");
+       return true;
+       }
+
+     predict_mult_distrs.push_back(&distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
+     predict_mult_distrs.push_back(&distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
+     predict_mult_distrs.push_back(&distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
+
+     distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1].distrp.push_back(
+     &distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
+
+	 distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1].distrp.push_back(
+     &distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
+
+     distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1].distrp.push_back(
+     &distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
+
+     distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1].distrp.push_back(
+     &distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
+
+     distr_bivnormal_mus[distr_bivnormal_mus.size()-1].distrp.push_back(
+     &distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
+
+     distr_bivnormal_mus[distr_bivnormal_mus.size()-1].distrp.push_back(
+     &distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
+
+     }
+ //------------------------------ END: bivnormal_mu ----------------------------------
 
  //---------------------------------- gengamma tau -----------------------------------
    else if (family.getvalue() == "gengamma_tau" && equationtype.getvalue()=="shape2")

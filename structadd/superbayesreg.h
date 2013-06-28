@@ -135,6 +135,9 @@ using MCMC::DISTR_betainf_mu;
 using MCMC::DISTR_betainf_sigma2;
 using MCMC::DISTR_betainf_nu;
 using MCMC::DISTR_betainf_tau;
+using MCMC::DISTR_bivnormal_sigma;
+using MCMC::DISTR_bivnormal_mu;
+using MCMC::DISTR_bivnormal_rho;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -370,7 +373,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_gengamma_mu> distr_gengamma_mus;
   vector<DISTR_gengamma_sigma> distr_gengamma_sigmas;
   vector<DISTR_gengamma_tau> distr_gengamma_taus;
-    vector<DISTR_t_mu> distr_t_mus;
+  vector<DISTR_t_mu> distr_t_mus;
   vector<DISTR_t_sigma2> distr_t_sigma2s;
   vector<DISTR_t_n> distr_t_ns;
   vector<DISTR_weibull_lambda> distr_weibull_lambdas;
@@ -384,6 +387,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_betainf_sigma2> distr_betainf_sigma2s;
   vector<DISTR_betainf_nu> distr_betainf_nus;
   vector<DISTR_betainf_tau> distr_betainf_taus;
+  vector<DISTR_bivnormal_sigma> distr_bivnormal_sigmas;
+  vector<DISTR_bivnormal_mu> distr_bivnormal_mus;
+  vector<DISTR_bivnormal_rho> distr_bivnormal_rhos;
 
   bool create_distribution(void);
 
@@ -470,7 +476,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DESIGN_kriging> design_krigings;
   vector<FC_nonp> FC_nonps;
   vector<FC_nonp_variance> FC_nonp_variances;
-  vector<FC_nonp_variance_varselection> FC_nonp_variance_varselections;  
+  vector<FC_nonp_variance_varselection> FC_nonp_variance_varselections;
 
   bool create_nonp(void);
   void create_pspline(unsigned i);
