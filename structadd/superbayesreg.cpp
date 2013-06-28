@@ -2053,7 +2053,9 @@ bool superbayesreg::create_distribution(void)
 
 
  // ----------------------------------- bivnormal_mu ----------------------------------
-   else if (family.getvalue() == "bivnormal_mu" && equationtype.getvalue()=="mean")
+   else if ((family.getvalue() == "bivnormal_mu") &&
+            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
+           )
      {
 
      computemodeforstartingvalues = true;
@@ -2069,12 +2071,19 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-     if (distr_bivnormal_sigmas.size() != 1)
+     if (distr_bivnormal_sigmas.size() != 2)
        {
        outerror("ERROR: Equation for sigma is missing");
        return true;
        }
 
+     If ((equationtype.getvalue()=="mean") && (distr_bivnormal_mus.size() != 2))
+       {
+       outerror("ERROR: Two equations for mus required");
+       return true;
+       }
+
+     if
      predict_mult_distrs.push_back(&distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
      predict_mult_distrs.push_back(&distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
      predict_mult_distrs.push_back(&distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);

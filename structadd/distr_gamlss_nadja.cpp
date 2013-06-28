@@ -6400,7 +6400,7 @@ void DISTR_bivnormal_mu::compute_iwls_wweightschange_weightsone(
 void DISTR_bivnormal_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
       // der muss 2 dimensional sein!!
-  *mu = ((*linpred[predstart_mumult+1]));
+  *mu = ((*linpred[predstart_mumult+3+pos]));
   }
 
 
