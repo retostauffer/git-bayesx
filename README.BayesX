@@ -28,7 +28,7 @@ For compiling the source code, we provide support for two different versions:
 - A basic makefile that has to be adapted manually to your OS.
 
 The advantage of cmake is that it provides automated support for adapting the
-makefile to you local computing environmetr (automatic detection of java and other
+makefile to you local computing environment (automatic detection of java and other
 required components) and also allows to compile both a command line and a GUI
 version of BayesX across a variety of platforms. The ordinary makefile makes
 less requirement for your system but only compiles the source code version
@@ -53,7 +53,7 @@ This will generate the Makefile so that you can call
 
 and this should finally yield the compiled BayesX versions (more details on the
 two versions are given below). Unfortunately, this basic version will most
-probably only work on platforms with a good preset of tool (e.g. most linux
+probably only work on platforms with a good preset of tools (e.g. most linux
 distributions) but in most cases some additional arguments will be required (see
 below).
 
