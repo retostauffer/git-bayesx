@@ -1322,6 +1322,7 @@ void FC_nonp::outbasis_R(const ST::string & pathbasis)
 double FC_nonp::kernel_density(const double & x, const double & h)
   {
   double sum=0;
+  double n = designp->data.rows();
   unsigned j;
   double n_j;
   double u;
@@ -1329,7 +1330,7 @@ double FC_nonp::kernel_density(const double & x, const double & h)
   double K;
   for (j=0;j<designp->posbeg.size();j++)
     {
-    x_j = designp->data(designp->index_data(designp->posbeg[j],0),0);
+    x_j = designp->data(designp->posbeg[j],0);
     u = (x-x_j)/h;
     if ( (u <= 1) && (u >= -1) )
       {
@@ -1339,13 +1340,13 @@ double FC_nonp::kernel_density(const double & x, const double & h)
       }
     }
 
-  return 1/(designp->data.rows()*h)*sum;
+  return 1/(n*h)*sum;
   }
 
 
 double FC_nonp::compute_importancemeasure(void)
   {
-  ofstream out("c:\\bayesx\\trunk\\testh\\results\\test.res");
+//  ofstream out("c:\\bayesx\\trunk\\testh\\results\\test.res");
   double n = designp->data.rows();
 
   double si=sqrt(designp->data.var(0));
@@ -1358,22 +1359,24 @@ double FC_nonp::compute_importancemeasure(void)
     h = 0.9*R*pow(n,-0.2);
 
   unsigned j;
-  double x_jm1 = designp->data(designp->index_data(designp->posbeg[0],0),0);
+  double x_jm1 = designp->data(designp->posbeg[0],0);
   double x_j;
   double diff;
+  double kd_xjm1;
+  double kd_xj;
   double sum = 0;
 
   for (j=1;j<designp->posbeg.size();j++)
     {
-    x_j = designp->data(designp->index_data(designp->posbeg[j],0),0);
+    x_j = designp->data(designp->posbeg[j],0);
     diff = x_j - x_jm1;
-    sum += diff* (fabs(betamean(j-1,0))* kernel_density(x_jm1,h) + fabs(betamean(j,0))*kernel_density(x_j,h))/2;
+    kd_xjm1 = kernel_density(x_jm1,h);
+    kd_xj = kernel_density(x_j,h);
+    sum += diff* (fabs(betamean(j-1,0))* kd_xjm1 + fabs(betamean(j,0))*kd_xj)/2;
 
-    out << x_jm1 << endl;
-    out << x_j << endl;
-    out << diff << endl;
-    out << sum << endl;
-    out << endl;
+ //   out << kd_xjm1 << endl;
+ //   out << kd_xj << endl;
+ //   out << endl;
 
     x_jm1 = x_j;
     }
