@@ -557,10 +557,12 @@ DISTR_zip_cloglog_pi::DISTR_zip_cloglog_pi(GENERAL_OPTIONS * o,
   outexpectation = false;
 
   family = "Zero_Inflated_Poisson - pi";
+
   helpmat1 = datamatrix(nrobs,1,1-exp(-exp(0)));
 
   linpredminlimit=-10;
   linpredmaxlimit=10;
+
   }
 
 
@@ -750,6 +752,7 @@ DISTR_zip_cloglog_mu::DISTR_zip_cloglog_mu(GENERAL_OPTIONS * o,
   outexpectation = true;
 
   family = "Zero_Inflated_Poisson - lambda";
+
 
   linpredminlimit=-10;
   linpredmaxlimit=15;
@@ -1229,6 +1232,7 @@ DISTR_negbinzip_mu::DISTR_negbinzip_mu(GENERAL_OPTIONS * o, const datamatrix & r
   helpmat1 = datamatrix(nrobs,1,1);
 
   family = "Zero_Inflated_Negative_Binomial - mu";
+
   updateIWLS = true;
 
   linpredminlimit=-10;

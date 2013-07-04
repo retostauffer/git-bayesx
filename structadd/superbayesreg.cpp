@@ -3242,6 +3242,11 @@ bool superbayesreg::create_distribution(void)
 
   equations[modnr].distrp->responsename=rname;
   equations[modnr].distrp->weightname=wn;
+  equations[modnr].distrp->hlevel = hlevel.getvalue();
+  equations[modnr].distrp->equationtype = equationtype.getvalue();
+  equations[modnr].distrp->familyshort = family.getvalue();
+
+
 
   if (changelinpredlimits.getvalue() == true)
     {

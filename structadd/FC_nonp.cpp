@@ -1413,8 +1413,8 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     ST::string paths = pathresults.substr(0,pathresults.length()-4) +
                                  "_sample.raw";
 
-    out_R << "family=" << likep->family.strtochar() << ",";
-    out_R << "hlevel=" << likep->hlevel.strtochar() << ",";
+    out_R << "family=" << likep->familyshort.strtochar() << ",";
+    out_R << "hlevel=" << likep->hlevel << ",";
     out_R << "equationtype=" << likep->equationtype.strtochar() << ",";
     out_R << "term=sx("  << designp->datanames[0].strtochar()  << "),";
     out_R << "filetype=nonlinear,";

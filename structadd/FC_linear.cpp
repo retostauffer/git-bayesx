@@ -137,7 +137,7 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
-  constwarning=m.constwarning;  
+  constwarning=m.constwarning;
   constposition = m.constposition;
   masterp = m.masterp;
   equationnr = m.equationnr;
@@ -784,8 +784,20 @@ void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
     optionsp->out("    Results for fixed effects are also stored in file\n");
     optionsp->out("    " + pathresults + "\n");
 
-    out_R << "term=" << title <<  ";" << endl;
-    out_R << "filetype=paramlinear; path=" << pathresults << ";" <<  endl;
+    ST::string paths = pathresults.substr(0,pathresults.length()-4) +
+                                 "_sample.raw";
+
+    out_R << "family=" << likep->familyshort.strtochar() << ",";
+    out_R << "hlevel=" << likep->hlevel << ",";
+    out_R << "equationtype=" << likep->equationtype.strtochar() << ",";
+    out_R << "term=";
+    unsigned k;
+    for (k=0;k<datanames.size();k++)
+      out_R << datanames[k].strtochar() << " ";
+    out_R  << ",";
+    out_R << "filetype=linear,";
+    out_R << "pathsamples=" << paths.strtochar() << ",";
+    out_R << "pathbasis=" << endl;
 
     if (center==true)
       {

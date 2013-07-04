@@ -89,8 +89,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   optionsp = o;
 
   family = "unknown";
-  hlevel = "1";
-  equationtype="mean";
+  familyshort = "unknown";
   updateIWLS = false;
 
   response = r;
@@ -183,6 +182,7 @@ DISTR::DISTR(const DISTR & d)
 
   updateIWLS = d.updateIWLS;
   family = d.family;
+  familyshort = d.familyshort;
   equationtype = d.equationtype;
   hlevel = d.hlevel;
 
@@ -2610,13 +2610,11 @@ DISTR_gaussian_re::DISTR_gaussian_re(GENERAL_OPTIONS * o,const datamatrix & r,
   : DISTR_gaussian(1,1,o,r,"",w)
 
   {
-
   maindistribution=false;
 
   family = "Gaussian_random_effect";
 
   check_errors();
-
   }
 
 

@@ -101,7 +101,8 @@ class __EXPORT_TYPE DISTR
   bool updateIWLS;
 
   ST::string family;              // name of the distribution
-  ST::string hlevel;
+  ST::string familyshort;
+  unsigned hlevel;
   ST::string equationtype;
 
   unsigned nrobs;                 // Number of observations
