@@ -99,7 +99,10 @@ class __EXPORT_TYPE DISTR
   double sigma2;
 
   bool updateIWLS;
+
   ST::string family;              // name of the distribution
+  ST::string hlevel;
+  ST::string equationtype;
 
   unsigned nrobs;                 // Number of observations
 

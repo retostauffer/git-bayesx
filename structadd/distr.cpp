@@ -89,6 +89,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   optionsp = o;
 
   family = "unknown";
+  hlevel = "1";
+  equationtype="mean";
   updateIWLS = false;
 
   response = r;
@@ -181,6 +183,8 @@ DISTR::DISTR(const DISTR & d)
 
   updateIWLS = d.updateIWLS;
   family = d.family;
+  equationtype = d.equationtype;
+  hlevel = d.hlevel;
 
   trmult=d.trmult;
 
@@ -244,6 +248,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
 
   updateIWLS = d.updateIWLS;
   family = d.family;
+  equationtype = d.equationtype;
+  hlevel = d.hlevel;
 
   trmult=d.trmult;
 

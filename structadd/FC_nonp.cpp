@@ -1319,6 +1319,68 @@ void FC_nonp::outbasis_R(const ST::string & pathbasis)
   }
 
 
+double FC_nonp::kernel_density(const double & x, const double & h)
+  {
+  double sum=0;
+  unsigned j;
+  double n_j;
+  double u;
+  double x_j;
+  double K;
+  for (j=0;j<designp->posbeg.size();j++)
+    {
+    x_j = designp->data(designp->index_data(designp->posbeg[j],0),0);
+    u = (x-x_j)/h;
+    if ( (u <= 1) && (u >= -1) )
+      {
+      n_j = designp->posend[j]-designp->posbeg[j]+1;
+      K = 3/4*(1-u*u);
+      sum += n_j * K;
+      }
+    }
+
+  return 1/(designp->data.rows()*h)*sum;
+  }
+
+
+double FC_nonp::compute_importancemeasure(void)
+  {
+  ofstream out("c:\\bayesx\\trunk\\testh\\results\\test.res");
+  double n = designp->data.rows();
+
+  double si=sqrt(designp->data.var(0));
+  double R = (designp->data.quantile(75,0) - designp->data.quantile(25,0))/1.34;
+
+  double h;
+  if (si < R)
+    h = 0.9*si*pow(n,-0.2);
+  else
+    h = 0.9*R*pow(n,-0.2);
+
+  unsigned j;
+  double x_jm1 = designp->data(designp->index_data(designp->posbeg[0],0),0);
+  double x_j;
+  double diff;
+  double sum = 0;
+
+  for (j=1;j<designp->posbeg.size();j++)
+    {
+    x_j = designp->data(designp->index_data(designp->posbeg[j],0),0);
+    diff = x_j - x_jm1;
+    sum += diff* (fabs(betamean(j-1,0))* kernel_density(x_jm1,h) + fabs(betamean(j,0))*kernel_density(x_j,h))/2;
+
+    out << x_jm1 << endl;
+    out << x_j << endl;
+    out << diff << endl;
+    out << sum << endl;
+    out << endl;
+
+    x_jm1 = x_j;
+    }
+  return sum;
+  }
+
+
 void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
                         const ST::string & pathresults)
   {
@@ -1351,7 +1413,9 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     ST::string paths = pathresults.substr(0,pathresults.length()-4) +
                                  "_sample.raw";
 
-    out_R << "equation=" << likep->family.strtochar() << ",";
+    out_R << "family=" << likep->family.strtochar() << ",";
+    out_R << "hlevel=" << likep->hlevel.strtochar() << ",";
+    out_R << "equationtype=" << likep->equationtype.strtochar() << ",";
     out_R << "term=sx("  << designp->datanames[0].strtochar()  << "),";
     out_R << "filetype=nonlinear,";
     out_R << "pathsamples=" << paths.strtochar() << ",";
@@ -1365,6 +1429,10 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
+    double im_absolute = compute_importancemeasure();
+    optionsp->out("    Importance measures\n");
+    optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
+    optionsp->out("\n");
 
     if (designp->intvar.rows()==designp->data.rows())
       {

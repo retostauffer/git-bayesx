@@ -178,6 +178,10 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string & path);
 
 
+  double kernel_density(const double & x, const double & h);
+
+  double compute_importancemeasure(void);
+
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
