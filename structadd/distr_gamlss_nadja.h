@@ -2109,6 +2109,137 @@ class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
 
   };
 
+/*
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_bivprobit_rho ------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_bivprobit_rho : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_bivprobit_rho(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_bivprobit_rho(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_bivprobit_rho(const DISTR_bivprobit_rho & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_bivprobit_rho & operator=(const DISTR_bivprobit_rho & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_bivprobit_rho() {}
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_bivprobit_mu -------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_bivprobit_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_bivprobit_mu(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_bivprobit_mu(const DISTR_bivprobit_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_bivprobit_mu & operator=(const DISTR_bivprobit_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_bivprobit_mu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+*/
+
 
 } // end: namespace MCMC
 

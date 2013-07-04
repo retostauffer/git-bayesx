@@ -5926,8 +5926,14 @@ double DISTR_bivnormal_rho::loglikelihood_weightsone(double * response,
     {
     set_worklin();
     }
+  double rho;
 
-  double rho = (*linpred)/pow((1+pow((*linpred),2)),0.5);
+  if (*linpred <= -100)
+    rho  = -0.99995;
+  else if (*linpred >= 100)
+    rho  = 0.99995;
+  else
+    rho = (*linpred)/pow((1+pow((*linpred),2)),0.5);
 
   double rho2 = pow(rho,2);
   double oneminusrho2 = 1- rho2;
@@ -5935,9 +5941,9 @@ double DISTR_bivnormal_rho::loglikelihood_weightsone(double * response,
 
 //hier ist jetzt das problem, dass ich die aktuelle response gleichung brauche und die von dem mu2 oder rho2
 
-     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[3])),2)/pow((*worktransformlin[1]),2) -
-                                 2*rho*(((*response)-(*worktransformlin[3]))/((*worktransformlin[1])))*(((*response)-(*worktransformlin[2]))/((*worktransformlin[0])))
-                                +  pow((((*response))-(*worktransformlin[2])),2)/pow((*worktransformlin[0]),2) );
+     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worklin[3])),2)/pow((*worktransformlin[1]),2) -
+                                 2*rho*(((*response)-(*worklin[3]))/((*worktransformlin[1])))*(((*response2p)-(*worklin[2]))/((*worktransformlin[0])))
+                                +  pow((((*response2p))-(*worklin[2])),2)/pow((*worktransformlin[0]),2) );
 
 
   modify_worklin();
@@ -5968,29 +5974,44 @@ void DISTR_bivnormal_rho::compute_iwls_wweightschange_weightsone(
     {
     set_worklin();
     }
-  double hilfs = pow((1+pow((*linpred),2)),0.5);
-  double rho = (*linpred)/hilfs;
+
+  double rho;
+  double hilfs;
+
+  if (*linpred <= -100) {
+    rho  = -0.99995;
+    hilfs = 100.05;
+  }
+  else if (*linpred >= 100) {
+    rho  = 0.99995;
+    hilfs = 100.05;
+  }
+  else {
+    rho = (*linpred)/pow((1+pow((*linpred),2)),0.5);
+    hilfs = pow((1+pow((*linpred),2)),0.5);
+  }
+
 
   double rho2 = pow(rho,2);
   double oneminusrho2 = 1- rho2;
 
 
     double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response))-(*worktransformlin[3])),2)/pow((*worktransformlin[1]),2)
-                                                      +  pow((((*response))-(*worktransformlin[2])),2)/pow((*worktransformlin[0]),2) )
-                +((1+2*pow((*linpred),2))/hilfs)*( (((*response)-(*worktransformlin[3]))/((*worktransformlin[1])))*(((*response)-(*worktransformlin[2]))/((*worktransformlin[0]))) );
+                                                      +  pow((((*response2p))-(*worktransformlin[2])),2)/pow((*worktransformlin[0]),2) )
+                +(hilfs+rho*(*linpred))*( (((*response)-(*worktransformlin[3]))/((*worktransformlin[1])))*(((*response2p)-(*worktransformlin[2]))/((*worktransformlin[0]))) );
 
 
 
-    *workingweight = 1 - pow(rho,4);
+    *workingweight = 1-pow(rho2,2);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
       {
 
-        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[3])),2)/pow((*worktransformlin[1]),2) -
-                                 2*rho*(((*response)-(*worktransformlin[3]))/((*worktransformlin[1])))*(((*response)-(*worktransformlin[2]))/((*worktransformlin[0])))
-                                +  pow((((*response))-(*worktransformlin[2])),2)/pow((*worktransformlin[0]),2) );
+        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worklin[3])),2)/pow((*worktransformlin[1]),2) -
+                                 2*rho*(((*response)-(*worklin[3]))/((*worktransformlin[1])))*(((*response2p)-(*worklin[2]))/((*worktransformlin[0])))
+                                +  pow((((*response2p))-(*worklin[2])),2)/pow((*worktransformlin[0]),2) );
 
       }
 
@@ -6131,7 +6152,7 @@ double DISTR_bivnormal_sigma::loglikelihood_weightsone(double * response,
 //hier ist jetzt das problem, dass ich die aktuelle response gleichung brauche und die von dem mu2 oder sigma2
 
      l = -log(sigma) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[2])),2)/pow(sigma,2) -
-                                 2*(*worktransformlin[0])*(((*response)-(*worktransformlin[2]))/(sigma))*(((*response)-(*worktransformlin[3]))/((*worktransformlin[1]))) );
+                                 2*(*worktransformlin[0])*(((*response)-(*worktransformlin[2]))/(sigma))*(((*response2p)-(*worktransformlin[3]))/((*worktransformlin[1]))) );
 
 
   modify_worklin();
@@ -6166,15 +6187,15 @@ void DISTR_bivnormal_sigma::compute_iwls_wweightschange_weightsone(
     double sigma = exp((*linpred));
 
     double rho2 = pow((*worktransformlin[0]),2);
-    double oneminusrho2 = 1- pow((*worktransformlin[0]),2);
+    double oneminusrho2 = 1- rho2;
 
 
     double nu = -1 + (1/oneminusrho2)*(pow(((*response)-(*worklin[2])),2))/pow(sigma,2)
-                - ((*worktransformlin[0])/oneminusrho2)*(((*response)-(*worktransformlin[2]))/(sigma))*(((*response)-(*worktransformlin[3]))/((*worktransformlin[1])));
+                - ((*worktransformlin[0])/oneminusrho2)*(((*response)-(*worktransformlin[2]))/(sigma))*(((*response2p)-(*worklin[3]))/((*worktransformlin[1])));
 
 
 
-    *workingweight = 1/oneminusrho2;
+    *workingweight = 1+1/oneminusrho2;
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -6182,7 +6203,7 @@ void DISTR_bivnormal_sigma::compute_iwls_wweightschange_weightsone(
       {
 
         like +=  -log(sigma) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[2])),2)/pow(sigma,2) -
-                                 2*(*worktransformlin[0])*(((*response)-(*worktransformlin[2]))/(sigma))*(((*response)-(*worktransformlin[3]))/((*worktransformlin[1]))) );
+                                 2*(*worktransformlin[0])*(((*response)-(*worktransformlin[2]))/(sigma))*(((*response2p)-(*worklin[3]))/((*worktransformlin[1]))) );
 
       }
 
@@ -6316,10 +6337,10 @@ void DISTR_bivnormal_mu::compute_deviance_mult(vector<double *> response,
      *deviance=0;
    else
      {
-     double rho = (*linpred[0])/(1+pow((*linpred[0]),2));
+     double rho = (*linpred[0])/pow(1+pow((*linpred[0]),2),0.5);
      double sigma_2 = exp(*linpred[1]);
-     double mu_2 = (*linpred[2]);
-     double sigma_1 = exp(*linpred[3]);
+     double mu_2 = (*linpred[3]);
+     double sigma_1 = exp(*linpred[2]);
      double mu_1 = (*linpred[4]);
      double hilfs1 = 1-pow(rho,2);
      double l;
@@ -6386,13 +6407,12 @@ double DISTR_bivnormal_mu::loglikelihood_weightsone(double * response,
 
   double mu = (*linpred);
   double rho2 = pow((*worktransformlin[0]),2);
-  double oneminusrho2 = 1- pow((*worktransformlin[0]),2);
+  double oneminusrho2 = 1- rho2;
   double l;
 
-//hier ist jetzt das problem, dass ich die aktuelle response gleichung brauche und die von dem mu2 oder sigma2
 
      l = -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[2]),2) -
-                                 2*(*worktransformlin[0])*(((*response)-mu)/((*worktransformlin[2])))*(((*response)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
+                                 2*(*worktransformlin[0])*(((*response)-mu)/((*worktransformlin[2])))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
 
   modify_worklin();
 
@@ -6428,14 +6448,14 @@ void DISTR_bivnormal_mu::compute_iwls_wweightschange_weightsone(
     {
     set_worklin();
     }
-//hier bräuchte ich jetzt auch wieder y1 und y2
+
     double mu = (*linpred);
     double rho2 = pow((*worktransformlin[0]),2);
-   double oneminusrho2 = 1- pow((*worktransformlin[0]),2);
+   double oneminusrho2 = 1- rho2;
 
 
     double nu = (1/(oneminusrho2))*( (((*response))-mu)/pow((*worktransformlin[2]),2) -
-                                 ((*worktransformlin[0])/(*worktransformlin[2]))*(((*response)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
+                                 ((*worktransformlin[0])/(*worktransformlin[2]))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
 
     *workingweight = 1/(oneminusrho2*pow((*worktransformlin[2]),2));
 
@@ -6445,7 +6465,7 @@ void DISTR_bivnormal_mu::compute_iwls_wweightschange_weightsone(
       {
 
         like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[2]),2) -
-                                 2*(*worktransformlin[0])*(((*response)-mu)/((*worktransformlin[2])))*(((*response)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
+                                 2*(*worktransformlin[0])*(((*response)-mu)/((*worktransformlin[2])))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
 
       }
 
@@ -6457,7 +6477,6 @@ void DISTR_bivnormal_mu::compute_iwls_wweightschange_weightsone(
 
 void DISTR_bivnormal_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-      // der muss 2 dimensional sein!!
   *mu = ((*linpred[predstart_mumult+3+pos]));
   }
 

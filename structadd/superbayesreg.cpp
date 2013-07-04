@@ -2071,7 +2071,7 @@ bool superbayesreg::create_distribution(void)
            )
      {
 
-     computemodeforstartingvalues = true;
+    // computemodeforstartingvalues = true;
 
      unsigned pos;
      if (equationtype.getvalue()=="mean")
@@ -2105,15 +2105,16 @@ bool superbayesreg::create_distribution(void)
      if (equationtype.getvalue()=="mean")
        {
 
+
        predict_mult_distrs.push_back(&distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
        predict_mult_distrs.push_back(&distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-2]);
        predict_mult_distrs.push_back(&distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-1]);
-       predict_mult_distrs.push_back(&distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
        predict_mult_distrs.push_back(&distr_bivnormal_mus[distr_bivnormal_mus.size()-2]);
+       predict_mult_distrs.push_back(&distr_bivnormal_mus[distr_bivnormal_mus.size()-1]);
 
        distr_bivnormal_mus[distr_bivnormal_mus.size()-2].response2 = distr_bivnormal_mus[distr_bivnormal_mus.size()-1].response;
        distr_bivnormal_mus[distr_bivnormal_mus.size()-1].response2 = distr_bivnormal_mus[distr_bivnormal_mus.size()-2].response;
-       distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1].response2 = distr_bivnormal_mus[distr_bivnormal_sigmas.size()-1].response;
+       distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1].response2 = distr_bivnormal_mus[distr_bivnormal_sigmas.size()-2].response;
 
 
        distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1].distrp.push_back(
