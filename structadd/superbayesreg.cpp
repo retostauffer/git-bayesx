@@ -3470,7 +3470,7 @@ void superbayesreg::create_offset(unsigned i)
   if (equations[modnr].distrp->linpred_current==1)
     equations[modnr].distrp->linearpred1.plus(d);
   else
-    equations[modnr].distrp->linearpred1.plus(d);
+    equations[modnr].distrp->linearpred2.plus(d);
 
   equations[modnr].distrp->offsetname = terms[i].varnames[0];
 

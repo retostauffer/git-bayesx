@@ -1450,7 +1450,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     double im_var = compute_importancemeasure(false);
     optionsp->out("    Importance measures\n");
     optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
-    optionsp->out("      based on squared function values: " + ST::doubletostring(im_var,6) + "\n");
+    optionsp->out("      based on squared function values:  " + ST::doubletostring(im_var,6) + "\n");
     optionsp->out("\n");
 
     if (designp->intvar.rows()==designp->data.rows())
