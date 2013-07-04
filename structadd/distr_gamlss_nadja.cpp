@@ -6347,7 +6347,7 @@ void DISTR_bivnormal_mu::compute_deviance_mult(vector<double *> response,
 
        l = -log(2*PI)-log(sigma_1)-log(sigma_2)-0.5*log(hilfs1)-(1/(2*hilfs1))*( pow((((*response[4]))-mu_1),2)/pow(sigma_1,2) -
                                                                                 2*rho*(((*response[4])-mu_1)/(sigma_1))*(((*response[3])-mu_2)/(sigma_2))
-                                                                                - pow((((*response[3]))-mu_2),2)/pow(sigma_2,2) );
+                                                                                + pow((((*response[3]))-mu_2),2)/pow(sigma_2,2) );
 
 
     *deviance = -2*l;
