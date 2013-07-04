@@ -1327,7 +1327,10 @@ double FC_nonp::kernel_density(const double & x, const double & h)
   double n_j;
   double u;
   double x_j;
-  double K;
+  double Kd;
+
+//  ofstream out("c:\\bayesx\\trunk\\testh\\results\\test.res");
+
   for (j=0;j<designp->posbeg.size();j++)
     {
     x_j = designp->data(designp->posbeg[j],0);
@@ -1335,16 +1338,24 @@ double FC_nonp::kernel_density(const double & x, const double & h)
     if ( (u <= 1) && (u >= -1) )
       {
       n_j = designp->posend[j]-designp->posbeg[j]+1;
-      K = 3/4*(1-u*u);
-      sum += n_j * K;
-      }
+      Kd = 0.75*(1.0-u*u);
+      sum += n_j * Kd;
+
+//     out << n_j << endl;
+//     out << u << endl;
+//     out << x << endl;
+//     out << x_j << endl;
+//     out << Kd << endl;
+//     out << sum << endl << endl;
+     }
     }
 
+//  out.close();
   return 1/(n*h)*sum;
   }
 
 
-double FC_nonp::compute_importancemeasure(void)
+double FC_nonp::compute_importancemeasure(bool absolute)
   {
 //  ofstream out("c:\\bayesx\\trunk\\testh\\results\\test.res");
   double n = designp->data.rows();
@@ -1372,7 +1383,10 @@ double FC_nonp::compute_importancemeasure(void)
     diff = x_j - x_jm1;
     kd_xjm1 = kernel_density(x_jm1,h);
     kd_xj = kernel_density(x_j,h);
-    sum += diff* (fabs(betamean(j-1,0))* kd_xjm1 + fabs(betamean(j,0))*kd_xj)/2;
+    if (absolute)
+      sum += diff* (fabs(betamean(j-1,0))* kd_xjm1 + fabs(betamean(j,0))*kd_xj)/2;
+    else
+      sum += diff* (pow(betamean(j-1,0),2)* kd_xjm1 + pow(betamean(j,0),2)*kd_xj)/2;
 
  //   out << kd_xjm1 << endl;
  //   out << kd_xj << endl;
@@ -1432,9 +1446,11 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
-    double im_absolute = compute_importancemeasure();
+    double im_absolute = compute_importancemeasure(true);
+    double im_var = compute_importancemeasure(false);
     optionsp->out("    Importance measures\n");
     optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
+    optionsp->out("      based on squared function values: " + ST::doubletostring(im_var,6) + "\n");
     optionsp->out("\n");
 
     if (designp->intvar.rows()==designp->data.rows())
