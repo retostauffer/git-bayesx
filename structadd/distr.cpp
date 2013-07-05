@@ -126,8 +126,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 
   meaneffect = 0;
 
-  linpredminlimit = -10000000000;
-  linpredmaxlimit =  10000000000;
+  linpredminlimit = -1000000000;
+  linpredmaxlimit =  1000000000;
 
   check_errors();
 

@@ -372,8 +372,8 @@ void superbayesreg::create_hregress(void)
   nrbetween = intoption("nrbetween",1000000,1,2000000);
 
   changelinpredlimits = simpleoption("changelinpredlimits",false);
-  linpredminlimit = doubleoption("linpredminlimit",-10000000000,-10000000000,10000000000);
-  linpredmaxlimit = doubleoption("linpredmaxlimit",10000000000,-10000000000,10000000000);
+  linpredminlimit = doubleoption("linpredminlimit",-1000000000,-1000000000,1000000000);
+  linpredmaxlimit = doubleoption("linpredmaxlimit",1000000000,-1000000000,1000000000);
   saveestimation = simpleoption("saveestimation",false);
 
   regressoptions.reserve(200);
@@ -3251,10 +3251,10 @@ bool superbayesreg::create_distribution(void)
   if (changelinpredlimits.getvalue() == true)
     {
     double min = linpredminlimit.getvalue();
-    if (min == -10000000000)
+    if (min == -1000000000)
       min = equations[modnr].distrp->linpredminlimit;
     double max = linpredmaxlimit.getvalue();
-    if (max == 10000000000)
+    if (max == 1000000000)
       max = equations[modnr].distrp->linpredmaxlimit;
 
     equations[modnr].distrp->changelimits(min,max);
