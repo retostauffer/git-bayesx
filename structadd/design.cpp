@@ -895,6 +895,55 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
   }
 
 
+double DESIGN::compute_kernel_intvar(void)
+  {
+  unsigned j;
+
+  double n =intvar.rows();
+
+  statmatrix<int> intindex = statmatrix<int>(intvar.rows(),1);
+  intindex.indexinit();
+  intvar.indexsort(intindex,0,intvar.rows(),0,0);
+
+  vector<int> posb;
+  vector<int> pose;
+
+  posb.push_back(0);
+  double * workint = intvar.getV()+1;
+  double help = intvar(0,0);
+  for(j=1;j<intvar.rows();j++,workint++)
+    {
+    if (  *workint != help)
+      {
+      pose.push_back(j-1);
+      if (j < intvar.rows())
+        posb.push_back(j);
+      }
+
+    help = *workint;
+
+    }
+
+  if (pose.size() < posb.size())
+    pose.push_back(intvar.rows()-1);
+
+  double sum;
+  if (posb.size() <= 10)
+    {
+
+    sum=0;
+    double pr = 0;
+    for (j=0;j<posb.size();j++)
+      {
+      pr = (pose[j]-posb[j]+1)/n;
+      sum += pr*fabs(intvar(intindex(posb[j],0),0));
+      }
+    }
+
+  return sum;
+  }
+
+
 void DESIGN::compute_effect(datamatrix & effect,datamatrix & f,
                             effecttype2 et)
   {
